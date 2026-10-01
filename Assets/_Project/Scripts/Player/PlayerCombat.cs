@@ -1,213 +1,385 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Punching, grabbing, carrying and throwing, plus using summoned weapons.</summary>
+    /// <summary>Punching, grabbing, carrying and throwing, using summoned weapons, blocking with a PLATE and reviving teammates.</summary>
     [RequireComponent(typeof(PlayerController))]
     public class PlayerCombat : MonoBehaviour
     {
-        [Header("Punch")]
-        [SerializeField] float punchCooldown = 0.35f;
-        [SerializeField] float punchReach = 0.85f;
-        [SerializeField] float punchRadius = 0.65f;
-        [SerializeField] float punchKnockback = 7f;
-        [SerializeField] float punchDamage = 12f;
+        // The punch's numbers are the mode's "unarmed" block in rules.json.
 
         [Header("Grab and throw")]
         [SerializeField] float grabReach = 0.8f;
         [SerializeField] float grabRadius = 0.9f;
-        [Tooltip("Carrying something this heavy (or heavier) halves your speed. Lighter things slow you less.")]
-        [SerializeField] float heavyMass = 16f;
+        [SerializeField] float maxCarryMass = 6f;
         [SerializeField] float throwSpeed = 13f;
         [Tooltip("A carried player wriggles free after this long.")]
         [SerializeField] float struggleTime = 1.6f;
+        [Tooltip("Damage a thrown player takes on release.")]
+        [SerializeField] float thrownPlayerDamage = 6f;
 
         PlayerController controller;
         float nextAttack;
         Rigidbody held;
         PlayerController heldPlayer;
         HeldWeapon weapon;
+        HeldWeapon storedGear;
+        bool deploying, punching;
         Transform heldHomeParent;
         float heldSince;
-        static readonly Collider[] Hits = new Collider[48];
+        /// <summary>When block went down with a shield in hand; the shield is up once its raise time has passed.</summary>
+        float raiseStartedAt = -1f;
+        PlayerController reviving;
+        static readonly Collider[] Overlaps = new Collider[48];
+        static readonly RaycastHit[] Obstructions = new RaycastHit[32];
+        readonly HashSet<Rigidbody> struck = new();
 
-        // Carrying furniture and players (weapons ride in the hand instead).
-        const float HandHeight = 0.6f, HeadTop = 1.35f;
-        bool overhead;
-        Vector3 carrySize;      // the held thing's size along its own axes
-        Vector3 pivotToCentre;  // from its pivot to its visual centre, in its own space
+        /// <summary>Hits closer than this skip the arc check: they're inside the attacker.</summary>
+        const float PointBlank = 0.25f;
 
         /// <summary>Something (or someone) was thrown.</summary>
         public event System.Action<Rigidbody> Thrown;
 
         public bool IsHolding => held;
-        /// <summary>True when the held thing is lifted over the head (heavy things and other players).</summary>
-        public bool IsOverhead => held && !weapon && overhead;
         public Rigidbody Held => held;
         public HeldWeapon Weapon => held ? weapon : null;
+        public HeldWeapon StoredGear => storedGear;
+        public bool IsDeploying => deploying;
+        public bool IsChanneling => deploying || punching || (Weapon && Weapon.IsUsing);
+        public bool HasFreeGearSlot => (Weapon ? 1 : 0) + (storedGear ? 1 : 0)
+            + (controller.Summoner && controller.Summoner.IsCrafting ? 1 : 0) < controller.Health.Rules.MaxCarried;
+        /// <summary>A PLATE is up: hits from the front are blocked.</summary>
+        public bool IsBlocking => controller.Health.RaisedShield != null;
+        public bool IsReviving => reviving;
+        /// <summary>The downed teammate being revived, or null.</summary>
+        public PlayerController Reviving => reviving;
 
         void Awake() => controller = GetComponent<PlayerController>();
 
         void Start()
         {
-            controller.Health.Hit += (_, _) => Drop();
-            controller.Health.KnockedOut += _ => Drop();
+            var health = controller.Health;
+            controller.Dodged += _ => CancelChannels();
+            health.Damaged += (_, _, r) =>
+            {
+                if (r.Blocked) WearShield(r.BlockedDamage);
+                if (r.HitStun > 0f) CancelChannels();
+                // A staggering hit knocks a carried thing out of the hands; weapons are gripped tighter.
+                if (r.HitStun > 0f && held && !weapon) Drop();
+            };
+            health.KnockedOut += _ =>
+            {
+                CancelChannels();
+                StopReviving();
+                DropAllGear();
+            };
         }
+
+        void CancelChannels()
+        {
+            StopAllCoroutines();
+            deploying = punching = false;
+            StopReviving();
+            controller.MoveScale = 1f;
+            if (Weapon) Weapon.CancelUse();
+        }
+
+        void OnDisable() { if (controller) { CancelChannels(); StopReviving(); } }
 
         void Update()
         {
             if (held == null && (heldPlayer || weapon)) ClearHeld();
-            controller.CarryScale = held && !weapon ? Mathf.Lerp(1f, 0.5f, Mathf.Clamp01(held.mass / heavyMass)) : 1f;
             if (heldPlayer && Time.time - heldSince > struggleTime) Drop();
 
-            if (!controller.CanAct || (controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.JustClosed))) return;
             var c = controller.Commands;
-            if (c.grab) GrabOrPutDown();
-            if (c.attack) Attack();
+            bool free = controller.CanAct && !controller.IsDodging && !deploying && !(controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.IsCrafting));
+            UpdateRevive(free && c.grabHeld);
+            UpdateBlock(free && c.blockHeld && !reviving);
+            if (!free || reviving) return;
+
+            if (c.drop) Drop();
+            if (c.swap) SwitchGear();
+            if (c.deploy) DeployHeld();
+            if (c.grab) GrabOrThrow();
+            // No swinging from behind a raised (or rising) shield.
+            if (c.attack && raiseStartedAt < 0f) Attack();
+        }
+
+        // ---- Blocking ----
+
+        void UpdateBlock(bool wanted)
+        {
+            var shield = wanted && Weapon ? Weapon.Shield : null;
+            if (shield == null)
+            {
+                if (IsBlocking && Weapon) Weapon.ShowRaised(false);
+                raiseStartedAt = -1f;
+                controller.Health.RaisedShield = null;
+                return;
+            }
+            if (raiseStartedAt < 0f) raiseStartedAt = Time.time;
+            bool up = Time.time - raiseStartedAt >= shield.RaiseSeconds;
+            if (up != IsBlocking) Weapon.ShowRaised(up);
+            controller.Health.RaisedShield = up ? shield : null;
+        }
+
+        /// <summary>Blocked damage wears the PLATE down. Worn through, it falls apart and the block drops with it (see <see cref="ClearHeld"/>).</summary>
+        void WearShield(float blocked)
+        {
+            if (Weapon && Weapon.Shield != null) Weapon.Wear(blocked, this);
+        }
+
+        // ---- Reviving ----
+
+        /// <summary>The nearest downed teammate within the rules' revive range, or null.</summary>
+        public PlayerController DownedTeammateNearby()
+        {
+            float range = controller.Health.Rules.ReviveRange;
+            float bestSq = range * range;
+            PlayerController best = null;
+            foreach (var p in World.Players)
+            {
+                if (p == controller || !p.IsDowned || p.IsHeld || !Teams.AreTeammates(p.Team, controller.Team)) continue;
+                float d = World.Flat(p.transform.position - transform.position).sqrMagnitude;
+                if (d > bestSq || !HasClearInteractionPath(p.Body, p.Body.worldCenterOfMass)) continue;
+                bestSq = d;
+                best = p;
+            }
+            return best;
+        }
+
+        /// <summary>Starts reviving the nearest downed teammate. Grab has to stay held until it finishes.</summary>
+        public bool TryRevive()
+        {
+            if (!controller.CanAct || controller.IsDodging || IsChanneling || (controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.IsCrafting))) return false;
+            var target = DownedTeammateNearby();
+            if (!target || !target.Health.BeginRevive(controller)) return false;
+            reviving = target;
+            controller.FaceTowards(target.transform.position - transform.position);
+            return true;
+        }
+
+        void UpdateRevive(bool keepGoing)
+        {
+            if (!reviving)
+            {
+                reviving = null;
+                return;
+            }
+            // A little slack, so the teammate's crawl doesn't break it off at the edge of reach.
+            float range = controller.Health.Rules.ReviveRange + 0.3f;
+            var to = World.Flat(reviving.transform.position - transform.position);
+            if (!keepGoing || !reviving.IsDowned || reviving.IsHeld || to.sqrMagnitude > range * range
+                || !HasClearInteractionPath(reviving.Body, reviving.Body.worldCenterOfMass))
+            {
+                StopReviving();
+                return;
+            }
+            controller.FaceTowards(to);
+            if (reviving.Health.TryFinishRevive(controller)) reviving = null;
+        }
+
+        void StopReviving()
+        {
+            if (reviving) reviving.Health.CancelRevive(controller);
+            reviving = null;
         }
 
         // ---- Attacking ----
 
         public void Attack()
         {
-            if (Time.time < nextAttack) return;
-            if (Weapon)
+            if (!controller.CanAct || controller.IsDodging || IsChanneling || IsReviving || raiseStartedAt >= 0f
+                || (controller.Summoner && (controller.Summoner.IsCrafting || controller.Summoner.IsSpelling)) || Time.time < nextAttack) return;
+            if (Weapon && Weapon.Shield == null)
             {
-                nextAttack = Time.time + Weapon.cooldown;
+                nextAttack = Time.time + Weapon.Cooldown;
                 controller.PlayPunch();
-                Sfx.Play(Sound.Punch, transform.position);
                 Weapon.Use(this);
                 return;
             }
-            if (held) { Throw(); return; }
+            // Carried things are thrown; with a PLATE in one hand, the other still punches.
+            if (held && !Weapon) { Throw(); return; }
 
-            nextAttack = Time.time + punchCooldown;
+            var fist = controller.Health.Rules.Unarmed;
+            nextAttack = Time.time + fist.Cycle;
             controller.PlayPunch();
-            Sfx.Play(Sound.Punch, transform.position, 0.8f);
-            Strike(punchReach, punchRadius, punchKnockback, punchDamage, -1);
+            controller.GetComponent<PlayerAppearance>()?.Play("Swing_OneHand", fist.Cycle);
+            StartCoroutine(PunchAfterWindup(fist));
         }
 
-        /// <summary>Hits everything in a sphere in front of the player. Returns how many players were hit.</summary>
-        public int Strike(float reach, float radius, float knockback, float damage, int letters)
+        IEnumerator PunchAfterWindup(MeleeStats stats)
         {
-            var centre = transform.position + Vector3.up * 0.8f + controller.Facing * reach;
-            int n = Physics.OverlapSphereNonAlloc(centre, radius, Hits, ~0, QueryTriggerInteraction.Ignore);
-            var seen = new HashSet<Rigidbody>();
+            punching = true;
+            yield return new WaitForSeconds(stats.Windup);
+            float ends = Time.time + stats.Active;
+            bool firstFrame = true;
+            do
+            {
+                if (!controller.CanAct || controller.IsDodging || IsReviving || IsBlocking || (held && !Weapon)) break;
+                Strike(stats, null, firstFrame);
+                firstFrame = false;
+                yield return null;
+            } while (Time.time < ends);
+            yield return new WaitForSeconds(stats.Recovery);
+            punching = false;
+        }
+
+        /// <summary>
+        /// Hits everything within reach of the chest and inside the swing's arc: players take the
+        /// stats' damage, furniture takes its break power. Returns how many players were hit.
+        /// </summary>
+        public int Strike(MeleeStats stats, string itemId, bool beginSwing = true)
+        {
+            var chest = transform.position + Vector3.up * 0.8f;
+            var facing = controller.Facing;
+            int mask = World.TileLayer >= 0 ? ~(1 << World.TileLayer) : ~0;
+            int n = Physics.OverlapSphereNonAlloc(chest, stats.Reach, Overlaps, mask, QueryTriggerInteraction.Ignore);
+            var hits = Overlaps;
+            // Preserve hit correctness in dense prop clusters; ordinary swings reuse the fixed buffer.
+            if (n == hits.Length) { hits = Physics.OverlapSphere(chest, stats.Reach, mask, QueryTriggerInteraction.Ignore); n = hits.Length; }
+            if (beginSwing) struck.Clear();
             int playersHit = 0;
 
             for (int i = 0; i < n; i++)
             {
-                var rb = Hits[i].attachedRigidbody;
-                if (!rb || rb == controller.Body || rb == held || !seen.Add(rb)) continue;
+                var col = hits[i];
+                var rb = col.attachedRigidbody;
+                if (!rb || rb == controller.Body || rb == held || struck.Contains(rb)) continue;
 
+                // Aim at the nearest part of the thing, so a sofa counts when its arm is in front.
+                var to = World.Flat(ClosestPoint(col, chest) - chest);
+                if (to.sqrMagnitude > PointBlank * PointBlank && !Geometry.InFrontArc(facing.x, facing.z, to.x, to.z, stats.ArcDegrees))
+                    continue;
+                if (!HasClearInteractionPath(rb, ClosestPoint(col, chest))) continue;
+                struck.Add(rb);
+
+                var dir = World.Flat(rb.position - transform.position);
+                var hit = Hits.Melee(controller, dir.sqrMagnitude > 0.01f ? dir : facing, stats, itemId);
                 if (rb.TryGetComponent(out PlayerHealth victim))
                 {
-                    var dir = World.Flat(rb.position - transform.position);
-                    if (victim.TakeHit(dir.sqrMagnitude > 0.01f ? dir : controller.Facing, knockback, letters, controller))
-                        playersHit++;
+                    if (victim.ApplyDamage(hit)) playersHit++;
                     continue;
                 }
-                if (rb.TryGetComponent(out Smashable smash)) smash.TakeHit(damage);
+                if (rb.TryGetComponent(out IDamageable target)) target.ApplyDamage(hit);
                 if (rb && !rb.isKinematic)
-                    rb.AddForce((controller.Facing + Vector3.up * 0.4f) * knockback * 0.5f, ForceMode.VelocityChange);
+                    rb.AddForce((facing + Vector3.up * 0.4f) * stats.Knockback * Hits.KnockbackSpeed * 0.5f, ForceMode.VelocityChange);
             }
             return playersHit;
         }
 
+        static Vector3 ClosestPoint(Collider col, Vector3 point)
+        {
+            // ClosestPoint only works on primitives and convex meshes.
+            if (col is MeshCollider { convex: false }) return col.bounds.ClosestPoint(point);
+            return col.ClosestPoint(point);
+        }
+
+        /// <summary>Room geometry and placed cover interrupt a reach; loose objects and visual colliders don't.</summary>
+        bool HasClearInteractionPath(Rigidbody target, Vector3 destination)
+        {
+            // The grab query is ahead of the player and can already be beyond a thin wall.
+            // Every visibility ray therefore starts at the player's chest, never at that query centre.
+            var origin = transform.position + Vector3.up * .8f;
+            var delta = destination - origin;
+            float distance = delta.magnitude;
+            if (distance < .001f) return true;
+            int mask = World.GroundMask & Physics.DefaultRaycastLayers;
+            int count = Physics.RaycastNonAlloc(origin, delta / distance, Obstructions, distance, mask, QueryTriggerInteraction.Ignore);
+            var hits = Obstructions;
+            if (count == hits.Length)
+            {
+                hits = Physics.RaycastAll(origin, delta / distance, distance, mask, QueryTriggerInteraction.Ignore);
+                count = hits.Length;
+            }
+            for (int i = 0; i < count; i++)
+            {
+                var collider = hits[i].collider;
+                if (!collider || collider.transform.IsChildOf(transform) || collider.transform.IsChildOf(target.transform)) continue;
+                var body = collider.attachedRigidbody;
+                if (body)
+                {
+                    if (body == controller.Body || body == target || body == held || body.GetComponent<PlayerController>() || body.GetComponent<LetterTile>()) continue;
+                    var cover = body.GetComponent<HeldWeapon>();
+                    if (!body.isKinematic || !cover || cover.Definition?.Deploy?.Effect != DeployEffect.Cover) continue;
+                }
+                return false;
+            }
+            return true;
+        }
+
         // ---- Grabbing ----
 
-        /// <summary>Grab picks things up and puts them down; attack throws them.</summary>
-        void GrabOrPutDown()
+        /// <summary>Throws what's held. Empty-handed, a downed teammate in reach comes first, then the nearest thing to pick up.</summary>
+        void GrabOrThrow()
         {
-            if (held) PutDown();
-            else TryGrab();
-        }
-
-        /// <summary>
-        /// Sets the held thing down gently in front: on the floor, or on top of whatever is there.
-        /// It comes closer if a wall is in the way, and keeps facing outwards.
-        /// </summary>
-        public void PutDown()
-        {
-            if (!held) return;
-            Sfx.Play(Sound.PutDown, transform.position);
-            var facing = controller.Facing;
-            var feet = controller.Body.position;
-
-            if (heldPlayer)
-            {
-                var friend = heldPlayer;
-                var spot = ClearSpot(feet, facing, 0.9f, 0.45f);
-                Release(Vector3.zero);
-                friend.transform.position = spot;
-                friend.Body.position = spot;
-                friend.Body.linearVelocity = Vector3.zero;
-                return;
-            }
-            if (weapon)
-            {
-                Release(Vector3.zero);
-                return;
-            }
-
-            var rb = held;
-            var rot = CarryRotation;
-            float halfDepth = carrySize.z * 0.5f;
-            var at = ClearSpot(feet, facing, 0.5f + halfDepth, halfDepth);
-            float floor = feet.y;
-            if (Physics.Raycast(at + Vector3.up * 3f, Vector3.down, out var hit, 6f, World.GroundMask, QueryTriggerInteraction.Ignore))
-                floor = hit.point.y;
-            var centre = new Vector3(at.x, floor + carrySize.y * 0.5f + 0.02f, at.z);
-            var pos = centre - rot * pivotToCentre;
-
-            Release(Vector3.zero);
-            rb.transform.SetPositionAndRotation(pos, rot);
-            rb.position = pos;
-            rb.rotation = rot;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
-
-        /// <summary>A point <paramref name="distance"/> in front, pulled back if a wall or furniture is closer.</summary>
-        Vector3 ClearSpot(Vector3 feet, Vector3 facing, float distance, float halfDepth)
-        {
-            var origin = feet + Vector3.up * 0.5f;
-            if (Physics.Raycast(origin, facing, out var hit, distance + halfDepth, World.GroundMask, QueryTriggerInteraction.Ignore)
-                && hit.rigidbody == null) // walls only; furniture gets things stacked on top
-                distance = Mathf.Max(0.3f, hit.distance - halfDepth - 0.05f);
-            return feet + facing * distance;
+            if (held) Throw();
+            else if (!TryRevive()) TryGrab();
         }
 
         public bool TryGrab()
         {
+            if (!controller.CanAct || controller.IsDodging || IsChanneling || (controller.Summoner && controller.Summoner.IsCrafting)) return false;
             var centre = transform.position + Vector3.up * 0.6f + controller.Facing * grabReach;
-            int n = Physics.OverlapSphereNonAlloc(centre, grabRadius, Hits, ~0, QueryTriggerInteraction.Ignore);
+            int mask = World.TileLayer >= 0 ? ~(1 << World.TileLayer) : ~0;
+            int n = Physics.OverlapSphereNonAlloc(centre, grabRadius, Overlaps, mask, QueryTriggerInteraction.Ignore);
+            var hits = Overlaps;
+            if (n == hits.Length) { hits = Physics.OverlapSphere(centre, grabRadius, mask, QueryTriggerInteraction.Ignore); n = hits.Length; }
             Rigidbody best = null;
             float bestSq = float.MaxValue;
 
             for (int i = 0; i < n; i++)
             {
-                var rb = Hits[i].attachedRigidbody;
-                if (!rb || rb == controller.Body || rb.isKinematic || rb.GetComponent<LetterTile>()) continue;
+                var rb = hits[i].attachedRigidbody;
+                if (!rb || rb == controller.Body || (rb.isKinematic && !rb.GetComponent<HeldWeapon>()) || rb.GetComponent<LetterTile>()) continue;
+                if (rb.TryGetComponent(out HeldWeapon gear) && (gear.IsSpent || !HasFreeGearSlot)) continue;
+                bool isPlayer = rb.GetComponent<PlayerController>();
+                if (!isPlayer && rb.mass > maxCarryMass) continue;
+                if (!HasClearInteractionPath(rb, ClosestPoint(hits[i], transform.position + Vector3.up * .8f))) continue;
                 float d = (rb.worldCenterOfMass - centre).sqrMagnitude;
                 if (d < bestSq) { bestSq = d; best = rb; }
             }
             if (!best) return false;
+            if (best.TryGetComponent(out HeldWeapon pickedGear)) return TryEquip(pickedGear);
             Pick(best);
             return true;
         }
 
-        /// <summary>Equips a freshly summoned weapon, dropping whatever was held.</summary>
-        public void Equip(HeldWeapon w)
+        /// <summary>Equips gear in a free slot, keeping the other crafted item intact.</summary>
+        public void Equip(HeldWeapon w) => TryEquip(w);
+
+        public bool TryEquip(HeldWeapon w)
         {
-            Drop();
+            if (!w || w.IsSpent || !HasFreeGearSlot || (controller.Summoner && controller.Summoner.IsCrafting)) return false;
+            if (Weapon)
+            {
+                storedGear = Weapon;
+                ClearHeld();
+                storedGear.gameObject.SetActive(false);
+            }
+            else if (held) Drop();
             Pick(w.GetComponent<Rigidbody>());
+            return true;
+        }
+
+        public bool SwitchGear()
+        {
+            if (!controller.CanAct || controller.IsDodging || deploying || (controller.Summoner && controller.Summoner.IsCrafting) || !storedGear || (held && !Weapon)) return false;
+            var next = storedGear;
+            var previous = Weapon;
+            storedGear = previous;
+            ClearHeld();
+            if (previous) previous.gameObject.SetActive(false);
+            next.gameObject.SetActive(true);
+            Pick(next.GetComponent<Rigidbody>());
+            return true;
         }
 
         void Pick(Rigidbody rb)
         {
-            Sfx.Play(Sound.Grab, transform.position);
             held = rb;
             heldSince = Time.time;
             heldHomeParent = rb.transform.parent;
@@ -216,12 +388,7 @@ namespace Wreckabulary
             if (rb.TryGetComponent(out PlayerController other))
             {
                 heldPlayer = other;
-                other.SetHeld(true);
-                overhead = true;
-                // Carried lying across the shoulders: their height runs sideways.
-                carrySize = new Vector3(1.24f, 0.84f, 0.84f);
-                pivotToCentre = new Vector3(0f, 0.62f, 0f);
-                SnapToCarry();
+                other.SetHeld(true, controller.overheadPoint);
                 return;
             }
 
@@ -230,100 +397,98 @@ namespace Wreckabulary
             if (weapon)
             {
                 rb.transform.SetParent(controller.handR, false);
-                rb.transform.localPosition = Vector3.zero;
+                weapon.OnHeld(this);
+                var grip = weapon.Definition?.Grip;
+                rb.transform.localPosition = grip == null ? Vector3.zero : -new Vector3(grip[0], grip[1], grip[2]) * weapon.Definition.HeldScale;
                 rb.transform.localRotation = weapon.HoldRotation;
                 return;
             }
 
-            // Measure it along its own axes, then decide how to carry it.
-            rb.transform.rotation = Quaternion.identity;
-            var b = RenderBounds(rb);
-            carrySize = b.size;
-            pivotToCentre = b.center - rb.transform.position;
-            overhead = rb.mass > 2.5f || carrySize.y > 1.2f || carrySize.x > 1.6f;
-            SnapToCarry();
+            var point = rb.mass > 2.5f ? controller.overheadPoint : controller.holdPoint;
+            rb.transform.rotation = Quaternion.LookRotation(controller.Facing);
+            var offset = rb.transform.position - BoundsCentre(rb);
+            rb.transform.position = point.position + offset;
+            rb.transform.SetParent(point, true);
         }
 
-        /// <summary>Front carry: at the hands, letters facing out. Players lie across the shoulders.</summary>
-        Quaternion CarryRotation => heldPlayer
-            ? Quaternion.LookRotation(controller.Facing) * Quaternion.Euler(0f, 0f, 90f)
-            : Quaternion.LookRotation(-controller.Facing);
-
-        Vector3 CarryCentre(Vector3 at) => overhead
-            ? at + Vector3.up * (HeadTop + carrySize.y * 0.5f) + controller.Facing * 0.05f
-            : at + Vector3.up * Mathf.Max(0.85f, HandHeight + carrySize.y * 0.5f) + controller.Facing * (0.45f + carrySize.z * 0.5f);
-
-        void SnapToCarry()
-        {
-            var rot = CarryRotation;
-            var pos = CarryCentre(controller.Body.position) - rot * pivotToCentre;
-            held.transform.SetPositionAndRotation(pos, rot);
-            held.position = pos;
-            held.rotation = rot;
-        }
-
-        void FixedUpdate()
-        {
-            if (!held || weapon) return;
-            // Moved as a kinematic body rather than parented, so it doesn't squash and wobble with the body.
-            var rot = CarryRotation;
-            held.MovePosition(CarryCentre(controller.Body.position) - rot * pivotToCentre);
-            held.MoveRotation(rot);
-        }
-
-        /// <summary>
-        /// Where the hands go on the thing being carried: gripping its sides, or holding it up from underneath.
-        /// Read by the body animation, so hands are placed in one spot each frame.
-        /// </summary>
-        public bool TryGetGrips(out Vector3 left, out Vector3 right)
-        {
-            left = right = default;
-            if (!held || weapon) return false;
-            var t = held.transform;
-            var centre = t.position + t.rotation * pivotToCentre;
-            var side = Vector3.Cross(Vector3.up, controller.Facing).normalized;
-            Vector3 grip;
-            float half;
-            if (overhead)
-            {
-                grip = centre - Vector3.up * (carrySize.y * 0.5f);
-                half = Mathf.Min(carrySize.x * 0.4f, 0.45f);
-            }
-            else
-            {
-                grip = centre;
-                half = Mathf.Min(carrySize.x * 0.5f + 0.06f, 0.7f);
-            }
-            left = grip - side * half;
-            right = grip + side * half;
-            return true;
-        }
-
-        /// <summary>Throws what's held. Thrown players lose letters as if hit.</summary>
+        /// <summary>Throws what's held. Thrown players take a knock as they go.</summary>
         public void Throw()
         {
-            if (!held) return;
-            nextAttack = Time.time + punchCooldown;
+            if (!held || !controller.CanAct || controller.IsDodging || deploying || IsReviving || (controller.Summoner && controller.Summoner.IsCrafting)) return;
+            nextAttack = Time.time + controller.Health.Rules.Unarmed.Cycle;
             controller.PlayPunch();
-            float speed = throwSpeed * Mathf.Lerp(1f, 0.55f, Mathf.Clamp01(held.mass / heavyMass));
-            var velocity = controller.Facing * speed + Vector3.up * 4f + World.Flat(controller.Body.linearVelocity) * 0.5f;
+            var gear = Weapon;
+            var thrownStats = gear ? gear.Definition?.Thrown : null;
+            float speed = thrownStats != null ? thrownStats.Speed : throwSpeed * Mathf.Lerp(1f, 0.65f, Mathf.Clamp01(held.mass / maxCarryMass));
+            var velocity = controller.Facing * speed + Vector3.up * (thrownStats != null && !thrownStats.Lob ? 0.3f : 4f) + World.Flat(controller.Body.linearVelocity) * 0.5f;
 
             if (heldPlayer)
             {
                 var victim = heldPlayer;
                 Release(velocity);
-                victim.Health.TakeHit(controller.Facing, 0f, -1, controller);
+                victim.Health.ApplyDamage(Hits.Of(controller, controller.Facing, HitSource.Thrown, thrownPlayerDamage, 0f, hitStun: 0.35f));
                 victim.Body.linearVelocity = velocity;
                 ThrowTracker.Attach(victim.gameObject, controller, 1.2f);
                 Thrown?.Invoke(victim.Body);
-                Sfx.Play(Sound.Throw, transform.position);
                 return;
             }
             var rb = held;
-            Release(velocity);
-            ThrowTracker.Attach(rb.gameObject, controller, 1.5f);
+            Release(velocity, gear != null);
+            if (gear && thrownStats != null) ThrownGear.Attach(gear, controller);
+            else ThrowTracker.Attach(rb.gameObject, controller, 1.5f);
             Thrown?.Invoke(rb);
-            Sfx.Play(Sound.Throw, transform.position);
+        }
+
+        public bool DeployHeld()
+        {
+            var gear = Weapon;
+            var item = gear ? gear.Definition : null;
+            if (!controller.CanAct || controller.IsDodging || IsReviving || IsChanneling || (controller.Summoner && (controller.Summoner.IsCrafting || controller.Summoner.IsSpelling))
+                || item == null || (item.Deploy == null && !(item.Thrown != null && item.Thrown.FuseSeconds > 0f))) return false;
+            if (DeployedGear.CountFor(controller) >= controller.Health.Rules.MaxDeployed) return false;
+            StartCoroutine(PlaceAfterChannel(gear));
+            return true;
+        }
+
+        IEnumerator PlaceAfterChannel(HeldWeapon gear)
+        {
+            deploying = true;
+            controller.GetComponent<PlayerAppearance>()?.Play("Place", gear.Definition.Deploy?.PlaceSeconds ?? 0.3f);
+            controller.MoveScale = controller.Health.Rules.CraftMoveSpeed;
+            float ready = Time.time + (gear.Definition.Deploy?.PlaceSeconds ?? 0f);
+            while (Time.time < ready)
+            {
+                if (!controller.CanAct || controller.IsDodging || Weapon != gear) { deploying = false; controller.MoveScale = 1f; yield break; }
+                yield return null;
+            }
+            deploying = false;
+            controller.MoveScale = 1f;
+            if (!controller.CanAct || controller.IsDodging || Weapon != gear || DeployedGear.CountFor(controller) >= controller.Health.Rules.MaxDeployed) yield break;
+            ApplyDeployment(gear);
+        }
+
+        void ApplyDeployment(HeldWeapon gear)
+        {
+            var item = gear.Definition;
+            var body = held;
+            Release(Vector3.zero);
+            body.position = transform.position + controller.Facing * 1.6f;
+            body.rotation = Quaternion.LookRotation(controller.Facing);
+            if (item.Thrown != null)
+            {
+                DeployedGear.Register(gear.gameObject, controller);
+                ThrownGear.Attach(gear, controller);
+                return;
+            }
+            if (item.Consumable)
+            {
+                gear.MarkSpent();
+                SlipZone.Create(body.position, item, controller);
+                Destroy(gear.gameObject);
+                return;
+            }
+            body.isKinematic = true;
+            DeployedGear.Attach(gear, controller);
         }
 
         /// <summary>Lets go of whatever is held without throwing it.</summary>
@@ -332,18 +497,41 @@ namespace Wreckabulary
             if (held) Release(World.Flat(controller.Body.linearVelocity));
         }
 
+        void DropAllGear()
+        {
+            Drop();
+            if (!storedGear) return;
+            var gear = storedGear;
+            storedGear = null;
+            gear.gameObject.SetActive(true);
+            gear.transform.SetParent(World.Transient, true);
+            gear.OnReleased();
+            gear.transform.position = transform.position - controller.Facing * 0.8f + Vector3.up;
+            var body = gear.GetComponent<Rigidbody>();
+            body.isKinematic = false;
+            SetCollidersEnabled(body, true);
+            body.linearVelocity = Vector3.zero;
+        }
+
         /// <summary>Round reset: summoned weapons vanish, everything else is let go.</summary>
         public void ResetForRound()
         {
+            StopAllCoroutines();
+            deploying = punching = false;
+            controller.MoveScale = 1f;
+            StopReviving();
             if (held && weapon) Destroy(held.gameObject);
             else Drop();
+            if (storedGear) Destroy(storedGear.gameObject);
+            storedGear = null;
+            nextAttack = 0f;
             ClearHeld();
         }
 
         /// <summary>Called by a weapon when it runs out of uses.</summary>
         public void ForgetHeld() => ClearHeld();
 
-        void Release(Vector3 velocity)
+        void Release(Vector3 velocity, bool thrown = false)
         {
             var rb = held;
             var p = heldPlayer;
@@ -352,12 +540,16 @@ namespace Wreckabulary
             if (p)
             {
                 p.SetHeld(false);
+                p.transform.position = transform.position + controller.Facing * 0.9f + Vector3.up * 1.2f;
                 p.Body.linearVelocity = velocity;
                 return;
             }
-            if (rb.GetComponent<HeldWeapon>())
+            // A stored slot remains parented to a hand. Released crafted gear always belongs to the room.
+            rb.transform.SetParent(rb.GetComponent<HeldWeapon>() ? World.Transient : heldHomeParent ? heldHomeParent : null, true);
+            if (rb.TryGetComponent(out HeldWeapon released))
             {
-                rb.transform.SetParent(heldHomeParent ? heldHomeParent : null, true);
+                if (thrown) released.OnThrown(controller);
+                else released.OnReleased();
                 rb.transform.position = transform.position + controller.Facing * 0.8f + Vector3.up * 1f;
             }
             rb.isKinematic = false;
@@ -371,20 +563,25 @@ namespace Wreckabulary
             held = null;
             heldPlayer = null;
             weapon = null;
+            // Whatever was held, it isn't a raised shield any more.
+            raiseStartedAt = -1f;
+            if (controller && controller.Health) controller.Health.RaisedShield = null;
         }
 
         static void SetCollidersEnabled(Rigidbody rb, bool on)
         {
-            foreach (var c in rb.GetComponentsInChildren<Collider>(true)) c.enabled = on;
+            // Imported visual colliders remain disabled; only the authored gameplay collider participates.
+            var colliders = rb.GetComponent<HeldWeapon>() ? rb.GetComponents<Collider>() : rb.GetComponentsInChildren<Collider>(true);
+            foreach (var c in colliders) c.enabled = on;
         }
 
-        static Bounds RenderBounds(Rigidbody rb)
+        static Vector3 BoundsCentre(Rigidbody rb)
         {
             var renderers = rb.GetComponentsInChildren<Renderer>();
-            if (renderers.Length == 0) return new Bounds(rb.worldCenterOfMass, Vector3.one * 0.5f);
+            if (renderers.Length == 0) return rb.worldCenterOfMass;
             var b = renderers[0].bounds;
             foreach (var r in renderers) b.Encapsulate(r.bounds);
-            return b;
+            return b.center;
         }
     }
 }

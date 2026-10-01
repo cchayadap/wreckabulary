@@ -4,10 +4,9 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>The letters a player carries. They are both ammo and health.</summary>
+    /// <summary>Crafting loot. Reserved letters count towards the bag limit; HP is separate.</summary>
     public class LetterInventory : MonoBehaviour
     {
-        [SerializeField] int capacity = 6;
         [SerializeField] float pickupRadius = 0.9f;
 
         readonly List<char> letters = new();
@@ -15,10 +14,12 @@ namespace Wreckabulary
         PlayerController controller;
 
         public IReadOnlyList<char> Letters => letters;
-        public int Capacity => capacity;
+        public int Capacity => controller && controller.Health ? controller.Health.Rules.MaxLetters : Match.Rules.MaxLetters;
         public int Count => letters.Count;
+        public int ReservedCount { get; set; }
+        public int TotalCount => Count + ReservedCount;
         public bool IsEmpty => letters.Count == 0;
-        public bool IsFull => letters.Count >= capacity;
+        public bool IsFull => TotalCount >= Capacity;
 
         /// <summary>Off for the tutorial dummy, so it doesn't hoover up loose letters.</summary>
         public bool Collects { get; set; } = true;
@@ -49,8 +50,9 @@ namespace Wreckabulary
 
         public bool TryAdd(char c)
         {
-            if (IsFull) return false;
-            letters.Add(char.ToUpperInvariant(c));
+            c = char.ToUpperInvariant(c);
+            if (IsFull || c < 'A' || c > 'Z') return false;
+            letters.Add(c);
             Changed?.Invoke();
             return true;
         }
@@ -60,13 +62,14 @@ namespace Wreckabulary
         {
             letters.Clear();
             foreach (char c in newLetters)
-                if (letters.Count < capacity) letters.Add(char.ToUpperInvariant(c));
+                if (TotalCount < Capacity && char.ToUpperInvariant(c) >= 'A' && char.ToUpperInvariant(c) <= 'Z') letters.Add(char.ToUpperInvariant(c));
             Changed?.Invoke();
         }
 
         /// <summary>Removes the letters of a word. Returns false if they are not all held.</summary>
         public bool TrySpend(string word)
         {
+            if (string.IsNullOrEmpty(word)) return false;
             if (!WordSolver.CanSpell(WordSolver.Count(letters), word)) return false;
             foreach (char c in word) letters.Remove(char.ToUpperInvariant(c));
             Changed?.Invoke();

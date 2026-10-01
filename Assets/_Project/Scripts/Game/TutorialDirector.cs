@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
@@ -29,7 +30,7 @@ namespace Wreckabulary
         readonly HashSet<PlayerController> watched = new();
         Vector3[] lastPositions = new Vector3[8];
         float walked, finishedAt, nextResupply, nextTether;
-        bool batSummoned, thrown;
+        bool batSummoned, thrown, jumped, dodged;
         int dummyHits;
         Smashable box, chair;
 
@@ -42,23 +43,23 @@ namespace Wreckabulary
         {
             steps = new List<Step>
             {
-                new() { text = "Walk around", hint = "WASD, arrow keys or the left stick", done = () => walked > 4f },
-                new() { text = "Smash the BAT box", hint = "Punch it a few times: J, / or X", enter = EnsureBox, done = () => !box },
+                new() { text = "Walk around", hint = ControlHints.Move, done = () => walked > 4f },
+                new() { text = "Jump, then dodge", hint = $"Jump: {ControlHints.Jump}  •  dodge: {ControlHints.Dodge}", done = () => jumped && dodged },
+                new() { text = "Smash the BAT box", hint = $"Punch it a few times: {ControlHints.Attack}", enter = EnsureBox, done = () => !box },
                 new() { text = "Pick up the letters", hint = "Walk over B, A and T", done = () => batSummoned || joins.Players.Any(p => Has(p, "BAT")) },
-                new() { text = "Spell BAT", hint = "Press spell (K, R-Shift or Y), add B, A, T one at a time, then press spell again", done = () => batSummoned },
-                new() { text = "Whack the dummy", hint = "Attack with your BAT (J, / or X)", enter = EnsureDummy, done = () => dummyHits > 0 },
-                new() { text = "Throw the CHAIR", hint = "Grab it (Space, . or A), then punch (J, / or X) to throw it", enter = EnsureChair, done = () => thrown },
+                new() { text = "Spell BAT", hint = $"Hold spell ({ControlHints.Spell}), then let go to summon", done = () => batSummoned },
+                new() { text = "Whack the dummy", hint = $"Attack with your BAT ({ControlHints.Attack})", enter = EnsureDummy, done = () => dummyHits > 0 },
+                new() { text = "Throw the CHAIR", hint = $"Grab it ({ControlHints.Grab}), then press grab again to throw", enter = EnsureChair, done = () => thrown },
                 new()
                 {
-                    text = "Knock out the dummy", hint = "Letters are health: knock its letters off, then hit it once more",
-                    enter = () => { EnsureDummy(); Dummy.Inventory.Set("DU"); }, done = () => Dummy && Dummy.IsKnockedOut
+                    text = "Knock out the dummy", hint = "Keep hitting it until its health runs out",
+                    enter = ResetDummy, done = () => Dummy && Dummy.IsKnockedOut
                 },
             };
         }
 
         void Start()
         {
-            Music.Play(Track.Cozy);
             joins.RespawnKnockedOut = true;
             SpawnDummy();
             steps[0].enter?.Invoke();
@@ -78,12 +79,12 @@ namespace Wreckabulary
             var step = steps[StepIndex];
             hud.SetInstruction($"<color=#FFD24A>{StepIndex + 1}/{steps.Count}</color>  {step.text}", step.hint);
             if (joins.Players.Count == 0)
-                hud.SetTitle("TUTORIAL", "Press SPACE, . or A to join");
+                hud.SetTitle("TUTORIAL", ControlHints.Join("join"));
             else
                 hud.SetTitle("", "");
 
             Resupply();
-            if (Time.time > nextTether && Dummy && !Dummy.IsStaggered && !Dummy.IsHeld)
+            if (Time.time > nextTether && Dummy && !Dummy.IsKnockedOut && !Dummy.IsStaggered && !Dummy.IsHeld)
             {
                 nextTether = Time.time + 2f;
                 EnsureDummy();
@@ -95,13 +96,7 @@ namespace Wreckabulary
         {
             Popup.Show("NICE!", joins.Players.Count > 0 ? joins.Players[0].OverheadPosition + Vector3.up : Vector3.up * 2f, Color.white, 5f);
             StepIndex++;
-            Sfx.Play(Sound.Placed);
-            if (Finished)
-            {
-                finishedAt = Time.time;
-                Sfx.Play(Sound.Stars);
-                return;
-            }
+            if (Finished) { finishedAt = Time.time; return; }
             steps[StepIndex].enter?.Invoke();
         }
 
@@ -115,6 +110,8 @@ namespace Wreckabulary
                 {
                     p.Summoner.Summoned += w => { if (w == "BAT") batSummoned = true; };
                     p.Combat.Thrown += _ => thrown = true;
+                    p.Jumped += _ => jumped = true;
+                    p.Dodged += _ => dodged = true;
                     lastPositions[i] = p.transform.position;
                 }
                 var pos = p.transform.position;
@@ -127,7 +124,8 @@ namespace Wreckabulary
         /// <summary>If the BAT letters got lost (dropped, spent on something else), send another box.</summary>
         void Resupply()
         {
-            if (StepIndex < 1 || StepIndex > 3 || batSummoned || box || Time.time < nextResupply) return;
+            if (StepIndex < 2 || StepIndex > 4 || batSummoned || box || Time.time < nextResupply) return;
+            if (joins.Players.Any(p => p.Summoner.IsCrafting && p.Summoner.CraftWord == "BAT")) return;
             nextResupply = Time.time + 1f;
             var letters = new List<char>();
             if (TilePool.Instance) letters.AddRange(TilePool.Instance.Active.Select(t => t.Letter));
@@ -156,6 +154,7 @@ namespace Wreckabulary
             var prefab = GameAssets.I.playerPrefab;
             Dummy = Instantiate(prefab, dummySpot.position, Quaternion.identity, transform);
             Dummy.Setup(9, null, new Color(0.72f, 0.70f, 0.66f), '?', "DUMMY");
+            Dummy.Health.UseRules(DummyRules());
             Dummy.Respawn(dummySpot.position);
             Dummy.FaceTowards(Vector3.back);
             Dummy.Inventory.Set("DUMMY");
@@ -164,16 +163,32 @@ namespace Wreckabulary
             Dummy.Health.KnockedOut += _ => { if (!Finished) Invoke(nameof(EnsureDummy), 1.5f); };
         }
 
+        /// <summary>A full-health target with no spawn protection so the first whack always counts.</summary>
+        static GameRules DummyRules()
+        {
+            var rules = Match.Rules.Clone();
+            rules.SpawnProtectionSeconds = 0f;
+            rules.DownedEnabled = false;
+            return rules;
+        }
+
         void EnsureDummy()
         {
             if (!Dummy || Finished) return;
             bool wandered = World.Flat(Dummy.transform.position - dummySpot.position).magnitude > 2.5f;
             if (!Dummy.IsKnockedOut && !wandered) return;
+            ResetDummy();
+        }
+
+        /// <summary>Back on its spot at full health.</summary>
+        void ResetDummy()
+        {
+            if (!Dummy || Finished) return;
             Dummy.Combat.ResetForRound();
             Dummy.Health.ResetForRound();
             Dummy.Respawn(dummySpot.position);
             Dummy.FaceTowards(Vector3.back);
-            Dummy.Inventory.Set(StepIndex == steps.Count - 1 ? "DU" : "DUMMY");
+            Dummy.Inventory.Set("DUMMY");
         }
     }
 }

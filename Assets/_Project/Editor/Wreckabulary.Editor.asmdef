@@ -3,9 +3,11 @@
     "rootNamespace": "Wreckabulary.EditorTools",
     "references": [
         "Wreckabulary",
+        "Wreckabulary.Rules",
         "Unity.TextMeshPro",
         "UnityEngine.UI",
-        "Unity.RenderPipelines.Universal.Runtime"
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Universal.Editor"
     ],
     "includePlatforms": [
         "Editor"

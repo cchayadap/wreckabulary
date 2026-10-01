@@ -47,7 +47,7 @@ namespace Wreckabulary
             var word = words[Random.Range(0, words.Length)];
             var pos = new Vector3(Random.Range(areaX.x, areaX.y), dropHeight, Random.Range(areaZ.x, areaZ.y));
             var box = CreateBox(word, pos);
-            if (hazard) ThrowTracker.Attach(box.gameObject, null, 4f, 7f);
+            if (hazard) ThrowTracker.Attach(box.gameObject, null, 4f, 3.5f);
             return box;
         }
 

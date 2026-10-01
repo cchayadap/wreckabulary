@@ -1,0 +1,2636 @@
+{
+ "generator": "Tools/AssetPipeline/build_assets.py",
+ "materials": [
+  {
+   "name": "accessory_hardware",
+   "baseColor": [
+    0.63,
+    0.48,
+    0.23,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.52,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/ivory_badge_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/ivory_badge_NormalGL.png",
+   "emissionMap": null,
+   "family": "accessory_hardware",
+   "skin": null,
+   "sources": [
+    "avatar/Cap",
+    "avatar/Satchel"
+   ]
+  },
+  {
+   "name": "blue_Arcade",
+   "baseColor": [
+    0.17,
+    0.66,
+    0.74,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.42,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "blue",
+   "skin": "Arcade",
+   "sources": [
+    "item/BED",
+    "item/FOAM",
+    "item/SHIELD",
+    "item/WATER",
+    "item/BOOK",
+    "item/FAN"
+   ]
+  },
+  {
+   "name": "blue_Candy",
+   "baseColor": [
+    0.33,
+    0.69,
+    0.86,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.42,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "blue",
+   "skin": "Candy",
+   "sources": [
+    "item/BED",
+    "item/FOAM",
+    "item/SHIELD",
+    "item/WATER",
+    "item/BOOK",
+    "item/FAN"
+   ]
+  },
+  {
+   "name": "blue_Classic",
+   "baseColor": [
+    0.09,
+    0.35,
+    0.71,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.66,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "blue",
+   "skin": "Classic",
+   "sources": [
+    "item/BED",
+    "item/FOAM",
+    "item/SHIELD",
+    "item/WATER",
+    "item/BOOK",
+    "item/FAN",
+    "environment/Floor_Carpet_2m",
+    "environment/Kitchen_Counter",
+    "environment/Kitchen_Fridge",
+    "environment/Round_Rug",
+    "vfx/Craft_Ring",
+    "vfx/Jump_Arrow",
+    "vfx/Speed_Trail"
+   ]
+  },
+  {
+   "name": "boots_color",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/charcoal_leather_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/charcoal_leather_NormalGL.png",
+   "emissionMap": null,
+   "family": "boots_color",
+   "skin": null,
+   "sources": [
+    "avatar/base"
+   ]
+  },
+  {
+   "name": "ceramic_Arcade",
+   "baseColor": [
+    0.95,
+    0.92,
+    0.81,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.24,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "ceramic",
+   "skin": "Arcade",
+   "sources": [
+    "item/LAMP",
+    "item/PLATE",
+    "item/BED",
+    "item/CAKE",
+    "item/WATER",
+    "item/PLANT",
+    "item/VASE"
+   ]
+  },
+  {
+   "name": "ceramic_Candy",
+   "baseColor": [
+    0.95,
+    0.92,
+    0.81,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.24,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "ceramic",
+   "skin": "Candy",
+   "sources": [
+    "item/LAMP",
+    "item/PLATE",
+    "item/BED",
+    "item/CAKE",
+    "item/WATER",
+    "item/PLANT",
+    "item/VASE"
+   ]
+  },
+  {
+   "name": "ceramic_Classic",
+   "baseColor": [
+    0.95,
+    0.92,
+    0.81,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.24,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "ceramic",
+   "skin": "Classic",
+   "sources": [
+    "item/LAMP",
+    "item/PLATE",
+    "item/BED",
+    "item/CAKE",
+    "item/WATER",
+    "item/PLANT",
+    "item/VASE",
+    "environment/Kitchen_Counter",
+    "environment/Kitchen_Fridge",
+    "environment/Kitchen_Sink"
+   ]
+  },
+  {
+   "name": "cream_Arcade",
+   "baseColor": [
+    0.77,
+    0.69,
+    0.93,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.72,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "cream",
+   "skin": "Arcade",
+   "sources": [
+    "item/BAT",
+    "item/LAMP",
+    "item/BALL",
+    "item/BED",
+    "item/MAT",
+    "item/SOFA",
+    "item/BOMB",
+    "item/BOW",
+    "item/BROOM",
+    "item/CAKE",
+    "item/PIE",
+    "item/BOX",
+    "item/BOOK"
+   ]
+  },
+  {
+   "name": "cream_Candy",
+   "baseColor": [
+    0.98,
+    0.93,
+    0.77,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.72,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "cream",
+   "skin": "Candy",
+   "sources": [
+    "item/BAT",
+    "item/LAMP",
+    "item/BALL",
+    "item/BED",
+    "item/MAT",
+    "item/SOFA",
+    "item/BOMB",
+    "item/BOW",
+    "item/BROOM",
+    "item/CAKE",
+    "item/PIE",
+    "item/BOX",
+    "item/BOOK"
+   ]
+  },
+  {
+   "name": "cream_Classic",
+   "baseColor": [
+    0.84,
+    0.76,
+    0.59,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.88,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "cream",
+   "skin": "Classic",
+   "sources": [
+    "item/BAT",
+    "item/LAMP",
+    "item/BALL",
+    "item/BED",
+    "item/MAT",
+    "item/SOFA",
+    "item/BOMB",
+    "item/BOW",
+    "item/BROOM",
+    "item/CAKE",
+    "item/PIE",
+    "item/BOX",
+    "item/BOOK",
+    "environment/Round_Rug"
+   ]
+  },
+  {
+   "name": "dark_Arcade",
+   "baseColor": [
+    0.035,
+    0.047,
+    0.062,
+    1
+   ],
+   "metallic": 0.12,
+   "roughness": 0.58,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "dark",
+   "skin": "Arcade",
+   "sources": [
+    "item/BLADE",
+    "item/MAT",
+    "item/FOAM",
+    "item/BOMB",
+    "item/PAN",
+    "item/CLOCK",
+    "item/POT"
+   ]
+  },
+  {
+   "name": "dark_Candy",
+   "baseColor": [
+    0.035,
+    0.047,
+    0.062,
+    1
+   ],
+   "metallic": 0.12,
+   "roughness": 0.58,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "dark",
+   "skin": "Candy",
+   "sources": [
+    "item/BLADE",
+    "item/MAT",
+    "item/FOAM",
+    "item/BOMB",
+    "item/PAN",
+    "item/CLOCK",
+    "item/POT"
+   ]
+  },
+  {
+   "name": "dark_Classic",
+   "baseColor": [
+    0.035,
+    0.047,
+    0.062,
+    1
+   ],
+   "metallic": 0.12,
+   "roughness": 0.58,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "dark",
+   "skin": "Classic",
+   "sources": [
+    "item/BLADE",
+    "item/MAT",
+    "item/FOAM",
+    "item/BOMB",
+    "item/PAN",
+    "item/CLOCK",
+    "item/POT",
+    "environment/Kitchen_Sink",
+    "environment/Kitchen_Stove"
+   ]
+  },
+  {
+   "name": "eyes",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/eyes_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/eyes_NormalGL.png",
+   "emissionMap": null,
+   "family": "eyes",
+   "skin": null,
+   "sources": [
+    "avatar/base"
+   ]
+  },
+  {
+   "name": "fabric_main",
+   "baseColor": [
+    0.095,
+    0.44,
+    0.5,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/neutral_orange_fabric_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/orange_fabric_NormalGL.png",
+   "emissionMap": null,
+   "family": "fabric_main",
+   "skin": null,
+   "sources": [
+    "avatar/base",
+    "avatar/Hoodie",
+    "avatar/Hood"
+   ]
+  },
+  {
+   "name": "fabric_rib",
+   "baseColor": [
+    0.075,
+    0.32,
+    0.36,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/neutral_ribbed_cuffs_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/ribbed_cuffs_NormalGL.png",
+   "emissionMap": null,
+   "family": "fabric_rib",
+   "skin": null,
+   "sources": [
+    "avatar/base",
+    "avatar/Hoodie",
+    "avatar/Hood"
+   ]
+  },
+  {
+   "name": "foam_Classic",
+   "baseColor": [
+    0.93,
+    0.97,
+    1,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.95,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "foam",
+   "skin": "Classic",
+   "sources": [
+    "vfx/Foam_Cloud"
+   ]
+  },
+  {
+   "name": "glass_Classic",
+   "baseColor": [
+    0.38,
+    0.76,
+    0.85,
+    0.38
+   ],
+   "metallic": 0.05,
+   "roughness": 0.12,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "BLEND",
+   "alphaCutoff": 0.5,
+   "doubleSided": true,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "glass",
+   "skin": "Classic",
+   "sources": [
+    "environment/Wall_Window",
+    "environment/Window_Frame",
+    "vfx/Soap_Puddle"
+   ]
+  },
+  {
+   "name": "glasses_frame",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/eyes_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/eyes_NormalGL.png",
+   "emissionMap": null,
+   "family": "glasses_frame",
+   "skin": null,
+   "sources": [
+    "avatar/Glasses"
+   ]
+  },
+  {
+   "name": "gloves_color",
+   "baseColor": [
+    0.72,
+    0.73,
+    0.65,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/ivory_badge_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/ivory_badge_NormalGL.png",
+   "emissionMap": null,
+   "family": "gloves_color",
+   "skin": null,
+   "sources": [
+    "avatar/base"
+   ]
+  },
+  {
+   "name": "glow_Arcade",
+   "baseColor": [
+    0.96,
+    0.56,
+    0.09,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0.9,
+    0.32,
+    0.04
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "glow",
+   "skin": "Arcade",
+   "sources": [
+    "item/LAMP"
+   ]
+  },
+  {
+   "name": "glow_Candy",
+   "baseColor": [
+    0.96,
+    0.56,
+    0.09,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0.9,
+    0.32,
+    0.04
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "glow",
+   "skin": "Candy",
+   "sources": [
+    "item/LAMP"
+   ]
+  },
+  {
+   "name": "glow_Classic",
+   "baseColor": [
+    0.96,
+    0.56,
+    0.09,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0.9,
+    0.32,
+    0.04
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "glow",
+   "skin": "Classic",
+   "sources": [
+    "item/LAMP",
+    "environment/Wall_Sconce",
+    "vfx/Craft_Ring",
+    "vfx/Pickup_Ring",
+    "vfx/Room_Hazard"
+   ]
+  },
+  {
+   "name": "gold_Arcade",
+   "baseColor": [
+    0.91,
+    0.58,
+    0.17,
+    1
+   ],
+   "metallic": 0.68,
+   "roughness": 0.32,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "gold",
+   "skin": "Arcade",
+   "sources": [
+    "item/BLADE",
+    "item/LAMP",
+    "item/PLATE",
+    "item/BED",
+    "item/BOMB",
+    "item/HAMMER",
+    "item/SHIELD",
+    "item/SPEAR",
+    "item/SODA",
+    "item/CABINET",
+    "item/CHEST",
+    "item/DESK",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FAN",
+    "item/VASE"
+   ]
+  },
+  {
+   "name": "gold_Candy",
+   "baseColor": [
+    0.91,
+    0.58,
+    0.17,
+    1
+   ],
+   "metallic": 0.68,
+   "roughness": 0.32,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "gold",
+   "skin": "Candy",
+   "sources": [
+    "item/BLADE",
+    "item/LAMP",
+    "item/PLATE",
+    "item/BED",
+    "item/BOMB",
+    "item/HAMMER",
+    "item/SHIELD",
+    "item/SPEAR",
+    "item/SODA",
+    "item/CABINET",
+    "item/CHEST",
+    "item/DESK",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FAN",
+    "item/VASE"
+   ]
+  },
+  {
+   "name": "gold_Classic",
+   "baseColor": [
+    0.91,
+    0.58,
+    0.17,
+    1
+   ],
+   "metallic": 0.68,
+   "roughness": 0.32,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "gold",
+   "skin": "Classic",
+   "sources": [
+    "item/BLADE",
+    "item/LAMP",
+    "item/PLATE",
+    "item/BED",
+    "item/BOMB",
+    "item/HAMMER",
+    "item/SHIELD",
+    "item/SPEAR",
+    "item/SODA",
+    "item/CABINET",
+    "item/CHEST",
+    "item/DESK",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FAN",
+    "item/VASE",
+    "environment/Arena_Rug",
+    "environment/Curtain",
+    "environment/Kitchen_Counter",
+    "environment/Kitchen_Fridge",
+    "environment/Kitchen_Stove",
+    "environment/Wall_Sconce",
+    "environment/Wall_Shelf",
+    "vfx/Impact_Star"
+   ]
+  },
+  {
+   "name": "green_Arcade",
+   "baseColor": [
+    0.37,
+    0.18,
+    0.65,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.48,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "green",
+   "skin": "Arcade",
+   "sources": [
+    "item/MAT",
+    "item/SOFA",
+    "item/CHAIR"
+   ]
+  },
+  {
+   "name": "green_Candy",
+   "baseColor": [
+    0.46,
+    0.77,
+    0.62,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "green",
+   "skin": "Candy",
+   "sources": [
+    "item/MAT",
+    "item/SOFA",
+    "item/CHAIR"
+   ]
+  },
+  {
+   "name": "green_Classic",
+   "baseColor": [
+    0.26,
+    0.53,
+    0.19,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.77,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "green",
+   "skin": "Classic",
+   "sources": [
+    "item/MAT",
+    "item/SOFA",
+    "item/CHAIR",
+    "environment/Curtain",
+    "environment/Doorstep",
+    "environment/Kitchen_Fridge"
+   ]
+  },
+  {
+   "name": "headwear_color",
+   "baseColor": [
+    0.08,
+    0.26,
+    0.38,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": true,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/neutral_orange_fabric_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/orange_fabric_NormalGL.png",
+   "emissionMap": null,
+   "family": "headwear_color",
+   "skin": null,
+   "sources": [
+    "avatar/Cap"
+   ]
+  },
+  {
+   "name": "ivory_Arcade",
+   "baseColor": [
+    0.94,
+    0.76,
+    0.28,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "ivory",
+   "skin": "Arcade",
+   "sources": [
+    "item/BLADE",
+    "item/LAMP",
+    "item/BALL",
+    "item/BED",
+    "item/MAT",
+    "item/SOAP",
+    "item/BOMB",
+    "item/SHIELD",
+    "item/SODA",
+    "item/WATER",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FAN",
+    "item/MUG"
+   ]
+  },
+  {
+   "name": "ivory_Candy",
+   "baseColor": [
+    0.94,
+    0.88,
+    0.72,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.48,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "ivory",
+   "skin": "Candy",
+   "sources": [
+    "item/BLADE",
+    "item/LAMP",
+    "item/BALL",
+    "item/BED",
+    "item/MAT",
+    "item/SOAP",
+    "item/BOMB",
+    "item/SHIELD",
+    "item/SODA",
+    "item/WATER",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FAN",
+    "item/MUG"
+   ]
+  },
+  {
+   "name": "ivory_Classic",
+   "baseColor": [
+    0.94,
+    0.88,
+    0.72,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.48,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "ivory",
+   "skin": "Classic",
+   "sources": [
+    "item/BLADE",
+    "item/LAMP",
+    "item/BALL",
+    "item/BED",
+    "item/MAT",
+    "item/SOAP",
+    "item/BOMB",
+    "item/SHIELD",
+    "item/SODA",
+    "item/WATER",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FAN",
+    "item/MUG",
+    "environment/Arena_Rug",
+    "environment/Kitchen_Fridge",
+    "environment/Kitchen_Stove",
+    "environment/Radiator",
+    "environment/Wall_Door",
+    "environment/Wall_Sign",
+    "environment/Wall_Solid",
+    "environment/Wall_Window",
+    "environment/Window_Frame"
+   ]
+  },
+  {
+   "name": "ivory_badge",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/ivory_badge_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/ivory_badge_NormalGL.png",
+   "emissionMap": null,
+   "family": "ivory_badge",
+   "skin": null,
+   "sources": [
+    "avatar/Badge_T"
+   ]
+  },
+  {
+   "name": "ivory_vinyl",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/ivory_vinyl_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/ivory_vinyl_NormalGL.png",
+   "emissionMap": null,
+   "family": "ivory_vinyl",
+   "skin": null,
+   "sources": [
+    "avatar/base"
+   ]
+  },
+  {
+   "name": "joggers_color",
+   "baseColor": [
+    0.11,
+    0.145,
+    0.2,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/neutral_orange_fabric_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/orange_fabric_NormalGL.png",
+   "emissionMap": null,
+   "family": "joggers_color",
+   "skin": null,
+   "sources": [
+    "avatar/base"
+   ]
+  },
+  {
+   "name": "leaf_Arcade",
+   "baseColor": [
+    0.16,
+    0.43,
+    0.12,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.69,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "leaf",
+   "skin": "Arcade",
+   "sources": [
+    "item/APPLE",
+    "item/CAKE",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "leaf_Candy",
+   "baseColor": [
+    0.16,
+    0.43,
+    0.12,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.69,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "leaf",
+   "skin": "Candy",
+   "sources": [
+    "item/APPLE",
+    "item/CAKE",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "leaf_Classic",
+   "baseColor": [
+    0.16,
+    0.43,
+    0.12,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.69,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "leaf",
+   "skin": "Classic",
+   "sources": [
+    "item/APPLE",
+    "item/CAKE",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "metal_Arcade",
+   "baseColor": [
+    0.43,
+    0.3,
+    0.69,
+    1
+   ],
+   "metallic": 0.68,
+   "roughness": 0.33,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "metal",
+   "skin": "Arcade",
+   "sources": [
+    "item/BLADE",
+    "item/FOAM",
+    "item/BOMB",
+    "item/ARROW",
+    "item/HAMMER",
+    "item/PAN",
+    "item/SPEAR",
+    "item/PIE",
+    "item/SODA",
+    "item/BARREL",
+    "item/FAN",
+    "item/POT"
+   ]
+  },
+  {
+   "name": "metal_Candy",
+   "baseColor": [
+    0.56,
+    0.74,
+    0.78,
+    1
+   ],
+   "metallic": 0.5,
+   "roughness": 0.3,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "metal",
+   "skin": "Candy",
+   "sources": [
+    "item/BLADE",
+    "item/FOAM",
+    "item/BOMB",
+    "item/ARROW",
+    "item/HAMMER",
+    "item/PAN",
+    "item/SPEAR",
+    "item/PIE",
+    "item/SODA",
+    "item/BARREL",
+    "item/FAN",
+    "item/POT"
+   ]
+  },
+  {
+   "name": "metal_Classic",
+   "baseColor": [
+    0.37,
+    0.46,
+    0.53,
+    1
+   ],
+   "metallic": 0.68,
+   "roughness": 0.32,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "metal",
+   "skin": "Classic",
+   "sources": [
+    "item/BLADE",
+    "item/FOAM",
+    "item/BOMB",
+    "item/ARROW",
+    "item/HAMMER",
+    "item/PAN",
+    "item/SPEAR",
+    "item/PIE",
+    "item/SODA",
+    "item/BARREL",
+    "item/FAN",
+    "item/POT",
+    "environment/Doorstep",
+    "environment/Kitchen_Sink",
+    "environment/Kitchen_Stove",
+    "environment/Radiator"
+   ]
+  },
+  {
+   "name": "pink_Arcade",
+   "baseColor": [
+    0.97,
+    0.4,
+    0.53,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "pink",
+   "skin": "Arcade",
+   "sources": [
+    "item/CAKE"
+   ]
+  },
+  {
+   "name": "pink_Candy",
+   "baseColor": [
+    0.97,
+    0.4,
+    0.53,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "pink",
+   "skin": "Candy",
+   "sources": [
+    "item/CAKE"
+   ]
+  },
+  {
+   "name": "pink_Classic",
+   "baseColor": [
+    0.97,
+    0.4,
+    0.53,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "pink",
+   "skin": "Classic",
+   "sources": [
+    "item/CAKE"
+   ]
+  },
+  {
+   "name": "red_Arcade",
+   "baseColor": [
+    0.65,
+    0.22,
+    0.78,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "red",
+   "skin": "Arcade",
+   "sources": [
+    "item/BALL",
+    "item/ARROW",
+    "item/BROOM",
+    "item/APPLE",
+    "item/CAKE",
+    "item/SODA",
+    "item/MUG"
+   ]
+  },
+  {
+   "name": "red_Candy",
+   "baseColor": [
+    1,
+    0.44,
+    0.61,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.43,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "red",
+   "skin": "Candy",
+   "sources": [
+    "item/BALL",
+    "item/ARROW",
+    "item/BROOM",
+    "item/APPLE",
+    "item/CAKE",
+    "item/SODA",
+    "item/MUG"
+   ]
+  },
+  {
+   "name": "red_Classic",
+   "baseColor": [
+    0.87,
+    0.095,
+    0.055,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.54,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "red",
+   "skin": "Classic",
+   "sources": [
+    "item/BALL",
+    "item/ARROW",
+    "item/BROOM",
+    "item/APPLE",
+    "item/CAKE",
+    "item/SODA",
+    "item/MUG",
+    "environment/Arena_Rug",
+    "environment/Kitchen_Fridge",
+    "environment/Wall_Sign",
+    "vfx/Bomb_Warning"
+   ]
+  },
+  {
+   "name": "rubber",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/rubber_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/rubber_NormalGL.png",
+   "emissionMap": null,
+   "family": "rubber",
+   "skin": null,
+   "sources": [
+    "avatar/base"
+   ]
+  },
+  {
+   "name": "satchel_canvas",
+   "baseColor": [
+    0.48,
+    0.29,
+    0.14,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/neutral_orange_fabric_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/orange_fabric_NormalGL.png",
+   "emissionMap": null,
+   "family": "satchel_canvas",
+   "skin": null,
+   "sources": [
+    "avatar/Satchel"
+   ]
+  },
+  {
+   "name": "satchel_straps",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 1.0,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/walnut_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/walnut_NormalGL.png",
+   "emissionMap": null,
+   "family": "satchel_straps",
+   "skin": null,
+   "sources": [
+    "avatar/Satchel"
+   ]
+  },
+  {
+   "name": "soap_Arcade",
+   "baseColor": [
+    1,
+    0.77,
+    0.66,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.23,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "soap",
+   "skin": "Arcade",
+   "sources": [
+    "item/SOAP"
+   ]
+  },
+  {
+   "name": "soap_Candy",
+   "baseColor": [
+    1,
+    0.77,
+    0.66,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.23,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "soap",
+   "skin": "Candy",
+   "sources": [
+    "item/SOAP"
+   ]
+  },
+  {
+   "name": "soap_Classic",
+   "baseColor": [
+    1,
+    0.77,
+    0.66,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.23,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "soap",
+   "skin": "Classic",
+   "sources": [
+    "item/SOAP"
+   ]
+  },
+  {
+   "name": "wall_Classic",
+   "baseColor": [
+    0.76,
+    0.78,
+    0.61,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.94,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wall",
+   "skin": "Classic",
+   "sources": [
+    "environment/Wall_Door",
+    "environment/Wall_Solid",
+    "environment/Wall_Window"
+   ]
+  },
+  {
+   "name": "wall_blue_Classic",
+   "baseColor": [
+    0.27,
+    0.53,
+    0.63,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.91,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wall_blue",
+   "skin": "Classic",
+   "sources": [
+    "environment/Kitchen_Counter"
+   ]
+  },
+  {
+   "name": "water_Arcade",
+   "baseColor": [
+    0.12,
+    0.64,
+    0.91,
+    0.72
+   ],
+   "metallic": 0,
+   "roughness": 0.18,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "BLEND",
+   "alphaCutoff": 0.5,
+   "doubleSided": true,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "water",
+   "skin": "Arcade",
+   "sources": [
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "water_Candy",
+   "baseColor": [
+    0.12,
+    0.64,
+    0.91,
+    0.72
+   ],
+   "metallic": 0,
+   "roughness": 0.18,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "BLEND",
+   "alphaCutoff": 0.5,
+   "doubleSided": true,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "water",
+   "skin": "Candy",
+   "sources": [
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "water_Classic",
+   "baseColor": [
+    0.12,
+    0.64,
+    0.91,
+    0.72
+   ],
+   "metallic": 0,
+   "roughness": 0.18,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "BLEND",
+   "alphaCutoff": 0.5,
+   "doubleSided": true,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "water",
+   "skin": "Classic",
+   "sources": [
+    "item/WATER",
+    "vfx/Soap_Puddle"
+   ]
+  },
+  {
+   "name": "white_Arcade",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.65,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "white",
+   "skin": "Arcade",
+   "sources": [
+    "item/FOAM",
+    "item/CAKE",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "white_Candy",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.65,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "white",
+   "skin": "Candy",
+   "sources": [
+    "item/FOAM",
+    "item/CAKE",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "white_Classic",
+   "baseColor": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.65,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "white",
+   "skin": "Classic",
+   "sources": [
+    "item/FOAM",
+    "item/CAKE",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "wood_Arcade",
+   "baseColor": [
+    0.37,
+    0.19,
+    0.64,
+    1
+   ],
+   "metallic": 0.12,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood",
+   "skin": "Arcade",
+   "sources": [
+    "item/TABLE",
+    "item/BED",
+    "item/SOFA",
+    "item/BARREL",
+    "item/CABINET",
+    "item/CHAIR",
+    "item/CHEST",
+    "item/CRATE",
+    "item/DESK",
+    "item/SHELF",
+    "item/STOOL",
+    "item/CLOCK"
+   ]
+  },
+  {
+   "name": "wood_Candy",
+   "baseColor": [
+    0.28,
+    0.7,
+    0.66,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.38,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood",
+   "skin": "Candy",
+   "sources": [
+    "item/TABLE",
+    "item/BED",
+    "item/SOFA",
+    "item/BARREL",
+    "item/CABINET",
+    "item/CHAIR",
+    "item/CHEST",
+    "item/CRATE",
+    "item/DESK",
+    "item/SHELF",
+    "item/STOOL",
+    "item/CLOCK"
+   ]
+  },
+  {
+   "name": "wood_Classic",
+   "baseColor": [
+    0.66,
+    0.34,
+    0.105,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.62,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/wood_subtle_pattern.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood",
+   "skin": "Classic",
+   "sources": [
+    "item/TABLE",
+    "item/BED",
+    "item/SOFA",
+    "item/BARREL",
+    "item/CABINET",
+    "item/CHAIR",
+    "item/CHEST",
+    "item/CRATE",
+    "item/DESK",
+    "item/SHELF",
+    "item/STOOL",
+    "item/CLOCK",
+    "environment/Corner_Post",
+    "environment/Platform_2m",
+    "environment/Railing_2m",
+    "environment/Stairs_1m",
+    "environment/Wall_Sign",
+    "environment/Wall_Solid",
+    "environment/Wall_Window"
+   ]
+  },
+  {
+   "name": "wood_dark_Arcade",
+   "baseColor": [
+    0.16,
+    0.095,
+    0.3,
+    1
+   ],
+   "metallic": 0.1,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood_dark",
+   "skin": "Arcade",
+   "sources": [
+    "item/BLADE",
+    "item/SOFA",
+    "item/BOW",
+    "item/HAMMER",
+    "item/PAN",
+    "item/SHIELD",
+    "item/APPLE",
+    "item/BARREL",
+    "item/BOX",
+    "item/CABINET",
+    "item/SHELF",
+    "item/CLOCK",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "wood_dark_Candy",
+   "baseColor": [
+    0.085,
+    0.36,
+    0.35,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood_dark",
+   "skin": "Candy",
+   "sources": [
+    "item/BLADE",
+    "item/SOFA",
+    "item/BOW",
+    "item/HAMMER",
+    "item/PAN",
+    "item/SHIELD",
+    "item/APPLE",
+    "item/BARREL",
+    "item/BOX",
+    "item/CABINET",
+    "item/SHELF",
+    "item/CLOCK",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "wood_dark_Classic",
+   "baseColor": [
+    0.29,
+    0.12,
+    0.055,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.68,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood_dark",
+   "skin": "Classic",
+   "sources": [
+    "item/BLADE",
+    "item/SOFA",
+    "item/BOW",
+    "item/HAMMER",
+    "item/PAN",
+    "item/SHIELD",
+    "item/APPLE",
+    "item/BARREL",
+    "item/BOX",
+    "item/CABINET",
+    "item/SHELF",
+    "item/CLOCK",
+    "item/PLANT",
+    "letter/A",
+    "letter/B",
+    "letter/C",
+    "letter/D",
+    "letter/E",
+    "letter/F",
+    "letter/G",
+    "letter/H",
+    "letter/I",
+    "letter/J",
+    "letter/K",
+    "letter/L",
+    "letter/M",
+    "letter/N",
+    "letter/O",
+    "letter/P",
+    "letter/Q",
+    "letter/R",
+    "letter/S",
+    "letter/T",
+    "letter/U",
+    "letter/V",
+    "letter/W",
+    "letter/X",
+    "letter/Y",
+    "letter/Z",
+    "environment/Floor_Carpet_2m"
+   ]
+  },
+  {
+   "name": "wood_light_Arcade",
+   "baseColor": [
+    0.8,
+    0.4,
+    0.9,
+    1
+   ],
+   "metallic": 0.1,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood_light",
+   "skin": "Arcade",
+   "sources": [
+    "item/BAT",
+    "item/TABLE",
+    "item/BED",
+    "item/ARROW",
+    "item/BOW",
+    "item/BROOM",
+    "item/HAMMER",
+    "item/SPEAR",
+    "item/CAKE",
+    "item/PIE",
+    "item/BARREL",
+    "item/BOX",
+    "item/CABINET",
+    "item/CHAIR",
+    "item/CHEST",
+    "item/CRATE",
+    "item/DESK",
+    "item/SHELF",
+    "item/STOOL"
+   ]
+  },
+  {
+   "name": "wood_light_Candy",
+   "baseColor": [
+    0.98,
+    0.74,
+    0.29,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.42,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood_light",
+   "skin": "Candy",
+   "sources": [
+    "item/BAT",
+    "item/TABLE",
+    "item/BED",
+    "item/ARROW",
+    "item/BOW",
+    "item/BROOM",
+    "item/HAMMER",
+    "item/SPEAR",
+    "item/CAKE",
+    "item/PIE",
+    "item/BARREL",
+    "item/BOX",
+    "item/CABINET",
+    "item/CHAIR",
+    "item/CHEST",
+    "item/CRATE",
+    "item/DESK",
+    "item/SHELF",
+    "item/STOOL"
+   ]
+  },
+  {
+   "name": "wood_light_Classic",
+   "baseColor": [
+    0.9,
+    0.6,
+    0.27,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.62,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/wood_subtle_pattern.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "wood_light",
+   "skin": "Classic",
+   "sources": [
+    "item/BAT",
+    "item/TABLE",
+    "item/BED",
+    "item/ARROW",
+    "item/BOW",
+    "item/BROOM",
+    "item/HAMMER",
+    "item/SPEAR",
+    "item/CAKE",
+    "item/PIE",
+    "item/BARREL",
+    "item/BOX",
+    "item/CABINET",
+    "item/CHAIR",
+    "item/CHEST",
+    "item/CRATE",
+    "item/DESK",
+    "item/SHELF",
+    "item/STOOL",
+    "letter/A",
+    "letter/B",
+    "letter/C",
+    "letter/D",
+    "letter/E",
+    "letter/F",
+    "letter/G",
+    "letter/H",
+    "letter/I",
+    "letter/J",
+    "letter/K",
+    "letter/L",
+    "letter/M",
+    "letter/N",
+    "letter/O",
+    "letter/P",
+    "letter/Q",
+    "letter/R",
+    "letter/S",
+    "letter/T",
+    "letter/U",
+    "letter/V",
+    "letter/W",
+    "letter/X",
+    "letter/Y",
+    "letter/Z",
+    "environment/Corner_Post",
+    "environment/Platform_2m",
+    "environment/Railing_2m",
+    "environment/Stairs_1m",
+    "environment/Wall_Door",
+    "environment/Wall_Shelf",
+    "environment/Wall_Window",
+    "vfx/Wood_Splinter"
+   ]
+  }
+ ],
+ "textures": {
+  "charcoal_leather_BaseColor": {
+   "file": "Assets/_Project/Art/Imported/Textures/charcoal_leather_BaseColor.png",
+   "size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    256
+   ]
+  },
+  "charcoal_leather_NormalGL": {
+   "file": "Assets/_Project/Art/Imported/Textures/charcoal_leather_NormalGL.png",
+   "size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    256
+   ]
+  },
+  "eyes_BaseColor": {
+   "file": "Assets/_Project/Art/Imported/Textures/eyes_BaseColor.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    1024,
+    1024
+   ]
+  },
+  "eyes_NormalGL": {
+   "file": "Assets/_Project/Art/Imported/Textures/eyes_NormalGL.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    512,
+    512
+   ]
+  },
+  "fabric_subtle_pattern": {
+   "file": "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png",
+   "size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    256
+   ]
+  },
+  "ivory_badge_BaseColor": {
+   "file": "Assets/_Project/Art/Imported/Textures/ivory_badge_BaseColor.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    1024,
+    1024
+   ]
+  },
+  "ivory_badge_NormalGL": {
+   "file": "Assets/_Project/Art/Imported/Textures/ivory_badge_NormalGL.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    512,
+    512
+   ]
+  },
+  "ivory_vinyl_BaseColor": {
+   "file": "Assets/_Project/Art/Imported/Textures/ivory_vinyl_BaseColor.png",
+   "size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    256
+   ]
+  },
+  "ivory_vinyl_NormalGL": {
+   "file": "Assets/_Project/Art/Imported/Textures/ivory_vinyl_NormalGL.png",
+   "size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    256
+   ]
+  },
+  "neutral_orange_fabric_BaseColor": {
+   "file": "Assets/_Project/Art/Imported/Textures/neutral_orange_fabric_BaseColor.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    1024,
+    1024
+   ]
+  },
+  "neutral_ribbed_cuffs_BaseColor": {
+   "file": "Assets/_Project/Art/Imported/Textures/neutral_ribbed_cuffs_BaseColor.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    1024,
+    1024
+   ]
+  },
+  "orange_fabric_NormalGL": {
+   "file": "Assets/_Project/Art/Imported/Textures/orange_fabric_NormalGL.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    512,
+    512
+   ]
+  },
+  "ribbed_cuffs_NormalGL": {
+   "file": "Assets/_Project/Art/Imported/Textures/ribbed_cuffs_NormalGL.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    512,
+    512
+   ]
+  },
+  "rubber_BaseColor": {
+   "file": "Assets/_Project/Art/Imported/Textures/rubber_BaseColor.png",
+   "size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    256
+   ]
+  },
+  "rubber_NormalGL": {
+   "file": "Assets/_Project/Art/Imported/Textures/rubber_NormalGL.png",
+   "size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    256
+   ]
+  },
+  "walnut_BaseColor": {
+   "file": "Assets/_Project/Art/Imported/Textures/walnut_BaseColor.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    1024,
+    1024
+   ]
+  },
+  "walnut_NormalGL": {
+   "file": "Assets/_Project/Art/Imported/Textures/walnut_NormalGL.png",
+   "size": [
+    512,
+    512
+   ],
+   "source_size": [
+    512,
+    512
+   ]
+  },
+  "wood_subtle_pattern": {
+   "file": "Assets/_Project/Art/Imported/Textures/wood_subtle_pattern.png",
+   "size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    256
+   ]
+  }
+ },
+ "conflicts": []
+}

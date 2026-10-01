@@ -1,0 +1,339 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Wreckabulary.Rules
+{
+    public enum ItemCategory { Combat, Furniture, Utilities, Consumables, Legacy }
+
+    public enum ItemTier { Core, Expanded, Legacy }
+
+    /// <summary>
+    /// How an item is held and used. Every item of a family shares the same animations
+    /// (brief §3: shared movement, then canonical item handling, then the visual skin).
+    /// </summary>
+    public enum HandlingFamily
+    {
+        None,
+        MeleeSwing,
+        MeleeThrust,
+        Thrown,
+        Shield,
+        DeployCover,
+        DeployPad,
+        DeploySpeed,
+        DeployZone,
+        Buff,
+        Heal,
+        Ranged,
+        Utility,
+    }
+
+    public sealed class MeleeStats
+    {
+        public float Damage;
+        public float Reach;
+        public float ArcDegrees;
+        public float Windup;
+        public float Active;
+        public float Recovery;
+        public float Knockback;
+        public float BreakPower;
+        public float HitStun;
+
+        public float Cycle => Windup + Active + Recovery;
+    }
+
+    public sealed class ThrownStats
+    {
+        public float Damage;
+        public float Speed;
+        public bool Lob;
+        public bool Recoverable;
+        public float FuseSeconds;
+        public float Radius;
+        public float EdgeDamage;
+        public float Knockback;
+        public float BreakPower;
+    }
+
+    public sealed class ShieldStats
+    {
+        public float FrontArcDegrees;
+        public float DamageReduction;
+        public float MoveSpeedMultiplier;
+        public float RaiseSeconds;
+    }
+
+    public enum DeployEffect { Cover, JumpPad, SpeedStrip, SlipZone }
+
+    public sealed class DeployStats
+    {
+        public DeployEffect Effect;
+        public float FootprintX;
+        public float FootprintZ;
+        public float PlaceSeconds;
+        public float Strength;
+        public float LifetimeSeconds;
+        public float Radius;
+    }
+
+    public enum UseEffect { None, Bubble, Heal, Speed }
+
+    public sealed class UseStats
+    {
+        public UseEffect Effect;
+        public float Amount;
+        public float Seconds;
+        public float ChannelSeconds;
+    }
+
+    /// <summary>
+    /// One craftable object. The word is the recipe: its letters, repeats included, are what
+    /// crafting costs and what breaking a reusable copy gives back.
+    /// </summary>
+    public sealed class ItemDefinition
+    {
+        public string Id;
+        public LetterBag Letters;
+        public ItemCategory Category;
+        public ItemTier Tier;
+        public bool Enabled;
+        public bool Consumable;
+        public HandlingFamily Family;
+        public int Hands = 1;
+        public string Model;
+        public float HeldScale = 1f;
+        public float[] Grip = new float[3];
+        public float[] Size = new float[3];
+        public List<string> Skins = new List<string> { Skin.Standard };
+        public int Durability;
+        public MeleeStats Melee;
+        public ThrownStats Thrown;
+        public ShieldStats Shield;
+        public DeployStats Deploy;
+        public UseStats Use;
+        public List<string> LegacyWords = new List<string>();
+        public string Notes = "";
+
+        public bool CanDeploy => Deploy != null;
+        public bool IsTwoHanded => Hands == 2;
+        public bool HasSkin(string skin) => skin != null && Skins.Contains(skin);
+
+        public override string ToString() => Id;
+    }
+
+    /// <summary>What the craft menu shows for one recipe card.</summary>
+    public readonly struct RecipeCard
+    {
+        public readonly ItemDefinition Item;
+        public readonly LetterBag Missing;
+        public readonly bool Craftable;
+
+        public RecipeCard(ItemDefinition item, LetterBag missing)
+        {
+            Item = item;
+            Missing = missing;
+            Craftable = missing.IsEmpty;
+        }
+
+        /// <summary>How many of <paramref name="letter"/> the player has towards this recipe, capped at the need.</summary>
+        public int Have(char letter) => Item.Letters[letter] - Missing[letter];
+    }
+
+    /// <summary>The fixed recipe catalogue (brief §5: data-driven, no free-form words).</summary>
+    public sealed class ItemCatalogue
+    {
+        readonly Dictionary<string, ItemDefinition> byId = new Dictionary<string, ItemDefinition>(StringComparer.Ordinal);
+        readonly List<ItemDefinition> ordered = new List<ItemDefinition>();
+
+        public IReadOnlyList<ItemDefinition> All => ordered;
+
+        public IEnumerable<ItemDefinition> Enabled => ordered.Where(i => i.Enabled);
+
+        public void Add(ItemDefinition item)
+        {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (!LetterBag.IsWord(item.Id)) throw new ArgumentException($"Item id '{item.Id}' must be A-Z letters only.");
+            if (byId.ContainsKey(item.Id)) throw new ArgumentException($"Item '{item.Id}' is listed twice.");
+            item.Letters = LetterBag.FromWord(item.Id);
+            byId.Add(item.Id, item);
+            ordered.Add(item);
+        }
+
+        public bool TryGet(string id, out ItemDefinition item) => byId.TryGetValue(id ?? "", out item);
+
+        public ItemDefinition Get(string id)
+        {
+            if (TryGet(id, out var item)) return item;
+            throw new KeyNotFoundException($"No item '{id}' in the catalogue.");
+        }
+
+        /// <summary>A card per enabled recipe, craftable ones first, then by fewest missing letters.</summary>
+        public List<RecipeCard> Cards(LetterBag have)
+        {
+            return Enabled
+                .Select(i => new RecipeCard(i, have.Missing(i.Letters)))
+                .OrderBy(c => c.Missing.Count)
+                .ThenBy(c => c.Item.Tier)
+                .ThenBy(c => c.Item.Id, StringComparer.Ordinal)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Checks the rules the brief sets for the catalogue. An enabled item needs a model and
+        /// behaviour data for its family, every recipe must fit the letter bag, and Classic is
+        /// always a skin. Returns one line per problem; an empty list means the data is valid.
+        /// </summary>
+        public List<string> Validate(int maxLetters)
+        {
+            var problems = new List<string>();
+            foreach (var item in ordered)
+            {
+                string p = item.Id + ": ";
+                if (item.Letters.Count > maxLetters)
+                    problems.Add(p + $"needs {item.Letters.Count} letters but a bag holds {maxLetters}");
+                if (!item.HasSkin(Skin.Standard))
+                    problems.Add(p + "has no Classic skin to fall back to");
+                if (!item.Enabled) continue;
+                if (string.IsNullOrEmpty(item.Model)) problems.Add(p + "is enabled but has no model");
+                if (item.Family == HandlingFamily.None) problems.Add(p + "is enabled but has no handling family");
+                if (item.HeldScale <= 0f || item.HeldScale > 1f) problems.Add(p + $"held scale {item.HeldScale} is outside (0, 1]");
+                if (item.Hands != 1 && item.Hands != 2) problems.Add(p + "must use 1 or 2 hands");
+                if (!item.Consumable && item.Durability <= 0) problems.Add(p + "is reusable but has no durability");
+                switch (item.Family)
+                {
+                    case HandlingFamily.MeleeSwing:
+                    case HandlingFamily.MeleeThrust:
+                        if (item.Melee == null) problems.Add(p + "is a melee item without melee stats");
+                        else if (item.Melee.Damage <= 0 || item.Melee.Reach <= 0) problems.Add(p + "melee damage and reach must be positive");
+                        break;
+                    case HandlingFamily.Thrown:
+                        if (item.Thrown == null) problems.Add(p + "is thrown without thrown stats");
+                        break;
+                    case HandlingFamily.Shield:
+                        if (item.Shield == null) problems.Add(p + "is a shield without shield stats");
+                        break;
+                    case HandlingFamily.DeployCover:
+                    case HandlingFamily.DeployPad:
+                    case HandlingFamily.DeploySpeed:
+                    case HandlingFamily.DeployZone:
+                        if (item.Deploy == null) problems.Add(p + "is deployable without deploy stats");
+                        break;
+                    case HandlingFamily.Buff:
+                    case HandlingFamily.Heal:
+                        if (item.Use == null) problems.Add(p + "is usable without use stats");
+                        break;
+                }
+                if (item.Consumable && item.Family == HandlingFamily.MeleeSwing)
+                    problems.Add(p + "a consumable can't be a melee weapon");
+            }
+            return problems;
+        }
+
+        public static ItemCatalogue FromJson(string json, string source = "items.json")
+        {
+            var root = Json.Parse(json, source);
+            var catalogue = new ItemCatalogue();
+            foreach (var n in root["items"].Items)
+            {
+                var item = new ItemDefinition
+                {
+                    Id = n["id"].String(),
+                    Category = ParseEnum<ItemCategory>(n["category"]),
+                    Tier = ParseEnum<ItemTier>(n["tier"]),
+                    Enabled = n["enabled"].Bool(false),
+                    Consumable = n["consumable"].Bool(false),
+                    Family = n.Has("family") ? ParseEnum<HandlingFamily>(n["family"]) : HandlingFamily.None,
+                    Hands = n["hands"].Int(1),
+                    Model = n["model"].String(null),
+                    HeldScale = n["heldScale"].Float(1f),
+                    Durability = n["durability"].Int(0),
+                    Notes = n["notes"].String(""),
+                };
+                if (n.Has("grip")) item.Grip = n["grip"].Floats(3);
+                if (n.Has("size")) item.Size = n["size"].Floats(3);
+                if (n.Has("skins")) item.Skins = n["skins"].Strings();
+                if (n.Has("legacyWords")) item.LegacyWords = n["legacyWords"].Strings();
+                if (n.Has("melee")) item.Melee = ReadMelee(n["melee"]);
+                if (n.Has("thrown"))
+                {
+                    var t = n["thrown"];
+                    item.Thrown = new ThrownStats
+                    {
+                        Damage = t["damage"].Float(),
+                        Speed = t["speed"].Float(),
+                        Lob = t["lob"].Bool(false),
+                        Recoverable = t["recoverable"].Bool(false),
+                        FuseSeconds = t["fuse"].Float(0f),
+                        Radius = t["radius"].Float(0f),
+                        EdgeDamage = t["edgeDamage"].Float(0f),
+                        Knockback = t["knockback"].Float(0f),
+                        BreakPower = t["breakPower"].Float(1f),
+                    };
+                }
+                if (n.Has("shield"))
+                {
+                    var s = n["shield"];
+                    item.Shield = new ShieldStats
+                    {
+                        FrontArcDegrees = s["frontArc"].Float(),
+                        DamageReduction = s["reduction"].Float(),
+                        MoveSpeedMultiplier = s["moveSpeed"].Float(1f),
+                        RaiseSeconds = s["raise"].Float(0.1f),
+                    };
+                }
+                if (n.Has("deploy"))
+                {
+                    var d = n["deploy"];
+                    var footprint = d["footprint"].Floats(2);
+                    item.Deploy = new DeployStats
+                    {
+                        Effect = ParseEnum<DeployEffect>(d["effect"]),
+                        FootprintX = footprint[0],
+                        FootprintZ = footprint[1],
+                        PlaceSeconds = d["place"].Float(0.5f),
+                        Strength = d["strength"].Float(0f),
+                        LifetimeSeconds = d["lifetime"].Float(0f),
+                        Radius = d["radius"].Float(0f),
+                    };
+                }
+                if (n.Has("use"))
+                {
+                    var u = n["use"];
+                    item.Use = new UseStats
+                    {
+                        Effect = ParseEnum<UseEffect>(u["effect"]),
+                        Amount = u["amount"].Float(0f),
+                        Seconds = u["seconds"].Float(0f),
+                        ChannelSeconds = u["channel"].Float(0.4f),
+                    };
+                }
+                catalogue.Add(item);
+            }
+            return catalogue;
+        }
+
+        internal static MeleeStats ReadMelee(JsonNode m) => new MeleeStats
+        {
+            Damage = m["damage"].Float(),
+            Reach = m["reach"].Float(),
+            ArcDegrees = m["arc"].Float(),
+            Windup = m["windup"].Float(),
+            Active = m["active"].Float(),
+            Recovery = m["recovery"].Float(),
+            Knockback = m["knockback"].Float(0f),
+            BreakPower = m["breakPower"].Float(1f),
+            HitStun = m["hitStun"].Float(0.2f),
+        };
+
+        internal static T ParseEnum<T>(JsonNode node) where T : struct
+        {
+            string s = node.String();
+            var names = Enum.GetNames(typeof(T));
+            // Names only: Enum.TryParse would also take "3" or "Core, Legacy".
+            if (Array.IndexOf(names, s) >= 0) return (T)Enum.Parse(typeof(T), s);
+            throw node.Error($"'{s}' is not one of {string.Join(", ", names)}");
+        }
+    }
+}

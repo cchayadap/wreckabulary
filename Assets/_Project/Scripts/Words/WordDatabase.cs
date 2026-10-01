@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
@@ -18,15 +19,44 @@ namespace Wreckabulary
         public int Score => LetterScores.ScoreOf(word);
     }
 
-    /// <summary>The spellable words, read from Data/word_list.csv so designers only edit one file.</summary>
+    /// <summary>The enabled catalogue supplies live recipes. FromCsv supports explicit test/designer fixtures.</summary>
     [CreateAssetMenu(menuName = "Wreckabulary/Word Database")]
     public class WordDatabase : ScriptableObject
     {
         [SerializeField] TextAsset csv;
 
         [NonSerialized] List<WordEntry> words;
+        [NonSerialized] ItemCatalogue catalogue;
+        [NonSerialized] bool explicitFixture;
 
-        public IReadOnlyList<WordEntry> Words => words ??= csv ? Parse(csv.text) : new List<WordEntry>();
+        public IReadOnlyList<WordEntry> Words
+        {
+            get
+            {
+                if (explicitFixture) return words;
+                var current = GameConfig.Current.Items;
+                if (words == null || catalogue != current)
+                {
+                    catalogue = current;
+                    words = CatalogueWords(current);
+                }
+                return words;
+            }
+        }
+
+        static List<WordEntry> CatalogueWords(ItemCatalogue catalogue)
+        {
+            var result = new List<WordEntry>();
+            foreach (var item in catalogue.Enabled)
+            {
+                var category = item.Category == ItemCategory.Furniture ? WordCategory.Furniture
+                    : item.Shield != null || item.Use != null ? WordCategory.Defence
+                    : item.Deploy != null && (item.Deploy.Effect == DeployEffect.JumpPad || item.Deploy.Effect == DeployEffect.SpeedStrip) ? WordCategory.Movement
+                    : item.Consumable ? WordCategory.Chaos : WordCategory.Weapon;
+                result.Add(new WordEntry { word = item.Id, category = category, notes = item.Notes });
+            }
+            return result;
+        }
 
         public WordEntry Find(string word)
         {
@@ -40,6 +70,7 @@ namespace Wreckabulary
         {
             var db = CreateInstance<WordDatabase>();
             db.words = Parse(text);
+            db.explicitFixture = true;
             return db;
         }
 

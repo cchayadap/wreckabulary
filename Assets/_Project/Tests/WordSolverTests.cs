@@ -62,7 +62,7 @@ namespace Wreckabulary.Tests
         public void ShippedWordListParses()
         {
             var db = UnityEngine.Resources.Load<GameAssets>("GameAssets").words;
-            Assert.Greater(db.Words.Count, 15);
+            Assert.AreEqual(GameConfig.Current.Items.Enabled.Count(), db.Words.Count);
             Assert.IsNotNull(db.Find("BLADE"));
         }
     }

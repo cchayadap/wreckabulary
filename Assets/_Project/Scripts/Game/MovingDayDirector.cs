@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
@@ -57,9 +58,10 @@ namespace Wreckabulary
         readonly List<Transform> puddles = new();
         List<WordEntry> checklistWords = new();
         float stateStarted, nextCheck, nextResupply, nextSpill;
-        int lastCount;
         readonly StringBuilder sb = new();
         const float DeliveryGap = 1.2f;
+        RoomBuilder layoutBuilder;
+        ModeActions actions;
 
         public State Current { get; private set; }
         public int LevelIndex { get; private set; }
@@ -80,25 +82,43 @@ namespace Wreckabulary
 
         void Start()
         {
-            Music.Play(Track.Bouncy);
+            layoutBuilder = GetComponent<RoomBuilder>();
+            if (!layoutBuilder) layoutBuilder = gameObject.AddComponent<RoomBuilder>();
+            var house = layoutBuilder.Layout;
+            rooms = house.Rooms.Select(r => new Room { name = r.Name, xRange = new Vector2(r.MinX, r.MaxX), zRange = new Vector2(r.MinZ, r.MaxZ) }).ToArray();
+            levels = new[] { new Level { name = house.Name, timeLimit = Match.Rules.RoundTimeLimitSeconds,
+                items = house.MovingDay.Select(i => new Item { word = i.Word, room = i.Room }).ToArray() } };
+            if (!deliverySpot) deliverySpot = new GameObject("Delivery spot").transform;
+            var deliveryRoom = house.Room(house.ExtractionRoom);
+            deliverySpot.position = new Vector3(house.ExtractionX, deliveryRoom.FloorY, house.ExtractionZ);
+            actions = ModeActions.Create(transform, "PLAY AGAIN", Retry);
+            actions.Show(false);
             joins.RespawnKnockedOut = true;
-            joins.Joined += GiveChecklist;
+            joins.Joined += ConfigurePlayer;
             StartLevel(0);
         }
 
-        void GiveChecklist(PlayerController p)
+        void ConfigurePlayer(PlayerController p)
         {
-            p.Summoner.WordsOverride = checklistWords;
+            joins.AssignTeams();
+            p.Health.ResetForRound();
+            var objectives = new HashSet<string>(checklistWords.Select(w => w.word));
+            p.Summoner.ChecklistPlacementWords = objectives;
+            // Checklist IDs build plain furniture; the other enabled recipes remain usable tools.
+            p.Summoner.WordsOverride = checklistWords.Concat(GameAssets.I.words.Words.Where(w => !objectives.Contains(w.word))).ToList();
             p.Inventory.Set("");
+            p.Frozen = Current != State.Playing;
+            if (joins.Players.Count == 1 && Current == State.Countdown) stateStarted = Time.time;
         }
+
+        public void Retry() => StartLevel(LevelIndex);
 
         public void StartLevel(int index)
         {
             LevelIndex = index;
             StopAllCoroutines();
-            SummonedThing.ClearAll();
-            World.ClearTransient();
-            if (TilePool.Instance) TilePool.Instance.ReleaseAll();
+            layoutBuilder.ResetRoom(furnish: false);
+            actions.Show(false);
             foreach (var puddle in puddles) if (puddle) Destroy(puddle.gameObject);
             puddles.Clear();
             placed.Clear();
@@ -112,7 +132,7 @@ namespace Wreckabulary
             foreach (var p in joins.Players)
             {
                 joins.Place(p);
-                GiveChecklist(p);
+                ConfigurePlayer(p);
                 p.Frozen = true;
             }
             TimeLeft = CurrentLevel.timeLimit;
@@ -132,9 +152,13 @@ namespace Wreckabulary
             switch (Current)
             {
                 case State.Countdown:
+                    if (joins.Players.Count == 0)
+                    {
+                        hud.SetTitle("MOVING DAY", ControlHints.Join("join"));
+                        stateStarted = Time.time;
+                        break;
+                    }
                     int left = Mathf.CeilToInt(countdownTime - t);
-                    if (left != lastCount && left > 0) Sfx.Play(Sound.Countdown);
-                    lastCount = left;
                     hud.SetTitle(left > 0 ? left.ToString() : "GO!", $"Level {LevelIndex + 1}: {CurrentLevel.name}");
                     if (t >= countdownTime) BeginPlay();
                     break;
@@ -150,11 +174,7 @@ namespace Wreckabulary
                     break;
 
                 case State.Complete:
-                    if (t >= resultTime)
-                    {
-                        if (LevelIndex + 1 < levels.Length) StartLevel(LevelIndex + 1);
-                        else if (!Session.GoHome()) StartLevel(0);
-                    }
+                    if (joins.AnyStartPressed()) Retry();
                     break;
 
                 case State.OutOfTime:
@@ -164,14 +184,13 @@ namespace Wreckabulary
 
             hud.SetTimer(Current == State.Playing || Current == State.Countdown ? FormatTime(TimeLeft) : "");
             hud.SetChecklist(ChecklistText());
-            hud.SetInstruction(joins.Players.Count == 0 ? "Press SPACE, . or A to join" : "Smash boxes, spell the checklist, put everything in the right room",
-                               "Spell a checklist word to build it  •  grab to pick up and put down  •  Esc: back to the house");
+            hud.SetInstruction(joins.Players.Count == 0 ? ControlHints.Join("join") : "Smash boxes, spell the checklist, put everything in the right room",
+                               "Hold spell to build furniture  •  grab to carry  •  Esc: back to the house");
             hud.SetScoreboard(joins.Players, _ => 0, 0, false);
         }
 
         void BeginPlay()
         {
-            Sfx.Play(Sound.Go);
             SetState(State.Playing);
             hud.SetTitle("GO!", "");
             foreach (var p in joins.Players) p.Frozen = false;
@@ -215,7 +234,6 @@ namespace Wreckabulary
                 rb.isKinematic = true;
                 s.Invulnerable = true;
                 Popup.Show($"{s.Word} placed!", rb.worldCenterOfMass + Vector3.up * 1.5f, new Color(0.56f, 0.82f, 0.55f), 4f);
-                Sfx.Play(Sound.Placed, rb.worldCenterOfMass);
             }
         }
 
@@ -233,14 +251,17 @@ namespace Wreckabulary
             foreach (var word in remaining.Select(i => i.word).Distinct())
             {
                 int needed = remaining.Count(i => i.word == word);
-                int built = smashables.Count(s => s.Word == word && !placed.Contains(s)); // boxes and built items both count
-                if (built >= needed) continue;
-                if (WordSolver.CanSpell(WordSolver.Count(letters), word))
+                int built = smashables.Count(s => s.Word == word && !placed.Contains(s)) +
+                    joins.Players.Count(p => p.Summoner.IsCrafting && p.Summoner.CraftWord == word);
+                for (int count = built; count < needed; count++)
                 {
-                    foreach (char c in word) letters.Remove(c); // reserve them so two items don't count the same letters
-                    continue;
+                    if (WordSolver.CanSpell(WordSolver.Count(letters), word))
+                    {
+                        foreach (char c in word) letters.Remove(c); // reserve each recipe once across duplicate objectives
+                        continue;
+                    }
+                    Deliver(word);
                 }
-                Deliver(word);
             }
         }
 
@@ -281,8 +302,10 @@ namespace Wreckabulary
             Session.RecordStars(LevelIndex, Stars);
             SetState(State.Complete);
             hud.SetTitle("MOVED IN!", $"{Stars} / 3 stars  •  {FormatTime(TimeLeft)} to spare");
+            foreach (var p in joins.Players) p.Frozen = true;
+            World.FreezeTransient();
+            actions.Show(true);
             CameraRig.Shake(0.2f);
-            Sfx.Play(Sound.Stars);
         }
 
         void OutOfTime()
@@ -290,7 +313,9 @@ namespace Wreckabulary
             Stars = 0;
             SetState(State.OutOfTime);
             hud.SetTitle("OUT OF TIME", "The movers want their truck back. Try again!");
-            Sfx.Play(Sound.Fizzle);
+            foreach (var p in joins.Players) p.Frozen = true;
+            World.FreezeTransient();
+            actions.Show(true, "RETRY");
         }
 
         string ChecklistText()

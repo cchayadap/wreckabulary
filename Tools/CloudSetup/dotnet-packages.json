@@ -1,0 +1,67 @@
+{
+  "sdk": "9.0.318",
+  "source": "https://packages.microsoft.com/debian/12/prod/",
+  "verifiedSigningKey": "BC528686B50D79E339D3721CEB3E94ADBE1229CF",
+  "packages": [
+    {
+      "name": "dotnet-sdk-9.0",
+      "version": "9.0.318-1",
+      "path": "pool/main/d/dotnet-sdk-9.0/dotnet-sdk-9.0_9.0.318-1_amd64.deb",
+      "sha256": "45af6390dc0c7ed02b724e812cc8fa6070deb345a9264eede225d861119250c3"
+    },
+    {
+      "name": "dotnet-runtime-9.0",
+      "version": "9.0.20-1",
+      "path": "pool/main/d/dotnet-runtime-9.0/dotnet-runtime-9.0_9.0.20-1_amd64.deb",
+      "sha256": "09dfedba243d8d6eb6b18a79f8e3609c9dd4580f02dfb5831077454a233fe8a0"
+    },
+    {
+      "name": "dotnet-hostfxr-9.0",
+      "version": "9.0.20-1",
+      "path": "pool/main/d/dotnet-hostfxr-9.0/dotnet-hostfxr-9.0_9.0.20-1_amd64.deb",
+      "sha256": "db7e58ef663161d2293f81c5bd0f8f2847eb10d0d3696d82efdc414224c2a9ee"
+    },
+    {
+      "name": "dotnet-runtime-deps-9.0",
+      "version": "9.0.20-1",
+      "path": "pool/main/d/dotnet-runtime-deps-9.0/dotnet-runtime-deps-9.0_9.0.20-1_amd64.deb",
+      "sha256": "dda1fadc2d61a238d75297f5bf106be3639143ce71cbe96a2f5fa5758f4b21d9"
+    },
+    {
+      "name": "dotnet-host",
+      "version": "10.0.12-1",
+      "path": "pool/main/d/dotnet-host/dotnet-host_10.0.12-1_amd64.deb",
+      "sha256": "daf29b34337a8d2d8789d6086baa446537fc3964a217facb6b7ff3757105995b"
+    },
+    {
+      "name": "dotnet-targeting-pack-9.0",
+      "version": "9.0.20-1",
+      "path": "pool/main/d/dotnet-targeting-pack-9.0/dotnet-targeting-pack-9.0_9.0.20-1_amd64.deb",
+      "sha256": "1c8dcf9a49e4c89b7f8c514b8c2f4b7624aad3e761d13ea4e4897168160a88c7"
+    },
+    {
+      "name": "aspnetcore-runtime-9.0",
+      "version": "9.0.20-1",
+      "path": "pool/main/a/aspnetcore-runtime-9.0/aspnetcore-runtime-9.0_9.0.20-1_amd64.deb",
+      "sha256": "220402ca7e4ee0f2c45d567074cf42b0b7a1299afe66bb52c32969c23630584b"
+    },
+    {
+      "name": "aspnetcore-targeting-pack-9.0",
+      "version": "9.0.20-1",
+      "path": "pool/main/a/aspnetcore-targeting-pack-9.0/aspnetcore-targeting-pack-9.0_9.0.20-1_amd64.deb",
+      "sha256": "b57e159d8606006a381d1714cecf6bf16ecb8220749bb0ae963d646c694958ee"
+    },
+    {
+      "name": "dotnet-apphost-pack-9.0",
+      "version": "9.0.20-1",
+      "path": "pool/main/d/dotnet-apphost-pack-9.0/dotnet-apphost-pack-9.0_9.0.20-1_amd64.deb",
+      "sha256": "a6728d9f5609e1465badd4415568b7a99a6ba7bae2d0d7dbc0c3f7dc037fbc5e"
+    },
+    {
+      "name": "netstandard-targeting-pack-2.1",
+      "version": "2.1.0-1",
+      "path": "pool/main/n/netstandard-targeting-pack-2.1/netstandard-targeting-pack-2.1_2.1.0-1_amd64.deb",
+      "sha256": "0f12001d1918f7ad2452d14d70bd396c82080b691407735213e90de637061f57"
+    }
+  ]
+}

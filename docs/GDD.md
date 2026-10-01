@@ -1,112 +1,106 @@
-# Wreckabulary: Game Design Document
-
-## Pitch
+# Wreckabulary: Game Design
 
 **Wreck the room, build the word!**
 
-A 2–4 player couch party game where everything is made of letters. Smash furniture into letter tiles, grab them, and spell them into new things. Everything you summon can be smashed and re-spelled too.
+Plush roommates turn a warm house into a workshop and a battlefield. A sofa breaks into S, O, F and A; those tiles become ingredients for something useful. The fun comes from deciding what to wreck, which letters to keep, and when to build, throw, protect or help.
 
-- **Genre:** Party, brawler, word game
-- **Theme:** Moving day in a cozy world where everything is made of words
-- **Art style:** Toybox Workshop
-
-![Gameplay mockup](art/gameplay_mockup.jpg)
+This document describes the current production design and separates implemented systems from future creative scope. [The production plan](PLAN.md) sets delivery priorities; [the progress record](progress/WRECKABULARY.md) records actual validation.
 
 ## Pillars
 
-1. **Everything is letters.** Furniture, weapons and health are all letter tiles.
-2. **Cozy room, total chaos.** Warm homely spaces turned into floppy ragdoll battlefields.
-3. **Readable at a glance.** Chunky shapes, bold letters, one colour per player.
+1. **Exact wordcraft.** Every enabled recipe has a fixed letter cost, including repeated letters. The same object identity survives pickup, use, swapping, throwing and deployment.
+2. **A house worth playing in.** Recognizable furniture, looping routes and a garden create both tactical choices and a playful home atmosphere.
+3. **Readable physical comedy.** Soft silhouettes, wooden letter tiles and clear action feedback keep the player, loot and danger legible through the mess.
+4. **Cooperation and rivalry.** The same collection and handling skills support a brawl, a furnishing task and an escape.
 
-## Core loop
+## Shared rules
 
-Smash → Scavenge → Spell → Summon. Summoned objects can themselves be smashed, scattering their letters for anyone to steal.
+The canonical values live in `Assets/_Project/Data/Config/rules.json` and `items.json`.
 
-**Spelling** is done by hand. Press spell, pick your letters in order (left/right to choose, add, undo), then press spell again to cast. Real words are summoned. Anything else fizzles, and nothing is spent. You stand still while spelling, which is the risk.
+| Rule | Current design |
+| --- | --- |
+| Health | 100 HP; letters are separate loot |
+| Loose bag | 18 letters, including the letters reserved by an active craft |
+| Gear | Two carried slots and two deployed items per player |
+| Starting bag | Empty under the standard rules |
+| Crafting | Reserve the exact letters immediately; channel for 0.6 seconds + 0.12 seconds per letter at 40% move speed |
+| Interruption | Cancel, dodge, stagger or knockout refunds the craft reservation; an invalid completion also refunds it |
+| Elimination | Spill all loose/reserved letters and release carried gear |
+| Reusable gear | Breaking returns its recipe once |
+| Consumables | BOMB after arming, FOAM after use and SOAP after placement spend their letters; expiry returns none |
+| Cosmetics | Appearance changes do not alter costs, damage, collision, timings or movement |
 
-Things break from punches, weapons and blasts, or when something *thrown* hits them. Furniture doesn't wreck itself by toppling over, and boxes don't break when they land on each other.
+For example, a bag containing TABLE plus D can craft BLADE by spending B, L, A, D and E; the surplus T remains in the bag. No recipe invents or substitutes letters.
 
-## Premise (trailer)
+Punches, weapons, blasts and thrown impacts damage objects. Furniture should not break merely because it topples, and deliveries should not destroy each other on landing. Damage uses simple gameplay collision shapes rather than detailed moving mesh colliders.
 
-Roommates carry boxes through the door → one box turns out to be made of B-O-X → it pops open and tiles spill out → two roommates grab for the same letters → the fight begins.
+Melee uses authored windup, active and recovery windows, one hit per target per swing, reach and facing arcs. PLATE blocks within its authored front arc, slows movement while raised, and wears down from blocked damage. Dodging has a cooldown and a brief invulnerability window; a landed stagger prevents actions without allowing repeated stun lock.
 
-## Hub
+## Twelve enabled recipes
 
-Your own customisable house, where you can also customise your character. Friends join by picking up a controller and walking in the door. Choose a mode at the typewriter.
+| Recipe | Role |
+| --- | --- |
+| BALL | Recoverable throw: 12 damage, fast travel and modest shove |
+| BAT | Broad melee swing: 14 damage and strong knockback |
+| BED | Reusable deployed jump pad |
+| BLADE | Narrower, heavier melee hit: 24 damage |
+| BOMB | Single-use 2.5-second fuse; 3-metre blast with damage falling from 45 at the centre to 15 at the edge |
+| FOAM | Single-use 35-point protection bubble for up to 10 seconds |
+| LAMP | Long, narrow melee thrust; also furniture when required by a Moving Day checklist |
+| MAT | Directional deployed speed strip; boost continues briefly after leaving |
+| PLATE | Durable frontal shield |
+| SOAP | Single-use slippery patch with an 8-second lifetime |
+| SOFA | Durable deployed cover |
+| TABLE | Heavy melee swing or deployed cover |
 
-## Modes
+The catalogue also contains disabled entries and the art pack contains additional household objects. Those objects can furnish a map or provide letters; they are not additional live recipes. Shared JSON does not make the Unity and JavaScript behavior identical automatically, so parity needs tests in both editions.
 
-### Tutorial
+## The house and maps
 
-Teaches smashing, grabbing, spelling and summoning.
+The hub offers mode selection, map selection and cosmetic choices. Unity local roommates join through the front door; AI seats are created for a match and do not become persistent hub roommates.
 
-### Versus: "Dibs!"
+**Pinwheel House** occupies a 20 × 20 metre footprint. An 8 × 8 metre playroom connects to Bedroom, Kitchen, Study and LivingRoom; eight doorways provide paths through the middle and around neighbouring rooms. A raised balcony and stairs provide vertical variation in the Unity blockout.
 
-Fight your roommates for the best stuff. Letters are your health.
+**Garden Courtyard** occupies a 32 × 32 metre footprint around a 12 × 12 metre garden. Four indoor rooms connect through the garden and around its perimeter. Wider doorways support carrying furniture. Both maps define spawn positions, furnishing checklists, keepsakes and extraction in shared JSON.
 
-- Everyone starts a round with **3 letters**, so the first hit isn't a knockout.
-- Carry at most **6 letters**.
-- A hit knocks **2 letters** loose. A hit with **0 letters** is a knockout.
-- Last player standing wins the round. First to **3 rounds** wins.
-- After **90 seconds** the room starts collapsing to force fights.
+The large house is a connected route network, not a distant overview of tiny players. Camera follow, cutaway walls, open door clearance, reachable letters and safe spawn areas are acceptance requirements. Geometry sizes alone do not prove useful route times or phone readability; test the actual routes at the gameplay camera. Unity and browser camera/physics implementations need separate checks.
 
-- When the room runs low on letters, labelled **delivery boxes** drop in (PIZZA, QUILT, SOCKS…). Smash one to get the letters on its label.
-- Summons **fall apart into their letters** when used up (a weapon out of swings, SKATES wearing off), so spent letters come back into play.
+## Modes and complete local loops
 
-Later variations: **Furnish First** (race to furnish the room), and more.
+**Dibs.** Everyone is hostile. The last roommate standing wins a round; first to three wins takes the match. Solo starts fill AI seats. The Movers warn before clearing outer rooms and damaging anyone who stays; the central playroom/garden remains available. An unresolved round at the time limit is a draw, not a highest-HP victory. Results lead to the next round, replay or home.
 
-**Furnish First** (prototype in): each roommate has a corner and every round has a shared checklist of 3 objects. Boxes with those words drop in the middle. Get the whole list, at rest, into your corner first to win the round. First to 2 rounds wins. Anything in your corner counts, so steal from other corners. Knockouts only take you out for 2 seconds.
+**Duos.** Two teams fight under friendly-fire rules with downed players and revival. Hold interact near a downed teammate for the authored revive duration. A team that has no possible rescuer is eliminated; simultaneous elimination can draw. Solo play supplies an AI teammate and opponents. Team state, timeouts and results must agree across editions.
 
-### Co-op: "Moving Day"
+**Moving Day.** Cooperate to furnish the selected map before time expires. Deliveries contain the exact checklist words. All twelve enabled recipes remain available. Only the map's explicit checklist IDs build plain furniture rather than filling a gear slot; other words craft their regular tools, so SOAP and MAT can still be used creatively. A settled item in its target room completes that objective and locks in place. LAMP remains an allowed checklist item despite being a utility in the combat catalogue. Cancelled tool crafts refund their exact letters. Supplies lost or spent on consumables can be replaced so the checklist cannot become unwinnable. Completion awards one to three stars based on time remaining; failure offers retry. Each current map supplies four placement objectives.
 
-Furnish the house together, 1–4 players. Unpack boxes, spell the checklist items and place them in the right rooms, with obstacles and a time limit. Each level awards 1–3 stars.
+**Moving Out.** Carry marked, protected keepsakes to the van and release them inside its 2.4-metre extraction radius. Keepsakes require handling rather than destruction. Clear-out pressure continues as the team rescues them. Victory requires every keepsake and every remaining survivor at the van, with survivors alive rather than downed. Loss, retry and home are explicit states.
 
-- Boxes labelled with each checklist word arrive at the front door. Smashing a box gives its letters.
-- Only checklist words can be spelled here. Spelling one builds that piece of furniture in front of you.
-- Furniture that comes to rest in the right room is ticked off and locked in place.
-- Stars: 3 with at least half the time left, 2 with a quarter, otherwise 1. Out of time means a retry.
-- If an item's letters get lost, a new box is sent.
-- Prototype levels: *Moving In* (BED, LAMP, SOFA, TABLE; 2:30) and *Housewarming* (DESK, CHAIR, RUG, TV, PLANT, CLOCK; 3:00, with slippery spills).
+**Tutorial.** Unity guides movement, smashing a BAT delivery, collecting, crafting, attacking, throwing and knockout. The browser provides an open practice space with a dummy and progress prompts. This difference is intentional and must be presented accurately.
 
-### Creative: "Home Sweet Home"
+Unity's local input supports keyboard/mouse, gamepads and shared-keyboard seats. The browser currently has one human with AI housemates and keyboard/mouse or touch input. Neither edition currently provides online matchmaking or networked play.
 
-The typewriter prints endless letters to build and decorate your house. Hit **Play** to turn it into a Dibs! arena with custom rules. Rooms can be saved and loaded.
+## Characters, skins and feedback
 
-- Spelling uses A–Z instead of carried letters, so letters can repeat and nothing is spent. Only object words work.
-- Grab, put down and throw to arrange the room. Punching removes things, and their letters vanish after a few seconds.
-- Hits push you around but never knock you out.
-- The room menu desk offers: Play Dibs! here (2+ players, rounds to win 1/2/3/5, starting letters 0–6), save to or load from slots 1–3, and clear the room.
-- After a match in your room you return to Creative with the room intact.
+Use the supplied modular avatar and its authored rig, wardrobe meshes and clips. Wardrobe selections hide unused modules, recolour approved material regions, and preserve head morphs. Item skins are Classic, Candy and Arcade. Held gear uses its holder's choice at miniature scale; a thrown crafted object keeps that look until it rests, then returns to full-size Classic in the room. Pickup changes appearance without changing recipe or durability.
 
-## Words
+Wood, ceramic, cloth and rubber should read as distinct surfaces under a restrained cream, sage and terracotta environment palette. Player accents, visible glyphs, shield states and danger shapes carry information in addition to colour. Impact, craft, shield, fuse and result cues should be brief and audible without concealing loose letters.
 
-Curated words in five categories: Weapon, Defence, Movement, Chaos, and Furniture (object words such as BED, SOFA and TABLE, which build the object). Longer words and rare letters (Q, Z, X, J) are stronger. Hidden words never appear as hints. Full list: `Assets/_Project/Data/word_list.csv`. What each word does is in `SummonEffects.cs`.
+Touch controls need reachable movement/aim and action buttons, visible recipe costs, a clear craft channel/cancel path, and usable navigation while a typewriter freezes its user. Safe-area and portrait/landscape layout checks are separate from real-device responsiveness and performance.
 
-Note: UMBRELLA has 8 letters but players carry at most 6, so it can never be spelled. Either raise the carry limit or swap it for a shorter word.
+## Critical art constraints
 
-## Characters
+The [supplied-asset audit](art/SUPPLIED_ASSET_AUDIT.md) evaluates the actual meshes and materials. Use its evidence rather than the old primitive-only review or promotional illustrations.
 
-Cartoonish, blobby ragdoll characters (in the spirit of Fall Guys and PEAK) in knitted sweaters with a big initial letter, customisable in the hub. In the prototype the four sweater initials spell W, O, R, D. Stable core, floppy limbs. All four play the same; differences are cosmetic.
+The original avatar totals 63,110 triangles across 11 skinned modules, 22 bones and 17 clips. The default outfit uses 31,696 triangles, six skinned renderers and nine material slots. The accepted reduced browser export lowers its default outfit to 17,660 triangles while retaining the head and both morph targets. Interchange, exact animation data and visual comparison checks pass. Complete scene profiling and Unity deformation checks remain required before mobile readiness can be claimed.
 
-## Maps
+Preserve the authored FBX root transforms, grip positions, material assignments and exact word-to-letter burst origins. Use simple physical proxies; do not enable the imported visual colliders alongside the gameplay collider. Test object and letter silhouettes at the actual camera, including the full loose-tile load. Concept images and raster button illustrations do not establish 3D topology, skinning or FPS.
 
-1. **Living room** (main): sofa, coffee table, lamp, mug, plate, vase, chair, books, pillow, plant, radio, clock.
-2. **Bedroom:** bed, lamp, shelf, desk, chair, closet, mirror, teddy, rug, pillow, clock, books.
-3. **Kitchen:** fridge, stove with a kettle on it, sink, shelf, table with chairs, bowl, cup, pot, pan, stools, fan.
-4. **Garden** (outdoors, hedges instead of walls): trees, bushes, flower, rose, bench, swing, pond, rock, hose, gnome, fence.
+## Future creative home mode
 
-Each arena has its own themed delivery boxes (the kitchen gets SPOONS and DISHES, the garden SEEDS and KITES). Players pick the arena at the typewriter.
+**Home Sweet Home** is planned. Its first useful slice is a local room editor with a curated prop palette, snap/rotate/place/remove controls, undo, and versioned save/load. A room must retain reachable doors, spawn clearance and recipe accounting when used as a playable arena. A larger connected house and garden should remain useful for exploration and cooperative play; combat layouts can bound the same themes for readability.
 
-Stretch goal: a mischievous letter **cat** wanders the room, steals loose letters and runs off with them.
+New recipes, extra floors, pets and custom competitive rules follow only after the existing four modes, touch navigation, art acceptance and performance targets pass. This planned scope is not a description of current playable features.
 
-## Art direction: Toybox Workshop
+## Validation boundary
 
-Objects are built Word World-style: 3D copies of the word's own letters, stretched, stacked and laid down into the object's shape (a B headboard, a flat E mattress and a D footboard make a BED). Warm wooden letter tiles, cartoonish blobby ragdoll characters, cream and sage walls, terracotta accents. Objects are built from their own letters. Fonts: Lilita One (display), Nunito (UI), Gochi Hand (tagline).
-
-## Technical highlights (for the Technicality grade)
-
-- Active ragdoll characters with balance forces and grab joints
-- Destruction that bursts objects into their exact letters
-- Real-time word solver over held letters
-- Letter-built objects assembled from letter meshes
-- Object pooling for dozens of physics tiles
+The exact Unity editor is **6000.6.3f1**. The cloud's Unity Personal activation currently fails with exit 198, so compilation against its official assemblies does not demonstrate import, EditMode/PlayMode execution, screenshots or successful builds. Browser mechanics and Chromium interaction tests supply separate evidence. Representative phones and PC builds still require direct testing before a platform or performance release claim.

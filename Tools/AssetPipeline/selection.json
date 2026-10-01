@@ -1,0 +1,57 @@
+{
+  "_comment": "Which source-pack files become Unity assets. Paths are relative to the packs root (the folder that holds vault-v2/ and quality-pass-01/). Edit this file, then rerun build_assets.py.",
+  "packs": {
+    "v2": "vault-v2/Wreckabulary_3D_Vault_v2",
+    "qp01": "quality-pass-01/Wreckabulary_Quality_Pass_01"
+  },
+  "output": {
+    "art": "Assets/_Project/Art/Imported",
+    "data": "Assets/_Project/Data/Generated"
+  },
+  "max_texture_size": 512,
+  "items": {
+    "source": "v2",
+    "folder": "02_Craftable_Items",
+    "skins": ["Classic", "Candy", "Arcade"],
+    "words": [
+      "BAT", "BLADE", "LAMP", "BALL", "PLATE", "TABLE", "BED", "MAT", "SOFA", "SOAP", "FOAM", "BOMB",
+      "ARROW", "BOW", "BROOM", "HAMMER", "PAN", "SHIELD", "SPEAR",
+      "APPLE", "CAKE", "PIE", "SODA", "WATER",
+      "BARREL", "BOX", "CABINET", "CHAIR", "CHEST", "CRATE", "DESK", "SHELF", "STOOL",
+      "BOOK", "CLOCK", "FAN", "MUG", "PLANT", "POT", "VASE"
+    ]
+  },
+  "letters": {
+    "source": "v2",
+    "folder": "01_Alphabet",
+    "skin": "Classic",
+    "letters": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  },
+  "environment": {
+    "source": "v2",
+    "folder": "03_Environment_Modules",
+    "modules": [
+      "Arena_Rug", "Corner_Post", "Curtain", "Doorstep", "Floor_Carpet_2m", "Kitchen_Counter", "Kitchen_Fridge",
+      "Kitchen_Sink", "Kitchen_Stove", "Platform_2m", "Radiator", "Railing_2m", "Round_Rug", "Stairs_1m",
+      "Wall_Door", "Wall_Sconce", "Wall_Shelf", "Wall_Sign", "Wall_Solid", "Wall_Window", "Window_Frame"
+    ],
+    "_excluded": "Floor_Wood_2m and Floor_Tile_2m (7,344 tris per 2 m tile; Unity builds low-poly slabs instead), Ceiling_Pendant (no ceiling), Door_Panel (doorways stay open in v1)"
+  },
+  "vfx": {
+    "source": "v2",
+    "folder": "05_VFX_Meshes",
+    "meshes": [
+      "Bomb_Warning", "Craft_Ring", "Foam_Cloud", "Impact_Star", "Jump_Arrow",
+      "Pickup_Ring", "Room_Hazard", "Soap_Puddle", "Speed_Trail", "Wood_Splinter"
+    ]
+  },
+  "avatar": {
+    "base": { "source": "qp01", "file": "03_Avatar/Source_Avatar_Unchanged.glb" },
+    "modules": {
+      "source": "v2",
+      "folder": "06_Customizable_Avatar/Modules",
+      "names": ["Hoodie", "Hood", "Cap", "Glasses", "Satchel", "Badge_T"]
+    },
+    "output_name": "Avatar"
+  }
+}

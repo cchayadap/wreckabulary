@@ -1,0 +1,3399 @@
+{
+ "generator": "Tools/AssetPipeline/build_assets.py",
+ "blender": "5.2.2 LTS",
+ "only": [
+  "avatar",
+  "environment",
+  "items",
+  "letters",
+  "vfx"
+ ],
+ "seconds": 10.4,
+ "files": [
+  {
+   "kind": "item",
+   "name": "BAT",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/BAT/BAT_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BAT.fbx",
+   "triangles": 5248,
+   "meshes": [
+    "BAT"
+   ],
+   "materials": [
+    "cream_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.086,
+    0.0,
+    -0.086
+   ],
+   "bounds_max": [
+    0.086,
+    1.018,
+    0.086
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.172,
+    1.018,
+    0.172
+   ],
+   "bytes": 120476,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BLADE",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/BLADE/BLADE_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BLADE.fbx",
+   "triangles": 4384,
+   "meshes": [
+    "BLADE"
+   ],
+   "materials": [
+    "dark_Classic",
+    "gold_Classic",
+    "ivory_Classic",
+    "metal_Classic",
+    "wood_dark_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.165,
+    0.0,
+    -0.046
+   ],
+   "bounds_max": [
+    0.165,
+    0.866,
+    0.046
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.006,
+   "authored_size_xyz": [
+    0.33,
+    0.866,
+    0.092
+   ],
+   "bytes": 114316,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "LAMP",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/LAMP/LAMP_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/LAMP.fbx",
+   "triangles": 3664,
+   "meshes": [
+    "LAMP"
+   ],
+   "materials": [
+    "ceramic_Classic",
+    "cream_Classic",
+    "glow_Classic",
+    "gold_Classic",
+    "ivory_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.268,
+    0.0,
+    -0.268
+   ],
+   "bounds_max": [
+    0.268,
+    0.893,
+    0.268
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.536,
+    0.893,
+    0.536
+   ],
+   "bytes": 104044,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BALL",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/BALL/BALL_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BALL.fbx",
+   "triangles": 3156,
+   "meshes": [
+    "BALL"
+   ],
+   "materials": [
+    "cream_Classic",
+    "ivory_Classic",
+    "red_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.1835,
+    0.0,
+    -0.1835
+   ],
+   "bounds_max": [
+    0.1835,
+    0.367,
+    0.1835
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0035,
+   "authored_size_xyz": [
+    0.367,
+    0.367,
+    0.367
+   ],
+   "bytes": 92876,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "PLATE",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/PLATE/PLATE_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/PLATE.fbx",
+   "triangles": 1952,
+   "meshes": [
+    "PLATE"
+   ],
+   "materials": [
+    "ceramic_Classic",
+    "gold_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.27,
+    0.0,
+    -0.27
+   ],
+   "bounds_max": [
+    0.27,
+    0.073,
+    0.27
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.54,
+    0.073,
+    0.54
+   ],
+   "bytes": 61004,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "TABLE",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/TABLE/TABLE_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/TABLE.fbx",
+   "triangles": 4320,
+   "meshes": [
+    "TABLE"
+   ],
+   "materials": [
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.6,
+    0.0,
+    -0.3455
+   ],
+   "bounds_max": [
+    0.6,
+    0.72,
+    0.3455
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    1.2,
+    0.72,
+    0.691
+   ],
+   "bytes": 114268,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BED",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/BED/BED_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BED.fbx",
+   "triangles": 5760,
+   "meshes": [
+    "BED"
+   ],
+   "materials": [
+    "blue_Classic",
+    "ceramic_Classic",
+    "cream_Classic",
+    "gold_Classic",
+    "ivory_Classic",
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.5175,
+    0.0,
+    -0.79
+   ],
+   "bounds_max": [
+    0.5175,
+    0.818,
+    0.79
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    1.035,
+    0.818,
+    1.58
+   ],
+   "bytes": 159772,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "MAT",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/MAT/MAT_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/MAT.fbx",
+   "triangles": 1260,
+   "meshes": [
+    "MAT"
+   ],
+   "materials": [
+    "cream_Classic",
+    "dark_Classic",
+    "green_Classic",
+    "ivory_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.58,
+    0.0,
+    -0.325
+   ],
+   "bounds_max": [
+    0.58,
+    0.051,
+    0.325
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    1.16,
+    0.051,
+    0.65
+   ],
+   "bytes": 50972,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "SOFA",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/SOFA/SOFA_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/SOFA.fbx",
+   "triangles": 6248,
+   "meshes": [
+    "SOFA"
+   ],
+   "materials": [
+    "cream_Classic",
+    "green_Classic",
+    "wood_Classic",
+    "wood_dark_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.76,
+    0.0,
+    -0.39
+   ],
+   "bounds_max": [
+    0.76,
+    0.93,
+    0.423
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    1.52,
+    0.93,
+    0.813
+   ],
+   "bytes": 164636,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "SOAP",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Consumables/SOAP/SOAP_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/SOAP.fbx",
+   "triangles": 2352,
+   "meshes": [
+    "SOAP"
+   ],
+   "materials": [
+    "ivory_Classic",
+    "soap_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.16,
+    0.0,
+    -0.105
+   ],
+   "bounds_max": [
+    0.16,
+    0.1485,
+    0.105
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.0025,
+   "authored_size_xyz": [
+    0.32,
+    0.1485,
+    0.21
+   ],
+   "bytes": 69612,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "FOAM",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Consumables/FOAM/FOAM_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/FOAM.fbx",
+   "triangles": 4000,
+   "meshes": [
+    "FOAM"
+   ],
+   "materials": [
+    "blue_Classic",
+    "dark_Classic",
+    "metal_Classic",
+    "white_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.09545,
+    0.0,
+    -0.09545
+   ],
+   "bounds_max": [
+    0.09545,
+    0.3725,
+    0.1
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.1909,
+    0.3725,
+    0.19545
+   ],
+   "bytes": 116668,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BOMB",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Consumables/BOMB/BOMB_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BOMB.fbx",
+   "triangles": 2236,
+   "meshes": [
+    "BOMB"
+   ],
+   "materials": [
+    "cream_Classic",
+    "dark_Classic",
+    "gold_Classic",
+    "ivory_Classic",
+    "metal_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.172,
+    0.0,
+    -0.172
+   ],
+   "bounds_max": [
+    0.172,
+    0.47179,
+    0.172
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.344,
+    0.47179,
+    0.344
+   ],
+   "bytes": 74284,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "ARROW",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/ARROW/ARROW_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/ARROW.fbx",
+   "triangles": 144,
+   "meshes": [
+    "ARROW"
+   ],
+   "materials": [
+    "metal_Classic",
+    "red_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.055,
+    0.0,
+    -0.0453
+   ],
+   "bounds_max": [
+    0.055,
+    0.665,
+    0.0453
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.015,
+   "authored_size_xyz": [
+    0.11,
+    0.665,
+    0.0906
+   ],
+   "bytes": 24316,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BOW",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/BOW/BOW_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BOW.fbx",
+   "triangles": 684,
+   "meshes": [
+    "BOW"
+   ],
+   "materials": [
+    "cream_Classic",
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.219,
+    0.0,
+    -0.029
+   ],
+   "bounds_max": [
+    0.021,
+    0.74931,
+    0.029
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.02535,
+   "authored_size_xyz": [
+    0.24,
+    0.74931,
+    0.058
+   ],
+   "bytes": 36748,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BROOM",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/BROOM/BROOM_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BROOM.fbx",
+   "triangles": 4416,
+   "meshes": [
+    "BROOM"
+   ],
+   "materials": [
+    "cream_Classic",
+    "red_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.15,
+    0.0,
+    -0.0475
+   ],
+   "bounds_max": [
+    0.15,
+    1.02117,
+    0.0475
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.00883,
+   "authored_size_xyz": [
+    0.3,
+    1.02117,
+    0.095
+   ],
+   "bytes": 128716,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "HAMMER",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/HAMMER/HAMMER_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/HAMMER.fbx",
+   "triangles": 5872,
+   "meshes": [
+    "HAMMER"
+   ],
+   "materials": [
+    "gold_Classic",
+    "metal_Classic",
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.1725,
+    0.0,
+    -0.0875
+   ],
+   "bounds_max": [
+    0.1725,
+    0.635,
+    0.0875
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.02,
+   "authored_size_xyz": [
+    0.345,
+    0.635,
+    0.175
+   ],
+   "bytes": 139772,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "PAN",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/PAN/PAN_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/PAN.fbx",
+   "triangles": 1136,
+   "meshes": [
+    "PAN"
+   ],
+   "materials": [
+    "dark_Classic",
+    "metal_Classic",
+    "wood_dark_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.55622,
+    0.0,
+    -0.23
+   ],
+   "bounds_max": [
+    0.23,
+    0.15444,
+    0.23
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.78622,
+    0.15444,
+    0.46
+   ],
+   "bytes": 46204,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "SHIELD",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/SHIELD/SHIELD_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/SHIELD.fbx",
+   "triangles": 172,
+   "meshes": [
+    "SHIELD"
+   ],
+   "materials": [
+    "blue_Classic",
+    "gold_Classic",
+    "ivory_Classic",
+    "wood_dark_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.23,
+    0.0,
+    -0.12465
+   ],
+   "bounds_max": [
+    0.23,
+    0.57,
+    0.063
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.03,
+   "authored_size_xyz": [
+    0.46,
+    0.57,
+    0.18765
+   ],
+   "bytes": 26540,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "SPEAR",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Combat/SPEAR/SPEAR_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/SPEAR.fbx",
+   "triangles": 2028,
+   "meshes": [
+    "SPEAR"
+   ],
+   "materials": [
+    "gold_Classic",
+    "metal_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.085,
+    0.0,
+    -0.034
+   ],
+   "bounds_max": [
+    0.085,
+    1.235,
+    0.034
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.035,
+   "authored_size_xyz": [
+    0.17,
+    1.235,
+    0.068
+   ],
+   "bytes": 60988,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "APPLE",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Consumables/APPLE/APPLE_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/APPLE.fbx",
+   "triangles": 1764,
+   "meshes": [
+    "APPLE"
+   ],
+   "materials": [
+    "leaf_Classic",
+    "red_Classic",
+    "wood_dark_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.12,
+    0.0,
+    -0.115
+   ],
+   "bounds_max": [
+    0.12,
+    0.27088,
+    0.115
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.002,
+   "authored_size_xyz": [
+    0.24,
+    0.27088,
+    0.23
+   ],
+   "bytes": 65324,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "CAKE",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Consumables/CAKE/CAKE_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/CAKE.fbx",
+   "triangles": 3088,
+   "meshes": [
+    "CAKE"
+   ],
+   "materials": [
+    "ceramic_Classic",
+    "cream_Classic",
+    "leaf_Classic",
+    "pink_Classic",
+    "red_Classic",
+    "white_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.25,
+    0.0,
+    -0.25
+   ],
+   "bounds_max": [
+    0.25,
+    0.41649,
+    0.25
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.5,
+    0.41649,
+    0.5
+   ],
+   "bytes": 93436,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "PIE",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Consumables/PIE/PIE_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/PIE.fbx",
+   "triangles": 4640,
+   "meshes": [
+    "PIE"
+   ],
+   "materials": [
+    "cream_Classic",
+    "metal_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.25,
+    0.0,
+    -0.25
+   ],
+   "bounds_max": [
+    0.25,
+    0.182,
+    0.25
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.5,
+    0.182,
+    0.5
+   ],
+   "bytes": 127660,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "SODA",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Consumables/SODA/SODA_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/SODA.fbx",
+   "triangles": 2372,
+   "meshes": [
+    "SODA"
+   ],
+   "materials": [
+    "gold_Classic",
+    "ivory_Classic",
+    "metal_Classic",
+    "red_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.0909,
+    0.0,
+    -0.0909
+   ],
+   "bounds_max": [
+    0.0909,
+    0.302,
+    0.093
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.1818,
+    0.302,
+    0.1839
+   ],
+   "bytes": 72060,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "WATER",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Consumables/WATER/WATER_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/WATER.fbx",
+   "triangles": 2544,
+   "meshes": [
+    "WATER"
+   ],
+   "materials": [
+    "blue_Classic",
+    "ceramic_Classic",
+    "ivory_Classic",
+    "water_Classic",
+    "white_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.088,
+    0.0,
+    -0.088
+   ],
+   "bounds_max": [
+    0.088,
+    0.41,
+    0.0905
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.176,
+    0.41,
+    0.1785
+   ],
+   "bytes": 75564,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BARREL",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/BARREL/BARREL_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BARREL.fbx",
+   "triangles": 4240,
+   "meshes": [
+    "BARREL"
+   ],
+   "materials": [
+    "metal_Classic",
+    "wood_Classic",
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.279,
+    0.0,
+    -0.279
+   ],
+   "bounds_max": [
+    0.279,
+    0.6,
+    0.279
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.558,
+    0.6,
+    0.558
+   ],
+   "bytes": 109756,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BOX",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/BOX/BOX_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BOX.fbx",
+   "triangles": 1772,
+   "meshes": [
+    "BOX"
+   ],
+   "materials": [
+    "cream_Classic",
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.31,
+    0.0,
+    -0.248
+   ],
+   "bounds_max": [
+    0.31,
+    0.5175,
+    0.2495
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.62,
+    0.5175,
+    0.4975
+   ],
+   "bytes": 61500,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "CABINET",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/CABINET/CABINET_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/CABINET.fbx",
+   "triangles": 3600,
+   "meshes": [
+    "CABINET"
+   ],
+   "materials": [
+    "gold_Classic",
+    "wood_Classic",
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.495,
+    0.0,
+    -0.225
+   ],
+   "bounds_max": [
+    0.495,
+    1.135,
+    0.311
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.99,
+    1.135,
+    0.536
+   ],
+   "bytes": 103628,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "CHAIR",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/CHAIR/CHAIR_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/CHAIR.fbx",
+   "triangles": 3408,
+   "meshes": [
+    "CHAIR"
+   ],
+   "materials": [
+    "green_Classic",
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.25,
+    0.0,
+    -0.24134
+   ],
+   "bounds_max": [
+    0.25,
+    0.89798,
+    0.24134
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.02702,
+   "authored_size_xyz": [
+    0.5,
+    0.89798,
+    0.48268
+   ],
+   "bytes": 97132,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "CHEST",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/CHEST/CHEST_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/CHEST.fbx",
+   "triangles": 3104,
+   "meshes": [
+    "CHEST"
+   ],
+   "materials": [
+    "gold_Classic",
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.39,
+    0.0,
+    -0.245
+   ],
+   "bounds_max": [
+    0.39,
+    0.5675,
+    0.302
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.78,
+    0.5675,
+    0.547
+   ],
+   "bytes": 91612,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "CRATE",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/CRATE/CRATE_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/CRATE.fbx",
+   "triangles": 7776,
+   "meshes": [
+    "CRATE"
+   ],
+   "materials": [
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.305,
+    0.0,
+    -0.289
+   ],
+   "bounds_max": [
+    0.305,
+    0.482,
+    0.289
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.61,
+    0.482,
+    0.578
+   ],
+   "bytes": 194076,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "DESK",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/DESK/DESK_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/DESK.fbx",
+   "triangles": 5344,
+   "meshes": [
+    "DESK"
+   ],
+   "materials": [
+    "gold_Classic",
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.67,
+    0.0,
+    -0.3255
+   ],
+   "bounds_max": [
+    0.67,
+    0.78,
+    0.352
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    1.34,
+    0.78,
+    0.6775
+   ],
+   "bytes": 138780,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "SHELF",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/SHELF/SHELF_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/SHELF.fbx",
+   "triangles": 3024,
+   "meshes": [
+    "SHELF"
+   ],
+   "materials": [
+    "wood_Classic",
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.495,
+    0.0,
+    -0.16
+   ],
+   "bounds_max": [
+    0.495,
+    1.28,
+    0.16
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.99,
+    1.28,
+    0.32
+   ],
+   "bytes": 87916,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "STOOL",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Furniture/STOOL/STOOL_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/STOOL.fbx",
+   "triangles": 704,
+   "meshes": [
+    "STOOL"
+   ],
+   "materials": [
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.26,
+    0.0,
+    -0.26
+   ],
+   "bounds_max": [
+    0.26,
+    0.46598,
+    0.26
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.02702,
+   "authored_size_xyz": [
+    0.52,
+    0.46598,
+    0.52
+   ],
+   "bytes": 35820,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "BOOK",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/BOOK/BOOK_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/BOOK.fbx",
+   "triangles": 3492,
+   "meshes": [
+    "BOOK"
+   ],
+   "materials": [
+    "blue_Classic",
+    "cream_Classic",
+    "gold_Classic",
+    "ivory_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.1625,
+    0.0,
+    -0.1275
+   ],
+   "bounds_max": [
+    0.177,
+    0.13,
+    0.1275
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": -0.0025,
+   "authored_size_xyz": [
+    0.3395,
+    0.13,
+    0.255
+   ],
+   "bytes": 100796,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "CLOCK",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/CLOCK/CLOCK_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/CLOCK.fbx",
+   "triangles": 3536,
+   "meshes": [
+    "CLOCK"
+   ],
+   "materials": [
+    "dark_Classic",
+    "gold_Classic",
+    "ivory_Classic",
+    "wood_Classic",
+    "wood_dark_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.24,
+    0.0,
+    -0.03
+   ],
+   "bounds_max": [
+    0.24,
+    0.48,
+    0.092
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.48,
+    0.48,
+    0.122
+   ],
+   "bytes": 106092,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "FAN",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/FAN/FAN_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/FAN.fbx",
+   "triangles": 4828,
+   "meshes": [
+    "FAN"
+   ],
+   "materials": [
+    "blue_Classic",
+    "gold_Classic",
+    "ivory_Classic",
+    "metal_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.261,
+    0.0,
+    -0.125
+   ],
+   "bounds_max": [
+    0.261,
+    0.821,
+    0.125
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.522,
+    0.821,
+    0.25
+   ],
+   "bytes": 136428,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "MUG",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/MUG/MUG_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/MUG.fbx",
+   "triangles": 1228,
+   "meshes": [
+    "MUG"
+   ],
+   "materials": [
+    "ivory_Classic",
+    "red_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.227,
+    0.0,
+    -0.125
+   ],
+   "bounds_max": [
+    0.125,
+    0.275,
+    0.126
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.352,
+    0.275,
+    0.251
+   ],
+   "bytes": 48124,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "PLANT",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/PLANT/PLANT_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/PLANT.fbx",
+   "triangles": 3764,
+   "meshes": [
+    "PLANT"
+   ],
+   "materials": [
+    "ceramic_Classic",
+    "leaf_Classic",
+    "wood_dark_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.17043,
+    0.0,
+    -0.17
+   ],
+   "bounds_max": [
+    0.17,
+    0.78765,
+    0.17592
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.34043,
+    0.78765,
+    0.34592
+   ],
+   "bytes": 123964,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "POT",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/POT/POT_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/POT.fbx",
+   "triangles": 2320,
+   "meshes": [
+    "POT"
+   ],
+   "materials": [
+    "dark_Classic",
+    "metal_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.357,
+    0.0,
+    -0.23
+   ],
+   "bounds_max": [
+    0.357,
+    0.257,
+    0.23
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.714,
+    0.257,
+    0.46
+   ],
+   "bytes": 70332,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "item",
+   "name": "VASE",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/02_Craftable_Items/Utilities/VASE/VASE_World.glb",
+   "output": "Assets/_Project/Art/Imported/Items/VASE.fbx",
+   "triangles": 1760,
+   "meshes": [
+    "VASE"
+   ],
+   "materials": [
+    "ceramic_Classic",
+    "gold_Classic"
+   ],
+   "empties": [
+    "Grip_R"
+   ],
+   "bounds_min": [
+    -0.165,
+    0.0,
+    -0.165
+   ],
+   "bounds_max": [
+    0.165,
+    0.492,
+    0.165
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "authored_size_xyz": [
+    0.33,
+    0.492,
+    0.33
+   ],
+   "bytes": 57740,
+   "held_skins_found": 3
+  },
+  {
+   "kind": "letter",
+   "name": "A",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/A/Tile_A_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_A.fbx",
+   "triangles": 908,
+   "meshes": [
+    "Tile_A"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 38220
+  },
+  {
+   "kind": "letter",
+   "name": "B",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/B/Tile_B_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_B.fbx",
+   "triangles": 1032,
+   "meshes": [
+    "Tile_B"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 43084
+  },
+  {
+   "kind": "letter",
+   "name": "C",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/C/Tile_C_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_C.fbx",
+   "triangles": 996,
+   "meshes": [
+    "Tile_C"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 41804
+  },
+  {
+   "kind": "letter",
+   "name": "D",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/D/Tile_D_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_D.fbx",
+   "triangles": 984,
+   "meshes": [
+    "Tile_D"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 41260
+  },
+  {
+   "kind": "letter",
+   "name": "E",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/E/Tile_E_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_E.fbx",
+   "triangles": 908,
+   "meshes": [
+    "Tile_E"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37916
+  },
+  {
+   "kind": "letter",
+   "name": "F",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/F/Tile_F_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_F.fbx",
+   "triangles": 900,
+   "meshes": [
+    "Tile_F"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37676
+  },
+  {
+   "kind": "letter",
+   "name": "G",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/G/Tile_G_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_G.fbx",
+   "triangles": 1012,
+   "meshes": [
+    "Tile_G"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 42412
+  },
+  {
+   "kind": "letter",
+   "name": "H",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/H/Tile_H_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_H.fbx",
+   "triangles": 908,
+   "meshes": [
+    "Tile_H"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37916
+  },
+  {
+   "kind": "letter",
+   "name": "I",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/I/Tile_I_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_I.fbx",
+   "triangles": 876,
+   "meshes": [
+    "Tile_I"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 36940
+  },
+  {
+   "kind": "letter",
+   "name": "J",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/J/Tile_J_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_J.fbx",
+   "triangles": 916,
+   "meshes": [
+    "Tile_J"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 38572
+  },
+  {
+   "kind": "letter",
+   "name": "K",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/K/Tile_K_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_K.fbx",
+   "triangles": 904,
+   "meshes": [
+    "Tile_K"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37964
+  },
+  {
+   "kind": "letter",
+   "name": "L",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/L/Tile_L_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_L.fbx",
+   "triangles": 884,
+   "meshes": [
+    "Tile_L"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37212
+  },
+  {
+   "kind": "letter",
+   "name": "M",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/M/Tile_M_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_M.fbx",
+   "triangles": 912,
+   "meshes": [
+    "Tile_M"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 38252
+  },
+  {
+   "kind": "letter",
+   "name": "N",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/N/Tile_N_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_N.fbx",
+   "triangles": 900,
+   "meshes": [
+    "Tile_N"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37788
+  },
+  {
+   "kind": "letter",
+   "name": "O",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/O/Tile_O_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_O.fbx",
+   "triangles": 992,
+   "meshes": [
+    "Tile_O"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 41516
+  },
+  {
+   "kind": "letter",
+   "name": "P",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/P/Tile_P_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_P.fbx",
+   "triangles": 960,
+   "meshes": [
+    "Tile_P"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 40236
+  },
+  {
+   "kind": "letter",
+   "name": "Q",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/Q/Tile_Q_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_Q.fbx",
+   "triangles": 1008,
+   "meshes": [
+    "Tile_Q"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 42172
+  },
+  {
+   "kind": "letter",
+   "name": "R",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/R/Tile_R_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_R.fbx",
+   "triangles": 1004,
+   "meshes": [
+    "Tile_R"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 42028
+  },
+  {
+   "kind": "letter",
+   "name": "S",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/S/Tile_S_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_S.fbx",
+   "triangles": 1068,
+   "meshes": [
+    "Tile_S"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 44684
+  },
+  {
+   "kind": "letter",
+   "name": "T",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/T/Tile_T_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_T.fbx",
+   "triangles": 892,
+   "meshes": [
+    "Tile_T"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37468
+  },
+  {
+   "kind": "letter",
+   "name": "U",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/U/Tile_U_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_U.fbx",
+   "triangles": 948,
+   "meshes": [
+    "Tile_U"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 39788
+  },
+  {
+   "kind": "letter",
+   "name": "V",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/V/Tile_V_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_V.fbx",
+   "triangles": 888,
+   "meshes": [
+    "Tile_V"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37500
+  },
+  {
+   "kind": "letter",
+   "name": "W",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/W/Tile_W_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_W.fbx",
+   "triangles": 912,
+   "meshes": [
+    "Tile_W"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 38380
+  },
+  {
+   "kind": "letter",
+   "name": "X",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/X/Tile_X_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_X.fbx",
+   "triangles": 908,
+   "meshes": [
+    "Tile_X"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 38268
+  },
+  {
+   "kind": "letter",
+   "name": "Y",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/Y/Tile_Y_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_Y.fbx",
+   "triangles": 896,
+   "meshes": [
+    "Tile_Y"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37740
+  },
+  {
+   "kind": "letter",
+   "name": "Z",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/01_Alphabet/Z/Tile_Z_Classic.glb",
+   "output": "Assets/_Project/Art/Imported/Letters/Tile_Z.fbx",
+   "triangles": 900,
+   "meshes": [
+    "Tile_Z"
+   ],
+   "materials": [
+    "wood_dark_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.105,
+    0.0,
+    -0.0285
+   ],
+   "bounds_max": [
+    0.105,
+    0.21,
+    0.0405
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37836
+  },
+  {
+   "kind": "environment",
+   "name": "Arena_Rug",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Arena_Rug/Arena_Rug.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Arena_Rug.fbx",
+   "triangles": 1356,
+   "meshes": [
+    "Arena_Rug"
+   ],
+   "materials": [
+    "gold_Classic",
+    "ivory_Classic",
+    "red_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -1.0,
+    0.0,
+    -1.0
+   ],
+   "bounds_max": [
+    1.0,
+    0.063,
+    1.0
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 47644
+  },
+  {
+   "kind": "environment",
+   "name": "Corner_Post",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Corner_Post/Corner_Post.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Corner_Post.fbx",
+   "triangles": 1296,
+   "meshes": [
+    "Corner_Post"
+   ],
+   "materials": [
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.125,
+    0.0,
+    -0.125
+   ],
+   "bounds_max": [
+    0.125,
+    2.02,
+    0.125
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 46332
+  },
+  {
+   "kind": "environment",
+   "name": "Curtain",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Curtain/Curtain.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Curtain.fbx",
+   "triangles": 3552,
+   "meshes": [
+    "Curtain"
+   ],
+   "materials": [
+    "gold_Classic",
+    "green_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.7,
+    0.17,
+    -0.0558
+   ],
+   "bounds_max": [
+    0.7,
+    1.218,
+    0.0565
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 94236
+  },
+  {
+   "kind": "environment",
+   "name": "Doorstep",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Doorstep/Doorstep.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Doorstep.fbx",
+   "triangles": 864,
+   "meshes": [
+    "Doorstep"
+   ],
+   "materials": [
+    "green_Classic",
+    "metal_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.7,
+    0.0,
+    -0.275
+   ],
+   "bounds_max": [
+    0.7,
+    0.1795,
+    0.275
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 37020
+  },
+  {
+   "kind": "environment",
+   "name": "Floor_Carpet_2m",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Floor_Carpet_2m/Floor_Carpet_2m.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Floor_Carpet_2m.fbx",
+   "triangles": 864,
+   "meshes": [
+    "Floor_Carpet_2m"
+   ],
+   "materials": [
+    "blue_Classic",
+    "wood_dark_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -1.0,
+    -0.14,
+    -1.0
+   ],
+   "bounds_max": [
+    1.0,
+    0.013,
+    1.0
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 36268
+  },
+  {
+   "kind": "environment",
+   "name": "Kitchen_Counter",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Kitchen_Counter/Kitchen_Counter.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx",
+   "triangles": 2784,
+   "meshes": [
+    "Kitchen_Counter"
+   ],
+   "materials": [
+    "blue_Classic",
+    "ceramic_Classic",
+    "gold_Classic",
+    "wall_blue_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.635,
+    0.01,
+    -0.355
+   ],
+   "bounds_max": [
+    0.635,
+    0.935,
+    0.382
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 82828
+  },
+  {
+   "kind": "environment",
+   "name": "Kitchen_Fridge",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Kitchen_Fridge/Kitchen_Fridge.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx",
+   "triangles": 2268,
+   "meshes": [
+    "Kitchen_Fridge"
+   ],
+   "materials": [
+    "blue_Classic",
+    "ceramic_Classic",
+    "gold_Classic",
+    "green_Classic",
+    "ivory_Classic",
+    "red_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.4,
+    0.0,
+    -0.35
+   ],
+   "bounds_max": [
+    0.4,
+    1.82,
+    0.449
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 74300
+  },
+  {
+   "kind": "environment",
+   "name": "Kitchen_Sink",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Kitchen_Sink/Kitchen_Sink.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Kitchen_Sink.fbx",
+   "triangles": 4104,
+   "meshes": [
+    "Kitchen_Sink"
+   ],
+   "materials": [
+    "ceramic_Classic",
+    "dark_Classic",
+    "metal_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.385,
+    0.01,
+    -0.305
+   ],
+   "bounds_max": [
+    0.385,
+    0.4838,
+    0.305
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 108796
+  },
+  {
+   "kind": "environment",
+   "name": "Kitchen_Stove",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Kitchen_Stove/Kitchen_Stove.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx",
+   "triangles": 8064,
+   "meshes": [
+    "Kitchen_Stove"
+   ],
+   "materials": [
+    "dark_Classic",
+    "gold_Classic",
+    "ivory_Classic",
+    "metal_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.41,
+    -0.0,
+    -0.35
+   ],
+   "bounds_max": [
+    0.41,
+    0.942,
+    0.4295
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 192860
+  },
+  {
+   "kind": "environment",
+   "name": "Platform_2m",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Platform_2m/Platform_2m.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Platform_2m.fbx",
+   "triangles": 864,
+   "meshes": [
+    "Platform_2m"
+   ],
+   "materials": [
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -1.02,
+    0.0,
+    -1.02
+   ],
+   "bounds_max": [
+    1.02,
+    0.8475,
+    1.02
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 36812
+  },
+  {
+   "kind": "environment",
+   "name": "Radiator",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Radiator/Radiator.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Radiator.fbx",
+   "triangles": 4512,
+   "meshes": [
+    "Radiator"
+   ],
+   "materials": [
+    "ivory_Classic",
+    "metal_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.49,
+    0.01,
+    -0.059
+   ],
+   "bounds_max": [
+    0.49,
+    0.59,
+    0.055
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 111900
+  },
+  {
+   "kind": "environment",
+   "name": "Railing_2m",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Railing_2m/Railing_2m.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Railing_2m.fbx",
+   "triangles": 1536,
+   "meshes": [
+    "Railing_2m"
+   ],
+   "materials": [
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -1.0,
+    0.02,
+    -0.05
+   ],
+   "bounds_max": [
+    1.0,
+    0.78,
+    0.05
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 50156
+  },
+  {
+   "kind": "environment",
+   "name": "Round_Rug",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Round_Rug/Round_Rug.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Round_Rug.fbx",
+   "triangles": 1408,
+   "meshes": [
+    "Round_Rug"
+   ],
+   "materials": [
+    "blue_Classic",
+    "cream_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.94,
+    0.0,
+    -0.94
+   ],
+   "bounds_max": [
+    0.94,
+    0.028,
+    0.94
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 47612
+  },
+  {
+   "kind": "environment",
+   "name": "Stairs_1m",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Stairs_1m/Stairs_1m.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Stairs_1m.fbx",
+   "triangles": 4320,
+   "meshes": [
+    "Stairs_1m"
+   ],
+   "materials": [
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.525,
+    0.0,
+    -1.127
+   ],
+   "bounds_max": [
+    0.525,
+    0.8165,
+    0.163
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 113708
+  },
+  {
+   "kind": "environment",
+   "name": "Wall_Door",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Wall_Door/Wall_Door.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Wall_Door.fbx",
+   "triangles": 3024,
+   "meshes": [
+    "Wall_Door"
+   ],
+   "materials": [
+    "ivory_Classic",
+    "wall_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -1.02,
+    0.0,
+    -0.095
+   ],
+   "bounds_max": [
+    1.02,
+    2.03,
+    0.1375
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 86092
+  },
+  {
+   "kind": "environment",
+   "name": "Wall_Sconce",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Wall_Sconce/Wall_Sconce.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Wall_Sconce.fbx",
+   "triangles": 1128,
+   "meshes": [
+    "Wall_Sconce"
+   ],
+   "materials": [
+    "glow_Classic",
+    "gold_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.055,
+    0.08,
+    -0.018
+   ],
+   "bounds_max": [
+    0.055,
+    0.413,
+    0.245
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 44780
+  },
+  {
+   "kind": "environment",
+   "name": "Wall_Shelf",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Wall_Shelf/Wall_Shelf.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Wall_Shelf.fbx",
+   "triangles": 528,
+   "meshes": [
+    "Wall_Shelf"
+   ],
+   "materials": [
+    "gold_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.475,
+    0.03,
+    -0.115
+   ],
+   "bounds_max": [
+    0.475,
+    0.3075,
+    0.115
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 29260
+  },
+  {
+   "kind": "environment",
+   "name": "Wall_Sign",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Wall_Sign/Wall_Sign.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Wall_Sign.fbx",
+   "triangles": 892,
+   "meshes": [
+    "Wall_Sign"
+   ],
+   "materials": [
+    "ivory_Classic",
+    "red_Classic",
+    "wood_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.365,
+    0.0,
+    -0.022
+   ],
+   "bounds_max": [
+    0.365,
+    0.64,
+    0.0435
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 38956
+  },
+  {
+   "kind": "environment",
+   "name": "Wall_Solid",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Wall_Solid/Wall_Solid.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Wall_Solid.fbx",
+   "triangles": 1296,
+   "meshes": [
+    "Wall_Solid"
+   ],
+   "materials": [
+    "ivory_Classic",
+    "wall_Classic",
+    "wood_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -1.02,
+    0.0,
+    -0.0875
+   ],
+   "bounds_max": [
+    1.02,
+    2.03,
+    0.1375
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 48412
+  },
+  {
+   "kind": "environment",
+   "name": "Wall_Window",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Wall_Window/Wall_Window.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Wall_Window.fbx",
+   "triangles": 6048,
+   "meshes": [
+    "Wall_Window"
+   ],
+   "materials": [
+    "glass_Classic",
+    "ivory_Classic",
+    "wall_Classic",
+    "wood_Classic",
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -1.02,
+    0.0,
+    -0.0875
+   ],
+   "bounds_max": [
+    1.02,
+    2.03,
+    0.29
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 159196
+  },
+  {
+   "kind": "environment",
+   "name": "Window_Frame",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/03_Environment_Modules/Window_Frame/Window_Frame.glb",
+   "output": "Assets/_Project/Art/Imported/Environment/Window_Frame.fbx",
+   "triangles": 3024,
+   "meshes": [
+    "Window_Frame"
+   ],
+   "materials": [
+    "glass_Classic",
+    "ivory_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.585,
+    -0.0125,
+    -0.05
+   ],
+   "bounds_max": [
+    0.585,
+    1.1125,
+    0.05
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 85948
+  },
+  {
+   "kind": "vfx",
+   "name": "Bomb_Warning",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Bomb_Warning/Bomb_Warning.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Bomb_Warning.fbx",
+   "triangles": 1696,
+   "meshes": [
+    "Bomb_Warning"
+   ],
+   "materials": [
+    "red_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.438,
+    -0.004,
+    -0.438
+   ],
+   "bounds_max": [
+    0.438,
+    0.43,
+    0.438
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 54860
+  },
+  {
+   "kind": "vfx",
+   "name": "Craft_Ring",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Craft_Ring/Craft_Ring.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Craft_Ring.fbx",
+   "triangles": 2624,
+   "meshes": [
+    "Craft_Ring"
+   ],
+   "materials": [
+    "blue_Classic",
+    "glow_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.392,
+    0.008,
+    -0.392
+   ],
+   "bounds_max": [
+    0.392,
+    0.104,
+    0.392
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 74172
+  },
+  {
+   "kind": "vfx",
+   "name": "Foam_Cloud",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Foam_Cloud/Foam_Cloud.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Foam_Cloud.fbx",
+   "triangles": 5760,
+   "meshes": [
+    "Foam_Cloud"
+   ],
+   "materials": [
+    "foam_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.34585,
+    -0.0607,
+    -0.33052
+   ],
+   "bounds_max": [
+    0.28726,
+    0.32646,
+    0.33066
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 138044
+  },
+  {
+   "kind": "vfx",
+   "name": "Impact_Star",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Impact_Star/Impact_Star.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Impact_Star.fbx",
+   "triangles": 52,
+   "meshes": [
+    "Impact_Star"
+   ],
+   "materials": [
+    "gold_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.19499,
+    0.01981,
+    -0.0225
+   ],
+   "bounds_max": [
+    0.19499,
+    0.4,
+    0.0225
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 17148
+  },
+  {
+   "kind": "vfx",
+   "name": "Jump_Arrow",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Jump_Arrow/Jump_Arrow.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Jump_Arrow.fbx",
+   "triangles": 24,
+   "meshes": [
+    "Jump_Arrow"
+   ],
+   "materials": [
+    "blue_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.18,
+    0.03,
+    -0.02
+   ],
+   "bounds_max": [
+    0.18,
+    0.49,
+    0.02
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 16140
+  },
+  {
+   "kind": "vfx",
+   "name": "Pickup_Ring",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Pickup_Ring/Pickup_Ring.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Pickup_Ring.fbx",
+   "triangles": 676,
+   "meshes": [
+    "Pickup_Ring"
+   ],
+   "materials": [
+    "glow_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.27231,
+    0.003,
+    -0.272
+   ],
+   "bounds_max": [
+    0.272,
+    0.235,
+    0.272
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 29996
+  },
+  {
+   "kind": "vfx",
+   "name": "Room_Hazard",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Room_Hazard/Room_Hazard.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Room_Hazard.fbx",
+   "triangles": 3200,
+   "meshes": [
+    "Room_Hazard"
+   ],
+   "materials": [
+    "glow_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.699,
+    0.061,
+    -0.699
+   ],
+   "bounds_max": [
+    0.699,
+    0.779,
+    0.699
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 78156
+  },
+  {
+   "kind": "vfx",
+   "name": "Soap_Puddle",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Soap_Puddle/Soap_Puddle.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Soap_Puddle.fbx",
+   "triangles": 3300,
+   "meshes": [
+    "Soap_Puddle"
+   ],
+   "materials": [
+    "glass_Classic",
+    "water_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.32,
+    0.0,
+    -0.216
+   ],
+   "bounds_max": [
+    0.34,
+    0.15,
+    0.334
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 94316
+  },
+  {
+   "kind": "vfx",
+   "name": "Speed_Trail",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Speed_Trail/Speed_Trail.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Speed_Trail.fbx",
+   "triangles": 1296,
+   "meshes": [
+    "Speed_Trail"
+   ],
+   "materials": [
+    "blue_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.3,
+    0.025,
+    -0.11
+   ],
+   "bounds_max": [
+    0.3,
+    0.075,
+    0.11
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 44380
+  },
+  {
+   "kind": "vfx",
+   "name": "Wood_Splinter",
+   "source": "vault-v2/Wreckabulary_3D_Vault_v2/05_VFX_Meshes/Wood_Splinter/Wood_Splinter.glb",
+   "output": "Assets/_Project/Art/Imported/VFX/Wood_Splinter.fbx",
+   "triangles": 16,
+   "meshes": [
+    "Wood_Splinter"
+   ],
+   "materials": [
+    "wood_light_Classic"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.075,
+    0.0,
+    -0.026
+   ],
+   "bounds_max": [
+    0.05,
+    0.36,
+    0.026
+   ],
+   "actions": [],
+   "removed_cameras_lights": 0,
+   "floor_snap_m": 0.0,
+   "bytes": 15932
+  },
+  {
+   "kind": "avatar",
+   "name": "Avatar",
+   "source": "quality-pass-01/Wreckabulary_Quality_Pass_01/03_Avatar/Source_Avatar_Unchanged.glb",
+   "output": "Assets/_Project/Art/Imported/Avatar/Avatar.fbx",
+   "triangles": 63110,
+   "meshes": [
+    "SK_Badge_T",
+    "SK_Boots",
+    "SK_Cap",
+    "SK_Crewneck",
+    "SK_Glasses",
+    "SK_Head",
+    "SK_Hood",
+    "SK_Hoodie",
+    "SK_Joggers",
+    "SK_Mittens",
+    "SK_Satchel"
+   ],
+   "materials": [
+    "accessory_hardware",
+    "boots_color",
+    "eyes",
+    "fabric_main",
+    "fabric_rib",
+    "glasses_frame",
+    "gloves_color",
+    "headwear_color",
+    "ivory_badge",
+    "ivory_vinyl",
+    "joggers_color",
+    "rubber",
+    "satchel_canvas",
+    "satchel_straps"
+   ],
+   "empties": [],
+   "bounds_min": [
+    -0.3725,
+    0.002,
+    -0.255
+   ],
+   "bounds_max": [
+    0.3725,
+    1.15502,
+    0.30994
+   ],
+   "actions": [
+    "Block_Plate",
+    "Carry_TwoHand",
+    "Celebrate",
+    "Drink_Consumable",
+    "Hit_Reaction",
+    "Hold_OneHand",
+    "Idle",
+    "Inspect_OneHand",
+    "Jump_Preview",
+    "Pickup",
+    "Place",
+    "Present_Item",
+    "Run_InPlace",
+    "Swing_OneHand",
+    "Throw_OneHand",
+    "Thrust_OneHand",
+    "Walk_InPlace"
+   ],
+   "bones": [
+    "root",
+    "pelvis",
+    "spine",
+    "chest",
+    "neck",
+    "head",
+    "clavicle_L",
+    "upper_arm_L",
+    "forearm_L",
+    "hand_L",
+    "grip_L",
+    "clavicle_R",
+    "upper_arm_R",
+    "forearm_R",
+    "hand_R",
+    "grip_R",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R"
+   ],
+   "action_frames": {
+    "Block_Plate": [
+     0.0,
+     37.5
+    ],
+    "Carry_TwoHand": [
+     0.0,
+     60.0
+    ],
+    "Celebrate": [
+     0.0,
+     66.0
+    ],
+    "Drink_Consumable": [
+     0.0,
+     54.0
+    ],
+    "Hit_Reaction": [
+     0.0,
+     19.5
+    ],
+    "Hold_OneHand": [
+     0.0,
+     72.0
+    ],
+    "Idle": [
+     0.0,
+     72.0
+    ],
+    "Inspect_OneHand": [
+     0.0,
+     54.0
+    ],
+    "Jump_Preview": [
+     0.0,
+     31.5
+    ],
+    "Pickup": [
+     0.0,
+     27.0
+    ],
+    "Place": [
+     0.0,
+     27.0
+    ],
+    "Present_Item": [
+     0.0,
+     42.0
+    ],
+    "Run_InPlace": [
+     0.0,
+     21.0
+    ],
+    "Swing_OneHand": [
+     0.0,
+     33.0
+    ],
+    "Throw_OneHand": [
+     0.0,
+     33.0
+    ],
+    "Thrust_OneHand": [
+     0.0,
+     27.0
+    ],
+    "Walk_InPlace": [
+     0.0,
+     27.0
+    ]
+   },
+   "zero_shape_keys_removed": {
+    "SK_Badge_T": 2,
+    "SK_Boots": 2,
+    "SK_Cap": 2,
+    "SK_Crewneck": 2,
+    "SK_Glasses": 2,
+    "SK_Head": 0,
+    "SK_Hood": 2,
+    "SK_Hoodie": 2,
+    "SK_Joggers": 2,
+    "SK_Mittens": 2,
+    "SK_Satchel": 2
+   },
+   "notes": [
+    "Hoodie: 1 mesh(es) rebound to Avatar_01",
+    "Hood: 1 mesh(es) rebound to Avatar_01",
+    "Cap: 1 mesh(es) rebound to Avatar_01",
+    "Glasses: 1 mesh(es) rebound to Avatar_01",
+    "Satchel: 1 mesh(es) rebound to Avatar_01",
+    "Badge_T: 1 mesh(es) rebound to Avatar_01"
+   ],
+   "bytes": 5127692
+  }
+ ],
+ "material_count": 72,
+ "texture_count": 18,
+ "material_conflicts": []
+}

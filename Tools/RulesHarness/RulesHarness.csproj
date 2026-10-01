@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Runs the rules tests (Assets/_Project/Tests/Rules) without Unity. See README.md in this
+    folder for the command; an optional argument runs only tests whose name contains it.
+    The same test files run in Unity's Test Runner as EditMode tests. NUnitShim.cs stands in for
+    the NUnit subset they use, so the harness needs no NuGet packages.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RollForward>Major</RollForward>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="NUnitShim.cs" />
+    <Compile Include="Runner.cs" />
+    <Compile Include="../../Assets/_Project/Tests/Rules/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Rules/Rules.csproj" />
+  </ItemGroup>
+</Project>

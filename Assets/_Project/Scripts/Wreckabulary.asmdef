@@ -2,6 +2,7 @@
     "name": "Wreckabulary",
     "rootNamespace": "Wreckabulary",
     "references": [
+        "Wreckabulary.Rules",
         "Unity.InputSystem",
         "Unity.TextMeshPro",
         "UnityEngine.UI",

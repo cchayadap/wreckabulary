@@ -1,11 +1,10 @@
-using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Letters carried and the word wheel, floating above the player's head.</summary>
+    /// <summary>Name, health, letters carried and the word wheel, floating above the player's head.</summary>
     public class PlayerHud : MonoBehaviour
     {
         [SerializeField] PlayerController player;
@@ -23,7 +22,17 @@ namespace Wreckabulary
             Popup.Billboard(transform);
 
             SetIfChanged(lettersText, LettersLine(), ref lastLetters);
-            SetIfChanged(wheelText, player.Summoner.IsSpelling ? WheelLines() : "", ref lastWheel);
+            SetIfChanged(wheelText, player.Summoner.IsSpelling ? WheelLines() : ContextLine(), ref lastWheel);
+        }
+
+        /// <summary>What grab does right now, when that isn't obvious: reviving a teammate on the floor.</summary>
+        string ContextLine()
+        {
+            var combat = player.Combat;
+            if (combat.IsReviving) return "<color=#7BE07B>REVIVING...</color>";
+            if (player.CanAct && !combat.IsHolding && combat.DownedTeammateNearby())
+                return "<color=#FFD24A>Hold grab to revive</color>";
+            return "";
         }
 
         static void SetIfChanged(TextMeshPro t, string value, ref string last)
@@ -36,42 +45,26 @@ namespace Wreckabulary
         string LettersLine()
         {
             var inv = player.Inventory;
-            var spell = player.Summoner;
             sb.Clear();
             sb.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(player.Color)).Append('>')
               .Append(player.Name).Append("</color> ");
-            if (player.IsKnockedOut) return sb.Append("<color=#FFFFFF>KO</color>").ToString();
-
-            if (spell.EndlessLetters)
-            {
-                if (!spell.IsSpelling) return sb.Append("<color=#FFF4E0AA>A-Z</color>").ToString();
-                // A window of the alphabet around the highlight.
-                for (int d = -3; d <= 3; d++)
-                {
-                    int i = ((spell.Cursor + d) % 26 + 26) % 26;
-                    char c = spell.Source[i];
-                    if (d == 0) sb.Append("<size=135%><color=#FFD24A>[").Append(c).Append("]</color></size>");
-                    else sb.Append("<color=#FFF4E0").Append(Mathf.Abs(d) == 3 ? "55" : "CC").Append('>').Append(c).Append("</color>");
-                    if (d < 3) sb.Append(' ');
-                }
-                return sb.ToString();
-            }
+            if (player.IsEliminated) return sb.Append("<color=#FFFFFF>OUT</color>").ToString();
+            AppendHealth(player.Health);
+            if (player.IsDowned) return sb.ToString();
+            sb.Append("  ");
 
             for (int i = 0; i < inv.Capacity; i++)
             {
                 if (i < inv.Count)
                 {
                     char c = inv.Letters[i];
-                    bool used = spell.IsSpelling && spell.Picked.Contains(i);
-                    bool highlighted = spell.IsSpelling && spell.Cursor == i;
-                    string hex = used ? "FFFFFF44" : LetterScores.RarityOf(c) switch
+                    string hex = LetterScores.RarityOf(c) switch
                     {
                         LetterRarity.Legendary => "FFD24A",
                         LetterRarity.Rare => "7FD6CB",
                         _ => "FFF4E0"
                     };
-                    if (highlighted) sb.Append("<size=135%><color=#FFD24A>[").Append(c).Append("]</color></size>");
-                    else sb.Append("<color=#").Append(hex).Append('>').Append(c).Append("</color>");
+                    sb.Append("<color=#").Append(hex).Append('>').Append(c).Append("</color>");
                 }
                 else sb.Append("<color=#FFFFFF55>·</color>");
                 if (i < inv.Capacity - 1) sb.Append(' ');
@@ -79,33 +72,49 @@ namespace Wreckabulary
             return sb.ToString();
         }
 
-        /// <summary>Above the letters while spelling: key help, words you could finish, and the word so far.</summary>
+        /// <summary>
+        /// A bar of ten pips, green to red, and the number. Downed players show their bleed-out time,
+        /// and a filling bar while a teammate revives them.
+        /// </summary>
+        void AppendHealth(PlayerHealth health)
+        {
+            const int pips = 10;
+            if (health.IsDowned)
+            {
+                sb.Append("<color=#FF6A4D>DOWN ").Append(Mathf.CeilToInt(health.BleedOutLeft)).Append("s</color>");
+                float revive = health.ReviveProgress;
+                if (revive > 0f)
+                {
+                    int done = Mathf.FloorToInt(revive * pips);
+                    sb.Append(" <color=#7BE07B>").Append('|', done).Append("</color>")
+                      .Append("<color=#FFFFFF33>").Append('|', pips - done).Append("</color>");
+                }
+                return;
+            }
+            float f = health.Fraction;
+            int full = Mathf.CeilToInt(f * pips);
+            string hex = f > 0.6f ? "7BE07B" : f > 0.3f ? "FFD24A" : "FF6A4D";
+            sb.Append("<color=#").Append(hex).Append('>').Append('|', full).Append("</color>")
+              .Append("<color=#FFFFFF33>").Append('|', pips - full).Append("</color> ")
+              .Append(Mathf.CeilToInt(health.Current));
+            if (health.Bubble > 0f) sb.Append(" <color=#9FDBFF>+").Append(Mathf.CeilToInt(health.Bubble)).Append("</color>");
+        }
+
         string WheelLines()
         {
             var s = player.Summoner;
             sb.Clear();
-            string help = player.Binding == null ? "" : s.EndlessLetters ? player.Binding.CreativeHelp : player.Binding.SpellHelp;
-            if (help.Length > 0)
-                sb.Append("<size=55%><color=#FFFFFFAA>").Append(help).Append("</color></size>\n");
-            if (s.Hints.Count > 0)
+            if (s.Ready.Count == 0) sb.Append("<color=#FFFFFFAA>no words yet</color>\n");
+            for (int i = 0; i < s.Ready.Count; i++)
             {
-                sb.Append("<size=75%><color=#FFFFFF99>");
-                for (int i = 0; i < s.Hints.Count; i++) sb.Append(i > 0 ? "   " : "").Append(s.Hints[i].word);
-                sb.Append("</color></size>\n");
+                var w = s.Ready[i];
+                if (i == s.Selected)
+                    sb.Append("<size=130%><color=#FFD24A>> ").Append(w.word).Append(" <</color></size>\n");
+                else
+                    sb.Append("<color=#FFF4E0>").Append(w.word).Append("</color>\n");
             }
-            else if (s.Match == null)
-            {
-                sb.Append("<size=70%><color=#FF9A7A>")
-                  .Append(s.Spelled.Length == 0 ? "no words from these letters yet" : "no word starts like that")
-                  .Append("</color></size>\n");
-            }
-
-            string spelled = s.Spelled;
-            sb.Append("<size=150%>");
-            if (spelled.Length == 0) sb.Append("<color=#FFFFFF88>spell!</color>");
-            else if (s.Match != null) sb.Append("<color=#8FE08A>").Append(spelled).Append("!</color>");
-            else sb.Append("<color=#FFD24A>").Append(spelled).Append("_</color>");
-            sb.Append("</size>");
+            foreach (var (entry, missing) in s.Hints)
+                sb.Append("<color=#FFFFFF66>").Append(entry.word).Append("  +").Append(missing).Append("</color>\n");
             return sb.ToString();
         }
     }

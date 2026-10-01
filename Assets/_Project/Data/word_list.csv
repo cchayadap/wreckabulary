@@ -8,8 +8,9 @@ SPEAR,Weapon,false,anagram of PEARS
 CANNON,Weapon,false,heavy and slow
 WALL,Defence,false,blocks a doorway
 SHIELD,Defence,false,
-ARMOR,Defence,false,absorbs one hit
+ARMOR,Defence,false,soaks the next 35 damage
 UMBRELLA,Defence,true,long and powerful
+PLATE,Defence,false,hold block to stop hits from the front
 WINGS,Movement,false,short glide
 SPRING,Movement,false,big jump
 SKATES,Movement,false,speed boost
@@ -20,46 +21,3 @@ MAGNET,Chaos,false,pulls loose letters
 DUCK,Chaos,false,decoy
 QUAKE,Chaos,true,legendary: shakes the whole room
 ZAP,Chaos,true,legendary: stuns nearby players
-BED,Furniture,false,headboard B, mattress E, footboard D
-SOFA,Furniture,false,good cover, heavy to throw
-TABLE,Furniture,false,
-DESK,Furniture,false,
-LAMP,Furniture,false,
-CHAIR,Furniture,false,light enough to throw
-RUG,Furniture,false,
-TV,Furniture,false,
-PLANT,Furniture,false,
-CLOCK,Furniture,false,
-VASE,Furniture,false,
-MUG,Furniture,false,tiny throwable
-BOOKS,Furniture,false,
-PLATE,Furniture,false,
-PILLOW,Furniture,false,
-RADIO,Furniture,false,
-BOX,Furniture,false,
-PIANO,Furniture,false,living room
-STOOL,Furniture,false,living room
-FAN,Furniture,false,living room
-STOVE,Furniture,false,kitchen
-FRIDGE,Furniture,false,kitchen, very heavy
-SINK,Furniture,false,kitchen
-PAN,Furniture,false,kitchen, throwable
-POT,Furniture,false,kitchen
-KETTLE,Furniture,false,kitchen
-CUP,Furniture,false,kitchen, tiny
-BOWL,Furniture,false,kitchen
-SHELF,Furniture,false,bedroom
-MIRROR,Furniture,false,bedroom
-TEDDY,Furniture,false,bedroom, soft
-CLOSET,Furniture,false,bedroom, heavy cover
-TREE,Furniture,false,garden, heavy
-BUSH,Furniture,false,garden
-FLOWER,Furniture,false,garden
-ROSE,Furniture,false,garden
-BENCH,Furniture,false,garden
-FENCE,Furniture,false,garden, cover
-SWING,Furniture,false,garden
-GNOME,Furniture,false,garden, throwable
-ROCK,Furniture,false,garden, heavy throw
-HOSE,Furniture,false,garden
-POND,Furniture,false,garden

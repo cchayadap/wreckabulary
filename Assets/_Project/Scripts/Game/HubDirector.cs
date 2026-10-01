@@ -27,7 +27,7 @@ namespace Wreckabulary
         void Update()
         {
             if (joins.Players.Count == 0)
-                hud.SetInstruction("Press SPACE, . or A to walk in", "Up to 4 roommates: two on one keyboard, plus gamepads");
+                hud.SetInstruction(ControlHints.Join("walk in"), ControlHints.Players);
             else if (typewriter.User)
                 hud.SetInstruction("Choose a mode", "Up/down to choose  •  grab or attack to pick  •  spell to get up");
             else if (wardrobe && wardrobe.User)

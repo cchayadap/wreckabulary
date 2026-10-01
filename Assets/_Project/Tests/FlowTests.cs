@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary.Tests
 {
@@ -57,23 +58,24 @@ namespace Wreckabulary.Tests
             yield return TestScenes.WaitForActive(Session.DibsScene);
 
             var dibsJoins = Object.FindAnyObjectByType<PlayerJoinManager>();
-            Assert.AreEqual(2, dibsJoins.Players.Count, "both roommates came along");
-            Assert.AreEqual(new[] { "P1", "P2" }, dibsJoins.Players.Select(p => p.Name).ToArray());
+            Assert.AreEqual(2, dibsJoins.HumanCount, "both roommates came along");
+            Assert.AreEqual(4, dibsJoins.Players.Count, "remaining seats have AI opponents");
+            Assert.AreEqual(new[] { "P1", "P2" }, dibsJoins.Players.Where(p => p.Binding is not BotBinding).Select(p => p.Name).ToArray());
             Assert.AreEqual(Phase.Countdown, RoundManager.Instance.Phase, "coming from the house skips the lobby");
         }
 
         [UnityTest]
-        public IEnumerator DibsNeedsTwoRoommatesAndComingSoonModesStayPut()
+        public IEnumerator TypewriterStartsSoloDibsWithAnAiOpponent()
         {
             yield return TestScenes.Load(Session.HubScene);
-            var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
-            joins.Join(new ScriptedBinding());
+            Object.FindAnyObjectByType<PlayerJoinManager>().Join(new ScriptedBinding());
             var typewriter = Object.FindAnyObjectByType<Typewriter>();
-
-            Assert.IsFalse(typewriter.Choose(ModeIndex(typewriter, Session.DibsScene)), "one roommate can't play Dibs!");
-            Assert.IsTrue(typewriter.Modes.All(m => !m.comingSoon), "every mode is playable now");
-            yield return null;
-            Assert.AreEqual(Session.HubScene, SceneManager.GetActiveScene().name);
+            Assert.IsTrue(typewriter.Choose(ModeIndex(typewriter, Session.DibsScene)));
+            yield return TestScenes.WaitForActive(Session.DibsScene);
+            var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
+            Assert.AreEqual(1, joins.HumanCount);
+            Assert.AreEqual(4, joins.Players.Count);
+            Assert.AreEqual(1, Session.Bindings.Count, "AI is not carried home");
         }
 
         [UnityTest]
@@ -114,11 +116,13 @@ namespace Wreckabulary.Tests
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             var p = joins.Join(new ScriptedBinding());
             yield return null;
-            p.Inventory.Set("");
-            p.Health.TakeHit(Vector3.forward);
-            Assert.IsTrue(p.IsKnockedOut);
+            Assert.IsTrue(p.Health.IsInvulnerable, "spawn protection");
+            yield return TestScenes.WaitUntil(() => !p.Health.IsInvulnerable, 3f, "spawn protection to wear off");
+            p.Health.ApplyDamage(Hits.Of(null, Vector3.forward, HitSource.Melee, 1000f, 1f));
+            Assert.IsTrue(p.IsEliminated);
             yield return new WaitForSeconds(2.3f);
             Assert.IsFalse(p.IsKnockedOut);
+            Assert.AreEqual(p.Health.Max, p.Health.Current);
         }
 
         [UnityTest]
@@ -136,23 +140,30 @@ namespace Wreckabulary.Tests
             yield return TestScenes.WaitUntil(() => director.StepIndex >= 1, 3f, "walk step");
             input.Next.move = Vector2.zero;
 
-            // 2. Smash the BAT box.
+            // 2. Jump, then dodge.
+            input.Next.jump = true;
+            yield return new WaitForSeconds(0.8f);
+            input.Next.dodge = true;
+            yield return TestScenes.WaitUntil(() => director.StepIndex >= 2, 2f, "jump and dodge step");
+
+            // 3. Smash the BAT box.
             yield return TestScenes.WaitUntil(() => Object.FindObjectsByType<Smashable>().Any(s => s.Word == "BAT"), 2f, "BAT box");
             Object.FindObjectsByType<Smashable>().First(s => s.Word == "BAT").Break();
-            yield return TestScenes.WaitUntil(() => director.StepIndex >= 2, 1f, "smash step");
+            yield return TestScenes.WaitUntil(() => director.StepIndex >= 3, 1f, "smash step");
 
-            // 3 + 4. Collect the letters and spell BAT.
+            // 4 + 5. Collect the letters and spell BAT.
             p.Inventory.Set("BAT");
-            yield return TestScenes.WaitUntil(() => director.StepIndex >= 3, 1f, "collect step");
+            yield return TestScenes.WaitUntil(() => director.StepIndex >= 4, 1f, "collect step");
             Assert.IsTrue(p.Summoner.Summon("BAT"));
-            yield return TestScenes.WaitUntil(() => director.StepIndex >= 4, 1f, "spell step");
+            yield return TestScenes.WaitUntil(() => director.StepIndex >= 5, 1f, "spell step");
 
-            // 5. Whack the dummy.
+            // 6. Whack the dummy.
             var dummy = director.Dummy;
-            Assert.IsTrue(dummy.Health.TakeHit(Vector3.forward, 1f, -1, p));
-            yield return TestScenes.WaitUntil(() => director.StepIndex >= 5, 1f, "hit step");
+            Assert.AreEqual("BAT", p.Combat.Weapon?.word);
+            Assert.IsTrue(dummy.Health.ApplyDamage(Hits.Melee(p, Vector3.forward, p.Combat.Weapon.Stats, "BAT")));
+            yield return TestScenes.WaitUntil(() => director.StepIndex >= 6, 1f, "hit step");
 
-            // 6. Throw the chair.
+            // 7. Throw the chair.
             var chair = Object.FindObjectsByType<Smashable>().First(s => s.Word == "CHAIR");
             yield return new WaitForSeconds(0.3f);
             p.Combat.ResetForRound(); // put the BAT away so the hand is free
@@ -161,14 +172,14 @@ namespace Wreckabulary.Tests
             yield return new WaitForFixedUpdate();
             Assert.IsTrue(p.Combat.TryGrab(), "grab the chair");
             p.Combat.Throw();
-            yield return TestScenes.WaitUntil(() => director.StepIndex >= 6, 1f, "throw step");
+            yield return TestScenes.WaitUntil(() => director.StepIndex >= 7, 1f, "throw step");
 
-            // 7. Knock out the dummy: two letters, so one hit empties it and the next is a knockout.
+            // 8. Knock out the dummy: it starts this step at the canonical full health.
             yield return new WaitForSeconds(0.7f);
-            Assert.AreEqual(2, dummy.Inventory.Count);
-            dummy.Health.TakeHit(Vector3.forward, 1f, -1, p);
-            yield return new WaitForSeconds(0.7f);
-            dummy.Health.TakeHit(Vector3.forward, 1f, -1, p);
+            Assert.AreEqual(Match.Rules.MaxHealth, dummy.Health.Current);
+            for (int i = 0; i < 20 && dummy.Health.IsAlive; i++)
+                dummy.Health.ApplyDamage(Hits.Melee(p, Vector3.forward, p.Health.Rules.Unarmed, null));
+            Assert.IsTrue(dummy.IsEliminated);
             yield return TestScenes.WaitUntil(() => director.Finished, 1f, "knockout step");
         }
     }

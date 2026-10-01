@@ -1,27 +1,27 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Wreckabulary.Art;
 
 namespace Wreckabulary
 {
     /// <summary>
-    /// An object assembled from 3D copies of its own letters, shaped like the thing it spells
-    /// (see <see cref="LetterShapes"/>). Words without a recipe stand in rows, stacked upwards.
-    /// The pivot is at the bottom centre.
+    /// An object assembled from the blocks of its own word, e.g. a SOFA made of S, O, F and A.
+    /// Blocks are laid out left to right in rows, stacked upwards, with the pivot at the bottom centre.
     /// </summary>
     public class LetterBuilt : MonoBehaviour
     {
         public string word = "SOFA";
-        [Tooltip("Letter size for words without a shape recipe: width (max), height, thickness.")]
         public Vector3 blockSize = new(0.5f, 0.5f, 0.5f);
-        [Tooltip("Letters per row for words without a recipe. 0 puts every letter in one row, 1 makes a column.")]
+        [Tooltip("Blocks per row. 0 puts every letter in one row, 1 makes a column.")]
         public int perRow;
         public float gap = 0.02f;
         public Color color = new(0.85f, 0.63f, 0.40f);
         public bool colliders = true;
 
         [SerializeField] List<Transform> blocks = new();
-        /// <summary>One transform per letter, in word order (used to burst letters from where they were).</summary>
+        [SerializeField] GameObject importedVisual;
         public IReadOnlyList<Transform> Blocks => blocks;
+        public bool UsesImportedModel => importedVisual;
 
         public void Build()
         {
@@ -32,76 +32,62 @@ namespace Wreckabulary
                 else DestroyImmediate(b.gameObject);
             }
             blocks.Clear();
-
-            word = word.ToUpperInvariant();
-            var assets = GameAssets.I;
-            // Alternate two shades so neighbouring letters read as separate letters.
-            var light = assets.Tinted(color);
-            var dark = assets.Tinted(Color.Lerp(color, Color.black, 0.18f));
-            var slots = new Transform[word.Length];
-
-            foreach (var p in LetterShapes.For(word, blockSize, perRow, gap))
+            if (importedVisual)
             {
-                char c = word[p.index];
-                var mesh = assets.LetterMesh(c);
-                if (!mesh) continue;
-
-                var go = new GameObject($"Letter_{c}") { layer = gameObject.layer };
-                go.transform.SetParent(transform, false);
-                go.AddComponent<MeshFilter>().sharedMesh = mesh;
-                go.AddComponent<MeshRenderer>().sharedMaterial = p.tinted ? assets.Tinted(p.tint) : p.index % 2 == 0 ? light : dark;
-                Place(go.transform, mesh, p);
-                if (colliders)
-                {
-                    var box = go.AddComponent<BoxCollider>();
-                    box.center = mesh.bounds.center;
-                    box.size = mesh.bounds.size;
-                }
-                slots[p.index] = go.transform;
+                importedVisual.SetActive(false);
+                if (Application.isPlaying) Destroy(importedVisual);
+                else DestroyImmediate(importedVisual);
+                importedVisual = null;
             }
-            blocks.AddRange(slots);
+
+            word = (word ?? "").ToUpperInvariant();
+            if (word.Length == 0) return;
+            if (BuildImported()) return;
+            int n = word.Length;
+            int cols = perRow <= 0 ? n : Mathf.Min(perRow, n);
+            int rows = Mathf.CeilToInt(n / (float)cols);
+            var mat = GameAssets.I.Tinted(color);
+
+            for (int i = 0; i < n; i++)
+            {
+                int row = i / cols, col = i % cols;
+                int inRow = row == rows - 1 ? n - row * cols : cols;
+                float x = (col - (inRow - 1) * 0.5f) * (blockSize.x + gap);
+                float y = blockSize.y * 0.5f + row * (blockSize.y + gap);
+
+                var b = LetterBlocks.Create(word[i].ToString(), blockSize, mat, transform, colliders, skipBottom: rows == 1 || row == 0);
+                b.transform.localPosition = new Vector3(x, y, 0f);
+                blocks.Add(b.transform);
+            }
         }
 
-        /// <summary>Scales and rotates a normalised letter mesh so it fills the placement's box.</summary>
-        public static void Place(Transform t, Mesh mesh, LetterShapes.Placement p)
+        bool BuildImported()
         {
-            var b = mesh.bounds;
-            float width = p.keepAspect ? Mathf.Min(p.width, p.height * b.size.x / b.size.y * 1.1f) : p.width;
-            var scale = new Vector3(width / b.size.x, p.height / b.size.y, p.thickness / b.size.z);
-            var rot = Quaternion.Euler(0f, p.yaw, 0f) * Quaternion.Euler(p.flat ? 90f : 0f, 0f, 0f);
-            t.localRotation = rot;
-            t.localScale = scale;
-            t.localPosition = p.centre - rot * Vector3.Scale(scale, b.center);
-        }
-
-        /// <summary>
-        /// Creates an object from letters bent round its parent (see <see cref="LetterBend"/>), such as a scarf
-        /// round a roommate's neck. Neighbouring letters alternate shades like everything else.
-        /// </summary>
-        public static LetterBuilt Wrapped(string word, Color color, Transform parent, IEnumerable<(int index, LetterBend.Wrap wrap)> letters)
-        {
-            var go = new GameObject(word);
-            go.transform.SetParent(parent, false);
-            var built = go.AddComponent<LetterBuilt>();
-            built.word = word;
-            built.color = color;
-            built.colliders = false;
-
-            var light = GameAssets.I.Tinted(color);
-            var dark = GameAssets.I.Tinted(Color.Lerp(color, Color.black, 0.18f));
-            var slots = new Transform[word.Length];
-            foreach (var (i, wrap) in letters)
+            string key = word == "RUG" ? "Environment/Round_Rug" : "Items/" + word;
+            var library = ModelLibrary.Load();
+            if (!library || !library.Find(key)) return false;
+            importedVisual = new GameObject("ImportedVisual");
+            importedVisual.transform.SetParent(transform, false);
+            var model = ModelVisual.Spawn(key, importedVisual.transform);
+            var bounds = ModelVisual.BoundsIn(transform, model);
+            if (colliders)
             {
-                var mesh = LetterBend.Bent(word[i], wrap);
-                if (!mesh) continue;
-                var letter = new GameObject($"Letter_{word[i]}") { layer = go.layer };
-                letter.transform.SetParent(go.transform, false);
-                letter.AddComponent<MeshFilter>().sharedMesh = mesh;
-                letter.AddComponent<MeshRenderer>().sharedMaterial = i % 2 == 0 ? light : dark;
-                slots[i] = letter.transform;
+                var collision = importedVisual.AddComponent<BoxCollider>();
+                collision.center = bounds.center;
+                collision.size = bounds.size;
             }
-            built.blocks.AddRange(slots);
-            return built;
+            // These origins preserve the exact word-to-letter burst contract while
+            // the authored furniture supplies its recognizable physical silhouette.
+            for (int i = 0; i < word.Length; i++)
+            {
+                var origin = new GameObject("LetterOrigin_" + i + "_" + word[i]);
+                origin.transform.SetParent(transform, false);
+                float u = word.Length == 1 ? .5f : i / (float)(word.Length-1);
+                origin.transform.localPosition = new Vector3(
+                    Mathf.Lerp(bounds.min.x*.75f, bounds.max.x*.75f, u), bounds.center.y, bounds.center.z);
+                blocks.Add(origin.transform);
+            }
+            return true;
         }
 
         /// <summary>Creates and builds a new letter-built object.</summary>

@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>BEES: a buzzing cloud of B, E, E, S that chases the nearest other player and stings once.</summary>
+    /// <summary>BEES: a buzzing cloud of B, E, E, S that chases the nearest other player and stings once for 6 damage.</summary>
     public class BeeSwarm : MonoBehaviour
     {
         PlayerController owner;
@@ -47,7 +48,7 @@ namespace Wreckabulary
 
             if (target && Vector3.Distance(transform.position, goal) < 0.7f)
             {
-                target.Health.TakeHit(target.transform.position - owner.transform.position, 5f, -1, owner);
+                target.Health.ApplyDamage(Hits.Of(owner, target.transform.position - transform.position, HitSource.Thrown, 6f, 2.5f, 0.2f));
                 GetComponent<SummonedThing>().FallApart();
             }
         }

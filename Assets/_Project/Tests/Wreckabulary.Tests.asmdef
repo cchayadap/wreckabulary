@@ -3,6 +3,8 @@
     "rootNamespace": "Wreckabulary.Tests",
     "references": [
         "Wreckabulary",
+        "Wreckabulary.Rules",
+        "Unity.InputSystem",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Unity.TextMeshPro",
