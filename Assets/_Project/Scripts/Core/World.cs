@@ -36,7 +36,6 @@ namespace Wreckabulary
             transient = null;
         }
 
-        /// <summary>Keep the finished room visible, but stop fuses, missiles and thrown impacts after its result is final.</summary>
         public static void FreezeTransient()
         {
             SummonedThing.ClearAll();
@@ -84,7 +83,6 @@ namespace Wreckabulary
             return best;
         }
 
-        /// <summary>The live player with this index, or null (hits carry the attacker's index, not a reference).</summary>
         public static PlayerController PlayerById(int index)
         {
             if (index < 0) return null;

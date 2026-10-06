@@ -7,12 +7,19 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Cosmetic imported avatar, wardrobe and canonical animation playback.</summary>
     [RequireComponent(typeof(PlayerController))]
     [DefaultExecutionOrder(90)]
     public sealed class PlayerAppearance : MonoBehaviour
     {
         const string AvatarKey = "Avatar/Avatar";
+
+        public const float WalkStride = .2483f, RunStride = .5176f;
+        const float WalkStretch = 1.7f, RunStretch = 2f, MinCycles = .6f, MaxWalkCycles = 2.4f, MaxRunCycles = 3.6f;
+
+        public static float CyclesPerSecond(bool run, float speed) =>
+            Mathf.Clamp(speed / (run ? RunStride * RunStretch : WalkStride * WalkStretch),
+                MinCycles, run ? MaxRunCycles : MaxWalkCycles);
+
         readonly Dictionary<string, AnimationClip> clips = new Dictionary<string, AnimationClip>();
         readonly List<Renderer> oldRenderers = new List<Renderer>();
         PlayerController controller;
@@ -21,54 +28,85 @@ namespace Wreckabulary
         Transform gripL, gripR;
         PlayableGraph graph;
         AnimationMixerPlayable mixer;
-        AnimationClipPlayable currentPlayable;
+        AnimationClipPlayable currentPlayable, previousPlayable;
+        ScriptPlayable<Crossfade> fader;
         string currentClip;
         float actionUntil;
         bool wasHolding;
         bool initialized;
         Outfit outfit;
+        Transform[] postureBones;
+        Quaternion[] postureBase, postureWritten;
+        Vector3 lastVelocity;
+        float lean, bank;
+
+        sealed class Crossfade : PlayableBehaviour
+        {
+            public AnimationMixerPlayable Mixer;
+            public float Duration = .15f;
+
+            public override void PrepareFrame(Playable playable, FrameData info) => Apply();
+
+            public void Apply()
+            {
+                if (!Mixer.IsValid()) return;
+                var current = Mixer.GetInput(0);
+                var previous = Mixer.GetInput(1);
+                float w = previous.IsValid() && current.IsValid() && Duration > 0f
+                    ? Mathf.Clamp01((float)current.GetTime() / Duration) : 1f;
+                Mixer.SetInputWeight(0, w);
+                Mixer.SetInputWeight(1, previous.IsValid() ? 1f - w : 0f);
+            }
+        }
 
         public Outfit CurrentOutfit => outfit?.Clone();
         public GameObject AvatarModel => model;
         public Transform RightGrip => gripR;
+        public bool IsAnimationReady => initialized && graph.IsValid() && graph.IsPlaying() && currentPlayable.IsValid();
+        public AnimationClip CurrentAnimationClip => currentPlayable.IsValid() ? currentPlayable.GetAnimationClip() : null;
 
-        /// <summary>Called by PlayerController.Setup, including existing serialized prefabs.</summary>
         public bool Initialize(PlayerController player)
         {
             controller = player;
-            if (initialized) return true;
+            if (initialized) return IsAnimationReady;
             var library = ModelLibrary.Load();
             if (!controller || !controller.visual || !library || !library.Find(AvatarKey)) return false;
+            if (!LoadRequiredClips(library)) return false;
+            oldRenderers.Clear();
             foreach (var renderer in controller.visual.GetComponentsInChildren<Renderer>(true))
                 oldRenderers.Add(renderer);
             var root = new GameObject("ImportedAvatar");
             root.transform.SetParent(controller.visual, false);
             model = ModelVisual.Spawn(AvatarKey, root.transform);
-            if (!model) { Destroy(root); return false; }
+            if (!model) { clips.Clear(); Destroy(root); return false; }
             meshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             gripL = ModelVisual.FindNamed(model, "grip_L");
             gripR = ModelVisual.FindNamed(model, "grip_R");
-            foreach (var renderer in oldRenderers) if (renderer) renderer.enabled = false;
-
-            foreach (string name in new[] { "Idle", "Walk_InPlace", "Run_InPlace", "Jump_Preview",
-                "Hold_OneHand", "Carry_TwoHand", "Block_Plate", "Swing_OneHand", "Thrust_OneHand",
-                "Throw_OneHand", "Hit_Reaction", "Celebrate", "Drink_Consumable", "Pickup", "Place" })
-            {
-                var clip = library.FindClip(AvatarKey, name);
-                if (clip) clips[name] = clip;
-            }
             var animator = model.GetComponentInChildren<Animator>(true);
-            if (animator && clips.Count > 0)
+            if (!animator)
             {
-                animator.applyRootMotion = false;
-                animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
-                graph = PlayableGraph.Create("Wreckabulary Avatar " + controller.Index);
-                graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
-                mixer = AnimationMixerPlayable.Create(graph, 1);
-                var output = AnimationPlayableOutput.Create(graph, "Avatar", animator);
-                output.SetSourcePlayable(mixer);
-                graph.Play();
+                root.SetActive(false);
+                Destroy(root);
+                model = null;
+                meshes = null;
+                gripL = gripR = null;
+                clips.Clear();
+                return false;
             }
+            animator.applyRootMotion = false;
+            animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+            graph = PlayableGraph.Create("Wreckabulary Avatar " + controller.Index);
+            graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
+            mixer = AnimationMixerPlayable.Create(graph, 2);
+            fader = ScriptPlayable<Crossfade>.Create(graph);
+            fader.GetBehaviour().Mixer = mixer;
+            ScriptPlayableOutput.Create(graph, "Crossfade").SetSourcePlayable(fader);
+            var output = AnimationPlayableOutput.Create(graph, "Avatar", animator);
+            output.SetSourcePlayable(mixer);
+            SetClip("Idle");
+            graph.Play();
+            graph.Evaluate(0f);
+            foreach (var renderer in oldRenderers) if (renderer) renderer.enabled = false;
             initialized = true;
             var catalogue = GameConfig.Current.Wardrobe;
             string saved = PlayerPrefs.GetString("wv.outfit." + controller.Index, "");
@@ -88,7 +126,36 @@ namespace Wreckabulary
             ApplyOutfit(catalogue.Sanitize(initial), false);
             controller.Jumped += OnJumped;
             controller.Dodged += OnDodged;
-            SetClip("Idle");
+            if (controller.Health) controller.Health.Damaged += OnDamaged;
+            if (controller.Summoner) controller.Summoner.Summoned += OnSummoned;
+            var bones = new List<Transform>();
+            foreach (string bone in new[] { "spine", "chest", "head" })
+            {
+                var found = ModelVisual.FindNamed(model, bone);
+                if (found) bones.Add(found);
+            }
+            postureBones = bones.ToArray();
+            postureBase = new Quaternion[postureBones.Length];
+            postureWritten = new Quaternion[postureBones.Length];
+            return true;
+        }
+
+        bool LoadRequiredClips(ModelLibrary library)
+        {
+            clips.Clear();
+            foreach (string name in new[] { "Idle", "Walk_InPlace", "Run_InPlace", "Jump_Preview",
+                "Hold_OneHand", "Carry_TwoHand", "Block_Plate", "Swing_OneHand", "Thrust_OneHand",
+                "Throw_OneHand", "Hit_Reaction", "Celebrate", "Drink_Consumable", "Pickup", "Place" })
+            {
+                var clip = library.FindClip(AvatarKey, name);
+                if (!clip) { clips.Clear(); return false; }
+                clips.Add(name, clip);
+            }
+            foreach (string name in new[] { "Inspect_OneHand", "Present_Item" })
+            {
+                var clip = library.FindClip(AvatarKey, name);
+                if (clip) clips.Add(name, clip);
+            }
             return true;
         }
 
@@ -96,8 +163,18 @@ namespace Wreckabulary
 
         void ApplyOutfit(Outfit next, bool save)
         {
+            outfit = Dress(meshes, next);
+            if (save && controller)
+            {
+                PlayerPrefs.SetString("wv.outfit." + controller.Index, outfit.Serialize());
+                PlayerPrefs.Save();
+            }
+        }
+
+        public static Outfit Dress(SkinnedMeshRenderer[] meshes, Outfit next)
+        {
             var catalogue = GameConfig.Current.Wardrobe;
-            outfit = catalogue.Sanitize(next).Clone();
+            var outfit = catalogue.Sanitize(next).Clone();
             if (meshes != null)
                 foreach (var renderer in meshes)
                 {
@@ -127,11 +204,7 @@ namespace Wreckabulary
                         renderer.SetPropertyBlock(block, i);
                     }
                 }
-            if (save && controller)
-            {
-                PlayerPrefs.SetString("wv.outfit." + controller.Index, outfit.Serialize());
-                PlayerPrefs.Save();
-            }
+            return outfit;
         }
 
         public string SkinFor(string word) => outfit?.SkinFor(word) ?? Skin.Standard;
@@ -143,7 +216,6 @@ namespace Wreckabulary
             ApplyOutfit(outfit);
         }
 
-        /// <summary>Action visuals never change damage windows, movement or item rules.</summary>
         public void Play(string clipName, float duration = .5f)
         {
             actionUntil = Time.time + Mathf.Max(.05f, duration);
@@ -153,7 +225,19 @@ namespace Wreckabulary
         void OnJumped(PlayerController _) => Play("Jump_Preview", .45f);
         void OnDodged(PlayerController _) => Play("Run_InPlace", .2f);
 
-        void LateUpdate()
+        void OnDamaged(PlayerHealth _, HitInfo __, HitResult result)
+        {
+            if (result.Landed && !result.Blocked && result.Damage > 0f && !result.BecameDowned && !result.BecameEliminated)
+                Play("Hit_Reaction", Mathf.Clamp(result.HitStun, .25f, .45f));
+        }
+
+        void OnSummoned(string word)
+        {
+            if (GameConfig.Current.Items.TryGet(word, out var definition) && definition.Consumable) return;
+            if (clips.ContainsKey("Present_Item")) Play("Present_Item", .6f);
+        }
+
+        void Update()
         {
             if (!initialized || !controller) return;
             bool holding = controller.Combat && controller.Combat.IsHolding;
@@ -163,39 +247,99 @@ namespace Wreckabulary
             wasHolding = holding;
             var velocity = controller.Body ? controller.Body.linearVelocity : Vector3.zero;
             float speed = new Vector2(velocity.x, velocity.z).magnitude;
-            if (Time.time >= actionUntil)
+            bool down = controller.IsEliminated || controller.IsDowned;
+            if (Time.time >= actionUntil || down)
             {
-                string clip = controller.IsEliminated || controller.IsDowned ? "Hit_Reaction"
+                bool crafting = controller.Summoner && controller.Summoner.IsCrafting && clips.ContainsKey("Inspect_OneHand");
+                string clip = down ? "Hit_Reaction"
                     : blocking ? "Block_Plate"
+                    : crafting && controller.Grounded ? "Inspect_OneHand"
                     : holding ? (controller.Combat.Weapon && controller.Combat.Weapon.Definition?.IsTwoHanded != true
                         ? "Hold_OneHand" : "Carry_TwoHand")
                     : !controller.Grounded ? "Jump_Preview"
                     : speed > 2.5f ? "Run_InPlace" : speed > .2f ? "Walk_InPlace" : "Idle";
-                SetClip(clip);
+                SetClip(clip, false, down ? .25f : .15f);
             }
-            if (currentPlayable.IsValid() && (currentClip == "Walk_InPlace" || currentClip == "Run_InPlace"))
-                currentPlayable.SetSpeed(Mathf.Clamp(speed / (currentClip == "Run_InPlace" ? 5f : 2f), .4f, 1.6f));
-            // Combat keeps its original proxy/socket contracts. Place those proxies
-            // at the animated mittens after legacy wobble, without changing physics.
+            if (!currentPlayable.IsValid()) return;
+            if (currentClip == "Walk_InPlace" || currentClip == "Run_InPlace")
+                currentPlayable.SetSpeed(CyclesPerSecond(currentClip == "Run_InPlace", speed)
+                    * currentPlayable.GetAnimationClip().length);
+            else if (down && currentClip == "Hit_Reaction")
+            {
+                float end = currentPlayable.GetAnimationClip().length * .95f;
+                if (currentPlayable.GetTime() >= end) { currentPlayable.SetTime(end); currentPlayable.SetSpeed(0); }
+            }
+        }
+
+        void LateUpdate()
+        {
+            if (!initialized || !controller) return;
+            Posture();
             if (gripL && controller.handL) controller.handL.position = gripL.position;
             if (gripR && controller.handR) controller.handR.position = gripR.position;
         }
 
-        void SetClip(string name, bool restart = false)
+        void Posture()
+        {
+            if (postureBones == null || postureBones.Length == 0) return;
+            for (int i = 0; i < postureBones.Length; i++)
+            {
+                var bone = postureBones[i];
+                if (bone.localRotation == postureWritten[i]) bone.localRotation = postureBase[i];
+                postureBase[i] = bone.localRotation;
+            }
+            float dt = Time.deltaTime;
+            var velocity = controller.Body ? controller.Body.linearVelocity : Vector3.zero;
+            velocity.y = 0f;
+            var accel = dt > 0f ? (velocity - lastVelocity) / dt : Vector3.zero;
+            lastVelocity = velocity;
+            var forward = controller.visual ? World.Flat(controller.visual.forward).normalized : Vector3.forward;
+            if (forward.sqrMagnitude < .01f) forward = Vector3.forward;
+            var side = Vector3.Cross(Vector3.up, forward);
+            bool live = !controller.IsDowned && !controller.IsEliminated;
+            float targetLean = live ? Mathf.Clamp(Vector3.Dot(accel, forward) * .012f + velocity.magnitude * .02f, -.12f, .2f) : 0f;
+            float targetBank = live ? Mathf.Clamp(-Vector3.Dot(accel, side) * .01f, -.12f, .12f) : 0f;
+            float k = 1f - Mathf.Exp(-8f * dt);
+            lean = Mathf.Lerp(lean, targetLean, k);
+            bank = Mathf.Lerp(bank, targetBank, k);
+            for (int i = 0; i < postureBones.Length; i++)
+            {
+                var bone = postureBones[i];
+                float share = bone.name == "head" ? -.35f : bone.name == "chest" ? .4f : .6f;
+                var tilt = Quaternion.AngleAxis(lean * share * Mathf.Rad2Deg, side)
+                    * Quaternion.AngleAxis(bank * share * Mathf.Rad2Deg, forward);
+                bone.rotation = tilt * bone.rotation;
+                postureWritten[i] = bone.localRotation;
+            }
+        }
+
+        void SetClip(string name, bool restart = false, float fade = .15f)
         {
             if (!graph.IsValid() || (!restart && currentClip == name) || !clips.TryGetValue(name, out var clip)) return;
+            if (previousPlayable.IsValid())
+            {
+                mixer.DisconnectInput(1);
+                graph.DestroyPlayable(previousPlayable);
+            }
             if (currentPlayable.IsValid())
             {
                 mixer.DisconnectInput(0);
-                graph.DestroyPlayable(currentPlayable);
+                previousPlayable = currentPlayable;
+                graph.Connect(previousPlayable, 0, mixer, 1);
             }
             currentPlayable = AnimationClipPlayable.Create(graph, clip);
             currentPlayable.SetApplyFootIK(false);
             currentPlayable.SetTime(0);
             currentPlayable.SetSpeed(1);
             graph.Connect(currentPlayable, 0, mixer, 0);
-            mixer.SetInputWeight(0, 1);
             currentClip = name;
+            if (fader.IsValid())
+            {
+                var behaviour = fader.GetBehaviour();
+                behaviour.Duration = fade;
+                behaviour.Apply();
+            }
+            else mixer.SetInputWeight(0, 1);
         }
 
         void OnDestroy()
@@ -204,6 +348,8 @@ namespace Wreckabulary
             {
                 controller.Jumped -= OnJumped;
                 controller.Dodged -= OnDodged;
+                if (controller.Health) controller.Health.Damaged -= OnDamaged;
+                if (controller.Summoner) controller.Summoner.Summoned -= OnSummoned;
             }
             if (graph.IsValid()) graph.Destroy();
         }

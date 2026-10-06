@@ -46,8 +46,6 @@ namespace Wreckabulary
             }
             importedVisual = new GameObject("ImportedTile");
             importedVisual.transform.SetParent(transform, false);
-            // Source tiles are authored upright; rest on their broad wooden back
-            // so the actual raised glyph faces the overhead gameplay camera.
             importedVisual.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
             importedVisual.transform.localScale = Vector3.one * 1.6f;
             var model = ModelVisual.Spawn(key, importedVisual.transform);
@@ -64,8 +62,6 @@ namespace Wreckabulary
                 for (int i = 0; i < labels.Length; i++)
                 {
                     if (!labels[i]) continue;
-                    // One underside label keeps a tumbled tile readable. The top
-                    // is the supplied model's mesh glyph, with no duplicate TMP.
                     bool underside = i == 5;
                     labels[i].gameObject.SetActive(underside);
                     if (!underside) continue;

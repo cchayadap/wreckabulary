@@ -2430,9 +2430,9 @@
     {
       "name": "Avatar",
       "kind": "avatar",
-      "triangles": 63110,
+      "triangles": 65086,
       "issues": [],
-      "unchanged_texture_checks": 28,
+      "unchanged_texture_checks": 30,
       "animations": [
         "Block_Plate",
         "Carry_TwoHand",
@@ -2453,14 +2453,14 @@
         "Walk_InPlace"
       ],
       "bounds_min": [
-        -0.3725022652625167,
+        -0.3744369151535868,
         0.001999968197196722,
-        -0.25499993772512747
+        -0.2549999377251273
       ],
       "bounds_max": [
-        0.37250232906347414,
-        1.1550204753875732,
-        0.3099416790732437
+        0.37443697429264305,
+        1.0121999979019165,
+        0.318039924629385
       ],
       "bounds_tolerance_m": 0.001,
       "mesh_triangles": {
@@ -2469,23 +2469,23 @@
         "SK_Cap": 2340,
         "SK_Crewneck": 9472,
         "SK_Glasses": 786,
-        "SK_Head": 7504,
-        "SK_Hood": 16944,
-        "SK_Hoodie": 9880,
+        "SK_Head": 12240,
+        "SK_Hood": 11472,
+        "SK_Hoodie": 10688,
         "SK_Joggers": 2240,
-        "SK_Mittens": 4464,
-        "SK_Satchel": 1464
+        "SK_Mittens": 6192,
+        "SK_Satchel": 1640
       },
-      "default_visible_triangles": 31696,
-      "default_material_slots": 9,
-      "maximum_reference_bounds_delta_m": 4.7538757330656267e-07
+      "default_visible_triangles": 52488,
+      "default_material_slots": 17,
+      "maximum_reference_bounds_delta_m": 8.484641322858977e-08
     },
     {
       "name": "Avatar-Mobile",
       "kind": "avatar",
-      "triangles": 30848,
+      "triangles": 34424,
       "issues": [],
-      "unchanged_texture_checks": 28,
+      "unchanged_texture_checks": 30,
       "animations": [
         "Block_Plate",
         "Carry_TwoHand",
@@ -2506,14 +2506,14 @@
         "Walk_InPlace"
       ],
       "bounds_min": [
-        -0.3726131000964748,
+        -0.374727784716231,
         0.001999969594180584,
-        -0.25527432771972597
+        -0.2552888712548862
       ],
       "bounds_max": [
-        0.3726186475275884,
-        1.1550151109695435,
-        0.3099415598639672
+        0.37470477919587236,
+        1.0121999979019165,
+        0.3180398054201085
       ],
       "bounds_tolerance_m": 0.015,
       "mesh_triangles": {
@@ -2521,17 +2521,17 @@
         "SK_Boots": 3198,
         "SK_Cap": 981,
         "SK_Crewneck": 3977,
-        "SK_Glasses": 329,
-        "SK_Head": 7504,
-        "SK_Hood": 7115,
-        "SK_Hoodie": 4149,
-        "SK_Joggers": 940,
-        "SK_Mittens": 1874,
-        "SK_Satchel": 614
+        "SK_Glasses": 330,
+        "SK_Head": 12240,
+        "SK_Hood": 4818,
+        "SK_Hoodie": 4487,
+        "SK_Joggers": 939,
+        "SK_Mittens": 2599,
+        "SK_Satchel": 688
       },
-      "default_visible_triangles": 17660,
-      "default_material_slots": 9,
-      "maximum_reference_bounds_delta_m": 0.00027432771972596415
+      "default_visible_triangles": 29136,
+      "default_material_slots": 17,
+      "maximum_reference_bounds_delta_m": 0.0002907847162310073
     }
   ]
 }

@@ -52,6 +52,10 @@
       "folder": "06_Customizable_Avatar/Modules",
       "names": ["Hoodie", "Hood", "Cap", "Glasses", "Satchel", "Badge_T"]
     },
-    "output_name": "Avatar"
+    "output_name": "Avatar",
+    "refine": true,
+    "_refine": "refine_avatar.py reworks the merged avatar toward art-direction board 1 (hood without the crown lobes, hair, drawstrings, cuffs, buckle, baggy trousers) on the same rig.",
+    "author_clips": true,
+    "_author_clips": "author_clips.py replaces the pack's shuffling walk and run and its one-shots (idle, jump, swing, thrust, throw, hit, celebrate) with planted-foot cycles and readable actions under the same clip names and lengths. Pickup and Place keep the pack clips, which correct_pickup_contact.mjs checks."
   }
 }

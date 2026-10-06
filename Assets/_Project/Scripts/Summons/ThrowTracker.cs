@@ -16,7 +16,6 @@ namespace Wreckabulary
 
         const float DamagePerMomentum = 0.6f, MinDamage = 5f, MaxDamage = 20f;
 
-        /// <param name="knockback">In shove units, like rules.json.</param>
         public static void Attach(GameObject go, PlayerController thrower, float seconds, float knockback = 4f)
         {
             if (!go.TryGetComponent(out ThrowTracker t)) t = go.AddComponent<ThrowTracker>();

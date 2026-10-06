@@ -3,12 +3,6 @@ using UnityEngine;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>
-    /// Every material the imported art uses, built from <c>Data/Generated/materials.json</c> by
-    /// Wreckabulary → Art → Build Material Library. Item materials come in skins named
-    /// <c>&lt;family&gt;_Classic</c>, <c>_Candy</c> and <c>_Arcade</c>; <see cref="ForSkin"/> swaps
-    /// between them for the held-item look (brief §4), falling back to the standard material.
-    /// </summary>
     [CreateAssetMenu(menuName = "Wreckabulary/Material Library", fileName = "MaterialLibrary")]
     public sealed class MaterialLibrary : ScriptableObject
     {
@@ -23,7 +17,6 @@ namespace Wreckabulary.Art
 
         static MaterialLibrary loaded;
 
-        /// <summary>The library in <c>Resources/MaterialLibrary.asset</c>, or null if it hasn't been built.</summary>
         public static MaterialLibrary Load()
         {
             if (loaded == null) loaded = Resources.Load<MaterialLibrary>(ResourcePath);
@@ -48,11 +41,6 @@ namespace Wreckabulary.Art
             return byName.TryGetValue(materialName, out var found) ? found : null;
         }
 
-        /// <summary>
-        /// The same material in another skin: "wood_light_Classic" in Candy is
-        /// "wood_light_Candy". Materials without skins (the avatar's, the house's) and skins
-        /// that don't exist give back the material unchanged.
-        /// </summary>
         public Material ForSkin(Material material, string skin)
         {
             if (material == null) return null;
@@ -61,7 +49,6 @@ namespace Wreckabulary.Art
             return Find(family + "_" + skin) ?? Find(family + "_" + StandardSkin) ?? material;
         }
 
-        /// <summary>Puts every renderer under <paramref name="root"/> into <paramref name="skin"/>.</summary>
         public void ApplySkin(GameObject root, string skin)
         {
             foreach (var r in root.GetComponentsInChildren<Renderer>(true))
@@ -79,9 +66,9 @@ namespace Wreckabulary.Art
                 }
                 if (changed) r.sharedMaterials = shared;
             }
+            TactileMaterials.Refresh(root);
         }
 
-        /// <summary>"wood_light_Candy" → "wood_light"; null for a material that has no skins.</summary>
         public static string FamilyOf(string materialName)
         {
             if (materialName == null) return null;

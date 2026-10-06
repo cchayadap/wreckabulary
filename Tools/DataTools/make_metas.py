@@ -1,16 +1,3 @@
-"""Write a Unity .meta file for every file and folder under Assets/ that has none.
-
-Unity makes .meta files itself, but with random GUIDs, so two machines that import the same
-new file get different GUIDs and references break. Files added outside Unity (the Blender
-pipeline, data files, rules code) get deterministic GUIDs here instead: the MD5 of
-"wreckabulary:" plus the asset path. Existing .meta files are never touched.
-
-Only simple importers are written (folders, scripts, asmdefs, text and JSON). Models, textures
-and other media are left for Unity: a .meta that holds only a guid makes Unity upgrade it from
-"importer version 1" with odd defaults (PNGs came through as cubemaps with gamma decoding on).
-
-  python Tools/DataTools/make_metas.py [--dry-run]
-"""
 import argparse
 import hashlib
 import os

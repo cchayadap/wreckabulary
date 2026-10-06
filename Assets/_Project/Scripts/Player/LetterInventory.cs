@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Crafting loot. Reserved letters count towards the bag limit; HP is separate.</summary>
     public class LetterInventory : MonoBehaviour
     {
         [SerializeField] float pickupRadius = 0.9f;
@@ -39,12 +38,7 @@ namespace Wreckabulary
                 var rb = Hits[i].attachedRigidbody;
                 if (rb && rb.gameObject.activeSelf && rb.TryGetComponent(out LetterTile tile) &&
                     tile.CanBeCollectedBy(this) && TryAdd(tile.Letter))
-                {
-                    // Rarer letters sound brighter.
-                    float pitch = tile.Rarity switch { LetterRarity.Legendary => 1.35f, LetterRarity.Rare => 1.15f, _ => 1f };
-                    Sfx.Play(Sound.Pickup, transform.position, 0.7f, pitch);
                     tile.Collect();
-                }
             }
         }
 
@@ -72,18 +66,6 @@ namespace Wreckabulary
             if (string.IsNullOrEmpty(word)) return false;
             if (!WordSolver.CanSpell(WordSolver.Count(letters), word)) return false;
             foreach (char c in word) letters.Remove(char.ToUpperInvariant(c));
-            Changed?.Invoke();
-            return true;
-        }
-
-        /// <summary>Puts one letter down on the floor in front, to make room for a better one.</summary>
-        public bool DropAt(int index, Vector3 from, Vector3 facing)
-        {
-            if (index < 0 || index >= letters.Count) return false;
-            char c = letters[index];
-            letters.RemoveAt(index);
-            var pool = TilePool.Instance;
-            if (pool) pool.Get(c).Launch(from + facing * 0.7f + Vector3.up * 0.6f, facing * 1.5f + Vector3.up * 1.5f, this);
             Changed?.Invoke();
             return true;
         }

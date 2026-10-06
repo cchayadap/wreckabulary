@@ -12,11 +12,6 @@ namespace Wreckabulary.Rules
 
         public static bool AreHostile(int a, int b) => !AreTeammates(a, b);
 
-        /// <summary>
-        /// Team per seat, in join order. Free-for-all (team size 1) gives everyone their own
-        /// team; Duos with 4 players gives 0, 1, 0, 1 so friends who joined together are split
-        /// unless the lobby swaps them.
-        /// </summary>
         public static int[] Assign(int players, int teamSize)
         {
             if (players < 0) throw new ArgumentOutOfRangeException(nameof(players));
@@ -63,11 +58,6 @@ namespace Wreckabulary.Rules
         }
     }
 
-    /// <summary>
-    /// Last player (or team) standing. Evaluate once per tick, after every hit of that tick
-    /// has been applied, so two knockouts on the same tick are a draw rather than a win for
-    /// whichever event ran first.
-    /// </summary>
     public static class WinCheck
     {
         public static RoundOutcome Evaluate(IEnumerable<Combatant> combatants)
@@ -78,7 +68,6 @@ namespace Wreckabulary.Rules
             return new RoundOutcome(RoundState.Draw, Teams.NoTeam);
         }
 
-        /// <summary>Downed players whose whole team is down can't be revived, so they are out.</summary>
         public static List<int> Unrevivable(IEnumerable<Combatant> combatants)
         {
             var list = combatants.ToList();
@@ -87,7 +76,6 @@ namespace Wreckabulary.Rules
         }
     }
 
-    /// <summary>Rounds won per team; the first to <see cref="RoundsToWin"/> takes the match.</summary>
     public sealed class MatchScore
     {
         readonly Dictionary<int, int> wins = new Dictionary<int, int>();
@@ -104,7 +92,6 @@ namespace Wreckabulary.Rules
         public int Wins(int team) => wins.TryGetValue(team, out int w) ? w : 0;
         public bool IsOver => MatchWinner != Teams.NoTeam;
 
-        /// <summary>Records a finished round. A draw counts as played but gives nobody a win.</summary>
         public void Record(RoundOutcome outcome)
         {
             if (IsOver) throw new InvalidOperationException("The match is already over.");

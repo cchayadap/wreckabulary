@@ -6,24 +6,17 @@ namespace Wreckabulary.Rules
 
     public enum HitSource { Unarmed, Melee, Thrown, Explosion, Hazard }
 
-    /// <summary>
-    /// One hit, as the server resolves it. Every damage source fills one of these, so health has
-    /// a single entry point (<see cref="HealthModel.ApplyHit"/>).
-    /// </summary>
     public struct HitInfo
     {
         public float Damage;
         public float Knockback;
         public float HitStun;
-        /// <summary>How hard the hit is on furniture: a punch is 1, a BOMB 4. Players ignore it.</summary>
         public float BreakPower;
         public int AttackerId;
         public int AttackerTeam;
         public string ItemId;
         public HitSource Source;
-        /// <summary>Horizontal direction the hit travels, from the attacker towards the target.</summary>
         public float DirX, DirZ;
-        /// <summary>False for hazards: a PLATE can't block the Movers.</summary>
         public bool Blockable;
 
         public static HitInfo From(int attackerId, int attackerTeam, MeleeStats stats, string itemId, float dirX, float dirZ) => new HitInfo
@@ -55,9 +48,7 @@ namespace Wreckabulary.Rules
         public float Damage;
         public float Absorbed;
         public bool Blocked;
-        /// <summary>Damage the shield stopped. The PLATE loses this much durability.</summary>
         public float BlockedDamage;
-        /// <summary>Seconds of hit-stun to play, 0 while stagger-immune.</summary>
         public float HitStun;
         public float Knockback;
         public bool BecameDowned;
@@ -68,10 +59,6 @@ namespace Wreckabulary.Rules
 
     public static class Geometry
     {
-        /// <summary>
-        /// True if something in direction (toX, toZ) lies inside the front arc of a player facing
-        /// (facingX, facingZ). Used for the PLATE's frontal block (brief §7).
-        /// </summary>
         public static bool InFrontArc(float facingX, float facingZ, float toX, float toZ, float arcDegrees)
         {
             float fl = (float)Math.Sqrt(facingX * facingX + facingZ * facingZ);
@@ -83,10 +70,6 @@ namespace Wreckabulary.Rules
         }
     }
 
-    /// <summary>
-    /// One player's 100 HP, protection and life state (brief §7). All times are server time in
-    /// seconds.
-    /// </summary>
     public sealed class HealthModel
     {
         readonly GameRules rules;
@@ -126,7 +109,6 @@ namespace Wreckabulary.Rules
             facingZ = z;
         }
 
-        /// <summary>Right click with a PLATE held. Pass null to lower it.</summary>
         public void SetBlocking(ShieldStats stats)
         {
             shield = stats;
@@ -149,7 +131,6 @@ namespace Wreckabulary.Rules
 
             float damage = Math.Max(0f, hit.Damage);
             float knockback = hit.Knockback;
-            // The attacker is opposite the hit's direction of travel.
             if (blocking && hit.Blockable && Geometry.InFrontArc(facingX, facingZ, -hit.DirX, -hit.DirZ, shield.FrontArcDegrees))
             {
                 r.Blocked = true;
@@ -195,7 +176,6 @@ namespace Wreckabulary.Rules
             return r;
         }
 
-        /// <summary>Call every tick. Returns true when a downed player bleeds out.</summary>
         public bool Tick(double now)
         {
             if (now >= BubbleUntil) ClearBubble();
@@ -208,7 +188,6 @@ namespace Wreckabulary.Rules
             return false;
         }
 
-        /// <summary>Ends a downed player's match at once, for example when their whole team is down.</summary>
         public void Eliminate()
         {
             if (State == LifeState.Eliminated) return;
@@ -218,7 +197,6 @@ namespace Wreckabulary.Rules
             ReviverId = -1;
         }
 
-        /// <summary>A teammate starts holding E on this downed player.</summary>
         public bool BeginRevive(int reviverId, int reviverTeam, double now)
         {
             if (State != LifeState.Downed || reviverId == PlayerId || !Teams.AreTeammates(reviverTeam, Team)) return false;
@@ -233,7 +211,6 @@ namespace Wreckabulary.Rules
             if (ReviverId == reviverId) ReviverId = -1;
         }
 
-        /// <summary>Returns true once the reviver has held on long enough; the player stands up with some health.</summary>
         public bool TryFinishRevive(int reviverId, double now)
         {
             if (State != LifeState.Downed || ReviverId != reviverId) return false;
@@ -253,14 +230,12 @@ namespace Wreckabulary.Rules
             return healed;
         }
 
-        /// <summary>FOAM: protection that refreshes instead of stacking (brief §5, "non-stacking").</summary>
         public void GiveBubble(float amount, double until)
         {
             Bubble = amount;
             BubbleUntil = until;
         }
 
-        /// <summary>Ends bubble protection, including its expiry deadline.</summary>
         public void ClearBubble()
         {
             Bubble = 0f;
@@ -292,7 +267,6 @@ namespace Wreckabulary.Rules
             InvulnerableUntil = now + rules.SpawnProtectionSeconds;
         }
 
-        /// <summary>A new round: full health and the downed count starts again.</summary>
         public void ResetForRound(double now)
         {
             TimesDowned = 0;

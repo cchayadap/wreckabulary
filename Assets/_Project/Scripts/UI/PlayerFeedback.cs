@@ -3,7 +3,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Presentation observes gameplay events; it never changes health, recipes or letter ownership.</summary>
     public sealed class PlayerFeedback : MonoBehaviour
     {
         PlayerController player;

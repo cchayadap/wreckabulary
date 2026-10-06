@@ -7,7 +7,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>The moves on top of walking and punching: jump, dodge, block with a PLATE, revive, aim, and the desktop keys.</summary>
     public class ControlsTests
     {
         [UnitySetUp]
@@ -38,14 +37,17 @@ namespace Wreckabulary.Tests
             return p;
         }
 
+        static IEnumerator Updates(int n)
+        {
+            for (int i = 0; i < n; i++) yield return null;
+        }
+
         static IEnumerator Frames(int n)
         {
             for (int i = 0; i < n; i++) yield return new WaitForFixedUpdate();
         }
 
         static HitInfo Punch(Vector3 direction) => Hits.Melee(null, direction, Match.Rules.Unarmed, null);
-
-        // ---- Jump ----
 
         [UnityTest]
         public IEnumerator JumpRisesAboutTheRulesHeight()
@@ -62,7 +64,6 @@ namespace Wreckabulary.Tests
             {
                 yield return new WaitForFixedUpdate();
                 top = Mathf.Max(top, p.transform.position.y);
-                // A second press in mid-air does nothing.
                 if (Mathf.Abs(t - 0.3f) < 0.01f) input.Next.jump = true;
             }
 
@@ -91,7 +92,25 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(p.IsDodging);
         }
 
-        // ---- Dodge ----
+        [UnityTest]
+        public IEnumerator SpeedBuildsAndBleedsAtTheRulesRates()
+        {
+            var p = SpawnPlayer(0, Vector3.zero, out var input);
+            var rules = Match.Rules.Clone();
+            rules.GroundAccel = 4f;
+            rules.GroundFriction = 2f;
+            p.Health.UseRules(rules);
+            yield return Frames(5);
+
+            input.Next.move = Vector2.up;
+            yield return new WaitForSeconds(.5f);
+            float built = p.Body.linearVelocity.z;
+            Assert.AreEqual(2f, built, .4f, "groundAccel: 4 m/s² for half a second");
+
+            input.Next.move = Vector2.zero;
+            yield return new WaitForSeconds(.5f);
+            Assert.AreEqual(built - 1f, p.Body.linearVelocity.z, .4f, "groundFriction: 2 m/s² once you let go");
+        }
 
         [UnityTest]
         public IEnumerator DodgeDashesOutOfTroubleThenCoolsDown()
@@ -102,7 +121,6 @@ namespace Wreckabulary.Tests
             int dodges = 0;
             p.Dodged += _ => dodges++;
 
-            // No move input: the dash goes the way the player faces.
             input.Next.dodge = true;
             yield return Frames(2);
             Assert.IsTrue(p.IsDodging);
@@ -116,7 +134,6 @@ namespace Wreckabulary.Tests
             Assert.Less(Mathf.Abs(p.transform.position.x), 0.2f);
             Assert.Less(World.Flat(p.Body.linearVelocity).magnitude, 1f, "comes out of the dash under control");
 
-            // Still cooling down.
             input.Next.dodge = true;
             yield return Frames(3);
             Assert.IsFalse(p.IsDodging);
@@ -138,8 +155,6 @@ namespace Wreckabulary.Tests
             yield return new WaitForSeconds(0.6f);
             Assert.Greater(p.transform.position.x, 3f, "dashed right, the way the stick points");
         }
-
-        // ---- Block ----
 
         static void EquipPlate(PlayerController p)
         {
@@ -164,21 +179,38 @@ namespace Wreckabulary.Tests
             yield return new WaitForSeconds(0.25f);
             Assert.IsTrue(p.Combat.IsBlocking);
 
-            // Attacker in front, hitting towards -z.
             Assert.IsFalse(p.Health.ApplyDamage(Punch(Vector3.back)), "blocked");
             Assert.AreEqual(100f, p.Health.Current);
             var plate = p.Combat.Weapon;
             Assert.AreEqual(60f - 8f, plate.DurabilityLeft, "blocked damage wears the plate");
 
-            // No punching from behind a raised shield, even with someone right there.
             input.Next.attack = true;
             yield return null;
             yield return null;
             Assert.AreEqual(100f, opponent.Health.Current);
 
-            // From behind, the hit lands in full.
             Assert.IsTrue(p.Health.ApplyDamage(Punch(Vector3.forward)));
             Assert.AreEqual(92f, p.Health.Current);
+        }
+
+        [UnityTest]
+        public IEnumerator HoldingLeftClickWithAPlateRaisesIt()
+        {
+            var p = SpawnPlayer(0, Vector3.zero, out var input);
+            var opponent = SpawnPlayer(1, new Vector3(0f, 0f, 1.1f), out _);
+            yield return Frames(3);
+            EquipPlate(p);
+            yield return Frames(2);
+
+            input.Next.attack = true;
+            input.Next.attackHeld = true;
+            yield return new WaitForSeconds(0.25f);
+            Assert.IsTrue(p.Combat.IsBlocking, "left click is the plate's job: block");
+            Assert.AreEqual(100f, opponent.Health.Current, "and it doesn't punch");
+
+            input.Next.attackHeld = false;
+            yield return Frames(2);
+            Assert.IsFalse(p.Combat.IsBlocking, "letting go lowers it");
         }
 
         [UnityTest]
@@ -244,8 +276,6 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(free * p.Combat.Weapon.Shield.MoveSpeedMultiplier, raised, 0.3f);
         }
 
-        // ---- Drop ----
-
         [UnityTest]
         public IEnumerator DropLetsGoOfTheHeldItem()
         {
@@ -270,8 +300,6 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(hold.Update(true, 0.21f + InputBinding.DropHoldSeconds), "held long enough");
             Assert.IsFalse(hold.Update(true, 1f), "once per press");
         }
-
-        // ---- Revive ----
 
         static IEnumerator SpawnDownedPair(float reviveSeconds, System.Action<PlayerController, PlayerController, ScriptedBinding> ready)
         {
@@ -300,7 +328,7 @@ namespace Wreckabulary.Tests
 
             input.Next.grab = true;
             input.Next.grabHeld = true;
-            input.Next.move = Vector2.left; // reviving roots you to the spot
+            input.Next.move = Vector2.left;
             yield return null;
             Assert.IsTrue(a.Combat.IsReviving);
             var start = a.transform.position;
@@ -361,8 +389,6 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(a.Combat.IsReviving);
         }
 
-        // ---- Aim ----
-
         [UnityTest]
         public IEnumerator MouseAndStickAimTurnThePlayer()
         {
@@ -372,7 +398,6 @@ namespace Wreckabulary.Tests
                 cam = new GameObject("Test Camera").AddComponent<Camera>();
                 cam.tag = "MainCamera";
             }
-            // A fixed-size target, so the screen maths doesn't depend on the batch-mode window.
             var target = new RenderTexture(640, 360, 16);
             cam.targetTexture = target;
             cam.transform.SetPositionAndRotation(new Vector3(0f, 10f, -7f), Quaternion.Euler(55f, 0f, 0f));
@@ -381,18 +406,15 @@ namespace Wreckabulary.Tests
             yield return Frames(3);
             p.FaceTowards(Vector3.forward);
 
-            // The mouse points at a spot to the player's right.
             input.Next.aimAtPointer = true;
             input.Next.pointer = cam.WorldToScreenPoint(new Vector3(3f, 0.8f, 0f));
             yield return new WaitForSeconds(0.3f);
             Assert.Less(Vector3.Angle(p.Facing, Vector3.right), 3f, "faces the pointer");
 
-            // Backing away keeps facing the pointer instead of turning to walk.
             input.Next.move = Vector2.left;
             yield return new WaitForSeconds(0.3f);
             Assert.Less(Vector3.Angle(p.Facing, Vector3.right), 3f);
 
-            // The right stick aims too, and wins over the mouse.
             input.Next.move = Vector2.zero;
             input.Next.look = Vector2.down;
             yield return new WaitForSeconds(0.3f);
@@ -402,9 +424,46 @@ namespace Wreckabulary.Tests
             Object.Destroy(target);
         }
 
-        // ---- Desktop layout ----
-
         static string Path(InputAction action, int binding = 0) => action.bindings[binding].path;
+
+        [Test]
+        public void RebindingSwapsClashesSavesAndResets()
+        {
+            var d = DesktopBinding.Shared;
+            KeyBindings.ResetToDefaults();
+            try
+            {
+                Assert.AreEqual("WASD", ControlHints.MoveKeys);
+                KeyBindings.Assign(d.Jump, 0, "<Keyboard>/f");
+                Assert.AreEqual("<Keyboard>/f", d.Jump.bindings[0].effectivePath);
+                Assert.AreEqual("F", ControlHints.KeyOf(d.Jump), "prompts read the live key");
+                KeyBindings.Assign(d.Spell, 0, "<Keyboard>/f");
+                Assert.AreEqual("<Keyboard>/f", d.Spell.bindings[0].effectivePath);
+                Assert.AreEqual("<Keyboard>/q", d.Jump.bindings[0].effectivePath, "a clash swaps the two keys");
+                StringAssert.Contains("<Keyboard>/f", PlayerPrefs.GetString(KeyBindings.OverridesKey), "saved");
+
+                d.Map.RemoveAllBindingOverrides();
+                KeyBindings.Load(d.Map);
+                Assert.AreEqual("<Keyboard>/f", d.Spell.bindings[0].effectivePath, "loaded back on the next start");
+
+                int up = -1;
+                for (int i = 0; i < d.Move.bindings.Count; i++) if (d.Move.bindings[i].name == "Up") up = i;
+                KeyBindings.Assign(d.Move, up, "<Keyboard>/upArrow");
+                StringAssert.Contains("/", ControlHints.MoveKeys);
+
+                KeyBindings.SetSensitivity(2f);
+                KeyBindings.SetInvertY(true);
+                var look = KeyBindings.Look(new Vector2(10f, 10f));
+                Assert.AreEqual(10f * ShoulderView.MouseSensitivity * 2f, look.x, 1e-5f);
+                Assert.AreEqual(10f * ShoulderView.MouseSensitivity * 2f, look.y, 1e-5f, "inverted: mouse up looks down");
+            }
+            finally { KeyBindings.ResetToDefaults(); }
+            Assert.AreEqual("<Keyboard>/space", d.Jump.bindings[0].effectivePath);
+            Assert.AreEqual("<Keyboard>/q", d.Spell.bindings[0].effectivePath);
+            Assert.AreEqual(1f, KeyBindings.Sensitivity);
+            Assert.IsFalse(KeyBindings.InvertY);
+            Assert.IsFalse(PlayerPrefs.HasKey(KeyBindings.OverridesKey));
+        }
 
         [Test]
         public void DesktopKeysMatchTheBrief()
@@ -412,20 +471,81 @@ namespace Wreckabulary.Tests
             var d = DesktopBinding.Shared;
             Assert.AreEqual("keyboard-mouse", d.Id);
             Assert.AreEqual("<Mouse>/leftButton", Path(d.Attack));
-            Assert.AreEqual("<Mouse>/rightButton", Path(d.Block));
+            Assert.AreEqual("<Mouse>/rightButton", Path(d.Aim));
             Assert.AreEqual("<Keyboard>/space", Path(d.Jump));
             Assert.AreEqual("<Keyboard>/leftShift", Path(d.Dodge));
             Assert.AreEqual("<Keyboard>/e", Path(d.Interact));
             Assert.AreEqual("<Keyboard>/q", Path(d.Spell));
             Assert.AreEqual("<Keyboard>/r", Path(d.Drop));
             Assert.AreEqual("<Mouse>/position", Path(d.Point));
-            // The move composite, then its up, down, left and right parts.
             Assert.AreEqual("<Keyboard>/w", Path(d.Move, 1));
             Assert.AreEqual("<Keyboard>/s", Path(d.Move, 2));
             Assert.AreEqual("<Keyboard>/a", Path(d.Move, 3));
             Assert.AreEqual("<Keyboard>/d", Path(d.Move, 4));
             Assert.IsTrue(d.Map.enabled);
             StringAssert.StartsWith("Press SPACE", ControlHints.Join("join"));
+            foreach (var action in d.Map.actions)
+                foreach (var binding in action.bindings)
+                    Assert.IsFalse(binding.path is "<Keyboard>/f" or "<Keyboard>/g", action.name + " is bound to " + binding.path);
+            Assert.AreEqual("Hold R, ' or Numpad6, or LB", ControlHints.Drop);
+        }
+
+        static HeldWeapon Craft(PlayerController p, string word)
+        {
+            p.Inventory.Set(word);
+            Assert.IsTrue(p.Summoner.Summon(word), word + " is crafted into the hand");
+            Assert.IsNotNull(p.Combat.Weapon, word + " is in hand");
+            return p.Combat.Weapon;
+        }
+
+        [UnityTest]
+        public IEnumerator AttackPlacesToolsTableIncluded()
+        {
+            var words = new[] { "TABLE", "BED" };
+            for (int i = 0; i < words.Length; i++)
+            {
+                var p = SpawnPlayer(i, new Vector3(i * 8f, 0f, 0f), out var input);
+                yield return Frames(3);
+                p.FaceTowards(Vector3.forward);
+                Craft(p, words[i]);
+                input.Next.attack = true;
+                yield return TestScenes.WaitUntil(() => DeployedGear.CountFor(p) == 1, 3f, words[i] + " placed by the attack button");
+                Assert.IsFalse(p.Combat.Weapon, words[i] + " left the hand");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator InteractPicksUpAPropBesideGearAndAttackThrowsIt()
+        {
+            var p = SpawnPlayer(0, Vector3.zero, out var input);
+            yield return Frames(3);
+            p.FaceTowards(Vector3.forward);
+            var bat = Craft(p, "BAT");
+            var chair = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            chair.name = "Test chair";
+            chair.transform.position = new Vector3(0f, 0.25f, 0.9f);
+            chair.transform.localScale = Vector3.one * 0.5f;
+            var body = chair.AddComponent<Rigidbody>();
+            body.mass = 2f;
+            int thrown = 0;
+            p.Combat.Thrown += _ => thrown++;
+            yield return Frames(3);
+
+            input.Next.grab = true;
+            yield return Updates(3);
+            Assert.AreEqual(0, thrown, "E never throws");
+            Assert.AreEqual(body, p.Combat.Held, "the prop is picked up");
+            Assert.AreEqual(bat, p.Combat.StoredGear, "the BAT moves to the other hand instead of being lost");
+
+            input.Next.grab = true;
+            yield return Updates(3);
+            Assert.AreEqual(body, p.Combat.Held, "E again while carrying does nothing");
+
+            input.Next.attack = true;
+            yield return Updates(3);
+            Assert.AreEqual(1, thrown, "the attack button throws what's carried");
+            Assert.IsFalse(p.Combat.IsHolding);
+            Assert.AreEqual(bat, p.Combat.StoredGear, "the BAT is still there for later");
         }
     }
 }

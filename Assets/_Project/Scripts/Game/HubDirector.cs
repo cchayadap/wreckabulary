@@ -9,7 +9,6 @@ namespace Wreckabulary
         [SerializeField] PlayerJoinManager joins;
         [SerializeField] GameHud hud;
         [SerializeField] Typewriter typewriter;
-        [SerializeField] Wardrobe wardrobe;
         [Tooltip("The door leaf, pivoting on its hinge. Swings open whenever someone walks in.")]
         [SerializeField] Transform door;
         [SerializeField] float doorOpenAngle = -100f;
@@ -18,7 +17,6 @@ namespace Wreckabulary
 
         void Start()
         {
-            Music.Play(Track.Cozy);
             joins.Joined += _ => OpenDoor();
             joins.RespawnKnockedOut = true;
             if (joins.Players.Count > 0) OpenDoor();
@@ -30,10 +28,8 @@ namespace Wreckabulary
                 hud.SetInstruction(ControlHints.Join("walk in"), ControlHints.Players);
             else if (typewriter.User)
                 hud.SetInstruction("Choose a mode", "Up/down to choose  •  grab or attack to pick  •  spell to get up");
-            else if (wardrobe && wardrobe.User)
-                hud.SetInstruction("", "");
             else
-                hud.SetInstruction("Walk up to the typewriter and press grab", "Dress up at the wardrobe  •  more roommates can walk in any time");
+                hud.SetInstruction("Walk up to the typewriter and press grab", "More roommates can walk in any time");
             hud.SetScoreboard(joins.Players, _ => 0, 0, false);
         }
 
@@ -42,7 +38,6 @@ namespace Wreckabulary
             if (!door) return;
             if (swing != null) StopCoroutine(swing);
             swing = StartCoroutine(Swing());
-            Sfx.Play(Sound.Door, door.position, 0.7f);
         }
 
         IEnumerator Swing()

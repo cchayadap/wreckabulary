@@ -13,9 +13,6 @@ namespace Wreckabulary
         float damage, knockback, breakPower, blastRadius;
         bool spent;
 
-        /// <param name="damage">Player damage (HP).</param>
-        /// <param name="knockback">In shove units, like rules.json.</param>
-        /// <param name="breakPower">What it does to furniture.</param>
         public static Projectile Fire(string word, Vector3 from, Vector3 velocity, PlayerController owner,
                                       float damage, float knockback, float breakPower, float blastRadius)
         {
@@ -83,7 +80,7 @@ namespace Wreckabulary
             foreach (var col in Physics.OverlapSphere(position, blastRadius, ~0, QueryTriggerInteraction.Ignore))
             {
                 var rb = col.attachedRigidbody;
-                if (!rb || !seen.Add(rb)) continue;
+                if (!rb || !seen.Add(rb) || FloorBetween(position, rb.worldCenterOfMass)) continue;
                 float distance = World.Flat(rb.position - position).magnitude;
                 var hit = Hits.Of(owner, rb.position - position, HitSource.Explosion, BlastDamage(damage, edgeDamage, distance, blastRadius), knockback, 0.3f, breakPower, word);
                 if (rb.TryGetComponent(out PlayerHealth victim))
@@ -96,6 +93,16 @@ namespace Wreckabulary
                     if (rb && !rb.isKinematic) rb.AddExplosionForce(knockback * Hits.KnockbackSpeed, position, blastRadius, 0.5f, ForceMode.VelocityChange);
                 }
             }
+        }
+
+        static bool FloorBetween(Vector3 from, Vector3 to)
+        {
+            var path = from - to;
+            float length = path.magnitude, low = Mathf.Min(from.y, to.y) + .1f, high = Mathf.Max(from.y, to.y) - .1f;
+            if (length < .01f || high <= low) return false;
+            foreach (var hit in Physics.RaycastAll(to, path / length, length, World.GroundMask, QueryTriggerInteraction.Ignore))
+                if (!hit.rigidbody && Mathf.Abs(hit.normal.y) > .7f && hit.point.y > low && hit.point.y < high) return true;
+            return false;
         }
     }
 }

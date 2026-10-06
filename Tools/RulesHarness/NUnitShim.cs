@@ -1,5 +1,3 @@
-// The subset of NUnit that the rules tests use, so they run under plain dotnet. In Unity the
-// real NUnit (com.unity.test-framework) is used instead. Keep the tests to this subset.
 using System;
 using System.Collections;
 using System.Linq;

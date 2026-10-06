@@ -8,7 +8,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Integration coverage for solo seats, team outcomes, map geometry and physical evacuation objectives.</summary>
     public class ModeRuntimeTests
     {
         [UnitySetUp] public IEnumerator SetUp() => TestScenes.Reset();
@@ -51,7 +50,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(1, Session.Bindings.Count);
             Assert.AreEqual(3, joins.Players.Count(p => p.Binding is BotBinding));
             Assert.AreEqual(Phase.Countdown, RoundManager.Instance.Phase);
-            Assert.IsTrue(joins.Players.All(p => p.Health.Max == 100f && p.Inventory.Capacity == 18 && p.Inventory.Count == 0));
+            Assert.IsTrue(joins.Players.All(p => p.Health.Max == 100f && p.Inventory.Capacity == 10 && p.Inventory.Count == 0));
             Assert.AreNotEqual(joins.Players[0].Team, World.NearestOpponent(joins.Players[0], joins.Players[0].transform.position).Team);
         }
 
@@ -126,7 +125,6 @@ namespace Wreckabulary.Tests
             bomb.transform.position = winner.transform.position;
             bomb.GetComponent<Rigidbody>().isKinematic = true;
             ThrownGear.Attach(bomb, joins.Players[1]);
-            typeof(RoundManager).GetField("roundOverTime", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(RoundManager.Instance, 10f);
             foreach (var opponent in joins.Players.Where(p => p != winner)) opponent.Health.Eliminate();
             yield return null;
             Assert.AreEqual(Phase.RoundOver, RoundManager.Instance.Phase);
@@ -147,6 +145,58 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(Physics.Raycast(new Vector3(5.2f, .5f, -2f), Vector3.right, 1.6f, World.GroundMask), "Garden–Kitchen doorway");
             Assert.IsTrue(Physics.Raycast(new Vector3(5.2f, .5f, 0f), Vector3.right, 1.6f, World.GroundMask), "adjacent wall segment");
             Assert.IsTrue(room.Originals.Count > 0);
+        }
+
+        [UnityTest]
+        public IEnumerator TheFlatPlaysWithItsOwnRoomsAndOpenDoorways()
+        {
+            yield return LoadBattle(map: "flat");
+            var room = Object.FindAnyObjectByType<RoomBuilder>();
+            Assert.AreEqual("City Flat", room.Layout.Name);
+            Assert.AreEqual(24f, room.Layout.Rooms.Max(r => r.MaxX) - room.Layout.Rooms.Min(r => r.MinX));
+            Assert.IsNull(GameObject.Find("Courtyard path east-west"), "the courtyard's paths stay in the courtyard");
+            Assert.IsNull(GameObject.Find("Sign"), "no wall sign cut short by the flat's walls");
+            Assert.AreEqual(room.Layout.Furniture.Count, room.Originals.Count);
+            Assert.AreEqual(new[] { "H", "Ba", "Be", "S", "K", "L" }, room.Layout.Rooms.Select(r => GameHud.Initial(room.Layout, r.Name)).ToArray(),
+                "the small map tells the bedroom from the bathroom");
+            Physics.SyncTransforms();
+            Assert.IsFalse(Physics.Raycast(new Vector3(2.2f, .5f, 2.5f), Vector3.right, 1.6f, World.GroundMask), "Hall–Kitchen doorway");
+            Assert.IsTrue(Physics.Raycast(new Vector3(2.2f, .5f, 0f), Vector3.right, 1.6f, World.GroundMask), "the wall beside it");
+            yield return new WaitForSeconds(.5f);
+            var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
+            Assert.AreEqual(4, joins.Players.Count);
+            var seats = room.Layout.Spawns.Select(s => s.Room).ToList();
+            foreach (var p in joins.Players)
+            {
+                var at = p.transform.position;
+                Assert.AreEqual(0f, at.y, .3f, p.name + " stands on the floor");
+                CollectionAssert.Contains(seats, room.Layout.RoomAt(at.x, at.z), p.name + " starts in a seat room");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator MovingOutInTheFlatHidesThreeKeepsakes()
+        {
+            yield return LoadBattle("MovingOut", "flat");
+            var director = Object.FindAnyObjectByType<MovingOutDirector>();
+            yield return TestScenes.WaitUntil(() => director.Current == MovingOutDirector.State.Playing, 5f, "evacuation start");
+            Assert.AreEqual(3, director.KeepsakeCount);
+            var layout = Object.FindAnyObjectByType<RoomBuilder>().Layout;
+            Assert.AreEqual("LivingRoom", layout.RoomAt(director.ExtractionPoint.x, director.ExtractionPoint.z), "the van waits by the living room");
+        }
+
+        [UnityTest]
+        public IEnumerator MovingDayInTheFlatFurnishesTheFlat()
+        {
+            Session.SelectMap("flat");
+            yield return TestScenes.Load(Session.MovingDayScene);
+            Object.FindAnyObjectByType<PlayerJoinManager>().Join(new ScriptedBinding());
+            var director = Object.FindAnyObjectByType<MovingDayDirector>();
+            yield return TestScenes.WaitUntil(() => director.Current == MovingDayDirector.State.Playing, 5f, "level start");
+            Assert.AreEqual("City Flat", director.CurrentLevel.name);
+            Assert.AreEqual(6, director.Rooms.Count);
+            CollectionAssert.AreEquivalent(new[] { "BED", "SOFA", "TABLE", "LAMP" }, director.CurrentLevel.items.Select(i => i.word).ToArray());
+            Assert.AreEqual("Bedroom", director.CurrentLevel.items.First(i => i.word == "BED").room);
         }
 
         [UnityTest]

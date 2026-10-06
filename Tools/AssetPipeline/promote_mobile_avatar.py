@@ -1,4 +1,3 @@
-"""Expose the audited mobile geometry only when validation and render hashes match."""
 import argparse
 import hashlib
 import json

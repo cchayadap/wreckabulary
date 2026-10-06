@@ -14,7 +14,6 @@ namespace Wreckabulary
     [RequireComponent(typeof(LetterInventory))]
     public class PlayerHealth : MonoBehaviour, IDamageable
     {
-        /// <summary>The SHIELD summon's block while <see cref="FrontBlockUntil"/> is ahead: wide, and it stops the whole hit.</summary>
         static readonly ShieldStats TimedShield = new() { FrontArcDegrees = 150f, DamageReduction = 1f, MoveSpeedMultiplier = 1f };
 
         LetterInventory inventory;
@@ -28,7 +27,6 @@ namespace Wreckabulary
         static double Now => Time.timeAsDouble;
 
         public HealthModel Model => model ??= Build();
-        /// <summary>The rules this player's health follows: the current mode's, unless a director overrode them.</summary>
         public GameRules Rules { get { if (model == null) Build(); return rules; } }
 
         public float Current => Model.Current;
@@ -39,9 +37,8 @@ namespace Wreckabulary
         public bool IsDowned => Model.State == LifeState.Downed;
         public bool IsEliminated => Model.State == LifeState.Eliminated;
         public bool IsInvulnerable => Now < Model.InvulnerableUntil;
-        /// <summary>Protection left in the ARMOR or FOAM bubble.</summary>
         public float Bubble => Now < Model.BubbleUntil ? Model.Bubble : 0f;
-        /// <summary>Seconds a downed player has left before they bleed out.</summary>
+        public float BubbleLeft => Bubble > 0f ? (float)(Model.BubbleUntil - Now) : 0f;
         public float BleedOutLeft => IsDowned ? (float)Math.Max(0.0, Model.BleedOutAt - Now) : 0f;
 
         /// <summary>SHIELD: hits from the front are blocked until this time.</summary>
@@ -54,17 +51,13 @@ namespace Wreckabulary
                 timedShieldOwner = 0;
             }
         }
-        /// <summary>A raised PLATE, or null. Set by the block input.</summary>
         public ShieldStats RaisedShield { get; set; }
 
-        /// <summary>Any hit the model didn't ignore, blocked ones included.</summary>
         public event Action<PlayerHealth, HitInfo, HitResult> Damaged;
-        /// <summary>A hit got through the shield. Victim, attacker (null for hazards and falling boxes).</summary>
         public event Action<PlayerHealth, PlayerController> Hit;
         public event Action<PlayerHealth> Downed;
         public event Action<PlayerHealth> Eliminated;
         public event Action<PlayerHealth> Revived;
-        /// <summary>Went down or was wrecked: whatever was held should be let go.</summary>
         public event Action<PlayerHealth> KnockedOut;
         public event Action<PlayerHealth> StateChanged;
 
@@ -76,8 +69,6 @@ namespace Wreckabulary
 
         HealthModel Build()
         {
-            // Tokens belong to this component, not a model. Replacing the model invalidates old
-            // effects without allowing their eventual cleanup to clear a new protection grant.
             bubbleOwner = timedShieldOwner = 0;
             bubbleOwnerModel = null;
             frontBlockUntil = 0f;
@@ -89,21 +80,18 @@ namespace Wreckabulary
             return model;
         }
 
-        /// <summary>A fresh, full-health model for this player, with no spawn protection. Called by <see cref="PlayerController.Setup(int, InputBinding, Color, char, string)"/>.</summary>
         public void Init()
         {
             Build();
             EnterState(LifeState.Alive, Vector3.zero);
         }
 
-        /// <summary>Plays by these rules instead of the mode's (the tutorial dummy, tests).</summary>
         public void UseRules(GameRules overrideRules)
         {
             rulesOverride = overrideRules;
             Init();
         }
 
-        /// <summary>A new round or a respawn: full health, and a moment of spawn protection.</summary>
         public void ResetForRound()
         {
             Build().ResetForRound(Now);
@@ -112,7 +100,6 @@ namespace Wreckabulary
 
         ShieldStats ActiveShield => RaisedShield ?? (Time.time < FrontBlockUntil ? TimedShield : null);
 
-        /// <summary>The single way to hurt a player. Returns true if the hit got through (not blocked or ignored).</summary>
         public bool ApplyDamage(in HitInfo hit)
         {
             var m = Model;
@@ -159,7 +146,7 @@ namespace Wreckabulary
 
         void Update()
         {
-            if (model != null && model.Tick(Now)) GetWrecked(Vector3.zero, wasDowned: true); // bled out
+            if (model != null && model.Tick(Now)) GetWrecked(Vector3.zero, wasDowned: true);
         }
 
         void GoDown(Vector3 push)
@@ -171,11 +158,9 @@ namespace Wreckabulary
             KnockedOut?.Invoke(this);
         }
 
-        /// <param name="wasDowned">True if the player was already down (and so already let go of everything).</param>
         void GetWrecked(Vector3 push, bool wasDowned)
         {
             if (!IsEliminated) Model.Eliminate();
-            // A reserved craft belongs to the bag: release it before the elimination spills all loot.
             if (controller && controller.Summoner) controller.Summoner.CancelCraft();
             Popup.Show("WRECKED!", controller ? controller.OverheadPosition : transform.position, controller ? controller.Color : Color.white, 5f);
             CameraRig.Shake(0.3f);
@@ -191,16 +176,12 @@ namespace Wreckabulary
             StateChanged?.Invoke(this);
         }
 
-        /// <summary>Wrecks the player at once: their whole team is down, or they fell out of the house.</summary>
         public void Eliminate()
         {
             if (IsEliminated) return;
             GetWrecked(Vector3.zero, IsDowned);
         }
 
-        // ---- Reviving (Duos) ----
-
-        /// <summary>How far a teammate's revive has got, from 0 to 1. Zero when nobody is reviving this player.</summary>
         public float ReviveProgress =>
             IsDowned && Model.ReviverId >= 0 && Rules.ReviveSeconds > 0f
                 ? Mathf.Clamp01((float)((Now - Model.ReviveStartedAt) / Rules.ReviveSeconds))
@@ -214,7 +195,6 @@ namespace Wreckabulary
             if (reviver) Model.CancelRevive(reviver.Index);
         }
 
-        /// <summary>True once the reviver has held on long enough; the player stands up with some health.</summary>
         public bool TryFinishRevive(PlayerController reviver)
         {
             if (!reviver || !Model.TryFinishRevive(reviver.Index, Now)) return false;
@@ -224,14 +204,10 @@ namespace Wreckabulary
             return true;
         }
 
-        // ---- Healing and protection ----
-
         public float Heal(float amount) => Model.Heal(amount);
 
-        /// <summary>ARMOR or FOAM: soaks up to <paramref name="amount"/> damage for a while. A new bubble replaces the old one.</summary>
         public void GiveBubble(float amount, float seconds) => GiveOwnedBubble(amount, seconds);
 
-        /// <summary>Replaces bubble protection and returns the token its effect must use to clear it.</summary>
         public int GiveOwnedBubble(float amount, float seconds)
         {
             var m = Model;
@@ -251,7 +227,6 @@ namespace Wreckabulary
             ClearBubble();
         }
 
-        /// <summary>Ends any bubble protection, including its owner and deadline.</summary>
         public void ClearBubble()
         {
             bubbleOwner = 0;
@@ -259,7 +234,6 @@ namespace Wreckabulary
             Model.ClearBubble();
         }
 
-        /// <summary>Replaces the SHIELD summon and returns a token for its eventual cleanup.</summary>
         public int GiveTimedShield(float seconds)
         {
             _ = Model;
@@ -287,7 +261,6 @@ namespace Wreckabulary
 
         public bool CanDodge => Model.CanDodge(Now);
 
-        /// <summary>Starts a dodge's invulnerability window. Returns false while on cooldown.</summary>
         public bool Dodge() => Model.Dodge(Now);
     }
 }

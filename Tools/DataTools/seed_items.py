@@ -1,11 +1,3 @@
-"""Write Assets/_Project/Data/Config/items.json from the Vault v2 recipe data plus the design table below.
-
-items.json is the source of truth once it exists: designers edit it by hand. Run this script
-again only to start over, or with --check to confirm that the asset facts in items.json
-(letters, held scale, grip, size, skins) still match the art pack.
-
-  python Tools/DataTools/seed_items.py --recipes <vault-v2>/07_Game_Data/recipes.json [--check]
-"""
 import argparse
 import json
 import os
@@ -15,8 +7,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, "..", ".."))
 OUT = os.path.join(REPO, "Assets", "_Project", "Data", "Config", "items.json")
 
-# Behaviour for the brief's core 12 (brief section 5). Numbers are the starting balance from
-# docs/PLAN.md section 2.7; tune them in items.json.
 CORE = {
     "BAT": dict(family="MeleeSwing", hands=1, durability=20,
                 melee=dict(damage=14, reach=1.6, arc=100, windup=0.18, active=0.10, recovery=0.30, knockback=7, breakPower=2, hitStun=0.3),
@@ -63,7 +53,6 @@ CORE = {
                  notes="Clearly telegraphed delayed explosion: a growing ring and beeps during the 2.5 s fuse. Spends its letters."),
 }
 
-# Proposed families for the other 28 modelled items (disabled until each has behaviour and tests).
 EXPANDED = {
     "HAMMER": "MeleeSwing", "SHIELD": "Shield", "SPEAR": "MeleeThrust", "BOW": "Ranged", "ARROW": "Thrown",
     "PAN": "MeleeSwing", "BROOM": "MeleeSwing", "CHAIR": "DeployPad", "STOOL": "DeployPad", "DESK": "DeployCover",
@@ -72,7 +61,6 @@ EXPANDED = {
     "POT": "Thrown", "FAN": "DeployZone", "PIE": "Thrown", "CAKE": "Heal", "SODA": "Buff", "WATER": "Heal", "APPLE": "Heal",
 }
 
-# The team's summon words that have no model yet. They stay in the data, disabled.
 LEGACY = {
     "AXE": "Fast and weak (team word).", "SWORD": "Team word.", "UMBRELLA": "Long and powerful block (team word, hidden).",
     "WINGS": "Short glide (team word).", "ROPE": "Grapple (team word).", "BEES": "Swarm chases the nearest player (team word).",
@@ -82,11 +70,6 @@ LEGACY = {
 
 
 def z_up_to_y_up_point(p):
-    """A point in the pack's Z-up model space, where it ends up in Unity: (-x, z, -y).
-
-    The asset pipeline gives every model a half turn so it faces Unity's +Z, and Unity puts
-    Blender (x, y, z) at (x, z, y) (Tools/AssetPipeline/README.md). Adding 0.0 turns -0.0 into 0.0.
-    """
     x, y, z = p
     return [round(-x, 4) + 0.0, round(z, 4), round(-y, 4) + 0.0]
 
@@ -100,11 +83,6 @@ REPORT = os.path.join(REPO, "Assets", "_Project", "Data", "Generated", "build_re
 
 
 def floor_snaps():
-    """How far the asset pipeline moved each item to stand it on the floor, from build_report.json.
-
-    Some pack models float a few centimetres up. The pipeline drops them onto the floor, and
-    their Grip_R marker moves with them, so the grip in items.json must move too.
-    """
     with open(REPORT, encoding="utf-8") as f:
         report = json.load(f)
     return {e["name"]: e.get("floor_snap_m", 0.0) for e in report["files"] if e["kind"] == "item"}
@@ -144,7 +122,6 @@ def build(recipes, snaps):
             if d.pop("consumable", False) != entry["consumable"]:
                 raise SystemExit(f"{word}: consumable flag disagrees with the pack")
             if "deploy" in d:
-                # The placed footprint is the model's floor size (Y-up x and z).
                 d["deploy"] = dict(d["deploy"], footprint=[entry["size"][0], entry["size"][2]])
             entry.update(d)
         else:

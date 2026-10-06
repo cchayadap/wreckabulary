@@ -985,6 +985,33 @@
    ]
   },
   {
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "baseMap": "Assets/_Project/Art/Imported/Textures/neutral_orange_fabric_BaseColor.png",
+   "normalMap": "Assets/_Project/Art/Imported/Textures/orange_fabric_NormalGL.png",
+   "emissionMap": null,
+   "name": "hair",
+   "baseColor": [
+    0.03,
+    0.017,
+    0.011,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.62,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "doubleSided": false,
+   "family": "hair",
+   "skin": null,
+   "sources": [
+    "avatar/refine"
+   ]
+  },
+  {
    "name": "headwear_color",
    "baseColor": [
     0.08,

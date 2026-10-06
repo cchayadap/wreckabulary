@@ -8,10 +8,6 @@ namespace Wreckabulary.Rules
 
     public enum ItemTier { Core, Expanded, Legacy }
 
-    /// <summary>
-    /// How an item is held and used. Every item of a family shares the same animations
-    /// (brief §3: shared movement, then canonical item handling, then the visual skin).
-    /// </summary>
     public enum HandlingFamily
     {
         None,
@@ -88,10 +84,6 @@ namespace Wreckabulary.Rules
         public float ChannelSeconds;
     }
 
-    /// <summary>
-    /// One craftable object. The word is the recipe: its letters, repeats included, are what
-    /// crafting costs and what breaking a reusable copy gives back.
-    /// </summary>
     public sealed class ItemDefinition
     {
         public string Id;
@@ -123,7 +115,6 @@ namespace Wreckabulary.Rules
         public override string ToString() => Id;
     }
 
-    /// <summary>What the craft menu shows for one recipe card.</summary>
     public readonly struct RecipeCard
     {
         public readonly ItemDefinition Item;
@@ -137,11 +128,9 @@ namespace Wreckabulary.Rules
             Craftable = missing.IsEmpty;
         }
 
-        /// <summary>How many of <paramref name="letter"/> the player has towards this recipe, capped at the need.</summary>
         public int Have(char letter) => Item.Letters[letter] - Missing[letter];
     }
 
-    /// <summary>The fixed recipe catalogue (brief §5: data-driven, no free-form words).</summary>
     public sealed class ItemCatalogue
     {
         readonly Dictionary<string, ItemDefinition> byId = new Dictionary<string, ItemDefinition>(StringComparer.Ordinal);
@@ -169,7 +158,6 @@ namespace Wreckabulary.Rules
             throw new KeyNotFoundException($"No item '{id}' in the catalogue.");
         }
 
-        /// <summary>A card per enabled recipe, craftable ones first, then by fewest missing letters.</summary>
         public List<RecipeCard> Cards(LetterBag have)
         {
             return Enabled
@@ -180,11 +168,6 @@ namespace Wreckabulary.Rules
                 .ToList();
         }
 
-        /// <summary>
-        /// Checks the rules the brief sets for the catalogue. An enabled item needs a model and
-        /// behaviour data for its family, every recipe must fit the letter bag, and Classic is
-        /// always a skin. Returns one line per problem; an empty list means the data is valid.
-        /// </summary>
         public List<string> Validate(int maxLetters)
         {
             var problems = new List<string>();
@@ -331,7 +314,6 @@ namespace Wreckabulary.Rules
         {
             string s = node.String();
             var names = Enum.GetNames(typeof(T));
-            // Names only: Enum.TryParse would also take "3" or "Core, Legacy".
             if (Array.IndexOf(names, s) >= 0) return (T)Enum.Parse(typeof(T), s);
             throw node.Error($"'{s}' is not one of {string.Join(", ", names)}");
         }

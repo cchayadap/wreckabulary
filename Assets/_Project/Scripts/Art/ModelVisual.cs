@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>Shared imported-model placement helpers; never reset the FBX root's rotation.</summary>
     public static class ModelVisual
     {
         public static GameObject Spawn(string key, Transform parent, string skin = MaterialLibrary.StandardSkin)
@@ -14,10 +13,12 @@ namespace Wreckabulary.Art
                 collider.enabled = false;
             var materials = MaterialLibrary.Load();
             if (materials) materials.ApplySkin(copy, skin);
+            if (key.StartsWith("Items/", System.StringComparison.Ordinal) ||
+                key.StartsWith("Environment/", System.StringComparison.Ordinal))
+                TactileMaterials.Apply(copy);
             return copy;
         }
 
-        /// <summary>Uses shared mesh bounds, including the authored import-root transform.</summary>
         public static Bounds BoundsIn(Transform space, GameObject model)
         {
             var result = new Bounds();

@@ -8,11 +8,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>
-    /// Import settings for the Blender pipeline's output (<c>Tools/AssetPipeline</c>), kept in one
-    /// place so the postprocessor and <see cref="ArtSetup"/> always agree. The FBX files are in
-    /// metres, Y up and -Z forward, with separate PNG textures.
-    /// </summary>
     public static class ImportedArtSettings
     {
         public const string Root = "Assets/_Project/Art/Imported/";
@@ -22,7 +17,6 @@ namespace Wreckabulary.EditorTools
         public const string LibraryAssetPath = "Assets/_Project/Resources/MaterialLibrary.asset";
         public const string ModelLibraryAssetPath = "Assets/_Project/Resources/ModelLibrary.asset";
 
-        /// <summary>Avatar clips that loop; the others play once.</summary>
         public static readonly string[] LoopingClips = { "Idle", "Walk_InPlace", "Run_InPlace", "Hold_OneHand", "Carry_TwoHand" };
 
         public static bool IsImportedArt(string assetPath) =>
@@ -56,7 +50,6 @@ namespace Wreckabulary.EditorTools
             {
                 mi.animationType = ModelImporterAnimationType.Generic;
                 mi.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
-                // Held items are parented to the grip_R bone, so the bones must stay visible.
                 mi.optimizeGameObjects = false;
                 mi.importAnimation = true;
                 mi.animationCompression = ModelImporterAnimationCompression.Optimal;
@@ -69,10 +62,6 @@ namespace Wreckabulary.EditorTools
             }
         }
 
-        /// <summary>
-        /// Names each clip after its Blender action ("Armature|Idle" → "Idle") and loops the
-        /// locomotion and holding poses. Returns null when the file has no takes.
-        /// </summary>
         public static ModelImporterClipAnimation[] Clips(ModelImporter mi)
         {
             var clips = mi.defaultClipAnimations;
@@ -95,7 +84,6 @@ namespace Wreckabulary.EditorTools
         public static void Apply(TextureImporter ti)
         {
             bool normal = Path.GetFileNameWithoutExtension(ti.assetPath).EndsWith("_NormalGL", StringComparison.Ordinal);
-            // "NormalGL" is the OpenGL (Y+) convention, which is what Unity expects.
             ti.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
             ti.textureShape = TextureImporterShape.Texture2D;
             ti.sRGBTexture = !normal;
@@ -106,9 +94,6 @@ namespace Wreckabulary.EditorTools
             ti.wrapMode = TextureWrapMode.Repeat;
             ti.anisoLevel = 2;
 
-            // A .meta written before Unity first saw the file (only a guid) is upgraded with gamma
-            // decoding switched on, which darkens colour textures a second time. Unity's own
-            // default is off, and there's no public property for it.
             var so = new SerializedObject(ti);
             var gamma = so.FindProperty("m_ApplyGammaDecoding");
             if (gamma != null && gamma.boolValue)
@@ -124,8 +109,6 @@ namespace Wreckabulary.EditorTools
             return gamma != null && gamma.boolValue;
         }
 
-        // ------------------------------------------------------------------ pipeline reports
-
         public sealed class ReportFile
         {
             public string Kind;
@@ -140,7 +123,6 @@ namespace Wreckabulary.EditorTools
             public int Triangles;
         }
 
-        /// <summary>What the Blender pipeline wrote, from <c>build_report.json</c>.</summary>
         public static List<ReportFile> ReadReport()
         {
             var root = Json.Parse(File.ReadAllText(ReportPath), Path.GetFileName(ReportPath));
@@ -181,7 +163,6 @@ namespace Wreckabulary.EditorTools
             public string Skin;
         }
 
-        /// <summary>The authored glTF material values, from <c>materials.json</c>. Colours are linear.</summary>
         public static List<MaterialSpec> ReadMaterials()
         {
             var root = Json.Parse(File.ReadAllText(MaterialsPath), Path.GetFileName(MaterialsPath));

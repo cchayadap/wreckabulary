@@ -5,7 +5,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Shared rule-driven warnings, floor indicators and hazard damage for battle and evacuation.</summary>
     public sealed class ClearOutController : MonoBehaviour
     {
         readonly Dictionary<string, Renderer> indicators = new();
@@ -72,18 +71,17 @@ namespace Wreckabulary
                     if (phase == RoomPhase.Filling) { CameraRig.Shake(.2f); ClosureStarted?.Invoke(); }
                 }
                 if (phase == RoomPhase.Warning)
-                    Message = $"MOVERS: {closure.Room} in {Mathf.CeilToInt((float)closure.FillAt - now)}s — follow a doorway out";
+                    Message = $"MOVERS: {Layout.WithStorey(closure.Room)} in {Mathf.CeilToInt((float)closure.FillAt - now)}s — follow a doorway out";
                 else if (phase == RoomPhase.Filling && Message.Length == 0)
-                    Message = $"LEAVE {closure.Room.ToUpperInvariant()} — movers are packing it";
+                    Message = $"LEAVE {Layout.WithStorey(closure.Room).ToUpperInvariant()} — movers are packing it";
             }
             if (Time.time < nextDamage) return;
-            // Fixed half-second hazard ticks; damage integrates elapsed time without hit-stun or knockback.
             nextDamage = Time.time + .5f;
             foreach (var p in World.Players)
             {
                 if (!p || !p.Health.IsAlive) continue;
                 var at = p.transform.position;
-                string room = Layout.RoomAt(at.x, at.z);
+                string room = Layout.RoomAt(at.x, at.y, at.z);
                 if (room == null) continue;
                 float damage = Schedule.DamagePerSecond(room, now) * .5f;
                 if (damage > 0f) p.Health.ApplyDamage(HitInfo.Hazard(damage));

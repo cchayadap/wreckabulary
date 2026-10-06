@@ -23,7 +23,7 @@ namespace Wreckabulary
         {
             public string text, hint;
             public Func<bool> done;
-            public Action enter;
+            public Action enter, keep;
         }
 
         List<Step> steps;
@@ -49,7 +49,7 @@ namespace Wreckabulary
                 new() { text = "Pick up the letters", hint = "Walk over B, A and T", done = () => batSummoned || joins.Players.Any(p => Has(p, "BAT")) },
                 new() { text = "Spell BAT", hint = $"Hold spell ({ControlHints.Spell}), then let go to summon", done = () => batSummoned },
                 new() { text = "Whack the dummy", hint = $"Attack with your BAT ({ControlHints.Attack})", enter = EnsureDummy, done = () => dummyHits > 0 },
-                new() { text = "Throw the CHAIR", hint = $"Grab it ({ControlHints.Grab}), then press grab again to throw", enter = EnsureChair, done = () => thrown },
+                new() { text = "Throw the CHAIR", hint = $"Grab it ({ControlHints.Grab}), then throw it ({ControlHints.Attack})", enter = EnsureChair, keep = EnsureChair, done = () => thrown },
                 new()
                 {
                     text = "Knock out the dummy", hint = "Keep hitting it until its health runs out",
@@ -71,19 +71,16 @@ namespace Wreckabulary
             if (Finished)
             {
                 hud.SetInstruction("You're ready!", "Heading back to the house...");
-                hud.SetTitle("", "");
                 if (Time.time - finishedAt > finishDelay) Session.GoHome();
                 return;
             }
 
             var step = steps[StepIndex];
-            hud.SetInstruction($"<color=#FFD24A>{StepIndex + 1}/{steps.Count}</color>  {step.text}", step.hint);
-            if (joins.Players.Count == 0)
-                hud.SetTitle("TUTORIAL", ControlHints.Join("join"));
-            else
-                hud.SetTitle("", "");
+            if (joins.Players.Count == 0) hud.SetInstruction(ControlHints.Join("join"), "");
+            else hud.SetInstruction($"<color=#FFD24A>{StepIndex + 1}/{steps.Count}</color>  {step.text}", step.hint);
 
             Resupply();
+            step.keep?.Invoke();
             if (Time.time > nextTether && Dummy && !Dummy.IsKnockedOut && !Dummy.IsStaggered && !Dummy.IsHeld)
             {
                 nextTether = Time.time + 2f;
@@ -163,7 +160,6 @@ namespace Wreckabulary
             Dummy.Health.KnockedOut += _ => { if (!Finished) Invoke(nameof(EnsureDummy), 1.5f); };
         }
 
-        /// <summary>A full-health target with no spawn protection so the first whack always counts.</summary>
         static GameRules DummyRules()
         {
             var rules = Match.Rules.Clone();
@@ -180,7 +176,6 @@ namespace Wreckabulary
             ResetDummy();
         }
 
-        /// <summary>Back on its spot at full health.</summary>
         void ResetDummy()
         {
             if (!Dummy || Finished) return;

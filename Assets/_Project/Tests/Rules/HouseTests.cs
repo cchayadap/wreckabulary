@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace Wreckabulary.Rules.Tests
 {
-    /// <summary>Pinwheel House and the clear-out (brief §6: rooms close without trapping anyone).</summary>
     [TestFixture]
     public class HouseTests
     {

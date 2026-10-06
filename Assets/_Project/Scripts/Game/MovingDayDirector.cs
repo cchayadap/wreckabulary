@@ -20,8 +20,10 @@ namespace Wreckabulary
         {
             public string name;
             public Vector2 xRange, zRange;
-            public bool Contains(Vector3 p) => p.x >= xRange.x && p.x <= xRange.y && p.z >= zRange.x && p.z <= zRange.y;
-            public Vector3 Centre => new((xRange.x + xRange.y) * 0.5f, 0f, (zRange.x + zRange.y) * 0.5f);
+            public float floorY, ceilingY = float.PositiveInfinity;
+            public bool Contains(Vector3 p) => p.x >= xRange.x && p.x <= xRange.y && p.z >= zRange.x && p.z <= zRange.y
+                && p.y > floorY - 1f && p.y < ceilingY - 0.5f;
+            public Vector3 Centre => new((xRange.x + xRange.y) * 0.5f, floorY, (zRange.x + zRange.y) * 0.5f);
         }
 
         [Serializable]
@@ -49,19 +51,18 @@ namespace Wreckabulary
         [SerializeField] Room[] rooms;
         [SerializeField] Level[] levels;
         [SerializeField] float countdownTime = 3f;
-        [SerializeField] float resultTime = 5f;
         [Tooltip("Fraction of the time limit left for 3 and 2 stars. Finishing at all is 1 star.")]
         [SerializeField] Vector2 starThresholds = new(0.5f, 0.25f);
 
         readonly List<Item> remaining = new();
         readonly HashSet<Smashable> placed = new();
+        float deliveryDrop = 2.5f;
         readonly List<Transform> puddles = new();
         List<WordEntry> checklistWords = new();
         float stateStarted, nextCheck, nextResupply, nextSpill;
         readonly StringBuilder sb = new();
         const float DeliveryGap = 1.2f;
         RoomBuilder layoutBuilder;
-        ModeActions actions;
 
         public State Current { get; private set; }
         public int LevelIndex { get; private set; }
@@ -85,14 +86,19 @@ namespace Wreckabulary
             layoutBuilder = GetComponent<RoomBuilder>();
             if (!layoutBuilder) layoutBuilder = gameObject.AddComponent<RoomBuilder>();
             var house = layoutBuilder.Layout;
-            rooms = house.Rooms.Select(r => new Room { name = r.Name, xRange = new Vector2(r.MinX, r.MaxX), zRange = new Vector2(r.MinZ, r.MaxZ) }).ToArray();
+            var floors = house.StoreyFloors();
+            rooms = house.Rooms.Select(r => new Room
+            {
+                name = r.Name, xRange = new Vector2(r.MinX, r.MaxX), zRange = new Vector2(r.MinZ, r.MaxZ), floorY = r.FloorY,
+                ceilingY = house.StoreyOf(r) + 1 < floors.Count ? floors[house.StoreyOf(r) + 1] : float.PositiveInfinity,
+            }).ToArray();
             levels = new[] { new Level { name = house.Name, timeLimit = Match.Rules.RoundTimeLimitSeconds,
                 items = house.MovingDay.Select(i => new Item { word = i.Word, room = i.Room }).ToArray() } };
             if (!deliverySpot) deliverySpot = new GameObject("Delivery spot").transform;
             var deliveryRoom = house.Room(house.ExtractionRoom);
             deliverySpot.position = new Vector3(house.ExtractionX, deliveryRoom.FloorY, house.ExtractionZ);
-            actions = ModeActions.Create(transform, "PLAY AGAIN", Retry);
-            actions.Show(false);
+            int deliveryStorey = house.StoreyOf(deliveryRoom);
+            deliveryDrop = deliveryStorey + 1 < floors.Count ? Mathf.Min(2.5f, floors[deliveryStorey + 1] - .24f - 1f - deliveryRoom.FloorY) : 2.5f;
             joins.RespawnKnockedOut = true;
             joins.Joined += ConfigurePlayer;
             StartLevel(0);
@@ -104,7 +110,6 @@ namespace Wreckabulary
             p.Health.ResetForRound();
             var objectives = new HashSet<string>(checklistWords.Select(w => w.word));
             p.Summoner.ChecklistPlacementWords = objectives;
-            // Checklist IDs build plain furniture; the other enabled recipes remain usable tools.
             p.Summoner.WordsOverride = checklistWords.Concat(GameAssets.I.words.Words.Where(w => !objectives.Contains(w.word))).ToList();
             p.Inventory.Set("");
             p.Frozen = Current != State.Playing;
@@ -118,7 +123,9 @@ namespace Wreckabulary
             LevelIndex = index;
             StopAllCoroutines();
             layoutBuilder.ResetRoom(furnish: false);
-            actions.Show(false);
+            hud.HideResult();
+            hud.HideCountdown();
+            MatchTally.BeginMatch();
             foreach (var puddle in puddles) if (puddle) Destroy(puddle.gameObject);
             puddles.Clear();
             placed.Clear();
@@ -154,17 +161,16 @@ namespace Wreckabulary
                 case State.Countdown:
                     if (joins.Players.Count == 0)
                     {
-                        hud.SetTitle("MOVING DAY", ControlHints.Join("join"));
+                        hud.HideCountdown();
                         stateStarted = Time.time;
                         break;
                     }
                     int left = Mathf.CeilToInt(countdownTime - t);
-                    hud.SetTitle(left > 0 ? left.ToString() : "GO!", $"Level {LevelIndex + 1}: {CurrentLevel.name}");
+                    hud.ShowCountdown(Mathf.Max(1, left), $"LEVEL {LevelIndex + 1} · {CurrentLevel.name.ToUpperInvariant()}");
                     if (t >= countdownTime) BeginPlay();
                     break;
 
                 case State.Playing:
-                    if (t > 0.8f) hud.SetTitle("", "");
                     TimeLeft -= Time.deltaTime;
                     CheckPlacements();
                     Resupply();
@@ -174,25 +180,22 @@ namespace Wreckabulary
                     break;
 
                 case State.Complete:
-                    if (joins.AnyStartPressed()) Retry();
-                    break;
-
                 case State.OutOfTime:
-                    if (t >= resultTime) StartLevel(LevelIndex);
+                    if (hud.ResultShown && t > 1.6f && joins.AnyStartPressed()) hud.ConfirmResult();
                     break;
             }
 
             hud.SetTimer(Current == State.Playing || Current == State.Countdown ? FormatTime(TimeLeft) : "");
             hud.SetChecklist(ChecklistText());
-            hud.SetInstruction(joins.Players.Count == 0 ? ControlHints.Join("join") : "Smash boxes, spell the checklist, put everything in the right room",
-                               "Hold spell to build furniture  •  grab to carry  •  Esc: back to the house");
+            hud.SetInstruction(joins.Players.Count == 0 ? ControlHints.Join("join") : "", "");
             hud.SetScoreboard(joins.Players, _ => 0, 0, false);
         }
 
         void BeginPlay()
         {
             SetState(State.Playing);
-            hud.SetTitle("GO!", "");
+            hud.ShowGo();
+            hud.Toast("Spell the checklist furniture and put each piece in its room.");
             foreach (var p in joins.Players) p.Frozen = false;
             // Don't resupply until the first round of boxes has arrived.
             nextResupply = Time.time + CurrentLevel.items.Length * DeliveryGap + 3f;
@@ -211,7 +214,7 @@ namespace Wreckabulary
         void Deliver(string word)
         {
             var spread = new Vector3(UnityEngine.Random.Range(-1.8f, 1.8f), 0f, UnityEngine.Random.Range(-1.8f, 1.8f));
-            DeliverySpawner.CreateBox(word, deliverySpot.position + spread + Vector3.up * 2.5f);
+            DeliverySpawner.CreateBox(word, deliverySpot.position + spread + Vector3.up * deliveryDrop);
         }
 
         /// <summary>Anything built, at rest, and inside its room gets ticked off and locked in place.</summary>
@@ -234,6 +237,7 @@ namespace Wreckabulary
                 rb.isKinematic = true;
                 s.Invulnerable = true;
                 Popup.Show($"{s.Word} placed!", rb.worldCenterOfMass + Vector3.up * 1.5f, new Color(0.56f, 0.82f, 0.55f), 4f);
+                hud.Toast($"{s.Word} in its new home. Lovely!");
             }
         }
 
@@ -257,7 +261,7 @@ namespace Wreckabulary
                 {
                     if (WordSolver.CanSpell(WordSolver.Count(letters), word))
                     {
-                        foreach (char c in word) letters.Remove(c); // reserve each recipe once across duplicate objectives
+                        foreach (char c in word) letters.Remove(c);
                         continue;
                     }
                     Deliver(word);
@@ -271,8 +275,9 @@ namespace Wreckabulary
             {
                 nextSpill = Time.time + 20f;
                 var room = rooms[UnityEngine.Random.Range(0, rooms.Length)];
-                var at = new Vector3(UnityEngine.Random.Range(room.xRange.x + 2f, room.xRange.y - 2f), 0.012f,
+                var at = new Vector3(UnityEngine.Random.Range(room.xRange.x + 2f, room.xRange.y - 2f), room.floorY + 0.012f,
                                      UnityEngine.Random.Range(room.zRange.x + 2f, room.zRange.y - 2f));
+                if (layoutBuilder && layoutBuilder.Layout.Stairs.Any(s => s.Covers(at.x, at.z))) return;
                 var puddle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                 Destroy(puddle.GetComponent<Collider>());
                 puddle.name = "Spill";
@@ -301,21 +306,21 @@ namespace Wreckabulary
             Stars = fraction >= starThresholds.x ? 3 : fraction >= starThresholds.y ? 2 : 1;
             Session.RecordStars(LevelIndex, Stars);
             SetState(State.Complete);
-            hud.SetTitle("MOVED IN!", $"{Stars} / 3 stars  •  {FormatTime(TimeLeft)} to spare");
             foreach (var p in joins.Players) p.Frozen = true;
             World.FreezeTransient();
-            actions.Show(true);
             CameraRig.Shake(0.2f);
+            var result = HudResult.Of(1, true, true, "Home, sweet home!", MatchTally.Finish(true));
+            result.Detail = $"{Stars} / 3 stars · {FormatTime(TimeLeft)} to spare";
+            hud.ShowResult(result, Retry);
         }
 
         void OutOfTime()
         {
             Stars = 0;
             SetState(State.OutOfTime);
-            hud.SetTitle("OUT OF TIME", "The movers want their truck back. Try again!");
             foreach (var p in joins.Players) p.Frozen = true;
             World.FreezeTransient();
-            actions.Show(true, "RETRY");
+            hud.ShowResult(HudResult.Of(1, true, false, "The truck is leaving. Try a faster route!", MatchTally.Finish(false)), Retry);
         }
 
         string ChecklistText()

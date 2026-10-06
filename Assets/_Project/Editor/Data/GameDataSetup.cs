@@ -5,12 +5,6 @@ using UnityEngine;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>
-    /// Points <c>Resources/GameData.asset</c> at the JSON files in <c>Data/Config</c>, then loads
-    /// them the way the game does, so a bad edit fails here with every problem listed.
-    /// Menu: Wreckabulary → Data → Set Up Game Data.
-    /// Batch: Unity -batchmode -quit -projectPath &lt;abs&gt; -executeMethod Wreckabulary.EditorTools.GameDataSetup.Run
-    /// </summary>
     public static class GameDataSetup
     {
         public const string ConfigFolder = "Assets/_Project/Data/Config/";
@@ -43,7 +37,6 @@ namespace Wreckabulary.EditorTools
             EditorUtility.SetDirty(data);
             AssetDatabase.SaveAssets();
 
-            // Throws with the full problem list if the data doesn't hold together.
             var config = data.Parse();
             GameConfig.Use(null);
             Debug.Log($"GAME_DATA_RESULT {{\"items\": {config.Items.All.Count}, \"enabled\": {config.Items.Enabled.Count()}, " +

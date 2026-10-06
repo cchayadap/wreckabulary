@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace Wreckabulary.Rules
 {
-    /// <summary>A craft in progress. Its letters sit in <see cref="PlayerInventory.Reserved"/> until it ends.</summary>
     public sealed class CraftJob
     {
         public string ItemId;
@@ -13,20 +12,15 @@ namespace Wreckabulary.Rules
         public int Slot;
     }
 
-    /// <summary>One player's letters and gear, as the server sees them.</summary>
     public sealed class PlayerInventory
     {
         public int PlayerId { get; internal set; }
         public int Team { get; internal set; }
         public LetterBag Letters { get; } = new LetterBag();
-        /// <summary>Letters locked by the craft in progress. They still belong to the player.</summary>
         public LetterBag Reserved { get; } = new LetterBag();
-        /// <summary>Item ids in the equipment slots (keys 1 and 2), or -1 for an empty slot.</summary>
         public int[] Slots { get; internal set; }
-        /// <summary>Original furniture lifted in both hands, or -1.</summary>
         public int CarriedFurniture { get; internal set; } = -1;
         public CraftJob Craft { get; internal set; }
-        /// <summary>False while downed, eliminated or disconnected. Set by the match.</summary>
         public bool CanAct { get; set; } = true;
 
         public int LetterCount => Letters.Count + Reserved.Count;
@@ -42,7 +36,6 @@ namespace Wreckabulary.Rules
         internal int SlotOf(int itemId) => Array.IndexOf(Slots, itemId);
     }
 
-    /// <summary>Where every letter in the match is. <see cref="Balanced"/> must always be true.</summary>
     public readonly struct LetterAudit
     {
         public readonly int Tiles, Bags, Reserved, InItems, Minted, Spent;
@@ -59,16 +52,6 @@ namespace Wreckabulary.Rules
             $"tiles {Tiles} + bags {Bags} + reserved {Reserved} + items {InItems} = {Total}; minted {Minted} - spent {Spent} = {Minted - Spent}";
     }
 
-    /// <summary>
-    /// The server's record of every letter and item in a round (brief §5 and §9). All changes go
-    /// through here; each method either does the whole change or refuses and changes nothing.
-    /// It knows nothing about positions or physics: the gameplay layer places the tiles and items
-    /// it returns.
-    ///
-    /// Conservation: letters enter only through <see cref="AddPlayer"/> (starter letters),
-    /// <see cref="PlaceFurniture"/> and <see cref="MintTiles"/>, and leave only when a consumable is
-    /// activated. <see cref="Audit"/> checks that nothing else creates or destroys a letter.
-    /// </summary>
     public sealed class Economy
     {
         public ItemCatalogue Catalogue { get; }
@@ -83,7 +66,6 @@ namespace Wreckabulary.Rules
         public int Minted { get; private set; }
         public int Spent { get; private set; }
 
-        /// <summary>Raised whenever an item changes, so the network layer can replicate it.</summary>
         public event Action<ItemInstance> ItemChanged;
 
         public Economy(ItemCatalogue catalogue, GameRules rules)
@@ -99,8 +81,6 @@ namespace Wreckabulary.Rules
         public PlayerInventory Player(int playerId) => players.TryGetValue(playerId, out var p) ? p : null;
         public ItemInstance Item(int itemId) => items.TryGetValue(itemId, out var i) ? i : null;
 
-        // ------------------------------------------------------------------ setup
-
         public PlayerInventory AddPlayer(int playerId, int team)
         {
             if (players.ContainsKey(playerId)) throw new ArgumentException($"Player {playerId} is already in the match.");
@@ -115,7 +95,6 @@ namespace Wreckabulary.Rules
             return p;
         }
 
-        /// <summary>Original furniture standing in the room. Breaking it is how letters enter play.</summary>
         public ItemInstance PlaceFurniture(string word)
         {
             if (!LetterBag.IsWord(word)) throw new ArgumentException($"Furniture word '{word}' must be A-Z.");
@@ -126,7 +105,6 @@ namespace Wreckabulary.Rules
             return item;
         }
 
-        /// <summary>New loose tiles from outside the economy, for example a delivery box's contents.</summary>
         public TileBatch MintTiles(string letters)
         {
             if (!LetterBag.IsWord(letters)) throw new ArgumentException($"'{letters}' must be A-Z.");
@@ -136,12 +114,6 @@ namespace Wreckabulary.Rules
             return batch;
         }
 
-        // ------------------------------------------------------------------ tiles and letters
-
-        /// <summary>
-        /// Walking over a tile. Two players touching it on the same tick: the first request wins
-        /// and the second gets <see cref="Refusal.NoSuchTile"/>.
-        /// </summary>
         public Outcome CollectTile(int playerId, int tileId)
         {
             var p = Player(playerId);
@@ -154,10 +126,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done();
         }
 
-        /// <summary>
-        /// Knocks up to <paramref name="count"/> letters loose (mode setting lettersDroppedPerHit).
-        /// Takes the most plentiful letters first and never touches a craft's reserved letters.
-        /// </summary>
         public TileBatch KnockLoose(int playerId, int count)
         {
             var batch = new TileBatch();
@@ -172,7 +140,6 @@ namespace Wreckabulary.Rules
             return batch;
         }
 
-        /// <summary>Hands one letter to a teammate. If their bag is full, nothing moves (toss it instead).</summary>
         public Outcome GiveLetter(int fromId, int toId, char letter)
         {
             var from = Player(fromId);
@@ -187,7 +154,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done();
         }
 
-        /// <summary>Throws one letter out of the bag as a loose tile.</summary>
         public TileBatch TossLetter(int playerId, char letter)
         {
             var batch = new TileBatch();
@@ -196,12 +162,6 @@ namespace Wreckabulary.Rules
             return batch;
         }
 
-        // ------------------------------------------------------------------ crafting
-
-        /// <summary>
-        /// Starts the assembly animation. The recipe's letters move into the reservation at once,
-        /// so they can't be spent twice; a free equipment slot is held for the result.
-        /// </summary>
         public Outcome BeginCraft(int playerId, string itemId, double now)
         {
             var p = Player(playerId);
@@ -219,7 +179,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done();
         }
 
-        /// <summary>Interrupted (hit, dodge, cancel, downed): every reserved letter goes back.</summary>
         public Outcome CancelCraft(int playerId)
         {
             var p = Player(playerId);
@@ -230,7 +189,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done();
         }
 
-        /// <summary>The animation finished: the reserved letters become the item, in the held slot.</summary>
         public Outcome CompleteCraft(int playerId, double now)
         {
             var p = Player(playerId);
@@ -244,7 +202,6 @@ namespace Wreckabulary.Rules
                 throw new InvalidOperationException($"Player {playerId}'s reservation {p.Reserved} doesn't match {def.Id}.");
             p.Reserved.TakeAll();
             p.Craft = null;
-            // The letters now live inside the item, so the total doesn't change.
             var item = NewItem(def.Id, ItemOrigin.Crafted, ItemState.Held, def.Durability > 0 ? def.Durability : 1f);
             item.CrafterId = playerId;
             item.HolderId = playerId;
@@ -253,13 +210,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        // ------------------------------------------------------------------ gear
-
-        /// <summary>
-        /// E on an item. Crafted gear (lying, settled or deployed) goes into a free slot; original
-        /// furniture is lifted in both hands. <paramref name="seenRevision"/> is the revision the
-        /// player's client saw, so two players grabbing at once can't both get it.
-        /// </summary>
         public Outcome PickUp(int playerId, int itemId, int seenRevision)
         {
             var p = Player(playerId);
@@ -291,7 +241,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>Hands the gear in <paramref name="slot"/> to a teammate, who sees it in their own skin.</summary>
         public Outcome Transfer(int fromId, int toId, int slot)
         {
             var from = Player(fromId);
@@ -310,7 +259,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>R: puts the gear down intact. It returns to the standard look.</summary>
         public Outcome Drop(int playerId, int slot)
         {
             var p = Player(playerId);
@@ -324,7 +272,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>Sets down the furniture carried in both hands (also used when a hit staggers you, D3).</summary>
         public Outcome DropCarried(int playerId)
         {
             var p = Player(playerId);
@@ -338,11 +285,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>
-        /// Throws the gear in <paramref name="slot"/>, or the carried furniture when slot is -1.
-        /// Gear keeps the thrower's skin until it settles. Throwing a consumable with a fuse
-        /// (BOMB) activates it, which spends its letters.
-        /// </summary>
         public Outcome Throw(int playerId, int slot, string throwerSkin)
         {
             var p = Player(playerId);
@@ -374,11 +316,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>
-        /// A thrown item came to rest. Reusable things lie in the room again (standard look, full
-        /// size). A spent consumable becomes Armed, for example a lit BOMB on the floor. A thrown
-        /// BOMB doesn't count towards the thrower's deploy limit; only placing one (F) does.
-        /// </summary>
         public Outcome Settle(int itemId)
         {
             var item = Item(itemId);
@@ -391,10 +328,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>
-        /// F: places the gear as a full-size tool (TABLE cover, BED pad, MAT strip, SOAP puddle,
-        /// a placed BOMB). Each player may have <see cref="GameRules.MaxDeployed"/> out at once.
-        /// </summary>
         public Outcome Deploy(int playerId, int slot)
         {
             var p = Player(playerId);
@@ -422,7 +355,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>Uses a consumable on yourself (FOAM, and later APPLE, SODA). Its letters are spent.</summary>
         public Outcome Consume(int playerId, int slot)
         {
             var p = Player(playerId);
@@ -438,7 +370,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>An armed consumable finished (the BOMB exploded, the SOAP dried up). No letters come back.</summary>
         public Outcome Expire(int itemId)
         {
             var item = Item(itemId);
@@ -448,10 +379,6 @@ namespace Wreckabulary.Rules
             return Outcome.Done(item);
         }
 
-        /// <summary>
-        /// Wear or damage: a weapon use, a hit on cover, a punch on furniture. At zero the item
-        /// breaks and gives back its exact letters (a spent consumable gives nothing).
-        /// </summary>
         public TileBatch Damage(int itemId, float amount)
         {
             var item = Item(itemId);
@@ -465,10 +392,6 @@ namespace Wreckabulary.Rules
             return Break(itemId);
         }
 
-        /// <summary>
-        /// Breaks an item into letters. Safe to call twice: the second call gives nothing, so a
-        /// weapon that breaks and is used up in the same frame can't burst twice.
-        /// </summary>
         public TileBatch Break(int itemId)
         {
             var batch = new TileBatch();
@@ -490,10 +413,6 @@ namespace Wreckabulary.Rules
             return batch;
         }
 
-        /// <summary>
-        /// Out of the match. The craft in progress is cancelled, every letter drops as a tile, and
-        /// gear drops intact (never as both the item and its letters). Deployed things stay put.
-        /// </summary>
         public TileBatch Eliminate(int playerId, List<ItemInstance> droppedItems = null)
         {
             var batch = new TileBatch();
@@ -519,8 +438,6 @@ namespace Wreckabulary.Rules
         public int DeployedCount(int playerId) =>
             items.Values.Count(i => i.DeployerId == playerId && (i.State == ItemState.Deployed || i.State == ItemState.Armed));
 
-        // ------------------------------------------------------------------ audit
-
         public LetterAudit Audit()
         {
             int bags = 0, reserved = 0, inItems = 0;
@@ -535,10 +452,6 @@ namespace Wreckabulary.Rules
             return new LetterAudit(tiles.Count, bags, reserved, inItems, Minted, Spent);
         }
 
-        /// <summary>
-        /// Structural checks the audit can't see: every held item is in exactly one slot of its
-        /// holder, and no item is in two places. Returns problems, or an empty list.
-        /// </summary>
         public List<string> CheckOwnership()
         {
             var problems = new List<string>();
@@ -562,9 +475,6 @@ namespace Wreckabulary.Rules
             return problems;
         }
 
-        // ------------------------------------------------------------------ helpers
-
-        /// <summary>A consumable that is lit when thrown or placed, like BOMB.</summary>
         static bool IsFused(ItemDefinition def) => def.Consumable && def.Thrown != null && def.Thrown.FuseSeconds > 0f;
 
         ItemInstance SlotItem(PlayerInventory p, int slot, out Refusal refusal)
@@ -584,7 +494,6 @@ namespace Wreckabulary.Rules
             return item;
         }
 
-        /// <summary>Registers a new item. The caller finishes setting it up, then raises one <see cref="Changed"/>.</summary>
         ItemInstance NewItem(string word, ItemOrigin origin, ItemState state, float durability)
         {
             var item = new ItemInstance

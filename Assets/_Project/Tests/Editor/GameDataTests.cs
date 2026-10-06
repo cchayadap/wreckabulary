@@ -9,12 +9,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.EditorTests
 {
-    /// <summary>
-    /// Checks the game data the way the game loads it (Resources/GameData), and checks it
-    /// against the imported art: every modelled item has its model, grip, size and skin
-    /// materials, the house's furniture exists, and the wardrobe's pieces are on the avatar.
-    /// Run Wreckabulary → Data → Set Up Game Data and Wreckabulary → Art → Set Up Imported Art first.
-    /// </summary>
     [TestFixture]
     public class GameDataTests
     {
@@ -55,7 +49,7 @@ namespace Wreckabulary.EditorTests
             Assert.IsEmpty(config.Validate());
             CollectionAssert.AreEquivalent(CoreTwelve, config.Items.Enabled.Select(i => i.Id), "the brief's 12 core items, and only them, are craftable");
             Assert.AreEqual(100f, config.Rules.Defaults.MaxHealth);
-            Assert.AreEqual(18, config.Rules.Defaults.MaxLetters);
+            Assert.AreEqual(10, config.Rules.Defaults.MaxLetters);
             Assert.AreEqual(2, config.Rules.Defaults.MaxCarried);
             Assert.AreEqual(2, config.Rules.Defaults.MaxDeployed);
             Assert.AreSame(config.Rules.Defaults, config.RulesFor("NoSuchMode"), "an unknown mode plays by the defaults");
@@ -137,11 +131,20 @@ namespace Wreckabulary.EditorTests
         [Test]
         public void EveryPieceOfHouseFurnitureHasAModel()
         {
-            foreach (var f in config.House.Furniture)
-            {
-                var item = config.Items.Get(f.Word);
-                Assert.IsNotNull(models.Find(item.Model), $"{f.Word} in {f.Room}");
-            }
+            foreach (var house in config.Houses)
+                foreach (var f in house.Value.Furniture)
+                {
+                    var item = config.Items.Get(f.Word);
+                    Assert.IsNotNull(models.Find(item.Model), $"{f.Word} in {house.Key} {f.Room}");
+                }
+        }
+
+        [Test]
+        public void EveryHouseFileIsAPlayableMap()
+        {
+            var files = System.IO.Directory.GetFiles(GameDataSetup.ConfigFolder, "house_*.json")
+                .Select(path => System.IO.Path.GetFileNameWithoutExtension(path).Substring("house_".Length));
+            CollectionAssert.AreEquivalent(files, config.Houses.Keys);
         }
 
         [Test]

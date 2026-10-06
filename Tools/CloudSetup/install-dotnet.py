@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""Install the pinned rules-harness SDK without root, preserving artifact checksums.
-
-Package hashes were verified against Microsoft's signed Debian repository InRelease
-on 2026-10-01. This installer changes no system packages or shell profiles.
-"""
 import argparse
 import hashlib
 import json

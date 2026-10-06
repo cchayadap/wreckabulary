@@ -22,8 +22,6 @@ namespace Wreckabulary.Tests
             Time.timeScale = 1f;
             yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
                 EmptyScenePath, new LoadSceneParameters(LoadSceneMode.Single));
-            // Game scenes have a listener on the camera; without one Unity warns whenever a sound plays.
-            new GameObject("Test Listener").AddComponent<AudioListener>();
             yield return null;
         }
 

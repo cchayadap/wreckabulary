@@ -3,7 +3,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>The enabled catalogue defines crafting. Moving Day's allowed furniture is placed directly.</summary>
     public static class SummonEffects
     {
         public static bool CanApply(PlayerController player, WordEntry recipe)

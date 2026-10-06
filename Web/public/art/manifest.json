@@ -2473,6 +2473,15 @@
       ],
       "Bottoms": [
         {
+          "id": "cocoa",
+          "name": "Cocoa",
+          "rgb": [
+            0.29,
+            0.22,
+            0.18
+          ]
+        },
+        {
           "id": "navy",
           "name": "Night Navy",
           "rgb": [
@@ -2555,6 +2564,15 @@
         }
       ],
       "Gloves": [
+        {
+          "id": "ink",
+          "name": "Ink",
+          "rgb": [
+            0.15,
+            0.15,
+            0.17
+          ]
+        },
         {
           "id": "putty",
           "name": "Putty",
@@ -2789,6 +2807,15 @@
       ],
       "Back": [
         {
+          "id": "saddle",
+          "name": "Saddle",
+          "rgb": [
+            0.47,
+            0.3,
+            0.19
+          ]
+        },
+        {
           "id": "canvas",
           "name": "Canvas",
           "rgb": [
@@ -2837,20 +2864,22 @@
     },
     "default": {
       "pieces": {
-        "Top": "Crewneck",
+        "Top": "Hoodie",
         "Bottoms": "Joggers",
         "Gloves": "Mittens",
         "Footwear": "Boots",
+        "Headwear": "Hood",
+        "Back": "Satchel",
         "Badge": "TBadge"
       },
       "colours": {
-        "Top": "pool",
-        "Bottoms": "navy",
-        "Gloves": "putty",
+        "Top": "tomato",
+        "Bottoms": "cocoa",
+        "Gloves": "ink",
         "Footwear": "classic",
         "Headwear": "harbour",
         "Face": "classic",
-        "Back": "canvas"
+        "Back": "saddle"
       }
     }
   },
@@ -3773,23 +3802,23 @@
   "avatar": {
     "path": "art/avatar.glb",
     "size": [
-      0.745005,
-      1.153021,
-      0.564942
+      0.748874,
+      1.0102,
+      0.57304
     ],
     "boundsMin": [
-      -0.372502,
+      -0.374437,
       0.002,
       -0.255
     ],
     "boundsMax": [
-      0.372502,
-      1.15502,
-      0.309942
+      0.374437,
+      1.0122,
+      0.31804
     ],
-    "triangles": 63110,
-    "bytes": 7130212,
-    "sha256": "17296d4b3a6359a22f758a20dac7476c8513ca38e23f0ef2c3662dbd8e3c3e2c",
+    "triangles": 65086,
+    "bytes": 7187712,
+    "sha256": "58f89f378c966453d0e30fea9b7cbbac459e4a3209efb6dba8512ca3b63248de",
     "animations": [
       "Block_Plate",
       "Carry_TwoHand",
@@ -3809,17 +3838,29 @@
       "Thrust_OneHand",
       "Walk_InPlace"
     ],
+    "locomotion": {
+      "Walk_InPlace": {
+        "stride": 0.2483,
+        "cycle_seconds": 0.9,
+        "duty": 0.58
+      },
+      "Run_InPlace": {
+        "stride": 0.5176,
+        "cycle_seconds": 0.7,
+        "duty": 0.34
+      }
+    },
     "meshes": [
-      "SK_Badge_T",
       "SK_Cap",
-      "SK_Head",
+      "SK_Badge_T",
+      "SK_Glasses",
       "SK_Hood",
-      "SK_Joggers",
       "SK_Mittens",
       "SK_Crewneck",
       "SK_Boots",
-      "SK_Glasses",
+      "SK_Head",
       "SK_Hoodie",
+      "SK_Joggers",
       "SK_Satchel"
     ],
     "bones": [
@@ -3846,11 +3887,11 @@
       "shin_R",
       "foot_R"
     ],
-    "defaultTriangles": 31696,
+    "defaultTriangles": 52488,
     "mobilePath": "art/avatar-mobile.glb",
-    "mobileTriangles": 30848,
-    "mobileDefaultTriangles": 17660,
-    "mobileBytes": 5736680,
-    "mobileSha256": "786cf1dbea1a5ab27c38f193ce08d09f0a99178af5acd1aba8d471e27a0bfabf"
+    "mobileTriangles": 34424,
+    "mobileDefaultTriangles": 29136,
+    "mobileBytes": 5859112,
+    "mobileSha256": "bf5339580d3938d628f9e7834c97dde7c10c9fe8587d270c8742c68bd11e1202"
   }
 }

@@ -19,7 +19,6 @@ namespace Wreckabulary
         public int Score => LetterScores.ScoreOf(word);
     }
 
-    /// <summary>The enabled catalogue supplies live recipes. FromCsv supports explicit test/designer fixtures.</summary>
     [CreateAssetMenu(menuName = "Wreckabulary/Word Database")]
     public class WordDatabase : ScriptableObject
     {

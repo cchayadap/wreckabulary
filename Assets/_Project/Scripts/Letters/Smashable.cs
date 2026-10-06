@@ -11,10 +11,6 @@ namespace Wreckabulary
     [RequireComponent(typeof(Rigidbody))]
     public class Smashable : MonoBehaviour, IDamageable
     {
-        /// <summary>
-        /// Furniture health one point of break power takes off: a punch (1) still does the old
-        /// punch's 12. Stands in until furniture toughness comes from the letter economy.
-        /// </summary>
         public const float HealthPerBreakPower = 12f;
 
         [SerializeField] string word = "TABLE";
@@ -31,6 +27,7 @@ namespace Wreckabulary
         /// <summary>Placed Moving Day furniture can't be wrecked.</summary>
         public bool Invulnerable { get; set; }
         public event Action<Smashable> Broken;
+        public static event Action<Smashable> AnyBroken;
 
         float graceUntil;
 
@@ -42,7 +39,6 @@ namespace Wreckabulary
             if (newHealth > 0f) health = newHealth;
         }
 
-        /// <summary>A hit from a player, a weapon or a blast. Furniture feels break power, not damage.</summary>
         public bool ApplyDamage(in HitInfo hit)
         {
             if (IsBroken || Invulnerable || hit.BreakPower <= 0f) return false;
@@ -87,6 +83,7 @@ namespace Wreckabulary
             GameFeedback.Play(GameCue.Break);
             GameFeedback.Burst("Wood_Splinter", transform.position + Vector3.up * 0.4f, 0.65f);
             Broken?.Invoke(this);
+            AnyBroken?.Invoke(this);
             Destroy(gameObject);
         }
     }

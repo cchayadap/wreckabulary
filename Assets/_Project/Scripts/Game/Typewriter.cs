@@ -47,7 +47,6 @@ namespace Wreckabulary
 
         void Awake()
         {
-            // Older authored scenes serialized the prototype's four-entry menu. Upgrade its mode contract.
             modes = new[]
             {
                 new Mode { label = "TUTORIAL", id = "Tutorial", blurb = "Learn to smash, spell and summon", scene = Session.TutorialScene },

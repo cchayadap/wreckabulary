@@ -1,9 +1,3 @@
-"""Minimal GLB reader for the asset pipeline (standard library only, runs inside Blender).
-
-Reads the JSON chunk and embedded images of a .glb so the pipeline can build a
-material library straight from the authored glTF values instead of reverse
-engineering Blender's shader nodes.
-"""
 import json
 import struct
 
@@ -34,7 +28,6 @@ class Glb:
         if self.json is None:
             raise ValueError(f"{path}: no JSON chunk")
 
-    # ---- images -----------------------------------------------------------
     def image_bytes(self, image_index):
         img = self.json["images"][image_index]
         view = self.json["bufferViews"][img["bufferView"]]
@@ -46,15 +39,12 @@ class Glb:
         return img.get("name") or f"image_{image_index}"
 
     def texture_image(self, texture_info):
-        """Return the image index a textureInfo points at, or None."""
         if not texture_info:
             return None
         tex = self.json["textures"][texture_info["index"]]
         return tex.get("source")
 
-    # ---- materials --------------------------------------------------------
     def materials(self):
-        """Yield plain dicts describing each material, with image indices."""
         for mat in self.json.get("materials", []):
             pbr = mat.get("pbrMetallicRoughness", {})
             yield {
@@ -71,7 +61,6 @@ class Glb:
                 "_emissiveImage": self.texture_image(mat.get("emissiveTexture")),
             }
 
-    # ---- nodes ------------------------------------------------------------
     def node_by_name(self, name):
         for node in self.json.get("nodes", []):
             if node.get("name") == name:

@@ -29,7 +29,6 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void SimultaneousKnockoutIsADraw()
         {
-            // Both hits of the tick are applied first, then the check runs once.
             var r = WinCheck.Evaluate(new[] { C(0, 0, LifeState.Eliminated), C(1, 1, LifeState.Eliminated) });
             Assert.AreEqual(RoundState.Draw, r.State);
             Assert.AreEqual(Teams.NoTeam, r.WinningTeam);

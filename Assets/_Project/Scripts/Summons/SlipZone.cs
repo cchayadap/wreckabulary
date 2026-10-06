@@ -3,7 +3,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>The visible SOAP patch and its slippery physics have the same spatial lifetime.</summary>
     public sealed class SlipZone : MonoBehaviour
     {
         public static GameObject Create(Vector3 position, ItemDefinition item, PlayerController owner)
@@ -17,7 +16,6 @@ namespace Wreckabulary
             Object.Destroy(collider);
             var body = root.AddComponent<Rigidbody>();
             body.isKinematic = true;
-            // The flattened visible cylinder uses a separate unscaled area sensor.
             var area = new GameObject("Slip area");
             area.transform.SetParent(root.transform, false);
             area.transform.localScale = new Vector3(1f / root.transform.localScale.x, 1f / root.transform.localScale.y, 1f / root.transform.localScale.z);

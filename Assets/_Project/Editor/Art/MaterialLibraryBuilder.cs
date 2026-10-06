@@ -9,12 +9,6 @@ using Wreckabulary.Art;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>
-    /// Turns <c>Data/Generated/materials.json</c> (the authored glTF values from the Blender
-    /// pipeline) into URP Lit materials in <c>Materials/Library</c>, plus the
-    /// <see cref="MaterialLibrary"/> asset the game uses to swap item skins. Re-running updates
-    /// the materials in place, so their GUIDs and every reference to them stay the same.
-    /// </summary>
     public static class MaterialLibraryBuilder
     {
         public static MaterialLibrary Build()
@@ -57,7 +51,6 @@ namespace Wreckabulary.EditorTools
             if (created) mat = new Material(lit) { name = s.Name };
             else if (mat.shader != lit) mat.shader = lit;
 
-            // glTF colours are linear. SetColor takes sRGB and converts in a linear-space project.
             mat.SetColor("_BaseColor", s.LinearBaseColor.gamma);
             mat.SetFloat("_Metallic", s.Metallic);
             mat.SetFloat("_Smoothness", Mathf.Clamp01(1f - s.Roughness));
@@ -78,7 +71,6 @@ namespace Wreckabulary.EditorTools
             mat.SetFloat("_Cutoff", s.AlphaCutoff);
             mat.SetFloat("_Cull", s.DoubleSided ? (float)CullMode.Off : (float)CullMode.Back);
 
-            // The same keyword, blend and queue setup the URP material inspector does.
             BaseShaderGUI.SetMaterialKeywords(mat, LitGUI.SetMaterialKeywords);
 
             if (created) AssetDatabase.CreateAsset(mat, path);

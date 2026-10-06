@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 namespace Wreckabulary
 {
-    /// <summary>A hold-capable skill button, with one pointer owner and visible press feedback.</summary>
     [RequireComponent(typeof(CanvasGroup))]
     public sealed class TouchActionButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {

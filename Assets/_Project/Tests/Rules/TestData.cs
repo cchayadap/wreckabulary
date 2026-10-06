@@ -4,10 +4,6 @@ using NUnit.Framework;
 
 namespace Wreckabulary.Rules.Tests
 {
-    /// <summary>
-    /// Loads the real config files. In Unity the working directory is the project root; under
-    /// the dotnet harness it is somewhere below it, so this walks up until it finds the data.
-    /// </summary>
     public static class TestData
     {
         const string ConfigDir = "Assets/_Project/Data/Config";
@@ -39,7 +35,6 @@ namespace Wreckabulary.Rules.Tests
 
         public static WardrobeCatalogue Wardrobe() => WardrobeCatalogue.FromJson(Read("wardrobe.json"), "wardrobe.json");
 
-        /// <summary>An economy on the real catalogue with players 0..count-1 on the given teams (default: everyone alone).</summary>
         public static Economy NewEconomy(string mode = "Dibs", int players = 2, int[] teams = null)
         {
             var e = new Economy(Catalogue(), RulesFor(mode));
@@ -47,7 +42,6 @@ namespace Wreckabulary.Rules.Tests
             return e;
         }
 
-        /// <summary>Gives a player letters the legal way: new tiles that they walk over.</summary>
         public static void GiveLetters(Economy e, int player, string letters)
         {
             foreach (var tile in e.MintTiles(letters).Tiles)
@@ -57,7 +51,6 @@ namespace Wreckabulary.Rules.Tests
             }
         }
 
-        /// <summary>Gives the letters, crafts the item and returns it, held in a slot.</summary>
         public static ItemInstance Craft(Economy e, int player, string word, double now = 0)
         {
             GiveLetters(e, player, word);
@@ -68,7 +61,6 @@ namespace Wreckabulary.Rules.Tests
             return done.Item;
         }
 
-        /// <summary>Every letter is accounted for and no item is in two places.</summary>
         public static void AssertConserved(Economy e, string context = "")
         {
             var audit = e.Audit();

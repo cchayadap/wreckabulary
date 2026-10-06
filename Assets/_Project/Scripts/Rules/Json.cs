@@ -5,12 +5,6 @@ using System.Text;
 
 namespace Wreckabulary.Rules
 {
-    /// <summary>
-    /// A small JSON reader for the config files in Data/Config. The rules have no engine
-    /// references, so they can't use JsonUtility, and netstandard2.1 has no System.Text.Json.
-    /// Objects become <see cref="JsonNode"/>s; arrays, strings, numbers, true/false and null
-    /// are supported.
-    /// </summary>
     public static class Json
     {
         public static JsonNode Parse(string text, string source = "json")
@@ -80,7 +74,7 @@ namespace Wreckabulary.Rules
             Dictionary<string, object> ReadObject(string path)
             {
                 var result = new Dictionary<string, object>(StringComparer.Ordinal);
-                pos++; // {
+                pos++;
                 SkipSpace();
                 if (!AtEnd && text[pos] == '}') { pos++; return result; }
                 while (true)
@@ -105,7 +99,7 @@ namespace Wreckabulary.Rules
             List<object> ReadArray(string path)
             {
                 var result = new List<object>();
-                pos++; // [
+                pos++;
                 SkipSpace();
                 if (!AtEnd && text[pos] == ']') { pos++; return result; }
                 while (true)
@@ -123,7 +117,7 @@ namespace Wreckabulary.Rules
             string ReadString()
             {
                 var sb = new StringBuilder();
-                pos++; // opening quote
+                pos++;
                 while (true)
                 {
                     if (AtEnd) throw Error("unterminated string");
@@ -165,10 +159,6 @@ namespace Wreckabulary.Rules
         }
     }
 
-    /// <summary>
-    /// A read-only view of one parsed JSON value that knows its path, so config errors say
-    /// exactly which field is wrong ("items.json: $.items[3].melee.damage must be a number").
-    /// </summary>
     public sealed class JsonNode
     {
         readonly object value;
@@ -188,7 +178,6 @@ namespace Wreckabulary.Rules
 
         FormatException Wrong(string what) => new FormatException($"{source}: {Path} must be {what}");
 
-        /// <summary>An error that names the file and this node's place in it.</summary>
         public FormatException Error(string message) => new FormatException($"{source}: {Path}: {message}");
 
         public bool Has(string key) => value is Dictionary<string, object> d && d.ContainsKey(key) && d[key] != null;

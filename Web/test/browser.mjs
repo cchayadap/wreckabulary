@@ -1,5 +1,6 @@
-// Real Chromium interactions exercise the bundled game, not a mocked DOM.
 import { chromium } from "playwright";
+import { workshopDesktop, workshopMobile } from "./workshop-browser.mjs";
+import { click, screenshot, softwareGpu, deviceScaleFactor, configureSoftwareRendering } from "./browser-ui.mjs";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 const base = process.env.WRECKABULARY_URL ?? "http://127.0.0.1:4173";
@@ -18,41 +19,26 @@ function record(message) {
 }
 async function boot(context) {
   const page = await context.newPage();
+  if (softwareGpu) page.setDefaultTimeout(120000);
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("response", (r) => {
-    if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`);
+    const offlineBoard = r.status() === 404 && new URL(r.url()).pathname === "/api/scores";
+    if (r.status() >= 400 && !offlineBoard) errors.push(`${r.status()} ${r.url()}`);
   });
   await page.goto(base);
-  await page.waitForFunction(() => window.wreckabulary?.screen === "home", {
+  await page.waitForFunction(() => window.wreckabulary?.screen === "home", undefined, {
     timeout: 90000,
+    polling: 100,
   });
+  const profile = await configureSoftwareRendering(page);
+  if (profile) (metrics.softwareRendering ??= []).push(profile);
   return page;
 }
-async function click(page, selector) {
-  const target = page.locator(selector).first();
-  await target.scrollIntoViewIfNeeded();
-  const accessible = await target.evaluate((button) => {
-    const r = button.getBoundingClientRect(),
-      hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
-    return (
-      r.width > 0 &&
-      r.height > 0 &&
-      r.left >= 0 &&
-      r.top >= 0 &&
-      r.right <= innerWidth + 1 &&
-      r.bottom <= innerHeight + 1 &&
-      (hit === button || button.contains(hit))
-    );
-  });
-  assert.equal(accessible, true, `unreachable UI: ${selector}`);
-  await target.click({ timeout: 30000 });
-}
-async function screenshot(page, name) {
-  await page.screenshot({ path: `playwright-results/${name}.png` });
-}
+
 try {
   const desktop = await browser.newContext({
       viewport: { width: 1440, height: 900 },
+      deviceScaleFactor,
       reducedMotion: "reduce",
     }),
     page = await boot(desktop);
@@ -69,7 +55,10 @@ try {
   });
   await screenshot(page, "home-desktop");
   record("Real supplied GLBs load and render the home scene.");
-  await page.selectOption("#map-choice", "courtyard");
+  await workshopDesktop(page, { click, screenshot, record });
+  await click(page, "[data-action=maps]");
+  await click(page, "[data-map=courtyard]");
+  assert.equal(await page.locator(".picker").count(), 0, "Picking a house closes the picker.");
   assert.equal(
     await page.evaluate(() => window.wreckabulary.game.house.name),
     await page.evaluate(() => window.wreckabulary.data.houses.courtyard.name),
@@ -78,16 +67,38 @@ try {
   await page.selectOption("#outfit-top", "Hoodie");
   await click(page, "[data-color=tomato]");
   await page.locator("[data-piece=Glasses]").check();
+  assert.equal(await page.locator("[data-piece=Glasses]").isChecked(), true);
   await click(page, "[data-action=home]");
   assert.equal(
     await page.evaluate(() => window.wreckabulary.game.wardrobe.pieces.Top),
     "Hoodie",
   );
+  const glasses = await page.evaluate(() => {
+    const player = window.wreckabulary.game.players[0];
+    const avatar = window.wreckabulary.view.entities.get("p0").userData.avatar;
+    const visible = [];
+    avatar.traverse((node) => {
+      if (node.isMesh && node.name.includes("Glasses")) visible.push(node.visible);
+    });
+    return { selected: player.wardrobe.pieces.Face,
+      saved: JSON.parse(localStorage.getItem("wreckabulary.profile.v1")).wardrobe.pieces.Face,
+      visible };
+  });
+  assert.equal(glasses.selected, "Glasses");
+  assert.equal(glasses.saved, "Glasses");
+  assert.ok(glasses.visible.length > 0 && glasses.visible.every(Boolean));
   record(
     "Wardrobe controls change real modular meshes and persist the selection.",
   );
-  await page.selectOption("#map-choice", "pinwheel");
+  await click(page, "[data-action=maps]");
+  await click(page, "[data-map=pinwheel]");
+  await click(page, "[data-action=modes]");
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator(".picker").count(), 0, "Escape closes the mode picker.");
+  await click(page, "[data-action=modes]");
   await click(page, "[data-mode=Tutorial]");
+  assert.match(await page.locator(".dock-mode strong").innerText(), /learn/i);
+  record("The lobby dock shows the chosen mode and house; each opens a picker that Escape or a choice closes.");
   await click(page, "[data-action=start]");
   await page.waitForFunction(() => window.wreckabulary.screen === "game");
   await click(page, "[data-action=pause]");
@@ -126,7 +137,54 @@ try {
   }));
   assert.ok(Math.hypot(moved.x - before.x, moved.z - before.z) > 0.1);
   record("Keyboard movement advances a live player through the house.");
-  // Place the test player beside real map furniture; damage still comes through the public controls.
+  const hud = await page.evaluate(() => {
+    const box = (s) => document.querySelector(s).getBoundingClientRect(),
+      cells = [...document.querySelectorAll("#letters > *")].map(
+        (c) => c.getBoundingClientRect().top,
+      ),
+      side = box(".hud-side");
+    return {
+      actions: getComputedStyle(document.querySelector(".actions")).display,
+      cells: cells.length,
+      rows: new Set(cells.map(Math.round)).size,
+      timerUnderMap: box("#timer").top >= box("#minimap").bottom,
+      sideRight: innerWidth - side.right < 40,
+    };
+  });
+  assert.deepEqual(hud, {
+    actions: "none",
+    cells: 10,
+    rows: 2,
+    timerUnderMap: true,
+    sideRight: true,
+  });
+  await page.keyboard.down("Tab");
+  await page.waitForSelector(".bag-panel #bag-recipes .recipe");
+  const bag = await page.evaluate(() => {
+    const r = document.querySelector(".bag-panel").getBoundingClientRect(),
+      map = document.querySelector("#minimap").getBoundingClientRect();
+    return {
+      width: r.width / innerWidth,
+      height: r.height / innerHeight,
+      letters: document.querySelectorAll("#bag-letters > *").length,
+      hands: document.querySelectorAll("#bag-hands .bag-hand").length,
+      wearing: document.querySelectorAll("#bag-wear .wear-chip svg").length > 0,
+      recipes: document.querySelectorAll("#bag-recipes .recipe").length,
+      maps: document.querySelectorAll(".map-room").length / document.querySelectorAll("#minimap .map-room").length,
+      zoomed: map.width > 240 && Math.abs(map.left + map.width / 2 - innerWidth / 2) < 40,
+      you: !!document.querySelector("#minimap .map-player.you"),
+    };
+  });
+  assert.ok(bag.width >= 0.75 && bag.height >= 0.75, JSON.stringify(bag));
+  assert.deepEqual(
+    { letters: bag.letters, hands: bag.hands, wearing: bag.wearing, recipes: bag.recipes, maps: bag.maps, zoomed: bag.zoomed, you: bag.you },
+    { letters: 10, hands: 2, wearing: true, recipes: 12, maps: 1, zoomed: true, you: true },
+  );
+  await page.keyboard.up("Tab");
+  assert.equal(await page.locator(".bag-panel").count(), 0);
+  record(
+    "Desktop HUD hides touch buttons, stacks timer under the map, shows a 5 x 2 bag, and Tab peeks an icon bag, the zoomed minimap and the recipe book.",
+  );
   await page.evaluate(() => {
     const g = window.wreckabulary.game,
       p = g.players[0],
@@ -135,12 +193,14 @@ try {
     p.z = lamp.z;
     p.facing = { x: -1, z: 0 };
     p.yaw = -Math.PI / 2;
+    window.wreckabulary.view.look.yaw = p.yaw;
     window.testFurniture = lamp.id;
   });
   await page.keyboard.down("KeyJ");
   await page.waitForFunction(
     () => window.wreckabulary.game.item(window.testFurniture) === undefined,
-    { timeout: 25000 },
+    undefined,
+    { timeout: 25000, polling: 100 },
   );
   await page.keyboard.up("KeyJ");
   for (let n = 0; n < 4; n++) {
@@ -158,19 +218,27 @@ try {
     () => window.wreckabulary.game.players[0].bag.length >= 4,
   );
   await click(page, "[data-action=craft]");
-  await page.waitForSelector("[data-recipe=LAMP].available");
-  await click(page, "[data-recipe=LAMP]");
+  await page.waitForSelector(".spell-composer");
+  await page.keyboard.type("lamp");
+  await page.waitForFunction(
+    () => document.querySelector(".spell-composer").dataset.state === "ready",
+  );
+  await page.keyboard.press("Enter");
   await page.waitForFunction(
     () =>
       window.wreckabulary.game.held(window.wreckabulary.game.players[0])
         ?.word === "LAMP",
-    { timeout: 15000 },
+    undefined,
+    { timeout: 15000, polling: 100 },
+  );
+  await page.waitForFunction(() =>
+    document.querySelector("#slot0").textContent.includes("LAMP"),
   );
   assert.match(await page.locator("#slot0").textContent(), /LAMP/);
   record(
     "Smash input releases exact tiles; live pickup, recipe UI, craft channel and equipment all connect.",
   );
-  await click(page, "[data-action=drop]");
+  await page.keyboard.press("KeyR");
   assert.equal(
     await page.evaluate(
       () =>
@@ -184,7 +252,8 @@ try {
     () =>
       window.wreckabulary.game.held(window.wreckabulary.game.players[0])
         ?.word === "LAMP",
-    { timeout: 10000 },
+    undefined,
+    { timeout: 10000, polling: 100 },
   );
   await page.keyboard.up("KeyE");
   record("Dropping and picking up gear preserves the physical item.");
@@ -194,6 +263,10 @@ try {
       () => window.wreckabulary.game.players[0].lastDodge >= 0,
     ),
   );
+  await page.waitForFunction(() => {
+    const game = window.wreckabulary.game;
+    return game.canAct(game.players[0]);
+  });
   await page.keyboard.press("Space");
   assert.ok(
     await page.evaluate(
@@ -245,7 +318,8 @@ try {
   await page.keyboard.down("KeyE");
   await page.waitForFunction(
     () => window.wreckabulary.game.players[1].state === "alive",
-    { timeout: 15000 },
+    undefined,
+    { timeout: 15000, polling: 100 },
   );
   await page.keyboard.up("KeyE");
   assert.equal(
@@ -266,20 +340,40 @@ try {
     p.z = goal.z;
     p.facing = { x: 0, z: 1 };
     p.yaw = 0;
+    window.wreckabulary.view.look.yaw = 0;
     g.mintTiles("LAMP", p.x, p.z);
     for (const t of [...g.tiles]) g.collect(p, t);
   });
   await page.keyboard.press("KeyQ");
-  await page.waitForSelector("[data-recipe=LAMP].available");
-  await click(page, "[data-recipe=LAMP]");
+  await page.waitForSelector(".spell-composer");
+  await page.keyboard.type("LAMP");
+  await page.keyboard.press("Enter");
   await page.waitForFunction(
     () =>
       window.wreckabulary.game.held(window.wreckabulary.game.players[0])
         ?.word === "LAMP",
-    { timeout: 15000 },
+    undefined,
+    { timeout: 15000, polling: 100 },
   );
   await page.keyboard.press("KeyF");
+  await page.keyboard.press("KeyG");
+  assert.equal(
+    await page.evaluate(
+      () =>
+        window.wreckabulary.game.held(window.wreckabulary.game.players[0])
+          ?.word,
+    ),
+    "LAMP",
+  );
+  await page.waitForFunction(
+    () => document.querySelector("#attack-label").textContent === "PLACE",
+    undefined,
+    { timeout: 5000, polling: 100 },
+  );
+  await page.keyboard.down("KeyJ");
   await page.waitForSelector(".result-card");
+  await page.keyboard.up("KeyJ");
+  record("Moving Day: F and G do nothing; the attack button places the checklist LAMP.");
   assert.equal(await page.evaluate(() => window.wreckabulary.game.winner), 0);
   await screenshot(page, "moving-day-complete");
   await click(page, ".result-card [data-action=start]");
@@ -318,7 +412,8 @@ try {
   await page.keyboard.down("KeyE");
   await page.waitForFunction(
     () => window.wreckabulary.game.players[0].carried !== null,
-    { timeout: 10000 },
+    undefined,
+    { timeout: 10000, polling: 100 },
   );
   await page.keyboard.up("KeyE");
   assert.equal(
@@ -332,6 +427,7 @@ try {
     p.z = g.extraction.z;
     p.facing = { x: 0, z: 1 };
     p.yaw = 0;
+    window.wreckabulary.view.look.yaw = 0;
   });
   await page.keyboard.press("KeyR");
   await page.waitForFunction(
@@ -351,7 +447,8 @@ try {
   await page.keyboard.down("KeyE");
   await page.waitForFunction(
     () => window.wreckabulary.game.players[1].state === "alive",
-    { timeout: 15000 },
+    undefined,
+    { timeout: 15000, polling: 100 },
   );
   await page.keyboard.up("KeyE");
   await page.evaluate(() => {
@@ -375,10 +472,10 @@ try {
   );
   await desktop.close();
   const mobile = await browser.newContext({
-      viewport: { width: 390, height: 844 },
+      viewport: { width: 844, height: 390 },
       isMobile: true,
       hasTouch: true,
-      deviceScaleFactor: 1,
+      deviceScaleFactor,
       reducedMotion: "reduce",
     }),
     phone = await boot(mobile);
@@ -401,11 +498,35 @@ try {
   }, metrics.desktop.aspect);
   assert.ok(metrics.mobile.triangles < metrics.desktop.triangles);
   await screenshot(phone, "home-mobile");
+  const sideways = await phone.evaluate(() => {
+    const hint = getComputedStyle(document.querySelector(".rotate-hint")).display,
+      dock = document.querySelector(".match-dock").getBoundingClientRect(),
+      you = window.wreckabulary.game.players[0],
+      head = window.wreckabulary.view.screenOf(you.x, you.y + 1.2, you.z);
+    return {
+      hint,
+      dockInside: dock.right <= innerWidth + 1 && dock.bottom <= innerHeight + 1,
+      centred: Math.abs(head.x - innerWidth / 2) < innerWidth * 0.08,
+      scroll: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  assert.deepEqual(sideways, { hint: "none", dockInside: true, centred: true, scroll: false });
+  await phone.setViewportSize({ width: 390, height: 844 });
+  await phone.waitForFunction(
+    () => getComputedStyle(document.querySelector(".rotate-hint")).display === "flex",
+  );
+  await screenshot(phone, "rotate-hint-mobile");
+  await phone.setViewportSize({ width: 844, height: 390 });
+  await phone.waitForFunction(
+    () => getComputedStyle(document.querySelector(".rotate-hint")).display === "none",
+  );
+  record("Phones play sideways: the lobby fits a landscape phone with you centred, and an upright phone gets the rotate hint.");
+  await click(phone, "[data-action=modes]");
   await click(phone, "[data-mode=Tutorial]");
   await click(phone, "[data-action=start]");
   await phone.waitForFunction(() => window.wreckabulary.screen === "game");
   const joy = await phone.locator("#joystick").boundingBox();
-  assert.ok(joy && joy.width > 90);
+  assert.ok(joy && joy.width >= 88);
   const initial = await phone.evaluate(() => ({
     x: window.wreckabulary.game.players[0].x,
     z: window.wreckabulary.game.players[0].z,
@@ -491,27 +612,31 @@ try {
   assert.match(bounds.art, /ActionIcons/);
   await screenshot(phone, "game-mobile");
   await click(phone, "[data-action=craft]");
-  await phone.waitForSelector(".craft-drawer");
-  assert.equal(await phone.locator(".recipe").count(), 12);
+  await phone.waitForSelector(".spell-composer #spell-word");
+  assert.equal(await phone.locator(".spell-composer .recipe").count(), 0, "In play you type the word; no list to pick from.");
+  await click(phone, ".spell-composer [data-action=recipes]");
+  await phone.waitForSelector(".bag-panel #bag-recipes .recipe");
+  assert.equal(await phone.locator("#bag-recipes .recipe").count(), 12);
   await screenshot(phone, "recipes-mobile");
   record(
-    "Mobile HUD has separate touch targets, real item thumbnails and all 12 recipes.",
+    "Mobile HUD has separate touch targets, a typed spell composer and all 12 recipes in the bag's recipe book.",
   );
+  await click(phone, ".bag-panel [data-action=bag]");
   assert.equal(
     await phone.evaluate(() => window.wreckabulary.game.audit().balanced),
     true,
   );
-  await click(phone, ".craft-drawer .close");
+  await click(phone, ".spell-composer .close");
   await phone.setViewportSize({ width: 844, height: 390 });
   await phone.waitForTimeout(500);
   await phone.evaluate(() => {
     const g = window.wreckabulary.game,
       p = g.players[0];
-    g.mintTiles("A".repeat(18 - p.bag.length), p.x, p.z);
+    g.mintTiles("A".repeat(g.rules.maxLetters - p.bag.length), p.x, p.z);
     for (const tile of [...g.tiles]) g.collect(p, tile);
   });
   await phone.waitForFunction(
-    () => document.querySelectorAll("#letters .letter").length === 18,
+    () => document.querySelectorAll("#letters .letter").length === window.wreckabulary.game.rules.maxLetters,
   );
   const landscape = await phone.evaluate(() => {
     const selectors = [
@@ -520,8 +645,7 @@ try {
       "#joystick",
       ".actions button",
       ".gear-slot",
-      ".drop-button",
-      ".pause-button",
+      ".brand-small",
       "#letters button",
       ".tray-header button",
     ];
@@ -576,8 +700,9 @@ try {
   assert.equal(landscape.scroll, false);
   await screenshot(phone, "game-mobile-landscape");
   record(
-    "Landscape touch controls, full 18-letter bag and health remain visible, reachable and separate.",
+    "Landscape touch controls, full 10-letter bag and health remain visible, reachable and separate.",
   );
+  await workshopMobile(phone, { click, screenshot, record });
   await mobile.close();
   assert.deepEqual(errors, []);
   await writeFile(
@@ -591,38 +716,6 @@ try {
   console.log(`BROWSER_SMOKE passed=${checks.length} errors=0`);
   checks.forEach((c) => console.log(`✓ ${c}`));
 } catch (error) {
-  const pages = browser.contexts().flatMap((context) => context.pages());
-  const lastPage = pages.at(-1);
-  if (lastPage) {
-    await screenshot(lastPage, "failure");
-    console.log(
-      await lastPage.evaluate(() => {
-        const g = window.wreckabulary?.game;
-        return g
-          ? {
-              mode: g.mode,
-              status: g.status,
-              time: g.time,
-              players: g.players.map((p) => ({
-                name: p.name,
-                x: p.x,
-                z: p.z,
-                hp: p.hp,
-                state: p.state,
-                carried: p.carried,
-                bag: p.bag,
-              })),
-              keepsakes: g.keepsakes.map((k) => ({
-                word: k.word,
-                collected: k.collected,
-                x: k.x,
-                z: k.z,
-              })),
-            }
-          : null;
-      }),
-    );
-  }
   await writeFile(
     "playwright-results/browser-report.json",
     JSON.stringify(
@@ -637,6 +730,11 @@ try {
       2,
     ),
   );
+  const pages = browser.contexts().flatMap((context) => context.pages());
+  const lastPage = pages.at(-1);
+  if (lastPage) {
+    await lastPage.screenshot({ path: "playwright-results/failure.png", timeout: 15000 }).catch(() => {});
+  }
   throw error;
 } finally {
   await browser.close();

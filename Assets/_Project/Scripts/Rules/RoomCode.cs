@@ -3,26 +3,10 @@ using System.Text;
 
 namespace Wreckabulary.Rules
 {
-    /// <summary>
-    /// A private-room code for LAN play: the host's IPv4 address and port, packed so it can be
-    /// read out across the room. Home networks get the shortest codes:
-    /// <list type="bullet">
-    /// <item>192.168.x.x: 8 characters (192.168.1.23:7777 is "04BH-WR83")</item>
-    /// <item>10.x.x.x and 172.16-31.x.x: 10 characters (172.20.5.9:7777 is "840M4-HWRBK")</item>
-    /// <item>any other IPv4 address: 12 characters (81.2.69.160:7777 is "A414B8-0YC7BB")</item>
-    /// </list>
-    /// It uses Crockford base32 (no I, L, O or U). When typing, case, dashes and spaces don't
-    /// matter, and I/L read as 1 and O as 0. Each code ends in a CRC, so every single mistyped
-    /// character and every swapped neighbouring pair is caught rather than sending the player
-    /// to a stranger's address. Internet play will use relay join codes instead.
-    /// </summary>
     public static class RoomCode
     {
         const string Digits = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 
-        // CRC generators without their top term: x^8+x^2+x+1 and x^12+x^11+x^3+x^2+x+1.
-        // Both catch every error burst up to their width, and a swapped pair of 5-bit
-        // characters is at most a 10-bit burst that neither generator divides.
         const ulong Crc8 = 0x07;
         const ulong Crc12 = 0x80F;
 
@@ -44,7 +28,6 @@ namespace Wreckabulary.Rules
             return Format((full << 12) | Crc(full, 48, 12, Crc12), 12);
         }
 
-        /// <summary>Encodes "192.168.1.23" and a port. Returns null for anything that isn't a dotted IPv4 address.</summary>
         public static string Encode(string ipv4, ushort port)
         {
             return TryParseIp(ipv4, out byte[] ip) ? Encode(ip[0], ip[1], ip[2], ip[3], port) : null;
@@ -125,7 +108,6 @@ namespace Wreckabulary.Rules
             return sb.ToString();
         }
 
-        /// <summary>The remainder of data·x^width divided by the generator, most significant bit first.</summary>
         static ulong Crc(ulong data, int bits, int width, ulong generator)
         {
             ulong top = 1UL << (width - 1);

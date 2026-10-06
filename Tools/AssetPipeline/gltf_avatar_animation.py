@@ -1,11 +1,3 @@
-"""Preserve the supplied avatar's animation bytes in a geometry-only derivative.
-
-Blender's glTF importer/re-exporter changes frame sampling (30 to 24 fps), trimming
-the clips. Decimation should not alter authored timing or interpolation. This
-dedicated post-export step copies the original tracks only after proving that the
-named skeleton hierarchy and rest transforms are equivalent. Original FBXs and
-the full-detail GLB are never changed.
-"""
 from copy import deepcopy
 import hashlib
 import json
@@ -49,8 +41,6 @@ def preserve(source_path,destination_path):
         delta=max(abs(a[i][j]-b[i][j]) for i in range(4) for j in range(4))
         maximum_delta=max(maximum_delta,delta)
         if delta>2e-6:raise ValueError('Mobile rest basis changed: '+name)
-        # Canonicalize tiny floating-point roundtrip differences before restoring
-        # original local-space tracks and inverse-bind matrices.
         for field in ('matrix','translation','rotation','scale'):
             mobile.pop(field,None)
             if field in original:mobile[field]=deepcopy(original[field])
@@ -89,8 +79,6 @@ def preserve(source_path,destination_path):
         for channel in animation['channels']:
             old_node=channel['target']['node']
             channel['target']['node']=target_names[source['nodes'][old_node]['name']]
-    # Compact referenced views/accessors rather than leaving resampled animation
-    # streams (or the original geometry) as unreachable download payload.
     used_accessors=set()
     for mesh in target['meshes']:
         for primitive in mesh['primitives']:

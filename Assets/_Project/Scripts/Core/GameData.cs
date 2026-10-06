@@ -6,11 +6,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Says which JSON files in <c>Data/Config</c> the game reads. It sits in Resources so builds
-    /// can find it. Designers edit the JSON, not this asset; <see cref="GameConfig.Current"/>
-    /// parses and checks the files the first time something asks for them.
-    /// </summary>
     [CreateAssetMenu(menuName = "Wreckabulary/Game Data")]
     public sealed class GameData : ScriptableObject
     {
@@ -48,11 +43,6 @@ namespace Wreckabulary
         }
     }
 
-    /// <summary>
-    /// The game's data, parsed through the Rules layer and checked as a whole: rules for every
-    /// mode, the item catalogue, the house and the wardrobe. Loading fails with every problem
-    /// listed, so a bad edit shows up at start-up instead of mid-match.
-    /// </summary>
     public sealed class GameConfig
     {
         public RuleBook Rules { get; }
@@ -63,10 +53,8 @@ namespace Wreckabulary
 
         static GameConfig current;
 
-        /// <summary>The data from Resources/GameData, loaded on first use.</summary>
         public static GameConfig Current => current ??= Load();
 
-        /// <summary>Replaces the current data, for tests and tools. Null means load it again next time.</summary>
         public static void Use(GameConfig config) => current = config;
 
         public GameConfig(RuleBook rules, ItemCatalogue items, HouseLayout house, WardrobeCatalogue wardrobe,
@@ -95,7 +83,6 @@ namespace Wreckabulary
             return data.Parse();
         }
 
-        /// <summary>Parses and checks the four files. Throws if any of them has a problem.</summary>
         public static GameConfig FromJson(string rules, string items, string house, string wardrobe,
             string rulesName = "rules.json", string itemsName = "items.json", string houseName = "house.json", string wardrobeName = "wardrobe.json",
             IDictionary<string, string> maps = null)
@@ -112,10 +99,8 @@ namespace Wreckabulary
             return config;
         }
 
-        /// <summary>Rules for a mode, or the defaults for a mode rules.json doesn't list.</summary>
         public GameRules RulesFor(string mode) => Rules.Modes.Contains(mode) ? Rules.For(mode) : Rules.Defaults;
 
-        /// <summary>Every problem in the data, each file's own checks plus the ones that span files.</summary>
         public List<string> Validate()
         {
             var problems = new List<string>();

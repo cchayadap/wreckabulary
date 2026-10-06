@@ -20,7 +20,7 @@ namespace Wreckabulary.Rules.Tests
         {
             var r = TestData.RulesFor("Dibs");
             Assert.AreEqual(100f, r.MaxHealth);
-            Assert.AreEqual(18, r.MaxLetters);
+            Assert.AreEqual(10, r.MaxLetters);
             Assert.AreEqual(2, r.MaxCarried);
             Assert.AreEqual(2, r.MaxDeployed);
             Assert.AreEqual(0, r.LettersDroppedPerHit, "D1: ordinary hits don't knock letters loose");

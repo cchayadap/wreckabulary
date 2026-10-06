@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace Wreckabulary.Rules.Tests
 {
-    /// <summary>Joining, reconnecting and room codes (brief §9).</summary>
     [TestFixture]
     public class SessionTests
     {
@@ -87,8 +86,6 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(ip, gotIp);
         }
 
-        // Fixed examples, checked by hand against an independent implementation. If these change,
-        // players on different game versions can't read each other's codes.
         [TestCase("192.168.1.23", "04BH-WR83")]
         [TestCase("10.0.0.2", "00001-1WRBQ")]
         [TestCase("172.20.5.9", "840M4-HWRBK")]
@@ -120,7 +117,6 @@ namespace Wreckabulary.Rules.Tests
             int codes = 0, typos = 0, swaps = 0;
             for (int n = 0; n < 150; n++)
             {
-                // Home, office and other addresses, so all three code lengths are covered.
                 var b = new byte[4];
                 rng.NextBytes(b);
                 if (n % 3 == 0) { b[0] = 192; b[1] = 168; }

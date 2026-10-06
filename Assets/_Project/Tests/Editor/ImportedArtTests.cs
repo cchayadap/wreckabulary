@@ -8,12 +8,6 @@ using Wreckabulary.EditorTools;
 
 namespace Wreckabulary.EditorTests
 {
-    /// <summary>
-    /// Checks the Unity import of the Blender pipeline's output against the pipeline's own
-    /// report (<c>build_report.json</c>): same sizes, items on the floor with a grip, the
-    /// avatar's rig and clips, and every material bound to the library.
-    /// Run <see cref="ArtSetup.Run"/> first; these tests only read.
-    /// </summary>
     [TestFixture]
     public class ImportedArtTests
     {
@@ -38,15 +32,12 @@ namespace Wreckabulary.EditorTests
         [Test]
         public void ImportedBoundsMatchBlender()
         {
-            // The report's bounds are already in Unity axes, so this checks size, position and
-            // facing at once: a model turned the wrong way has its min and max swapped.
             var wrong = new List<string>();
             foreach (var file in report)
             {
                 var bounds = BoundsOf(file.Output);
                 var min = new Vector3(file.BoundsMin[0], file.BoundsMin[1], file.BoundsMin[2]);
                 var max = new Vector3(file.BoundsMax[0], file.BoundsMax[1], file.BoundsMax[2]);
-                // Skinned bounds are only approximate in edit mode.
                 float tolerance = file.Kind == "avatar" ? 0.05f : 0.005f + 0.005f * (max - min).magnitude;
                 if (!Near(bounds.min, min, tolerance) || !Near(bounds.max, max, tolerance))
                     wrong.Add($"{file.Name}: imported {bounds.min.ToString("F3")} to {bounds.max.ToString("F3")}, Blender {min.ToString("F3")} to {max.ToString("F3")}");
@@ -64,7 +55,6 @@ namespace Wreckabulary.EditorTests
             var copy = Object.Instantiate(model);
             try
             {
-                // Facing +Z, the avatar's right is +X and its glasses are in front of its head.
                 var glasses = copy.GetComponentsInChildren<Renderer>(true).Single(r => r.name == "SK_Glasses");
                 var head = Find(copy.transform, "head");
                 Assert.Greater(glasses.bounds.center.z, head.position.z + 0.05f, "glasses in front of the head");
@@ -198,8 +188,6 @@ namespace Wreckabulary.EditorTests
             }
         }
 
-        // World bounds of a model placed as imported. The root keeps its own rotation: for a
-        // single-mesh model that rotation is the axis conversion, and resetting it lays the model down.
         static Bounds BoundsOf(string path)
         {
             var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);

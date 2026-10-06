@@ -4,12 +4,6 @@ using UnityEngine;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>
-    /// Every imported model by key, the path under <c>Art/Imported</c> without the extension:
-    /// "Items/BALL", "Letters/Tile_A", "Environment/Door_Frame", "Avatar/Avatar". The
-    /// <c>model</c> field in items.json uses the same keys. Built by Wreckabulary → Art →
-    /// Set Up Imported Art.
-    /// </summary>
     [CreateAssetMenu(menuName = "Wreckabulary/Model Library", fileName = "ModelLibrary")]
     public sealed class ModelLibrary : ScriptableObject
     {
@@ -31,7 +25,6 @@ namespace Wreckabulary.Art
 
         static ModelLibrary loaded;
 
-        /// <summary>The library in <c>Resources/ModelLibrary.asset</c>, or null if it hasn't been built.</summary>
         public static ModelLibrary Load()
         {
             if (loaded == null) loaded = Resources.Load<ModelLibrary>(ResourcePath);
@@ -56,7 +49,6 @@ namespace Wreckabulary.Art
             return byKey.TryGetValue(key, out var found) ? found : null;
         }
 
-        /// <summary>Returns a canonical skeletal clip bundled with the imported model.</summary>
         public AnimationClip FindClip(string key, string name)
         {
             foreach (var entry in models)
@@ -74,11 +66,6 @@ namespace Wreckabulary.Art
             return null;
         }
 
-        /// <summary>
-        /// Places a copy of a model under <paramref name="parent"/>. Move and turn the parent, not
-        /// the copy: a single-mesh model keeps its import rotation on its own root, and resetting
-        /// that rotation lays it on its side.
-        /// </summary>
         public GameObject Spawn(string key, Transform parent)
         {
             var model = Find(key);

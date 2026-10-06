@@ -3,50 +3,40 @@ using System.Collections.Generic;
 
 namespace Wreckabulary.Rules
 {
-    /// <summary>
-    /// Every limit and timing a mode can change. Loaded from Data/Config/rules.json:
-    /// "defaults" holds the values every mode starts from, and "modes" holds each mode's
-    /// overrides. Cosmetics never appear here (brief §3).
-    /// </summary>
     public sealed class GameRules
     {
         public string Mode = "Default";
 
-        // Health
         public float MaxHealth = 100f;
         public float SpawnProtectionSeconds = 2f;
 
-        // Inventory (brief §5)
-        public int MaxLetters = 18;
+        public int MaxLetters = 10;
         public int MaxCarried = 2;
         public int MaxDeployed = 2;
         public string StarterLetters = "";
         public int LettersDroppedPerHit;
-        /// <summary>Original furniture breaks after base + perLetter × letters worth of break power (a punch is 1).</summary>
         public float FurnitureToughnessBase = 1f;
         public float FurnitureToughnessPerLetter = 0.6f;
 
-        // Crafting
         public float CraftBaseSeconds = 0.6f;
         public float CraftPerLetterSeconds = 0.12f;
         public float CraftMoveSpeed = 0.4f;
 
-        // Combat and movement
         public float HitStunMax = 0.35f;
         public float StaggerImmunitySeconds = 1f;
         public float DodgeSeconds = 0.35f;
         public float DodgeInvulnerableSeconds = 0.15f;
         public float DodgeDistance = 4f;
         public float DodgeCooldown = 1.5f;
-        /// <summary>How high a standing jump rises, in metres.</summary>
         public float JumpHeight = 1.1f;
+        public float GroundAccel = 36f;
+        public float GroundFriction = 28f;
         public MeleeStats Unarmed = new MeleeStats
         {
             Damage = 8f, Reach = 1.1f, ArcDegrees = 90f, Windup = 0.12f, Active = 0.08f,
             Recovery = 0.25f, Knockback = 3f, BreakPower = 1f, HitStun = 0.15f,
         };
 
-        // Teams, downed and revive
         public int TeamSize = 1;
         public bool FriendlyFire = true;
         public bool DownedEnabled;
@@ -55,15 +45,11 @@ namespace Wreckabulary.Rules
         public float ReviveHealth = 30f;
         public float ReviveRange = 1.8f;
 
-        // Match flow
         public int RoundsToWin = 3;
-        /// <summary>Seconds before a knocked-out player comes back, or a negative number for no respawn.</summary>
         public float RespawnSeconds = -1f;
         public float ReconnectGraceSeconds = 60f;
-        /// <summary>Round length in seconds; 0 means no limit (Hub and Tutorial).</summary>
         public float RoundTimeLimitSeconds = 150f;
 
-        // Clear-out (brief §6)
         public bool ClearOutEnabled;
         public float ClearOutFirstAt = 45f;
         public float ClearOutInterval = 25f;
@@ -113,11 +99,11 @@ namespace Wreckabulary.Rules
             Need(DodgeInvulnerableSeconds <= DodgeSeconds, "dodge invulnerability can't outlast the dodge");
             Need(DodgeSeconds > 0 && DodgeDistance >= 0, "a dodge needs a duration and a distance");
             Need(JumpHeight > 0, "jumpHeight must be positive");
+            Need(GroundAccel > 0 && GroundFriction > 0, "groundAccel and groundFriction must be positive");
             return problems;
         }
     }
 
-    /// <summary>The whole rules.json file: defaults plus one override block per mode.</summary>
     public sealed class RuleBook
     {
         readonly Dictionary<string, GameRules> modes = new Dictionary<string, GameRules>(StringComparer.Ordinal);
@@ -157,7 +143,8 @@ namespace Wreckabulary.Rules
         {
             "maxHealth", "spawnProtection", "maxLetters", "maxCarried", "maxDeployed", "starterLetters",
             "lettersDroppedPerHit", "furnitureToughness", "craftBase", "craftPerLetter", "craftMoveSpeed", "hitStunMax",
-            "staggerImmunity", "dodgeSeconds", "dodgeInvulnerable", "dodgeDistance", "dodgeCooldown", "jumpHeight", "unarmed",
+            "staggerImmunity", "dodgeSeconds", "dodgeInvulnerable", "dodgeDistance", "dodgeCooldown", "jumpHeight",
+            "groundAccel", "groundFriction", "unarmed",
             "teamSize", "friendlyFire", "downed", "bleedOut", "reviveSeconds", "reviveHealth", "reviveRange",
             "roundsToWin", "respawn", "reconnectGrace", "roundTimeLimit", "clearOut", "notes",
         };
@@ -192,6 +179,8 @@ namespace Wreckabulary.Rules
             r.DodgeDistance = n["dodgeDistance"].Float(r.DodgeDistance);
             r.DodgeCooldown = n["dodgeCooldown"].Float(r.DodgeCooldown);
             r.JumpHeight = n["jumpHeight"].Float(r.JumpHeight);
+            r.GroundAccel = n["groundAccel"].Float(r.GroundAccel);
+            r.GroundFriction = n["groundFriction"].Float(r.GroundFriction);
             if (n.Has("unarmed")) r.Unarmed = ItemCatalogue.ReadMelee(n["unarmed"]);
             r.TeamSize = n["teamSize"].Int(r.TeamSize);
             r.FriendlyFire = n["friendlyFire"].Bool(r.FriendlyFire);

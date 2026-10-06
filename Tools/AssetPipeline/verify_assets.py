@@ -1,13 +1,3 @@
-"""Re-import every FBX that build_assets.py wrote and check it against build_report.json.
-
-Run headless after build_assets.py (never alongside another heavy job):
-  blender -b --factory-startup --python-exit-code 1 --python Tools/AssetPipeline/verify_assets.py -- --repo <Unity project root>
-
-Checks per file: it re-imports, triangle count is unchanged, bounds match within 1 mm,
-no camera or light, item files keep their Grip_R marker, every material is in the
-library, and the avatar keeps all bones and clips. Writes verify_report.json next to
-build_report.json and exits non-zero on any failure.
-"""
 import argparse
 import json
 import os
@@ -37,7 +27,6 @@ def unity_bounds(meshes):
             w = mw @ v.co
             lo = Vector(map(min, lo, w))
             hi = Vector(map(max, hi, w))
-    # Same mapping as build_assets.to_unity_space: Blender (x, y, z) lands at Unity (x, z, y).
     return [lo.x, lo.z, lo.y], [hi.x, hi.z, hi.y]
 
 

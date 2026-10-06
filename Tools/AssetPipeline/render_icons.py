@@ -1,4 +1,3 @@
-"""Render transparent 3D inventory/HUD icons from actual supplied GLB meshes."""
 import bpy
 import json
 import os
@@ -43,8 +42,6 @@ for word,item in manifest['items'].items():
     obj.location=center+Vector((2.3,-3.6,2.3))
     obj.rotation_euler=(center-obj.location).to_track_quat('-Z','Y').to_euler()
     camera.type='ORTHO'
-    # Fit actual camera-projected vertices, rather than a world-axis bounding
-    # cube; low wide props such as STOOL otherwise clip their diagonal corners.
     inverse=obj.rotation_euler.to_quaternion().inverted()
     projected=[inverse@(point-center) for point in points]
     spans=[max(p[k] for p in projected)-min(p[k] for p in projected) for k in (0,1)]

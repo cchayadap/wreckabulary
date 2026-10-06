@@ -1,4 +1,3 @@
-"""Render a critique sheet of actual supplied FBX-derived web models, not concept art."""
 import bpy
 import json
 import os

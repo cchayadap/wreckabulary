@@ -1,12 +1,3 @@
-"""Audit supplied FBXs and export their actual authored art/materials for the web game.
-
-Run as the only Blender/Unity heavy job:
-  blender -b --factory-startup --python-exit-code 1 --python Tools/AssetPipeline/export_web.py -- --repo .
-
-This does not rewrite imported FBXs or their generated reports. It restores the
-PBR material library that FBX intentionally carries by name, preserves rig/clips,
-and writes Web/public/art/manifest.json plus an independent technical audit.
-"""
 import argparse
 import hashlib
 import json
@@ -39,6 +30,7 @@ manifest = {'version': 1, 'coordinates': 'metres, Y-up, forward +Z',
 only = {kind.strip() for kind in args.only.split(',') if kind.strip()}
 if only and os.path.exists(os.path.join(OUT, 'manifest.json')):
     manifest = json.load(open(os.path.join(OUT, 'manifest.json')))
+    manifest['wardrobe'] = wardrobe
     if os.path.exists(os.path.join(OUT, 'audit.json')):
         audit = [record for record in json.load(open(os.path.join(OUT, 'audit.json')))['files']
                  if record['kind'] not in only]
@@ -92,8 +84,6 @@ def restore_materials():
                 links.new(tex.outputs['Color'], normal.inputs['Color'])
                 links.new(normal.outputs['Normal'], shader.inputs['Normal'])
             else:
-                # Multiply authored base tint by texture, as glTF does. The avatar
-                # fabric deliberately has both a texture and an authored colour.
                 tint = s['baseColor'] if field == 'baseMap' else (*s['emissive'], 1)
                 multiply = nodes.new('ShaderNodeMixRGB')
                 multiply.blend_type = 'MULTIPLY'
@@ -111,12 +101,17 @@ def bounds(objects):
     return lo, hi
 
 
+def action_curves(action):
+    if hasattr(action, 'fcurves'):
+        return list(action.fcurves)
+    return [curve for layer in action.layers for strip in layer.strips
+            for bag in strip.channelbags for curve in bag.fcurves]
+
+
 def canonical_actions():
-    # FBX imports 17 real skeletal actions and 17 empty shape-key actions. Only
-    # actions targeting pose.bones belong in the playable animation library.
     kept = []
     for action in list(bpy.data.actions):
-        if not any('pose.bones[' in curve.data_path for curve in action.fcurves):
+        if not any('pose.bones[' in curve.data_path for curve in action_curves(action)):
             bpy.data.actions.remove(action)
             continue
         action.name = action.name.split('|')[-1]
@@ -186,8 +181,6 @@ for source in report['files']:
               'bounds_match_source': all(abs(a-b) <= .001 for a,b in zip(unity_lo+unity_hi, source['bounds_min']+source['bounds_max']))}
     if not record['count_matches_source'] or not record['bounds_match_source'] or unknown:
         raise RuntimeError('Supplied source/pipeline mismatch: ' + json.dumps(record))
-    # Unity's handedness maps Blender+y to Unity+z. glTF maps it to-z. Put a
-    # fixed half-turn above the original roots, preserving all animated locals.
     wrapper = bpy.data.objects.new('Wreckabulary_ExportRoot', None)
     bpy.context.scene.collection.objects.link(wrapper)
     wrapper.rotation_euler.z = math.pi
@@ -224,6 +217,8 @@ for source in report['files']:
         manifest['items'][name] = item
     elif kind == 'avatar':
         item['animations'] = animations
+        if source.get('locomotion'):
+            item['locomotion'] = source['locomotion']
         item['meshes'] = [m.name for m in meshes]
         item['bones'] = source['bones']
         default_meshes = {'SK_Head'} | {p['mesh'] for p in wardrobe['pieces'] if p['id'] in wardrobe['default']['pieces'].values()}

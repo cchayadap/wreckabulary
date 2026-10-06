@@ -15,197 +15,312 @@ MonoBehaviour:
   models:
   - key: Avatar/Avatar
     model: {fileID: -927199367670048503, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    clips:
+    - {fileID: -22107400023109244, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: -3882219306579191091, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: 1646258774305161786, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: 5960583286817798008, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: -5787784046841146166, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: -1394256953049554437, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: 5103601155004296244, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: 359580410832944110, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: 5596809412412461147, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: 2064197736980581388, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: 8870735522742109155, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: -8409456153683577159, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: -8396793347323412962, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: 2958766303827336797, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: -5203554165158201083, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: -5533678786036115806, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+    - {fileID: -324505273505198350, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
   - key: Environment/Arena_Rug
     model: {fileID: -927199367670048503, guid: e21602a08370a7ccc85972846ca11d1c, type: 3}
+    clips: []
   - key: Environment/Corner_Post
     model: {fileID: -927199367670048503, guid: 0778c8f7874e7a6232aace2b597216a3, type: 3}
+    clips: []
   - key: Environment/Curtain
     model: {fileID: -927199367670048503, guid: c05b5c2bd76bd15ba168686c0562b2be, type: 3}
+    clips: []
   - key: Environment/Doorstep
     model: {fileID: -927199367670048503, guid: fc5f676806ba73721d1b5fe49f96030c, type: 3}
+    clips: []
   - key: Environment/Floor_Carpet_2m
     model: {fileID: -927199367670048503, guid: 54afaccb5e98c0233ff01a1fb24320bd, type: 3}
+    clips: []
   - key: Environment/Kitchen_Counter
     model: {fileID: -927199367670048503, guid: 16e8379656136ea8b84f7a9b525f81ae, type: 3}
+    clips: []
   - key: Environment/Kitchen_Fridge
     model: {fileID: -927199367670048503, guid: 7fdef4fd87f890ac8aad452710d1e27c, type: 3}
+    clips: []
   - key: Environment/Kitchen_Sink
     model: {fileID: -927199367670048503, guid: 79a26e83bb26d94fdbafdbc5bf218e8c, type: 3}
+    clips: []
   - key: Environment/Kitchen_Stove
     model: {fileID: -927199367670048503, guid: ba9e9449bcb97cda2181b5dff27ea9b7, type: 3}
+    clips: []
   - key: Environment/Platform_2m
     model: {fileID: -927199367670048503, guid: 7178d05bd55d7daa81c8f794226f63cb, type: 3}
+    clips: []
   - key: Environment/Radiator
     model: {fileID: -927199367670048503, guid: eafe9ccd9f4ea038bda13aecb83894f7, type: 3}
+    clips: []
   - key: Environment/Railing_2m
     model: {fileID: -927199367670048503, guid: aaec4ed4c29a9334f76a960b5068be73, type: 3}
+    clips: []
   - key: Environment/Round_Rug
     model: {fileID: -927199367670048503, guid: 516e6f639564defeb7c432692513f3e4, type: 3}
+    clips: []
   - key: Environment/Stairs_1m
     model: {fileID: -927199367670048503, guid: 3f25969d76c665910d714f5150745e9e, type: 3}
+    clips: []
   - key: Environment/Wall_Door
     model: {fileID: -927199367670048503, guid: 2e2629d90306729535a9ef5880d712d3, type: 3}
+    clips: []
   - key: Environment/Wall_Sconce
     model: {fileID: -927199367670048503, guid: 7bf0a3927b4aaa8ba9e3dd578b8cb05f, type: 3}
+    clips: []
   - key: Environment/Wall_Shelf
     model: {fileID: -927199367670048503, guid: 7c17221ec0a8ae86fe44520604adee3e, type: 3}
+    clips: []
   - key: Environment/Wall_Sign
     model: {fileID: -927199367670048503, guid: 9f996df7343b06c4c4162f4e72c88ac4, type: 3}
+    clips: []
   - key: Environment/Wall_Solid
     model: {fileID: -927199367670048503, guid: 35fb130568ba74c55c71607594094aba, type: 3}
+    clips: []
   - key: Environment/Wall_Window
     model: {fileID: -927199367670048503, guid: 903947c4dd0a59baeb1688330571d0ff, type: 3}
+    clips: []
   - key: Environment/Window_Frame
     model: {fileID: -927199367670048503, guid: 4a8cff9239095a02e8794f569bceef8f, type: 3}
+    clips: []
   - key: Items/APPLE
     model: {fileID: -927199367670048503, guid: 18ad6296ef03a38064b274528e573c12, type: 3}
+    clips: []
   - key: Items/ARROW
     model: {fileID: -927199367670048503, guid: d4b2a5b78b2a228d0e9d0ae09561bd94, type: 3}
+    clips: []
   - key: Items/BALL
     model: {fileID: -927199367670048503, guid: d0ed0a7fd1e06ac8c3d6f70156699718, type: 3}
+    clips: []
   - key: Items/BARREL
     model: {fileID: -927199367670048503, guid: 486a82a829686be9185fbef26271e5c2, type: 3}
+    clips: []
   - key: Items/BAT
     model: {fileID: -927199367670048503, guid: 93e906069a474aadcaacf0f260c6d1c7, type: 3}
+    clips: []
   - key: Items/BED
     model: {fileID: -927199367670048503, guid: 753f825bf764bed102e6bea8f010b601, type: 3}
+    clips: []
   - key: Items/BLADE
     model: {fileID: -927199367670048503, guid: d26544e2b53969455e5e25d19eb17ff0, type: 3}
+    clips: []
   - key: Items/BOMB
     model: {fileID: -927199367670048503, guid: 1d6f506bdd28a2344f18b71ad641c50f, type: 3}
+    clips: []
   - key: Items/BOOK
     model: {fileID: -927199367670048503, guid: f0d49306abfe09aa31aa0b834c410423, type: 3}
+    clips: []
   - key: Items/BOW
     model: {fileID: -927199367670048503, guid: 2ea1317a7604ba5e8dcfebbf868bf803, type: 3}
+    clips: []
   - key: Items/BOX
     model: {fileID: -927199367670048503, guid: 339d9d76bdc084fc0d1dc460d863b8f9, type: 3}
+    clips: []
   - key: Items/BROOM
     model: {fileID: -927199367670048503, guid: 90ee329e1541172aeda77438bb4f3e02, type: 3}
+    clips: []
   - key: Items/CABINET
     model: {fileID: -927199367670048503, guid: 09491f11650b2ce2c311c40377ebd88d, type: 3}
+    clips: []
   - key: Items/CAKE
     model: {fileID: -927199367670048503, guid: a871746c74ea9e0eb302827e649fa51f, type: 3}
+    clips: []
   - key: Items/CHAIR
     model: {fileID: -927199367670048503, guid: ab062eda6a3c02eb5a464286c37ccd78, type: 3}
+    clips: []
   - key: Items/CHEST
     model: {fileID: -927199367670048503, guid: fb046fb8fbf0a397212fbb3caeaaf688, type: 3}
+    clips: []
   - key: Items/CLOCK
     model: {fileID: -927199367670048503, guid: f226f1e7443f920f89f90cbe91b13781, type: 3}
+    clips: []
   - key: Items/CRATE
     model: {fileID: -927199367670048503, guid: 70fb82325959c7020a96451b765d61c7, type: 3}
+    clips: []
   - key: Items/DESK
     model: {fileID: -927199367670048503, guid: b9ec14599fae487f0d0c205f258d50ff, type: 3}
+    clips: []
   - key: Items/FAN
     model: {fileID: -927199367670048503, guid: 60c1e153d12018dea6561bbffc72af69, type: 3}
+    clips: []
   - key: Items/FOAM
     model: {fileID: -927199367670048503, guid: 617603142d322fdcb271d92af4941f66, type: 3}
+    clips: []
   - key: Items/HAMMER
     model: {fileID: -927199367670048503, guid: d24c5aa8bf0667bedf255981b69d9aa1, type: 3}
+    clips: []
   - key: Items/LAMP
     model: {fileID: -927199367670048503, guid: aefc6801afee9ec5d6042c732c221e4c, type: 3}
+    clips: []
   - key: Items/MAT
     model: {fileID: -927199367670048503, guid: 42085f18dcc8eb1b5e7d62de7784a22d, type: 3}
+    clips: []
   - key: Items/MUG
     model: {fileID: -927199367670048503, guid: e2fa1f7704b5cb9dd02a0ef5f4357a7b, type: 3}
+    clips: []
   - key: Items/PAN
     model: {fileID: -927199367670048503, guid: ebeef2e8c3ed36fbf9bb92a313c0cc6c, type: 3}
+    clips: []
   - key: Items/PIE
     model: {fileID: -927199367670048503, guid: c8911149960169683b68a8cde7a186d1, type: 3}
+    clips: []
   - key: Items/PLANT
     model: {fileID: -927199367670048503, guid: 91028c49cccf66be59755f093532dafe, type: 3}
+    clips: []
   - key: Items/PLATE
     model: {fileID: -927199367670048503, guid: b8d5ef3dae392969cea4dd8c8bee9359, type: 3}
+    clips: []
   - key: Items/POT
     model: {fileID: -927199367670048503, guid: af67cfe4a0aabfc26cfbfe9cd7635898, type: 3}
+    clips: []
   - key: Items/SHELF
     model: {fileID: -927199367670048503, guid: 283f8147e6b915e471aed884bdb5c302, type: 3}
+    clips: []
   - key: Items/SHIELD
     model: {fileID: -927199367670048503, guid: d523a29eeeb976f62372e175677486c7, type: 3}
+    clips: []
   - key: Items/SOAP
     model: {fileID: -927199367670048503, guid: 774986b249fc427566bdae3ebe5a83b2, type: 3}
+    clips: []
   - key: Items/SODA
     model: {fileID: -927199367670048503, guid: ea078b675d807bf47e01ae10d9d37ce4, type: 3}
+    clips: []
   - key: Items/SOFA
     model: {fileID: -927199367670048503, guid: 8616cfc48b3a136e3c558530d39ffaf5, type: 3}
+    clips: []
   - key: Items/SPEAR
     model: {fileID: -927199367670048503, guid: 31340ad237be57e76e8319d7dafcab86, type: 3}
+    clips: []
   - key: Items/STOOL
     model: {fileID: -927199367670048503, guid: 66b6f386bc87e7ace5b75f03b1544ec8, type: 3}
+    clips: []
   - key: Items/TABLE
     model: {fileID: -927199367670048503, guid: c1fee7fae63308dfbcc7ef31e14f88fe, type: 3}
+    clips: []
   - key: Items/VASE
     model: {fileID: -927199367670048503, guid: 73698a92a9c241ffd63cda2492f8f33a, type: 3}
+    clips: []
   - key: Items/WATER
     model: {fileID: -927199367670048503, guid: 6493acbd8dd7469ea5a552423a46e10a, type: 3}
+    clips: []
   - key: Letters/Tile_A
     model: {fileID: -927199367670048503, guid: 471dea7d8a4a82c1ad696cc61177cd91, type: 3}
+    clips: []
   - key: Letters/Tile_B
     model: {fileID: -927199367670048503, guid: 4f7a2a8687108ac8a666c18d030a2095, type: 3}
+    clips: []
   - key: Letters/Tile_C
     model: {fileID: -927199367670048503, guid: 861e16068f6eff149b1568ba48e7c0d1, type: 3}
+    clips: []
   - key: Letters/Tile_D
     model: {fileID: -927199367670048503, guid: 682b3172d37b4a1f7184bb134ae07d50, type: 3}
+    clips: []
   - key: Letters/Tile_E
     model: {fileID: -927199367670048503, guid: fbbd182ba31311ed098af6c53453257a, type: 3}
+    clips: []
   - key: Letters/Tile_F
     model: {fileID: -927199367670048503, guid: 893cebf4b43057fed0d1bc106f90b279, type: 3}
+    clips: []
   - key: Letters/Tile_G
     model: {fileID: -927199367670048503, guid: 0696deb30a39ac5941be8322c6ab0da6, type: 3}
+    clips: []
   - key: Letters/Tile_H
     model: {fileID: -927199367670048503, guid: 734e7eccdd87f660b08adeb5140d0931, type: 3}
+    clips: []
   - key: Letters/Tile_I
     model: {fileID: -927199367670048503, guid: 08b642c2d4ba5f18fe2c24b1e26e9435, type: 3}
+    clips: []
   - key: Letters/Tile_J
     model: {fileID: -927199367670048503, guid: f28004cafd1b3c75df481b8db705a2db, type: 3}
+    clips: []
   - key: Letters/Tile_K
     model: {fileID: -927199367670048503, guid: 1d631ed68ab2fab2fe3dc704bbca26f4, type: 3}
+    clips: []
   - key: Letters/Tile_L
     model: {fileID: -927199367670048503, guid: dfd047a32f3c746b3f6cbdfd5a207f17, type: 3}
+    clips: []
   - key: Letters/Tile_M
     model: {fileID: -927199367670048503, guid: 1ca6406fd621d715dfd910fd3df67769, type: 3}
+    clips: []
   - key: Letters/Tile_N
     model: {fileID: -927199367670048503, guid: b410b377d403ab4aaefb011a0d3242f1, type: 3}
+    clips: []
   - key: Letters/Tile_O
     model: {fileID: -927199367670048503, guid: 9f57c008d70a0ea57d0ae0593c3b7dc9, type: 3}
+    clips: []
   - key: Letters/Tile_P
     model: {fileID: -927199367670048503, guid: d0341197ab1530c3959ba4dcfe43af78, type: 3}
+    clips: []
   - key: Letters/Tile_Q
     model: {fileID: -927199367670048503, guid: 06c4b5c5e6937293c7440b6fe178a1d1, type: 3}
+    clips: []
   - key: Letters/Tile_R
     model: {fileID: -927199367670048503, guid: 592fde01892170e3f19c14efb9f164cf, type: 3}
+    clips: []
   - key: Letters/Tile_S
     model: {fileID: -927199367670048503, guid: ff49e84abd216a347df935a71bd1c943, type: 3}
+    clips: []
   - key: Letters/Tile_T
     model: {fileID: -927199367670048503, guid: 483fd36f36c6b620f27659dd783da8f8, type: 3}
+    clips: []
   - key: Letters/Tile_U
     model: {fileID: -927199367670048503, guid: a1bf186c2a3dee3f4a7ba1dbb042aad1, type: 3}
+    clips: []
   - key: Letters/Tile_V
     model: {fileID: -927199367670048503, guid: acecf92e6c2334a5842135092c8a0520, type: 3}
+    clips: []
   - key: Letters/Tile_W
     model: {fileID: -927199367670048503, guid: c85c4f3f694ffd2f17b091e4efcb1dad, type: 3}
+    clips: []
   - key: Letters/Tile_X
     model: {fileID: -927199367670048503, guid: ba5abdc5d386833facf6cf60f13ff4b4, type: 3}
+    clips: []
   - key: Letters/Tile_Y
     model: {fileID: -927199367670048503, guid: 9f444011158f1c20ddf7ebdf35963f2f, type: 3}
+    clips: []
   - key: Letters/Tile_Z
     model: {fileID: -927199367670048503, guid: d3c0d1e85de339806e444518b3da2763, type: 3}
+    clips: []
   - key: VFX/Bomb_Warning
     model: {fileID: -927199367670048503, guid: d340660292718febebcc8a1f0a2b1f0f, type: 3}
+    clips: []
   - key: VFX/Craft_Ring
     model: {fileID: -927199367670048503, guid: bbee16cfd34ed23334166d584f86e90f, type: 3}
+    clips: []
   - key: VFX/Foam_Cloud
     model: {fileID: -927199367670048503, guid: 0a028d193068b7929179076c99222b72, type: 3}
+    clips: []
   - key: VFX/Impact_Star
     model: {fileID: -927199367670048503, guid: 778b5aa22bd03060ffc72d2a404f1212, type: 3}
+    clips: []
   - key: VFX/Jump_Arrow
     model: {fileID: -927199367670048503, guid: 3923a5cb0e0c1cb176fcf440e9ecdd0a, type: 3}
+    clips: []
   - key: VFX/Pickup_Ring
     model: {fileID: -927199367670048503, guid: 633eb1d1b3c3ec6dbd23ceebdde5d4e4, type: 3}
+    clips: []
   - key: VFX/Room_Hazard
     model: {fileID: -927199367670048503, guid: 09cf4ec6576fcefe3c49808c2102e454, type: 3}
+    clips: []
   - key: VFX/Soap_Puddle
     model: {fileID: -927199367670048503, guid: 4e10e75f1b9ad497615123df13d1d9d7, type: 3}
+    clips: []
   - key: VFX/Speed_Trail
     model: {fileID: -927199367670048503, guid: b48e358b727d499470dc763665a35af4, type: 3}
+    clips: []
   - key: VFX/Wood_Splinter
     model: {fileID: -927199367670048503, guid: f54488615f737789f075fea55a089094, type: 3}
+    clips: []

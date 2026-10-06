@@ -4,11 +4,6 @@ using System.Text;
 
 namespace Wreckabulary.Rules
 {
-    /// <summary>
-    /// A multiset of the letters A-Z. Repeated letters count separately, so BALL needs two Ls.
-    /// This is the only type that stores letter counts: bags, reservations, recipes and
-    /// the tiles in a room all use it.
-    /// </summary>
     public sealed class LetterBag : IEquatable<LetterBag>
     {
         public const int Alphabet = 26;
@@ -21,7 +16,6 @@ namespace Wreckabulary.Rules
             Array.Copy(other.counts, counts, Alphabet);
         }
 
-        /// <summary>A bag holding the letters of a word, for example "BALL" gives A1 B1 L2.</summary>
         public static LetterBag FromWord(string word)
         {
             var bag = new LetterBag();
@@ -74,7 +68,6 @@ namespace Wreckabulary.Rules
             for (int i = 0; i < Alphabet; i++) counts[i] += other.counts[i];
         }
 
-        /// <summary>True if every letter of <paramref name="needed"/> is here, repeats included.</summary>
         public bool Contains(LetterBag needed)
         {
             for (int i = 0; i < Alphabet; i++)
@@ -82,7 +75,6 @@ namespace Wreckabulary.Rules
             return true;
         }
 
-        /// <summary>Removes one letter. Returns false and changes nothing if it is not here.</summary>
         public bool TryRemove(char letter)
         {
             int i = Index(letter);
@@ -91,7 +83,6 @@ namespace Wreckabulary.Rules
             return true;
         }
 
-        /// <summary>Removes all of <paramref name="needed"/> or nothing.</summary>
         public bool TryRemove(LetterBag needed)
         {
             if (!Contains(needed)) return false;
@@ -99,7 +90,6 @@ namespace Wreckabulary.Rules
             return true;
         }
 
-        /// <summary>The letters of <paramref name="needed"/> that this bag lacks, repeats included.</summary>
         public LetterBag Missing(LetterBag needed)
         {
             var missing = new LetterBag();
@@ -108,7 +98,6 @@ namespace Wreckabulary.Rules
             return missing;
         }
 
-        /// <summary>Empties the bag and returns what it held.</summary>
         public LetterBag TakeAll()
         {
             var all = new LetterBag(this);
@@ -116,7 +105,6 @@ namespace Wreckabulary.Rules
             return all;
         }
 
-        /// <summary>Every letter once per copy, in alphabetical order: "ABLL".</summary>
         public IEnumerable<char> Letters()
         {
             for (int i = 0; i < Alphabet; i++)

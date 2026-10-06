@@ -1,4 +1,3 @@
-// Browser simulation uses the canonical Unity catalogue and rule values. Rendering never mutates rules.
 export const MODES = {
   Dibs: {
     title: "Dibs!",
@@ -88,7 +87,12 @@ export class Game {
     this.data = data;
     this.catalogue = new Map(data.items.items.map((i) => [i.id, i]));
     this.mode = options.mode ?? "Dibs";
-    this.map = MAPS.find((m) => m.id === options.map) ?? MAPS[0];
+    this.peaceful = this.mode === "Tour";
+    this.layout = this.peaceful
+      ? structuredClone(options.layout ?? { props: [] })
+      : null;
+    this.map =
+      MAPS.find((m) => m.id === (this.layout?.map ?? options.map)) ?? MAPS[0];
     this.rules = rulesFor(data, this.mode);
     this.wardrobe = options.wardrobe ?? structuredClone(data.wardrobe.default);
     this.skin = options.skin ?? "Classic";
@@ -106,7 +110,14 @@ export class Game {
     return this.seed / 4294967296;
   }
   emit(type, entity = {}, extra = {}) {
-    this.events.push({ type, x: entity.x ?? 0, z: entity.z ?? 0, ...extra });
+    const player = this.players?.includes(entity) ? { player: entity.id } : {};
+    this.events.push({
+      type,
+      x: entity.x ?? 0,
+      z: entity.z ?? 0,
+      ...player,
+      ...extra,
+    });
   }
   setup() {
     const s = this.map.scale;
@@ -133,7 +144,7 @@ export class Game {
     this.tutorial = 0;
     this.stats = { broken: 0, crafted: 0, damage: 0, collected: 0 };
     this.roundStart = this.time;
-    if (this.mode !== "MovingDay")
+    if (!this.peaceful && this.mode !== "MovingDay")
       this.house.furniture.forEach((f) => {
         const item = this.addItem(
           f.word,
@@ -144,7 +155,16 @@ export class Game {
         );
         item.y = f.y ?? 0;
       });
-    const count = this.mode === "Tutorial" ? 2 : 4;
+    if (this.peaceful)
+      for (const prop of this.layout.props) {
+        const item = this.addItem(prop.word, prop.x, prop.z, "decor", prop.yaw);
+        item.designId = prop.id;
+        item.skin = prop.skin;
+        item.y = this.floorAt(prop.x, prop.z);
+        item.invulnerable = true;
+        item.spent = true;
+      }
+    const count = this.peaceful ? 1 : this.mode === "Tutorial" ? 2 : 4;
     this.players = Array.from({ length: count }, (_, id) => {
       const spawn = this.house.spawns[id];
       return {
@@ -167,7 +187,7 @@ export class Game {
         hp: this.rules.maxHealth,
         maxHp: this.rules.maxHealth,
         state: "alive",
-        bag: this.rules.starterLetters,
+        bag: this.peaceful ? "" : this.rules.starterLetters,
         carried: null,
         action: null,
         slots: Array(this.rules.maxCarried).fill(null),
@@ -192,7 +212,9 @@ export class Game {
                 ...this.wardrobe,
                 colours: {
                   ...this.wardrobe.colours,
-                  Top: ["pool", "tomato", "sunflower", "grape"][id],
+                  Top: ["pool", "sunflower", "grape", "mint", "tomato"].filter(
+                    (c) => c !== this.wardrobe.colours?.Top,
+                  )[id - 1],
                 },
               },
         ai: id !== 0,
@@ -355,6 +377,7 @@ export class Game {
   }
   canAct(p) {
     return (
+      !this.peaceful &&
       this.status === "playing" &&
       p.state === "alive" &&
       this.time >= p.stunUntil &&
@@ -373,6 +396,14 @@ export class Game {
         p.z <= r.bounds[3],
     );
   }
+  placesObjective(p, item) {
+    if (this.mode !== "MovingDay" || !item || item.origin !== "crafted") return false;
+    const spot = { x: p.x + p.facing.x * 1.6, z: p.z + p.facing.z * 1.6 },
+      room = this.roomAt(spot)?.name;
+    return this.objectives.some(
+      (o) => !o.done && o.word === item.word && o.room === room,
+    );
+  }
   mintTiles(word, x, z, mint = true) {
     if (mint) this.minted += word.length;
     for (const char of word) {
@@ -389,6 +420,7 @@ export class Game {
   }
   collect(p, tile) {
     if (
+      this.peaceful ||
       p.state !== "alive" ||
       p.bag.length + (p.craft?.word.length ?? 0) >= this.rules.maxLetters
     )
@@ -459,6 +491,7 @@ export class Game {
     return true;
   }
   drop(p) {
+    if (this.peaceful) return false;
     const item = this.held(p);
     if (!item) return false;
     p.action = null;
@@ -491,6 +524,7 @@ export class Game {
     return true;
   }
   tossLetter(p, char) {
+    if (this.peaceful) return false;
     const i = p.bag.indexOf(char);
     if (i < 0) return false;
     p.bag = p.bag.slice(0, i) + p.bag.slice(i + 1);
@@ -550,6 +584,7 @@ export class Game {
     return true;
   }
   hit(p, hit) {
+    if (this.peaceful) return false;
     if (p.state !== "alive" || this.time < p.invulnerableUntil)
       return { ignored: true };
     if (
@@ -642,20 +677,16 @@ export class Game {
       return false;
     const item = this.held(p),
       def = item?.origin === "map" ? null : item?.definition;
-    if (item?.origin === "map") {
-      this.throw(p);
+    if (item?.origin === "map" || def?.use || def?.thrown) {
+      p.pressSpent = true;
+      if (def?.use) this.use(p);
+      else this.throw(p);
       return true;
     }
-    if (def?.use) {
-      this.use(p);
-      return true;
-    }
-    if (def?.thrown) {
-      this.throw(p);
-      return true;
-    }
-    if (def?.deploy && !def?.melee) {
-      this.deploy(p);
+    if (def?.deploy || this.placesObjective(p, item)) {
+      p.pressSpent = true;
+      const error = this.deploy(p);
+      if (error) this.emit("refused", p, { message: error });
       return true;
     }
     const stats = def?.melee ?? this.rules.unarmed;
@@ -1013,6 +1044,7 @@ export class Game {
     return false;
   }
   floorAt(x, z) {
+    if (this.peaceful) return 0;
     if (this.map.id !== "pinwheel" || x < 2.5 || x > 4) return 0;
     if (z >= 1 && z <= 4) return 1.7;
     if (z >= -1 && z < 1) return (z + 1) * 0.85;
@@ -1044,16 +1076,21 @@ export class Game {
     for (const i of this.items) {
       if (
         !["world", "deployed"].includes(i.state) ||
-        i.definition?.deploy?.effect === "JumpPad" ||
-        i.definition?.deploy?.effect === "SpeedStrip" ||
-        i.definition?.category === "Consumables"
+        (!this.peaceful &&
+          (i.definition?.deploy?.effect === "JumpPad" ||
+            i.definition?.deploy?.effect === "SpeedStrip" ||
+            i.definition?.category === "Consumables"))
       )
         continue;
       const size = i.delivery
           ? [0.65, 0.55, 0.55]
           : (i.definition?.size ?? [0.5, 0.5, 0.5]),
-        rx = Math.min(size[0] / 2, 0.9),
-        rz = Math.min(size[2] / 2, 0.9),
+        rx = this.peaceful
+          ? Math.max(0.4, size[0]) / 2
+          : Math.min(size[0] / 2, 0.9),
+        rz = this.peaceful
+          ? Math.max(0.4, size[2]) / 2
+          : Math.min(size[2] / 2, 0.9),
         c = Math.cos(i.rotation),
         s = Math.sin(i.rotation),
         localX = (x - i.x) * c - (z - i.z) * s,
@@ -1459,16 +1496,39 @@ export class Game {
     dt = Math.min(dt, 0.05);
     this.time += dt;
     if (this.status === "preview") return;
+    if (this.peaceful) {
+      const player = this.players[0],
+        x = input.x ?? 0,
+        z = input.z ?? 0;
+      player.motion = { x, z };
+      if (x || z) {
+        player.facing = normalize(x, z);
+        player.yaw = Math.atan2(player.facing.x, player.facing.z);
+      }
+      const direction = normalize(x, z),
+        amount = Math.min(1, Math.hypot(x, z));
+      this.move(
+        player,
+        direction.x * 4.5 * dt * amount,
+        direction.z * 4.5 * dt * amount,
+      );
+      player.y = this.floorAt(player.x, player.z);
+      return;
+    }
     const p = this.players[0];
     p.motion = { x: input.x ?? 0, z: input.z ?? 0 };
+    if (!input.attack) p.pressSpent = false;
     if (p.state === "alive") {
-      if (input.aim) this.aim(p, input.aim.x, input.aim.z);
+      if (Number.isFinite(input.yaw)) {
+        p.yaw = input.yaw;
+        p.facing = { x: Math.sin(input.yaw), z: Math.cos(input.yaw) };
+      } else if (input.aim) this.aim(p, input.aim.x, input.aim.z);
       else if (input.x || input.z) {
         p.facing = normalize(input.x, input.z);
         p.yaw = Math.atan2(p.facing.x, p.facing.z);
       }
       p.block = !!input.block && !!this.held(p)?.definition?.shield;
-      if (input.attack) this.attack(p);
+      if (input.attack && !p.pressSpent) this.attack(p);
       if (input.dodge) this.dodge(p);
       if (input.jump) this.jump(p);
       if (input.interact) this.interact(p, dt);
@@ -1490,8 +1550,25 @@ export class Game {
             this.rules.dodgeSeconds) *
             dt,
         );
-      else
-        this.move(p, dir.x * speed * dt * length, dir.z * speed * dt * length);
+      else {
+        const v = (p.velocity ??= { x: 0, z: 0 }),
+          wish = { x: dir.x * speed * length, z: dir.z * speed * length },
+          rate = (length > 0.01 ? this.rules.groundAccel : this.rules.groundFriction) ?? 1e9,
+          dx = wish.x - v.x,
+          dz = wish.z - v.z,
+          gap = Math.hypot(dx, dz),
+          step = Math.min(gap, rate * dt);
+        if (gap > 1e-6) {
+          v.x += (dx / gap) * step;
+          v.z += (dz / gap) * step;
+        }
+        const before = { x: p.x, z: p.z };
+        this.move(p, v.x * dt, v.z * dt);
+        if (dt > 0) {
+          if (Math.abs(p.x - before.x) < Math.abs(v.x * dt) * 0.5) v.x = 0;
+          if (Math.abs(p.z - before.z) < Math.abs(v.z * dt) * 0.5) v.z = 0;
+        }
+      }
     }
     for (const q of this.players) {
       if (q.ai) this.ai(q, dt);

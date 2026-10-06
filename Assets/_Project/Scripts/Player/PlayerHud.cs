@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Name, health, letters carried and the word wheel, floating above the player's head.</summary>
     public class PlayerHud : MonoBehaviour
     {
         [SerializeField] PlayerController player;
@@ -21,16 +20,18 @@ namespace Wreckabulary
             transform.position = player.Body.position + Vector3.up * height;
             Popup.Billboard(transform);
 
-            SetIfChanged(lettersText, LettersLine(), ref lastLetters);
-            SetIfChanged(wheelText, player.Summoner.IsSpelling ? WheelLines() : ContextLine(), ref lastWheel);
+            var rig = CameraRig.Instance;
+            bool own = rig && rig.isActiveAndEnabled && rig.Target == player;
+            SetIfChanged(lettersText, own ? "" : LettersLine(), ref lastLetters);
+            bool composer = GameHud.Active && GameHud.Active.LocalPlayer == player;
+            SetIfChanged(wheelText, player.Summoner.IsSpelling && !composer ? WheelLines() : ContextLine(), ref lastWheel);
         }
 
-        /// <summary>What grab does right now, when that isn't obvious: reviving a teammate on the floor.</summary>
         string ContextLine()
         {
             var combat = player.Combat;
             if (combat.IsReviving) return "<color=#7BE07B>REVIVING...</color>";
-            if (player.CanAct && !combat.IsHolding && combat.DownedTeammateNearby())
+            if (player.CanAct && !(combat.IsHolding && !combat.Weapon) && combat.DownedTeammateNearby())
                 return "<color=#FFD24A>Hold grab to revive</color>";
             return "";
         }
@@ -72,10 +73,6 @@ namespace Wreckabulary
             return sb.ToString();
         }
 
-        /// <summary>
-        /// A bar of ten pips, green to red, and the number. Downed players show their bleed-out time,
-        /// and a filling bar while a teammate revives them.
-        /// </summary>
         void AppendHealth(PlayerHealth health)
         {
             const int pips = 10;

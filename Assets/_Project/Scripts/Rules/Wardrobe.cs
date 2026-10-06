@@ -4,20 +4,14 @@ using System.Linq;
 
 namespace Wreckabulary.Rules
 {
-    /// <summary>One wearable piece of the shared avatar, for example the Hoodie or the Cap.</summary>
     public sealed class WardrobePiece
     {
         public string Id;
         public string Slot;
-        /// <summary>The skinned mesh in Avatar.fbx that this piece switches on.</summary>
         public string Mesh;
-        /// <summary>The material the chosen colourway tints, or null for a fixed colour.</summary>
         public string TintMaterial;
-        /// <summary>The slot whose colour this piece uses instead of its own, so the Hood always matches the Hoodie.</summary>
         public string ColourFrom;
-        /// <summary>Other pieces that must be worn with it (the Hood only fits the Hoodie).</summary>
         public List<string> Requires = new List<string>();
-        /// <summary>Pieces it can't be worn with.</summary>
         public List<string> Excludes = new List<string>();
     }
 
@@ -28,11 +22,6 @@ namespace Wreckabulary.Rules
         public float R, G, B;
     }
 
-    /// <summary>
-    /// A player's look: one piece (or none) per slot, a colourway per slot, and a skin per item.
-    /// It holds only names, never numbers the rules read, so it can't change health, speed,
-    /// inventory, damage or recipes (brief §3).
-    /// </summary>
     public sealed class Outfit
     {
         public readonly Dictionary<string, string> Pieces = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -52,7 +41,6 @@ namespace Wreckabulary.Rules
             return o;
         }
 
-        /// <summary>A compact string for saving and for sending over the network: "Top=Hoodie:Tomato;Headwear=Hood;|BAT=Candy".</summary>
         public string Serialize()
         {
             var slots = Pieces.Keys.Union(Colours.Keys).OrderBy(k => k, StringComparer.Ordinal)
@@ -85,7 +73,6 @@ namespace Wreckabulary.Rules
         }
     }
 
-    /// <summary>Everything the wardrobe screen offers, from Data/Config/wardrobe.json.</summary>
     public sealed class WardrobeCatalogue
     {
         public readonly List<string> Slots = new List<string>();
@@ -101,10 +88,6 @@ namespace Wreckabulary.Rules
         public Colourway Colour(string slot, string id) =>
             Palettes.TryGetValue(slot, out var list) ? list.FirstOrDefault(c => c.Id == id) : null;
 
-        /// <summary>
-        /// Why an outfit can't be worn, or an empty list if it can. The wardrobe screen only
-        /// offers choices that keep this empty ("only expose combinations that fit correctly").
-        /// </summary>
         public List<string> Problems(Outfit outfit)
         {
             var problems = new List<string>();
@@ -134,11 +117,6 @@ namespace Wreckabulary.Rules
 
         public bool Fits(Outfit outfit) => Problems(outfit).Count == 0;
 
-        /// <summary>
-        /// Puts on a piece (or takes a slot off with null) and takes off anything that no longer
-        /// fits because of it: swapping the Hoodie for the Crewneck also removes the Hood.
-        /// Returns null if the result still can't be worn.
-        /// </summary>
         public Outfit Wear(Outfit current, string slot, string pieceId)
         {
             var next = current.Clone();
@@ -165,7 +143,6 @@ namespace Wreckabulary.Rules
             return Fits(next) ? next : null;
         }
 
-        /// <summary>The pieces a slot can offer right now: null means "none" for an optional slot.</summary>
         public List<string> Choices(Outfit current, string slot)
         {
             var choices = new List<string>();
@@ -175,7 +152,6 @@ namespace Wreckabulary.Rules
             return choices;
         }
 
-        /// <summary>The colourway a worn piece shows: its own slot's, or the slot it borrows from.</summary>
         public Colourway ColourFor(Outfit outfit, string slot)
         {
             var piece = Piece(outfit.PieceIn(slot) ?? "");
@@ -184,7 +160,6 @@ namespace Wreckabulary.Rules
             return id == null ? null : Colour(from, id);
         }
 
-        /// <summary>Repairs a saved or received outfit: anything invalid falls back to the default.</summary>
         public Outfit Sanitize(Outfit outfit)
         {
             if (outfit != null && Fits(outfit)) return outfit;

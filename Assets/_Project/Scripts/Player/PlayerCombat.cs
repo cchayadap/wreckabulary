@@ -5,12 +5,9 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Punching, grabbing, carrying and throwing, using summoned weapons, blocking with a PLATE and reviving teammates.</summary>
     [RequireComponent(typeof(PlayerController))]
     public class PlayerCombat : MonoBehaviour
     {
-        // The punch's numbers are the mode's "unarmed" block in rules.json.
-
         [Header("Grab and throw")]
         [SerializeField] float grabReach = 0.8f;
         [SerializeField] float grabRadius = 0.9f;
@@ -30,14 +27,12 @@ namespace Wreckabulary
         bool deploying, punching;
         Transform heldHomeParent;
         float heldSince;
-        /// <summary>When block went down with a shield in hand; the shield is up once its raise time has passed.</summary>
         float raiseStartedAt = -1f;
         PlayerController reviving;
         static readonly Collider[] Overlaps = new Collider[48];
         static readonly RaycastHit[] Obstructions = new RaycastHit[32];
         readonly HashSet<Rigidbody> struck = new();
 
-        /// <summary>Hits closer than this skip the arc check: they're inside the attacker.</summary>
         const float PointBlank = 0.25f;
 
         /// <summary>Something (or someone) was thrown.</summary>
@@ -51,10 +46,8 @@ namespace Wreckabulary
         public bool IsChanneling => deploying || punching || (Weapon && Weapon.IsUsing);
         public bool HasFreeGearSlot => (Weapon ? 1 : 0) + (storedGear ? 1 : 0)
             + (controller.Summoner && controller.Summoner.IsCrafting ? 1 : 0) < controller.Health.Rules.MaxCarried;
-        /// <summary>A PLATE is up: hits from the front are blocked.</summary>
         public bool IsBlocking => controller.Health.RaisedShield != null;
         public bool IsReviving => reviving;
-        /// <summary>The downed teammate being revived, or null.</summary>
         public PlayerController Reviving => reviving;
 
         void Awake() => controller = GetComponent<PlayerController>();
@@ -67,7 +60,6 @@ namespace Wreckabulary
             {
                 if (r.Blocked) WearShield(r.BlockedDamage);
                 if (r.HitStun > 0f) CancelChannels();
-                // A staggering hit knocks a carried thing out of the hands; weapons are gripped tighter.
                 if (r.HitStun > 0f && held && !weapon) Drop();
             };
             health.KnockedOut += _ =>
@@ -97,18 +89,16 @@ namespace Wreckabulary
             var c = controller.Commands;
             bool free = controller.CanAct && !controller.IsDodging && !deploying && !(controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.IsCrafting));
             UpdateRevive(free && c.grabHeld);
-            UpdateBlock(free && c.blockHeld && !reviving);
+            bool shieldInHand = Weapon && Weapon.Shield != null;
+            UpdateBlock(free && (c.blockHeld || (c.attackHeld && shieldInHand)) && !reviving);
             if (!free || reviving) return;
 
             if (c.drop) Drop();
             if (c.swap) SwitchGear();
-            if (c.deploy) DeployHeld();
-            if (c.grab) GrabOrThrow();
-            // No swinging from behind a raised (or rising) shield.
+            if (c.slot > 0) SelectSlot(c.slot - 1);
+            if (c.grab) GrabOrRevive();
             if (c.attack && raiseStartedAt < 0f) Attack();
         }
-
-        // ---- Blocking ----
 
         void UpdateBlock(bool wanted)
         {
@@ -126,15 +116,11 @@ namespace Wreckabulary
             controller.Health.RaisedShield = up ? shield : null;
         }
 
-        /// <summary>Blocked damage wears the PLATE down. Worn through, it falls apart and the block drops with it (see <see cref="ClearHeld"/>).</summary>
         void WearShield(float blocked)
         {
             if (Weapon && Weapon.Shield != null) Weapon.Wear(blocked, this);
         }
 
-        // ---- Reviving ----
-
-        /// <summary>The nearest downed teammate within the rules' revive range, or null.</summary>
         public PlayerController DownedTeammateNearby()
         {
             float range = controller.Health.Rules.ReviveRange;
@@ -151,7 +137,6 @@ namespace Wreckabulary
             return best;
         }
 
-        /// <summary>Starts reviving the nearest downed teammate. Grab has to stay held until it finishes.</summary>
         public bool TryRevive()
         {
             if (!controller.CanAct || controller.IsDodging || IsChanneling || (controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.IsCrafting))) return false;
@@ -169,7 +154,6 @@ namespace Wreckabulary
                 reviving = null;
                 return;
             }
-            // A little slack, so the teammate's crawl doesn't break it off at the edge of reach.
             float range = controller.Health.Rules.ReviveRange + 0.3f;
             var to = World.Flat(reviving.transform.position - transform.position);
             if (!keepGoing || !reviving.IsDowned || reviving.IsHeld || to.sqrMagnitude > range * range
@@ -197,11 +181,11 @@ namespace Wreckabulary
             if (Weapon && Weapon.Shield == null)
             {
                 nextAttack = Time.time + Weapon.Cooldown;
-                controller.PlayPunch();
+                var job = Weapon.Definition;
+                if (job == null || (job.Use == null && job.Thrown == null && job.Deploy == null)) controller.PlayPunch();
                 Weapon.Use(this);
                 return;
             }
-            // Carried things are thrown; with a PLATE in one hand, the other still punches.
             if (held && !Weapon) { Throw(); return; }
 
             var fist = controller.Health.Rules.Unarmed;
@@ -228,10 +212,6 @@ namespace Wreckabulary
             punching = false;
         }
 
-        /// <summary>
-        /// Hits everything within reach of the chest and inside the swing's arc: players take the
-        /// stats' damage, furniture takes its break power. Returns how many players were hit.
-        /// </summary>
         public int Strike(MeleeStats stats, string itemId, bool beginSwing = true)
         {
             var chest = transform.position + Vector3.up * 0.8f;
@@ -239,7 +219,6 @@ namespace Wreckabulary
             int mask = World.TileLayer >= 0 ? ~(1 << World.TileLayer) : ~0;
             int n = Physics.OverlapSphereNonAlloc(chest, stats.Reach, Overlaps, mask, QueryTriggerInteraction.Ignore);
             var hits = Overlaps;
-            // Preserve hit correctness in dense prop clusters; ordinary swings reuse the fixed buffer.
             if (n == hits.Length) { hits = Physics.OverlapSphere(chest, stats.Reach, mask, QueryTriggerInteraction.Ignore); n = hits.Length; }
             if (beginSwing) struck.Clear();
             int playersHit = 0;
@@ -250,7 +229,6 @@ namespace Wreckabulary
                 var rb = col.attachedRigidbody;
                 if (!rb || rb == controller.Body || rb == held || struck.Contains(rb)) continue;
 
-                // Aim at the nearest part of the thing, so a sofa counts when its arm is in front.
                 var to = World.Flat(ClosestPoint(col, chest) - chest);
                 if (to.sqrMagnitude > PointBlank * PointBlank && !Geometry.InFrontArc(facing.x, facing.z, to.x, to.z, stats.ArcDegrees))
                     continue;
@@ -273,16 +251,12 @@ namespace Wreckabulary
 
         static Vector3 ClosestPoint(Collider col, Vector3 point)
         {
-            // ClosestPoint only works on primitives and convex meshes.
             if (col is MeshCollider { convex: false }) return col.bounds.ClosestPoint(point);
             return col.ClosestPoint(point);
         }
 
-        /// <summary>Room geometry and placed cover interrupt a reach; loose objects and visual colliders don't.</summary>
         bool HasClearInteractionPath(Rigidbody target, Vector3 destination)
         {
-            // The grab query is ahead of the player and can already be beyond a thin wall.
-            // Every visibility ray therefore starts at the player's chest, never at that query centre.
             var origin = transform.position + Vector3.up * .8f;
             var delta = destination - origin;
             float distance = delta.magnitude;
@@ -313,11 +287,10 @@ namespace Wreckabulary
 
         // ---- Grabbing ----
 
-        /// <summary>Throws what's held. Empty-handed, a downed teammate in reach comes first, then the nearest thing to pick up.</summary>
-        void GrabOrThrow()
+        void GrabOrRevive()
         {
-            if (held) Throw();
-            else if (!TryRevive()) TryGrab();
+            if (held && !Weapon) return;
+            if (!TryRevive()) TryGrab();
         }
 
         public bool TryGrab()
@@ -344,11 +317,18 @@ namespace Wreckabulary
             }
             if (!best) return false;
             if (best.TryGetComponent(out HeldWeapon pickedGear)) return TryEquip(pickedGear);
+            if (Weapon)
+            {
+                if (storedGear) return false;
+                storedGear = Weapon;
+                ClearHeld();
+                storedGear.gameObject.SetActive(false);
+                ActiveSlot = 1 - ActiveSlot;
+            }
             Pick(best);
             return true;
         }
 
-        /// <summary>Equips gear in a free slot, keeping the other crafted item intact.</summary>
         public void Equip(HeldWeapon w) => TryEquip(w);
 
         public bool TryEquip(HeldWeapon w)
@@ -359,6 +339,7 @@ namespace Wreckabulary
                 storedGear = Weapon;
                 ClearHeld();
                 storedGear.gameObject.SetActive(false);
+                ActiveSlot = 1 - ActiveSlot;
             }
             else if (held) Drop();
             Pick(w.GetComponent<Rigidbody>());
@@ -375,6 +356,27 @@ namespace Wreckabulary
             if (previous) previous.gameObject.SetActive(false);
             next.gameObject.SetActive(true);
             Pick(next.GetComponent<Rigidbody>());
+            ActiveSlot = 1 - ActiveSlot;
+            return true;
+        }
+
+        public int ActiveSlot { get; private set; }
+
+        public HeldWeapon GearIn(int slot) => slot == ActiveSlot ? Weapon : storedGear;
+
+        public bool SelectSlot(int slot)
+        {
+            if (slot is < 0 or > 1 || slot == ActiveSlot) return false;
+            if (storedGear) return SwitchGear();
+            if (!controller.CanAct || controller.IsDodging || deploying || (controller.Summoner && controller.Summoner.IsCrafting)) return false;
+            if (held && !Weapon) return false;
+            if (Weapon)
+            {
+                storedGear = Weapon;
+                ClearHeld();
+                storedGear.gameObject.SetActive(false);
+            }
+            ActiveSlot = slot;
             return true;
         }
 
@@ -411,7 +413,6 @@ namespace Wreckabulary
             rb.transform.SetParent(point, true);
         }
 
-        /// <summary>Throws what's held. Thrown players take a knock as they go.</summary>
         public void Throw()
         {
             if (!held || !controller.CanAct || controller.IsDodging || deploying || IsReviving || (controller.Summoner && controller.Summoner.IsCrafting)) return;
@@ -445,7 +446,12 @@ namespace Wreckabulary
             var item = gear ? gear.Definition : null;
             if (!controller.CanAct || controller.IsDodging || IsReviving || IsChanneling || (controller.Summoner && (controller.Summoner.IsCrafting || controller.Summoner.IsSpelling))
                 || item == null || (item.Deploy == null && !(item.Thrown != null && item.Thrown.FuseSeconds > 0f))) return false;
-            if (DeployedGear.CountFor(controller) >= controller.Health.Rules.MaxDeployed) return false;
+            int limit = controller.Health.Rules.MaxDeployed;
+            if (DeployedGear.CountFor(controller) >= limit)
+            {
+                Popup.Show($"{limit} ALREADY PLACED", controller.OverheadPosition + Vector3.up * 0.4f, Color.white, 2.5f);
+                return false;
+            }
             StartCoroutine(PlaceAfterChannel(gear));
             return true;
         }
@@ -524,6 +530,7 @@ namespace Wreckabulary
             else Drop();
             if (storedGear) Destroy(storedGear.gameObject);
             storedGear = null;
+            ActiveSlot = 0;
             nextAttack = 0f;
             ClearHeld();
         }
@@ -544,7 +551,6 @@ namespace Wreckabulary
                 p.Body.linearVelocity = velocity;
                 return;
             }
-            // A stored slot remains parented to a hand. Released crafted gear always belongs to the room.
             rb.transform.SetParent(rb.GetComponent<HeldWeapon>() ? World.Transient : heldHomeParent ? heldHomeParent : null, true);
             if (rb.TryGetComponent(out HeldWeapon released))
             {
@@ -563,14 +569,12 @@ namespace Wreckabulary
             held = null;
             heldPlayer = null;
             weapon = null;
-            // Whatever was held, it isn't a raised shield any more.
             raiseStartedAt = -1f;
             if (controller && controller.Health) controller.Health.RaisedShield = null;
         }
 
         static void SetCollidersEnabled(Rigidbody rb, bool on)
         {
-            // Imported visual colliders remain disabled; only the authored gameplay collider participates.
             var colliders = rb.GetComponent<HeldWeapon>() ? rb.GetComponents<Collider>() : rb.GetComponentsInChildren<Collider>(true);
             foreach (var c in colliders) c.enabled = on;
         }

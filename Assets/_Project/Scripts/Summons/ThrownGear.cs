@@ -4,7 +4,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Catalogue BALL impacts and BOMB fuse/falloff; neither uses generic furniture momentum damage.</summary>
     public sealed class ThrownGear : MonoBehaviour
     {
         HeldWeapon gear;
@@ -60,7 +59,7 @@ namespace Wreckabulary
             if (done) return;
             done = true;
             IgnoreThrower(false);
-            owner = null; // Deferred destruction cannot undo a new throw's owner-collision grace.
+            owner = null;
             if (ring) Destroy(ring);
             if (beep) Destroy(beep);
             Destroy(this);
@@ -91,7 +90,7 @@ namespace Wreckabulary
             done = true;
             IgnoreThrower(false);
             Projectile.ExplodeAt(transform.position, owner, gear.word, stats.Damage, stats.EdgeDamage, stats.Radius, stats.Knockback, stats.BreakPower, true);
-            gear.Break(); // spent gear produces zero letters
+            gear.Break();
         }
 
         void OnCollisionEnter(Collision collision)

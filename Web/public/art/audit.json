@@ -1,7 +1,7 @@
 {
   "generator": "Tools/AssetPipeline/export_web.py",
-  "blender": "4.3.2",
-  "seconds": 3.18,
+  "blender": "5.2.2 LTS",
+  "seconds": 4.4,
   "files": [
     {
       "kind": "item",
@@ -6385,9 +6385,26 @@
       "kind": "avatar",
       "name": "Avatar",
       "source": "Assets/_Project/Art/Imported/Avatar/Avatar.fbx",
-      "sha256": "e40c1718655ac82c44e7f4afc924653c532b469c8513021ee43cbb3a46a56687",
-      "triangles": 63110,
+      "sha256": "f1199f15a333de765e49aa4b6773a1c71c3347c9ca4a5169c93ab54190a1c6c3",
+      "triangles": 65086,
       "meshes": [
+        {
+          "name": "SK_Cap",
+          "triangles": 2340,
+          "vertices": 1375,
+          "materials": [
+            "headwear_color",
+            "accessory_hardware"
+          ],
+          "degenerate_triangles": 0,
+          "opposed_corner_normals": 0,
+          "invalid_unit_normals": 0,
+          "uv_layers": 1,
+          "weighted_vertices": 1375,
+          "weight_groups": [
+            "head"
+          ]
+        },
         {
           "name": "SK_Badge_T",
           "triangles": 400,
@@ -6407,43 +6424,25 @@
           ]
         },
         {
-          "name": "SK_Cap",
-          "triangles": 2340,
-          "vertices": 1375,
+          "name": "SK_Glasses",
+          "triangles": 786,
+          "vertices": 464,
           "materials": [
-            "headwear_color",
-            "accessory_hardware"
+            "glasses_frame"
           ],
           "degenerate_triangles": 0,
           "opposed_corner_normals": 0,
           "invalid_unit_normals": 0,
           "uv_layers": 1,
-          "weighted_vertices": 1375,
-          "weight_groups": [
-            "head"
-          ]
-        },
-        {
-          "name": "SK_Head",
-          "triangles": 7504,
-          "vertices": 4097,
-          "materials": [
-            "ivory_vinyl",
-            "eyes"
-          ],
-          "degenerate_triangles": 0,
-          "opposed_corner_normals": 0,
-          "invalid_unit_normals": 0,
-          "uv_layers": 1,
-          "weighted_vertices": 4097,
+          "weighted_vertices": 464,
           "weight_groups": [
             "head"
           ]
         },
         {
           "name": "SK_Hood",
-          "triangles": 16944,
-          "vertices": 9530,
+          "triangles": 11472,
+          "vertices": 6326,
           "materials": [
             "fabric_main",
             "fabric_rib"
@@ -6452,42 +6451,24 @@
           "opposed_corner_normals": 0,
           "invalid_unit_normals": 0,
           "uv_layers": 1,
-          "weighted_vertices": 9530,
+          "weighted_vertices": 6326,
           "weight_groups": [
             "head"
           ]
         },
         {
-          "name": "SK_Joggers",
-          "triangles": 2240,
-          "vertices": 1164,
-          "materials": [
-            "joggers_color"
-          ],
-          "degenerate_triangles": 0,
-          "opposed_corner_normals": 0,
-          "invalid_unit_normals": 0,
-          "uv_layers": 1,
-          "weighted_vertices": 1164,
-          "weight_groups": [
-            "shin_L",
-            "shin_R",
-            "thigh_L",
-            "thigh_R"
-          ]
-        },
-        {
           "name": "SK_Mittens",
-          "triangles": 4464,
-          "vertices": 2544,
+          "triangles": 6192,
+          "vertices": 3408,
           "materials": [
-            "gloves_color"
+            "gloves_color",
+            "ivory_badge"
           ],
           "degenerate_triangles": 0,
           "opposed_corner_normals": 0,
           "invalid_unit_normals": 0,
           "uv_layers": 1,
-          "weighted_vertices": 2544,
+          "weighted_vertices": 3408,
           "weight_groups": [
             "hand_L",
             "hand_R"
@@ -6535,34 +6516,37 @@
           ]
         },
         {
-          "name": "SK_Glasses",
-          "triangles": 786,
-          "vertices": 464,
+          "name": "SK_Head",
+          "triangles": 12240,
+          "vertices": 6530,
           "materials": [
-            "glasses_frame"
+            "ivory_vinyl",
+            "eyes",
+            "hair"
           ],
           "degenerate_triangles": 0,
           "opposed_corner_normals": 0,
           "invalid_unit_normals": 0,
           "uv_layers": 1,
-          "weighted_vertices": 464,
+          "weighted_vertices": 6530,
           "weight_groups": [
             "head"
           ]
         },
         {
           "name": "SK_Hoodie",
-          "triangles": 9880,
-          "vertices": 5317,
+          "triangles": 10688,
+          "vertices": 5729,
           "materials": [
             "fabric_main",
-            "fabric_rib"
+            "fabric_rib",
+            "ivory_badge"
           ],
           "degenerate_triangles": 0,
           "opposed_corner_normals": 0,
           "invalid_unit_normals": 0,
           "uv_layers": 1,
-          "weighted_vertices": 5317,
+          "weighted_vertices": 5729,
           "weight_groups": [
             "chest",
             "forearm_L",
@@ -6574,9 +6558,28 @@
           ]
         },
         {
+          "name": "SK_Joggers",
+          "triangles": 2240,
+          "vertices": 1164,
+          "materials": [
+            "joggers_color"
+          ],
+          "degenerate_triangles": 0,
+          "opposed_corner_normals": 0,
+          "invalid_unit_normals": 0,
+          "uv_layers": 1,
+          "weighted_vertices": 1164,
+          "weight_groups": [
+            "shin_L",
+            "shin_R",
+            "thigh_L",
+            "thigh_R"
+          ]
+        },
+        {
           "name": "SK_Satchel",
-          "triangles": 1464,
-          "vertices": 982,
+          "triangles": 1640,
+          "vertices": 1072,
           "materials": [
             "satchel_canvas",
             "satchel_straps",
@@ -6586,21 +6589,21 @@
           "opposed_corner_normals": 0,
           "invalid_unit_normals": 0,
           "uv_layers": 1,
-          "weighted_vertices": 982,
+          "weighted_vertices": 1072,
           "weight_groups": [
             "chest"
           ]
         }
       ],
       "bounds_min_unity": [
-        -0.37250232696533203,
+        -0.37443697452545166,
         0.001999968197196722,
         -0.25499993562698364
       ],
       "bounds_max_unity": [
-        0.37250226736068726,
-        1.1550204753875732,
-        0.3099416196346283
+        0.3744369149208069,
+        1.0121999979019165,
+        0.3180398643016815
       ],
       "unknown_materials": [],
       "animations": [
@@ -6624,26 +6627,30 @@
       ],
       "count_matches_source": true,
       "bounds_match_source": true,
+      "material_validation": {
+        "materials": 15,
+        "unchanged_images_checked": 30
+      },
       "export": {
         "path": "art/avatar.glb",
         "size": [
-          0.745005,
-          1.153021,
-          0.564942
+          0.748874,
+          1.0102,
+          0.57304
         ],
         "boundsMin": [
-          -0.372502,
+          -0.374437,
           0.002,
           -0.255
         ],
         "boundsMax": [
-          0.372502,
-          1.15502,
-          0.309942
+          0.374437,
+          1.0122,
+          0.31804
         ],
-        "triangles": 63110,
-        "bytes": 7130212,
-        "sha256": "17296d4b3a6359a22f758a20dac7476c8513ca38e23f0ef2c3662dbd8e3c3e2c",
+        "triangles": 65086,
+        "bytes": 7187712,
+        "sha256": "58f89f378c966453d0e30fea9b7cbbac459e4a3209efb6dba8512ca3b63248de",
         "animations": [
           "Block_Plate",
           "Carry_TwoHand",
@@ -6663,17 +6670,29 @@
           "Thrust_OneHand",
           "Walk_InPlace"
         ],
+        "locomotion": {
+          "Walk_InPlace": {
+            "stride": 0.2483,
+            "cycle_seconds": 0.9,
+            "duty": 0.58
+          },
+          "Run_InPlace": {
+            "stride": 0.5176,
+            "cycle_seconds": 0.7,
+            "duty": 0.34
+          }
+        },
         "meshes": [
-          "SK_Badge_T",
           "SK_Cap",
-          "SK_Head",
+          "SK_Badge_T",
+          "SK_Glasses",
           "SK_Hood",
-          "SK_Joggers",
           "SK_Mittens",
           "SK_Crewneck",
           "SK_Boots",
-          "SK_Glasses",
+          "SK_Head",
           "SK_Hoodie",
+          "SK_Joggers",
           "SK_Satchel"
         ],
         "bones": [
@@ -6700,11 +6719,7 @@
           "shin_R",
           "foot_R"
         ],
-        "defaultTriangles": 31696
-      },
-      "material_validation": {
-        "materials": 14,
-        "unchanged_images_checked": 28
+        "defaultTriangles": 52488
       }
     }
   ]

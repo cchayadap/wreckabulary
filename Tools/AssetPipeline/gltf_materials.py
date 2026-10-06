@@ -1,9 +1,3 @@
-"""Preserve authored glTF material factors when exporting the named-material FBXs.
-
-Blender 4.3 drops a legacy Multiply-node constant while retaining its unchanged
-texture. Restore factors from the authoritative generated material library, and
-assert embedded texture bytes were not baked/recoloured before doing so.
-"""
 import hashlib
 import json
 from pathlib import Path

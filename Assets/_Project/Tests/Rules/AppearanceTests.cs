@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace Wreckabulary.Rules.Tests
 {
-    /// <summary>The held-skin lifecycle (brief §4).</summary>
     [TestFixture]
     public class AppearanceTests
     {
@@ -14,7 +13,6 @@ namespace Wreckabulary.Rules.Tests
         public void Make()
         {
             e = TestData.NewEconomy("Duos", 4, new[] { 0, 1, 0, 1 });
-            // Player 0 likes Candy, 2 likes Arcade, 1 picked a skin the BAT doesn't have, 3 picked nothing.
             batSkins = new Dictionary<int, string> { { 0, "Candy" }, { 1, "Gold" }, { 2, "Arcade" } };
         }
 

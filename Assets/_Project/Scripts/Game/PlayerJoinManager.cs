@@ -35,19 +35,21 @@ namespace Wreckabulary
 
         public IReadOnlyList<PlayerController> Players => players;
         public bool AllowJoining { get; set; } = true;
-        /// <summary>When true, wrecked roommates get back up after a short delay (house, tutorial, lobby).</summary>
         public bool RespawnKnockedOut { get => respawnKnockedOut; set => respawnKnockedOut = value; }
         /// <summary>True if the players were carried over from another scene.</summary>
         public bool RestoredFromSession { get; private set; }
-        public int StarterLetters { get => starterLetters; set => starterLetters = Mathf.Clamp(value, 0, 6); }
         public event Action<PlayerController> Joined;
         Vector3[] layoutSpawns;
+        string[] spawnRooms;
+        Rules.HouseLayout spawnLayout;
 
         public int HumanCount => players.Count(p => p.Binding is not BotBinding);
 
         public void ConfigureLayout(Rules.HouseLayout layout)
         {
             layoutSpawns = layout.Spawns.Select(s => new Vector3(s.X, layout.Room(s.Room).FloorY, s.Z)).ToArray();
+            spawnRooms = layout.Spawns.Select(s => s.Room).ToArray();
+            spawnLayout = layout;
             walkIn = Vector3.zero;
         }
 
@@ -86,7 +88,6 @@ namespace Wreckabulary
         {
             if (!AllowJoining || players.Count >= maxPlayers) return;
 
-            // Keyboard and mouse and the left keyboard half both use WASD, so only one of them can play.
             if (!HasJoined(keyboardLeft.Id)) TryJoin(DesktopBinding.Shared);
             if (!HasJoined(DesktopBinding.Shared.Id)) TryJoin(keyboardLeft);
             TryJoin(keyboardRight);
@@ -116,17 +117,11 @@ namespace Wreckabulary
             var prefab = playerPrefab ? playerPrefab : GameAssets.I.playerPrefab;
             var p = Instantiate(prefab, SpawnPoint(index), Quaternion.identity, playersRoot);
             p.Setup(index, binding);
-            // Everyone arrives dressed the way they left the wardrobe.
-            Wreckabulary.Looks.Apply(p, Session.Looks.TryGetValue(index, out var look) ? look : Wreckabulary.Looks.Default(index));
             players.Add(p);
             Session.Remember(binding);
             p.Health.Eliminated += _ => { if (respawnKnockedOut) StartCoroutine(RespawnLater(p)); };
             Place(p);
-            if (arriving)
-            {
-                Popup.Show($"{p.Name} joined!", p.OverheadPosition, p.Color, 4f);
-                Sfx.Play(Sound.Join, p.transform.position);
-            }
+            if (arriving) Popup.Show($"{p.Name} joined!", p.OverheadPosition, p.Color, 4f);
             Joined?.Invoke(p);
             return p;
         }
@@ -155,12 +150,18 @@ namespace Wreckabulary
         }
 
         public Vector3 SpawnPoint(int index) => layoutSpawns != null && layoutSpawns.Length > 0
-            ? layoutSpawns[index % layoutSpawns.Length]
+            ? RoomySpawn(index % layoutSpawns.Length)
             : spawnPoints != null && spawnPoints.Length > 0 ? spawnPoints[index % spawnPoints.Length].position : new Vector3(index * 2f - 3f, 0f, -2f);
+
+        Vector3 RoomySpawn(int i)
+        {
+            Physics.SyncTransforms();
+            string room = spawnRooms[i];
+            return ShoulderView.RoomySpot(layoutSpawns[i], at => spawnLayout.RoomAt(at.x, at.y + .1f, at.z) == room);
+        }
 
         public bool AnyStartPressed() => players.Any(p => p.Commands.start || (p.Binding != null && p.Binding.StartPressed()));
 
-        /// <summary>The mode's configured starter letters; the normal arena starts empty.</summary>
         public void GiveStarterLetters(PlayerController p)
         {
             p.Inventory.Set(Match.Rules.StarterLetters ?? "");

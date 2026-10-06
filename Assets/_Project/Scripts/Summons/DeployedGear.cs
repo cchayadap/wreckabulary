@@ -4,7 +4,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Reusable placed gear: it keeps its identity and can be picked up again.</summary>
     public sealed class DeployedGear : MonoBehaviour
     {
         static readonly List<DeployedGear> Active = new();

@@ -3,7 +3,6 @@ using UnityEngine.EventSystems;
 
 namespace Wreckabulary
 {
-    /// <summary>Captures one pointer so a second finger on another skill cannot steal this stick.</summary>
     public sealed class TouchStick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         public RectTransform knob;
@@ -35,7 +34,6 @@ namespace Wreckabulary
             var value = Vector2.ClampMagnitude(point / radius, 1f);
             if (knob) knob.anchoredPosition = value * radius;
             if (value.magnitude < 0.12f) value = Vector2.zero;
-            // Sticks are screen-relative. Their world direction follows the actual arena camera.
             if (worldCamera)
             {
                 var right = World.Flat(worldCamera.transform.right).normalized;

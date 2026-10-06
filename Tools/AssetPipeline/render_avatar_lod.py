@@ -1,4 +1,3 @@
-"""Same-camera animated full/mobile comparisons for default and hoodie+hood outfits."""
 import bpy
 import hashlib
 import json
@@ -23,8 +22,6 @@ for index,(file,hoodie) in enumerate([('avatar.glb',False),('avatar-mobile.glb',
     for obj in objects:
         if obj.parent is None:obj.parent=wrapper
         if obj.type=='MESH':
-            # Importing a second model suffixes names; original primitive names
-            # remain recognizable and must not activate every wardrobe module.
             name=obj.name.split('.')[0];obj.hide_render=name not in visible
         if obj.type=='ARMATURE':
             for track in obj.animation_data.nla_tracks:track.mute=True

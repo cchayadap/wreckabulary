@@ -1,9 +1,9 @@
 {
- "notes": "Game rules per mode. 'defaults' applies to every mode; each block under 'modes' overrides only what it lists. Times are in seconds, distances in metres, health in HP. Cosmetics never appear here. See docs/PLAN.md section 2.",
+ "notes": "Game rules per mode. 'defaults' applies to every mode; each block under 'modes' overrides only what it lists. Times are in seconds, distances in metres, health in HP. Cosmetics never appear here. See PROJECT_REPORT.md section 1.",
  "defaults": {
   "maxHealth": 100,
   "spawnProtection": 2,
-  "maxLetters": 18,
+  "maxLetters": 10,
   "maxCarried": 2,
   "maxDeployed": 2,
   "starterLetters": "",
@@ -19,6 +19,8 @@
   "dodgeDistance": 4,
   "dodgeCooldown": 1.5,
   "jumpHeight": 1.1,
+  "groundAccel": 36,
+  "groundFriction": 28,
   "unarmed": {"damage": 8, "reach": 1.1, "arc": 90, "windup": 0.12, "active": 0.08, "recovery": 0.25, "knockback": 3, "breakPower": 1, "hitStun": 0.15},
   "teamSize": 1,
   "friendlyFire": true,

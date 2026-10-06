@@ -1,12 +1,12 @@
 {
   "generator": "Tools/AssetPipeline/export_mobile_avatar.py",
   "ratio": 0.42,
-  "source_sha256": "17296d4b3a6359a22f758a20dac7476c8513ca38e23f0ef2c3662dbd8e3c3e2c",
-  "output_sha256": "786cf1dbea1a5ab27c38f193ce08d09f0a99178af5acd1aba8d471e27a0bfabf",
-  "before_triangles": 63110,
-  "after_triangles": 30848,
-  "default_before": 31696,
-  "default_after": 17660,
+  "source_sha256": "58f89f378c966453d0e30fea9b7cbbac459e4a3209efb6dba8512ca3b63248de",
+  "output_sha256": "bf5339580d3938d628f9e7834c97dde7c10c9fe8587d270c8742c68bd11e1202",
+  "before_triangles": 65086,
+  "after_triangles": 34424,
+  "default_before": 52488,
+  "default_after": 29136,
   "meshes": [
     {
       "mesh": "SK_Badge_T",
@@ -34,56 +34,56 @@
       "before": 9472,
       "after": 3977,
       "morph_targets_retained": 0,
-      "default": true
+      "default": false
     },
     {
       "mesh": "SK_Glasses",
       "before": 786,
-      "after": 329,
+      "after": 330,
       "morph_targets_retained": 0,
       "default": false
     },
     {
       "mesh": "SK_Head",
-      "before": 7504,
-      "after": 7504,
+      "before": 12240,
+      "after": 12240,
       "morph_targets_retained": 2,
       "default": true
     },
     {
       "mesh": "SK_Hood",
-      "before": 16944,
-      "after": 7115,
+      "before": 11472,
+      "after": 4818,
       "morph_targets_retained": 0,
-      "default": false
+      "default": true
     },
     {
       "mesh": "SK_Hoodie",
-      "before": 9880,
-      "after": 4149,
+      "before": 10688,
+      "after": 4487,
       "morph_targets_retained": 0,
-      "default": false
+      "default": true
     },
     {
       "mesh": "SK_Joggers",
       "before": 2240,
-      "after": 940,
+      "after": 939,
       "morph_targets_retained": 0,
       "default": true
     },
     {
       "mesh": "SK_Mittens",
-      "before": 4464,
-      "after": 1874,
+      "before": 6192,
+      "after": 2599,
       "morph_targets_retained": 0,
       "default": true
     },
     {
       "mesh": "SK_Satchel",
-      "before": 1464,
-      "after": 614,
+      "before": 1640,
+      "after": 688,
       "morph_targets_retained": 0,
-      "default": false
+      "default": true
     }
   ],
   "clips": [
@@ -130,8 +130,8 @@
     "upper_arm_R"
   ],
   "material_validation": {
-    "materials": 14,
-    "unchanged_images_checked": 28
+    "materials": 15,
+    "unchanged_images_checked": 30
   },
   "animation_preservation": {
     "clips_copied_without_resampling": 17,

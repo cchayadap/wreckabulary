@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace Wreckabulary.Rules.Tests
 {
-    /// <summary>The shared avatar's wardrobe (brief §3): only combinations that fit.</summary>
     [TestFixture]
     public class WardrobeTests
     {
@@ -23,12 +22,14 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void TheHoodNeedsTheHoodie()
         {
-            var crewneck = w.Default.Clone();
-            crewneck.Pieces["Headwear"] = "Hood";
-            Assert.IsFalse(w.Fits(crewneck));
-            CollectionAssert.DoesNotContain(w.Choices(w.Default, "Headwear"), "Hood");
+            var crewneck = w.Wear(w.Default, "Top", "Crewneck");
+            Assert.IsNotNull(crewneck);
+            CollectionAssert.DoesNotContain(w.Choices(crewneck, "Headwear"), "Hood");
+            var forced = crewneck.Clone();
+            forced.Pieces["Headwear"] = "Hood";
+            Assert.IsFalse(w.Fits(forced));
 
-            var hoodie = w.Wear(w.Default, "Top", "Hoodie");
+            var hoodie = w.Wear(crewneck, "Top", "Hoodie");
             Assert.IsNotNull(hoodie);
             CollectionAssert.Contains(w.Choices(hoodie, "Headwear"), "Hood");
             var hooded = w.Wear(hoodie, "Headwear", "Hood");
@@ -53,12 +54,13 @@ namespace Wreckabulary.Rules.Tests
         public void TheHoodTakesTheTopsColour()
         {
             var o = w.Wear(w.Wear(w.Default, "Top", "Hoodie"), "Headwear", "Hood");
-            o.Colours["Top"] = "tomato";
+            o.Colours["Top"] = "sunflower";
             o.Colours["Headwear"] = "mint";
-            Assert.AreEqual("tomato", w.ColourFor(o, "Headwear").Id);
+            Assert.AreEqual("sunflower", w.ColourFor(o, "Headwear").Id);
             var capped = w.Wear(o, "Headwear", "Cap");
             Assert.AreEqual("mint", w.ColourFor(capped, "Headwear").Id);
-            Assert.AreEqual("pool", w.ColourFor(w.Default, "Top").Id);
+            Assert.AreEqual("tomato", w.ColourFor(w.Default, "Top").Id);
+            Assert.AreEqual("tomato", w.ColourFor(w.Default, "Headwear").Id, "the default hood matches the default hoodie");
         }
 
         [Test]
@@ -83,7 +85,7 @@ namespace Wreckabulary.Rules.Tests
             Assert.IsFalse(w.Fits(tampered));
             var safe = w.Sanitize(tampered);
             Assert.IsTrue(w.Fits(safe));
-            Assert.AreEqual("Crewneck", safe.PieceIn("Top"));
+            Assert.AreEqual("Hoodie", safe.PieceIn("Top"));
             Assert.AreEqual("denim", safe.ColourOf("Bottoms"), "valid choices are kept");
             Assert.AreEqual("Candy", safe.SkinFor("BAT"), "item skins are kept; unknown ones fall back when shown");
             Assert.IsTrue(w.Fits(w.Sanitize(null)));

@@ -1,4 +1,3 @@
-"""Independently verify generated GLB counts, clips, hierarchy bounds and PBR factors."""
 import argparse
 import hashlib
 import json

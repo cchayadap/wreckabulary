@@ -1,4 +1,3 @@
-"""Create a separate audited mobile avatar LOD; preserve supplied FBXs and facial morphs."""
 import argparse
 import bpy
 import hashlib
@@ -23,8 +22,6 @@ specs={m['name']:m for m in json.load(open(os.path.join(REPO,'Assets/_Project/Da
 source=os.path.join(OUT,'avatar.glb')
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=source)
-# Blender's glTF importer creates an 80-triangle Icosphere as a viewport bone
-# display helper. It is not present in the supplied GLB or the playable avatar.
 helpers=set()
 for rig in (o for o in bpy.context.scene.objects if o.type=='ARMATURE'):
     for bone in rig.pose.bones:
@@ -42,8 +39,6 @@ for obj in meshes:
     obj.data.calc_loop_triangles()
     before=len(obj.data.loop_triangles)
     morphs=len(obj.data.shape_keys.key_blocks)-1 if obj.data.shape_keys else 0
-    # Head expression targets are useful authored data. Retain all of them rather
-    # than dropping blink/smile for an indiscriminate triangle target.
     if obj.name!='SK_Head' and not morphs:
         bpy.ops.object.select_all(action='DESELECT')
         obj.select_set(True);bpy.context.view_layer.objects.active=obj
@@ -53,14 +48,16 @@ for obj in meshes:
         while obj.modifiers.find(modifier.name)>0:
             bpy.ops.object.modifier_move_up(modifier=modifier.name)
         bpy.ops.object.modifier_apply(modifier=modifier.name)
-        # Collapse changes corners. Recompute mesh normals rather than exporting
-        # custom loop normals attached to the original denser topology.
         obj.data.update()
     obj.data.calc_loop_triangles()
     facts.append({'mesh':obj.name,'before':before,'after':len(obj.data.loop_triangles),
                   'morph_targets_retained':morphs,'default':obj.name in default_meshes})
 
-actions=[a for a in bpy.data.actions if any('pose.bones[' in c.data_path for c in a.fcurves)]
+def action_curves(action):
+    if hasattr(action,'fcurves'):return list(action.fcurves)
+    return [c for layer in action.layers for strip in layer.strips for bag in strip.channelbags for c in bag.fcurves]
+
+actions=[a for a in bpy.data.actions if any('pose.bones[' in c.data_path for c in action_curves(a))]
 for action in actions:
     imported=action.name.split('|')[-1].split('.')[0]
     action.name=next((name for name in manifest['avatar']['animations']
@@ -97,5 +94,3 @@ result={'generator':'Tools/AssetPipeline/export_mobile_avatar.py','ratio':args.r
         'animation_preservation':animation_checks}
 json.dump(result,open(os.path.join(OUT,'avatar-mobile-audit.json'),'w'),indent=2)
 print('MOBILE_AVATAR_EXPORTED '+json.dumps({k:result[k] for k in ['before_triangles','after_triangles','default_before','default_after']}))
-# The candidate is intentionally not promoted into manifest.json here. A separate
-# independent structural verifier and comparison render must accept it first.

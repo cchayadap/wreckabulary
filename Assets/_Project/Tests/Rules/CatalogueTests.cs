@@ -126,12 +126,12 @@ namespace Wreckabulary.Rules.Tests
             bad.Add(new ItemDefinition { Id = "PLATE", Enabled = true, Family = HandlingFamily.Shield, Durability = 5 });
             bad.Add(new ItemDefinition { Id = "SOAP", Enabled = false, Skins = { "Candy" } });
             bad.Get("SOAP").Skins.Remove("Classic");
-            var problems = bad.Validate(18);
+            var problems = bad.Validate(10);
             Assert.IsTrue(problems.Any(p => p.StartsWith("BAT:") && p.Contains("melee")), string.Join("\n", problems));
             Assert.IsTrue(problems.Any(p => p.StartsWith("PLATE:") && p.Contains("model")), string.Join("\n", problems));
             Assert.IsTrue(problems.Any(p => p.StartsWith("PLATE:") && p.Contains("shield")), string.Join("\n", problems));
             Assert.IsTrue(problems.Any(p => p.StartsWith("SOAP:") && p.Contains("Classic")), string.Join("\n", problems));
-            Assert.IsTrue(new ItemCatalogue().Validate(18).Count == 0);
+            Assert.IsTrue(new ItemCatalogue().Validate(10).Count == 0);
             var tiny = TestData.Catalogue().Validate(3);
             Assert.IsTrue(tiny.Any(p => p.StartsWith("TABLE:") && p.Contains("bag holds 3")));
         }

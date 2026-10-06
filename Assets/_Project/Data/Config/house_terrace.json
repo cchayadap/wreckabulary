@@ -1,0 +1,580 @@
+{
+ "name": "Terrace House",
+ "notes": "A two-storey 20 by 14 metre terraced house. Downstairs: the living room to the west, the hall with the stairs in the middle, the kitchen to the east. Upstairs (floor 3 m): the bedroom over the living room, the landing and bathroom over the hall, the kids' room over the kitchen. X is east, Z is north, metres, yaw in degrees clockwise from north.",
+ "extraction": "LivingRoom",
+ "extractionAt": [
+  -6.5,
+  3.5
+ ],
+ "lobbyRoom": "LivingRoom",
+ "rooms": [
+  {
+   "name": "Hall",
+   "bounds": [
+    -3,
+    -7,
+    3,
+    7
+   ]
+  },
+  {
+   "name": "LivingRoom",
+   "bounds": [
+    -10,
+    -7,
+    -3,
+    7
+   ]
+  },
+  {
+   "name": "Kitchen",
+   "bounds": [
+    3,
+    -7,
+    10,
+    7
+   ]
+  },
+  {
+   "name": "Landing",
+   "bounds": [
+    -3,
+    -7,
+    3,
+    3
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "Bathroom",
+   "bounds": [
+    -3,
+    3,
+    3,
+    7
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "Bedroom",
+   "bounds": [
+    -10,
+    -7,
+    -3,
+    7
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "KidsRoom",
+   "bounds": [
+    3,
+    -7,
+    10,
+    7
+   ],
+   "floorY": 3
+  }
+ ],
+ "doors": [
+  {
+   "between": [
+    "Hall",
+    "LivingRoom"
+   ],
+   "at": [
+    -3,
+    -2
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Hall",
+    "Kitchen"
+   ],
+   "at": [
+    3,
+    4
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Landing",
+    "Bedroom"
+   ],
+   "at": [
+    -3,
+    -2
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Landing",
+    "KidsRoom"
+   ],
+   "at": [
+    3,
+    2
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing",
+    "Bathroom"
+   ],
+   "at": [
+    0,
+    3
+   ],
+   "width": 1.4
+  },
+  {
+   "between": [
+    "Bedroom",
+    "Bathroom"
+   ],
+   "at": [
+    -3,
+    5
+   ],
+   "width": 1.4
+  }
+ ],
+ "stairs": [
+  {
+   "between": [
+    "Hall",
+    "Landing"
+   ],
+   "from": [
+    2,
+    -4
+   ],
+   "to": [
+    2,
+    0.5
+   ],
+   "width": 1.6
+  }
+ ],
+ "spawns": [
+  {
+   "room": "LivingRoom",
+   "at": [
+    -8,
+    1
+   ],
+   "yaw": 90
+  },
+  {
+   "room": "KidsRoom",
+   "at": [
+    5,
+    4.5
+   ],
+   "yaw": 180
+  },
+  {
+   "room": "Kitchen",
+   "at": [
+    5,
+    -4
+   ],
+   "yaw": 90
+  },
+  {
+   "room": "Bedroom",
+   "at": [
+    -7,
+    -4
+   ],
+   "yaw": 90
+  }
+ ],
+ "furniture": [
+  {
+   "word": "CRATE",
+   "room": "Hall",
+   "at": [
+    -1.8,
+    -5.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "Hall",
+   "at": [
+    -1.6,
+    2.6
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "Hall",
+   "at": [
+    -2.3,
+    6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CLOCK",
+   "room": "Hall",
+   "at": [
+    2.4,
+    6.4
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SOFA",
+   "room": "LivingRoom",
+   "at": [
+    -9.2,
+    -2
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "TABLE",
+   "room": "LivingRoom",
+   "at": [
+    -6.5,
+    -2
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "LivingRoom",
+   "at": [
+    -9.3,
+    -6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "DESK",
+   "room": "LivingRoom",
+   "at": [
+    -6.5,
+    -6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOOK",
+   "room": "LivingRoom",
+   "at": [
+    -4,
+    -6.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "LivingRoom",
+   "at": [
+    -9.3,
+    6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "TABLE",
+   "room": "Kitchen",
+   "at": [
+    6.5,
+    -1
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "STOOL",
+   "room": "Kitchen",
+   "at": [
+    6.5,
+    0.1
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SODA",
+   "room": "Kitchen",
+   "at": [
+    9.3,
+    6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "Kitchen",
+   "at": [
+    9.3,
+    -6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "Kitchen",
+   "at": [
+    4.2,
+    -6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "FAN",
+   "room": "Kitchen",
+   "at": [
+    9.4,
+    1.5
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CABINET",
+   "room": "Kitchen",
+   "at": [
+    6.5,
+    6.4
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "Landing",
+   "at": [
+    -2.6,
+    -5.5
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "BARREL",
+   "room": "Landing",
+   "at": [
+    -1.2,
+    -6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "VASE",
+   "room": "Landing",
+   "at": [
+    -2.3,
+    1.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOAP",
+   "room": "Bathroom",
+   "at": [
+    2.2,
+    6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "WATER",
+   "room": "Bathroom",
+   "at": [
+    2.4,
+    4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "MUG",
+   "room": "Bathroom",
+   "at": [
+    -1,
+    6.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BED",
+   "room": "Bedroom",
+   "at": [
+    -8.5,
+    5.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHEST",
+   "room": "Bedroom",
+   "at": [
+    -6,
+    6.4
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SOFA",
+   "room": "Bedroom",
+   "at": [
+    -9.2,
+    -2
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "TABLE",
+   "room": "Bedroom",
+   "at": [
+    -6.5,
+    0
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "Bedroom",
+   "at": [
+    -9.3,
+    -6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CLOCK",
+   "room": "Bedroom",
+   "at": [
+    -4,
+    -6.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BED",
+   "room": "KidsRoom",
+   "at": [
+    8.6,
+    5.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOFA",
+   "room": "KidsRoom",
+   "at": [
+    9.2,
+    0.5
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "TABLE",
+   "room": "KidsRoom",
+   "at": [
+    6.5,
+    -2.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "KidsRoom",
+   "at": [
+    6.5,
+    -3.6
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "KidsRoom",
+   "at": [
+    9.3,
+    -6.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "KidsRoom",
+   "at": [
+    4.2,
+    -6.3
+   ],
+   "yaw": 0
+  }
+ ],
+ "neverClose": [
+  "Hall",
+  "Landing"
+ ],
+ "clearOutOrders": {
+  "Dibs": [
+   "Bathroom",
+   "KidsRoom",
+   "Kitchen",
+   "Bedroom"
+  ],
+  "Duos": [
+   "Bathroom",
+   "KidsRoom",
+   "Kitchen",
+   "Bedroom"
+  ],
+  "MovingOut": [
+   "Bathroom",
+   "KidsRoom",
+   "Bedroom",
+   "Kitchen"
+  ]
+ },
+ "movingDay": [
+  {
+   "word": "BED",
+   "room": "Bedroom"
+  },
+  {
+   "word": "SOFA",
+   "room": "LivingRoom"
+  },
+  {
+   "word": "TABLE",
+   "room": "Kitchen"
+  },
+  {
+   "word": "LAMP",
+   "room": "KidsRoom"
+  }
+ ],
+ "keepsakes": [
+  {
+   "room": "Bedroom",
+   "at": [
+    -6,
+    6.4
+   ]
+  },
+  {
+   "room": "KidsRoom",
+   "at": [
+    4.2,
+    -6.3
+   ]
+  },
+  {
+   "room": "Kitchen",
+   "at": [
+    9.3,
+    6.3
+   ]
+  }
+ ]
+}

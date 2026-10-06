@@ -2,7 +2,6 @@ using NUnit.Framework;
 
 namespace Wreckabulary.Rules.Tests
 {
-    /// <summary>100 HP combat (brief §7).</summary>
     [TestFixture]
     public class HealthTests
     {
@@ -17,7 +16,6 @@ namespace Wreckabulary.Rules.Tests
             catalogue = TestData.Catalogue();
         }
 
-        /// <summary>A hit from an attacker standing at (fromX, fromZ) towards a target at the origin.</summary>
         HitInfo Hit(string item, float fromX, float fromZ, int attacker = 1, int team = 1)
         {
             var stats = item == null ? dibs.Unarmed : catalogue.Get(item).Melee;

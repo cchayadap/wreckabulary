@@ -4,7 +4,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>BEES: a buzzing cloud of B, E, E, S that chases the nearest other player and stings once for 6 damage.</summary>
     public class BeeSwarm : MonoBehaviour
     {
         PlayerController owner;
@@ -27,7 +26,6 @@ namespace Wreckabulary
                 swarm.bees.Add(b.transform);
                 swarm.offsets.Add(Random.insideUnitSphere * 0.6f);
             }
-            Sfx.Play(Sound.Bees, owner.transform.position);
             var thing = SummonedThing.Attach(go, "BEES", owner, 8f);
             thing.Tick = swarm.Chase;
         }

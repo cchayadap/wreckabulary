@@ -1,25 +1,11 @@
-"""Convert the chosen source-pack GLBs into Unity-ready FBX files and a material library.
-
-Run headless, as the only heavy job on the machine:
-  blender -b --factory-startup --python Tools/AssetPipeline/build_assets.py -- \
-      --packs <folder holding vault-v2/ and quality-pass-01/> --repo <Unity project root> \
-      [--only items,letters,environment,vfx,avatar]
-
-Outputs (paths come from selection.json):
-  <art>/Items/<WORD>.fbx, <art>/Letters/Tile_<L>.fbx, <art>/Environment/<id>.fbx,
-  <art>/VFX/<id>.fbx, <art>/Avatar/Avatar.fbx, <art>/Textures/*.png
-  <data>/materials.json   material library read by the Unity importer (MaterialLibraryBuilder)
-  <data>/build_report.json per-file facts that verify_assets.py checks the FBX files against
-
-Materials are read from the glTF JSON (the authored values), not from Blender's shader
-nodes. The FBX files carry material names only; Unity binds them to library materials.
-"""
 import argparse
 import hashlib
 import json
 import os
 import re
+import shutil
 import struct
+import subprocess
 import sys
 import tempfile
 import time
@@ -29,14 +15,11 @@ from mathutils import Matrix, Vector
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from gltf_read import Glb  # noqa: E402
+from gltf_read import Glb
 
 SKIN_SUFFIX = re.compile(r"^(?P<family>.+)_(?P<skin>Classic|Candy|Arcade)$")
 DUP_SUFFIX = re.compile(r"^(?P<base>.+)\.\d{3}$")
 FLOOR_TOLERANCE_M = 0.0005
-
-
-# --------------------------------------------------------------------------- args
 
 
 def parse_args():
@@ -47,9 +30,6 @@ def parse_args():
     p.add_argument("--only", default="items,letters,environment,vfx,avatar")
     p.add_argument("--selection", default=os.path.join(HERE, "selection.json"))
     return p.parse_args(argv)
-
-
-# --------------------------------------------------------------------------- material library
 
 
 def png_size(data):
@@ -70,8 +50,6 @@ def close(a, b, tol=1e-4):
 
 
 class Library:
-    """Materials keyed by name, plus the textures they use (deduplicated)."""
-
     PARAMS = ("baseColor", "metallic", "roughness", "emissive")
 
     def __init__(self, max_size):
@@ -114,8 +92,6 @@ class Library:
             if known is None:
                 self.textures[name] = {"bytes": data, "size": size, "sha256": digest, "source": glb.path}
             return name
-        # Same name, different pixels. The avatar packs ship one image at 256 px and 1024 px:
-        # keep the larger copy. Anything else is a real clash and gets its own name.
         if size and known["size"] and size != known["size"]:
             if size[0] * size[1] > known["size"][0] * known["size"][1]:
                 self.textures[name] = {"bytes": data, "size": size, "sha256": digest, "source": glb.path}
@@ -154,7 +130,6 @@ class Library:
 
 
 def downscale_png(data, dest, max_size):
-    """Resize with Blender's image API (no extra Python packages needed)."""
     fd, tmp = tempfile.mkstemp(suffix=".png")
     os.close(fd)
     try:
@@ -172,9 +147,6 @@ def downscale_png(data, dest, max_size):
         return (nw, nh)
     finally:
         os.remove(tmp)
-
-
-# --------------------------------------------------------------------------- scene helpers
 
 
 def reset_scene():
@@ -209,12 +181,6 @@ def strip_animation():
 
 
 def restore_rest_transforms(glb):
-    """Put objects back to the authored node transforms.
-
-    The importer evaluates the first frame of any object clip (V2 items start their
-    Assemble_Preview clip at ~22% scale), and clearing the animation keeps that pose.
-    glTF is Y-up and Blender Z-up, so (x, y, z) maps to (x, -z, y).
-    """
     for node in glb.json.get("nodes", []):
         obj = bpy.data.objects.get(node.get("name", ""))
         if obj is None or obj.type == "ARMATURE" or "matrix" in node:
@@ -254,7 +220,6 @@ def triangle_count(objs):
 
 
 def snap_to_floor():
-    """Move root objects so the lowest vertex sits on z = 0 (Blender is Z-up)."""
     meshes = mesh_objects()
     lo, _ = world_bounds(meshes)
     dz = -lo.z
@@ -268,25 +233,13 @@ def snap_to_floor():
 
 
 def to_unity_space(v):
-    """Where Blender (x, y, z) lands in Unity: (x, z, y).
-
-    Measured, not assumed: Unity reads the "-Z forward" these files declare and turns them to
-    face its own +Z, which puts Blender +Y at Unity +Z. See face_unity_forward.
-    """
     return [round(v.x, 5), round(v.z, 5), round(v.y, 5)]
 
 
-# A half turn about Blender's Z (up) axis, written out so it's exact.
 HALF_TURN_Z = Matrix(((-1, 0, 0, 0), (0, -1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)))
 
 
 def face_unity_forward():
-    """Turn the scene a half turn about Z, so models face Unity's +Z.
-
-    The packs follow glTF, where a model's front is +Z; in Blender that is -Y. Unity maps
-    Blender +Y to +Z (see to_unity_space), so without this every model faces backwards.
-    Root objects are turned about the origin; children follow.
-    """
     for obj in bpy.data.objects:
         if obj.parent is None:
             obj.matrix_world = HALF_TURN_Z @ obj.matrix_world
@@ -344,9 +297,6 @@ def export_fbx(path, animated):
     return os.path.getsize(path)
 
 
-# --------------------------------------------------------------------------- static jobs
-
-
 def run_static(kind, name, src, out_path, library, snap, extra_material_glbs=()):
     reset_scene()
     glb = Glb(src)
@@ -362,7 +312,6 @@ def run_static(kind, name, src, out_path, library, snap, extra_material_glbs=())
     report = describe(kind, name, src, out_path)
     report["removed_cameras_lights"] = removed
     report["floor_snap_m"] = round(dz, 5)
-    # Items record their authored size (x, depth, height in the Z-up source); verify compares.
     for node in glb.mesh_nodes():
         dims = (node.get("extras") or {}).get("world_dimensions_xyz_m")
         if dims:
@@ -370,9 +319,6 @@ def run_static(kind, name, src, out_path, library, snap, extra_material_glbs=())
             break
     report["bytes"] = export_fbx(out_path, animated=False)
     return report
-
-
-# --------------------------------------------------------------------------- avatar
 
 
 def strip_zero_shape_keys(obj, tol=1e-6):
@@ -394,7 +340,6 @@ def strip_zero_shape_keys(obj, tol=1e-6):
 
 
 def remove_bone_display_shapes():
-    """The glTF importer adds display-only shape meshes ("Icosphere") for bones. Drop them."""
     shapes = {pb.custom_shape for o in bpy.data.objects if o.type == "ARMATURE"
               for pb in o.pose.bones if pb.custom_shape}
     for o in bpy.data.objects:
@@ -407,8 +352,10 @@ def remove_bone_display_shapes():
 
 
 def run_avatar(sel, packs, art_dir, art_rel, library):
+    node = shutil.which("node")
+    if not node:
+        raise RuntimeError("avatar conversion requires Node.js for correct_pickup_contact.mjs")
     reset_scene()
-    # The source clips are authored at 30 fps; import at 30 so keyframes land on whole frames.
     bpy.context.scene.render.fps = sel["avatar"].get("fps", 30)
     bpy.context.scene.render.fps_base = 1.0
     base_src = os.path.join(packs, sel["packs"][sel["avatar"]["base"]["source"]], sel["avatar"]["base"]["file"])
@@ -445,7 +392,6 @@ def run_avatar(sel, packs, art_dir, art_rel, library):
             for mod in mesh.modifiers:
                 if mod.type == "ARMATURE":
                     mod.object = rig
-            # Imported duplicates come in as "fabric_main.001": point them at the base material.
             for slot in mesh.material_slots:
                 mat = slot.material
                 match = DUP_SUFFIX.match(mat.name) if mat else None
@@ -461,12 +407,20 @@ def run_avatar(sel, packs, art_dir, art_rel, library):
         notes.append(f"{module}: {len(new_meshes)} mesh(es) rebound to {rig.name}")
 
     removed_keys = {o.name: strip_zero_shape_keys(o) for o in mesh_objects()}
+    refinements = None
+    if sel["avatar"].get("refine"):
+        import refine_avatar
+        refinements = refine_avatar.refine(rig, library)
     for mat in list(bpy.data.materials):
         if mat.users == 0:
             bpy.data.materials.remove(mat)
     remove_cameras_and_lights()
     if set(bpy.data.actions) != base_actions:
         raise RuntimeError("module import left extra actions behind")
+    authored = None
+    if sel["avatar"].get("author_clips"):
+        import author_clips
+        authored = author_clips.author(rig)
     stray = [o.name for o in mesh_objects() if not o.name.startswith("SK_")]
     if stray:
         raise RuntimeError(f"unexpected non-avatar meshes: {stray}")
@@ -479,11 +433,42 @@ def run_avatar(sel, packs, art_dir, art_rel, library):
                                for a in bpy.data.actions}
     report["zero_shape_keys_removed"] = removed_keys
     report["notes"] = notes
+    if refinements is not None:
+        report["refinements"] = refinements
+    if authored is not None:
+        report["authored_clips"] = authored["replaced"]
+        report["ik_overreach_m"] = authored["ik_overreach_m"]
+        report["locomotion"] = authored["locomotion"]
     report["bytes"] = export_fbx(out_path, animated=True)
+    correction = subprocess.run(
+        [node, os.path.join(HERE, "correct_pickup_contact.mjs"),
+         "--input", out_path, "--output", out_path],
+        check=True, capture_output=True, text=True,
+    )
+    report["pickup_contact_correction"] = json.loads(correction.stdout)
+    report["bytes"] = os.path.getsize(out_path)
     return report
 
 
-# --------------------------------------------------------------------------- main
+ALL_KINDS = {"items", "letters", "environment", "vfx", "avatar"}
+KIND_OF = {"items": "item", "letters": "letter", "environment": "environment", "vfx": "vfx", "avatar": "avatar"}
+
+
+def merge_library(previous, fresh):
+    materials = {m["name"]: m for m in previous["materials"]}
+    for m in fresh["materials"]:
+        known = materials.get(m["name"])
+        if known:
+            m["sources"] = known["sources"] + [s for s in m["sources"] if s not in known["sources"]]
+        materials[m["name"]] = m
+    textures = dict(previous["textures"])
+    textures.update(fresh["textures"])
+    conflicts = list(previous["conflicts"])
+    conflicts += [c for c in fresh["conflicts"] if c not in conflicts]
+    return {"generator": fresh["generator"],
+            "materials": [materials[n] for n in sorted(materials)],
+            "textures": {n: textures[n] for n in sorted(textures)},
+            "conflicts": conflicts}
 
 
 def main():
@@ -538,25 +523,45 @@ def main():
     if "avatar" in only:
         reports.append(run_avatar(sel, packs, art_dir, art_rel, library))
 
-    # Keep machine-specific folders out of the committed report.
     for rep in reports:
         rep["source"] = os.path.relpath(rep["source"], packs).replace("\\", "/")
         rep["output"] = os.path.relpath(rep["output"], repo).replace("\\", "/")
 
-    # Material library last: it may call Blender's image API, which a scene reset would clear.
+    partial = only != ALL_KINDS
+    report_path = os.path.join(data_dir, "build_report.json")
+    materials_path = os.path.join(data_dir, "materials.json")
+    previous = previous_lib = None
+    if partial:
+        if not (os.path.exists(report_path) and os.path.exists(materials_path)):
+            raise RuntimeError("a partial --only run needs the reports from a full run to merge into")
+        with open(report_path, encoding="utf-8") as f:
+            previous = json.load(f)
+        with open(materials_path, encoding="utf-8") as f:
+            previous_lib = json.load(f)
+
     reset_scene()
     lib = library.write(art_dir, data_dir, art_rel)
+    if partial:
+        lib = merge_library(previous_lib, lib)
+        with open(materials_path, "w", encoding="utf-8") as f:
+            json.dump(lib, f, indent=1)
+        rebuilt = {KIND_OF[k] for k in only}
+        fresh = {(r["kind"], r["name"]): r for r in reports}
+        merged = [fresh.pop((r["kind"], r["name"]), r) if r["kind"] in rebuilt else r for r in previous["files"]]
+        reports = merged + list(fresh.values())
     summary = {
         "generator": "Tools/AssetPipeline/build_assets.py",
         "blender": bpy.app.version_string,
-        "only": sorted(only),
+        "only": sorted(set(previous["only"]) | only) if partial else sorted(only),
         "seconds": round(time.time() - started, 1),
         "files": reports,
         "material_count": len(lib["materials"]),
         "texture_count": len(lib["textures"]),
         "material_conflicts": lib["conflicts"],
     }
-    with open(os.path.join(data_dir, "build_report.json"), "w", encoding="utf-8") as f:
+    if partial:
+        summary["last_partial_run"] = sorted(only)
+    with open(report_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=1)
     print("BUILD_RESULT " + json.dumps({"files": len(reports), "materials": len(lib["materials"]),
                                         "textures": len(lib["textures"]), "conflicts": len(lib["conflicts"]),
@@ -565,7 +570,7 @@ def main():
 
 try:
     main()
-except Exception as exc:  # make failures visible to the calling shell
+except Exception as exc:
     import traceback
     traceback.print_exc()
     print("BUILD_FAILED " + str(exc))

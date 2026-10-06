@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace Wreckabulary.Rules
 {
-    /// <summary>Rooms joined by doorways. Used by the clear-out to make sure nobody gets trapped.</summary>
     public sealed class RoomGraph
     {
         readonly List<string> rooms = new List<string>();
@@ -33,7 +32,6 @@ namespace Wreckabulary.Rules
 
         public IEnumerable<string> Neighbours(string room) => doors[room];
 
-        /// <summary>True if every room in <paramref name="open"/> can reach every other one through open rooms.</summary>
         public bool Connected(ICollection<string> open)
         {
             if (open.Count <= 1) return true;
@@ -50,11 +48,6 @@ namespace Wreckabulary.Rules
             return seen.Count == open.Count;
         }
 
-        /// <summary>
-        /// Checks a closing order (brief §6: "preserve reachable escape routes"). At every step:
-        /// the room closing must have a doorway into a room that is still open, the rooms left open
-        /// must all stay connected, and protected rooms never close. Returns the problems found.
-        /// </summary>
         public List<string> CheckClosureOrder(IList<string> order, ICollection<string> neverClose)
         {
             var problems = new List<string>();
@@ -83,11 +76,6 @@ namespace Wreckabulary.Rules
 
     public enum RoomPhase { Safe, Warning, Filling, Closed }
 
-    /// <summary>
-    /// When each room is packed up by the Movers. Closure i starts filling at
-    /// firstAt + i × interval, is announced warn seconds earlier, and is sealed fill seconds later.
-    /// Times are seconds since the round started.
-    /// </summary>
     public sealed class ClearOutSchedule
     {
         public readonly struct Closure
@@ -130,7 +118,6 @@ namespace Wreckabulary.Rules
             return RoomPhase.Closed;
         }
 
-        /// <summary>Damage per second to anyone inside the room: none until it starts filling, then growing.</summary>
         public float DamagePerSecond(string room, double t)
         {
             if (!byRoom.TryGetValue(room, out var c) || t < c.FillAt) return 0f;
@@ -142,13 +129,11 @@ namespace Wreckabulary.Rules
         public IEnumerable<string> OpenRooms(IEnumerable<string> all, double t) => all.Where(r => PhaseOf(r, t) != RoomPhase.Closed);
     }
 
-    /// <summary>One piece of original furniture in a room.</summary>
     public sealed class FurniturePlacement
     {
         public string Word;
         public string Room;
         public float X, Z, Yaw;
-        /// <summary>Height above the room's floor, for pieces on a balcony or shelf.</summary>
         public float Y;
     }
 
@@ -160,17 +145,49 @@ namespace Wreckabulary.Rules
 
         public bool Contains(float x, float z) => x >= MinX && x <= MaxX && z >= MinZ && z <= MaxZ;
 
-        /// <summary>True if the point is within <paramref name="slack"/> metres of the box, edges included.</summary>
         public bool Touches(float x, float z, float slack) =>
             x >= MinX - slack && x <= MaxX + slack && z >= MinZ - slack && z <= MaxZ + slack;
 
         public bool Overlaps(RoomBox o) => MinX < o.MaxX && o.MinX < MaxX && MinZ < o.MaxZ && o.MinZ < MaxZ;
+
+        public const float StoreyTolerance = 0.5f;
+
+        public bool SameStorey(RoomBox o) => Math.Abs(FloorY - o.FloorY) < StoreyTolerance;
     }
 
     public sealed class Doorway
     {
         public string A, B;
         public float X, Z, Width;
+    }
+
+    public sealed class Stairway
+    {
+        public string Lower, Upper;
+        public float FromX, FromZ, ToX, ToZ, Width;
+
+        public const float MaxSlopeDegrees = 35f;
+        public const float StepOff = 0.7f;
+
+        public float Run => (float)Math.Sqrt((ToX - FromX) * (ToX - FromX) + (ToZ - FromZ) * (ToZ - FromZ));
+        bool AlongZ => Math.Abs(ToX - FromX) < 0.001f;
+        public bool AlongAnAxis => Run > 0f && (AlongZ || Math.Abs(ToZ - FromZ) < 0.001f);
+
+        public float MinX => AlongZ ? FromX - Width * 0.5f : Math.Min(FromX, ToX);
+        public float MaxX => AlongZ ? FromX + Width * 0.5f : Math.Max(FromX, ToX);
+        public float MinZ => AlongZ ? Math.Min(FromZ, ToZ) : FromZ - Width * 0.5f;
+        public float MaxZ => AlongZ ? Math.Max(FromZ, ToZ) : FromZ + Width * 0.5f;
+
+        public bool Covers(float x, float z) => x >= MinX && x <= MaxX && z >= MinZ && z <= MaxZ;
+
+        public bool Within(RoomBox r) => MinX >= r.MinX && MaxX <= r.MaxX && MinZ >= r.MinZ && MaxZ <= r.MaxZ;
+
+        public void Along(float metres, out float x, out float z)
+        {
+            float t = metres / Run;
+            x = FromX + (ToX - FromX) * t;
+            z = FromZ + (ToZ - FromZ) * t;
+        }
     }
 
     public sealed class SpawnPoint
@@ -184,12 +201,12 @@ namespace Wreckabulary.Rules
         public string Word, Room;
     }
 
-    /// <summary>A house map from Data/Config/house_*.json: rooms, doorways, spawns, furniture and clear-out orders.</summary>
     public sealed class HouseLayout
     {
         public string Name;
         public readonly List<RoomBox> Rooms = new List<RoomBox>();
         public readonly List<Doorway> Doors = new List<Doorway>();
+        public readonly List<Stairway> Stairs = new List<Stairway>();
         public readonly List<SpawnPoint> Spawns = new List<SpawnPoint>();
         public readonly List<FurniturePlacement> Furniture = new List<FurniturePlacement>();
         public readonly List<string> NeverClose = new List<string>();
@@ -198,23 +215,75 @@ namespace Wreckabulary.Rules
         public float ExtractionX, ExtractionZ;
         public readonly List<HouseObjective> MovingDay = new List<HouseObjective>();
         public readonly List<SpawnPoint> Keepsakes = new List<SpawnPoint>();
+        public string LobbyRoom;
 
-        /// <summary>Floor furniture must stand at least this far from a doorway's centre, so no room starts blocked.</summary>
         public const float DoorClearance = 1.5f;
+        public const float StandingSlack = 0.3f;
 
         public RoomGraph Graph()
         {
             var g = new RoomGraph();
             foreach (var r in Rooms) g.AddRoom(r.Name);
             foreach (var d in Doors) g.AddDoor(d.A, d.B);
+            foreach (var s in Stairs) g.AddDoor(s.Lower, s.Upper);
             return g;
         }
 
         public RoomBox Room(string name) => Rooms.FirstOrDefault(r => r.Name == name);
 
-        public string RoomAt(float x, float z) => Rooms.FirstOrDefault(r => r.Contains(x, z))?.Name;
+        public string RoomAt(float x, float z)
+        {
+            RoomBox best = null;
+            foreach (var r in Rooms)
+                if (r.Contains(x, z) && (best == null || r.FloorY < best.FloorY - RoomBox.StoreyTolerance)) best = r;
+            return best?.Name;
+        }
 
-        /// <summary>The letters you get from breaking every piece of original furniture in a room.</summary>
+        public string RoomAt(float x, float y, float z)
+        {
+            RoomBox best = null;
+            foreach (var r in Rooms)
+                if (r.Contains(x, z) && r.FloorY <= y + StandingSlack && (best == null || r.FloorY > best.FloorY + RoomBox.StoreyTolerance)) best = r;
+            return best?.Name ?? RoomAt(x, z);
+        }
+
+        public List<float> StoreyFloors()
+        {
+            var floors = new List<float>();
+            foreach (float y in Rooms.Select(r => r.FloorY).OrderBy(y => y))
+                if (floors.Count == 0 || y >= floors[floors.Count - 1] + RoomBox.StoreyTolerance) floors.Add(y);
+            return floors;
+        }
+
+        public string StoreyLabel(int storey)
+        {
+            if (storey <= 0) return "GROUND FLOOR";
+            if (StoreyFloors().Count == 2) return "UPSTAIRS";
+            int lastTwo = storey % 100;
+            string suffix = lastTwo >= 11 && lastTwo <= 13 ? "TH" : storey % 10 == 1 ? "ST" : storey % 10 == 2 ? "ND" : storey % 10 == 3 ? "RD" : "TH";
+            return storey + suffix + " FLOOR";
+        }
+
+        public string WithStorey(string room)
+        {
+            var box = Room(room);
+            if (box == null || StoreyFloors().Count < 2) return room;
+            return room + " (" + StoreyLabel(StoreyOf(box)).ToLowerInvariant() + ")";
+        }
+
+        public int StoreyOf(RoomBox room) => LastStoreyAtOrBelow(room.FloorY + 0.0001f);
+
+        public int StoreyAt(float y) => LastStoreyAtOrBelow(y + StandingSlack);
+
+        int LastStoreyAtOrBelow(float y)
+        {
+            var floors = StoreyFloors();
+            int storey = 0;
+            for (int i = 1; i < floors.Count; i++)
+                if (floors[i] <= y) storey = i;
+            return storey;
+        }
+
         public LetterBag LettersIn(string room)
         {
             var bag = new LetterBag();
@@ -234,14 +303,16 @@ namespace Wreckabulary.Rules
                 if (r.MaxX <= r.MinX || r.MaxZ <= r.MinZ) problems.Add($"room {r.Name} has no area");
             for (int i = 0; i < Rooms.Count; i++)
                 for (int j = i + 1; j < Rooms.Count; j++)
-                    if (Rooms[i].Overlaps(Rooms[j])) problems.Add($"rooms {Rooms[i].Name} and {Rooms[j].Name} overlap");
+                    if (Rooms[i].SameStorey(Rooms[j]) && Rooms[i].Overlaps(Rooms[j])) problems.Add($"rooms {Rooms[i].Name} and {Rooms[j].Name} overlap");
             foreach (var d in Doors)
             {
                 if (d.Width < 0.9f) problems.Add($"doorway {d.A}-{d.B} is {d.Width} m wide; a player needs 0.9 m");
-                // Rooms don't overlap, so a point touching both boxes lies on the wall they share.
-                if (!Room(d.A).Touches(d.X, d.Z, 0.01f) || !Room(d.B).Touches(d.X, d.Z, 0.01f))
+                if (!Room(d.A).SameStorey(Room(d.B))) problems.Add($"doorway {d.A}-{d.B} joins two storeys; use stairs");
+                else if (!Room(d.A).Touches(d.X, d.Z, 0.01f) || !Room(d.B).Touches(d.X, d.Z, 0.01f))
                     problems.Add($"doorway {d.A}-{d.B} at ({d.X}, {d.Z}) isn't on a wall the two rooms share");
             }
+            foreach (var s in Stairs) ValidateStairs(s, problems);
+            if (LobbyRoom != null && !all.Contains(LobbyRoom)) problems.Add($"lobby room {LobbyRoom} doesn't exist");
             foreach (var s in Spawns)
             {
                 if (!all.Contains(s.Room)) problems.Add($"a spawn is in unknown room {s.Room}");
@@ -281,6 +352,57 @@ namespace Wreckabulary.Rules
             return problems;
         }
 
+        void ValidateStairs(Stairway s, List<string> problems)
+        {
+            string name = $"stairs {s.Lower}-{s.Upper}";
+            RoomBox lower = Room(s.Lower), upper = Room(s.Upper);
+            float rise = upper.FloorY - lower.FloorY;
+            if (rise < RoomBox.StoreyTolerance) problems.Add($"{name} must climb from {s.Lower} to a higher storey");
+            if (s.Width < 0.9f) problems.Add($"{name} are {s.Width} m wide; a player needs 0.9 m");
+            if (!s.AlongAnAxis)
+            {
+                problems.Add($"{name} must run straight along X or Z");
+                return;
+            }
+            double slope = Math.Atan2(rise, s.Run) * 180.0 / Math.PI;
+            if (slope > Stairway.MaxSlopeDegrees + 0.01) problems.Add($"{name} climb at {slope:0.#}°; at most {Stairway.MaxSlopeDegrees}°");
+            if (!s.Within(lower) || !s.Within(upper)) problems.Add($"{name} must lie inside both {s.Lower} and {s.Upper}");
+            s.Along(-Stairway.StepOff, out float onX, out float onZ);
+            s.Along(s.Run + Stairway.StepOff, out float offX, out float offZ);
+            if (!lower.Contains(onX, onZ) || !upper.Contains(offX, offZ)) problems.Add($"{name} need clear floor to step on and off");
+            foreach (var r in Rooms.Where(r => r.FloorY > lower.FloorY + RoomBox.StoreyTolerance && r.FloorY < upper.FloorY - RoomBox.StoreyTolerance))
+                if (r.MinX < s.MaxX && r.MaxX > s.MinX && r.MinZ < s.MaxZ && r.MaxZ > s.MinZ)
+                    problems.Add($"{name} pass through the floor of {r.Name}; stairs join neighbouring storeys");
+            bool alongZ = Math.Abs(s.ToX - s.FromX) < 0.001f;
+            bool ApronMeets(Stairway t, float endX, float endZ, float stepX, float stepZ) => alongZ
+                ? t.MinX < s.MaxX && t.MaxX > s.MinX && t.MinZ < Math.Max(endZ, stepZ) && t.MaxZ > Math.Min(endZ, stepZ)
+                : t.MinZ < s.MaxZ && t.MaxZ > s.MinZ && t.MinX < Math.Max(endX, stepX) && t.MaxX > Math.Min(endX, stepX);
+            s.Along(0f, out float footX, out float footZ);
+            s.Along(s.Run, out float topX, out float topZ);
+            foreach (var t in Stairs.Where(t => t != s))
+            {
+                string other = $"the stairs {t.Lower}-{t.Upper}";
+                bool InRoom(string room) => t.Lower == room || t.Upper == room;
+                if ((InRoom(s.Lower) && ApronMeets(t, footX, footZ, onX, onZ)) || (InRoom(s.Upper) && ApronMeets(t, topX, topZ, offX, offZ)))
+                    problems.Add($"{name} step on or off over {other}");
+                if (Stairs.IndexOf(t) > Stairs.IndexOf(s) && (InRoom(s.Lower) || InRoom(s.Upper))
+                    && t.MinX < s.MaxX && t.MaxX > s.MinX && t.MinZ < s.MaxZ && t.MaxZ > s.MinZ)
+                    problems.Add($"{name} overlap {other}");
+            }
+            bool OnThem(string room, float x, float z) => (room == s.Lower || room == s.Upper) && s.Covers(x, z);
+            foreach (var f in Furniture.Where(f => f.Y < 1f))
+            {
+                if (OnThem(f.Room, f.X, f.Z)) problems.Add($"{f.Word} at ({f.X}, {f.Z}) stands on the {name}");
+                float ex = f.Room == s.Lower ? footX : topX, ez = f.Room == s.Lower ? footZ : topZ;
+                if ((f.Room == s.Lower || f.Room == s.Upper) && (f.X - ex) * (f.X - ex) + (f.Z - ez) * (f.Z - ez) < DoorClearance * DoorClearance)
+                    problems.Add($"{f.Word} at ({f.X}, {f.Z}) is within {DoorClearance} m of an end of the {name}");
+            }
+            foreach (var p in Spawns.Concat(Keepsakes))
+                if (OnThem(p.Room, p.X, p.Z)) problems.Add($"a spawn or keepsake at ({p.X}, {p.Z}) is on the {name}");
+            if (ExtractionRoom != null && OnThem(ExtractionRoom, ExtractionX, ExtractionZ))
+                problems.Add($"the extraction point is on the {name}");
+        }
+
         public static HouseLayout FromJson(string json, string source = "house.json")
         {
             var root = Json.Parse(json, source);
@@ -297,6 +419,19 @@ namespace Wreckabulary.Rules
                 var at = d["at"].Floats(2);
                 h.Doors.Add(new Doorway { A = between[0], B = between[1], X = at[0], Z = at[1], Width = d["width"].Float(1.4f) });
             }
+            if (root.Has("stairs"))
+                foreach (var s in root["stairs"].Items)
+                {
+                    var between = s["between"].Strings();
+                    if (between.Count != 2) throw new FormatException($"{source}: {s.Path}.between must name the lower and the upper room");
+                    var from = s["from"].Floats(2);
+                    var to = s["to"].Floats(2);
+                    h.Stairs.Add(new Stairway
+                    {
+                        Lower = between[0], Upper = between[1], FromX = from[0], FromZ = from[1], ToX = to[0], ToZ = to[1], Width = s["width"].Float(1.6f),
+                    });
+                }
+            h.LobbyRoom = root["lobbyRoom"].String(null);
             foreach (var s in root["spawns"].Items)
             {
                 var at = s["at"].Floats(2);

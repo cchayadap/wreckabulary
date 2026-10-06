@@ -8,7 +8,7 @@
   "letters",
   "vfx"
  ],
- "seconds": 10.4,
+ "seconds": 37.5,
  "files": [
   {
    "kind": "item",
@@ -3215,7 +3215,7 @@
    "name": "Avatar",
    "source": "quality-pass-01/Wreckabulary_Quality_Pass_01/03_Avatar/Source_Avatar_Unchanged.glb",
    "output": "Assets/_Project/Art/Imported/Avatar/Avatar.fbx",
-   "triangles": 63110,
+   "triangles": 65086,
    "meshes": [
     "SK_Badge_T",
     "SK_Boots",
@@ -3237,6 +3237,7 @@
     "fabric_rib",
     "glasses_frame",
     "gloves_color",
+    "hair",
     "headwear_color",
     "ivory_badge",
     "ivory_vinyl",
@@ -3247,14 +3248,14 @@
    ],
    "empties": [],
    "bounds_min": [
-    -0.3725,
+    -0.37444,
     0.002,
     -0.255
    ],
    "bounds_max": [
-    0.3725,
-    1.15502,
-    0.30994
+    0.37444,
+    1.0122,
+    0.31804
    ],
    "actions": [
     "Block_Plate",
@@ -3390,10 +3391,100 @@
     "Satchel: 1 mesh(es) rebound to Avatar_01",
     "Badge_T: 1 mesh(es) rebound to Avatar_01"
    ],
-   "bytes": 5127692
+   "refinements": {
+    "hood_crown_polys_removed": 5472,
+    "headwear_room": {
+     "SK_Hood": 1.04,
+     "SK_Cap": 1.03
+    },
+    "hair_faces": 2432,
+    "hair_headwear_fits": 912,
+    "hair_thickness_m": {
+     "min": 0.0011,
+     "median": 0.0139,
+     "max": 0.0249
+    },
+    "drawstring_faces": 448,
+    "cuff_L": {
+     "faces": 432,
+     "radius_m": 0.0647,
+     "past_sleeve_m": 0.0013
+    },
+    "cuff_R": {
+     "faces": 432,
+     "radius_m": 0.0647,
+     "past_sleeve_m": 0.0013
+    },
+    "strap_vertices_widened": 100,
+    "buckle_faces": 96,
+    "buckle_at": [
+     -0.1271,
+     -0.1294,
+     0.465
+    ],
+    "strap_width_m": 0.0418,
+    "trouser_vertices_widened": 1164
+   },
+   "authored_clips": [
+    "Idle",
+    "Walk_InPlace",
+    "Run_InPlace",
+    "Jump_Preview",
+    "Swing_OneHand",
+    "Thrust_OneHand",
+    "Throw_OneHand",
+    "Hit_Reaction",
+    "Celebrate"
+   ],
+   "ik_overreach_m": {
+    "Idle": 0.00023,
+    "Walk_InPlace": 0.0,
+    "Run_InPlace": 0.00202,
+    "Jump_Preview": 0.0,
+    "Swing_OneHand": 0.0,
+    "Thrust_OneHand": 0.0,
+    "Throw_OneHand": 0.0,
+    "Hit_Reaction": 0.0,
+    "Celebrate": 0.0
+   },
+   "locomotion": {
+    "Walk_InPlace": {
+     "stride": 0.2483,
+     "cycle_seconds": 0.9,
+     "duty": 0.58
+    },
+    "Run_InPlace": {
+     "stride": 0.5176,
+     "cycle_seconds": 0.7,
+     "duty": 0.34
+    }
+   },
+   "bytes": 5215228,
+   "pickup_contact_correction": {
+    "status": "PASS",
+    "dryRun": false,
+    "wroteOutput": true,
+    "sourceSha256": "fb23a843f8068a01e1ad1437715d6354a1828f0d2f2fde7f2d3e5820b57525aa",
+    "outputSha256": "f1199f15a333de765e49aa4b6773a1c71c3347c9ca4a5169c93ab54190a1c6c3",
+    "changedCurves": 6,
+    "nonTargetPropertyBytesPreserved": true,
+    "idempotent": true,
+    "sourceMinimumBootY": [
+     -0.05295946798943113,
+     -0.05295944165567218
+    ],
+    "correctedMinimumBootY": [
+     0.000800297481448678,
+     0.0008003158225899643
+    ],
+    "denseSamples": 6913
+   }
   }
  ],
- "material_count": 72,
+ "material_count": 73,
  "texture_count": 18,
- "material_conflicts": []
+ "material_conflicts": [],
+ "last_partial_run": [
+  "avatar"
+ ]
 }

@@ -24,12 +24,6 @@ namespace Wreckabulary.EditorTools
         const string LivingRoomPath = Root + "/Scenes/LivingRoom.unity";
         const string TutorialPath = Root + "/Scenes/Tutorial.unity";
         const string MovingDayPath = Root + "/Scenes/MovingDay.unity";
-        const string BedroomPath = Root + "/Scenes/Bedroom.unity";
-        const string KitchenPath = Root + "/Scenes/Kitchen.unity";
-        const string GardenPath = Root + "/Scenes/Garden.unity";
-        const string CreativePath = Root + "/Scenes/Creative.unity";
-        const string CustomArenaPath = Root + "/Scenes/CustomArena.unity";
-        const string FurnishFirstPath = Root + "/Scenes/FurnishFirst.unity";
         const string TestEmptyPath = Root + "/Tests/Empty.unity";
         const string AssetsPath = Root + "/Resources/GameAssets.asset";
         const string WordsPath = Root + "/Data/Words.asset";
@@ -63,9 +57,6 @@ namespace Wreckabulary.EditorTools
 
             var assets = BuildGameAssets();
             GameAssets.I = assets;
-            Directory.CreateDirectory(Root + "/Art/Letters");
-            assets.letterMeshes = LetterMeshBuilder.BuildAll(assets.font, Root + "/Art/Letters");
-            EditorUtility.SetDirty(assets);
             GameAssets.EditorTintFactory = SaveTint;
             try
             {
@@ -76,13 +67,6 @@ namespace Wreckabulary.EditorTools
                 BuildHub(assets);
                 BuildTutorial(assets);
                 BuildLivingRoom(assets);
-                BuildBedroom(assets);
-                BuildKitchen(assets);
-                BuildGarden(assets);
-                BuildCreative(assets);
-                BuildFurnishFirst(assets);
-                BuildDibsMap(assets, CustomArenaPath, "Your Room", "<i>Home Sweet Home</i>", new RoomStyle(), new Piece[0],
-                             new[] { "BOX", "WAX", "PIZZA", "QUILT", "SOCKS", "GAMES", "JAM", "ZIPPER" }, custom: true);
                 BuildMovingDay(assets);
                 // Blank scene the play mode tests reset to between tests.
                 EditorSceneManager.SaveScene(EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single), TestEmptyPath);
@@ -92,12 +76,6 @@ namespace Wreckabulary.EditorTools
                     new EditorBuildSettingsScene(LivingRoomPath, true),
                     new EditorBuildSettingsScene(TutorialPath, true),
                     new EditorBuildSettingsScene(MovingDayPath, true),
-                    new EditorBuildSettingsScene(BedroomPath, true),
-                    new EditorBuildSettingsScene(KitchenPath, true),
-                    new EditorBuildSettingsScene(GardenPath, true),
-                    new EditorBuildSettingsScene(CreativePath, true),
-                    new EditorBuildSettingsScene(CustomArenaPath, true),
-                    new EditorBuildSettingsScene(FurnishFirstPath, true),
                 };
             }
             finally
@@ -178,24 +156,25 @@ namespace Wreckabulary.EditorTools
         static LetterTile BuildTilePrefab(GameAssets assets)
         {
             var go = new GameObject("LetterTile") { layer = LayerMask.NameToLayer("Tile") };
+            var size = Vector3.one * 0.36f;
             var rb = go.AddComponent<Rigidbody>();
             rb.mass = 0.15f;
             rb.linearDamping = 0.3f;
             rb.angularDamping = 0.5f;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
-            var box = go.AddComponent<BoxCollider>();
+            go.AddComponent<BoxCollider>().size = size;
 
             var mesh = new GameObject("Mesh") { layer = go.layer };
             mesh.transform.SetParent(go.transform, false);
-            var filter = mesh.AddComponent<MeshFilter>();
+            mesh.transform.localScale = size;
+            mesh.AddComponent<MeshFilter>().sharedMesh = assets.blockMesh;
             var renderer = mesh.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = assets.tileCommon;
+            var labels = LetterBlocks.AddLabels(go.transform, "A", size, false);
 
             var tile = go.AddComponent<LetterTile>();
-            Set(tile, "meshFilter", filter);
+            Set(tile, "labels", labels);
             Set(tile, "body", renderer);
-            Set(tile, "box", box);
-            tile.SetLetter('A');
             return Save(go, "LetterTile").GetComponent<LetterTile>();
         }
 
@@ -334,7 +313,7 @@ namespace Wreckabulary.EditorTools
 
         /// <summary>What every scene shares: lighting, camera, the room shell, HUD, tile pool and join manager.</summary>
         static SceneKit NewRoomScene(GameAssets assets, Vector3[] spawnPositions, bool frontDoor, bool backToHub,
-                                     string sign = "<i>Home Sweet Home</i>", RoomStyle style = null)
+                                     string sign = "<i>Home Sweet Home</i>")
         {
             var kit = new SceneKit { scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single) };
 
@@ -354,14 +333,13 @@ namespace Wreckabulary.EditorTools
             var cam = camGo.AddComponent<Camera>();
             cam.fieldOfView = 40f;
             cam.clearFlags = CameraClearFlags.SolidColor;
-            style ??= new RoomStyle();
-            cam.backgroundColor = Hex(style.background);
+            cam.backgroundColor = Hex("2E2A36");
             camGo.transform.position = new Vector3(0f, 13.5f, -12.5f);
             camGo.transform.LookAt(new Vector3(0f, 0f, 0.2f));
             camGo.AddComponent<CameraRig>();
             camGo.AddComponent<AudioListener>();
 
-            BuildRoom(frontDoor, sign, style);
+            BuildRoom(frontDoor, sign);
 
             var spawns = new GameObject("SpawnPoints").transform;
             var spawnPoints = new Transform[spawnPositions.Length];
@@ -448,81 +426,13 @@ namespace Wreckabulary.EditorTools
             Primitive(PrimitiveType.Cube, hinge, "Front Door", new Vector3(0f, 1.15f, -0.75f), new Vector3(0.1f, 2.3f, 1.5f), Lit("Door", Hex("7B4A2E"), 0.3f));
 
 
-            var wardrobe = BuildWardrobe(assets, kit.hud, new Vector3(5.2f, 0f, 5.3f));
-
             var director = kit.game.AddComponent<HubDirector>();
             Set(director, "joins", kit.joins);
             Set(director, "hud", kit.hud);
             Set(director, "typewriter", typewriter);
-            Set(director, "wardrobe", wardrobe);
             Set(director, "door", hinge);
 
             EditorSceneManager.SaveScene(kit.scene, HubPath);
-        }
-
-        /// <summary>A CLOSET to walk up to, a camera that films you for the preview, and the dress-up page on the HUD.</summary>
-        static Wardrobe BuildWardrobe(GameAssets assets, GameHud hud, Vector3 closetAt)
-        {
-            Furniture.Prop(null, "CLOSET", closetAt, 0f, Vector3.one * 0.45f, 0, Hex("9A6FA0"));
-            var station = new GameObject("Wardrobe");
-            station.transform.position = closetAt + new Vector3(0f, 0f, -1.1f);
-
-            var prompt = WorldText(null, "Wardrobe Prompt", closetAt + new Vector3(0f, 2.3f, -0.6f), Quaternion.identity, 3f, new Vector2(6f, 1f), assets);
-            prompt.outlineWidth = 0.25f;
-            prompt.outlineColor = new Color32(40, 26, 18, 255);
-
-            var camGo = new GameObject("Wardrobe Camera");
-            var cam = camGo.AddComponent<Camera>();
-            cam.fieldOfView = 32f;
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = Hex("F3E4CC");
-            cam.nearClipPlane = 0.1f;
-            cam.farClipPlane = 12f;
-            cam.enabled = false;
-
-            // The page: a dim overlay, the mirror on the left, the options on the right.
-            var canvas = hud.transform;
-            var root = UiPanel(canvas, "Wardrobe Page", new Vector2(0.5f, 0.5f), new Vector2(4000f, 4000f), new Color(0.08f, 0.06f, 0.08f, 0.55f));
-            UiPanel(root.transform, "Mirror Frame", new Vector2(0.3f, 0.52f), new Vector2(660f, 660f), Hex("C8A06E"));
-            var previewGo = new GameObject("Mirror", typeof(RectTransform));
-            previewGo.transform.SetParent(root.transform, false);
-            var previewRt = (RectTransform)previewGo.transform;
-            previewRt.anchorMin = previewRt.anchorMax = new Vector2(0.3f, 0.52f);
-            previewRt.sizeDelta = new Vector2(620f, 620f);
-            var preview = previewGo.AddComponent<RawImage>();
-            var options = UiPanel(root.transform, "Options", new Vector2(0.71f, 0.52f), new Vector2(760f, 660f), new Color(0.13f, 0.1f, 0.11f, 0.9f));
-
-            var title = UiText(options.transform, "Title", new Vector2(0.5f, 0.9f), new Vector2(700f, 90f), 58f, assets);
-            var rows = UiText(options.transform, "Rows", new Vector2(0.5f, 0.48f), new Vector2(660f, 420f), 46f, assets);
-            rows.alignment = TextAlignmentOptions.Left;
-            rows.lineSpacing = 18f;
-            var hint = UiText(options.transform, "Hint", new Vector2(0.5f, 0.07f), new Vector2(720f, 60f), 26f, assets);
-            hint.color = new Color(1f, 0.96f, 0.88f, 0.75f);
-            root.SetActive(false);
-
-            var page = root.AddComponent<WardrobePage>();
-            Set(page, "root", root);
-            Set(page, "preview", preview);
-            Set(page, "title", title);
-            Set(page, "rows", rows);
-            Set(page, "hint", hint);
-
-            var wardrobe = station.AddComponent<Wardrobe>();
-            Set(wardrobe, "page", page);
-            Set(wardrobe, "previewCamera", cam);
-            Set(wardrobe, "prompt", prompt);
-            return wardrobe;
-        }
-
-        static GameObject UiPanel(Transform parent, string name, Vector2 anchor, Vector2 size, Color colour)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var rt = (RectTransform)go.transform;
-            rt.anchorMin = rt.anchorMax = anchor;
-            rt.sizeDelta = size;
-            go.AddComponent<Image>().color = colour;
-            return go;
         }
 
         static void BuildTutorial(GameAssets assets)
@@ -602,19 +512,6 @@ namespace Wreckabulary.EditorTools
                             new MovingDayDirector.Item { word = "CLOCK", room = "Living Room" },
                         }
                     },
-                    new MovingDayDirector.Level
-                    {
-                        name = "Cozy Corner", timeLimit = 200f, spills = true,
-                        items = new[]
-                        {
-                            new MovingDayDirector.Item { word = "SHELF", room = "Bedroom" },
-                            new MovingDayDirector.Item { word = "TEDDY", room = "Bedroom" },
-                            new MovingDayDirector.Item { word = "MIRROR", room = "Bedroom" },
-                            new MovingDayDirector.Item { word = "PIANO", room = "Living Room" },
-                            new MovingDayDirector.Item { word = "STOOL", room = "Living Room" },
-                            new MovingDayDirector.Item { word = "FAN", room = "Living Room" },
-                        }
-                    },
                 });
 
             EditorSceneManager.SaveScene(kit.scene, MovingDayPath);
@@ -627,60 +524,30 @@ namespace Wreckabulary.EditorTools
             t.color = new Color(1f, 1f, 1f, 0.35f);
         }
 
-        /// <summary>Colours and dressing for the room shell. The default is the original living room.</summary>
-        class RoomStyle
-        {
-            public string floor = "C9A27E", back = "F1E4CC", side = "A9BF9F", trim = "C4694A", rug = "7FA08A";
-            public Vector3 rugCentre = new(0f, 0.005f, 1f);
-            public Vector2 rugSize = new(7.5f, 4.6f);
-            public bool window = true;
-            /// <summary>Outdoors: low hedges instead of walls, and sky behind.</summary>
-            public bool outdoor;
-            public string background = "2E2A36";
-            public string signColour = "C4694A";
-        }
-
-        static Material RoomMat(string hex, float smoothness = 0.15f) => Lit("Room_" + hex, Hex(hex), smoothness);
-
-        static void BuildRoom(bool frontDoor, string sign, RoomStyle style)
+        static void BuildRoom(bool frontDoor, string sign)
         {
             var room = new GameObject("Room").transform;
-            var floor = RoomMat(style.floor, 0.3f);
-            var back = RoomMat(style.back);
-            var side = RoomMat(style.side);
-            var trim = RoomMat(style.trim, 0.2f);
+            var floor = Lit("Floor_Wood", Hex("C9A27E"), 0.35f);
+            var cream = Lit("Wall_Cream", Hex("F1E4CC"), 0.1f);
+            var sage = Lit("Wall_Sage", Hex("A9BF9F"), 0.1f);
+            var terracotta = Lit("Trim_Terracotta", Hex("C4694A"), 0.2f);
+            var rug = Lit("Rug_Sage", Hex("7FA08A"), 0.05f);
+            var glass = Lit("Window_Sky", Hex("BFE3F2"), 0.9f);
 
             Block(room, "Floor", new Vector3(0f, -0.1f, 0f), new Vector3(17f, 0.2f, 12.3f), floor);
-            if (!string.IsNullOrEmpty(style.rug))
-                Block(room, "Rug", style.rugCentre, new Vector3(style.rugSize.x, 0.01f, style.rugSize.y), RoomMat(style.rug, 0.05f), collider: false);
-
-            // Walls are 3.2 m tall indoors. Outdoors they are waist-high hedges, but still just as hard to get past.
-            float h = style.outdoor ? 1.0f : 3.2f;
-            float y = h * 0.5f;
-            Block(room, "Wall Back", new Vector3(0f, y, 6.3f), new Vector3(17.6f, h, 0.3f), back);
-            Block(room, "Wall Right", new Vector3(8.65f, y, 0f), new Vector3(0.3f, h, 12.9f), side);
-            if (style.outdoor)
-            {
-                Invisible(room, "Wall Back (invisible)", new Vector3(0f, 2.1f, 6.3f), new Vector3(17.6f, 2.2f, 0.3f));
-                Invisible(room, "Wall Right (invisible)", new Vector3(8.65f, 2.1f, 0f), new Vector3(0.3f, 2.2f, 12.9f));
-                Invisible(room, "Wall Left (invisible)", new Vector3(-8.65f, 2.1f, 0f), new Vector3(0.3f, 2.2f, 12.9f));
-            }
-            else
-            {
-                Block(room, "Baseboard Back", new Vector3(0f, 0.12f, 6.12f), new Vector3(17f, 0.24f, 0.06f), trim, collider: false);
-            }
-            if (style.window && !style.outdoor)
-            {
-                Block(room, "Window", new Vector3(-4f, 1.9f, 6.14f), new Vector3(2.6f, 1.4f, 0.04f), Lit("Window_Sky", Hex("BFE3F2"), 0.9f), collider: false);
-                Block(room, "Window Frame", new Vector3(-4f, 1.9f, 6.145f), new Vector3(2.8f, 1.6f, 0.02f), trim, collider: false);
-            }
+            Block(room, "Rug", new Vector3(0f, 0.005f, 1f), new Vector3(7.5f, 0.01f, 4.6f), rug, collider: false);
+            Block(room, "Wall Back", new Vector3(0f, 1.6f, 6.3f), new Vector3(17.6f, 3.2f, 0.3f), cream);
+            Block(room, "Wall Right", new Vector3(8.65f, 1.6f, 0f), new Vector3(0.3f, 3.2f, 12.9f), sage);
+            Block(room, "Baseboard Back", new Vector3(0f, 0.12f, 6.12f), new Vector3(17f, 0.24f, 0.06f), terracotta, collider: false);
+            Block(room, "Window", new Vector3(-4f, 1.9f, 6.14f), new Vector3(2.6f, 1.4f, 0.04f), glass, collider: false);
+            Block(room, "Window Frame", new Vector3(-4f, 1.9f, 6.145f), new Vector3(2.8f, 1.6f, 0.02f), terracotta, collider: false);
 
             if (frontDoor)
             {
                 // Left wall with a doorway at z -2.75..-1.25, and a small fenced porch outside it.
-                Block(room, "Wall Left (front)", new Vector3(-8.65f, 1.6f, -4.6f), new Vector3(0.3f, 3.2f, 3.7f), side);
-                Block(room, "Wall Left (back)", new Vector3(-8.65f, 1.6f, 2.6f), new Vector3(0.3f, 3.2f, 7.7f), side);
-                Block(room, "Wall Left (over door)", new Vector3(-8.65f, 2.75f, -2f), new Vector3(0.3f, 0.9f, 1.5f), side);
+                Block(room, "Wall Left (front)", new Vector3(-8.65f, 1.6f, -4.6f), new Vector3(0.3f, 3.2f, 3.7f), sage);
+                Block(room, "Wall Left (back)", new Vector3(-8.65f, 1.6f, 2.6f), new Vector3(0.3f, 3.2f, 7.7f), sage);
+                Block(room, "Wall Left (over door)", new Vector3(-8.65f, 2.75f, -2f), new Vector3(0.3f, 0.9f, 1.5f), sage);
                 Block(room, "Porch", new Vector3(-10.7f, -0.1f, -2f), new Vector3(4.2f, 0.2f, 2.6f), floor);
                 Invisible(room, "Porch Fence (end)", new Vector3(-12.95f, 1.5f, -2f), new Vector3(0.3f, 3f, 3f));
                 Invisible(room, "Porch Fence (front)", new Vector3(-10.7f, 1.5f, -3.45f), new Vector3(4.6f, 3f, 0.3f));
@@ -688,168 +555,15 @@ namespace Wreckabulary.EditorTools
             }
             else
             {
-                Block(room, "Wall Left", new Vector3(-8.65f, y, 0f), new Vector3(0.3f, h, 12.9f), side);
+                Block(room, "Wall Left", new Vector3(-8.65f, 1.6f, 0f), new Vector3(0.3f, 3.2f, 12.9f), sage);
             }
 
             // The front wall is invisible so the camera can see in.
             Invisible(room, "Wall Front (invisible)", new Vector3(0f, 1.6f, -6.3f), new Vector3(17.6f, 3.2f, 0.3f));
             Invisible(room, "Ceiling (invisible)", new Vector3(0f, 9f, 0f), new Vector3(17.6f, 0.3f, 12.9f));
 
-            if (!string.IsNullOrEmpty(sign))
-                WallText(new Vector3(3.5f, style.outdoor ? 1.6f : 2.2f, style.outdoor ? 6.1f : 6.13f), sign, 5f, Hex(style.signColour));
+            WallText(new Vector3(3.5f, 2.2f, 6.13f), sign, 5f, Hex("C4694A"));
         }
-
-        // ---------------------------------------------------------------- Dibs! maps
-
-        /// <summary>A piece of furniture in a map: word, position (x, z), turn, and an optional height (on a table).</summary>
-        struct Piece
-        {
-            public string word;
-            public float x, z, yaw, y;
-            public Piece(string word, float x, float z, float yaw = 0f, float y = 0f)
-            {
-                this.word = word; this.x = x; this.z = z; this.yaw = yaw; this.y = y;
-            }
-        }
-
-        static readonly Vector3[] DibsSpawns =
-        {
-            new(-4.8f, 0f, -2.8f), new(4.8f, 0f, -2.8f), new(-2.9f, 0f, 3.2f), new(2.9f, 0f, 3.2f)
-        };
-
-        /// <summary>A Dibs! arena: the shared room shell, letter-built furniture from the catalog, and themed deliveries.</summary>
-        static void BuildDibsMap(GameAssets assets, string path, string mapName, string sign, RoomStyle style,
-                                 Piece[] pieces, string[] deliveries, bool custom = false)
-        {
-            var kit = NewRoomScene(assets, DibsSpawns, frontDoor: false, backToHub: true, sign, style);
-            var root = new GameObject("Furniture").transform;
-            foreach (var p in pieces)
-                FurnitureCatalog.Spawn(p.word, new Vector3(p.x, p.y, p.z), p.yaw, root);
-
-            var roomBuilder = kit.game.AddComponent<RoomBuilder>();
-            Set(roomBuilder, "furnitureRoot", root);
-            var delivery = kit.game.AddComponent<DeliverySpawner>();
-            Set(delivery, "words", deliveries);
-            var rounds = kit.game.AddComponent<RoundManager>();
-            Set(rounds, "joins", kit.joins);
-            Set(rounds, "room", roomBuilder);
-            Set(rounds, "deliveries", delivery);
-            Set(rounds, "hud", kit.hud);
-            Set(rounds, "mapName", mapName);
-            if (custom)
-            {
-                // Furnished from the room built in Creative, with the rules chosen there.
-                Set(roomBuilder, "useCustomRoom", true);
-                Set(rounds, "useCustomRules", true);
-            }
-            EditorSceneManager.SaveScene(kit.scene, path);
-        }
-
-        static void BuildFurnishFirst(GameAssets assets)
-        {
-            // One corner per roommate: front-left, front-right, back-left, back-right. The middle is where boxes land.
-            var zones = new[]
-            {
-                new FurnishFirstDirector.Zone { xRange = new Vector2(-8.4f, -2.6f), zRange = new Vector2(-6f, -0.8f) },
-                new FurnishFirstDirector.Zone { xRange = new Vector2(2.6f, 8.4f), zRange = new Vector2(-6f, -0.8f) },
-                new FurnishFirstDirector.Zone { xRange = new Vector2(-8.4f, -2.6f), zRange = new Vector2(0.8f, 6f) },
-                new FurnishFirstDirector.Zone { xRange = new Vector2(2.6f, 8.4f), zRange = new Vector2(0.8f, 6f) },
-            };
-            var spawns = new Vector3[zones.Length];
-            for (int i = 0; i < zones.Length; i++) spawns[i] = zones[i].Centre;
-
-            var kit = NewRoomScene(assets, spawns, frontDoor: false, backToHub: true, "<i>Furnish First!</i>",
-                                   new RoomStyle { rug = "D9C7A0", rugCentre = new(0f, 0.005f, 0f), rugSize = new(4.2f, 11.6f) });
-            Set(kit.joins, "starterLetters", 0);
-
-            var floor = new GameObject("Corners").transform;
-            for (int i = 0; i < zones.Length; i++)
-            {
-                var z = zones[i];
-                var tint = Color.Lerp(assets.PlayerColor(i), Color.white, 0.55f);
-                var size = new Vector3(z.xRange.y - z.xRange.x, 0.01f, z.zRange.y - z.zRange.x);
-                Block(floor, $"Corner {i + 1}", z.Centre + Vector3.up * 0.006f, size, SaveTint(tint), collider: false);
-                var label = WorldText(floor, $"Corner {i + 1} Label", z.Centre + new Vector3(0f, 0.02f, 0.8f), Quaternion.Euler(90f, 0f, 0f), 14f, new Vector2(4f, 3f), assets);
-                label.text = $"{assets.PlayerInitial(i)}";
-                label.color = new Color(1f, 1f, 1f, 0.45f);
-            }
-
-            var director = kit.game.AddComponent<FurnishFirstDirector>();
-            Set(director, "joins", kit.joins);
-            Set(director, "hud", kit.hud);
-            director.Configure(zones);
-            EditorSceneManager.SaveScene(kit.scene, FurnishFirstPath);
-        }
-
-        static void BuildCreative(GameAssets assets)
-        {
-            var kit = NewRoomScene(assets, DibsSpawns, frontDoor: false, backToHub: true);
-            Set(kit.joins, "starterLetters", 0);
-
-            // The room menu: a desk with a typewriter at the back, static so it can't be grabbed or smashed.
-            Furniture.Prop(null, "DESK", new Vector3(0f, 0f, 5.3f), 0f, new Vector3(0.9f, 0.8f, 1.0f), 0, Hex("8A5A3B"));
-            var deskGo = new GameObject("Room Menu");
-            deskGo.transform.position = new Vector3(0f, 0.82f, 5.1f);
-            var body = LetterBlocks.Create("ROOM", new Vector3(1.2f, 0.34f, 0.75f), Lit("Typewriter", Hex("3E7F7A"), 0.5f, 0.3f), deskGo.transform, true);
-            body.transform.localPosition = Vector3.up * 0.17f;
-            // Hangs down in front of the desk (the desk is against the back wall, so growing upwards would leave the screen).
-            var menuText = WorldText(null, "Room Menu Text", deskGo.transform.position + new Vector3(0f, 2.2f, -1.3f), Quaternion.identity, 3.6f, new Vector2(9f, 4f), assets);
-            menuText.alignment = TextAlignmentOptions.Top;
-            menuText.rectTransform.pivot = new Vector2(0.5f, 1f);
-            menuText.outlineWidth = 0.25f;
-            menuText.outlineColor = new Color32(40, 26, 18, 255);
-            var desk = deskGo.AddComponent<CreativeDesk>();
-            Set(desk, "joins", kit.joins);
-            Set(desk, "menuText", menuText);
-
-            var director = kit.game.AddComponent<CreativeDirector>();
-            Set(director, "joins", kit.joins);
-            Set(director, "hud", kit.hud);
-            Set(director, "desk", desk);
-            EditorSceneManager.SaveScene(kit.scene, CreativePath);
-        }
-
-        static void BuildBedroom(GameAssets assets) => BuildDibsMap(assets, BedroomPath, "Bedroom", "<i>Sweet Dreams</i>",
-            new RoomStyle { floor = "D8C3A5", back = "ECE3F3", side = "B7C4DD", trim = "8E7BB0", rug = "E6A9B8", rugSize = new(6f, 4f), signColour = "8E7BB0" },
-            new[]
-            {
-                new Piece("BED", -4.4f, 4.7f), new Piece("LAMP", -6.9f, 5.0f), new Piece("SHELF", -1.3f, 5.5f),
-                new Piece("DESK", 3.2f, 5.0f), new Piece("CHAIR", 4.9f, 4.0f, 180f), new Piece("CLOSET", 7.2f, 5.1f),
-                new Piece("MIRROR", 7.7f, 0.8f, -90f), new Piece("TEDDY", -2.2f, -2.6f, 15f), new Piece("PILLOW", -6.9f, -3.4f),
-                new Piece("CLOCK", 0.6f, -3.8f), new Piece("BOOKS", 6.8f, -3.8f), new Piece("BOX", -5.2f, 1.0f, 20f),
-                new Piece("RUG", 0.2f, 1.0f),
-            },
-            new[] { "SOCKS", "TOYS", "QUILT", "BOOKS", "COMICS", "SHOES", "GLOVES", "WIGS", "ZIPPER", "JAM", "PIZZA", "BOX" });
-
-        static void BuildKitchen(GameAssets assets) => BuildDibsMap(assets, KitchenPath, "Kitchen", "<i>Bon Appetit</i>",
-            new RoomStyle { floor = "D6C8AE", back = "F4EBD0", side = "9FCFC4", trim = "5E8C7F", rug = "D9774F", rugSize = new(6.5f, 3f), signColour = "5E8C7F" },
-            new[]
-            {
-                new Piece("FRIDGE", -7.3f, 5.1f), new Piece("STOVE", -5.6f, 5.2f), new Piece("SINK", -3.8f, 5.2f),
-                new Piece("KETTLE", -5.6f, 5.2f, 0f, 0.7f), new Piece("SHELF", 4.4f, 5.6f), new Piece("PLANT", 7.3f, 5.1f),
-                new Piece("TABLE", 0.5f, 1.2f), new Piece("CHAIR", -1.3f, 1.2f, 90f), new Piece("CHAIR", 2.3f, 1.2f, -90f),
-                new Piece("BOWL", 0.2f, 1.2f, 0f, 0.53f), new Piece("CUP", 0.9f, 1.3f, 0f, 0.53f),
-                new Piece("POT", 6.6f, -3.6f), new Piece("PAN", -6.6f, -3.8f), new Piece("STOOL", 2.8f, -3.6f),
-                new Piece("STOOL", -1.6f, -3.4f), new Piece("BOX", -4.6f, 0.9f, 15f), new Piece("FAN", 6.9f, 1.2f, -30f),
-                new Piece("BOWL", 5.4f, 1.0f),
-            },
-            new[] { "SPOONS", "FORKS", "DISHES", "KETTLE", "JUICE", "JAM", "PIZZA", "CANDLE", "TOWELS", "WAX", "BOX", "QUILT" });
-
-        static void BuildGarden(GameAssets assets) => BuildDibsMap(assets, GardenPath, "Garden", "",
-            new RoomStyle
-            {
-                floor = "8CC06A", back = "5E9E4F", side = "5E9E4F", trim = "5E9E4F", rug = "D9C7A0",
-                rugCentre = new(0f, 0.005f, -0.3f), rugSize = new(2.2f, 11.6f), outdoor = true, background = "A7D8F0",
-            },
-            new[]
-            {
-                new Piece("TREE", -6.8f, 4.5f), new Piece("TREE", 6.9f, 4.7f), new Piece("BUSH", -4.0f, 5.3f),
-                new Piece("FLOWER", -2.3f, 5.3f), new Piece("ROSE", 2.2f, 5.3f), new Piece("BUSH", 4.1f, 5.3f),
-                new Piece("BENCH", 0f, 5.1f), new Piece("SWING", -5.8f, 0.8f, 90f), new Piece("POND", 5.4f, 0.4f),
-                new Piece("GNOME", 6.9f, -4.3f, -20f), new Piece("ROCK", -7.0f, -4.3f), new Piece("HOSE", -2.4f, -4.4f),
-                new Piece("FENCE", 7.6f, 1.8f, 90f),
-            },
-            new[] { "SEEDS", "GLOVES", "KITES", "BALLS", "TOYS", "PIZZA", "JUICE", "SHOES", "BOX", "WAX", "QUILT", "JAM" });
 
         static void Invisible(Transform parent, string name, Vector3 pos, Vector3 size)
         {
@@ -887,8 +601,8 @@ namespace Wreckabulary.EditorTools
             var root = new GameObject("Furniture").transform;
             Furniture.Create(root, "SOFA", new Vector3(0f, 0f, 4.8f), 0f, new Vector3(1.0f, 0.9f, 1.0f), 0, Hex("C8664B"), 16f, 45f);
             Furniture.Create(root, "TABLE", new Vector3(0f, 0f, 1.4f), 0f, new Vector3(0.62f, 0.45f, 1.0f), 0, Hex("A8744A"), 10f, 30f);
-            Furniture.Create(root, "PLATE", new Vector3(-0.5f, 0.53f, 1.4f), 0f, new Vector3(0.26f, 0.08f, 0.26f), 0, Hex("F3EFE6"), 0.6f, 8f);
-            Furniture.Create(root, "MUG", new Vector3(0.55f, 0.53f, 1.4f), 0f, new Vector3(0.26f, 0.3f, 0.26f), 0, Hex("5E8FC7"), 0.5f, 8f);
+            Furniture.Create(root, "PLATE", new Vector3(-0.75f, 0.46f, 1.4f), 0f, new Vector3(0.26f, 0.08f, 0.26f), 0, Hex("F3EFE6"), 0.6f, 8f);
+            Furniture.Create(root, "MUG", new Vector3(0.95f, 0.46f, 1.4f), 0f, new Vector3(0.26f, 0.3f, 0.26f), 0, Hex("5E8FC7"), 0.5f, 8f);
             Furniture.Create(root, "LAMP", new Vector3(-7.0f, 0f, 5.0f), 0f, Vector3.one * 0.5f, 1, Hex("F2D48A"), 3f, 20f);
             Furniture.Create(root, "VASE", new Vector3(7.0f, 0f, 5.0f), 0f, Vector3.one * 0.45f, 1, Hex("5FA8A0"), 2.5f, 15f);
             Furniture.Create(root, "CHAIR", new Vector3(-4.2f, 0f, 1.3f), 25f, Vector3.one * 0.5f, 3, Hex("B5835A"), 5f, 25f);
@@ -1029,11 +743,6 @@ namespace Wreckabulary.EditorTools
                 case float f: p.floatValue = f; break;
                 case int n: p.intValue = n; break;
                 case bool b: p.boolValue = b; break;
-                case string str: p.stringValue = str; break;
-                case string[] strs:
-                    p.arraySize = strs.Length;
-                    for (int i = 0; i < strs.Length; i++) p.GetArrayElementAtIndex(i).stringValue = strs[i];
-                    break;
                 default: p.objectReferenceValue = (Object)value; break;
             }
             so.ApplyModifiedPropertiesWithoutUndo();

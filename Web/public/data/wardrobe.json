@@ -36,6 +36,7 @@
    {"id": "charcoal", "name": "Charcoal", "rgb": [0.251, 0.263, 0.29]}
   ],
   "Bottoms": [
+   {"id": "cocoa", "name": "Cocoa", "rgb": [0.29, 0.22, 0.18]},
    {"id": "navy", "name": "Night Navy", "rgb": [0.366, 0.417, 0.485]},
    {"id": "denim", "name": "Denim", "rgb": [0.31, 0.435, 0.639]},
    {"id": "khaki", "name": "Khaki", "rgb": [0.761, 0.682, 0.51]},
@@ -47,6 +48,7 @@
    {"id": "charcoal", "name": "Charcoal", "rgb": [0.251, 0.263, 0.29]}
   ],
   "Gloves": [
+   {"id": "ink", "name": "Ink", "rgb": [0.15, 0.15, 0.17]},
    {"id": "putty", "name": "Putty", "rgb": [0.865, 0.87, 0.827]},
    {"id": "tomato", "name": "Tomato", "rgb": [0.91, 0.329, 0.247]},
    {"id": "sunflower", "name": "Sunflower", "rgb": [0.976, 0.788, 0.247]},
@@ -80,6 +82,7 @@
    {"id": "gold", "name": "Gold", "rgb": [0.91, 0.757, 0.353]}
   ],
   "Back": [
+   {"id": "saddle", "name": "Saddle", "rgb": [0.47, 0.3, 0.19]},
    {"id": "canvas", "name": "Canvas", "rgb": [0.722, 0.575, 0.41]},
    {"id": "olive", "name": "Olive", "rgb": [0.431, 0.478, 0.271]},
    {"id": "navy", "name": "Navy", "rgb": [0.208, 0.275, 0.431]},
@@ -88,15 +91,23 @@
   ]
  },
  "default": {
-  "pieces": {"Top": "Crewneck", "Bottoms": "Joggers", "Gloves": "Mittens", "Footwear": "Boots", "Badge": "TBadge"},
+  "pieces": {
+   "Top": "Hoodie",
+   "Bottoms": "Joggers",
+   "Gloves": "Mittens",
+   "Footwear": "Boots",
+   "Headwear": "Hood",
+   "Back": "Satchel",
+   "Badge": "TBadge"
+  },
   "colours": {
-   "Top": "pool",
-   "Bottoms": "navy",
-   "Gloves": "putty",
+   "Top": "tomato",
+   "Bottoms": "cocoa",
+   "Gloves": "ink",
    "Footwear": "classic",
    "Headwear": "harbour",
    "Face": "classic",
-   "Back": "canvas"
+   "Back": "saddle"
   }
  }
 }

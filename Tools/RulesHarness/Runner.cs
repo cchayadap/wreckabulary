@@ -7,10 +7,6 @@ using NUnit.Framework;
 
 namespace Wreckabulary.RulesHarness
 {
-    /// <summary>
-    /// Finds every [Test] and [TestCase] in this assembly and runs it with a fresh fixture
-    /// instance, calling [SetUp] first, the way NUnit does. Exits with 1 if anything fails.
-    /// </summary>
     public static class Runner
     {
         public static int Main(string[] args)

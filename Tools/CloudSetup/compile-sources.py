@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""Compile separate Unity assemblies without executing the Unity editor.
-
-This checks C# and assembly boundaries only. Template-cache package DLLs may differ
-from the project's pinned packages; real Unity import/tests/builds are still required.
-"""
 import argparse
 import json
 import os

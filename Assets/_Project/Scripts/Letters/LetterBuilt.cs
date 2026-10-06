@@ -76,8 +76,6 @@ namespace Wreckabulary
                 collision.center = bounds.center;
                 collision.size = bounds.size;
             }
-            // These origins preserve the exact word-to-letter burst contract while
-            // the authored furniture supplies its recognizable physical silhouette.
             for (int i = 0; i < word.Length; i++)
             {
                 var origin = new GameObject("LetterOrigin_" + i + "_" + word[i]);

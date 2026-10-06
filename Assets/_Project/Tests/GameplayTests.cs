@@ -8,7 +8,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Checks the core loop: smash → scavenge → spell → summon, plus health, knockouts and rounds.</summary>
     public class GameplayTests
     {
         GameObject ground;
@@ -95,8 +94,6 @@ namespace Wreckabulary.Tests
         public IEnumerator PlayerCollectsNearbyTiles()
         {
             var p = SpawnPlayer(0, Vector3.zero, out _);
-            // Lying flat beside the player, clear of their capsule. Launched inside the capsule with
-            // Launch's random tumble, the physics push-out flung it out of reach about 1 run in 8.
             var tile = TilePool.Instance.Get('B');
             tile.Launch(new Vector3(0.7f, 0.2f, 0f), Vector3.zero);
             tile.transform.rotation = tile.Body.rotation = Quaternion.identity;
@@ -173,7 +170,6 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)), "no invulnerability after a hit");
             Assert.AreEqual(84f, p.Health.Current);
 
-            // A mode can still shake letters loose on every hit.
             var rules = Match.Rules.Clone();
             rules.LettersDroppedPerHit = 2;
             p.Health.UseRules(rules);
@@ -226,11 +222,9 @@ namespace Wreckabulary.Tests
             p.FaceTowards(Vector3.forward);
             p.Health.FrontBlockUntil = Time.time + 5f;
 
-            // An attacker in front hits towards -z.
             Assert.IsFalse(p.Health.ApplyDamage(Punch(null, Vector3.back)), "blocked");
             Assert.AreEqual(100f, p.Health.Current);
 
-            // From behind, the hit travels towards +z and gets through.
             Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)));
             Assert.AreEqual(92f, p.Health.Current);
         }
@@ -321,6 +315,7 @@ namespace Wreckabulary.Tests
         {
             var p = SpawnPlayer(0, Vector3.zero, out _);
             var foe = SpawnPlayer(1, new Vector3(3f, 0f, 0f), out _);
+            var listener = new GameObject("Test listener", typeof(AudioListener));
             yield return Frames(2);
 
             foreach (var entry in GameAssets.I.words.Words.Where(w => w.word.Length <= p.Inventory.Capacity))
@@ -335,6 +330,7 @@ namespace Wreckabulary.Tests
                 SummonedThing.ClearAll();
             }
             LogAssert.NoUnexpectedReceived();
+            Object.Destroy(listener);
         }
 
         [UnityTest]
@@ -357,12 +353,16 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(Phase.Playing, rounds.Phase);
             foreach (var opponent in joins.Players.Where(p => p != a && p != b)) opponent.Health.Eliminate();
             b.Health.ApplyDamage(Lethal(a));
-            yield return null; // evaluate the shared win check after the whole damage tick
+            yield return null;
             Assert.AreEqual(Phase.RoundOver, rounds.Phase);
             Assert.AreEqual(1, rounds.WinsOf(a));
             Assert.AreEqual(0, rounds.WinsOf(b));
 
-            yield return new WaitForSecondsRealtime(3.3f);
+            var hud = Object.FindAnyObjectByType<GameHud>();
+            yield return TestScenes.WaitUntil(() => hud.ResultShown, 3f, "the round's result card");
+            Assert.AreEqual(1, rounds.Round, "no round starts behind the card");
+            hud.UiCanvas.transform.Find("Safe HUD/Result/Result card/Next").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            yield return null;
             Assert.AreEqual(2, rounds.Round);
             Assert.That(rounds.Phase, Is.EqualTo(Phase.Countdown).Or.EqualTo(Phase.Playing));
             Assert.IsFalse(b.IsKnockedOut, "knocked-out players get back up for the next round");

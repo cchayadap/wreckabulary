@@ -4,45 +4,38 @@ using UnityEngine.InputSystem.Controls;
 
 namespace Wreckabulary
 {
-    /// <summary>What a player asked to do this frame. Edge flags (grab, attack, jump, …) are true for one frame only.</summary>
     public struct PlayerCommands
     {
         public Vector2 move;
-        /// <summary>Interact: grab or throw on the press. Kept held, it revives a downed teammate.</summary>
         public bool grab, grabHeld;
-        public bool attack;
+        public bool attack, attackHeld;
+        public bool aimHeld;
         public bool jump, dodge;
-        /// <summary>Raises a held PLATE while down.</summary>
         public bool blockHeld;
-        /// <summary>Lets go of what's held. Bindings fire it only after a short hold, so a tap can't lose an item.</summary>
         public bool drop;
-        /// <summary>Places deployed furniture or activates a utility at the aimed location.</summary>
-        public bool deploy;
-        /// <summary>Switches the two carried gear slots.</summary>
         public bool swap;
+        public int slot;
         public bool spellHeld, spellDown, spellUp;
         public bool up, down;
         public bool start;
-        /// <summary>Stick aim on the ground (x, z). Zero while the stick rests.</summary>
         public Vector2 look;
-        /// <summary>Mouse aim: when set, the player turns to face <see cref="pointer"/>, a screen position.</summary>
         public bool aimAtPointer;
         public Vector2 pointer;
+        public Vector2 lookDelta;
     }
 
-    /// <summary>One player's input source: keyboard and mouse, a gamepad, half a keyboard, or a script in tests.</summary>
     public abstract class InputBinding
     {
-        /// <summary>How long drop must be held before it lets go (PLAN §2.11).</summary>
         public const float DropHoldSeconds = 0.25f;
 
         public abstract string Id { get; }
+        public virtual bool CanLook => false;
+        public virtual bool ReadsMouse => false;
         public abstract void Read(ref PlayerCommands c);
         public abstract bool JoinPressed();
         public abstract bool StartPressed();
     }
 
-    /// <summary>Fires once when a button has been held long enough, then waits for it to be let go.</summary>
     public struct HoldToFire
     {
         bool holding, fired;
@@ -69,8 +62,8 @@ namespace Wreckabulary
 
     /// <summary>
     /// Two players can share a keyboard (the couch layout; one player alone uses <see cref="DesktopBinding"/>).
-    /// Left: WASD move, Space grab, J attack, K spell (W/S choose), U jump, Left Shift dodge, L block, hold R to drop.
-    /// Right: arrows move, . or Numpad1 grab, / or Numpad2 attack, Right Shift or Numpad3 spell,
+    /// Left: WASD move, Space grab, J attack (also throws and places), K spell (W/S choose), U jump, Left Shift dodge, L block, hold R to drop.
+    /// Right: arrows move, . or Numpad1 grab, / or Numpad2 attack (also throws and places), Right Shift or Numpad3 spell,
     /// comma or Numpad0 jump, Right Ctrl or Numpad5 dodge, ; or Numpad4 block, hold ' or Numpad6 to drop.
     /// </summary>
     public class KeyboardBinding : InputBinding
@@ -102,7 +95,6 @@ namespace Wreckabulary
                 c.dodge = kb.leftShiftKey.wasPressedThisFrame;
                 c.blockHeld = kb.lKey.isPressed;
                 c.drop = dropHold.Update(kb.rKey.isPressed, Time.unscaledTime);
-                c.deploy = kb.iKey.wasPressedThisFrame;
                 c.swap = kb.tabKey.wasPressedThisFrame;
                 c.spellHeld = kb.kKey.isPressed;
                 c.spellDown = kb.kKey.wasPressedThisFrame;
@@ -121,7 +113,6 @@ namespace Wreckabulary
                 c.dodge = kb.rightCtrlKey.wasPressedThisFrame || kb.numpad5Key.wasPressedThisFrame;
                 c.blockHeld = kb.semicolonKey.isPressed || kb.numpad4Key.isPressed;
                 c.drop = dropHold.Update(kb.quoteKey.isPressed || kb.numpad6Key.isPressed, Time.unscaledTime);
-                c.deploy = kb.numpad7Key.wasPressedThisFrame;
                 c.swap = kb.numpad8Key.wasPressedThisFrame;
                 c.spellHeld = kb.rightShiftKey.isPressed || kb.numpad3Key.isPressed;
                 c.spellDown = kb.rightShiftKey.wasPressedThisFrame || kb.numpad3Key.wasPressedThisFrame;
@@ -133,7 +124,6 @@ namespace Wreckabulary
             if (c.move.sqrMagnitude > 1f) c.move.Normalize();
         }
 
-        /// <summary>J joins the left half (Space joins <see cref="DesktopBinding"/>); . or / joins the right half.</summary>
         public override bool JoinPressed()
         {
             var kb = Keyboard.current;
@@ -152,10 +142,6 @@ namespace Wreckabulary
         }
     }
 
-    /// <summary>
-    /// Left stick move, right stick aim, A jump, X attack, B dodge, RT grab (hold to revive), LT block,
-    /// hold Y to spell (stick or d-pad up/down to choose), hold LB to drop.
-    /// </summary>
     public class GamepadBinding : InputBinding
     {
         public readonly Gamepad Pad;
@@ -164,7 +150,10 @@ namespace Wreckabulary
 
         public GamepadBinding(Gamepad pad) => Pad = pad;
 
+        public const float LookYawSpeed = 3f, LookPitchSpeed = 2f;
+
         public override string Id => $"gamepad-{Pad.deviceId}";
+        public override bool CanLook => true;
 
         public override void Read(ref PlayerCommands c)
         {
@@ -175,6 +164,7 @@ namespace Wreckabulary
             c.move = Vector2.ClampMagnitude(stick + Pad.dpad.ReadValue(), 1f);
             var look = Pad.rightStick.ReadValue();
             c.look = look.magnitude < 0.3f ? Vector2.zero : look;
+            c.lookDelta = new Vector2(c.look.x * LookYawSpeed, -c.look.y * LookPitchSpeed) * Time.deltaTime;
 
             c.grab = Pad.rightTrigger.wasPressedThisFrame;
             c.grabHeld = Pad.rightTrigger.isPressed;
@@ -183,7 +173,6 @@ namespace Wreckabulary
             c.dodge = Pad.buttonEast.wasPressedThisFrame;
             c.blockHeld = Pad.leftTrigger.isPressed;
             c.drop = dropHold.Update(Pad.leftShoulder.isPressed, Time.unscaledTime);
-            c.deploy = Pad.rightShoulder.wasPressedThisFrame;
             c.swap = Pad.rightStickButton.wasPressedThisFrame;
             c.spellHeld = Pad.buttonNorth.isPressed;
             c.spellDown = Pad.buttonNorth.wasPressedThisFrame;
@@ -204,7 +193,6 @@ namespace Wreckabulary
             (TouchBinding.Shared.IsOverlayFor(Id) && TouchBinding.Shared.StartPressed());
     }
 
-    /// <summary>Input driven by code, for tests and bots. Edge flags clear after each read; held ones and aim stay.</summary>
     public class ScriptedBinding : InputBinding
     {
         static int count;
@@ -217,8 +205,10 @@ namespace Wreckabulary
         {
             c = Next;
             Next.grab = Next.attack = Next.jump = Next.dodge = Next.drop = false;
-            Next.deploy = Next.swap = false;
+            Next.swap = false;
+            Next.slot = 0;
             Next.spellDown = Next.spellUp = Next.up = Next.down = Next.start = false;
+            Next.lookDelta = Vector2.zero;
         }
 
         public override bool JoinPressed() => false;

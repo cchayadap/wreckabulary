@@ -4,7 +4,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>One physical representation for an enabled catalogue recipe; data selects its behavior.</summary>
     public static class CatalogGear
     {
         public static HeldWeapon Create(ItemDefinition item)
@@ -41,7 +40,6 @@ namespace Wreckabulary
             var visual = new GameObject(item.Id + " protection");
             visual.transform.SetParent(owner.visual ? owner.visual : owner.transform, false);
             visual.transform.localPosition = Vector3.up * 0.8f;
-            // A wire bubble keeps the body visible instead of hiding it under an opaque sphere.
             var line = visual.AddComponent<LineRenderer>();
             line.useWorldSpace = false;
             line.loop = true;

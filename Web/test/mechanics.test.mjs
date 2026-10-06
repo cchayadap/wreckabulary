@@ -36,11 +36,11 @@ function finishAction(g, p) {
 }
 const balanced = (g) =>
   assert.equal(g.audit().balanced, true, JSON.stringify(g.audit()));
-test("canonical values: 100HP, 18-letter bag, zero letters lost per hit", () => {
+test("canonical values: 100HP, 10-letter bag, zero letters lost per hit", () => {
   const g = game(),
     p = g.players[0];
   assert.equal(p.hp, 100);
-  assert.equal(g.rules.maxLetters, 18);
+  assert.equal(g.rules.maxLetters, 10);
   assert.equal(g.rules.lettersDroppedPerHit, 0);
   give(g, p, "TABLE");
   g.time = 3;
@@ -54,7 +54,7 @@ test("mode overlays preserve the nested clear-out defaults", () => {
   assert.equal(r.clearOut.firstAt, 60);
   assert.equal(r.clearOut.interval, 40);
   assert.equal(r.clearOut.enabled, true);
-  assert.equal(r.maxLetters, 18);
+  assert.equal(r.maxLetters, 10);
   assert.equal(r.maxHealth, 100);
 });
 test("letter multiset requires duplicates and matching exact letters", () => {
@@ -65,15 +65,15 @@ test("letter multiset requires duplicates and matching exact letters", () => {
 test("bag limit includes reserved craft letters; excess tile stays in world", () => {
   const g = game(),
     p = g.players[0];
-  give(g, p, "BATTABLEFOAMMATSOAP");
-  assert.equal(p.bag.length, 18);
+  give(g, p, "BATTABLEFO");
+  assert.equal(p.bag.length, 10);
   g.craft(p, "BAT");
   const tile = { id: 999, char: "A", x: p.x, z: p.z };
   g.tiles.push(tile);
   g.minted++;
   assert.equal(g.collect(p, tile), false);
   assert.ok(g.tiles.includes(tile));
-  assert.equal(p.bag.length, 15);
+  assert.equal(p.bag.length, 7);
   balanced(g);
 });
 test("craft reserves, cancellation refunds, completion holds exact letters without duplication", () => {
@@ -494,6 +494,33 @@ test("changing aim does not steer an already committed dash", () => {
   assert.ok(p.x > 0.5);
   assert.equal(p.z, 0);
 });
+test("camera yaw turns the body in the same tick, even while moving another way", () => {
+  const g = game(),
+    p = g.players[0];
+  g.time = 3;
+  g.tick(0.025, { yaw: Math.PI / 2, x: 0, z: 1 });
+  assert.equal(p.yaw, Math.PI / 2);
+  assert.ok(Math.abs(p.facing.x - 1) < 1e-9 && Math.abs(p.facing.z) < 1e-9);
+});
+test("ground movement accelerates and brakes with friction instead of snapping", () => {
+  const g = game(),
+    p = g.players[0];
+  g.players.slice(1).forEach((q) => (q.ai = false));
+  g.time = 3;
+  const room = g.house.rooms.find((r) => r.name === "LivingRoom").bounds;
+  p.x = (room[0] + room[2]) / 2;
+  p.z = (room[1] + room[3]) / 2;
+  g.tick(0.025, { x: 1, z: 0 });
+  const first = Math.hypot(p.velocity.x, p.velocity.z);
+  assert.ok(first > 0 && first < 4.5, `first tick speed ${first}`);
+  for (let n = 0; n < 12; n++) g.tick(0.025, { x: 1, z: 0 });
+  assert.ok(Math.abs(p.velocity.x - 4.5) < 1e-6, "reaches full speed");
+  const x = p.x;
+  g.tick(0.025, {});
+  assert.ok(p.x > x, "keeps sliding for a moment after release");
+  for (let n = 0; n < 12; n++) g.tick(0.025, {});
+  assert.equal(Math.hypot(p.velocity.x, p.velocity.z), 0, "friction stops it");
+});
 test("dropping or swapping a windup weapon cancels its attack; active hits are deduplicated", () => {
   const g = game(),
     p = g.players[0],
@@ -717,5 +744,96 @@ test("craft waits through melee recovery, and releasing a weapon cancels that ch
   g.drop(p);
   assert.equal(p.pendingAttack, null);
   assert.equal(p.meleeUntil, 0);
+  balanced(g);
+});
+test("attack does what the held thing is for: throw, use, place or swing", () => {
+  const expected = {
+    BALL: "throw",
+    BOMB: "throw",
+    FOAM: "useStart",
+    BED: "placeStart",
+    MAT: "placeStart",
+    SOAP: "placeStart",
+    SOFA: "placeStart",
+    TABLE: "placeStart",
+    BAT: "swing",
+    BLADE: "swing",
+    LAMP: "swing",
+  };
+  for (const [word, event] of Object.entries(expected)) {
+    const g = game(),
+      p = g.players[0];
+    craft(g, p, word);
+    g.time = 4;
+    g.events.length = 0;
+    assert.equal(g.attack(p), true, word);
+    const mine = g.events.filter((e) => e.player === 0).map((e) => e.type);
+    assert.ok(mine.includes(event), `${word} should ${event}, got ${mine}`);
+    finishAction(g, p);
+    balanced(g);
+  }
+});
+test("holding attack after a throw doesn't punch until the button is let go", () => {
+  const g = game(),
+    p = g.players[0];
+  g.players.slice(1).forEach((q) => (q.ai = false));
+  craft(g, p, "BALL");
+  g.time = 4;
+  g.events.length = 0;
+  for (let n = 0; n < 40; n++) g.tick(0.025, { attack: true });
+  const mine = () => g.events.filter((e) => e.player === 0).map((e) => e.type);
+  assert.deepEqual(
+    mine().filter((t) => t === "throw" || t === "swing"),
+    ["throw"],
+    "one throw, then nothing while held",
+  );
+  g.tick(0.025, {});
+  g.tick(0.025, { attack: true });
+  assert.ok(mine().includes("swing"), "a fresh press punches");
+  balanced(g);
+});
+test("a refused place is reported once while attack is held", () => {
+  const g = game(),
+    p = g.players[0];
+  g.players.slice(1).forEach((q) => (q.ai = false));
+  craft(g, p, "BED");
+  assert.equal(g.deploy(p), null);
+  finishAction(g, p);
+  craft(g, p, "MAT");
+  assert.equal(g.deploy(p), null);
+  finishAction(g, p);
+  craft(g, p, "SOAP");
+  g.time = Math.max(g.time, 4);
+  g.events.length = 0;
+  for (let n = 0; n < 20; n++) g.tick(0.025, { attack: true });
+  const refused = g.events.filter((e) => e.type === "refused" && e.player === 0);
+  assert.equal(refused.length, 1);
+  assert.match(refused[0].message, /Two tools/);
+  assert.equal(g.held(p).word, "SOAP");
+  balanced(g);
+});
+test("Moving Day: attack places a checklist word only where it lands in its room", () => {
+  const g = game("MovingDay"),
+    p = g.players[0];
+  g.players.slice(1).forEach((q) => (q.ai = false));
+  const goal = g.objectives.find((o) => o.word === "LAMP"),
+    away = g.house.rooms.find((r) => r.name !== goal.room);
+  craft(g, p, "LAMP");
+  g.time = Math.max(g.time, 4);
+  p.x = (away.bounds[0] + away.bounds[2]) / 2;
+  p.z = (away.bounds[1] + away.bounds[3]) / 2;
+  p.facing = { x: 0, z: 1 };
+  assert.equal(g.placesObjective(p, g.held(p)), false);
+  g.events.length = 0;
+  g.attack(p);
+  assert.ok(g.events.some((e) => e.type === "swing" && e.player === 0), "elsewhere it is still a lamp to swing");
+  assert.equal(goal.done, false);
+  g.time = p.attackAt;
+  p.x = goal.x;
+  p.z = goal.z;
+  assert.equal(g.placesObjective(p, g.held(p)), true);
+  g.attack(p);
+  finishAction(g, p);
+  assert.equal(goal.done, true);
   balanced(g);
 });

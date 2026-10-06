@@ -6,7 +6,7 @@
   "scripts": {
     "sync-data": "node scripts/sync-data.mjs",
     "dev": "npm run sync-data && vite --host 0.0.0.0",
-    "build": "npm run sync-data && vite build",
+    "build": "npm run sync-data && node scripts/build-info.mjs && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test test/*.test.mjs",
     "test:browser": "node test/browser.mjs"

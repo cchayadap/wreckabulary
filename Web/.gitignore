@@ -1,3 +1,4 @@
 node_modules/
 dist/
 playwright-results/
+public/BUILD-INFO.json

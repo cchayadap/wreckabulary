@@ -6,7 +6,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Carry the shared map's keepsakes to the van, then get every surviving roommate out.</summary>
     public sealed class MovingOutDirector : MonoBehaviour
     {
         public enum State { Waiting, Countdown, Playing, Complete, Failed }
@@ -15,10 +14,9 @@ namespace Wreckabulary
         DeliverySpawner deliveries;
         GameHud hud;
         ClearOutController clearOut;
-        ModeActions actions;
         readonly List<Keepsake> keepsakes = new();
         Vector3 extraction;
-        float began, nextCheck;
+        float began, nextCheck, finishedAt;
         public State Current { get; private set; }
         public int PackedCount => keepsakes.Count(k => k.Packed);
         public int KeepsakeCount => keepsakes.Count;
@@ -36,8 +34,6 @@ namespace Wreckabulary
             clearOut = gameObject.AddComponent<ClearOutController>();
             clearOut.Configure(room.Layout, "MovingOut");
             extraction = new Vector3(room.Layout.ExtractionX, room.Layout.Room(room.Layout.ExtractionRoom).FloorY, room.Layout.ExtractionZ);
-            actions = ModeActions.Create(transform, "RETRY", Restart);
-            actions.Show(false);
             joins.Joined += OnJoined;
             joins.RespawnKnockedOut = false;
             CreateVan();
@@ -57,15 +53,16 @@ namespace Wreckabulary
             if (joins.HumanCount == 0) return;
             room.ResetRoom();
             clearOut.ResetSchedule();
-            actions.Show(false);
+            hud.HideResult();
+            hud.HideCountdown();
+            MatchTally.BeginMatch();
             keepsakes.Clear();
             foreach (var objective in room.Layout.Keepsakes)
             {
                 var prop = room.Originals.Where(s => !keepsakes.Any(k => k.gameObject == s.gameObject))
-                    .Where(s => room.Layout.RoomAt(s.transform.position.x, s.transform.position.z) == objective.Room)
+                    .Where(s => room.Layout.RoomAt(s.transform.position.x, s.transform.position.y, s.transform.position.z) == objective.Room)
                     .OrderBy(s => Vector2.Distance(new Vector2(s.transform.position.x, s.transform.position.z), new Vector2(objective.X, objective.Z)))
                     .First();
-                // Keepsakes can't be accidentally smashed; saving them requires an actual carry and drop.
                 prop.Invulnerable = true;
                 var token = prop.gameObject.AddComponent<Keepsake>();
                 token.Configure(objective.Room);
@@ -84,28 +81,29 @@ namespace Wreckabulary
             switch (Current)
             {
                 case State.Waiting:
-                    hud.SetTitle("MOVING OUT", ControlHints.Join("join"));
+                    hud.SetInstruction(ControlHints.Join("join"), "");
                     if (joins.HumanCount > 0) Restart();
                     break;
                 case State.Countdown:
-                    hud.SetTitle(Mathf.CeilToInt(3f - (Time.time - began)).ToString(), "Rescue the marked keepsakes, then reach the van");
+                    hud.SetInstruction("", "");
+                    hud.ShowCountdown(Mathf.Max(1, Mathf.CeilToInt(3f - (Time.time - began))), $"MOVING OUT · {room.Layout.Name.ToUpperInvariant()}");
                     if (Time.time - began >= 3f)
                     {
                         Current = State.Playing; began = Time.time;
                         foreach (var p in joins.Players) p.Frozen = false;
                         clearOut.Begin();
+                        hud.ShowGo();
+                        hud.Toast($"Carry {KeepsakeCount} keepsakes to the van. Drop them inside the circle.");
                     }
                     break;
                 case State.Playing:
-                    hud.SetTitle("", "");
                     hud.SetTimer(RoundManager.FormatTime(TimeLeft));
-                    hud.SetInstruction(clearOut.Message.Length > 0 ? clearOut.Message : "Grab marked keepsakes • drop them inside the van circle",
-                        "Save all keepsakes and gather every survivor at the van • hold grab to revive");
+                    hud.SetInstruction(clearOut.Message, "");
                     CheckObjectives();
                     break;
                 case State.Complete:
                 case State.Failed:
-                    if (joins.AnyStartPressed()) Restart();
+                    if (hud.ResultShown && Time.time - finishedAt > 1.6f && joins.AnyStartPressed()) hud.ConfirmResult();
                     break;
             }
             hud.SetChecklist("<b>KEEPSAKES</b>\n" + string.Join("\n", keepsakes.Select(k => k.Packed
@@ -123,27 +121,33 @@ namespace Wreckabulary
                 var body = keepsake.GetComponent<Rigidbody>();
                 if (keepsake.transform.position.y < -4f) keepsake.ReturnToStart();
                 bool held = joins.Players.Any(p => p.Combat.Held == body);
-                if (!held && World.Flat(body.worldCenterOfMass - extraction).sqrMagnitude <= 2.4f * 2.4f)
+                if (!held && AtVan(body.worldCenterOfMass))
+                {
                     keepsake.Pack();
+                    hud.Toast("A keepsake saved! Find the others.");
+                }
             }
             var combatants = joins.Players.Select(p => new Combatant(p.Index, p.Team, p.Health.State)).ToArray();
             foreach (int id in WinCheck.Unrevivable(combatants)) World.PlayerById(id)?.Health.Eliminate();
             var survivors = joins.Players.Where(p => !p.IsEliminated).ToArray();
             if (survivors.Length == 0 || TimeLeft <= 0f) Finish(false);
-            else if (PackedCount == KeepsakeCount && survivors.All(p => p.Health.IsAlive &&
-                World.Flat(p.transform.position - extraction).sqrMagnitude <= 2.4f * 2.4f)) Finish(true);
+            else if (PackedCount == KeepsakeCount && survivors.All(p => p.Health.IsAlive && AtVan(p.transform.position))) Finish(true);
         }
+
+        public bool AtVan(Vector3 p) => World.Flat(p - extraction).sqrMagnitude <= 2.4f * 2.4f && Mathf.Abs(p.y - extraction.y) < 1.5f;
 
         void Finish(bool won)
         {
+            bool wiped = joins.Players.All(p => p.IsEliminated);
             Current = won ? State.Complete : State.Failed;
+            finishedAt = Time.time;
             clearOut.Running = false;
             foreach (var p in joins.Players) p.Frozen = true;
             World.FreezeTransient();
             joins.AllowJoining = false;
-            hud.SetTitle(won ? "MOVED OUT!" : "LEFT BEHIND", won ? "Everyone and every keepsake made the van" : "Retry and plan your route before the Movers arrive");
             hud.SetTimer("");
-            actions.Show(true, won ? "PLAY AGAIN" : "RETRY");
+            string heading = won ? "All packed. Everybody aboard!" : wiped ? "The Movers got your crew." : "The van had to leave.";
+            hud.ShowResult(HudResult.Of(1, true, won, heading, MatchTally.Finish(won)), Restart);
         }
 
         void CreateVan()
