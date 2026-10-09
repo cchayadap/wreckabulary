@@ -1,0 +1,11 @@
+{
+  "generator": "OpenAI built-in image_gen",
+  "date": "2026-10-09",
+  "assets": [
+    {
+      "path": "Assets/_Project/Art/Generated/Environment/townhouse-print-v1.png",
+      "role": "Original decorative wall print texture, integrated into square framed prints in the five current world prefabs and Hub/Tutorial dressing.",
+      "prompt": "Use case: illustration-story. Asset type: a square decorative wall print texture for a cute, tactile 3D toy-house party game called Wreckabulary. Create an original joyful gouache and cut-paper illustration of a tiny cream townhouse with terracotta roof, teal windows, potted leafy plants, a golden sun, fluffy cream clouds and small wooden alphabet blocks at its doorstep. Rich warm cream paper grain, coral red, mustard gold, muted teal and leaf green; cheerful hand-painted detail, strong simple silhouettes readable on a small framed wall picture. Full-bleed square artwork, straight-on flat scan, no frame, no mockup, no room/background outside the artwork, no perspective, no typography, no logos, no watermark. This will be used as an actual in-game decorative texture rather than a concept sheet."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+name: Verify Cloudflare Worker browser release
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: verify-pages
+  cancel-in-progress: false
+jobs:
+  hosted-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      WRECKABULARY_SOFTWARE_GPU: '1'
+    defaults:
+      run:
+        working-directory: Web
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24.15.0'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/verify-hosted.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: hosted-browser-proof
+          path: Web/playwright-results/
+          retention-days: 7

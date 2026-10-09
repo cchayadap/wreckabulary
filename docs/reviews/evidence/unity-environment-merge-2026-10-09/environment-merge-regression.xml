@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="36" result="Passed" total="36" passed="36" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-08 20:00:39Z" end-time="2026-10-08 20:01:31Z" duration="51.759625">
+  <test-suite type="TestSuite" id="1309" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="268" result="Passed" start-time="2026-10-08 20:00:39Z" end-time="2026-10-08 20:01:31Z" duration="51.759625" total="36" passed="36" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1615" name="Wreckabulary.Tests.dll" fullname="C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wreckabulary/Library/ScriptAssemblies/Wreckabulary.Tests.dll" runstate="Runnable" testcasecount="268" result="Passed" start-time="2026-10-08 20:00:39Z" end-time="2026-10-08 20:01:31Z" duration="51.699522" total="36" passed="36" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="55156" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1616" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="268" result="Passed" start-time="2026-10-08 20:00:39Z" end-time="2026-10-08 20:01:31Z" duration="51.692592" total="36" passed="36" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1617" name="Tests" fullname="Wreckabulary.Tests" runstate="Runnable" testcasecount="268" result="Passed" start-time="2026-10-08 20:00:39Z" end-time="2026-10-08 20:01:31Z" duration="51.687651" total="36" passed="36" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1404" name="GameplayTests" fullname="Wreckabulary.Tests.GameplayTests" classname="Wreckabulary.Tests.GameplayTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-10-08 20:00:39Z" end-time="2026-10-08 20:00:41Z" duration="2.129363" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1420" name="EveryListedWordCanBeSummoned" fullname="Wreckabulary.Tests.GameplayTests.EveryListedWordCanBeSummoned" methodname="EveryListedWordCanBeSummoned" classname="Wreckabulary.Tests.GameplayTests" runstate="Runnable" seed="880801877" result="Passed" start-time="2026-10-08 20:00:39Z" end-time="2026-10-08 20:00:41Z" duration="2.062531" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1431" name="HudPresentationTests" fullname="Wreckabulary.Tests.HudPresentationTests" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-08 20:00:41Z" end-time="2026-10-08 20:01:04Z" duration="22.922612" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1433" name="GearSlotsStackBesideLettersAndHudFadesWithoutDeactivation" fullname="Wreckabulary.Tests.HudPresentationTests.GearSlotsStackBesideLettersAndHudFadesWithoutDeactivation" methodname="GearSlotsStackBesideLettersAndHudFadesWithoutDeactivation" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="407565057" result="Passed" start-time="2026-10-08 20:00:41Z" end-time="2026-10-08 20:00:46Z" duration="4.140247" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1434" name="LobbyRegistersMainMenuAndExplorationRevealsGameplay" fullname="Wreckabulary.Tests.HudPresentationTests.LobbyRegistersMainMenuAndExplorationRevealsGameplay" methodname="LobbyRegistersMainMenuAndExplorationRevealsGameplay" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="1432259190" result="Passed" start-time="2026-10-08 20:00:46Z" end-time="2026-10-08 20:00:48Z" duration="2.559221" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1438" name="PauseBlocksSeparateStartAndRetryControls" fullname="Wreckabulary.Tests.HudPresentationTests.PauseBlocksSeparateStartAndRetryControls" methodname="PauseBlocksSeparateStartAndRetryControls" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="701214215" result="Passed" start-time="2026-10-08 20:00:48Z" end-time="2026-10-08 20:00:50Z" duration="1.853826" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1432" name="PauseRestoresFrozenPlayersAndTheOriginalSimulationSpeed" fullname="Wreckabulary.Tests.HudPresentationTests.PauseRestoresFrozenPlayersAndTheOriginalSimulationSpeed" methodname="PauseRestoresFrozenPlayersAndTheOriginalSimulationSpeed" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="1520121345" result="Passed" start-time="2026-10-08 20:00:50Z" end-time="2026-10-08 20:00:52Z" duration="1.926109" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1435" name="PauseStopsCountdownAndResumesItsRemainingTime" fullname="Wreckabulary.Tests.HudPresentationTests.PauseStopsCountdownAndResumesItsRemainingTime" methodname="PauseStopsCountdownAndResumesItsRemainingTime" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="995359917" result="Passed" start-time="2026-10-08 20:00:52Z" end-time="2026-10-08 20:00:55Z" duration="2.638821" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1436" name="PausingCraftKeepsReservedLettersAndCompletesAfterResume" fullname="Wreckabulary.Tests.HudPresentationTests.PausingCraftKeepsReservedLettersAndCompletesAfterResume" methodname="PausingCraftKeepsReservedLettersAndCompletesAfterResume" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="7139626" result="Passed" start-time="2026-10-08 20:00:55Z" end-time="2026-10-08 20:00:57Z" duration="2.971712" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1437" name="PausingDeploymentKeepsTheChannelAndGearUntilResume" fullname="Wreckabulary.Tests.HudPresentationTests.PausingDeploymentKeepsTheChannelAndGearUntilResume" methodname="PausingDeploymentKeepsTheChannelAndGearUntilResume" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="1334732260" result="Passed" start-time="2026-10-08 20:00:57Z" end-time="2026-10-08 20:01:01Z" duration="3.458621" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1439" name="PendingResultsWaitForPauseToResume" fullname="Wreckabulary.Tests.HudPresentationTests.PendingResultsWaitForPauseToResume" methodname="PendingResultsWaitForPauseToResume" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="763435752" result="Passed" start-time="2026-10-08 20:01:01Z" end-time="2026-10-08 20:01:03Z" duration="1.584316" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1440" name="ResumeSubmitCannotAlsoStartTheLobbyMatchDuringTheFade" fullname="Wreckabulary.Tests.HudPresentationTests.ResumeSubmitCannotAlsoStartTheLobbyMatchDuringTheFade" methodname="ResumeSubmitCannotAlsoStartTheLobbyMatchDuringTheFade" classname="Wreckabulary.Tests.HudPresentationTests" runstate="Runnable" seed="886559600" result="Passed" start-time="2026-10-08 20:01:03Z" end-time="2026-10-08 20:01:04Z" duration="1.775597" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1443" name="LobbyTests" fullname="Wreckabulary.Tests.LobbyTests" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-10-08 20:01:04Z" end-time="2026-10-08 20:01:09Z" duration="4.560496" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1480" name="WorkshopOpensOverTheLobbyAndComesBack" fullname="Wreckabulary.Tests.LobbyTests.WorkshopOpensOverTheLobbyAndComesBack" methodname="WorkshopOpensOverTheLobbyAndComesBack" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="880615041" result="Passed" start-time="2026-10-08 20:01:04Z" end-time="2026-10-08 20:01:09Z" duration="4.508183" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[The character with Unicode value \u25BE was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [▾].
+The character with Unicode value \u25BE was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [▾].
+The character with Unicode value \u25BE was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [▾].
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1506" name="NativeAnimationStateTests" fullname="Wreckabulary.Tests.NativeAnimationStateTests" classname="Wreckabulary.Tests.NativeAnimationStateTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-08 20:01:09Z" end-time="2026-10-08 20:01:11Z" duration="2.392833" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1509" name="ExistingMovementSelectorAndActionLockChooseTheirBoundClips" fullname="Wreckabulary.Tests.NativeAnimationStateTests.ExistingMovementSelectorAndActionLockChooseTheirBoundClips" methodname="ExistingMovementSelectorAndActionLockChooseTheirBoundClips" classname="Wreckabulary.Tests.NativeAnimationStateTests" runstate="Runnable" seed="2114710946" result="Passed" start-time="2026-10-08 20:01:09Z" end-time="2026-10-08 20:01:10Z" duration="1.040767" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1510" name="MissingRequiredBindingKeepsLegacyVisualsAndCanRetry" fullname="Wreckabulary.Tests.NativeAnimationStateTests.MissingRequiredBindingKeepsLegacyVisualsAndCanRetry" methodname="MissingRequiredBindingKeepsLegacyVisualsAndCanRetry" classname="Wreckabulary.Tests.NativeAnimationStateTests" runstate="Runnable" seed="928569318" result="Passed" start-time="2026-10-08 20:01:10Z" end-time="2026-10-08 20:01:10Z" duration="0.272247" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1507" name="PickupKeepsBothSolesAndBatGripAlignedAcrossFullClipAndFirstHold" fullname="Wreckabulary.Tests.NativeAnimationStateTests.PickupKeepsBothSolesAndBatGripAlignedAcrossFullClipAndFirstHold" methodname="PickupKeepsBothSolesAndBatGripAlignedAcrossFullClipAndFirstHold" classname="Wreckabulary.Tests.NativeAnimationStateTests" runstate="Runnable" seed="983053872" result="Passed" start-time="2026-10-08 20:01:10Z" end-time="2026-10-08 20:01:11Z" duration="0.783993" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[PICKUP_SOLE Pickup time=0.000000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.000000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.016667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.016667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.033333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.033333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.050000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.050000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.066667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.066667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.083333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.083333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.100000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.100000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.116667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.116667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.133333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.133333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.150000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.150000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.166667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.166667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.183333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.183333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.200000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.200000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.216667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.216667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.233333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.233333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.250000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.250000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.266667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.266667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.279900 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.279900 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.280000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.280000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.280100 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.280100 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.283333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.283333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.300000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.300000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.316667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.316667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.333333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.333333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.350000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.350000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.366667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.366667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.383333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.383333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.400000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.400000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.416667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.416667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.433333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.433333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.450000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.450000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.466667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.466667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.483333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.483333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.500000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.500000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.516667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.516667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.533333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.533333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.550000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.550000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.566667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.566667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.583333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.583333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.600000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.600000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.616667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.616667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.633333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.633333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.650000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.650000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.666667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.666667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.683333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.683333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.700000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.700000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.716667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.716667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.733333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.733333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.750000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.750000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.766667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.766667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.783333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.783333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.800000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.800000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.816667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.816667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.833333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.833333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.850000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.850000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.866667 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.866667 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.883333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.883333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.900000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.900000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Pickup time=0.900000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Pickup time=0.900000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Hold_OneHand time=0.000000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Hold_OneHand time=0.000000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Hold_OneHand time=0.033333 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Hold_OneHand time=0.033333 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Hold_OneHand time=0.100000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Hold_OneHand time=0.100000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+PICKUP_SOLE Hold_OneHand time=0.200000 left count=122 hits=122/122 floor=Cube minGap=0.001731 point=(-0.093700, 0.001731, -0.053151) floorPoint=(-0.093700, 0.000000, -0.053151) maxGap=0.001732 point=(-0.116143, 0.001732, 0.145226) floorPoint=(-0.116143, 0.000000, 0.145226)
+PICKUP_SOLE Hold_OneHand time=0.200000 right count=122 hits=122/122 floor=Cube minGap=0.001727 point=(0.116143, 0.001727, 0.145223) floorPoint=(0.116143, 0.000000, 0.145223) maxGap=0.001729 point=(0.093699, 0.001729, -0.053154) floorPoint=(0.093699, 0.000000, -0.053154)
+]]></output>
+            </test-case>
+            <test-case id="1508" name="ReadyGraphPlaysAllFifteenExistingRequestsAndMovesTheImportedBones" fullname="Wreckabulary.Tests.NativeAnimationStateTests.ReadyGraphPlaysAllFifteenExistingRequestsAndMovesTheImportedBones" methodname="ReadyGraphPlaysAllFifteenExistingRequestsAndMovesTheImportedBones" classname="Wreckabulary.Tests.NativeAnimationStateTests" runstate="Runnable" seed="777144373" result="Passed" start-time="2026-10-08 20:01:11Z" end-time="2026-10-08 20:01:11Z" duration="0.287957" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1551" name="ThirdPersonCameraTests" fullname="Wreckabulary.Tests.ThirdPersonCameraTests" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" testcasecount="18" result="Passed" start-time="2026-10-08 20:01:11Z" end-time="2026-10-08 20:01:29Z" duration="17.678210" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1555" name="ACornerSpawnStepsOutForTheCamera" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.ACornerSpawnStepsOutForTheCamera" methodname="ACornerSpawnStepsOutForTheCamera" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="2121250453" result="Passed" start-time="2026-10-08 20:01:11Z" end-time="2026-10-08 20:01:12Z" duration="0.349791" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[ROOMY spot (1.00, 0.00, 1.00) openness 15.27 -> 21.51
+]]></output>
+            </test-case>
+            <test-case id="1560" name="AKnockedOutPlayerKeepsTheView" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.AKnockedOutPlayerKeepsTheView" methodname="AKnockedOutPlayerKeepsTheView" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="637353482" result="Passed" start-time="2026-10-08 20:01:12Z" end-time="2026-10-08 20:01:13Z" duration="1.036303" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1554" name="AWallBehindLiftsTheCameraOverTheHead" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.AWallBehindLiftsTheCameraOverTheHead" methodname="AWallBehindLiftsTheCameraOverTheHead" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="179926129" result="Passed" start-time="2026-10-08 20:01:13Z" end-time="2026-10-08 20:01:16Z" duration="3.115634" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[CLIMB camera (0.00, 2.43, -0.85) distance 0.86
+]]></output>
+            </test-case>
+            <test-case id="1563" name="AWallPullsTheCameraInThenItEasesBackOut" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.AWallPullsTheCameraInThenItEasesBackOut" methodname="AWallPullsTheCameraInThenItEasesBackOut" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1379188912" result="Passed" start-time="2026-10-08 20:01:16Z" end-time="2026-10-08 20:01:18Z" duration="2.032319" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[PULL_IN distance 1.166 camera (0.00, 1.82, -1.15)
+]]></output>
+            </test-case>
+            <test-case id="1564" name="FurnitureFadesInsteadOfPullingTheCameraIn" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.FurnitureFadesInsteadOfPullingTheCameraIn" methodname="FurnitureFadesInsteadOfPullingTheCameraIn" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1377770714" result="Passed" start-time="2026-10-08 20:01:18Z" end-time="2026-10-08 20:01:19Z" duration="1.191503" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1557" name="LookTurnsTheBodyAndTheCameraTogether" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.LookTurnsTheBodyAndTheCameraTogether" methodname="LookTurnsTheBodyAndTheCameraTogether" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="356254831" result="Passed" start-time="2026-10-08 20:01:19Z" end-time="2026-10-08 20:01:20Z" duration="0.563567" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1567" name="LosingTheWindowPausesTheMatch" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.LosingTheWindowPausesTheMatch" methodname="LosingTheWindowPausesTheMatch" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="457045602" result="Passed" start-time="2026-10-08 20:01:20Z" end-time="2026-10-08 20:01:20Z" duration="0.762256" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1559" name="MovingFollowsTheCamera" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.MovingFollowsTheCamera" methodname="MovingFollowsTheCamera" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1199837319" result="Passed" start-time="2026-10-08 20:01:20Z" end-time="2026-10-08 20:01:22Z" duration="2.117739" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1561" name="OnlyOnePersonWhoCanLookGetsTheView" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.OnlyOnePersonWhoCanLookGetsTheView" methodname="OnlyOnePersonWhoCanLookGetsTheView" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1128942224" result="Passed" start-time="2026-10-08 20:01:22Z" end-time="2026-10-08 20:01:23Z" duration="0.606853" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1558" name="PitchClampsAndARespawnLevelsIt" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.PitchClampsAndARespawnLevelsIt" methodname="PitchClampsAndARespawnLevelsIt" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1661778863" result="Passed" start-time="2026-10-08 20:01:23Z" end-time="2026-10-08 20:01:24Z" duration="0.578861" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1562" name="PlayersWhoCantLookKeepTheOldView" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.PlayersWhoCantLookKeepTheOldView" methodname="PlayersWhoCantLookKeepTheOldView" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1318761301" result="Passed" start-time="2026-10-08 20:01:24Z" end-time="2026-10-08 20:01:24Z" duration="0.577564" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1552" name="SoloCameraSitsCentredBehindThePlayer" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.SoloCameraSitsCentredBehindThePlayer" methodname="SoloCameraSitsCentredBehindThePlayer" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1050246930" result="Passed" start-time="2026-10-08 20:01:24Z" end-time="2026-10-08 20:01:25Z" duration="0.595634" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[THIRD_PERSON feet (0.00, 0.00, 0.00) camera (0.00, 1.63, -3.26)
+]]></output>
+            </test-case>
+            <test-case id="1556" name="SpawningAgainstAWallFacesTheOpenRoom" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.SpawningAgainstAWallFacesTheOpenRoom" methodname="SpawningAgainstAWallFacesTheOpenRoom" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1809341885" result="Passed" start-time="2026-10-08 20:01:25Z" end-time="2026-10-08 20:01:25Z" duration="0.639594" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[OPEN height 1.05 feet 0.205 head 0.492 x 0.500 distance 3.30
+]]></output>
+            </test-case>
+            <test-case id="1566" name="TheCrosshairSitsInTheMiddleAndHidesWithThePause" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.TheCrosshairSitsInTheMiddleAndHidesWithThePause" methodname="TheCrosshairSitsInTheMiddleAndHidesWithThePause" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="388302282" result="Passed" start-time="2026-10-08 20:01:25Z" end-time="2026-10-08 20:01:26Z" duration="0.816294" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1569" name="TheHomeTourFollowsTheRoommateFromBehind" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.TheHomeTourFollowsTheRoommateFromBehind" methodname="TheHomeTourFollowsTheRoommateFromBehind" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1366556577" result="Passed" start-time="2026-10-08 20:01:26Z" end-time="2026-10-08 20:01:27Z" duration="0.976315" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1553" name="TheWholeBodyStandsCentredInView" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.TheWholeBodyStandsCentredInView" methodname="TheWholeBodyStandsCentredInView" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="1183037406" result="Passed" start-time="2026-10-08 20:01:27Z" end-time="2026-10-08 20:01:28Z" duration="0.578444" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[FRAMING height 1.05 feet 0.205 head 0.491 x 0.500 distance 3.30
+]]></output>
+            </test-case>
+            <test-case id="1565" name="WallsStandTallAroundTheThirdPersonView" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.WallsStandTallAroundTheThirdPersonView" methodname="WallsStandTallAroundTheThirdPersonView" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="257932847" result="Passed" start-time="2026-10-08 20:01:28Z" end-time="2026-10-08 20:01:28Z" duration="0.576948" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1568" name="YourOwnTagStepsAsideForTheCamera" fullname="Wreckabulary.Tests.ThirdPersonCameraTests.YourOwnTagStepsAsideForTheCamera" methodname="YourOwnTagStepsAsideForTheCamera" classname="Wreckabulary.Tests.ThirdPersonCameraTests" runstate="Runnable" seed="270352167" result="Passed" start-time="2026-10-08 20:01:28Z" end-time="2026-10-08 20:01:29Z" duration="0.547374" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1611" name="WorldSurfacesTests" fullname="Wreckabulary.Tests.WorldSurfacesTests" classname="Wreckabulary.Tests.WorldSurfacesTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-08 20:01:29Z" end-time="2026-10-08 20:01:31Z" duration="1.850989" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1612" name="FloorsFollowRoomNames" fullname="Wreckabulary.Tests.WorldSurfacesTests.FloorsFollowRoomNames" methodname="FloorsFollowRoomNames" classname="Wreckabulary.Tests.WorldSurfacesTests" runstate="Runnable" seed="191665910" result="Passed" start-time="2026-10-08 20:01:29Z" end-time="2026-10-08 20:01:30Z" duration="1.224994" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1614" name="RugsAndSurroundingsAreOnlyToLookAt" fullname="Wreckabulary.Tests.WorldSurfacesTests.RugsAndSurroundingsAreOnlyToLookAt" methodname="RugsAndSurroundingsAreOnlyToLookAt" classname="Wreckabulary.Tests.WorldSurfacesTests" runstate="Runnable" seed="366411367" result="Passed" start-time="2026-10-08 20:01:30Z" end-time="2026-10-08 20:01:31Z" duration="0.336102" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1613" name="WallsArePlasterWithAWoodCapThatFollowsTheirHeight" fullname="Wreckabulary.Tests.WorldSurfacesTests.WallsArePlasterWithAWoodCapThatFollowsTheirHeight" methodname="WallsArePlasterWithAWoodCapThatFollowsTheirHeight" classname="Wreckabulary.Tests.WorldSurfacesTests" runstate="Runnable" seed="2029575427" result="Passed" start-time="2026-10-08 20:01:31Z" end-time="2026-10-08 20:01:31Z" duration="0.286340" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/mrkl6/AppData/LocalLow/Wreckabulary Team/Wreckabulary\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

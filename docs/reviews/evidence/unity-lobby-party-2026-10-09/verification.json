@@ -1,0 +1,74 @@
+{
+  "baseline": "7216ebf",
+  "engine": "6000.6.3f1",
+  "nativeChecks": [
+    {
+      "file": "lobby-party-native.xml",
+      "result": "Passed",
+      "passed": "56",
+      "failed": "0",
+      "duration": "90.5509928"
+    },
+    {
+      "file": "lobby-party-final.xml",
+      "result": "Passed",
+      "passed": "9",
+      "failed": "0",
+      "duration": "27.8186039"
+    },
+    {
+      "file": "lobby-party-verified.xml",
+      "result": "Passed",
+      "passed": "5",
+      "failed": "0",
+      "duration": "24.2086247"
+    }
+  ],
+  "screenshots": {
+    "01-solo-sunroom.png": "099d73e6c2e8f98fd71e3c6e392087fc7cf5199dd54337348c6009bd9cc9fb55",
+    "02-four-sunroom-1600.png": "3ecdf83c4d2a7195d9d9feef1efa3dfb176b8bb16de1a2e47b6a501a65a7fc8b",
+    "03-four-sunroom-2100.png": "44372d34f6f4289ab28b867a3af26bd99dddd2403c2760dbfefa4351938ee6b2",
+    "04-solo-candy.png": "f733a7ea1bee2aaaeaa8da9a3f994e52a160d33bbb6d67a259efe31bdf4541c3",
+    "05-four-candy-1600.png": "b002c360d2a52f9e280dd0ca4d2d4a6230768bdcabd602221175e96d627ca890",
+    "06-four-candy-2100.png": "f47038d422ef38baa8cd0cd32506d3833fd26dd674502109d8cec10195c7d7a4",
+    "07-solo-lantern.png": "24ec882b2a259ad9d2e493cde35764828d51c96a40d37b624ad5e1c0041f6c72",
+    "08-four-lantern-1600.png": "f4decf8833cdd9864df77a370806b84c32fcb564f66cb97f2edc101cecdb0aad",
+    "09-four-lantern-2100.png": "27c10f60b39bfc8758e1032028ad67b53eb56f3dc96f831f663dc972cbffc34a",
+    "10-solo-winter.png": "5affe92365cd86be09547c8cd958be2b26c70caeb4231062e0367fd09885bc6d",
+    "11-four-winter-1600.png": "4c44cb7ecb1b1f3ac5b66304eb3787c29a38be2d5cf08dfb77ecac5a772acc8a",
+    "12-four-winter-2100.png": "5389eac5095d315981156b2858d6e34638c74a3c92b1e35a80db2b450bca01d1",
+    "13-winter-three.png": "b3d7ad7085bcb3d080d90dc8ea1949c783e2cdbeaca2da5e58e88bd3cbbd3ab0",
+    "14-winter-two.png": "62c9725ff2883f9a88eaaa731e679e2a824e419f2fe0e783d8a7308cf56ed9c3",
+    "15-winter-restored-solo.png": "035c5bf1d40877445fe4dccc72d4333789dd68736142284412a6556e74ea330d",
+    "16-winter-selected-mode.png": "d015b66fdb3703dc788925c91b4be8fce9e4801fc5fb9992ace57c87c6b110e9"
+  },
+  "windows": {
+    "result": "Succeeded",
+    "errors": 0,
+    "bytes": 233836879,
+    "log": "Logs/lobby-party-windows.log",
+    "files": [
+      {
+        "file": "Builds/Windows/Wreckabulary.exe",
+        "sha256": "96b492cb271111251fe42b8646e65370a1b7b566773a1e35b34c3f2d1ae70873"
+      },
+      {
+        "file": "Builds/Windows/Wreckabulary_Data/Managed/Wreckabulary.dll",
+        "sha256": "86200dfd31985aef88b9380949a421143a52a583a6479ff1f0b9de4476c2e0df"
+      },
+      {
+        "file": "Builds/Windows/Wreckabulary_Data/resources.assets",
+        "sha256": "b51b20e61eff8866ce6718dc676937b5569f1eaf0bac439cb353207bf086f256"
+      }
+    ],
+    "smoke": {
+      "pid": 27760,
+      "responsive": true,
+      "seconds": 111.7990859,
+      "loggedErrors": 0,
+      "launchStyle": "Hidden",
+      "scope": "Packaged Windows startup only; native screenshots and interaction checks are recorded separately."
+    }
+  },
+  "sourceCommit": "3fe398b"
+}

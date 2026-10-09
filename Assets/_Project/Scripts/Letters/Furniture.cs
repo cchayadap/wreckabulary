@@ -13,8 +13,6 @@ namespace Wreckabulary
             var rb = built.gameObject.AddComponent<Rigidbody>();
             rb.mass = mass;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
-            // Stacked letters are top-heavy; a low centre of mass keeps lamps and plants standing.
-            rb.centerOfMass = Vector3.up * 0.12f;
             var smash = built.gameObject.AddComponent<Smashable>();
             smash.Init(word, health);
             return smash;

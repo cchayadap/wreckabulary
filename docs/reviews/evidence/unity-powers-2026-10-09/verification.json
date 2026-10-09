@@ -1,0 +1,45 @@
+{
+  "utc": "2026-10-08T22:36:50.2650198Z",
+  "sourceCommit": "a72605c",
+  "unityVersion": "6000.6.3f1",
+  "rules": {
+    "failed": 0,
+    "passed": 227
+  },
+  "editMode": {
+    "failed": 0,
+    "passed": 305
+  },
+  "playMode": {
+    "passed": 289,
+    "failed": 0,
+    "skipped": 14
+  },
+  "finalPose": {
+    "failed": 0,
+    "passed": 7
+  },
+  "nativeCapture": {
+    "frames": 28,
+    "passed": 1
+  },
+  "browser": {
+    "unitPassed": 122,
+    "smokePassed": 29,
+    "errors": 0
+  },
+  "windowsBuild": {
+    "executableSha256": "96B492CB271111251FE42B8646E65370A1B7B566773A1E35B34C3F2D1AE70873",
+    "result": "Succeeded",
+    "bytes": 207818291,
+    "errors": 0
+  },
+  "windowsStartup": {
+    "loggedErrorCount": 0,
+    "elapsedSeconds": 135.8,
+    "inputInitialized": true,
+    "renderer": "Direct3D 11",
+    "scope": "Engine, graphics and input startup smoke; gameplay visual verification uses native Unity captures.",
+    "responding": true
+  }
+}

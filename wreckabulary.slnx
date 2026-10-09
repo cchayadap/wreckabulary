@@ -1,5 +1,8 @@
 ﻿<Solution>
   <Project Path="Wreckabulary.Tests.csproj" />
   <Project Path="Wreckabulary.csproj" />
+  <Project Path="Wreckabulary.Rules.Tests.csproj" />
+  <Project Path="Wreckabulary.Rules.csproj" />
   <Project Path="Wreckabulary.Editor.csproj" />
+  <Project Path="Wreckabulary.Editor.Tests.csproj" />
 </Solution>

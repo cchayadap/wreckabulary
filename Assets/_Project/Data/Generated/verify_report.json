@@ -1,0 +1,643 @@
+{
+ "checked": 98,
+ "failed": 0,
+ "results": [
+  {
+   "name": "BAT",
+   "kind": "item",
+   "triangles": 5248,
+   "problems": []
+  },
+  {
+   "name": "BLADE",
+   "kind": "item",
+   "triangles": 4384,
+   "problems": []
+  },
+  {
+   "name": "LAMP",
+   "kind": "item",
+   "triangles": 3664,
+   "problems": []
+  },
+  {
+   "name": "BALL",
+   "kind": "item",
+   "triangles": 3156,
+   "problems": []
+  },
+  {
+   "name": "PLATE",
+   "kind": "item",
+   "triangles": 1952,
+   "problems": []
+  },
+  {
+   "name": "TABLE",
+   "kind": "item",
+   "triangles": 4320,
+   "problems": []
+  },
+  {
+   "name": "BED",
+   "kind": "item",
+   "triangles": 5760,
+   "problems": []
+  },
+  {
+   "name": "MAT",
+   "kind": "item",
+   "triangles": 1260,
+   "problems": []
+  },
+  {
+   "name": "SOFA",
+   "kind": "item",
+   "triangles": 6248,
+   "problems": []
+  },
+  {
+   "name": "SOAP",
+   "kind": "item",
+   "triangles": 2352,
+   "problems": []
+  },
+  {
+   "name": "FOAM",
+   "kind": "item",
+   "triangles": 4000,
+   "problems": []
+  },
+  {
+   "name": "BOMB",
+   "kind": "item",
+   "triangles": 2236,
+   "problems": []
+  },
+  {
+   "name": "ARROW",
+   "kind": "item",
+   "triangles": 144,
+   "problems": []
+  },
+  {
+   "name": "BOW",
+   "kind": "item",
+   "triangles": 684,
+   "problems": []
+  },
+  {
+   "name": "BROOM",
+   "kind": "item",
+   "triangles": 4416,
+   "problems": []
+  },
+  {
+   "name": "HAMMER",
+   "kind": "item",
+   "triangles": 5872,
+   "problems": []
+  },
+  {
+   "name": "PAN",
+   "kind": "item",
+   "triangles": 1136,
+   "problems": []
+  },
+  {
+   "name": "SHIELD",
+   "kind": "item",
+   "triangles": 172,
+   "problems": []
+  },
+  {
+   "name": "SPEAR",
+   "kind": "item",
+   "triangles": 2028,
+   "problems": []
+  },
+  {
+   "name": "APPLE",
+   "kind": "item",
+   "triangles": 1764,
+   "problems": []
+  },
+  {
+   "name": "CAKE",
+   "kind": "item",
+   "triangles": 3088,
+   "problems": []
+  },
+  {
+   "name": "PIE",
+   "kind": "item",
+   "triangles": 4640,
+   "problems": []
+  },
+  {
+   "name": "SODA",
+   "kind": "item",
+   "triangles": 2372,
+   "problems": []
+  },
+  {
+   "name": "WATER",
+   "kind": "item",
+   "triangles": 2544,
+   "problems": []
+  },
+  {
+   "name": "BARREL",
+   "kind": "item",
+   "triangles": 4240,
+   "problems": []
+  },
+  {
+   "name": "BOX",
+   "kind": "item",
+   "triangles": 1772,
+   "problems": []
+  },
+  {
+   "name": "CABINET",
+   "kind": "item",
+   "triangles": 3600,
+   "problems": []
+  },
+  {
+   "name": "CHAIR",
+   "kind": "item",
+   "triangles": 3408,
+   "problems": []
+  },
+  {
+   "name": "CHEST",
+   "kind": "item",
+   "triangles": 3104,
+   "problems": []
+  },
+  {
+   "name": "CRATE",
+   "kind": "item",
+   "triangles": 7776,
+   "problems": []
+  },
+  {
+   "name": "DESK",
+   "kind": "item",
+   "triangles": 5344,
+   "problems": []
+  },
+  {
+   "name": "SHELF",
+   "kind": "item",
+   "triangles": 3024,
+   "problems": []
+  },
+  {
+   "name": "STOOL",
+   "kind": "item",
+   "triangles": 704,
+   "problems": []
+  },
+  {
+   "name": "BOOK",
+   "kind": "item",
+   "triangles": 3492,
+   "problems": []
+  },
+  {
+   "name": "CLOCK",
+   "kind": "item",
+   "triangles": 3536,
+   "problems": []
+  },
+  {
+   "name": "FAN",
+   "kind": "item",
+   "triangles": 4828,
+   "problems": []
+  },
+  {
+   "name": "MUG",
+   "kind": "item",
+   "triangles": 1228,
+   "problems": []
+  },
+  {
+   "name": "PLANT",
+   "kind": "item",
+   "triangles": 3764,
+   "problems": []
+  },
+  {
+   "name": "POT",
+   "kind": "item",
+   "triangles": 2320,
+   "problems": []
+  },
+  {
+   "name": "VASE",
+   "kind": "item",
+   "triangles": 1760,
+   "problems": []
+  },
+  {
+   "name": "A",
+   "kind": "letter",
+   "triangles": 908,
+   "problems": []
+  },
+  {
+   "name": "B",
+   "kind": "letter",
+   "triangles": 1032,
+   "problems": []
+  },
+  {
+   "name": "C",
+   "kind": "letter",
+   "triangles": 996,
+   "problems": []
+  },
+  {
+   "name": "D",
+   "kind": "letter",
+   "triangles": 984,
+   "problems": []
+  },
+  {
+   "name": "E",
+   "kind": "letter",
+   "triangles": 908,
+   "problems": []
+  },
+  {
+   "name": "F",
+   "kind": "letter",
+   "triangles": 900,
+   "problems": []
+  },
+  {
+   "name": "G",
+   "kind": "letter",
+   "triangles": 1012,
+   "problems": []
+  },
+  {
+   "name": "H",
+   "kind": "letter",
+   "triangles": 908,
+   "problems": []
+  },
+  {
+   "name": "I",
+   "kind": "letter",
+   "triangles": 876,
+   "problems": []
+  },
+  {
+   "name": "J",
+   "kind": "letter",
+   "triangles": 916,
+   "problems": []
+  },
+  {
+   "name": "K",
+   "kind": "letter",
+   "triangles": 904,
+   "problems": []
+  },
+  {
+   "name": "L",
+   "kind": "letter",
+   "triangles": 884,
+   "problems": []
+  },
+  {
+   "name": "M",
+   "kind": "letter",
+   "triangles": 912,
+   "problems": []
+  },
+  {
+   "name": "N",
+   "kind": "letter",
+   "triangles": 900,
+   "problems": []
+  },
+  {
+   "name": "O",
+   "kind": "letter",
+   "triangles": 992,
+   "problems": []
+  },
+  {
+   "name": "P",
+   "kind": "letter",
+   "triangles": 960,
+   "problems": []
+  },
+  {
+   "name": "Q",
+   "kind": "letter",
+   "triangles": 1008,
+   "problems": []
+  },
+  {
+   "name": "R",
+   "kind": "letter",
+   "triangles": 1004,
+   "problems": []
+  },
+  {
+   "name": "S",
+   "kind": "letter",
+   "triangles": 1068,
+   "problems": []
+  },
+  {
+   "name": "T",
+   "kind": "letter",
+   "triangles": 892,
+   "problems": []
+  },
+  {
+   "name": "U",
+   "kind": "letter",
+   "triangles": 948,
+   "problems": []
+  },
+  {
+   "name": "V",
+   "kind": "letter",
+   "triangles": 888,
+   "problems": []
+  },
+  {
+   "name": "W",
+   "kind": "letter",
+   "triangles": 912,
+   "problems": []
+  },
+  {
+   "name": "X",
+   "kind": "letter",
+   "triangles": 908,
+   "problems": []
+  },
+  {
+   "name": "Y",
+   "kind": "letter",
+   "triangles": 896,
+   "problems": []
+  },
+  {
+   "name": "Z",
+   "kind": "letter",
+   "triangles": 900,
+   "problems": []
+  },
+  {
+   "name": "Arena_Rug",
+   "kind": "environment",
+   "triangles": 1356,
+   "problems": []
+  },
+  {
+   "name": "Corner_Post",
+   "kind": "environment",
+   "triangles": 1296,
+   "problems": []
+  },
+  {
+   "name": "Curtain",
+   "kind": "environment",
+   "triangles": 3552,
+   "problems": []
+  },
+  {
+   "name": "Doorstep",
+   "kind": "environment",
+   "triangles": 864,
+   "problems": []
+  },
+  {
+   "name": "Floor_Carpet_2m",
+   "kind": "environment",
+   "triangles": 864,
+   "problems": []
+  },
+  {
+   "name": "Kitchen_Counter",
+   "kind": "environment",
+   "triangles": 2784,
+   "problems": []
+  },
+  {
+   "name": "Kitchen_Fridge",
+   "kind": "environment",
+   "triangles": 2268,
+   "problems": []
+  },
+  {
+   "name": "Kitchen_Sink",
+   "kind": "environment",
+   "triangles": 4104,
+   "problems": []
+  },
+  {
+   "name": "Kitchen_Stove",
+   "kind": "environment",
+   "triangles": 8064,
+   "problems": []
+  },
+  {
+   "name": "Platform_2m",
+   "kind": "environment",
+   "triangles": 864,
+   "problems": []
+  },
+  {
+   "name": "Radiator",
+   "kind": "environment",
+   "triangles": 4512,
+   "problems": []
+  },
+  {
+   "name": "Railing_2m",
+   "kind": "environment",
+   "triangles": 1536,
+   "problems": []
+  },
+  {
+   "name": "Round_Rug",
+   "kind": "environment",
+   "triangles": 1408,
+   "problems": []
+  },
+  {
+   "name": "Stairs_1m",
+   "kind": "environment",
+   "triangles": 4320,
+   "problems": []
+  },
+  {
+   "name": "Wall_Door",
+   "kind": "environment",
+   "triangles": 3024,
+   "problems": []
+  },
+  {
+   "name": "Wall_Sconce",
+   "kind": "environment",
+   "triangles": 1128,
+   "problems": []
+  },
+  {
+   "name": "Wall_Shelf",
+   "kind": "environment",
+   "triangles": 528,
+   "problems": []
+  },
+  {
+   "name": "Wall_Sign",
+   "kind": "environment",
+   "triangles": 892,
+   "problems": []
+  },
+  {
+   "name": "Wall_Solid",
+   "kind": "environment",
+   "triangles": 1296,
+   "problems": []
+  },
+  {
+   "name": "Wall_Window",
+   "kind": "environment",
+   "triangles": 6048,
+   "problems": []
+  },
+  {
+   "name": "Window_Frame",
+   "kind": "environment",
+   "triangles": 3024,
+   "problems": []
+  },
+  {
+   "name": "Bomb_Warning",
+   "kind": "vfx",
+   "triangles": 1696,
+   "problems": []
+  },
+  {
+   "name": "Craft_Ring",
+   "kind": "vfx",
+   "triangles": 2624,
+   "problems": []
+  },
+  {
+   "name": "Foam_Cloud",
+   "kind": "vfx",
+   "triangles": 5760,
+   "problems": []
+  },
+  {
+   "name": "Impact_Star",
+   "kind": "vfx",
+   "triangles": 52,
+   "problems": []
+  },
+  {
+   "name": "Jump_Arrow",
+   "kind": "vfx",
+   "triangles": 24,
+   "problems": []
+  },
+  {
+   "name": "Pickup_Ring",
+   "kind": "vfx",
+   "triangles": 676,
+   "problems": []
+  },
+  {
+   "name": "Room_Hazard",
+   "kind": "vfx",
+   "triangles": 3200,
+   "problems": []
+  },
+  {
+   "name": "Soap_Puddle",
+   "kind": "vfx",
+   "triangles": 3300,
+   "problems": []
+  },
+  {
+   "name": "Speed_Trail",
+   "kind": "vfx",
+   "triangles": 1296,
+   "problems": []
+  },
+  {
+   "name": "Wood_Splinter",
+   "kind": "vfx",
+   "triangles": 16,
+   "problems": []
+  },
+  {
+   "name": "Avatar",
+   "kind": "avatar",
+   "triangles": 63110,
+   "problems": [],
+   "clips": [
+    "Block_Plate",
+    "Block_Plate",
+    "Carry_TwoHand",
+    "Carry_TwoHand",
+    "Celebrate",
+    "Celebrate",
+    "Drink_Consumable",
+    "Drink_Consumable",
+    "Hit_Reaction",
+    "Hit_Reaction",
+    "Hold_OneHand",
+    "Hold_OneHand",
+    "Idle",
+    "Idle",
+    "Inspect_OneHand",
+    "Inspect_OneHand",
+    "Jump_Preview",
+    "Jump_Preview",
+    "Pickup",
+    "Pickup",
+    "Place",
+    "Place",
+    "Present_Item",
+    "Present_Item",
+    "Run_InPlace",
+    "Run_InPlace",
+    "Swing_OneHand",
+    "Swing_OneHand",
+    "Throw_OneHand",
+    "Throw_OneHand",
+    "Thrust_OneHand",
+    "Thrust_OneHand",
+    "Walk_InPlace",
+    "Walk_InPlace"
+   ],
+   "meshes": [
+    "SK_Badge_T",
+    "SK_Boots",
+    "SK_Cap",
+    "SK_Crewneck",
+    "SK_Glasses",
+    "SK_Head",
+    "SK_Hood",
+    "SK_Hoodie",
+    "SK_Joggers",
+    "SK_Mittens",
+    "SK_Satchel"
+   ]
+  }
+ ]
+}

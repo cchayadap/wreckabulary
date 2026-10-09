@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
@@ -7,12 +9,12 @@ namespace Wreckabulary
     public class Projectile : MonoBehaviour
     {
         PlayerController owner;
-        float knockback, damage, blastRadius;
-        int letters;
+        string word;
+        float damage, knockback, breakPower, blastRadius;
         bool spent;
 
         public static Projectile Fire(string word, Vector3 from, Vector3 velocity, PlayerController owner,
-                                      float knockback, float damage, float blastRadius, int letters)
+                                      float damage, float knockback, float breakPower, float blastRadius)
         {
             bool heavy = blastRadius > 0f;
             var size = heavy ? Vector3.one * 0.45f : new Vector3(0.12f, 0.12f, 0.7f);
@@ -28,15 +30,17 @@ namespace Wreckabulary
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             rb.linearVelocity = velocity;
 
-            foreach (var mine in owner.GetComponents<Collider>())
-                Physics.IgnoreCollision(go.GetComponentInChildren<Collider>(), mine);
+            if (owner)
+                foreach (var mine in owner.GetComponents<Collider>())
+                    Physics.IgnoreCollision(go.GetComponentInChildren<Collider>(), mine);
 
             var p = go.AddComponent<Projectile>();
             p.owner = owner;
-            p.knockback = knockback;
+            p.word = word;
             p.damage = damage;
+            p.knockback = knockback;
+            p.breakPower = breakPower;
             p.blastRadius = blastRadius;
-            p.letters = letters;
             Destroy(go, 3f);
             return p;
         }
@@ -52,34 +56,55 @@ namespace Wreckabulary
             {
                 Explode();
             }
-            else if (rb)
+            else if (rb && rb.TryGetComponent(out IDamageable target))
             {
-                if (rb.TryGetComponent(out PlayerHealth victim)) victim.TakeHit(transform.forward, knockback, letters, owner);
-                else if (rb.TryGetComponent(out Smashable smash)) smash.TakeHit(damage);
+                target.ApplyDamage(Hits.Of(owner, transform.forward, HitSource.Thrown, damage, knockback, 0.2f, breakPower, word));
             }
             Destroy(gameObject);
         }
 
         void Explode()
         {
+            ExplodeAt(transform.position, owner, word, damage, damage, blastRadius, knockback, breakPower, false);
+        }
+
+        public static float BlastDamage(float centreDamage, float edgeDamage, float distance, float radius) =>
+            Mathf.Lerp(centreDamage, edgeDamage, radius > 0f ? Mathf.Clamp01(distance / radius) : 0f);
+
+        public static void ExplodeAt(Vector3 position, PlayerController owner, string word, float damage, float edgeDamage,
+            float blastRadius, float knockback, float breakPower, bool hurtOwner)
+        {
             CameraRig.Shake(0.25f);
-            Sfx.Play(Sound.Boom, transform.position);
-            Popup.Show("BOOM", transform.position + Vector3.up, Color.white, 4f);
-            foreach (var col in Physics.OverlapSphere(transform.position, blastRadius, ~0, QueryTriggerInteraction.Ignore))
+            GameFeedback.Play(GameCue.Blast);
+            GameFeedback.Burst("Impact_Star", position + Vector3.up * .65f, Mathf.Min(2.2f, blastRadius), GameFeedback.SkillColor("BOMB"), .5f);
+            Popup.Show("BOOM", position + Vector3.up, Color.white, 4f);
+            var seen = new HashSet<Rigidbody>();
+            foreach (var col in Physics.OverlapSphere(position, blastRadius, ~0, QueryTriggerInteraction.Ignore))
             {
                 var rb = col.attachedRigidbody;
-                if (!rb) continue;
-                var dir = rb.position - transform.position;
+                if (!rb || !seen.Add(rb) || FloorBetween(position, rb.worldCenterOfMass)) continue;
+                float distance = World.Flat(rb.position - position).magnitude;
+                var hit = Hits.Of(owner, rb.position - position, HitSource.Explosion, BlastDamage(damage, edgeDamage, distance, blastRadius), knockback, 0.3f, breakPower, word);
                 if (rb.TryGetComponent(out PlayerHealth victim))
                 {
-                    if (victim.gameObject != owner.gameObject) victim.TakeHit(dir, knockback, letters, owner);
+                    if (hurtOwner || !owner || victim.gameObject != owner.gameObject) victim.ApplyDamage(hit);
                 }
                 else
                 {
-                    if (rb.TryGetComponent(out Smashable smash)) smash.TakeHit(damage);
-                    if (rb && !rb.isKinematic) rb.AddExplosionForce(8f, transform.position, blastRadius, 0.5f, ForceMode.VelocityChange);
+                    if (rb.TryGetComponent(out IDamageable target)) target.ApplyDamage(hit);
+                    if (rb && !rb.isKinematic) rb.AddExplosionForce(knockback * Hits.KnockbackSpeed, position, blastRadius, 0.5f, ForceMode.VelocityChange);
                 }
             }
+        }
+
+        static bool FloorBetween(Vector3 from, Vector3 to)
+        {
+            var path = from - to;
+            float length = path.magnitude, low = Mathf.Min(from.y, to.y) + .1f, high = Mathf.Max(from.y, to.y) - .1f;
+            if (length < .01f || high <= low) return false;
+            foreach (var hit in Physics.RaycastAll(to, path / length, length, World.GroundMask, QueryTriggerInteraction.Ignore))
+                if (!hit.rigidbody && Mathf.Abs(hit.normal.y) > .7f && hit.point.y > low && hit.point.y < high) return true;
+            return false;
         }
     }
 }

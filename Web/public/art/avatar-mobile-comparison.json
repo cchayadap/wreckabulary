@@ -1,0 +1,37 @@
+{
+  "camera": "identical orthographic camera and lighting",
+  "comparison": [
+    {
+      "column": 1,
+      "model": "avatar.glb",
+      "outfit": "default",
+      "clip": "Run_InPlace",
+      "frame": 6,
+      "sha256": "58f89f378c966453d0e30fea9b7cbbac459e4a3209efb6dba8512ca3b63248de"
+    },
+    {
+      "column": 2,
+      "model": "avatar-mobile.glb",
+      "outfit": "default",
+      "clip": "Run_InPlace",
+      "frame": 6,
+      "sha256": "bf5339580d3938d628f9e7834c97dde7c10c9fe8587d270c8742c68bd11e1202"
+    },
+    {
+      "column": 3,
+      "model": "avatar.glb",
+      "outfit": "hoodie+hood",
+      "clip": "Run_InPlace",
+      "frame": 6,
+      "sha256": "58f89f378c966453d0e30fea9b7cbbac459e4a3209efb6dba8512ca3b63248de"
+    },
+    {
+      "column": 4,
+      "model": "avatar-mobile.glb",
+      "outfit": "hoodie+hood",
+      "clip": "Run_InPlace",
+      "frame": 6,
+      "sha256": "bf5339580d3938d628f9e7834c97dde7c10c9fe8587d270c8742c68bd11e1202"
+    }
+  ]
+}

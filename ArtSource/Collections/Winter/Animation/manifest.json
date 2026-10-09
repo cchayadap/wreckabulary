@@ -1,0 +1,1509 @@
+{
+  "name": "WinterShuffle",
+  "version": 1,
+  "status": "authored-not-unity-imported",
+  "source_avatar": "Assets\\_Project\\Art\\Imported\\Avatar\\Avatar.fbx",
+  "source_avatar_sha256": "f1199f15a333de765e49aa4b6773a1c71c3347c9ca4a5169c93ab54190a1c6c3",
+  "generator": "Tools\\AssetPipeline\\author_winter_emote.py",
+  "generator_sha256": "347a8369bd1aba7e5894798ccc6eb433b393da4b48b0ffcee37393894636b6fc",
+  "blender": "5.2.2 LTS",
+  "fps": 30,
+  "duration_seconds": 2.4,
+  "authoring": "Original local keyframes and two-bone IK; existing avatar geometry/rig is reference only.",
+  "design": "Two side steps, soft knee bounce, two raised front-of-face mitten claps, planted neutral return.",
+  "rig_adaptation": "Rig arms are 0.241m long from 0.549m shoulders; head top is 0.988m. Raised front claps replace unreachable overhead contact without stretching arms.",
+  "clap_frames": [
+    22,
+    50
+  ],
+  "armature": "Avatar_01",
+  "bone_paths_relative_to_armature": {
+    "root": "root",
+    "pelvis": "root/pelvis",
+    "spine": "root/pelvis/spine",
+    "chest": "root/pelvis/spine/chest",
+    "neck": "root/pelvis/spine/chest/neck",
+    "head": "root/pelvis/spine/chest/neck/head",
+    "clavicle_L": "root/pelvis/spine/chest/clavicle_L",
+    "upper_arm_L": "root/pelvis/spine/chest/clavicle_L/upper_arm_L",
+    "forearm_L": "root/pelvis/spine/chest/clavicle_L/upper_arm_L/forearm_L",
+    "hand_L": "root/pelvis/spine/chest/clavicle_L/upper_arm_L/forearm_L/hand_L",
+    "grip_L": "root/pelvis/spine/chest/clavicle_L/upper_arm_L/forearm_L/hand_L/grip_L",
+    "clavicle_R": "root/pelvis/spine/chest/clavicle_R",
+    "upper_arm_R": "root/pelvis/spine/chest/clavicle_R/upper_arm_R",
+    "forearm_R": "root/pelvis/spine/chest/clavicle_R/upper_arm_R/forearm_R",
+    "hand_R": "root/pelvis/spine/chest/clavicle_R/upper_arm_R/forearm_R/hand_R",
+    "grip_R": "root/pelvis/spine/chest/clavicle_R/upper_arm_R/forearm_R/hand_R/grip_R",
+    "thigh_L": "root/pelvis/thigh_L",
+    "shin_L": "root/pelvis/thigh_L/shin_L",
+    "foot_L": "root/pelvis/thigh_L/shin_L/foot_L",
+    "thigh_R": "root/pelvis/thigh_R",
+    "shin_R": "root/pelvis/thigh_R/shin_R",
+    "foot_R": "root/pelvis/thigh_R/shin_R/foot_R"
+  },
+  "motion": {
+    "root_drift_m": 0.0,
+    "support_foot_floor_error_m": 3.319978713993421e-08,
+    "max_leg_ik_error_m": 0.0,
+    "max_arm_ik_error_m": 0.0,
+    "neutral_return_error_m": 0.0,
+    "samples_world_blender_z_up": {
+      "0": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          -0.0,
+          -0.01,
+          0.28198
+        ],
+        "head": [
+          -0.0,
+          0.0,
+          0.701
+        ],
+        "hand_L": [
+          -0.280126,
+          0.019843,
+          0.349641
+        ],
+        "hand_R": [
+          0.280126,
+          0.019843,
+          0.349641
+        ],
+        "shin_L": [
+          -0.085232,
+          0.013548,
+          0.203033
+        ],
+        "shin_R": [
+          0.085232,
+          0.013548,
+          0.203033
+        ],
+        "foot_L": [
+          -0.092,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.092,
+          0.005,
+          0.095
+        ]
+      },
+      "10": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          -0.01,
+          -0.01,
+          0.26598
+        ],
+        "head": [
+          -0.015516,
+          0.001377,
+          0.684859
+        ],
+        "hand_L": [
+          -0.340384,
+          0.123916,
+          0.575017
+        ],
+        "hand_R": [
+          0.314098,
+          0.117631,
+          0.570966
+        ],
+        "shin_L": [
+          -0.103713,
+          0.058003,
+          0.224207
+        ],
+        "shin_R": [
+          0.081507,
+          0.031426,
+          0.199793
+        ],
+        "foot_L": [
+          -0.114,
+          0.005,
+          0.13
+        ],
+        "foot_R": [
+          0.092,
+          0.005,
+          0.095
+        ]
+      },
+      "17": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          -0.028793,
+          -0.01,
+          0.267006
+        ],
+        "head": [
+          -0.036519,
+          0.001376,
+          0.685812
+        ],
+        "hand_L": [
+          -0.178796,
+          0.147,
+          0.611031
+        ],
+        "hand_R": [
+          0.121209,
+          0.147,
+          0.611031
+        ],
+        "shin_L": [
+          -0.121287,
+          0.036352,
+          0.198403
+        ],
+        "shin_R": [
+          0.069498,
+          0.024256,
+          0.199464
+        ],
+        "foot_L": [
+          -0.132001,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.092001,
+          0.005,
+          0.095
+        ]
+      },
+      "22": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          -0.032,
+          -0.01,
+          0.25498
+        ],
+        "head": [
+          -0.037516,
+          0.001377,
+          0.673859
+        ],
+        "hand_L": [
+          -0.082,
+          0.177,
+          0.609
+        ],
+        "hand_R": [
+          0.018,
+          0.177,
+          0.609
+        ],
+        "shin_L": [
+          -0.124097,
+          0.04541,
+          0.195472
+        ],
+        "shin_R": [
+          0.068397,
+          0.037258,
+          0.195957
+        ],
+        "foot_L": [
+          -0.132,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.092,
+          0.005,
+          0.095
+        ]
+      },
+      "26": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          -0.025,
+          -0.01,
+          0.26998
+        ],
+        "head": [
+          -0.030516,
+          0.001377,
+          0.688859
+        ],
+        "hand_L": [
+          -0.175,
+          0.147,
+          0.614
+        ],
+        "hand_R": [
+          0.125,
+          0.147,
+          0.614
+        ],
+        "shin_L": [
+          -0.118554,
+          0.031785,
+          0.199364
+        ],
+        "shin_R": [
+          0.071668,
+          0.022881,
+          0.200152
+        ],
+        "foot_L": [
+          -0.132,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.092,
+          0.005,
+          0.095
+        ]
+      },
+      "40": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          0.01,
+          -0.01,
+          0.26598
+        ],
+        "head": [
+          0.015516,
+          0.001377,
+          0.684859
+        ],
+        "hand_L": [
+          -0.14,
+          0.147,
+          0.61
+        ],
+        "hand_R": [
+          0.16,
+          0.147,
+          0.61
+        ],
+        "shin_L": [
+          -0.081507,
+          0.031426,
+          0.199793
+        ],
+        "shin_R": [
+          0.103713,
+          0.058003,
+          0.224207
+        ],
+        "foot_L": [
+          -0.092,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.114,
+          0.005,
+          0.13
+        ]
+      },
+      "45": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          0.028,
+          -0.01,
+          0.26998
+        ],
+        "head": [
+          0.036272,
+          0.001376,
+          0.688763
+        ],
+        "hand_L": [
+          -0.122,
+          0.147,
+          0.614
+        ],
+        "hand_R": [
+          0.178,
+          0.147,
+          0.614
+        ],
+        "shin_L": [
+          -0.069556,
+          0.019757,
+          0.200207
+        ],
+        "shin_R": [
+          0.120535,
+          0.03364,
+          0.199107
+        ],
+        "foot_L": [
+          -0.092,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.132,
+          0.005,
+          0.095
+        ]
+      },
+      "50": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          0.032,
+          -0.01,
+          0.25498
+        ],
+        "head": [
+          0.037516,
+          0.001377,
+          0.673859
+        ],
+        "hand_L": [
+          -0.018,
+          0.177,
+          0.609
+        ],
+        "hand_R": [
+          0.082,
+          0.177,
+          0.609
+        ],
+        "shin_L": [
+          -0.068397,
+          0.037258,
+          0.195957
+        ],
+        "shin_R": [
+          0.124097,
+          0.04541,
+          0.195472
+        ],
+        "foot_L": [
+          -0.092,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.132,
+          0.005,
+          0.095
+        ]
+      },
+      "54": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          0.025,
+          -0.01,
+          0.26998
+        ],
+        "head": [
+          0.030516,
+          0.001377,
+          0.688859
+        ],
+        "hand_L": [
+          -0.125,
+          0.147,
+          0.614
+        ],
+        "hand_R": [
+          0.175,
+          0.147,
+          0.614
+        ],
+        "shin_L": [
+          -0.071668,
+          0.022881,
+          0.200152
+        ],
+        "shin_R": [
+          0.118553,
+          0.031785,
+          0.199364
+        ],
+        "foot_L": [
+          -0.092,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.132,
+          0.005,
+          0.095
+        ]
+      },
+      "64": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          -0.0,
+          -0.01,
+          0.26998
+        ],
+        "head": [
+          -0.0,
+          0.001378,
+          0.688936
+        ],
+        "hand_L": [
+          -0.359818,
+          0.080032,
+          0.510899
+        ],
+        "hand_R": [
+          0.359818,
+          0.080032,
+          0.510899
+        ],
+        "shin_L": [
+          -0.087563,
+          0.031262,
+          0.200264
+        ],
+        "shin_R": [
+          0.087563,
+          0.031262,
+          0.200264
+        ],
+        "foot_L": [
+          -0.092,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.092,
+          0.005,
+          0.095
+        ]
+      },
+      "72": {
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pelvis": [
+          -0.0,
+          -0.01,
+          0.28198
+        ],
+        "head": [
+          -0.0,
+          0.0,
+          0.701
+        ],
+        "hand_L": [
+          -0.280126,
+          0.019843,
+          0.349641
+        ],
+        "hand_R": [
+          0.280126,
+          0.019843,
+          0.349641
+        ],
+        "shin_L": [
+          -0.085232,
+          0.013548,
+          0.203033
+        ],
+        "shin_R": [
+          0.085232,
+          0.013548,
+          0.203033
+        ],
+        "foot_L": [
+          -0.092,
+          0.005,
+          0.095
+        ],
+        "foot_R": [
+          0.092,
+          0.005,
+          0.095
+        ]
+      }
+    },
+    "frames": [
+      {
+        "frame": 0,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.560253
+      },
+      {
+        "frame": 1,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.560253
+      },
+      {
+        "frame": 2,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.560253
+      },
+      {
+        "frame": 3,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.560253
+      },
+      {
+        "frame": 4,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.574277
+      },
+      {
+        "frame": 5,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.611084
+      },
+      {
+        "frame": 6,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.659219
+      },
+      {
+        "frame": 7,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.702649
+      },
+      {
+        "frame": 8,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.723476
+      },
+      {
+        "frame": 9,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.708217
+      },
+      {
+        "frame": 10,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.654525
+      },
+      {
+        "frame": 11,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.573292
+      },
+      {
+        "frame": 12,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.483692
+      },
+      {
+        "frame": 13,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.404178
+      },
+      {
+        "frame": 14,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.345784
+      },
+      {
+        "frame": 15,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.311395
+      },
+      {
+        "frame": 16,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300002
+      },
+      {
+        "frame": 17,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300005
+      },
+      {
+        "frame": 18,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.279208
+      },
+      {
+        "frame": 19,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.229608
+      },
+      {
+        "frame": 20,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.170405
+      },
+      {
+        "frame": 21,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.120802
+      },
+      {
+        "frame": 22,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.1
+      },
+      {
+        "frame": 23,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.13125
+      },
+      {
+        "frame": 24,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.2
+      },
+      {
+        "frame": 25,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.26875
+      },
+      {
+        "frame": 26,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 27,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300004
+      },
+      {
+        "frame": 28,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300011
+      },
+      {
+        "frame": 29,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300011
+      },
+      {
+        "frame": 30,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300004
+      },
+      {
+        "frame": 31,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 32,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 33,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 34,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 35,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 36,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300004
+      },
+      {
+        "frame": 37,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300011
+      },
+      {
+        "frame": 38,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300011
+      },
+      {
+        "frame": 39,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300004
+      },
+      {
+        "frame": 40,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 41,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300003
+      },
+      {
+        "frame": 42,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300008
+      },
+      {
+        "frame": 43,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300008
+      },
+      {
+        "frame": 44,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300003
+      },
+      {
+        "frame": 45,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 46,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.279203
+      },
+      {
+        "frame": 47,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.229608
+      },
+      {
+        "frame": 48,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.170408
+      },
+      {
+        "frame": 49,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.120803
+      },
+      {
+        "frame": 50,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.1
+      },
+      {
+        "frame": 51,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.13125
+      },
+      {
+        "frame": 52,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.2
+      },
+      {
+        "frame": 53,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.26875
+      },
+      {
+        "frame": 54,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.3
+      },
+      {
+        "frame": 55,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300004
+      },
+      {
+        "frame": 56,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.300011
+      },
+      {
+        "frame": 57,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.309837
+      },
+      {
+        "frame": 58,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.339391
+      },
+      {
+        "frame": 59,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.389637
+      },
+      {
+        "frame": 60,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.459236
+      },
+      {
+        "frame": 61,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.541142
+      },
+      {
+        "frame": 62,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.622027
+      },
+      {
+        "frame": 63,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.685765
+      },
+      {
+        "frame": 64,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.719636
+      },
+      {
+        "frame": 65,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.719659
+      },
+      {
+        "frame": 66,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.69175
+      },
+      {
+        "frame": 67,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.648632
+      },
+      {
+        "frame": 68,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.604755
+      },
+      {
+        "frame": 69,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.572395
+      },
+      {
+        "frame": 70,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.560253
+      },
+      {
+        "frame": 71,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.560253
+      },
+      {
+        "frame": 72,
+        "root": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "sole_min_m": 0.002,
+        "leg_ik_error_m": 0.0,
+        "arm_ik_error_m": 0.0,
+        "wrist_gap_m": 0.560253
+      }
+    ]
+  },
+  "roundtrip": {
+    "armature": "Avatar_01",
+    "bones": 22,
+    "actions": [
+      "Avatar_01|WinterShuffle"
+    ],
+    "frames": [
+      1.0,
+      73.0
+    ],
+    "duration_seconds": 2.4,
+    "max_joint_error_m": 8.668327076583496e-07
+  },
+  "preview_materials": "Existing generated material colours and base textures; Blender lighting is only a pose preview, not the native Unity look.",
+  "previews": [
+    "WinterShuffle-00.png",
+    "WinterShuffle-10.png",
+    "WinterShuffle-17.png",
+    "WinterShuffle-22.png",
+    "WinterShuffle-40.png",
+    "WinterShuffle-50.png",
+    "WinterShuffle-72.png"
+  ],
+  "files": {
+    "WinterShuffle-00.png": {
+      "sha256": "acd5c7436b399d7357b95a31e46087b3286d4a8eae2d9d184aedaf9cf7730405",
+      "bytes": 583010
+    },
+    "WinterShuffle-10.png": {
+      "sha256": "a6f35c4b20d2c65394827f8cd2d830cb1829148c9daddb7419130d64a1461123",
+      "bytes": 581882
+    },
+    "WinterShuffle-17.png": {
+      "sha256": "44a808b2e41f9d01baae9b59d7049dd636193de334bac56ea4c77aece9f83dc4",
+      "bytes": 568737
+    },
+    "WinterShuffle-22.png": {
+      "sha256": "df3380ebd5c5a81c47639619698da608a2f8efbcf4b1eb3ba51203d667f82381",
+      "bytes": 558159
+    },
+    "WinterShuffle-40.png": {
+      "sha256": "18fe7a713209708859008bbc401badcdea8edabc1f85ba4730aaa85091aea169",
+      "bytes": 564667
+    },
+    "WinterShuffle-50.png": {
+      "sha256": "4d7bd1c6581d003f606893fbc479fabcb5a3df1c1a02d32d1e72e725fe645ceb",
+      "bytes": 557491
+    },
+    "WinterShuffle-72.png": {
+      "sha256": "42e63035777bdcee3d2714acc70c507ad949a97a977fc9c85c26cd337e5ea824",
+      "bytes": 583093
+    },
+    "WinterShuffle.blend": {
+      "sha256": "17daa1ba604856c45bd9f6a8bf77c14b01831d0343940b2b346b262b43ab7843",
+      "bytes": 1726714
+    },
+    "WinterShuffle.fbx": {
+      "sha256": "c079078733347f951ef697bee602eecfa4362a8ecbf88b814b82b65d41ba6007",
+      "bytes": 261452
+    }
+  }
+}

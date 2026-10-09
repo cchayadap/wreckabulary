@@ -1,112 +1,85 @@
-using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Letters carried and the word wheel, floating above the player's head.</summary>
+    /// <summary>Remote identity and short contextual prompts; health, gear and letters live in the screen HUD.</summary>
     public class PlayerHud : MonoBehaviour
     {
         [SerializeField] PlayerController player;
         [SerializeField] TextMeshPro lettersText;
         [SerializeField] TextMeshPro wheelText;
-        [SerializeField] float height = 1.75f;
+        [SerializeField] float height = 1.95f;
 
         readonly StringBuilder sb = new();
-        string lastLetters, lastWheel;
+        string lastLetters, lastWheel, nameMarkup;
+        WorldSpaceBillboard billboard;
+
+        void Awake()
+        {
+            billboard = GetComponent<WorldSpaceBillboard>();
+            if (!billboard) billboard = gameObject.AddComponent<WorldSpaceBillboard>();
+        }
+
+        void Start()
+        {
+            if (!player) return;
+            nameMarkup = "<color=#" + ColorUtility.ToHtmlStringRGB(player.Color) + ">" + player.Name + "</color>";
+            if (CameraRig.Instance) billboard.SetCamera(CameraRig.Instance.ViewCamera);
+        }
 
         void LateUpdate()
         {
             if (!player) return;
-            transform.position = player.Body.position + Vector3.up * height;
-            Popup.Billboard(transform);
-
-            SetIfChanged(lettersText, LettersLine(), ref lastLetters);
-            SetIfChanged(wheelText, player.Summoner.IsSpelling ? WheelLines() : "", ref lastWheel);
+            transform.position = player.transform.position + Vector3.up * height;
+            bool followed = GameHud.Active && GameHud.Active.LocalPlayer == player;
+            if (!followed) followed = CameraRig.Instance && CameraRig.Instance.IsFollowing(player);
+            if (!followed && player.Binding is not BotBinding)
+            {
+                int humans = 0;
+                foreach (var seat in World.Players)
+                    if (seat && seat.Binding != null && seat.Binding is not BotBinding) humans++;
+                followed = humans == 1;
+            }
+            SetIfChanged(lettersText, IdentityLine(followed), ref lastLetters);
+            bool remoteCraft = !followed && player.Summoner && player.Summoner.IsSpelling;
+            SetIfChanged(wheelText, remoteCraft ? WheelLines() : ContextLine(), ref lastWheel);
         }
 
-        static void SetIfChanged(TextMeshPro t, string value, ref string last)
+        string IdentityLine(bool followed)
         {
-            if (value == last) return;
+            if (player.IsEliminated) return "";
+            if (player.IsDowned)
+                return $"<color=#FF967D>REVIVE · {Mathf.CeilToInt(player.Health.BleedOutLeft)}s</color>";
+            return followed ? "" : nameMarkup ?? "";
+        }
+
+        /// <summary>Show only actions that need nearby world context.</summary>
+        string ContextLine()
+        {
+            var combat = player.Combat;
+            if (!combat) return "";
+            if (combat.IsReviving) return "<color=#98F3CA>REVIVING</color>";
+            if (player.CanAct && !(combat.IsHolding && !combat.Weapon) && combat.DownedTeammateNearby())
+                return "<color=#F6D98B>Hold grab to revive</color>";
+            return "";
+        }
+
+        static void SetIfChanged(TextMeshPro text, string value, ref string last)
+        {
+            if (!text || value == last) return;
             last = value;
-            t.text = value;
+            text.text = value;
         }
 
-        string LettersLine()
-        {
-            var inv = player.Inventory;
-            var spell = player.Summoner;
-            sb.Clear();
-            sb.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(player.Color)).Append('>')
-              .Append(player.Name).Append("</color> ");
-            if (player.IsKnockedOut) return sb.Append("<color=#FFFFFF>KO</color>").ToString();
-
-            if (spell.EndlessLetters)
-            {
-                if (!spell.IsSpelling) return sb.Append("<color=#FFF4E0AA>A-Z</color>").ToString();
-                // A window of the alphabet around the highlight.
-                for (int d = -3; d <= 3; d++)
-                {
-                    int i = ((spell.Cursor + d) % 26 + 26) % 26;
-                    char c = spell.Source[i];
-                    if (d == 0) sb.Append("<size=135%><color=#FFD24A>[").Append(c).Append("]</color></size>");
-                    else sb.Append("<color=#FFF4E0").Append(Mathf.Abs(d) == 3 ? "55" : "CC").Append('>').Append(c).Append("</color>");
-                    if (d < 3) sb.Append(' ');
-                }
-                return sb.ToString();
-            }
-
-            for (int i = 0; i < inv.Capacity; i++)
-            {
-                if (i < inv.Count)
-                {
-                    char c = inv.Letters[i];
-                    bool used = spell.IsSpelling && spell.Picked.Contains(i);
-                    bool highlighted = spell.IsSpelling && spell.Cursor == i;
-                    string hex = used ? "FFFFFF44" : LetterScores.RarityOf(c) switch
-                    {
-                        LetterRarity.Legendary => "FFD24A",
-                        LetterRarity.Rare => "7FD6CB",
-                        _ => "FFF4E0"
-                    };
-                    if (highlighted) sb.Append("<size=135%><color=#FFD24A>[").Append(c).Append("]</color></size>");
-                    else sb.Append("<color=#").Append(hex).Append('>').Append(c).Append("</color>");
-                }
-                else sb.Append("<color=#FFFFFF55>·</color>");
-                if (i < inv.Capacity - 1) sb.Append(' ');
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>Above the letters while spelling: key help, words you could finish, and the word so far.</summary>
         string WheelLines()
         {
-            var s = player.Summoner;
+            var summon = player.Summoner;
             sb.Clear();
-            string help = player.Binding == null ? "" : s.EndlessLetters ? player.Binding.CreativeHelp : player.Binding.SpellHelp;
-            if (help.Length > 0)
-                sb.Append("<size=55%><color=#FFFFFFAA>").Append(help).Append("</color></size>\n");
-            if (s.Hints.Count > 0)
-            {
-                sb.Append("<size=75%><color=#FFFFFF99>");
-                for (int i = 0; i < s.Hints.Count; i++) sb.Append(i > 0 ? "   " : "").Append(s.Hints[i].word);
-                sb.Append("</color></size>\n");
-            }
-            else if (s.Match == null)
-            {
-                sb.Append("<size=70%><color=#FF9A7A>")
-                  .Append(s.Spelled.Length == 0 ? "no words from these letters yet" : "no word starts like that")
-                  .Append("</color></size>\n");
-            }
-
-            string spelled = s.Spelled;
-            sb.Append("<size=150%>");
-            if (spelled.Length == 0) sb.Append("<color=#FFFFFF88>spell!</color>");
-            else if (s.Match != null) sb.Append("<color=#8FE08A>").Append(spelled).Append("!</color>");
-            else sb.Append("<color=#FFD24A>").Append(spelled).Append("_</color>");
-            sb.Append("</size>");
-            return sb.ToString();
+            if (summon.Ready.Count == 0) return "";
+            int selected = Mathf.Clamp(summon.Selected, 0, summon.Ready.Count - 1);
+            return sb.Append("<color=#F6D98B>").Append(summon.Ready[selected].word).Append("</color>").ToString();
         }
     }
 }

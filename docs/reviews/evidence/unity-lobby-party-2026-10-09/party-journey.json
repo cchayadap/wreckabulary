@@ -1,0 +1,23 @@
+{
+    "engine": "6000.6.3f1",
+    "utc": "2026-10-09T04:49:37.0172750Z",
+    "completed": true,
+    "frames": [
+        "01-solo-sunroom.png",
+        "02-four-sunroom-1600.png",
+        "03-four-sunroom-2100.png",
+        "04-solo-candy.png",
+        "05-four-candy-1600.png",
+        "06-four-candy-2100.png",
+        "07-solo-lantern.png",
+        "08-four-lantern-1600.png",
+        "09-four-lantern-2100.png",
+        "10-solo-winter.png",
+        "11-four-winter-1600.png",
+        "12-four-winter-2100.png",
+        "13-winter-three.png",
+        "14-winter-two.png",
+        "15-winter-restored-solo.png",
+        "16-winter-selected-mode.png"
+    ]
+}

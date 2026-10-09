@@ -1,0 +1,139 @@
+{
+  "baseline": "59124d5",
+  "unity": "6000.6.3f1",
+  "checks": [
+    {
+      "name": "winter-editmode",
+      "result": "Passed",
+      "total": 328,
+      "passed": 328,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 51.1309891
+    },
+    {
+      "name": "winter-playmode",
+      "result": "Passed",
+      "total": 26,
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 30.7385263
+    },
+    {
+      "name": "winter-full-playmode",
+      "result": "Passed",
+      "total": 349,
+      "passed": 333,
+      "failed": 0,
+      "skipped": 16,
+      "seconds": 492.9205079
+    },
+    {
+      "name": "winter-capture-final",
+      "result": "Passed",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 22.5657407
+    }
+  ],
+  "rulesHarness": {
+    "passed": 234,
+    "failed": 0,
+    "seconds": 7.59
+  },
+  "sourceBackground": "ArtSource/Collections/Winter/References/winter-lobby-v2.png",
+  "nativeCaptures": [
+    {
+      "file": "01-winter-home.png",
+      "sha256": "93c0c6042a0852849eea88f02548fdbf9b30537577251969464b2a449ac155e8"
+    },
+    {
+      "file": "02-winter-shuffle-step.png",
+      "sha256": "f7d06b06762284fe055a6069e325241d484b346545b2ab9ca62323240366ee5b"
+    },
+    {
+      "file": "03-winter-shuffle-clap.png",
+      "sha256": "74cb1f2731e043c107f4b8305ef1102feed7a839eb9be707879bb1aa2fad0766"
+    },
+    {
+      "file": "04-winter-home-ultrawide.png",
+      "sha256": "67861a886858c1984654823da1d5872c0d96d76c1b839bddb03c595882faf639"
+    },
+    {
+      "file": "05-winter-collection-shop.png",
+      "sha256": "fadccb356d4815099425e9136ee1b3d0214baca3096bc60c0ab85cd89e2c742e"
+    },
+    {
+      "file": "06-winter-shop-dance.png",
+      "sha256": "5a3fba8561074dc0865dd3577413ebb80dd5016a2278cff82d47cca4fdb1ab8b"
+    },
+    {
+      "file": "07-winter-shield-preview.png",
+      "sha256": "35b7c9e785c3d23866c417c1d4b1681dd7cd9b13e94fbb51f10b8a5ef920023c"
+    },
+    {
+      "file": "08-winter-soda-preview.png",
+      "sha256": "d61dd5a83b752f3b2224b8486129a12a5d9e068f38e9d708e815023da95fc361"
+    },
+    {
+      "file": "09-winter-sound-settings.png",
+      "sha256": "b120ed189faf8ffcc36aeb72bbc58519bc37d2279fd86b01dbaa0f21d2790e04"
+    },
+    {
+      "file": "10-winter-map-preview-restored.png",
+      "sha256": "25c7a8340365ae2cb2e1e75dfdde498412f5260cbeb5b9265e7a606594caae8e"
+    }
+  ],
+  "audioMixerEvidence": "audio-dsp.json",
+  "limits": [
+    "Physical speaker listening and subjective audio quality not verified.",
+    "This batch adds lobby decoration; seasonal gameplay-room integration remains queued.",
+    "Winter finish cards still use shared recipe illustration icons; actual model previews display the chosen materials."
+  ],
+  "nativeCheckpoint": "a8212582b48c08fd549bf2cf38d2f4d721d2ad39",
+  "windows": {
+    "result": "Succeeded",
+    "errors": 0,
+    "bytes": 233812607,
+    "buildLog": "Logs/winter-windows-build.log",
+    "files": [
+      {
+        "path": "Builds/Windows/Wreckabulary.exe",
+        "bytes": 667136,
+        "sha256": "96b492cb271111251fe42b8646e65370a1b7b566773a1e35b34c3f2d1ae70873"
+      },
+      {
+        "path": "Builds/Windows/Wreckabulary_Data/Managed/Wreckabulary.dll",
+        "bytes": 646144,
+        "sha256": "2c7bb64e5b16acedfc0ac9186a4bdc663792e477f89f2c280d0b4fbda06b2207"
+      },
+      {
+        "path": "Builds/Windows/Wreckabulary_Data/resources.assets",
+        "bytes": 69423636,
+        "sha256": "c483efce3af1813e82d42ab746e53d76fdd9827f29cd69680e303c1bbe669ab4"
+      }
+    ],
+    "startup": {
+      "pid": 25884,
+      "name": "Wreckabulary",
+      "responsive": true,
+      "seconds": 84.7629233,
+      "loggedErrors": 0,
+      "scope": "Packaged Windows startup only; native gameplay/captures tested separately"
+    }
+  },
+  "visualReview": {
+    "reviewers": 2,
+    "frames": [
+      "01",
+      "04",
+      "06",
+      "07",
+      "08"
+    ],
+    "result": "No blocking overlap, clipping, floating or scale problem in reviewed final frames. Revised backdrop removes duplicate decorations."
+  }
+}

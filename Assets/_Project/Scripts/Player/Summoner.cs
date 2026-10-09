@@ -1,239 +1,176 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Spelling. Press spell to start: your letters appear over your head. Move left/right to pick one,
-    /// add it to the word, undo if you slip, and press spell again to cast. If it isn't a word it fizzles
-    /// and you keep your letters. You stand still while spelling, so pick your moment.
-    /// </summary>
     [RequireComponent(typeof(LetterInventory))]
-    [DefaultExecutionOrder(-30)] // before combat, so a spelling key press isn't also a punch or a grab
     public class Summoner : MonoBehaviour
     {
         [SerializeField] WordDatabase database;
+        [SerializeField] float moveScaleWhileSpelling = 0.35f;
         [SerializeField] int maxHints = 3;
-
         LetterInventory inventory;
         PlayerController controller;
-        readonly List<int> picked = new();
-        readonly List<char> pickedLetters = new();
-
+        WordEntry crafting;
+        float craftStarted, craftReady;
         public bool IsSpelling { get; private set; }
-        /// <summary>True on the frame spelling ended, so that key press isn't reused.</summary>
-        public bool JustClosed => closedFrame == Time.frameCount;
-        int closedFrame = -1;
-        /// <summary>Index of the highlighted letter in the inventory, or -1 if every letter is used.</summary>
-        public int Cursor { get; private set; }
-        /// <summary>Inventory indices added to the word so far, in order.</summary>
-        public IReadOnlyList<int> Picked => picked;
-        public string Spelled => new(pickedLetters.ToArray());
-        /// <summary>The word being spelled, if it's a real one.</summary>
-        public WordEntry Match => Find(Spelled);
-        /// <summary>Words you could still finish from here with the letters you hold, best first.</summary>
-        public List<WordEntry> Hints { get; private set; } = new();
-
+        public bool IsCrafting => crafting != null;
+        internal bool IsDisabling { get; private set; }
+        public string CraftWord => crafting?.word;
+        public float CraftProgress => IsCrafting ? Mathf.Clamp01((Time.time - craftStarted) / Mathf.Max(0.001f, craftReady - craftStarted)) : 0f;
+        public List<WordEntry> Ready { get; private set; } = new();
+        public List<(WordEntry entry, string missing)> Hints { get; private set; } = new();
+        public int Selected { get; private set; }
+        public WordEntry SelectedWord => Selected >= 0 && Selected < Ready.Count ? Ready[Selected] : null;
         public event Action<string> Summoned;
-        public event Action<string> Fizzled;
-
-        /// <summary>Set by a mode to replace the word list, e.g. Moving Day's checklist.</summary>
         public IReadOnlyList<WordEntry> WordsOverride { get; set; }
-
-        /// <summary>
-        /// Creative: spell from the whole alphabet (letters can repeat) and nothing is spent.
-        /// Up/down jump five letters so A–Z is quick to get around.
-        /// </summary>
-        public bool EndlessLetters { get; set; }
-
-        static readonly char[] Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-
-        /// <summary>The letters being spelled from: the ones you carry, or A–Z in Creative.</summary>
-        public IReadOnlyList<char> Source => EndlessLetters ? Alphabet : inventory.Letters;
-
+        public IReadOnlyCollection<string> ChecklistPlacementWords { get; set; }
+        public bool Typed { get; set; }
         IReadOnlyList<WordEntry> Words => WordsOverride ?? (database ? database : GameAssets.I.words).Words;
 
         void Awake()
         {
             inventory = GetComponent<LetterInventory>();
             controller = GetComponent<PlayerController>();
-            inventory.Changed += OnLettersChanged;
+            inventory.Changed += InventoryChanged;
+        }
+
+        void Start()
+        {
+            controller.Health.Damaged += (_, _, result) => { if (result.HitStun > 0f || result.BecameDowned || result.BecameEliminated) CancelCraft(); };
+            controller.Health.KnockedOut += _ => CancelCraft();
+        }
+
+        void InventoryChanged() { if (IsSpelling) Refresh(); }
+        void OnEnable() => IsDisabling = false;
+        void OnDisable()
+        {
+            IsDisabling = true;
+            CancelCraft();
+            Close();
         }
 
         void Update()
         {
-            if (!controller.CanAct)
+            if (Time.timeScale <= 0f) return;
+            if (!controller.CanAct || controller.IsDodging) { CancelCraft(); Close(); return; }
+            var command = controller.Commands;
+            if (IsCrafting)
             {
-                Close();
+                if (command.grab || command.spellDown) { CancelCraft(); return; }
+                if (Time.time >= craftReady)
+                {
+                    var entry = crafting;
+                    crafting = null;
+                    inventory.ReservedCount = 0;
+                    controller.MoveScale = 1f;
+                    if (SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
+                    else Refund(entry.word);
+                }
                 return;
             }
-            var c = controller.Commands;
-            if (!IsSpelling)
-            {
-                if (c.spellDown) Open();
-                return;
-            }
-
-            if (c.left) Move(-1);
-            if (c.right) Move(1);
-            if (c.confirm) Add();
-            if (c.back) Undo();
-            if (EndlessLetters)
-            {
-                if (c.up) Move(-5);
-                if (c.down) Move(5);
-            }
-            else if (c.down) DropHighlighted();
-            if (c.spellDown) Cast();
+            if (command.spellDown) Open();
+            if (!IsSpelling || Typed) return;
+            if (command.up) Step(-1);
+            if (command.down) Step(1);
+            if (command.grab) { Close(); return; }
+            if (command.spellUp || !command.spellHeld) CraftSelected();
         }
 
         public void Open()
         {
+            if (IsCrafting || !controller.CanAct || controller.IsDodging || controller.Combat.IsChanneling) return;
             IsSpelling = true;
-            picked.Clear();
-            pickedLetters.Clear();
-            Cursor = -1;
-            MoveToFree(0, 1);
+            Selected = 0;
             Refresh();
-            controller.MoveScale = 0f;
-            Sfx.Play(Sound.SpellOpen, transform.position, 0.6f);
+            controller.MoveScale = moveScaleWhileSpelling;
         }
 
         public void Close()
         {
             if (!IsSpelling) return;
             IsSpelling = false;
-            closedFrame = Time.frameCount;
-            picked.Clear();
-            pickedLetters.Clear();
-            controller.MoveScale = 1f;
-        }
-
-        /// <summary>Moves the highlight to the next letter not already in the word.</summary>
-        public void Move(int dir)
-        {
-            int n = Source.Count;
-            if (n == 0) return;
-            int start = Cursor < 0 ? 0 : Cursor + dir;
-            MoveToFree(((start % n) + n) % n, dir > 0 ? 1 : -1);
-        }
-
-        void MoveToFree(int from, int dir)
-        {
-            int n = Source.Count;
-            for (int k = 0; k < n; k++)
-            {
-                int i = (((from + k * dir) % n) + n) % n;
-                if (EndlessLetters || !picked.Contains(i)) { Cursor = i; return; }
-            }
-            Cursor = -1;
-        }
-
-        /// <summary>Adds the highlighted letter to the word.</summary>
-        public void Add()
-        {
-            if (Cursor < 0 || (!EndlessLetters && picked.Contains(Cursor))) return;
-            picked.Add(Cursor);
-            pickedLetters.Add(Source[Cursor]);
-            Sfx.Play(Sound.SpellAdd, transform.position, 0.8f, 1f + pickedLetters.Count * 0.05f);
-            if (!EndlessLetters) MoveToFree(Cursor, 1); // letters can repeat in Creative, so stay put
-            Refresh();
-        }
-
-        /// <summary>Drops the highlighted letter on the floor to make room. The word being spelled is kept.</summary>
-        public bool DropHighlighted()
-        {
-            int i = Cursor;
-            if (EndlessLetters || i < 0 || i >= inventory.Count) return false;
-            // Letters after the dropped one shift down a slot.
-            for (int k = 0; k < picked.Count; k++)
-                if (picked[k] > i) picked[k]--;
-            inventory.DropAt(i, transform.position, controller.Facing);
-            Sfx.Play(Sound.Drop, transform.position);
-            Cursor = -1;
-            if (inventory.Count > 0) MoveToFree(Mathf.Min(i, inventory.Count - 1), 1);
-            Refresh();
-            return true;
-        }
-
-        /// <summary>Takes back the last letter, or stops spelling if the word is empty.</summary>
-        public void Undo()
-        {
-            if (picked.Count == 0) { Close(); return; }
-            Sfx.Play(Sound.SpellUndo, transform.position, 0.6f);
-            Cursor = picked[^1];
-            picked.RemoveAt(picked.Count - 1);
-            pickedLetters.RemoveAt(pickedLetters.Count - 1);
-            Refresh();
-        }
-
-        /// <summary>Summons the spelled word if it's real; otherwise it fizzles and nothing is spent.</summary>
-        public bool Cast()
-        {
-            string word = Spelled;
-            var entry = Match;
-            Close();
-            if (word.Length == 0) return false;
-            if (entry != null) return Summon(entry);
-
-            Popup.Show($"{word}? not a word", controller.OverheadPosition + Vector3.up * 0.6f, new Color(1f, 1f, 1f, 0.8f), 3.5f);
-            Fizzled?.Invoke(word);
-            Sfx.Play(Sound.Fizzle, transform.position);
-            return false;
-        }
-
-        /// <summary>Spells a whole word in one go (tests, bots). Uses the same letters and rules.</summary>
-        public bool Summon(string word)
-        {
-            var entry = Find(word);
-            return entry != null && Summon(entry);
-        }
-
-        public bool Summon(WordEntry entry)
-        {
-            if (entry == null || (!EndlessLetters && !inventory.TrySpend(entry.word))) return false;
-            Sfx.Play(Sound.Cast, transform.position);
-            SummonEffects.Apply(controller, entry);
-            Summoned?.Invoke(entry.word);
-            return true;
-        }
-
-        WordEntry Find(string word)
-        {
-            if (string.IsNullOrEmpty(word)) return null;
-            word = word.ToUpperInvariant();
-            foreach (var entry in Words)
-                if (entry.word == word) return entry;
-            return null;
+            if (!IsCrafting) controller.MoveScale = 1f;
         }
 
         void Refresh()
         {
-            string prefix = Spelled;
-            var candidates = EndlessLetters ? Words.ToList() : WordSolver.Spellable(Words, inventory.Letters);
-            Hints = candidates.Where(w => w.word.StartsWith(prefix) && w.word != prefix)
-                              .Take(EndlessLetters && prefix.Length == 0 ? 0 : maxHints)
-                              .ToList();
+            var keep = SelectedWord;
+            Ready = WordSolver.Spellable(Words, inventory.Letters);
+            var hints = WordSolver.Hints(Words, inventory.Letters, inventory.Capacity);
+            Hints = hints.GetRange(0, Mathf.Min(maxHints, hints.Count));
+            Selected = keep != null && Ready.Contains(keep) ? Ready.IndexOf(keep) : 0;
         }
 
-        /// <summary>Letters picked up or knocked loose mid-spell: keep the word if its letters are still there.</summary>
-        void OnLettersChanged()
+        public void Step(int delta)
         {
-            if (!IsSpelling || EndlessLetters) return;
-            for (int k = 0; k < picked.Count; k++)
-            {
-                int i = picked[k];
-                if (i >= inventory.Count || inventory.Letters[i] != pickedLetters[k])
-                {
-                    picked.Clear();
-                    pickedLetters.Clear();
-                    break;
-                }
-            }
-            if (Cursor >= inventory.Count || Cursor < 0 || picked.Contains(Cursor)) MoveToFree(0, 1);
-            Refresh();
+            if (Ready.Count == 0) return;
+            Selected = ((Selected + delta) % Ready.Count + Ready.Count) % Ready.Count;
+        }
+        public void Select(int index) { if (index >= 0 && index < Ready.Count) Selected = index; }
+        public bool CraftSelected()
+        {
+            var entry = SelectedWord;
+            Close();
+            return BeginCraft(entry);
+        }
+
+        internal WordEntry ResolveRecipe(WordEntry entry)
+        {
+            if (entry == null || string.IsNullOrEmpty(entry.word)) return null;
+            string id = entry.word.ToUpperInvariant();
+            foreach (var word in Words) if (word.word == id) return word;
+            return null;
+        }
+
+        public WordEntry Recipe(string word) => ResolveRecipe(new WordEntry { word = word });
+
+        public bool StartsRecipe(string prefix)
+        {
+            if (string.IsNullOrEmpty(prefix)) return false;
+            foreach (var word in Words) if (word.word.StartsWith(prefix, StringComparison.Ordinal)) return true;
+            return false;
+        }
+
+        public bool BeginCraft(WordEntry entry)
+        {
+            entry = ResolveRecipe(entry);
+            if (IsCrafting || entry == null || !SummonEffects.CanApply(controller, entry) || !inventory.TrySpend(entry.word)) return false;
+            Close();
+            crafting = entry;
+            inventory.ReservedCount = entry.word.Length;
+            craftStarted = Time.time;
+            var rules = controller.Health.Rules;
+            craftReady = craftStarted + rules.CraftBaseSeconds + rules.CraftPerLetterSeconds * entry.word.Length;
+            controller.MoveScale = rules.CraftMoveSpeed;
+            return true;
+        }
+
+        public void CancelCraft()
+        {
+            if (!IsCrafting) return;
+            var word = crafting.word;
+            crafting = null;
+            inventory.ReservedCount = 0;
+            controller.MoveScale = 1f;
+            Refund(word);
+        }
+        void Refund(string word) { foreach (char letter in word) inventory.TryAdd(letter); }
+
+        public bool Summon(string word)
+        {
+            if (string.IsNullOrEmpty(word)) return false;
+            foreach (var entry in Words) if (entry.word == word.ToUpperInvariant()) return Summon(entry);
+            return false;
+        }
+        public bool Summon(WordEntry entry)
+        {
+            entry = ResolveRecipe(entry);
+            if (IsCrafting || entry == null || !SummonEffects.CanApply(controller, entry) || !inventory.TrySpend(entry.word)) return false;
+            if (!SummonEffects.Apply(controller, entry)) { Refund(entry.word); return false; }
+            Summoned?.Invoke(entry.word);
+            return true;
         }
     }
 }

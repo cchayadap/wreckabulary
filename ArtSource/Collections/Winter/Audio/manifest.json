@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "collection": "Winter House Party",
+  "status": "source-generated-and-statically-validated",
+  "created_utc": "2026-10-09T00:12:53.446274+00:00",
+  "generator": "Tools/AssetPipeline/build_winter_audio.py",
+  "generator_sha256": "581d7148ee5d838a0e56aa75eab286672ef44c2fae09baf2430a3e145f88186c",
+  "python": "3.14.3",
+  "provenance": {
+    "method": "Original local deterministic additive and filtered-noise synthesis",
+    "third_party_audio": [],
+    "provider_jobs": [],
+    "source_recordings": [],
+    "license": "No third-party samples; original project-authored output. Project owner determines distribution terms.",
+    "processing": [
+      "Deterministic seeded oscillators/noise",
+      "Bounded low-pass filters",
+      "42 Hz DC control",
+      "Soft transient saturation",
+      "Cosine attack/release",
+      "Weighted DC correction",
+      "Peak normalization -4.5 dBFS",
+      "Signed 16-bit PCM quantization"
+    ]
+  },
+  "clips": [
+    {
+      "id": "bell-01",
+      "file": "bell-01.wav",
+      "cue": "Pickup",
+      "seed": 4101,
+      "description": "Rounded brass A5 bell with a lighter E6 answer",
+      "sha256": "10293216208176c0f712d1e5bbb0266f903ad05127348e480ca8e5394bc3b9af",
+      "seconds": 0.34
+    },
+    {
+      "id": "bell-02",
+      "file": "bell-02.wav",
+      "cue": "Pickup",
+      "seed": 4102,
+      "description": "Warm B5 bell with a delayed F-sharp6 shimmer",
+      "sha256": "5ccf170861816eac6f81722f89bbb1972b2a8690825e9448060b5c27fca17155",
+      "seconds": 0.39
+    },
+    {
+      "id": "paper-01",
+      "file": "paper-01.wav",
+      "cue": "Craft",
+      "seed": 4201,
+      "description": "Three soft folds with a short ribbon-like brush",
+      "sha256": "f86fce47fe40ef6463bdc60e8b09dbd5ac3cb0f9ad5d35c3caed987c8c1055c7",
+      "seconds": 0.19
+    },
+    {
+      "id": "paper-02",
+      "file": "paper-02.wav",
+      "cue": "Craft",
+      "seed": 4202,
+      "description": "Two wider paper crinkles and a delicate settling rustle",
+      "sha256": "acf59404d1360eb826bbcd9be4ed4d3b04db825487b7b4f68e301819c8d3f6c5",
+      "seconds": 0.22
+    },
+    {
+      "id": "snow-01",
+      "file": "snow-01.wav",
+      "cue": "Dodge",
+      "seed": 4301,
+      "description": "Cushioned snow compression with a light trailing swish",
+      "sha256": "35b484b2d035b8ef1ff5b4c7234843c407d3e2933a21215720669e6f9cd4c4c5",
+      "seconds": 0.24
+    },
+    {
+      "id": "snow-02",
+      "file": "snow-02.wav",
+      "cue": "Dodge",
+      "seed": 4302,
+      "description": "A deeper snow brush with a second soft crunch",
+      "sha256": "bab539f78d821a5a05e2efba3bfd0b9486244df499019575235a188b8dbbb4cc",
+      "seconds": 0.28
+    }
+  ],
+  "validation": "validation.json",
+  "waveform_preview": "waveforms.svg",
+  "runtime_integration": "INTEGRATION.md",
+  "stages": {
+    "generated": true,
+    "static_validated": true,
+    "unity_imported": false,
+    "runtime_integrated": false,
+    "native_listening_reviewed": false
+  }
+}

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="23" result="Passed" total="23" passed="23" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-08 20:58:15Z" end-time="2026-10-08 20:58:23Z" duration="8.188812">
+  <test-suite type="TestSuite" id="1000" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="289" result="Passed" start-time="2026-10-08 20:58:15Z" end-time="2026-10-08 20:58:23Z" duration="8.188812" total="23" passed="23" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1120" name="Wreckabulary.Editor.Tests.dll" fullname="C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wreckabulary/Library/ScriptAssemblies/Wreckabulary.Editor.Tests.dll" runstate="Runnable" testcasecount="88" result="Passed" start-time="2026-10-08 20:58:15Z" end-time="2026-10-08 20:58:23Z" duration="8.158638" total="23" passed="23" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="46784" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1121" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="88" result="Passed" start-time="2026-10-08 20:58:15Z" end-time="2026-10-08 20:58:23Z" duration="8.157631" total="23" passed="23" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1124" name="EditorTests" fullname="Wreckabulary.EditorTests" runstate="Runnable" testcasecount="54" result="Passed" start-time="2026-10-08 20:58:15Z" end-time="2026-10-08 20:58:17Z" duration="2.404734" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1052" name="EnvironmentAuthoringTests" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-08 20:58:15Z" end-time="2026-10-08 20:58:17Z" duration="2.235943" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1059" name="ImportedRootRepairRetainsArtistPoseAndRestoresFbxAxesOnce" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.ImportedRootRepairRetainsArtistPoseAndRestoresFbxAxesOnce" methodname="ImportedRootRepairRetainsArtistPoseAndRestoresFbxAxesOnce" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="2062247607" result="Passed" start-time="2026-10-08 20:58:15Z" end-time="2026-10-08 20:58:15Z" duration="0.328589" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1060" name="RepeatedDressingPreservesAuthoredTransformsAndGameplayObjects" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.RepeatedDressingPreservesAuthoredTransformsAndGameplayObjects" methodname="RepeatedDressingPreservesAuthoredTransformsAndGameplayObjects" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="1982190621" result="Passed" start-time="2026-10-08 20:58:15Z" end-time="2026-10-08 20:58:16Z" duration="0.715541" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1058" name="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-10-08 20:58:16Z" end-time="2026-10-08 20:58:17Z" duration="0.961130" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1053" name="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;pinwheel&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;pinwheel&quot;)" methodname="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="1864067184" result="Passed" start-time="2026-10-08 20:58:16Z" end-time="2026-10-08 20:58:16Z" duration="0.169514" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1054" name="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;courtyard&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;courtyard&quot;)" methodname="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="1836787215" result="Passed" start-time="2026-10-08 20:58:16Z" end-time="2026-10-08 20:58:16Z" duration="0.159438" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1055" name="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;flat&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;flat&quot;)" methodname="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="933517687" result="Passed" start-time="2026-10-08 20:58:16Z" end-time="2026-10-08 20:58:17Z" duration="0.258996" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1056" name="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;terrace&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;terrace&quot;)" methodname="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="1534005213" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.061584" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1057" name="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;walkup&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs(&quot;walkup&quot;)" methodname="SavedDressingIsPersistentNonSolidAndClearsOutgoingStairs" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="1530579388" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.298294" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-suite type="ParameterizedMethod" id="1063" name="SavedSceneDressingKeepsFrontOpenAndIsIdempotent" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedSceneDressingKeepsFrontOpenAndIsIdempotent" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.203214" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1061" name="SavedSceneDressingKeepsFrontOpenAndIsIdempotent(&quot;Hub&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedSceneDressingKeepsFrontOpenAndIsIdempotent(&quot;Hub&quot;)" methodname="SavedSceneDressingKeepsFrontOpenAndIsIdempotent" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="869101316" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.167614" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1062" name="SavedSceneDressingKeepsFrontOpenAndIsIdempotent(&quot;Tutorial&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentAuthoringTests.SavedSceneDressingKeepsFrontOpenAndIsIdempotent(&quot;Tutorial&quot;)" methodname="SavedSceneDressingKeepsFrontOpenAndIsIdempotent" classname="Wreckabulary.EditorTests.EnvironmentAuthoringTests" runstate="Runnable" seed="807621028" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.033901" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+          </test-suite>
+          <test-suite type="TestFixture" id="1064" name="EnvironmentLightingAuthoringTests" fullname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests" classname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.152551" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="ParameterizedMethod" id="1069" name="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits" fullname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests.SavedLightingIsPersistentAndUpgradesPreserveArtistEdits" classname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.146716" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1065" name="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits(&quot;Hub&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests.SavedLightingIsPersistentAndUpgradesPreserveArtistEdits(&quot;Hub&quot;)" methodname="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits" classname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests" runstate="Runnable" seed="655030308" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.032802" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1066" name="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits(&quot;LivingRoom&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests.SavedLightingIsPersistentAndUpgradesPreserveArtistEdits(&quot;LivingRoom&quot;)" methodname="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits" classname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests" runstate="Runnable" seed="1474870433" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.045242" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1067" name="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits(&quot;MovingDay&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests.SavedLightingIsPersistentAndUpgradesPreserveArtistEdits(&quot;MovingDay&quot;)" methodname="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits" classname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests" runstate="Runnable" seed="1009747272" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.053107" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1068" name="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits(&quot;Tutorial&quot;)" fullname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests.SavedLightingIsPersistentAndUpgradesPreserveArtistEdits(&quot;Tutorial&quot;)" methodname="SavedLightingIsPersistentAndUpgradesPreserveArtistEdits" classname="Wreckabulary.EditorTests.EnvironmentLightingAuthoringTests" runstate="Runnable" seed="1262232749" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:17Z" duration="0.013440" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+        <test-suite type="TestSuite" id="1122" name="Tests" fullname="Wreckabulary.Tests" runstate="Runnable" testcasecount="34" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:23Z" duration="5.747020" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1123" name="Editor" fullname="Wreckabulary.Tests.Editor" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:20Z" duration="2.308905" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1041" name="WorkspaceEditorTests" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:20Z" duration="2.307974" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1048" name="ActiveTestRunDisablesDefaultPlayEntry" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.ActiveTestRunDisablesDefaultPlayEntry" methodname="ActiveTestRunDisablesDefaultPlayEntry" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="800813913" result="Passed" start-time="2026-10-08 20:58:17Z" end-time="2026-10-08 20:58:18Z" duration="0.082242" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1042" name="PrototypeBootstrapRefusesBeforeTouchingProductionAssets" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.PrototypeBootstrapRefusesBeforeTouchingProductionAssets" methodname="PrototypeBootstrapRefusesBeforeTouchingProductionAssets" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="552603026" result="Passed" start-time="2026-10-08 20:58:18Z" end-time="2026-10-08 20:58:18Z" duration="0.645111" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1046" name="StartupCanReplacePreviousEmptyTestScene" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupCanReplacePreviousEmptyTestScene" methodname="StartupCanReplacePreviousEmptyTestScene" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="1078768056" result="Passed" start-time="2026-10-08 20:58:18Z" end-time="2026-10-08 20:58:18Z" duration="0.128122" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1043" name="StartupCanUseACleanBlankScene" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupCanUseACleanBlankScene" methodname="StartupCanUseACleanBlankScene" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="15442499" result="Passed" start-time="2026-10-08 20:58:18Z" end-time="2026-10-08 20:58:18Z" duration="0.062404" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1047" name="StartupPreservesAdditiveWorkspace" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesAdditiveWorkspace" methodname="StartupPreservesAdditiveWorkspace" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="611455016" result="Passed" start-time="2026-10-08 20:58:18Z" end-time="2026-10-08 20:58:18Z" duration="0.138654" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1045" name="StartupPreservesSavedAuthoringScene" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesSavedAuthoringScene" methodname="StartupPreservesSavedAuthoringScene" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="1969759807" result="Passed" start-time="2026-10-08 20:58:18Z" end-time="2026-10-08 20:58:19Z" duration="0.144681" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1044" name="StartupPreservesUnsavedAuthoringWork" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesUnsavedAuthoringWork" methodname="StartupPreservesUnsavedAuthoringWork" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="1123293554" result="Passed" start-time="2026-10-08 20:58:19Z" end-time="2026-10-08 20:58:19Z" duration="0.046304" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1051" name="TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-08 20:58:19Z" end-time="2026-10-08 20:58:20Z" duration="1.052758" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1049" name="TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility(False)" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility(False)" methodname="TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="1469766358" result="Passed" start-time="2026-10-08 20:58:19Z" end-time="2026-10-08 20:58:19Z" duration="0.215256" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1050" name="TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility(True)" fullname="Wreckabulary.Tests.Editor.WorkspaceEditorTests.TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility(True)" methodname="TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility" classname="Wreckabulary.Tests.Editor.WorkspaceEditorTests" runstate="Runnable" seed="1535462478" result="Passed" start-time="2026-10-08 20:58:19Z" end-time="2026-10-08 20:58:20Z" duration="0.831971" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+          <test-suite type="TestFixture" id="1028" name="HubPlayButtonTests" fullname="Wreckabulary.Tests.HubPlayButtonTests" classname="Wreckabulary.Tests.HubPlayButtonTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-10-08 20:58:20Z" end-time="2026-10-08 20:58:23Z" duration="3.427861" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1029" name="PressingPlayWithTheHubOpenShowsTheLobby" fullname="Wreckabulary.Tests.HubPlayButtonTests.PressingPlayWithTheHubOpenShowsTheLobby" methodname="PressingPlayWithTheHubOpenShowsTheLobby" classname="Wreckabulary.Tests.HubPlayButtonTests" runstate="Runnable" seed="1090453887" result="Passed" start-time="2026-10-08 20:58:20Z" end-time="2026-10-08 20:58:23Z" duration="3.423311" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Enter Play Mode Options: enabled=True options=DisableDomainReload, DisableSceneReload; sceneLoaded raised for Hub: False
+Saving results to: C:/Users/mrkl6/AppData/LocalLow/Wreckabulary Team/Wreckabulary\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

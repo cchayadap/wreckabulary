@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-09",
+  "generator": "OpenAI built-in image_gen tool (GPT image model; tool did not expose exact model revision)",
+  "purpose": "Original runtime lobby background illustrations. Native avatar, clothing and gear remain 3D assets; these images are not meshes.",
+  "transparent_background": false,
+  "assets": [
+    {
+      "id": "sunroom",
+      "name": "Sunroom Social",
+      "source_file": "exec-e88fea2a-38cd-4438-902c-ad36508c0a7d.png",
+      "runtime_path": "Assets/_Project/Resources/UI/Themes/sunroom-v1.png",
+      "sha256": "ab10a6c082a3fecf07767d80daec4ecb96139acbf3ed3210632acddbdfcb37bf",
+      "size": [
+        1672,
+        941
+      ],
+      "prompt": "Create one polished landscape 16:9 game lobby BACKGROUND ART asset for Wreckabulary, a cheerful stylized 3D toy-scale household party action game. Theme SUNROOM SOCIAL. No text, no logos, no UI, no characters, no letters or numerals. Bright inviting daylight, warm ivory plaster, mint and turquoise accents, orange-coral cushions, honey-colored wood floor, big arched windows opening onto blue sky and fluffy clouds, lush rounded potted plants and sun rays, handcrafted upholstered sofa and toy furniture at far sides. Foreground center should be spacious and uncluttered pale warm floor for an actual 3D game avatar to stand in front of this image; focal environmental detail in the upper third and outer edges. Clear playful silhouettes, soft plush tactile materials, beautifully rounded bevels, subtle wood grain, premium detailed animated-film art direction. Low eye-level camera, symmetrical depth perspective, gentle painterly sky but solid 3D toy props. Very cheerful, saturated accents with cream breathing room, high readability, NO gloomy dark vignette. Fill the entire landscape canvas with the coherent scene. This is final game background art, not a mockup or contact sheet.",
+      "transform": "Copied unchanged; Unity import max2048, sRGB, bilinear, non-readable, no mipmaps."
+    },
+    {
+      "id": "candy",
+      "name": "Candy Carnival",
+      "source_file": "exec-9db49833-f7b2-41b2-9d0c-4a88aeab0540.png",
+      "runtime_path": "Assets/_Project/Resources/UI/Themes/candy-v1.png",
+      "sha256": "6465e234cb9035e39da485b5a0ca5463e7fb967bef26711a5190df1765efb366",
+      "size": [
+        1672,
+        941
+      ],
+      "prompt": "Create one finished 16:9 landscape game lobby background illustration for a premium stylized 3D toy household party game. Theme CANDY CARNIVAL, bright and joyful, never dark. No text, no logos, no UI, no people, no characters, no words or numerals. A playful living room with creamy vanilla walls, strawberry-coral and soft orchid curved trim, oversized rounded arch windows showing pale blue sky, mint-green upholstered chairs, a small candy-striped ottoman near far left, pastel garlands and balloon clusters gathered only at upper edges, soft colorful confetti details at perimeter, sunlit blond wood floor with a subtle round pastel rug. Premium tactile plush fabric, smooth painted wood, soft beveled 3D furniture, warm cinematic daylight, appealing saturated highlights on a calm cream and blush base. Spacious empty foreground center for a separate actual game avatar; low eye-level perspective with furniture framing outer sides, visual detail concentrated upper third and edges, open floor across lower half. Full bleed coherent game environment artwork, crisp detailed material rendering, no cards, no panels, no contact sheet, no dark vignette.",
+      "transform": "Copied unchanged; Unity import max2048, sRGB, bilinear, non-readable, no mipmaps."
+    },
+    {
+      "id": "lantern",
+      "name": "Lantern Festival",
+      "source_file": "exec-36a2be28-cc2f-40ba-abf0-e21e6711c477.png",
+      "runtime_path": "Assets/_Project/Resources/UI/Themes/lantern-v1.png",
+      "sha256": "7bc15f1441b8750c105d53d2ea5eeeef04174887f359779ea28002fa463048ab",
+      "size": [
+        1672,
+        941
+      ],
+      "prompt": "Produce one final 16:9 landscape background artwork for a cheerful stylized 3D toy household party game lobby. Theme LANTERN FESTIVAL. No text, no logos, no UI, no characters, no readable letters or numbers. Bright welcoming golden late afternoon celebration in a charming cream-walled living room opening to a garden courtyard, generous coral and gold round paper lanterns and delicate pennants around upper edges, mint-teal window frames, warm peach light, pots of marigolds, plush teal and terracotta cushions and wooden miniature furniture placed at far sides. Sky outside is luminous turquoise and pale apricot, NOT night, NOT dark or depressing. A few tiny warm twinkling motes near the lanterns. Toy-scale handcrafted 3D aesthetic, rounded beveled forms, premium felt fabric, subtle paper and wood texture. Low eye-level room perspective, symmetrical spacious uncluttered warm floor in center lower half for a separately rendered game avatar. Environmental interest frames the sides and upper third. Harmonious ivory, coral, jade and honey-gold palette, cinematic sunny soft shadows, cozy but energetic festival beauty. Full bleed background asset, not a mockup or contact sheet.",
+      "transform": "Copied unchanged; Unity import max2048, sRGB, bilinear, non-readable, no mipmaps."
+    }
+  ]
+}

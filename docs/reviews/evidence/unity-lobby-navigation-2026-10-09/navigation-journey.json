@@ -1,0 +1,19 @@
+{
+    "engine": "6000.6.3f1",
+    "utc": "2026-10-09T04:10:36.9160290Z",
+    "completed": true,
+    "frames": [
+        "01-home-sunroom-1600.png",
+        "02-home-sunroom-2100.png",
+        "03-home-candy-1600.png",
+        "04-home-candy-2100.png",
+        "05-home-lantern-1600.png",
+        "06-home-lantern-2100.png",
+        "07-home-winter-1600.png",
+        "08-home-winter-2100.png",
+        "09-open-shop.png",
+        "10-open-trophy.png",
+        "11-open-play.png",
+        "12-home-selected-mode.png"
+    ]
+}

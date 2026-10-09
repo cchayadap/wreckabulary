@@ -1,0 +1,635 @@
+{
+ "name": "Walk-up Apartments",
+ "notes": "A three-storey 18 by 12 metre walk-up. Ground floor: the cafe to the west, the lobby with the stairs in the middle, the garage with the van to the east. Two flats on each floor above (floors at 3 and 6 m), either side of a landing. The stairs switch back: up from the lobby against the east wall of the stairwell, then on up from the first-floor landing against the west wall. X is east, Z is north, metres, yaw in degrees clockwise from north.",
+ "extraction": "Garage",
+ "extractionAt": [
+  6,
+  -2
+ ],
+ "lobbyRoom": "Garage",
+ "rooms": [
+  {
+   "name": "Lobby",
+   "bounds": [
+    -2.5,
+    -6,
+    2.5,
+    6
+   ]
+  },
+  {
+   "name": "Cafe",
+   "bounds": [
+    -9,
+    -6,
+    -2.5,
+    6
+   ]
+  },
+  {
+   "name": "Garage",
+   "bounds": [
+    2.5,
+    -6,
+    9,
+    6
+   ]
+  },
+  {
+   "name": "Landing1",
+   "bounds": [
+    -2.5,
+    -6,
+    2.5,
+    6
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "BlueFlat",
+   "bounds": [
+    -9,
+    -6,
+    -2.5,
+    6
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "RedFlat",
+   "bounds": [
+    2.5,
+    -6,
+    9,
+    6
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "Landing2",
+   "bounds": [
+    -2.5,
+    -6,
+    2.5,
+    6
+   ],
+   "floorY": 6
+  },
+  {
+   "name": "GreenFlat",
+   "bounds": [
+    -9,
+    -6,
+    -2.5,
+    6
+   ],
+   "floorY": 6
+  },
+  {
+   "name": "YellowFlat",
+   "bounds": [
+    2.5,
+    -6,
+    9,
+    6
+   ],
+   "floorY": 6
+  }
+ ],
+ "doors": [
+  {
+   "between": [
+    "Lobby",
+    "Cafe"
+   ],
+   "at": [
+    -2.5,
+    3.5
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Lobby",
+    "Garage"
+   ],
+   "at": [
+    2.5,
+    3.5
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Landing1",
+    "BlueFlat"
+   ],
+   "at": [
+    -2.5,
+    3.5
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing1",
+    "RedFlat"
+   ],
+   "at": [
+    2.5,
+    3.5
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing2",
+    "GreenFlat"
+   ],
+   "at": [
+    -2.5,
+    3.5
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing2",
+    "YellowFlat"
+   ],
+   "at": [
+    2.5,
+    3.5
+   ],
+   "width": 1.6
+  }
+ ],
+ "stairs": [
+  {
+   "between": [
+    "Lobby",
+    "Landing1"
+   ],
+   "from": [
+    1.5,
+    -3.5
+   ],
+   "to": [
+    1.5,
+    1
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing1",
+    "Landing2"
+   ],
+   "from": [
+    -1.5,
+    1
+   ],
+   "to": [
+    -1.5,
+    -3.5
+   ],
+   "width": 1.6
+  }
+ ],
+ "spawns": [
+  {
+   "room": "BlueFlat",
+   "at": [
+    -5.5,
+    3
+   ],
+   "yaw": 90
+  },
+  {
+   "room": "RedFlat",
+   "at": [
+    5.5,
+    3
+   ],
+   "yaw": 270
+  },
+  {
+   "room": "YellowFlat",
+   "at": [
+    5.5,
+    3
+   ],
+   "yaw": 270
+  },
+  {
+   "room": "GreenFlat",
+   "at": [
+    -5.5,
+    3
+   ],
+   "yaw": 90
+  }
+ ],
+ "furniture": [
+  {
+   "word": "PLANT",
+   "room": "Lobby",
+   "at": [
+    -2,
+    -5.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CLOCK",
+   "room": "Lobby",
+   "at": [
+    -0.5,
+    5.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "Cafe",
+   "at": [
+    -7,
+    -3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "Cafe",
+   "at": [
+    -7,
+    -4.1
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "TABLE",
+   "room": "Cafe",
+   "at": [
+    -7,
+    2
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "STOOL",
+   "room": "Cafe",
+   "at": [
+    -7,
+    3.1
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "MUG",
+   "room": "Cafe",
+   "at": [
+    -4,
+    -5.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SODA",
+   "room": "Cafe",
+   "at": [
+    -8.4,
+    5.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CRATE",
+   "room": "Garage",
+   "at": [
+    8.2,
+    4.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BARREL",
+   "room": "Garage",
+   "at": [
+    8.4,
+    -5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "Garage",
+   "at": [
+    4,
+    -5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SHELF",
+   "room": "Garage",
+   "at": [
+    8.6,
+    1
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "BARREL",
+   "room": "Landing1",
+   "at": [
+    -1.8,
+    -5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "VASE",
+   "room": "Landing1",
+   "at": [
+    1.8,
+    -5.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BED",
+   "room": "BlueFlat",
+   "at": [
+    -7.8,
+    -4.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOFA",
+   "room": "BlueFlat",
+   "at": [
+    -8.2,
+    1
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "TABLE",
+   "room": "BlueFlat",
+   "at": [
+    -5.5,
+    -1
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "BlueFlat",
+   "at": [
+    -8.3,
+    5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHEST",
+   "room": "BlueFlat",
+   "at": [
+    -4,
+    -5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BED",
+   "room": "RedFlat",
+   "at": [
+    7.8,
+    -4.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOFA",
+   "room": "RedFlat",
+   "at": [
+    8.2,
+    1
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "TABLE",
+   "room": "RedFlat",
+   "at": [
+    5.5,
+    -1
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "RedFlat",
+   "at": [
+    8.3,
+    5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHEST",
+   "room": "RedFlat",
+   "at": [
+    4,
+    -5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "Landing2",
+   "at": [
+    2,
+    -5.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SHELF",
+   "room": "Landing2",
+   "at": [
+    2.1,
+    -1
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "BED",
+   "room": "GreenFlat",
+   "at": [
+    -7.8,
+    -4.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOFA",
+   "room": "GreenFlat",
+   "at": [
+    -8.2,
+    1
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "TABLE",
+   "room": "GreenFlat",
+   "at": [
+    -5.5,
+    -1
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "GreenFlat",
+   "at": [
+    -8.3,
+    5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHEST",
+   "room": "GreenFlat",
+   "at": [
+    -4,
+    -5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BED",
+   "room": "YellowFlat",
+   "at": [
+    7.8,
+    -4.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOFA",
+   "room": "YellowFlat",
+   "at": [
+    8.2,
+    1
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "TABLE",
+   "room": "YellowFlat",
+   "at": [
+    5.5,
+    -1
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "YellowFlat",
+   "at": [
+    8.3,
+    5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHEST",
+   "room": "YellowFlat",
+   "at": [
+    4,
+    -5.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "WATER",
+   "room": "Cafe",
+   "at": [
+    -7.7,
+    5.4
+   ],
+   "yaw": 0
+  }
+ ],
+ "neverClose": [
+  "Lobby",
+  "Landing1",
+  "Landing2"
+ ],
+ "clearOutOrders": {
+  "Dibs": [
+   "GreenFlat",
+   "YellowFlat",
+   "BlueFlat",
+   "RedFlat"
+  ],
+  "Duos": [
+   "GreenFlat",
+   "YellowFlat",
+   "BlueFlat",
+   "RedFlat"
+  ],
+  "MovingOut": [
+   "GreenFlat",
+   "YellowFlat",
+   "BlueFlat",
+   "RedFlat",
+   "Cafe"
+  ]
+ },
+ "movingDay": [
+  {
+   "word": "BED",
+   "room": "GreenFlat"
+  },
+  {
+   "word": "SOFA",
+   "room": "BlueFlat"
+  },
+  {
+   "word": "TABLE",
+   "room": "Cafe"
+  },
+  {
+   "word": "LAMP",
+   "room": "YellowFlat"
+  }
+ ],
+ "keepsakes": [
+  {
+   "room": "YellowFlat",
+   "at": [
+    4,
+    -5.3
+   ]
+  },
+  {
+   "room": "BlueFlat",
+   "at": [
+    -4,
+    -5.3
+   ]
+  },
+  {
+   "room": "Cafe",
+   "at": [
+    -8.4,
+    5.4
+   ]
+  }
+ ]
+}

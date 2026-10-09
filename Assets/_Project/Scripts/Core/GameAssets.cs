@@ -24,8 +24,6 @@ namespace Wreckabulary
         [Header("Letters")]
         public TMP_FontAsset font;
         public Mesh blockMesh;
-        [Tooltip("3D letters A–Z, generated from the font by the prototype builder.")]
-        public Mesh[] letterMeshes = new Mesh[26];
         public Material tileCommon, tileRare, tileLegendary;
         public Color ink = new(0.23f, 0.15f, 0.09f);
 
@@ -76,12 +74,6 @@ namespace Wreckabulary
             var mat = new Material(tintBase) { color = c };
             runtimeTints[c] = mat;
             return mat;
-        }
-
-        public Mesh LetterMesh(char c)
-        {
-            int i = char.ToUpperInvariant(c) - 'A';
-            return i >= 0 && i < 26 && letterMeshes != null && i < letterMeshes.Length ? letterMeshes[i] : null;
         }
 
         public Material TileMaterial(LetterRarity rarity) => rarity switch

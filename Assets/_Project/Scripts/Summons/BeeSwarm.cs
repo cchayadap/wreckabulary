@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>BEES: a buzzing cloud of B, E, E, S that chases the nearest other player and stings once.</summary>
     public class BeeSwarm : MonoBehaviour
     {
         PlayerController owner;
@@ -26,7 +26,6 @@ namespace Wreckabulary
                 swarm.bees.Add(b.transform);
                 swarm.offsets.Add(Random.insideUnitSphere * 0.6f);
             }
-            Sfx.Play(Sound.Bees, owner.transform.position);
             var thing = SummonedThing.Attach(go, "BEES", owner, 8f);
             thing.Tick = swarm.Chase;
         }
@@ -47,7 +46,7 @@ namespace Wreckabulary
 
             if (target && Vector3.Distance(transform.position, goal) < 0.7f)
             {
-                target.Health.TakeHit(target.transform.position - owner.transform.position, 5f, -1, owner);
+                target.Health.ApplyDamage(Hits.Of(owner, target.transform.position - transform.position, HitSource.Thrown, 6f, 2.5f, 0.2f));
                 GetComponent<SummonedThing>().FallApart();
             }
         }

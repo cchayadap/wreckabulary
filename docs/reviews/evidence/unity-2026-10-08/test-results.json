@@ -1,0 +1,688 @@
+{
+  "engine": "6000.6.3f1",
+  "utc": "2026-10-08T16:12:08.7840515Z",
+  "baseline": "4ae98b0",
+  "editMode": {
+    "source": "presentation-editmode-final.xml",
+    "passed": 187,
+    "failed": 0
+  },
+  "playMode": {
+    "note": "Latest native result per test across the full run and focused reruns. Includes two explicit rendered capture journeys.",
+    "cases": [
+      {
+        "name": "Wreckabulary.Tests.FlowTests.TypewriterStartsDibsWithTheHouseRoommates",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.TheModeOffersAllEnabledRecipesAndSeparatesToolsFromChecklistFurniture",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.HudPresentationTests.PauseBlocksSeparateStartAndRetryControls",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.FlowTests.TutorialCanBeCompleted",
+        "result": "Passed",
+        "source": "presentation-capture-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.ExpiredAndDepletedBubblesLoseOwnership",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.MovingOutFailsOnWholeTeamWipeAndCanRetry",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.WordWheelFromInputSummonsSelectedWord",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CaptureTests.CaptureLivingRoom",
+        "result": "Skipped",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CameraRigTests.BillboardTracksAssignedCameraAndStructuralOffsetWithoutMainTag",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.EveryListedWordCanBeSummoned",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WallInteractionTests.ReviveNeedsAnOpenPathAndCancelsIfAWallSeparatesThePartners",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.HudPresentationTests.FrontDoorRegistersMainMenuAndExplorationRevealsGameplay",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.RaisedPlateSlowsWalking",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.FlowTests.KnockedOutRoommatesGetBackUpInTheHouse",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.ReplacingTheHealthModelInvalidatesOldTokens(True)",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.StaggerImmunityStopsStunLock",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.UIStateControllerTests.OnlyRequestedViewReceivesInputAndGameObjectsRemainActive",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.ShieldBlocksHitsFromTheFront",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.StaggerCancelsPlacementWithoutConsumingTheItem",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WallInteractionTests.MeleeCannotHitTheNextRoomThroughAWallButWorksThroughItsDoor",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.FoamConsumptionAndEffectCleanupNeverRefundLetters",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.TypewriterStartsMovingDaySolo",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.MouseAndStickAimTurnThePlayer",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.SpellingAChecklistWordBuildsFurniture",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.UnarmedActiveWindowHitsEachBodyOnceAfterWindup",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.FlowTests.TypewriterStartsSoloDibsWithAnAiOpponent",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WordSolverTests.CanSpellNeedsEveryLetterIncludingRepeats",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.PlateWornThroughBreaksIntoLetters",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.MovingOutRequiresPackedKeepsakesAndSurvivorsAtTheVanThenRestarts",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.HudPresentationTests.PauseStopsCountdownAndResumesItsRemainingTime",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.FlowTests.FourRoommatesArrivingTogetherAllGetThroughTheDoor",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.JumpRisesAboutTheRulesHeight",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.EliminationSpillsReservedAndAvailableLettersOnce",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.HudPresentationTests.ResumeSubmitCannotAlsoStartTheLobbyMatchDuringTheFade",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CaptureTests.CaptureHubAndTutorial",
+        "result": "Skipped",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.RoundEndsWhenOneRoommateIsLeft",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.HudPresentationTests.PausingDeploymentKeepsTheChannelAndGearUntilResume",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PresentationCaptureTests.CaptureMenuGameplayPauseAndCouchPlay",
+        "result": "Passed",
+        "source": "presentation-capture-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.FoamBubbleSoaksDamage",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.LethalHitWrecksAndSpillsEveryLetter",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CameraRigTests.SecondCouchSeatSharesTheHouseAndLeavingRestoresFollow",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.DisabledTouchCannotIssueCommands",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.ResupplyDoesNotDuplicateARecipeReservedByAnActiveCraft",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.HudPresentationTests.PausingCraftKeepsReservedLettersAndCompletesAfterResume",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.HoldingGrabRevivesADownedTeammate",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.DropRequiresAQuarterSecondHoldAndFiresOnlyOnce",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.PlaceAndSwapHaveMatchingDesktopAndScriptedEdges",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.CraftReservationCountsTowardsTheEighteenLetterLimitAndCancelsExactly",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.PlacedFurnitureIsLockedInPlace",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.CancellingAToolRefundsItsLettersAndSpentSoapCannotStrandTheChecklist",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.DesktopKeysMatchTheBrief",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WallInteractionTests.MeleeCannotBreakFurnitureThroughAWallButWorksThroughItsDoor",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.SimultaneousDibsWipeIsADraw",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.BoxesForTheChecklistArrive",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.ExplicitChecklistOnlyPlacesItsObjectivesAndLeavesOtherRecipesAsGear",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.UIStateControllerTests.RapidTransitionKeepsCurrentOpacityAndFinishesAtLatestState",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerAppearanceTests.CarryingUsesMovingLegsAndKeepsTheMiniatureInTheAnimatedHand",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.SummoningSpendsLettersAndEquipsWeapon",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.FlowTests.TypewriterIsUsedWithGrabAndStepsWithUpDown",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.DodgeDashesOutOfTroubleThenCoolsDown",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.HitsCostHealthNotLetters",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.PlayerCollectsNearbyTiles",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.OpponentsCantRevive",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.DeployLimitAndConsumableExpiryPreserveLetterAccounting",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.ReleaseAllClearsBothSticksHeldReviveAndCraftMenu",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.TouchOverlayPreservesKeyboardCommandsAndOverridesOnlyActiveSticks",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.FlowTests.RoommatesWalkInThroughTheFrontDoor",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.DisabledRecipesAndFurnitureOverridesCannotSpendLetters",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.FurnitureOnlyCountsInItsRoom",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.LegacyBubbleGrantReplacesOwnership",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.ResetRunsCleanupOnceAndDoesNotCreateLoot",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.ReplacingTheHealthModelInvalidatesOldTokens(False)",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.StaggerPermanentlyCancelsAMeleeWindup",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.BlockWithoutAPlateDoesNothing",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.BoxesLandingOnBoxesDontBreak",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.UIStateControllerTests.PausedTimeDoesNotPreventFadeAndInputIsBlockedUntilCompletion",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerAppearanceTests.AuthoredFaceMorphsAreAvailableAndRespondToCalmIdle",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.LegacyShieldDeadlineReplacesOwnership",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.DodgeFollowsTheStick",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.SoloDibsGetsAnOpponentWithoutPersistingAnAiRoommate",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.FrozenTypewriterPlayerKeepsDedicatedTouchNavigationAndExit",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.FinishingQuicklyEarnsThreeStarsAndCanRestart",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.DuosTeamWipeAwardsBothWinningTeammatesTheSameScore",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.DropLetsGoOfTheHeldItem",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.AnArmedBombWaitsForItsFuseAndNeverRefundsLetters",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CameraRigTests.VisibleBlockerPullsCameraInButCutawayColliderDoesNot",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.ExplosionDamagesAMultiColliderPlayerOnce",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.DroppedTilesCantBeRegrabbedInstantly",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.ClearOutWarnsBeforeItHurtsAndUsesTheSelectedRoom",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WordSolverTests.HintsSkipHiddenAndTooLongWords",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.ShieldTokenStillBlocksFrontHits",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.PunchFromInputHitsOpponentInFront",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.OlderShieldCleanupCannotClearItsReplacement",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.LettingGoCancelsTheRevive",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.OlderBubbleCleanupCannotClearItsReplacement",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WordSolverTests.ParsesCsvRows",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.BombDamageUsesAuthoredLinearFalloff(1.5f,30.0f)",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.DownedTeammateCanBeRevived",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.HudPresentationTests.GearSlotsStackBesideLettersAndHudFadesWithoutDeactivation",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.CraftMenuStaysOpenAfterTapAndCancellingDoesNotConfirm",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.BombDamageUsesAuthoredLinearFalloff(3.0f,15.0f)",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.AiPartnerStartsAndFinishesAHeldRevive",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.DropNeedsAShortHold",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.MovementAimAndHeldSkillCoexistWithoutRepeatedPresses",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.TouchControlsTests.StartSignalSurvivesThePlayersReadForTheRoundDirector",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.ThrownThingsSmashWhatTheyHit",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.MovingDayPlacesEnabledUtilityItemsFromItsTrustedChecklist",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.ReusableGearReturnsItsRecipeOnlyOnce",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.SlotsKeepItemIdentityAndRefuseAThirdCraft",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.RaisedPlateBlocksTheFrontAndWearsDown",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.PunchMissesOpponentBehind",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.BombDamageUsesAuthoredLinearFalloff(0.0f,45.0f)",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.DownedPlayersCantJumpOrDodge",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WallInteractionTests.GrabStartsAtThePlayersChestAndCannotReachAcrossAWall",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.BallThrowsUseTheCatalogueSpeedAndRemainRecoverable",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.CraftCompletesOnlyAfterTheAuthoredChannel",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CameraRigTests.PausedCameraIgnoresOrbitUntilResume",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.HudPresentationTests.PauseRestoresFrozenPlayersAndTheOriginalSimulationSpeed",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.AStaggeringHitRefundsTheReservation",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.GameplayTests.SmashedFurnitureBurstsIntoItsLetters",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.CourtyardGeometryLeavesConfiguredDoorwaysOpen",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WordSolverTests.ShippedWordListParses",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WallInteractionTests.TargetColliderOwnVisualAndLooseTilesDoNotBlockAnOpenDoorInteraction",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ControlsTests.PlateInHandStillLetsYouPunch",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WordSolverTests.MissingListsWhatIsLeft",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.MovingDayTests.RunningOutOfTimeRestartsTheLevel",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.LetterPickupViewTests.FloatingPickupPreservesPhysicsAndResetsWhenReused",
+        "result": "Passed",
+        "source": "presentation-pickups.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CameraRigTests.OneLocalPlayerIsCenteredBehindInPerspectiveEvenWithBots",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.DuosKeepsADownedTeammateInPlayWhileTheirPartnerIsStanding",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.PresentationCaptureTests.CaptureFurnitureLifecycleAndMiniatureGrip",
+        "result": "Passed",
+        "source": "presentation-pickups.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.WordSolverTests.SpellableIsSortedByScore",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.UIStateControllerTests.ActionsAndUnityEventsNotifyOncePerDistinctState",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.ModeRuntimeTests.AFinalizedRoundStopsABombFuseFromWreckingItsWinner",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      },
+      {
+        "name": "Wreckabulary.Tests.CatalogueRuntimeTests.LiveRecipesExactlyMatchTheEnabledCatalogue",
+        "result": "Passed",
+        "source": "presentation-playmode-final.xml"
+      }
+    ],
+    "passed": 132,
+    "failed": 0,
+    "skipped": 2
+  }
+}

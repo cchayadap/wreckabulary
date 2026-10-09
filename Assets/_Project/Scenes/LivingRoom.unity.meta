@@ -1,5 +1,8 @@
 fileFormatVersion: 2
 guid: 82b92a76ebd641c49b5e9ed8aa025a1a
+labels:
+- CurrentAuthoringV1
+- CurrentAuthoringV2
 DefaultImporter:
   externalObjects: {}
   userData: 

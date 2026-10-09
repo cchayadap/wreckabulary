@@ -4,10 +4,8 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>The letters a player carries. They are both ammo and health.</summary>
     public class LetterInventory : MonoBehaviour
     {
-        [SerializeField] int capacity = 6;
         [SerializeField] float pickupRadius = 0.9f;
 
         readonly List<char> letters = new();
@@ -15,10 +13,12 @@ namespace Wreckabulary
         PlayerController controller;
 
         public IReadOnlyList<char> Letters => letters;
-        public int Capacity => capacity;
+        public int Capacity => controller && controller.Health ? controller.Health.Rules.MaxLetters : Match.Rules.MaxLetters;
         public int Count => letters.Count;
+        public int ReservedCount { get; set; }
+        public int TotalCount => Count + ReservedCount;
         public bool IsEmpty => letters.Count == 0;
-        public bool IsFull => letters.Count >= capacity;
+        public bool IsFull => TotalCount >= Capacity;
 
         /// <summary>Off for the tutorial dummy, so it doesn't hoover up loose letters.</summary>
         public bool Collects { get; set; } = true;
@@ -38,19 +38,15 @@ namespace Wreckabulary
                 var rb = Hits[i].attachedRigidbody;
                 if (rb && rb.gameObject.activeSelf && rb.TryGetComponent(out LetterTile tile) &&
                     tile.CanBeCollectedBy(this) && TryAdd(tile.Letter))
-                {
-                    // Rarer letters sound brighter.
-                    float pitch = tile.Rarity switch { LetterRarity.Legendary => 1.35f, LetterRarity.Rare => 1.15f, _ => 1f };
-                    Sfx.Play(Sound.Pickup, transform.position, 0.7f, pitch);
                     tile.Collect();
-                }
             }
         }
 
         public bool TryAdd(char c)
         {
-            if (IsFull) return false;
-            letters.Add(char.ToUpperInvariant(c));
+            c = char.ToUpperInvariant(c);
+            if (IsFull || c < 'A' || c > 'Z') return false;
+            letters.Add(c);
             Changed?.Invoke();
             return true;
         }
@@ -60,27 +56,16 @@ namespace Wreckabulary
         {
             letters.Clear();
             foreach (char c in newLetters)
-                if (letters.Count < capacity) letters.Add(char.ToUpperInvariant(c));
+                if (TotalCount < Capacity && char.ToUpperInvariant(c) >= 'A' && char.ToUpperInvariant(c) <= 'Z') letters.Add(char.ToUpperInvariant(c));
             Changed?.Invoke();
         }
 
         /// <summary>Removes the letters of a word. Returns false if they are not all held.</summary>
         public bool TrySpend(string word)
         {
+            if (string.IsNullOrEmpty(word)) return false;
             if (!WordSolver.CanSpell(WordSolver.Count(letters), word)) return false;
             foreach (char c in word) letters.Remove(char.ToUpperInvariant(c));
-            Changed?.Invoke();
-            return true;
-        }
-
-        /// <summary>Puts one letter down on the floor in front, to make room for a better one.</summary>
-        public bool DropAt(int index, Vector3 from, Vector3 facing)
-        {
-            if (index < 0 || index >= letters.Count) return false;
-            char c = letters[index];
-            letters.RemoveAt(index);
-            var pool = TilePool.Instance;
-            if (pool) pool.Get(c).Launch(from + facing * 0.7f + Vector3.up * 0.6f, facing * 1.5f + Vector3.up * 1.5f, this);
             Changed?.Invoke();
             return true;
         }

@@ -4,10 +4,10 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Checks the core loop: smash → scavenge → spell → summon, plus hits, knockouts and rounds.</summary>
     public class GameplayTests
     {
         GameObject ground;
@@ -44,6 +44,12 @@ namespace Wreckabulary.Tests
         {
             for (int i = 0; i < n; i++) yield return new WaitForFixedUpdate();
         }
+
+        static HitInfo Punch(PlayerController attacker, Vector3 direction) =>
+            Hits.Melee(attacker, direction, (attacker ? attacker.Health.Rules : Match.Rules).Unarmed, null);
+
+        static HitInfo Lethal(PlayerController attacker = null) =>
+            Hits.Of(attacker, Vector3.forward, HitSource.Melee, 1000f, 1f);
 
         [UnityTest]
         public IEnumerator SmashedFurnitureBurstsIntoItsLetters()
@@ -88,8 +94,10 @@ namespace Wreckabulary.Tests
         public IEnumerator PlayerCollectsNearbyTiles()
         {
             var p = SpawnPlayer(0, Vector3.zero, out _);
-            // Just beside the player, not inside their body (where physics would shove it away).
-            TilePool.Instance.Get('B').Launch(new Vector3(0.7f, 0.3f, 0f), Vector3.zero);
+            var tile = TilePool.Instance.Get('B');
+            tile.Launch(new Vector3(0.7f, 0.2f, 0f), Vector3.zero);
+            tile.transform.rotation = tile.Body.rotation = Quaternion.identity;
+            tile.Body.angularVelocity = Vector3.zero;
             yield return new WaitForSeconds(0.5f);
 
             CollectionAssert.AreEqual(new[] { 'B' }, p.Inventory.Letters.ToArray());
@@ -119,133 +127,137 @@ namespace Wreckabulary.Tests
             CollectionAssert.AreEqual(new[] { 'X' }, p.Inventory.Letters.ToArray());
             Assert.IsNotNull(p.Combat.Weapon);
             Assert.AreEqual("BLADE", p.Combat.Weapon.word);
-            Assert.That(p.Combat.Weapon.transform.lossyScale.x, Is.EqualTo(1f).Within(0.15f), "held weapons keep their size (give or take squash and stretch)");
+            Assert.That(p.Combat.Weapon.transform.lossyScale.x, Is.EqualTo(p.Combat.Weapon.Definition.HeldScale).Within(0.15f), "held gear uses its catalogue miniature scale");
             Assert.IsFalse(p.Summoner.Summon("SWORD"), "can't summon without the letters");
         }
 
-        /// <summary>Presses one spelling control for a frame.</summary>
-        static IEnumerator Press(ScriptedBinding input, string control)
-        {
-            switch (control)
-            {
-                case "spell": input.Next.spellDown = true; break;
-                case "left": input.Next.left = true; break;
-                case "right": input.Next.right = true; break;
-                case "add": input.Next.confirm = true; break;
-                case "undo": input.Next.back = true; break;
-            }
-            yield return null;
-            yield return null;
-        }
-
         [UnityTest]
-        public IEnumerator SpellingLetterByLetterFromInput()
+        public IEnumerator WordWheelFromInputSummonsSelectedWord()
         {
             var p = SpawnPlayer(0, Vector3.zero, out var input);
             yield return Frames(2);
-            p.Inventory.Set("EDALBW"); // scrambled, so spelling BLADE needs moving the highlight
+            p.Inventory.Set("BLADEW");
 
-            yield return Press(input, "spell");
+            input.Next.spellHeld = true;
+            input.Next.spellDown = true;
+            yield return null;
+            yield return null;
             Assert.IsTrue(p.Summoner.IsSpelling);
-            Assert.AreEqual(0, p.Summoner.Cursor);
+            Assert.AreEqual("BLADE", p.Summoner.SelectedWord?.word);
 
-            for (int i = 0; i < 4; i++) yield return Press(input, "right");
-            Assert.AreEqual(4, p.Summoner.Cursor, "highlight on the B");
-            yield return Press(input, "add");
-            Assert.AreEqual("B", p.Summoner.Spelled);
-            CollectionAssert.Contains(p.Summoner.Hints.Select(h => h.word).ToList(), "BLADE", "hints show what B can become");
+            input.Next.spellHeld = false;
+            input.Next.spellUp = true;
+            yield return TestScenes.WaitUntil(() => !p.Summoner.IsCrafting && p.Combat.Weapon, 3f, "BLADE craft channel");
 
-            // Left skips letters already used: L, then A, then D, then E.
-            foreach (char expected in "LADE")
-            {
-                yield return Press(input, "left");
-                Assert.AreEqual(expected, p.Inventory.Letters[p.Summoner.Cursor]);
-                yield return Press(input, "add");
-            }
-            Assert.AreEqual("BLADE", p.Summoner.Spelled);
-            Assert.IsNotNull(p.Summoner.Match);
-
-            yield return Press(input, "spell");
             Assert.IsFalse(p.Summoner.IsSpelling);
             CollectionAssert.AreEqual(new[] { 'W' }, p.Inventory.Letters.ToArray());
             Assert.AreEqual("BLADE", p.Combat.Weapon?.word);
         }
 
         [UnityTest]
-        public IEnumerator UndoTakesBackTheLastLetter()
-        {
-            var p = SpawnPlayer(0, Vector3.zero, out var input);
-            yield return Frames(2);
-            p.Inventory.Set("BAT");
-
-            yield return Press(input, "spell");
-            yield return Press(input, "add");
-            yield return Press(input, "add");
-            Assert.AreEqual("BA", p.Summoner.Spelled);
-            yield return Press(input, "undo");
-            Assert.AreEqual("B", p.Summoner.Spelled);
-            Assert.AreEqual(1, p.Summoner.Cursor, "the highlight goes back to the A");
-            yield return Press(input, "undo");
-            yield return Press(input, "undo");
-            Assert.IsFalse(p.Summoner.IsSpelling, "undo on an empty word stops spelling");
-            Assert.AreEqual(3, p.Inventory.Count);
-        }
-
-        [UnityTest]
-        public IEnumerator NonWordsFizzleAndKeepTheLetters()
-        {
-            var p = SpawnPlayer(0, Vector3.zero, out var input);
-            yield return Frames(2);
-            p.Inventory.Set("TAB");
-            string fizzled = null;
-            p.Summoner.Fizzled += w => fizzled = w;
-
-            yield return Press(input, "spell");
-            for (int i = 0; i < 3; i++) yield return Press(input, "add"); // T A B
-            yield return Press(input, "spell");
-
-            Assert.AreEqual("TAB", fizzled);
-            Assert.AreEqual(3, p.Inventory.Count, "nothing spent");
-            Assert.IsNull(p.Combat.Weapon);
-        }
-
-        [UnityTest]
-        public IEnumerator YouStandStillWhileSpelling()
-        {
-            var p = SpawnPlayer(0, Vector3.zero, out var input);
-            yield return Frames(2);
-            p.Inventory.Set("BAT");
-            yield return Press(input, "spell");
-            input.Next.move = Vector2.right;
-            yield return new WaitForSeconds(0.4f);
-            Assert.Less(p.transform.position.x, 0.2f);
-        }
-
-        [UnityTest]
-        public IEnumerator HitKnocksTwoLettersLoose()
+        public IEnumerator HitsCostHealthNotLetters()
         {
             var p = SpawnPlayer(0, Vector3.zero, out _);
             yield return Frames(2);
             p.Inventory.Set("ABCD");
+            Assert.AreEqual(100f, p.Health.Current);
 
-            Assert.IsTrue(p.Health.TakeHit(Vector3.forward));
+            Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)));
+            Assert.AreEqual(92f, p.Health.Current, "a punch does the rules' unarmed damage");
+            Assert.AreEqual(4, p.Inventory.Count, "letters are loot, not health");
+            Assert.AreEqual(0, TilePool.Instance.Active.Count);
+
+            Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)), "no invulnerability after a hit");
+            Assert.AreEqual(84f, p.Health.Current);
+
+            var rules = Match.Rules.Clone();
+            rules.LettersDroppedPerHit = 2;
+            p.Health.UseRules(rules);
+            Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)));
             Assert.AreEqual(2, p.Inventory.Count);
             Assert.AreEqual(2, TilePool.Instance.Active.Count);
-            Assert.IsFalse(p.Health.TakeHit(Vector3.forward), "brief invulnerability after a hit");
         }
 
         [UnityTest]
-        public IEnumerator HitWithNoLettersIsKnockout()
+        public IEnumerator LethalHitWrecksAndSpillsEveryLetter()
         {
             var p = SpawnPlayer(0, Vector3.zero, out _);
             yield return Frames(2);
-            p.Inventory.Set("");
-            bool knockedOut = false;
+            p.Inventory.Set("ABC");
+            bool knockedOut = false, eliminated = false;
             p.Health.KnockedOut += _ => knockedOut = true;
+            p.Health.Eliminated += _ => eliminated = true;
 
-            p.Health.TakeHit(Vector3.forward);
-            Assert.IsTrue(knockedOut);
-            Assert.IsTrue(p.IsKnockedOut);
+            Assert.IsTrue(p.Health.ApplyDamage(Lethal()));
+            Assert.IsTrue(knockedOut && eliminated);
+            Assert.IsTrue(p.IsEliminated);
+            Assert.AreEqual(0f, p.Health.Current);
+            Assert.AreEqual(0, p.Inventory.Count);
+            Assert.AreEqual(3, TilePool.Instance.Active.Count);
+            Assert.IsFalse(p.Health.ApplyDamage(Lethal()), "a wrecked player takes no more hits");
+        }
+
+        [UnityTest]
+        public IEnumerator StaggerImmunityStopsStunLock()
+        {
+            var p = SpawnPlayer(0, Vector3.zero, out _);
+            yield return Frames(2);
+            float lastStun = -1f;
+            p.Health.Damaged += (_, _, r) => lastStun = r.HitStun;
+
+            p.Health.ApplyDamage(Punch(null, Vector3.forward));
+            Assert.Greater(lastStun, 0f);
+            Assert.IsTrue(p.IsStaggered);
+
+            p.Health.ApplyDamage(Punch(null, Vector3.forward));
+            Assert.AreEqual(0f, lastStun, "a second hit inside the immunity window still hurts but doesn't stun");
+            Assert.AreEqual(84f, p.Health.Current);
+        }
+
+        [UnityTest]
+        public IEnumerator ShieldBlocksHitsFromTheFront()
+        {
+            var p = SpawnPlayer(0, Vector3.zero, out _);
+            yield return Frames(2);
+            p.FaceTowards(Vector3.forward);
+            p.Health.FrontBlockUntil = Time.time + 5f;
+
+            Assert.IsFalse(p.Health.ApplyDamage(Punch(null, Vector3.back)), "blocked");
+            Assert.AreEqual(100f, p.Health.Current);
+
+            Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)));
+            Assert.AreEqual(92f, p.Health.Current);
+        }
+
+        [UnityTest]
+        public IEnumerator DownedTeammateCanBeRevived()
+        {
+            Match.ModeOverride = "Duos";
+            var a = SpawnPlayer(0, Vector3.zero, out _);
+            var b = SpawnPlayer(1, new Vector3(1f, 0f, 0f), out _);
+            yield return Frames(2);
+            a.Team = b.Team = 0;
+            var rules = Match.Rules.Clone();
+            Assert.IsTrue(rules.DownedEnabled, "Duos has downed players");
+            Assert.IsFalse(rules.FriendlyFire, "Duos has no friendly fire");
+            rules.ReviveSeconds = 0.2f;
+            a.Health.UseRules(rules);
+            b.Health.UseRules(rules);
+
+            Assert.IsFalse(b.Health.ApplyDamage(Punch(a, Vector3.right)), "teammates can't hurt each other");
+            Assert.AreEqual(100f, b.Health.Current);
+
+            Assert.IsTrue(b.Health.ApplyDamage(Lethal()));
+            Assert.IsTrue(b.IsDowned);
+            Assert.IsFalse(b.IsEliminated);
+            Assert.IsFalse(b.CanAct);
+
+            Assert.IsTrue(b.Health.BeginRevive(a));
+            Assert.IsFalse(b.Health.TryFinishRevive(a), "reviving takes a moment");
+            yield return new WaitForSeconds(0.3f);
+            Assert.IsTrue(b.Health.TryFinishRevive(a));
+            Assert.IsTrue(b.Health.IsAlive);
+            Assert.AreEqual(rules.ReviveHealth, b.Health.Current);
         }
 
         [UnityTest]
@@ -258,24 +270,44 @@ namespace Wreckabulary.Tests
             victim.Inventory.Set("ABC");
 
             input.Next.attack = true;
-            yield return null;
-            yield return null;
-
-            Assert.AreEqual(1, victim.Inventory.Count);
+            yield return TestScenes.WaitUntil(() => victim.Health.Current < 100f, 1f, "unarmed damage window");
+            Assert.AreEqual(92f, victim.Health.Current);
+            Assert.AreEqual(3, victim.Inventory.Count);
         }
 
         [UnityTest]
-        public IEnumerator ArmorAbsorbsOneHit()
+        public IEnumerator PunchMissesOpponentBehind()
+        {
+            var attacker = SpawnPlayer(0, Vector3.zero, out var input);
+            var victim = SpawnPlayer(1, new Vector3(0f, 0f, -1.1f), out _);
+            yield return Frames(3);
+            attacker.FaceTowards(Vector3.forward);
+
+            input.Next.attack = true;
+            yield return new WaitForSeconds(attacker.Health.Rules.Unarmed.Cycle + 0.1f);
+
+            Assert.AreEqual(100f, victim.Health.Current);
+        }
+
+        [UnityTest]
+        public IEnumerator FoamBubbleSoaksDamage()
         {
             var p = SpawnPlayer(0, Vector3.zero, out _);
             yield return Frames(2);
-            p.Inventory.Set("ARMORS");
-            Assert.IsTrue(p.Summoner.Summon("ARMOR"));
-            Assert.AreEqual(1, p.Health.ArmorCharges);
+            p.Inventory.Set("FOAMS");
+            Assert.IsTrue(p.Summoner.Summon("FOAM"));
+            p.Combat.Attack();
+            yield return new WaitForSeconds(GameConfig.Current.Items.Get("FOAM").Use.ChannelSeconds + 0.1f);
+            Assert.AreEqual(35f, p.Health.Bubble);
 
-            p.Health.TakeHit(Vector3.forward);
-            Assert.AreEqual(1, p.Inventory.Count, "armor soaked the hit, the S stays");
-            Assert.AreEqual(0, p.Health.ArmorCharges);
+            p.Health.ApplyDamage(Punch(null, Vector3.forward));
+            Assert.AreEqual(100f, p.Health.Current, "the bubble soaked the punch");
+            Assert.AreEqual(27f, p.Health.Bubble);
+
+            p.Health.ApplyDamage(Hits.Of(null, Vector3.forward, HitSource.Melee, 40f, 1f));
+            Assert.AreEqual(87f, p.Health.Current, "what the bubble can't soak gets through");
+            Assert.AreEqual(0f, p.Health.Bubble);
+            Assert.AreEqual(1, p.Inventory.Count, "the S stays");
         }
 
         [UnityTest]
@@ -313,15 +345,22 @@ namespace Wreckabulary.Tests
             rounds.StartMatch();
             yield return new WaitForSeconds(0.3f);
             Assert.AreEqual(Phase.Playing, rounds.Phase);
-            Assert.AreEqual(3, a.Inventory.Count, "starter letters");
+            Assert.AreEqual(Match.Rules.StarterLetters.Length, a.Inventory.Count, "configured starter letters");
 
-            b.Inventory.Set("");
-            b.Health.TakeHit(Vector3.forward);
+            yield return TestScenes.WaitUntil(() => !b.Health.IsInvulnerable, 3f, "spawn protection to wear off");
+            Assert.AreEqual(Phase.Playing, rounds.Phase);
+            foreach (var opponent in joins.Players.Where(p => p != a && p != b)) opponent.Health.Eliminate();
+            b.Health.ApplyDamage(Lethal(a));
+            yield return null;
             Assert.AreEqual(Phase.RoundOver, rounds.Phase);
             Assert.AreEqual(1, rounds.WinsOf(a));
             Assert.AreEqual(0, rounds.WinsOf(b));
 
-            yield return new WaitForSecondsRealtime(3.3f);
+            var hud = Object.FindAnyObjectByType<GameHud>();
+            yield return TestScenes.WaitUntil(() => hud.ResultShown, 3f, "the round's result card");
+            Assert.AreEqual(1, rounds.Round, "no round starts behind the card");
+            hud.UiCanvas.transform.Find("Safe HUD/Result/Result card/Next").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            yield return null;
             Assert.AreEqual(2, rounds.Round);
             Assert.That(rounds.Phase, Is.EqualTo(Phase.Countdown).Or.EqualTo(Phase.Playing));
             Assert.IsFalse(b.IsKnockedOut, "knocked-out players get back up for the next round");

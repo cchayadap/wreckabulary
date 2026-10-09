@@ -43,7 +43,6 @@ namespace Wreckabulary
                 nextBump = Time.time + 1f;
                 target.Knock(dir.normalized * 6f + Vector3.up * 2f, 0.5f);
                 Popup.Show("QUACK", transform.position + Vector3.up, Color.white, 2.5f);
-                Sfx.Play(Sound.Quack, transform.position);
             }
         }
     }

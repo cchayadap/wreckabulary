@@ -1,0 +1,18 @@
+{
+  "id": "winter-lobby-v2",
+  "assetType": "lobby-background-illustration",
+  "provider": "OpenAI built-in image_gen",
+  "modelRevision": "not exposed by tool",
+  "prompt": "Edit this game lobby background, preserving its exact camera perspective, architecture, warm bright daytime light, snow outside, inviting cream/gold/forest-green/crimson palette and empty oak floor foreground. Remove the large decorated Christmas tree at the left completely, remove every wrapped present beneath it, and remove the large circular wreath on the right wall above the sofa. Continue the existing arched window frame, glass, snowy outdoor view and oak flooring plausibly into the vacated areas. Keep that left quarter mostly open window and clear floor because an actual 3D tree and presents will stand in front of it in the game. Keep the wall above the right sofa simple cream painted timber because a 3D wreath display will be placed in front. Retain ceiling garlands, small candles/lanterns, furniture at the far edges and the sofa at rear right. Keep the center and foreground empty. Make all surfaces slightly softer and rounded, like a high quality handcrafted stylized 3D cozy action-game environment, less photographic fine detail; retain rich color and cheerful daylight. No characters, UI, letters, logos, words, or extra large festive props. This is a background texture only, not a screenshot. Wide 16:9 composition.",
+  "referencedImage": "ArtSource/Collections/Winter/References/winter-lobby-v1.png",
+  "source": "C:/Users/mrkl6/.codex/generated_images/01a11c1b-32b0-7943-82c8-7a6e0c67d8e1/exec-11f6953a-be0a-4536-b13a-2f3e7ef33d7d.png",
+  "originalCopy": "ArtSource/Collections/Winter/References/winter-lobby-v2.png",
+  "runtimeCopy": "Assets/_Project/Resources/UI/Themes/winter-v1.png",
+  "status": "integrated and verified in ten final native Unity captures",
+  "visualReview": "Removed duplicated illustrated tree, gifts and wreath after native screenshot review. Preserves warm windows, garlands, clear oak foreground and bright winter view.",
+  "transparentBackground": false,
+  "operation": "Unchanged copy of GPT-edited PNG; stable runtime filename preserves theme references",
+  "sha256": "d3cf736bf68748560606ad5e6d45f686482f01a7603c48784ff0390b65f7b29c",
+  "width": 1672,
+  "height": 941
+}

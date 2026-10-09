@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-08 20:02:23Z" end-time="2026-10-08 20:03:26Z" duration="62.4031033">
+  <test-suite type="TestSuite" id="1309" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="268" result="Passed" start-time="2026-10-08 20:02:23Z" end-time="2026-10-08 20:03:26Z" duration="62.403103" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1615" name="Wreckabulary.Tests.dll" fullname="C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wreckabulary/Library/ScriptAssemblies/Wreckabulary.Tests.dll" runstate="Runnable" testcasecount="268" result="Passed" start-time="2026-10-08 20:02:23Z" end-time="2026-10-08 20:03:26Z" duration="62.382976" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="37612" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1616" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="268" result="Passed" start-time="2026-10-08 20:02:23Z" end-time="2026-10-08 20:03:26Z" duration="62.375953" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1617" name="Tests" fullname="Wreckabulary.Tests" runstate="Runnable" testcasecount="268" result="Passed" start-time="2026-10-08 20:02:23Z" end-time="2026-10-08 20:03:26Z" duration="62.359361" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1526" name="PresentationCaptureTests" fullname="Wreckabulary.Tests.PresentationCaptureTests" classname="Wreckabulary.Tests.PresentationCaptureTests" runstate="Explicit" testcasecount="2" result="Passed" start-time="2026-10-08 20:02:23Z" end-time="2026-10-08 20:03:26Z" duration="62.348275" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties>
+              <property name="Category" value="PresentationCapture" />
+            </properties>
+            <test-case id="1528" name="CaptureFurnitureLifecycleAndMiniatureGrip" fullname="Wreckabulary.Tests.PresentationCaptureTests.CaptureFurnitureLifecycleAndMiniatureGrip" methodname="CaptureFurnitureLifecycleAndMiniatureGrip" classname="Wreckabulary.Tests.PresentationCaptureTests" runstate="Runnable" seed="1872033672" result="Passed" start-time="2026-10-08 20:02:23Z" end-time="2026-10-08 20:02:32Z" duration="8.367984" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[PresentationCapture] 10-furniture-break-stages
+[PresentationCapture] 11-letter-pickup-glow
+[PresentationGrip] held=(0.27, 0.93, 0.56) scale=(0.30, 0.30, 0.30) grip=(0.31, 0.56, 0.17)
+[PresentationGrip] TABLE enabled=True active=True forceOff=False center=(0.28, 0.94, 0.45) size=(0.44, 0.33, 0.29)
+[PresentationCapture] 12-character-miniature-table
+[PresentationCapture] 13-character-celebrate
+]]></output>
+            </test-case>
+            <test-case id="1527" name="CaptureMenuGameplayPauseAndCouchPlay" fullname="Wreckabulary.Tests.PresentationCaptureTests.CaptureMenuGameplayPauseAndCouchPlay" methodname="CaptureMenuGameplayPauseAndCouchPlay" classname="Wreckabulary.Tests.PresentationCaptureTests" runstate="Runnable" seed="255235417" result="Passed" start-time="2026-10-08 20:02:32Z" end-time="2026-10-08 20:03:26Z" duration="53.952193" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[PresentationCapture] 01-main-menu-16x9
+[PresentationCapture] 08-inventory-16x9
+[PresentationCapture] 09-inventory-21x9
+[PresentationCapture] 02-hub-explore-16x9
+[PresentationCapture] 03-gameplay-behind-16x9
+[PresentationCapture] 04-pause-16x9
+[PresentationCapture] 05-foam-skill-16x9
+[PresentationCapture] 06-gameplay-behind-21x9
+[PresentationCapture] 07-local-duos-21x9
+Saving results to: C:/Users/mrkl6/AppData/LocalLow/Wreckabulary Team/Wreckabulary\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

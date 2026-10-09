@@ -36,6 +36,20 @@ namespace Wreckabulary
             transient = null;
         }
 
+        public static void FreezeTransient()
+        {
+            SummonedThing.ClearAll();
+            if (!transient) return;
+            foreach (var shot in transient.GetComponentsInChildren<Projectile>(true)) Object.Destroy(shot.gameObject);
+            foreach (var thrown in transient.GetComponentsInChildren<ThrownGear>(true)) thrown.StopTracking();
+            foreach (var tracker in transient.GetComponentsInChildren<ThrowTracker>(true)) Object.Destroy(tracker);
+            foreach (var body in transient.GetComponentsInChildren<Rigidbody>(true))
+            {
+                if (!body.isKinematic) { body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero; }
+                body.isKinematic = true;
+            }
+        }
+
         public static readonly List<PlayerController> Players = new();
 
         public static int PlayerLayer => LayerMask.NameToLayer("Player");
@@ -61,11 +75,20 @@ namespace Wreckabulary
             float bestSq = maxDistance * maxDistance;
             foreach (var p in Players)
             {
-                if (!p || p == me || p.IsKnockedOut) continue;
+                if (!p || p == me || p.IsKnockedOut ||
+                    (me && !Rules.Teams.AreHostile(me.Team, p.Team))) continue;
                 float d = (p.transform.position - from).sqrMagnitude;
                 if (d < bestSq) { bestSq = d; best = p; }
             }
             return best;
+        }
+
+        public static PlayerController PlayerById(int index)
+        {
+            if (index < 0) return null;
+            foreach (var p in Players)
+                if (p && p.Index == index) return p;
+            return null;
         }
 
         public static Vector3 Flat(Vector3 v) => new(v.x, 0f, v.z);

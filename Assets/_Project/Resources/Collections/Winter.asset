@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88da1bfe5f6c97441bf39a56b777b65b, type: 3}
+  m_Name: Winter
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Art.SeasonalCollection
+  themeId: winter
+  finish: Winter
+  recipes:
+  - SHIELD
+  - SODA
+  emoteName: Winter shuffle
+  emote: {fileID: -6066223269933746205, guid: 396c64d2a9ed4392864984863a56fa21, type: 3}
+  decor: {fileID: 8127435999551140715, guid: 72f46af4bb54c494a896a8642ced4f04, type: 3}
+  materials:
+  - {fileID: 2100000, guid: 241e06e87989f784ebfd5ebfc236d0e3, type: 2}
+  - {fileID: 2100000, guid: c7332cfe4696f0944af7464346fbfa73, type: 2}
+  - {fileID: 2100000, guid: f06d93f31e5b7584a81413b9151e0bf2, type: 2}
+  - {fileID: 2100000, guid: 8dd9716d4f2b4b14aa04fc4b4c0b0502, type: 2}
+  - {fileID: 2100000, guid: 3719c1f6a379e8543abe5135a0477486, type: 2}
+  - {fileID: 2100000, guid: 6d110a7378489624481401e8c2c80b38, type: 2}

@@ -3,62 +3,58 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
     public enum Phase { Lobby, Countdown, Playing, RoundOver, MatchOver }
 
-    /// <summary>
-    /// Dibs! match flow. Lobby (join and mess around) → countdown → play until one roommate is left
-    /// standing → next round. First to 3 wins the match, then everyone heads back to the house.
-    /// Coming from the house with 2+ roommates skips the lobby.
-    /// </summary>
     public class RoundManager : MonoBehaviour
     {
         public static RoundManager Instance { get; private set; }
-
         [SerializeField] PlayerJoinManager joins;
         [SerializeField] RoomBuilder room;
         [SerializeField] DeliverySpawner deliveries;
         [SerializeField] GameHud hud;
-
-        [SerializeField] string mapName = "Living Room";
-        [Tooltip("Use the rounds and starting letters chosen in Creative.")]
-        [SerializeField] bool useCustomRules;
-        [SerializeField] int roundsToWin = 3;
-        [SerializeField] float collapseAfter = 90f;
         [SerializeField] float countdownTime = 3f;
-        [SerializeField] float roundOverTime = 3f;
-        [SerializeField] float matchOverTime = 6f;
-
-        readonly Dictionary<PlayerController, int> wins = new();
-        float phaseStarted, roundStarted;
+        MatchScore score;
+        ClearOutController clearOut;
+        float phaseElapsed, roundStarted;
         PlayerController lastWinner;
-        int lastCount;
-
         public Phase Phase { get; private set; } = Phase.Lobby;
         public int Round { get; private set; }
         public float CountdownTime { get => countdownTime; set => countdownTime = value; }
-        public int WinsOf(PlayerController p) => p && wins.TryGetValue(p, out int w) ? w : 0;
-
+        public int WinsOf(PlayerController p) => p ? score?.Wins(p.Team) ?? 0 : 0;
+        public float TimeLeft => Mathf.Max(0f, Match.Rules.RoundTimeLimitSeconds - (Time.time - roundStarted));
         public event Action<PlayerController> RoundWon;
         public event Action<PlayerController> MatchWon;
         public event Action CollapseStarted;
+        IReadOnlyList<PlayerController> Players => joins.Players;
+        float PhaseTime => phaseElapsed;
+        bool AcceptsStartInput => !hud || !hud.StateController ||
+            (hud.StateController.CurrentState == UIState.GameplayHUD && !hud.StateController.IsTransitioning);
 
         void Awake() => Instance = this;
 
         void Start()
         {
-            if (useCustomRules)
+            if (!joins) joins = GetComponent<PlayerJoinManager>();
+            if (!room) room = GetComponent<RoomBuilder>();
+            if (!deliveries) deliveries = GetComponent<DeliverySpawner>();
+            if (!hud) hud = FindAnyObjectByType<GameHud>();
+            if (Match.Mode == "MovingOut")
             {
-                roundsToWin = Mathf.Max(1, Session.CustomRounds);
-                joins.StarterLetters = Session.CustomStarterLetters;
+                gameObject.AddComponent<MovingOutDirector>().Configure(joins, room, deliveries, hud);
+                enabled = false;
+                return;
             }
-            Music.Play(Track.Brawl);
-            joins.Joined += OnJoined;
-            foreach (var p in Players) OnJoined(p);
+            clearOut = gameObject.AddComponent<ClearOutController>();
+            clearOut.Configure(room.Layout, Match.Mode);
+            clearOut.ClosureStarted += () => CollapseStarted?.Invoke();
+            deliveries.Layout = room.Layout;
+            deliveries.RoomOpen = r => !clearOut.Running || clearOut.Schedule.PhaseOf(r, clearOut.Elapsed) == RoomPhase.Safe;
             EnterLobby();
-            if (joins.RestoredFromSession && Players.Count >= 2) StartMatch();
+            if (joins.RestoredFromSession && joins.HumanCount > 0) StartMatch();
         }
 
         void OnDestroy()
@@ -67,66 +63,51 @@ namespace Wreckabulary
             Time.timeScale = 1f;
         }
 
-        IReadOnlyList<PlayerController> Players => joins.Players;
-        float PhaseTime => Time.unscaledTime - phaseStarted;
-
-        void SetPhase(Phase p)
+        void SetPhase(Phase phase)
         {
-            Phase = p;
-            phaseStarted = Time.unscaledTime;
-            joins.RespawnKnockedOut = p == Phase.Lobby;
+            Phase = phase;
+            phaseElapsed = 0f;
+            joins.RespawnKnockedOut = phase == Phase.Lobby;
         }
 
         void Update()
         {
+            if (Time.timeScale <= 0f) return;
+            phaseElapsed += Time.unscaledDeltaTime;
             switch (Phase)
             {
                 case Phase.Lobby:
-                    if (Players.Count < 2)
-                        hud.SetTitle("DIBS!", "Press SPACE (keyboard), . (second keyboard player) or A (gamepad) to join");
-                    else
-                        hud.SetTitle("DIBS!", $"{Players.Count} roommates in.  Press ENTER or START to begin");
+                    hud.SetInstruction(joins.HumanCount == 0 ? ControlHints.Join("join") : "Press START — solo seats get AI opponents", "");
                     hud.SetTimer("");
-                    if (Players.Count >= 2 && joins.AnyStartPressed()) StartMatch();
+                    hud.ShowModeActions(joins.HumanCount > 0, "START WITH AI →", StartMatch);
+                    if (AcceptsStartInput && joins.HumanCount > 0 && joins.AnyStartPressed()) StartMatch();
                     break;
-
                 case Phase.Countdown:
                     int left = Mathf.CeilToInt(countdownTime - PhaseTime);
-                    if (left != lastCount && left > 0) Sfx.Play(Sound.Countdown);
-                    lastCount = left;
-                    hud.SetTitle(left > 0 ? left.ToString() : "DIBS!", $"Round {Round}  •  {mapName}");
+                    hud.ShowCountdown(Mathf.Max(1, left), $"ROUND {Round} · {room.Layout.Name.ToUpperInvariant()}");
                     if (PhaseTime >= countdownTime) BeginPlay();
                     break;
-
                 case Phase.Playing:
-                    float t = Time.time - roundStarted;
-                    if (PhaseTime > 0.8f) hud.SetTitle("", "");
-                    if (!deliveries.Collapsing)
-                    {
-                        hud.SetTimer(Mathf.CeilToInt(Mathf.Max(0f, collapseAfter - t)).ToString());
-                        if (t >= collapseAfter) StartCollapse();
-                    }
+                    hud.SetTimer(FormatTime(TimeLeft));
+                    hud.SetInstruction(clearOut.Message, "");
                     break;
-
                 case Phase.RoundOver:
-                    if (PhaseTime >= roundOverTime)
-                    {
-                        if (WinsOf(lastWinner) >= roundsToWin) EnterMatchOver();
-                        else StartRound();
-                    }
-                    break;
-
                 case Phase.MatchOver:
-                    if (PhaseTime >= matchOverTime && !Session.GoHome()) EnterLobby();
+                    if (AcceptsStartInput && hud.ResultShown && PhaseTime > 1.6f && joins.AnyStartPressed()) hud.ConfirmResult();
                     break;
             }
-            hud.SetScoreboard(Players, WinsOf, roundsToWin, Phase != Phase.Lobby);
+            hud.SetScoreboard(Players, WinsOf, Match.Rules.RoundsToWin, Phase != Phase.Lobby);
         }
 
-        void OnJoined(PlayerController p)
+        void LateUpdate()
         {
-            wins[p] = 0;
-            p.Health.KnockedOut += OnKnockedOut;
+            if (Time.timeScale <= 0f || Phase != Phase.Playing) return;
+            var combatants = Players.Select(p => new Combatant(p.Index, p.Team, p.Health.State)).ToArray();
+            foreach (int id in WinCheck.Unrevivable(combatants)) World.PlayerById(id)?.Health.Eliminate();
+            var outcome = WinCheck.Evaluate(Players.Select(p => new Combatant(p.Index, p.Team, p.Health.State)));
+            if (outcome.State == RoundState.Ongoing && Match.Rules.RoundTimeLimitSeconds > 0f && TimeLeft <= 0f)
+                outcome = new RoundOutcome(RoundState.Draw, Teams.NoTeam);
+            if (outcome.State != RoundState.Ongoing) FinishRound(outcome);
         }
 
         void EnterLobby()
@@ -141,9 +122,16 @@ namespace Wreckabulary
 
         public void StartMatch()
         {
-            foreach (var p in Players) wins[p] = 0;
+            if (Time.timeScale <= 0f || joins.HumanCount == 0) return;
+            StopAllCoroutines();
+            joins.EnsureOpponents();
+            joins.AssignTeams();
+            score = new MatchScore(Match.Rules.RoundsToWin);
             Round = 0;
             joins.AllowJoining = false;
+            hud.ShowModeActions(false);
+            hud.HideResult();
+            MatchTally.BeginMatch();
             StartRound();
         }
 
@@ -151,71 +139,73 @@ namespace Wreckabulary
         {
             Round++;
             Time.timeScale = 1f;
+            hud.HideResult();
+            MatchTally.BeginRound();
             room.ResetRoom();
+            clearOut.ResetSchedule();
             deliveries.Running = false;
             deliveries.ResetDrops();
-            foreach (var p in Players)
-            {
-                joins.Place(p);
-                p.Frozen = true;
-            }
+            foreach (var p in Players) { joins.Place(p); p.Frozen = true; }
             SetPhase(Phase.Countdown);
+            hud.SetInstruction("", "");
         }
 
         void BeginPlay()
         {
-            Sfx.Play(Sound.Go);
             SetPhase(Phase.Playing);
             roundStarted = Time.time;
-            hud.SetTitle("DIBS!", "");
+            clearOut.Begin();
+            hud.ShowGo();
+            if (Round == 1) hud.Toast("Break furniture → collect its letters → spell new gear.");
             foreach (var p in Players) p.Frozen = false;
             deliveries.Running = true;
             deliveries.ResetDrops();
         }
 
-        void StartCollapse()
+        void FinishRound(RoundOutcome outcome)
         {
-            deliveries.StartCollapse();
-            hud.SetTimer("<color=#FF6A4D>COLLAPSE!</color>");
-            CameraRig.Shake(0.4f);
-            Sfx.Play(Sound.Collapse);
-            CollapseStarted?.Invoke();
-        }
-
-        void OnKnockedOut(PlayerHealth victim)
-        {
-            if (Phase != Phase.Playing) return;
-
-            var alive = Players.Where(p => !p.IsKnockedOut).ToList();
-            if (alive.Count > 1) return;
-
-            lastWinner = alive.FirstOrDefault();
+            score.Record(outcome);
             SetPhase(Phase.RoundOver);
             deliveries.Running = false;
-            if (!lastWinner)
+            clearOut.Running = false;
+            foreach (var p in Players) p.Frozen = true;
+            World.FreezeTransient();
+            lastWinner = outcome.State == RoundState.Won ? Players.First(p => p.Team == outcome.WinningTeam) : null;
+            var you = hud.LocalPlayer;
+            bool won = lastWinner && you && lastWinner.Team == you.Team;
+            bool timeUp = !lastWinner && Match.Rules.RoundTimeLimitSeconds > 0f && TimeLeft <= 0f;
+            string heading = won ? "You called dibs!" : timeUp ? "Time’s up. A perfectly messy draw." : "One more word. One more chance.";
+            if (lastWinner)
             {
-                hud.SetTitle("DRAW!", "Nobody gets dibs");
-                return;
+                StartCoroutine(SlowMo());
+                RoundWon?.Invoke(lastWinner);
             }
-            wins[lastWinner] = WinsOf(lastWinner) + 1;
-            hud.SetTitle($"{lastWinner.Name} WINS THE ROUND", $"{WinsOf(lastWinner)}/{roundsToWin}");
-            StartCoroutine(SlowMo());
-            Sfx.Play(Sound.RoundWin);
-            RoundWon?.Invoke(lastWinner);
-        }
-
-        void EnterMatchOver()
-        {
-            SetPhase(Phase.MatchOver);
-            hud.SetTitle($"{lastWinner.Name} CALLS DIBS!", "Winner of the match.  Heading home...");
-            MatchWon?.Invoke(lastWinner);
+            if (score.IsOver)
+            {
+                SetPhase(Phase.MatchOver);
+                var record = MatchTally.FinishFor(lastWinner);
+                hud.ShowResultSoon(HudResult.Of(Round, true, won, heading, record), StartMatch);
+                MatchWon?.Invoke(lastWinner);
+            }
+            else hud.ShowResultSoon(HudResult.Of(Round, false, won, heading, null), StartRound);
         }
 
         IEnumerator SlowMo()
         {
-            Time.timeScale = 0.35f;
-            yield return new WaitForSecondsRealtime(0.9f);
+            Time.timeScale = .35f;
+            float elapsed = 0f;
+            while (elapsed < .9f)
+            {
+                yield return null;
+                if (Time.timeScale > 0f) elapsed += Time.unscaledDeltaTime;
+            }
             Time.timeScale = 1f;
+        }
+
+        internal static string FormatTime(float seconds)
+        {
+            int value = Mathf.Max(0, Mathf.CeilToInt(seconds));
+            return $"{value / 60}:{value % 60:00}";
         }
     }
 }

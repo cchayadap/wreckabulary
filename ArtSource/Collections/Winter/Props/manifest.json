@@ -1,0 +1,154 @@
+{
+  "collection": "Winter House Party",
+  "generator": "Tools/AssetPipeline/build_winter_props.py",
+  "blender": "5.2.2 LTS",
+  "provenance": "Original deterministic Blender mesh geometry authored for this project; no provider, image-to-3D conversion or stock source. The separate GPT lobby illustration is not the source of these meshes.",
+  "source": "source.blend",
+  "source_sha256": "c4f312b91cee80c33d9eda173c3e5faf48f3c204b0e2bea3729a063d21ceb52f",
+  "palette": {
+    "file": "exports/WinterPalette.png",
+    "size": [
+      512,
+      64
+    ],
+    "srgb_hex": [
+      "34785B",
+      "245843",
+      "B84851",
+      "F2DFB2",
+      "99CAD2",
+      "604139",
+      "FAF1D7",
+      "D69D57"
+    ],
+    "sha256": "afa172b7b203b70ad3715d3ef8b062ed035927bdacd582db8a6f23799d3e68c5"
+  },
+  "materials": [
+    {
+      "name": "WinterPaint",
+      "base_map": "WinterPalette.png",
+      "metallic": 0,
+      "roughness": 0.64
+    },
+    {
+      "name": "WinterBrass",
+      "srgb_hex": "D6AE62",
+      "metallic": 0.72,
+      "roughness": 0.31
+    }
+  ],
+  "export": {
+    "axis_forward": "-Z",
+    "axis_up": "Y",
+    "metres": true,
+    "animation": false,
+    "embedded_lights_cameras": false
+  },
+  "placement": "All FBX roots start at origin, bottom at 0. Preserve imported FBX axis transforms under a separate placement anchor. Front empty points toward Blender -Y. Wreath WallAnchor identifies the rear wall-contact point; use imported marker direction rather than guessing a face rotation.",
+  "native_unity_validation": "NOT RUN; staged outside Assets while root builds current checkpoint",
+  "props": [
+    {
+      "name": "WinterTree",
+      "triangles": 2576,
+      "budget": 3000,
+      "mesh_count": 21,
+      "materials": [
+        "WinterBrass",
+        "WinterPaint"
+      ],
+      "bounds_blender_min": [
+        -0.4362545609474182,
+        -0.4662999212741852,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.46789997816085815,
+        0.4662999212741852,
+        1.5999999046325684
+      ],
+      "size_unity_width_height_depth": [
+        0.9041545391082764,
+        1.5999999046325684,
+        0.9325998425483704
+      ],
+      "pivot": "root at ground; wreath ground corresponds to bottom edge",
+      "front_marker": "WinterTree_Front",
+      "parts": [
+        "WinterTree_Front"
+      ],
+      "has_uv": true,
+      "file": "exports/WinterTree.fbx",
+      "sha256": "83c71b24e1710f7d5003a396ab0f3a130cbaafed01e6a16df7c5d052ff0bdee3"
+    },
+    {
+      "name": "WrappedGifts",
+      "triangles": 972,
+      "budget": 1500,
+      "mesh_count": 21,
+      "materials": [
+        "WinterBrass",
+        "WinterPaint"
+      ],
+      "bounds_blender_min": [
+        -0.42810869216918945,
+        -0.3303382992744446,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.4102136492729187,
+        0.31142690777778625,
+        0.4652400016784668
+      ],
+      "size_unity_width_height_depth": [
+        0.8383223414421082,
+        0.4652400016784668,
+        0.6417652070522308
+      ],
+      "pivot": "root at ground; wreath ground corresponds to bottom edge",
+      "front_marker": "WrappedGifts_Front",
+      "parts": [
+        "GiftSmall",
+        "GiftTall",
+        "GiftWide",
+        "WrappedGifts_Front"
+      ],
+      "has_uv": true,
+      "file": "exports/WrappedGifts.fbx",
+      "sha256": "a01d697fa61f5f81f2410dd78ba6a15003c3e1cdb4b00114be13a261518e72a8"
+    },
+    {
+      "name": "DoorWreath",
+      "triangles": 1252,
+      "budget": 1500,
+      "mesh_count": 24,
+      "materials": [
+        "WinterBrass",
+        "WinterPaint"
+      ],
+      "bounds_blender_min": [
+        -0.32500001788139343,
+        -0.11398428678512573,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.32500001788139343,
+        0.040697600692510605,
+        0.6500000953674316
+      ],
+      "size_unity_width_height_depth": [
+        0.6500000357627869,
+        0.6500000953674316,
+        0.15468188747763634
+      ],
+      "pivot": "root at ground; wreath ground corresponds to bottom edge",
+      "front_marker": "DoorWreath_Front",
+      "parts": [
+        "DoorWreath_Front",
+        "WallAnchor"
+      ],
+      "has_uv": true,
+      "file": "exports/DoorWreath.fbx",
+      "sha256": "0a446502b5243e8d67afbcec4675598de681fc5ddfc5237758892621ab665ca5"
+    }
+  ]
+}

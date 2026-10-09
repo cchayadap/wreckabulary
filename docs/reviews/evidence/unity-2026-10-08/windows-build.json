@@ -1,0 +1,13 @@
+{
+  "engine": "6000.6.3f1",
+  "utc": "2026-10-08T16:19:03.7578608Z",
+  "startup": "Process responsive and graphics device initialized; no exception/error lines in player log",
+  "scope": "Startup only; editor capture suite provides gameplay evidence",
+  "buildBytes": 136822510,
+  "errors": 0,
+  "exeSha256": "96B492CB271111251FE42B8646E65370A1B7B566773A1E35B34C3F2D1AE70873",
+  "assemblies": {
+    "Wreckabulary.dll": "6CF4D63DF7629D046F55AE1FE7843DC063DA6676E63C16B3354A9AA21920A029",
+    "Wreckabulary.Rules.dll": "7AF40C0D5164E06421E521E82EF9A0E9E6293936E68D1D51490864EFEA00933A"
+  }
+}

@@ -1,0 +1,107 @@
+{
+    "engine": "6000.6.3f1",
+    "utc": "2026-10-09T03:37:21.1242092Z",
+    "completed": true,
+    "frames": [
+        {
+            "file": "01-winter-home.png",
+            "page": "home",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": false,
+            "decor": true,
+            "item": false
+        },
+        {
+            "file": "02-winter-shuffle-step.png",
+            "page": "home",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": true,
+            "decor": true,
+            "item": false
+        },
+        {
+            "file": "03-winter-shuffle-clap.png",
+            "page": "home",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": true,
+            "decor": true,
+            "item": false
+        },
+        {
+            "file": "04-winter-home-ultrawide.png",
+            "page": "home",
+            "theme": "winter",
+            "width": 2100,
+            "height": 900,
+            "emote": false,
+            "decor": true,
+            "item": false
+        },
+        {
+            "file": "05-winter-collection-shop.png",
+            "page": "shop",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": false,
+            "decor": true,
+            "item": false
+        },
+        {
+            "file": "06-winter-shop-dance.png",
+            "page": "shop",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": true,
+            "decor": true,
+            "item": false
+        },
+        {
+            "file": "07-winter-shield-preview.png",
+            "page": "shop",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": false,
+            "decor": true,
+            "item": true
+        },
+        {
+            "file": "08-winter-soda-preview.png",
+            "page": "shop",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": false,
+            "decor": true,
+            "item": true
+        },
+        {
+            "file": "09-winter-sound-settings.png",
+            "page": "settings",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": false,
+            "decor": true,
+            "item": false
+        },
+        {
+            "file": "10-winter-map-preview-restored.png",
+            "page": "play",
+            "theme": "winter",
+            "width": 1600,
+            "height": 900,
+            "emote": false,
+            "decor": false,
+            "item": false
+        }
+    ]
+}

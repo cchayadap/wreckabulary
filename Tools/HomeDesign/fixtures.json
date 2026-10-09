@@ -1,0 +1,288 @@
+{
+  "schema": 1,
+  "imports": [
+    {
+      "name": "empty-pinwheel",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[]}",
+      "ok": true
+    },
+    {
+      "name": "quarter-turn-sofa",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"SOFA\",\"x\":-7,\"z\":-6,\"yaw\":90,\"skin\":\"Candy\"}]}",
+      "ok": true
+    },
+    {
+      "name": "disabled-apple-is-decor",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"APPLE\",\"x\":0,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": true
+    },
+    {
+      "name": "unmodelled-axe",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"AXE\",\"x\":0,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "word:"
+    },
+    {
+      "name": "door-footprint",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"MAT\",\"x\":0,\"z\":-3,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "door:"
+    },
+    {
+      "name": "spawn-footprint",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":-8.5,\"z\":7,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "spawn:"
+    },
+    {
+      "name": "whole-footprint-wall",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"TABLE\",\"x\":3.5,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "room:"
+    },
+    {
+      "name": "overlapping-props",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":0,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"},{\"id\":\"p2\",\"word\":\"BALL\",\"x\":0,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "overlap:"
+    },
+    {
+      "name": "duplicate-id",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":0,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"},{\"id\":\"p1\",\"word\":\"BALL\",\"x\":1,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "id:"
+    },
+    {
+      "name": "unsnapped",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":0.25,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "grid:"
+    },
+    {
+      "name": "unsupported-angle",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":0,\"z\":0,\"yaw\":45,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "yaw:"
+    },
+    {
+      "name": "unsupported-schema",
+      "json": "{\"schema\":2,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[]}",
+      "ok": false,
+      "errorPrefix": "schema:"
+    },
+    {
+      "name": "unsupported-map",
+      "json": "{\"schema\":1,\"map\":\"moon\",\"name\":\"Cozy\",\"props\":[]}",
+      "ok": false,
+      "errorPrefix": "map:"
+    },
+    {
+      "name": "untrimmed-name",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\" Cozy \",\"props\":[]}",
+      "ok": false,
+      "errorPrefix": "name:"
+    },
+    {
+      "name": "unknown-skin",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":0,\"z\":0,\"yaw\":0,\"skin\":\"Gold\"}]}",
+      "ok": false,
+      "errorPrefix": "skin:"
+    },
+    {
+      "name": "strict-number",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":00,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "ok": false,
+      "errorPrefix": "json:"
+    },
+    {
+      "name": "duplicate-json-key",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"name\":\"Other\",\"props\":[]}",
+      "ok": false,
+      "errorPrefix": "json:"
+    },
+    {
+      "name": "escaped-duplicate-key",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"na\\u006de\":\"Other\",\"props\":[]}",
+      "ok": false,
+      "errorPrefix": "json:"
+    },
+    {
+      "name": "raw-control-in-string",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\nHouse\",\"props\":[]}",
+      "ok": false,
+      "errorPrefix": "json:"
+    },
+    {
+      "name": "unsupported-extra-field",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[],\"unexpected\":true}",
+      "ok": false
+    },
+    {
+      "name": "malformed-json",
+      "json": "{\"schema\":1,",
+      "ok": false,
+      "errorPrefix": "json:"
+    }
+  ],
+  "batches": [
+    {
+      "name": "pinwheel-living-three",
+      "map": "pinwheel",
+      "room": "LivingRoom",
+      "text": "SOFA TABLE PLANT",
+      "expected": [
+        {
+          "id": "p1",
+          "word": "SOFA",
+          "x": -9,
+          "z": -9,
+          "yaw": 0,
+          "skin": "Classic"
+        },
+        {
+          "id": "p2",
+          "word": "TABLE",
+          "x": -6,
+          "z": -9.5,
+          "yaw": 0,
+          "skin": "Classic"
+        },
+        {
+          "id": "p3",
+          "word": "PLANT",
+          "x": -7.5,
+          "z": -9.5,
+          "yaw": 0,
+          "skin": "Classic"
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "name": "courtyard-garden-three",
+      "map": "courtyard",
+      "room": "Garden",
+      "text": "sofa, table; PLANT",
+      "expected": [
+        {
+          "id": "p1",
+          "word": "SOFA",
+          "x": -5,
+          "z": -5,
+          "yaw": 0,
+          "skin": "Classic"
+        },
+        {
+          "id": "p2",
+          "word": "TABLE",
+          "x": -3.5,
+          "z": -5.5,
+          "yaw": 0,
+          "skin": "Classic"
+        },
+        {
+          "id": "p3",
+          "word": "PLANT",
+          "x": -2.5,
+          "z": -5.5,
+          "yaw": 0,
+          "skin": "Classic"
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "name": "bedroom-decor-not-crafting",
+      "map": "pinwheel",
+      "room": "Bedroom",
+      "text": "BED MAT APPLE AXE",
+      "expected": [
+        {
+          "id": "p1",
+          "word": "BED",
+          "x": -9,
+          "z": 5,
+          "yaw": 0,
+          "skin": "Classic"
+        },
+        {
+          "id": "p2",
+          "word": "MAT",
+          "x": -5,
+          "z": 4.5,
+          "yaw": 0,
+          "skin": "Classic"
+        },
+        {
+          "id": "p3",
+          "word": "APPLE",
+          "x": -4,
+          "z": 4.5,
+          "yaw": 0,
+          "skin": "Classic"
+        }
+      ],
+      "rejected": [
+        "AXE"
+      ]
+    },
+    {
+      "name": "courtyard-kitchen-two",
+      "map": "courtyard",
+      "room": "Kitchen",
+      "text": "TABLE BED",
+      "expected": [
+        {
+          "id": "p1",
+          "word": "TABLE",
+          "x": 7,
+          "z": -5.5,
+          "yaw": 0,
+          "skin": "Classic"
+        },
+        {
+          "id": "p2",
+          "word": "BED",
+          "x": 8.5,
+          "z": -5,
+          "yaw": 0,
+          "skin": "Classic"
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "name": "ascii-only-word-normalization",
+      "map": "pinwheel",
+      "room": "LivingRoom",
+      "text": "ſofa SOFA",
+      "expected": [
+        {
+          "id": "p1",
+          "word": "SOFA",
+          "x": -9,
+          "z": -9,
+          "yaw": 0,
+          "skin": "Classic"
+        }
+      ],
+      "rejected": [
+        "ſOFA"
+      ]
+    }
+  ],
+  "creations": [
+    {
+      "name": "creation-bom-nbsp",
+      "map": "pinwheel",
+      "input": "﻿ Cozy  ",
+      "expectedName": "Cozy"
+    },
+    {
+      "name": "creation-nel-is-not-ecmascript-whitespace",
+      "map": "courtyard",
+      "input": "Cozy",
+      "expectedName": "Cozy"
+    }
+  ]
+}

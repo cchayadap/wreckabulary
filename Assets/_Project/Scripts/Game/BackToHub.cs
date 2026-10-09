@@ -3,14 +3,22 @@ using UnityEngine.InputSystem;
 
 namespace Wreckabulary
 {
-    /// <summary>Esc or a gamepad's Select/View button goes back to the house.</summary>
+    /// <summary>Routes Escape and gamepad View through the scene's pause presentation.</summary>
     public class BackToHub : MonoBehaviour
     {
+        GameHud hud;
+
+        void Start() => hud = FindAnyObjectByType<GameHud>();
+
         void Update()
         {
-            bool pressed = Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
+            if (KeyBindings.Busy) return;
+            if (!hud) hud = FindFirstObjectByType<GameHud>();
+            bool pressed = !hud && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
             foreach (var pad in Gamepad.all) pressed |= pad.selectButton.wasPressedThisFrame;
-            if (pressed) Session.GoHome();
+            if (!pressed) return;
+            if (hud) hud.TogglePause();
+            else Session.GoHome();
         }
     }
 }

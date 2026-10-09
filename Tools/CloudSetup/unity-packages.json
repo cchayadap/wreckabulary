@@ -1,0 +1,41 @@
+{
+  "editor": {
+    "url": "https://download.unity3d.com/download_unity/45d8eee7de74/LinuxEditorInstaller/Unity-6000.6.3f1.tar.xz",
+    "integrity": "md5-az+zT0RSIePhteQ51+HYfg==",
+    "downloadSize": {
+      "value": 4157358476,
+      "unit": "BYTE"
+    },
+    "installedSize": {
+      "value": 9273845760,
+      "unit": "BYTE"
+    }
+  },
+  "webgl": {
+    "url": "https://download.unity3d.com/download_unity/45d8eee7de74/LinuxEditorTargetInstaller/UnitySetup-WebGL-Support-for-Editor-6000.6.3f1.tar.xz",
+    "integrity": "md5-mpfKdcUEQTvDI2UwD5pGQg==",
+    "downloadSize": {
+      "value": 1618887456,
+      "unit": "BYTE"
+    },
+    "installedSize": {
+      "value": 7385354240,
+      "unit": "BYTE"
+    }
+  },
+  "version": "6000.6.3f1",
+  "revision": "45d8eee7de74",
+  "metadataSource": "https://services.api.unity.com/unity/editor/release/v1/releases?version=6000.6.3f1&limit=1",
+  "windowsMono": {
+    "url": "https://download.unity3d.com/download_unity/45d8eee7de74/MacEditorTargetInstaller/UnitySetup-Windows-Mono-Support-for-Editor-6000.6.3f1.pkg",
+    "integrity": "md5-I7f3L1Cj+4/XVSiD/MEImw==",
+    "downloadSize": {
+      "value": 377502634,
+      "unit": "BYTE"
+    },
+    "installedSize": {
+      "value": 755005268,
+      "unit": "BYTE"
+    }
+  }
+}

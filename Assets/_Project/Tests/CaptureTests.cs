@@ -18,17 +18,86 @@ namespace Wreckabulary.Tests
     [Explicit, Category("Capture")]
     public class CaptureTests
     {
+        ShaderCompilationScope shaderCompilationScope;
+
         [UnityTest]
-        public IEnumerator CaptureLivingRoom()
+        public IEnumerator CaptureLivingRoom() => RunWithSynchronousShaders(CaptureLivingRoomSequence());
+
+        [UnityTest]
+        public IEnumerator CaptureHubAndTutorial() => RunWithSynchronousShaders(CaptureHubAndTutorialSequence());
+
+        [UnityTest]
+        public IEnumerator CaptureLobby() => RunWithSynchronousShaders(CaptureLobbySequence());
+
+        [UnityTest]
+        public IEnumerator CaptureMaps() => RunWithSynchronousShaders(CaptureMapsSequence());
+
+        [UnityTest]
+        public IEnumerator CaptureMatchCards() => RunWithSynchronousShaders(CaptureMatchCardsSequence());
+
+        [TearDown]
+        public void RestoreShaderCompilation()
+        {
+            shaderCompilationScope?.Dispose();
+            shaderCompilationScope = null;
+        }
+
+        internal IEnumerator RunWithSynchronousShaders(IEnumerator sequence)
+        {
+            if (shaderCompilationScope != null)
+                throw new InvalidOperationException("A capture is already running on this fixture.");
+
+            var scope = new ShaderCompilationScope();
+            shaderCompilationScope = scope;
+            try
+            {
+                while (sequence.MoveNext()) yield return sequence.Current;
+            }
+            finally
+            {
+                try
+                {
+                    (sequence as IDisposable)?.Dispose();
+                }
+                finally
+                {
+                    scope.Dispose();
+                    if (ReferenceEquals(shaderCompilationScope, scope)) shaderCompilationScope = null;
+                }
+            }
+        }
+
+        sealed class ShaderCompilationScope : IDisposable
+        {
+#if UNITY_EDITOR
+            readonly bool previousValue;
+#endif
+            bool disposed;
+
+            public ShaderCompilationScope()
+            {
+#if UNITY_EDITOR
+                previousValue = UnityEditor.EditorSettings.asyncShaderCompilation;
+                // Otherwise lit objects are skipped while their shaders compile in the background.
+                UnityEditor.EditorSettings.asyncShaderCompilation = false;
+#endif
+            }
+
+            public void Dispose()
+            {
+                if (disposed) return;
+#if UNITY_EDITOR
+                UnityEditor.EditorSettings.asyncShaderCompilation = previousValue;
+#endif
+                disposed = true;
+            }
+        }
+
+        IEnumerator CaptureLivingRoomSequence()
         {
             string dir = Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
             if (string.IsNullOrEmpty(dir)) dir = Path.Combine(Application.dataPath, "../Temp/Captures");
             Directory.CreateDirectory(dir);
-#if UNITY_EDITOR
-            // Otherwise lit objects are skipped while their shaders compile in the background.
-            UnityEditor.EditorSettings.asyncShaderCompilation = false;
-#endif
-
             Session.Clear();
             yield return SceneManager.LoadSceneAsync("LivingRoom");
             yield return new WaitForSeconds(0.5f);
@@ -53,56 +122,36 @@ namespace Wreckabulary.Tests
             inputs[0].Next.move = Vector2.zero;
             inputs[1].Next.move = Vector2.zero;
 
-            // P1 carries the CHAIR over their head.
-            var p1 = World.Players[0];
-            var chair = UnityEngine.Object.FindObjectsByType<Smashable>().FirstOrDefault(s => s.Word == "CHAIR");
-            if (chair)
-            {
-                var c = chair.GetComponent<Rigidbody>().worldCenterOfMass;
-                p1.Respawn(World.Flat(c) + Vector3.right * 1.1f);
-                p1.FaceTowards(Vector3.left);
-                yield return new WaitForFixedUpdate();
-                p1.Combat.TryGrab();
-                p1.FaceTowards(Vector3.back);
-            }
-
-            // P3 summons a SWORD, P2 is halfway through spelling BEES.
+            // P3 summons a SWORD, P2 opens the word wheel.
             p3.Inventory.Set("SWORDE");
             p3.Summoner.Summon("SWORD");
             p2.Inventory.Set("BEESTA");
+            inputs[1].Next.spellHeld = true;
             inputs[1].Next.spellDown = true;
-            yield return null;
-            yield return null;
-            inputs[1].Next.confirm = true; // B
-            yield return null;
-            yield return null;
-            inputs[1].Next.confirm = true; // E
             yield return new WaitForSeconds(0.4f);
             Capture(Path.Combine(dir, "2_action.png"));
 
-            p2.Summoner.Add(); // E
-            p2.Summoner.Add(); // S
-            p2.Summoner.Cast();
+            inputs[1].Next.spellHeld = false;
+            inputs[1].Next.spellUp = true;
             yield return new WaitForSeconds(0.6f);
             Capture(Path.Combine(dir, "3_bees.png"));
-#if UNITY_EDITOR
-            UnityEditor.EditorSettings.asyncShaderCompilation = true;
-#endif
+
+            CameraRig.Instance.Follow(World.Players[0]);
+            yield return new WaitForSeconds(0.8f);
+            yield return CaptureFramed(Path.Combine(dir, "4_third_person.png"));
+            CameraRig.Instance.Follow(null);
         }
 
-        [UnityTest]
-        public IEnumerator CaptureHubAndTutorial()
+        IEnumerator CaptureHubAndTutorialSequence()
         {
             string dir = Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
             if (string.IsNullOrEmpty(dir)) dir = Path.Combine(Application.dataPath, "../Temp/Captures");
             Directory.CreateDirectory(dir);
-#if UNITY_EDITOR
-            UnityEditor.EditorSettings.asyncShaderCompilation = false;
-#endif
             Session.Clear();
 
-            // House: two roommates walk in, one sits at the typewriter.
             yield return SceneManager.LoadSceneAsync(Session.HubScene);
+            yield return null;
+            if (LobbyMenu.Instance) UnityEngine.Object.Destroy(LobbyMenu.Instance.gameObject);
             yield return null;
             var joins = UnityEngine.Object.FindAnyObjectByType<PlayerJoinManager>();
             var a = joins.Join(new ScriptedBinding());
@@ -115,22 +164,6 @@ namespace Wreckabulary.Tests
             typewriter.Open(a);
             yield return new WaitForSeconds(0.3f);
             Capture(Path.Combine(dir, "5_hub_typewriter.png"));
-
-            // The wardrobe's dress-up page, mid-outfit.
-            typewriter.Close();
-            var dresser = joins.Players[1];
-            var wardrobe = UnityEngine.Object.FindAnyObjectByType<Wardrobe>();
-            dresser.Respawn(wardrobe.transform.position + Vector3.back * 0.6f);
-            wardrobe.Open(dresser);
-            wardrobe.Select(Wardrobe.Row.Colour);
-            for (int k = 0; k < 4; k++) wardrobe.Change(1); // Grape
-            wardrobe.Select(Wardrobe.Row.Hat);
-            for (int k = 0; k < 4; k++) wardrobe.Change(1); // CROWN
-            wardrobe.Select(Wardrobe.Row.Extra);
-            wardrobe.Change(1);                             // SPECS
-            yield return new WaitForSeconds(0.6f);
-            Capture(Path.Combine(dir, "5b_wardrobe.png"));
-            wardrobe.Close();
 
             // Tutorial, a few steps in.
             Session.Clear();
@@ -157,235 +190,353 @@ namespace Wreckabulary.Tests
             FurnitureCatalog.Spawn("BED", director.RoomNamed("Bedroom").Centre + new Vector3(0f, 0.3f, 2f), 0f, World.Transient);
             yield return new WaitForSeconds(2.5f);
             Capture(Path.Combine(dir, "7_moving_day.png"));
-#if UNITY_EDITOR
-            UnityEditor.EditorSettings.asyncShaderCompilation = true;
-#endif
             Session.Clear();
         }
 
-        [UnityTest]
-        public IEnumerator CaptureMapsAndDesigns()
+        static Rules.Career SampleCareer()
+        {
+            var career = new Rules.Career { Name = "Roomie" };
+            long at = 1759750000;
+            foreach (var (mode, map, won, score) in new[]
+            {
+                ("Dibs", "pinwheel", true, 920), ("Duos", "flat", false, 410), ("MovingOut", "terrace", true, 660),
+                ("Dibs", "courtyard", false, 380), ("MovingDay", "walkup", true, 540), ("Dibs", "terrace", true, 610),
+            })
+            {
+                career.Record(new Rules.MatchRecord
+                {
+                    Mode = mode, Map = map, Won = won, Score = score, Coins = score / 10 + (won ? 20 : 5), Xp = score / 2 + (won ? 60 : 25), EndedAt = at,
+                });
+                at += 5400;
+            }
+            return career;
+        }
+
+        IEnumerator CaptureLobbySequence()
         {
             string dir = Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
             if (string.IsNullOrEmpty(dir)) dir = Path.Combine(Application.dataPath, "../Temp/Captures");
             Directory.CreateDirectory(dir);
-#if UNITY_EDITOR
-            UnityEditor.EditorSettings.asyncShaderCompilation = false;
-#endif
-            foreach (var map in new[] { Session.BedroomScene, Session.KitchenScene, Session.GardenScene })
+            TryLights();
+            Session.Clear();
+            string realCareer = PlayerPrefs.HasKey(MatchTally.CareerKey) ? PlayerPrefs.GetString(MatchTally.CareerKey) : null;
+            PlayerPrefs.SetString(MatchTally.CareerKey, SampleCareer().Serialize());
+            yield return SceneManager.LoadSceneAsync(Session.HubScene);
+            yield return null;
+            yield return null;
+            if (realCareer != null) PlayerPrefs.SetString(MatchTally.CareerKey, realCareer);
+            else PlayerPrefs.DeleteKey(MatchTally.CareerKey);
+            PlayerPrefs.Save();
+            yield return new WaitForSeconds(0.5f);
+            var menu = LobbyMenu.Instance;
+            var pages = new[]
+            {
+                (LobbyMenu.Home, "home"), (LobbyMenu.Play, "play"), (LobbyMenu.Loadout, "loadout"), (LobbyMenu.CareerPage, "career"),
+                (LobbyMenu.Shop, "shop"), (LobbyMenu.Trophy, "trophy"), (LobbyMenu.Settings, "settings"),
+            };
+            for (int i = 0; i < pages.Length; i++)
+            {
+                menu.Open(pages[i].Item1);
+                yield return new WaitForSeconds(1f);
+                yield return CaptureFramed(Path.Combine(dir, $"lobby_{i + 1}_{pages[i].Item2}.png"));
+            }
+            menu.Open(LobbyMenu.Settings);
+            var settings = menu.Page<SettingsPage>();
+            foreach (string tab in new[] { "graphics", "controls", "how" })
+            {
+                settings.ShowTab(tab);
+                yield return new WaitForSeconds(.5f);
+                yield return CaptureFramed(Path.Combine(dir, $"lobby_7_settings_{tab}.png"));
+            }
+            settings.ShowTab("general");
+            menu.Open(LobbyMenu.Home);
+            var quit = menu.GetComponentsInChildren<UnityEngine.UI.Button>().First(b => b.name == "Quit");
+            quit.onClick.Invoke();
+            yield return new WaitForSeconds(.5f);
+            yield return CaptureFramed(Path.Combine(dir, "lobby_7_quit.png"));
+            menu.GetComponentsInChildren<UnityEngine.UI.Button>().First(b => b.name == "STAY").onClick.Invoke();
+            menu.Open(LobbyMenu.Loadout);
+            var loadout = menu.Page<LoadoutPage>();
+            loadout.ShowRecipes(true);
+            yield return new WaitForSeconds(1f);
+            yield return CaptureFramed(Path.Combine(dir, "lobby_3b_recipes.png"));
+            loadout.ShowRecipes(false);
+            menu.OpenShop("colour:grape");
+            yield return new WaitForSeconds(1f);
+            yield return CaptureFramed(Path.Combine(dir, "lobby_5b_shop_spotlight.png"));
+            var couch = new KeyboardBinding(KeyboardBinding.Side.Right);
+            menu.Join(couch);
+            menu.Open(LobbyMenu.Home);
+            menu.ToggleParty();
+            yield return new WaitForSeconds(1f);
+            yield return CaptureFramed(Path.Combine(dir, $"lobby_{pages.Length + 1}_party.png"));
+            menu.ToggleParty();
+            menu.Leave(couch);
+            menu.Open(LobbyMenu.Home);
+            foreach (string map in GameConfig.Current.Houses.Keys)
+            {
+                menu.Choose(map: map);
+                menu.Open(LobbyMenu.Home);
+                yield return new WaitForSeconds(1f);
+                yield return CaptureFramed(Path.Combine(dir, $"lobby_map_{map}.png"));
+            }
+            Session.Clear();
+        }
+
+        IEnumerator CaptureMapsSequence()
+        {
+            TryLights();
+            string dir = Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
+            if (string.IsNullOrEmpty(dir)) dir = Path.Combine(Application.dataPath, "../Temp/Captures");
+            Directory.CreateDirectory(dir);
+            foreach (string map in GameConfig.Current.Houses.Keys.ToList())
             {
                 Session.Clear();
-                yield return SceneManager.LoadSceneAsync(map);
+                Session.SelectMap(map);
+                Match.ModeOverride = "Dibs";
+                Session.Remember(new ScriptedBinding());
+                Session.Remember(new ScriptedBinding());
+                yield return SceneManager.LoadSceneAsync(Session.DibsScene);
+                yield return new WaitForSeconds(1f);
+                yield return CaptureFramed(Path.Combine(dir, $"map_{map}.png"));
+                Session.Clear();
+                Session.SelectMap(map);
+                Match.ModeOverride = "Dibs";
+                Session.Remember(DesktopBinding.Shared);
+                yield return SceneManager.LoadSceneAsync(Session.DibsScene);
                 yield return new WaitForSeconds(1.5f);
-                Capture(Path.Combine(dir, $"map_{map.ToLower()}.png"));
+                yield return CaptureFramed(Path.Combine(dir, $"map_{map}_tps.png"));
+                var hud = GameHud.Active;
+                if (hud && hud.LocalPlayer)
+                {
+                    hud.LocalPlayer.Inventory.Set("BALLSOAP");
+                    hud.transform.Find("Safe HUD/Letter bag/Bag link").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+                    yield return new WaitForSecondsRealtime(.3f);
+                    yield return CaptureFramed(Path.Combine(dir, $"map_{map}_bag.png"));
+                    hud.transform.Find("Safe HUD/Letter bag/Bag link").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+                }
+                if (GameConfig.Current.HouseFor(map).StoreyFloors().Count < 2) continue;
+                Session.Clear();
+                Session.SelectMap(map);
+                Match.ModeOverride = "Dibs";
+                Session.Remember(new ScriptedBinding());
+                yield return SceneManager.LoadSceneAsync(Session.DibsScene);
+                yield return new WaitForSeconds(1.5f);
+                yield return CaptureFramed(Path.Combine(dir, $"map_{map}_solo.png"));
             }
-
-            // Creative: a cozy room in progress, one roommate spelling, one at the room menu.
-            Session.Clear();
-            yield return SceneManager.LoadSceneAsync(Session.CreativeScene);
-            yield return null;
-            var cJoins = UnityEngine.Object.FindAnyObjectByType<PlayerJoinManager>();
-            var builder = cJoins.Join(new ScriptedBinding());
-            var planner = cJoins.Join(new ScriptedBinding());
-            foreach (var (word, x, z, yaw) in new[]
-                     {
-                         ("SOFA", -3.5f, 3.6f, 0f), ("TV", -3.5f, 0.6f, 180f), ("RUG", -3.5f, 2.1f, 0f), ("LAMP", -6.6f, 4.4f, 0f),
-                         ("PIANO", 5.6f, 4.6f, 0f), ("STOOL", 5.6f, 3.4f, 0f), ("PLANT", 7.2f, 1.2f, 0f), ("TEDDY", -6.2f, 2.8f, 20f),
-                         ("CLOCK", 2.8f, 4.9f, 0f), ("BOOKS", 7.0f, -2.2f, 0f),
-                     })
-                FurnitureCatalog.Spawn(word, new Vector3(x, 0f, z), yaw, World.Transient);
-            yield return new WaitForSeconds(1f);
-            builder.Respawn(new Vector3(1.5f, 0f, -1.5f));
-            builder.Summoner.Open();
-            foreach (char c in "TRE") { while (builder.Summoner.Source[builder.Summoner.Cursor] != c) builder.Summoner.Move(1); builder.Summoner.Add(); }
-            var creativeDesk = UnityEngine.Object.FindAnyObjectByType<CreativeDesk>();
-            planner.Respawn(creativeDesk.transform.position + Vector3.back * 1.3f + Vector3.down * 0.82f);
-            creativeDesk.Open(planner);
-            yield return new WaitForSeconds(0.4f);
-            Capture(Path.Combine(dir, "creative.png"));
-
-            // Furnish First: mid-race, P1 has two of three, P2 one.
-            Session.Clear();
-            yield return SceneManager.LoadSceneAsync(Session.FurnishFirstScene);
-            yield return null;
-            var ffJoins = UnityEngine.Object.FindAnyObjectByType<PlayerJoinManager>();
-            for (int k = 0; k < 3; k++) ffJoins.Join(new ScriptedBinding());
-            var ff = UnityEngine.Object.FindAnyObjectByType<FurnishFirstDirector>();
-            ff.CountdownTime = 0.1f;
-            ff.StartMatch();
-            yield return new WaitForSeconds(0.5f);
-            FurnitureCatalog.Spawn(ff.Checklist[0], ff.Zones[0].Centre + new Vector3(-1.5f, 0f, 1f), 0f, World.Transient);
-            FurnitureCatalog.Spawn(ff.Checklist[1], ff.Zones[0].Centre + new Vector3(1.5f, 0f, 1f), 0f, World.Transient);
-            FurnitureCatalog.Spawn(ff.Checklist[2], ff.Zones[1].Centre + new Vector3(0f, 0f, 1f), 0f, World.Transient);
-            yield return new WaitForSeconds(4f);
-            Capture(Path.Combine(dir, "furnish_first.png"));
-
-            // A gallery of every object design, in rows, seen from the game camera's angle.
-            yield return SceneManager.LoadSceneAsync(Session.GardenScene);
-            yield return null;
-            foreach (var f in UnityEngine.Object.FindObjectsByType<Smashable>()) UnityEngine.Object.Destroy(f.gameObject);
-            foreach (var r in UnityEngine.Object.FindObjectsByType<RoundManager>()) r.enabled = false;
-            foreach (var d in UnityEngine.Object.FindObjectsByType<DeliverySpawner>()) d.Running = false;
-            yield return null;
-            var words = GameAssets.I.words.Words.Where(w => w.category == WordCategory.Furniture).Select(w => w.word).ToList();
-            const int perRow = 9;
-            for (int i = 0; i < words.Count; i++)
-            {
-                var at = new Vector3((i % perRow) * 1.85f - 7.4f, 0f, 4.6f - (i / perRow) * 2.3f);
-                var s = FurnitureCatalog.Spawn(words[i], at, 0f, null);
-                s.GetComponent<Rigidbody>().isKinematic = true;
-                var label = new GameObject("Label").AddComponent<TMPro.TextMeshPro>();
-                label.font = GameAssets.I.font;
-                label.text = words[i];
-                label.fontSize = 2.2f;
-                label.alignment = TMPro.TextAlignmentOptions.Center;
-                label.color = Color.black;
-                label.transform.SetPositionAndRotation(at + new Vector3(0f, 0.02f, -0.9f), Quaternion.Euler(90f, 0f, 0f));
-            }
-            yield return new WaitForSeconds(0.3f);
-            Capture(Path.Combine(dir, "designs.png"));
-#if UNITY_EDITOR
-            UnityEditor.EditorSettings.asyncShaderCompilation = true;
-#endif
             Session.Clear();
         }
 
-        [UnityTest]
-        public IEnumerator CaptureOutfits()
+        IEnumerator CaptureMatchCardsSequence()
         {
             string dir = Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
             if (string.IsNullOrEmpty(dir)) dir = Path.Combine(Application.dataPath, "../Temp/Captures");
             Directory.CreateDirectory(dir);
-#if UNITY_EDITOR
-            UnityEditor.EditorSettings.asyncShaderCompilation = false;
-#endif
-            // One roommate alone in the garden, trying on every hat and every extra.
             Session.Clear();
-            yield return SceneManager.LoadSceneAsync(Session.GardenScene);
+            Match.ModeOverride = "Dibs";
+            Session.Remember(DesktopBinding.Shared);
+            yield return SceneManager.LoadSceneAsync(Session.DibsScene);
+            yield return new WaitForSeconds(.6f);
+            yield return CaptureFramed(Path.Combine(dir, "cards_1_countdown.png"));
+            float until = Time.realtimeSinceStartup + 8f;
+            while (RoundManager.Instance.Phase != Phase.Playing && Time.realtimeSinceStartup < until) yield return null;
+            yield return new WaitForSeconds(.3f);
+            yield return CaptureFramed(Path.Combine(dir, "cards_2_go_toast.png"));
+
+            var hud = GameHud.Active;
+            var player = hud.LocalPlayer;
+            player.Inventory.Set("BATLESO");
+            player.Summoner.Open();
             yield return null;
-            foreach (var f in UnityEngine.Object.FindObjectsByType<Smashable>()) UnityEngine.Object.Destroy(f.gameObject);
-            foreach (var r in UnityEngine.Object.FindObjectsByType<RoundManager>()) r.enabled = false;
-            foreach (var d in UnityEngine.Object.FindObjectsByType<DeliverySpawner>()) d.Running = false;
-            var p = UnityEngine.Object.FindAnyObjectByType<PlayerJoinManager>().Join(new ScriptedBinding());
-            yield return new WaitForSeconds(0.5f);
-            p.Respawn(new Vector3(0f, 0f, 1f));
-            p.FaceTowards(Vector3.back);
-            p.Frozen = true;
-            yield return new WaitForSeconds(1.5f);
+            hud.TypeWord("bat");
+            yield return new WaitForSecondsRealtime(.2f);
+            yield return CaptureFramed(Path.Combine(dir, "cards_3_composer.png"));
+            player.Summoner.Close();
+            yield return null;
 
-            var outfits = Looks.Hats.Select((_, h) => (hat: h, extra: 0)).Skip(1)
-                .Concat(Looks.Extras.Select((_, e) => (hat: 0, extra: e)).Skip(1)).ToList();
-            const int tile = 256;
-            var views = new[] { new Vector3(0f, 0.3f, -2.3f), new Vector3(1.5f, 1.1f, -1.5f), new Vector3(-1.4f, 0.7f, 1.7f) };
-            var sheet = new Texture2D(tile * outfits.Count, tile * views.Length, TextureFormat.RGB24, false);
-            var cam = new GameObject("Outfit Camera").AddComponent<Camera>();
-            cam.fieldOfView = 35f;
-            var rt = new RenderTexture(tile, tile, 24);
+            var safe = hud.transform.Find("Safe HUD");
+            safe.Find("Brand").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            yield return new WaitForSecondsRealtime(.3f);
+            yield return CaptureFramed(Path.Combine(dir, "cards_4_pause.png"));
+            hud.transform.Find("Pause/Pause card/Pause how to play").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            yield return new WaitForSecondsRealtime(.3f);
+            yield return CaptureFramed(Path.Combine(dir, "cards_5_help.png"));
+            hud.transform.Find("Pause/Pause help/Help done").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            yield return null;
 
-            for (int i = 0; i < outfits.Count; i++)
+            hud.ShowResult(new HudResult { Round = 2, Won = true, Heading = "You called dibs!", Broken = 6, Crafted = 3, Damage = 48 }, () => { });
+            yield return new WaitForSecondsRealtime(.5f);
+            yield return CaptureFramed(Path.Combine(dir, "cards_6_round_result.png"));
+            hud.ShowResult(new HudResult { Final = true, Won = true, Heading = "You called dibs!", Broken = 14, Crafted = 6, Damage = 120,
+                Reward = new Wreckabulary.Rules.MatchRecord { Coins = 40, Score = 185, Xp = 60 }, Best = true }, () => { });
+            yield return new WaitForSecondsRealtime(.5f);
+            yield return CaptureFramed(Path.Combine(dir, "cards_7_final_result.png"));
+            hud.HideResult();
+            Session.Clear();
+        }
+
+        static void TryLights()
+        {
+            string asked = Environment.GetEnvironmentVariable("WRECK_LIGHT");
+            if (string.IsNullOrEmpty(asked)) return;
+            foreach (var pair in asked.Split(';'))
             {
-                Looks.Apply(p, new PlayerLook { colour = i % Looks.Colours.Length, initial = 'W', hat = outfits[i].hat, extra = outfits[i].extra });
-                yield return new WaitForSeconds(0.2f);
-                var target = p.visual.position + Vector3.up * 0.85f;
-                for (int v = 0; v < views.Length; v++)
+                var kv = pair.Split('=');
+                if (kv.Length != 2 || !float.TryParse(kv[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v)) continue;
+                switch (kv[0].Trim())
                 {
-                    cam.transform.position = target + views[v];
-                    cam.transform.LookAt(target);
-                    var req = new UniversalRenderPipeline.SingleCameraRequest { destination = rt };
-                    RenderPipeline.SubmitRenderRequest(cam, req);
-                    var prev = RenderTexture.active;
-                    RenderTexture.active = rt;
-                    sheet.ReadPixels(new Rect(0, 0, tile, tile), i * tile, (views.Length - 1 - v) * tile);
-                    RenderTexture.active = prev;
+                    case "sun": GraphicsOptions.Sun = v; break;
+                    case "fill": GraphicsOptions.Fill = v; break;
+                    case "hemi": GraphicsOptions.Hemisphere = v; break;
+                    case "env": GraphicsOptions.Environment = v; break;
+                    case "exp": GraphicsOptions.SetExposure(v); break;
                 }
             }
-            sheet.Apply();
-            File.WriteAllBytes(Path.Combine(dir, "outfits.png"), sheet.EncodeToPNG());
-            UnityEngine.Object.Destroy(sheet);
-            UnityEngine.Object.Destroy(cam.gameObject);
-            rt.Release();
-#if UNITY_EDITOR
-            UnityEditor.EditorSettings.asyncShaderCompilation = true;
-#endif
-            Session.Clear();
+            Debug.Log($"Capture lights: {asked}");
         }
 
-        [Test]
-        public void ExportSounds()
+        static Vector2Int Size()
         {
-            string dir = Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
-            if (string.IsNullOrEmpty(dir)) dir = Path.Combine(Application.dataPath, "../Temp/Captures");
-            Directory.CreateDirectory(dir);
-
-            // Every effect in enum order, with a short gap between them.
-            var all = new System.Collections.Generic.List<float>();
-            foreach (Sound s in Enum.GetValues(typeof(Sound)))
-            {
-                all.AddRange(Samples(Sfx.ClipFor(s)));
-                all.AddRange(new float[Synth.Rate / 3]);
-            }
-            WriteWav(Path.Combine(dir, "sound_effects.wav"), all.ToArray());
-            foreach (Track t in Enum.GetValues(typeof(Track)))
-                WriteWav(Path.Combine(dir, $"music_{t.ToString().ToLower()}.wav"), Samples(Music.ClipFor(t)));
+            string asked = Environment.GetEnvironmentVariable("WRECK_CAPTURE_SIZE");
+            var parts = (asked ?? "").Split('x');
+            return parts.Length == 2 && int.TryParse(parts[0], out int w) && int.TryParse(parts[1], out int h) && w > 0 && h > 0
+                ? new Vector2Int(w, h) : new Vector2Int(1600, 900);
         }
 
-        static float[] Samples(AudioClip clip)
-        {
-            var data = new float[clip.samples];
-            clip.GetData(data, 0);
-            return data;
-        }
+        const int UiLayer = 31;
 
-        static void WriteWav(string path, float[] samples)
+        static IEnumerator CaptureFramed(string path)
         {
-            using var w = new BinaryWriter(File.Create(path));
-            int bytes = samples.Length * 2;
-            w.Write("RIFF".ToCharArray()); w.Write(36 + bytes); w.Write("WAVE".ToCharArray());
-            w.Write("fmt ".ToCharArray()); w.Write(16); w.Write((short)1); w.Write((short)1);
-            w.Write(Synth.Rate); w.Write(Synth.Rate * 2); w.Write((short)2); w.Write((short)16);
-            w.Write("data".ToCharArray()); w.Write(bytes);
-            foreach (var s in samples) w.Write((short)Mathf.Clamp(s * 32767f, -32768f, 32767f));
+            var cam = Camera.main;
+            var size = Size();
+            var rt = new RenderTexture(size.x, size.y, 24);
+            var canvases = UnityEngine.Object.FindObjectsByType<Canvas>()
+                .Where(c => c.isRootCanvas && c.renderMode == RenderMode.ScreenSpaceOverlay).ToArray();
+            cam.targetTexture = rt;
+            var layers = ToCamera(canvases, cam, Mathf.Max(.3f, cam.nearClipPlane + .05f));
+            yield return null;
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            var shot = RenderWithUi(cam, rt);
+            cam.targetTexture = null;
+            ToOverlay(canvases, layers);
+            Save(shot, rt, path);
         }
 
         static void Capture(string path)
         {
             var cam = Camera.main;
-            var rt = new RenderTexture(1600, 900, 24);
-
-            // Cameras that draw into textures (the wardrobe mirror) render first, so the page shows them.
-            foreach (var other in UnityEngine.Object.FindObjectsByType<Camera>())
-            {
-                if (other == cam || !other.enabled || !other.targetTexture) continue;
-                var req = new UniversalRenderPipeline.SingleCameraRequest { destination = other.targetTexture };
-                if (RenderPipeline.SupportsRenderRequest(other, req)) RenderPipeline.SubmitRenderRequest(other, req);
-            }
-
+            var size = Size();
+            var rt = new RenderTexture(size.x, size.y, 24);
             // Overlay canvases aren't drawn by cameras, so render the HUD through the camera for the capture.
-            var canvases = UnityEngine.Object.FindObjectsByType<Canvas>();
+            var canvases = UnityEngine.Object.FindObjectsByType<Canvas>().Where(c => c.isRootCanvas && c.renderMode == RenderMode.ScreenSpaceOverlay).ToArray();
+            var layers = ToCamera(canvases, cam, 1f);
+            Canvas.ForceUpdateCanvases();
+            var shot = RenderWithUi(cam, rt);
+            ToOverlay(canvases, layers);
+            Save(shot, rt, path);
+        }
+
+        static (GameObject go, int layer)[] ToCamera(Canvas[] canvases, Camera cam, float planeDistance)
+        {
+            var layers = canvases.SelectMany(c => c.GetComponentsInChildren<Transform>(true)).Select(t => (t.gameObject, t.gameObject.layer)).ToArray();
+            foreach (var (go, _) in layers) go.layer = UiLayer;
             foreach (var c in canvases)
             {
                 c.renderMode = RenderMode.ScreenSpaceCamera;
                 c.worldCamera = cam;
-                c.planeDistance = 1f;
+                c.planeDistance = planeDistance;
             }
-            Canvas.ForceUpdateCanvases();
-            var request = new UniversalRenderPipeline.SingleCameraRequest { destination = rt };
-            if (RenderPipeline.SupportsRenderRequest(cam, request))
-                RenderPipeline.SubmitRenderRequest(cam, request);
-            else
-            {
-                cam.targetTexture = rt;
-                cam.Render();
-                cam.targetTexture = null;
-            }
+            return layers;
+        }
 
-            foreach (var c in canvases) c.renderMode = RenderMode.ScreenSpaceOverlay;
+        static void ToOverlay(Canvas[] canvases, (GameObject go, int layer)[] layers)
+        {
+            foreach (var c in canvases)
+                if (c) c.renderMode = RenderMode.ScreenSpaceOverlay;
+            foreach (var (go, layer) in layers)
+                if (go) go.layer = layer;
+        }
+
+        static Texture2D RenderWithUi(Camera cam, RenderTexture rt)
+        {
+            var data = cam.GetUniversalAdditionalCameraData();
+            int mask = cam.cullingMask;
+            var clear = cam.clearFlags;
+            var background = cam.backgroundColor;
+            bool post = data.renderPostProcessing, hdr = cam.allowHDR;
+            cam.cullingMask = mask & ~(1 << UiLayer);
+            Submit(cam, rt);
+            var world = Read(rt);
+            cam.cullingMask = 1 << UiLayer;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            data.renderPostProcessing = false;
+            cam.allowHDR = false;
+            cam.backgroundColor = Color.black;
+            Submit(cam, rt);
+            var black = Read(rt);
+            cam.backgroundColor = Color.white;
+            Submit(cam, rt);
+            var white = Read(rt);
+            cam.cullingMask = mask;
+            cam.clearFlags = clear;
+            cam.backgroundColor = background;
+            data.renderPostProcessing = post;
+            cam.allowHDR = hdr;
+
+            var linear = new float[256];
+            for (int i = 0; i < 256; i++) linear[i] = Mathf.GammaToLinearSpace(i / 255f);
+            var pixels = world.GetPixels32();
+            var overBlack = black.GetPixels32();
+            var overWhite = white.GetPixels32();
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                var w = pixels[i];
+                var b = overBlack[i];
+                var o = overWhite[i];
+                pixels[i] = new Color32(Over(linear, w.r, b.r, o.r), Over(linear, w.g, b.g, o.g), Over(linear, w.b, b.b, o.b), 255);
+            }
+            world.SetPixels32(pixels);
+            world.Apply();
+            UnityEngine.Object.Destroy(black);
+            UnityEngine.Object.Destroy(white);
+            return world;
+        }
+
+        static byte Over(float[] linear, byte world, byte overBlack, byte overWhite)
+        {
+            float ui = linear[overBlack];
+            float through = Mathf.Clamp01(linear[overWhite] - ui);
+            return (byte)Mathf.RoundToInt(Mathf.LinearToGammaSpace(Mathf.Clamp01(ui + linear[world] * through)) * 255f);
+        }
+
+        static Texture2D Read(RenderTexture rt)
+        {
             var prev = RenderTexture.active;
             RenderTexture.active = rt;
             var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
             tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
             tex.Apply();
             RenderTexture.active = prev;
+            return tex;
+        }
+
+        static void Submit(Camera cam, RenderTexture rt)
+        {
+            var request = new UniversalRenderPipeline.SingleCameraRequest { destination = rt };
+            if (RenderPipeline.SupportsRenderRequest(cam, request))
+            {
+                RenderPipeline.SubmitRenderRequest(cam, request);
+                return;
+            }
+            var target = cam.targetTexture;
+            cam.targetTexture = rt;
+            cam.Render();
+            cam.targetTexture = target;
+        }
+
+        static void Save(Texture2D tex, RenderTexture rt, string path)
+        {
             File.WriteAllBytes(path, tex.EncodeToPNG());
             UnityEngine.Object.Destroy(tex);
             rt.Release();

@@ -17,23 +17,5 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Scenes/MovingDay.unity
     guid: ac5fed3922febf84ca59faadd8da4e64
-  - enabled: 1
-    path: Assets/_Project/Scenes/Bedroom.unity
-    guid: 127f54dccc4d0e449bdbb0b5154973de
-  - enabled: 1
-    path: Assets/_Project/Scenes/Kitchen.unity
-    guid: 3edd927e0c1e242469d79be2025f958e
-  - enabled: 1
-    path: Assets/_Project/Scenes/Garden.unity
-    guid: aa1b05787deac544094338f3d439f50e
-  - enabled: 1
-    path: Assets/_Project/Scenes/Creative.unity
-    guid: 4befc7127e44bad429b3295753dc6e54
-  - enabled: 1
-    path: Assets/_Project/Scenes/CustomArena.unity
-    guid: e0bf534bc4c767f4bae96db4639bcb66
-  - enabled: 1
-    path: Assets/_Project/Scenes/FurnishFirst.unity
-    guid: e7e1d741b369a6545887a47c179ca635
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

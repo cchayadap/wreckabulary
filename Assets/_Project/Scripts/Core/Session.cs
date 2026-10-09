@@ -14,24 +14,10 @@ namespace Wreckabulary
         public const string DibsScene = "LivingRoom";
         public const string TutorialScene = "Tutorial";
         public const string MovingDayScene = "MovingDay";
-        public const string BedroomScene = "Bedroom";
-        public const string KitchenScene = "Kitchen";
-        public const string GardenScene = "Garden";
-        public const string CreativeScene = "Creative";
-        public const string CustomArenaScene = "CustomArena";
-        public const string FurnishFirstScene = "FurnishFirst";
-
-        /// <summary>The room being built in Creative, carried into "Play Dibs! here" and back.</summary>
-        public static RoomLayout CustomRoom;
-        public static int CustomRounds = 3;
-        public static int CustomStarterLetters = 3;
-        /// <summary>Where "back" goes: the house, or Creative after playing in your own room.</summary>
-        public static string ReturnScene = HubScene;
 
         public static readonly List<InputBinding> Bindings = new();
-
-        /// <summary>Each player slot's outfit from the wardrobe, worn in every mode.</summary>
-        public static readonly Dictionary<int, PlayerLook> Looks = new();
+        public static string MapId { get; private set; } = "pinwheel";
+        public static string LobbyQueue, LobbyMode;
 
         /// <summary>Best Moving Day stars per level, for this play session.</summary>
         public static readonly Dictionary<int, int> MovingDayStars = new();
@@ -40,12 +26,10 @@ namespace Wreckabulary
         public static void Clear()
         {
             Bindings.Clear();
-            Looks.Clear();
             MovingDayStars.Clear();
-            CustomRoom = null;
-            CustomRounds = 3;
-            CustomStarterLetters = 3;
-            ReturnScene = HubScene;
+            MapId = "pinwheel";
+            LobbyQueue = LobbyMode = null;
+            Match.Reset();
         }
 
         public static void RecordStars(int level, int stars)
@@ -55,6 +39,7 @@ namespace Wreckabulary
 
         public static void Remember(InputBinding binding)
         {
+            if (binding is BotBinding) return;
             if (!Bindings.Exists(b => b.Id == binding.Id)) Bindings.Add(binding);
         }
 
@@ -62,18 +47,48 @@ namespace Wreckabulary
 
         public static void Load(string scene)
         {
+            Match.ModeOverride = null;
             Time.timeScale = 1f;
             SceneManager.LoadScene(scene);
         }
 
-        /// <summary>Back to where this mode was started from: your Creative room, otherwise the house.</summary>
+        public static string SceneForMode(string mode) => mode switch
+        {
+            "Dibs" or "Duos" or "MovingOut" => DibsScene,
+            "MovingDay" => MovingDayScene,
+            "Tutorial" => TutorialScene,
+            "Hub" => HubScene,
+            _ => throw new System.ArgumentException($"Unknown mode '{mode}'.", nameof(mode)),
+        };
+
+        public static void SelectMap(string mapId)
+        {
+            GameConfig.Current.HouseFor(mapId);
+            MapId = string.IsNullOrEmpty(mapId) ? "pinwheel" : mapId;
+        }
+
+        public static void LoadMode(string mode, string mapId = null)
+        {
+            var scene = SceneForMode(mode);
+            if (mapId != null) SelectMap(mapId);
+            Match.ModeOverride = mode;
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(scene);
+        }
+
+        public static bool OpenWorkshop(string mapId, out string error)
+        {
+            if (CreativeWorkshop.Instance) { error = "A workshop is already open."; return false; }
+            var workshop = new GameObject("Creative Workshop").AddComponent<CreativeWorkshop>();
+            mapId ??= MapId;
+            return workshop.Open(Rules.HomeDesigner.Supports(mapId) ? mapId : "pinwheel", out error);
+        }
+
+        /// <summary>Back to the house, if the house is in the build.</summary>
         public static bool GoHome()
         {
-            string current = SceneManager.GetActiveScene().name;
-            string target = ReturnScene != current && CanLoad(ReturnScene) ? ReturnScene : HubScene;
-            if (target == current || !CanLoad(target)) return false;
-            if (target == HubScene) ReturnScene = HubScene;
-            Load(target);
+            if (!CanLoad(HubScene) || SceneManager.GetActiveScene().name == HubScene) return false;
+            Load(HubScene);
             return true;
         }
     }

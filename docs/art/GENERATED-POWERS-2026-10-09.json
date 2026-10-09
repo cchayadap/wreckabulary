@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "status": "complete",
+  "createdAtUtc": "2026-10-08 21:34:01 UTC",
+  "request": "Six individual transparent inventory item illustrations for Wreckabulary Unity",
+  "generation": {
+    "mode": "built-in",
+    "tool": "image_gen.imagegen",
+    "model": "Not exposed by built-in tool",
+    "skill": "C:/Users/mrkl6/.codex/skills/.system/imagegen/SKILL.md",
+    "useCase": "stylized-concept",
+    "transparentBackground": true,
+    "distinctToolCalls": 6,
+    "higgsfieldUsed": false,
+    "cliFallbackUsed": false
+  },
+  "artDirection": "Isolated square tactile toy-like 3D inventory items; bold silhouettes; warm cream, gold, teal and red; coherent warm overhead-left softbox lighting; no typography, logos or cards.",
+  "validation": {
+    "method": "Visual inspection of all six native generated outputs plus read-only System.Drawing RGBA sample checks and SHA-256 of workspace copies.",
+    "nativeUnityImport": "Not run by art lane; parent owns import, consumption and in-engine verification.",
+    "postprocessing": "None. Original built-in PNG bytes copied into project; source outputs retained.",
+    "alphaNote": "Every PNG has genuine transparent pixels. Solid object samples are mostly alpha 252–253/255 from native generation, with softer partial-alpha ability effects; preserved verbatim."
+  },
+  "assets": [
+    {
+      "id": "SHIELD",
+      "path": "Assets/_Project/Art/Generated/Items/shield-v1.png",
+      "sourcePath": "C:/Users/mrkl6/.codex/generated_images/01a11c1c-f58a-73e3-b6e5-7697ca87c3a7/exec-7ca2fbc7-8529-4b2d-b952-c32b5bad2567.png",
+      "prompt": "Use case: stylized-concept. Asset type: square isolated inventory item illustration for a cozy 3D toy-house action game. Subject: one cute round protective shield, rich dark teal enamel front, chunky brushed brass rim and raised cream center boss, a soft turquoise 360-degree protective aura orbit encircling the shield. No letters or insignia. Style: premium playful tactile toy-like 3D render, rounded bevels, visible ceramic/enamel and gently worn brass surfaces, bold readable silhouette, warm cream/gold/teal palette with tiny ivory highlights. Composition: single large centered item in three-quarter view, entire item and restrained aura fully within frame, about 80 percent canvas occupancy, balanced generous transparent margin, consistent overhead-left warm softbox lighting, crisp edges, understated shadow only on the item, readable at 64 pixels. Transparent RGBA background with no floor, no backdrop, no card, no border, no typography, no logo, no watermark. Aura stays subtle so the solid shield silhouette remains the focus. Square 1024 by 1024 composition.",
+      "width": 1254,
+      "height": 1254,
+      "pixelFormat": "Format32bppArgb",
+      "sha256": "e6e1b46611b27b87f1feb92ce03a0499bd296eb56ad057abde0a5902aca23443",
+      "bytes": 1741915,
+      "alphaSampleStride": 16,
+      "alphaSamples": {
+        "Opaque": 2,
+        "Transparent": 2948,
+        "Partial": 3291
+      },
+      "centerAlpha": 253,
+      "commonNonzeroAlphaSamples": [
+        {
+          "Samples": 2239,
+          "Alpha": 253
+        },
+        {
+          "Samples": 548,
+          "Alpha": 252
+        },
+        {
+          "Samples": 73,
+          "Alpha": 1
+        },
+        {
+          "Samples": 25,
+          "Alpha": 2
+        }
+      ],
+      "visualReview": "Accepted: large brass/teal shield silhouette, cream boss and turquoise protective orbit remain distinct. No text or cropped solid geometry."
+    },
+    {
+      "id": "SODA",
+      "path": "Assets/_Project/Art/Generated/Items/soda-v1.png",
+      "sourcePath": "C:/Users/mrkl6/.codex/generated_images/01a11c1c-f58a-73e3-b6e5-7697ca87c3a7/exec-11a55035-a2c5-4665-b76a-a87feeaac6df.png",
+      "prompt": "Use case: stylized-concept. Asset type: square isolated inventory item illustration for a cozy 3D toy-house action game. Subject: one plump orange energy soda can with a simple cream diagonal swoosh panel, brushed brass-gold pull tab and rim, a few glossy condensation droplets, one tiny curled orange energy ribbon subtly orbiting the can. Absolutely no letters, numbers, brand, or printed text. Style: premium playful tactile toy-like 3D render, rounded chunky proportions and bevels, glossy painted metal with subtle imperfect handmade texture, bold readable silhouette. Color palette: vivid orange, warm cream, brass-gold, tiny teal accent stripe. Composition: single large centered can in three-quarter view, slight lively tilt, entire object fully inside frame with generous transparent margin, about 78 percent canvas height, consistent overhead-left warm softbox lighting, crisp edges, readable at 64 pixels. Transparent RGBA background with no floor, no backdrop, no card, no border, no characters, no logo, no watermark. Square composition.",
+      "width": 1254,
+      "height": 1254,
+      "pixelFormat": "Format32bppArgb",
+      "sha256": "83809822a181672795c8edf0997e52733fb2f5c15963e07c042a33dc48f7cb4f",
+      "bytes": 1181379,
+      "alphaSampleStride": 16,
+      "alphaSamples": {
+        "Opaque": 2,
+        "Transparent": 3624,
+        "Partial": 2615
+      },
+      "centerAlpha": 253,
+      "commonNonzeroAlphaSamples": [
+        {
+          "Samples": 2124,
+          "Alpha": 253
+        },
+        {
+          "Samples": 305,
+          "Alpha": 252
+        },
+        {
+          "Samples": 54,
+          "Alpha": 1
+        },
+        {
+          "Samples": 25,
+          "Alpha": 251
+        }
+      ],
+      "visualReview": "Accepted: orange can and gold pull-tab read immediately, cream/teal band remains unbranded. Energy ribbon remains secondary."
+    },
+    {
+      "id": "APPLE",
+      "path": "Assets/_Project/Art/Generated/Items/apple-v1.png",
+      "sourcePath": "C:/Users/mrkl6/.codex/generated_images/01a11c1c-f58a-73e3-b6e5-7697ca87c3a7/exec-10f91857-89b8-45b4-b0ca-1183f6b714a4.png",
+      "prompt": "Use case: stylized-concept. Asset type: square isolated inventory item illustration for a cozy 3D toy-house action game. Subject: one glossy red apple with a short warm brown stem and one curved fresh green leaf, plump friendly rounded shape and a small warm cream highlight. No face, lettering, or accessories. Style: premium playful tactile toy-like 3D render, slightly exaggerated chunky proportions, rich red lacquer-like apple skin with subtly dimpled natural texture, ceramic-like gloss, vivid but warm toy-house art style, bold immediately readable silhouette. Color palette: rich apple red, warm cream highlights, fresh leaf green. Composition: single large centered apple in three-quarter view, entire apple and leaf fully inside frame, balanced generous transparent margin, about 78 percent canvas height, consistent overhead-left warm softbox lighting, crisp edges, readable at 64 pixels. Transparent RGBA background with no floor, no backdrop, no card, no border, no typography, no logo, no watermark. Square composition.",
+      "width": 1254,
+      "height": 1254,
+      "pixelFormat": "Format32bppArgb",
+      "sha256": "1f048dbf1205e1a00bc63cdc1b62cd2fd399fb828d46e5d97c9cd021b168dda4",
+      "bytes": 1284027,
+      "alphaSampleStride": 16,
+      "alphaSamples": {
+        "Opaque": 3,
+        "Transparent": 3385,
+        "Partial": 2853
+      },
+      "centerAlpha": 252,
+      "commonNonzeroAlphaSamples": [
+        {
+          "Samples": 2357,
+          "Alpha": 253
+        },
+        {
+          "Samples": 315,
+          "Alpha": 252
+        },
+        {
+          "Samples": 40,
+          "Alpha": 1
+        },
+        {
+          "Samples": 33,
+          "Alpha": 251
+        }
+      ],
+      "visualReview": "Accepted: glossy red apple and green leaf have a clear silhouette and no extra accessories."
+    },
+    {
+      "id": "WATER",
+      "path": "Assets/_Project/Art/Generated/Items/water-v1.png",
+      "sourcePath": "C:/Users/mrkl6/.codex/generated_images/01a11c1c-f58a-73e3-b6e5-7697ca87c3a7/exec-e61e9b3b-5787-4414-9b04-b9f7f641a907.png",
+      "prompt": "Use case: stylized-concept. Asset type: square isolated inventory item illustration for a cozy 3D toy-house action game. Subject: one friendly chunky blue glass water bottle with rounded shoulders, clearly visible fresh blue water inside, a short cream ceramic stopper with brass-gold collar, a simple blank cream band around the middle and a small teal water-drop shaped medallion with no letters. A few tiny blue water droplets float close to bottle. Style: premium playful tactile toy-like 3D render, thick softly beveled glass with bright edges and gentle refractions, clean bold readable silhouette. Color palette: vivid clear blue, mint teal, warm cream and little brass-gold. Composition: single large centered bottle in three-quarter view, upright, whole bottle including stopper and droplets fully inside frame, generous transparent margin, about 80 percent canvas height, consistent overhead-left warm softbox lighting, crisp edges, readable at 64 pixels. Transparent RGBA background with no floor, no backdrop, no card, no border, no typography, no logo, no watermark. Keep enough opaque blue and cream form for readability over both light and dark HUD backgrounds. Square composition.",
+      "width": 1254,
+      "height": 1254,
+      "pixelFormat": "Format32bppArgb",
+      "sha256": "6ffd61b5af26e27e099100bd85414d7722a0173f346d4747d39a3eb31f9bae10",
+      "bytes": 1112596,
+      "alphaSampleStride": 16,
+      "alphaSamples": {
+        "Opaque": 3,
+        "Transparent": 3772,
+        "Partial": 2466
+      },
+      "centerAlpha": 252,
+      "commonNonzeroAlphaSamples": [
+        {
+          "Samples": 1346,
+          "Alpha": 253
+        },
+        {
+          "Samples": 897,
+          "Alpha": 252
+        },
+        {
+          "Samples": 56,
+          "Alpha": 251
+        },
+        {
+          "Samples": 46,
+          "Alpha": 1
+        }
+      ],
+      "visualReview": "Accepted: thick blue bottle, cream stopper and teal water-drop medallion read over a HUD. Stylized water remains strongly colored."
+    },
+    {
+      "id": "FAN",
+      "path": "Assets/_Project/Art/Generated/Items/fan-v1.png",
+      "sourcePath": "C:/Users/mrkl6/.codex/generated_images/01a11c1c-f58a-73e3-b6e5-7697ca87c3a7/exec-839bcac6-5b73-49e3-a199-37fd21b532fc.png",
+      "prompt": "Use case: stylized-concept. Asset type: square isolated inventory item illustration for a cozy 3D toy-house action game. Subject: one friendly mint-green tabletop electric fan with a chunky rounded cream pedestal base, three broad mint fan blades, a simple readable brass-gold wire safety grille and cream center hub, small teal knob on its base. Two soft airy ivory-and-teal swirly breeze strokes curl beside the fan. No face, text, numbers, brands or logos. Style: premium playful tactile toy-like 3D render, rounded bevels, glossy enamel over softly worn metal, warm cream/gold/mint/teal palette, bold readable silhouette; simplify the safety grille so blades remain visibly distinct. Composition: single large centered fan in three-quarter view, entire base, fan head and restrained breeze strokes fully inside frame with generous transparent margin, about 80 percent canvas height, consistent overhead-left warm softbox lighting, crisp edges, readable at 64 pixels. Transparent RGBA background with no floor, no backdrop, no card, no border, no typography, no watermark. Square composition.",
+      "width": 1254,
+      "height": 1254,
+      "pixelFormat": "Format32bppArgb",
+      "sha256": "eb17373105b1bde682ed80682f51e33ec5b88a9ce48b668dc08af3814b282236",
+      "bytes": 1323931,
+      "alphaSampleStride": 16,
+      "alphaSamples": {
+        "Opaque": 5,
+        "Transparent": 3643,
+        "Partial": 2593
+      },
+      "centerAlpha": 253,
+      "commonNonzeroAlphaSamples": [
+        {
+          "Samples": 1564,
+          "Alpha": 253
+        },
+        {
+          "Samples": 400,
+          "Alpha": 252
+        },
+        {
+          "Samples": 173,
+          "Alpha": 1
+        },
+        {
+          "Samples": 107,
+          "Alpha": 251
+        }
+      ],
+      "visualReview": "Accepted: mint blades, brass grille, cream base and two breeze curls are readable; fine grille detail will simplify naturally in small slots."
+    },
+    {
+      "id": "CLOCK",
+      "path": "Assets/_Project/Art/Generated/Items/clock-v1.png",
+      "sourcePath": "C:/Users/mrkl6/.codex/generated_images/01a11c1c-f58a-73e3-b6e5-7697ca87c3a7/exec-75271127-ad1d-42fa-9274-fb8e99872744.png",
+      "prompt": "Use case: stylized-concept. Asset type: square isolated inventory item illustration for a cozy 3D toy-house action game. Subject: one cute chunky twin-bell alarm clock, rounded brushed brass-gold case, warm cream dial, two bold dark teal hands and simple short tick marks only with absolutely NO numerals or letters, small brass feet and round alarm bells. A restrained soft lavender slow-time motif forms one partial orbit around the clock with three small gently trailing lavender sparkles; the clock remains the dominant solid shape. Style: premium playful tactile toy-like 3D render, softly worn brass and glossy cream ceramic, rounded bevels, bold readable silhouette, warm cream/gold/teal palette with subtle lavender effect. Composition: single large centered alarm clock in three-quarter view, entire object and effect fully inside frame, generous transparent margin, about 80 percent canvas height, consistent overhead-left warm softbox lighting, crisp edges, readable at 64 pixels. Transparent RGBA background with no floor, no backdrop, no card, no border, no typography, no logo, no watermark. Square composition.",
+      "width": 1254,
+      "height": 1254,
+      "pixelFormat": "Format32bppArgb",
+      "sha256": "ab6581912527325da874d8e4aae799e28dec7864ef4c78dcec7f9f73edfb3946",
+      "bytes": 1657915,
+      "alphaSampleStride": 16,
+      "alphaSamples": {
+        "Opaque": 2,
+        "Transparent": 3067,
+        "Partial": 3172
+      },
+      "centerAlpha": 253,
+      "commonNonzeroAlphaSamples": [
+        {
+          "Samples": 2331,
+          "Alpha": 253
+        },
+        {
+          "Samples": 237,
+          "Alpha": 252
+        },
+        {
+          "Samples": 74,
+          "Alpha": 1
+        },
+        {
+          "Samples": 47,
+          "Alpha": 251
+        }
+      ],
+      "visualReview": "Accepted: brass twin-bell alarm clock, cream dial, teal hands/ticks and lavender slow-time orbit. No numerals or letters."
+    }
+  ]
+}

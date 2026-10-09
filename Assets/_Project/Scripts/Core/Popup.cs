@@ -12,6 +12,10 @@ namespace Wreckabulary
         Vector3 start;
         float born;
         Color color;
+        static Camera cachedCamera;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetCamera() => cachedCamera = null;
 
         public static void Show(string message, Vector3 at, Color color, float size = 4f)
         {
@@ -36,6 +40,7 @@ namespace Wreckabulary
             p.start = at;
             p.born = Time.time;
             p.color = color;
+            go.AddComponent<WorldSpaceBillboard>();
         }
 
         void LateUpdate()
@@ -47,13 +52,14 @@ namespace Wreckabulary
             float pop = k < 0.15f ? Mathf.Lerp(0.4f, 1.15f, k / 0.15f) : Mathf.Lerp(1.15f, 1f, (k - 0.15f) * 4f);
             transform.localScale = Vector3.one * pop;
             text.color = new Color(color.r, color.g, color.b, 1f - k * k);
-            Billboard(transform);
         }
 
         /// <summary>Turns a world-space label to face the main camera.</summary>
         public static void Billboard(Transform t)
         {
-            var cam = Camera.main;
+            var rig = CameraRig.Instance;
+            var cam = rig ? rig.ViewCamera : cachedCamera;
+            if (!cam) cam = cachedCamera = Camera.main;
             if (cam) t.rotation = cam.transform.rotation;
         }
     }
