@@ -178,7 +178,7 @@ try {
   assert.ok(bag.width >= 0.75 && bag.height >= 0.75, JSON.stringify(bag));
   assert.deepEqual(
     { letters: bag.letters, hands: bag.hands, wearing: bag.wearing, recipes: bag.recipes, maps: bag.maps, zoomed: bag.zoomed, you: bag.you },
-    { letters: 10, hands: 2, wearing: true, recipes: 12, maps: 1, zoomed: true, you: true },
+    { letters: 10, hands: 2, wearing: true, recipes: 24, maps: 1, zoomed: true, you: true },
   );
   await page.keyboard.up("Tab");
   assert.equal(await page.locator(".bag-panel").count(), 0);
@@ -616,12 +616,33 @@ try {
   assert.equal(await phone.locator(".spell-composer .recipe").count(), 0, "In play you type the word; no list to pick from.");
   await click(phone, ".spell-composer [data-action=recipes]");
   await phone.waitForSelector(".bag-panel #bag-recipes .recipe");
-  assert.equal(await phone.locator("#bag-recipes .recipe").count(), 12);
+  assert.equal(await phone.locator("#bag-recipes .recipe").count(), 24);
+  assert.equal(await phone.locator(".spell-composer").count(), 0, "the recipe book replaces the composer");
+  assert.equal(await phone.locator("#minimap.zoomed").count(), 0, "no expanded map can cover recipes");
+  assert.equal(await phone.locator("#minimap").isVisible(), false);
+  assert.equal(await phone.locator(".actions").isVisible(), false, "gameplay buttons cannot overlap the book");
+  const recipeVisibility = await phone.evaluate(() => {
+    const grid = document.querySelector("#bag-recipes"), viewport = grid.getBoundingClientRect();
+    return [...grid.querySelectorAll(".recipe")].filter(button => {
+      const r = button.getBoundingClientRect();
+      return r.top >= viewport.top && r.bottom <= viewport.bottom;
+    }).map(button => {
+      const r = button.getBoundingClientRect(), hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+      return { height: r.height, reachable: button.contains(hit), inside: r.left >= 0 && r.right <= innerWidth };
+    });
+  });
+  assert.ok(recipeVisibility.length >= 4, "a full row of readable cards is visible");
+  assert.ok(recipeVisibility.every(card => card.height >= 100 && card.reachable && card.inside), JSON.stringify(recipeVisibility));
+  await phone.waitForFunction(() => document.querySelector(".bag-panel").getAnimations().every(animation => animation.playState !== "running"));
   await screenshot(phone, "recipes-mobile");
   record(
-    "Mobile HUD has separate touch targets, a typed spell composer and all 12 recipes in the bag's recipe book.",
+    "Mobile recipe book replaces the composer and map; all 24 recipes use readable, reachable cards in a scrollable four-column grid.",
   );
-  await click(phone, ".bag-panel [data-action=bag]");
+  const lastRecipe = phone.locator("#bag-recipes .recipe").last();
+  const lastWord = await lastRecipe.getAttribute("data-recipe");
+  await click(phone, `#bag-recipes [data-recipe="${lastWord}"]`);
+  assert.equal(await phone.locator(".bag-panel").count(), 0);
+  assert.equal(await phone.locator(".spell-composer #spell-word").inputValue(), lastWord, "the last scrollable card opens its spell");
   assert.equal(
     await phone.evaluate(() => window.wreckabulary.game.audit().balanced),
     true,

@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="57" result="Failed(Child)" total="57" passed="56" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-08 20:59:28Z" end-time="2026-10-08 21:01:56Z" duration="147.673426">
+  <test-suite type="TestSuite" id="1326" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="281" result="Failed" site="Child" start-time="2026-10-08 20:59:28Z" end-time="2026-10-08 21:01:56Z" duration="147.673426" total="57" passed="56" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1649" name="Wreckabulary.Tests.dll" fullname="C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wreckabulary/Library/ScriptAssemblies/Wreckabulary.Tests.dll" runstate="Runnable" testcasecount="281" result="Failed" site="Child" start-time="2026-10-08 20:59:28Z" end-time="2026-10-08 21:01:56Z" duration="147.661279" total="57" passed="56" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="35552" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1650" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="281" result="Failed" site="Child" start-time="2026-10-08 20:59:28Z" end-time="2026-10-08 21:01:56Z" duration="147.657670" total="57" passed="56" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1651" name="Tests" fullname="Wreckabulary.Tests" runstate="Runnable" testcasecount="281" result="Failed" site="Child" start-time="2026-10-08 20:59:28Z" end-time="2026-10-08 21:01:56Z" duration="147.654652" total="57" passed="56" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="1341" name="CameraCutawayTests" fullname="Wreckabulary.Tests.CameraCutawayTests" classname="Wreckabulary.Tests.CameraCutawayTests" runstate="Runnable" testcasecount="6" result="Failed" site="Child" start-time="2026-10-08 20:59:28Z" end-time="2026-10-08 20:59:31Z" duration="2.450466" total="6" passed="5" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="1345" name="CameraClimbAndBoomStayBelowNonCollidingCeilingsAndRespectOpenings" fullname="Wreckabulary.Tests.CameraCutawayTests.CameraClimbAndBoomStayBelowNonCollidingCeilingsAndRespectOpenings" methodname="CameraClimbAndBoomStayBelowNonCollidingCeilingsAndRespectOpenings" classname="Wreckabulary.Tests.CameraCutawayTests" runstate="Runnable" seed="777261717" result="Passed" start-time="2026-10-08 20:59:28Z" end-time="2026-10-08 20:59:29Z" duration="0.382826" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1342" name="CamerasOnDifferentFloorsRestoreExactRendererStateThroughNestedRenders" fullname="Wreckabulary.Tests.CameraCutawayTests.CamerasOnDifferentFloorsRestoreExactRendererStateThroughNestedRenders" methodname="CamerasOnDifferentFloorsRestoreExactRendererStateThroughNestedRenders" classname="Wreckabulary.Tests.CameraCutawayTests" runstate="Runnable" seed="722867369" result="Passed" start-time="2026-10-08 20:59:29Z" end-time="2026-10-08 20:59:29Z" duration="0.574448" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1346" name="DestroyedCutawayPropsLeaveTheRegistryWhileTheCameraKeepsRunning" fullname="Wreckabulary.Tests.CameraCutawayTests.DestroyedCutawayPropsLeaveTheRegistryWhileTheCameraKeepsRunning" methodname="DestroyedCutawayPropsLeaveTheRegistryWhileTheCameraKeepsRunning" classname="Wreckabulary.Tests.CameraCutawayTests" runstate="Runnable" seed="1918930477" result="Passed" start-time="2026-10-08 20:59:29Z" end-time="2026-10-08 20:59:30Z" duration="0.203029" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1344" name="DisableAndReusedScopeHandlesCannotLeakRendererOverrides" fullname="Wreckabulary.Tests.CameraCutawayTests.DisableAndReusedScopeHandlesCannotLeakRendererOverrides" methodname="DisableAndReusedScopeHandlesCannotLeakRendererOverrides" classname="Wreckabulary.Tests.CameraCutawayTests" runstate="Runnable" seed="2024044722" result="Passed" start-time="2026-10-08 20:59:30Z" end-time="2026-10-08 20:59:30Z" duration="0.161774" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1347" name="NativeRenderingCutsTheRoofForOneCameraAndKeepsItForOthers" fullname="Wreckabulary.Tests.CameraCutawayTests.NativeRenderingCutsTheRoofForOneCameraAndKeepsItForOthers" methodname="NativeRenderingCutsTheRoofForOneCameraAndKeepsItForOthers" classname="Wreckabulary.Tests.CameraCutawayTests" runstate="Runnable" seed="1836609197" result="Failed" start-time="2026-10-08 20:59:30Z" end-time="2026-10-08 20:59:31Z" duration="0.847282" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <failure>
+                <message><![CDATA[  The native overview must contain the green floor, not the red roof.
+  Expected: greater than 0.25f
+  But was:  0.0f
+]]></message>
+                <stack-trace><![CDATA[at Wreckabulary.Tests.CameraCutawayTests+<NativeRenderingCutsTheRoofForOneCameraAndKeepsItForOthers>d__11.MoveNext () [0x00369] in C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wreckabulary\Assets\_Project\Tests\CameraCutawayTests.cs:245
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__8.MoveNext () [0x0003a] in .\Library\PackageCache\com.unity.test-framework@80f691d4262b\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:52
+]]></stack-trace>
+              </failure>
+            </test-case>
+            <test-case id="1343" name="StandaloneCanopyShowsFromInsideAndCutsOnlyForTheOverviewCamera" fullname="Wreckabulary.Tests.CameraCutawayTests.StandaloneCanopyShowsFromInsideAndCutsOnlyForTheOverviewCamera" methodname="StandaloneCanopyShowsFromInsideAndCutsOnlyForTheOverviewCamera" classname="Wreckabulary.Tests.CameraCutawayTests" runstate="Runnable" seed="1742477738" result="Passed" start-time="2026-10-08 20:59:31Z" end-time="2026-10-08 20:59:31Z" duration="0.259006" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1419" name="EnvironmentCaptureTests" fullname="Wreckabulary.Tests.EnvironmentCaptureTests" classname="Wreckabulary.Tests.EnvironmentCaptureTests" runstate="Explicit" testcasecount="1" result="Passed" start-time="2026-10-08 20:59:31Z" end-time="2026-10-08 21:00:16Z" duration="44.765158" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties>
+              <property name="Category" value="EnvironmentCapture" />
+            </properties>
+            <test-case id="1420" name="CaptureFiveWorldsLightingAndFloorTransitions" fullname="Wreckabulary.Tests.EnvironmentCaptureTests.CaptureFiveWorldsLightingAndFloorTransitions" methodname="CaptureFiveWorldsLightingAndFloorTransitions" classname="Wreckabulary.Tests.EnvironmentCaptureTests" runstate="Runnable" seed="1131611684" result="Passed" start-time="2026-10-08 20:59:31Z" end-time="2026-10-08 21:00:16Z" duration="44.746968" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[EnvironmentCapture] 01-pinwheel-overview.png
+[EnvironmentCapture] 02-pinwheel-interior.png
+[EnvironmentCapture] 03-pinwheel-upward-detail.png
+[EnvironmentCapture] 04-pinwheel-foam-daylight.png
+[EnvironmentCapture] 05-pinwheel-active-gameplay.png
+[EnvironmentCapture] 06-courtyard-overview.png
+[EnvironmentCapture] 07-courtyard-interior.png
+[EnvironmentCapture] 08-courtyard-upward-detail.png
+[EnvironmentCapture] 09-courtyard-garden-sky.png
+[EnvironmentCapture] 10-flat-overview.png
+[EnvironmentCapture] 11-flat-interior.png
+[EnvironmentCapture] 12-flat-upward-detail.png
+[EnvironmentCapture] 13-terrace-overview.png
+[EnvironmentCapture] 14-terrace-interior.png
+[EnvironmentCapture] 15-terrace-upward-detail.png
+[EnvironmentCapture] 16-terrace-upper-interior.png
+[EnvironmentCapture] 17-terrace-upper-detail.png
+[EnvironmentCapture] 18-terrace-mixed-floor-couch-21x9.png
+[EnvironmentCapture] 19-walkup-overview.png
+[EnvironmentCapture] 20-walkup-interior.png
+[EnvironmentCapture] 21-walkup-upward-detail.png
+[EnvironmentCapture] 22-walkup-upper-interior.png
+[EnvironmentCapture] 23-walkup-upper-detail.png
+[EnvironmentCapture] 24-walkup-mixed-floor-couch-21x9.png
+[EnvironmentCapture] 25-hub-lobby.png
+[EnvironmentCapture] 26-hub-exploration.png
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1473" name="LobbyTests" fullname="Wreckabulary.Tests.LobbyTests" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-10-08 21:00:16Z" end-time="2026-10-08 21:01:06Z" duration="50.866779" total="37" passed="37" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1493" name="AClickBesideTheQuitBoxMeansStay" fullname="Wreckabulary.Tests.LobbyTests.AClickBesideTheQuitBoxMeansStay" methodname="AClickBesideTheQuitBoxMeansStay" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1106548461" result="Passed" start-time="2026-10-08 21:00:16Z" end-time="2026-10-08 21:00:16Z" duration="0.797888" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1501" name="AControllerCanCancelAndStepBack" fullname="Wreckabulary.Tests.LobbyTests.AControllerCanCancelAndStepBack" methodname="AControllerCanCancelAndStepBack" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="992401161" result="Passed" start-time="2026-10-08 21:00:16Z" end-time="2026-10-08 21:00:17Z" duration="1.068488" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1499" name="ACouchPlayerJoinsThePartyAndComesAlong" fullname="Wreckabulary.Tests.LobbyTests.ACouchPlayerJoinsThePartyAndComesAlong" methodname="ACouchPlayerJoinsThePartyAndComesAlong" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="158326079" result="Passed" start-time="2026-10-08 21:00:17Z" end-time="2026-10-08 21:00:20Z" duration="2.481734" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1488" name="AnEmptyCareerSendsYouToPractice" fullname="Wreckabulary.Tests.LobbyTests.AnEmptyCareerSendsYouToPractice" methodname="AnEmptyCareerSendsYouToPractice" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1442529589" result="Passed" start-time="2026-10-08 21:00:20Z" end-time="2026-10-08 21:00:21Z" duration="1.350734" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1500" name="APartyHasFourSeatsAndAnyoneCanLeave" fullname="Wreckabulary.Tests.LobbyTests.APartyHasFourSeatsAndAnyoneCanLeave" methodname="APartyHasFourSeatsAndAnyoneCanLeave" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="190154260" result="Passed" start-time="2026-10-08 21:00:21Z" end-time="2026-10-08 21:00:22Z" duration="0.772039" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1485" name="BarButtonsToggleTheirPage" fullname="Wreckabulary.Tests.LobbyTests.BarButtonsToggleTheirPage" methodname="BarButtonsToggleTheirPage" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="313958651" result="Passed" start-time="2026-10-08 21:00:22Z" end-time="2026-10-08 21:00:23Z" duration="1.303119" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1503" name="CancelKeepsYouInTheLobby" fullname="Wreckabulary.Tests.LobbyTests.CancelKeepsYouInTheLobby" methodname="CancelKeepsYouInTheLobby" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="698354111" result="Passed" start-time="2026-10-08 21:00:23Z" end-time="2026-10-08 21:00:25Z" duration="1.474620" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1487" name="CareerShowsYourLevelAndMatchesAsCards" fullname="Wreckabulary.Tests.LobbyTests.CareerShowsYourLevelAndMatchesAsCards" methodname="CareerShowsYourLevelAndMatchesAsCards" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1708693840" result="Passed" start-time="2026-10-08 21:00:25Z" end-time="2026-10-08 21:00:26Z" duration="0.733869" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1496" name="DraggingTheOpenViewTurnsYou" fullname="Wreckabulary.Tests.LobbyTests.DraggingTheOpenViewTurnsYou" methodname="DraggingTheOpenViewTurnsYou" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="891344269" result="Passed" start-time="2026-10-08 21:00:26Z" end-time="2026-10-08 21:00:27Z" duration="1.427908" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1492" name="EscInTheNameFieldKeepsSettingsOpen" fullname="Wreckabulary.Tests.LobbyTests.EscInTheNameFieldKeepsSettingsOpen" methodname="EscInTheNameFieldKeepsSettingsOpen" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1061802390" result="Passed" start-time="2026-10-08 21:00:27Z" end-time="2026-10-08 21:00:28Z" duration="0.919706" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1495" name="FixedRowsKeepTheirHeight" fullname="Wreckabulary.Tests.LobbyTests.FixedRowsKeepTheirHeight" methodname="FixedRowsKeepTheirHeight" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="545176494" result="Passed" start-time="2026-10-08 21:00:28Z" end-time="2026-10-08 21:00:29Z" duration="1.087573" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1505" name="LoadoutAndShopChangeWhatYouWear" fullname="Wreckabulary.Tests.LobbyTests.LoadoutAndShopChangeWhatYouWear" methodname="LoadoutAndShopChangeWhatYouWear" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="942396038" result="Passed" start-time="2026-10-08 21:00:29Z" end-time="2026-10-08 21:00:31Z" duration="1.600972" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1474" name="LobbyStandsYouInTheSelectedMap" fullname="Wreckabulary.Tests.LobbyTests.LobbyStandsYouInTheSelectedMap" methodname="LobbyStandsYouInTheSelectedMap" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="401445493" result="Passed" start-time="2026-10-08 21:00:31Z" end-time="2026-10-08 21:00:32Z" duration="0.911738" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1507" name="LockerExtrasHoodAndPartColours" fullname="Wreckabulary.Tests.LobbyTests.LockerExtrasHoodAndPartColours" methodname="LockerExtrasHoodAndPartColours" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="238921385" result="Passed" start-time="2026-10-08 21:00:32Z" end-time="2026-10-08 21:00:33Z" duration="1.441919" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1504" name="MatchmakingSaysWhyItCannotStartYet" fullname="Wreckabulary.Tests.LobbyTests.MatchmakingSaysWhyItCannotStartYet" methodname="MatchmakingSaysWhyItCannotStartYet" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="625233547" result="Passed" start-time="2026-10-08 21:00:33Z" end-time="2026-10-08 21:00:34Z" duration="1.110673" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1483" name="NoticesShowTheNewestFewTopLeft" fullname="Wreckabulary.Tests.LobbyTests.NoticesShowTheNewestFewTopLeft" methodname="NoticesShowTheNewestFewTopLeft" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="2143228460" result="Passed" start-time="2026-10-08 21:00:34Z" end-time="2026-10-08 21:00:35Z" duration="0.881949" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1486" name="PagesCloseFromTheirCornerEscAndTheSpaceRoundThem" fullname="Wreckabulary.Tests.LobbyTests.PagesCloseFromTheirCornerEscAndTheSpaceRoundThem" methodname="PagesCloseFromTheirCornerEscAndTheSpaceRoundThem" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="508044853" result="Passed" start-time="2026-10-08 21:00:35Z" end-time="2026-10-08 21:00:37Z" duration="1.537419" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1479" name="PlayIsTheWebsTwoPickersOnOnePage" fullname="Wreckabulary.Tests.LobbyTests.PlayIsTheWebsTwoPickersOnOnePage" methodname="PlayIsTheWebsTwoPickersOnOnePage" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="134468257" result="Passed" start-time="2026-10-08 21:00:37Z" end-time="2026-10-08 21:00:38Z" duration="1.047108" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1497" name="PlayPicksAModeAndMapThenGoStartsTheMatch" fullname="Wreckabulary.Tests.LobbyTests.PlayPicksAModeAndMapThenGoStartsTheMatch" methodname="PlayPicksAModeAndMapThenGoStartsTheMatch" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="988017089" result="Passed" start-time="2026-10-08 21:00:38Z" end-time="2026-10-08 21:00:41Z" duration="3.414272" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1509" name="RecipeDetailFollowsTheCardYouPick" fullname="Wreckabulary.Tests.LobbyTests.RecipeDetailFollowsTheCardYouPick" methodname="RecipeDetailFollowsTheCardYouPick" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="227573044" result="Passed" start-time="2026-10-08 21:00:41Z" end-time="2026-10-08 21:00:42Z" duration="0.999724" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1502" name="RenamingChangesTheBadgeAndOldLooksAreSaved" fullname="Wreckabulary.Tests.LobbyTests.RenamingChangesTheBadgeAndOldLooksAreSaved" methodname="RenamingChangesTheBadgeAndOldLooksAreSaved" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="893120676" result="Passed" start-time="2026-10-08 21:00:42Z" end-time="2026-10-08 21:00:43Z" duration="0.686831" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1490" name="SettingsHasTabsAndGraphicsThatReallyChange" fullname="Wreckabulary.Tests.LobbyTests.SettingsHasTabsAndGraphicsThatReallyChange" methodname="SettingsHasTabsAndGraphicsThatReallyChange" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="840036320" result="Passed" start-time="2026-10-08 21:00:43Z" end-time="2026-10-08 21:00:45Z" duration="2.431320" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1482" name="ShouldersStepThroughThePages" fullname="Wreckabulary.Tests.LobbyTests.ShouldersStepThroughThePages" methodname="ShouldersStepThroughThePages" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1973613651" result="Passed" start-time="2026-10-08 21:00:45Z" end-time="2026-10-08 21:00:47Z" duration="2.018780" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1484" name="TabsAndIconsShowOnePageAtATime" fullname="Wreckabulary.Tests.LobbyTests.TabsAndIconsShowOnePageAtATime" methodname="TabsAndIconsShowOnePageAtATime" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="894750715" result="Passed" start-time="2026-10-08 21:00:47Z" end-time="2026-10-08 21:00:51Z" duration="3.535668" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1476" name="TheBarSitsOnScrimsThatLetClicksThrough" fullname="Wreckabulary.Tests.LobbyTests.TheBarSitsOnScrimsThatLetClicksThrough" methodname="TheBarSitsOnScrimsThatLetClicksThrough" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="556840637" result="Passed" start-time="2026-10-08 21:00:51Z" end-time="2026-10-08 21:00:52Z" duration="1.098600" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1498" name="TheControllerThatPressesGoPlaysTheMatch" fullname="Wreckabulary.Tests.LobbyTests.TheControllerThatPressesGoPlaysTheMatch" methodname="TheControllerThatPressesGoPlaysTheMatch" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="636606682" result="Passed" start-time="2026-10-08 21:00:52Z" end-time="2026-10-08 21:00:54Z" duration="2.067232" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1481" name="TheDockOpensPlayOnWhatItChanges" fullname="Wreckabulary.Tests.LobbyTests.TheDockOpensPlayOnWhatItChanges" methodname="TheDockOpensPlayOnWhatItChanges" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="109390650" result="Passed" start-time="2026-10-08 21:00:54Z" end-time="2026-10-08 21:00:55Z" duration="1.058491" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1489" name="TheLeaderboardIsTheWebsSidePanelWithABoardPerMode" fullname="Wreckabulary.Tests.LobbyTests.TheLeaderboardIsTheWebsSidePanelWithABoardPerMode" methodname="TheLeaderboardIsTheWebsSidePanelWithABoardPerMode" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1205772498" result="Passed" start-time="2026-10-08 21:00:55Z" end-time="2026-10-08 21:00:56Z" duration="0.880628" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1494" name="TheLobbyAndMatchesRenderSmoothedAndToneMapped" fullname="Wreckabulary.Tests.LobbyTests.TheLobbyAndMatchesRenderSmoothedAndToneMapped" methodname="TheLobbyAndMatchesRenderSmoothedAndToneMapped" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1895617578" result="Passed" start-time="2026-10-08 21:00:56Z" end-time="2026-10-08 21:00:57Z" duration="1.726801" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1506" name="TheLockerIsTheWebsOnePagePanel" fullname="Wreckabulary.Tests.LobbyTests.TheLockerIsTheWebsOnePagePanel" methodname="TheLockerIsTheWebsOnePagePanel" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1959357608" result="Passed" start-time="2026-10-08 21:00:57Z" end-time="2026-10-08 21:00:59Z" duration="1.980013" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1478" name="TheMatchDockSitsBottomRightWithABigGo" fullname="Wreckabulary.Tests.LobbyTests.TheMatchDockSitsBottomRightWithABigGo" methodname="TheMatchDockSitsBottomRightWithABigGo" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1067696285" result="Passed" start-time="2026-10-08 21:00:59Z" end-time="2026-10-08 21:01:00Z" duration="0.814027" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1477" name="ThePartyChipOpensThePartyUnderIt" fullname="Wreckabulary.Tests.LobbyTests.ThePartyChipOpensThePartyUnderIt" methodname="ThePartyChipOpensThePartyUnderIt" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="151899498" result="Passed" start-time="2026-10-08 21:01:00Z" end-time="2026-10-08 21:01:01Z" duration="0.978435" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1491" name="TheQuitBoxSaysWhatIsSavedAndClosesFromItsCorner" fullname="Wreckabulary.Tests.LobbyTests.TheQuitBoxSaysWhatIsSavedAndClosesFromItsCorner" methodname="TheQuitBoxSaysWhatIsSavedAndClosesFromItsCorner" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1243295959" result="Passed" start-time="2026-10-08 21:01:01Z" end-time="2026-10-08 21:01:02Z" duration="0.835973" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1508" name="TheShopScrollsToTheOfferYouCameFor" fullname="Wreckabulary.Tests.LobbyTests.TheShopScrollsToTheOfferYouCameFor" methodname="TheShopScrollsToTheOfferYouCameFor" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="696910906" result="Passed" start-time="2026-10-08 21:01:02Z" end-time="2026-10-08 21:01:03Z" duration="0.869167" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1480" name="TheWorkshopOnlyOffersHousesItCanBuildIn" fullname="Wreckabulary.Tests.LobbyTests.TheWorkshopOnlyOffersHousesItCanBuildIn" methodname="TheWorkshopOnlyOffersHousesItCanBuildIn" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1535640137" result="Passed" start-time="2026-10-08 21:01:03Z" end-time="2026-10-08 21:01:04Z" duration="1.179628" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1475" name="TopBarIsLaidOutLikeAPcShooter" fullname="Wreckabulary.Tests.LobbyTests.TopBarIsLaidOutLikeAPcShooter" methodname="TopBarIsLaidOutLikeAPcShooter" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="486899037" result="Passed" start-time="2026-10-08 21:01:04Z" end-time="2026-10-08 21:01:05Z" duration="0.776490" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1510" name="WorkshopOpensOverTheLobbyAndComesBack" fullname="Wreckabulary.Tests.LobbyTests.WorkshopOpensOverTheLobbyAndComesBack" methodname="WorkshopOpensOverTheLobbyAndComesBack" classname="Wreckabulary.Tests.LobbyTests" runstate="Runnable" seed="1564481836" result="Passed" start-time="2026-10-08 21:01:05Z" end-time="2026-10-08 21:01:06Z" duration="1.521973" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[The character with Unicode value \u25BE was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [▾].
+The character with Unicode value \u25BE was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [▾].
+The character with Unicode value \u25BE was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [▾].
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1525" name="MovingDayTests" fullname="Wreckabulary.Tests.MovingDayTests" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-08 21:01:06Z" end-time="2026-10-08 21:01:55Z" duration="48.573216" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1526" name="BoxesForTheChecklistArrive" fullname="Wreckabulary.Tests.MovingDayTests.BoxesForTheChecklistArrive" methodname="BoxesForTheChecklistArrive" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="609334079" result="Passed" start-time="2026-10-08 21:01:06Z" end-time="2026-10-08 21:01:16Z" duration="9.386354" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1529" name="CancellingAToolRefundsItsLettersAndSpentSoapCannotStrandTheChecklist" fullname="Wreckabulary.Tests.MovingDayTests.CancellingAToolRefundsItsLettersAndSpentSoapCannotStrandTheChecklist" methodname="CancellingAToolRefundsItsLettersAndSpentSoapCannotStrandTheChecklist" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="2132403435" result="Passed" start-time="2026-10-08 21:01:16Z" end-time="2026-10-08 21:01:21Z" duration="4.785122" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1533" name="FinishingQuicklyEarnsThreeStarsAndCanRestart" fullname="Wreckabulary.Tests.MovingDayTests.FinishingQuicklyEarnsThreeStarsAndCanRestart" methodname="FinishingQuicklyEarnsThreeStarsAndCanRestart" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="128263630" result="Passed" start-time="2026-10-08 21:01:21Z" end-time="2026-10-08 21:01:25Z" duration="3.963459" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1530" name="FurnitureOnlyCountsInItsRoom" fullname="Wreckabulary.Tests.MovingDayTests.FurnitureOnlyCountsInItsRoom" methodname="FurnitureOnlyCountsInItsRoom" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="730281970" result="Passed" start-time="2026-10-08 21:01:25Z" end-time="2026-10-08 21:01:30Z" duration="5.548424" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1532" name="PlacedFurnitureIsLockedInPlace" fullname="Wreckabulary.Tests.MovingDayTests.PlacedFurnitureIsLockedInPlace" methodname="PlacedFurnitureIsLockedInPlace" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="395431498" result="Passed" start-time="2026-10-08 21:01:30Z" end-time="2026-10-08 21:01:34Z" duration="4.017945" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1531" name="ResupplyDoesNotDuplicateARecipeReservedByAnActiveCraft" fullname="Wreckabulary.Tests.MovingDayTests.ResupplyDoesNotDuplicateARecipeReservedByAnActiveCraft" methodname="ResupplyDoesNotDuplicateARecipeReservedByAnActiveCraft" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="534780100" result="Passed" start-time="2026-10-08 21:01:34Z" end-time="2026-10-08 21:01:38Z" duration="4.139102" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1534" name="RunningOutOfTimeRestartsTheLevel" fullname="Wreckabulary.Tests.MovingDayTests.RunningOutOfTimeRestartsTheLevel" methodname="RunningOutOfTimeRestartsTheLevel" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="1052890286" result="Passed" start-time="2026-10-08 21:01:38Z" end-time="2026-10-08 21:01:44Z" duration="5.205983" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1527" name="SpellingAChecklistWordBuildsFurniture" fullname="Wreckabulary.Tests.MovingDayTests.SpellingAChecklistWordBuildsFurniture" methodname="SpellingAChecklistWordBuildsFurniture" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="1554319601" result="Passed" start-time="2026-10-08 21:01:44Z" end-time="2026-10-08 21:01:48Z" duration="4.469032" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1528" name="TheModeOffersAllEnabledRecipesAndSeparatesToolsFromChecklistFurniture" fullname="Wreckabulary.Tests.MovingDayTests.TheModeOffersAllEnabledRecipesAndSeparatesToolsFromChecklistFurniture" methodname="TheModeOffersAllEnabledRecipesAndSeparatesToolsFromChecklistFurniture" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="838869357" result="Passed" start-time="2026-10-08 21:01:48Z" end-time="2026-10-08 21:01:52Z" duration="3.955155" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1535" name="TypewriterStartsMovingDaySolo" fullname="Wreckabulary.Tests.MovingDayTests.TypewriterStartsMovingDaySolo" methodname="TypewriterStartsMovingDaySolo" classname="Wreckabulary.Tests.MovingDayTests" runstate="Runnable" seed="2056650445" result="Passed" start-time="2026-10-08 21:01:52Z" end-time="2026-10-08 21:01:55Z" duration="3.082058" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1546" name="PlayerFeedbackLifecycleTests" fullname="Wreckabulary.Tests.PlayerFeedbackLifecycleTests" classname="Wreckabulary.Tests.PlayerFeedbackLifecycleTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-08 21:01:55Z" end-time="2026-10-08 21:01:56Z" duration="0.967116" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1547" name="DisablingAnActorRefundsLettersWithoutCreatingEffects" fullname="Wreckabulary.Tests.PlayerFeedbackLifecycleTests.DisablingAnActorRefundsLettersWithoutCreatingEffects" methodname="DisablingAnActorRefundsLettersWithoutCreatingEffects" classname="Wreckabulary.Tests.PlayerFeedbackLifecycleTests" runstate="Runnable" seed="898781341" result="Passed" start-time="2026-10-08 21:01:55Z" end-time="2026-10-08 21:01:55Z" duration="0.291130" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1548" name="DisablingOnlyTheSummonerRefundsLettersWithoutCreatingEffects" fullname="Wreckabulary.Tests.PlayerFeedbackLifecycleTests.DisablingOnlyTheSummonerRefundsLettersWithoutCreatingEffects" methodname="DisablingOnlyTheSummonerRefundsLettersWithoutCreatingEffects" classname="Wreckabulary.Tests.PlayerFeedbackLifecycleTests" runstate="Runnable" seed="502554208" result="Passed" start-time="2026-10-08 21:01:55Z" end-time="2026-10-08 21:01:56Z" duration="0.265467" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1549" name="LoadingAnotherSceneWithAnActiveReservationLeavesNoLateEffects" fullname="Wreckabulary.Tests.PlayerFeedbackLifecycleTests.LoadingAnotherSceneWithAnActiveReservationLeavesNoLateEffects" methodname="LoadingAnotherSceneWithAnActiveReservationLeavesNoLateEffects" classname="Wreckabulary.Tests.PlayerFeedbackLifecycleTests" runstate="Runnable" seed="1203419783" result="Passed" start-time="2026-10-08 21:01:56Z" end-time="2026-10-08 21:01:56Z" duration="0.383317" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/mrkl6/AppData/LocalLow/Wreckabulary Team/Wreckabulary\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

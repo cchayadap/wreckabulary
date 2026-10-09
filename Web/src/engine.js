@@ -60,6 +60,7 @@ export function rulesFor(data, mode) {
   };
 }
 export function inArc(facing, to, arc) {
+  if (arc >= 360) return true;
   const f = normalize(facing.x, facing.z),
     t = normalize(to.x, to.z);
   return (
@@ -384,6 +385,26 @@ export class Game {
       this.time >= p.dodgingUntil
     );
   }
+  setGuard(p, wanted) {
+    const item = this.held(p);
+    wanted = !!(wanted && this.canAct(p) && !p.craft && !p.action &&
+      p.reviveTarget == null && item?.origin === "crafted" && item.definition?.shield);
+    if (wanted && (!p.block || p.blockItem !== item.id)) {
+      p.blockStarted = this.time;
+      p.blockItem = item.id;
+      p.pendingAttack = null;
+      p.meleeUntil = 0;
+    }
+    if (!wanted) { p.blockStarted = null; p.blockItem = null; }
+    p.block = wanted;
+    return wanted;
+  }
+  isGuardRaised(p) {
+    const item = this.held(p), shield = item?.definition?.shield;
+    return !!(p.block && shield && item.origin === "crafted" && this.canAct(p) &&
+      !p.craft && !p.action && (p.blockItem == null || p.blockItem === item.id) &&
+      this.time >= (p.blockStarted ?? -Infinity) + (shield.raise ?? 0));
+  }
   freeSlot(p) {
     return p.slots.findIndex((id, i) => id === null && p.craft?.slot !== i);
   }
@@ -484,6 +505,7 @@ export class Game {
   }
   selectSlot(p, slot) {
     if (slot < 0 || slot >= p.slots.length || slot === p.slot) return false;
+    this.setGuard(p, false);
     p.slot = slot;
     p.action = null;
     p.pendingAttack = null;
@@ -494,12 +516,14 @@ export class Game {
     if (this.peaceful) return false;
     const item = this.held(p);
     if (!item) return false;
+    this.setGuard(p, false);
     p.action = null;
     p.pendingAttack = null;
     p.meleeUntil = 0;
     if (p.carried === item.id) p.carried = null;
     else p.slots[p.slot] = null;
     item.state = "world";
+    item.windVelocity = null;
     item.owner = null;
     item.x = p.x + p.facing.x * 0.9;
     item.z = p.z + p.facing.z * 0.9;
@@ -557,6 +581,7 @@ export class Game {
   dodge(p) {
     if (!this.canAct(p) || this.time - p.lastDodge < this.rules.dodgeCooldown)
       return false;
+    this.setGuard(p, false);
     p.action = null;
     p.pendingAttack = null;
     p.meleeUntil = 0;
@@ -598,8 +623,7 @@ export class Game {
       blocked = 0;
     const shield = this.held(p)?.definition?.shield;
     if (
-      p.block &&
-      shield &&
+      this.isGuardRaised(p) &&
       hit.blockable !== false &&
       inArc(p.facing, { x: -hit.dx, z: -hit.dz }, shield.frontArc)
     ) {
@@ -671,12 +695,14 @@ export class Game {
       !this.canAct(p) ||
       p.craft ||
       p.action ||
+      p.block ||
       this.time < p.attackAt ||
       this.time < p.stunUntil
     )
       return false;
     const item = this.held(p),
       def = item?.origin === "map" ? null : item?.definition;
+    if (def?.shield) return this.setGuard(p, true);
     if (item?.origin === "map" || def?.use || def?.thrown) {
       p.pressSpent = true;
       if (def?.use) this.use(p);
@@ -794,8 +820,7 @@ export class Game {
     } else if (use.effect === "Heal")
       p.hp = Math.min(p.maxHp, p.hp + use.amount);
     else if (use.effect === "Speed") {
-      p.speedUntil = this.time + use.seconds;
-      p.speedStrength = use.amount;
+      this.boost(p, use.amount, use.seconds);
     }
     this.emit("buff", p, { word: item.word });
     return true;
@@ -803,6 +828,8 @@ export class Game {
   throw(p) {
     const item = this.held(p);
     if (!this.canAct(p) || p.action || p.craft || !item) return false;
+    this.setGuard(p, false);
+    item.windVelocity = null;
     const stats = item.definition?.thrown ?? {
       damage: 18,
       speed: 9,
@@ -819,14 +846,15 @@ export class Game {
     item.owner = null;
     item.thrower = p.id;
     item.skin = p.id === 0 ? this.skin : "Classic";
-    if (item.definition?.consumable && stats.fuse) this.spend(item);
+    if (item.definition?.consumable) this.spend(item);
     const pr = {
       id: item.id,
       item,
       word: item.word,
       x: p.x + p.facing.x * 0.6,
       z: p.z + p.facing.z * 0.6,
-      y: 0.85,
+      y: this.floorAt(p.x, p.z) + 0.85,
+      baseY: this.floorAt(p.x, p.z),
       vx: p.facing.x * stats.speed,
       vz: p.facing.z * stats.speed,
       born: this.time,
@@ -899,6 +927,7 @@ export class Game {
     item.x = p.x + p.facing.x * 1.6;
     item.z = p.z + p.facing.z * 1.6;
     item.rotation = p.yaw;
+    item.y = this.floorAt(item.x, item.z);
     item.owner = null;
     item.deployer = p.id;
     p.slots[p.slot] = null;
@@ -925,7 +954,8 @@ export class Game {
         word: item.word,
         x: item.x,
         z: item.z,
-        y: 0,
+        y: item.y,
+        baseY: item.y,
         vx: 0,
         vz: 0,
         born: this.time,
@@ -942,7 +972,9 @@ export class Game {
         word: item.word,
         x: item.x,
         z: item.z,
-        radius: def.deploy.radius ?? 1,
+        radius: def.deploy.radius || 1,
+        arc: def.deploy.arc ?? 360,
+        y: this.floorAt(item.x, item.z),
         expires: def.deploy.lifetime
           ? this.time + def.deploy.lifetime
           : Infinity,
@@ -1020,6 +1052,7 @@ export class Game {
       this.zones = this.zones.filter((z) => z.id !== item.id);
       item.deployer = null;
       item.state = "held";
+      item.windVelocity = null;
       item.owner = p.id;
       this.emit("equip", p, { word: item.word });
       return true;
@@ -1036,6 +1069,7 @@ export class Game {
       .sort((a, b) => distance(a, p) - distance(b, p))[0];
     if (original && p.carried === null) {
       original.state = "carried";
+      original.windVelocity = null;
       original.owner = p.id;
       p.carried = original.id;
       this.emit("carry", p, { word: original.word });
@@ -1317,14 +1351,15 @@ export class Game {
       let dir = normalize(waypoint.x - p.x, waypoint.z - p.z);
       const before = { x: p.x, z: p.z };
       p.motion = { ...dir };
-      this.move(p, dir.x * 3.3 * dt, dir.z * 3.3 * dt);
+      const speed = 3.3 * this.movementScale(p);
+      this.move(p, dir.x * speed * dt, dir.z * speed * dt);
       if (distance(before, p) < 0.01 && d > 1) {
         const options = [
           { x: -dir.z, z: dir.x },
           { x: dir.z, z: -dir.x },
         ];
         for (const alternative of options) {
-          this.move(p, alternative.x * 3.3 * dt, alternative.z * 3.3 * dt);
+          this.move(p, alternative.x * speed * dt, alternative.z * speed * dt);
           if (distance(before, p) > 0.02) break;
         }
       }
@@ -1515,6 +1550,7 @@ export class Game {
       player.y = this.floorAt(player.x, player.z);
       return;
     }
+    for (const player of this.players) this.refreshBoost(player);
     const p = this.players[0];
     p.motion = { x: input.x ?? 0, z: input.z ?? 0 };
     if (!input.attack) p.pressSpent = false;
@@ -1527,7 +1563,7 @@ export class Game {
         p.facing = normalize(input.x, input.z);
         p.yaw = Math.atan2(p.facing.x, p.facing.z);
       }
-      p.block = !!input.block && !!this.held(p)?.definition?.shield;
+      this.setGuard(p, input.block || input.attack);
       if (input.attack && !p.pressSpent) this.attack(p);
       if (input.dodge) this.dodge(p);
       if (input.jump) this.jump(p);
@@ -1536,7 +1572,7 @@ export class Game {
       let speed = p.craft || p.action ? 4.5 * this.rules.craftMoveSpeed : 4.5;
       if (p.carried !== null) speed *= 0.7;
       if (p.block) speed *= this.held(p).definition.shield.moveSpeed;
-      if (this.time < p.speedUntil) speed *= p.speedStrength;
+      speed *= this.movementScale(p);
       if (this.time < p.stunUntil) speed = 0;
       const dir = normalize(input.x ?? 0, input.z ?? 0),
         length = Math.min(1, Math.hypot(input.x ?? 0, input.z ?? 0));
@@ -1553,7 +1589,7 @@ export class Game {
       else {
         const v = (p.velocity ??= { x: 0, z: 0 }),
           wish = { x: dir.x * speed * length, z: dir.z * speed * length },
-          rate = (length > 0.01 ? this.rules.groundAccel : this.rules.groundFriction) ?? 1e9,
+          rate = ((length > 0.01 ? this.rules.groundAccel : this.rules.groundFriction) ?? 1e9) * (this.time < (p.slipUntil ?? 0) ? 0.1 : 1),
           dx = wish.x - v.x,
           dz = wish.z - v.z,
           gap = Math.hypot(dx, dz),
@@ -1598,6 +1634,7 @@ export class Game {
           !this.canAct(q) ||
           q.action ||
           q.craft ||
+          q.block ||
           this.held(q)?.id !== a.itemId ||
           q.slot !== a.slot ||
           this.time > a.at + a.stats.active
@@ -1617,54 +1654,7 @@ export class Game {
             this.collect(q, tile);
     }
     this.tickProjectiles(dt);
-    for (const zone of [...this.zones]) {
-      const backing = this.item(zone.id);
-      if (!backing || !["deployed", "armed"].includes(backing.state)) {
-        this.zones.splice(this.zones.indexOf(zone), 1);
-        continue;
-      }
-      if (this.time >= zone.expires) {
-        this.zones.splice(this.zones.indexOf(zone), 1);
-        const item = this.item(zone.id);
-        if (item) item.state = "gone";
-        continue;
-      }
-      for (const q of this.players) {
-        if (q.state !== "alive") continue;
-        const c = Math.cos(zone.rotation ?? 0),
-          s = Math.sin(zone.rotation ?? 0),
-          dx = q.x - zone.x,
-          dz = q.z - zone.z,
-          localX = dx * c - dz * s,
-          localZ = dx * s + dz * c;
-        const inside = zone.footprint
-          ? Math.abs(localX) < zone.footprint[0] / 2 + 0.3 &&
-            Math.abs(localZ) < zone.footprint[1] / 2 + 0.3
-          : distance(q, zone) <= zone.radius;
-        if (!inside) continue;
-        if (zone.effect === "SpeedStrip") {
-          const motion = q.motion ?? { x: 0, z: 0 };
-          if (
-            motion.x * Math.sin(zone.rotation) +
-              motion.z * Math.cos(zone.rotation) >
-            0.1
-          ) {
-            q.speedUntil = this.time + 1.5;
-            q.speedStrength = zone.strength;
-          }
-        } else if (
-          zone.effect === "JumpPad" &&
-          this.time >= q.jumpUntil &&
-          this.time - (zone.lastLaunch.get(q.id) ?? -Infinity) >= 1
-        ) {
-          zone.lastLaunch.set(q.id, this.time);
-          this.launch(q, zone.strength);
-        } else if (zone.effect === "SlipZone") {
-          q.slipUntil = this.time + 0.2;
-          this.move(q, q.facing.x * dt * 1.1, q.facing.z * dt * 1.1);
-        }
-      }
-    }
+    this.tickZones(dt);
     if (this.mode === "MovingOut")
       for (const k of this.keepsakes) {
         const item = this.item(k.itemId);
@@ -1689,6 +1679,153 @@ export class Game {
     this.clearOut(dt);
     this.checkWin();
   }
+  boost(p, strength, seconds) {
+    const boosts = (p.boosts ??= new Map());
+    boosts.set(strength, Math.max(boosts.get(strength) ?? 0, this.time + seconds));
+    this.refreshBoost(p);
+  }
+  refreshBoost(p) {
+    if (!p.boosts) return;
+    let strength = 1, until = 0;
+    for (const [amount, expiry] of p.boosts) {
+      if (expiry <= this.time) p.boosts.delete(amount);
+      else { strength = Math.max(strength, amount); until = Math.max(until, expiry); }
+    }
+    p.speedStrength = strength;
+    p.speedUntil = until;
+  }
+  movementScale(p) {
+    this.refreshBoost(p);
+    return (this.time < (p.speedUntil ?? 0) ? p.speedStrength : 1) *
+      (this.time < (p.slowUntil ?? 0) ? p.slowStrength : 1);
+  }
+  anchoredItem(item) {
+    return item.anchored || item.checklist || item.origin === "decor" ||
+      ["deployed", "armed", "packed"].includes(item.state);
+  }
+  looseItem(item) {
+    return item.state === "world" && item.owner == null && !this.anchoredItem(item);
+  }
+  fieldReaches(zone, target) {
+    if (Math.abs((target.y ?? this.floorAt(target.x, target.z)) - (zone.y ?? 0)) > 1.25) return false;
+    if (distance(zone, target) > zone.radius) return false;
+    if (!inArc({ x: Math.sin(zone.rotation), z: Math.cos(zone.rotation) },
+      { x: target.x - zone.x, z: target.z - zone.z }, zone.arc ?? 360)) return false;
+    if (this.segmentBlocked(zone, target)) return false;
+    return !this.items.some(item => item.id !== zone.id && item !== target &&
+      ["world", "deployed", "armed"].includes(item.state) && this.anchoredItem(item) &&
+      Math.abs((item.y ?? 0) - (zone.y ?? 0)) < 1.25 && this.segmentHitsItem(zone, target, item, 0));
+  }
+  moveLooseItem(item, dt) {
+    const velocity = item.windVelocity;
+    if (!velocity || !this.looseItem(item)) return;
+    const size = item.delivery ? [0.65, 0.55, 0.55] : (item.definition?.size ?? [0.5, 0.5, 0.5]),
+      c = Math.abs(Math.cos(item.rotation ?? 0)), s = Math.abs(Math.sin(item.rotation ?? 0)),
+      rx = (size[0] * c + size[2] * s) / 2, rz = (size[0] * s + size[2] * c) / 2;
+    const clear = (x, z) => {
+      if (Math.abs(x) + rx > this.extent || Math.abs(z) + rz > this.extent ||
+        Math.abs(this.floorAt(x, z) - this.floorAt(item.x, item.z)) > 0.35) return false;
+      if (this.walls.some(wall => wall.x1 === wall.x2
+        ? Math.abs(x - wall.x1) < rx && z + rz > wall.z1 && z - rz < wall.z2
+        : Math.abs(z - wall.z1) < rz && x + rx > wall.x1 && x - rx < wall.x2)) return false;
+      return !this.items.some(other => other !== item &&
+        ["world", "deployed", "armed"].includes(other.state) &&
+        Math.abs((other.y ?? 0) - (item.y ?? 0)) < 1.25 &&
+        this.segmentHitsItem({ x, z }, { x, z }, other, Math.max(rx, rz)));
+    };
+    const steps = Math.max(1, Math.ceil(Math.hypot(velocity.x, velocity.z) * dt / 0.08));
+    for (let n = 0; n < steps; n++) {
+      const x = item.x + velocity.x * dt / steps, z = item.z + velocity.z * dt / steps;
+      if (clear(x, item.z)) item.x = x; else velocity.x = 0;
+      if (clear(item.x, z)) item.z = z; else velocity.z = 0;
+    }
+    const damping = Math.exp(-4 * dt);
+    velocity.x *= damping; velocity.z *= damping;
+    if (Math.hypot(velocity.x, velocity.z) < 0.005) item.windVelocity = null;
+  }
+  tickZones(dt) {
+    for (const zone of [...this.zones]) {
+      const backing = this.item(zone.id);
+      if (!backing || !["deployed", "armed"].includes(backing.state)) {
+        this.zones.splice(this.zones.indexOf(zone), 1);
+        continue;
+      }
+      if (this.time >= zone.expires) {
+        this.breakItem(backing);
+        continue;
+      }
+      for (const q of this.players) {
+        if (q.state !== "alive") continue;
+        const c = Math.cos(zone.rotation ?? 0),
+          s = Math.sin(zone.rotation ?? 0),
+          dx = q.x - zone.x,
+          dz = q.z - zone.z,
+          localX = dx * c - dz * s,
+          localZ = dx * s + dz * c;
+        const field = zone.effect === "WindField" || zone.effect === "SlowField";
+        const inside = field ? this.fieldReaches(zone, q) : zone.footprint
+          ? Math.abs(localX) < zone.footprint[0] / 2 + 0.3 &&
+            Math.abs(localZ) < zone.footprint[1] / 2 + 0.3
+          : distance(q, zone) <= zone.radius;
+        if (!inside) continue;
+        if (zone.effect === "SpeedStrip") {
+          const motion = q.motion ?? { x: 0, z: 0 };
+          if (
+            motion.x * Math.sin(zone.rotation) +
+              motion.z * Math.cos(zone.rotation) >
+            0.1
+          ) {
+            this.boost(q, zone.strength, 1.5);
+          }
+        } else if (
+          zone.effect === "JumpPad" &&
+          this.time >= q.jumpUntil &&
+          this.time - (zone.lastLaunch.get(q.id) ?? -Infinity) >= 1
+        ) {
+          zone.lastLaunch.set(q.id, this.time);
+          this.launch(q, zone.strength);
+        } else if (zone.effect === "SlowField") {
+          q.slowStrength = this.time < (q.slowUntil ?? 0) ? Math.min(q.slowStrength, zone.strength) : zone.strength;
+          q.slowUntil = this.time + 0.18;
+        } else if (zone.effect === "WindField") {
+          q.slipUntil = this.time + 0.18;
+          const velocity = q.ai ? (q.windVelocity ??= { x: 0, z: 0 }) : (q.velocity ??= { x: 0, z: 0 });
+          const forward = velocity.x * s + velocity.z * c;
+          const impulse = Math.max(0, Math.min(zone.strength * dt, zone.strength - forward));
+          velocity.x += s * impulse;
+          velocity.z += c * impulse;
+        } else if (zone.effect === "SlipZone") {
+          q.slipUntil = this.time + 0.2;
+          this.move(q, q.facing.x * dt * 1.1, q.facing.z * dt * 1.1);
+        }
+      }
+      if (zone.effect === "WindField")
+        for (const item of this.items) {
+          if (!this.looseItem(item) || !this.fieldReaches(zone, item)) continue;
+          const velocity = (item.windVelocity ??= { x: 0, z: 0 }),
+            x = Math.sin(zone.rotation), z = Math.cos(zone.rotation),
+            impulse = Math.max(0, Math.min(zone.strength * dt, zone.strength - velocity.x * x - velocity.z * z));
+          velocity.x += x * impulse; velocity.z += z * impulse;
+        }
+      if (zone.effect === "WindField")
+        for (const tile of this.tiles) {
+          if (!this.fieldReaches(zone, tile)) continue;
+          const velocity = (tile.windVelocity ??= { x: 0, z: 0 }),
+            x = Math.sin(zone.rotation), z = Math.cos(zone.rotation),
+            impulse = Math.max(0, Math.min(zone.strength * dt, zone.strength - velocity.x * x - velocity.z * z));
+          velocity.x += x * impulse; velocity.z += z * impulse;
+          const next = { x: tile.x + velocity.x * dt, z: tile.z + velocity.z * dt };
+          if (!this.segmentBlocked(tile, next)) { tile.x = next.x; tile.z = next.z; }
+        }
+    }
+    for (const item of this.items) this.moveLooseItem(item, dt);
+    for (const player of this.players) {
+      if (!player.ai || !player.windVelocity || player.state !== "alive") continue;
+      this.move(player, player.windVelocity.x * dt, player.windVelocity.z * dt);
+      const damping = Math.exp(-6 * dt);
+      player.windVelocity.x *= damping; player.windVelocity.z *= damping;
+    }
+  }
   tickProjectiles(dt) {
     for (const pr of [...this.projectiles]) {
       const next = { x: pr.x + pr.vx * dt, z: pr.z + pr.vz * dt };
@@ -1700,7 +1837,8 @@ export class Game {
           pr.y - 0.2 < (i.y ?? 0) + (i.definition?.size?.[1] ?? 0.5) &&
           this.segmentHitsItem(pr, next, i),
       );
-      if (this.segmentBlocked(pr, next) || obstacle) {
+      const collided = this.segmentBlocked(pr, next) || !!obstacle;
+      if (collided) {
         if (obstacle) this.damageItem(obstacle, pr.stats.breakPower ?? 1);
         pr.vx = pr.vz = 0;
         pr.y = 0;
@@ -1713,8 +1851,8 @@ export class Game {
       item.z = pr.z;
       item.y = pr.y;
       const age = this.time - pr.born;
-      if (pr.stats.lob) pr.y = Math.max(0, 0.85 + 3 * age - 5 * age * age);
-      else pr.y = Math.max(0, 0.85 - age * 0.9);
+      if (pr.stats.lob) pr.y = (pr.baseY ?? 0) + Math.max(0, 0.85 + 3 * age - 5 * age * age);
+      else pr.y = (pr.baseY ?? 0) + Math.max(0, 0.85 - age * 0.9);
       if (
         age > 0.8 ||
         Math.abs(pr.x) > this.extent - 0.5 ||
@@ -1755,9 +1893,9 @@ export class Game {
         }
         continue;
       }
-      const victim = this.players.find(
-        (q) =>
-          q.id !== pr.owner && q.state === "alive" && distance(q, pr) < 0.55,
+      const victim = !collided && this.players.find(
+        (q) => q.id !== pr.owner && q.state === "alive" && distance(q, pr) < 0.55 &&
+          Math.abs((q.y ?? 0) - (pr.baseY ?? 0)) < 1.25,
       );
       if (victim) {
         const dir = normalize(pr.vx, pr.vz);
@@ -1772,9 +1910,10 @@ export class Game {
         pr.y = 0;
       }
       if ((pr.vx === 0 && pr.vz === 0) || age > 1.4) {
-        item.state = "world";
-        item.y = 0;
+        item.state = item.spent ? "gone" : "world";
+        item.y = this.floorAt(pr.x, pr.z);
         this.projectiles.splice(this.projectiles.indexOf(pr), 1);
+        if (item.spent) this.emit("splat", pr, { word: item.word });
       }
     }
   }
@@ -1783,6 +1922,11 @@ export class Game {
     p.hp = p.maxHp;
     p.bubble = 0;
     p.bubbleUntil = 0;
+    p.boosts?.clear();
+    p.speedUntil = p.slowUntil = p.slipUntil = 0;
+    p.speedStrength = p.slowStrength = 1;
+    p.windVelocity = null;
+    p.velocity = { x: 0, z: 0 };
     p.block = false;
     p.stunUntil = 0;
     p.staggerUntil = 0;

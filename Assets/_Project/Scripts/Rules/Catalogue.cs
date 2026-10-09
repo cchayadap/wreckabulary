@@ -61,7 +61,7 @@ namespace Wreckabulary.Rules
         public float RaiseSeconds;
     }
 
-    public enum DeployEffect { Cover, JumpPad, SpeedStrip, SlipZone }
+    public enum DeployEffect { Cover, JumpPad, SpeedStrip, SlipZone, WindField, SlowField }
 
     public sealed class DeployStats
     {
@@ -72,6 +72,7 @@ namespace Wreckabulary.Rules
         public float Strength;
         public float LifetimeSeconds;
         public float Radius;
+        public float ArcDegrees = 360f;
     }
 
     public enum UseEffect { None, Bubble, Heal, Speed }
@@ -181,7 +182,7 @@ namespace Wreckabulary.Rules
                 if (!item.Enabled) continue;
                 if (string.IsNullOrEmpty(item.Model)) problems.Add(p + "is enabled but has no model");
                 if (item.Family == HandlingFamily.None) problems.Add(p + "is enabled but has no handling family");
-                if (item.HeldScale <= 0f || item.HeldScale > 1f) problems.Add(p + $"held scale {item.HeldScale} is outside (0, 1]");
+                if (!Finite(item.HeldScale) || item.HeldScale <= 0f || item.HeldScale > 1f) problems.Add(p + $"held scale {item.HeldScale} is outside (0, 1]");
                 if (item.Hands != 1 && item.Hands != 2) problems.Add(p + "must use 1 or 2 hands");
                 if (!item.Consumable && item.Durability <= 0) problems.Add(p + "is reusable but has no durability");
                 switch (item.Family)
@@ -210,8 +211,66 @@ namespace Wreckabulary.Rules
                 }
                 if (item.Consumable && item.Family == HandlingFamily.MeleeSwing)
                     problems.Add(p + "a consumable can't be a melee weapon");
+                if (item.Family is HandlingFamily.Ranged or HandlingFamily.Utility)
+                    problems.Add(p + "handling family has no enabled runtime implementation");
+                ValidateStats(item, problems);
             }
             return problems;
+        }
+
+        static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+        static bool Positive(float value) => Finite(value) && value > 0f;
+        static bool NonNegative(float value) => Finite(value) && value >= 0f;
+        static bool Arc(float value) => Positive(value) && value <= 360f;
+
+        static void ValidateStats(ItemDefinition item, List<string> problems)
+        {
+            void Require(bool valid, string message) { if (!valid) problems.Add(item.Id + ": " + message); }
+            Require(item.Size != null && item.Size.Length == 3 && item.Size.All(Positive), "model size must have three positive dimensions");
+            Require(item.Grip != null && item.Grip.Length == 3 && item.Grip.All(Finite), "grip must have three finite coordinates");
+            if (item.Melee != null)
+            {
+                var m = item.Melee;
+                Require(Positive(m.Damage) && Positive(m.Reach) && Arc(m.ArcDegrees), "melee damage, reach and arc must be valid");
+                Require(NonNegative(m.Windup) && Positive(m.Active) && NonNegative(m.Recovery), "melee timing must include a positive active window");
+                Require(NonNegative(m.Knockback) && NonNegative(m.BreakPower) && NonNegative(m.HitStun), "melee impact values must be non-negative");
+            }
+            if (item.Thrown != null)
+            {
+                var t = item.Thrown;
+                Require(Positive(t.Damage) && Positive(t.Speed), "thrown damage and speed must be positive");
+                Require(NonNegative(t.FuseSeconds) && NonNegative(t.Radius) && NonNegative(t.Knockback) && NonNegative(t.BreakPower), "thrown timing and impact values must be non-negative");
+                Require(t.FuseSeconds <= 0f || (Positive(t.Radius) && NonNegative(t.EdgeDamage) && t.EdgeDamage <= t.Damage), "fused throws need a radius and valid edge damage");
+                Require(!item.Consumable || !t.Recoverable, "a consumed throw cannot also be recoverable");
+            }
+            if (item.Shield != null)
+            {
+                var s = item.Shield;
+                Require(Arc(s.FrontArcDegrees), "shield arc must be in (0, 360]");
+                Require(Positive(s.DamageReduction) && s.DamageReduction <= 1f, "shield reduction must be in (0, 1]");
+                Require(Positive(s.MoveSpeedMultiplier) && s.MoveSpeedMultiplier <= 1f && NonNegative(s.RaiseSeconds), "shield movement and raise timing must be valid");
+            }
+            if (item.Deploy != null)
+            {
+                var d = item.Deploy;
+                Require(Positive(d.FootprintX) && Positive(d.FootprintZ) && NonNegative(d.PlaceSeconds), "deploy footprint and placement timing must be valid");
+                Require(Arc(d.ArcDegrees) && NonNegative(d.LifetimeSeconds) && NonNegative(d.Radius), "deploy arc, lifetime and radius must be valid");
+                if (d.Effect == DeployEffect.JumpPad || d.Effect == DeployEffect.WindField)
+                    Require(Positive(d.Strength), "launch or wind strength must be positive");
+                if (d.Effect == DeployEffect.SpeedStrip) Require(Finite(d.Strength) && d.Strength > 1f, "speed strip must increase movement speed");
+                if (d.Effect == DeployEffect.SlowField) Require(Positive(d.Strength) && d.Strength < 1f, "slow field strength must be a multiplier in (0, 1)");
+                if (d.Effect is DeployEffect.SlipZone or DeployEffect.WindField or DeployEffect.SlowField)
+                    Require(Positive(d.Radius) && Positive(d.LifetimeSeconds), "area effects need a positive radius and lifetime");
+            }
+            if (item.Use != null)
+            {
+                var u = item.Use;
+                Require(item.Consumable, "use effects must consume their item");
+                Require(u.Effect != UseEffect.None && Positive(u.Amount) && NonNegative(u.ChannelSeconds), "use effects need an effect, positive amount and valid channel");
+                Require(NonNegative(u.Seconds), "use duration must be non-negative");
+                if (u.Effect is UseEffect.Bubble or UseEffect.Speed) Require(Positive(u.Seconds), "temporary effects need a positive duration");
+                if (u.Effect == UseEffect.Speed) Require(u.Amount > 1f, "speed use must increase movement speed");
+            }
         }
 
         public static ItemCatalogue FromJson(string json, string source = "items.json")
@@ -279,6 +338,7 @@ namespace Wreckabulary.Rules
                         Strength = d["strength"].Float(0f),
                         LifetimeSeconds = d["lifetime"].Float(0f),
                         Radius = d["radius"].Float(0f),
+                        ArcDegrees = d["arc"].Float(360f),
                     };
                 }
                 if (n.Has("use"))

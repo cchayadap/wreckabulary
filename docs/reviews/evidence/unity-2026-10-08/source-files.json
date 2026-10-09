@@ -1,0 +1,318 @@
+{
+  "baseline": "4ae98b07fc419574c0209819764f5f3a23b7e9f9",
+  "utc": "2026-10-08T16:20:57.5923091Z",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Imported/Avatar/Avatar.fbx.meta",
+      "sha256": "32505D0C334CA923BF49C3D4B803AE2A70D402342E23688859BCC655F18C6A4D"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/GeneratedUiArtImporter.cs",
+      "sha256": "D32F908728A9C67C6CE850FED141FC58BFABF6F046D4DF0079E303AEF6BE772B"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/GeneratedUiArtImporter.cs.meta",
+      "sha256": "043412550393DA38F2286457AF48FC7BF8D27A96A1166B28740A3332513564B4"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/ImportedArtSettings.cs",
+      "sha256": "4FAF9517C8430B82ED2C62FFAC38945927F81F2B09747BACA83D3E39A8C2EDEE"
+    },
+    {
+      "path": "Assets/_Project/Resources/ModelLibrary.asset",
+      "sha256": "67A054B2F110ADE55D71D0319704602CB64C8A9D6BE54C771FAB20A377F626EA"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated.meta",
+      "sha256": "E2C540DD71A4D61FE07EE1053C1FAB9CBED975F71B51D25A2AD00645960CF90F"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/house-key-art.png",
+      "sha256": "110A5387EA50CF403B0123CF1311A8B71324B80E239FFEB6A4A9173744B442E9"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/house-key-art.png.meta",
+      "sha256": "757D8B035F6655B5E8A2C543F009BB2FBF9E67ACD3EF8405A9288F3A7D5156EF"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/impact-spark.png",
+      "sha256": "44446733113C32F1132EEE496F612A823F3CE49C56B3CDC45EAF86F2044A9B4E"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/impact-spark.png.meta",
+      "sha256": "B4D79F5E691284123E2C16901B006CFA90B3F37996FCAFC76442773E716469B6"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/roommate-portrait.png",
+      "sha256": "33D93CDED920A0494A80E426ED35FB4E7B977D43FECFE9827291EC479163D4B0"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/roommate-portrait.png.meta",
+      "sha256": "3E95D6423CD7ED2AE546929894B28E34B1C807498338373BC20D070777294200"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Inventory.meta",
+      "sha256": "E1E9EEC0A2172CA41360FFDA380456795E206AA6E0B08CE9A110DED0A7DC4E6F"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Inventory/Inventory.uss",
+      "sha256": "81CDCA43D44EFB760A8E8E3DC9AFCFEA7F9C06114644FCE4E6E9223258AA68E4"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Inventory/Inventory.uss.meta",
+      "sha256": "423E141635D3DF82B50A4FF3EF1D9043282855C19C9D9364C54F3C7D29404DEB"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Inventory/Inventory.uxml",
+      "sha256": "B0D664FF63FDF0E1732FF61DE81293C6E47CE69025D647C03510828B4DB9F347"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Inventory/Inventory.uxml.meta",
+      "sha256": "CD65F0508B1A37663A44B6D00264EE7A2DA303BAF6C9039447A043F7C50EE120"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Inventory/InventoryTheme.tss",
+      "sha256": "682E2B1C6CC1D6E332C15F56C840F7D8282CB1E5BC627EB6664580352A752FDA"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Inventory/InventoryTheme.tss.meta",
+      "sha256": "97BE2FBD7480AE8A790121E95944355172B52F5AB68740494D7D315EB27422EA"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/FurnitureDamageView.cs",
+      "sha256": "69B248FEDE70D742BE51B802D9709BEEADA1D287CB21B3C3BE6FE5FEF36C790F"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/FurnitureDamageView.cs.meta",
+      "sha256": "05EF8D6AD1CE283072C51AA2A684F13E99E2F86FB4946994F3ED66E8A08C16B5"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/HousePresentation.cs",
+      "sha256": "7500A6DE44004D77E570991C690A462CD81F73CF50971A6F7908CDFF8E9D5F20"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/HousePresentation.cs.meta",
+      "sha256": "30B433796F129DD787DB1D7D3C9C2E60EE9D967536848F53145ECE30C888F1A5"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Core/Popup.cs",
+      "sha256": "3292E39B1CAF215C2E06FA6CC3D63AC85D5FA60AF2DF852476C768317CBA654B"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/BackToHub.cs",
+      "sha256": "45256B8A5C9DB71E390A930219EF7CFDA35678D3B90899B19646046E922BB255"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/CameraRig.cs",
+      "sha256": "B99ED952B472D3961F808FBB606759B02AEB325CD3020A429E34CC16FEB236B7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/ClearOutController.cs",
+      "sha256": "83D7CEF049940764893D2285B289193920CFEB073B213FDF026412E453B046E1"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/GameHud.cs",
+      "sha256": "E83E7E68B263FDF67AECDE0C8439A0EDB6E451AB49F0FA65E16372F6F6FCDC27"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/HubDirector.cs",
+      "sha256": "C68E804DD7F660D73D9EF21C67E83F9E25866A2EF6BF67290B88A5A2F3A4B541"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/ModeActions.cs",
+      "sha256": "6F5555E289C6608E50D900BD222F5129C3D1BF480FF286C8B744709CA8D26142"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/PlayerJoinManager.cs",
+      "sha256": "5888EB13006FE9A53F46CB1020BB0EBA33E6CE28DC4A8455BE142AF52C2D1F01"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/RoomBuilder.cs",
+      "sha256": "EB7B86370395AB48DF2379CF521BD9C1DC6E04FE64EB14AA87888E2ED332DFCA"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/RoundManager.cs",
+      "sha256": "2F27DF9717672E428B545C7475D2A6FE59D786852C001B75FFDCEEF70AEC1686"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Input/DesktopBinding.cs",
+      "sha256": "CBB283CEDAD127672E123B2257A9A15CD14B45D3986CA51684EED4D7DA506871"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Input/InputBinding.cs",
+      "sha256": "BC7CE529B8D52E984FB6143A35B888D3BEE50B3308D0C7D17DC452AE46376512"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Letters/LetterPickupView.cs",
+      "sha256": "50E495E3147D5D18CA96CD65DCC1A4DA3661B35F5A31D65135E6E3622EFEA533"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Letters/LetterPickupView.cs.meta",
+      "sha256": "06A2712CE2868CF0046FEF022D0EDB3656BA88F7D2779BB87F7973527E95A346"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Letters/LetterTile.cs",
+      "sha256": "CA55A90AB9C545954DC7B01D67391B8009021D091B7617BE7A65399C67874BD7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Letters/Smashable.cs",
+      "sha256": "6A7A9208E39C7595A542C8321D9705B76E09B91F147A58C1E8CFE7C7447EECB6"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Player/PlayerAppearance.cs",
+      "sha256": "F74932F744C5BEB2CD8A5D5F79736E9DE8C57BEBBA812C3CC83817B04985BDFF"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Player/PlayerCombat.cs",
+      "sha256": "68B7A84E1947ED77C3632EC1671B8528FD5A2E2DDF1DE8DD71AB01AE3D1984F5"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Player/PlayerController.cs",
+      "sha256": "5BC15A0305EE12BDD704B5602AD8006BCD21B22779AE044F2E7234E617681CD6"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Player/PlayerHud.cs",
+      "sha256": "A89CF2110236C990EFAE4FFC3127B21600211F97253B13EF18A59A2E22D73CE7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Player/Summoner.cs",
+      "sha256": "128C75F794F0C07FA1103362C660BFA80CFA1980B0CDAFF408D0F7C362CC8498"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Summons/CatalogGear.cs",
+      "sha256": "872642157DBE9AAF82C2C3716983E66BC82B31ED34B1DA0A0FF0D1130067666E"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Summons/DeployedGear.cs",
+      "sha256": "52D02E80D851DA3AC11B989837EB4720D0C7035A75AC72D9493214C1651466E3"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Summons/HeldWeapon.cs",
+      "sha256": "4A77DB0FE5AB837E71451E1809126F8C76EC7CB472BC207568877A705BCB9D6D"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Summons/Projectile.cs",
+      "sha256": "F86D9BE1B0912506ACA1BE4B92040CDDC356336D8857ECA63CF4B937CC39A1CE"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Summons/SlipZone.cs",
+      "sha256": "919C5B681ED57A1F46973090DFEECEBF3F7B09F070CF19810707A47CAC121FC2"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Summons/SummonEffects.cs",
+      "sha256": "D90EBD74DF4252A2FE612E30A581C500C9A0CF5C0D0F3A855BBBCD8F85B60500"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Summons/ThrownGear.cs",
+      "sha256": "C5B623633B54C37D90B5F016977411AB75FE5BEDA0803AE828E0CFB00A1C2C40"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/FeedbackBurst.cs",
+      "sha256": "E9C3C604C7BF8EB2911740A4E638B0C7CA2047FB08A7473E049B3DAFB6832844"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/FrontDoorMenu.cs",
+      "sha256": "261EFC81C64CF7DEF89FED2C8B9DBC2BFA2034584AF752DD8F2D1FF61E5BD88D"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/GameFeedback.cs",
+      "sha256": "45BB2A3CAF9340C7BA45706F563D90A3472BB94D6150496079BC5200E5746AD7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/PlayerFeedback.cs",
+      "sha256": "8F5C607D1BDF2EFA006C90F88267B1898680BF2ED0D5E4B8EC67638E59B4B40B"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/UIStateController.cs",
+      "sha256": "7558D91363EE7C6206F6CFECDD3710863CFAB6BB82D4DEE7A9C0D577868C3F50"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/UIStateController.cs.meta",
+      "sha256": "32FD5BF91E8DECB242B807546C8ED5354D35F6DC536494BE16A92D5DD1CAE347"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/WorldSpaceBillboard.cs",
+      "sha256": "991EA1430CEBC9A4D97BBC3CB4446719D8664047A107AC7312138D821B374ED0"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/WorldSpaceBillboard.cs.meta",
+      "sha256": "AC629FDBD8AA3B89415D92C68C2D9C748665E6D888CE2A70C9A2E11A27A93D27"
+    },
+    {
+      "path": "Assets/_Project/Tests/CameraRigTests.cs",
+      "sha256": "5178B598E5E79E1D09CED3F12AC774466B720B984714786A9A8991B33A9FD8DE"
+    },
+    {
+      "path": "Assets/_Project/Tests/CameraRigTests.cs.meta",
+      "sha256": "8C6555C45FB1EFE013AC9FEBFDD5BA8A2F90630DD81453EBB2218F24A485C07F"
+    },
+    {
+      "path": "Assets/_Project/Tests/FlowTests.cs",
+      "sha256": "D2E65431BB4FAEF704A6B192576E3C4FFFB87564E7E971DA563068871752C890"
+    },
+    {
+      "path": "Assets/_Project/Tests/HudPresentationTests.cs",
+      "sha256": "243F90FF6261B1C2F37C551D140CD9C692F1082D50B6A259FCE2B2595021BD9B"
+    },
+    {
+      "path": "Assets/_Project/Tests/HudPresentationTests.cs.meta",
+      "sha256": "D1C82E961F9F46053BA30B0B5D2FCCCDB08CF4BAA563F034D0C7EB7FC7ED4F3A"
+    },
+    {
+      "path": "Assets/_Project/Tests/LetterPickupViewTests.cs",
+      "sha256": "B86ECEAF1769DA3FAB15DA341D68FA41BAF51B8B6F91407C11D5A088BC433FD9"
+    },
+    {
+      "path": "Assets/_Project/Tests/LetterPickupViewTests.cs.meta",
+      "sha256": "7FCFB9C191CBC52D7508C59B18321AEB43D51299834FB04932B8C3BEB5C8B166"
+    },
+    {
+      "path": "Assets/_Project/Tests/MovingDayTests.cs",
+      "sha256": "18C8B046707292ADA035EF2A9A242B93290C85CD85C89E163B12DF2C64241967"
+    },
+    {
+      "path": "Assets/_Project/Tests/PlayerAppearanceTests.cs",
+      "sha256": "3785040CFB752812AA88645720ECC9B20EE7559670743C54FD6F5C9F07C3B6F9"
+    },
+    {
+      "path": "Assets/_Project/Tests/PlayerAppearanceTests.cs.meta",
+      "sha256": "B658BB9234A769E754AE22DE149EFDE03189A3A18604D6F65C41E7E3046CE281"
+    },
+    {
+      "path": "Assets/_Project/Tests/PresentationCaptureTests.cs",
+      "sha256": "E3C5082989101513EA546AD1AECDB49DC8E51581A307818BDA836ABFD5C5D2FB"
+    },
+    {
+      "path": "Assets/_Project/Tests/PresentationCaptureTests.cs.meta",
+      "sha256": "F4D93DD36656A1904F8A0BC454392461ABF79516A600D07587F37E27B262748D"
+    },
+    {
+      "path": "Assets/_Project/Tests/TestScenes.cs",
+      "sha256": "5BD5A779E379D0923FDEFD226CA7DF692ADA0CC21C56D63A96B394C034CE4B8E"
+    },
+    {
+      "path": "Assets/_Project/Tests/TouchControlsTests.cs",
+      "sha256": "3496A228351D59C7C185579F93F67404D2F6AAAAD679B8049CB4BA2CC9C7D69A"
+    },
+    {
+      "path": "Assets/_Project/Tests/UIStateControllerTests.cs",
+      "sha256": "37E01D109CB54E847E71839F27D69E70500FAC4CCD0DDC0418B22F2D824AFFAC"
+    },
+    {
+      "path": "Assets/_Project/Tests/UIStateControllerTests.cs.meta",
+      "sha256": "8ED9BAEE3751B5375FCD3EDA622F1131209E9C61D0693A7099606BCD2A9D4012"
+    },
+    {
+      "path": "Assets/_Project/Tests/WallInteractionTests.cs",
+      "sha256": "8C5F681BA92B57E295EE184AE7C8CE4FAE1133EB3389522A6316698CDC1FF818"
+    },
+    {
+      "path": "ProjectSettings/GraphicsSettings.asset",
+      "sha256": "1AABAA3226AF3FDFDCD1BF936FF3EBF164870BF04B2FE230138634985CA62B1C"
+    },
+    {
+      "path": "ProjectSettings/UnityConnectSettings.asset",
+      "sha256": "BFD9B4AD7BA0F6044F0957CD427DF1D8E49DCF9453FDFC35DAC74C64BBFFA8F3"
+    }
+  ]
+}

@@ -94,15 +94,15 @@ namespace Wreckabulary.Tests
             Assert.IsNotNull(safe.Find("Side column/Objective"));
             Assert.IsNull(safe.Find("Side column/Pause"), "The brand tile is the pause button.");
             Assert.IsNull(safe.Find("Return home"), "The way home is in the pause card.");
-            Assert.IsNotNull(safe.Find("Vitals/Hand 1"));
-            Assert.IsNotNull(safe.Find("Vitals/Hand 2"));
+            Assert.IsNotNull(safe.Find("Letter bag/Gear slot 1"));
+            Assert.IsNotNull(safe.Find("Letter bag/Gear slot 2"));
             Assert.IsNull(safe.Find("Vitals").GetComponent<Image>(), "Vitals sit straight on the game, with no card.");
             Assert.IsNull(safe.Find("Vitals/Health track"));
             StringAssert.Contains("HP", safe.Find("Vitals/HP").GetComponent<TMPro.TMP_Text>().text);
             Assert.IsTrue(safe.Find("Desktop controls").gameObject.activeSelf, "Desktop shows the key bar.");
             Assert.IsFalse(safe.Find("Touch controls").gameObject.activeSelf, "On-screen buttons are for touch only.");
 
-            safe.Find("Vitals/Hand 2").GetComponent<Button>().onClick.Invoke();
+            safe.Find("Letter bag/Gear slot 2").GetComponent<Button>().onClick.Invoke();
             Assert.AreEqual(1, player.Combat.ActiveSlot, "Tapping a hand slot picks that hand.");
 
             Assert.IsFalse(hud.BagOpen);
@@ -116,7 +116,7 @@ namespace Wreckabulary.Tests
             safe.Find("Brand").GetComponent<Button>().onClick.Invoke();
             Assert.IsTrue(hud.Paused);
             Assert.AreEqual(0f, Time.timeScale);
-            safe.Find("Pause/Pause card/Resume").GetComponent<Button>().onClick.Invoke();
+            hud.transform.Find("Pause/Pause card/Resume").GetComponent<Button>().onClick.Invoke();
             Assert.IsFalse(hud.Paused);
             Assert.AreEqual(1f, Time.timeScale);
 
@@ -196,6 +196,77 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator RecipeBookReflowsWithoutShrinkingLettersOrOverlappingTheMap()
+        {
+            var player = Spawn(TouchBinding.Shared);
+            var hud = new GameObject("Responsive recipe HUD", typeof(Canvas)).AddComponent<GameHud>();
+            yield return null;
+            yield return new WaitForSecondsRealtime(.12f);
+            player.Inventory.Set("BALL");
+            var safe = (RectTransform)hud.transform.Find("Safe HUD");
+            safe.Find("Letter bag/Bag link").GetComponent<Button>().onClick.Invoke();
+            var book = (RectTransform)safe.Find("Bag panel/Recipe book");
+            var view = (RectTransform)book.Find("View");
+            var cards = (RectTransform)view.Find("Cards");
+            var grid = cards.GetComponent<GridLayoutGroup>();
+            var scroll = view.GetComponent<ScrollRect>();
+            var mapArea = (RectTransform)safe.Find("Bag panel/House/Map area");
+            var map = (RectTransform)mapArea.Find("Big map");
+
+            foreach (var size in new[] { new Vector2(1920f, 1080f), new Vector2(2520f, 1080f), new Vector2(1440f, 1080f) })
+            {
+                // Exercise logical canvas sizes without changing the editor's saved Game View resolutions.
+                safe.anchorMin = safe.anchorMax = safe.pivot = Vector2.zero;
+                safe.anchoredPosition = Vector2.zero;
+                safe.sizeDelta = size;
+                yield return new WaitForSecondsRealtime(.12f);
+                Canvas.ForceUpdateCanvases();
+                Assert.AreEqual(size.x >= 1920f ? 4 : 3, grid.constraintCount, size.ToString());
+                Assert.GreaterOrEqual(grid.cellSize.x, 188f, "Fewer columns keep the recipe cells readable.");
+                Assert.GreaterOrEqual(grid.cellSize.y, 200f);
+                Assert.IsTrue(scroll.vertical);
+                Assert.IsFalse(scroll.horizontal);
+                Assert.Greater(cards.rect.height, view.rect.height, "All recipes remain reachable by scrolling.");
+                Assert.GreaterOrEqual(map.rect.width, 325f);
+                Assert.AreEqual(map.rect.width, map.rect.height, .5f);
+                AssertRectInside(safe, book);
+                AssertRectInside(safe, mapArea);
+                AssertRectInside(mapArea, map);
+                var mapCorners = new Vector3[4]; var bookCorners = new Vector3[4];
+                mapArea.GetWorldCorners(mapCorners); book.GetWorldCorners(bookCorners);
+                Assert.Less(mapCorners[2].x, bookCorners[0].x, "The map and recipe column have separate space.");
+
+                foreach (Transform card in cards)
+                {
+                    Assert.GreaterOrEqual(((RectTransform)card.Find("Picture")).rect.width, 112f);
+                    foreach (var text in card.GetComponentsInChildren<TMPro.TMP_Text>())
+                    {
+                        Assert.GreaterOrEqual(text.fontSize, 23f, card.name);
+                        AssertRectInside((RectTransform)card, (RectTransform)text.transform.parent);
+                    }
+                }
+                scroll.verticalNormalizedPosition = 0f;
+                Canvas.ForceUpdateCanvases();
+                AssertRectInside(view, (RectTransform)cards.GetChild(cards.childCount - 1));
+                scroll.verticalNormalizedPosition = 1f;
+            }
+            Object.Destroy(hud.gameObject);
+            Object.Destroy(player.gameObject);
+        }
+
+        static void AssertRectInside(RectTransform outer, RectTransform inner)
+        {
+            var corners = new Vector3[4];
+            inner.GetWorldCorners(corners);
+            foreach (var corner in corners)
+            {
+                var local = outer.InverseTransformPoint(corner);
+                Assert.That(local.x, Is.InRange(outer.rect.xMin - .5f, outer.rect.xMax + .5f), inner.name + " horizontal fit");
+                Assert.That(local.y, Is.InRange(outer.rect.yMin - .5f, outer.rect.yMax + .5f), inner.name + " vertical fit");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator AnnouncementsAreToastsAndTheRoundChipCountsDown()
         {
             var you = Spawn(TouchBinding.Shared);
@@ -231,14 +302,14 @@ namespace Wreckabulary.Tests
             var safe = hud.transform.Find("Safe HUD");
             safe.Find("Brand").GetComponent<Button>().onClick.Invoke();
             Assert.IsTrue(hud.Paused);
-            var card = safe.Find("Pause/Pause card");
+            var card = hud.transform.Find("Pause/Pause card");
             Assert.AreEqual("The mess can wait.", card.Find("Heading").GetComponent<TMPro.TMP_Text>().text);
             StringAssert.Contains("First to", card.Find("Blurb").GetComponent<TMPro.TMP_Text>().text, "The pause card says what the mode is.");
-            card.Find("Pause controls").GetComponent<Button>().onClick.Invoke();
+            card.Find("Pause how to play").GetComponent<Button>().onClick.Invoke();
             Assert.IsTrue(hud.HelpShown);
             Assert.IsFalse(card.gameObject.activeSelf, "Help takes the pause card's place.");
-            StringAssert.Contains(" HP.", safe.Find("Pause/Pause help/Fine print").GetComponent<TMPro.TMP_Text>().text);
-            safe.Find("Pause/Pause help/Help done").GetComponent<Button>().onClick.Invoke();
+            StringAssert.Contains(" HP.", hud.transform.Find("Pause/Pause help/Fine print").GetComponent<TMPro.TMP_Text>().text);
+            hud.transform.Find("Pause/Pause help/Help done").GetComponent<Button>().onClick.Invoke();
             Assert.IsFalse(hud.Paused, "GOT IT. LET'S PLAY. goes straight back to the game.");
             Assert.AreEqual(1f, Time.timeScale);
 

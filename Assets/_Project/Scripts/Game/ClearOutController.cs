@@ -9,6 +9,7 @@ namespace Wreckabulary
     {
         readonly Dictionary<string, Renderer> indicators = new();
         readonly Dictionary<string, RoomPhase> phases = new();
+        readonly Dictionary<string, ClearOutSwirl> swirls = new();
         float began, nextDamage;
         public HouseLayout Layout { get; private set; }
         public ClearOutSchedule Schedule { get; private set; }
@@ -30,6 +31,7 @@ namespace Wreckabulary
             Running = false;
             Message = "";
             phases.Clear();
+            swirls.Clear();
             foreach (var indicator in indicators.Values) if (indicator) Destroy(indicator.gameObject);
             indicators.Clear();
         }
@@ -53,22 +55,37 @@ namespace Wreckabulary
                 if (!indicators.TryGetValue(closure.Room, out var indicator) || !indicator)
                 {
                     var room = Layout.Room(closure.Room);
-                    var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    var go = new GameObject();
                     go.name = $"Clear-out: {closure.Room}";
-                    Destroy(go.GetComponent<Collider>());
                     go.transform.SetParent(transform, false);
-                    go.transform.position = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .012f, (room.MinZ + room.MaxZ) * .5f);
-                    go.transform.localScale = new Vector3(room.MaxX - room.MinX - .3f, .01f, room.MaxZ - room.MinZ - .3f);
-                    indicator = go.GetComponent<Renderer>();
+                    go.transform.position = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .035f, (room.MinZ + room.MaxZ) * .5f);
+                    float x = (room.MaxX - room.MinX) * .5f - .2f, z = (room.MaxZ - room.MinZ) * .5f - .2f;
+                    var border = SummonEffects.Line(go.transform, new Color(1f, .72f, .23f), new[]
+                    {
+                        new Vector3(-x, 0f, -z), new Vector3(-x, 0f, z),
+                        new Vector3(x, 0f, z), new Vector3(x, 0f, -z)
+                    }, true);
+                    border.startWidth = border.endWidth = .13f;
+                    indicator = border;
                     indicators[closure.Room] = indicator;
                 }
                 var color = phase == RoomPhase.Warning ? new Color(.91f, .65f, .19f) : phase == RoomPhase.Filling
                     ? new Color(.87f, .32f, .15f) : new Color(.36f, .22f, .22f);
-                indicator.sharedMaterial = GameAssets.I.Tinted(color);
                 if (!phases.TryGetValue(closure.Room, out var old) || old != phase)
                 {
                     phases[closure.Room] = phase;
-                    if (phase == RoomPhase.Filling) { CameraRig.Shake(.2f); ClosureStarted?.Invoke(); }
+                    indicator.sharedMaterial = GameAssets.I.Tinted(color);
+                    if (phase == RoomPhase.Filling)
+                    {
+                        CameraRig.Shake(.2f);
+                        swirls[closure.Room] = ClearOutSwirl.Create(indicator.transform, this);
+                        ClosureStarted?.Invoke();
+                    }
+                    else if (swirls.TryGetValue(closure.Room, out var swirl) && swirl)
+                    {
+                        Destroy(swirl.gameObject);
+                        swirls.Remove(closure.Room);
+                    }
                 }
                 if (phase == RoomPhase.Warning)
                     Message = $"MOVERS: {Layout.WithStorey(closure.Room)} in {Mathf.CeilToInt((float)closure.FillAt - now)}s — follow a doorway out";
@@ -86,6 +103,42 @@ namespace Wreckabulary
                 float damage = Schedule.DamagePerSecond(room, now) * .5f;
                 if (damage > 0f) p.Health.ApplyDamage(HitInfo.Hazard(damage));
             }
+        }
+    }
+
+    /// <summary>A brief visual wind-up during the existing Filling phase; it has no physics or damage.</summary>
+    public sealed class ClearOutSwirl : MonoBehaviour
+    {
+        ClearOutController owner;
+
+        public static ClearOutSwirl Create(Transform parent, ClearOutController owner)
+        {
+            var root = new GameObject("Mover whirlwind");
+            root.transform.SetParent(parent, false);
+            var swirl = root.AddComponent<ClearOutSwirl>();
+            swirl.owner = owner;
+            for (int strand = 0; strand < 3; strand++)
+            {
+                var ribbon = new GameObject("Wind ribbon").transform;
+                ribbon.SetParent(root.transform, false);
+                var points = new Vector3[100];
+                for (int i = 0; i < points.Length; i++)
+                {
+                    float t = (float)i / (points.Length - 1);
+                    float radius = Mathf.Lerp(.13f, 1.1f, t);
+                    float angle = t * Mathf.PI * 8f + strand * Mathf.PI * 2f / 3f;
+                    points[i] = new Vector3(Mathf.Cos(angle) * radius, t * 2.6f, Mathf.Sin(angle) * radius);
+                }
+                var line = SummonEffects.Line(ribbon, strand == 1 ? new Color(.94f, .83f, .67f) : new Color(.74f, .82f, .82f), points);
+                line.startWidth = .04f;
+                line.endWidth = .16f;
+            }
+            return swirl;
+        }
+
+        void Update()
+        {
+            if (owner && owner.Running) transform.Rotate(0f, -Time.deltaTime * 185f, 0f, Space.Self);
         }
     }
 }

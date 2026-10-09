@@ -478,7 +478,7 @@
    "id": "APPLE",
    "category": "Consumables",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": true,
    "model": "Items/APPLE",
    "heldScale": 1.0,
@@ -499,7 +499,13 @@
    ],
    "family": "Heal",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "Eat to restore 30 HP after a short channel.",
+   "durability": 0,
+   "use": {
+    "effect": "Heal",
+    "amount": 30,
+    "channel": 0.55
+   }
   },
   {
    "id": "ARROW",
@@ -640,7 +646,7 @@
    "id": "BROOM",
    "category": "Combat",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": false,
    "model": "Items/BROOM",
    "heldScale": 0.5876,
@@ -661,7 +667,19 @@
    ],
    "family": "MeleeSwing",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "Wide sweeps push a crowd back, with light damage.",
+   "durability": 28,
+   "melee": {
+    "damage": 10,
+    "reach": 2.2,
+    "arc": 145,
+    "windup": 0.28,
+    "active": 0.14,
+    "recovery": 0.38,
+    "knockback": 9,
+    "breakPower": 1,
+    "hitStun": 0.22
+   }
   },
   {
    "id": "CABINET",
@@ -694,7 +712,7 @@
    "id": "CAKE",
    "category": "Consumables",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": true,
    "model": "Items/CAKE",
    "heldScale": 0.72,
@@ -715,7 +733,13 @@
    ],
    "family": "Heal",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "Restore 50 HP. The longer eating channel can be interrupted.",
+   "durability": 0,
+   "use": {
+    "effect": "Heal",
+    "amount": 50,
+    "channel": 1.1
+   }
   },
   {
    "id": "CHAIR",
@@ -775,7 +799,7 @@
    "id": "CLOCK",
    "category": "Utilities",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": false,
    "model": "Items/CLOCK",
    "heldScale": 0.75,
@@ -796,7 +820,20 @@
    ],
    "family": "DeployZone",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "Place a clock that slows nearby players to 60% speed for 10 seconds. Walls block the field.",
+   "durability": 40,
+   "deploy": {
+    "effect": "SlowField",
+    "place": 0.6,
+    "radius": 2.75,
+    "strength": 0.6,
+    "lifetime": 10,
+    "arc": 360,
+    "footprint": [
+     0.48,
+     0.122
+    ]
+   }
   },
   {
    "id": "CRATE",
@@ -856,7 +893,7 @@
    "id": "FAN",
    "category": "Utilities",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": false,
    "model": "Items/FAN",
    "heldScale": 0.4385,
@@ -877,13 +914,26 @@
    ],
    "family": "DeployZone",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "Place a fan that pushes nearby players in a forward cone for 12 seconds. Walls block the wind.",
+   "durability": 45,
+   "deploy": {
+    "effect": "WindField",
+    "place": 0.7,
+    "radius": 3.2,
+    "strength": 8,
+    "lifetime": 12,
+    "arc": 90,
+    "footprint": [
+     0.522,
+     0.25
+    ]
+   }
   },
   {
    "id": "HAMMER",
    "category": "Combat",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": false,
    "model": "Items/HAMMER",
    "heldScale": 0.5669,
@@ -904,7 +954,19 @@
    ],
    "family": "MeleeSwing",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "A slow, heavy swing with strong furniture-breaking power.",
+   "durability": 30,
+   "melee": {
+    "damage": 28,
+    "reach": 1.25,
+    "arc": 75,
+    "windup": 0.5,
+    "active": 0.12,
+    "recovery": 0.65,
+    "knockback": 8,
+    "breakPower": 4.5,
+    "hitStun": 0.42
+   }
   },
   {
    "id": "MUG",
@@ -964,7 +1026,7 @@
    "id": "PIE",
    "category": "Consumables",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": true,
    "model": "Items/PIE",
    "heldScale": 0.72,
@@ -985,7 +1047,16 @@
    ],
    "family": "Thrown",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "A single-use pie splats on its first impact. Spends its letters when thrown.",
+   "durability": 0,
+   "thrown": {
+    "damage": 8,
+    "speed": 13,
+    "lob": false,
+    "recoverable": false,
+    "knockback": 3,
+    "breakPower": 0.5
+   }
   },
   {
    "id": "PLANT",
@@ -1072,7 +1143,7 @@
    "id": "SHIELD",
    "category": "Combat",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": false,
    "model": "Items/SHIELD",
    "heldScale": 0.6316,
@@ -1093,13 +1164,20 @@
    ],
    "family": "Shield",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "Hold to block from every direction. Raising it slows movement; blocked damage wears it down.",
+   "durability": 90,
+   "shield": {
+    "frontArc": 360,
+    "reduction": 1,
+    "moveSpeed": 0.55,
+    "raise": 0.22
+   }
   },
   {
    "id": "SODA",
    "category": "Consumables",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": true,
    "model": "Items/SODA",
    "heldScale": 1.0,
@@ -1120,13 +1198,20 @@
    ],
    "family": "Buff",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "Drink for 1.35x movement speed for 6 seconds. Refreshes instead of stacking.",
+   "durability": 0,
+   "use": {
+    "effect": "Speed",
+    "amount": 1.35,
+    "seconds": 6,
+    "channel": 0.35
+   }
   },
   {
    "id": "SPEAR",
    "category": "Combat",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": false,
    "model": "Items/SPEAR",
    "heldScale": 0.4858,
@@ -1147,13 +1232,25 @@
    ],
    "family": "MeleeThrust",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "A narrow thrust with the longest melee reach.",
+   "durability": 20,
+   "melee": {
+    "damage": 18,
+    "reach": 2.9,
+    "arc": 18,
+    "windup": 0.32,
+    "active": 0.08,
+    "recovery": 0.42,
+    "knockback": 3.5,
+    "breakPower": 1.5,
+    "hitStun": 0.2
+   }
   },
   {
    "id": "STOOL",
    "category": "Furniture",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": false,
    "model": "Items/STOOL",
    "heldScale": 0.6923,
@@ -1174,7 +1271,17 @@
    ],
    "family": "DeployPad",
    "hands": 2,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "A compact jump pad that places quickly and launches lower than BED.",
+   "durability": 45,
+   "deploy": {
+    "effect": "JumpPad",
+    "place": 0.35,
+    "strength": 8.5,
+    "footprint": [
+     0.52,
+     0.52
+    ]
+   }
   },
   {
    "id": "VASE",
@@ -1207,7 +1314,7 @@
    "id": "WATER",
    "category": "Consumables",
    "tier": "Expanded",
-   "enabled": false,
+   "enabled": true,
    "consumable": true,
    "model": "Items/WATER",
    "heldScale": 0.878,
@@ -1228,7 +1335,13 @@
    ],
    "family": "Heal",
    "hands": 1,
-   "notes": "Modelled; behaviour not built yet, so it is disabled. Breaks into letters as original furniture."
+   "notes": "Drink quickly to restore 18 HP.",
+   "durability": 0,
+   "use": {
+    "effect": "Heal",
+    "amount": 18,
+    "channel": 0.25
+   }
   },
   {
    "id": "AXE",

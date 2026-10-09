@@ -1,4 +1,5 @@
 import "./style.css";
+import { recipeDescription, itemActionLabel } from "./item-presentation.js";
 import { Game, MODES, MAPS, canSpell, distance } from "./engine.js";
 import { WorldView } from "./renderer.js";
 import {
@@ -678,14 +679,7 @@ function updateHud() {
     attackIcon.dataset.word = held?.word ?? "";
     attackIcon.innerHTML = held ? iconHtml(held.word) : actionArt("smash", 42);
   }
-  document.querySelector("#attack-label").textContent =
-    held?.definition?.use && held.origin !== "map"
-      ? "USE"
-      : held?.origin === "map" || held?.definition?.thrown
-        ? "THROW"
-        : held?.definition?.deploy || game.placesObjective(p, held)
-          ? "PLACE"
-          : "SMASH";
+  document.querySelector("#attack-label").textContent = itemActionLabel(held, game.placesObjective(p, held));
   document
     .querySelector("#block-action")
     .classList.toggle("disabled", !held?.definition?.shield);
@@ -768,19 +762,26 @@ function bagCells(bag, reserved, tossable) {
   return cells.join("");
 }
 const WEAR_SLOTS = ["Headwear", "Face", "Top", "Gloves", "Bottoms", "Footwear", "Back", "Badge"];
-function setBag(open) {
-  bagOpen = open && screen === "game";
-  if (bagOpen) releaseMouse();
+function setBag(open, recipesOnly = false) {
+  const showing = open && screen === "game";
+  if (showing) {
+    if (craftOpen) drawer();
+    resetInputs();
+    releaseMouse();
+  }
+  bagOpen = showing;
+  const recipes = bagOpen && recipesOnly;
   const root = document.querySelector("#bag-root");
   if (!root) return;
   root.innerHTML = bagOpen
-    ? `<section class="bag-panel" aria-label="Bag and map"><div class="bag-inv"><div class="inv-row inv-letters" aria-label="Letters">${glyph("bag")}<div class="bag-letters" id="bag-letters"></div><b class="inv-count" id="bag-panel-count"></b></div><div class="inv-row bag-hands" id="bag-hands" aria-label="Hands"></div><div class="inv-row bag-wear" id="bag-wear" aria-label="Wearing"></div><div class="inv-row bag-effects" id="bag-effects" aria-label="Effects"></div></div><div class="bag-map-slot" aria-hidden="true"></div><aside class="bag-book" aria-label="Recipe book">${glyph("book")}<div class="recipe-grid" id="bag-recipes"></div></aside><button class="close bag-close" data-action="bag" aria-label="Close bag">×</button></section>`
+    ? `<section class="bag-panel${recipes ? " recipes-only" : ""}" aria-label="${recipes ? "Recipe book" : "Bag and map"}"><div class="bag-inv"><div class="inv-row inv-letters" aria-label="Letters">${glyph("bag")}<div class="bag-letters" id="bag-letters"></div><b class="inv-count" id="bag-panel-count"></b></div><div class="inv-row bag-hands" id="bag-hands" aria-label="Hands"></div><div class="inv-row bag-wear" id="bag-wear" aria-label="Wearing"></div><div class="inv-row bag-effects" id="bag-effects" aria-label="Effects"></div></div><div class="bag-map-slot" aria-hidden="true"></div><aside class="bag-book" aria-label="Recipe book">${recipes ? '<h2 class="recipe-book-heading">Recipe book</h2>' : glyph("book")}<div class="recipe-grid" id="bag-recipes"></div></aside><button class="close bag-close" data-action="bag" aria-label="Close bag">×</button></section>`
     : "";
   root.querySelectorAll("[data-action]").forEach(
     (b) => (b.onclick = () => actions[b.dataset.action]()),
   );
-  document.querySelector("#minimap")?.classList.toggle("zoomed", bagOpen);
+  document.querySelector("#minimap")?.classList.toggle("zoomed", bagOpen && !recipes);
   document.querySelector(".hud")?.classList.toggle("bag-open", bagOpen);
+  document.querySelector(".hud")?.classList.toggle("recipes-open", recipes);
   if (bagOpen) updateBag();
   updateMinimap();
 }
@@ -842,6 +843,10 @@ function updateBag() {
     effects.push(
       `<span class="effect-chip speed" title="Speed">${glyph("speed", "Speed")}<b>${Math.ceil(p.speedUntil - game.time)}</b></span>`,
     );
+  if (game.time < (p.slowUntil ?? 0))
+    effects.push(
+      `<span class="effect-chip slow" title="Slowed">${iconHtml("CLOCK")}<b>${Math.ceil(p.slowUntil - game.time)}</b></span>`,
+    );
   if (p.carried !== null) {
     const carried = game.item(p.carried)?.word;
     effects.push(
@@ -892,17 +897,6 @@ function updateMinimap(root = document.querySelector("#minimap"), full = false) 
     )
     .join("")}`;
 }
-const RECIPE_BLURBS = {
-  MeleeSwing: "A satisfying swing",
-  MeleeThrust: "A little extra reach",
-  Thrown: "Catch. Throw. Repeat.",
-  Buff: "A protective bubble",
-  Shield: "Frontal block · hold RMB",
-  DeployPad: "A bouncy jump pad",
-  DeploySpeed: "A speedy little shortcut",
-  DeployZone: "A slippery surprise",
-  DeployCover: "Make your own cover",
-};
 function letterCover(bag, word) {
   const copy = [...bag];
   return [...word].map((c) => {
@@ -918,11 +912,12 @@ function recipeBook(bag = "") {
     .map((item) => {
       const cover = letterCover(bag, item.id),
         ready = bag && cover.every(Boolean);
-      return `<button class="recipe ${ready ? "available" : ""}" data-recipe="${item.id}" title="${item.id === "BOMB" ? "A 2.5 second surprise" : (RECIPE_BLURBS[item.family] ?? item.family)}" aria-label="${item.id}${ready ? ", you have the letters" : ""}">${iconHtml(item.id)}<div class="recipe-letters">${[...item.id].map((c, i) => `<span class="${cover[i] ? "got" : ""}">${c}</span>`).join("")}</div></button>`;
+      return `<button class="recipe ${ready ? "available" : ""}" data-recipe="${item.id}" title="${recipeDescription(item)}" aria-label="${item.id}${ready ? ", you have the letters" : ""}">${iconHtml(item.id)}<div class="recipe-letters">${[...item.id].map((c, i) => `<span class="${cover[i] ? "got" : ""}">${c}</span>`).join("")}</div></button>`;
     })
     .join("");
 }
 function drawer(prefill = "") {
+  if (!craftOpen && bagOpen) setBag(false);
   craftOpen = !craftOpen;
   resetInputs();
   if (craftOpen) releaseMouse();
@@ -946,7 +941,7 @@ function drawer(prefill = "") {
       else drawer();
     } else if (e.code === "Tab") {
       e.preventDefault();
-      if (!e.repeat) setBag(true);
+      if (!e.repeat) setBag(true, true);
     }
   };
   document.querySelector("#spell-form").onsubmit = (e) => {
@@ -1026,7 +1021,7 @@ function how() {
   const previous = screen;
   const layer = document.createElement("div");
   layer.className = "modal-shade help-shade";
-  layer.innerHTML = `<section class="help-card"><button class="close" id="help-close" aria-label="Close instructions">×</button><span class="eyebrow">A HOUSE FULL OF POSSIBILITIES</span><h2>Everything starts with a word.</h2><div class="how-steps"><div><b>01</b><strong>Break it.</strong><p>Smash original furniture. A TABLE breaks into T, A, B, L, E.</p></div><div><b>02</b><strong>Spell it.</strong><p>Walk over letters. Your bag holds 10. Use SPELL to craft any of the 12 enabled recipes.</p></div><div><b>03</b><strong>Bring it.</strong><p>Click to swing gear, throw it or place a tool. Reusable gear returns its letters when broken. Consumables spend them.</p></div></div><div class="key-table"><span><kbd>WASD / arrows</kbd> move</span><span><kbd>Mouse / touch</kbd> aim</span><span><kbd>LMB / J</kbd> smash · throw · place · use</span><span><kbd>RMB / K</kbd> block with PLATE</span><span><kbd>Shift</kbd> dodge</span><span><kbd>Space</kbd> jump</span><span><kbd>Q / C</kbd> spell</span><span><kbd>1 / 2</kbd> switch hand</span><span><kbd>Tab</kbd> hold for bag &amp; map</span><span><kbd>E</kbd> pickup / hold to revive</span><span><kbd>R</kbd> drop gear</span></div><p class="fineprint">Health is 100 HP. Hits never remove letters. Cosmetics change your look, never your stats. The Movers announce room closures before dealing hazard damage.</p><button class="primary" id="help-done">GOT IT. LET’S PLAY. →</button></section>`;
+  layer.innerHTML = `<section class="help-card"><button class="close" id="help-close" aria-label="Close instructions">×</button><span class="eyebrow">A HOUSE FULL OF POSSIBILITIES</span><h2>Everything starts with a word.</h2><div class="how-steps"><div><b>01</b><strong>Break it.</strong><p>Smash original furniture. A TABLE breaks into T, A, B, L, E.</p></div><div><b>02</b><strong>Spell it.</strong><p>Walk over letters. Your bag holds 10. Use SPELL to craft any of the ${data.items.items.filter(item => item.enabled).length} enabled recipes.</p></div><div><b>03</b><strong>Bring it.</strong><p>Click to swing gear, throw it or place a tool. Reusable gear returns its letters when broken. Consumables spend them.</p></div></div><div class="key-table"><span><kbd>WASD / arrows</kbd> move</span><span><kbd>Mouse / touch</kbd> aim</span><span><kbd>LMB / J</kbd> smash · throw · place · use</span><span><kbd>RMB / K</kbd> block with PLATE / SHIELD</span><span><kbd>Shift</kbd> dodge</span><span><kbd>Space</kbd> jump</span><span><kbd>Q / C</kbd> spell</span><span><kbd>1 / 2</kbd> switch hand</span><span><kbd>Tab</kbd> hold for bag &amp; map</span><span><kbd>E</kbd> pickup / hold to revive</span><span><kbd>R</kbd> drop gear</span></div><p class="fineprint">Health is 100 HP. Hits never remove letters. Cosmetics change your look, never your stats. The Movers announce room closures before dealing hazard damage.</p><button class="primary" id="help-done">GOT IT. LET’S PLAY. →</button></section>`;
   ui.append(layer);
   const close = () => layer.remove();
   layer.querySelector("#help-close").onclick = close;
@@ -1584,7 +1579,7 @@ const actions = {
   how,
   craft: () => drawer(),
   bag: () => setBag(!bagOpen),
-  recipes: () => setBag(true),
+  recipes: () => setBag(true, true),
   pause,
   sound: () => {
     muted = !muted;

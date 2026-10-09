@@ -1189,7 +1189,7 @@ export class WorldView {
           nodeScale =
             item.state === "carried" ? 1 : (item.definition?.heldScale ?? 0.5);
         node.scale.setScalar(nodeScale);
-        if (this.attachToHands(node, item, owner, nodeScale)) continue;
+        if (this.attachToHands(node, item, owner, nodeScale, game)) continue;
         node.position.set(
           owner.x +
             (item.state === "carried"
@@ -1291,10 +1291,12 @@ export class WorldView {
       let node = this.entities.get(key);
       if (!node) {
         node = mesh(
-          new THREE.CircleGeometry(zone.radius, 48),
+          new THREE.CircleGeometry(zone.radius, 48,
+            zone.effect === "WindField" ? (zone.rotation ?? 0) - Math.PI / 2 - (zone.arc ?? 360) * Math.PI / 360 : 0,
+            zone.effect === "WindField" ? (zone.arc ?? 360) * Math.PI / 180 : Math.PI * 2),
           new THREE.MeshBasicMaterial({
             color:
-              zone.effect === "SlipZone"
+              zone.effect === "WindField" ? 0x78e6cb : zone.effect === "SlowField" ? 0xa18af2 : zone.effect === "SlipZone"
                 ? 0x79cbd5
                 : zone.effect === "JumpPad"
                   ? 0xe7b877
@@ -1306,7 +1308,7 @@ export class WorldView {
           }),
         );
         node.rotation.x = -Math.PI / 2;
-        node.position.set(zone.x, 0.045, zone.z);
+        node.position.set(zone.x, (zone.y ?? 0) + 0.045, zone.z);
         this.dynamic.add(node);
         this.entities.set(key, node);
       }
@@ -1358,7 +1360,7 @@ export class WorldView {
       for (const [key, node] of this.entities) node.visible = /^p\d+$/.test(key);
     this.renderer.render(this.scene, this.camera);
   }
-  attachToHands(node, item, owner, scale) {
+  attachToHands(node, item, owner, scale, game = this.lastGame) {
     const animator = this.avatarModels.get(owner.id)?.animator;
     if (!animator || owner.state === "eliminated") return false;
     const asset = this.manifest.items?.[item.word];
@@ -1378,7 +1380,7 @@ export class WorldView {
     }
     const shield =
       item.definition?.family === "Shield" || !!item.definition?.shield;
-    if (shield && owner.block) {
+    if (shield && game?.isGuardRaised(owner)) {
       const yaw = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(0, 1, 0),
         animator.yaw,
@@ -1498,6 +1500,12 @@ export class WorldView {
           life: 1.2,
           scale: 2.2,
         });
+      else if (e.type === "buff" && p && e.word === "SODA")
+        this.spawnVfx("Speed_Trail", p.x, (p.y ?? 0) + 0.2, p.z, { life: 0.8, scale: 1.5 });
+      else if (e.type === "buff" && p)
+        this.spawnVfx("Pickup_Ring", p.x, (p.y ?? 0) + 0.05, p.z, { life: 0.7, scale: 1.5, rise: 0.5 });
+      else if (e.type === "splat")
+        this.spawnVfx("Foam_Cloud", e.x, (e.y ?? 0) + 0.4, e.z, { life: 0.5, scale: 1.3 });
       else if (e.type === "break" || e.type === "furnitureHit")
         this.spawnVfx("Wood_Splinter", e.x, 0.5, e.z, {
           life: 0.5,

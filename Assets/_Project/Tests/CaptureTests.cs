@@ -358,10 +358,10 @@ namespace Wreckabulary.Tests
             safe.Find("Brand").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             yield return new WaitForSecondsRealtime(.3f);
             yield return CaptureFramed(Path.Combine(dir, "cards_4_pause.png"));
-            safe.Find("Pause/Pause card/Pause controls").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            hud.transform.Find("Pause/Pause card/Pause how to play").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             yield return new WaitForSecondsRealtime(.3f);
             yield return CaptureFramed(Path.Combine(dir, "cards_5_help.png"));
-            safe.Find("Pause/Pause help/Help done").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            hud.transform.Find("Pause/Pause help/Help done").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             yield return null;
 
             hud.ShowResult(new HudResult { Round = 2, Won = true, Heading = "You called dibs!", Broken = 6, Crafted = 3, Damage = 48 }, () => { });

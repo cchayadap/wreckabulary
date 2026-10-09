@@ -180,7 +180,7 @@ namespace Wreckabulary.Tests
             Assert.IsNotNull(menu.Find("Choose mode"));
             Assert.IsNotNull(menu.Find("Leave typewriter"));
             Assert.IsNotNull(hud.transform.Find("Safe HUD/Brand").GetComponent<UnityEngine.UI.Button>(), "The brand tile opens the pause card...");
-            Assert.IsNotNull(hud.transform.Find("Safe HUD/Pause/Pause card/Pause home"), "...which has the way home.");
+            Assert.IsNotNull(hud.transform.Find("Pause/Pause card/Pause home"), "...which has the way home.");
             int selected = typewriter.Selected;
             touch.Pulse(TouchAction.Down);
             yield return null;

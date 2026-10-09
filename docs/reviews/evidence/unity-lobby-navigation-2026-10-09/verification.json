@@ -1,0 +1,93 @@
+{
+  "status": "Verified",
+  "baseline": "23a089b",
+  "engine": "6000.6.3f1",
+  "tests": {
+    "passed": 49,
+    "failed": 0,
+    "seconds": 75.0277876,
+    "log": "Logs/lobby-navigation-verified.log",
+    "results": "Logs/lobby-navigation-verified.xml"
+  },
+  "frames": [
+    {
+      "file": "01-home-sunroom-1600.png",
+      "sha256": "2184665280914f084e45f3eeba66591afa3dd202a4ff4173255ba76bde2af4c0"
+    },
+    {
+      "file": "02-home-sunroom-2100.png",
+      "sha256": "00dd9e5042b322802a73beb590b5541f2a706f61788bcc7855c4e30b66340b99"
+    },
+    {
+      "file": "03-home-candy-1600.png",
+      "sha256": "dd42e4d7980d9fc69dbe3395328d3312a2d906008a0512061af3c75a92bea69c"
+    },
+    {
+      "file": "04-home-candy-2100.png",
+      "sha256": "d346a2d672b9b6d560b431293229498152f82a8a0ab322b7767f3056de62bdac"
+    },
+    {
+      "file": "05-home-lantern-1600.png",
+      "sha256": "5db027b7f9cc866ff142fb850a45247b2da245d8936df5658f478ef93a2d7951"
+    },
+    {
+      "file": "06-home-lantern-2100.png",
+      "sha256": "abd22a181b7b876c80bee30be2509a0b96555b8bde139e7fccb819c283931f4b"
+    },
+    {
+      "file": "07-home-winter-1600.png",
+      "sha256": "eda26441e019bbf49b3ce782c39966ccbc3cbda7d0f2ae564493e9a1b0e151c5"
+    },
+    {
+      "file": "08-home-winter-2100.png",
+      "sha256": "f88660011c89949b78bbb45a6239377c950f8e30f690aa85782d5586de4056fa"
+    },
+    {
+      "file": "09-open-shop.png",
+      "sha256": "be6526fe8a4ca0d89994a569f4dc30c87076f99ff49ff5d943b646cb42d8ddc5"
+    },
+    {
+      "file": "10-open-trophy.png",
+      "sha256": "d8eedd8e6d993811ecf7c197ab0494eb5127a9f2d48d0a63dffef73b2b46e6b1"
+    },
+    {
+      "file": "11-open-play.png",
+      "sha256": "5f961eef7b25b67e260b937681dc416fec064707e768f8f4436601ca85250a8f"
+    },
+    {
+      "file": "12-home-selected-mode.png",
+      "sha256": "09f28985ce4798bbfcc0b3ebf346175a4b54365eff7f7ac164dee3358db7a38b"
+    }
+  ],
+  "review": "Root and independent read-only reviewer accepted final contrast, subtitle and aspect-ratio alignment.",
+  "sourceCommit": "a2b379b",
+  "windows": {
+    "result": "Succeeded",
+    "errors": 0,
+    "bytes": 233814383,
+    "log": "Logs/lobby-navigation-windows-build.log",
+    "smoke": {
+      "pid": 3060,
+      "name": "Wreckabulary",
+      "responsive": true,
+      "seconds": 69.2616856,
+      "loggedErrors": 0,
+      "launchStyle": "Hidden",
+      "scope": "Packaged Windows startup only; native render and interaction verification is recorded separately."
+    },
+    "files": [
+      {
+        "file": "Builds/Windows/Wreckabulary.exe",
+        "sha256": "96b492cb271111251fe42b8646e65370a1b7b566773a1e35b34c3f2d1ae70873"
+      },
+      {
+        "file": "Builds/Windows/Wreckabulary_Data/Managed/Wreckabulary.dll",
+        "sha256": "5fd8c68ce170b07a08ee7c41182db06a38543fce0c7eb0d025218653f924b486"
+      },
+      {
+        "file": "Builds/Windows/Wreckabulary_Data/resources.assets",
+        "sha256": "15f65b4fd5239a18387c1db45757a0cc1d4ffa93d86e4baf08461dcab25c8657"
+      }
+    ]
+  }
+}

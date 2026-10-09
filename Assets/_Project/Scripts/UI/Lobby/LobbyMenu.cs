@@ -52,15 +52,20 @@ namespace Wreckabulary
         readonly Dictionary<string, LobbyPage> pages = new Dictionary<string, LobbyPage>();
         readonly Dictionary<string, LobbyTab> tabs = new Dictionary<string, LobbyTab>();
         readonly Dictionary<string, Selectable> openers = new Dictionary<string, Selectable>();
-        readonly List<PlayerController> frozen = new List<PlayerController>();
         readonly List<(CanvasGroup card, float posted)> notices = new List<(CanvasGroup, float)>();
         Canvas canvas;
         RectTransform safe, pageHost, feed, rail, partyList, status, quitDialog;
         TextMeshProUGUI coins, initial, partyHeading, partyCount, statusTitle, statusDetail, statusCount;
-        Button power, cancelButton;
+        Button power, cancelButton, shopButton, trophyButton;
+        Image shopUnderline, trophyUnderline;
+        TextMeshProUGUI themeName;
+        RectTransform themeBadge;
         LobbyTab partyTab;
-        GameObject bottomScrim;
         GameHud hud;
+        UIStateController uiState;
+        CanvasGroup visibility;
+        PlayerJoinManager hubJoins;
+        bool hubSuspended, priorAllowJoining;
         Gamepad goPad;
         float startAt;
         bool hidden, typedLastFrame;
@@ -86,7 +91,7 @@ namespace Wreckabulary
         void Start()
         {
             var wardrobe = GameConfig.Current.Wardrobe;
-            Outfit = wardrobe.Default.Clone();
+            Outfit = PlayerAppearance.DefaultPresentationOutfit();
             string saved = PlayerPrefs.GetString(OutfitKey, "");
             if (!string.IsNullOrEmpty(saved))
             {
@@ -104,12 +109,17 @@ namespace Wreckabulary
                 if (party.Count < PartyMax - 1 && Couch(binding) && !InParty(binding.Id)) party.Add(binding);
             SuspendHub();
             Stage = new GameObject("Lobby stage").AddComponent<LobbyStage>();
+            LobbyThemes.Restore();
             Stage.Show(Map, Outfit);
+            Stage.gameObject.AddComponent<LobbyCollectionDecor>();
+            Stage.SetThemeEffects(PlayerPrefs.GetInt("wv.theme.effects", 1) != 0);
             BuildCanvas();
             BuildBar();
             BuildParty();
             BuildFeed();
             BuildStatus();
+            BuildThemeBadge();
+            LobbyThemes.Changed += RefreshThemeBadge;
             foreach (var page in new LobbyPage[] { new HomePage(), new LoadoutPage(), new PlayPage(), new CareerScreen(),
                 new ShopPage(), new TrophyPage(), new SettingsPage() })
             {
@@ -126,18 +136,40 @@ namespace Wreckabulary
                 MatchTally.LastResult = null;
             }
             RefreshBar();
+            if (hud && hud.StateController)
+            {
+                uiState = hud.StateController;
+                uiState.Register(UIState.MainMenu, visibility, pages[Home].First ? pages[Home].First.gameObject : null);
+                uiState.StateChanged += OnUiStateChanged;
+                uiState.TransitionCompleted += OnUiTransitionCompleted;
+                uiState.TransitionToState(UIState.MainMenu);
+            }
         }
 
         void OnEnable()
         {
             if (!Stage) return;
             Stage.TakeCamera();
+            if (Current != null && pages.TryGetValue(Current, out var shown)) shown.Opened();
             if (Current != null && pages.TryGetValue(Current, out var page) && page.First && EventSystem.current)
                 EventSystem.current.SetSelectedGameObject(page.First.gameObject);
         }
 
+        void OnDisable()
+        {
+            if (Current != null && pages.TryGetValue(Current, out var page)) page.Closed();
+        }
+
         void OnDestroy()
         {
+            LobbyThemes.Changed -= RefreshThemeBadge;
+            if (Current != null && pages.TryGetValue(Current, out var page)) page.Closed();
+            if (uiState)
+            {
+                uiState.StateChanged -= OnUiStateChanged;
+                uiState.TransitionCompleted -= OnUiTransitionCompleted;
+                if (uiState.CurrentState == UIState.MainMenu) uiState.TransitionToState(UIState.GameplayHUD);
+            }
             if (Instance == this) Instance = null;
             if (Stage) Destroy(Stage.gameObject);
             ResumeHub();
@@ -145,24 +177,71 @@ namespace Wreckabulary
 
         void SuspendHub()
         {
-            var joins = FindAnyObjectByType<PlayerJoinManager>();
-            if (joins)
+            if (hubSuspended) return;
+            hubSuspended = true;
+            hubJoins = FindAnyObjectByType<PlayerJoinManager>();
+            if (hubJoins)
             {
-                joins.AllowJoining = false;
-                foreach (var player in joins.Players)
-                    if (player && (player.Binding is DesktopBinding || player.Binding is TouchBinding ||
-                        player.Binding is KeyboardBinding || player.Binding is GamepadBinding) && !player.Frozen)
-                    { player.Frozen = true; frozen.Add(player); }
+                priorAllowJoining = hubJoins.AllowJoining;
+                hubJoins.AllowJoining = false;
             }
             hud = FindAnyObjectByType<GameHud>();
-            if (hud) foreach (var c in hud.GetComponentsInChildren<Canvas>(true)) c.enabled = false;
         }
 
         void ResumeHub()
         {
-            foreach (var player in frozen) if (player) player.Frozen = false;
-            frozen.Clear();
-            if (hud) foreach (var c in hud.GetComponentsInChildren<Canvas>(true)) c.enabled = true;
+            if (!hubSuspended) return;
+            hubSuspended = false;
+            if (hubJoins) hubJoins.AllowJoining = priorAllowJoining;
+        }
+
+        void OnUiStateChanged(UIState state)
+        {
+            if (state == UIState.MainMenu)
+            {
+                SuspendHub();
+                if (Current != null && pages.TryGetValue(Current, out var shown)) shown.Opened();
+                if (Stage) Stage.TakeCamera();
+            }
+            else
+            {
+                if (Current != null && pages.TryGetValue(Current, out var page)) page.Closed();
+                ResumeHub();
+                if (Stage) Stage.Release();
+            }
+        }
+
+        void OnUiTransitionCompleted(UIState state)
+        {
+            if (state != UIState.MainMenu) return;
+            ApplyWorkshopVisibility();
+            if (!hidden && Current != null && pages.TryGetValue(Current, out var page) && page.First && EventSystem.current)
+                EventSystem.current.SetSelectedGameObject(page.First.gameObject);
+        }
+
+        void ApplyWorkshopVisibility()
+        {
+            if (!visibility || (uiState && (uiState.CurrentState != UIState.MainMenu || uiState.IsTransitioning))) return;
+            visibility.alpha = hidden ? 0f : 1f;
+            visibility.interactable = visibility.blocksRaycasts = !hidden;
+        }
+
+        void SetWorkshopHidden(bool on)
+        {
+            if (hidden == on) return;
+            hidden = on;
+            ApplyWorkshopVisibility();
+            if (on)
+            {
+                if (Current != null && pages.TryGetValue(Current, out var page)) page.Closed();
+                Stage.Release();
+                if (EventSystem.current) EventSystem.current.SetSelectedGameObject(null);
+            }
+            else
+            {
+                Stage.TakeCamera();
+                Open(Current ?? Home);
+            }
         }
 
         void BuildCanvas()
@@ -170,6 +249,7 @@ namespace Wreckabulary
             canvas = gameObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
+            visibility = gameObject.AddComponent<CanvasGroup>();
             var scaler = gameObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, ReferenceHeight);
@@ -181,9 +261,6 @@ namespace Wreckabulary
                 system.AddComponent<EventSystem>();
                 system.AddComponent<InputSystemUIInputModule>().AssignDefaultActions();
             }
-            LobbyKit.Scrim(transform, "Top scrim", LobbyKit.Edge.Top, 220, .9f, 64);
-            LobbyKit.Scrim(transform, "Right scrim", LobbyKit.Edge.Right, 520, .55f);
-            bottomScrim = LobbyKit.Scrim(transform, "Bottom scrim", LobbyKit.Edge.Bottom, 300, .6f).gameObject;
             safe = LobbyKit.Rect(transform, "Safe area").Fill();
             var drag = LobbyKit.Rect(safe, "Turn area").Fill();
             drag.Paint(new Color(0, 0, 0, 0));
@@ -202,38 +279,59 @@ namespace Wreckabulary
             left.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
             left.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
             var system = LobbyKit.Segment(left, "System pill");
+            LobbyKit.PanelFace(system, 12, 1, 0);
             tabs[Home] = LobbyKit.IconTab(system, LobbyIcons.Home, "Home", () => Open(Home));
             tabs[Settings] = LobbyKit.IconTab(system, LobbyIcons.Settings, "Settings", () => Toggle(Settings));
             power = LobbyKit.IconTab(system, LobbyIcons.Power, "Quit", AskQuit, LobbyKit.Hot).Button;
-            var places = LobbyKit.Segment(left, "Places pill");
-            tabs[Trophy] = LobbyKit.IconTab(places, LobbyIcons.Trophy, "Leaderboard", () => Toggle(Trophy));
-            tabs[Shop] = LobbyKit.IconTab(places, LobbyIcons.Cart, "Shop", () => Toggle(Shop));
-
-            var centre = LobbyKit.Row(bar, "Pages", 14, 0);
-            centre.Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(628, BarHeight));
+            var centre = LobbyKit.Row(bar, "Pages", 4, 10);
+            centre.Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(712, 60));
+            LobbyKit.PanelFace(centre, 12, 1, 0);
             var row = centre.GetComponent<HorizontalLayoutGroup>();
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandHeight = false;
-            foreach (var (id, title, icon) in new[] { (Loadout, "LOADOUT", LobbyIcons.Locker), (Play, "PLAY", LobbyIcons.Play), (CareerPage, "CAREER", LobbyIcons.Badge) })
-                tabs[id] = LobbyKit.Tab(centre, title, icon, () => Toggle(id));
+            tabs[Loadout] = LobbyKit.Tab(centre, "LOADOUT", null, () => Toggle(Loadout), 170);
+            tabs[Play] = LobbyKit.Tab(centre, "PLAY", null, () => Toggle(Play), 112);
+            tabs[CareerPage] = LobbyKit.Tab(centre, "CAREER", null, () => Toggle(CareerPage), 156);
+            trophyButton = NavigationAction(centre, "Leaderboard", Trophy, LobbyKit.Sun, out trophyUnderline);
+            trophyButton.Size(240, 48);
+            LobbyKit.Display(trophyButton.Body(), "LEADERBOARDS", 24, LobbyKit.Navy, TextAlignmentOptions.Center)
+                .rectTransform.Fill();
             foreach (var kv in tabs) openers[kv.Key] = kv.Value.Button;
+            openers[Trophy] = trophyButton;
 
-            var wallet = LobbyKit.Row(bar, "Wallet", 12, 0);
-            wallet.Place(new Vector2(1, 0), new Vector2(1, 1), new Vector2(-600, 8), new Vector2(-Gutter, -8));
+            var wallet = LobbyKit.Row(bar, "Wallet", 6, 8);
+            wallet.Pin(new Vector2(1, .5f), new Vector2(-Gutter, 0), new Vector2(280, 60));
+            wallet.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            LobbyKit.PanelFace(wallet, 12, 1, 0);
             wallet.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleRight;
             wallet.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
-            var chip = LobbyKit.Row(wallet, "Coin chip", 10);
+            shopButton = NavigationAction(wallet, "Shop", Shop, LobbyKit.Sun, out shopUnderline);
+            shopButton.Size(150, 52);
+            openers[Shop] = shopButton;
+            var chip = LobbyKit.Row(shopButton.Body(), "Coin balance", 10).Fill();
             var inside = chip.GetComponent<HorizontalLayoutGroup>();
-            inside.padding = new RectOffset(12, 18, 10, 10);
+            inside.padding = new RectOffset(10, 10, 8, 8);
             inside.childForceExpandHeight = false;
-            LobbyKit.Face(chip, LobbyKit.ChipFill, 12, LobbyKit.ChipEdge, 2);
-            chip.Size(-1, 52);
+            inside.childAlignment = TextAnchor.MiddleCenter;
             LobbyKit.Coin(chip, 32);
             coins = LobbyKit.Display(chip, "0", 26, LobbyKit.Sun, TextAlignmentOptions.MidlineLeft, LobbyKit.Ink.Stroke);
             coins.Size(-1, 34);
             partyTab = LobbyKit.Tab(wallet, "Party", LobbyIcons.Party, ToggleParty, 132, 52, 26, 0);
             partyTab.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(16, 18, 0, 0);
             partyCount = partyTab.GetComponentsInChildren<TextMeshProUGUI>(true).First();
+        }
+
+        Button NavigationAction(Transform parent, string name, string page, Color accent, out Image underline)
+        {
+            var button = LobbyKit.Button(parent, name, Color.clear, () => Toggle(page), 8);
+            var line = LobbyKit.Rect(button.Body(), "Underline").Place(Vector2.zero, new Vector2(1, 0),
+                new Vector2(8, 1), new Vector2(-8, 4)).Paint(accent, 1);
+            line.raycastTarget = false;
+            line.enabled = false;
+            button.GetComponent<LobbyPress>().Hot = hot => line.enabled = hot || Current == page;
+            button.gameObject.AddComponent<LobbyHint>().Text = name;
+            underline = line;
+            return button;
         }
 
         void BuildParty()
@@ -287,6 +385,7 @@ namespace Wreckabulary
 
         void RefreshParty()
         {
+            if (Stage) Stage.SetPartySize(PartySize);
             if (!partyList) return;
             partyHeading.text = $"PARTY  {PartySize} / {PartyMax}";
             if (partyCount) partyCount.text = $"{PartySize}/{PartyMax}";
@@ -307,12 +406,11 @@ namespace Wreckabulary
                 LobbyKit.Display(who, "Player " + seat, 22, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft).Size(-1, 26);
                 LobbyKit.Text(who, binding is GamepadBinding ? "Controller" : "Right keyboard", 15,
                     LobbyKit.Muted, TextAlignmentOptions.MidlineLeft).Size(-1, 22);
-                var leave = LobbyKit.Button(row, "Leave " + seat, Color.white, () => Leave(binding), 17, LobbyKit.Navy, 2, 2);
+                var leave = LobbyKit.Button(row, "Leave " + seat, Color.clear, () => Leave(binding), 10);
                 leave.Size(34, 34);
                 var glyph = LobbyKit.Icon(leave.Body(), LobbyIcons.Close, LobbyKit.Navy);
                 glyph.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(9, 9), new Vector2(-9, -9));
-                var face = leave.FaceOf();
-                leave.GetComponent<LobbyPress>().Hot = hot => face.color = hot ? LobbyKit.Sun : Color.white;
+                leave.GetComponent<LobbyPress>().Hot = hot => glyph.color = hot ? LobbyKit.Hot : LobbyKit.Navy;
                 leave.gameObject.AddComponent<LobbyHint>().Text = "Leave the party";
             }
             if (party.Count >= PartyMax - 1) return;
@@ -337,7 +435,7 @@ namespace Wreckabulary
 
         void PollParty()
         {
-            if (Starting || quitDialog || Typing) return;
+            if (Starting || quitDialog || Typing || KeyBindings.GameplayBlocked) return;
             for (int i = party.Count - 1; i >= 0; i--)
                 if (party[i] is GamepadBinding g && (!g.Pad.added || g.Pad.selectButton.wasPressedThisFrame)) Leave(party[i]);
             if (party.Count >= PartyMax - 1) return;
@@ -415,21 +513,43 @@ namespace Wreckabulary
             status.gameObject.SetActive(false);
         }
 
+        void BuildThemeBadge()
+        {
+            themeBadge = LobbyKit.Rect(safe, "Current theme").Pin(Vector2.zero, new Vector2(Gutter, 22), new Vector2(300, 72));
+            LobbyKit.PanelFace(themeBadge, 12, 1, 0);
+            var brand = LobbyKit.Display(themeBadge, "WRECKABULARY", 26, LobbyKit.Navy, TextAlignmentOptions.Center);
+            brand.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(12, 30), new Vector2(-12, -4));
+            var button = LobbyKit.TextAction(themeBadge, "Browse themes", "", 18, () => Open(Shop));
+            ((RectTransform)button.transform).Place(Vector2.zero, Vector2.one, new Vector2(8, 2), new Vector2(-8, -34));
+            themeName = button.GetComponentInChildren<TextMeshProUGUI>();
+            RefreshThemeBadge();
+        }
+
+        void RefreshThemeBadge()
+        {
+            if (themeName) themeName.text = LobbyThemes.Current.Name;
+        }
+
         public void Open(string id)
         {
             if (!pages.TryGetValue(id, out var page)) throw new ArgumentException("No lobby page " + id, nameof(id));
             bool moved = id != Current;
+            if (moved && Current != null && pages.TryGetValue(Current, out var previous)) previous.Closed();
             foreach (var other in pages.Values) other.Root.gameObject.SetActive(other == page);
             Current = id;
             if (id != Home) ShowParty(false);
-            if (bottomScrim) bottomScrim.SetActive(id == Home);
             Stage.Dress(Outfit);
+            Stage.SetPartyVisible(id == Home);
+            Stage.ShowArtwork(id != Play);
+            if (themeBadge) themeBadge.gameObject.SetActive(id == Home);
             if (moved) page.Opened();
             page.Refresh();
             if (moved) page.Pop();
             Stage.Frame(page.Focus, (Gutter + page.PanelWidth) / ReferenceHeight);
             feed.gameObject.SetActive(page.ShowFeed);
             foreach (var kv in tabs) kv.Value.On = kv.Key == id;
+            if (shopUnderline) shopUnderline.enabled = id == Shop || shopButton.GetComponent<LobbyPress>().IsHot;
+            if (trophyUnderline) trophyUnderline.enabled = id == Trophy || trophyButton.GetComponent<LobbyPress>().IsHot;
             var first = page.First;
             if (EventSystem.current && first) EventSystem.current.SetSelectedGameObject(first.gameObject);
         }
@@ -503,7 +623,11 @@ namespace Wreckabulary
 
         public void RefreshBar()
         {
-            if (coins) coins.text = Career.Coins.ToString("N0", CultureInfo.InvariantCulture);
+            if (coins)
+            {
+                coins.text = Career.Coins.ToString("N0", CultureInfo.InvariantCulture);
+                shopButton.Size(Mathf.Clamp(coins.GetPreferredValues(coins.text).x + 66f, 110f, 280f), 52);
+            }
             if (initial) initial.text = LobbyKit.Upper(Career.Name.Substring(0, 1));
             var level = rail ? rail.GetComponentsInChildren<TextMeshProUGUI>(true).FirstOrDefault(t => t.name == "Level") : null;
             if (level) level.text = "Level " + Career.Level + "  ·  " + (Starting ? "starting a match" : "in the lobby");
@@ -548,6 +672,8 @@ namespace Wreckabulary
                 Stage.SetMap(map);
                 Post("Map: " + GameConfig.Current.HouseFor(map).Name + ".");
             }
+            RefreshBar();
+            if (Current == Home && pages.TryGetValue(Home, out var home)) home.Refresh();
         }
 
         public string Blocked => Queue == Matchmaking
@@ -625,6 +751,7 @@ namespace Wreckabulary
 
         void Update()
         {
+            if (uiState && uiState.CurrentState != UIState.MainMenu) return;
             var area = Screen.safeArea;
             if (Screen.width > 0 && Screen.height > 0)
             {
@@ -632,22 +759,22 @@ namespace Wreckabulary
                 safe.anchorMax = new Vector2(area.xMax / Screen.width, area.yMax / Screen.height);
             }
             bool workshopOpen = CreativeWorkshop.Instance;
-            if (workshopOpen != hidden)
-            {
-                hidden = workshopOpen;
-                canvas.enabled = !hidden;
-            }
-            if (hidden) return;
+            SetWorkshopHidden(workshopOpen);
+            if (hidden || (uiState && uiState.IsTransitioning)) return;
             AgeNotices();
             PollParty();
             if (Starting)
             {
                 float left = startAt - Time.unscaledTime;
                 statusCount.text = Mathf.CeilToInt(Mathf.Max(0f, left)).ToString();
-                if (left <= 0f) Launch();
+                if (left <= 0f)
+                {
+                    Launch();
+                    if (hidden) return;
+                }
             }
             int step = AnyPad(p => p.rightShoulder) ? 1 : AnyPad(p => p.leftShoulder) ? -1 : 0;
-            if (step != 0 && !quitDialog && !Starting && !Typing)
+            if (step != 0 && !KeyBindings.Busy && !KeyBindings.GameplayBlocked && !quitDialog && !Starting && !Typing)
             {
                 int at = Array.IndexOf(PageOrder, Current);
                 Open(PageOrder[(at + step + PageOrder.Length) % PageOrder.Length]);
@@ -685,8 +812,8 @@ namespace Wreckabulary
             goPad = null;
             if (Mode == WorkshopMode)
             {
-                Stage.Release();
-                if (!Session.OpenWorkshop(Map, out string error)) { Stage.TakeCamera(); Post(error); }
+                SetWorkshopHidden(true);
+                if (!Session.OpenWorkshop(Map, out string error)) { SetWorkshopHidden(false); Post(error); }
                 RefreshBar();
                 return;
             }
@@ -728,10 +855,7 @@ namespace Wreckabulary
             ((RectTransform)close.transform).Pin(Vector2.one, new Vector2(-18, -18), new Vector2(44, 44));
             var quit = LobbyKit.Danger(box, "QUIT GAME", 26, Application.Quit);
             ((RectTransform)quit.transform).Pin(new Vector2(.5f, 0), new Vector2(-140, 36), new Vector2(256, 72));
-            var stay = LobbyKit.Button(box, "STAY", LobbyKit.SunHi, CloseQuit, 14, LobbyKit.Navy, 4, 6, LobbyKit.Sun2);
-            var word = LobbyKit.Display(stay.Body(), "STAY", 30, LobbyKit.Navy);
-            word.characterSpacing = 3;
-            word.rectTransform.Fill();
+            var stay = LobbyKit.TextAction(box, "STAY", "STAY", 30, CloseQuit, true, LobbyIcons.Check);
             ((RectTransform)stay.transform).Pin(new Vector2(.5f, 0), new Vector2(140, 36), new Vector2(256, 72));
             quit.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnRight = stay };
             stay.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnLeft = quit, selectOnUp = close };

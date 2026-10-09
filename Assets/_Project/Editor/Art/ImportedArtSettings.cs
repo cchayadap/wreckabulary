@@ -35,7 +35,7 @@ namespace Wreckabulary.EditorTools
             mi.importCameras = false;
             mi.importLights = false;
             mi.importVisibility = false;
-            mi.importBlendShapes = false;
+            mi.importBlendShapes = avatar;
             mi.meshCompression = ModelImporterMeshCompression.Off;
             mi.isReadable = false;
             mi.optimizeMeshPolygons = true;

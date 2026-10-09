@@ -1,0 +1,2401 @@
+{
+  "engine": "6000.6.3f1",
+  "generatedUtc": "2026-10-08T17:02:36.8924187Z",
+  "latestPerTest": true,
+  "summary": [
+    {
+      "group": "EditMode, Passed",
+      "count": 201
+    },
+    {
+      "group": "PlayMode, Passed",
+      "count": 137
+    },
+    {
+      "group": "PlayMode, Skipped",
+      "count": 2
+    }
+  ],
+  "tests": [
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.ABadEditIsReportedWhenTheDataLoads",
+      "result": "Passed",
+      "duration": "0.025314",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.EveryListedSkinHasItsMaterials",
+      "result": "Passed",
+      "duration": "0.006952",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.EveryModelledItemIsInTheModelLibrary",
+      "result": "Passed",
+      "duration": "0.000748",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.EveryPieceOfHouseFurnitureHasAModel",
+      "result": "Passed",
+      "duration": "0.000414",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.ItemGripsAndSizesMatchTheImportedModels",
+      "result": "Passed",
+      "duration": "0.006262",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.SpawnedModelsKeepTheirImportRotation",
+      "result": "Passed",
+      "duration": "0.003516",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.TheGameDataAssetPointsAtTheConfigFiles",
+      "result": "Passed",
+      "duration": "0.000371",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.TheShippedDataHasNoProblems",
+      "result": "Passed",
+      "duration": "0.002837",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.GameDataTests.WardrobePiecesAreOnTheAvatar",
+      "result": "Passed",
+      "duration": "0.001014",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.EveryItemHasAGrip",
+      "result": "Passed",
+      "duration": "0.001265",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.EveryModelInTheReportIsImported",
+      "result": "Passed",
+      "duration": "0.002600",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.EveryRendererUsesTheMaterialLibrary",
+      "result": "Passed",
+      "duration": "0.002079",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.ImportedBoundsMatchBlender",
+      "result": "Passed",
+      "duration": "0.007352",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.NoCamerasOrLightsCameThrough",
+      "result": "Passed",
+      "duration": "0.001089",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.NormalMapsAreImportedAsNormalMaps",
+      "result": "Passed",
+      "duration": "0.023996",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.SkinsSwapWithinAFamily",
+      "result": "Passed",
+      "duration": "0.000643",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.TheAvatarFacesForwardInEveryClip",
+      "result": "Passed",
+      "duration": "0.008619",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.TheAvatarHasItsRigAndClips",
+      "result": "Passed",
+      "duration": "0.002545",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.ImportedArtTests.TheLibraryMatchesMaterialsJson",
+      "result": "Passed",
+      "duration": "0.026591",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.PlayerAuthoringTests.PlayerPrefabContainsTheEditableAvatarAndHidesLegacyGeometry",
+      "result": "Passed",
+      "duration": "0.035443",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.PlayerAuthoringTests.ReapplyingUpgradePreservesArtistTransformsMeshesAndMaterials",
+      "result": "Passed",
+      "duration": "0.027682",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.PlayerAuthoringTests.ScenePreviewIsVisualOnlyAndExcludedFromBuilds",
+      "result": "Passed",
+      "duration": "0.013614",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.SceneAuthoringTests.SavedScenesHaveCurrentPersistentVisualsAndThirdPersonPreview(\"Hub\")",
+      "result": "Passed",
+      "duration": "0.040261",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.SceneAuthoringTests.SavedScenesHaveCurrentPersistentVisualsAndThirdPersonPreview(\"LivingRoom\")",
+      "result": "Passed",
+      "duration": "0.021484",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.SceneAuthoringTests.SavedScenesHaveCurrentPersistentVisualsAndThirdPersonPreview(\"MovingDay\")",
+      "result": "Passed",
+      "duration": "0.009146",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.EditorTests.SceneAuthoringTests.SavedScenesHaveCurrentPersistentVisualsAndThirdPersonPreview(\"Tutorial\")",
+      "result": "Passed",
+      "duration": "0.007551",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.AppearanceTests.CollisionNeverDependsOnTheSkin",
+      "result": "Passed",
+      "duration": "0.012242",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.AppearanceTests.DeployedItemsAreStandardAndFullSize",
+      "result": "Passed",
+      "duration": "0.003648",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.AppearanceTests.EveryStateShowsTheRightSkinAndSize",
+      "result": "Passed",
+      "duration": "0.002965",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.AppearanceTests.MissingOrUnknownSkinsFallBackToStandard",
+      "result": "Passed",
+      "duration": "0.002157",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.AppearanceTests.ThrownFurnitureStaysStandard",
+      "result": "Passed",
+      "duration": "0.002295",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.CardsPutCraftableRecipesFirst",
+      "result": "Passed",
+      "duration": "0.007809",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.ConsumablesSpendTheirLettersAndReusablesHaveDurability",
+      "result": "Passed",
+      "duration": "0.005632",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.DeployFootprintMatchesTheModelsFloorSize",
+      "result": "Passed",
+      "duration": "0.005633",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.DuplicateOrBadIdsAreRejected",
+      "result": "Passed",
+      "duration": "0.001874",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.EachCoreItemHasItsBehaviourData",
+      "result": "Passed",
+      "duration": "0.001890",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.EveryModelledItemIsListedWithItsModel",
+      "result": "Passed",
+      "duration": "0.002615",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.ExactlyTheCore12AreEnabled",
+      "result": "Passed",
+      "duration": "0.001649",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.ItemsWithoutAModelStayDisabled",
+      "result": "Passed",
+      "duration": "0.001909",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.JsonErrorsNameTheFileAndPlace",
+      "result": "Passed",
+      "duration": "0.002147",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.NoRecipeNeedsMoreThanABagHolds",
+      "result": "Passed",
+      "duration": "0.005963",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.RecipeIsTheWordsLettersWithRepeats(\"BALL\",\"ABLL\")",
+      "result": "Passed",
+      "duration": "0.001921",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.RecipeIsTheWordsLettersWithRepeats(\"BAT\",\"ABT\")",
+      "result": "Passed",
+      "duration": "0.008604",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.RecipeIsTheWordsLettersWithRepeats(\"BOMB\",\"BBMO\")",
+      "result": "Passed",
+      "duration": "0.001480",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.RecipeIsTheWordsLettersWithRepeats(\"SOFA\",\"AFOS\")",
+      "result": "Passed",
+      "duration": "0.002105",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.RecipeIsTheWordsLettersWithRepeats(\"TABLE\",\"ABELT\")",
+      "result": "Passed",
+      "duration": "0.001454",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.ShippedCatalogueIsValid",
+      "result": "Passed",
+      "duration": "0.003060",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.CatalogueTests.ValidationCatchesBrokenData",
+      "result": "Passed",
+      "duration": "0.003619",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.AThrownBallLandsAndCanBePickedUpAgain",
+      "result": "Passed",
+      "duration": "0.009920",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.BreakingIsIdempotent",
+      "result": "Passed",
+      "duration": "0.005279",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.ConsumablesSpendTheirLettersAndRefundNothing",
+      "result": "Passed",
+      "duration": "0.003589",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.ContestedPickupGoesToExactlyOnePlayer",
+      "result": "Passed",
+      "duration": "0.002283",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.CraftingReservesTheLettersAndCancellingReturnsThemAll",
+      "result": "Passed",
+      "duration": "0.002361",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.CraftingTakesTimeByLetterCount",
+      "result": "Passed",
+      "duration": "0.002150",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.CraftRefusalsChangeNothing",
+      "result": "Passed",
+      "duration": "0.002425",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.EachChangeRaisesOneEventWithTheItemReady",
+      "result": "Passed",
+      "duration": "0.005480",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.EachPlayerMayDeployTwoThings",
+      "result": "Passed",
+      "duration": "0.007439",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.EliminationDropsLettersAsTilesAndGearIntact",
+      "result": "Passed",
+      "duration": "0.004234",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.FurnitureIsCarriedInBothHandsAndThrown",
+      "result": "Passed",
+      "duration": "0.002559",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.GearAndLettersOnlyGoToTeammates",
+      "result": "Passed",
+      "duration": "0.002659",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.KnockLooseTakesTheCommonestLettersAndSparesTheCraft",
+      "result": "Passed",
+      "duration": "0.004515",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.OnlyUsableConsumablesCanBeConsumed",
+      "result": "Passed",
+      "duration": "0.002031",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.OriginalFurnitureBreaksIntoItsWord",
+      "result": "Passed",
+      "duration": "0.002305",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.RandomPlayNeverLosesOrDuplicatesAnything(1)",
+      "result": "Passed",
+      "duration": "0.432731",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.RandomPlayNeverLosesOrDuplicatesAnything(2)",
+      "result": "Passed",
+      "duration": "0.483975",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.RandomPlayNeverLosesOrDuplicatesAnything(3)",
+      "result": "Passed",
+      "duration": "0.553596",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.TheBagHoldsEighteenLetters",
+      "result": "Passed",
+      "duration": "0.003177",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.TheSameInstanceSurvivesEveryHandOver",
+      "result": "Passed",
+      "duration": "0.003077",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.TheSlotBeingCraftedIntoIsHeld",
+      "result": "Passed",
+      "duration": "0.003789",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.TwoSlotsThenHandsAreFull",
+      "result": "Passed",
+      "duration": "0.003494",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.EconomyTests.WearBreaksGearIntoItsLetters",
+      "result": "Passed",
+      "duration": "0.003641",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthLifecycleTests.BubbleExpiresAtItsDeadlineAndClearsBothFields",
+      "result": "Passed",
+      "duration": "0.000615",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthLifecycleTests.CancelledReviveRequiresTheFullHoldAgain",
+      "result": "Passed",
+      "duration": "0.001373",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthLifecycleTests.ClearBubbleMakesTheNextHitDamageHealth",
+      "result": "Passed",
+      "duration": "0.000362",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthLifecycleTests.DepletedBubbleClearsItsDeadline",
+      "result": "Passed",
+      "duration": "0.000331",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthLifecycleTests.HitAtBubbleDeadlineDoesNotAbsorbOrLeaveStaleProtection",
+      "result": "Passed",
+      "duration": "0.000314",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthLifecycleTests.RepeatedBeginReviveFromTheSameTeammatePreservesProgress",
+      "result": "Passed",
+      "duration": "0.000378",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthLifecycleTests.RespawnClearsPriorLifeProtectionAndReviveDeadlines",
+      "result": "Passed",
+      "duration": "0.000687",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthLifecycleTests.RespawnResetsDodgeCooldownAndRetainsSpawnProtection",
+      "result": "Passed",
+      "duration": "0.000658",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.DodgeGivesBriefInvulnerabilityWithACooldown",
+      "result": "Passed",
+      "duration": "0.008451",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.EachDowningBleedsOutFaster",
+      "result": "Passed",
+      "duration": "0.009457",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.FoamRefreshesInsteadOfStacking",
+      "result": "Passed",
+      "duration": "0.003345",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.FriendlyFireFollowsTheMode",
+      "result": "Passed",
+      "duration": "0.003262",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.FrontArc(0.0f,1.0f,0.0f,-1.0f,120.0f,False)",
+      "result": "Passed",
+      "duration": "0.013144",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.FrontArc(0.0f,1.0f,0.0f,0.0f,120.0f,False)",
+      "result": "Passed",
+      "duration": "0.003058",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.FrontArc(0.0f,1.0f,0.0f,1.0f,120.0f,True)",
+      "result": "Passed",
+      "duration": "0.003589",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.FrontArc(0.0f,1.0f,1.0f,0.0f,120.0f,False)",
+      "result": "Passed",
+      "duration": "0.002778",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.FrontArc(0.0f,1.0f,1.0f,0.0f,180.0f,True)",
+      "result": "Passed",
+      "duration": "0.002902",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.FrontArc(0.0f,1.0f,1.0f,1.0f,120.0f,True)",
+      "result": "Passed",
+      "duration": "0.002915",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.HazardsCantBeBlocked",
+      "result": "Passed",
+      "duration": "0.004419",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.HealingNeverExceedsMax",
+      "result": "Passed",
+      "duration": "0.003396",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.InDuosATeammateCanReviveTheDowned",
+      "result": "Passed",
+      "duration": "0.003547",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.InFreeForAllZeroHealthEliminates",
+      "result": "Passed",
+      "duration": "0.003361",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.PlayersHave100HealthAndTakeDamage",
+      "result": "Passed",
+      "duration": "0.012686",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.SpawnProtectionThenFullHealth",
+      "result": "Passed",
+      "duration": "0.011186",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.StunCantChain",
+      "result": "Passed",
+      "duration": "0.014023",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HealthTests.ThePlateBlocksOnlyFromTheFront",
+      "result": "Passed",
+      "duration": "0.003895",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.BrokenLayoutsAreReported",
+      "result": "Passed",
+      "duration": "0.006196",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.EveryClosingOrderOfTheOuterRoomsIsSafe",
+      "result": "Passed",
+      "duration": "0.002750",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.EveryOuterRoomHasThreeExits",
+      "result": "Passed",
+      "duration": "0.001763",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.EverySpawnIsInADifferentOuterRoom",
+      "result": "Passed",
+      "duration": "0.011084",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.EverySpawnRoomCanMakeEveryCoreItem",
+      "result": "Passed",
+      "duration": "0.003799",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.FurnitureKeepsDoorwaysClear",
+      "result": "Passed",
+      "duration": "0.007593",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.NoClearOutWhenTheModeTurnsItOff",
+      "result": "Passed",
+      "duration": "0.012846",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.TheClearOutWarnsFillsAndCloses",
+      "result": "Passed",
+      "duration": "0.006395",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.TheShippedHouseIsValid",
+      "result": "Passed",
+      "duration": "0.003525",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.TheShippedOrdersCoverTheClearOutModes",
+      "result": "Passed",
+      "duration": "0.001687",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.HouseTests.UnsafeOrdersAreCaught",
+      "result": "Passed",
+      "duration": "0.001701",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.ErrorsGiveFileLineAndColumn",
+      "result": "Passed",
+      "duration": "0.000575",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.MalformedJsonIsAnError(\"[1, 2\")",
+      "result": "Passed",
+      "duration": "0.000089",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.MalformedJsonIsAnError(\"{} extra\")",
+      "result": "Passed",
+      "duration": "0.000069",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.MalformedJsonIsAnError(\"{\\\"a\\\": 1 \\\"b\\\": 2}\")",
+      "result": "Passed",
+      "duration": "0.000163",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.MalformedJsonIsAnError(\"{\\\"a\\\": 1, \\\"a\\\": 2}\")",
+      "result": "Passed",
+      "duration": "0.000104",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.MalformedJsonIsAnError(\"{\\\"a\\\": 1,}\")",
+      "result": "Passed",
+      "duration": "0.000486",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.MalformedJsonIsAnError(\"{\\\"a\\\": tru}\")",
+      "result": "Passed",
+      "duration": "0.000087",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.MalformedJsonIsAnError(\"\\\"unterminated\")",
+      "result": "Passed",
+      "duration": "0.000075",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.MissingValuesUseTheFallback",
+      "result": "Passed",
+      "duration": "0.000615",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.NumbersIgnoreTheMachinesCulture",
+      "result": "Passed",
+      "duration": "0.003194",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.ReadsEveryKindOfValue",
+      "result": "Passed",
+      "duration": "0.001626",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.JsonTests.WrongTypesNameThePath",
+      "result": "Passed",
+      "duration": "0.000625",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.EqualityIsByContents",
+      "result": "Passed",
+      "duration": "0.000574",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.FromWordCountsRepeatedLetters",
+      "result": "Passed",
+      "duration": "0.000273",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.NonLettersAreRejected",
+      "result": "Passed",
+      "duration": "0.000838",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.OneLCantMakeBall",
+      "result": "Passed",
+      "duration": "0.000318",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.OnlyCapitalAToZIsAWord(\"\",False)",
+      "result": "Passed",
+      "duration": "0.000072",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.OnlyCapitalAToZIsAWord(\"B4T\",False)",
+      "result": "Passed",
+      "duration": "0.000062",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.OnlyCapitalAToZIsAWord(\"bat\",False)",
+      "result": "Passed",
+      "duration": "0.000087",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.OnlyCapitalAToZIsAWord(\"BAT\",True)",
+      "result": "Passed",
+      "duration": "0.000337",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.OnlyCapitalAToZIsAWord(null,False)",
+      "result": "Passed",
+      "duration": "0.000063",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.RemovingABagIsAllOrNothing",
+      "result": "Passed",
+      "duration": "0.000297",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.RepeatsAreCounted(\"BOMB\",'B',2)",
+      "result": "Passed",
+      "duration": "0.000326",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.RepeatsAreCounted(\"SOAP\",'O',1)",
+      "result": "Passed",
+      "duration": "0.000075",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.RepeatsAreCounted(\"TABLE\",'E',1)",
+      "result": "Passed",
+      "duration": "0.000052",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.RepeatsAreCounted(\"UMBRELLA\",'L',2)",
+      "result": "Passed",
+      "duration": "0.000047",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.LetterBagTests.TakeAllEmptiesAndReturnsACopy",
+      "result": "Passed",
+      "duration": "0.000260",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MapObjectivesTests.BothMapsHaveValidGeometryAndEscapeOrders(\"house_courtyard.json\")",
+      "result": "Passed",
+      "duration": "0.003595",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MapObjectivesTests.BothMapsHaveValidGeometryAndEscapeOrders(\"house_pinwheel.json\")",
+      "result": "Passed",
+      "duration": "0.003976",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MapObjectivesTests.CourtyardOffersMoreSpaceAndWiderDoorways",
+      "result": "Passed",
+      "duration": "0.003545",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MapObjectivesTests.KeepsakesArePhysicalFurnitureAndTheVanRemainsOpen(\"house_courtyard.json\")",
+      "result": "Passed",
+      "duration": "0.001051",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MapObjectivesTests.KeepsakesArePhysicalFurnitureAndTheVanRemainsOpen(\"house_pinwheel.json\")",
+      "result": "Passed",
+      "duration": "0.005663",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MapObjectivesTests.MovingDayChecklistUsesKnownFurnitureWordsInExistingRooms(\"house_courtyard.json\")",
+      "result": "Passed",
+      "duration": "0.012819",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MapObjectivesTests.MovingDayChecklistUsesKnownFurnitureWordsInExistingRooms(\"house_pinwheel.json\")",
+      "result": "Passed",
+      "duration": "0.015987",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MatchTests.ADownedTeamWithSomeoneStandingIsStillIn",
+      "result": "Passed",
+      "duration": "0.007861",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MatchTests.FirstToThreeRoundsWinsAndDrawsCountForNobody",
+      "result": "Passed",
+      "duration": "0.002818",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MatchTests.LastPlayerStandingWins",
+      "result": "Passed",
+      "duration": "0.000476",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MatchTests.SimultaneousKnockoutIsADraw",
+      "result": "Passed",
+      "duration": "0.000561",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.MatchTests.TeamsForFreeForAllDuosAndCoop",
+      "result": "Passed",
+      "duration": "0.000611",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.ProductionHouseTests.BrokenCooperativeObjectivesAreReportedBeforeAMatch",
+      "result": "Passed",
+      "duration": "0.004203",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.ProductionHouseTests.EveryShippedMapHasValidPlayableObjectivesAndSafeClearOuts",
+      "result": "Passed",
+      "duration": "0.006860",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.RulesConfigTests.BadValuesAreReported",
+      "result": "Passed",
+      "duration": "0.001026",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.RulesConfigTests.CraftTimeGrowsWithTheWord",
+      "result": "Passed",
+      "duration": "0.003167",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.RulesConfigTests.ModesOnlyChangeWhatTheyList",
+      "result": "Passed",
+      "duration": "0.001339",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.RulesConfigTests.ShippedRulesAreValidForEveryMode",
+      "result": "Passed",
+      "duration": "0.001263",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.RulesConfigTests.TeamModesHaveTeamsReviveAndNoFriendlyFire",
+      "result": "Passed",
+      "duration": "0.002976",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.RulesConfigTests.TheBriefsDefaults",
+      "result": "Passed",
+      "duration": "0.001457",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.RulesConfigTests.TyposInRulesAreErrorsNotSilentDefaults",
+      "result": "Passed",
+      "duration": "0.000885",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.AReconnectingPlayerGetsTheirSeatBack",
+      "result": "Passed",
+      "duration": "0.003573",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.BadCodesAreRejected(\"\")",
+      "result": "Passed",
+      "duration": "0.000101",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.BadCodesAreRejected(\"ABCDE-FGHJ\")",
+      "result": "Passed",
+      "duration": "0.000083",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.BadCodesAreRejected(\"ABCDE-FGHJKM\")",
+      "result": "Passed",
+      "duration": "0.000051",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.BadCodesAreRejected(\"ABCDE-FGHJU\")",
+      "result": "Passed",
+      "duration": "0.000105",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.BadCodesAreRejected(\"ABCDEF-GHJKMNP\")",
+      "result": "Passed",
+      "duration": "0.000055",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.BadCodesAreRejected(null)",
+      "result": "Passed",
+      "duration": "0.000649",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.CouchPlayersShareAConnection",
+      "result": "Passed",
+      "duration": "0.000374",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.EveryTypoAndSwappedPairIsCaught",
+      "result": "Passed",
+      "duration": "0.119251",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.LookalikeCharactersAreForgiven",
+      "result": "Passed",
+      "duration": "0.001081",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.OnlyIPv4AddressesEncode(\"::1\")",
+      "result": "Passed",
+      "duration": "0.000051",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.OnlyIPv4AddressesEncode(\"192.168.1.256\")",
+      "result": "Passed",
+      "duration": "0.000086",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.OnlyIPv4AddressesEncode(\"192.168.1\")",
+      "result": "Passed",
+      "duration": "0.000237",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.OnlyIPv4AddressesEncode(\"a.b.c.d\")",
+      "result": "Passed",
+      "duration": "0.000076",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"0.0.0.0\",0,12)",
+      "result": "Passed",
+      "duration": "0.000093",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"10.0.0.2\",7777,10)",
+      "result": "Passed",
+      "duration": "0.000073",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"10.255.255.255\",65535,10)",
+      "result": "Passed",
+      "duration": "0.000070",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"100.64.1.2\",7777,12)",
+      "result": "Passed",
+      "duration": "0.000072",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"172.16.0.1\",7777,10)",
+      "result": "Passed",
+      "duration": "0.000068",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"172.31.255.255\",65535,10)",
+      "result": "Passed",
+      "duration": "0.000066",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"172.32.0.1\",7777,12)",
+      "result": "Passed",
+      "duration": "0.000071",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"192.168.0.1\",0,8)",
+      "result": "Passed",
+      "duration": "0.000120",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"192.168.1.23\",7777,8)",
+      "result": "Passed",
+      "duration": "0.000784",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"192.168.255.255\",65535,8)",
+      "result": "Passed",
+      "duration": "0.000079",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.RoomCodesRoundTrip(\"255.255.255.255\",65535,12)",
+      "result": "Passed",
+      "duration": "0.000077",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.TheCodeFormatIsStable(\"10.0.0.2\",\"00001-1WRBQ\")",
+      "result": "Passed",
+      "duration": "0.000071",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.TheCodeFormatIsStable(\"172.20.5.9\",\"840M4-HWRBK\")",
+      "result": "Passed",
+      "duration": "0.000051",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.TheCodeFormatIsStable(\"192.168.1.23\",\"04BH-WR83\")",
+      "result": "Passed",
+      "duration": "0.000205",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.TheCodeFormatIsStable(\"81.2.69.160\",\"A414B8-0YC7BB\")",
+      "result": "Passed",
+      "duration": "0.000079",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.TheRoomIsFullAtFour",
+      "result": "Passed",
+      "duration": "0.000910",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.SessionTests.TheSeatIsKeptOnlyForTheGracePeriod",
+      "result": "Passed",
+      "duration": "0.001031",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.WardrobeTests.BadOrTamperedOutfitsFallBackToTheDefault",
+      "result": "Passed",
+      "duration": "0.002878",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.WardrobeTests.EveryTintedPieceHasAPalette",
+      "result": "Passed",
+      "duration": "0.001839",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.WardrobeTests.OutfitsSurviveSavingAndSending",
+      "result": "Passed",
+      "duration": "0.009106",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.WardrobeTests.RequiredSlotsCantBeEmptied",
+      "result": "Passed",
+      "duration": "0.002091",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.WardrobeTests.ShippedWardrobeIsValid",
+      "result": "Passed",
+      "duration": "0.002268",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.WardrobeTests.TheHoodNeedsTheHoodie",
+      "result": "Passed",
+      "duration": "0.002384",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Rules.Tests.WardrobeTests.TheHoodTakesTheTopsColour",
+      "result": "Passed",
+      "duration": "0.001535",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.ActiveTestRunDisablesDefaultPlayEntry",
+      "result": "Passed",
+      "duration": "0.015034",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.PrototypeBootstrapRefusesBeforeTouchingProductionAssets",
+      "result": "Passed",
+      "duration": "0.201771",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupCanReplacePreviousEmptyTestScene",
+      "result": "Passed",
+      "duration": "0.048575",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupCanUseACleanBlankScene",
+      "result": "Passed",
+      "duration": "0.018203",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesAdditiveWorkspace",
+      "result": "Passed",
+      "duration": "0.047548",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesSavedAuthoringScene",
+      "result": "Passed",
+      "duration": "0.048461",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "EditMode",
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesUnsavedAuthoringWork",
+      "result": "Passed",
+      "duration": "0.019420",
+      "source": "Logs/authoring-editmode-final.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.AuthoredHouseTests.MapSelectionLoadsItsAuthoredResourceInsteadOfRegeneratingTheOtherMap",
+      "result": "Passed",
+      "duration": "0.201362",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.AuthoredHouseTests.SceneEditsSurvivePlayAndRoundReset",
+      "result": "Passed",
+      "duration": "0.261085",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.AuthoredHouseTests.SnapshotNeverEnablesBehavioursUntilFurnitureIsRestored",
+      "result": "Passed",
+      "duration": "0.062417",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CameraRigTests.BillboardTracksAssignedCameraAndStructuralOffsetWithoutMainTag",
+      "result": "Passed",
+      "duration": "0.068968",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CameraRigTests.OneLocalPlayerIsCenteredBehindInPerspectiveEvenWithBots",
+      "result": "Passed",
+      "duration": "0.257401",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CameraRigTests.PausedCameraIgnoresOrbitUntilResume",
+      "result": "Passed",
+      "duration": "0.062975",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CameraRigTests.SecondCouchSeatSharesTheHouseAndLeavingRestoresFollow",
+      "result": "Passed",
+      "duration": "0.067917",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CameraRigTests.VisibleBlockerPullsCameraInButCutawayColliderDoesNot",
+      "result": "Passed",
+      "duration": "0.869122",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CaptureTests.CaptureHubAndTutorial",
+      "result": "Skipped",
+      "duration": "0.000000",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CaptureTests.CaptureLivingRoom",
+      "result": "Skipped",
+      "duration": "0.000000",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.AnArmedBombWaitsForItsFuseAndNeverRefundsLetters",
+      "result": "Passed",
+      "duration": "2.637414",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.AStaggeringHitRefundsTheReservation",
+      "result": "Passed",
+      "duration": "0.170011",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.BallThrowsUseTheCatalogueSpeedAndRemainRecoverable",
+      "result": "Passed",
+      "duration": "0.160818",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.BombDamageUsesAuthoredLinearFalloff(0.0f,45.0f)",
+      "result": "Passed",
+      "duration": "0.134483",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.BombDamageUsesAuthoredLinearFalloff(1.5f,30.0f)",
+      "result": "Passed",
+      "duration": "0.120132",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.BombDamageUsesAuthoredLinearFalloff(3.0f,15.0f)",
+      "result": "Passed",
+      "duration": "0.117282",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.CraftCompletesOnlyAfterTheAuthoredChannel",
+      "result": "Passed",
+      "duration": "1.317868",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.CraftReservationCountsTowardsTheEighteenLetterLimitAndCancelsExactly",
+      "result": "Passed",
+      "duration": "0.107751",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.DeployLimitAndConsumableExpiryPreserveLetterAccounting",
+      "result": "Passed",
+      "duration": "0.526730",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.DisabledRecipesAndFurnitureOverridesCannotSpendLetters",
+      "result": "Passed",
+      "duration": "0.111298",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.EliminationSpillsReservedAndAvailableLettersOnce",
+      "result": "Passed",
+      "duration": "0.113656",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.ExplicitChecklistOnlyPlacesItsObjectivesAndLeavesOtherRecipesAsGear",
+      "result": "Passed",
+      "duration": "0.117573",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.ExplosionDamagesAMultiColliderPlayerOnce",
+      "result": "Passed",
+      "duration": "0.109096",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.FoamConsumptionAndEffectCleanupNeverRefundLetters",
+      "result": "Passed",
+      "duration": "0.503684",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.LiveRecipesExactlyMatchTheEnabledCatalogue",
+      "result": "Passed",
+      "duration": "0.102020",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.MovingDayPlacesEnabledUtilityItemsFromItsTrustedChecklist",
+      "result": "Passed",
+      "duration": "0.113382",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.ResetRunsCleanupOnceAndDoesNotCreateLoot",
+      "result": "Passed",
+      "duration": "0.110314",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.ReusableGearReturnsItsRecipeOnlyOnce",
+      "result": "Passed",
+      "duration": "0.098524",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.SlotsKeepItemIdentityAndRefuseAThirdCraft",
+      "result": "Passed",
+      "duration": "0.088450",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.StaggerCancelsPlacementWithoutConsumingTheItem",
+      "result": "Passed",
+      "duration": "0.098594",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.StaggerPermanentlyCancelsAMeleeWindup",
+      "result": "Passed",
+      "duration": "0.959188",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.CatalogueRuntimeTests.UnarmedActiveWindowHitsEachBodyOnceAfterWindup",
+      "result": "Passed",
+      "duration": "0.959203",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.BlockWithoutAPlateDoesNothing",
+      "result": "Passed",
+      "duration": "0.453160",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.DesktopKeysMatchTheBrief",
+      "result": "Passed",
+      "duration": "0.127276",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.DodgeDashesOutOfTroubleThenCoolsDown",
+      "result": "Passed",
+      "duration": "1.096895",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.DodgeFollowsTheStick",
+      "result": "Passed",
+      "duration": "0.869569",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.DownedPlayersCantJumpOrDodge",
+      "result": "Passed",
+      "duration": "0.497984",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.DropLetsGoOfTheHeldItem",
+      "result": "Passed",
+      "duration": "0.165492",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.DropNeedsAShortHold",
+      "result": "Passed",
+      "duration": "0.102057",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.HoldingGrabRevivesADownedTeammate",
+      "result": "Passed",
+      "duration": "0.924098",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.JumpRisesAboutTheRulesHeight",
+      "result": "Passed",
+      "duration": "1.422884",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.LettingGoCancelsTheRevive",
+      "result": "Passed",
+      "duration": "0.817244",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.MouseAndStickAimTurnThePlayer",
+      "result": "Passed",
+      "duration": "1.650376",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.OpponentsCantRevive",
+      "result": "Passed",
+      "duration": "0.179099",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.PlateInHandStillLetsYouPunch",
+      "result": "Passed",
+      "duration": "0.284806",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.PlateWornThroughBreaksIntoLetters",
+      "result": "Passed",
+      "duration": "0.417383",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.RaisedPlateBlocksTheFrontAndWearsDown",
+      "result": "Passed",
+      "duration": "0.481983",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ControlsTests.RaisedPlateSlowsWalking",
+      "result": "Passed",
+      "duration": "1.164607",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.FlowTests.FourRoommatesArrivingTogetherAllGetThroughTheDoor",
+      "result": "Passed",
+      "duration": "2.562302",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.FlowTests.KnockedOutRoommatesGetBackUpInTheHouse",
+      "result": "Passed",
+      "duration": "4.639347",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.FlowTests.RoommatesWalkInThroughTheFrontDoor",
+      "result": "Passed",
+      "duration": "1.375675",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.FlowTests.TutorialCanBeCompleted",
+      "result": "Passed",
+      "duration": "3.206241",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.FlowTests.TypewriterIsUsedWithGrabAndStepsWithUpDown",
+      "result": "Passed",
+      "duration": "1.216692",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.FlowTests.TypewriterStartsDibsWithTheHouseRoommates",
+      "result": "Passed",
+      "duration": "0.621157",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.FlowTests.TypewriterStartsSoloDibsWithAnAiOpponent",
+      "result": "Passed",
+      "duration": "0.597707",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.BoxesLandingOnBoxesDontBreak",
+      "result": "Passed",
+      "duration": "3.640060",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.DownedTeammateCanBeRevived",
+      "result": "Passed",
+      "duration": "0.485766",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.DroppedTilesCantBeRegrabbedInstantly",
+      "result": "Passed",
+      "duration": "0.372339",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.EveryListedWordCanBeSummoned",
+      "result": "Passed",
+      "duration": "0.898794",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.FoamBubbleSoaksDamage",
+      "result": "Passed",
+      "duration": "0.663199",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.HitsCostHealthNotLetters",
+      "result": "Passed",
+      "duration": "0.159328",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.LethalHitWrecksAndSpillsEveryLetter",
+      "result": "Passed",
+      "duration": "0.154441",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.PlayerCollectsNearbyTiles",
+      "result": "Passed",
+      "duration": "0.615960",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.PunchFromInputHitsOpponentInFront",
+      "result": "Passed",
+      "duration": "0.301644",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.PunchMissesOpponentBehind",
+      "result": "Passed",
+      "duration": "0.734321",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.RoundEndsWhenOneRoommateIsLeft",
+      "result": "Passed",
+      "duration": "5.742021",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.ShieldBlocksHitsFromTheFront",
+      "result": "Passed",
+      "duration": "0.224635",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.SmashedFurnitureBurstsIntoItsLetters",
+      "result": "Passed",
+      "duration": "0.184559",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.StaggerImmunityStopsStunLock",
+      "result": "Passed",
+      "duration": "0.198424",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.SummoningSpendsLettersAndEquipsWeapon",
+      "result": "Passed",
+      "duration": "0.190942",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.ThrownThingsSmashWhatTheyHit",
+      "result": "Passed",
+      "duration": "3.158008",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.GameplayTests.WordWheelFromInputSummonsSelectedWord",
+      "result": "Passed",
+      "duration": "1.401155",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.HudPresentationTests.FrontDoorRegistersMainMenuAndExplorationRevealsGameplay",
+      "result": "Passed",
+      "duration": "0.361603",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.HudPresentationTests.GearSlotsStackBesideLettersAndHudFadesWithoutDeactivation",
+      "result": "Passed",
+      "duration": "0.509509",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.HudPresentationTests.PauseBlocksSeparateStartAndRetryControls",
+      "result": "Passed",
+      "duration": "0.630296",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.HudPresentationTests.PauseRestoresFrozenPlayersAndTheOriginalSimulationSpeed",
+      "result": "Passed",
+      "duration": "0.701880",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.HudPresentationTests.PauseStopsCountdownAndResumesItsRemainingTime",
+      "result": "Passed",
+      "duration": "1.693332",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.HudPresentationTests.PausingCraftKeepsReservedLettersAndCompletesAfterResume",
+      "result": "Passed",
+      "duration": "1.936105",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.HudPresentationTests.PausingDeploymentKeepsTheChannelAndGearUntilResume",
+      "result": "Passed",
+      "duration": "1.623642",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.HudPresentationTests.ResumeSubmitCannotAlsoStartTheLobbyMatchDuringTheFade",
+      "result": "Passed",
+      "duration": "1.043417",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.LetterPickupViewTests.FloatingPickupPreservesPhysicsAndResetsWhenReused",
+      "result": "Passed",
+      "duration": "1.203595",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.AFinalizedRoundStopsABombFuseFromWreckingItsWinner",
+      "result": "Passed",
+      "duration": "3.976607",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.AiPartnerStartsAndFinishesAHeldRevive",
+      "result": "Passed",
+      "duration": "3.501972",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.ClearOutWarnsBeforeItHurtsAndUsesTheSelectedRoom",
+      "result": "Passed",
+      "duration": "1.148571",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.CourtyardGeometryLeavesConfiguredDoorwaysOpen",
+      "result": "Passed",
+      "duration": "0.529235",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.DuosKeepsADownedTeammateInPlayWhileTheirPartnerIsStanding",
+      "result": "Passed",
+      "duration": "0.500459",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.DuosTeamWipeAwardsBothWinningTeammatesTheSameScore",
+      "result": "Passed",
+      "duration": "0.470373",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.MovingOutFailsOnWholeTeamWipeAndCanRetry",
+      "result": "Passed",
+      "duration": "3.465944",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.MovingOutRequiresPackedKeepsakesAndSurvivorsAtTheVanThenRestarts",
+      "result": "Passed",
+      "duration": "3.791211",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.SimultaneousDibsWipeIsADraw",
+      "result": "Passed",
+      "duration": "0.501826",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.ModeRuntimeTests.SoloDibsGetsAnOpponentWithoutPersistingAnAiRoommate",
+      "result": "Passed",
+      "duration": "0.408018",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.BoxesForTheChecklistArrive",
+      "result": "Passed",
+      "duration": "8.683009",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.CancellingAToolRefundsItsLettersAndSpentSoapCannotStrandTheChecklist",
+      "result": "Passed",
+      "duration": "3.785342",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.FinishingQuicklyEarnsThreeStarsAndCanRestart",
+      "result": "Passed",
+      "duration": "3.284238",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.FurnitureOnlyCountsInItsRoom",
+      "result": "Passed",
+      "duration": "4.808999",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.PlacedFurnitureIsLockedInPlace",
+      "result": "Passed",
+      "duration": "3.304632",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.ResupplyDoesNotDuplicateARecipeReservedByAnActiveCraft",
+      "result": "Passed",
+      "duration": "3.326560",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.RunningOutOfTimeRestartsTheLevel",
+      "result": "Passed",
+      "duration": "8.621175",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.SpellingAChecklistWordBuildsFurniture",
+      "result": "Passed",
+      "duration": "3.402604",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.TheModeOffersAllEnabledRecipesAndSeparatesToolsFromChecklistFurniture",
+      "result": "Passed",
+      "duration": "3.381719",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.MovingDayTests.TypewriterStartsMovingDaySolo",
+      "result": "Passed",
+      "duration": "0.838274",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerAppearanceTests.AuthoredAvatarIsReusedWithoutReplacingItsHierarchy",
+      "result": "Passed",
+      "duration": "0.278080",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerAppearanceTests.AuthoredFaceMorphsAreAvailableAndRespondToCalmIdle",
+      "result": "Passed",
+      "duration": "0.473539",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerAppearanceTests.CarryingUsesMovingLegsAndKeepsTheMiniatureInTheAnimatedHand",
+      "result": "Passed",
+      "duration": "0.799291",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerAppearanceTests.ScenePreviewDisablesItselfBeforeGameplay",
+      "result": "Passed",
+      "duration": "0.067334",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.ExpiredAndDepletedBubblesLoseOwnership",
+      "result": "Passed",
+      "duration": "0.063991",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.LegacyBubbleGrantReplacesOwnership",
+      "result": "Passed",
+      "duration": "0.060130",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.LegacyShieldDeadlineReplacesOwnership",
+      "result": "Passed",
+      "duration": "0.059980",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.OlderBubbleCleanupCannotClearItsReplacement",
+      "result": "Passed",
+      "duration": "0.060258",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.OlderShieldCleanupCannotClearItsReplacement",
+      "result": "Passed",
+      "duration": "0.064187",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.ReplacingTheHealthModelInvalidatesOldTokens(False)",
+      "result": "Passed",
+      "duration": "0.058001",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.ReplacingTheHealthModelInvalidatesOldTokens(True)",
+      "result": "Passed",
+      "duration": "0.060295",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PlayerHealthLifecycleTests.ShieldTokenStillBlocksFrontHits",
+      "result": "Passed",
+      "duration": "0.060921",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PresentationCaptureTests.CaptureFurnitureLifecycleAndMiniatureGrip",
+      "result": "Passed",
+      "duration": "3.944588",
+      "source": "Logs/authoring-runtime-capture.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.PresentationCaptureTests.CaptureMenuGameplayPauseAndCouchPlay",
+      "result": "Passed",
+      "duration": "12.810367",
+      "source": "Logs/authoring-runtime-capture-final.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.CraftMenuStaysOpenAfterTapAndCancellingDoesNotConfirm",
+      "result": "Passed",
+      "duration": "0.002457",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.DisabledTouchCannotIssueCommands",
+      "result": "Passed",
+      "duration": "0.001316",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.DropRequiresAQuarterSecondHoldAndFiresOnlyOnce",
+      "result": "Passed",
+      "duration": "0.302981",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.FrozenTypewriterPlayerKeepsDedicatedTouchNavigationAndExit",
+      "result": "Passed",
+      "duration": "0.290743",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.MovementAimAndHeldSkillCoexistWithoutRepeatedPresses",
+      "result": "Passed",
+      "duration": "0.001014",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.PlaceAndSwapHaveMatchingDesktopAndScriptedEdges",
+      "result": "Passed",
+      "duration": "0.000440",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.ReleaseAllClearsBothSticksHeldReviveAndCraftMenu",
+      "result": "Passed",
+      "duration": "0.000483",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.StartSignalSurvivesThePlayersReadForTheRoundDirector",
+      "result": "Passed",
+      "duration": "0.000361",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.TouchControlsTests.TouchOverlayPreservesKeyboardCommandsAndOverridesOnlyActiveSticks",
+      "result": "Passed",
+      "duration": "0.000661",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.UIStateControllerTests.ActionsAndUnityEventsNotifyOncePerDistinctState",
+      "result": "Passed",
+      "duration": "0.001590",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.UIStateControllerTests.OnlyRequestedViewReceivesInputAndGameObjectsRemainActive",
+      "result": "Passed",
+      "duration": "0.000544",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.UIStateControllerTests.PausedTimeDoesNotPreventFadeAndInputIsBlockedUntilCompletion",
+      "result": "Passed",
+      "duration": "0.151871",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.UIStateControllerTests.RapidTransitionKeepsCurrentOpacityAndFinishesAtLatestState",
+      "result": "Passed",
+      "duration": "0.282414",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WallInteractionTests.GrabStartsAtThePlayersChestAndCannotReachAcrossAWall",
+      "result": "Passed",
+      "duration": "0.101252",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WallInteractionTests.MeleeCannotBreakFurnitureThroughAWallButWorksThroughItsDoor",
+      "result": "Passed",
+      "duration": "0.091580",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WallInteractionTests.MeleeCannotHitTheNextRoomThroughAWallButWorksThroughItsDoor",
+      "result": "Passed",
+      "duration": "0.099945",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WallInteractionTests.ReviveNeedsAnOpenPathAndCancelsIfAWallSeparatesThePartners",
+      "result": "Passed",
+      "duration": "0.094422",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WallInteractionTests.TargetColliderOwnVisualAndLooseTilesDoNotBlockAnOpenDoorInteraction",
+      "result": "Passed",
+      "duration": "0.088922",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WordSolverTests.CanSpellNeedsEveryLetterIncludingRepeats",
+      "result": "Passed",
+      "duration": "0.000321",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WordSolverTests.HintsSkipHiddenAndTooLongWords",
+      "result": "Passed",
+      "duration": "0.004410",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WordSolverTests.MissingListsWhatIsLeft",
+      "result": "Passed",
+      "duration": "0.000222",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WordSolverTests.ParsesCsvRows",
+      "result": "Passed",
+      "duration": "0.000320",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WordSolverTests.ShippedWordListParses",
+      "result": "Passed",
+      "duration": "0.000378",
+      "source": "Logs/authoring-playmode.xml"
+    },
+    {
+      "phase": "PlayMode",
+      "name": "Wreckabulary.Tests.WordSolverTests.SpellableIsSortedByScore",
+      "result": "Passed",
+      "duration": "0.000443",
+      "source": "Logs/authoring-playmode.xml"
+    }
+  ]
+}

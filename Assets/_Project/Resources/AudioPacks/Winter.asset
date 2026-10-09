@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5790f58cd154fbcbd447f1efc6ccaa6, type: 3}
+  m_Name: Winter
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.GameSoundBank
+  pickup:
+  - {fileID: 8300000, guid: 6155eba2dbdc74e4c91a6cb8d3ba6821, type: 3}
+  - {fileID: 8300000, guid: 79b91fa46ec10744da12212ef4c1d33d, type: 3}
+  craft:
+  - {fileID: 8300000, guid: 294e5f710131faf4fb9176982e40f9e6, type: 3}
+  - {fileID: 8300000, guid: b72520c09c2d3e44bb6c002c27a6d184, type: 3}
+  dodge:
+  - {fileID: 8300000, guid: 4403bbbf528ecbf4399886790226781c, type: 3}
+  - {fileID: 8300000, guid: d366ead2096fc8e4492fd2fbb3ea2ff5, type: 3}

@@ -38,9 +38,11 @@ namespace Wreckabulary
         }
 
         public virtual void Opened() { }
+        public virtual void Closed() { }
 
         public void Refresh()
         {
+            Closed();
             LobbyKit.Clear(Root);
             First = null;
             if (Modal)
@@ -126,12 +128,18 @@ namespace Wreckabulary
             LobbyKit.Icon(check, LobbyIcons.Check, LobbyKit.Navy).rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(8, 8), new Vector2(-8, -8));
         }
 
-        protected static string SkinOf(Outfit outfit) => outfit.ItemSkins.Values.FirstOrDefault() ?? Skin.Standard;
+        protected static string SkinOf(Outfit outfit)
+        {
+            var styles = GameConfig.Current.Items.Enabled.Select(item => outfit.SkinFor(item.Id) ?? Skin.Standard)
+                .Distinct().Take(2).ToArray();
+            return styles.Length > 1 ? null : styles.FirstOrDefault() ?? Skin.Standard;
+        }
 
         public static Outfit WithFinish(Outfit outfit, string skin)
         {
             var next = outfit.Clone();
-            foreach (var item in GameConfig.Current.Items.Enabled) next.ItemSkins[item.Id] = skin;
+            foreach (var item in GameConfig.Current.Items.Enabled)
+                if (item.HasSkin(skin)) next.ItemSkins[item.Id] = skin;
             return next;
         }
 
@@ -139,6 +147,7 @@ namespace Wreckabulary
         {
             "Candy" => (LobbyKit.Hex(0xff7ac8), LobbyKit.Hex(0x7fe3ff)),
             "Arcade" => (LobbyKit.Hex(0x3a1fd1), LobbyKit.Hex(0x00e0c6)),
+            "Winter" => (LobbyKit.Hex(0x236c57), LobbyKit.Hex(0xe4b451)),
             _ => (LobbyKit.WoodHi, LobbyKit.WoodLo),
         };
 
@@ -185,7 +194,7 @@ namespace Wreckabulary
     {
         public override string Id => LobbyMenu.Home;
         public override bool ShowFeed => true;
-        public const float DockWidth = 456f;
+        public const float DockWidth = 300f;
 
         protected override void Build()
         {
@@ -202,30 +211,24 @@ namespace Wreckabulary
             if (Menu.Starting) return;
 
             bool blocked = Menu.Blocked != null;
-            var dock = LobbyKit.Column(Root, "Next match", 12);
+            var dock = LobbyKit.Column(Root, "Next match", 2, 12);
             dock.Pin(new Vector2(1, 0), Vector2.zero, new Vector2(DockWidth, 0));
             dock.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            var mode = LobbyKit.PickCard(dock, "CHANGE", LobbyKit.ModeColour(Menu.Mode), "Next up  ·  " + Capital(Menu.Queue),
-                LobbyMenu.ModeName(Menu.Mode), blocked ? "Not built yet  ·  online play" : Who(), () => Menu.OpenPlay("Mode " + Menu.Mode), 74);
-            mode.Size(-1, 104);
-            LobbyKit.ItemImage(mode.Body().Find("Art"), LobbyKit.ModeArt(Menu.Mode), 64, 10f);
+            LobbyKit.PanelFace(dock, 14, 1, 0);
+            var go = LobbyKit.TextAction(dock, "GO", "START", 42, Menu.Go, true);
+            go.Size(-1, 64);
+            go.interactable = !blocked;
+            var mode = LobbyKit.TextAction(dock, "Choose mode", LobbyMenu.ModeName(Menu.Mode), 22,
+                () => Menu.OpenPlay("Mode " + Menu.Mode));
+            mode.Size(-1, 38);
+            First = blocked ? mode : go;
             if (Menu.Mode != LobbyMenu.TutorialMode)
             {
-                var house = LobbyKit.PickCard(dock, "Change house", LobbyKit.Hot, "House", MapName(Menu.Map), null,
-                    () => Menu.OpenPlay("Map " + Menu.Map), 54);
-                house.Size(-1, 80);
-                LobbyKit.Icon(house.Body().Find("Art"), LobbyIcons.Home, LobbyKit.Cream).rectTransform
-                    .Place(Vector2.zero, Vector2.one, new Vector2(11, 11), new Vector2(-11, -11));
+                var house = LobbyKit.TextAction(dock, "Change house", MapName(Menu.Map), 20,
+                    () => Menu.OpenPlay("Map " + Menu.Map));
+                house.Size(-1, 36);
             }
-            var go = LobbyKit.Primary(dock, "GO", "GO", Menu.Go, 74, 46);
-            go.Size(-1, 116);
-            go.interactable = !blocked;
-            First = blocked ? mode : go;
         }
-
-        string Who() => Menu.Mode == LobbyMenu.TutorialMode ? "The tutorial room"
-            : Menu.Mode == LobbyMenu.WorkshopMode ? "Build and test a home"
-            : Capital(LobbyMenu.Seats(Menu.Mode, Menu.PartySize));
     }
 
     public sealed class PlayPage : LobbyPage
@@ -428,12 +431,12 @@ namespace Wreckabulary
         static void TagLine(Transform parent, string text)
         {
             var line = LobbyKit.Row(parent, "Tag", 0);
-            line.Size(-1, 26);
+            line.Size(-1, 30);
             var pill = LobbyKit.Row(line, "Pill", 0);
             pill.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(11, 11, 0, 0);
             pill.Paint(LobbyKit.Navy, 8).raycastTarget = false;
-            var label = LobbyKit.Text(pill, LobbyKit.Upper(text), 14, LobbyKit.Cream, TextAlignmentOptions.Center, FontStyles.Bold);
-            label.characterSpacing = 2;
+            var label = LobbyKit.Text(pill, LobbyKit.Upper(text), 16, Color.white, TextAlignmentOptions.Center);
+            label.characterSpacing = 1;
             label.overflowMode = TextOverflowModes.Overflow;
         }
 
@@ -506,7 +509,7 @@ namespace Wreckabulary
                 var tag = LobbyKit.Rect(box, "Storey").Pin(new Vector2(.5f, .5f), offset + new Vector2(0f, (planSize.y + label) * .5f),
                     new Vector2(Mathf.Min(planSize.x + Gap, 120f), label - 4f));
                 tag.Paint(LobbyKit.Navy, 7).raycastTarget = false;
-                var name = LobbyKit.Display(tag, layout.StoreyLabel(storey).Replace(" FLOOR", ""), 14, LobbyKit.Cream);
+                var name = LobbyKit.Display(tag, layout.StoreyLabel(storey).Replace(" FLOOR", ""), 14, Color.white);
                 name.characterSpacing = 1;
                 name.enableAutoSizing = true; name.fontSizeMin = 12; name.fontSizeMax = 14;
                 name.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(4, 0), new Vector2(-4, 0));
@@ -607,11 +610,16 @@ namespace Wreckabulary
             }
 
             var gear = LobbyKit.Column(lockerList, "Gear", 8);
-            LobbyKit.SectionLabel(gear, "Crafted gear style");
+            LobbyKit.SectionLabel(gear, "Gear finish · apply to all");
+            string wornSkin = SkinOf(outfit);
+            var finishState = LobbyKit.Text(gear, wornSkin == null ? "Mixed recipe finishes · choose below to match every recipe." : "All recipes: " + wornSkin,
+                16, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft);
+            finishState.name = "Gear finish state";
+            finishState.enableAutoSizing = true; finishState.fontSizeMin = 12; finishState.fontSizeMax = 16;
+            finishState.Size(-1, 28);
             var styles = LobbyKit.Row(gear, "Styles", 12);
             styles.Size(-1, 80);
             styles.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = true;
-            string wornSkin = SkinOf(outfit);
             foreach (string skin in Finishes) FinishCard(styles, skin, wornSkin == skin);
         }
 
@@ -897,7 +905,7 @@ namespace Wreckabulary
             string word = item.Id;
             float size = Mathf.Min(38f, (320f - 5f * (word.Length - 1)) / word.Length);
             for (int i = 0; i < word.Length; i++) LobbyKit.LetterTile(tiles, word[i], size, (i - (word.Length - 1) / 2f) * 2f);
-            var blurb = LobbyKit.Display(words, Blurb(item.Family), 22, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft);
+            var blurb = LobbyKit.Display(words, Blurb(item), 22, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft);
             blurb.name = "Blurb";
             blurb.enableAutoSizing = true; blurb.fontSizeMin = 15; blurb.fontSizeMax = 22;
             blurb.Size(-1, 30);
@@ -908,6 +916,20 @@ namespace Wreckabulary
             LobbyKit.Kbd(how, "Q");
             LobbyKit.Text(how, "and type it, then", 16, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft).Size(-1, 28);
             LobbyKit.Kbd(how, "ENTER");
+        }
+
+        public static string Blurb(ItemDefinition item)
+        {
+            if (item.Use?.Effect == UseEffect.Heal)
+                return $"Restore {item.Use.Amount:0} HP · {item.Use.ChannelSeconds:0.##}s to use";
+            if (item.Use?.Effect == UseEffect.Speed)
+                return $"{item.Use.Amount:0.##}× speed · {item.Use.Seconds:0.#} seconds";
+            if (item.Shield?.FrontArcDegrees >= 360f) return "All-around block · hold to raise";
+            if (item.Deploy?.Effect == DeployEffect.WindField) return "Forward gust · pushes everyone";
+            if (item.Deploy?.Effect == DeployEffect.SlowField) return "Slowing field · affects everyone";
+            if (item.Thrown?.FuseSeconds > 0f) return "Delayed blast · clear the room";
+            if (item.Consumable && item.Thrown != null) return "One throw · one splat";
+            return Blurb(item.Family);
         }
 
         public static string Blurb(HandlingFamily family) => family switch
@@ -1053,145 +1075,6 @@ namespace Wreckabulary
         }
     }
 
-    public sealed class ShopPage : LobbyPage
-    {
-        static readonly Vector2 Card = new Vector2(248, 276);
-        string note, spotlight;
-
-        public override string Id => LobbyMenu.Shop;
-        public override LobbyStage.Focus Focus => LobbyStage.Focus.Left;
-        public string Spotlit => spotlight;
-
-        public override void Opened()
-        {
-            note = null;
-            spotlight = null;
-        }
-
-        public void Spotlight(string offerId)
-        {
-            spotlight = offerId;
-            Refresh();
-            if (First && EventSystem.current) EventSystem.current.SetSelectedGameObject(First.gameObject);
-        }
-
-        protected override void Build()
-        {
-            var body = Side("Item shop", "Looks only. Never stats.");
-            var foot = LobbyKit.Row(body, "Footer", 10);
-            foot.Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 34));
-            foot.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
-            LobbyKit.Coin(foot, 24);
-            LobbyKit.Text(foot, note ?? "Click a card to try it on. Earn coins in matches.", 17, note != null ? LobbyKit.Sun : LobbyKit.Muted,
-                TextAlignmentOptions.MidlineLeft).Size(-1, 30, 1);
-            var view = LobbyKit.Rect(body, "Offers").Place(Vector2.zero, Vector2.one, new Vector2(0, 46), Vector2.zero);
-            var list = LobbyKit.Scroll(view, "Scroll", 10);
-            list.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(4, 4, 8, 12);
-            LobbyKit.SectionLabel(list, "Gear styles");
-            var finishes = LobbyKit.Grid(list, "Finishes", Card, 16);
-            foreach (var offer in Career.Shop.Where(o => o.Kind == "skin")) Offer(finishes, offer);
-            LobbyKit.SectionLabel(list, "Top colours");
-            var colours = LobbyKit.Grid(list, "Colours", Card, 16);
-            foreach (var offer in Career.Shop.Where(o => o.Kind == "colour")) Offer(colours, offer);
-        }
-
-        void Offer(Transform parent, ShopOffer offer)
-        {
-            bool owned = Menu.Career.Owns(offer.Kind, offer.Value);
-            bool worn = offer.Kind == "skin" ? SkinOf(Menu.Outfit) == offer.Value : Menu.Outfit.ColourOf("Top") == offer.Value;
-            var colourway = offer.Kind == "colour" ? GameConfig.Current.Wardrobe.Colour("Top", offer.Value) : null;
-            var card = LobbyKit.Button(parent, "Offer " + offer.Id, Color.white, () => TryOn(colourway), 16, LobbyKit.Navy, 3, 5);
-            var press = card.GetComponent<LobbyPress>();
-            press.Lift = 4f; press.Tilt = 1f;
-            var t = card.Body();
-            if (worn) LobbyKit.Ring(t, LobbyKit.Sun, 16, 5);
-            else if (offer.Id == spotlight) LobbyKit.Ring(t, LobbyKit.Cyan, 16, 5);
-            var art = LobbyKit.Rect(t, "Art").Place(new Vector2(0, 1), Vector2.one, new Vector2(10, -138), new Vector2(-10, -10));
-            Burst(art, (int)Card.x - 20, 128, 14);
-            if (colourway != null) Blob(art, new Color(colourway.R, colourway.G, colourway.B), 100);
-            else FinishDisc(art, offer.Value, 108);
-            if (owned && !worn) OwnedMark(art);
-            var name = LobbyKit.Display(t, LobbyKit.Upper(offer.Name), 24, LobbyKit.Navy);
-            name.characterSpacing = 1;
-            name.enableAutoSizing = true; name.fontSizeMin = 16; name.fontSizeMax = 24;
-            name.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(10, -176), new Vector2(-10, -146));
-            string kindText = offer.Kind == "skin" ? "Crafted gear style" : (Menu.Outfit.PieceIn("Top") ?? "Top") + " colour";
-            var kind = LobbyKit.Text(t, kindText, 16, LobbyKit.CardSub, TextAlignmentOptions.Center, FontStyles.Bold);
-            kind.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(10, -200), new Vector2(-10, -176));
-            var action = worn ? Stamp(t, offer) : owned ? WearChip(t, offer)
-                : LobbyKit.PriceTag(t, "Buy " + offer.Id, offer.Price, Menu.Career.Coins < offer.Price, () => Buy(offer), 22);
-            action.interactable = !worn;
-            ((RectTransform)action.transform).Place(Vector2.zero, new Vector2(1, 0), new Vector2(44, 16), new Vector2(-44, 60));
-            if (!worn && (offer.Id == spotlight || !First)) First = action;
-        }
-
-        static void OwnedMark(RectTransform art)
-        {
-            var stamp = LobbyKit.Rect(art, "Owned").Pin(Vector2.one, new Vector2(-8, -8), new Vector2(92, 28));
-            stamp.localRotation = Quaternion.Euler(0, 0, -6f);
-            stamp.Paint(Color.white, 6).raycastTarget = false;
-            LobbyKit.Frame(stamp, LobbyKit.Owned, 6, 2);
-            var label = LobbyKit.Display(stamp, "OWNED", 17, LobbyKit.Owned);
-            label.characterSpacing = 2;
-            label.rectTransform.Fill();
-        }
-
-        Button WearChip(RectTransform card, ShopOffer offer)
-        {
-            var button = LobbyKit.Button(card, "Wear " + offer.Id, LobbyKit.LimeHi, () => Wear(offer), 10, LobbyKit.Navy, 2, 3, LobbyKit.LimeLo);
-            var label = LobbyKit.Display(button.Body(), "WEAR", 22, LobbyKit.Navy);
-            label.characterSpacing = 2;
-            label.rectTransform.Fill();
-            return button;
-        }
-
-        static Button Stamp(RectTransform card, ShopOffer offer)
-        {
-            var button = LobbyKit.Button(card, "Wearing " + offer.Id, Color.clear, null, -1);
-            button.GetComponent<LobbyPress>().FadeOff = false;
-            var stamp = LobbyKit.Rect(button.Body(), "Stamp").Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(140, 38));
-            stamp.localRotation = Quaternion.Euler(0, 0, 6f);
-            LobbyKit.Frame(stamp, LobbyKit.Owned, 8, 3);
-            var label = LobbyKit.Display(stamp, "WEARING", 20, LobbyKit.Owned);
-            label.characterSpacing = 3;
-            label.rectTransform.Fill();
-            return button;
-        }
-
-        void TryOn(Colourway colour)
-        {
-            if (colour == null) return;
-            var preview = Menu.Outfit.Clone();
-            preview.Colours["Top"] = colour.Id;
-            Menu.Stage.Dress(preview);
-        }
-
-        public void Buy(ShopOffer offer)
-        {
-            string error = Menu.Career.Buy(offer.Id);
-            if (error != null) note = error;
-            else
-            {
-                note = "Bought " + offer.Name + ".";
-                Menu.SaveCareer();
-                Menu.Post(note);
-            }
-            Refresh();
-            Reselect((error == null ? "Wear " : "Buy ") + offer.Id);
-        }
-
-        public void Wear(ShopOffer offer)
-        {
-            Outfit next;
-            if (offer.Kind == "skin") next = WithFinish(Menu.Outfit, offer.Value);
-            else { next = Menu.Outfit.Clone(); next.Colours["Top"] = offer.Value; }
-            Menu.Wear(next);
-            note = "Wearing " + offer.Name + ".";
-            Refresh();
-            Reselect("Offer " + offer.Id);
-        }
-    }
-
     public sealed class TrophyPage : LobbyPage
     {
         static readonly (Color from, Color to, Color hi, Color lo)[] Podium =
@@ -1233,9 +1116,9 @@ namespace Wreckabulary
             layout.padding = new RectOffset(20, 22, 0, 0);
             layout.childForceExpandHeight = false;
             LobbyKit.Face(bar, LobbyKit.Navy, 14, LobbyKit.Line, 2);
-            LobbyKit.Icon(bar, LobbyIcons.Trophy, LobbyKit.Sun).Size(30, 30);
-            LobbyKit.Text(bar, "Your best", 20, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft, FontStyles.Bold).Size(-1, 30, 1);
-            LobbyKit.Display(bar, career.Bests.TryGetValue(board, out int best) ? Number(best) : "-", 32, LobbyKit.Sun,
+            LobbyKit.Icon(bar, LobbyIcons.Trophy, LobbyKit.SunHi).Size(30, 30);
+            LobbyKit.Text(bar, "Your best", 20, Color.white, TextAlignmentOptions.MidlineLeft).Size(-1, 30, 1);
+            LobbyKit.Display(bar, career.Bests.TryGetValue(board, out int best) ? Number(best) : "-", 32, LobbyKit.SunHi,
                 TextAlignmentOptions.MidlineRight).Size(200, 40);
         }
 
@@ -1322,7 +1205,7 @@ namespace Wreckabulary
             { ("general", "General"), ("graphics", "Graphics"), ("controls", "Controls"), ("how", "How to play") };
         static readonly (string id, string label)[] DisplayModes =
             { ("borderless", "Borderless"), ("fullscreen", "Full screen"), ("windowed", "Windowed") };
-        const float KeepFor = 10f, PadWidth = 150f;
+        const float KeepFor = 10f;
 
         public override string Id => LobbyMenu.Settings;
         public override bool Modal => true;
@@ -1331,6 +1214,17 @@ namespace Wreckabulary
         (FullScreenMode mode, int width, int height)? asked;
         (FullScreenMode mode, int width, int height)? revertTo;
         LobbyCountdown timer;
+        ControlsPanel controlsPanel;
+
+        public override void Opened()
+        {
+            if (controlsPanel && tab == "controls") controlsPanel.gameObject.SetActive(true);
+        }
+
+        public override void Closed()
+        {
+            if (controlsPanel) controlsPanel.Close();
+        }
 
         public void ShowTab(string id)
         {
@@ -1354,6 +1248,11 @@ namespace Wreckabulary
             }
             var page = LobbyKit.Rect(body, "Tab " + tab).Place(Vector2.zero, Vector2.one, new Vector2(254, 0), Vector2.zero);
             if (tab == "how") HowToPlay(page);
+            else if (tab == "controls")
+            {
+                controlsPanel = ControlsPanel.Mount(page);
+                First = controlsPanel.FirstSelectable;
+            }
             else
             {
                 var holder = LobbyKit.Rect(page, "List").Fill();
@@ -1362,7 +1261,6 @@ namespace Wreckabulary
                 switch (tab)
                 {
                     case "graphics": Graphics(list); break;
-                    case "controls": Controls(list); break;
                     default: General(list); break;
                 }
             }
@@ -1373,11 +1271,20 @@ namespace Wreckabulary
         {
             NameField(Setting(list, "Name", "Shows over your head and on the boards."));
             Toggle(Setting(list, "Sound", "Every sound in the game."), "Sound", !GameFeedback.Muted, on => GameFeedback.Muted = !on);
+            Choose(Setting(list, "Sound pack"), "Sound pack", GameSoundPacks.Ids.Select(id => (id, GameSoundPacks.Label(id))).ToList(),
+                GameSoundPacks.Selected, id => GameSoundPacks.Select(id), 340);
+            LobbyKit.Pill(Setting(list, "Listen"), "Preview sound pack", "Preview sound", 20, () => GameSoundPacks.Preview()).Size(220, 46);
             Stepper(Setting(list, "Volume", "Ten steps, from silent to full."), "Volume", Mathf.RoundToInt(AudioListener.volume * 100) + "%", step =>
             {
                 AudioListener.volume = Mathf.Clamp01(Mathf.Round(AudioListener.volume * 10f + step) / 10f);
                 PlayerPrefs.SetFloat(LobbyMenu.VolumeKey, AudioListener.volume);
                 PlayerPrefs.Save();
+            });
+            Toggle(Setting(list, "Reduce theme motion"), "Reduce theme motion", PlayerPrefs.GetInt("wv.theme.effects", 1) == 0, on =>
+            {
+                PlayerPrefs.SetInt("wv.theme.effects", on ? 0 : 1);
+                PlayerPrefs.Save();
+                if (Menu.Stage) Menu.Stage.SetThemeEffects(!on);
             });
         }
 
@@ -1427,94 +1334,6 @@ namespace Wreckabulary
                 Reselect("Reset graphics");
             });
             reset.Size(180, 46);
-        }
-
-        void Controls(Transform list)
-        {
-            if (Application.isMobilePlatform)
-            {
-                foreach (var (what, how) in new[]
-                {
-                    ("Move", ControlHints.Move), ("Smash, throw, place", ControlHints.Attack), ("Pick up and revive", ControlHints.Grab),
-                    ("Spell and craft", ControlHints.Spell), ("Jump", ControlHints.Jump), ("Dodge", ControlHints.Dodge),
-                    ("Block", ControlHints.Block), ("Aim", ControlHints.Aim), ("Drop", ControlHints.Drop), ("Swap hands", ControlHints.Swap),
-                })
-                    LobbyKit.Text(Setting(list, what), how, 19, LobbyKit.Muted, TextAlignmentOptions.MidlineRight).Size(-1, 30, 1);
-                return;
-            }
-            var keys = DesktopBinding.Shared;
-            Stepper(Setting(list, "Mouse sensitivity", "How far the view turns with the mouse."), "Sensitivity",
-                Mathf.RoundToInt(KeyBindings.Sensitivity * 100) + "%", step => KeyBindings.SetSensitivity(KeyBindings.Sensitivity + step * KeyBindings.SensitivityStep));
-            Toggle(Setting(list, "Invert Y", "Mouse up looks down."), "Invert", KeyBindings.InvertY, KeyBindings.SetInvertY);
-            var heads = LobbyKit.Rect(list, "Columns");
-            heads.Size(-1, 24);
-            LobbyKit.Caps(heads, "Click a key, then press a new one", 13, TextAlignmentOptions.BottomRight).rectTransform
-                .Place(Vector2.zero, Vector2.one, Vector2.zero, new Vector2(-(12 + PadWidth + 22), 0));
-            LobbyKit.Caps(heads, "Controller", 13, TextAlignmentOptions.BottomRight).rectTransform
-                .Place(new Vector2(1, 0), Vector2.one, new Vector2(-(12 + PadWidth), 0), new Vector2(-12, 0));
-            foreach (var (what, action, binding) in KeyBindings.Rows(keys))
-            {
-                var controls = Setting(list, what);
-                KeyButton(controls, what, action, binding);
-                LobbyKit.Rect(controls, "Gap").Size(14, 10);
-                if (PadKeys.TryGetValue(what, out var pad)) Cap(controls, pad, true);
-                else LobbyKit.Rect(controls, "No pad").Size(PadWidth, 10);
-            }
-            var look = Setting(list, "Look and aim");
-            Cap(look, "MOUSE", false);
-            LobbyKit.Rect(look, "Gap").Size(14, 10);
-            Cap(look, "Right stick", true);
-            var reset = LobbyKit.Pill(Setting(list, "Defaults", "Every key, sensitivity and invert Y."), "Reset controls", "Reset", 20, () =>
-            {
-                KeyBindings.ResetToDefaults();
-                listening = null;
-                Refresh();
-                Reselect("Reset controls");
-            });
-            reset.Size(180, 46);
-            Wrapped(list, ControlHints.Players + ".", 17, LobbyKit.Muted, 48);
-        }
-
-        static readonly Dictionary<string, string> PadKeys = new()
-        {
-            ["Move forward"] = "Left stick", ["Smash, throw, place, block"] = "X", ["Aim (hold)"] = "Right stick",
-            ["Jump"] = "A", ["Dodge"] = "B", ["Pick up, hold to revive"] = "RT", ["Spell a word"] = "Hold Y",
-            ["Drop gear (hold)"] = "Hold LB", ["Hand 1"] = "R3", ["Pause"] = "Start",
-        };
-
-        string listening;
-
-        void KeyButton(RectTransform controls, string what, UnityEngine.InputSystem.InputAction action, int binding)
-        {
-            string name = "Rebind " + what;
-            bool waiting = listening == name && KeyBindings.Listening;
-            string text = waiting ? "PRESS A KEY" : KeyBindings.KeyName(action, binding);
-            var button = LobbyKit.Button(controls, name, waiting ? LobbyKit.Sun : Color.white, () =>
-            {
-                listening = name;
-                KeyBindings.Listen(action, binding, () =>
-                {
-                    listening = null;
-                    if (Root) { Refresh(); Reselect(name); }
-                });
-                Refresh();
-                Reselect(name);
-            }, 8, LobbyKit.Navy, 2, 3);
-            button.Size(Mathf.Max(64f, 28f + 12f * text.Length), 40);
-            LobbyKit.Display(button.Body(), text, 19, LobbyKit.Navy).rectTransform
-                .Place(Vector2.zero, Vector2.one, new Vector2(6, 0), new Vector2(-6, 0));
-            var face = button.FaceOf();
-            button.GetComponent<LobbyPress>().Hot = hot => face.color = waiting || hot ? LobbyKit.Sun : Color.white;
-        }
-
-        static void Cap(Transform parent, string text, bool pad)
-        {
-            var cap = LobbyKit.Rect(parent, (pad ? "Pad " : "Key ") + text);
-            if (pad) LobbyKit.Face(cap, LobbyKit.Navy2, 20, LobbyKit.Cyan, 2, 3);
-            else LobbyKit.Face(cap, Color.white, 8, LobbyKit.Navy, 2, 3);
-            cap.Size(pad ? PadWidth : Mathf.Max(44f, 24f + 12f * text.Length), 40);
-            LobbyKit.Display(cap, text, 19, pad ? LobbyKit.Cyan : LobbyKit.Navy).rectTransform
-                .Place(Vector2.zero, Vector2.one, new Vector2(6, 0), new Vector2(-6, 0));
         }
 
         void HowToPlay(RectTransform page)
@@ -1726,7 +1545,7 @@ namespace Wreckabulary
             var layout = bar.GetComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(22, 14, 0, 0);
             layout.childForceExpandHeight = false;
-            LobbyKit.Face(bar, LobbyKit.Navy, 16, LobbyKit.Sun, 3);
+            LobbyKit.Face(bar, LobbyKit.Panel, 16, LobbyKit.Sun, 3);
             var words = LobbyKit.Text(bar, "Keep this display?", 20, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft);
             words.Size(-1, 40, 1);
             var keep = LobbyKit.Button(bar, "Keep display", LobbyKit.SunHi, Keep, 12, LobbyKit.Navy, 3, 4, LobbyKit.Sun2);

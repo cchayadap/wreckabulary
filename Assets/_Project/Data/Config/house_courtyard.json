@@ -447,6 +447,15 @@
     -10
    ],
    "yaw": 0
+  },
+  {
+   "word": "WATER",
+   "room": "Kitchen",
+   "at": [
+    13.65,
+    4
+   ],
+   "yaw": 0
   }
  ],
  "neverClose": [

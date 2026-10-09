@@ -5,9 +5,9 @@ namespace Wreckabulary
 {
     public sealed class ShoulderView
     {
-        public const float FieldOfView = 64f, NearClip = .1f;
+        public const float FieldOfView = 55f, NearClip = .1f;
         public const float Distance = 3.3f, MinDistance = .35f;
-        public const float PivotHeight = 1f, Lift = .25f;
+        public const float PivotHeight = 1f, Lift = .10f;
         public const float LookAhead = 12f;
         public const float ProbeRadius = .2f, Skin = .05f;
         public const float HeightEase = 12f, OutEase = 6f;
@@ -21,6 +21,8 @@ namespace Wreckabulary
         float eyeY, distance = Distance, aim, climb;
         bool placed;
 
+        public StoreyCutaway Environment { get; set; }
+        public CameraCutaway Cutaway { get; set; }
         public float CurrentDistance => distance;
         public float Aim => aim;
 
@@ -89,8 +91,20 @@ namespace Wreckabulary
             float want = reach;
             int n = Physics.SphereCastNonAlloc(from, ProbeRadius, direction, hits, reach, World.GroundMask, QueryTriggerInteraction.Ignore);
             for (int i = 0; i < n; i++)
-                if (!hits[i].rigidbody) want = Mathf.Min(want, hits[i].distance - Skin);
+                if (!hits[i].rigidbody && !IsLegacyCutaway(hits[i].collider)) want = Mathf.Min(want, hits[i].distance - Skin);
             return Mathf.Max(0f, want);
+        }
+
+        // Older authored houses retain low visible walls and full-height gameplay colliders.
+        public static bool IsLegacyCutaway(Collider collider) => collider &&
+            !collider.GetComponent<TallWall>() && collider.TryGetComponent<Renderer>(out var renderer) &&
+            renderer.bounds.size.y <= 1.35f && collider.bounds.size.y > renderer.bounds.size.y * 2f;
+
+        float ProbeEnvironment(Vector3 from, Vector3 direction, float reach)
+        {
+            float available = Probe(from, direction, reach);
+            if (Cutaway) return Cutaway.ProbeCeilings(from, direction, available, ProbeRadius);
+            return Environment ? Environment.ProbeCeilings(from, direction, available, ProbeRadius) : available;
         }
 
         public void Place(Camera camera, Vector3 feet, float yaw, float pitch, float dt, bool aiming = false)
@@ -111,10 +125,12 @@ namespace Wreckabulary
             var origin = pivot + Vector3.up * Lift + shoulder;
 
             float reach = Mathf.Lerp(Distance, AimDistance, aim);
-            float wantClimb = Probe(origin, -forward, reach) < reach * .75f ? Mathf.Min(ClimbHeight, Probe(origin, Vector3.up, ClimbHeight)) : 0f;
-            climb = Mathf.Lerp(climb, wantClimb, 1f - Mathf.Exp(-OutEase * dt));
+            float minimumRise = Mathf.Max(0f, -forward.y) * MinDistance;
+            float clearance = Mathf.Max(0f, ProbeEnvironment(origin, Vector3.up, ClimbHeight + minimumRise) - minimumRise);
+            float wantClimb = ProbeEnvironment(origin, -forward, reach) < reach * .75f ? Mathf.Min(ClimbHeight, clearance) : 0f;
+            climb = Mathf.Min(clearance, Mathf.Lerp(climb, wantClimb, 1f - Mathf.Exp(-OutEase * dt)));
             origin += Vector3.up * climb;
-            float want = Mathf.Max(MinDistance, Probe(origin, -forward, reach));
+            float want = Mathf.Max(MinDistance, ProbeEnvironment(origin, -forward, reach));
             distance = want < distance ? want : Mathf.Lerp(distance, want, 1f - Mathf.Exp(-OutEase * dt));
 
             var position = origin - forward * distance;

@@ -50,7 +50,7 @@ namespace Wreckabulary
         {
             StopAllCoroutines();
             usingItem = false;
-            transform.localRotation = HoldRotation;
+            SetPoseRotation(HoldRotation);
         }
 
         void Update()
@@ -143,10 +143,13 @@ namespace Wreckabulary
                 bool firstFrame = true;
                 do
                 {
+                    while (Time.timeScale <= 0f) yield return null;
                     if (!owner.CanAct || owner.IsDodging || user.Weapon != this) break;
                     user.Strike(Stats, word, firstFrame);
                     if (firstFrame)
                     {
+                        GameFeedback.Burst("Speed_Trail", owner.transform.position + Vector3.up * .75f + owner.Facing * .6f,
+                            definition.Family == HandlingFamily.MeleeThrust ? .42f : .7f, GameFeedback.SkillColor(word), .2f);
                         firstFrame = false;
                         Wear(1f, user);
                         if (broken) yield break;
@@ -161,10 +164,11 @@ namespace Wreckabulary
         IEnumerator ConsumeAfterChannel(PlayerCombat user, PlayerController owner)
         {
             usingItem = true;
-            owner.GetComponent<PlayerAppearance>()?.Play("Drink_Consumable", definition.Use.ChannelSeconds);
+            owner.GetComponent<PlayerAppearance>()?.PlayItemUse(definition, definition.Use.ChannelSeconds);
             float ready = Time.time + definition.Use.ChannelSeconds;
             while (Time.time < ready)
             {
+                while (Time.timeScale <= 0f) yield return null;
                 if (!owner || !owner.CanAct || owner.IsDodging || user.Weapon != this) { usingItem = false; yield break; }
                 yield return null;
             }
@@ -207,17 +211,26 @@ namespace Wreckabulary
             Destroy(gameObject);
         }
 
-        public void ShowRaised(bool raised) => transform.localRotation = raised ? Quaternion.Euler(90f, 0f, 0f) : HoldRotation;
+        public void ShowRaised(bool raised) => SetPoseRotation(raised && word != "SHIELD" ? Quaternion.Euler(90f, 0f, 0f) : HoldRotation);
+
+        /// <summary>Rotate around the authored grip, never around the model's floor pivot.</summary>
+        public void SetPoseRotation(Quaternion localRotation)
+        {
+            transform.localRotation = localRotation;
+            if (definition == null || !holder || holder.Weapon != this) return;
+            var grip = definition.Grip;
+            transform.localPosition = -(localRotation * new Vector3(grip[0], grip[1], grip[2])) * definition.HeldScale;
+        }
 
         IEnumerator Swing()
         {
             var rest = HoldRotation;
             for (float t = 0f; t < 1f; t += Time.deltaTime / 0.18f)
             {
-                transform.localRotation = rest * Quaternion.Euler(Mathf.Sin(t * Mathf.PI) * 70f, 0f, 0f);
+                SetPoseRotation(rest * Quaternion.Euler(Mathf.Sin(t * Mathf.PI) * 70f, 0f, 0f));
                 yield return null;
             }
-            transform.localRotation = rest;
+            SetPoseRotation(rest);
         }
     }
 }

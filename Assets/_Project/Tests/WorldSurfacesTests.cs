@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Wreckabulary.Art;
 
 namespace Wreckabulary.Tests
 {
@@ -23,29 +24,90 @@ namespace Wreckabulary.Tests
         static Renderer[] Named(Component root, string name) =>
             root.GetComponentsInChildren<Renderer>(true).Where(r => r.name == name).ToArray();
 
-        static string MaterialOf(Component root, string name) => Named(root, name).First().sharedMaterial.name;
+        static void AssertSurface(Component root, string name, Surfaces.Kind kind, uint tint) =>
+            AssertSurface(Named(root, name).First().sharedMaterial, kind, tint, name);
+
+        static void AssertSurface(Material actual, Surfaces.Kind kind, uint tint, string context)
+        {
+            var expected = Surfaces.Get(kind, Surfaces.Hex(tint));
+            Assert.IsNotNull(actual, context);
+            Assert.AreSame(expected.shader, actual.shader, context + " uses the surface shader");
+            Assert.AreEqual(ColorUtility.ToHtmlStringRGBA(expected.color), ColorUtility.ToHtmlStringRGBA(actual.color), context + " tint");
+            Assert.AreEqual(expected.GetFloat("_Smoothness"), actual.GetFloat("_Smoothness"), 1e-5f, context + " finish");
+            Assert.AreEqual(expected.GetFloat("_BumpScale"), actual.GetFloat("_BumpScale"), 1e-5f, context + " normal strength");
+            Assert.IsTrue(actual.IsKeywordEnabled("_NORMALMAP"), context + " normal shading enabled");
+            foreach (string property in new[] { "_BaseMap", "_BumpMap" })
+            {
+                Assert.AreEqual(expected.GetTextureScale(property), actual.GetTextureScale(property), context + property + " tiling");
+                Assert.AreEqual(expected.GetTextureOffset(property), actual.GetTextureOffset(property), context + property + " offset");
+                AssertTexturePattern(expected.GetTexture(property), actual.GetTexture(property), context + property);
+            }
+        }
+
+        static void AssertTexturePattern(Texture expected, Texture actual, string context)
+        {
+            Assert.IsNotNull(actual, context);
+            Assert.AreEqual(expected.width, actual.width, context + " width");
+            Assert.AreEqual(expected.height, actual.height, context + " height");
+            Assert.AreEqual(expected.graphicsFormat, actual.graphicsFormat, context + " colour space");
+            Assert.AreEqual(expected.wrapMode, actual.wrapMode, context + " wrap");
+            Assert.AreEqual(expected.filterMode, actual.filterMode, context + " filtering");
+            var expectedPixels = SampleTexture(expected);
+            var actualPixels = SampleTexture(actual);
+            for (int i = 0; i < expectedPixels.Length; i++)
+            {
+                Assert.AreEqual(expectedPixels[i].r, actualPixels[i].r, 2, context + " red sample " + i);
+                Assert.AreEqual(expectedPixels[i].g, actualPixels[i].g, 2, context + " green sample " + i);
+                Assert.AreEqual(expectedPixels[i].b, actualPixels[i].b, 2, context + " blue sample " + i);
+                Assert.AreEqual(expectedPixels[i].a, actualPixels[i].a, 2, context + " alpha sample " + i);
+            }
+        }
+
+        static Color32[] SampleTexture(Texture texture)
+        {
+            const int size = 16;
+            var target = RenderTexture.GetTemporary(size, size, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+            var pixels = new Texture2D(size, size, TextureFormat.RGBA32, false, true);
+            var previous = RenderTexture.active;
+            bool previousSrgb = GL.sRGBWrite;
+            try
+            {
+                GL.sRGBWrite = false;
+                Graphics.Blit(texture, target);
+                RenderTexture.active = target;
+                pixels.ReadPixels(new Rect(0, 0, size, size), 0, 0, false);
+                return pixels.GetPixels32();
+            }
+            finally
+            {
+                RenderTexture.active = previous;
+                GL.sRGBWrite = previousSrgb;
+                RenderTexture.ReleaseTemporary(target);
+                Object.Destroy(pixels);
+            }
+        }
 
         [UnityTest]
         public IEnumerator FloorsFollowRoomNames()
         {
             var house = Build("courtyard");
             yield return null;
-            Assert.AreEqual("Surface Lawn:1.00:86A17A", MaterialOf(house, "Garden floor"));
-            Assert.AreEqual("Surface Checker:1.00:FFFFFF", MaterialOf(house, "Kitchen floor"), "the kitchen's own two-tone checker");
-            Assert.AreEqual("Surface Planks:1.00:B68E6B", MaterialOf(house, "Study floor"), "the study's darker oak");
-            Assert.AreEqual("Surface Planks:1.00:CBA37B", MaterialOf(house, "LivingRoom floor"));
+            AssertSurface(house, "Garden floor", Surfaces.Kind.Lawn, 0x86A17A);
+            AssertSurface(house, "Kitchen floor", Surfaces.Kind.Checker, 0xFFFFFF);
+            AssertSurface(house, "Study floor", Surfaces.Kind.Planks, 0xB68E6B);
+            AssertSurface(house, "LivingRoom floor", Surfaces.Kind.Planks, 0xCBA37B);
             Assert.AreSame(Named(house, "LivingRoom floor")[0].sharedMaterial, Named(house, "Bedroom floor")[0].sharedMaterial, "oak floors share one material");
             Assert.IsNotNull(Named(house, "LivingRoom floor")[0].GetComponent<BoxCollider>());
             Assert.IsFalse(Named(house, "Rug").Any(r => house.Layout.RoomAt(r.bounds.center.x, r.bounds.center.y, r.bounds.center.z) == "Garden"), "no rug on the lawn");
 
             var flat = Build("flat");
             yield return null;
-            Assert.AreEqual("Surface Tile:1.00:FFFFFF", MaterialOf(flat, "Bathroom floor"), "bath tile");
+            AssertSurface(flat, "Bathroom floor", Surfaces.Kind.Tile, 0xFFFFFF);
 
             var walkup = Build("walkup");
             yield return null;
-            Assert.AreEqual("Surface Plaster:1.00:A7A39A", MaterialOf(walkup, "Garage floor"), "a concrete garage");
-            Assert.AreEqual("Surface Planks:1.00:CBA37B", MaterialOf(walkup, "Landing1 floor"));
+            AssertSurface(walkup, "Garage floor", Surfaces.Kind.Plaster, 0xA7A39A);
+            AssertSurface(walkup, "Landing1 floor", Surfaces.Kind.Planks, 0xCBA37B);
         }
 
         [UnityTest]
@@ -56,7 +118,8 @@ namespace Wreckabulary.Tests
             var walls = house.GetComponentsInChildren<TallWall>(true);
             Assert.IsNotEmpty(walls);
             Assert.AreEqual(1, walls.Select(w => w.GetComponent<Renderer>().sharedMaterial).Distinct().Count(), "every wall shares one plaster");
-            StringAssert.StartsWith("Surface Plaster", walls[0].GetComponent<Renderer>().sharedMaterial.name);
+            AssertSurface(walls[0].GetComponent<Renderer>().sharedMaterial, Surfaces.Kind.Plaster, 0xEDDFC4, "walls");
+            AssertSurface(walls[0].Trim.GetComponent<Renderer>().sharedMaterial, Surfaces.Kind.Wood, 0xB58760, "wall cap");
             foreach (bool tall in new[] { true, false, true })
             {
                 house.SetTallWalls(tall);
@@ -100,7 +163,7 @@ namespace Wreckabulary.Tests
 
             Assert.IsTrue(RenderSettings.fog);
             Assert.AreEqual(FogMode.Linear, RenderSettings.fogMode);
-            Assert.AreEqual("173A3D", ColorUtility.ToHtmlStringRGB(RenderSettings.fogColor), "the camera's own background colour");
+            Assert.AreEqual("173A3D", ColorUtility.ToHtmlStringRGB(RenderSettings.fogColor), "the generated fixture retains its fallback horizon");
             float overhead = RenderSettings.fogStartDistance;
             RoomBuilder.ApplyFog(true);
             Assert.Less(RenderSettings.fogStartDistance, overhead, "nearer round a third-person camera");

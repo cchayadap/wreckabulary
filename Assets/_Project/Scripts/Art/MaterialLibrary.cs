@@ -38,7 +38,7 @@ namespace Wreckabulary.Art
                 foreach (var m in materials)
                     if (m != null) byName[m.name] = m;
             }
-            return byName.TryGetValue(materialName, out var found) ? found : null;
+            return byName.TryGetValue(materialName, out var found) ? found : SeasonalCollection.Winter?.FindMaterial(materialName);
         }
 
         public Material ForSkin(Material material, string skin)
@@ -72,7 +72,7 @@ namespace Wreckabulary.Art
         public static string FamilyOf(string materialName)
         {
             if (materialName == null) return null;
-            foreach (string skin in new[] { "_Classic", "_Candy", "_Arcade" })
+            foreach (string skin in new[] { "_Classic", "_Candy", "_Arcade", "_Winter" })
                 if (materialName.EndsWith(skin)) return materialName.Substring(0, materialName.Length - skin.Length);
             return null;
         }

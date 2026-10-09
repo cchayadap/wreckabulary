@@ -1,0 +1,14 @@
+{
+  "sourceCommit": "29b2728156fa678529f549da554622ab312c8ecd",
+  "engine": "6000.6.3f1",
+  "buildTarget": "StandaloneWindows64",
+  "buildResult": "Succeeded",
+  "buildErrors": 0,
+  "reportedBuildBytes": 206188632,
+  "graphics": "Direct3D 11.0, Intel Arc Graphics",
+  "observedSeconds": 103.2,
+  "responding": true,
+  "loggedExceptions": 0,
+  "scope": "Native Windows startup and responsiveness; gameplay evidence comes from Unity PlayMode tests and Game view captures.",
+  "utc": "2026-10-08T21:17:24.8557352Z"
+}

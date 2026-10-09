@@ -18,6 +18,7 @@ namespace Wreckabulary
 
         GameObject importedVisual;
         char visualLetter;
+        LetterPickupView pickupView;
 
         float readyAt;
         LetterInventory droppedBy;
@@ -46,12 +47,14 @@ namespace Wreckabulary
             }
             importedVisual = new GameObject("ImportedTile");
             importedVisual.transform.SetParent(transform, false);
+            // Keep the broad-backed physical proxy. The pickup view may lift only the imported art after settling.
             importedVisual.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
             importedVisual.transform.localScale = Vector3.one * 1.6f;
             var model = ModelVisual.Spawn(key, importedVisual.transform);
             var bounds = ModelVisual.BoundsIn(transform, model);
             importedVisual.transform.localPosition -= bounds.center;
             visualLetter = letter;
+            if (!pickupView) pickupView = gameObject.AddComponent<LetterPickupView>();
             if (body) body.enabled = false;
             if (TryGetComponent(out BoxCollider collision))
             {
@@ -68,6 +71,7 @@ namespace Wreckabulary
                     labels[i].transform.localPosition = Vector3.down * (bounds.size.y*.5f+.003f);
                     labels[i].rectTransform.sizeDelta = new Vector2(bounds.size.x,bounds.size.z)*.85f;
                 }
+            pickupView.Configure(this, importedVisual.transform, labels != null && labels.Length > 5 ? labels[5] : null);
             Color tint = Rarity == LetterRarity.Legendary ? new Color(.95f,.77f,.30f)
                 : Rarity == LetterRarity.Rare ? new Color(.49f,.77f,.71f) : Color.white;
             if (Rarity == LetterRarity.Common) return;
@@ -102,6 +106,7 @@ namespace Wreckabulary
             readyAt = Time.time + 0.3f;
             droppedBy = from;
             ownerLockUntil = Time.time + 1.2f;
+            if (pickupView) pickupView.ResetFlight();
         }
     }
 }

@@ -11,29 +11,98 @@ namespace Wreckabulary
     public class RoomBuilder : MonoBehaviour
     {
         [SerializeField] Transform furnitureRoot;
+        [SerializeField] AuthoredHouse authoredHouse;
         Transform geometry;
         GameObject sign;
         readonly List<Smashable> originals = new();
         public HouseLayout Layout { get; private set; }
         public IReadOnlyList<Smashable> Originals => originals;
+        public AuthoredHouse AuthoredWorld => authoredHouse;
 
         void Awake()
         {
             Layout = GameConfig.Current.HouseFor(Session.MapId);
-            var oldRoom = GameObject.Find("Room");
-            if (oldRoom) oldRoom.SetActive(false);
-            var found = GameObject.Find("Sign");
-            if (Session.MapId is "pinwheel" or "courtyard") sign = found;
-            else if (found) found.SetActive(false);
-            if (furnitureRoot) furnitureRoot.gameObject.SetActive(false);
-            geometry = CreateGeometry(Layout, Session.MapId, transform);
+            var previousFurniture = furnitureRoot;
+            if (FindAuthoredWorld(Session.MapId))
+            {
+                if (previousFurniture && previousFurniture != authoredHouse.FurnitureRoot) previousFurniture.gameObject.SetActive(false);
+                authoredHouse.gameObject.SetActive(true);
+                authoredHouse.PrepareForPlay();
+                geometry = authoredHouse.GeometryRoot;
+                furnitureRoot = authoredHouse.FurnitureRoot;
+                CollectOriginals();
+            }
+            else
+            {
+                if (furnitureRoot) furnitureRoot.gameObject.SetActive(false);
+                geometry = CreateGeometry(Layout, Session.MapId, transform);
+                SetTallWalls(geometry, true);
+                BuildFurniture();
+            }
+            foreach (var root in gameObject.scene.GetRootGameObjects())
+            {
+                if (root.name == "Room" && !root.GetComponentInChildren<AuthoredHouse>(true)) root.SetActive(false);
+                if (root.name != "Sign") continue;
+                if (Session.MapId is "pinwheel" or "courtyard") sign = root;
+                else root.SetActive(false);
+            }
             ApplyFog(false);
-            if (Layout.StoreyFloors().Count > 1) gameObject.AddComponent<StoreyCutaway>().Configure(Layout, geometry);
+            var cutaway = GetComponent<StoreyCutaway>();
+            if (!cutaway) cutaway = gameObject.AddComponent<StoreyCutaway>();
+            cutaway.Configure(Layout, geometry);
             var joins = GetComponent<PlayerJoinManager>();
             if (joins) joins.ConfigureLayout(Layout);
             var camera = FindAnyObjectByType<CameraRig>();
             if (camera) camera.FrameLayout(Layout);
+        }
+
+        bool FindAuthoredWorld(string mapId)
+        {
+            bool Eligible(AuthoredHouse world) => world && world.IsCurrent && world.Matches(mapId);
+            if (authoredHouse && !Eligible(authoredHouse)) authoredHouse.gameObject.SetActive(false);
+            AuthoredHouse selected = Eligible(authoredHouse) ? authoredHouse : null;
+            foreach (var root in gameObject.scene.GetRootGameObjects())
+                foreach (var candidate in root.GetComponentsInChildren<AuthoredHouse>(true))
+                {
+                    if (!selected && Eligible(candidate)) selected = candidate;
+                    if (candidate != selected) candidate.gameObject.SetActive(false);
+                }
+            if (!selected)
+            {
+                string path = AuthoredHouse.ResourcePath(mapId);
+                var prefab = string.IsNullOrEmpty(path) ? null : Resources.Load<GameObject>(path);
+                if (prefab && Eligible(prefab.GetComponent<AuthoredHouse>())) selected = Instantiate(prefab, transform).GetComponent<AuthoredHouse>();
+            }
+            authoredHouse = selected;
+            return authoredHouse;
+        }
+
+        public void SetAuthoredWorld(AuthoredHouse world)
+        {
+            authoredHouse = world;
+            if (!world) return;
+            geometry = world.GeometryRoot;
+            furnitureRoot = world.FurnitureRoot;
+        }
+
+        void CollectOriginals()
+        {
+            originals.Clear();
+            if (furnitureRoot) originals.AddRange(furnitureRoot.GetComponentsInChildren<Smashable>());
+        }
+
+        /// <summary>Used only by the one-time editor bake; saved worlds never regenerate their authored content.</summary>
+        public AuthoredHouse BuildForAuthoring(HouseLayout layout, string mapId)
+        {
+            Layout = layout;
+            geometry = CreateGeometry(layout, mapId, transform);
+            geometry.name = "Geometry";
+            SetTallWalls(geometry, true);
+            geometry.gameObject.AddComponent<HousePresentation>();
             BuildFurniture();
+            var world = gameObject.AddComponent<AuthoredHouse>();
+            world.Configure(mapId, geometry, furnitureRoot);
+            return world;
         }
 
         public void ResetRoom(bool furnish = true)
@@ -41,6 +110,12 @@ namespace Wreckabulary
             SummonedThing.ClearAll();
             World.ClearTransient();
             if (TilePool.Instance) TilePool.Instance.ReleaseAll();
+            if (authoredHouse)
+            {
+                furnitureRoot = authoredHouse.ResetFurniture(furnish);
+                CollectOriginals();
+                return;
+            }
             if (furnitureRoot) { furnitureRoot.gameObject.SetActive(false); Destroy(furnitureRoot.gameObject); }
             originals.Clear();
             furnitureRoot = new GameObject("Original furniture").transform;
@@ -50,7 +125,11 @@ namespace Wreckabulary
 
         void BuildFurniture()
         {
-            if (furnitureRoot) Destroy(furnitureRoot.gameObject);
+            if (furnitureRoot)
+            {
+                if (Application.isPlaying) Destroy(furnitureRoot.gameObject);
+                else DestroyImmediate(furnitureRoot.gameObject);
+            }
             furnitureRoot = new GameObject("Original furniture").transform;
             furnitureRoot.SetParent(transform, false);
             BuildFurnitureIntoRoot();
@@ -79,6 +158,7 @@ namespace Wreckabulary
 
         public static void ApplyFog(bool thirdPerson)
         {
+            if (EnvironmentLighting.Active) { EnvironmentLighting.Active.ApplyFog(thirdPerson); return; }
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogColor = new Color32(0x17, 0x3a, 0x3d, 0xff);
@@ -350,7 +430,13 @@ namespace Wreckabulary
                 go.transform.localScale = scale;
                 if (mesh) go.GetComponent<MeshFilter>().sharedMesh = mesh;
                 go.GetComponent<Renderer>().sharedMaterial = material;
-                if (!solid) Object.Destroy(go.GetComponent<Collider>());
+                if (!solid)
+                {
+                    var collider = go.GetComponent<Collider>();
+                    collider.enabled = false;
+                    if (Application.isPlaying) Object.Destroy(collider);
+                    else Object.DestroyImmediate(collider);
+                }
                 return go;
             }
 

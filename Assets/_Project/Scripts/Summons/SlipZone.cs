@@ -25,7 +25,20 @@ namespace Wreckabulary
             box.size = new Vector3(item.Deploy.Radius * 2f, 1.5f, item.Deploy.Radius * 2f);
             var zone = area.AddComponent<SlipZone>();
             zone.radius = item.Deploy.Radius;
-            root.GetComponent<Renderer>().sharedMaterial = GameAssets.I.Tinted(new Color(0.4f, 0.75f, 0.9f));
+            root.GetComponent<Renderer>().sharedMaterial = GameAssets.I.Tinted(new Color(.36f, .74f, .80f));
+            var rim = SummonEffects.Ring(area.transform, "Soap area edge", new Color(.76f, .97f, 1f), item.Deploy.Radius, Quaternion.Euler(90f, 0f, 0f));
+            rim.transform.localPosition = Vector3.up * .035f;
+            var pink = SummonEffects.Ring(area.transform, "Soap pink sheen", new Color(1f, .66f, .85f), item.Deploy.Radius * .94f, Quaternion.Euler(90f, 0f, 0f));
+            pink.transform.localPosition = Vector3.up * .04f;
+            var gold = SummonEffects.Ring(area.transform, "Soap gold sheen", new Color(1f, .9f, .55f), item.Deploy.Radius * .88f, Quaternion.Euler(90f, 0f, 0f));
+            gold.transform.localPosition = Vector3.up * .04f;
+            for (int i = 0; i < 3; i++)
+            {
+                var bubble = SummonEffects.Ring(area.transform, "Soap bubble", new Color(.8f, 1f, 1f), .1f + i * .035f, Quaternion.Euler(90f, 0f, 0f));
+                bubble.transform.localPosition = new Vector3((i - 1) * item.Deploy.Radius * .42f, .04f, (i % 2 == 0 ? .2f : -.25f) * item.Deploy.Radius);
+                bubble.startWidth = bubble.endWidth = .02f;
+            }
+            GameFeedback.Burst("Soap_Puddle", position + Vector3.up * .15f, .65f, GameFeedback.SkillColor("SOAP"), .35f);
             var life = SummonedThing.Attach(root, item.Id, null, item.Deploy.LifetimeSeconds);
             life.ReturnsLetters = false;
             DeployedGear.Register(root, owner);

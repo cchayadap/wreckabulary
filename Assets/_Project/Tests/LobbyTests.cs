@@ -81,6 +81,8 @@ namespace Wreckabulary.Tests
             yield return TestScenes.Load(Session.HubScene);
             yield return null;
             Assert.IsNotNull(LobbyMenu.Instance, "the lobby opens on the hub");
+            yield return TestScenes.WaitUntil(() => !GameHud.Active.StateController.IsTransitioning,
+                1f, "lobby fade and menu input focus");
             Canvas.ForceUpdateCanvases();
         }
 
@@ -198,11 +200,13 @@ namespace Wreckabulary.Tests
             Assert.AreSame(stage.Camera, sky.worldCamera);
             Assert.IsTrue(sky.enabled);
             Assert.IsFalse(sky.GetComponent<GraphicRaycaster>(), "the sky never takes clicks");
-            Assert.Greater(stage.Camera.backgroundColor.r, stage.Camera.backgroundColor.g, "a plum dusk: not the hub's teal, and no blue backdrop (user, 6 Oct 2026)");
+            Assert.AreEqual(LobbyThemes.Current.Surface, stage.Camera.backgroundColor, "the lobby follows the equipped bright theme");
             var look = stage.GetComponentsInChildren<Volume>().Single(v => v.name == "Lobby look");
             Assert.Greater(look.priority, GraphicsOptions.Look.priority, "the lobby grade wins over the default look");
             Assert.IsTrue(look.sharedProfile.Has<Vignette>() && look.sharedProfile.Has<DepthOfField>());
-            Assert.AreEqual(2, stage.GetComponentsInChildren<Light>().Count(l => l.type == LightType.Spot && l.enabled), "a key and a rim light on you");
+            Assert.IsTrue(look.sharedProfile.TryGet<Vignette>(out var vignette));
+            Assert.AreEqual(0f, vignette.intensity.value, "the new bright showroom does not darken the screen corners");
+            Assert.AreEqual(3, stage.GetComponentsInChildren<Light>().Count(l => l.type == LightType.Spot && l.enabled), "warm key, fill and rim lights keep the whole avatar readable");
         }
 
         [UnityTest]
@@ -217,25 +221,26 @@ namespace Wreckabulary.Tests
 
             float middle = ScreenX(menu.transform);
             float unit = Screen.width / 1920f * 10f;
-            Assert.AreEqual(middle, ScreenX(Find("PLAY")), unit, "PLAY sits in the middle");
+            Assert.AreEqual(middle, ScreenX(Find("PLAY").transform.parent), unit, "the text navigation group is centered");
             Assert.Less(ScreenX(Find("LOADOUT")), ScreenX(Find("PLAY")));
             Assert.Greater(ScreenX(Find("CAREER")), ScreenX(Find("PLAY")));
-            foreach (var left in new[] { "Home", "Settings", "Quit", "Leaderboard", "Shop" })
+            foreach (var left in new[] { "Home", "Settings", "Quit" })
                 Assert.Less(ScreenX(Find(left)), ScreenX(Find("LOADOUT")), $"{left} is on the left");
             Assert.AreSame(Find("Home").transform.parent, Find("Quit").transform.parent, "home, settings and quit share a pill");
-            Assert.AreSame(Find("Leaderboard").transform.parent, Find("Shop").transform.parent, "the leaderboard and shop share one");
-            Assert.AreNotSame(Find("Home").transform.parent, Find("Shop").transform.parent);
+            Assert.AreSame(Find("Leaderboard").transform.parent, Find("CAREER").transform.parent, "the trophy sits beside Career");
+            Assert.Greater(ScreenX(Find("Leaderboard")), ScreenX(Find("CAREER")));
+            Assert.AreSame(Find("Party").transform.parent, Find("Shop").transform.parent, "the coin balance is the shop entry beside the party");
+            Assert.Greater(ScreenX(Find("Shop")), ScreenX(Find("Leaderboard")));
             Assert.Greater(ScreenX(Find("Party")), ScreenX(Find("CAREER")), "the party chip is on the right, by the coins");
         }
 
         [UnityTest]
-        public IEnumerator TheBarSitsOnScrimsThatLetClicksThrough()
+        public IEnumerator TheBarLeavesThemeArtworkClearAndItsButtonsReceiveClicks()
         {
             yield return OpenLobby();
             var menu = LobbyMenu.Instance;
             foreach (var name in new[] { "Top scrim", "Right scrim", "Bottom scrim" })
-                Assert.IsFalse(menu.GetComponentsInChildren<Image>(true).Single(i => i.name == name).raycastTarget, $"the {name} never takes clicks");
-            Assert.Greater(LobbyKit.WebAlpha(.9f), .99f, "the web's 90% navy, as it looks in linear blending");
+                Assert.IsFalse(menu.GetComponentsInChildren<Image>(true).Any(i => i.name == name), $"{name} no longer covers the theme artwork");
             var home = (RectTransform)Find("Home").transform;
             var hits = new System.Collections.Generic.List<RaycastResult>();
             EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = home.TransformPoint(home.rect.center) }, hits);
@@ -243,8 +248,7 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(hits[0].gameObject.transform.IsChildOf(home), $"the click lands on Home, not on {hits[0].gameObject.name}");
             Click("PLAY");
             yield return null;
-            Assert.IsFalse(menu.GetComponentsInChildren<Image>(true).Single(i => i.name == "Bottom scrim").gameObject.activeSelf,
-                "the bottom scrim is for Home's dock only");
+            Assert.AreEqual(LobbyMenu.Play, menu.Current, "the exposed artwork does not obstruct navigation");
         }
 
         [UnityTest]
@@ -304,13 +308,17 @@ namespace Wreckabulary.Tests
             var dock = menu.GetComponentsInChildren<RectTransform>().Single(r => r.name == "Next match");
             var go = Find("GO");
             Assert.IsTrue(go.transform.IsChildOf(dock), "GO is in the dock");
-            Assert.IsTrue(Find("CHANGE").transform.IsChildOf(dock), "with what it starts, which a click changes");
+            Assert.IsFalse(dock.GetComponentsInChildren<Button>().Any(button => button.name == "CHANGE"), "mode selection now lives in PLAY");
             Assert.IsTrue(Find("Change house").transform.IsChildOf(dock), "and the house");
             Assert.Greater(ScreenX(dock), Screen.width * .6f, "bottom right, as on the web");
             var corners = new Vector3[4];
             dock.GetWorldCorners(corners);
             Assert.Less(corners[0].y, Screen.height * .1f, "down at the bottom");
-            Assert.AreEqual(116f, ((RectTransform)go.transform).rect.height, 1f, "a big GO");
+            Assert.AreEqual(64f, ((RectTransform)go.transform).rect.height, 1f, "a compact START");
+            Assert.AreEqual("START", go.GetComponentInChildren<TMPro.TMP_Text>().text);
+            Assert.Less(Find("Choose mode").transform.position.y, go.transform.position.y);
+            Assert.Less(Find("Change house").transform.position.y, Find("Choose mode").transform.position.y);
+            Assert.AreEqual(300f, dock.rect.width, 1f);
             Click("Change house");
             yield return null;
             Assert.AreEqual(LobbyMenu.Play, menu.Current, "a pick opens PLAY to change it");
@@ -368,7 +376,7 @@ namespace Wreckabulary.Tests
         {
             yield return OpenLobby();
             var menu = LobbyMenu.Instance;
-            Click("CHANGE");
+            Click("PLAY");
             yield return null;
             Assert.AreEqual(LobbyMenu.Play, menu.Current);
             Assert.AreSame(Find("Mode " + menu.Mode).gameObject, Selected, "a keyboard or controller lands on the mode");
@@ -591,13 +599,14 @@ namespace Wreckabulary.Tests
                     rebind.onClick.Invoke();
                     yield return null;
                     Assert.IsTrue(KeyBindings.Listening, "waits for the new key");
-                    Assert.IsTrue(root.GetComponentsInChildren<TMPro.TMP_Text>().Any(t => t.text == "PRESS A KEY"));
+                    Assert.IsNotNull(root.GetComponentInChildren<ControlsPanel>());
+                    Assert.IsTrue(root.GetComponentsInChildren<TMPro.TMP_Text>().Any(t => t.text == "PRESS A KEY…"));
                     KeyBindings.Stop();
                     yield return null;
                     Assert.IsFalse(KeyBindings.Listening);
                     Assert.IsTrue(DesktopBinding.Shared.Map.enabled, "keys work again after");
                     Assert.IsNotNull(root.GetComponentsInChildren<RectTransform>().FirstOrDefault(r => r.name == "Sensitivity more"), "mouse sensitivity");
-                    Assert.IsNotNull(root.GetComponentsInChildren<RectTransform>().FirstOrDefault(r => r.name == "Invert on"), "invert Y");
+                    Assert.IsNotNull(root.GetComponentsInChildren<RectTransform>().FirstOrDefault(r => r.name == "Invert mouse Y"), "invert Y");
                     Assert.IsNotNull(root.GetComponentsInChildren<RectTransform>().FirstOrDefault(r => r.name == "Reset controls"));
                 }
             }
@@ -631,6 +640,32 @@ namespace Wreckabulary.Tests
             yield return null;
             Assert.AreEqual(-1, Application.targetFrameRate);
             Assert.IsFalse(GraphicsOptions.Customised, "reset forgets the saved settings");
+        }
+
+        [UnityTest]
+        public IEnumerator ReduceThemeMotionUpdatesTheStageAndSavedPreference()
+        {
+            bool had = PlayerPrefs.HasKey("wv.theme.effects");
+            int saved = PlayerPrefs.GetInt("wv.theme.effects", 1);
+            try
+            {
+                PlayerPrefs.DeleteKey("wv.theme.effects");
+                yield return OpenLobby();
+                var menu = LobbyMenu.Instance;
+                Assert.IsTrue(menu.Stage.ThemeEffectsEnabled);
+                Click("Settings");
+                Click("Reduce theme motion on");
+                Assert.IsFalse(menu.Stage.ThemeEffectsEnabled);
+                Assert.AreEqual(0, PlayerPrefs.GetInt("wv.theme.effects", 1));
+                Click("Reduce theme motion off");
+                Assert.IsTrue(menu.Stage.ThemeEffectsEnabled);
+                Assert.AreEqual(1, PlayerPrefs.GetInt("wv.theme.effects"));
+            }
+            finally
+            {
+                if (had) PlayerPrefs.SetInt("wv.theme.effects", saved); else PlayerPrefs.DeleteKey("wv.theme.effects");
+                PlayerPrefs.Save();
+            }
         }
 
         [UnityTest]
@@ -705,18 +740,21 @@ namespace Wreckabulary.Tests
             yield return TestScenes.Load(Session.DibsScene);
             Assert.IsTrue(Camera.main.GetUniversalAdditionalCameraData().renderPostProcessing, "match cameras post-process too");
 
-            var lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Where(l => l.type == LightType.Directional).ToList();
-            var sun = lights.Single(l => l.name == "Sun");
-            Assert.AreEqual(2.85f / Mathf.PI, sun.intensity, 1e-3f, "the web's sun 2.85 in Unity's units");
-            Assert.Greater(sun.transform.forward.x, 0f, "from the left...");
-            Assert.Less(sun.transform.forward.y, -.7f, "...high up...");
-            Assert.Greater(sun.transform.forward.z, 0f, "...and from the camera's side");
-            var fill = lights.Single(l => l.name == "Fill light");
+            var environment = Wreckabulary.Art.EnvironmentLighting.Active;
+            Assert.IsNotNull(environment, "the match owns an editable environment profile");
+            var settings = environment.Profile;
+            var sun = environment.Sun;
+            Assert.AreEqual(settings.SunIntensity, sun.intensity, 1e-3f);
+            Assert.AreEqual(settings.SunColor, sun.color);
+            Assert.Less(Quaternion.Angle(Quaternion.Euler(settings.SunEuler), sun.transform.rotation), .01f);
+            Assert.AreSame(sun, RenderSettings.sun, "the sky's visible sun follows the scene's real light");
+            Assert.AreSame(settings.Skybox, RenderSettings.skybox);
+            var fill = environment.Fill;
             Assert.AreEqual(LightShadows.None, fill.shadows);
             Assert.Greater(fill.color.b, fill.color.r, "a cool fill");
             Assert.AreEqual(AmbientMode.Trilight, RenderSettings.ambientMode);
             Assert.Greater(RenderSettings.ambientSkyColor.r, RenderSettings.ambientGroundColor.r, "light from above");
-            Assert.Greater(RenderSettings.ambientGroundColor.b, RenderSettings.ambientGroundColor.r, "a teal bounce from below");
+            Assert.AreEqual(settings.AmbientGround, RenderSettings.ambientGroundColor, "the room's warm bounce is editable");
         }
 
         [UnityTest]
@@ -956,7 +994,13 @@ namespace Wreckabulary.Tests
             Click("Home");
             yield return null;
             Assert.IsFalse(Find("GO").interactable);
-            Assert.IsTrue(Find("CHANGE").interactable, "you can still change the queue");
+            Assert.IsTrue(Find("PLAY").interactable, "you can still change the queue from the primary navigation");
+            Click("PLAY");
+            yield return null;
+            Click("Queue " + LobbyMenu.Practice);
+            yield return null;
+            Assert.AreEqual(LobbyMenu.Practice, menu.Queue);
+            Assert.IsTrue(Find("GO").interactable, "choosing a playable queue enables GO again");
         }
 
         [UnityTest]
@@ -1087,6 +1131,19 @@ namespace Wreckabulary.Tests
             Assert.LessOrEqual(bounds.max.y, list.viewport.rect.yMax + .5f);
         }
 
+        [TestCase("APPLE", "Restore 30 HP")]
+        [TestCase("WATER", "Restore 18 HP")]
+        [TestCase("CAKE", "Restore 50 HP")]
+        [TestCase("SODA", "speed")]
+        [TestCase("SHIELD", "All-around")]
+        [TestCase("FAN", "Forward gust")]
+        [TestCase("CLOCK", "Slowing field")]
+        [TestCase("PIE", "One throw")]
+        public void RecipeDescriptionExplainsItsActualEffect(string id, string expected)
+        {
+            StringAssert.Contains(expected, LoadoutPage.Blurb(GameConfig.Current.Items.Get(id)));
+        }
+
         [UnityTest]
         public IEnumerator RecipeDetailFollowsTheCardYouPick()
         {
@@ -1102,7 +1159,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(item.Id, menu.Page<LoadoutPage>().Pinned);
             var detail = menu.GetComponentsInChildren<RectTransform>().Single(r => r.name == "Recipe detail");
             Assert.IsTrue(detail.GetComponentsInChildren<RawImage>().Any(r => r.name == "Art " + item.Id), "the strip shows the card you picked");
-            Assert.AreEqual(LoadoutPage.Blurb(item.Family), detail.GetComponentsInChildren<TMPro.TMP_Text>().Single(t => t.name == "Blurb").text);
+            Assert.AreEqual(LoadoutPage.Blurb(item), detail.GetComponentsInChildren<TMPro.TMP_Text>().Single(t => t.name == "Blurb").text);
             Assert.AreSame(Find("Recipe " + item.Id).gameObject, Selected, "a keyboard or controller stays on the card");
         }
 
@@ -1118,10 +1175,21 @@ namespace Wreckabulary.Tests
             Click("Mode " + LobbyMenu.WorkshopMode);
             yield return null;
             var lobbyLook = menu.Stage.Camera.backgroundColor;
+            var daylight = Wreckabulary.Art.EnvironmentLighting.Active;
+            Assert.IsNotNull(daylight);
+            float sunIntensity = daylight.Sun.intensity;
             Click("GO");
             yield return TestScenes.WaitUntil(() => CreativeWorkshop.Instance, 3f, "the workshop to open");
             yield return null;
-            Assert.IsFalse(menu.isActiveAndEnabled && menu.GetComponent<Canvas>().enabled, "the lobby steps aside");
+            var menuVisibility = menu.GetComponent<CanvasGroup>();
+            Assert.AreEqual(0f, menuVisibility.alpha, "the lobby steps aside");
+            Assert.IsFalse(menuVisibility.interactable || menuVisibility.blocksRaycasts,
+                "the hidden lobby cannot intercept workshop controls");
+            Assert.IsTrue(menu.gameObject.activeInHierarchy, "the lobby stays available for the return transition");
+            Assert.IsFalse(Find("GO").IsInteractable(), "the hidden lobby button cannot receive workshop input");
+            Assert.AreSame(daylight, Wreckabulary.Art.EnvironmentLighting.Active, "workshop suspension preserves the scene's daylight controller");
+            Assert.AreEqual(sunIntensity, daylight.Sun.intensity);
+            Assert.LessOrEqual(daylight.SelectedLightCount, daylight.LightBudget);
             var cam = Camera.main;
             Assert.IsFalse(cam.clearFlags == CameraClearFlags.SolidColor && cam.backgroundColor == lobbyLook,
                 "the workshop shows the hub's own sky, not the lobby's");
@@ -1132,12 +1200,17 @@ namespace Wreckabulary.Tests
             CreativeWorkshop.Instance.Close();
             yield return null;
             yield return null;
-            Assert.IsTrue(menu.isActiveAndEnabled && menu.GetComponent<Canvas>().enabled, "the lobby comes back");
+            Assert.AreEqual(1f, menuVisibility.alpha, "the lobby comes back");
+            Assert.IsTrue(menuVisibility.interactable && menuVisibility.blocksRaycasts,
+                "the restored lobby accepts pointer and controller input");
+            Assert.IsTrue(Find("GO").IsInteractable(), "the lobby button works again after the workshop closes");
             Assert.AreEqual(LobbyMenu.Home, menu.Current);
             AssertFramed(menu.Stage, "the camera is yours again");
             Assert.AreEqual(lobbyLook, menu.Stage.Camera.backgroundColor, "with the lobby's sky");
+            Assert.AreSame(daylight, Wreckabulary.Art.EnvironmentLighting.Active);
+            Assert.AreEqual(sunIntensity, daylight.Sun.intensity);
             Assert.IsTrue(sky.enabled, "which comes back");
-            Find("CHANGE");
+            Find("PLAY");
             Assert.AreSame(Find("GO").gameObject, Selected, "GO is back, with a controller on it");
         }
     }

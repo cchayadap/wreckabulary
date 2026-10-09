@@ -20,9 +20,28 @@ namespace Wreckabulary.Tests
         {
             Session.Clear();
             Time.timeScale = 1f;
+            SceneManager.sceneLoaded -= AddFixtureListener;
+            SceneManager.sceneLoaded += AddFixtureListener;
             yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
                 EmptyScenePath, new LoadSceneParameters(LoadSceneMode.Single));
             yield return null;
+        }
+
+        static void AddFixtureListener(Scene scene, LoadSceneMode mode)
+        {
+            if (scene.path != EmptyScenePath || UnityEngine.Object.FindAnyObjectByType<AudioListener>()) return;
+            var listener = new GameObject("Test scene audio listener", typeof(AudioListener));
+            SceneManager.MoveGameObjectToScene(listener, scene);
+        }
+
+        /// <summary>Returns the showroom to the house and waits until gameplay accepts input.</summary>
+        public static IEnumerator ExploreHouse()
+        {
+            var hud = UnityEngine.Object.FindAnyObjectByType<GameHud>();
+            Assert.IsNotNull(hud);
+            Assert.IsNotNull(hud.StateController);
+            hud.StateController.TransitionToState(UIState.GameplayHUD);
+            yield return WaitUntil(() => hud.AcceptsGameplayInput, 1f, "gameplay HUD transition");
         }
 
         public static IEnumerator Load(string scene)

@@ -1,0 +1,84 @@
+{
+    "engine": "6000.6.3f1",
+    "utc": "2026-10-09T04:28:00.5714615Z",
+    "completed": true,
+    "frames": [
+        {
+            "file": "01-corner-third-person.png",
+            "mode": "Dibs",
+            "width": 1600,
+            "height": 900,
+            "seats": 1,
+            "visibleDecor": 6,
+            "renderers": 6,
+            "triangles": 5088,
+            "thirdPerson": true
+        },
+        {
+            "file": "02-corner-third-person-ultrawide.png",
+            "mode": "Dibs",
+            "width": 2100,
+            "height": 900,
+            "seats": 1,
+            "visibleDecor": 6,
+            "renderers": 6,
+            "triangles": 5088,
+            "thirdPerson": true
+        },
+        {
+            "file": "03-wreath-garland-upward.png",
+            "mode": "Dibs",
+            "width": 1600,
+            "height": 900,
+            "seats": 1,
+            "visibleDecor": 3,
+            "renderers": 6,
+            "triangles": 5088,
+            "thirdPerson": true
+        },
+        {
+            "file": "04-corner-after-furniture-reset.png",
+            "mode": "Dibs",
+            "width": 1600,
+            "height": 900,
+            "seats": 1,
+            "visibleDecor": 6,
+            "renderers": 6,
+            "triangles": 5088,
+            "thirdPerson": true
+        },
+        {
+            "file": "05-two-local-seats-overview.png",
+            "mode": "Duos",
+            "width": 1600,
+            "height": 900,
+            "seats": 2,
+            "visibleDecor": 4,
+            "renderers": 6,
+            "triangles": 5088,
+            "thirdPerson": false
+        },
+        {
+            "file": "06-four-local-seats-overview.png",
+            "mode": "Duos",
+            "width": 2100,
+            "height": 900,
+            "seats": 4,
+            "visibleDecor": 4,
+            "renderers": 6,
+            "triangles": 5088,
+            "thirdPerson": false
+        },
+        {
+            "file": "07-moving-day-corner.png",
+            "mode": "MovingDay",
+            "width": 2100,
+            "height": 900,
+            "seats": 1,
+            "visibleDecor": 6,
+            "renderers": 6,
+            "triangles": 5088,
+            "thirdPerson": true
+        }
+    ]
+}

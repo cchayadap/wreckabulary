@@ -1,0 +1,16 @@
+{
+  "result": "Succeeded",
+  "errors": 0,
+  "reportedBytes": 137145350,
+  "log": "Logs/authoring-windows-build-final.log",
+  "executable": "Builds/Windows/Wreckabulary.exe",
+  "executableSha256": "96B492CB271111251FE42B8646E65370A1B7B566773A1E35B34C3F2D1AE70873",
+  "smoke": {
+    "processId": 40188,
+    "alive": true,
+    "responding": true,
+    "executable": "Builds/Windows/Wreckabulary.exe",
+    "utc": "2026-10-08T17:01:37.4025839Z"
+  },
+  "smokeLog": "Logs/authoring-windows-smoke.log"
+}

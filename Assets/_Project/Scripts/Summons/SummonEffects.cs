@@ -33,9 +33,40 @@ namespace Wreckabulary
                     return false;
                 }
             }
-            Popup.Show(recipe.word + "!", player.OverheadPosition + Vector3.up * 0.8f, player.Color, 5f);
+            Popup.Show(recipe.word + "!", player.OverheadPosition + Vector3.up * 0.35f, GameFeedback.SkillColor(recipe.word), 3.5f);
             CameraRig.Shake(0.06f);
             return true;
+        }
+
+        /// <summary>Lightweight, collider-free line art that shares the authoritative effect's lifetime.</summary>
+        public static LineRenderer Ring(Transform parent, string name, Color color, float radius, Quaternion rotation)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(parent, false);
+            root.transform.localRotation = rotation;
+            var points = new Vector3[40];
+            for (int i = 0; i < points.Length; i++)
+            {
+                float angle = i * Mathf.PI * 2f / points.Length;
+                points[i] = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * radius;
+            }
+            return Line(root.transform, color, points, true);
+        }
+
+        public static LineRenderer Line(Transform parent, Color color, Vector3[] points, bool loop = false)
+        {
+            var line = parent.gameObject.AddComponent<LineRenderer>();
+            line.useWorldSpace = false;
+            line.loop = loop;
+            line.positionCount = points.Length;
+            line.SetPositions(points);
+            line.startWidth = line.endWidth = .035f;
+            line.numCornerVertices = 2;
+            line.numCapVertices = 2;
+            line.sharedMaterial = GameAssets.I.Tinted(color);
+            line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            line.receiveShadows = false;
+            return line;
         }
 
         static bool IsChecklistRecipe(PlayerController player, WordEntry recipe)

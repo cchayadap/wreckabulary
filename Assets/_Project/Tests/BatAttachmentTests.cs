@@ -76,7 +76,7 @@ namespace Wreckabulary.Tests
             Assert.AreSame(player.handR,bat.transform.parent);
             Assert.AreEqual(RigidbodyInterpolation.None,bat.GetComponent<Rigidbody>().interpolation);
             Assert.AreEqual(playerInterpolation,player.Body.interpolation);
-            Assert.AreEqual(AnimatorCullingMode.CullUpdateTransforms,appearance.AvatarModel.GetComponentInChildren<Animator>(true).cullingMode);
+            Assert.AreEqual(AnimatorCullingMode.AlwaysAnimate,appearance.AvatarModel.GetComponentInChildren<Animator>(true).cullingMode, "Game-relevant sockets continue updating outside the view.");
         }
 
         [UnityTest] public IEnumerator NewPickupAndFirstHoldPoseRemainAlignedBeforeRender() => shaders.RunWithSynchronousShaders(Transition());

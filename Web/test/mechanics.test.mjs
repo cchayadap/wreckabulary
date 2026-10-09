@@ -98,10 +98,10 @@ test("craft reserves, cancellation refunds, completion holds exact letters witho
 test("disabled recipes refuse atomically", () => {
   const g = game(),
     p = g.players[0];
-  give(g, p, "APPLE");
+  give(g, p, "BOOK");
   const audit = g.audit();
-  assert.match(g.craft(p, "APPLE"), /not available/);
-  assert.equal(p.bag, "APPLE");
+  assert.match(g.craft(p, "BOOK"), /not available/);
+  assert.equal(p.bag, "BOOK");
   assert.deepEqual(g.audit(), audit);
 });
 test("breaking original furniture returns its exact word and is idempotent", () => {

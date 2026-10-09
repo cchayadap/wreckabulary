@@ -1,0 +1,1745 @@
+{
+    "engine": "6000.6.3f1",
+    "utc": "2026-10-08T22:30:03.8153694Z",
+    "capture": "Native ScreenCapture.CaptureScreenshotAsTexture at end of frame; normal camera rendering",
+    "simulationStep": 0.01666666753590107,
+    "completed": true,
+    "frames": [
+        {
+            "file": "01-recipe-shield.png",
+            "scene": "Hub",
+            "view": "recipe-shield",
+            "item": "SHIELD",
+            "phase": "Demo stage",
+            "clip": "",
+            "artAsset": "Assets/_Project/Art/Generated/Items/shield-v1.png",
+            "pinnedRecipe": "SHIELD",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": -1.0,
+            "health": 0.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 0.6486219167709351,
+                "y": 0.949999988079071,
+                "z": -402.59002685546875
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.10653281211853027,
+                "z": 0.9943091869354248
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "02-recipe-soda.png",
+            "scene": "Hub",
+            "view": "recipe-soda",
+            "item": "SODA",
+            "phase": "Demo stage",
+            "clip": "",
+            "artAsset": "Assets/_Project/Art/Generated/Items/soda-v1.png",
+            "pinnedRecipe": "SODA",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": -1.0,
+            "health": 0.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 0.6522908210754395,
+                "y": 0.949999988079071,
+                "z": -402.59002685546875
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.10653281211853027,
+                "z": 0.9943091869354248
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "03-recipe-apple.png",
+            "scene": "Hub",
+            "view": "recipe-apple",
+            "item": "APPLE",
+            "phase": "Demo stage",
+            "clip": "",
+            "artAsset": "Assets/_Project/Art/Generated/Items/apple-v1.png",
+            "pinnedRecipe": "APPLE",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": -1.0,
+            "health": 0.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 0.6523072123527527,
+                "y": 0.949999988079071,
+                "z": -402.59002685546875
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.10653281211853027,
+                "z": 0.9943091869354248
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "04-recipe-water.png",
+            "scene": "Hub",
+            "view": "recipe-water",
+            "item": "WATER",
+            "phase": "Demo stage",
+            "clip": "",
+            "artAsset": "Assets/_Project/Art/Generated/Items/water-v1.png",
+            "pinnedRecipe": "WATER",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": -1.0,
+            "health": 0.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 0.6523073315620422,
+                "y": 0.949999988079071,
+                "z": -402.59002685546875
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.10653281211853027,
+                "z": 0.9943091869354248
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "05-recipe-fan.png",
+            "scene": "Hub",
+            "view": "recipe-fan",
+            "item": "FAN",
+            "phase": "Demo stage",
+            "clip": "",
+            "artAsset": "Assets/_Project/Art/Generated/Items/fan-v1.png",
+            "pinnedRecipe": "FAN",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": -1.0,
+            "health": 0.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 0.6523073315620422,
+                "y": 0.949999988079071,
+                "z": -402.59002685546875
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.10653281211853027,
+                "z": 0.9943091869354248
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "06-recipe-clock.png",
+            "scene": "Hub",
+            "view": "recipe-clock",
+            "item": "CLOCK",
+            "phase": "Demo stage",
+            "clip": "",
+            "artAsset": "Assets/_Project/Art/Generated/Items/clock-v1.png",
+            "pinnedRecipe": "CLOCK",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": -1.0,
+            "health": 0.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 0.6523073315620422,
+                "y": 0.949999988079071,
+                "z": -402.59002685546875
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.10653281211853027,
+                "z": 0.9943091869354248
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "07-miniature-shield.png",
+            "scene": "Empty",
+            "view": "miniature-shield",
+            "item": "SHIELD",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.30805957317352295,
+                "y": 0.3898584842681885,
+                "z": 0.20422759652137756
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "08-shield-raised-360.png",
+            "scene": "Empty",
+            "view": "shield-raised-360",
+            "item": "SHIELD",
+            "phase": "Demo stage",
+            "clip": "Block_Plate",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": true,
+            "shieldAura": true,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.29051530361175537,
+                "y": 0.3600635528564453,
+                "z": 0.1185082197189331
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "09-shield-raised-held.png",
+            "scene": "Empty",
+            "view": "shield-raised-held",
+            "item": "SHIELD",
+            "phase": "Demo stage",
+            "clip": "Block_Plate",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": true,
+            "shieldAura": true,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.29053357243537903,
+                "y": 0.36001837253570557,
+                "z": 0.11851567029953003
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "10-miniature-soda.png",
+            "scene": "Empty",
+            "view": "miniature-soda",
+            "item": "SODA",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.23501288890838623,
+                "y": 0.3565562963485718,
+                "z": 0.38058924674987793
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "11-miniature-apple.png",
+            "scene": "Empty",
+            "view": "miniature-apple",
+            "item": "APPLE",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.303912878036499,
+                "y": 0.3952111005783081,
+                "z": 0.3876892328262329
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "12-miniature-water.png",
+            "scene": "Empty",
+            "view": "miniature-water",
+            "item": "WATER",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.19855868816375732,
+                "y": 0.3605896234512329,
+                "z": 0.41112443804740906
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "13-miniature-fan.png",
+            "scene": "Empty",
+            "view": "miniature-fan",
+            "item": "FAN",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.2535272240638733,
+                "y": 0.34329748153686523,
+                "z": 0.40099036693573
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "14-miniature-clock.png",
+            "scene": "Empty",
+            "view": "miniature-clock",
+            "item": "CLOCK",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.3746664524078369,
+                "y": 0.3604549169540405,
+                "z": 0.41552668809890747
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "15-use-apple-start.png",
+            "scene": "Empty",
+            "view": "use-apple-start",
+            "item": "APPLE",
+            "phase": "Demo stage",
+            "clip": "Drink_Consumable",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": true,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": 0.0,
+            "health": 65.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.35185670852661133,
+                "y": 0.37959468364715576,
+                "z": 0.35658717155456543
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "16-use-apple-middle.png",
+            "scene": "Empty",
+            "view": "use-apple-middle",
+            "item": "APPLE",
+            "phase": "Demo stage",
+            "clip": "Drink_Consumable",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": true,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": 0.3166666030883789,
+            "health": 65.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.2396308034658432,
+                "y": 0.27171123027801514,
+                "z": 0.22964614629745483
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "17-use-apple-complete.png",
+            "scene": "Empty",
+            "view": "use-apple-complete",
+            "item": "APPLE",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": 0.5666666030883789,
+            "health": 95.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "18-use-water-start.png",
+            "scene": "Empty",
+            "view": "use-water-start",
+            "item": "WATER",
+            "phase": "Demo stage",
+            "clip": "Drink_Consumable",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": true,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": 0.0,
+            "health": 60.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.26989006996154785,
+                "y": 0.31159305572509766,
+                "z": 0.40314939618110657
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "19-use-water-middle.png",
+            "scene": "Empty",
+            "view": "use-water-middle",
+            "item": "WATER",
+            "phase": "Demo stage",
+            "clip": "Drink_Consumable",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": true,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": 0.15000057220458984,
+            "health": 60.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.386161208152771,
+                "y": 0.3284567594528198,
+                "z": 0.15780574083328247
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "20-use-water-complete.png",
+            "scene": "Empty",
+            "view": "use-water-complete",
+            "item": "WATER",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": 0.25,
+            "health": 78.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "21-use-soda-start.png",
+            "scene": "Empty",
+            "view": "use-soda-start",
+            "item": "SODA",
+            "phase": "Demo stage",
+            "clip": "Drink_Consumable",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": true,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": 0.0,
+            "health": 78.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.238020122051239,
+                "y": 0.34712380170822144,
+                "z": 0.37465429306030273
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "22-use-soda-middle.png",
+            "scene": "Empty",
+            "view": "use-soda-middle",
+            "item": "SODA",
+            "phase": "Demo stage",
+            "clip": "Drink_Consumable",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": true,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": 0.20000076293945313,
+            "health": 78.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.3516598343849182,
+                "y": 0.3221426010131836,
+                "z": 0.18389993906021118
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "23-use-soda-complete.png",
+            "scene": "Empty",
+            "view": "use-soda-complete",
+            "item": "SODA",
+            "phase": "Demo stage",
+            "clip": "Hold_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 0,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": 0.35000038146972656,
+            "health": 78.0,
+            "slowLeft": 0.0,
+            "boostLeft": 6.000000953674316,
+            "cameraPosition": {
+                "x": 1.149999976158142,
+                "y": 1.5,
+                "z": 2.700000047683716
+            },
+            "cameraForward": {
+                "x": -0.3805757164955139,
+                "y": -0.2382735013961792,
+                "z": -0.8935257792472839
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "24-deployed-fields-time-a.png",
+            "scene": "Empty",
+            "view": "deployed-fields-time-a",
+            "item": "FAN CLOCK MAT",
+            "phase": "Demo stage",
+            "clip": "Throw_OneHand",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 2,
+            "renderedItems": 0,
+            "fields": 2,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": 0.0,
+            "health": 78.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 8.171693801879883,
+                "y": 10.415409088134766,
+                "z": 12.63844108581543
+            },
+            "cameraForward": {
+                "x": -0.44112884998321533,
+                "y": -0.5146503448486328,
+                "z": -0.7352147698402405
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 1.4572447071259376e-7,
+                "z": -3.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.3480468988418579,
+                "y": 0.7699999809265137,
+                "z": 1.4143768548965454
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0911986455321312
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.055329274386167526,
+                "z": 0.0,
+                "w": -0.9984681606292725
+            }
+        },
+        {
+            "file": "25-deployed-fields-time-b.png",
+            "scene": "Empty",
+            "view": "deployed-fields-time-b",
+            "item": "FAN CLOCK MAT",
+            "phase": "Demo stage",
+            "clip": "Idle",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 2,
+            "renderedItems": 0,
+            "fields": 2,
+            "thirdPerson": false,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": false,
+            "shieldAura": false,
+            "hasHeldItem": false,
+            "targetInFrame": false,
+            "elapsedSinceAction": 0.3833332061767578,
+            "health": 78.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": 8.171693801879883,
+                "y": 10.415409088134766,
+                "z": 12.63844108581543
+            },
+            "cameraForward": {
+                "x": -0.44112884998321533,
+                "y": -0.5146503448486328,
+                "z": -0.7352147698402405
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -3.0
+            },
+            "heldSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "windPoint": {
+                "x": 0.4855678081512451,
+                "y": 0.7699999809265137,
+                "z": 2.5183777809143066
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -0.15450133383274078
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.1484726518392563,
+                "z": 0.0,
+                "w": -0.9889165163040161
+            }
+        },
+        {
+            "file": "26-active-local-couch-16x9.png",
+            "scene": "LivingRoom",
+            "view": "active-local-couch-16x9",
+            "item": "SHIELD FAN",
+            "phase": "Playing",
+            "clip": "Block_Plate",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 2,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": true,
+            "usingItem": false,
+            "blocking": true,
+            "shieldAura": true,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": -1.2332627773284912,
+                "y": 30.0,
+                "z": -17.52358055114746
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": -4.400000095367432,
+                "y": 0.0,
+                "z": 7.0
+            },
+            "heldSize": {
+                "x": 0.31085777282714844,
+                "y": 0.3557997941970825,
+                "z": 0.25644683837890625
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "27-active-local-couch-21x9.png",
+            "scene": "LivingRoom",
+            "view": "active-local-couch-21x9",
+            "item": "SHIELD FAN",
+            "phase": "Playing",
+            "clip": "Block_Plate",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 2100,
+            "height": 900,
+            "localSeats": 2,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": false,
+            "orthographic": true,
+            "usingItem": false,
+            "blocking": true,
+            "shieldAura": true,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": -1.4181287288665771,
+                "y": 30.0,
+                "z": -17.48995590209961
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": -4.400000095367432,
+                "y": 0.0,
+                "z": 7.0
+            },
+            "heldSize": {
+                "x": 0.30864620208740234,
+                "y": 0.3609529733657837,
+                "z": 0.2546224594116211
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        },
+        {
+            "file": "28-active-centered-third-person.png",
+            "scene": "LivingRoom",
+            "view": "active-centered-third-person",
+            "item": "SHIELD",
+            "phase": "Playing",
+            "clip": "Block_Plate",
+            "artAsset": "",
+            "pinnedRecipe": "",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "renderedItems": 1,
+            "fields": 0,
+            "thirdPerson": true,
+            "orthographic": false,
+            "usingItem": false,
+            "blocking": true,
+            "shieldAura": true,
+            "hasHeldItem": true,
+            "targetInFrame": true,
+            "elapsedSinceAction": -1.0,
+            "health": 100.0,
+            "slowLeft": 0.0,
+            "boostLeft": 0.0,
+            "cameraPosition": {
+                "x": -6.024837493896484,
+                "y": 1.6257519721984863,
+                "z": 8.209935188293457
+            },
+            "cameraForward": {
+                "x": 0.9156451225280762,
+                "y": -0.1656782031059265,
+                "z": -0.36625799536705017
+            },
+            "playerPosition": {
+                "x": -3.0,
+                "y": 0.0,
+                "z": 7.0
+            },
+            "heldSize": {
+                "x": 0.21812677383422852,
+                "y": 0.3594028949737549,
+                "z": 0.3140373229980469
+            },
+            "windPoint": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "matChevron": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "clockHand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            }
+        }
+    ]
+}

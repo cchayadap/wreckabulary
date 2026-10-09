@@ -4,115 +4,82 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
+    /// <summary>Remote identity and short contextual prompts; health, gear and letters live in the screen HUD.</summary>
     public class PlayerHud : MonoBehaviour
     {
         [SerializeField] PlayerController player;
         [SerializeField] TextMeshPro lettersText;
         [SerializeField] TextMeshPro wheelText;
-        [SerializeField] float height = 1.75f;
+        [SerializeField] float height = 1.95f;
 
         readonly StringBuilder sb = new();
-        string lastLetters, lastWheel;
+        string lastLetters, lastWheel, nameMarkup;
+        WorldSpaceBillboard billboard;
+
+        void Awake()
+        {
+            billboard = GetComponent<WorldSpaceBillboard>();
+            if (!billboard) billboard = gameObject.AddComponent<WorldSpaceBillboard>();
+        }
+
+        void Start()
+        {
+            if (!player) return;
+            nameMarkup = "<color=#" + ColorUtility.ToHtmlStringRGB(player.Color) + ">" + player.Name + "</color>";
+            if (CameraRig.Instance) billboard.SetCamera(CameraRig.Instance.ViewCamera);
+        }
 
         void LateUpdate()
         {
             if (!player) return;
-            transform.position = player.Body.position + Vector3.up * height;
-            Popup.Billboard(transform);
-
-            var rig = CameraRig.Instance;
-            bool own = rig && rig.isActiveAndEnabled && rig.Target == player;
-            SetIfChanged(lettersText, own ? "" : LettersLine(), ref lastLetters);
-            bool composer = GameHud.Active && GameHud.Active.LocalPlayer == player;
-            SetIfChanged(wheelText, player.Summoner.IsSpelling && !composer ? WheelLines() : ContextLine(), ref lastWheel);
+            transform.position = player.transform.position + Vector3.up * height;
+            bool followed = GameHud.Active && GameHud.Active.LocalPlayer == player;
+            if (!followed) followed = CameraRig.Instance && CameraRig.Instance.IsFollowing(player);
+            if (!followed && player.Binding is not BotBinding)
+            {
+                int humans = 0;
+                foreach (var seat in World.Players)
+                    if (seat && seat.Binding != null && seat.Binding is not BotBinding) humans++;
+                followed = humans == 1;
+            }
+            SetIfChanged(lettersText, IdentityLine(followed), ref lastLetters);
+            bool remoteCraft = !followed && player.Summoner && player.Summoner.IsSpelling;
+            SetIfChanged(wheelText, remoteCraft ? WheelLines() : ContextLine(), ref lastWheel);
         }
 
+        string IdentityLine(bool followed)
+        {
+            if (player.IsEliminated) return "";
+            if (player.IsDowned)
+                return $"<color=#FF967D>REVIVE · {Mathf.CeilToInt(player.Health.BleedOutLeft)}s</color>";
+            return followed ? "" : nameMarkup ?? "";
+        }
+
+        /// <summary>Show only actions that need nearby world context.</summary>
         string ContextLine()
         {
             var combat = player.Combat;
-            if (combat.IsReviving) return "<color=#7BE07B>REVIVING...</color>";
+            if (!combat) return "";
+            if (combat.IsReviving) return "<color=#98F3CA>REVIVING</color>";
             if (player.CanAct && !(combat.IsHolding && !combat.Weapon) && combat.DownedTeammateNearby())
-                return "<color=#FFD24A>Hold grab to revive</color>";
+                return "<color=#F6D98B>Hold grab to revive</color>";
             return "";
         }
 
-        static void SetIfChanged(TextMeshPro t, string value, ref string last)
+        static void SetIfChanged(TextMeshPro text, string value, ref string last)
         {
-            if (value == last) return;
+            if (!text || value == last) return;
             last = value;
-            t.text = value;
-        }
-
-        string LettersLine()
-        {
-            var inv = player.Inventory;
-            sb.Clear();
-            sb.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(player.Color)).Append('>')
-              .Append(player.Name).Append("</color> ");
-            if (player.IsEliminated) return sb.Append("<color=#FFFFFF>OUT</color>").ToString();
-            AppendHealth(player.Health);
-            if (player.IsDowned) return sb.ToString();
-            sb.Append("  ");
-
-            for (int i = 0; i < inv.Capacity; i++)
-            {
-                if (i < inv.Count)
-                {
-                    char c = inv.Letters[i];
-                    string hex = LetterScores.RarityOf(c) switch
-                    {
-                        LetterRarity.Legendary => "FFD24A",
-                        LetterRarity.Rare => "7FD6CB",
-                        _ => "FFF4E0"
-                    };
-                    sb.Append("<color=#").Append(hex).Append('>').Append(c).Append("</color>");
-                }
-                else sb.Append("<color=#FFFFFF55>·</color>");
-                if (i < inv.Capacity - 1) sb.Append(' ');
-            }
-            return sb.ToString();
-        }
-
-        void AppendHealth(PlayerHealth health)
-        {
-            const int pips = 10;
-            if (health.IsDowned)
-            {
-                sb.Append("<color=#FF6A4D>DOWN ").Append(Mathf.CeilToInt(health.BleedOutLeft)).Append("s</color>");
-                float revive = health.ReviveProgress;
-                if (revive > 0f)
-                {
-                    int done = Mathf.FloorToInt(revive * pips);
-                    sb.Append(" <color=#7BE07B>").Append('|', done).Append("</color>")
-                      .Append("<color=#FFFFFF33>").Append('|', pips - done).Append("</color>");
-                }
-                return;
-            }
-            float f = health.Fraction;
-            int full = Mathf.CeilToInt(f * pips);
-            string hex = f > 0.6f ? "7BE07B" : f > 0.3f ? "FFD24A" : "FF6A4D";
-            sb.Append("<color=#").Append(hex).Append('>').Append('|', full).Append("</color>")
-              .Append("<color=#FFFFFF33>").Append('|', pips - full).Append("</color> ")
-              .Append(Mathf.CeilToInt(health.Current));
-            if (health.Bubble > 0f) sb.Append(" <color=#9FDBFF>+").Append(Mathf.CeilToInt(health.Bubble)).Append("</color>");
+            text.text = value;
         }
 
         string WheelLines()
         {
-            var s = player.Summoner;
+            var summon = player.Summoner;
             sb.Clear();
-            if (s.Ready.Count == 0) sb.Append("<color=#FFFFFFAA>no words yet</color>\n");
-            for (int i = 0; i < s.Ready.Count; i++)
-            {
-                var w = s.Ready[i];
-                if (i == s.Selected)
-                    sb.Append("<size=130%><color=#FFD24A>> ").Append(w.word).Append(" <</color></size>\n");
-                else
-                    sb.Append("<color=#FFF4E0>").Append(w.word).Append("</color>\n");
-            }
-            foreach (var (entry, missing) in s.Hints)
-                sb.Append("<color=#FFFFFF66>").Append(entry.word).Append("  +").Append(missing).Append("</color>\n");
-            return sb.ToString();
+            if (summon.Ready.Count == 0) return "";
+            int selected = Mathf.Clamp(summon.Selected, 0, summon.Ready.Count - 1);
+            return sb.Append("<color=#F6D98B>").Append(summon.Ready[selected].word).Append("</color>").ToString();
         }
     }
 }

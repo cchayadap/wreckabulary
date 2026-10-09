@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1661ab7b240d8e94cbd911531a77ab4b, type: 3}
+  m_Name: PowerItemArt
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.UI.GeneratedItemArt
+  entries:
+  - itemId: SHIELD
+    sprite: {fileID: 21300000, guid: a3dd45417bc14634381527c4b9a73df5, type: 3}
+  - itemId: SODA
+    sprite: {fileID: 21300000, guid: 1e399bd359be8e04893f2d9928aae395, type: 3}
+  - itemId: APPLE
+    sprite: {fileID: 21300000, guid: 2fc8a52baec9c5e4daaf7b0cfe642c55, type: 3}
+  - itemId: WATER
+    sprite: {fileID: 21300000, guid: 033c97b7a780a4545a84868c636855bb, type: 3}
+  - itemId: FAN
+    sprite: {fileID: 21300000, guid: 773f0733a73a9cc4c9be1bb19b7587a8, type: 3}
+  - itemId: CLOCK
+    sprite: {fileID: 21300000, guid: 18762f99b910915449d994717d549bc9, type: 3}

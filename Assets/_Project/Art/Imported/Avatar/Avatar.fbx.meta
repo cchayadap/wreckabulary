@@ -611,7 +611,7 @@ ModelImporter:
     preBakeTriangleCollisionMesh: 0
     importPhysicalCameras: 0
     importVisibility: 0
-    importBlendShapes: 0
+    importBlendShapes: 1
     importCameras: 0
     importLights: 0
     nodeNameCollisionStrategy: 0

@@ -18,7 +18,7 @@ namespace Wreckabulary.Tests
         Camera camera;
         PlayerController player;
         PlayerAppearance appearance;
-        Quaternion authoredHandRotation;
+        Quaternion nativeGripCorrection;
         RenderTexture target;
         StreamWriter writer;
         float started;
@@ -34,7 +34,6 @@ namespace Wreckabulary.Tests
         Vector3 idleBootsLossyScale;
         int idleBootVertexCount;
         float idleLeftSoleY, idleRightSoleY;
-        FieldInfo currentPlayableField;
         public string Phase = "setup", Failure;
         public float MaximumInterpolatedGap, MaximumHierarchyGap, MaximumHierarchyAngle;
         public float MaximumPreRenderHierarchyGap, MaximumPreRenderHierarchyAngle;
@@ -60,9 +59,7 @@ namespace Wreckabulary.Tests
 
         public void Initialize(Camera productionCamera, PlayerController p, PlayerAppearance a, string directory, bool captureSoleContact = false)
         {
-            camera = productionCamera; player = p; appearance = a; authoredHandRotation = p.handR.localRotation;
-            currentPlayableField = typeof(PlayerAppearance).GetField("currentPlayable", BindingFlags.Instance | BindingFlags.NonPublic);
-            if (currentPlayableField == null) throw new InvalidOperationException("Native clip playable is unavailable.");
+            camera = productionCamera; player = p; appearance = a; nativeGripCorrection = Quaternion.Inverse(a.RightGrip.rotation) * p.handR.rotation;
             observeSoleContact = captureSoleContact;
             if (observeSoleContact) CalibrateIdleSoles();
             started = Time.realtimeSinceStartup;
@@ -85,19 +82,19 @@ namespace Wreckabulary.Tests
                 var beforeAnchor = bat.transform.TransformPoint(gripLocal);
                 float beforeGap = Vector3.Distance(beforeAnchor, appearance.RightGrip.position);
                 var beforeItemRotation = bat.transform.rotation;
-                float beforeAngle = Quaternion.Angle(beforeItemRotation, player.handR.parent.rotation * authoredHandRotation * bat.HoldRotation);
+                float beforeAngle = Quaternion.Angle(beforeItemRotation, appearance.RightGrip.rotation * nativeGripCorrection * bat.HoldRotation);
                 var beforePosition = camera.transform.position; var beforeProjection = camera.projectionMatrix;
                 RenderPipeline.SubmitRenderRequest(camera, new UniversalRenderPipeline.SingleCameraRequest { destination = target });
                 if (camera.transform.position != beforePosition || camera.projectionMatrix != beforeProjection)
                     throw new InvalidOperationException("Probe changed camera state.");
                 var rb = bat.GetComponent<Rigidbody>();
                 var clipAsset = appearance.CurrentAnimationClip;
-                var playable = (AnimationClipPlayable)currentPlayableField.GetValue(appearance);
+                var playable = appearance.CurrentPlayable;
                 if (!clipAsset || !playable.IsValid()) throw new InvalidOperationException("Evaluated native clip is unavailable.");
                 var anchor = bat.transform.TransformPoint(gripLocal);
                 var native = appearance.RightGrip.position; var hand = player.handR.position;
                 float gap = Vector3.Distance(anchor,native);
-                float angle = Quaternion.Angle(bat.transform.rotation, player.handR.parent.rotation * authoredHandRotation * bat.HoldRotation);
+                float angle = Quaternion.Angle(bat.transform.rotation, appearance.RightGrip.rotation * nativeGripCorrection * bat.HoldRotation);
                 if (Phase.StartsWith("interpolated-")) MaximumInterpolatedGap = Mathf.Max(MaximumInterpolatedGap,gap);
                 if (Phase.StartsWith("hierarchy-owned-"))
                 {
@@ -135,7 +132,7 @@ namespace Wreckabulary.Tests
                 var local = bat.transform.localPosition; var scale = bat.transform.localScale; var v = player.Body.linearVelocity;
                 writer.WriteLine(string.Join(",", new[] {Time.frameCount.ToString(),F(Time.time),F(Time.realtimeSinceStartup-started),Phase,clipAsset.name,
                     F(new Vector2(v.x,v.z).magnitude),rb.interpolation.ToString(),rb.isKinematic.ToString(),F(gap),F(Vector3.Distance(anchor,hand)),F(angle),
-                    F(Quaternion.Angle(player.handR.localRotation,authoredHandRotation)),F(Vector3.Distance(rb.position,bat.transform.position)),F(Quaternion.Angle(rb.rotation,bat.transform.rotation)),
+                    F(Quaternion.Angle(player.handR.rotation, appearance.RightGrip.rotation * nativeGripCorrection)),F(Vector3.Distance(rb.position,bat.transform.position)),F(Quaternion.Angle(rb.rotation,bat.transform.rotation)),
                     F(local.x),F(local.y),F(local.z),F(scale.x),F(scale.y),F(scale.z),F(native.x),F(native.y),F(native.z),F(hand.x),F(hand.y),F(hand.z),F(anchor.x),F(anchor.y),F(anchor.z),
                     F(beforeGap),F(Vector3.Distance(beforeAnchor,anchor)),F(Quaternion.Angle(beforeItemRotation,bat.transform.rotation)),Q(appearance.RightGrip.rotation),Q(player.handR.rotation),Q(bat.transform.rotation),
                     playable.GetTime().ToString("0.000000",CultureInfo.InvariantCulture),F(clipAsset.length),F(clipAsset.frameRate),player.Grounded.ToString(),

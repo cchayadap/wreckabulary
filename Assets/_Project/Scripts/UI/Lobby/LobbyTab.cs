@@ -35,20 +35,29 @@ namespace Wreckabulary
             Paint();
         }
 
+        void OnEnable() => LobbyThemes.Changed += Paint;
+        void OnDisable() => LobbyThemes.Changed -= Paint;
+
         void Paint()
         {
             if (!face) return;
-            bool cell = Style == Look.Cell;
-            face.color = on ? Color.white : down ? LobbyKit.TabPress : hot ? HoverColour : cell ? Color.clear : LobbyKit.TabIdle;
-            gradient.enabled = on;
-            drop.enabled = on;
-            edge.enabled = on || !cell;
-            edge.sprite = LobbyIcons.FrameSprite(Radius, on ? (cell ? 2 : 4) : 2);
-            edge.color = on ? LobbyKit.Navy : LobbyKit.Line;
-            var ink = on ? LobbyKit.Navy : LobbyKit.Cream;
+            face.color = Color.clear;
+            gradient.enabled = false;
+            drop.enabled = false;
+            edge.enabled = on || hot || down;
+            edge.type = Image.Type.Simple;
+            edge.sprite = null;
+            var underline = edge.rectTransform;
+            underline.anchorMin = Vector2.zero;
+            underline.anchorMax = new Vector2(1, 0);
+            underline.offsetMin = new Vector2(8, 1);
+            underline.offsetMax = new Vector2(-8, on ? 5 : 3);
+            var accent = LobbyThemes.Current.Accent;
+            edge.color = accent;
+            var ink = on || hot ? LobbyKit.Cyan : LobbyKit.Navy;
             if (label) label.color = ink;
             if (glyph) glyph.color = ink;
-            press.Scale = on && !cell ? 1.06f : 1f;
+            press.Scale = 1f;
             press.Lift = on ? 0f : 2f;
         }
     }

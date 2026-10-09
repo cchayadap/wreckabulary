@@ -10,7 +10,7 @@ Wreckabulary is a toy-like third-person party game for 1–4 players. Plush room
 
 - **Modes:** Dibs! (free-for-all, first to three rounds), Duos (2v2 with downed and revive), Moving Out (co-op escape with keepsakes), Moving Day (co-op furnishing checklist), a guided tutorial, and the Creative Workshop for furnishing a house.
 - **Houses:** Pinwheel House, Garden Courtyard, City Flat, the two-storey Terrace House and the three-storey Walk-up Apartments.
-- **Rules:** 100 HP, a 10-letter bag, 2 carried and 2 deployed items, and 12 recipes: BALL, BAT, BED, BLADE, BOMB, FOAM, LAMP, MAT, PLATE, SOAP, SOFA and TABLE.
+- **Rules:** 100 HP, a 10-letter bag, 2 carried and 2 deployed items, and [24 usable recipes](docs/RECIPES.md), including a 360° raised shield, healing snacks, speed drinks, wind and slowing fields.
 - **Play:** local play for up to four (keyboard and mouse, gamepads, two keyboard halves), with AI roommates filling empty seats.
 - **Lobby:** a PC lobby with loadout, career, cosmetic shop, leaderboard and graphics settings. Cosmetics never change a number.
 
@@ -19,7 +19,7 @@ Wreckabulary is a toy-like third-person party game for 1–4 players. Plush room
 | Edition | Folder | Status |
 |---|---|---|
 | Unity 6 (main edition, PC first) | repository root | Active development |
-| Browser edition (Three.js) | `Web` | Playable prototype for one player with AI housemates |
+| Browser edition (Three.js) | `Web` | [Playable prototype](https://wreckabulary.pagna.workers.dev/) for one player with AI housemates |
 
 Both editions read the same JSON rules, recipes, maps and wardrobe from `Assets/_Project/Data/Config`.
 
@@ -33,9 +33,11 @@ Both editions read the same JSON rules, recipes, maps and wardrobe from `Assets/
    ```
 3. Add the checkout to Unity Hub and open it.
 4. Choose **Wreckabulary → Set Up Art and Data**.
-5. Open `Assets/_Project/Scenes/Hub.unity` and press Play.
+5. Choose **Wreckabulary → Open Current Workspace** and press Play. Play starts at the latest Hub; enable **Play the opened scene** when testing a scene you are editing.
 
 In the lobby, PLAY picks a queue, mode and house, and GO starts the match. Couch players join the party with Start on a controller or `.` on the keyboard's right half.
+
+The [Unity workspace guide](docs/UNITY-WORKSPACE.md) explains current scenes, editable world/character prefabs and preserved legacy references. Scene upgrades preserve authored edits and save recovery backups under `Logs/authoring-backups`.
 
 ## Run the browser edition
 

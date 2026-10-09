@@ -169,7 +169,7 @@ namespace Wreckabulary.Art
             int split = name.LastIndexOf('_');
             if (split < 0) return false;
             string skin = name.Substring(split + 1);
-            if (skin != "Classic" && skin != "Candy" && skin != "Arcade") return false;
+            if (skin != "Classic" && skin != "Candy" && skin != "Arcade" && skin != "Winter") return false;
             switch (name.Substring(0, split))
             {
                 case "wood": case "wood_dark": case "wood_light": surface = Surface.Wood; return true;

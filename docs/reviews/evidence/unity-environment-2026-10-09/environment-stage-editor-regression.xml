@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-08 20:30:34Z" end-time="2026-10-08 20:30:41Z" duration="6.9512152">
+  <test-suite type="TestSuite" id="1000" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="286" result="Passed" start-time="2026-10-08 20:30:34Z" end-time="2026-10-08 20:30:41Z" duration="6.951215" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1116" name="Wreckabulary.Editor.Tests.dll" fullname="C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wreckabulary/Library/ScriptAssemblies/Wreckabulary.Editor.Tests.dll" runstate="Runnable" testcasecount="85" result="Passed" start-time="2026-10-08 20:30:34Z" end-time="2026-10-08 20:30:41Z" duration="6.887384" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="42516" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1117" name="Wreckabulary" fullname="Wreckabulary" runstate="Runnable" testcasecount="85" result="Passed" start-time="2026-10-08 20:30:34Z" end-time="2026-10-08 20:30:41Z" duration="6.882866" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1118" name="Tests" fullname="Wreckabulary.Tests" runstate="Runnable" testcasecount="32" result="Passed" start-time="2026-10-08 20:30:34Z" end-time="2026-10-08 20:30:41Z" duration="6.880475" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1028" name="HubPlayButtonTests" fullname="Wreckabulary.Tests.HubPlayButtonTests" classname="Wreckabulary.Tests.HubPlayButtonTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-10-08 20:30:34Z" end-time="2026-10-08 20:30:41Z" duration="6.876635" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1029" name="PressingPlayWithTheHubOpenShowsTheLobby" fullname="Wreckabulary.Tests.HubPlayButtonTests.PressingPlayWithTheHubOpenShowsTheLobby" methodname="PressingPlayWithTheHubOpenShowsTheLobby" classname="Wreckabulary.Tests.HubPlayButtonTests" runstate="Runnable" seed="24852597" result="Passed" start-time="2026-10-08 20:30:34Z" end-time="2026-10-08 20:30:41Z" duration="6.833200" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Enter Play Mode Options: enabled=True options=DisableDomainReload, DisableSceneReload; sceneLoaded raised for Hub: False
+Saving results to: C:/Users/mrkl6/AppData/LocalLow/Wreckabulary Team/Wreckabulary\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

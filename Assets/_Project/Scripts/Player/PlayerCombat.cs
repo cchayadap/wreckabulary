@@ -83,6 +83,7 @@ namespace Wreckabulary
 
         void Update()
         {
+            if (Time.timeScale <= 0f) return;
             if (held == null && (heldPlayer || weapon)) ClearHeld();
             if (heldPlayer && Time.time - heldSince > struggleTime) Drop();
 
@@ -203,6 +204,7 @@ namespace Wreckabulary
             bool firstFrame = true;
             do
             {
+                while (Time.timeScale <= 0f) yield return null;
                 if (!controller.CanAct || controller.IsDodging || IsReviving || IsBlocking || (held && !Weapon)) break;
                 Strike(stats, null, firstFrame);
                 firstFrame = false;
@@ -464,6 +466,7 @@ namespace Wreckabulary
             float ready = Time.time + (gear.Definition.Deploy?.PlaceSeconds ?? 0f);
             while (Time.time < ready)
             {
+                while (Time.timeScale <= 0f) yield return null;
                 if (!controller.CanAct || controller.IsDodging || Weapon != gear) { deploying = false; controller.MoveScale = 1f; yield break; }
                 yield return null;
             }

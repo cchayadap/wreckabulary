@@ -1,0 +1,48 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Inventory.uss" />
+    <ui:VisualElement name="inventory-screen" class="inventory-screen">
+        <ui:VisualElement name="inventory-shell" class="inventory-shell">
+            <ui:VisualElement name="inventory-header" class="inventory-header">
+                <ui:Label text="INVENTORY" class="screen-title" />
+                <ui:Label name="capacity" text="0 / 18" class="capacity" />
+                <ui:Button name="close-inventory" text="CLOSE" class="button secondary" />
+            </ui:VisualElement>
+            <ui:VisualElement name="inventory-body" class="inventory-body">
+                <ui:VisualElement name="items-panel" class="items-panel">
+                    <ui:VisualElement class="filter-row">
+                        <ui:Button name="filter-all" text="ALL" class="filter selected" />
+                        <ui:Button name="filter-gear" text="GEAR" class="filter" />
+                        <ui:Button name="filter-letters" text="LETTERS" class="filter" />
+                    </ui:VisualElement>
+                    <ui:ScrollView name="item-scroll" mode="Vertical" class="item-scroll">
+                        <ui:VisualElement name="item-grid" class="item-grid">
+                            <ui:Button name="item-ball" class="item-card selected"><ui:VisualElement class="item-icon icon-ball" /><ui:Label text="BALL" class="item-name" /></ui:Button>
+                            <ui:Button name="item-bat" class="item-card"><ui:VisualElement class="item-icon icon-bat" /><ui:Label text="BAT" class="item-name" /></ui:Button>
+                            <ui:Button name="item-bed" class="item-card"><ui:VisualElement class="item-icon icon-bed" /><ui:Label text="BED" class="item-name" /></ui:Button>
+                            <ui:Button name="item-blade" class="item-card"><ui:VisualElement class="item-icon icon-blade" /><ui:Label text="BLADE" class="item-name" /></ui:Button>
+                            <ui:Button name="item-bomb" class="item-card"><ui:VisualElement class="item-icon icon-bomb" /><ui:Label text="BOMB" class="item-name" /></ui:Button>
+                            <ui:Button name="item-foam" class="item-card"><ui:VisualElement class="item-icon icon-foam" /><ui:Label text="FOAM" class="item-name" /></ui:Button>
+                            <ui:Button name="item-lamp" class="item-card"><ui:VisualElement class="item-icon icon-lamp" /><ui:Label text="LAMP" class="item-name" /></ui:Button>
+                            <ui:Button name="item-mat" class="item-card"><ui:VisualElement class="item-icon icon-mat" /><ui:Label text="MAT" class="item-name" /></ui:Button>
+                            <ui:Button name="item-plate" class="item-card"><ui:VisualElement class="item-icon icon-plate" /><ui:Label text="PLATE" class="item-name" /></ui:Button>
+                            <ui:Button name="item-soap" class="item-card"><ui:VisualElement class="item-icon icon-soap" /><ui:Label text="SOAP" class="item-name" /></ui:Button>
+                            <ui:Button name="item-sofa" class="item-card"><ui:VisualElement class="item-icon icon-sofa" /><ui:Label text="SOFA" class="item-name" /></ui:Button>
+                            <ui:Button name="item-table" class="item-card"><ui:VisualElement class="item-icon icon-table" /><ui:Label text="TABLE" class="item-name" /></ui:Button>
+                        </ui:VisualElement>
+                    </ui:ScrollView>
+                </ui:VisualElement>
+                <ui:VisualElement name="stats-panel" class="stats-panel">
+                    <ui:Label name="selected-name" text="BALL" class="item-title" />
+                    <ui:VisualElement name="selected-preview" class="selected-preview icon-ball" />
+                    <ui:VisualElement class="stat-row"><ui:Label text="TYPE" /><ui:Label name="stat-type" text="—" class="stat-value" /></ui:VisualElement>
+                    <ui:VisualElement class="stat-row"><ui:Label text="DAMAGE" /><ui:Label name="stat-damage" text="—" class="stat-value" /></ui:VisualElement>
+                    <ui:VisualElement class="stat-row"><ui:Label text="DURABILITY" /><ui:Label name="stat-durability" text="—" class="stat-value" /></ui:VisualElement>
+                    <ui:VisualElement class="stat-row"><ui:Label text="LETTERS" /><ui:Label name="stat-letters" text="B A L L" class="stat-value" /></ui:VisualElement>
+                    <ui:VisualElement class="stats-spacer" />
+                    <ui:Button name="equip-primary" text="SLOT 1" class="button primary" />
+                    <ui:Button name="equip-secondary" text="SLOT 2" class="button secondary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

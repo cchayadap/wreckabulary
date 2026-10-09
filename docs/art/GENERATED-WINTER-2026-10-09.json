@@ -1,0 +1,21 @@
+{
+  "assets": [
+    {
+      "id": "winter-lobby-v1",
+      "assetType": "lobby-background-illustration",
+      "provider": "OpenAI built-in image_gen",
+      "modelRevision": "not exposed by tool",
+      "prompt": "Use case: stylized-concept. Asset type: production lobby background illustration for the cheerful 3D party action game Wreckabulary, Winter House Party collection. Create a polished wide 16:9 Christmas sunroom interior in a cute tactile toy-house style, softly rounded furniture with rich woven cloth, painted wood, subtle crafted seams and warm brass details. Low eye-level camera approximately 1 metre above the floor, comfortable wide-angle perspective, horizon near the middle. The central foreground and lower half are spacious EMPTY warm oak floor for a separately rendered native 3D character; leave breathing room, no central rug pile or props crossing that character space. Place a beautiful rounded tiered fir Christmas tree to the left rear with cranberry red, oat cream and small brass ornaments and warm tiny bulbs; several wrapped gifts sit only around its base. A fir wreath with cranberry bow hangs on a far wall, cream sofa and knitted cushions sit in the rear/right, garland and light bulbs dress tall arched windows. Through the windows: bright pale-blue winter sky, fresh snow and a small charming garden. Warm morning sunlight and soft interior practical lights, exciting welcoming festive mood, readable clear shapes, vivid fir green and cranberry red balanced with oat cream, honey oak and brass. Match a high-quality cozy handcrafted game art direction, with detailed materials and soft grounded shadows. Full-bleed artwork only. No people, characters, words, lettering, logos, game HUD, buttons, icons, frames, watermark, image borders or collage. Do not make the room dark or blue-gray; do not put a character silhouette or pedestal in the foreground.",
+      "transparentBackground": false,
+      "source": "C:/Users/mrkl6/.codex/generated_images/01a11c1b-32b0-7943-82c8-7a6e0c67d8e1/exec-6ac71b3b-28f9-4cf5-8cac-8bb31614fd31.png",
+      "originalCopy": "ArtSource/Collections/Winter/References/winter-lobby-v1.png",
+      "runtimeCopy": null,
+      "status": "superseded by winter-lobby-v2 after native overlap review",
+      "visualReview": "Bright Christmas sunroom, empty central floor, readable tree/gift/wreath motifs, no characters or UI. Warm material-rich background matching the existing collection backgrounds. Raster illustration, not geometry.",
+      "sha256": "dade8c5ab7c535d6bc3c6bad75e3678b1bc9616d9c2c09781d41a5c0b79cc240",
+      "width": 1672,
+      "height": 941,
+      "operation": "Unchanged copy of generated PNG"
+    }
+  ]
+}

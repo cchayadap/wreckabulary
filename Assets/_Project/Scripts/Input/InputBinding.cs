@@ -82,6 +82,7 @@ namespace Wreckabulary
 
         public override void Read(ref PlayerCommands c)
         {
+            if (KeyBindings.GameplayBlocked) { dropHold = default; return; }
             var kb = Keyboard.current;
             if (kb == null) return;
 
@@ -126,6 +127,7 @@ namespace Wreckabulary
 
         public override bool JoinPressed()
         {
+            if (KeyBindings.GameplayBlocked) return false;
             var kb = Keyboard.current;
             if (kb == null) return false;
             return side == Side.Left
@@ -136,6 +138,7 @@ namespace Wreckabulary
 
         public override bool StartPressed()
         {
+            if (KeyBindings.GameplayBlocked) return false;
             var kb = Keyboard.current;
             return (kb != null && (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame)) ||
                 (TouchBinding.Shared.IsOverlayFor(Id) && TouchBinding.Shared.StartPressed());
@@ -157,6 +160,7 @@ namespace Wreckabulary
 
         public override void Read(ref PlayerCommands c)
         {
+            if (KeyBindings.GameplayBlocked) { dropHold = default; lastStickY = 0f; return; }
             if (Pad == null || !Pad.added) return;
 
             var stick = Pad.leftStick.ReadValue();
@@ -187,10 +191,10 @@ namespace Wreckabulary
         }
 
         public override bool JoinPressed() =>
-            Pad.added && (Pad.buttonSouth.wasPressedThisFrame || Pad.buttonWest.wasPressedThisFrame || Pad.startButton.wasPressedThisFrame);
+            !KeyBindings.GameplayBlocked && Pad.added && (Pad.buttonSouth.wasPressedThisFrame || Pad.buttonWest.wasPressedThisFrame || Pad.startButton.wasPressedThisFrame);
 
-        public override bool StartPressed() => (Pad.added && Pad.startButton.wasPressedThisFrame) ||
-            (TouchBinding.Shared.IsOverlayFor(Id) && TouchBinding.Shared.StartPressed());
+        public override bool StartPressed() => !KeyBindings.GameplayBlocked && ((Pad.added && Pad.startButton.wasPressedThisFrame) ||
+            (TouchBinding.Shared.IsOverlayFor(Id) && TouchBinding.Shared.StartPressed()));
     }
 
     public class ScriptedBinding : InputBinding

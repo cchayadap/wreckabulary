@@ -80,7 +80,9 @@ namespace Wreckabulary
         {
             var data = Resources.Load<GameData>(GameData.ResourcePath);
             if (!data) throw new InvalidOperationException($"Resources/{GameData.ResourcePath} is missing. Run Wreckabulary > Data > Set Up Game Data.");
-            return data.Parse();
+            var config = data.Parse();
+            Art.SeasonalCollection.Winter?.Apply(config.Items);
+            return config;
         }
 
         public static GameConfig FromJson(string rules, string items, string house, string wardrobe,

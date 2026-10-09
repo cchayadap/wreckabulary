@@ -92,6 +92,7 @@ namespace Wreckabulary
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
                 if (root == gameObject) continue;
+                if (root.GetComponent<LobbyMenu>()) continue;
                 roots.Add((root, root.activeSelf));
                 bool keep = lens.transform.IsChildOf(root.transform) || root.GetComponentInChildren<Light>(true)
                     || root.GetComponentInChildren<EventSystem>(true) || root.GetComponentInChildren<PlayerJoinManager>(true);
@@ -100,7 +101,7 @@ namespace Wreckabulary
                 {
                     foreach (var behaviour in root.GetComponentsInChildren<MonoBehaviour>(true))
                     {
-                        if (behaviour is EventSystem || behaviour is UnityEngine.EventSystems.BaseInputModule) continue;
+                        if (behaviour is EventSystem || behaviour is UnityEngine.EventSystems.BaseInputModule || behaviour is Art.EnvironmentLighting) continue;
                         suspended.Add((behaviour, behaviour.enabled)); behaviour.enabled = false;
                     }
                     foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
@@ -304,7 +305,9 @@ namespace Wreckabulary
                 tour = new GameObject("Peaceful home tour").AddComponent<HomeTourDirector>(); tour.transform.SetParent(transform,false);
                 TouchBinding.Shared.ReleaseAll(); TouchBinding.Shared.Enabled = true;
                 TouchBinding.Shared.OverlayDesktop = true; TouchBinding.Shared.OverlayBindingId = tourBinding.Id;
-                tour.Begin(stage.House,tourBinding,lens); stage.SetTallWalls(tour.ThirdPerson);
+                var environment = tour.gameObject.AddComponent<StoreyCutaway>();
+                environment.Configure(stage.House, stage.transform.Find(stage.House.Name + " geometry"), false);
+                tour.Begin(stage.House,tourBinding,lens,environment); stage.SetTallWalls(tour.ThirdPerson);
                 header.gameObject.SetActive(false); dock.gameObject.SetActive(false); tourBar.gameObject.SetActive(true);
                 touchControls.gameObject.SetActive(Application.isMobilePlatform || Touchscreen.current != null || tourBinding is TouchBinding);
                 tourTitle.text = "YOUR SAVED HOME\nMove freely · Back or START returns";
@@ -562,7 +565,7 @@ namespace Wreckabulary
                     if (dropdown)
                     {
                         Stretch(dropdown.captionText.rectTransform); dropdown.captionText.rectTransform.offsetMin=new Vector2(10,4); dropdown.captionText.rectTransform.offsetMax=new Vector2(-36*unit,-4);
-                        var arrow=row.rect.Find("▾") as RectTransform;
+                        var arrow=row.rect.Find("Dropdown arrow") as RectTransform;
                         if (arrow) { arrow.anchorMin=arrow.anchorMax=arrow.pivot=Vector2.one; arrow.anchoredPosition=new Vector2(-8,-4); arrow.sizeDelta=new Vector2(24*unit,44*unit); }
                         dropdown.template.sizeDelta=new Vector2(0,220*unit);
                         var option=dropdown.template.GetComponentInChildren<Toggle>(true); var item=(RectTransform)option.transform;
@@ -687,7 +690,10 @@ namespace Wreckabulary
             var rect = Panel(parent,"Choose",Color.white); rect.anchoredPosition = at; rect.sizeDelta = size;
             var dropdown = rect.gameObject.AddComponent<TMP_Dropdown>(); dropdown.targetGraphic = rect.GetComponent<Image>();
             dropdown.captionText = Label(rect,"",new Vector2(10,-4),size-new Vector2(40,8),22,Ink);
-            Label(rect,"▾",new Vector2(size.x-30,-4),new Vector2(24,size.y-8),22,Teal);
+            var arrow = Rect(rect, "Dropdown arrow", new Vector2(size.x-30,-4), new Vector2(24,size.y-8));
+            var glyph = arrow.gameObject.AddComponent<Image>();
+            glyph.sprite = LobbyIcons.Get(LobbyIcons.Chevron); glyph.color = Teal; glyph.preserveAspect = true; glyph.raycastTarget = false;
+            arrow.localRotation = Quaternion.Euler(0, 0, -90);
             var template = Panel(rect,"Options",Cream); template.anchorMin = new Vector2(0,0); template.anchorMax = new Vector2(1,0); template.pivot = new Vector2(.5f,1);
             template.anchoredPosition = Vector2.zero; template.sizeDelta = new Vector2(0,220);
             var scroll = template.gameObject.AddComponent<ScrollRect>(); scroll.horizontal = false; scroll.movementType = ScrollRect.MovementType.Clamped;

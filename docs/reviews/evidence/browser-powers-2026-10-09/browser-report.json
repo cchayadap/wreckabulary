@@ -1,0 +1,48 @@
+{
+  "checks": [
+    "Real supplied GLBs load and render the home scene.",
+    "The real Workshop scene has a flat floor and no unsaved indoor appliance geometry.",
+    "Workshop lists 40 actual models; room ideas only fill text and real word submission furnishes the chosen room.",
+    "A real 3D model can be selected with the pointer, quarter-turned and given a finish.",
+    "Blank coordinates and blocked doors reject placement atomically; a real floor click places the valid model preview.",
+    "Remove, Undo and Redo change the real layout, and a new edit branches history.",
+    "Explicit Save and JSON export roundtrip the house; malformed and overlapping imports preserve it atomically.",
+    "Save & explore walks through exactly the saved decor with no combat or letter gain, and return preserves the house.",
+    "Reload preserves names, positions, turns and finishes; cross-map import Undo restores that map's saved house independently.",
+    "Storage failures and invalid house names report errors without pretending to save.",
+    "Wardrobe controls change real modular meshes and persist the selection.",
+    "The lobby dock shows the chosen mode and house; each opens a picker that Escape or a choice closes.",
+    "Pause freezes simulation time, health and every AI position.",
+    "Keyboard movement advances a live player through the house.",
+    "Desktop HUD hides touch buttons, stacks timer under the map, shows a 5 x 2 bag, and Tab peeks an icon bag, the zoomed minimap and the recipe book.",
+    "Smash input releases exact tiles; live pickup, recipe UI, craft channel and equipment all connect.",
+    "Dropping and picking up gear preserves the physical item.",
+    "Round result and next-round controls reset the live arena.",
+    "Duos holds E through a real revive channel and restores the buddy to 30 HP.",
+    "Moving Day: F and G do nothing; the attack button places the checklist LAMP.",
+    "Moving Day spells and places its final LAMP through UI, shows a win and retries with a fresh checklist.",
+    "Moving Out physically carries and drops a keepsake; a downed crew member blocks victory until revived and gathered, then retry resets the rescue.",
+    "Phones play sideways: the lobby fits a landscape phone with you centred, and an upright phone gets the rotate hint.",
+    "A native touchscreen joystick gesture moves the player.",
+    "Simultaneous native joystick and attack touches are tracked separately.",
+    "Mobile recipe book replaces the composer and map; all 24 recipes use readable, reachable cards in a scrollable four-column grid.",
+    "Landscape touch controls, full 10-letter bag and health remain visible, reachable and separate.",
+    "Workshop on a landscape phone keeps primary buttons, house view and scrollable tools separate; native touch places a supplied model.",
+    "Native touch joystick explores the peaceful saved house and the return button restores its design."
+  ],
+  "errors": [],
+  "metrics": {
+    "desktop": {
+      "triangles": 232836,
+      "avatar": 52488,
+      "aspect": 1.6
+    },
+    "mobile": {
+      "triangles": 134800,
+      "avatar": 29136,
+      "aspect": 1.6
+    }
+  },
+  "passed": 29,
+  "base": "http://127.0.0.1:4173"
+}

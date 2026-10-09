@@ -24,7 +24,6 @@ namespace Wreckabulary.Tests
             ground.transform.position = Vector3.down * .5f;
             ground.transform.localScale = new Vector3(40f, 1f, 40f);
             testFloor = ground.GetComponent<Collider>();
-            new GameObject("Animation test listener").AddComponent<AudioListener>();
             TilePool.Ensure();
         }
 
@@ -69,7 +68,7 @@ namespace Wreckabulary.Tests
                 animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
                 graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
                 appearance.Play("Idle", 1f);
-                Observe<AnimationClipPlayable>(appearance, "currentPlayable").SetTime(0);
+                appearance.CurrentPlayable.SetTime(0);
                 graph.Evaluate(0f);
                 var renderers = appearance.AvatarModel.GetComponentsInChildren<SkinnedMeshRenderer>(true)
                     .Where(renderer => renderer.enabled).ToArray();
@@ -112,7 +111,7 @@ namespace Wreckabulary.Tests
 
                 void AssertPose(string clipName, float time)
                 {
-                    var playable = Observe<AnimationClipPlayable>(appearance, "currentPlayable");
+                    var playable = appearance.CurrentPlayable;
                     Assert.AreEqual(clipName, playable.GetAnimationClip().name);
                     playable.SetTime(time);
                     graph.Evaluate(0f);
@@ -243,7 +242,7 @@ namespace Wreckabulary.Tests
                     var positions = bones.Select(bone => bone.localPosition).ToArray();
                     var rotations = bones.Select(bone => bone.localRotation).ToArray();
                     graph.Evaluate(.2f);
-                    var playable = Observe<AnimationClipPlayable>(appearance, "currentPlayable");
+                    var playable = appearance.CurrentPlayable;
                     Assert.Greater(playable.GetTime(), .1d, name + " advances through the connected graph");
                     if (name == "Walk_InPlace" || name == "Run_InPlace")
                         Assert.IsTrue(bones.Where((bone, i) => (bone.localPosition - positions[i]).sqrMagnitude > .00000001f

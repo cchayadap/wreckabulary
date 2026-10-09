@@ -24,6 +24,7 @@ namespace Wreckabulary.Tests
         public IEnumerator RoommatesWalkInThroughTheFrontDoor()
         {
             yield return TestScenes.Load(Session.HubScene);
+            yield return TestScenes.ExploreHouse();
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             var p = joins.Join(new ScriptedBinding());
             float startX = p.transform.position.x;
@@ -38,6 +39,7 @@ namespace Wreckabulary.Tests
         public IEnumerator FourRoommatesArrivingTogetherAllGetThroughTheDoor()
         {
             yield return TestScenes.Load(Session.HubScene);
+            yield return TestScenes.ExploreHouse();
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             for (int i = 0; i < 4; i++) joins.Join(new ScriptedBinding());
             yield return new WaitForSeconds(2f);
@@ -49,6 +51,7 @@ namespace Wreckabulary.Tests
         public IEnumerator TypewriterStartsDibsWithTheHouseRoommates()
         {
             yield return TestScenes.Load(Session.HubScene);
+            yield return TestScenes.ExploreHouse();
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             joins.Join(new ScriptedBinding());
             joins.Join(new ScriptedBinding());
@@ -68,6 +71,7 @@ namespace Wreckabulary.Tests
         public IEnumerator TypewriterStartsSoloDibsWithAnAiOpponent()
         {
             yield return TestScenes.Load(Session.HubScene);
+            yield return TestScenes.ExploreHouse();
             Object.FindAnyObjectByType<PlayerJoinManager>().Join(new ScriptedBinding());
             var typewriter = Object.FindAnyObjectByType<Typewriter>();
             Assert.IsTrue(typewriter.Choose(ModeIndex(typewriter, Session.DibsScene)));
@@ -82,6 +86,7 @@ namespace Wreckabulary.Tests
         public IEnumerator TypewriterIsUsedWithGrabAndStepsWithUpDown()
         {
             yield return TestScenes.Load(Session.HubScene);
+            yield return TestScenes.ExploreHouse();
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             var input = new ScriptedBinding();
             var p = joins.Join(input);
@@ -113,6 +118,7 @@ namespace Wreckabulary.Tests
         public IEnumerator KnockedOutRoommatesGetBackUpInTheHouse()
         {
             yield return TestScenes.Load(Session.HubScene);
+            yield return TestScenes.ExploreHouse();
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             var p = joins.Join(new ScriptedBinding());
             yield return null;
@@ -151,7 +157,7 @@ namespace Wreckabulary.Tests
 
             p.Inventory.Set("BAT");
             yield return TestScenes.WaitUntil(() => director.StepIndex >= 4, 1f, "collect step");
-            yield return TestScenes.WaitUntil(() => !p.IsDodging, 2f, "dodge to finish before spelling BAT");
+            yield return TestScenes.WaitUntil(() => !p.IsDodging && p.CanAct, 2f, "dodge recovery before spelling BAT");
             Assert.IsTrue(p.Summoner.Summon("BAT"));
             yield return TestScenes.WaitUntil(() => director.StepIndex >= 5, 1f, "spell step");
 

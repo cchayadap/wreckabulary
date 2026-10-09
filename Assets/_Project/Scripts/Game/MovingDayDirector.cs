@@ -155,6 +155,7 @@ namespace Wreckabulary
 
         void Update()
         {
+            if (Time.timeScale <= 0f) return;
             float t = Time.time - stateStarted;
             switch (Current)
             {

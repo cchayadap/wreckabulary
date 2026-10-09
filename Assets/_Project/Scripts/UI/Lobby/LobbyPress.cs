@@ -89,17 +89,22 @@ namespace Wreckabulary
             if (wasHot != hot) { wasHot = hot; Hot?.Invoke(hot); }
             bool pressing = !off && down && over;
             if (wasPressed != pressing) { wasPressed = pressing; Pressed?.Invoke(pressing); }
-            if (Ring) Ring.enabled = focus && ringed && !off;
+            bool showRing = focus && ringed && !off;
+            if (Ring && Ring.enabled != showRing) Ring.enabled = showRing;
 
             float y = off ? 0f : down && over ? -Sink : hot ? Lift : 0f;
             float k = 1f - Mathf.Exp(-25f * Time.unscaledDeltaTime);
             var position = Vector2.Lerp(Body.anchoredPosition, new Vector2(0f, y), k);
             if ((position - new Vector2(0f, y)).sqrMagnitude < .0004f) position = new Vector2(0f, y);
-            Body.anchoredPosition = position;
+            if (Body.anchoredPosition != position) Body.anchoredPosition = position;
             float tilt = (hot && !down ? Tilt : 0f) + Lean;
-            Body.localRotation = Quaternion.Slerp(Body.localRotation, Quaternion.Euler(0, 0, tilt), k);
+            var targetRotation = Quaternion.Euler(0, 0, tilt);
+            if (Quaternion.Angle(Body.localRotation, targetRotation) > .01f)
+                Body.localRotation = Quaternion.Slerp(Body.localRotation, targetRotation, k);
             float scale = Scale * (hot && !down ? HoverScale : 1f);
-            Body.localScale = Vector3.Lerp(Body.localScale, Vector3.one * scale, k);
+            var targetScale = Vector3.one * scale;
+            if ((Body.localScale - targetScale).sqrMagnitude > .000001f)
+                Body.localScale = Vector3.Lerp(Body.localScale, targetScale, k);
             SetDrop(Mathf.Max(DropPressed, DropRest + position.y));
         }
 

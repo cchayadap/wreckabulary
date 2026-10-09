@@ -56,6 +56,7 @@ namespace Wreckabulary
         int chipLeft = -1;
         float chipPulseAt = -10f, goUntil;
         GameObject modeActions;
+        CanvasGroup modeActionsGroup;
         TextMeshProUGUI modePlayLabel;
         Action modeAction;
         bool modeWanted;
@@ -201,7 +202,7 @@ namespace Wreckabulary
             var body = Cover("Body", rt);
             var face = Paint(Cover("Face", body), LobbyIcons.RoundedSprite(15), primary ? Primary : Quiet);
             if (!primary) Paint(Cover("Edge", body), LobbyIcons.FrameSprite(15, 1), Hair);
-            var text = Copy(body, "Label", caption, primary ? LobbyFonts.Black : LobbyFonts.Body, 15f, primary ? Cream : Ink, primary ? 6f : 0f);
+            var text = Copy(body, "Label", caption, primary ? LobbyFonts.Black : LobbyFonts.Body, 22f, primary ? Cream : Ink, primary ? 1f : 0f);
             Stretch(text.rectTransform); text.rectTransform.offsetMin = new Vector2(12f, 0f); text.rectTransform.offsetMax = new Vector2(-12f, 0f);
             text.textWrappingMode = TextWrappingModes.NoWrap;
             var ring = Paint(Cover("Ring", rt, 4f), LobbyIcons.FrameSprite(19, 3), FocusRing); ring.enabled = false;
@@ -291,13 +292,13 @@ namespace Wreckabulary
         {
             var row = Put(Rect("Mode actions", safe, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(.5f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -300f), new Vector2(476f, 68f));
             modeActions = row.gameObject;
-            var play = CardButton(row, "Play", "START WITH AI →", () => modeAction?.Invoke(), true, 60f);
+            var play = CardButton(row, "Play", "START WITH AI →", () => { if (AcceptsGameplayInput) modeAction?.Invoke(); }, true, 60f);
             Put((RectTransform)play.transform, new Vector2(0f, 1f), new Vector2(0f, 1f), Vector2.zero, new Vector2(260f, 60f));
             modePlayLabel = LabelOf(play);
             var home = CardButton(row, "Home", "Back to the house party", GoHome, false, 60f);
             Put((RectTransform)home.transform, Vector2.one, Vector2.one, Vector2.zero, new Vector2(200f, 60f));
-            bagHides.Add(row.gameObject.AddComponent<CanvasGroup>());
-            modeActions.SetActive(false);
+            modeActionsGroup = row.gameObject.AddComponent<CanvasGroup>();
+            RefreshModeActionVisibility();
         }
 
         public void Toast(string text)
@@ -355,26 +356,39 @@ namespace Wreckabulary
             if (caption != null && modePlayLabel.text != caption) modePlayLabel.text = caption;
             if (play != null) modeAction = play;
             modeWanted = on;
+            RefreshModeActionVisibility();
+        }
+
+        void RefreshModeActionVisibility()
+        {
+            if (!modeActionsGroup) return;
+            bool shown = modeWanted && !BagOpen && !ResultShown && StateController.CurrentState == UIState.GameplayHUD;
+            modeActionsGroup.alpha = shown ? 1f : 0f;
+            modeActionsGroup.interactable = modeActionsGroup.blocksRaycasts = shown && AcceptsGameplayInput;
         }
 
         void BuildPause()
         {
-            var shade = Rect("Pause", safe, Vector2.zero, Vector2.zero, Vector2.zero);
+            var shade = Rect("Pause", UiCanvas.transform, Vector2.zero, Vector2.zero, Vector2.zero);
             Stretch(shade);
             var dim = shade.gameObject.AddComponent<Image>(); dim.color = ModalShade; dim.raycastTarget = true;
             pauseRoot = shade.gameObject; pauseShade = shade;
 
             var card = Card("Pause card", shade, 575f, 44f);
             pauseCard = card.gameObject;
-            Copy(card, "Eyebrow", "TAKE A BREATHER", LobbyFonts.Black, 12.5f, Eyebrow, 21f);
+            Copy(card, "Eyebrow", "TAKE A BREATHER", LobbyFonts.Black, 18f, Eyebrow, 1f);
             Gap(card, 12.5f);
             Copy(card, "Heading", "The mess can wait.", LobbyFonts.Black, 40f, Ink, -3f);
             Gap(card, 12.5f);
-            pauseBlurb = Copy(card, "Blurb", "", LobbyFonts.Body, 15f, BodyInk);
+            pauseBlurb = Copy(card, "Blurb", "", LobbyFonts.Body, 20f, BodyInk);
             Gap(card, 22.5f);
             resumeButton = CardButton(card, "Resume", "KEEP PLAYING →", TogglePause, true, 60f);
             Gap(card, 12.5f);
-            CardButton(card, "Pause controls", "Controls & recipes", () => ShowHelp(true), false, 46f);
+            CardButton(card, "Pause controls", "Controls", () => ShowPauseSettings("controls"), false, 50f);
+            Gap(card, 10f);
+            CardButton(card, "Pause settings", "Audio & graphics", () => ShowPauseSettings("audio"), false, 50f);
+            Gap(card, 10f);
+            CardButton(card, "Pause how to play", "How to play", () => ShowHelp(true), false, 50f);
             Gap(card, 12.5f);
             CardButton(card, "Pause home", "Back to the house party", GoHome, false, 46f);
             bool touchable = Touchscreen.current != null || Application.isMobilePlatform;
@@ -384,7 +398,7 @@ namespace Wreckabulary
             touch.gameObject.SetActive(touchable);
 
             BuildHelp(shade);
-            pauseRoot.SetActive(false);
+            StateController.Register(UIState.PauseMenu, pauseRoot.AddComponent<CanvasGroup>(), resumeButton.gameObject);
         }
 
         void BuildHelp(RectTransform shade)
@@ -393,7 +407,7 @@ namespace Wreckabulary
             helpCard = card.gameObject;
             var close = RoundButton(card, "Close help", LobbyIcons.Close, () => ShowHelp(false), 40f);
             Put((RectTransform)close.transform, Vector2.one, Vector2.one, new Vector2(-22f, -22f), Vector2.one * 40f);
-            Copy(card, "Eyebrow", "A HOUSE FULL OF POSSIBILITIES", LobbyFonts.Black, 12.5f, Eyebrow, 21f);
+            Copy(card, "Eyebrow", "A HOUSE FULL OF POSSIBILITIES", LobbyFonts.Black, 18f, Eyebrow, 1f);
             Gap(card, 10f);
             Copy(card, "Heading", "Everything starts with a word.", LobbyFonts.Black, 36f, Ink, -3f);
             Gap(card, 22f);
@@ -417,7 +431,7 @@ namespace Wreckabulary
                 var size = column.gameObject.AddComponent<LayoutElement>(); size.preferredWidth = 1f; size.flexibleWidth = 1f;
                 Copy(column, "Number", number, DisplayFont, 35f, StepNumber).alignment = TextAlignmentOptions.Left;
                 Copy(column, "Title", title, LobbyFonts.Black, 20f, Ink).alignment = TextAlignmentOptions.Left;
-                Copy(column, "Text", text, LobbyFonts.Body, 14f, StepInk).alignment = TextAlignmentOptions.TopLeft;
+                Copy(column, "Text", text, LobbyFonts.Body, 18f, StepInk).alignment = TextAlignmentOptions.TopLeft;
             }
             Step("01", "Break it.", "Smash the house's own furniture. A TABLE breaks into T, A, B, L and E.");
             Step("02", "Spell it.", $"Walk over letters; your bag holds {rules.MaxLetters}. Press {spell} to craft any of the {recipes} recipes.");
@@ -428,7 +442,7 @@ namespace Wreckabulary
                 Gap(card, 22f);
                 var table = Rect("Keys", card, Vector2.zero, Vector2.zero, Vector2.zero);
                 helpKeys = table.gameObject.AddComponent<GridLayoutGroup>();
-                helpKeys.cellSize = new Vector2(356f, 32f); helpKeys.spacing = new Vector2(20f, 8f);
+                helpKeys.cellSize = new Vector2(356f, 36f); helpKeys.spacing = new Vector2(20f, 8f);
                 helpKeys.constraint = GridLayoutGroup.Constraint.FixedColumnCount; helpKeys.constraintCount = 2;
                 var entries = new[]
                 {
@@ -446,16 +460,16 @@ namespace Wreckabulary
                     Paint(Cover("Lip", cap, 0f, -2.5f), LobbyIcons.RoundedSprite(8), Hex(0xdcc9a6));
                     Paint(Cover("Face", cap), LobbyIcons.RoundedSprite(8), Hex(0xfffaf0));
                     Paint(Cover("Edge", cap), LobbyIcons.FrameSprite(8, 1), Hair);
-                    var name = Copy(cap, "Name", key, LobbyFonts.Black, 13f, Ink);
+                    var name = Copy(cap, "Name", key, LobbyFonts.Black, 18f, Ink);
                     Stretch(name.rectTransform); name.textWrappingMode = TextWrappingModes.NoWrap;
                     cap.sizeDelta = new Vector2(Mathf.Max(40f, name.GetPreferredValues(key).x + 20f), 30f);
-                    var does = Copy(cell, "Does", what, LobbyFonts.Body, 14f, StepInk);
+                    var does = Copy(cell, "Does", what, LobbyFonts.Body, 18f, StepInk);
                     Stretch(does.rectTransform); does.rectTransform.offsetMin = new Vector2(cap.sizeDelta.x + 12f, 0f);
                     does.alignment = TextAlignmentOptions.MidlineLeft; does.textWrappingMode = TextWrappingModes.NoWrap;
                 }
             }
             Gap(card, 18f);
-            Copy(card, "Fine print", $"Health is {Mathf.RoundToInt(rules.MaxHealth)} HP. Your looks never change your stats.", LobbyFonts.Body, 12.5f, FinePrint);
+            Copy(card, "Fine print", $"Health is {Mathf.RoundToInt(rules.MaxHealth)} HP. Your looks never change your stats.", LobbyFonts.Body, 18f, FinePrint);
             Gap(card, 22f);
             helpDone = CardButton(card, "Help done", "GOT IT. LET’S PLAY. →", () => SetPaused(false), true, 60f);
             helpCard.SetActive(false);
@@ -490,6 +504,7 @@ namespace Wreckabulary
 
         void OnPauseShown()
         {
+            ClosePauseSettings();
             if (pauseBlurb) pauseBlurb.text = ModeBlurb();
             ShowHelp(false);
         }
@@ -608,7 +623,12 @@ namespace Wreckabulary
 
         IEnumerator ResultAfter(HudResult result, Action next, float delay)
         {
-            yield return new WaitForSecondsRealtime(delay);
+            float elapsed = 0f;
+            while (elapsed < delay || Paused)
+            {
+                if (Time.timeScale > 0f) elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
             resultSoon = null;
             ShowResult(result, next);
         }
@@ -759,7 +779,7 @@ namespace Wreckabulary
 
         void OnTextTyped(char typed)
         {
-            if (!composerOpen || !TypedMode || Paused || BagOpen || Time.frameCount == openedFrame) return;
+            if (!AcceptsGameplayInput || !composerOpen || !TypedMode || BagOpen || Time.frameCount == openedFrame) return;
             typed = char.ToUpperInvariant(typed);
             if (typed < 'A' || typed > 'Z' || composerText.Length >= TrayTiles) return;
             composerText += typed;
@@ -777,7 +797,7 @@ namespace Wreckabulary
 
         void ReadComposerKeys()
         {
-            if (!composerOpen || !TypedMode || Paused || BagOpen) return;
+            if (!AcceptsGameplayInput || !composerOpen || !TypedMode || BagOpen) return;
             var keyboard = Keyboard.current;
             if (keyboard == null) return;
             var erase = keyboard.backspaceKey;
@@ -811,6 +831,7 @@ namespace Wreckabulary
 
         void SpellNow()
         {
+            if (!AcceptsGameplayInput) return;
             if (TypedMode) SubmitComposer();
             else ConfirmCraft();
         }
@@ -988,17 +1009,14 @@ namespace Wreckabulary
                     chipDigit.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.18f, 1f, pulse);
                 }
             }
-            if (modeActions)
-            {
-                bool shown = modeWanted && !Paused && !ResultShown;
-                if (modeActions.activeSelf != shown) modeActions.SetActive(shown);
-            }
+            RefreshModeActionVisibility();
             ReadComposerKeys();
         }
 
         void FitCards()
         {
             if (!safe) return;
+            FitPauseSettings();
             float room = safe.rect.width - 32f;
             if (room <= 0f || Mathf.Approximately(room, fittedRoom)) return;
             fittedRoom = room;

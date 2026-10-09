@@ -50,7 +50,7 @@ namespace Wreckabulary
 
         public void Restart()
         {
-            if (joins.HumanCount == 0) return;
+            if (Time.timeScale <= 0f || joins.HumanCount == 0) return;
             room.ResetRoom();
             clearOut.ResetSchedule();
             hud.HideResult();
@@ -78,6 +78,7 @@ namespace Wreckabulary
 
         void Update()
         {
+            if (Time.timeScale <= 0f) return;
             switch (Current)
             {
                 case State.Waiting:
@@ -107,7 +108,7 @@ namespace Wreckabulary
                     break;
             }
             hud.SetChecklist("<b>KEEPSAKES</b>\n" + string.Join("\n", keepsakes.Select(k => k.Packed
-                ? $"<color=#8FD18B>✓ {k.Word} packed</color>" : $"{k.Word} • {k.Room}")));
+                ? $"<color=#8FD18B>{k.Word} packed</color>" : $"{k.Word} • {k.Room}")));
             hud.SetScoreboard(joins.Players, _ => 0, 0, false);
         }
 
@@ -184,7 +185,7 @@ namespace Wreckabulary
             marker.transform.localPosition = Vector3.up * 1.8f;
             marker.font = GameAssets.I.font;
             marker.fontSize = 4f; marker.color = new Color(1f, .8f, .27f);
-            marker.text = "★ " + Word; marker.alignment = TextAlignmentOptions.Center;
+            marker.text = Word; marker.alignment = TextAlignmentOptions.Center;
             marker.rectTransform.sizeDelta = new Vector2(4f, 1f);
         }
         void LateUpdate() { if (marker) Popup.Billboard(marker.transform); }
@@ -198,7 +199,7 @@ namespace Wreckabulary
             Packed = true;
             var body = GetComponent<Rigidbody>(); body.linearVelocity = body.angularVelocity = Vector3.zero; body.isKinematic = true;
             foreach (var collider in GetComponentsInChildren<Collider>()) collider.enabled = false;
-            marker.text = "✓ " + Word; marker.color = new Color(.55f, .85f, .57f);
+            marker.text = Word + "\n<size=70%>PACKED</size>"; marker.color = new Color(.55f, .85f, .57f);
         }
     }
 }

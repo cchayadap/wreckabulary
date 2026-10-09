@@ -1,0 +1,25 @@
+{
+  "provider": "ChatGPT built-in image generation",
+  "date": "2026-10-08",
+  "assets": [
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/house-key-art.png",
+      "prompt": "Use case: stylized-concept. Asset type: game main-menu key art, landscape 1536x1024. Create polished colorful handcrafted 3D clay and stitched-plush illustration for Wreckabulary, a friendly house brawler where roommates smash furniture and use letter tiles to create gear. A cozy miniature living room with warm walnut floor, rich teal walls, coral sofa, golden light, mint ceramic accents and tactile soft materials. Center-right a charming crimson hooded plush roommate seen three-quarter behind with a tiny brown satchel, playfully holding a large toy wooden bat, surrounded by floating ivory wooden alphabet tiles. Nearby a rounded teal armchair, a gold lamp, one soap bubble, and a cushion. Composition: strong silhouette readable at small menu-card size, richly finished dimensional rendering, sparse quiet left third for UI overlay. No text headings, no logos, no UI frames, no watermark. Friendly playful action, vivid saturated but tasteful coral, teal, honey gold and cream. Actual asset illustration, not a screenshot or a mockup.",
+      "role": "Main menu artwork",
+      "source": "exec-a558a0c3-2415-4550-9a40-af5926b71f07.png"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/impact-spark.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent game VFX sprite texture, square 1024x1024. A single crisp handcrafted cartoon impact sparkle for a playful clay-and-plush house brawler. A bright warm ivory four-point diamond star with slightly irregular rounded paper-cut tips, small honey-gold inner star, soft very subtle golden halo. Symmetrical around dead center. Fills central 75% with generous transparent edge padding. Pure isolated effect, no environment, no lettering, no objects, no sheet or multiple examples. High visibility small-scale 2D sprite, clean silhouette, truly transparent background. Do not paint checkerboard.",
+      "role": "Transparent impact and skill sprite",
+      "source": "exec-0e4240f3-1339-40d3-ad4b-e1633c90fe16.png"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/Generated/roommate-portrait.png",
+      "prompt": "Use case: identity-preserve. Asset type: transparent character portrait for the wardrobe column of a Unity game menu. Use the supplied character image as the exact character design reference: oversized cream face, two expressive black oval eyes and tiny angled brows, swept brown hair, coral-red hoodie with ivory T patch and drawstrings, dark mitten gloves, charcoal trousers, chunky rubber boots, brown satchel. Produce one polished full-body 3D character with the SAME identity and material detail, in a buoyant proud victory pose, one gloved hand presenting a tiny wooden tabletop held comfortably at chest level, other arm raised in a small celebratory fist. Clearly handmade stitched cotton clothing, rounded wooden furniture, lively posture and cute expression. Composition centered full-body, plenty transparent margin, orthographic-style three-quarter front view, soft warm studio lighting. No room, floor, shadows outside silhouette, text beyond the existing T chest patch, no UI. Preserve reference character design, clean real alpha background. A single asset, not an expression sheet.",
+      "role": "Reference-derived wardrobe portrait",
+      "source": "exec-5c70e2c9-ce4f-4a08-bd3a-e5b0d8ea9d21.png",
+      "reference": "User-supplied character image 4"
+    }
+  ]
+}

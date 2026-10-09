@@ -59,7 +59,8 @@ namespace Wreckabulary.Tests
         }
 
         static Renderer[] StoreyParts(RoomBuilder room, int storey) =>
-            room.GetComponentsInChildren<Transform>(true).First(t => t.name == RoomBuilder.StoreyName(storey)).GetComponentsInChildren<Renderer>(true);
+            room.GetComponentsInChildren<Transform>(true).First(t => t.name == RoomBuilder.StoreyName(storey))
+                .GetComponentsInChildren<Renderer>(true).Where(r => !r.GetComponentInParent<CutawaySurface>()).ToArray();
 
         static IEnumerator Walk(ScriptedBinding input, PlayerController p, Vector2 move, System.Func<Vector3, bool> arrived, float[] peak)
         {
@@ -84,6 +85,9 @@ namespace Wreckabulary.Tests
             var p = Player(0, input, InTheLobby);
             yield return new WaitForSeconds(.3f);
             var cutaway = StoreyCutaway.Instance;
+            var roofParts = room.GetComponentsInChildren<CutawaySurface>(true).SelectMany(s => s.Renderers).ToArray();
+            Assert.IsNotEmpty(roofParts, "The authored house includes ceiling and roof sections.");
+            Assert.IsTrue(roofParts.All(r => !cutaway.Draws(r)), "Overhead play lifts ceilings while retaining the floor geometry under each player.");
             Assert.AreEqual(0, cutaway.TopStorey);
             Assert.IsTrue(StoreyParts(room, 1).Concat(StoreyParts(room, 2)).All(r => !cutaway.Draws(r)), "in the lobby, both floors above are lifted off");
 

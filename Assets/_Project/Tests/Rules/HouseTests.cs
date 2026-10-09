@@ -45,7 +45,7 @@ namespace Wreckabulary.Rules.Tests
             foreach (var spawn in house.Spawns)
             {
                 var letters = house.LettersIn(spawn.Room);
-                foreach (var item in catalogue.Enabled)
+                foreach (var item in catalogue.Enabled.Where(i => i.Tier == ItemTier.Core))
                     Assert.IsTrue(letters.Contains(item.Letters), $"{spawn.Room} can't make {item.Id}; it has {letters}");
             }
         }

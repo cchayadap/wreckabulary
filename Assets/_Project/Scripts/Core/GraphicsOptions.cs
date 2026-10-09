@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
+using Wreckabulary.Art;
 
 namespace Wreckabulary
 {
@@ -60,6 +61,14 @@ namespace Wreckabulary
 
         public static void ApplyLights()
         {
+            var environment = EnvironmentLighting.Active;
+            if (environment && environment.Profile)
+            {
+                environment.ApplySceneSettings();
+                if (fill) fill.enabled = false;
+                ApplyEnvironmentGrade();
+                return;
+            }
             Light sun = null;
             foreach (var light in Object.FindObjectsByType<Light>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                 if (light.type == LightType.Directional && light != fill && (!sun || light.name == "Sun")) sun = light;
@@ -75,12 +84,14 @@ namespace Wreckabulary
                 fill.type = LightType.Directional; fill.shadows = LightShadows.None;
             }
             fill.color = FillColour; fill.intensity = Fill;
+            fill.enabled = true;
             fill.transform.rotation = Quaternion.LookRotation(-FillFrom.normalized);
             Color sky = SkyColour.linear * Hemisphere, ground = GroundColour.linear * Hemisphere, even = Color.white * Environment;
             RenderSettings.ambientMode = AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = Opaque(sky + even).gamma;
             RenderSettings.ambientEquatorColor = Opaque((sky + ground) * .5f + even).gamma;
             RenderSettings.ambientGroundColor = Opaque(ground + even).gamma;
+            ApplyEnvironmentGrade();
         }
 
         static Color Opaque(Color c) => new(c.r, c.g, c.b, 1f);
@@ -210,6 +221,7 @@ namespace Wreckabulary
             Application.targetFrameRate = FrameCap > 0 ? FrameCap : -1;
             foreach (var camera in Camera.allCameras)
                 if (camera.TryGetComponent(out UniversalAdditionalCameraData data) && data.renderPostProcessing) Smooth(camera, data);
+            if (EnvironmentLighting.Active) EnvironmentLighting.Active.RefreshPracticalLights();
         }
 
         static void ApplyPipeline()
@@ -268,7 +280,24 @@ namespace Wreckabulary
             profile.Add<Tonemapping>(true).mode.Override(TonemappingMode.ACES);
             profile.Add<ColorAdjustments>(true).postExposure.Override(PostExposure);
             look.sharedProfile = profile;
+            ApplyEnvironmentGrade();
             return look;
+        }
+
+        internal static void ApplyEnvironmentGrade()
+        {
+            if (!look || !look.sharedProfile) return;
+            var lighting = EnvironmentLighting.Active ? EnvironmentLighting.Active.Profile : null;
+            if (look.sharedProfile.TryGet<ColorAdjustments>(out var grade))
+            {
+                grade.postExposure.Override(lighting ? lighting.Exposure : PostExposure);
+                grade.contrast.Override(lighting ? lighting.Contrast : 0f);
+                grade.saturation.Override(lighting ? lighting.Saturation : 0f);
+            }
+            if (!look.sharedProfile.TryGet<Bloom>(out var bloom)) bloom = look.sharedProfile.Add<Bloom>();
+            bloom.active = lighting && lighting.Bloom > 0f;
+            bloom.threshold.Override(1.05f);
+            bloom.intensity.Override(lighting ? lighting.Bloom : 0f);
         }
     }
 }

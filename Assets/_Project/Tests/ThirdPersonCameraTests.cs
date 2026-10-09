@@ -93,8 +93,9 @@ namespace Wreckabulary.Tests
             var at = lens.transform.position;
             Debug.Log($"THIRD_PERSON feet {feet} camera {at}");
             Assert.AreEqual(feet.x, at.x, .05f, "centred behind, not over a shoulder");
-            Assert.AreEqual(-3.258f, at.z - feet.z, .1f, "behind the player");
-            Assert.AreEqual(1.776f, at.y - feet.y, .1f, "just above the player's head");
+            Assert.AreEqual(-ShoulderView.Distance * Mathf.Cos(ShoulderView.DefaultPitch), at.z - feet.z, .1f, "behind the player");
+            Assert.AreEqual(ShoulderView.PivotHeight + ShoulderView.Lift + ShoulderView.Distance * Mathf.Sin(ShoulderView.DefaultPitch),
+                at.y - feet.y, .1f, "just above the player's head");
             Assert.AreEqual(0f, Yaw(lens.transform.forward), .5f, "looking the way the player faces");
         }
 
@@ -328,7 +329,9 @@ namespace Wreckabulary.Tests
             var look = chair.GetComponent<Renderer>();
             yield return new WaitForSeconds(.2f);
             Assert.AreEqual(ShoulderView.Distance, rig.ViewDistance, .05f, "furniture doesn't pull the camera in");
-            Assert.AreEqual(ShadowCastingMode.ShadowsOnly, look.shadowCastingMode, "it fades to its shadow");
+            Assert.AreEqual(ShadowCastingMode.On, look.shadowCastingMode, "Other cameras keep the authored furniture.");
+            using (CameraCutaway.BeginCameraVisibility(lens))
+                Assert.AreEqual(ShadowCastingMode.ShadowsOnly, look.shadowCastingMode, "This camera retains the furniture's shadow.");
             CollectionAssert.Contains(rig.Faded.ToList(), look);
 
             chair.transform.position = new Vector3(10f, 1f, 0f);
@@ -338,7 +341,7 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator WallsStandTallAroundTheThirdPersonView()
+        public IEnumerator AuthoredWallsStayIntactWhenSwitchingBetweenSoloAndCouchViews()
         {
             Match.ModeOverride = "Dibs";
             Session.SelectMap("pinwheel");
@@ -350,6 +353,8 @@ namespace Wreckabulary.Tests
 
             var walls = room.GetComponentsInChildren<TallWall>();
             Assert.IsNotEmpty(walls);
+            var authoredMeshes = walls.Select(wall => wall.GetComponent<MeshFilter>().sharedMesh).ToArray();
+            var authoredPositions = walls.Select(wall => wall.transform.position).ToArray();
             Physics.SyncTransforms();
             void Check(bool tall)
             {
@@ -371,7 +376,12 @@ namespace Wreckabulary.Tests
             Physics.SyncTransforms();
             Assert.IsNull(rig.Target);
             Assert.IsTrue(lens.orthographic, "back to the overhead view of the house");
-            Check(false);
+            Check(true);
+            for (int i = 0; i < walls.Length; i++)
+            {
+                Assert.AreSame(authoredMeshes[i], walls[i].GetComponent<MeshFilter>().sharedMesh, "Camera switches never regenerate authored wall meshes.");
+                Assert.AreEqual(authoredPositions[i], walls[i].transform.position, "Visibility does not move a saved wall.");
+            }
         }
 
         [UnityTest]
@@ -387,11 +397,15 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(Screen.width * .5f, centre.x, 2f);
             Assert.AreEqual(Screen.height * .5f, centre.y, 2f);
 
+            CursorPolicy.Apply(true);
+            Assert.IsTrue(CursorPolicy.Locked, "Begin with the pointer captured for gameplay.");
             SetPaused(hud, true);
             yield return Frames(2);
             Assert.IsFalse(cross.gameObject.activeSelf, "the pause card needs the pointer");
+            Assert.IsFalse(CursorPolicy.Locked, "Pause releases the captured pointer.");
             SetPaused(hud, false);
-            yield return Frames(2);
+            yield return TestScenes.WaitUntil(() => hud.AcceptsGameplayInput, 1f, "gameplay fade completes after resume");
+            yield return null;
             Assert.IsTrue(cross.gameObject.activeSelf);
         }
 

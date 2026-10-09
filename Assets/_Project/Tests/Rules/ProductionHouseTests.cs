@@ -23,9 +23,13 @@ namespace Wreckabulary.Rules.Tests
                 foreach (var objective in house.MovingDay)
                     Assert.IsTrue(catalogue.Get(objective.Word).Enabled, objective.Word);
                 foreach (var spawn in house.Spawns)
-                    foreach (var recipe in catalogue.Enabled)
+                    foreach (var recipe in catalogue.Enabled.Where(i => i.Tier == ItemTier.Core))
                         Assert.IsTrue(house.LettersIn(spawn.Room).Contains(recipe.Letters),
                             house.Name + ": " + spawn.Room + " cannot make " + recipe.Id);
+                var available = new LetterBag();
+                foreach (var room in house.Rooms) available.Add(house.LettersIn(room.Name));
+                foreach (var recipe in catalogue.Enabled)
+                    Assert.IsTrue(available.Contains(recipe.Letters), house.Name + " cannot supply " + recipe.Id);
                 foreach (string mode in rules.Modes.Where(m => rules.For(m).ClearOutEnabled))
                     Assert.IsTrue(house.ClearOutOrders.ContainsKey(mode), house.Name + " lacks " + mode);
                 Assert.IsFalse(house.ClearOutOrders["MovingOut"].Contains(house.ExtractionRoom), house.Name + " closes the van");

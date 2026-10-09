@@ -47,7 +47,7 @@ namespace Wreckabulary.EditorTests
         public void TheShippedDataHasNoProblems()
         {
             Assert.IsEmpty(config.Validate());
-            CollectionAssert.AreEquivalent(CoreTwelve, config.Items.Enabled.Select(i => i.Id), "the brief's 12 core items, and only them, are craftable");
+            CollectionAssert.AreEquivalent(CoreTwelve.Concat(new[] { "APPLE", "WATER", "CAKE", "SODA", "SHIELD", "FAN", "CLOCK", "BROOM", "HAMMER", "SPEAR", "PIE", "STOOL" }), config.Items.Enabled.Select(i => i.Id), "only completed recipes are craftable");
             Assert.AreEqual(100f, config.Rules.Defaults.MaxHealth);
             Assert.AreEqual(10, config.Rules.Defaults.MaxLetters);
             Assert.AreEqual(2, config.Rules.Defaults.MaxCarried);
@@ -71,8 +71,13 @@ namespace Wreckabulary.EditorTests
         {
             var missing = config.Items.All.Where(i => !string.IsNullOrEmpty(i.Model) && models.Find(i.Model) == null).Select(i => $"{i.Id} ({i.Model})").ToList();
             Assert.IsEmpty(missing, string.Join(", ", missing));
-            foreach (string id in CoreTwelve)
-                Assert.IsNotNull(models.Find(config.Items.Get(id).Model), id);
+            foreach (var item in config.Items.Enabled)
+            {
+                Assert.IsNotNull(models.Find(item.Model), item.Id);
+                Assert.IsTrue(Wreckabulary.UI.ItemArt.TryGet(item.Id, out var picture, out var uv), item.Id + " has recipe art");
+                Assert.IsNotNull(picture);
+                Assert.Greater(uv.width * uv.height, 0f);
+            }
         }
 
         [Test]

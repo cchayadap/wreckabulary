@@ -43,7 +43,7 @@ namespace Wreckabulary.Tests
         {
             CollectionAssert.AreEquivalent(GameConfig.Current.Items.Enabled.Select(i => i.Id).ToArray(),
                 GameAssets.I.words.Words.Select(w => w.word).ToArray());
-            Assert.AreEqual(12, GameAssets.I.words.Words.Count);
+            Assert.AreEqual(24, GameAssets.I.words.Words.Count);
             Assert.IsNull(GameAssets.I.words.Find("ARMOR"));
             Assert.IsNull(GameAssets.I.words.Find("AXE"));
         }
@@ -253,6 +253,11 @@ namespace Wreckabulary.Tests
             yield return TestScenes.WaitUntil(() => player.Health.Bubble > 0f, 1f, "FOAM use channel");
             Assert.AreEqual(35f, player.Health.Bubble);
             Assert.IsFalse(player.Combat.Weapon);
+            var protection = player.GetComponentsInChildren<SummonedThing>().Single(effect => effect.Word == "FOAM");
+            var film = protection.GetComponentsInChildren<MeshRenderer>();
+            Assert.AreEqual(8, film.Length, "a transparent shell and seven small foam pearls");
+            Assert.IsTrue(film.All(renderer => renderer.sharedMaterial && renderer.sharedMaterial.shader.name == "Wreckabulary/Soap Bubble"));
+            Assert.AreEqual(0, protection.GetComponentsInChildren<Collider>().Length, "cosmetic bubbles must not affect collision");
             SummonedThing.ClearAll();
             Assert.AreEqual(0f, player.Health.Bubble);
             Assert.AreEqual(0, TilePool.Instance.Active.Count);

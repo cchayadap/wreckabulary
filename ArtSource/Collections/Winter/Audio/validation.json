@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "passed": true,
+  "sample_policy": "44.1 kHz mono signed 16-bit PCM; peak <= -3 dBFS; bounded durations; fades and DC checked",
+  "clips": [
+    {
+      "id": "bell-01",
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 1,
+        "bits_per_sample": 16,
+        "compression": "NONE",
+        "frames": 14994,
+        "seconds": 0.34,
+        "peak_dbfs": -4.500292425884415,
+        "rms_dbfs": -14.11350794595571,
+        "dc_mean": -2.8494470704948647e-08,
+        "first_sample": 0,
+        "last_sample": 0,
+        "first_1ms_rms_dbfs": -43.50206369808228,
+        "last_1ms_rms_dbfs": -89.41958786582654,
+        "max_sample_step": 0.139923095703125,
+        "clipped_samples": 0,
+        "highpass_residual_rms_dbfs": -31.757971036644893,
+        "sha256": "10293216208176c0f712d1e5bbb0266f903ad05127348e480ca8e5394bc3b9af",
+        "pcm_sha256": "9e4f8859ec7e509785eb8bd8564f78bb0c0748b69283e3b00b7c7bc99609a220"
+      },
+      "checks": {
+        "format": true,
+        "length": true,
+        "headroom": true,
+        "finite_nonzero_energy": true,
+        "dc_bias": true,
+        "silent_endpoints": true,
+        "faded_endpoints": true,
+        "no_clipping": true,
+        "bounded_sample_steps": true,
+        "reproducible_pcm": true
+      },
+      "passed": true
+    },
+    {
+      "id": "bell-02",
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 1,
+        "bits_per_sample": 16,
+        "compression": "NONE",
+        "frames": 17199,
+        "seconds": 0.39,
+        "peak_dbfs": -4.500292425884415,
+        "rms_dbfs": -14.662188625844513,
+        "dc_mean": -3.1938857273678704e-08,
+        "first_sample": 0,
+        "last_sample": 0,
+        "first_1ms_rms_dbfs": -44.22979606393171,
+        "last_1ms_rms_dbfs": -99.75382542069605,
+        "max_sample_step": 0.1575927734375,
+        "clipped_samples": 0,
+        "highpass_residual_rms_dbfs": -31.343121726182087,
+        "sha256": "5ccf170861816eac6f81722f89bbb1972b2a8690825e9448060b5c27fca17155",
+        "pcm_sha256": "6e0961cc92b293b9139b220979f689696e853c4bb29e98e0fdb44f51aaf5fa19"
+      },
+      "checks": {
+        "format": true,
+        "length": true,
+        "headroom": true,
+        "finite_nonzero_energy": true,
+        "dc_bias": true,
+        "silent_endpoints": true,
+        "faded_endpoints": true,
+        "no_clipping": true,
+        "bounded_sample_steps": true,
+        "reproducible_pcm": true
+      },
+      "passed": true
+    },
+    {
+      "id": "paper-01",
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 1,
+        "bits_per_sample": 16,
+        "compression": "NONE",
+        "frames": 8379,
+        "seconds": 0.19,
+        "peak_dbfs": -4.500292425884415,
+        "rms_dbfs": -18.841083566328077,
+        "dc_mean": 2.1852902345148587e-08,
+        "first_sample": 0,
+        "last_sample": 0,
+        "first_1ms_rms_dbfs": -78.71578821113647,
+        "last_1ms_rms_dbfs": -240.0,
+        "max_sample_step": 0.216552734375,
+        "clipped_samples": 0,
+        "highpass_residual_rms_dbfs": -30.62691885244089,
+        "sha256": "f86fce47fe40ef6463bdc60e8b09dbd5ac3cb0f9ad5d35c3caed987c8c1055c7",
+        "pcm_sha256": "34620fa20a08263bc7cddd331a9c823f43e715540d2c7114a7f00088662abaec"
+      },
+      "checks": {
+        "format": true,
+        "length": true,
+        "headroom": true,
+        "finite_nonzero_energy": true,
+        "dc_bias": true,
+        "silent_endpoints": true,
+        "faded_endpoints": true,
+        "no_clipping": true,
+        "bounded_sample_steps": true,
+        "reproducible_pcm": true
+      },
+      "passed": true
+    },
+    {
+      "id": "paper-02",
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 1,
+        "bits_per_sample": 16,
+        "compression": "NONE",
+        "frames": 9702,
+        "seconds": 0.22,
+        "peak_dbfs": -4.500292425884415,
+        "rms_dbfs": -18.251232200955755,
+        "dc_mean": -2.8309441674397032e-08,
+        "first_sample": 0,
+        "last_sample": 0,
+        "first_1ms_rms_dbfs": -61.96826139211275,
+        "last_1ms_rms_dbfs": -96.32959861247399,
+        "max_sample_step": 0.2086181640625,
+        "clipped_samples": 0,
+        "highpass_residual_rms_dbfs": -29.705030725696872,
+        "sha256": "acf59404d1360eb826bbcd9be4ed4d3b04db825487b7b4f68e301819c8d3f6c5",
+        "pcm_sha256": "62f9feaa119f00f049615eb2c5e700751bf4710897b32e9723c8b933d0927958"
+      },
+      "checks": {
+        "format": true,
+        "length": true,
+        "headroom": true,
+        "finite_nonzero_energy": true,
+        "dc_bias": true,
+        "silent_endpoints": true,
+        "faded_endpoints": true,
+        "no_clipping": true,
+        "bounded_sample_steps": true,
+        "reproducible_pcm": true
+      },
+      "passed": true
+    },
+    {
+      "id": "snow-01",
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 1,
+        "bits_per_sample": 16,
+        "compression": "NONE",
+        "frames": 10584,
+        "seconds": 0.24,
+        "peak_dbfs": -4.500292425884415,
+        "rms_dbfs": -18.305798522621608,
+        "dc_mean": -1.3263497673374906e-07,
+        "first_sample": 0,
+        "last_sample": 0,
+        "first_1ms_rms_dbfs": -66.08399566091754,
+        "last_1ms_rms_dbfs": -240.0,
+        "max_sample_step": 0.1387939453125,
+        "clipped_samples": 0,
+        "highpass_residual_rms_dbfs": -33.56130489784416,
+        "sha256": "35b484b2d035b8ef1ff5b4c7234843c407d3e2933a21215720669e6f9cd4c4c5",
+        "pcm_sha256": "3c68e771fd87b68d20e12334f0aecf230594f648d0932707c636bfcd9084cccb"
+      },
+      "checks": {
+        "format": true,
+        "length": true,
+        "headroom": true,
+        "finite_nonzero_energy": true,
+        "dc_bias": true,
+        "silent_endpoints": true,
+        "faded_endpoints": true,
+        "no_clipping": true,
+        "bounded_sample_steps": true,
+        "reproducible_pcm": true
+      },
+      "passed": true
+    },
+    {
+      "id": "snow-02",
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 1,
+        "bits_per_sample": 16,
+        "compression": "NONE",
+        "frames": 12348,
+        "seconds": 0.28,
+        "peak_dbfs": -4.500292425884415,
+        "rms_dbfs": -18.977995138099544,
+        "dc_mean": -9.391544936426952e-08,
+        "first_sample": 0,
+        "last_sample": 0,
+        "first_1ms_rms_dbfs": -64.74405488480404,
+        "last_1ms_rms_dbfs": -240.0,
+        "max_sample_step": 0.115325927734375,
+        "clipped_samples": 0,
+        "highpass_residual_rms_dbfs": -34.4227562611881,
+        "sha256": "bab539f78d821a5a05e2efba3bfd0b9486244df499019575235a188b8dbbb4cc",
+        "pcm_sha256": "8715ec427d55e3ed2a1c6b2d8343eac06c9c20e99b66022af18d604b9206445d"
+      },
+      "checks": {
+        "format": true,
+        "length": true,
+        "headroom": true,
+        "finite_nonzero_energy": true,
+        "dc_bias": true,
+        "silent_endpoints": true,
+        "faded_endpoints": true,
+        "no_clipping": true,
+        "bounded_sample_steps": true,
+        "reproducible_pcm": true
+      },
+      "passed": true
+    }
+  ],
+  "variant_pairs": [
+    {
+      "ids": [
+        "bell-01",
+        "bell-02"
+      ],
+      "zero_lag_correlation": -0.005899574551498646,
+      "passed": true
+    },
+    {
+      "ids": [
+        "paper-01",
+        "paper-02"
+      ],
+      "zero_lag_correlation": 0.004835939524917022,
+      "passed": true
+    },
+    {
+      "ids": [
+        "snow-01",
+        "snow-02"
+      ],
+      "zero_lag_correlation": -0.05376713485597435,
+      "passed": true
+    }
+  ],
+  "listening_review": "Pending native audio capture and listening; no audible-quality claim from numeric checks"
+}

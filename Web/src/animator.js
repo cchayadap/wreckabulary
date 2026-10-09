@@ -215,7 +215,7 @@ export class AvatarAnimator {
       if (player.reviveTarget !== null && player.reviveTarget !== undefined) pose = "Place";
       else if (player.craft) pose = "Inspect_OneHand";
       else if (player.carried !== null && player.carried !== undefined) pose = "Carry_TwoHand";
-      else if (player.block) pose = "Block_Plate";
+      else if (game.isGuardRaised(player)) pose = "Block_Plate";
       else if (held) pose = "Hold_OneHand";
     }
     for (const p of POSES) {

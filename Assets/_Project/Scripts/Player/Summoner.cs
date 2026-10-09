@@ -16,6 +16,7 @@ namespace Wreckabulary
         float craftStarted, craftReady;
         public bool IsSpelling { get; private set; }
         public bool IsCrafting => crafting != null;
+        internal bool IsDisabling { get; private set; }
         public string CraftWord => crafting?.word;
         public float CraftProgress => IsCrafting ? Mathf.Clamp01((Time.time - craftStarted) / Mathf.Max(0.001f, craftReady - craftStarted)) : 0f;
         public List<WordEntry> Ready { get; private set; } = new();
@@ -42,10 +43,17 @@ namespace Wreckabulary
         }
 
         void InventoryChanged() { if (IsSpelling) Refresh(); }
-        void OnDisable() { CancelCraft(); Close(); }
+        void OnEnable() => IsDisabling = false;
+        void OnDisable()
+        {
+            IsDisabling = true;
+            CancelCraft();
+            Close();
+        }
 
         void Update()
         {
+            if (Time.timeScale <= 0f) return;
             if (!controller.CanAct || controller.IsDodging) { CancelCraft(); Close(); return; }
             var command = controller.Commands;
             if (IsCrafting)

@@ -17,6 +17,7 @@ namespace Wreckabulary
 
         void Start()
         {
+            Wreckabulary.Art.HousePresentation.Apply(GameObject.Find("Room"), true);
             joins.Joined += _ => OpenDoor();
             joins.RespawnKnockedOut = true;
             if (joins.Players.Count > 0) OpenDoor();

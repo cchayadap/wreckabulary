@@ -1,0 +1,78 @@
+{
+  "status": "verified",
+  "engine": "6000.6.3f1",
+  "baseline": "9d054bdc3d594299c8cf0ff325d7a9430182af5e",
+  "recordedUtc": "2026-10-09T00:06:20.122598+00:00",
+  "editMode": {
+    "log": "Logs/ui-editmode.xml",
+    "result": "Passed",
+    "total": 315,
+    "passed": 315,
+    "failed": 0,
+    "skipped": 0,
+    "durationSeconds": 46.4138866,
+    "startedUtc": "2026-10-08 23:17:43Z",
+    "endedUtc": "2026-10-08 23:18:29Z"
+  },
+  "playMode": {
+    "log": "Logs/ui-full-playmode.xml",
+    "result": "Passed",
+    "total": 334,
+    "passed": 319,
+    "failed": 0,
+    "skipped": 15,
+    "durationSeconds": 411.5036471,
+    "startedUtc": "2026-10-08 23:56:51Z",
+    "endedUtc": "2026-10-09 00:03:43Z"
+  },
+  "capture": {
+    "log": "Logs/ui-capture-final.xml",
+    "result": "Passed",
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "durationSeconds": 22.4121748,
+    "startedUtc": "2026-10-09 00:05:02Z",
+    "endedUtc": "2026-10-09 00:05:25Z"
+  },
+  "nativeFrames": 18,
+  "resolutions": [
+    "1280x720",
+    "1600x900",
+    "2100x900"
+  ],
+  "rulesHarness": {
+    "passed": 234,
+    "failed": 0
+  },
+  "visualReview": {
+    "timerAtlas": "Readable 2:27 digits in final frame08",
+    "shopPreview": "Full native shield and stand clear of right panel in final frame06",
+    "recipes": "Four columns, scroll to final rows; readable at all three resolutions",
+    "home": "Three bright GPT backgrounds with native avatar and icon/text navigation"
+  },
+  "windowsBuild": {
+    "result": "Succeeded",
+    "errors": 0,
+    "totalBytes": 226767191,
+    "log": "Logs/ui-windows-build.log",
+    "executable": "Builds/Windows/Wreckabulary.exe",
+    "executableSha256": "96b492cb271111251fe42b8646e65370a1b7b566773a1e35b34c3f2d1ae70873",
+    "startup": {
+      "log": "Logs/ui-windows-player.log",
+      "responsive": true,
+      "seconds": 72.45,
+      "graphics": "Direct3D 11",
+      "input": "Windows.Gaming.Input",
+      "errors": 0,
+      "scope": "Packaged startup only; native gameplay and UI verified separately."
+    }
+  },
+  "limits": [
+    "Local multiplayer retained; no online transport added.",
+    "Fifteen full-suite skips are explicitly selected capture/animation probes; the new UI capture is run separately.",
+    "Images are GPT illustrations; in-world character and recipe previews remain native imported 3D models."
+  ],
+  "featureCommit": "014d85679233ca7c5fb761ab9e8e3804153203b4"
+}

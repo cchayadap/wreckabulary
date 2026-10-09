@@ -51,6 +51,7 @@ namespace Wreckabulary
 
         public override void Read(ref PlayerCommands c)
         {
+            if (KeyBindings.GameplayBlocked) { ReleaseAll(); return; }
             if (!Enabled) return;
             c.move = move;
             c.look = look;
@@ -108,6 +109,6 @@ namespace Wreckabulary
         }
 
         public override bool JoinPressed() => false;
-        public override bool StartPressed() => Enabled && startFrame == Time.frameCount;
+        public override bool StartPressed() => !KeyBindings.GameplayBlocked && Enabled && startFrame == Time.frameCount;
     }
 }

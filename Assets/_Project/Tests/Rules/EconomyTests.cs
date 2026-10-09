@@ -76,7 +76,7 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(Refusal.MissingLetters, e.BeginCraft(0, "BALL", 0).Refusal);
             Assert.AreEqual(Refusal.UnknownRecipe, e.BeginCraft(0, "LAB", 0).Refusal);
             TestData.GiveLetters(e, 0, "HMER");
-            Assert.AreEqual(Refusal.RecipeDisabled, e.BeginCraft(0, "HAMMER", 0).Refusal, "modelled but not built yet");
+            Assert.AreEqual(Refusal.RecipeDisabled, e.BeginCraft(0, "BOOK", 0).Refusal, "modelled but not built yet");
             Assert.AreEqual("ABEHLMR", p.Letters.ToString());
             Assert.IsTrue(p.Reserved.IsEmpty);
             Assert.AreEqual(Refusal.AlreadyCrafting, Second(e));
@@ -394,7 +394,7 @@ namespace Wreckabulary.Rules.Tests
                 "cancel", "pickup", "pickup", "drop", "throw", "throw", "settle", "deploy", "deploy", "consume", "consume",
                 "expire", "damage", "break", "transfer", "transfer", "give", "toss", "carry", "spill",
             };
-            for (int step = 0; step < 10000; step++)
+            for (int step = 0; step < 30000; step++)
             {
                 now += 0.25;
                 string op = plan[rng.Next(plan.Length)];

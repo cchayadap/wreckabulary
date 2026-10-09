@@ -18,30 +18,30 @@ namespace Wreckabulary
 
         public static Color Mist(float alpha) => Hex(0x7d80bb, alpha);
 
-        public static readonly Color Navy = Hex(0x0b0e45), Navy2 = Hex(0x151c7a), Cyan = Hex(0x2fe6ff);
-        public static readonly Color Sun = Hex(0xffd21f), Sun2 = Hex(0xffad00), SunHi = Hex(0xffe55c), PlayHi = Hex(0xfff06a);
-        public static readonly Color Hot = Hex(0xff5a1f), Lime = Hex(0x7be03a);
+        public static readonly Color Navy = Hex(0x1e1e24), Navy2 = Hex(0x33484b), Cyan = Hex(0x136b68);
+        public static readonly Color Sun = Hex(0xb07821), Sun2 = Hex(0xf1bb60), SunHi = Hex(0xffe2a0), PlayHi = Hex(0xffefc8);
+        public static readonly Color Hot = Hex(0xc44736), Lime = Hex(0x367b53);
         public static readonly Color WoodHi = Hex(0xffd998), Wood = Hex(0xf2b25c), WoodLo = Hex(0xe38f34), Cocoa = Hex(0x3b2314), WoodInk = Hex(0x4a2a14);
-        public static readonly Color CardSub = Hex(0x4a5290), Owned = Hex(0x2fa84f), Short = Hex(0xe6e9f7), Focus = Hex(0xedab51);
-        public static readonly Color CoinRim = Hex(0xf0a400), CoinRimHi = Hex(0xffe066), CoinInk = Hex(0x8a5a10);
+        public static readonly Color CardSub = Hex(0x536064), Owned = Hex(0x287046), Short = Hex(0xebe5dc), Focus = Hex(0x136b68);
+        public static readonly Color CoinRim = Hex(0xf0a400), CoinRimHi = Hex(0xffe066), CoinInk = Hex(0x795015);
 
-        public static readonly Color Panel = Hex(0x0a0e52);
-        public static readonly Color PanelTop = Hex(0x3159ff), PanelBottom = Hex(0x18229e);
-        public static readonly Color ScrimNavy = Hex(0x06072f);
-        public static readonly Color Card = Mist(.122f);
-        public static readonly Color Line = Mist(.188f);
-        public static readonly Color TabIdle = Web(0x0a0e52, .79f), TabHover = Web(0x1d2bb0, .9f), TabPress = Hex(0x142092);
-        public static readonly Color ChipFill = Web(0x0a0e52, .85f), ChipEdge = Mist(.25f);
-        public static readonly Color PillFill = Mist(.133f), PillEdge = Mist(.333f);
-        public static readonly Color Cream = Color.white;
-        public static readonly Color Muted = Hex(0xdfe6ff);
-        public static readonly Color Faded = new Color(1f, 1f, 1f, .5f);
+        public static readonly Color Panel = Hex(0xfff9ec, .98f);
+        public static readonly Color PanelTop = Hex(0xfffcf4), PanelBottom = Hex(0xf5ecd9);
+        public static readonly Color ScrimNavy = Hex(0xfff8e9);
+        public static readonly Color Card = Hex(0xcee3dc, .5f);
+        public static readonly Color Line = Hex(0x8b9d95, .35f);
+        public static readonly Color TabIdle = Color.clear, TabHover = Hex(0x136b68), TabPress = Hex(0xa24830);
+        public static readonly Color ChipFill = Color.clear, ChipEdge = Hex(0x8b9d95, .4f);
+        public static readonly Color PillFill = Color.clear, PillEdge = Color.clear;
+        public static readonly Color Cream = Navy;
+        public static readonly Color Muted = Hex(0x4c5b5c);
+        public static readonly Color Faded = Hex(0x66706d);
         public static readonly Color Honey = Sun, Tomato = Hot;
-        public static readonly Color Shade = Web(0x04052a, .6f);
+        public static readonly Color Shade = Hex(0x203b3b, .46f);
         public const int TabRadius = 7;
-        public static readonly Color Track = Web(0x0b0e45, .45f);
-        public static readonly Color LimeHi = Hex(0xa6f56b), LimeLo = Hex(0x4cbf1d);
-        public static readonly Color Picked = Hex(0xfff4b8);
+        public static readonly Color Track = Hex(0xd8e7e0, .6f);
+        public static readonly Color LimeHi = Hex(0xbce9b4), LimeLo = Hex(0x7ac58d);
+        public static readonly Color Picked = Hex(0xffedc5);
 
         public enum Edge { Top, Right, Bottom }
 
@@ -89,6 +89,7 @@ namespace Wreckabulary
             else if (GameAssets.I && GameAssets.I.font) label.font = GameAssets.I.font;
             label.text = text; label.fontSize = size; label.color = colour; label.alignment = align;
             label.fontStyle = style; label.raycastTarget = false;
+            label.extraPadding = true;
             label.textWrappingMode = TextWrappingModes.NoWrap; label.overflowMode = TextOverflowModes.Ellipsis;
             return label;
         }
@@ -101,14 +102,14 @@ namespace Wreckabulary
             if (!font) { label.fontStyle = FontStyles.Bold; return label; }
             label.font = font;
             var material = ink == Ink.Stroke ? LobbyFonts.Stroke : ink == Ink.Drop ? LobbyFonts.Drop : null;
-            if (material) label.fontSharedMaterial = material;
+            if (material && colour.grayscale > .72f) label.fontSharedMaterial = material;
             return label;
         }
 
         public static TextMeshProUGUI Caps(Transform parent, string text, float size = 15, TextAlignmentOptions align = TextAlignmentOptions.Left)
         {
             var label = Text(parent, Upper(text), size, Cyan, align, FontStyles.Bold);
-            label.characterSpacing = 6;
+            label.characterSpacing = 1.5f;
             return label;
         }
 
@@ -118,6 +119,24 @@ namespace Wreckabulary
             image.sprite = LobbyIcons.Get(icon); image.color = colour; image.raycastTarget = false;
             image.preserveAspect = true;
             return image;
+        }
+
+        /// <summary>Protects unboxed foreground glyphs over artwork without covering the theme.</summary>
+        public static void ArtworkForeground(Transform root)
+        {
+            foreach (var label in root.GetComponentsInChildren<TextMeshProUGUI>(true))
+            {
+                var material = LobbyFonts.Foreground(label.font);
+                if (material) { label.fontSharedMaterial = material; label.UpdateMeshPadding(); }
+            }
+            foreach (var glyph in root.GetComponentsInChildren<Image>(true))
+            {
+                if (!glyph.name.StartsWith("Icon ", StringComparison.Ordinal)) continue;
+                if (!glyph.TryGetComponent(out Outline outline)) outline = glyph.gameObject.AddComponent<Outline>();
+                outline.effectColor = new Color(1f, .976f, .914f, .96f);
+                outline.effectDistance = new Vector2(1.25f, -1.25f);
+                outline.useGraphicAlpha = true;
+            }
         }
 
         public static Image Face(RectTransform rect, Color fill, int radius, Color? edge = null, int edgeWidth = 0, float drop = 0,
@@ -202,47 +221,47 @@ namespace Wreckabulary
             return button;
         }
 
-        public static Button Pill(Transform parent, string name, string text, float size, Action click)
+        public static Button TextAction(Transform parent, string name, string title, float size, Action click,
+            bool selected = false, string icon = null, Color? ink = null, Color? hotInk = null)
         {
-            var button = Button(parent, name, PillFill, click, 10, PillEdge, 2);
+            Color idle = ink ?? Navy, active = hotInk ?? Cyan;
+            var button = Button(parent, name, Color.clear, click, 8);
             var body = button.Body();
-            var label = Display(body, Upper(text), size, Cream);
-            label.characterSpacing = 2;
-            label.rectTransform.Fill();
-            var face = body.GetComponent<Image>();
-            var edge = body.Find("Edge").GetComponent<Image>();
+            var content = Row(body, "Content", 10);
+            content.Fill();
+            var row = content.GetComponent<HorizontalLayoutGroup>();
+            row.childAlignment = TextAnchor.MiddleCenter;
+            row.childForceExpandHeight = false;
+            row.padding = new RectOffset(8, 8, 4, 6);
+            Image glyph = null;
+            if (icon != null) glyph = Icon(content, icon, selected ? active : idle).Size(size, size);
+            var label = Display(content, title, size, selected ? active : idle);
+            label.characterSpacing = .6f;
+            label.enableAutoSizing = true;
+            label.fontSizeMin = Mathf.Min(size, Mathf.Max(14f, size * .78f));
+            label.fontSizeMax = size;
+            label.Size(-1, size + 10);
+            label.GetComponent<LayoutElement>().minWidth = 0;
+            var underline = Rect(body, "Underline").Place(Vector2.zero, new Vector2(1, 0), new Vector2(10, 1), new Vector2(-10, 4)).Paint(active, 1);
+            underline.raycastTarget = false;
+            underline.enabled = selected;
             button.GetComponent<LobbyPress>().Hot = hot =>
             {
-                face.color = hot ? Sun : PillFill;
-                edge.color = hot ? Navy : PillEdge;
-                label.color = hot ? Navy : Cream;
+                underline.enabled = selected || hot;
+                label.color = selected || hot ? active : idle;
+                if (glyph) glyph.color = label.color;
             };
             return button;
         }
 
-        public static Button Danger(Transform parent, string title, float size, Action click)
-        {
-            var button = Button(parent, title, Hot, click, 12, Navy, 3, 4);
-            Display(button.Body(), title, size, Cream, TextAlignmentOptions.Center, Ink.Stroke).rectTransform.Fill();
-            return button;
-        }
+        public static Button Pill(Transform parent, string name, string text, float size, Action click) =>
+            TextAction(parent, name, Upper(text), size, click);
 
-        public static Button Primary(Transform parent, string name, string word, Action click, float tile = 62, float arrow = 38)
-        {
-            var button = Button(parent, name, PlayHi, click, 18, Navy, 5, 10, Sun2);
-            var press = button.GetComponent<LobbyPress>();
-            press.Sink = 7f; press.DropPressed = 2f;
-            var content = Row(button.Body(), "Content", 7);
-            content.Fill();
-            var layout = content.GetComponent<HorizontalLayoutGroup>();
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.childForceExpandHeight = false;
-            for (int i = 0; i < word.Length; i++)
-                LetterTile(content, word[i], tile, (i - (word.Length - 1) / 2f) * 3f);
-            Rect(content, "Gap").Size(7, tile);
-            Icon(content, LobbyIcons.Arrow, Navy).Size(arrow, arrow);
-            return button;
-        }
+        public static Button Danger(Transform parent, string title, float size, Action click) =>
+            TextAction(parent, title, title, size, click, icon: LobbyIcons.Power, ink: Hot, hotInk: Hot);
+
+        public static Button Primary(Transform parent, string name, string word, Action click, float tile = 62, float arrow = 38) =>
+            TextAction(parent, name, Upper(word), tile, click, true, LobbyIcons.Arrow);
 
         public static RectTransform LetterTile(Transform parent, char letter, float size, float degrees = 0) =>
             LetterTile(parent, letter.ToString(), size, degrees);
@@ -265,7 +284,7 @@ namespace Wreckabulary
             var coin = Rect(parent, "Coin");
             coin.Size(size, size);
             Disc(coin, "Rim", size * 22f / 24f, CoinInk);
-            Disc(coin, "Face", size * 18.8f / 24f, Sun);
+            Disc(coin, "Face", size * 18.8f / 24f, SunHi);
             Disc(coin, "Ring", size * 15.6f / 24f, CoinRim);
             Disc(coin, "Middle", size * 13.2f / 24f, CoinRimHi);
             var w = Icon(coin, LobbyIcons.CoinW, CoinInk);
@@ -283,12 +302,11 @@ namespace Wreckabulary
 
         public static RawImage ItemImage(Transform parent, string id, float size, float degrees = 0)
         {
-            var texture = Resources.Load<Texture2D>("UI/Items/" + id);
-            if (!texture) return null;
+            if (!Wreckabulary.UI.ItemArt.TryGet(id, out var texture, out var uv)) return null;
             var rect = Rect(parent, "Art " + id).Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(size, size));
             rect.localRotation = Quaternion.Euler(0, 0, degrees);
             var raw = rect.gameObject.AddComponent<RawImage>();
-            raw.texture = texture; raw.raycastTarget = false;
+            raw.texture = texture; raw.uvRect = uv; raw.raycastTarget = false;
             return raw;
         }
 
@@ -316,7 +334,7 @@ namespace Wreckabulary
         };
 
         public static LobbyTab Tab(Transform parent, string title, string icon, Action click, float width = 200, float height = 48, float size = 24,
-            float skew = 10)
+            float skew = 0)
         {
             var button = Button(parent, title, TabIdle, click, TabRadius, Line, 2, 0, null, skew);
             var body = button.Body();
@@ -334,7 +352,7 @@ namespace Wreckabulary
             Image glyph = null;
             if (icon != null) { glyph = Icon(content, icon, Cream); glyph.Size(22, 22); }
             var label = Display(content, Upper(title), size, Cream);
-            label.characterSpacing = 3;
+            label.characterSpacing = .8f;
             label.Size(-1, height);
             button.Size(width, height);
             var tab = button.gameObject.AddComponent<LobbyTab>();
@@ -344,14 +362,12 @@ namespace Wreckabulary
 
         public static Button IconButton(Transform parent, string icon, string hint, Action click)
         {
-            var button = Button(parent, hint, Color.white, click, 26, Navy, 4, 4);
-            var body = button.Body();
-            var glyph = Icon(body, icon, Navy);
-            glyph.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(12, 12), new Vector2(-12, -12));
-            var face = body.GetComponent<Image>();
+            var button = Button(parent, hint, Color.clear, click, 10);
+            var glyph = Icon(button.Body(), icon, Navy);
+            glyph.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(10, 10), new Vector2(-10, -10));
             var press = button.GetComponent<LobbyPress>();
-            press.Tilt = 8f;
-            press.Hot = hot => face.color = hot ? Sun : Color.white;
+            press.Tilt = 3f;
+            press.Hot = hot => glyph.color = hot ? Cyan : Navy;
             button.gameObject.AddComponent<LobbyHint>().Text = hint;
             return button;
         }
@@ -360,7 +376,7 @@ namespace Wreckabulary
         {
             var pill = Row(parent, name, 2, 4);
             pill.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
-            Face(pill, TabIdle, 12, Line, 2);
+            Face(pill, Color.clear, 12);
             return pill;
         }
 
@@ -430,20 +446,19 @@ namespace Wreckabulary
         }
 
         public static Image PanelFace(RectTransform rect, int radius, int edgeWidth = 4, float drop = 6) =>
-            Face(rect, PanelTop, radius, Navy, edgeWidth, drop, PanelBottom);
+            Face(rect, PanelTop, radius, Line, Mathf.Min(edgeWidth, 2), 0, PanelBottom);
 
         public static Button PickCard(Transform parent, string name, Color accent, string caps, string title, string detail,
             Action click, float art, Color? detailColour = null)
         {
-            var button = Button(parent, name, PanelTop, click, 17, Navy, 4, 6, PanelBottom);
+            var button = Button(parent, name, Color.clear, click, 17);
             var press = button.GetComponent<LobbyPress>();
             press.Lift = 4f; press.Sink = 3f; press.DropPressed = 2f;
             var body = button.Body();
             var square = Rect(body, "Art").Pin(new Vector2(0, .5f), new Vector2(14, 0), new Vector2(art, art));
             Face(square, accent, 14, Navy, 3);
             var chip = Rect(body, "Change chip").Pin(new Vector2(1, .5f), new Vector2(-16, 0), new Vector2(104, 34));
-            chip.Paint(Hex(0x4157d4), 10).raycastTarget = false;
-            Frame(chip, Hex(0x6d7ede), 10, 2);
+            chip.Paint(Color.clear).raycastTarget = false;
             var change = Display(chip, "CHANGE", 17, Cream);
             change.characterSpacing = 2;
             change.rectTransform.Fill();
@@ -451,9 +466,9 @@ namespace Wreckabulary
             words.Place(Vector2.zero, Vector2.one, new Vector2(14 + art + 16, 8), new Vector2(-132, -8));
             var column = words.GetComponent<VerticalLayoutGroup>();
             column.childAlignment = TextAnchor.MiddleLeft;
-            var kicker = Text(words, Upper(caps), 13, new Color(1f, 1f, 1f, .75f), TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            kicker.characterSpacing = 8;
-            kicker.Size(-1, 18);
+            var kicker = Text(words, Upper(caps), 16, Muted, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            kicker.characterSpacing = 1;
+            kicker.Size(-1, 24);
             var head = Display(words, title, 32, Cream, TextAlignmentOptions.MidlineLeft, Ink.Stroke);
             head.enableAutoSizing = true; head.fontSizeMin = 22; head.fontSizeMax = 32;
             head.Size(-1, 38);
@@ -546,13 +561,8 @@ namespace Wreckabulary
 
         public static Button Chip(Transform parent, string title, bool on, Action click, bool locked = false, float size = 22)
         {
-            var button = on
-                ? Button(parent, title, SunHi, click, 10, Navy, 3, 4, Sun2)
-                : Button(parent, title, Card, click, 10, ChipEdge, 2);
-            var label = Display(button.Body(), title, size, on ? Navy : locked ? Faded : Cream);
-            label.characterSpacing = 1;
-            label.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(8, 0), new Vector2(-8, 0));
-            if (on) button.GetComponent<LobbyPress>().Lift = 0f;
+            var button = TextAction(parent, title, title, size, click, on);
+            if (locked) button.GetComponentInChildren<TextMeshProUGUI>().color = Faded;
             return button;
         }
 
@@ -569,24 +579,13 @@ namespace Wreckabulary
         {
             var track = Row(parent, name, 4, 4);
             track.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = true;
-            Face(track, Track, 14);
             track.Size(-1, height);
             foreach (var (id, label) in choices)
             {
-                bool on = id == picked;
-                var button = on ? Button(track, id, SunHi, () => pick(id), 10, Navy, 3, 3, Sun2) : Button(track, id, Color.clear, () => pick(id), 10);
-                button.Size(-1, -1, 1);
-                var text = Display(button.Body(), Upper(label), size, on ? Navy : Cream);
-                text.characterSpacing = 1;
-                text.enableAutoSizing = true; text.fontSizeMin = 12; text.fontSizeMax = size;
-                text.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(6, 0), new Vector2(-6, 0));
-                var press = button.GetComponent<LobbyPress>();
-                if (on) press.Lift = 0f;
-                else
-                {
-                    var face = button.FaceOf();
-                    press.Hot = hot => face.color = hot ? TabHover : Color.clear;
-                }
+                var button = TextAction(track, id, Upper(label), size, () => pick(id), id == picked);
+                var text = button.GetComponentInChildren<TMP_Text>();
+                button.Size(-1, -1, Mathf.Max(1f, text.GetPreferredValues(Upper(label)).x + 16f));
+                button.Body().Find("Content").GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(5, 5, 4, 6);
             }
             return track;
         }
@@ -608,29 +607,12 @@ namespace Wreckabulary
             return button;
         }
 
-        public static Button Confirm(Transform parent, string name, string text, Action click)
-        {
-            var button = Button(parent, name, LimeHi, click, 16, Navy, 3, 5, LimeLo);
-            var press = button.GetComponent<LobbyPress>();
-            press.Sink = 3f; press.DropPressed = 2f;
-            var body = button.Body();
-            var shine = Rect(body, "Shine").Place(new Vector2(0, 1), Vector2.one, new Vector2(16, -13), new Vector2(-16, -8));
-            shine.Paint(new Color(1f, 1f, 1f, .45f), 2).raycastTarget = false;
-            var content = Row(body, "Content", 10);
-            content.Fill();
-            var layout = content.GetComponent<HorizontalLayoutGroup>();
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.childForceExpandHeight = false;
-            var label = Display(content, Upper(text), 24, Navy);
-            label.characterSpacing = 2;
-            label.Size(-1, 34);
-            Icon(content, LobbyIcons.Check, Navy).Size(24, 24);
-            return button;
-        }
+        public static Button Confirm(Transform parent, string name, string text, Action click) =>
+            TextAction(parent, name, Upper(text), 24, click, true, LobbyIcons.Check);
 
         public static Button PriceTag(Transform parent, string name, int price, bool poor, Action click, float size = 18)
         {
-            var button = Button(parent, name, poor ? Short : Color.white, click, 10, Navy, 2, 3);
+            var button = Button(parent, name, Color.clear, click, 10);
             var press = button.GetComponent<LobbyPress>();
             press.Tilt = 2f;
             var content = Row(button.Body(), "Content", 6);
@@ -644,7 +626,7 @@ namespace Wreckabulary
             if (!poor)
             {
                 var face = button.FaceOf();
-                press.Hot = hot => face.color = hot ? Sun : Color.white;
+                press.Hot = hot => press.HoverScale = hot ? 1.05f : 1f;
             }
             return button;
         }

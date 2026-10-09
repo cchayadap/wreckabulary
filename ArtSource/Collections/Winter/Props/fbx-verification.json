@@ -1,0 +1,33 @@
+{
+  "blender": "5.2.2 LTS",
+  "passed": true,
+  "checks": [
+    {
+      "name": "WinterTree",
+      "passed": true,
+      "triangles": 2576,
+      "max_bounds_error_m": 5.960464477539063e-08,
+      "palette_loaded": true,
+      "front_marker_present": true,
+      "cameras_or_lights": []
+    },
+    {
+      "name": "WrappedGifts",
+      "passed": true,
+      "triangles": 972,
+      "max_bounds_error_m": 5.3798007826344474e-08,
+      "palette_loaded": true,
+      "front_marker_present": true,
+      "cameras_or_lights": []
+    },
+    {
+      "name": "DoorWreath",
+      "passed": true,
+      "triangles": 1252,
+      "max_bounds_error_m": 7.450580596923828e-08,
+      "palette_loaded": true,
+      "front_marker_present": true,
+      "cameras_or_lights": []
+    }
+  ]
+}

@@ -9,6 +9,7 @@ namespace Wreckabulary
     {
         static TMP_FontAsset display, body, black;
         static Material stroke, drop;
+        static readonly Dictionary<TMP_FontAsset, Material> foreground = new();
         static bool failed;
 
         public static TMP_FontAsset Display { get { Load(); return display; } }
@@ -17,13 +18,31 @@ namespace Wreckabulary
         public static Material Stroke { get { Load(); return stroke; } }
         public static Material Drop { get { Load(); return drop; } }
 
+        public static Material Foreground(TMP_FontAsset font)
+        {
+            if (!font) return null;
+            if (foreground.TryGetValue(font, out var cached) && cached) return cached;
+            var material = new Material(font.material) { name = font.name + " Artwork foreground" };
+            material.EnableKeyword(ShaderUtilities.Keyword_Outline);
+            material.SetColor("_OutlineColor", new Color(1f, .976f, .914f, .96f));
+            material.SetFloat("_OutlineWidth", .18f);
+            material.SetFloat("_FaceDilate", .02f);
+            ShaderUtilities.UpdateShaderRatios(material);
+            foreground[font] = material;
+            return material;
+        }
+
         static void Load()
         {
             if (display || failed) return;
-            display = Make("LilitaOne-Regular", 72, 10);
-            body = Make("Nunito-ExtraBold", 56, 7);
-            black = Make("Nunito-Black", 56, 7);
+            display = Make("LilitaOne-Regular", 96, 12);
+            body = Make("Nunito-ExtraBold", 80, 10);
+            black = Make("Nunito-Black", 80, 10);
             if (!display || !body || !black) { failed = true; display = body = black = null; return; }
+            // TMP's styled-glyph lookup requires an explicit face for bold text, including ellipsis.
+            display.fontWeightTable[7].regularTypeface = display;
+            body.fontWeightTable[7].regularTypeface = black;
+            black.fontWeightTable[7].regularTypeface = black;
             stroke = Preset(display, false);
             drop = Preset(display, true);
         }
@@ -32,9 +51,13 @@ namespace Wreckabulary
         {
             var font = Resources.Load<Font>("Fonts/" + file);
             if (!font) { Debug.LogWarning("Lobby font missing: Resources/Fonts/" + file); return null; }
-            var asset = TMP_FontAsset.CreateFontAsset(font, size, padding, GlyphRenderMode.SDFAA, 1024, 1024);
+            var asset = TMP_FontAsset.CreateFontAsset(font, size, padding, GlyphRenderMode.SDFAA, 2048, 2048);
             if (!asset) return null;
             asset.name = file;
+            asset.isMultiAtlasTexturesEnabled = true;
+            // TMP resolves ellipsis and underline before laying out the first visible text.
+            asset.TryAddCharacters("_… ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,:;!?'-–—()/+%&=·−");
+            foreach (var atlas in asset.atlasTextures) if (atlas) atlas.filterMode = FilterMode.Bilinear;
             if (GameAssets.I && GameAssets.I.font) asset.fallbackFontAssetTable = new List<TMP_FontAsset> { GameAssets.I.font };
             return asset;
         }

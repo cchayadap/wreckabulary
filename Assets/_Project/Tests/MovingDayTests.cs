@@ -190,6 +190,7 @@ namespace Wreckabulary.Tests
         {
             yield return TestScenes.Reset();
             yield return TestScenes.Load(Session.HubScene);
+            yield return TestScenes.ExploreHouse();
             Object.FindAnyObjectByType<PlayerJoinManager>().Join(new ScriptedBinding());
             var typewriter = Object.FindAnyObjectByType<Typewriter>();
             int index = typewriter.Modes.Select((m, i) => (m, i)).First(x => x.m.scene == Session.MovingDayScene).i;
@@ -197,7 +198,7 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(typewriter.Choose(index), "one roommate can play Moving Day");
             yield return TestScenes.WaitForActive(Session.MovingDayScene);
             var p = Object.FindAnyObjectByType<PlayerJoinManager>().Players.Single();
-            Assert.AreEqual(12, p.Summoner.WordsOverride.Count, "the word wheel offers objectives and creative tools");
+            Assert.AreEqual(24, p.Summoner.WordsOverride.Count, "the word wheel offers objectives and creative tools");
         }
     }
 }

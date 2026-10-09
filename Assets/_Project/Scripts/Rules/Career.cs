@@ -32,6 +32,7 @@ namespace Wreckabulary.Rules
         public const int NameLength = 16;
         public const long LatestTime = 253402300799;
         public static readonly IReadOnlyList<string> FreeColours = new[] { "pool", "tomato", "tangerine", "sunflower", "mint" };
+        public static readonly IReadOnlyList<string> FreePieces = new[] { "Crewneck", "Hoodie", "Joggers", "Mittens", "Boots", "Cap", "Hood", "Glasses", "Satchel", "TBadge" };
         public static readonly IReadOnlyList<ShopOffer> Shop = new[]
         {
             new ShopOffer("skin", "Candy", "Candy gear", 250),
@@ -42,7 +43,10 @@ namespace Wreckabulary.Rules
             new ShopOffer("colour", "bubblegum", "Bubblegum", 150),
             new ShopOffer("colour", "oat", "Oat", 100),
             new ShopOffer("colour", "charcoal", "Charcoal", 180),
-        };
+            new ShopOffer("theme", "candy", "Candy Carnival", 300),
+            new ShopOffer("theme", "lantern", "Lantern Festival", 350),
+        }.Concat(CosmeticBundles.All.Where(bundle => bundle.Price > 0)
+            .Select(bundle => new ShopOffer("look", bundle.Id, bundle.Name, bundle.Price))).ToArray();
 
         public string Name = "Housemate";
         public int Coins, Xp, Matches, Wins;
@@ -64,18 +68,25 @@ namespace Wreckabulary.Rules
         }
 
         public bool Owns(string kind, string value) =>
-            (kind == "skin" && value == "Classic") ||
+            (kind == "skin" && (value == "Classic" || value == "Winter")) ||
             (kind == "colour" && FreeColours.Contains(value)) ||
+            (kind == "piece" && FreePieces.Contains(value)) ||
+            (kind == "theme" && (value == "sunroom" || value == "winter")) ||
+            (kind == "look" && CosmeticBundles.Find(value)?.OwnedBy(this) == true) ||
             Owned.Contains(kind + ":" + value);
+
+        public int PriceOf(ShopOffer offer) => offer.Kind == "look" && CosmeticBundles.Find(offer.Value) is CosmeticBundle bundle
+            ? bundle.RemainingPrice(this) : offer.Price;
 
         public string Buy(string id)
         {
             var offer = Shop.FirstOrDefault(s => s.Id == id);
             if (offer == null) return "That isn't in the shop.";
-            if (Owned.Contains(id)) return "You already own it.";
-            if (Coins < offer.Price) return $"You need {offer.Price - Coins} more coins.";
-            Coins -= offer.Price;
-            Owned.Add(id);
+            if (Owns(offer.Kind, offer.Value)) return "You already own it.";
+            int price = PriceOf(offer);
+            if (Coins < price) return $"You need {price - Coins} more coins.";
+            Coins -= price;
+            Grant(id);
             return null;
         }
 
@@ -113,6 +124,8 @@ namespace Wreckabulary.Rules
         bool Grant(string id)
         {
             if (!Shop.Any(s => s.Id == id) || Owned.Contains(id)) return false;
+            if (id.StartsWith("look:", StringComparison.Ordinal) && CosmeticBundles.Find(id.Substring(5)) is CosmeticBundle bundle)
+                foreach (string unlock in bundle.Unlocks) Grant(unlock);
             Owned.Add(id);
             return true;
         }

@@ -1,0 +1,970 @@
+{
+    "engine": "6000.6.3f1",
+    "utc": "2026-10-08T21:00:15.9656774Z",
+    "capture": "Native Game view at end of frame",
+    "completed": true,
+    "frames": [
+        {
+            "file": "01-pinwheel-overview.png",
+            "scene": "LivingRoom",
+            "map": "pinwheel",
+            "room": "",
+            "view": "overview",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "visibleDetails": 0,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": false,
+            "orthographic": true,
+            "targetInFrame": false,
+            "cameraPitch": 0.0,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": -22.0
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "02-pinwheel-interior.png",
+            "scene": "LivingRoom",
+            "map": "pinwheel",
+            "room": "Bedroom",
+            "view": "interior",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 18,
+            "selectedLights": 2,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -6.024837493896484,
+                "y": 1.6257500648498535,
+                "z": 8.209935188293457
+            },
+            "cameraForward": {
+                "x": 0.9156451225280762,
+                "y": -0.1656782031059265,
+                "z": -0.36625799536705017
+            },
+            "playerPosition": {
+                "x": -3.0,
+                "y": 0.0,
+                "z": 7.0
+            }
+        },
+        {
+            "file": "03-pinwheel-upward-detail.png",
+            "scene": "LivingRoom",
+            "map": "pinwheel",
+            "room": "Bedroom",
+            "view": "upward-detail",
+            "skybox": "DaylightSky",
+            "target": "Bulb glow",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 5,
+            "selectedLights": 2,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": true,
+            "cameraPitch": -0.30715128779411316,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -0.7475707530975342,
+                "y": 0.3499999940395355,
+                "z": 5.353994369506836
+            },
+            "cameraForward": {
+                "x": -0.7731954455375671,
+                "y": 0.2879461944103241,
+                "z": 0.5650272369384766
+            },
+            "playerPosition": {
+                "x": -3.0,
+                "y": 0.0,
+                "z": 7.0
+            }
+        },
+        {
+            "file": "04-pinwheel-foam-daylight.png",
+            "scene": "LivingRoom",
+            "map": "pinwheel",
+            "room": "Bedroom",
+            "view": "foam-daylight",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 4,
+            "selectedLights": 2,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -0.3726940155029297,
+                "y": 1.625139832496643,
+                "z": 5.080045700073242
+            },
+            "cameraForward": {
+                "x": -0.7962328195571899,
+                "y": -0.16567981243133545,
+                "z": 0.5818621516227722
+            },
+            "playerPosition": {
+                "x": -3.0,
+                "y": 0.0,
+                "z": 7.0
+            }
+        },
+        {
+            "file": "05-pinwheel-active-gameplay.png",
+            "scene": "LivingRoom",
+            "map": "pinwheel",
+            "room": "Bedroom",
+            "view": "active-gameplay",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 18,
+            "selectedLights": 2,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -6.024835586547852,
+                "y": 1.6258544921875,
+                "z": 8.20993423461914
+            },
+            "cameraForward": {
+                "x": 0.9156450629234314,
+                "y": -0.1656782031059265,
+                "z": -0.3662582337856293
+            },
+            "playerPosition": {
+                "x": -3.0,
+                "y": 0.0,
+                "z": 6.999999523162842
+            }
+        },
+        {
+            "file": "06-courtyard-overview.png",
+            "scene": "LivingRoom",
+            "map": "courtyard",
+            "room": "",
+            "view": "overview",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "visibleDetails": 0,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": false,
+            "orthographic": true,
+            "targetInFrame": false,
+            "cameraPitch": 0.0,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": -22.0
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "07-courtyard-interior.png",
+            "scene": "LivingRoom",
+            "map": "courtyard",
+            "room": "Bedroom",
+            "view": "interior",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 13,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -8.050419807434082,
+                "y": 1.6257500648498535,
+                "z": 12.14390754699707
+            },
+            "cameraForward": {
+                "x": 0.9233889579772949,
+                "y": -0.1656782031059265,
+                "z": -0.3462711274623871
+            },
+            "playerPosition": {
+                "x": -5.0,
+                "y": 0.0,
+                "z": 11.0
+            }
+        },
+        {
+            "file": "08-courtyard-upward-detail.png",
+            "scene": "LivingRoom",
+            "map": "courtyard",
+            "room": "Bedroom",
+            "view": "upward-detail",
+            "skybox": "DaylightSky",
+            "target": "Bulb glow",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 4,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": true,
+            "cameraPitch": -0.19144724309444427,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -2.4883055686950684,
+                "y": 0.4720763564109802,
+                "z": 8.95375919342041
+            },
+            "cameraForward": {
+                "x": -0.7620516419410706,
+                "y": 0.18396896123886108,
+                "z": 0.6208323240280151
+            },
+            "playerPosition": {
+                "x": -5.0,
+                "y": 0.0,
+                "z": 11.0
+            }
+        },
+        {
+            "file": "09-courtyard-garden-sky.png",
+            "scene": "LivingRoom",
+            "map": "courtyard",
+            "room": "Garden",
+            "view": "garden-sky",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 9,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": -0.44999998807907104,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -1.554643988609314,
+                "y": 0.844670295715332,
+                "z": 2.487950086593628
+            },
+            "cameraForward": {
+                "x": 0.49349892139434814,
+                "y": 0.364325612783432,
+                "z": -0.789763331413269
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "10-flat-overview.png",
+            "scene": "LivingRoom",
+            "map": "flat",
+            "room": "",
+            "view": "overview",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "visibleDetails": 0,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": false,
+            "orthographic": true,
+            "targetInFrame": false,
+            "cameraPitch": 0.0,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": -22.0
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "11-flat-interior.png",
+            "scene": "LivingRoom",
+            "map": "flat",
+            "room": "LivingRoom",
+            "view": "interior",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 25,
+            "selectedLights": 2,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": 10.452208518981934,
+                "y": 1.6257500648498535,
+                "z": -4.877696514129639
+            },
+            "cameraForward": {
+                "x": -0.8936596512794495,
+                "y": -0.16567818820476532,
+                "z": 0.41704097390174866
+            },
+            "playerPosition": {
+                "x": 7.499999523162842,
+                "y": 0.0,
+                "z": -3.499999761581421
+            }
+        },
+        {
+            "file": "12-flat-upward-detail.png",
+            "scene": "LivingRoom",
+            "map": "flat",
+            "room": "LivingRoom",
+            "view": "upward-detail",
+            "skybox": "DaylightSky",
+            "target": "Bulb glow",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 5,
+            "selectedLights": 2,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": true,
+            "cameraPitch": -0.29109346866607666,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": 6.050753593444824,
+                "y": 0.3499999940395355,
+                "z": -0.9235630035400391
+            },
+            "cameraForward": {
+                "x": 0.4716980755329132,
+                "y": 0.2725706398487091,
+                "z": -0.8385739922523499
+            },
+            "playerPosition": {
+                "x": 7.5,
+                "y": 0.0,
+                "z": -3.5
+            }
+        },
+        {
+            "file": "13-terrace-overview.png",
+            "scene": "LivingRoom",
+            "map": "terrace",
+            "room": "",
+            "view": "overview",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "visibleDetails": 0,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": false,
+            "orthographic": true,
+            "targetInFrame": false,
+            "cameraPitch": 0.0,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": -22.0
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "14-terrace-interior.png",
+            "scene": "LivingRoom",
+            "map": "terrace",
+            "room": "LivingRoom",
+            "view": "interior",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 4,
+            "selectedLights": 3,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -6.500000476837158,
+                "y": 1.6257500648498535,
+                "z": 3.257849931716919
+            },
+            "cameraForward": {
+                "x": 9.339829176724379e-8,
+                "y": -0.16567818820476532,
+                "z": -0.9861799478530884
+            },
+            "playerPosition": {
+                "x": -6.5,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "15-terrace-upward-detail.png",
+            "scene": "LivingRoom",
+            "map": "terrace",
+            "room": "LivingRoom",
+            "view": "upward-detail",
+            "skybox": "DaylightSky",
+            "target": "Bulb glow",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 5,
+            "selectedLights": 3,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": true,
+            "cameraPitch": -0.4249572157859802,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -3.493513822555542,
+                "y": 0.9387807846069336,
+                "z": 1.3141767851720942e-7
+            },
+            "cameraForward": {
+                "x": -0.9410915374755859,
+                "y": 0.338151752948761,
+                "z": -9.313225746154785e-8
+            },
+            "playerPosition": {
+                "x": -6.5,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "16-terrace-upper-interior.png",
+            "scene": "LivingRoom",
+            "map": "terrace",
+            "room": "Bedroom",
+            "view": "upper-interior",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 11,
+            "selectedLights": 4,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -6.4999871253967285,
+                "y": 5.347717761993408,
+                "z": 3.2578554153442383
+            },
+            "cameraForward": {
+                "x": 9.339635909100252e-8,
+                "y": -0.1657993495464325,
+                "z": -0.9861595630645752
+            },
+            "playerPosition": {
+                "x": -6.49998664855957,
+                "y": 3.719937324523926,
+                "z": 0.000005556120413530152
+            }
+        },
+        {
+            "file": "17-terrace-upper-detail.png",
+            "scene": "LivingRoom",
+            "map": "terrace",
+            "room": "Bedroom",
+            "view": "upper-detail",
+            "skybox": "DaylightSky",
+            "target": "Bulb glow",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 7,
+            "selectedLights": 4,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": true,
+            "cameraPitch": -0.1462547779083252,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -4.359724998474121,
+                "y": 4.339021682739258,
+                "z": 2.4653689861297607
+            },
+            "cameraForward": {
+                "x": -0.6491690874099731,
+                "y": 0.13932743668556213,
+                "z": -0.7477751970291138
+            },
+            "playerPosition": {
+                "x": -6.49998664855957,
+                "y": 3.719937324523926,
+                "z": 0.000010194363312621135
+            }
+        },
+        {
+            "file": "18-terrace-mixed-floor-couch-21x9.png",
+            "scene": "LivingRoom",
+            "map": "terrace",
+            "room": "LivingRoom / Bedroom",
+            "view": "mixed-floor-couch-21x9",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 2100,
+            "height": 900,
+            "localSeats": 2,
+            "visibleDetails": 0,
+            "selectedLights": 4,
+            "lightBudget": 4,
+            "thirdPerson": false,
+            "orthographic": true,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -0.03946125879883766,
+                "y": 31.25415802001953,
+                "z": -21.778554916381836
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": -6.49998664855957,
+                "y": 3.719937324523926,
+                "z": 0.000017222919268533587
+            }
+        },
+        {
+            "file": "19-walkup-overview.png",
+            "scene": "LivingRoom",
+            "map": "walkup",
+            "room": "",
+            "view": "overview",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "visibleDetails": 0,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": false,
+            "orthographic": true,
+            "targetInFrame": false,
+            "cameraPitch": 0.0,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": -22.0
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "20-walkup-interior.png",
+            "scene": "LivingRoom",
+            "map": "walkup",
+            "room": "Cafe",
+            "view": "interior",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 9,
+            "selectedLights": 4,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -8.053647994995117,
+                "y": 1.6257503032684326,
+                "z": -2.303647518157959
+            },
+            "cameraForward": {
+                "x": 0.6973345279693604,
+                "y": -0.16567818820476532,
+                "z": 0.6973344087600708
+            },
+            "playerPosition": {
+                "x": -5.75,
+                "y": 1.1920928955078125e-7,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "21-walkup-upward-detail.png",
+            "scene": "LivingRoom",
+            "map": "walkup",
+            "room": "Cafe",
+            "view": "upward-detail",
+            "skybox": "DaylightSky",
+            "target": "Bulb glow",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 3,
+            "selectedLights": 4,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": true,
+            "cameraPitch": -0.32340630888938904,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -3.950866222381592,
+                "y": 0.3500001132488251,
+                "z": 1.9289686679840088
+            },
+            "cameraForward": {
+                "x": -0.6499056220054626,
+                "y": 0.3034535050392151,
+                "z": -0.6968061923980713
+            },
+            "playerPosition": {
+                "x": -5.75,
+                "y": 1.1920928955078125e-7,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "22-walkup-upper-interior.png",
+            "scene": "LivingRoom",
+            "map": "walkup",
+            "room": "GreenFlat",
+            "view": "upper-interior",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 27,
+            "selectedLights": 4,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -8.053117752075195,
+                "y": 7.625616550445557,
+                "z": -2.3031177520751953
+            },
+            "cameraForward": {
+                "x": 0.6973345279693604,
+                "y": -0.1656784862279892,
+                "z": 0.6973344087600708
+            },
+            "playerPosition": {
+                "x": -5.75,
+                "y": 6.000000476837158,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "23-walkup-upper-detail.png",
+            "scene": "LivingRoom",
+            "map": "walkup",
+            "room": "GreenFlat",
+            "view": "upper-detail",
+            "skybox": "DaylightSky",
+            "target": "Bulb glow",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 6,
+            "selectedLights": 4,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": true,
+            "cameraPitch": -0.3234063386917114,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -3.950866222381592,
+                "y": 6.350000381469727,
+                "z": 1.9289686679840088
+            },
+            "cameraForward": {
+                "x": -0.6499056220054626,
+                "y": 0.3034535050392151,
+                "z": -0.6968061923980713
+            },
+            "playerPosition": {
+                "x": -5.75,
+                "y": 6.000000476837158,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "24-walkup-mixed-floor-couch-21x9.png",
+            "scene": "LivingRoom",
+            "map": "walkup",
+            "room": "Cafe / GreenFlat",
+            "view": "mixed-floor-couch-21x9",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 2100,
+            "height": 900,
+            "localSeats": 2,
+            "visibleDetails": 0,
+            "selectedLights": 4,
+            "lightBudget": 4,
+            "thirdPerson": false,
+            "orthographic": true,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -0.03859145939350128,
+                "y": 32.73969268798828,
+                "z": -21.766265869140625
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.8064050674438477,
+                "z": 0.5913636088371277
+            },
+            "playerPosition": {
+                "x": -5.75,
+                "y": 6.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "25-hub-lobby.png",
+            "scene": "Hub",
+            "map": "hub",
+            "room": "",
+            "view": "lobby",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 0,
+            "visibleDetails": 0,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": false,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.0,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": 0.0,
+                "y": 0.949999988079071,
+                "z": -402.59002685546875
+            },
+            "cameraForward": {
+                "x": 0.0,
+                "y": -0.10653281211853027,
+                "z": 0.9943091869354248
+            },
+            "playerPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "file": "26-hub-exploration.png",
+            "scene": "Hub",
+            "map": "hub",
+            "room": "Hub",
+            "view": "exploration",
+            "skybox": "DaylightSky",
+            "target": "",
+            "graphicsPreset": "High",
+            "lightingProfile": "SunlitHouse",
+            "width": 1600,
+            "height": 900,
+            "localSeats": 1,
+            "visibleDetails": 0,
+            "selectedLights": 0,
+            "lightBudget": 4,
+            "thirdPerson": true,
+            "orthographic": false,
+            "targetInFrame": false,
+            "cameraPitch": 0.1599999964237213,
+            "sunIntensity": 1.100000023841858,
+            "cameraPosition": {
+                "x": -6.7176079750061035,
+                "y": 1.6257224082946777,
+                "z": -2.000000238418579
+            },
+            "cameraForward": {
+                "x": 0.9861798286437988,
+                "y": -0.16567829251289368,
+                "z": 1.9045546650886536e-7
+            },
+            "playerPosition": {
+                "x": -3.459977626800537,
+                "y": -5.960464477539063e-8,
+                "z": -2.0
+            }
+        }
+    ]
+}

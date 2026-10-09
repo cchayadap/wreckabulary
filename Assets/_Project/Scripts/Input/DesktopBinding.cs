@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Wreckabulary
 {
-    public class DesktopBinding : InputBinding
+    public class DesktopBinding : InputBinding, System.IDisposable
     {
         static DesktopBinding shared;
         public static bool Typing;
@@ -15,7 +15,7 @@ namespace Wreckabulary
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetShared()
         {
-            shared?.Map.Dispose();
+            shared?.Dispose();
             shared = null;
             Typing = false;
         }
@@ -27,7 +27,7 @@ namespace Wreckabulary
         PointerEventData uiPointer;
         EventSystem uiEvents;
 
-        DesktopBinding()
+        public DesktopBinding()
         {
             Move = Map.AddAction("Move", InputActionType.Value, expectedControlLayout: "Vector2");
             Move.AddCompositeBinding("2DVector")
@@ -49,8 +49,16 @@ namespace Wreckabulary
             Start = Button("Start", "<Keyboard>/enter");
             Point = Map.AddAction("Point", InputActionType.PassThrough, "<Mouse>/position", expectedControlLayout: "Vector2");
             Look = Map.AddAction("Look", InputActionType.PassThrough, "<Mouse>/delta", expectedControlLayout: "Vector2");
+            KeyBindings.IdentifyBindings(Map);
             KeyBindings.Load(Map);
             Map.Enable();
+        }
+
+        public void Dispose()
+        {
+            KeyBindings.CancelFor(Map);
+            Map.Dispose();
+            if (ReferenceEquals(shared, this)) shared = null;
         }
 
         InputAction Button(string actionName, params string[] paths)
@@ -66,7 +74,8 @@ namespace Wreckabulary
 
         public override void Read(ref PlayerCommands c)
         {
-            if (Typing || KeyBindings.Listening) return;
+            if (Typing || KeyBindings.GameplayBlocked || Time.timeScale <= 0f)
+            { dropHold = default; return; }
             c.move = Vector2.ClampMagnitude(Move.ReadValue<Vector2>(), 1f);
             c.attack = Attack.WasPressedThisFrame();
             c.attackHeld = Attack.IsPressed();
@@ -116,11 +125,11 @@ namespace Wreckabulary
             return uiHits.Count > 0;
         }
 
-        public override bool JoinPressed() =>
-            Jump.WasPressedThisFrame() || Interact.WasPressedThisFrame() ||
-            (Attack.WasPressedThisFrame() && !HitsUiNow());
+        public override bool JoinPressed() => !Typing && !KeyBindings.GameplayBlocked &&
+            (Jump.WasPressedThisFrame() || Interact.WasPressedThisFrame() ||
+            (Attack.WasPressedThisFrame() && !HitsUiNow()));
 
-        public override bool StartPressed() => Start.WasPressedThisFrame() ||
-            (TouchBinding.Shared.IsOverlayFor(Id) && TouchBinding.Shared.StartPressed());
+        public override bool StartPressed() => !Typing && !KeyBindings.GameplayBlocked &&
+            (Start.WasPressedThisFrame() || (TouchBinding.Shared.IsOverlayFor(Id) && TouchBinding.Shared.StartPressed()));
     }
 }

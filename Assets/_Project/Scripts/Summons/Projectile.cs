@@ -75,6 +75,8 @@ namespace Wreckabulary
             float blastRadius, float knockback, float breakPower, bool hurtOwner)
         {
             CameraRig.Shake(0.25f);
+            GameFeedback.Play(GameCue.Blast);
+            GameFeedback.Burst("Impact_Star", position + Vector3.up * .65f, Mathf.Min(2.2f, blastRadius), GameFeedback.SkillColor("BOMB"), .5f);
             Popup.Show("BOOM", position + Vector3.up, Color.white, 4f);
             var seen = new HashSet<Rigidbody>();
             foreach (var col in Physics.OverlapSphere(position, blastRadius, ~0, QueryTriggerInteraction.Ignore))

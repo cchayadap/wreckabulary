@@ -6,6 +6,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, "..", ".."))
 OUT = os.path.join(REPO, "Assets", "_Project", "Data", "Config", "items.json")
+WEB_OUT = os.path.join(REPO, "Web", "public", "data", "items.json")
 
 CORE = {
     "BAT": dict(family="MeleeSwing", hands=1, durability=20,
@@ -61,6 +62,33 @@ EXPANDED = {
     "POT": "Thrown", "FAN": "DeployZone", "PIE": "Thrown", "CAKE": "Heal", "SODA": "Buff", "WATER": "Heal", "APPLE": "Heal",
 }
 
+EXPANSION_STATS = {
+    "APPLE": dict(family="Heal", hands=1, durability=0, consumable=True,
+                  use=dict(effect="Heal", amount=30, channel=.55), notes="Eat to restore 30 HP after a short channel."),
+    "WATER": dict(family="Heal", hands=1, durability=0, consumable=True,
+                  use=dict(effect="Heal", amount=18, channel=.25), notes="Drink quickly to restore 18 HP."),
+    "CAKE": dict(family="Heal", hands=1, durability=0, consumable=True,
+                 use=dict(effect="Heal", amount=50, channel=1.1), notes="Restore 50 HP. The longer eating channel can be interrupted."),
+    "SODA": dict(family="Buff", hands=1, durability=0, consumable=True,
+                 use=dict(effect="Speed", amount=1.35, seconds=6, channel=.35), notes="Drink for 1.35x movement speed for 6 seconds. Refreshes instead of stacking."),
+    "SHIELD": dict(family="Shield", hands=1, durability=90,
+                   shield={"frontArc": 360, "reduction": 1, "moveSpeed": .55, "raise": .22}, notes="Hold to block from every direction. Raising it slows movement; blocked damage wears it down."),
+    "FAN": dict(family="DeployZone", hands=1, durability=45,
+                deploy=dict(effect="WindField", place=.7, radius=3.2, strength=8, lifetime=12, arc=90), notes="Place a fan that pushes nearby players in a forward cone for 12 seconds. Walls block the wind."),
+    "CLOCK": dict(family="DeployZone", hands=1, durability=40,
+                  deploy=dict(effect="SlowField", place=.6, radius=2.75, strength=.6, lifetime=10, arc=360), notes="Place a clock that slows nearby players to 60% speed for 10 seconds. Walls block the field."),
+    "BROOM": dict(family="MeleeSwing", hands=1, durability=28,
+                  melee=dict(damage=10, reach=2.2, arc=145, windup=.28, active=.14, recovery=.38, knockback=9, breakPower=1, hitStun=.22), notes="Wide sweeps push a crowd back, with light damage."),
+    "HAMMER": dict(family="MeleeSwing", hands=1, durability=30,
+                   melee=dict(damage=28, reach=1.25, arc=75, windup=.5, active=.12, recovery=.65, knockback=8, breakPower=4.5, hitStun=.42), notes="A slow, heavy swing with strong furniture-breaking power."),
+    "SPEAR": dict(family="MeleeThrust", hands=1, durability=20,
+                  melee=dict(damage=18, reach=2.9, arc=18, windup=.32, active=.08, recovery=.42, knockback=3.5, breakPower=1.5, hitStun=.2), notes="A narrow thrust with the longest melee reach."),
+    "PIE": dict(family="Thrown", hands=1, durability=0, consumable=True,
+                thrown=dict(damage=8, speed=13, lob=False, recoverable=False, knockback=3, breakPower=.5), notes="A single-use pie splats on its first impact. Spends its letters when thrown."),
+    "STOOL": dict(family="DeployPad", hands=2, durability=45,
+                  deploy=dict(effect="JumpPad", place=.35, strength=8.5), notes="A compact jump pad that places quickly and launches lower than BED."),
+}
+
 LEGACY = {
     "AXE": "Fast and weak (team word).", "SWORD": "Team word.", "UMBRELLA": "Long and powerful block (team word, hidden).",
     "WINGS": "Short glide (team word).", "ROPE": "Grapple (team word).", "BEES": "Swarm chases the nearest player (team word).",
@@ -112,13 +140,13 @@ def build(recipes, snaps):
             "id": word,
             "category": r["category"],
             "tier": "Core" if core else "Expanded",
-            "enabled": core,
+            "enabled": core or word in EXPANSION_STATS,
             "consumable": bool(r["consumed_on_use"]),
             "model": f"Items/{word}",
         }
         entry.update(asset_facts(r, snaps))
-        if core:
-            d = dict(CORE[word])
+        if entry["enabled"]:
+            d = dict(CORE[word] if core else EXPANSION_STATS[word])
             if d.pop("consumable", False) != entry["consumable"]:
                 raise SystemExit(f"{word}: consumable flag disagrees with the pack")
             if "deploy" in d:
@@ -139,33 +167,60 @@ def build(recipes, snaps):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--recipes", required=True)
+    p.add_argument("--recipes", help="Vault v2 recipe manifest; required to rebuild, optional for checking original asset facts")
     p.add_argument("--check", action="store_true")
     args = p.parse_args()
-    with open(args.recipes, encoding="utf-8") as f:
-        recipes = json.load(f)
-    snaps = floor_snaps()
+    recipes = None
+    if args.recipes:
+        with open(args.recipes, encoding="utf-8") as f:
+            recipes = json.load(f)
+    elif not args.check:
+        p.error("--recipes is required to rebuild the catalogue")
     if args.check:
         with open(OUT, encoding="utf-8") as f:
-            current = {i["id"]: i for i in json.load(f)["items"]}
+            data = json.load(f)
+        current = {i["id"]: i for i in data["items"]}
         problems = []
-        for r in recipes["recipes"]:
-            word = r["canonical_word"]
-            have = current.get(word)
-            if have is None:
-                problems.append(f"{word} is missing from items.json")
-                continue
-            for k, v in asset_facts(r, snaps).items():
-                if have.get(k) != v:
-                    problems.append(f"{word}.{k}: items.json has {have.get(k)}, the pack says {v}")
-        print("CHECK_RESULT " + json.dumps({"items": len(recipes["recipes"]), "problems": problems}))
+        expected = dict(CORE, **EXPANSION_STATS)
+        enabled = {i["id"] for i in data["items"] if i.get("enabled")}
+        if enabled != set(expected):
+            problems.append(f"enabled recipes differ: missing={sorted(set(expected) - enabled)}, unexpected={sorted(enabled - set(expected))}")
+        for word, stats in expected.items():
+            have = current.get(word, {})
+            for key, value in stats.items():
+                if key == "notes":
+                    continue
+                if key == "deploy":
+                    value = dict(value, footprint=[have.get("size", [0, 0, 0])[0], have.get("size", [0, 0, 0])[2]])
+                if have.get(key, False if key == "consumable" else None) != value:
+                    problems.append(f"{word}.{key}: differs from the seeded gameplay contract")
+            icon = os.path.join(REPO, "Assets", "_Project", "Resources", "UI", "Items", word + ".png")
+            if not os.path.isfile(icon):
+                problems.append(f"{word}: imported recipe icon missing")
+        with open(WEB_OUT, encoding="utf-8") as f:
+            if json.load(f) != data:
+                problems.append("Web items.json is not synchronized with Unity")
+        if recipes:
+            snaps = floor_snaps()
+            for r in recipes["recipes"]:
+                word = r["canonical_word"]
+                have = current.get(word)
+                if have is None:
+                    problems.append(f"{word} is missing from items.json")
+                    continue
+                for k, v in asset_facts(r, snaps).items():
+                    if have.get(k) != v:
+                        problems.append(f"{word}.{k}: items.json has {have.get(k)}, the pack says {v}")
+        print("CHECK_RESULT " + json.dumps({"items": len(current), "enabled": len(enabled), "vaultFactsChecked": recipes is not None, "problems": problems}))
         sys.exit(1 if problems else 0)
-    data = build(recipes, snaps)
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(data, f, indent=1)
-        f.write("\n")
-    print(f"SEED_RESULT wrote {len(data['items'])} items to {os.path.relpath(OUT, REPO)}")
+    data = build(recipes, floor_snaps())
+    for destination in (OUT, WEB_OUT):
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        with open(destination, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(data, f, indent=1)
+            f.write("\n")
+    print(f"SEED_RESULT wrote {len(data['items'])} items to Unity and Web")
 
 
-main()
+if __name__ == "__main__":
+    main()

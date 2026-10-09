@@ -9,6 +9,8 @@ namespace Wreckabulary.Rules.Tests
     {
         static readonly string[] Core12 = { "BAT", "BLADE", "LAMP", "BALL", "PLATE", "TABLE", "BED", "MAT", "SOFA", "SOAP", "FOAM", "BOMB" };
 
+        static readonly string[] Expansion12 = { "APPLE", "WATER", "CAKE", "SODA", "SHIELD", "FAN", "CLOCK", "BROOM", "HAMMER", "SPEAR", "PIE", "STOOL" };
+
         ItemCatalogue catalogue;
 
         [SetUp]
@@ -21,9 +23,10 @@ namespace Wreckabulary.Rules.Tests
         }
 
         [Test]
-        public void ExactlyTheCore12AreEnabled()
+        public void CoreAndCompletedExpansionRecipesAreEnabled()
         {
-            CollectionAssert.AreEquivalent(Core12, catalogue.Enabled.Select(i => i.Id));
+            CollectionAssert.AreEquivalent(Core12.Concat(Expansion12), catalogue.Enabled.Select(i => i.Id));
+            Assert.IsTrue(Expansion12.All(id => catalogue.Get(id).Tier == ItemTier.Expanded));
         }
 
         [Test]
@@ -71,7 +74,7 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void ConsumablesSpendTheirLettersAndReusablesHaveDurability()
         {
-            CollectionAssert.AreEquivalent(new[] { "SOAP", "FOAM", "BOMB" }, catalogue.Enabled.Where(i => i.Consumable).Select(i => i.Id));
+            CollectionAssert.AreEquivalent(new[] { "SOAP", "FOAM", "BOMB", "APPLE", "WATER", "CAKE", "SODA", "PIE" }, catalogue.Enabled.Where(i => i.Consumable).Select(i => i.Id));
             foreach (var item in catalogue.Enabled.Where(i => !i.Consumable)) Assert.Greater(item.Durability, 0, item.Id);
         }
 
@@ -96,6 +99,43 @@ namespace Wreckabulary.Rules.Tests
         }
 
         [Test]
+        public void ExpandedEffectsHaveDistinctPlayableContracts()
+        {
+            Assert.AreEqual(UseEffect.Heal, catalogue.Get("APPLE").Use.Effect);
+            Assert.AreEqual(30f, catalogue.Get("APPLE").Use.Amount);
+            Assert.Less(catalogue.Get("WATER").Use.ChannelSeconds, catalogue.Get("APPLE").Use.ChannelSeconds);
+            Assert.Greater(catalogue.Get("CAKE").Use.Amount, catalogue.Get("APPLE").Use.Amount);
+            Assert.AreEqual(UseEffect.Speed, catalogue.Get("SODA").Use.Effect);
+            Assert.AreEqual(360f, catalogue.Get("SHIELD").Shield.FrontArcDegrees);
+            Assert.AreEqual(DeployEffect.WindField, catalogue.Get("FAN").Deploy.Effect);
+            Assert.AreEqual(90f, catalogue.Get("FAN").Deploy.ArcDegrees);
+            Assert.AreEqual(DeployEffect.SlowField, catalogue.Get("CLOCK").Deploy.Effect);
+            Assert.AreEqual(.6f, catalogue.Get("CLOCK").Deploy.Strength);
+            Assert.AreEqual(360f, catalogue.Get("CLOCK").Deploy.ArcDegrees);
+            Assert.AreEqual(360f, catalogue.Get("BED").Deploy.ArcDegrees, "Older data defaults to a full circle.");
+            Assert.IsTrue(catalogue.Get("PIE").Consumable);
+            Assert.IsFalse(catalogue.Get("PIE").Thrown.Recoverable);
+            Assert.AreEqual(DeployEffect.JumpPad, catalogue.Get("STOOL").Deploy.Effect);
+            Assert.Greater(catalogue.Get("BROOM").Melee.ArcDegrees, catalogue.Get("BAT").Melee.ArcDegrees);
+            Assert.Greater(catalogue.Get("HAMMER").Melee.BreakPower, catalogue.Get("BAT").Melee.BreakPower);
+            Assert.Greater(catalogue.Get("SPEAR").Melee.Reach, catalogue.Get("LAMP").Melee.Reach);
+        }
+
+        [Test]
+        public void InvalidPowerContractsFailBeforeGameplay()
+        {
+            catalogue.Get("CLOCK").Deploy.Strength = 1.1f;
+            catalogue.Get("FAN").Deploy.ArcDegrees = 361f;
+            catalogue.Get("SODA").Use.Seconds = 0f;
+            catalogue.Get("WATER").Use.Amount = float.NaN;
+            catalogue.Get("PIE").Thrown.Recoverable = true;
+            catalogue.Get("SHIELD").Shield.DamageReduction = 2f;
+            var errors = catalogue.Validate(10);
+            foreach (var id in new[] { "CLOCK", "FAN", "SODA", "WATER", "PIE", "SHIELD" })
+                Assert.IsTrue(errors.Any(error => error.StartsWith(id + ":")), id);
+        }
+
+        [Test]
         public void DeployFootprintMatchesTheModelsFloorSize()
         {
             foreach (var item in catalogue.All.Where(i => i.Deploy != null))
@@ -109,7 +149,7 @@ namespace Wreckabulary.Rules.Tests
         public void CardsPutCraftableRecipesFirst()
         {
             var cards = catalogue.Cards(LetterBag.FromWord("BATL"));
-            Assert.AreEqual(12, cards.Count);
+            Assert.AreEqual(24, cards.Count);
             Assert.AreEqual("BAT", cards[0].Item.Id);
             Assert.IsTrue(cards[0].Craftable);
             Assert.AreEqual("BALL", cards[1].Item.Id, "BALL is one L short");
