@@ -164,6 +164,8 @@ namespace Wreckabulary
         public void SetMap(string mapId)
         {
             if (Map == mapId && set) return;
+            if (!GameConfig.Current.Houses.ContainsKey(mapId))
+                foreach (var key in GameConfig.Current.Houses.Keys) { mapId = key; break; }
             var layout = GameConfig.Current.HouseFor(mapId);
             if (set) { set.gameObject.SetActive(false); TactileMaterials.Release(set.gameObject); Destroy(set.gameObject); }
             set = new GameObject("Lobby backdrop · " + layout.Name).transform;

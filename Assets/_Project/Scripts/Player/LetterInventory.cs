@@ -70,6 +70,19 @@ namespace Wreckabulary
             return true;
         }
 
+        /// <summary>Puts one chosen letter back into the world (used when the bag is full).</summary>
+        public bool DropLetter(char c, Vector3 from, Vector3 direction)
+        {
+            c = char.ToUpperInvariant(c);
+            int at = letters.IndexOf(c);
+            if (at < 0) return false;
+            letters.RemoveAt(at);
+            var pool = TilePool.Instance;
+            if (pool) pool.Get(c).Launch(from + Vector3.up * 1.2f, direction * 4f, this);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Knocks random letters loose into the world.</summary>
         public void DropRandom(int count, Vector3 from, Vector3 hitDirection)
         {

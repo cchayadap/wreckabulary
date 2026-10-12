@@ -512,6 +512,11 @@
    "Kitchen",
    "Bedroom",
    "Study"
+  ],
+  "Escape": [
+   "Kitchen",
+   "Bedroom",
+   "Study"
   ]
  },
  "extractionAt": [

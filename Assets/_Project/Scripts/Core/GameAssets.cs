@@ -68,12 +68,27 @@ namespace Wreckabulary
             if (!Application.isPlaying && EditorTintFactory != null)
             {
                 var saved = EditorTintFactory(c);
+                ApplyTint(saved, c);
                 tints.Add(saved);
                 return saved;
             }
             var mat = new Material(tintBase) { color = c };
+            ApplyTint(mat, c);
             runtimeTints[c] = mat;
             return mat;
+        }
+
+        /// <summary>
+        /// URP/Lit keeps its colour in _BaseColor and only carries _Color as an obsolete leftover, so
+        /// setting Material.color alone left every tinted object white. Write both.
+        /// </summary>
+        static void ApplyTint(Material material, Color colour)
+        {
+            if (!material) return;
+            colour.a = 1f;
+            material.color = colour;
+            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", colour);
+            if (material.HasProperty("_Color")) material.SetColor("_Color", colour);
         }
 
         public Material TileMaterial(LetterRarity rarity) => rarity switch

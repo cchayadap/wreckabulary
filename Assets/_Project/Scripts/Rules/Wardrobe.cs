@@ -9,7 +9,12 @@ namespace Wreckabulary.Rules
         public string Id;
         public string Slot;
         public string Mesh;
-        public string TintMaterial;
+
+        /// <summary>Every material slot this piece recolours: one name, or several (a bag tints its straps too).</summary>
+        public List<string> TintMaterials = new List<string>();
+
+        /// <summary>The first tinted material, for callers that only need to know the piece is tinted at all.</summary>
+        public string TintMaterial => TintMaterials.Count > 0 ? TintMaterials[0] : null;
         public string ColourFrom;
         public List<string> Requires = new List<string>();
         public List<string> Excludes = new List<string>();
@@ -183,7 +188,7 @@ namespace Wreckabulary.Rules
                     if (Piece(r) == null) problems.Add($"{p.Id} refers to unknown piece {r}");
                 if (p.ColourFrom != null && !Slots.Contains(p.ColourFrom)) problems.Add($"{p.Id} takes its colour from unknown slot {p.ColourFrom}");
                 string tintSlot = p.ColourFrom ?? p.Slot;
-                if (p.TintMaterial != null && !Palettes.ContainsKey(tintSlot)) problems.Add($"{p.Id} is tinted but {tintSlot} has no palette");
+                if (p.TintMaterials.Count > 0 && !Palettes.ContainsKey(tintSlot)) problems.Add($"{p.Id} is tinted but {tintSlot} has no palette");
             }
             foreach (string s in RequiredSlots)
                 if (!PiecesFor(s).Any()) problems.Add($"required slot {s} has no pieces");
@@ -200,6 +205,25 @@ namespace Wreckabulary.Rules
             return problems;
         }
 
+        /// <summary>
+        /// "tint" is one material name or a list of them, so a piece can recolour several slots at once
+        /// (the satchel's canvas and straps), while shared hardware stays its own colour.
+        /// </summary>
+        static List<string> ReadTints(JsonNode node)
+        {
+            var names = new List<string>();
+            if (node == null || node.IsNull) return names;
+            if (node.IsArray)
+            {
+                foreach (string name in node.Strings() ?? new List<string>())
+                    if (!string.IsNullOrEmpty(name)) names.Add(name);
+                return names;
+            }
+            string single = node.String(null);
+            if (!string.IsNullOrEmpty(single)) names.Add(single);
+            return names;
+        }
+
         public static WardrobeCatalogue FromJson(string json, string source = "wardrobe.json")
         {
             var root = Json.Parse(json, source);
@@ -213,7 +237,7 @@ namespace Wreckabulary.Rules
                     Id = n["id"].String(),
                     Slot = n["slot"].String(),
                     Mesh = n["mesh"].String(),
-                    TintMaterial = n["tint"].String(null),
+                    TintMaterials = ReadTints(n["tint"]),
                     ColourFrom = n["colourFrom"].String(null),
                     Requires = n["requires"].Strings(),
                     Excludes = n["excludes"].Strings(),

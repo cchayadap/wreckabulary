@@ -12,7 +12,7 @@ namespace Wreckabulary.Rules.Tests
         {
             var book = TestData.LoadRuleBook();
             Assert.IsEmpty(book.Validate());
-            CollectionAssert.AreEquivalent(new[] { "Hub", "Tutorial", "Dibs", "Duos", "MovingOut", "MovingDay" }, book.Modes);
+            CollectionAssert.AreEquivalent(new[] { "Hub", "Tutorial", "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" }, book.Modes);
         }
 
         [Test]

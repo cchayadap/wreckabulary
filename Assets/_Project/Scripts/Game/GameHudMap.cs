@@ -50,6 +50,7 @@ namespace Wreckabulary
             public List<float> floors;
             public MovingOutDirector movingOut;
             public MovingDayDirector movingDay;
+            public EscapeDirector escape;
             public int storey = -1;
             public float originX, originZ, extent, nextProps, nextTransient;
             public Vector2 At(float x, float z) => new((x - originX) / extent, (z - originZ) / extent);
@@ -89,6 +90,7 @@ namespace Wreckabulary
                 map.floors = layout.StoreyFloors();
                 map.movingOut = FindAnyObjectByType<MovingOutDirector>();
                 map.movingDay = FindAnyObjectByType<MovingDayDirector>();
+                map.escape = FindAnyObjectByType<EscapeDirector>();
                 map.storey = -1;
             }
             var cutaway = StoreyCutaway.Instance;
@@ -207,13 +209,14 @@ namespace Wreckabulary
             }
             map.markerLayer = MapLayer("Markers", map.plan);
             map.extraction = null;
-            if ((map.movingOut || map.movingDay) && map.layout.ExtractionRoom != null)
+            if ((map.movingOut || map.movingDay || map.escape) && map.layout.ExtractionRoom != null)
             {
                 map.extraction = Panel("Delivery point", map.markerLayer, Vector2.zero, Vector2.zero,
-                    Vector2.one * (map.full ? 23f : 14f), Vector2.one * .5f, Hex(0xf6ce6d), true).GetComponent<Image>();
+                    Vector2.one * (map.full ? 23f : 14f), Vector2.one * .5f,
+                    map.escape ? Hex(0x8fd18b) : Hex(0xf6ce6d), true).GetComponent<Image>();
                 var text = Text("Symbol", map.extraction.transform, Vector2.one * .5f, Vector2.zero,
                     Vector2.one * (map.full ? 30f : 20f), map.full ? 11f : 9f, Ink);
-                text.text = map.movingOut ? "V" : "+"; text.fontStyle = FontStyles.Bold;
+                text.text = map.movingOut ? "V" : map.escape ? "E" : "+"; text.fontStyle = FontStyles.Bold;
             }
             map.badge = Text("Storey", map.plan, new Vector2(0f, 1f), new Vector2(5f, -3f),
                 new Vector2(190f, map.full ? 22f : 14f), map.full ? 14f : 9f, Cream, TextAlignmentOptions.TopLeft);
@@ -305,12 +308,14 @@ namespace Wreckabulary
 
         void UpdateMapObjectives(MapView map)
         {
+            string guide = map.escape ? map.escape.GuideRoom : null;
             foreach (var room in map.rooms)
             {
                 bool pending = false;
                 if (map.movingDay)
                     foreach (var objective in map.movingDay.Remaining)
                         if (objective.room == room.box.Name) { pending = true; break; }
+                if (!string.IsNullOrEmpty(guide) && room.box.Name == guide) pending = true;
                 if (room.objective == pending) continue;
                 room.objective = pending;
                 room.label.color = pending ? Hex(0xffd878) : Cream;
@@ -318,8 +323,11 @@ namespace Wreckabulary
             }
             if (!map.extraction) return;
             var roomAt = map.layout.Room(map.layout.ExtractionRoom);
-            var position = map.movingOut ? map.movingOut.ExtractionPoint : new Vector3(map.layout.ExtractionX, roomAt.FloorY, map.layout.ExtractionZ);
-            map.extraction.gameObject.SetActive(map.Storey(position.y) == map.storey);
+            var position = map.escape ? map.escape.ExtractionPoint
+                : map.movingOut ? map.movingOut.ExtractionPoint
+                : new Vector3(map.layout.ExtractionX, roomAt.FloorY, map.layout.ExtractionZ);
+            bool revealed = map.escape == null || map.escape.ExitRevealed;
+            map.extraction.gameObject.SetActive(revealed && map.Storey(position.y) == map.storey);
             map.extraction.rectTransform.anchorMin = map.extraction.rectTransform.anchorMax = map.At(position.x, position.z);
         }
 

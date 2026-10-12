@@ -92,8 +92,53 @@ namespace Wreckabulary
             return 0;
         }
 
-        public static string KeyName(InputAction action, int binding) =>
-            action.GetBindingDisplayString(binding).ToUpperInvariant();
+        public static string KeyName(InputAction action, int binding)
+        {
+            if (action == null) return "";
+            string display = action.GetBindingDisplayString(binding);
+            if (IsLatin(display)) return display.ToUpperInvariant();
+            return PhysicalKey(binding >= 0 && binding < action.bindings.Count ? action.bindings[binding].path : null);
+        }
+
+        /// <summary>
+        /// The key shown for a whole binding, or one part of a composite. A Chinese or Japanese keyboard
+        /// layout names keys with 倉頡-style radicals our HUD font cannot draw, which spammed font
+        /// warnings and drew empty boxes, so anything non-Latin falls back to the physical key.
+        /// </summary>
+        public static string Display(InputAction action, int binding = -1)
+        {
+            if (action == null) return "";
+            string display = binding < 0 ? action.GetBindingDisplayString() : action.GetBindingDisplayString(binding);
+            if (IsLatin(display)) return display.ToUpperInvariant();
+
+            if (binding < 0)
+            {
+                // A composite reads back as "W/A/S/D"-style text: rebuild it from the physical parts.
+                var parts = new List<string>();
+                for (int i = 0; i < action.bindings.Count; i++)
+                    if (action.bindings[i].isPartOfComposite) parts.Add(PhysicalKey(action.bindings[i].path));
+                if (parts.Count > 0) return string.Join("/", parts).ToUpperInvariant();
+            }
+            return PhysicalKey(binding >= 0 && binding < action.bindings.Count ? action.bindings[binding].path : null);
+        }
+
+        /// <summary>The physical key behind a binding path: "&lt;Keyboard&gt;/q" → "Q", "&lt;Keyboard&gt;/digit1" → "1".</summary>
+        static string PhysicalKey(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return "?";
+            int slash = path.LastIndexOf('/');
+            string key = slash >= 0 ? path.Substring(slash + 1) : path;
+            if (key.Length == 1) return key.ToUpperInvariant();
+            return key.Replace("Digit", string.Empty).Replace("Arrow", string.Empty).ToUpperInvariant();
+        }
+
+        /// <summary>True when a font we ship can actually draw every character of this text.</summary>
+        public static bool IsLatin(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return true;
+            foreach (char c in text) if (c > 126) return false;
+            return true;
+        }
 
         public static void Load(InputActionMap map)
         {

@@ -67,7 +67,7 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void TheShippedOrdersCoverTheClearOutModes()
         {
-            CollectionAssert.AreEquivalent(new[] { "Dibs", "Duos", "MovingOut" }, house.ClearOutOrders.Keys);
+            CollectionAssert.AreEquivalent(new[] { "Dibs", "Duos", "MovingOut", "Escape" }, house.ClearOutOrders.Keys);
             CollectionAssert.DoesNotContain(house.ClearOutOrders["MovingOut"], house.ExtractionRoom, "the van's room stays open");
         }
 

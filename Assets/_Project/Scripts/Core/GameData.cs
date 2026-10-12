@@ -55,6 +55,13 @@ namespace Wreckabulary
 
         public static GameConfig Current => current ??= Load();
 
+        /// <summary>
+        /// Drops the cached catalogue at the start of every play session. This project turns domain reload
+        /// off, so without this a rules, items or wardrobe edit stayed stale until the Editor restarted.
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => current = null;
+
         public static void Use(GameConfig config) => current = config;
 
         public GameConfig(RuleBook rules, ItemCatalogue items, HouseLayout house, WardrobeCatalogue wardrobe,

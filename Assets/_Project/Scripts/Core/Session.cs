@@ -54,12 +54,24 @@ namespace Wreckabulary
 
         public static string SceneForMode(string mode) => mode switch
         {
-            "Dibs" or "Duos" or "MovingOut" => DibsScene,
+            "Dibs" or "Duos" or "MovingOut" or "Escape" => DibsScene,
             "MovingDay" => MovingDayScene,
             "Tutorial" => TutorialScene,
             "Hub" => HubScene,
             _ => throw new System.ArgumentException($"Unknown mode '{mode}'.", nameof(mode)),
         };
+
+
+        /// <summary>Map id the lobby uses to ask for a fresh house every run.</summary>
+        public const string LobbyRandomMap = "random";
+
+        /// <summary>Picks one of the authored houses for a randomised run.</summary>
+        public static string RandomHouseId()
+        {
+            var ids = new System.Collections.Generic.List<string>();
+            foreach (var key in GameConfig.Current.Houses.Keys) ids.Add(key);
+            return ids.Count == 0 ? "pinwheel" : ids[UnityEngine.Random.Range(0, ids.Count)];
+        }
 
         public static void SelectMap(string mapId)
         {
@@ -70,6 +82,7 @@ namespace Wreckabulary
         public static void LoadMode(string mode, string mapId = null)
         {
             var scene = SceneForMode(mode);
+            if (mode == "Escape" && (string.IsNullOrEmpty(mapId) || mapId == LobbyRandomMap)) mapId = RandomHouseId();
             if (mapId != null) SelectMap(mapId);
             Match.ModeOverride = mode;
             Time.timeScale = 1f;

@@ -4,6 +4,7 @@ using UnityEngine.InputSystem.Controls;
 
 namespace Wreckabulary
 {
+    [System.Serializable]
     public struct PlayerCommands
     {
         public Vector2 move;
