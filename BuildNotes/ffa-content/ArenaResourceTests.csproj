@@ -10,6 +10,7 @@
     <Compile Include="../../../wordbound-integration/Packages/com.gamestudiokit.core/Runtime/Determinism/*.cs" />
     <Compile Include="../../../wordbound-integration/Assets/_Project/Tests/Rules/TestData.cs" />
     <Compile Include="../../Assets/_Project/Tests/Rules/WordboundArenaResourceTests.cs" />
+    <Compile Include="../../Assets/_Project/Tests/Rules/WordboundArenaSeedTests.cs" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
