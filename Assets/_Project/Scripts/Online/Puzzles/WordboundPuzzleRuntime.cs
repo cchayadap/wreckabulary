@@ -145,7 +145,7 @@ namespace Wreckabulary.Online
             if (controller.PhysicsWorld == null || !controller.PhysicsWorld.IsHost || controller.CourseWorld == null ||
                 frame == null || !ReferenceEquals(frame, controller.Frame))
                 throw new InvalidOperationException("Physical puzzles run only against the current host runner frame.");
-            proof.Validate(frame.Binding);
+            proof.Validate(frame.Binding, controller.PhysicsWorld.Rules);
             scene = controller.PhysicsWorld.PhysicsScene;
             if (!scene.IsValid() || scene == UnityEngine.Physics.defaultPhysicsScene ||
                 controller.CourseWorld.ManifestHash != proof.Course.Hash)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 
@@ -78,18 +79,35 @@ namespace Wreckabulary.Online
     public sealed class WordboundPuzzleProof
     {
         readonly string itemJson;
+        readonly GameRules gameRules;
         public ModeDefinition Mode { get; }
         public CourseCatalogue Geometry { get; }
         public ResolvedCourse Course { get; }
         public WordboundPuzzlePlan Plan { get; }
         public string ItemSourceHash { get; }
         public string CatalogueHash { get; }
+        public bool BindsRules => gameRules != null;
+        public string RuleSourceHash { get; }
+        public string EffectiveRulesHash { get; }
+        public GameRules Rules => gameRules?.Clone() ??
+            throw new InvalidOperationException("This historical proof did not bind a rule-book source.");
         public ItemCatalogue Items => ItemCatalogue.FromJson(itemJson);
 
-        WordboundPuzzleProof(string json, ModeDefinition mode, string seed)
+        WordboundPuzzleProof(string json, ModeDefinition mode, string seed, string ruleBookJson)
         {
             if (json == null || json.Length > CourseLimits.DocumentBytes) throw new ArgumentException("Item catalogue exceeds the proof bound.");
             itemJson = json; Mode = mode;
+            if (ruleBookJson != null)
+            {
+                CheckRuleSource(ruleBookJson);
+                var book = RuleBook.FromJson(ruleBookJson);
+                if (book.Validate().Count != 0) throw new ArgumentException("The actual rule book is invalid.");
+                gameRules = mode.CreateGameplayRules(book.For("Dibs"));
+                if (gameRules.Validate().Count != 0) throw new ArgumentException("Effective proof gameplay rules are invalid.");
+                RuleSourceHash = WordboundIdentity.Sha256(ruleBookJson);
+                EffectiveRulesHash = WordboundRulesFingerprint.Compute(gameRules);
+            }
+            else RuleSourceHash = EffectiveRulesHash = "";
             var items = Items;
             if (items.Validate(64).Count != 0) throw new ArgumentException("The actual item catalogue is invalid.");
             foreach (string id in new[] { "BED", "STOOL" })
@@ -128,21 +146,52 @@ namespace Wreckabulary.Online
             Course = resolved.Manifest;
             Plan = new WordboundPuzzlePlan(Course);
             ItemSourceHash = WordboundIdentity.Sha256(json);
-            CatalogueHash = WordboundIdentity.Sha256(string.Join("|", "wordbound.proof-content", "2",
-                Geometry.Hash, ItemSourceHash, Plan.Hash));
+            CatalogueHash = BindsRules
+                ? WordboundIdentity.Sha256(string.Join("|", "wordbound.proof-content", "3",
+                    Geometry.Hash, ItemSourceHash, Plan.Hash, RuleSourceHash, EffectiveRulesHash))
+                : WordboundIdentity.Sha256(string.Join("|", "wordbound.proof-content", "2",
+                    Geometry.Hash, ItemSourceHash, Plan.Hash));
         }
         public static WordboundPuzzleProof Create(string itemCatalogueJson, string modeId = "TimeRun",
-            RaceFormat format = RaceFormat.Solo, string seed = "0123456789abcdef")
+            RaceFormat format = RaceFormat.Solo, string seed = "0123456789abcdef", string ruleBookJson = null)
         {
             var mode = ModeDefinition.For(modeId, format);
             if (!mode.IsRace) throw new NotSupportedException("This built-in physical proof is a three-lap race course.");
-            return new WordboundPuzzleProof(itemCatalogueJson, mode, seed);
+            return new WordboundPuzzleProof(itemCatalogueJson, mode, seed, ruleBookJson);
         }
         public void Validate(MatchBinding binding)
         {
             Plan.Validate(binding);
             if (binding.ModeHash != Mode.Hash || binding.CatalogueHash != CatalogueHash)
                 throw new ArgumentException("The physical proof content bundle differs from signed admission.");
+        }
+        public void Validate(MatchBinding binding, GameRules actualRules)
+        {
+            Validate(binding);
+            if (BindsRules && WordboundRulesFingerprint.Compute(actualRules) != EffectiveRulesHash)
+                throw new ArgumentException("Runtime gameplay rules differ from the signed physical proof bundle.");
+        }
+        static void CheckRuleSource(string source)
+        {
+            if (source.Length > CourseLimits.DocumentBytes || Encoding.UTF8.GetByteCount(source) > CourseLimits.DocumentBytes)
+                throw new ArgumentException("Rule book exceeds the proof bound.");
+            int depth = 0;
+            bool quoted = false, escaped = false;
+            foreach (char c in source)
+            {
+                if (quoted)
+                {
+                    if (escaped) escaped = false;
+                    else if (c == '\\') escaped = true;
+                    else if (c == '"') quoted = false;
+                }
+                else if (c == '"') quoted = true;
+                else if (c == '{' || c == '[')
+                {
+                    if (++depth > 16) throw new ArgumentException("Rule-book nesting exceeds the proof bound.");
+                }
+                else if (c == '}' || c == ']') depth--;
+            }
         }
         static int Mm(float value) => checked((int)Math.Ceiling(value * 1000d));
     }
