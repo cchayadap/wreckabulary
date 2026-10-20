@@ -47,6 +47,15 @@ namespace Wreckabulary.Online
 
     public sealed class WordboundFusionSession : INetworkRunnerCallbacks
     {
+        sealed class RunScope
+        {
+            public readonly CancellationTokenSource Cancellation = new CancellationTokenSource();
+            public readonly HashSet<PlayerRef> Authorizing = new HashSet<PlayerRef>();
+            public NetworkRunner Runner;
+            public WordboundFusionJoin Join;
+            public bool Publishing, Beginning, Renewing;
+            public long RenewAt;
+        }
         const int WireChannel = 0x57424e44;
         readonly Func<NetworkRunner> createRunner;
         readonly Func<CancellationToken, Task<WordboundFusionJoin>> credentials;
@@ -62,21 +71,19 @@ namespace Wreckabulary.Online
         readonly Dictionary<PlayerRef, (long Window, int Count)> rates = new Dictionary<PlayerRef, (long, int)>();
         readonly Dictionary<PlayerRef, OnlineSnapshotMark> sentMarks = new Dictionary<PlayerRef, OnlineSnapshotMark>();
         readonly Dictionary<PlayerRef, OnlineConnectionLease> leases = new Dictionary<PlayerRef, OnlineConnectionLease>();
-        readonly HashSet<PlayerRef> authorizing = new HashSet<PlayerRef>();
         readonly List<WordboundFusionSnapshotChunk> carriers = new List<WordboundFusionSnapshotChunk>();
         readonly CancellationTokenSource lifetime = new CancellationTokenSource();
         OnlineSessionGate gate;
-        WordboundFusionJoin join;
+        RunScope activeRun;
+        long runGeneration;
         OnlineSnapshotMark receivedMark, committedMark;
         byte[][] receivedChunks;
         string receivedWireHash;
         int receivedBytes;
         long incomingStarted;
-        bool localReady, localAdmitted, publishing, migrating, restored, initialStarted, beginning, beginReceived;
+        bool localReady, localAdmitted, migrating, restored, initialStarted, beginReceived;
         OnlineSnapshotPacket committedPacket;
         int wireSequence;
-        long renewAt;
-        bool renewing;
         public NetworkRunner Runner { get; private set; }
         public bool GameplayReady { get; private set; }
         public string Failure { get; private set; } = "";
@@ -118,10 +125,34 @@ namespace Wreckabulary.Online
             initialStarted = true;
             return StartRunner(null, cancellationToken);
         }
+        bool IsCurrent(RunScope run) => run != null && ReferenceEquals(run, activeRun) &&
+            !run.Cancellation.IsCancellationRequested && !lifetime.IsCancellationRequested;
+        void RequireCurrent(RunScope run)
+        {
+            if (!IsCurrent(run)) throw new OperationCanceledException("Runner operation was superseded.");
+        }
+        long InvalidateRun()
+        {
+            var previous = activeRun;
+            activeRun = null;
+            runGeneration = checked(runGeneration + 1);
+            previous?.Cancellation.Cancel();
+            return runGeneration;
+        }
+        RunScope BeginRun()
+        {
+            lifetime.Token.ThrowIfCancellationRequested();
+            InvalidateRun();
+            return activeRun = new RunScope();
+        }
         async Task StartRunner(HostMigrationToken migration, CancellationToken cancellationToken)
         {
-            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token);
-            join = await credentials(linked.Token);
+            var run = BeginRun();
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token, run.Cancellation.Token);
+            try {
+            var join = await credentials(linked.Token);
+            RequireCurrent(run);
+            run.Join = join;
             long now = clock();
             if (join.PhotonTicket.AppId != app.AppIdFusion || join.PhotonTicket.ExpiresAtMilliseconds <= now)
                 throw new InvalidOperationException("Photon authentication ticket is expired or belongs to another app.");
@@ -131,8 +162,9 @@ namespace Wreckabulary.Online
             var authentication = new AuthenticationValues { AuthType = CustomAuthenticationType.Custom };
             authentication.SetAuthPostData(join.PhotonTicket.PhotonPostData());
             Runner = createRunner() ?? throw new InvalidOperationException("Runner factory returned no runner.");
-            Runner.AddCallbacks(this);
-            var result = await Runner.StartGame(new StartGameArgs {
+            run.Runner = Runner;
+            run.Runner.AddCallbacks(this);
+            var result = await run.Runner.StartGame(new StartGameArgs {
                 GameMode = migration?.GameMode ?? GameMode.AutoHostOrClient,
                 SessionName = "wb-" + expected.MatchId + "-" + expected.Generation,
                 PlayerCount = match.Roster.Count, IsVisible = false, IsOpen = true,
@@ -141,39 +173,48 @@ namespace Wreckabulary.Online
                 HostMigrationToken = migration, HostMigrationResume = RestoreMigration,
                 StartGameCancellationToken = linked.Token
             });
+            RequireCurrent(run);
             if (!result.Ok) throw new InvalidOperationException("Fusion startup failed: " + result.ShutdownReason);
-            if (Runner.GetPlayerUserId(Runner.LocalPlayer) != join.PlayerId)
+            if (run.Runner.GetPlayerUserId(run.Runner.LocalPlayer) != join.PlayerId)
                 throw new InvalidOperationException("Photon did not authenticate the coordinator identity.");
             if (connections.LocalPlayerId != join.PlayerId) throw new InvalidOperationException("Coordinator guest changed during startup.");
-            if (Runner.IsServer) await AdmitLocal();
-            else await SendAdmission();
+            if (run.Runner.IsServer) await AdmitLocal(run);
+            else await SendAdmission(run);
+            RequireCurrent(run);
+            }
+            catch (Exception error) { if (IsCurrent(run)) Fail(error); throw; }
         }
-        async Task AdmitLocal()
+        async Task AdmitLocal(RunScope run)
         {
+            RequireCurrent(run);
             if (migrating && !restored) return;
-            await Admit(Runner.LocalPlayer, join.Certificate, join.Grant, await connections.Ticket(lifetime.Token));
+            string ticket = await connections.Ticket(run.Cancellation.Token);
+            RequireCurrent(run);
+            await Admit(run, run.Runner.LocalPlayer, run.Join.Certificate, run.Join.Grant, ticket);
+            RequireCurrent(run);
             if (localReady) MarkLocalReady();
         }
-        async Task SendAdmission()
+        async Task SendAdmission(RunScope run)
         {
-            string ticket = await connections.Ticket(lifetime.Token);
+            string ticket = await connections.Ticket(run.Cancellation.Token);
+            RequireCurrent(run);
             SendServer(OnlineWireKind.Admission, new Dictionary<string, object> {
-                ["certificate"] = join.Certificate, ["grant"] = join.Grant, ["connectionTicket"] = ticket });
+                ["certificate"] = run.Join.Certificate, ["grant"] = run.Join.Grant, ["connectionTicket"] = ticket });
         }
-        async Task Admit(PlayerRef player, string certificate, string grant, string ticket)
+        async Task Admit(RunScope run, PlayerRef player, string certificate, string grant, string ticket)
         {
-            if (authorizing.Contains(player) || gate.Actor(Peer(player)) != null) return;
-            authorizing.Add(player);
-            var runner = Runner;
+            if (!IsCurrent(run) || run.Authorizing.Contains(player) || gate.Actor(Peer(player)) != null) return;
+            run.Authorizing.Add(player);
+            var runner = run.Runner;
             try {
-            string authenticated = Runner.GetPlayerUserId(player);
-            string secret = player == Runner.LocalPlayer ? join.ConnectionSecret :
-                OnlineJson.DecodeUtf8(Runner.GetPlayerConnectionToken(player) ?? Array.Empty<byte>());
+            string authenticated = runner.GetPlayerUserId(player);
+            string secret = player == runner.LocalPlayer ? run.Join.ConnectionSecret :
+                OnlineJson.DecodeUtf8(runner.GetPlayerConnectionToken(player) ?? Array.Empty<byte>());
             long now = clock();
             var match = verifier.VerifyStart(certificate, expected, now / 1000);
             var admission = verifier.VerifyAdmission(grant, match, authenticated, secret, now / 1000);
-            var lease = await connections.Authorize(match, authenticated, ticket, secret, Guid.NewGuid().ToString(), lifetime.Token);
-            if (runner != Runner || !runner.IsRunning || !runner.ActivePlayers.Contains(player) ||
+            var lease = await connections.Authorize(match, authenticated, ticket, secret, Guid.NewGuid().ToString(), run.Cancellation.Token);
+            if (!IsCurrent(run) || !runner.IsRunning || !runner.ActivePlayers.Contains(player) ||
                 runner.GetPlayerUserId(player) != authenticated) return;
             now = clock();
             if (lease.ExpiresAtMilliseconds <= now) throw new InvalidOperationException("Transport authorization expired.");
@@ -188,15 +229,17 @@ namespace Wreckabulary.Online
             if (player != Runner.LocalPlayer) Send(player, OnlineWireKind.Admitted, Roster());
             }
             catch (Exception error) {
-                if (runner == Runner && player != runner.LocalPlayer) runner.Disconnect(player);
-                else Fail(error);
+                if (IsCurrent(run)) {
+                    if (player != runner.LocalPlayer) runner.Disconnect(player);
+                    else Fail(error);
+                }
             }
-            finally { authorizing.Remove(player); }
+            finally { run.Authorizing.Remove(player); }
         }
         public void MarkLocalReady()
         {
             localReady = true;
-            if (Runner == null || !Runner.IsRunning) return;
+            if (!IsCurrent(activeRun) || Runner == null || !Runner.IsRunning) return;
             if (Runner.IsServer)
             {
                 if (gate.Actor(Peer(Runner.LocalPlayer)) == null) return;
@@ -206,6 +249,8 @@ namespace Wreckabulary.Online
         }
         void TryBegin()
         {
+            var run = activeRun;
+            if (!IsCurrent(run)) return;
             bool requiresCompleteRoster = !gate.Started;
             bool begin = gate.TryStart();
             if (migrating && restored && gate.Frozen && gate.ConnectedCount > 0)
@@ -213,18 +258,21 @@ namespace Wreckabulary.Online
                 gate.ResumeAfterRestore(); migrating = false; begin = true;
             }
             if (!begin) return;
-            if (beginning) return;
-            beginning = true;
-            _ = BeginAfterCheckpoint(requiresCompleteRoster);
+            if (run.Beginning) return;
+            run.Beginning = true;
+            _ = BeginAfterCheckpoint(run, requiresCompleteRoster);
         }
-        async Task BeginAfterCheckpoint(bool requiresCompleteRoster)
+        async Task BeginAfterCheckpoint(RunScope run, bool requiresCompleteRoster)
         {
-            try { await RefreshConnectionState(); }
-            catch (Exception error) { Fail(error); return; }
+            try { await RefreshConnectionState(run); }
+            catch (Exception error) { if (IsCurrent(run)) Fail(error); return; }
+            if (!IsCurrent(run)) return;
             if (Failure != "") return;
             if (requiresCompleteRoster && !gate.AllReady) { Fail(new InvalidOperationException("The starting roster changed.")); return; }
-            if (!await PublishCheckpointCore(true, lifetime.Token)) { Fail(new InvalidOperationException("Initial checkpoint was not durable.")); return; }
-            GameplayReady = true; beginning = false;
+            bool published = await PublishCheckpointCore(run, true, run.Cancellation.Token);
+            if (!IsCurrent(run)) return;
+            if (!published) { Fail(new InvalidOperationException("Initial checkpoint was not durable.")); return; }
+            GameplayReady = true; run.Beginning = false;
             authority.SetTransportReady(true, true);
             foreach (var player in Runner.ActivePlayers)
                 if (player != Runner.LocalPlayer && gate.Actor(Peer(player)) != null) Send(player, OnlineWireKind.Begin, Roster());
@@ -246,17 +294,33 @@ namespace Wreckabulary.Online
         }
         void ReceiveCommand(PlayerRef player, JsonNode body)
         {
-            if (!GameplayReady || !gate.CanCommand(Peer(player))) throw new InvalidOperationException("Peer cannot command this match.");
+            if (!TryGetAdmittedActor(player, out string actor)) throw new InvalidOperationException("Peer cannot command this match.");
             long window = clock() / 1000;
             rates.TryGetValue(player, out var rate);
             int count = rate.Window == window ? rate.Count + 1 : 1;
             if (count > 60) throw new InvalidOperationException("Command rate exceeded.");
             rates[player] = (window, count);
-            authority.AcceptCommand(gate.Actor(Peer(player)), body);
+            authority.AcceptCommand(actor, body);
+        }
+        public bool TryGetAdmittedActor(PlayerRef peer, out string actorId)
+        {
+            actorId = null;
+            var run = activeRun;
+            if (!IsCurrent(run) || !GameplayReady || migrating || Failure != "" || run.Runner == null ||
+                !run.Runner.IsRunning || !run.Runner.IsServer || !run.Runner.ActivePlayers.Contains(peer) ||
+                !gate.CanCommand(Peer(peer)) || !leases.TryGetValue(peer, out var lease) || lease.ExpiresAtMilliseconds <= clock())
+                return false;
+            string authenticated = run.Runner.GetPlayerUserId(peer);
+            if (authenticated != lease.PlayerId || authenticated != gate.Actor(Peer(peer))) return false;
+            try { if (lease.HostId != connections.LocalPlayerId) return false; }
+            catch (InvalidOperationException) { return false; }
+            actorId = authenticated;
+            return true;
         }
         public void Poll()
         {
-            if (Runner == null || !Runner.IsRunning || !Runner.IsServer) return;
+            var run = activeRun;
+            if (!IsCurrent(run) || Runner == null || !Runner.IsRunning || !Runner.IsServer) return;
             if (Failure != "") return;
             if (!gate.Started && clock() >= gate.Match.StartedAtMilliseconds + 90000)
             { Fail(new TimeoutException("The complete approved roster did not become ready.")); return; }
@@ -264,21 +328,22 @@ namespace Wreckabulary.Online
             { pending.Remove(peer); Runner.Disconnect(peer); }
             foreach (var peer in leases.Where(p => p.Value.ExpiresAtMilliseconds <= clock()).Select(p => p.Key).ToArray())
                 Revoke(peer, false);
-            if (!renewing && clock() >= renewAt) _ = RenewConnections();
+            if (!run.Renewing && clock() >= run.RenewAt) _ = RenewConnections(run);
         }
-        async Task RenewConnections()
+        async Task RenewConnections(RunScope run)
         {
-            renewing = true; renewAt = clock() + 5000;
-            try { await RefreshConnectionState(); }
+            run.Renewing = true; run.RenewAt = clock() + 5000;
+            try { await RefreshConnectionState(run); }
             catch { }
-            finally { renewing = false; }
+            finally { run.Renewing = false; }
         }
-        async Task RefreshConnectionState()
+        async Task RefreshConnectionState(RunScope run)
         {
-            var runner = Runner;
+            RequireCurrent(run);
+            var runner = run.Runner;
             var current = leases.ToDictionary(p => p.Key, p => p.Value);
-            var state = await connections.Renew(gate.Match, current.Values, lifetime.Token);
-            if (runner != Runner || !runner.IsRunning) return;
+            var state = await connections.Renew(gate.Match, current.Values, run.Cancellation.Token);
+            if (!IsCurrent(run) || !runner.IsRunning) return;
             foreach (var seat in state)
             {
                 if (seat.Returned) { gate.Return(seat.PlayerId); authority.Return(seat.PlayerId, clock()); }
@@ -302,12 +367,12 @@ namespace Wreckabulary.Online
             else Runner.Disconnect(peer);
         }
 
-        public Task<bool> PublishCheckpoint(CancellationToken cancellationToken = default) => PublishCheckpointCore(false, cancellationToken);
-        async Task<bool> PublishCheckpointCore(bool bootstrap, CancellationToken cancellationToken)
+        public Task<bool> PublishCheckpoint(CancellationToken cancellationToken = default) => PublishCheckpointCore(activeRun, false, cancellationToken);
+        async Task<bool> PublishCheckpointCore(RunScope run, bool bootstrap, CancellationToken cancellationToken)
         {
-            if (Runner == null || !Runner.IsServer || (!GameplayReady && !bootstrap) || publishing || migrating || Failure != "") return false;
-            publishing = true;
-            var runner = Runner;
+            if (!IsCurrent(run) || Runner == null || !Runner.IsServer || (!GameplayReady && !bootstrap) || run.Publishing || migrating || Failure != "") return false;
+            run.Publishing = true;
+            var runner = run.Runner;
             try
             {
                 var mark = authority.Publish(out string json);
@@ -324,15 +389,15 @@ namespace Wreckabulary.Online
                 }
                 int writtenTick = runner.Tick.Raw;
                 long waitDeadline = checked(clock() + 10000);
-                while (runner == Runner && runner.IsRunning && runner.Tick.Raw <= writtenTick)
+                while (IsCurrent(run) && runner.IsRunning && runner.Tick.Raw <= writtenTick)
                 {
-                    cancellationToken.ThrowIfCancellationRequested(); lifetime.Token.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested(); run.Cancellation.Token.ThrowIfCancellationRequested();
                     if (clock() >= waitDeadline) throw new TimeoutException("Migration carrier did not reach a simulation tick.");
                     await Task.Yield();
                 }
-                if (runner != Runner || migrating || !runner.IsRunning) return false;
+                if (!IsCurrent(run) || migrating || !runner.IsRunning) return false;
                 bool pushed = await runner.PushHostMigrationSnapshot();
-                if (!pushed || runner != Runner || migrating || !runner.IsRunning) return false;
+                if (!pushed || !IsCurrent(run) || migrating || !runner.IsRunning) return false;
                 if (!authority.AcknowledgeDurable(mark)) throw new InvalidOperationException("Durable checkpoint did not match its publication.");
                 committedMark = mark; committedPacket = packet;
                 foreach (var player in runner.ActivePlayers)
@@ -342,8 +407,8 @@ namespace Wreckabulary.Online
                 }
                 return true;
             }
-            catch (Exception error) { Fail(error); return false; }
-            finally { publishing = false; }
+            catch (Exception error) { if (IsCurrent(run)) Fail(error); return false; }
+            finally { run.Publishing = false; }
         }
         void SendCommitted(PlayerRef player)
         {
@@ -386,6 +451,7 @@ namespace Wreckabulary.Online
         }
         void RestoreMigration(NetworkRunner runner)
         {
+            if (!IsCurrent(activeRun) || activeRun.Runner != runner) return;
             try
             {
                 var chunks = runner.GetResumeSnapshotNetworkObjects()
@@ -403,19 +469,21 @@ namespace Wreckabulary.Online
         void Fail(Exception error)
         {
             if (Failure != "") return;
+            Failure = error.GetType().Name;
+            InvalidateRun();
             GameplayReady = false; gate?.Freeze(); authority.PauseForMigration();
             authority.SetTransportReady(false, Runner != null && Runner.IsServer);
-            Failure = error.GetType().Name; Failed?.Invoke(Failure);
+            Failed?.Invoke(Failure);
         }
         public async Task Stop()
         {
-            lifetime.Cancel(); GameplayReady = false; gate?.Freeze();
+            InvalidateRun(); lifetime.Cancel(); GameplayReady = false; gate?.Freeze();
             authority.SetTransportReady(false, Runner != null && Runner.IsServer);
             if (Runner != null) await Runner.Shutdown();
         }
         public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ReadOnlySpan<byte> data)
         {
-            if (runner != Runner || Failure != "") return;
+            if (!IsCurrent(activeRun) || runner != activeRun.Runner || Failure != "") return;
             try
             {
                 var message = OnlineFusionWire.Decode(data);
@@ -424,7 +492,7 @@ namespace Wreckabulary.Online
                     switch (message.Kind)
                     {
                         case OnlineWireKind.Admission:
-                            _ = Admit(player, message.Body["certificate"].String(), message.Body["grant"].String(),
+                            _ = Admit(activeRun, player, message.Body["certificate"].String(), message.Body["grant"].String(),
                                 message.Body["connectionTicket"].String()); break;
                         case OnlineWireKind.Ready:
                             if (message.Body["roster"].String() != expected.RosterHash) throw new FormatException("Roster mismatch.");
@@ -470,7 +538,7 @@ namespace Wreckabulary.Online
         {
             try
             {
-                if (runner == Runner && Failure == "" && token != null && token.Length == 43 &&
+                if (IsCurrent(activeRun) && runner == activeRun.Runner && Failure == "" && token != null && token.Length == 43 &&
                     gate.RecognizesSecret(OnlineJson.DecodeUtf8(token))) request.Accept();
                 else request.Refuse();
             }
@@ -478,35 +546,40 @@ namespace Wreckabulary.Online
         }
         public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
         {
-            if (runner != Runner || !runner.IsServer) return;
+            if (!IsCurrent(activeRun) || runner != activeRun.Runner || !runner.IsServer) return;
             if (pending.Count >= 8) { runner.Disconnect(player); return; }
             pending[player] = checked(clock() + 15000);
         }
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
-            if (runner != Runner || !runner.IsServer) return;
+            if (!IsCurrent(activeRun) || runner != activeRun.Runner || !runner.IsServer) return;
             pending.Remove(player); rates.Remove(player); sentMarks.Remove(player); leases.Remove(player);
             string actor = gate.Disconnect(Peer(player), clock());
             if (actor != null) authority.Disconnect(actor, clock());
         }
         public async void OnHostMigration(NetworkRunner runner, HostMigrationToken token)
         {
-            if (runner != Runner || migrating || Failure != "") return;
+            if (!IsCurrent(activeRun) || runner != activeRun.Runner || migrating || Failure != "") return;
+            long recoveryGeneration = InvalidateRun();
             migrating = true; restored = false; localAdmitted = false; GameplayReady = false; gate.Freeze(); authority.PauseForMigration();
             authority.SetTransportReady(false, runner.IsServer); beginReceived = false; committedMark = null; committedPacket = null;
-            receivedMark = null; receivedChunks = null; pending.Clear(); rates.Clear(); sentMarks.Clear(); leases.Clear(); authorizing.Clear();
+            receivedMark = null; receivedChunks = null; pending.Clear(); rates.Clear(); sentMarks.Clear(); leases.Clear();
             try
             {
                 await runner.Shutdown(false, ShutdownReason.HostMigration);
+                if (runGeneration != recoveryGeneration || lifetime.IsCancellationRequested) return;
                 UnityEngine.Object.Destroy(runner.gameObject);
                 await StartRunner(token, lifetime.Token);
             }
-            catch (Exception error) { Fail(error); }
+            catch (Exception error) { if (runGeneration == recoveryGeneration && !lifetime.IsCancellationRequested) Fail(error); }
         }
         public void OnShutdown(NetworkRunner runner, ShutdownReason reason)
-        { if (runner == Runner && reason != ShutdownReason.HostMigration) { GameplayReady = false; authority.SetTransportReady(false, runner.IsServer); } }
+        {
+            if (IsCurrent(activeRun) && runner == activeRun.Runner && reason != ShutdownReason.HostMigration)
+            { InvalidateRun(); GameplayReady = false; authority.SetTransportReady(false, runner.IsServer); }
+        }
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
-        { if (runner == Runner) { GameplayReady = false; authority.SetTransportReady(false, false); } }
+        { if (IsCurrent(activeRun) && runner == activeRun.Runner) { GameplayReady = false; authority.SetTransportReady(false, false); } }
         public void OnConnectedToServer(NetworkRunner runner) { }
         public void OnConnectFailed(NetworkRunner runner, NetAddress address, NetConnectFailedReason reason) { }
         public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
