@@ -1,6 +1,6 @@
 # In-world puzzle guide
 
-STATUS: SOURCE GREEN — NATIVE ACCEPTANCE PENDING
+STATUS: SOURCE AND NATIVE TESTS GREEN — PIXEL / HUMAN ACCEPTANCE PENDING
 
 Owner: sethypagna/map-workshop. Scope: new Online/Presentation/WordboundPuzzleGuide*.cs, new matching presentation tests and this evidence directory. No shared HUD, launcher, runtime authority, catalogue, physics or assembly definition changes.
 
@@ -20,3 +20,11 @@ Verification, 2026-10-21:
 - Native scene/URP tests **NOT RUN** here. Seven native view cases authored; root owns Unity. All eleven pure plan cases can also execute in the native presentation test assembly.
 
 Evidence: `tests.log`, `reference.log`, ignored `TestResults/guide-plan.trx`. `API.md` gives root the composition and native acceptance steps. No metas/YAML, assembly definitions, colliders, network code or shared production files changed. Next: root integrates this commit, binds both client launch paths, runs native guide tests and inspects actual camera views through representative families and Return.
+
+## Independent inspection of root's native result
+
+Root integrated guide4877f5e as cbb7917, wired both match client launchers, and executed Unity's native gate. This lane read the actual result XML `wordbound-integration/TestResults/editmode_20261020T165452Z.xml` without starting Unity: all **18 guide cases Passed** (11 plan +7 renderer/scene cases), and `WordboundNativeLauncherTests.LauncherReturnsFromExactFlagshipPlaytestWithUndoHistory` **Passed** in29.879010s. The launcher fixture includes the real edited flagship/local simulation/presentation/HUD path, guide existence/markers/noFault checks and Return/history assertions. Root reports the combined gate93/93PASS; this reviewer inspected the19 relevant case records.
+
+XML SHA256: `68F2F0F872F742B49D9B2EBE0CF53CCE743F103D63A057E979C65D246DD31AE6`. Integration HEAD at inspection: `49ca736a8e86ba41ab90715e84651b5155a5f8d2`.
+
+These results establish native object/scene construction, camera-label setup, exact marker data and cleanup assertions. They do not establish player-camera pixel readability, full three-lap completion, physical success of all six families or human usability acceptance. Next: inspect actual rendered player views while advancing representative objectives.
