@@ -1,0 +1,139 @@
+{
+  "uploaded": {
+    "status": 200,
+    "success": true,
+    "errors": [],
+    "result": {
+      "created_on": "2026-10-20T12:51:07.297206Z",
+      "modified_on": "2026-10-20T14:26:23.612751Z",
+      "id": "wreckabulary-wordbound-coordinator",
+      "tag": "53f7ef5059a44b59bebe123222aa9bfb",
+      "entry_point": "index.js",
+      "tags": null,
+      "deployment_id": "58e4975aef81440db88d67ae7fa94abe",
+      "tail_consumers": null,
+      "logpush": false,
+      "observability": {
+        "enabled": false,
+        "head_sampling_rate": null,
+        "redact_query_string": true,
+        "logs": {
+          "enabled": false,
+          "head_sampling_rate": null,
+          "persist": null,
+          "invocation_logs": false
+        },
+        "traces": {
+          "enabled": false,
+          "persist": null,
+          "head_sampling_rate": null
+        }
+      },
+      "has_assets": false,
+      "has_modules": true,
+      "etag": "5d8407e13b418ea54ce9b165c1bbfe238b455efa6c532cb2f46c54ef117e882f",
+      "handlers": [
+        "fetch"
+      ],
+      "named_handlers": [
+        {
+          "name": "Identity",
+          "handlers": [
+            "class"
+          ]
+        },
+        {
+          "name": "MatchPool",
+          "handlers": [
+            "class"
+          ]
+        },
+        {
+          "name": "Party",
+          "handlers": [
+            "class"
+          ]
+        }
+      ],
+      "last_deployed_from": "api",
+      "migration_tag": "v1",
+      "compatibility_date": "2026-10-19",
+      "compatibility_flags": [
+        "nodejs_compat"
+      ],
+      "usage_model": "standard",
+      "startup_time_ms": 18
+    },
+    "moduleSha256": "5fc20d9b27fb8c06f9ec05ceb598c1b3174c33e7965a55bb36a801c8238d2c40"
+  },
+  "readback": {
+    "bindings": [
+      {
+        "name": "ACCESS_SECRET",
+        "type": "secret_text"
+      },
+      {
+        "name": "ADMISSION_PRIVATE_JWK",
+        "type": "secret_text"
+      },
+      {
+        "name": "BUILTIN_CONTENT_JSON",
+        "type": "plain_text"
+      },
+      {
+        "name": "IDENTITIES",
+        "type": "durable_object_namespace",
+        "namespace_id": "24340c3b888f4e378f55ab8cf4c94eef"
+      },
+      {
+        "name": "PARTIES",
+        "type": "durable_object_namespace",
+        "namespace_id": "3efc2e405746416ab8474c1d2965417c"
+      },
+      {
+        "name": "PHOTON_APP_ID",
+        "type": "plain_text"
+      },
+      {
+        "name": "PHOTON_PROVIDER_SECRET",
+        "type": "secret_text"
+      },
+      {
+        "name": "POOLS",
+        "type": "durable_object_namespace",
+        "namespace_id": "5e33c688204e44cc816d165d119ddf35"
+      },
+      {
+        "name": "SIGNING_KEY_ID",
+        "type": "plain_text"
+      },
+      {
+        "name": "TOKEN_ISSUER",
+        "type": "plain_text"
+      }
+    ],
+    "deployment": {
+      "id": "a036a966-7687-4ccb-b07c-ac59aa9ca34a",
+      "source": "api",
+      "strategy": "percentage",
+      "author_email": "jamesung.kh@gmail.com",
+      "annotations": {
+        "workers/message": "Automatic deployment on upload.",
+        "workers/triggered_by": "upload"
+      },
+      "versions": [
+        {
+          "version_id": "58e4975a-ef81-440d-b88d-67ae7fa94abe",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-20T14:26:23.612751Z"
+    },
+    "website": [
+      {
+        "id": "wreckabulary",
+        "modified_on": "2026-10-09T06:39:10.260712Z"
+      }
+    ]
+  }
+}

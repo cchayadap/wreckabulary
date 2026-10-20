@@ -1,0 +1,18 @@
+{
+  "origin": "https://wreckabulary-wordbound-coordinator.pagna.workers.dev",
+  "accountId": "d105a82bc26b6913575355352c2d1bb1",
+  "startedAt": "2026-10-20T14:28:15.368Z",
+  "checks": [
+    "live HTTPS public key matches independent RSA3072 key",
+    "server guest identity and rotating refresh fail closed",
+    "live Photon endpoint authenticates one-use ticket and rejects replay/wrong app/caller identity",
+    "two private parties of four reserve exact whole teams; unapproved Quick Play denied",
+    "all eight exact seats accept content; signed grants and start certificate verify",
+    "one-use connection lease, exact retry, outsider rejection and terminal Return revocation",
+    "all test match seats returned and both parties left"
+  ],
+  "cleanup": true,
+  "matchId": "2ae6054a-9c2e-4ae2-b63a-63116856e34c",
+  "completedAt": "2026-10-20T14:29:40.571Z",
+  "success": true
+}
