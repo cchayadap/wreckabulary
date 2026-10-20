@@ -1,6 +1,6 @@
 # FFA equipment sources
 
-STATUS: FOCUSED SOURCE GATE PASS19/19 — NATIVE UNITY AND 1000-SEED ARENA SWEEP NOT RUN
+STATUS: FOCUSED SOURCE GATE PASS19/19; EXPLICIT 1000-SEED ARENA SWEEP PASS1/1 — NATIVE GRID INTERACTION UNVERIFIED
 
 Root authorized a narrow repair to CourseTemplates.CombatArena and new focused engine-free tests after independent acceptance finding A2. This branch did not yet contain CourseTemplates.cs, so it receives the exact integration file (baseline SHA-256 E5381E247A9921D696945EF4FE58FA24FD829BED192D23894AF2EFAD6E633DD0) and changes only CombatArena. Integration may require add/add resolution; preserve all other template methods unchanged.
 
@@ -23,3 +23,5 @@ Final exact SHA-256: CourseTemplatesF0E34865553EC7C3CA0A038843393B32E1C2CD9A98E1
 Next: root integrates the exact CombatArena delta, then grants a later bounded1000-seed arena-only replay/bounds/resources/spawns/capacity gate. Do not rerun the unchanged full flagship sweep. Public export remains deferred until final content verification. Native targeted selection/collection in the grid remains unverified.
 
 The later sweep is authored as explicit WordboundArenaSeedTests.ThousandArenaSeedsReplayExactlyWithinSourcePlacementAndBodyBounds, categoryArenaSeeds. It is not part of the above19-case green result and has not been compiled/run yet. Seeds0000000000000000..00000000000003e7 each resolve twice, round-trip the exact canonical manifest, verify168 authored/resolved sources,8start+8respawn points, actual asset bounds in both placement zones and existing actor/optional/body budgets. Run only after a compiler window with `--filter FullyQualifiedName~WordboundArenaSeedTests`; the Explicit attribute keeps it out of ordinary full-suite runs. Physical overlap/target selection is not claimed by this generator check.
+
+Root follow-up, inspected 2026-10-21: exact arena-only selection PASS1/1,0skipped in203.095s test time (root reports255.7s total). Earlier combined selection omitted this Explicit test; its unrelated128 passing cases did not prove the sweep. Root evidence `wordbound-integration/TestResults/core_20261020T201057Z.trx` copied byte-for-byte to `results/arena-1000.trx`, SHA2564FD46521F20AD1120F20DDC577F9740E2B8B6D05337339DECDAFBC7C223EAC2A. The actual result names ThousandArenaSeedsReplayExactlyWithinSourcePlacementAndBodyBounds and prints Seeds=1000; source=169565d934ff47396ef8823876df5a114690df439e601d4355815ec313ad0729; maxInitialBodies=194; minimumOptionalReserve=213; cap=512. No full flagship repeat or native grid-selection acceptance is inferred.

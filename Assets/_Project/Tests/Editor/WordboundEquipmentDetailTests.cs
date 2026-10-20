@@ -64,7 +64,9 @@ namespace Wreckabulary.EditorTests
             foreach (var entry in collection.Entries)
             {
                 var source = manifest.assets.Single(record => record.id == entry.itemId);
-                Assert.DoesNotThrow(() => WordboundEquipmentImporter.ValidateImported(entry, source.triangles, paint, brass), entry.itemId);
+                var measured = WordboundEquipmentImporter.ValidateImported(entry, source.triangles, paint, brass);
+                Assert.Less(Vector3.Distance(measured.center, entry.boundsCenter), .001f,
+                    entry.itemId + " presentation metadata must use the selected revision's actual native vertices");
             }
         }
 
