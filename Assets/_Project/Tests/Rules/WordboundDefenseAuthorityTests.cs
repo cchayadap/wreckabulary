@@ -89,6 +89,39 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void LaterFrameFailureRollsBackShieldBreakAndRetryReleasesLettersExactlyOnce()
+        {
+            var f = Create(); Raise(f);
+            string before = MatchSnapshotCodec.Export(f.State);
+            int tileCount = f.State.Economy.Tiles.Count;
+            int minted = f.State.Economy.Minted;
+            int queries = 0;
+            f.BeforeLineOfSight = () =>
+            {
+                if (++queries == 2) throw new InvalidOperationException("Controlled later host query failure.");
+            };
+            var damages = new[] { new HostDamage("p1", "player:0", 60), new HostDamage("p1", "player:0", 20) };
+            var commands = new[] { new AuthenticatedCommand("p0", new PlayerCommand(
+                Actor(f).LastInputSequence + 1, f.Match.Epoch, WordboundAction.Block, value: "Hold")) };
+            Assert.Throws<InvalidOperationException>(() =>
+                f.Match.Advance(f.State.Progress.WallClockMs + 17, commands, hostDamage: damages));
+            Assert.AreEqual(2, queries);
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(f.State),
+                "Rollback must restore the complete canonical frame, including economy, lease and command journal.");
+            Assert.AreEqual(60, Shield(f).Durability);
+            Assert.IsNotNull(Actor(f).Defense);
+            f.BeforeLineOfSight = null;
+            var retry = f.Match.Advance(f.State.Progress.WallClockMs + 17, commands, hostDamage: damages);
+            Assert.IsTrue(retry.Advanced);
+            Assert.AreEqual("Ok", retry.Receipts.Single().Effect.Code);
+            Assert.AreEqual(80, Actor(f).Health);
+            Assert.IsNull(Actor(f).Defense);
+            Assert.AreEqual(tileCount + 5, f.State.Economy.Tiles.Count);
+            Assert.AreEqual(minted, f.State.Economy.Minted);
+            f.Acknowledge();
+        }
+
+        [Test]
         public void ReplayedHoldDoesNotExtendLeaseButFreshRefreshPreservesRaiseStart()
         {
             var f = Create();

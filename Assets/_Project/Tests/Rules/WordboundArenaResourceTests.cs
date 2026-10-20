@@ -17,7 +17,10 @@ namespace Wreckabulary.Tests
 
         sealed class World : IWordboundWorldQuery, IWordboundReleaseQuery
         {
-            public bool HasLineOfSight(string actorId, WorldVector from, WorldVector to) => true;
+            readonly Action beforeSight;
+            public World(Action beforeSight) { this.beforeSight = beforeSight; }
+            public bool HasLineOfSight(string actorId, WorldVector from, WorldVector to)
+            { beforeSight(); return true; }
             public bool CanDeploy(string actorId, string recipeId, WorldVector position) => true;
             public bool PuzzleSatisfied(string actorId, ResolvedCoursePuzzle puzzle, WorldBodyState placedItem) => false;
             public bool TryRelease(WorldBodyState actor, WorldBodyState heldItem, bool throwing, out WorldVector position)
@@ -38,6 +41,7 @@ namespace Wreckabulary.Tests
             public readonly AuthoritativeMatch Match;
             readonly HashSet<string> cacheSources;
             readonly long[] sequences;
+            public Action BeforeLineOfSight;
             public MatchSnapshot State => Match.Capture(1);
 
             public Arena(int players = 2, string seed = "0123456789abcdef")
@@ -52,7 +56,8 @@ namespace Wreckabulary.Tests
                 Binding = new MatchBinding("arena-resources", MatchSnapshotCodec.ProtocolVersion, Mode.Hash,
                     Course.SourceHash, Course.Hash, WordboundIdentity.Sha256(string.Join("|", seats.Select(s => s.PlayerId))),
                     WordboundIdentity.Sha256(TestData.Read("items.json") + TestData.Read("rules.json")), seats);
-                Match = new AuthoritativeMatch(Binding, Mode, Course, Geometry, Items, Rules, new World());
+                Match = new AuthoritativeMatch(Binding, Mode, Course, Geometry, Items, Rules,
+                    new World(() => BeforeLineOfSight?.Invoke()));
                 sequences = new long[players];
             }
 

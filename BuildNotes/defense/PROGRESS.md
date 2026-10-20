@@ -6,6 +6,7 @@
 - [x] Full changed physics and rules-fingerprint sources compiled against Unity 6000.6.3f1 and installed Fusion assemblies: 0 warnings, 0 errors, 12.52 seconds. `reference.log`.
 - [x] Compiler slot released directly to Online; no Unity process launched by this lane.
 - [~] Independent source review by James found no confirmed blocker in the inspected defense paths. He requested a separate rollback-after-shield-break regression; it is not included in the 57-test result above.
+- [~] Added that regression as source only after releasing the compiler slot: a second line-of-sight query throws after the first damage breaks PLATE, then exact canonical restoration and a single normal retry are asserted. NOT RUN; the next focused suite should discover 58 tests.
 - [ ] Combined final mode/public-v3 golden exporter and wire/service parity. Online owns the later PublicQueue change; this DLL predates that mode change.
 - [ ] Root HUD/PlayerView input binding, native facing/block/break/recovery and actual player acceptance.
 - [ ] Queued 1000-seed arena-only sweep remains separate.
