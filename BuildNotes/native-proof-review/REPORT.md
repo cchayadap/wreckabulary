@@ -77,3 +77,26 @@ No concrete false-pass or draft-loss defect was found within this bounded review
 The QA scenario calls real lobby/workshop handlers, then uses the actual history transaction and exact Preview/RequestPlaytest flow. A new workshop initially uses default storage, but it is unchanged and is replaced with the isolated QA folder before the coroutine next yields; no default autosave write is triggered on this fresh path. The test waits for the real local controller, course world, frame, unpaused state and nonempty guide, checks exact manifest and recovery JSON, awaits Return, checks client/camera destruction and the same visible history, then checks exact Undo/Redo content. All action waits have deadlines; the QA runner records failed steps and has a final run watchdog. No synthetic successful gameplay state is supplied.
 
 The scenario directly invokes action handlers and draft transactions; it does not establish mouse/controller usability, physical puzzle completion, image readability, shipped release stripping, or a successful standalone player build. Screenshot capture and actual Windows execution remain pending. This review made no production edits, launches, builds, service requests or credential changes.
+
+## Entity-budget integration hooks — 2026-10-21
+
+STATUS: BOUNDED SOURCE REVIEW COMPLETE — COMPILE/TEST PENDING
+
+Reviewed the six active hook/test files against integration base `63f7e8689e4ec6bd3798ea22e3913b301e5150d6`, reading the domain owner's pending `WordboundEntityBudget` public contract for compatibility. The helper was not yet integrated or compiled in the root checkout. This review covers call placement and identity binding, not independent acceptance of the whole resource-retirement algorithm.
+
+No concrete mismatch was found. `WordboundAuthoredPuzzleContent` preflights the exact resolved course, mode, geometry, item catalogue and derived rules before constructing its signed content hash; it is the common path for local authored maps and race/Freestyle party content. The separate FreeForAll content branch now performs the same check before creating either binding. Fingerprint version 2 length-prefixes the budget policy hash, which both content branches already include through the effective-rules hash in CatalogueHash. Consequently a policy change produces a different admission identity even when item/rule JSON is otherwise unchanged. Reconciliation's bounded enumeration and snapshot count check, plus Physics.Register's pre-add count check, use the same unchanged 512 maximum.
+
+The two local excess-reserve cases and one arena case insert `maxLetters` into the actual Dibs override used to derive these modes, first verify ordinary rule-book validity, and assert the specific budget error. They do not create a runner or party. These are meaningful preflight cases; their result remains unproven until executed. Existing physics, full resource pressure, cloud admission and native startup are outside this source-only hook review.
+
+Exact local SHA-256 pins:
+
+| File under Scripts/Online | SHA-256 |
+| --- | --- |
+| `Puzzles/WordboundRulesFingerprint.cs` | `DA83EB512D32C191CDD4AA1F27B7C1DDA55C92AF467C287D53B3F7FE96DE1ACD` |
+| `Puzzles/WordboundPuzzleContent.cs` | `D5A2A46DF93FA951F27EF207726678D4B5CE25FC3F96CA8CAEDC34783AD1A217` |
+| `Client/WordboundClientContent.cs` | `80A564AD6D7FDA97AC9FEF04F3374E69175A73B4E8DFF069EAA9234CCCF732DD` |
+| `Gameplay/WordboundGameplayPlan.cs` | `3BD8538D44BA0739B321FB6CB83902DFE1E3CA8C0DD25F07F8AD105918E2CC16` |
+| `Physics/WordboundPhysicsWorld.cs` | `E54371A18D38C823CE9D66DDD101000C7465438D882D3E803BEE5EB1099DB490` |
+| `Client/Tests/WordboundWorkshopLaunchTests.cs` | `3782617A54E200137FE04EB6CE6549A5A319657F03C668C368294A87C2AED313` |
+
+No root/domain source writes or compiler/native process were performed by this reviewer.
