@@ -8,6 +8,29 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
+## Current delivery snapshot — 2026-10-20 19:03 UTC
+
+Implementation and integration are active. There is no verified Windows player to deliver yet. No further Photon or Cloudflare account setup is currently required.
+
+| Work package | What is verified | Work remaining |
+| --- | --- | --- |
+| Isolated development | Integration and feature worktrees exist; the original main/font/Lunar work is preserved. | Review and delivery branch; formal milestone closure. |
+| Flagship world and randomness | Four destinations, layered three-lap content and six puzzle families are implemented. The frozen earlier content passed 8,000/8,000 seed cases. | Complete physical puzzle playthrough, final-content checks and the 18–25 minute human session target. |
+| Five modes | Mode rules and local flagship playtest are implemented. The FFA recipe-access repair passes 19/19 focused tests and is integrated. | Freestyle practice integration, defensive equipment behavior, and full mode acceptance. |
+| Workshop | 3D editing, course authoring, validation and exact-draft playtest/return are implemented. Native launcher/playtest/return preserves undo/redo history. | Automatic transfer of arbitrary workshop maps into private online sessions; full input and creator-usability checks. |
+| Equipment and story | Twelve image concepts and editable Blender assets produced; 24 FBX/GLB reimports and 23 native presentation cases pass. Story signs, discovery banners and a collected-clue journal are integrated and source-reviewed. | Native story/readability checks and final held/placed/thrown/combat acceptance. |
+| Online services | Photon authentication passes 3/3. Real authenticated two-peer gameplay and durable checkpoint acknowledgement pass. Private transport has earlier 2/4/8-peer evidence. | Schema-3 practice/defense recovery integration, 4/8-player full gameplay and host recovery, custom-map transfer, and public activation. |
+| Public matchmaking | Built-in catalogue validation passes 17/17 natively. Party/Fill and allocation source exists. | Export the final exact catalogue, apply matching service allowlist, and run live public matchmaking verification. Public play is not activated. |
+| Windows delivery | Windows release, QA and development profiles created and verified. | First QA build exceeded its 30-minute limit. Cached retry, actual player smoke/captures and release validation remain open. |
+
+Current assignments: root owns integration, client HUD/guide/story, native checks and player delivery; puzzle-race owns Freestyle practice verification; map-workshop owns the FFA content checks and defense implementation; online owns the service protocol update, public activation and custom-map transport. James/SethyPagna remains the human owner of the whole expansion.
+
+Latest results: FFA focused tests PASS 19/19; practice Rules reference compilation and its 16 focused cases PASS in the feature lane, with content/guide checks still running. The latest native physical-puzzle batch failed the runner's default three-minute test timeout; stage diagnostics and a bounded test timeout are now committed, but that retry has not run. A passing source check does not close this runtime gap.
+
+Next sequence: finish and integrate practice/defense; verify the six physical puzzle mechanisms and story presentation; deploy and verify the matching recovery protocol; finish custom-map sharing and activate the verified public pool; build and smoke-test the Windows player. Human feel, readability and workshop usability review follow a concrete reviewable build.
+
+Evidence: [FFA checks](../../BuildNotes/ffa-content/PROGRESS.md), [flagship seeds](../../BuildNotes/flagship-content/SEED-SWEEP.md), [local composition](../../BuildNotes/client-view/LOCAL-COMPOSITION.md), [source acceptance review](../../BuildNotes/native-proof-review/REPORT.md), [story progress](../../BuildNotes/story-presentation/PROGRESS.md), [Windows delivery](../../BuildNotes/client-view/WINDOWS-DELIVERY.md). The chronological entries below retain earlier failures and results; this snapshot supersedes their old “next” statements.
+
 ## Current baseline
 
 - Integration branch: `sethypagna/wordbound-integration`.
@@ -21,13 +44,13 @@ Deliver the complete approved [plan](PLAN.md). Source implementation, runtime ve
 
 | Milestone | Status | Evidence |
 | --- | --- | --- |
-| M0 Safe baseline | VERIFIED | Commit 12842c7; editor and runtime regressions pass across the recorded suite and focused repair runs; final check and 225 core tests pass. |
-| M1 Online proof | IN PROGRESS | Historical private 2/4/8-peer reliable transport passes. The separate coordinator's live API and actual Photon custom authentication pass. Native gameplay composition and complete checkpoint recovery are being verified. |
-| M2 Complete race loop | IN PROGRESS | Mode/progression, inventory snapshots and command journal are implemented. Complete authoritative runtime remains in progress. |
-| M3 Large world and generator | IN PROGRESS | Course resolver and 11,000 seed checks cover eleven proof configurations. Full flagship content production depends on the network proof. |
-| M4 Workshop and assets | IN PROGRESS | Twelve original equipment assets imported and verified in Unity. Workshop now includes a rendered 3D editor; native visual/input and human usability acceptance remain pending. |
-| M5 Mode suite and public play | IN PROGRESS | Separate coordinator deployed, live eight-seat private API flow and native Photon authentication verified. Approved public content and native gameplay remain pending. |
-| M6 Release candidate | NOT RUN | No Wordbound player build or human acceptance. |
+| M0 Safe baseline | REGRESSIONS VERIFIED; GATE OPEN | Baseline fixes and focused follow-ups pass. Current closure dry-run fails: rows 01/02 have old source hashes, 03/06/07 lack recorded verdicts, 04 lacks its facts artifact, and 05 lacks owner confirmation. No milestone closure is claimed. |
+| M1 Online proof | IN PROGRESS | Photon authentication and actual two-peer gameplay pass. Full four/eight-player gameplay and host recovery remain pending. |
+| M2 Complete race loop | IN PROGRESS | Authoritative progression, inventory, recovery, physical puzzle and guide source are integrated; local world/player composition passes. Full physical puzzle completion and human playthrough remain open. |
+| M3 Large world and generator | IN PROGRESS | Complete flagship source exists; frozen earlier content passed 8,000/8,000 seeds. New practice/defense and final-content checks remain pending. |
+| M4 Workshop and assets | IN PROGRESS | Twelve assets and native presentation checks pass; exact workshop playtest/return preserves history. Custom online sharing and human usability acceptance remain open. |
+| M5 Mode suite and public play | IN PROGRESS | FFA content repair and public catalogue validation pass. Practice/defense, final catalogue activation and live public play remain open. |
+| M6 Release candidate | IN PROGRESS; NO VERIFIED PLAYER | First Windows QA build timed out. Cached rebuild, player smoke, release validation and human acceptance remain pending. |
 
 ## Confirmed baseline issues
 
