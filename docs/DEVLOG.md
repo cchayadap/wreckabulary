@@ -86,3 +86,9 @@ Integrated schema-3 checkpoint/wire validation, editable course/camera/visual au
 
 R0 passed in 198.2 seconds (`Logs/gate_check_all_20261020T200045Z.log`). Affected Rules passed 128/128 in 163.5 seconds (`TestResults/core_20261020T200545Z.trx`), including the shield-break rollback regression. The combined filter omitted the Explicit arena seed gate, so no 1,000-seed result is claimed. The later authoring/importer check, native camera/visual/course/puzzle tests, service v3 deployment, public activation, asset production and Windows player remain pending. Public Freestyle is authorized by the latest request and is a separate online slice. Original checkout and website Worker remain preserved.
 
+## 2026-10-20T20:25:00Z Schema-3 deployment and arena verification
+
+The standalone Explicit arena gate passed all1,000seeds in255.7seconds total (`TestResults/core_20261020T201057Z.trx`): maximum194 initial bodies, minimum213 optional reserve, cap512, exact replay/import and bounded placement/source checks. This corrects the prior combined-filter omission; native targeting remains separate.
+
+Final assembled R0 passed148.3seconds (`Logs/gate_check_all_20261020T201557Z.log`). The verified schema-3 service was uploaded once and read back at100% traffic; existing secrets/DO namespaces/migrationv1 were preserved and the website timestamp stayed unchanged. Live API7/7passed with complete cleanup (`BuildNotes/online/V3-DEPLOYMENT.json`, `V3-LIVE-API-CHECK.json`). Public allowlist remains empty. Native local batch201950 is active; no runtime or Windows completion is claimed. Independent review found remote HUD lookup and occluded-target defects, now assigned for source repair plus actual remote-input regression.
+

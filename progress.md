@@ -23,7 +23,8 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Author four destinations, layered routes and six puzzle families with deterministic manifests and validation.
 - [x] Pass 8,000 seed cases on the recorded frozen flagship revision; this does not prove final content or physical playthrough.
 - [x] Repair FFA supplies for all 13 enabled recipes; 19 focused cases pass.
-- [~] Run 1,000 arena seeds and native letter selection/collection checks.
+- [x] Run 1,000 arena seeds: exact replay/import, source/spawn/placement bounds and budgets pass (`TestResults/core_20261020T201057Z.trx`, 255.7 seconds).
+- [~] Verify native letter selection/collection; review found remote HUD lookup and occluded-target defects, repairs/regressions are in progress.
 - [x] Implement Freestyle station selection, shared keepsake and persistent practice; 63 related source cases pass.
 - [~] Integrate Freestyle HUD/guide and verify native practice.
 - [~] Implement/test SHIELD/PLATE direction, raising, wear/breakage, movement and input.
@@ -92,4 +93,4 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Root: integration, HUD/player/guide, native verification, content export, coordinated deployment and Windows delivery. Puzzle-race: independent defense review and additive Unity authoring tools. Map-workshop/assets: defense/arena verification and asset quality. Online: protocol v3, all-mode public allocation and private-map sharing.
 
-Root currently holds the compiler/native slot. The affected Rules run at `TestResults/core_20261020T200545Z.trx` passed 128/128, including rollback after shield break. Its combined filter omitted the Explicit arena sweep; the 1,000-seed test remains pending a separate invocation. R0 passed at `Logs/gate_check_all_20261020T200045Z.log`; a later authoring/importer source check is in progress. Schema-3 source interoperability is verified in `BuildNotes/online/PROTOCOL-V3-CUTOVER.md`, but the live service still runs v2 and public allowlist remains empty. No verified Windows player or production-ready claim exists yet.
+Root currently holds the native slot. Affected Rules passed128/128, and the separately selected arena test passed all1,000seeds (maximum194 initial bodies, minimum213 optional reserve, cap512). Final source R0 passed148.3seconds (`Logs/gate_check_all_20261020T201557Z.log`). Native physical/story/profile/authoring batch `editmode_20261020T201950Z` is running. Schema-3 service is deployed with live API7/7PASS, preserved credentials/state and unchanged website (`BuildNotes/online/V3-DEPLOYMENT.md`). The public allowlist remains empty pending final integration/validation. No verified Windows player or production-ready claim exists yet.

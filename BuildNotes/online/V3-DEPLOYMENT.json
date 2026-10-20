@@ -1,0 +1,119 @@
+{
+  "source": "07c5712",
+  "moduleSha256": "ebff4528a09a832a473ec54ad4a7d8b2e60340422948096d753615ccd9f08a7d",
+  "upload": {
+    "success": true,
+    "status": 200,
+    "errors": [],
+    "messages": [],
+    "moduleSha256": "ebff4528a09a832a473ec54ad4a7d8b2e60340422948096d753615ccd9f08a7d",
+    "result": {
+      "id": "wreckabulary-wordbound-coordinator",
+      "modified_on": "2026-10-20T20:21:15.929231Z",
+      "deployment_id": "387b0d2b58364485b651b52ce5b49f0e",
+      "migration_tag": "v1",
+      "observability": {
+        "enabled": false,
+        "head_sampling_rate": null,
+        "redact_query_string": true,
+        "logs": {
+          "enabled": false,
+          "head_sampling_rate": null,
+          "persist": null,
+          "invocation_logs": false
+        },
+        "traces": {
+          "enabled": false,
+          "persist": null,
+          "head_sampling_rate": null
+        }
+      },
+      "startup_time_ms": 50
+    }
+  },
+  "readback": {
+    "settings": {
+      "status": 200,
+      "compatibility_date": "2026-10-19",
+      "compatibility_flags": [
+        "nodejs_compat"
+      ],
+      "bindings": [
+        {
+          "name": "ACCESS_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "ADMISSION_PRIVATE_JWK",
+          "type": "secret_text"
+        },
+        {
+          "name": "BUILTIN_CONTENT_JSON",
+          "type": "plain_text",
+          "text": "[]"
+        },
+        {
+          "name": "IDENTITIES",
+          "type": "durable_object_namespace",
+          "namespace_id": "24340c3b888f4e378f55ab8cf4c94eef",
+          "class_name": "Identity"
+        },
+        {
+          "name": "PARTIES",
+          "type": "durable_object_namespace",
+          "namespace_id": "3efc2e405746416ab8474c1d2965417c",
+          "class_name": "Party"
+        },
+        {
+          "name": "PHOTON_APP_ID",
+          "type": "plain_text",
+          "text": "f6fb7f4c-b8a9-44a3-ac63-bee1c5f23552"
+        },
+        {
+          "name": "PHOTON_PROVIDER_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "POOLS",
+          "type": "durable_object_namespace",
+          "namespace_id": "5e33c688204e44cc816d165d119ddf35",
+          "class_name": "MatchPool"
+        },
+        {
+          "name": "SIGNING_KEY_ID",
+          "type": "plain_text",
+          "text": "wordbound-rs256-20261020-01"
+        },
+        {
+          "name": "TOKEN_ISSUER",
+          "type": "plain_text",
+          "text": "wreckabulary-wordbound"
+        }
+      ]
+    },
+    "deployment": {
+      "status": 200,
+      "latest": {
+        "id": "912bdaa6-61ef-40f3-8fad-d567cde59ccd",
+        "source": "api",
+        "strategy": "percentage",
+        "author_email": "jamesung.kh@gmail.com",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "387b0d2b-5836-4485-b651-b52ce5b49f0e",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-20T20:21:15.929231Z"
+      }
+    },
+    "website": {
+      "status": 200,
+      "modified_on": "2026-10-09T06:39:10.260712Z"
+    }
+  }
+}
