@@ -84,3 +84,7 @@ _Inbox/
 
 # Local Unity assistant preferences are not project configuration.
 /ProjectSettings/Packages/com.unity.ai.assistant/
+
+# Proprietary Photon SDKs are restored from the official, hash-pinned packages.
+/Assets/Photon/
+/Assets/Photon.meta
