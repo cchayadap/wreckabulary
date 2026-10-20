@@ -91,6 +91,10 @@ namespace Wreckabulary.EditorTests
                 Assert.LessOrEqual(Math.Abs(point.X - module.Position.X), 5);
                 Assert.LessOrEqual(Math.Abs(point.Z - module.Position.Z), 5);
                 Assert.AreEqual("Start", view.Pick(screen, rect));
+                var fixedZone = preset.Snapshot.Course().Zones.Find(item => item.Placement == "Fixed");
+                var asset = preset.Catalogue.Assets[fixedZone.Pool[0].AssetId];
+                var centre = new CoursePoint(fixedZone.FixedPosition.X, fixedZone.FixedPosition.Y + asset.HeightMm / 2, fixedZone.FixedPosition.Z);
+                Assert.AreEqual(fixedZone.Id, view.PickFixed(view.Project(centre, rect), rect));
                 var history = new WorkshopHistory(preset.Snapshot); history.Select(new[] { "Start" });
                 var drag = new WorkshopTransformDrag(history, WorkshopHandle.Plane, module.Position);
                 drag.Move(1500, 500);

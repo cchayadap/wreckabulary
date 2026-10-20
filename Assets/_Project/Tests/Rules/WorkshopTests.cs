@@ -274,5 +274,37 @@ namespace Wreckabulary.Rules.Tests
             history.Execute("Hide", draft => draft.HiddenLayers.Add("ground"));
             Assert.IsNull(WorkshopSelection.Step(history.Current, 1));
         }
+        [Test]
+        public void FixedObjectDragMovesOnlyTheObjectAndPublishesOneUndo()
+        {
+            var preset = WorkshopTemplates.Create(WorkshopTemplate.FreestyleWorld);
+            var history = new WorkshopHistory(preset.Snapshot);
+            var original = history.Current.Course().Zones.Single(zone => zone.Placement == "Fixed");
+            string before = history.Current.RecoveryJson;
+            var drag = new WorkshopPlacementDrag(history, original.Id);
+            drag.Move(700, 300); drag.Rotate(-90);
+            Assert.AreEqual(before, history.Current.RecoveryJson);
+            drag.Commit(history, preset.Catalogue);
+            var after = history.Current.Course().Zones.Single(zone => zone.Id == original.Id);
+            Assert.AreEqual(original.FixedPosition.X + 500, after.FixedPosition.X);
+            Assert.AreEqual(original.FixedPosition.Z + 500, after.FixedPosition.Z);
+            Assert.AreEqual(0, after.FixedYaw);
+            Assert.AreEqual(preset.Snapshot.Course().Modules.First().Position, history.Current.Course().Modules.First().Position);
+            Assert.IsTrue(history.Undo()); Assert.AreEqual(before, history.Current.RecoveryJson);
+            Assert.IsFalse(history.CanUndo);
+        }
+        [Test]
+        public void FixedObjectDragRejectsOutOfBoundsAndStaleCommits()
+        {
+            var preset = WorkshopTemplates.Create(WorkshopTemplate.FreestyleWorld);
+            var history = new WorkshopHistory(preset.Snapshot);
+            string zoneId = history.Current.Course().Zones.Single(zone => zone.Placement == "Fixed").Id;
+            var drag = new WorkshopPlacementDrag(history, zoneId); drag.Move(500000, 0);
+            string before = history.Current.RecoveryJson;
+            Assert.Throws<ArgumentException>(() => drag.Commit(history, preset.Catalogue));
+            Assert.AreEqual(before, history.Current.RecoveryJson);
+            history.Execute("Rename", draft => draft.Course.Title = "Changed");
+            Assert.Throws<InvalidOperationException>(() => drag.Commit(history, preset.Catalogue));
+        }
     }
 }

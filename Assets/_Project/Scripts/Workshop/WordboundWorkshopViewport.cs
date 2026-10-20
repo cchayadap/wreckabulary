@@ -16,6 +16,8 @@ namespace Wreckabulary.Workshop
         readonly List<Material> ownedMaterials = new List<Material>();
         readonly Dictionary<string, Transform> modules = new Dictionary<string, Transform>(StringComparer.Ordinal);
         readonly Dictionary<string, CourseModule> authored = new Dictionary<string, CourseModule>(StringComparer.Ordinal);
+        readonly Dictionary<string, Transform> fixedVisuals = new Dictionary<string, Transform>(StringComparer.Ordinal);
+        readonly Dictionary<string, CourseZone> fixedZones = new Dictionary<string, CourseZone>(StringComparer.Ordinal);
         readonly Material floor, selected, ghost, path, prop;
         Transform content;
         RenderTexture texture;
@@ -83,8 +85,9 @@ namespace Wreckabulary.Workshop
             snapshot = state; catalogue = approved;
             if (content) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
             content = new GameObject("Draft geometry").transform; content.SetParent(stage.transform, false);
-            modules.Clear(); authored.Clear();
+            modules.Clear(); authored.Clear(); fixedVisuals.Clear(); fixedZones.Clear();
             var document = state.Course();
+            foreach (var zone in document.Zones.Where(zone => zone.Placement == "Fixed")) fixedZones[zone.Id] = zone;
             var layers = document.Layers.OrderBy(layer => layer.HeightMm).Select(layer => layer.Id).ToList();
             foreach (var module in document.Modules)
             {
@@ -125,7 +128,9 @@ namespace Wreckabulary.Workshop
         void Asset(string assetId, string moduleId, CoursePoint position, int angle, string name)
         {
             if (!modules.TryGetValue(moduleId, out var parent) || !catalogue.Assets.TryGetValue(assetId, out var definition)) return;
+            if (authored[moduleId].LayerId != snapshot.ActiveLayer) return;
             var anchor = new GameObject(name).transform; anchor.SetParent(parent, false);
+            if (fixedZones.ContainsKey(name)) fixedVisuals[name] = anchor;
             anchor.position = stage.transform.TransformPoint(Point(position));
             anchor.rotation = stage.transform.rotation * Quaternion.Euler(0, angle, 0);
             var visual = SpawnAssetVisual?.Invoke(assetId, anchor);
@@ -201,6 +206,31 @@ namespace Wreckabulary.Workshop
                 if (bounds.IntersectRay(ray, out float hit) && hit < best) { best = hit; nearest = module.Id; }
             }
             return nearest;
+        }
+        public string PickFixed(Vector2 local, Rect viewport)
+        {
+            var ray = Ray(local, viewport); float best = float.MaxValue; string nearest = null;
+            foreach (var zone in fixedZones.Values)
+            {
+                if (!authored.TryGetValue(zone.ModuleId, out var module) || module.LayerId != snapshot.ActiveLayer ||
+                    snapshot.LockedLayers.Contains(module.LayerId) || zone.Pool.Count != 1 ||
+                    !catalogue.Assets.TryGetValue(zone.Pool[0].AssetId, out var asset)) continue;
+                var size = new Vector3(asset.WidthMm, asset.HeightMm, asset.DepthMm) / 1000f;
+                if (zone.FixedYaw % 180 != 0) size = new Vector3(size.z, size.y, size.x);
+                var bounds = new Bounds(stage.transform.TransformPoint(Point(zone.FixedPosition) + Vector3.up * size.y * .5f), size);
+                if (bounds.IntersectRay(ray, out float hit) && hit < best) { nearest = zone.Id; best = hit; }
+            }
+            return nearest;
+        }
+        public void PlacementPreview(WorkshopPlacementDrag drag)
+        {
+            foreach (var pair in fixedVisuals)
+            {
+                var zone = fixedZones[pair.Key];
+                bool active = drag != null && pair.Key == drag.ZoneId;
+                pair.Value.position = stage.transform.TransformPoint(Point(active ? drag.Position : zone.FixedPosition));
+                pair.Value.rotation = stage.transform.rotation * Quaternion.Euler(0, active ? drag.Yaw : zone.FixedYaw, 0);
+            }
         }
         public void TransformPreview(WorkshopTransformDrag drag, CoursePoint pivot)
         {

@@ -63,6 +63,7 @@ namespace Wreckabulary.Workshop
         public void ResumeEditing() { Visible = true; Refresh(); }
         public CourseResolution Preview()
         {
+            CancelGesture();
             LastPreview = History.Preview(Catalogue, PlayRequirements);
             if (view != null) view.Sync(History.Current, Catalogue, LastPreview.Success ? LastPreview.Manifest : null);
             status = LastPreview.Success ? "Preview ready · exact draft and seed" : LastPreview.Issues.FirstOrDefault()?.Message ?? "Preview failed";
@@ -196,6 +197,9 @@ namespace Wreckabulary.Workshop
             if (selected.Count > 0)
             {
                 GUILayout.Label(string.Join(", ", selected.Select(module => module.Id)));
+                if (SelectedFixed != null) FixedInspector();
+                else
+                {
                 GUILayout.BeginHorizontal();
                 if (Button("Rotate")) Edit("Rotate", draft => WorkshopCommands.RotateSelection(draft, Pivot(selected), 1));
                 if (Button("Duplicate")) Edit("Duplicate", draft => WorkshopCommands.Duplicate(draft, new CoursePoint(draft.GridMm * 2, 0, draft.GridMm * 2)));
@@ -214,6 +218,7 @@ namespace Wreckabulary.Workshop
                         Edit("Move", draft => WorkshopCommands.Move(draft, new CoursePoint(Millimetres(xInput) - selected[0].Position.X, 0, Millimetres(zInput) - selected[0].Position.Z), false));
                 }
                 if (selected.Count == 2 && Button("Connect modules")) Connect(selected[0], selected[1]);
+                }
                 GUILayout.Space(10); ZoneInspector(selected[0]);
                 GUILayout.Space(10); PuzzleInspector(selected[0]);
             }
@@ -250,7 +255,7 @@ namespace Wreckabulary.Workshop
         {
             GUILayout.Label("Placement", heading);
             zoneMode = GUILayout.Toolbar(zoneMode, new[] { "Fixed", "Zone", "Pool" });
-            pool = Field(zoneMode == 2 ? "Pool · ID:weight, ID:weight" : "Object ID", pool);
+            PlacementAssetPicker();
             if (zoneMode != 0)
             {
                 GUILayout.BeginHorizontal(); minCount = Field("Min", minCount); maxCount = Field("Max", maxCount); GUILayout.EndHorizontal();
@@ -261,13 +266,7 @@ namespace Wreckabulary.Workshop
             foreach (var zone in display.Zones.Where(item => item.ModuleId == module.Id))
             {
                 GUILayout.BeginHorizontal();
-                if (Button(zone.Id))
-                {
-                    zoneId = zone.Id; zoneMode = zone.Placement == "Fixed" ? 0 : zone.Pool.Count > 1 ? 2 : 1;
-                    pool = string.Join(", ", zone.Pool.Select(item => item.AssetId + (zoneMode == 2 ? ":" + item.Weight : "")));
-                    minCount = zone.MinCount.ToString(); maxCount = zone.MaxCount.ToString();
-                    probability = (zone.ChancePermille / 10f).ToString(CultureInfo.InvariantCulture); spacing = Metres(zone.SpacingMm);
-                }
+                if (Button(zone.Id)) SelectZone(zone);
                 if (Button("×", "Delete " + zone.Id)) Edit("Delete zone", draft =>
                 {
                     if (draft.LockedLayers.Contains(module.LayerId)) throw new InvalidOperationException("Unlock the floor first.");

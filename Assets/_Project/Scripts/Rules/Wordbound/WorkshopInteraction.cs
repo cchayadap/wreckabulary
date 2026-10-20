@@ -65,4 +65,40 @@ namespace Wreckabulary.Rules.Wordbound
                 (index + (direction < 0 ? -1 : 1) + modules.Length) % modules.Length)];
         }
     }
+
+    public sealed class WorkshopPlacementDrag
+    {
+        readonly int revision, grid, originalYaw;
+        readonly CoursePoint original;
+        public string ZoneId { get; }
+        public CoursePoint Position { get; private set; }
+        public int Yaw { get; private set; }
+        public WorkshopPlacementDrag(WorkshopHistory history, string zoneId)
+        {
+            var course = history.Current.Course();
+            var zone = course.Zones.Single(item => item.Id == zoneId && item.Placement == "Fixed");
+            var module = course.Modules.Single(item => item.Id == zone.ModuleId);
+            if (history.Current.LockedLayers.Contains(module.LayerId)) throw new InvalidOperationException("Unlock the selected floor first.");
+            revision = history.Revision; grid = history.Current.GridMm; ZoneId = zoneId;
+            original = Position = zone.FixedPosition; originalYaw = Yaw = zone.FixedYaw;
+        }
+        public void Move(int x, int z) => Position = new CoursePoint(
+            checked(original.X + WorkshopCommands.Snap(x, grid)), original.Y, checked(original.Z + WorkshopCommands.Snap(z, grid)));
+        public void Rotate(double degrees)
+        {
+            if (double.IsNaN(degrees) || double.IsInfinity(degrees)) throw new ArgumentException("Use a finite rotation angle.");
+            int turns = checked((int)Math.Round(degrees / 90, MidpointRounding.AwayFromZero));
+            Yaw = ((originalYaw + turns % 4 * 90) % 360 + 360) % 360;
+        }
+        public bool Commit(WorkshopHistory history, CourseCatalogue catalogue)
+        {
+            if (history.Revision != revision) throw new InvalidOperationException("The draft changed. Start the drag again.");
+            return history.Execute("Move object", draft =>
+            {
+                var zone = draft.Course.Zones.Single(item => item.Id == ZoneId);
+                zone.FixedPosition = Position; zone.FixedYaw = Yaw; zone.Yaws = new List<int> { Yaw };
+                WorkshopCommands.SetZone(draft, zone, catalogue);
+            });
+        }
+    }
 }
