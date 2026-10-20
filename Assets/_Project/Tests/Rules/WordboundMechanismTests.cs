@@ -8,6 +8,47 @@ namespace Wreckabulary.Tests
 {
     public sealed class WordboundMechanismTests
     {
+        [TestCase(0), TestCase(1)]
+        public void RehashedSnapshotCannotStartARecipeMechanismWithoutItsDeployedItem(int lap)
+        {
+            var f = WordboundAuthorityTests.Create();
+            f.Step();
+            var s = f.State;
+            var mechanisms = s.Mechanisms.Select(m => m.PuzzleId == "BedBridge" && m.Team == 0 && m.Lap == lap ?
+                new MatchMechanismState(m.PuzzleId, m.Team, m.Lap, false, 1, 1, 1, "") : m);
+            var changed = new MatchSnapshot(s.Binding, s.Epoch, s.Sequence, s.NextWorldEntityId, s.Progress, s.Economy,
+                s.Commands, s.Actors, s.Bodies, s.Resources, mechanisms, s.RandomStreams, s.NarrativeFlags);
+            var result = f.Source.Import(MatchSnapshotCodec.Export(changed));
+            Assert.IsFalse(result.Success);
+            Assert.IsNull(result.Snapshot);
+        }
+
+        [TestCase("future-lap"), TestCase("future-objective"), TestCase("wrong-module"), TestCase("inactive"), TestCase("wrong-recipe")]
+        public void RehashedActiveMechanismMustMatchItsReachedObjectiveAndLiveItem(string mutation)
+        {
+            var f = DeployedBed(out string itemId);
+            f.Match.Advance(f.State.Progress.WallClockMs + 17, hostMechanisms: new[]
+            { new HostMechanismObservation("BedBridge", 0, 0, true, f.Match.Tick + 1, 1, itemId) });
+            var s = f.State;
+            var mechanisms = s.Mechanisms.Select(m =>
+            {
+                if (mutation == "future-lap" && m.PuzzleId == "BedBridge" && m.Lap == 1 ||
+                    mutation == "future-objective" && m.PuzzleId == "FanDoor" && m.Lap == 0)
+                    return new MatchMechanismState(m.PuzzleId, m.Team, m.Lap, false, s.Progress.Tick, s.Progress.Tick, 1, itemId);
+                if (mutation == "wrong-recipe" && m.PuzzleId == "BedBridge" && m.Lap == 0)
+                    return new MatchMechanismState(m.PuzzleId, m.Team, m.Lap, false, m.ActivatedTick, m.PhaseTick, m.ProgressTicks,
+                        s.Bodies.First(b => b.Kind == WorldBodyKind.Item && b.Id != itemId).Id);
+                return m;
+            });
+            var bodies = s.Bodies.Select(b => b.Id == itemId && (mutation == "wrong-module" || mutation == "inactive") ?
+                b.At(mutation == "wrong-module" ? new WorldVector(0, 6, 0) : b.Position,
+                    b.Velocity, active: mutation != "inactive") : b);
+            var changed = new MatchSnapshot(s.Binding, s.Epoch, s.Sequence, s.NextWorldEntityId, s.Progress, s.Economy,
+                s.Commands, s.Actors, bodies, s.Resources, mechanisms, s.RandomStreams, s.NarrativeFlags);
+            var result = f.Source.Import(MatchSnapshotCodec.Export(changed));
+            Assert.IsFalse(result.Success, mutation);
+        }
+
         static WordboundAuthorityTests.Fixture DeployedBed(out string item)
         {
             var f = WordboundAuthorityTests.Create();

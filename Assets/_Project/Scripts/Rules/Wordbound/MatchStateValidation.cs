@@ -250,6 +250,28 @@ namespace Wreckabulary.Rules.Wordbound
                     int item = Suffix(m.ItemEntityId, "item:");
                     Need(s.Economy.ItemStates.Any(i => i.Id == item), "Mechanism item reference is missing.");
                 }
+                if (!m.Solved && m.ActivatedTick >= 0)
+                {
+                    var puzzle = course.Puzzles.Single(p => p.Id == m.PuzzleId);
+                    Need(!team.Finished && m.Lap == team.Lap &&
+                        team.NextCheckpoint < course.Laps[team.Lap].Checkpoints.Count &&
+                        course.Laps[team.Lap].Checkpoints[team.NextCheckpoint].PuzzleIds.Contains(m.PuzzleId) &&
+                        puzzle.PrerequisiteIds.All(team.CompletedPuzzles.Contains),
+                        "Active mechanism is outside the reached objective or its prerequisites.");
+                    Need(m.ItemEntityId != "" || puzzle.RecipeId == "", "Active mechanism requires its deployed recipe item.");
+                    if (m.ItemEntityId != "")
+                    {
+                        var item = s.Economy.ItemStates.Single(i => i.Id == Suffix(m.ItemEntityId, "item:"));
+                        var body = s.Bodies.SingleOrDefault(b => b.Id == m.ItemEntityId);
+                        var bounds = course.Geometry.Single(g => g.Id == puzzle.ModuleId).Bounds;
+                        Need(body != null && body.Kind == WorldBodyKind.Item && body.Active && body.OwnerTeam == m.Team &&
+                            item.State == ItemState.Deployed && item.Origin == ItemOrigin.Crafted && item.Word == puzzle.RecipeId &&
+                            body.Position.X >= bounds.Min.X / 1000f && body.Position.X <= bounds.Max.X / 1000f &&
+                            body.Position.Y >= bounds.Min.Y / 1000f - .5f && body.Position.Y <= bounds.Max.Y / 1000f + .5f &&
+                            body.Position.Z >= bounds.Min.Z / 1000f && body.Position.Z <= bounds.Max.Z / 1000f,
+                            "Active mechanism item is missing, inaccessible or incompatible with its recipe.");
+                    }
+                }
             }
         }
 
