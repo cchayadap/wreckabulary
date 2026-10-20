@@ -1,0 +1,61 @@
+{
+  "doneMarker": [
+    {
+      "unit": "lobby",
+      "status": "done",
+      "files": ["Assets/Game/Lobby/LobbyController.cs", "Assets/Game/Tests/EditMode/LobbyTests.cs"],
+      "tests": ["node Tools/kit/gate/game_gate.mjs core --json -> PASS 14/14"],
+      "verify": "node Tools/kit/gate/game_gate.mjs check all --json",
+      "summary": "Lobby join/leave with 4 seats; bots fill empty seats through the input path.",
+      "contract_changes": [],
+      "requests": ["integrator: add LobbyScene to the build profile"]
+    }
+  ],
+  "blockedMarker": [
+    { "unit": "hud", "status": "blocked", "reason": "UI font licence unknown", "needs": ["owner: choose a font (H11)"] }
+  ],
+  "waveManifest": [
+    {
+      "schema": 1,
+      "wave": "m1-a",
+      "milestone": "M1",
+      "workspace": "C:/Games/Lab",
+      "design_hash": "3f1c0a8e1b5d4c7a9e2f6b8d0c4a1e3f5b7d9c1e3a5f7b9d1c3e5a7f9b1d3c5e",
+      "design_docs": ["Docs/TASK.md", "Docs/design/DESIGN.md"],
+      "frozen_utc": "2026-10-01T19:00:00Z",
+      "units": [
+        { "id": "doors", "owned": ["Assets/Game/Doors/**"], "context": "BuildNotes/m1-a/doors.context.md", "brief": "Door state machine per DESIGN §4", "verify": ["check all", "core"], "status": "done", "attempts": 1, "updated_utc": "2026-10-01T21:00:00Z" },
+        { "id": "lobby", "owned": ["Assets/Game/Lobby/**"], "context": "BuildNotes/m1-a/lobby.context.md", "brief": "Lobby per DESIGN §6", "status": "failed", "attempts": 2, "last_failure": "LIMIT" }
+      ],
+      "contracts": [],
+      "gate_rows": ["M1-01", "M1-02"],
+      "unity_launch_budget": 14,
+      "max_blocked": 0
+    }
+  ],
+  "workflowArgs": [
+    {
+      "wave": "m1-a",
+      "workspace": "C:/Games/Lab",
+      "milestone": "M1",
+      "design_hash": "3f1c0a8e1b5d4c7a9e2f6b8d0c4a1e3f5b7d9c1e3a5f7b9d1c3e5a7f9b1d3c5e",
+      "units": [{ "id": "lobby", "owned": ["Assets/Game/Lobby/**"], "context": "BuildNotes/m1-a/lobby.context.md", "brief": "Lobby per DESIGN §6" }],
+      "gate_rows": ["M1-01", "M1-02"],
+      "unity_launch_budget": 14,
+      "max_blocked": 0
+    }
+  ],
+  "harvest": [
+    {
+      "schema": 1,
+      "utc": "2026-10-02T05:00:00Z",
+      "run": "wf_7cc87fca-996",
+      "source": "C:/Users/me/.claude/projects/C--Games-Lab/3e0c5d2a/subagents/workflows/wf_7cc87fca-996",
+      "agents": [
+        { "label": "build:doors", "agent_id": "a1", "state": "DONE", "class": null, "secs": 812, "last_text": "done", "resets_text": null, "result_file": "Docs/runs/m1-a/wf_7cc87fca-996/build_doors.result.json" },
+        { "label": "build:lobby#2", "agent_id": "a7", "state": "FAILED", "class": "LIMIT", "secs": 45, "last_text": "You've hit your session limit · resets 4:10am (Asia/Hong_Kong)", "resets_text": "resets 4:10am (Asia/Hong_Kong)", "result_file": null }
+      ],
+      "chains": { "build:lobby": { "attempts": 2, "exhausted": true } }
+    }
+  ]
+}

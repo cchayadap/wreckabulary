@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/budget.schema.json",
+  "title": "ArtSource/_gen/budget.json v1: hard and soft spend caps per provider, in native units",
+  "description": "Committed. assetgen reserve refuses when spent + reserved + estimate > hard (under ArtSource/_gen/ledger.lock) and warns at soft. soft <= hard is checked in code. $defs: ledgerLine (ArtSource/_gen/ledger.jsonl), assetManifest (ArtSource/_gen/<asset_id>/asset.json). Contract: CONTRACTS.md §7.5.",
+  "type": "object",
+  "required": ["schema", "providers", "attempts_per_stage", "reservation_ttl_min"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "providers": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_-]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["unit", "soft", "hard"],
+        "additionalProperties": false,
+        "properties": {
+          "unit": { "enum": ["USD", "credits"] },
+          "soft": { "type": "number", "minimum": 0 },
+          "hard": { "type": "number", "minimum": 0 },
+          "ceilings": {
+            "type": "object",
+            "description": "Endpoint glob → max estimate per call (token-priced endpoints). '*' is the default.",
+            "additionalProperties": { "type": "number", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "attempts_per_stage": { "type": "integer", "minimum": 1, "maximum": 10, "default": 3 },
+    "max_parallel": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 }, "description": "Optional cap below providers.json pools." },
+    "reservation_ttl_min": { "type": "integer", "minimum": 5, "maximum": 1440, "default": 60, "description": "An unused reservation expires after this; guard G8 treats it as absent." }
+  },
+  "$defs": {
+    "attemptId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*/[a-z0-9][a-z0-9_-]*/a[0-9]{2,3}$", "description": "<asset_id>/<stage>/a<NN>; also the attempt folder under ArtSource/_gen and the idempotency key." },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "ledgerLine": {
+      "title": "One line of ArtSource/_gen/ledger.jsonl (append-only, written only by assetgen under ledger.lock)",
+      "type": "object",
+      "required": ["utc", "event", "provider"],
+      "additionalProperties": false,
+      "properties": {
+        "utc": { "type": "string", "format": "date-time" },
+        "event": { "enum": ["reserve", "receipt", "status", "complete", "download", "check", "review", "accept", "reject", "settle", "release", "error", "orphan"] },
+        "attempt_id": { "$ref": "#/$defs/attemptId" },
+        "asset_id": { "type": "string" },
+        "stage": { "type": "string" },
+        "lane": { "type": "string" },
+        "provider": { "type": "string", "minLength": 1 },
+        "endpoint": { "type": "string" },
+        "access": { "enum": ["mcp", "rest", "cli", "local"] },
+        "reservation_id": { "type": "string" },
+        "est": { "type": "number", "minimum": 0 },
+        "actual": { "type": "number", "minimum": 0 },
+        "unit": { "enum": ["USD", "credits"] },
+        "request_id": { "type": ["string", "null"] },
+        "status": { "type": "string" },
+        "input_sha": { "$ref": "#/$defs/sha256" },
+        "prompt_sha": { "$ref": "#/$defs/sha256" },
+        "refs": {
+          "type": "array",
+          "items": { "type": "object", "required": ["sha256", "role"], "properties": { "sha256": { "$ref": "#/$defs/sha256" }, "role": { "type": "string" }, "url": { "type": "string" } } }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "sha256", "bytes", "kind"],
+            "properties": {
+              "path": { "type": "string" },
+              "sha256": { "$ref": "#/$defs/sha256" },
+              "bytes": { "type": "integer", "minimum": 0 },
+              "kind": { "enum": ["png", "jpeg", "webp", "glb", "fbx", "wav", "mp3", "m4a", "ogg", "mp4", "exr", "hdr", "zip", "other"], "description": "From magic bytes, never from the URL." }
+            }
+          }
+        },
+        "result": { "type": "object", "description": "check: {ok, failures[]}; review: {verdict, reviewer}." },
+        "reason": { "type": "string" },
+        "by": { "type": "string" }
+      },
+      "allOf": [
+        { "if": { "properties": { "event": { "const": "orphan" } } }, "then": { "required": ["request_id"] }, "else": { "required": ["attempt_id"] } },
+        { "if": { "properties": { "event": { "const": "reserve" } } }, "then": { "required": ["endpoint", "est", "unit", "reservation_id"] } },
+        { "if": { "properties": { "event": { "const": "receipt" } } }, "then": { "required": ["request_id", "reservation_id"], "properties": { "request_id": { "type": "string", "minLength": 1 } } } },
+        { "if": { "properties": { "event": { "const": "settle" } } }, "then": { "required": ["actual", "unit"] } },
+        { "if": { "properties": { "event": { "enum": ["accept", "reject", "release"] } } }, "then": { "required": ["reason"] } },
+        { "if": { "properties": { "event": { "const": "download" } } }, "then": { "required": ["outputs"] } }
+      ]
+    },
+    "assetManifest": {
+      "title": "ArtSource/_gen/<asset_id>/asset.json (written only by assetgen; other tools call `assetgen asset-set`)",
+      "type": "object",
+      "required": ["schema", "asset_id", "class", "stages"],
+      "additionalProperties": false,
+      "properties": {
+        "schema": { "const": 1 },
+        "asset_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+        "class": { "enum": ["concept", "sheet", "prop_mesh", "character_mesh", "texture", "tile", "panorama", "hdri", "icon", "ui", "vfx", "audio", "music", "voice", "motion", "other"] },
+        "usage": { "type": "string" },
+        "style_lock_version": { "type": "integer", "minimum": 1 },
+        "stages": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["attempts", "accepted"],
+            "properties": {
+              "attempts": { "type": "array", "items": { "$ref": "#/$defs/attemptId" } },
+              "accepted": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/attemptId" }] }
+            }
+          }
+        },
+        "accepted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["attempt_id", "path", "sha256", "utc", "reason"],
+            "properties": {
+              "attempt_id": { "$ref": "#/$defs/attemptId" },
+              "path": { "type": "string" },
+              "sha256": { "$ref": "#/$defs/sha256" },
+              "utc": { "type": "string", "format": "date-time" },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "rig_route": { "enum": ["construction", "mia", "tripo", "meshy", "donor", "mixamo", "none"], "description": "mia blocks ship until U-14 is decided (licenses_check reads this)." },
+        "licence_rows": { "type": "array", "items": { "type": "string" }, "description": "Docs/licenses.csv paths written for this asset." },
+        "ai_outputs_at_accept": { "enum": ["ship", "reference_only", "marketing_only"] },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

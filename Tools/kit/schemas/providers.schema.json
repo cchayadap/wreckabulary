@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/providers.schema.json",
+  "title": "Tools/kit/assetgen/providers.json v1: the routing, price, concurrency and licence table assetgen and guard G8 read",
+  "description": "One entry per provider and per endpoint, each with verified_on (assetgen doctor warns at > 60 days). badge research_only endpoints are refused whenever style_lock ai_outputs is ship; fast:true is the only case where mcp run_model is allowed. $defs.styleLock validates Docs/style_lock.json. Contract: CONTRACTS.md §7.5.",
+  "type": "object",
+  "required": ["schema", "verified_on", "pools", "providers", "endpoints"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "verified_on": { "type": "string", "format": "date" },
+    "pools": {
+      "type": "object",
+      "description": "Concurrency pools (per-provider semaphores). fal starts at 2 on a new account.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["max"],
+        "additionalProperties": false,
+        "properties": { "max": { "type": "integer", "minimum": 1, "maximum": 64 }, "note": { "type": "string" } }
+      }
+    },
+    "providers": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_-]*$" },
+      "additionalProperties": { "$ref": "#/$defs/provider" }
+    },
+    "endpoints": { "type": "array", "items": { "$ref": "#/$defs/endpoint" } }
+  },
+  "$defs": {
+    "provider": {
+      "type": "object",
+      "required": ["name", "access", "auth", "pool", "training_on_uploads", "verified_on"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "access": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["mcp", "rest", "cli", "local"] } },
+        "mcp_server": { "type": "string", "description": "Name in .mcp.json, e.g. fal-ai; its mutating tools are guard G8's scope." },
+        "mcp_mutating_tools": { "type": "array", "items": { "type": "string", "pattern": "^mcp__" }, "description": "Exact tool names that need an open reservation (e.g. mcp__fal-ai__submit_job)." },
+        "auth": {
+          "type": "object",
+          "required": ["scheme"],
+          "additionalProperties": false,
+          "properties": {
+            "scheme": { "enum": ["bearer", "key", "x-api-key", "oauth", "none"], "description": "fal MCP uses Bearer, fal REST uses `Key <key>`." },
+            "env": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+            "keyring": {
+              "type": "object",
+              "required": ["service", "username"],
+              "properties": { "service": { "type": "string" }, "username": { "type": "string" } },
+              "description": "Windows Credential Manager entry read through Python keyring first (OWNER_DEFAULTS C-19), then env."
+            }
+          }
+        },
+        "base_url": { "type": "string", "format": "uri" },
+        "pool": { "type": "string" },
+        "training_on_uploads": { "enum": [true, false, "unknown"], "description": "true needs style_lock uploads_ok[provider] before any owner art is uploaded." },
+        "no_native_cap": { "type": "boolean" },
+        "blocked_plans": { "type": "array", "items": { "type": "string" }, "description": "Plans whose output never ships (free tiers etc.)." },
+        "attribution_plans": { "type": "array", "items": { "type": "string" }, "description": "Plans whose output ships only with attribution (Meshy free: CC BY)." },
+        "watermark_plans": { "type": "array", "items": { "type": "string" } },
+        "verified_on": { "type": "string", "format": "date" },
+        "notes": { "type": "string" }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "required": ["id", "provider", "endpoint", "kind", "access", "badge", "fast", "price", "output_keys", "ship", "verified_on"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*:.+$", "description": "<provider>:<endpoint>" },
+        "provider": { "type": "string" },
+        "endpoint": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["image", "image_edit", "sheet", "mesh", "texture", "panorama", "hdri", "icon", "vfx", "audio", "music", "voice", "video", "rig", "motion", "upscale", "other"] },
+        "access": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["mcp", "rest", "cli", "local"] } },
+        "badge": { "enum": ["commercial", "research_only", "n/a"] },
+        "fast": { "type": "boolean", "description": "true: mcp run_model is allowed (returns quickly); otherwise submit_job → check_job → get_job_result." },
+        "price": {
+          "type": "object",
+          "required": ["unit", "base", "per"],
+          "additionalProperties": false,
+          "properties": {
+            "unit": { "enum": ["USD", "credits"] },
+            "base": { "type": "number", "minimum": 0 },
+            "per": { "enum": ["call", "image", "second", "1k_chars", "mesh", "task", "megapixel", "token_estimate"] },
+            "addons": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 } },
+            "ceiling": { "type": "number", "minimum": 0, "description": "Per-call ceiling for token-priced endpoints." }
+          }
+        },
+        "output_keys": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Result keys that hold outputs (allowlist, e.g. images, model_mesh, model_urls.glb, audio). URLs present in the request are never outputs." },
+        "ship": {
+          "type": "object",
+          "required": ["blocked"],
+          "additionalProperties": false,
+          "properties": {
+            "blocked": { "type": "boolean" },
+            "reason": { "type": "string" },
+            "pending": { "type": "string", "description": "e.g. H11 / U-30 for the Hunyuan family." }
+          }
+        },
+        "verified_on": { "type": "string", "format": "date" },
+        "notes": { "type": "string" }
+      }
+    },
+    "styleLock": {
+      "title": "Docs/style_lock.json (agent drafts, owner approves)",
+      "type": "object",
+      "required": ["schema", "version", "ai_outputs", "uploads_ok", "anchors", "approved_by_owner"],
+      "additionalProperties": false,
+      "properties": {
+        "schema": { "const": 1 },
+        "version": { "type": "integer", "minimum": 1, "description": "Incremented whenever an anchor changes; assets record the version they passed." },
+        "ai_outputs": { "enum": ["ship", "reference_only", "marketing_only"], "description": "reference_only: nothing generated enters Assets/. KNOTWELL today: reference_only." },
+        "uploads_ok": { "type": "object", "additionalProperties": { "type": "boolean" }, "description": "Owner 'yes' per provider that may train on uploads (Higgsfield below Enterprise, Meshy, Uthana)." },
+        "anchors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "sha256", "role"],
+            "additionalProperties": false,
+            "properties": {
+              "path": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "role": { "type": "string", "description": "style_anchor | palette | character_ref | environment_ref | ui_ref" }
+            }
+          }
+        },
+        "palette": { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" } },
+        "palette_file": { "type": "string" },
+        "reserved_hues": { "type": "array", "items": { "type": "object", "required": ["hue_deg", "tolerance_deg"], "properties": { "hue_deg": { "type": "number" }, "tolerance_deg": { "type": "number" }, "min_s": { "type": "number" }, "min_v": { "type": "number" } } } },
+        "presets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "provider": { "type": "string" },
+              "endpoint": { "type": "string" },
+              "params": { "type": "object" },
+              "preamble": { "type": "string" },
+              "suffix": { "type": "string" },
+              "negatives": { "type": "string" },
+              "resolution": { "type": "string" }
+            }
+          }
+        },
+        "banned_words": { "type": "array", "items": { "type": "string" } },
+        "class_budgets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": { "tris_max": { "type": "integer", "minimum": 0 }, "tex_max": { "type": "integer", "minimum": 0 }, "height_m": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 } }
+          }
+        },
+        "approved_by_owner": { "type": "boolean" },
+        "approved_utc": { "type": ["string", "null"], "format": "date-time" }
+      }
+    }
+  }
+}

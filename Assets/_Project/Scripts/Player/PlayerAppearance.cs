@@ -228,8 +228,11 @@ namespace Wreckabulary
                         {
                             var colour = catalogue.ColourFor(outfit, piece.Slot);
                             string materialName = materials[i] ? materials[i].name : "";
-                            bool rib = MatchesTintMaterial(materialName, "fabric_rib") && piece.TintMaterial == "fabric_main";
-                            if (colour != null && (MatchesTintMaterial(materialName, piece.TintMaterial) || rib))
+                            bool rib = MatchesTintMaterial(materialName, "fabric_rib") && piece.TintMaterials.Contains("fabric_main");
+                            bool tinted = false;
+                            foreach (string wanted in piece.TintMaterials)
+                                if (MatchesTintMaterial(materialName, wanted)) { tinted = true; break; }
+                            if (colour != null && (tinted || rib))
                             {
                                 var tint = new Color(colour.R, colour.G, colour.B, 1f);
                                 if (rib) tint *= .75f;
@@ -325,11 +328,18 @@ namespace Wreckabulary
             locomotion.Set(movement, false, controller.IsKnockedOut ? .25f : .15f);
             var moving = locomotion.Playable;
             if (movement is "Walk_InPlace" or "Run_InPlace")
-                moving.SetSpeed(CyclesPerSecond(movement == "Run_InPlace", speed) * moving.GetAnimationClip().length);
+            {
+                var walkClip = moving.GetAnimationClip();
+                if (walkClip) moving.SetSpeed(CyclesPerSecond(movement == "Run_InPlace", speed) * walkClip.length);
+            }
             else if (controller.IsKnockedOut)
             {
-                float end = moving.GetAnimationClip().length * .95f;
-                if (moving.GetTime() >= end) { moving.SetTime(end); moving.SetSpeed(0); }
+                var knockedClip = moving.GetAnimationClip();
+                if (knockedClip)
+                {
+                    float end = knockedClip.length * .95f;
+                    if (moving.GetTime() >= end) { moving.SetTime(end); moving.SetSpeed(0); }
+                }
             }
             else moving.SetSpeed(1);
             bool crafting = controller.Summoner && controller.Summoner.IsCrafting && clips.ContainsKey("Inspect_OneHand");
@@ -343,8 +353,10 @@ namespace Wreckabulary
                     ? "Hold_OneHand" : "Carry_TwoHand") : null;
             if (pose != null) upperBody?.Set(pose);
             if (upperBody != null && upperBody.Playable.IsValid())
-                upperBody.Playable.SetSpeed(acting && !fullBodyAction
-                    ? upperBody.Playable.GetAnimationClip().length / actionDuration : 1f);
+            {
+                var upperClip = upperBody.Playable.GetAnimationClip();
+                upperBody.Playable.SetSpeed(acting && !fullBodyAction && upperClip ? upperClip.length / actionDuration : 1f);
+            }
             float dt = Time.deltaTime;
             poseWeight = Mathf.MoveTowards(poseWeight, pose == null ? 0f : 1f, dt * 10f);
             if (layers.IsValid()) layers.SetInputWeight(1, poseWeight);

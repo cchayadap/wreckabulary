@@ -160,11 +160,11 @@ namespace Wreckabulary
                 var events = new GameObject("UI Events", typeof(EventSystem), typeof(InputSystemUIInputModule));
                 events.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
             }
-            joins = FindFirstObjectByType<PlayerJoinManager>();
-            typewriter = FindFirstObjectByType<Typewriter>();
-            rooms = FindFirstObjectByType<RoomBuilder>();
-            clearOut = FindFirstObjectByType<ClearOutController>();
-            rounds = FindFirstObjectByType<RoundManager>();
+            joins = FindAnyObjectByType<PlayerJoinManager>();
+            typewriter = FindAnyObjectByType<Typewriter>();
+            rooms = FindAnyObjectByType<RoomBuilder>();
+            clearOut = FindAnyObjectByType<ClearOutController>();
+            rounds = FindAnyObjectByType<RoundManager>();
             iconAtlas = Resources.Load<Texture2D>("UI/ActionIcons");
             roundSprite = MakeShape(true);
             panelSprite = MakeShape(false);
@@ -897,6 +897,8 @@ namespace Wreckabulary
         }
         void ShowHand(HandView view, int slot, bool detail)
         {
+            // The Escape match runs without a bot crew, so a slot can be missing. Skip it.
+            if (view == null || !view.face || !view.edge || !view.label || !view.empty || !view.icon) return;
             var combat = LocalPlayer.Combat;
             var gear = combat.GearIn(slot);
             bool active = slot == combat.ActiveSlot;

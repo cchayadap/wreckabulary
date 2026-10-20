@@ -42,6 +42,12 @@ namespace Wreckabulary
             if (!room) room = GetComponent<RoomBuilder>();
             if (!deliveries) deliveries = GetComponent<DeliverySpawner>();
             if (!hud) hud = FindAnyObjectByType<GameHud>();
+            if (Match.Mode == "Escape")
+            {
+                gameObject.AddComponent<EscapeDirector>().Configure(joins, room, deliveries, hud);
+                enabled = false;
+                return;
+            }
             if (Match.Mode == "MovingOut")
             {
                 gameObject.AddComponent<MovingOutDirector>().Configure(joins, room, deliveries, hud);

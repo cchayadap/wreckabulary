@@ -534,6 +534,12 @@
    "KidsRoom",
    "Bedroom",
    "Kitchen"
+  ],
+  "Escape": [
+   "Bathroom",
+   "KidsRoom",
+   "Bedroom",
+   "Kitchen"
   ]
  },
  "movingDay": [

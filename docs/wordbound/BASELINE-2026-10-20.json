@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-10-20T10:16:51.1918089Z",
+  "status": "baseline-regressions-passed-across-recorded-runs",
+  "startRevision": "f7c3c90301817a033c98de6e32635d6d56de39de",
+  "incomingRevision": "fb94c9a0e159c792d4d0264329bfa66f56e9fc77",
+  "editor": {
+    "fixedCases": {
+      "total": 1,
+      "failed": 0,
+      "passed": 1
+    },
+    "initial": {
+      "total": 353,
+      "failed": 1,
+      "passed": 352
+    }
+  },
+  "runtime": {
+    "fixedCases": {
+      "total": 2,
+      "failed": 0,
+      "passed": 2
+    },
+    "initial": {
+      "total": 115,
+      "failed": 2,
+      "passed": 113
+    }
+  },
+  "rulesNunit": 225,
+  "rulesLightweight": 249,
+  "web": 122,
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261020T094432Z.xml",
+      "sha256": "3fcc473d1a099e7ca33b223e7051380db283daa208234139c0bd14702b6ac5f4"
+    },
+    {
+      "path": "TestResults/editmode_20261020T101104Z.xml",
+      "sha256": "b6d61379be3d08f7bf276650ce94421390eb6630bf1951f0bb9137c681115fff"
+    },
+    {
+      "path": "TestResults/playmode_20261020T100300Z.xml",
+      "sha256": "04df55725cfe9b49b398d0dba494cc4f3eca148418ff00197d47d302f59d21e7"
+    },
+    {
+      "path": "TestResults/playmode_20261020T101411Z.xml",
+      "sha256": "874be0aac103291e704e322a346aad0dffda91f06bec223b973b30cbfa0c6f28"
+    },
+    {
+      "path": "Logs/gate_compile_20261020T092501Z.log",
+      "sha256": "6fb93a7a86edc599a88ae49ae2f9a74889075dcb19bd0a2eeda4795ee36c27da"
+    },
+    {
+      "path": "Logs/gate_core_20261020T093352Z.log",
+      "sha256": "5cd5d9623a52d43241ec7a4ae1a91eff2bce3b6ef123d21532debe24c8d53bb8"
+    }
+  ],
+  "limits": [
+    "Counts are separate suites and focused follow-ups, not one combined run.",
+    "No Wordbound mode, networking, host migration, workshop usability or full-map performance acceptance is implied.",
+    "Human acceptance is not run."
+  ],
+  "next": "Commit baseline after final source checks and split five isolated feature branches."
+}

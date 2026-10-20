@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 
 namespace Wreckabulary.Rules.Tests
@@ -44,7 +45,7 @@ namespace Wreckabulary.Rules.Tests
         public void InvalidStaminaBalanceIsRejected()
         {
             var rules = new GameRules { MaxStamina = 20, DodgeStamina = 30, StaminaRegen = -1 };
-            Assert.That(rules.Validate(), Has.Some.Contains("stamina"));
+            Assert.IsTrue(rules.Validate().Any(error => error.Contains("stamina")));
         }
     }
 }

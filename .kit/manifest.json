@@ -1,0 +1,1553 @@
+{
+  "schema": 1,
+  "scope": "project",
+  "kit_version": "dev",
+  "updated_utc": "2026-10-20T09:21:53Z",
+  "files": {
+    "Tools/kit/lib/cli.mjs": {
+      "sha_installed": "0b1ac6d9963c79fcd8392e420a605c1e90857405db47ed9d6b107173e9977322",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/csv.mjs": {
+      "sha_installed": "3cbd2d7a105a768b96cec0f3f7d1934141099e0319b4bb3fba6bfd7000394c73",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/hash.mjs": {
+      "sha_installed": "5799d548c25ae554dd9eb8548ec5c1fbec0de77ad3f45847496bbe6dae0f4e58",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/jsonio.mjs": {
+      "sha_installed": "09a0d031ab647557149b55946e2ef4d5e72402a279d25401275b68a32e2e034e",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/locks.mjs": {
+      "sha_installed": "297577070bdb40454afbfeb7e68598a8044edc096cdc6a1a81a36923b0773d86",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/merge.mjs": {
+      "sha_installed": "f532cfb58badb6a65c8a46a826ae61ac184f725e3c41ed0589ceb98fd67a0049",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/paths.mjs": {
+      "sha_installed": "61e846523e019eab849f1894b24f7cf3bd2660fdd45bcf8f8a9b124f8a24cfd2",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/proc.mjs": {
+      "sha_installed": "06ef6f12db15a724b2a005d3b826599c34789c978f493a1b2457f62117df2c22",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/schema.mjs": {
+      "sha_installed": "21dab4eb49b36262c47d4147e10a2a98c819b3bfb16d8399e42cf96bb4e5f774",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/schemas/harness.examples.json": {
+      "sha_installed": "4b645181b73e66ae0d68183a565610d5e3e0f842501a1bf7be3110979a62bae6",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/schemas/harness.schema.json": {
+      "sha_installed": "4092a5ae62a280dfcb1e68f94b7cf60d36daedc29a4d074ed4c74f54637702d4",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/schemas/lanes.examples.json": {
+      "sha_installed": "d2f0b88d7f9088333aff883cefde0607f88861a26d7ca512b34e0863892b124a",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/schemas/lanes.schema.json": {
+      "sha_installed": "c7c23f55ee077721c962541d851e99f155914c797ab0e81523fc97d2fe42036a",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/time.mjs": {
+      "sha_installed": "c35a87dca7f171eef75991f4972231980b85e84b58a7fc0f7b61da54ce7513af",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/lib/tree.mjs": {
+      "sha_installed": "40b85ab860bb51440e7c4e767633623b6dc3fb030938b52fe2008ec8818ac9b3",
+      "owner_skill": "game-studio-run",
+      "kind": "lib"
+    },
+    "Tools/kit/hooks/cs_check_async.mjs": {
+      "sha_installed": "4fa77605eea0131946cc3d684b3266302fa277d99e01f26a89c203e6e0f4a9e8",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/guard.mjs": {
+      "sha_installed": "134eb1ca8b42fba3cfa25733e56a679fc11abf6ce8190add66da582c5bfd4650",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/keep_working.mjs": {
+      "sha_installed": "8b9d60019f0650590686730089eb12488eb12597c39a3f01a494901b62bf5336",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/lane_deliverable_check.mjs": {
+      "sha_installed": "168cead8a8112378bc21dec71c56567a8a8076b809f687555957013698f9c22f",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/lib/harness.mjs": {
+      "sha_installed": "97f0898811c86c1d7f3e3be954fde2f8e011fba50dcb55eb8cafe604c57364f8",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/notification_log.mjs": {
+      "sha_installed": "23c585835bda1a95e5a0b0e493a751637d756afa85da45561e6561b471d713f0",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/owner_inbox.mjs": {
+      "sha_installed": "e9b83b9317913053b2e95688773746369a22b3dcb5fefb710f716d390ff8087a",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/post_compact_archive.mjs": {
+      "sha_installed": "2a4cf8779445b8d823dcf52b8d340e4f7bb1bb80c09ce812a395a9923d58c989",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/precompact_checkpoint.mjs": {
+      "sha_installed": "fdbb655e19f20206175521c4f883b4971d1a91a319855cef05edaf8397f14203",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/state_brief.mjs": {
+      "sha_installed": "2eef658ed5163c9ae75c9a4bf02f9254c2e7d312f406b613da111aa7337ae8b0",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/hooks/stop_failure_log.mjs": {
+      "sha_installed": "2440042e80867c1a3bebcc18be42806df152cf1e502e78cf6e287b77e85729fc",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/harness/gate_close.mjs": {
+      "sha_installed": "ec448ea1c2cb4dfdc2a3c0ab9745e8674fb1c68386dfb5f70a5b0b40b4accef2",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/harness/next_action.mjs": {
+      "sha_installed": "817e8c3d5870c5b3a63cd65a63843488830855c40d393beb98360420840b5d0b",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/harness/report_gen.mjs": {
+      "sha_installed": "3e24305c6fe8a8e6fb4340d36c90a5e5b418ef7022a890d9aa13beee7082b08e",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/harness/run_window.mjs": {
+      "sha_installed": "ba27628b9c65245893db28df0a4785e0f511213196071bc86945b0f49ac8f37d",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/harness/token_usage.mjs": {
+      "sha_installed": "63a4be91baa28515595857ed28b64f8a3b2c6f902cdfea50dec4e3792aa0aca4",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/harness/wave_manifest.mjs": {
+      "sha_installed": "5a3774ac526d95192a2fd677a3155d5cf5218501b89f3466bd1bb079571449a5",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/hygiene_watchdog.ps1": {
+      "sha_installed": "0ea1e1a51c84339d31b039c57578b717bb9515905757d73ed1ecbae14726ed54",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/launch_claude.ps1": {
+      "sha_installed": "14a8eb259205e08e76159f68d22f1ef90fa7a01cf7eb7e7c4fd2404203f9b27f",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/lib/host.ps1": {
+      "sha_installed": "02bd878c2b8628d266b39e5ae635b0ab377870732658ac7e5d94f6a106f1a06d",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/lib/json.ps1": {
+      "sha_installed": "722ffc8cd53a72f1d8c5c9a733ff11309c7f587e817494d85568001d99e0a294",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/lib/tasks.ps1": {
+      "sha_installed": "03a94b417c4019d861c0528192f8aed346d8e39f9aacb558634c82b0384ff7e5",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/register_tasks.ps1": {
+      "sha_installed": "28c3c7fa8a95dcc8bd12922a2ba447cd5abf5f24858dd843dd8ad031854a8855",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/run.ps1": {
+      "sha_installed": "83427d0df85a5da694da95f5ba0f2cd27eb663742fea5cbc944190fee8cd556e",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/supervisor.ps1": {
+      "sha_installed": "4d4c0adebe9d16a4ceb27a64557ceeb0d19b1b6d5615d1a9ae1e53cdac5fac91",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/host/unregister_tasks.ps1": {
+      "sha_installed": "f98fd302a3189297fa8cbd4c56cdd6fab8b249483c3684c5e5585824e90c9df3",
+      "owner_skill": "game-studio-run",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/Check/Asmdef.csproj.tmpl": {
+      "sha_installed": "4733956e2d84199caf9adc6cd5c41ecfee9994da3cfc1c036e8a69d643ae3032",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/Check/Directory.Build.props.tmpl": {
+      "sha_installed": "88eda22db4712e6119d6ec8abea4afdc4a6e389d20c0fa7fb2345e0059a11fe0",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/Check/Editor.csproj.tmpl": {
+      "sha_installed": "008040b46a693a44c8c3d9769460e4ecd657405b1956e4bb39aac224bcc3cdcc",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/Check/Runtime.csproj.tmpl": {
+      "sha_installed": "1d8a8390a82fe6a438fd020237f1890d38b9ea3c5af461793ecc610c4ba1a18a",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/CoreTests/CoreTests.csproj.tmpl": {
+      "sha_installed": "0beb29b42027e3e6bc594d05c5a8ee7bfc16d89a868c7975934460103f15baff",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/game_gate.mjs": {
+      "sha_installed": "ddf630caa5fe512977ab2b30d5ec6bf16f4c7811474231e8930861675a5eff43",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/gate.config.json.tmpl": {
+      "sha_installed": "95d9aadfd5a6c9bea811995d2cd6db85ead060dc9a5a9ff8b7b503f439ce9df3",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/gen_asmdef_checks.mjs": {
+      "sha_installed": "3dde9243997c672593187929e41ffca4cb21447ef5fc6d3539f1ab35639d3328",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/asmdefs.mjs": {
+      "sha_installed": "1a87443972e4b1fa5c9b90239f1e2590eb239d0e0367bb471f64387095797df2",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/cold.mjs": {
+      "sha_installed": "b30c6f03f2dd748af48339456cbb58acf603fee9eddd3d374a420f87cc6e299a",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/config.mjs": {
+      "sha_installed": "3794406440d73b6bcf9411fdebd76c0a941d52d121433320ebfe16df1bf386a2",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/dotnet.mjs": {
+      "sha_installed": "4aa05f859aa87b4e8255a64d0f95f6d59dc55affad94ccfe1fcb1de65d7f1c03",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/editor.mjs": {
+      "sha_installed": "1d6b4598e2c75daeeaeefae10886545fea78272d1df215e8c6c8f92601dc32b4",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/jobs.mjs": {
+      "sha_installed": "d2be5e58e2ba12b0f5ba7cb2c3dd781374cf88c4056755d212f618681ae5b361",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/logscan.mjs": {
+      "sha_installed": "dd29d1d13a0cf2943e4b9aa49cae82f98aa9bded0391d93e9fd465324ea14167",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/player.mjs": {
+      "sha_installed": "abb72087987706e46c63f88f80b656d49b9e173d296e3e883bc6fd6c9114b1d4",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/result.mjs": {
+      "sha_installed": "075cba10b47397b8ab262e9b255ea4eaa5594a8541cf05667bbfa8dd984bc802",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/serve.mjs": {
+      "sha_installed": "b16685b859878e6fa9d72e392e5c3103427f8a7867116a4b34ff6f0f56e5b0b7",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/stats.mjs": {
+      "sha_installed": "1cb0f6b475c6b789cea1330d410dcb536620a623ed890203347819688c8dc2d3",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/unitycli.mjs": {
+      "sha_installed": "ab39d2ef2f859f6570b8bb999359c8940928ca27d3e24bf504f938130944f0f4",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/lib/unitylock.mjs": {
+      "sha_installed": "d7428bca572ae446c81f5e81c05dc5d036f0febaab4fed2c08273bc49c2d09f7",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/gate/parse_nunit.mjs": {
+      "sha_installed": "3ee44af9d2f8acd6615dae2b800381b3ebc4561b3c71a226fc9f1c2acee1f8e9",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "tools"
+    },
+    "Tools/kit/dev/lib/cs_source.mjs": {
+      "sha_installed": "83ece28f5cea8746ee4a0bf00d7675ac5ad579ed1e4b294721610f41dc1faab2",
+      "owner_skill": "unity-dev-practice",
+      "kind": "tools"
+    },
+    "Tools/kit/dev/unity_rules_lint.mjs": {
+      "sha_installed": "091845506b96ed29f9f697647f21336e8282afb6ab2fbe2411e2d852e29a06e9",
+      "owner_skill": "unity-dev-practice",
+      "kind": "tools"
+    },
+    "Tools/kit/net/net_matrix.mjs": {
+      "sha_installed": "d5dbae1108c039ec42fc7489de95842e8a61719faf32ff8bc9c1c9c26e150400",
+      "owner_skill": "game-multiplayer",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/README.md": {
+      "sha_installed": "431352f700260af3e153b96496cb2501200cdb506a03756a72dc55259b2cd13d",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/__init__.py": {
+      "sha_installed": "52bb4ddc473d20d7c6cd014bb78f956d401accbc453a093aa7d3005925a0047a",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/__main__.py": {
+      "sha_installed": "13a1a5b340cdcfc1902b62be90e508c7c71886000d5bf087e7854aadf09fb35e",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/asset.py": {
+      "sha_installed": "d37366bc686ef0b1ae1d03491ccf296f916f3b7086fc4fbfc2eeb945c4c108c0",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/budget.py": {
+      "sha_installed": "428706bfdfdeeae6318830daed709bbc798b0ca62db22b64901be35e9176da8b",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/cc0.py": {
+      "sha_installed": "8ff6e66f3d9f727e02758c74d184f905a9a5bef102fc330dea2f37e075eecab7",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/checks/__init__.py": {
+      "sha_installed": "6d3238feab54f70fbb83b12cfcf933da790b60b68976d027c77ffc7bad5e8557",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/checks/audio.py": {
+      "sha_installed": "59a44c7a86a2ade05d329acd2348eca6e49328bc5d32538e66339607479af970",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/checks/glb.py": {
+      "sha_installed": "529dede6bdcf7a35abe40e02e69b7c1c6a48ab093a0486a97610d230c5bf6526",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/checks/image.py": {
+      "sha_installed": "3ec4873c86908f08ffbbca6e4ebc21765cf5ee577e1efd36d1322146f6ce48a3",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/cli.py": {
+      "sha_installed": "92776039fc532a198b89392231dc286c2da2685bec9b2fe0c354508d09e047df",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/config.py": {
+      "sha_installed": "04761ae3414dba4edb7c0af9f8fdbe376df543d86f48ef6817742d02777dd9d8",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/doctor.py": {
+      "sha_installed": "4da0dd1a8574b6b8dadeb8f87b720a4de2a2bef075b961a486529bfc7e054714",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/errors.py": {
+      "sha_installed": "5c369cee90bb3a5f81ac278d07e73f4c87e713140403ecf0e036e4e80035db68",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/keys.py": {
+      "sha_installed": "bcf6153a903abf0646907035bee46b3907f96a9438db5523787f36b6eb6d6fdc",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/layout.py": {
+      "sha_installed": "868d8859d4cab60ea748e87aa4fb004235e3f78a9bda75ef2ad6f0ee9ee4c567",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/ledger.py": {
+      "sha_installed": "e4e25c49427b7d51568de7bd6ea46e548b0b8099adbe2964ac22d305456cb793",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/licence.py": {
+      "sha_installed": "c1452ac14c1ae5acc4d740c042e7e9add8c76b1909e2e339ad503834aef7ddd3",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/locks.py": {
+      "sha_installed": "af6d4015f767e32d33a3bf8fe891d9c401e88ce3137cad9942b0d55c5d373c75",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/net.py": {
+      "sha_installed": "59525c10837cdcc7645da30b8b18bcd6714b78583a9c584376a54f64dbbb1d21",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/outputs.py": {
+      "sha_installed": "db92641d98a617bd357567719493e74eaf742415fd59a89b72718ab587741c18",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/procutil.py": {
+      "sha_installed": "83d29cf29141d2ea7687ca972bdd7c85f082f1e700b919a70c10b866e0080f23",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/providers/__init__.py": {
+      "sha_installed": "0161aada8b42deff6d8a7317045cf36e34f06361fd00f9a4a663e7d9ffcebf7e",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/providers/base.py": {
+      "sha_installed": "dcac02490806f516c464eea818bfdded9e6fa5698f60868aeaca23b4c65ca1be",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/providers/fal.py": {
+      "sha_installed": "fc54ab08909a7261bd04d43e4d0430fe1999cd960c9dcc00f7ad3e2fafcc7060",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/providers/higgsfield.py": {
+      "sha_installed": "f3427a11a2d29edc0b599c98a51c7562cc0bba613959efb65ba8297bfc6572f5",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/providers/meshy.py": {
+      "sha_installed": "0e695b42903efa90268d04e8807c2819a6c7a4767f986bad1a7264714a55ad42",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/providers/tripo.py": {
+      "sha_installed": "12c6584dbd0a6193b5a762e952f9169f84d6d1adf48f03bb7063f2a3ece55ed4",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/reconcile.py": {
+      "sha_installed": "8c7fb78e4c2d4ec63444afa6bed7a7dbb91042323ceb455302217f66426f6f52",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/report.py": {
+      "sha_installed": "b04db4991a810fc6608c949b199d5c2d64916f21d05260653d8f7c9d28831aa4",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/rules.py": {
+      "sha_installed": "70c4d0510113090c3dc2dfd4e1f21acc2ef2580a9fc4e8f2c67c603c89c3a564",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/runner.py": {
+      "sha_installed": "2dfb7ab0f1557a6a1f368acca9532907ce52aa7a345a4569136c0c30dacc7208",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/schemas.py": {
+      "sha_installed": "ed5caea66bc644921fb2a74469184f99f60e00efc191b25e44eba59bca24d9bf",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/sniff.py": {
+      "sha_installed": "5d07c259434429b46e521f9cf82edb905c840be6fd433137b94158ba13218ea9",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/assetgen/util.py": {
+      "sha_installed": "cec805e61fea6e5fdf94deb959887b5dd55e75bdd4c003880cab763cbfcc06b8",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/budget.json.tmpl": {
+      "sha_installed": "44852352d46300e7639fadf3ecade18a00a79934682a68289516dec0eeacd9c1",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/providers.json": {
+      "sha_installed": "129f0cd17ce8a3ed9610f0ce06ca133e9833cc7b909fed44a93aae02a6592688",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/pyproject.toml": {
+      "sha_installed": "1cd0def8325404f034c2f60991d97b9c990a61a5236db2d18b12ef6b146c6a60",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/assetgen/uv.lock": {
+      "sha_installed": "4b502a7d7295e2a786e0cec751c4cf4a6eac69eb9bc6df92a023e1a52a68e913",
+      "owner_skill": "game-asset-generation",
+      "kind": "tools"
+    },
+    "Tools/kit/anim/cc0_anims.manifest.json": {
+      "sha_installed": "6c0b1f30a058faf9838a46d9170bfe5f2ebf6cd7716c0b5abd9b8f7d83dca9d7",
+      "owner_skill": "game-character-pipeline",
+      "kind": "tools"
+    },
+    "Tools/kit/anim/fbxmeta.py": {
+      "sha_installed": "651ca231ba1c41472ca41acad727f3529f934c774bb41a798a877e75d34a8065",
+      "owner_skill": "game-character-pipeline",
+      "kind": "tools"
+    },
+    "Tools/kit/anim/fetch_cc0_anims.py": {
+      "sha_installed": "c6da905cda92f1d567b8995b34e70103adfdaeeec18bfb7c2137aa7ee0df1b1a",
+      "owner_skill": "game-character-pipeline",
+      "kind": "tools"
+    },
+    "Tools/kit/anim/gsk_anim_common.py": {
+      "sha_installed": "c695826f6fc4e9d017ff7936462f42d15fe45b18e86b42268ce0b1365b8ebbb5",
+      "owner_skill": "game-character-pipeline",
+      "kind": "tools"
+    },
+    "Tools/kit/anim/mixamo_intake.py": {
+      "sha_installed": "ef351cc111087a25bb4effec79c366daab824a149020c5b50eab05d20d09be92",
+      "owner_skill": "game-character-pipeline",
+      "kind": "tools"
+    },
+    "Tools/kit/anim/motion_provenance_check.mjs": {
+      "sha_installed": "92d477681b09106e9fe1ec4931b89dc4ac1c41c2d49ee05eb7eed29c5ee9dc64",
+      "owner_skill": "game-character-pipeline",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/anim_sheet.py": {
+      "sha_installed": "a7c8c1e440c51a1669097cf46c27b4f051a755f4a20bc3403d32360cfd138110",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/bl_run.mjs": {
+      "sha_installed": "00fa3d97a9b00d51a78c90177622eccf9a7927bece35a51d1d2cab2a3cc82e1f",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/blkit.py": {
+      "sha_installed": "3dc56ad0b89cad99598e903119fe02496279c82415311337f1de83246ba972a6",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/center_glb_bottom.py": {
+      "sha_installed": "4a8fea864ef414d7dc87525b14aa079d20ad040ec45b5748eb1d4e0dc8e6be67",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/clean_mesh.py": {
+      "sha_installed": "3263c1aee4778d338d675382fe1d5d8292b510301da167abe45d902b4e1c74a7",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/donor_fit.py": {
+      "sha_installed": "24ca8c71c78e6692bb2b6e03639c09affd159f9de905a74695af822b0f49f0f4",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/export_unity.py": {
+      "sha_installed": "66043638e1341cd975b53000b30d99287a848e87c6ebe20dad496563c7a8f185",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/inspect_rig.py": {
+      "sha_installed": "cb587df3f50f49c45e9350d36b2df4bcd82b51290178e0ea0b42d048761713a6",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/mia_autorig.py": {
+      "sha_installed": "0b703863069a931e1c466d8d7466b6afbf937ad59f91c046522ab2440c9fec5a",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/probe_api.py": {
+      "sha_installed": "882a60d1ac7c9415e81436bd20af9faf284454bae1d7827aebe344327a3a257a",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/proxy_weights.py": {
+      "sha_installed": "0844c48f433de8056054bf823af8e5b615b2cac3580e35f1a9eef48845ec88f0",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/rig_schemas/mesh2motion_fox.json": {
+      "sha_installed": "daab707fe7f13aebf9fb4003063b1828dbae2ea0812847de8f7dccaf8203764d",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/rig_schemas/mesh2motion_horse.json": {
+      "sha_installed": "99245ea9a75c6e21a0102595af5e7dc2440a6a7f92c7c057d1eae3da895841b6",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/rig_schemas/mixamo_22.json": {
+      "sha_installed": "6c4e9534687dec4309c49ec5e1b11bcfdf4193f162eb3b8f4638d4e7fb67924e",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/rig_schemas/mixamo_52.json": {
+      "sha_installed": "4cf124731ae9be1d482737bf8ca4ce7779481330ca895ff73292b8c87435711f",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/rig_schemas/mixamo_65.json": {
+      "sha_installed": "937bf0555cf0869e0261657b41d7193b43c634024eda618b4c9f2d8f64870e6f",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/riglogic.py": {
+      "sha_installed": "42387dace0676004dcffe74ac71efc8010a43205b3c86f35b1476f2f2d0a2c0d",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/blender/turntable.py": {
+      "sha_installed": "5e03e706d942e0cdc0cc7906c10580544e1fa6e6b523c74044cd6c6d1c3d9e44",
+      "owner_skill": "blender-rig-animate",
+      "kind": "tools"
+    },
+    "Tools/kit/audio/.python-version": {
+      "sha_installed": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "owner_skill": "game-audio",
+      "kind": "tools"
+    },
+    "Tools/kit/audio/audio_check.py": {
+      "sha_installed": "ffc0dde9fdca50bfa9eda81ca6cbab5122f2bf3879f39b160a4a7473e5c1d447",
+      "owner_skill": "game-audio",
+      "kind": "tools"
+    },
+    "Tools/kit/audio/audio_common.py": {
+      "sha_installed": "6325cf2619dc78f375c417b9cd102e5ba4162f07e44af9697b4eb85e962de234",
+      "owner_skill": "game-audio",
+      "kind": "tools"
+    },
+    "Tools/kit/audio/audio_manifest.mjs": {
+      "sha_installed": "d5ec95bfa3e4cb7ff03bcbfacf2ade6589b76ebc8aa7805d49e20edbc91d261b",
+      "owner_skill": "game-audio",
+      "kind": "tools"
+    },
+    "Tools/kit/audio/fetch_cc0_audio.py": {
+      "sha_installed": "227038b72248cf624110b589cdf3949945109a090c6e4baaad959a1aa0c21a18",
+      "owner_skill": "game-audio",
+      "kind": "tools"
+    },
+    "Tools/kit/audio/pyproject.toml": {
+      "sha_installed": "bc5a0a074b3f45618ae305d78a9f54a0490e49f84b888115b03ec6ae80ca416d",
+      "owner_skill": "game-audio",
+      "kind": "tools"
+    },
+    "Tools/kit/audio/sfx_synth.py": {
+      "sha_installed": "93f07bcc082b1e68bd12ee7b87d2f931e3116d5ba046485b6115d8259d78b421",
+      "owner_skill": "game-audio",
+      "kind": "tools"
+    },
+    "Tools/kit/audio/uv.lock": {
+      "sha_installed": "52e4e3db4bdfddbf9bf9066da0c718f0300fdc3ca10749ed7cc6c1534e4523fc",
+      "owner_skill": "game-audio",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/.python-version": {
+      "sha_installed": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/capture_common.py": {
+      "sha_installed": "f6a0031dbf4b7de2d095c206667356557c0dba1edc8ae58e1f2edc0125292f6c",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/contact_sheet.py": {
+      "sha_installed": "34819bf891c34d00033d63dd10926f46ecbdcb78988149bca222294fe870bbdc",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/desktop_timelapse.ps1": {
+      "sha_installed": "1bcbbce4d8c5e81d72614af00960f49b6c8defdf70d0b9b51e81051dcfa96ab4",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/edl_check.mjs": {
+      "sha_installed": "608ee221226368fa20083b61071541de93326352b3af518b94091ae9a9b13e4d",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/frames_to_gif.py": {
+      "sha_installed": "fa72d94c920fe776759124a7e72c43fb46e7a8cce230822b1c4ad5ac619be23c",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/progress_log.py": {
+      "sha_installed": "eb814f5f7459480b963eb1d67a9d9f0cddec2f0234e46f380393b0829c8148e0",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/pyproject.toml": {
+      "sha_installed": "c0ef2ecf71c71523a6ea7acfe431bd7c5e9b44055caee23fc2d41dc72e8cfe0f",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/steam_assets.py": {
+      "sha_installed": "ce7a5d03cff5b02d20648f34ac6f753c3b9e1aa530dcc8df9d11a1fe4e1ed537",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/timelapse.py": {
+      "sha_installed": "d5cb5662f0ecf51c14d0289e984671119fb52c2bdca88fa66ac9b971fd550f74",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/capture/uv.lock": {
+      "sha_installed": "ec69252986a0fea27344c440aaabbf5eb9d2a39f9ef110745d75a0eb90253b98",
+      "owner_skill": "game-capture-trailer",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/checks_validate.mjs": {
+      "sha_installed": "86ad45bba5e04229118c3c2e163424b373cb946a72abb925720b6b526f7ebfa6",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/flip.cmd": {
+      "sha_installed": "7d9649ce1cb1d86feede9e59c0aaaa469e545e8f93716aaec521abbe4ec3c6dd",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/flip_eval.py": {
+      "sha_installed": "fdb82a8e3fa71caf17eae322b73ace2507098da924f69a5bad64b24d13a5a558",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/lib/imgdiff.mjs": {
+      "sha_installed": "c2110ad31c45eb68461f0f67cb97a463b4be4e0d459f581bb1bdcea277822fca",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/lib/png.mjs": {
+      "sha_installed": "4acf91cd1e222120b532543ac5eff4fca609a40ea86fd917c2c3e01644073a82",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/lib/qa_common.mjs": {
+      "sha_installed": "bcc18aec1fc04ba13efb76bbd71d7268a0cdd9586dd715bf85af615889af93fe",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/perf_compare.mjs": {
+      "sha_installed": "67d4377b94eb864e0038b0d0bb0fe7af790aef8660e992c6237acbe92ab6ff41",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/probe_report.mjs": {
+      "sha_installed": "1eb67576abdc0a7940611792e8e75f54ed32c0f2215f977ab97b2d2ac7709d75",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/visual_diff.mjs": {
+      "sha_installed": "03abcc03d583497ad6693d6714b9fac91721cb072870bab57841691d725045d9",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/qa/visual_diff_pil.py": {
+      "sha_installed": "211adc20521d475d40e9dc5c6496999e5cf1dca41bd70d8d84f5f5a76f3e7e7a",
+      "owner_skill": "game-qa-probes",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/ai_disclosure.mjs": {
+      "sha_installed": "743f4b907471b487757f98c29dd712c331a3b5f40c9710db7b5504476a0e9620",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/build_join.mjs": {
+      "sha_installed": "a24ab4aab64a75c41ef189af470d75691c9ff570bba36bce65274cef91a8e60e",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/lib/build.mjs": {
+      "sha_installed": "664cf5ce004135fc38cc143c3452da07c2203ef7a4737d722f7e498892409713",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/lib/ledger.mjs": {
+      "sha_installed": "b0b43e28460c66cbc373d2c20008d55ebae7ec763dea69021205dbd2e4677be9",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/lib/rules.mjs": {
+      "sha_installed": "99a5e759a5b0fa302e5e7d6952913c82a81c576efe6a7a0310265438bd0417e2",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/licence_texts/Apache-2.0.txt": {
+      "sha_installed": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/licence_texts/BSD-2-Clause.txt": {
+      "sha_installed": "527f738966ca396cd5a68c1509390de2a780c6b614d9ee57f7544a6161938ed1",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/licence_texts/BSD-3-Clause.txt": {
+      "sha_installed": "7a77915f34caf18d47bc31750dae47dbd7f7895e95bbb8370f477c25009388f6",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/licence_texts/MIT.txt": {
+      "sha_installed": "f9c4c77baa3828004ee54b8a4f2db2e88ed44a6237a493965bf551fac0fcb62d",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/licence_texts/OFL-1.1.txt": {
+      "sha_installed": "39f5a6f9862b167ca65168fcee9bc6cc54901e485b79c811b80cdf8ab95df437",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/licence_texts/Zlib.txt": {
+      "sha_installed": "7fa429541e55b1509909e058f2d21a37467e4958ec713b357f6e0cf9dc4ee352",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/license_row.mjs": {
+      "sha_installed": "bc763424f9bd41fd1eda05df9d70979f5d8adaefa269addd4a509390c34a6aca",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/licenses_check.mjs": {
+      "sha_installed": "cecfa974e32fa3456f4d4a549d3800b0882f9ed2e05b0fd460d1924f3ded4db1",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/notices_gen.mjs": {
+      "sha_installed": "907c8a23934d9c41121513bab1aece0e1c1b1ae6c9e77ac9e5aa531bde5efda1",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/release_check.mjs": {
+      "sha_installed": "b09ff26ee89bcd41dea8e4bf7ce15af1170fa0daa8bf9a84e8b1ee2c29c14027",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/steampipe/app_build.vdf.tmpl": {
+      "sha_installed": "aaee894b9227c6e1e5170c71d31bdd682c33837f17a23f8aabc745ea331b8cca",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/steampipe/depot_win64.vdf.tmpl": {
+      "sha_installed": "103b57ae41189dd00fa5a00538fd4ca617f845c6c6ab57f14aad71007855120b",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/ship/steampipe/upload.ps1": {
+      "sha_installed": "7a9298da940b06ac33598de3e5c4dc94f1f11a041c2935ceb6bcf1543c6e3f30",
+      "owner_skill": "game-ship",
+      "kind": "tools"
+    },
+    "Tools/kit/render/lib/shaderlab.mjs": {
+      "sha_installed": "a67cdbfaccbbcf49123561e3de910bb710512d27819d426b48fb6a3c13aa422d",
+      "owner_skill": "game-render-world",
+      "kind": "tools"
+    },
+    "Tools/kit/render/lib/unity_yaml.mjs": {
+      "sha_installed": "d0d36d82b48b2bf4a133044ffa9108526ed69a3ebfcfdb90456bf983e9658e61",
+      "owner_skill": "game-render-world",
+      "kind": "tools"
+    },
+    "Tools/kit/render/render_lint.mjs": {
+      "sha_installed": "b048a3cbac54628af43d467b5a6afc8d21a1217c3f3a5be32699522d60238e44",
+      "owner_skill": "game-render-world",
+      "kind": "tools"
+    },
+    "Tools/kit/workflows/build_wave.workflow.js": {
+      "sha_installed": "780dabf2cdac66ecaf5baf69f66abcaf6a2a7de0c61c0b38795a6ddb5f09fc81",
+      "owner_skill": "game-studio-run",
+      "kind": "workflow"
+    },
+    "Tools/kit/workflows/main_loop.md": {
+      "sha_installed": "b0e9693f5a6acfca0b984e597dae4095865693144a64f2c1faca5677ec98dcea",
+      "owner_skill": "game-studio-run",
+      "kind": "workflow"
+    },
+    "Tools/kit/schemas/gate-json-line.schema.json": {
+      "sha_installed": "952abad624d26354d5c271c421782fd206dd20c2cc62bc22337960b8d3ba2077",
+      "owner_skill": "game-studio-run",
+      "kind": "schema"
+    },
+    "Tools/kit/schemas/gates.schema.json": {
+      "sha_installed": "e170453a3323f2a8e0b01a9f9c236c94feaa8d6b8eaabb28e6fd4b5457830491",
+      "owner_skill": "game-studio-run",
+      "kind": "schema"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Common/KitExec.cs": {
+      "sha_installed": "f8bb0d11a965bec9d34febc995fd59681155fc789482acf6a90b2259560e2731",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Common/KitArgs.cs": {
+      "sha_installed": "827946ae8143949ca1b70c57c8f240abbefbf660a2cff3826e596e874a72dded",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Common/KitIo.cs": {
+      "sha_installed": "3d3ee37bc2b766347ee96d9e672a114a018339595b80e728b7a1c1792d678375",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Common/KitJson.cs": {
+      "sha_installed": "e4c6343a56f7c42ed9e67ef4fd662139e0509075d81e1e0b4a1807e4ee94c367",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Common/KitLog.cs": {
+      "sha_installed": "27454c2333cea7139a8b64ca341dc91a73b26dcca347db9d2307ea54f6305f44",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Tools/kit/workflows/design_verify.workflow.js": {
+      "sha_installed": "aba388477378d77c7f7fb059ff18c8e4c405d7ef37e872e4e32e70bf492128f6",
+      "owner_skill": "game-design-method",
+      "kind": "workflow"
+    },
+    "Packages/com.gamestudiokit.core/Editor.Pipeline/Cli/KitCliCommands.cs": {
+      "sha_installed": "a4935a08f72239c349d987b1715d7d868f13a3fdd59a9daaeb7fbe3fc3e5a45b",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Cli/KitCli.cs": {
+      "sha_installed": "3120390d428c170ab29aa67d38f1f5ec45a9e189edd1e1b2aa7ae57d03e19f56",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Determinism/Hash64.cs": {
+      "sha_installed": "adf8cd0db8e60b87ae9f0c8ca930194ff821b2caf8ae7aabdc94ab66bb6a2b26",
+      "owner_skill": "unity-dev-practice",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Determinism/Pcg32.cs": {
+      "sha_installed": "f551e472e1d9f34f44fce315f3be738f1b7c277c2bf9dee65f34090d1c31f29a",
+      "owner_skill": "unity-dev-practice",
+      "kind": "package"
+    },
+    "Tools/kit/workflows/asset_batch.workflow.js": {
+      "sha_installed": "bb489745406bcbbd5580f6680c1ee019091a299570c1f5bf271ae1eba85faf7e",
+      "owner_skill": "game-asset-generation",
+      "kind": "workflow"
+    },
+    "Tools/kit/schemas/budget.schema.json": {
+      "sha_installed": "001dc311c0c5d04654eba3ad270be1632e32117c8451598b7c54f63e46dc8874",
+      "owner_skill": "game-asset-generation",
+      "kind": "schema"
+    },
+    "Tools/kit/schemas/providers.schema.json": {
+      "sha_installed": "279092cc303a03382c529b27a00f80e512be034e1b488ae09f7e4249328a625b",
+      "owner_skill": "game-asset-generation",
+      "kind": "schema"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Anim/AnimImportRules.cs": {
+      "sha_installed": "2c4dbb8c2c0e2e93470277a002bcaf457f7dddd8a9732f5ac0a13bf8a400a869",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Anim/AvatarProbe.cs": {
+      "sha_installed": "11b1d95a8bc0e37373e0bada85646bb1797ea781d44f2cd3f583c9a7f18a3899",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Anim/KitAnimPostprocessor.cs": {
+      "sha_installed": "57041c3c3f85b0ba3126aebba1ccb5e6a5987e4b618d305bd3b51c3a2ea3507b",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Anim/RestPose.cs": {
+      "sha_installed": "c26924a2bbbcd28ea441326a275764818000c9b43dcda641aac7f5414f959856",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Locomotion/FootLockCore.cs": {
+      "sha_installed": "bbc792ec17c4039d456f5b8ab9d13d570dc924d62391a53797fa482629b19303",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Locomotion/IdleFootLock.cs": {
+      "sha_installed": "7fee16e4e5ee0d3992509dac944843027c1f16e30056b9083cbc99b87a960d56",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Locomotion/IdleFootLockGeneric.cs": {
+      "sha_installed": "fece91388ee954a4c4580ea6ef6679d0902e8d4fb6b48d4d85115ef7902b1f0c",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Locomotion/LocoMath.cs": {
+      "sha_installed": "719e1e9ed2f618c6dfda6476f2b27671bbf5d494d0d280b39b3e98d1296065b0",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Locomotion/LocoScaler.cs": {
+      "sha_installed": "4723283f49cb92e0ceca59d908d58c84e001f46fd744e00fceb17e92d2441610",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Locomotion/ProceduralGait.cs": {
+      "sha_installed": "97f24de0ec8382571e82fa901080c9794a232094e0e9dc64eb0d007dc1d3a2b6",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Locomotion/Spring.cs": {
+      "sha_installed": "d5c203e2f37a9be85ae72fb9c0988b2ee32bbf2e6902f3bfea5951235aad73ea",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Locomotion/TwoBoneIk.cs": {
+      "sha_installed": "9e8093440848da134e7a33bef2683457eaaaac02123ecf9a1df7a915786fcd20",
+      "owner_skill": "game-character-pipeline",
+      "kind": "package"
+    },
+    "Tools/kit/workflows/audio_lane.md": {
+      "sha_installed": "eec877fe5db572cf677bfd3fc9bb1725552be04774aee1a9f43885e2ea110236",
+      "owner_skill": "game-audio",
+      "kind": "workflow"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Audio/AudioImportRules.cs": {
+      "sha_installed": "d40f93f2477bc57dd0511fbede5bc669e1cab46281acba992ae9814a7508b939",
+      "owner_skill": "game-audio",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Audio/KitAudioImport.cs": {
+      "sha_installed": "96071f7933efee623d8392691de829cafce743621a252f67182dbc3c763e8f9b",
+      "owner_skill": "game-audio",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Audio/AudioEventProbe.cs": {
+      "sha_installed": "d80b1e67c3410cce22e39d29549a249ea216b1a87a0d0b43a3e38b6cf1a8187c",
+      "owner_skill": "game-audio",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor.Recorder/Capture/KitRecorder.cs": {
+      "sha_installed": "e5811dc1d7a89dfd9b2064d0af4702d9589acacad7003a58ca5d875d808b0e75",
+      "owner_skill": "game-capture-trailer",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Capture/CameraPath.cs": {
+      "sha_installed": "91ada9d8d08a6a5953db8c3bb04b43693f5a25e98c1528a8b9e5e2ba179f95db",
+      "owner_skill": "game-capture-trailer",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Capture/InPlayerCapture.cs": {
+      "sha_installed": "acbd59f112cd2d8434ed837079523e3542051aeecbaee2a11a66eb0a18bf40e7",
+      "owner_skill": "game-capture-trailer",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Capture/StoryCamera.cs": {
+      "sha_installed": "d850e65811df179c903e050167df3181d15c787e4785747c8682e21194294665",
+      "owner_skill": "game-capture-trailer",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Capture/StoryCameraSet.cs": {
+      "sha_installed": "a06dc16c498cee8f87df636fa901be8547de3fc03da8ad020495c889e396f5ee",
+      "owner_skill": "game-capture-trailer",
+      "kind": "package"
+    },
+    "Tools/kit/workflows/gate_review.review.md": {
+      "sha_installed": "b23bd48083d4bc07d04d2a7f1b8ceb6a5cbcea6fc5454bf13f8c8976cca6dab3",
+      "owner_skill": "game-qa-probes",
+      "kind": "workflow"
+    },
+    "Tools/kit/workflows/gate_review.workflow.js": {
+      "sha_installed": "43d1a91b0e0b7ef79439d17e5b36115e280aa4ad578fd5289f209102afa4d2fd",
+      "owner_skill": "game-qa-probes",
+      "kind": "workflow"
+    },
+    "Tools/kit/schemas/checks.schema.json": {
+      "sha_installed": "70786aa87d406f6f5465e75e86008c47e4427262b25545e1ce6eba8d366388d6",
+      "owner_skill": "game-qa-probes",
+      "kind": "schema"
+    },
+    "Tools/kit/schemas/probes.config.schema.json": {
+      "sha_installed": "7a813e74c7fe63ad40c6a4ea018b0833bd646f5d42ee13d6888b87343ff7d97a",
+      "owner_skill": "game-qa-probes",
+      "kind": "schema"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Qa/AnimSheetCapture.cs": {
+      "sha_installed": "e3aa4f79fd2ac4b02ce67a3bf3ee63de840e682b3269d84141a40800a4f24a86",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Qa/WorldAuditEditor.cs": {
+      "sha_installed": "d37b3549f3ca10aded25359a8aa82108c5237b5dd937afc96851fbbf3d52f588",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/ChecksModel.cs": {
+      "sha_installed": "5df6f0c440e330d773d9d46e06f0a162acf078e1767595fb3b15f3f62d14bdc9",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/ChecksWriter.cs": {
+      "sha_installed": "c6f3da4854b05b84f27df934c2fb0b8aea0b35e84bd73d4959a5b4f8a25c4ca2",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/ConsoleCounter.cs": {
+      "sha_installed": "29a3cae3be74733e7098a1f7eecef959148b2cc21e17609f2a472f021274b6c2",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/IQaScenario.cs": {
+      "sha_installed": "3bdd944dc9678b53fb782911d4b13153be543d9627fd0b1e51e92f21d6b73076",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/PerfModel.cs": {
+      "sha_installed": "5a9e96b3194e3b2c53d760b0745b17b19dbf9f46ac5ef12fb57ba67adf8e620b",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/PerfProbe.cs": {
+      "sha_installed": "79739e29c860bb43fd081889be192b70e14edd8026117e58501b2a8a2b66095e",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/ProbeConfig.cs": {
+      "sha_installed": "2ffc6803114ce7326b708ed098ed6afa033a5dd04456cdd2f148848c5827c7c9",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/ProbeResult.cs": {
+      "sha_installed": "aedaa8754348676cec0cb99e9f938c8aa7278a0a5da31806e3d3b778b81b61d3",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/AuditAllow.cs": {
+      "sha_installed": "9f4a5a542fac71a732815f4817884a169c0d95a035c019b40c3531f9c03994ac",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/AuditUnit.cs": {
+      "sha_installed": "ae55bd037cc917ee4864f94f065e6041412ea3a630e35a1e573d20d93afc47b4",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/BodyBones.cs": {
+      "sha_installed": "9218cabe5ba475074e97d2ecdb12388d9f00ff9262bdf694e54f1ff1841e2be0",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/ContactProbe.cs": {
+      "sha_installed": "a965528eaa2758d78fd04c27822669856922aafc4355c64bf2579c154270edf6",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/EmbodimentProbe.cs": {
+      "sha_installed": "96b1f38d8e969efcf90e5f698ed1f1de9dc9528625a2899c905a9d15f29165a1",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/GaitProbe.cs": {
+      "sha_installed": "553f13993c1864a20ae1f5c6ca9288d95a3d52bdfc2121ec247692031ab2fd0b",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/GripProbe.cs": {
+      "sha_installed": "eb3618aeb34e71886897a7ef176e2c6608ae1e9352bb82eaae3618309d58c26f",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/IdleDriftProbe.cs": {
+      "sha_installed": "5a4a34f100c4c1a403b97fa053881dd606e4436bd9aef4205d2f0b208e29a9de",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/ProbeMath.cs": {
+      "sha_installed": "c01a3fff4616d14ef10d4a33f45f44aefd6116b7731855d0ab2c64586a838429",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/WorldAudit.cs": {
+      "sha_installed": "32c19ed5331b0b427bf5f2b70fb56a32b72de23f2c2cec91a6a0177ca17e7376",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/Probes/WorldSnapshot.cs": {
+      "sha_installed": "7be3917210cb90dbcabe69dfb1f84e26c8f406ede9094fd59f59b855a82be77d",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/QaContext.cs": {
+      "sha_installed": "8b15d62bc07e52718fd5f669e5829a5313987d338a36372ba98cf263e869be43",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/QaRunner.cs": {
+      "sha_installed": "346ae4117c1383acd33bda2360f882f1e22ea6b991ab69f8b9e0c0de448ee762",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Qa/SmokeFrontendScenario.cs": {
+      "sha_installed": "6e4d8ed09e991f93724cb8c940de1ef6cae249daf740976087c323484e47a760",
+      "owner_skill": "game-qa-probes",
+      "kind": "package"
+    },
+    "Tools/kit/schemas/licenses.schema.json": {
+      "sha_installed": "06ac1b7018316ccdcff1bff4edc5aa42827c35eb8808ea51f9291a9e5f1bd599",
+      "owner_skill": "game-ship",
+      "kind": "schema"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Ship/BuildReportExport.cs": {
+      "sha_installed": "67502704af1e32f412d1543b0865d72e8b16987663943d2e5e93e454d4d62fd7",
+      "owner_skill": "game-ship",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor/Ship/PackedAssetsDocument.cs": {
+      "sha_installed": "3c1491fdc4cd54cb545701c9241ee4907a08287ed44f76d1354f7542180a081d",
+      "owner_skill": "game-ship",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor.Pipeline/GameStudioKit.Editor.Pipeline.asmdef": {
+      "sha_installed": "82554d95a93630c3bd661167931a630de553efe85a18274ac36148c09082df57",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor.Recorder/GameStudioKit.Editor.Recorder.asmdef": {
+      "sha_installed": "830626dd211c61bbf08993c648599451c259526a0bbb9829fc1540be5a76a1ad",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Editor/GameStudioKit.Editor.asmdef": {
+      "sha_installed": "e6e358add4e6bb00d629de0f3b57079f48d6118205f47fd310955fc4643b0b2b",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/LICENSE.md": {
+      "sha_installed": "b9c0e7509020e62e5ae674f1c73c19067338e8bb691b16dba88a9a7623ae1181",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/README.md": {
+      "sha_installed": "ae37a82a98db77127a3529b6842c0cc5df501c7588336c6d5f6472359b36ff1a",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/Determinism/GameStudioKit.Determinism.asmdef": {
+      "sha_installed": "90f606b2d1fbb0a519bbb255f55d0a6cb0e590826b58abbd051001ff86e9e808",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/Runtime/GameStudioKit.Runtime.asmdef": {
+      "sha_installed": "7a00ed552b8c2f58c1cbc4d10b9b4465d0c34d13c21d1cf4dac230904b622127",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/ThirdPartyNotices.md": {
+      "sha_installed": "0e8c716b81ef2879f793267857a532498f4507749ffa0336e8fefaff7d53a693",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Packages/com.gamestudiokit.core/package.json": {
+      "sha_installed": "4002aed183137a3d5f9fa0912276941ff4f407aca9231c8ce6d7147ca2ca9169",
+      "owner_skill": "game-studio-run",
+      "kind": "package"
+    },
+    "Docs/kit/HARNESS_RULES.md": {
+      "sha_installed": "6c772774e37d84927aeb292dec4c1a86f0dc9f41426538d6ec92feb60664eac7",
+      "owner_skill": "game-studio-run",
+      "kind": "template"
+    },
+    "Tools/kit/gate/gate.config.json": {
+      "sha_installed": "46dc7fb7b411b33c32321bd12514fd5a8b9feaf06b5120bdf771c5638278e153",
+      "owner_skill": "unity-verify-ladder",
+      "kind": "template"
+    },
+    "Docs/CHANGE_REQUESTS.md": {
+      "sha_installed": "fcef8fbf324f6f649ccd9b8bd34c6fbd09a4428d530f048b1d1598c40ad851bb",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/DECISIONS.md": {
+      "sha_installed": "0c0b32372759ab455b4b7345463617217e25817f7e80dc0680348119756d5067",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/DEVLOG.md": {
+      "sha_installed": "d2159a57762e6f8cbaedcadf2cbddefe786625e149edf480a2dea2a30526c06e",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/HUMAN_STEPS.md": {
+      "sha_installed": "aa77ef3180dd1c2a4e1cfd17a3c85b0b75db80acf32ed97708bec485a7a295c5",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/KNOWN_ISSUES.md": {
+      "sha_installed": "f7ad3383145d993c39e794ad988936b7450f011f9076b69574336ba87f350294",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/MAP.md": {
+      "sha_installed": "a7477d3a24d3d290fe07f645bbe2ce4727c9d60901398e241b201561d2fedd9f",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/OWNER_INBOX.md": {
+      "sha_installed": "8294d6a7320762c496d3dafe19fd7958a3c6f48cd662dcc407336c04f70129ba",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/PLAN.md": {
+      "sha_installed": "c4d2a6520f2b37707f0d46c0061a81cc5d02e3222d60b50ab487e0ccf445b423",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/TASK.md": {
+      "sha_installed": "8e6e3307f8f4c49fcb9db0b8c4ce5a64daee35579de4036f2ea4ecc5baa509d5",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/TODO.md": {
+      "sha_installed": "a8e30cf559a3d05f208cfe799a3fe76168f88d111922450bc397087919409771",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/owner_acks.md": {
+      "sha_installed": "b098b5a087aeedf3d4c368d484119d0c5f1125a9bbbe195e6bf7fa296a69269b",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/qa/baselines.md": {
+      "sha_installed": "458a3481d1958c8abb5e56b064053405be7359d5806fa76af9a90d8b2ed22bce",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/qa/gates/M0.md": {
+      "sha_installed": "c0be03c4fe89984d2cf6d911c274288c6f595c1e605cc3a98c1f9beb43a5125b",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "Docs/qa/gates.json": {
+      "sha_installed": "f676825a7a4b6b1f1ae09d2de74c6d6ea771099f19bfbaf490a60bc6746d9cf0",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    ".harness/policy.json": {
+      "sha_installed": "d539f96010948f43fce8d24db20dd06c21840896dc11b4c4d49475bb6279faf1",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    ".harness/run.json": {
+      "sha_installed": "bacd717ff913b71bbe0ac610e46c41269ac3e17acdc06169ba02496667782b65",
+      "owner_skill": "game-studio-run",
+      "kind": "seed"
+    },
+    "ArtSource/_gen/budget.json": {
+      "sha_installed": "44852352d46300e7639fadf3ecade18a00a79934682a68289516dec0eeacd9c1",
+      "owner_skill": "game-asset-generation",
+      "kind": "seed"
+    }
+  },
+  "settings": {
+    ".claude/settings.json": {
+      "added": {
+        "allow": [
+          "Bash(node Tools/kit/gate/game_gate.mjs *)",
+          "PowerShell(node Tools/kit/gate/game_gate.mjs *)",
+          "Bash(node Tools/kit/harness/next_action.mjs*)",
+          "PowerShell(node Tools/kit/harness/next_action.mjs*)",
+          "Bash(node Tools/kit/harness/gate_close.mjs *)",
+          "PowerShell(node Tools/kit/harness/gate_close.mjs *)",
+          "Bash(node Tools/kit/harness/report_gen.mjs*)",
+          "PowerShell(node Tools/kit/harness/report_gen.mjs*)",
+          "Bash(node Tools/kit/qa/*)",
+          "PowerShell(node Tools/kit/qa/*)",
+          "Bash(unity recompile:*)",
+          "PowerShell(unity recompile:*)",
+          "Bash(unity command editor_status:*)",
+          "PowerShell(unity command editor_status:*)",
+          "Bash(unity command run_tests:*)",
+          "PowerShell(unity command run_tests:*)",
+          "Bash(unity command console:*)",
+          "PowerShell(unity command console:*)",
+          "Bash(unity pipeline list:*)",
+          "PowerShell(unity pipeline list:*)",
+          "Bash(unity job:*)",
+          "PowerShell(unity job:*)",
+          "Bash(dotnet build Tools/kit/gate/Check/*)",
+          "PowerShell(dotnet build Tools/kit/gate/Check/*)",
+          "Bash(git status*)",
+          "Bash(git diff*)",
+          "Bash(git log*)",
+          "Bash(git rev-parse*)",
+          "Bash(git check-attr*)",
+          "PowerShell(git status*)",
+          "PowerShell(git diff*)",
+          "PowerShell(git log*)",
+          "PowerShell(git rev-parse*)",
+          "PowerShell(git check-attr*)",
+          "mcp__unity__editor_status",
+          "mcp__unity__console",
+          "mcp__unity__console_status",
+          "mcp__unity__recompile",
+          "mcp__unity__recompile_status",
+          "mcp__unity__run_tests",
+          "mcp__unity__test_status",
+          "mcp__unity__list_tests",
+          "mcp__unity__capture_game_view",
+          "mcp__unity__get_scene_hierarchy",
+          "mcp__unity__get_performance_stats",
+          "mcp__fal-ai__search_models",
+          "mcp__fal-ai__search_docs",
+          "mcp__fal-ai__get_model_schema",
+          "mcp__fal-ai__get_pricing",
+          "mcp__fal-ai__recommend_model",
+          "mcp__fal-ai__check_job",
+          "mcp__fal-ai__get_job_result"
+        ],
+        "ask": [
+          "mcp__unity__eval",
+          "mcp__unity__eval_file",
+          "mcp__unity__run_script",
+          "mcp__unity__package_add",
+          "mcp__unity__package_remove",
+          "mcp__unity__build",
+          "mcp__unity__delete_asset",
+          "mcp__unity__set_player_settings",
+          "mcp__unity__switch_build_target",
+          "Bash(git push*)",
+          "PowerShell(git push*)",
+          "Bash(git commit*)",
+          "PowerShell(git commit*)",
+          "Bash(winget *)",
+          "PowerShell(winget *)",
+          "Bash(unity command eval:*)",
+          "PowerShell(unity command eval:*)",
+          "Bash(unity command eval_file:*)",
+          "PowerShell(unity command eval_file:*)",
+          "Bash(unity command run_script:*)",
+          "PowerShell(unity command run_script:*)",
+          "Bash(unity command batch:*)",
+          "PowerShell(unity command batch:*)",
+          "Bash(unity command menu:*)",
+          "PowerShell(unity command menu:*)",
+          "Bash(unity pipeline install:*)",
+          "PowerShell(unity pipeline install:*)",
+          "mcp__unity__batch",
+          "mcp__unity__menu",
+          "mcp__fal-ai__submit_job",
+          "mcp__fal-ai__run_model",
+          "mcp__fal-ai__upload_file",
+          "mcp__fal-ai__cancel_job",
+          "mcp__higgsfield",
+          "mcp__meshy",
+          "mcp__scenario"
+        ],
+        "deny": [
+          "Edit(Docs/qa/gates.json)",
+          "Write(Docs/qa/gates.json)",
+          "Edit(Docs/qa/gates.jsonl)",
+          "Write(Docs/qa/gates.jsonl)",
+          "Edit(Docs/OWNER_INBOX.md)",
+          "Write(Docs/OWNER_INBOX.md)",
+          "Edit(Tools/kit/hooks/**)",
+          "Write(Tools/kit/hooks/**)",
+          "Edit(.claude/settings.json)",
+          "Write(.claude/settings.json)",
+          "Edit(.claude/settings.local.json)",
+          "Write(.claude/settings.local.json)",
+          "Edit(.harness/ALLOW_STOP_OWNER)",
+          "Write(.harness/ALLOW_STOP_OWNER)",
+          "Edit(.harness/policy.json)",
+          "Write(.harness/policy.json)",
+          "Edit(.harness/PAUSE)",
+          "Write(.harness/PAUSE)",
+          "Edit(.harness/HARNESS_UNLOCK)",
+          "Write(.harness/HARNESS_UNLOCK)",
+          "Edit(.harness/owner_confirmations.jsonl)",
+          "Write(.harness/owner_confirmations.jsonl)",
+          "Edit(.harness/overrides.jsonl)",
+          "Write(.harness/overrides.jsonl)",
+          "Edit(.harness/reservations/**)",
+          "Write(.harness/reservations/**)",
+          "Bash(unity command quit:*)",
+          "PowerShell(unity command quit:*)",
+          "Read(**/Library/Pipeline/.unity-pipeline-port)"
+        ]
+      },
+      "envAdded": {
+        "CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS": "6"
+      },
+      "created": true
+    }
+  },
+  "mcp_added": [],
+  "blocks": [
+    {
+      "file": ".gitignore",
+      "style": "hash",
+      "sha_body": "49fb413c251bab5e7c0a72568293e4ff66eaa43f7a5e731a3ccbb8a9d380ddc9",
+      "tail": {
+        "sep": true,
+        "eol": true
+      }
+    },
+    {
+      "file": ".gitattributes",
+      "style": "hash",
+      "sha_body": "5ccdfc0387653174e00b4f81bc756d46e6642b5be26cd8bc59253d28e3375b5e",
+      "tail": {
+        "sep": true,
+        "eol": true
+      }
+    },
+    {
+      "file": "CLAUDE.md",
+      "style": "html",
+      "sha_body": "d50754a9ee0681530c4a3163c5f84e7a6160e7055832712de8416638eb1eab3c",
+      "created": true,
+      "seed_sha": "984988117e6fc04981daf1a2a524a6d5e2440d61d4b315f4d2edb133c964660b",
+      "tail": {
+        "sep": true,
+        "eol": true
+      }
+    }
+  ]
+}

@@ -18,7 +18,7 @@
    "requires": ["Hoodie"]
   },
   {"id": "Glasses", "slot": "Face", "mesh": "SK_Glasses", "tint": "glasses_frame"},
-  {"id": "Satchel", "slot": "Back", "mesh": "SK_Satchel", "tint": "satchel_canvas"},
+  {"id": "Satchel", "slot": "Back", "mesh": "SK_Satchel", "tint": ["satchel_canvas", "satchel_straps"]},
   {"id": "TBadge", "slot": "Badge", "mesh": "SK_Badge_T"}
  ],
  "palettes": {
@@ -63,7 +63,8 @@
    {"id": "cherry", "name": "Cherry", "rgb": [0.878, 0.322, 0.353]},
    {"id": "forest", "name": "Forest", "rgb": [0.373, 0.639, 0.478]},
    {"id": "navy", "name": "Navy", "rgb": [0.424, 0.51, 0.722]},
-   {"id": "mustard", "name": "Mustard", "rgb": [0.89, 0.725, 0.278]}
+   {"id": "mustard", "name": "Mustard", "rgb": [0.89, 0.725, 0.278]},
+   {"id": "ink", "name": "Ink", "rgb": [0.15, 0.15, 0.17]}
   ],
   "Headwear": [
    {"id": "harbour", "name": "Harbour Blue", "rgb": [0.313, 0.547, 0.65]},
@@ -79,7 +80,8 @@
    {"id": "tortoise", "name": "Tortoiseshell", "rgb": [0.659, 0.439, 0.247]},
    {"id": "cherry", "name": "Cherry", "rgb": [0.878, 0.322, 0.353]},
    {"id": "sky", "name": "Sky", "rgb": [0.447, 0.678, 0.949]},
-   {"id": "gold", "name": "Gold", "rgb": [0.91, 0.757, 0.353]}
+   {"id": "gold", "name": "Gold", "rgb": [0.91, 0.757, 0.353]},
+   {"id": "ink", "name": "Ink", "rgb": [0.15, 0.15, 0.17]}
   ],
   "Back": [
    {"id": "saddle", "name": "Saddle", "rgb": [0.47, 0.3, 0.19]},
@@ -87,7 +89,8 @@
    {"id": "olive", "name": "Olive", "rgb": [0.431, 0.478, 0.271]},
    {"id": "navy", "name": "Navy", "rgb": [0.208, 0.275, 0.431]},
    {"id": "mustard", "name": "Mustard", "rgb": [0.851, 0.651, 0.227]},
-   {"id": "brick", "name": "Brick", "rgb": [0.659, 0.282, 0.227]}
+   {"id": "brick", "name": "Brick", "rgb": [0.659, 0.282, 0.227]},
+   {"id": "ink", "name": "Ink", "rgb": [0.15, 0.15, 0.17]}
   ]
  },
  "default": {
@@ -104,10 +107,10 @@
    "Top": "tomato",
    "Bottoms": "cocoa",
    "Gloves": "ink",
-   "Footwear": "classic",
+   "Footwear": "ink",
    "Headwear": "harbour",
-   "Face": "classic",
-   "Back": "saddle"
+   "Face": "ink",
+   "Back": "ink"
   }
  }
 }

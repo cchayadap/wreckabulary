@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "providers": {
+    "fal": { "unit": "USD", "soft": 40, "hard": 50, "ceilings": { "openai/gpt-image-2.5/*": 0.4, "*": 1.0 } },
+    "higgsfield": { "unit": "credits", "soft": 2000, "hard": 2500 },
+    "meshy": { "unit": "credits", "soft": 800, "hard": 1000 },
+    "tripo": { "unit": "credits", "soft": 800, "hard": 1000 },
+    "scenario": { "unit": "credits", "soft": 1000, "hard": 1500 }
+  },
+  "attempts_per_stage": 3,
+  "max_parallel": { "fal": 2 },
+  "reservation_ttl_min": 60
+}

@@ -1,0 +1,9 @@
+<Project>
+  <!-- Unity 6000.6's NUnit package uses net472; older gate templates search net40. -->
+  <ItemGroup Condition="'$(KitTests)' == 'true'">
+    <Reference Include="$(ProjectRoot)Library\PackageCache\com.unity.ext.nunit*\net472\unity-custom\nunit.framework.dll" Private="false" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UnityData)' != '' and '$(KitNoEngine)' != 'true'">
+    <Reference Include="$(UnityData)\Managed\UnityEngine\Unity.Scripting.dll" Private="false" Condition="Exists('$(UnityData)\Managed\UnityEngine\Unity.Scripting.dll')" />
+  </ItemGroup>
+</Project>

@@ -52,3 +52,35 @@ sysinfo.txt
 
 __pycache__/
 *.pyc
+
+# >>> game-studio-kit
+.harness/
+.claude/settings.local.json
+.kit/backups/
+**/Tools/kit/gate/Check/bin/
+**/Tools/kit/gate/Check/obj/
+**/Tools/kit/gate/CoreTests/bin/
+**/Tools/kit/gate/CoreTests/obj/
+**/Tools/.locks/
+Tools/kit/assetgen/.venv/
+Tools/kit/audio/.venv/
+Tools/kit/capture/.venv/
+Tools/kit/**/__pycache__/
+ArtSource/_gen/**/outputs/
+_Inbox/
+.env
+/TestResults/
+/Assets/_AgentCaptures/
+/Assets/_AgentCaptures.meta
+# <<< game-studio-kit
+
+# Gate projects are regenerated with machine-local Unity references.
+/Tools/kit/gate/Check/.gen.json
+/Tools/kit/gate/Check/Directory.Build.props
+/Tools/kit/gate/Check/Runtime.csproj
+/Tools/kit/gate/Check/Editor.csproj
+/Tools/kit/gate/Check/asmdef/
+/Tools/kit/gate/CoreTests/CoreTests.csproj
+
+# Local Unity assistant preferences are not project configuration.
+/ProjectSettings/Packages/com.unity.ai.assistant/

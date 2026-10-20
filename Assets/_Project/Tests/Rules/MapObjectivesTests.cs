@@ -15,7 +15,7 @@ namespace Wreckabulary.Rules.Tests
         {
             var house = HouseLayout.FromJson(TestData.Read(file), file);
             Assert.IsEmpty(house.Validate(TestData.Catalogue()));
-            foreach (string mode in new[] { "Dibs", "Duos", "MovingOut" })
+            foreach (string mode in new[] { "Dibs", "Duos", "MovingOut", "Escape" })
             {
                 Assert.IsTrue(house.ClearOutOrders.ContainsKey(mode));
                 Assert.IsEmpty(house.Graph().CheckClosureOrder(house.ClearOutOrders[mode], house.NeverClose));

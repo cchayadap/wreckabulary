@@ -62,6 +62,18 @@ namespace Wreckabulary.Rules
         public float ClearOutDamagePerSecond = 8f;
         public float ClearOutDamageGrowth = 2f;
 
+        /// <summary>The Escape exit is opened with a key, not a word. False restores the original run.</summary>
+        public bool EscapeNeedsKey = true;
+
+        /// <summary>How many doors into the house the crew has to open before the key room.</summary>
+        public int EscapeKeyAfterRooms = 2;
+
+        /// <summary>Escape picks a fresh exit room every round instead of the authored one.</summary>
+        public bool EscapeRandomExit = true;
+
+        /// <summary>How many keys the Escape crew must find before the way out is revealed.</summary>
+        public int EscapeKeys = 1;
+
         public float CraftSeconds(ItemDefinition item) => CraftBaseSeconds + CraftPerLetterSeconds * item.Letters.Count;
 
         public float BleedOutFor(int timesDowned)
@@ -153,6 +165,7 @@ namespace Wreckabulary.Rules
             "groundAccel", "groundFriction", "unarmed",
             "teamSize", "friendlyFire", "downed", "bleedOut", "reviveSeconds", "reviveHealth", "reviveRange",
             "roundsToWin", "respawn", "reconnectGrace", "roundTimeLimit", "clearOut", "notes",
+            "exitNeedsKey", "keyAfterRooms", "randomExit", "exitKeys",
         };
 
         static readonly string[] ClearOutKeys = { "enabled", "firstAt", "interval", "warn", "fill", "damagePerSecond", "damageGrowth" };
@@ -221,6 +234,10 @@ namespace Wreckabulary.Rules
                 r.ClearOutDamagePerSecond = c["damagePerSecond"].Float(r.ClearOutDamagePerSecond);
                 r.ClearOutDamageGrowth = c["damageGrowth"].Float(r.ClearOutDamageGrowth);
             }
+            r.EscapeNeedsKey = n["exitNeedsKey"].Bool(r.EscapeNeedsKey);
+            r.EscapeKeyAfterRooms = n["keyAfterRooms"].Int(r.EscapeKeyAfterRooms);
+            r.EscapeRandomExit = n["randomExit"].Bool(r.EscapeRandomExit);
+            r.EscapeKeys = n["exitKeys"].Int(r.EscapeKeys);
             return r;
         }
     }

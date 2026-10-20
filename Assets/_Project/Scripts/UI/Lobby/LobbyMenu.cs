@@ -22,7 +22,7 @@ namespace Wreckabulary
         public const string Practice = "practice", Matchmaking = "matchmaking", Workshop = "workshop";
         public const string TutorialMode = "Tutorial", WorkshopMode = "Workshop", RoomMode = "Room";
         public const string VolumeKey = "wv.volume", VsyncKey = "wv.vsync";
-        public static readonly string[] Modes = { "Dibs", "Duos", "MovingOut", "MovingDay" };
+        public static readonly string[] Modes = { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" };
         public static float StartDelay = 3f;
         public const int PartyMax = 4;
         const float BarHeight = 76f, Gutter = 26f, PartyWidth = 380f, FeedWidth = 420f;
@@ -110,7 +110,7 @@ namespace Wreckabulary
             SuspendHub();
             Stage = new GameObject("Lobby stage").AddComponent<LobbyStage>();
             LobbyThemes.Restore();
-            Stage.Show(Map, Outfit);
+            Stage.Show(Map == Session.LobbyRandomMap ? RealMap() : Map, Outfit);
             Stage.gameObject.AddComponent<LobbyCollectionDecor>();
             Stage.SetThemeEffects(PlayerPrefs.GetInt("wv.theme.effects", 1) != 0);
             BuildCanvas();
@@ -659,6 +659,8 @@ namespace Wreckabulary
             if (Starting) CancelStart();
             if (queue != null) Queue = queue;
             if (mode != null) Mode = mode;
+            if (Mode == "Escape") map = Session.LobbyRandomMap;
+            else if (Map == Session.LobbyRandomMap && map == null) map = RealMap();
             if (Queue == Workshop && Mode != TutorialMode && Mode != WorkshopMode) Mode = TutorialMode;
             if (Queue != Workshop && !Modes.Contains(Mode) && !(Queue == Matchmaking && Mode == RoomMode) && !(Queue == Practice && Mode == TutorialMode))
                 Mode = Modes[0];
@@ -667,10 +669,18 @@ namespace Wreckabulary
             Session.LobbyMode = Mode;
             if (map != null && map != Map)
             {
-                Session.SelectMap(map);
-                Map = map;
-                Stage.SetMap(map);
-                Post("Map: " + GameConfig.Current.HouseFor(map).Name + ".");
+                if (map == Session.LobbyRandomMap)
+                {
+                    Map = map;
+                    Post("Random house every run.");
+                }
+                else
+                {
+                    Session.SelectMap(map);
+                    Map = map;
+                    Stage.SetMap(map);
+                    Post("Map: " + GameConfig.Current.HouseFor(map).Name + ".");
+                }
             }
             RefreshBar();
             if (Current == Home && pages.TryGetValue(Home, out var home)) home.Refresh();
@@ -711,12 +721,20 @@ namespace Wreckabulary
             RefreshBar();
         }
 
+        string RealMap() => GameConfig.Current.Houses.ContainsKey(Session.MapId)
+            ? Session.MapId
+            : GameConfig.Current.Houses.Keys.First();
+
         public string Describe()
         {
             if (Mode == TutorialMode) return "Play & learn · the tutorial room";
-            if (Mode == WorkshopMode) return ModeName(WorkshopMode) + " · " + GameConfig.Current.HouseFor(Map).Name;
-            if (Queue == Matchmaking) return ModeName(Mode) + " · " + GameConfig.Current.HouseFor(Map).Name + " · online";
-            return ModeName(Mode) + " · " + GameConfig.Current.HouseFor(Map).Name + " · " + Seats(Mode, PartySize);
+            string house = Map == Session.LobbyRandomMap ? "Random house" : GameConfig.Current.HouseFor(Map).Name;
+            if (Mode == WorkshopMode) return ModeName(WorkshopMode) + " · " + house;
+            string online = Queue == Matchmaking ? " · online" : "";
+            string seats = Seats(Mode, PartySize);
+            return seats.Length == 0
+                ? $"{ModeName(Mode)} · {house}{online}"
+                : $"{ModeName(Mode)} · {house}{online} · {seats}";
         }
 
         public static string ModeName(string mode) => mode switch
@@ -725,6 +743,7 @@ namespace Wreckabulary
             "Duos" => "Double trouble",
             "MovingOut" => "The great escape",
             "MovingDay" => "Moving day",
+            "Escape" => "The Escape!",
             "Tutorial" => "Play & learn",
             "Workshop" => "Creative workshop",
             "Room" => "Private room",
@@ -737,6 +756,7 @@ namespace Wreckabulary
             int bots = PartyMax - humans;
             return mode switch
             {
+                "Escape" => "",
                 "Dibs" => humans == 1 ? "you + 3 bots" : bots == 0 ? "4 players" : $"{humans} players + {bots} bot{(bots > 1 ? "s" : "")}",
                 "Duos" => humans switch
                 {

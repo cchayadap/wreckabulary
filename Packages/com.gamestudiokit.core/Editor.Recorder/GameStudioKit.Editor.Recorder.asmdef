@@ -1,0 +1,28 @@
+{
+    "name": "GameStudioKit.Editor.Recorder",
+    "rootNamespace": "GameStudioKit.Capture",
+    "references": [
+        "GameStudioKit.Runtime",
+        "GameStudioKit.Editor",
+        "Unity.Recorder.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "GSK_RECORDER"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.recorder",
+            "expression": "4.0.0",
+            "define": "GSK_RECORDER"
+        }
+    ],
+    "noEngineReferences": false
+}

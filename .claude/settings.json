@@ -1,0 +1,239 @@
+{
+  "env": {
+    "CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS": "6"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node Tools/kit/gate/game_gate.mjs *)",
+      "PowerShell(node Tools/kit/gate/game_gate.mjs *)",
+      "Bash(node Tools/kit/harness/next_action.mjs*)",
+      "PowerShell(node Tools/kit/harness/next_action.mjs*)",
+      "Bash(node Tools/kit/harness/gate_close.mjs *)",
+      "PowerShell(node Tools/kit/harness/gate_close.mjs *)",
+      "Bash(node Tools/kit/harness/report_gen.mjs*)",
+      "PowerShell(node Tools/kit/harness/report_gen.mjs*)",
+      "Bash(node Tools/kit/qa/*)",
+      "PowerShell(node Tools/kit/qa/*)",
+      "Bash(unity recompile:*)",
+      "PowerShell(unity recompile:*)",
+      "Bash(unity command editor_status:*)",
+      "PowerShell(unity command editor_status:*)",
+      "Bash(unity command run_tests:*)",
+      "PowerShell(unity command run_tests:*)",
+      "Bash(unity command console:*)",
+      "PowerShell(unity command console:*)",
+      "Bash(unity pipeline list:*)",
+      "PowerShell(unity pipeline list:*)",
+      "Bash(unity job:*)",
+      "PowerShell(unity job:*)",
+      "Bash(dotnet build Tools/kit/gate/Check/*)",
+      "PowerShell(dotnet build Tools/kit/gate/Check/*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git rev-parse*)",
+      "Bash(git check-attr*)",
+      "PowerShell(git status*)",
+      "PowerShell(git diff*)",
+      "PowerShell(git log*)",
+      "PowerShell(git rev-parse*)",
+      "PowerShell(git check-attr*)",
+      "mcp__unity__editor_status",
+      "mcp__unity__console",
+      "mcp__unity__console_status",
+      "mcp__unity__recompile",
+      "mcp__unity__recompile_status",
+      "mcp__unity__run_tests",
+      "mcp__unity__test_status",
+      "mcp__unity__list_tests",
+      "mcp__unity__capture_game_view",
+      "mcp__unity__get_scene_hierarchy",
+      "mcp__unity__get_performance_stats",
+      "mcp__fal-ai__search_models",
+      "mcp__fal-ai__search_docs",
+      "mcp__fal-ai__get_model_schema",
+      "mcp__fal-ai__get_pricing",
+      "mcp__fal-ai__recommend_model",
+      "mcp__fal-ai__check_job",
+      "mcp__fal-ai__get_job_result"
+    ],
+    "ask": [
+      "mcp__unity__eval",
+      "mcp__unity__eval_file",
+      "mcp__unity__run_script",
+      "mcp__unity__package_add",
+      "mcp__unity__package_remove",
+      "mcp__unity__build",
+      "mcp__unity__delete_asset",
+      "mcp__unity__set_player_settings",
+      "mcp__unity__switch_build_target",
+      "Bash(git push*)",
+      "PowerShell(git push*)",
+      "Bash(git commit*)",
+      "PowerShell(git commit*)",
+      "Bash(winget *)",
+      "PowerShell(winget *)",
+      "Bash(unity command eval:*)",
+      "PowerShell(unity command eval:*)",
+      "Bash(unity command eval_file:*)",
+      "PowerShell(unity command eval_file:*)",
+      "Bash(unity command run_script:*)",
+      "PowerShell(unity command run_script:*)",
+      "Bash(unity command batch:*)",
+      "PowerShell(unity command batch:*)",
+      "Bash(unity command menu:*)",
+      "PowerShell(unity command menu:*)",
+      "Bash(unity pipeline install:*)",
+      "PowerShell(unity pipeline install:*)",
+      "mcp__unity__batch",
+      "mcp__unity__menu",
+      "mcp__fal-ai__submit_job",
+      "mcp__fal-ai__run_model",
+      "mcp__fal-ai__upload_file",
+      "mcp__fal-ai__cancel_job",
+      "mcp__higgsfield",
+      "mcp__meshy",
+      "mcp__scenario"
+    ],
+    "deny": [
+      "Edit(Docs/qa/gates.json)",
+      "Write(Docs/qa/gates.json)",
+      "Edit(Docs/qa/gates.jsonl)",
+      "Write(Docs/qa/gates.jsonl)",
+      "Edit(Docs/OWNER_INBOX.md)",
+      "Write(Docs/OWNER_INBOX.md)",
+      "Edit(Tools/kit/hooks/**)",
+      "Write(Tools/kit/hooks/**)",
+      "Edit(.claude/settings.json)",
+      "Write(.claude/settings.json)",
+      "Edit(.claude/settings.local.json)",
+      "Write(.claude/settings.local.json)",
+      "Edit(.harness/ALLOW_STOP_OWNER)",
+      "Write(.harness/ALLOW_STOP_OWNER)",
+      "Edit(.harness/policy.json)",
+      "Write(.harness/policy.json)",
+      "Edit(.harness/PAUSE)",
+      "Write(.harness/PAUSE)",
+      "Edit(.harness/HARNESS_UNLOCK)",
+      "Write(.harness/HARNESS_UNLOCK)",
+      "Edit(.harness/owner_confirmations.jsonl)",
+      "Write(.harness/owner_confirmations.jsonl)",
+      "Edit(.harness/overrides.jsonl)",
+      "Write(.harness/overrides.jsonl)",
+      "Edit(.harness/reservations/**)",
+      "Write(.harness/reservations/**)",
+      "Bash(unity command quit:*)",
+      "PowerShell(unity command quit:*)",
+      "Read(**/Library/Pipeline/.unity-pipeline-port)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/state_brief.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/owner_inbox.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Edit|Write|MultiEdit|NotebookEdit|mcp__unity__.*|mcp__blender.*|mcp__fal-ai__.*|mcp__higgsfield__.*|mcp__meshy__.*|mcp__scenario__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/guard.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/cs_check_async.mjs\"",
+            "timeout": 300,
+            "async": true,
+            "asyncRewake": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/lane_deliverable_check.mjs\"",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/stop_failure_log.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/precompact_checkpoint.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/post_compact_archive.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "quota_auto_resume_fired|quota_auto_resume_stale|quota_auto_resume_disabled|idle_prompt|permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/Tools/kit/hooks/notification_log.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

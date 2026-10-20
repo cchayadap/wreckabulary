@@ -242,7 +242,7 @@ namespace Wreckabulary.Tests
 
         static void SetGameViewSize(int width, int height)
         {
-            var assembly = typeof(Editor).Assembly;
+            var assembly = typeof(UnityEditor.Editor).Assembly;
             var sizesType = assembly.GetType("UnityEditor.GameViewSizes");
             var singleton = typeof(ScriptableSingleton<>).MakeGenericType(sizesType);
             var sizes = singleton.GetProperty("instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);

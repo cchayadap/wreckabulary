@@ -22,7 +22,6 @@ namespace Wreckabulary
         [Tooltip("If set, new roommates walk this way on arrival (through the front door in the house).")]
         [SerializeField] Vector3 walkIn;
         [SerializeField] float walkInTime = 0.5f;
-        [SerializeField] int starterLetters = 3;
 
         [Header("Knockouts")]
         [SerializeField] bool respawnKnockedOut = true;
@@ -62,6 +61,8 @@ namespace Wreckabulary
         public void EnsureOpponents()
         {
             if (HumanCount == 0) return;
+            if (Match.Mode == "Escape") { AssignTeams(); return; }     // No AI crew in The Escape.
+
             int target = 4;
             while (players.Count < target && players.Count < maxPlayers)
             {
@@ -79,6 +80,7 @@ namespace Wreckabulary
             foreach (var b in Session.Bindings.ToArray())
             {
                 if (b is GamepadBinding g && !g.Pad.added) continue;
+                if (b is BotBinding && Match.Mode == "Escape") continue;   // The Escape is humans only.
                 Join(b, arriving: false);
                 RestoredFromSession = true;
             }

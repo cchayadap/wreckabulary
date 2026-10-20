@@ -182,7 +182,8 @@ namespace Wreckabulary
             string.IsNullOrEmpty(text) ? text : char.ToUpperInvariant(text[0]) + text.Substring(1);
 
         protected static string MapName(string id) =>
-            id != null && GameConfig.Current.Houses.TryGetValue(id, out var house) ? house.Name : id ?? "";
+            id == Session.LobbyRandomMap ? "random"
+            : id != null && GameConfig.Current.Houses.TryGetValue(id, out var house) ? house.Name : id ?? "";
 
         protected static string Number(int value) => value.ToString("N0", CultureInfo.InvariantCulture);
 
@@ -284,10 +285,19 @@ namespace Wreckabulary
             else
             {
                 LobbyKit.SectionLabel(column, "Pick a house");
-                var houses = Centred(LobbyKit.FitRow(column, "Houses", HouseSize, 18, GameConfig.Current.Houses.Count));
-                int index = 0;
-                foreach (var house in GameConfig.Current.Houses)
-                    HouseCard(houses, house.Key, house.Value, index++);
+                if (Menu.Mode == "Escape")
+                {
+                    // The Escape randomises the house, so this is the only choice it offers.
+                    var randomRow = Centred(LobbyKit.FitRow(column, "Houses", HouseSize, 18, 1));
+                    RandomHouseCard(randomRow);
+                }
+                else
+                {
+                    var houses = Centred(LobbyKit.FitRow(column, "Houses", HouseSize, 18, GameConfig.Current.Houses.Count));
+                    int index = 0;
+                    foreach (var house in GameConfig.Current.Houses)
+                        HouseCard(houses, house.Key, house.Value, index++);
+                }
             }
             Footer(body);
 
@@ -326,6 +336,7 @@ namespace Wreckabulary
             yield return ("Duos", LobbyMenu.ModeName("Duos"), online ? "2 v 2" : "2v2 · AI partner", "Watch each other’s backs. Hold interact to revive your buddy.");
             yield return ("MovingOut", LobbyMenu.ModeName("MovingOut"), "Co-op", "Find every keepsake, then get the whole crew to the van before the house is packed.");
             yield return ("MovingDay", LobbyMenu.ModeName("MovingDay"), "Co-op", "Spell the checklist furniture and place it in its marked room.");
+            yield return ("Escape", LobbyMenu.ModeName("Escape"), "Co-op", "Three locked doors, one collapsing house. Spell the words and get everyone out.");
             if (online) yield return (LobbyMenu.RoomMode, LobbyMenu.ModeName(LobbyMenu.RoomMode), "Friends only", "Invite friends with a room code and pick the rules.");
             else yield return Tutorial;
         }
@@ -356,6 +367,15 @@ namespace Wreckabulary
             TagLine(words, tag);
             Wrapped(words, blurb, 16, LobbyKit.Cream);
             return card;
+        }
+
+        void RandomHouseCard(Transform parent)
+        {
+            var card = Poster(parent, "Map random", LobbyKit.Sun, Menu.Map == Session.LobbyRandomMap,
+                () => { Menu.Choose(map: Session.LobbyRandomMap); Refresh(); Reselect("Map random"); }, HouseSize);
+            var body = card.Body();
+            var title = LobbyKit.Display(body, "random", 34, LobbyKit.Cream, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke);
+            title.Size(-1, 44);
         }
 
         void HouseCard(Transform parent, string id, HouseLayout layout, int index)
@@ -410,7 +430,9 @@ namespace Wreckabulary
             title.enableAutoSizing = true; title.fontSizeMin = 20; title.fontSizeMax = 28;
             title.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(94, 44), new Vector2(-300, -8));
             string who = Menu.Mode == LobbyMenu.WorkshopMode ? "Build and test a home" : Capital(LobbyMenu.Seats(Menu.Mode, Menu.PartySize));
-            var detail = LobbyKit.Text(bar, blocked ?? who, 18, blocked == null ? LobbyKit.Muted : LobbyKit.Sun, TextAlignmentOptions.TopLeft, FontStyles.Bold);
+            string detailText = blocked ?? who;
+            var detail = LobbyKit.Text(bar, detailText, 18, blocked == null ? LobbyKit.Muted : LobbyKit.Sun, TextAlignmentOptions.TopLeft, FontStyles.Bold);
+            detail.gameObject.SetActive(!string.IsNullOrEmpty(detailText));
             detail.enableAutoSizing = true; detail.fontSizeMin = 14; detail.fontSizeMax = 18;
             detail.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(94, 10), new Vector2(-300, -48));
             var go = LobbyKit.Primary(bar, "GO", "GO", Menu.Go, 48, 30);
@@ -1580,15 +1602,33 @@ namespace Wreckabulary
             field.caretWidth = 2;
             field.selectionColor = new Color(LobbyKit.Sun.r, LobbyKit.Sun.g, LobbyKit.Sun.b, .5f);
             field.text = Menu.Career.Name;
+            field.inputValidator = LatinNameValidator.Create();
             field.onEndEdit.AddListener(value =>
             {
-                string trimmed = (value ?? "").Trim();
-                if (trimmed.Length < 2 || trimmed == Menu.Career.Name) { field.text = Menu.Career.Name; return; }
+                string trimmed = Career.CleanName(value);
+                if (trimmed == null || trimmed.Length < 2 || trimmed == Menu.Career.Name) { field.text = Menu.Career.Name; return; }
                 Menu.Career.Name = trimmed;
                 Menu.SaveCareer();
                 Menu.Post("You're now " + trimmed + ".");
             });
             holder.gameObject.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// Keeps the name field to characters Lilita One and Nunito can draw. TMP's own validators accept any
+    /// letter, so a name typed on a Chinese keyboard used to be rendered as empty boxes.
+    /// </summary>
+    public sealed class LatinNameValidator : TMP_InputValidator
+    {
+        public static LatinNameValidator Create() => CreateInstance<LatinNameValidator>();
+
+        public override char Validate(ref string text, ref int position, char character)
+        {
+            if (Career.CleanName(character.ToString()).Length == 0) return '\0';
+            text = text.Insert(position, character.ToString());
+            position++;
+            return character;
         }
     }
 }

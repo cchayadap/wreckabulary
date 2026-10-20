@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/probes.config.schema.json",
+  "title": "Docs/qa/probes.config.json v1: probe thresholds (ARCHITECTURE §3.12)",
+  "description": "Written from probes.config.json.tmpl at install; per-project changes go in overrides[] with a reason. Every threshold with scales_with_body=true is multiplied by k = body.height_m / reference_height_m for each body. Every default metric id is required so probes and templates cannot drift. Contract: CONTRACTS.md §7.4.",
+  "type": "object",
+  "required": [
+    "schema",
+    "reference_height_m",
+    "body_classes",
+    "bodies",
+    "thresholds",
+    "overrides"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "project": {
+      "type": "string"
+    },
+    "reference_height_m": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 1.8
+    },
+    "body_classes": {
+      "type": "object",
+      "required": [
+        "humanoid",
+        "small_biped",
+        "quadruped",
+        "prop"
+      ],
+      "properties": {
+        "humanoid": {
+          "$ref": "#/$defs/bodyClass"
+        },
+        "small_biped": {
+          "$ref": "#/$defs/bodyClass"
+        },
+        "quadruped": {
+          "$ref": "#/$defs/bodyClass"
+        },
+        "prop": {
+          "$ref": "#/$defs/bodyClass"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/bodyClass"
+      }
+    },
+    "bodies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/body"
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "required": [
+        "idle_foot_drift_lock_on_cm",
+        "idle_foot_drift_lock_off_cm",
+        "walk_start_foot_pop_cm",
+        "idle_pop_offset_jump_cm",
+        "lock_release_latency_s",
+        "locked_fraction",
+        "foot_heading_vs_facing_deg",
+        "stance_foot_slide_cm_per_step",
+        "stance_height_error_cm",
+        "foot_crossing_frames_per_cycle",
+        "idle_spine_lean_deg",
+        "idle_head_tilt_deg",
+        "prop_over_face_pct",
+        "grip_offset_cm",
+        "death_pose_ground_penetration_cm",
+        "foot_lock_cpu_ms_per_character",
+        "frame_time_p95_ms",
+        "perf_regression_p95_pct",
+        "visual_diff_changed_pct",
+        "console_exceptions",
+        "console_errors",
+        "soak_seed_completion_pct",
+        "soak_memory_growth_pct_per_30min",
+        "prop_angular_velocity_deg_s",
+        "prop_up_axis_error_deg",
+        "worst_frame_after_warmup_ms",
+        "first_visit_hitch_ms",
+        "goldpath_no_jump_completes",
+        "jumpable_obstacle_margin_m",
+        "blocking_collider_margin_m",
+        "orphan_colliders",
+        "bulk_tool_unintended_move_m",
+        "below_terrain_objects",
+        "animator_missing_controller",
+        "bone_motion_latency_s",
+        "extra_world_camera_min_interval_frames",
+        "bake_splat_sum_error",
+        "bake_nan_black_texel_pct",
+        "texture_import_downsample_factor",
+        "polish_lane_pass_delta"
+      ],
+      "properties": {
+        "idle_foot_drift_lock_on_cm": {
+          "$ref": "#/$defs/threshold"
+        },
+        "idle_foot_drift_lock_off_cm": {
+          "$ref": "#/$defs/threshold"
+        },
+        "walk_start_foot_pop_cm": {
+          "$ref": "#/$defs/threshold"
+        },
+        "idle_pop_offset_jump_cm": {
+          "$ref": "#/$defs/threshold"
+        },
+        "lock_release_latency_s": {
+          "$ref": "#/$defs/threshold"
+        },
+        "locked_fraction": {
+          "$ref": "#/$defs/threshold"
+        },
+        "foot_heading_vs_facing_deg": {
+          "$ref": "#/$defs/threshold"
+        },
+        "stance_foot_slide_cm_per_step": {
+          "$ref": "#/$defs/threshold"
+        },
+        "stance_height_error_cm": {
+          "$ref": "#/$defs/threshold"
+        },
+        "foot_crossing_frames_per_cycle": {
+          "$ref": "#/$defs/threshold"
+        },
+        "idle_spine_lean_deg": {
+          "$ref": "#/$defs/threshold"
+        },
+        "idle_head_tilt_deg": {
+          "$ref": "#/$defs/threshold"
+        },
+        "prop_over_face_pct": {
+          "$ref": "#/$defs/threshold"
+        },
+        "grip_offset_cm": {
+          "$ref": "#/$defs/threshold"
+        },
+        "death_pose_ground_penetration_cm": {
+          "$ref": "#/$defs/threshold"
+        },
+        "foot_lock_cpu_ms_per_character": {
+          "$ref": "#/$defs/threshold"
+        },
+        "frame_time_p95_ms": {
+          "$ref": "#/$defs/threshold"
+        },
+        "perf_regression_p95_pct": {
+          "$ref": "#/$defs/threshold"
+        },
+        "visual_diff_changed_pct": {
+          "$ref": "#/$defs/threshold"
+        },
+        "console_exceptions": {
+          "$ref": "#/$defs/threshold"
+        },
+        "console_errors": {
+          "$ref": "#/$defs/threshold"
+        },
+        "soak_seed_completion_pct": {
+          "$ref": "#/$defs/threshold"
+        },
+        "soak_memory_growth_pct_per_30min": {
+          "$ref": "#/$defs/threshold"
+        },
+        "prop_angular_velocity_deg_s": {
+          "$ref": "#/$defs/threshold"
+        },
+        "prop_up_axis_error_deg": {
+          "$ref": "#/$defs/threshold"
+        },
+        "worst_frame_after_warmup_ms": {
+          "$ref": "#/$defs/threshold"
+        },
+        "first_visit_hitch_ms": {
+          "$ref": "#/$defs/threshold"
+        },
+        "goldpath_no_jump_completes": {
+          "$ref": "#/$defs/threshold"
+        },
+        "jumpable_obstacle_margin_m": {
+          "$ref": "#/$defs/threshold"
+        },
+        "blocking_collider_margin_m": {
+          "$ref": "#/$defs/threshold"
+        },
+        "orphan_colliders": {
+          "$ref": "#/$defs/threshold"
+        },
+        "bulk_tool_unintended_move_m": {
+          "$ref": "#/$defs/threshold"
+        },
+        "below_terrain_objects": {
+          "$ref": "#/$defs/threshold"
+        },
+        "animator_missing_controller": {
+          "$ref": "#/$defs/threshold"
+        },
+        "bone_motion_latency_s": {
+          "$ref": "#/$defs/threshold"
+        },
+        "extra_world_camera_min_interval_frames": {
+          "$ref": "#/$defs/threshold"
+        },
+        "bake_splat_sum_error": {
+          "$ref": "#/$defs/threshold"
+        },
+        "bake_nan_black_texel_pct": {
+          "$ref": "#/$defs/threshold"
+        },
+        "texture_import_downsample_factor": {
+          "$ref": "#/$defs/threshold"
+        },
+        "polish_lane_pass_delta": {
+          "$ref": "#/$defs/threshold"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/threshold"
+      },
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$"
+      }
+    },
+    "overrides": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/override"
+      }
+    }
+  },
+  "$defs": {
+    "bodyClass": {
+      "type": "object",
+      "required": [
+        "height_m"
+      ],
+      "properties": {
+        "height_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "body": {
+      "type": "object",
+      "required": [
+        "id",
+        "body_class",
+        "height_m"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+$"
+        },
+        "body_class": {
+          "type": "string",
+          "minLength": 1
+        },
+        "height_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rig": {
+          "enum": [
+            "humanoid",
+            "generic"
+          ]
+        },
+        "clips": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "prefab": {
+          "type": "string"
+        }
+      }
+    },
+    "threshold": {
+      "type": "object",
+      "required": [
+        "op",
+        "value",
+        "unit",
+        "scales_with_body",
+        "on_fail",
+        "tag"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "enum": [
+            "<=",
+            "<",
+            ">=",
+            ">",
+            "==",
+            "abs<="
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "boolean"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scales_with_body": {
+          "type": "boolean"
+        },
+        "on_fail": {
+          "enum": [
+            "FAIL",
+            "ROUTE",
+            "BISECT",
+            "REVERT"
+          ],
+          "description": "FAIL: the row fails; ROUTE: send to the reviewer, never auto-fail; BISECT: fail and bisect against the previous build; REVERT: revert the lane (polish rule, ARCHITECTURE §7.4 step 7a)."
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^(\\[(V|V-bin|C|P|U)\\]|project)$"
+        },
+        "source": {
+          "type": "string"
+        },
+        "params": {
+          "type": "object"
+        }
+      }
+    },
+    "override": {
+      "type": "object",
+      "required": [
+        "metric",
+        "value",
+        "reason",
+        "utc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "type": "string",
+          "minLength": 1
+        },
+        "body": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "number",
+            "boolean"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 10
+        },
+        "utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "by": {
+          "type": "string",
+          "description": "The gate or TASK §11 row that measured or approved it."
+        }
+      }
+    }
+  }
+}

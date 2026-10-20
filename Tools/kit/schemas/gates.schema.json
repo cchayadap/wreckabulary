@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/gates.schema.json",
+  "title": "Docs/qa/gates.json, schema v1 (gate ledger definition)",
+  "description": "Milestone gate cards as data. Writers: gate_close.mjs and kit.mjs only (deny rule + guard G5b). $defs/ledgerRow validates one line of Docs/qa/gates.jsonl. Contract: CONTRACTS.md §7.1, ARCHITECTURE §6.2.",
+  "type": "object",
+  "required": ["schema", "project", "freshness", "milestones"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "project": { "type": "string", "minLength": 1 },
+    "freshness": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["git-head", "tree-hash"], "description": "git-head compares `git rev-parse HEAD`; tree-hash compares lib/hash.mjs treeHash(U, tree_roots, {excludes: tree_excludes}) (the only option without git)." },
+        "tree_roots": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 }, "default": ["Assets", "Packages", "ProjectSettings"] },
+        "tree_excludes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 }, "default": ["Assets/_AgentCaptures/**", "Assets/_AgentCaptures.meta"], "description": "U-relative globs (lib/paths.mjs globToRegExp) left out of the tree hash: captures are not source. Absent = the default (lib/hash.mjs TREE_EXCLUDES); [] hashes everything." }
+      }
+    },
+    "milestones": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/milestone" }
+    }
+  },
+  "$defs": {
+    "milestoneId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]{0,31}$",
+      "description": "M0, M1, …, or a named gate such as wrapup (the freeze-sequence gate keep_working checks)."
+    },
+    "rowId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]{0,31}-[0-9]{2,3}[a-z]?$",
+      "description": "<milestone>-<nn>, e.g. M0-01, M2-07, wrapup-03."
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "gitHead": { "type": "string", "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$" },
+    "milestone": {
+      "type": "object",
+      "required": ["id", "title", "status", "card", "requires", "closed"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/milestoneId" },
+        "title": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["open", "closed"] },
+        "time_box_utc": { "type": "string", "format": "date-time" },
+        "card": { "type": "string", "pattern": "^Docs/qa/gates/[^\\\\]+\\.md$" },
+        "requires": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/row" } },
+        "closed": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/closedRecord" }] },
+        "notes": { "type": "string" }
+      },
+      "if": { "properties": { "status": { "const": "closed" } } },
+      "then": { "properties": { "closed": { "$ref": "#/$defs/closedRecord" } } }
+    },
+    "row": {
+      "type": "object",
+      "required": ["id", "what", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/rowId" },
+        "what": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "enum": ["gate", "probe", "file", "human", "reviewer"],
+          "description": "gate: a game_gate.mjs run (cmd); probe: a QA probe or drill; file: a file must exist (path); human: needs an owner confirmation; reviewer: gate_review workflow row."
+        },
+        "cmd": { "type": "string", "minLength": 1, "description": "game_gate.mjs subcommand and args, e.g. \"check all\", \"test playmode\"." },
+        "path": { "type": "string", "minLength": 1, "description": "Workspace-relative POSIX path (evidence: file)." },
+        "probe": { "type": "string", "minLength": 1, "description": "Probe or scenario id (evidence: probe)." },
+        "fresh": { "type": "boolean", "default": false, "description": "true: the latest PASS must carry the current head (git-head) or tree (tree-hash)." },
+        "covers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Workspace-relative globs of the files the row covers; evidence must be newer than the newest of them."
+        },
+        "tier": { "type": "string" }
+      },
+      "allOf": [
+        { "if": { "properties": { "evidence": { "const": "gate" } } }, "then": { "required": ["cmd"] } },
+        { "if": { "properties": { "evidence": { "const": "file" } } }, "then": { "required": ["path"] } }
+      ]
+    },
+    "closedRecord": {
+      "type": "object",
+      "required": ["utc", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "utc": { "type": "string", "format": "date-time" },
+        "head": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/gitHead" }] },
+        "tree": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] },
+        "rows": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rowId" } }
+      }
+    },
+    "ledgerRow": {
+      "title": "One line of Docs/qa/gates.jsonl",
+      "description": "Appended only by game_gate.mjs (--row), probe_report.mjs, gate_close.mjs and the gate_review workflow's integrator via those tools. evidence_sha256[i] is the sha256 of evidence[i] at verdict time (same length).",
+      "type": "object",
+      "required": ["utc", "milestone", "row", "verdict", "head", "tree", "evidence", "evidence_sha256", "by"],
+      "additionalProperties": false,
+      "properties": {
+        "utc": { "type": "string", "format": "date-time" },
+        "milestone": { "$ref": "#/$defs/milestoneId" },
+        "row": { "$ref": "#/$defs/rowId" },
+        "verdict": { "enum": ["PASS", "FAIL", "BLOCKED", "NOT-RUN"] },
+        "head": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/gitHead" }] },
+        "tree": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] },
+        "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "evidence_sha256": { "type": "array", "items": { "$ref": "#/$defs/sha256" } },
+        "by": { "enum": ["gate", "probe", "reviewer", "owner", "file"] },
+        "run": { "type": ["string", "null"] },
+        "secs": { "type": ["number", "null"], "minimum": 0 },
+        "cmd": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

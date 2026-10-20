@@ -335,7 +335,7 @@ namespace Wreckabulary.Tests
             yield return null;
             var page = menu.Page<PlayPage>().Root;
             var posters = page.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Mode ")).Select(b => b.name.Substring(5)).ToArray();
-            CollectionAssert.AreEqual(new[] { "Dibs", "Duos", "MovingOut", "MovingDay", LobbyMenu.TutorialMode }, posters,
+            CollectionAssert.AreEqual(new[] { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape", LobbyMenu.TutorialMode }, posters,
                 "the web's posters in its order, with Play & learn in practice too");
             Assert.AreEqual(GameConfig.Current.Houses.Count, page.GetComponentsInChildren<Button>().Count(b => b.name.StartsWith("Map ")), "every house");
             Assert.IsTrue(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Rays"), "posters wear the web's rays");

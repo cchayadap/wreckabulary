@@ -631,13 +631,16 @@ export class WorldView {
       );
       const visible = !piece || wardrobe.pieces?.[piece.slot] === piece.id;
       if (piece) o.visible = visible;
-      const colour = piece?.tint && visible ? colourFor(piece) : null;
-      const tint = piece?.tint?.toLowerCase();
+      // "tint" is one material name or a list of them, so a piece can recolour several slots at once.
+      const wants = piece?.tint
+        ? (Array.isArray(piece.tint) ? piece.tint : [piece.tint]).map((t) => t.toLowerCase())
+        : [];
+      const colour = wants.length > 0 && visible ? colourFor(piece) : null;
       const originals = Array.isArray(o.material) ? o.material : [o.material];
       const values = originals.map((source) => {
         const name = source.name.toLowerCase();
-        const rib = tint === "fabric_main" && name.includes("fabric_rib");
-        const tinted = colour && (name.includes(tint) || rib);
+        const rib = wants.includes("fabric_main") && name.includes("fabric_rib");
+        const tinted = colour && (wants.some((t) => name.includes(t)) || rib);
         const key = `${source.uuid}:${tinted ? `${colour.id}${rib ? ":rib" : ""}` : "-"}`;
         if (this.wardrobeMaterials.has(key))
           return this.wardrobeMaterials.get(key);

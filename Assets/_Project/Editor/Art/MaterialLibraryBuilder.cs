@@ -51,10 +51,26 @@ namespace Wreckabulary.EditorTools
             if (created) mat = new Material(lit) { name = s.Name };
             else if (mat.shader != lit) mat.shader = lit;
 
-            mat.SetColor("_BaseColor", s.LinearBaseColor.gamma);
+            ApplySpecification(mat, s);
+
+            if (created) AssetDatabase.CreateAsset(mat, path);
+            else EditorUtility.SetDirty(mat);
+            return mat;
+        }
+
+        public static void ApplySpecification(Material mat, ImportedArtSettings.MaterialSpec s)
+        {
+            bool neutralTint = s.Name is "boots_color" or "glasses_frame" or "satchel_straps";
+            var baseMap = Load(neutralTint ? ImportedArtSettings.Root + "Textures/ivory_vinyl_BaseColor.png" : s.BaseMap);
+            mat.SetColor("_BaseColor", neutralTint ? Color.white : s.LinearBaseColor.gamma);
             mat.SetFloat("_Metallic", s.Metallic);
             mat.SetFloat("_Smoothness", Mathf.Clamp01(1f - s.Roughness));
-            mat.SetTexture("_BaseMap", Load(s.BaseMap));
+            mat.SetTexture("_BaseMap", baseMap);
+            if (neutralTint)
+            {
+                if (mat.HasProperty("_MainTex")) mat.SetTexture("_MainTex", baseMap);
+                if (mat.HasProperty("_Color")) mat.SetColor("_Color", Color.white);
+            }
             mat.SetTexture("_BumpMap", Load(s.NormalMap));
             mat.SetFloat("_BumpScale", 1f);
 
@@ -72,10 +88,6 @@ namespace Wreckabulary.EditorTools
             mat.SetFloat("_Cull", s.DoubleSided ? (float)CullMode.Off : (float)CullMode.Back);
 
             BaseShaderGUI.SetMaterialKeywords(mat, LitGUI.SetMaterialKeywords);
-
-            if (created) AssetDatabase.CreateAsset(mat, path);
-            else EditorUtility.SetDirty(mat);
-            return mat;
         }
 
         static Texture2D Load(string path)

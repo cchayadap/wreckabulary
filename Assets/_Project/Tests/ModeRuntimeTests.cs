@@ -252,5 +252,46 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(p.Health.IsAlive);
             Assert.AreEqual(MovingOutDirector.State.Countdown, director.Current);
         }
+
+        [UnityTest]
+        public IEnumerator EscapeStartsOnFlatAndLayeredHousesAndKeepsTheExitKeyGatedAfterRetry()
+        {
+            var randomState = Random.state;
+            try
+            {
+                Random.InitState(1040);
+                foreach (string map in new[] { "flat", "walkup" })
+                {
+                    yield return TestScenes.Reset();
+                    yield return LoadBattle("Escape", map);
+                    var director = Object.FindAnyObjectByType<EscapeDirector>();
+                    var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
+                    var room = Object.FindAnyObjectByType<RoomBuilder>();
+                    Assert.IsNotNull(director, map);
+                    yield return TestScenes.WaitUntil(() => director.Current == EscapeDirector.State.Playing, 5f, "Escape starts in " + map);
+                    Assert.AreEqual(1, joins.Players.Count, "Escape keeps the solo party without adding opponents.");
+                    Assert.Greater(director.DoorCount, 0, map);
+                    Assert.Greater(director.KeysNeeded, 0, map);
+                    Assert.AreEqual(0, director.KeysFound);
+                    Assert.IsNotNull(room.Layout.Room(director.GuideRoom), "The guide points to an actual room.");
+                    Assert.IsFalse(director.ExitOpen);
+                    Assert.IsFalse(director.ExitRevealed);
+
+                    var player = joins.Players.Single();
+                    player.Respawn(director.ExtractionPoint);
+                    yield return new WaitForSeconds(.25f);
+                    Assert.AreEqual(EscapeDirector.State.Playing, director.Current, "Reaching the exit without its keys cannot win.");
+
+                    director.Restart();
+                    yield return null;
+                    Assert.AreEqual(EscapeDirector.State.Countdown, director.Current);
+                    Assert.AreEqual(0, director.KeysFound);
+                    Assert.AreEqual(0, director.DoorsOpen);
+                    Assert.IsFalse(director.ExitOpen);
+                    Assert.IsNotNull(room.Layout.Room(director.GuideRoom), "Retry rebuilds a valid guide.");
+                }
+            }
+            finally { Random.state = randomState; }
+        }
     }
 }

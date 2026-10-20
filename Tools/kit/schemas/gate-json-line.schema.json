@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/gate-json-line.schema.json",
+  "title": "The one-line result `node Tools/kit/gate/game_gate.mjs <cmd> --json` prints (last stdout line)",
+  "description": "Required fields are the contract; producers may add fields. $defs: historyLine (Logs/gate_history.jsonl), gateConfig (Tools/kit/gate/gate.config.json), buildJson (Builds/<id>/build.json). Contract: CONTRACTS.md §4.2, ARCHITECTURE §4.2.",
+  "type": "object",
+  "required": ["cmd", "rung", "ok", "exit", "verdict", "utc", "secs", "errors", "failures", "log", "evidence"],
+  "properties": {
+    "cmd": { "type": "string", "minLength": 1, "description": "Subcommand and args as run, e.g. \"check all\", \"test playmode\", \"smoke --stripped\"." },
+    "rung": { "enum": ["R0", "R1", "R2", "R3", "R4", null] },
+    "ok": { "type": "boolean", "description": "true exactly when verdict is PASS." },
+    "exit": { "enum": [0, 1, 2, 3, 75], "description": "The gate's own exit code: 0 PASS, 1 FAIL, 2 usage, 3 INFRA, 75 BLOCKED." },
+    "verdict": { "enum": ["PASS", "FAIL", "BLOCKED", "NOT-RUN", "INFRA"], "description": "Tied to exit: PASS 0, FAIL 1, INFRA 3, BLOCKED 75, NOT-RUN 2|3|75. INFRA (licence, missing tool, Unity exit 1-4/6 with an infrastructure message) is never a code failure; a gates.jsonl row records it as BLOCKED." },
+    "utc": { "type": "string", "format": "date-time" },
+    "secs": { "type": "number", "minimum": 0 },
+    "route": { "enum": ["warm", "cold", "none"] },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": { "type": "string" },
+          "code": { "type": "string", "description": "e.g. CS0103" },
+          "file": { "type": "string" },
+          "line": { "type": "integer", "minimum": 0 },
+          "col": { "type": "integer", "minimum": 0 },
+          "severity": { "enum": ["error", "warning"] }
+        }
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "message": { "type": "string" },
+          "location": { "type": "string", "description": "First Assets/ stack line, e.g. Assets/Game/Tests/DoorTests.cs:42" }
+        }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "required": ["total", "passed", "failed", "skipped"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "log": { "type": ["string", "null"], "description": "Path of the main log for this run (U-relative POSIX)." },
+    "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "infra": { "type": ["string", "null"], "description": "Why the run is INFRA, when it is." },
+    "slot": { "type": ["integer", "null"], "minimum": 0 },
+    "build": { "$ref": "#/$defs/buildJson" },
+    "row": { "type": "string", "description": "Gate row id when --row was given (a gates.jsonl line was appended)." }
+  },
+  "allOf": [
+    { "if": { "required": ["verdict"], "properties": { "verdict": { "const": "PASS" } } }, "then": { "properties": { "ok": { "const": true }, "exit": { "const": 0 } } }, "else": { "properties": { "ok": { "const": false }, "exit": { "not": { "const": 0 } } } } },
+    { "if": { "required": ["verdict"], "properties": { "verdict": { "const": "FAIL" } } }, "then": { "properties": { "exit": { "const": 1 } } } },
+    { "if": { "required": ["verdict"], "properties": { "verdict": { "const": "INFRA" } } }, "then": { "properties": { "exit": { "const": 3 } } } },
+    { "if": { "required": ["verdict"], "properties": { "verdict": { "const": "BLOCKED" } } }, "then": { "properties": { "exit": { "const": 75 } } } },
+    { "if": { "required": ["verdict"], "properties": { "verdict": { "const": "NOT-RUN" } } }, "then": { "properties": { "exit": { "enum": [2, 3, 75] } } }, "description": "NOT-RUN: the gate did not run the check (2 bad usage or missing prerequisite such as no build, 3 infrastructure, 75 resource held); never 0 or 1." }
+  ],
+  "$defs": {
+    "historyLine": {
+      "title": "One line of <U>/Logs/gate_history.jsonl (appended by every game_gate run)",
+      "type": "object",
+      "required": ["utc", "cmd", "rung", "secs", "exit", "verdict"],
+      "properties": {
+        "utc": { "type": "string", "format": "date-time" },
+        "cmd": { "type": "string" },
+        "rung": { "enum": ["R0", "R1", "R2", "R3", "R4", null] },
+        "secs": { "type": "number", "minimum": 0 },
+        "exit": { "type": "integer" },
+        "verdict": { "enum": ["PASS", "FAIL", "BLOCKED", "NOT-RUN", "INFRA"] },
+        "route": { "enum": ["warm", "cold", "none"] },
+        "crashAfterQuit": { "type": "boolean" },
+        "refreshSecs": { "type": ["number", "null"] },
+        "head": { "type": ["string", "null"] },
+        "tree": { "type": ["string", "null"] }
+      }
+    },
+    "gateConfig": {
+      "title": "<U>/Tools/kit/gate/gate.config.json (written by kit install from gate.config.json.tmpl; the gate unit owns the template)",
+      "type": "object",
+      "required": ["unityProject", "workspace", "prefix", "editorEnv", "timeoutMs", "lockWaitMs", "checkSlots", "coreSlots", "testAssemblies"],
+      "properties": {
+        "unityProject": { "type": "string", "description": "U relative to W, POSIX ('.' when they are the same), e.g. KNOTWELL." },
+        "workspace": { "type": "string", "description": "W relative to U, POSIX ('.' or '..')." },
+        "prefix": { "type": "string", "description": "Log prefix, e.g. [KNOTWELL]." },
+        "editorEnv": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }, "description": "Env vars naming the editor exe, in priority order (GSK_UNITY first)." },
+        "timeoutMs": { "type": "integer", "minimum": 1000 },
+        "lockWaitMs": { "type": "integer", "minimum": 0 },
+        "checkSlots": { "type": "integer", "minimum": 1, "maximum": 16 },
+        "coreSlots": { "type": "integer", "minimum": 1, "maximum": 16 },
+        "testAssemblies": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "buildProfile": { "type": "string", "description": "Default (release) build profile asset path." },
+        "buildProfiles": {
+          "type": "object",
+          "properties": {
+            "release": { "type": "string" },
+            "release-qa": { "type": "string" },
+            "dev": { "type": "string" }
+          },
+          "additionalProperties": { "type": "string" }
+        },
+        "exeName": { "type": "string", "description": "Player executable name, e.g. Knotwell.exe" },
+        "smokeSeconds": { "type": "integer", "minimum": 5 },
+        "qaDefine": { "type": "string", "default": "GSK_QA" }
+      }
+    },
+    "buildJson": {
+      "title": "<U>/Builds/<dir>/build.json, written by `game_gate build`",
+      "type": "object",
+      "required": ["schema", "id", "kind", "dir", "exe", "utc", "development"],
+      "properties": {
+        "schema": { "const": 1 },
+        "id": { "type": "string", "pattern": "^[0-9]{8}T[0-9]{6}Z$" },
+        "kind": { "enum": ["release", "release-qa", "dev"], "description": "release → Builds/<id>/ (shipped; no QaRunner, no GSK_QA); release-qa → Builds/qa-<id>/ (GSK_QA, smoke/perf); dev → Builds/dev-<id>/ (development player; carries the Pipeline runtime). upload.ps1 and release_check refuse qa-* and dev-*." },
+        "dir": { "type": "string", "pattern": "^Builds/((qa|dev)-)?[0-9]{8}T[0-9]{6}Z$" },
+        "exe": { "type": "string", "description": "Executable path relative to dir." },
+        "profile": { "type": "string" },
+        "utc": { "type": "string", "format": "date-time" },
+        "development": { "type": "boolean" },
+        "unity_version": { "type": "string" },
+        "head": { "type": ["string", "null"] },
+        "tree": { "type": ["string", "null"] },
+        "secs": { "type": "number", "minimum": 0 },
+        "ok": { "type": "boolean" }
+      },
+      "allOf": [
+        { "if": { "properties": { "kind": { "const": "dev" } } }, "then": { "properties": { "development": { "const": true }, "dir": { "pattern": "^Builds/dev-" } } } },
+        { "if": { "properties": { "kind": { "const": "release-qa" } } }, "then": { "properties": { "development": { "const": false }, "dir": { "pattern": "^Builds/qa-" } } } },
+        { "if": { "properties": { "kind": { "const": "release" } } }, "then": { "properties": { "development": { "const": false }, "dir": { "pattern": "^Builds/[0-9]" } } } }
+      ]
+    }
+  }
+}

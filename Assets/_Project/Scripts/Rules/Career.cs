@@ -49,6 +49,20 @@ namespace Wreckabulary.Rules
             .Select(bundle => new ShopOffer("look", bundle.Id, bundle.Name, bundle.Price))).ToArray();
 
         public string Name = "Housemate";
+
+        /// <summary>
+        /// Keeps a name to printable ASCII, the only range the fonts we ship cover. Lilita One and Nunito
+        /// carry no CJK glyphs, so a name typed on a Chinese keyboard was drawn as empty boxes.
+        /// </summary>
+        public static string CleanName(string name)
+        {
+            if (name == null) return null;
+            var text = new StringBuilder();
+            foreach (char c in name.Trim())
+                if (c >= ' ' && c <= '~') text.Append(c);
+            return text.ToString().Trim();
+        }
+
         public int Coins, Xp, Matches, Wins;
         public readonly List<string> Owned = new List<string>();
         public readonly Dictionary<string, int> Bests = new Dictionary<string, int>();
@@ -154,8 +168,8 @@ namespace Wreckabulary.Rules
             try { root = Json.Parse(text, "career"); }
             catch (FormatException) { return career; }
             if (!root.IsObject) return career;
-            string name = Read(() => root["name"].String(null));
-            if (name != null && name.Trim().Length >= 2) career.Name = name.Trim().Length > NameLength ? name.Trim().Substring(0, NameLength) : name.Trim();
+            string name = CleanName(Read(() => root["name"].String(null)));
+            if (name != null && name.Length >= 2) career.Name = name.Length > NameLength ? name.Substring(0, NameLength) : name;
             career.Coins = Math.Max(0, Read(() => root["coins"].Int(0)));
             career.Xp = Math.Max(0, Read(() => root["xp"].Int(0)));
             career.Matches = Math.Max(0, Read(() => root["matches"].Int(0)));

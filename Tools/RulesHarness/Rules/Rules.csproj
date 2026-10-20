@@ -11,5 +11,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../Assets/_Project/Scripts/Rules/**/*.cs" />
+    <Compile Include="../../../Packages/com.gamestudiokit.core/Runtime/Determinism/*.cs" />
   </ItemGroup>
 </Project>
