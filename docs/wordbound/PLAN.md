@@ -88,7 +88,7 @@ Progress must come from interacting with words and objects. Reuse BED/STOOL trav
 | **Free-for-All** | 2–8 individuals | Combat contest: first to 10 knockouts, or highest score after eight minutes. Equal scores at timeout produce a draw. | Individual combat with respawns. |
 | **Freestyle** | 1–8 | Explore, experiment, practice puzzles, and play with objects. No winner or timer. | Damage off. |
 
-Free-for-All is a combat mode, distinct from an individual racing variant. Freestyle uses private sessions initially; it does not open the map editor during online play.
+Free-for-All is a combat mode, distinct from an individual racing variant. Under the owner's 2026-10-21 update, Freestyle supports public and private human sessions; it does not open the map editor during online play. Public cooperative sessions require at least two humans and never silently substitute AI or solo play.
 
 Public race matches have a 25-minute cap. At timeout, rank teams by completed ordered objectives, then by the earliest authoritative tick at which that progress was achieved; an exact tie is a draw.
 
@@ -217,7 +217,7 @@ Further rules:
 - Changing roster, format, or Fill cancels the current queue before requeueing.
 - No new random teammates after the match begins; reconnecting members reclaim their slots.
 - Private sessions default to Fill Off. Turning it on explicitly allows random teammates while the session remains code-based.
-- FFA uses individual matchmaking; Freestyle has no Fill control.
+- FFA uses individual matchmaking. Public Freestyle uses one cooperative group, with whole-party Fill and a two-human minimum; its private sessions may still be solo.
 - When population is insufficient, show elapsed queue time and Cancel. Do not silently add bots or change the rules.
 
 ### Technical choice
@@ -285,7 +285,7 @@ For every asset:
 5. Supply materials, icon, previews, dimensions, provenance, and validation records.
 6. Verify held, placed, thrown, used, and destroyed states in gameplay.
 
-Use existing import conventions: metres, Unity-compatible orientation, `Grip_R`, and gameplay-owned colliders. Start with 2–6k triangles, up to two material slots, and the project’s current 512-pixel texture cap. Treat these as initial budgets to validate visually.
+Use existing import conventions: metres, Unity-compatible orientation, `Grip_R`, and gameplay-owned colliders. Start with 2–6k triangles, up to two material slots, and the project’s current 512-pixel texture cap. Treat these as initial budgets to validate visually. The owner's 2026-10-21 update requires meticulous, believable construction and material detail, inspected close-up and in gameplay while preserving editable sources and measured performance.
 
 Art production stages its own sources. The integrator updates shared catalogs and import tests. Cosmetic variants retain identical gameplay dimensions and statistics.
 
@@ -316,3 +316,7 @@ Concept art can proceed alongside early technical work. Full map production foll
 - **Performance:** profile the populated large map with eight players and active equipment. Use the inspected Core Ultra 7/Intel Arc PC as an initial reference, targeting 60 fps at 1080p Low; record actual results before claiming the target is met.
 
 The project is complete when the packaged build delivers the mode suite, large evolving map, online party flow and recovery, usable workshop, and validated asset batch—not merely when those systems exist in source.
+
+### Unity authoring and production update — 2026-10-21
+
+Ordinary camera, equipment/presentation and course-design changes must be possible through saved Unity assets, Inspector fields and editor tools without editing code. Provide validated camera profiles; editable visual prefabs/materials/grips; course controls for modules, layers, spawns, puzzle parameters and random ranges; scene preview/handles and exact playtest/export actions. Preserve canonical gameplay dimensions, document validation and multiplayer content identity. Deliver an illustrated editing guide and verify edit/save/reload/playtest behavior. Track the complete remaining production acceptance in the repository-root `progress.md` using `[ ]`, `[~]` and `[x]`.
