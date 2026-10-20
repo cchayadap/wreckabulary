@@ -59,8 +59,8 @@ namespace Wreckabulary.EditorTests
         [Test]
         public void PlaytestAndTemplateRoundTripPreserveTheEditingHistory()
         {
-            workshop.OpenTemplate(WorkshopTemplate.RaceCircuit, folder);
-            workshop.History.Execute("Rename", draft => draft.Course.Title = "My race");
+            workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld, folder);
+            workshop.History.Execute("Rename", draft => draft.Course.Title = "My world");
             string before = workshop.History.Current.RecoveryJson;
             ResolvedCourse dispatched = null;
             workshop.PlaytestRequested += manifest => dispatched = manifest;
@@ -73,10 +73,10 @@ namespace Wreckabulary.EditorTests
             Assert.AreEqual(before, workshop.History.Current.RecoveryJson);
 
             workshop.OpenTemplate(WorkshopTemplate.CombatArena, folder);
-            workshop.OpenTemplate(WorkshopTemplate.RaceCircuit, folder);
+            workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld, folder);
             Assert.AreEqual(before, workshop.History.Current.RecoveryJson);
             Assert.IsTrue(workshop.History.Undo());
-            Assert.AreNotEqual("My race", workshop.History.Current.Course().Title);
+            Assert.AreNotEqual("My world", workshop.History.Current.Course().Title);
         }
         [Test]
         public void PlaytestCapturesExactDraftBeforeLauncherChangesEditingState()

@@ -21,7 +21,8 @@ namespace Wreckabulary.Workshop
         readonly string[] controllerActions =
         {
             "Next module", "Previous module", "Rotate", "Duplicate", "Undo", "Redo",
-            "Frame selection", "Preview", "Playtest", "Add module", "Next floor", "Share"
+            "Frame selection", "Preview", "Playtest", "Add module", "Next floor", "Share",
+            "Next physical puzzle", "Next puzzle control", "Edit modules"
         };
         public Func<string, Transform, GameObject> SpawnAssetVisual { get; set; }
         public Func<string, Texture> AssetIcon { get; set; }
@@ -50,6 +51,7 @@ namespace Wreckabulary.Workshop
         void FrameSelection()
         {
             EnsureView();
+            if (SelectedSite != null) { view.Focus(SiteHandles(SelectedSite).FirstOrDefault(h => h.part == sitePart).point); return; }
             if (SelectedFixed != null) { view.Focus(SelectedFixed.FixedPosition); return; }
             var chosen = display.Modules.Where(module => History.Current.Selection.Contains(module.Id)).ToArray();
             if (chosen.Length > 0) view.Frame(chosen); else view.Frame();
@@ -104,10 +106,11 @@ namespace Wreckabulary.Workshop
                     foreach (var corner in corners)
                     { at = ScreenPoint(corner); GUI.Box(new Rect(at.x - 6, at.y - 6, 12, 12), ""); }
             }
-            if (CanShowHandles && !drawingZone && placing == null) Handles();
+            if (CanShowHandles && !drawingZone && placing == null && SelectedSite == null) Handles();
+            PhysicalSiteOverlay();
             if (marquee) GUI.Box(DragRect(pointerStart, Event.current.mousePosition), "", selectedBox);
             GUI.EndGroup();
-            try { HandlePointer(); }
+            try { if (!HandleSitePointer()) HandlePointer(); }
             catch (Exception error)
             {
                 status = error.Message; CancelGesture();
@@ -127,7 +130,7 @@ namespace Wreckabulary.Workshop
         }
         WorkshopHandle? HandleAt(Vector2 point)
         {
-            if (!CanShowHandles) return null;
+            if (!CanShowHandles || SelectedSite != null) return null;
             var pivot = SelectionPivot(); var at = ScreenPoint(pivot);
             if (new Rect(at.x - 14, at.y - 58, 28, 28).Contains(point)) return WorkshopHandle.Rotate;
             if (Vector2.Distance(point, ScreenPoint(HandleEnd(pivot, WorkshopHandle.X))) < 17) return WorkshopHandle.X;
@@ -136,6 +139,7 @@ namespace Wreckabulary.Workshop
         }
         void StartGesture(WorkshopHandle handle, Vector2 mouse)
         {
+            sitePuzzle = "";
             gesturePivot = SelectionPivot();
             if (SelectedFixed != null) placementGesture = new WorkshopPlacementDrag(History, SelectedFixed.Id);
             else gesture = new WorkshopTransformDrag(History, handle, gesturePivot);
@@ -147,6 +151,7 @@ namespace Wreckabulary.Workshop
         WorkshopHandle activeHandle;
         void CancelGesture()
         {
+            siteDrag = null;
             gesture = null; placementGesture = null; dragging = marquee = panning = drawingZone = orbiting = controllerMoving = false;
             resizingZone = null; placing = null; view?.TransformPreview(null, default); view?.PlacementPreview(null);
         }
@@ -285,7 +290,12 @@ namespace Wreckabulary.Workshop
         }
         void RotateSelection()
         {
-            if (SelectedFixed != null)
+            if (SelectedSite != null)
+            {
+                var copy = WorkshopPhysicalSites.Copy(SelectedSite); copy.Yaw = (copy.Yaw + 90) % 360;
+                Edit("Rotate puzzle socket", draft => WorkshopPhysicalSites.Set(draft, copy));
+            }
+            else if (SelectedFixed != null)
             {
                 var rotate = new WorkshopPlacementDrag(History, SelectedFixed.Id);
                 rotate.Rotate(90); rotate.Commit(History, Catalogue); Refresh();
@@ -294,6 +304,7 @@ namespace Wreckabulary.Workshop
         }
         void DuplicateSelection()
         {
+            if (SelectedSite != null) { status = "Use Duplicate module to copy a puzzle and all its linked controls."; return; }
             if (SelectedFixed == null)
             {
                 Edit("Duplicate", draft => WorkshopCommands.Duplicate(draft, new CoursePoint(draft.GridMm * 2, 0, draft.GridMm * 2)));
@@ -317,7 +328,7 @@ namespace Wreckabulary.Workshop
         {
             string next = WorkshopSelection.Step(History.Current, direction);
             if (next == null) return;
-            CancelGesture(); zoneId = "";
+            CancelGesture(); zoneId = ""; sitePuzzle = "";
             History.Select(new[] { next }, controllerAdd); Refresh(); FrameSelection();
         }
         void ControllerPanel()
@@ -331,6 +342,7 @@ namespace Wreckabulary.Workshop
                 if (Button("‹ " + controllerActions[controllerAction] + " ›")) Attempt(ApplyControllerAction);
             }
             GUILayout.Label("Pad: D-pad selects · Stick moves\nRight stick orbits · Triggers zoom\nX rotates · Y multiselect · LB/RB undo/redo");
+            if (SelectedSite != null) GUILayout.Label("Puzzle controls: " + sitePart + "\nD-pad changes control · Stick moves it · X turns socket");
         }
         void ControllerInput()
         {
@@ -351,8 +363,10 @@ namespace Wreckabulary.Workshop
                     if (pad.buttonSouth.wasPressedThisFrame) ApplyControllerAction();
                     return;
                 }
-                if (pad.dpad.right.wasPressedThisFrame || pad.dpad.down.wasPressedThisFrame) StepSelection(1);
-                if (pad.dpad.left.wasPressedThisFrame || pad.dpad.up.wasPressedThisFrame) StepSelection(-1);
+                if (pad.dpad.right.wasPressedThisFrame || pad.dpad.down.wasPressedThisFrame)
+                { if (SelectedSite != null) StepPhysicalControl(1); else StepSelection(1); }
+                if (pad.dpad.left.wasPressedThisFrame || pad.dpad.up.wasPressedThisFrame)
+                { if (SelectedSite != null) StepPhysicalControl(-1); else StepSelection(-1); }
                 if (pad.buttonNorth.wasPressedThisFrame) { controllerAdd = !controllerAdd; status = controllerAdd ? "Multiselect on" : "Multiselect off"; }
                 if (pad.buttonSouth.wasPressedThisFrame) FrameSelection();
                 if (pad.buttonWest.wasPressedThisFrame) RotateSelection();
@@ -365,7 +379,8 @@ namespace Wreckabulary.Workshop
                     {
                         CancelGesture(); controllerMoving = true; controllerX = controllerZ = 0;
                         gesturePivot = SelectionPivot();
-                        if (SelectedFixed != null) placementGesture = new WorkshopPlacementDrag(History, SelectedFixed.Id);
+                        if (SelectedSite != null) siteDrag = new WorkshopSiteDrag(History, siteLap, sitePuzzle, sitePart, siteFixtureIndex);
+                        else if (SelectedFixed != null) placementGesture = new WorkshopPlacementDrag(History, SelectedFixed.Id);
                         else gesture = new WorkshopTransformDrag(History, WorkshopHandle.Plane, gesturePivot);
                         controllerRepeat = 0;
                     }
@@ -373,7 +388,8 @@ namespace Wreckabulary.Workshop
                     {
                         controllerX += Mathf.Abs(move.x) > .5f ? Math.Sign(move.x) * History.Current.GridMm : 0;
                         controllerZ += Mathf.Abs(move.y) > .5f ? Math.Sign(move.y) * History.Current.GridMm : 0;
-                        if (placementGesture != null) placementGesture.Move(controllerX, controllerZ); else gesture.Move(controllerX, controllerZ);
+                        if (siteDrag != null) siteDrag.Move(controllerX, controllerZ);
+                        else if (placementGesture != null) placementGesture.Move(controllerX, controllerZ); else gesture.Move(controllerX, controllerZ);
                         UpdateGesturePreview();
                         controllerRepeat = Time.unscaledTime + .14f;
                     }
@@ -409,20 +425,31 @@ namespace Wreckabulary.Workshop
                     int next = (layers.FindIndex(layer => layer.Id == History.Current.ActiveLayer) + 1) % layers.Count;
                     SelectFloor(layers[next].Id); break;
                 case 11: shareText = History.Current.CourseJsonText; sharing = true; break;
+                case 12: StepPhysicalSite(); break;
+                case 13: StepPhysicalControl(1); break;
+                case 14: CancelGesture(); sitePuzzle = ""; status = "Module editing selected"; break;
             }
         }
         void UpdateGesturePreview()
         {
+            if (siteDrag != null) return;
             if (placementGesture != null) view.PlacementPreview(placementGesture);
             else view.TransformPreview(gesture, gesturePivot);
         }
         void CommitGesture()
         {
-            if (placementGesture != null) placementGesture.Commit(History, Catalogue); else gesture.Commit(History);
+            if (siteDrag != null) siteDrag.Commit(History);
+            else if (placementGesture != null) placementGesture.Commit(History, Catalogue); else gesture.Commit(History);
             Refresh();
         }
         void DeleteSelection()
         {
+            if (SelectedSite != null)
+            {
+                var selected = SelectedSite;
+                Edit("Delete physical controls", draft => WorkshopPhysicalSites.Delete(draft, selected.Lap, selected.PuzzleId));
+                return;
+            }
             string fixedId = SelectedFixed?.Id;
             if (fixedId == null) Edit("Delete", WorkshopCommands.Delete);
             else Edit("Delete object", draft =>

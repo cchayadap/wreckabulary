@@ -64,6 +64,7 @@ namespace Wreckabulary.Workshop
         public void ResumeEditing() { Visible = true; Refresh(); }
         public CourseResolution Preview()
         {
+            if (!SelectedModeEnabled) throw new InvalidOperationException("Choose a mode enabled by this map before previewing.");
             CancelGesture();
             LastPreview = History.Preview(Catalogue, PlayRequirements);
             if (view != null) view.Sync(History.Current, Catalogue, LastPreview.Success ? LastPreview.Manifest : null);
@@ -73,10 +74,15 @@ namespace Wreckabulary.Workshop
         public void RequestPlaytest()
         {
             LastPlaytestDraft = null;
+            if (!SelectedModeEnabled) { ShowStatus("Choose a mode enabled by this map before playtesting."); return; }
+            if (localPlaytest && !CanPlaytestLocally)
+            { ShowStatus("Choose TimeRun or Freestyle for a one-player local playtest."); return; }
             if (PlaytestRequested == null) { status = "Playtest is unavailable in this view."; return; }
             var result = Preview();
             if (result.Success)
             {
+                string physicalIssue = WorkshopPhysicalSites.PlaytestIssue(result.Manifest);
+                if (physicalIssue.Length != 0) { ShowStatus(physicalIssue); return; }
                 LastPlaytestDraft = History.Current;
                 PlaytestRequested.Invoke(result.Manifest);
             }
@@ -177,12 +183,15 @@ namespace Wreckabulary.Workshop
             GUILayout.Label("Palette", heading);
             search = Field("Search modules", search);
             paletteScroll = GUILayout.BeginScrollView(paletteScroll);
+            ModePanel(); GUILayout.Space(12);
             foreach (var definition in Catalogue.Modules.Values.Where(item => item.Id.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0))
                 if (Button(definition.Id + "\n" + Metres(definition.WidthMm) + " × " + Metres(definition.DepthMm) + " m", "Select, then click the map to place."))
                 { placing = definition.Id; drawingZone = false; status = "Click a floor to place " + placing; }
             GUILayout.Space(12); GUILayout.Label("Start from", heading);
+            if (flagshipContent != null && Button("Flagship draft")) Attempt(() => OpenFlagship(flagshipContent));
             foreach (WorkshopTemplate template in Enum.GetValues(typeof(WorkshopTemplate)))
                 if (Button(TemplateLabel(template))) Attempt(() => OpenTemplate(template));
+            GUILayout.Label("Templates start with geometry. Race playtests also need physical controls at every selected puzzle checkpoint.");
             GUILayout.Space(12);
             FloorPanel();
             GUILayout.Space(12);
@@ -233,6 +242,7 @@ namespace Wreckabulary.Workshop
                 var inspected = selected.FirstOrDefault(item => item.Id == placementOwner) ?? selected[0];
                 GUILayout.Space(10); ZoneInspector(inspected);
                 GUILayout.Space(10); PuzzleInspector(inspected);
+                GUILayout.Space(10); PhysicalSiteInspector(inspected);
             }
             GUILayout.Space(12); GUILayout.Label("Validation", heading);
             if (validation.Ok) GUILayout.Label("Ready for preview");
@@ -327,7 +337,8 @@ namespace Wreckabulary.Workshop
             gateId = Field("Connection ID", gateId);
             if (Button("Complete puzzle → open gate")) Edit("Link gate", draft => WorkshopCommands.Gate(draft, gateId, puzzleId));
             foreach (var puzzle in display.Puzzles.Where(item => item.ModuleId == module.Id))
-                if (Button(puzzle.Id + " · " + puzzle.PresetId)) puzzleId = puzzle.Id;
+                if (Button(puzzle.Id + " · " + puzzle.PresetId))
+                { CancelGesture(); puzzleId = puzzle.Id; sitePuzzle = ""; }
             foreach (var connection in display.Connections.Where(item => item.FromModuleId == module.Id || item.ToModuleId == module.Id))
                 if (Button(connection.Id + " · " + connection.Kind + " → " + connection.ToModuleId)) gateId = connection.Id;
         }
@@ -337,8 +348,9 @@ namespace Wreckabulary.Workshop
             GUILayout.Label("Floor " + History.Current.ActiveLayer);
             GUI.enabled = History.CanUndo; if (Button("Undo")) { CancelGesture(); History.Undo(); Refresh(); } GUI.enabled = true;
             GUI.enabled = History.CanRedo; if (Button("Redo")) { CancelGesture(); History.Redo(); Refresh(); } GUI.enabled = true;
-            if (Button("Preview")) Attempt(() => Preview());
-            GUI.enabled = PlaytestRequested != null; if (Button("Playtest")) Attempt(RequestPlaytest); GUI.enabled = true;
+            GUI.enabled = SelectedModeEnabled; if (Button("Preview")) Attempt(() => Preview());
+            GUI.enabled = PlaytestRequested != null && SelectedModeEnabled && (!localPlaytest || CanPlaytestLocally);
+            if (Button("Playtest")) Attempt(RequestPlaytest); GUI.enabled = true;
             GUILayout.EndHorizontal(); GUILayout.EndArea();
             GUI.Label(new Rect(12, Screen.height - 27, Screen.width - 24, 23), status);
             GUILayout.BeginArea(new Rect(viewport.x + 8, viewport.y + 8, Mathf.Min(440, viewport.width - 16), 90), panel);

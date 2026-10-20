@@ -79,6 +79,7 @@ namespace Wreckabulary.Rules.Wordbound
                     zone.FixedYaw = (zone.FixedYaw + yaw) % 360;
                 }
             }
+            WorkshopPhysicalSites.TransformOwned(course, ids, point, yaw);
         }
         public static void ChangeLayer(WorkshopDraft draft, string layerId)
         {
@@ -117,6 +118,7 @@ namespace Wreckabulary.Rules.Wordbound
         public static void Delete(WorkshopDraft draft)
         {
             var ids = new HashSet<string>(Selected(draft).Select(module => module.Id), StringComparer.Ordinal);
+            WorkshopPhysicalSites.RemoveOwned(draft.Course, ids);
             draft.Course.Modules.RemoveAll(module => ids.Contains(module.Id));
             draft.Course.Connections.RemoveAll(connection => ids.Contains(connection.FromModuleId) || ids.Contains(connection.ToModuleId));
             draft.Course.Puzzles.RemoveAll(item => ids.Contains(item.ModuleId));
@@ -142,7 +144,7 @@ namespace Wreckabulary.Rules.Wordbound
             var supplies = CopyOwned(copy.Supplies, draft.Course.Supplies, item => item.Id, (item, id) => item.Id = id, item => item.ModuleId, (item, id) => item.ModuleId = id, modules);
             CopyOwned(copy.Spawns, draft.Course.Spawns, item => item.Id, (item, id) => item.Id = id, item => item.ModuleId, (item, id) => item.ModuleId = id, modules);
             var recoveries = CopyOwned(copy.RecoveryAnchors, draft.Course.RecoveryAnchors, item => item.Id, (item, id) => item.Id = id, item => item.ModuleId, (item, id) => item.ModuleId = id, modules);
-            CopyOwned(copy.Zones, draft.Course.Zones, item => item.Id, (item, id) => item.Id = id, item => item.ModuleId, (item, id) => item.ModuleId = id, modules);
+            var zones = CopyOwned(copy.Zones, draft.Course.Zones, item => item.Id, (item, id) => item.Id = id, item => item.ModuleId, (item, id) => item.ModuleId = id, modules);
             string Remap(string id, Dictionary<string, string> map) => map.TryGetValue(id, out var next) ? next : id;
             var connections = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (var connection in copy.Connections.Where(item => selected.Contains(item.FromModuleId) && selected.Contains(item.ToModuleId)))
@@ -152,7 +154,7 @@ namespace Wreckabulary.Rules.Wordbound
                 connection.FromModuleId = modules[connection.FromModuleId]; connection.ToModuleId = modules[connection.ToModuleId];
                 connection.GatePuzzleId = Remap(connection.GatePuzzleId, puzzles); draft.Course.Connections.Add(connection);
             }
-            CopyOwned(copy.Checkpoints, draft.Course.Checkpoints, item => item.Id, (item, id) => item.Id = id, item => item.ModuleId, (item, id) => item.ModuleId = id, modules);
+            var checkpoints = CopyOwned(copy.Checkpoints, draft.Course.Checkpoints, item => item.Id, (item, id) => item.Id = id, item => item.ModuleId, (item, id) => item.ModuleId = id, modules);
             var newIds = new HashSet<string>(modules.Values, StringComparer.Ordinal);
             foreach (var puzzle in draft.Course.Puzzles.Where(item => newIds.Contains(item.ModuleId)))
             {
@@ -169,6 +171,7 @@ namespace Wreckabulary.Rules.Wordbound
                 checkpoint.RecoveryAnchorId = Remap(checkpoint.RecoveryAnchorId, recoveries);
                 checkpoint.EntryConnectionId = Remap(checkpoint.EntryConnectionId, connections);
             }
+            WorkshopPhysicalSites.DuplicateOwned(copy, draft.Course, puzzles, supplies, zones, checkpoints);
             draft.Selection = modules.Values.ToList();
             Move(draft, offset);
         }
