@@ -12,6 +12,7 @@ namespace Wreckabulary.Workshop
         int siteLap = 1, siteRevision = -1, siteFixtureIndex;
         string sitePuzzle = "", siteEditKey = "", siteChoiceOpen = "", siteChoiceSearch = "";
         CoursePhysicalSite siteEdit;
+        WorkshopHistory siteEditHistory;
         WorkshopSitePart sitePart;
         WorkshopSiteDrag siteDrag;
         CoursePoint siteDragStart;
@@ -31,6 +32,16 @@ namespace Wreckabulary.Workshop
             History.Select(new[] { owner.Id }, false, false);
             siteLap = lap; sitePuzzle = id; puzzleId = id; zoneId = ""; sitePart = WorkshopSitePart.Socket;
             siteRevision = -1; Refresh(); view?.Focus(site.Position);
+        }
+
+        void LoadSiteEditor(CoursePhysicalSite selected)
+        {
+            string key = selected.Lap + "/" + selected.PuzzleId;
+            if (ReferenceEquals(siteEditHistory, History) && siteEditKey == key && siteRevision == History.Revision) return;
+            siteEditHistory = History; siteEditKey = key; siteRevision = History.Revision;
+            siteEdit = WorkshopPhysicalSites.Copy(selected);
+            siteFields.Clear(); siteChoiceOpen = ""; siteChoiceSearch = "";
+            siteFixtureIndex = Math.Min(siteFixtureIndex, Math.Max(0, siteEdit.Fixtures.Count - 1));
         }
 
         void PhysicalSiteInspector(CourseModule module)
@@ -53,12 +64,7 @@ namespace Wreckabulary.Workshop
                 GUI.enabled = true;
                 return;
             }
-            string key = selected.Lap + "/" + selected.PuzzleId;
-            if (siteEditKey != key || siteRevision != History.Revision)
-            {
-                siteEditKey = key; siteRevision = History.Revision; siteEdit = WorkshopPhysicalSites.Copy(selected);
-                siteFields.Clear(); siteFixtureIndex = Math.Min(siteFixtureIndex, Math.Max(0, siteEdit.Fixtures.Count - 1));
-            }
+            LoadSiteEditor(selected);
             var puzzle = display.Puzzles.Single(p => p.Id == selected.PuzzleId);
             GUILayout.Label(puzzle.PresetId + " · " + puzzle.RecipeId);
             GUILayout.Label("Drag a marked control in the viewport. Numeric positions use metres.");

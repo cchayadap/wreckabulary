@@ -1,5 +1,8 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using Wreckabulary.Rules;
@@ -93,6 +96,37 @@ namespace Wreckabulary.EditorTests
             Assert.Throws<ArgumentException>(() => workshop.SelectMode("FreeForAll"));
             Assert.AreSame(requirements, workshop.PlayRequirements);
             Assert.AreSame(preview, workshop.LastPreview);
+        }
+
+        [Test]
+        public void OpeningAnotherHistoryWithMatchingSiteIdsCannotReuseUnsavedPhysicalFields()
+        {
+            var original = CourseTemplates.RaceCircuit(); original.Schema = 2;
+            original.Puzzles.Single(p => p.Id == "BedBridge").PresetId = "PlaceObject";
+            original.PhysicalSites.Add(new CoursePhysicalSite
+            {
+                Lap = 1, PuzzleId = "BedBridge", CheckpointId = "Begin", RecoverySupplyId = "BedSupply"
+            });
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var load = typeof(WordboundWorkshop).GetMethod("LoadSiteEditor", flags);
+            var edit = typeof(WordboundWorkshop).GetField("siteEdit", flags);
+            var fields = typeof(WordboundWorkshop).GetField("siteFields", flags);
+            var play = MatchStateValidation.Requirements(ModeDefinition.For("TimeRun"));
+            workshop.Open(original, CourseTemplates.ProofCatalogue(), play, folder);
+            var first = workshop.History;
+            load.Invoke(workshop, new object[] { original.PhysicalSites[0] });
+            ((CoursePhysicalSite)edit.GetValue(workshop)).Position = new CoursePoint(4000, 0, 0);
+            var unsaved = (Dictionary<string, string>)fields.GetValue(workshop);
+            unsaved["Socket X"] = "4";
+            var replacement = original.Clone();
+            replacement.PhysicalSites[0].Position = new CoursePoint(1000, 0, 0);
+            workshop.Open(replacement, CourseTemplates.ProofCatalogue(), play, folder);
+            Assert.AreNotSame(first, workshop.History);
+            Assert.AreEqual(first.Revision, workshop.History.Revision);
+            load.Invoke(workshop, new object[] { replacement.PhysicalSites[0] });
+            Assert.AreEqual(new CoursePoint(1000, 0, 0), ((CoursePhysicalSite)edit.GetValue(workshop)).Position);
+            Assert.IsEmpty(unsaved);
+            Assert.AreEqual(replacement.PhysicalSites[0].Position, workshop.History.Current.Course().PhysicalSites[0].Position);
         }
     }
 }
