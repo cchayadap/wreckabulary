@@ -18,7 +18,7 @@ Only the Unity authority may supply `hostBodyStates`, `hostObservations` and `Ho
 
 ## Tick and commands
 
-Call `Advance(wallClockMs, commands, hostBodyStates, hostObservations, hostDamage)` once per 60 Hz simulation tick. It returns `MatchTickResult { Advanced, Receipts }`. If `Advanced` is false, do not advance host physics or discard queued commands. `IsPaused` covers migration, a completed result, and a full two-second provisional window.
+Call `Advance(wallClockMs, commands, hostBodyStates, hostObservations, hostDamage, hostMechanisms)` once per 60 Hz simulation tick. All collection arguments are optional. It returns `MatchTickResult { Advanced, Receipts }`. If `Advanced` is false, do not advance host physics or discard queued commands. `IsPaused` covers migration, a completed result, and a full two-second provisional window.
 
 The journal orders a batch by authenticated actor ID and command sequence. Retained receipts survive migration. Replay returns the prior effect without applying it again. An exception rolls back the entire tick, including pose updates, reservations, world objects, pending puzzle completion and the journal.
 
@@ -39,6 +39,10 @@ Host checkpoint and finish observations still require the actor to be inside the
 
 World pose inputs only update physical values. Existing ownership, source, recovery generation, active state and kinematic classification remain authoritative.
 
+`HostMechanismObservation` supplies continuous unsolved puzzle timing: puzzle ID, team, zero-based lap, active flag, phase start tick, progress ticks and optional deployed recipe item ID. Only current objectives accept observations. A new phase or changed item begins on the current authoritative tick; progress cannot run ahead of elapsed phase time or regress inside a phase. Inactive observations reset all timing. Removing a deployed recipe item resets its unsolved mechanism. These observations cannot mark a puzzle solved; `UsePuzzle` still requires the trusted physical predicate.
+
+Kinematic platform poses are captured with immutable source and ownership metadata. A trusted sleeping pose settles a thrown item through the existing economy transition, preserving its entity ID and updating its revision/throw attribution.
+
 ## Durable publication and recovery
 
 1. At a completed tick, call `PublishSnapshot(out json)`. Keep the returned `SnapshotStamp` with that exact immutable JSON.
@@ -51,8 +55,14 @@ An acknowledgement of a snapshot before the result tick cannot confirm that resu
 
 `Capture(sequence)` is useful for rendering/inspection outside a tick. Capture, publish, migration and connection changes are not reentrant tick operations.
 
+## Permanent return to lobby
+
+The verified transport/coordinator calls `Return(playerId, wallClockMs)`, outside a tick. The controller sets `PlayerProgress.Returned`, drops inventory and keepsake once, disables the physical actor and cancels any respawn. Repeated Return is a no-op. Reconnect and Disconnect cannot reopen the seat. The schema-1 pre-release snapshot explicitly persists `returned` for every player; it is distinct from temporary disconnection and gameplay elimination.
+
+Coordinator admission remains authoritative. After host migration, reapply any newer durable coordinator Return decision before resuming; the committed gameplay snapshot may predate a user's departure.
+
 ## Remaining engine work
 
-The Unity adapter must supply movement and combat contacts, collision filtering by mode/team, accurate visual placement, interaction prompts, continuous wind/balance/timed mechanism state and restoration, and camera/UI. The controller's initial mechanism handling records solved timing; continuous unsolved mechanism timing needs its own validated host observation seam when those components are implemented.
+The Unity adapter must supply movement and combat contacts, collision filtering by mode/team, accurate visual placement, interaction prompts, continuous wind/balance/timed mechanism observations and component restoration, and camera/UI. Persisted mechanism observations are engine-free state; they do not establish correct physical behavior without Unity tests.
 
 The controller uses small proof templates. Initial two-seat payloads are approximately 5.6–18.8 KiB, before receipt and entity growth. The codec bounds total input at 8 MiB. A transport may enforce a stricter explicit size limit; it must not truncate snapshots.

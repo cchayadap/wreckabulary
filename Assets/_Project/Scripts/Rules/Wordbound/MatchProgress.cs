@@ -91,6 +91,7 @@ namespace Wreckabulary.Rules.Wordbound
         public int Slot { get; internal set; }
         public int Knockouts { get; internal set; }
         public bool Connected { get; internal set; } = true;
+        public bool Returned { get; internal set; }
         public long ReconnectDeadlineMs { get; internal set; } = -1;
         public long ProtectedUntil { get; internal set; }
         public long RespawnAt { get; internal set; } = -1;
@@ -185,7 +186,7 @@ namespace Wreckabulary.Rules.Wordbound
             Tick = nextTick;
             ElapsedTicks++;
             foreach (var p in players.Values)
-                if (p.Eliminated && p.RespawnAt >= 0 && Tick >= p.RespawnAt)
+                if (!p.Returned && p.Eliminated && p.RespawnAt >= 0 && Tick >= p.RespawnAt)
                 {
                     p.Eliminated = false; p.RespawnAt = -1; p.RecoveryGeneration++;
                     p.ProtectedUntil = Tick + ModeDefinition.RecoveryProtectionSeconds * ModeDefinition.TickRate;
@@ -250,7 +251,7 @@ namespace Wreckabulary.Rules.Wordbound
         public bool Disconnect(string playerId, long wallClockMs)
         {
             UpdateWallClock(wallClockMs);
-            if (!players.TryGetValue(playerId ?? "", out var p) || !p.Connected) return false;
+            if (!players.TryGetValue(playerId ?? "", out var p) || !p.Connected || p.Returned) return false;
             p.Connected = false;
             p.ReconnectDeadlineMs = checked(wallClockMs + ModeDefinition.ReconnectSeconds * 1000L);
             DropKeepsake(playerId);
@@ -260,9 +261,23 @@ namespace Wreckabulary.Rules.Wordbound
         public bool Reconnect(string playerId, long wallClockMs)
         {
             UpdateWallClock(wallClockMs);
-            if (!players.TryGetValue(playerId ?? "", out var p) || p.Connected ||
+            if (!players.TryGetValue(playerId ?? "", out var p) || p.Connected || p.Returned ||
                 p.ReconnectDeadlineMs <= wallClockMs || p.ReconnectDeadlineMs < 0) return false;
             p.Connected = true; p.ReconnectDeadlineMs = -1;
+            return true;
+        }
+
+        public bool Return(string playerId, long wallClockMs)
+        {
+            UpdateWallClock(wallClockMs);
+            if (!players.TryGetValue(playerId ?? "", out var p) || p.Returned) return false;
+            DropKeepsake(playerId);
+            p.Returned = true;
+            p.Connected = false;
+            p.ReconnectDeadlineMs = -1;
+            p.Eliminated = false;
+            p.RespawnAt = -1;
+            p.ProtectedUntil = 0;
             return true;
         }
 
@@ -290,7 +305,8 @@ namespace Wreckabulary.Rules.Wordbound
                     p.ProtectedUntil > snapshot.Tick + ModeDefinition.RecoveryProtectionSeconds * ModeDefinition.TickRate ||
                     (p.RespawnAt >= 0 && (p.RespawnAt <= snapshot.Tick || p.RespawnAt > snapshot.Tick + 2 * ModeDefinition.TickRate)) ||
                     (Mode.Objective != WordboundObjective.Knockouts && p.Knockouts != 0) ||
-                    (p.Connected && p.ReconnectDeadlineMs != -1) || (!p.Connected && p.ReconnectDeadlineMs < 0) ||
+                    (p.Connected && p.ReconnectDeadlineMs != -1) || (!p.Connected && !p.Returned && p.ReconnectDeadlineMs < 0) ||
+                    (p.Returned && (p.Connected || p.ReconnectDeadlineMs != -1 || p.Eliminated || p.RespawnAt != -1)) ||
                     (p.Eliminated != (p.RespawnAt >= 0)))
                     throw new ArgumentException("Snapshot player state is invalid.", nameof(snapshot));
             foreach (var t in snapshot.Teams)
@@ -382,7 +398,7 @@ namespace Wreckabulary.Rules.Wordbound
         {
             player = null;
             return !Migrating && Result == null && playerId != null && players.TryGetValue(playerId, out player) &&
-                player.Connected && !player.Eliminated;
+                player.Connected && !player.Eliminated && !player.Returned;
         }
 
         bool ValidRaceEvent(ProgressEvent e, out TeamProgress team)

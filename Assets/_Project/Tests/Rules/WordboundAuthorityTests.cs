@@ -394,6 +394,12 @@ namespace Wreckabulary.Tests
                 f.Step(observations: new[] { new ProgressEvent(ProgressEventKind.FinishReached, "a", f.Source.Course.Laps[lap].FinishModuleId, lap) });
                 Assert.AreEqual(lap + 1, f.State.Progress.Teams[0].Lap);
                 if (lap < 2) f.Ack();
+                if (lap == 0)
+                {
+                    Assert.IsTrue(f.State.Resources.Where(r => r.Lap == 0).All(r => r.RecoveryAtTick == -1));
+                    f.Advance(601);
+                    f.Ack();
+                }
             }
             Assert.AreEqual("Win", f.State.Progress.Result.Outcome);
             Assert.IsFalse(f.State.Progress.Result.Confirmed);

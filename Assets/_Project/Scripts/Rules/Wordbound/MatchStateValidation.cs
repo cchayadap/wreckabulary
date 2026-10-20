@@ -89,6 +89,10 @@ namespace Wreckabulary.Rules.Wordbound
                 var inventory = s.Economy.PlayerStates.Single(p => p.PlayerId == index);
                 Need(!inventory.CanAct || (progress.Connected && !progress.Eliminated && !s.Progress.Migrating &&
                     s.Progress.Result == null && actor.StunnedUntilTick <= tick), "Inventory action permission disagrees with authoritative player state.");
+                if (progress.Returned)
+                    Need(!inventory.CanAct && inventory.Craft == null && inventory.LetterCount == 0 &&
+                        inventory.CarriedFurniture == -1 && inventory.Slots.All(slot => slot == -1),
+                        "A returned player cannot retain an inventory or pending craft.");
                 Need(actor.Appearance.Length <= 2048, "Actor appearance exceeds bounds.");
                 CourseJson.ValidateText(actor.Appearance);
             }
@@ -97,14 +101,19 @@ namespace Wreckabulary.Rules.Wordbound
         static void ValidateResources(MatchSnapshot s, ResolvedCourse course, ModeDefinition mode)
         {
             var sources = Sources(course);
-            Need(s.Resources.Select(r => ResourceKey(r.SourceId, r.Team, r.Lap)).Distinct(StringComparer.Ordinal).Count() == s.Resources.Count,
-                "Duplicate resource recovery state.");
+            Need(s.Resources.Count == sources.Count * (mode.IsRace ? 3 : 1) &&
+                s.Resources.Select(r => ResourceKey(r.SourceId, r.Team, r.Lap)).Distinct(StringComparer.Ordinal).Count() == s.Resources.Count,
+                "Snapshot must include every static source, team and lap exactly once.");
             foreach (var r in s.Resources)
+            {
                 Need(sources.TryGetValue(r.SourceId, out var source) && source.Item1 == r.Team &&
                     (mode.IsRace ? r.Lap >= 0 && r.Lap < 3 : r.Lap == 0) &&
-                    r.Generation >= 0 && r.RecoveryAtTick >= -1 &&
+                    r.Generation >= 0 && (!mode.IsRace || r.Generation % 3 == r.Lap) && r.RecoveryAtTick >= -1 &&
                     (r.RecoveryAtTick == -1 || r.RecoveryAtTick > s.Progress.Tick && r.RecoveryAtTick <= s.Progress.Tick + 3600),
                     "Recovery source, team, lap or deadline is invalid.");
+                if (mode.IsRace && r.Team >= 0 && r.Lap != Math.Min(s.Progress.Teams.Single(t => t.Team == r.Team).Lap, 2))
+                    Need(r.RecoveryAtTick == -1, "Inactive lap resources cannot retain a pending recovery deadline.");
+            }
             foreach (var pair in sources)
             {
                 int lap = mode.IsRace && pair.Value.Item1 >= 0 ? Math.Min(s.Progress.Teams.Single(t => t.Team == pair.Value.Item1).Lap, 2) : 0;
@@ -138,7 +147,8 @@ namespace Wreckabulary.Rules.Wordbound
             foreach (var item in items.Values.Where(i => !i.IsGone))
                 Need(bodies.TryGetValue("item:" + item.Id, out var body) && body.Kind == WorldBodyKind.Item, "Live inventory item has no world body.");
             foreach (int tile in tiles.Keys)
-                Need(bodies.TryGetValue("tile:" + tile, out var body) && body.Kind == WorldBodyKind.Tile, "Live letter tile has no world body.");
+                Need(bodies.TryGetValue("tile:" + tile, out var body) && body.Kind == WorldBodyKind.Tile && body.Active,
+                    "Live letter tile has no active world body.");
             foreach (var team in s.Progress.Teams)
                 if (mode.IsRace)
                     Need(bodies.TryGetValue("keepsake:" + team.Team, out var body) && body.Kind == WorldBodyKind.Keepsake &&
@@ -154,6 +164,8 @@ namespace Wreckabulary.Rules.Wordbound
                         int player = Suffix(body.Id, "player:");
                         Need(player >= 0 && player < binding.Seats.Count && body.SourceId == binding.Seats[player].PlayerId &&
                             body.OwnerTeam == binding.Seats[player].Team && !body.Protected, "Unbound player body.");
+                        Need(!s.Progress.Players.Single(p => p.Id == body.SourceId).Returned || !body.Active,
+                            "A returned player cannot have an active world body.");
                         break;
                     case WorldBodyKind.Item:
                         int itemId = Suffix(body.Id, "item:");
@@ -202,7 +214,8 @@ namespace Wreckabulary.Rules.Wordbound
             if (sources.TryGetValue(body.SourceId, out var source))
             {
                 Need(body.OwnerTeam == source.Item1 && body.Protected == source.Item2 &&
-                    s.Resources.Any(r => r.SourceId == body.SourceId && r.Team == body.OwnerTeam && r.Generation == body.RecoveryGeneration),
+                    s.Resources.Any(r => r.SourceId == body.SourceId && r.Team == body.OwnerTeam && r.Generation == body.RecoveryGeneration &&
+                        (!mode.IsRace || r.Lap <= Math.Min(s.Progress.Teams.Single(t => t.Team == r.Team).Lap, 2))),
                     "Protected world object disagrees with its recovery source.");
                 return;
             }
@@ -227,7 +240,10 @@ namespace Wreckabulary.Rules.Wordbound
                     m.Lap == team.Lap && team.CompletedPuzzles.Contains(m.PuzzleId);
                 Need(m.Solved == expectedSolved && m.ActivatedTick >= -1 && m.ActivatedTick <= s.Progress.Tick &&
                     m.PhaseTick >= 0 && m.PhaseTick <= s.Progress.Tick && m.ProgressTicks >= 0 &&
-                    m.ProgressTicks <= s.Progress.Tick && (!m.Solved || m.ActivatedTick >= 0),
+                    m.ProgressTicks <= s.Progress.Tick && (!m.Solved || m.ActivatedTick >= 0) &&
+                    (m.ActivatedTick < 0 ? m.PhaseTick == 0 && m.ProgressTicks == 0 && m.ItemEntityId == "" :
+                        m.ActivatedTick >= 1 && m.PhaseTick >= m.ActivatedTick &&
+                        m.ProgressTicks <= s.Progress.Tick - m.PhaseTick + 1),
                     "Mechanism completion or timing disagrees with ordered progress.");
                 if (m.ItemEntityId != "")
                 {

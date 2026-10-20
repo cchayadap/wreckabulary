@@ -116,7 +116,7 @@ namespace Wreckabulary.Rules.Wordbound
                 "keepsakeRecoveryAt", Long(t.KeepsakeRecoveryAt), "generation", t.RecoveryGeneration,
                 "finished", t.Finished, "completedPuzzles", t.CompletedPuzzles)).ToArray(),
             "players", s.Players.Select(p => (object)Map("id", p.Id, "team", p.Team, "slot", p.Slot, "knockouts", p.Knockouts,
-                "connected", p.Connected, "reconnectDeadlineMs", Long(p.ReconnectDeadlineMs), "protectedUntil", Long(p.ProtectedUntil),
+                "connected", p.Connected, "returned", p.Returned, "reconnectDeadlineMs", Long(p.ReconnectDeadlineMs), "protectedUntil", Long(p.ProtectedUntil),
                 "respawnAt", Long(p.RespawnAt), "eliminated", p.Eliminated, "generation", p.RecoveryGeneration)).ToArray(),
             "result", Optional(s.Result == null ? null : Map("outcome", s.Result.Outcome, "winners", s.Result.WinningTeams,
                 "tick", Long(s.Result.Tick), "confirmed", s.Result.Confirmed)));
@@ -172,9 +172,9 @@ namespace Wreckabulary.Rules.Wordbound
                 return team;
             }).ToArray();
             var players = Array(n["players"], 8).Select(p => {
-                Keys(p, "id", "team", "slot", "knockouts", "connected", "reconnectDeadlineMs", "protectedUntil", "respawnAt", "eliminated", "generation");
+                Keys(p, "id", "team", "slot", "knockouts", "connected", "returned", "reconnectDeadlineMs", "protectedUntil", "respawnAt", "eliminated", "generation");
                 return new PlayerProgress { Id = Text(p["id"]), Team = Int(p["team"]), Slot = Int(p["slot"]), Knockouts = Int(p["knockouts"]),
-                    Connected = p["connected"].Bool(), ReconnectDeadlineMs = Counter(p["reconnectDeadlineMs"], true),
+                    Connected = p["connected"].Bool(), Returned = p["returned"].Bool(), ReconnectDeadlineMs = Counter(p["reconnectDeadlineMs"], true),
                     ProtectedUntil = Counter(p["protectedUntil"]), RespawnAt = Counter(p["respawnAt"], true),
                     Eliminated = p["eliminated"].Bool(), RecoveryGeneration = Int(p["generation"]) };
             }).ToArray();

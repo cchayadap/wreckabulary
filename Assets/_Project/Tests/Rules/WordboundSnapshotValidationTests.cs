@@ -74,6 +74,31 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void FutureLapRecoveryScopesCannotBeOmittedFromACanonicalSnapshot()
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            f.Resources.RemoveAll(r => r.Lap > 0);
+            var result = f.Import(MatchSnapshotCodec.Export(f.Snapshot()));
+            Assert.IsFalse(result.Success);
+            Assert.IsNull(result.Snapshot);
+        }
+
+        [TestCase(false), TestCase(true)]
+        public void LiveLettersCannotBeHiddenOrReferToAFutureLap(bool futureLap)
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            var source = f.Course.Supplies[0];
+            var tile = f.Economy.MintTiles(source.Letters).Tiles[0];
+            foreach (var spawned in f.Economy.Capture().Tiles)
+                f.Bodies.Add(new WorldBodyState("tile:" + spawned.Key, WorldBodyKind.Tile, default,
+                    active: futureLap || spawned.Key != tile.TileId, ownerTeam: source.TeamIndex,
+                    protectedResource: source.Protected, sourceId: source.Id, recoveryGeneration: futureLap ? 1 : 0));
+            var result = f.Import(MatchSnapshotCodec.Export(f.Snapshot()));
+            Assert.IsFalse(result.Success);
+            Assert.IsNull(result.Snapshot);
+        }
+
+        [Test]
         public void DisconnectedSeatRetainsItsAbsoluteReconnectDeadlineAcrossRestore()
         {
             var f = WordboundSnapshotCodecTests.Create();

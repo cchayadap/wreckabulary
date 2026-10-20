@@ -56,9 +56,11 @@ namespace Wreckabulary.Tests
                     velocity: new WorldVector(0.123f, 0, 0), ownerTeam: seats[i].Team, sourceId: seats[i].PlayerId));
             }
             foreach (var supply in f.Course.Supplies)
-                f.Resources.Add(new MatchResourceState(supply.Id, supply.TeamIndex, 0));
+                for (int lap = 0; lap < (f.Mode.IsRace ? 3 : 1); lap++)
+                    f.Resources.Add(new MatchResourceState(supply.Id, supply.TeamIndex, lap, lap));
             foreach (var placement in f.Course.Placements.Where(p => p.Purpose == "Resources"))
-                f.Resources.Add(new MatchResourceState(placement.Id, placement.TeamIndex, 0));
+                for (int lap = 0; lap < (f.Mode.IsRace ? 3 : 1); lap++)
+                    f.Resources.Add(new MatchResourceState(placement.Id, placement.TeamIndex, lap, lap));
             if (f.Mode.IsRace)
                 foreach (int team in seats.Select(s => s.Team).Distinct())
                 {
