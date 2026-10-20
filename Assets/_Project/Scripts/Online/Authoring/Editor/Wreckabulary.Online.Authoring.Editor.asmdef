@@ -1,0 +1,9 @@
+{
+  "name": "Wreckabulary.Online.Authoring.Editor",
+  "rootNamespace": "Wreckabulary.Online.Editor",
+  "references": ["Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Authoring", "Wreckabulary.Online.Puzzles", "Wreckabulary.Online.Presentation", "Wreckabulary.Online.Client", "Wreckabulary.Online.Gameplay", "Wreckabulary.Online.Fusion", "Fusion.Unity"],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["Fusion.Runtime.dll", "Fusion.Common.dll", "Fusion.Sockets.dll", "Fusion.Realtime.dll", "Fusion.Log.dll"],
+  "autoReferenced": true
+}

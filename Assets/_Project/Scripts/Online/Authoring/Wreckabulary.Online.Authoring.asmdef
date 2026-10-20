@@ -1,0 +1,6 @@
+{
+  "name": "Wreckabulary.Online.Authoring",
+  "rootNamespace": "Wreckabulary.Online",
+  "references": ["Wreckabulary.Rules", "Wreckabulary.Online.Puzzles", "Wreckabulary.Online.Presentation"],
+  "autoReferenced": true
+}
