@@ -67,6 +67,8 @@ namespace Wreckabulary.LifecycleTests
             public readonly WordboundFusionJoin Join;
             public readonly WordboundFusionSession Session;
             public readonly OnlineCheckpointService Checkpoints;
+            public readonly NetworkProjectConfig Config = new NetworkProjectConfig();
+            public Action<StartGameArgs> OnStartup;
             public OnlineCheckpointManifest Head;
             public OnlineCheckpointUpload Upload;
             public Func<OnlineRequest, Task<OnlineResponse>> FinalizeReply;
@@ -95,7 +97,7 @@ namespace Wreckabulary.LifecycleTests
                 Checkpoints = new OnlineCheckpointService(client, expected, Authority.IdentityHash);
                 Http.Reply = DefaultReply;
                 Session = new WordboundFusionSession(() => { RunnerCreations++; return Runner(); },
-                    new FusionAppSettings { AppIdFusion = AppId }, new NetworkProjectConfig(), default, Verifier, expected,
+                    new FusionAppSettings { AppIdFusion = AppId }, Config, default, Verifier, expected,
                     _ => credentialReply == null ? Task.FromResult(Join) : credentialReply(), Authority, service, Checkpoints, () => ClockMs);
                 Field(Session, "gate", new OnlineSessionGate(Match));
             }
@@ -103,6 +105,7 @@ namespace Wreckabulary.LifecycleTests
             public NetworkRunner Runner()
             {
                 var runner = new NetworkRunner(); runner.Users[new PlayerRef(1)] = Player; runner.Users[new PlayerRef(2)] = Player;
+                runner.Startup = args => { OnStartup?.Invoke(args); return Task.FromResult(new StartGameResult()); };
                 runner.Tokens[new PlayerRef(2)] = Encoding.ASCII.GetBytes(Secret); return runner;
             }
             public object Replace(NetworkRunner runner)
@@ -195,6 +198,43 @@ namespace Wreckabulary.LifecycleTests
                 Session.OnReliableDataReceived(runner, sender ?? new PlayerRef(9), default, bytes);
             }
             public void Dispose() { Key.Dispose(); }
+        }
+        [Test]
+        public void IsolatedSessionRejectsMissingSceneBeforeNetworking()
+        {
+            using var f = new Fixture();
+            f.Config.PeerMode = NetworkProjectConfig.PeerModes.Multiple;
+            int before = f.Http.Paths.Count;
+            Assert.Throws<InvalidOperationException>(() => f.Session.Start());
+            Assert.AreEqual(0, f.RunnerCreations);
+            Assert.AreEqual(before, f.Http.Paths.Count);
+        }
+        [Test]
+        public void InitialAndReplacementRunnersReceiveTheConfiguredAdditiveScene()
+        {
+            using var f = new Fixture();
+            f.Config.PeerMode = NetworkProjectConfig.PeerModes.Multiple;
+            f.Session.ConfigureScene(SceneRef.FromIndex(3));
+            var starts = new List<StartGameArgs>();
+            f.OnStartup = args => { starts.Add(args); throw new InvalidOperationException("Stop at SDK boundary."); };
+            Assert.Throws<InvalidOperationException>(() => f.Session.Start().GetAwaiter().GetResult());
+            Assert.Throws<InvalidOperationException>(() => f.Session.ConfigureScene(SceneRef.FromIndex(4)));
+            Assert.Throws<InvalidOperationException>(() =>
+                Call<Task>(f.Session, "StartRunner", new HostMigrationToken { GameMode = GameMode.Host }, CancellationToken.None).GetAwaiter().GetResult());
+            Assert.AreEqual(2, starts.Count);
+            foreach (var start in starts)
+            {
+                Assert.IsTrue(start.Scene.HasValue);
+                Assert.AreEqual(SceneRef.FromIndex(3), start.Scene.Value.Scene);
+                Assert.AreEqual(UnityEngine.SceneManagement.LoadSceneMode.Additive, start.Scene.Value.LoadMode);
+            }
+        }
+        [Test]
+        public void InvalidGameplaySceneIsRejectedBeforeStart()
+        {
+            using var f = new Fixture();
+            Assert.Throws<ArgumentException>(() => f.Session.ConfigureScene(default));
+            Assert.AreEqual(0, f.RunnerCreations);
         }
         [TestCase(false), TestCase(true)]
         public void OldAdmissionCompletionCannotFailOrUnlockAReplacementRunner(bool failure)

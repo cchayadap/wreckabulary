@@ -18,6 +18,10 @@ namespace Photon.Realtime
         public void SetAuthPostData(Dictionary<string, object> data) { }
     }
 }
+namespace UnityEngine.SceneManagement
+{
+    public enum LoadSceneMode { Single, Additive }
+}
 namespace Fusion.Photon.Realtime
 {
     public class FusionAppSettings
@@ -36,6 +40,19 @@ namespace Fusion
 {
     public interface INetworkRunnerCallbacks { }
     public struct NetworkPrefabRef { }
+    public struct SceneRef
+    {
+        public int Index;
+        public bool IsValid => Index > 0;
+        public static SceneRef FromIndex(int index) => new SceneRef { Index = index + 1 };
+    }
+    public struct NetworkSceneInfo
+    {
+        public SceneRef Scene;
+        public UnityEngine.SceneManagement.LoadSceneMode LoadMode;
+        public void AddSceneRef(SceneRef scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+        { Scene = scene; LoadMode = mode; }
+    }
     public struct NetworkInput { }
     public struct SimulationMessagePtr { }
     public struct SessionInfo { }
@@ -61,6 +78,8 @@ namespace Fusion
     public sealed class HostMigrationConfig { public bool EnableAutoUpdate; }
     public sealed class NetworkProjectConfig
     {
+        public enum PeerModes { Single, Multiple }
+        public PeerModes PeerMode;
         public HostMigrationConfig HostMigration = new HostMigrationConfig();
         public NetworkConfiguration Network = new NetworkConfiguration();
     }
@@ -78,6 +97,7 @@ namespace Fusion
         public global::Fusion.Photon.Realtime.FusionAppSettings CustomPhotonAppSettings;
         public global::Photon.Realtime.AuthenticationValues AuthValues;
         public NetworkProjectConfig Config;
+        public NetworkSceneInfo? Scene;
         public byte[] ConnectionToken;
         public HostMigrationToken HostMigrationToken;
         public Action<NetworkRunner> HostMigrationResume;

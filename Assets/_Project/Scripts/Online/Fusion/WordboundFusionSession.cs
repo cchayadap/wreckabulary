@@ -9,6 +9,7 @@ using Fusion.Photon.Realtime;
 using Fusion.Sockets;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 
@@ -93,6 +94,7 @@ namespace Wreckabulary.Online
         bool localReady, localAdmitted, migrating, restored, initialStarted, beginReceived;
         OnlineSnapshotPacket committedPacket;
         int wireSequence;
+        NetworkSceneInfo? initialScene;
         public NetworkRunner Runner { get; private set; }
         public bool GameplayReady { get; private set; }
         public string Failure { get; private set; } = "";
@@ -130,9 +132,20 @@ namespace Wreckabulary.Online
             app.AppVersion = expected.Settings.ProtocolVersion;
         }
 
+        public void ConfigureScene(SceneRef scene)
+        {
+            if (initialStarted) throw new InvalidOperationException("Configure the gameplay scene before starting the session.");
+            if (!scene.IsValid) throw new ArgumentException("Gameplay scene must be registered.", nameof(scene));
+            var info = new NetworkSceneInfo();
+            info.AddSceneRef(scene, LoadSceneMode.Additive);
+            initialScene = info;
+        }
+
         public Task Start(CancellationToken cancellationToken = default)
         {
             if (initialStarted) throw new InvalidOperationException("A session may only start once.");
+            if (config.PeerMode == NetworkProjectConfig.PeerModes.Multiple && !initialScene.HasValue)
+                throw new InvalidOperationException("Isolated gameplay requires a scene before starting the session.");
             initialStarted = true;
             return StartRunner(null, cancellationToken);
         }
@@ -186,6 +199,7 @@ namespace Wreckabulary.Online
                 EnableClientSessionCreation = false, CustomPhotonAppSettings = app,
                 AuthValues = authentication, Config = config, ConnectionToken = Encoding.ASCII.GetBytes(join.ConnectionSecret),
                 HostMigrationToken = migration, HostMigrationResume = RestoreMigration,
+                Scene = initialScene,
                 StartGameCancellationToken = linked.Token
             });
             RequireCurrent(run);

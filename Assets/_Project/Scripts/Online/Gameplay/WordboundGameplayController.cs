@@ -47,7 +47,7 @@ namespace Wreckabulary.Online
         WordboundNetworkBody localBody;
         string localActor;
         long runnerStarted, nextCheckpoint, lastSequence, sentEpoch = -1;
-        bool initialized, sceneRequested, localReady, hostReady, publishing, stopping, handlingStep;
+        bool initialized, localReady, hostReady, publishing, stopping, handlingStep;
         public WordboundFusionAuthority Authority { get; private set; }
         public MatchSnapshot Frame => frame;
         public WordboundCourseWorld CourseWorld => courseWorld;
@@ -91,6 +91,7 @@ namespace Wreckabulary.Online
         public void AttachSession(WordboundFusionSession fusionSession)
         {
             if (!initialized || session != null || fusionSession == null) throw new InvalidOperationException("Initialize then attach one session.");
+            if (options.GameplayScene.HasValue) fusionSession.ConfigureScene(options.GameplayScene.Value);
             session = fusionSession;
             session.GameplayStarted += GameplayStarted;
             session.ReplicaReceived += ReceiveReplica;
@@ -127,7 +128,7 @@ namespace Wreckabulary.Online
         {
             CleanupRunner();
             runner = next;
-            runnerStarted = -1; sceneRequested = false; localReady = false; hostReady = false;
+            runnerStarted = -1; localReady = false; hostReady = false;
             frame = null; publishing = false; lastSequence = 0; sentEpoch = -1;
             if (runner == null) return;
             runner.ProvideInput = true;
@@ -139,16 +140,11 @@ namespace Wreckabulary.Online
             if (runnerStarted < 0) runnerStarted = options.Clock();
             if (Math.Abs(runner.DeltaTime - 1f / ModeDefinition.TickRate) > .000001f)
                 throw new InvalidOperationException("Wordbound requires an actual 60 Hz Fusion simulation.");
-            if (options.GameplayScene.HasValue && runner.IsServer && !sceneRequested)
+            if (options.GameplayScene.HasValue)
             {
-                sceneRequested = true;
                 bool loaded = runner.TryGetSceneInfo(out var info) &&
                     Enumerable.Range(0, info.SceneCount).Any(i => info.Scenes[i] == options.GameplayScene.Value);
-                if (!loaded)
-                {
-                    runner.LoadScene(options.GameplayScene.Value, LoadSceneMode.Additive, LocalPhysicsMode.Physics3D, true);
-                    return false;
-                }
+                if (!loaded) return false;
             }
             if (runner.SceneManager == null || runner.SceneManager.IsBusy ||
                 !runner.SceneManager.TryGetPhysicsScene3D(out var scene) || !scene.IsValid() || scene == UnityEngine.Physics.defaultPhysicsScene) return false;
