@@ -53,6 +53,7 @@ namespace Wreckabulary.Online
             public readonly HashSet<PlayerRef> Authorizing = new HashSet<PlayerRef>();
             public NetworkRunner Runner;
             public WordboundFusionJoin Join;
+            public string ConnectionId, HostId;
             public bool Publishing, Beginning, Renewing;
             public long RenewAt;
         }
@@ -190,18 +191,21 @@ namespace Wreckabulary.Online
             if (migrating && !restored) return;
             string ticket = await connections.Ticket(run.Cancellation.Token);
             RequireCurrent(run);
-            await Admit(run, run.Runner.LocalPlayer, run.Join.Certificate, run.Join.Grant, ticket);
+            run.ConnectionId = Guid.NewGuid().ToString();
+            await Admit(run, run.Runner.LocalPlayer, run.Join.Certificate, run.Join.Grant, ticket, run.ConnectionId);
             RequireCurrent(run);
             if (localReady) MarkLocalReady();
         }
         async Task SendAdmission(RunScope run)
         {
+            run.ConnectionId = Guid.NewGuid().ToString();
             string ticket = await connections.Ticket(run.Cancellation.Token);
             RequireCurrent(run);
             SendServer(OnlineWireKind.Admission, new Dictionary<string, object> {
-                ["certificate"] = run.Join.Certificate, ["grant"] = run.Join.Grant, ["connectionTicket"] = ticket });
+                ["certificate"] = run.Join.Certificate, ["grant"] = run.Join.Grant, ["connectionTicket"] = ticket,
+                ["connectionId"] = run.ConnectionId });
         }
-        async Task Admit(RunScope run, PlayerRef player, string certificate, string grant, string ticket)
+        async Task Admit(RunScope run, PlayerRef player, string certificate, string grant, string ticket, string connectionId)
         {
             if (!IsCurrent(run) || run.Authorizing.Contains(player) || gate.Actor(Peer(player)) != null) return;
             run.Authorizing.Add(player);
@@ -213,7 +217,7 @@ namespace Wreckabulary.Online
             long now = clock();
             var match = verifier.VerifyStart(certificate, expected, now / 1000);
             var admission = verifier.VerifyAdmission(grant, match, authenticated, secret, now / 1000);
-            var lease = await connections.Authorize(match, authenticated, ticket, secret, Guid.NewGuid().ToString(), run.Cancellation.Token);
+            var lease = await connections.Authorize(match, authenticated, ticket, secret, connectionId, run.Cancellation.Token);
             if (!IsCurrent(run) || !runner.IsRunning || !runner.ActivePlayers.Contains(player) ||
                 runner.GetPlayerUserId(player) != authenticated) return;
             now = clock();
@@ -226,7 +230,8 @@ namespace Wreckabulary.Online
             }
             leases[player] = lease;
             pending.Remove(player);
-            if (player != Runner.LocalPlayer) Send(player, OnlineWireKind.Admitted, Roster());
+            if (player != Runner.LocalPlayer) Send(player, OnlineWireKind.Admitted, new Dictionary<string, object> {
+                ["roster"] = expected.RosterHash, ["authorization"] = lease.Authorization });
             }
             catch (Exception error) {
                 if (IsCurrent(run)) {
@@ -412,7 +417,7 @@ namespace Wreckabulary.Online
         }
         void SendCommitted(PlayerRef player)
         {
-            if (committedPacket == null || committedMark == null || sentMarks.ContainsKey(player)) return;
+            if (committedPacket == null || committedMark == null || sentMarks.ContainsKey(player) || !gate.CanCommand(Peer(player))) return;
             var packet = committedPacket; var mark = committedMark; sentMarks[player] = mark;
             for (int index = 0; index < packet.ChunkCount; index++)
                 Send(player, OnlineWireKind.Snapshot, new Dictionary<string, object> {
@@ -421,6 +426,7 @@ namespace Wreckabulary.Online
         }
         void ReceiveSnapshot(JsonNode body)
         {
+            if (!localAdmitted) throw new FormatException("Host authorization must precede a snapshot.");
             var mark = OnlineSnapshotMark.Read(body["mark"]);
             if (mark.MatchId != expected.MatchId || mark.IdentityHash != authority.IdentityHash ||
                 (committedMark != null && (mark.Epoch < committedMark.Epoch ||
@@ -493,7 +499,7 @@ namespace Wreckabulary.Online
                     {
                         case OnlineWireKind.Admission:
                             _ = Admit(activeRun, player, message.Body["certificate"].String(), message.Body["grant"].String(),
-                                message.Body["connectionTicket"].String()); break;
+                                message.Body["connectionTicket"].String(), message.Body["connectionId"].String()); break;
                         case OnlineWireKind.Ready:
                             if (message.Body["roster"].String() != expected.RosterHash) throw new FormatException("Roster mismatch.");
                             gate.Ready(Peer(player));
@@ -516,12 +522,17 @@ namespace Wreckabulary.Online
                     if (message.Kind == OnlineWireKind.Admitted)
                     {
                         if (message.Body["roster"].String() != expected.RosterHash) throw new FormatException("Admission roster mismatch.");
+                        var proof = verifier.VerifyHostAuthorization(message.Body["authorization"].String(), gate.Match,
+                            activeRun.Join.PlayerId, activeRun.ConnectionId, clock());
+                        if (activeRun.HostId != null && activeRun.HostId != proof.HostId)
+                            throw new FormatException("Established host identity changed without migration.");
+                        activeRun.HostId = proof.HostId;
                         localAdmitted = true;
                         if (localReady) SendServer(OnlineWireKind.Ready, Roster());
                     }
                     else if (message.Kind == OnlineWireKind.Begin)
                     {
-                        if (!localReady || message.Body["roster"].String() != expected.RosterHash) throw new FormatException("Unexpected match start.");
+                        if (!localAdmitted || !localReady || message.Body["roster"].String() != expected.RosterHash) throw new FormatException("Unexpected match start.");
                         beginReceived = true; TryClientBegin();
                     }
                     else if (message.Kind == OnlineWireKind.Snapshot) ReceiveSnapshot(message.Body);

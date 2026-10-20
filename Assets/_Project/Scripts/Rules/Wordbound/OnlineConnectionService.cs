@@ -12,9 +12,11 @@ namespace Wreckabulary.Rules.Wordbound
         public string HostId { get; }
         public string ConnectionId { get; }
         public string Epoch { get; }
+        public string Authorization { get; }
         public long ExpiresAtMilliseconds { get; internal set; }
-        internal OnlineConnectionLease(JsonNode claims)
+        internal OnlineConnectionLease(JsonNode claims, string authorization)
         {
+            Authorization = authorization;
             PlayerId = OnlineJson.Text(claims, "playerId", OnlineJson.Uuid);
             HostId = OnlineJson.Text(claims, "hostId", OnlineJson.Uuid);
             ConnectionId = OnlineJson.Text(claims, "connectionId", OnlineJson.Uuid);

@@ -41,11 +41,11 @@ namespace Wreckabulary.LifecycleTests
             long sequence;
             public string IdentityHash => new string('a', 64);
             public long Epoch => 0;
-            public int Acknowledgements, Commands, Returns;
+            public int Acknowledgements, Commands, Returns, Validations;
             public bool TransportReady;
             public void AcceptCommand(string actor, JsonNode body) { Commands++; }
             public OnlineSnapshotMark Publish(out string json) { json = "{}"; return new OnlineSnapshotMark(MatchId, IdentityHash, 0, ++sequence, 0, new string('b', 64)); }
-            public void ValidateSnapshot(string json, OnlineSnapshotMark mark) { }
+            public void ValidateSnapshot(string json, OnlineSnapshotMark mark) { Validations++; }
             public bool AcknowledgeDurable(OnlineSnapshotMark mark) { Acknowledgements++; return true; }
             public void PauseForMigration() { }
             public void RestoreCommitted(string json, OnlineSnapshotMark mark, long epoch, long wallClock) { }
@@ -109,6 +109,37 @@ namespace Wreckabulary.LifecycleTests
                 claims["connectionRevision"] = "1"; claims["leaseExpiresAt"] = Now * 1000 + 15000;
                 return new OnlineResponse(200, OnlineJson.Encode(new Dictionary<string, object> { ["authorization"] = Sign(claims), ["claims"] = claims }));
             }
+            public string HostProof(string nonce = AppId, string host = Player)
+            {
+                var claims = FixtureCall<Dictionary<string, object>>("Base", "wordbound-connection");
+                claims["exp"] = Now + 15; claims["playerId"] = Player; claims["hostId"] = host;
+                claims["connectionId"] = nonce; claims["connectionEpoch"] = "1"; claims["connectionRevision"] = "1";
+                claims["leaseExpiresAt"] = Now * 1000 + 15000;
+                return Sign(claims);
+            }
+            public NetworkRunner Client(string nonce = AppId)
+            {
+                var runner = Runner(); runner.IsServer = false;
+                var run = Replace(runner); Field(run, "ConnectionId", nonce);
+                Field(Session, "localReady", true);
+                return runner;
+            }
+            public Dictionary<string, object> ProofBody(string proof) => new Dictionary<string, object> {
+                ["roster"] = Match.Match.RosterHash, ["authorization"] = proof };
+            public Dictionary<string, object> SnapshotBody()
+            {
+                var packet = OnlineSnapshotPacket.Compress("{}");
+                var mark = new OnlineSnapshotMark(MatchId, Authority.IdentityHash, 0, 1, 0, new string('b', 64));
+                return new Dictionary<string, object> {
+                    ["mark"] = mark.ToValue(), ["index"] = 0, ["count"] = packet.ChunkCount, ["length"] = packet.Length,
+                    ["wireHash"] = packet.WireHash, ["data"] = OnlineJson.Base64Url(packet.Chunk(0)) };
+            }
+            public void Deliver(NetworkRunner runner, OnlineWireKind kind, object body)
+            {
+                byte[] json = Encoding.UTF8.GetBytes(OnlineJson.Encode(body)), bytes = new byte[json.Length + 1];
+                bytes[0] = (byte)kind; Array.Copy(json, 0, bytes, 1, json.Length);
+                Session.OnReliableDataReceived(runner, new PlayerRef(9), default, bytes);
+            }
             public void Dispose() { Key.Dispose(); }
         }
         [TestCase(false), TestCase(true)]
@@ -117,7 +148,7 @@ namespace Wreckabulary.LifecycleTests
             using var f = new Fixture(); var old = f.Replace(f.Runner());
             var reply = new TaskCompletionSource<OnlineResponse>(); OnlineRequest sent = null;
             f.Http.Reply = request => { sent = request; return reply.Task; };
-            var pending = Call<Task>(f.Session, "Admit", old, new PlayerRef(2), f.Join.Certificate, f.Join.Grant, Secret);
+            var pending = Call<Task>(f.Session, "Admit", old, new PlayerRef(2), f.Join.Certificate, f.Join.Grant, Secret, AppId);
             var replacement = f.Replace(f.Runner());
             var guard = Field<HashSet<PlayerRef>>(replacement, "Authorizing"); guard.Add(new PlayerRef(2));
             if (failure) reply.SetException(new InvalidOperationException("Old request failed."));
@@ -215,6 +246,38 @@ namespace Wreckabulary.LifecycleTests
             Assert.AreEqual(Player, actor);
             f.ClockMs += 15000;
             Assert.IsFalse(f.Session.TryGetAdmittedActor(new PlayerRef(2), out actor)); Assert.IsNull(actor);
+        }
+        [TestCase(OnlineWireKind.Admitted), TestCase(OnlineWireKind.Begin), TestCase(OnlineWireKind.Snapshot)]
+        public void ClientRejectsUnprovenHostBeforeReadyOrReplicaAcceptance(OnlineWireKind kind)
+        {
+            using var f = new Fixture(); var runner = f.Client();
+            object body = kind == OnlineWireKind.Snapshot ? f.SnapshotBody() :
+                new Dictionary<string, object> { ["roster"] = f.Match.Match.RosterHash };
+            f.Deliver(runner, kind, body);
+            Assert.AreEqual("FormatException", f.Session.Failure);
+            Assert.IsFalse(f.Session.GameplayReady); Assert.AreEqual(0, runner.Sends);
+            Assert.AreEqual(0, f.Authority.Validations);
+        }
+        [Test] public void ClientAcceptsExactNonceProofThenReadyAndVerifiedReplica()
+        {
+            using var f = new Fixture(); var runner = f.Client();
+            f.Deliver(runner, OnlineWireKind.Admitted, f.ProofBody(f.HostProof()));
+            Assert.AreEqual("", f.Session.Failure); Assert.AreEqual(1, runner.Sends);
+            f.Deliver(runner, OnlineWireKind.Begin, new Dictionary<string, object> { ["roster"] = f.Match.Match.RosterHash });
+            Assert.IsFalse(f.Session.GameplayReady);
+            f.Deliver(runner, OnlineWireKind.Snapshot, f.SnapshotBody());
+            Assert.AreEqual("", f.Session.Failure); Assert.IsTrue(f.Session.GameplayReady);
+            Assert.IsTrue(f.Authority.TransportReady); Assert.AreEqual(1, f.Authority.Validations);
+            Assert.AreEqual(2, runner.Sends);
+        }
+        [TestCase(false), TestCase(true)]
+        public void ClientRejectsOldRunnerNonceAndSignedOutsideRosterHost(bool outsideHost)
+        {
+            using var f = new Fixture(); var runner = f.Client(outsideHost ? AppId : MatchId);
+            string proof = f.HostProof(host: outsideHost ? "22222222-2222-4222-a222-222222222222" : Player);
+            f.Deliver(runner, OnlineWireKind.Admitted, f.ProofBody(proof));
+            Assert.AreEqual("FormatException", f.Session.Failure); Assert.AreEqual(0, runner.Sends);
+            Assert.IsFalse(f.Session.GameplayReady);
         }
     }
 }

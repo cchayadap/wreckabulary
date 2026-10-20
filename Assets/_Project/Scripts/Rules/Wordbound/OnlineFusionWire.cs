@@ -71,15 +71,20 @@ namespace Wreckabulary.Rules.Wordbound
             switch (kind)
             {
                 case OnlineWireKind.Admission:
-                    OnlineJson.Fields(node, "certificate", "grant", "connectionTicket");
+                    OnlineJson.Fields(node, "certificate", "grant", "connectionTicket", "connectionId");
                     foreach (string field in new[] { "certificate", "grant" })
                         OnlineJson.Text(node, field, "^[A-Za-z0-9_.-]{1,16384}$");
                     OnlineJson.Text(node, "connectionTicket", "^[A-Za-z0-9_-]{43}$");
+                    OnlineJson.Text(node, "connectionId", OnlineJson.Uuid);
                     break;
                 case OnlineWireKind.Ready:
                 case OnlineWireKind.Begin:
-                case OnlineWireKind.Admitted:
                     OnlineJson.Fields(node, "roster"); OnlineJson.Text(node, "roster", OnlineJson.HashPattern); break;
+                case OnlineWireKind.Admitted:
+                    OnlineJson.Fields(node, "roster", "authorization");
+                    OnlineJson.Text(node, "roster", OnlineJson.HashPattern);
+                    OnlineJson.Text(node, "authorization", "^[A-Za-z0-9_.-]{1,16384}$");
+                    break;
                 case OnlineWireKind.Command:
                     if (bytes.Length > MaximumCommandBytes) throw new FormatException("Command exceeds its wire budget.");
                     OnlineJson.Fields(node, "sequence", "epoch", "action", "target", "revision", "slot", "value");

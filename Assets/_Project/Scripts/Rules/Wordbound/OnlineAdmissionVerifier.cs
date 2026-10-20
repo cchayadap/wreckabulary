@@ -143,14 +143,24 @@ namespace Wreckabulary.Rules.Wordbound
         public OnlineConnectionLease VerifyConnection(string authorization, VerifiedOnlineMatch match,
             string authenticatedPhotonPlayerId, string authenticatedHostId, string connectionId, long nowMilliseconds)
         {
+            if (string.IsNullOrEmpty(authenticatedHostId)) throw new FormatException("Authenticated host identity is required.");
+            return VerifyConnectionCore(authorization, match, authenticatedPhotonPlayerId, authenticatedHostId, connectionId, nowMilliseconds);
+        }
+        public OnlineConnectionLease VerifyHostAuthorization(string authorization, VerifiedOnlineMatch match,
+            string authenticatedPlayerId, string connectionId, long nowMilliseconds) =>
+            VerifyConnectionCore(authorization, match, authenticatedPlayerId, null, connectionId, nowMilliseconds);
+
+        OnlineConnectionLease VerifyConnectionCore(string authorization, VerifiedOnlineMatch match,
+            string playerId, string hostId, string connectionId, long nowMilliseconds)
+        {
             if (match == null || nowMilliseconds < 0) throw new ArgumentException("A verified match and wall clock are required.");
             var claims = Verify(authorization, "wordbound-connection", nowMilliseconds / 1000,
                 "version", "matchId", "reservationGeneration", "rosterHash", "playerId", "hostId", "connectionId",
                 "connectionEpoch", "leaseExpiresAt", "connectionRevision");
             Bind(claims, match.Match);
             OnlineJson.Text(claims, "connectionRevision", OnlineJson.Counter);
-            var lease = new OnlineConnectionLease(claims);
-            if (lease.PlayerId != authenticatedPhotonPlayerId || lease.HostId != authenticatedHostId ||
+            var lease = new OnlineConnectionLease(claims, authorization);
+            if (lease.PlayerId != playerId || (hostId != null && lease.HostId != hostId) ||
                 lease.ConnectionId != connectionId || lease.ExpiresAtMilliseconds <= nowMilliseconds ||
                 lease.ExpiresAtMilliseconds > nowMilliseconds + 15000 ||
                 OnlineJson.Integer(claims, "exp") - OnlineJson.Integer(claims, "iat") > 15 ||

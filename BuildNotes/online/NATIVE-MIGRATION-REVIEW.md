@@ -1,12 +1,12 @@
 # Native migration proof review
 
-STATUS: IN PROGRESS
+STATUS: SOURCE REVIEW COMPLETE; NATIVE PROOF PENDING ROOT
 
 Scope: read-only review of the installed Fusion 2.1.3 SDK and online adapter source. Root alone runs Unity and creates native assets. This report does not establish successful host migration, deployed custom authentication or configured service access.
 
-Source checkpoint: online b06deb5; adapter source introduced in 39047cc. Root's native 2/4/8-player reliable transport probes passed separately. Those probes do not validate checkpoint durability or migration restoration.
+Source checkpoint: online a1ac362 plus the host-proof follow-up recorded below; adapter source introduced in 39047cc. Root's native 2/4/8-player reliable transport probes passed separately. Those probes do not validate checkpoint durability or migration restoration.
 
-Next recoverable action: inspect the exact PushHostMigrationSnapshot and resume callback semantics, record the native evidence that distinguishes accepted checkpoint bytes from local serialization, and review asynchronous lease/admission operations across Runner replacement.
+Next recoverable action: root executes the native cases below with its baked prefab and configured SDK. This lane prepares the selected-account deployment artifact; no deployment or provider configuration has run.
 
 ## Confirmed source finding M1: asynchronous work is not fenced as a whole across Runner replacement
 
@@ -49,4 +49,6 @@ Full-session scenarios must cover: outsider room precreation, fresh per-Runner n
 
 The bridge's queued command behavior is safe at the domain boundary: the independent review queued actual commands before Return/Disconnect and obtained NotAlive receipts on the next tick. New transport input is additionally gated by TryGetAdmittedActor, which checks the current Runner, Photon identity, seat, readiness and live lease.
 
-Pending source repair M2: the original client accepted Admitted/Begin without signed evidence that the room host belonged to the roster. Root authorized a fresh client nonce plus signed coordinator connection authorization before Ready/replica acceptance. Its adversarial tests and final checkpoint will be recorded separately.
+Confirmed source repair M2: the original client accepted Admitted/Begin without signed evidence that the room host belonged to the roster. Each Runner now generates a fresh client connection UUID. The host must return the coordinator-signed authorization bound to that nonce, client, match, roster and roster-member host. The client verifies it before Ready, Begin or replica processing, and pins the authorized host for that Runner. The host waits for Ready before sending a replica, including during migration.
+
+Focused proof:22 pure online tests and15 actual full-session-source scheduling tests pass; actual SDK source compilation has zero warnings/errors. Independent callback probes also pass exact valid claims, absent proof, wrong player/nonce/host/generation/roster, exact expiry, signature tampering and pre-proof Begin/Snapshot rejection. Evidence: verify-host-proof.log, verify-session-host-proof.log and verify-fusion-host-proof.log. No Unity instance was launched by this lane; these results do not replace the native carrier/cloud recovery cases above.

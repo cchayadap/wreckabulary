@@ -80,6 +80,28 @@ namespace Wreckabulary.Rules.Tests
             Assert.Throws<FormatException>(() => verifier.VerifyConnection(Sign(rsa, claims), match, Player, Player, Attempt, Now * 1000));
         }
 
+        [Test] public void HostAuthorizationRequiresThisClientFreshNonceAndOriginalRosterHost()
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            var claims = Base("wordbound-connection");
+            claims["exp"] = Now + 15; claims["playerId"] = Player; claims["hostId"] = Player;
+            claims["connectionId"] = Attempt; claims["connectionEpoch"] = "1"; claims["connectionRevision"] = "2";
+            claims["leaseExpiresAt"] = Now * 1000 + 15000;
+            string signed = Sign(rsa, claims);
+            Assert.AreEqual(Player, verifier.VerifyHostAuthorization(signed, match, Player, Attempt, Now * 1000).HostId);
+            Assert.Throws<FormatException>(() => verifier.VerifyHostAuthorization(signed, match, Other, Attempt, Now * 1000));
+            Assert.Throws<FormatException>(() => verifier.VerifyHostAuthorization(signed, match, Player, Other, Now * 1000));
+            Assert.Throws<FormatException>(() => verifier.VerifyHostAuthorization(signed, match, Player, Attempt, Now * 1000 + 15000));
+            string[] pieces = signed.Split('.'); byte[] signature = OnlineJson.DecodeBase64Url(pieces[2], 512); signature[0] ^= 1;
+            Assert.Throws<FormatException>(() => verifier.VerifyHostAuthorization(pieces[0] + "." + pieces[1] + "." + OnlineJson.Base64Url(signature),
+                match, Player, Attempt, Now * 1000));
+            foreach (string field in new[] { "hostId", "matchId" })
+            {
+                var altered = new Dictionary<string, object>(claims); altered[field] = Other;
+                Assert.Throws<FormatException>(() => verifier.VerifyHostAuthorization(Sign(rsa, altered), match, Player, Attempt, Now * 1000));
+            }
+        }
         [Test] public void SessionGateRequiresEveryOriginalSeatReadyAndRejectsIdentityReplacement()
         {
             using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
