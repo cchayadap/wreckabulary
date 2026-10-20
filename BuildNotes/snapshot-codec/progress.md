@@ -1,6 +1,6 @@
 # Match snapshot codec lane
 
-STATUS: IN PROGRESS
+STATUS: VERIFIED
 
 Working checkout: `wordbound-puzzle-race`, branch `sethypagna/puzzle-race`. Root owns commits. This lane leaves edits unstaged.
 
@@ -12,6 +12,6 @@ Wire contract: schema 1, 8 MiB/depth 24 bounds, SHA-256 canonical envelope; sign
 
 Implemented explicit canonical wire projections and transactional validation using temporary progress/economy/journal instances. The journal supports validated receipt decoding. Progress restoration now derives objective counts, reachable checkpoints, complete puzzle prefixes, deadlines and result winners before mutation.
 
-Focused verification: 45 snapshot cases and 13 existing progression cases passed the lightweight rules harness. Added a final clean-race loose-resource ownership regression; real NUnit gate is next.
+Verification: 46 focused snapshot cases and 13 existing progression cases are green. Real NUnit R1 core Wordbound passed **87/87**, 16.6 s, evidence `TestResults/core_20261020T111958Z.trx` and `Logs/gate_core_20261020T111958Z.log`. Root committed this snapshot slice. The subsequent full core gate including the first authoritative controller slice passed **412/412**, 222.3 s, evidence `TestResults/core_20261020T113146Z.trx`.
 
-Next recoverable action: run the real NUnit Wordbound gate, hand the snapshot slice to root, then implement AuthoritativeMatch with the frozen binding/snapshot/command contracts. No Unity launched.
+Next recoverable action: continue the controller's focused final checks in `authority-progress.md`; root owns integration and Unity verification. No Unity launched.
