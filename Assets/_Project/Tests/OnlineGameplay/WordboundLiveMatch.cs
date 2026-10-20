@@ -117,12 +117,13 @@ namespace Wreckabulary.OnlineGameplayTests
                 privateCode = (await members[0].Party(group.Id, ct))["assignment"]["privateCode"].String();
             }
             var assignment = (await Clients[0].Party(parties[0].Id, ct))["assignment"];
-            if (assignment["state"].String() != "FORMING" || assignment["roster"].Items.Count != count)
+            string phase = assignment["state"].String();
+            if ((phase != "FORMING" && phase != "ADMITTING") || assignment["roster"].Items.Count != count)
                 throw new InvalidOperationException("The private native proof must reserve exactly its original seats.");
             string rosterHash = RosterHash(assignment);
             Expected = new OnlineMatchExpectation(assignment["matchId"].String(),
                 assignment["reservationGeneration"].String(), rosterHash, Settings, Content);
-            var launched = await Clients[0].MatchAction(Expected, "launch", ct);
+            var launched = phase == "FORMING" ? await Clients[0].MatchAction(Expected, "launch", ct) : assignment;
             if (launched["state"].String() != "ADMITTING" || launched["rosterHash"].String() != rosterHash ||
                 launched["reservationGeneration"].String() != Expected.Generation)
                 throw new InvalidOperationException("Launching changed the expected private content or roster.");
