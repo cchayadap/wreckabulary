@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -208,6 +209,32 @@ static class Program
             var pending = f.Session.PublishCheckpoint(); await f.Session.Stop(); head.SetResult(f.State());
             Require(!await pending && f.Authority.Acks == 0 && !f.Session.GameplayReady, "Stopped publication acknowledged.");
         });
+        foreach (bool completes in new[] { false, true })
+        await Test("Election deadline rejects " + (completes ? "late success" : "an uncompleted SDK task"), async () => {
+            using var f = new Fixture(); var runner = f.Runner(); var run = f.Replace(runner, true);
+            Require(await f.Session.PublishCheckpoint(), "Checkpoint setup failed.");
+            var reply = new TaskCompletionSource<bool>(); runner.Push = () => reply.Task;
+            var pending = Call<Task>(f.Session, "SeedElection", run);
+            Require(!pending.IsCompleted, "Seed probe must be awaiting SDK.");
+            f.Clock = Now + 11000;
+            if (completes) reply.SetResult(true);
+            Require(await Task.WhenAny(pending, Task.Delay(2000)) == pending, "Election wait did not enforce its deadline.");
+            await pending;
+            Require(f.Session.Failure == "TimeoutException" && !f.Session.GameplayReady && f.Authority.Acks == 1,
+                "Election timeout changed the durable frontier or left gameplay enabled.");
+            if (!completes) reply.SetResult(true);
+            Require(!f.Session.GameplayReady && f.Authority.Acks == 1, "Late completion reversed failure.");
+        });
         Console.WriteLine("RESULT " + Passed.Count + "/" + Passed.Count + " PASS; actual Session/client source with HTTP and SDK scheduling doubles; no native, cloud, domain-validity or physics claim.");
+        using var pdb = File.OpenRead(Path.ChangeExtension(typeof(Program).Assembly.Location, ".pdb"));
+        using var provider = MetadataReaderProvider.FromPortablePdbStream(pdb);
+        var reader = provider.GetMetadataReader();
+        foreach (var handle in reader.Documents)
+        {
+            var document = reader.GetDocument(handle);
+            string name = Path.GetFileName(reader.GetString(document.Name));
+            if (new[] { "WordboundFusionSession.cs", "OnlineCheckpointService.cs", "OnlineFusionWire.cs", "SessionSdkDoubles.cs" }.Contains(name))
+                Console.WriteLine("COMPILED_SOURCE_SHA256 " + name + " " + Convert.ToHexString(reader.GetBlobBytes(document.Hash)));
+        }
     }
 }

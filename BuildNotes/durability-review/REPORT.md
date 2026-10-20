@@ -1,6 +1,6 @@
 # Complete application checkpoint durability review
 
-STATUS: IN PROGRESS
+STATUS: COMPLETE — independent source review through `93b28e4`; native end-to-end durability acceptance remains open.
 
 Read-only architecture review requested after native recovery test `editmode_20261020T133054Z` recovered only carrier 0 of 33. Scope is complete application checkpoint acknowledgement, upload/finalize/migration races, and bounded speculative progress. No Unity launch, SDK modification, private-reflection runtime access, service deployment or credential action is authorized in this lane.
 
@@ -168,3 +168,31 @@ The initial probe attempt exposed an error in this reviewer's HTTP fixture: it h
 A source compatibility question was also resolved during review: a fresh Session joining after a prior host replacement must not assume the original roster-first host still owns the room. The owner changed fresh Start to inspect current coordinator writer/head before choosing Host/Client, and permits the exact live open replacement writer in the roster. Admitted now additionally requires a previously confirmed HostAvailable identity. Native room discovery/rejoin remains unproven.
 
 Next required checkpoint: pin the final session commit and owner lifecycle tests, rerun the independent probe if its source changed, then consume root's authenticated native recovery evidence. This report remains IN PROGRESS.
+
+## D4 — P2 election setup deadline, confirmed and fixed
+
+`SeedElection` originally checked its ten-second deadline only between SDK calls; the SDK push await itself could remain pending while writer renewals continued. The owner added bounded polling. Independent reproduction then found the remaining late-success edge: if the SDK task completes after the deadline but before the next poll, the loop exits and `if (queued) return` bypasses the deadline check.
+
+The saved `seed-deadline-reproduction.txt` confirms that edge against session SHA-256 `D2B9591E6003B2615FDB4670EFDE62E25ABBB389FB22349103E1A80FFB023D6F`. This exact compiled source checksum was read from the portable PDB, avoiding ambiguity from concurrent source edits. The probe publishes a coordinator checkpoint, defers only the SDK election push, advances the injected clock to deadline plus 1,000 milliseconds while the writer lease is still live, and completes the push successfully. The session accepted that result without failure.
+
+This is a bounded readiness/liveness defect, not a new false durable acknowledgement: the checkpoint had already committed independently. The owner added deadline checks before each push and after awaiting it. Independent verification now covers both a never-completing SDK task and late success, requiring failure to remain closed and the already committed frontier to remain unchanged.
+
+## Root-owned native acceptance conditions
+
+For an actual authenticated two-player host loss, require exact server-minted Photon identities and signed content/roster binding; a complete multi-chunk coordinator receipt and matching client replica; a partial newer upload that leaves the previous complete head recoverable; and a separately committed upload whose finalize response is lost. Recovery must claim exclusive ownership, retrieve and validate the complete canonical packet, overlay terminal membership, admit with a fresh ticket only after recovery readiness, and commit exactly the next domain epoch before enabling play. Confirm body, inventory and combat state plus resumed input. Verify that commands/physics remain frozen during fencing/restoration and that old Runner completions cannot unfreeze or acknowledge.
+
+The recovered byte count/hash must come from the coordinator packet, not the small Photon election marker. The latter remains a transport-election aid; queueing it is not a complete-state durability receipt. Source/double tests cannot replace these native assertions.
+
+## Final source review handoff
+
+Pinned final session commit: **`93b28e480f50cd14ca8cf5c170da00a34b79a929`**, following service `9f23973` and client `b0c5625`. The reviewed worktree had no diff from that commit for the session, client or wire files. Its session SHA-256 exactly matches the portable-PDB checksum from the independently rebuilt probe:
+
+`1F29EF39CE5C3E7DCBED92A86DD083C06FC36E042C9D7240DED32A3442D1EBCE`.
+
+The final independent session probe passed **12/12**, including both election-deadline cases. Its output records compiler source checksums for the actual linked files. Final local probe assembly SHA-256 is `E53927976FA553A8E83CF6321554E0B2922D5E94CAF12902161559769CD84C0C`; generated binaries remain ignored. The owner's committed lifecycle log reports **28/28**, and its installed-SDK and native-fixture reference builds report zero warnings/errors. Those compilation results establish API compatibility, not native execution.
+
+Within the reviewed scope, there is **no remaining confirmed source blocker**. D2, D3 and D4 are fixed and independently verified. D1's incorrect SDK-based acknowledgement has been removed: complete coordinator receipts now advance the durable frontier, recovery reads and semantically validates coordinator bytes, and native snapshot calls only seed transport election. Initial/replacement admission follows writer claim and restore, validates current terminal membership, uses bounded one-use prompting and signed host proof, and first publishes the replacement epoch before readiness.
+
+D1's **end-to-end native acceptance remains open**. The first authenticated two-player recovery, multi-chunk recovery/failure cases, actual physics freezing, restored body/combat consistency, room rejoin, persistence latency and load limits must be established by root's native and deployed-service evidence. A stale host that can continue renewing its coordinator lease during an asymmetric Photon partition can still delay takeover; safety is preserved but fifteen seconds is not an unconditional failover limit.
+
+All reviewer compiler/test processes completed before the root's native compiler hold. This lane made no Unity launch, deployment, dashboard change, SDK write or production-source mutation.

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <OnlineRoot>../../../../wordbound-online</OnlineRoot>
+    <PuzzleRoot>../../../../wordbound-puzzle-race</PuzzleRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="$(OnlineRoot)/BuildNotes/online/FusionCompile/SessionSdkDoubles.cs" />
+    <Compile Include="$(OnlineRoot)/Assets/_Project/Scripts/Online/Fusion/WordboundFusionSession.cs" />
+    <Compile Include="$(OnlineRoot)/Assets/_Project/Tests/Rules/WordboundOnlineTests.cs" />
+    <Compile Include="$(OnlineRoot)/Tools/RulesHarness/NUnitShim.cs" />
+    <Compile Include="$(PuzzleRoot)/Assets/_Project/Scripts/Rules/**/*.cs" Exclude="$(PuzzleRoot)/Assets/_Project/Scripts/Rules/Wordbound/Online*.cs" />
+    <Compile Include="$(PuzzleRoot)/Packages/com.gamestudiokit.core/Runtime/Determinism/*.cs" />
+    <Compile Include="$(OnlineRoot)/Assets/_Project/Scripts/Rules/Wordbound/Online*.cs" />
+  </ItemGroup>
+</Project>
