@@ -26,7 +26,7 @@ Deliver the complete approved [plan](PLAN.md). Source implementation, runtime ve
 | M2 Complete race loop | IN PROGRESS | Mode/progression, inventory snapshots and command journal are implemented. Complete authoritative runtime remains in progress. |
 | M3 Large world and generator | IN PROGRESS | Course resolver and 11,000 seed checks cover eleven proof configurations. Full flagship content production depends on the network proof. |
 | M4 Workshop and assets | IN PROGRESS | Twelve original equipment assets imported and verified in Unity. Workshop now includes a rendered 3D editor; native visual/input and human usability acceptance remain pending. |
-| M5 Mode suite and public play | NOT RUN | No online service deployed. |
+| M5 Mode suite and public play | IN PROGRESS | Separate coordinator deployed and live eight-seat private API flow verified. Photon custom authentication, approved public content and native gameplay remain pending. |
 | M6 Release candidate | NOT RUN | No Wordbound player build or human acceptance. |
 
 ## Confirmed baseline issues
@@ -81,3 +81,7 @@ The first combined native check (`TestResults/editmode_20261020T122803Z.xml`) pa
 The explicit clean rebuild completed but its test exceeded the default 180-second timeout (`TestResults/editmode_20261020T123501Z.xml`). This is a failed test, not weaving acceptance. The fixture now has a bounded fifteen-minute timeout plus a separate read-only generated-state check so normal verification does not repeat the clean rebuild.
 
 The host physics adapter is integrated as `c9844ca`: canonical body identity, admitted input authority, runner-local queries, movement and snapshot restoration. Its installed SDK reference compile and 22 policy tests pass in the source lane. Integration R0 passes (`Logs/gate_check_all_20261020T124934Z.log`, 23.7 s). Native bodies, gameplay composition, migration and eight-peer physics remain pending.
+
+Native foundation follow-up passes 47/48 (`TestResults/editmode_20261020T125740Z.xml`, 202.4 s): workshop 7/7, course geometry 11/11, Fusion authority 6/6, physics policies 22/22 and the generated carrier attribute 1/1. Migration is the remaining failure: the fixture checked recovered bytes before the asynchronous resume callback; a bounded wait and rerun are in progress. See [native evidence](evidence/native-foundation-2026-10-20.json). This does not claim physics gameplay or visual acceptance.
+
+The separate coordinator is deployed at `https://wreckabulary-wordbound-coordinator.pagna.workers.dev`. Seven live HTTP stages pass, including whole parties of four, exact eight-seat signed admission, ticket replay rejection and terminal Return revocation. Test sessions were cleaned up. The existing website's modification timestamp is unchanged. Public trust configuration is `OnlineServices/production-client.json`; deployment and live evidence are in `BuildNotes/online/DEPLOYMENT-AUDIT.md`. Photon dashboard configuration and actual custom-auth Runner checks remain pending.

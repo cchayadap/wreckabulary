@@ -17,7 +17,7 @@ namespace Wreckabulary.EditorTools
         {
             var config = NetworkProjectConfig.Global;
             config.AssembliesToWeave = config.AssembliesToWeave
-                .Concat(new[] { "Wreckabulary.Online.Fusion", "Wreckabulary.Online.Physics" }).Distinct().ToArray();
+                .Concat(new[] { "Wreckabulary.Online.Fusion", "Wreckabulary.Online.Physics", "Wreckabulary.Online.Gameplay" }).Distinct().ToArray();
             config.HostMigration.EnableAutoUpdate = false;
             config.Network.ReliableDataTransferModes = NetworkConfiguration.ReliableDataTransfers.ClientToServer;
             string path = NetworkProjectConfigUtilities.SaveGlobalConfig(config);

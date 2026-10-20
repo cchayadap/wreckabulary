@@ -119,6 +119,7 @@ namespace Wreckabulary.PhotonTests
             string recoveredJson = null;
             OnlineSnapshotMark recoveredMark = null;
             Exception resumeError = null;
+            bool resumeCompleted = false;
             var args = Arguments(migration.GameMode, replacement, users[1], appId, room, secret, scene, cancellation.Token);
             args.HostMigrationToken = migration;
             args.HostMigrationResume = runner =>
@@ -135,13 +136,19 @@ namespace Wreckabulary.PhotonTests
                     }
                 }
                 catch (Exception error) { resumeError = error; }
+                finally { resumeCompleted = true; }
             };
             var resume = replacement.StartGame(args);
             while (!resume.IsCompleted && !cancellation.IsCancellationRequested) yield return null;
             Assert.IsTrue(resume.IsCompleted, "Replacement host startup timed out.");
             Assert.IsTrue(resume.GetAwaiter().GetResult().Ok, "Replacement host could not start.");
+            deadline = Time.realtimeSinceStartupAsDouble + 35;
+            while (!resumeCompleted && replacement.IsRunning && Time.realtimeSinceStartupAsDouble < deadline &&
+                   !cancellation.IsCancellationRequested) yield return null;
+            Assert.IsTrue(resumeCompleted, "Replacement host started but did not complete its migration resume callback.");
             Assert.IsNull(resumeError, resumeError?.ToString());
-            Assert.AreEqual(json, recoveredJson, "Cloud recovery must preserve every canonical byte.");
+            Assert.IsTrue(string.Equals(json, recoveredJson, StringComparison.Ordinal),
+                "Cloud recovery must preserve every canonical byte.");
             Assert.IsTrue(mark.Same(recoveredMark), "Epoch, sequence, tick and all identity hashes must survive.");
             if (!large) fixture.VerifyAndRestore(recoveredJson, recoveredMark);
             Directory.CreateDirectory("Logs/wordbound");
