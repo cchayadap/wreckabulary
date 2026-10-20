@@ -20,17 +20,32 @@ namespace Wreckabulary.Online
         public AuthoritativeMatch Match => authority;
         public WordboundFusionAuthority(AuthoritativeMatch match, VerifiedOnlineMatch online, ResolvedCourse resolvedCourse,
             ItemCatalogue itemCatalogue, GameRules gameRules)
+            : this(match, resolvedCourse, itemCatalogue, gameRules)
         {
-            authority = match ?? throw new ArgumentNullException(nameof(match));
-            course = resolvedCourse ?? throw new ArgumentNullException(nameof(resolvedCourse));
-            catalogue = itemCatalogue ?? throw new ArgumentNullException(nameof(itemCatalogue));
-            rules = gameRules?.Clone() ?? throw new ArgumentNullException(nameof(gameRules));
             if (online == null) throw new ArgumentNullException(nameof(online));
             var expected = online.Match;
             var binding = new MatchBinding(expected.MatchId, expected.Settings.ProtocolVersion, expected.Content.ModeHash,
                 expected.Content.CourseHash, expected.Content.ManifestHash, expected.RosterHash, expected.Content.CatalogHash,
                 online.Roster.Select(s => new WordboundSeat(s.PlayerId, s.TeamId, s.Slot)));
             if (binding.Hash != match.Binding.Hash) throw new ArgumentException("Authority does not match the signed original roster and content.");
+        }
+        WordboundFusionAuthority(AuthoritativeMatch match, ResolvedCourse resolvedCourse, ItemCatalogue itemCatalogue, GameRules gameRules)
+        {
+            authority = match ?? throw new ArgumentNullException(nameof(match));
+            course = resolvedCourse ?? throw new ArgumentNullException(nameof(resolvedCourse));
+            catalogue = itemCatalogue ?? throw new ArgumentNullException(nameof(itemCatalogue));
+            rules = gameRules?.Clone() ?? throw new ArgumentNullException(nameof(gameRules));
+        }
+        public static WordboundFusionAuthority CreateLocal(AuthoritativeMatch match, ResolvedCourse resolvedCourse,
+            ItemCatalogue itemCatalogue, GameRules gameRules, string localPlayerId)
+        {
+            if (match == null) throw new ArgumentNullException(nameof(match));
+            WordboundLocalSession.ValidateBinding(match.Binding, match.Mode, localPlayerId);
+            var bridge = new WordboundFusionAuthority(match, resolvedCourse, itemCatalogue, gameRules);
+            var snapshot = match.Capture(1);
+            bridge.ValidateSnapshot(MatchSnapshotCodec.Export(snapshot), ToMark(new SnapshotStamp(match.Binding.MatchId,
+                match.Binding.Hash, snapshot.Epoch, snapshot.Sequence, snapshot.Progress.Tick, MatchSnapshotCodec.ComputeHash(snapshot))));
+            return bridge;
         }
         public void SetTransportReady(bool transportReady, bool isHost) { ready = transportReady; host = isHost; if (!ready) commands.Clear(); }
         public void AcceptCommand(string authenticatedActor, JsonNode body)

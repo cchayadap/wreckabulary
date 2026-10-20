@@ -11,6 +11,7 @@
     <Compile Include="../../../Tools/RulesHarness/Runner.cs" />
     <Compile Include="../../../Assets/_Project/Tests/Rules/WordboundOnlineTests.cs" />
     <Compile Include="../../../Assets/_Project/Scripts/Online/Fusion/WordboundFusionSession.cs" />
+    <Compile Include="../../../Assets/_Project/Scripts/Online/Fusion/IWordboundGameplaySession.cs" />
     <Compile Include="SessionSdkDoubles.cs" />
     <Compile Include="SessionLifetimeTests.cs" />
     <ProjectReference Include="CombinedRules.csproj" />

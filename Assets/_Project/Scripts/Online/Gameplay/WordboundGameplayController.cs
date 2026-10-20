@@ -32,7 +32,7 @@ namespace Wreckabulary.Online
         readonly Dictionary<string, WordboundNetworkBody> bodies = new Dictionary<string, WordboundNetworkBody>(StringComparer.Ordinal);
         readonly Dictionary<string, WordboundGameplayBody> presentations = new Dictionary<string, WordboundGameplayBody>(StringComparer.Ordinal);
         readonly QueryRelay query = new QueryRelay();
-        WordboundFusionSession session;
+        IWordboundGameplaySession session;
         NetworkRunner runner;
         ResolvedCourse course;
         CourseCatalogue geometry;
@@ -65,8 +65,29 @@ namespace Wreckabulary.Online
             CourseCatalogue courseCatalogue, ItemCatalogue itemCatalogue, GameRules gameRules, string localPlayerId,
             WordboundGameplayPrefabs bodyPrefabs, WordboundGameplayOptions gameplayOptions = null)
         {
-            if (initialized) throw new InvalidOperationException("Gameplay controller is already initialized.");
             if (online == null) throw new ArgumentNullException(nameof(online));
+            var expected = online.Match;
+            var binding = new MatchBinding(expected.MatchId, expected.Settings.ProtocolVersion, expected.Content.ModeHash,
+                expected.Content.CourseHash, expected.Content.ManifestHash, expected.RosterHash, expected.Content.CatalogHash,
+                online.Roster.Select(s => new WordboundSeat(s.PlayerId, s.TeamId, s.Slot)));
+            InitializeCore(binding, mode, resolved, courseCatalogue, itemCatalogue, gameRules, localPlayerId, bodyPrefabs, gameplayOptions,
+                match => new WordboundFusionAuthority(match, online, resolved, itemCatalogue, gameRules));
+        }
+
+        public void InitializeLocal(MatchBinding binding, ModeDefinition mode, ResolvedCourse resolved,
+            CourseCatalogue courseCatalogue, ItemCatalogue itemCatalogue, GameRules gameRules, string localPlayerId,
+            WordboundGameplayPrefabs bodyPrefabs, WordboundGameplayOptions gameplayOptions = null)
+        {
+            InitializeCore(binding, mode, resolved, courseCatalogue, itemCatalogue, gameRules, localPlayerId, bodyPrefabs, gameplayOptions,
+                match => WordboundFusionAuthority.CreateLocal(match, resolved, itemCatalogue, gameRules, localPlayerId));
+        }
+
+        void InitializeCore(MatchBinding binding, ModeDefinition mode, ResolvedCourse resolved,
+            CourseCatalogue courseCatalogue, ItemCatalogue itemCatalogue, GameRules gameRules, string localPlayerId,
+            WordboundGameplayPrefabs bodyPrefabs, WordboundGameplayOptions gameplayOptions,
+            Func<AuthoritativeMatch, WordboundFusionAuthority> createAuthority)
+        {
+            if (initialized) throw new InvalidOperationException("Gameplay controller is already initialized.");
             options = gameplayOptions ?? new WordboundGameplayOptions();
             if (options.Clock == null || options.CheckpointMilliseconds < 250 || options.CheckpointMilliseconds > 1000)
                 throw new ArgumentException("Proof checkpoint cadence must be 250–1000 ms.");
@@ -78,17 +99,13 @@ namespace Wreckabulary.Online
             rules = gameRules?.Clone() ?? throw new ArgumentNullException(nameof(gameRules));
             prefabs = bodyPrefabs ?? throw new ArgumentNullException(nameof(bodyPrefabs));
             localActor = localPlayerId;
-            var expected = online.Match;
-            var binding = new MatchBinding(expected.MatchId, expected.Settings.ProtocolVersion, expected.Content.ModeHash,
-                expected.Content.CourseHash, expected.Content.ManifestHash, expected.RosterHash, expected.Content.CatalogHash,
-                online.Roster.Select(s => new WordboundSeat(s.PlayerId, s.TeamId, s.Slot)));
             WordboundGameplayPlan.Seat(binding, localActor);
             var match = new AuthoritativeMatch(binding, mode, course, geometry, items, rules, query, options.Clock());
-            Authority = new WordboundFusionAuthority(match, online, course, items, rules);
+            Authority = createAuthority(match);
             initialized = true;
         }
 
-        public void AttachSession(WordboundFusionSession fusionSession)
+        public void AttachSession(IWordboundGameplaySession fusionSession)
         {
             if (!initialized || session != null || fusionSession == null) throw new InvalidOperationException("Initialize then attach one session.");
             if (options.GameplayScene.HasValue) fusionSession.ConfigureScene(options.GameplayScene.Value);
@@ -176,7 +193,7 @@ namespace Wreckabulary.Online
         {
             if (hostReady) return;
             if (!session.GameplayReady || !runner.IsServer || session.Committed == null)
-                throw new InvalidOperationException("Host composition requires a durable session start.");
+                throw new InvalidOperationException("Host composition requires a validated committed session start.");
             var simulator = runner.GetComponent<RunnerSimulatePhysics>();
             if (simulator == null) { simulator = runner.gameObject.AddComponent<RunnerSimulatePhysics>(); runner.AddGlobal(simulator); }
             simulator.Update3DPhysicsScene = true;

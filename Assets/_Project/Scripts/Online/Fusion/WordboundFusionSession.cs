@@ -46,7 +46,7 @@ namespace Wreckabulary.Online
         }
     }
 
-    public sealed class WordboundFusionSession : INetworkRunnerCallbacks
+    public sealed class WordboundFusionSession : IWordboundGameplaySession, INetworkRunnerCallbacks
     {
         sealed class RunScope
         {

@@ -1,0 +1,73 @@
+{
+  "recordedAtUtc": "2026-10-20T16:01:37.9473775Z",
+  "baseCommit": "93fd9f46cdd72b7d47e3c421283e32c24ca93bd4",
+  "focusedTests": {
+    "passed": 15,
+    "native": false,
+    "skipped": 0,
+    "failed": 0
+  },
+  "sdkReferenceBuild": {
+    "fusion": "2.1.3",
+    "unity": "6000.6.3f1",
+    "warnings": 0,
+    "errors": 0
+  },
+  "nativeOffline": "NOT RUN",
+  "nativeCraftSocket": "NOT RUN",
+  "rulesAssemblySha256": "ae6289a1a419b1b3405e1e4f2d1e25b4b7272c6c86ad1a787ae93daee49444ea",
+  "files": [
+    {
+      "path": "Assets/_Project/Scripts/Online/Fusion/IWordboundGameplaySession.cs",
+      "sha256": "7e1d143651cda5b743a47060d0fd1f7b15d55a2da74d9cbbcc6932a12c2fd21c"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Fusion/WordboundLocalSession.cs",
+      "sha256": "25a7a0edacd724a07a8e44b01f834360bdd63164db00e252f9dcb4db326b4c7b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Fusion/WordboundFusionAuthority.cs",
+      "sha256": "7a7911fbb0f0d6ece5f1b73d7a4bb2296ac0f73903770bf17aa3614048d050f1"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Fusion/WordboundFusionSession.cs",
+      "sha256": "2544842ebeb839c9b06e6d888d07b846748b221d4be7de2754cfd3f4176b7ac7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Gameplay/WordboundGameplayController.cs",
+      "sha256": "bdded7435c5334f6a09095ef42183b3c6ad154edb9204bf5c2fc2bb9f2667aa8"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/WordboundNativeLocalGameplayTests.cs",
+      "sha256": "a32d84575b280d2b48ec9284bacc35978fe608e6646efa46ad93510cf1ee396e"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/Wreckabulary.Offline.NativeGameplay.Tests.asmdef",
+      "sha256": "d4ab16c7f6c41ac640d54334fd42454a8bebda91c00673f7494e7832df583c40"
+    },
+    {
+      "path": "BuildNotes/offline-session/LocalSessionTests.cs",
+      "sha256": "41467fb283d44b9faa7a62968439d1b764ce312def6312b569e31fe981717b64"
+    },
+    {
+      "path": "BuildNotes/offline-session/LocalSessionTests.csproj",
+      "sha256": "76c296f46ec0c413081d87d2e0658e8f0f12252ae230f166ac00186d6e58a2ba"
+    },
+    {
+      "path": "BuildNotes/offline-session/ReferenceCheck.csproj",
+      "sha256": "7b601152a9612c3e0c11a10c890ab04c823be11483721d45f7d6ca5be11d5146"
+    },
+    {
+      "path": "BuildNotes/offline-session/results/local-session.trx",
+      "sha256": "2b60dacd10d98b8c2801eef2045d66ef2fe20d3e018a483938bc18a0f50ef57a"
+    },
+    {
+      "path": "BuildNotes/offline-session/bin/Debug/net9.0/LocalSessionTests.dll",
+      "sha256": "996e39e80a44578a2031f3e7670e74f8d3719653dfbebbfcf8e25492fa6ffae8"
+    },
+    {
+      "path": "BuildNotes/offline-session/bin/Debug/netstandard2.1/ReferenceCheck.dll",
+      "sha256": "50689ac8e1537b8763f507cdcb47fe13fd241160433ab74cd4fb5591a419309d"
+    }
+  ]
+}

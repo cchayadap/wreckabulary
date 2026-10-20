@@ -59,6 +59,7 @@ namespace Fusion
     public struct PlayerRef
     {
         public int RawEncoded;
+        public static PlayerRef None => default;
         public PlayerRef(int value) { RawEncoded = value; }
         public static bool operator ==(PlayerRef a, PlayerRef b) => a.RawEncoded == b.RawEncoded;
         public static bool operator !=(PlayerRef a, PlayerRef b) => !(a == b);
@@ -68,7 +69,7 @@ namespace Fusion
     public struct Tick { public int Raw; }
     public struct ReliableKey { public static ReliableKey FromInts(int a, int b, int c, int d) => default; }
     public enum ShutdownReason { Ok, HostMigration }
-    public enum GameMode { Host, Client, AutoHostOrClient }
+    public enum GameMode { Host, Client, AutoHostOrClient, Single }
     public sealed class HostMigrationToken { public GameMode GameMode; }
     public sealed class NetworkConfiguration
     {
@@ -111,6 +112,7 @@ namespace Fusion
     {
         int tick;
         public bool IsRunning = true, IsServer = true;
+        public GameMode GameMode = GameMode.Host;
         public PlayerRef LocalPlayer = new PlayerRef(1);
         public readonly List<PlayerRef> ActivePlayers = new List<PlayerRef> { new PlayerRef(1), new PlayerRef(2) };
         public readonly Dictionary<PlayerRef, string> Users = new Dictionary<PlayerRef, string>();
@@ -122,6 +124,7 @@ namespace Fusion
         public int Sends, Disconnects;
         public Tick Tick => new Tick { Raw = ++tick };
         public void AddCallbacks(INetworkRunnerCallbacks callbacks) { }
+        public void RemoveCallbacks(INetworkRunnerCallbacks callbacks) { }
         public Task<StartGameResult> StartGame(StartGameArgs args) => Startup(args);
         public string GetPlayerUserId(PlayerRef player) => Users.TryGetValue(player, out var value) ? value : "";
         public byte[] GetPlayerConnectionToken(PlayerRef player) => Tokens.TryGetValue(player, out var value) ? value : null;
