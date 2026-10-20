@@ -34,7 +34,7 @@ namespace Wreckabulary.OnlineGameplayTests
         }
         readonly List<PartyGroup> parties = new List<PartyGroup>();
 
-        public WordboundLiveMatch(string projectRoot)
+        public WordboundLiveMatch(string projectRoot, CourseDocument proofCourse = null)
         {
             var trust = OnlineJson.Parse(File.ReadAllText(Path.Combine(projectRoot, "OnlineServices/production-client.json")));
             if (trust["origin"].String() != Origin || trust["photonAppId"].String() != AppId ||
@@ -52,7 +52,7 @@ namespace Wreckabulary.OnlineGameplayTests
             string ruleJson = File.ReadAllText(Path.Combine(folder, "rules.json"));
             Items = ItemCatalogue.FromJson(itemJson, "native-proof-items");
             Rules = Mode.CreateGameplayRules(RuleBook.FromJson(ruleJson, "native-proof-rules").For("Dibs"));
-            var document = CourseTemplates.FreestyleWorld();
+            var document = proofCourse ?? CourseTemplates.FreestyleWorld();
             var resolved = CourseResolver.Resolve(document, Geometry,
                 new CourseResolveRequest("0123456789abcdef", MatchStateValidation.Requirements(Mode)));
             if (!resolved.Success) throw new InvalidOperationException("The native proof course did not resolve.");

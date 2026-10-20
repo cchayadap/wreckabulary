@@ -18,7 +18,7 @@ using Assert = NUnit.Framework.Assert;
 
 namespace Wreckabulary.OnlineGameplayTests
 {
-    public sealed class WordboundNativeGameplayTests
+    public sealed partial class WordboundNativeGameplayTests
     {
         const string Gate = "WORDBOUND_EXTERNAL_GAMEPLAY";
         const string Prefix = "WordboundNativeGameplay-";
@@ -40,6 +40,7 @@ namespace Wreckabulary.OnlineGameplayTests
             public WordboundFusionSession Session;
             public string Actor;
             public bool Move;
+            public WordboundMovementInput InteractionInput;
             public int Advanced;
             public readonly Dictionary<long, OnlineSnapshotMark> Received = new Dictionary<long, OnlineSnapshotMark>();
             public readonly Dictionary<string, OnlineSnapshotMark> Acknowledged = new Dictionary<string, OnlineSnapshotMark>();
@@ -59,7 +60,7 @@ namespace Wreckabulary.OnlineGameplayTests
         [UnityTest, Category("ExternalPhotonGameplay")]
         public IEnumerator AuthenticatedGameplayRestoresAfterHostDeparture() => Run(2, true);
 
-        IEnumerator Run(int count, bool migrate)
+        IEnumerator Run(int count, bool migrate, bool interactions = false)
         {
             if (Environment.GetEnvironmentVariable(Gate) != "1")
                 Assert.Ignore("Set WORDBOUND_EXTERNAL_GAMEPLAY=1 after configuring production Photon custom authentication.");
@@ -71,7 +72,8 @@ namespace Wreckabulary.OnlineGameplayTests
             SessionState.SetBool(PlayStartedKey, true);
             yield return new EnterPlayMode();
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(8));
-            live = new WordboundLiveMatch(Path.GetFullPath(Path.Combine(Application.dataPath, "..")));
+            live = new WordboundLiveMatch(Path.GetFullPath(Path.Combine(Application.dataPath, "..")),
+                interactions ? WordboundInteractionCourse.Create() : null);
             yield return Wait(live.Prepare(count, lifetime.Token), "Prepare real private coordinator match", 120);
             int hostIndex = live.Clients.FindIndex(c => c.Credentials.PlayerId == live.Verified.Roster[0].PlayerId);
             Assert.GreaterOrEqual(hostIndex, 0);
@@ -127,6 +129,8 @@ namespace Wreckabulary.OnlineGameplayTests
             foreach (var peer in peers) AssertBodies(peer, peer == first);
             Debug.Log("WORDBOUND_GAMEPLAY_OBSERVED: authenticated real bodies, client input and committed command; cleanup pending.");
 
+            if (interactions) yield return Interactions(first);
+
             if (migrate)
             {
                 long oldEpoch = second.Controller.Frame.Epoch;
@@ -157,7 +161,7 @@ namespace Wreckabulary.OnlineGameplayTests
             peer.Controller.Initialize(live.Verified, live.Mode, live.Course, live.Geometry, live.Items, live.Rules, peer.Actor, prefabs,
                 new WordboundGameplayOptions {
                     GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
-                    ReadMovement = () => new WordboundMovementInput { MoveZ = peer.Move ? 1 : 0 }
+                    ReadMovement = () => peer.Move ? new WordboundMovementInput { MoveZ = 1 } : peer.InteractionInput
                 });
             peer.Session = new WordboundFusionSession(() => {
                 var runnerRoot = new GameObject(Prefix + "Runner-" + index + "-" + Guid.NewGuid().ToString("N"));
