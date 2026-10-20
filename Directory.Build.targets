@@ -6,4 +6,7 @@
   <ItemGroup Condition="'$(UnityData)' != '' and '$(KitNoEngine)' != 'true'">
     <Reference Include="$(UnityData)\Managed\UnityEngine\Unity.Scripting.dll" Private="false" Condition="Exists('$(UnityData)\Managed\UnityEngine\Unity.Scripting.dll')" />
   </ItemGroup>
+  <ItemGroup Condition="'$(AssemblyName)' == 'GskCheck.Editor' or '$(AssemblyName)' == 'GskCheck.Runtime'">
+    <Reference Include="$(ProjectRoot)Assets\Photon\Fusion\Assemblies\*.dll" Private="false" />
+  </ItemGroup>
 </Project>

@@ -1,0 +1,49 @@
+{
+  "verifiedUtc": "2026-10-20T12:07:59.4160081Z",
+  "result": "PASS",
+  "sdk": "Fusion 2.1.3 stable2390",
+  "physicsAddon": "2.1.2 build1246",
+  "unity": "6000.6.3f1",
+  "nativeTests": 3,
+  "nativePassed": 3,
+  "nativeFailed": 0,
+  "testResults": "TestResults/editmode_20261020T120201Z.xml",
+  "testResultsSha256": "ed40dfa62f55f50b66799ece859046df52830177fafaaa1d8bfbec7dec8d68df",
+  "gateSeconds": 252.3,
+  "scope": "Live Photon Asia private Host/Client sessions with separate local peer physics scenes; byte-exact 64 KiB reliable messages and clean shutdown. All peers ran in one editor on one machine. No gameplay, custom-authentication, cross-device, packet-loss, host-migration or performance acceptance.",
+  "reports": [
+    {
+      "utc": "2026-10-20T12:06:01.6682859Z",
+      "region": "asia",
+      "result": "PASS",
+      "scope": "Private relayed host/client sessions and reliable data only; no gameplay or migration acceptance.",
+      "peers": 2,
+      "payloadBytes": 65536,
+      "clientMessagesReceived": 1,
+      "echoesReceived": 1,
+      "seconds": 7.38809169999999
+    },
+    {
+      "utc": "2026-10-20T12:05:52.8779605Z",
+      "region": "asia",
+      "result": "PASS",
+      "scope": "Private relayed host/client sessions and reliable data only; no gameplay or migration acceptance.",
+      "peers": 4,
+      "payloadBytes": 65536,
+      "clientMessagesReceived": 3,
+      "echoesReceived": 3,
+      "seconds": 15.696470099999999
+    },
+    {
+      "utc": "2026-10-20T12:05:34.0443313Z",
+      "region": "asia",
+      "result": "PASS",
+      "scope": "Private relayed host/client sessions and reliable data only; no gameplay or migration acceptance.",
+      "peers": 8,
+      "payloadBytes": 65536,
+      "clientMessagesReceived": 7,
+      "echoesReceived": 7,
+      "seconds": 23.865792700000014
+    }
+  ]
+}

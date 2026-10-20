@@ -22,10 +22,10 @@ Deliver the complete approved [plan](PLAN.md). Source implementation, runtime ve
 | Milestone | Status | Evidence |
 | --- | --- | --- |
 | M0 Safe baseline | VERIFIED | Commit 12842c7; editor and runtime regressions pass across the recorded suite and focused repair runs; final check and 225 core tests pass. |
-| M1 Online proof | IN PROGRESS | Owner created a Photon app; SDK retrieval and app type verification remain pending because browser control fails. Coordinator implementation proceeds separately. |
-| M2 Complete race loop | NOT RUN | No Wordbound runtime delivered yet. |
-| M3 Large world and generator | NOT RUN | Depends on the network proof for full content production. |
-| M4 Workshop and assets | IN PROGRESS | Twelve image concepts and editable meshes produced in separate staging; export checks pass. Unity integration and workshop remain outstanding. |
+| M1 Online proof | IN PROGRESS | Fusion 2 app, 20 CCU and local SDK installation verified. Live private 2/4/8-peer reliable transport checks pass 3/3. Authenticated gameplay, physics, host migration and deployment remain pending. |
+| M2 Complete race loop | IN PROGRESS | Mode/progression, inventory snapshots and command journal are implemented. Complete authoritative runtime remains in progress. |
+| M3 Large world and generator | IN PROGRESS | Course resolver and 11,000 seed checks cover eleven proof configurations. Full flagship content production depends on the network proof. |
+| M4 Workshop and assets | IN PROGRESS | Twelve original equipment assets imported and verified in Unity. Workshop now includes a rendered 3D editor; native visual/input and human usability acceptance remain pending. |
 | M5 Mode suite and public play | NOT RUN | No online service deployed. |
 | M6 Release candidate | NOT RUN | No Wordbound player build or human acceptance. |
 
@@ -66,4 +66,8 @@ The additive twelve-asset source/importer commit was integrated as 346f230. Nati
 
 The puzzle-race mode/progression and economy snapshot units were integrated as b1a59de and 703e002. The first course contracts/resolver checkpoint was integrated as 25e3dc0. Native Unity verification passes 37/37 tests in 68.4 s: `TestResults/editmode_20261020T104503Z.xml`, SHA-256 `61d26461c4c95112466461725d8b32289e2c31a991c324ba11f30a3603e64181`. This tests rules and course contracts inside Unity; it does not prove a playable Wordbound scene or network connection.
 
-The puzzle-race worktree's command journal and exact snapshot acknowledgement unit passes a further ten tests (272 core total including course contracts). Complete gameplay target/wire snapshots, actual SDK import and live network proof remain next. The map-core lane is adding stress/adversarial cases; the workshop and coordinator continue in their own branches.
+The integrated map stress, command journal, 3D workshop, coordinator client and complete snapshot codec pass 421 core tests (`TestResults/core_20261020T112920Z.trx`, 180.2 s). Snapshot integration is `5ee59b6`; the latest pre-transport source check also passes (`Logs/gate_check_all_20261020T120133Z.log`, 26.5 s). The authoritative controller and reviewed recovery/return follow-up are committed separately as `cd0fdea` and `4dfce93` with 133 focused Wordbound tests passing; they await integration.
+
+Photon dashboard inspection now works and confirms Fusion 2 and 20 CCU. Both SDKs are installed and native live transport checks pass for 2, 4 and 8 peers, with clean teardown and 64 KiB byte-exact payloads both ways. `TestResults/editmode_20261020T120201Z.xml` passes 3/3; sanitized evidence and setup history are recorded in [PHOTON-SETUP.md](PHOTON-SETUP.md). All peers ran on one PC; physical gameplay, cross-device networking and migration remain unverified.
+
+Root owns native SDK/physics integration. The online lane has an SDK-linked authenticated session checkpoint (`39047cc`, after `3f5a655`) and a metadata cleanup (`ce091c2`) ready for integration, with 47 service tests and 20 focused client tests passing. Unity will generate the new online metadata. The gameplay lane is adding static runtime geometry and the reviewer is checking snapshot/mechanism and admission boundaries. The Cloudflare deployment target needs clarification because the connected account differs from the repository's existing website account; no deployment or account switch has been made.

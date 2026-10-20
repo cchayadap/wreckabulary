@@ -4,6 +4,8 @@ STATUS: IN PROGRESS
 
 James supplied the app identifier locally. On 2026-10-20 the signed-in dashboard showed the Wreckabulary app with a Fusion 2 plugin, 20 total concurrent users, no CCU burst and all regions allowed. No custom authentication provider was configured. The identifier is held in ignored `.harness/wordbound/photon-app.json`; it is not embedded in the proof fixtures.
 
+**Live transport checks PASS for 2, 4 and 8 peers**, including byte-exact 64 KiB messages in both directions and clean shutdown. All peers ran in one Unity Editor on this PC using Photon Asia. This proves the app and local SDK connection path; it does not close the gameplay, migration or performance milestone. Sanitized evidence: [connectivity report](evidence/photon-connectivity-2026-10-20.json).
+
 ## Pinned packages
 
 The owner downloaded both packages from the official Photon pages. Archive path inspection found only `Assets/Photon/` contents. These proprietary dependencies remain local under an ignored SDK directory; restore them from the official vendor rather than redistributing the SDK in the public source repository.
@@ -47,8 +49,10 @@ The addon coroutine subsequently imported and compiled `Fusion.Addons.Physics.dl
 
 `WordboundPhotonConnectionTests` contains explicit external tests for 2, 4 and 8 peers. They require `WORDBOUND_PHOTON_APP_ID`, create an unlisted random room, validate a random connection token, use relayed Host/Client sessions, close admission after all peers arrive, and check a byte-exact 64 KiB reliable transfer from every client and back. Test cleanup shuts down the owned runners.
 
-Proof reports go under `Logs/wordbound/photon-proof-<count>.json`. They contain no app identifier or connection secret. The tests have not yet passed.
+Proof reports go under `Logs/wordbound/photon-proof-<count>.json`. They contain no app identifier or connection secret. The final native run passes 3/3: `TestResults/editmode_20261020T120201Z.xml`, SHA-256 `ed40dfa62f55f50b66799ece859046df52830177fafaaa1d8bfbec7dec8d68df`, 252.3 seconds including startup. Read the NUnit/gate result alongside the payload reports: a payload report alone does not verify teardown.
 
-The first two-peer attempt failed because the multi-peer test had no explicit starting scene (`TestResults/editmode_20261020T113351Z.xml`). The fixture now creates a native empty test scene, temporarily registers it, and restores the previous build-scene list on cleanup. That run also recorded a Burst compiler queue timeout during editor initialization. A corrected run is pending; no network acceptance is inferred from the failed run.
+The first two-peer attempt failed because the multi-peer test had no explicit starting scene (`TestResults/editmode_20261020T113351Z.xml`). That run also recorded a Burst compiler queue timeout during editor initialization. Creating the scene inside the test conflicted with Unity's populated temporary scene (`editmode_20261020T114749Z.xml`, `editmode_20261020T115222Z.xml`). The native empty scene is now a saved asset, created separately through `game_gate exec Wreckabulary.EditorTools.WordboundPhotonSetup.CreateProofScene`; its setup passed (`Logs/gate_exec_CreateProofScene_20261020T115540Z.log`).
+
+The first successful two-peer payload exchange still failed teardown because host-first shutdown disconnected the remaining client (`editmode_20261020T115923Z.xml`). Cleanup now disconnects clients before the host and restores the previous build-scene list. The final 2/4/8 run above verifies both the transport and this cleanup.
 
 These transport probes do not prove production guest authentication, physics quality, migration, packet-loss tolerance or eight-player performance. The separate coordinator's custom authentication provider, pinned issuer/JWKS and exact signed start/admission checks must be configured before public play. See [ONLINE.md](ONLINE.md).
