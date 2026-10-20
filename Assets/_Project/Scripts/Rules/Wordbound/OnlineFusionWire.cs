@@ -96,7 +96,7 @@ namespace Wreckabulary.Rules.Wordbound
                     OnlineJson.Fields(node, "sequence", "epoch", "action", "target", "revision", "slot", "value");
                     if (OnlineSnapshotMark.Counter(node, "sequence") < 1) throw new FormatException("Invalid command sequence.");
                     OnlineSnapshotMark.Counter(node, "epoch");
-                    OnlineJson.Text(node, "action", "^(CollectLetter|BeginCraft|CancelCraft|PickUp|Drop|Throw|Deploy|GiveLetter|Transfer|TakeKeepsake|DropKeepsake|UsePuzzle|Equip|Attack)$");
+                    OnlineJson.Text(node, "action", "^(CollectLetter|BeginCraft|CancelCraft|PickUp|Drop|Throw|Deploy|GiveLetter|Transfer|TakeKeepsake|DropKeepsake|UsePuzzle|Equip|Attack|PracticePuzzle|Block)$");
                     foreach (string field in new[] { "target", "value" }) OnlineJson.Text(node, field, "^[A-Za-z0-9_.:-]{0,96}$");
                     OnlineJson.Integer(node, "revision", 0, int.MaxValue); OnlineJson.Integer(node, "slot", -1, 7); break;
                 case OnlineWireKind.Snapshot:

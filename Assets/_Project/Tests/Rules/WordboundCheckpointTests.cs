@@ -17,11 +17,11 @@ namespace Wreckabulary.Tests {
    public readonly string Identity=new string('a',64); public readonly Dictionary<string,object> Writer;
    public readonly Dictionary<int,string> Chunks=new Dictionary<int,string>(); public string Manifest,Head;
    public Func<OnlineRequest,Task<OnlineResponse>> Override;
-   public Fixture() {
+   public Fixture(string protocol=null) {
     Writer=new Dictionary<string,object>{{"playerId",Player},{"claimId",Other},{"term","1"},{"epoch","0"},{"expiresAt",Now+15000},{"baseHeadId",null},{"admissionOpen",false}};
     Transport.Reply=r=>Override==null?Task.FromResult(Reply(r)):Override(r);
     Client=new OnlineCoordinatorClient(Transport); Client.CreateGuest("Test").GetAwaiter().GetResult();
-    var settings=new OnlineSettings("Freestyle","Solo",false,"asia","wordbound-v2","test");
+    var settings=new OnlineSettings("Freestyle","Solo",false,"asia",protocol??MatchSnapshotCodec.ProtocolVersion,"test");
     var content=new OnlineContent("Workshop","proof",new string('b',64),new string('c',64),new string('d',64),new string('e',64));
     Service=new OnlineCheckpointService(Client,new OnlineMatchExpectation(Match,"1",new string('f',64),settings,content),Identity);
    }
@@ -42,6 +42,11 @@ namespace Wreckabulary.Tests {
    public OnlineCheckpointWriter Claim()=>Service.Claim(Guid.NewGuid().ToString()).GetAwaiter().GetResult().Writer;
    public OnlineCheckpointUpload Prepare(string json="{}")=>Service.Prepare(Claim(),null,new OnlineSnapshotMark(Match,Identity,0,1,5,new string('b',64)),json);
    public static OnlineResponse Json(object value)=>new OnlineResponse(200,OnlineJson.Encode(value));
+  }
+  [TestCase("wordbound-v1"),TestCase("wordbound-v2"),TestCase("wordbound-v4")]
+  public void CheckpointClientRejectsAnyOtherCanonicalProtocol(string protocol) {
+   Assert.AreEqual("wordbound-v3",MatchSnapshotCodec.ProtocolVersion);
+   Assert.Throws<ArgumentException>(()=>new Fixture(protocol));
   }
   [Test] public void FullClientRoundTripPinsExactImmutableManifestAndPacket() {
    var f=new Fixture(); var upload=f.Prepare("{\"data\":\"real packet\"}");

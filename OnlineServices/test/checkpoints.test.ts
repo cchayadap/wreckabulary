@@ -4,6 +4,7 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { randomBytes, createHash } from "node:crypto";
 import { deflateRawSync, inflateRawSync } from "node:zlib";
 import { checkpointBinding, checkpointPreflight, checkpointUploadId, snapshotCanonical, validateCheckpointPacket, type CheckpointAction, type Manifest } from "../src/checkpoints";
+import { schema3Fixture, schema3PracticeFixture, schema3DefenseFixture } from "./fixtures/schema3";
 import { schema2Fixture } from "./fixtures/schema2";
 import { canonical, digest, emptyPool, poolKey, secret, publicRoster, type Match } from "../src/model";
 import { rpcValue } from "../src/rpc";
@@ -16,7 +17,7 @@ async function http(path: string, data: unknown, guest?: Guest) {
 async function setup() {
   const guests = await Promise.all([0, 1, 2].map(async () => (await http("/guests", { displayName: "Checkpoint test" })).data as Guest));
   const now = Date.now(); const match: Match = { id: crypto.randomUUID(), generation: "1", ownerId: guests[0].playerId, createdAt: now, startedAt: now, phase: "STARTED", reservations: [],
-    settings: { mode: "Freestyle", format: "Solo", fill: false, region: "asia", protocolVersion: "wordbound-v2", mapPoolVersion: crypto.randomUUID().slice(0, 8) },
+    settings: { mode: "Freestyle", format: "Solo", fill: false, region: "asia", protocolVersion: "wordbound-v3", mapPoolVersion: crypto.randomUUID().slice(0, 8) },
     content: { kind: "Workshop", courseId: "checkpoint-test", courseHash: "a".repeat(64), manifestHash: "b".repeat(64), modeHash: "c".repeat(64), catalogHash: "d".repeat(64) },
     seats: guests.slice(0, 2).map((g, i) => ({ playerId: g.playerId, partyId: crypto.randomUUID(), partyRevision: "1", attemptId: crypto.randomUUID(), teamId: 0, seat: i, connectionSecret: secret(), accepted: true, reconnectDeadline: now + 120_000 })) };
   match.rosterHash = digest(publicRoster(match)); const stub = env.POOLS.getByName(poolKey(match.settings));
@@ -30,7 +31,7 @@ function packet(f: Fixture, term = "1", epoch = "0", sequence = "1", tick = "1",
   const { binding, identityHash } = checkpointBinding(f.match);
   const noise = Buffer.concat(Array.from({ length: Math.ceil(padding / 60000) }, (_, i) => randomBytes(Math.min(60000, padding - i * 60000))));
   const text = noise.toString("base64");
-  const unsigned: any = { format: "wreckabulary.match-snapshot", schema: 2, canonicalVersion: 2, payload: { binding, epoch, sequence, progress: { tick }, commands: { epoch, identityHash }, testPadding: Array.from({ length: Math.ceil(text.length / 16000) }, (_, i) => text.slice(i * 16000, (i + 1) * 16000)) } };
+  const unsigned: any = { format: "wreckabulary.match-snapshot", schema: 3, canonicalVersion: 3, payload: { binding, epoch, sequence, progress: { tick }, commands: { epoch, identityHash }, practice: { siteHash: "", selectedTick: "-1" }, testPadding: Array.from({ length: Math.ceil(text.length / 16000) }, (_, i) => text.slice(i * 16000, (i + 1) * 16000)) } };
   mutate?.(unsigned); const stateHash = digest(unsigned); const raw = Buffer.from(canonical({ ...unsigned, hash: stateHash }));
   const header = Buffer.alloc(40); header.writeUInt32LE(0x31534257); header.writeInt32LE(raw.length, 4); createHash("sha256").update(raw).digest().copy(header, 8);
   const bytes = Buffer.concat([header, deflateRawSync(raw)]);
@@ -44,21 +45,61 @@ async function upload(f: Fixture, p: ReturnType<typeof packet>, actor = 0) {
   expect(responses.map(r => r.status)).toEqual(p.chunks.map(() => 200));
 }
 function finish(f: Fixture, p: ReturnType<typeof packet>, actor = 0) { return f.call("checkpoint-finalize", { term: p.manifest.term, uploadId: p.manifest.uploadId }, actor); }
-function realFixture(f: Fixture) {
-  const root = JSON.parse(schema2Fixture.json), b = root.payload.binding;
+function realFixture(f: Fixture, fixture = schema3Fixture, mode: "BrawlRace" | "Freestyle" | "FreeForAll" = "BrawlRace") {
+  const root = JSON.parse(fixture.json), b = root.payload.binding;
   f.match.id = b.matchId; f.match.rosterHash = b.rosterHash; f.match.ownerId = b.seats[0].playerId;
-  f.match.settings.mode = "BrawlRace";
+  f.match.settings.mode = mode; f.match.settings.protocolVersion = b.protocolVersion;
   Object.assign(f.match.content, { modeHash: b.modeHash, courseHash: b.courseHash, manifestHash: b.manifestHash, catalogHash: b.catalogueHash });
   f.match.seats.forEach((seat, i) => Object.assign(seat, { playerId: b.seats[i].playerId, teamId: b.seats[i].team, seat: b.seats[i].slot }));
   const manifest: Manifest = { uploadId: "", term: "1", previousHeadId: null,
-    stamp: { matchId: b.matchId, identityHash: schema2Fixture.identityHash, epoch: root.payload.epoch,
+    stamp: { matchId: b.matchId, identityHash: fixture.identityHash, epoch: root.payload.epoch,
       sequence: root.payload.sequence, tick: root.payload.progress.tick, stateHash: root.hash },
-    rawLength: schema2Fixture.rawLength, wireHash: schema2Fixture.wireHash, totalBytes: schema2Fixture.totalBytes, chunkCount: schema2Fixture.chunks.length };
+    rawLength: fixture.rawLength, wireHash: fixture.wireHash, totalBytes: fixture.totalBytes, chunkCount: fixture.chunks.length };
   manifest.uploadId = checkpointUploadId(manifest);
-  return { root, manifest, chunks: [...schema2Fixture.chunks] };
+  return { root, manifest, chunks: [...fixture.chunks] };
 }
 
 describe("canonical checkpoints in actual SQLite Durable Objects", () => {
+  it.each([1, 2])("rejects a rehashed legacy schema%d packet without exposing a head", async schema => {
+    const f = await setup(); await f.call("checkpoint-claim", f.claimInput());
+    const p = packet(f, "1", "0", "1", "1", null, 0, root => {
+      root.schema = schema; root.canonicalVersion = schema;
+    });
+    await upload(f, p);
+    expect((await finish(f, p)).data.error.code).toBe("CHECKPOINT_SCHEMA");
+    expect((await f.call("checkpoint-head")).data.head).toBeNull();
+  });
+  it.each(["missing", "extra", "empty-tick", "zero-tick", "future-tick", "uppercase", "wrong-mode"])(
+    "rejects invalid canonical practice %s without advancing head", async kind => {
+      const f = await setup(); await f.call("checkpoint-claim", f.claimInput());
+      const p = packet(f, "1", "0", "1", "2", null, 0, root => {
+        if (kind === "missing") delete root.payload.practice;
+        if (kind === "extra") root.payload.practice.actorId = f.guests[0].playerId;
+        if (kind === "empty-tick") root.payload.practice.selectedTick = "1";
+        if (kind === "zero-tick") root.payload.practice = { siteHash: "a".repeat(64), selectedTick: "0" };
+        if (kind === "future-tick") root.payload.practice = { siteHash: "a".repeat(64), selectedTick: "3" };
+        if (kind === "uppercase") root.payload.practice = { siteHash: "A".repeat(64), selectedTick: "1" };
+        if (kind === "wrong-mode") { f.match.settings.mode = "TimeRun"; root.payload.practice = { siteHash: "a".repeat(64), selectedTick: "1" }; }
+      });
+      if (kind === "wrong-mode") {
+        const bytes = Buffer.concat(p.chunks.map(data => Buffer.from(data, "base64url")));
+        expect(() => validateCheckpointPacket(f.match, p.manifest, bytes)).toThrow("CHECKPOINT_PRACTICE");
+        return;
+      }
+      await upload(f, p);
+      expect((await finish(f, p)).data.error.code).toBe("CHECKPOINT_PRACTICE");
+      expect((await f.call("checkpoint-head")).data.head).toBeNull();
+    });
+  it("refuses checkpoint claims in a legacy protocol pool", async () => {
+    const f = await setup(); f.match.settings.protocolVersion = "wordbound-v2";
+    const stub = env.POOLS.getByName(poolKey(f.match.settings));
+    await runInDurableObject(stub, (_instance, state) => {
+      const pool = emptyPool(); pool.matches[f.match.id] = f.match;
+      state.storage.sql.exec("INSERT INTO state VALUES(1,?) ON CONFLICT(id) DO UPDATE SET value=excluded.value", JSON.stringify(pool));
+    });
+    await expect(rpcValue(stub.checkpoint(f.match.id, f.match.ownerId, "checkpoint-claim", f.claimInput())))
+      .rejects.toThrow("CHECKPOINT_PROTOCOL");
+  });
   it("requires authenticated roster host and one exclusive writer; rejects supplied identity", async () => {
     const f = await setup();
     expect((await f.call("checkpoint-claim", f.claimInput(), 2)).status).toBe(403);
@@ -159,9 +200,12 @@ describe("canonical checkpoints in actual SQLite Durable Objects", () => {
   });
   it("accepts real C# codec+Deflate bytes including control characters and supplementary Unicode", async () => {
     const f = await setup(); const { root, manifest } = realFixture(f);
-    expect(snapshotCanonical(root)).toBe(schema2Fixture.json);
-    expect(schema2Fixture.json).toContain("\\u000a");
-    expect(schema2Fixture.json).toContain("🧸");
+    expect(root.schema).toBe(3); expect(root.canonicalVersion).toBe(3);
+    expect(root.payload.binding.protocolVersion).toBe("wordbound-v3");
+    expect(root.payload.practice).toEqual({ siteHash: "", selectedTick: "-1" });
+    expect(snapshotCanonical(root)).toBe(schema3Fixture.json);
+    expect(schema3Fixture.json).toContain("\\u000a");
+    expect(schema3Fixture.json).toContain("🧸");
     expect(root.payload.mechanisms.length).toBeGreaterThan(0);
     expect(root.payload.mechanisms.every((m: any) => Object.keys(m.physical).sort().join(",") ===
       "actorId,auxiliaryBodyId,motionUnits,siteHash,stage,stageTick")).toBe(true);
@@ -175,21 +219,54 @@ describe("canonical checkpoints in actual SQLite Durable Objects", () => {
     expect(flight.launchRevision).toBeGreaterThan(0);
     expect(flight.hitBodyIds).toEqual(["player:1"]);
     expect(root.payload.economy.items.find((i: any) => "item:" + i.id === flight.itemBodyId)).toMatchObject({ word: "BALL", state: "Thrown" });
-    const bytes = Buffer.concat(schema2Fixture.chunks.map(c => Buffer.from(c, "base64url")));
+    const bytes = Buffer.concat(schema3Fixture.chunks.map(c => Buffer.from(c, "base64url")));
     expect(() => validateCheckpointPacket(f.match, manifest, bytes)).not.toThrow();
-    const duplicate = schema2Fixture.json.replace('"schema":2', '"schema":2,"schema":2');
+    const duplicate = schema3Fixture.json.replace('"schema":3', '"schema":3,"schema":3');
     const raw = Buffer.from(duplicate), header = Buffer.alloc(40);
     header.writeUInt32LE(0x31534257); header.writeInt32LE(raw.length, 4); createHash("sha256").update(raw).digest().copy(header, 8);
     const changed = Buffer.concat([header, deflateRawSync(raw)]);
     expect(() => validateCheckpointPacket(f.match, { ...manifest, totalBytes: changed.length, rawLength: raw.length,
       wireHash: createHash("sha256").update(changed).digest("hex") }, changed)).toThrow("CHECKPOINT_CANONICAL_JSON");
   });
-  it("retains the exact real C# physical and flight checkpoint across SQLite Durable Object eviction", async () => {
-    const f = await setup(), p = realFixture(f);
+  it("accepts a real C# first-tick authored practice selection and rejects it in a race", async () => {
+    const f = await setup(), p = realFixture(f, schema3PracticeFixture, "Freestyle");
+    expect(p.root.payload.practice.siteHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(p.root.payload.practice.selectedTick).toBe("1");
+    expect(p.root.payload.progress.tick).toBe("1");
+    expect(p.root.payload.mechanisms).toHaveLength(1);
+    expect(p.root.payload.mechanisms[0].physical.siteHash).toBe(p.root.payload.practice.siteHash);
+    const bytes = Buffer.concat(p.chunks.map(data => Buffer.from(data, "base64url")));
+    expect(() => validateCheckpointPacket(f.match, p.manifest, bytes)).not.toThrow();
+    f.match.settings.mode = "TimeRun";
+    expect(() => validateCheckpointPacket(f.match, p.manifest, bytes)).toThrow("CHECKPOINT_PRACTICE");
+  });
+  it("rejects the retained actual schema2 export even when presented by a v3 match", async () => {
+    const f = await setup(), p = realFixture(f, schema2Fixture);
+    f.match.settings.protocolVersion = "wordbound-v3";
+    const bytes = Buffer.concat(p.chunks.map(data => Buffer.from(data, "base64url")));
+    expect(() => validateCheckpointPacket(f.match, p.manifest, bytes)).toThrow("CHECKPOINT_SCHEMA");
+  });
+  it("accepts actual crafted PLATE defense with the exact canonical lease", async () => {
+    const f = await setup(), p = realFixture(f, schema3DefenseFixture, "FreeForAll");
+    const actor = p.root.payload.actors.find((a: any) => a.playerId === f.match.ownerId);
+    expect(actor.defense).toHaveLength(1);
+    const defense = actor.defense[0];
+    expect(Object.keys(defense).sort()).toEqual(["itemEntityId", "startedTick", "untilTick"]);
+    expect(BigInt(defense.startedTick)).toBeGreaterThan(0n);
+    expect(BigInt(defense.startedTick)).toBeLessThanOrEqual(BigInt(p.root.payload.progress.tick));
+    expect(BigInt(defense.untilTick)).toBeGreaterThan(BigInt(p.root.payload.progress.tick));
+    expect(p.root.payload.economy.items.find((i: any) => "item:" + i.id === defense.itemEntityId).word).toBe("PLATE");
+    expect(() => validateCheckpointPacket(f.match, p.manifest,
+      Buffer.concat(p.chunks.map(data => Buffer.from(data, "base64url"))))).not.toThrow();
+  });
+  it.each(["BrawlRace", "Freestyle", "FreeForAll"] as const)(
+    "retains exact real C# %s state across SQLite Durable Object eviction", async mode => {
+    const fixture = mode === "Freestyle" ? schema3PracticeFixture : mode === "FreeForAll" ? schema3DefenseFixture : schema3Fixture;
+    const f = await setup(), p = realFixture(f, fixture, mode);
     const stub = env.POOLS.getByName(poolKey(f.match.settings));
     await runInDurableObject(stub, async (_, state) => {
       const pool = emptyPool(); pool.matches[f.match.id] = f.match;
-      state.storage.sql.exec("INSERT INTO state VALUES(1,?)", JSON.stringify(pool));
+      state.storage.sql.exec("INSERT INTO state VALUES(1,?) ON CONFLICT(id) DO UPDATE SET value=excluded.value", JSON.stringify(pool));
     });
     const call = async (action: CheckpointAction, data: unknown = {}) =>
       rpcValue(stub.checkpoint(f.match.id, f.match.ownerId, action, data)) as Promise<any>;
@@ -204,8 +281,10 @@ describe("canonical checkpoints in actual SQLite Durable Objects", () => {
     const reads = await Promise.all(p.chunks.map((_, index) => call("checkpoint-read", { uploadId: p.manifest.uploadId, index })));
     expect(reads.map(r => r.data)).toEqual(p.chunks);
     const restored = inflateRawSync(Buffer.concat(reads.map(r => Buffer.from(r.data, "base64url"))).subarray(40)).toString("utf8");
-    expect(restored).toBe(schema2Fixture.json);
+    expect(restored).toBe(fixture.json);
     expect(JSON.parse(restored).payload.thrownFlights).toEqual(p.root.payload.thrownFlights);
+    expect(JSON.parse(restored).payload.practice).toEqual(p.root.payload.practice);
+    expect(JSON.parse(restored).payload.actors).toEqual(p.root.payload.actors);
   });
   it("rejects escaped unpaired surrogates but preserves valid paired characters", () => {
     expect(() => snapshotCanonical(JSON.parse('"\\ud800"'))).toThrow("CHECKPOINT_UNICODE");

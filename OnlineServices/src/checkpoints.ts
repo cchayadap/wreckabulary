@@ -93,6 +93,7 @@ export function checkpointBinding(m: Match) {
   return { binding, identityHash };
 }
 export function validateCheckpointPacket(m: Match, manifest: Manifest, packet: Buffer) {
+  requireThat(m.settings.protocolVersion === "wordbound-v3", "CHECKPOINT_PROTOCOL");
   requireThat(packet.length === manifest.totalBytes && hashBytes(packet) === manifest.wireHash, "CHECKPOINT_WIRE_HASH");
   requireThat(packet.readUInt32LE(0) === 0x31534257 && packet.readInt32LE(4) === manifest.rawLength, "CHECKPOINT_HEADER");
   let raw: Buffer;
@@ -113,7 +114,7 @@ export function validateCheckpointPacket(m: Match, manifest: Manifest, packet: B
   bounded(root);
   requireThat(snapshotCanonical(root) === raw!.toString("utf8"), "CHECKPOINT_CANONICAL_JSON");
   requireThat(root && Object.keys(root).sort().join(",") === "canonicalVersion,format,hash,payload,schema" &&
-    root.format === "wreckabulary.match-snapshot" && root.schema === 2 && root.canonicalVersion === 2 && root.hash === manifest.stamp.stateHash,
+    root.format === "wreckabulary.match-snapshot" && root.schema === 3 && root.canonicalVersion === 3 && root.hash === manifest.stamp.stateHash,
     "CHECKPOINT_SCHEMA");
   const { hash, ...unsigned } = root;
   requireThat(hashBytes(snapshotCanonical(unsigned)) === hash, "CHECKPOINT_STATE_HASH");
@@ -122,6 +123,13 @@ export function validateCheckpointPacket(m: Match, manifest: Manifest, packet: B
   requireThat(p && digest(p.binding) === digest(binding) && p.epoch === manifest.stamp.epoch && p.sequence === manifest.stamp.sequence &&
     p.progress?.tick === manifest.stamp.tick && p.commands?.identityHash === identityHash && p.commands?.epoch === p.epoch,
     "CHECKPOINT_BINDING");
+  requireThat(p.practice && !Array.isArray(p.practice) &&
+    Object.keys(p.practice).sort().join(",") === "selectedTick,siteHash", "CHECKPOINT_PRACTICE");
+  const practice = p.practice;
+  requireThat(practice.siteHash === "" ? practice.selectedTick === "-1" :
+    m.settings.mode === "Freestyle" && typeof practice.siteHash === "string" && /^[a-f0-9]{64}$/.test(practice.siteHash) &&
+    typeof practice.selectedTick === "string" && /^[1-9][0-9]{0,18}$/.test(practice.selectedTick) &&
+    BigInt(practice.selectedTick) <= BigInt(manifest.stamp.tick), "CHECKPOINT_PRACTICE");
 }
 
 export class CheckpointStore {
@@ -181,7 +189,7 @@ export class CheckpointStore {
     const seat = m.seats.find(s => s.playerId === actor);
     requireThat(seat, "NOT_MATCH_MEMBER", 403);
     requireThat(!seat.returned && seat.reconnectDeadline !== undefined && now < seat.reconnectDeadline, "RECONNECT_EXPIRED");
-    requireThat(m.settings.protocolVersion === "wordbound-v2", "CHECKPOINT_PROTOCOL");
+    requireThat(m.settings.protocolVersion === "wordbound-v3", "CHECKPOINT_PROTOCOL");
     const s = this.state(m.id); this.clean(m, s, now);
     const reply = () => ({ writer: s.writer ?? null, head: s.head ?? null, previous: s.previous ?? null });
     if (action === "checkpoint-claim") {

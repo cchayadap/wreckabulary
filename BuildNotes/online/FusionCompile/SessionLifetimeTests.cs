@@ -121,12 +121,12 @@ namespace Wreckabulary.LifecycleTests
             {
                 Verifier = new OnlineAdmissionVerifier("wordbound-test", FixtureCall<string>("Jwks", Key));
                 var original = FixtureCall<OnlineMatchExpectation>("Expected", new object[] { null });
-                var settings = new OnlineSettings("TimeRun", "Solo", false, "asia", "wordbound-v2", "1");
+                var settings = new OnlineSettings("TimeRun", "Solo", false, "asia", MatchSnapshotCodec.ProtocolVersion, "1");
                 var expected = new OnlineMatchExpectation(original.MatchId, original.Generation, original.RosterHash, settings, original.Content);
                 var start = FixtureCall<Dictionary<string, object>>("Start"); start["settings"] = settings.ToValue();
                 string certificate = Sign(start);
                 Match = Verifier.VerifyStart(certificate, expected, Now);
-                var grant = FixtureCall<Dictionary<string, object>>("Admission"); grant["protocolVersion"] = "wordbound-v2";
+                var grant = FixtureCall<Dictionary<string, object>>("Admission"); grant["protocolVersion"] = MatchSnapshotCodec.ProtocolVersion;
                 string admission = Sign(grant);
                 var ticketNode = OnlineJson.Parse(OnlineJson.Encode(new Dictionary<string, object> {
                     ["ticket"] = "test.photon.ticket", ["appId"] = AppId, ["expiresAt"] = Now * 1000 + 60000 }));

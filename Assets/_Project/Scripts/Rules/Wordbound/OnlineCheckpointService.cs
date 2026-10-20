@@ -123,7 +123,8 @@ namespace Wreckabulary.Rules.Wordbound
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             this.expected = expected ?? throw new ArgumentNullException(nameof(expected));
-            if (expected.Settings.ProtocolVersion != "wordbound-v2") throw new ArgumentException("Canonical checkpoint schema2 requires wordbound-v2.");
+            if (expected.Settings.ProtocolVersion != MatchSnapshotCodec.ProtocolVersion)
+                throw new ArgumentException("Canonical checkpoints require the current match snapshot protocol.");
             this.identityHash = OnlineJson.Text(OnlineJson.Parse(OnlineJson.Encode(
                 new Dictionary<string, object> { ["hash"] = identityHash })), "hash", OnlineJson.HashPattern);
         }

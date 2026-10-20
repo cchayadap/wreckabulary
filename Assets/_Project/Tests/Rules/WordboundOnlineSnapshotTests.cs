@@ -21,6 +21,31 @@ namespace Wreckabulary.Rules.Tests
             Assert.Throws<FormatException>(() => OnlineFusionWire.Encode(OnlineWireKind.Command, command));
             Assert.Throws<FormatException>(() => OnlineFusionWire.Decode(new byte[OnlineFusionWire.MaximumControlBytes + 1]));
         }
+        [Test] public void PracticeSelectionUsesTheBoundedAuthenticatedCommandEnvelope()
+        {
+            var command = new Dictionary<string, object> { ["sequence"] = "1", ["epoch"] = "0",
+                ["action"] = "PracticePuzzle", ["target"] = new string('a', 64), ["revision"] = 0, ["slot"] = -1, ["value"] = "" };
+            var parsed = OnlineFusionWire.Decode(OnlineFusionWire.Encode(OnlineWireKind.Command, command));
+            Assert.AreEqual("PracticePuzzle", parsed.Body["action"].String());
+            Assert.AreEqual(new string('a', 64), parsed.Body["target"].String());
+            command["playerId"] = "caller-supplied";
+            Assert.Throws<FormatException>(() => OnlineFusionWire.Encode(OnlineWireKind.Command, command));
+            command.Remove("playerId"); command["target"] = new string('a', 97);
+            Assert.Throws<FormatException>(() => OnlineFusionWire.Encode(OnlineWireKind.Command, command));
+        }
+        [TestCase("Hold"), TestCase("Release")]
+        public void DefenseIntentUsesTheSameBoundedAuthenticatedCommandEnvelope(string intent)
+        {
+            var command = new Dictionary<string, object> { ["sequence"] = "2", ["epoch"] = "0",
+                ["action"] = "Block", ["target"] = "", ["revision"] = 0, ["slot"] = -1, ["value"] = intent };
+            var parsed = OnlineFusionWire.Decode(OnlineFusionWire.Encode(OnlineWireKind.Command, command));
+            Assert.AreEqual("Block", parsed.Body["action"].String());
+            Assert.AreEqual(intent, parsed.Body["value"].String());
+            command["playerId"] = "caller-supplied";
+            Assert.Throws<FormatException>(() => OnlineFusionWire.Encode(OnlineWireKind.Command, command));
+            command.Remove("playerId"); command["value"] = new string('x', 513);
+            Assert.Throws<FormatException>(() => OnlineFusionWire.Encode(OnlineWireKind.Command, command));
+        }
         [Test] public void MigrationPacketRoundTripsAcrossSeveralChunks()
         {
             var random = new Random(137);
