@@ -26,10 +26,10 @@ export class Party extends Store<PartyState> {
   private begin(actor: string, key: string, body: unknown, kind: string, joining = false) {
     return this.transaction(() => {
       const s = this.read(); requireThat(s, "PARTY_NOT_FOUND", 404);
-      if (!joining) this.member(s, actor);
       const hash = digest({ actor, body, kind });
       const receipt = s.receipts[key];
       if (receipt) { requireThat(receipt.hash === hash, "IDEMPOTENCY_CONFLICT"); return { replay: true as const, result: receipt.result }; }
+      if (!joining) this.member(s, actor);
       requireThat(!s.operation || (s.operation.key === key && s.operation.hash === hash), "PARTY_BUSY");
       requireThat(Object.keys(s.receipts).length < 2048, "PARTY_OPERATION_LIMIT");
       s.operation ??= { key, hash, kind }; this.write(s);
@@ -38,7 +38,9 @@ export class Party extends Store<PartyState> {
   }
   private finish(key: string, update: (s: PartyState) => void) {
     return this.transaction(() => {
-      const s = this.read()!; requireThat(s.operation?.key === key, "OPERATION_LOST");
+      const s = this.read()!;
+      if (s.receipts[key]) return s.receipts[key].result;
+      requireThat(s.operation?.key === key, "OPERATION_LOST");
       update(s);
       const hash = s.operation.hash; delete s.operation;
       const result = this.view(s); s.receipts[key] = { hash, result };

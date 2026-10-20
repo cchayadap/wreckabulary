@@ -5,7 +5,7 @@ import { digest, equalSecret, requireThat, secret, NOW, type PartySettings } fro
 type IdentityState = {
   playerId: string; displayName: string; version: string;
   refreshHash: string; refreshExpires: number;
-  membership?: { partyId: string; operationId: string; status: "PENDING" | "ACTIVE"; kind: "CREATE" | "JOIN" };
+  membership?: { partyId: string; operationId: string; requestHash: string; status: "PENDING" | "ACTIVE"; kind: "CREATE" | "JOIN" };
 };
 export class Identity extends Store<IdentityState> {
   async create(playerId: string, displayName: string) {
@@ -35,10 +35,12 @@ export class Identity extends Store<IdentityState> {
     return { playerId: s.playerId, displayName: s.displayName, partyId: s.membership?.partyId };
   }
   async enter(operationId: string, kind: "CREATE" | "JOIN", partyId: string, settings?: PartySettings, invite?: string) {
+    const requestHash = digest({ kind, partyId, settings, invite });
     this.transaction(() => {
       const s = this.read(); requireThat(s, "UNKNOWN_IDENTITY", 401);
       requireThat(!s.membership || (s.membership.partyId === partyId && s.membership.operationId === operationId && s.membership.kind === kind), "ALREADY_IN_PARTY");
-      s.membership ??= { partyId, operationId, kind, status: "PENDING" }; this.write(s);
+      requireThat(!s.membership || s.membership.requestHash === requestHash, "IDEMPOTENCY_CONFLICT");
+      s.membership ??= { partyId, operationId, kind, requestHash, status: "PENDING" }; this.write(s);
     });
     const s = this.read()!;
     try {

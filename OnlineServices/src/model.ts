@@ -52,12 +52,13 @@ export type Seat = {
   playerId: string; partyId: string; partyRevision: string; attemptId: string;
   teamId: number; seat: number; connectionSecret: string;
   accepted: boolean; disconnectedAt?: number; reconnectDeadline?: number;
+  returned?: boolean;
 };
 export type Reservation = { attempt: Attempt; teamId: number };
 export type Match = {
   id: string; generation: string; settings: PartySettings; content: ContentBinding;
   privateCode?: string; ownerId: string; createdAt: number; deadline?: number;
-  phase: "FORMING" | "ADMITTING" | "STARTED" | "ABORTED";
+  phase: "FORMING" | "ADMITTING" | "STARTED" | "ABORTED" | "CLOSED";
   reservations: Reservation[]; seats: Seat[]; rosterHash?: string; startedAt?: number;
 };
 export type PoolState = {
@@ -101,6 +102,7 @@ export function poolKey(s: PartySettings): string {
   return [s.region, s.protocolVersion, s.mapPoolVersion, s.mode, s.format].join(":");
 }
 export function validatePartySize(s: PartySettings, size: number) {
+  requireThat(s.mode === "TeamRace" || s.mode === "BrawlRace" || s.format === "Solo", "FORMAT_NOT_SUPPORTED");
   requireThat(size >= 1 && size <= Math.min(4, capacity(s)), "PARTY_TOO_LARGE");
   requireThat(!(s.mode === "FreeForAll" || s.mode === "Freestyle") || !s.fill, "FILL_NOT_SUPPORTED");
 }

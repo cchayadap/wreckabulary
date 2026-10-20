@@ -14,4 +14,8 @@ No deployment, account changes, Photon installation or writes to the original ch
 
 Dependency policy: selected @cloudflare/vitest-plugin 1.4.4, wrangler 4.151.1 and jose 6.2.12 because newer releases were inside the machine's three-day minimum release age. Kept that policy intact. Local workerd supports compatibility date 2026-10-19, so used that verified date.
 
-Next recoverable action: align team-local slots/non-race format with C# model; extend lifecycle/expiry/durable-retry tests, add pure allocation tests and actual storage/alarm checks. Expected rejected RPCs currently produce noisy runtime diagnostics; investigate result disposal before final handoff.
+2026-10-20 second green increment: TypeScript and 27 tests pass (20 actual Workers-runtime tests plus seven pure rule tests). Added SQLite persistence and eviction checks, real Durable Object alarm execution, interrupted cross-object request recovery, concurrent identical queue replay, final-ready/cancel ordering and explicit return-to-lobby lifecycle. Team-local slots and non-race Solo format now match Unity. Evidence: verify-recovery.log. No RPC disposal warning remains in this run.
+
+Read-only C# review identified an ambiguous route-hash encoding and an inclusive reconnect boundary. Root confirmed fixes and regression coverage for both in its separate lane.
+
+Next recoverable action: require a signed start certificate alongside per-seat admission, cover TimeRun/FFA/Freestyle service flows, and review cross-object retries after code lookup. Then run the complete local verification again and hand off the exact HTTP/verification contract.

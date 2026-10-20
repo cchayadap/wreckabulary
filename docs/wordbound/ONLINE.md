@@ -4,7 +4,7 @@ STATUS: IN PROGRESS. This is the separate, transport-independent service contrac
 
 All routes are under `/v1`. JSON bodies reject unknown fields and exceed neither 16 KiB nor their schema limits. Authentication is `Authorization: Bearer <accessToken>`. The caller identity is obtained from that token, never from a supplied player ID. Party mutations require `Idempotency-Key` (8–96 ASCII letters, digits, underscores or hyphens). Reusing a key with a different operation fails.
 
-`Settings`: `{mode, format, fill, region, protocolVersion, mapPoolVersion}`. Mode uses the five IDs in CONTRACTS; format is `Solo|Duo|Squad`; region is `asia|eu|us`; versions are 1–24 ASCII identifier characters. TimeRun capacity is four regardless of format; FFA capacity is one per individual; Freestyle is private with up to eight occupants. FFA/Freestyle require Fill false.
+`Settings`: `{mode, format, fill, region, protocolVersion, mapPoolVersion}`. Mode uses the five IDs in CONTRACTS; race format is `Solo|Duo|Squad`; other modes require `Solo`; region is `asia|eu|us`; versions are 1–24 ASCII identifier characters. TimeRun capacity is four; FFA capacity is one per individual; Freestyle is private with up to eight occupants across invited parties. A party has at most four members. FFA/Freestyle require Fill false.
 
 `ContentBinding`: `{kind, courseId, courseHash, manifestHash, modeHash, catalogHash}`. Kind is `BuiltIn|Workshop`; ID is an allowlisted content identifier; each hash is 64 lower-case hexadecimal characters. The map producer owns the canonical bytes. `manifestHash` identifies the exact resolved manifest accepted by all clients; `courseHash` binds its source course. The coordinator checks binding equality and public approval, not the geometry or executability of an unseen file. Every client must independently validate the actual bounded manifest before accepting it.
 
@@ -29,6 +29,7 @@ All revisions/generations are decimal strings. UTC deadlines are Unix millisecon
 | POST `/pools/{key}/matches/{id}/launch` | `{}` | Private owner locks a Freestyle/FFA roster. |
 | POST `/pools/{key}/matches/{id}/presence` | `{connected}` | Own 120-second reconnect lease/deadline. |
 | POST `/pools/{key}/matches/{id}/reconnect` | `{}` | Original member receives same seat/secret grant if grace remains. |
+| POST `/pools/{key}/matches/{id}/return` | `{}` | Return own seat to lobby permanently; that seat can no longer reconnect. |
 
 Queue channels:
 
@@ -39,15 +40,17 @@ Queue channels:
 
 Fill Off consumes the entire team capacity while leaving its unused seats empty. Fill On can combine consenting parties without splitting them. Private random fill never creates random opponents in an empty opposing team. Invite another party by code to occupy that team. FFA public staging starts with eight players or, after 30 seconds, at least two; no bots or altered format. Private Freestyle is explicitly launched by its owner.
 
-The pool owns cancellation/start ordering. Cancellation tombstones prevent delayed enqueue revival. A party's durable pending operation prevents concurrent roster/settings changes during cross-object calls; interrupted operations retry with the same key and body. Do not retry a pending operation using a new key. A party cannot mutate its roster after start.
+The pool owns cancellation/start ordering. Cancellation tombstones prevent delayed enqueue revival. A party's durable pending operation prevents concurrent roster/settings changes during cross-object calls; interrupted operations retry with the same key and body. Do not retry a pending operation using a new key. After start, a party can cancel its old attempt and edit/requeue only once every member has returned or exhausted reconnect grace. Other teams can continue that match; its old seats never reopen.
 
 Staging uses a 90-second deadline. Every member must accept the same generation, manifest and roster. Failure aborts the whole reservation, cancels the incomplete party, and returns unaffected public/custom-fill parties to their original queue age. No new players enter after admission commits.
 
-Admission grants are RS256 JWTs with issuer, audience `wordbound-admission`, key ID and 90-second expiry. Claims bind version, authenticated subject/player ID, party/revision, attempt, match/generation, team/seat, protocol, course/mode/manifest/catalog hashes, roster hash and connection-secret hash. The separate random secret travels in the transport's short connection token. Public roster entries expose only its SHA-256 commitment (canonical JSON encoding of the string), not the secret. The host must also verify Photon-authenticated identity matches that seat. The service's `STARTED` means roster admission committed; the simulation still waits for actual verified transport connections before advancing gameplay.
+Admission grants are RS256 JWTs with issuer, audience `wordbound-admission`, key ID and 90-second expiry. Claims bind version, authenticated subject/player ID, party/revision, attempt, match/generation, team/seat, protocol, course/mode/manifest/catalog hashes, roster hash and connection-secret hash. The seat is a zero-based slot within its team, matching the Unity contract. The separate random secret travels in the transport's short connection token. Public roster entries expose only its SHA-256 commitment (canonical JSON encoding of the string), not the secret. The host must also verify Photon-authenticated identity matches that seat. The service's `STARTED` means roster admission committed; the simulation still waits for actual verified transport connections before advancing gameplay.
 
 Refresh credentials expire after 30 days and are stored only as hashes. Persist the client's credential using OS credential protection, not Unity PlayerPrefs. Refresh rotation invalidates previous access tokens. A lost refresh response requires a new guest in this initial implementation; there is no email recovery.
 
 Connected clients renew their own presence lease regularly (recommended every ten seconds). Explicit disconnect fixes a deadline once; repeats do not extend it. Abrupt disconnect retains the deadline from the last presence renewal. Migration does not call a host-authorized deadline-reset API. Reconnect uses wall time and never creates new entities or inventory; those are simulation responsibilities.
+
+Real Durable Object alarms advance the public FFA minimum-player timer and staging expiry even without polling. Queue attempts expire after 24 hours; tombstones remain for 48 hours, longer than the accepted attempt lifetime. Expired attempts cannot revive after tombstone cleanup. Terminal match records are reclaimed on subsequent pool activity.
 
 Local setup: `npm ci`, `npm run types`, `npm run verify` inside `OnlineServices`. Tests generate ephemeral signing keys in memory. Production configuration intentionally lacks signing secrets, an account ID and approved maps. Authentication/admission fail closed until configured. No deployment has been performed. `npm run dev` uses local Workers storage; provision ignored `.dev.vars` manually for an interactive local client.
 

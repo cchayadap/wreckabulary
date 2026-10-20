@@ -12,7 +12,13 @@ export class MatchPool extends Store<PoolState> {
     return this.transaction(() => {
       const s = this.read() ?? emptyPool(); const now = NOW();
       this.expire(s, now);
-      const result = fn(s, now); this.write(s); return result;
+      const result = fn(s, now); this.write(s);
+      const deadlines = Object.values(s.matches).flatMap(m =>
+        m.phase === "ADMITTING" ? [m.deadline!] :
+          m.phase === "FORMING" && !m.privateCode && m.settings.mode === "FreeForAll" && m.seats.length >= 2
+            ? [m.createdAt + 30_000] : []);
+      if (deadlines.length) this.ctx.waitUntil(this.ctx.storage.setAlarm(Math.max(now + 1, Math.min(...deadlines))));
+      return result;
     });
   }
   private approve(content: ContentBinding) {
@@ -33,6 +39,7 @@ export class MatchPool extends Store<PoolState> {
   enqueue(a: Attempt) {
     return this.run((s, now) => {
       requireThat(!s.tombstones[a.id], "ATTEMPT_CANCELLED");
+      requireThat(a.createdAt >= now - 86400_000 && a.createdAt <= now + 5000, "ATTEMPT_EXPIRED");
       requireThat(poolKey(a.settings) === a.poolKey, "POOL_MISMATCH");
       validatePartySize(a.settings, a.members.length);
       requireThat(new Set(a.members).size === a.members.length, "DUPLICATE_MEMBER");
@@ -42,7 +49,9 @@ export class MatchPool extends Store<PoolState> {
       }
       if (s.tickets[a.id]) { requireThat(digest(s.tickets[a.id]) === digest(a), "IDEMPOTENCY_CONFLICT"); return {}; }
       requireThat(Object.keys(s.tickets).length < 1000 && Object.keys(s.matches).length < 1000, "POOL_BUSY", 429);
-      const active = [...Object.values(s.tickets), ...Object.values(s.matches).filter(m => m.phase !== "ABORTED").flatMap(m => m.reservations.map(r => r.attempt))];
+      const active = [...Object.values(s.tickets), ...Object.values(s.matches)
+        .filter(m => m.phase !== "ABORTED" && m.phase !== "CLOSED")
+        .flatMap(m => m.reservations.filter(r => s.assignments[r.attempt.id] === m.id).map(r => r.attempt))];
       requireThat(!active.some(other => other.id !== a.id && other.members.some(p => a.members.includes(p))), "PLAYER_ALREADY_QUEUED");
       if (a.content) this.approve(a.content);
       if (a.channel === "QuickPlay") requireThat(a.content?.kind === "BuiltIn", "QUICK_PLAY_BUILTIN_ONLY", 422);
@@ -74,7 +83,7 @@ export class MatchPool extends Store<PoolState> {
     m.reservations.push({ attempt: a, teamId });
     m.seats.push(...a.members.map((playerId, i) => ({
       playerId, partyId: a.partyId, partyRevision: a.partyRevision, attemptId: a.id,
-      teamId, seat: teamId * capacity(m.settings) + offset + i,
+      teamId, seat: offset + i,
       connectionSecret: secret(), accepted: false,
     })));
     s.assignments[a.id] = m.id; delete s.tickets[a.id];
@@ -110,10 +119,26 @@ export class MatchPool extends Store<PoolState> {
     }
   }
   private expire(s: PoolState, now: number) {
+    for (const [id, at] of Object.entries(s.tombstones)) if (at + 2 * 86400_000 < now) delete s.tombstones[id];
+    for (const [id, ticket] of Object.entries(s.tickets)) {
+      if (ticket.createdAt + 86400_000 < now) { delete s.tickets[id]; s.tombstones[id] = now; }
+    }
     for (const m of Object.values(s.matches)) {
+      if (m.phase === "FORMING" && m.createdAt + 86400_000 < now)
+        this.abort(s, m, new Set(m.reservations.map(r => r.attempt.id)), now);
       if (m.phase === "ADMITTING" && m.deadline! <= now) {
         const failed = new Set(m.seats.filter(seat => !seat.accepted).map(seat => seat.attemptId));
         this.abort(s, m, failed, now);
+      }
+      if (m.phase === "STARTED" && m.seats.every(seat => seat.returned || seat.reconnectDeadline! <= now))
+        m.phase = "CLOSED";
+      if ((m.phase === "ABORTED" || m.phase === "CLOSED") && m.createdAt + 86400_000 < now) {
+        for (const r of m.reservations) {
+          if (s.assignments[r.attempt.id] === m.id) {
+            delete s.assignments[r.attempt.id]; s.tombstones[r.attempt.id] = now;
+          }
+        }
+        delete s.matches[m.id];
       }
     }
     this.drain(s, now);
@@ -123,8 +148,11 @@ export class MatchPool extends Store<PoolState> {
       const m = s.matches[s.assignments[attemptId]];
       if (m) {
         requireThat(m.reservations.some(r => r.attempt.id === attemptId && r.attempt.partyId === partyId), "NOT_PARTY_MEMBER", 403);
-        requireThat(m.phase !== "STARTED", "MATCH_ALREADY_STARTED");
-        this.abort(s, m, new Set([attemptId]), now);
+        if (m.phase === "STARTED" || m.phase === "CLOSED") {
+          const ownSeats = m.seats.filter(seat => seat.attemptId === attemptId);
+          requireThat(ownSeats.every(seat => seat.returned || seat.reconnectDeadline! <= now), "MATCH_ALREADY_STARTED");
+          delete s.assignments[attemptId];
+        } else this.abort(s, m, new Set([attemptId]), now);
       } else if (s.tickets[attemptId]) requireThat(s.tickets[attemptId].partyId === partyId, "NOT_PARTY_MEMBER", 403);
       delete s.tickets[attemptId]; s.tombstones[attemptId] = now;
       this.drain(s, now);
@@ -188,7 +216,7 @@ export class MatchPool extends Store<PoolState> {
     });
   }
   private checkReconnect(seat: Seat, now: number) {
-    requireThat(seat.reconnectDeadline !== undefined && now < seat.reconnectDeadline, "RECONNECT_EXPIRED");
+    requireThat(!seat.returned && seat.reconnectDeadline !== undefined && now < seat.reconnectDeadline, "RECONNECT_EXPIRED");
   }
   presence(matchId: string, actor: string, connected: boolean) {
     return this.run((s, now) => {
@@ -201,6 +229,17 @@ export class MatchPool extends Store<PoolState> {
         seat.disconnectedAt = now; seat.reconnectDeadline = now + RECONNECT_MS;
       }
       return { playerId: actor, seat: seat.seat, reconnectDeadline: seat.reconnectDeadline };
+    });
+  }
+  returnToLobby(matchId: string, actor: string) {
+    return this.run(s => {
+      const m = s.matches[matchId];
+      requireThat(m && (m.phase === "STARTED" || m.phase === "CLOSED"), "MATCH_NOT_STARTED");
+      const seat = m.seats.find(seat => seat.playerId === actor);
+      requireThat(seat, "NOT_MATCH_MEMBER", 403);
+      seat.returned = true;
+      if (m.seats.every(seat => seat.returned)) m.phase = "CLOSED";
+      return { state: "RETURNED", playerId: actor };
     });
   }
   async alarm() { this.run(() => undefined); }

@@ -90,6 +90,7 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
       await body(request, Empty); return pool.admission(matchId, actor);
     }
     if (path[5] === "launch") { await body(request, Empty); return pool.launch(matchId, actor); }
+    if (path[5] === "return") { await body(request, Empty); return pool.returnToLobby(matchId, actor); }
     if (path[5] === "ready") {
       const data = await body(request, z.object({ reservationGeneration: Revision, manifestHash: Hash, rosterHash: Hash }).strict());
       return pool.ready(matchId, actor, data.reservationGeneration, data.manifestHash, data.rosterHash);

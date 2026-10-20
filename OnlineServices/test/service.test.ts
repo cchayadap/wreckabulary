@@ -1,7 +1,10 @@
 import { env, exports } from "cloudflare:workers";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { runInDurableObject, runDurableObjectAlarm, evictDurableObject, reset } from "cloudflare:test";
 import { importJWK, jwtVerify } from "jose";
-import { poolKey, type ContentBinding, type PartySettings } from "../src/model";
+import { digest, poolKey, type ContentBinding, type PartySettings, type PartyState, type Attempt } from "../src/model";
+
+afterEach(async () => { vi.restoreAllMocks(); await reset(); });
 
 const content: ContentBinding = { kind: "BuiltIn", courseId: "test-circuit", courseHash: "a".repeat(64), manifestHash: "b".repeat(64), modeHash: "c".repeat(64), catalogHash: "d".repeat(64) };
 const settings = (fill = false, format: PartySettings["format"] = "Squad"): PartySettings =>
@@ -128,6 +131,8 @@ describe("whole-party allocation, Fill and admission", () => {
     const verified = await jwtVerify(r.data.grant, key, { issuer: "wordbound-local", audience: "wordbound-admission", algorithms: ["RS256"] });
     expect(verified.payload).toMatchObject({ playerId: a.members[0].playerId, rosterHash: m.rosterHash, manifestHash: content.manifestHash, matchId: m.matchId });
     await expect(jwtVerify(`${r.data.grant}x`, key)).rejects.toThrow();
+    await expect(jwtVerify(r.data.grant, key, { audience: "different" })).rejects.toThrow();
+    await expect(jwtVerify(r.data.grant, key, { currentDate: new Date(Date.now() + 91_000) })).rejects.toThrow();
     expect((await call(matchPath(a, m, "ready"), { reservationGeneration: "1", manifestHash: "e".repeat(64), rosterHash: m.rosterHash }, a.members[0])).status).toBe(409);
     await admit(a, m); expect((await status(a)).state).toBe("ADMITTING");
     await admit(b, m); expect((await status(a)).state).toBe("STARTED");
@@ -141,6 +146,80 @@ describe("whole-party allocation, Fill and admission", () => {
       expect((await status(a)).state).toBe("CANCELLED");
       expect((await status(b)).state).toBe("FORMING");
     } finally { vi.restoreAllMocks(); }
+  });
+});
+
+describe("durable transitions, alarms and return to lobby", () => {
+  it("preserves reservations in SQLite after object eviction", async () => {
+    const s = settings(false, "Duo"); const a = await party(s, 2); const b = await party(s, 2);
+    await queue(a); await queue(b);
+    const before = await status(a); const stub = env.POOLS.getByName(poolKey(s));
+    const stored = await runInDurableObject(stub, (_instance, state) => ({
+      rows: state.storage.sql.exec<{ n: number }>("SELECT COUNT(*) AS n FROM state").one().n,
+      bytes: state.storage.sql.databaseSize,
+    }));
+    expect(stored.rows).toBe(1); expect(stored.bytes).toBeGreaterThan(0);
+    await evictDurableObject(stub);
+    expect(await status(a)).toEqual(before);
+    expect(before.roster.every(seat => seat.seat >= 0 && seat.seat < 2)).toBe(true);
+  });
+  it("runs admission expiry through a real Durable Object alarm", async () => {
+    const s = settings(false, "Solo"); const a = await party(s); const b = await party(s);
+    await queue(a); await queue(b); const m = await status(a); await admit(b, m);
+    const stub = env.POOLS.getByName(poolKey(s));
+    const alarm = await runInDurableObject(stub, (_instance, state) => state.storage.getAlarm());
+    expect(alarm).not.toBeNull();
+    vi.spyOn(Date, "now").mockReturnValue(alarm! + 1);
+    expect(await runDurableObjectAlarm(stub)).toBe(true);
+    expect((await status(a)).state).toBe("CANCELLED");
+    expect((await status(b)).state).toBe("FORMING");
+  });
+  it("resumes an interrupted cross-object queue operation using its original attempt", async () => {
+    const g = await party(settings()); const opKey = crypto.randomUUID();
+    const input = { expectedRevision: g.p.revision, channel: "QuickPlay" as const, content };
+    const attempt: Attempt = { id: crypto.randomUUID(), partyId: g.p.id, partyRevision: g.p.revision, members: g.members.map(m => m.playerId),
+      settings: g.s, poolKey: poolKey(g.s), channel: "QuickPlay", content, createdAt: Date.now() };
+    await env.POOLS.getByName(poolKey(g.s)).enqueue(attempt);
+    const stub = env.PARTIES.getByName(g.p.id);
+    await runInDurableObject(stub, (_instance, state) => {
+      const data = JSON.parse(state.storage.sql.exec<{ value: string }>("SELECT value FROM state WHERE id=1").one().value) as PartyState;
+      data.operation = { key: opKey, hash: digest({ actor: g.members[0].playerId, body: input, kind: "queue" }), kind: "queue", attempt };
+      state.storage.sql.exec("UPDATE state SET value=? WHERE id=1", JSON.stringify(data));
+    });
+    await evictDurableObject(stub);
+    const r = await call<PartyView>(`/parties/${g.p.id}/queue`, input, g.members[0], "POST", opKey);
+    expect(r.status).toBe(200); expect(r.data.activeAttempt?.id).toBe(attempt.id);
+    expect((await status(g)).roster).toHaveLength(1);
+  });
+  it("linearizes final readiness against cancellation", async () => {
+    const s = settings(false, "Solo"); const a = await party(s); const b = await party(s);
+    await queue(a); await queue(b); const m = await status(a); await admit(a, m);
+    const [ready, cancel] = await Promise.all([
+      call(matchPath(b, m, "ready"), { reservationGeneration: m.reservationGeneration, manifestHash: content.manifestHash, rosterHash: m.rosterHash }, b.members[0]),
+      call(`/parties/${a.p.id}/cancel`, { expectedRevision: a.p.revision }, a.members[0]),
+    ]);
+    expect([ready.status, cancel.status].filter(status => status === 200)).toHaveLength(1);
+    if (ready.status === 200) expect((await status(a)).state).toBe("STARTED");
+    else expect((await call<PartyView>(`/parties/${a.p.id}`, undefined, a.members[0])).data.activeAttempt).toBeUndefined();
+  });
+  it("requires explicit return before a party can queue again and never reopens old seats", async () => {
+    const s = settings(false, "Solo"); const a = await party(s); const b = await party(s);
+    await queue(a); await queue(b); const m = await status(a); await admit(a, m); await admit(b, m);
+    expect((await call(matchPath(a, m, "return"), {}, a.members[0])).status).toBe(200);
+    expect((await call(matchPath(a, m, "reconnect"), {}, a.members[0])).status).toBe(409);
+    expect((await call(`/parties/${a.p.id}/cancel`, { expectedRevision: a.p.revision }, a.members[0])).status).toBe(200);
+    const newParty = (await call<PartyView>(`/parties/${a.p.id}`, undefined, a.members[0])).data;
+    const next = { ...a, p: newParty };
+    await call(`/parties/${next.p.id}/ready`, { expectedRevision: next.p.revision, ready: true }, a.members[0]);
+    expect((await queue(next)).status).toBe(200);
+    expect((await status(next)).matchId).not.toBe(m.matchId);
+  });
+  it("replays concurrent identical queue operations as one attempt", async () => {
+    const g = await party(settings()); const key = crypto.randomUUID();
+    const input = { expectedRevision: g.p.revision, channel: "QuickPlay", content };
+    const rs = await Promise.all([0, 1].map(() => call<PartyView>(`/parties/${g.p.id}/queue`, input, g.members[0], "POST", key)));
+    expect(rs.map(r => r.status)).toEqual([200, 200]);
+    expect(rs[0].data.activeAttempt?.id).toBe(rs[1].data.activeAttempt?.id);
   });
 });
 
