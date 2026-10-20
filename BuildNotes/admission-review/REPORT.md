@@ -274,3 +274,13 @@ Assembly pins, rechecked after the owner committed:
 - Companion `Wreckabulary.Rules.dll`: SHA-256 `D81ECF4A1F7EFE1EFCCC1850C67C9AE8DD72D9D8A0407A953926887F1CA91E02`.
 
 The committed owner logs separately report lifecycle harness 15/15 and focused rules 22/22. F4 is closed at `09464d1` within the documented authorized roster-member listen-host trust model. No additional confirmed defect was found in this correction. A colluding or malicious authorized roster host is still trusted, as declared; the proof is not independent hardware/transport attestation. Live selected-account authentication, service/dashboard configuration, authenticated migration and physics remain native integration gates. The review checkpoint is complete; next recoverable action is consume the native integration evidence without expanding these source-only claims.
+
+### Bounded deployment package inspection — 2026-10-20
+
+Read-only inspection of the owner's uncommitted production package at base `09464d1`: `OnlineServices/wrangler.production.jsonc` SHA-256 `A62B12910431C419DE7E241B450BF33AAEDE0629C7672765085C217BE83415F6`; `BuildNotes/online/DEPLOYMENT.md` SHA-256 `9EFEBDCC042D90579ADE879514FC883B9A71047FCC9F86EE9B1BAE1D0E93303E`.
+
+Covered the selected account pin, separate Worker name, local Durable Object bindings/migrations, absence of website routes/shared databases, disabled invocation logs, documented protected secret provision, public-only JWK projection, empty built-in allowlist, process account override check and existing Worker ownership check. No concrete defect found in those boundaries. Existing service error logging emits only an error type, not URLs or credentials. The public Photon app ID is configuration, not a provider secret.
+
+The runbook explicitly leaves selected-account access, secrets, actual origin, content allowlist, Photon dashboard configuration and authenticated native tests outstanding. The eventual client must also use the deployed pinned HTTPS origin, production issuer/key ID and independently verified public key; this was sent to the owner as an integration prerequisite. A dry-run is local packaging evidence only. No live account inventory, deployment, credentials, provider setting, plan, DNS or network operation was performed by this reviewer.
+
+The package was subsequently committed as `58a18d4`. Reread the committed configuration and added client bootstrap requirement; the account/route/binding/secret boundaries remain as inspected. The owner explicitly records that client trust must never be populated from an unverified match or JWT.
