@@ -22,8 +22,8 @@
     <Reference Include="$(UnityData)/Managed/UnityEngine/UnityEngine*.dll" Private="false" />
     <Reference Include="$(UnityData)/Managed/UnityEngine/UnityEditor.CoreModule.dll" Private="false" />
     <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.dll" Private="false" />
-    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Rules.dll" Private="false" />
-    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Online.Fusion.dll" Private="false" />
+    <Reference Include="../online/FusionCompile/bin/Debug/netstandard2.1/Wreckabulary.Rules.dll" Private="false" />
+    <Reference Include="../online/FusionCompile/bin/Debug/netstandard2.1/FusionCompile.dll" Private="false" />
     <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Fusion.Unity.dll" Private="false" />
     <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Fusion.Addons.Physics.dll" Private="false" />
     <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Photon.Realtime.dll" Private="false" />

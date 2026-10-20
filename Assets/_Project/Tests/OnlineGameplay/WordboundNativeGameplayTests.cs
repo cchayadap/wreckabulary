@@ -73,11 +73,14 @@ namespace Wreckabulary.OnlineGameplayTests
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(8));
             live = new WordboundLiveMatch(Path.GetFullPath(Path.Combine(Application.dataPath, "..")));
             yield return Wait(live.Prepare(count, lifetime.Token), "Prepare real private coordinator match", 120);
-            var first = CreatePeer(0);
+            int hostIndex = live.Clients.FindIndex(c => c.Credentials.PlayerId == live.Verified.Roster[0].PlayerId);
+            Assert.GreaterOrEqual(hostIndex, 0);
+            var first = CreatePeer(hostIndex);
             yield return Wait(first.Session.Start(lifetime.Token), "Authenticate and start first Runner", 65);
             Assert.IsTrue(first.Runner.IsServer, "The first private participant must own the new host session.");
-            for (int index = 1; index < count; index++)
+            for (int index = 0; index < count; index++)
             {
+                if (index == hostIndex) continue;
                 var peer = CreatePeer(index);
                 yield return Wait(peer.Session.Start(lifetime.Token), "Authenticate and start client Runner", 65);
             }
@@ -163,7 +166,8 @@ namespace Wreckabulary.OnlineGameplayTests
                 return runner;
             }, new FusionAppSettings { AppIdFusion = WordboundLiveMatch.AppId, UseNameServer = true },
                 Configuration(), carrier, live.Verifier, live.Expected, ct => live.FreshJoin(index, ct),
-                peer.Controller.Authority, live.Connections(index));
+                peer.Controller.Authority, live.Connections(index),
+                new OnlineCheckpointService(live.Clients[index], live.Expected, peer.Controller.Authority.IdentityHash));
             peer.Controller.AttachSession(peer.Session);
             peer.Controller.HostAdvanced += result => {
                 if (!result.Advanced) return;

@@ -62,7 +62,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 ["rules"] = WordboundIdentity.Sha256(ruleJson) });
             Content = new OnlineContent("Workshop", document.Id, Course.SourceHash, Course.Hash, Mode.Hash, catalogueHash);
             Settings = new OnlineSettings(Mode.Id, "Solo", false, "asia",
-                "native-" + Guid.NewGuid().ToString("N").Substring(0, 12), "gameplay-proof-v1");
+                "wordbound-v2", "native-" + Guid.NewGuid().ToString("N").Substring(0, 12));
         }
 
         public async Task Prepare(int count, CancellationToken ct)

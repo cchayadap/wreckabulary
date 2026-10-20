@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Wreckabulary.Rules.Wordbound
 {
-    public enum OnlineWireKind : byte { Admission = 1, Ready = 2, Begin = 3, Command = 4, Snapshot = 5, SnapshotAck = 6, Admitted = 7 }
+    public enum OnlineWireKind : byte { Admission = 1, Ready = 2, Begin = 3, Command = 4, Snapshot = 5, SnapshotAck = 6, Admitted = 7, HostAvailable = 8 }
 
     public sealed class OnlineSnapshotMark
     {
@@ -85,12 +85,18 @@ namespace Wreckabulary.Rules.Wordbound
                     OnlineJson.Text(node, "roster", OnlineJson.HashPattern);
                     OnlineJson.Text(node, "authorization", "^[A-Za-z0-9_.-]{1,16384}$");
                     break;
+                case OnlineWireKind.HostAvailable:
+                    OnlineJson.Fields(node, "roster", "host", "term");
+                    OnlineJson.Text(node, "roster", OnlineJson.HashPattern);
+                    OnlineJson.Text(node, "host", OnlineJson.Uuid);
+                    if (OnlineSnapshotMark.Counter(node, "term") < 1) throw new FormatException("Invalid writer term.");
+                    break;
                 case OnlineWireKind.Command:
                     if (bytes.Length > MaximumCommandBytes) throw new FormatException("Command exceeds its wire budget.");
                     OnlineJson.Fields(node, "sequence", "epoch", "action", "target", "revision", "slot", "value");
                     if (OnlineSnapshotMark.Counter(node, "sequence") < 1) throw new FormatException("Invalid command sequence.");
                     OnlineSnapshotMark.Counter(node, "epoch");
-                    OnlineJson.Text(node, "action", "^(CollectLetter|BeginCraft|CancelCraft|PickUp|Drop|Throw|Deploy|GiveLetter|Transfer|TakeKeepsake|DropKeepsake|UsePuzzle)$");
+                    OnlineJson.Text(node, "action", "^(CollectLetter|BeginCraft|CancelCraft|PickUp|Drop|Throw|Deploy|GiveLetter|Transfer|TakeKeepsake|DropKeepsake|UsePuzzle|Equip|Attack)$");
                     foreach (string field in new[] { "target", "value" }) OnlineJson.Text(node, field, "^[A-Za-z0-9_.:-]{0,96}$");
                     OnlineJson.Integer(node, "revision", 0, int.MaxValue); OnlineJson.Integer(node, "slot", -1, 7); break;
                 case OnlineWireKind.Snapshot:

@@ -34,7 +34,8 @@ namespace Wreckabulary.LifecycleTests
         sealed class Transport : IOnlineHttpTransport
         {
             public Func<OnlineRequest, Task<OnlineResponse>> Reply;
-            public Task<OnlineResponse> Send(OnlineRequest request, CancellationToken ct) => Reply(request);
+            public readonly List<string> Paths = new List<string>();
+            public Task<OnlineResponse> Send(OnlineRequest request, CancellationToken ct) { Paths.Add(request.Path); return Reply(request); }
         }
         sealed class Authority : IWordboundFusionAuthority
         {
@@ -65,15 +66,23 @@ namespace Wreckabulary.LifecycleTests
             public readonly VerifiedOnlineMatch Match;
             public readonly WordboundFusionJoin Join;
             public readonly WordboundFusionSession Session;
+            public readonly OnlineCheckpointService Checkpoints;
+            public OnlineCheckpointManifest Head;
+            public OnlineCheckpointUpload Upload;
+            public Func<OnlineRequest, Task<OnlineResponse>> FinalizeReply;
             public int RunnerCreations;
             public long ClockMs = Now * 1000;
             public Fixture(Func<Task<WordboundFusionJoin>> credentialReply = null)
             {
                 Verifier = new OnlineAdmissionVerifier("wordbound-test", FixtureCall<string>("Jwks", Key));
-                var expected = FixtureCall<OnlineMatchExpectation>("Expected", new object[] { null });
-                string certificate = Sign(FixtureCall<Dictionary<string, object>>("Start"));
+                var original = FixtureCall<OnlineMatchExpectation>("Expected", new object[] { null });
+                var settings = new OnlineSettings("TimeRun", "Solo", false, "asia", "wordbound-v2", "1");
+                var expected = new OnlineMatchExpectation(original.MatchId, original.Generation, original.RosterHash, settings, original.Content);
+                var start = FixtureCall<Dictionary<string, object>>("Start"); start["settings"] = settings.ToValue();
+                string certificate = Sign(start);
                 Match = Verifier.VerifyStart(certificate, expected, Now);
-                string admission = Sign(FixtureCall<Dictionary<string, object>>("Admission"));
+                var grant = FixtureCall<Dictionary<string, object>>("Admission"); grant["protocolVersion"] = "wordbound-v2";
+                string admission = Sign(grant);
                 var ticketNode = OnlineJson.Parse(OnlineJson.Encode(new Dictionary<string, object> {
                     ["ticket"] = "test.photon.ticket", ["appId"] = AppId, ["expiresAt"] = Now * 1000 + 60000 }));
                 var ticket = (OnlinePhotonTicket)Activator.CreateInstance(typeof(OnlinePhotonTicket),
@@ -83,9 +92,11 @@ namespace Wreckabulary.LifecycleTests
                     ["playerId"] = Player, ["accessToken"] = "test.access.token", ["refreshToken"] = Player + "." + Secret, ["expiresIn"] = 900 })));
                 var client = new OnlineCoordinatorClient(Http); client.CreateGuest("Fixture").GetAwaiter().GetResult();
                 var service = new OnlineConnectionService(client, Verifier, expected, () => ClockMs);
+                Checkpoints = new OnlineCheckpointService(client, expected, Authority.IdentityHash);
+                Http.Reply = DefaultReply;
                 Session = new WordboundFusionSession(() => { RunnerCreations++; return Runner(); },
                     new FusionAppSettings { AppIdFusion = AppId }, new NetworkProjectConfig(), default, Verifier, expected,
-                    _ => credentialReply == null ? Task.FromResult(Join) : credentialReply(), Authority, service, () => ClockMs);
+                    _ => credentialReply == null ? Task.FromResult(Join) : credentialReply(), Authority, service, Checkpoints, () => ClockMs);
                 Field(Session, "gate", new OnlineSessionGate(Match));
             }
             public string Sign(Dictionary<string, object> claims) => FixtureCall<string>("Sign", Key, claims, null);
@@ -99,7 +110,48 @@ namespace Wreckabulary.LifecycleTests
                 object run = Call<object>(Session, "BeginRun");
                 Field(run, "Runner", runner); Field(run, "Join", Join);
                 Field(Session, "<Runner>k__BackingField", runner);
+                Field(run, "Writer", Writer());
+                Field(run, "CheckpointReady", true);
                 return run;
+            }
+            public object WriterValue(string term = "1", bool open = true, string actor = Player) => new Dictionary<string, object> {
+                ["playerId"] = actor, ["claimId"] = AppId, ["term"] = term, ["epoch"] = "0",
+                ["expiresAt"] = Now * 1000 + 15000, ["baseHeadId"] = null, ["admissionOpen"] = open };
+            public OnlineCheckpointWriter Writer(string term = "1") =>
+                (OnlineCheckpointWriter)Activator.CreateInstance(typeof(OnlineCheckpointWriter), Private, null,
+                    new object[] { OnlineJson.Parse(OnlineJson.Encode(WriterValue(term))) }, null);
+            public OnlineResponse State(object writer = null) => Response(new Dictionary<string, object> {
+                ["writer"] = writer ?? WriterValue(), ["head"] = Head?.ToValue(), ["previous"] = null });
+            static OnlineResponse Response(object value) => new OnlineResponse(200, OnlineJson.Encode(value));
+            public Task<OnlineResponse> DefaultReply(OnlineRequest request)
+            {
+                var body = OnlineJson.Parse(request.JsonBody);
+                string action = request.Path.Split('/').Last();
+                switch (action)
+                {
+                    case "checkpoint-head": return Task.FromResult(State());
+                    case "checkpoint-begin":
+                        return Task.FromResult(new OnlineResponse(200, "{\"manifest\":" + request.JsonBody + "}"));
+                    case "checkpoint-chunk":
+                        return Task.FromResult(Response(new Dictionary<string, object> { ["uploadId"] = body["uploadId"].String(), ["index"] = (int)body["index"].Number() }));
+                    case "checkpoint-finalize":
+                        return FinalizeReply == null ? Task.FromResult(Response(new Dictionary<string, object> { ["head"] = Upload.Manifest.ToValue() })) : FinalizeReply(request);
+                    case "connection-tickets":
+                        return Task.FromResult(Response(new Dictionary<string, object> { ["ticket"] = Secret, ["expiresAt"] = Now * 1000 + 15000 }));
+                    case "connection-state":
+                        return Task.FromResult(Response(new Dictionary<string, object> {
+                            ["matchId"] = Match.Match.MatchId, ["reservationGeneration"] = Match.Match.Generation,
+                            ["rosterHash"] = Match.Match.RosterHash, ["revision"] = "0", ["serverTime"] = Now * 1000,
+                            ["seats"] = new[] { new Dictionary<string, object> {
+                                ["playerId"] = Player, ["returned"] = false, ["connectionEpoch"] = "0", ["connectionId"] = null,
+                                ["hostId"] = null, ["leaseExpiresAt"] = 0, ["reconnectDeadline"] = Now * 1000 + 120000 } } }));
+                    default: throw new InvalidOperationException("Unexpected fixture route " + action);
+                }
+            }
+            public OnlineResponse Finalized(object run)
+            {
+                Upload = Field<OnlineCheckpointUpload>(run, "Upload");
+                return Response(new Dictionary<string, object> { ["head"] = Upload.Manifest.ToValue() });
             }
             public OnlineResponse Authorization(OnlineRequest request)
             {
@@ -122,6 +174,7 @@ namespace Wreckabulary.LifecycleTests
             {
                 var runner = Runner(); runner.IsServer = false;
                 var run = Replace(runner); Field(run, "ConnectionId", nonce);
+                Field(run, "HostAvailableSeen", true); Field(run, "HostId", Player);
                 Field(Session, "localReady", true);
                 return runner;
             }
@@ -160,23 +213,23 @@ namespace Wreckabulary.LifecycleTests
             Assert.AreEqual(0, Field<OnlineSessionGate>(f.Session, "gate").ConnectedCount);
         }
         [TestCase(false), TestCase(true)]
-        public void OldCloudPushCannotAcknowledgeOrClearTheReplacementPublication(bool failure)
+        public void OldCoordinatorFinalizeCannotAcknowledgeOrClearTheReplacementPublication(bool failure)
         {
-            using var f = new Fixture(); var oldRunner = f.Runner(); f.Replace(oldRunner);
+            using var f = new Fixture(); var oldRunner = f.Runner(); var old = f.Replace(oldRunner);
             oldRunner.ActivePlayers.Clear();
             Field(f.Session, "<GameplayReady>k__BackingField", true);
-            var oldReply = new TaskCompletionSource<bool>(); oldRunner.Push = () => oldReply.Task;
+            var oldReply = new TaskCompletionSource<OnlineResponse>(); f.FinalizeReply = _ => oldReply.Task;
             var pendingOld = f.Session.PublishCheckpoint();
             var nextRunner = f.Runner(); nextRunner.ActivePlayers.Clear();
-            var next = f.Replace(nextRunner); var nextReply = new TaskCompletionSource<bool>(); nextRunner.Push = () => nextReply.Task;
+            var next = f.Replace(nextRunner); var nextReply = new TaskCompletionSource<OnlineResponse>(); f.FinalizeReply = _ => nextReply.Task;
             var pendingNext = f.Session.PublishCheckpoint();
-            if (failure) oldReply.SetException(new InvalidOperationException("Old push failed."));
-            else oldReply.SetResult(true);
+            if (failure) oldReply.SetException(new InvalidOperationException("Old finalize failed."));
+            else oldReply.SetResult(f.Finalized(old));
             Assert.IsFalse(pendingOld.GetAwaiter().GetResult());
             Assert.AreEqual("", f.Session.Failure);
-            Assert.IsTrue(Field<bool>(next, "Publishing"));
+            Assert.IsTrue(Field<bool>(next, "Publishing"), f.Session.Failure + " " + string.Join(",", f.Http.Paths));
             Assert.AreEqual(0, f.Authority.Acknowledgements);
-            nextReply.SetResult(true); Assert.IsTrue(pendingNext.GetAwaiter().GetResult());
+            nextReply.SetResult(f.Finalized(next)); Assert.IsTrue(pendingNext.GetAwaiter().GetResult());
             Assert.AreEqual(1, f.Authority.Acknowledgements);
             Assert.AreEqual(2L, f.Session.Committed.Sequence);
         }
@@ -190,6 +243,93 @@ namespace Wreckabulary.LifecycleTests
             Assert.Throws<OperationCanceledException>(() => pending.GetAwaiter().GetResult());
             Assert.AreEqual(0, replacement.Sends);
             Assert.AreEqual("", f.Session.Failure);
+        }
+        [Test] public void LostFinalizeResponseResolvesExactHeadWithoutPhotonPush()
+        {
+            using var f = new Fixture(); var runner = f.Runner(); runner.ActivePlayers.Clear(); var run = f.Replace(runner);
+            Field(f.Session, "<GameplayReady>k__BackingField", true);
+            runner.Push = () => throw new InvalidOperationException("Photon cannot acknowledge canonical state.");
+            f.FinalizeReply = _ => {
+                f.Head = Field<OnlineCheckpointUpload>(run, "Upload").Manifest;
+                return Task.FromException<OnlineResponse>(new System.IO.IOException("Committed response lost."));
+            };
+            Assert.IsTrue(f.Session.PublishCheckpoint().GetAwaiter().GetResult(), f.Session.Failure + " " + string.Join(",", f.Http.Paths));
+            Assert.AreEqual(1, f.Authority.Acknowledgements);
+            Assert.AreEqual(f.Head.UploadId, Field<OnlineCheckpointManifest>(run, "Head").UploadId);
+            Assert.AreEqual("", f.Session.Failure);
+        }
+        [Test] public void LateFinalizeCannotAcknowledgeAChangedWriterTerm()
+        {
+            using var f = new Fixture(); var runner = f.Runner(); runner.ActivePlayers.Clear(); var run = f.Replace(runner);
+            Field(f.Session, "<GameplayReady>k__BackingField", true);
+            var reply = new TaskCompletionSource<OnlineResponse>(); f.FinalizeReply = _ => reply.Task;
+            var pending = f.Session.PublishCheckpoint();
+            Field(run, "Writer", f.Writer("2"));
+            reply.SetResult(f.Finalized(run));
+            Assert.IsFalse(pending.GetAwaiter().GetResult());
+            Assert.AreEqual(0, f.Authority.Acknowledgements); Assert.AreEqual("", f.Session.Failure);
+        }
+        [Test] public void WriterExpiryFreezesTransportAtExclusiveBoundary()
+        {
+            using var f = new Fixture(); var runner = f.Runner(); f.Replace(runner);
+            Field(f.Session, "<GameplayReady>k__BackingField", true); f.Authority.TransportReady = true;
+            f.ClockMs += 15000; f.Session.Poll();
+            Assert.AreEqual("TimeoutException", f.Session.Failure);
+            Assert.IsFalse(f.Session.GameplayReady); Assert.IsFalse(f.Authority.TransportReady);
+        }
+        [TestCase(false), TestCase(true)] public void ElectionSendCannotKeepBootstrapPendingPastDeadline(bool lateSuccess)
+        {
+            using var f = new Fixture(); var runner = f.Runner(); var run = f.Replace(runner);
+            var reply = new TaskCompletionSource<bool>(); runner.Push = () => reply.Task;
+            Field(f.Session, "committedMark", new OnlineSnapshotMark(MatchId, f.Authority.IdentityHash, 0, 1, 0, new string('b', 64)));
+            var pending = Call<Task>(f.Session, "SeedElection", run);
+            f.ClockMs += 10000;
+            if (lateSuccess) reply.SetResult(true);
+            Assert.IsTrue(pending.Wait(2000), "SDK send wait must be bounded even when the SDK task never completes.");
+            Assert.AreEqual("TimeoutException", f.Session.Failure);
+            Assert.AreEqual(0, f.Authority.Acknowledgements);
+            if (!lateSuccess) reply.SetResult(true);
+            Assert.IsFalse(f.Session.GameplayReady); Assert.IsFalse(f.Authority.TransportReady);
+        }
+        [Test] public void EarlyAdmissionDoesNotConsumeOrDisconnectBeforeWriterRestore()
+        {
+            using var f = new Fixture(); var runner = f.Runner(); var run = f.Replace(runner);
+            Field(run, "CheckpointReady", false);
+            f.Http.Reply = _ => throw new InvalidOperationException("No premature authorization.");
+            Call<Task>(f.Session, "Admit", run, new PlayerRef(2), f.Join.Certificate, f.Join.Grant, Secret, AppId).GetAwaiter().GetResult();
+            Assert.AreEqual(0, runner.Disconnects); Assert.AreEqual("", f.Session.Failure);
+            Assert.AreEqual(0, Field<HashSet<PlayerRef>>(run, "Authorizing").Count);
+        }
+        [Test] public void HostPromptCoalescesAndWaitsForVerifiedOpenWriterBeforeTicket()
+        {
+            using var f = new Fixture(); var runner = f.Runner(); runner.IsServer = false; var run = f.Replace(runner);
+            var headReply = new TaskCompletionSource<OnlineResponse>(); int heads = 0, tickets = 0;
+            f.Http.Reply = request => {
+                if (request.Path.EndsWith("/checkpoint-head")) { heads++; return headReply.Task; }
+                if (request.Path.EndsWith("/connection-tickets")) tickets++;
+                return f.DefaultReply(request);
+            };
+            var body = OnlineJson.Parse(OnlineJson.Encode(new Dictionary<string, object> {
+                ["roster"] = f.Match.Match.RosterHash, ["host"] = Player, ["term"] = "1" }));
+            var pending = Call<Task>(f.Session, "ReceiveHostAvailable", run, body);
+            Call<Task>(f.Session, "ReceiveHostAvailable", run, body).GetAwaiter().GetResult();
+            Assert.AreEqual(1, heads); Assert.AreEqual(0, tickets);
+            headReply.SetResult(f.State()); pending.GetAwaiter().GetResult();
+            Assert.AreEqual(1, tickets); Assert.AreEqual(1, runner.Sends);
+            Call<Task>(f.Session, "ReceiveHostAvailable", run, body).GetAwaiter().GetResult();
+            Assert.AreEqual(1, heads); Assert.AreEqual(1, tickets);
+        }
+        [Test] public void WrongWriterPromptDoesNotLatchOrMintTicket()
+        {
+            using var f = new Fixture(); var runner = f.Runner(); runner.IsServer = false; var run = f.Replace(runner);
+            int tickets = 0;
+            f.Http.Reply = request => { if (request.Path.EndsWith("/connection-tickets")) tickets++; return f.DefaultReply(request); };
+            var body = new Dictionary<string, object> { ["roster"] = f.Match.Match.RosterHash, ["host"] = Player, ["term"] = "2" };
+            Call<Task>(f.Session, "ReceiveHostAvailable", run, OnlineJson.Parse(OnlineJson.Encode(body))).GetAwaiter().GetResult();
+            Assert.IsFalse(Field<bool>(run, "HostAvailableSeen")); Assert.AreEqual(0, tickets);
+            body["term"] = "1";
+            Call<Task>(f.Session, "ReceiveHostAvailable", run, OnlineJson.Parse(OnlineJson.Encode(body))).GetAwaiter().GetResult();
+            Assert.IsTrue(Field<bool>(run, "HostAvailableSeen")); Assert.AreEqual(1, tickets);
         }
         [Test] public void StopFencesCredentialsThatIgnoreCancellation()
         {
@@ -210,21 +350,15 @@ namespace Wreckabulary.LifecycleTests
             Assert.AreEqual(0, f.RunnerCreations);
             Assert.AreEqual("", f.Session.Failure);
         }
-        [Test] public void TerminalFailureCannotBeReversedByAnOutstandingBootstrapPush()
+        [Test] public void TerminalFailureCannotBeReversedByAnOutstandingBootstrapFinalize()
         {
             using var f = new Fixture(); var runner = f.Runner(); runner.ActivePlayers.Clear(); var run = f.Replace(runner);
-            var reply = new TaskCompletionSource<bool>(); runner.Push = () => reply.Task;
-            f.Http.Reply = _ => Task.FromResult(new OnlineResponse(200, OnlineJson.Encode(new Dictionary<string, object> {
-                ["matchId"] = f.Match.Match.MatchId, ["reservationGeneration"] = f.Match.Match.Generation,
-                ["rosterHash"] = f.Match.Match.RosterHash, ["revision"] = "0", ["serverTime"] = Now * 1000,
-                ["seats"] = new[] { new Dictionary<string, object> {
-                    ["playerId"] = Player, ["returned"] = false, ["connectionEpoch"] = "0", ["connectionId"] = null,
-                    ["hostId"] = null, ["leaseExpiresAt"] = 0, ["reconnectDeadline"] = Now * 1000 + 120000 } } })));
+            var reply = new TaskCompletionSource<OnlineResponse>(); f.FinalizeReply = _ => reply.Task;
             Call<Task>(f.Session, "RefreshConnectionState", run).GetAwaiter().GetResult();
             var pending = Call<Task>(f.Session, "BeginAfterCheckpoint", run, false);
-            Assert.IsTrue(Field<bool>(run, "Publishing"), "Bootstrap failure=" + f.Session.Failure + " task=" + pending.Status);
+            Assert.IsTrue(Field<bool>(run, "Publishing"), "Bootstrap failure=" + f.Session.Failure + " task=" + pending.Status + " paths=" + string.Join(",", f.Http.Paths));
             Call<object>(f.Session, "Fail", new TimeoutException("Current host lease expired."));
-            reply.SetResult(true); pending.GetAwaiter().GetResult();
+            reply.SetResult(f.Finalized(run)); pending.GetAwaiter().GetResult();
             Assert.AreEqual("TimeoutException", f.Session.Failure);
             Assert.IsFalse(f.Session.GameplayReady);
             Assert.IsFalse(f.Authority.TransportReady);
@@ -286,6 +420,7 @@ namespace Wreckabulary.LifecycleTests
             f.Client();
             var replacement = f.Runner(); replacement.IsServer = false;
             var run = f.Replace(replacement); Field(run, "ConnectionId", MatchId);
+            Field(run, "HostAvailableSeen", true); Field(run, "HostId", Player);
             f.Deliver(replacement, OnlineWireKind.Admitted, f.ProofBody(f.HostProof(MatchId)));
             Assert.AreEqual("", f.Session.Failure);
             Assert.AreEqual(0, replacement.Sends);

@@ -57,6 +57,12 @@ namespace Wreckabulary.Online
             public string ConnectionId, HostId;
             public bool Publishing, Beginning, Renewing;
             public long RenewAt;
+            public OnlineCheckpointWriter Writer;
+            public OnlineCheckpointManifest Head;
+            public OnlineCheckpointUpload Upload;
+            public bool CheckpointReady, WriterRenewing, HostAvailableSeen, CheckingHost;
+            public int HostPromptChecks;
+            public long WriterRenewAt;
         }
         const int WireChannel = 0x57424e44;
         readonly Func<NetworkRunner> createRunner;
@@ -69,6 +75,7 @@ namespace Wreckabulary.Online
         readonly NetworkPrefabRef chunkPrefab;
         readonly IWordboundFusionAuthority authority;
         readonly OnlineConnectionService connections;
+        readonly OnlineCheckpointService checkpoints;
         readonly Dictionary<PlayerRef, long> pending = new Dictionary<PlayerRef, long>();
         readonly Dictionary<PlayerRef, (long Window, int Count)> rates = new Dictionary<PlayerRef, (long, int)>();
         readonly Dictionary<PlayerRef, OnlineSnapshotMark> sentMarks = new Dictionary<PlayerRef, OnlineSnapshotMark>();
@@ -99,7 +106,8 @@ namespace Wreckabulary.Online
             NetworkProjectConfig projectConfig, NetworkPrefabRef snapshotChunkPrefab,
             OnlineAdmissionVerifier admissionVerifier, OnlineMatchExpectation expectation,
             Func<CancellationToken, Task<WordboundFusionJoin>> freshCredentials,
-            IWordboundFusionAuthority matchAuthority, OnlineConnectionService connectionService, Func<long> wallClock = null)
+            IWordboundFusionAuthority matchAuthority, OnlineConnectionService connectionService,
+            OnlineCheckpointService checkpointService, Func<long> wallClock = null)
         {
             createRunner = runnerFactory ?? throw new ArgumentNullException(nameof(runnerFactory));
             app = appSettings?.GetCopy() ?? throw new ArgumentNullException(nameof(appSettings));
@@ -109,10 +117,11 @@ namespace Wreckabulary.Online
             credentials = freshCredentials ?? throw new ArgumentNullException(nameof(freshCredentials));
             authority = matchAuthority ?? throw new ArgumentNullException(nameof(matchAuthority));
             connections = connectionService ?? throw new ArgumentNullException(nameof(connectionService));
+            checkpoints = checkpointService ?? throw new ArgumentNullException(nameof(checkpointService));
             clock = wallClock ?? (() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             chunkPrefab = snapshotChunkPrefab;
             if (config.HostMigration.EnableAutoUpdate)
-                throw new ArgumentException("Automatic migration snapshots must be disabled to preserve complete checkpoints.");
+                throw new ArgumentException("Automatic Photon snapshots must be disabled; canonical durability belongs to the coordinator.");
             if ((config.Network.ReliableDataTransferModes & NetworkConfiguration.ReliableDataTransfers.ClientToServer) == 0)
                 throw new ArgumentException("Client-to-server reliable data must be enabled.");
             if ((config.Network.ReliableDataTransferModes & NetworkConfiguration.ReliableDataTransfers.ClientToClientWithServerProxy) != 0)
@@ -162,13 +171,16 @@ namespace Wreckabulary.Online
             var match = verifier.VerifyStart(join.Certificate, expected, now / 1000);
             verifier.VerifyAdmission(join.Grant, match, join.PlayerId, join.ConnectionSecret, now / 1000);
             if (gate == null) gate = new OnlineSessionGate(match);
+            var existing = await checkpoints.Head(linked.Token);
+            RequireCurrent(run);
+            bool initialHost = existing.Writer == null && existing.Head == null && join.PlayerId == match.Roster[0].PlayerId;
             var authentication = new AuthenticationValues { AuthType = CustomAuthenticationType.Custom };
             authentication.SetAuthPostData(join.PhotonTicket.PhotonPostData());
             Runner = createRunner() ?? throw new InvalidOperationException("Runner factory returned no runner.");
             run.Runner = Runner;
             run.Runner.AddCallbacks(this);
             var result = await run.Runner.StartGame(new StartGameArgs {
-                GameMode = migration?.GameMode ?? GameMode.AutoHostOrClient,
+                GameMode = migration?.GameMode ?? (initialHost ? GameMode.Host : GameMode.Client),
                 SessionName = "wb-" + expected.MatchId + "-" + expected.Generation,
                 PlayerCount = match.Roster.Count, IsVisible = false, IsOpen = true,
                 EnableClientSessionCreation = false, CustomPhotonAppSettings = app,
@@ -181,11 +193,89 @@ namespace Wreckabulary.Online
             if (run.Runner.GetPlayerUserId(run.Runner.LocalPlayer) != join.PlayerId)
                 throw new InvalidOperationException("Photon did not authenticate the coordinator identity.");
             if (connections.LocalPlayerId != join.PlayerId) throw new InvalidOperationException("Coordinator guest changed during startup.");
-            if (run.Runner.IsServer) await AdmitLocal(run);
-            else await SendAdmission(run);
+            if (run.Runner.IsServer)
+            {
+                await RestoreWriter(run, migration != null);
+                RequireCurrent(run);
+                await AdmitLocal(run);
+                RequireCurrent(run);
+                foreach (var peer in run.Runner.ActivePlayers)
+                    if (peer != run.Runner.LocalPlayer) PromptAdmission(run, peer);
+            }
             RequireCurrent(run);
             }
             catch (Exception error) { if (IsCurrent(run)) Fail(error); throw; }
+        }
+        bool HasWriter(RunScope run) => IsCurrent(run) && run.Writer != null &&
+            run.Writer.PlayerId == checkpoints.LocalPlayerId && run.Writer.ExpiresAtMilliseconds > clock();
+        void RequireWriter(RunScope run, string term)
+        {
+            RequireCurrent(run);
+            if (!HasWriter(run) || run.Writer.Term != term)
+                throw new InvalidOperationException("Canonical writer lease expired or changed.");
+        }
+        async Task RestoreWriter(RunScope run, bool recovery)
+        {
+            string claimId = Guid.NewGuid().ToString();
+            long deadline = checked(clock() + 60000);
+            OnlineCheckpointState state;
+            while (true)
+            {
+                RequireCurrent(run);
+                try { state = await checkpoints.Claim(claimId, run.Cancellation.Token); break; }
+                catch (OnlineServiceException error) when (error.Code == "CHECKPOINT_WRITER_BUSY")
+                {
+                    RequireCurrent(run);
+                    if (clock() >= deadline) throw new TimeoutException("Previous host still owns the canonical writer lease.");
+                    await Task.Delay(500, run.Cancellation.Token);
+                }
+            }
+            RequireCurrent(run);
+            run.Writer = state.Writer; run.Head = state.Head; run.WriterRenewAt = clock() + 5000;
+            RequireWriter(run, state.Writer.Term);
+            if (state.Head != null)
+            {
+                string json = await checkpoints.Download(state.Head, run.Cancellation.Token);
+                RequireWriter(run, state.Writer.Term);
+                authority.ValidateSnapshot(json, state.Head.Mark);
+                authority.RestoreCommitted(json, state.Head.Mark, state.Writer.Epoch, clock());
+                gate.RestoreForMigration(authority.Presence(), clock());
+                committedMark = state.Head.Mark; committedPacket = OnlineSnapshotPacket.Compress(json);
+                migrating = true; restored = true;
+            }
+            else if (recovery)
+                throw new InvalidOperationException("The departing host never committed the initial gameplay state.");
+            await RefreshConnectionState(run);
+            RequireWriter(run, state.Writer.Term);
+            var opened = await checkpoints.OpenAdmission(run.Writer, run.Cancellation.Token);
+            RequireWriter(run, state.Writer.Term);
+            run.Writer = opened.Writer; run.CheckpointReady = true;
+        }
+        void PromptAdmission(RunScope run, PlayerRef peer)
+        {
+            if (!run.CheckpointReady || !HasWriter(run)) return;
+            pending[peer] = clock() + 15000;
+            Send(peer, OnlineWireKind.HostAvailable, new Dictionary<string, object> {
+                ["roster"] = expected.RosterHash, ["host"] = run.Writer.PlayerId, ["term"] = run.Writer.Term });
+        }
+        async Task ReceiveHostAvailable(RunScope run, JsonNode body)
+        {
+            if (run.HostAvailableSeen || run.CheckingHost || run.HostPromptChecks >= 4 || localAdmitted) return;
+            run.CheckingHost = true; run.HostPromptChecks++;
+            try
+            {
+                if (body["roster"].String() != expected.RosterHash) return;
+                var state = await checkpoints.Head(run.Cancellation.Token);
+                RequireCurrent(run);
+                var writer = state.Writer;
+                if (writer == null || !writer.AdmissionOpen || writer.ExpiresAtMilliseconds <= clock() ||
+                    writer.PlayerId != body["host"].String() || writer.Term != body["term"].String() ||
+                    !gate.Match.Roster.Any(s => s.PlayerId == writer.PlayerId)) return;
+                run.HostId = writer.PlayerId; run.HostAvailableSeen = true;
+                await SendAdmission(run);
+            }
+            catch (Exception error) { if (IsCurrent(run)) Fail(error); }
+            finally { run.CheckingHost = false; }
         }
         async Task AdmitLocal(RunScope run)
         {
@@ -209,7 +299,7 @@ namespace Wreckabulary.Online
         }
         async Task Admit(RunScope run, PlayerRef player, string certificate, string grant, string ticket, string connectionId)
         {
-            if (!IsCurrent(run) || run.Authorizing.Contains(player) || gate.Actor(Peer(player)) != null) return;
+            if (!IsCurrent(run) || !run.CheckpointReady || !HasWriter(run) || run.Authorizing.Contains(player) || gate.Actor(Peer(player)) != null) return;
             run.Authorizing.Add(player);
             var runner = run.Runner;
             try {
@@ -220,7 +310,7 @@ namespace Wreckabulary.Online
             var match = verifier.VerifyStart(certificate, expected, now / 1000);
             var admission = verifier.VerifyAdmission(grant, match, authenticated, secret, now / 1000);
             var lease = await connections.Authorize(match, authenticated, ticket, secret, connectionId, run.Cancellation.Token);
-            if (!IsCurrent(run) || !runner.IsRunning || !runner.ActivePlayers.Contains(player) ||
+            if (!IsCurrent(run) || !HasWriter(run) || !runner.IsRunning || !runner.ActivePlayers.Contains(player) ||
                 runner.GetPlayerUserId(player) != authenticated) return;
             now = clock();
             if (lease.ExpiresAtMilliseconds <= now) throw new InvalidOperationException("Transport authorization expired.");
@@ -292,6 +382,8 @@ namespace Wreckabulary.Online
             bool published = await PublishCheckpointCore(run, true, run.Cancellation.Token);
             if (!IsCurrent(run)) return;
             if (!published) { Fail(new InvalidOperationException("Initial checkpoint was not durable.")); return; }
+            await SeedElection(run);
+            if (!IsCurrent(run) || !HasWriter(run)) return;
             GameplayReady = true; run.Beginning = false;
             authority.SetTransportReady(true, true);
             foreach (var player in Runner.ActivePlayers)
@@ -327,6 +419,7 @@ namespace Wreckabulary.Online
             actorId = null;
             var run = activeRun;
             if (!IsCurrent(run) || !GameplayReady || migrating || Failure != "" || run.Runner == null ||
+                !HasWriter(run) ||
                 !run.Runner.IsRunning || !run.Runner.IsServer || !run.Runner.ActivePlayers.Contains(peer) ||
                 !gate.CanCommand(Peer(peer)) || !leases.TryGetValue(peer, out var lease) || lease.ExpiresAtMilliseconds <= clock())
                 return false;
@@ -342,13 +435,30 @@ namespace Wreckabulary.Online
             var run = activeRun;
             if (!IsCurrent(run) || Runner == null || !Runner.IsRunning || !Runner.IsServer) return;
             if (Failure != "") return;
+            if (run.Writer != null && !HasWriter(run)) { Fail(new TimeoutException("Canonical writer lease expired.")); return; }
+            if (run.Writer != null && !run.WriterRenewing && clock() >= run.WriterRenewAt) _ = RenewWriter(run);
+            if (!run.CheckpointReady) return;
             if (!gate.Started && clock() >= gate.Match.StartedAtMilliseconds + 90000)
             { Fail(new TimeoutException("The complete approved roster did not become ready.")); return; }
             foreach (var peer in pending.Where(p => p.Value <= clock()).Select(p => p.Key).ToArray())
             { pending.Remove(peer); Runner.Disconnect(peer); }
             foreach (var peer in leases.Where(p => p.Value.ExpiresAtMilliseconds <= clock()).Select(p => p.Key).ToArray())
                 Revoke(peer, false);
+            if (!IsCurrent(run)) return;
             if (!run.Renewing && clock() >= run.RenewAt) _ = RenewConnections(run);
+        }
+        async Task RenewWriter(RunScope run)
+        {
+            run.WriterRenewing = true; run.WriterRenewAt = clock() + 5000;
+            string term = run.Writer.Term;
+            try
+            {
+                var renewed = await checkpoints.Renew(run.Writer, run.Cancellation.Token);
+                RequireWriter(run, term);
+                run.Writer = renewed.Writer;
+            }
+            catch { }
+            finally { run.WriterRenewing = false; }
         }
         async Task RenewConnections(RunScope run)
         {
@@ -390,45 +500,101 @@ namespace Wreckabulary.Online
         public Task<bool> PublishCheckpoint(CancellationToken cancellationToken = default) => PublishCheckpointCore(activeRun, false, cancellationToken);
         async Task<bool> PublishCheckpointCore(RunScope run, bool bootstrap, CancellationToken cancellationToken)
         {
-            if (!IsCurrent(run) || Runner == null || !Runner.IsServer || (!GameplayReady && !bootstrap) || run.Publishing || migrating || Failure != "") return false;
+            if (!IsCurrent(run) || Runner == null || !Runner.IsServer || (!GameplayReady && !bootstrap) ||
+                !run.CheckpointReady || !HasWriter(run) || run.Publishing || migrating || Failure != "") return false;
             run.Publishing = true;
-            var runner = run.Runner;
+            string term = run.Writer.Term;
             try
             {
-                var mark = authority.Publish(out string json);
-                authority.ValidateSnapshot(json, mark);
-                var packet = OnlineSnapshotPacket.Compress(json);
-                foreach (var carrier in carriers) if (carrier != null && carrier.Object != null) runner.Despawn(carrier.Object);
-                carriers.Clear();
-                for (int index = 0; index < packet.ChunkCount; index++)
+                if (run.Upload == null)
                 {
-                    int captured = index;
-                    var obj = runner.Spawn(chunkPrefab, onBeforeSpawned: (_, value) =>
-                        value.GetComponent<WordboundFusionSnapshotChunk>().Write(mark, packet, captured));
-                    carriers.Add(obj.GetComponent<WordboundFusionSnapshotChunk>());
+                    var mark = authority.Publish(out string json);
+                    authority.ValidateSnapshot(json, mark);
+                    run.Upload = checkpoints.Prepare(run.Writer, run.Head, mark, json);
                 }
-                int writtenTick = runner.Tick.Raw;
-                long waitDeadline = checked(clock() + 10000);
-                while (IsCurrent(run) && runner.IsRunning && runner.Tick.Raw <= writtenTick)
-                {
-                    cancellationToken.ThrowIfCancellationRequested(); run.Cancellation.Token.ThrowIfCancellationRequested();
-                    if (clock() >= waitDeadline) throw new TimeoutException("Migration carrier did not reach a simulation tick.");
-                    await Task.Yield();
-                }
-                if (!IsCurrent(run) || migrating || !runner.IsRunning) return false;
-                bool pushed = await runner.PushHostMigrationSnapshot();
-                if (!pushed || !IsCurrent(run) || migrating || !runner.IsRunning) return false;
-                if (!authority.AcknowledgeDurable(mark)) throw new InvalidOperationException("Durable checkpoint did not match its publication.");
-                committedMark = mark; committedPacket = packet;
-                foreach (var player in runner.ActivePlayers)
-                {
-                    if (player == runner.LocalPlayer || gate.Actor(Peer(player)) == null) continue;
-                    SendCommitted(player);
-                }
+                var upload = run.Upload;
+                using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, run.Cancellation.Token);
+                var receipt = await checkpoints.Commit(upload, linked.Token);
+                RequireWriter(run, term);
+                if (!run.Runner.IsRunning || migrating || !receipt.Same(upload.Manifest)) return false;
+                CommitPublication(run, upload, receipt);
                 return true;
             }
-            catch (Exception error) { if (IsCurrent(run)) Fail(error); return false; }
+            catch (Exception error)
+            {
+                if (!IsCurrent(run) || !HasWriter(run) || run.Writer.Term != term) return false;
+                if (run.Upload != null)
+                {
+                    try
+                    {
+                        var state = await checkpoints.Head(run.Cancellation.Token);
+                        RequireWriter(run, term);
+                        if (state.Writer?.Term == term && state.Writer.PlayerId == run.Writer.PlayerId &&
+                            run.Upload.Manifest.Same(state.Head))
+                        {
+                            CommitPublication(run, run.Upload, state.Head);
+                            return true;
+                        }
+                    }
+                    catch { }
+                }
+                if (IsCurrent(run) && (error is FormatException || error is InvalidOperationException ||
+                    error is OnlineServiceException service && service.Status < 500 && service.Status != 429)) Fail(error);
+                return false;
+            }
             finally { run.Publishing = false; }
+        }
+        void CommitPublication(RunScope run, OnlineCheckpointUpload upload, OnlineCheckpointManifest receipt)
+        {
+            RequireWriter(run, receipt.Term);
+            if (!ReferenceEquals(run.Upload, upload) || !receipt.Same(upload.Manifest))
+                throw new InvalidOperationException("Checkpoint publication was superseded.");
+            if (!authority.AcknowledgeDurable(receipt.Mark)) throw new InvalidOperationException("Durable checkpoint did not match its publication.");
+            run.Head = receipt; run.Upload = null; committedMark = receipt.Mark; committedPacket = upload.Packet;
+            foreach (var player in run.Runner.ActivePlayers)
+                if (player != run.Runner.LocalPlayer && gate.Actor(Peer(player)) != null) SendCommitted(player);
+        }
+        async Task SeedElection(RunScope run)
+        {
+            string term = run.Writer.Term;
+            try
+            {
+                RequireWriter(run, term);
+                foreach (var carrier in carriers) if (carrier != null && carrier.Object != null) run.Runner.Despawn(carrier.Object);
+                carriers.Clear();
+                var marker = OnlineSnapshotPacket.Compress(OnlineJson.Encode(new Dictionary<string, object> {
+                    ["format"] = "wordbound-election-marker", ["match"] = expected.MatchId, ["roster"] = expected.RosterHash }));
+                var obj = run.Runner.Spawn(chunkPrefab, onBeforeSpawned: (_, value) =>
+                    value.GetComponent<WordboundFusionSnapshotChunk>().Write(committedMark, marker, 0));
+                carriers.Add(obj.GetComponent<WordboundFusionSnapshotChunk>());
+                int writtenTick = run.Runner.Tick.Raw;
+                long deadline = checked(clock() + 10000);
+                while (run.Runner.Tick.Raw <= writtenTick)
+                {
+                    RequireWriter(run, term);
+                    if (clock() >= deadline) throw new TimeoutException("Election marker did not reach a simulation tick.");
+                    await Task.Yield();
+                }
+                while (true)
+                {
+                    RequireWriter(run, term);
+                    if (clock() >= deadline) throw new TimeoutException("Photon election marker send did not complete.");
+                    var push = run.Runner.PushHostMigrationSnapshot();
+                    while (!push.IsCompleted)
+                    {
+                        RequireWriter(run, term);
+                        if (clock() >= deadline) throw new TimeoutException("Photon election marker send did not complete.");
+                        await Task.WhenAny(push, Task.Delay(100, run.Cancellation.Token));
+                    }
+                    bool queued = await push;
+                    RequireWriter(run, term);
+                    if (clock() >= deadline) throw new TimeoutException("Photon election marker send completed after its deadline.");
+                    if (queued) return;
+                    if (clock() >= deadline) throw new TimeoutException("Photon did not accept the election marker send.");
+                    await Task.Delay(100, run.Cancellation.Token);
+                }
+            }
+            catch (Exception error) { if (IsCurrent(run)) Fail(error); }
         }
         void SendCommitted(PlayerRef player)
         {
@@ -473,19 +639,7 @@ namespace Wreckabulary.Online
         void RestoreMigration(NetworkRunner runner)
         {
             if (!IsCurrent(activeRun) || activeRun.Runner != runner) return;
-            try
-            {
-                var chunks = runner.GetResumeSnapshotNetworkObjects()
-                    .Select(obj => obj.GetComponent<WordboundFusionSnapshotChunk>()).Where(c => c != null);
-                string json = WordboundFusionSnapshotChunk.Restore(chunks, out var mark);
-                if (mark.MatchId != expected.MatchId || mark.IdentityHash != authority.IdentityHash)
-                    throw new FormatException("Migration binding mismatch.");
-                authority.ValidateSnapshot(json, mark);
-                authority.RestoreCommitted(json, mark, checked(mark.Epoch + 1), clock());
-                gate.RestoreForMigration(authority.Presence(), clock());
-                carriers.Clear(); committedMark = mark; committedPacket = OnlineSnapshotPacket.Compress(json); restored = true;
-            }
-            catch (Exception error) { Fail(error); throw; }
+            carriers.Clear();
         }
         void Fail(Exception error)
         {
@@ -534,8 +688,12 @@ namespace Wreckabulary.Online
                 }
                 else
                 {
-                    if (message.Kind == OnlineWireKind.Admitted)
+                    if (message.Kind == OnlineWireKind.HostAvailable)
+                        _ = ReceiveHostAvailable(activeRun, message.Body);
+                    else if (message.Kind == OnlineWireKind.Admitted)
                     {
+                        if (!activeRun.HostAvailableSeen || activeRun.HostId == null)
+                            throw new FormatException("Canonical writer confirmation must precede host authorization.");
                         if (message.Body["roster"].String() != expected.RosterHash) throw new FormatException("Admission roster mismatch.");
                         var proof = verifier.VerifyHostAuthorization(message.Body["authorization"].String(), gate.Match,
                             activeRun.Join.PlayerId, activeRun.ConnectionId, clock());
@@ -575,6 +733,7 @@ namespace Wreckabulary.Online
             if (!IsCurrent(activeRun) || runner != activeRun.Runner || !runner.IsServer) return;
             if (pending.Count >= 8) { runner.Disconnect(player); return; }
             pending[player] = checked(clock() + 15000);
+            if (player != runner.LocalPlayer && activeRun.CheckpointReady) PromptAdmission(activeRun, player);
         }
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
