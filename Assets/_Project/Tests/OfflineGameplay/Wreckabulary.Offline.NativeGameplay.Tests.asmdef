@@ -7,6 +7,8 @@
     "Wreckabulary.Online.Fusion",
     "Wreckabulary.Online.Physics",
     "Wreckabulary.Online.Gameplay",
+    "Wreckabulary.Online.Client",
+    "Wreckabulary.Online.Presentation",
     "Fusion.Unity",
     "Fusion.Addons.Physics",
     "UnityEngine.TestRunner",

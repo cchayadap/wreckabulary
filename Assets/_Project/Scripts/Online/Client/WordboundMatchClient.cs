@@ -71,6 +71,8 @@ namespace Wreckabulary.Online
                     options.MovementEnvironment = puzzles.EvaluateMovementEnvironment;
                 }
                 playerView.Initialize(gameplay, controls: controls);
+                matchRoot.AddComponent<WordboundPuzzleGuide>().Bind(gameplay, course,
+                    client.Credentials.PlayerId, playerView.Camera);
                 artwork.Initialize(new WordboundVisualResolver(items));
                 artwork.Bind(gameplay);
                 artwork.Failed += PresentationFailed;

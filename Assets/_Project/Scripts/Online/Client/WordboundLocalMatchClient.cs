@@ -52,6 +52,8 @@ namespace Wreckabulary.Online
                 options.PuzzleEvaluator = puzzles.Evaluate;
                 options.MovementEnvironment = puzzles.EvaluateMovementEnvironment;
                 playerView.Initialize(gameplay, controls: controls);
+                gameObject.AddComponent<WordboundPuzzleGuide>().Bind(gameplay, content.Course,
+                    LocalActor, playerView.Camera);
                 artwork.Initialize(new WordboundVisualResolver(content.Items));
                 artwork.Bind(gameplay);
                 artwork.Failed += DisplayFailed;
