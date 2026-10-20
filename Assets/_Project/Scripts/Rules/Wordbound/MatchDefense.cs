@@ -34,7 +34,7 @@ namespace Wreckabulary.Rules.Wordbound
         public const int RefreshTicks = 10;
         public static string Hash { get; } = WordboundIdentity.Sha256(
             "wordbound.defense|1|hold30|refresh10|catalogue-raise-arc-reduction-move-wear|" +
-            "blocked-impulse0.3-no-up-no-stun|projectile-side|selected-held-only");
+            "blocked-impulse0.3-no-up-no-stun|projectile-side|selected-held-only|admitted-facing180");
 
         public static int RaiseTicks(ShieldStats stats)
         {

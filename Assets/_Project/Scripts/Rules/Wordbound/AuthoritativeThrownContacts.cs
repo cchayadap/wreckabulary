@@ -29,7 +29,7 @@ namespace Wreckabulary.Rules.Wordbound
                 if (!ContactNear(projectile, contact.ContactPoint) || !ContactNear(target, contact.ContactPoint)) continue;
                 float amount = target.Kind == WorldBodyKind.Item ? stats.BreakPower : stats.Damage;
                 if (amount <= 0 || !ApplyDamage(new HostDamage(flight.ThrowerId, target.Id, amount,
-                    WordboundCombatPolicy.Ticks(Math.Min(.2f, rules.HitStunMax))), true)) continue;
+                    WordboundCombatPolicy.Ticks(Math.Min(.2f, rules.HitStunMax))), out var impact, true, projectile.Position)) continue;
                 thrownFlights[flight.ItemBodyId] = new MatchThrownFlight(flight.ItemBodyId, flight.LaunchRevision,
                     flight.StartedTick, flight.ThrowerId, flight.HitBodyIds.Concat(new[] { target.Id }));
                 var current = bodies[target.Id];
@@ -37,9 +37,9 @@ namespace Wreckabulary.Rules.Wordbound
                 float x = target.Position.X - projectile.Position.X, z = target.Position.Z - projectile.Position.Z;
                 float length = (float)Math.Sqrt(x * x + z * z);
                 var forward = Forward(projectile, 1);
-                float speed = stats.Knockback * 2;
+                float speed = stats.Knockback * 2 * impact.KnockbackScale;
                 var velocity = Add(current.Velocity, new WorldVector((length > .0001f ? x / length : forward.X) * speed,
-                    speed * .35f, (length > .0001f ? z / length : forward.Z) * speed));
+                    speed * impact.VerticalKnockbackScale, (length > .0001f ? z / length : forward.Z) * speed));
                 bodies[target.Id] = current.At(current.Position, new WorldVector(
                     Math.Max(-1000, Math.Min(1000, velocity.X)), Math.Max(-1000, Math.Min(1000, velocity.Y)),
                     Math.Max(-1000, Math.Min(1000, velocity.Z))));

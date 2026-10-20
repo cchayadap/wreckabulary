@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework><LangVersion>9.0</LangVersion><Nullable>disable</Nullable>
+    <AssemblyName>Wreckabulary.Rules</AssemblyName><EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <RulesSourceRoot Condition="'$(RulesSourceRoot)' == ''">../../../wordbound-puzzle-race</RulesSourceRoot>
+    <OutputPath>bin/Rules/</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/**/*.cs"
+      Exclude="$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/MatchState.cs;$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/MatchSnapshotCodec.cs;$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/MatchStateValidation.cs;$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/CommandJournal.cs;$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/AuthoritativeMatch.cs;$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/AuthoritativeThrownContacts.cs;$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/CourseTemplates.cs;$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/MatchDefense.cs;$(RulesSourceRoot)/Assets/_Project/Scripts/Rules/Wordbound/AuthoritativeDefense.cs" />
+    <Compile Include="../../Assets/_Project/Scripts/Rules/Wordbound/MatchState.cs;../../Assets/_Project/Scripts/Rules/Wordbound/MatchSnapshotCodec.cs;../../Assets/_Project/Scripts/Rules/Wordbound/MatchStateValidation.cs;../../Assets/_Project/Scripts/Rules/Wordbound/CommandJournal.cs;../../Assets/_Project/Scripts/Rules/Wordbound/AuthoritativeMatch.cs;../../Assets/_Project/Scripts/Rules/Wordbound/AuthoritativeThrownContacts.cs;../../Assets/_Project/Scripts/Rules/Wordbound/CourseTemplates.cs;../../Assets/_Project/Scripts/Rules/Wordbound/MatchDefense.cs;../../Assets/_Project/Scripts/Rules/Wordbound/AuthoritativeDefense.cs" />
+    <Compile Include="../../../wordbound-integration/Packages/com.gamestudiokit.core/Runtime/Determinism/*.cs" />
+  </ItemGroup>
+</Project>

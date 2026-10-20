@@ -15,14 +15,19 @@ namespace Wreckabulary.Tests
             .Where(item => ModeDefinition.For("FreeForAll").Recipes.Contains(item.Id))
             .Select(item => item.Id);
 
-        sealed class World : IWordboundWorldQuery
+        sealed class World : IWordboundWorldQuery, IWordboundReleaseQuery
         {
             public bool HasLineOfSight(string actorId, WorldVector from, WorldVector to) => true;
             public bool CanDeploy(string actorId, string recipeId, WorldVector position) => true;
             public bool PuzzleSatisfied(string actorId, ResolvedCoursePuzzle puzzle, WorldBodyState placedItem) => false;
+            public bool TryRelease(WorldBodyState actor, WorldBodyState heldItem, bool throwing, out WorldVector position)
+            {
+                position = new WorldVector(actor.Position.X, actor.Position.Y + .1f, actor.Position.Z + 1.5f);
+                return true;
+            }
         }
 
-        sealed class Arena
+        internal sealed class Arena
         {
             public readonly ModeDefinition Mode = ModeDefinition.For("FreeForAll");
             public readonly ItemCatalogue Items = TestData.Catalogue();
@@ -52,13 +57,14 @@ namespace Wreckabulary.Tests
             }
 
             public MatchTickResult Step(WordboundAction? action = null, string target = "", string value = "",
-                int actor = 0, WorldVector? at = null)
+                int actor = 0, WorldVector? at = null, int slot = -1, int revision = 0,
+                IEnumerable<HostDamage> damage = null, IEnumerable<ProgressEvent> observations = null)
             {
                 if (Match.Tick % 60 == 0) Acknowledge();
                 var commands = action.HasValue ? new[] { new AuthenticatedCommand("p" + actor,
-                    new PlayerCommand(++sequences[actor], Match.Epoch, action.Value, target, value: value)) } : null;
+                    new PlayerCommand(++sequences[actor], Match.Epoch, action.Value, target, revision, slot, value)) } : null;
                 var poses = at.HasValue ? new[] { State.Bodies.Single(b => b.Id == "player:" + actor).At(at.Value) } : null;
-                var result = Match.Advance(State.Progress.WallClockMs + 17, commands, poses);
+                var result = Match.Advance(State.Progress.WallClockMs + 17, commands, poses, observations, damage);
                 Assert.IsTrue(result.Advanced);
                 Assert.LessOrEqual(State.Bodies.Count, WordboundEntityBudget.MaximumBodies);
                 return result;

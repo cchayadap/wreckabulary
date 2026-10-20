@@ -97,7 +97,9 @@ namespace Wreckabulary.Rules.Wordbound
                 "lastInputSequence", Long(a.LastInputSequence), "appearance", a.Appearance,
                 "equippedSlot", a.EquippedSlot, "staggerImmuneUntilTick", Long(a.StaggerImmuneUntilTick),
                 "attack", a.Attack == null ? new object[0] : new[] { Map("startedTick", Long(a.Attack.StartedTick),
-                    "weaponEntityId", a.Attack.WeaponEntityId, "hitBodyIds", a.Attack.HitBodyIds) })).ToArray(),
+                    "weaponEntityId", a.Attack.WeaponEntityId, "hitBodyIds", a.Attack.HitBodyIds) },
+                "defense", a.Defense == null ? new object[0] : new[] { Map("itemEntityId", a.Defense.ItemEntityId,
+                    "startedTick", Long(a.Defense.StartedTick), "untilTick", Long(a.Defense.UntilTick)) })).ToArray(),
             "bodies", s.Bodies.Select(b => (object)Map("id", b.Id, "kind", b.Kind.ToString(), "position", Vector(b.Position),
                 "rotationXyz", Vector(b.RotationXyz), "rotationW", Float(b.RotationW), "velocity", Vector(b.Velocity),
                 "angularVelocity", Vector(b.AngularVelocity), "sleeping", b.Sleeping, "kinematic", b.Kinematic, "active", b.Active,
@@ -256,7 +258,7 @@ namespace Wreckabulary.Rules.Wordbound
         static MatchActorState ReadActor(JsonNode n)
         {
             Keys(n, "playerId", "health", "stamina", "nextAttackTick", "stunnedUntilTick", "dodgeUntilTick", "lastInputSequence", "appearance",
-                "equippedSlot", "staggerImmuneUntilTick", "attack");
+                "equippedSlot", "staggerImmuneUntilTick", "attack", "defense");
             var attackNode = Array(n["attack"], 1);
             MatchAttackState attack = null;
             if (attackNode.Count == 1)
@@ -265,9 +267,16 @@ namespace Wreckabulary.Rules.Wordbound
                 attack = new MatchAttackState(Counter(a["startedTick"]), Text(a["weaponEntityId"]),
                     Array(a["hitBodyIds"], 8192).Select(id => Text(id)));
             }
+            var defenseNode = Array(n["defense"], 1);
+            MatchDefenseState defense = null;
+            if (defenseNode.Count == 1)
+            {
+                var d = defenseNode[0]; Keys(d, "itemEntityId", "startedTick", "untilTick");
+                defense = new MatchDefenseState(Text(d["itemEntityId"]), Counter(d["startedTick"]), Counter(d["untilTick"]));
+            }
             return new MatchActorState(Text(n["playerId"]), ReadFloat(n["health"]), ReadFloat(n["stamina"]), Counter(n["nextAttackTick"]),
                 Counter(n["stunnedUntilTick"]), Counter(n["dodgeUntilTick"]), Counter(n["lastInputSequence"]), Text(n["appearance"], 2048),
-                Int(n["equippedSlot"]), attack, Counter(n["staggerImmuneUntilTick"]));
+                Int(n["equippedSlot"]), attack, Counter(n["staggerImmuneUntilTick"]), defense);
         }
         static WorldBodyState ReadBody(JsonNode n)
         {

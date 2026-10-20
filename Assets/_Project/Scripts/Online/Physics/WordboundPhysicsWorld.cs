@@ -161,6 +161,11 @@ namespace Wreckabulary.Online
             var inventory = frame.Economy.Players.Single(p => p.PlayerId == index);
             if (!inventory.CanAct) return false;
             scale = inventory.Craft == null ? 1 : Rules.CraftMoveSpeed;
+            if (stats.Defense != null)
+            {
+                var shield = frame.Economy.Items.Single(i => "item:" + i.Id == stats.Defense.ItemEntityId);
+                scale *= WordboundDefensePolicy.MoveScale(stats.Defense, items.Get(shield.Word).Shield, frame.Progress.Tick);
+            }
             return true;
         }
 

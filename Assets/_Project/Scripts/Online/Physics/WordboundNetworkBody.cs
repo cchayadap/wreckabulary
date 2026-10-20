@@ -188,7 +188,9 @@ namespace Wreckabulary.Online
                 acceleration * Runner.DeltaTime);
             if (hasInput && input.Jump && grounded) next.y = Mathf.Sqrt(2 * 9.81f * world.Rules.JumpHeight);
             body.linearVelocity = next;
-            if (direction.DistanceSquared(default) > .0001f)
+            if (hasInput && input.HasFacing)
+                body.MoveRotation(Quaternion.Euler(0, input.FacingYaw, 0));
+            else if (direction.DistanceSquared(default) > .0001f)
                 body.MoveRotation(Quaternion.LookRotation(new Vector3(direction.X, 0, direction.Z), Vector3.up));
         }
 

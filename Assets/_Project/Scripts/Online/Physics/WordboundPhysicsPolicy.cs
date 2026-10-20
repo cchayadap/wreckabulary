@@ -12,6 +12,8 @@ namespace Wreckabulary.Online
         public float MoveX;
         public float MoveZ;
         public NetworkBool Jump;
+        public NetworkBool HasFacing;
+        public float FacingYaw;
     }
 
     public static class WordboundPhysicsPolicy
@@ -20,7 +22,8 @@ namespace Wreckabulary.Online
         {
             direction = default;
             if (input.Epoch != epoch || !Finite(input.MoveX) || !Finite(input.MoveZ) ||
-                Math.Abs(input.MoveX) > 1 || Math.Abs(input.MoveZ) > 1) return false;
+                Math.Abs(input.MoveX) > 1 || Math.Abs(input.MoveZ) > 1 ||
+                !Finite(input.FacingYaw) || input.FacingYaw < -180 || input.FacingYaw > 180) return false;
             double length = Math.Sqrt((double)input.MoveX * input.MoveX + (double)input.MoveZ * input.MoveZ);
             float divisor = length > 1 ? (float)length : 1;
             direction = new WorldVector(input.MoveX / divisor, 0, input.MoveZ / divisor);

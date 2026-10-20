@@ -117,8 +117,11 @@ namespace Wreckabulary.Rules.Wordbound
                 WordboundThrownPolicy.Stats(ball);
             WordboundCombatPolicy.Ticks(rules.StaggerImmunitySeconds);
             foreach (string recipeId in Mode.Recipes)
-                if (catalogue.TryGet(recipeId, out var combatItem) && combatItem.Melee != null)
-                    WordboundCombatPolicy.Validate(combatItem.Melee);
+                if (catalogue.TryGet(recipeId, out var combatItem))
+                {
+                    if (combatItem.Melee != null) WordboundCombatPolicy.Validate(combatItem.Melee);
+                    if (combatItem.Shield != null) WordboundDefensePolicy.RaiseTicks(combatItem.Shield);
+                }
             foreach (var puzzle in course.Puzzles)
                 if (puzzle.RecipeId != "" && (!Mode.Recipes.Contains(puzzle.RecipeId) ||
                     !catalogue.TryGet(puzzle.RecipeId, out var recipe) || !recipe.Enabled ||
@@ -349,11 +352,13 @@ namespace Wreckabulary.Rules.Wordbound
             Outcome outcome;
             switch (command.Action)
             {
+                case WordboundAction.Block:
+                    return SetDefense(seat.PlayerId, command);
                 case WordboundAction.Equip:
                     if (command.Target != "" || command.Value != "" || command.Revision != 0) return Effect("InvalidPayload");
                     if (economy.Player(index).CarriedFurniture >= 0) return Effect("HandsFull");
                     if (command.Slot >= 0 && Held(index, command.Slot) == null) return Effect("EmptySlot");
-                    actors[seat.PlayerId] = Actor(actors[seat.PlayerId], equippedSlot: command.Slot, clearAttack: true);
+                    actors[seat.PlayerId] = Actor(actors[seat.PlayerId], equippedSlot: command.Slot, clearAttack: true, clearDefense: true);
                     return Effect("Ok", command.Slot < 0 ? "" : "item:" + Held(index, command.Slot).Id);
                 case WordboundAction.Attack:
                     if (command.Target != "" || command.Value != "" || command.Revision != 0 || command.Slot != -1)
@@ -490,6 +495,7 @@ namespace Wreckabulary.Rules.Wordbound
             NormalizeEquipment(seat.PlayerId, Tick + 1);
             var actor = actors[seat.PlayerId];
             var inventory = economy.Player(index);
+            if (actor.Defense != null) return Effect("Blocking");
             if (inventory.CarriedFurniture >= 0) return Effect("HandsFull");
             if (inventory.Craft != null) return Effect("AlreadyCrafting");
             if (actor.NextAttackTick > Tick + 1) return Effect("Cooldown");
@@ -529,7 +535,7 @@ namespace Wreckabulary.Rules.Wordbound
                     if (amount <= 0) continue;
                     int stun = Math.Min(ModeDefinition.TickRate,
                         WordboundCombatPolicy.Ticks(Math.Min(stats.HitStun, rules.HitStunMax)));
-                    if (!ApplyDamage(new HostDamage(seat.PlayerId, body.Id, amount, stun))) continue;
+                    if (!ApplyDamage(new HostDamage(seat.PlayerId, body.Id, amount, stun), out var impact)) continue;
                     hitIds.Add(body.Id);
                     var current = bodies[body.Id];
                     if (current.Active && !current.Kinematic && stats.Knockback > 0)
@@ -539,8 +545,8 @@ namespace Wreckabulary.Rules.Wordbound
                         var facing = Forward(origin, 1);
                         x = length > .0001f ? x / length : facing.X;
                         z = length > .0001f ? z / length : facing.Z;
-                        float speed = stats.Knockback * 2;
-                        var velocity = Add(current.Velocity, new WorldVector(x * speed, speed * .35f, z * speed));
+                        float speed = stats.Knockback * 2 * impact.KnockbackScale;
+                        var velocity = Add(current.Velocity, new WorldVector(x * speed, speed * impact.VerticalKnockbackScale, z * speed));
                         bodies[body.Id] = current.At(current.Position,
                             new WorldVector(Math.Max(-1000, Math.Min(1000, velocity.X)),
                                 Math.Max(-1000, Math.Min(1000, velocity.Y)), Math.Max(-1000, Math.Min(1000, velocity.Z))));
@@ -578,10 +584,15 @@ namespace Wreckabulary.Rules.Wordbound
                 actor.Health <= 0 || actor.StunnedUntilTick > tick || player.Returned ||
                 actor.Attack != null && actor.Attack.WeaponEntityId != weaponId;
             actors[playerId] = Actor(actor, equippedSlot: slot, clearAttack: cancel);
+            NormalizeDefense(playerId, tick);
         }
 
-        bool ApplyDamage(HostDamage damage, bool thrownContact = false)
+        bool ApplyDamage(HostDamage damage, bool thrownContact = false) => ApplyDamage(damage, out _, thrownContact);
+
+        bool ApplyDamage(HostDamage damage, out WordboundDefenseHit impact, bool thrownContact = false,
+            WorldVector? incomingFrom = null)
         {
+            impact = new WordboundDefenseHit(damage.Amount, 0);
             if (!bodies.TryGetValue(damage.BodyId, out var body) || !body.Active) return false;
             bool hazard = damage.ActorId == "";
             int attacker = -1;
@@ -612,13 +623,16 @@ namespace Wreckabulary.Rules.Wordbound
                 if (actor.DodgeUntilTick > Tick + 1 || pending.Any(e =>
                     (e.Kind == ProgressEventKind.Fell && e.PlayerId == victim.Id) ||
                     (e.Kind == ProgressEventKind.Knockout && e.Target == victim.Id))) return false;
-                float health = Math.Max(0, actor.Health - damage.Amount);
-                bool stagger = damage.StunTicks > 0 && actor.StaggerImmuneUntilTick <= Tick + 1;
+                impact = ApplyDefense(victim.Id, body, hazard ? null : incomingFrom ?? bodies["player:" + attacker].Position,
+                    damage.Amount, Tick + 1);
+                actor = actors[victim.Id];
+                float health = Math.Max(0, actor.Health - impact.Damage);
+                bool stagger = !impact.Blocked && damage.StunTicks > 0 && actor.StaggerImmuneUntilTick <= Tick + 1;
                 int stun = Math.Min(damage.StunTicks, WordboundCombatPolicy.Ticks(rules.HitStunMax));
                 actors[victim.Id] = Actor(actor, health: health,
                     stun: stagger ? Tick + 1 + stun : actor.StunnedUntilTick,
                     immune: stagger ? Tick + 1 + WordboundCombatPolicy.Ticks(rules.StaggerImmunitySeconds) : actor.StaggerImmuneUntilTick,
-                    clearAttack: stagger || health == 0);
+                    clearAttack: stagger || health == 0, clearDefense: stagger || health == 0);
                 if (stagger) economy.CancelCraft(indices[victim.Id]);
                 if (health == 0)
                 {
@@ -724,12 +738,12 @@ namespace Wreckabulary.Rules.Wordbound
                     WorldVector safe = RecoveryPosition(seat);
                     AddTiles(loose, safe, Mode.IsRace ? seat.Team : -1);
                     foreach (var item in dropped) Release(Outcome.Done(item), safe, default, false);
-                    actors[seat.PlayerId] = Actor(actors[seat.PlayerId], health: 0, stun: 0);
+                    actors[seat.PlayerId] = Actor(actors[seat.PlayerId], health: 0, stun: 0, clearDefense: true);
                 }
                 if (previous != null && current.RecoveryGeneration > previous.RecoveryGeneration)
                 {
                     body = body.At(RecoveryPosition(seat), active: current.Connected);
-                    actors[seat.PlayerId] = Actor(actors[seat.PlayerId], health: rules.MaxHealth, stamina: rules.MaxStamina, stun: 0);
+                    actors[seat.PlayerId] = Actor(actors[seat.PlayerId], health: rules.MaxHealth, stamina: rules.MaxStamina, stun: 0, clearDefense: true);
                 }
                 bodies[body.Id] = body.At(body.Position, body.Velocity, current.Connected && !current.Eliminated);
                 var actor = actors[seat.PlayerId];
@@ -1026,11 +1040,13 @@ namespace Wreckabulary.Rules.Wordbound
         }
         static MatchActorState Actor(MatchActorState previous, float? health = null, float? stamina = null,
             long? stun = null, long? lastInput = null, int? equippedSlot = null, MatchAttackState attack = null,
-            bool clearAttack = false, long? nextAttack = null, long? immune = null) =>
+            bool clearAttack = false, long? nextAttack = null, long? immune = null,
+            MatchDefenseState defense = null, bool clearDefense = false) =>
             new MatchActorState(previous.PlayerId, health ?? previous.Health, stamina ?? previous.Stamina,
                 nextAttack ?? previous.NextAttackTick, stun ?? previous.StunnedUntilTick, previous.DodgeUntilTick,
                 lastInput ?? previous.LastInputSequence, previous.Appearance, equippedSlot ?? previous.EquippedSlot,
-                clearAttack ? null : attack ?? previous.Attack, immune ?? previous.StaggerImmuneUntilTick);
+                clearAttack ? null : attack ?? previous.Attack, immune ?? previous.StaggerImmuneUntilTick,
+                clearDefense ? null : defense ?? previous.Defense);
         static string Key(string id, int team, int lap) => MatchStateValidation.ResourceKey(id, team, lap);
         static int Number(string id) => int.Parse(id.Substring(id.IndexOf(':') + 1), CultureInfo.InvariantCulture);
         static CommandEffect Effect(string code, string entity = "") => new CommandEffect(code, entity);

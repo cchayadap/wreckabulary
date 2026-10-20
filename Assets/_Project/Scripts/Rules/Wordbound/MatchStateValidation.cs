@@ -175,6 +175,8 @@ namespace Wreckabulary.Rules.Wordbound
                     (actor.EquippedSlot == -1 || inventory.CarriedFurniture < 0 &&
                         inventory.Slots[actor.EquippedSlot] > 0),
                     "Equipped slot must identify one held item and cannot coexist with carried furniture.");
+                string defenseError = WordboundDefensePolicy.SnapshotError(s, actor, catalogue, mode);
+                Need(defenseError == "", defenseError);
                 if (actor.Attack != null)
                 {
                     var attack = actor.Attack;

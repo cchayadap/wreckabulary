@@ -113,9 +113,11 @@ namespace Wreckabulary.Rules.Wordbound
         public int EquippedSlot { get; }
         public MatchAttackState Attack { get; }
         public long StaggerImmuneUntilTick { get; }
+        public MatchDefenseState Defense { get; }
         public MatchActorState(string playerId, float health, float stamina, long nextAttackTick = 0,
             long stunnedUntilTick = 0, long dodgeUntilTick = 0, long lastInputSequence = 0, string appearance = "",
-            int equippedSlot = -1, MatchAttackState attack = null, long staggerImmuneUntilTick = 0)
+            int equippedSlot = -1, MatchAttackState attack = null, long staggerImmuneUntilTick = 0,
+            MatchDefenseState defense = null)
         {
             if (!WordboundIdentity.IsId(playerId) || !WorldVector.Finite(health) || health < 0 ||
                 !WorldVector.Finite(stamina) || stamina < 0 || nextAttackTick < 0 || stunnedUntilTick < 0 ||
@@ -127,6 +129,7 @@ namespace Wreckabulary.Rules.Wordbound
             StunnedUntilTick = stunnedUntilTick; DodgeUntilTick = dodgeUntilTick;
             LastInputSequence = lastInputSequence; Appearance = appearance;
             EquippedSlot = equippedSlot; Attack = attack; StaggerImmuneUntilTick = staggerImmuneUntilTick;
+            Defense = defense;
         }
     }
 
