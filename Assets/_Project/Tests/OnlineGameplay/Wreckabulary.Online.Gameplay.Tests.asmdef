@@ -1,0 +1,28 @@
+{
+  "name": "Wreckabulary.Online.Gameplay.Tests",
+  "rootNamespace": "Wreckabulary.OnlineGameplayTests",
+  "references": [
+    "Wreckabulary",
+    "Wreckabulary.Rules",
+    "Wreckabulary.Online.Fusion",
+    "Wreckabulary.Online.Physics",
+    "Wreckabulary.Online.Gameplay",
+    "Fusion.Unity",
+    "Fusion.Addons.Physics",
+    "Photon.Realtime",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll",
+    "Fusion.Runtime.dll",
+    "Fusion.Common.dll",
+    "Fusion.Sockets.dll",
+    "Fusion.Realtime.dll",
+    "Fusion.Log.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}
