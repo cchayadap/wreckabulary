@@ -237,3 +237,15 @@ Exact primary source SHA-256 pins from current integration:
 | WordboundRuntime/WordboundCourseWorld.cs | DFE76968B01A86E4CBFF9959E8DDEFF476ED8EB7D3CF07659CC16C5FF912D53B |
 
 STATUS: BOUNDED REVIEW COMPLETE — FIVE ACTIONABLE IMPLEMENTATION GAPS; NO RUNTIME VERIFICATION PERFORMED
+
+## Story implementation follow-up — 2026-10-21
+
+STATUS: BOUNDED READ-ONLY REVIEW COMPLETE — NO BLOCKING SOURCE FINDING IN REVIEWED SCOPE
+
+Root requested a narrow review of the new StoryPlan/StoryView and HUD hook after R0 completed. Inspected current integration0f1ff2f98689c655376ee2e0d214222db094f2c6 plus working source; no compilation, Unity, mutation of production files or expanded tests were performed for this review.
+
+A5 now has concrete runtime consumers: WordboundStoryPlan selects authored flagship beats for resolved lap/checkpoint IDs and positions notices at exact resolved recovery anchors; Journal requires the matching course/source hashes, local roster/team, its narrative flag and reached checkpoint. WordboundStoryView attaches to the runner-owned course scene, creates collider-free text, hides during faults/paused simulation, rebuilds on progress changes and unsubscribes/cleans up at destruction. MatchHud creates/binds the view and provides a collected-clues menu. The plan's focused tests cover unselected routes, team isolation, future flags and restored progress; those tests were read, not rerun by this reviewer. This closes the earlier missing-consumer finding at source level for the built-in flagship. The implementation deliberately does not add a custom-workshop story editor or turn generic course IDs into authored stories.
+
+No blocking source defect was established in that bounded path. Native text rendering, readability, banner timing during real progression, scene replacement and complete three-lap narrative acceptance remain unverified here; no visual or human acceptance follows from this review. Other prior acceptance findings are unaffected.
+
+Exact SHA-256: StoryPlan09AEB7A3582D2689EE2786408D5B8E495021A57993F5F9513B87F77F23712169; StoryView0775419594452411B7A652FEA503B3A2C143E74B56A90DFD720AD312D7B55609; MatchHudFFBB08F1777440C22A5F67D528271A73B53AD59F42C4E187C68F30BFCA0AB54E.
