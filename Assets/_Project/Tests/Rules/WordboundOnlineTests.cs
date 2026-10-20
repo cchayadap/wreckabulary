@@ -249,6 +249,26 @@ namespace Wreckabulary.Rules.Tests
             client.ClearCredentials();
             Assert.Throws<InvalidOperationException>(() => client.PhotonTicket().GetAwaiter().GetResult());
         }
+        [Test] public void ConnectionStateAcceptsExplicitUnattachedIdsButRejectsMissingOrNullRequiredFields()
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            var transport = new Transport(); var client = Client(transport);
+            var service = new OnlineConnectionService(client, verifier, Expected(), () => Now * 1000);
+            var seat = new Dictionary<string, object> {
+                ["playerId"] = Player, ["returned"] = false, ["connectionEpoch"] = "0",
+                ["connectionId"] = null, ["hostId"] = null, ["leaseExpiresAt"] = 0, ["reconnectDeadline"] = Now * 1000 + 120000 };
+            var response = new Dictionary<string, object> {
+                ["matchId"] = Match, ["reservationGeneration"] = "1", ["rosterHash"] = Expected().RosterHash,
+                ["revision"] = "0", ["serverTime"] = Now * 1000, ["seats"] = new[] { seat } };
+            transport.Next = new OnlineResponse(200, OnlineJson.Encode(response));
+            var accepted = service.Renew(match, Array.Empty<OnlineConnectionLease>(), default).GetAwaiter().GetResult().Single();
+            Assert.IsNull(accepted.ConnectionId); Assert.IsNull(accepted.HostId);
+            seat.Remove("connectionId"); transport.Next = new OnlineResponse(200, OnlineJson.Encode(response));
+            Assert.Throws<FormatException>(() => service.Renew(match, Array.Empty<OnlineConnectionLease>(), default).GetAwaiter().GetResult());
+            seat["connectionId"] = null; seat["returned"] = null; transport.Next = new OnlineResponse(200, OnlineJson.Encode(response));
+            Assert.Throws<FormatException>(() => service.Renew(match, Array.Empty<OnlineConnectionLease>(), default).GetAwaiter().GetResult());
+        }
         sealed class DelayedTransport : IOnlineHttpTransport
         {
             public readonly TaskCompletionSource<OnlineResponse> Completion = new TaskCompletionSource<OnlineResponse>();

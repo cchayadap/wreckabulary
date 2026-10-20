@@ -34,7 +34,10 @@ namespace Wreckabulary.Rules.Wordbound
         public long ReconnectDeadline { get; }
         internal OnlineConnectionSeat(JsonNode node)
         {
-            OnlineJson.Fields(node, "playerId", "returned", "connectionEpoch", "connectionId", "hostId", "leaseExpiresAt", "reconnectDeadline");
+            string[] fields = { "playerId", "returned", "connectionEpoch", "connectionId", "hostId", "leaseExpiresAt", "reconnectDeadline" };
+            if (!node.IsObject || node.Keys.Count() != fields.Length || fields.Any(name => !node.Keys.Contains(name)) ||
+                fields.Where(name => name != "connectionId" && name != "hostId").Any(name => !node.Has(name)))
+                throw new FormatException("Unexpected or missing connection state fields.");
             PlayerId = OnlineJson.Text(node, "playerId", OnlineJson.Uuid);
             HostId = node["hostId"].IsNull ? null : OnlineJson.Text(node, "hostId", OnlineJson.Uuid);
             ConnectionId = node["connectionId"].IsNull ? null : OnlineJson.Text(node, "connectionId", OnlineJson.Uuid);
