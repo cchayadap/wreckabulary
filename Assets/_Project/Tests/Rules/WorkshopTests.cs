@@ -227,5 +227,52 @@ namespace Wreckabulary.Rules.Tests
             }
             finally { if (Directory.Exists(folder)) Directory.Delete(folder, true); }
         }
+        [Test]
+        public void HandleDragPreviewsWithoutMutatingAndCommitsOneUndoStep()
+        {
+            var history = History(); history.Select(new[] { "a" });
+            string before = history.Current.RecoveryJson;
+            var drag = new WorkshopTransformDrag(history, WorkshopHandle.X, new CoursePoint(0, 0, 0));
+            drag.Move(730, 9999); drag.Move(1270, -9999);
+            Assert.AreEqual(new CoursePoint(1500, 0, 0), drag.Delta);
+            Assert.AreEqual(before, history.Current.RecoveryJson);
+            Assert.IsTrue(drag.Commit(history));
+            Assert.AreEqual(1500, history.Current.Course().Modules.Single(module => module.Id == "a").Position.X);
+            Assert.IsTrue(history.Undo()); Assert.AreEqual(before, history.Current.RecoveryJson);
+            Assert.IsFalse(history.CanUndo);
+        }
+        [Test]
+        public void HandleDragCannotCommitOverAConcurrentDraftChange()
+        {
+            var history = History(); history.Select(new[] { "a" });
+            var drag = new WorkshopTransformDrag(history, WorkshopHandle.Plane, new CoursePoint(0, 0, 0));
+            drag.Move(1000, 500);
+            history.Execute("Rename", draft => draft.Course.Title = "Concurrent edit");
+            string before = history.Current.RecoveryJson;
+            Assert.Throws<InvalidOperationException>(() => drag.Commit(history));
+            Assert.AreEqual(before, history.Current.RecoveryJson);
+        }
+        [Test]
+        public void RotationHandleSnapsQuarterTurnsAndRejectsLockedSelection()
+        {
+            var history = History(); history.Select(new[] { "a" });
+            var drag = new WorkshopTransformDrag(history, WorkshopHandle.Rotate, new CoursePoint(0, 0, 0));
+            drag.Rotate(95); Assert.AreEqual(1, drag.QuarterTurns);
+            Assert.Throws<ArgumentException>(() => drag.Rotate(double.NaN));
+            drag.Commit(history);
+            Assert.AreEqual(90, history.Current.Course().Modules.Single(module => module.Id == "a").Yaw);
+            history.Execute("Lock", draft => draft.LockedLayers.Add("ground"));
+            Assert.Throws<InvalidOperationException>(() => new WorkshopTransformDrag(history, WorkshopHandle.Plane, new CoursePoint(0, 0, 0)));
+        }
+        [Test]
+        public void ControllerSelectionIsStableAndSkipsHiddenOrLockedLayers()
+        {
+            var history = History();
+            Assert.AreEqual("a", WorkshopSelection.Step(history.Current, 1));
+            history.Select(new[] { "a" }); Assert.AreEqual("b", WorkshopSelection.Step(history.Current, 1));
+            history.Select(new[] { "b" }); Assert.AreEqual("a", WorkshopSelection.Step(history.Current, 1));
+            history.Execute("Hide", draft => draft.HiddenLayers.Add("ground"));
+            Assert.IsNull(WorkshopSelection.Step(history.Current, 1));
+        }
     }
 }

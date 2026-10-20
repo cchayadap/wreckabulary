@@ -27,3 +27,11 @@ Runtime entry: add `Wreckabulary.Workshop.WordboundWorkshop`, then `OpenTemplate
 Review fixes: template reopening restores autosave before writes; issue navigation resolves owning modules; hidden floors hide zones; the sharing panel blocks background pointer actions. The validation layer accepts unfinished topology for editing but rejects malformed data atomically. Full resolver validation gates playtest.
 
 Next recoverable action: root integrates both workshop commits after map-core, imports native metadata, runs `Wreckabulary.EditorTests.WordboundWorkshopTests`, and manually exercises drag/undo/floors/zone resize/share/playtest return. Remaining final UX: art thumbnails, free-camera 3D surface editing, advanced route/lap controls, controller focus and novice-user acceptance. Proof templates are not the final flagship map.
+
+## 3D upgrade checkpoint
+
+STATUS: IN PROGRESS. The next source increment replaces the plan-view world with an owned RenderTexture camera and 3D stage, reusing `Surfaces` meshes/textures and `ModelVisual` for approved item visuals. Camera, render target and private material instances are disposed without touching the game camera. Layer 31 and a preview stage at world Y -20000 keep the render-only stage away from live geometry; the integrator should keep the workshop context isolated.
+
+Orbit, pan, zoom, active-floor surface selection, X/Z/plane/quarter-turn handles, marquee selection, floor ghosting, preview-only drag transforms and deterministic placement visualization are implemented. A completed handle/stick drag publishes one history transaction; a changed revision rejects a stale drag. Controller tools provide action navigation, selection, grid movement, orbit/zoom, rotate, multiselect, undo/redo, frame, preview and playtest.
+
+Current checks: **21/21 rule cases pass**. Focused Unity reference compile succeeds with **0 errors**, and two expected CS0436 warnings because it links the already-integrated older Wreckabulary assembly for existing art facilities while compiling this newer workshop class. Five native editor fixtures are authored, including projection/picking and owned-resource disposal, but **NOT RUN** here. Next: improve approved object selection/fixed-object manipulation, polish panel flow, then final source verification and root native gate.

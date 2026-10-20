@@ -8,7 +8,7 @@ using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Workshop
 {
-    public sealed class WordboundWorkshop : MonoBehaviour
+    public sealed partial class WordboundWorkshop : MonoBehaviour
     {
         public WorkshopHistory History { get; private set; }
         public CourseCatalogue Catalogue { get; private set; }
@@ -23,8 +23,8 @@ namespace Wreckabulary.Workshop
         CourseValidation validation;
         readonly Dictionary<WorkshopTemplate, WorkshopHistory> drafts = new Dictionary<WorkshopTemplate, WorkshopHistory>();
         WorkshopTemplate? currentTemplate;
-        Vector2 paletteScroll, inspectorScroll, worldCenter, pointerStart, dragDelta, panStart;
-        float zoom = 12f, autosaveAt;
+        Vector2 paletteScroll, inspectorScroll, pointerStart;
+        float autosaveAt;
         int displayRevision = -1, savedRevision = -1, zoneMode = 1, presetIndex;
         bool dragging, marquee, panning, drawingZone, addSelection, advanced, sharing;
         string search = "", placing, status = "", title = "", seed = "", xInput = "0", zInput = "0", layerHeight = "4";
@@ -64,6 +64,7 @@ namespace Wreckabulary.Workshop
         public CourseResolution Preview()
         {
             LastPreview = History.Preview(Catalogue, PlayRequirements);
+            if (view != null) view.Sync(History.Current, Catalogue, LastPreview.Success ? LastPreview.Manifest : null);
             status = LastPreview.Success ? "Preview ready · exact draft and seed" : LastPreview.Issues.FirstOrDefault()?.Message ?? "Preview failed";
             return LastPreview;
         }
@@ -76,7 +77,7 @@ namespace Wreckabulary.Workshop
         void ResetView()
         {
             displayRevision = -1; savedRevision = -1; placing = null; dragging = marquee = panning = drawingZone = sharing = false;
-            zoneId = ""; resizingZone = null; LastPreview = null; Frame();
+            zoneId = ""; resizingZone = null; LastPreview = null; CancelGesture(); Frame();
         }
         void Refresh()
         {
@@ -86,17 +87,22 @@ namespace Wreckabulary.Workshop
             var selected = display.Modules.FirstOrDefault(module => History.Current.Selection.Contains(module.Id));
             if (selected != null) { xInput = Metres(selected.Position.X); zInput = Metres(selected.Position.Z); }
             displayRevision = History.Revision; autosaveAt = Time.unscaledTime + 1f; LastPreview = null;
+            if (view != null) view.Sync(History.Current, Catalogue);
         }
         void Update()
         {
             if (History == null) return;
             Refresh();
+            if (view != null) view.Active = Visible;
+            if (Visible && !sharing) ControllerInput();
             if (History.Revision == savedRevision || Time.unscaledTime < autosaveAt) return;
             try { storage.Save(History.Current); savedRevision = History.Revision; }
             catch (Exception error) { status = "Autosave: " + error.Message; autosaveAt = Time.unscaledTime + 5f; }
         }
         void OnDisable()
         {
+            if (view != null) view.Active = false;
+            CancelGesture();
             if (History == null || storage == null || History.Revision == savedRevision) return;
             try { storage.Save(History.Current); savedRevision = History.Revision; }
             catch (Exception error) { Debug.LogWarning("Wordbound autosave: " + error.Message); }
@@ -154,7 +160,7 @@ namespace Wreckabulary.Workshop
             if (Button("Rename")) Edit("Rename", draft => draft.Course.Title = title.Trim());
             GUILayout.Label(PlayRequirements.ModeId, GUILayout.Width(90));
             if (Button("Share")) { shareText = History.Current.CourseJsonText; sharing = true; }
-            if (Button("Close")) Attempt(() => { storage.Save(History.Current); savedRevision = History.Revision; CloseRequested?.Invoke(); Visible = false; });
+            if (Button("Close")) Attempt(() => { CancelGesture(); storage.Save(History.Current); savedRevision = History.Revision; CloseRequested?.Invoke(); Visible = false; });
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
         void Palette()
@@ -170,6 +176,7 @@ namespace Wreckabulary.Workshop
                 if (Button(TemplateLabel(template))) Attempt(() => OpenTemplate(template));
             GUILayout.Space(12);
             if (Button("Frame map")) Frame();
+            if (Button("Top view")) { EnsureView(); view.Top(); }
             if (Button("Recover autosave"))
                 Attempt(() =>
                 {
@@ -177,7 +184,8 @@ namespace Wreckabulary.Workshop
                     History.Execute("Recover", draft => Replace(draft, recovered.Edit()));
                     status = backup ? "Recovered previous save" : "Recovered autosave";
                 });
-            GUILayout.Label("Drag to move · Shift to add\nDrag empty space to select\nMiddle drag to pan · Wheel to zoom");
+            GUILayout.Label("Drag to move · Shift to add\nRight drag to orbit · Middle to pan\nWheel to zoom · F frames selection");
+            ControllerPanel();
             GUILayout.EndScrollView();
         }
         void Inspector()
@@ -234,7 +242,7 @@ namespace Wreckabulary.Workshop
             {
                 Edit("Focus issue", draft => { draft.ActiveLayer = module.LayerId; draft.HiddenLayers.Remove(module.LayerId); });
                 History.Select(new[] { module.Id }, false, false);
-                worldCenter = new Vector2(module.Position.X, module.Position.Z); Refresh();
+                view?.Focus(module.Position); Refresh();
             }
             status = issue.Message;
         }
@@ -331,130 +339,6 @@ namespace Wreckabulary.Workshop
             if (Button("+ Floor")) Edit("Add floor", draft => WorkshopCommands.AddLayer(draft, Millimetres(layerHeight)));
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
-        void WorldView()
-        {
-            GUI.Box(viewport, "");
-            GUI.BeginGroup(viewport);
-            foreach (var module in display.Modules)
-            {
-                if (!Catalogue.Modules.ContainsKey(module.DefinitionId) || History.Current.HiddenLayers.Contains(module.LayerId)) continue;
-                var rect = ScreenBox(Catalogue.Bounds(module));
-                bool selected = History.Current.Selection.Contains(module.Id);
-                if (dragging && selected) rect.position += new Vector2(dragDelta.x * zoom / 1000f, -dragDelta.y * zoom / 1000f);
-                bool ghost = module.LayerId != History.Current.ActiveLayer;
-                var floors = display.Layers.OrderBy(layer => layer.HeightMm).Select(layer => layer.Id).ToList();
-                if (ghost && Math.Abs(floors.IndexOf(module.LayerId) - floors.IndexOf(History.Current.ActiveLayer)) > 1) continue;
-                GUI.color = ghost ? new Color(1, 1, 1, .35f) : Color.white;
-                var style = ghost ? ghostBox : validation.Issues.Any(issue => issue.EntityId == module.Id) ? issueBox : selected ? selectedBox : normalBox;
-                GUI.Box(rect, module.Id + (History.Current.LockedLayers.Contains(module.LayerId) ? "\nLocked" : ""), style);
-            }
-            GUI.color = Color.white;
-            foreach (var connection in display.Connections)
-            {
-                if (!display.Modules.Any(module => (module.Id == connection.FromModuleId || module.Id == connection.ToModuleId) &&
-                    module.LayerId == History.Current.ActiveLayer && !History.Current.HiddenLayers.Contains(module.LayerId))) continue;
-                DrawLine(ScreenPoint(connection.From), ScreenPoint(connection.To), new Color(.4f, .9f, .8f));
-            }
-            foreach (var zone in display.Zones.Where(zone => zone.LayerIds.Contains(History.Current.ActiveLayer) &&
-                !History.Current.HiddenLayers.Contains(History.Current.ActiveLayer)))
-            {
-                var bounds = zone.Id == resizingZone ? ResizeBounds(zone.Bounds, resizeAnchor, resizePoint) : zone.Bounds;
-                GUI.Box(ScreenBox(bounds), zone.Id + (zone.Placement == "Fixed" ? " · fixed" : " · zone"),
-                    validation.Issues.Any(issue => issue.EntityId == zone.Id) ? issueBox : ghostBox);
-                if (zone.Placement == "Fixed")
-                { var at = ScreenPoint(zone.FixedPosition); GUI.Box(new Rect(at.x - 4, at.y - 4, 8, 8), ""); }
-                if (zone.Id == zoneId && zone.Placement != "Fixed")
-                    foreach (var corner in Corners(bounds))
-                    { var at = ScreenPoint(corner); GUI.Box(new Rect(at.x - 5, at.y - 5, 10, 10), ""); }
-            }
-            if (marquee) GUI.Box(DragRect(pointerStart, Event.current.mousePosition), "", selectedBox);
-            GUI.EndGroup();
-            try { HandlePointer(); }
-            catch (Exception error) { status = error.Message; dragging = marquee = panning = drawingZone = false; resizingZone = null; }
-        }
-        void HandlePointer()
-        {
-            if (sharing) return;
-            var input = Event.current; Vector2 mouse = input.mousePosition - viewport.position;
-            bool inside = viewport.Contains(input.mousePosition) && !(mouse.x < 448 && mouse.y < 106);
-            if (input.type == EventType.ScrollWheel && inside)
-            { zoom = Mathf.Clamp(zoom * (input.delta.y > 0 ? .9f : 1.1f), .1f, 80f); input.Use(); }
-            if (input.type == EventType.MouseDown && inside && input.button == 2)
-            { panning = true; pointerStart = mouse; panStart = worldCenter; input.Use(); }
-            if (input.type == EventType.MouseDrag && panning)
-            { worldCenter = panStart + new Vector2(pointerStart.x - mouse.x, mouse.y - pointerStart.y) * (1000f / zoom); input.Use(); }
-            if (input.type == EventType.MouseUp && panning) { panning = false; input.Use(); }
-            if (input.type == EventType.MouseDown && inside && input.button == 0)
-            {
-                pointerStart = mouse; addSelection = input.shift;
-                var zone = display.Zones.FirstOrDefault(item => item.Id == zoneId && item.Placement != "Fixed" && item.LayerIds.Contains(History.Current.ActiveLayer));
-                if (zone != null && !drawingZone && placing == null)
-                {
-                    var corners = Corners(zone.Bounds);
-                    for (int i = 0; i < corners.Length; i++)
-                        if (Vector2.Distance(mouse, ScreenPoint(corners[i])) <= 10)
-                        {
-                            resizingZone = zone.Id; resizeAnchor = corners[(i + 2) % 4]; resizePoint = corners[i];
-                            input.Use(); return;
-                        }
-                }
-                if (placing != null) { Edit("Place module", draft => WorkshopCommands.AddModule(draft, placing, WorldPoint(mouse))); input.Use(); return; }
-                var hit = display.Modules.LastOrDefault(module => module.LayerId == History.Current.ActiveLayer &&
-                    !History.Current.HiddenLayers.Contains(module.LayerId) && !History.Current.LockedLayers.Contains(module.LayerId) &&
-                    Catalogue.Modules.ContainsKey(module.DefinitionId) && ScreenBox(Catalogue.Bounds(module)).Contains(mouse));
-                if (drawingZone)
-                {
-                    if (History.Current.Selection.Count == 0) { status = "Select a module first."; drawingZone = false; }
-                    else marquee = true;
-                }
-                else if (hit != null)
-                {
-                    if (!History.Current.Selection.Contains(hit.Id) || addSelection) History.Select(new[] { hit.Id }, addSelection);
-                    dragging = true; dragDelta = Vector2.zero; Refresh();
-                }
-                else marquee = true;
-                input.Use();
-            }
-            if (input.type == EventType.MouseDrag && resizingZone != null)
-            {
-                var point = WorldPoint(mouse);
-                resizePoint = new CoursePoint(WorkshopCommands.Snap(point.X, History.Current.GridMm), point.Y, WorkshopCommands.Snap(point.Z, History.Current.GridMm));
-                input.Use();
-            }
-            if (input.type == EventType.MouseUp && input.button == 0 && resizingZone != null)
-            {
-                string id = resizingZone;
-                Edit("Resize zone", draft =>
-                {
-                    var zone = draft.Course.Zones.Single(item => item.Id == id);
-                    zone.Bounds = ResizeBounds(zone.Bounds, resizeAnchor, resizePoint);
-                    WorkshopCommands.SetZone(draft, zone, Catalogue);
-                });
-                resizingZone = null; input.Use();
-            }
-            if (input.type == EventType.MouseDrag && dragging)
-            {
-                var from = WorldPoint(pointerStart); var to = WorldPoint(mouse);
-                dragDelta = new Vector2(WorkshopCommands.Snap(to.X - from.X, History.Current.GridMm), WorkshopCommands.Snap(to.Z - from.Z, History.Current.GridMm));
-                input.Use();
-            }
-            if (input.type == EventType.MouseUp && input.button == 0 && (dragging || marquee))
-            {
-                if (dragging) Edit("Move", draft => WorkshopCommands.Move(draft, new CoursePoint((int)dragDelta.x, 0, (int)dragDelta.y), false));
-                else if (drawingZone) DrawZone(WorldPoint(pointerStart), WorldPoint(mouse));
-                else
-                {
-                    var area = DragRect(pointerStart, mouse);
-                    History.Select(display.Modules.Where(module => module.LayerId == History.Current.ActiveLayer &&
-                        !History.Current.LockedLayers.Contains(module.LayerId) && !History.Current.HiddenLayers.Contains(module.LayerId) &&
-                        Catalogue.Modules.ContainsKey(module.DefinitionId) && area.Overlaps(ScreenBox(Catalogue.Bounds(module)))).Select(module => module.Id), addSelection);
-                    Refresh();
-                }
-                dragging = marquee = drawingZone = false; input.Use();
-            }
-            if (input.type == EventType.KeyDown && input.keyCode == KeyCode.Escape)
-            { placing = null; resizingZone = null; dragging = marquee = drawingZone = false; input.Use(); }
-        }
         void DrawZone(CoursePoint from, CoursePoint to)
         {
             Edit("Placement zone", draft =>
@@ -533,26 +417,6 @@ namespace Wreckabulary.Workshop
             if (Button("Done")) sharing = false;
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
-        void Frame()
-        {
-            if (History == null || Catalogue == null) return;
-            var bounds = History.Current.Course().Modules.Where(module => Catalogue.Modules.ContainsKey(module.DefinitionId)).Select(Catalogue.Bounds).ToArray();
-            if (bounds.Length == 0) { worldCenter = Vector2.zero; zoom = 12; return; }
-            int minX = bounds.Min(box => box.Min.X), maxX = bounds.Max(box => box.Max.X);
-            int minZ = bounds.Min(box => box.Min.Z), maxZ = bounds.Max(box => box.Max.Z);
-            worldCenter = new Vector2(((long)minX + maxX) * .5f, ((long)minZ + maxZ) * .5f);
-            zoom = Mathf.Clamp(Mathf.Min(Mathf.Max(200, Screen.width - 560) * 1000f / (maxX - (float)minX + 8000),
-                Mathf.Max(200, Screen.height - 200) * 1000f / (maxZ - (float)minZ + 8000)), .1f, 80f);
-        }
-        CoursePoint WorldPoint(Vector2 point) => new CoursePoint(
-            checked((int)Math.Round(worldCenter.x + (point.x - viewport.width * .5f) * 1000f / zoom)),
-            display.Layers.FirstOrDefault(layer => layer.Id == History.Current.ActiveLayer)?.HeightMm ?? 0,
-            checked((int)Math.Round(worldCenter.y - (point.y - viewport.height * .5f) * 1000f / zoom)));
-        Rect ScreenBox(CourseBox box) => new Rect(viewport.width * .5f + (box.Min.X - worldCenter.x) * zoom / 1000f,
-            viewport.height * .5f - (box.Max.Z - worldCenter.y) * zoom / 1000f,
-            (box.Max.X - (float)box.Min.X) * zoom / 1000f, (box.Max.Z - (float)box.Min.Z) * zoom / 1000f);
-        Vector2 ScreenPoint(CoursePoint point) => new Vector2(viewport.width * .5f + (point.X - worldCenter.x) * zoom / 1000f,
-            viewport.height * .5f - (point.Z - worldCenter.y) * zoom / 1000f);
         static void DrawLine(Vector2 from, Vector2 to, Color color)
         {
             var matrix = GUI.matrix; var previous = GUI.color; var delta = to - from;
@@ -576,7 +440,8 @@ namespace Wreckabulary.Workshop
         static CourseBox ResizeBounds(CourseBox original, CoursePoint a, CoursePoint b) => new CourseBox(
             new CoursePoint(Math.Min(a.X, b.X), original.Min.Y, Math.Min(a.Z, b.Z)),
             new CoursePoint(Math.Max(a.X, b.X), original.Max.Y, Math.Max(a.Z, b.Z)));
-        static CoursePoint Pivot(List<CourseModule> modules) => new CoursePoint((int)modules.Average(module => (double)module.Position.X), 0, (int)modules.Average(module => (double)module.Position.Z));
+        static CoursePoint Pivot(List<CourseModule> modules) => new CoursePoint((int)modules.Average(module => (double)module.Position.X),
+            (int)modules.Average(module => (double)module.Position.Y), (int)modules.Average(module => (double)module.Position.Z));
         static void Toggle(List<string> list, string id) { if (!list.Remove(id)) list.Add(id); }
         static string Metres(int mm) => (mm / 1000d).ToString("0.###", CultureInfo.InvariantCulture);
         static int Millimetres(string text)

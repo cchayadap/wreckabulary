@@ -77,5 +77,42 @@ namespace Wreckabulary.EditorTests
             Assert.IsTrue(workshop.History.Undo());
             Assert.AreNotEqual("My race", workshop.History.Current.Course().Title);
         }
+        [Test]
+        public void ViewportProjectsAndPicksTheActiveFloorWithoutChangingCourseData()
+        {
+            var preset = WorkshopTemplates.Create(WorkshopTemplate.FreestyleWorld);
+            using (var view = new WordboundWorkshopViewport(owner.transform))
+            {
+                view.Sync(preset.Snapshot, preset.Catalogue); view.Frame(); view.Resize(800, 600);
+                var module = preset.Snapshot.Course().Modules.Find(item => item.Id == "Start");
+                var rect = new Rect(0, 0, 800, 600);
+                var screen = view.Project(module.Position, rect);
+                Assert.IsTrue(view.Surface(screen, rect, module.Position.Y, out var point));
+                Assert.LessOrEqual(Math.Abs(point.X - module.Position.X), 5);
+                Assert.LessOrEqual(Math.Abs(point.Z - module.Position.Z), 5);
+                Assert.AreEqual("Start", view.Pick(screen, rect));
+                var history = new WorkshopHistory(preset.Snapshot); history.Select(new[] { "Start" });
+                var drag = new WorkshopTransformDrag(history, WorkshopHandle.Plane, module.Position);
+                drag.Move(1500, 500);
+                string before = history.Current.RecoveryJson;
+                view.TransformPreview(drag, module.Position);
+                Assert.AreEqual(before, history.Current.RecoveryJson);
+            }
+        }
+        [Test]
+        public void ViewportDisposalReleasesOnlyItsOwnedCameraAndRenderTarget()
+        {
+            var other = new GameObject("Unrelated camera").AddComponent<Camera>();
+            try
+            {
+                var view = new WordboundWorkshopViewport(owner.transform);
+                var image = view.Texture;
+                view.Dispose();
+                Assert.IsTrue(other);
+                Assert.IsTrue(image == null);
+                Assert.AreEqual(0, owner.GetComponentsInChildren<Camera>(true).Length);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(other.gameObject); }
+        }
     }
 }
