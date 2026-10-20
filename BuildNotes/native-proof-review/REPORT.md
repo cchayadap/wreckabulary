@@ -100,3 +100,23 @@ Exact local SHA-256 pins:
 | `Client/Tests/WordboundWorkshopLaunchTests.cs` | `3782617A54E200137FE04EB6CE6549A5A319657F03C668C368294A87C2AED313` |
 
 No root/domain source writes or compiler/native process were performed by this reviewer.
+
+## Production-content multiplayer fixture follow-up — 2026-10-21
+
+STATUS: BOUNDED SOURCE REVIEW COMPLETE — TWO ASSERTION GAPS REPAIRED; NATIVE NOT RUN
+
+Read-only review requested for the online owner's frozen new eight-peer flagship TeamRace/Squad composition and four-peer flagship BrawlRace/Duo graceful-departure cases. Scope is exact private party/roster formation, actual elected survivor selection, physical phase recovery and false-pass boundaries. No compiler, Unity or external requests are authorized in this review lane. Exact initial/final source pins and bounded conclusions follow.
+
+Initial source pins at online base `96fa195e80905a3bc8c5f7d20887ddb55cba6f40`: `WordboundLiveMatch.cs` SHA-256 `53B272635B9EA0A59AA6A18DA88A6C16DE9D0446D48C0C017127927ED266F511`; `WordboundNativeGameplayTests.cs` SHA-256 `DAC4A9943026E69584A61DD3B544B2DD85B2E459E1DD4D561DFAFB79D4BFA54B`.
+
+Confirmed **F1 (P2) test-proof gap: eventual motion comparison can miss a reset**. The initial fixture records a committed replica's positive MotionUnits before host departure, but compares them only after every survivor is Ready and has the next epoch. The elected replacement may advance while other survivors reconnect. A faulty restore that starts motion at zero can therefore catch up during that readiness interval and satisfy the eventual `>=` assertion. This is a concrete assertion-order gap, not a reproduced production restoration defect. The domain allows up to 1,000 motion units per tick, and the wait permits 75 seconds. Recommended repair sent to the owner: capture the replacement host's first new-epoch FrameChanged/BeginHost frame before authoritative advancement and check that frontier there; keep eventual body/ACK checks separately.
+
+Confirmed **F2 (P2) test-proof gap: whole-party assertion does not compare original membership**. The initial `Prepare` assertion checks two teams, one party label per team, equal counts, two distinct party labels and the complete guest set. It does not compare signed PartyId/member sets to the concrete `parties` groups created earlier. A wrongly reassigned set of guests with two equal labels can pass. Recommended repair: for each original PartyGroup, require its exact ID and exact authenticated member set in the signed roster, as well as one team and a distinct team for the other party. Both findings were delivered directly to the online owner and root. Reviewer made no source changes.
+
+The owner implemented both repairs. Independent source reinspection confirms the fixture subscribes before Stop, captures the first frame from each survivor's new server Runner at exactly the next epoch, saves its authoritative-advance count, then compares the chosen replacement's saved physical frontier with that count equal to zero. Current production `BeginHost` emits this `FrameChanged` through Reconcile before `hostReady = true`; subsequent catch-up cannot change the immutable saved snapshot. Signed-party assertions now match every original PartyGroup.Id and its exact authenticated player set, retaining team uniqueness and complete-roster checks.
+
+Final reviewed local SHA-256 pins: `WordboundLiveMatch.cs` = `E3B002346BC1E118AE0AB9CA9C3EFEB67E9EAB8EA4348C24DBBB47FC46D0A595`; `WordboundNativeGameplayTests.cs` = `41EF96544E41E71C95AF37AD109E644F468E82EA4FDE006902CBB9310E76EE5E`; native test asmdef = `326597619B4C28D322717F6D551055447158863FB91B0AC8168ED0B7D8331B74`.
+
+No additional concrete blocker was found in the remaining bounded source review. Replacement selection uses an actual new running server Runner among original survivors and requires one eventual host; every survivor must reach the next domain epoch. Checks retain exact authenticated survivor identities, disconnected prior host, complete canonical/native body IDs, one prior command receipt, and a fresh surviving-client command with exact new-epoch ACK. Physical counters wrap the actual production runtime callbacks. Timeouts/cancellation remain bounded, and cleanup failures fail the test rather than becoming successful body-only evidence.
+
+Compilation and native execution of these new cases remain pending with their owners. This source review does not establish abrupt-kill recovery, cross-device behavior, adverse networking, all-family puzzle completion or full three-lap playability.
