@@ -1,5 +1,5 @@
 import { Store } from "./store";
-import { accessToken } from "./auth";
+import { accessToken, photonConfiguration, signPhotonTicket } from "./auth";
 import { rpcValue } from "./rpc";
 import { digest, equalSecret, requireThat, secret, NOW, type PartySettings } from "./model";
 
@@ -8,6 +8,7 @@ type IdentityState = {
   refreshHash: string; refreshExpires: number;
   membership?: { partyId: string; operationId: string; requestHash: string; status: "PENDING" | "ACTIVE"; kind: "CREATE" | "JOIN" };
   leave?: { operationId: string; requestHash: string; partyId: string; complete: boolean; result?: unknown };
+  photonTickets?: Record<string, { version: string; appId: string; expiresAt: number }>;
 };
 export class Identity extends Store<IdentityState> {
   async create(playerId: string, displayName: string) {
@@ -31,6 +32,29 @@ export class Identity extends Store<IdentityState> {
   }
   check(version: string) {
     requireThat(this.read()?.version === version, "INVALID_TOKEN", 401);
+  }
+  async photonTicket() {
+    const appId = photonConfiguration(this.env); const issuedAt = Math.floor(NOW() / 1000);
+    const nonce = crypto.randomUUID();
+    const data = this.transaction(() => {
+      const s = this.read(); requireThat(s, "UNKNOWN_IDENTITY", 401);
+      s.photonTickets ??= {};
+      for (const [id, ticket] of Object.entries(s.photonTickets))
+        if (ticket.expiresAt <= issuedAt || ticket.version !== s.version) delete s.photonTickets[id];
+      requireThat(Object.keys(s.photonTickets).length < 16, "AUTH_TICKET_LIMIT", 429);
+      s.photonTickets[nonce] = { appId, version: s.version, expiresAt: issuedAt + 60 };
+      this.write(s); return { playerId: s.playerId, version: s.version };
+    });
+    return { ticket: await signPhotonTicket(this.env, data.playerId, data.version, nonce, issuedAt), appId, expiresAt: (issuedAt + 60) * 1000 };
+  }
+  consumePhotonTicket(nonce: string, version: string, appId: string, expiresAt: number) {
+    return this.transaction(() => {
+      const s = this.read(); const ticket = s?.photonTickets?.[nonce];
+      requireThat(s && ticket && s.version === version && ticket.version === version && ticket.appId === appId
+        && ticket.expiresAt === expiresAt && NOW() < expiresAt * 1000, "INVALID_PHOTON_TICKET", 401);
+      delete s.photonTickets![nonce]; this.write(s);
+      return { ResultCode: 1, UserId: s.playerId };
+    });
   }
   profile() {
     const s = this.read(); requireThat(s, "UNKNOWN_IDENTITY", 401);

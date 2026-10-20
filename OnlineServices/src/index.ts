@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { authenticate, publicKey } from "./auth";
+import { authenticate, photonConfiguration, publicKey, verifyPhotonTicket } from "./auth";
 import { rpcValue } from "./rpc";
-import { Hash, Id, QueueRequest, Revision, Settings, digest, requireThat, type ServiceEnv } from "./model";
+import { Hash, Id, QueueRequest, Revision, Settings, digest, equalSecret, requireThat, type ServiceEnv } from "./model";
 export { Identity } from "./identity";
 export { Party } from "./party";
 export { MatchPool } from "./pool";
@@ -49,8 +49,28 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
     requireThat(!extra && value?.length === 43, "INVALID_REFRESH", 401);
     return env.IDENTITIES.getByName(Id.parse(id)).refresh(value);
   }
+  if (path.join("/") === "v1/photon/auth") {
+    try {
+      requireThat(method === "POST", "INVALID_PHOTON_PARAMETERS", 400);
+      const appId = photonConfiguration(env); const query = new URL(request.url).searchParams;
+      requireThat([...query.keys()].length === 2 && query.getAll("appId").length === 1 && query.getAll("providerKey").length === 1,
+        "INVALID_PHOTON_PARAMETERS", 400);
+      requireThat(query.get("appId") === appId && equalSecret(query.get("providerKey")!, env.PHOTON_PROVIDER_SECRET!), "INVALID_PROVIDER", 401);
+      const data = await body(request, z.object({ ticket: z.string().min(1).max(4096) }).strict());
+      const ticket = await verifyPhotonTicket(env, data.ticket);
+      return await rpcValue(env.IDENTITIES.getByName(ticket.playerId)
+        .consumePhotonTicket(ticket.nonce, ticket.version, ticket.appId, ticket.expiresAt));
+    } catch (e) {
+      if (e instanceof Error && e.message.includes("SERVICE_NOT_CONFIGURED")) throw e;
+      const invalid = e instanceof z.ZodError || (e instanceof Error && /WB:(400|413|415):/.test(e.message));
+      return { ResultCode: invalid ? 3 : 2, Message: invalid ? "Invalid authentication parameters." : "Authentication failed." };
+    }
+  }
   const actor = await authenticate(request, env);
   const identity = env.IDENTITIES.getByName(actor);
+  if (method === "POST" && path.join("/") === "v1/photon/tickets") {
+    await body(request, Empty); return identity.photonTicket();
+  }
   if (method === "GET" && path.join("/") === "v1/me") return identity.profile();
   if (method === "POST" && path.join("/") === "v1/parties") {
     const data = await body(request, z.object({ settings: Settings }).strict());

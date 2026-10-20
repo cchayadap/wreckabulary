@@ -35,7 +35,10 @@ export const QueueRequest = z.object({
 export type PartySettings = z.infer<typeof Settings>;
 export type ContentBinding = z.infer<typeof Content>;
 export type QueueInput = z.infer<typeof QueueRequest>;
-export type ServiceEnv = Env & { ACCESS_SECRET?: string; ADMISSION_PRIVATE_JWK?: string };
+export type ServiceEnv = Env & {
+  ACCESS_SECRET?: string; ADMISSION_PRIVATE_JWK?: string;
+  PHOTON_APP_ID?: string; PHOTON_PROVIDER_SECRET?: string;
+};
 export type Member = { playerId: string; ready: boolean };
 export type Attempt = {
   id: string; partyId: string; partyRevision: string; members: string[];

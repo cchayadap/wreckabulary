@@ -16,6 +16,7 @@ All revisions/generations are decimal strings. UTC deadlines are Unix millisecon
 | POST `/auth/refresh` | `{refreshToken}` | Rotated credentials; old refresh and access tokens cease to work. |
 | GET `/me` | None | Own player ID, display name and current party ID. |
 | GET `/keys` | None | Public RS256 JWK set; no private fields. |
+| POST `/photon/tickets` | `{}` | Authenticated guest obtains `{ticket, appId, expiresAt}` for one Photon authentication attempt. |
 | POST `/parties` | `{settings}` | Own revisioned party and invite code. |
 | POST `/party-joins` | `{partyId, invite}` | Join as authenticated self, cancelling an old queue first. |
 | GET `/parties/{id}` | None | Member-only party, attempt and current assignment. |
@@ -75,5 +76,13 @@ Local setup: `npm ci`, `npm run types`, `npm run verify` inside `OnlineServices`
 The API returns `{error:{code}}` on failure. HTTP 400 means invalid schema/JSON, 401 invalid credentials, 403 wrong member/leader, 404 absent/private-closed match, 409 revision/lifecycle/content conflict, 413 oversized request, 415 wrong content type, 422 unapproved content, 429 pool capacity, and 503 missing service configuration. Retry an interrupted party operation with the original key and body; refresh the party view after a definitive revision conflict. A party has a bounded operation history; `PARTY_OPERATION_LIMIT` requires leaving and creating a new party, with leave remaining available at that limit.
 
 Implementation follows Cloudflare's [SQLite Durable Object storage](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/), [Workers Vitest integration](https://developers.cloudflare.com/workers/testing/vitest-integration/), and [RPC lifecycle rules](https://developers.cloudflare.com/workers/runtime-apis/rpc/lifecycle/). RPC results are cloned to plain values and explicitly disposed at boundaries.
+
+Photon custom authentication is implemented independently of its SDK. Configure `PHOTON_APP_ID` with the approved Fusion app UUID and `PHOTON_PROVIDER_SECRET` with a separate server-only random secret of at least 43 characters. The client obtains an authenticated `/photon/tickets` response and submits only `{ticket}` through `AuthenticationValues.SetAuthPostData(Dictionary<string,object>)`, with `AuthType = CustomAuthenticationType.Custom`, passed as `StartGameArgs.AuthValues`.
+
+The provider route is `POST /v1/photon/auth`. Its query has exactly two dashboard-owned values, `appId` and `providerKey`; its JSON body has exactly `ticket`. It verifies the provider secret, configured app, signature, issuer, app-specific audience `wordbound-photon:<app UUID>`, identity credential version, nonce and exclusive 60-second expiry. Ticket consumption is transactional and single-use. Photon receives HTTP 200 with `ResultCode:1` and the coordinator's `UserId` on success; invalid credentials return code 2 and malformed parameters return code 3, without a user ID. Missing configuration fails closed with HTTP 503. It never accepts a body/query user ID. Obtain a fresh ticket after an interrupted authentication or when starting a new Runner; Photon handles subsequent server switches with its own encrypted authentication token.
+
+Dashboard setup and deployment are **NOT RUN**. When authorized, set the Custom provider URL to the deployed `/v1/photon/auth` route, configure static query values `appId` and `providerKey`, reject anonymous clients, and reject clients when the provider is unavailable. Clients must never contain `providerKey`. The worker disables automatic invocation logs because dashboard secrets arrive in query parameters; retain this redaction boundary in any reverse proxy or request telemetry. Do not log tickets, full provider URLs or raw authentication errors.
+
+The request/response contract and dashboard behavior are documented in the official [Fusion 2 custom authentication guide](https://doc.photonengine.com/fusion/v2/manual/connection-and-matchmaking/authentication/custom-authentication) and [Realtime 5 guide](https://doc.photonengine.com/realtime/v5/connection-and-authentication/authentication/custom-authentication). This local endpoint test is not evidence of a configured Photon application.
 
 Runtime evidence, tests and remaining limitations are recorded in `BuildNotes/online/STATUS.md`.
