@@ -1,4 +1,5 @@
 import { Store } from "./store";
+import { rpcValue } from "./rpc";
 import {
   code, digest, equalSecret, poolKey, requireThat, NOW, validatePartySize,
   type PartySettings, type PartyState, type QueueInput, type Attempt,
@@ -31,7 +32,8 @@ export class Party extends Store<PartyState> {
       if (receipt) { requireThat(receipt.hash === hash, "IDEMPOTENCY_CONFLICT"); return { replay: true as const, result: receipt.result }; }
       if (!joining) this.member(s, actor);
       requireThat(!s.operation || (s.operation.key === key && s.operation.hash === hash), "PARTY_BUSY");
-      requireThat(Object.keys(s.receipts).length < 2048, "PARTY_OPERATION_LIMIT");
+      const leaving = kind === "mutate" && (body as Mutation).kind === "leave";
+      requireThat(leaving || Object.keys(s.receipts).length < 2048, "PARTY_OPERATION_LIMIT");
       s.operation ??= { key, hash, kind }; this.write(s);
       return { replay: false as const, state: s };
     });
@@ -57,7 +59,7 @@ export class Party extends Store<PartyState> {
     throw error;
   }
   private async cancelActive(s: PartyState) {
-    if (s.active) await this.env.POOLS.getByName(s.active.poolKey).cancel(s.active.id, s.id);
+    if (s.active) await rpcValue(this.env.POOLS.getByName(s.active.poolKey).cancel(s.active.id, s.id));
   }
   async join(actor: string, key: string, invite: string) {
     const op = this.begin(actor, key, { invite }, "join", true);
@@ -112,17 +114,25 @@ export class Party extends Store<PartyState> {
       requireThat(body.channel !== "CustomFill" || s.settings.fill, "FILL_CONSENT_REQUIRED");
       let target = poolKey(s.settings);
       if (body.channel === "PrivateJoin") {
-        const locator = await this.env.POOLS.getByName(`code:${body.code}`).resolveCode();
+        const locator = await rpcValue(this.env.POOLS.getByName(`code:${body.code}`).resolveCode());
         requireThat(locator.poolKey === target, "PRIVATE_SETTINGS_MISMATCH");
       }
-      const attempt: Attempt = s.operation!.attempt ?? {
-        id: crypto.randomUUID(), partyId: s.id, partyRevision: s.revision,
-        members: s.members.map(m => m.playerId), settings: s.settings,
-        poolKey: target, channel: body.channel, content: body.content, code: body.code,
-        createdAt: NOW(),
-      };
-      this.transaction(() => { const current = this.read()!; current.operation!.attempt = attempt; this.write(current); });
-      const result = await this.env.POOLS.getByName(target).enqueue(attempt);
+      const locked = this.transaction(() => {
+        const current = this.read()!;
+        if (current.receipts[key]) return { replay: true as const, result: current.receipts[key].result };
+        requireThat(current.operation?.key === key, "OPERATION_LOST");
+        const pending: Attempt = current.operation.attempt ?? {
+          id: crypto.randomUUID(), partyId: current.id, partyRevision: current.revision,
+          members: current.members.map(m => m.playerId), settings: current.settings,
+          poolKey: target, channel: body.channel, content: body.content, code: body.code,
+          createdAt: NOW(),
+        };
+        current.operation.attempt = pending; this.write(current);
+        return { replay: false as const, attempt: pending };
+      });
+      if (locked.replay) return locked.result;
+      const attempt = locked.attempt;
+      const result = await rpcValue(this.env.POOLS.getByName(target).enqueue(attempt));
       if (body.channel === "PrivateCreate" && result.privateCode)
         await this.env.POOLS.getByName(`code:${result.privateCode}`).registerCode(target, result.matchId!, attempt.id);
       return this.finish(key, current => { current.active = attempt; });
@@ -130,7 +140,7 @@ export class Party extends Store<PartyState> {
   }
   async get(actor: string) {
     const s = this.read(); requireThat(s, "PARTY_NOT_FOUND", 404); this.member(s, actor);
-    const assignment = s.active ? await this.env.POOLS.getByName(s.active.poolKey).status(s.active.id, s.id, actor) : undefined;
+    const assignment = s.active ? await rpcValue(this.env.POOLS.getByName(s.active.poolKey).status(s.active.id, s.id, actor)) : undefined;
     return { ...this.view(s), assignment };
   }
 }

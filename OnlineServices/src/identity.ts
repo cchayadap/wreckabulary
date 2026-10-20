@@ -1,11 +1,13 @@
 import { Store } from "./store";
 import { accessToken } from "./auth";
+import { rpcValue } from "./rpc";
 import { digest, equalSecret, requireThat, secret, NOW, type PartySettings } from "./model";
 
 type IdentityState = {
   playerId: string; displayName: string; version: string;
   refreshHash: string; refreshExpires: number;
   membership?: { partyId: string; operationId: string; requestHash: string; status: "PENDING" | "ACTIVE"; kind: "CREATE" | "JOIN" };
+  leave?: { operationId: string; requestHash: string; partyId: string; complete: boolean; result?: unknown };
 };
 export class Identity extends Store<IdentityState> {
   async create(playerId: string, displayName: string) {
@@ -38,6 +40,7 @@ export class Identity extends Store<IdentityState> {
     const requestHash = digest({ kind, partyId, settings, invite });
     this.transaction(() => {
       const s = this.read(); requireThat(s, "UNKNOWN_IDENTITY", 401);
+      requireThat(!s.leave || s.leave.complete, "MEMBERSHIP_BUSY");
       requireThat(!s.membership || (s.membership.partyId === partyId && s.membership.operationId === operationId && s.membership.kind === kind), "ALREADY_IN_PARTY");
       requireThat(!s.membership || s.membership.requestHash === requestHash, "IDEMPOTENCY_CONFLICT");
       s.membership ??= { partyId, operationId, kind, requestHash, status: "PENDING" }; this.write(s);
@@ -46,10 +49,13 @@ export class Identity extends Store<IdentityState> {
     try {
       const party = this.env.PARTIES.getByName(partyId);
       const result = kind === "CREATE"
-        ? await party.create(partyId, s.playerId, settings!)
-        : await party.join(s.playerId, operationId, invite!);
+        ? await rpcValue(party.create(partyId, s.playerId, settings!))
+        : await rpcValue(party.join(s.playerId, operationId, invite!));
       this.transaction(() => {
-        const current = this.read()!; current.membership!.status = "ACTIVE"; this.write(current);
+        const current = this.read()!;
+        if (current.membership?.requestHash === requestHash && current.membership.status === "PENDING") {
+          current.membership.status = "ACTIVE"; this.write(current);
+        }
       });
       return result;
     } catch (e) {
@@ -64,14 +70,39 @@ export class Identity extends Store<IdentityState> {
       throw e;
     }
   }
-  async leave(operationId: string, expectedRevision: string) {
-    const s = this.read(); requireThat(s?.membership, "NO_PARTY", 404);
-    const partyId = s.membership.partyId;
-    const result = await this.env.PARTIES.getByName(partyId).mutate(s.playerId, operationId, { kind: "leave", expectedRevision });
-    this.transaction(() => {
-      const current = this.read()!;
-      if (current.membership?.partyId === partyId) { delete current.membership; this.write(current); }
+  async leave(partyId: string, operationId: string, expectedRevision: string) {
+    const requestHash = digest({ partyId, expectedRevision });
+    const op = this.transaction(() => {
+      const s = this.read(); requireThat(s, "UNKNOWN_IDENTITY", 401);
+      if (s.leave?.operationId === operationId) {
+        requireThat(s.leave.requestHash === requestHash, "IDEMPOTENCY_CONFLICT");
+        if (s.leave.complete) return { replay: true as const, result: s.leave.result };
+      }
+      requireThat(s.membership?.partyId === partyId, "NOT_PARTY_MEMBER", 403);
+      requireThat(s.membership.status === "ACTIVE", "MEMBERSHIP_BUSY");
+      requireThat(!s.leave || s.leave.complete || s.leave.operationId === operationId, "MEMBERSHIP_BUSY");
+      s.leave = { operationId, requestHash, partyId, complete: false }; this.write(s);
+      return { replay: false as const, playerId: s.playerId };
     });
-    return result;
+    if (op.replay) return op.result;
+    try {
+      const result = await rpcValue(this.env.PARTIES.getByName(partyId).mutate(op.playerId, operationId, { kind: "leave", expectedRevision }));
+      return this.transaction(() => {
+        const current = this.read()!;
+        if (current.leave?.operationId === operationId && current.leave.complete) return current.leave.result;
+        requireThat(current.leave?.operationId === operationId, "OPERATION_LOST");
+        if (current.membership?.partyId === partyId) delete current.membership;
+        current.leave.complete = true; current.leave.result = result; this.write(current);
+        return result;
+      });
+    } catch (e) {
+      if (e instanceof Error && /WB:/.test(e.message)) this.transaction(() => {
+        const current = this.read()!;
+        if (current.leave?.operationId === operationId && !current.leave.complete) {
+          delete current.leave; this.write(current);
+        }
+      });
+      throw e;
+    }
   }
 }

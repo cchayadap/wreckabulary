@@ -1,6 +1,6 @@
 # Online coordinator lane
 
-STATUS: IN PROGRESS
+STATUS: LOCAL SERVICE VERIFIED; TRANSPORT INTEGRATION PENDING
 
 Base: 12842c75608694f36819edd3bd4dc104ece7f79c
 Branch: sethypagna/online
@@ -18,4 +18,10 @@ Dependency policy: selected @cloudflare/vitest-plugin 1.4.4, wrangler 4.151.1 an
 
 Read-only C# review identified an ambiguous route-hash encoding and an inclusive reconnect boundary. Root confirmed fixes and regression coverage for both in its separate lane.
 
-Next recoverable action: require a signed start certificate alongside per-seat admission, cover TimeRun/FFA/Freestyle service flows, and review cross-object retries after code lookup. Then run the complete local verification again and hand off the exact HTTP/verification contract.
+2026-10-20 final local increment: TypeScript and 35 tests pass (28 actual Workers-runtime tests plus seven pure rule tests). Added signed match-start certificates with a distinct audience and cancellation regression, TimeRun/FFA/Freestyle paths, real FFA timer alarm, concurrent private-code lookup retry and durable leave replay after membership has changed. Explicit disposal of RPC results eliminates the intermittent disposal warning; verify-handoff.log contains no such warning. Expected rejected RPC domain errors are logged by the local runtime but are asserted HTTP errors; Vitest reports no unhandled test errors.
+
+Validation command: `npm run verify` in OnlineServices; the PowerShell runner preserved npm's exit code. Exit 0; two test files, 35 passing tests. Evidence: verify-handoff.log. Keys exist only in the in-memory test configuration; no external service was called or deployed.
+
+Additional read-only C# review: no blocking issue found in the current CommandJournal/SnapshotCommitTracker layers. Root was advised to hard-pause on target restore failure, require monotonic simulation ticks in the adapter, and validate receipt domains when exposing the snapshot wire decoder.
+
+Next recoverable action for integration: implement the Unity adapter against docs/wordbound/ONLINE.md, verify authenticated Photon identity plus seat grant and start certificate, and exercise real 8-player sessions with disconnect/rejoin and host migration. Configure an actual approved built-in content registry and local ignored service keys for interactive testing. External deployment, production load validation and edge abuse limits have not been performed or claimed.

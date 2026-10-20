@@ -25,11 +25,11 @@ export async function authenticate(request: Request, env: ServiceEnv) {
     requireThat(false, "INVALID_TOKEN", 401);
   }
 }
-export async function signGrant(env: ServiceEnv, claims: JWTPayload) {
+export async function signGrant(env: ServiceEnv, claims: JWTPayload, audience = "wordbound-admission") {
   requireThat(env.ADMISSION_PRIVATE_JWK, "SERVICE_NOT_CONFIGURED", 503);
   const key = await importJWK(JSON.parse(env.ADMISSION_PRIVATE_JWK), "RS256");
   return new SignJWT(claims).setProtectedHeader({ alg: "RS256", typ: "JWT", kid: env.SIGNING_KEY_ID })
-    .setIssuer(env.TOKEN_ISSUER).setAudience("wordbound-admission")
+    .setIssuer(env.TOKEN_ISSUER).setAudience(audience)
     .setIssuedAt().setExpirationTime("90s").sign(key);
 }
 export function publicKey(env: ServiceEnv) {

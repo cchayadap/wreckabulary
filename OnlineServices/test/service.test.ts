@@ -3,6 +3,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { runInDurableObject, runDurableObjectAlarm, evictDurableObject, reset } from "cloudflare:test";
 import { importJWK, jwtVerify } from "jose";
 import { digest, poolKey, type ContentBinding, type PartySettings, type PartyState, type Attempt } from "../src/model";
+import { rpcValue } from "../src/rpc";
 
 afterEach(async () => { vi.restoreAllMocks(); await reset(); });
 
@@ -70,6 +71,27 @@ describe("authenticated guests and HTTP validation", () => {
 });
 
 describe("transactional parties and cancellation", () => {
+  it("replays leaving after a lost response without removing a later party membership", async () => {
+    const g = await party(settings(), 2); const key = crypto.randomUUID();
+    const path = `/parties/${g.p.id}/leave`; const input = { expectedRevision: g.p.revision };
+    const results = await Promise.all([0, 1].map(() => call<PartyView>(path, input, g.members[0], "POST", key)));
+    expect(results.map(r => r.status)).toEqual([200, 200]);
+    expect(results[0].data).toEqual(results[1].data);
+    const remaining = await call<{ leaderId: string }>(`/parties/${g.p.id}`, undefined, g.members[1]);
+    expect(remaining.data.leaderId).toBe(g.members[1].playerId);
+    const next = await call<PartyView>("/parties", { settings: g.s }, g.members[0]);
+    expect(next.status).toBe(200);
+    expect((await call(path, input, g.members[0], "POST", key)).status).toBe(200);
+    expect((await call<{ partyId: string }>("/me", undefined, g.members[0])).data.partyId).toBe(next.data.id);
+    expect((await call(path, { expectedRevision: "0" }, g.members[0], "POST", key)).status).toBe(409);
+  });
+  it("binds party creation retries to the original settings", async () => {
+    const a = await guest(); const s = settings(); const key = crypto.randomUUID();
+    const result = await call<PartyView>("/parties", { settings: s }, a, "POST", key);
+    expect(result.status).toBe(200);
+    expect((await call("/parties", { settings: { ...s, fill: true } }, a, "POST", key)).status).toBe(409);
+    expect((await call<PartyView>("/parties", { settings: s }, a, "POST", key)).data.id).toBe(result.data.id);
+  });
   it("claims membership only once across concurrent invitations", async () => {
     const s = settings(); const a = await party(s); const b = await party(s); const joiner = await guest();
     const rs = await Promise.all([a, b].map(g => call("/party-joins", { partyId: g.p.id, invite: g.p.invite }, joiner)));
@@ -95,7 +117,7 @@ describe("transactional parties and cancellation", () => {
     const attempt = view.activeAttempt;
     expect((await call(`/parties/${g.p.id}/cancel`, { expectedRevision: g.p.revision }, g.members[0])).status).toBe(200);
     let rejection = "";
-    try { await env.POOLS.getByName(poolKey(g.s)).enqueue(attempt); }
+    try { await rpcValue(env.POOLS.getByName(poolKey(g.s)).enqueue(attempt)); }
     catch (e) { rejection = (e as Error).message; }
     expect(rejection).toContain("ATTEMPT_CANCELLED");
   });
@@ -150,6 +172,29 @@ describe("whole-party allocation, Fill and admission", () => {
 });
 
 describe("durable transitions, alarms and return to lobby", () => {
+  it("issues start certificates only after all admissions commit and separates JWT audiences", async () => {
+    const s = settings(false, "Solo"); const a = await party(s); const b = await party(s);
+    await queue(a); await queue(b); const m = await status(a);
+    expect((await call(matchPath(a, m, "certificate"), {}, a.members[0])).status).toBe(409);
+    await admit(a, m); await admit(b, m);
+    const result = await call<{ certificate: string }>(matchPath(a, m, "certificate"), {}, a.members[0]);
+    expect(result.status).toBe(200);
+    const keys = await call<{ keys: Array<import("jose").JWK> }>("/keys");
+    const key = await importJWK(keys.data.keys[0], "RS256");
+    const verified = await jwtVerify(result.data.certificate, key, {
+      issuer: "wordbound-local", audience: "wordbound-match-start", algorithms: ["RS256"],
+    });
+    expect(verified.payload).toMatchObject({ matchId: m.matchId, rosterHash: m.rosterHash, roster: m.roster, settings: s, content });
+    await expect(jwtVerify(result.data.certificate, key, { audience: "wordbound-admission" })).rejects.toThrow();
+    expect((await call(matchPath(a, m, "certificate"), {}, await guest())).status).toBe(403);
+  });
+  it("cannot obtain a start certificate for cancelled staging even with a previously issued grant", async () => {
+    const s = settings(false, "Solo"); const a = await party(s); const b = await party(s);
+    await queue(a); await queue(b); const m = await status(a);
+    expect((await call(matchPath(a, m, "admission"), {}, a.members[0])).status).toBe(200);
+    expect((await call(`/parties/${a.p.id}/cancel`, { expectedRevision: a.p.revision }, a.members[0])).status).toBe(200);
+    expect((await call(matchPath(a, m, "certificate"), {}, a.members[0])).status).toBe(404);
+  });
   it("preserves reservations in SQLite after object eviction", async () => {
     const s = settings(false, "Duo"); const a = await party(s, 2); const b = await party(s, 2);
     await queue(a); await queue(b);
@@ -179,7 +224,7 @@ describe("durable transitions, alarms and return to lobby", () => {
     const input = { expectedRevision: g.p.revision, channel: "QuickPlay" as const, content };
     const attempt: Attempt = { id: crypto.randomUUID(), partyId: g.p.id, partyRevision: g.p.revision, members: g.members.map(m => m.playerId),
       settings: g.s, poolKey: poolKey(g.s), channel: "QuickPlay", content, createdAt: Date.now() };
-    await env.POOLS.getByName(poolKey(g.s)).enqueue(attempt);
+    await rpcValue(env.POOLS.getByName(poolKey(g.s)).enqueue(attempt));
     const stub = env.PARTIES.getByName(g.p.id);
     await runInDurableObject(stub, (_instance, state) => {
       const data = JSON.parse(state.storage.sql.exec<{ value: string }>("SELECT value FROM state WHERE id=1").one().value) as PartyState;
@@ -220,6 +265,63 @@ describe("durable transitions, alarms and return to lobby", () => {
     const rs = await Promise.all([0, 1].map(() => call<PartyView>(`/parties/${g.p.id}/queue`, input, g.members[0], "POST", key)));
     expect(rs.map(r => r.status)).toEqual([200, 200]);
     expect(rs[0].data.activeAttempt?.id).toBe(rs[1].data.activeAttempt?.id);
+  });
+  it("keeps one attempt for concurrent private joins across asynchronous code lookup", async () => {
+    const s = settings(false); const owner = await party(s); await queue(owner, "PrivateCreate");
+    const match = await status(owner); const joiner = await party(s); const key = crypto.randomUUID();
+    const input = { expectedRevision: joiner.p.revision, channel: "PrivateJoin", code: match.privateCode };
+    const rs = await Promise.all([0, 1].map(() => call<PartyView>(`/parties/${joiner.p.id}/queue`, input, joiner.members[0], "POST", key)));
+    expect(rs.map(r => r.status)).toEqual([200, 200]);
+    expect(rs[0].data.activeAttempt?.id).toBe(rs[1].data.activeAttempt?.id);
+    expect((await status(joiner)).roster).toHaveLength(2);
+  });
+});
+
+describe("non-race modes", () => {
+  it("starts TimeRun with the whole Fill Off party or fills to four with consent", async () => {
+    const s: PartySettings = { ...settings(false, "Solo"), mode: "TimeRun" };
+    const solo = await party(s); await queue(solo);
+    expect((await status(solo)).state).toBe("ADMITTING");
+    expect((await status(solo)).roster).toHaveLength(1);
+    const fill = { ...s, fill: true };
+    const a = await party(fill, 3); await queue(a);
+    expect((await status(a)).state).toBe("FORMING");
+    const b = await party(fill); await queue(b);
+    const m = await status(a);
+    expect(m.state).toBe("ADMITTING"); expect(m.roster).toHaveLength(4);
+    expect(m.roster.map(seat => seat.teamId)).toEqual([0, 0, 0, 0]);
+  });
+  it("starts public FFA after the actual 30-second alarm with two individual players", async () => {
+    const s: PartySettings = { ...settings(false, "Solo"), mode: "FreeForAll" };
+    const a = await party(s); const b = await party(s);
+    await queue(a); await queue(b);
+    const m = await status(a); expect(m.state).toBe("FORMING");
+    const stub = env.POOLS.getByName(poolKey(s));
+    const alarm = await runInDurableObject(stub, (_instance, state) => state.storage.getAlarm());
+    expect(alarm).not.toBeNull(); vi.spyOn(Date, "now").mockReturnValue(alarm!);
+    expect(await runDurableObjectAlarm(stub)).toBe(true);
+    const sealed = await status(a);
+    expect(sealed.state).toBe("ADMITTING"); expect(sealed.roster).toHaveLength(2);
+    expect(sealed.roster.map(seat => seat.seat)).toEqual([0, 0]);
+    expect(new Set(sealed.roster.map(seat => seat.teamId)).size).toBe(2);
+    const late = await party(s); await queue(late);
+    expect((await status(late)).matchId).not.toBe(m.matchId);
+  });
+  it("keeps Freestyle private and allows the owner to launch up to eight invited players", async () => {
+    const s: PartySettings = { ...settings(false, "Solo"), mode: "Freestyle" };
+    const owner = await party(s, 4); const other = await party(s, 4);
+    expect((await queue(owner)).status).toBe(409);
+    expect((await queue(owner, "PrivateCreate")).status).toBe(200);
+    const first = await status(owner);
+    expect((await queue(other, "PrivateJoin", { code: first.privateCode })).status).toBe(200);
+    const m = await status(owner);
+    expect(m.state).toBe("FORMING"); expect(m.roster).toHaveLength(8);
+    expect((await call(matchPath(owner, m, "launch"), {}, other.members[0])).status).toBe(403);
+    expect((await call(matchPath(owner, m, "launch"), {}, owner.members[0])).status).toBe(200);
+    const late = await party(s);
+    expect((await queue(late, "PrivateJoin", { code: first.privateCode })).status).toBe(404);
+    const locked = await status(owner); await admit(owner, locked); await admit(other, locked);
+    expect((await status(owner)).state).toBe("STARTED");
   });
 });
 

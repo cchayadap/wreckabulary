@@ -202,6 +202,17 @@ export class MatchPool extends Store<PoolState> {
     const { connectionSecret, ...publicClaims } = claims;
     return { grant: await signGrant(this.env, publicClaims), connectionSecret, claims: publicClaims };
   }
+  async certificate(matchId: string, actor: string) {
+    const claims = this.run((s, now) => {
+      const m = s.matches[matchId]; const seat = this.member(m, actor);
+      requireThat(m.phase === "STARTED", "MATCH_NOT_STARTED");
+      this.checkReconnect(seat, now);
+      return { version: 1, matchId, reservationGeneration: m.generation,
+        startedAt: m.startedAt!, settings: m.settings, content: m.content,
+        rosterHash: m.rosterHash!, roster: publicRoster(m) };
+    });
+    return { certificate: await signGrant(this.env, claims, "wordbound-match-start"), claims };
+  }
   ready(matchId: string, actor: string, generation: string, manifestHash: string, rosterHash: string) {
     return this.run((s, now) => {
       const m = s.matches[matchId]; const seat = this.member(m, actor);

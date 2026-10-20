@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { authenticate, publicKey } from "./auth";
+import { rpcValue } from "./rpc";
 import { Hash, Id, QueueRequest, Revision, Settings, digest, requireThat, type ServiceEnv } from "./model";
 export { Identity } from "./identity";
 export { Party } from "./party";
@@ -79,8 +80,7 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
     }
     if (method === "POST" && path[3] === "leave") {
       const data = await body(request, z.object({ expectedRevision: Revision }).strict());
-      const profile = await identity.profile(); requireThat(profile.partyId === id, "NOT_PARTY_MEMBER", 403);
-      return identity.leave(op, data.expectedRevision);
+      return identity.leave(id, op, data.expectedRevision);
     }
   }
   if (path[1] === "pools" && path[3] === "matches" && path.length === 6) {
@@ -90,6 +90,7 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
       await body(request, Empty); return pool.admission(matchId, actor);
     }
     if (path[5] === "launch") { await body(request, Empty); return pool.launch(matchId, actor); }
+    if (path[5] === "certificate") { await body(request, Empty); return pool.certificate(matchId, actor); }
     if (path[5] === "return") { await body(request, Empty); return pool.returnToLobby(matchId, actor); }
     if (path[5] === "ready") {
       const data = await body(request, z.object({ reservationGeneration: Revision, manifestHash: Hash, rosterHash: Hash }).strict());
@@ -105,7 +106,7 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
 export default {
   async fetch(request: Request, env: ServiceEnv): Promise<Response> {
     try {
-      return Response.json(await route(request, env), { headers: { "cache-control": "no-store" } });
+      return Response.json(await rpcValue(route(request, env)), { headers: { "cache-control": "no-store" } });
     } catch (e) {
       const match = e instanceof Error ? e.message.match(/WB:(\d{3}):([A-Z0-9_]+)/) : null;
       const status = match ? Number(match[1]) : e instanceof z.ZodError ? 400 : 500;
