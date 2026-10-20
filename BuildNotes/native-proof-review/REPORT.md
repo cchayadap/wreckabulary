@@ -170,3 +170,33 @@ Exact SHA-256 pins under integration:
 | Scenes/WordboundLobby.unity | 8DABCA2D887C85280CE15BF2AE18F109234D70E516ED7637A9B36642523FDA85 |
 | Scenes/WordboundGameplay.unity | 055F41E4E0203675C3CC70EC607B03BAAFF3DC90DE3FD4BF6518975C4FC62686 |
 | Scripts/UI/GameFeedback.cs | 6B8D486E291F614B0A76373D796002436FA872CB7F7BF22F111FB95750EE4B1F |
+
+## Public course catalogue and selector review — 2026-10-21
+
+STATUS: IN PROGRESS
+
+Root requested a bounded read-only review of the online owner's new public catalogue, party selector and editor exporter. Scope: strict exact bindings and metadata, legacy empty-list fail-closed behavior, deterministic Worker projection, invitation/custom seed preservation, and safe exporter assignment. Source inspections only; no compiler, Unity, deployment or production edits.
+
+STATUS: BOUNDED SOURCE REVIEW COMPLETE — NO CONCRETE BLOCKER FOUND; SOURCE GATES AND ACTIVATION PENDING
+
+Reviewed the owner's frozen draft on base `00dfeba108eff66137b2d8aa0893dd9c0a57459f`, plus the actual coordinator, OnlineContracts/OnlineJson/ModeDefinition, Worker Content/approval code, launcher asset contract and Resources/GameData references. This is source evidence only; the draft was not compiled or executed by this reviewer.
+
+Coverage and conclusions:
+
+- Catalogue parsing requires the exact fields, schema1, current protocol and bounded release. It accepts legacy empty `[]` as a closed registry without inventing a release. Nonempty flat binding arrays cannot serve as selector catalogues. Existing strict JSON parsing rejects duplicate keys and oversize bytes; field regex helpers require full matched length. Counts, selection keys and exact binding hashes are bounded/unique. Entries require BuiltIn and the exact ModeDefinition hash; Freestyle cannot become public through this parser.
+- A syntactically valid seed label is not treated as evidence that a binding belongs to that seed. ResolveSelection constructs the real WordboundClientContent from installed items/rules and compares the complete binding before approved CreateParty. The registry independently compares that exact binding when offering/entering Quick Play. Tampered manifest/catalogue hashes or substituted seed metadata therefore fail closed when selected. Mere parsing intentionally does not resolve every map.
+- Catalogue ordering uses ordinal mode/format/seed sorting and canonical object serialization. BuiltinContentJson derives a flat array from those same immutable OnlineContent values, retaining all six Content fields. This matches the Worker's strict Content schema and exact digest allowlist check. The projection does not activate or deploy anything; service public enablement and matching client release remain separate root-owned gates.
+- The approved/custom chooser only appears before party creation. Existing-party UI shows coordinator.Seed and ChangeSettings explicitly captures the same seed. JoinParty uses the party invitation's seed. ApplyRoomSettings stores its invite seed in both local seed fields and explicitly chooses custom mode, so the next UI draw does not overwrite it with an approved choice. Freestyle is visibly private. No silent existing-party or invitation seed replacement was found in these branches.
+- ExportAndAssign requires edit mode, existing LaunchAssets and explicit seeds/release. Resolution and serialization occur before output writes. The currently stored same release cannot be replaced with different canonical content. Assignment occurs only after synchronous AssetDatabase import and exact TextAsset byte readback; only ApprovedPublicCourses and MapPoolVersion are assigned. Actual Resources/GameData item/rule GUIDs match the hard-coded Config input files in this checkout. Export is an explicit Editor operation, not a runtime or initialization side effect. This review does not claim rollback of an OS/import failure or an immutable archive of every historical release.
+
+The new tests cover real eight-variant construction, parse/order/projection, substituted seed/hash rejection, mode metadata mismatch, duplicates, private/nonversioned entries and bounds. Their assertions were read; none were run here. No source blocker was found within this bounded coverage. Focused compilation/tests, actual approved/private/invite GUI behavior, native export/readback and any public deployment are still pending with their owners. No claim is made about public matchmaking success or current Worker activation.
+
+Exact frozen draft SHA-256 pins:
+
+| File | SHA-256 |
+| --- | --- |
+| Scripts/Online/Client/WordboundPublicCourseCatalog.cs | 7AB4C4ED633A6077F30EF371B973CCFFEC0EFA9D8B14680DBE26C08CF5CC094F |
+| Scripts/Online/Client/WordboundPartyMenu.cs | BDAAA6B5556CC40BF984116DA3251AD565B225EB91B7852E7E735B00648E8AAE |
+| Scripts/Online/Client/WordboundClientContent.cs | 1CA22ACCE30DB33CA1A43CD03B145152D38CC76A6F2EC8509CC46B9F6CEF7484 |
+| Editor/Online/WordboundPublicCourseSetup.cs | 4F07921A9FAC6C5ABB5D37884F41889974105CF9A56AF5004BDF994470E82636 |
+| Scripts/Online/Client/Tests/WordboundPublicCourseCatalogTests.cs | F7B54352834402FF25CF372D04BECA3A51D3F6936693ED03F704440D4248D7AA |
