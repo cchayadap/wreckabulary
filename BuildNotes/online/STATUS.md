@@ -1,6 +1,6 @@
 # Online coordinator lane
 
-STATUS: LOCAL SERVICE VERIFIED; TRANSPORT INTEGRATION PENDING
+STATUS: FUSION ADAPTER IN PROGRESS; LOCAL SERVICE VERIFIED
 
 Base: 12842c75608694f36819edd3bd4dc104ece7f79c
 Branch: sethypagna/online
@@ -37,3 +37,11 @@ Next recoverable action: finish the independent C# token verifier and coordinato
 Final C# gate: `dotnet run --project Tools/RulesHarness/RulesHarness.csproj` reports 260 passed, zero failed (verify-rules-all.log), including eleven new online tests. The interop runner remains green after the final credential-lifecycle changes. No Unity instance was launched by this lane.
 
 Next recoverable action for root: integrate this lane, run native Unity tests, then attach the actual Fusion callbacks. Obtain a fresh auth ticket per Runner authentication, get the provider-verified player ID from the server-side Fusion API, and only assign gameplay/input authority after the signed match/seat/secret verification. Cloud deployment, dashboard provider configuration, native/IL2CPP and live authenticated Photon sessions remain NOT RUN.
+
+2026-10-20 Fusion adapter resumed at ed0abd9 with a clean worktree. Owned scope: new WordboundFusion scripts, matching tests/assembly definition, online documentation and this evidence directory. The actual Fusion 2.1.3 SDK is available read-only in wordbound-integration/Assets/Photon; no SDK or Library copy and no Unity launch is permitted for this lane. Coordinate the authority facade with james_architecture. First acceptance gate: compile actual SDK callback/startup/identity APIs, prove strict admission and bounded wire parsing, then implement committed migration restore without advancing gameplay before exact-roster admission.
+
+Open design evidence: MatchSnapshotCodec permits 8 MiB JSON, while Photon migration requires networked state carried in its migration snapshot. A reliable peer message alone is not durable Photon migration state. Establish and test a bounded compressed snapshot carrier or an explicitly agreed durable alternative before claiming migration completion. Next recoverable action: inspect SDK network-state limits, agree the authority adapter boundary, and implement the first independently testable transport/admission unit.
+
+2026-10-20 independent review F1 repair: retired successful membership-operation IDs after leave; stale JOIN/CREATE retries now fail before claiming identity membership, and delayed completion must match the exact operation ID. Two added actual Workers tests pass, including preserving a later membership. TypeScript passes. Full run currently reports 42/43 passed: the pre-existing concurrent whole-party allocation assertion intermittently finds no full match. Evidence: verify-membership-replay.log. This is not a green full-suite claim; allocation ordering is being investigated separately. Retired membership operations are bounded at 2048 per guest; leaving remains available at the limit.
+
+2026-10-20 adapter checkpoint: pure admission/deadline and compressed packet tests initially pass 16/16. Actual SDK-linked carrier compilation passes with zero warnings/errors. Added bounded strict wire messages and session callbacks; their next compile is pending during root's resource-heavy Unity import. F2 concurrent-refresh repair coalesces one token and rejects a different concurrent token; signout still fences late completion. Next action: finish focused lifecycle verification, resolve the whole-party ordering failure, then complete and compile the actual Fusion session and authority bridge. Unity/cloud authentication/migration tests remain NOT RUN in this lane.

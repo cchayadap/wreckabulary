@@ -71,6 +71,28 @@ describe("authenticated guests and HTTP validation", () => {
 });
 
 describe("transactional parties and cancellation", () => {
+  it("retires successful join operations after leaving without phantom or later membership", async () => {
+    const g = await party(settings()); const joiner = await guest(); const key = crypto.randomUUID();
+    const input = { partyId: g.p.id, invite: g.p.invite };
+    const joined = await call<PartyView>("/party-joins", input, joiner, "POST", key);
+    expect(joined.status).toBe(200);
+    expect((await call(`/parties/${g.p.id}/leave`, { expectedRevision: joined.data.revision }, joiner)).status).toBe(200);
+    const replay = await call<{ error: { code: string } }>("/party-joins", input, joiner, "POST", key);
+    expect(replay.status).toBe(409);
+    expect(replay.data.error.code).toBe("MEMBERSHIP_OPERATION_RETIRED");
+    expect((await call<{ partyId?: string }>("/me", undefined, joiner)).data.partyId).toBeUndefined();
+    const next = await call<PartyView>("/parties", { settings: g.s }, joiner);
+    expect(next.status).toBe(200);
+    expect((await call("/party-joins", input, joiner, "POST", key)).status).toBe(409);
+    expect((await call<{ partyId: string }>("/me", undefined, joiner)).data.partyId).toBe(next.data.id);
+  });
+  it("retires creation keys after leaving and still permits a fresh operation", async () => {
+    const a = await guest(); const s = settings(); const key = crypto.randomUUID();
+    const created = await call<PartyView>("/parties", { settings: s }, a, "POST", key);
+    expect((await call(`/parties/${created.data.id}/leave`, { expectedRevision: created.data.revision }, a)).status).toBe(200);
+    expect((await call("/parties", { settings: s }, a, "POST", key)).status).toBe(409);
+    expect((await call("/parties", { settings: s }, a)).status).toBe(200);
+  });
   it("replays leaving after a lost response without removing a later party membership", async () => {
     const g = await party(settings(), 2); const key = crypto.randomUUID();
     const path = `/parties/${g.p.id}/leave`; const input = { expectedRevision: g.p.revision };

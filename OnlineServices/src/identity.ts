@@ -9,6 +9,7 @@ type IdentityState = {
   membership?: { partyId: string; operationId: string; requestHash: string; status: "PENDING" | "ACTIVE"; kind: "CREATE" | "JOIN" };
   leave?: { operationId: string; requestHash: string; partyId: string; complete: boolean; result?: unknown };
   photonTickets?: Record<string, { version: string; appId: string; expiresAt: number }>;
+  retiredMembershipOperations?: Record<string, string>;
 };
 export class Identity extends Store<IdentityState> {
   async create(playerId: string, displayName: string) {
@@ -64,9 +65,12 @@ export class Identity extends Store<IdentityState> {
     const requestHash = digest({ kind, partyId, settings, invite });
     this.transaction(() => {
       const s = this.read(); requireThat(s, "UNKNOWN_IDENTITY", 401);
+      const retired = s.retiredMembershipOperations?.[operationId];
+      requireThat(!retired, retired === requestHash ? "MEMBERSHIP_OPERATION_RETIRED" : "IDEMPOTENCY_CONFLICT");
       requireThat(!s.leave || s.leave.complete, "MEMBERSHIP_BUSY");
       requireThat(!s.membership || (s.membership.partyId === partyId && s.membership.operationId === operationId && s.membership.kind === kind), "ALREADY_IN_PARTY");
       requireThat(!s.membership || s.membership.requestHash === requestHash, "IDEMPOTENCY_CONFLICT");
+      requireThat(s.membership || Object.keys(s.retiredMembershipOperations ?? {}).length < 2048, "IDENTITY_OPERATION_LIMIT");
       s.membership ??= { partyId, operationId, kind, requestHash, status: "PENDING" }; this.write(s);
     });
     const s = this.read()!;
@@ -77,7 +81,7 @@ export class Identity extends Store<IdentityState> {
         : await rpcValue(party.join(s.playerId, operationId, invite!));
       this.transaction(() => {
         const current = this.read()!;
-        if (current.membership?.requestHash === requestHash && current.membership.status === "PENDING") {
+        if (current.membership?.operationId === operationId && current.membership.requestHash === requestHash && current.membership.status === "PENDING") {
           current.membership.status = "ACTIVE"; this.write(current);
         }
       });
@@ -115,7 +119,11 @@ export class Identity extends Store<IdentityState> {
         const current = this.read()!;
         if (current.leave?.operationId === operationId && current.leave.complete) return current.leave.result;
         requireThat(current.leave?.operationId === operationId, "OPERATION_LOST");
-        if (current.membership?.partyId === partyId) delete current.membership;
+        if (current.membership?.partyId === partyId) {
+          current.retiredMembershipOperations ??= {};
+          current.retiredMembershipOperations[current.membership.operationId] = current.membership.requestHash;
+          delete current.membership;
+        }
         current.leave.complete = true; current.leave.result = result; this.write(current);
         return result;
       });
