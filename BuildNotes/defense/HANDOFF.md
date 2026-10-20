@@ -1,6 +1,6 @@
 # Held defense source handoff
 
-STATUS: SOURCE IMPLEMENTED — COMPILATION, TESTS AND NATIVE ACCEPTANCE NOT RUN
+STATUS: SOURCE GATES PASS — NATIVE ACCEPTANCE PENDING (see PROGRESS.md for exact revisions and results)
 
 The shared hooks were added only after James released `27e0c53`. Lane baseline `352dd92` is an import checkpoint and **must not be cherry-picked into integration**. The independent additive state/policy checkpoint is `1cea56e`; apply that plus the later defense delta after root has practice `27e0c53` and the FFA content change. Preserve the unchanged Practice snapshot argument and schema/canonical/protocol 3.
 

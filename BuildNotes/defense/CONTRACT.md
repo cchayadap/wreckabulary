@@ -1,6 +1,6 @@
 # Wordbound held defense
 
-STATUS: SOURCE IMPLEMENTED — COMPILATION, TESTS AND NATIVE ACCEPTANCE NOT RUN
+STATUS: SOURCE GATES PASS — NATIVE ACCEPTANCE PENDING (see PROGRESS.md)
 
 Root assigned acceptance finding A4 after the FFA content checkpoint. James completed practice/schema 3 in `27e0c53` and explicitly released the actor, codec, authority, physics and fingerprint hooks to this lane. Online owns protocol 3 wire/service/export. Root owns PlayerView, HUD and Guide. The exact imported baselines and integration instructions are in `BASELINE.md` and `HANDOFF.md`.
 
