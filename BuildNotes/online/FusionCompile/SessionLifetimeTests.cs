@@ -41,7 +41,8 @@ namespace Wreckabulary.LifecycleTests
             long sequence;
             public string IdentityHash => new string('a', 64);
             public long Epoch => 0;
-            public int Acknowledgements, Commands, Returns, Validations;
+            public int Acknowledgements, Commands, Returns, Validations, Reconnects;
+            public bool ReconnectAllowed = true;
             public bool TransportReady;
             public void AcceptCommand(string actor, JsonNode body) { Commands++; }
             public OnlineSnapshotMark Publish(out string json) { json = "{}"; return new OnlineSnapshotMark(MatchId, IdentityHash, 0, ++sequence, 0, new string('b', 64)); }
@@ -52,7 +53,7 @@ namespace Wreckabulary.LifecycleTests
             public IReadOnlyList<OnlineSeatPresence> Presence() => Array.Empty<OnlineSeatPresence>();
             public void SetTransportReady(bool ready, bool host) { TransportReady = ready; }
             public void Disconnect(string actor, long wallClock) { }
-            public bool Reconnect(string actor, long wallClock) => true;
+            public bool Reconnect(string actor, long wallClock) { Reconnects++; return ReconnectAllowed; }
             public void Return(string actor, long wallClock) { Returns++; }
         }
         sealed class Fixture : IDisposable
@@ -134,11 +135,11 @@ namespace Wreckabulary.LifecycleTests
                     ["mark"] = mark.ToValue(), ["index"] = 0, ["count"] = packet.ChunkCount, ["length"] = packet.Length,
                     ["wireHash"] = packet.WireHash, ["data"] = OnlineJson.Base64Url(packet.Chunk(0)) };
             }
-            public void Deliver(NetworkRunner runner, OnlineWireKind kind, object body)
+            public void Deliver(NetworkRunner runner, OnlineWireKind kind, object body, PlayerRef? sender = null)
             {
                 byte[] json = Encoding.UTF8.GetBytes(OnlineJson.Encode(body)), bytes = new byte[json.Length + 1];
                 bytes[0] = (byte)kind; Array.Copy(json, 0, bytes, 1, json.Length);
-                Session.OnReliableDataReceived(runner, new PlayerRef(9), default, bytes);
+                Session.OnReliableDataReceived(runner, sender ?? new PlayerRef(9), default, bytes);
             }
             public void Dispose() { Key.Dispose(); }
         }
@@ -278,6 +279,64 @@ namespace Wreckabulary.LifecycleTests
             f.Deliver(runner, OnlineWireKind.Admitted, f.ProofBody(proof));
             Assert.AreEqual("FormatException", f.Session.Failure); Assert.AreEqual(0, runner.Sends);
             Assert.IsFalse(f.Session.GameplayReady);
+        }
+        [Test] public void ReplacementClientCannotAdvertiseReadinessFromItsPreviousScene()
+        {
+            using var f = new Fixture();
+            f.Client();
+            var replacement = f.Runner(); replacement.IsServer = false;
+            var run = f.Replace(replacement); Field(run, "ConnectionId", MatchId);
+            f.Deliver(replacement, OnlineWireKind.Admitted, f.ProofBody(f.HostProof(MatchId)));
+            Assert.AreEqual("", f.Session.Failure);
+            Assert.AreEqual(0, replacement.Sends);
+            Assert.IsFalse(Field<bool>(f.Session, "localReady"));
+            f.Session.MarkLocalReady();
+            Assert.AreEqual(1, replacement.Sends);
+        }
+        [TestCase(false), TestCase(true)]
+        public void ReconnectActivatesDomainOnlyAtAuthenticatedReadinessAndOnlyOnce(bool local)
+        {
+            using var f = new Fixture(); var runner = f.Runner(); var run = f.Replace(runner);
+            var gate = Field<OnlineSessionGate>(f.Session, "gate");
+            var admitted = f.Verifier.VerifyAdmission(f.Join.Grant, f.Match, Player, Secret, Now);
+            gate.Admit(admitted, "old", Now * 1000); gate.Ready("old"); Assert.IsTrue(gate.TryStart());
+            gate.Disconnect("old", Now * 1000);
+            f.Http.Reply = request => Task.FromResult(f.Authorization(request));
+            var peer = local ? runner.LocalPlayer : new PlayerRef(2);
+            Call<Task>(f.Session, "Admit", run, peer, f.Join.Certificate, f.Join.Grant, Secret, AppId).GetAwaiter().GetResult();
+            Field(f.Session, "<GameplayReady>k__BackingField", true);
+            Assert.AreEqual(0, f.Authority.Reconnects);
+            Assert.IsFalse(f.Session.TryGetAdmittedActor(peer, out _));
+            for (int i = 0; i < 2; i++)
+            {
+                if (local) f.Session.MarkLocalReady();
+                else f.Deliver(runner, OnlineWireKind.Ready, new Dictionary<string, object> {
+                    ["roster"] = f.Match.Match.RosterHash }, peer);
+            }
+            Assert.AreEqual(1, f.Authority.Reconnects);
+            Assert.IsTrue(f.Session.TryGetAdmittedActor(peer, out _));
+            Assert.AreEqual(0, runner.Disconnects);
+            Assert.AreEqual("", f.Session.Failure);
+        }
+        [TestCase(false), TestCase(true)]
+        public void ReadinessCannotReviveAnExpiredLeaseOrDomainReconnectDeadline(bool expiredLease)
+        {
+            using var f = new Fixture(); var runner = f.Runner(); var run = f.Replace(runner);
+            var gate = Field<OnlineSessionGate>(f.Session, "gate");
+            gate.Admit(f.Verifier.VerifyAdmission(f.Join.Grant, f.Match, Player, Secret, Now), "old", Now * 1000);
+            gate.Ready("old"); Assert.IsTrue(gate.TryStart()); gate.Disconnect("old", Now * 1000);
+            f.Http.Reply = request => Task.FromResult(f.Authorization(request));
+            var peer = new PlayerRef(2);
+            Call<Task>(f.Session, "Admit", run, peer, f.Join.Certificate, f.Join.Grant, Secret, AppId).GetAwaiter().GetResult();
+            Field(f.Session, "<GameplayReady>k__BackingField", true);
+            if (expiredLease) f.ClockMs += 15000;
+            else f.Authority.ReconnectAllowed = false;
+            f.Deliver(runner, OnlineWireKind.Ready, new Dictionary<string, object> {
+                ["roster"] = f.Match.Match.RosterHash }, peer);
+            Assert.IsFalse(f.Session.TryGetAdmittedActor(peer, out _));
+            Assert.AreEqual(expiredLease ? 0 : 1, f.Authority.Reconnects);
+            Assert.AreEqual(1, runner.Disconnects);
+            Assert.AreEqual("", f.Session.Failure);
         }
     }
 }

@@ -51,6 +51,7 @@ namespace Wreckabulary.Online
         {
             public readonly CancellationTokenSource Cancellation = new CancellationTokenSource();
             public readonly HashSet<PlayerRef> Authorizing = new HashSet<PlayerRef>();
+            public readonly HashSet<PlayerRef> Readied = new HashSet<PlayerRef>();
             public NetworkRunner Runner;
             public WordboundFusionJoin Join;
             public string ConnectionId, HostId;
@@ -144,6 +145,7 @@ namespace Wreckabulary.Online
         {
             lifetime.Token.ThrowIfCancellationRequested();
             InvalidateRun();
+            localReady = false; localAdmitted = false; beginReceived = false;
             return activeRun = new RunScope();
         }
         async Task StartRunner(HostMigrationToken migration, CancellationToken cancellationToken)
@@ -223,11 +225,6 @@ namespace Wreckabulary.Online
             now = clock();
             if (lease.ExpiresAtMilliseconds <= now) throw new InvalidOperationException("Transport authorization expired.");
             gate.Admit(admission, Peer(player), now);
-            if (gate.Started && !authority.Reconnect(authenticated, now))
-            {
-                gate.Disconnect(Peer(player), now);
-                throw new InvalidOperationException("Original seat is no longer reconnectable.");
-            }
             leases[player] = lease;
             pending.Remove(player);
             if (player != Runner.LocalPlayer) Send(player, OnlineWireKind.Admitted, new Dictionary<string, object> {
@@ -248,9 +245,27 @@ namespace Wreckabulary.Online
             if (Runner.IsServer)
             {
                 if (gate.Actor(Peer(Runner.LocalPlayer)) == null) return;
-                gate.Ready(Peer(Runner.LocalPlayer)); TryBegin();
+                ReadyAdmittedPeer(activeRun, Runner.LocalPlayer); TryBegin();
             }
             else if (localAdmitted) SendServer(OnlineWireKind.Ready, Roster());
+        }
+        void ReadyAdmittedPeer(RunScope run, PlayerRef player)
+        {
+            RequireCurrent(run);
+            string actor = gate.Actor(Peer(player));
+            long now = clock();
+            if (actor == null || !run.Runner.IsRunning || !run.Runner.ActivePlayers.Contains(player) ||
+                run.Runner.GetPlayerUserId(player) != actor || !leases.TryGetValue(player, out var lease) ||
+                lease.PlayerId != actor || lease.ExpiresAtMilliseconds <= now)
+                throw new InvalidOperationException("Readiness requires a current authenticated connection lease.");
+            if (run.Readied.Contains(player)) return;
+            if (gate.Started && !authority.Reconnect(actor, now))
+            {
+                gate.Disconnect(Peer(player), now);
+                throw new InvalidOperationException("Original seat is no longer reconnectable.");
+            }
+            gate.Ready(Peer(player));
+            run.Readied.Add(player);
         }
         void TryBegin()
         {
@@ -461,7 +476,7 @@ namespace Wreckabulary.Online
             try
             {
                 var chunks = runner.GetResumeSnapshotNetworkObjects()
-                    .Select(obj => obj.GetComponent<WordboundFusionSnapshotChunk>()).Where(c => c != null).ToArray();
+                    .Select(obj => obj.GetComponent<WordboundFusionSnapshotChunk>()).Where(c => c != null);
                 string json = WordboundFusionSnapshotChunk.Restore(chunks, out var mark);
                 if (mark.MatchId != expected.MatchId || mark.IdentityHash != authority.IdentityHash)
                     throw new FormatException("Migration binding mismatch.");
@@ -502,7 +517,7 @@ namespace Wreckabulary.Online
                                 message.Body["connectionTicket"].String(), message.Body["connectionId"].String()); break;
                         case OnlineWireKind.Ready:
                             if (message.Body["roster"].String() != expected.RosterHash) throw new FormatException("Roster mismatch.");
-                            gate.Ready(Peer(player));
+                            ReadyAdmittedPeer(activeRun, player);
                             if (GameplayReady) { Send(player, OnlineWireKind.Begin, Roster()); SendCommitted(player); }
                             else TryBegin();
                             break;
@@ -564,6 +579,7 @@ namespace Wreckabulary.Online
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
             if (!IsCurrent(activeRun) || runner != activeRun.Runner || !runner.IsServer) return;
+            activeRun.Readied.Remove(player);
             pending.Remove(player); rates.Remove(player); sentMarks.Remove(player); leases.Remove(player);
             string actor = gate.Disconnect(Peer(player), clock());
             if (actor != null) authority.Disconnect(actor, clock());
