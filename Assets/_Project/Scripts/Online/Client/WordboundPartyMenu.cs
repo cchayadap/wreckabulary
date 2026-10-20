@@ -67,9 +67,9 @@ namespace Wreckabulary.Online
         async Task Begin(WordboundPartyLaunchContext launch)
         {
             launching = true; currentLaunch = launch; localError = null;
-            try { await BeginMatchRequested(launch, lifetime.Token); if (!lifetime.IsCancellationRequested) Visible = false; }
-            catch (OperationCanceledException) { if (!lifetime.IsCancellationRequested) { Visible = true; localError = "Match startup was cancelled. Return to the party before trying again."; } }
-            catch { if (!lifetime.IsCancellationRequested) { Visible = true; localError = "The match could not start. Return to your party, then cancel the old reservation."; } }
+            try { await BeginMatchRequested(launch, lifetime.Token); if (!lifetime.IsCancellationRequested && currentLaunch == launch) Visible = false; }
+            catch (OperationCanceledException) { if (!lifetime.IsCancellationRequested && currentLaunch == launch) { Visible = true; localError = "Match startup was cancelled. Return to the party before trying again."; } }
+            catch { if (!lifetime.IsCancellationRequested && currentLaunch == launch) { Visible = true; localError = "The match could not start. Return to your party, then cancel the old reservation."; } }
             finally { launching = false; }
         }
         public void NotifyReturned() => NotifyReturned(currentLaunch?.Verified.Match.MatchId);

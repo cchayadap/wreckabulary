@@ -88,6 +88,14 @@ namespace Wreckabulary
 
         void Awake() => Instance = this;
 
+        public void OpenWordbound()
+        {
+            if (Starting || !Session.CanLoad(Session.WordboundScene)) return;
+            Session.LobbyQueue = Queue;
+            Session.LobbyMode = Mode;
+            Session.Load(Session.WordboundScene);
+        }
+
         void Start()
         {
             var wardrobe = GameConfig.Current.Wardrobe;

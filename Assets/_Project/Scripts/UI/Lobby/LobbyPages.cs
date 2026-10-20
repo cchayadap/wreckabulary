@@ -229,6 +229,12 @@ namespace Wreckabulary
                     () => Menu.OpenPlay("Map " + Menu.Map));
                 house.Size(-1, 36);
             }
+            if (Session.CanLoad(Session.WordboundScene))
+            {
+                var wordbound = LobbyKit.TextAction(dock, "Wordbound", "WORDBOUND", 24, Menu.OpenWordbound);
+                wordbound.Size(-1, 42);
+                Wrapped(dock, "Online parties · Map workshop", 15, LobbyKit.Muted, 24);
+            }
         }
     }
 

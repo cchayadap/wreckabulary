@@ -14,6 +14,7 @@ namespace Wreckabulary
         public const string DibsScene = "LivingRoom";
         public const string TutorialScene = "Tutorial";
         public const string MovingDayScene = "MovingDay";
+        public const string WordboundScene = "WordboundLobby";
 
         public static readonly List<InputBinding> Bindings = new();
         public static string MapId { get; private set; } = "pinwheel";

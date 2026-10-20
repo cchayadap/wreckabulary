@@ -24,6 +24,7 @@ namespace Wreckabulary.Online
         public WordboundGameplayController Gameplay => gameplay;
         public WordboundFusionSession Session => session;
         public bool Leaving => leaving;
+        public bool HasMatchContext => expected != null;
         public event Action ReturnedToParty;
         public event Action<string> Failed;
 

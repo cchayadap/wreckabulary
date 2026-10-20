@@ -2,6 +2,8 @@
   "name": "Wreckabulary.Online.Editor",
   "rootNamespace": "Wreckabulary.EditorTools",
   "references": [
+    "Wreckabulary",
+    "Wreckabulary.Online.Client",
     "Wreckabulary.Online.Fusion",
     "Fusion.Unity",
     "Fusion.Unity.Editor",
