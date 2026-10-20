@@ -1,6 +1,6 @@
 # Gameplay composition review
 
-STATUS: IN PROGRESS
+STATUS: COMPLETE — bounded source review; native integration gates remain open
 
 Scope: read-only review of the in-progress `wordbound-puzzle-race/Assets/_Project/Scripts/Online/Gameplay` composition and its actual session/physics/domain dependencies. Root owns native Unity execution; James owns gameplay source. This lane will not edit those files or redeploy the service.
 
@@ -36,6 +36,8 @@ The original controller's `IsSimulationPaused` unconditionally included `!hostRe
 
 Owner accepted the repair: synchronous Poll/presence reconciliation before the host physics hook, then another Poll/readiness check before post-physics commands. Also flagged the narrower clock-crossing-during-reconciliation boundary: a formerly valid seat losing its current lease should quarantine its input or trigger presence re-sync rather than stop all other players. Duplicate/mismatched actor ownership must remain a hard error. Owner's final source and native behavior are pending verification.
 
+Final source recheck at controller SHA256 `06ae798439e9b84a443cfd1d31e213441567ca88718ff7fe718f334bea7f36ea` confirms both Poll boundaries and bounded canonical presence retries. A missing active-seat admission disconnects that actor through the real authority, re-captures state and retries within the eight-seat bound. Expiry during a new player's binding despawns that temporary body before retry. Duplicate admitted peers still fail. Existing-body input mapping uses one preflight result, while movement retains the live lease check. `AuthoritativeMatch.ApplyPose` ignores poses for an already inactive canonical player, so post-physics disconnection cannot be reversed by the earlier pose capture. No additional blocking source defect found in this bounded recheck. Native expiry/callback ordering remains unverified.
+
 ## Native migration handoff
 
 Root's native experiment found that retaining yielded resume components in an array can retain reused SDK temporary objects. Root owns immediate immutable chunk capture in `WordboundFusionSnapshotChunk.Restore`. This lane keeps `RestoreMigration` enumeration lazy so capture can occur before the iterator advances. Complete/mixed/chunk/hash validation must stay strict. Root owns the native proof and carrier implementation.
@@ -44,4 +46,4 @@ Root's native experiment found that retaining yielded resume components in an ar
 
 Read-only review of `wordbound-map-workshop/Assets/_Project/Tests/PhotonAuth/WordboundPhotonAuthenticationTests.cs` found no additional concrete false-pass or credential-output defect. Each negative includes a successful provider-authenticated host, requires an authentication-specific shutdown before host admission, checks no player seat, and checks host health. The positive case checks provider UUIDs despite a caller-supplied UserId. The fixture omits raw response/error text and keeps credentials in memory. Cleanup failures remain test failures. No live auth or Unity execution was performed by this review.
 
-Next recoverable action: James verifies the fixed-step expiry ordering repair and checkpoints composition; root integrates fresh-runner readiness with immediate resume-chunk capture, then proves native authenticated gameplay/migration and full body reconstruction.
+Next recoverable action: James checkpoints its verified composition; root integrates fresh-runner readiness with immediate resume-chunk capture, then proves native authenticated gameplay/migration and full body reconstruction. Native cases should include expiry before the fixed-step driver, expiry during spawn/admission binding, exact body reconciliation after migration, and a client becoming unpaused only after scene/content/verified-replica readiness.
