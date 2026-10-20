@@ -106,7 +106,7 @@ namespace Wreckabulary.Online
             {
                 session.Poll();
                 if (!ReferenceEquals(runner, session.Runner)) ChangeRunner(session.Runner);
-                if (runner == null || !runner.IsRunning) return;
+                if (runner == null || !runner.IsRunning || !session.RunnerStarted) return;
                 if (!localReady && !PrepareScene())
                 {
                     if (options.Clock() - runnerStarted >= 30000) throw new TimeoutException("The runner-local gameplay scene did not become ready.");

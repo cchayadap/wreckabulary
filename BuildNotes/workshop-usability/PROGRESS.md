@@ -31,3 +31,5 @@ Native acceptance remains **NOT RUN** for this increment. Root should run `Wreck
 4. Dispatch playtest, keep `LastPlaytestDraft` with its manifest, return through `ResumeEditing`, and verify draft/seed/history remain available.
 
 Controller tools retain selection, move, rotate, undo/redo, floor switching, preview and playtest. Numeric text editing and pool authoring still require keyboard/pointer; full controller-only property editing and novice usability are not claimed.
+
+Root integration follow-up: actual Unity runs **24/24 selected workshop editor cases PASS** in `TestResults/editmode_20261020T150614Z.xml`. This includes exact-draft dispatch, invalid-draft refusal, the new placement settings and existing viewport/history cases. The combined run was FAIL because its separate live two-peer gameplay case failed. Native workshop tests do not establish full visual/controller or novice usability acceptance.

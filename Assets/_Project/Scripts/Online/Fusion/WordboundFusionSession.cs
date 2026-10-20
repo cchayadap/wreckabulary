@@ -56,7 +56,7 @@ namespace Wreckabulary.Online
             public NetworkRunner Runner;
             public WordboundFusionJoin Join;
             public string ConnectionId, HostId;
-            public bool Publishing, Beginning, Renewing;
+            public bool Publishing, Beginning, Renewing, Started;
             public long RenewAt;
             public OnlineCheckpointWriter Writer;
             public OnlineCheckpointManifest Head;
@@ -96,6 +96,7 @@ namespace Wreckabulary.Online
         int wireSequence;
         NetworkSceneInfo? initialScene;
         public NetworkRunner Runner { get; private set; }
+        public bool RunnerStarted => IsCurrent(activeRun) && activeRun.Started;
         public bool GameplayReady { get; private set; }
         public string Failure { get; private set; } = "";
         public OnlineSnapshotMark Committed => committedMark;
@@ -207,6 +208,7 @@ namespace Wreckabulary.Online
             if (run.Runner.GetPlayerUserId(run.Runner.LocalPlayer) != join.PlayerId)
                 throw new InvalidOperationException("Photon did not authenticate the coordinator identity.");
             if (connections.LocalPlayerId != join.PlayerId) throw new InvalidOperationException("Coordinator guest changed during startup.");
+            run.Started = true;
             if (run.Runner.IsServer)
             {
                 await RestoreWriter(run, migration != null);

@@ -173,6 +173,8 @@ namespace Wreckabulary.OnlineGameplayTests
                 peer.Controller.Authority, live.Connections(index),
                 new OnlineCheckpointService(live.Clients[index], live.Expected, peer.Controller.Authority.IdentityHash));
             peer.Controller.AttachSession(peer.Session);
+            peer.Controller.Faulted += reason => Debug.Log("WORDBOUND_GAMEPLAY_FAULT: peer " + index + " " + reason);
+            peer.Session.Failed += reason => Debug.Log("WORDBOUND_SESSION_FAULT: peer " + index + " " + reason);
             peer.Controller.HostAdvanced += result => {
                 if (!result.Advanced) return;
                 peer.Advanced++;
@@ -262,7 +264,7 @@ namespace Wreckabulary.OnlineGameplayTests
             foreach (var peer in allowStoppedFirst ? peers.Skip(1) : peers)
             {
                 Assert.AreEqual("", peer.Session.Failure, "The actual session failed.");
-                Assert.AreEqual("", peer.Controller.Fault == "" ? "" : peer.Controller.Fault.Split(':')[0], "The actual gameplay composition failed.");
+                Assert.AreEqual("", peer.Controller.Fault, "The actual gameplay composition failed.");
             }
         }
         IEnumerator Until(Func<bool> complete, string operation, double seconds, bool allowStoppedFirst = false)
@@ -277,7 +279,8 @@ namespace Wreckabulary.OnlineGameplayTests
         {
             pending.Add(task);
             double deadline = Time.realtimeSinceStartupAsDouble + seconds;
-            while (!task.IsCompleted && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested) yield return null;
+            while (!task.IsCompleted && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
+            { Healthy(); yield return null; }
             if (!task.IsCompleted) { lifetime.Cancel(); Assert.Fail(operation + " exceeded its deadline."); }
             Assert.IsFalse(task.IsCanceled, operation + " was cancelled.");
             if (task.IsFaulted)

@@ -69,6 +69,7 @@ namespace Wreckabulary.LifecycleTests
             public readonly OnlineCheckpointService Checkpoints;
             public readonly NetworkProjectConfig Config = new NetworkProjectConfig();
             public Action<StartGameArgs> OnStartup;
+            public Func<Task<StartGameResult>> StartupCompletion;
             public OnlineCheckpointManifest Head;
             public OnlineCheckpointUpload Upload;
             public Func<OnlineRequest, Task<OnlineResponse>> FinalizeReply;
@@ -105,7 +106,11 @@ namespace Wreckabulary.LifecycleTests
             public NetworkRunner Runner()
             {
                 var runner = new NetworkRunner(); runner.Users[new PlayerRef(1)] = Player; runner.Users[new PlayerRef(2)] = Player;
-                runner.Startup = args => { OnStartup?.Invoke(args); return Task.FromResult(new StartGameResult()); };
+                runner.Startup = args => {
+                    runner.IsServer = args.GameMode == GameMode.Host;
+                    OnStartup?.Invoke(args);
+                    return StartupCompletion?.Invoke() ?? Task.FromResult(new StartGameResult());
+                };
                 runner.Tokens[new PlayerRef(2)] = Encoding.ASCII.GetBytes(Secret); return runner;
             }
             public object Replace(NetworkRunner runner)
@@ -235,6 +240,37 @@ namespace Wreckabulary.LifecycleTests
             using var f = new Fixture();
             Assert.Throws<ArgumentException>(() => f.Session.ConfigureScene(default));
             Assert.AreEqual(0, f.RunnerCreations);
+        }
+        [Test]
+        public void RunningSdkDoesNotExposeGameplayReadinessBeforeStartupOrAfterReplacement()
+        {
+            using var f = new Fixture();
+            var startup = new TaskCompletionSource<StartGameResult>();
+            f.StartupCompletion = () => startup.Task;
+            var first = f.Session.Start();
+            Assert.IsTrue(f.Session.Runner.IsRunning);
+            Assert.IsFalse(f.Session.RunnerStarted);
+            startup.SetResult(new StartGameResult());
+            first.GetAwaiter().GetResult();
+            Assert.IsTrue(f.Session.RunnerStarted);
+
+            startup = new TaskCompletionSource<StartGameResult>();
+            var replacement = Call<Task>(f.Session, "StartRunner", null, CancellationToken.None);
+            Assert.IsTrue(f.Session.Runner.IsRunning);
+            Assert.IsFalse(f.Session.RunnerStarted);
+            startup.SetResult(new StartGameResult());
+            replacement.GetAwaiter().GetResult();
+            Assert.IsTrue(f.Session.RunnerStarted);
+            f.Session.Stop().GetAwaiter().GetResult();
+            Assert.IsFalse(f.Session.RunnerStarted);
+        }
+        [Test]
+        public void FailedSdkStartupNeverExposesGameplayReadiness()
+        {
+            using var f = new Fixture();
+            f.StartupCompletion = () => Task.FromResult(new StartGameResult { Ok = false });
+            Assert.Throws<InvalidOperationException>(() => f.Session.Start().GetAwaiter().GetResult());
+            Assert.IsFalse(f.Session.RunnerStarted);
         }
         [TestCase(false), TestCase(true)]
         public void OldAdmissionCompletionCannotFailOrUnlockAReplacementRunner(bool failure)
