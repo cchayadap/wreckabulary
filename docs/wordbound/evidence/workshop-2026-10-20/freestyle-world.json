@@ -1,0 +1,25 @@
+{
+    "template": "FreestyleWorld",
+    "courseId": "freestyle-proof",
+    "seed": "0000000000000001",
+    "activeLayer": "Ground",
+    "sourceHash": "b5a2867530c1f4179715a1d85b0556623f6e5c3248ba63dc43e9b1c6c7c90fd2",
+    "manifestHash": "567cb066a08b02cd036a1e2186a2fe33605dafab10f1c4cd003579fa99a46e2a",
+    "unityVersion": "6000.6.3f1",
+    "renderPipeline": "PC_RPAsset",
+    "capturedAtUtc": "2026-10-20T13:56:11.7665089Z",
+    "image": "workshop-freestyle-world.png",
+    "cameraPosition": {
+        "x": -31.602855682373047,
+        "y": 82.55535125732422,
+        "z": -59.4150276184082
+    },
+    "cameraEuler": {
+        "x": 48.000003814697266,
+        "y": 35.000003814697266,
+        "z": 0.0000012759446690324694
+    },
+    "fieldOfView": 45.0,
+    "width": 1280,
+    "height": 720
+}

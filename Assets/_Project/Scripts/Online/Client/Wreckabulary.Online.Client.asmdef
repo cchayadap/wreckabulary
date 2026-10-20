@@ -1,0 +1,14 @@
+{
+  "name": "Wreckabulary.Online.Client",
+  "rootNamespace": "Wreckabulary.Online",
+  "references": [
+    "Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Gameplay",
+    "Wreckabulary.Online.Physics", "Unity.InputSystem", "Fusion.Unity"
+  ],
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Fusion.Runtime.dll", "Fusion.Common.dll", "Fusion.Sockets.dll",
+    "Fusion.Realtime.dll", "Fusion.Log.dll"
+  ],
+  "autoReferenced": true
+}

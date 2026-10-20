@@ -19,4 +19,10 @@ This result proves native prefab creation and registration. Movement, collision,
 
 `TestResults/editmode_20261020T134553Z.xml`: FAIL, 26/29 passed, 110.1 seconds. All nine physical puzzle policy tests passed; 17/20 presentation tests passed.
 
-The SHIELD, SOFA and CLOCK visual floor-alignment checks failed at `WordboundPresentationTests.cs:42`, measuring 0.0277424678, 0.0148500502 and 0.0279000103 metres against a 0.002-metre limit. The presentation owner is investigating the bounds calculation. This failed run is not visual acceptance.
+The SHIELD, SOFA and CLOCK horizontal-center checks failed at `WordboundPresentationTests.cs:42`, measuring 0.0277424678, 0.0148500502 and 0.0279000103 metres against a 0.002-metre limit. Their size and floor-alignment assertions passed. The presentation owner traced the offset to intentional asymmetric source meshes: the resolver needs the measured mesh center as well as its size. This failed run is not visual acceptance.
+
+## Verified alignment repair
+
+The source repair is `64d2481`. Native `WordboundEquipmentImporter.Build` passed in 58 seconds (`Logs/gate_exec_Build_20261020T140129Z.log`), writing twelve measured `boundsCenter` values to the collection through Unity.
+
+The follow-up `WordboundPresentationTests` run passes 23/23 in 106.7 seconds (`TestResults/editmode_20261020T140526Z.xml`). This covers all twelve model bounds, original material preservation, collider-free visual children, held scale and grip alignment, with new SHIELD/SOFA/CLOCK grip regressions. The original 0.002-metre tolerance remains unchanged. This verifies geometric presentation contracts; animated held/placed/thrown gameplay and owner visual acceptance remain pending.

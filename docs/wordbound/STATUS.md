@@ -22,11 +22,11 @@ Deliver the complete approved [plan](PLAN.md). Source implementation, runtime ve
 | Milestone | Status | Evidence |
 | --- | --- | --- |
 | M0 Safe baseline | VERIFIED | Commit 12842c7; editor and runtime regressions pass across the recorded suite and focused repair runs; final check and 225 core tests pass. |
-| M1 Online proof | IN PROGRESS | Live private 2/4/8-peer reliable transport passes. The separate coordinator is deployed and its live API checks pass. Native gameplay composition and host recovery are being verified; Photon custom authentication and physical gameplay acceptance remain pending. |
+| M1 Online proof | IN PROGRESS | Historical private 2/4/8-peer reliable transport passes. The separate coordinator's live API and actual Photon custom authentication pass. Native gameplay composition and complete checkpoint recovery are being verified. |
 | M2 Complete race loop | IN PROGRESS | Mode/progression, inventory snapshots and command journal are implemented. Complete authoritative runtime remains in progress. |
 | M3 Large world and generator | IN PROGRESS | Course resolver and 11,000 seed checks cover eleven proof configurations. Full flagship content production depends on the network proof. |
 | M4 Workshop and assets | IN PROGRESS | Twelve original equipment assets imported and verified in Unity. Workshop now includes a rendered 3D editor; native visual/input and human usability acceptance remain pending. |
-| M5 Mode suite and public play | IN PROGRESS | Separate coordinator deployed and live eight-seat private API flow verified. Photon custom authentication, approved public content and native gameplay remain pending. |
+| M5 Mode suite and public play | IN PROGRESS | Separate coordinator deployed, live eight-seat private API flow and native Photon authentication verified. Approved public content and native gameplay remain pending. |
 | M6 Release candidate | NOT RUN | No Wordbound player build or human acceptance. |
 
 ## Confirmed baseline issues
@@ -92,4 +92,12 @@ Gameplay composition is integrated as `7323c16`, with fresh Runner readiness and
 
 Native gameplay policies now pass 16/16, and the complete single-carrier recovery passes. The combined run is FAIL, 17/18 (`TestResults/editmode_20261020T132615Z.xml`). The large-packet diagnostic returns only carrier 0 of 33. Read-only inspection of the installed SDK confirms that one push queues only a bounded incremental transfer and does not establish a complete cloud-acknowledged checkpoint. Coordinator-backed atomic checkpoints are being implemented and reviewed before gameplay recovery can be accepted. Exact evidence is in [native recovery investigation](evidence/native-recovery-2026-10-20.md).
 
-Unity has now created, baked and registered the three network gameplay body prefabs (PASS, 229.1 seconds). The next native presentation/puzzle run passed 26/29: all nine puzzle policy checks passed, while three model floor-alignment checks need correction. See [native body and presentation evidence](evidence/native-gameplay-bodies-2026-10-20.md). Live physical gameplay remains pending.
+Unity has now created, baked and registered the three network gameplay body prefabs (PASS, 229.1 seconds). The next native presentation/puzzle run passed 26/29: all nine puzzle policy checks passed, while three model horizontal-center checks need correction. See [native body and presentation evidence](evidence/native-gameplay-bodies-2026-10-20.md). Live physical gameplay remains pending.
+
+Schema-2 deployment expiry is integrated as `b68c3e6`. R0 passes (`Logs/gate_check_all_20261020T134917Z.log`), followed by 138/138 affected core tests (`TestResults/core_20261020T135146Z.trx`, 34.2 seconds). The coordinator and client protocol update is in progress; previous schema-1 network evidence is historical.
+
+The Photon provider secret was replaced after it was pasted into chat. Live verification confirms the old value is rejected and the replacement accepts a valid ticket; sanitized evidence is `BuildNotes/online/PROVIDER-ROTATION.json`. The replacement remains only in private local setup and service secret storage. The owner is completing the dashboard query parameters and rejection settings before native authentication tests.
+
+The owner completed those settings. Actual Photon authentication now passes 3/3 with clean teardown (`TestResults/editmode_20261020T135810Z.xml`, 128.6 seconds): valid server-issued identities connect; anonymous and invalid-ticket clients are rejected. See [native authentication evidence](evidence/native-photon-auth-2026-10-20.md). Authentication configuration is complete; authenticated gameplay composition and checkpoint recovery remain in progress.
+
+The model center repair is now verified: native importer PASS in 58 seconds and presentation tests PASS 23/23 in 106.7 seconds (`TestResults/editmode_20261020T140526Z.xml`). The separate Client assembly's camera/input component compiles, but it still needs launcher composition and live input verification. Three workshop viewport captures also pass and have been inspected; [their evidence](evidence/workshop-2026-10-20/README.md) explicitly excludes full editor controls and flagship content.

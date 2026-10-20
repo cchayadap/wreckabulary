@@ -1,0 +1,25 @@
+{
+    "template": "RaceCircuit",
+    "courseId": "race-proof",
+    "seed": "0000000000000001",
+    "activeLayer": "Ground",
+    "sourceHash": "eff54dc829bef742222579bf83504da0309bdefa0bdc060666d1cd13853b54bf",
+    "manifestHash": "df3627a88bf87e36d54dcebf12e37524098747994033c2ea3d38301b25a654cf",
+    "unityVersion": "6000.6.3f1",
+    "renderPipeline": "PC_RPAsset",
+    "capturedAtUtc": "2026-10-20T13:55:53.0889060Z",
+    "image": "workshop-race-circuit.png",
+    "cameraPosition": {
+        "x": -32.46074295043945,
+        "y": 87.21646881103516,
+        "z": -60.64021301269531
+    },
+    "cameraEuler": {
+        "x": 48.000003814697266,
+        "y": 35.000003814697266,
+        "z": 0.0000012759446690324694
+    },
+    "fieldOfView": 45.0,
+    "width": 1280,
+    "height": 720
+}
