@@ -8,4 +8,8 @@ The player view is being prepared under ignored `.harness/wordbound` while nativ
 
 `WordboundPlayerView` and its new Client assembly are now integrated. R0 passes in 29.1 seconds (`Logs/gate_check_all_20261020T140439Z.log`); the subsequent native presentation test run compiles the new assembly and passes 23/23 presentation cases (`TestResults/editmode_20261020T140526Z.xml`). These cases do not exercise player input or the camera. The view has not yet been wired into a playable launcher.
 
-The HUD draft remains under ignored `.harness/wordbound/WordboundMatchHud.cs`; it depends on the combat lane's selected-slot/attack API. Next: integrate that rules checkpoint, add and compile the HUD, independently review command/input behavior, then compose a live match and verify controls/camera in the native player.
+Combat rules are integrated as `5951865`. The HUD now sends authenticated equip, attack, pickup, letter collection, crafting, drop, throw, deploy and keepsake commands; it shows canonical inventory, progress and rejection messages. The presentation adapter displays only the canonical selected Held item while retaining distinct carried furniture and keepsake handling.
+
+R0 passes (`Logs/gate_check_all_20261020T141129Z.log`), affected core tests pass 174/174 (`TestResults/core_20261020T141140Z.trx`, 38.9 seconds), and the actual Unity compile passes in 138 seconds (`Logs/gate_compile_20261020T141314Z.log`).
+
+This is source/native compilation evidence, not input or UI acceptance. The launcher is not yet wired. The online owner's next wire checkpoint must permit Equip/Attack before live use. Native held-item selection, camera collisions, controls, controller menu focus and full HUD usability remain unverified. Next: integrate the reviewed coordinator/session/wire cutover, compose a live match and verify these behaviors.

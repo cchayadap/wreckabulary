@@ -29,6 +29,7 @@ namespace Wreckabulary.Online
 
         readonly List<View> views = new List<View>();
         readonly Dictionary<string, string> appearances = new Dictionary<string, string>(StringComparer.Ordinal);
+        readonly Dictionary<string, string> equipped = new Dictionary<string, string>(StringComparer.Ordinal);
         WordboundVisualResolver resolver;
         WordboundGameplayController controller;
         MatchBinding binding;
@@ -59,7 +60,12 @@ namespace Wreckabulary.Online
                 throw new InvalidOperationException("Presentation cannot mix different signed matches.");
             binding = frame.Binding;
             appearances.Clear();
-            foreach (var actor in frame.Actors) appearances.Add(actor.PlayerId, actor.Appearance);
+            equipped.Clear();
+            foreach (var actor in frame.Actors)
+            {
+                appearances.Add(actor.PlayerId, actor.Appearance);
+                equipped.Add(actor.PlayerId, WordboundCombatPolicy.EquippedItemId(frame, actor.PlayerId));
+            }
             foreach (var view in views) ApplyAppearance(view);
         }
 
@@ -148,7 +154,7 @@ namespace Wreckabulary.Online
                 {
                     if (view.World == null || view.Body.Body.BodyActive || view.Body.CarrierSeat < 0) continue;
                     var carrier = Carrier(view);
-                    if (carrier == null) continue;
+                    if (carrier == null || !VisibleInHand(view, carrier)) continue;
                     carrier.Carrying = true;
                     carrier.TwoHanded |= view.World.TwoHanded;
                 }
@@ -173,7 +179,7 @@ namespace Wreckabulary.Online
             if (view.World == null || view.Body.Body.BodyActive || view.Body.CarrierSeat < 0)
             { view.Held?.Show(false); return; }
             var carrier = Carrier(view);
-            if (carrier == null) { view.Held?.Show(false); return; }
+            if (carrier == null || !VisibleInHand(view, carrier)) { view.Held?.Show(false); return; }
             string skin = resolver.SkinFor(view.Key, carrier.World.Outfit);
             if (view.Held == null || !view.Held.Root || view.HeldSkin != skin)
             {
@@ -185,6 +191,9 @@ namespace Wreckabulary.Online
             view.Held.PlaceAtHand(carrier.Parent, hand, view.Body.Body.ItemMode == (int)ItemState.Held);
             view.Held.Show(true);
         }
+
+        bool VisibleInHand(View item, View carrier) => item.Body.Body.ItemMode != (int)ItemState.Held ||
+            equipped.TryGetValue(carrier.Actor, out var selected) && selected == item.Body.Body.BodyId.ToString();
 
         void GameplayFailed(string reason) => SetFault(new InvalidOperationException(reason));
         void SetFault(Exception error)
@@ -201,7 +210,7 @@ namespace Wreckabulary.Online
         public void Clear()
         {
             foreach (var view in views) view.Dispose();
-            views.Clear(); appearances.Clear(); binding = null; Fault = "";
+            views.Clear(); appearances.Clear(); equipped.Clear(); binding = null; Fault = "";
         }
         void OnDestroy()
         {
