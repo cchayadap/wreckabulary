@@ -47,7 +47,7 @@ namespace Wreckabulary.Online
 
     public sealed class WordboundPuzzlePlan
     {
-        public const int Version = 1;
+        public const int Version = 2;
         public string SourceHash { get; }
         public string ManifestHash { get; }
         public string Hash { get; }
@@ -65,7 +65,8 @@ namespace Wreckabulary.Online
                 .OrderBy(c => c.Id, StringComparer.Ordinal).Select(c => new WordboundPlatformPath(c, 360, 60)).ToArray());
             Hash = WordboundIdentity.Sha256(string.Join("|", new[] { "wordbound.physical-proof", Version.ToString(CultureInfo.InvariantCulture),
                 SourceHash, ManifestHash, "BedBridge:0,0,0:0:250:15:30", "FanDoor:0,6000,0:0:250:15:30",
-                "UpA:360:60", "UpB:360:60", "checkpoint:authored-recovery-radius", "jump-pad:catalogue-strength" }));
+                "UpA:360:60", "UpB:360:60", "checkpoint:authored-recovery-radius", "jump-pad:catalogue-strength",
+                "fields:next-tick-expiry:height1.25:runner-los:minimum-slow:slippery0.1:wind-catalogue-cap" }));
         }
         public void Validate(MatchBinding binding)
         {
@@ -97,6 +98,14 @@ namespace Wreckabulary.Online
                 if (!item.Enabled || item.Deploy == null || item.Deploy.Effect != DeployEffect.JumpPad ||
                     item.Deploy.LifetimeSeconds != 0) throw new NotSupportedException("The proof requires permanent catalogue BED/STOOL jump pads.");
             }
+            foreach (string id in new[] { "FAN", "CLOCK" })
+            {
+                var item = items.Get(id);
+                if (!item.Enabled || item.Deploy == null || item.Deploy.Effect !=
+                    (id == "FAN" ? DeployEffect.WindField : DeployEffect.SlowField))
+                    throw new NotSupportedException("The proof requires catalogue FAN wind and CLOCK slow fields.");
+                WordboundFieldPolicy.Validate(item.Deploy);
+            }
             var baseGeometry = CourseTemplates.ProofCatalogue();
             Geometry = new CourseCatalogue(baseGeometry.Modules.Values,
                 new[] { "BED", "STOOL", "PLATE" }.Select(id =>
@@ -105,17 +114,21 @@ namespace Wreckabulary.Online
                     return new CourseAssetDefinition(id, id, Mm(item.Size[0]), Mm(item.Size[2]), Mm(item.Size[1]));
                 }), baseGeometry.PuzzlePresets, baseGeometry.Themes, baseGeometry.NarrativeEvents);
             var document = CourseTemplates.RaceCircuit();
-            document.Id = "physical-proof-v1"; document.Title = "Parcel Lift Workshop";
+            document.Id = "physical-proof-v2"; document.Title = "Parcel Lift Workshop";
             document.Puzzles.Single(p => p.Id == "BedBridge").PresetId = "PlaceObject";
             var upper = document.Puzzles.Single(p => p.Id == "FanDoor");
             upper.PresetId = "PlaceObject"; upper.RecipeId = "STOOL"; upper.RequiredLetters = "STOOL";
             document.Supplies.Single(s => s.Id == "FanSupply").Letters = "STOOL";
+            document.Supplies.Add(new CourseSupply { Id = "FanPractice", ModuleId = "Start",
+                Position = new CoursePoint(5000, 0, -6500), Letters = "FAN" });
+            document.Supplies.Add(new CourseSupply { Id = "ClockPractice", ModuleId = "Start",
+                Position = new CoursePoint(7500, 0, -6500), Letters = "CLOCK" });
             var resolved = CourseResolver.Resolve(document, Geometry, new CourseResolveRequest(seed, MatchStateValidation.Requirements(mode)));
             if (!resolved.Success) throw new ArgumentException("Physical proof course did not resolve: " + string.Join("; ", resolved.Issues));
             Course = resolved.Manifest;
             Plan = new WordboundPuzzlePlan(Course);
             ItemSourceHash = WordboundIdentity.Sha256(json);
-            CatalogueHash = WordboundIdentity.Sha256(string.Join("|", "wordbound.proof-content", "1",
+            CatalogueHash = WordboundIdentity.Sha256(string.Join("|", "wordbound.proof-content", "2",
                 Geometry.Hash, ItemSourceHash, Plan.Hash));
         }
         public static WordboundPuzzleProof Create(string itemCatalogueJson, string modeId = "TimeRun",

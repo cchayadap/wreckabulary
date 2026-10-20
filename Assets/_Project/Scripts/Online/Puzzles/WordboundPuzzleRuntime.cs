@@ -48,6 +48,54 @@ namespace Wreckabulary.Online
                 foreach (var player in bodies.Values.Where(b => b.Canonical.Kind == WorldBodyKind.Player))
                     ApplyJumpPad(player, pad, definition);
             }
+            foreach (var field in Fields(frame))
+                if (field.Definition.Deploy.Effect == DeployEffect.WindField)
+                    foreach (var target in bodies.Values.OrderBy(b => b.Canonical.Id, StringComparer.Ordinal))
+                    {
+                        if (!Affected(field.Definition, field.Body, target)) continue;
+                        var velocity = target.Rigidbody.linearVelocity;
+                        var next = WordboundFieldPolicy.WindVelocity(field.Definition.Deploy, Pose(field.Body),
+                            new WorldVector(velocity.x, velocity.y, velocity.z));
+                        target.Rigidbody.linearVelocity = Vector(next);
+                    }
+        }
+
+        public WordboundMovementEnvironment EvaluateMovementEnvironment(string actorId)
+        {
+            var frame = controller.Frame;
+            RequireHost(frame);
+            if (!CanAct(actorId)) return WordboundMovementEnvironment.Neutral;
+            RefreshColliders();
+            var target = controller.Bodies["player:" + WordboundGameplayPlan.Seat(frame.Binding, actorId)];
+            var result = WordboundMovementEnvironment.Neutral;
+            foreach (var field in Fields(frame))
+                if (Affected(field.Definition, field.Body, target))
+                    result = result.Combine(WordboundFieldPolicy.Environment(field.Definition.Deploy));
+            return result;
+        }
+
+        IEnumerable<(ItemDefinition Definition, WordboundNetworkBody Body)> Fields(MatchSnapshot frame)
+        {
+            foreach (var item in frame.Economy.Items.OrderBy(i => i.Id))
+            {
+                if (item.Origin != ItemOrigin.Crafted || item.State != ItemState.Deployed) continue;
+                var definition = items.Get(item.Word);
+                if (definition.Deploy == null || definition.Deploy.Effect != DeployEffect.WindField &&
+                    definition.Deploy.Effect != DeployEffect.SlowField) continue;
+                if (!WordboundFieldPolicy.ActiveNextTick(definition, item.DeploymentTick, frame.Progress.Tick) ||
+                    !controller.Bodies.TryGetValue("item:" + item.Id, out var body) || !body.Canonical.Active ||
+                    !body.Rigidbody.isKinematic) continue;
+                yield return (definition, body);
+            }
+        }
+
+        bool Affected(ItemDefinition definition, WordboundNetworkBody source, WordboundNetworkBody target)
+        {
+            if (target.Rigidbody.isKinematic || !WordboundPhysicsPolicy.ShouldCollide(proof.Mode, source.Canonical, target.Canonical) ||
+                target.Canonical.Kind == WorldBodyKind.Player && !CanAct(target.Canonical.SourceId) ||
+                !WordboundFieldPolicy.Contains(definition.Deploy, Pose(source), Pose(target))) return false;
+            return ClearLine(target.Canonical, source.Rigidbody.position + Vector3.up * .5f,
+                target.Rigidbody.worldCenterOfMass, source, target);
         }
 
         public WordboundHostObservations ObserveHost(MatchSnapshot frame, IReadOnlyList<WorldBodyState> poses)

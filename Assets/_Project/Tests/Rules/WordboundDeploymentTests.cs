@@ -103,6 +103,24 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void DeploymentUsesHostFacingAndSnapshotPreservesItsOrientation()
+        {
+            var f = WordboundAuthorityTests.Create();
+            string id = f.CraftBed();
+            var player = f.State.Bodies.Single(b => b.Id == "player:0");
+            float half = (float)Math.Sqrt(.5);
+            var facing = new WorldBodyState(player.Id, player.Kind, player.Position,
+                new WorldVector(0, half, 0), half, ownerTeam: player.OwnerTeam, sourceId: player.SourceId);
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.Deploy, slot: 0),
+                new[] { facing }).Receipts.Single().Effect.Code);
+            var deployed = f.State.Bodies.Single(b => b.Id == id);
+            Assert.AreEqual(half, deployed.RotationXyz.Y);
+            Assert.AreEqual(half, deployed.RotationW);
+            Assert.Greater(deployed.Position.X, player.Position.X + 1.49f);
+            f.Ack();
+        }
+
+        [Test]
         public void PermanentPadsRemainDeployedAndLegacyEconomyRetainsUnsetTick()
         {
             var f = Deploy(out string id, out _, 0);

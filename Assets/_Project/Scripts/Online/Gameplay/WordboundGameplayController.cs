@@ -182,9 +182,10 @@ namespace Wreckabulary.Online
             physics = new WordboundPhysicsWorld(runner, Authority.Match.Binding, Authority.Match.Mode, course, items, rules,
                 peer => session.TryGetAdmittedActor(peer, out var actor) ? actor : null,
                 () => hostReady && Fault == "" && !stopping && session.GameplayReady && !Authority.Match.IsPaused,
-                options.PuzzleEvaluator);
+                options.PuzzleEvaluator, options.MovementEnvironment);
             physics.RegisterStatic(courseWorld);
             physics.HostStepCompleted += AdvanceHost;
+            physics.MovementFaulted += Fail;
             query.Target = physics;
             driver = runner.gameObject.AddComponent<WordboundGameplayDriver>(); driver.Controller = this; runner.AddGlobal(driver);
             Reconcile(Authority.Match.Capture(1));
@@ -380,7 +381,7 @@ namespace Wreckabulary.Online
             if (Fault != "") return;
             Fault = error.GetType().Name + ": " + error.Message;
             hostReady = false; query.Target = null;
-            physics?.Dispose(); physics = null;
+            if (physics != null) { physics.MovementFaulted -= Fail; physics.Dispose(); physics = null; }
             try { Faulted?.Invoke(Fault); }
             finally { if (session != null) _ = session.Stop(); }
         }
@@ -394,7 +395,7 @@ namespace Wreckabulary.Online
         void CleanupRunner()
         {
             query.Target = null; hostReady = false;
-            if (physics != null) { physics.HostStepCompleted -= AdvanceHost; physics.Dispose(); physics = null; }
+            if (physics != null) { physics.HostStepCompleted -= AdvanceHost; physics.MovementFaulted -= Fail; physics.Dispose(); physics = null; }
             if (runner != null) runner.RemoveCallbacks(this);
             if (driver != null)
             {

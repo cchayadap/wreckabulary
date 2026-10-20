@@ -165,15 +165,17 @@ namespace Wreckabulary.Online
             if (canonical.Kind != WorldBodyKind.Player || world.ShouldFreeze || !canonical.Active || canonical.Kinematic) return;
             string actor = ActorId.ToString();
             if (world.AdmittedActor(Object.InputAuthority) != actor || !world.CanMove(actor, out float moveScale)) return;
+            if (!world.TryMovementEnvironment(actor, out var environment)) return;
             WorldVector direction = default;
             bool hasInput = GetInput(out WordboundMovementInput input) &&
                 WordboundPhysicsPolicy.TryMovement(input, world.Epoch, out direction);
             Vector3 current = body.linearVelocity;
             Vector3 normal = Vector3.up;
             bool grounded = current.y <= .1f && world.TryGround(this, out normal);
-            Vector3 desired = Vector(direction) * (6.5f * moveScale);
+            Vector3 desired = Vector(direction) * (6.5f * moveScale * environment.SpeedMultiplier);
             if (grounded && desired.sqrMagnitude > .0001f) desired = Vector3.ProjectOnPlane(desired, normal).normalized * desired.magnitude;
             float acceleration = direction.DistanceSquared(default) > .0001f ? world.Rules.GroundAccel : world.Rules.GroundFriction;
+            acceleration *= environment.AccelerationMultiplier;
             Vector3 next = Vector3.MoveTowards(current, new Vector3(desired.x, grounded ? desired.y : current.y, desired.z),
                 acceleration * Runner.DeltaTime);
             if (hasInput && input.Jump && grounded) next.y = Mathf.Sqrt(2 * 9.81f * world.Rules.JumpHeight);

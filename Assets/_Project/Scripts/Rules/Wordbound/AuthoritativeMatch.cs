@@ -361,7 +361,7 @@ namespace Wreckabulary.Rules.Wordbound
                         MatchStateValidation.DeploymentExpiryTick(catalogue.Get(held.Word), Tick + 1);
                     outcome = economy.Deploy(index, command.Slot);
                     if (outcome.Ok) outcome.Item.DeploymentTick = Tick + 1;
-                    Release(outcome, placement, default, true);
+                    Release(outcome, placement, default, true, origin);
                     return Effect(outcome);
                 case WordboundAction.GiveLetter:
                 case WordboundAction.Transfer:
@@ -798,13 +798,17 @@ namespace Wreckabulary.Rules.Wordbound
             AddBody(new WorldBodyState("item:" + item.Id, WorldBodyKind.Item, bodies["player:" + indices[seat.PlayerId]].Position,
                 active: false, kinematic: true, ownerTeam: Mode.IsRace ? seat.Team : -1));
         void AddBody(WorldBodyState body) { bodies.Add(body.Id, body); nextWorldEntityId = checked(nextWorldEntityId + 1); }
-        void Release(Outcome outcome, WorldVector at, WorldVector velocity, bool kinematic)
+        void Release(Outcome outcome, WorldVector at, WorldVector velocity, bool kinematic, WorldBodyState orientation = null)
         {
             if (outcome.Ok && outcome.Item != null)
             {
                 if (outcome.Item.State != ItemState.Deployed) outcome.Item.DeploymentTick = -1;
                 string id = "item:" + outcome.Item.Id;
-                bodies[id] = bodies[id].At(at, velocity, true, kinematic);
+                var body = bodies[id];
+                bodies[id] = orientation == null ? body.At(at, velocity, true, kinematic) :
+                    new WorldBodyState(body.Id, body.Kind, at, orientation.RotationXyz, orientation.RotationW,
+                        velocity, active: true, kinematic: kinematic, ownerTeam: body.OwnerTeam, protectedResource: body.Protected,
+                        sourceId: body.SourceId, recoveryGeneration: body.RecoveryGeneration);
             }
         }
         void ExpireDeployments(long nextTick)

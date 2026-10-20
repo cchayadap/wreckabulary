@@ -22,6 +22,7 @@ namespace Wreckabulary.Online
         readonly Func<PlayerRef, string> admittedActor;
         readonly Func<bool> canAdvance;
         readonly Func<string, ResolvedCoursePuzzle, WorldBodyState, bool> puzzleEvaluator;
+        readonly Func<string, WordboundMovementEnvironment> movementEnvironment;
         readonly Dictionary<string, WordboundNetworkBody> bodies = new Dictionary<string, WordboundNetworkBody>(StringComparer.Ordinal);
         readonly Dictionary<Collider, WordboundNetworkBody> owned = new Dictionary<Collider, WordboundNetworkBody>();
         readonly HashSet<Collider> structure = new HashSet<Collider>();
@@ -43,11 +44,13 @@ namespace Wreckabulary.Online
             frame.Progress.Migrating || frame.Progress.Result != null || HostStepCompleted == null;
         public PhysicsScene PhysicsScene => scene;
         public event Action<IReadOnlyList<WorldBodyState>> HostStepCompleted;
+        public event Action<Exception> MovementFaulted;
 
         public WordboundPhysicsWorld(NetworkRunner runner, MatchBinding binding, ModeDefinition mode,
             ResolvedCourse course, ItemCatalogue itemCatalogue, GameRules rules,
             Func<PlayerRef, string> admittedActor, Func<bool> canAdvance,
-            Func<string, ResolvedCoursePuzzle, WorldBodyState, bool> puzzleEvaluator = null)
+            Func<string, ResolvedCoursePuzzle, WorldBodyState, bool> puzzleEvaluator = null,
+            Func<string, WordboundMovementEnvironment> movementEnvironment = null)
         {
             this.runner = runner ?? throw new ArgumentNullException(nameof(runner));
             Binding = binding ?? throw new ArgumentNullException(nameof(binding));
@@ -58,6 +61,7 @@ namespace Wreckabulary.Online
             this.admittedActor = admittedActor ?? throw new ArgumentNullException(nameof(admittedActor));
             this.canAdvance = canAdvance ?? throw new ArgumentNullException(nameof(canAdvance));
             this.puzzleEvaluator = puzzleEvaluator;
+            this.movementEnvironment = movementEnvironment;
             if (binding.ModeHash != mode.Hash || binding.ManifestHash != course.Hash || binding.CourseHash != course.SourceHash)
                 throw new ArgumentException("Physics world content differs from the canonical match.");
             if (!runner.IsRunning || !runner.IsServer || runner.SceneManager == null ||
@@ -170,6 +174,25 @@ namespace Wreckabulary.Online
                 nearest = hit.distance; normal = hit.normal;
             }
             return nearest < float.PositiveInfinity;
+        }
+
+        internal bool TryMovementEnvironment(string actor, out WordboundMovementEnvironment environment)
+        {
+            environment = WordboundMovementEnvironment.Neutral;
+            if (ShouldFreeze) return false;
+            try
+            {
+                environment = movementEnvironment?.Invoke(actor) ?? WordboundMovementEnvironment.Neutral;
+                environment.Validate();
+                return true;
+            }
+            catch (Exception error)
+            {
+                failed = true;
+                foreach (var body in bodies.Values) body.PrepareSimulation(true);
+                MovementFaulted?.Invoke(error);
+                return false;
+            }
         }
 
         public bool HasLineOfSight(string actorId, WorldVector from, WorldVector to)

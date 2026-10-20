@@ -42,6 +42,7 @@ namespace Wreckabulary.Online
         public SceneRef? GameplayScene { get; set; }
         public WordboundCourseWorldOptions World { get; set; }
         public Func<WordboundMovementInput> ReadMovement { get; set; }
+        public Func<string, WordboundMovementEnvironment> MovementEnvironment { get; set; }
         public Func<string, ResolvedCoursePuzzle, WorldBodyState, bool> PuzzleEvaluator { get; set; }
         public Func<MatchSnapshot, IReadOnlyList<WorldBodyState>, WordboundHostObservations> ObserveHost { get; set; }
         public Action<MatchSnapshot, IReadOnlyDictionary<string, WordboundNetworkBody>> BeforeHostPhysics { get; set; }
