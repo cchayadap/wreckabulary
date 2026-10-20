@@ -7,6 +7,7 @@
     "correctly rehashed transport still rejects invalid UTF8 and inflation over 8MiB",
     "duplicate canonical keys cannot be hidden by recomputing packet hashes",
     "initial writer is signed roster first; membership is not exclusive ownership",
+    "admission opens only for the live writer and exact claimed base head",
     "complete actual schema2 packet commits and replays identically",
     "competing complete uploads cannot both replace one head",
     "retention preserves current and prior complete bytes",
@@ -16,8 +17,8 @@
   ],
   "sourceHashes": {
     "src/model.ts": "fa3c4e8b8f228d5bbccac0db40b5fc24a97668ab707cba803e4c318a55a668bb",
-    "src/checkpoints.ts": "993c5ab36eaae025eb68904e80d654d4d758d40d75824fa18bfc90fa3dcbc120",
-    "test/fixtures/schema2.ts": "6269eb8e82acd6e5363a5d011d5364573304af2378e64222fab0d2212a584bfa"
+    "src/checkpoints.ts": "442e333c8d04bc47cedd3a20d63c374ab58b701663a87857d737acb8abd1d439",
+    "test/fixtures/schema2.ts": "7cc16249af185f434681c080149aea97c0bf3350b9f896ec792f808975b27d09"
   },
   "scope": "Actual TypeScript helpers and store with in-memory Node SQLite; no HTTP auth, Cloudflare persistence or Unity claim."
 }

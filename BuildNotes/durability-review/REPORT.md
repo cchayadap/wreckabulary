@@ -122,3 +122,49 @@ Coverage: real C# deflate bytes and exact canonical text; all 32 control-charact
 A client retry gap was also found and repaired while the draft was evolving: redoing the full Commit operation after a lost finalize response originally failed while resending already committed chunks. The service now accepts identical retained committed chunk bytes under the still-live original term, while rejecting changed data. The independent full begin/chunk/finalize retry passes. After expiry, recovery must use head/read and must not revive the old writer.
 
 The owner's latest actual Cloudflare test-runtime log, `BuildNotes/online/checkpoint-suite.log`, reports **64/64 PASS** over four files (39.83 seconds). This reviewer inspected its source and result but did not independently rerun that suite. Runtime native acceptance and the final C# session cutover remain pending; D1 is not closed.
+
+## Admission-open extension and current schema fixture
+
+The store probe now passes **13/13**, adding the new `checkpoint-open` transition. It verifies that a claim starts closed, another member cannot open it, the wrong base-head hash leaves it closed, an exact open can be retried, takeover starts closed again, and neither an expired term nor the wrong replacement base head can open admission. This flag attests the current writer's declared recovery readiness; it is not independent validation that a remote host actually ran the full game codec.
+
+Current actual-source hashes from this run:
+
+- `src/checkpoints.ts`: `442e333c8d04bc47cedd3a20d63c374ab58b701663a87857d737acb8abd1d439`
+- `test/fixtures/schema2.ts`: `7cc16249af185f434681c080149aea97c0bf3350b9f896ec792f808975b27d09`
+
+The regenerated real C# fixture now contains `attack`, `equippedSlot`, and `staggerImmuneUntilTick` actor fields alongside the controls/Unicode case. It is 6,299 raw bytes. This addresses the requested combat-schema compatibility coverage; the small fixture alone does not prove large native recovery.
+
+The session draft waits for `HostAvailable` before issuing its one-use connection ticket. Its constructor rejects client-to-client reliable forwarding, and a prompt triggers a bounded coordinator head lookup requiring the live exact writer/term and `admissionOpen` before latching. Duplicate prompts are coalesced and there is a maximum of four head checks per Runner. A prompt grants no command or replica privilege: the signed host authorization remains required. These are draft source observations only; the final session, deferred completion tests, and actual transport behavior are still under review.
+
+## Independent session scheduling probe
+
+Service pinned at `9f23973`; C# checkpoint client subsequently committed as `b0c5625` with the owner's seven focused client tests passing. The latest service gate reports 65/65 tests, including the admission-open extension and the regenerated combat fixture.
+
+`SessionProbe/SessionProbe.csproj` compiles the actual session, checkpoint client, wire and rules sources. It uses the owner's SDK scheduling doubles and this reviewer's independent HTTP/scheduling fixture. The fake authority records calls and deliberately does not validate game snapshots; those tests establish asynchronous control flow, not full game-state validity. No native SDK runtime or live coordinator is invoked.
+
+Independent result: **10/10 PASS**, recorded in `session-probe-result.txt`.
+
+1. A closed writer never consumes a connection ticket; repeated prompts cannot exceed four head checks.
+2. Duplicate prompts coalesce while Head is pending and after the one ticket is requested.
+3. A superseded Head response cannot request a ticket.
+4. A superseded ticket response cannot send into either old or replacement Runner.
+5. An exact coordinator receipt acknowledges the publication with **zero Photon snapshot pushes**.
+6. An old Runner's successful finalize cannot acknowledge or clear the replacement publication guard.
+7. An old Runner's failed finalize cannot fail the replacement or clear its guard.
+8. A finalize arriving at the exact local writer expiry cannot acknowledge; Poll then closes gameplay.
+9. A lost finalize response resolves the identical committed head and acknowledges exactly once.
+10. Stop during delayed head resolution prevents acknowledgement and readiness.
+
+Source hashes at this checkpoint:
+
+- `WordboundFusionSession.cs`: `9210908D89B5A98CEA4532EAD3B3CE81A5CD3C5B0C2DA769DC7204F99535A85A`
+- `OnlineCheckpointService.cs`: `39BC8A38080C9955CE93A132A37F7C768C7E007CF9C7DFFC07F3B824B1A26D60`
+- `OnlineFusionWire.cs`: `5C2EE23284F6133E823869DE5792363368793997A3722AF53A93172DE51AB530`
+- Owner's scheduling doubles: `6270AC59EC4B54F3202EB286239FA746F4E3854DB8483BD27786802F9BC28B31`
+- Locally built `SessionProbe.dll`: `D68313FB20CA2C306F74A9CB98F5149E759E8A9973A9836A3E964FB0B1AD2920` (generated binary remains local).
+
+The initial probe attempt exposed an error in this reviewer's HTTP fixture: it handed a `double` index to the strict integer-only encoder. Casting that fixture index to `int` produced the passing run. This was not a production defect.
+
+A source compatibility question was also resolved during review: a fresh Session joining after a prior host replacement must not assume the original roster-first host still owns the room. The owner changed fresh Start to inspect current coordinator writer/head before choosing Host/Client, and permits the exact live open replacement writer in the roster. Admitted now additionally requires a previously confirmed HostAvailable identity. Native room discovery/rejoin remains unproven.
+
+Next required checkpoint: pin the final session commit and owner lifecycle tests, rerun the independent probe if its source changed, then consume root's authenticated native recovery evidence. This report remains IN PROGRESS.

@@ -160,6 +160,14 @@ try {
     call("checkpoint-claim", claim());
     assert.throws(() => call("checkpoint-claim", claim(), actors[1]), /CHECKPOINT_WRITER_BUSY/);
   });
+  test("admission opens only for the live writer and exact claimed base head", () => {
+    assert.equal(call("checkpoint-head").writer.admissionOpen, false);
+    assert.throws(() => call("checkpoint-open", { term: "1", headId: null }, actors[1]), /CHECKPOINT_WRITER_EXPIRED/);
+    assert.throws(() => call("checkpoint-open", { term: "1", headId: "a".repeat(64) }), /CHECKPOINT_HEAD_CONFLICT/);
+    assert.equal(call("checkpoint-head").writer.admissionOpen, false);
+    assert.equal(call("checkpoint-open", { term: "1", headId: null }).writer.admissionOpen, true);
+    assert.equal(call("checkpoint-open", { term: "1", headId: null }).writer.admissionOpen, true);
+  });
   const first = packet("1");
   test("complete actual schema2 packet commits and replays identically", () => {
     stage(first);
@@ -198,8 +206,12 @@ try {
     const replacement = call("checkpoint-claim", claim(), actors[1]);
     assert.equal(replacement.writer.term, "2");
     assert.equal(replacement.writer.epoch, "1");
+    assert.equal(replacement.writer.admissionOpen, false);
     assert.deepEqual(replacement.head, third.manifest);
     assert.throws(() => finish(competing), /CHECKPOINT_WRITER_EXPIRED/);
+    assert.throws(() => call("checkpoint-open", { term: "1", headId: null }), /CHECKPOINT_WRITER_EXPIRED/);
+    assert.throws(() => call("checkpoint-open", { term: "2", headId: second.manifest.uploadId }, actors[1]), /CHECKPOINT_HEAD_CONFLICT/);
+    assert.equal(call("checkpoint-open", { term: "2", headId: third.manifest.uploadId }, actors[1]).writer.admissionOpen, true);
   });
   test("terminal writer cannot renew and empty claims do not consume domain epochs", () => {
     match.seats[1].returned = true;
