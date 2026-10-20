@@ -26,7 +26,7 @@ namespace Wreckabulary.Rules.Wordbound
             d.Connections.Add(Stairs("Return", "Side", 5000, 15000, 0, "FanDoor"));
             d.Connections.Add(new CourseConnection {
                 Id = "Door", FromModuleId = "Upper", ToModuleId = "Side", Kind = "Door",
-                From = P(10000, 6000, 0), To = P(10000, 6000, 0), GatePuzzleId = "FanDoor"
+                From = P(10000, 6000, -6000), To = P(10000, 6000, -6000), GatePuzzleId = "FanDoor"
             });
             d.Supplies.Add(new CourseSupply { Id = "BedSupply", ModuleId = "Start", Position = P(0, 0, -5000), Letters = "BED" });
             d.Supplies.Add(new CourseSupply { Id = "FanSupply", ModuleId = "Upper", Position = P(0, 6000, -6000), Letters = "FAN" });

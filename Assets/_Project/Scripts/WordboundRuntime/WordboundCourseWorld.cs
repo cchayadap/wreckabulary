@@ -33,6 +33,8 @@ namespace Wreckabulary.WordboundRuntime
                 throw new ArgumentException("The course parent must preserve metre scale.");
             if (course.Connections.Any(c => c.Kind == "Traversal"))
                 throw new NotSupportedException("Traversal connectors require their physics preset adapter.");
+            if (course.Connections.Any(c => (c.Kind == "Stairs" || c.Kind == "Ramp") && c.To.Y <= c.From.Y))
+                throw new ArgumentException("Stairs and ramps require ascending endpoints under the course contract.");
             var root = new GameObject("WordboundCourse");
             root.SetActive(false);
             root.transform.SetParent(parent, false);
@@ -109,11 +111,13 @@ namespace Wreckabulary.WordboundRuntime
             {
                 if (c.Kind != "Stairs" && c.Kind != "Ramp") continue;
                 Vector3 a = Metres(c.From), b = Metres(c.To);
-                if (min.y <= Mathf.Min(a.y, b.y) || min.y > Mathf.Max(a.y, b.y) + ConnectorHeadroom) continue;
+                if (min.y <= Mathf.Min(a.y, b.y) || min.y > Mathf.Max(a.y, b.y) + ConnectorHeadroom + FloorThickness) continue;
+                float firstClearance = Mathf.Clamp01((min.y - FloorThickness - ConnectorHeadroom - a.y) / (b.y - a.y));
+                Vector3 openingStart = Vector3.Lerp(a, b, firstClearance);
                 float halfWidth = c.WidthMm / 2000f;
                 Rect hole = Mathf.Abs(b.x - a.x) > .001f ?
-                    Rect.MinMaxRect(Mathf.Min(a.x, b.x), a.z - halfWidth, Mathf.Max(a.x, b.x), a.z + halfWidth) :
-                    Rect.MinMaxRect(a.x - halfWidth, Mathf.Min(a.z, b.z), a.x + halfWidth, Mathf.Max(a.z, b.z));
+                    Rect.MinMaxRect(Mathf.Min(openingStart.x, b.x), a.z - halfWidth, Mathf.Max(openingStart.x, b.x), a.z + halfWidth) :
+                    Rect.MinMaxRect(a.x - halfWidth, Mathf.Min(openingStart.z, b.z), a.x + halfWidth, Mathf.Max(openingStart.z, b.z));
                 pieces = Subtract(pieces, hole);
             }
             foreach (var piece in pieces)

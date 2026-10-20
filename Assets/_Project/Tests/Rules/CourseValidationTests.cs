@@ -7,6 +7,30 @@ namespace Wreckabulary.Tests
 {
     public class CourseValidationTests
     {
+        [TestCase("Stairs", false), TestCase("Ramp", false)]
+        [TestCase("Stairs", true), TestCase("Ramp", true)]
+        public void StairAndRampContractsRejectDescendingOrFlatEndpoints(string kind, bool flat)
+        {
+            var document = flat ? CourseTemplates.FreestyleWorld() : CourseTemplates.RaceCircuit();
+            var connection = document.Connections[0];
+            connection.Kind = kind;
+            if (flat)
+            {
+                connection.From = new CoursePoint(5000, 0, 0);
+                connection.To = new CoursePoint(15000, 0, 0);
+            }
+            else
+            {
+                (connection.FromModuleId, connection.ToModuleId) = (connection.ToModuleId, connection.FromModuleId);
+                (connection.From, connection.To) = (connection.To, connection.From);
+            }
+            var result = CourseResolver.Resolve(document, CourseTemplates.ProofCatalogue(),
+                new CourseResolveRequest("0123456789abcdef", CourseCoreTests.Play(flat ? "Freestyle" : "TimeRun")));
+            Assert.IsFalse(result.Success);
+            Assert.IsTrue(result.Issues.Any(i => i.Code == "stairs.slope"), string.Join("; ", result.Issues));
+            Assert.IsNull(result.Manifest);
+        }
+
         [TestCase("null-reference"), TestCase("duplicate-id"), TestCase("missing-layer"), TestCase("overlap")]
         [TestCase("unknown-asset"), TestCase("cycle"), TestCase("multiplayer-puzzle"), TestCase("insufficient-starts")]
         [TestCase("steep-stairs"), TestCase("bad-landing"), TestCase("bad-door-edge"), TestCase("broken-route"), TestCase("missing-lap"), TestCase("zero-height-reserve")]

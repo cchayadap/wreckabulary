@@ -92,8 +92,11 @@ namespace Wreckabulary.Tests
                     Anchor(WordboundCourseNodeKind.Connection, connection.Id).GetComponent<WordboundCourseNode>().GatePuzzleId);
                 AssertTraversable(connection);
             }
-            Assert.IsFalse(SolidAt(new Vector3(0, 6, -3)), "Upper slab must not seal UpA.");
-            Assert.IsFalse(SolidAt(new Vector3(0, 6, 3)), "Upper slab must not seal UpB.");
+            Assert.IsFalse(SolidAt(new Vector3(2, 6, -3)), "Upper slab must not seal UpA's headroom.");
+            Assert.IsFalse(SolidAt(new Vector3(2, 6, 3)), "Upper slab must not seal UpB's headroom.");
+            Assert.IsTrue(SolidAt(new Vector3(0, 5.9f, -3)), "Floor can remain where the stair is safely below it.");
+            Assert.IsTrue(SolidAt(new Vector3(9.1f, 5.9f, 0)), "Return must not remove the Upper floor below safe headroom.");
+            Assert.IsFalse(SolidAt(new Vector3(12, 6, 0)), "Return still needs its upper landing opening.");
             Assert.IsFalse(SolidAt(new Vector3(10, 3.8f, 0)), "Return must cross the lower room wall.");
             Assert.IsTrue(SolidAt(new Vector3(10, 1, 7)), "Unrelated wall panels remain present.");
             Assert.IsTrue(SolidAt(new Vector3(0, 5.9f, 8)), "Safe upper landing remains supported.");
@@ -120,6 +123,22 @@ namespace Wreckabulary.Tests
             world = WordboundCourseWorld.Build(Resolve(document, catalogue, "TimeRun"), catalogue, parent.transform, options);
             Physics.SyncTransforms();
             AssertTraversable(world.Course.Connections.Single(c => c.Id == "UpA"));
+        }
+
+        [TestCase("Stairs"), TestCase("Ramp")]
+        public void AscendingConnectorsCanRunInTheOppositeHorizontalDirection(string kind)
+        {
+            var catalogue = CourseTemplates.ProofCatalogue();
+            var document = CourseTemplates.RaceCircuit();
+            var connection = document.Connections.Single(c => c.Id == "UpA");
+            connection.Kind = kind;
+            connection.From = new CoursePoint(5000, 0, -3000);
+            connection.To = new CoursePoint(-5000, 6000, -3000);
+            world = WordboundCourseWorld.Build(Resolve(document, catalogue, "TimeRun"), catalogue, parent.transform, options);
+            Physics.SyncTransforms();
+            AssertTraversable(world.Course.Connections.Single(c => c.Id == "UpA"));
+            Assert.IsFalse(SolidAt(new Vector3(-2, 6, -3)), "Headroom opening follows the reversed horizontal ascent.");
+            Assert.IsTrue(SolidAt(new Vector3(2, 5.9f, -3)), "The low end retains safe overhead floor.");
         }
 
         [Test]
