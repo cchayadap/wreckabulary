@@ -90,7 +90,7 @@ namespace Wreckabulary.Tests {
   [Test] public void ChunkRequestsAreBoundedToFourConcurrentHttpOperations() {
    var f=new Fixture();var random=new byte[30000];new Random(2718).NextBytes(random);var upload=f.Prepare(Convert.ToBase64String(random));
    var release=new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);int active=0,peak=0;var sync=new object();
-   f.Override=async r=>{if(!r.Path.EndsWith("checkpoint-chunk"))return f.Reply(r);lock(sync){active++;peak=Math.Max(peak,active);}await release.Task;OnlineResponse response;lock(sync){response=f.Reply(r);active--;}return response;};
+   f.Override=async r=>{if(!r.Path.EndsWith("checkpoint-chunk"))return f.Reply(r);lock(sync){active++;peak=Math.Max(peak,active);}await release.Task.ConfigureAwait(false);OnlineResponse response;lock(sync){response=f.Reply(r);active--;}return response;};
    var pending=f.Service.Commit(upload);Assert.AreEqual(4,active);Assert.IsFalse(pending.IsCompleted);release.SetResult(true);
    Assert.IsTrue(pending.GetAwaiter().GetResult().Same(upload.Manifest));Assert.AreEqual(4,peak);Assert.AreEqual(0,active);
   }
