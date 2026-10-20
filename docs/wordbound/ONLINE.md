@@ -128,6 +128,9 @@ Focused compile with installed official SDKs and the parallel domain source:
 
 ```text
 dotnet build BuildNotes/online/FusionCompile/FusionCompile.csproj
+dotnet run --project BuildNotes/online/FusionCompile/BridgeTests.csproj
 ```
 
 The project reads the sibling integration SDK/compiled Unity assemblies and puzzle-race rules without copying them; paths can be overridden with `IntegrationRoot`, `PuzzleRoot` and `UnityRoot`. The proprietary SDK is not in Git. Native prefab registration/weaving, authenticated deployed provider, full multi-peer admission, migration and dynamic player/item physics are separate integration gates and are not claimed by this compile.
+
+The second command runs the actual authority bridge against the domain with the existing standalone NUnit shim. Its six regressions cover ready-host authority, queued requests surviving a paused/failed tick, exact committed restore, fixed reconnect deadlines and permanent return. The same source is in `Wreckabulary.Online.Fusion.Tests` for native Unity NUnit verification. Root's Unity importer generates all new asset metadata.
