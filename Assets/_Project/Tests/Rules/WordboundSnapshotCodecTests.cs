@@ -43,7 +43,7 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(result.Success, string.Join("\n", result.Issues));
             f.Course = result.Manifest;
             var seats = new[] { new WordboundSeat("a", 0), new WordboundSeat("b", f.Mode.TeamCount > 1 ? 1 : 0, f.Mode.TeamCount > 1 ? 0 : 1) };
-            f.Binding = new MatchBinding("match", "wordbound-v1", f.Mode.Hash, f.Course.SourceHash, f.Course.Hash,
+            f.Binding = new MatchBinding("match", MatchSnapshotCodec.ProtocolVersion, f.Mode.Hash, f.Course.SourceHash, f.Course.Hash,
                 new string('a', 64), new string('b', 64), seats);
             f.Progress = new MatchProgress(f.Mode, seats, MatchStateValidation.Route(f.Course));
             f.Economy = new Economy(f.Catalogue, f.Rules);
@@ -61,13 +61,14 @@ namespace Wreckabulary.Tests
             foreach (var placement in f.Course.Placements.Where(p => p.Purpose == "Resources"))
                 for (int lap = 0; lap < (f.Mode.IsRace ? 3 : 1); lap++)
                     f.Resources.Add(new MatchResourceState(placement.Id, placement.TeamIndex, lap, lap));
-            if (f.Mode.IsRace)
+            if (WordboundPracticePolicy.HasKeepsake(f.Mode))
                 foreach (int team in seats.Select(s => s.Team).Distinct())
                 {
                     f.Bodies.Add(new WorldBodyState("keepsake:" + team, WorldBodyKind.Keepsake, default,
                         ownerTeam: team, protectedResource: true));
-                    for (int lap = 0; lap < 3; lap++)
-                        foreach (var puzzle in f.Course.Puzzles) f.Mechanisms.Add(new MatchMechanismState(puzzle.Id, team, lap));
+                    if (f.Mode.IsRace)
+                        for (int lap = 0; lap < 3; lap++)
+                            foreach (var puzzle in f.Course.Puzzles) f.Mechanisms.Add(new MatchMechanismState(puzzle.Id, team, lap));
                 }
             return f;
         }

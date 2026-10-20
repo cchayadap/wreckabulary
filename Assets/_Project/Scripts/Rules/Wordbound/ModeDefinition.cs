@@ -63,6 +63,8 @@ namespace Wreckabulary.Rules.Wordbound
                 publicQueue, fill, Laps, KnockoutTarget, TickRate, ReconnectSeconds, KeepsakeRecoverySeconds,
                 RecoveryProtectionSeconds, MaximumHitStunSeconds, ProvisionalWindowSeconds, string.Join(",", recipeIds) }
                 .Select(value => Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture))));
+            if (WordboundPracticePolicy.Supports(this))
+                Hash = WordboundIdentity.Sha256(Hash + "|" + WordboundPracticePolicy.Hash);
         }
 
         public static ModeDefinition For(string id, RaceFormat format = RaceFormat.Solo)

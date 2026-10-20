@@ -127,7 +127,7 @@ namespace Wreckabulary.Online
                         .Where(p => Qualifies(frame, team.Team, socket, puzzle, p.Value)).Select(p => p.Key).FirstOrDefault() ?? "";
                     mechanisms.Add(WordboundPuzzlePolicy.Observe(previous, frame.Progress.Tick, item));
                 }
-                ObserveProgress(frame, team, progress);
+                if (proof.Mode.IsRace) ObserveProgress(frame, team, progress);
             }
             return new WordboundHostObservations { Mechanisms = mechanisms, Progress = progress };
         }
@@ -141,14 +141,18 @@ namespace Wreckabulary.Online
             var player = frame.Progress.Players.SingleOrDefault(p => p.Id == actorId);
             if (player == null || !CanAct(actorId) || !controller.Bodies.TryGetValue(item.Id, out var registered)) return false;
             var team = frame.Progress.Teams.Single(t => t.Team == player.Team);
-            var socket = proof.Plan.Sites.SingleOrDefault(s => s.Lap == team.Lap && s.PuzzleId == puzzle.Id)?.Socket;
+            bool practice = WordboundPracticePolicy.Supports(proof.Mode);
+            var site = practice ? proof.Plan.Sites.SingleOrDefault(s => s.Hash == frame.Practice.SiteHash && s.PuzzleId == puzzle.Id) :
+                proof.Plan.Sites.SingleOrDefault(s => s.Lap == team.Lap && s.PuzzleId == puzzle.Id);
+            var socket = site?.Socket;
             if (socket == null) return false;
-            if (!WordboundPuzzlePolicy.ActiveObjective(proof.Course, team, puzzle.Id) ||
+            if (!(practice ? WordboundPracticePolicy.Active(frame, site.Authored) :
+                WordboundPuzzlePolicy.ActiveObjective(proof.Course, team, puzzle.Id)) ||
                 !Qualifies(frame, player.Team, socket, puzzle, registered)) return false;
-            var state = frame.Mechanisms.Single(m => m.PuzzleId == puzzle.Id && m.Team == player.Team && m.Lap == team.Lap);
+            var state = frame.Mechanisms.Single(m => m.PuzzleId == puzzle.Id && m.Team == player.Team && m.Lap == site.Lap);
             if (proof.Course.PhysicalSites.Count != 0)
                 return state.Physical.Stage == MatchPhysicalStage.Complete && state.ItemEntityId == item.Id &&
-                    state.Physical.SiteHash == proof.Plan.Sites.Single(s => s.Lap == team.Lap && s.PuzzleId == puzzle.Id).Hash;
+                    state.Physical.SiteHash == site.Hash;
             return WordboundPuzzlePolicy.Ready(socket, state, frame.Progress.Tick, item.Id);
         }
 
@@ -185,7 +189,8 @@ namespace Wreckabulary.Online
             ResolvedCoursePuzzle puzzle, WordboundNetworkBody body)
         {
             if (proof.Course.PhysicalSites.Count == 0 && puzzle.PresetId != "PlaceObject" ||
-                !WordboundPuzzlePolicy.LiveRecipe(frame, body.Canonical, puzzle.RecipeId, team) ||
+                !WordboundPuzzlePolicy.LiveRecipe(frame, body.Canonical, puzzle.RecipeId,
+                    WordboundPracticePolicy.Supports(proof.Mode) ? -1 : team) ||
                 !body.Rigidbody.isKinematic || !WordboundPuzzlePolicy.InSocket(socket, Pose(body))) return false;
             var live = frame.Economy.Items.Single(i => "item:" + i.Id == body.Canonical.Id);
             var definition = items.Get(live.Word);

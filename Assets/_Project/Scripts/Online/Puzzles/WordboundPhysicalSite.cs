@@ -65,8 +65,10 @@ namespace Wreckabulary.Online
         internal void Validate(ResolvedCourse course)
         {
             var puzzle = course.Puzzles.SingleOrDefault(p => p.Id == PuzzleId);
-            if (puzzle == null || Lap >= course.Laps.Count ||
-                !course.Laps[Lap].Checkpoints.Any(c => c.Id == CheckpointId && c.PuzzleIds.Contains(PuzzleId)) ||
+            bool explore = course.Play.Capability == CourseCapability.Explore;
+            if (puzzle == null || (!explore && (Lap >= course.Laps.Count ||
+                !course.Laps[Lap].Checkpoints.Any(c => c.Id == CheckpointId && c.PuzzleIds.Contains(PuzzleId)))) ||
+                explore && !course.PhysicalSites.Any(s => s.Hash == Hash && s.CheckpointId == CheckpointId) ||
                 !puzzle.RecoverySupplyIds.Contains(RecoverySupplyId) ||
                 !course.Supplies.Any(s => s.SourceId == RecoverySupplyId && s.ModuleId == puzzle.ModuleId && s.Renewable && s.Protected))
                 throw new ArgumentException("Physical site is not bound to its selected lap, checkpoint and recovery supply.");

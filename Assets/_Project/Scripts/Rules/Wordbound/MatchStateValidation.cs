@@ -43,6 +43,7 @@ namespace Wreckabulary.Rules.Wordbound
                     snapshot.RandomStreams.Count <= 256 && snapshot.NarrativeFlags.Count <= 1024,
                     "Snapshot section exceeds the wire bounds.");
                 ValidateActors(snapshot, expectedBinding, rules, catalogue, mode);
+                ValidatePractice(snapshot, course, mode);
                 ValidateDeployments(snapshot, catalogue);
                 ValidateResources(snapshot, course, mode);
                 ValidateBodies(snapshot, expectedBinding, course, mode);
@@ -102,11 +103,12 @@ namespace Wreckabulary.Rules.Wordbound
                 return player >= 0 ? snapshot.Binding.Seats[player].Team : body.OwnerTeam;
             }
             var teams = snapshot.Progress.Teams.ToDictionary(t => t.Team);
+            var lifecycle = new WordboundResourceLifecycle(course, mode);
             var auxiliary = WordboundEntityBudget.AuxiliaryBodies(course, mode, snapshot.Bodies,
-                id => items.TryGetValue("item:" + id, out var item) ? item : null, snapshot.Mechanisms, snapshot.Progress.Teams);
+                id => items.TryGetValue("item:" + id, out var item) ? item : null, snapshot.Mechanisms, snapshot.Progress.Teams, snapshot.Practice);
             var core = dynamicBodies.Where(b => !auxiliary.Contains(b.Id) &&
-                !(mode.IsRace && b.Kind == WorldBodyKind.Tile && b.OwnerTeam >= 0 &&
-                    budget.CriticalSource(b.SourceId, teams[b.OwnerTeam]))).ToArray();
+                !(b.Kind == WorldBodyKind.Tile && (lifecycle.PracticeSource(b.SourceId, snapshot.Practice, snapshot.Mechanisms) ||
+                    mode.IsRace && b.OwnerTeam >= 0 && budget.CriticalSource(b.SourceId, teams[b.OwnerTeam])))).ToArray();
             var references = new HashSet<string>(snapshot.Actors.Where(a => a.Attack != null).SelectMany(a => a.Attack.HitBodyIds),
                 StringComparer.Ordinal);
             foreach (var flight in snapshot.ThrownFlights)
@@ -227,7 +229,7 @@ namespace Wreckabulary.Rules.Wordbound
                     "Recovery source, team, lap or deadline is invalid.");
                 if (mode.IsRace && r.Team >= 0 && r.Lap != Math.Min(s.Progress.Teams.Single(t => t.Team == r.Team).Lap, 2))
                     Need(r.RecoveryAtTick == -1, "Inactive lap resources cannot retain a pending recovery deadline.");
-                if (!lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r))
+                if (!lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r, s.Practice, s.Mechanisms))
                     Need(r.RecoveryAtTick == -1, "Retired puzzle resources cannot retain a pending recovery deadline.");
             }
             var tiles = s.Economy.TileStates.ToDictionary(t => t.Key, t => t.Value);
@@ -272,7 +274,7 @@ namespace Wreckabulary.Rules.Wordbound
                 Need(bodies.TryGetValue("tile:" + tile, out var body) && body.Kind == WorldBodyKind.Tile && body.Active,
                     "Live letter tile has no active world body.");
             foreach (var team in s.Progress.Teams)
-                if (mode.IsRace)
+                if (WordboundPracticePolicy.HasKeepsake(mode))
                     Need(bodies.TryGetValue("keepsake:" + team.Team, out var body) && body.Kind == WorldBodyKind.Keepsake &&
                         body.OwnerTeam == team.Team && body.Protected && body.RecoveryGeneration == team.RecoveryGeneration,
                         "Team keepsake body is missing or has the wrong recovery generation.");
@@ -309,14 +311,14 @@ namespace Wreckabulary.Rules.Wordbound
                         break;
                     case WorldBodyKind.Keepsake:
                         int team = Suffix(body.Id, "keepsake:");
-                        Need(mode.IsRace && teams.Contains(team) && body.OwnerTeam == team && body.Protected &&
+                        Need(WordboundPracticePolicy.HasKeepsake(mode) && teams.Contains(team) && body.OwnerTeam == team && body.Protected &&
                             body.SourceId == "", "Unbound keepsake body.");
                         break;
                     case WorldBodyKind.Platform:
                         var fixture = course.PhysicalSites.SelectMany(site => site.Fixtures).SingleOrDefault(f => f.Id == body.SourceId);
                         if (fixture != null)
                         {
-                            Need(mode.IsRace && teams.Contains(body.OwnerTeam) && body.Active && body.Kinematic && body.Protected &&
+                            Need((mode.IsRace || WordboundPracticePolicy.Supports(mode)) && teams.Contains(body.OwnerTeam) && body.Active && body.Kinematic && body.Protected &&
                                 body.Id == CourseFixtureMotion.BodyId(fixture.Id, body.OwnerTeam) && body.RotationW == 1 &&
                                 body.RotationXyz.X == 0 && body.RotationXyz.Y == 0 && body.RotationXyz.Z == 0,
                                 "Unbound physical fixture body.");
@@ -333,7 +335,7 @@ namespace Wreckabulary.Rules.Wordbound
                     default: throw new ArgumentException("Unknown world body kind.");
                 }
             }
-            if (mode.IsRace)
+            if (mode.IsRace || WordboundPracticePolicy.Supports(mode))
                 foreach (int team in teams)
                     foreach (var fixture in course.PhysicalSites.SelectMany(site => site.Fixtures))
                         Need(bodies.ContainsKey(CourseFixtureMotion.BodyId(fixture.Id, team)), "An authored physical fixture is missing.");
@@ -353,7 +355,7 @@ namespace Wreckabulary.Rules.Wordbound
             {
                 Need(body.OwnerTeam == source.Item1 && body.Protected == source.Item2 &&
                     s.Resources.Any(r => r.SourceId == body.SourceId && r.Team == body.OwnerTeam && r.Generation == body.RecoveryGeneration &&
-                        lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r)),
+                        lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r, s.Practice, s.Mechanisms)),
                     "Protected world object disagrees with its recovery source.");
                 return;
             }
@@ -361,21 +363,38 @@ namespace Wreckabulary.Rules.Wordbound
                 body.OwnerTeam == placement.TeamIndex && !body.Protected, "World source does not match an approved placement.");
         }
 
+        static void ValidatePractice(MatchSnapshot s, ResolvedCourse course, ModeDefinition mode)
+        {
+            Need(s.Practice != null && (s.Practice.SiteHash == "" ? s.Practice.SelectedTick == -1 :
+                WordboundPracticePolicy.Supports(mode) && s.Practice.SelectedTick >= 1 &&
+                s.Practice.SelectedTick <= s.Progress.Tick && WordboundPracticePolicy.Selected(course, s.Practice) != null),
+                "Practice selection differs from this mode, course or completed tick.");
+            Need(WordboundPracticePolicy.Supports(mode) || s.Practice.SiteHash == "", "Only Freestyle can select practice.");
+            if (WordboundPracticePolicy.Supports(mode))
+                Need(s.Practice.SiteHash != "" || s.Mechanisms.All(m => !m.Solved && m.ActivatedTick == -1),
+                    "Practice evidence cannot exist before a station was selected.");
+        }
+
         static void ValidateMechanisms(MatchSnapshot s, ResolvedCourse course, ModeDefinition mode)
         {
             Need(s.Mechanisms.Select(m => ResourceKey(m.PuzzleId, m.Team, m.Lap)).Distinct(StringComparer.Ordinal).Count() == s.Mechanisms.Count,
                 "Duplicate mechanism state.");
-            if (!mode.IsRace) { Need(s.Mechanisms.Count == 0, "This mode has no race mechanisms."); return; }
+            bool practiceMode = WordboundPracticePolicy.Supports(mode);
+            if (!mode.IsRace && !practiceMode) { Need(s.Mechanisms.Count == 0, "This mode has no puzzle mechanisms."); return; }
             var puzzles = new HashSet<string>(course.Puzzles.Select(p => p.Id), StringComparer.Ordinal);
             var teams = s.Progress.Teams.ToDictionary(t => t.Team);
-            Need(s.Mechanisms.Count == puzzles.Count * teams.Count * 3, "Snapshot must include every static team/lap mechanism.");
+            Need(s.Mechanisms.Count == (practiceMode ? course.PhysicalSites.Count : puzzles.Count * teams.Count * 3),
+                "Snapshot must include every static team/lap mechanism.");
             foreach (var m in s.Mechanisms)
             {
                 Need(puzzles.Contains(m.PuzzleId) && teams.TryGetValue(m.Team, out var team) && m.Lap >= 0 && m.Lap < 3,
                     "Mechanism has an unknown puzzle, team or lap.");
                 team = teams[m.Team];
+                var practiceSite = practiceMode ? course.PhysicalSites.SingleOrDefault(site =>
+                    site.PuzzleId == m.PuzzleId && site.Lap == m.Lap + 1) : null;
+                Need(!practiceMode || practiceSite != null && m.Team == 0, "Practice mechanism is not an authored station.");
                 MatchStateValidationPhysical.Validate(s, course, m);
-                bool expectedSolved = m.Lap < team.Lap ? course.Laps[m.Lap].Checkpoints.Any(c => c.PuzzleIds.Contains(m.PuzzleId)) :
+                bool expectedSolved = practiceMode ? m.Solved : m.Lap < team.Lap ? course.Laps[m.Lap].Checkpoints.Any(c => c.PuzzleIds.Contains(m.PuzzleId)) :
                     m.Lap == team.Lap && team.CompletedPuzzles.Contains(m.PuzzleId);
                 Need(m.Solved == expectedSolved && m.ActivatedTick >= -1 && m.ActivatedTick <= s.Progress.Tick &&
                     m.PhaseTick >= 0 && m.PhaseTick <= s.Progress.Tick && m.ProgressTicks >= 0 &&
@@ -389,10 +408,21 @@ namespace Wreckabulary.Rules.Wordbound
                     int item = Suffix(m.ItemEntityId, "item:");
                     Need(s.Economy.ItemStates.Any(i => i.Id == item), "Mechanism item reference is missing.");
                 }
+                if (practiceMode && m.Solved)
+                {
+                    var puzzle = course.Puzzles.Single(p => p.Id == m.PuzzleId);
+                    var spent = s.Economy.ItemStates.SingleOrDefault(i => "item:" + i.Id == m.ItemEntityId);
+                    Need(spent != null && spent.Origin == ItemOrigin.Crafted && spent.Word == puzzle.RecipeId &&
+                        (!puzzle.ConsumeLetters || spent.IsGone && spent.Spent), "Practice completion lacks its actual recipe cost.");
+                    if (puzzle.ConsumeLetters)
+                        Need(s.Mechanisms.Count(other => other.Solved && other.ItemEntityId == m.ItemEntityId) == 1,
+                            "One consumed recipe cannot complete multiple practice stations.");
+                }
                 if (!m.Solved && m.ActivatedTick >= 0)
                 {
                     var puzzle = course.Puzzles.Single(p => p.Id == m.PuzzleId);
-                    Need(!team.Finished && m.Lap == team.Lap &&
+                    Need(practiceMode ? WordboundPracticePolicy.Active(s, practiceSite) && m.ActivatedTick >= s.Practice.SelectedTick :
+                        !team.Finished && m.Lap == team.Lap &&
                         team.NextCheckpoint < course.Laps[team.Lap].Checkpoints.Count &&
                         course.Laps[team.Lap].Checkpoints[team.NextCheckpoint].PuzzleIds.Contains(m.PuzzleId) &&
                         puzzle.PrerequisiteIds.All(team.CompletedPuzzles.Contains),
@@ -403,7 +433,7 @@ namespace Wreckabulary.Rules.Wordbound
                         var item = s.Economy.ItemStates.Single(i => i.Id == Suffix(m.ItemEntityId, "item:"));
                         var body = s.Bodies.SingleOrDefault(b => b.Id == m.ItemEntityId);
                         var bounds = course.Geometry.Single(g => g.Id == puzzle.ModuleId).Bounds;
-                        Need(body != null && body.Kind == WorldBodyKind.Item && body.Active && body.OwnerTeam == m.Team &&
+                        Need(body != null && body.Kind == WorldBodyKind.Item && body.Active && body.OwnerTeam == (practiceMode ? -1 : m.Team) &&
                             item.State == ItemState.Deployed && item.Origin == ItemOrigin.Crafted && item.Word == puzzle.RecipeId &&
                             body.Position.X >= bounds.Min.X / 1000f && body.Position.X <= bounds.Max.X / 1000f &&
                             body.Position.Y >= bounds.Min.Y / 1000f - .5f && body.Position.Y <= bounds.Max.Y / 1000f + .5f &&

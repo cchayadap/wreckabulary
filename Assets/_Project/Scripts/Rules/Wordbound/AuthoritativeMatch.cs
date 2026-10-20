@@ -146,6 +146,7 @@ namespace Wreckabulary.Rules.Wordbound
                             mechanisms.Add(Key(puzzle.Id, team, lap), new MatchMechanismState(puzzle.Id, team, lap,
                                 physical: InitialPhysical(puzzle.Id, lap)));
                 }
+            InitializePractice();
             foreach (var placement in course.Placements)
             {
                 if (placement.Purpose == "Resources")
@@ -166,7 +167,7 @@ namespace Wreckabulary.Rules.Wordbound
             foreach (var connection in course.Connections.Where(c => c.GatePuzzleId != ""))
                 AddBody(new WorldBodyState("platform:" + connection.Id, WorldBodyKind.Platform,
                     Position(connection.From), kinematic: true, sourceId: connection.Id));
-            if (Mode.IsRace)
+            if (Mode.IsRace || IsPractice)
                 foreach (int team in Binding.Seats.Select(s => s.Team).Distinct())
                     foreach (var site in course.PhysicalSites)
                         foreach (var fixture in site.Fixtures)
@@ -240,7 +241,7 @@ namespace Wreckabulary.Rules.Wordbound
 
         MatchSnapshot CaptureState(long sequence) => new MatchSnapshot(Binding, Epoch, sequence, nextWorldEntityId,
             progress.Capture(), economy.Capture(), journal.Capture(), actors.Values, bodies.Values,
-            resources.Values, mechanisms.Values, random.Values, narrative, thrownFlights.Values);
+            resources.Values, mechanisms.Values, random.Values, narrative, thrownFlights.Values, practice);
 
         public SnapshotStamp PublishSnapshot(out string json)
         {
@@ -420,7 +421,7 @@ namespace Wreckabulary.Rules.Wordbound
                     return Effect(economy.Transfer(index, other, command.Slot));
                 case WordboundAction.TakeKeepsake:
                     string keepsakeId = "keepsake:" + seat.Team;
-                    if (!Mode.IsRace || !Reachable(seat, origin, keepsakeId, WorldBodyKind.Keepsake, out _)) return Effect("OutOfReach");
+                    if (!WordboundPracticePolicy.HasKeepsake(Mode) || !Reachable(seat, origin, keepsakeId, WorldBodyKind.Keepsake, out _)) return Effect("OutOfReach");
                     bool taken = progress.TakeKeepsake(seat.PlayerId); UpdateKeepsakes();
                     return Effect(taken ? "Ok" : "Unavailable", taken ? keepsakeId : "");
                 case WordboundAction.DropKeepsake:
@@ -428,23 +429,27 @@ namespace Wreckabulary.Rules.Wordbound
                     if (dropped) bodies["keepsake:" + seat.Team] = bodies["keepsake:" + seat.Team].At(origin.Position, active: true, kinematic: false);
                     return Effect(dropped ? "Ok" : "Unavailable");
                 case WordboundAction.UsePuzzle: return UsePuzzle(seat, command, origin);
+                case WordboundAction.PracticePuzzle: return SelectPractice(seat, command, origin);
                 default: return Effect("Unsupported");
             }
         }
 
         CommandEffect UsePuzzle(WordboundSeat seat, PlayerCommand command, WorldBodyState origin)
         {
-            if (!Mode.IsRace) return Effect("Unavailable");
+            if (!Mode.IsRace && !IsPractice) return Effect("Unavailable");
             var team = progress.Team(seat.Team);
-            if (team.Finished || team.NextCheckpoint >= course.Laps[team.Lap].Checkpoints.Count ||
+            var selected = PracticeSite;
+            if (IsPractice ? selected == null || selected.PuzzleId != command.Target :
+                team.Finished || team.NextCheckpoint >= course.Laps[team.Lap].Checkpoints.Count ||
                 !course.Laps[team.Lap].Checkpoints[team.NextCheckpoint].PuzzleIds.Contains(command.Target))
                 return Effect("OutOfOrder");
             var puzzle = course.Puzzles.Single(p => p.Id == command.Target);
-            string key = Key(puzzle.Id, seat.Team, team.Lap);
+            int lap = IsPractice ? selected.Lap - 1 : team.Lap;
+            string key = Key(puzzle.Id, seat.Team, lap);
             if (mechanisms[key].Solved || pending.Any(e => e.Kind == ProgressEventKind.PuzzleSatisfied &&
                 e.Target == puzzle.Id && progress.Player(e.PlayerId).Team == seat.Team)) return Effect("AlreadySolved");
             if (!InModule(origin.Position, puzzle.ModuleId) ||
-                puzzle.PrerequisiteIds.Any(id => !team.CompletedPuzzles.Contains(id) &&
+                !IsPractice && puzzle.PrerequisiteIds.Any(id => !team.CompletedPuzzles.Contains(id) &&
                     !pending.Any(e => e.Kind == ProgressEventKind.PuzzleSatisfied && e.Target == id &&
                         progress.Player(e.PlayerId).Team == seat.Team))) return Effect("OutOfOrder");
             int index = indices[seat.PlayerId];
@@ -455,12 +460,12 @@ namespace Wreckabulary.Rules.Wordbound
                 if (!Reachable(seat, origin, command.Value, WorldBodyKind.Item, out itemBody)) return Effect("OutOfReach");
                 item = economy.Item(Number(itemBody.Id));
                 if (item == null || item.IsGone || item.Word != puzzle.RecipeId || item.Origin != ItemOrigin.Crafted ||
-                    item.State != ItemState.Deployed || itemBody.OwnerTeam != seat.Team || !InModule(itemBody.Position, puzzle.ModuleId))
+                    item.State != ItemState.Deployed || itemBody.OwnerTeam != (IsPractice ? -1 : seat.Team) || !InModule(itemBody.Position, puzzle.ModuleId))
                     return Effect("WrongPuzzleItem");
             }
             else if (!economy.Player(index).Letters.Contains(LetterBag.FromWord(puzzle.RequiredLetters)))
                 return Effect("MissingLetters");
-            var physicalSite = course.PhysicalSites.SingleOrDefault(s => s.PuzzleId == puzzle.Id && s.Lap == team.Lap + 1);
+            var physicalSite = course.PhysicalSites.SingleOrDefault(s => s.PuzzleId == puzzle.Id && s.Lap == lap + 1);
             if (physicalSite != null && (mechanisms[key].Physical.Stage != MatchPhysicalStage.Complete ||
                 mechanisms[key].Physical.SiteHash != physicalSite.Hash || mechanisms[key].ItemEntityId != itemBody?.Id))
                 return Effect("MechanismIncomplete");
@@ -472,11 +477,11 @@ namespace Wreckabulary.Rules.Wordbound
             }
             var mechanism = mechanisms[key];
             bool timed = mechanism.ActivatedTick >= 0;
-            mechanisms[key] = new MatchMechanismState(puzzle.Id, seat.Team, team.Lap, true,
+            mechanisms[key] = new MatchMechanismState(puzzle.Id, seat.Team, lap, true,
                 timed ? mechanism.ActivatedTick : Tick + 1, timed ? mechanism.PhaseTick : Tick + 1,
                 timed ? mechanism.ProgressTicks : 1, itemBody?.Id ?? "", mechanism.Physical);
-            pending.Add(new ProgressEvent(ProgressEventKind.PuzzleSatisfied, seat.PlayerId, puzzle.Id, team.Lap));
-            if (puzzle.RewardLetters.Length > 0) AddTiles(economy.MintTiles(puzzle.RewardLetters), origin.Position, seat.Team);
+            if (!IsPractice) pending.Add(new ProgressEvent(ProgressEventKind.PuzzleSatisfied, seat.PlayerId, puzzle.Id, team.Lap));
+            if (puzzle.RewardLetters.Length > 0) AddTiles(economy.MintTiles(puzzle.RewardLetters), origin.Position, IsPractice ? -1 : seat.Team);
             return Effect("Ok", puzzle.Id);
         }
 
@@ -644,11 +649,12 @@ namespace Wreckabulary.Rules.Wordbound
         void ApplyMechanism(HostMechanismObservation observation, MatchSnapshot before)
         {
             string key = Key(observation.PuzzleId, observation.Team, observation.Lap);
-            if (!Mode.IsRace || !mechanisms.TryGetValue(key, out var previous))
+            if ((!Mode.IsRace && !IsPractice) || !mechanisms.TryGetValue(key, out var previous))
                 throw new ArgumentException("Mechanism observation is not bound to this course and team.");
             if (previous.Solved) return;
             var team = progress.Team(observation.Team);
-            if (observation.Active && (team.Finished || team.Lap != observation.Lap ||
+            if (observation.Active && (IsPractice ? !PracticeActive(observation.PuzzleId, observation.Lap) :
+                team.Finished || team.Lap != observation.Lap ||
                 team.NextCheckpoint >= course.Laps[team.Lap].Checkpoints.Count ||
                 !course.Laps[team.Lap].Checkpoints[team.NextCheckpoint].PuzzleIds.Contains(observation.PuzzleId)))
                 throw new ArgumentException("Mechanism observation is outside the active objective.");
@@ -676,12 +682,12 @@ namespace Wreckabulary.Rules.Wordbound
                 observation.ProgressTicks < previous.ProgressTicks)
                 throw new ArgumentException("Mechanism timing regressed or changed its item without a new phase.");
             var puzzle = course.Puzzles.Single(p => p.Id == observation.PuzzleId);
-            if (puzzle.PrerequisiteIds.Any(id => !team.CompletedPuzzles.Contains(id)))
+            if (!IsPractice && puzzle.PrerequisiteIds.Any(id => !team.CompletedPuzzles.Contains(id)))
                 throw new ArgumentException("Mechanism cannot start before its puzzle prerequisites.");
             if (observation.ItemEntityId != "")
             {
                 if (!bodies.TryGetValue(observation.ItemEntityId, out var body) || body.Kind != WorldBodyKind.Item ||
-                    !body.Active || body.OwnerTeam != observation.Team || !InModule(body.Position, puzzle.ModuleId))
+                    !body.Active || body.OwnerTeam != (IsPractice ? -1 : observation.Team) || !InModule(body.Position, puzzle.ModuleId))
                     throw new ArgumentException("Mechanism item is missing, inaccessible or owned by another team.");
                 var item = economy.Item(Number(body.Id));
                 if (item == null || item.State != ItemState.Deployed || item.Origin != ItemOrigin.Crafted ||
@@ -768,7 +774,9 @@ namespace Wreckabulary.Rules.Wordbound
                     RecoverSource(state, next);
                 }
                 else if (!HasSourceGeneration(state) && state.RecoveryAtTick == -1 &&
-                    SourceAfterPuzzles(state).Any() && !WasSourceAvailable(before, state)) MintSource(state);
+                    (IsPractice ? PracticeRecoverySource(state.SourceId) && (before == null ||
+                        !resourceLifecycle.PracticeSource(state.SourceId, before.Practice, before.Mechanisms)) :
+                        SourceAfterPuzzles(state).Any() && !WasSourceAvailable(before, state))) MintSource(state);
             }
             foreach (var body in bodies.Values.Where(b => b.Active && b.Kind != WorldBodyKind.Player &&
                 b.Kind != WorldBodyKind.Platform && BelowCourse(b.Position)).ToArray())
@@ -786,14 +794,14 @@ namespace Wreckabulary.Rules.Wordbound
 
         void UpdateKeepsakes()
         {
-            if (!Mode.IsRace) return;
+            if (!WordboundPracticePolicy.HasKeepsake(Mode)) return;
             foreach (int teamId in Binding.Seats.Select(s => s.Team).Distinct())
             {
                 var team = progress.Team(teamId);
                 var body = bodies["keepsake:" + teamId];
                 bool carried = team.KeepsakeCarrier != null;
                 WorldVector at = carried ? bodies["player:" + indices[team.KeepsakeCarrier]].Position :
-                    team.RecoveryGeneration != body.RecoveryGeneration ? Landmark(teamId, team.SafeCheckpoint) : body.Position;
+                    team.RecoveryGeneration != body.RecoveryGeneration ? (IsPractice ? PracticeRecoveryPosition() : Landmark(teamId, team.SafeCheckpoint)) : body.Position;
                 bodies[body.Id] = new WorldBodyState(body.Id, body.Kind, at, active: !carried,
                     kinematic: carried, ownerTeam: teamId, protectedResource: true, recoveryGeneration: team.RecoveryGeneration);
             }
@@ -836,7 +844,8 @@ namespace Wreckabulary.Rules.Wordbound
         }
         bool SourceCapacity(MatchResourceState state, int count)
         {
-            if (count == 0 || Mode.IsRace && state.Team >= 0 && entityBudget.CriticalSource(state.SourceId, progress.Team(state.Team)) ||
+            if (count == 0 || PracticeRecoverySource(state.SourceId) ||
+                Mode.IsRace && state.Team >= 0 && entityBudget.CriticalSource(state.SourceId, progress.Team(state.Team)) ||
                 ReserveOptional(state.Team, count, false)) return true;
             resources[Key(state.SourceId, state.Team, state.Lap)] = new MatchResourceState(
                 state.SourceId, state.Team, state.Lap, state.Generation, checked(Tick + WordboundEntityBudget.RetryTicks));
@@ -857,8 +866,8 @@ namespace Wreckabulary.Rules.Wordbound
         IEnumerable<string> SourceAfterPuzzles(MatchResourceState state) =>
             course.Supplies.FirstOrDefault(s => s.Id == state.SourceId)?.AfterPuzzleIds ?? Array.Empty<string>();
         bool SourceAvailable(MatchResourceState state) =>
-            resourceLifecycle.Demanded(Mode.IsRace ? progress.Team(state.Team) : null, state) &&
-            SourceAfterPuzzles(state).All(id => Mode.IsRace && progress.Team(state.Team).CompletedPuzzles.Contains(id));
+            resourceLifecycle.Demanded(Mode.IsRace ? progress.Team(state.Team) : null, state, practice, mechanisms.Values) &&
+            (PracticeRecoverySource(state.SourceId) || SourceAfterPuzzles(state).All(id => Mode.IsRace && progress.Team(state.Team).CompletedPuzzles.Contains(id)));
         bool WasSourceAvailable(MatchSnapshot before, MatchResourceState state) => before != null && SourceAfterPuzzles(state).All(id =>
             Mode.IsRace && before.Progress.Teams.Single(t => t.Team == state.Team).CompletedPuzzles.Contains(id));
         int CurrentLap(int team) => Mode.IsRace && team >= 0 ? Math.Min(progress.Team(team).Lap, 2) : 0;
@@ -983,6 +992,7 @@ namespace Wreckabulary.Rules.Wordbound
             Replace(thrownFlights, snapshot.ThrownFlights, f => f.ItemBodyId);
             narrative.Clear(); narrative.UnionWith(snapshot.NarrativeFlags);
             nextWorldEntityId = snapshot.NextWorldEntityId;
+            practice = snapshot.Practice;
         }
         void EnsureValid(MatchSnapshot snapshot)
         {

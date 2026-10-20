@@ -82,7 +82,7 @@ namespace Wreckabulary.Online
         }
 
         public WordboundPuzzlePlan(ResolvedCourse course) : this(course,
-            course?.PhysicalSites.Where(site => course.Laps.Any(lap => lap.Number == site.Lap &&
+            course?.PhysicalSites.Where(site => course.Play.Capability == CourseCapability.Explore || course.Laps.Any(lap => lap.Number == site.Lap &&
                 lap.Checkpoints.Any(c => c.Id == site.CheckpointId && c.PuzzleIds.Contains(site.PuzzleId))))
                 .Select(site => new WordboundPhysicalSite(site))) { }
 
@@ -97,15 +97,18 @@ namespace Wreckabulary.Online
             if (course.Play.Capability == CourseCapability.Circuit && course.Schema != 2 || array.Any(site => site.Authored == null ||
                 !course.PhysicalSites.Any(s => s.Lap == site.Lap + 1 && s.PuzzleId == site.PuzzleId && s.Hash == site.Hash)))
                 throw new ArgumentException("Authored physical data must be present in the canonical shared course.");
-            var required = course.Laps.SelectMany((lap, index) => lap.Checkpoints.SelectMany(checkpoint =>
-                checkpoint.PuzzleIds.Select(id => index + "/" + id)));
+            var required = course.Play.Capability == CourseCapability.Explore ?
+                course.PhysicalSites.Select(site => (site.Lap - 1) + "/" + site.PuzzleId) :
+                course.Laps.SelectMany((lap, index) => lap.Checkpoints.SelectMany(checkpoint =>
+                    checkpoint.PuzzleIds.Select(id => index + "/" + id)));
             if (!new HashSet<string>(required, StringComparer.Ordinal).SetEquals(array.Select(site => site.Lap + "/" + site.PuzzleId)))
                 throw new ArgumentException("Every selected lap puzzle requires exactly one explicit physical site.");
             SourceHash = course.SourceHash; ManifestHash = course.Hash;
             Sites = Array.AsReadOnly(array.OrderBy(site => site.Lap).ThenBy(site => site.PuzzleId, StringComparer.Ordinal).ToArray());
             Sockets = Array.AsReadOnly(Sites.Select(site => site.Socket).ToArray());
             Platforms = Array.AsReadOnly(Array.Empty<WordboundPlatformPath>());
-            Hash = WordboundIdentity.Sha256(string.Join("|", new[] { "wordbound.authored-physical-plan", "1", SourceHash, ManifestHash }
+            Hash = WordboundIdentity.Sha256(string.Join("|", new[] { "wordbound.authored-physical-plan", "2", SourceHash, ManifestHash,
+                course.Play.Capability == CourseCapability.Explore ? WordboundPracticePolicy.Hash : "" }
                 .Concat(Sites.Select(site => site.Hash))));
         }
         public void Validate(MatchBinding binding)

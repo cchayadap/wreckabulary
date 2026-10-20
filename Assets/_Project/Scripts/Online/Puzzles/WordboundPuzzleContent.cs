@@ -45,7 +45,8 @@ namespace Wreckabulary.Online
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
             Course = course ?? throw new ArgumentNullException(nameof(course));
             Plan = plan ?? throw new ArgumentNullException(nameof(plan));
-            if (!mode.IsRace && plan.Sites.Count != 0 || course.SourceHash != plan.SourceHash || course.Hash != plan.ManifestHash ||
+            if (!mode.IsRace && !WordboundPracticePolicy.Supports(mode) && plan.Sites.Count != 0 ||
+                course.SourceHash != plan.SourceHash || course.Hash != plan.ManifestHash ||
                 !CourseValidator.ValidateResolved(course, geometry, MatchStateValidation.Requirements(mode)).Ok)
                 throw new ArgumentException("Authored content requires the exact valid resolved course and mode-specific physical plan.");
             CheckSource(itemCatalogueJson, "Item catalogue");
@@ -61,7 +62,7 @@ namespace Wreckabulary.Online
             ItemSourceHash = WordboundIdentity.Sha256(itemCatalogueJson);
             RuleSourceHash = WordboundIdentity.Sha256(ruleBookJson);
             EffectiveRulesHash = WordboundRulesFingerprint.Compute(rules);
-            CatalogueHash = WordboundIdentity.Sha256(string.Join("|", "wordbound.authored-physical-content", "1",
+            CatalogueHash = WordboundIdentity.Sha256(string.Join("|", "wordbound.authored-physical-content", "2",
                 geometry.Hash, ItemSourceHash, Plan.Hash, RuleSourceHash, EffectiveRulesHash));
         }
 

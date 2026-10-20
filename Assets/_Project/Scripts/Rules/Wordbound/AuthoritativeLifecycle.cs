@@ -7,11 +7,15 @@ namespace Wreckabulary.Rules.Wordbound
     internal sealed class WordboundResourceLifecycle
     {
         readonly bool race;
+        readonly bool practiceMode;
+        readonly ResolvedCourse course;
         readonly Dictionary<string, string[]> consumers;
         readonly HashSet<string>[] selected;
         internal WordboundResourceLifecycle(ResolvedCourse course, ModeDefinition mode)
         {
             race = mode.IsRace;
+            practiceMode = WordboundPracticePolicy.Supports(mode);
+            this.course = course;
             consumers = course.Supplies.ToDictionary(s => s.Id,
                 s => course.Puzzles.Where(p => p.RecoverySupplyIds.Contains(s.SourceId)).Select(p => p.Id).ToArray(),
                 StringComparer.Ordinal);
@@ -19,8 +23,18 @@ namespace Wreckabulary.Rules.Wordbound
                 StringComparer.Ordinal)).ToArray();
         }
 
-        internal bool Demanded(TeamProgress team, MatchResourceState resource)
+        internal bool PracticeSource(string sourceId, MatchPracticeState practice, IEnumerable<MatchMechanismState> mechanisms)
         {
+            var site = WordboundPracticePolicy.Selected(course, practice);
+            return practiceMode && site != null && consumers.TryGetValue(sourceId, out var ids) && ids.Contains(site.PuzzleId) &&
+                mechanisms.Any(m => m.Team == 0 && m.Lap == site.Lap - 1 && m.PuzzleId == site.PuzzleId && !m.Solved);
+        }
+
+        internal bool Demanded(TeamProgress team, MatchResourceState resource, MatchPracticeState practice = null,
+            IEnumerable<MatchMechanismState> mechanisms = null)
+        {
+            if (practiceMode && consumers.TryGetValue(resource.SourceId, out var ids) && ids.Length != 0)
+                return PracticeSource(resource.SourceId, practice, mechanisms ?? Array.Empty<MatchMechanismState>());
             if (!race) return true;
             if (team.Finished || resource.Lap != team.Lap) return false;
             return !consumers.TryGetValue(resource.SourceId, out var puzzles) || puzzles.Length == 0 ||
@@ -35,7 +49,7 @@ namespace Wreckabulary.Rules.Wordbound
             var teams = progress.Capture().Teams.ToDictionary(t => t.Team);
             foreach (var resource in resources.Values.ToArray())
             {
-                if (resourceLifecycle.Demanded(Mode.IsRace ? teams[resource.Team] : null, resource)) continue;
+                if (resourceLifecycle.Demanded(Mode.IsRace ? teams[resource.Team] : null, resource, practice, mechanisms.Values)) continue;
                 foreach (var body in bodies.Values.Where(b => b.Kind == WorldBodyKind.Tile &&
                     b.SourceId == resource.SourceId && b.OwnerTeam == resource.Team &&
                     b.RecoveryGeneration == resource.Generation).ToArray())
@@ -84,8 +98,9 @@ namespace Wreckabulary.Rules.Wordbound
         bool FixedBody(WorldBodyState body) => WordboundEntityBudget.FixedBody(body,
             body.Kind == WorldBodyKind.Item ? economy.Item(Number(body.Id)) : null);
 
-        bool CriticalBody(WorldBodyState body) => body.Kind == WorldBodyKind.Tile && Mode.IsRace &&
-            body.OwnerTeam >= 0 && entityBudget.CriticalSource(body.SourceId, progress.Team(body.OwnerTeam));
+        bool CriticalBody(WorldBodyState body) => body.Kind == WorldBodyKind.Tile &&
+            (PracticeRecoverySource(body.SourceId) || Mode.IsRace &&
+                body.OwnerTeam >= 0 && entityBudget.CriticalSource(body.SourceId, progress.Team(body.OwnerTeam)));
 
         int BudgetOwner(WorldBodyState body)
         {
@@ -97,7 +112,7 @@ namespace Wreckabulary.Rules.Wordbound
         }
 
         HashSet<string> AuxiliaryBodies() => WordboundEntityBudget.AuxiliaryBodies(course, Mode,
-            bodies.Values, economy.Item, mechanisms.Values, progress.Capture().Teams);
+            bodies.Values, economy.Item, mechanisms.Values, progress.Capture().Teams, practice);
 
         bool ReceiverCandidate(ResolvedCoursePhysicalSite site, WorldBodyState body, ItemInstance item) =>
             WordboundEntityBudget.ReceiverCandidate(site, body, item);
@@ -182,6 +197,20 @@ namespace Wreckabulary.Rules.Wordbound
             var item = slot < 0 ? economy.Item(economy.Player(index).CarriedFurniture) : Held(index, slot);
             if (item == null || item.Origin == ItemOrigin.Map) return true;
             var body = bodies["item:" + item.Id];
+            if (!throwing && IsPractice)
+            {
+                var site = PracticeSite;
+                if (site != null && PracticeActive(site.PuzzleId, site.Lap - 1) && site.WindReceiverRecipeId == item.Word &&
+                    mechanisms[Key(site.PuzzleId, 0, site.Lap - 1)].Physical.AuxiliaryBodyId == "")
+                {
+                    var copy = EconomySnapshot.Copy(item);
+                    copy.State = ItemState.World;
+                    var auxiliaries = AuxiliaryBodies();
+                    if (!bodies.Values.Any(b => auxiliaries.Contains(b.Id) && b.Kind == WorldBodyKind.Item &&
+                        ReceiverCandidate(site, b, economy.Item(Number(b.Id)))) &&
+                        ReceiverCandidate(site, body.At(at, active: true), copy)) return true;
+                }
+            }
             if (!throwing && Mode.IsRace)
             {
                 var team = progress.Team(body.OwnerTeam);

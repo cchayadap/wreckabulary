@@ -232,7 +232,7 @@ namespace Wreckabulary.Rules.Wordbound
 
         public bool TakeKeepsake(string playerId)
         {
-            if (!CanAct(playerId, out var p) || !Mode.IsRace) return false;
+            if (!CanAct(playerId, out var p) || !WordboundPracticePolicy.HasKeepsake(Mode)) return false;
             var team = teams[p.Team];
             if (team.Finished || team.KeepsakeCarrier != null) return false;
             team.KeepsakeCarrier = playerId; team.KeepsakeRecoveryAt = -1; team.KeepsakeLocation = "";
@@ -243,7 +243,7 @@ namespace Wreckabulary.Rules.Wordbound
         {
             if (!players.TryGetValue(playerId ?? "", out var p)) return false;
             var team = teams[p.Team];
-            if (!Mode.IsRace || team.KeepsakeCarrier != playerId) return false;
+            if (!WordboundPracticePolicy.HasKeepsake(Mode) || team.KeepsakeCarrier != playerId) return false;
             team.KeepsakeCarrier = null;
             team.KeepsakeLocation = reachableLocation ?? "";
             team.KeepsakeRecoveryAt = Tick + ModeDefinition.KeepsakeRecoverySeconds * ModeDefinition.TickRate;
@@ -338,8 +338,10 @@ namespace Wreckabulary.Rules.Wordbound
                 if (!Mode.IsRace)
                 {
                     if (t.Lap != 0 || t.NextCheckpoint != 0 || t.OrderedObjectives != 0 || t.ProgressTick != 0 ||
-                        t.SafeCheckpoint != "spawn" || t.KeepsakeCarrier != null || t.KeepsakeLocation != "" ||
-                        t.KeepsakeRecoveryAt != -1 || t.RecoveryGeneration != 0 || t.Finished || t.CompletedPuzzles.Count != 0)
+                        t.SafeCheckpoint != "spawn" || t.Finished || t.CompletedPuzzles.Count != 0 ||
+                        (WordboundPracticePolicy.Supports(Mode) ? t.KeepsakeLocation != "" && t.KeepsakeLocation != "spawn" :
+                            t.KeepsakeCarrier != null || t.KeepsakeLocation != "" ||
+                            t.KeepsakeRecoveryAt != -1 || t.RecoveryGeneration != 0))
                         throw new ArgumentException("Non-race snapshot contains race progression.", nameof(snapshot));
                     continue;
                 }

@@ -70,7 +70,7 @@ namespace Wreckabulary.Tests
             int expected = f.Mode.MaximumPlayers *
                 (f.Rules.MaxLetters + f.Rules.MaxCarried * 4 + f.Rules.MaxDeployed * 4);
             Assert.AreEqual(expected, budget.ActorAndBurstBodies);
-            Assert.AreEqual(2, WordboundEntityBudget.Version);
+            Assert.AreEqual(3, WordboundEntityBudget.Version);
             Assert.AreNotEqual(WordboundIdentity.Sha256(
                 "wordbound.entity-budget|1|512|8192|retry60|equal-pools|fixed-roots|" +
                 "critical-prefix4|physical-auxiliary|actor-bursts|holder-reserves|shared-ceil|stable-loose-retirement"),

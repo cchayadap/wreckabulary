@@ -79,7 +79,7 @@ namespace Wreckabulary.Rules.Wordbound
 
         void ValidateFixturePoses()
         {
-            if (!Mode.IsRace) return;
+            if (!Mode.IsRace && !IsPractice) return;
             foreach (int team in Binding.Seats.Select(s => s.Team).Distinct())
                 foreach (var site in course.PhysicalSites)
                     foreach (var fixture in site.Fixtures)

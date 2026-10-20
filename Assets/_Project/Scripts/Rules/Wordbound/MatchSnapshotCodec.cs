@@ -16,8 +16,8 @@ namespace Wreckabulary.Rules.Wordbound
 
     public static class MatchSnapshotCodec
     {
-        public const int CanonicalVersion = 2;
-        public const string ProtocolVersion = "wordbound-v2";
+        public const int CanonicalVersion = 3;
+        public const string ProtocolVersion = "wordbound-v3";
         public const int MaximumBytes = 8388608;
         static readonly Regex Signed = new Regex(@"\A(?:0|[1-9][0-9]*|-1)\z");
         static readonly Regex Unsigned = new Regex(@"\A(?:0|[1-9][0-9]*)\z");
@@ -110,6 +110,7 @@ namespace Wreckabulary.Rules.Wordbound
                     "stageTick", Long(m.Physical.StageTick), "siteHash", m.Physical.SiteHash, "motionUnits", Long(m.Physical.MotionUnits)))).ToArray(),
             "randomStreams", s.RandomStreams.Select(r => (object)Map("streamId", r.StreamId, "state", ULong(r.State), "increment", ULong(r.Increment))).ToArray(),
             "narrativeFlags", s.NarrativeFlags,
+            "practice", Map("siteHash", s.Practice.SiteHash, "selectedTick", Long(s.Practice.SelectedTick)),
             "thrownFlights", s.ThrownFlights.Select(f => (object)Map("itemBodyId", f.ItemBodyId, "launchRevision", f.LaunchRevision,
                 "startedTick", Long(f.StartedTick), "throwerId", f.ThrowerId, "hitBodyIds", f.HitBodyIds)).ToArray());
 
@@ -148,13 +149,15 @@ namespace Wreckabulary.Rules.Wordbound
 
         static MatchSnapshot ReadSnapshot(JsonNode n)
         {
-            Keys(n, "binding", "epoch", "sequence", "nextWorldEntityId", "progress", "economy", "commands", "actors", "bodies", "resources", "mechanisms", "randomStreams", "narrativeFlags", "thrownFlights");
+            Keys(n, "binding", "epoch", "sequence", "nextWorldEntityId", "progress", "economy", "commands", "actors", "bodies", "resources", "mechanisms", "randomStreams", "narrativeFlags", "thrownFlights", "practice");
+            Keys(n["practice"], "siteHash", "selectedTick");
             return new MatchSnapshot(ReadBinding(n["binding"]), Counter(n["epoch"]), Counter(n["sequence"]), Counter(n["nextWorldEntityId"]),
                 ReadProgress(n["progress"]), ReadEconomy(n["economy"]), ReadCommands(n["commands"]),
                 Array(n["actors"], 8).Select(ReadActor).ToArray(), Array(n["bodies"], 8192).Select(ReadBody).ToArray(),
                 Array(n["resources"], 8192).Select(ReadResource).ToArray(), Array(n["mechanisms"], 8192).Select(ReadMechanism).ToArray(),
                 Array(n["randomStreams"], 256).Select(ReadRandom).ToArray(), Array(n["narrativeFlags"], 1024).Select(x => Text(x, 128)).ToArray(),
-                Array(n["thrownFlights"], 8192).Select(ReadThrown).ToArray());
+                Array(n["thrownFlights"], 8192).Select(ReadThrown).ToArray(),
+                new MatchPracticeState(Text(n["practice"]["siteHash"]), Counter(n["practice"]["selectedTick"], true)));
         }
         static MatchThrownFlight ReadThrown(JsonNode n)
         {

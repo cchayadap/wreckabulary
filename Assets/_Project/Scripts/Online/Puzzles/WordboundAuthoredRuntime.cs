@@ -67,7 +67,8 @@ namespace Wreckabulary.Online
                     throw new InvalidOperationException("Moving machinery must complete its host physics step before observation.");
                 var idle = new MatchPhysicalEvidence(siteHash: site.Hash, motionUnits: units);
                 void Reset() => output.Add(new HostMechanismObservation(site.PuzzleId, team.Team, site.Lap, false, physical: idle));
-                if (site.Lap != team.Lap || !WordboundPuzzlePolicy.ActiveObjective(proof.Course, team, site.PuzzleId))
+                if (WordboundPracticePolicy.Supports(proof.Mode) ? !WordboundPracticePolicy.Active(frame, site.Authored) :
+                    site.Lap != team.Lap || !WordboundPuzzlePolicy.ActiveObjective(proof.Course, team, site.PuzzleId))
                 {
                     if (site.Authored.Fixtures.Count > 0) Reset();
                     continue;
