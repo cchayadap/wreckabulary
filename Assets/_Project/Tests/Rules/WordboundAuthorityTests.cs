@@ -91,6 +91,21 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void AuthoredFurnitureRotationSurvivesTheInitialRecoverySnapshot()
+        {
+            var f = Create("Freestyle");
+            var placement = f.Source.Course.Placements.Single(p => p.ZoneId == "FixedStool");
+            Assert.AreEqual(90, placement.Yaw);
+            f.Match.PublishSnapshot(out string json);
+            var restored = f.Source.Import(json);
+            Assert.IsTrue(restored.Success, restored.Error);
+            var body = restored.Snapshot.Bodies.Single(b => b.Kind == WorldBodyKind.Item && b.SourceId == placement.Id);
+            Assert.AreEqual(1f, 2f * body.RotationXyz.Y * body.RotationW, .000001f,
+                "The stool's authored forward direction must point along positive X.");
+            Assert.AreEqual(0f, 1f - 2f * body.RotationXyz.Y * body.RotationXyz.Y, .000001f);
+        }
+
+        [Test]
         public void ContestedPickupUsesStableActorOrderAndReplayHasOneEffect()
         {
             var f = Create("Freestyle");

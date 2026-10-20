@@ -133,7 +133,10 @@ namespace Wreckabulary.Rules.Wordbound
                 else
                 {
                     var item = economy.PlaceFurniture(courseCatalogue.Assets[placement.AssetId].Letters);
+                    float y = placement.Yaw == 180 ? 1 : placement.Yaw == 0 ? 0 : .70710677f;
+                    float w = placement.Yaw == 180 ? 0 : placement.Yaw == 0 ? 1 : placement.Yaw == 90 ? .70710677f : -.70710677f;
                     AddBody(new WorldBodyState("item:" + item.Id, WorldBodyKind.Item, Position(placement.Position),
+                        rotationXyz: new WorldVector(0, y, 0), rotationW: w,
                         ownerTeam: placement.TeamIndex, sourceId: placement.Id));
                 }
             }
