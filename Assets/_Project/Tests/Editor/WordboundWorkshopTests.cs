@@ -77,15 +77,18 @@ namespace Wreckabulary.EditorTests
             Assert.IsTrue(workshop.History.Undo());
             Assert.AreNotEqual("My race", workshop.History.Current.Course().Title);
         }
-        [Test]
-        public void ViewportProjectsAndPicksTheActiveFloorWithoutChangingCourseData()
+        [TestCase(800, 600, 0, 0)]
+        [TestCase(1280, 720, 55, -30)]
+        [TestCase(640, 960, -80, 35)]
+        public void ViewportProjectsAndPicksTheActiveFloorWithoutChangingCourseData(int width, int height, int orbitX, int orbitY)
         {
             var preset = WorkshopTemplates.Create(WorkshopTemplate.FreestyleWorld);
             using (var view = new WordboundWorkshopViewport(owner.transform))
             {
-                view.Sync(preset.Snapshot, preset.Catalogue); view.Frame(); view.Resize(800, 600);
+                view.Sync(preset.Snapshot, preset.Catalogue); view.Frame(); view.Resize(width, height);
+                view.Orbit(new Vector2(orbitX, orbitY));
                 var module = preset.Snapshot.Course().Modules.Find(item => item.Id == "Start");
-                var rect = new Rect(0, 0, 800, 600);
+                var rect = new Rect(0, 0, width, height);
                 var screen = view.Project(module.Position, rect);
                 Assert.IsTrue(view.Surface(screen, rect, module.Position.Y, out var point));
                 Assert.LessOrEqual(Math.Abs(point.X - module.Position.X), 5);

@@ -182,16 +182,25 @@ namespace Wreckabulary.Workshop
         }
         public Vector2 Project(CoursePoint point, Rect viewport)
         {
-            var screen = lens.WorldToViewportPoint(stage.transform.TransformPoint(Point(point)));
-            return screen.z <= 0 ? new Vector2(-100000, -100000) : new Vector2(screen.x * viewport.width, (1 - screen.y) * viewport.height);
+            var cameraPoint = Quaternion.Inverse(lens.transform.localRotation) * (Point(point) - lens.transform.localPosition);
+            if (cameraPoint.z <= 0) return new Vector2(-100000, -100000);
+            float halfHeight = Mathf.Tan(lens.fieldOfView * Mathf.Deg2Rad * .5f);
+            return new Vector2((cameraPoint.x / (cameraPoint.z * halfHeight * lens.aspect) + 1) * viewport.width * .5f,
+                (1 - cameraPoint.y / (cameraPoint.z * halfHeight)) * viewport.height * .5f);
         }
-        Ray Ray(Vector2 local, Rect viewport) => lens.ViewportPointToRay(new Vector3(local.x / viewport.width, 1 - local.y / viewport.height, 0));
+        Ray Ray(Vector2 local, Rect viewport)
+        {
+            float halfHeight = Mathf.Tan(lens.fieldOfView * Mathf.Deg2Rad * .5f);
+            var direction = new Vector3((local.x / viewport.width * 2 - 1) * halfHeight * lens.aspect,
+                (1 - local.y / viewport.height * 2) * halfHeight, 1);
+            return new Ray(lens.transform.localPosition, lens.transform.localRotation * direction.normalized);
+        }
         public bool Surface(Vector2 local, Rect viewport, int floorMm, out CoursePoint point)
         {
             var ray = Ray(local, viewport);
-            var plane = new Plane(stage.transform.up, stage.transform.TransformPoint(new Vector3(0, floorMm / 1000f, 0)));
+            var plane = new Plane(Vector3.up, new Vector3(0, floorMm / 1000f, 0));
             if (!plane.Raycast(ray, out float enter) || enter > 20000) { point = default; return false; }
-            var hit = stage.transform.InverseTransformPoint(ray.GetPoint(enter));
+            var hit = ray.GetPoint(enter);
             point = new CoursePoint(checked((int)Math.Round(hit.x * 1000)), floorMm, checked((int)Math.Round(hit.z * 1000)));
             return Math.Abs((long)point.X) <= CourseLimits.HorizontalMm && Math.Abs((long)point.Z) <= CourseLimits.HorizontalMm;
         }
@@ -201,7 +210,7 @@ namespace Wreckabulary.Workshop
             foreach (var module in authored.Values.Where(module => module.LayerId == snapshot.ActiveLayer && !snapshot.LockedLayers.Contains(module.LayerId)))
             {
                 var bounds = Bounds(catalogue.Bounds(module));
-                bounds.center = stage.transform.TransformPoint(new Vector3(bounds.center.x, Point(module.Position).y - .1f, bounds.center.z));
+                bounds.center = new Vector3(bounds.center.x, Point(module.Position).y - .1f, bounds.center.z);
                 bounds.size = new Vector3(bounds.size.x, .25f, bounds.size.z);
                 if (bounds.IntersectRay(ray, out float hit) && hit < best) { best = hit; nearest = module.Id; }
             }
@@ -217,7 +226,7 @@ namespace Wreckabulary.Workshop
                     !catalogue.Assets.TryGetValue(zone.Pool[0].AssetId, out var asset)) continue;
                 var size = new Vector3(asset.WidthMm, asset.HeightMm, asset.DepthMm) / 1000f;
                 if (zone.FixedYaw % 180 != 0) size = new Vector3(size.z, size.y, size.x);
-                var bounds = new Bounds(stage.transform.TransformPoint(Point(zone.FixedPosition) + Vector3.up * size.y * .5f), size);
+                var bounds = new Bounds(Point(zone.FixedPosition) + Vector3.up * size.y * .5f, size);
                 if (bounds.IntersectRay(ray, out float hit) && hit < best) { nearest = zone.Id; best = hit; }
             }
             return nearest;
