@@ -140,6 +140,25 @@ namespace Wreckabulary.Rules.Wordbound
             return new VerifiedOnlineAdmission(seat, OnlineJson.Integer(claims, "exp"));
         }
 
+        public OnlineConnectionLease VerifyConnection(string authorization, VerifiedOnlineMatch match,
+            string authenticatedPhotonPlayerId, string authenticatedHostId, string connectionId, long nowMilliseconds)
+        {
+            if (match == null || nowMilliseconds < 0) throw new ArgumentException("A verified match and wall clock are required.");
+            var claims = Verify(authorization, "wordbound-connection", nowMilliseconds / 1000,
+                "version", "matchId", "reservationGeneration", "rosterHash", "playerId", "hostId", "connectionId",
+                "connectionEpoch", "leaseExpiresAt", "connectionRevision");
+            Bind(claims, match.Match);
+            OnlineJson.Text(claims, "connectionRevision", OnlineJson.Counter);
+            var lease = new OnlineConnectionLease(claims);
+            if (lease.PlayerId != authenticatedPhotonPlayerId || lease.HostId != authenticatedHostId ||
+                lease.ConnectionId != connectionId || lease.ExpiresAtMilliseconds <= nowMilliseconds ||
+                lease.ExpiresAtMilliseconds > nowMilliseconds + 15000 ||
+                OnlineJson.Integer(claims, "exp") - OnlineJson.Integer(claims, "iat") > 15 ||
+                !match.Roster.Any(s => s.PlayerId == lease.PlayerId) || !match.Roster.Any(s => s.PlayerId == lease.HostId))
+                throw new FormatException("Connection authorization is expired or bound to another transport.");
+            return lease;
+        }
+
         static bool ConstantEqual(string left, string right)
         {
             int difference = left.Length ^ right.Length;

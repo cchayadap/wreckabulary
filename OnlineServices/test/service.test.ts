@@ -164,6 +164,21 @@ describe("whole-party allocation, Fill and admission", () => {
     for (const team of [0, 1]) expect(full.roster.filter(s => s.teamId === team)).toHaveLength(4);
     expect(new Set(full.roster.map(s => s.playerId)).size).toBe(8);
   });
+  it("packs whole Fill On parties after solo-first arrival would fragment both teams", async () => {
+    const s = settings(true);
+    const groups = [];
+    for (const count of [1, 1, 1, 3, 3]) {
+      const g = await party(s, count); groups.push(g); expect((await queue(g)).status).toBe(200);
+    }
+    const assignments = await Promise.all(groups.map(status));
+    const full = assignments.find(a => a.state === "ADMITTING");
+    expect(full?.roster).toHaveLength(8);
+    for (const g of groups) {
+      const seats = full!.roster.filter(seat => seat.partyId === g.p.id);
+      expect(seats.length === 0 || seats.length === g.members.length).toBe(true);
+      expect(new Set(seats.map(seat => seat.teamId)).size).toBeLessThanOrEqual(1);
+    }
+  });
   it("binds signed admission to the entire roster, exact content and seat", async () => {
     const s = settings(false, "Solo"); const a = await party(s); const b = await party(s);
     await queue(a); await queue(b); const m = await status(a);
@@ -348,6 +363,49 @@ describe("non-race modes", () => {
 });
 
 describe("private sessions and reconnect leases", () => {
+  it("linearizes one-use connection tickets, exact retry and terminal return revocation", async () => {
+    const s = settings(false, "Solo"); const a = await party(s); const b = await party(s);
+    await queue(a); await queue(b); const m = await status(a); await admit(a, m); await admit(b, m);
+    const ticket = await call<{ ticket: string }>(matchPath(a, m, "connection-tickets"), {}, b.members[0]);
+    const admission = await call<{ connectionSecret: string }>(matchPath(a, m, "admission"), {}, b.members[0]);
+    const request = { playerId: b.members[0].playerId, ticket: ticket.data.ticket,
+      connectionSecret: admission.data.connectionSecret, connectionId: crypto.randomUUID() };
+    expect((await call(matchPath(a, m, "connections"), { ...request, playerId: a.members[0].playerId }, a.members[0])).status).toBe(403);
+    const connected = await call<{ claims: { connectionEpoch: string; leaseExpiresAt: number } }>(
+      matchPath(a, m, "connections"), request, a.members[0]);
+    expect(connected.status).toBe(200); expect(connected.data.claims.connectionEpoch).toBe("1");
+    const retry = await call<{ claims: unknown }>(matchPath(a, m, "connections"), request, a.members[0]);
+    expect(retry.data.claims).toEqual(connected.data.claims);
+    expect((await call(matchPath(a, m, "connections"), { ...request, connectionId: crypto.randomUUID() }, a.members[0])).status).toBe(403);
+    expect((await call(matchPath(a, m, "presence"), { connected: true }, b.members[0])).status).toBe(409);
+    expect((await call(matchPath(a, m, "return"), {}, b.members[0])).status).toBe(200);
+    expect((await call(matchPath(a, m, "connections"), request, a.members[0])).status).toBe(409);
+    const state = await call<{ seats: Array<{ playerId: string; returned: boolean; connectionEpoch: string; leaseExpiresAt: number }> }>(
+      matchPath(a, m, "connection-state"), { renew: [{ playerId: request.playerId, connectionId: request.connectionId, connectionEpoch: "1" }] }, a.members[0]);
+    const seat = state.data.seats.find(p => p.playerId === request.playerId)!;
+    expect(seat.returned).toBe(true); expect(seat.connectionEpoch).toBe("2"); expect(seat.leaseExpiresAt).toBe(0);
+  });
+  it("expires connection tickets and leases exclusively and rejects an outsider consuming them", async () => {
+    const s = settings(false, "Solo"); const a = await party(s); const b = await party(s);
+    await queue(a); await queue(b); const m = await status(a); await admit(a, m); await admit(b, m);
+    const now = Date.now(); vi.spyOn(Date, "now").mockReturnValue(now);
+    const ticket = await call<{ ticket: string }>(matchPath(a, m, "connection-tickets"), {}, b.members[0]);
+    const grant = await call<{ connectionSecret: string }>(matchPath(a, m, "admission"), {}, b.members[0]);
+    const request = { playerId: b.members[0].playerId, ticket: ticket.data.ticket,
+      connectionSecret: grant.data.connectionSecret, connectionId: crypto.randomUUID() };
+    const outsider = await guest();
+    expect((await call(matchPath(a, m, "connections"), request, outsider)).status).toBe(403);
+    vi.mocked(Date.now).mockReturnValue(now + 15000);
+    expect((await call(matchPath(a, m, "connections"), request, a.members[0])).status).toBe(403);
+    const fresh = await call<{ ticket: string }>(matchPath(a, m, "connection-tickets"), {}, b.members[0]);
+    request.ticket = fresh.data.ticket;
+    expect((await call(matchPath(a, m, "connections"), request, a.members[0])).status).toBe(200);
+    vi.mocked(Date.now).mockReturnValue(now + 30000);
+    const state = await call<{ seats: Array<{ playerId: string; leaseExpiresAt: number }> }>(
+      matchPath(a, m, "connection-state"), { renew: [{ playerId: request.playerId, connectionId: request.connectionId, connectionEpoch: "1" }] }, a.members[0]);
+    expect(state.data.seats.find(p => p.playerId === request.playerId)!.leaseExpiresAt).toBe(now + 30000);
+    expect((await call(matchPath(a, m, "connections"), request, a.members[0])).status).toBe(409);
+  });
   it("requires Custom Fill opt-in and never sends Quick Play users to workshop maps", async () => {
     const s = settings(true);
     const owner = await party(s); await queue(owner, "PrivateCreate", { content: { ...content, kind: "Workshop", courseId: "custom" } });

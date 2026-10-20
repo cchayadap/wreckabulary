@@ -1,0 +1,291 @@
+
+> verify
+> npm run check && npm test
+
+
+> check
+> tsc --noEmit
+
+
+> test
+> vitest run
+
+
+ RUN  v4.1.11 C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices
+
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:401:INVALID_PHOTON_TICKET
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:54:7
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.consumePhotonTicket (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:52:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:401:INVALID_REFRESH
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:27:7
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.refresh (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:25:24)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:401:INVALID_TOKEN
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at Identity.check (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:35:5)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:403:NOT_PARTY_MEMBER
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at Party.member (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:26:50)
+    at Party.get (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:142:73)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:401:INVALID_PHOTON_TICKET
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:54:7
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.consumePhotonTicket (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:52:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:MEMBERSHIP_OPERATION_RETIRED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:69:7
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.enter (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:66:10)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:MEMBERSHIP_OPERATION_RETIRED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:69:7
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.enter (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:66:10)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:MEMBERSHIP_OPERATION_RETIRED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:69:7
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.enter (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:66:10)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:IDEMPOTENCY_CONFLICT
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:106:9
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.leave (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:103:21)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:IDEMPOTENCY_CONFLICT
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:72:7
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.enter (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:66:10)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:ALREADY_IN_PARTY
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:71:7
+    at Identity.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Identity.enter (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/identity.ts:66:10)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:REVISION_CONFLICT
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at Party.mutate (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:86:7)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:IDEMPOTENCY_CONFLICT
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:32:22
+    at Party.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at Party.begin (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:28:17)
+    at Party.enqueueParty (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:105:21)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:ATTEMPT_CANCELLED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:41:7
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.enqueue (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:40:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:CONTENT_OR_ROSTER_MISMATCH
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:254:7
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.ready (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:252:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:MATCH_ALREADY_STARTED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:188:11
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.cancel (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:182:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:MATCH_ALREADY_STARTED
+    at rpcValue (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/rpc.ts:2:17)
+    at Party.cancelActive (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:62:19)
+    at Party.mutate (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:90:12)
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:MATCH_NOT_STARTED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:243:7
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.certificate (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:241:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:403:NOT_MATCH_MEMBER
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at MatchPool.member (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:221:59)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:242:55
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.certificate (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:241:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:404:MATCH_NOT_FOUND
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at MatchPool.member (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:220:5)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:242:55
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.certificate (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:241:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:MATCH_ALREADY_STARTED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:188:11
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.cancel (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:182:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:MATCH_ALREADY_STARTED
+    at rpcValue (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/rpc.ts:2:17)
+    at Party.cancelActive (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:62:19)
+    at Party.mutate (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:90:12)
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:RECONNECT_EXPIRED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at MatchPool.checkReconnect (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:265:5)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:228:39
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.admission (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:225:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:PRIVATE_ONLY
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at Party.enqueueParty (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:113:7)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:403:OWNER_REQUIRED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:213:37
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.launch (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:212:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:404:PRIVATE_NOT_OPEN
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:65:9
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.enqueue (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:40:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:404:PRIVATE_NOT_OPEN
+    at rpcValue (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/rpc.ts:2:17)
+    at Party.enqueueParty (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/party.ts:135:22)
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:403:INVALID_CONNECTION_TICKET
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:285:9
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.authorizeConnection (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:277:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:403:INVALID_CONNECTION_TICKET
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:285:9
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.authorizeConnection (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:277:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:TRANSPORT_PRESENCE_REQUIRED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:327:7
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.presence (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:323:17)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:RECONNECT_EXPIRED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at MatchPool.checkReconnect (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:265:5)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:279:101
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.authorizeConnection (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:277:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:403:NOT_MATCH_MEMBER
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at MatchPool.member (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:221:59)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:278:55
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.authorizeConnection (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:277:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:403:INVALID_CONNECTION_TICKET
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:285:9
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.authorizeConnection (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:277:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:CONNECTION_EXPIRED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:283:9
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.authorizeConnection (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:277:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+uncaught exception; source = Uncaught (in promise); stack = Error: WB:409:ROSTER_NOT_LOCKED
+    at fail (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:98:65)
+    at requireThat (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/model.ts:100:19)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:227:7
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:15:22
+    at MatchPool.transaction (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/store.ts:16:70)
+    at MatchPool.run (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:12:17)
+    at MatchPool.admission (C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/src/pool.ts:225:25)
+    at C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-online/OnlineServices/node_modules/@cloudflare/vitest-plugin/dist/worker/lib/cloudflare/test-internal.mjs:369:47
+
+ Test Files  3 passed (3)
+      Tests  47 passed (47)
+   Start at  20:00:03
+   Duration  52.69s (transform 19.53s, setup 0ms, import 27.73s, tests 28.27s, environment 2ms)
+

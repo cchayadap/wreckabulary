@@ -58,6 +58,69 @@ namespace Wreckabulary.Rules.Tests
         }
         static RSA Key() { var rsa = RSA.Create(); rsa.KeySize = 2048; return rsa; }
 
+        [Test] public void ConnectionAuthorizationPinsHostTransportAndExclusiveLease()
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            var claims = Base("wordbound-connection");
+            claims["exp"] = Now + 15; claims["playerId"] = Player; claims["hostId"] = Player;
+            claims["connectionId"] = Attempt; claims["connectionEpoch"] = "1"; claims["connectionRevision"] = "2";
+            claims["leaseExpiresAt"] = Now * 1000 + 15000;
+            string signed = Sign(rsa, claims);
+            Assert.AreEqual("1", verifier.VerifyConnection(signed, match, Player, Player, Attempt, Now * 1000).Epoch);
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(signed, match, Player, Other, Attempt, Now * 1000));
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(signed, match, Player, Player, Other, Now * 1000));
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(signed, match, Player, Player, Attempt, Now * 1000 + 15000));
+            claims["aud"] = "wordbound-admission";
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(Sign(rsa, claims), match, Player, Player, Attempt, Now * 1000));
+        }
+
+        [Test] public void SessionGateRequiresEveryOriginalSeatReadyAndRejectsIdentityReplacement()
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var otherSeat = Seat(); otherSeat["playerId"] = Other; otherSeat["seat"] = 1;
+            var start = Start(); start["roster"] = new[] { Seat(), otherSeat };
+            string rosterHash = OnlineJson.Hash(start["roster"]); start["rosterHash"] = rosterHash;
+            var match = verifier.VerifyStart(Sign(rsa, start), Expected(rosterHash), Now);
+            var first = Admission(); first["rosterHash"] = rosterHash;
+            var second = Admission(); second["rosterHash"] = rosterHash; second["playerId"] = Other; second["sub"] = Other; second["seat"] = 1;
+            var a = verifier.VerifyAdmission(Sign(rsa, first), match, Player, Secret, Now);
+            var b = verifier.VerifyAdmission(Sign(rsa, second), match, Other, Secret, Now);
+            var gate = new OnlineSessionGate(match);
+            gate.Admit(a, "peer-a", Now * 1000); gate.Ready("peer-a");
+            Assert.IsFalse(gate.TryStart()); Assert.IsFalse(gate.CanCommand("peer-a"));
+            Assert.Throws<InvalidOperationException>(() => gate.Admit(b, "peer-a", Now * 1000));
+            Assert.Throws<InvalidOperationException>(() => gate.Admit(a, "peer-x", Now * 1000));
+            gate.Admit(b, "peer-b", Now * 1000); gate.Ready("peer-b");
+            Assert.IsTrue(gate.TryStart()); Assert.IsTrue(gate.CanCommand("peer-a"));
+            gate.Freeze(); Assert.IsFalse(gate.CanCommand("peer-a"));
+        }
+
+        [Test] public void SessionGateKeepsExclusiveReconnectDeadlineAndTerminalReturnAcrossMigration()
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            var admission = verifier.VerifyAdmission(Sign(rsa, Admission()), match, Player, Secret, Now);
+            var gate = new OnlineSessionGate(match);
+            gate.Admit(admission, "peer-a", Now * 1000); gate.Ready("peer-a"); gate.TryStart();
+            gate.Disconnect("peer-a", Now * 1000 + 1000);
+            gate.Disconnect("peer-a", Now * 1000 + 2000);
+            long deadline = gate.Presence()[0].ReconnectDeadline;
+            Assert.AreEqual(Now * 1000 + 121000, deadline);
+            gate.RestoreForMigration(gate.Presence(), Now * 1000 + 3000);
+            Assert.AreEqual(deadline, gate.Presence()[0].ReconnectDeadline);
+            var freshClaims = Admission(); freshClaims["iat"] = Now + 100; freshClaims["exp"] = Now + 190;
+            var freshStart = Start(); freshStart["iat"] = Now + 100; freshStart["exp"] = Now + 190;
+            var freshMatch = verifier.VerifyStart(Sign(rsa, freshStart), Expected(), Now + 100);
+            var fresh = verifier.VerifyAdmission(Sign(rsa, freshClaims), freshMatch, Player, Secret, Now + 100);
+            Assert.Throws<InvalidOperationException>(() => gate.Admit(fresh, "peer-b", deadline));
+            gate.Admit(fresh, "peer-b", deadline - 1); gate.Ready("peer-b"); gate.ResumeAfterRestore();
+            Assert.IsTrue(gate.CanCommand("peer-b"));
+            gate.Return(Player); Assert.IsFalse(gate.CanCommand("peer-b"));
+            gate.RestoreForMigration(gate.Presence(), deadline);
+            Assert.Throws<InvalidOperationException>(() => gate.Admit(fresh, "peer-c", deadline + 1));
+        }
+
         [Test] public void SignedRosterAndAdmissionBindAuthenticatedIdentityAndSecret()
         {
             using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
@@ -189,7 +252,30 @@ namespace Wreckabulary.Rules.Tests
         sealed class DelayedTransport : IOnlineHttpTransport
         {
             public readonly TaskCompletionSource<OnlineResponse> Completion = new TaskCompletionSource<OnlineResponse>();
-            public Task<OnlineResponse> Send(OnlineRequest request, CancellationToken ct) => Completion.Task;
+            public int RequestCount;
+            public Task<OnlineResponse> Send(OnlineRequest request, CancellationToken ct) { RequestCount++; return Completion.Task; }
+        }
+        [Test] public void ConcurrentRefreshOfOneCredentialUsesOneRotationAndKeepsTheWinningResult()
+        {
+            var transport = new DelayedTransport(); var client = new OnlineCoordinatorClient(transport);
+            var first = client.Refresh(Player + "." + Secret); var second = client.Refresh(Player + "." + Secret);
+            Assert.AreSame(first, second); Assert.AreEqual(1, transport.RequestCount);
+            Assert.Throws<InvalidOperationException>(() => client.Refresh(Player + "." + OnlineJson.Base64Url(new byte[32])));
+            string rotated = Player + "." + OnlineJson.Base64Url(new byte[32]);
+            transport.Completion.SetResult(new OnlineResponse(200, OnlineJson.Encode(new Dictionary<string, object> {
+                ["playerId"] = Player, ["accessToken"] = "new.access.token", ["refreshToken"] = rotated, ["expiresIn"] = 900 })));
+            Assert.AreEqual(rotated, first.GetAwaiter().GetResult().RefreshToken);
+            Assert.AreEqual(rotated, second.GetAwaiter().GetResult().RefreshToken);
+            Assert.AreEqual("new.access.token", client.Credentials.AccessToken);
+        }
+        [Test] public void SignoutStillFencesACoalescedRefreshReply()
+        {
+            var transport = new DelayedTransport(); var client = new OnlineCoordinatorClient(transport);
+            var pending = client.Refresh(Player + "." + Secret); client.ClearCredentials();
+            transport.Completion.SetResult(new OnlineResponse(200, OnlineJson.Encode(new Dictionary<string, object> {
+                ["playerId"] = Player, ["accessToken"] = "new.access.token", ["refreshToken"] = Player + "." + Secret, ["expiresIn"] = 900 })));
+            Assert.Throws<TaskCanceledException>(() => pending.GetAwaiter().GetResult());
+            Assert.IsNull(client.Credentials);
         }
         [Test] public void ClearingCredentialsFencesAnOutstandingAuthenticationReply()
         {

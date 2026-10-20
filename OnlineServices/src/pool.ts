@@ -3,7 +3,7 @@ import { Store } from "./store";
 import { signGrant } from "./auth";
 import {
   Content, NOW, RECONNECT_MS, capacity, code, digest, emptyPool, logicalFull, poolKey,
-  publicRoster, requireThat, seal, secret, teamFor, validatePartySize,
+  publicRoster, requireThat, seal, secret, teamFor, validatePartySize, fullRacePacking, equalSecret,
   type Attempt, type ContentBinding, type Match, type PoolState, type Seat,
 } from "./model";
 
@@ -89,6 +89,7 @@ export class MatchPool extends Store<PoolState> {
     s.assignments[a.id] = m.id; delete s.tickets[a.id];
   }
   private drain(s: PoolState, now: number) {
+    this.packPublicFillRaces(s, now);
     const tickets = Object.values(s.tickets).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
     for (const a of tickets) {
       const candidates = Object.values(s.matches).filter(m => m.phase === "FORMING"
@@ -108,6 +109,40 @@ export class MatchPool extends Store<PoolState> {
     for (const m of Object.values(s.matches)) {
       if (m.phase === "FORMING" && (logicalFull(m)
         || (!m.privateCode && m.settings.mode === "FreeForAll" && m.seats.length >= 2 && now - m.createdAt >= 30_000))) seal(m, now);
+    }
+  }
+  private packPublicFillRaces(s: PoolState, now: number) {
+    const eligible = (a: Attempt) => a.channel === "QuickPlay" && a.settings.fill &&
+      (a.settings.mode === "TeamRace" || a.settings.mode === "BrawlRace");
+    const open = Object.values(s.matches).filter(m => m.phase === "FORMING" && !m.privateCode &&
+      m.reservations.length > 0 && m.reservations.every(r => eligible(r.attempt)));
+    const candidates = [...Object.values(s.tickets).filter(eligible), ...open.flatMap(m => m.reservations.map(r => r.attempt))]
+      .sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
+    const groups = new Map<string, Attempt[]>();
+    for (const a of candidates) {
+      const key = digest({ settings: a.settings, content: a.content });
+      const group = groups.get(key) ?? []; group.push(a); groups.set(key, group);
+    }
+    for (let available of groups.values()) {
+      let packing;
+      while ((packing = fullRacePacking(available, capacity(available[0].settings)))) {
+        const selected = new Set(packing.map(r => r.attempt.id));
+        for (const old of open) {
+          if (!old.reservations.some(r => selected.has(r.attempt.id))) continue;
+          old.reservations = old.reservations.filter(r => !selected.has(r.attempt.id));
+          old.seats = old.seats.filter(seat => !selected.has(seat.attemptId));
+          if (!old.reservations.length) delete s.matches[old.id];
+          else {
+            old.generation = (BigInt(old.generation) + 1n).toString();
+            for (const team of [0, 1]) old.seats.filter(seat => seat.teamId === team).forEach((seat, i) => { seat.seat = i; });
+          }
+        }
+        const match = this.newMatch(packing[0].attempt, now, false); s.matches[match.id] = match;
+        for (const reservation of packing) this.enroll(s, match, reservation.attempt, reservation.teamId);
+        seal(match, now);
+        available = available.filter(a => !selected.has(a.id));
+        if (available.length === 0) break;
+      }
     }
   }
   private abort(s: PoolState, m: Match, failedAttempts: Set<string>, now: number) {
@@ -229,15 +264,76 @@ export class MatchPool extends Store<PoolState> {
   private checkReconnect(seat: Seat, now: number) {
     requireThat(!seat.returned && seat.reconnectDeadline !== undefined && now < seat.reconnectDeadline, "RECONNECT_EXPIRED");
   }
+  connectionTicket(matchId: string, actor: string) {
+    return this.run((s, now) => {
+      const m = s.matches[matchId]; const seat = this.member(m, actor);
+      requireThat(m.phase === "STARTED", "MATCH_NOT_STARTED"); this.checkReconnect(seat, now);
+      const ticket = secret();
+      seat.connectionTicket = { hash: digest(ticket), expiresAt: now + 15000 };
+      return { ticket, expiresAt: seat.connectionTicket.expiresAt };
+    });
+  }
+  async authorizeConnection(matchId: string, hostId: string, playerId: string, ticket: string, connectionSecret: string, connectionId: string) {
+    const claims = this.run((s, now) => {
+      const m = s.matches[matchId]; const host = this.member(m, hostId); const seat = this.member(m, playerId);
+      requireThat(m.phase === "STARTED", "MATCH_NOT_STARTED"); this.checkReconnect(host, now); this.checkReconnect(seat, now);
+      const requestHash = digest({ hostId, playerId, ticket, connectionSecret, connectionId });
+      if (seat.connection?.id === connectionId) {
+        requireThat(seat.connection.hostId === hostId && seat.connection.requestHash === requestHash, "IDEMPOTENCY_CONFLICT");
+        requireThat(seat.connection.leaseExpiresAt > now, "CONNECTION_EXPIRED");
+      } else {
+        requireThat(seat.connectionTicket && seat.connectionTicket.expiresAt > now &&
+          equalSecret(seat.connectionTicket.hash, digest(ticket)) && equalSecret(seat.connectionSecret, connectionSecret),
+        "INVALID_CONNECTION_TICKET", 403);
+        delete seat.connectionTicket;
+        seat.connectionEpoch = (BigInt(seat.connectionEpoch ?? "0") + 1n).toString();
+        m.connectionRevision = (BigInt(m.connectionRevision ?? "0") + 1n).toString();
+        seat.connection = { id: connectionId, hostId, requestHash, epoch: seat.connectionEpoch,
+          revision: m.connectionRevision, leaseExpiresAt: now + 15000 };
+        delete seat.disconnectedAt; seat.reconnectDeadline = now + RECONNECT_MS;
+      }
+      return { version: 1, matchId, reservationGeneration: m.generation, rosterHash: m.rosterHash!,
+        playerId, hostId, connectionId, connectionEpoch: seat.connection!.epoch,
+        leaseExpiresAt: seat.connection!.leaseExpiresAt, connectionRevision: seat.connection!.revision };
+    });
+    return { authorization: await signGrant(this.env, claims, "wordbound-connection", 15), claims };
+  }
+  connectionState(matchId: string, actor: string, renew: Array<{ playerId: string; connectionId: string; connectionEpoch: string }>) {
+    return this.run((s, now) => {
+      const m = s.matches[matchId]; const caller = this.member(m, actor);
+      requireThat(m.phase === "STARTED", "MATCH_NOT_STARTED"); this.checkReconnect(caller, now);
+      requireThat(new Set(renew.map(c => c.playerId)).size === renew.length, "DUPLICATE_CONNECTION", 400);
+      for (const request of renew) {
+        const seat = this.member(m, request.playerId); const current = seat.connection;
+        if (!seat.returned && current?.hostId === actor && current.id === request.connectionId &&
+          current.epoch === request.connectionEpoch && current.leaseExpiresAt > now && seat.reconnectDeadline! > now) {
+          current.leaseExpiresAt = now + 15000; seat.reconnectDeadline = now + RECONNECT_MS;
+        }
+      }
+      return { matchId, reservationGeneration: m.generation, rosterHash: m.rosterHash!,
+        revision: m.connectionRevision ?? "0", serverTime: now,
+        seats: m.seats.map(seat => ({ playerId: seat.playerId, returned: !!seat.returned,
+          connectionEpoch: seat.connectionEpoch ?? "0", connectionId: seat.connection?.id ?? null,
+          hostId: seat.connection?.hostId ?? null,
+          leaseExpiresAt: seat.returned ? 0 : seat.connection?.leaseExpiresAt ?? 0,
+          reconnectDeadline: seat.reconnectDeadline! })) };
+    });
+  }
   presence(matchId: string, actor: string, connected: boolean) {
     return this.run((s, now) => {
       const m = s.matches[matchId]; const seat = this.member(m, actor);
       requireThat(m.phase === "STARTED", "MATCH_NOT_STARTED");
       this.checkReconnect(seat, now);
+      requireThat(!connected || !seat.connection, "TRANSPORT_PRESENCE_REQUIRED");
       if (connected) {
         delete seat.disconnectedAt; seat.reconnectDeadline = now + RECONNECT_MS;
       } else if (seat.disconnectedAt === undefined) {
         seat.disconnectedAt = now; seat.reconnectDeadline = now + RECONNECT_MS;
+        if (seat.connection) {
+          seat.connection.leaseExpiresAt = 0;
+          seat.connectionEpoch = (BigInt(seat.connectionEpoch ?? "0") + 1n).toString();
+          m.connectionRevision = (BigInt(m.connectionRevision ?? "0") + 1n).toString();
+        }
       }
       return { playerId: actor, seat: seat.seat, reconnectDeadline: seat.reconnectDeadline };
     });
@@ -248,7 +344,12 @@ export class MatchPool extends Store<PoolState> {
       requireThat(m && (m.phase === "STARTED" || m.phase === "CLOSED"), "MATCH_NOT_STARTED");
       const seat = m.seats.find(seat => seat.playerId === actor);
       requireThat(seat, "NOT_MATCH_MEMBER", 403);
-      seat.returned = true;
+      if (!seat.returned) {
+        seat.returned = true; delete seat.connectionTicket;
+        seat.connectionEpoch = (BigInt(seat.connectionEpoch ?? "0") + 1n).toString();
+        if (seat.connection) seat.connection.leaseExpiresAt = 0;
+        m.connectionRevision = (BigInt(m.connectionRevision ?? "0") + 1n).toString();
+      }
       if (m.seats.every(seat => seat.returned)) m.phase = "CLOSED";
       return { state: "RETURNED", playerId: actor };
     });

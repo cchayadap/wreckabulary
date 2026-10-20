@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -81,6 +82,8 @@ namespace Wreckabulary.Rules.Wordbound
         readonly IOnlineHttpTransport transport;
         readonly object authenticationGate = new object();
         int authenticationGeneration;
+        Task<OnlineCredentials> refreshTask;
+        string refreshInput;
         public OnlineCredentials Credentials { get; private set; }
         public OnlineCoordinatorClient(IOnlineHttpTransport transport) { this.transport = transport ?? throw new ArgumentNullException(nameof(transport)); }
         static Dictionary<string, object> Data() => new Dictionary<string, object>();
@@ -117,13 +120,35 @@ namespace Wreckabulary.Rules.Wordbound
                 new Dictionary<string, object> { ["displayName"] = displayName.Trim() }, false, null, ct).ConfigureAwait(false));
             SetCredentials(result, generation); return result;
         }
-        public async Task<OnlineCredentials> Refresh(string protectedRefreshToken, CancellationToken ct = default)
+        public Task<OnlineCredentials> Refresh(string protectedRefreshToken, CancellationToken ct = default)
         {
             Valid(protectedRefreshToken, "^[a-f0-9-]{36}\\.[A-Za-z0-9_-]{43}$");
-            int generation = Interlocked.Increment(ref authenticationGeneration);
-            var result = new OnlineCredentials(await Send("POST", "/v1/auth/refresh",
-                new Dictionary<string, object> { ["refreshToken"] = protectedRefreshToken }, false, null, ct).ConfigureAwait(false));
-            SetCredentials(result, generation); return result;
+            lock (authenticationGate)
+            {
+                if (refreshTask != null && refreshInput == protectedRefreshToken) return refreshTask;
+                if (refreshTask != null) throw new InvalidOperationException("A credential rotation is already in progress.");
+                int generation = Interlocked.Increment(ref authenticationGeneration);
+                var completion = new TaskCompletionSource<OnlineCredentials>(TaskCreationOptions.RunContinuationsAsynchronously);
+                refreshInput = protectedRefreshToken; refreshTask = completion.Task;
+                _ = CompleteRefresh(protectedRefreshToken, generation, completion, ct);
+                return completion.Task;
+            }
+        }
+        async Task CompleteRefresh(string token, int generation, TaskCompletionSource<OnlineCredentials> completion, CancellationToken ct)
+        {
+            try
+            {
+                var result = new OnlineCredentials(await Send("POST", "/v1/auth/refresh",
+                    new Dictionary<string, object> { ["refreshToken"] = token }, false, null, ct).ConfigureAwait(false));
+                SetCredentials(result, generation); completion.TrySetResult(result);
+            }
+            catch (OperationCanceledException) { completion.TrySetCanceled(); }
+            catch (Exception error) { completion.TrySetException(error); }
+            finally
+            {
+                lock (authenticationGate)
+                    if (refreshTask == completion.Task) { refreshTask = null; refreshInput = null; }
+            }
         }
         void SetCredentials(OnlineCredentials result, int generation)
         {
@@ -136,7 +161,11 @@ namespace Wreckabulary.Rules.Wordbound
         }
         public void ClearCredentials()
         {
-            lock (authenticationGate) { Interlocked.Increment(ref authenticationGeneration); Credentials = null; }
+            lock (authenticationGate)
+            {
+                Interlocked.Increment(ref authenticationGeneration); Credentials = null;
+                refreshTask = null; refreshInput = null;
+            }
         }
         public Task<JsonNode> Keys(CancellationToken ct = default) => Send("GET", "/v1/keys", null, false, null, ct);
         public Task<JsonNode> Profile(CancellationToken ct = default) => Send("GET", "/v1/me", null, true, null, ct);
@@ -181,6 +210,18 @@ namespace Wreckabulary.Rules.Wordbound
                 ["rosterHash"] = match.RosterHash }, true, null, ct);
         public Task<JsonNode> Presence(OnlineMatchExpectation match, bool connected, CancellationToken ct = default) =>
             Send("POST", MatchPath(match) + "/presence", new Dictionary<string, object> { ["connected"] = connected }, true, null, ct);
+        public Task<JsonNode> ConnectionTicket(OnlineMatchExpectation match, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/connection-tickets", Data(), true, null, ct);
+        public Task<JsonNode> AuthorizeConnection(OnlineMatchExpectation match, string authenticatedPlayerId,
+            string ticket, string connectionSecret, string connectionId, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/connections", new Dictionary<string, object> {
+                ["playerId"] = Valid(authenticatedPlayerId, OnlineJson.Uuid), ["ticket"] = Valid(ticket, "^[A-Za-z0-9_-]{43}$"),
+                ["connectionSecret"] = Valid(connectionSecret, "^[A-Za-z0-9_-]{43}$"),
+                ["connectionId"] = Valid(connectionId, OnlineJson.Uuid) }, true, null, ct);
+        public Task<JsonNode> ConnectionState(OnlineMatchExpectation match, IEnumerable<OnlineConnectionLease> leases, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/connection-state", new Dictionary<string, object> {
+                ["renew"] = leases.Select(lease => new Dictionary<string, object> {
+                    ["playerId"] = lease.PlayerId, ["connectionId"] = lease.ConnectionId, ["connectionEpoch"] = lease.Epoch }).ToArray() }, true, null, ct);
         static string RequiredKey(string key) => Valid(key, "^[A-Za-z0-9_-]{8,96}$");
     }
 }

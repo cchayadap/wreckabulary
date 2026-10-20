@@ -112,6 +112,20 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
     if (path[5] === "launch") { await body(request, Empty); return pool.launch(matchId, actor); }
     if (path[5] === "certificate") { await body(request, Empty); return pool.certificate(matchId, actor); }
     if (path[5] === "return") { await body(request, Empty); return pool.returnToLobby(matchId, actor); }
+    if (path[5] === "connection-tickets") { await body(request, Empty); return pool.connectionTicket(matchId, actor); }
+    if (path[5] === "connections") {
+      const data = await body(request, z.object({
+        playerId: Id, ticket: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+        connectionSecret: z.string().regex(/^[A-Za-z0-9_-]{43}$/), connectionId: Id,
+      }).strict());
+      return pool.authorizeConnection(matchId, actor, data.playerId, data.ticket, data.connectionSecret, data.connectionId);
+    }
+    if (path[5] === "connection-state") {
+      const data = await body(request, z.object({ renew: z.array(z.object({
+        playerId: Id, connectionId: Id, connectionEpoch: Revision,
+      }).strict()).max(8) }).strict());
+      return pool.connectionState(matchId, actor, data.renew);
+    }
     if (path[5] === "ready") {
       const data = await body(request, z.object({ reservationGeneration: Revision, manifestHash: Hash, rosterHash: Hash }).strict());
       return pool.ready(matchId, actor, data.reservationGeneration, data.manifestHash, data.rosterHash);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { canonical, capacity, digest, logicalFull, teamFor, validatePartySize, type Attempt, type Match, type PartySettings } from "../src/model";
+import { canonical, capacity, digest, logicalFull, teamFor, validatePartySize, fullRacePacking, type Attempt, type Match, type PartySettings } from "../src/model";
 
 const settings = (format: PartySettings["format"], fill = true): PartySettings =>
   ({ mode: "TeamRace", format, fill, region: "asia", protocolVersion: "1", mapPoolVersion: "1" });
@@ -13,6 +13,16 @@ function match(): Match {
   }, ownerId: "", createdAt: 0, phase: "FORMING", reservations: [], seats: [] };
 }
 describe("pure allocation rules", () => {
+  it("packs all arrival permutations without splitting or reusing a party", () => {
+    const permutations = (values: number[]): number[][] => values.length === 0 ? [[]] :
+      values.flatMap((value, i) => permutations(values.filter((_, j) => i !== j)).map(rest => [value, ...rest]));
+    for (const order of permutations([1, 1, 1, 3, 3])) {
+      const result = fullRacePacking(order.map(size => attempt(size)), 4)!;
+      expect(result).toBeDefined();
+      expect(new Set(result.map(r => r.attempt.id)).size).toBe(result.length);
+      for (const team of [0, 1]) expect(result.filter(r => r.teamId === team).reduce((n, r) => n + r.attempt.members.length, 0)).toBe(4);
+    }
+  });
   it.each([["Solo", 1], ["Duo", 2], ["Squad", 4]] as const)("caps %s teams at %i", (format, expected) => {
     expect(capacity(settings(format))).toBe(expected);
     expect(() => validatePartySize(settings(format), expected + 1)).toThrow("PARTY_TOO_LARGE");

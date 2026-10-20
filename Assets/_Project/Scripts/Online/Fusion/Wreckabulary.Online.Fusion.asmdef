@@ -1,0 +1,7 @@
+{
+  "name": "Wreckabulary.Online.Fusion",
+  "rootNamespace": "Wreckabulary.Online",
+  "references": ["Wreckabulary.Rules", "Fusion.Unity", "Photon.Realtime"],
+  "allowUnsafeCode": false,
+  "autoReferenced": true
+}

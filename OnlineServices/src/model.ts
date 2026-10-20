@@ -56,13 +56,33 @@ export type Seat = {
   teamId: number; seat: number; connectionSecret: string;
   accepted: boolean; disconnectedAt?: number; reconnectDeadline?: number;
   returned?: boolean;
+  connectionEpoch?: string;
+  connectionTicket?: { hash: string; expiresAt: number };
+  connection?: { id: string; hostId: string; requestHash: string; epoch: string; revision: string; leaseExpiresAt: number };
 };
 export type Reservation = { attempt: Attempt; teamId: number };
+export function fullRacePacking(attempts: Attempt[], teamCapacity: number): Reservation[] | undefined {
+  const states = new Map<string, Reservation[]>([["0:0", []]]);
+  for (const attempt of attempts) {
+    for (const [key, chosen] of [...states]) {
+      const used = key.split(":").map(Number);
+      for (const teamId of [0, 1]) {
+        const next = [...used]; next[teamId] += attempt.members.length;
+        if (next[teamId] > teamCapacity) continue;
+        const stateKey = next.join(":");
+        if (!states.has(stateKey)) states.set(stateKey, [...chosen, { attempt, teamId }]);
+      }
+    }
+    const complete = states.get(`${teamCapacity}:${teamCapacity}`);
+    if (complete) return complete;
+  }
+}
 export type Match = {
   id: string; generation: string; settings: PartySettings; content: ContentBinding;
   privateCode?: string; ownerId: string; createdAt: number; deadline?: number;
   phase: "FORMING" | "ADMITTING" | "STARTED" | "ABORTED" | "CLOSED";
   reservations: Reservation[]; seats: Seat[]; rosterHash?: string; startedAt?: number;
+  connectionRevision?: string;
 };
 export type PoolState = {
   tickets: Record<string, Attempt>;
