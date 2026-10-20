@@ -21,3 +21,11 @@ Verification:
 No claim that Stage 1 guarantees the full 512-body limit or bounds endless Freestyle. The exact pressure/reservation implementation remains next. The 512 runtime cap is unchanged.
 
 Compiler released to workshop owner after both checks. Rules source is frozen for that short gate. Next recoverable action: commit the exact Stage 1 paths, then implement the approved deterministic capacity policy as a separate increment after the workshop owner releases the source freeze.
+
+## Native test assembly repair
+
+Root's Unity import caught three test compilation errors: the original focused harness compiled production and test source together, masking internal API access from the separate Rules.Tests assembly. Production API visibility remains unchanged. The retirement test now exercises public AuthoritativeMatch publication, import and committed host restoration; deliberate malformed EconomySnapshot construction uses narrowly scoped reflection.
+
+Separate-assembly verification: PASS, 9/9 lifecycle cases in 5 seconds. The test assembly references the compiled `929240a` .NET Standard Rules DLL (SHA-256 `B5708A7CEEBB6A6AFAA23B345BF45C11BF18460C9254440B473299F017E60D0D`) and real NUnit 3.14, without linking production source. Test fixture CS0649 is suppressed in the isolated harness because its optional ReleaseAt field is assigned by other suites; no production warnings or access errors remain. Evidence: `TestResults/entity-lifecycle/lifecycle-separate-assembly.trx`. Native execution remains root-owned and NOT RUN here.
+
+Compiler released to the online owner's Worker/SQLite gate. Stage 2 design and its uncompiled budget helper remain separate and unstaged.

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
@@ -181,21 +182,29 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
-        public void RetiringLooseTilesPreservesAccountingAndSnapshotRestoration()
+        public void RetiredPuzzleLettersStayRetiredAcrossCommittedHostRestoration()
         {
             var f = Create();
-            var economy = new Economy(f.Source.Catalogue, f.Source.Rules);
-            economy.AddPlayer(0, 0);
-            var batch = economy.MintTiles("BED");
-            var before = economy.Capture();
-            economy.RetireWordboundTile(batch.Tiles[0].TileId);
-            Assert.AreEqual(1, economy.Spent);
-            Assert.IsTrue(economy.Audit().Balanced);
-            Assert.Throws<InvalidOperationException>(() => economy.RetireWordboundTile(batch.Tiles[0].TileId));
-            economy.Restore(before);
-            Assert.AreEqual(3, economy.Tiles.Count);
-            Assert.AreEqual(0, economy.Spent);
-            Assert.IsTrue(economy.Audit().Balanced);
+            string id = f.CraftBed(), source = Source(f);
+            f.Advance(601);
+            Assert.AreEqual(3, f.State.Bodies.Count(b => b.SourceId == source));
+            SolveBed(f, id);
+            var stamp = f.Match.PublishSnapshot(out string json);
+            var saved = f.Source.Import(json);
+            Assert.IsTrue(saved.Success, saved.Error);
+            int spent = saved.Snapshot.Economy.Spent;
+            int frontier = saved.Snapshot.Economy.NextTileId;
+            Assert.AreEqual(6, spent);
+            f.Match = new AuthoritativeMatch(f.Source.Binding, f.Source.Mode, f.Source.Course,
+                CourseTemplates.ProofCatalogue(), f.Source.Catalogue, f.Source.Rules, f.World);
+            f.Match.RestoreCommitted(saved.Snapshot, stamp, saved.Snapshot.Epoch + 1,
+                saved.Snapshot.Progress.WallClockMs + 17);
+            f.Advance(601);
+            Assert.AreEqual(spent, f.State.Economy.Spent);
+            Assert.AreEqual(frontier, f.State.Economy.NextTileId);
+            Assert.IsFalse(f.State.Bodies.Any(b => b.SourceId == source));
+            Assert.AreEqual(-1, f.State.Resources.Single(r => r.SourceId == source && r.Lap == 0).RecoveryAtTick);
+            f.Ack();
         }
 
         [TestCase(false), TestCase(true)]
@@ -209,8 +218,10 @@ namespace Wreckabulary.Tests
             SolveBed(f, id);
             var s = f.State;
             var e = s.Economy;
-            var changedEconomy = deadline ? e : new EconomySnapshot(e.NextItemId, e.NextTileId,
-                e.Minted + 1, e.Spent, e.Players, e.Items, e.Tiles.Concat(new[] { oldTile }));
+            var changedEconomy = deadline ? e : (EconomySnapshot)Activator.CreateInstance(typeof(EconomySnapshot),
+                BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] {
+                    e.NextItemId, e.NextTileId, e.Minted + 1, e.Spent, e.Players, e.Items,
+                    e.Tiles.Concat(new[] { oldTile }) }, null);
             var changed = new MatchSnapshot(s.Binding, s.Epoch, s.Sequence, s.NextWorldEntityId, s.Progress,
                 changedEconomy, s.Commands, s.Actors, deadline ? s.Bodies : s.Bodies.Concat(new[] { oldBody }),
                 s.Resources.Select(r => deadline && r.SourceId == source && r.Lap == 0 ?
