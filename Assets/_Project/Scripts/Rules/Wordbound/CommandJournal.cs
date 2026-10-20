@@ -7,7 +7,7 @@ namespace Wreckabulary.Rules.Wordbound
     public enum WordboundAction
     {
         CollectLetter, BeginCraft, CancelCraft, PickUp, Drop, Throw, Deploy, GiveLetter,
-        Transfer, TakeKeepsake, DropKeepsake, UsePuzzle
+        Transfer, TakeKeepsake, DropKeepsake, UsePuzzle, Equip, Attack
     }
 
     public sealed class PlayerCommand

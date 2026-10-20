@@ -39,7 +39,7 @@ namespace Wreckabulary.Rules.Wordbound
                     snapshot.Bodies.Count <= 8192 && snapshot.Resources.Count <= 8192 && snapshot.Mechanisms.Count <= 8192 &&
                     snapshot.RandomStreams.Count <= 256 && snapshot.NarrativeFlags.Count <= 1024,
                     "Snapshot section exceeds the wire bounds.");
-                ValidateActors(snapshot, expectedBinding, rules);
+                ValidateActors(snapshot, expectedBinding, rules, catalogue, mode);
                 ValidateDeployments(snapshot, catalogue);
                 ValidateResources(snapshot, course, mode);
                 ValidateBodies(snapshot, expectedBinding, course, mode);
@@ -96,21 +96,54 @@ namespace Wreckabulary.Rules.Wordbound
                 else Need(item.DeploymentTick == -1, "Only deployed items may retain an activation tick.");
         }
 
-        static void ValidateActors(MatchSnapshot s, MatchBinding binding, GameRules rules)
+        static void ValidateActors(MatchSnapshot s, MatchBinding binding, GameRules rules, ItemCatalogue catalogue, ModeDefinition mode)
         {
             Need(s.Actors.Count == binding.Seats.Count && s.Actors.Select(a => a.PlayerId).Distinct(StringComparer.Ordinal).Count() == s.Actors.Count &&
                 s.Actors.All(a => binding.Seats.Any(seat => seat.PlayerId == a.PlayerId)), "Actor identities do not match the roster.");
             long tick = s.Progress.Tick;
+            var bodyIds = s.Bodies.ToDictionary(b => b.Id, StringComparer.Ordinal);
             foreach (var actor in s.Actors)
             {
                 Need(WorldVector.Finite(actor.Health) && actor.Health >= 0 && actor.Health <= rules.MaxHealth &&
                     WorldVector.Finite(actor.Stamina) && actor.Stamina >= 0 && actor.Stamina <= rules.MaxStamina &&
                     actor.NextAttackTick <= tick + 3600 && actor.StunnedUntilTick <= tick + ModeDefinition.MaximumHitStunSeconds * ModeDefinition.TickRate &&
-                    actor.DodgeUntilTick <= tick + 3600 && actor.LastInputSequence < long.MaxValue,
+                    actor.DodgeUntilTick <= tick + 3600 && actor.LastInputSequence < long.MaxValue &&
+                    actor.StaggerImmuneUntilTick <= tick + WordboundCombatPolicy.Ticks(rules.StaggerImmunitySeconds),
                     "Actor health, stamina or cooldown exceeds its domain.");
                 var progress = s.Progress.Players.Single(p => p.Id == actor.PlayerId);
                 int index = binding.Seats.ToList().FindIndex(p => p.PlayerId == actor.PlayerId);
                 var inventory = s.Economy.PlayerStates.Single(p => p.PlayerId == index);
+                Need(actor.EquippedSlot >= -1 && actor.EquippedSlot < inventory.Slots.Length &&
+                    (actor.EquippedSlot == -1 || inventory.CarriedFurniture < 0 &&
+                        inventory.Slots[actor.EquippedSlot] > 0),
+                    "Equipped slot must identify one held item and cannot coexist with carried furniture.");
+                if (actor.Attack != null)
+                {
+                    var attack = actor.Attack;
+                    string selected = actor.EquippedSlot < 0 ? "" : "item:" + inventory.Slots[actor.EquippedSlot];
+                    Need(inventory.CanAct && inventory.Craft == null && inventory.CarriedFurniture < 0 && actor.Health > 0 &&
+                        progress.Connected && !progress.Eliminated && !progress.Returned && !s.Progress.Migrating &&
+                        s.Progress.Result == null && actor.StunnedUntilTick <= tick && attack.WeaponEntityId == selected,
+                        "Active attack is not available to this actor or equipment.");
+                    var item = selected == "" ? null : s.Economy.ItemStates.SingleOrDefault(i => "item:" + i.Id == selected);
+                    Need(selected == "" || item != null && item.State == ItemState.Held && item.HolderId == index,
+                        "Active attack weapon is not held by its actor.");
+                    var stats = item == null ? rules.Unarmed : catalogue.Get(item.Word).Melee;
+                    int windup = WordboundCombatPolicy.WindupTicks(stats);
+                    int active = WordboundCombatPolicy.ActiveTicks(stats);
+                    Need(attack.StartedTick >= 1 && attack.StartedTick <= tick &&
+                        tick < checked(attack.StartedTick + windup + active) &&
+                        actor.NextAttackTick == checked(attack.StartedTick + WordboundCombatPolicy.CycleTicks(stats)) &&
+                        (tick >= attack.StartedTick + windup || attack.HitBodyIds.Count == 0),
+                        "Active attack timing, hit window or cooldown is not causal.");
+                    foreach (string hitId in attack.HitBodyIds)
+                    {
+                        Need(bodyIds.TryGetValue(hitId, out var body) && hitId != "player:" + index &&
+                            (body.Kind == WorldBodyKind.Player && mode.CanDamage(inventory.Team, body.OwnerTeam) ||
+                             body.Kind == WorldBodyKind.Item && mode.CanInteract(inventory.Team, body.OwnerTeam, body.Protected)),
+                            "Attack hit ledger references an invalid or inaccessible target.");
+                    }
+                }
                 Need(!inventory.CanAct || (progress.Connected && !progress.Eliminated && !s.Progress.Migrating &&
                     s.Progress.Result == null && actor.StunnedUntilTick <= tick), "Inventory action permission disagrees with authoritative player state.");
                 if (progress.Returned)

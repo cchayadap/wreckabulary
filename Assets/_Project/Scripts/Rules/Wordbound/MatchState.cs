@@ -110,17 +110,23 @@ namespace Wreckabulary.Rules.Wordbound
         public long DodgeUntilTick { get; }
         public long LastInputSequence { get; }
         public string Appearance { get; }
+        public int EquippedSlot { get; }
+        public MatchAttackState Attack { get; }
+        public long StaggerImmuneUntilTick { get; }
         public MatchActorState(string playerId, float health, float stamina, long nextAttackTick = 0,
-            long stunnedUntilTick = 0, long dodgeUntilTick = 0, long lastInputSequence = 0, string appearance = "")
+            long stunnedUntilTick = 0, long dodgeUntilTick = 0, long lastInputSequence = 0, string appearance = "",
+            int equippedSlot = -1, MatchAttackState attack = null, long staggerImmuneUntilTick = 0)
         {
             if (!WordboundIdentity.IsId(playerId) || !WorldVector.Finite(health) || health < 0 ||
                 !WorldVector.Finite(stamina) || stamina < 0 || nextAttackTick < 0 || stunnedUntilTick < 0 ||
-                dodgeUntilTick < 0 || lastInputSequence < 0 || appearance == null || appearance.Length > 2048)
+                dodgeUntilTick < 0 || lastInputSequence < 0 || appearance == null || appearance.Length > 2048 ||
+                equippedSlot < -1 || equippedSlot > 7 || staggerImmuneUntilTick < 0)
                 throw new ArgumentException("Invalid authoritative actor state.");
             CourseJson.ValidateText(appearance);
             PlayerId = playerId; Health = health; Stamina = stamina; NextAttackTick = nextAttackTick;
             StunnedUntilTick = stunnedUntilTick; DodgeUntilTick = dodgeUntilTick;
             LastInputSequence = lastInputSequence; Appearance = appearance;
+            EquippedSlot = equippedSlot; Attack = attack; StaggerImmuneUntilTick = staggerImmuneUntilTick;
         }
     }
 
