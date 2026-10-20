@@ -1,9 +1,0 @@
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\bin\Debug\netstandard2.1\ReferenceCheck.deps.json
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\bin\Debug\netstandard2.1\ReferenceCheck.dll
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\bin\Debug\netstandard2.1\ReferenceCheck.pdb
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\obj\Debug\netstandard2.1\ReferenceCheck.csproj.AssemblyReference.cache
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\obj\Debug\netstandard2.1\ReferenceCheck.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\obj\Debug\netstandard2.1\ReferenceCheck.csproj.CoreCompileInputs.cache
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\obj\Debug\netstandard2.1\ReferenceCheck.sourcelink.json
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\obj\Debug\netstandard2.1\ReferenceCheck.dll
-C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online-gameplay-proof\obj\Debug\netstandard2.1\ReferenceCheck.pdb
