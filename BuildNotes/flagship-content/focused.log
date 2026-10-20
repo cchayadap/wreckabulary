@@ -1,0 +1,7 @@
+  FlagshipTests -> C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\flagship-content\bin\Debug\net9.0\FlagshipTests.dll
+Test run for C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\flagship-content\bin\Debug\net9.0\FlagshipTests.dll (.NETCoreApp,Version=v9.0)
+A total of 1 test files matched the specified pattern.
+WARNING: Overwriting results file: C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\flagship-content\TestResults\focused.trx
+Results File: C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\flagship-content\TestResults\focused.trx
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 7 s - FlagshipTests.dll (net9.0)
