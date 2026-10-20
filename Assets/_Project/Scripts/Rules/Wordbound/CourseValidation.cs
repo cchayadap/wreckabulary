@@ -54,6 +54,7 @@ namespace Wreckabulary.Rules.Wordbound
             if (!document.SupportedModes.Contains(play.ModeId)) v.Add("mode.unsupported", "$.supportedModes", document.Id, "This course does not support the selected mode.");
             if (!catalogue.Themes.Contains(document.ThemeId)) v.Add("theme.unknown", "$.themeId", document.Id, "Choose an approved theme.");
             ValidateGeometry(document, catalogue, play, v);
+            if (v.Ok) ValidatePhysicalSites(document, catalogue, v);
             if (v.Ok) ValidateProgression(document, catalogue, play, v);
             return v;
         }
@@ -64,7 +65,7 @@ namespace Wreckabulary.Rules.Wordbound
             if (d == null) { v.Add("document.null", "$", "", "Provide a course document."); return v; }
             ValidateFields(d, "$", v, 0);
             if (!v.Ok) return v;
-            if (d.Schema != 1) v.Add("schema.unsupported", "$.schema", d.Id, "Only course schema 1 is supported.");
+            if (d.Schema != 1 && d.Schema != 2) v.Add("schema.unsupported", "$.schema", d.Id, "Only course schemas 1 and 2 are supported.");
             if (!ValidId(d.Id)) v.Add("id.invalid", "$.id", "", "Use 1–48 ASCII letters, digits, underscores or hyphens.");
             if (d.Title == null || d.Title.Length < 1 || d.Title.Length > 80 || d.Title != d.Title.Trim() || d.Title.Any(char.IsControl))
                 v.Add("title.invalid", "$.title", d.Id, "Use a trimmed title of 1–80 characters.");
@@ -138,6 +139,7 @@ namespace Wreckabulary.Rules.Wordbound
                     !Yaw(zone.FixedYaw) || !zone.Bounds.Contains(zone.FixedPosition)))
                     v.Add("zone.fixed", "$.zones", zone.Id, "A fixed placement needs one asset, count one, certainty and one matching rotation inside its bounds.");
             }
+            if (v.Ok) ValidatePhysicalSiteShapes(d, v);
             return v;
         }
         static void ValidateFields(object value, string path, CourseValidation v, int depth)
@@ -160,7 +162,10 @@ namespace Wreckabulary.Rules.Wordbound
                 return;
             }
             foreach (var field in value.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+            {
+                if (value is CoursePhysicalSite && field.FieldType == typeof(CourseBox) && EmptyBox((CourseBox)field.GetValue(value))) continue;
                 ValidateFields(field.GetValue(value), path + "." + field.Name, v, depth + 1);
+            }
         }
         static void Check<T>(List<T> list, int maximum, Func<T, string> id, string path, CourseValidation v) where T : class
         {

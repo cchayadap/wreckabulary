@@ -16,8 +16,15 @@ namespace Wreckabulary.Online
         public int RadiusMm { get; }
         public int YawToleranceDegrees { get; }
         public int HoldTicks { get; }
-        internal WordboundPlacementSocket(string puzzle, WorldVector position, int yaw, int radius, int tolerance, int hold)
-        { PuzzleId = puzzle; Position = position; Yaw = yaw; RadiusMm = radius; YawToleranceDegrees = tolerance; HoldTicks = hold; }
+        public WordboundPlacementSocket(string puzzle, WorldVector position, int yaw, int radius, int tolerance, int hold)
+        {
+            if (!WordboundIdentity.IsId(puzzle) || float.IsNaN(position.X) || float.IsInfinity(position.X) ||
+                float.IsNaN(position.Y) || float.IsInfinity(position.Y) || float.IsNaN(position.Z) || float.IsInfinity(position.Z) ||
+                Math.Abs(position.X) > 10000 || Math.Abs(position.Y) > 10000 || Math.Abs(position.Z) > 10000 ||
+                yaw < 0 || yaw >= 360 || radius < 50 || radius > 1000 || tolerance < 0 || tolerance > 45 || hold < 1 || hold > 600)
+                throw new ArgumentException("Physical socket transform or hold tolerance is invalid.");
+            PuzzleId = puzzle; Position = position; Yaw = yaw; RadiusMm = radius; YawToleranceDegrees = tolerance; HoldTicks = hold;
+        }
     }
 
     public sealed class WordboundPlatformPath
@@ -54,7 +61,8 @@ namespace Wreckabulary.Online
         public string Hash { get; }
         public IReadOnlyList<WordboundPlacementSocket> Sockets { get; }
         public IReadOnlyList<WordboundPlatformPath> Platforms { get; }
-        internal WordboundPuzzlePlan(ResolvedCourse course)
+        public IReadOnlyList<WordboundPhysicalSite> Sites { get; }
+        internal WordboundPuzzlePlan(ResolvedCourse course, bool legacyProof)
         {
             SourceHash = course.SourceHash; ManifestHash = course.Hash;
             Sockets = Array.AsReadOnly(new[]
@@ -64,10 +72,41 @@ namespace Wreckabulary.Online
             });
             Platforms = Array.AsReadOnly(course.Connections.Where(c => c.Id == "UpA" || c.Id == "UpB")
                 .OrderBy(c => c.Id, StringComparer.Ordinal).Select(c => new WordboundPlatformPath(c, 360, 60)).ToArray());
+            Sites = Array.AsReadOnly(course.Laps.SelectMany((lap, index) => Sockets.Select(socket =>
+                new WordboundPhysicalSite(index, lap.Checkpoints.Single(c => c.PuzzleIds.Contains(socket.PuzzleId)).Id,
+                    course.Puzzles.Single(p => p.Id == socket.PuzzleId).RecoverySupplyIds[0], socket))).ToArray());
             Hash = WordboundIdentity.Sha256(string.Join("|", new[] { "wordbound.physical-proof", Version.ToString(CultureInfo.InvariantCulture),
                 SourceHash, ManifestHash, "BedBridge:0,0,0:0:250:15:30", "FanDoor:0,6000,0:0:250:15:30",
                 "UpA:360:60", "UpB:360:60", "checkpoint:authored-recovery-radius", "jump-pad:catalogue-strength",
                 "fields:next-tick-expiry:height1.25:runner-los:minimum-slow:slippery0.1:wind-catalogue-cap" }));
+        }
+
+        public WordboundPuzzlePlan(ResolvedCourse course) : this(course,
+            course?.PhysicalSites.Where(site => course.Laps.Any(lap => lap.Number == site.Lap &&
+                lap.Checkpoints.Any(c => c.Id == site.CheckpointId && c.PuzzleIds.Contains(site.PuzzleId))))
+                .Select(site => new WordboundPhysicalSite(site))) { }
+
+        public WordboundPuzzlePlan(ResolvedCourse course, IEnumerable<WordboundPhysicalSite> sites)
+        {
+            if (course == null || sites == null) throw new ArgumentNullException(nameof(course));
+            var array = sites.Take(769).ToArray();
+            if (array.Length > 768 || array.Any(site => site == null) ||
+                array.Select(site => site.Lap + "/" + site.PuzzleId).Distinct(StringComparer.Ordinal).Count() != array.Length)
+                throw new ArgumentException("Physical sites are missing, duplicated or exceed the course bound.");
+            foreach (var site in array) site.Validate(course);
+            if (course.Play.Capability == CourseCapability.Circuit && course.Schema != 2 || array.Any(site => site.Authored == null ||
+                !course.PhysicalSites.Any(s => s.Lap == site.Lap + 1 && s.PuzzleId == site.PuzzleId && s.Hash == site.Hash)))
+                throw new ArgumentException("Authored physical data must be present in the canonical shared course.");
+            var required = course.Laps.SelectMany((lap, index) => lap.Checkpoints.SelectMany(checkpoint =>
+                checkpoint.PuzzleIds.Select(id => index + "/" + id)));
+            if (!new HashSet<string>(required, StringComparer.Ordinal).SetEquals(array.Select(site => site.Lap + "/" + site.PuzzleId)))
+                throw new ArgumentException("Every selected lap puzzle requires exactly one explicit physical site.");
+            SourceHash = course.SourceHash; ManifestHash = course.Hash;
+            Sites = Array.AsReadOnly(array.OrderBy(site => site.Lap).ThenBy(site => site.PuzzleId, StringComparer.Ordinal).ToArray());
+            Sockets = Array.AsReadOnly(Sites.Select(site => site.Socket).ToArray());
+            Platforms = Array.AsReadOnly(Array.Empty<WordboundPlatformPath>());
+            Hash = WordboundIdentity.Sha256(string.Join("|", new[] { "wordbound.authored-physical-plan", "1", SourceHash, ManifestHash }
+                .Concat(Sites.Select(site => site.Hash))));
         }
         public void Validate(MatchBinding binding)
         {
@@ -76,7 +115,7 @@ namespace Wreckabulary.Online
         }
     }
 
-    public sealed class WordboundPuzzleProof
+    public sealed class WordboundPuzzleProof : IWordboundPuzzleContent
     {
         readonly string itemJson;
         readonly GameRules gameRules;
@@ -144,7 +183,7 @@ namespace Wreckabulary.Online
             var resolved = CourseResolver.Resolve(document, Geometry, new CourseResolveRequest(seed, MatchStateValidation.Requirements(mode)));
             if (!resolved.Success) throw new ArgumentException("Physical proof course did not resolve: " + string.Join("; ", resolved.Issues));
             Course = resolved.Manifest;
-            Plan = new WordboundPuzzlePlan(Course);
+            Plan = new WordboundPuzzlePlan(Course, true);
             ItemSourceHash = WordboundIdentity.Sha256(json);
             CatalogueHash = BindsRules
                 ? WordboundIdentity.Sha256(string.Join("|", "wordbound.proof-content", "3",

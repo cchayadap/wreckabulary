@@ -22,8 +22,9 @@ namespace Wreckabulary.Rules.Wordbound
         {
             ValidateFields(data, "$", v, 0);
             if (!v.Ok) return;
-            if (data.Format != "wreckabulary.resolved-course" || data.Schema != 1 || data.GeneratorVersion != 1 ||
-                data.CanonicalVersion != 1 || data.RngVersion != CourseRandom.Version ||
+            if (data.Format != "wreckabulary.resolved-course" || data.Schema != data.Document.Schema ||
+                (data.Schema != 1 && data.Schema != 2) || data.GeneratorVersion != 1 ||
+                data.CanonicalVersion != data.Schema || data.RngVersion != CourseRandom.Version ||
                 data.Attempt < 0 || data.Attempt >= CourseLimits.Attempts || !CourseRandom.ValidSeed(data.Seed))
                 v.Add("manifest.version", "$", "", "Unsupported format, algorithm version, seed or attempt.");
             if (catalogue == null) { v.Add("catalogue", "$", "", "An approved catalogue is required."); return; }

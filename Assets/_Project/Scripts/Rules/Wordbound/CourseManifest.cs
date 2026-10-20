@@ -216,6 +216,7 @@ namespace Wreckabulary.Rules.Wordbound
         public IReadOnlyList<ResolvedCourseSupply> Supplies { get; }
         public IReadOnlyList<ResolvedCourseRecovery> RecoveryAnchors { get; }
         public IReadOnlyList<ResolvedCourseSpawn> Spawns { get; }
+        public IReadOnlyList<ResolvedCoursePhysicalSite> PhysicalSites { get; }
         public CourseDocument CopyDocument() => Data.Document.Clone();
         internal ResolvedCourse(CourseManifestData data, CourseCatalogue catalogue)
         {
@@ -228,6 +229,8 @@ namespace Wreckabulary.Rules.Wordbound
             Supplies = Array.AsReadOnly(data.Supplies.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => new ResolvedCourseSupply(x)).ToArray());
             RecoveryAnchors = Array.AsReadOnly(data.Document.RecoveryAnchors.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => new ResolvedCourseRecovery(x)).ToArray());
             Spawns = Array.AsReadOnly(data.Document.Spawns.OrderBy(x => x.Id, StringComparer.Ordinal).Select(x => new ResolvedCourseSpawn(x)).ToArray());
+            PhysicalSites = Array.AsReadOnly(data.Document.PhysicalSites.OrderBy(x => x.Lap).ThenBy(x => x.PuzzleId, StringComparer.Ordinal)
+                .Select(x => new ResolvedCoursePhysicalSite(x)).ToArray());
         }
     }
 }

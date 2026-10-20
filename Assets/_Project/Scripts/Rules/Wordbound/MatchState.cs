@@ -155,8 +155,10 @@ namespace Wreckabulary.Rules.Wordbound
         public long PhaseTick { get; }
         public int ProgressTicks { get; }
         public string ItemEntityId { get; }
+        public MatchPhysicalEvidence Physical { get; }
         public MatchMechanismState(string puzzleId, int team, int lap, bool solved = false,
-            long activatedTick = -1, long phaseTick = 0, int progressTicks = 0, string itemEntityId = "")
+            long activatedTick = -1, long phaseTick = 0, int progressTicks = 0, string itemEntityId = "",
+            MatchPhysicalEvidence physical = null)
         {
             if (!WordboundIdentity.IsId(puzzleId) || team < 0 || team > 7 || lap < 0 || lap > 2 ||
                 activatedTick < -1 || phaseTick < 0 || progressTicks < 0 || itemEntityId == null ||
@@ -164,6 +166,7 @@ namespace Wreckabulary.Rules.Wordbound
                 throw new ArgumentException("Invalid mechanism state.");
             PuzzleId = puzzleId; Team = team; Lap = lap; Solved = solved; ActivatedTick = activatedTick;
             PhaseTick = phaseTick; ProgressTicks = progressTicks; ItemEntityId = itemEntityId;
+            Physical = physical ?? MatchPhysicalEvidence.Empty;
         }
     }
 

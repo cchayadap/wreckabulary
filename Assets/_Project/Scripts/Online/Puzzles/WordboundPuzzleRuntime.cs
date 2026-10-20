@@ -9,10 +9,10 @@ using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Online
 {
-    public sealed class WordboundPuzzleRuntime
+    public sealed partial class WordboundPuzzleRuntime
     {
         readonly WordboundGameplayController controller;
-        readonly WordboundPuzzleProof proof;
+        readonly IWordboundPuzzleContent proof;
         readonly ItemCatalogue items;
         readonly RaycastHit[] hits = new RaycastHit[128];
         readonly Collider[] overlaps = new Collider[128];
@@ -21,6 +21,9 @@ namespace Wreckabulary.Online
         PhysicsScene scene;
 
         public WordboundPuzzleRuntime(WordboundGameplayController controller, WordboundPuzzleProof proof)
+            : this(controller, (IWordboundPuzzleContent)proof) { }
+
+        public WordboundPuzzleRuntime(WordboundGameplayController controller, IWordboundPuzzleContent proof)
         {
             this.controller = controller != null ? controller : throw new ArgumentNullException(nameof(controller));
             this.proof = proof ?? throw new ArgumentNullException(nameof(proof));
@@ -33,6 +36,8 @@ namespace Wreckabulary.Online
             if (!ReferenceEquals(bodies, controller.Bodies)) throw new ArgumentException("Use the complete registered host body map.");
             if (controller.IsSimulationPaused) return;
             RefreshColliders();
+            launches.Clear(); windPushes.Clear(); fixturePhases.Clear();
+            MoveAuthoredFixtures(frame);
             foreach (var path in proof.Plan.Platforms)
             {
                 if (!bodies.TryGetValue(path.BodyId, out var body) || body.Canonical.Kind != WorldBodyKind.Platform ||
@@ -53,6 +58,7 @@ namespace Wreckabulary.Online
                     foreach (var target in bodies.Values.OrderBy(b => b.Canonical.Id, StringComparer.Ordinal))
                     {
                         if (!Affected(field.Definition, field.Body, target)) continue;
+                        windPushes.Add(field.Body.Canonical.Id + "/" + target.Canonical.Id);
                         var velocity = target.Rigidbody.linearVelocity;
                         var next = WordboundFieldPolicy.WindVelocity(field.Definition.Deploy, Pose(field.Body),
                             new WorldVector(velocity.x, velocity.y, velocity.z));
@@ -109,7 +115,9 @@ namespace Wreckabulary.Online
             var progress = new List<ProgressEvent>();
             foreach (var team in frame.Progress.Teams.Where(t => !t.Finished))
             {
-                foreach (var socket in proof.Plan.Sockets)
+                if (proof.Course.PhysicalSites.Count != 0)
+                    ObserveAuthored(frame, team, mechanisms);
+                else foreach (var socket in proof.Plan.Sockets)
                 {
                     if (!WordboundPuzzlePolicy.ActiveObjective(proof.Course, team, socket.PuzzleId)) continue;
                     var previous = frame.Mechanisms.Single(m => m.PuzzleId == socket.PuzzleId && m.Team == team.Team && m.Lap == team.Lap);
@@ -130,13 +138,17 @@ namespace Wreckabulary.Online
             RequireHost(frame);
             if (puzzle == null || item == null || !ReferenceEquals(proof.Course.Puzzles.SingleOrDefault(p => p.Id == puzzle.Id), puzzle))
                 return false;
-            var socket = proof.Plan.Sockets.SingleOrDefault(s => s.PuzzleId == puzzle.Id);
             var player = frame.Progress.Players.SingleOrDefault(p => p.Id == actorId);
-            if (socket == null || player == null || !CanAct(actorId) || !controller.Bodies.TryGetValue(item.Id, out var registered)) return false;
+            if (player == null || !CanAct(actorId) || !controller.Bodies.TryGetValue(item.Id, out var registered)) return false;
             var team = frame.Progress.Teams.Single(t => t.Team == player.Team);
+            var socket = proof.Plan.Sites.SingleOrDefault(s => s.Lap == team.Lap && s.PuzzleId == puzzle.Id)?.Socket;
+            if (socket == null) return false;
             if (!WordboundPuzzlePolicy.ActiveObjective(proof.Course, team, puzzle.Id) ||
                 !Qualifies(frame, player.Team, socket, puzzle, registered)) return false;
             var state = frame.Mechanisms.Single(m => m.PuzzleId == puzzle.Id && m.Team == player.Team && m.Lap == team.Lap);
+            if (proof.Course.PhysicalSites.Count != 0)
+                return state.Physical.Stage == MatchPhysicalStage.Complete && state.ItemEntityId == item.Id &&
+                    state.Physical.SiteHash == proof.Plan.Sites.Single(s => s.Lap == team.Lap && s.PuzzleId == puzzle.Id).Hash;
             return WordboundPuzzlePolicy.Ready(socket, state, frame.Progress.Tick, item.Id);
         }
 
@@ -172,8 +184,13 @@ namespace Wreckabulary.Online
         bool Qualifies(MatchSnapshot frame, int team, WordboundPlacementSocket socket,
             ResolvedCoursePuzzle puzzle, WordboundNetworkBody body)
         {
-            if (puzzle.PresetId != "PlaceObject" || !WordboundPuzzlePolicy.LiveRecipe(frame, body.Canonical, puzzle.RecipeId, team) ||
+            if (proof.Course.PhysicalSites.Count == 0 && puzzle.PresetId != "PlaceObject" ||
+                !WordboundPuzzlePolicy.LiveRecipe(frame, body.Canonical, puzzle.RecipeId, team) ||
                 !body.Rigidbody.isKinematic || !WordboundPuzzlePolicy.InSocket(socket, Pose(body))) return false;
+            var live = frame.Economy.Items.Single(i => "item:" + i.Id == body.Canonical.Id);
+            var definition = items.Get(live.Word);
+            if (definition.Deploy != null && definition.Deploy.LifetimeSeconds > 0 &&
+                !WordboundFieldPolicy.ActiveNextTick(definition, live.DeploymentTick, frame.Progress.Tick)) return false;
             var box = body.GetComponent<BoxCollider>();
             if (box == null || !box.enabled || box.isTrigger || box.attachedRigidbody != body.Rigidbody) return false;
             Vector3 half = box.size / 2;
@@ -205,6 +222,7 @@ namespace Wreckabulary.Online
             var velocity = player.Rigidbody.linearVelocity;
             velocity.y = definition.Deploy.Strength;
             player.Rigidbody.linearVelocity = velocity;
+            launches[pad.Canonical.Id + "/" + player.Canonical.SourceId] = player.Canonical.SourceId;
         }
 
         void ObserveProgress(MatchSnapshot frame, TeamProgress team, List<ProgressEvent> output)

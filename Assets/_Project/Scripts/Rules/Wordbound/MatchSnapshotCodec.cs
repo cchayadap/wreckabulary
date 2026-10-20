@@ -105,7 +105,9 @@ namespace Wreckabulary.Rules.Wordbound
             "resources", s.Resources.Select(r => (object)Map("sourceId", r.SourceId, "team", r.Team, "lap", r.Lap,
                 "generation", r.Generation, "recoveryAtTick", Long(r.RecoveryAtTick))).ToArray(),
             "mechanisms", s.Mechanisms.Select(m => (object)Map("puzzleId", m.PuzzleId, "team", m.Team, "lap", m.Lap, "solved", m.Solved,
-                "activatedTick", Long(m.ActivatedTick), "phaseTick", Long(m.PhaseTick), "progressTicks", m.ProgressTicks, "itemEntityId", m.ItemEntityId)).ToArray(),
+                "activatedTick", Long(m.ActivatedTick), "phaseTick", Long(m.PhaseTick), "progressTicks", m.ProgressTicks, "itemEntityId", m.ItemEntityId,
+                "physical", Map("stage", m.Physical.Stage.ToString(), "actorId", m.Physical.ActorId, "auxiliaryBodyId", m.Physical.AuxiliaryBodyId,
+                    "stageTick", Long(m.Physical.StageTick), "siteHash", m.Physical.SiteHash, "motionUnits", Long(m.Physical.MotionUnits)))).ToArray(),
             "randomStreams", s.RandomStreams.Select(r => (object)Map("streamId", r.StreamId, "state", ULong(r.State), "increment", ULong(r.Increment))).ToArray(),
             "narrativeFlags", s.NarrativeFlags,
             "thrownFlights", s.ThrownFlights.Select(f => (object)Map("itemBodyId", f.ItemBodyId, "launchRevision", f.LaunchRevision,
@@ -279,9 +281,15 @@ namespace Wreckabulary.Rules.Wordbound
         }
         static MatchMechanismState ReadMechanism(JsonNode n)
         {
-            Keys(n, "puzzleId", "team", "lap", "solved", "activatedTick", "phaseTick", "progressTicks", "itemEntityId");
+            Keys(n, "puzzleId", "team", "lap", "solved", "activatedTick", "phaseTick", "progressTicks", "itemEntityId", "physical");
+            var p = n["physical"];
+            Keys(p, "stage", "actorId", "auxiliaryBodyId", "stageTick", "siteHash", "motionUnits");
+            if (!Enum.TryParse(Text(p["stage"]), out MatchPhysicalStage stage) || stage.ToString() != Text(p["stage"]))
+                throw p.Error("Invalid physical stage.");
             return new MatchMechanismState(Text(n["puzzleId"]), Int(n["team"]), Int(n["lap"]), n["solved"].Bool(),
-                Counter(n["activatedTick"], true), Counter(n["phaseTick"]), Int(n["progressTicks"]), Text(n["itemEntityId"]));
+                Counter(n["activatedTick"], true), Counter(n["phaseTick"]), Int(n["progressTicks"]), Text(n["itemEntityId"]),
+                new MatchPhysicalEvidence(stage, Text(p["actorId"]), Text(p["auxiliaryBodyId"]), Counter(p["stageTick"]),
+                    Text(p["siteHash"]), Counter(p["motionUnits"])));
         }
         static MatchRandomState ReadRandom(JsonNode n)
         {

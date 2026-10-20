@@ -52,6 +52,7 @@ namespace Wreckabulary.Rules.Wordbound
         public List<CourseLap> Laps = new List<CourseLap>();
         public List<CourseZone> Zones = new List<CourseZone>();
         public List<CourseReservedVolume> ReservedVolumes = new List<CourseReservedVolume>();
+        public List<CoursePhysicalSite> PhysicalSites = new List<CoursePhysicalSite>();
         public CourseDocument Clone() => CourseJson.ImportDocument(CourseJson.ExportDocument(this)).Document;
     }
 

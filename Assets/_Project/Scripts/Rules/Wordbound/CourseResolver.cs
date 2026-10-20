@@ -21,6 +21,7 @@ namespace Wreckabulary.Rules.Wordbound
             { result.Validation.Add("document.bounds", "$", document.Id, e.Message); return result; }
             var data = new CourseManifestData
             {
+                Schema = frozen.Schema, CanonicalVersion = frozen.Schema,
                 Seed = request.Seed, Document = frozen, SourceHash = CourseJson.Sha256(CourseJson.ExportDocument(frozen)),
                 CatalogueHash = catalogue.Hash, Play = CoursePlayData.From(request.Play)
             };

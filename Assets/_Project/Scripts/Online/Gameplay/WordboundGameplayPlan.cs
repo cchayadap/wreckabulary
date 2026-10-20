@@ -55,6 +55,10 @@ namespace Wreckabulary.Online
                 return new WordboundBodyPresentation(new WorldVector(.6f, 1.8f, .6f), "player");
             if (body.Kind == WorldBodyKind.Platform)
             {
+                var fixture = course.PhysicalSites.SelectMany(site => site.Fixtures).SingleOrDefault(f => f.Id == body.SourceId);
+                if (fixture != null)
+                    return new WordboundBodyPresentation(new WorldVector(fixture.SizeMm.X / 1000f,
+                        fixture.SizeMm.Y / 1000f, fixture.SizeMm.Z / 1000f), "platform");
                 var connection = course.Connections.Single(c => c.Id == body.SourceId);
                 return new WordboundBodyPresentation(new WorldVector(connection.WidthMm / 1000f, .24f, connection.WidthMm / 1000f), "platform");
             }

@@ -66,7 +66,7 @@ namespace Wreckabulary.Rules.Wordbound
             return result;
         }
 
-        internal static object Read(JsonNode node, Type type, bool documentRoot = false)
+        internal static object Read(JsonNode node, Type type, bool documentRoot = false, bool allowEmptyBox = false)
         {
             if (type == typeof(string))
             {
@@ -95,7 +95,7 @@ namespace Wreckabulary.Rules.Wordbound
             {
                 Keys(node, new[] { "min", "max" });
                 var box = new CourseBox((CoursePoint)Read(node["min"], typeof(CoursePoint)), (CoursePoint)Read(node["max"], typeof(CoursePoint)));
-                if (!CourseValidator.ValidBox(box)) throw node.Error("invalid volume bounds");
+                if (!CourseValidator.ValidBox(box) && !(allowEmptyBox && CourseValidator.EmptyBox(box))) throw node.Error("invalid volume bounds");
                 return box;
             }
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
@@ -111,9 +111,12 @@ namespace Wreckabulary.Rules.Wordbound
             if (!type.Name.StartsWith("Course", StringComparison.Ordinal) || type.Namespace != typeof(CourseJson).Namespace)
                 throw new ArgumentException("Unsupported course data type.");
             var fields = Fields(type);
+            if (type == typeof(CourseDocument) && (int)Read(node["schema"], typeof(int)) == 1)
+                fields = fields.Where(f => f.Name != "PhysicalSites").ToArray();
             Keys(node, fields.Select(f => Key(f.Name)).Concat(documentRoot ? new[] { "format" } : Array.Empty<string>()));
             var instance = Activator.CreateInstance(type);
-            foreach (var field in fields) field.SetValue(instance, Read(node[Key(field.Name)], field.FieldType));
+            foreach (var field in fields) field.SetValue(instance, Read(node[Key(field.Name)], field.FieldType, false,
+                type == typeof(CoursePhysicalSite) && field.FieldType == typeof(CourseBox)));
             return instance;
         }
 
@@ -136,13 +139,17 @@ namespace Wreckabulary.Rules.Wordbound
                     if (id != null) list = list.OrderBy(x => (string)id.GetValue(x), StringComparer.Ordinal).ToList();
                     else if (type == typeof(CourseLap)) list = list.OrderBy(x => ((CourseLap)x).Number).ToList();
                     else if (type == typeof(CourseLapSelection)) list = list.OrderBy(x => ((CourseLapSelection)x).Number).ToList();
+                    else if (type == typeof(CoursePhysicalSite)) list = list.OrderBy(x => ((CoursePhysicalSite)x).Lap)
+                        .ThenBy(x => ((CoursePhysicalSite)x).PuzzleId, StringComparer.Ordinal).ToList();
                 }
                 return list.Select(Value).ToList();
             }
             var result = new Dictionary<string, object>(StringComparer.Ordinal);
             foreach (var field in Fields(value.GetType()))
             {
+                if (value is CourseDocument legacy && legacy.Schema == 1 && legacy.PhysicalSites.Count == 0 && field.Name == "PhysicalSites") continue;
                 object fieldValue = field.GetValue(value);
+                if (value is CourseDocument document && field.Name == "Schema" && document.PhysicalSites.Count != 0) fieldValue = 2;
                 if (fieldValue is List<string> strings && field.Name != "ConnectionIds" && field.Name != "CheckpointIds" &&
                     field.Name != "SectionIds" && field.Name != "PuzzleIds" && field.Name != "AlternativeIds")
                     fieldValue = strings.OrderBy(x => x, StringComparer.Ordinal).ToList();

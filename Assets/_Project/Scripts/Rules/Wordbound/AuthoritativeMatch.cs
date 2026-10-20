@@ -49,8 +49,9 @@ namespace Wreckabulary.Rules.Wordbound
         public long PhaseTick { get; }
         public int ProgressTicks { get; }
         public string ItemEntityId { get; }
+        public MatchPhysicalEvidence Physical { get; }
         public HostMechanismObservation(string puzzleId, int team, int lap, bool active,
-            long phaseTick = 0, int progressTicks = 0, string itemEntityId = "")
+            long phaseTick = 0, int progressTicks = 0, string itemEntityId = "", MatchPhysicalEvidence physical = null)
         {
             if (!WordboundIdentity.IsId(puzzleId) || team < 0 || team > 7 || lap < 0 || lap > 2 ||
                 phaseTick < 0 || progressTicks < 0 || itemEntityId == null ||
@@ -58,6 +59,7 @@ namespace Wreckabulary.Rules.Wordbound
                 throw new ArgumentException("Invalid host mechanism observation.");
             PuzzleId = puzzleId; Team = team; Lap = lap; Active = active; PhaseTick = phaseTick;
             ProgressTicks = progressTicks; ItemEntityId = itemEntityId;
+            Physical = physical ?? MatchPhysicalEvidence.Empty;
         }
     }
 
@@ -135,7 +137,8 @@ namespace Wreckabulary.Rules.Wordbound
                         Landmark(team, progress.Team(team).SafeCheckpoint), ownerTeam: team, protectedResource: true));
                     for (int lap = 0; lap < 3; lap++)
                         foreach (var puzzle in course.Puzzles)
-                            mechanisms.Add(Key(puzzle.Id, team, lap), new MatchMechanismState(puzzle.Id, team, lap));
+                            mechanisms.Add(Key(puzzle.Id, team, lap), new MatchMechanismState(puzzle.Id, team, lap,
+                                physical: InitialPhysical(puzzle.Id, lap)));
                 }
             foreach (var placement in course.Placements)
             {
@@ -157,6 +160,13 @@ namespace Wreckabulary.Rules.Wordbound
             foreach (var connection in course.Connections.Where(c => c.GatePuzzleId != ""))
                 AddBody(new WorldBodyState("platform:" + connection.Id, WorldBodyKind.Platform,
                     Position(connection.From), kinematic: true, sourceId: connection.Id));
+            if (Mode.IsRace)
+                foreach (int team in Binding.Seats.Select(s => s.Team).Distinct())
+                    foreach (var site in course.PhysicalSites)
+                        foreach (var fixture in site.Fixtures)
+                            AddBody(new WorldBodyState(CourseFixtureMotion.BodyId(fixture.Id, team), WorldBodyKind.Platform,
+                                CourseFixtureMotion.Position(fixture, 0), kinematic: true, ownerTeam: team,
+                                protectedResource: true, sourceId: fixture.Id));
             Synchronize(null);
             EnsureValid(Capture(1));
         }
@@ -173,6 +183,8 @@ namespace Wreckabulary.Rules.Wordbound
             var observations = Bounded(hostObservations, 4096);
             var damages = Bounded(hostDamage, 256);
             var timings = Bounded(hostMechanisms, 1024);
+            if (timings.Select(t => Key(t.PuzzleId, t.Team, t.Lap)).Distinct(StringComparer.Ordinal).Count() != timings.Length)
+                throw new ArgumentException("A mechanism can be observed only once per completed host tick.");
             var contacts = Bounded(hostThrownContacts, 256);
             if (poses.Select(p => p.Id).Distinct(StringComparer.Ordinal).Count() != poses.Length ||
                 timings.Select(m => Key(m.PuzzleId, m.Team, m.Lap)).Distinct(StringComparer.Ordinal).Count() != timings.Length ||
@@ -189,7 +201,8 @@ namespace Wreckabulary.Rules.Wordbound
                 ExpireDeployments(Tick + 1);
                 ApplyThrownContacts(contacts, Tick + 1, wallClockMs);
                 SettleThrows(Tick + 1, wallClockMs);
-                foreach (var timing in timings) ApplyMechanism(timing);
+                foreach (var timing in timings) ApplyMechanism(timing, before);
+                ValidateFixturePoses();
                 foreach (var seat in Binding.Seats)
                 {
                     int index = indices[seat.PlayerId];
@@ -436,6 +449,10 @@ namespace Wreckabulary.Rules.Wordbound
             }
             else if (!economy.Player(index).Letters.Contains(LetterBag.FromWord(puzzle.RequiredLetters)))
                 return Effect("MissingLetters");
+            var physicalSite = course.PhysicalSites.SingleOrDefault(s => s.PuzzleId == puzzle.Id && s.Lap == team.Lap + 1);
+            if (physicalSite != null && (mechanisms[key].Physical.Stage != MatchPhysicalStage.Complete ||
+                mechanisms[key].Physical.SiteHash != physicalSite.Hash || mechanisms[key].ItemEntityId != itemBody?.Id))
+                return Effect("MechanismIncomplete");
             if (!world.PuzzleSatisfied(seat.PlayerId, puzzle, itemBody)) return Effect("MechanismIncomplete");
             if (puzzle.ConsumeLetters)
             {
@@ -446,7 +463,7 @@ namespace Wreckabulary.Rules.Wordbound
             bool timed = mechanism.ActivatedTick >= 0;
             mechanisms[key] = new MatchMechanismState(puzzle.Id, seat.Team, team.Lap, true,
                 timed ? mechanism.ActivatedTick : Tick + 1, timed ? mechanism.PhaseTick : Tick + 1,
-                timed ? mechanism.ProgressTicks : 1, itemBody?.Id ?? "");
+                timed ? mechanism.ProgressTicks : 1, itemBody?.Id ?? "", mechanism.Physical);
             pending.Add(new ProgressEvent(ProgressEventKind.PuzzleSatisfied, seat.PlayerId, puzzle.Id, team.Lap));
             if (puzzle.RewardLetters.Length > 0) AddTiles(economy.MintTiles(puzzle.RewardLetters), origin.Position, seat.Team);
             return Effect("Ok", puzzle.Id);
@@ -613,21 +630,29 @@ namespace Wreckabulary.Rules.Wordbound
             if (module != null && InModule(bodies["player:" + index].Position, module)) pending.Add(observation);
         }
 
-        void ApplyMechanism(HostMechanismObservation observation)
+        void ApplyMechanism(HostMechanismObservation observation, MatchSnapshot before)
         {
             string key = Key(observation.PuzzleId, observation.Team, observation.Lap);
             if (!Mode.IsRace || !mechanisms.TryGetValue(key, out var previous))
                 throw new ArgumentException("Mechanism observation is not bound to this course and team.");
             if (previous.Solved) return;
             var team = progress.Team(observation.Team);
-            if (team.Finished || team.Lap != observation.Lap || team.NextCheckpoint >= course.Laps[team.Lap].Checkpoints.Count ||
-                !course.Laps[team.Lap].Checkpoints[team.NextCheckpoint].PuzzleIds.Contains(observation.PuzzleId))
+            if (observation.Active && (team.Finished || team.Lap != observation.Lap ||
+                team.NextCheckpoint >= course.Laps[team.Lap].Checkpoints.Count ||
+                !course.Laps[team.Lap].Checkpoints[team.NextCheckpoint].PuzzleIds.Contains(observation.PuzzleId)))
                 throw new ArgumentException("Mechanism observation is outside the active objective.");
+            if (observation.Active && (DestroyedDuringTick(observation.ItemEntityId, before) ||
+                course.Puzzles.Single(p => p.Id == observation.PuzzleId).PresetId == "RedirectWind" &&
+                DestroyedDuringTick(observation.Physical.AuxiliaryBodyId, before)))
+                observation = new HostMechanismObservation(observation.PuzzleId, observation.Team, observation.Lap, false,
+                    physical: observation.Physical.Reset());
+            ValidatePhysicalObservation(previous, observation);
             if (!observation.Active)
             {
-                if (observation.PhaseTick != 0 || observation.ProgressTicks != 0 || observation.ItemEntityId != "")
+                if (observation.PhaseTick != 0 || observation.ProgressTicks != 0 || observation.ItemEntityId != "" ||
+                    observation.Physical.Stage != MatchPhysicalStage.Waiting)
                     throw new ArgumentException("Inactive mechanisms must reset their phase and progress.");
-                mechanisms[key] = new MatchMechanismState(observation.PuzzleId, observation.Team, observation.Lap);
+                mechanisms[key] = new MatchMechanismState(observation.PuzzleId, observation.Team, observation.Lap, physical: observation.Physical);
                 return;
             }
             long nextTick = Tick + 1;
@@ -654,7 +679,7 @@ namespace Wreckabulary.Rules.Wordbound
             else if (puzzle.RecipeId != "") throw new ArgumentException("This mechanism requires a deployed recipe item.");
             mechanisms[key] = new MatchMechanismState(observation.PuzzleId, observation.Team, observation.Lap, false,
                 newPhase ? nextTick : previous.ActivatedTick, observation.PhaseTick,
-                observation.ProgressTicks, observation.ItemEntityId);
+                observation.ProgressTicks, observation.ItemEntityId, observation.Physical);
         }
 
         void Synchronize(MatchSnapshot before)
@@ -666,7 +691,8 @@ namespace Wreckabulary.Rules.Wordbound
                 var item = economy.Item(Number(state.ItemEntityId));
                 if (!bodies.TryGetValue(state.ItemEntityId, out var itemBody) || !itemBody.Active ||
                     item == null || item.State != ItemState.Deployed || !InModule(itemBody.Position, puzzle.ModuleId))
-                    mechanisms[Key(state.PuzzleId, state.Team, state.Lap)] = new MatchMechanismState(state.PuzzleId, state.Team, state.Lap);
+                    mechanisms[Key(state.PuzzleId, state.Team, state.Lap)] = new MatchMechanismState(state.PuzzleId, state.Team, state.Lap,
+                        physical: state.Physical.Reset());
             }
             foreach (var seat in Binding.Seats)
             {
@@ -706,7 +732,8 @@ namespace Wreckabulary.Rules.Wordbound
                                 lap == team.Lap && team.CompletedPuzzles.Contains(puzzle.Id);
                             if (solved != state.Solved)
                                 mechanisms[key] = new MatchMechanismState(puzzle.Id, team.Team, lap, solved,
-                                    solved ? Tick : -1, solved ? Tick : 0, solved ? 1 : 0, state.ItemEntityId);
+                                    solved ? Tick : -1, solved ? Tick : 0, solved ? 1 : 0, state.ItemEntityId,
+                                    solved ? state.Physical : state.Physical.Reset());
                         }
                 }
             foreach (var state in resources.Values.ToArray())

@@ -249,7 +249,19 @@ namespace Wreckabulary.Rules.Wordbound
                             body.SourceId == "", "Unbound keepsake body.");
                         break;
                     case WorldBodyKind.Platform:
-                        Need(body.Id.StartsWith("platform:", StringComparison.Ordinal) &&
+                        var fixture = course.PhysicalSites.SelectMany(site => site.Fixtures).SingleOrDefault(f => f.Id == body.SourceId);
+                        if (fixture != null)
+                        {
+                            Need(mode.IsRace && teams.Contains(body.OwnerTeam) && body.Active && body.Kinematic && body.Protected &&
+                                body.Id == CourseFixtureMotion.BodyId(fixture.Id, body.OwnerTeam) && body.RotationW == 1 &&
+                                body.RotationXyz.X == 0 && body.RotationXyz.Y == 0 && body.RotationXyz.Z == 0,
+                                "Unbound physical fixture body.");
+                            var site = course.PhysicalSites.Single(p => p.Fixtures.Any(f => f.Id == fixture.Id));
+                            var mechanism = s.Mechanisms.SingleOrDefault(m => m.PuzzleId == site.PuzzleId && m.Lap == site.Lap - 1 && m.Team == body.OwnerTeam);
+                            Need(mechanism != null && body.Position.DistanceSquared(CourseFixtureMotion.Position(fixture, mechanism.Physical.MotionUnits)) < .000001f,
+                                "Fixture pose differs from its canonical physical phase.");
+                        }
+                        else Need(body.Id.StartsWith("platform:", StringComparison.Ordinal) &&
                             course.Connections.Any(c => body.Id == "platform:" + c.Id) &&
                             body.Kinematic && body.OwnerTeam == -1 && !body.Protected &&
                             (body.SourceId == "" || body.SourceId == body.Id.Substring(9)), "Unbound platform body.");
@@ -257,6 +269,10 @@ namespace Wreckabulary.Rules.Wordbound
                     default: throw new ArgumentException("Unknown world body kind.");
                 }
             }
+            if (mode.IsRace)
+                foreach (int team in teams)
+                    foreach (var fixture in course.PhysicalSites.SelectMany(site => site.Fixtures))
+                        Need(bodies.ContainsKey(CourseFixtureMotion.BodyId(fixture.Id, team)), "An authored physical fixture is missing.");
         }
 
         static void ValidateSource(WorldBodyState body, Dictionary<string, Tuple<int, bool, string>> sources,
@@ -294,6 +310,7 @@ namespace Wreckabulary.Rules.Wordbound
                 Need(puzzles.Contains(m.PuzzleId) && teams.TryGetValue(m.Team, out var team) && m.Lap >= 0 && m.Lap < 3,
                     "Mechanism has an unknown puzzle, team or lap.");
                 team = teams[m.Team];
+                MatchStateValidationPhysical.Validate(s, course, m);
                 bool expectedSolved = m.Lap < team.Lap ? course.Laps[m.Lap].Checkpoints.Any(c => c.PuzzleIds.Contains(m.PuzzleId)) :
                     m.Lap == team.Lap && team.CompletedPuzzles.Contains(m.PuzzleId);
                 Need(m.Solved == expectedSolved && m.ActivatedTick >= -1 && m.ActivatedTick <= s.Progress.Tick &&
