@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -180,12 +181,16 @@ namespace Wreckabulary.EditorTools
             try
             {
                 var copy = Object.Instantiate(entry.model, anchor.transform, false);
-                var bounds = ModelVisual.BoundsIn(anchor.transform, copy);
+                var bounds = VertexBoundsIn(anchor.transform, copy);
                 var grip = ModelVisual.FindNamed(copy, "Grip_R");
                 var front = ModelVisual.FindNamed(copy, entry.itemId + "_Front");
                 if (!Near(bounds.size, entry.size, .001f) || Mathf.Abs(bounds.min.y) > .001f ||
                     !grip || !Near(anchor.transform.InverseTransformPoint(grip.position), entry.grip, .001f))
-                    throw new InvalidOperationException("Unity dimensions, grounding or Grip_R differs for " + entry.itemId);
+                    throw new InvalidOperationException("Unity dimensions, grounding or Grip_R differs for " + entry.itemId +
+                        "; size=" + bounds.size.ToString("F6") + " expected=" + entry.size.ToString("F6") +
+                        "; min=" + bounds.min.ToString("F6") + "; grip=" +
+                        (grip ? anchor.transform.InverseTransformPoint(grip.position).ToString("F6") : "missing") +
+                        " expected=" + entry.grip.ToString("F6"));
                 if (!front || !Near(anchor.transform.InverseTransformPoint(front.position),
                     new Vector3(0f, entry.size.y * .5f, entry.size.z * .6f), .001f))
                     throw new InvalidOperationException("Unity front marker does not face +Z for " + entry.itemId);
@@ -214,6 +219,28 @@ namespace Wreckabulary.EditorTools
                     throw new InvalidOperationException("Expected both collection materials for " + entry.itemId);
             }
             finally { Object.DestroyImmediate(anchor); }
+        }
+
+        static Bounds VertexBoundsIn(Transform space, GameObject model)
+        {
+            var bounds = new Bounds();
+            bool initialized = false;
+            foreach (var filter in model.GetComponentsInChildren<MeshFilter>(true))
+            {
+                if (!filter.sharedMesh) continue;
+                using var meshData = MeshUtility.AcquireReadOnlyMeshData(filter.sharedMesh);
+                using var vertices = new NativeArray<Vector3>(meshData[0].vertexCount, Allocator.Temp);
+                meshData[0].GetVertices(vertices);
+                var matrix = space.worldToLocalMatrix * filter.transform.localToWorldMatrix;
+                foreach (var vertex in vertices)
+                {
+                    var point = matrix.MultiplyPoint3x4(vertex);
+                    if (initialized) bounds.Encapsulate(point);
+                    else { bounds = new Bounds(point, Vector3.zero); initialized = true; }
+                }
+            }
+            if (!initialized) throw new InvalidOperationException("Imported model has no mesh vertices.");
+            return bounds;
         }
 
         static T Read<T>(string file) => JsonUtility.FromJson<T>(File.ReadAllText(SourceRoot + "/" + file));

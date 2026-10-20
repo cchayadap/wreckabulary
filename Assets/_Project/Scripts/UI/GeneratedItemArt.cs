@@ -23,10 +23,16 @@ namespace Wreckabulary.UI
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetCache() { library = null; loaded = false; }
 
-        public static bool TryGet(string itemId, out Sprite sprite)
+        public static bool TryGet(string itemId, out Sprite sprite, bool wordbound = false)
         {
             sprite = null;
             if (string.IsNullOrEmpty(itemId)) return false;
+            if (wordbound)
+            {
+                var collection = Art.WordboundEquipmentCollection.Load();
+                var entry = collection ? collection.Find(itemId.ToUpperInvariant()) : null;
+                if (entry != null && entry.icon) { sprite = entry.icon; return true; }
+            }
             if (!loaded) { library = Resources.Load<GeneratedItemArt>("UI/Generated/PowerItemArt"); loaded = true; }
             if (!library) return false;
             if (library.index == null)

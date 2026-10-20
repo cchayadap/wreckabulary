@@ -112,6 +112,52 @@ namespace Wreckabulary.EditorTests
         }
 
         [Test]
+        public void ExplicitWordboundSpawnPreservesImportedTransformsAndLegacySkins()
+        {
+            var anchor = new GameObject("Wordbound selection test");
+            try
+            {
+                foreach (var entry in collection.Entries)
+                {
+                    var selected = ModelVisual.Spawn(entry.modelKey, anchor.transform, wordbound: true);
+                    var original = ModelVisual.Spawn(entry.modelKey, anchor.transform);
+                    Assert.AreSame(entry.model.GetComponentInChildren<MeshFilter>(true).sharedMesh,
+                        selected.GetComponentInChildren<MeshFilter>(true).sharedMesh);
+                    Assert.AreNotSame(original.GetComponentInChildren<MeshFilter>(true).sharedMesh,
+                        selected.GetComponentInChildren<MeshFilter>(true).sharedMesh);
+                    Assert.AreEqual(entry.model.transform.localScale, selected.transform.localScale);
+                    Assert.AreEqual(entry.model.transform.localRotation, selected.transform.localRotation);
+                    Assert.AreEqual(entry.model.transform.localPosition, selected.transform.localPosition);
+                    Assert.Less(Vector3.Distance(entry.grip, ModelVisual.GripIn(anchor.transform, selected)), .001f);
+                    foreach (string skin in new[] { "Candy", "Arcade", "Winter" })
+                    {
+                        var skinned = ModelVisual.Spawn(entry.modelKey, anchor.transform, skin, wordbound: true);
+                        Assert.AreSame(original.GetComponentInChildren<MeshFilter>(true).sharedMesh,
+                            skinned.GetComponentInChildren<MeshFilter>(true).sharedMesh, skin + "/" + entry.itemId);
+                        Object.DestroyImmediate(skinned);
+                    }
+                    Object.DestroyImmediate(selected);
+                    Object.DestroyImmediate(original);
+                }
+            }
+            finally { Object.DestroyImmediate(anchor); }
+        }
+
+        [Test]
+        public void ExplicitWordboundIconsUseNewSpritesAndLeaveDefaultLookupUnchanged()
+        {
+            foreach (var entry in collection.Entries)
+            {
+                bool hadDefault = UI.GeneratedItemArt.TryGet(entry.itemId, out var before);
+                Assert.IsTrue(UI.GeneratedItemArt.TryGet(entry.itemId, out var selected, wordbound: true));
+                Assert.AreSame(entry.icon, selected);
+                Assert.AreEqual(hadDefault, UI.GeneratedItemArt.TryGet(entry.itemId, out var after));
+                Assert.AreSame(before, after);
+            }
+            Assert.IsFalse(UI.GeneratedItemArt.TryGet("NO_SUCH_ITEM", out _, wordbound: true));
+        }
+
+        [Test]
         public void OriginalNinetyEightModelLibraryAndSkinFamiliesStayIndependent()
         {
             var report = ImportedArtSettings.ReadReport();

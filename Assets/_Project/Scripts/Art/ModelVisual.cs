@@ -4,8 +4,22 @@ namespace Wreckabulary.Art
 {
     public static class ModelVisual
     {
-        public static GameObject Spawn(string key, Transform parent, string skin = MaterialLibrary.StandardSkin)
+        public static GameObject Spawn(string key, Transform parent, string skin = MaterialLibrary.StandardSkin,
+            bool wordbound = false)
         {
+            if (wordbound && skin == MaterialLibrary.StandardSkin)
+            {
+                var collection = WordboundEquipmentCollection.Load();
+                var entry = collection ? collection.FindByModelKey(key) : null;
+                if (entry != null && entry.model)
+                {
+                    var visual = Object.Instantiate(entry.model, parent, false);
+                    visual.name = entry.model.name;
+                    foreach (var collider in visual.GetComponentsInChildren<Collider>(true))
+                        collider.enabled = false;
+                    return visual;
+                }
+            }
             var library = ModelLibrary.Load();
             if (!library || !library.Find(key)) return null;
             var copy = library.Spawn(key, parent);

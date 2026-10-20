@@ -18,7 +18,9 @@ The first command checks original image hashes, source/export signatures, exact 
 
 Unity generates `.meta`, material and ScriptableObject files through AssetDatabase. They must be committed by the integration lane after the importer succeeds. No manual YAML or metadata is provided by the asset production lane.
 
-Native Unity validation is **NOT RUN in this lane**. The root integration lane owns that gate and records its result separately. Blender reimport and complete file delivery validation already pass. Producer and root agent inspected all twelve three-quarter previews; human owner acceptance is still pending.
+Native Unity import and seven editor tests **PASS in the root integration checkout** on 2026-10-20. Import: `Logs/gate_exec_Build_20261020T104000Z.log` (51.3 s). Tests: `TestResults/editmode_20261020T104230Z.xml` (7/7, 55 s; SHA-256 `31d277125f764540d25fb6104e76c14eaf3acefc035fd1eff36ce976104c8f0a`). Blender reimport and complete file delivery validation also pass. Producer and root agent inspected all twelve three-quarter previews; human owner acceptance and held/placed/thrown runtime checks remain pending.
+
+The initial native check detected a 1.413 mm overestimate of SOFA's height. Transforming angled legs' local bounding boxes is conservative and does not measure the actual geometry. The importer now reads native mesh vertices with `MeshUtility.AcquireReadOnlyMeshData` and measures them in the placement frame, preserving the original 1 mm tolerance and non-readable runtime meshes. Dimensions, grounding and grip then pass for all twelve models. Earlier diagnostic logs are retained at `Logs/gate_exec_Build_20261020T103357Z.log` and `Logs/gate_exec_Build_20261020T103753Z.log`.
 
 ## Runtime interface
 
@@ -34,7 +36,9 @@ Native Unity validation is **NOT RUN in this lane**. The root integration lane o
 | `grip` | Existing `Grip_R` coordinates in Unity space |
 | `heldScale` | Existing catalogue held scale |
 
-The runtime integration owner adds an explicit opt-in. Missing collection or entry must fall back to the original model/icon. Instantiate the imported model under a placement parent using `Instantiate(entry.model, parent, false)` and preserve the imported child's local transform. Apply held scale to the normal gameplay placement parent; do not zero the FBX's axis conversion or rescale its geometry independently.
+Call `ModelVisual.Spawn(key, parent, skin, wordbound: true)` for explicit model selection and `GeneratedItemArt.TryGet(itemId, out sprite, wordbound: true)` for icons. Existing calls keep their original behavior. Missing collection or entry falls back to the original model/icon; non-Classic skin requests also retain the original model path. Native tests verify opt-in selection, preserved imported transforms/grips and unchanged default lookups. The Wordbound gameplay runtime still needs to use this option at its spawn sites.
+
+The imported model is instantiated under a placement parent using `Instantiate(entry.model, parent, false)`. Apply held scale to the normal gameplay placement parent; do not zero the FBX's axis conversion or rescale its geometry independently.
 
 The collection does not register a recipe skin and has no Candy/Arcade variations. Preserve the existing choice path for those skin requests. Its material names (`WordboundPvPPaint`, `WordboundPvPBrass`) do not have a legacy skin suffix; current `MaterialLibrary.ApplySkin` and `TactileMaterials` therefore leave their references intact. An editor regression test covers both calls. No extra material opt-out is required with current naming.
 

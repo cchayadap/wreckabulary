@@ -13,7 +13,7 @@ Deliver the complete approved [plan](PLAN.md). Source implementation, runtime ve
 - Integration branch: `sethypagna/wordbound-integration`.
 - Starting revision: SethyPagna/main `f7c3c90301817a033c98de6e32635d6d56de39de`.
 - Incoming revision: cchayadap/ICY `fb94c9a0e159c792d4d0264329bfa66f56e9fc77`, including james-v1 history.
-- Merge applied without textual conflicts; the merge commit awaits baseline validation.
+- Reconciled baseline committed as `12842c75608694f36819edd3bd4dc104ece7f79c`, with the recorded regressions verified.
 - The original main checkout, modified font and unfinished Lunar sources are preserved.
 - Portable harness run: `run-7971495a-26f3-4750-8c9c-dad132175de8`.
 
@@ -21,8 +21,8 @@ Deliver the complete approved [plan](PLAN.md). Source implementation, runtime ve
 
 | Milestone | Status | Evidence |
 | --- | --- | --- |
-| M0 Safe baseline | VERIFIED | Editor and runtime regressions pass across the recorded suite and focused repair runs; final source checks and commit next. |
-| M1 Online proof | NOT RUN | Photon SDK/account access and Unity compatibility not yet established. |
+| M0 Safe baseline | VERIFIED | Commit 12842c7; editor and runtime regressions pass across the recorded suite and focused repair runs; final check and 225 core tests pass. |
+| M1 Online proof | IN PROGRESS | Owner created a Photon app; SDK retrieval and app type verification remain pending because browser control fails. Coordinator implementation proceeds separately. |
 | M2 Complete race loop | NOT RUN | No Wordbound runtime delivered yet. |
 | M3 Large world and generator | NOT RUN | Depends on the network proof for full content production. |
 | M4 Workshop and assets | IN PROGRESS | Twelve image concepts and editable meshes produced in separate staging; export checks pass. Unity integration and workshop remain outstanding. |
@@ -55,9 +55,13 @@ Deliver the complete approved [plan](PLAN.md). Source implementation, runtime ve
 - Settings reconciliation: PASS in 86.6 s (`Logs/gate_exec_ClearUnusedInferenceSettings_20261020T100937Z.log`). UPM removed the unused inference/App UI dependencies.
 - Final Hub follow-up: PASS, 1/1, 186.5 s (`TestResults/editmode_20261020T101104Z.xml`).
 - Final localized-input follow-up: PASS, 2/2, 43.9 s (`TestResults/playmode_20261020T101411Z.xml`). All earlier failing baseline cases are now green; the complete suites were not redundantly rerun.
-- Photon SDK access and Unity compatibility: NOT RUN. No account credentials or SDK are available in this project; owner asked why Photon was needed and received an explanation. Independent implementation continues.
+- Owner signed in and supplied the Wreckabulary Photon app ID on 2026-10-20. Chrome's tab inventory shows the matching management URL, but repeated browser inspection fails with an unattached debugger and tab creation times out. App type, CCU allowance and SDK compatibility remain UNVERIFIED. No Fusion package exists in Downloads as of this check. Owner asked to save the official Fusion 2.1.3 and Physics Addon 2.1.2 packages there; no passwords or private keys requested.
 - All twelve individual image concepts and editable Blender meshes are staged outside the maintained checkout. Independent FBX/GLB reimports pass 24/24, with 1,676–4,296 triangles and two materials each. Bounds drift is at most 1.76e-7 m. Native mesh previews are rendering; held/placed/thrown gameplay checks have not run.
 
 ## Next recoverable action
 
-Finish final source checks with shared deterministic-RNG references, commit the reconciled baseline, then establish the five feature worktrees and exclusive path ownership. Continue simulation, map contracts, service and asset implementation independently of the unavailable network SDK.
+Five isolated feature worktrees now exist: map-core, online, pvp-assets, puzzle-race and map-workshop, each on its matching `sethypagna/*` branch from baseline 12842c7. Map contracts, party coordinator and workshop have separate owners. Root owns gameplay rules and Unity integration.
+
+The additive twelve-asset source/importer commit was integrated as 346f230. Native import and seven editor tests pass, including model/icon opt-in, unchanged default paths, all existing skin choices, exact geometry/grips and the original ninety-eight-model library. Evidence is in ASSETS.md. Held/placed/thrown checks remain pending. The workshop lane now works separately from the completed source asset lane.
+
+The puzzle-race worktree's mode/progression and economy snapshot units are committed as da3cbf2 and dbe1294. The latest pure rules run passes 256 tests (31 new); these changes are not yet integrated into Unity. Next: retrieve and validate Photon packages when available, integrate the pure rules, and implement command receipts/full authoritative match snapshots before online gameplay.
