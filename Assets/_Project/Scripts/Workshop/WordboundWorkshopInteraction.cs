@@ -28,6 +28,9 @@ namespace Wreckabulary.Workshop
         string assetSearch = "";
         CourseZone SelectedFixed => display?.Zones.FirstOrDefault(item => item.Id == zoneId && item.Placement == "Fixed" &&
             History.Current.Selection.Contains(item.ModuleId));
+        bool CanShowHandles => !History.Current.HiddenLayers.Contains(History.Current.ActiveLayer) &&
+            !History.Current.LockedLayers.Contains(History.Current.ActiveLayer) &&
+            display.Modules.Any(item => item.LayerId == History.Current.ActiveLayer && History.Current.Selection.Contains(item.Id));
 
         void EnsureView()
         {
@@ -47,6 +50,7 @@ namespace Wreckabulary.Workshop
         void FrameSelection()
         {
             EnsureView();
+            if (SelectedFixed != null) { view.Focus(SelectedFixed.FixedPosition); return; }
             var chosen = display.Modules.Where(module => History.Current.Selection.Contains(module.Id)).ToArray();
             if (chosen.Length > 0) view.Frame(chosen); else view.Frame();
         }
@@ -100,11 +104,15 @@ namespace Wreckabulary.Workshop
                     foreach (var corner in corners)
                     { at = ScreenPoint(corner); GUI.Box(new Rect(at.x - 6, at.y - 6, 12, 12), ""); }
             }
-            if (History.Current.Selection.Count > 0 && !drawingZone && placing == null) Handles();
+            if (CanShowHandles && !drawingZone && placing == null) Handles();
             if (marquee) GUI.Box(DragRect(pointerStart, Event.current.mousePosition), "", selectedBox);
             GUI.EndGroup();
             try { HandlePointer(); }
-            catch (Exception error) { status = error.Message; CancelGesture(); }
+            catch (Exception error)
+            {
+                status = error.Message; CancelGesture();
+                if (Event.current.isMouse || Event.current.isKey) Event.current.Use();
+            }
         }
         void Handles()
         {
@@ -119,7 +127,7 @@ namespace Wreckabulary.Workshop
         }
         WorkshopHandle? HandleAt(Vector2 point)
         {
-            if (History.Current.Selection.Count == 0) return null;
+            if (!CanShowHandles) return null;
             var pivot = SelectionPivot(); var at = ScreenPoint(pivot);
             if (new Rect(at.x - 14, at.y - 58, 28, 28).Contains(point)) return WorkshopHandle.Rotate;
             if (Vector2.Distance(point, ScreenPoint(HandleEnd(pivot, WorkshopHandle.X))) < 17) return WorkshopHandle.X;
@@ -265,8 +273,8 @@ namespace Wreckabulary.Workshop
         }
         void KeyboardAction(Event input)
         {
-            if (input.control && input.keyCode == KeyCode.Z) { if (input.shift) History.Redo(); else History.Undo(); Refresh(); }
-            else if (input.control && input.keyCode == KeyCode.Y) { History.Redo(); Refresh(); }
+            if (input.control && input.keyCode == KeyCode.Z) { CancelGesture(); if (input.shift) History.Redo(); else History.Undo(); Refresh(); }
+            else if (input.control && input.keyCode == KeyCode.Y) { CancelGesture(); History.Redo(); Refresh(); }
             else if (input.control && input.keyCode == KeyCode.D) DuplicateSelection();
             else if (input.keyCode == KeyCode.R) RotateSelection();
             else if (input.keyCode == KeyCode.Delete) DeleteSelection();
@@ -309,6 +317,7 @@ namespace Wreckabulary.Workshop
         {
             string next = WorkshopSelection.Step(History.Current, direction);
             if (next == null) return;
+            CancelGesture(); zoneId = "";
             History.Select(new[] { next }, controllerAdd); Refresh(); FrameSelection();
         }
         void ControllerPanel()
@@ -347,8 +356,8 @@ namespace Wreckabulary.Workshop
                 if (pad.buttonNorth.wasPressedThisFrame) { controllerAdd = !controllerAdd; status = controllerAdd ? "Multiselect on" : "Multiselect off"; }
                 if (pad.buttonSouth.wasPressedThisFrame) FrameSelection();
                 if (pad.buttonWest.wasPressedThisFrame) RotateSelection();
-                if (pad.leftShoulder.wasPressedThisFrame) { History.Undo(); Refresh(); }
-                if (pad.rightShoulder.wasPressedThisFrame) { History.Redo(); Refresh(); }
+                if (pad.leftShoulder.wasPressedThisFrame) { CancelGesture(); History.Undo(); Refresh(); }
+                if (pad.rightShoulder.wasPressedThisFrame) { CancelGesture(); History.Redo(); Refresh(); }
                 var move = pad.leftStick.ReadValue();
                 if (move.magnitude > .5f && History.Current.Selection.Count > 0)
                 {
@@ -384,8 +393,8 @@ namespace Wreckabulary.Workshop
                 case 1: StepSelection(-1); break;
                 case 2: RotateSelection(); break;
                 case 3: DuplicateSelection(); break;
-                case 4: History.Undo(); Refresh(); break;
-                case 5: History.Redo(); Refresh(); break;
+                case 4: CancelGesture(); History.Undo(); Refresh(); break;
+                case 5: CancelGesture(); History.Redo(); Refresh(); break;
                 case 6: FrameSelection(); break;
                 case 7: Preview(); break;
                 case 8: RequestPlaytest(); break;
@@ -398,7 +407,7 @@ namespace Wreckabulary.Workshop
                 case 10:
                     var layers = display.Layers.OrderBy(layer => layer.HeightMm).ToList();
                     int next = (layers.FindIndex(layer => layer.Id == History.Current.ActiveLayer) + 1) % layers.Count;
-                    Edit("Select floor", draft => draft.ActiveLayer = layers[next].Id); break;
+                    SelectFloor(layers[next].Id); break;
                 case 11: shareText = History.Current.CourseJsonText; sharing = true; break;
             }
         }
@@ -438,10 +447,7 @@ namespace Wreckabulary.Workshop
         }
         void SelectZone(CourseZone zone)
         {
-            zoneId = zone.Id; zoneMode = zone.Placement == "Fixed" ? 0 : zone.Pool.Count > 1 ? 2 : 1;
-            pool = string.Join(", ", zone.Pool.Select(item => item.AssetId + (zoneMode == 2 ? ":" + item.Weight : "")));
-            minCount = zone.MinCount.ToString(CultureInfo.InvariantCulture); maxCount = zone.MaxCount.ToString(CultureInfo.InvariantCulture);
-            probability = (zone.ChancePermille / 10f).ToString(CultureInfo.InvariantCulture); spacing = Metres(zone.SpacingMm);
+            CancelGesture(); zoneId = zone.Id; LoadPlacementFields(zone);
         }
         void PlacementAssetPicker()
         {
@@ -470,7 +476,7 @@ namespace Wreckabulary.Workshop
                 }
                 if (i % 2 == 1 || i == assets.Length - 1) GUILayout.EndHorizontal();
             }
-            if (zoneMode == 2) pool = Field("Weights · ID:weight", pool);
+            if (zoneMode == 2) PoolWeightRows();
             else GUILayout.Label("Selected: " + pool.Split(',')[0].Split(':')[0]);
         }
     }

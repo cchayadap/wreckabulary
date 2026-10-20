@@ -67,6 +67,7 @@ namespace Wreckabulary.EditorTests
             workshop.RequestPlaytest();
             Assert.IsNotNull(dispatched);
             Assert.AreSame(workshop.LastPreview.Manifest, dispatched);
+            Assert.AreEqual(before, workshop.LastPlaytestDraft.RecoveryJson);
             workshop.Visible = false;
             workshop.ResumeEditing();
             Assert.AreEqual(before, workshop.History.Current.RecoveryJson);
@@ -76,6 +77,41 @@ namespace Wreckabulary.EditorTests
             Assert.AreEqual(before, workshop.History.Current.RecoveryJson);
             Assert.IsTrue(workshop.History.Undo());
             Assert.AreNotEqual("My race", workshop.History.Current.Course().Title);
+        }
+        [Test]
+        public void PlaytestCapturesExactDraftBeforeLauncherChangesEditingState()
+        {
+            workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld, folder);
+            workshop.History.Execute("Seed", draft => draft.Seed = "1234567890abcdef");
+            var expected = workshop.History.Current;
+            string expectedManifest = CourseResolver.Resolve(expected.Course(), workshop.Catalogue,
+                new CourseResolveRequest(expected.Seed, workshop.PlayRequirements)).Manifest.Hash;
+            ResolvedCourse dispatched = null;
+            workshop.PlaytestRequested += manifest =>
+            {
+                dispatched = manifest;
+                workshop.History.Execute("Later edit", draft => draft.Course.Title = "After dispatch");
+            };
+            workshop.RequestPlaytest();
+            Assert.AreSame(expected, workshop.LastPlaytestDraft);
+            Assert.AreEqual(expectedManifest, dispatched.Hash);
+            Assert.AreEqual("1234567890abcdef", workshop.LastPlaytestDraft.Seed);
+            Assert.AreNotEqual(workshop.History.Current.CourseJsonText, workshop.LastPlaytestDraft.CourseJsonText);
+        }
+        [Test]
+        public void InvalidDraftCannotDispatchAnEarlierSuccessfulPlaytest()
+        {
+            workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld, folder);
+            int dispatches = 0;
+            workshop.PlaytestRequested += _ => dispatches++;
+            workshop.RequestPlaytest();
+            Assert.AreEqual(1, dispatches);
+            Assert.IsNotNull(workshop.LastPlaytestDraft);
+            workshop.History.Execute("Incomplete draft", draft => draft.Course.Spawns.Clear());
+            workshop.RequestPlaytest();
+            Assert.AreEqual(1, dispatches);
+            Assert.IsNull(workshop.LastPlaytestDraft);
+            Assert.IsFalse(workshop.LastPreview.Success);
         }
         [TestCase(800, 600, 0, 0)]
         [TestCase(1280, 720, 55, -30)]

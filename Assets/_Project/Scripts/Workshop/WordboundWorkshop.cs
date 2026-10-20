@@ -14,6 +14,7 @@ namespace Wreckabulary.Workshop
         public CourseCatalogue Catalogue { get; private set; }
         public CoursePlayRequirements PlayRequirements { get; private set; }
         public CourseResolution LastPreview { get; private set; }
+        public WorkshopSnapshot LastPlaytestDraft { get; private set; }
         public event Action<ResolvedCourse> PlaytestRequested;
         public event Action CloseRequested;
         public bool Visible { get; set; } = true;
@@ -44,7 +45,7 @@ namespace Wreckabulary.Workshop
             History = new WorkshopHistory(new WorkshopSnapshot(course));
             storageFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
             storage = new WorkshopStorage(storageFolder);
-            currentTemplate = null; Visible = true; ResetView(); Refresh(); savedRevision = History.Revision;
+            currentTemplate = null; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
         }
         public void OpenTemplate(WorkshopTemplate template, string folder = null)
         {
@@ -71,9 +72,14 @@ namespace Wreckabulary.Workshop
         }
         public void RequestPlaytest()
         {
+            LastPlaytestDraft = null;
             if (PlaytestRequested == null) { status = "Playtest is unavailable in this view."; return; }
             var result = Preview();
-            if (result.Success) PlaytestRequested.Invoke(result.Manifest);
+            if (result.Success)
+            {
+                LastPlaytestDraft = History.Current;
+                PlaytestRequested.Invoke(result.Manifest);
+            }
         }
         void ResetView()
         {
@@ -87,6 +93,8 @@ namespace Wreckabulary.Workshop
             title = display.Title; seed = History.Current.Seed;
             var selected = display.Modules.FirstOrDefault(module => History.Current.Selection.Contains(module.Id));
             if (selected != null) { xInput = Metres(selected.Position.X); zInput = Metres(selected.Position.Z); }
+            var selectedZone = display.Zones.FirstOrDefault(item => item.Id == zoneId && History.Current.Selection.Contains(item.ModuleId));
+            if (selectedZone == null) zoneId = ""; else LoadPlacementFields(selectedZone);
             displayRevision = History.Revision; autosaveAt = Time.unscaledTime + 1f; LastPreview = null;
             if (view != null) view.Sync(History.Current, Catalogue);
         }
@@ -176,6 +184,8 @@ namespace Wreckabulary.Workshop
             foreach (WorkshopTemplate template in Enum.GetValues(typeof(WorkshopTemplate)))
                 if (Button(TemplateLabel(template))) Attempt(() => OpenTemplate(template));
             GUILayout.Space(12);
+            FloorPanel();
+            GUILayout.Space(12);
             if (Button("Frame map")) Frame();
             if (Button("Top view")) { EnsureView(); view.Top(); }
             if (Button("Recover autosave"))
@@ -219,8 +229,10 @@ namespace Wreckabulary.Workshop
                 }
                 if (selected.Count == 2 && Button("Connect modules")) Connect(selected[0], selected[1]);
                 }
-                GUILayout.Space(10); ZoneInspector(selected[0]);
-                GUILayout.Space(10); PuzzleInspector(selected[0]);
+                var placementOwner = display.Zones.FirstOrDefault(item => item.Id == zoneId)?.ModuleId;
+                var inspected = selected.FirstOrDefault(item => item.Id == placementOwner) ?? selected[0];
+                GUILayout.Space(10); ZoneInspector(inspected);
+                GUILayout.Space(10); PuzzleInspector(inspected);
             }
             GUILayout.Space(12); GUILayout.Label("Validation", heading);
             if (validation.Ok) GUILayout.Label("Ready for preview");
@@ -254,15 +266,27 @@ namespace Wreckabulary.Workshop
         void ZoneInspector(CourseModule module)
         {
             GUILayout.Label("Placement", heading);
-            zoneMode = GUILayout.Toolbar(zoneMode, new[] { "Fixed", "Zone", "Pool" });
+            int nextMode = GUILayout.Toolbar(zoneMode, new[] { "Fixed", "Zone", "Pool" });
+            if (nextMode != zoneMode)
+            {
+                CancelGesture(); zoneMode = nextMode;
+                if (zoneMode != 2) pool = pool.Split(',')[0].Split(':')[0].Trim();
+            }
             PlacementAssetPicker();
             if (zoneMode != 0)
             {
                 GUILayout.BeginHorizontal(); minCount = Field("Min", minCount); maxCount = Field("Max", maxCount); GUILayout.EndHorizontal();
                 probability = Field("Chance % · min > 0 needs 100", probability); spacing = Field("Spacing (metres)", spacing);
             }
-            if (Button(zoneMode == 0 ? "Place object" : "Draw / resize zone"))
-            { drawingZone = true; placing = null; status = zoneMode == 0 ? "Click the fixed position" : "Drag the placement bounds"; }
+            var editing = display.Zones.FirstOrDefault(item => item.Id == zoneId && item.ModuleId == module.Id);
+            if (editing != null)
+            {
+                GUILayout.Label("Editing " + editing.Id);
+                if (zoneMode != 0) PlacementRangeFields();
+                if (Button("Apply placement settings")) ApplyPlacementSettings(module.Id);
+            }
+            if (Button(zoneMode == 0 ? editing == null ? "Place object" : "Reposition object" : editing == null ? "Draw zone" : "Redraw bounds"))
+            { CancelGesture(); drawingZone = true; status = zoneMode == 0 ? "Click the fixed position · Esc cancels" : "Drag the placement bounds · Esc cancels"; }
             foreach (var zone in display.Zones.Where(item => item.ModuleId == module.Id))
             {
                 GUILayout.BeginHorizontal();
@@ -274,7 +298,7 @@ namespace Wreckabulary.Workshop
                 });
                 GUILayout.EndHorizontal();
             }
-            if (!string.IsNullOrEmpty(zoneId) && Button("New placement")) zoneId = "";
+            if (!string.IsNullOrEmpty(zoneId) && Button("New placement")) { CancelGesture(); zoneId = ""; }
         }
         void PuzzleInspector(CourseModule module)
         {
@@ -310,15 +334,9 @@ namespace Wreckabulary.Workshop
         void Footer()
         {
             GUILayout.BeginArea(new Rect(8, Screen.height - 78, Screen.width - 16, 52), panel); GUILayout.BeginHorizontal();
-            foreach (var layer in display.Layers.OrderBy(layer => layer.HeightMm))
-            {
-                if (Button((History.Current.ActiveLayer == layer.Id ? "● " : "") + layer.Id, Metres(layer.HeightMm) + " m"))
-                    Edit("Select floor", draft => draft.ActiveLayer = layer.Id);
-            }
-            if (Button("Hide")) Edit("Toggle visibility", draft => Toggle(draft.HiddenLayers, draft.ActiveLayer));
-            if (Button("Lock")) Edit("Toggle lock", draft => Toggle(draft.LockedLayers, draft.ActiveLayer));
-            GUI.enabled = History.CanUndo; if (Button("Undo")) { History.Undo(); Refresh(); } GUI.enabled = true;
-            GUI.enabled = History.CanRedo; if (Button("Redo")) { History.Redo(); Refresh(); } GUI.enabled = true;
+            GUILayout.Label("Floor " + History.Current.ActiveLayer);
+            GUI.enabled = History.CanUndo; if (Button("Undo")) { CancelGesture(); History.Undo(); Refresh(); } GUI.enabled = true;
+            GUI.enabled = History.CanRedo; if (Button("Redo")) { CancelGesture(); History.Redo(); Refresh(); } GUI.enabled = true;
             if (Button("Preview")) Attempt(() => Preview());
             GUI.enabled = PlaytestRequested != null; if (Button("Playtest")) Attempt(RequestPlaytest); GUI.enabled = true;
             GUILayout.EndHorizontal(); GUILayout.EndArea();
@@ -334,40 +352,26 @@ namespace Wreckabulary.Workshop
             GUILayout.BeginHorizontal();
             GUILayout.Label("Grid " + Metres(History.Current.GridMm) + " m");
             if (Button("Grid")) Edit("Grid", draft => draft.GridMm = draft.GridMm == 500 ? 1000 : draft.GridMm == 1000 ? 100 : 500);
-            GUI.SetNextControlName("New floor height"); layerHeight = GUILayout.TextField(layerHeight, GUILayout.Width(48));
-            if (Button("+ Floor")) Edit("Add floor", draft => WorkshopCommands.AddLayer(draft, Millimetres(layerHeight)));
+            GUILayout.Label("Esc cancels a drag");
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
         void DrawZone(CoursePoint from, CoursePoint to)
         {
-            Edit("Placement zone", draft =>
+            Attempt(() =>
             {
-                var module = draft.Course.Modules.First(item => draft.Selection.Contains(item.Id));
-                from = new CoursePoint(WorkshopCommands.Snap(from.X, draft.GridMm), from.Y, WorkshopCommands.Snap(from.Z, draft.GridMm));
-                to = new CoursePoint(WorkshopCommands.Snap(to.X, draft.GridMm), to.Y, WorkshopCommands.Snap(to.Z, draft.GridMm));
-                var entries = pool.Split(',').Select(text => text.Trim()).Where(text => text.Length > 0).Select(text =>
+                string nextId = zoneId;
+                var settings = PlacementSettings();
+                History.Execute("Placement zone", draft =>
                 {
-                    string[] parts = text.Split(':');
-                    if (parts.Length > 2) throw new ArgumentException("Use ID:weight for each pool entry.");
-                    return new CourseWeightedAsset { AssetId = parts[0].Trim(), Weight = parts.Length == 1 ? 1 : int.Parse(parts[1], CultureInfo.InvariantCulture) };
-                }).ToList();
-                if (zoneMode != 2 && entries.Count != 1) throw new ArgumentException("Choose one object ID, or select Pool.");
-                string id = string.IsNullOrEmpty(zoneId) ? WorkshopCommands.Unique("zone", draft.Course.Zones.Select(item => item.Id)) : zoneId;
-                var bounds = zoneMode == 0 ? Catalogue.Bounds(module) : new CourseBox(
-                    new CoursePoint(Math.Min(from.X, to.X), module.Position.Y, Math.Min(from.Z, to.Z)),
-                    new CoursePoint(Math.Max(from.X, to.X), module.Position.Y, Math.Max(from.Z, to.Z)));
-                var zone = new CourseZone
-                {
-                    Id = id, ModuleId = module.Id, Placement = zoneMode == 0 ? "Fixed" : "Random",
-                    Bounds = bounds, FixedPosition = new CoursePoint(WorkshopCommands.Snap(to.X, draft.GridMm), module.Position.Y, WorkshopCommands.Snap(to.Z, draft.GridMm)),
-                    MinCount = zoneMode == 0 ? 1 : int.Parse(minCount, CultureInfo.InvariantCulture),
-                    MaxCount = zoneMode == 0 ? 1 : int.Parse(maxCount, CultureInfo.InvariantCulture),
-                    ChancePermille = zoneMode == 0 ? 1000 : Millimetres(probability) / 100,
-                    SpacingMm = Millimetres(spacing), GridMm = draft.GridMm,
-                    LayerIds = new List<string> { module.LayerId }, Pool = entries,
-                    Yaws = zoneMode == 0 ? new List<int> { 0 } : new List<int> { 0, 90, 180, 270 }
-                };
-                WorkshopCommands.SetZone(draft, zone, Catalogue); zoneId = id;
+                    var module = draft.Course.Modules.First(item => draft.Selection.Contains(item.Id));
+                    from = new CoursePoint(WorkshopCommands.Snap(from.X, draft.GridMm), module.Position.Y, WorkshopCommands.Snap(from.Z, draft.GridMm));
+                    to = new CoursePoint(WorkshopCommands.Snap(to.X, draft.GridMm), module.Position.Y, WorkshopCommands.Snap(to.Z, draft.GridMm));
+                    var existing = draft.Course.Zones.FirstOrDefault(item => item.Id == zoneId);
+                    var bounds = zoneMode == 0 ? Catalogue.Bounds(module) :
+                        ResizeBounds(existing?.Bounds ?? new CourseBox(from, from), from, to);
+                    nextId = settings.Apply(draft, Catalogue, module.Id, zoneId, bounds, zoneMode == 0 ? to : (CoursePoint?)null);
+                });
+                zoneId = nextId; Refresh(); status = "Placement updated · undo available";
             });
         }
         void Connect(CourseModule first, CourseModule second)
