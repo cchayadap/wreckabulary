@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Online.Editor
@@ -94,10 +95,7 @@ namespace Wreckabulary.Online.Editor
                 if (client) { client.ReturnedToWorkshop -= Returned; client.Failed -= Failed; }
                 client = null;
                 var records = JsonUtility.FromJson<SceneRecords>(SessionState.GetString(Prefix + "scenes", "{}"));
-                if (records?.scenes?.Length > 0 && records.scenes.All(s => !string.IsNullOrEmpty(s.path)))
-                    EditorSceneManager.RestoreSceneManagerSetup(records.scenes.Select(s =>
-                        new SceneSetup { path = s.path, isLoaded = s.loaded, isActive = s.active }).ToArray());
-                else EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                RestoreSetup(records);
                 restored = true;
             }
             finally
@@ -109,6 +107,32 @@ namespace Wreckabulary.Online.Editor
                 }
                 restoring = false;
             }
+        }
+        static void RestoreSetup(SceneRecords records)
+        {
+            if (records?.scenes == null || records.scenes.Length == 0)
+            { EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single); return; }
+            if (records.scenes.Length > 256 || records.scenes.Any(s => s == null ||
+                !string.IsNullOrEmpty(s.path) && !AssetDatabase.LoadAssetAtPath<SceneAsset>(s.path) ||
+                string.IsNullOrEmpty(s.path) && !s.loaded) ||
+                records.scenes.Count(s => s.active && s.loaded) != 1 || records.scenes.Any(s => s.active && !s.loaded))
+                throw new InvalidOperationException("The saved scene setup is unavailable; its recovery data was preserved.");
+            var placeholder = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            bool reusedPlaceholder = false;
+            Scene previous = default, active = default;
+            foreach (var record in records.scenes)
+            {
+                Scene scene;
+                if (!string.IsNullOrEmpty(record.path))
+                    scene = EditorSceneManager.OpenScene(record.path, record.loaded ? OpenSceneMode.Additive : OpenSceneMode.AdditiveWithoutLoading);
+                else if (!reusedPlaceholder) { scene = placeholder; reusedPlaceholder = true; }
+                else scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+                if (previous.IsValid()) EditorSceneManager.MoveSceneAfter(scene, previous);
+                previous = scene;
+                if (record.active) active = scene;
+            }
+            if (!SceneManager.SetActiveScene(active)) throw new InvalidOperationException("Could not restore the active editor scene.");
+            if (!reusedPlaceholder) EditorSceneManager.CloseScene(placeholder, true);
         }
         [MenuItem("Tools/Wordbound/Restore authoring scene setup")]
         static void RestoreSavedScenes()
