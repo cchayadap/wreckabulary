@@ -52,7 +52,7 @@ namespace Wreckabulary.Rules
             $"tiles {Tiles} + bags {Bags} + reserved {Reserved} + items {InItems} = {Total}; minted {Minted} - spent {Spent} = {Minted - Spent}";
     }
 
-    public sealed class Economy
+    public sealed partial class Economy
     {
         public ItemCatalogue Catalogue { get; }
         public GameRules Rules { get; }

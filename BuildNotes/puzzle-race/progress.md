@@ -14,4 +14,10 @@ Cases cover all five limits, partial human race rosters, format separation, team
 
 Native Unity verification is NOT RUN for this unit. A progress snapshot is bound to mode, roster and route; the full authoritative transaction/physics snapshot is still required. Host observations require validated physics and authenticated command processing in the runtime adapter.
 
-Next: add atomic inventory transactions and exact snapshot acknowledgement; integrate this tested source unit into the Unity checkout and generate metadata there. Peer contract review requested from the online lane after its next green unit.
+Peer review found a route identity ambiguity because legal IDs may contain colons. Replaced delimiter concatenation with length-prefixed structural fields and explicit counts; a cross-route rejection regression passes. Reconnect now expires at `now >= deadline`, matching the coordinator. Follow-up core run passed 249/249 in 22.9 s (`TestResults/core_20261020T103655Z.trx`).
+
+Economy snapshots now preserve the existing gameplay economy rather than introducing a separate letter/craft implementation. Captures contain allocation frontiers, item revisions and destroyed-item tombstones, inventories, reserved craft letters/timing/slot, carried relationships, minted/spent totals and loose tiles. Restore builds and validates a replacement before modifying the live economy, verifies conservation and ownership, and does not replay ItemChanged side effects. Public snapshot read models are copies.
+
+Seven snapshot regressions pass for mid-craft migration, completed-craft replay, allocation frontiers/tombstones, copy isolation, invalid reservations/duplicate ownership, foreign roster/counterfeit letters, and elimination. Latest core run: PASS 256/256 in 24.7 s (`Logs/gate_core_20261020T104101Z.log`, `TestResults/core_20261020T104101Z.trx`). This is an in-memory economy snapshot; protocol/content binding, strict wire codec, command receipts and physical world state still belong to the complete match wrapper.
+
+Next: add the authoritative command journal and exact snapshot acknowledgement; integrate source into the Unity checkout and generate metadata there. Complete route-domain validation before exposing a snapshot wire decoder.

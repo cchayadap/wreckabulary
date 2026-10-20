@@ -144,7 +144,10 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(121000, replacement.Player("a").ReconnectDeadlineMs);
             var withinDeadline = Race();
             withinDeadline.Restore(snapshot);
-            Assert.IsTrue(withinDeadline.Reconnect("a", 121000));
+            Assert.IsTrue(withinDeadline.Reconnect("a", 120999));
+            var atDeadline = Race();
+            atDeadline.Restore(snapshot);
+            Assert.IsFalse(atDeadline.Reconnect("a", 121000));
         }
 
         [Test]
@@ -163,6 +166,21 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(1, snapshot.Teams.Single(t => t.Team == 0).Lap);
             match.Restore(snapshot);
             Assert.AreEqual(1, match.Team(0).Lap);
+        }
+
+        [Test]
+        public void RouteIdentityCannotCollideThroughLegalIdDelimiters()
+        {
+            var mode = ModeDefinition.For("TimeRun");
+            var roster = new[] { new WordboundSeat("a", 0) };
+            var first = Enumerable.Range(0, 3).Select(_ =>
+                new RaceLap("start", "finish", "", new RaceCheckpoint("a:b", "c"))).ToArray();
+            var second = Enumerable.Range(0, 3).Select(_ =>
+                new RaceLap("start", "finish", "", new RaceCheckpoint("a", "b:c"))).ToArray();
+            var original = new MatchProgress(mode, roster, first);
+            var other = new MatchProgress(mode, roster, second);
+            Assert.Throws<ArgumentException>(() => other.Restore(original.Capture()));
+            Assert.AreEqual(0, other.Tick);
         }
 
         [Test]

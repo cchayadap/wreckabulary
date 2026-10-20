@@ -162,11 +162,7 @@ namespace Wreckabulary.Rules.Wordbound
             if (wallClockMs < 0 || wallClockMs > long.MaxValue - 120000)
                 throw new ArgumentOutOfRangeException(nameof(wallClockMs));
             laps = Array.AsReadOnly(lapArray);
-            definitionHash = WordboundIdentity.Sha256(mode.Hash + "|" +
-                string.Join("|", seats.OrderBy(s => s.PlayerId, StringComparer.Ordinal)
-                    .Select(s => s.PlayerId + ":" + s.Team + ":" + s.Slot)) + "|" +
-                string.Join("|", lapArray.Select(l => l.Start + "/" + l.Finish + "/" +
-                    string.Join(";", l.Checkpoints.Select(c => c.Id + ":" + string.Join(",", c.Puzzles))))));
+            definitionHash = DefinitionHash(mode, seats, lapArray);
             players = seats.ToDictionary(s => s.PlayerId, s => new PlayerProgress
             {
                 Id = s.PlayerId, Team = s.Team, Slot = s.Slot,
@@ -265,7 +261,7 @@ namespace Wreckabulary.Rules.Wordbound
         {
             UpdateWallClock(wallClockMs);
             if (!players.TryGetValue(playerId ?? "", out var p) || p.Connected ||
-                p.ReconnectDeadlineMs < wallClockMs || p.ReconnectDeadlineMs < 0) return false;
+                p.ReconnectDeadlineMs <= wallClockMs || p.ReconnectDeadlineMs < 0) return false;
             p.Connected = true; p.ReconnectDeadlineMs = -1;
             return true;
         }
@@ -402,6 +398,32 @@ namespace Wreckabulary.Rules.Wordbound
         {
             if (now < WallClockMs || now > long.MaxValue - 120000) throw new ArgumentOutOfRangeException(nameof(now));
             WallClockMs = now;
+        }
+
+        static string DefinitionHash(ModeDefinition mode, WordboundSeat[] seats, RaceLap[] route)
+        {
+            var fields = new List<string> { mode.Hash, seats.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) };
+            foreach (var seat in seats.OrderBy(s => s.PlayerId, StringComparer.Ordinal))
+            {
+                fields.Add(seat.PlayerId);
+                fields.Add(seat.Team.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                fields.Add(seat.Slot.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+            fields.Add(route.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            foreach (var lap in route)
+            {
+                fields.Add(lap.Start);
+                fields.Add(lap.Finish);
+                fields.Add(lap.Checkpoints.Count.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                foreach (var checkpoint in lap.Checkpoints)
+                {
+                    fields.Add(checkpoint.Id);
+                    fields.Add(checkpoint.Puzzles.Count.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    fields.AddRange(checkpoint.Puzzles);
+                }
+            }
+            return WordboundIdentity.Sha256(string.Concat(fields.Select(field =>
+                field.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + ":" + field)));
         }
     }
 }
