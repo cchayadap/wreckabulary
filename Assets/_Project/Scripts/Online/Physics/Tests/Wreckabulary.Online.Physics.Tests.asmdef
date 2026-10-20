@@ -1,8 +1,9 @@
 {
   "name": "Wreckabulary.Online.Physics.Tests",
   "rootNamespace": "Wreckabulary.Tests",
-  "references": ["Wreckabulary.Rules", "Wreckabulary.Online.Physics", "Fusion.Unity"],
+  "references": ["Wreckabulary.Rules", "Wreckabulary.Online.Physics", "Fusion.Unity", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"],
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
   "autoReferenced": false
 }
