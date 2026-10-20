@@ -200,3 +200,5 @@ Exact frozen draft SHA-256 pins:
 | Scripts/Online/Client/WordboundClientContent.cs | 1CA22ACCE30DB33CA1A43CD03B145152D38CC76A6F2EC8509CC46B9F6CEF7484 |
 | Editor/Online/WordboundPublicCourseSetup.cs | 4F07921A9FAC6C5ABB5D37884F41889974105CF9A56AF5004BDF994470E82636 |
 | Scripts/Online/Client/Tests/WordboundPublicCourseCatalogTests.cs | F7B54352834402FF25CF372D04BECA3A51D3F6936693ED03F704440D4248D7AA |
+
+Narrow source follow-up: the owner changed only PartyMenu's unavailable-Quick-Play guidance. The current party's exact mode/format now selects the message: Freestyle remains private; an empty approved Choices list gives private-room guidance; leave/recreate-approved guidance appears only when choices exist. Independent inspection of lines344–348 confirms this does not change seed, eligibility or party state. Reviewed PartyMenu SHA-256 is now `D152F17F5E716FFECAF924F9C0EDB46045A7A3665FD9EB002EEB5BC816B9DAFB`; the preceding hash records the initial reviewed draft. No additional build, GUI run or broader review was performed.
