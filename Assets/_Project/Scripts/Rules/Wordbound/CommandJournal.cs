@@ -74,6 +74,14 @@ namespace Wreckabulary.Rules.Wordbound
             ActorId = command.ActorId; Sequence = command.Command.Sequence;
             PayloadHash = command.Command.PayloadHash; Tick = tick; Effect = effect;
         }
+
+        internal CommandReceipt(string actorId, long sequence, string payloadHash, long tick, CommandEffect effect)
+        {
+            if (!WordboundIdentity.IsId(actorId) || sequence < 1 || sequence == long.MaxValue ||
+                !WordboundIdentity.IsHash(payloadHash) || tick < 0 || effect == null)
+                throw new ArgumentException("Invalid retained command receipt.");
+            ActorId = actorId; Sequence = sequence; PayloadHash = payloadHash; Tick = tick; Effect = effect;
+        }
     }
 
     public interface ITransactionalCommandTarget

@@ -275,7 +275,7 @@ namespace Wreckabulary.Rules.Wordbound
         public void Restore(ProgressSnapshot snapshot)
         {
             if (snapshot == null || snapshot.DefinitionHash != definitionHash ||
-                snapshot.Tick < 0 || snapshot.ElapsedTicks < 0 || snapshot.ElapsedTicks > snapshot.Tick ||
+                snapshot.Tick < 0 || snapshot.Tick > long.MaxValue - 120000 || snapshot.ElapsedTicks != snapshot.Tick ||
                 snapshot.WallClockMs < 0 || snapshot.WallClockMs > long.MaxValue - 120000 ||
                 snapshot.Players.Count != players.Count || snapshot.Teams.Count != teams.Count ||
                 snapshot.Players.Select(p => p.Id).Distinct(StringComparer.Ordinal).Count() != players.Count ||
@@ -286,10 +286,15 @@ namespace Wreckabulary.Rules.Wordbound
             foreach (var p in snapshot.Players)
                 if (p.Knockouts < 0 || p.RecoveryGeneration < 0 || p.ProtectedUntil < 0 ||
                     p.ReconnectDeadlineMs < -1 || p.RespawnAt < -1 ||
+                    p.ReconnectDeadlineMs > snapshot.WallClockMs + ModeDefinition.ReconnectSeconds * 1000L ||
+                    p.ProtectedUntil > snapshot.Tick + ModeDefinition.RecoveryProtectionSeconds * ModeDefinition.TickRate ||
+                    (p.RespawnAt >= 0 && (p.RespawnAt <= snapshot.Tick || p.RespawnAt > snapshot.Tick + 2 * ModeDefinition.TickRate)) ||
+                    (Mode.Objective != WordboundObjective.Knockouts && p.Knockouts != 0) ||
                     (p.Connected && p.ReconnectDeadlineMs != -1) || (!p.Connected && p.ReconnectDeadlineMs < 0) ||
                     (p.Eliminated != (p.RespawnAt >= 0)))
                     throw new ArgumentException("Snapshot player state is invalid.", nameof(snapshot));
             foreach (var t in snapshot.Teams)
+            {
                 if (t.Lap < 0 || t.Lap > Mode.Laps || t.NextCheckpoint < 0 ||
                     t.ProgressTick < 0 || t.ProgressTick > snapshot.Tick || t.OrderedObjectives < 0 ||
                     t.KeepsakeRecoveryAt < -1 || t.RecoveryGeneration < 0 ||
@@ -298,9 +303,69 @@ namespace Wreckabulary.Rules.Wordbound
                     (t.KeepsakeCarrier != null && (!players.TryGetValue(t.KeepsakeCarrier, out var p) || p.Team != t.Team ||
                         t.KeepsakeRecoveryAt != -1 || t.KeepsakeLocation != "")))
                     throw new ArgumentException("Snapshot progression is invalid.", nameof(snapshot));
-            if (snapshot.Result != null && (snapshot.Result.Tick < 0 || snapshot.Result.Tick > snapshot.Tick ||
-                snapshot.Result.WinningTeams.Any(t => !teams.ContainsKey(t))))
-                throw new ArgumentException("Snapshot result is invalid.", nameof(snapshot));
+                if (t.KeepsakeLocation == null || (t.KeepsakeLocation != "" && !WordboundIdentity.IsId(t.KeepsakeLocation)) ||
+                    (t.KeepsakeRecoveryAt >= 0 && (t.KeepsakeRecoveryAt <= snapshot.Tick ||
+                        t.KeepsakeRecoveryAt > snapshot.Tick + ModeDefinition.KeepsakeRecoverySeconds * ModeDefinition.TickRate)) ||
+                    (t.KeepsakeCarrier != null && snapshot.Players.Any(p => p.Id == t.KeepsakeCarrier && (!p.Connected || p.Eliminated))))
+                    throw new ArgumentException("Snapshot keepsake state is invalid.", nameof(snapshot));
+                if (!Mode.IsRace)
+                {
+                    if (t.Lap != 0 || t.NextCheckpoint != 0 || t.OrderedObjectives != 0 || t.ProgressTick != 0 ||
+                        t.SafeCheckpoint != "spawn" || t.KeepsakeCarrier != null || t.KeepsakeLocation != "" ||
+                        t.KeepsakeRecoveryAt != -1 || t.RecoveryGeneration != 0 || t.Finished || t.CompletedPuzzles.Count != 0)
+                        throw new ArgumentException("Non-race snapshot contains race progression.", nameof(snapshot));
+                    continue;
+                }
+                int expectedObjectives = laps.Take(t.Lap).Sum(l => l.Checkpoints.Count + 1) + t.NextCheckpoint;
+                string expectedSafe = t.Finished ? laps[laps.Count - 1].Finish :
+                    t.NextCheckpoint == 0 ? laps[t.Lap].Start : laps[t.Lap].Checkpoints[t.NextCheckpoint - 1].Id;
+                var requiredPuzzles = t.Finished ? Array.Empty<string>() :
+                    laps[t.Lap].Checkpoints.Take(t.NextCheckpoint).SelectMany(c => c.Puzzles).ToArray();
+                var allowedPuzzles = t.Finished ? Array.Empty<string>() :
+                    laps[t.Lap].Checkpoints.Take(Math.Min(t.NextCheckpoint + 1, laps[t.Lap].Checkpoints.Count)).SelectMany(c => c.Puzzles).ToArray();
+                var keepsakeLocations = laps.Take(t.Lap).SelectMany(l => new[] { l.Start, l.Finish }.Concat(l.Checkpoints.Select(c => c.Id)))
+                    .Concat(t.Finished ? Array.Empty<string>() : new[] { laps[t.Lap].Start }.Concat(laps[t.Lap].Checkpoints.Take(t.NextCheckpoint).Select(c => c.Id)));
+                if (t.Finished && t.NextCheckpoint != 0 || t.OrderedObjectives != expectedObjectives || t.SafeCheckpoint != expectedSafe ||
+                    requiredPuzzles.Any(id => !t.HasPuzzle(id)) || t.CompletedPuzzles.Any(id => !allowedPuzzles.Contains(id)) ||
+                    (t.OrderedObjectives == 0 ? t.ProgressTick != 0 : t.ProgressTick == 0) ||
+                    (t.KeepsakeCarrier == null && t.KeepsakeRecoveryAt == -1 && !keepsakeLocations.Contains(t.KeepsakeLocation)))
+                    throw new ArgumentException("Snapshot ordered objectives or puzzle prefix is invalid.", nameof(snapshot));
+            }
+            bool expired = Mode.TimeLimitSeconds > 0 && snapshot.ElapsedTicks >= (long)Mode.TimeLimitSeconds * ModeDefinition.TickRate;
+            var finishers = snapshot.Teams.Where(t => t.Finished).Select(t => t.Team).ToArray();
+            var scorers = Mode.Objective == WordboundObjective.Knockouts ?
+                snapshot.Players.Where(p => p.Knockouts >= Mode.KnockoutTarget).Select(p => p.Team).ToArray() : Array.Empty<int>();
+            if (snapshot.Result == null)
+            {
+                if (expired || finishers.Length != 0 || scorers.Length != 0)
+                    throw new ArgumentException("Snapshot omits a completed match result.", nameof(snapshot));
+            }
+            else
+            {
+                var r = snapshot.Result;
+                int[] winners = finishers.Length != 0 ? finishers : scorers;
+                string outcome;
+                if (winners.Length == 0 && expired && Mode.Id == "TimeRun") outcome = "TimeExpired";
+                else
+                {
+                    if (winners.Length == 0 && expired && Mode.IsRace)
+                    {
+                        int best = snapshot.Teams.Max(t => t.OrderedObjectives);
+                        long earliest = snapshot.Teams.Where(t => t.OrderedObjectives == best).Min(t => t.ProgressTick);
+                        winners = snapshot.Teams.Where(t => t.OrderedObjectives == best && t.ProgressTick == earliest).Select(t => t.Team).ToArray();
+                    }
+                    else if (winners.Length == 0 && expired && Mode.Objective == WordboundObjective.Knockouts)
+                    {
+                        int best = snapshot.Players.Max(p => p.Knockouts);
+                        winners = snapshot.Players.Where(p => p.Knockouts == best).Select(p => p.Team).ToArray();
+                    }
+                    outcome = winners.Length == 1 ? "Win" : "Draw";
+                    if (winners.Length == 0) throw new ArgumentException("Snapshot declares an unsupported match result.", nameof(snapshot));
+                }
+                if (r.Tick != snapshot.Tick || r.Outcome != outcome ||
+                    !r.WinningTeams.SequenceEqual(winners.OrderBy(t => t)) || r.WinningTeams.Distinct().Count() != r.WinningTeams.Count)
+                    throw new ArgumentException("Snapshot result disagrees with authoritative progression.", nameof(snapshot));
+            }
             players.Clear(); teams.Clear();
             foreach (var p in snapshot.Players) players.Add(p.Id, p.Copy());
             foreach (var t in snapshot.Teams) teams.Add(t.Team, t.Copy());
