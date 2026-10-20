@@ -38,6 +38,7 @@ namespace Wreckabulary.Online
             seat = Enumerable.Range(0, binding.Seats.Count).Single(i => binding.Seats[i].PlayerId == actorId);
             team = binding.Seats[seat].Team;
             controller.FrameChanged += ApplyFrame;
+            controller.Faulted += ConnectionFailed;
             view.CommandsRead += ReadCommands;
             view.MenuRequested += MenuRequested;
             initialized = true;
@@ -74,6 +75,12 @@ namespace Wreckabulary.Online
         }
 
         void MenuRequested() => crafting = false;
+        void ConnectionFailed(string reason)
+        {
+            notice = "The match connection stopped. Return to your party to try again.";
+            crafting = false;
+            view.SetMenuOpen(true);
+        }
         void Send(WordboundAction action, string target = "", int revision = 0, int slot = -1, string value = "")
         {
             try
@@ -135,6 +142,7 @@ namespace Wreckabulary.Online
         {
             if (!initialized) return;
             Matrix4x4 saved = GUI.matrix;
+            bool enabled = GUI.enabled;
             float scale = Mathf.Clamp(Mathf.Min(Screen.width / 1280f, Screen.height / 720f), .6f, 1.8f);
             GUI.matrix = Matrix4x4.Scale(Vector3.one * scale);
             float width = Screen.width / scale, height = Screen.height / scale;
@@ -155,9 +163,10 @@ namespace Wreckabulary.Online
                         GUILayout.Label($"{seconds / 60:00}:{seconds % 60:00} remaining");
                     }
                     GUILayout.Label($"Health {Mathf.CeilToInt(actor.Health)} · Stamina {Mathf.CeilToInt(actor.Stamina)}");
-                    if (controller.IsSimulationPaused) GUILayout.Label("Waiting for the host…");
+                    if (controller.Fault != "") GUILayout.Label("Connection interrupted");
+                    else if (controller.IsSimulationPaused) GUILayout.Label("Waiting for the host…");
                     if (frame.Progress.Result != null)
-                        GUILayout.Label(frame.Progress.Result.Confirmed ? frame.Progress.Result.Outcome : "Confirming result…");
+                        GUILayout.Label(ResultText(frame.Progress.Result));
                 }
                 GUILayout.EndArea();
                 GUILayout.BeginArea(new Rect(18, height - 100, width - 36, 82), GUI.skin.box);
@@ -167,13 +176,22 @@ namespace Wreckabulary.Online
                 GUILayout.EndArea();
                 if (view.MenuOpen) Menu(width, height);
             }
-            finally { GUI.matrix = saved; }
+            finally { GUI.matrix = saved; GUI.enabled = enabled; }
+        }
+
+        string ResultText(MatchResult result)
+        {
+            if (!result.Confirmed) return "Confirming result…";
+            if (result.Outcome == "Draw") return "Draw";
+            if (result.Outcome == "TimeExpired") return "Time's up";
+            return result.WinningTeams.Contains(team) ? "You won!" : "Match complete";
         }
 
         void Menu(float width, float height)
         {
             GUILayout.BeginArea(new Rect((width - 580) / 2, 48, 580, height - 170), GUI.skin.box);
             GUILayout.Label(crafting ? "Spell equipment" : "Wordbound");
+            GUI.enabled = controller.Fault == "";
             if (GUILayout.Button("Resume", GUILayout.Height(34))) { view.SetMenuOpen(false); crafting = false; }
             GUI.enabled = frame != null && !controller.IsSimulationPaused;
             if (inventory != null)
@@ -226,6 +244,7 @@ namespace Wreckabulary.Online
             "MissingLetters" => "Collect the missing letters first.",
             "HandsFull" => "Free a slot or put down the furniture.",
             "BlockedPlacement" => "That spot is blocked. Move to a clear space.",
+            "BlockedRelease" => "Make room in front of you before putting the item down.",
             "EmptySlot" => "Choose an occupied equipment slot.",
             "NotAlive" => "Wait until you recover.",
             "StaleRevision" => "The object changed. Try again.",
@@ -237,7 +256,7 @@ namespace Wreckabulary.Online
 
         void OnDestroy()
         {
-            if (controller) controller.FrameChanged -= ApplyFrame;
+            if (controller) { controller.FrameChanged -= ApplyFrame; controller.Faulted -= ConnectionFailed; }
             if (view) { view.CommandsRead -= ReadCommands; view.MenuRequested -= MenuRequested; }
         }
     }

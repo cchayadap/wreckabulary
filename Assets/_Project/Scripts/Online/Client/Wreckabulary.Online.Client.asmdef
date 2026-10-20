@@ -3,7 +3,8 @@
   "rootNamespace": "Wreckabulary.Online",
   "references": [
     "Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Gameplay",
-    "Wreckabulary.Online.Physics", "Wreckabulary.Online.Fusion", "Unity.InputSystem", "Fusion.Unity"
+    "Wreckabulary.Online.Physics", "Wreckabulary.Online.Fusion", "Wreckabulary.Online.Puzzles",
+    "Wreckabulary.Online.Presentation", "Unity.InputSystem", "Fusion.Unity", "Photon.Realtime"
   ],
   "overrideReferences": true,
   "precompiledReferences": [
