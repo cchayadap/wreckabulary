@@ -47,6 +47,7 @@ namespace Wreckabulary.Rules
         {
             Id = source.Id, Word = source.Word, Origin = source.Origin, State = source.State,
             HolderId = source.HolderId, CrafterId = source.CrafterId, DeployerId = source.DeployerId,
+            DeploymentTick = source.DeploymentTick,
             ThrowerId = source.ThrowerId, ThrowerSkin = source.ThrowerSkin, ActivatorId = source.ActivatorId,
             Durability = source.Durability, MaxDurability = source.MaxDurability, Spent = source.Spent,
             Revision = source.Revision
@@ -110,7 +111,7 @@ namespace Wreckabulary.Rules
                 if (source.Id < 1 || source.Id >= snapshot.NextItemId || replacement.items.ContainsKey(source.Id) ||
                     !LetterBag.IsWord(source.Word) || source.Word.Length > 64 ||
                     !Enum.IsDefined(typeof(ItemOrigin), source.Origin) || !Enum.IsDefined(typeof(ItemState), source.State) ||
-                    source.Revision < 0 || !Finite(source.Durability) || !Finite(source.MaxDurability) ||
+                    source.Revision < 0 || source.DeploymentTick < -1 || !Finite(source.Durability) || !Finite(source.MaxDurability) ||
                     source.MaxDurability <= 0 || source.Durability < 0 || source.Durability > source.MaxDurability ||
                     (source.Origin == ItemOrigin.Crafted && !Catalogue.TryGet(source.Word, out _)) ||
                     !ValidPlayerReference(source.HolderId) || !ValidPlayerReference(source.CrafterId) ||

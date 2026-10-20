@@ -16,6 +16,8 @@ namespace Wreckabulary.Rules.Wordbound
 
     public static class MatchSnapshotCodec
     {
+        public const int CanonicalVersion = 2;
+        public const string ProtocolVersion = "wordbound-v2";
         public const int MaximumBytes = 8388608;
         static readonly Regex Signed = new Regex(@"\A(?:0|[1-9][0-9]*|-1)\z");
         static readonly Regex Unsigned = new Regex(@"\A(?:0|[1-9][0-9]*)\z");
@@ -45,8 +47,8 @@ namespace Wreckabulary.Rules.Wordbound
                 CourseJson.Preflight(json, MaximumBytes);
                 var root = Json.Parse(json, "match-snapshot.json");
                 Keys(root, "format", "schema", "canonicalVersion", "hash", "payload");
-                if (Text(root["format"]) != "wreckabulary.match-snapshot" || Int(root["schema"]) != 1 ||
-                    Int(root["canonicalVersion"]) != 1 || !WordboundIdentity.IsHash(Text(root["hash"])))
+                if (Text(root["format"]) != "wreckabulary.match-snapshot" || Int(root["schema"]) != MatchSnapshot.Schema ||
+                    Int(root["canonicalVersion"]) != CanonicalVersion || !WordboundIdentity.IsHash(Text(root["hash"])))
                     throw root.Error("unsupported snapshot format or version");
                 var snapshot = ReadSnapshot(root["payload"]);
                 string hash = ComputeHash(snapshot);
@@ -64,7 +66,7 @@ namespace Wreckabulary.Rules.Wordbound
         static Dictionary<string, object> Envelope(MatchSnapshot s)
         {
             if (s == null) throw new ArgumentNullException(nameof(s));
-            return Map("format", "wreckabulary.match-snapshot", "schema", 1, "canonicalVersion", 1, "payload", WriteSnapshot(s));
+            return Map("format", "wreckabulary.match-snapshot", "schema", MatchSnapshot.Schema, "canonicalVersion", CanonicalVersion, "payload", WriteSnapshot(s));
         }
         static Dictionary<string, object> Map(params object[] fields)
         {
@@ -127,7 +129,7 @@ namespace Wreckabulary.Rules.Wordbound
                 "craft", Optional(p.Craft == null ? null : Map("itemId", p.Craft.ItemId, "startedAt", Double(p.Craft.StartedAt),
                     "readyAt", Double(p.Craft.ReadyAt), "slot", p.Craft.Slot)))).ToArray(),
             "items", s.ItemStates.Select(i => (object)Map("id", i.Id, "word", i.Word, "origin", i.Origin.ToString(), "state", i.State.ToString(),
-                "holderId", i.HolderId, "crafterId", i.CrafterId, "deployerId", i.DeployerId, "throwerId", i.ThrowerId,
+                "holderId", i.HolderId, "crafterId", i.CrafterId, "deployerId", i.DeployerId, "deploymentTick", Long(i.DeploymentTick), "throwerId", i.ThrowerId,
                 "throwerSkin", Optional(i.ThrowerSkin), "activatorId", i.ActivatorId, "durability", Float(i.Durability),
                 "maxDurability", Float(i.MaxDurability), "spent", i.Spent, "revision", i.Revision)).ToArray(),
             "tiles", s.TileStates.Select(t => (object)Map("id", t.Key, "letter", t.Value.ToString())).ToArray());
@@ -206,10 +208,11 @@ namespace Wreckabulary.Rules.Wordbound
                 return player;
             }).ToArray();
             var items = Array(n["items"], 8192).Select(i => {
-                Keys(i, "id", "word", "origin", "state", "holderId", "crafterId", "deployerId", "throwerId", "throwerSkin", "activatorId", "durability", "maxDurability", "spent", "revision");
+                Keys(i, "id", "word", "origin", "state", "holderId", "crafterId", "deployerId", "deploymentTick", "throwerId", "throwerSkin", "activatorId", "durability", "maxDurability", "spent", "revision");
                 return new ItemInstance { Id = Int(i["id"]), Word = Text(i["word"]), Origin = EnumValue<ItemOrigin>(i["origin"]),
                     State = EnumValue<ItemState>(i["state"]), HolderId = Int(i["holderId"]), CrafterId = Int(i["crafterId"]),
-                    DeployerId = Int(i["deployerId"]), ThrowerId = Int(i["throwerId"]), ThrowerSkin = NullableText(i["throwerSkin"]),
+                    DeployerId = Int(i["deployerId"]), DeploymentTick = Counter(i["deploymentTick"], true),
+                    ThrowerId = Int(i["throwerId"]), ThrowerSkin = NullableText(i["throwerSkin"]),
                     ActivatorId = Int(i["activatorId"]), Durability = ReadFloat(i["durability"]), MaxDurability = ReadFloat(i["maxDurability"]),
                     Spent = i["spent"].Bool(), Revision = Int(i["revision"]) };
             }).ToArray();

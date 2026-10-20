@@ -40,6 +40,7 @@ namespace Wreckabulary.Rules.Wordbound
                     snapshot.RandomStreams.Count <= 256 && snapshot.NarrativeFlags.Count <= 1024,
                     "Snapshot section exceeds the wire bounds.");
                 ValidateActors(snapshot, expectedBinding, rules);
+                ValidateDeployments(snapshot, catalogue);
                 ValidateResources(snapshot, course, mode);
                 ValidateBodies(snapshot, expectedBinding, course, mode);
                 ValidateMechanisms(snapshot, course, mode);
@@ -71,6 +72,29 @@ namespace Wreckabulary.Rules.Wordbound
 
         public static string NarrativeFlag(int team, int lap) => "story:" + team.ToString(CultureInfo.InvariantCulture) + ":" + lap.ToString(CultureInfo.InvariantCulture);
         internal static void Need(bool condition, string message) { if (!condition) throw new ArgumentException(message); }
+
+        public static long DeploymentExpiryTick(ItemDefinition definition, long deploymentTick)
+        {
+            Need(definition?.Deploy != null && deploymentTick >= 1 &&
+                WorldVector.Finite(definition.Deploy.LifetimeSeconds) &&
+                definition.Deploy.LifetimeSeconds >= 0 && definition.Deploy.LifetimeSeconds <= 86400,
+                "Deployment requires a causal tick and a lifetime of at most one day.");
+            if (definition.Deploy.LifetimeSeconds == 0) return -1;
+            return checked(deploymentTick + (long)Math.Ceiling((double)definition.Deploy.LifetimeSeconds * ModeDefinition.TickRate));
+        }
+
+        static void ValidateDeployments(MatchSnapshot s, ItemCatalogue catalogue)
+        {
+            foreach (var item in s.Economy.ItemStates)
+                if (item.State == ItemState.Deployed)
+                {
+                    Need(item.Origin == ItemOrigin.Crafted && item.DeploymentTick >= 1 && item.DeploymentTick <= s.Progress.Tick &&
+                        catalogue.TryGet(item.Word, out _), "Deployed item has no causal authoritative activation tick.");
+                    long expiry = DeploymentExpiryTick(catalogue.Get(item.Word), item.DeploymentTick);
+                    Need(expiry == -1 || expiry > s.Progress.Tick, "A live deployed item has already expired.");
+                }
+                else Need(item.DeploymentTick == -1, "Only deployed items may retain an activation tick.");
+        }
 
         static void ValidateActors(MatchSnapshot s, MatchBinding binding, GameRules rules)
         {

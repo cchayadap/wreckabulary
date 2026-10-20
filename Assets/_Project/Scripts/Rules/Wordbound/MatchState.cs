@@ -176,7 +176,7 @@ namespace Wreckabulary.Rules.Wordbound
 
     public sealed class MatchSnapshot
     {
-        public const int Schema = 1;
+        public const int Schema = 2;
         public MatchBinding Binding { get; }
         public long Epoch { get; }
         public long Sequence { get; }

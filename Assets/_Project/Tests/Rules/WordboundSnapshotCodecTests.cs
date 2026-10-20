@@ -155,7 +155,7 @@ namespace Wreckabulary.Tests
                 case "enum-number": json = json.Replace("\"kind\":\"Player\"", "\"kind\":\"0\""); break;
                 case "duplicate-key": json = "{\"schema\":1," + json.Substring(1); break;
                 case "unknown-key": json = "{\"script\":\"run\"," + json.Substring(1); break;
-                case "future-schema": json = json.Replace("\"schema\":1", "\"schema\":2"); break;
+                case "future-schema": json = json.Replace("\"schema\":" + MatchSnapshot.Schema, "\"schema\":" + (MatchSnapshot.Schema + 1)); break;
                 case "bad-hash": json = Regex.Replace(json, "\"hash\":\"[a-f0-9]{64}\"", "\"hash\":\"" + new string('0', 64) + "\""); break;
             }
             var imported = f.Import(json);

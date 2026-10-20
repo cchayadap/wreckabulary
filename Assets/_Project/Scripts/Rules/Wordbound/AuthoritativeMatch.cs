@@ -172,6 +172,7 @@ namespace Wreckabulary.Rules.Wordbound
                 pending.Clear();
                 foreach (var pose in poses) ApplyPose(pose);
                 SetPermissions(Tick + 1);
+                ExpireDeployments(Tick + 1);
                 foreach (var timing in timings) ApplyMechanism(timing);
                 foreach (var seat in Binding.Seats)
                 {
@@ -321,7 +322,11 @@ namespace Wreckabulary.Rules.Wordbound
                 case WordboundAction.PickUp:
                     if (!Reachable(seat, origin, command.Target, WorldBodyKind.Item, out var itemBody)) return Effect("OutOfReach");
                     outcome = economy.PickUp(index, Number(itemBody.Id), command.Revision);
-                    if (outcome.Ok) bodies[itemBody.Id] = itemBody.At(origin.Position, active: false, kinematic: true);
+                    if (outcome.Ok)
+                    {
+                        outcome.Item.DeploymentTick = -1;
+                        bodies[itemBody.Id] = itemBody.At(origin.Position, active: false, kinematic: true);
+                    }
                     return Effect(outcome);
                 case WordboundAction.Drop:
                     outcome = command.Slot < 0 ? economy.DropCarried(index) : economy.Drop(index, command.Slot);
@@ -336,7 +341,10 @@ namespace Wreckabulary.Rules.Wordbound
                     if (held == null) return Effect("EmptySlot");
                     var placement = Add(origin.Position, Forward(origin, 1.5f));
                     if (!world.CanDeploy(seat.PlayerId, held.Word, placement)) return Effect("BlockedPlacement");
+                    if (catalogue.Get(held.Word).Deploy != null)
+                        MatchStateValidation.DeploymentExpiryTick(catalogue.Get(held.Word), Tick + 1);
                     outcome = economy.Deploy(index, command.Slot);
+                    if (outcome.Ok) outcome.Item.DeploymentTick = Tick + 1;
                     Release(outcome, placement, default, true);
                     return Effect(outcome);
                 case WordboundAction.GiveLetter:
@@ -506,6 +514,7 @@ namespace Wreckabulary.Rules.Wordbound
 
         void Synchronize(MatchSnapshot before)
         {
+            foreach (var item in economy.Items.Where(i => i.State != ItemState.Deployed)) item.DeploymentTick = -1;
             foreach (var state in mechanisms.Values.Where(m => !m.Solved && m.ItemEntityId != "").ToArray())
             {
                 var puzzle = course.Puzzles.Single(p => p.Id == state.PuzzleId);
@@ -674,8 +683,23 @@ namespace Wreckabulary.Rules.Wordbound
         {
             if (outcome.Ok && outcome.Item != null)
             {
+                if (outcome.Item.State != ItemState.Deployed) outcome.Item.DeploymentTick = -1;
                 string id = "item:" + outcome.Item.Id;
                 bodies[id] = bodies[id].At(at, velocity, true, kinematic);
+            }
+        }
+        void ExpireDeployments(long nextTick)
+        {
+            foreach (var item in economy.Items.Where(i => i.State == ItemState.Deployed).OrderBy(i => i.Id).ToArray())
+            {
+                long deadline = MatchStateValidation.DeploymentExpiryTick(catalogue.Get(item.Word), item.DeploymentTick);
+                if (deadline < 0 || deadline > nextTick) continue;
+                var body = bodies["item:" + item.Id];
+                var tiles = economy.Break(item.Id);
+                item.DeploymentTick = -1;
+                bodies[body.Id] = body.At(body.Position, active: false, kinematic: true);
+                AddTiles(tiles, body.Position, body.OwnerTeam, body.SourceId, body.Protected, body.RecoveryGeneration);
+                ScheduleSource(body);
             }
         }
         ItemInstance Held(int index, int slot)
