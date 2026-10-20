@@ -12,6 +12,7 @@
     <Compile Include="../../../wordbound-integration/Packages/com.gamestudiokit.core/Runtime/Determinism/*.cs" />
     <Compile Include="../../../wordbound-integration/Assets/_Project/Tests/Rules/TestData.cs" />
     <Compile Include="../../Assets/_Project/Tests/Rules/WordboundFlagship*Tests.cs" />
+    <Compile Include="WordboundFlagshipBudgetTests.cs" />
     <Compile Include="$(RulesSourceRoot)/Assets/_Project/Scripts/Online/Gameplay/WordboundGameplayPlan.cs" />
     <Content Include="../../../wordbound-integration/Assets/_Project/Data/Config/items.json" Link="FlagshipCatalogue.json" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />

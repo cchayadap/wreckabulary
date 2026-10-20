@@ -4,6 +4,8 @@ STATUS: SOURCE AUDIT COMPLETE — WHOLE-MATCH BUDGET BLOCKER
 
 The current `WordboundReconciliationPlan` rejects more than 512 canonical bodies, including inactive bodies. This audit does not raise that limit.
 
+The audit fixture lives beside this report and runs through `FlagshipTests.csproj`. It deliberately remains outside Unity's Rules.Tests assembly, which has no dependency on the online gameplay planner. The linked physical/authority source is frozen at `17c30b4`; the focused content checkpoint is `70723cd`. Moving the unchanged audit fixture does not alter its already-built test assembly or the ongoing seed sweep.
+
 The focused budget fixture creates the real flagship, resolves the exact selected mode, constructs a real `AuthoritativeMatch`, imports its canonical snapshot and passes that snapshot into the actual reconciliation planner. No Unity or physical sensors are involved; the world-query implementation refuses interactions. All five budget cases passed, within the 24/24 focused source gate. Evidence: `focused-schema2.log`, `body-budget-results.log`, local TRX `TestResults/focused-schema2.trx`. This linked the puzzle owner's frozen full Rules and gameplay planner source, including canonical per-team moving fixtures.
 
 | Mode / humans | Measured initial bodies | Initial canonical UTF-8 bytes | Three-lap refill estimate | With unused marked-prop letters |
