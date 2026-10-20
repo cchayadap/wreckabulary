@@ -1,0 +1,11 @@
+{
+  "name": "Wreckabulary.Wordbound.Qa",
+  "rootNamespace": "Wreckabulary.Qa",
+  "references": [
+    "Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Client",
+    "Wreckabulary.Online.Gameplay", "Wreckabulary.Online.Presentation",
+    "GameStudioKit.Runtime"
+  ],
+  "autoReferenced": true,
+  "defineConstraints": ["UNITY_EDITOR || GSK_QA"]
+}
