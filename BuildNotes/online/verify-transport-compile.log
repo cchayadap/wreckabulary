@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online\OnlineTransport.csproj (in 270 ms).
+  1 of 2 projects are up-to-date for restore.
+  Rules -> C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\Tools\RulesHarness\Rules\bin\Debug\netstandard2.1\Wreckabulary.Rules.dll
+  OnlineTransport -> C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-online\BuildNotes\online\bin\Debug\netstandard2.1\OnlineTransport.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.87

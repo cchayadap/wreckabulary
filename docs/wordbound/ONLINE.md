@@ -85,4 +85,24 @@ Dashboard setup and deployment are **NOT RUN**. When authorized, set the Custom 
 
 The request/response contract and dashboard behavior are documented in the official [Fusion 2 custom authentication guide](https://doc.photonengine.com/fusion/v2/manual/connection-and-matchmaking/authentication/custom-authentication) and [Realtime 5 guide](https://doc.photonengine.com/realtime/v5/connection-and-authentication/authentication/custom-authentication). This local endpoint test is not evidence of a configured Photon application.
 
+C# entry points are additive and SDK-independent:
+
+- `OnlineCoordinatorClient` takes `IOnlineHttpTransport`. Its party methods require the caller's stable operation key; it performs no implicit retries. `CreateGuest` and `Refresh` return credentials for protected local storage. `ClearCredentials` fences outstanding authentication replies. `PhotonTicket().PhotonPostData()` gives the exact dictionary for Photon.
+- `WordboundHttpTransport` implements real HTTP with a pinned HTTPS origin, no redirects, a 15-second deadline covering headers and body, and a 32 KiB response bound. HTTP is available only through an explicit loopback testing option. No global certificate-validation override is used.
+- `OnlineAdmissionVerifier(pinnedIssuer, trustedJwks)` uses standard-library RSA/PKCS1/SHA256. Fetch keys only through the pinned coordinator origin. Untrusted JWT headers cannot redirect key lookup. `VerifyStart(certificate, expectation, unixSeconds)` returns an immutable verified roster. `VerifyAdmission(grant, verifiedMatch, photonVerifiedPlayerId, connectionSecret, unixSeconds)` returns the matching immutable seat. Expired certificates must be refreshed for a new admission; an expiry does not revoke already-established gameplay mappings.
+- `OnlineMatchExpectation` contains match ID, reservation generation, roster hash, independently checked settings and exact content hashes. A valid signature cannot substitute different expectations. The verifier rejects unknown/duplicate fields, malformed UTF-8/base64, excessive size/depth, non-integer numeric claims, invalid time windows, duplicate/split players, incorrect mode/team capacities and wrong secret commitments. Counters remain decimal strings.
+
+The host transport must obtain identity from `NetworkRunner.GetPlayerUserId(player)`, and the connection secret from `GetPlayerConnectionToken(player)`, not an RPC identity field. The [Fusion API](https://doc-api.photonengine.com/en/fusion/current/class_fusion_1_1_network_runner.html) exposes remote user IDs to the server in client/server mode. The short connection token contains UTF-8 bytes of the 43-character secret, not the JWT. A joining peer can deliver its longer grant through a bounded reliable admission message after connecting, while remaining unspawned and unable to submit gameplay commands until verification succeeds. Limit that pending state and disconnect failures. Rejoining must also pass the authoritative simulation's original wall-clock deadline and epoch checks before input authority is reassigned.
+
+Local C# verification:
+
+```text
+dotnet run --project Tools/RulesHarness/RulesHarness.csproj -- WordboundOnline
+dotnet build BuildNotes/online/OnlineTransport.csproj
+node OnlineServices/scripts/write-verifier-fixture.mjs BuildNotes/online/generated/jose-fixture.json
+dotnet run --project BuildNotes/online/Interop/Interop.csproj -- BuildNotes/online/generated/jose-fixture.json
+```
+
+The last two commands test independent JavaScript JOSE tokens and canonical hashes against the C# verifier, then test actual loopback HTTP headers, body, redirect rejection and response bounds. Private RSA keys remain in process memory; generated public test vectors and test secrets stay in the ignored `generated/` folder. No new C# package is required: rules target netstandard2.1; the standalone test runner uses the installed .NET runtime. Unity native/IL2CPP behavior and the actual Fusion callback hookup still require the integrator's tests. Only root launches Unity.
+
 Runtime evidence, tests and remaining limitations are recorded in `BuildNotes/online/STATUS.md`.
