@@ -4,6 +4,8 @@ Source implementation is pending combined reference/native verification. This gu
 
 ## Create a saved course
 
+For this project's reusable defaults, run **Tools → Wordbound → Create or verify Inspector authoring assets** once. It creates `Assets/_Project/Data/Wordbound/Authoring/{PlayerCamera,Presentation,FreestyleCourse,FlagshipCourse}.asset` through Unity's AssetDatabase and fills empty CameraProfile, VisualProfile and WorkshopCourse references on the actual LaunchAssets asset. Existing assets and assignments are preserved. The launcher workshop uses the saved course copy; public matchmaking remains separately bound. The helper validates both saved course assets before assigning them.
+
 1. In the Project window choose **Create → Wreckabulary → Wordbound → Freestyle course with defaults**, or **Flagship course copy** for the complete authored course. This creates a separate editable asset and preserves the built-in course. The existing item/rule TextAssets are assigned automatically.
 2. Select the asset. Expand **Mode, seed, gameplay assets, geometry and presentation** to choose TimeRun/Freestyle for local play, the fixed 16-digit seed, profiles and catalogue dimensions. Dimensions and positions use millimetres; Vector3Int fields use X=width, Y=height, Z=depth.
 3. Choose an **Edit section**. Lists show one selected record at a time. Add/remove records, change IDs and references, and **Apply form edits and save asset**. Saved course changes use Unity Undo. Pending form edits are explicit and must be applied before selecting another asset; invalid edits never overwrite saved data.
@@ -38,3 +40,5 @@ Gameplay item and rule changes go through their explicit TextAssets and alter co
 - [ ] Native editor create/save/reload/Undo, module handles and complete profile validation.
 - [ ] Exact preview and local play with scene restoration on success and failure.
 - [ ] Human editing/play acceptance, including camera feel, grip placement and all six actual puzzle families.
+
+Screenshots should be added only after root's native editor capture confirms these views. No generated mock screenshots are used as editing evidence.
