@@ -6,14 +6,15 @@ namespace Wreckabulary.Rules.Wordbound
 {
     public sealed class WordboundEntityBudget
     {
-        public const int Version = 1;
+        public const int Version = 2;
         public const int MaximumBodies = 512;
         public const int MaximumCanonicalEntities = 8192;
         public const int RetryTicks = ModeDefinition.TickRate;
         const int ExactCheckpointPuzzles = 4;
         public static string Hash { get; } = WordboundIdentity.Sha256(
-            "wordbound.entity-budget|1|512|8192|retry60|equal-pools|fixed-roots|" +
-            "critical-prefix4|physical-auxiliary|actor-bursts|holder-reserves|shared-ceil|stable-loose-retirement");
+            "wordbound.entity-budget|2|512|8192|retry60|equal-pools|fixed-roots|" +
+            "critical-prefix4|physical-auxiliary|actor-bursts|holder-reserves|shared-ceil|stable-loose-retirement|" +
+            "available-enabled-recipes");
 
         readonly Dictionary<string, ResolvedCourseSupply> supplies;
         readonly Dictionary<string, string[]> consumers;
@@ -53,7 +54,7 @@ namespace Wreckabulary.Rules.Wordbound
             if (geometry == null || items == null || rules == null)
                 throw new ArgumentNullException("Budget requires exact geometry, item and rule content.");
             int capacity = race ? mode.TeamCapacity : mode.MaximumPlayers;
-            var enabled = mode.Recipes.Select(id => items.Get(id)).Where(i => i.Enabled).ToArray();
+            var enabled = items.Enabled.Where(i => mode.Recipes.Contains(i.Id)).ToArray();
             int handWord = enabled.Select(i => i.Letters.Count).DefaultIfEmpty(0).Max();
             int deployedWord = enabled.Where(i => i.CanDeploy).Select(i => i.Letters.Count).DefaultIfEmpty(0).Max();
             int propBurst = race ? course.PhysicalSites.Where(s => s.PropSourceZoneId != "")

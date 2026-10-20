@@ -113,7 +113,8 @@ namespace Wreckabulary.Rules.Wordbound
             resourceLifecycle = new WordboundResourceLifecycle(course, Mode);
             entityBudget = new WordboundEntityBudget(Mode, course, courseCatalogue, catalogue, rules);
             WordboundCombatPolicy.Validate(rules.Unarmed);
-            if (Mode.Recipes.Contains("BALL")) WordboundThrownPolicy.Stats(catalogue.Get("BALL"));
+            if (Mode.Recipes.Contains("BALL") && catalogue.TryGet("BALL", out var ball) && ball.Enabled)
+                WordboundThrownPolicy.Stats(ball);
             WordboundCombatPolicy.Ticks(rules.StaggerImmunitySeconds);
             foreach (string recipeId in Mode.Recipes)
                 if (catalogue.TryGet(recipeId, out var combatItem) && combatItem.Melee != null)

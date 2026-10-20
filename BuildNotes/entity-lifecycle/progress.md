@@ -56,3 +56,18 @@ Verification:
 The historical 8,000-seed sweep used physical checkpoint `17c30b4` and factory `70723cd`; it remains generator/route evidence, not this pressure policy's evidence. The new acceptance harness has isolated output paths and does not overwrite that sweep.
 
 Compiler released to the online route/spawn lane after all checks. Next recoverable action: root integrates this source checkpoint, binds `WordboundEntityBudget.Hash` as a distinct field in rules fingerprint version 2, replaces reconciliation's literal cap with `MaximumBodies`, and runs early content/workshop budget preflight plus native tests. No snapshot field, course schema or protocol change is introduced by this stage.
+
+## Partial-catalogue native regression repair
+
+Root's native batch passed 56 cases but all 16 GameplayPlan cases failed before exercising composition: budget reservation called `Get` for every allowed mode recipe, including absent BAT. Legal catalogues may contain only the available content. Reservation now filters the exact catalogue to enabled recipes allowed by the mode. The adjacent BALL startup check likewise validates thrown stats only for an available, enabled BALL. Required authored puzzle recipes still fail closed when absent or disabled; an available enabled BALL still requires valid supported thrown stats.
+
+The approved policy descriptor explicitly adds `available-enabled-recipes` and advances entity-budget Version/hash prefix to 2. Its full-catalogue numeric reservations are unchanged. Root's rules fingerprint v2 already binds this hash, so old/new content bindings differ without a snapshot-field, course-schema or protocol-version change.
+
+Verification:
+
+- Production .NET Standard Rules build: PASS, zero warnings/errors, 6.9 seconds. SHA-256 `490372E344F223005657DE761F514606D2DBB3FAE30A46C46184E9137FD1A577`.
+- Focused real NUnit tests referencing that separate production DLL: 10/10 PASS. Covers enabled/disabled/disallowed reservation inputs, all five modes with the actual proof-map recipe subset, required recipe absence/disablement, enabled BALL validation and existing budget refusal. Evidence: `TestResults/entity-lifecycle/partial-catalogue-separate.trx`.
+- Exact integration GameplayPlan source and its unchanged tests, referencing the fresh Rules DLL: 16/16 PASS. Evidence: `TestResults/entity-lifecycle/partial-catalogue-gameplay-plan.trx`.
+- `git diff --check`: PASS. No Unity was launched in this lane.
+
+Next action: root integrates this repair independently of the new native six-family fixture, reruns affected native cases, and retains its current content-binding preflight. This lane now compiles only the additive physical fixture before handing the compiler slot to the online owner.

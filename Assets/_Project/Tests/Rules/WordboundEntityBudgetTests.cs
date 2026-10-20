@@ -59,6 +59,68 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void ReservationsUseOnlyAvailableEnabledModeRecipes()
+        {
+            var f = WordboundSnapshotCodecTests.Create("Freestyle");
+            var items = new ItemCatalogue();
+            items.Add(new ItemDefinition { Id = "BED", Enabled = true, Deploy = new DeployStats() });
+            items.Add(new ItemDefinition { Id = "SHIELD", Enabled = false, Deploy = new DeployStats() });
+            items.Add(new ItemDefinition { Id = "UNAVAILABLE", Enabled = true, Deploy = new DeployStats() });
+            var budget = new WordboundEntityBudget(f.Mode, f.Course, CourseTemplates.ProofCatalogue(), items, f.Rules);
+            int expected = f.Mode.MaximumPlayers *
+                (f.Rules.MaxLetters + f.Rules.MaxCarried * 4 + f.Rules.MaxDeployed * 4);
+            Assert.AreEqual(expected, budget.ActorAndBurstBodies);
+            Assert.AreEqual(2, WordboundEntityBudget.Version);
+            Assert.AreNotEqual(WordboundIdentity.Sha256(
+                "wordbound.entity-budget|1|512|8192|retry60|equal-pools|fixed-roots|" +
+                "critical-prefix4|physical-auxiliary|actor-bursts|holder-reserves|shared-ceil|stable-loose-retirement"),
+                WordboundEntityBudget.Hash);
+        }
+
+        [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("BrawlRace"), TestCase("FreeForAll"), TestCase("Freestyle")]
+        public void PartialCatalogueStartsAndRestoresWhenAllAuthoredRecipesAreAvailable(string mode)
+        {
+            var f = WordboundSnapshotCodecTests.Create(mode);
+            var geometry = CourseTemplates.ProofCatalogue();
+            var items = new ItemCatalogue();
+            foreach (string id in geometry.Assets.Values.Select(a => a.Letters).Distinct())
+                items.Add(f.Catalogue.Get(id));
+            Assert.IsFalse(items.TryGet("BAT", out _));
+            Assert.IsFalse(items.TryGet("BALL", out _));
+            var match = new AuthoritativeMatch(f.Binding, f.Mode, f.Course, geometry, items,
+                f.Rules, new WordboundAuthorityTests.World());
+            Assert.IsTrue(match.Advance(17).Advanced);
+            match.PublishSnapshot(out string json);
+            var imported = MatchSnapshotCodec.Import(json, f.Binding, f.Mode, f.Course, items, f.Rules);
+            Assert.IsTrue(imported.Success, imported.Error);
+        }
+
+        [TestCase(false), TestCase(true)]
+        public void PartialCatalogueStillRejectsMissingOrDisabledRequiredPuzzleRecipe(bool disabled)
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            var items = new ItemCatalogue();
+            foreach (var item in f.Catalogue.All)
+            {
+                if (item.Id == "BED" && !disabled) continue;
+                if (item.Id == "BED") item.Enabled = false;
+                items.Add(item);
+            }
+            var error = Assert.Throws<ArgumentException>(() => new AuthoritativeMatch(f.Binding, f.Mode,
+                f.Course, CourseTemplates.ProofCatalogue(), items, f.Rules, new WordboundAuthorityTests.World()));
+            StringAssert.Contains("puzzle recipe is unavailable", error.Message);
+        }
+
+        [Test]
+        public void AvailableEnabledBallStillRequiresValidThrownStats()
+        {
+            var f = WordboundSnapshotCodecTests.Create("Freestyle");
+            f.Catalogue.Get("BALL").Thrown = null;
+            Assert.Throws<ArgumentException>(() => new AuthoritativeMatch(f.Binding, f.Mode,
+                f.Course, CourseTemplates.ProofCatalogue(), f.Catalogue, f.Rules, new WordboundAuthorityTests.World()));
+        }
+
+        [Test]
         public void BudgetIsPinnedAndRejectsRulesThatCannotReserveMandatoryDrops()
         {
             var f = Create(true, false);
