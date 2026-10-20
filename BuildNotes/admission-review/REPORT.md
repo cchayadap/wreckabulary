@@ -93,3 +93,45 @@ This review covers the listed source at `e8eae92`; it does not approve later Fus
 NOT RUN in this review: native Workers/Durable Object suite; Unity editor/runtime suite; real Photon/Fusion SDK admissions; IL2CPP/platform HTTP/TLS behavior; deployed endpoints, signing configuration, provider dashboard or credentials. No deployment occurred. No source files outside this report were changed.
 
 Next recoverable action: implementation owner adds the two failing regressions and fixes F1/F2 in its lane, then integration reruns the actual service and C# suites. Independently recheck the fixed route/client sequences and the finalized Fusion terminal-return/reconnect admission path before claiming live multiplayer acceptance.
+
+## Follow-up review — COMPLETE
+
+Scope extended by integration owner after the initial report commit: independently verify the local F1/F2 fixes in `wordbound-online`, and inspect the new `OnlineSessionGate.cs` / `OnlineSnapshotPacket.cs`. These are uncommitted implementation-owner changes; capture exact source hashes with the results. No implementation source edits or Unity launch by this reviewer.
+
+Base revision: `ed0abd97b6f044da0ecfdae94bb53b59ef51a80c` plus the following local implementation-owner files:
+
+| File | SHA-256 reviewed |
+| --- | --- |
+| `OnlineServices/src/identity.ts` | `3CA19BE1864145FFEDC44D81B1F3F88EE074CF64265053AD977784E4B414145E` |
+| `OnlineCoordinatorClient.cs` — final guard | `201055CCF9BDB945FA8D6DF6A9C614C0EB066C0099606C0B1144DB6648608869` |
+| `OnlineSessionGate.cs` | `5A135C739B73C550F3A6B30A6DE2B60C8945DAE22BFDCD66C7A92775CC948522` |
+| `OnlineSnapshotPacket.cs` | `E69F0BE35D41C9659508F31E54D6C2385C8484D0CAC9C716E5B69CC989AACEE8` |
+
+F1 correction independently verified using the same actual-source in-memory service method:
+
+```json
+{
+  "oldReplay": "WB:409:MEMBERSHIP_OPERATION_RETIRED",
+  "profileCleared": true,
+  "laterReplay": "WB:409:MEMBERSHIP_OPERATION_RETIRED",
+  "laterPreserved": true,
+  "freshMembers": 2,
+  "actualMembers": 2
+}
+```
+
+The identity now retires successful membership operation keys on leave, rejects their reuse before reserving a new membership, and checks the operation ID as well as request hash before marking a pending entry ACTIVE. Inspected new real-service regressions also cover a retired create key and preservation of a later party membership. Native service execution remains with the implementation owner.
+
+An independent in-memory C# probe passed 17 assertions across same-token refresh coalescing/logout, local session ready/start gating, duplicate seat exclusion, unchanged disconnect grace on duplicate reports and migration, exclusive deadline rejection, terminal return preservation, multi-chunk snapshot round-trip, hash/tamper rejection and compressed size bounds. This run used the first coalescing client version (`1566C8E2B37D02BE4527044FB3827719899AFBD4C52E48A3B6BC65D766ABEF62`); the gate and packet hashes match the table above.
+
+Further source review identified a residual different-token overlap in that first client version: a stale token could still supersede an active refresh. The implementation owner immediately added the final guard listed above, rejecting a different token while a refresh is pending without incrementing the authentication generation. The separate final-guard probe passed against that final client hash:
+
+```text
+PASS: same-token coalesced; different-token rejected before send; winning new.token retained; logout fenced late refresh.
+```
+
+Two probe preparation errors (noncanonical base64url fixture and an unawaited-call compile warning treated as an error) were corrected before that successful run; neither is counted as product evidence.
+
+No additional confirmed defect was found in the inspected gate or packet primitives. `OnlineSessionGate` is a local state machine operating on already-verified admissions and trusted migration presence; it does not itself implement live coordinator revocation or validate a signed migration snapshot. `OnlineSnapshotPacket` bounds/frames/compresses/checksums bytes; it does not authenticate their sender or validate game state. Correct authenticated callback routing, snapshot codec validation and coordinator return/reconnect races remain integration responsibilities and were not exercised by these primitive probes.
+
+Follow-up conclusion: both original findings are independently verified corrected in the exact local source versions listed above. This does not retroactively change their status at the original reviewed revision. Integration must bring in those fixes and run the native service/C# gates; this review makes no production or live-multiplayer acceptance claim.
