@@ -62,7 +62,13 @@ namespace Wreckabulary.Rules.Wordbound
             long issued = OnlineJson.Integer(claims, "iat"), expires = OnlineJson.Integer(claims, "exp");
             if (issued > nowSeconds || expires <= nowSeconds || expires <= issued || expires - issued > 90 ||
                 OnlineJson.Integer(claims, "version", 1, 1) != 1)
-                throw new FormatException("Expired, future or unsupported token.");
+            {
+                var error = new FormatException("Expired, future or unsupported token.");
+                error.Data["issuedOffsetSeconds"] = issued - nowSeconds;
+                error.Data["expiresOffsetSeconds"] = expires - nowSeconds;
+                error.Data["tokenLifetimeSeconds"] = expires - issued;
+                throw error;
+            }
             return claims;
         }
 
@@ -165,7 +171,12 @@ namespace Wreckabulary.Rules.Wordbound
                 lease.ExpiresAtMilliseconds > nowMilliseconds + 15000 ||
                 OnlineJson.Integer(claims, "exp") - OnlineJson.Integer(claims, "iat") > 15 ||
                 !match.Roster.Any(s => s.PlayerId == lease.PlayerId) || !match.Roster.Any(s => s.PlayerId == lease.HostId))
-                throw new FormatException("Connection authorization is expired or bound to another transport.");
+            {
+                var error = new FormatException("Connection authorization is expired or bound to another transport.");
+                error.Data["leaseRemainingMilliseconds"] = lease.ExpiresAtMilliseconds - nowMilliseconds;
+                error.Data["tokenLifetimeSeconds"] = OnlineJson.Integer(claims, "exp") - OnlineJson.Integer(claims, "iat");
+                throw error;
+            }
             return lease;
         }
 

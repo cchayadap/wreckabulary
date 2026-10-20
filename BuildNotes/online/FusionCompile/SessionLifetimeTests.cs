@@ -18,6 +18,48 @@ namespace Wreckabulary.LifecycleTests
 {
     public sealed class SessionLifetimeTests
     {
+        sealed class UnreadableDiagnosticException : Exception
+        {
+            public override string Message => throw new InvalidOperationException("Unavailable diagnostics.");
+        }
+        [Test]
+        public void DiagnosticFailureCannotPreventSessionInvalidationOrNotification()
+        {
+            using var fixture = new Fixture();
+            fixture.Client();
+            Field(fixture.Session, "<GameplayReady>k__BackingField", true);
+            string notified = null;
+            fixture.Session.Failed += value => notified = value;
+            Call<object>(fixture.Session, "Fail", new UnreadableDiagnosticException());
+            Assert.AreEqual("UnreadableDiagnosticException", notified);
+            Assert.AreEqual("diagnostic-unavailable", fixture.Session.FailureCode);
+            Assert.IsFalse(fixture.Session.GameplayReady);
+            Assert.IsFalse(fixture.Session.RunnerStarted);
+            Assert.IsNull(Field<object>(fixture.Session, "activeRun"));
+        }
+        [TestCase("Expired, future or unsupported token.", "token-time-or-version")]
+        [TestCase("Connection authorization is expired or bound to another transport.", "connection-time-or-binding")]
+        [TestCase("private.token.marker", "unclassified")]
+        public void FailureDiagnosticsOnlyExposeKnownCodesAndMethodNames(string message, string expected)
+        {
+            using var fixture = new Fixture();
+            Exception failure;
+            try { throw new FormatException(message); }
+            catch (Exception caught) { failure = caught; }
+            failure.Data["issuedOffsetSeconds"] = 2L;
+            failure.Data["expiresOffsetSeconds"] = "private.token.marker";
+            failure.Data["secret"] = "private.token.marker";
+            Call<object>(fixture.Session, "FailAt", failure, "connection-authorization");
+            Assert.AreEqual("FormatException", fixture.Session.Failure);
+            Assert.AreEqual(expected, fixture.Session.FailureCode);
+            Assert.AreEqual("connection-authorization", fixture.Session.FailureStage);
+            Assert.IsFalse(fixture.Session.FailureOrigin.Contains(message));
+            Assert.IsFalse(fixture.Session.FailureCode.Contains("private.token.marker"));
+            Assert.AreEqual("issuedOffsetSeconds=2", fixture.Session.FailureFacts);
+            Call<object>(fixture.Session, "FailAt", new Exception("later private data"), "later-stage");
+            Assert.AreEqual(expected, fixture.Session.FailureCode);
+            Assert.AreEqual("connection-authorization", fixture.Session.FailureStage);
+        }
         const string Player = "11111111-1111-4111-a111-111111111111";
         const string MatchId = "33333333-3333-4333-a333-333333333333";
         const string AppId = "66666666-6666-4666-a666-666666666666";

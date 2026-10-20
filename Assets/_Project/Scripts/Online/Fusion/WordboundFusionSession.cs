@@ -99,6 +99,10 @@ namespace Wreckabulary.Online
         public bool RunnerStarted => IsCurrent(activeRun) && activeRun.Started;
         public bool GameplayReady { get; private set; }
         public string Failure { get; private set; } = "";
+        public string FailureStage { get; private set; } = "";
+        public string FailureCode { get; private set; } = "";
+        public string FailureOrigin { get; private set; } = "";
+        public string FailureFacts { get; private set; } = "";
         public OnlineSnapshotMark Committed => committedMark;
         public event Action GameplayStarted;
         public event Action<string, OnlineSnapshotMark> ReplicaReceived;
@@ -318,17 +322,22 @@ namespace Wreckabulary.Online
             if (!IsCurrent(run) || !run.CheckpointReady || !HasWriter(run) || run.Authorizing.Contains(player) || gate.Actor(Peer(player)) != null) return;
             run.Authorizing.Add(player);
             var runner = run.Runner;
+            string stage = "transport-identity";
             try {
             string authenticated = runner.GetPlayerUserId(player);
             string secret = player == runner.LocalPlayer ? run.Join.ConnectionSecret :
                 OnlineJson.DecodeUtf8(runner.GetPlayerConnectionToken(player) ?? Array.Empty<byte>());
             long now = clock();
+            stage = "start-certificate";
             var match = verifier.VerifyStart(certificate, expected, now / 1000);
+            stage = "admission-grant";
             var admission = verifier.VerifyAdmission(grant, match, authenticated, secret, now / 1000);
+            stage = "connection-authorization";
             var lease = await connections.Authorize(match, authenticated, ticket, secret, connectionId, run.Cancellation.Token);
             if (!IsCurrent(run) || !HasWriter(run) || !runner.IsRunning || !runner.ActivePlayers.Contains(player) ||
                 runner.GetPlayerUserId(player) != authenticated) return;
             now = clock();
+            stage = "activate-connection";
             if (lease.ExpiresAtMilliseconds <= now) throw new InvalidOperationException("Transport authorization expired.");
             gate.Admit(admission, Peer(player), now);
             leases[player] = lease;
@@ -339,7 +348,7 @@ namespace Wreckabulary.Online
             catch (Exception error) {
                 if (IsCurrent(run)) {
                     if (player != runner.LocalPlayer) runner.Disconnect(player);
-                    else Fail(error);
+                    else FailAt(error, stage);
                 }
             }
             finally { run.Authorizing.Remove(player); }
@@ -664,8 +673,42 @@ namespace Wreckabulary.Online
             InvalidateRun();
             GameplayReady = false; gate?.Freeze(); authority.PauseForMigration();
             authority.SetTransportReady(false, Runner != null && Runner.IsServer);
+            try
+            {
+                FailureCode = DiagnosticCode(error);
+                FailureOrigin = string.Join(" > ", (new System.Diagnostics.StackTrace(error, false).GetFrames() ??
+                    Array.Empty<System.Diagnostics.StackFrame>()).Take(4).Select(frame => frame.GetMethod())
+                    .Where(method => method != null).Select(method => method.DeclaringType?.FullName + "." + method.Name));
+                FailureFacts = string.Join(",", new[] { "issuedOffsetSeconds", "expiresOffsetSeconds",
+                    "tokenLifetimeSeconds", "leaseRemainingMilliseconds" }.Where(key => error.Data[key] is long)
+                    .Select(key => key + "=" + ((long)error.Data[key]).ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            }
+            catch { FailureCode = "diagnostic-unavailable"; FailureOrigin = ""; FailureFacts = ""; }
             Failed?.Invoke(Failure);
         }
+        void FailAt(Exception error, string stage)
+        {
+            if (Failure != "") return;
+            FailureStage = stage;
+            Fail(error);
+        }
+        static string DiagnosticCode(Exception error) => error.Message switch
+        {
+            "Expired, future or unsupported token." => "token-time-or-version",
+            "Refresh the match certificate." => "start-certificate-expired",
+            "Match start is in the future." => "match-start-in-future",
+            "Connection authorization is expired or bound to another transport." => "connection-time-or-binding",
+            "Invalid JWT signature." => "invalid-signature",
+            "Untrusted JWT header." => "untrusted-header",
+            "Wrong JWT issuer or audience." => "wrong-issuer-or-audience",
+            "Match identity mismatch." => "match-identity",
+            "Transport identity does not match the admission." => "transport-identity",
+            "Wrong connection secret." => "connection-secret",
+            "Admission content mismatch." => "admission-content",
+            "Connection ticket expired." => "connection-ticket-expired",
+            "Coordinator clock is outside the supported tolerance." => "clock-outside-tolerance",
+            _ => "unclassified"
+        };
         public async Task Stop()
         {
             InvalidateRun(); lifetime.Cancel(); GameplayReady = false; gate?.Freeze();

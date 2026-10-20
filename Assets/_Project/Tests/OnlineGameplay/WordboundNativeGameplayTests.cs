@@ -174,7 +174,9 @@ namespace Wreckabulary.OnlineGameplayTests
                 new OnlineCheckpointService(live.Clients[index], live.Expected, peer.Controller.Authority.IdentityHash));
             peer.Controller.AttachSession(peer.Session);
             peer.Controller.Faulted += reason => Debug.Log("WORDBOUND_GAMEPLAY_FAULT: peer " + index + " " + reason);
-            peer.Session.Failed += reason => Debug.Log("WORDBOUND_SESSION_FAULT: peer " + index + " " + reason);
+            peer.Session.Failed += reason => Debug.Log("WORDBOUND_SESSION_FAULT: peer " + index + " " + reason +
+                " stage=" + peer.Session.FailureStage + " code=" + peer.Session.FailureCode +
+                " facts=" + peer.Session.FailureFacts + " origin=" + peer.Session.FailureOrigin);
             peer.Controller.HostAdvanced += result => {
                 if (!result.Advanced) return;
                 peer.Advanced++;
