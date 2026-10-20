@@ -1,5 +1,5 @@
 {
-  "name": "Wreckabulary.Online.Gameplay.Tests",
+  "name": "Wreckabulary.Online.NativeGameplay.Tests",
   "rootNamespace": "Wreckabulary.OnlineGameplayTests",
   "references": [
     "Wreckabulary",
