@@ -117,6 +117,8 @@ The owner implemented both repairs. Independent source reinspection confirms the
 
 Final reviewed local SHA-256 pins: `WordboundLiveMatch.cs` = `E3B002346BC1E118AE0AB9CA9C3EFEB67E9EAB8EA4348C24DBBB47FC46D0A595`; `WordboundNativeGameplayTests.cs` = `41EF96544E41E71C95AF37AD109E644F468E82EA4FDE006902CBB9310E76EE5E`; native test asmdef = `326597619B4C28D322717F6D551055447158863FB91B0AC8168ED0B7D8331B74`.
 
+Owner froze the same reviewed hashes in **a5ea59fb098505916ed5c9117453592e7511202b** and reports separate-assembly installed-reference compilation passed with zero warnings/errors. This reviewer did not run that compile. Native execution remains NOT RUN.
+
 No additional concrete blocker was found in the remaining bounded source review. Replacement selection uses an actual new running server Runner among original survivors and requires one eventual host; every survivor must reach the next domain epoch. Checks retain exact authenticated survivor identities, disconnected prior host, complete canonical/native body IDs, one prior command receipt, and a fresh surviving-client command with exact new-epoch ACK. Physical counters wrap the actual production runtime callbacks. Timeouts/cancellation remain bounded, and cleanup failures fail the test rather than becoming successful body-only evidence.
 
 Compilation and native execution of these new cases remain pending with their owners. This source review does not establish abrupt-kill recovery, cross-device behavior, adverse networking, all-family puzzle completion or full three-lap playability.
