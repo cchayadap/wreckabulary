@@ -24,15 +24,20 @@ namespace Wreckabulary.Online
             public WordboundVisualInstance World, Held;
             public WordboundAvatarMotion Motion;
             public bool Carrying, TwoHanded;
+            public float DefenseBlend;
             public void Dispose() { Motion?.Dispose(); World?.Dispose(); Held?.Dispose(); }
         }
 
         readonly List<View> views = new List<View>();
         readonly Dictionary<string, string> appearances = new Dictionary<string, string>(StringComparer.Ordinal);
         readonly Dictionary<string, string> equipped = new Dictionary<string, string>(StringComparer.Ordinal);
+        readonly Dictionary<string, MatchDefenseState> defenses = new Dictionary<string, MatchDefenseState>(StringComparer.Ordinal);
+        readonly WordboundDefensePose defaultDefensePose = new WordboundDefensePose();
         WordboundVisualResolver resolver;
         WordboundGameplayController controller;
         MatchBinding binding;
+        long frameTick, frameEpoch = -1;
+        bool frameUnavailable;
         public string Fault { get; private set; } = "";
         public event Action<string> Failed;
         public int VisualCount => views.Count;
@@ -59,12 +64,19 @@ namespace Wreckabulary.Online
             if (binding != null && binding.Hash != frame.Binding.Hash)
                 throw new InvalidOperationException("Presentation cannot mix different signed matches.");
             binding = frame.Binding;
+            if (frameEpoch != frame.Epoch)
+                foreach (var view in views) view.DefenseBlend = 0;
+            frameEpoch = frame.Epoch;
+            frameTick = frame.Progress.Tick;
+            frameUnavailable = frame.Progress.Migrating || frame.Progress.Result != null;
             appearances.Clear();
             equipped.Clear();
+            defenses.Clear();
             foreach (var actor in frame.Actors)
             {
                 appearances.Add(actor.PlayerId, actor.Appearance);
                 equipped.Add(actor.PlayerId, WordboundCombatPolicy.EquippedItemId(frame, actor.PlayerId));
+                if (actor.Defense != null) defenses.Add(actor.PlayerId, actor.Defense);
             }
             foreach (var view in views) ApplyAppearance(view);
         }
@@ -160,7 +172,7 @@ namespace Wreckabulary.Online
                 }
                 foreach (var view in views)
                     view.Motion?.Step(deltaTime, view.Body.Body.BodyActive, view.Carrying, view.TwoHanded);
-                foreach (var view in views) ShowHeld(view);
+                foreach (var view in views) ShowHeld(view, deltaTime);
             }
             catch (Exception error) { SetFault(error); }
         }
@@ -174,12 +186,13 @@ namespace Wreckabulary.Online
             return null;
         }
 
-        void ShowHeld(View view)
+        void ShowHeld(View view, float deltaTime)
         {
             if (view.World == null || view.Body.Body.BodyActive || view.Body.CarrierSeat < 0)
-            { view.Held?.Show(false); return; }
+            { view.DefenseBlend = 0; view.Held?.Show(false); return; }
             var carrier = Carrier(view);
-            if (carrier == null || !VisibleInHand(view, carrier)) { view.Held?.Show(false); return; }
+            if (carrier == null || !VisibleInHand(view, carrier))
+            { view.DefenseBlend = 0; view.Held?.Show(false); return; }
             string skin = resolver.SkinFor(view.Key, carrier.World.Outfit);
             if (view.Held == null || !view.Held.Root || view.HeldSkin != skin)
             {
@@ -189,7 +202,26 @@ namespace Wreckabulary.Online
             }
             var hand = view.Key == "keepsake" && carrier.World.LeftHand ? carrier.World.LeftHand : carrier.World.RightHand;
             view.Held.PlaceAtHand(carrier.Parent, hand, view.Body.Body.ItemMode == (int)ItemState.Held);
+            ApplyDefensePose(view, carrier, hand, deltaTime);
             view.Held.Show(true);
+        }
+
+        void ApplyDefensePose(View item, View carrier, Transform hand, float deltaTime)
+        {
+            var pose = resolver.Profile?.DefensePose ?? defaultDefensePose;
+            string itemId = item.Body.Body.BodyId.ToString();
+            bool active = !frameUnavailable && (controller == null || !controller.IsSimulationPaused) &&
+                (controller == null || controller.Bodies.TryGetValue(itemId, out var current) && current == item.Body.Body) &&
+                item.Body.Body.ItemMode == (int)ItemState.Held &&
+                defenses.TryGetValue(carrier.Actor, out var defense) &&
+                WordboundDefensePose.IsActive(defense, itemId, frameTick);
+            if (!active || !pose.TryGet(item.Key, out var offset, out var euler))
+            { item.DefenseBlend = 0; return; }
+            float delta = float.IsNaN(deltaTime) || float.IsInfinity(deltaTime) ? 0 : Mathf.Clamp(deltaTime, 0, .1f);
+            item.DefenseBlend = pose.BlendSeconds <= 0 ? 1 :
+                Mathf.MoveTowards(item.DefenseBlend, 1, delta / pose.BlendSeconds);
+            WordboundDefensePose.PlaceAroundGrip(item.Held.Root.transform, item.Held.Grip, hand,
+                carrier.Parent, offset, euler, item.DefenseBlend);
         }
 
         bool VisibleInHand(View item, View carrier) => item.Body.Body.ItemMode != (int)ItemState.Held ||
@@ -210,7 +242,8 @@ namespace Wreckabulary.Online
         public void Clear()
         {
             foreach (var view in views) view.Dispose();
-            views.Clear(); appearances.Clear(); equipped.Clear(); binding = null; Fault = "";
+            views.Clear(); appearances.Clear(); equipped.Clear(); defenses.Clear();
+            frameEpoch = -1; frameTick = 0; frameUnavailable = true; binding = null; Fault = "";
         }
         void OnDestroy()
         {
