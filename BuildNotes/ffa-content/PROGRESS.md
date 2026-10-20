@@ -1,6 +1,6 @@
 # FFA equipment sources
 
-STATUS: SOURCE CHECKPOINT READY — COMPILER AND UNITY NOT RUN
+STATUS: FOCUSED SOURCE GATE PASS19/19 — NATIVE UNITY AND 1000-SEED ARENA SWEEP NOT RUN
 
 Root authorized a narrow repair to CourseTemplates.CombatArena and new focused engine-free tests after independent acceptance finding A2. This branch did not yet contain CourseTemplates.cs, so it receives the exact integration file (baseline SHA-256 E5381E247A9921D696945EF4FE58FA24FD829BED192D23894AF2EFAD6E633DD0) and changes only CombatArena. Integration may require add/add resolution; preserve all other template methods unchanged.
 
@@ -16,4 +16,8 @@ Source review checked the template diff is confined to CombatArena, all new test
 
 Prepared overlay recipe: ArenaResourceTests.csproj links integration Rules and substitutes only this lane's CourseTemplates, with real NUnit3.14 and the existing TestData/catalogue. Run from this worktree root after root grants the compiler window: `dotnet test BuildNotes/ffa-content/ArenaResourceTests.csproj --logger "trx;LogFileName=arena-resources.trx" --results-directory BuildNotes/ffa-content/results -p:UseSharedCompilation=false`. Follow with the integration project's normal Rules reference gate after cherry-pick. Do not run Unity from this lane.
 
-Next: commit source-only checkpoint and await root's explicit compiler window. Public export must wait for the changed FFA binding to pass its source gates. Native targeted selection/collection in the grid remains unverified.
+Verification follow-up: root granted the compiler window. Actual dotnet/NUnit overlay compilation passed and final run PASS19/19,0skipped,31s. First run compiled but15 acquisition cases failed because the fixture compared authored source IDs with resolved IDs; its public SourceId→Id lookup was corrected. The production content required no change after b7212cb. Both initial and final TRX files are preserved; the failed run is not acceptance evidence. Compiler slot was released directly to the domain lane after process exit.
+
+Final exact SHA-256: CourseTemplatesF0E34865553EC7C3CA0A038843393B32E1C2CD9A98E1D4A1F0DC3C6DF8CB8A09; testDD42264BF55D42907EFDCDB11C0CDA216DAC6A6ACFC52632ED9C44C9FCC19A88; final TRX685BD003590EC156BED511782681C8DB23F270AA1115A0C75CA8BFCD9D62E95B; compiled test+Rules overlay DLLB1AA3F1CA83B4D9CA4CFFA6535A4C553BFC76B1E1ED234332F53F1F4CA1BD44D. Rules linked current integration0f1ff2f98689c655376ee2e0d214222db094f2c6; the overlay substitutes only this lane's CourseTemplates.
+
+Next: root integrates the exact CombatArena delta, then grants a later bounded1000-seed arena-only replay/bounds/resources/spawns/capacity gate. Do not rerun the unchanged full flagship sweep. Public export remains deferred until final content verification. Native targeted selection/collection in the grid remains unverified.

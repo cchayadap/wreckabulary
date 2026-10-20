@@ -31,6 +31,7 @@ namespace Wreckabulary.Tests
             public readonly ResolvedCourse Course;
             public readonly MatchBinding Binding;
             public readonly AuthoritativeMatch Match;
+            readonly HashSet<string> cacheSources;
             readonly long[] sequences;
             public MatchSnapshot State => Match.Capture(1);
 
@@ -41,6 +42,7 @@ namespace Wreckabulary.Tests
                     new CourseResolveRequest(seed, MatchStateValidation.Requirements(Mode)));
                 Assert.IsTrue(result.Success, string.Join("\n", result.Issues));
                 Course = result.Manifest;
+                cacheSources = new HashSet<string>(Course.Supplies.Where(s => InCache(s.SourceId, 0)).Select(s => s.Id));
                 var seats = Enumerable.Range(0, players).Select(i => new WordboundSeat("p" + i, i)).ToArray();
                 Binding = new MatchBinding("arena-resources", MatchSnapshotCodec.ProtocolVersion, Mode.Hash,
                     Course.SourceHash, Course.Hash, WordboundIdentity.Sha256(string.Join("|", seats.Select(s => s.PlayerId))),
@@ -87,9 +89,11 @@ namespace Wreckabulary.Tests
             {
                 var state = State;
                 var letters = state.Economy.Tiles.ToDictionary(t => t.Key, t => t.Value);
-                return state.Bodies.First(b => b.Kind == WorldBodyKind.Tile && InCache(b.SourceId, 0) &&
+                return state.Bodies.First(b => b.Kind == WorldBodyKind.Tile && IsCache(b.SourceId) &&
                     letters[Number(b.Id)] == letter);
             }
+
+            public bool IsCache(string resolvedSourceId) => cacheSources.Contains(resolvedSourceId);
 
             public void Collect(WorldBodyState tile, int actor = 0) =>
                 Assert.AreEqual("Ok", Step(WordboundAction.CollectLetter, tile.Id, actor: actor, at: tile.Position)
@@ -188,26 +192,26 @@ namespace Wreckabulary.Tests
         {
             var f = new Arena(8);
             foreach (char letter in "BAT") f.Collect(f.CacheLetter(letter));
-            var pending = f.State.Resources.Where(r => InCache(r.SourceId, 0) && r.RecoveryAtTick >= 0).ToArray();
+            var pending = f.State.Resources.Where(r => f.IsCache(r.SourceId) && r.RecoveryAtTick >= 0).ToArray();
             Assert.AreEqual(3, pending.Length);
             long firstDeadline = pending.Min(r => r.RecoveryAtTick), lastDeadline = pending.Max(r => r.RecoveryAtTick);
             Assert.Greater(firstDeadline, f.Match.Tick);
             f.Craft("BAT");
             f.Advance((int)(firstDeadline - f.Match.Tick - 1));
-            Assert.AreEqual(18, f.State.Bodies.Count(b => InCache(b.SourceId, 0) && b.Kind == WorldBodyKind.Tile));
+            Assert.AreEqual(18, f.State.Bodies.Count(b => f.IsCache(b.SourceId) && b.Kind == WorldBodyKind.Tile));
             f.Step();
-            Assert.AreEqual(19, f.State.Bodies.Count(b => InCache(b.SourceId, 0) && b.Kind == WorldBodyKind.Tile));
+            Assert.AreEqual(19, f.State.Bodies.Count(b => f.IsCache(b.SourceId) && b.Kind == WorldBodyKind.Tile));
             f.Advance((int)(lastDeadline - f.Match.Tick));
             var state = f.State;
-            var tiles = state.Bodies.Where(b => InCache(b.SourceId, 0) && b.Kind == WorldBodyKind.Tile).ToArray();
+            var tiles = state.Bodies.Where(b => f.IsCache(b.SourceId) && b.Kind == WorldBodyKind.Tile).ToArray();
             var letters = state.Economy.Tiles.ToDictionary(t => t.Key, t => t.Value);
             Assert.AreEqual(21, tiles.Length);
-            Assert.AreEqual(LetterBag.FromWord(string.Concat(f.Course.Supplies.Where(s => InCache(s.Id, 0)).Select(s => s.Letters))).ToString(),
+            Assert.AreEqual(LetterBag.FromWord(string.Concat(f.Course.Supplies.Where(s => f.IsCache(s.Id)).Select(s => s.Letters))).ToString(),
                 LetterBag.FromWord(new string(tiles.Select(b => letters[Number(b.Id)]).ToArray())).ToString());
             Assert.AreEqual(1, state.Economy.Items.Count(i => i.Origin == ItemOrigin.Crafted && i.Word == "BAT"));
             Assert.IsTrue(state.Economy.Players.Single(p => p.PlayerId == 0).Letters.IsEmpty);
             f.Advance(601);
-            Assert.AreEqual(21, f.State.Bodies.Count(b => InCache(b.SourceId, 0) && b.Kind == WorldBodyKind.Tile));
+            Assert.AreEqual(21, f.State.Bodies.Count(b => f.IsCache(b.SourceId) && b.Kind == WorldBodyKind.Tile));
             Assert.AreEqual(f.State.Bodies.Count, f.State.Bodies.Select(b => b.Id).Distinct().Count());
             f.Acknowledge();
         }
