@@ -61,8 +61,18 @@ namespace Wreckabulary.Rules.Wordbound
         public static CourseDocument CombatArena()
         {
             var d = Base("arena-proof", "Toybox Arena", "FreeForAll");
+            const string kit = "ABCCDEFHIKLLMMNOOPRST";
             for (int i = 0; i < 8; i++)
+            {
                 d.Spawns.Add(new CourseSpawn { Id = "Respawn" + i, ModuleId = "Start", Kind = "Respawn", Position = P(-7000 + i * 2000, 0, 8000) });
+                for (int letter = 0; letter < kit.Length; letter++)
+                    d.Supplies.Add(new CourseSupply {
+                        Id = "ArenaKit" + i + "Tile" + letter, ModuleId = "Start", Letters = kit[letter].ToString(),
+                        Position = P(-6000 + i % 4 * 4000 + (letter % 7 - 3) * 500, 0,
+                            (i < 4 ? -6000 : 6000) + (letter / 7 - 1) * 500),
+                        Renewable = true, Protected = false
+                    });
+            }
             d.Zones.Add(Zone("ArenaProps", "Start", "Ground", "Props", -8000, 0, -3000, -2000, 4000));
             d.Zones.Add(Zone("ArenaResources", "Start", "Ground", "Resources", 2000, 0, -3000, 8000, 4000));
             return d;
