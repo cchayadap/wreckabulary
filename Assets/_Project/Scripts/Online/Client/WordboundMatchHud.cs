@@ -277,6 +277,7 @@ namespace Wreckabulary.Online
             "OutOfReach" => "Move closer and keep the object in sight.",
             "MissingLetters" => "Collect the missing letters first.",
             "HandsFull" => "Free a slot or put down the furniture.",
+            "Capacity" => "Object limit reached. Try again after unused objects clear.",
             "BlockedPlacement" => "That spot is blocked. Move to a clear space.",
             "BlockedRelease" => "Make room in front of you before putting the item down.",
             "EmptySlot" => "Choose an occupied equipment slot.",

@@ -22,7 +22,7 @@ namespace Wreckabulary.Qa
         string initial, edited, manifest;
         Camera ownedCamera;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         static void Register() => QaScenarios.Register("wordbound_workshop_flow", () => new WordboundWorkshopQa());
 
         public IEnumerable<QaStep> BuildSteps(QaContext context)
