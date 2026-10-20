@@ -1,10 +1,10 @@
 # Selected-account deployment package
 
-STATUS: PREPARED LOCALLY; DEPLOYMENT AND PHOTON CONFIGURATION NOT RUN
+STATUS: DEPLOYED AND LIVE API VERIFIED; PHOTON DASHBOARD CONFIGURATION PENDING
 
-The user's selected account is `d105a82bc26b6913575355352c2d1bb1`, matching the existing website. The deployment configuration is `OnlineServices/wrangler.production.jsonc`. It creates the separate `wreckabulary-wordbound-coordinator` Worker and its own SQLite Durable Object namespaces `Identity`, `Party` and `MatchPool`. It has no website route, custom domain, Pages binding or shared database. The exact workers.dev origin must come from the approved deployment result; it has not been invented here.
+The user's selected account is `d105a82bc26b6913575355352c2d1bb1`, matching the existing website. The deployment configuration is `OnlineServices/wrangler.production.jsonc`. It created the separate `wreckabulary-wordbound-coordinator` Worker and its own SQLite Durable Object namespaces `Identity`, `Party` and `MatchPool`. It has no website route, custom domain, Pages binding or shared database. Verified origin: `https://wreckabulary-wordbound-coordinator.pagna.workers.dev`. See `DEPLOYMENT-AUDIT.md` for exact version, public-key and live API evidence.
 
-Current access does not cover this target: the inspected CLI account is `743e5b727d139e85ed11679097f6f99e` and the connector account is `4e185f32352a5f1a5965ea16965e8a79`. Do not deploy using either account, change global credentials, or change the target to make an authentication error disappear. A project-specific authenticated profile or scoped API token for the selected account is the remaining access prerequisite. No account, billing plan or provider setting was changed.
+The user supplied a new connector with verified access to the selected Apps account; that connector performed this deployment. The inspected CLI account `743e5b727d139e85ed11679097f6f99e` and previous connector account `4e185f32352a5f1a5965ea16965e8a79` remain unrelated and unchanged. Do not use them for updates. No global credential, billing plan or Photon provider setting was changed.
 
 ## Local preparation
 
@@ -39,7 +39,7 @@ Provision these three values through protected secret storage after selected-acc
 | `PHOTON_PROVIDER_SECRET` | A different random 32-byte base64url value; shared only with the Photon provider's static dashboard parameter. |
 | `ADMISSION_PRIVATE_JWK` | A JSON-serialized RSA private JWK for RS256 with a 2048-bit or larger modulus and exponent 65537. Keep all private CRT parameters; use the public counterpart for client verification. |
 
-No production keys have been generated. Do not store secrets in source, Unity assets, shell arguments, tool output or command history. An operator-controlled JSON secrets file must live outside the checkout in protected storage. Its three values are strings; `ADMISSION_PRIVATE_JWK` is itself a serialized JSON string. The published endpoint `/v1/keys` returns only the public JWK with the configured key ID. Changing the signing key currently replaces the single advertised key; coordinate rotation with all clients and existing certificates.
+Production secrets were generated once into ignored `.harness/online-secrets/production.json` with current-user-only Windows directory permissions and uploaded atomically with code. Do not store secrets in source, Unity assets, shell arguments, tool output or command history. The protected JSON file's three values are strings; `ADMISSION_PRIVATE_JWK` is itself a serialized JSON string. The published endpoint `/v1/keys` returns only the public JWK with the configured key ID. Changing the signing key currently replaces the single advertised key; coordinate rotation with all clients and existing certificates.
 
 After access and the external publish action are authorized, verify the selected profile's account inventory before upload. Use that same profile on every subsequent command. Replace `SELECTED_ACCOUNT_PROFILE` with the verified profile name and the secrets path with the protected file's real path:
 
@@ -78,7 +78,7 @@ Keep automatic invocation logs disabled: provider secrets are static query value
 - Exercise the exact start certificate, all-seat readiness, per-Runner host proof, lease renewal/expiry and Return revocation through the real adapter. A successful HTTP request or basic Photon room join is not this gate.
 - Run the native carrier/cloud migration cases in `NATIVE-MIGRATION-REVIEW.md` and the full dynamic-body test. Only then enable gameplay claims.
 
-Current boundaries: no selected-account access, deployed origin, production keys, approved built-in registry or configured Photon provider. These are explicit release prerequisites, not placeholders that tests silently accept.
+Current boundaries: approved built-in registry, configured Photon provider, actual Photon custom-auth handshake and full native gameplay/migration remain pending. The live HTTP provider and eight-seat private coordinator API are verified separately.
 
 Local evidence: production dry-run exits 0 with an 858.34 KiB bundle (141.22 KiB gzip), exact three Durable Object bindings and configured public variables. Production type generation also exits 0 into ignored `.wrangler/production-preview`. Logs: `verify-production-preview.log` and `verify-production-types.log`. No cloud upload or account validation is implied by this local result.
 

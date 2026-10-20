@@ -1,0 +1,25 @@
+{
+  "accountId": "d105a82bc26b6913575355352c2d1bb1",
+  "worker": "wreckabulary-wordbound-coordinator",
+  "issuer": "wreckabulary-wordbound",
+  "keyId": "wordbound-rs256-20261020-01",
+  "photonAppId": "f6fb7f4c-b8a9-44a3-ac63-bee1c5f23552",
+  "publicKeyFingerprint": "43ea939c715a181912177bff3e98c647d5690ec2b0b40085a8bb6c047ce41dce",
+  "jwks": {
+    "keys": [
+      {
+        "n": "sP0408_dmX2wvqnI_7lHPLIEVK6bL9G-c53AtLOtt51X-wHoXc2n9d63A7zEbdrF6y-El3uDCwao0RGP4fqrOA_nHcBOY6ODGfsRk8jkCZ7N7Sw4wPaJ_IK63Fm31RPGijmcggRBH3dfxNW7iE4xWUBgUIiZvW0Mje_4_EI3HBmrm1v_tYGq7nPizxc5HdedAqb9FSDVKSPNs81dJL_54w6x_x7RbO3ugqRQbC9B_0JZQJ-psihvhK4an1Rjt80uOsYLwliqHXFvXijHrRaEbuF1lLUv4Jk9J-rI42aWUENbT5-0pvbd05dBOShafxC9yZvfLi_SDZ5t2ekhGAETaDtyIX8twn0RNweAO4pV-nnMEw543-8O_0tNt_Km6iPW0-Uk8d26SHiXuevpl8WGAqhTcyzFlQXLyZwNZZK9qXWdqg9ZXFmAbMy-s_BJu3FkE8_bJCsgY-9irjA_H9eBPIKc9tbIqEXwT6Zxs3oPyhfGS88-rHp1eAyLDJEeiBZH",
+        "e": "AQAB",
+        "kty": "RSA",
+        "kid": "wordbound-rs256-20261020-01",
+        "use": "sig",
+        "alg": "RS256"
+      }
+    ]
+  },
+  "moduleSha256": "7ece61c9f933b5560621a065e1f69472bf2e1d04a29f471bd1191d2d19f5d122",
+  "origin": "https://wreckabulary-wordbound-coordinator.pagna.workers.dev",
+  "deploymentId": "971d0df1-256b-4c10-ba65-b52077c209a3",
+  "createdAt": "2026-10-20T12:51:07.297206Z",
+  "versionId": "cf457313-a6e7-4482-a6cc-26a2ff853ac4"
+}
