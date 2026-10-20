@@ -23,7 +23,7 @@ namespace Wreckabulary.EditorTools
         public const string BrassName = "WordboundPvPBrass";
         static readonly string[] ids = { "BAT", "BROOM", "HAMMER", "SPEAR", "SHIELD", "PLATE", "TABLE", "SOFA", "BED", "STOOL", "FAN", "CLOCK" };
         public static IReadOnlyList<string> ItemIds => ids;
-        public override uint GetVersion() => 1;
+        public override uint GetVersion() => 2;
 
         void OnPreprocessModel()
         {
@@ -51,12 +51,19 @@ namespace Wreckabulary.EditorTools
         void OnPreprocessTexture()
         {
             bool icon = assetPath.StartsWith(ArtRoot + "/Icons/", StringComparison.Ordinal);
-            if (!icon && assetPath != ArtRoot + "/WordboundPvPPalette.png") return;
+            bool normal = assetPath == ArtRoot + "/WordboundPvPNormal.png";
+            bool mask = assetPath == ArtRoot + "/WordboundPvPMask.png";
+            if (!icon && !normal && !mask && assetPath != ArtRoot + "/WordboundPvPPalette.png") return;
             var importer = (TextureImporter)assetImporter;
-            importer.textureType = icon ? TextureImporterType.Sprite : TextureImporterType.Default;
+            importer.textureType = icon ? TextureImporterType.Sprite : normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
             importer.textureShape = TextureImporterShape.Texture2D;
-            importer.sRGBTexture = true;
-            importer.alphaSource = icon ? TextureImporterAlphaSource.FromInput : TextureImporterAlphaSource.None;
+            importer.sRGBTexture = !normal && !mask;
+            if (normal)
+            {
+                importer.convertToNormalmap = false;
+                importer.flipGreenChannel = false;
+            }
+            importer.alphaSource = icon || mask ? TextureImporterAlphaSource.FromInput : TextureImporterAlphaSource.None;
             importer.alphaIsTransparency = icon;
             importer.mipmapEnabled = !icon;
             importer.isReadable = false;
@@ -90,23 +97,44 @@ namespace Wreckabulary.EditorTools
             public ExportRecords exports;
             public PreviewRecord[] previews;
         }
-        [Serializable] public sealed class Manifest { public FileRecord palette; public AssetRecord[] assets; }
+        [Serializable] public sealed class DetailMaps { public FileRecord normal; public FileRecord mask; public FileRecord roughness; }
+        [Serializable] public sealed class Manifest
+        { public string revision; public FileRecord palette; public DetailMaps detail_maps; public AssetRecord[] assets; }
         [Serializable] sealed class ExportCheck { public string id; public string format; public bool passed; }
         [Serializable] sealed class ExportVerification { public bool passed; public ExportCheck[] checks; }
         [Serializable] sealed class DeliveryVerification { public bool passed; public int concepts; public int models; public int exports; public int icons; }
+        [Serializable] sealed class SourceRevision { public string revision; }
 
         public static Manifest ReadVerifiedManifest()
         {
-            var delivery = Read<DeliveryVerification>("delivery-verification.json");
-            var verification = Read<ExportVerification>("export-verification.json");
+            string receipt = ArtRoot + "/SourceRevision.json";
+            if (!File.Exists(receipt)) return ReadVerifiedManifest(SourceRoot);
+            var selected = JsonUtility.FromJson<SourceRevision>(File.ReadAllText(receipt));
+            if (selected == null || (selected.revision != "Original" && selected.revision != "DetailV2"))
+                throw new InvalidOperationException("Unknown imported Wordbound equipment revision.");
+            return ReadVerifiedManifest(selected.revision == "DetailV2" ? SourceRoot + "/DetailV2" : SourceRoot);
+        }
+
+        static Manifest ReadVerifiedManifest(string sourceRoot)
+        {
+            var delivery = Read<DeliveryVerification>(sourceRoot, "delivery-verification.json");
+            var verification = Read<ExportVerification>(sourceRoot, "export-verification.json");
             if (!delivery.passed || delivery.concepts != 12 || delivery.models != 12 || delivery.exports != 24 || delivery.icons != 12 ||
                 !verification.passed || verification.checks == null || verification.checks.Length != 24)
                 throw new InvalidOperationException("The twelve-asset delivery and both-format Blender verification must pass first.");
-            var manifest = Read<Manifest>("manifest.json");
+            var manifest = Read<Manifest>(sourceRoot, "manifest.json");
             if (manifest.assets == null || manifest.assets.Length != ids.Length ||
                 !manifest.assets.Select(asset => asset.id).OrderBy(id => id, StringComparer.Ordinal).SequenceEqual(ids.OrderBy(id => id, StringComparer.Ordinal)))
                 throw new InvalidOperationException("The Wordbound manifest must contain exactly the twelve approved item IDs.");
-            VerifyFile(manifest.palette, "Exports/WordboundPvPPalette.png");
+            VerifyFile(sourceRoot, manifest.palette, "Exports/WordboundPvPPalette.png");
+            if (sourceRoot != SourceRoot && (manifest.revision != "DetailV2" || manifest.detail_maps == null))
+                throw new InvalidOperationException("The detailed revision requires its exact material-map manifest.");
+            if (manifest.detail_maps != null)
+            {
+                VerifyFile(sourceRoot, manifest.detail_maps.normal, "Exports/WordboundPvPNormal.png");
+                VerifyFile(sourceRoot, manifest.detail_maps.mask, "Exports/WordboundPvPMask.png");
+                VerifyFile(sourceRoot, manifest.detail_maps.roughness, "Exports/WordboundPvPRoughness.png");
+            }
             var catalogue = ItemCatalogue.FromJson(File.ReadAllText(CataloguePath), CataloguePath);
             foreach (var asset in manifest.assets)
             {
@@ -121,24 +149,40 @@ namespace Wreckabulary.EditorTools
                 foreach (string format in new[] { "fbx", "glb" })
                     if (verification.checks.Count(check => check.id == asset.id && check.format == format && check.passed) != 1)
                         throw new InvalidOperationException("Missing unique passing export check for " + asset.id + "/" + format);
-                VerifyFile(asset.exports.fbx, "Exports/" + asset.id + ".fbx");
-                VerifyFile(asset.exports.glb, "Exports/" + asset.id + ".glb");
+                VerifyFile(sourceRoot, asset.exports.fbx, "Exports/" + asset.id + ".fbx");
+                VerifyFile(sourceRoot, asset.exports.glb, "Exports/" + asset.id + ".glb");
                 var icon = asset.previews.Single(preview => preview.view == "icon");
-                VerifyFile(new FileRecord { path = icon.path, sha256 = icon.sha256 }, "Icons/" + asset.id + ".png");
+                VerifyFile(sourceRoot, new FileRecord { path = icon.path, sha256 = icon.sha256 }, "Icons/" + asset.id + ".png");
             }
             return manifest;
         }
 
         [MenuItem("Wreckabulary/Art/Build Wordbound Equipment Collection")]
-        public static void Build()
+        public static void Build() => BuildFrom(SourceRoot);
+
+        [MenuItem("Wreckabulary/Art/Build Detailed Wordbound Equipment Collection")]
+        public static void BuildDetailed() => BuildFrom(SourceRoot + "/DetailV2");
+
+        static void BuildFrom(string sourceRoot)
         {
-            var manifest = ReadVerifiedManifest();
+            var manifest = ReadVerifiedManifest(sourceRoot);
             foreach (string folder in new[] { ArtRoot + "/Models", ArtRoot + "/Icons", ArtRoot + "/Materials", "Assets/_Project/Resources/Collections" })
                 EnsureFolder(folder);
-            CopyImport("Exports/WordboundPvPPalette.png", ArtRoot + "/WordboundPvPPalette.png");
+            CopyImport(sourceRoot, "Exports/WordboundPvPPalette.png", ArtRoot + "/WordboundPvPPalette.png");
             var palette = AssetDatabase.LoadAssetAtPath<Texture2D>(ArtRoot + "/WordboundPvPPalette.png");
             if (!palette || palette.width > 512 || palette.height > 512) throw new InvalidOperationException("Invalid imported Wordbound palette.");
-            var paint = MakeMaterial(PaintName, Color.white, 0f, .38f, palette);
+            Texture2D normal = null, mask = null;
+            if (manifest.detail_maps != null)
+            {
+                CopyImport(sourceRoot, manifest.detail_maps.normal.path, ArtRoot + "/WordboundPvPNormal.png");
+                CopyImport(sourceRoot, manifest.detail_maps.mask.path, ArtRoot + "/WordboundPvPMask.png");
+                normal = AssetDatabase.LoadAssetAtPath<Texture2D>(ArtRoot + "/WordboundPvPNormal.png");
+                mask = AssetDatabase.LoadAssetAtPath<Texture2D>(ArtRoot + "/WordboundPvPMask.png");
+                if (!normal || !mask || normal.width != palette.width || normal.height != palette.height ||
+                    mask.width != palette.width || mask.height != palette.height)
+                    throw new InvalidOperationException("Detailed texture maps must match the bounded color atlas dimensions.");
+            }
+            var paint = MakeMaterial(PaintName, Color.white, 0f, mask ? 1f : .38f, palette, normal, mask);
             var brass = MakeMaterial(BrassName, new Color32(0xD6, 0xAE, 0x62, 255), .72f, .70f, null);
             var catalogue = ItemCatalogue.FromJson(File.ReadAllText(CataloguePath), CataloguePath);
             var entries = new List<WordboundEquipmentCollection.Entry>();
@@ -146,8 +190,8 @@ namespace Wreckabulary.EditorTools
             {
                 string modelPath = ArtRoot + "/Models/" + asset.id + ".fbx";
                 string iconPath = ArtRoot + "/Icons/" + asset.id + ".png";
-                CopyImport(asset.exports.fbx.path, modelPath);
-                CopyImport("Icons/" + asset.id + ".png", iconPath);
+                CopyImport(sourceRoot, asset.exports.fbx.path, modelPath);
+                CopyImport(sourceRoot, "Icons/" + asset.id + ".png", iconPath);
                 var importer = (ModelImporter)AssetImporter.GetAtPath(modelPath);
                 importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), PaintName), paint);
                 importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), BrassName), brass);
@@ -171,6 +215,10 @@ namespace Wreckabulary.EditorTools
             collection.SetEntries(entries);
             EditorUtility.SetDirty(collection);
             AssetDatabase.SaveAssetIfDirty(collection);
+            string receipt = ArtRoot + "/SourceRevision.json";
+            File.WriteAllText(receipt, JsonUtility.ToJson(new SourceRevision
+                { revision = manifest.detail_maps == null ? "Original" : "DetailV2" }, true) + "\n");
+            AssetDatabase.ImportAsset(receipt, ImportAssetOptions.ForceSynchronousImport);
             Debug.Log("WORDBOUND_EQUIPMENT_READY: twelve independent models/icons; shared catalogue and model/material libraries preserved.");
         }
 
@@ -244,7 +292,7 @@ namespace Wreckabulary.EditorTools
             return bounds;
         }
 
-        static T Read<T>(string file) => JsonUtility.FromJson<T>(File.ReadAllText(SourceRoot + "/" + file));
+        static T Read<T>(string sourceRoot, string file) => JsonUtility.FromJson<T>(File.ReadAllText(sourceRoot + "/" + file));
         static Vector3 Vector(float[] values)
         {
             if (values == null || values.Length != 3 || values.Any(value => float.IsNaN(value) || float.IsInfinity(value)))
@@ -254,26 +302,27 @@ namespace Wreckabulary.EditorTools
         static bool Near(Vector3 left, Vector3 right, float tolerance) =>
             Mathf.Abs(left.x - right.x) <= tolerance && Mathf.Abs(left.y - right.y) <= tolerance && Mathf.Abs(left.z - right.z) <= tolerance;
 
-        static void VerifyFile(FileRecord record, string expectedPath)
+        static void VerifyFile(string sourceRoot, FileRecord record, string expectedPath)
         {
             if (record == null || record.path != expectedPath || string.IsNullOrEmpty(record.sha256))
                 throw new InvalidOperationException("Unexpected source path: " + expectedPath);
             using (var sha = SHA256.Create())
-            using (var input = File.OpenRead(SourceRoot + "/" + expectedPath))
+            using (var input = File.OpenRead(sourceRoot + "/" + expectedPath))
             {
                 string hash = BitConverter.ToString(sha.ComputeHash(input)).Replace("-", "").ToLowerInvariant();
                 if (hash != record.sha256) throw new InvalidOperationException("Source changed since verification: " + expectedPath);
             }
         }
 
-        static void CopyImport(string source, string target)
+        static void CopyImport(string sourceRoot, string source, string target)
         {
-            byte[] bytes = File.ReadAllBytes(SourceRoot + "/" + source);
+            byte[] bytes = File.ReadAllBytes(sourceRoot + "/" + source);
             if (!File.Exists(target) || !File.ReadAllBytes(target).SequenceEqual(bytes)) File.WriteAllBytes(target, bytes);
             AssetDatabase.ImportAsset(target, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
         }
 
-        static Material MakeMaterial(string name, Color color, float metallic, float smoothness, Texture palette)
+        static Material MakeMaterial(string name, Color color, float metallic, float smoothness, Texture palette,
+            Texture normal = null, Texture mask = null)
         {
             var shader = Shader.Find("Universal Render Pipeline/Lit");
             if (!shader) throw new InvalidOperationException("URP/Lit is required for Wordbound equipment.");
@@ -285,6 +334,12 @@ namespace Wreckabulary.EditorTools
             material.SetFloat("_Metallic", metallic);
             material.SetFloat("_Smoothness", smoothness);
             material.SetTexture("_BaseMap", palette);
+            material.SetTexture("_BumpMap", normal);
+            material.SetTexture("_MetallicGlossMap", mask);
+            material.SetFloat("_BumpScale", 1f);
+            material.SetFloat("_SmoothnessTextureChannel", 0f);
+            if (normal) material.EnableKeyword("_NORMALMAP"); else material.DisableKeyword("_NORMALMAP");
+            if (mask) material.EnableKeyword("_METALLICSPECGLOSSMAP"); else material.DisableKeyword("_METALLICSPECGLOSSMAP");
             EditorUtility.SetDirty(material);
             AssetDatabase.SaveAssetIfDirty(material);
             return material;
