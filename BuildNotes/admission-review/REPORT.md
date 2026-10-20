@@ -217,7 +217,7 @@ Disconnect: Advanced=True, Receipt.Sequence=1, Receipt.Effect.Code=NotAlive
 
 F3 and F4 remain confirmed at this checkpoint; their fixes are owned by the online lane and are not yet independently verified. No additional confirmed lease/replay/queued-command defect was found in the coverage above. This report does not approve live authentication, deployed service configuration, native migration, or physics. Next recoverable action: verify the owner's committed lifecycle fencing and nonce-bound client host-proof corrections with the same failing probes and corresponding native integration gates.
 
-### F3 repair verification — IN PROGRESS
+### F3 repair verification — COMPLETE AT a1ac362
 
 The implementation owner supplied an uncommitted per-run scope repair. Captured session source SHA-256: `5170630DF80894AF47834E310E593B01DC1317D6770A224D81765BCFC8DC3B30`. The independent probe compiled the exact `RunScope`, current-run helpers and `Admit` method in memory with controlled dependencies.
 
@@ -243,3 +243,5 @@ failure=TimeoutException gameplayReady=False authorityTransportReady=False gateF
 ```
 
 This verifies F3 and its terminal-state residual in that exact captured local source. A committed revision pin and broader owner lifecycle harness are pending. F4 host proof remains pending implementation/independent verification.
+
+The verified lifecycle correction is now committed as `a1ac362` (`Fence asynchronous session work across Runner replacement`). Reread the committed failure invalidation and scoped operation paths. The owner also committed its full actual-session-source scheduling harness and recorded `passed=9 failed=0` in `verify-session-lifetime.log`; that broader harness result is owner evidence, distinct from the independent three interleavings above. F3 is closed at this commit. F4 remains open pending its separate proof correction.
