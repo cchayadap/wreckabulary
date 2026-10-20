@@ -9,12 +9,9 @@
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <UnityData Condition="'$(UnityData)' == ''">C:/Program Files/Unity/Hub/Editor/6000.6.3f1/Editor/Data</UnityData>
     <IntegrationRoot Condition="'$(IntegrationRoot)' == ''">../../../wordbound-integration</IntegrationRoot>
-    <PuzzleRoot Condition="'$(PuzzleRoot)' == ''">../../../wordbound-puzzle-race</PuzzleRoot>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Assets/_Project/Tests/OnlineGameplay/*.cs" />
-    <Compile Include="$(PuzzleRoot)/Assets/_Project/Scripts/Online/Physics/*.cs" />
-    <Compile Include="$(PuzzleRoot)/Assets/_Project/Scripts/Online/Gameplay/*.cs" />
     <Reference Include="$(UnityData)/NetStandard/ref/2.1.0/netstandard.dll" Private="false" />
     <Reference Include="$(UnityData)/NetStandard/compat/2.1.0/shims/netfx/mscorlib.dll" Private="false" />
     <Reference Include="$(UnityData)/NetStandard/compat/2.1.0/shims/netfx/System.dll" Private="false" />
@@ -22,8 +19,12 @@
     <Reference Include="$(UnityData)/Managed/UnityEngine/UnityEngine*.dll" Private="false" />
     <Reference Include="$(UnityData)/Managed/UnityEngine/UnityEditor.CoreModule.dll" Private="false" />
     <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.dll" Private="false" />
-    <Reference Include="../online/FusionCompile/bin/Debug/netstandard2.1/Wreckabulary.Rules.dll" Private="false" />
-    <Reference Include="../online/FusionCompile/bin/Debug/netstandard2.1/FusionCompile.dll" Private="false" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Rules.dll" Private="false" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Online.Fusion.dll" Private="false" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Online.Physics.dll" Private="false" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Online.Gameplay.dll" Private="false" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Online.Client.dll" Private="false" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Online.Puzzles.dll" Private="false" />
     <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Fusion.Unity.dll" Private="false" />
     <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Fusion.Addons.Physics.dll" Private="false" />
     <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Photon.Realtime.dll" Private="false" />

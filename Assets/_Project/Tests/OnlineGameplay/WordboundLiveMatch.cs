@@ -15,8 +15,8 @@ namespace Wreckabulary.OnlineGameplayTests
         public const string Origin = "https://wreckabulary-wordbound-coordinator.pagna.workers.dev";
         public const string AppId = "f6fb7f4c-b8a9-44a3-ac63-bee1c5f23552";
         const string Fingerprint = "43ea939c715a181912177bff3e98c647d5690ec2b0b40085a8bb6c047ce41dce";
-        public readonly ModeDefinition Mode = ModeDefinition.For("Freestyle");
-        public readonly CourseCatalogue Geometry = CourseTemplates.ProofCatalogue();
+        public readonly ModeDefinition Mode;
+        public readonly CourseCatalogue Geometry;
         public readonly List<OnlineCoordinatorClient> Clients = new List<OnlineCoordinatorClient>();
         readonly List<WordboundHttpTransport> transports = new List<WordboundHttpTransport>();
         public ItemCatalogue Items { get; }
@@ -25,6 +25,8 @@ namespace Wreckabulary.OnlineGameplayTests
         public OnlineContent Content { get; }
         public OnlineSettings Settings { get; }
         public OnlineAdmissionVerifier Verifier { get; }
+        public WordboundClientContent ProductionContent { get; }
+        public IWordboundPuzzleContent PhysicalPuzzles => ProductionContent?.PhysicalPuzzles;
         public OnlineMatchExpectation Expected { get; private set; }
         public VerifiedOnlineMatch Verified { get; private set; }
         sealed class PartyGroup
@@ -34,8 +36,12 @@ namespace Wreckabulary.OnlineGameplayTests
         }
         readonly List<PartyGroup> parties = new List<PartyGroup>();
 
-        public WordboundLiveMatch(string projectRoot, CourseDocument proofCourse = null)
+        public WordboundLiveMatch(string projectRoot, CourseDocument proofCourse = null,
+            WordboundClientContent productionContent = null)
         {
+            if (proofCourse != null && productionContent != null)
+                throw new ArgumentException("Choose an exact production course or the existing proof document.");
+            ProductionContent = productionContent;
             var trust = OnlineJson.Parse(File.ReadAllText(Path.Combine(projectRoot, "OnlineServices/production-client.json")));
             if (trust["origin"].String() != Origin || trust["photonAppId"].String() != AppId ||
                 trust["issuer"].String() != "wreckabulary-wordbound" || trust["keyId"].String() != "wordbound-rs256-20261020-01" ||
@@ -47,27 +53,41 @@ namespace Wreckabulary.OnlineGameplayTests
                 key["kid"].String() != trust["keyId"].String())
                 throw new InvalidOperationException("The production public key fingerprint does not match.");
             Verifier = new OnlineAdmissionVerifier(trust["issuer"].String(), trust["jwks"]);
-            string folder = Path.Combine(projectRoot, "Assets/_Project/Data/Config");
-            string itemJson = File.ReadAllText(Path.Combine(folder, "items.json"));
-            string ruleJson = File.ReadAllText(Path.Combine(folder, "rules.json"));
-            Items = ItemCatalogue.FromJson(itemJson, "native-proof-items");
-            Rules = Mode.CreateGameplayRules(RuleBook.FromJson(ruleJson, "native-proof-rules").For("Dibs"));
-            var document = proofCourse ?? CourseTemplates.FreestyleWorld();
-            var resolved = CourseResolver.Resolve(document, Geometry,
-                new CourseResolveRequest("0123456789abcdef", MatchStateValidation.Requirements(Mode)));
-            if (!resolved.Success) throw new InvalidOperationException("The native proof course did not resolve.");
-            Course = resolved.Manifest;
-            string catalogueHash = OnlineJson.Hash(new Dictionary<string, object> {
-                ["geometry"] = Geometry.Hash, ["items"] = WordboundIdentity.Sha256(itemJson),
-                ["rules"] = WordboundIdentity.Sha256(ruleJson) });
-            Content = new OnlineContent("Workshop", document.Id, Course.SourceHash, Course.Hash, Mode.Hash, catalogueHash);
-            Settings = new OnlineSettings(Mode.Id, "Solo", false, "asia",
-                "wordbound-v2", "native-" + Guid.NewGuid().ToString("N").Substring(0, 12));
+            if (productionContent != null)
+            {
+                Mode = productionContent.Mode; Geometry = productionContent.Geometry;
+                Items = productionContent.Items; Rules = productionContent.Rules; Course = productionContent.Course;
+                Content = productionContent.PrivateBinding;
+                if (!productionContent.Matches(Content) || !Mode.HasRaceFormat || PhysicalPuzzles == null ||
+                    !PhysicalPuzzles.BindsRules || Course.PhysicalSites.Count == 0)
+                    throw new ArgumentException("The production race fixture requires exact bound flagship physical content.");
+            }
+            else
+            {
+                Mode = ModeDefinition.For("Freestyle"); Geometry = CourseTemplates.ProofCatalogue();
+                string folder = Path.Combine(projectRoot, "Assets/_Project/Data/Config");
+                string itemJson = File.ReadAllText(Path.Combine(folder, "items.json"));
+                string ruleJson = File.ReadAllText(Path.Combine(folder, "rules.json"));
+                Items = ItemCatalogue.FromJson(itemJson, "native-proof-items");
+                Rules = Mode.CreateGameplayRules(RuleBook.FromJson(ruleJson, "native-proof-rules").For("Dibs"));
+                var document = proofCourse ?? CourseTemplates.FreestyleWorld();
+                var resolved = CourseResolver.Resolve(document, Geometry,
+                    new CourseResolveRequest("0123456789abcdef", MatchStateValidation.Requirements(Mode)));
+                if (!resolved.Success) throw new InvalidOperationException("The native proof course did not resolve.");
+                Course = resolved.Manifest;
+                string catalogueHash = OnlineJson.Hash(new Dictionary<string, object> {
+                    ["geometry"] = Geometry.Hash, ["items"] = WordboundIdentity.Sha256(itemJson),
+                    ["rules"] = WordboundIdentity.Sha256(ruleJson) });
+                Content = new OnlineContent("Workshop", document.Id, Course.SourceHash, Course.Hash, Mode.Hash, catalogueHash);
+            }
+            Settings = new OnlineSettings(Mode.Id, Mode.Format.ToString(), false, "asia",
+                MatchSnapshotCodec.ProtocolVersion, "native-" + Guid.NewGuid().ToString("N").Substring(0, 12));
         }
 
         public async Task Prepare(int count, CancellationToken ct)
         {
             if (count != 2 && count != 4 && count != 8) throw new ArgumentOutOfRangeException(nameof(count));
+            if (count > Mode.MaximumPlayers) throw new ArgumentException("The requested peers exceed the selected mode.");
             for (int i = 0; i < count; i++)
             {
                 var transport = new WordboundHttpTransport(new Uri(Origin));
@@ -77,9 +97,10 @@ namespace Wreckabulary.OnlineGameplayTests
                 await client.CreateGuest("NativeGameplay" + i, ct);
             }
             string privateCode = null;
-            foreach (var offset in Enumerable.Range(0, (count + 3) / 4).Select(i => i * 4))
+            int partySize = Mode.HasRaceFormat ? count / 2 : 4;
+            foreach (var offset in Enumerable.Range(0, (count + partySize - 1) / partySize).Select(i => i * partySize))
             {
-                var members = Clients.Skip(offset).Take(4).ToArray();
+                var members = Clients.Skip(offset).Take(partySize).ToArray();
                 var party = await members[0].CreateParty(Settings, Key(), ct);
                 var group = new PartyGroup { Id = party["id"].String() };
                 group.Members.Add(members[0]); parties.Add(group);
@@ -116,6 +137,22 @@ namespace Wreckabulary.OnlineGameplayTests
                 !Verified.Roster.Select(s => s.PlayerId).OrderBy(x => x, StringComparer.Ordinal)
                     .SequenceEqual(Clients.Select(c => c.Credentials.PlayerId).OrderBy(x => x, StringComparer.Ordinal)))
                 throw new InvalidOperationException("The signed roster does not contain exactly the authenticated guests.");
+            if (Mode.HasRaceFormat)
+            {
+                var teams = Verified.Roster.GroupBy(s => s.TeamId).OrderBy(g => g.Key).ToArray();
+                if (teams.Length != 2 || teams[0].Key != 0 || teams[1].Key != 1 ||
+                    teams.Any(g => g.Count() != count / 2 || g.Select(s => s.PartyId).Distinct().Count() != 1) ||
+                    teams.Select(g => g.First().PartyId).Distinct().Count() != 2 || parties.Count != 2)
+                    throw new InvalidOperationException("The signed race roster must preserve the two exact whole parties.");
+                foreach (var group in parties)
+                {
+                    var signed = Verified.Roster.Where(seat => seat.PartyId == group.Id).ToArray();
+                    if (signed.Length != group.Members.Count || signed.Select(seat => seat.TeamId).Distinct().Count() != 1 ||
+                        !new HashSet<string>(signed.Select(seat => seat.PlayerId), StringComparer.Ordinal)
+                            .SetEquals(group.Members.Select(member => member.Credentials.PlayerId)))
+                        throw new InvalidOperationException("The signed race party membership differs from its original authenticated members.");
+                }
+            }
         }
 
         public async Task<WordboundFusionJoin> FreshJoin(int seat, CancellationToken ct)

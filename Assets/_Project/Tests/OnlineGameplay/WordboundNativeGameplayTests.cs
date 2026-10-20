@@ -42,6 +42,7 @@ namespace Wreckabulary.OnlineGameplayTests
             public bool Move;
             public WordboundMovementInput InteractionInput;
             public int Advanced;
+            public int PhysicalSteps, PhysicalObservations, MovementQueries;
             public readonly Dictionary<long, OnlineSnapshotMark> Received = new Dictionary<long, OnlineSnapshotMark>();
             public readonly Dictionary<string, OnlineSnapshotMark> Acknowledged = new Dictionary<string, OnlineSnapshotMark>();
             public readonly Dictionary<string, int> CommandObservations = new Dictionary<string, int>();
@@ -60,7 +61,16 @@ namespace Wreckabulary.OnlineGameplayTests
         [UnityTest, Category("ExternalPhotonGameplay")]
         public IEnumerator AuthenticatedGameplayRestoresAfterHostDeparture() => Run(2, true);
 
-        IEnumerator Run(int count, bool migrate, bool interactions = false)
+        [UnityTest, Category("ExternalPhotonGameplay")]
+        public IEnumerator EightAuthenticatedPeersComposeFlagshipTeamRaceSquad() =>
+            Run(8, false, productionMode: "TeamRace", productionFormat: RaceFormat.Squad);
+
+        [UnityTest, Category("ExternalPhotonGameplay")]
+        public IEnumerator FourAuthenticatedPeersRestoreFlagshipBrawlDuoAfterHostDeparture() =>
+            Run(4, true, productionMode: "BrawlRace", productionFormat: RaceFormat.Duo);
+
+        IEnumerator Run(int count, bool migrate, bool interactions = false,
+            string productionMode = null, RaceFormat productionFormat = RaceFormat.Solo)
         {
             if (Environment.GetEnvironmentVariable(Gate) != "1")
                 Assert.Ignore("Set WORDBOUND_EXTERNAL_GAMEPLAY=1 after configuring production Photon custom authentication.");
@@ -72,8 +82,16 @@ namespace Wreckabulary.OnlineGameplayTests
             SessionState.SetBool(PlayStartedKey, true);
             yield return new EnterPlayMode();
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(8));
-            live = new WordboundLiveMatch(Path.GetFullPath(Path.Combine(Application.dataPath, "..")),
-                interactions ? WordboundInteractionCourse.Create() : null);
+            string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            WordboundClientContent production = null;
+            if (productionMode != null)
+            {
+                string folder = Path.Combine(projectRoot, "Assets/_Project/Data/Config");
+                production = new WordboundClientContent(File.ReadAllText(Path.Combine(folder, "items.json")),
+                    File.ReadAllText(Path.Combine(folder, "rules.json")), productionMode, productionFormat.ToString(),
+                    "0123456789abcdef");
+            }
+            live = new WordboundLiveMatch(projectRoot, interactions ? WordboundInteractionCourse.Create() : null, production);
             yield return Wait(live.Prepare(count, lifetime.Token), "Prepare real private coordinator match", 120);
             int hostIndex = live.Clients.FindIndex(c => c.Credentials.PlayerId == live.Verified.Roster[0].PlayerId);
             Assert.GreaterOrEqual(hostIndex, 0);
@@ -127,6 +145,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 Assert.AreEqual(0, peer.Controller.Authority.Match.Tick);
             }
             foreach (var peer in peers) AssertBodies(peer, peer == first);
+            if (production != null) AssertProductionContent(first, peers);
             Debug.Log("WORDBOUND_GAMEPLAY_OBSERVED: authenticated real bodies, client input and committed command; cleanup pending.");
 
             if (interactions) yield return Interactions(first);
@@ -134,21 +153,81 @@ namespace Wreckabulary.OnlineGameplayTests
             if (migrate)
             {
                 long oldEpoch = second.Controller.Frame.Epoch;
-                var originalRunner = second.Runner;
+                var survivors = peers.Skip(1).ToArray();
+                var originalRunners = survivors.ToDictionary(peer => peer, peer => peer.Runner);
+                var physicalFrontier = production == null ? null : second.Controller.Frame.Mechanisms
+                    .Where(mechanism => mechanism.Physical.MotionUnits > 0)
+                    .ToDictionary(MechanismKey, mechanism => mechanism.Physical.MotionUnits);
+                if (production != null) Assert.IsNotEmpty(physicalFrontier,
+                    "Recovery must preserve a real committed moving-fixture phase, not only an empty physical ledger.");
+                var firstRestoredFrames = new Dictionary<Peer, MatchSnapshot>();
+                var advancesAtFirstRestore = new Dictionary<Peer, int>();
+                foreach (var survivor in survivors)
+                    survivor.Controller.FrameChanged += frame => {
+                        if (firstRestoredFrames.ContainsKey(survivor) || survivor.Runner == null ||
+                            survivor.Runner == originalRunners[survivor] || !survivor.Runner.IsServer ||
+                            frame.Epoch != oldEpoch + 1) return;
+                        firstRestoredFrames.Add(survivor, frame);
+                        advancesAtFirstRestore.Add(survivor, survivor.Advanced);
+                    };
+                Peer replacement = null;
                 yield return Wait(first.Controller.Stop(), "Depart original host", 25);
-                yield return Until(() => second.Runner != originalRunner && second.Runner != null && second.Runner.IsServer &&
-                    Ready(second) && second.Controller.Frame.Epoch == oldEpoch + 1, "Restore authenticated gameplay on replacement host", 75,
+                yield return Until(() =>
+                {
+                    var elected = survivors.Where(peer => peer.Runner != null &&
+                        peer.Runner != originalRunners[peer] && peer.Runner.IsServer && peer.Runner.IsRunning).ToArray();
+                    replacement = elected.Length == 1 ? elected[0] : null;
+                    return replacement != null && survivors.All(peer => peer.Runner != originalRunners[peer] &&
+                        Ready(peer) && peer.Controller.Frame.Epoch == oldEpoch + 1);
+                }, "Restore authenticated gameplay on the elected replacement host and every survivor", 75,
                     allowStoppedFirst: true);
-                yield return Until(() => ExactBodies(second), "Reconcile the complete restored body ledger", 20, allowStoppedFirst: true);
-                AssertBodies(second, true);
-                Assert.IsTrue(second.Controller.Frame.Progress.Players.Single(p => p.Id == second.Actor).Connected);
-                Assert.IsFalse(second.Controller.Frame.Progress.Players.Single(p => p.Id == first.Actor).Connected);
-                Assert.AreEqual(command.Sequence, second.Controller.Frame.Commands.Frontiers[second.Actor]);
-                Assert.AreEqual(1, second.Controller.Frame.Commands.Receipts.Count(r => r.ActorId == second.Actor && r.Sequence == command.Sequence));
-                long resumedTick = second.Controller.Frame.Progress.Tick;
-                yield return Until(() => second.Controller.Frame.Progress.Tick > resumedTick + 5,
+                Assert.IsTrue(firstRestoredFrames.TryGetValue(replacement, out var firstRestored),
+                    "Capture the replacement host's first reconciled frame before gameplay advances.");
+                Assert.AreEqual(0, advancesAtFirstRestore[replacement],
+                    "The initial restored frame must precede the replacement host's first authoritative advance.");
+                if (physicalFrontier != null)
+                    foreach (var phase in physicalFrontier)
+                        Assert.GreaterOrEqual(firstRestored.Mechanisms.Single(m => MechanismKey(m) == phase.Key)
+                            .Physical.MotionUnits, phase.Value,
+                            "The first restored physical motion phase must retain its committed frontier before time can advance.");
+                yield return Until(() => survivors.All(ExactBodies), "Reconcile every surviving peer's complete restored body ledger",
+                    25, allowStoppedFirst: true);
+                foreach (var peer in survivors)
+                {
+                    AssertBodies(peer, peer == replacement);
+                    Assert.AreEqual(survivors.Length, peer.Runner.ActivePlayers.Count());
+                    CollectionAssert.AreEquivalent(survivors.Select(p => p.Actor),
+                        peer.Runner.ActivePlayers.Select(peer.Runner.GetPlayerUserId));
+                    Assert.IsTrue(peer.Controller.Frame.Progress.Players.Where(p => p.Id != first.Actor).All(p => p.Connected));
+                    Assert.IsFalse(peer.Controller.Frame.Progress.Players.Single(p => p.Id == first.Actor).Connected);
+                    Assert.AreEqual(command.Sequence, peer.Controller.Frame.Commands.Frontiers[second.Actor]);
+                    Assert.AreEqual(1, peer.Controller.Frame.Commands.Receipts.Count(r =>
+                        r.ActorId == second.Actor && r.Sequence == command.Sequence && r.PayloadHash == command.PayloadHash));
+                }
+                long resumedTick = replacement.Controller.Frame.Progress.Tick;
+                yield return Until(() => replacement.Controller.Frame.Progress.Tick > resumedTick + 5,
                     "Advance restored host after canonical body application", 10, allowStoppedFirst: true);
                 Assert.AreEqual(1, peers.Count(p => p.Runner != null && p.Runner.IsRunning && p.Runner.IsServer));
+                if (production != null)
+                {
+                    AssertProductionContent(replacement, survivors);
+                    var resumedClient = survivors.First(peer => peer != replacement);
+                    var resumedCommand = resumedClient.Controller.Submit(WordboundAction.CancelCraft);
+                    yield return Until(() => replacement.Controller.Frame.Commands.Frontiers[resumedClient.Actor] == resumedCommand.Sequence &&
+                        survivors.Where(peer => peer != replacement).All(peer =>
+                            peer.Controller.Frame.Commands.Receipts.Any(r => r.ActorId == resumedClient.Actor &&
+                                r.Sequence == resumedCommand.Sequence && r.PayloadHash == resumedCommand.PayloadHash) &&
+                            peer.Received.Values.Any(mark => mark.Epoch == oldEpoch + 1 &&
+                                mark.Tick >= peer.Controller.Frame.Commands.Receipts.Single(r => r.ActorId == resumedClient.Actor &&
+                                    r.Sequence == resumedCommand.Sequence).Tick &&
+                                replacement.Acknowledged.TryGetValue(Key(peer.Actor, mark.Sequence), out var ack) && ack.Same(mark))),
+                        "Commit a fresh admitted client command through the elected host", 25, allowStoppedFirst: true);
+                    foreach (var peer in survivors.Where(peer => peer != replacement))
+                    {
+                        Assert.AreEqual(0, peer.Advanced, "Surviving replicas must not advance an authority.");
+                        Assert.AreEqual(0, peer.Controller.Authority.Match.Tick);
+                    }
+                }
                 Debug.Log("WORDBOUND_GAMEPLAY_OBSERVED: authenticated host replacement restored committed command and canonical bodies; cleanup pending.");
             }
         }
@@ -158,11 +237,21 @@ namespace Wreckabulary.OnlineGameplayTests
             var peer = new Peer { Actor = live.Clients[index].Credentials.PlayerId };
             var root = new GameObject(Prefix + "Controller-" + index);
             peer.Controller = root.AddComponent<WordboundGameplayController>();
+            var options = new WordboundGameplayOptions {
+                GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
+                ReadMovement = () => peer.Move ? new WordboundMovementInput { MoveZ = 1 } : peer.InteractionInput
+            };
             peer.Controller.Initialize(live.Verified, live.Mode, live.Course, live.Geometry, live.Items, live.Rules, peer.Actor, prefabs,
-                new WordboundGameplayOptions {
-                    GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
-                    ReadMovement = () => peer.Move ? new WordboundMovementInput { MoveZ = 1 } : peer.InteractionInput
-                });
+                options);
+            if (live.PhysicalPuzzles != null)
+            {
+                live.PhysicalPuzzles.Validate(peer.Controller.Authority.Match.Binding, live.Rules);
+                var puzzles = new WordboundPuzzleRuntime(peer.Controller, live.PhysicalPuzzles);
+                options.BeforeHostPhysics = (frame, bodies) => { puzzles.BeforeHostPhysics(frame, bodies); peer.PhysicalSteps++; };
+                options.ObserveHost = (frame, poses) => { var observations = puzzles.ObserveHost(frame, poses); peer.PhysicalObservations++; return observations; };
+                options.PuzzleEvaluator = puzzles.Evaluate;
+                options.MovementEnvironment = actor => { var environment = puzzles.EvaluateMovementEnvironment(actor); peer.MovementQueries++; return environment; };
+            }
             peer.Session = new WordboundFusionSession(() => {
                 var runnerRoot = new GameObject(Prefix + "Runner-" + index + "-" + Guid.NewGuid().ToString("N"));
                 var runner = runnerRoot.AddComponent<NetworkRunner>();
@@ -210,10 +299,12 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.AreEqual(TickRate.ValidateResult.Ok, config.Simulation.TickRateSelection.Validate());
             return config;
         }
-        static bool Ready(Peer peer) => peer.Session.GameplayReady && peer.Controller.Frame != null &&
+        static bool Ready(Peer peer) => peer.Runner != null && peer.Runner.IsRunning &&
+            peer.Session.GameplayReady && peer.Controller.Frame != null &&
             peer.Controller.CourseWorld != null && (peer.Runner.IsServer ? peer.Controller.PhysicsWorld != null : true) &&
             !peer.Controller.IsSimulationPaused;
         static string Key(string actor, long sequence) => actor + "/" + sequence;
+        static string MechanismKey(MatchMechanismState state) => state.Team + "/" + state.Lap + "/" + state.PuzzleId;
         static WordboundNetworkBody[] Bodies(Peer peer) => peer.Runner.GetAllNetworkObjects()
             .Select(obj => obj.GetComponent<WordboundNetworkBody>()).Where(body => body != null).ToArray();
         static bool ExactBodies(Peer peer)
@@ -260,6 +351,41 @@ namespace Wreckabulary.OnlineGameplayTests
                 scenes.Distinct().Count() == peers.Count, "Each peer needs its own isolated 3D physics scene.");
             Assert.AreEqual(first, host.Controller.PhysicsWorld.PhysicsScene);
             Assert.IsTrue(peers.All(peer => peer.Controller.CourseWorld.Surfaces.Count > 0));
+        }
+        void AssertProductionContent(Peer host, IEnumerable<Peer> active)
+        {
+            Assert.IsNotNull(live.ProductionContent);
+            Assert.IsTrue(live.ProductionContent.Matches(live.Verified.Match.Content));
+            Assert.AreEqual(live.Mode.Format.ToString(), live.Settings.Format);
+            Assert.Greater(live.Course.PhysicalSites.Count, 0);
+            Assert.Greater(host.PhysicalSteps, 0, "The actual production fixture-motion callback must run.");
+            Assert.Greater(host.PhysicalObservations, 0, "The actual production host-observation callback must run.");
+            Assert.Greater(host.MovementQueries, 0, "Movement must use the actual production environment callback.");
+            Assert.IsTrue(host.Controller.Frame.Mechanisms.Any(m => m.Physical.MotionUnits > 0),
+                "Real authored moving machinery must advance its canonical phase.");
+            var expectedFixtures = live.Course.PhysicalSites.SelectMany(site => site.Fixtures)
+                .SelectMany(fixture => Enumerable.Range(0, live.Mode.TeamCount)
+                    .Select(team => CourseFixtureMotion.BodyId(fixture.Id, team))).ToArray();
+            Assert.Greater(expectedFixtures.Length, 0, "The flagship must contain its authored moving fixtures.");
+            foreach (var peer in active)
+            {
+                var frame = peer.Controller.Frame;
+                Assert.AreEqual(live.Course.Hash, frame.Binding.ManifestHash);
+                Assert.AreEqual(live.Course.SourceHash, frame.Binding.CourseHash);
+                Assert.AreEqual(live.Mode.Hash, frame.Binding.ModeHash);
+                Assert.AreEqual(live.Content.CatalogHash, frame.Binding.CatalogueHash);
+                Assert.AreEqual(live.Expected.RosterHash, frame.Binding.RosterHash);
+                Assert.AreEqual(live.Course.Hash, peer.Controller.CourseWorld.ManifestHash);
+                Assert.AreEqual(live.Course.Puzzles.Count * live.Mode.TeamCount * 3, frame.Mechanisms.Count);
+                Assert.LessOrEqual(frame.Bodies.Count, WordboundEntityBudget.MaximumBodies);
+                foreach (string id in expectedFixtures)
+                {
+                    var canonical = frame.Bodies.Single(body => body.Id == id);
+                    Assert.AreEqual(WorldBodyKind.Platform, canonical.Kind);
+                    Assert.IsTrue(canonical.Active && canonical.Kinematic && canonical.Protected);
+                    Assert.AreEqual(1, Bodies(peer).Count(body => body.BodyId.ToString() == id));
+                }
+            }
         }
         void Healthy(bool allowStoppedFirst = false)
         {
