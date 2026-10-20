@@ -93,6 +93,8 @@ namespace Wreckabulary.Rules.Wordbound
         public long Epoch => journal.Epoch;
         public bool IsPaused => progress.Migrating || progress.Result != null || !commits.CanAdvance(Tick + 1);
         readonly WordboundResourceLifecycle resourceLifecycle;
+        readonly WordboundEntityBudget entityBudget;
+        public WordboundEntityBudget EntityBudget => entityBudget;
 
         public AuthoritativeMatch(MatchBinding binding, ModeDefinition mode, ResolvedCourse resolvedCourse,
             CourseCatalogue geometryCatalogue, ItemCatalogue itemCatalogue, GameRules gameRules,
@@ -109,6 +111,7 @@ namespace Wreckabulary.Rules.Wordbound
                 !CourseValidator.ValidateResolved(course, courseCatalogue, MatchStateValidation.Requirements(Mode)).Ok)
                 throw new ArgumentException("Authoritative content or gameplay rules are invalid.");
             resourceLifecycle = new WordboundResourceLifecycle(course, Mode);
+            entityBudget = new WordboundEntityBudget(Mode, course, courseCatalogue, catalogue, rules);
             WordboundCombatPolicy.Validate(rules.Unarmed);
             if (Mode.Recipes.Contains("BALL")) WordboundThrownPolicy.Stats(catalogue.Get("BALL"));
             WordboundCombatPolicy.Ticks(rules.StaggerImmunitySeconds);
@@ -157,7 +160,7 @@ namespace Wreckabulary.Rules.Wordbound
                 }
             }
             foreach (var supply in course.Supplies) AddResource(supply.Id, supply.TeamIndex);
-            foreach (var resource in resources.Values.ToArray())
+            foreach (var resource in resources.Values.OrderBy(r => r.Generation).ThenBy(r => r.SourceId, StringComparer.Ordinal).ToArray())
                 if (resource.Lap == 0 && SourceAvailable(resource)) MintSource(resource);
             foreach (var connection in course.Connections.Where(c => c.GatePuzzleId != ""))
                 AddBody(new WorldBodyState("platform:" + connection.Id, WorldBodyKind.Platform,
@@ -317,7 +320,7 @@ namespace Wreckabulary.Rules.Wordbound
                 SettleThrows(Tick);
                 UpdateKeepsakes();
                 SetPermissions(Tick);
-                CompactDestroyedEntities();
+                EnforceBodyBudget();
                 EnsureCapacity();
                 return true;
             }
@@ -356,6 +359,7 @@ namespace Wreckabulary.Rules.Wordbound
                     return BeginAttack(seat, index);
                 case WordboundAction.BeginCraft:
                     if (!Mode.Recipes.Contains(command.Value)) return Effect("RecipeDisabled");
+                    if (!AdmitCraftedBody(index)) return Effect("Capacity");
                     outcome = economy.BeginCraft(index, command.Value, (Tick + 1) / (double)ModeDefinition.TickRate);
                     return Effect(outcome);
                 case WordboundAction.CancelCraft: return Effect(economy.CancelCraft(index));
@@ -366,6 +370,7 @@ namespace Wreckabulary.Rules.Wordbound
                     return Effect(outcome);
                 case WordboundAction.PickUp:
                     if (!Reachable(seat, origin, command.Target, WorldBodyKind.Item, out var itemBody)) return Effect("OutOfReach");
+                    if (!FixedBody(itemBody) && !AdmitCraftedBody(index)) return Effect("Capacity");
                     outcome = economy.PickUp(index, Number(itemBody.Id), command.Revision);
                     if (outcome.Ok)
                     {
@@ -376,12 +381,14 @@ namespace Wreckabulary.Rules.Wordbound
                 case WordboundAction.Drop:
                     if (!ReleasePosition(index, command.Slot, origin, false, out var dropAt, out var dropRefusal))
                         return Effect(dropRefusal);
+                    if (!AdmitRelease(index, command.Slot, dropAt, false)) return Effect("Capacity");
                     outcome = command.Slot < 0 ? economy.DropCarried(index) : economy.Drop(index, command.Slot);
                     Release(outcome, dropAt, default, false, origin);
                     return Effect(outcome);
                 case WordboundAction.Throw:
                     if (!ReleasePosition(index, command.Slot, origin, true, out var throwAt, out var throwRefusal))
                         return Effect(throwRefusal);
+                    if (!AdmitRelease(index, command.Slot, throwAt, true)) return Effect("Capacity");
                     outcome = economy.Throw(index, command.Slot, "");
                     float throwSpeed = outcome.Ok && WordboundThrownPolicy.Supported(catalogue.Get(outcome.Item.Word))
                         ? WordboundThrownPolicy.Stats(catalogue.Get(outcome.Item.Word)).Speed : 8;
@@ -740,7 +747,7 @@ namespace Wreckabulary.Rules.Wordbound
                         }
                 }
             RetireInactiveResources();
-            foreach (var state in resources.Values.ToArray())
+            foreach (var state in resources.Values.OrderBy(r => r.Generation).ThenBy(r => r.SourceId, StringComparer.Ordinal).ToArray())
             {
                 int currentLap = CurrentLap(state.Team);
                 if (state.Lap != currentLap)
@@ -757,7 +764,6 @@ namespace Wreckabulary.Rules.Wordbound
                 else if (state.RecoveryAtTick >= 0 && state.RecoveryAtTick <= Tick)
                 {
                     var next = new MatchResourceState(state.SourceId, state.Team, state.Lap, checked(state.Generation + 3));
-                    resources[Key(state.SourceId, state.Team, state.Lap)] = next;
                     RecoverSource(state, next);
                 }
                 else if (!HasSourceGeneration(state) && state.RecoveryAtTick == -1 &&
@@ -774,7 +780,7 @@ namespace Wreckabulary.Rules.Wordbound
             }
             SettleThrows(Tick);
             SetPermissions(Tick);
-            CompactDestroyedEntities();
+            EnforceBodyBudget();
         }
 
         void UpdateKeepsakes()
@@ -801,6 +807,7 @@ namespace Wreckabulary.Rules.Wordbound
         {
             if (HasSourceGeneration(state)) return;
             var source = MatchStateValidation.Sources(course)[state.SourceId];
+            if (!SourceCapacity(state, source.Item3.Length)) return;
             SourcePosition(state.SourceId, out var at);
             AddTiles(economy.MintTiles(source.Item3), at, state.Team, state.SourceId, source.Item2, state.Generation);
         }
@@ -810,17 +817,29 @@ namespace Wreckabulary.Rules.Wordbound
             var remaining = LetterBag.FromWord(source.Item3);
             SourcePosition(next.SourceId, out var at);
             var tiles = economy.Capture().TileStates.ToDictionary(t => t.Key, t => t.Value);
-            foreach (var body in bodies.Values.Where(b => b.SourceId == previous.SourceId &&
-                b.OwnerTeam == previous.Team && b.RecoveryGeneration == previous.Generation).ToArray())
+            var existing = bodies.Values.Where(b => b.SourceId == previous.SourceId &&
+                b.OwnerTeam == previous.Team && b.RecoveryGeneration == previous.Generation).ToArray();
+            foreach (var body in existing)
+                if (body.Kind == WorldBodyKind.Tile && tiles.TryGetValue(Number(body.Id), out char letter))
+                    remaining.TryRemove(letter);
+            if (!SourceCapacity(previous, remaining.Count)) return;
+            resources[Key(next.SourceId, next.Team, next.Lap)] = next;
+            foreach (var body in existing)
             {
                 bodies[body.Id] = new WorldBodyState(body.Id, body.Kind, at, active: body.Active,
                     ownerTeam: body.OwnerTeam, protectedResource: body.Protected, sourceId: body.SourceId,
                     recoveryGeneration: next.Generation);
-                if (body.Kind == WorldBodyKind.Tile && tiles.TryGetValue(Number(body.Id), out char letter))
-                    remaining.TryRemove(letter);
             }
             if (!remaining.IsEmpty) AddTiles(economy.MintTiles(remaining.ToString()), at, next.Team,
                 next.SourceId, source.Item2, next.Generation);
+        }
+        bool SourceCapacity(MatchResourceState state, int count)
+        {
+            if (count == 0 || Mode.IsRace && state.Team >= 0 && entityBudget.CriticalSource(state.SourceId, progress.Team(state.Team)) ||
+                ReserveOptional(state.Team, count, false)) return true;
+            resources[Key(state.SourceId, state.Team, state.Lap)] = new MatchResourceState(
+                state.SourceId, state.Team, state.Lap, state.Generation, checked(Tick + WordboundEntityBudget.RetryTicks));
+            return false;
         }
         bool HasSourceGeneration(MatchResourceState state) => bodies.Values.Any(b => b.Active && b.SourceId == state.SourceId &&
             b.OwnerTeam == state.Team && b.RecoveryGeneration == state.Generation);
@@ -981,7 +1000,9 @@ namespace Wreckabulary.Rules.Wordbound
         void EnsureCapacity()
         {
             var state = economy.Capture();
-            if (bodies.Count > 8192 || state.ItemStates.Length > 8192 || state.TileStates.Length > 8192)
+            if (bodies.Count > WordboundEntityBudget.MaximumBodies ||
+                state.ItemStates.Length > WordboundEntityBudget.MaximumCanonicalEntities ||
+                state.TileStates.Length > WordboundEntityBudget.MaximumCanonicalEntities)
                 throw new InvalidOperationException("Match entity capacity exceeded.");
         }
         static void Replace<T>(Dictionary<string, T> destination, IEnumerable<T> values, Func<T, string> key)

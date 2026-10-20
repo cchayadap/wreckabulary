@@ -35,8 +35,11 @@ namespace Wreckabulary.Rules.Wordbound
                 commands.Restore(snapshot.Commands);
                 Need(snapshot.Commands.Epoch == snapshot.Epoch && snapshot.Commands.Receipts.All(r => r.Tick <= snapshot.Progress.Tick),
                     "Command journal epoch or receipt tick disagrees with the snapshot.");
-                Need(snapshot.Economy.ItemStates.Length <= 8192 && snapshot.Economy.TileStates.Length <= 8192 &&
-                    snapshot.Bodies.Count <= 8192 && snapshot.Resources.Count <= 8192 && snapshot.Mechanisms.Count <= 8192 &&
+                Need(snapshot.Economy.ItemStates.Length <= WordboundEntityBudget.MaximumCanonicalEntities &&
+                    snapshot.Economy.TileStates.Length <= WordboundEntityBudget.MaximumCanonicalEntities &&
+                    snapshot.Bodies.Count <= WordboundEntityBudget.MaximumBodies &&
+                    snapshot.Resources.Count <= WordboundEntityBudget.MaximumCanonicalEntities &&
+                    snapshot.Mechanisms.Count <= WordboundEntityBudget.MaximumCanonicalEntities &&
                     snapshot.RandomStreams.Count <= 256 && snapshot.NarrativeFlags.Count <= 1024,
                     "Snapshot section exceeds the wire bounds.");
                 ValidateActors(snapshot, expectedBinding, rules, catalogue, mode);
@@ -45,6 +48,7 @@ namespace Wreckabulary.Rules.Wordbound
                 ValidateBodies(snapshot, expectedBinding, course, mode);
                 MatchThrownValidation.Validate(snapshot, mode, catalogue);
                 ValidateMechanisms(snapshot, course, mode);
+                ValidateBodyBudget(snapshot, course, mode, rules);
                 Need(snapshot.RandomStreams.Select(r => r.StreamId).Distinct(StringComparer.Ordinal).Count() == snapshot.RandomStreams.Count &&
                     snapshot.RandomStreams.All(r => WordboundIdentity.IsId(r.StreamId) && (r.Increment & 1) == 1),
                     "Invalid or duplicate random stream state.");
@@ -74,6 +78,56 @@ namespace Wreckabulary.Rules.Wordbound
         public static string NarrativeFlag(int team, int lap) => "story:" + team.ToString(CultureInfo.InvariantCulture) + ":" + lap.ToString(CultureInfo.InvariantCulture);
         internal static void Need(bool condition, string message) { if (!condition) throw new ArgumentException(message); }
 
+        static void ValidateBodyBudget(MatchSnapshot snapshot, ResolvedCourse course, ModeDefinition mode, GameRules rules)
+        {
+            var budget = new WordboundEntityBudget(mode, course);
+            int pools = budget.PoolCount, capacity = budget.PoolBodies;
+            var items = snapshot.Economy.ItemStates.ToDictionary(i => "item:" + i.Id, StringComparer.Ordinal);
+            var mapBodies = snapshot.Bodies.Where(b => b.Kind == WorldBodyKind.Item &&
+                items[b.Id].Origin == ItemOrigin.Map).ToArray();
+            Need(mapBodies.All(b => course.Placements.Any(p => p.Id == b.SourceId && p.Purpose != "Resources")) &&
+                mapBodies.Select(b => b.SourceId).Distinct(StringComparer.Ordinal).Count() == mapBodies.Length,
+                "Authored map bodies must retain one unique placement identity.");
+            foreach (var player in snapshot.Economy.PlayerStates)
+                Need(snapshot.Economy.ItemStates.Count(i => i.DeployerId == player.PlayerId &&
+                    (i.State == ItemState.Deployed || i.State == ItemState.Armed)) <= rules.MaxDeployed,
+                    "Deployed equipment exceeds its reserved player capacity.");
+            var dynamicBodies = snapshot.Bodies.Where(b =>
+                !WordboundEntityBudget.FixedBody(b, items.TryGetValue(b.Id, out var item) ? item : null)).ToArray();
+            int Owner(WorldBodyState body)
+            {
+                if (!mode.IsRace || !items.TryGetValue(body.Id, out var item)) return body.OwnerTeam;
+                int player = item.State == ItemState.Held ? item.HolderId :
+                    item.State == ItemState.Deployed || item.State == ItemState.Armed ? item.DeployerId : -1;
+                return player >= 0 ? snapshot.Binding.Seats[player].Team : body.OwnerTeam;
+            }
+            var teams = snapshot.Progress.Teams.ToDictionary(t => t.Team);
+            var auxiliary = WordboundEntityBudget.AuxiliaryBodies(course, mode, snapshot.Bodies,
+                id => items.TryGetValue("item:" + id, out var item) ? item : null, snapshot.Mechanisms, snapshot.Progress.Teams);
+            var core = dynamicBodies.Where(b => !auxiliary.Contains(b.Id) &&
+                !(mode.IsRace && b.Kind == WorldBodyKind.Tile && b.OwnerTeam >= 0 &&
+                    budget.CriticalSource(b.SourceId, teams[b.OwnerTeam]))).ToArray();
+            var references = new HashSet<string>(snapshot.Actors.Where(a => a.Attack != null).SelectMany(a => a.Attack.HitBodyIds),
+                StringComparer.Ordinal);
+            foreach (var flight in snapshot.ThrownFlights)
+            { references.Add(flight.ItemBodyId); references.UnionWith(flight.HitBodyIds); }
+            references.UnionWith(snapshot.Mechanisms.Where(m => !m.Solved && m.ItemEntityId != "").Select(m => m.ItemEntityId));
+            var pinned = core.Where(b => references.Contains(b.Id) || b.Kind == WorldBodyKind.Item &&
+                items[b.Id].State != ItemState.World && items[b.Id].State != ItemState.Destroyed).ToArray();
+            for (int team = 0; team < pools; team++)
+            {
+                Need(capacity >= 0 && WordboundEntityBudget.Usage(dynamicBodies, team, pools, Owner) <= capacity,
+                    "Snapshot bodies exceed the reserved team capacity.");
+                Need(WordboundEntityBudget.Usage(core, team, pools, Owner) <= capacity -
+                    budget.CriticalRecoveryBodies - budget.PhysicalAuxiliaryBodies,
+                    "Snapshot core bodies consume reserved recovery or physical auxiliary capacity.");
+                int pending = snapshot.Economy.PlayerStates.Count(p => p.Craft != null && (!mode.IsRace || p.Team == team));
+                Need(WordboundEntityBudget.Usage(pinned, team, pools, Owner) + pending <= capacity -
+                    budget.CriticalRecoveryBodies - budget.PhysicalAuxiliaryBodies,
+                    "Pending craft completions exceed unoccupied reserved core capacity.");
+            }
+        }
+
         public static long DeploymentExpiryTick(ItemDefinition definition, long deploymentTick)
         {
             Need(definition?.Deploy != null && deploymentTick >= 1 &&
@@ -89,7 +143,8 @@ namespace Wreckabulary.Rules.Wordbound
             foreach (var item in s.Economy.ItemStates)
                 if (item.State == ItemState.Deployed)
                 {
-                    Need(item.Origin == ItemOrigin.Crafted && item.DeploymentTick >= 1 && item.DeploymentTick <= s.Progress.Tick &&
+                    Need(item.Origin == ItemOrigin.Crafted && item.DeployerId >= 0 &&
+                        item.DeploymentTick >= 1 && item.DeploymentTick <= s.Progress.Tick &&
                         catalogue.TryGet(item.Word, out _), "Deployed item has no causal authoritative activation tick.");
                     long expiry = DeploymentExpiryTick(catalogue.Get(item.Word), item.DeploymentTick);
                     Need(expiry == -1 || expiry > s.Progress.Tick, "A live deployed item has already expired.");
@@ -175,11 +230,16 @@ namespace Wreckabulary.Rules.Wordbound
                 if (!lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r))
                     Need(r.RecoveryAtTick == -1, "Retired puzzle resources cannot retain a pending recovery deadline.");
             }
+            var tiles = s.Economy.TileStates.ToDictionary(t => t.Key, t => t.Value);
             foreach (var pair in sources)
             {
                 int lap = mode.IsRace && pair.Value.Item1 >= 0 ? Math.Min(s.Progress.Teams.Single(t => t.Team == pair.Value.Item1).Lap, 2) : 0;
                 Need(s.Resources.Any(r => r.SourceId == pair.Key && r.Team == pair.Value.Item1 && r.Lap == lap),
                     "Snapshot omits a current recovery source.");
+                var available = LetterBag.FromWord(pair.Value.Item3);
+                foreach (var body in s.Bodies.Where(b => b.Kind == WorldBodyKind.Tile && b.SourceId == pair.Key))
+                    Need(tiles.TryGetValue(Suffix(body.Id, "tile:"), out char letter) && available.TryRemove(letter),
+                        "Recovery source contains more loose letters than its authored batch.");
             }
         }
 

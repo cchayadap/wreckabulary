@@ -65,7 +65,11 @@ namespace Wreckabulary.Tests
         public void CleanRaceLooseResourcesMustKeepTheirTeamOwnership()
         {
             var f = WordboundSnapshotCodecTests.Create("TeamRace");
-            var item = f.Economy.PlaceFurniture("STOOL");
+            foreach (var tile in f.Economy.MintTiles("BED").Tiles)
+                Assert.IsTrue(f.Economy.CollectTile(0, tile.TileId).Ok);
+            Assert.IsTrue(f.Economy.BeginCraft(0, "BED", 0).Ok);
+            var item = f.Economy.CompleteCraft(0, 100).Item;
+            Assert.IsTrue(f.Economy.Drop(0, 0).Ok);
             f.Bodies.Add(new WorldBodyState("item:" + item.Id, WorldBodyKind.Item, default));
             Assert.IsFalse(f.Import(MatchSnapshotCodec.Export(f.Snapshot())).Success);
             f.Bodies[f.Bodies.Count - 1] = new WorldBodyState("item:" + item.Id, WorldBodyKind.Item, default, ownerTeam: 0);

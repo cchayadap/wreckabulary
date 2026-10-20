@@ -1,6 +1,8 @@
 # Canonical entity lifecycle
 
-STATUS: PROPOSAL — NO DOMAIN CHANGES OR COMPILER RUN
+STATUS: STAGES 1 AND 2 IMPLEMENTED; SOURCE VERIFICATION COMPLETE
+
+The baseline observations and proposed stages below are retained as design history. Stage 2 implementation, independent review repair and current acceptance results are recorded in `progress.md` and `CAPACITY-RESULTS.md`. Native integration remains root-owned.
 
 Inspected baseline: `17c30b4` in `sethypagna/puzzle-race`. Independent content evidence: `70723cd`, `BuildNotes/flagship-content/BODY-BUDGET.md`. The measured startup is at most 222 bodies; the 1,342-body Team Race figure is a deliberately slow three-lap refill scenario estimate, not an observed playthrough. The runtime reconciliation limit remains 512. Domain and wire bounds currently permit 8,192 bodies, so a valid domain tick can exceed the runtime limit.
 
@@ -54,3 +56,33 @@ The first slice needs `AuthoritativeMatch.cs`, new `AuthoritativeLifecycle.cs`, 
 The full bound additionally needs a shared policy helper consumed by `WordboundGameplayPlan.cs`, preflight admission/restore validation, and a versioned policy identity. No Controller, Session, service, wire-command enum, UI, shared non-Wordbound economy behavior, or content catalogue edits are proposed.
 
 Next: obtain root agreement on the two-stage contract and exact shared-file ownership; implement only the agreed stage; wait for the compiler window before running focused verification.
+
+## Stage 2 implementation refinement
+
+Root approved Stage 2 and the fingerprint seam after Stage 1. The proposed public helper is `WordboundEntityBudget`: Version=1, MaximumBodies=512, MaximumCanonicalEntities=8192, and a SHA256 Hash. Root owns adding Hash to WordboundRulesFingerprint. This section makes the reservation algorithm explicit before source changes.
+
+Use a body partition rather than tracking the provenance of every letter in a player's bag:
+
+- Fixed roots K: maximum roster players, race keepsakes, every authored prop/decoration body (including its eventual source tombstone), connection platforms and all team fixture bodies.
+- Critical recovery C per pool: maximum simultaneously available designated recovery letters across any reached checkpoint prefix of any selected lap. For a safe bound within a checkpoint, prerequisites may include all of that checkpoint's puzzles while consumers include all not-yet-completed checkpoint puzzles. Supplies used by no puzzle are optional.
+- Physical auxiliary reserve H per pool: one possible crafted receiver body per selected RedirectWind physical site. Authored receiver bodies already belong to K; double reservation is conservative. A live or destroyed auxiliary body remains pinned while canonical evidence references it.
+- Actor/burst reserve B per pool: team capacity times `MaxLetters + MaxCarried*(largest enabled hand-recipe word length + 1) + MaxDeployed*(largest deploy-recipe word length + 1)`, plus the largest current required prop-break and checkpoint reward batch. It covers held/reserved/carry/deployment transitions, bag drops, expiry/break letters and temporary hit-ledger tombstones. Shared modes use their full maximum player capacity.
+- Optional world allowance O is the equal pool share of `512 - K`, less C, H and B. A content/rules combination with no useful optional allowance is rejected before launch. Do not infer a new cap from available heap or increase 512.
+
+Hand/carried/deployed items use B; authored map furniture uses K even while carried. Consequently crafting from an existing bag and deploying a required recipe do not need to consume optional world capacity. A voluntary drop/throw of an otherwise optional crafted object must first reserve a slot in O; a Capacity refusal leaves it held and unchanged. A free replacement wind receiver can use its site's single H entitlement, chosen deterministically and without allowing repeated duplicates. BALL flights and other airborne throws are never pressure-evicted.
+
+Optional refill requires room in O and does not evict player equipment to mint more free material. If blocked, preserve generation and schedule a bounded canonical retry. Process retries by generation then source ID so a repeatedly collected earlier source cannot permanently starve another initial source. Advance the recovery generation only when refill actually succeeds. This also requires deferred initial nonrenewable resource batches to be represented by a deadline, so they can appear once capacity becomes available without becoming renewable.
+
+Mandatory drops/breaks may temporarily use B. Before an optional admission, or when a mandatory burst would exceed a pool's hard share, reclaim only eligible loose optional value in stable-ID order. Current puzzle recovery, physical evidence, active hit references, held/deployed/airborne equipment and fixed roots remain pinned. There must be no whole-tick rollback loop caused by ordinary capacity pressure. Old optional loose material can be retired with checked Spent accounting; source-origin retirement must keep its recovery state consistent.
+
+These are conservative proof-budget reservations, not performance measurements. Exact derived values must be reported against the flagship before accepting the policy. Host tests must deliberately saturate each pool with pinned throws/deployments and verify that essential crafting/recovery, mandatory drops and opposing-team progress still work. The state bound also covers retained economy tombstones: authored records plus selected solved mechanism references plus at most 512 body-associated rows must fit 8,192; unrelated destroyed craft rows remain compacted by Stage 1.
+
+## Implemented integration contract
+
+`new WordboundEntityBudget(mode, resolvedCourse, geometry, items, rules)` performs preflight using the already-resolved manifest and exact gameplay content. `AuthoritativeMatch` calls it before creating entities and exposes the immutable result as `EntityBudget`. The helper publishes `Version=1`, `MaximumBodies=512`, `MaximumCanonicalEntities=8192`, and its canonical policy `Hash`.
+
+The root-owned fingerprint will bind that hash as a separate length-prefixed field and advance its own algorithm version to 2. It is not part of a client-supplied command or a mutable snapshot field. The root-owned reconciliation planner should consume `MaximumBodies`; authored content, client launch and workshop play validation should call the same constructor before party creation.
+
+At import, the snapshot must satisfy both total pool usage and core usage excluding designated recovery and physical auxiliary bodies. Core usage cannot consume C/H even when the gross pool still fits. Pending crafts plus pinned core bodies cannot exceed the same capacity. This mirrors live admission/enforcement and prevents a formally importable checkpoint from forcing an unrecoverable pressure rollback on the next tick.
+
+All retirement runs inside the existing authority transaction. A failed later command or host query restores the exact prior economy, bodies, resources, frontiers and conservation counters. Active evidence references and source identity remain intact; no unrelated game mode's Economy behavior or shared item catalogue is changed.
