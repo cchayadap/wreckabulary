@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
+using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Online
 {
@@ -26,6 +29,10 @@ namespace Wreckabulary.Online
         MatchSnapshot frame;
         PlayerInventory inventory;
         MatchActorState actor;
+        readonly RaycastHit[] sightHits = new RaycastHit[64];
+        readonly Dictionary<string, WorldBodyState> canonicalBodies = new Dictionary<string, WorldBodyState>(StringComparer.Ordinal);
+        readonly HashSet<Collider> staticSurfaces = new HashSet<Collider>();
+        WordboundCourseWorld sightWorld;
         public event Action ReturnRequested;
 
         public void Initialize(WordboundGameplayController gameplay, WordboundPlayerView playerView,
@@ -57,7 +64,9 @@ namespace Wreckabulary.Online
         void ApplyFrame(MatchSnapshot next)
         {
             frame = next;
+            canonicalBodies.Clear();
             if (next == null) return;
+            foreach (var body in next.Bodies) canonicalBodies.Add(body.Id, body);
             inventory = next.Economy.Players.Single(p => p.PlayerId == seat);
             actor = next.Actors.Single(p => p.PlayerId == actorId);
             if (receiptEpoch != next.Epoch) { receiptEpoch = next.Epoch; receiptSequence = 0; }
@@ -148,25 +157,69 @@ namespace Wreckabulary.Online
 
         WordboundNetworkBody Target()
         {
-            if (view.Player == null || frame == null) return null;
+            if (view.Player == null || view.Player.Object == null || !view.Player.Object.IsValid ||
+                view.Player.Rigidbody == null || frame == null ||
+                !canonicalBodies.TryGetValue(view.Player.BodyId.ToString(), out var playerState) ||
+                playerState.Kind != WorldBodyKind.Player || playerState.SourceId != actorId || !playerState.Active)
+                return null;
             WordboundNetworkBody best = null;
             float score = float.PositiveInfinity;
-            foreach (var body in controller.Bodies.Values)
+            foreach (var body in controller.PresentedBodies)
             {
-                if (!body || body.Object == null || !body.Object.IsValid || !body.BodyActive) continue;
-                var kind = (WorldBodyKind)body.BodyKind;
+                if (!body || body.Object == null || !body.Object.IsValid || !body.BodyActive || body.Rigidbody == null ||
+                    body.Runner != view.Player.Runner || !canonicalBodies.TryGetValue(body.BodyId.ToString(), out var state) ||
+                    !state.Active || body.BodyKind != (int)state.Kind) continue;
+                var kind = state.Kind;
                 if (kind != WorldBodyKind.Item && kind != WorldBodyKind.Tile && kind != WorldBodyKind.Keepsake ||
-                    !mode.CanInteract(team, body.OwnerTeam, body.Protected)) continue;
-                Vector3 offset = body.transform.position - view.Player.transform.position;
+                    !mode.CanInteract(team, state.OwnerTeam, state.Protected)) continue;
+                Vector3 offset = body.Rigidbody.position - view.Player.Rigidbody.position;
                 float squared = offset.sqrMagnitude;
                 if (squared > 9f) continue;
-                var screen = view.Camera.WorldToViewportPoint(body.transform.position + Vector3.up * .35f);
+                var screen = view.Camera.WorldToViewportPoint(body.Rigidbody.position + Vector3.up * .35f);
                 if (screen.z <= 0 || screen.x < 0 || screen.x > 1 || screen.y < 0 || screen.y > 1) continue;
                 float candidate = squared + Mathf.Abs(screen.x - .5f) * 3;
-                if (candidate >= score) continue;
+                if (candidate >= score || !VisibleFromPlayer(playerState, body)) continue;
                 best = body; score = candidate;
             }
             return best;
+        }
+
+        bool VisibleFromPlayer(WorldBodyState playerState, WordboundNetworkBody target)
+        {
+            Vector3 from = view.Player.Rigidbody.position, to = target.Rigidbody.position;
+            if (controller.PhysicsWorld != null)
+                return controller.PhysicsWorld.HasLineOfSight(actorId,
+                    new WorldVector(from.x, from.y, from.z), new WorldVector(to.x, to.y, to.z));
+            var world = controller.CourseWorld;
+            if (!world) return false;
+            var scene = world.gameObject.scene.GetPhysicsScene();
+            if (!scene.IsValid() || scene == Physics.defaultPhysicsScene ||
+                view.Player.gameObject.scene.GetPhysicsScene() != scene || target.gameObject.scene.GetPhysicsScene() != scene)
+                return false;
+            if (sightWorld != world)
+            {
+                staticSurfaces.Clear();
+                foreach (var surface in world.Surfaces) staticSurfaces.Add(surface);
+                sightWorld = world;
+            }
+            Vector3 delta = to - from;
+            if (delta.sqrMagnitude < .000001f) return true;
+            int count = scene.Raycast(from + Vector3.up * .75f, delta.normalized, sightHits,
+                delta.magnitude, ~0, QueryTriggerInteraction.Ignore);
+            if (count >= sightHits.Length) return false;
+            for (int i = 0; i < count; i++)
+            {
+                var collider = sightHits[i].collider;
+                if (!collider) continue;
+                if (staticSurfaces.Contains(collider)) return false;
+                var other = collider.attachedRigidbody ? collider.attachedRigidbody.GetComponent<WordboundNetworkBody>() : null;
+                if (!other || other.Object == null || !other.Object.IsValid || other.Runner != view.Player.Runner ||
+                    !canonicalBodies.TryGetValue(other.BodyId.ToString(), out var state) ||
+                    other.BodyKind != (int)state.Kind || !WordboundPhysicsPolicy.ShouldCollide(mode, playerState, state)) continue;
+                if (other == view.Player || (other.Rigidbody.position - to).sqrMagnitude < .0001f) continue;
+                return false;
+            }
+            return true;
         }
 
         void Interact()

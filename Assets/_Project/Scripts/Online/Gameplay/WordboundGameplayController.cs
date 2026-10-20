@@ -54,6 +54,9 @@ namespace Wreckabulary.Online
         public WordboundCourseWorld CourseWorld => courseWorld;
         public WordboundPhysicsWorld PhysicsWorld => physics;
         public IReadOnlyDictionary<string, WordboundNetworkBody> Bodies => bodies;
+        public IEnumerable<WordboundNetworkBody> PresentedBodies => presentations.Values
+            .Where(view => view != null && view.Object != null && view.Object.IsValid && view.Runner == runner && view.Body != null)
+            .Select(view => view.Body);
         public bool IsSimulationPaused => !initialized || Fault != "" || stopping ||
             WordboundGameplayPlan.IsPaused(localReady, session?.GameplayReady ?? false, runner != null && runner.IsServer,
                 hostReady, Authority?.Match.IsPaused ?? true, frame);
