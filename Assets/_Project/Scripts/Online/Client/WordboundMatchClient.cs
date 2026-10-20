@@ -34,7 +34,8 @@ namespace Wreckabulary.Online
             WordboundGameplayPrefabs prefabs, NetworkPrefabRef snapshotPrefab,
             string photonAppId, SceneRef gameplayScene,
             Func<CancellationToken, Task<WordboundFusionJoin>> freshCredentials,
-            IWordboundPuzzleContent physicalPuzzles = null, InputBinding controls = null)
+            IWordboundPuzzleContent physicalPuzzles = null, InputBinding controls = null,
+            WordboundCameraProfile cameraProfile = null, WordboundVisualProfile visualProfile = null)
         {
             if (started) throw new InvalidOperationException("Create a fresh match client for each match.");
             if (client?.Credentials == null || verified == null || verifier == null || freshCredentials == null)
@@ -70,10 +71,10 @@ namespace Wreckabulary.Online
                     options.PuzzleEvaluator = puzzles.Evaluate;
                     options.MovementEnvironment = puzzles.EvaluateMovementEnvironment;
                 }
-                playerView.Initialize(gameplay, controls: controls);
+                playerView.Initialize(gameplay, controls: controls, cameraProfile: cameraProfile);
                 matchRoot.AddComponent<WordboundPuzzleGuide>().Bind(gameplay, course,
                     client.Credentials.PlayerId, playerView.Camera);
-                artwork.Initialize(new WordboundVisualResolver(items));
+                artwork.Initialize(new WordboundVisualResolver(items, profile: visualProfile));
                 artwork.Bind(gameplay);
                 artwork.Failed += PresentationFailed;
                 hud = matchRoot.AddComponent<WordboundMatchHud>();

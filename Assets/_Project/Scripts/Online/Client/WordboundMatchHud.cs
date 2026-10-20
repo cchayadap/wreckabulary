@@ -18,7 +18,9 @@ namespace Wreckabulary.Online
         string actorId, search = "", notice = "";
         string returnLabel = "Return to party";
         int seat, team;
-        bool initialized, crafting, journalOpen;
+        bool initialized, crafting, journalOpen, defenseHeld;
+        string defenseItem = "";
+        double nextDefenseInput;
         Vector2 recipeScroll;
         long receiptSequence, receiptEpoch = -1;
         MatchSnapshot frame;
@@ -69,11 +71,14 @@ namespace Wreckabulary.Online
 
         void ReadCommands(PlayerCommands input)
         {
-            if (input.spellDown) { crafting = true; journalOpen = false; view.SetMenuOpen(true); return; }
-            if (input.slot > 0) Send(WordboundAction.Equip, slot: input.slot - 1);
+            if (input.spellDown) { ReleaseDefense(); crafting = true; journalOpen = false; view.SetMenuOpen(true); return; }
+            if (input.slot > 0) { Send(WordboundAction.Equip, slot: input.slot - 1); return; }
+            bool shieldHeld = SelectedShield() != null && (input.blockHeld || input.attackHeld) &&
+                !input.aimHeld && !input.grab && !input.drop;
+            ReadDefense(shieldHeld);
             if (input.grab) Interact();
             if (input.drop) Send(WordboundAction.Drop, slot: inventory?.CarriedFurniture >= 0 ? -1 : actor?.EquippedSlot ?? -1);
-            if (input.attack)
+            if (input.attack && !shieldHeld)
             {
                 if (input.aimHeld && actor != null && actor.EquippedSlot >= 0)
                     Send(WordboundAction.Throw, slot: actor.EquippedSlot);
@@ -81,23 +86,64 @@ namespace Wreckabulary.Online
             }
         }
 
-        void MenuRequested() => crafting = false;
+        ItemInstance SelectedShield()
+        {
+            if (actor == null || inventory == null || frame == null || actor.EquippedSlot < 0 ||
+                actor.EquippedSlot >= inventory.Slots.Length || inventory.Craft != null ||
+                inventory.CarriedFurniture >= 0 || !inventory.CanAct || actor.Health <= 0) return null;
+            int id = inventory.Slots[actor.EquippedSlot];
+            var item = frame.Economy.Items.FirstOrDefault(i => i.Id == id && i.State == ItemState.Held && i.HolderId == seat);
+            return item != null && items.Get(item.Word).Shield != null ? item : null;
+        }
+
+        void ReadDefense(bool held)
+        {
+            var item = held ? SelectedShield() : null;
+            if (item == null) { ReleaseDefense(); return; }
+            string id = "item:" + item.Id;
+            if (defenseHeld && defenseItem != id) ReleaseDefense();
+            if (Time.unscaledTimeAsDouble < nextDefenseInput) return;
+            nextDefenseInput = Time.unscaledTimeAsDouble + WordboundDefensePolicy.RefreshTicks / (double)ModeDefinition.TickRate;
+            if (Send(WordboundAction.Block, value: "Hold")) { defenseHeld = true; defenseItem = id; }
+        }
+
+        void ReleaseDefense()
+        {
+            if (!defenseHeld) return;
+            defenseHeld = false;
+            defenseItem = "";
+            nextDefenseInput = 0;
+            if (controller && controller.Frame != null) Send(WordboundAction.Block, value: "Release");
+        }
+
+        void Update()
+        {
+            if (!initialized || !defenseHeld) return;
+            var shield = SelectedShield();
+            if (!view || view.MenuOpen || !Application.isFocused || controller.IsSimulationPaused ||
+                shield == null || defenseItem != "item:" + shield.Id) ReleaseDefense();
+        }
+
+        void MenuRequested() { ReleaseDefense(); crafting = false; }
         void ConnectionFailed(string reason)
             => ShowFailure("The session stopped. Choose " + returnLabel + " to continue.");
         public void ShowFailure(string message)
         {
+            ReleaseDefense();
             notice = message;
             crafting = false;
             view.SetMenuOpen(true);
         }
-        void Send(WordboundAction action, string target = "", int revision = 0, int slot = -1, string value = "")
+        bool Send(WordboundAction action, string target = "", int revision = 0, int slot = -1, string value = "")
         {
+            if (action != WordboundAction.Block) ReleaseDefense();
             try
             {
                 controller.Submit(action, target, revision, slot, value);
-                notice = "";
+                if (action != WordboundAction.Block) notice = "";
+                return true;
             }
-            catch (InvalidOperationException) { notice = "Waiting for the connection. Try again shortly."; }
+            catch (InvalidOperationException) { notice = "Waiting for the connection. Try again shortly."; return false; }
         }
 
         WordboundNetworkBody Target()
@@ -126,7 +172,14 @@ namespace Wreckabulary.Online
         void Interact()
         {
             var target = Target();
-            if (target == null) { notice = "Move closer to a letter, object or keepsake."; return; }
+            if (target == null)
+            {
+                var nearby = WordboundPracticeGuidePlan.Nearest(course, frame, actorId);
+                if (nearby != null && frame.Practice.SiteHash != nearby.Hash && !WordboundPracticeGuidePlan.Completed(frame, nearby))
+                    Send(WordboundAction.PracticePuzzle, nearby.Hash);
+                else notice = nearby != null ? WordboundPracticeGuidePlan.Status(frame, nearby) : "Move closer to a letter, object or keepsake.";
+                return;
+            }
             string id = target.BodyId.ToString();
             switch ((WorldBodyKind)target.BodyKind)
             {
@@ -141,6 +194,12 @@ namespace Wreckabulary.Online
                             course.Laps[progress.Lap].Checkpoints.Skip(progress.NextCheckpoint).Take(1)
                                 .Any(c => c.PuzzleIds.Contains(p.Id)) && !progress.CompletedPuzzles.Contains(p.Id))
                         : null;
+                    if (mode.Id == "Freestyle" && item.State == ItemState.Deployed)
+                    {
+                        var selected = WordboundPracticePolicy.Selected(course, frame.Practice);
+                        if (selected != null && !WordboundPracticeGuidePlan.Completed(frame, selected))
+                            puzzle = course.Puzzles.FirstOrDefault(p => p.Id == selected.PuzzleId && p.RecipeId == item.Word);
+                    }
                     if (puzzle != null) Send(WordboundAction.UsePuzzle, puzzle.Id, value: id);
                     else Send(WordboundAction.PickUp, id, item.Revision);
                     break;
@@ -173,12 +232,23 @@ namespace Wreckabulary.Online
                     }
                     else if (mode.Objective == WordboundObjective.Knockouts)
                         GUILayout.Label($"Knockouts: {frame.Progress.Players.Single(p => p.Id == actorId).Knockouts} / {mode.KnockoutTarget}");
+                    else if (mode.Id == "Freestyle")
+                    {
+                        var selected = WordboundPracticePolicy.Selected(course, frame.Practice);
+                        GUILayout.Label(selected == null ? "Explore freely · select a nearby puzzle to practise." :
+                            WordboundPracticeGuidePlan.Status(frame, selected), new GUIStyle(GUI.skin.label) { wordWrap = true });
+                    }
                     if (mode.TimeLimitSeconds > 0)
                     {
                         long seconds = Math.Max(0, mode.TimeLimitSeconds - frame.Progress.ElapsedTicks / ModeDefinition.TickRate);
                         GUILayout.Label($"{seconds / 60:00}:{seconds % 60:00} remaining");
                     }
                     GUILayout.Label($"Health {Mathf.CeilToInt(actor.Health)} · Stamina {Mathf.CeilToInt(actor.Stamina)}");
+                    var shield = SelectedShield();
+                    if (shield != null)
+                        GUILayout.Label(actor.Defense == null ? "Hold attack or Block to raise " + shield.Word :
+                            WordboundDefensePolicy.Raised(actor.Defense, items.Get(shield.Word).Shield, frame.Progress.Tick)
+                                ? "Blocking · face incoming attacks" : "Raising shield…");
                     if (controller.Fault != "") GUILayout.Label("Connection interrupted");
                     else if (controller.IsSimulationPaused) GUILayout.Label("Waiting for the host…");
                     if (frame.Progress.Result != null)
@@ -189,6 +259,8 @@ namespace Wreckabulary.Online
                 GUILayout.Label("Letters: " + (inventory?.Letters.ToString() ?? ""));
                 GUILayout.Label(notice != "" ? notice : "Interact to collect or pick up · Spell to craft · Aim + attack to throw");
                 if (!view.MenuOpen && Target() != null) GUILayout.Label("Interact: use nearby object");
+                else if (!view.MenuOpen && WordboundPracticeGuidePlan.Nearest(course, frame, actorId) != null)
+                    GUILayout.Label("Interact: select nearby practice station · Menu: station details");
                 GUILayout.EndArea();
                 if (view.MenuOpen) Menu(width, height);
             }
@@ -253,6 +325,14 @@ namespace Wreckabulary.Online
             }
             else if (inventory != null)
             {
+                var nearby = WordboundPracticeGuidePlan.Nearest(course, frame, actorId);
+                if (nearby != null)
+                {
+                    GUILayout.Label(WordboundPracticeGuidePlan.Status(frame, nearby), new GUIStyle(GUI.skin.label) { wordWrap = true });
+                    if (!WordboundPracticeGuidePlan.Completed(frame, nearby) && frame.Practice.SiteHash != nearby.Hash &&
+                        GUILayout.Button("Practise " + course.Puzzles.Single(p => p.Id == nearby.PuzzleId).RecipeId + " station"))
+                    { Send(WordboundAction.PracticePuzzle, nearby.Hash); view.SetMenuOpen(false); }
+                }
                 if (inventory.Craft != null)
                 {
                     GUILayout.Label("Crafting " + inventory.Craft.ItemId);
@@ -276,7 +356,7 @@ namespace Wreckabulary.Online
                     if (GUILayout.Button("Drop selected item")) Send(WordboundAction.Drop, slot: actor.EquippedSlot);
                     GUILayout.EndHorizontal();
                 }
-                if (mode.IsRace && frame.Progress.Teams.Single(t => t.Team == team).KeepsakeCarrier == actorId &&
+                if ((mode.IsRace || mode.Id == "Freestyle") && frame.Progress.Teams.Single(t => t.Team == team).KeepsakeCarrier == actorId &&
                     GUILayout.Button("Put down keepsake")) Send(WordboundAction.DropKeepsake);
                 search = GUILayout.TextField(search, 32);
                 recipeScroll = GUILayout.BeginScrollView(recipeScroll);
@@ -309,8 +389,13 @@ namespace Wreckabulary.Online
             "TooEarly" => "Wait a moment before trying again.",
             "OutOfOrder" => "Complete the current puzzle first.",
             "Unavailable" => "That action is unavailable here.",
+            "AlreadySolved" => "Completed this session. Start a fresh session to repeat it.",
+            "NoShield" => "Select a shield, finish your current action, and try again.",
+            "Blocking" => "Lower your shield before attacking.",
             _ => "That action could not be completed."
         };
+
+        void OnDisable() => ReleaseDefense();
 
         void OnDestroy()
         {

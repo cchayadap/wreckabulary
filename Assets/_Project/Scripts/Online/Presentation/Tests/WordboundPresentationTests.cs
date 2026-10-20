@@ -111,6 +111,44 @@ namespace Wreckabulary.Tests
                 courseModels: new Dictionary<string, string> { ["player"] = "Items/TABLE" }));
         }
 
+        [TestCase("BAT", false), TestCase("BAT", true)]
+        [TestCase("custom-inspector-prop", false), TestCase("custom-inspector-prop", true)]
+        public void InspectorModelOverrideUsesItsOwnBoundsAndGripInsteadOfOriginalMetadata(string visualKey, bool authoredGrip)
+        {
+            var profile = ScriptableObject.CreateInstance<WordboundVisualProfile>();
+            var model = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            model.transform.SetParent(anchor.transform, false);
+            Object.DestroyImmediate(model.GetComponent<Collider>());
+            model.transform.localPosition = new Vector3(4, 2, -3);
+            model.transform.localScale = new Vector3(2, 3, 4);
+            if (authoredGrip)
+            {
+                var grip = new GameObject("Grip_R").transform;
+                grip.SetParent(model.transform, false);
+                grip.localPosition = new Vector3(.2f, -.3f, .1f);
+            }
+            profile.Overrides.Add(new WordboundVisualOverride { VisualKey = visualKey, Model = model });
+            try
+            {
+                var custom = new WordboundVisualResolver(GameConfig.Current.Items, profile: profile);
+                var size = new Vector3(.4f, 1.4f, .3f);
+                using var visual = custom.Create(visualKey, size, anchor.transform);
+                var bounds = VertexBounds(visual.Model, anchor.transform);
+                Near(size, bounds.size);
+                Near(new Vector3(0, size.y / 2, 0), bounds.center);
+                var hand = new GameObject("Override hand").transform;
+                hand.SetParent(anchor.transform, false);
+                hand.SetPositionAndRotation(new Vector3(-2, 3, 4), Quaternion.Euler(23, 48, -11));
+                visual.PlaceAtHand(anchor.transform, hand, true);
+                Vector3 actual = authoredGrip ? ModelVisual.FindNamed(visual.Model, "Grip_R").position :
+                    visual.Model.GetComponent<MeshRenderer>().bounds.center;
+                Near(hand.position, actual);
+                Assert.AreSame(model.GetComponent<MeshRenderer>().sharedMaterial,
+                    visual.Model.GetComponent<MeshRenderer>().sharedMaterial);
+            }
+            finally { Object.DestroyImmediate(profile); }
+        }
+
         static void Near(Vector3 expected, Vector3 actual) =>
             Assert.That(Vector3.Distance(expected, actual), Is.LessThan(.002f), $"Expected {expected}, got {actual}");
 

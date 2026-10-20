@@ -16,6 +16,7 @@ namespace Wreckabulary.Online
         public Camera LobbyCamera;
         WordboundPartyMenu menu;
         WordboundWorkshop workshop;
+        WordboundCourseAsset workshopSource;
         WordboundMatchClient activeClient;
         WordboundLocalMatchClient localClient;
         WordboundPartyLaunchContext activeLaunch;
@@ -75,7 +76,7 @@ namespace Wreckabulary.Online
                 await client.StartMatch(launch.Coordinator, launch.Verifier, launch.Verified,
                     content.Mode, content.Course, content.Geometry, content.Items, content.Rules,
                     prefabs, Assets.SnapshotChunk, menu.PhotonAppId, scene, launch.FreshJoin,
-                    content.PhysicalPuzzles);
+                    content.PhysicalPuzzles, cameraProfile: Assets.CameraProfile, visualProfile: Assets.VisualProfile);
                 if (destroying || activeClient != client) return;
                 if (LobbyCamera) LobbyCamera.enabled = false;
             }
@@ -123,16 +124,44 @@ namespace Wreckabulary.Online
         void OpenWorkshop()
         {
             if (activeLaunch != null || activeClient || localClient) return;
-            if (!workshop)
+            bool created = false;
+            try
             {
-                workshop = gameObject.AddComponent<WordboundWorkshop>();
-                workshop.CloseRequested += CloseWorkshop;
-                workshop.PlaytestRequested += PlaytestWorkshop;
-                workshop.ConfigureLocalPlaytest(true);
-                workshop.OpenFlagship(WordboundFlagshipContent.Create(ItemCatalogue.FromJson(itemJson)));
+                if (!workshop)
+                {
+                    var authored = Assets.WorkshopCourse;
+                    if (authored) authored.CreateContent(authored.Resolve());
+                    workshop = gameObject.AddComponent<WordboundWorkshop>();
+                    created = true;
+                    workshop.CloseRequested += CloseWorkshop;
+                    workshop.PlaytestRequested += PlaytestWorkshop;
+                    workshop.ConfigureLocalPlaytest(true);
+                    workshopSource = authored;
+                    if (authored)
+                    {
+                        workshop.Open(authored.ReadDocument(), authored.Catalogue(),
+                            MatchStateValidation.Requirements(ModeDefinition.For(authored.ModeId, authored.Format)));
+                        workshop.History.Execute("Use authored seed", draft => draft.Seed = authored.Seed);
+                        workshop.ResumeEditing();
+                    }
+                    else workshop.OpenFlagship(WordboundFlagshipContent.Create(ItemCatalogue.FromJson(itemJson)));
+                }
+                else workshop.ResumeEditing();
+                menu.Visible = false;
             }
-            else workshop.ResumeEditing();
-            menu.Visible = false;
+            catch (Exception error)
+            {
+                if (created && workshop)
+                {
+                    workshop.CloseRequested -= CloseWorkshop;
+                    workshop.PlaytestRequested -= PlaytestWorkshop;
+                    workshop.Visible = false;
+                    Destroy(workshop);
+                    workshop = null;
+                    workshopSource = null;
+                }
+                menu.ShowFailure("Workshop could not open: " + error.Message);
+            }
         }
 
         async void PlaytestWorkshop(ResolvedCourse resolved)
@@ -143,7 +172,9 @@ namespace Wreckabulary.Online
             try
             {
                 var content = WordboundWorkshopPlaytest.Create(workshop.LastPlaytestDraft, resolved,
-                    workshop.Catalogue, workshop.PlayRequirements, itemJson, ruleJson);
+                    workshop.Catalogue, workshop.PlayRequirements,
+                    workshopSource && workshopSource.Items ? workshopSource.Items.text : itemJson,
+                    workshopSource && workshopSource.RuleBook ? workshopSource.RuleBook.text : ruleJson);
                 var prefabs = Assets.BodyPrefabs();
                 var scene = Assets.GameplayScene();
                 var root = new GameObject("Wordbound workshop playtest");
@@ -155,7 +186,9 @@ namespace Wreckabulary.Online
                     if (!destroying && localClient == client) workshop.ShowStatus(reason);
                 };
                 workshop.Visible = false;
-                await client.StartLocal(content, prefabs, scene);
+                await client.StartLocal(content, prefabs, scene,
+                    cameraProfile: workshopSource && workshopSource.CameraProfile ? workshopSource.CameraProfile : Assets.CameraProfile,
+                    visualProfile: workshopSource && workshopSource.VisualProfile ? workshopSource.VisualProfile : Assets.VisualProfile);
                 if (!destroying && generation == localGeneration && localClient == client && LobbyCamera)
                     LobbyCamera.enabled = false;
             }

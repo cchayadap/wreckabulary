@@ -80,3 +80,9 @@ Integrated FFA production source4c9543a, focused evidence0965aac and bounded sto
 
 Practice Rules compilation and16 focused cases pass in its lane; bounded guide/content checks are running before integration. Sethy owns defense shared hooks only after the practice checkpoint/handoff. Online owns the coordinated schema3 service/golden update and automatic custom-map transfer. Root will next integrate ready source, recheck affected code, then rerun physical puzzle/story native checks before final player delivery. Photon configuration is complete; no account action is currently requested from the owner.
 
+## 2026-10-20T20:09:00Z Inspector controls and protocol integration
+
+Integrated schema-3 checkpoint/wire validation, editable course/camera/visual authoring sources, persistent defense poses and the bounded detailed-asset importer source. Root wired camera profiles to local/online clients and live Inspector updates, visual replacements to canonical fitting, practice selection/guide and held defense to HUD input, and the authored course copy to the launcher workshop. Independent review found replacement-grip and custom-ID mapping defects; both are fixed with native regressions pending execution.
+
+R0 passed in 198.2 seconds (`Logs/gate_check_all_20261020T200045Z.log`). Affected Rules passed 128/128 in 163.5 seconds (`TestResults/core_20261020T200545Z.trx`), including the shield-break rollback regression. The combined filter omitted the Explicit arena seed gate, so no 1,000-seed result is claimed. The later authoring/importer check, native camera/visual/course/puzzle tests, service v3 deployment, public activation, asset production and Windows player remain pending. Public Freestyle is authorized by the latest request and is a separate online slice. Original checkout and website Worker remain preserved.
+

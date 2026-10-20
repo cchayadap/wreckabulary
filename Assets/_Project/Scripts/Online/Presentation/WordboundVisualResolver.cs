@@ -14,12 +14,15 @@ namespace Wreckabulary.Online
         readonly ItemCatalogue items;
         readonly Dictionary<string, string> mappings;
         public bool UseWordboundCollection { get; }
+        public WordboundVisualProfile Profile { get; }
 
         public WordboundVisualResolver(ItemCatalogue items, bool useWordboundCollection = true,
-            IReadOnlyDictionary<string, string> courseModels = null)
+            IReadOnlyDictionary<string, string> courseModels = null, WordboundVisualProfile profile = null)
         {
             this.items = items ?? throw new ArgumentNullException(nameof(items));
             UseWordboundCollection = useWordboundCollection;
+            if (profile) profile.Validate();
+            Profile = profile;
             mappings = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["keepsake"] = "Items/CHEST",
@@ -55,11 +58,10 @@ namespace Wreckabulary.Online
         {
             if (!parent) throw new ArgumentNullException(nameof(parent));
             _ = new WordboundBodyPresentation(new WorldVector(size.x, size.y, size.z), visualKey);
-            string key = ModelKey(visualKey);
+            string key = visualKey;
             items.TryGet(visualKey, out var definition);
             skin = definition == null ? Skin.Standard : Appearance.Pick(definition, skin);
-            var collection = UseWordboundCollection && skin == Skin.Standard ? WordboundEquipmentCollection.Load() : null;
-            var entry = collection ? collection.FindByModelKey(key) : null;
+            WordboundEquipmentCollection.Entry entry = null;
             var root = new GameObject("Wordbound artwork " + visualKey);
             root.SetActive(false);
             root.transform.SetParent(parent, false);
@@ -71,7 +73,15 @@ namespace Wreckabulary.Online
                 orientation.SetParent(fit, false);
                 if (visualKey.StartsWith("letter:", StringComparison.Ordinal))
                     orientation.localRotation = Quaternion.Euler(-90f, 0f, 0f);
-                var model = ModelVisual.Spawn(key, orientation, skin, UseWordboundCollection);
+                GameObject model = null;
+                bool overridden = Profile && Profile.TryInstantiate(visualKey, orientation, out model);
+                if (!overridden)
+                {
+                    key = ModelKey(visualKey);
+                    var collection = UseWordboundCollection && skin == Skin.Standard ? WordboundEquipmentCollection.Load() : null;
+                    entry = collection ? collection.FindByModelKey(key) : null;
+                    model = ModelVisual.Spawn(key, orientation, skin, UseWordboundCollection);
+                }
                 if (!model) throw new InvalidOperationException("Required authored model is not imported: " + key);
                 if (model.GetComponentsInChildren<Collider>(true).Length != 0 ||
                     model.GetComponentsInChildren<Rigidbody>(true).Length != 0 ||
@@ -94,7 +104,7 @@ namespace Wreckabulary.Online
                 Vector3 grip = authoredGrip ? root.transform.InverseTransformPoint(authoredGrip.position) :
                     fit.localPosition + Vector3.Scale(fit.localScale,
                         entry != null ? entry.grip :
-                        definition != null && definition.Grip?.Length == 3 ?
+                        !overridden && definition != null && definition.Grip?.Length == 3 ?
                             new Vector3(definition.Grip[0], definition.Grip[1], definition.Grip[2]) : bounds.center);
                 var instance = new WordboundVisualInstance(root, model, grip,
                     entry?.heldScale ?? definition?.HeldScale ?? 1f, definition?.IsTwoHanded ?? true);

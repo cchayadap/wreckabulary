@@ -40,9 +40,9 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Verify exact-draft playtest/return preserves undo/redo history.
 - [~] Verify drag/rotate/resize/multi-select/group/snap/controller workflows, autosave/recovery and JSON sharing.
 - [~] Finish automatic exact custom-course sharing in private online sessions.
-- [ ] Expose camera FOV/distance/sensitivity/obstruction settings through validated Inspector assets.
-- [ ] Expose equipment visuals/materials/grips and presentation settings without code changes.
-- [ ] Provide Unity course assets/editor controls for modules/layers/spawns/puzzles/random ranges, with preview/validate/playtest actions.
+- [~] Expose camera FOV/distance/sensitivity/obstruction settings through validated Inspector assets; source and live-edit regression are integrated, native test pending.
+- [~] Expose equipment visuals/materials/grips and presentation settings without code changes; replacement-bound/grip/custom-ID regressions are integrated, native test pending.
+- [~] Provide Unity course assets/editor controls for modules/layers/spawns/puzzles/random ranges, with preview/validate/playtest actions; source and reference compile complete, native asset creation/persistence pending.
 - [ ] Verify edit/save/reload/playtest, invalid-value errors, old-save compatibility and online content identity.
 - [ ] Save reusable prefabs/assets and an illustrated Unity editing guide.
 - [ ] Human usability: four of five new testers create/play a randomized course in ten minutes.
@@ -92,4 +92,4 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Root: integration, HUD/player/guide, native verification, content export, coordinated deployment and Windows delivery. Puzzle-race: independent defense review and additive Unity authoring tools. Map-workshop/assets: defense/arena verification and asset quality. Online: protocol v3, all-mode public allocation and private-map sharing.
 
-One heavy/compiler job at a time: defense, Online, then root at this checkpoint. Exact results and earlier failures are in `docs/wordbound/STATUS.md` and linked BuildNotes. No verified Windows player or production-ready claim exists yet.
+Root currently holds the compiler/native slot. The affected Rules run at `TestResults/core_20261020T200545Z.trx` passed 128/128, including rollback after shield break. Its combined filter omitted the Explicit arena sweep; the 1,000-seed test remains pending a separate invocation. R0 passed at `Logs/gate_check_all_20261020T200045Z.log`; a later authoring/importer source check is in progress. Schema-3 source interoperability is verified in `BuildNotes/online/PROTOCOL-V3-CUTOVER.md`, but the live service still runs v2 and public allowlist remains empty. No verified Windows player or production-ready claim exists yet.

@@ -8,6 +8,7 @@ namespace Wreckabulary.Online
     [DefaultExecutionOrder(100)]
     public sealed class WordboundPlayerView : MonoBehaviour
     {
+        public WordboundCameraProfile Profile;
         readonly RaycastHit[] obstructions = new RaycastHit[64];
         WordboundGameplayController controller;
         WordboundNetworkBody player;
@@ -19,13 +20,21 @@ namespace Wreckabulary.Online
         bool previousCursor, initialized, capturedCursor, jumpPending, placed;
         Vector2 movement;
         float yaw, pitch = ShoulderView.DefaultPitch, distance = ShoulderView.Distance;
+        float followDistance = ShoulderView.Distance, minimumDistance = ShoulderView.MinDistance;
+        float pivotHeight = ShoulderView.PivotHeight, lift = ShoulderView.Lift;
+        float probeRadius = ShoulderView.ProbeRadius, skin = ShoulderView.Skin, outEase = ShoulderView.OutEase;
+        float minimumPitch = ShoulderView.MinPitch, maximumPitch = ShoulderView.MaxPitch;
+        float sensitivity = ShoulderView.MouseSensitivity, stickYaw = 2.6f, stickPitch = 1.8f;
+        WordboundCameraProfile activeProfile;
+        string profileError;
         public bool MenuOpen { get; private set; } = true;
         public Camera Camera => view;
         public WordboundNetworkBody Player => player;
         public event Action<PlayerCommands> CommandsRead;
         public event Action MenuRequested;
 
-        public void Initialize(WordboundGameplayController gameplay, Camera camera = null, InputBinding controls = null)
+        public void Initialize(WordboundGameplayController gameplay, Camera camera = null, InputBinding controls = null,
+            WordboundCameraProfile cameraProfile = null)
         {
             if (initialized) throw new InvalidOperationException("Player view is already initialized.");
             controller = gameplay != null ? gameplay : throw new ArgumentNullException(nameof(gameplay));
@@ -43,13 +52,47 @@ namespace Wreckabulary.Online
                 view = ownedCamera.AddComponent<Camera>();
                 view.clearFlags = CameraClearFlags.Skybox;
             }
-            view.fieldOfView = ShoulderView.FieldOfView;
-            view.nearClipPlane = ShoulderView.NearClip;
-            view.farClipPlane = 1800f;
+            if (cameraProfile) Profile = cameraProfile;
+            Profile?.Validate();
+            ApplyCameraProfile();
             previousLock = Cursor.lockState;
             previousCursor = Cursor.visible;
             capturedCursor = true;
             initialized = true;
+        }
+
+        void ApplyCameraProfile()
+        {
+            try { if (Profile) Profile.Validate(); }
+            catch (ArgumentException error)
+            {
+                if (profileError != error.Message) Debug.LogWarning("Wordbound camera profile: " + error.Message, this);
+                profileError = error.Message;
+                return;
+            }
+            profileError = null;
+            view.fieldOfView = Profile ? Profile.FieldOfView : ShoulderView.FieldOfView;
+            view.nearClipPlane = Profile ? Profile.NearClip : ShoulderView.NearClip;
+            view.farClipPlane = Profile ? Profile.FarClip : 1800f;
+            followDistance = Profile ? Profile.Distance : ShoulderView.Distance;
+            minimumDistance = Profile ? Profile.MinDistance : ShoulderView.MinDistance;
+            pivotHeight = Profile ? Profile.PivotHeight : ShoulderView.PivotHeight;
+            lift = Profile ? Profile.Lift : ShoulderView.Lift;
+            probeRadius = Profile ? Profile.ProbeRadius : ShoulderView.ProbeRadius;
+            skin = Profile ? Profile.Skin : ShoulderView.Skin;
+            outEase = Profile ? Profile.OutEase : ShoulderView.OutEase;
+            minimumPitch = Profile ? Profile.MinPitch : ShoulderView.MinPitch;
+            maximumPitch = Profile ? Profile.MaxPitch : ShoulderView.MaxPitch;
+            sensitivity = Profile ? Profile.MouseSensitivity : ShoulderView.MouseSensitivity;
+            stickYaw = Profile ? Profile.StickYawSpeed : 2.6f;
+            stickPitch = Profile ? Profile.StickPitchSpeed : 1.8f;
+            if (activeProfile != Profile)
+            {
+                pitch = Profile ? Profile.DefaultPitch : ShoulderView.DefaultPitch;
+                activeProfile = Profile;
+                placed = false;
+            }
+            pitch = Mathf.Clamp(pitch, minimumPitch, maximumPitch);
         }
 
         public void LocalPlayerChanged(WordboundNetworkBody body)
@@ -80,6 +123,7 @@ namespace Wreckabulary.Online
         void Update()
         {
             if (!initialized) return;
+            ApplyCameraProfile();
             bool pause = binding is DesktopBinding desktop ? desktop.Pause.WasPressedThisFrame() : binding.StartPressed();
             if (pause && Application.isFocused)
             {
@@ -97,15 +141,15 @@ namespace Wreckabulary.Online
             binding.Read(ref commands);
             if (binding.ReadsMouse)
             {
-                yaw += commands.lookDelta.x * ShoulderView.MouseSensitivity;
-                pitch -= commands.lookDelta.y * ShoulderView.MouseSensitivity;
+                yaw += commands.lookDelta.x * sensitivity;
+                pitch -= commands.lookDelta.y * sensitivity;
             }
             else
             {
-                yaw += commands.look.x * 2.6f * Time.unscaledDeltaTime;
-                pitch -= commands.look.y * 1.8f * Time.unscaledDeltaTime;
+                yaw += commands.look.x * stickYaw * Time.unscaledDeltaTime;
+                pitch -= commands.look.y * stickPitch * Time.unscaledDeltaTime;
             }
-            pitch = Mathf.Clamp(pitch, ShoulderView.MinPitch, ShoulderView.MaxPitch);
+            pitch = Mathf.Clamp(pitch, minimumPitch, maximumPitch);
             yaw = Mathf.Repeat(yaw + Mathf.PI, 2 * Mathf.PI) - Mathf.PI;
             movement = ShoulderView.CameraRelative(Vector2.ClampMagnitude(commands.move, 1), yaw);
             jumpPending |= commands.jump;
@@ -119,7 +163,10 @@ namespace Wreckabulary.Online
                 jumpPending = false;
                 return default;
             }
-            var input = new WordboundMovementInput { MoveX = movement.x, MoveZ = movement.y, Jump = jumpPending };
+            var input = new WordboundMovementInput {
+                MoveX = movement.x, MoveZ = movement.y, Jump = jumpPending,
+                HasFacing = true, FacingYaw = Mathf.Repeat(yaw * Mathf.Rad2Deg + 180f, 360f) - 180f
+            };
             jumpPending = false;
             return input;
         }
@@ -129,24 +176,24 @@ namespace Wreckabulary.Online
             if (!initialized || view == null || player == null || player.Object == null || !player.Object.IsValid) return;
             var visual = player.GetComponent<WordboundGameplayBody>()?.VisualRoot;
             Vector3 feet = visual != null ? visual.position : player.transform.position;
-            Vector3 pivot = feet + Vector3.up * (ShoulderView.PivotHeight + ShoulderView.Lift);
+            Vector3 pivot = feet + Vector3.up * (pivotHeight + lift);
             Vector3 forward = ShoulderView.Forward(yaw, pitch);
-            float allowed = ShoulderView.Distance;
+            float allowed = followDistance;
             var scene = player.gameObject.scene.GetPhysicsScene();
             if (!scene.IsValid() || scene == Physics.defaultPhysicsScene) return;
-            int count = scene.SphereCast(pivot, ShoulderView.ProbeRadius, -forward, obstructions,
-                ShoulderView.Distance, ~0, QueryTriggerInteraction.Ignore);
-            if (count == obstructions.Length) allowed = ShoulderView.MinDistance;
+            int count = scene.SphereCast(pivot, probeRadius, -forward, obstructions,
+                followDistance, ~0, QueryTriggerInteraction.Ignore);
+            if (count == obstructions.Length) allowed = minimumDistance;
             else
                 for (int i = 0; i < count; i++)
                 {
                     var collider = obstructions[i].collider;
                     if (collider == null || collider.attachedRigidbody == player.Rigidbody) continue;
-                    allowed = Mathf.Min(allowed, obstructions[i].distance - ShoulderView.Skin);
+                    allowed = Mathf.Min(allowed, obstructions[i].distance - skin);
                 }
-            allowed = Mathf.Clamp(allowed, ShoulderView.MinDistance, ShoulderView.Distance);
+            allowed = Mathf.Clamp(allowed, minimumDistance, followDistance);
             distance = !placed || allowed < distance ? allowed :
-                Mathf.Lerp(distance, allowed, 1 - Mathf.Exp(-ShoulderView.OutEase * Time.unscaledDeltaTime));
+                Mathf.Lerp(distance, allowed, 1 - Mathf.Exp(-outEase * Time.unscaledDeltaTime));
             view.transform.SetPositionAndRotation(pivot - forward * distance, Quaternion.LookRotation(forward, Vector3.up));
             placed = true;
         }

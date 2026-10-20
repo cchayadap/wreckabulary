@@ -4,7 +4,7 @@
   "references": [
     "Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Gameplay",
     "Wreckabulary.Online.Physics", "Wreckabulary.Online.Fusion", "Wreckabulary.Online.Puzzles",
-    "Wreckabulary.Online.Presentation", "Unity.InputSystem", "Fusion.Unity", "Photon.Realtime"
+    "Wreckabulary.Online.Presentation", "Wreckabulary.Online.Authoring", "Unity.InputSystem", "Fusion.Unity", "Photon.Realtime"
   ],
   "overrideReferences": true,
   "precompiledReferences": [

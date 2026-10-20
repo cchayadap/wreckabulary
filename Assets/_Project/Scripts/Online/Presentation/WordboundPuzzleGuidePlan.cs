@@ -36,6 +36,8 @@ namespace Wreckabulary.Online
                 throw new ArgumentException("Guide frame must belong to the exact resolved course.");
             if (!frame.Binding.Seats.Any(s => s.PlayerId == localActor))
                 throw new ArgumentException("Guide player is not in the bound roster.");
+            if (course.Play.ModeId == "Freestyle")
+                return WordboundPracticeGuidePlan.Build(course, frame, localActor);
             return Array.AsReadOnly(Build(course, frame.Progress, localActor).Where(marker =>
                 marker.Kind != WordboundGuideKind.Source ||
                 frame.Bodies.Any(b => b.Kind == WorldBodyKind.Item && b.SourceId == marker.SourceId && b.Active)).ToArray());

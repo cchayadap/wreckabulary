@@ -24,7 +24,8 @@ namespace Wreckabulary.Online
         public event Action<string> Failed;
 
         public async Task StartLocal(IWordboundPuzzleContent content, WordboundGameplayPrefabs prefabs,
-            SceneRef gameplayScene, InputBinding controls = null)
+            SceneRef gameplayScene, InputBinding controls = null,
+            WordboundCameraProfile cameraProfile = null, WordboundVisualProfile visualProfile = null)
         {
             if (started) throw new InvalidOperationException("Create a fresh local client for each playtest.");
             if (content == null || !content.BindsRules || !gameplayScene.IsValid)
@@ -51,10 +52,10 @@ namespace Wreckabulary.Online
                 options.ObserveHost = puzzles.ObserveHost;
                 options.PuzzleEvaluator = puzzles.Evaluate;
                 options.MovementEnvironment = puzzles.EvaluateMovementEnvironment;
-                playerView.Initialize(gameplay, controls: controls);
+                playerView.Initialize(gameplay, controls: controls, cameraProfile: cameraProfile);
                 gameObject.AddComponent<WordboundPuzzleGuide>().Bind(gameplay, content.Course,
                     LocalActor, playerView.Camera);
-                artwork.Initialize(new WordboundVisualResolver(content.Items));
+                artwork.Initialize(new WordboundVisualResolver(content.Items, profile: visualProfile));
                 artwork.Bind(gameplay);
                 artwork.Failed += DisplayFailed;
                 hud = gameObject.AddComponent<WordboundMatchHud>();
