@@ -124,19 +124,41 @@ namespace Wreckabulary.PhotonTests
             args.HostMigrationToken = migration;
             args.HostMigrationResume = runner =>
             {
+                var chunkDiagnostics = new System.Collections.Generic.List<string>();
+                int temporaryReuses = 0;
                 try
                 {
-                    var saved = runner.GetResumeSnapshotNetworkObjects()
-                        .Select(obj => obj.GetComponent<WordboundFusionSnapshotChunk>()).Where(c => c != null).ToArray();
-                    recoveredJson = WordboundFusionSnapshotChunk.Restore(saved, out recoveredMark);
-                    foreach (var value in saved)
+                    WordboundFusionSnapshotChunk previous = null;
+                    System.Collections.Generic.IEnumerable<WordboundFusionSnapshotChunk> ReadSaved()
                     {
-                        var captured = value;
-                        runner.Spawn(networkPrefab, onBeforeSpawned: (_, obj) => obj.CopyStateFrom(captured.Object));
+                        foreach (var obj in runner.GetResumeSnapshotNetworkObjects())
+                        {
+                            var chunk = obj.GetComponent<WordboundFusionSnapshotChunk>();
+                            if (chunk == null) continue;
+                            if (ReferenceEquals(previous, chunk)) temporaryReuses++;
+                            previous = chunk;
+                            chunkDiagnostics.Add(chunk.Index + "/" + chunk.Count + ":bytes=" + chunk.PayloadBytes +
+                                ":total=" + chunk.TotalBytes + ":mark=" + chunk.Mark().Same(mark) +
+                                ":wire=" + (chunk.WireHash.ToString() == packet.WireHash));
+                            yield return chunk;
+                        }
+                    }
+                    recoveredJson = WordboundFusionSnapshotChunk.Restore(ReadSaved(), out recoveredMark);
+                    var recoveredPacket = OnlineSnapshotPacket.Compress(recoveredJson);
+                    for (int index = 0; index < recoveredPacket.ChunkCount; index++)
+                    {
+                        int captured = index;
+                        runner.Spawn(networkPrefab, onBeforeSpawned: (_, obj) =>
+                            obj.GetComponent<WordboundFusionSnapshotChunk>().Write(recoveredMark, recoveredPacket, captured));
                     }
                 }
                 catch (Exception error) { resumeError = error; }
-                finally { resumeCompleted = true; }
+                finally
+                {
+                    Debug.Log("[Wreckabulary] Resume carrier count=" + chunkDiagnostics.Count +
+                        ", reused temporary objects=" + temporaryReuses + ", manifests=" + string.Join(";", chunkDiagnostics));
+                    resumeCompleted = true;
+                }
             };
             var resume = replacement.StartGame(args);
             while (!resume.IsCompleted && !cancellation.IsCancellationRequested) yield return null;
@@ -150,6 +172,11 @@ namespace Wreckabulary.PhotonTests
             Assert.IsTrue(string.Equals(json, recoveredJson, StringComparison.Ordinal),
                 "Cloud recovery must preserve every canonical byte.");
             Assert.IsTrue(mark.Same(recoveredMark), "Epoch, sequence, tick and all identity hashes must survive.");
+            var rebuilt = UnityEngine.Object.FindObjectsByType<WordboundFusionSnapshotChunk>()
+                .Where(c => c.Object != null && c.Object.IsValid && c.Runner == replacement).ToArray();
+            Assert.AreEqual(packet.ChunkCount, rebuilt.Length, "Replacement must recreate the exact complete carrier set.");
+            Assert.IsTrue(string.Equals(json, WordboundFusionSnapshotChunk.Restore(rebuilt, out var rebuiltMark), StringComparison.Ordinal));
+            Assert.IsTrue(mark.Same(rebuiltMark));
             if (!large) fixture.VerifyAndRestore(recoveredJson, recoveredMark);
             Directory.CreateDirectory("Logs/wordbound");
             File.WriteAllText("Logs/wordbound/photon-migration-" + (large ? "large" : "canonical") + ".json",

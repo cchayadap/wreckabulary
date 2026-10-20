@@ -45,17 +45,31 @@ namespace Wreckabulary.Online
         }
         public static string Restore(IEnumerable<WordboundFusionSnapshotChunk> source, out OnlineSnapshotMark mark)
         {
-            var chunks = source.Take(OnlineSnapshotPacket.MaximumChunks + 1).ToArray();
-            if (chunks.Length == 0 || chunks.Length > OnlineSnapshotPacket.MaximumChunks || chunks.Any(c => c == null))
+            var chunks = source.Take(OnlineSnapshotPacket.MaximumChunks + 1).Select(c => new SavedChunk(c)).ToArray();
+            if (chunks.Length == 0 || chunks.Length > OnlineSnapshotPacket.MaximumChunks)
                 throw new FormatException("Missing migration carrier.");
-            var first = chunks[0]; mark = first.Mark(); var expected = mark;
+            var first = chunks[0]; mark = first.Mark; var expected = mark;
             if (chunks.Length != first.Count || chunks.Any(c => c.Count != first.Count || c.TotalBytes != first.TotalBytes ||
-                c.WireHash != first.WireHash || !c.Mark().Same(expected)) ||
+                c.WireHash != first.WireHash || !c.Mark.Same(expected)) ||
                 chunks.Select(c => c.Index).Distinct().Count() != chunks.Length ||
                 chunks.Any(c => c.Index < 0 || c.Index >= chunks.Length))
                 throw new FormatException("Mixed or incomplete migration carrier.");
-            return OnlineSnapshotPacket.Restore(chunks.OrderBy(c => c.Index).Select(c => c.ReadPayload()).ToArray(),
-                first.TotalBytes, first.WireHash.ToString());
+            return OnlineSnapshotPacket.Restore(chunks.OrderBy(c => c.Index).Select(c => c.Payload).ToArray(),
+                first.TotalBytes, first.WireHash);
+        }
+
+        readonly struct SavedChunk
+        {
+            public readonly int Index, Count, TotalBytes;
+            public readonly string WireHash;
+            public readonly OnlineSnapshotMark Mark;
+            public readonly byte[] Payload;
+            public SavedChunk(WordboundFusionSnapshotChunk source)
+            {
+                if (source == null) throw new FormatException("Missing migration carrier.");
+                Index = source.Index; Count = source.Count; TotalBytes = source.TotalBytes;
+                WireHash = source.WireHash.ToString(); Mark = source.Mark(); Payload = source.ReadPayload();
+            }
         }
     }
 }
