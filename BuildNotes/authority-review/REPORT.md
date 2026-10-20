@@ -92,3 +92,72 @@ The implementation owner acknowledged A1, A2 and A3 and is changing the owned au
 ## Next action
 
 After the implementation owner's fix commit and host-load release, independently rerun the slow-next-lap publication case and rehashed future-resource/inactive-tile rejection cases against the fixed revision. Integration then runs its required rules/native gates. This report does not claim live multiplayer or production acceptance.
+
+## Follow-up verification — COMPLETE
+
+Integration owner extended review to committed `4dfce93`, including independent verification of A1/A2/A3 and the new timing/platform/settling/permanent-return boundaries. Bounded pure harness checks are permitted; no Unity or source edits. Exact revision, checks and remaining limits will be recorded here before the follow-up report commit.
+
+Verified revision: `4dfce93b70b224049cabd2817a02906714651e7e`. The worktree was clean at the final source check. Existing real-NUnit test build:
+
+`Tools/kit/gate/CoreTests/bin/0/Debug/net9.0/CoreTests.dll`
+
+SHA-256: `92192E1471EEDA44FB05D82408BE092DEB83F4D5C569F9CEFA92C09912BB9CB6`. The implementation owner's matching gate evidence is `TestResults/core_20261020T115557Z.trx`; this reviewer loaded the existing assembly rather than compiling or invoking Unity.
+
+Independent A1 reproduction rerun: completed lap zero through ordinary recipe/puzzle/keepsake commands, then spent another 601 ticks on lap one with periodic acknowledgements.
+
+```text
+Lap              : 1
+LapEnteredTick   : 139
+Tick             : 740
+OldPendingTimers : 0
+PublishedTick    : 740
+ImportSuccess    : True
+Paused           : False
+```
+
+Independent rehashed A2/A3 mutations now reject:
+
+```text
+futureOmissionRejected=True
+futureOmissionError=match-snapshot.json: $: Snapshot must include every static source, team and lap exactly once.
+inactiveTileRejected=True
+inactiveTileError=match-snapshot.json: $: Live letter tile has no active world body.
+```
+
+The fixed source clears inactive-lap timers, prevents old-scope scheduling, requires every static resource scope and lap-specific generation, and rejects inactive live tiles. A1/A2/A3 are verified corrected at this revision.
+
+The reviewer also invoked all 16 existing mechanism/return cases directly from the fresh NUnit assembly: `focusedPassed=16`, `focusedFailed=0`. These are re-executions of implementation-owner tests, distinct from the independently constructed probes above. They cover causal timing/reset and rollback, migrated unsolved phase, platform pose/authority metadata, removed-item timer reset, thrown-item settling/revision, inventory/keepsake return exactly once, respawn cancellation and committed migration, terminal reconnect rejection, and contradictory returned/connected flags.
+
+### A4 — P2: active unsolved mechanism snapshots bypass live timing preconditions
+
+At `4dfce93`, `MatchStateValidation.ValidateMechanisms` validates names, solved state and numeric timing, but an active unsolved mechanism is not required to be in the current objective or have its required deployed recipe item. Lines 248–251 only check that a referenced item exists if the reference is nonempty. `AuthoritativeMatch.ApplyMechanism` enforces current lap/checkpoint, prerequisites, recipe ownership, item state and location for live observations; import does not compose those same guarantees.
+
+Concrete rehashed-snapshot probes: start TimeRun, advance to tick one, leave the player on lap zero with no crafted item, and set BedBridge's unsolved state to `ActivatedTick=1`, `PhaseTick=1`, `ProgressTicks=1`, `ItemEntityId=""`. Import succeeds both for the current lap and for an unstarted future lap:
+
+```text
+mechanismLap=0 activeMissingRecipeItemAccepted=True
+mechanismLap=1 activeMissingRecipeItemAccepted=True
+```
+
+These states cannot be produced by a valid `HostMechanismObservation` for this recipe. They can restore progress for an unstarted mechanism without its physical prerequisite; the ordinary cleanup loop also skips an empty item reference. This is a snapshot consistency defect, not a claim that an untrusted client can publish the durable checkpoint.
+
+Required correction: for unsolved states with `ActivatedTick >= 0`, require the active lap/checkpoint and completed prerequisites; if the puzzle requires a recipe, require a matching active deployed crafted item owned by that team in its module. Preserve the separate rules for solved historical item references, including consumed-item tombstones. Add canonical rehashed tests for future/off-objective activation and missing/wrong/held/rival/out-of-module recipe items.
+
+### A4 fix verification
+
+Verified correction: `f3c50d6` (`Reject impossible active mechanism recovery snapshots`), atop `4dfce93`. The reviewed validator and test files have no working-tree differences from that commit. Validator SHA-256: `F1D11DF5395F5E15C2545A3FED33D0CF16F6124C22DF8228CCEF2C736D63ED5B`. Fresh existing real-NUnit `CoreTests.dll` SHA-256: `72116B157DCF1956A749957C3C48825B28B13FF8A1DDE108A756E19CF883269B`; owner's matching gate is `TestResults/core_20261020T120607Z.trx`.
+
+The independent current/future-lap missing-item probes now reject. Two additional independent BrawlRace probes reference (a) a matching BED still held and (b) a matching BED deployed by the rival team; both reject. Each mutation was exported through the real codec to recompute the canonical hash, then imported with unchanged trusted dependencies.
+
+```text
+missingRecipeItemLap0=REJECTED
+missingRecipeItemLap1=REJECTED
+heldRecipeItem=REJECTED
+rivalRecipeItem=REJECTED
+focusedPassed=23
+focusedFailed=0
+```
+
+The 23 focused cases are direct re-executions of the owner's 18 mechanism and five return cases, separate from the four independent mutations. Source review confirms active unsolved states require the current lap/objective, completed prerequisites, and the appropriate active deployed crafted item, team, recipe and module bounds. Solved historical references retain their separate consumed-item rules.
+
+A1–A4 are independently verified corrected at the revisions above. No additional confirmed defect was found in the reviewed platform pose, throw settling, permanent return, rollback and recovery boundaries. This is bounded source and engine-free verification: engine collision/movement, live Fusion authority, actual checkpoint durability and native migration acceptance were not run by this reviewer. Only this report was edited; implementation fixes belong to the source owner and native integration remains with the root agent.
