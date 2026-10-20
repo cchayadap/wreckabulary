@@ -1,0 +1,207 @@
+import { z } from "zod";
+import { Store } from "./store";
+import { signGrant } from "./auth";
+import {
+  Content, NOW, RECONNECT_MS, capacity, code, digest, emptyPool, logicalFull, poolKey,
+  publicRoster, requireThat, seal, secret, teamFor, validatePartySize,
+  type Attempt, type ContentBinding, type Match, type PoolState, type Seat,
+} from "./model";
+
+export class MatchPool extends Store<PoolState> {
+  private run<R>(fn: (s: PoolState, now: number) => R): R {
+    return this.transaction(() => {
+      const s = this.read() ?? emptyPool(); const now = NOW();
+      this.expire(s, now);
+      const result = fn(s, now); this.write(s); return result;
+    });
+  }
+  private approve(content: ContentBinding) {
+    if (content.kind === "BuiltIn") {
+      const allowed = z.array(Content).parse(JSON.parse(this.env.BUILTIN_CONTENT_JSON));
+      requireThat(allowed.some(c => digest(c) === digest(content)), "CONTENT_NOT_APPROVED", 422);
+    }
+  }
+  registerCode(target: string, matchId: string, ownerAttempt: string) {
+    return this.run(s => {
+      requireThat(!s.codeTarget || s.codeTarget.ownerAttempt === ownerAttempt, "CODE_COLLISION");
+      s.codeTarget = { poolKey: target, matchId, ownerAttempt };
+    });
+  }
+  resolveCode() {
+    const s = this.read(); requireThat(s?.codeTarget, "PRIVATE_NOT_FOUND", 404); return s.codeTarget;
+  }
+  enqueue(a: Attempt) {
+    return this.run((s, now) => {
+      requireThat(!s.tombstones[a.id], "ATTEMPT_CANCELLED");
+      requireThat(poolKey(a.settings) === a.poolKey, "POOL_MISMATCH");
+      validatePartySize(a.settings, a.members.length);
+      requireThat(new Set(a.members).size === a.members.length, "DUPLICATE_MEMBER");
+      const assigned = s.assignments[a.id];
+      if (assigned) {
+        const m = s.matches[assigned]; return { matchId: m.id, privateCode: m.privateCode };
+      }
+      if (s.tickets[a.id]) { requireThat(digest(s.tickets[a.id]) === digest(a), "IDEMPOTENCY_CONFLICT"); return {}; }
+      requireThat(Object.keys(s.tickets).length < 1000 && Object.keys(s.matches).length < 1000, "POOL_BUSY", 429);
+      const active = [...Object.values(s.tickets), ...Object.values(s.matches).filter(m => m.phase !== "ABORTED").flatMap(m => m.reservations.map(r => r.attempt))];
+      requireThat(!active.some(other => other.id !== a.id && other.members.some(p => a.members.includes(p))), "PLAYER_ALREADY_QUEUED");
+      if (a.content) this.approve(a.content);
+      if (a.channel === "QuickPlay") requireThat(a.content?.kind === "BuiltIn", "QUICK_PLAY_BUILTIN_ONLY", 422);
+      if (a.channel === "CustomFill") requireThat(a.settings.fill && !a.content, "CUSTOM_FILL_CONSENT_REQUIRED", 422);
+      if (a.channel === "PrivateCreate") {
+        requireThat(a.content, "CONTENT_REQUIRED", 422);
+        const m = this.newMatch(a, now, true); s.matches[m.id] = m;
+        this.enroll(s, m, a, 0);
+      } else if (a.channel === "PrivateJoin") {
+        const m = Object.values(s.matches).find(m => m.privateCode === a.code && m.phase === "FORMING");
+        requireThat(m, "PRIVATE_NOT_OPEN", 404);
+        const team = teamFor(m, a, true); requireThat(team !== undefined, "PRIVATE_TEAM_FULL");
+        this.enroll(s, m, a, team);
+      } else s.tickets[a.id] = a;
+      this.drain(s, now);
+      const m = s.matches[s.assignments[a.id]];
+      return { matchId: m?.id, privateCode: m?.privateCode };
+    });
+  }
+  private newMatch(a: Attempt, now: number, isPrivate: boolean): Match {
+    return {
+      id: crypto.randomUUID(), generation: "1", settings: a.settings, content: a.content!,
+      privateCode: isPrivate ? code() : undefined, ownerId: a.members[0],
+      createdAt: now, phase: "FORMING", reservations: [], seats: [],
+    };
+  }
+  private enroll(s: PoolState, m: Match, a: Attempt, teamId: number) {
+    const offset = m.seats.filter(seat => seat.teamId === teamId).length;
+    m.reservations.push({ attempt: a, teamId });
+    m.seats.push(...a.members.map((playerId, i) => ({
+      playerId, partyId: a.partyId, partyRevision: a.partyRevision, attemptId: a.id,
+      teamId, seat: teamId * capacity(m.settings) + offset + i,
+      connectionSecret: secret(), accepted: false,
+    })));
+    s.assignments[a.id] = m.id; delete s.tickets[a.id];
+  }
+  private drain(s: PoolState, now: number) {
+    const tickets = Object.values(s.tickets).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
+    for (const a of tickets) {
+      const candidates = Object.values(s.matches).filter(m => m.phase === "FORMING"
+        && (a.channel === "CustomFill"
+          ? !!m.privateCode && m.content.kind === "Workshop"
+          : m.content.kind === "BuiltIn" && digest(m.content) === digest(a.content)))
+        .sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
+      let match = candidates.find(m => teamFor(m, a) !== undefined);
+      if (!match && a.channel === "QuickPlay") {
+        match = this.newMatch(a, now, false); s.matches[match.id] = match;
+      }
+      if (match) {
+        const team = teamFor(match, a);
+        if (team !== undefined) this.enroll(s, match, a, team);
+      }
+    }
+    for (const m of Object.values(s.matches)) {
+      if (m.phase === "FORMING" && (logicalFull(m)
+        || (!m.privateCode && m.settings.mode === "FreeForAll" && m.seats.length >= 2 && now - m.createdAt >= 30_000))) seal(m, now);
+    }
+  }
+  private abort(s: PoolState, m: Match, failedAttempts: Set<string>, now: number) {
+    m.phase = "ABORTED";
+    for (const r of m.reservations) {
+      const a = r.attempt; delete s.assignments[a.id];
+      if (!failedAttempts.has(a.id) && (a.channel === "QuickPlay" || a.channel === "CustomFill")) s.tickets[a.id] = a;
+      else s.tombstones[a.id] = now;
+    }
+  }
+  private expire(s: PoolState, now: number) {
+    for (const m of Object.values(s.matches)) {
+      if (m.phase === "ADMITTING" && m.deadline! <= now) {
+        const failed = new Set(m.seats.filter(seat => !seat.accepted).map(seat => seat.attemptId));
+        this.abort(s, m, failed, now);
+      }
+    }
+    this.drain(s, now);
+  }
+  cancel(attemptId: string, partyId: string) {
+    return this.run((s, now) => {
+      const m = s.matches[s.assignments[attemptId]];
+      if (m) {
+        requireThat(m.reservations.some(r => r.attempt.id === attemptId && r.attempt.partyId === partyId), "NOT_PARTY_MEMBER", 403);
+        requireThat(m.phase !== "STARTED", "MATCH_ALREADY_STARTED");
+        this.abort(s, m, new Set([attemptId]), now);
+      } else if (s.tickets[attemptId]) requireThat(s.tickets[attemptId].partyId === partyId, "NOT_PARTY_MEMBER", 403);
+      delete s.tickets[attemptId]; s.tombstones[attemptId] = now;
+      this.drain(s, now);
+      return { state: "CANCELLED" };
+    });
+  }
+  status(attemptId: string, partyId: string, actor: string) {
+    return this.run(s => {
+      const m = s.matches[s.assignments[attemptId]];
+      const a = m?.reservations.find(r => r.attempt.id === attemptId)?.attempt ?? s.tickets[attemptId];
+      if (a) requireThat(a.partyId === partyId && a.members.includes(actor), "NOT_PARTY_MEMBER", 403);
+      if (!m) return { state: s.tombstones[attemptId] ? "CANCELLED" : "QUEUED" };
+      return this.view(m);
+    });
+  }
+  private view(m: Match) {
+    return { matchId: m.id, state: m.phase, reservationGeneration: m.generation,
+      content: m.content, settings: m.settings, privateCode: m.privateCode,
+      rosterHash: m.rosterHash, roster: publicRoster(m), deadline: m.deadline };
+  }
+  launch(matchId: string, actor: string) {
+    return this.run((s, now) => {
+      const m = s.matches[matchId]; requireThat(m && m.ownerId === actor, "OWNER_REQUIRED", 403);
+      requireThat(m.privateCode && m.phase === "FORMING", "NOT_FORMING");
+      requireThat(m.settings.mode === "Freestyle" || (m.settings.mode === "FreeForAll" && m.seats.length >= 2) || logicalFull(m), "MATCH_NOT_FULL");
+      seal(m, now); return this.view(m);
+    });
+  }
+  private member(m: Match | undefined, actor: string): Seat {
+    requireThat(m && m.phase !== "ABORTED", "MATCH_NOT_FOUND", 404);
+    const seat = m.seats.find(s => s.playerId === actor); requireThat(seat, "NOT_MATCH_MEMBER", 403);
+    return seat;
+  }
+  async admission(matchId: string, actor: string) {
+    const claims = this.run((s, now) => {
+      const m = s.matches[matchId]; const seat = this.member(m, actor);
+      requireThat(m.phase === "ADMITTING" || m.phase === "STARTED", "ROSTER_NOT_LOCKED");
+      if (m.phase === "STARTED") this.checkReconnect(seat, now);
+      return { version: 1, sub: actor, playerId: actor, partyId: seat.partyId, partyRevision: seat.partyRevision,
+        attemptId: seat.attemptId, matchId, reservationGeneration: m.generation,
+        teamId: seat.teamId, seat: seat.seat, protocolVersion: m.settings.protocolVersion,
+        modeHash: m.content.modeHash, courseHash: m.content.courseHash, manifestHash: m.content.manifestHash,
+        catalogHash: m.content.catalogHash, rosterHash: m.rosterHash!, connectionSecretHash: digest(seat.connectionSecret),
+        connectionSecret: seat.connectionSecret,
+      };
+    });
+    const { connectionSecret, ...publicClaims } = claims;
+    return { grant: await signGrant(this.env, publicClaims), connectionSecret, claims: publicClaims };
+  }
+  ready(matchId: string, actor: string, generation: string, manifestHash: string, rosterHash: string) {
+    return this.run((s, now) => {
+      const m = s.matches[matchId]; const seat = this.member(m, actor);
+      requireThat(m.generation === generation && m.content.manifestHash === manifestHash && m.rosterHash === rosterHash, "CONTENT_OR_ROSTER_MISMATCH");
+      requireThat(m.phase === "ADMITTING" || m.phase === "STARTED", "NOT_ADMITTING");
+      seat.accepted = true;
+      if (m.phase === "ADMITTING" && m.seats.every(s => s.accepted)) {
+        m.phase = "STARTED"; m.startedAt = now;
+        m.seats.forEach(s => s.reconnectDeadline = now + RECONNECT_MS);
+      }
+      return this.view(m);
+    });
+  }
+  private checkReconnect(seat: Seat, now: number) {
+    requireThat(seat.reconnectDeadline !== undefined && now < seat.reconnectDeadline, "RECONNECT_EXPIRED");
+  }
+  presence(matchId: string, actor: string, connected: boolean) {
+    return this.run((s, now) => {
+      const m = s.matches[matchId]; const seat = this.member(m, actor);
+      requireThat(m.phase === "STARTED", "MATCH_NOT_STARTED");
+      this.checkReconnect(seat, now);
+      if (connected) {
+        delete seat.disconnectedAt; seat.reconnectDeadline = now + RECONNECT_MS;
+      } else if (seat.disconnectedAt === undefined) {
+        seat.disconnectedAt = now; seat.reconnectDeadline = now + RECONNECT_MS;
+      }
+      return { playerId: actor, seat: seat.seat, reconnectDeadline: seat.reconnectDeadline };
+    });
+  }
+  async alarm() { this.run(() => undefined); }
+}
