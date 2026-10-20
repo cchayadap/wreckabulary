@@ -56,7 +56,12 @@ namespace Wreckabulary.Rules.Tests
                 "." + OnlineJson.Base64Url(Encoding.UTF8.GetBytes(OnlineJson.Encode(claims)));
             return input + "." + OnlineJson.Base64Url(rsa.SignData(Encoding.ASCII.GetBytes(input), HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1));
         }
-        static RSA Key() { var rsa = RSA.Create(); rsa.KeySize = 2048; return rsa; }
+        static RSA Key()
+        {
+            var rsa = new RSACryptoServiceProvider(2048) { PersistKeyInCsp = false };
+            Assert.AreEqual(256, rsa.ExportParameters(false).Modulus.Length, "The fixture must actually generate a 2048-bit RSA key.");
+            return rsa;
+        }
 
         [Test] public void ConnectionAuthorizationPinsHostTransportAndExclusiveLease()
         {

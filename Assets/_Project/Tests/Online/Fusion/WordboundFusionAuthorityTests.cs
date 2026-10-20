@@ -58,8 +58,9 @@ namespace Wreckabulary.Tests
                 ["version"] = 1, ["iss"] = "bridge-test", ["aud"] = "wordbound-match-start", ["iat"] = 1000, ["exp"] = 1090,
                 ["matchId"] = MatchId, ["reservationGeneration"] = "1", ["rosterHash"] = rosterHash,
                 ["startedAt"] = 1000000, ["settings"] = settings.ToValue(), ["content"] = content.ToValue(), ["roster"] = roster };
-            using var rsa = RSA.Create(); rsa.KeySize = 2048;
+            using var rsa = new RSACryptoServiceProvider(2048) { PersistKeyInCsp = false };
             var key = rsa.ExportParameters(false);
+            Assert.AreEqual(256, key.Modulus.Length, "The fixture must actually generate a 2048-bit RSA key.");
             string jwks = OnlineJson.Encode(new Dictionary<string, object> { ["keys"] = new[] { new Dictionary<string, object> {
                 ["kty"] = "RSA", ["kid"] = "test", ["alg"] = "RS256", ["use"] = "sig",
                 ["n"] = OnlineJson.Base64Url(key.Modulus), ["e"] = OnlineJson.Base64Url(key.Exponent) } } });
