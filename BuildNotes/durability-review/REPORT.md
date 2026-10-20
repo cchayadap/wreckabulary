@@ -100,3 +100,25 @@ Additional limits communicated to the owner:
 - A returned non-writer after the checkpoint must be applied to the restored state before readiness.
 - Fifteen seconds is not an unconditional maximum failover time. An old host that can still renew HTTP ownership during an asymmetric Photon partition can keep the replacement fenced out. Preserve safety and report this liveness limit unless a separate authority mechanism resolves it.
 - Up to 64 chunk writes per publication share the pool's serialized transaction path. Bounded upload parallelism and measured normal cadence are necessary before claiming the two-second speculative allowance is practical at load.
+
+## Independent service-source verification
+
+Applied the local [Durable Objects review skill](C:/Users/mrkl6/.codex/skills/durable-objects/SKILL.md), including its concurrency/storage and testing references. The existing pool coordinates several matches, so its throughput remains an explicit acceptance limit; this review did not silently move state into a different coordination object.
+
+`checkpoint-probe.mjs` loads and transpiles the owner's actual TypeScript source without changing it, invokes the real `CheckpointStore` against in-memory Node SQLite, and consumes the owner's real C# schema2 Export/Import fixture. The SQL wrapper supplies transactions and cursor methods only; it does not reimplement checkpoint policy. It is deliberately not evidence of Cloudflare output gating, HTTP authentication, live persistence, Photon or Unity behavior.
+
+Independent result: **12/12 PASS**; captured in `checkpoint-probe-result.json`. Exact source SHA-256 values:
+
+- `src/checkpoints.ts`: `993c5ab36eaae025eb68904e80d654d4d758d40d75824fa18bfc90fa3dcbc120`
+- `src/model.ts`: `fa3c4e8b8f228d5bbccac0db40b5fc24a97668ab707cba803e4c318a55a668bb`
+- `test/fixtures/schema2.ts`: `6269eb8e82acd6e5363a5d011d5364573304af2378e64222fab0d2212a584bfa`
+
+Coverage: real C# deflate bytes and exact canonical text; all 32 control-character spellings; invalid surrogate rejection; token/string/depth preflight before JSON parsing; correctly rehashed invalid UTF-8 and inflation above 8 MiB; duplicate-key rejection; initial roster-host eligibility; complete begin/chunk/finalize retry; competing parent-head CAS; current/prior byte retention; retired-handle reuse; exact writer expiry and replacement; returned writer rejection; and separate term/domain epoch progression.
+
+**D2 is source-verified fixed** at that hash. A dedicated `snapshotCanonical` matches the actual C# fixture, including controls and supplementary Unicode; the original service signing serializer remains separate. Preflight now mirrors the game's token/string/depth limits before `JSON.parse`.
+
+**D3 — retired upload handle reuse, fixed during review.** Initial draft cleanup deleted old manifests, allowing a retired UUID to identify different future bytes. The owner changed upload IDs and parent-head references to SHA-256 content identifiers over the immutable manifest. Begin verifies the identifier, and the C# reader also recomputes it. Independent retry-after-retention now rejects changed content under the retired handle without requiring unbounded tombstones. The first source probe already read the corrected version; the pre-fix case was established by source inspection and confirmed by the owner, not by a saved failing execution.
+
+A client retry gap was also found and repaired while the draft was evolving: redoing the full Commit operation after a lost finalize response originally failed while resending already committed chunks. The service now accepts identical retained committed chunk bytes under the still-live original term, while rejecting changed data. The independent full begin/chunk/finalize retry passes. After expiry, recovery must use head/read and must not revive the old writer.
+
+The owner's latest actual Cloudflare test-runtime log, `BuildNotes/online/checkpoint-suite.log`, reports **64/64 PASS** over four files (39.83 seconds). This reviewer inspected its source and result but did not independently rerun that suite. Runtime native acceptance and the final C# session cutover remain pending; D1 is not closed.
