@@ -196,12 +196,14 @@ namespace Wreckabulary.Rules.Wordbound
         public IReadOnlyList<MatchMechanismState> Mechanisms { get; }
         public IReadOnlyList<MatchRandomState> RandomStreams { get; }
         public IReadOnlyList<string> NarrativeFlags { get; }
+        public IReadOnlyList<MatchThrownFlight> ThrownFlights { get; }
 
         public MatchSnapshot(MatchBinding binding, long epoch, long sequence, long nextWorldEntityId,
             ProgressSnapshot progress, EconomySnapshot economy, CommandJournalSnapshot commands,
             IEnumerable<MatchActorState> actors, IEnumerable<WorldBodyState> bodies,
             IEnumerable<MatchResourceState> resources, IEnumerable<MatchMechanismState> mechanisms,
-            IEnumerable<MatchRandomState> randomStreams, IEnumerable<string> narrativeFlags)
+            IEnumerable<MatchRandomState> randomStreams, IEnumerable<string> narrativeFlags,
+            IEnumerable<MatchThrownFlight> thrownFlights = null)
         {
             Binding = binding ?? throw new ArgumentNullException(nameof(binding));
             if (epoch < 0 || sequence < 1 || nextWorldEntityId < 1 || progress == null || economy == null || commands == null)
@@ -213,6 +215,7 @@ namespace Wreckabulary.Rules.Wordbound
             Resources = Freeze(resources, resource => resource.SourceId + "/" + resource.Team + "/" + resource.Lap);
             Mechanisms = Freeze(mechanisms, mechanism => mechanism.PuzzleId + "/" + mechanism.Team + "/" + mechanism.Lap);
             RandomStreams = Freeze(randomStreams, stream => stream.StreamId);
+            ThrownFlights = Freeze(thrownFlights ?? Array.Empty<MatchThrownFlight>(), flight => flight.ItemBodyId);
             var flags = narrativeFlags?.Take(1025).ToArray() ?? throw new ArgumentNullException(nameof(narrativeFlags));
             if (flags.Length > 1024 || flags.Any(flag => !WordboundIdentity.IsId(flag)) ||
                 flags.Distinct(StringComparer.Ordinal).Count() != flags.Length)

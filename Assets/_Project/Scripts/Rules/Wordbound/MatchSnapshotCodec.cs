@@ -107,7 +107,9 @@ namespace Wreckabulary.Rules.Wordbound
             "mechanisms", s.Mechanisms.Select(m => (object)Map("puzzleId", m.PuzzleId, "team", m.Team, "lap", m.Lap, "solved", m.Solved,
                 "activatedTick", Long(m.ActivatedTick), "phaseTick", Long(m.PhaseTick), "progressTicks", m.ProgressTicks, "itemEntityId", m.ItemEntityId)).ToArray(),
             "randomStreams", s.RandomStreams.Select(r => (object)Map("streamId", r.StreamId, "state", ULong(r.State), "increment", ULong(r.Increment))).ToArray(),
-            "narrativeFlags", s.NarrativeFlags);
+            "narrativeFlags", s.NarrativeFlags,
+            "thrownFlights", s.ThrownFlights.Select(f => (object)Map("itemBodyId", f.ItemBodyId, "launchRevision", f.LaunchRevision,
+                "startedTick", Long(f.StartedTick), "throwerId", f.ThrowerId, "hitBodyIds", f.HitBodyIds)).ToArray());
 
         static object WriteBinding(MatchBinding b) => Map("matchId", b.MatchId, "protocolVersion", b.ProtocolVersion,
             "modeHash", b.ModeHash, "courseHash", b.CourseHash, "manifestHash", b.ManifestHash, "rosterHash", b.RosterHash,
@@ -144,12 +146,19 @@ namespace Wreckabulary.Rules.Wordbound
 
         static MatchSnapshot ReadSnapshot(JsonNode n)
         {
-            Keys(n, "binding", "epoch", "sequence", "nextWorldEntityId", "progress", "economy", "commands", "actors", "bodies", "resources", "mechanisms", "randomStreams", "narrativeFlags");
+            Keys(n, "binding", "epoch", "sequence", "nextWorldEntityId", "progress", "economy", "commands", "actors", "bodies", "resources", "mechanisms", "randomStreams", "narrativeFlags", "thrownFlights");
             return new MatchSnapshot(ReadBinding(n["binding"]), Counter(n["epoch"]), Counter(n["sequence"]), Counter(n["nextWorldEntityId"]),
                 ReadProgress(n["progress"]), ReadEconomy(n["economy"]), ReadCommands(n["commands"]),
                 Array(n["actors"], 8).Select(ReadActor).ToArray(), Array(n["bodies"], 8192).Select(ReadBody).ToArray(),
                 Array(n["resources"], 8192).Select(ReadResource).ToArray(), Array(n["mechanisms"], 8192).Select(ReadMechanism).ToArray(),
-                Array(n["randomStreams"], 256).Select(ReadRandom).ToArray(), Array(n["narrativeFlags"], 1024).Select(x => Text(x, 128)).ToArray());
+                Array(n["randomStreams"], 256).Select(ReadRandom).ToArray(), Array(n["narrativeFlags"], 1024).Select(x => Text(x, 128)).ToArray(),
+                Array(n["thrownFlights"], 8192).Select(ReadThrown).ToArray());
+        }
+        static MatchThrownFlight ReadThrown(JsonNode n)
+        {
+            Keys(n, "itemBodyId", "launchRevision", "startedTick", "throwerId", "hitBodyIds");
+            return new MatchThrownFlight(Text(n["itemBodyId"]), Int(n["launchRevision"]), Counter(n["startedTick"]),
+                Text(n["throwerId"]), Array(n["hitBodyIds"], 8192).Select(x => Text(x)).ToArray());
         }
         static MatchBinding ReadBinding(JsonNode n)
         {

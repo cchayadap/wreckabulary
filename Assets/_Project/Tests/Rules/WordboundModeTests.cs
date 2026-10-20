@@ -21,7 +21,9 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(max, mode.MaximumPlayers);
             Assert.AreEqual(seconds, mode.TimeLimitSeconds);
             Assert.AreEqual(combat, mode.EnemyDamage);
-            Assert.AreEqual(12, mode.Recipes.Count);
+            Assert.AreEqual(13, mode.Recipes.Count);
+            Assert.IsTrue(mode.Recipes.Contains("BALL"));
+            Assert.IsTrue(mode.Recipes.Contains("PLATE"));
             Assert.IsFalse(mode.Recipes.Contains("ROPE"));
             Assert.IsFalse(mode.Recipes.Contains("MAGNET"));
         }

@@ -175,12 +175,23 @@ namespace Wreckabulary.Rules.Wordbound
         }
 
         public void Advance(long nextTick, long wallClockMs, IEnumerable<ProgressEvent> hostObservations = null)
+            => AdvanceCore(nextTick, wallClockMs, hostObservations, Array.Empty<ProgressEvent>());
+
+        internal void AdvanceWithThrownKnockouts(long nextTick, long wallClockMs, IEnumerable<ProgressEvent> hostObservations,
+            IReadOnlyCollection<ProgressEvent> resolvedThrownKnockouts)
+            => AdvanceCore(nextTick, wallClockMs, hostObservations, resolvedThrownKnockouts);
+
+        void AdvanceCore(long nextTick, long wallClockMs, IEnumerable<ProgressEvent> hostObservations,
+            IReadOnlyCollection<ProgressEvent> resolvedThrownKnockouts)
         {
             if (nextTick != Tick + 1 || nextTick < 1) throw new ArgumentOutOfRangeException(nameof(nextTick), "Resolve consecutive ticks.");
             var observations = hostObservations?.Take(4097).ToArray() ?? Array.Empty<ProgressEvent>();
             if (observations.Length > 4096 || observations.Any(o => o == null ||
                 !Enum.IsDefined(typeof(ProgressEventKind), o.Kind)))
                 throw new ArgumentException("Observation batch is invalid.", nameof(hostObservations));
+            if (resolvedThrownKnockouts == null || resolvedThrownKnockouts.Count > 256 ||
+                resolvedThrownKnockouts.Any(o => o == null || o.Kind != ProgressEventKind.Knockout || !observations.Contains(o)))
+                throw new ArgumentException("Thrown knockout credit must identify an exact resolved observation.");
             UpdateWallClock(wallClockMs);
             if (Migrating || Result != null) return;
             Tick = nextTick;
@@ -210,7 +221,7 @@ namespace Wreckabulary.Rules.Wordbound
                 if (ApplyFinish(observation)) candidates.Add(players[observation.PlayerId].Team);
             var knockedOut = new HashSet<string>(StringComparer.Ordinal);
             foreach (var observation in ordered.Where(o => o.Kind == ProgressEventKind.Knockout))
-                ApplyKnockout(observation, knockedOut, eligibleAttackers);
+                ApplyKnockout(observation, knockedOut, eligibleAttackers, resolvedThrownKnockouts.Contains(observation));
             if (Mode.Objective == WordboundObjective.Knockouts)
                 foreach (var p in players.Values.Where(p => p.Knockouts >= Mode.KnockoutTarget)) candidates.Add(p.Team);
             if (candidates.Count != 0)
@@ -440,10 +451,12 @@ namespace Wreckabulary.Rules.Wordbound
             return team.Finished;
         }
 
-        void ApplyKnockout(ProgressEvent e, HashSet<string> knockedOut, HashSet<string> eligibleAttackers)
+        void ApplyKnockout(ProgressEvent e, HashSet<string> knockedOut, HashSet<string> eligibleAttackers, bool resolvedThrownHit)
         {
             if (!Mode.EnemyDamage || !players.TryGetValue(e.PlayerId ?? "", out var attacker) ||
-                !players.TryGetValue(e.Target ?? "", out var victim) || !eligibleAttackers.Contains(attacker.Id) || !victim.Connected ||
+                !players.TryGetValue(e.Target ?? "", out var victim) || attacker.Returned ||
+                resolvedThrownHit && !attacker.Connected && attacker.ReconnectDeadlineMs <= WallClockMs ||
+                !eligibleAttackers.Contains(attacker.Id) && !resolvedThrownHit || !victim.Connected ||
                 victim.Eliminated || victim.ProtectedUntil > Tick || !Mode.CanDamage(attacker.Team, victim.Team) ||
                 !knockedOut.Add(victim.Id)) return;
             if (Mode.Objective == WordboundObjective.Knockouts) attacker.Knockouts++;

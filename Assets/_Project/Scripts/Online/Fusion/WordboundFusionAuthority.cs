@@ -45,11 +45,13 @@ namespace Wreckabulary.Online
         }
         public MatchTickResult Advance(long wallClockMilliseconds, IEnumerable<WorldBodyState> trustedHostBodies = null,
             IEnumerable<ProgressEvent> trustedHostObservations = null, IEnumerable<HostDamage> trustedHostDamage = null,
-            IEnumerable<HostMechanismObservation> trustedHostMechanisms = null)
+            IEnumerable<HostMechanismObservation> trustedHostMechanisms = null,
+            IEnumerable<HostThrownContact> trustedHostThrownContacts = null)
         {
             if (!ready || !host) throw new InvalidOperationException("Only the admitted host advances authoritative simulation.");
             var batch = commands.ToArray();
-            var result = authority.Advance(wallClockMilliseconds, batch, trustedHostBodies, trustedHostObservations, trustedHostDamage, trustedHostMechanisms);
+            var result = authority.Advance(wallClockMilliseconds, batch, trustedHostBodies, trustedHostObservations,
+                trustedHostDamage, trustedHostMechanisms, trustedHostThrownContacts);
             if (result.Advanced) commands.RemoveRange(0, batch.Length);
             return result;
         }

@@ -43,6 +43,7 @@ namespace Wreckabulary.Rules.Wordbound
                 ValidateDeployments(snapshot, catalogue);
                 ValidateResources(snapshot, course, mode);
                 ValidateBodies(snapshot, expectedBinding, course, mode);
+                MatchThrownValidation.Validate(snapshot, mode, catalogue);
                 ValidateMechanisms(snapshot, course, mode);
                 Need(snapshot.RandomStreams.Select(r => r.StreamId).Distinct(StringComparer.Ordinal).Count() == snapshot.RandomStreams.Count &&
                     snapshot.RandomStreams.All(r => WordboundIdentity.IsId(r.StreamId) && (r.Increment & 1) == 1),

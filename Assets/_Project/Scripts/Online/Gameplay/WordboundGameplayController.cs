@@ -221,7 +221,8 @@ namespace Wreckabulary.Online
                 if (poses == null || poses.Count != bodies.Count || !new HashSet<string>(poses.Select(p => p.Id), StringComparer.Ordinal).SetEquals(bodies.Keys))
                     throw new ArgumentException("Host pose capture must cover exactly the reconciled body ledger.");
                 var observations = options.ObserveHost?.Invoke(frame, poses) ?? new WordboundHostObservations();
-                var result = Authority.Advance(options.Clock(), poses, observations.Progress, observations.Damage, observations.Mechanisms);
+                var result = Authority.Advance(options.Clock(), poses, observations.Progress, observations.Damage, observations.Mechanisms,
+                    physics.CompletedThrownContacts.Concat(observations.ThrownContacts ?? Array.Empty<HostThrownContact>()));
                 Reconcile(Authority.Match.Capture(1));
                 HostAdvanced?.Invoke(result);
             }

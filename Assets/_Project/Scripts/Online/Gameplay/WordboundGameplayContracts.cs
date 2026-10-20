@@ -35,6 +35,7 @@ namespace Wreckabulary.Online
         public IEnumerable<ProgressEvent> Progress { get; set; } = Array.Empty<ProgressEvent>();
         public IEnumerable<HostDamage> Damage { get; set; } = Array.Empty<HostDamage>();
         public IEnumerable<HostMechanismObservation> Mechanisms { get; set; } = Array.Empty<HostMechanismObservation>();
+        public IEnumerable<HostThrownContact> ThrownContacts { get; set; } = Array.Empty<HostThrownContact>();
     }
 
     public sealed class WordboundGameplayOptions

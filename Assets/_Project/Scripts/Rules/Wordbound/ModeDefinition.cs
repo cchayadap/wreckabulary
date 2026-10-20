@@ -15,11 +15,11 @@ namespace Wreckabulary.Rules.Wordbound
     {
         static readonly ReadOnlyCollection<string> recipeIds = Array.AsReadOnly(new[]
         {
-            "BAT", "BROOM", "HAMMER", "SPEAR", "SHIELD", "PLATE",
+            "BAT", "BROOM", "HAMMER", "SPEAR", "SHIELD", "PLATE", "BALL",
             "TABLE", "SOFA", "BED", "STOOL", "FAN", "CLOCK"
         });
 
-        public const int Version = 1;
+        public const int Version = 2;
         public const int TickRate = 60;
         public const int ReconnectSeconds = 120;
         public const int KeepsakeRecoverySeconds = 10;

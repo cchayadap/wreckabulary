@@ -102,14 +102,20 @@ namespace Wreckabulary.Online
                 bool kinematic = canonical.Kinematic || !canonical.Active;
                 if (body.isKinematic != kinematic)
                 {
-                    body.isKinematic = kinematic;
+                    ConfigureMotion(kinematic);
                     if (!kinematic) RestoreVelocity();
                 }
+                else ConfigureMotion(kinematic);
             }
         }
 
         internal void AfterSimulation() { if (canonical != null && canonical.Active) sampledSinceRestore = true; }
-        internal void SetItemMode(ItemState? state) { ItemMode = state.HasValue ? (int)state.Value : -1; }
+        void OnCollisionEnter(Collision collision) => world?.RecordThrownContact(this, collision);
+        internal void SetItemMode(ItemState? state)
+        {
+            ItemMode = state.HasValue ? (int)state.Value : -1;
+            ConfigureMotion(body.isKinematic);
+        }
 
         public WorldBodyState CaptureHost()
         {
@@ -125,7 +131,7 @@ namespace Wreckabulary.Online
         void RestoreEngine(bool freeze)
         {
             bool kinematic = canonical.Kinematic || !canonical.Active || freeze;
-            if (body.isKinematic != kinematic) body.isKinematic = kinematic;
+            ConfigureMotion(kinematic);
             var position = Vector(canonical.Position);
             var rotation = new Quaternion(canonical.RotationXyz.X, canonical.RotationXyz.Y, canonical.RotationXyz.Z, canonical.RotationW);
             bool poseChanged = !body.position.Equals(position) || !body.rotation.Equals(rotation);
@@ -149,6 +155,8 @@ namespace Wreckabulary.Online
             if (canonical.Sleeping && !body.IsSleeping()) body.Sleep();
             else if (!canonical.Sleeping && body.IsSleeping()) body.WakeUp();
         }
+
+        void ConfigureMotion(bool kinematic) => WordboundBodyMotion.Apply(body, kinematic, ItemMode == (int)ItemState.Thrown);
 
         void ApplyVisibility(bool active)
         {

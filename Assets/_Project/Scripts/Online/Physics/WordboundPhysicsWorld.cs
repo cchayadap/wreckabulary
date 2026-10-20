@@ -28,6 +28,8 @@ namespace Wreckabulary.Online
         readonly HashSet<Collider> structure = new HashSet<Collider>();
         readonly RaycastHit[] hits = new RaycastHit[128];
         readonly Collider[] overlaps = new Collider[128];
+        readonly WordboundThrownContactBuffer thrownContacts = new WordboundThrownContactBuffer();
+        Exception contactFailure;
         MatchSnapshot frame;
         long appliedRevision;
         long simulationRevision;
@@ -43,6 +45,8 @@ namespace Wreckabulary.Online
         public bool ShouldFreeze => !IsHost || frame == null || failed || !canAdvance() ||
             frame.Progress.Migrating || frame.Progress.Result != null || HostStepCompleted == null;
         public PhysicsScene PhysicsScene => scene;
+        public IReadOnlyList<HostThrownContact> CompletedThrownContacts =>
+            thrownContacts.Read(Epoch, checked(frame.Progress.Tick + 1));
         public event Action<IReadOnlyList<WorldBodyState>> HostStepCompleted;
         public event Action<Exception> MovementFaulted;
 
@@ -346,7 +350,31 @@ namespace Wreckabulary.Online
             bool freeze = ShouldFreeze;
             simulating = !freeze;
             simulationRevision = appliedRevision;
+            if (simulating)
+            {
+                contactFailure = null;
+                thrownContacts.Begin(Epoch, checked(frame.Progress.Tick + 1));
+            }
             foreach (var body in bodies.Values) body.PrepareSimulation(freeze);
+        }
+
+        internal void RecordThrownContact(WordboundNetworkBody source, Collision collision)
+        {
+            if (!simulating || !IsHost || source == null || collision == null || collision.contactCount == 0 ||
+                source.Canonical == null || !bodies.TryGetValue(source.Canonical.Id, out var registered) || registered != source ||
+                !owned.TryGetValue(collision.collider, out var target) || target == source ||
+                !WordboundPhysicsPolicy.ShouldCollide(mode, source.Canonical, target.Canonical)) return;
+            var flight = frame.ThrownFlights.SingleOrDefault(f => f.ItemBodyId == source.Canonical.Id);
+            if (flight == null) return;
+            try
+            {
+                var contact = collision.GetContact(0);
+                if (!owned.TryGetValue(contact.thisCollider, out var mine) || mine != source ||
+                    !owned.TryGetValue(contact.otherCollider, out var other) || other != target) return;
+                thrownContacts.Add(Epoch, new HostThrownContact(flight.ItemBodyId, flight.LaunchRevision, target.Canonical.Id,
+                    WordboundNetworkBody.Value(contact.point), collision.relativeVelocity.magnitude, checked(frame.Progress.Tick + 1)));
+            }
+            catch (Exception error) { contactFailure = error; }
         }
 
         void AfterSimulate(NetworkRunner current)
@@ -355,6 +383,8 @@ namespace Wreckabulary.Online
             simulating = false;
             try
             {
+                if (contactFailure != null) throw new InvalidOperationException("Host thrown contact collection failed.", contactFailure);
+                thrownContacts.Complete(Epoch, checked(frame.Progress.Tick + 1));
                 foreach (var body in bodies.Values) body.AfterSimulation();
                 HostStepCompleted?.Invoke(CaptureHost());
                 if (appliedRevision == simulationRevision)

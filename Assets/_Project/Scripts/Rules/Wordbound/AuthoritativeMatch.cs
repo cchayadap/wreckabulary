@@ -61,7 +61,7 @@ namespace Wreckabulary.Rules.Wordbound
         }
     }
 
-    public sealed class AuthoritativeMatch : ITransactionalCommandTarget
+    public sealed partial class AuthoritativeMatch : ITransactionalCommandTarget
     {
         const float InteractionRange = 3f;
         const int RecoveryTicks = 10 * ModeDefinition.TickRate;
@@ -106,6 +106,7 @@ namespace Wreckabulary.Rules.Wordbound
                 !CourseValidator.ValidateResolved(course, courseCatalogue, MatchStateValidation.Requirements(Mode)).Ok)
                 throw new ArgumentException("Authoritative content or gameplay rules are invalid.");
             WordboundCombatPolicy.Validate(rules.Unarmed);
+            if (Mode.Recipes.Contains("BALL")) WordboundThrownPolicy.Stats(catalogue.Get("BALL"));
             WordboundCombatPolicy.Ticks(rules.StaggerImmunitySeconds);
             foreach (string recipeId in Mode.Recipes)
                 if (catalogue.TryGet(recipeId, out var combatItem) && combatItem.Melee != null)
@@ -162,7 +163,8 @@ namespace Wreckabulary.Rules.Wordbound
 
         public MatchTickResult Advance(long wallClockMs, IEnumerable<AuthenticatedCommand> commands = null,
             IEnumerable<WorldBodyState> hostBodyStates = null, IEnumerable<ProgressEvent> hostObservations = null,
-            IEnumerable<HostDamage> hostDamage = null, IEnumerable<HostMechanismObservation> hostMechanisms = null)
+            IEnumerable<HostDamage> hostDamage = null, IEnumerable<HostMechanismObservation> hostMechanisms = null,
+            IEnumerable<HostThrownContact> hostThrownContacts = null)
         {
             if (inTick) throw new InvalidOperationException("A tick cannot be reentered.");
             if (IsPaused) return new MatchTickResult(false, Array.Empty<CommandReceipt>());
@@ -171,6 +173,7 @@ namespace Wreckabulary.Rules.Wordbound
             var observations = Bounded(hostObservations, 4096);
             var damages = Bounded(hostDamage, 256);
             var timings = Bounded(hostMechanisms, 1024);
+            var contacts = Bounded(hostThrownContacts, 256);
             if (poses.Select(p => p.Id).Distinct(StringComparer.Ordinal).Count() != poses.Length ||
                 timings.Select(m => Key(m.PuzzleId, m.Team, m.Lap)).Distinct(StringComparer.Ordinal).Count() != timings.Length ||
                 wallClockMs < progress.WallClockMs || wallClockMs > long.MaxValue - 120000)
@@ -180,9 +183,12 @@ namespace Wreckabulary.Rules.Wordbound
             try
             {
                 pending.Clear();
+                thrownKnockouts.Clear();
                 foreach (var pose in poses) ApplyPose(pose);
                 SetPermissions(Tick + 1);
                 ExpireDeployments(Tick + 1);
+                ApplyThrownContacts(contacts, Tick + 1, wallClockMs);
+                SettleThrows(Tick + 1, wallClockMs);
                 foreach (var timing in timings) ApplyMechanism(timing);
                 foreach (var seat in Binding.Seats)
                 {
@@ -197,14 +203,14 @@ namespace Wreckabulary.Rules.Wordbound
                 foreach (var observation in observations) ObserveProgress(observation);
                 foreach (var body in bodies.Values.Where(b => b.Kind == WorldBodyKind.Player && b.Active && BelowCourse(b.Position)).ToArray())
                     pending.Add(new ProgressEvent(ProgressEventKind.Fell, body.SourceId));
-                progress.Advance(Tick + 1, wallClockMs, pending);
+                progress.AdvanceWithThrownKnockouts(Tick + 1, wallClockMs, pending, thrownKnockouts);
                 Synchronize(before);
                 EnsureCapacity();
                 pending.Clear();
                 return new MatchTickResult(true, receipts);
             }
             catch { RestoreState(before); pending.Clear(); throw; }
-            finally { inTick = false; }
+            finally { thrownKnockouts.Clear(); inTick = false; }
         }
 
         public MatchSnapshot Capture(long sequence)
@@ -215,7 +221,7 @@ namespace Wreckabulary.Rules.Wordbound
 
         MatchSnapshot CaptureState(long sequence) => new MatchSnapshot(Binding, Epoch, sequence, nextWorldEntityId,
             progress.Capture(), economy.Capture(), journal.Capture(), actors.Values, bodies.Values,
-            resources.Values, mechanisms.Values, random.Values, narrative);
+            resources.Values, mechanisms.Values, random.Values, narrative, thrownFlights.Values);
 
         public SnapshotStamp PublishSnapshot(out string json)
         {
@@ -256,6 +262,7 @@ namespace Wreckabulary.Rules.Wordbound
             commits = new SnapshotCommitTracker(Binding.MatchId, Binding.Hash, nextEpoch, Tick, snapshot.Sequence);
             progress.CompleteMigration(wallClockMs);
             progress.ConfirmResult(Tick);
+            SettleThrows(Tick);
             SetPermissions(Tick);
         }
 
@@ -292,6 +299,7 @@ namespace Wreckabulary.Rules.Wordbound
                 AddTiles(tiles, safe, Mode.IsRace ? seat.Team : -1);
                 foreach (var item in dropped) Release(Outcome.Done(item), safe, default, false);
                 actors[playerId] = Actor(actors[playerId], stun: 0);
+                SettleThrows(Tick);
                 UpdateKeepsakes();
                 SetPermissions(Tick);
                 EnsureCapacity();
@@ -359,7 +367,12 @@ namespace Wreckabulary.Rules.Wordbound
                     if (!ReleasePosition(index, command.Slot, origin, true, out var throwAt, out var throwRefusal))
                         return Effect(throwRefusal);
                     outcome = economy.Throw(index, command.Slot, "");
-                    Release(outcome, throwAt, Forward(origin, 8), false, origin);
+                    float throwSpeed = outcome.Ok && WordboundThrownPolicy.Supported(catalogue.Get(outcome.Item.Word))
+                        ? WordboundThrownPolicy.Stats(catalogue.Get(outcome.Item.Word)).Speed : 8;
+                    Release(outcome, throwAt, Forward(origin, throwSpeed), false, origin);
+                    if (outcome.Ok && WordboundThrownPolicy.Supported(catalogue.Get(outcome.Item.Word)))
+                        thrownFlights["item:" + outcome.Item.Id] = new MatchThrownFlight("item:" + outcome.Item.Id,
+                            outcome.Item.Revision, Tick + 1, seat.PlayerId);
                     return Effect(outcome);
                 case WordboundAction.Deploy:
                     var held = Held(index, command.Slot);
@@ -534,14 +547,14 @@ namespace Wreckabulary.Rules.Wordbound
             actors[playerId] = Actor(actor, equippedSlot: slot, clearAttack: cancel);
         }
 
-        bool ApplyDamage(HostDamage damage)
+        bool ApplyDamage(HostDamage damage, bool thrownContact = false)
         {
             if (!bodies.TryGetValue(damage.BodyId, out var body) || !body.Active) return false;
             bool hazard = damage.ActorId == "";
             int attacker = -1;
             if (hazard ? !Mode.HazardDamage :
-                !indices.TryGetValue(damage.ActorId, out attacker) || !economy.Player(attacker).CanAct) return false;
-            if (!hazard && (!world.HasLineOfSight(damage.ActorId, bodies["player:" + attacker].Position, body.Position) ||
+                !indices.TryGetValue(damage.ActorId, out attacker) || !thrownContact && !economy.Player(attacker).CanAct) return false;
+            if (!hazard && !thrownContact && (!world.HasLineOfSight(damage.ActorId, bodies["player:" + attacker].Position, body.Position) ||
                 bodies["player:" + attacker].Position.DistanceSquared(body.Position) > 1600)) return false;
             if (body.Kind == WorldBodyKind.Item)
             {
@@ -574,9 +587,13 @@ namespace Wreckabulary.Rules.Wordbound
                     immune: stagger ? Tick + 1 + WordboundCombatPolicy.Ticks(rules.StaggerImmunitySeconds) : actor.StaggerImmuneUntilTick,
                     clearAttack: stagger || health == 0);
                 if (stagger) economy.CancelCraft(indices[victim.Id]);
-                if (health == 0) pending.Add(hazard ?
-                    new ProgressEvent(ProgressEventKind.Fell, victim.Id) :
-                    new ProgressEvent(ProgressEventKind.Knockout, damage.ActorId, victim.Id));
+                if (health == 0)
+                {
+                    var observation = hazard ? new ProgressEvent(ProgressEventKind.Fell, victim.Id) :
+                        new ProgressEvent(ProgressEventKind.Knockout, damage.ActorId, victim.Id);
+                    pending.Add(observation);
+                    if (thrownContact) thrownKnockouts.Add(observation);
+                }
                 return true;
             }
             return false;
@@ -721,7 +738,10 @@ namespace Wreckabulary.Rules.Wordbound
                 WorldVector safe = body.SourceId != "" && SourcePosition(body.SourceId, out var sourcePosition) ?
                     sourcePosition : Position(course.RecoveryAnchors[0].Position);
                 bodies[body.Id] = body.At(safe);
+                if (body.Kind == WorldBodyKind.Item && economy.Item(Number(body.Id)).State == ItemState.Thrown)
+                    economy.Settle(Number(body.Id));
             }
+            SettleThrows(Tick);
             SetPermissions(Tick);
         }
 
@@ -886,11 +906,6 @@ namespace Wreckabulary.Rules.Wordbound
             bodies[pose.Id] = new WorldBodyState(previous.Id, previous.Kind, pose.Position, pose.RotationXyz, pose.RotationW,
                 pose.Velocity, pose.AngularVelocity, pose.Sleeping, previous.Kinematic, previous.Active, previous.OwnerTeam,
                 previous.Protected, previous.SourceId, previous.RecoveryGeneration);
-            if (previous.Kind == WorldBodyKind.Item && pose.Sleeping)
-            {
-                var item = economy.Item(Number(previous.Id));
-                if (item != null && item.State == ItemState.Thrown) economy.Settle(item.Id);
-            }
         }
         void SetPermissions(long tick)
         {
@@ -912,6 +927,7 @@ namespace Wreckabulary.Rules.Wordbound
             Replace(resources, snapshot.Resources, r => Key(r.SourceId, r.Team, r.Lap));
             Replace(mechanisms, snapshot.Mechanisms, m => Key(m.PuzzleId, m.Team, m.Lap));
             Replace(random, snapshot.RandomStreams, r => r.StreamId);
+            Replace(thrownFlights, snapshot.ThrownFlights, f => f.ItemBodyId);
             narrative.Clear(); narrative.UnionWith(snapshot.NarrativeFlags);
             nextWorldEntityId = snapshot.NextWorldEntityId;
         }
