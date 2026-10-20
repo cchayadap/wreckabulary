@@ -13,6 +13,7 @@ Implemented:
 - `WordboundPuzzleRuntime.EvaluateMovementEnvironment(actorId)` evaluates actual registered source/actor poses, canonical next-tick expiry, radius, cone, vertical band, runner-local obstruction and live admission. CLOCK applies the catalogue speed multiplier; FAN applies the existing slippery acceleration factor `0.1`. Overlapping clocks do not multiply repeatedly.
 - Existing `BeforeHostPhysics` applies FAN acceleration at 60 Hz to eligible registered dynamic bodies, capped by catalogue forward strength. It excludes inactive/held/kinematic bodies and applies clean-race ownership/protected-resource collision policy. Walls and registered intervening bodies block fields.
 - Deploy now writes the authoritative player's quaternion into the placed item's canonical pose; a field no longer retains its stale held-item facing. Snapshot round-trip preserves that orientation.
+- The companion placement check rotates its overlap box and four support corners by that same host orientation, and includes the placing player's collider in clearance. It does not validate an axis-aligned footprint and then place a rotated collider or overlap its owner.
 - Built-in physical proof plan/content version is now **2**, with explicit FAN and CLOCK practice supplies. The BED/STOOL placement objectives retain their meanings. Source/manifest/catalogue hashes change through their existing canonical binding; online protocol and snapshot schema remain 2.
 
 Wiring:

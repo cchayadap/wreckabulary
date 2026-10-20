@@ -225,17 +225,17 @@ namespace Wreckabulary.Online
             Vector3 half = new Vector3(Mathf.Max(definition.Size[0], definition.Deploy.FootprintX), definition.Size[1],
                 Mathf.Max(definition.Size[2], definition.Deploy.FootprintZ)) / 2;
             Vector3 foot = WordboundNetworkBody.Vector(position);
+            Quaternion orientation = actor.Rigidbody.rotation;
             if (!HasLineOfSight(actorId, WordboundNetworkBody.Value(actor.Rigidbody.position), position)) return false;
-            int count = scene.OverlapBox(foot + Vector3.up * (half.y + .03f),
+            int count = scene.OverlapBox(foot + orientation * new Vector3(0, half.y + .03f, 0),
                 new Vector3(Mathf.Max(.01f, half.x - .02f), half.y, Mathf.Max(.01f, half.z - .02f)),
-                overlaps, Quaternion.identity, ~0, QueryTriggerInteraction.Ignore);
+                overlaps, orientation, ~0, QueryTriggerInteraction.Ignore);
             if (count >= overlaps.Length) return false;
             for (int i = 0; i < count; i++)
-                if (Blocks(actor.Canonical, overlaps[i]) &&
-                    (!owned.TryGetValue(overlaps[i], out var owner) || owner != actor)) return false;
+                if (Blocks(actor.Canonical, overlaps[i])) return false;
             foreach (float x in new[] { -half.x, half.x })
                 foreach (float z in new[] { -half.z, half.z })
-                    if (!Supported(actor.Canonical, foot + new Vector3(x, .08f, z))) return false;
+                    if (!Supported(actor.Canonical, foot + orientation * new Vector3(x, .08f, z))) return false;
             return true;
         }
 
