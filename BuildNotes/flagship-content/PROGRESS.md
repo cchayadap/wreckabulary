@@ -1,6 +1,6 @@
 # Wordbound flagship content
 
-STATUS: IN PROGRESS
+STATUS: SOURCE CONTENT AND 8,000-SEED SWEEP GREEN — FULL NATIVE PLAYTHROUGH PENDING
 
 Owner: James / SethyPagna, `sethypagna/map-workshop`, base `4c86ee7`. Owned writes: NEW `Assets/_Project/Scripts/Rules/Wordbound/WordboundFlagship*.cs`, matching new tests, this evidence folder. No existing resolver, catalogue, rules, launcher, physics, workshop, scene or metadata edits. No Unity, cloud or paid generation.
 
@@ -44,3 +44,13 @@ Schema-2 focused gate now **24/24 PASS**, real NUnit, 13 seconds. Command: `dotn
 The five added body-budget probes measure actual startup counts and snapshot bytes, then report an explicitly analytical three-lap refill/tombstone scenario. See `BODY-BUDGET.md`: startup fits the unchanged 512-body runtime limit, but the estimated slow/refilled full course exceeds it in every race configuration measured. Root was notified; no cap increase or authority mutation was made. This is a runtime integration blocker, not a failed layout or canonical-source validation.
 
 The required 8,000-seed sweep is still **NOT RUN**. The compiler window was returned to root for the higher-priority live admission diagnostic after this green focused step. Next recoverable action: run the sweep serially when root releases the window, record the exact puzzle-owner source commit, then complete the content handoff with the body-budget limitation explicit.
+
+## Final frozen sweep — 2026-10-21 01:16 +08
+
+The required serial sweep is **8/8 PASS: 8,000 seeds**, exit 0, 59.7763 minutes. Actual TRX counters show 8 executed/passed and zero failed, error, timeout, aborted or unexecuted cases. This supersedes the earlier NOT RUN checkpoints above. It used the already-built schema-2 assembly linked to physical Rules **17c30b4** and flagship **70723cd**, without rebuilding during execution. It does not include later Stage1/Stage2 resource lifecycle policy.
+
+TimeRun Solo; TeamRace Solo/Duo/Squad; BrawlRace Solo/Duo/Squad; and Freestyle each passed 1,000 seeds. Every race configuration measured **751.2666153055679–799.2666153055679 m** required checkpoint traversal, observed both seeded lap-2 alternatives, and passed sampled repeat determinism and applicable team-placement symmetry assertions. Freestyle completed all seeds with validated reachable world generation.
+
+Exact command, time range, coverage limits, source/assembly/catalogue hashes and final result hashes are in `SEED-SWEEP.md`; complete captured output is `seeds-schema2.log`. The final local ignored TRX is `TestResults/seeds-schema2.trx`. No sweep process remains. This is generator/canonical/route evidence, not a three-lap physical playthrough or proof of the subsequent body-budget policy.
+
+Next recoverable action: root integrates the separate current body-budget policy with its bounded configuration/route checks, then performs native physical and player-camera acceptance. The complete source content and this requested seed sweep are delivered; human play time and full physical completion remain unverified.
