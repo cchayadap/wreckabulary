@@ -245,3 +245,32 @@ failure=TimeoutException gameplayReady=False authorityTransportReady=False gateF
 This verifies F3 and its terminal-state residual in that exact captured local source. A committed revision pin and broader owner lifecycle harness are pending. F4 host proof remains pending implementation/independent verification.
 
 The verified lifecycle correction is now committed as `a1ac362` (`Fence asynchronous session work across Runner replacement`). Reread the committed failure invalidation and scoped operation paths. The owner also committed its full actual-session-source scheduling harness and recorded `passed=9 failed=0` in `verify-session-lifetime.log`; that broader harness result is owner evidence, distinct from the independent three interleavings above. F3 is closed at this commit. F4 remains open pending its separate proof correction.
+
+### F4 repair verification — COMPLETE AT 09464d1
+
+Verified commit `09464d11d3af8e0c423f8967f8410c9c66ecd212` (`Require signed host authorization before client readiness`). Read the committed session, wire schema, connection lease and admission verifier changes. Each Runner sends a fresh UUID connection nonce; the host uses that nonce when consuming the ticket; Admitted carries the signed lease. The joining client verifies signature, issuer, audience, exact match/generation/roster, local player, nonce, original-roster host and exclusive lease deadline before Ready. Begin and snapshot acceptance require that proof first. The host defers committed snapshot delivery until the seat can command, avoiding legitimate pre-proof delivery.
+
+Independent callback probes loaded the owner's freshly built full production session with controlled SDK dependencies and its RSA signing fixture. The reviewer constructed claim mutations and delivered messages to the actual callback. No Unity process, service deployment, Photon authentication or native network execution was used.
+
+```text
+exact           PASS sends=1 failure=
+missing         PASS sends=0 failure=FormatException
+wrongPlayer     PASS sends=0 failure=FormatException
+wrongNonce      PASS sends=0 failure=FormatException
+outsideHost     PASS sends=0 failure=FormatException
+wrongGeneration PASS sends=0 failure=FormatException
+wrongRoster     PASS sends=0 failure=FormatException
+expired         PASS sends=0 failure=FormatException
+tampered        PASS sends=0 failure=FormatException
+snapshotBefore  PASS sends=0 failure=FormatException
+beginBefore     PASS sends=0 failure=FormatException
+```
+
+All rejected probes invoked zero replica validations. The expiry probe used the exact exclusive deadline. The signature probe flipped one decoded signature byte. The matching proof produced one Ready message without failure. These are independent probes using the owner's setup fixture, not independent implementation of the cryptographic primitive.
+
+Assembly pins, rechecked after the owner committed:
+
+- `BuildNotes/online/FusionCompile/bin/Debug/net9.0/SessionLifetimeTests.dll`: SHA-256 `85C52502B6042CFAB1C58412F63AF7A9BCC2F8FA77EC5C4B75792B52B17E0045`.
+- Companion `Wreckabulary.Rules.dll`: SHA-256 `D81ECF4A1F7EFE1EFCCC1850C67C9AE8DD72D9D8A0407A953926887F1CA91E02`.
+
+The committed owner logs separately report lifecycle harness 15/15 and focused rules 22/22. F4 is closed at `09464d1` within the documented authorized roster-member listen-host trust model. No additional confirmed defect was found in this correction. A colluding or malicious authorized roster host is still trusted, as declared; the proof is not independent hardware/transport attestation. Live selected-account authentication, service/dashboard configuration, authenticated migration and physics remain native integration gates. The review checkpoint is complete; next recoverable action is consume the native integration evidence without expanding these source-only claims.
