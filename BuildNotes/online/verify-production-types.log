@@ -1,0 +1,40 @@
+
+ ⛅️ wrangler 4.151.1 (update available 4.151.3)
+───────────────────────────────────────────────
+Generating project types...
+
+interface __BaseEnv_Env {
+	TOKEN_ISSUER: "wreckabulary-wordbound";
+	SIGNING_KEY_ID: "wordbound-rs256-20261020-01";
+	BUILTIN_CONTENT_JSON: "[]";
+	PHOTON_APP_ID: "f6fb7f4c-b8a9-44a3-ac63-bee1c5f23552";
+	IDENTITIES: DurableObjectNamespace<import("../../src/index").Identity>;
+	PARTIES: DurableObjectNamespace<import("../../src/index").Party>;
+	POOLS: DurableObjectNamespace<import("../../src/index").MatchPool>;
+}
+declare namespace Cloudflare {
+	interface GlobalProps {
+		mainModule: typeof import("../../src/index");
+		durableNamespaces: "Identity" | "Party" | "MatchPool";
+	}
+	interface Env extends __BaseEnv_Env {}
+}
+interface Env extends __BaseEnv_Env {}
+type StringifyValues<EnvType extends Record<string, unknown>> = {
+	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
+};
+declare namespace NodeJS {
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "TOKEN_ISSUER" | "SIGNING_KEY_ID" | "BUILTIN_CONTENT_JSON" | "PHOTON_APP_ID">> {}
+}
+
+Generating runtime types...
+
+Runtime types generated.
+
+
+✨ Types written to .wrangler/production-preview/worker-configuration.d.ts
+
+📖 Read about runtime types
+https://developers.cloudflare.com/workers/languages/typescript/#generate-types
+📣 Remember to rerun 'wrangler types' after you change your wrangler.jsonc file.
+

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "wrangler dev --local",
     "types": "wrangler types src/worker-configuration.d.ts",
+    "production:preview": "wrangler deploy --config wrangler.production.jsonc --dry-run --outdir .wrangler/production-preview",
     "check": "tsc --noEmit",
     "test": "vitest run",
     "verify": "npm run check && npm test"
