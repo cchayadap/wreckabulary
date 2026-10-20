@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { authenticate, photonConfiguration, publicKey, verifyPhotonTicket } from "./auth";
 import { rpcValue } from "./rpc";
+import { CheckpointRequests, type CheckpointAction } from "./checkpoints";
 import { Hash, Id, QueueRequest, Revision, Settings, digest, equalSecret, requireThat, type ServiceEnv } from "./model";
 export { Identity } from "./identity";
 export { Party } from "./party";
@@ -106,6 +107,10 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
   if (path[1] === "pools" && path[3] === "matches" && path.length === 6) {
     const pool = env.POOLS.getByName(PoolKey.parse(path[2])); const matchId = Id.parse(path[4]);
     requireThat(method === "POST", "METHOD_NOT_ALLOWED", 405);
+    if (Object.hasOwn(CheckpointRequests, path[5])) {
+      const action = path[5] as CheckpointAction;
+      return pool.checkpoint(matchId, actor, action, await body(request, CheckpointRequests[action]));
+    }
     if (path[5] === "admission" || path[5] === "reconnect") {
       await body(request, Empty); return pool.admission(matchId, actor);
     }

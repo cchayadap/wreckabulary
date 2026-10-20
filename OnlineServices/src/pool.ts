@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Store } from "./store";
 import { signGrant } from "./auth";
+import { CheckpointStore, type CheckpointAction } from "./checkpoints";
 import {
   Content, NOW, RECONNECT_MS, capacity, code, digest, emptyPool, logicalFull, poolKey,
   publicRoster, requireThat, seal, secret, teamFor, validatePartySize, fullRacePacking, equalSecret,
@@ -8,15 +9,26 @@ import {
 } from "./model";
 
 export class MatchPool extends Store<PoolState> {
+  private checkpointStore = new CheckpointStore(this.ctx.storage.sql);
+  checkpoint(matchId: string, actor: string, action: CheckpointAction, data: unknown) {
+    return this.run((s, now) => {
+      const match = s.matches[matchId];
+      requireThat(match, "MATCH_NOT_FOUND", 404);
+      return this.checkpointStore.execute(match, actor, action, data, now);
+    });
+  }
   private run<R>(fn: (s: PoolState, now: number) => R): R {
     return this.transaction(() => {
       const s = this.read() ?? emptyPool(); const now = NOW();
+      this.checkpointStore.cleanupExpired(now);
       this.expire(s, now);
       const result = fn(s, now); this.write(s);
       const deadlines = Object.values(s.matches).flatMap(m =>
         m.phase === "ADMITTING" ? [m.deadline!] :
           m.phase === "FORMING" && !m.privateCode && m.settings.mode === "FreeForAll" && m.seats.length >= 2
             ? [m.createdAt + 30_000] : []);
+      const checkpointExpiry = this.checkpointStore.nextExpiry();
+      if (checkpointExpiry !== undefined) deadlines.push(checkpointExpiry);
       if (deadlines.length) this.ctx.waitUntil(this.ctx.storage.setAlarm(Math.max(now + 1, Math.min(...deadlines))));
       return result;
     });
@@ -173,6 +185,7 @@ export class MatchPool extends Store<PoolState> {
             delete s.assignments[r.attempt.id]; s.tombstones[r.attempt.id] = now;
           }
         }
+        this.checkpointStore.deleteMatch(m.id);
         delete s.matches[m.id];
       }
     }
