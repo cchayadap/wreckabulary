@@ -43,6 +43,12 @@ namespace Wreckabulary.OnlineGameplayTests
                     Id = "HudVisible" + lane, ModuleId = "Start", Position = new CoursePoint(8000, 0, z + 2200),
                     Letters = "A", Renewable = false, Protected = false
                 });
+                foreach (string recipe in new[] { "SHIELD", "PLATE" })
+                    document.Supplies.Add(new CourseSupply {
+                        Id = "Hud" + recipe + lane, ModuleId = "Start",
+                        Position = new CoursePoint(recipe == "SHIELD" ? -2000 : 1000, 0, z),
+                        Letters = recipe, Renewable = false, Protected = false
+                    });
             }
             return document;
         }
