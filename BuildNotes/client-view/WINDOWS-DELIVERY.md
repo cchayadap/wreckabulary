@@ -1,6 +1,6 @@
 # Windows delivery preparation
 
-STATUS: IN PROGRESS — PROFILES VERIFIED; BUILD NOT RUN
+STATUS: IN PROGRESS — PROFILES VERIFIED; FIRST BUILD TIMED OUT
 
 The gate configuration names `Assets/Settings/Build Profiles/Win.asset`, `Win-QA.asset` and `Win-Dev.asset`. That directory is absent in this checkout as of `49ca736`. Actual Windows builds must create and validate these project assets through Unity before using the configured gate; no gate configuration or kit source was changed.
 
@@ -29,3 +29,13 @@ Both new components remain **NOT-RUN** as of this entry. Next: finish the queued
 The saved assets were read back from disk. Their targets, global scene-list setting, defines and development values agree with the helper's checks. The profile's internal `m_HasScriptingDefines` flag is initially false even with a nonempty array; installed editor IL shows `ValidateDataConsistency` sets it on load and active-profile compilation reads the scripting-defines array. This is not evidence of a missing QA define; the actual QA player still needs build and execution proof.
 
 Preceding assembled checks: R0 **PASS** in 85.2 seconds (`Logs/gate_check_all_20261020T172654Z.log`); core **372/372 PASS** in 72.3 seconds (`TestResults/core_20261020T172842Z.trx`). The focused native behavior batch is running separately. Windows build and smoke remain **NOT-RUN**.
+
+## First QA build — 2026-10-20T18:30:37Z
+
+`game_gate build --profile release-qa --timeout 1800 --json` returned **FAIL**, exit 1, 1926.7 seconds including shutdown. Build ID `20261020T175830Z`, source `4a0bbfafb4b5ff942736637ce116974beef8c2e9`, log `Logs/gate_build_release-qa_20261020T175830Z.log`, manifest `Builds/qa-20261020T175830Z/build.json`. No playable build or smoke result is claimed.
+
+The build exhausted its 1800-second limit. A Burst queue timeout occurred earlier during script compilation (line 2643); Unity continued compiling shaders and extracting player features afterward. The expensive URP/Lit ForwardLit fragment batch completed for both graphics APIs, and Bee reached feature extraction 292/572 before shutdown. Preserve the shader/Bee caches for the retry. No graphics API, rendering feature, worker count or SDK setting was reduced.
+
+Unity serialized URP prefilter/runtime settings, new version fields and the existing InputSystem_Actions preload reference during this build. These generated changes were inspected and retained. The newly generated Resources folder metadata is retained; only the four Performance Testing measurement files are ignored. No Unity, shader compiler or Bee process remained after gate exit.
+
+Next: integrate and verify the queued public catalogue and physical fixture observation changes, retry the cached QA build, then run `wordbound_workshop_flow` against its exact successful build ID and inspect every capture.

@@ -88,3 +88,9 @@ _Inbox/
 # Proprietary Photon SDKs are restored from the official, hash-pinned packages.
 /Assets/Photon/
 /Assets/Photon.meta
+
+# Unity Performance Testing generates these local build measurements.
+/Assets/Resources/PerformanceTestRunInfo.json
+/Assets/Resources/PerformanceTestRunInfo.json.meta
+/Assets/Resources/PerformanceTestRunSettings.json
+/Assets/Resources/PerformanceTestRunSettings.json.meta
