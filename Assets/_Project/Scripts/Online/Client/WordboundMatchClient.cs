@@ -34,7 +34,7 @@ namespace Wreckabulary.Online
             WordboundGameplayPrefabs prefabs, NetworkPrefabRef snapshotPrefab,
             string photonAppId, SceneRef gameplayScene,
             Func<CancellationToken, Task<WordboundFusionJoin>> freshCredentials,
-            WordboundPuzzleProof physicalPuzzles = null, InputBinding controls = null)
+            IWordboundPuzzleContent physicalPuzzles = null, InputBinding controls = null)
         {
             if (started) throw new InvalidOperationException("Create a fresh match client for each match.");
             if (client?.Credentials == null || verified == null || verifier == null || freshCredentials == null)
@@ -102,7 +102,7 @@ namespace Wreckabulary.Online
             return runner;
         }
 
-        static NetworkProjectConfig Configuration()
+        internal static NetworkProjectConfig Configuration()
         {
             var config = new NetworkProjectConfig { PeerMode = NetworkProjectConfig.PeerModes.Multiple };
             foreach (var source in NetworkProjectConfig.Global.PrefabTable.Prefabs)

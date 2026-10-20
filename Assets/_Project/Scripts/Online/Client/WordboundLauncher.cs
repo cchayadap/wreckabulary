@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 using Wreckabulary.Workshop;
 
@@ -16,8 +17,10 @@ namespace Wreckabulary.Online
         WordboundPartyMenu menu;
         WordboundWorkshop workshop;
         WordboundMatchClient activeClient;
+        WordboundLocalMatchClient localClient;
         WordboundPartyLaunchContext activeLaunch;
-        string failure;
+        string failure, itemJson, ruleJson;
+        int localGeneration;
         bool destroying;
 
         void Start()
@@ -30,6 +33,8 @@ namespace Wreckabulary.Online
                 var data = Resources.Load<GameData>(GameData.ResourcePath);
                 if (!data || !data.items || !data.rules)
                     throw new InvalidOperationException("The item catalogue or rule book is missing.");
+                itemJson = data.items.text;
+                ruleJson = data.rules.text;
                 Assets.BodyPrefabs();
                 Assets.GameplayScene();
                 if (!Assets.SnapshotChunk.IsValid)
@@ -53,7 +58,7 @@ namespace Wreckabulary.Online
             try
             {
                 cancellation.ThrowIfCancellationRequested();
-                if (destroying || activeClient || activeLaunch != null)
+                if (destroying || activeClient || localClient || activeLaunch != null)
                     throw new InvalidOperationException("Return from the current match before opening another.");
                 var prefabs = Assets.BodyPrefabs();
                 var scene = Assets.GameplayScene();
@@ -76,7 +81,8 @@ namespace Wreckabulary.Online
             }
             catch
             {
-                if (LobbyCamera) LobbyCamera.enabled = true;
+                if (!destroying && (activeLaunch == launch || activeLaunch == null && !localClient) && LobbyCamera)
+                    LobbyCamera.enabled = true;
                 throw;
             }
             finally
@@ -116,26 +122,84 @@ namespace Wreckabulary.Online
 
         void OpenWorkshop()
         {
-            if (activeLaunch != null || activeClient) return;
+            if (activeLaunch != null || activeClient || localClient) return;
             if (!workshop)
             {
                 workshop = gameObject.AddComponent<WordboundWorkshop>();
                 workshop.CloseRequested += CloseWorkshop;
-                workshop.OpenTemplate(WorkshopTemplate.RaceCircuit);
+                workshop.PlaytestRequested += PlaytestWorkshop;
+                workshop.ConfigureLocalPlaytest(true);
+                workshop.OpenFlagship(WordboundFlagshipContent.Create(ItemCatalogue.FromJson(itemJson)));
             }
             else workshop.ResumeEditing();
             menu.Visible = false;
         }
 
+        async void PlaytestWorkshop(ResolvedCourse resolved)
+        {
+            if (destroying || localClient || activeClient || activeLaunch != null) return;
+            int generation = ++localGeneration;
+            WordboundLocalMatchClient client = null;
+            try
+            {
+                var content = WordboundWorkshopPlaytest.Create(workshop.LastPlaytestDraft, resolved,
+                    workshop.Catalogue, workshop.PlayRequirements, itemJson, ruleJson);
+                var prefabs = Assets.BodyPrefabs();
+                var scene = Assets.GameplayScene();
+                var root = new GameObject("Wordbound workshop playtest");
+                root.transform.SetParent(transform, false);
+                client = root.AddComponent<WordboundLocalMatchClient>();
+                localClient = client;
+                client.ReturnedToWorkshop += () => ReturnedFromPlaytest(client);
+                client.Failed += reason => {
+                    if (!destroying && localClient == client) workshop.ShowStatus(reason);
+                };
+                workshop.Visible = false;
+                await client.StartLocal(content, prefabs, scene);
+                if (!destroying && generation == localGeneration && localClient == client && LobbyCamera)
+                    LobbyCamera.enabled = false;
+            }
+            catch (Exception error)
+            {
+                if (destroying || generation != localGeneration) return;
+                if (client && localClient == client && !client.ShutdownConfirmed)
+                {
+                    client.ShowStartupFailure();
+                    return;
+                }
+                if (client && localClient == client)
+                {
+                    localClient = null;
+                    Destroy(client.gameObject);
+                }
+                if (LobbyCamera) LobbyCamera.enabled = true;
+                workshop.ResumeEditing();
+                workshop.ShowStatus("Playtest could not start: " + error.Message);
+            }
+        }
+
+        void ReturnedFromPlaytest(WordboundLocalMatchClient client)
+        {
+            if (destroying || localClient != client) return;
+            localGeneration++;
+            localClient = null;
+            Destroy(client.gameObject);
+            if (LobbyCamera) LobbyCamera.enabled = true;
+            workshop.ResumeEditing();
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
         void CloseWorkshop()
         {
+            if (localClient) return;
             if (workshop) workshop.Visible = false;
             if (menu) menu.Visible = true;
         }
 
         void BackToLobby()
         {
-            if (activeLaunch != null || activeClient) return;
+            if (activeLaunch != null || activeClient || localClient) return;
             if (!Session.GoHome()) failure = "The main lobby is unavailable in this build.";
         }
 
@@ -153,8 +217,13 @@ namespace Wreckabulary.Online
         void OnDestroy()
         {
             destroying = true;
+            localGeneration++;
             if (menu) { menu.WorkshopRequested -= OpenWorkshop; menu.CloseRequested -= BackToLobby; }
-            if (workshop) workshop.CloseRequested -= CloseWorkshop;
+            if (workshop)
+            {
+                workshop.CloseRequested -= CloseWorkshop;
+                workshop.PlaytestRequested -= PlaytestWorkshop;
+            }
         }
     }
 }

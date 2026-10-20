@@ -15,6 +15,7 @@ namespace Wreckabulary.Online
         ModeDefinition mode;
         ResolvedCourse course;
         string actorId, search = "", notice = "";
+        string returnLabel = "Return to party";
         int seat, team;
         bool initialized, crafting;
         Vector2 recipeScroll;
@@ -25,7 +26,8 @@ namespace Wreckabulary.Online
         public event Action ReturnRequested;
 
         public void Initialize(WordboundGameplayController gameplay, WordboundPlayerView playerView,
-            ItemCatalogue catalogue, ModeDefinition definition, ResolvedCourse resolved, string localActor)
+            ItemCatalogue catalogue, ModeDefinition definition, ResolvedCourse resolved, string localActor,
+            string returnButtonLabel = "Return to party")
         {
             if (initialized) throw new InvalidOperationException("Match HUD is already initialized.");
             controller = gameplay != null ? gameplay : throw new ArgumentNullException(nameof(gameplay));
@@ -34,6 +36,8 @@ namespace Wreckabulary.Online
             mode = definition ?? throw new ArgumentNullException(nameof(definition));
             course = resolved ?? throw new ArgumentNullException(nameof(resolved));
             actorId = localActor;
+            if (string.IsNullOrWhiteSpace(returnButtonLabel)) throw new ArgumentException("A return label is required.");
+            returnLabel = returnButtonLabel;
             var binding = controller.Authority.Match.Binding;
             seat = Enumerable.Range(0, binding.Seats.Count).Single(i => binding.Seats[i].PlayerId == actorId);
             team = binding.Seats[seat].Team;
@@ -76,8 +80,10 @@ namespace Wreckabulary.Online
 
         void MenuRequested() => crafting = false;
         void ConnectionFailed(string reason)
+            => ShowFailure("The session stopped. Choose " + returnLabel + " to continue.");
+        public void ShowFailure(string message)
         {
-            notice = "The match connection stopped. Return to your party to try again.";
+            notice = message;
             crafting = false;
             view.SetMenuOpen(true);
         }
@@ -148,13 +154,20 @@ namespace Wreckabulary.Online
             float width = Screen.width / scale, height = Screen.height / scale;
             try
             {
-                GUILayout.BeginArea(new Rect(18, 18, 360, 150), GUI.skin.box);
+                GUILayout.BeginArea(new Rect(18, 18, 380, 220), GUI.skin.box);
                 GUILayout.Label(mode.Name);
                 if (frame == null) GUILayout.Label("Preparing the world…");
                 else
                 {
                     var progress = frame.Progress.Teams.Single(t => t.Team == team);
-                    if (mode.IsRace) GUILayout.Label($"Lap {progress.Lap + 1} / {mode.Laps} · Checkpoint {progress.NextCheckpoint}");
+                    if (mode.IsRace)
+                    {
+                        int lap = Math.Min(progress.Lap, course.Laps.Count - 1);
+                        int checkpoints = course.Laps[lap].Checkpoints.Count;
+                        GUILayout.Label($"Lap {Math.Min(progress.Lap + 1, mode.Laps)} / {mode.Laps} · Checkpoint {Math.Min(progress.NextCheckpoint + 1, checkpoints)} / {checkpoints}");
+                        GUILayout.Label(ObjectiveText(progress),
+                            new GUIStyle(GUI.skin.label) { wordWrap = true });
+                    }
                     else if (mode.Objective == WordboundObjective.Knockouts)
                         GUILayout.Label($"Knockouts: {frame.Progress.Players.Single(p => p.Id == actorId).Knockouts} / {mode.KnockoutTarget}");
                     if (mode.TimeLimitSeconds > 0)
@@ -177,6 +190,27 @@ namespace Wreckabulary.Online
                 if (view.MenuOpen) Menu(width, height);
             }
             finally { GUI.matrix = saved; GUI.enabled = enabled; }
+        }
+
+        string ObjectiveText(TeamProgress progress)
+        {
+            int lap = progress.Lap, checkpoint = progress.NextCheckpoint;
+            if (progress.Finished || lap < 0 || lap >= course.Laps.Count) return "Course complete.";
+            var route = course.Laps[lap].Checkpoints;
+            if (checkpoint < 0 || checkpoint >= route.Count) return "Bring the keepsake to the lap finish.";
+            var completed = progress.CompletedPuzzles;
+            var puzzle = course.Puzzles.FirstOrDefault(p => route[checkpoint].PuzzleIds.Contains(p.Id) && !completed.Contains(p.Id));
+            if (puzzle == null) return "Bring the keepsake to the next checkpoint.";
+            return puzzle.PresetId switch
+            {
+                "CollectLetters" => "Smash the marked furniture, collect its letters, and spell " + puzzle.RecipeId + ".",
+                "PlaceObject" => "Place " + puzzle.RecipeId + " on the marked socket.",
+                "RedirectWind" => "Place " + puzzle.RecipeId + " to push the loose stool into its target.",
+                "TimedMechanism" => "Use " + puzzle.RecipeId + " to slow the arm. Carry the keepsake through.",
+                "BuildRoute" => "Use " + puzzle.RecipeId + " to reach the raised marker.",
+                "BalanceWeight" => "Cover both floor pads with " + puzzle.RecipeId + ".",
+                _ => "Spell " + puzzle.RecipeId + " and use it at the marked puzzle."
+            };
         }
 
         string ResultText(MatchResult result)
@@ -234,7 +268,7 @@ namespace Wreckabulary.Online
                 GUILayout.EndScrollView();
             }
             GUI.enabled = true;
-            if (GUILayout.Button("Return to party", GUILayout.Height(32))) ReturnRequested?.Invoke();
+            if (GUILayout.Button(returnLabel, GUILayout.Height(32))) ReturnRequested?.Invoke();
             GUILayout.EndArea();
         }
 

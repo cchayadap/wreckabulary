@@ -19,7 +19,7 @@ namespace Wreckabulary.Online
         public ResolvedCourse Course { get; }
         public ItemCatalogue Items => ItemCatalogue.FromJson(itemSource);
         public GameRules Rules => gameRules.Clone();
-        public WordboundPuzzleProof PhysicalPuzzles { get; }
+        public IWordboundPuzzleContent PhysicalPuzzles { get; }
         public OnlineContent PrivateBinding { get; }
         public OnlineContent PublicBinding { get; }
 
@@ -31,13 +31,16 @@ namespace Wreckabulary.Online
             itemSource = itemJson; Seed = seed; Mode = ModeDefinition.For(modeId, raceFormat);
             string catalogueHash;
             string courseId;
-            if (Mode.IsRace)
+            if (Mode.IsRace || Mode.Id == "Freestyle")
             {
-                PhysicalPuzzles = WordboundPuzzleProof.Create(itemJson, modeId, raceFormat, seed, ruleBookJson);
-                if (!PhysicalPuzzles.BindsRules) throw new InvalidOperationException("Race content must bind the actual rule book.");
+                var flagship = WordboundFlagshipContent.Create(Items);
+                var resolved = flagship.Resolve(seed, MatchStateValidation.Requirements(Mode));
+                if (!resolved.Success) throw new ArgumentException("The selected flagship course cannot be resolved.");
+                PhysicalPuzzles = new WordboundAuthoredPuzzleContent(Mode, flagship.Geometry,
+                    resolved.Manifest, itemJson, ruleBookJson);
                 Geometry = PhysicalPuzzles.Geometry; Course = PhysicalPuzzles.Course;
                 gameRules = PhysicalPuzzles.Rules;
-                catalogueHash = PhysicalPuzzles.CatalogueHash; courseId = "physical-proof-v2";
+                catalogueHash = PhysicalPuzzles.CatalogueHash; courseId = Course.CopyDocument().Id;
             }
             else
             {
