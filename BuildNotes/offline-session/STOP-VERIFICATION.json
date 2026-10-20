@@ -1,0 +1,17 @@
+{
+  "status": "SOURCE_REFERENCE_PASS_NATIVE_NOT_RUN",
+  "capturedAtUtc": "2026-10-20T16:24:13.3416133Z",
+  "parentBase": "2ff145822c92f86b0f80ff17d45d575ce3878c46",
+  "command": "dotnet build BuildNotes/offline-session/ReferenceCheck.csproj --no-restore --nologo --verbosity minimal",
+  "warnings": 0,
+  "errors": 0,
+  "buildSeconds": 8.47,
+  "nativeTestClass": "Wreckabulary.OfflineGameplayTests.WordboundGameplayStopTests",
+  "nativeTestCount": 8,
+  "nativeExecution": "NOT RUN; root owns Unity",
+  "sourceSha256": {
+    "Assets/_Project/Scripts/Online/Gameplay/WordboundGameplayController.cs": "5A11BDA8202064515B5D7E3F58B3E6F39E99DC71FD6A6ACD6EEFE780A6AFEB71",
+    "Assets/_Project/Tests/OfflineGameplay/WordboundGameplayStopTests.cs": "CDD5D3724B9395CE25BE23E9A6F1A9BB858BEF43F427F979870506C1DADE141D"
+  },
+  "referenceOutputSha256": "881DF03B8907FA37A3FC4C3B8D6A6C5A374BBDE7312BDF786D9F564C3FEB24C7"
+}

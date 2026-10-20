@@ -48,6 +48,7 @@ namespace Wreckabulary.Online
         string localActor;
         long runnerStarted, nextCheckpoint, lastSequence, sentEpoch = -1;
         bool initialized, localReady, hostReady, publishing, stopping, handlingStep;
+        Task stopTask;
         public WordboundFusionAuthority Authority { get; private set; }
         public MatchSnapshot Frame => frame;
         public WordboundCourseWorld CourseWorld => courseWorld;
@@ -402,14 +403,30 @@ namespace Wreckabulary.Online
             hostReady = false; query.Target = null;
             if (physics != null) { physics.MovementFaulted -= Fail; physics.Dispose(); physics = null; }
             try { Faulted?.Invoke(Fault); }
-            finally { if (session != null) _ = session.Stop(); }
+            finally { _ = Stop(); }
         }
-        public async Task Stop()
+        public Task Stop()
         {
-            if (stopping) return;
+            if (stopTask != null) return stopTask;
+            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            stopTask = completion.Task;
             stopping = true;
-            CleanupRunner();
-            if (session != null) await session.Stop();
+            _ = StopCore(completion);
+            return stopTask;
+        }
+        async Task StopCore(TaskCompletionSource<bool> completion)
+        {
+            Exception failure = null;
+            try { CleanupRunner(); }
+            catch (Exception error) { failure = error; }
+            try
+            {
+                if (session != null) await session.Stop();
+            }
+            catch (Exception error) { failure = failure == null ? error : new AggregateException(failure, error); }
+            if (failure is OperationCanceledException canceled) completion.TrySetCanceled(canceled.CancellationToken);
+            else if (failure != null) completion.TrySetException(failure);
+            else completion.TrySetResult(true);
         }
         void CleanupRunner()
         {
