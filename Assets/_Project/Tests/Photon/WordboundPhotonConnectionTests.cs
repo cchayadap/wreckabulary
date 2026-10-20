@@ -131,7 +131,7 @@ namespace Wreckabulary.PhotonTests
             }
         }
 
-        static int PrepareProofScene()
+        internal static int PrepareProofScene()
         {
             Assert.IsTrue(File.Exists(ProofScene),
                 "Create the native proof scene first with the WordboundPhotonSetup.CreateProofScene gate.");
@@ -161,7 +161,7 @@ namespace Wreckabulary.PhotonTests
             public double seconds;
         }
 
-        sealed class ProofCallbacks : INetworkRunnerCallbacks
+        internal class ProofCallbacks : INetworkRunnerCallbacks
         {
             readonly byte[] connectionToken;
             readonly bool host;
@@ -190,7 +190,7 @@ namespace Wreckabulary.PhotonTests
             public void OnConnectFailed(NetworkRunner runner, NetAddress address, NetConnectFailedReason reason) { }
             public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessions) { }
             public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
-            public void OnHostMigration(NetworkRunner runner, HostMigrationToken token) { }
+            public virtual void OnHostMigration(NetworkRunner runner, HostMigrationToken token) { }
             public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
             public void OnSceneLoadStart(NetworkRunner runner) { }
             public void OnSceneLoadDone(NetworkRunner runner) { }

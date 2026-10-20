@@ -1,0 +1,7 @@
+{
+  "name": "Wreckabulary.Online.Editor",
+  "rootNamespace": "Wreckabulary.EditorTools",
+  "references": ["Wreckabulary.Online.Fusion", "Fusion.Unity", "Fusion.Unity.Editor"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

@@ -4,6 +4,8 @@
     "references": [
         "Fusion.Unity",
         "Photon.Realtime",
+        "Wreckabulary.Rules",
+        "Wreckabulary.Online.Fusion",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

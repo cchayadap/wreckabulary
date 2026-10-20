@@ -56,3 +56,21 @@ The first two-peer attempt failed because the multi-peer test had no explicit st
 The first successful two-peer payload exchange still failed teardown because host-first shutdown disconnected the remaining client (`editmode_20261020T115923Z.xml`). Cleanup now disconnects clients before the host and restores the previous build-scene list. The final 2/4/8 run above verifies both the transport and this cleanup.
 
 These transport probes do not prove production guest authentication, physics quality, migration, packet-loss tolerance or eight-player performance. The separate coordinator's custom authentication provider, pinned issuer/JWKS and exact signed start/admission checks must be configured before public play. See [ONLINE.md](ONLINE.md).
+
+## Native migration setup
+
+After restoring the SDK, apply configuration, explicitly rebuild the network assemblies, and then bake the prefab:
+
+```text
+node Tools/kit/gate/game_gate.mjs exec Wreckabulary.EditorTools.WordboundFusionSetup.Configure --json
+node Tools/kit/gate/game_gate.mjs test editmode --filter WordboundFusionWeavingTests --json
+node Tools/kit/gate/game_gate.mjs exec Wreckabulary.EditorTools.WordboundFusionSetup.CreateSnapshotPrefab --json
+```
+
+The helper uses Fusion's native configuration writer and prefab baker. It registers `Wreckabulary.Online.Fusion` and the planned `Wreckabulary.Online.Physics` assembly for weaving, disables automatic migration uploads, and permits client-to-server reliable transfer without client-to-client forwarding. The carrier prefab contains a NetworkObject and the bounded snapshot chunk behaviour, with no renderer or collider.
+
+Configuration/prefab creation passed natively on 2026-10-20: `gate_exec_Configure_20261020T122120Z.log` and `gate_exec_CreateSnapshotPrefab_20261020T122321Z.log`. The first runtime attempt exposed that Fusion deliberately disables automatic reweaving on configuration changes in batch mode (`FusionWeaverTriggerImporter.OnImportAsset`). The added weaving coroutine requests a clean native script compilation, survives reload, and verifies the carrier's generated weaving attribute.
+
+The first clean rebuild finished, but its test exceeded Unity's default 180-second timeout (`TestResults/editmode_20261020T123501Z.xml`), so that run is FAIL. The fixture now permits a bounded fifteen minutes for initial compilation. Normal follow-up uses `--filter ConfiguredCarrierHasNativeGeneratedNetworkState` to inspect the generated attribute without rebuilding every package. Prefab setup also checks the actual attribute before baking. Follow-up native acceptance is pending.
+
+The generated local SDK configuration stays ignored; the helper makes setup reproducible. `WordboundPhotonMigrationTests` checks complete canonical state and a larger chunked packet through cloud upload and host replacement. Its first attempt failed before connecting because the carrier was not yet woven (`TestResults/editmode_20261020T122803Z.xml`); recovery remains unverified.
