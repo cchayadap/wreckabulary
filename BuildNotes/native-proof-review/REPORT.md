@@ -57,3 +57,11 @@ No new confirmed source defect found in this change. The following coverage is s
 No Unity launch, rebuild, SDK mutation, cloud request or fabricated native result was performed by this reviewer. The source-level repair is coherent and preserves fail-closed validation. Native proof must still show both exact canonical recovery and the large chunked case, including rebuilt carriers and full NUnit/cleanup results. Existing limits remain: body PASS JSON precedes shared teardown; the experiment does not test authenticated migration, replacement-client rejoin or dynamic gameplay recovery.
 
 Next recoverable action: root integrates the lazy production caller and value-copy reader together, runs the native canonical/large tests, records exact resulting source commit and reuse diagnostics, then independently binds those results to this review. A useful later pure regression would yield one mutable component repeatedly with different fields and require exact reconstruction; such a double would test enumeration discipline, not prove native SDK allocation behavior.
+
+## Controller shutdown follow-up — 2026-10-21
+
+Scope: independent read-only review of the small `WordboundGameplayController.Stop` / `Fail` change and its original six actual-controller test cases in the online lane. No Unity, compiler, cloud, or production source writes by this reviewer.
+
+Confirmed defect in the initial pending patch: `CleanupRunner()` could throw from the application `LocalPlayerChanged(null)` callback before `session.Stop()` ran. Because the new Stop task was cached, every later caller received the same fault without another shutdown attempt. A concrete probe sets `localBody`, supplies a throwing callback, calls Stop twice and observes zero session shutdown calls. The online owner confirmed the defect and added two regressions.
+
+Independent source reinspection at **17f5481** confirms `StopCore` now catches cleanup errors, always awaits the session shutdown, and completes the shared task only afterward. Cleanup and shutdown failures are both retained through aggregation; sole cancellation remains cancelled. This resolves the identified ordering defect at source level. The owner reports reference compilation green and eight tests authored; this reviewer did not execute those native tests. No conclusion is offered on unrelated destruction or migration paths.
