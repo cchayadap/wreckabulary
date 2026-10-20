@@ -1,0 +1,15 @@
+FBX version: 7400
+WORDBOUND_CHECK {"id": "BAT", "format": "fbx", "passed": true, "triangles": 2724, "max_bounds_error_metres": 1.564621925354004e-07, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\Tools\AssetPipeline\build_wordbound_pvp.py:549: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  images=[node.image for mat in bpy.data.materials if mat.use_nodes
+17:49:03 | INFO: Data are loaded, start creating Blender stuff
+17:49:03 | INFO: Blender create Mesh node Torus
+17:49:03 | INFO: Blender create Mesh node Cream_grip
+17:49:03 | INFO: Blender create Mesh node Grip_binding
+17:49:03 | INFO: Blender create Mesh node Oak_barrel
+17:49:03 | INFO: Blender create Mesh node Sage_collar
+17:49:03 | INFO: glTF import finished in 0.05s
+WORDBOUND_CHECK {"id": "BAT", "format": "glb", "passed": true, "triangles": 2724, "max_bounds_error_metres": 0.0, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

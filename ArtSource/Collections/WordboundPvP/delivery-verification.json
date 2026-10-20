@@ -1,0 +1,145 @@
+{
+  "passed": true,
+  "concepts": 12,
+  "models": 12,
+  "exports": 24,
+  "previews": 36,
+  "icons": 12,
+  "maximumTriangles": 4296,
+  "checks": [
+    {
+      "id": "BAT",
+      "passed": true,
+      "triangles": 2724,
+      "conceptSize": [
+        1222,
+        1287
+      ],
+      "iconTransparentPixels": 240742,
+      "iconVisiblePixels": 21402
+    },
+    {
+      "id": "BROOM",
+      "passed": true,
+      "triangles": 1676,
+      "conceptSize": [
+        1222,
+        1287
+      ],
+      "iconTransparentPixels": 245573,
+      "iconVisiblePixels": 16571
+    },
+    {
+      "id": "HAMMER",
+      "passed": true,
+      "triangles": 2372,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 220427,
+      "iconVisiblePixels": 41717
+    },
+    {
+      "id": "SPEAR",
+      "passed": true,
+      "triangles": 2512,
+      "conceptSize": [
+        1024,
+        1536
+      ],
+      "iconTransparentPixels": 251872,
+      "iconVisiblePixels": 10272
+    },
+    {
+      "id": "SHIELD",
+      "passed": true,
+      "triangles": 1748,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 165348,
+      "iconVisiblePixels": 96796
+    },
+    {
+      "id": "PLATE",
+      "passed": true,
+      "triangles": 2108,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 195677,
+      "iconVisiblePixels": 66467
+    },
+    {
+      "id": "TABLE",
+      "passed": true,
+      "triangles": 2324,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 176475,
+      "iconVisiblePixels": 85669
+    },
+    {
+      "id": "SOFA",
+      "passed": true,
+      "triangles": 4296,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 160689,
+      "iconVisiblePixels": 101455
+    },
+    {
+      "id": "BED",
+      "passed": true,
+      "triangles": 3152,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 171699,
+      "iconVisiblePixels": 90445
+    },
+    {
+      "id": "STOOL",
+      "passed": true,
+      "triangles": 1752,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 161102,
+      "iconVisiblePixels": 101042
+    },
+    {
+      "id": "FAN",
+      "passed": true,
+      "triangles": 3060,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 203838,
+      "iconVisiblePixels": 58306
+    },
+    {
+      "id": "CLOCK",
+      "passed": true,
+      "triangles": 2848,
+      "conceptSize": [
+        1536,
+        1024
+      ],
+      "iconTransparentPixels": 145304,
+      "iconVisiblePixels": 116840
+    }
+  ],
+  "nativeUnityValidation": "NOT RUN",
+  "humanOwnerAcceptance": "NOT RUN"
+}

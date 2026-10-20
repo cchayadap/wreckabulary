@@ -1,0 +1,36 @@
+C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\Tools\AssetPipeline\build_wordbound_pvp.py:35: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  result.use_nodes = True
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\BAT.fbx'
+export finished in 0.0586 sec.
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+17:48:04 | INFO: Starting glTF 2.0 export
+17:48:04 | INFO: Extracting primitive: Torus
+17:48:04 | INFO: Primitives created: 1
+17:48:04 | INFO: Extracting primitive: Cream_grip
+17:48:04 | INFO: Primitives created: 1
+17:48:04 | INFO: Extracting primitive: Grip_binding
+17:48:04 | INFO: Primitives created: 1
+17:48:04 | INFO: Extracting primitive: Oak_barrel
+17:48:04 | INFO: Primitives created: 1
+17:48:04 | INFO: Extracting primitive: Sage_collar
+17:48:04 | INFO: Primitives created: 1
+17:48:04 | INFO: Finished glTF 2.0 export in 0.3361356258392334 s
+
+WORDBOUND_ASSET {"id": "BAT", "triangles": 2724, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.172, 1.018, 0.172]}
+C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\Tools\AssetPipeline\build_wordbound_pvp.py:452: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  world.use_nodes=True
+01:00.921  render           | Saved: 'C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP\Previews\BAT-front.png'
+WORDBOUND_RENDER C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP\Previews\BAT-front.png
+01:08.734  render           | Saved: 'C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP\Previews\BAT-side.png'
+WORDBOUND_RENDER C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP\Previews\BAT-side.png
+01:16.796  render           | Saved: 'C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP\Previews\BAT-three-quarter.png'
+WORDBOUND_RENDER C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP\Previews\BAT-three-quarter.png
+01:22.250  render           | Saved: 'C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP\Icons\BAT.png'
+WORDBOUND_RENDER C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP\Icons\BAT.png
+Info: Saved as "WordboundPvP.blend"
+WORDBOUND_SOURCE_READY C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

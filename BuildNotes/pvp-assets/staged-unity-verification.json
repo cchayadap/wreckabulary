@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "models": 12,
+  "icons": 12,
+  "palette": 1,
+  "catalogueFacts": "unchanged",
+  "nativeUnityValidation": "NOT RUN",
+  "checks": [
+    {
+      "id": "BAT",
+      "modelKey": "Items/BAT",
+      "passed": true
+    },
+    {
+      "id": "BROOM",
+      "modelKey": "Items/BROOM",
+      "passed": true
+    },
+    {
+      "id": "HAMMER",
+      "modelKey": "Items/HAMMER",
+      "passed": true
+    },
+    {
+      "id": "SPEAR",
+      "modelKey": "Items/SPEAR",
+      "passed": true
+    },
+    {
+      "id": "SHIELD",
+      "modelKey": "Items/SHIELD",
+      "passed": true
+    },
+    {
+      "id": "PLATE",
+      "modelKey": "Items/PLATE",
+      "passed": true
+    },
+    {
+      "id": "TABLE",
+      "modelKey": "Items/TABLE",
+      "passed": true
+    },
+    {
+      "id": "SOFA",
+      "modelKey": "Items/SOFA",
+      "passed": true
+    },
+    {
+      "id": "BED",
+      "modelKey": "Items/BED",
+      "passed": true
+    },
+    {
+      "id": "STOOL",
+      "modelKey": "Items/STOOL",
+      "passed": true
+    },
+    {
+      "id": "FAN",
+      "modelKey": "Items/FAN",
+      "passed": true
+    },
+    {
+      "id": "CLOCK",
+      "modelKey": "Items/CLOCK",
+      "passed": true
+    }
+  ]
+}

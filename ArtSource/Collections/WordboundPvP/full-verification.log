@@ -1,0 +1,239 @@
+C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\Tools\AssetPipeline\build_wordbound_pvp.py:585: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  images=[node.image for mat in bpy.data.materials if mat.use_nodes
+FBX version: 7400
+WORDBOUND_CHECK {"id": "BAT", "format": "fbx", "passed": true, "triangles": 2724, "max_bounds_error_metres": 1.564621925354004e-07, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:03:57 | INFO: Data are loaded, start creating Blender stuff
+18:03:57 | INFO: Blender create Mesh node Torus
+18:03:57 | INFO: Blender create Mesh node Cream_grip
+18:03:57 | INFO: Blender create Mesh node Grip_binding
+18:03:57 | INFO: Blender create Mesh node Oak_barrel
+18:03:57 | INFO: Blender create Mesh node Sage_collar
+18:03:57 | INFO: glTF import finished in 0.04s
+WORDBOUND_CHECK {"id": "BAT", "format": "glb", "passed": true, "triangles": 2724, "max_bounds_error_metres": 0.0, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "BROOM", "format": "fbx", "passed": true, "triangles": 1676, "max_bounds_error_metres": 2.60770320892334e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:03:57 | INFO: Data are loaded, start creating Blender stuff
+18:03:57 | INFO: Blender create Mesh node Cube.001
+18:03:57 | INFO: Blender create Mesh node Cube.002
+18:03:57 | INFO: Blender create Mesh node Cube.003
+18:03:57 | INFO: Blender create Mesh node Cube.004
+18:03:57 | INFO: Blender create Mesh node Cube.005
+18:03:57 | INFO: Blender create Mesh node Cube.006
+18:03:57 | INFO: Blender create Mesh node Cube.007
+18:03:57 | INFO: Blender create Mesh node Cube.008
+18:03:57 | INFO: Blender create Mesh node Cube.009
+18:03:57 | INFO: Blender create Mesh node Cube.010
+18:03:57 | INFO: Blender create Mesh node Cube
+18:03:57 | INFO: Blender create Mesh node Oak_handle
+18:03:57 | INFO: Blender create Mesh node Sage_socket
+18:03:57 | INFO: Blender create Mesh node Sphere
+18:03:57 | INFO: Blender create Mesh node Sphere.001
+18:03:57 | INFO: glTF import finished in 0.16s
+WORDBOUND_CHECK {"id": "BROOM", "format": "glb", "passed": true, "triangles": 1676, "max_bounds_error_metres": 7.450580596923828e-09, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "HAMMER", "format": "fbx", "passed": true, "triangles": 2372, "max_bounds_error_metres": 8.940696716308594e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:03:58 | INFO: Data are loaded, start creating Blender stuff
+18:03:58 | INFO: Blender create Mesh node Brass_cap
+18:03:58 | INFO: Blender create Mesh node Brass_cap.001
+18:03:58 | INFO: Blender create Mesh node Torus.001
+18:03:58 | INFO: Blender create Mesh node Oak_handle.001
+18:03:58 | INFO: Blender create Mesh node Padded_head
+18:03:58 | INFO: Blender create Mesh node Sage_grip
+18:03:58 | INFO: Blender create Mesh node Sage_wrap
+18:03:58 | INFO: glTF import finished in 0.05s
+WORDBOUND_CHECK {"id": "HAMMER", "format": "glb", "passed": true, "triangles": 2372, "max_bounds_error_metres": 1.4901161193847656e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "SPEAR", "format": "fbx", "passed": true, "triangles": 2512, "max_bounds_error_metres": 1.7508864402770996e-07, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:03:59 | INFO: Data are loaded, start creating Blender stuff
+18:03:59 | INFO: Blender create Mesh node Brass_foot
+18:03:59 | INFO: Blender create Mesh node Brass_leaf_socket
+18:03:59 | INFO: Blender create Mesh node Cream_grip.001
+18:03:59 | INFO: Blender create Mesh node Cream_leaf
+18:03:59 | INFO: Blender create Mesh node Grip_wrap
+18:03:59 | INFO: Blender create Mesh node Oak_shaft
+18:03:59 | INFO: Blender create Mesh node Sage_binding
+18:03:59 | INFO: Blender create Mesh node Sage_binding.001
+18:03:59 | INFO: Blender create Mesh node Sage_binding.002
+18:03:59 | INFO: glTF import finished in 0.06s
+WORDBOUND_CHECK {"id": "SPEAR", "format": "glb", "passed": true, "triangles": 2512, "max_bounds_error_metres": 0.0, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "SHIELD", "format": "fbx", "passed": true, "triangles": 1748, "max_bounds_error_metres": 5.960464477539063e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:03:59 | INFO: Data are loaded, start creating Blender stuff
+18:03:59 | INFO: Blender create Mesh node Sphere.002
+18:03:59 | INFO: Blender create Mesh node Sphere.003
+18:03:59 | INFO: Blender create Mesh node Sphere.004
+18:03:59 | INFO: Blender create Mesh node Sphere.005
+18:03:59 | INFO: Blender create Mesh node Cube.011
+18:03:59 | INFO: Blender create Mesh node Cube.012
+18:03:59 | INFO: Blender create Mesh node Cube.013
+18:03:59 | INFO: Blender create Mesh node Cube.014
+18:03:59 | INFO: Blender create Mesh node Cream_diamond
+18:03:59 | INFO: Blender create Mesh node Cream_rim
+18:03:59 | INFO: Blender create Mesh node Cube.015
+18:03:59 | INFO: Blender create Mesh node Cube.016
+18:03:59 | INFO: Blender create Mesh node Rear_handle
+18:03:59 | INFO: Blender create Mesh node Sage_face
+18:03:59 | INFO: Blender create Mesh node Terracotta_inset
+18:04:00 | INFO: glTF import finished in 0.09s
+WORDBOUND_CHECK {"id": "SHIELD", "format": "glb", "passed": true, "triangles": 1748, "max_bounds_error_metres": 0.0, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "PLATE", "format": "fbx", "passed": true, "triangles": 2108, "max_bounds_error_metres": 5.21540641784668e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:04:00 | INFO: Data are loaded, start creating Blender stuff
+18:04:00 | INFO: Blender create Mesh node Torus.003
+18:04:00 | INFO: Blender create Mesh node Ceramic_dish
+18:04:00 | INFO: Blender create Mesh node Torus.002
+18:04:00 | INFO: glTF import finished in 0.03s
+WORDBOUND_CHECK {"id": "PLATE", "format": "glb", "passed": true, "triangles": 2108, "max_bounds_error_metres": 7.450580596923828e-09, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "TABLE", "format": "fbx", "passed": true, "triangles": 2324, "max_bounds_error_metres": 1.1920928955078125e-07, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:04:01 | INFO: Data are loaded, start creating Blender stuff
+18:04:01 | INFO: Blender create Mesh node Sphere.006
+18:04:01 | INFO: Blender create Mesh node Sphere.007
+18:04:01 | INFO: Blender create Mesh node Sphere.008
+18:04:01 | INFO: Blender create Mesh node Sphere.009
+18:04:01 | INFO: Blender create Mesh node Cube.017
+18:04:01 | INFO: Blender create Mesh node Cube.019
+18:04:01 | INFO: Blender create Mesh node Oak_leg
+18:04:01 | INFO: Blender create Mesh node Oak_leg.001
+18:04:01 | INFO: Blender create Mesh node Oak_leg.002
+18:04:01 | INFO: Blender create Mesh node Oak_leg.003
+18:04:01 | INFO: Blender create Mesh node Cube.018
+18:04:01 | INFO: Blender create Mesh node Cube.020
+18:04:01 | INFO: Blender create Mesh node Cube.021
+18:04:01 | INFO: Blender create Mesh node Cube.022
+18:04:01 | INFO: Blender create Mesh node Cube.023
+18:04:01 | INFO: Blender create Mesh node Sage_leg_collar
+18:04:01 | INFO: Blender create Mesh node Sage_leg_collar.001
+18:04:01 | INFO: Blender create Mesh node Sage_leg_collar.002
+18:04:01 | INFO: Blender create Mesh node Sage_leg_collar.003
+18:04:01 | INFO: glTF import finished in 0.08s
+WORDBOUND_CHECK {"id": "TABLE", "format": "glb", "passed": true, "triangles": 2324, "max_bounds_error_metres": 0.0, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "SOFA", "format": "fbx", "passed": true, "triangles": 4296, "max_bounds_error_metres": 1.1920928955078125e-07, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:04:01 | INFO: Data are loaded, start creating Blender stuff
+18:04:01 | INFO: Blender create Mesh node Sphere.010
+18:04:01 | INFO: Blender create Mesh node Cube.026
+18:04:01 | INFO: Blender create Mesh node Cube.029
+18:04:01 | INFO: Blender create Mesh node Cube.034
+18:04:01 | INFO: Blender create Mesh node Cube.038
+18:04:01 | INFO: Blender create Mesh node Cube.042
+18:04:01 | INFO: Blender create Mesh node Cube.032
+18:04:01 | INFO: Blender create Mesh node Cube.036
+18:04:01 | INFO: Blender create Mesh node Cube.040
+18:04:01 | INFO: Blender create Mesh node Cube.024
+18:04:01 | INFO: Blender create Mesh node Oak_foot
+18:04:01 | INFO: Blender create Mesh node Oak_foot.001
+18:04:01 | INFO: Blender create Mesh node Oak_foot.002
+18:04:01 | INFO: Blender create Mesh node Oak_foot.003
+18:04:01 | INFO: Blender create Mesh node Cube.027
+18:04:01 | INFO: Blender create Mesh node Cube.030
+18:04:01 | INFO: Blender create Mesh node Cube.025
+18:04:01 | INFO: Blender create Mesh node Cube.028
+18:04:01 | INFO: Blender create Mesh node Cube.031
+18:04:01 | INFO: Blender create Mesh node Cube.035
+18:04:01 | INFO: Blender create Mesh node Cube.039
+18:04:01 | INFO: Blender create Mesh node Cube.043
+18:04:01 | INFO: Blender create Mesh node Cube.033
+18:04:01 | INFO: Blender create Mesh node Cube.037
+18:04:01 | INFO: Blender create Mesh node Cube.041
+18:04:01 | INFO: glTF import finished in 0.15s
+WORDBOUND_CHECK {"id": "SOFA", "format": "glb", "passed": true, "triangles": 4296, "max_bounds_error_metres": 9.313225746154785e-10, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "BED", "format": "fbx", "passed": true, "triangles": 3152, "max_bounds_error_metres": 1.2528626314178837e-07, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:04:02 | INFO: Data are loaded, start creating Blender stuff
+18:04:02 | INFO: Blender create Mesh node Sphere.012
+18:04:02 | INFO: Blender create Mesh node Sphere.014
+18:04:02 | INFO: Blender create Mesh node Sphere.016
+18:04:02 | INFO: Blender create Mesh node Sphere.018
+18:04:02 | INFO: Blender create Mesh node Cube.045
+18:04:02 | INFO: Blender create Mesh node Cube.048
+18:04:02 | INFO: Blender create Mesh node Oak_bedpost
+18:04:02 | INFO: Blender create Mesh node Oak_bedpost.001
+18:04:02 | INFO: Blender create Mesh node Oak_bedpost.002
+18:04:02 | INFO: Blender create Mesh node Oak_bedpost.003
+18:04:02 | INFO: Blender create Mesh node Cube.049
+18:04:02 | INFO: Blender create Mesh node Cube.051
+18:04:02 | INFO: Blender create Mesh node Cube.044
+18:04:02 | INFO: Blender create Mesh node Cube.053
+18:04:02 | INFO: Blender create Mesh node Cube.054
+18:04:02 | INFO: Blender create Mesh node Cube.055
+18:04:02 | INFO: Blender create Mesh node Sphere.011
+18:04:02 | INFO: Blender create Mesh node Sphere.013
+18:04:02 | INFO: Blender create Mesh node Sphere.015
+18:04:02 | INFO: Blender create Mesh node Sphere.017
+18:04:02 | INFO: Blender create Mesh node Cube.050
+18:04:02 | INFO: Blender create Mesh node Cube.052
+18:04:02 | INFO: Blender create Mesh node Cube.046
+18:04:02 | INFO: Blender create Mesh node Cube.047
+18:04:02 | INFO: glTF import finished in 0.12s
+WORDBOUND_CHECK {"id": "BED", "format": "glb", "passed": true, "triangles": 3152, "max_bounds_error_metres": 5.960464477539063e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "STOOL", "format": "fbx", "passed": true, "triangles": 1752, "max_bounds_error_metres": 8.940696716308594e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:04:02 | INFO: Data are loaded, start creating Blender stuff
+18:04:02 | INFO: Blender create Mesh node Sphere.019
+18:04:02 | INFO: Blender create Mesh node Sphere.020
+18:04:02 | INFO: Blender create Mesh node Sphere.021
+18:04:02 | INFO: Blender create Mesh node Sphere.022
+18:04:02 | INFO: Blender create Mesh node Cream_padded_seat
+18:04:02 | INFO: Blender create Mesh node Oak_brace
+18:04:02 | INFO: Blender create Mesh node Oak_brace.001
+18:04:02 | INFO: Blender create Mesh node Oak_brace.002
+18:04:02 | INFO: Blender create Mesh node Oak_brace.003
+18:04:02 | INFO: Blender create Mesh node Oak_leg.004
+18:04:02 | INFO: Blender create Mesh node Oak_leg.005
+18:04:02 | INFO: Blender create Mesh node Oak_leg.006
+18:04:02 | INFO: Blender create Mesh node Oak_leg.007
+18:04:02 | INFO: Blender create Mesh node Sage_seat_base
+18:04:02 | INFO: glTF import finished in 0.06s
+WORDBOUND_CHECK {"id": "STOOL", "format": "glb", "passed": true, "triangles": 1752, "max_bounds_error_metres": 2.3283064365386963e-10, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "FAN", "format": "fbx", "passed": true, "triangles": 3060, "max_bounds_error_metres": 8.940696716308594e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:04:03 | INFO: Data are loaded, start creating Blender stuff
+18:04:03 | INFO: Blender create Mesh node Torus.005
+18:04:03 | INFO: Blender create Mesh node Brass_grille_spoke
+18:04:03 | INFO: Blender create Mesh node Brass_grille_spoke.001
+18:04:03 | INFO: Blender create Mesh node Brass_grille_spoke.002
+18:04:03 | INFO: Blender create Mesh node Brass_grille_spoke.003
+18:04:03 | INFO: Blender create Mesh node Brass_grille_spoke.004
+18:04:03 | INFO: Blender create Mesh node Brass_grille_spoke.005
+18:04:03 | INFO: Blender create Mesh node Brass_grille_spoke.006
+18:04:03 | INFO: Blender create Mesh node Brass_grille_spoke.007
+18:04:03 | INFO: Blender create Mesh node Cube.056
+18:04:03 | INFO: Blender create Mesh node Torus.004
+18:04:03 | INFO: Blender create Mesh node Sphere.026
+18:04:03 | INFO: Blender create Mesh node Sphere.023
+18:04:03 | INFO: Blender create Mesh node Sphere.024
+18:04:03 | INFO: Blender create Mesh node Sphere.025
+18:04:03 | INFO: Blender create Mesh node Cube.057
+18:04:03 | INFO: Blender create Mesh node Sage_knob
+18:04:03 | INFO: Blender create Mesh node Sage_motor
+18:04:03 | INFO: Blender create Mesh node Sage_pedestal
+18:04:03 | INFO: glTF import finished in 0.08s
+WORDBOUND_CHECK {"id": "FAN", "format": "glb", "passed": true, "triangles": 3060, "max_bounds_error_metres": 2.9802322387695312e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+FBX version: 7400
+WORDBOUND_CHECK {"id": "CLOCK", "format": "fbx", "passed": true, "triangles": 2848, "max_bounds_error_metres": 3.725290298461914e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+18:04:04 | INFO: Data are loaded, start creating Blender stuff
+18:04:04 | INFO: Blender create Mesh node Sphere.027
+18:04:04 | INFO: Blender create Mesh node Cube.058
+18:04:04 | INFO: Blender create Mesh node Cube.059
+18:04:04 | INFO: Blender create Mesh node Cube.060
+18:04:04 | INFO: Blender create Mesh node Cube.061
+18:04:04 | INFO: Blender create Mesh node Cube.062
+18:04:04 | INFO: Blender create Mesh node Cube.063
+18:04:04 | INFO: Blender create Mesh node Cube.064
+18:04:04 | INFO: Blender create Mesh node Cube.065
+18:04:04 | INFO: Blender create Mesh node Cube.066
+18:04:04 | INFO: Blender create Mesh node Cube.067
+18:04:04 | INFO: Blender create Mesh node Cube.068
+18:04:04 | INFO: Blender create Mesh node Cube.069
+18:04:04 | INFO: Blender create Mesh node Cream_dial
+18:04:04 | INFO: Blender create Mesh node Cube.070
+18:04:04 | INFO: Blender create Mesh node Cube.071
+18:04:04 | INFO: Blender create Mesh node Oak_case
+18:04:04 | INFO: Blender create Mesh node Sphere.028
+18:04:04 | INFO: Blender create Mesh node Sphere.029
+18:04:04 | INFO: glTF import finished in 0.11s
+WORDBOUND_CHECK {"id": "CLOCK", "format": "glb", "passed": true, "triangles": 2848, "max_bounds_error_metres": 2.9802322387695312e-08, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "errors": []}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

@@ -1,0 +1,33 @@
+{
+  "status": "two-future-concepts-generated",
+  "images": [
+    {
+      "id": "ROPE",
+      "tool": "built-in image_gen",
+      "date": "2026-10-20",
+      "sourcePath": "C:\\Users\\mrkl6\\.codex\\generated_images\\01a1586d-30e6-7641-8cdc-bafe06839fb6\\exec-78bd6a56-f15e-4b64-863e-6aca7fec2812.png",
+      "path": "ROPE-concept-v1.png",
+      "sha256": "a0458ad6f10d0bbdfff26baf337e8da5028338002087b271fbaab1d5cdafbf4a",
+      "bytes": 1880559,
+      "width": 1536,
+      "height": 1024,
+      "copiedWithoutModification": true,
+      "status": "future-concept-only",
+      "inspection": "Inspected: complete front, side and angled views of a coherent cream rope coil with sage ends and terracotta bands. Clear toy-house silhouette. Lower silhouettes repeat view studies more than distinct alternatives; this is a future shape reference, not a model or working mechanic."
+    },
+    {
+      "id": "MAGNET",
+      "tool": "built-in image_gen",
+      "date": "2026-10-20",
+      "sourcePath": "C:\\Users\\mrkl6\\.codex\\generated_images\\01a1586d-30e6-7641-8cdc-bafe06839fb6\\exec-eb15d7c9-e529-4813-8f30-e6d700736af6.png",
+      "path": "MAGNET-concept-v1.png",
+      "sha256": "28015101f27ced90d2e7ff538a736892fe21f68d7568e9c73655cb19facd29ad",
+      "bytes": 1607859,
+      "width": 1536,
+      "height": 1024,
+      "copiedWithoutModification": true,
+      "status": "future-concept-only",
+      "inspection": "Inspected: complete consistent front, side and angled views with three distinct silhouette alternatives. Rounded terracotta U body, cream caps and sage grip clearly identify a magnet. Future concept only; no modeled or implemented attraction behavior."
+    }
+  ]
+}
