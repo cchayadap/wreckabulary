@@ -228,15 +228,18 @@ namespace Wreckabulary.OfflineGameplayTests
         IEnumerator SetBody(string id, Vector3 at, float yaw)
         {
             bool applied = false;
-            long prior = Frame.Progress.Tick;
+            long appliedAt = -1;
             setup.Enqueue(() => {
                 var body = controller.Bodies[id].Rigidbody;
                 Assert.IsFalse(body.isKinematic);
                 body.position = at; body.rotation = Quaternion.Euler(0, yaw, 0);
                 body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero;
-                body.WakeUp(); applied = true;
+                body.WakeUp(); appliedAt = Frame.Progress.Tick; applied = true;
             });
-            yield return Until(() => applied && Frame.Progress.Tick > prior, "Set up the authored receiver before physical transport", 5);
+            yield return Until(() => applied && Frame.Progress.Tick > appliedAt &&
+                SetupPoseObserved(at, Body(id), controller.Bodies[id].Rigidbody),
+                "Capture the authored receiver setup before physical transport", 5,
+                () => "requested=" + at.ToString("F3") + "; appliedAt=" + appliedAt + "; " + InteractionDetails(id));
         }
 
         IEnumerator SaveAndCheck(ResolvedCoursePhysicalSite site)

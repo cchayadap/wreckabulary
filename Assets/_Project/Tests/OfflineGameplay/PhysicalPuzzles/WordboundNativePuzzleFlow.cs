@@ -105,7 +105,11 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(content.Course.Hash, controller.CourseWorld.ManifestHash);
             Assert.AreEqual(1f / 60f, session.Runner.DeltaTime, .000001f);
             CollectionAssert.AreEquivalent(Frame.Bodies.Select(b => b.Id), controller.Bodies.Keys);
-            yield return SetPlayer(Vector(Body("keepsake:0").Position) + Vector3.back, 0);
+            yield return Ticks(3);
+            yield return SetPlayer(Vector(Body("keepsake:0").Position) + Vector3.back + Vector3.up * .03f, 0);
+            yield return Until(() => Reachable("keepsake:0"),
+                "Observe the canonical player within keepsake range and native line of sight", 5,
+                () => InteractionDetails("keepsake:0"));
             yield return Command(WordboundAction.TakeKeepsake, "keepsake:0");
             Assert.AreEqual(Actor, Team.KeepsakeCarrier);
             var firstSites = content.Course.Laps[0].Checkpoints.SelectMany(cp => cp.PuzzleIds)
@@ -162,7 +166,7 @@ namespace Wreckabulary.OfflineGameplayTests
         {
             movement = default;
             bool applied = false;
-            long prior = Frame.Progress.Tick;
+            long appliedAt = -1;
             setup.Enqueue(() => {
                 var body = controller.Bodies[Player.Id].Rigidbody;
                 body.position = position;
@@ -171,21 +175,66 @@ namespace Wreckabulary.OfflineGameplayTests
                 body.angularVelocity = Vector3.zero;
                 body.WakeUp();
                 setupMoves++;
+                appliedAt = Frame.Progress.Tick;
                 applied = true;
             });
-            yield return Until(() => applied && Frame.Progress.Tick > prior,
-                "Apply explicit host-only fixture setup pose", 5);
+            yield return Until(() => applied && Frame.Progress.Tick > appliedAt &&
+                SetupPoseObserved(position, Player, controller.Bodies[Player.Id].Rigidbody),
+                "Capture explicit host-only fixture setup pose in canonical state", 5,
+                () => "requested=" + position.ToString("F3") + "; appliedAt=" + appliedAt + "; " + InteractionDetails(""));
+        }
+
+        static bool SetupPoseObserved(Vector3 requested, WorldBodyState canonical, Rigidbody body)
+        {
+            Vector3 at = Vector(canonical.Position);
+            return new Vector2(at.x - requested.x, at.z - requested.z).sqrMagnitude <= .0225f &&
+                Mathf.Abs(at.y - requested.y) <= .4f && (at - body.position).sqrMagnitude <= .01f;
+        }
+
+        bool Reachable(string target)
+        {
+            var state = Frame.Bodies.SingleOrDefault(b => b.Id == target);
+            return state != null && state.Active && Player.Active &&
+                content.Mode.CanInteract(0, state.OwnerTeam, state.Protected) &&
+                Player.Position.DistanceSquared(state.Position) <= 9 &&
+                controller.PhysicsWorld.HasLineOfSight(Actor, Player.Position, state.Position);
+        }
+
+        string InteractionDetails(string target)
+        {
+            var player = Player;
+            var playerBody = controller.Bodies[player.Id];
+            string details = "tick=" + Frame.Progress.Tick + "; player=" + Vector(player.Position).ToString("F3") +
+                "; playerEngine=" + playerBody.Rigidbody.position.ToString("F3") +
+                "; playerActive=" + player.Active + "; playerVelocity=" + Vector(player.Velocity).ToString("F3");
+            var state = Frame.Bodies.SingleOrDefault(b => b.Id == target);
+            if (state == null) return details + "; target=" + target + " absent";
+            details += "; target=" + target + " at=" + Vector(state.Position).ToString("F3") +
+                "; active=" + state.Active + "; owner=" + state.OwnerTeam +
+                "; distance=" + Mathf.Sqrt(player.Position.DistanceSquared(state.Position)).ToString("F3") +
+                "; LOS=" + controller.PhysicsWorld.HasLineOfSight(Actor, player.Position, state.Position);
+            if (controller.Bodies.TryGetValue(target, out var targetBody))
+                details += "; targetEngine=" + targetBody.Rigidbody.position.ToString("F3");
+            var origin = Vector(player.Position) + Vector3.up * .75f;
+            var delta = Vector(state.Position) + Vector3.up * .75f - origin;
+            var hits = new RaycastHit[16];
+            int count = delta.sqrMagnitude < .000001f ? 0 : controller.PhysicsWorld.PhysicsScene.Raycast(
+                origin, delta.normalized, hits, delta.magnitude, ~0, QueryTriggerInteraction.Ignore);
+            return details + "; rayHits=" + string.Join(",", hits.Take(count).Select(hit =>
+                hit.collider.name + "@" + hit.distance.ToString("F3")));
         }
 
         IEnumerator Command(WordboundAction action, string target = "", int revision = 0, int slot = -1,
             string value = "", string expected = "Ok")
         {
+            string before = InteractionDetails(target);
             var command = controller.Submit(action, target, revision, slot, value);
             yield return Until(() => Frame.Commands.Frontiers[Actor] >= command.Sequence,
                 "Apply actual " + action + " command", 8);
             lastReceipt = Frame.Commands.Receipts.Single(r => r.ActorId == Actor && r.Sequence == command.Sequence);
             Assert.AreEqual(command.PayloadHash, lastReceipt.PayloadHash);
-            Assert.AreEqual(expected, lastReceipt.Effect.Code, action + " receipt");
+            Assert.AreEqual(expected, lastReceipt.Effect.Code,
+                action + " receipt; before: " + before + "; after: " + InteractionDetails(target));
         }
 
         IEnumerator Ticks(int count)
@@ -194,13 +243,14 @@ namespace Wreckabulary.OfflineGameplayTests
             yield return Until(() => Frame.Progress.Tick >= target, "Advance " + count + " native ticks", Math.Max(5, count / 30d));
         }
 
-        IEnumerator Until(Func<bool> complete, string operation, double seconds)
+        IEnumerator Until(Func<bool> complete, string operation, double seconds, Func<string> details = null)
         {
             double deadline = Time.realtimeSinceStartupAsDouble + seconds;
             while (!complete() && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
             { Healthy(); yield return null; }
             Healthy();
-            Assert.IsTrue(complete(), operation + " exceeded its deadline.");
+            Assert.IsTrue(complete(), operation + " exceeded its deadline." +
+                (details == null ? "" : " " + details()));
         }
 
         IEnumerator Wait(Task task, string operation, double seconds)
