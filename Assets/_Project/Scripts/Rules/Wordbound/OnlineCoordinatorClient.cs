@@ -222,6 +222,9 @@ namespace Wreckabulary.Rules.Wordbound
             Send("POST", MatchPath(match) + "/connection-state", new Dictionary<string, object> {
                 ["renew"] = leases.Select(lease => new Dictionary<string, object> {
                     ["playerId"] = lease.PlayerId, ["connectionId"] = lease.ConnectionId, ["connectionEpoch"] = lease.Epoch }).ToArray() }, true, null, ct);
+        internal Task<JsonNode> CheckpointAction(OnlineMatchExpectation match, string action, object body, CancellationToken ct) =>
+            Send("POST", MatchPath(match) + "/" + Valid(action, "^checkpoint-(claim|renew|open|begin|chunk|finalize|head|read)$"),
+                body, true, null, ct);
         static string RequiredKey(string key) => Valid(key, "^[A-Za-z0-9_-]{8,96}$");
     }
 }
