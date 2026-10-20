@@ -24,6 +24,11 @@ namespace Wreckabulary.Rules.Wordbound
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
             AtomicWrite(PathFor(snapshot.Course().Id, ".autosave.json"), snapshot.RecoveryJson, RecoveryBytes);
         }
+        public bool HasRecovery(string id)
+        {
+            string path = PathFor(id, ".autosave.json");
+            return File.Exists(path) || File.Exists(path + ".bak");
+        }
         public WorkshopSnapshot Recover(string id, out bool usedBackup)
         {
             string primary = PathFor(id, ".autosave.json");

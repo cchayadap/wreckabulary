@@ -167,18 +167,58 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(180, history.Current.Course().Zones.Single(zone => zone.Placement == "Fixed").FixedYaw);
         }
         [Test]
+        public void OutOfBoundsTransformsRollBackBeforeSnapshotPublication()
+        {
+            var history = History(); history.Select(new[] { "a" });
+            string before = history.Current.RecoveryJson;
+            Assert.Throws<ArgumentException>(() => history.Execute("Too far", draft =>
+                WorkshopCommands.Move(draft, new CoursePoint(CourseLimits.HorizontalMm + 500, 0, 0), false)));
+            Assert.AreEqual(before, history.Current.RecoveryJson);
+        }
+        [Test]
+        public void ZoneMinimumCannotBeCombinedWithProbabilisticPlacement()
+        {
+            var preset = WorkshopTemplates.Create(WorkshopTemplate.FreestyleWorld);
+            var history = new WorkshopHistory(preset.Snapshot);
+            string before = history.Current.RecoveryJson;
+            Assert.Throws<ArgumentException>(() => history.Execute("Invalid probability", draft =>
+            {
+                var zone = draft.Course.Zones.Single(item => item.Placement == "Random");
+                zone.MinCount = 1; zone.ChancePermille = 500;
+                WorkshopCommands.SetZone(draft, zone, preset.Catalogue);
+            }));
+            Assert.AreEqual(before, history.Current.RecoveryJson);
+        }
+        [Test]
+        public void PuzzleAndGateEditsRejectUnapprovedRecipesAndLockedConnections()
+        {
+            var preset = WorkshopTemplates.Create(WorkshopTemplate.RaceCircuit);
+            var history = new WorkshopHistory(preset.Snapshot);
+            Assert.Throws<ArgumentException>(() => history.Execute("Bad recipe", draft =>
+                WorkshopCommands.SetPuzzle(draft, new CoursePuzzle
+                { Id = "bad", ModuleId = "Start", PresetId = "PlaceObject", RecipeId = "DOWNLOAD", RequiredLetters = "DOWNLOAD" }, preset.Catalogue)));
+            history.Execute("Lock", draft => draft.LockedLayers.Add("Ground"));
+            Assert.Throws<InvalidOperationException>(() => history.Execute("Gate", draft => WorkshopCommands.Gate(draft, "UpA", "BedBridge")));
+        }
+        [Test]
         public void AutosaveFallsBackToPreviousValidSnapshotAndRejectsTraversalIds()
         {
             string folder = Path.Combine(Path.GetTempPath(), "wreckabulary-workshop-test-" + Guid.NewGuid().ToString("N"));
             try
             {
                 var store = new WorkshopStorage(folder); var history = History();
+                Assert.IsFalse(store.HasRecovery("workshop-test"));
                 store.Save(history.Current);
+                Assert.IsTrue(store.HasRecovery("workshop-test"));
                 history.Execute("Title", draft => draft.Course.Title = "Newer");
                 store.Save(history.Current);
                 File.WriteAllText(Path.Combine(folder, "workshop-test.autosave.json"), "interrupted save");
                 var recovered = store.Recover("workshop-test", out bool backup);
                 Assert.IsTrue(backup); Assert.AreEqual("Workshop test", recovered.Course().Title);
+                File.Delete(Path.Combine(folder, "workshop-test.autosave.json"));
+                Assert.IsTrue(store.HasRecovery("workshop-test"));
+                Assert.AreEqual("Workshop test", store.Recover("workshop-test", out backup).Course().Title);
+                Assert.IsTrue(backup);
                 Assert.Throws<ArgumentException>(() => store.Recover("../outside", out _));
                 string shared = store.SaveShare(history.Current);
                 Assert.IsTrue(File.Exists(shared));

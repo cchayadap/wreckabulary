@@ -200,6 +200,25 @@ namespace Wreckabulary.Rules.Wordbound
                 throw new ArgumentException("Choose a different existing prerequisite puzzle.");
             if (!puzzle.PrerequisiteIds.Contains(prerequisiteId)) puzzle.PrerequisiteIds.Add(prerequisiteId);
         }
+        public static void SetPuzzle(WorkshopDraft draft, CoursePuzzle puzzle, CourseCatalogue catalogue)
+        {
+            var module = draft.Course.Modules.Single(item => item.Id == puzzle.ModuleId);
+            if (draft.LockedLayers.Contains(module.LayerId)) throw new InvalidOperationException("Unlock the layer first.");
+            if (!catalogue.PuzzlePresets.Contains(puzzle.PresetId)) throw new ArgumentException("Choose an approved puzzle preset.");
+            if (!string.IsNullOrEmpty(puzzle.RecipeId) && (!catalogue.Assets.TryGetValue(puzzle.RecipeId, out var recipe) ||
+                !recipe.CanCraft || !LetterBag.FromWord(recipe.Letters).Equals(LetterBag.FromWord(puzzle.RequiredLetters))))
+                throw new ArgumentException("Puzzle letters must match an approved recipe.");
+            draft.Course.Puzzles.RemoveAll(item => item.Id == puzzle.Id); draft.Course.Puzzles.Add(puzzle);
+        }
+        public static void Connect(WorkshopDraft draft, CourseConnection connection)
+        {
+            var from = draft.Course.Modules.Single(module => module.Id == connection.FromModuleId);
+            var to = draft.Course.Modules.Single(module => module.Id == connection.ToModuleId);
+            if (from.Id == to.Id) throw new ArgumentException("Choose two distinct modules.");
+            if (draft.LockedLayers.Contains(from.LayerId) || draft.LockedLayers.Contains(to.LayerId))
+                throw new InvalidOperationException("Unlock both connected layers first.");
+            draft.Course.Connections.RemoveAll(item => item.Id == connection.Id); draft.Course.Connections.Add(connection);
+        }
         public static void Gate(WorkshopDraft draft, string connectionId, string puzzleId)
         {
             if (!draft.Course.Puzzles.Any(puzzle => puzzle.Id == puzzleId)) throw new ArgumentException("Choose an existing puzzle.");
