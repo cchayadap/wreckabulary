@@ -36,10 +36,29 @@ namespace Wreckabulary.OfflineGameplayTests
         readonly Dictionary<string, long> priorMotion = new Dictionary<string, long>();
         readonly Dictionary<string, int> slowedTicks = new Dictionary<string, int>();
         readonly HashSet<string> observedStages = new HashSet<string>();
+        readonly HashSet<string> observedActorArrivals = new HashSet<string>();
         int setupMoves;
         string sourceJson;
         CommandReceipt lastReceipt;
         string lastCrafted;
+        SetupObservation pendingSetup;
+        LaunchObservation pendingLaunch;
+
+        sealed class SetupObservation
+        {
+            public string BodyId;
+            public Vector3 Requested;
+            public long Epoch, AppliedAt = -1, ObservedAt = -1;
+            public string Failure = "";
+        }
+
+        sealed class LaunchObservation
+        {
+            public ResolvedCoursePhysicalSite Site;
+            public string ItemId;
+            public float MinimumVelocity;
+            public long Epoch, AfterTick, ObservedAt = -1;
+        }
 
         MatchSnapshot Frame => controller.Frame;
         TeamProgress Team => Frame.Progress.Teams.Single();
@@ -150,6 +169,19 @@ namespace Wreckabulary.OfflineGameplayTests
 
         void RecordFrame(MatchSnapshot frame)
         {
+            RecordSetup(frame);
+            var launch = pendingLaunch;
+            if (launch != null && launch.ObservedAt < 0 && frame.Epoch == launch.Epoch &&
+                frame.Progress.Tick > launch.AfterTick)
+            {
+                var actor = frame.Bodies.FirstOrDefault(b => b.Kind == WorldBodyKind.Player && b.SourceId == Actor);
+                var state = frame.Mechanisms.FirstOrDefault(m => m.Team == 0 && m.Lap == launch.Site.Lap - 1 &&
+                    m.PuzzleId == launch.Site.PuzzleId);
+                if (actor != null && actor.Active && actor.Velocity.Y > launch.MinimumVelocity && state != null &&
+                    state.Physical.Stage != MatchPhysicalStage.Waiting && state.Physical.ActorId == Actor &&
+                    state.Physical.SiteHash == launch.Site.Hash && state.ItemEntityId == launch.ItemId)
+                    launch.ObservedAt = frame.Progress.Tick;
+            }
             foreach (var mechanism in frame.Mechanisms.Where(m => m.Team == 0 && m.Lap == 0))
             {
                 if (priorMotion.TryGetValue(mechanism.PuzzleId, out long previous))
@@ -159,15 +191,23 @@ namespace Wreckabulary.OfflineGameplayTests
                         slowedTicks[mechanism.PuzzleId] = slowedTicks.TryGetValue(mechanism.PuzzleId, out int count) ? count + 1 : 1;
                 }
                 priorMotion[mechanism.PuzzleId] = mechanism.Physical.MotionUnits;
+                if (mechanism.Physical.Stage != MatchPhysicalStage.Waiting && mechanism.Physical.ActorId == Actor)
+                {
+                    var site = content.Course.PhysicalSites.FirstOrDefault(s => s.Lap == 1 &&
+                        s.PuzzleId == mechanism.PuzzleId && s.Hash == mechanism.Physical.SiteHash);
+                    var actor = frame.Bodies.FirstOrDefault(b => b.Kind == WorldBodyKind.Player && b.SourceId == Actor);
+                    if (site != null && actor != null && actor.Active && Inside(site.ArrivalBounds, Vector(actor.Position)))
+                        observedActorArrivals.Add(site.Hash);
+                }
             }
         }
 
         IEnumerator SetPlayer(Vector3 position, float yaw)
         {
             movement = default;
-            bool applied = false;
-            long appliedAt = -1;
+            var observation = BeginSetup(Player.Id, position);
             setup.Enqueue(() => {
+                if (!ReferenceEquals(pendingSetup, observation)) return;
                 var body = controller.Bodies[Player.Id].Rigidbody;
                 body.position = position;
                 body.rotation = Quaternion.Euler(0, yaw, 0);
@@ -175,13 +215,50 @@ namespace Wreckabulary.OfflineGameplayTests
                 body.angularVelocity = Vector3.zero;
                 body.WakeUp();
                 setupMoves++;
-                appliedAt = Frame.Progress.Tick;
-                applied = true;
+                observation.Epoch = Frame.Epoch;
+                observation.AppliedAt = Frame.Progress.Tick;
             });
-            yield return Until(() => applied && Frame.Progress.Tick > appliedAt &&
-                SetupPoseObserved(position, Player, controller.Bodies[Player.Id].Rigidbody),
-                "Capture explicit host-only fixture setup pose in canonical state", 5,
-                () => "requested=" + position.ToString("F3") + "; appliedAt=" + appliedAt + "; " + InteractionDetails(""));
+            try { yield return AwaitSetup(observation); }
+            finally { if (ReferenceEquals(pendingSetup, observation)) pendingSetup = null; }
+        }
+
+        SetupObservation BeginSetup(string bodyId, Vector3 requested)
+        {
+            Assert.IsNull(pendingSetup, "Fixture setup observations must be sequential.");
+            return pendingSetup = new SetupObservation { BodyId = bodyId, Requested = requested };
+        }
+
+        void RecordSetup(MatchSnapshot frame)
+        {
+            var observation = pendingSetup;
+            if (observation == null || observation.AppliedAt < 0 || observation.ObservedAt >= 0 ||
+                observation.Failure != "") return;
+            if (frame.Epoch != observation.Epoch)
+            {
+                observation.Failure = "Epoch changed before the setup pose was captured.";
+                return;
+            }
+            if (frame.Progress.Tick <= observation.AppliedAt) return;
+            var state = frame.Bodies.FirstOrDefault(b => b.Id == observation.BodyId);
+            if (frame.Progress.Tick == observation.AppliedAt + 1 && state != null &&
+                controller.Bodies.TryGetValue(observation.BodyId, out var body) && body != null &&
+                SetupPoseObserved(observation.Requested, state, body.Rigidbody))
+                observation.ObservedAt = frame.Progress.Tick;
+            else
+                observation.Failure = "First post-setup frame did not capture the requested pose: appliedAt=" +
+                    observation.AppliedAt + "; capturedAt=" + frame.Progress.Tick +
+                    "; requested=" + observation.Requested.ToString("F3") +
+                    "; canonical=" + (state == null ? "absent" : Vector(state.Position).ToString("F3"));
+        }
+
+        IEnumerator AwaitSetup(SetupObservation observation)
+        {
+            yield return Until(() => observation.ObservedAt >= 0 || observation.Failure != "",
+                "Capture fixture setup in the first completed host physics frame", 5,
+                () => "requested=" + observation.Requested.ToString("F3") + "; appliedAt=" +
+                    observation.AppliedAt + "; " + InteractionDetails(observation.BodyId));
+            Assert.AreEqual("", observation.Failure, InteractionDetails(observation.BodyId));
+            Assert.AreEqual(observation.AppliedAt + 1, observation.ObservedAt);
         }
 
         static bool SetupPoseObserved(Vector3 requested, WorldBodyState canonical, Rigidbody body)
@@ -307,6 +384,8 @@ namespace Wreckabulary.OfflineGameplayTests
             lifetime?.Cancel();
             movement = default;
             setup.Clear();
+            pendingSetup = null;
+            pendingLaunch = null;
             int failures = 0;
             Task stop = null;
             if (controller != null) controller.FrameChanged -= RecordFrame;
@@ -344,7 +423,7 @@ namespace Wreckabulary.OfflineGameplayTests
             }
             if (content != null) Assert.AreEqual(sourceJson, CourseJson.ExportDocument(content.Course.CopyDocument()));
             content = null; sourceJson = null; lastReceipt = null; lastCrafted = null;
-            setupMoves = 0; priorMotion.Clear(); slowedTicks.Clear(); observedStages.Clear();
+            setupMoves = 0; priorMotion.Clear(); slowedTicks.Clear(); observedStages.Clear(); observedActorArrivals.Clear();
             Assert.AreEqual(0, failures, "Every started operation and local runner must finish cleanup.");
             Assert.IsFalse(leaked, "Native puzzle test roots must not survive teardown.");
         }

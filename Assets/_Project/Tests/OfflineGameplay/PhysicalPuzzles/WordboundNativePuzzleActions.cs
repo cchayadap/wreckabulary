@@ -100,10 +100,17 @@ namespace Wreckabulary.OfflineGameplayTests
                 var pad = controller.Bodies[recipe];
                 float height = pad.GetComponent<BoxCollider>().size.y;
                 float launchStrength = content.Items.Get(puzzle.RecipeId).Deploy.Strength;
-                yield return SetPlayer(pad.Rigidbody.position + Vector3.up * (height + .02f), site.Yaw);
-                yield return Until(() => Player.Velocity.Y > launchStrength * .6f &&
-                    Mechanism(site).Physical.Stage != MatchPhysicalStage.Waiting,
-                    "Catalogue BED pad applies a real upward launch", 5);
+                var launch = new LaunchObservation { Site = site, ItemId = recipe, Epoch = Frame.Epoch,
+                    AfterTick = Frame.Progress.Tick, MinimumVelocity = launchStrength * .6f };
+                Assert.IsNull(pendingLaunch);
+                pendingLaunch = launch;
+                try
+                {
+                    yield return SetPlayer(pad.Rigidbody.position + Vector3.up * (height + .02f), site.Yaw);
+                    yield return Until(() => launch.ObservedAt > launch.AfterTick,
+                        "Capture actual upward BED velocity and bound physical evidence in the same host frame", 5);
+                }
+                finally { if (ReferenceEquals(pendingLaunch, launch)) pendingLaunch = null; }
                 yield return MoveIntoArrival(site, "Move the launched actor into the raised arrival volume", 8);
                 Assert.IsTrue(observedStages.Contains(site.PuzzleId + "/" + MatchPhysicalStage.Armed));
             }
@@ -206,13 +213,13 @@ namespace Wreckabulary.OfflineGameplayTests
         IEnumerator MoveIntoArrival(ResolvedCoursePhysicalSite site, string operation, double seconds)
         {
             double deadline = Time.realtimeSinceStartupAsDouble + seconds;
-            bool entered = false;
+            bool entered = observedActorArrivals.Contains(site.Hash);
             while (Mechanism(site).Physical.Stage != MatchPhysicalStage.Complete &&
                 Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
             {
                 Healthy();
                 Vector3 at = Vector(Player.Position), target = Metres(site.Target);
-                entered |= Inside(site.ArrivalBounds, at);
+                entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, at);
                 Vector2 delta = new Vector2(target.x - at.x, target.z - at.z);
                 Vector2 direction = delta.magnitude <= .08f ? Vector2.zero :
                     delta.normalized * Mathf.Clamp(delta.magnitude * .65f, .12f, .8f);
@@ -220,26 +227,26 @@ namespace Wreckabulary.OfflineGameplayTests
                 yield return null;
             }
             movement = default;
-            entered |= Inside(site.ArrivalBounds, Vector(Player.Position));
+            entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, Vector(Player.Position));
             Assert.AreEqual(MatchPhysicalStage.Complete, Mechanism(site).Physical.Stage, operation);
             Assert.IsTrue(entered, operation + " must include an observed actor position inside the authored volume.");
         }
 
         IEnumerator SetBody(string id, Vector3 at, float yaw)
         {
-            bool applied = false;
-            long appliedAt = -1;
+            var observation = BeginSetup(id, at);
             setup.Enqueue(() => {
+                if (!ReferenceEquals(pendingSetup, observation)) return;
                 var body = controller.Bodies[id].Rigidbody;
                 Assert.IsFalse(body.isKinematic);
                 body.position = at; body.rotation = Quaternion.Euler(0, yaw, 0);
                 body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero;
-                body.WakeUp(); appliedAt = Frame.Progress.Tick; applied = true;
+                body.WakeUp();
+                observation.Epoch = Frame.Epoch;
+                observation.AppliedAt = Frame.Progress.Tick;
             });
-            yield return Until(() => applied && Frame.Progress.Tick > appliedAt &&
-                SetupPoseObserved(at, Body(id), controller.Bodies[id].Rigidbody),
-                "Capture the authored receiver setup before physical transport", 5,
-                () => "requested=" + at.ToString("F3") + "; appliedAt=" + appliedAt + "; " + InteractionDetails(id));
+            try { yield return AwaitSetup(observation); }
+            finally { if (ReferenceEquals(pendingSetup, observation)) pendingSetup = null; }
         }
 
         IEnumerator SaveAndCheck(ResolvedCoursePhysicalSite site)
