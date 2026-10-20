@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "recordedUtc": "2026-10-20T18:33:00.2034334Z",
+  "runtime": "Actual Unity/Fusion/integration references; compilation passed as prerequisite to both test and Editor projects",
+  "tests": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "separateAssembly": true,
+    "result": "results/public-catalogue.trx"
+  },
+  "editor": {
+    "warnings": 0,
+    "errors": 0,
+    "seconds": 7.26
+  },
+  "notRun": [
+    "Unity native tests",
+    "Menu GUI interaction",
+    "Catalogue asset export and LaunchAssets assignment",
+    "Worker configuration or deployment",
+    "Public matchmaking activation"
+  ],
+  "hashes": [
+    {
+      "path": "C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/Library/ScriptAssemblies/Wreckabulary.Rules.dll",
+      "sha256": "2f683b60f00bc0e459fd5a4922b7c5a36a92de7eea9b925a2827f9c7fa7a9f17"
+    },
+    {
+      "path": "C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/Library/ScriptAssemblies/Wreckabulary.Online.Puzzles.dll",
+      "sha256": "d975b0b7629c1e4898402503008087feb285bd7b27a067357bfc1a3dee8c7de5"
+    },
+    {
+      "path": "C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/Library/ScriptAssemblies/Wreckabulary.dll",
+      "sha256": "8f6b3b128c982f7d490b33daea48a4bc44dfd212404a08ba410b51a47140b4cf"
+    },
+    {
+      "path": "BuildNotes/client-launcher/PublicCatalogue/bin/Runtime/netstandard2.1/Wordbound.PublicCatalogue.Reference.dll",
+      "sha256": "ecd8d14c2739625221ad1abeb97daf43b8e8f22bbf002bec284af1ce078039b7"
+    },
+    {
+      "path": "BuildNotes/client-launcher/PublicCatalogue/bin/Tests/net9.0/Tests.dll",
+      "sha256": "5a42ac0ce0cbe479cecc5dc8430bc789ce42257060e9243a46d7c853c63069e6"
+    },
+    {
+      "path": "BuildNotes/client-launcher/PublicCatalogue/bin/Editor/netstandard2.1/Editor.dll",
+      "sha256": "0308e00476fd7e415f0b494555f4a2b2a28be5196f7ddeb38e497ddf1e9e6acb"
+    }
+  ]
+}

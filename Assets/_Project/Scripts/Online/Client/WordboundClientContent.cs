@@ -76,6 +76,8 @@ namespace Wreckabulary.Online
         public WordboundPublicCourseRegistry(string approvedContentJson = "[]")
         {
             var node = OnlineJson.Parse(approvedContentJson);
+            if (node.IsObject)
+                node = OnlineJson.Parse(WordboundPublicCourseCatalog.Parse(approvedContentJson).BuiltinContentJson);
             if (!node.IsArray || node.Items.Count > 128) throw new ArgumentException("Invalid approved public course registry.");
             approved = new HashSet<string>(StringComparer.Ordinal);
             foreach (var entry in node.Items)

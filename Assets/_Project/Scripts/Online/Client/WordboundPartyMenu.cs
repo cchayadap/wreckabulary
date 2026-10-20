@@ -17,10 +17,12 @@ namespace Wreckabulary.Online
         WordboundHttpTransport transport;
         WordboundPartyCoordinator coordinator;
         WordboundPartyLaunchContext currentLaunch;
+        WordboundPublicCourseCatalog publicCourses;
+        string itemSource, ruleSource, privateSeed = "0123456789abcdef";
         string displayName = "Player", partyInvite = "", privateCode = "", seed = "0123456789abcdef";
         string localError, knownPartyRevision;
         int mode, region, format;
-        bool fill, launching, returning, customFillConsent;
+        bool fill, launching, returning, customFillConsent, customSeedMode;
         float nextPoll;
         Vector2 scroll;
         GUIStyle title, hint;
@@ -38,6 +40,10 @@ namespace Wreckabulary.Online
         {
             if (coordinator != null) throw new InvalidOperationException("The party menu is already initialized.");
             var trust = new WordboundClientTrust(publicTrustJson);
+            publicCourses = WordboundPublicCourseCatalog.Parse(approvedPublicContentJson);
+            publicCourses.RequireRelease(mapPoolVersion);
+            itemSource = actualItemsJson; ruleSource = actualRuleBookJson;
+            customSeedMode = publicCourses.IsClosed;
             transport = new WordboundHttpTransport(trust.Origin);
             coordinator = new WordboundPartyCoordinator(new OnlineCoordinatorClient(transport), trust.Verifier,
                 actualItemsJson, actualRuleBookJson, mapPoolVersion, new WordboundPublicCourseRegistry(approvedPublicContentJson));
@@ -151,7 +157,10 @@ namespace Wreckabulary.Online
                 DrawSettings();
                 if (coordinator.Party == null)
                 {
-                    if (GUILayout.Button("Create party")) Invoke(() => coordinator.CreateParty(SelectedSettings(), seed));
+                    bool enabled = GUI.enabled;
+                    GUI.enabled = enabled && (customSeedMode || publicCourses.Find(Modes[mode], Formats[format], seed) != null);
+                    if (GUILayout.Button("Create party")) Invoke(CreateParty);
+                    GUI.enabled = enabled;
                     GUILayout.Space(12); GUILayout.Label("Join a friend's party");
                     partyInvite = GUILayout.TextField(partyInvite, 160);
                     GUILayout.BeginHorizontal();
@@ -214,11 +223,7 @@ namespace Wreckabulary.Online
             }
             else fill = false;
             if (party == null)
-            {
-                GUILayout.Label("Map seed");
-                seed = GUILayout.TextField(seed, 16).ToLowerInvariant();
-                if (GUILayout.Button("New seed")) seed = Guid.NewGuid().ToString("N").Substring(0, 16);
-            }
+                DrawSeedSelection();
             else
             {
                 GUILayout.Label("Map seed: " + coordinator.Seed);
@@ -226,6 +231,55 @@ namespace Wreckabulary.Online
                     Invoke(() => coordinator.ChangeSettings(SelectedSettings()));
             }
             GUI.enabled = previous;
+        }
+        void DrawSeedSelection()
+        {
+            bool privateOnly = Modes[mode] == "Freestyle";
+            if (privateOnly)
+            {
+                customSeedMode = true;
+                GUILayout.Label("Freestyle uses private sessions.", hint);
+            }
+            else
+            {
+                bool nextCustom = GUILayout.SelectionGrid(customSeedMode ? 1 : 0,
+                    new[] { "Approved maps", "Custom / private seed" }, 2) == 1;
+                if (nextCustom != customSeedMode)
+                {
+                    customSeedMode = nextCustom;
+                    if (customSeedMode) seed = privateSeed;
+                }
+            }
+            if (customSeedMode)
+            {
+                GUILayout.Label("Private map seed");
+                privateSeed = GUILayout.TextField(privateSeed, 16).ToLowerInvariant();
+                if (GUILayout.Button("New private seed")) privateSeed = Guid.NewGuid().ToString("N").Substring(0, 16);
+                seed = privateSeed;
+                if (!privateOnly) GUILayout.Label("Custom seeds use private rooms. Quick Play requires an approved map.", hint);
+                return;
+            }
+            var choices = publicCourses.Choices(Modes[mode], Formats[format]);
+            if (choices.Count == 0)
+            {
+                GUILayout.Label("No approved public map for this mode yet. Choose a custom/private seed to create a private room.", hint);
+                return;
+            }
+            int selected = -1;
+            for (int i = 0; i < choices.Count; i++) if (choices[i].Seed == seed) selected = i;
+            int choice = GUILayout.SelectionGrid(selected,
+                choices.Select((course, i) => "Map " + (i + 1) + " · " + course.Seed).ToArray(), 1);
+            if (choice >= 0) seed = choices[choice].Seed;
+            if (choices.Count > 1 && GUILayout.Button("Random approved map"))
+                seed = choices[UnityEngine.Random.Range(0, choices.Count)].Seed;
+            if (choice < 0) GUILayout.Label("Select an approved map before creating the party.", hint);
+            else GUILayout.Label("This exact map and seed will be shared with your party.", hint);
+        }
+        Task CreateParty()
+        {
+            if (!customSeedMode)
+                _ = publicCourses.ResolveSelection(itemSource, ruleSource, Modes[mode], Formats[format], seed);
+            return coordinator.CreateParty(SelectedSettings(), seed);
         }
         OnlineSettings SelectedSettings() => coordinator.Settings(Modes[mode], Formats[format], fill, Regions[region]);
         void DrawParty()
@@ -288,7 +342,10 @@ namespace Wreckabulary.Online
                 if (GUILayout.Button("Quick Play")) Invoke(() => coordinator.Queue("QuickPlay"));
                 GUI.enabled = previous;
                 if (!coordinator.PublicAvailable)
-                    GUILayout.Label("Quick Play is unavailable: this course has not been registered as an approved public map.", hint);
+                    GUILayout.Label(party.Settings.Mode == "Freestyle" ? "Freestyle uses private sessions." :
+                        publicCourses.Choices(party.Settings.Mode, party.Settings.Format).Count == 0 ?
+                        "Quick Play has no approved maps for this mode yet. Use a private room." :
+                        "This seed is for private rooms. To use Quick Play, leave the party and choose an approved map.", hint);
                 if (party.Settings.Fill)
                 {
                     customFillConsent = GUILayout.Toggle(customFillConsent, "Also search private custom rooms that allow Fill");
@@ -320,6 +377,7 @@ namespace Wreckabulary.Online
             if (invite.PoolVersion != coordinator.PoolVersion) throw new InvalidOperationException("The room uses a different map release.");
             mode = Array.IndexOf(Modes, invite.Mode); region = Array.IndexOf(Regions, invite.Region);
             format = Array.IndexOf(Formats, invite.Format); seed = invite.Seed; fill = false;
+            privateSeed = invite.Seed; customSeedMode = true;
             return Task.CompletedTask;
         }
         void OnDestroy()

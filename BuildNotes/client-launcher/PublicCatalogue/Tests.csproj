@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework><LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IsTestProject>true</IsTestProject><IsPackable>false</IsPackable>
+    <IntegrationRoot Condition="'$(IntegrationRoot)' == ''">../../../../wordbound-integration</IntegrationRoot>
+    <UnityData Condition="'$(UnityData)' == ''">C:/Program Files/Unity/Hub/Editor/6000.6.3f1/Editor/Data</UnityData>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="Runtime.csproj" />
+    <Compile Include="../../../Assets/_Project/Scripts/Online/Client/Tests/WordboundPublicCourseCatalogTests.cs" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.dll" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Rules.dll" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/GameStudioKit.Determinism.dll" />
+    <Reference Include="$(IntegrationRoot)/Library/ScriptAssemblies/Wreckabulary.Online.Puzzles.dll" />
+    <Reference Include="$(UnityData)/Managed/UnityEngine/UnityEngine*.dll" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+  </ItemGroup>
+</Project>
