@@ -266,7 +266,8 @@ namespace Wreckabulary.Tests
             Code(f, WordboundAction.Equip, 0);
             int tiles = f.State.Economy.Tiles.Count;
             Code(f, WordboundAction.Attack); Active(f, f.Source.Catalogue.Get("BAT").Melee);
-            Assert.AreEqual(ItemState.Destroyed, Item(f, weapon).State);
+            Assert.IsFalse(f.State.Economy.Items.Any(i => "item:" + i.Id == weapon));
+            Assert.IsFalse(f.State.Bodies.Any(b => b.Id == weapon));
             Assert.AreEqual(tiles + 3, f.State.Economy.Tiles.Count);
             Assert.AreEqual(-1, Actor(f).EquippedSlot);
             Assert.IsNull(Actor(f).Attack);

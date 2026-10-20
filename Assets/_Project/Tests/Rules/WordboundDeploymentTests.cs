@@ -34,9 +34,8 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(ItemState.Deployed, Item(f.State, id).State);
             f.Step(command);
             Assert.AreEqual(expiry, f.Match.Tick);
-            Assert.AreEqual(ItemState.Destroyed, Item(f.State, id).State);
-            Assert.AreEqual(-1, Item(f.State, id).DeploymentTick);
-            Assert.IsFalse(f.State.Bodies.Single(b => b.Id == id).Active);
+            Assert.IsFalse(f.State.Economy.Items.Any(i => "item:" + i.Id == id));
+            Assert.IsFalse(f.State.Bodies.Any(b => b.Id == id));
             Assert.AreEqual(tiles + 3, f.State.Economy.Tiles.Count);
             f.Step(command);
             Assert.AreEqual(tiles + 3, f.State.Economy.Tiles.Count);
@@ -76,7 +75,8 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(imported.Snapshot.Progress.Tick, restored.Tick);
             restored.Advance(now + 17);
             var frame = restored.Capture(1);
-            Assert.AreEqual(ItemState.Destroyed, Item(frame, id).State);
+            Assert.IsFalse(frame.Economy.Items.Any(i => "item:" + i.Id == id));
+            Assert.IsFalse(frame.Bodies.Any(b => b.Id == id));
             Assert.AreEqual(tiles + (alreadyExpired ? 0 : 3), frame.Economy.Tiles.Count);
             restored.Advance(now + 34);
             Assert.AreEqual(frame.Economy.Tiles.Count, restored.Capture(1).Economy.Tiles.Count);
@@ -99,7 +99,8 @@ namespace Wreckabulary.Tests
             f.Advance((int)(old - f.Match.Tick));
             Assert.AreEqual(ItemState.Deployed, Item(f.State, id).State);
             f.Advance((int)(next - f.Match.Tick));
-            Assert.AreEqual(ItemState.Destroyed, Item(f.State, id).State);
+            Assert.IsFalse(f.State.Economy.Items.Any(i => "item:" + i.Id == id));
+            Assert.IsFalse(f.State.Bodies.Any(b => b.Id == id));
         }
 
         [Test]

@@ -92,6 +92,7 @@ namespace Wreckabulary.Rules.Wordbound
         public long Tick => progress.Tick;
         public long Epoch => journal.Epoch;
         public bool IsPaused => progress.Migrating || progress.Result != null || !commits.CanAdvance(Tick + 1);
+        readonly WordboundResourceLifecycle resourceLifecycle;
 
         public AuthoritativeMatch(MatchBinding binding, ModeDefinition mode, ResolvedCourse resolvedCourse,
             CourseCatalogue geometryCatalogue, ItemCatalogue itemCatalogue, GameRules gameRules,
@@ -107,6 +108,7 @@ namespace Wreckabulary.Rules.Wordbound
             if (rules.Mode != Mode.Id || rules.StarterLetters != "" || rules.MaxCarried > 8 || rules.Validate().Count != 0 ||
                 !CourseValidator.ValidateResolved(course, courseCatalogue, MatchStateValidation.Requirements(Mode)).Ok)
                 throw new ArgumentException("Authoritative content or gameplay rules are invalid.");
+            resourceLifecycle = new WordboundResourceLifecycle(course, Mode);
             WordboundCombatPolicy.Validate(rules.Unarmed);
             if (Mode.Recipes.Contains("BALL")) WordboundThrownPolicy.Stats(catalogue.Get("BALL"));
             WordboundCombatPolicy.Ticks(rules.StaggerImmunitySeconds);
@@ -315,6 +317,7 @@ namespace Wreckabulary.Rules.Wordbound
                 SettleThrows(Tick);
                 UpdateKeepsakes();
                 SetPermissions(Tick);
+                CompactDestroyedEntities();
                 EnsureCapacity();
                 return true;
             }
@@ -736,6 +739,7 @@ namespace Wreckabulary.Rules.Wordbound
                                     solved ? state.Physical : state.Physical.Reset());
                         }
                 }
+            RetireInactiveResources();
             foreach (var state in resources.Values.ToArray())
             {
                 int currentLap = CurrentLap(state.Team);
@@ -770,6 +774,7 @@ namespace Wreckabulary.Rules.Wordbound
             }
             SettleThrows(Tick);
             SetPermissions(Tick);
+            CompactDestroyedEntities();
         }
 
         void UpdateKeepsakes()
@@ -831,8 +836,9 @@ namespace Wreckabulary.Rules.Wordbound
         }
         IEnumerable<string> SourceAfterPuzzles(MatchResourceState state) =>
             course.Supplies.FirstOrDefault(s => s.Id == state.SourceId)?.AfterPuzzleIds ?? Array.Empty<string>();
-        bool SourceAvailable(MatchResourceState state) => SourceAfterPuzzles(state).All(id =>
-            Mode.IsRace && progress.Team(state.Team).CompletedPuzzles.Contains(id));
+        bool SourceAvailable(MatchResourceState state) =>
+            resourceLifecycle.Demanded(Mode.IsRace ? progress.Team(state.Team) : null, state) &&
+            SourceAfterPuzzles(state).All(id => Mode.IsRace && progress.Team(state.Team).CompletedPuzzles.Contains(id));
         bool WasSourceAvailable(MatchSnapshot before, MatchResourceState state) => before != null && SourceAfterPuzzles(state).All(id =>
             Mode.IsRace && before.Progress.Teams.Single(t => t.Team == state.Team).CompletedPuzzles.Contains(id));
         int CurrentLap(int team) => Mode.IsRace && team >= 0 ? Math.Min(progress.Team(team).Lap, 2) : 0;

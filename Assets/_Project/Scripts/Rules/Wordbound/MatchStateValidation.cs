@@ -159,6 +159,7 @@ namespace Wreckabulary.Rules.Wordbound
         static void ValidateResources(MatchSnapshot s, ResolvedCourse course, ModeDefinition mode)
         {
             var sources = Sources(course);
+            var lifecycle = new WordboundResourceLifecycle(course, mode);
             Need(s.Resources.Count == sources.Count * (mode.IsRace ? 3 : 1) &&
                 s.Resources.Select(r => ResourceKey(r.SourceId, r.Team, r.Lap)).Distinct(StringComparer.Ordinal).Count() == s.Resources.Count,
                 "Snapshot must include every static source, team and lap exactly once.");
@@ -171,6 +172,8 @@ namespace Wreckabulary.Rules.Wordbound
                     "Recovery source, team, lap or deadline is invalid.");
                 if (mode.IsRace && r.Team >= 0 && r.Lap != Math.Min(s.Progress.Teams.Single(t => t.Team == r.Team).Lap, 2))
                     Need(r.RecoveryAtTick == -1, "Inactive lap resources cannot retain a pending recovery deadline.");
+                if (!lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r))
+                    Need(r.RecoveryAtTick == -1, "Retired puzzle resources cannot retain a pending recovery deadline.");
             }
             foreach (var pair in sources)
             {
@@ -196,6 +199,7 @@ namespace Wreckabulary.Rules.Wordbound
             var items = s.Economy.ItemStates.ToDictionary(i => i.Id);
             var tiles = s.Economy.TileStates.ToDictionary(t => t.Key, t => t.Value);
             var sources = Sources(course);
+            var lifecycle = new WordboundResourceLifecycle(course, mode);
             var placements = course.Placements.ToDictionary(p => p.Id, StringComparer.Ordinal);
             var teams = new HashSet<int>(binding.Seats.Select(seat => seat.Team));
             for (int i = 0; i < binding.Seats.Count; i++)
@@ -228,7 +232,7 @@ namespace Wreckabulary.Rules.Wordbound
                     case WorldBodyKind.Item:
                         int itemId = Suffix(body.Id, "item:");
                         Need(items.TryGetValue(itemId, out var item) && (!item.IsGone || !body.Active), "World item has no matching economy state or active tombstone.");
-                        ValidateSource(body, sources, placements, s, mode);
+                        ValidateSource(body, sources, placements, s, mode, lifecycle);
                         if (body.SourceId == "" && item.Origin == ItemOrigin.Crafted)
                         {
                             Need(item.CrafterId >= 0 && item.CrafterId < binding.Seats.Count, "Crafted item needs a valid creator.");
@@ -239,7 +243,7 @@ namespace Wreckabulary.Rules.Wordbound
                     case WorldBodyKind.Tile:
                         int tileId = Suffix(body.Id, "tile:");
                         Need(tiles.TryGetValue(tileId, out char letter), "World letter has no matching economy entity.");
-                        ValidateSource(body, sources, placements, s, mode);
+                        ValidateSource(body, sources, placements, s, mode, lifecycle);
                         if (sources.TryGetValue(body.SourceId, out var source))
                             Need(source.Item3.IndexOf(letter) >= 0, "Letter does not belong to its recovery source.");
                         break;
@@ -276,7 +280,7 @@ namespace Wreckabulary.Rules.Wordbound
         }
 
         static void ValidateSource(WorldBodyState body, Dictionary<string, Tuple<int, bool, string>> sources,
-            Dictionary<string, ResolvedCoursePlacement> placements, MatchSnapshot s, ModeDefinition mode)
+            Dictionary<string, ResolvedCoursePlacement> placements, MatchSnapshot s, ModeDefinition mode, WordboundResourceLifecycle lifecycle)
         {
             if (body.SourceId == "")
             {
@@ -289,7 +293,7 @@ namespace Wreckabulary.Rules.Wordbound
             {
                 Need(body.OwnerTeam == source.Item1 && body.Protected == source.Item2 &&
                     s.Resources.Any(r => r.SourceId == body.SourceId && r.Team == body.OwnerTeam && r.Generation == body.RecoveryGeneration &&
-                        (!mode.IsRace || r.Lap <= Math.Min(s.Progress.Teams.Single(t => t.Team == r.Team).Lap, 2))),
+                        lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r)),
                     "Protected world object disagrees with its recovery source.");
                 return;
             }

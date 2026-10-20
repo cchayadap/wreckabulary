@@ -195,7 +195,8 @@ namespace Wreckabulary.Tests
             f.Advance((int)(expiry - f.Match.Tick - 1));
             Assert.DoesNotThrow(() => f.Match.Advance(f.State.Progress.WallClockMs + 17, hostMechanisms: new[]
                 { Observation(f, item, MatchPhysicalStage.Armed, start, (int)(expiry - start + 1), start) }));
-            Assert.AreEqual(ItemState.Destroyed, f.State.Economy.Items.Single(i => "item:" + i.Id == item).State);
+            Assert.IsFalse(f.State.Economy.Items.Any(i => "item:" + i.Id == item));
+            Assert.IsFalse(f.State.Bodies.Any(b => b.Id == item));
             Assert.AreEqual(MatchPhysicalStage.Waiting, f.State.Mechanisms.Single(m => m.PuzzleId == "BedBridge" && m.Lap == 0).Physical.Stage);
             f.Ack();
         }
