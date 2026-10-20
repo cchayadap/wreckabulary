@@ -135,3 +135,85 @@ Two probe preparation errors (noncanonical base64url fixture and an unawaited-ca
 No additional confirmed defect was found in the inspected gate or packet primitives. `OnlineSessionGate` is a local state machine operating on already-verified admissions and trusted migration presence; it does not itself implement live coordinator revocation or validate a signed migration snapshot. `OnlineSnapshotPacket` bounds/frames/compresses/checksums bytes; it does not authenticate their sender or validate game state. Correct authenticated callback routing, snapshot codec validation and coordinator return/reconnect races remain integration responsibilities and were not exercised by these primitive probes.
 
 Follow-up conclusion: both original findings are independently verified corrected in the exact local source versions listed above. This does not retroactively change their status at the original reviewed revision. Integration must bring in those fixes and run the native service/C# gates; this review makes no production or live-multiplayer acceptance claim.
+
+## Connection lease and Fusion binding review — COMPLETE; F3/F4 FIX VERIFICATION PENDING
+
+Assigned scope: exact committed change `3f5a655` → `39047cc` in `wordbound-online`. Review return/admit/migration races, signed host and Photon identity binding, fail-closed lease expiry, duplicate/replay/renewal handling, and end-to-end session mapping. Later commits are outside this initial checkpoint unless explicitly recorded. Source is read-only; only this report may be edited. Bounded in-memory reproductions are permitted; no Unity, deployment, external service or source mutation.
+
+The implementation's declared revocation model is a 15-second connection lease renewed/polled every five seconds, not tick-atomic coordinator return. An authenticated roster host consumes each peer's one-use connection ticket and secret. The coordinator cannot independently attest which Photon participant became the selected transport host. These are review context and trust boundaries, not passing results.
+
+### F3 — P2: an old admission failure can stop the replacement host session
+
+At `39047cc`, `WordboundFusionSession.Admit` captures its runner before awaiting coordinator authorization and correctly ignores a successful result after runner replacement. Its exception path instead calls `Fail(error)` whenever the captured runner is no longer current. `Fail` freezes the current gate and authority. An outstanding HTTP request from the pre-migration runner can therefore stop the newly migrated session when that old request times out or fails. Its unconditional `finally { authorizing.Remove(player); }` also removes a replacement runner's pending guard if that runner reused the same `PlayerRef`.
+
+Independent reproduction compiled the exact committed `Admit` method body in memory with controlled runner, verifier and pending HTTP dependencies. Begin a remote admission, replace the runner while authorization awaits, establish the replacement player's authorization marker, and complete the old request with an exception. A success control uses the same interleaving.
+
+```text
+lateFailure=True currentSessionFailure=InvalidOperationException newAdmissions=0 newAuthorizationMarker=False oldDisconnects=0
+lateFailure=False currentSessionFailure= newAdmissions=0 newAuthorizationMarker=False oldDisconnects=0
+```
+
+This executes the production method body but uses dependency doubles; it is not a native Fusion migration run. The online implementation owner independently found the same lifecycle issue while specifying migration tests. One finding is recorded, not two independent bugs counted for the overlapping reports.
+
+Required correction: scope pending operations and their cleanup to the captured runner/session generation; discard stale success, failure and finally effects. Inspect the other startup, ticket, renewal and checkpoint awaits under the same rule. The owner also identified related unfenced startup/ticket/shared-operation flags; those additional paths have not yet been independently executed here.
+
+Independent coordinator method probes at this same commit used the real TypeScript model/pool source, in-memory transactional storage and a signer double. They do not test actual Cloudflare scheduling or RSA signatures:
+
+```json
+{
+  "sameRetryClaims": true,
+  "oneUse": "WB:403:INVALID_CONNECTION_TICKET",
+  "renewedLease": 1020000,
+  "replacedEpoch": "2",
+  "staleRenewPreservedNewLease": true,
+  "returnReplay": "WB:409:RECONNECT_EXPIRED",
+  "returned": true,
+  "returnEpoch": "3",
+  "returnLease": 0
+}
+```
+
+### F4 — P1: the joining client does not authenticate the room host as a roster member
+
+At `39047cc`, the client branch of `WordboundFusionSession.OnReliableDataReceived` sets `localAdmitted=true` and sends Ready when an `Admitted` message contains the expected roster hash. The wire payload carries no signed connection authorization, host identity, or fresh connection challenge. `Begin` similarly checks only readiness and that hash. The server path verifies each client's Photon identity and coordinator grant, but there is no corresponding application check that the joining client's server is an authorized original roster member.
+
+A known room name is `wb-<match UUID>-<generation>`. If an authenticated outsider creates that room before the legitimate host, it can send the expected hash to advance the victim's admission. Disabling client session creation in the legitimate client's configuration does not authenticate the room creator. This exceeds the declared trust in an authorized roster member acting as listen host. The online implementation owner independently agreed this is outside that trust model.
+
+The exact committed callback method was compiled in memory with controlled runner/wire dependencies. Delivering an Admitted payload containing only the correct roster hash, with no host proof, produces:
+
+```text
+hostProofSupplied=False
+localAdmitted=True
+readyMessages=1
+failure=
+```
+
+This confirms the application acceptance boundary. Actual outsider room precreation, Photon configuration, provider/dashboard behavior, and native transport exploitation were NOT RUN; no claim of an observed deployed exploit is made.
+
+Required correction: verify a coordinator-signed proof binding the original-roster host, this client, exact match and a fresh per-connection client nonce before Ready or accepting gameplay replicas. The implementation owner proposed returning the signed `wordbound-connection` authorization to the client and pinning its nonce. This prevents an outsider without roster authorization from satisfying the admission proof; it does not eliminate malicious or colluding authorized listen hosts.
+
+### Additional coverage and limits for this checkpoint
+
+Exact reviewed online revision: `39047cc2aaf6e9032aa2c85a9dd128dc8c550ffa`. Source was read with `git show`; later owner edits to `WordboundFusionSession.cs` do not change these findings.
+
+| Boundary | Work performed and result |
+| --- | --- |
+| Connection linearization | Inspected transactional ticket consumption, exact request-hash retry, per-seat epoch replacement, return/disconnect invalidation, caller membership and renewal host/ID/epoch matching. Independent method probes above passed. Return winning before authorization rejects; authorization winning first may remain locally usable only within its old lease, as explicitly declared. |
+| Signed lease | Inspected pinned RS256 verification, separate audience, exact match/generation/roster/player/host/connection binding, positive epoch, 15-second lifetime and exclusive deadline. Re-executed owner's `ConnectionAuthorizationPinsHostTransportAndExclusiveLease` test: PASS. F4 is missing client consumption of this proof, not a failure in its signature verifier. |
+| Host callback identity | Inspected use of `GetPlayerUserId` and transport token, fixed roster seat admission, duplicate local-seat exclusion, active-runner/player checks after successful authorization, and two independent reconnect gates. Found F3 on stale failure/cleanup. |
+| Revocation and expiry | Inspected `Renew`, `RefreshConnectionState`, `Poll`, and `Revoke`. Complete roster and binding are checked before lease mutation; returned/replaced/expired seats are disconnected. Renew failures retain only the old deadline; the owner requires `Poll` every frame. No native scheduling or service-outage experiment was run here. |
+| Queued commands after Return/disconnect | Independently queued a real facade command before each transition, then advanced the engine-free authority. Both produced one `NotAlive` receipt and no gameplay action. Disconnect/Return disables domain permission before queued commands execute. Migration also clears the command queue. |
+| Migration presence and readiness | Re-executed owner gate tests for all-original-seat readiness, identity replacement, exclusive reconnect deadline and terminal Return across restore: PASS. Inspected exact snapshot-carrier validation and newer domain epoch restore. Actual carrier durability/weaving/callback ordering is outside this read-only review. |
+| Wire and route bounds | Inspected strict new route schemas, self-issued tickets, at most eight unique renewals, fixed routes, connection ID/secret formats, bounded reliable messages and signed-token limits. Existing pinned-origin transport remains unchanged. |
+
+The three owner lease/gate tests ran from existing `Tools/RulesHarness/bin/Debug/net9.0/RulesHarness.dll` (SHA-256 `F72A7A37322E51A3AC3B7DBFDA661BC26FDE71654AA6E74018B83CCFDD590E87`) and `Wreckabulary.Rules.dll` (`32470A4CF6108FD5DD18353662E00F46424199E97C8933E283235CE9CE96F9E3`). These are re-executions of owner tests, not independent test authorship.
+
+The queued-command probes used the existing post-`b06deb5` bridge test fixture, whose production facade is unchanged from `39047cc`: `BuildNotes/online/FusionCompile/bin/Debug/net9.0/FusionCompile.dll` SHA-256 `3433695E0BB93A26B726074A7BE59032E6E1010578281B4294313381C5289E23`; companion rules DLL `0022A959B38C5E4F46B94BD62EAEC565AA22ED7537CBA735B3B1086BDCCAC28B`. Results:
+
+```text
+Return:     Advanced=True, Receipt.Sequence=1, Receipt.Effect.Code=NotAlive
+Disconnect: Advanced=True, Receipt.Sequence=1, Receipt.Effect.Code=NotAlive
+```
+
+F3 and F4 remain confirmed at this checkpoint; their fixes are owned by the online lane and are not yet independently verified. No additional confirmed lease/replay/queued-command defect was found in the coverage above. This report does not approve live authentication, deployed service configuration, native migration, or physics. Next recoverable action: verify the owner's committed lifecycle fencing and nonce-bound client host-proof corrections with the same failing probes and corresponding native integration gates.
+
