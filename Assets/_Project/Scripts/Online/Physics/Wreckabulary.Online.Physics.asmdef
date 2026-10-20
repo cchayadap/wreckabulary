@@ -1,0 +1,12 @@
+{
+  "name": "Wreckabulary.Online.Physics",
+  "rootNamespace": "Wreckabulary.Online",
+  "references": [
+    "Wreckabulary",
+    "Wreckabulary.Rules",
+    "Wreckabulary.Online.Fusion",
+    "Fusion.Unity",
+    "Fusion.Addons.Physics"
+  ],
+  "autoReferenced": true
+}
