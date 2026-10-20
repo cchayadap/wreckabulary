@@ -1,13 +1,13 @@
 # Native acceptance fixture review
 
-STATUS: IN PROGRESS
+STATUS: SOURCE REVIEW AND AUTHORIZED FIXTURES COMPLETE; NATIVE PENDING
 
 Read-only source review of root integration native fixtures, HUD/player-view/launcher consumers, and Online's pending all-mode public entry fixture. No production edits, compiler or Unity execution. This report distinguishes assertions present in source from runtime evidence and human acceptance.
 
-- [~] Actual public allocator, authenticated actor binding and gameplay readiness.
-- [~] HUD target selection and defensive input/focus handling.
-- [~] Course asset edit, exact preview/play, return and persistence.
-- [ ] Highest-value bounded native additions and exact source pins.
+- [x] Actual public allocator, authenticated actor binding and gameplay readiness inspected.
+- [x] HUD target selection fixed in source; defensive input/focus native gap recorded.
+- [x] Course asset edit, exact preview/play, return and persistence fixture authored.
+- [x] Highest-value bounded native additions and exact source pins recorded.
 
 Findings will be appended when confirmed. Existing green logs are not extended by this source review.
 
@@ -29,3 +29,18 @@ New local filter: `Wreckabulary.OfflineGameplayTests.WordboundNativeAuthoredLaun
 - Public entry draft uses real QuickPlay, signed roster verification, Photon custom authentication, actual client movement and committed command transport. It isolates the pool deliberately; this does not establish production population availability. TimeRun's native case uses a preformed two-human party; independent Fill joining is separate service evidence. Freestyle currently checks no-damage/no-timer/no-result policy, not an attempted attack or completed practice station. Online agreed to accurate test naming and explicit 600000ms timeouts.
 - Add a real HUD shield case with crafted/equipped shield: refresh Hold longer than one lease, observe canonical raise transition, then spell/menu/focus loss/slot change and assert Release or bounded canonical expiry. Direct domain defense tests do not cover the HUD's dispatch and focus lifecycle.
 - Preserve physical fixture labels: six-family setup may reposition bodies before actual sensor observation, and the exact checkpoint import proves persisted evidence. This is not a full human three-lap route completion.
+
+## Handoff and exact source pins
+
+Real delta commits: 13293b5 (practice assertion), 4818576 (HUD discovery/LOS, accessor and actual two-peer fixture), 236cd27 (saved asset launcher fixture). `git diff --check` passed. No compilation, deployment, Photon call or Unity run was performed in this review.
+
+| Source | SHA256 at review |
+| --- | --- |
+| HUD corrected | 5763ED9113C1939FBDB284FC079FBAACC978D138477D62458324914B3754A743 |
+| Controller read-only accessor | E6755EE8AD9A76ECEA7876EC4F43AFF6F3B5A49E70B20D46FB5AA878EC74856C |
+| Native HUD interaction fixture | 23C626206C3913EC7AC99D8DFD48879628C54ABE9C48A6333422E2FFFCF72A48 |
+| Native saved asset launcher fixture | 65069CE58D5BFED673EAA7FA90D62F19CADC54C77EDCE34326204F435701F749 |
+| Online working LiveMatch | 4FD7E80AAD01344144AC7E6B7F9AB6D5104958C859CCE86FCAD72EB30FDAD6B7 |
+| Online working PublicEntry fixture | 73C88FFDB0D7BF11DED506558A43AA014281AC29C5FD510FFD1BEDEAD7629D30 |
+
+Next action: combine the new partial fixture with Online's Run seam, reference-compile these exact sources, then run the saved asset local case and authenticated HUD case separately from public allocator acceptance. Root owns all native execution and shared Workshop/LauncherHost work. Human camera/control/editor acceptance remains pending even if these fixtures pass.
