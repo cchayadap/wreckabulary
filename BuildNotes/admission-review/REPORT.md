@@ -217,3 +217,29 @@ Disconnect: Advanced=True, Receipt.Sequence=1, Receipt.Effect.Code=NotAlive
 
 F3 and F4 remain confirmed at this checkpoint; their fixes are owned by the online lane and are not yet independently verified. No additional confirmed lease/replay/queued-command defect was found in the coverage above. This report does not approve live authentication, deployed service configuration, native migration, or physics. Next recoverable action: verify the owner's committed lifecycle fencing and nonce-bound client host-proof corrections with the same failing probes and corresponding native integration gates.
 
+### F3 repair verification — IN PROGRESS
+
+The implementation owner supplied an uncommitted per-run scope repair. Captured session source SHA-256: `5170630DF80894AF47834E310E593B01DC1317D6770A224D81765BCFC8DC3B30`. The independent probe compiled the exact `RunScope`, current-run helpers and `Admit` method in memory with controlled dependencies.
+
+```text
+lateFailure=True  currentSessionFailure= newAdmissions=0 newAuthorizationMarker=True oldMarker=False oldDisconnects=0
+lateFailure=False currentSessionFailure= newAdmissions=0 newAuthorizationMarker=True oldMarker=False oldDisconnects=0
+```
+
+The old admission success/failure and same-player cleanup defect is corrected in that captured source. Broader source review found one remaining terminal-state path: `Fail` does not invalidate the run, and `BeginAfterCheckpoint` checks Failure only before awaiting publication. The checkpoint continuation can therefore restore readiness after a concurrent terminal failure. The exact `BeginAfterCheckpoint` and `Fail` method bodies with a deferred publication dependency reproduced:
+
+```text
+failure=TimeoutException gameplayReady=True authorityTransportReady=True gateFrozen=True
+```
+
+This demonstrates contradictory terminal/UI/transport readiness, not that domain gameplay actually advances through the frozen gate. The concrete production trigger is a host lease failure while checkpoint push awaits; publication's post-push guard also omits the Failure check. The owner received this residual for correction before F3 is marked fully verified.
+
+The owner then changed terminal failure to set Failure and invalidate the active run before freezing. Independent repeat against captured source SHA-256 `EBF9359498933FBF3EDB57B62C66B92C82D266658D5C58A12147AE6620E8101D` passes all three interleavings:
+
+```text
+lateFailure=True  currentSessionFailure= newAdmissions=0 newAuthorizationMarker=True oldMarker=False
+lateFailure=False currentSessionFailure= newAdmissions=0 newAuthorizationMarker=True oldMarker=False
+failure=TimeoutException gameplayReady=False authorityTransportReady=False gateFrozen=True
+```
+
+This verifies F3 and its terminal-state residual in that exact captured local source. A committed revision pin and broader owner lifecycle harness are pending. F4 host proof remains pending implementation/independent verification.
