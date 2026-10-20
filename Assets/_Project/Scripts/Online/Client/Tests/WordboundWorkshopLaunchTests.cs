@@ -32,7 +32,8 @@ namespace Wreckabulary.Online.Tests
             Assert.AreSame(preview.Manifest, content.Course);
             Assert.AreEqual(draft.Seed, content.Course.Seed);
             Assert.AreEqual(CourseJson.Sha256(draft.CourseJsonText), content.Course.SourceHash);
-            Assert.AreEqual(modeId == "TimeRun" ? 72 : 0, content.Plan.Sites.Count);
+            Assert.AreEqual(72, content.Plan.Sites.Count, "Freestyle retains the authored stations for canonical practice.");
+            if (modeId == "Freestyle") Assert.IsEmpty(content.Course.Laps, "Practice must not create race progression.");
         }
 
         [Test]
