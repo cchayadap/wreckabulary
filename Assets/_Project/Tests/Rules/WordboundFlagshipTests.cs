@@ -123,9 +123,68 @@ namespace Wreckabulary.Rules.Tests
                         Assert.LessOrEqual(pad.Max.Z, site.Position.Z + item.SizeMm.Z / 2);
                     }
                 }
+                if (site.PresetId == "TimedMechanism")
+                {
+                    var arm = site.Fixtures.Single();
+                    Assert.Less(arm.From.X, site.Position.X); Assert.Greater(arm.To.X, site.Position.X);
+                    Assert.Greater(arm.From.Z, site.Position.Z); Assert.Less(arm.From.Z, site.Target.Z);
+                    Assert.AreEqual(arm.From.Z, arm.To.Z);
+                    foreach (var endpoint in new[] { arm.From, arm.To })
+                    {
+                        Assert.IsTrue(room.Contains(new CoursePoint(endpoint.X - arm.SizeMm.X / 2, endpoint.Y,
+                            endpoint.Z - arm.SizeMm.Z / 2)));
+                        Assert.IsTrue(room.Contains(new CoursePoint(endpoint.X + arm.SizeMm.X / 2, endpoint.Y + arm.SizeMm.Y,
+                            endpoint.Z + arm.SizeMm.Z / 2)));
+                        double x = endpoint.X - site.Position.X, z = endpoint.Z - site.Position.Z;
+                        Assert.Less(Math.Sqrt(x * x + z * z) / 1000, content.Equipment.Single(e => e.Id == "CLOCK").Radius);
+                    }
+                    Assert.That(arm.PeriodTicks, Is.InRange(60, 3600));
+                }
             }
             Assert.AreEqual(12, content.PuzzleSites.Select(s => s.PropSourceZoneId).Where(id => id.Length > 0).Distinct().Count());
             Assert.AreEqual(12, content.PuzzleSites.Select(s => s.WindReceiverZoneId).Where(id => id.Length > 0).Distinct().Count());
+            Assert.AreEqual(12, content.PuzzleSites.SelectMany(s => s.Fixtures).Select(f => f.Id).Distinct().Count());
+        }
+
+        [Test]
+        public void CanonicalDocumentPersistsTheExactPhysicalSitesAndIsolatesDraftEdits()
+        {
+            var content = Content(); var d = content.CopyDocument();
+            Assert.AreEqual(2, d.Schema); Assert.AreEqual(72, d.PhysicalSites.Count);
+            var imported = CourseJson.ImportDocument(CourseJson.ExportDocument(d));
+            Assert.IsTrue(imported.Success, string.Join("\n", imported.Issues));
+            Assert.AreEqual(CourseJson.ExportDocument(d), CourseJson.ExportDocument(imported.Document));
+            foreach (var site in content.PuzzleSites)
+            {
+                var persisted = imported.Document.PhysicalSites.Single(s => s.Lap == site.Lap && s.PuzzleId == site.PuzzleId);
+                Assert.AreEqual(site.CheckpointId, persisted.CheckpointId);
+                Assert.AreEqual(site.RecoverySupplyId, persisted.RecoverySupplyId);
+                Assert.AreEqual(site.ToolRecoverySupplyId, persisted.ToolRecoverySupplyId);
+                Assert.AreEqual(site.ToolRecipeId, persisted.ToolRecipeId);
+                Assert.AreEqual(site.PropSourceZoneId, persisted.PropSourceZoneId);
+                Assert.AreEqual(site.WindReceiverZoneId, persisted.WindReceiverZoneId);
+                Assert.AreEqual(site.WindReceiverRecipeId, persisted.WindReceiverRecipeId);
+                Assert.AreEqual(site.ReceiverRecoverySupplyId, persisted.ReceiverRecoverySupplyId);
+                Assert.AreEqual(site.Position, persisted.Position); Assert.AreEqual(site.Target, persisted.Target);
+                Assert.AreEqual(site.SocketRadiusMm, persisted.SocketRadiusMm);
+                Assert.AreEqual(site.YawTolerance, persisted.YawTolerance);
+                Assert.AreEqual(site.HoldTicks, persisted.HoldTicks);
+                Assert.AreEqual((int)(site.ActiveWindowSeconds * ModeDefinition.TickRate), persisted.ActiveWindowTicks);
+                Assert.AreEqual(site.FloorPadBounds.Count, persisted.FloorPadBounds.Count);
+                Assert.AreEqual(site.Fixtures.Count, persisted.Fixtures.Count);
+                foreach (var fixture in site.Fixtures)
+                {
+                    var copy = persisted.Fixtures.Single(f => f.Id == fixture.Id);
+                    Assert.AreEqual(fixture.From, copy.From); Assert.AreEqual(fixture.To, copy.To);
+                    Assert.AreEqual(fixture.SizeMm, copy.SizeMm);
+                    Assert.AreEqual(fixture.PeriodTicks, copy.PeriodTicks);
+                    Assert.AreEqual(fixture.PhaseTicks, copy.PhaseTicks);
+                }
+            }
+            string original = CourseJson.ExportDocument(content.CopyDocument());
+            imported.Document.PhysicalSites[0].Position = new CoursePoint(1, 2, 3);
+            imported.Document.PhysicalSites.Clear();
+            Assert.AreEqual(original, CourseJson.ExportDocument(content.CopyDocument()));
         }
 
         [Test]
@@ -138,6 +197,18 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(originalJson, CourseJson.ExportDocument(content.CopyDocument()));
             Assert.AreEqual(originalHash, content.Hash);
             Assert.AreNotEqual(content.Hash, WordboundFlagshipContent.Create(items).Hash);
+        }
+
+        [Test]
+        public void AuthoredFixtureChangesAlterTheResolvedContentIdentity()
+        {
+            var content = Content(); var original = Resolve(content); var edited = content.CopyDocument();
+            edited.PhysicalSites.First(s => s.Fixtures.Count > 0).Fixtures[0].PhaseTicks++;
+            var result = CourseResolver.Resolve(edited, content.Geometry,
+                new CourseResolveRequest(original.Seed, Play("TimeRun")));
+            Assert.IsTrue(result.Success, string.Join("\n", result.Issues));
+            Assert.AreNotEqual(original.SourceHash, result.Manifest.SourceHash);
+            Assert.AreNotEqual(original.Hash, result.Manifest.Hash);
         }
 
         [Test]
@@ -175,6 +246,7 @@ namespace Wreckabulary.Rules.Tests
         public void ActualResolvedRoutesRetainRequiredLengthAndEvolvingLaps(string mode, RaceFormat format)
         {
             var content = Content(); var course = Resolve(content, mode, format);
+            Assert.AreEqual(72, course.PhysicalSites.Count);
             var measures = WordboundFlagshipRoutes.Measure(course);
             Assert.AreEqual(3, measures.Count);
             Assert.That(measures[0].AuthoredMetres, Is.InRange(751d, 752d));
@@ -236,6 +308,7 @@ namespace Wreckabulary.Rules.Tests
             foreach (var recovery in d.RecoveryAnchors) recovery.Position = Half(recovery.Position);
             foreach (var supply in d.Supplies) supply.Position = Half(supply.Position);
             d.Zones.Clear(); d.ReservedVolumes.Clear();
+            d.PhysicalSites.Clear(); d.Schema = 1;
             var geometry = new CourseCatalogue(new[] { new CourseModuleDefinition("FlagshipRoom", 12000, 12000, 6000) },
                 content.Geometry.Assets.Values, content.Geometry.PuzzlePresets, content.Geometry.Themes, content.Geometry.NarrativeEvents);
             var resolved = CourseResolver.Resolve(d, geometry, new CourseResolveRequest("0123456789abcdef", Play("TimeRun")));

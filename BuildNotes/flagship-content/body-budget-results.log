@@ -1,0 +1,26 @@
+TimeRun/Solo/4: initial=111, tiles=37, items=57, platforms=12, resources=294, canonicalBytes=156582
+  lap 1: available supply letters after all selected puzzles=174
+  lap 2: available supply letters after all selected puzzles=181
+  lap 3: available supply letters after all selected puzzles=170
+  three-lap refill scenario: base=74, retained supply tiles=525, required crafted tombstones=72, total=671; plus unused marked-prop letters=731; unchanged reconciliation limit=512
+  Estimate assumes each unlocked supply has recovered before leaving its lap; it is not a played simulation or a universal maximum. Optional crafting, extra recoveries, expired deployments and destroyed random props add more bodies.
+Freestyle/Solo/8: initial=102, tiles=37, items=57, platforms=0, resources=98, canonicalBytes=73118
+Freestyle has no three-lap bound; repeated recovery/crafting may accumulate item bodies indefinitely.
+TeamRace/Squad/8: initial=222, tiles=74, items=114, platforms=24, resources=588, canonicalBytes=311995
+  lap 1: available supply letters after all selected puzzles=348
+  lap 2: available supply letters after all selected puzzles=362
+  lap 3: available supply letters after all selected puzzles=340
+  three-lap refill scenario: base=148, retained supply tiles=1050, required crafted tombstones=144, total=1342; plus unused marked-prop letters=1462; unchanged reconciliation limit=512
+  Estimate assumes each unlocked supply has recovered before leaving its lap; it is not a played simulation or a universal maximum. Optional crafting, extra recoveries, expired deployments and destroyed random props add more bodies.
+BrawlRace/Squad/8: initial=165, tiles=74, items=57, platforms=24, resources=588, canonicalBytes=275533
+  lap 1: available supply letters after all selected puzzles=348
+  lap 2: available supply letters after all selected puzzles=362
+  lap 3: available supply letters after all selected puzzles=340
+  three-lap refill scenario: base=91, retained supply tiles=1050, required crafted tombstones=144, total=1285; plus unused marked-prop letters=1345; unchanged reconciliation limit=512
+  Estimate assumes each unlocked supply has recovered before leaving its lap; it is not a played simulation or a universal maximum. Optional crafting, extra recoveries, expired deployments and destroyed random props add more bodies.
+TimeRun/Solo/1: initial=108, tiles=37, items=57, platforms=12, resources=294, canonicalBytes=153666
+  lap 1: available supply letters after all selected puzzles=174
+  lap 2: available supply letters after all selected puzzles=181
+  lap 3: available supply letters after all selected puzzles=170
+  three-lap refill scenario: base=71, retained supply tiles=525, required crafted tombstones=72, total=668; plus unused marked-prop letters=728; unchanged reconciliation limit=512
+  Estimate assumes each unlocked supply has recovered before leaving its lap; it is not a played simulation or a universal maximum. Optional crafting, extra recoveries, expired deployments and destroyed random props add more bodies.

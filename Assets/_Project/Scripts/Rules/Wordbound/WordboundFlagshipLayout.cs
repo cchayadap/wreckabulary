@@ -36,7 +36,7 @@ namespace Wreckabulary.Rules.Wordbound
         CourseDocument Build(List<WordboundFlagshipDestination> destinations, List<WordboundFlagshipRoom> rooms,
             List<WordboundFlagshipPuzzleSite> sites, List<WordboundFlagshipStoryBeat> story)
         {
-            var d = new CourseDocument { Id = CourseId, Title = "The Lost Address",
+            var d = new CourseDocument { Schema = 2, Id = CourseId, Title = "The Lost Address",
                 SupportedModes = new List<string> { "TimeRun", "TeamRace", "BrawlRace", "Freestyle" } };
             for (int floor = 0; floor < 4; floor++)
             {

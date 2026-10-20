@@ -63,6 +63,29 @@ namespace Wreckabulary.Rules.Wordbound
             BitConverter.SingleToInt32Bits(BreakPower) };
     }
 
+    public sealed class WordboundFlagshipMovingFixture
+    {
+        public string Id { get; }
+        public CoursePoint From { get; }
+        public CoursePoint To { get; }
+        public CoursePoint SizeMm { get; }
+        public int PeriodTicks => 240;
+        public int PhaseTicks { get; }
+        internal WordboundFlagshipMovingFixture(int lap, string puzzleId, CoursePoint control, int crossingDistance)
+        {
+            Id = "Arm_" + puzzleId;
+            int crossing = Math.Max(500, crossingDistance * 2 / 3);
+            From = new CoursePoint(control.X - 900, control.Y, control.Z + crossing);
+            To = new CoursePoint(control.X + 900, control.Y, control.Z + crossing);
+            SizeMm = new CoursePoint(600, 1200, 200);
+            PhaseTicks = (lap - 1) * 80;
+        }
+        internal CourseMovingFixture ToDocumentFixture() => new CourseMovingFixture
+        { Id = Id, From = From, To = To, SizeMm = SizeMm, PeriodTicks = PeriodTicks, PhaseTicks = PhaseTicks };
+        internal object[] Values() => new object[] { Id, From.X, From.Y, From.Z, To.X, To.Y, To.Z,
+            SizeMm.X, SizeMm.Y, SizeMm.Z, PeriodTicks, PhaseTicks };
+    }
+
     public sealed class WordboundFlagshipPuzzleSite
     {
         public int Lap { get; }
@@ -84,6 +107,7 @@ namespace Wreckabulary.Rules.Wordbound
         public CourseBox ArrivalBounds { get; }
         public CourseBox ReceiverStartBounds { get; }
         public IReadOnlyList<CourseBox> FloorPadBounds { get; }
+        public IReadOnlyList<WordboundFlagshipMovingFixture> Fixtures { get; }
         public int Yaw => 0;
         public int SocketRadiusMm => 250;
         public int YawTolerance => 15;
@@ -117,6 +141,9 @@ namespace Wreckabulary.Rules.Wordbound
             } : Array.Empty<CourseBox>());
             ActiveWindowSeconds = puzzle.PresetId == "TimedMechanism"
                 ? Math.Min(3, equipment.LifetimeSeconds / 2) : 0;
+            Fixtures = Array.AsReadOnly(puzzle.PresetId == "TimedMechanism"
+                ? new[] { new WordboundFlagshipMovingFixture(lap, puzzle.Id, at, distance) }
+                : Array.Empty<WordboundFlagshipMovingFixture>());
         }
         static CourseBox Box(CoursePoint at, int x, int lowerY, int z, int upperY) => new CourseBox(
             new CoursePoint(at.X - x, at.Y + lowerY, at.Z - z), new CoursePoint(at.X + x, at.Y + upperY, at.Z + z));
@@ -126,7 +153,21 @@ namespace Wreckabulary.Rules.Wordbound
             WindReceiverZoneId, WindReceiverRecipeId, ReceiverRecoverySupplyId,
             Position.X, Position.Y, Position.Z, Target.X, Target.Y, Target.Z, BitConverter.SingleToInt32Bits(ActiveWindowSeconds),
             Yaw, SocketRadiusMm, YawTolerance, HoldTicks, Bounds(ArrivalBounds), Bounds(ReceiverStartBounds),
-            FloorPadBounds.Select(box => (object)Bounds(box)).ToArray() };
+            FloorPadBounds.Select(box => (object)Bounds(box)).ToArray(), Fixtures.Select(f => (object)f.Values()).ToArray() };
+        internal CoursePhysicalSite ToDocumentSite() => new CoursePhysicalSite
+        {
+            Lap = Lap, PuzzleId = PuzzleId, CheckpointId = CheckpointId, RecoverySupplyId = RecoverySupplyId,
+            ToolRecoverySupplyId = ToolRecoverySupplyId, ToolRecipeId = ToolRecipeId,
+            PropSourceZoneId = PropSourceZoneId, WindReceiverZoneId = WindReceiverZoneId,
+            WindReceiverRecipeId = WindReceiverRecipeId, ReceiverRecoverySupplyId = ReceiverRecoverySupplyId,
+            Position = Position, Target = Target, Yaw = Yaw, SocketRadiusMm = SocketRadiusMm,
+            YawTolerance = YawTolerance, HoldTicks = HoldTicks,
+            ActiveWindowTicks = checked((int)Math.Round(ActiveWindowSeconds * ModeDefinition.TickRate)),
+            ArrivalBounds = PresetId == "BuildRoute" || PresetId == "RedirectWind" || PresetId == "TimedMechanism"
+                ? ArrivalBounds : default,
+            ReceiverStartBounds = PresetId == "RedirectWind" ? ReceiverStartBounds : default,
+            FloorPadBounds = FloorPadBounds.ToList(), Fixtures = Fixtures.Select(f => f.ToDocumentFixture()).ToList()
+        };
     }
 
     public sealed partial class WordboundFlagshipContent
@@ -178,6 +219,7 @@ namespace Wreckabulary.Rules.Wordbound
             var sites = new List<WordboundFlagshipPuzzleSite>();
             var story = new List<WordboundFlagshipStoryBeat>();
             var document = Build(destinations, rooms, sites, story);
+            document.PhysicalSites.AddRange(sites.Select(site => site.ToDocumentSite()));
             documentJson = CourseJson.ExportDocument(document);
             Destinations = destinations.AsReadOnly(); Rooms = rooms.AsReadOnly();
             PuzzleSites = sites.AsReadOnly(); Story = story.AsReadOnly();
