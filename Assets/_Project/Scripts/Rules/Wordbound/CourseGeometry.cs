@@ -48,10 +48,13 @@ namespace Wreckabulary.Rules.Wordbound
                     bool boundaryB = c.To.X == b.Min.X || c.To.X == b.Max.X || c.To.Z == b.Min.Z || c.To.Z == b.Max.Z;
                     if (!c.From.Equals(c.To) || !boundaryA || !boundaryB)
                         v.Add("door.wall", "$.connections", c.Id, "Walking connections join the same point on two shared floor-level walls.");
-                    long overlapX = Math.Min(a.Max.X, b.Max.X) - (long)Math.Max(a.Min.X, b.Min.X);
-                    long overlapZ = Math.Min(a.Max.Z, b.Max.Z) - (long)Math.Max(a.Min.Z, b.Min.Z);
-                    if (Math.Max(overlapX, overlapZ) < c.WidthMm)
-                        v.Add("door.width", "$.connections", c.Id, "The shared wall is too short for this doorway.");
+                    int half = (c.WidthMm + 1) / 2;
+                    bool onXWall = (a.Max.X == b.Min.X && c.From.X == a.Max.X || a.Min.X == b.Max.X && c.From.X == a.Min.X) &&
+                        c.From.Z >= Math.Max(a.Min.Z, b.Min.Z) + half && c.From.Z <= Math.Min(a.Max.Z, b.Max.Z) - half;
+                    bool onZWall = (a.Max.Z == b.Min.Z && c.From.Z == a.Max.Z || a.Min.Z == b.Max.Z && c.From.Z == a.Min.Z) &&
+                        c.From.X >= Math.Max(a.Min.X, b.Min.X) + half && c.From.X <= Math.Min(a.Max.X, b.Max.X) - half;
+                    if (!onXWall && !onZWall)
+                        v.Add("door.width", "$.connections", c.Id, "Keep the full doorway width inside the shared wall.");
                 }
                 if (c.Kind == "Stairs" || c.Kind == "Ramp")
                 {
@@ -135,13 +138,17 @@ namespace Wreckabulary.Rules.Wordbound
             if (d.Zones.Sum(z => (long)z.MaxCount) * Math.Max(1, play.TeamCount) + d.Supplies.Count * Math.Max(1, play.TeamCount) > CourseLimits.Entities)
                 v.Add("entities.limit", "$.zones", d.Id, "Maximum resolved entity count exceeds the bound.");
             foreach (var reserved in d.ReservedVolumes)
-                if (!ValidBox(reserved.Bounds) || !new[] { "Path", "Spawn", "Checkpoint", "Landing", "Recovery" }.Contains(reserved.Reason))
+                if (!ValidBox(reserved.Bounds) || reserved.Bounds.Min.Y == reserved.Bounds.Max.Y ||
+                    !new[] { "Path", "Spawn", "Checkpoint", "Landing", "Recovery" }.Contains(reserved.Reason))
                     v.Add("reserved.invalid", "$.reservedVolumes", reserved.Id, "Use a bounded volume and approved reserve reason.");
             if (!v.Ok) return;
             var allOpen = new HashSet<string>(puzzles.Keys, StringComparer.Ordinal);
             string start = d.Spawns.FirstOrDefault(s => s.Kind == "Start")?.ModuleId;
             if (start == null || Reachable(d, start, allOpen).Count != modules.Count)
                 v.Add("geometry.disconnected", "$.connections", d.Id, "All modules must be reachable from a start when gates are open.");
+            if (play.Capability != CourseCapability.Circuit && d.Spawns.Select(s => s.ModuleId).Distinct().Any(
+                id => Reachable(d, id, new HashSet<string>(StringComparer.Ordinal)).Count != modules.Count))
+                v.Add("geometry.spawnTrap", "$.connections", d.Id, "Arena and exploration spawns need access to all modules without required race gates.");
         }
 
         static void ValidateLocation(string id, string moduleId, CoursePoint position, int margin, string path,
@@ -155,17 +162,20 @@ namespace Wreckabulary.Rules.Wordbound
         { long dx = (long)a.X - b.X, dz = (long)a.Z - b.Z; return dx * dx + dz * dz; }
         internal static HashSet<string> Reachable(CourseDocument d, string start, HashSet<string> completed)
         {
+            var adjacency = d.Modules.ToDictionary(m => m.Id, m => new List<string>(), StringComparer.Ordinal);
+            foreach (var edge in d.Connections)
+            {
+                if (!string.IsNullOrEmpty(edge.GatePuzzleId) && !completed.Contains(edge.GatePuzzleId)) continue;
+                adjacency[edge.FromModuleId].Add(edge.ToModuleId);
+                if (edge.Bidirectional) adjacency[edge.ToModuleId].Add(edge.FromModuleId);
+            }
             var seen = new HashSet<string>(StringComparer.Ordinal) { start };
             var queue = new Queue<string>(); queue.Enqueue(start);
             while (queue.Count > 0)
             {
                 string current = queue.Dequeue();
-                foreach (var edge in d.Connections)
-                {
-                    if (!string.IsNullOrEmpty(edge.GatePuzzleId) && !completed.Contains(edge.GatePuzzleId)) continue;
-                    string next = edge.FromModuleId == current ? edge.ToModuleId : edge.Bidirectional && edge.ToModuleId == current ? edge.FromModuleId : null;
-                    if (next != null && seen.Add(next)) queue.Enqueue(next);
-                }
+                foreach (string next in adjacency[current])
+                    if (seen.Add(next)) queue.Enqueue(next);
             }
             return seen;
         }

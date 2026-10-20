@@ -15,7 +15,10 @@ namespace Wreckabulary.Rules.Wordbound
             { result.Validation.Add("request.invalid", "$", "", "Provide a lowercase 64-bit hexadecimal seed and 1–16 attempts."); return result; }
             result.Validation.AddRange(CourseValidator.Validate(document, catalogue, request.Play).Issues);
             if (!result.Validation.Ok) return result;
-            var frozen = document.Clone();
+            CourseDocument frozen;
+            try { frozen = document.Clone(); }
+            catch (Exception e) when (e is ArgumentException || e is FormatException)
+            { result.Validation.Add("document.bounds", "$", document.Id, e.Message); return result; }
             var data = new CourseManifestData
             {
                 Seed = request.Seed, Document = frozen, SourceHash = CourseJson.Sha256(CourseJson.ExportDocument(frozen)),

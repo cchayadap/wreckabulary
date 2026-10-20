@@ -204,6 +204,7 @@ namespace Wreckabulary.Rules.Wordbound
         public string Seed => Data.Seed;
         public int Attempt => Data.Attempt;
         public int GeneratorVersion => Data.GeneratorVersion;
+        public int CanonicalVersion => Data.CanonicalVersion;
         public int Schema => Data.Schema;
         public string RngVersion => Data.RngVersion;
         public CoursePlayRequirements Play { get; }

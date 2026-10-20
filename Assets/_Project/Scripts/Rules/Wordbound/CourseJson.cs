@@ -13,7 +13,7 @@ namespace Wreckabulary.Rules.Wordbound
     public static class CourseJson
     {
         static readonly UTF8Encoding Utf8 = new UTF8Encoding(false, true);
-        static readonly Regex Number = new Regex(@"\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\z");
+        static readonly Regex Number = new Regex(@"\A-?(?:0|[1-9][0-9]*)\z");
 
         public static CourseImportResult ImportDocument(string json)
         {

@@ -72,7 +72,7 @@ namespace Wreckabulary.Rules.Wordbound
             int width = module.Yaw % 180 == 0 ? definition.WidthMm : definition.DepthMm;
             int depth = module.Yaw % 180 == 0 ? definition.DepthMm : definition.WidthMm;
             return new CourseBox(new CoursePoint(module.Position.X - width / 2, module.Position.Y, module.Position.Z - depth / 2),
-                new CoursePoint(module.Position.X + width / 2, module.Position.Y + definition.HeightMm, module.Position.Z + depth / 2));
+                new CoursePoint(module.Position.X + (width + 1) / 2, module.Position.Y + definition.HeightMm, module.Position.Z + (depth + 1) / 2));
         }
     }
 }

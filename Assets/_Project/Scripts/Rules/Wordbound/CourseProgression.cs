@@ -9,11 +9,15 @@ namespace Wreckabulary.Rules.Wordbound
         static void ValidateProgression(CourseDocument d, CourseCatalogue catalogue, CoursePlayRequirements play, CourseValidation v)
         {
             var done = new HashSet<string>(StringComparer.Ordinal);
-            for (int pass = 0; pass < d.Puzzles.Count; pass++)
+            var unmet = d.Puzzles.ToDictionary(p => p.Id, p => p.PrerequisiteIds.Count, StringComparer.Ordinal);
+            var successors = d.Puzzles.ToDictionary(p => p.Id, p => new List<string>(), StringComparer.Ordinal);
+            foreach (var puzzle in d.Puzzles)
+                foreach (string prerequisite in puzzle.PrerequisiteIds) successors[prerequisite].Add(puzzle.Id);
+            var ready = new Queue<string>(d.Puzzles.Where(p => p.PrerequisiteIds.Count == 0).Select(p => p.Id));
+            while (ready.Count > 0)
             {
-                int before = done.Count;
-                foreach (var p in d.Puzzles) if (p.PrerequisiteIds.All(done.Contains)) done.Add(p.Id);
-                if (done.Count == before) break;
+                string id = ready.Dequeue(); done.Add(id);
+                foreach (string next in successors[id]) if (--unmet[next] == 0) ready.Enqueue(next);
             }
             if (done.Count != d.Puzzles.Count) v.Add("puzzle.cycle", "$.puzzles", d.Id, "Puzzle prerequisites contain a cycle.");
             foreach (var section in d.RouteSections)
@@ -66,9 +70,10 @@ namespace Wreckabulary.Rules.Wordbound
         {
             var trail = new List<string> { entry };
             string current = entry;
+            var edges = d.Connections.ToDictionary(e => e.Id, StringComparer.Ordinal);
             foreach (string id in connectionIds)
             {
-                var edge = d.Connections.FirstOrDefault(e => e.Id == id);
+                edges.TryGetValue(id, out var edge);
                 string next = edge == null ? null : edge.FromModuleId == current ? edge.ToModuleId :
                     edge.Bidirectional && edge.ToModuleId == current ? edge.FromModuleId : null;
                 if (next == null) { v.Add("route.connection", "$.routeSections", owner, "Connection " + id + " does not continue the route."); return null; }
@@ -108,11 +113,16 @@ namespace Wreckabulary.Rules.Wordbound
         {
             if (data.Play.ToRequirements().Capability != CourseCapability.Circuit) return;
             var d = data.Document;
+            var checkpoints = d.Checkpoints.ToDictionary(c => c.Id, StringComparer.Ordinal);
+            var puzzles = d.Puzzles.ToDictionary(p => p.Id, StringComparer.Ordinal);
+            var supplies = d.Supplies.ToDictionary(s => s.Id, StringComparer.Ordinal);
+            var anchors = d.RecoveryAnchors.ToDictionary(r => r.Id, StringComparer.Ordinal);
+            var connections = d.Connections.ToDictionary(c => c.Id, StringComparer.Ordinal);
             foreach (var lap in data.Laps)
             {
                 if (lap.CheckpointIds.Count == 0 || lap.CheckpointIds.Distinct(StringComparer.Ordinal).Count() != lap.CheckpointIds.Count ||
                     lap.CheckpointSteps.LastOrDefault() != lap.ConnectionIds.Count ||
-                    d.Checkpoints.Single(c => c.Id == lap.CheckpointIds.Last()).ModuleId != lap.FinishModuleId)
+                    checkpoints[lap.CheckpointIds.Last()].ModuleId != lap.FinishModuleId)
                 { v.Add("lap.checkpoints", "$.laps", lap.Number.ToString(), "A lap needs distinct ordered checkpoints ending at its finish."); continue; }
                 var trail = Trail(d, lap.StartModuleId, lap.ConnectionIds, v, lap.Number.ToString());
                 if (trail == null) continue;
@@ -125,10 +135,10 @@ namespace Wreckabulary.Rules.Wordbound
                 {
                     while (cpIndex < lap.CheckpointIds.Count && lap.CheckpointSteps[cpIndex] == step)
                     {
-                        var checkpoint = d.Checkpoints.Single(c => c.Id == lap.CheckpointIds[cpIndex]);
+                        var checkpoint = checkpoints[lap.CheckpointIds[cpIndex]];
                         foreach (string id in checkpoint.PuzzleIds)
                         {
-                            var puzzle = d.Puzzles.Single(p => p.Id == id);
+                            var puzzle = puzzles[id];
                             if (done.Contains(id)) { v.Add("puzzle.repeated", "$.laps", id, "A required puzzle appears twice in this lap."); continue; }
                             var reachable = Reachable(d, trail[step], done);
                             var safeReachable = Reachable(d, safeModule, done);
@@ -144,9 +154,10 @@ namespace Wreckabulary.Rules.Wordbound
                             var recovery = new LetterBag();
                             foreach (string supplyId in puzzle.RecoverySupplyIds)
                             {
-                                var supply = d.Supplies.Single(s => s.Id == supplyId);
+                                var supply = supplies[supplyId];
                                 if (supply.Protected && supply.Renewable && supply.AfterPuzzleIds.All(done.Contains) &&
-                                    reachable.Contains(supply.ModuleId) && safeReachable.Contains(supply.ModuleId))
+                                    reachable.Contains(supply.ModuleId) && safeReachable.Contains(supply.ModuleId) &&
+                                    Reachable(d, supply.ModuleId, done).Contains(puzzle.ModuleId))
                                     recovery.Add(LetterBag.FromWord(supply.Letters));
                             }
                             if (!recovery.Contains(needed))
@@ -157,15 +168,17 @@ namespace Wreckabulary.Rules.Wordbound
                             { v.Add("resource.prefix", "$.laps", id, "Not enough letters at this progression prefix."); continue; }
                             inventory.Add(LetterBag.FromWord(puzzle.RewardLetters));
                             done.Add(id);
+                            if (!Reachable(d, puzzle.ModuleId, done).Contains(trail[step]))
+                                v.Add("puzzle.return", "$.laps", id, "Completing the puzzle must allow return to its route checkpoint.");
                         }
-                        var anchor = d.RecoveryAnchors.Single(r => r.Id == checkpoint.RecoveryAnchorId);
+                        var anchor = anchors[checkpoint.RecoveryAnchorId];
                         if (!anchor.AfterPuzzleIds.All(done.Contains) || !Reachable(d, trail[step], done).Contains(anchor.ModuleId) ||
                             !Reachable(d, anchor.ModuleId, done).Contains(trail[step]))
                             v.Add("recovery.unreachable", "$.laps", checkpoint.Id, "Recovery must remain reachable and allow return to the checkpoint.");
                         safeModule = anchor.ModuleId; cpIndex++;
                     }
                     if (step == lap.ConnectionIds.Count) break;
-                    var connection = d.Connections.Single(c => c.Id == lap.ConnectionIds[step]);
+                    var connection = connections[lap.ConnectionIds[step]];
                     if (!string.IsNullOrEmpty(connection.GatePuzzleId) && !done.Contains(connection.GatePuzzleId))
                     { v.Add("gate.prefix", "$.laps", connection.Id, "The selected route crosses a gate before completing its puzzle."); break; }
                 }
