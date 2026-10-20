@@ -140,3 +140,33 @@ No additional confirmed player-build blocker was found in the bounded remaining 
 - Scene index 0 is Hub. LobbyMenu installs a runtime scene hook plus AfterSceneLoad fallback to create the real lobby component. OpenWordbound uses the registered WordboundLobby scene, whose serialized launcher script GUID matches WordboundLauncher. The registered gameplay scene and Resources/GameData plus Resources/Wordbound/LaunchAssets are present; the latter carries the actual body-prefab/trust references.
 
 Root reports native profile creation/readback and source/native compilation passed. This reviewer did not run those gates or launch/build a player. The corrected registration's standalone startup, actual QA assembly inclusion, release exclusion, rendering and captured UI remain pending player-build/runtime evidence. Read-only inspection used local source/assets, bounded installed editor metadata reads and official Unity documentation; no SDK/source/asset mutation occurred.
+
+## Wordbound audio-listener ownership review — 2026-10-21
+
+STATUS: IN PROGRESS
+
+Root requested a bounded read-only trace of actual local/online play and Return while the Windows QA build runs. Scope is the owned player camera, serialized lobby/gameplay scenes, client/launcher lifecycle and existing game audio. No Unity, compiler, external request or production source edit is performed.
+
+STATUS: BOUNDED SOURCE REVIEW COMPLETE — STALE LISTENER TRANSFORM CONFIRMED; NO AUDIO RUNTIME CLAIM
+
+Reviewed integration HEAD `4a0bbfafb4b5ff942736637ce116974beef8c2e9` plus the current source bytes below. `WordboundLobby.unity:192–209` has one enabled AudioListener on the enabled lobby-camera GameObject at position (0,0,0). `WordboundPlayerView.Initialize:42–44` creates only a Camera; its LateUpdate moves that camera to the local actor, and destruction removes only the owned camera. Both WordboundMatchClient:73 and WordboundLocalMatchClient:54 use that owned-camera path. Launcher:80/160 disables only LobbyCamera.enabled after startup; its error/Return paths re-enable only that Camera. No code transfers or disables the separate AudioListener component. Therefore the listener remains at the world origin during both local and online play.
+
+No duplicate or missing listener is established in the ordinary launcher path: the lobby listener remains present throughout, and the gameplay scene/native body prefabs contain no listener. Return restores the visual lobby camera while its listener never moved. Session.Load uses single-scene loading, and no inspected runtime path persists an earlier scene camera. A directly created client with no listener-bearing scene would not create a listener, but that is not the shipped launcher path and is not reported as an additional product defect.
+
+Current audible impact is not demonstrated. GameFeedback creates one persistent AudioSource with spatialBlend=0, so listener translation does not change those 2D cues. The Online source contains no AudioSource/GameFeedback use. Legacy ThrownGear has spatialBlend=.7, but this review did not establish that component is used by Wordbound. The confirmed issue is stale listener ownership/transform, not a claim that the current QA player is inaudible or that current Wordbound cues attenuate incorrectly.
+
+Smallest safe ownership repair for root consideration: create an initially disabled listener for the owned player camera and explicitly pair its activation with disabling the known lobby listener when presentation ownership transfers. Restore the lobby listener on Return/startup failure and disable the player listener synchronously before deferred Destroy. Preserve the lobby component's prior enabled state, and avoid global listener searches that alter unrelated camera owners. An alternative is a single explicit listener handoff that follows the local camera and restores its original transform/state. Adding only a listener to PlayerView would create a duplicate. Root requested evidence only; no repair was made.
+
+Native acceptance remains pending: count exactly one intended enabled listener through startup/play/Return and startup failure, confirm its transform follows the local camera during play, and confirm the original lobby listener/state after cleanup. No Unity, compiler or audio playback was run by this reviewer.
+
+Exact SHA-256 pins under integration:
+
+| File | SHA-256 |
+| --- | --- |
+| Scripts/Online/Client/WordboundPlayerView.cs | 0DE1AAA53FBAA7F19C02F1A1FA9209FFCF0CE32BD90B1925B8C02E95F629E44A |
+| Scripts/Online/Client/WordboundLauncher.cs | 1731A1384C9FDB19A5F8794CAAB74CA2D8DEA007FB8E15C27FFF96F1E694ACE2 |
+| Scripts/Online/Client/WordboundMatchClient.cs | 813CA033B62C4312EC187E5F8FF3637FA0F9F889D7C44618A9C926FF90C24807 |
+| Scripts/Online/Client/WordboundLocalMatchClient.cs | 9A0C542535D1B530A1A202045286E3C9D2531EDDFB76D7C169189F09C98E7125 |
+| Scenes/WordboundLobby.unity | 8DABCA2D887C85280CE15BF2AE18F109234D70E516ED7637A9B36642523FDA85 |
+| Scenes/WordboundGameplay.unity | 055F41E4E0203675C3CC70EC607B03BAAFF3DC90DE3FD4BF6518975C4FC62686 |
+| Scripts/UI/GameFeedback.cs | 6B8D486E291F614B0A76373D796002436FA872CB7F7BF22F111FB95750EE4B1F |
