@@ -39,3 +39,9 @@ The build exhausted its 1800-second limit. A Burst queue timeout occurred earlie
 Unity serialized URP prefilter/runtime settings, new version fields and the existing InputSystem_Actions preload reference during this build. These generated changes were inspected and retained. The newly generated Resources folder metadata is retained; only the four Performance Testing measurement files are ignored. No Unity, shader compiler or Bee process remained after gate exit.
 
 Next: integrate and verify the queued public catalogue and physical fixture observation changes, retry the cached QA build, then run `wordbound_workshop_flow` against its exact successful build ID and inspect every capture.
+
+## Cache recovery — 2026-10-20T18:38:00Z
+
+The following native export attempt (`Logs/gate_exec_ExportAndAssignFromEnvironment_20261020T183516Z.log`) returned **FAIL**, exit 1, 36 seconds. Bee could not rename its digest/state cache; no C# diagnostic or exported catalogue was produced. A later process inspection found surviving build backend PID40444, created at18:28:03Z with the original player DAG `Player511a1575` and dead parent51276. The original build log records that parent through `Upm-51276` and that exact DAG invocation. This supersedes the earlier absence observation: a child did remain after the timed-out build.
+
+Only this positively identified orphan backend was stopped by PID after checking its name, parent, creation time, command line and the parent's absence. No editor, unrelated process or cache file was removed. Native retry remains necessary.

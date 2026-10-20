@@ -69,7 +69,7 @@ namespace Wreckabulary.OfflineGameplayTests
         MatchMechanismState Mechanism(ResolvedCoursePhysicalSite site) =>
             Frame.Mechanisms.Single(m => m.Team == 0 && m.Lap == site.Lap - 1 && m.PuzzleId == site.PuzzleId);
 
-        [UnityTest, Category("LocalWordboundPhysicalPuzzles")]
+        [UnityTest, Timeout(600000), Category("LocalWordboundPhysicalPuzzles")]
         public IEnumerator SixAuthoredFamiliesUseNativeSensorsAndCanonicalCheckpoints()
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_NATIVE_PUZZLES") != "1")
@@ -79,6 +79,7 @@ namespace Wreckabulary.OfflineGameplayTests
             int sceneIndex = PrepareScene();
             SessionState.SetBool(PlayStartedKey, true);
             yield return new EnterPlayMode();
+            Debug.Log("WORDBOUND_PHYSICAL_STAGE: entered Play Mode");
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(6));
             string configFolder = Path.Combine(Application.dataPath, "_Project/Data/Config");
             string itemJson = File.ReadAllText(Path.Combine(configFolder, "items.json"));
@@ -89,6 +90,7 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.IsTrue(resolved.Success, string.Join("\n", resolved.Issues));
             content = new WordboundAuthoredPuzzleContent(mode, flagship.Geometry, resolved.Manifest, itemJson, ruleJson);
             sourceJson = CourseJson.ExportDocument(content.Course.CopyDocument());
+            Debug.Log("WORDBOUND_PHYSICAL_STAGE: resolved and validated exact flagship");
             var binding = WordboundLocalSession.CreateBinding(mode, content.Course, content.CatalogueHash, Actor);
             controller = new GameObject(Prefix + "Controller").AddComponent<WordboundGameplayController>();
             runtime = new WordboundPuzzleRuntime(controller, content);
@@ -115,9 +117,12 @@ namespace Wreckabulary.OfflineGameplayTests
                 return runner;
             }, config, controller.Authority, Actor);
             controller.AttachSession(session);
+            Debug.Log("WORDBOUND_PHYSICAL_STAGE: starting local runner");
             yield return Wait(session.StartLocal(lifetime.Token), "Start isolated offline runner", 40);
+            Debug.Log("WORDBOUND_PHYSICAL_STAGE: local runner started");
             yield return Until(() => session.GameplayReady && controller.PhysicsWorld != null &&
                 Frame != null && !controller.IsSimulationPaused, "Build actual authored physical world", 40);
+            Debug.Log("WORDBOUND_PHYSICAL_STAGE: physical world ready at tick " + Frame.Progress.Tick);
             Assert.AreEqual(GameMode.Single, session.Runner.GameMode);
             Assert.IsFalse(session.Runner.IsCloudReady);
             Assert.AreNotEqual(UnityEngine.Physics.defaultPhysicsScene, controller.PhysicsWorld.PhysicsScene);
@@ -130,6 +135,7 @@ namespace Wreckabulary.OfflineGameplayTests
                 "Observe the canonical player within keepsake range and native line of sight", 5,
                 () => InteractionDetails("keepsake:0"));
             yield return Command(WordboundAction.TakeKeepsake, "keepsake:0");
+            Debug.Log("WORDBOUND_PHYSICAL_STAGE: keepsake acquired at tick " + Frame.Progress.Tick);
             Assert.AreEqual(Actor, Team.KeepsakeCarrier);
             var firstSites = content.Course.Laps[0].Checkpoints.SelectMany(cp => cp.PuzzleIds)
                 .Take(6).Select(id => content.Course.PhysicalSites.Single(s => s.Lap == 1 && s.PuzzleId == id)).ToArray();
@@ -138,6 +144,7 @@ namespace Wreckabulary.OfflineGameplayTests
                 firstSites.Select(s => content.Course.Puzzles.Single(p => p.Id == s.PuzzleId).PresetId));
             foreach (var site in firstSites)
             {
+                Debug.Log("WORDBOUND_PHYSICAL_STAGE: approaching " + site.PuzzleId);
                 yield return ReachObjective(site);
                 yield return CompleteSite(site);
                 yield return SaveAndCheck(site);

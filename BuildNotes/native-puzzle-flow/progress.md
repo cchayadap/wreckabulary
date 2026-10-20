@@ -47,3 +47,8 @@ Upward launch evidence is likewise latched from a completed frame that simultane
 Lifecycle inspection: only one setup observation can be pending; queued setup closures ignore invalidated requests; iterator `finally` blocks clear setup/launch requests; teardown clears pending callbacks/data and unsubscribes `FrameChanged` before stopping/destroying the controller. Frame callbacks record evidence or failure data without throwing NUnit assertions through production simulation. Assertions remain in the fixture coroutine. Repeated same-tick notifications cannot fulfill a setup request, and an old epoch cannot fulfill a new one.
 
 Verification for this follow-up: source/lifecycle inspection and `git diff --check` only. No compiler or Unity run; the online lane owns the compiler slot. Root must compile/import and rerun the physical fixture before any runtime acceptance claim.
+# Root native follow-up — 2026-10-20T18:49:06Z
+
+The combined native run is FAIL: 17 catalogue tests passed; the physical fixture exceeded NUnit's default180000ms timeout before recording a completed mechanism. Evidence: `TestResults/editmode_20261020T184007Z.xml`, total538.3s including197s refresh. Its native case ran18:43:51–18:48:24 with only Fusion player-add output. This is not physical interaction acceptance and does not identify a gameplay root cause.
+
+Root added an explicit600000ms test-runner ceiling around the existing six-minute cancellation and bounded per-operation waits, plus coarse stage diagnostics to locate startup/interaction delays. Neither puzzle conditions nor production timing changed. Rerun pending.

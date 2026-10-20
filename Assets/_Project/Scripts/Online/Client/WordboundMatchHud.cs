@@ -11,13 +11,14 @@ namespace Wreckabulary.Online
     {
         WordboundGameplayController controller;
         WordboundPlayerView view;
+        WordboundStoryView story;
         ItemCatalogue items;
         ModeDefinition mode;
         ResolvedCourse course;
         string actorId, search = "", notice = "";
         string returnLabel = "Return to party";
         int seat, team;
-        bool initialized, crafting;
+        bool initialized, crafting, journalOpen;
         Vector2 recipeScroll;
         long receiptSequence, receiptEpoch = -1;
         MatchSnapshot frame;
@@ -41,6 +42,8 @@ namespace Wreckabulary.Online
             var binding = controller.Authority.Match.Binding;
             seat = Enumerable.Range(0, binding.Seats.Count).Single(i => binding.Seats[i].PlayerId == actorId);
             team = binding.Seats[seat].Team;
+            story = gameObject.AddComponent<WordboundStoryView>();
+            story.Bind(controller, course, items, actorId, view.Camera);
             controller.FrameChanged += ApplyFrame;
             controller.Faulted += ConnectionFailed;
             view.CommandsRead += ReadCommands;
@@ -66,7 +69,7 @@ namespace Wreckabulary.Online
 
         void ReadCommands(PlayerCommands input)
         {
-            if (input.spellDown) { crafting = true; view.SetMenuOpen(true); return; }
+            if (input.spellDown) { crafting = true; journalOpen = false; view.SetMenuOpen(true); return; }
             if (input.slot > 0) Send(WordboundAction.Equip, slot: input.slot - 1);
             if (input.grab) Interact();
             if (input.drop) Send(WordboundAction.Drop, slot: inventory?.CarriedFurniture >= 0 ? -1 : actor?.EquippedSlot ?? -1);
@@ -224,11 +227,31 @@ namespace Wreckabulary.Online
         void Menu(float width, float height)
         {
             GUILayout.BeginArea(new Rect((width - 580) / 2, 48, 580, height - 170), GUI.skin.box);
-            GUILayout.Label(crafting ? "Spell equipment" : "Wordbound");
+            GUILayout.Label(journalOpen ? "Collected clues" : crafting ? "Spell equipment" : "Wordbound");
             GUI.enabled = controller.Fault == "";
             if (GUILayout.Button("Resume", GUILayout.Height(34))) { view.SetMenuOpen(false); crafting = false; }
+            GUI.enabled = true;
+            if (story && story.Journal.Count > 0)
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Equipment")) journalOpen = false;
+                if (GUILayout.Button("Story clues · " + story.Journal.Count)) journalOpen = true;
+                GUILayout.EndHorizontal();
+            }
             GUI.enabled = frame != null && !controller.IsSimulationPaused;
-            if (inventory != null)
+            if (journalOpen && story)
+            {
+                recipeScroll = GUILayout.BeginScrollView(recipeScroll);
+                var label = new GUIStyle(GUI.skin.label) { wordWrap = true };
+                foreach (var clue in story.Journal)
+                {
+                    GUILayout.Label("Lap " + clue.Lap + " · " + clue.Chapter);
+                    GUILayout.Label(clue.Place + ": " + clue.Clue, label);
+                    GUILayout.Space(8);
+                }
+                GUILayout.EndScrollView();
+            }
+            else if (inventory != null)
             {
                 if (inventory.Craft != null)
                 {
