@@ -59,5 +59,32 @@ namespace Wreckabulary.Online.Tests
             var preview = CourseResolver.Resolve(draft.Course(), flagship.Geometry, new CourseResolveRequest(Seed, selected)).Manifest;
             Assert.Throws<ArgumentException>(() => WordboundWorkshopPlaytest.Create(draft, preview, flagship.Geometry, selected, items, rules));
         }
+
+        [TestCase("TimeRun"), TestCase("Freestyle")]
+        public void LocalContentRejectsExcessiveInventoryReservesBeforeCreatingARunner(string modeId)
+        {
+            string excessive = rules.Replace("\"Dibs\": {", "\"Dibs\": {\"maxLetters\":200,");
+            Assert.AreNotEqual(rules, excessive);
+            Assert.IsEmpty(RuleBook.FromJson(excessive).Validate());
+            var selected = MatchStateValidation.Requirements(ModeDefinition.For(modeId));
+            var draft = new WorkshopSnapshot(new WorkshopDraft { Course = flagship.CopyDocument(), Seed = Seed });
+            var preview = CourseResolver.Resolve(draft.Course(), flagship.Geometry, new CourseResolveRequest(Seed, selected));
+            Assert.IsTrue(preview.Success);
+            var error = Assert.Throws<ArgumentException>(() => WordboundWorkshopPlaytest.Create(draft,
+                preview.Manifest, flagship.Geometry, selected, items, excessive));
+            StringAssert.Contains("512-body budget", error.Message);
+            Assert.AreEqual(Seed, draft.Seed);
+        }
+
+        [Test]
+        public void ArenaContentRejectsExcessiveInventoryReservesBeforePartyCreation()
+        {
+            string excessive = rules.Replace("\"Dibs\": {", "\"Dibs\": {\"maxLetters\":200,");
+            Assert.AreNotEqual(rules, excessive);
+            Assert.IsEmpty(RuleBook.FromJson(excessive).Validate());
+            var error = Assert.Throws<ArgumentException>(() =>
+                new WordboundClientContent(items, excessive, "FreeForAll", "Solo", Seed));
+            StringAssert.Contains("512-body budget", error.Message);
+        }
     }
 }

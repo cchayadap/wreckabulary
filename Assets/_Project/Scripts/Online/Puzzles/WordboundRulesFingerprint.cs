@@ -8,13 +8,13 @@ namespace Wreckabulary.Online
 {
     public static class WordboundRulesFingerprint
     {
-        public const int Version = 1;
+        public const int Version = 2;
 
         public static string Compute(GameRules rules)
         {
             if (rules == null || rules.Unarmed == null || rules.BleedOutSeconds == null || rules.BleedOutSeconds.Length > 64)
                 throw new ArgumentException("Rules fingerprint requires complete bounded gameplay rules.");
-            var text = new StringBuilder("wordbound.game-rules|1|");
+            var text = new StringBuilder("wordbound.game-rules|2|");
             void Value(string name, string value)
             {
                 if (value == null || value.Length > 256) throw new ArgumentException("Rule strings exceed the fingerprint bound.");
@@ -27,6 +27,7 @@ namespace Wreckabulary.Online
             }
             void I(string name, int value) => Value(name, value.ToString(CultureInfo.InvariantCulture));
             void B(string name, bool value) => Value(name, value ? "1" : "0");
+            Value("EntityBudget", WordboundEntityBudget.Hash);
             Value("Mode", rules.Mode);
             F("MaxHealth", rules.MaxHealth);
             F("SpawnProtectionSeconds", rules.SpawnProtectionSeconds);

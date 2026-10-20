@@ -54,6 +54,7 @@ namespace Wreckabulary.Online
                     new CourseResolveRequest(seed, MatchStateValidation.Requirements(Mode)));
                 if (!resolved.Success) throw new ArgumentException("The selected course cannot be resolved.");
                 Course = resolved.Manifest; courseId = source.Id;
+                _ = new WordboundEntityBudget(Mode, Course, Geometry, Items, gameRules);
                 catalogueHash = OnlineJson.Hash(new Dictionary<string, object> {
                     ["format"] = "wordbound.client-content-v1", ["geometry"] = Geometry.Hash,
                     ["items"] = WordboundIdentity.Sha256(itemJson), ["ruleSource"] = WordboundIdentity.Sha256(ruleBookJson),

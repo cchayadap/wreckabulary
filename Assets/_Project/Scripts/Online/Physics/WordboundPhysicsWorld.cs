@@ -91,7 +91,8 @@ namespace Wreckabulary.Online
 
         public void Register(WordboundNetworkBody body, WorldBodyState canonical, PlayerRef inputAuthority)
         {
-            if (!IsHost || canonical == null || body == null || body.Runner != runner || bodies.Count >= 512 || bodies.ContainsKey(canonical.Id) ||
+            if (!IsHost || canonical == null || body == null || body.Runner != runner ||
+                bodies.Count >= WordboundEntityBudget.MaximumBodies || bodies.ContainsKey(canonical.Id) ||
                 body.gameObject.scene.GetPhysicsScene() != scene)
                 throw new ArgumentException("Body is duplicated or belongs to a different runner.");
             body.BindHost(this, canonical, inputAuthority);

@@ -278,7 +278,8 @@ namespace Wreckabulary.Online
             foreach (var state in plan.Add)
             {
                 PlayerRef peer = inputs[state.Id];
-                var obj = runner.Spawn(prefabs.For(state.Kind), Position(state.Position), Rotation(state), peer);
+                var obj = runner.Spawn(prefabs.For(state.Kind), Position(state.Position), Rotation(state),
+                    peer == PlayerRef.None ? (PlayerRef?)null : peer);
                 if (obj == null) throw new InvalidOperationException("Canonical body spawn failed.");
                 var body = obj.GetComponent<WordboundNetworkBody>();
                 try { physics.Register(body, state, peer); }

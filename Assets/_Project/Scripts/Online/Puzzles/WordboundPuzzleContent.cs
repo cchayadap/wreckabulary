@@ -56,6 +56,7 @@ namespace Wreckabulary.Online
             if (book.Validate().Count != 0) throw new ArgumentException("Authored rule book is invalid.");
             rules = mode.CreateGameplayRules(book.For("Dibs"));
             if (rules.Validate().Count != 0) throw new ArgumentException("Authored gameplay rules are invalid.");
+            _ = new WordboundEntityBudget(mode, course, geometry, Items, rules);
             ValidatePhysicalGameplay();
             ItemSourceHash = WordboundIdentity.Sha256(itemCatalogueJson);
             RuleSourceHash = WordboundIdentity.Sha256(ruleBookJson);

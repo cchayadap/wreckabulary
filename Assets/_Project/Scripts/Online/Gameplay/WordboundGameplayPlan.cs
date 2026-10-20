@@ -28,9 +28,10 @@ namespace Wreckabulary.Online
         public IReadOnlyList<WorldBodyState> Keep { get; }
         public WordboundReconciliationPlan(IEnumerable<string> existing, MatchSnapshot next)
         {
-            var ids = existing?.Take(513).ToArray() ?? throw new ArgumentNullException(nameof(existing));
-            if (next == null || ids.Length > 512 || ids.Distinct(StringComparer.Ordinal).Count() != ids.Length ||
-                next.Bodies.Count > 512) throw new ArgumentException("Canonical reconciliation exceeds the proof body budget or repeats IDs.");
+            var ids = existing?.Take(WordboundEntityBudget.MaximumBodies + 1).ToArray() ?? throw new ArgumentNullException(nameof(existing));
+            if (next == null || ids.Length > WordboundEntityBudget.MaximumBodies || ids.Distinct(StringComparer.Ordinal).Count() != ids.Length ||
+                next.Bodies.Count > WordboundEntityBudget.MaximumBodies)
+                throw new ArgumentException("Canonical reconciliation exceeds the body budget or repeats IDs.");
             var current = new HashSet<string>(ids, StringComparer.Ordinal);
             var wanted = new HashSet<string>(next.Bodies.Select(b => b.Id), StringComparer.Ordinal);
             if (wanted.Count != next.Bodies.Count) throw new ArgumentException("Canonical body IDs are duplicated.");

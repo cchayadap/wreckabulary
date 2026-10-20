@@ -244,6 +244,7 @@ namespace Wreckabulary.Workshop
                 GUILayout.Space(10); PuzzleInspector(inspected);
                 GUILayout.Space(10); PhysicalSiteInspector(inspected);
             }
+            RouteInspector();
             GUILayout.Space(12); GUILayout.Label("Validation", heading);
             if (validation.Ok) GUILayout.Label("Ready for preview");
             foreach (var issue in validation.Issues.Take(12))
