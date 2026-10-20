@@ -1,0 +1,102 @@
+# Complete application checkpoint durability review
+
+STATUS: IN PROGRESS
+
+Read-only architecture review requested after native recovery test `editmode_20261020T133054Z` recovered only carrier 0 of 33. Scope is complete application checkpoint acknowledgement, upload/finalize/migration races, and bounded speculative progress. No Unity launch, SDK modification, private-reflection runtime access, service deployment or credential action is authorized in this lane.
+
+Baseline integration: `95df5dcfde0e9600d7523bb092d61872e3c566a0`. Installed `Assets/Photon/Fusion/Assemblies/Fusion.Runtime.dll` SHA-256: `D213B95E4694C167F5F6FAFFCBD75CA1E47F19A9249C91A4964F8342FAC9B560`. Proprietary IL is not copied into this report.
+
+Independently read native log evidence: `Logs/gate_test_editmode_20261020T133054Z.log:699` reports one recovered carrier, index 0/count 33, payload 4096 bytes of total 132470, exact expected mark and wire hash. This establishes incomplete native recovery for that run. It does not itself establish a documented SDK acknowledgement contract.
+
+Current production defect confirmed by source: `PublishCheckpointCore` replaces the previous carrier set, calls `PushHostMigrationSnapshot` once, and treats its returned true as `authority.AcknowledgeDurable(mark)`. With the above incomplete recovery, this is not adequate evidence for complete application durability. Acknowledgement and client distribution can advance while native recovery has only a prefix. `RestoreMigration` correctly rejects the incomplete set, but cannot reconstruct the claimed committed state.
+
+## D1 — confirmed P1: local send success advances the durable frontier
+
+Source locations at the pinned baseline:
+
+- `Assets/_Project/Scripts/Online/Fusion/WordboundFusionSession.cs:401`: removes the previous native carriers before the replacement is proven durable.
+- The same file, lines 419–422: one SDK push result immediately authorizes `AcknowledgeDurable`, then advances the committed mark and packet.
+- The same file, line 473: recovery requires the complete, exactly bound carrier set. Rejecting a prefix is correct; it cannot recover a complete acknowledged checkpoint from a prefix.
+- `Assets/_Project/Scripts/Rules/Wordbound/SnapshotCommitTracker.cs:60`: validates that an acknowledgement matches a pending publication, but necessarily trusts its caller's durability assertion.
+
+Independent read-only inspection used Unity's installed Cecil library against the exact DLL above. The public push async method awaits the SDK send method. That method's worker obtains a server snapshot and invokes a void cloud-send method; the latter submits a message rather than awaiting a complete application-packet receipt. The server serializer uses a bounded buffer and rotates its migration-object list. Later sends are subject to last-snapshot/last-confirmed-tick gating. These are paraphrases of the inspected control flow, not copied IL and not a promise about undocumented runtime behavior.
+
+The [public Photon API reference](https://doc-api.photonengine.com/en/fusion/current/class_fusion_1_1_network_runner.html) describes computing and sending a host migration snapshot. It does not establish the missing complete-application acknowledgement. The [official recovery sample](https://doc.photonengine.com/fusion/v2/technical-samples/fusion-disconnect-reconnect) describes host migration callbacks and restoration of the SDK's available snapshot objects. It does not add a complete packet commit protocol. The installed DLL evidence, rather than any documentation version label, pins this finding.
+
+Reproduction evidence is the existing native run, not a new test performed by this reviewer. In `TestResults/editmode_20261020T133054Z.xml`, `LargeChunkedPacketSurvivesHostReplacement` fails after recovering 4096 of 132470 packet bytes. Root's log identifies one carrier of the expected 33. The mark and wire hash match the expected publication, so a marker alone cannot prove that its payload is complete.
+
+A successful local send, arbitrary waits, repeated pushes without an explicit complete-set receipt, a marker written last, or a client's replica acknowledgement must not substitute for a durable application receipt. Packing everything into one oversized network object also lacks evidence of a supported complete-transfer guarantee.
+
+## Proposed durable source and acknowledgement boundary
+
+The online owner is implementing coordinator storage. This is an architecture review of that proposal; implementation and deployment are not yet verified here.
+
+1. Keep immutable checkpoint bytes, their manifest, the current committed head, and exclusive writer ownership in separate SQL tables inside the same `MatchPool` Durable Object that owns match membership and Return. Do not embed blobs into the existing single pool JSON row.
+2. Separate service writer terms from domain epochs. A successful claim yields an exclusive, expiring writer fence and the exact committed head under one transaction. A failed or expired claim must not consume a domain epoch. An established replacement restores the head and advances the domain epoch exactly once.
+3. Stage an immutable upload bound to the match, identity, writer fence, upload ID, parent head, full mark, packet length, chunk count and wire hash. Retry of the same chunk is idempotent only for identical bytes. Different bytes at the same index or changing the manifest must reject.
+4. Finalization reconstructs the exact set, validates bounded decompression and content hashes, then rechecks live writer ownership, its deadline, membership, terminal state and the unchanged parent head in the final transaction. Rechecking after asynchronous validation prevents a stale owner from committing after another claim or Return.
+5. Atomically commit the complete immutable packet and replace the head. Retain the former complete head until the replacement transaction succeeds. Partial uploads never become the recovery source.
+6. Return the exact durable receipt only after persistence is confirmed. The host must match that receipt to its pending publication and current Runner lifetime before calling `AcknowledgeDurable`, distributing a committed replica or confirming a result.
+7. A lost response is an unknown outcome. Retry or read the stable upload/commit identity; never invent a second publication merely to infer whether the first committed. Returning the same receipt for the same immutable committed upload is safe; an expired writer may read its old receipt but may not create or extend a new commit.
+8. On migration, freeze gameplay; claim ownership and retrieve the corresponding committed head; fetch every immutable chunk; run the full existing C# snapshot validator; restore the exact mark; reconcile terminal membership; then publish and durably acknowledge the first checkpoint of the replacement epoch before reporting gameplay ready.
+
+Cloudflare documents transactional, strongly consistent Durable Object storage, output gating that withholds outgoing messages until previous writes are persisted, and `sync()` for explicitly awaiting pending persistence. Preserve those semantics; do not opt out with unconfirmed writes. Async hashing or decompression still requires the final transactional fence check. [Cloudflare SQLite storage documentation](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/)
+
+The initial writer should be the designated original match host. Define the empty-head case explicitly: a replacement must not pretend to restore a checkpoint that never committed, and a failed initial claim must not force an unsupported epoch transition. Original-roster membership and Photon connection authorization establish eligibility, not unique checkpoint ownership. Each seat currently has its own connection lease, so two roster peers can have different host IDs in their individual leases.
+
+Keeping all relevant state in the same Durable Object is significant. Checking Return in one object, then committing a head in another, creates a time-of-check race. A separate storage object requires its own cross-object fencing design. A repeated membership read alone would not make the two operations atomic.
+
+## Bounds, latency and recovery semantics
+
+The current guard is **120 ticks / two seconds at 60 Hz**, from `ModeDefinition.ProvisionalWindowSeconds`, `ModeDefinition.TickRate`, and `SnapshotCommitTracker.CanAdvance`. It is not a two-tick guard. Slow or unavailable persistence should pause further speculative simulation at that boundary. It should not silently enlarge the rollback window or claim a result committed. Native verification must also establish that physics/commands stop consistently while the domain authority is paused.
+
+The existing packet format limits raw JSON to 8 MiB, compressed data to 256 KiB, and each chunk to 4096 bytes. The generic service request limit is 16 KiB and the C# JSON response limit is 32 KiB. Four-KiB chunk routes fit these bounds, but up to 64 strictly sequential requests per publication are a latency risk. Use bounded concurrency or a dedicated bounded bulk route; prove the normal cadence against the two-second progress window. Do not globally remove request or response limits.
+
+Keep the three hashes distinct: compressed wire hash; decompressed byte hash in the packet header; and canonical state hash computed over the snapshot envelope without its final hash field. The service may attest durable, exactly bound bytes while the existing C# validator remains responsible for full domain validity. It must not claim complete game-rule verification from transport checks alone.
+
+A newer committed checkpoint can legitimately include a player who returned immediately afterward. Recovery therefore needs a current terminal-membership overlay before command admission; durable historical data must not revive a returned actor. If the writer itself returns, takeover can be immediate under the same transaction even when its old 15-second writer lease has not elapsed. Otherwise lease expiry bounds failover time; that delay is separate from the two-second speculative gameplay allowance.
+
+Coordinator durability fixes the source of application state. It does not independently guarantee Photon host election, migration-token availability, successful Runner recreation, or physics/body reconciliation. Those remain native acceptance gates. Native carriers may support routing/transport recovery, but must no longer be the authoritative proof that the entire canonical state is durable.
+
+## Required failure cases
+
+| Interleaving or malformed input | Required outcome |
+| --- | --- |
+| Host dies after only some chunks | Previous complete head remains recoverable; no new receipt. |
+| Host dies after validation, before the final transaction | Previous head remains current. |
+| Host dies after commit, before receiving response | Replacement reads the newly committed exact head; retry returns its identical receipt. |
+| Two claims race after expiry | One writer fence wins; the loser cannot renew, upload or finalize under the winner's term. |
+| Old finalize finishes after takeover | Final transactional fence check rejects it; new head remains unchanged. |
+| Writer returns during validation | Finalize rejects; eligible replacement can claim without reviving the returned writer. |
+| Non-writer returns after the last checkpoint | Recovery reapplies current terminal membership before enabling commands. |
+| Writer renews after its lease expired | Reject even if no successor has claimed yet; a new claim is required. |
+| Same upload ID with changed bytes, parent or manifest | Conflict; no mutation of the original immutable upload. |
+| Duplicate finalize after a successful commit | Return the same exact receipt; do not create a new sequence or epoch. |
+| Wrong match/roster/identity, missing or duplicate chunks, extra chunk, wrong length/hash, invalid UTF-8, inflate overflow | Reject without replacing the head or allocating beyond declared bounds. |
+| Long outage or service error | Pause at the existing speculative limit; no fabricated acknowledgement or finalized result. |
+| Finalize response completes after Runner migration/stop/failure | Ignore old-lifetime mutation; replacement's pending publication and ownership remain intact. |
+| Two replacements crash after claims but before first new commit | Domain epoch still derives from the last committed head, independently of service writer-term count. |
+| Initial host fails before any complete checkpoint | Explicit bootstrap recovery or explicit safe failure; no false restored mark. |
+
+## Verification and remaining work
+
+Performed: pinned source review, targeted read-only installed-SDK inspection, exact SDK SHA-256, inspection of the existing native failure artifacts, current checkpoint-window/bounds review, and protocol discussion with the online owner. No new Unity test, service deployment, credentials action, SDK mutation, or proprietary source dump occurred.
+
+Pending: review the implemented coordinator/client protocol and tests at an exact commit; verify fault-injected persistence and takeover interleavings; then root must run native complete-state recovery with a multi-chunk checkpoint, exact identity/hash/epoch/body state, terminal membership and result boundaries. D1 remains open until the runtime acknowledgement and recovery source have been replaced and those tests supply evidence.
+
+## Implementation review checkpoint
+
+Reviewed the online owner's in-progress `BuildNotes/online/COORDINATOR-CHECKPOINTS.md`, `OnlineServices/src/checkpoints.ts`, its `MatchPool`/HTTP routing integration, and initial `OnlineServices/test/checkpoints.test.ts`. These are not yet pinned to a green commit. The proposal uses the same MatchPool transaction, a deterministic signed-roster first host, 15-second exclusive terms, immutable claim receipts, epoch assignment from the committed head, two pending uploads, exact parent-head CAS, and current/prior committed retention. The first native-DO test run had 12/13 passing, with the 33-chunk case still failing; no completed service gate is claimed here.
+
+The schema2/canonicalVersion2 expectation is an explicit coordinated dependency on James's `3633046` snapshot upgrade, independently inspected with `git show`. The older integration baseline still exported schema1 at the time of the first review. This is a rollout dependency, not an unresolved service-format defect. A real C#-exported schema2 packet remains necessary evidence; synthetic transport fixtures cannot establish end-to-end domain compatibility.
+
+Two bounded validation suggestions were incorporated into the draft: reject sequence zero at the request schema, and check writer/upload/reconnect expiry again at finalization. A further source compatibility issue was sent to the owner:
+
+**D2 — P2, snapshot-specific canonical escaping.** `CourseJson.Quote` emits every character below U+0020 as lowercase `\uXXXX`; the service's existing `canonical()` uses `JSON.stringify`, which emits shorter escapes for newline, tab and several other controls. `MatchStateValidation` permits such characters in a valid actor appearance string. A C# snapshot containing them therefore fails the draft service's raw canonical comparison and canonical state-hash check despite being valid for the game codec. The service needs a snapshot-specific canonical serializer matching `CourseJson`; changing the existing grant/signing serializer would unnecessarily alter another protocol. Required regression: actual C# export containing newline, tab, a general control character and supplementary Unicode, followed by exact service acceptance and C# recovery. This is a source-confirmed mismatch; no native reproduction was run.
+
+Additional limits communicated to the owner:
+
+- An expired writer cannot use finalize retry to renew itself. Resolve a lost successful response through authenticated head/read, then claim a new term before further gameplay.
+- A returned non-writer after the checkpoint must be applied to the restored state before readiness.
+- Fifteen seconds is not an unconditional maximum failover time. An old host that can still renew HTTP ownership during an asymmetric Photon partition can keep the replacement fenced out. Preserve safety and report this liveness limit unless a separate authority mechanism resolves it.
+- Up to 64 chunk writes per publication share the pool's serialized transaction path. Bounded upload parallelism and measured normal cadence are necessary before claiming the two-second speculative allowance is practical at load.
