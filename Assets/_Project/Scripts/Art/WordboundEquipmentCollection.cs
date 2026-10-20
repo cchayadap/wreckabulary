@@ -17,6 +17,7 @@ namespace Wreckabulary.Art
             public GameObject model;
             public Sprite icon;
             public Vector3 size;
+            public Vector3 boundsCenter;
             public Vector3 grip;
             public float heldScale;
         }
@@ -46,6 +47,8 @@ namespace Wreckabulary.Art
                     !entry.model || !entry.icon || !ids.Add(entry.itemId) || !keys.Add(entry.modelKey))
                     throw new ArgumentException("Equipment entries need unique item/model keys, a model and an icon.");
                 if (!Positive(entry.size.x) || !Positive(entry.size.y) || !Positive(entry.size.z) ||
+                    !Finite(entry.boundsCenter.x) || !Finite(entry.boundsCenter.y) || !Finite(entry.boundsCenter.z) ||
+                    Mathf.Abs(entry.boundsCenter.y - entry.size.y * .5f) > .001f ||
                     !Finite(entry.grip.x) || !Finite(entry.grip.y) || !Finite(entry.grip.z) ||
                     !Positive(entry.heldScale) || entry.heldScale > 1f)
                     throw new ArgumentException("Equipment dimensions, grip and held scale must be finite and valid.");

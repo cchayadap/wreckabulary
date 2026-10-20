@@ -7,12 +7,15 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <NoStdLib>true</NoStdLib>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <NoWarn>$(NoWarn);0436</NoWarn>
     <UnityData Condition="'$(UnityData)' == ''">C:/Program Files/Unity/Hub/Editor/6000.6.3f1/Editor/Data</UnityData>
     <IntegrationRoot Condition="'$(IntegrationRoot)' == ''">../../../wordbound-integration</IntegrationRoot>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Assets/_Project/Scripts/Online/Presentation/*.cs" />
     <Compile Include="../../Assets/_Project/Scripts/Online/Presentation/Tests/*.cs" />
+    <Compile Include="../../Assets/_Project/Scripts/Art/WordboundEquipmentCollection.cs" />
+    <Compile Include="../../Assets/_Project/Editor/Art/WordboundEquipmentImporter.cs" />
     <Reference Include="$(UnityData)/NetStandard/ref/2.1.0/netstandard.dll" Private="false" />
     <Reference Include="$(UnityData)/NetStandard/compat/2.1.0/shims/netfx/mscorlib.dll" Private="false" />
     <Reference Include="$(UnityData)/NetStandard/compat/2.1.0/shims/netfx/System.dll" Private="false" />

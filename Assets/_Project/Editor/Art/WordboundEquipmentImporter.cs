@@ -159,7 +159,7 @@ namespace Wreckabulary.EditorTools
                     icon = AssetDatabase.LoadAssetAtPath<Sprite>(iconPath),
                     size = Vector(asset.size_unity_metres), grip = Vector(asset.grip_unity_metres), heldScale = asset.held_scale
                 };
-                ValidateImported(entry, asset.triangles, paint, brass);
+                entry.boundsCenter = ValidateImported(entry, asset.triangles, paint, brass).center;
                 entries.Add(entry);
             }
             var collection = AssetDatabase.LoadAssetAtPath<WordboundEquipmentCollection>(CollectionPath);
@@ -174,7 +174,7 @@ namespace Wreckabulary.EditorTools
             Debug.Log("WORDBOUND_EQUIPMENT_READY: twelve independent models/icons; shared catalogue and model/material libraries preserved.");
         }
 
-        public static void ValidateImported(WordboundEquipmentCollection.Entry entry, int expectedTriangles, Material paint, Material brass)
+        public static Bounds ValidateImported(WordboundEquipmentCollection.Entry entry, int expectedTriangles, Material paint, Material brass)
         {
             if (!entry.model || !entry.icon || !paint || !brass) throw new InvalidOperationException("Missing imported assets for " + entry.itemId);
             var anchor = new GameObject("Wordbound import verification");
@@ -217,6 +217,7 @@ namespace Wreckabulary.EditorTools
                     throw new InvalidOperationException("Unity material remapping failed for " + entry.itemId);
                 if (renderers.SelectMany(renderer => renderer.sharedMaterials).Distinct().Count() != 2)
                     throw new InvalidOperationException("Expected both collection materials for " + entry.itemId);
+                return bounds;
             }
             finally { Object.DestroyImmediate(anchor); }
         }

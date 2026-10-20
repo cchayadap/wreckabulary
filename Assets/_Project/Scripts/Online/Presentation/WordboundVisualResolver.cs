@@ -83,8 +83,10 @@ namespace Wreckabulary.Online
                 foreach (var renderer in renderers)
                     foreach (var material in renderer.sharedMaterials)
                         if (!material) throw new InvalidOperationException("Required artwork has a missing material: " + key);
+                if (entry != null && Mathf.Abs(entry.boundsCenter.y - entry.size.y * .5f) > .001f)
+                    throw new InvalidOperationException("Reimport Wordbound equipment to verify authored geometry bounds: " + key);
                 Bounds bounds = entry != null
-                    ? new Bounds(Vector3.up * entry.size.y / 2, entry.size)
+                    ? new Bounds(entry.boundsCenter, entry.size)
                     : ModelVisual.BoundsIn(fit, model);
                 bool player = visualKey == "player";
                 Fit(fit, bounds, size, player);

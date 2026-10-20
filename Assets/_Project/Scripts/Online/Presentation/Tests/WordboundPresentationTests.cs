@@ -47,6 +47,7 @@ namespace Wreckabulary.Tests
         }
 
         [TestCase("BAT", true), TestCase("TABLE", false)]
+        [TestCase("SHIELD", true), TestCase("SOFA", false), TestCase("CLOCK", true)]
         public void HeldArtworkAlignsAuthoredGripAndOnlyWeaponsUseMiniatureScale(string id, bool miniature)
         {
             var item = GameConfig.Current.Items.Get(id);
