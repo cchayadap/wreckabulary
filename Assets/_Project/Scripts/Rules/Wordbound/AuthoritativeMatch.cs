@@ -12,6 +12,11 @@ namespace Wreckabulary.Rules.Wordbound
         bool PuzzleSatisfied(string actorId, ResolvedCoursePuzzle puzzle, WorldBodyState placedItem);
     }
 
+    public interface IWordboundReleaseQuery
+    {
+        bool TryRelease(WorldBodyState actor, WorldBodyState heldItem, bool throwing, out WorldVector position);
+    }
+
     public sealed class HostDamage
     {
         public string ActorId { get; }
@@ -345,12 +350,16 @@ namespace Wreckabulary.Rules.Wordbound
                     }
                     return Effect(outcome);
                 case WordboundAction.Drop:
+                    if (!ReleasePosition(index, command.Slot, origin, false, out var dropAt, out var dropRefusal))
+                        return Effect(dropRefusal);
                     outcome = command.Slot < 0 ? economy.DropCarried(index) : economy.Drop(index, command.Slot);
-                    Release(outcome, origin.Position, default, false);
+                    Release(outcome, dropAt, default, false, origin);
                     return Effect(outcome);
                 case WordboundAction.Throw:
+                    if (!ReleasePosition(index, command.Slot, origin, true, out var throwAt, out var throwRefusal))
+                        return Effect(throwRefusal);
                     outcome = economy.Throw(index, command.Slot, "");
-                    Release(outcome, origin.Position, Forward(origin, 8), false);
+                    Release(outcome, throwAt, Forward(origin, 8), false, origin);
                     return Effect(outcome);
                 case WordboundAction.Deploy:
                     var held = Held(index, command.Slot);
@@ -829,6 +838,16 @@ namespace Wreckabulary.Rules.Wordbound
         {
             var slots = economy.Player(index).Slots;
             return slot >= 0 && slot < slots.Length ? economy.Item(slots[slot]) : null;
+        }
+        bool ReleasePosition(int index, int slot, WorldBodyState actor, bool throwing, out WorldVector at, out string refusal)
+        {
+            at = default; refusal = "EmptySlot";
+            var item = slot < 0 ? economy.Item(economy.Player(index).CarriedFurniture) : Held(index, slot);
+            if (item == null || item.HolderId != index || item.State != ItemState.Held && item.State != ItemState.Carried) return false;
+            refusal = "BlockedRelease";
+            return world is IWordboundReleaseQuery release &&
+                release.TryRelease(actor, bodies["item:" + item.Id], throwing, out at) &&
+                Bounded(at, 10000) && actor.Position.DistanceSquared(at) <= 144;
         }
         bool Reachable(WordboundSeat seat, WorldBodyState origin, string id, WorldBodyKind kind, out WorldBodyState body) =>
             bodies.TryGetValue(id, out body) && body.Kind == kind && body.Active &&

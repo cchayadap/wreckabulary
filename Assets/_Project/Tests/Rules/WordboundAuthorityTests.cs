@@ -10,12 +10,19 @@ namespace Wreckabulary.Tests
 {
     public sealed class WordboundAuthorityTests
     {
-        internal sealed class World : IWordboundWorldQuery
+        internal sealed class World : IWordboundWorldQuery, IWordboundReleaseQuery
         {
             public bool Visible = true, Placeable = true, Satisfied = true, ThrowQuery;
+            public bool Releaseable = true;
+            public WorldVector? ReleaseAt;
             public Action DuringQuery;
             public bool HasLineOfSight(string actorId, WorldVector from, WorldVector to) => Visible;
             public bool CanDeploy(string actorId, string recipeId, WorldVector position) => Placeable;
+            public bool TryRelease(WorldBodyState actor, WorldBodyState item, bool throwing, out WorldVector at)
+            {
+                at = ReleaseAt ?? new WorldVector(actor.Position.X, actor.Position.Y + (throwing ? .75f : .08f), actor.Position.Z + 1.5f);
+                return Releaseable;
+            }
             public bool PuzzleSatisfied(string actorId, ResolvedCoursePuzzle puzzle, WorldBodyState placedItem)
             {
                 if (ThrowQuery) throw new InvalidOperationException("Host query failed.");

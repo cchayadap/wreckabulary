@@ -16,13 +16,18 @@ namespace Wreckabulary.Online
     [DisallowMultipleComponent]
     public sealed class WordboundGameplayController : MonoBehaviour, INetworkRunnerCallbacks
     {
-        sealed class QueryRelay : IWordboundWorldQuery
+        sealed class QueryRelay : IWordboundWorldQuery, IWordboundReleaseQuery
         {
             public IWordboundWorldQuery Target;
             public bool HasLineOfSight(string actor, WorldVector from, WorldVector to) => Target?.HasLineOfSight(actor, from, to) ?? false;
             public bool CanDeploy(string actor, string recipe, WorldVector at) => Target?.CanDeploy(actor, recipe, at) ?? false;
             public bool PuzzleSatisfied(string actor, ResolvedCoursePuzzle puzzle, WorldBodyState item) =>
                 Target?.PuzzleSatisfied(actor, puzzle, item) ?? false;
+            public bool TryRelease(WorldBodyState actor, WorldBodyState item, bool throwing, out WorldVector at)
+            {
+                at = default;
+                return Target is IWordboundReleaseQuery release && release.TryRelease(actor, item, throwing, out at);
+            }
         }
         readonly Dictionary<string, WordboundNetworkBody> bodies = new Dictionary<string, WordboundNetworkBody>(StringComparer.Ordinal);
         readonly Dictionary<string, WordboundGameplayBody> presentations = new Dictionary<string, WordboundGameplayBody>(StringComparer.Ordinal);

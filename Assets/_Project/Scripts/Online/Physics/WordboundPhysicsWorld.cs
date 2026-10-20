@@ -11,7 +11,7 @@ using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Online
 {
-    public sealed class WordboundPhysicsWorld : IWordboundWorldQuery, IDisposable
+    public sealed class WordboundPhysicsWorld : IWordboundWorldQuery, IWordboundReleaseQuery, IDisposable
     {
         readonly NetworkRunner runner;
         readonly RunnerSimulatePhysics simulator;
@@ -238,6 +238,58 @@ namespace Wreckabulary.Online
                     if (!Supported(actor.Canonical, foot + orientation * new Vector3(x, .08f, z))) return false;
             return true;
         }
+
+        public bool TryRelease(WorldBodyState actorState, WorldBodyState itemState, bool throwing, out WorldVector position)
+        {
+            position = default;
+            if (actorState == null || itemState == null || !ActorBody(actorState.SourceId, out var actor) ||
+                !CanMove(actorState.SourceId, out _) || !bodies.TryGetValue(itemState.Id, out var item) ||
+                item.Canonical.Kind != WorldBodyKind.Item || item.Canonical.Active || !item.Canonical.Kinematic ||
+                (actor.Rigidbody.position - WordboundNetworkBody.Vector(actorState.Position)).sqrMagnitude > .0001f)
+                return false;
+            int index = SeatIndex(actorState.SourceId);
+            var inventoryItem = frame.Economy.Items.SingleOrDefault(i => "item:" + i.Id == itemState.Id);
+            if (inventoryItem == null || inventoryItem.HolderId != index ||
+                inventoryItem.State != ItemState.Held && inventoryItem.State != ItemState.Carried) return false;
+            var box = item.GetComponent<BoxCollider>();
+            var capsule = actor.GetComponent<CapsuleCollider>();
+            if (box == null || capsule == null || box.isTrigger || capsule.isTrigger || capsule.direction != 1 ||
+                box.attachedRigidbody != item.Rigidbody || capsule.attachedRigidbody != actor.Rigidbody ||
+                (box.center - new Vector3(0, box.size.y / 2, 0)).sqrMagnitude > .000001f ||
+                (capsule.center - new Vector3(0, capsule.height / 2, 0)).sqrMagnitude > .000001f ||
+                (item.transform.lossyScale - Vector3.one).sqrMagnitude > .000001f ||
+                (actor.transform.lossyScale - Vector3.one).sqrMagnitude > .000001f) return false;
+            var size = WordboundNetworkBody.Value(box.size);
+            var candidates = WordboundReleasePolicy.Candidates(actorState, size, capsule.radius, throwing);
+            var released = itemState.At(itemState.Position, active: true, kinematic: false);
+            Quaternion orientation = actor.Rigidbody.rotation;
+            Vector3 half = box.size / 2 + Vector3.one * .015f;
+            Vector3 start = actor.Rigidbody.position + Vector3.up * (throwing ? .75f : .08f) + orientation * box.center;
+            if (!ReleaseClear(start, half, orientation, released, actor, item, true)) return false;
+            foreach (var candidate in candidates)
+            {
+                Vector3 root = WordboundNetworkBody.Vector(candidate);
+                Vector3 end = root + orientation * box.center;
+                if (!ReleaseClear(end, half, orientation, released, actor, item, false)) continue;
+                Vector3 delta = end - start;
+                int count = scene.BoxCast(start, half, delta.normalized, hits, orientation, delta.magnitude, ~0,
+                    QueryTriggerInteraction.Ignore);
+                if (count >= hits.Length || Enumerable.Range(0, count).Any(i => ReleaseBlocks(hits[i].collider, released, actor, item, true))) continue;
+                position = candidate;
+                return true;
+            }
+            return false;
+        }
+
+        bool ReleaseClear(Vector3 center, Vector3 half, Quaternion orientation,
+            WorldBodyState released, WordboundNetworkBody actor, WordboundNetworkBody item, bool ignoreActor)
+        {
+            int count = scene.OverlapBox(center, half, overlaps, orientation, ~0, QueryTriggerInteraction.Ignore);
+            return count < overlaps.Length && !Enumerable.Range(0, count).Any(i => ReleaseBlocks(overlaps[i], released, actor, item, ignoreActor));
+        }
+        bool ReleaseBlocks(Collider collider, WorldBodyState released, WordboundNetworkBody actor, WordboundNetworkBody item, bool ignoreActor) =>
+            collider != null && (!owned.TryGetValue(collider, out var owner) || owner != item && (!ignoreActor || owner != actor)) &&
+            Blocks(released, collider);
 
         public bool PuzzleSatisfied(string actorId, ResolvedCoursePuzzle puzzle, WorldBodyState placedItem)
         {
