@@ -38,14 +38,14 @@ namespace Wreckabulary.Online.Tests
         }
 
         [Test]
-        public void RealReleaseContainsExactlyEightPublicVariantsAndNoFreestyle()
+        public void RealReleaseContainsAllNineVariantsIncludingPublicFreestyle()
         {
             CollectionAssert.AreEquivalent(new[] { "TimeRun/Solo", "TeamRace/Solo", "TeamRace/Duo", "TeamRace/Squad",
-                "BrawlRace/Solo", "BrawlRace/Duo", "BrawlRace/Squad", "FreeForAll/Solo" },
+                "BrawlRace/Solo", "BrawlRace/Duo", "BrawlRace/Squad", "FreeForAll/Solo", "Freestyle/Solo" },
                 catalogue.Courses.Select(c => c.Mode + "/" + c.Format));
-            Assert.AreEqual(8, catalogue.Courses.Count);
+            Assert.AreEqual(9, catalogue.Courses.Count);
             Assert.IsTrue(catalogue.Courses.All(c => c.Seed == Seed && c.Content.Kind == "BuiltIn"));
-            Assert.IsNull(catalogue.Find("Freestyle", "Solo", Seed));
+            Assert.IsNotNull(catalogue.Find("Freestyle", "Solo", Seed));
             Assert.IsNull(catalogue.Find("TimeRun", "Duo", Seed));
         }
 
@@ -56,11 +56,11 @@ namespace Wreckabulary.Online.Tests
             Assert.AreEqual(catalogue.Json, parsed.Json);
             var projection = OnlineJson.Parse(parsed.BuiltinContentJson);
             Assert.IsTrue(projection.IsArray);
-            Assert.AreEqual(8, projection.Items.Count);
+            Assert.AreEqual(9, projection.Items.Count);
             CollectionAssert.AreEquivalent(parsed.Courses.Select(c => OnlineJson.Hash(c.Content.ToValue())),
                 projection.Items.Select(row => OnlineJson.Hash(OnlineContent.Read(row).ToValue())));
-            Assert.AreEqual(8, new WordboundPublicCourseRegistry(catalogue.Json).Count);
-            Assert.AreEqual(8, new WordboundPublicCourseRegistry(parsed.BuiltinContentJson).Count);
+            Assert.AreEqual(9, new WordboundPublicCourseRegistry(catalogue.Json).Count);
+            Assert.AreEqual(9, new WordboundPublicCourseRegistry(parsed.BuiltinContentJson).Count);
         }
 
         [Test]

@@ -30,7 +30,8 @@ describe("pure allocation rules", () => {
   it("rejects non-race formats, FFA parties and unsupported Fill", () => {
     expect(() => validatePartySize({ ...settings("Duo"), mode: "TimeRun" }, 1)).toThrow("FORMAT_NOT_SUPPORTED");
     expect(() => validatePartySize({ ...settings("Solo", false), mode: "FreeForAll" }, 2)).toThrow("PARTY_TOO_LARGE");
-    expect(() => validatePartySize({ ...settings("Solo"), mode: "Freestyle" }, 1)).toThrow("FILL_NOT_SUPPORTED");
+    expect(() => validatePartySize({ ...settings("Solo"), mode: "FreeForAll" }, 1)).toThrow("FILL_NOT_SUPPORTED");
+    expect(() => validatePartySize({ ...settings("Solo"), mode: "Freestyle" }, 1)).not.toThrow();
   });
   it("does not split a two-person party to fill separate one-person vacancies", () => {
     const m = match(); m.reservations = [0, 1].map(teamId => ({ teamId, attempt: attempt(3) }));

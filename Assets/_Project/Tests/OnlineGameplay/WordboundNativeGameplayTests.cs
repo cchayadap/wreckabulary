@@ -70,7 +70,8 @@ namespace Wreckabulary.OnlineGameplayTests
             Run(4, true, productionMode: "BrawlRace", productionFormat: RaceFormat.Duo);
 
         IEnumerator Run(int count, bool migrate, bool interactions = false,
-            string productionMode = null, RaceFormat productionFormat = RaceFormat.Solo)
+            string productionMode = null, RaceFormat productionFormat = RaceFormat.Solo,
+            WordboundPublicCourseCatalog publicCatalogue = null)
         {
             if (Environment.GetEnvironmentVariable(Gate) != "1")
                 Assert.Ignore("Set WORDBOUND_EXTERNAL_GAMEPLAY=1 after configuring production Photon custom authentication.");
@@ -91,8 +92,18 @@ namespace Wreckabulary.OnlineGameplayTests
                     File.ReadAllText(Path.Combine(folder, "rules.json")), productionMode, productionFormat.ToString(),
                     "0123456789abcdef");
             }
-            live = new WordboundLiveMatch(projectRoot, interactions ? WordboundInteractionCourse.Create() : null, production);
-            yield return Wait(live.Prepare(count, lifetime.Token), "Prepare real private coordinator match", 120);
+            live = new WordboundLiveMatch(projectRoot, interactions ? WordboundInteractionCourse.Create() : null, production, publicCatalogue);
+            yield return Wait(live.Prepare(count, lifetime.Token), "Prepare real " + (live.PublicQueue ? "public" : "private") + " coordinator match", 120);
+            if (live.PublicQueue)
+            {
+                Assert.AreEqual(publicCatalogue.MapPoolVersion, live.ApprovedRelease);
+                Assert.IsTrue(live.Settings.MapPoolVersion.StartsWith("pub-", StringComparison.Ordinal));
+                Assert.AreNotEqual(live.ApprovedRelease, live.Settings.MapPoolVersion,
+                    "The disposable public queue check must not join the populated release pool.");
+                Assert.AreEqual("BuiltIn", live.Verified.Match.Content.Kind);
+                Debug.Log("WORDBOUND_PUBLIC_ENTRY_OBSERVED: exact approved release " + live.ApprovedRelease +
+                    "; isolated pool " + live.Settings.MapPoolVersion + "; whole-party certificate verified.");
+            }
             int hostIndex = live.Clients.FindIndex(c => c.Credentials.PlayerId == live.Verified.Roster[0].PlayerId);
             Assert.GreaterOrEqual(hostIndex, 0);
             var first = CreatePeer(hostIndex);
@@ -357,6 +368,19 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.IsNotNull(live.ProductionContent);
             Assert.IsTrue(live.ProductionContent.Matches(live.Verified.Match.Content));
             Assert.AreEqual(live.Mode.Format.ToString(), live.Settings.Format);
+            foreach (var peer in active) {
+                Assert.AreEqual(live.Course.Hash, peer.Controller.Frame.Binding.ManifestHash);
+                Assert.AreEqual(live.Content.CatalogHash, peer.Controller.Frame.Binding.CatalogueHash);
+                Assert.AreEqual(live.Mode.Hash, peer.Controller.Frame.Binding.ModeHash);
+                Assert.LessOrEqual(peer.Controller.Frame.Bodies.Count, WordboundEntityBudget.MaximumBodies);
+            }
+            if (live.Mode.Id == "Freestyle") {
+                Assert.AreEqual(0, live.Mode.TimeLimitSeconds); Assert.IsFalse(live.Mode.EnemyDamage);
+                Assert.IsFalse(live.Mode.HazardDamage); Assert.AreEqual(WordboundObjective.Explore, live.Mode.Objective);
+                Assert.IsTrue(active.All(peer => peer.Controller.Frame.Progress.Result == null));
+                return;
+            }
+            if (!live.Mode.IsRace) return;
             Assert.Greater(live.Course.PhysicalSites.Count, 0);
             Assert.Greater(host.PhysicalSteps, 0, "The actual production fixture-motion callback must run.");
             Assert.Greater(host.PhysicalObservations, 0, "The actual production host-observation callback must run.");

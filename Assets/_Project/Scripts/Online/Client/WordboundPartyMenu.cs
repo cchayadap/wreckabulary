@@ -214,8 +214,8 @@ namespace Wreckabulary.Online
                 GUILayout.Label("Players per team");
                 format = GUILayout.SelectionGrid(format, Formats, 3);
             }
-            else format = 0;
-            if (Modes[mode] == "TimeRun" || Modes[mode] == "TeamRace" || Modes[mode] == "BrawlRace")
+            else { format = 0; if (Modes[mode] == "Freestyle") GUILayout.Label("Co-op · up to 8 players · no timer or winner", hint); }
+            if (Modes[mode] != "FreeForAll")
             {
                 fill = GUILayout.Toggle(fill, "Fill open team seats with other players");
                 GUILayout.Label(fill ? "Human players can join your team before the match starts." :
@@ -234,13 +234,6 @@ namespace Wreckabulary.Online
         }
         void DrawSeedSelection()
         {
-            bool privateOnly = Modes[mode] == "Freestyle";
-            if (privateOnly)
-            {
-                customSeedMode = true;
-                GUILayout.Label("Freestyle uses private sessions.", hint);
-            }
-            else
             {
                 bool nextCustom = GUILayout.SelectionGrid(customSeedMode ? 1 : 0,
                     new[] { "Approved maps", "Custom / private seed" }, 2) == 1;
@@ -256,7 +249,7 @@ namespace Wreckabulary.Online
                 privateSeed = GUILayout.TextField(privateSeed, 16).ToLowerInvariant();
                 if (GUILayout.Button("New private seed")) privateSeed = Guid.NewGuid().ToString("N").Substring(0, 16);
                 seed = privateSeed;
-                if (!privateOnly) GUILayout.Label("Custom seeds use private rooms. Quick Play requires an approved map.", hint);
+                GUILayout.Label("Custom seeds use private rooms. Quick Play requires an approved map.", hint);
                 return;
             }
             var choices = publicCourses.Choices(Modes[mode], Formats[format]);
@@ -342,8 +335,7 @@ namespace Wreckabulary.Online
                 if (GUILayout.Button("Quick Play")) Invoke(() => coordinator.Queue("QuickPlay"));
                 GUI.enabled = previous;
                 if (!coordinator.PublicAvailable)
-                    GUILayout.Label(party.Settings.Mode == "Freestyle" ? "Freestyle uses private sessions." :
-                        publicCourses.Choices(party.Settings.Mode, party.Settings.Format).Count == 0 ?
+                    GUILayout.Label(publicCourses.Choices(party.Settings.Mode, party.Settings.Format).Count == 0 ?
                         "Quick Play has no approved maps for this mode yet. Use a private room." :
                         "This seed is for private rooms. To use Quick Play, leave the party and choose an approved map.", hint);
                 if (party.Settings.Fill)

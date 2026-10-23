@@ -31,7 +31,7 @@ namespace Wreckabulary.Rules.Wordbound
             OnlineJson.Text(node, "protocolVersion", OnlineJson.Identifier);
             OnlineJson.Text(node, "mapPoolVersion", OnlineJson.Identifier);
             if ((mode != "TeamRace" && mode != "BrawlRace" && format != "Solo") ||
-                ((mode == "FreeForAll" || mode == "Freestyle") && fill)) throw new FormatException("Unsupported online mode settings.");
+                (mode == "FreeForAll" && fill)) throw new FormatException("Unsupported online mode settings.");
         }
         public static OnlineSettings Read(JsonNode node)
         {

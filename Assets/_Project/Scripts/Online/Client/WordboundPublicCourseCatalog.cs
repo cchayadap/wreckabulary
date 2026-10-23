@@ -34,7 +34,7 @@ namespace Wreckabulary.Online
     {
         public const int Schema = 1;
         public const int MaximumCourses = 128;
-        public const int PublicVariantsPerSeed = 8;
+        public const int PublicVariantsPerSeed = 9;
         public string ProtocolVersion => MatchSnapshotCodec.ProtocolVersion;
         public string MapPoolVersion { get; }
         public IReadOnlyList<WordboundPublicCourse> Courses { get; }
@@ -97,10 +97,10 @@ namespace Wreckabulary.Online
             var seeds = approvedSeeds.ToArray();
             if (seeds.Length == 0 || seeds.Length > MaximumCourses / PublicVariantsPerSeed ||
                 seeds.Distinct(StringComparer.Ordinal).Count() != seeds.Length)
-                throw new ArgumentException("Choose one to sixteen unique approved public seeds within the JSON size limit.");
+                throw new ArgumentException("Choose one to fourteen unique approved public seeds within the JSON size limit.");
             var variants = new[] {
                 ("TimeRun", "Solo"), ("TeamRace", "Solo"), ("TeamRace", "Duo"), ("TeamRace", "Squad"),
-                ("BrawlRace", "Solo"), ("BrawlRace", "Duo"), ("BrawlRace", "Squad"), ("FreeForAll", "Solo")
+                ("BrawlRace", "Solo"), ("BrawlRace", "Duo"), ("BrawlRace", "Squad"), ("FreeForAll", "Solo"), ("Freestyle", "Solo")
             };
             return FromTestedContent(mapPoolVersion, seeds.OrderBy(s => s, StringComparer.Ordinal).SelectMany(seed =>
                 variants.Select(variant => new WordboundClientContent(itemsJson, rulesJson, variant.Item1, variant.Item2, seed))));

@@ -26,6 +26,8 @@ namespace Wreckabulary.OnlineGameplayTests
         public OnlineSettings Settings { get; }
         public OnlineAdmissionVerifier Verifier { get; }
         public WordboundClientContent ProductionContent { get; }
+        public bool PublicQueue { get; }
+        public string ApprovedRelease { get; }
         public IWordboundPuzzleContent PhysicalPuzzles => ProductionContent?.PhysicalPuzzles;
         public OnlineMatchExpectation Expected { get; private set; }
         public VerifiedOnlineMatch Verified { get; private set; }
@@ -37,11 +39,17 @@ namespace Wreckabulary.OnlineGameplayTests
         readonly List<PartyGroup> parties = new List<PartyGroup>();
 
         public WordboundLiveMatch(string projectRoot, CourseDocument proofCourse = null,
-            WordboundClientContent productionContent = null)
+            WordboundClientContent productionContent = null, WordboundPublicCourseCatalog publicCatalogue = null)
         {
             if (proofCourse != null && productionContent != null)
                 throw new ArgumentException("Choose an exact production course or the existing proof document.");
             ProductionContent = productionContent;
+            PublicQueue = publicCatalogue != null;
+            if (PublicQueue && (productionContent == null || !productionContent.Mode.PublicQueue ||
+                !new WordboundPublicCourseRegistry(publicCatalogue.Json).Allows(productionContent) ||
+                publicCatalogue.Find(productionContent.Mode.Id, productionContent.Mode.Format.ToString(), productionContent.Seed) == null))
+                throw new ArgumentException("The public proof requires an exact native-exported approved course.");
+            ApprovedRelease = publicCatalogue?.MapPoolVersion;
             var trust = OnlineJson.Parse(File.ReadAllText(Path.Combine(projectRoot, "OnlineServices/production-client.json")));
             if (trust["origin"].String() != Origin || trust["photonAppId"].String() != AppId ||
                 trust["issuer"].String() != "wreckabulary-wordbound" || trust["keyId"].String() != "wordbound-rs256-20261020-01" ||
@@ -57,10 +65,10 @@ namespace Wreckabulary.OnlineGameplayTests
             {
                 Mode = productionContent.Mode; Geometry = productionContent.Geometry;
                 Items = productionContent.Items; Rules = productionContent.Rules; Course = productionContent.Course;
-                Content = productionContent.PrivateBinding;
-                if (!productionContent.Matches(Content) || !Mode.HasRaceFormat || PhysicalPuzzles == null ||
-                    !PhysicalPuzzles.BindsRules || Course.PhysicalSites.Count == 0)
-                    throw new ArgumentException("The production race fixture requires exact bound flagship physical content.");
+                Content = PublicQueue ? productionContent.PublicBinding : productionContent.PrivateBinding;
+                if (!productionContent.Matches(Content) || ((Mode.IsRace || Mode.Id == "Freestyle") &&
+                    (PhysicalPuzzles == null || !PhysicalPuzzles.BindsRules || Course.PhysicalSites.Count == 0)))
+                    throw new ArgumentException("The production fixture requires its exact installed content and physical plan where applicable.");
             }
             else
             {
@@ -80,8 +88,8 @@ namespace Wreckabulary.OnlineGameplayTests
                     ["rules"] = WordboundIdentity.Sha256(ruleJson) });
                 Content = new OnlineContent("Workshop", document.Id, Course.SourceHash, Course.Hash, Mode.Hash, catalogueHash);
             }
-            Settings = new OnlineSettings(Mode.Id, Mode.Format.ToString(), false, "asia",
-                MatchSnapshotCodec.ProtocolVersion, "native-" + Guid.NewGuid().ToString("N").Substring(0, 12));
+            Settings = new OnlineSettings(Mode.Id, Mode.Format.ToString(), PublicQueue && Mode.Id == "Freestyle", "asia",
+                MatchSnapshotCodec.ProtocolVersion, (PublicQueue ? "pub-" : "native-") + Guid.NewGuid().ToString("N").Substring(0, 12));
         }
 
         public async Task Prepare(int count, CancellationToken ct)
@@ -97,7 +105,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 await client.CreateGuest("NativeGameplay" + i, ct);
             }
             string privateCode = null;
-            int partySize = Mode.HasRaceFormat ? count / 2 : 4;
+            int partySize = Mode.HasRaceFormat ? count / 2 : Mode.Id == "FreeForAll" || (PublicQueue && Mode.Id == "Freestyle") ? 1 : 4;
             foreach (var offset in Enumerable.Range(0, (count + partySize - 1) / partySize).Select(i => i * partySize))
             {
                 var members = Clients.Skip(offset).Take(partySize).ToArray();
@@ -112,14 +120,26 @@ namespace Wreckabulary.OnlineGameplayTests
                 foreach (var member in group.Members)
                     party = await member.Ready(group.Id, party["revision"].String(), true, Key(), ct);
                 await members[0].Queue(group.Id, party["revision"].String(),
-                    privateCode == null ? "PrivateCreate" : "PrivateJoin", Key(),
-                    privateCode == null ? Content : null, privateCode, ct);
-                privateCode = (await members[0].Party(group.Id, ct))["assignment"]["privateCode"].String();
+                    PublicQueue ? "QuickPlay" : privateCode == null ? "PrivateCreate" : "PrivateJoin", Key(),
+                    PublicQueue || privateCode == null ? Content : null, privateCode, ct);
+                if (!PublicQueue)
+                    privateCode = (await members[0].Party(group.Id, ct))["assignment"]["privateCode"].String();
             }
             var assignment = (await Clients[0].Party(parties[0].Id, ct))["assignment"];
+            if (PublicQueue) {
+                long deadline = Now() + 45000;
+                while (assignment["state"].String() == "FORMING" && Now() < deadline) {
+                    await Task.Delay(500, ct);
+                    assignment = (await Clients[0].Party(parties[0].Id, ct))["assignment"];
+                }
+            }
             string phase = assignment["state"].String();
             if ((phase != "FORMING" && phase != "ADMITTING") || assignment["roster"].Items.Count != count)
                 throw new InvalidOperationException("The private native proof must reserve exactly its original seats.");
+            if (PublicQueue && (phase != "ADMITTING" || assignment.Has("privateCode") ||
+                OnlineJson.Hash(OnlineContent.Read(assignment["content"]).ToValue()) != OnlineJson.Hash(Content.ToValue()) ||
+                OnlineJson.Hash(OnlineSettings.Read(assignment["settings"]).ToValue()) != OnlineJson.Hash(Settings.ToValue())))
+                throw new InvalidOperationException("The public queue must lock the exact approved content and isolated pool without a private code.");
             string rosterHash = RosterHash(assignment);
             Expected = new OnlineMatchExpectation(assignment["matchId"].String(),
                 assignment["reservationGeneration"].String(), rosterHash, Settings, Content);
@@ -138,6 +158,13 @@ namespace Wreckabulary.OnlineGameplayTests
                 !Verified.Roster.Select(s => s.PlayerId).OrderBy(x => x, StringComparer.Ordinal)
                     .SequenceEqual(Clients.Select(c => c.Credentials.PlayerId).OrderBy(x => x, StringComparer.Ordinal)))
                 throw new InvalidOperationException("The signed roster does not contain exactly the authenticated guests.");
+            foreach (var group in parties) {
+                var signed = Verified.Roster.Where(seat => seat.PartyId == group.Id).ToArray();
+                if (signed.Length != group.Members.Count || signed.Select(seat => seat.TeamId).Distinct().Count() != 1 ||
+                    !new HashSet<string>(signed.Select(seat => seat.PlayerId), StringComparer.Ordinal)
+                        .SetEquals(group.Members.Select(member => member.Credentials.PlayerId)))
+                    throw new InvalidOperationException("The signed party membership differs from its original authenticated members.");
+            }
             if (Mode.HasRaceFormat)
             {
                 var teams = Verified.Roster.GroupBy(s => s.TeamId).OrderBy(g => g.Key).ToArray();

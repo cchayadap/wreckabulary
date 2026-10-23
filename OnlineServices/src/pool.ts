@@ -25,7 +25,7 @@ export class MatchPool extends Store<PoolState> {
       const result = fn(s, now); this.write(s);
       const deadlines = Object.values(s.matches).flatMap(m =>
         m.phase === "ADMITTING" ? [m.deadline!] :
-          m.phase === "FORMING" && !m.privateCode && m.settings.mode === "FreeForAll" && m.seats.length >= 2
+          m.phase === "FORMING" && !m.privateCode && (m.settings.mode === "FreeForAll" || m.settings.mode === "Freestyle") && m.seats.length >= 2
             ? [m.createdAt + 30_000] : []);
       const checkpointExpiry = this.checkpointStore.nextExpiry();
       if (checkpointExpiry !== undefined) deadlines.push(checkpointExpiry);
@@ -54,6 +54,9 @@ export class MatchPool extends Store<PoolState> {
       requireThat(a.createdAt >= now - 86400_000 && a.createdAt <= now + 5000, "ATTEMPT_EXPIRED");
       requireThat(poolKey(a.settings) === a.poolKey, "POOL_MISMATCH");
       validatePartySize(a.settings, a.members.length);
+      requireThat(a.channel !== "QuickPlay" || a.settings.fill ||
+        (a.settings.mode !== "TimeRun" && a.settings.mode !== "Freestyle") || a.members.length >= 2,
+      "PUBLIC_COOP_REQUIRES_HUMANS");
       requireThat(new Set(a.members).size === a.members.length, "DUPLICATE_MEMBER");
       const assigned = s.assignments[a.id];
       if (assigned) {
@@ -107,7 +110,7 @@ export class MatchPool extends Store<PoolState> {
       const candidates = Object.values(s.matches).filter(m => m.phase === "FORMING"
         && (a.channel === "CustomFill"
           ? !!m.privateCode && m.content.kind === "Workshop"
-          : m.content.kind === "BuiltIn" && digest(m.content) === digest(a.content)))
+          : !m.privateCode && m.content.kind === "BuiltIn" && digest(m.content) === digest(a.content)))
         .sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
       let match = candidates.find(m => teamFor(m, a) !== undefined);
       if (!match && a.channel === "QuickPlay") {
@@ -120,7 +123,8 @@ export class MatchPool extends Store<PoolState> {
     }
     for (const m of Object.values(s.matches)) {
       if (m.phase === "FORMING" && (logicalFull(m)
-        || (!m.privateCode && m.settings.mode === "FreeForAll" && m.seats.length >= 2 && now - m.createdAt >= 30_000))) seal(m, now);
+        || (!m.privateCode && (m.settings.mode === "FreeForAll" || m.settings.mode === "Freestyle") &&
+          m.seats.length >= 2 && now - m.createdAt >= 30_000))) seal(m, now);
     }
   }
   private packPublicFillRaces(s: PoolState, now: number) {

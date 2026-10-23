@@ -127,7 +127,7 @@ export function poolKey(s: PartySettings): string {
 export function validatePartySize(s: PartySettings, size: number) {
   requireThat(s.mode === "TeamRace" || s.mode === "BrawlRace" || s.format === "Solo", "FORMAT_NOT_SUPPORTED");
   requireThat(size >= 1 && size <= Math.min(4, capacity(s)), "PARTY_TOO_LARGE");
-  requireThat(!(s.mode === "FreeForAll" || s.mode === "Freestyle") || !s.fill, "FILL_NOT_SUPPORTED");
+  requireThat(s.mode !== "FreeForAll" || !s.fill, "FILL_NOT_SUPPORTED");
 }
 export function teamFor(m: Match, a: Attempt, invited = false): number | undefined {
   if (m.phase !== "FORMING") return;
@@ -135,7 +135,9 @@ export function teamFor(m: Match, a: Attempt, invited = false): number | undefin
     const reservations = m.reservations.filter(r => r.teamId === team);
     const used = reservations.reduce((n, r) => n + r.attempt.members.length, 0);
     if (m.settings.mode === "Freestyle") {
-      if (invited && used + a.members.length <= capacity(m.settings)) return team;
+      if (used + a.members.length <= capacity(m.settings) && (invited ||
+        (used === 0 && !m.privateCode) ||
+        (a.settings.fill && reservations.every(r => r.attempt.settings.fill)))) return team;
       continue;
     }
     if (used === 0) {
@@ -145,7 +147,8 @@ export function teamFor(m: Match, a: Attempt, invited = false): number | undefin
   }
 }
 export function logicalFull(m: Match): boolean {
-  if (m.settings.mode === "Freestyle") return false;
+  if (m.settings.mode === "Freestyle") return !m.privateCode && m.seats.length >= 2 &&
+    (m.reservations.some(r => !r.attempt.settings.fill) || m.seats.length === capacity(m.settings));
   if (m.settings.mode === "FreeForAll") return m.reservations.length === 8;
   return Array.from({ length: teams(m.settings) }, (_, team) => {
     const rs = m.reservations.filter(r => r.teamId === team);

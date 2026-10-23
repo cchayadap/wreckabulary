@@ -216,6 +216,9 @@ namespace Wreckabulary.Online
             var party = RequireParty(); string key = Key(), seed = Seed;
             RequireContent();
             if (channel == "QuickPlay" && !PublicAvailable) throw new InvalidOperationException("Quick Play is unavailable for this unapproved course.");
+            if (channel == "QuickPlay" && (party.Settings.Mode == "Freestyle" || party.Settings.Mode == "TimeRun") &&
+                !party.Settings.Fill && party.Members.Count < 2)
+                throw new InvalidOperationException("Invite another human player or turn Fill on for public co-op. Private rooms support solo play.");
             if (channel == "CustomFill" && !party.Settings.Fill) throw new InvalidOperationException("Custom Fill requires Fill on and separate map acceptance.");
             if (channel != "QuickPlay" && channel != "CustomFill" && channel != "PrivateCreate" && channel != "PrivateJoin")
                 throw new ArgumentException("Choose a supported queue.");
@@ -412,6 +415,7 @@ namespace Wreckabulary.Online
                 {
                     case "REVISION_CONFLICT": return "The party changed. Refresh and try again.";
                     case "PARTY_NOT_READY": return "Every party member must be ready.";
+                    case "PUBLIC_COOP_REQUIRES_HUMANS": return "Invite another human player or turn Fill on for public co-op. Private rooms support solo play.";
                     case "MATCH_NOT_FULL": return "Waiting for another team or more players. Fill off keeps an undersized team together.";
                     case "OWNER_REQUIRED": return "Only the private room creator can start this match.";
                     case "PRIVATE_SETTINGS_MISMATCH": return "Use the host's mode, team size, region and game release.";

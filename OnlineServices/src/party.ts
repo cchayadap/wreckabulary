@@ -110,7 +110,9 @@ export class Party extends Store<PartyState> {
       requireThat(s.revision === body.expectedRevision, "REVISION_CONFLICT");
       requireThat(!s.active && s.members.every(m => m.ready), "PARTY_NOT_READY");
       validatePartySize(s.settings, s.members.length);
-      requireThat(s.settings.mode !== "Freestyle" || body.channel === "PrivateCreate" || body.channel === "PrivateJoin", "PRIVATE_ONLY");
+      requireThat(body.channel !== "QuickPlay" || s.settings.fill ||
+        (s.settings.mode !== "TimeRun" && s.settings.mode !== "Freestyle") || s.members.length >= 2,
+      "PUBLIC_COOP_REQUIRES_HUMANS");
       requireThat(body.channel !== "CustomFill" || s.settings.fill, "FILL_CONSENT_REQUIRED");
       let target = poolKey(s.settings);
       if (body.channel === "PrivateJoin") {

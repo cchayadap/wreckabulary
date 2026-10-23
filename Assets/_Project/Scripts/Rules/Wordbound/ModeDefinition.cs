@@ -85,7 +85,7 @@ namespace Wreckabulary.Rules.Wordbound
                 "FreeForAll" => new ModeDefinition(id, "Free-for-All", format, WordboundObjective.Knockouts,
                     WordboundOwnership.Shared, 2, 8, 8, 1, 480, true, true, true, false),
                 "Freestyle" => new ModeDefinition(id, "Freestyle", format, WordboundObjective.Explore,
-                    WordboundOwnership.Shared, 1, 8, 1, 8, 0, false, false, false, false),
+                    WordboundOwnership.Shared, 1, 8, 1, 8, 0, false, false, true, true),
                 _ => throw new ArgumentException("Unknown Wordbound mode.", nameof(id))
             };
         }

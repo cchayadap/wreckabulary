@@ -67,7 +67,10 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(brawl.CanInteract(0, 1, false));
             Assert.IsFalse(brawl.CanDamage(0, 0));
             Assert.IsTrue(brawl.CanDamage(0, 1));
-            Assert.IsFalse(free.PublicQueue);
+            Assert.IsTrue(free.PublicQueue);
+            Assert.IsTrue(free.SupportsFill);
+            Assert.AreEqual(0, free.TimeLimitSeconds);
+            Assert.AreEqual(WordboundObjective.Explore, free.Objective);
             Assert.IsFalse(free.HazardDamage);
             Assert.IsFalse(free.CanDamage(0, 1));
         }

@@ -317,9 +317,13 @@ describe("durable transitions, alarms and return to lobby", () => {
 describe("non-race modes", () => {
   it("starts TimeRun with the whole Fill Off party or fills to four with consent", async () => {
     const s: PartySettings = { ...settings(false, "Solo"), mode: "TimeRun" };
-    const solo = await party(s); await queue(solo);
-    expect((await status(solo)).state).toBe("ADMITTING");
-    expect((await status(solo)).roster).toHaveLength(1);
+    const solo = await party(s);
+    const denied = await queue(solo);
+    expect(denied.status).toBe(409);
+    expect(denied.data).toEqual({ error: { code: "PUBLIC_COOP_REQUIRES_HUMANS" } });
+    const pair = await party(s, 2); await queue(pair);
+    expect((await status(pair)).state).toBe("ADMITTING");
+    expect((await status(pair)).roster).toHaveLength(2);
     const fill = { ...s, fill: true };
     const a = await party(fill, 3); await queue(a);
     expect((await status(a)).state).toBe("FORMING");
@@ -344,10 +348,9 @@ describe("non-race modes", () => {
     const late = await party(s); await queue(late);
     expect((await status(late)).matchId).not.toBe(m.matchId);
   });
-  it("keeps Freestyle private and allows the owner to launch up to eight invited players", async () => {
+  it("keeps private Freestyle manual and allows eight invited players", async () => {
     const s: PartySettings = { ...settings(false, "Solo"), mode: "Freestyle" };
     const owner = await party(s, 4); const other = await party(s, 4);
-    expect((await queue(owner)).status).toBe(409);
     expect((await queue(owner, "PrivateCreate")).status).toBe(200);
     const first = await status(owner);
     expect((await queue(other, "PrivateJoin", { code: first.privateCode })).status).toBe(200);
@@ -359,6 +362,45 @@ describe("non-race modes", () => {
     expect((await queue(late, "PrivateJoin", { code: first.privateCode })).status).toBe(404);
     const locked = await status(owner); await admit(owner, locked); await admit(other, locked);
     expect((await status(owner)).state).toBe("STARTED");
+  });
+  it("public Freestyle never starts one human and coalesces two at the elapsed deadline", async () => {
+    const s: PartySettings = { ...settings(true, "Solo"), mode: "Freestyle" };
+    const a = await party(s); await queue(a);
+    const first = await status(a); expect(first.state).toBe("FORMING");
+    const now = Date.now(); vi.spyOn(Date, "now").mockReturnValue(now + 31000);
+    expect((await status(a)).state).toBe("FORMING");
+    const b = await party(s); await queue(b);
+    const m = await status(a);
+    expect(m.state).toBe("ADMITTING"); expect(m.roster).toHaveLength(2);
+    expect(m.roster.map(x => x.teamId)).toEqual([0, 0]);
+    expect(m.roster.map(x => x.playerId).sort()).toEqual([a.members[0].playerId, b.members[0].playerId].sort());
+  });
+  it("public Freestyle Fill Off uses only the existing whole party and rejects lone humans", async () => {
+    const s: PartySettings = { ...settings(false, "Solo"), mode: "Freestyle" };
+    const solo = await party(s); expect((await queue(solo)).status).toBe(409);
+    const a = await party(s, 2); await queue(a); const m = await status(a);
+    expect(m.state).toBe("ADMITTING");
+    expect(m.roster.map(x => x.playerId).sort()).toEqual(a.members.map(x => x.playerId).sort());
+    const b = await party({ ...s, fill: true }, 2); await queue(b);
+    expect((await status(b)).matchId).not.toBe(m.matchId);
+    expect((await queue(solo, "PrivateCreate")).status).toBe(200);
+    const privateMatch = await status(solo);
+    expect((await call(matchPath(solo, privateMatch, "launch"), {}, solo.members[0])).status).toBe(200);
+  });
+  it("atomically fills Freestyle to eight without splitting a party or using private built-in rooms", async () => {
+    const s: PartySettings = { ...settings(true, "Solo"), mode: "Freestyle" };
+    const privateGroup = await party(s, 2); await queue(privateGroup, "PrivateCreate");
+    const privateMatch = await status(privateGroup);
+    const groups = await Promise.all([4, 4].map(n => party(s, n)));
+    await Promise.all(groups.map(g => queue(g)));
+    const views = await Promise.all(groups.map(status));
+    expect(views.every(v => v.matchId !== privateMatch.matchId)).toBe(true);
+    const full = views.find(v => v.state === "ADMITTING")!; expect(full.roster).toHaveLength(8);
+    for (const g of groups) {
+      const ids = full.roster.filter(x => x.partyId === g.p.id).map(x => x.playerId).sort();
+      expect(ids.length === 0 || ids.join() === g.members.map(x => x.playerId).sort().join()).toBe(true);
+    }
+    expect((await status(privateGroup)).roster).toHaveLength(2);
   });
 });
 
