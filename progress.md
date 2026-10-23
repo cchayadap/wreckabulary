@@ -54,7 +54,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Produce 12 concepts and editable Blender models: BAT, BROOM, HAMMER, SPEAR, SHIELD, PLATE, TABLE, SOFA, BED, STOOL, FAN, CLOCK.
 - [x] Pass 24 FBX/GLB reimports and native presentation checks.
 - [~] Inspect actual assets close-up/held/placed/at gameplay distance for believable detail, scale, materials and readability.
-- [ ] Improve deficient models/materials while preserving editable sources and appropriate rendering/collision costs.
+- [~] Improve deficient models/materials while preserving editable sources and appropriate rendering/collision costs. DetailV2 build, all 24 independent reimports, 48 final views and delivery-integrity checks pass; exported meshes fall from the verified original count of 174 to 27 (84.5%), with a maximum 4,908 triangles per model. Earlier hand-summed reports said 193; the final manifest comparison corrects that baseline. Side-view review found and repaired the fan's missing shaft/support. Unity appearance remains pending.
 - [ ] Verify Unity prefabs/materials/grips/icons and all held/placed/thrown/used/destroyed states.
 - [ ] Capture final assets/gameplay and obtain owner visual-quality/feel review on the reviewable build.
 
@@ -98,8 +98,10 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Save a private recovery snapshot under `.harness/recovery/2026-10-23T08-53-03-542Z-da1d8676-0794-40fc-a246-cd5de5cc201a`; its manifest verifies every copied file. Existing Git history, caches and private service credentials remain in place.
 - [x] Recover the actual public C# result: 28 executed / 28 passed. No Worker success was inferred from the interrupted run.
 - [x] Integrate recovered public/all-five-mode and private custom-map sources; C# client 41/41 and unique Worker 98/98 checks pass. Additional multi-seed binding configuration checks are running separately.
-- [~] Remove repeated input allocations; controller navigation and neutral input release are integrated and reviewed, native input/menu verification pending. Cache public map labels by mode/format and normalize Fill for custom modes that do not support it.
+- [~] Remove repeated input allocations; gameplay controller navigation and neutral input release are integrated and reviewed, native input/menu verification pending. Cache public map labels by mode/format and normalize Fill for custom modes that do not support it. Additional party-screen controller navigation and workshop focus guards are in progress.
 - [~] Improve material/construction detail; preserve editable Blender components while combining static export meshes to reduce Unity renderer overhead. Measure before/after counts and verify all FBX/GLB bounds/grips.
+- [~] Bind public admission to the approved map's exact mode and team format. Source repair and negative Worker cases are integrated; new gates await the asset slot. Earlier green Worker results do not validate this later change.
+- [~] Present camera settings in clearly labeled Inspector groups, with metre distances and degree angles. Source saved; native appearance and live behavior checks pending.
 - [ ] Validate the assembled source, import final content, run native gameplay/public/recovery checks, then build and smoke-test the exact Windows delivery.
 
 There is still no verified Windows player. Public matchmaking remains closed until the final matching catalogue and service are validated and deployed. This recovery does not change those acceptance states.
