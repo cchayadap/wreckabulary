@@ -113,6 +113,12 @@ for(const id of expected){
   assert(digest(concept)===model.concept_sha256,`${id} model references another concept`);
   assert(model.triangles>0&&model.triangles<=6000,`${id} triangle budget`);
   assert(model.materials.length<=2&&model.has_uv,`${id} material/UV contract`);
+  assert(model.editable_mesh_count>=oldModel.mesh_count&&model.export_mesh_count>0&&
+    model.export_mesh_count<model.editable_mesh_count,`${id} editable/export mesh contract`);
+  assert(model.export_mesh_count===model.mesh_count&&model.material_draw_count===model.export_mesh_count,
+    `${id} expected one material per grouped delivery mesh`);
+  assert(model.export_pivots?.some(pivot=>pivot.name===`${id}_Grip_R`)&&
+    model.export_pivots.some(pivot=>pivot.name===`${id}_Front`),`${id} authored pivot records missing`);
   assert(JSON.stringify(model.size_unity_metres)===JSON.stringify(prompt.sizeUnityMetres),`${id} changed dimensions`);
   assert(JSON.stringify(model.grip_unity_metres)===JSON.stringify(prompt.gripUnityMetres),`${id} changed grip`);
   assert(model.held_scale===prompt.heldScale,`${id} changed held scale`);
@@ -126,12 +132,24 @@ for(const id of expected){
   assert(iconRecord,`${id} missing icon`);
   const icon=rgba(file(iconRecord.path,iconRecord.sha256));
   assert(icon.width===512&&icon.height===512&&icon.transparentPixels>0&&icon.visiblePixels>0,`${id} invalid icon alpha`);
-  for(const format of ['fbx','glb'])assert(verification.checks.some(check=>check.id===id&&check.format===format&&check.passed),`${id} missing export verdict`);
+  for(const format of ['fbx','glb']){
+    const check=verification.checks.find(check=>check.id===id&&check.format===format);
+    assert(check?.passed&&check.meshes===model.export_mesh_count&&check.material_draw_count===model.material_draw_count&&
+      check.max_pivot_matrix_error<=.001,`${id} missing measured mesh/pivot export verdict`);
+  }
   checks.push({id,passed:true,triangles:model.triangles,conceptSize:[conceptInfo.width,conceptInfo.height],
+    originalMeshes:oldModel.mesh_count,editableMeshes:model.editable_mesh_count,exportMeshes:model.export_mesh_count,
+    materialDrawCount:model.material_draw_count,fbxBytes:fbx.length,glbBytes:glb.length,
     iconTransparentPixels:icon.transparentPixels,iconVisiblePixels:icon.visiblePixels});
 }
 const report={passed:true,concepts:12,models:12,exports:24,previews:36,icons:12,
   revision:'DetailV2',materialMaps:3,roughnessRangesTopToBottom:roughnessRanges,
+  originalMeshes:checks.reduce((total,check)=>total+check.originalMeshes,0),
+  editableMeshes:checks.reduce((total,check)=>total+check.editableMeshes,0),
+  exportMeshes:checks.reduce((total,check)=>total+check.exportMeshes,0),
+  materialDrawCount:checks.reduce((total,check)=>total+check.materialDrawCount,0),
+  fbxBytes:checks.reduce((total,check)=>total+check.fbxBytes,0),
+  glbBytes:checks.reduce((total,check)=>total+check.glbBytes,0),
   maximumTriangles:Math.max(...checks.map(check=>check.triangles)),checks,
   nativeUnityValidation:'NOT RUN',humanOwnerAcceptance:'NOT RUN'};
 fs.writeFileSync(path.join(folder,'delivery-verification.json'),JSON.stringify(report,null,2)+'\n');

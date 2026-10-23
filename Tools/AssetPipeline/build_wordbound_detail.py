@@ -182,6 +182,74 @@ def record(base, output, path):
     return {"path": str(path.relative_to(output)).replace("\\", "/"), "sha256": base.sha256(path)}
 
 
+def mesh_measurements(base, root):
+    meshes = [obj for obj in base.descendants(root) if obj.type == "MESH"]
+    points = sorted(tuple(round(component, 6) for component in root.matrix_world.inverted() @ obj.matrix_world @ vertex.co)
+                    for obj in meshes for vertex in obj.data.vertices)
+    return meshes, points
+
+
+def grouped_export(base, root, output, spec):
+    objects = base.descendants(root)
+    names = {obj: obj.name for obj in objects}
+    source_meshes, source_points = mesh_measurements(base, root)
+    copies = {}
+    temporary_meshes = []
+    temporary = bpy.data.collections.new("Wordbound temporary delivery")
+    bpy.context.scene.collection.children.link(temporary)
+    try:
+        for obj in objects:
+            obj.name = names[obj] + "__EditableSource"
+        for obj in objects:
+            copy = obj.copy()
+            if obj.type == "MESH":
+                copy.data = obj.data.copy()
+                temporary_meshes.append(copy.data)
+            copy.name = names[obj]
+            temporary.objects.link(copy)
+            copies[obj] = copy
+        for obj, copy in copies.items():
+            copy.parent = copies.get(obj.parent)
+        delivery = copies[root]
+        bpy.context.view_layer.update()
+        groups = {}
+        for obj in copies.values():
+            if obj.type == "MESH":
+                if len(obj.data.materials) != 1:
+                    raise RuntimeError("Each editable component must have one material before grouping")
+                groups.setdefault((obj.parent, obj.data.materials[0]), []).append(obj)
+        for (parent, material), members in groups.items():
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in members:
+                obj.select_set(True)
+            bpy.context.view_layer.objects.active = members[0]
+            if len(members) > 1:
+                bpy.ops.object.join()
+            members[0].name = parent.name + "_" + material.name + "Mesh"
+        bpy.context.view_layer.update()
+        delivery_meshes, delivery_points = mesh_measurements(base, delivery)
+        if len(source_points) != len(delivery_points) or any(
+                abs(a - b) > .00001 for before, after in zip(source_points, delivery_points) for a, b in zip(before, after)):
+            raise RuntimeError(spec["id"] + ": grouping changed vertex positions")
+        measured = base.inspect_model(delivery, spec)
+        measured["editable_mesh_count"] = len(source_meshes)
+        measured["export_mesh_count"] = len(delivery_meshes)
+        measured["material_draw_count"] = sum(len(obj.data.materials) for obj in delivery_meshes)
+        measured["export_pivots"] = [{"name": obj.name, "matrix_world": [value for row in obj.matrix_world for value in row]}
+                                     for obj in base.descendants(delivery) if obj.type == "EMPTY"]
+        measured["exports"] = base.export(delivery, output, spec)
+        return measured
+    finally:
+        for obj in list(temporary.objects):
+            bpy.data.objects.remove(obj, do_unlink=True)
+        bpy.data.collections.remove(temporary)
+        for mesh in temporary_meshes:
+            if mesh.users == 0:
+                bpy.data.meshes.remove(mesh)
+        for obj, name in names.items():
+            obj.name = name
+
+
 def build(base, source, output):
     if output.exists():
         raise RuntimeError("Choose a new revision directory; build never overwrites an existing revision")
@@ -204,9 +272,8 @@ def build(base, source, output):
         remap_uv(base, root, spec["id"])
         base.normalize(root, spec)
         root["art_revision"] = "DetailV2"
-        entry = base.inspect_model(root, spec)
+        entry = grouped_export(base, root, output, spec)
         entry["concept_sha256"] = base.sha256(output / spec["destination"])
-        entry["exports"] = base.export(root, output, spec)
         entry["previews"] = []
         entries.append(entry)
         collection = bpy.data.collections.new(spec["id"] + " — editable components")
@@ -229,6 +296,7 @@ def build(base, source, output):
         "generator_sha256": base.sha256(__file__), "base_generator_sha256": base.sha256(base.__file__),
         "prior_source_sha256": old["source"]["sha256"],
         "provenance": "Original editable geometry revision and procedural material sources; unchanged original concept bytes. No external provider.",
+        "delivery_optimization": "Merge meshes only within the same parent pivot and material; editable source components remain separate.",
         "source": record(base, output, output / "Source/WordboundPvP.blend"),
         "palette": record(base, output, output / "Exports/WordboundPvPPalette.png"),
         "detail_maps": {"normal": record(base, output, output / "Exports/WordboundPvPNormal.png"),
@@ -240,6 +308,78 @@ def build(base, source, output):
                               "roughness": "linear grayscale for Blender/glTF"},
         "native_unity_validation": "NOT RUN", "human_acceptance": "NOT RUN", "assets": entries}
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+
+def verify(base, output):
+    manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+    checks = []
+    for entry in manifest["assets"]:
+        for format_name in ("fbx", "glb"):
+            bpy.ops.wm.read_factory_settings(use_empty=True)
+            file = output / entry["exports"][format_name]["path"]
+            errors = []
+            if base.sha256(file) != entry["exports"][format_name]["sha256"]:
+                errors.append("file hash differs")
+            if format_name == "fbx":
+                bpy.ops.import_scene.fbx(filepath=str(file))
+            else:
+                bpy.ops.import_scene.gltf(filepath=str(file))
+            bpy.context.view_layer.update()
+            objects = list(bpy.context.scene.objects)
+            meshes = [obj for obj in objects if obj.type == "MESH"]
+            triangles = 0
+            for obj in meshes:
+                obj.data.calc_loop_triangles()
+                triangles += len(obj.data.loop_triangles)
+                if any(triangle.area < 1e-12 for triangle in obj.data.loop_triangles):
+                    errors.append("degenerate triangle")
+            points = [obj.matrix_world @ v.co for obj in meshes for v in obj.data.vertices]
+            low = [min(point[i] for point in points) for i in range(3)]
+            high = [max(point[i] for point in points) for i in range(3)]
+            bounds_error = max(abs(got - want) for actual, expected in
+                               ((low, entry["bounds_blender_min"]), (high, entry["bounds_blender_max"]))
+                               for got, want in zip(actual, expected))
+            if bounds_error > .001 or triangles != entry["triangles"]:
+                errors.append("bounds or triangle count differs")
+            if len(meshes) != entry["export_mesh_count"]:
+                errors.append("optimized mesh count differs")
+            draw_count = sum(len(obj.data.materials) for obj in meshes)
+            if draw_count != entry["material_draw_count"]:
+                errors.append("material draw count differs")
+            pivot_error = 0
+            for pivot in entry["export_pivots"]:
+                name = "Grip_R" if pivot["name"] == entry["id"] + "_Grip_R" else pivot["name"]
+                obj = next((obj for obj in objects if obj.name == name), None)
+                if not obj or obj.type != "EMPTY":
+                    errors.append("missing authored pivot: " + name)
+                    continue
+                actual = [value for row in obj.matrix_world for value in row]
+                pivot_error = max(pivot_error, max(abs(a - b) for a, b in zip(actual, pivot["matrix_world"])))
+            if pivot_error > .001:
+                errors.append("authored pivot transform drift")
+            marker = next((obj for obj in objects if obj.name == "Grip_R"), None)
+            expected = entry["grip_unity_metres"]
+            if not marker or (marker.matrix_world.translation - Vector((expected[0], expected[2], expected[1]))).length > .001:
+                errors.append("Grip_R missing or moved")
+            materials = {slot.material.name for obj in meshes for slot in obj.material_slots if slot.material}
+            if len(materials) != 2 or any(not obj.data.uv_layers for obj in meshes):
+                errors.append("material or UV contract differs")
+            images = [node.image for material in bpy.data.materials if material.use_nodes
+                      for node in material.node_tree.nodes if node.type == "TEX_IMAGE" and node.image]
+            if not images or any(max(image.size) > 512 or min(image.size) < 1 for image in images):
+                errors.append("material texture missing or oversized")
+            if any(obj.type in {"CAMERA", "LIGHT"} for obj in objects):
+                errors.append("embedded camera or light")
+            checks.append({"id": entry["id"], "format": format_name, "passed": not errors,
+                           "triangles": triangles, "meshes": len(meshes), "material_draw_count": draw_count,
+                           "max_bounds_error_metres": bounds_error, "max_pivot_matrix_error": pivot_error,
+                           "materials": sorted(materials), "errors": errors})
+            print("WORDBOUND_CHECK " + json.dumps(checks[-1]), flush=True)
+    report = {"blender": bpy.app.version_string, "passed": all(check["passed"] for check in checks),
+              "formats": ["fbx", "glb"], "native_unity_validation": "NOT RUN", "checks": checks}
+    (output / "export-verification.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    if not report["passed"]:
+        raise RuntimeError("Wordbound detail export validation failed")
 
 
 def render(base, output, selected):
@@ -287,7 +427,7 @@ def main():
     if args.command == "build":
         build(base, source, output)
     elif args.command == "verify":
-        base.verify(output)
+        verify(base, output)
     else:
         render(base, output, args.items)
 
