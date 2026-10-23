@@ -544,7 +544,15 @@ namespace Wreckabulary.OnlineGameplayTests
             {
                 var error = task.Exception?.GetBaseException();
                 string code = error is OnlineServiceException service ? "HTTP " + service.Status + " " + service.Code : error?.GetType().Name;
-                Assert.Fail(operation + " failed: " + code + ". Raw responses and exceptions are omitted.");
+                string origin = "unavailable";
+                try
+                {
+                    origin = string.Join(" > ", (new System.Diagnostics.StackTrace(error, false).GetFrames() ??
+                        Array.Empty<System.Diagnostics.StackFrame>()).Take(4).Select(frame => frame.GetMethod())
+                        .Where(method => method != null).Select(method => method.DeclaringType?.FullName + "." + method.Name));
+                }
+                catch { }
+                Assert.Fail(operation + " failed: " + code + "; origin=" + origin + ". Raw responses and exception messages are omitted.");
             }
         }
         static NetworkObject Load(string name)

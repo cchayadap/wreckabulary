@@ -26,7 +26,7 @@ namespace Wreckabulary.OnlineGameplayTests
             var observation = new Observation(peerIndex, creation, started);
             observations.Add(observation);
             var adapter = runner.gameObject.AddComponent<WordboundNativeTickBatchAdapter>();
-            Assert.IsNotNull(adapter, "The native tick probe needs its editor-guarded runtime-assembly adapter.");
+            NUnit.Framework.Assert.IsNotNull(adapter, "The native tick probe needs its editor-guarded runtime-assembly adapter.");
             adapter.BeforeTicks = observation.Begin;
             adapter.AfterTicks = observation.End;
             adapter.Updated = observation.UnityUpdate;

@@ -60,7 +60,10 @@ namespace Wreckabulary.OnlineGameplayTests
             if (host.Party.Members.Count != count || host.Party.Members.Any(member => !member.Ready))
                 throw new InvalidOperationException("Every real authored-map peer must be ready before creating the private room.");
             await host.Queue("PrivateCreate"); CheckWorkshop(host);
+            await host.Poll(); CheckWorkshop(host);
             var assignment = host.Party.Assignment;
+            if (assignment == null || !assignment.Has("matchId"))
+                throw new InvalidOperationException("The private room did not expose its assignment after the party refresh.");
             Expected = new OnlineMatchExpectation(assignment["matchId"].String(),
                 assignment["reservationGeneration"].String(), RosterHash(assignment), Settings, Content);
             await host.StartPrivate(); CheckWorkshop(host);

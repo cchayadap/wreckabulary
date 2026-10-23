@@ -1,0 +1,42 @@
+{
+  "recordedUtc": "2026-10-23T16:38:53.588Z",
+  "sourceCommit": "7c7d3d8",
+  "cmd": "test editmode --cold --filter Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPeersDownloadAndPlayExactAuthoredWorkshopMap",
+  "rung": "R3",
+  "ok": false,
+  "exit": 1,
+  "verdict": "FAIL",
+  "utc": "2026-10-23T16:33:28Z",
+  "secs": 70.4,
+  "route": "cold",
+  "errors": [],
+  "failures": [
+    {
+      "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPeersDownloadAndPlayExactAuthoredWorkshopMap",
+      "message": "Prepare real private coordinator match failed: NullReferenceException. Raw responses and exceptions are omitted.",
+      "location": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs:547"
+    }
+  ],
+  "log": "Logs/gate_test_editmode_20261023T163328Z.log",
+  "evidence": [
+    "TestResults/editmode_20261023T163328Z.xml"
+  ],
+  "infra": null,
+  "slot": null,
+  "crashAfterQuit": false,
+  "refreshSecs": 20.7,
+  "tests": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "logSha256": "bfa9baba74bde55a472626a1d04782b50f1b4542a5fc3b716c27fc54a1316154",
+  "evidenceHashes": [
+    {
+      "path": "TestResults/editmode_20261023T163328Z.xml",
+      "sha256": "5f15037fab9eb3ce53628940b6dfd242485aa80b6e522f96b36a1284acf4b6ee"
+    }
+  ],
+  "sourceFinding": "Queue response returns party view without assignment; GET Party retrieves pool status. Fixture read assignment before refresh. Added actual coordinator.Poll before access; native rerun pending. Production UI already polls."
+}
