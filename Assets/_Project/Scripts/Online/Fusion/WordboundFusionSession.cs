@@ -726,7 +726,7 @@ namespace Wreckabulary.Online
             }
             if (!receivedMark.Same(mark) || receivedChunks.Length != count || receivedBytes != length || receivedWireHash != hash ||
                 clock() - incomingStarted >= 10000 || receivedChunks[index] != null)
-                throw new FormatException("Mixed, duplicate or stale snapshot transfer.");
+                throw SnapshotTransferError(mark, count, index, length, hash);
             receivedChunks[index] = OnlineJson.DecodeBase64Url(body["data"].String(), OnlineSnapshotPacket.ChunkBytes);
             if (receivedChunks.Any(c => c == null)) return;
             string json = OnlineSnapshotPacket.Restore(receivedChunks, length, hash);
@@ -735,6 +735,23 @@ namespace Wreckabulary.Online
             ReplicaReceived?.Invoke(json, mark);
             SendServer(OnlineWireKind.SnapshotAck, mark.ToValue());
             TryClientBegin();
+        }
+        FormatException SnapshotTransferError(OnlineSnapshotMark mark, int count, int index, int length, string hash)
+        {
+            var error = new FormatException("Mixed, duplicate or stale snapshot transfer.");
+            try
+            {
+                error.Data["snapshotSameMark"] = receivedMark != null && receivedMark.Same(mark) ? 1L : 0L;
+                error.Data["snapshotSameCount"] = receivedChunks != null && receivedChunks.Length == count ? 1L : 0L;
+                error.Data["snapshotSameLength"] = receivedBytes == length ? 1L : 0L;
+                error.Data["snapshotSameWireHash"] = receivedWireHash == hash ? 1L : 0L;
+                error.Data["snapshotDuplicateChunk"] = receivedChunks != null && index >= 0 &&
+                    index < receivedChunks.Length && receivedChunks[index] != null ? 1L : 0L;
+                error.Data["snapshotTransferElapsedMilliseconds"] = clock() - incomingStarted;
+                error.Data["snapshotTransferTimeoutMilliseconds"] = 10000L;
+            }
+            catch { }
+            return error;
         }
         void TryClientBegin()
         {
@@ -772,7 +789,9 @@ namespace Wreckabulary.Online
                     "tokenLifetimeSeconds", "leaseRemainingMilliseconds", "latestPollGapMilliseconds", "maxPollGapMilliseconds",
                     "writerAcquiredOffsetMilliseconds", "writerRenewInFlight", "writerRenewAttempts", "writerRenewDueOffsetMilliseconds",
                     "writerRenewStartedOffsetMilliseconds", "writerRenewCompletedOffsetMilliseconds", "writerRenewErrorOffsetMilliseconds",
-                    "writerRenewErrorHttpStatus" }.Where(key => error.Data[key] is long)
+                    "writerRenewErrorHttpStatus", "snapshotSameMark", "snapshotSameCount", "snapshotSameLength",
+                    "snapshotSameWireHash", "snapshotDuplicateChunk", "snapshotTransferElapsedMilliseconds",
+                    "snapshotTransferTimeoutMilliseconds" }.Where(key => error.Data[key] is long)
                     .Select(key => key + "=" + ((long)error.Data[key]).ToString(System.Globalization.CultureInfo.InvariantCulture))
                     .Concat(new[] { "writerRenewErrorType", "writerRenewErrorCode" }.Where(key => error.Data[key] is string)
                         .Select(key => key + "=" + (string)error.Data[key])));
@@ -803,6 +822,9 @@ namespace Wreckabulary.Online
             "Coordinator clock is outside the supported tolerance." => "clock-outside-tolerance",
             "Canonical writer lease expired." => "writer-lease-expired",
             "Canonical writer lease expired or changed." => "writer-lease-fence",
+            "Host authorization must precede a snapshot." => "snapshot-before-admission",
+            "Snapshot identity or frontier mismatch." => "snapshot-identity-or-frontier",
+            "Mixed, duplicate or stale snapshot transfer." => "snapshot-transfer-mismatch-duplicate-or-stale",
             _ => "unclassified"
         };
         public Task Stop() => stopTask ??= StopCore();
