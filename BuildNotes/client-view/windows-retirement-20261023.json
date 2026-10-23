@@ -1,0 +1,376 @@
+{
+  "recordedUtc": "2026-10-23T20:24:47.533657+00:00",
+  "sourceAtLaunch": "449f292e68e815b40e03d26dbbaf7a7deab2496a",
+  "build": {
+    "schema": 1,
+    "id": "20261023T201839Z",
+    "kind": "release-qa",
+    "dir": "Builds/qa-20261023T201839Z",
+    "exe": "Wreckabulary.exe",
+    "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "utc": "2026-10-23T20:20:25Z",
+    "development": false,
+    "unity_version": "6000.6.3f1",
+    "head": "449f292e68e815b40e03d26dbbaf7a7deab2496a",
+    "tree": "0aefa05a2d789c1ff1adcd273afd43f09650a66a41c9a96587b633015c83be86",
+    "secs": 106.3,
+    "ok": true
+  },
+  "visibleStatus": {
+    "status": "finished",
+    "diagnosticOnly": true,
+    "officialGateReplacement": false,
+    "build": "20261023T201839Z",
+    "runId": "20261023T202045Z-visible-wordbound_workshop_flow",
+    "executable": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Builds\\qa-20261023T201839Z\\Wreckabulary.exe",
+    "sha256": "96B492CB271111251FE42B8646E65370A1B7B566773A1E35B34C3F2D1AE70873",
+    "arguments": [
+      "-screen-fullscreen",
+      "0",
+      "-screen-width",
+      "1280",
+      "-screen-height",
+      "720",
+      "-qa-scenario",
+      "wordbound_workshop_flow",
+      "-qa-seed",
+      "1",
+      "-qa-out",
+      "\"C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\docs\\qa\\runs\\20261023T202045Z-visible-wordbound_workshop_flow\"",
+      "-logFile",
+      "\"C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\player\\20261023T202045Z-visible-wordbound_workshop_flow.log\""
+    ],
+    "windowStyle": "Normal",
+    "output": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\docs\\qa\\runs\\20261023T202045Z-visible-wordbound_workshop_flow",
+    "log": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\player\\20261023T202045Z-visible-wordbound_workshop_flow.log",
+    "pid": 34304,
+    "startedUtc": "2026-10-23T20:20:45.7426533Z",
+    "finishedUtc": "2026-10-23T20:22:58.7661969Z",
+    "exitCode": 1
+  },
+  "checks": {
+    "schema": 1,
+    "run_id": "20261023T202045Z-visible-wordbound_workshop_flow",
+    "commit": null,
+    "tree": null,
+    "build_id": "20261023T201839Z",
+    "scenario": "wordbound_workshop_flow",
+    "seed": 1,
+    "platform": "player",
+    "development_build": false,
+    "unity_version": "6000.6.3f1",
+    "started_utc": "2026-10-23T20:21:16Z",
+    "ended_utc": "2026-10-23T20:22:57Z",
+    "result": "FAIL",
+    "steps": [
+      {
+        "name": "open_wordbound",
+        "status": "PASS",
+        "t_s": 4.79432,
+        "probes": {
+          "party_frame_scene": "WordboundLobby",
+          "party_frame_screen": "1280x720",
+          "party_frame_focused": true,
+          "party_frame_splash_finished": true,
+          "party_frame_current": 5,
+          "party_frame_rendered": 5,
+          "party_frame_repaints": 4,
+          "party_frame_repaints_after_splash": 3,
+          "party_frame_last_repaint": 5,
+          "party_frame_menu_active": true,
+          "party_frame_menu_visible": true,
+          "party_frame_camera": "Wordbound lobby camera",
+          "party_frame_camera_active": true,
+          "party_frame_camera_display": 0,
+          "party_frame_camera_target": "none",
+          "party_frame_camera_callbacks": 3,
+          "party_frame_last_camera": 5,
+          "party_frame_camera_callback": "endCameraRendering",
+          "party_frame_ready": true,
+          "party_capture_width": 1280,
+          "party_capture_height": 720,
+          "party_capture_nonblack_pixels": 921600,
+          "party_capture_nonzero_alpha_pixels": 921600,
+          "party_capture_varied_rgb": true,
+          "party_capture_min_rgba": "2,3,4,255",
+          "party_capture_max_rgba": "201,201,201,255"
+        },
+        "assert_failures": [],
+        "captures": [
+          "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_party.png"
+        ]
+      },
+      {
+        "name": "edit_workshop",
+        "status": "PASS",
+        "t_s": 9.680603,
+        "probes": {
+          "workshop_autosave_verified": true,
+          "workshop_edit_completed": true,
+          "workshop_atomic_path_characters": 164,
+          "workshop_storage_folder": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\e121412e11fb4b0bb6403c7281f16a9a",
+          "manifest_hash": "146a289906d1cf3840a9985ce0a38e4ae968889b9e1cb1b60808333ed519e77f",
+          "seed": "0314159265358979",
+          "workshop_autosave_primary": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\e121412e11fb4b0bb6403c7281f16a9a\\templates\\Flagship\\wordbound-lost-address.autosave.json",
+          "workshop_autosave_bytes": 183314,
+          "workshop_autosave_used_backup": false,
+          "workshop_autosave_exact": true,
+          "workshop_autosave_draft_unchanged": true,
+          "workshop_autosave_temporary_files": 0,
+          "workshop_recovered_seed": "0314159265358979",
+          "workshop_autosave_evidence": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/workshop-autosave.json",
+          "workshop_capture_width": 1280,
+          "workshop_capture_height": 720,
+          "workshop_capture_nonblack_pixels": 921207,
+          "workshop_capture_nonzero_alpha_pixels": 921600,
+          "workshop_capture_varied_rgb": true,
+          "workshop_capture_min_rgba": "0,0,0,255",
+          "workshop_capture_max_rgba": "209,255,204,255"
+        },
+        "assert_failures": [],
+        "captures": [
+          "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_workshop.png"
+        ]
+      },
+      {
+        "name": "exact_playtest",
+        "status": "FAIL",
+        "t_s": 100.420044,
+        "probes": {
+          "playtest_observation": "frame_wait_progress",
+          "playtest_stage": "wait_90_frames",
+          "playtest_start_frame": 9,
+          "playtest_ready_frame": 14,
+          "playtest_current_frame": 89,
+          "playtest_post_ready_waited_frames": 75,
+          "playtest_elapsed_seconds": 89.890557,
+          "playtest_canonical_tick": 4549,
+          "playtest_has_client": true,
+          "playtest_has_controller": true,
+          "playtest_controller_active": true,
+          "playtest_has_frame": true,
+          "playtest_has_world": true,
+          "playtest_paused": false,
+          "playtest_ready_condition": true,
+          "playtest_gameplay_fault": false,
+          "playtest_guide_fault": false,
+          "playtest_presentation_fault": false,
+          "playtest_marker_count": 1,
+          "playtest_visual_count": 93,
+          "playtest_camera_exists": true,
+          "playtest_camera_active": true,
+          "playtest_menu_open": false,
+          "playtest_time_scale": 1,
+          "playtest_focused": true,
+          "playtest_ready_elapsed_seconds": 5.6706,
+          "playtest_ready_canonical_tick": 49,
+          "local_ready_capture_width": 1280,
+          "local_ready_capture_height": 720,
+          "local_ready_capture_nonblack_pixels": 921600,
+          "local_ready_capture_nonzero_alpha_pixels": 921600,
+          "local_ready_capture_varied_rgb": true,
+          "local_ready_capture_min_rgba": "7,7,5,255",
+          "local_ready_capture_max_rgba": "255,243,223,255"
+        },
+        "assert_failures": [
+          "timed out after 90 s"
+        ],
+        "captures": [
+          "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_local_ready.png"
+        ]
+      },
+      {
+        "name": "return_to_workshop",
+        "status": "PASS",
+        "t_s": 100.598091,
+        "probes": {
+          "playtest_observation": "before_return",
+          "playtest_stage": "wait_90_frames",
+          "playtest_start_frame": 9,
+          "playtest_ready_frame": 14,
+          "playtest_current_frame": 90,
+          "playtest_post_ready_waited_frames": 75,
+          "playtest_elapsed_seconds": 90.738307,
+          "playtest_canonical_tick": 4609,
+          "playtest_has_client": true,
+          "playtest_has_controller": true,
+          "playtest_controller_active": true,
+          "playtest_has_frame": true,
+          "playtest_has_world": true,
+          "playtest_paused": false,
+          "playtest_ready_condition": true,
+          "playtest_gameplay_fault": false,
+          "playtest_guide_fault": false,
+          "playtest_presentation_fault": false,
+          "playtest_marker_count": 1,
+          "playtest_visual_count": 93,
+          "playtest_camera_exists": true,
+          "playtest_camera_active": true,
+          "playtest_menu_open": false,
+          "playtest_time_scale": 1,
+          "playtest_focused": true,
+          "same_history": true,
+          "draft_unchanged": true,
+          "client_destroyed": true,
+          "camera_destroyed": true,
+          "editor_visible": true
+        },
+        "assert_failures": [],
+        "captures": [
+          "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_returned_workshop.png"
+        ]
+      },
+      {
+        "name": "undo_redo_preserved",
+        "status": "PASS",
+        "t_s": 100.762871,
+        "probes": {
+          "undo_redo_exact": true
+        },
+        "assert_failures": []
+      }
+    ],
+    "perf": {},
+    "console": {
+      "errors": 0,
+      "exceptions": 0,
+      "warnings": 0,
+      "first_exception": null
+    },
+    "captures": [
+      {
+        "name": "wordbound_party",
+        "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_party.png",
+        "kind": "png",
+        "camera": "screen",
+        "utc": "2026-10-23T20:21:21Z"
+      },
+      {
+        "name": "wordbound_workshop",
+        "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_workshop.png",
+        "kind": "png",
+        "camera": "screen",
+        "utc": "2026-10-23T20:21:26Z"
+      },
+      {
+        "name": "wordbound_local_ready",
+        "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_local_ready.png",
+        "kind": "png",
+        "camera": "screen",
+        "utc": "2026-10-23T20:21:32Z"
+      },
+      {
+        "name": "wordbound_returned_workshop",
+        "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_returned_workshop.png",
+        "kind": "png",
+        "camera": "screen",
+        "utc": "2026-10-23T20:22:57Z"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "Builds/qa-20261023T201839Z/build.json",
+      "bytes": 451,
+      "sha256": "2a9b6a87a05d25aa5ae99157820fe244d46ccac0633d558a5316f02ef038d626"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/packed_assets.json",
+      "bytes": 6199187,
+      "sha256": "63c867932f634e8b9056768eea414a98ea5e6ca114b80671606094b12be388ab"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/UnityPlayer.dll",
+      "bytes": 38696368,
+      "sha256": "7c8127007131559a3daa04aa3a3e8d1477975fe449f59917c5c75d86fa1f904f"
+    },
+    {
+      "path": "Logs/gate_build_release-qa_20261023T201839Z.log",
+      "bytes": 959204,
+      "sha256": "e4e6434cba8af04d14d3c96257910d29a33efcdc205bd71a7147fec5ffa6f522"
+    },
+    {
+      "path": "Logs/player/20261023T202045Z-visible-wordbound_workshop_flow.log",
+      "bytes": 5150,
+      "sha256": "79e161778dfa1e0d8c9a810abc0a364cf74feabcd9997063b8e7a2507f521a81"
+    },
+    {
+      "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/checks.json",
+      "bytes": 7868,
+      "sha256": "53ddf0ff538c219555a83720590b39cf25772a2a54aeb9052930cbda1f55cee7"
+    },
+    {
+      "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_local_ready.png",
+      "bytes": 621292,
+      "sha256": "dd7766b2e2aa1b1a1c7d5c5795e4a326e8ebe34376b9d7f5f52ac0266f650ded"
+    },
+    {
+      "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_party.png",
+      "bytes": 42088,
+      "sha256": "6b8c44d1f1415f4bbe2cf8639e5ff9a4264f02ba11dae10056d87fcd1ae7103d"
+    },
+    {
+      "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_returned_workshop.png",
+      "bytes": 301086,
+      "sha256": "ad72eba2592686855cb8e79d0156ca3c76e17e10b78be01d0caef85d3d7be8d0"
+    },
+    {
+      "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/wordbound_workshop.png",
+      "bytes": 301086,
+      "sha256": "ad72eba2592686855cb8e79d0156ca3c76e17e10b78be01d0caef85d3d7be8d0"
+    },
+    {
+      "path": "docs/qa/runs/20261023T202045Z-visible-wordbound_workshop_flow/workshop-autosave.json",
+      "bytes": 183314,
+      "sha256": "a97b13dedfa47126279d290b963cbf618e3e90e45502e0720fb6c77e90659678"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/Wreckabulary.exe",
+      "bytes": 667136,
+      "sha256": "96b492cb271111251fe42b8646e65370a1b7b566773a1e35b34c3f2d1ae70873"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Client.dll",
+      "bytes": 171008,
+      "sha256": "4c1d3ea183c6be629f6af826d76b8cbbd5e6e8f80d526094530327443bc292bb"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Gameplay.dll",
+      "bytes": 52736,
+      "sha256": "c7d62bd1f8aa81a5e701cdee7771dc180136f20e2032e70b24b7483adbf7d121"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Physics.dll",
+      "bytes": 48128,
+      "sha256": "b1fa5004a85face9a42cabab9ac53b2facdfe63f89fe9abb4f07178b7e69666d"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Presentation.dll",
+      "bytes": 64512,
+      "sha256": "9665684dbae57ec639f29eb8fc94487dbe43aa9e8d6ea1bdd6fd3d6fec986a4d"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Puzzles.dll",
+      "bytes": 74240,
+      "sha256": "49635d91015ec5ad7d89c544a6ad4cc9ea89ce14e94d29afca83044053e4aa52"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/Wreckabulary_Data/Managed/Wreckabulary.Rules.dll",
+      "bytes": 665600,
+      "sha256": "0c5af1641139b53ded06fa7f04dfd6824ffc0d0a1b5394292d5b988faf64697e"
+    },
+    {
+      "path": "Builds/qa-20261023T201839Z/Wreckabulary_Data/Managed/Wreckabulary.Wordbound.Qa.dll",
+      "bytes": 61952,
+      "sha256": "ac2111cad97950957a0cfffaa44490cf92aedb60b4da312fb2f426ab217bf199"
+    }
+  ],
+  "limits": [
+    "Supplemental normal-window diagnostic, not official smoke-gate evidence.",
+    "Unchanged90-frame wait failed at75; other four workshop steps pass.",
+    "Capture directly inspected by root and independent reviewer; original artwork retained. Human appearance/feel acceptance remains open.",
+    "No console errors/exceptions/warnings or recorded native crash in this run. Earlier crash remains unresolved.",
+    "perf is empty. Different runs and scheduling are not a controlled FPS or optimization benchmark.",
+    "Includes resource retirement index; no kit or SDK changes."
+  ]
+}
