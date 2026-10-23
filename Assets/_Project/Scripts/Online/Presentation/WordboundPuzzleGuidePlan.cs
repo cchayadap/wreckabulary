@@ -61,7 +61,7 @@ namespace Wreckabulary.Online
             {
                 var last = lap.Checkpoints[lap.Checkpoints.Count - 1];
                 var finish = course.RecoveryAnchors.Single(r => r.Id == last.RecoveryAnchorId);
-                markers.Add(new WordboundGuideMarker("finish:" + lap.Number, "LAP FINISH · bring keepsake",
+                markers.Add(new WordboundGuideMarker("finish:" + lap.Number, "LAP FINISH\nBring keepsake",
                     WordboundGuideKind.Finish, finish.Position, radiusMm: finish.RadiusMm));
                 return markers.AsReadOnly();
             }
@@ -70,7 +70,7 @@ namespace Wreckabulary.Online
             bool ready = checkpoint.PuzzleIds.All(completed.Contains);
             var anchor = course.RecoveryAnchors.Single(r => r.Id == checkpoint.RecoveryAnchorId);
             markers.Add(new WordboundGuideMarker("checkpoint:" + checkpoint.Id,
-                ready ? "CHECKPOINT · bring keepsake" : "CHECKPOINT · solve puzzle first",
+                ready ? "CHECKPOINT\nBring keepsake" : "CHECKPOINT\nSolve puzzle first",
                 WordboundGuideKind.Checkpoint, anchor.Position, radiusMm: anchor.RadiusMm, ready: ready));
             foreach (string id in checkpoint.PuzzleIds.Where(id => !completed.Contains(id)))
             {

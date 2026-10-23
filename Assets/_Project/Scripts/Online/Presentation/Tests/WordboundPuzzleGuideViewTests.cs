@@ -81,5 +81,45 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(1, anchor.transform.childCount);
             Assert.AreEqual(unrelated.transform, anchor.transform.GetChild(0));
         }
+
+        [TestCase(false), TestCase(true)]
+        public void CheckpointAndFinishCaptionsStayAboveTheirDecorativePost(bool finish)
+        {
+            var progress = WordboundPuzzleGuidePlanTests.Progress(course, ModeDefinition.For("TimeRun"));
+            if (finish)
+                while (progress.Team(0).NextCheckpoint < course.Laps[0].Checkpoints.Count)
+                    WordboundPuzzleGuidePlanTests.StepCheckpoint(progress, course);
+            var plan = WordboundPuzzleGuidePlan.Build(course, progress.Capture(), "a");
+            Assert.AreEqual(finish ? WordboundGuideKind.Finish : WordboundGuideKind.Checkpoint, plan[0].Kind);
+            view.Show(plan);
+            var node = view.Root.transform.GetChild(0);
+            var label = node.GetComponentInChildren<TextMesh>();
+            var post = node.GetComponentsInChildren<LineRenderer>().Single(line => line.positionCount == 2);
+            var at = new Vector3(plan[0].Position.X / 1000f, plan[0].Position.Y / 1000f, plan[0].Position.Z / 1000f);
+            Assert.AreEqual(TextAnchor.LowerCenter, label.anchor);
+            StringAssert.Contains("\n", label.text);
+            Assert.Less(Vector3.Distance(at + Vector3.up, label.transform.localPosition), .0001f);
+            Assert.Less(Vector3.Distance(at + Vector3.up * .7f, post.GetPosition(1)), .0001f);
+            var cameraRoot = new GameObject("Guide caption projection");
+            SceneManager.MoveGameObjectToScene(cameraRoot, scene);
+            try
+            {
+                var camera = cameraRoot.AddComponent<Camera>();
+                camera.fieldOfView = 60; camera.aspect = 1280f / 720f;
+                foreach (var angle in new[] { new Vector2(15, 0), new Vector2(35, 45), new Vector2(55, 120) })
+                {
+                    camera.transform.rotation = Quaternion.Euler(angle.x, angle.y, 0);
+                    camera.transform.position = label.transform.position - camera.transform.forward * 8;
+                    view.FaceLabels(camera);
+                    var textAnchor = camera.WorldToViewportPoint(label.transform.position);
+                    var postTop = camera.WorldToViewportPoint(post.transform.TransformPoint(post.GetPosition(1)));
+                    Assert.Greater(textAnchor.z, 0);
+                    Assert.Greater(textAnchor.y - postTop.y, .01f,
+                        "Lower-anchored text must start above the post in the sampled camera projection.");
+                }
+            }
+            finally { Object.DestroyImmediate(cameraRoot); }
+            Assert.IsEmpty(view.Root.GetComponentsInChildren<Collider>(true));
+        }
     }
 }

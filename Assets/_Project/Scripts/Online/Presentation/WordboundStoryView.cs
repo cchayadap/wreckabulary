@@ -77,8 +77,8 @@ namespace Wreckabulary.Online
                     var renderer = label.GetComponent<MeshRenderer>();
                     renderer.sharedMaterial = label.font.material;
                     renderer.shadowCastingMode = ShadowCastingMode.Off;
-                    label.text = notice.Place + "\n" + Wrap(notice.Clue, 42);
-                    label.fontSize = 48; label.characterSize = .026f;
+                    label.text = notice.Place + "\n" + Wrap(notice.Clue, 36);
+                    label.fontSize = 48; label.characterSize = .032f;
                     label.anchor = TextAnchor.MiddleCenter; label.alignment = TextAlignment.Center;
                     label.richText = false;
                     label.color = new Color(1f, .9f, .63f);
@@ -86,14 +86,17 @@ namespace Wreckabulary.Online
                 }
             }
             root.SetActive(true);
-            foreach (var sign in signs)
-            {
-                var delta = sign.transform.position - viewCamera.transform.position;
-                bool nearby = delta.sqrMagnitude < 400f;
-                sign.gameObject.SetActive(nearby);
-                if (nearby && delta.sqrMagnitude > .001f)
-                    sign.transform.rotation = Quaternion.LookRotation(delta.normalized, viewCamera.transform.up);
-            }
+            foreach (var sign in signs) FaceNotice(sign, viewCamera);
+        }
+
+        static void FaceNotice(TextMesh sign, Camera camera)
+        {
+            var delta = sign.transform.position - camera.transform.position;
+            bool nearby = delta.sqrMagnitude < 400f;
+            sign.gameObject.SetActive(nearby);
+            if (!nearby) return;
+            sign.transform.rotation = camera.transform.rotation;
+            sign.transform.localScale = Vector3.one * Mathf.Clamp(delta.magnitude / 8f, .8f, 2f);
         }
 
         static string Wrap(string text, int width)

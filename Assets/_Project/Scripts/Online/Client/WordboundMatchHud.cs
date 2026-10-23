@@ -33,6 +33,8 @@ namespace Wreckabulary.Online
         readonly Dictionary<string, WorldBodyState> canonicalBodies = new Dictionary<string, WorldBodyState>(StringComparer.Ordinal);
         readonly HashSet<Collider> staticSurfaces = new HashSet<Collider>();
         WordboundCourseWorld sightWorld;
+        readonly HudPanel statusPanel = new HudPanel(), actionPanel = new HudPanel();
+        bool panelsReady;
         public event Action ReturnRequested;
 
         public void Initialize(WordboundGameplayController gameplay, WordboundPlayerView playerView,
@@ -292,57 +294,124 @@ namespace Wreckabulary.Online
             float width = Screen.width / scale, height = Screen.height / scale;
             try
             {
-                GUILayout.BeginArea(new Rect(18, 18, 380, 220), GUI.skin.box);
-                GUILayout.Label(mode.Name);
-                if (frame == null) GUILayout.Label("Preparing the world…");
-                else
-                {
-                    var progress = frame.Progress.Teams.Single(t => t.Team == team);
-                    if (mode.IsRace)
-                    {
-                        int lap = Math.Min(progress.Lap, course.Laps.Count - 1);
-                        int checkpoints = course.Laps[lap].Checkpoints.Count;
-                        GUILayout.Label($"Lap {Math.Min(progress.Lap + 1, mode.Laps)} / {mode.Laps} · Checkpoint {Math.Min(progress.NextCheckpoint + 1, checkpoints)} / {checkpoints}");
-                        GUILayout.Label(ObjectiveText(progress),
-                            WrappedLabel);
-                    }
-                    else if (mode.Objective == WordboundObjective.Knockouts)
-                        GUILayout.Label($"Knockouts: {frame.Progress.Players.Single(p => p.Id == actorId).Knockouts} / {mode.KnockoutTarget}");
-                    else if (mode.Id == "Freestyle")
-                    {
-                        var selected = WordboundPracticePolicy.Selected(course, frame.Practice);
-                        GUILayout.Label(selected == null ? "Explore freely · select a nearby puzzle to practise." :
-                            WordboundPracticeGuidePlan.Status(frame, selected), WrappedLabel);
-                    }
-                    if (mode.TimeLimitSeconds > 0)
-                    {
-                        long seconds = Math.Max(0, mode.TimeLimitSeconds - frame.Progress.ElapsedTicks / ModeDefinition.TickRate);
-                        GUILayout.Label($"{seconds / 60:00}:{seconds % 60:00} remaining");
-                    }
-                    GUILayout.Label($"Health {Mathf.CeilToInt(actor.Health)} · Stamina {Mathf.CeilToInt(actor.Stamina)}");
-                    var shield = SelectedShield();
-                    if (shield != null)
-                        GUILayout.Label(actor.Defense == null ? "Hold attack or Block to raise " + shield.Word :
-                            WordboundDefensePolicy.Raised(actor.Defense, items.Get(shield.Word).Shield, frame.Progress.Tick)
-                                ? "Blocking · face incoming attacks" : "Raising shield…");
-                    if (controller.Fault != "") GUILayout.Label("Connection interrupted");
-                    else if (controller.IsSimulationPaused) GUILayout.Label("Waiting for the host…");
-                    if (frame.Progress.Result != null)
-                        GUILayout.Label(ResultText(frame.Progress.Result));
-                }
-                GUILayout.EndArea();
-                GUILayout.BeginArea(new Rect(18, height - 100, width - 36, 82), GUI.skin.box);
-                GUILayout.Label("Letters: " + (inventory?.Letters.ToString() ?? ""));
-                GUILayout.Label(notice != "" ? notice : view.UsesGamepad
-                    ? "RT: interact · Y: spell · X: attack · RB + X: throw · LT: block · Hold LB: drop · Right stick click: equipment"
-                    : "Interact to collect or pick up · Spell to craft · Aim + attack to throw", WrappedLabel);
-                if (!view.MenuOpen && Target() != null) GUILayout.Label("Interact: use nearby object");
-                else if (!view.MenuOpen && WordboundPracticeGuidePlan.Nearest(course, frame, actorId) != null)
-                    GUILayout.Label("Interact: select nearby practice station · Menu: station details");
-                GUILayout.EndArea();
+                if (!panelsReady || Event.current.type == EventType.Layout) PreparePanels();
+                statusPanel.Draw(18, 18, Mathf.Min(380, width - 36), WrappedLabel, GUI.skin.box);
+                actionPanel.Draw(18, height - 18, width - 36, WrappedLabel, GUI.skin.box, bottom: true);
                 if (view.MenuOpen) Menu(width, height, Application.isFocused);
             }
             finally { GUI.matrix = saved; GUI.enabled = enabled; }
+        }
+
+        void PreparePanels()
+        {
+            statusPanel.Begin(); actionPanel.Begin();
+            statusPanel.Add(mode.Name);
+            var shield = SelectedShield();
+            if (frame == null) statusPanel.Add("Preparing the world…");
+            else
+            {
+                var progress = frame.Progress.Teams.Single(t => t.Team == team);
+                if (mode.IsRace)
+                {
+                    int lap = Math.Min(progress.Lap, course.Laps.Count - 1);
+                    int checkpoints = course.Laps[lap].Checkpoints.Count;
+                    statusPanel.Add($"Lap {Math.Min(progress.Lap + 1, mode.Laps)} / {mode.Laps} · Checkpoint {Math.Min(progress.NextCheckpoint + 1, checkpoints)} / {checkpoints}");
+                    statusPanel.Add(ObjectiveText(progress));
+                }
+                else if (mode.Objective == WordboundObjective.Knockouts)
+                    statusPanel.Add($"Knockouts: {frame.Progress.Players.Single(p => p.Id == actorId).Knockouts} / {mode.KnockoutTarget}");
+                else if (mode.Id == "Freestyle")
+                {
+                    var selected = WordboundPracticePolicy.Selected(course, frame.Practice);
+                    statusPanel.Add(selected == null ? "Explore freely · select a nearby puzzle to practise." :
+                        WordboundPracticeGuidePlan.Status(frame, selected));
+                }
+                if (mode.TimeLimitSeconds > 0)
+                {
+                    long seconds = Math.Max(0, mode.TimeLimitSeconds - frame.Progress.ElapsedTicks / ModeDefinition.TickRate);
+                    statusPanel.Add($"{seconds / 60:00}:{seconds % 60:00} remaining");
+                }
+                statusPanel.Add($"Health {Mathf.CeilToInt(actor.Health)} · Stamina {Mathf.CeilToInt(actor.Stamina)}");
+                if (shield != null)
+                    statusPanel.Add(actor.Defense == null ? "Hold " + Hint(WordboundControl.Block, "block") + " to raise " + shield.Word :
+                        WordboundDefensePolicy.Raised(actor.Defense, items.Get(shield.Word).Shield, frame.Progress.Tick)
+                            ? "Blocking · face incoming attacks" : "Raising shield…");
+                if (controller.Fault != "") statusPanel.Add("Connection interrupted");
+                else if (controller.IsSimulationPaused) statusPanel.Add("Waiting for the host…");
+                if (frame.Progress.Result != null) statusPanel.Add(ResultText(frame.Progress.Result));
+            }
+            string letters = inventory?.Letters.ToString();
+            actionPanel.Add("Letters: " + (string.IsNullOrEmpty(letters) ? "—" : letters));
+            actionPanel.Add(Hint(WordboundControl.Interact, "Interact") + " Pick up · " +
+                Hint(WordboundControl.Spell, "Spell") + " Craft · " +
+                (shield == null ? Hint(WordboundControl.Attack, "Attack") + " Smash" :
+                    "Hold " + Hint(WordboundControl.Block, "Block") + " Block") +
+                " · " + Hint(WordboundControl.Menu, "Menu") + " Menu");
+            bool carried = inventory != null && inventory.CarriedFurniture >= 0;
+            bool equipped = inventory != null && actor != null && actor.EquippedSlot >= 0 &&
+                actor.EquippedSlot < inventory.Slots.Length && inventory.Slots[actor.EquippedSlot] >= 0;
+            string gear = "";
+            if (equipped && !carried)
+                gear = Hint(WordboundControl.Aim, "Aim") + " + " + Hint(WordboundControl.Attack, "Attack") + " Throw · ";
+            if (equipped || carried) gear += "Hold " + Hint(WordboundControl.Drop, "Drop") + " Drop · ";
+            if (inventory != null && inventory.Slots.Any(id => id >= 0))
+                gear += Hint(WordboundControl.CycleGear, "Cycle") + " Cycle gear";
+            if (gear.Length > 0) actionPanel.Add(gear.TrimEnd(' ', '·'));
+            if (notice != "") actionPanel.Add(notice);
+            if (!view.MenuOpen && Target() != null)
+                actionPanel.Add(Hint(WordboundControl.Interact, "Interact") + " Use nearby object");
+            else if (!view.MenuOpen && WordboundPracticeGuidePlan.Nearest(course, frame, actorId) != null)
+                actionPanel.Add(Hint(WordboundControl.Interact, "Interact") + " Select practice station · " +
+                    Hint(WordboundControl.Menu, "Menu") + " Station details");
+            panelsReady = true;
+        }
+
+        string Hint(WordboundControl control, string fallback)
+        {
+            string hint = view.ControlHint(control);
+            return string.IsNullOrEmpty(hint) ? fallback : "[" + hint + "]";
+        }
+
+        sealed class HudPanel
+        {
+            readonly List<GUIContent> rows = new List<GUIContent>();
+            readonly List<Rect> rects = new List<Rect>();
+            int count;
+            float measuredWidth = -1, measuredHeight;
+            bool dirty = true;
+            GUIStyle measuredLabel, measuredBox;
+            public void Begin() { count = 0; }
+            public void Add(string text)
+            {
+                if (count == rows.Count) { rows.Add(new GUIContent()); rects.Add(default); dirty = true; }
+                if (rows[count].text != text) { rows[count].text = text; dirty = true; }
+                count++;
+            }
+            int measuredCount = -1;
+            public Rect Draw(float x, float y, float width, GUIStyle label, GUIStyle box, bool bottom = false)
+            {
+                if (dirty || measuredCount != count || measuredWidth != width || measuredLabel != label || measuredBox != box)
+                {
+                    float offset = box.padding.top;
+                    float inner = Mathf.Max(1, width - box.padding.horizontal);
+                    for (int i = 0; i < count; i++)
+                    {
+                        float rowHeight = label.CalcHeight(rows[i], inner);
+                        rects[i] = new Rect(box.padding.left, offset, inner, rowHeight);
+                        offset += rowHeight + (i + 1 < count ? 2 : 0);
+                    }
+                    measuredHeight = offset + box.padding.bottom;
+                    measuredWidth = width; measuredCount = count; measuredLabel = label; measuredBox = box; dirty = false;
+                }
+                var area = new Rect(x, bottom ? y - measuredHeight : y, width, measuredHeight);
+                GUI.Box(area, GUIContent.none, box);
+                for (int i = 0; i < count; i++)
+                {
+                    var row = rects[i]; row.position += area.position;
+                    GUI.Label(row, rows[i], label);
+                }
+                return area;
+            }
         }
 
         string ObjectiveText(TeamProgress progress)

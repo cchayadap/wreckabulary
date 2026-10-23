@@ -145,6 +145,7 @@ namespace Wreckabulary.Online
             Color tint = Tint(marker);
             var at = Metres(marker.Position);
             float top = at.y + 1f;
+            bool checkpoint = marker.Kind == WordboundGuideKind.Checkpoint || marker.Kind == WordboundGuideKind.Finish;
             if (marker.RadiusMm > 0)
             {
                 int segments = 48;
@@ -164,8 +165,8 @@ namespace Wreckabulary.Online
                     Line(node, new[] { start, tip, tip + rotation * new Vector3(-.16f, 0, -.18f),
                         tip, tip + rotation * new Vector3(.16f, 0, -.18f) }, tint);
                 }
-                if (marker.Kind == WordboundGuideKind.Checkpoint || marker.Kind == WordboundGuideKind.Finish)
-                    Line(node, new[] { at + Vector3.up * .04f, at + Vector3.up * 2f }, tint, width: .08f);
+                if (checkpoint)
+                    Line(node, new[] { at + Vector3.up * .04f, at + Vector3.up * .7f }, tint, width: .08f);
             }
             else
             {
@@ -180,7 +181,8 @@ namespace Wreckabulary.Online
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             label.GetComponent<MeshRenderer>().sharedMaterial = label.font.material;
             label.text = marker.Label; label.fontSize = 64; label.characterSize = .025f;
-            label.anchor = TextAnchor.MiddleCenter; label.alignment = TextAlignment.Center;
+            label.anchor = checkpoint ? TextAnchor.LowerCenter : TextAnchor.MiddleCenter;
+            label.alignment = TextAlignment.Center;
             label.color = tint; label.richText = false;
             label.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
             labels.Add(label);
