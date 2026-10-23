@@ -32,7 +32,7 @@ Validate remained unavailable because its old marker boundary was removed. Recon
 
 ## Comparison contract
 
-The public method fixes TeamRace/Solo, two authenticated humans, seed `0123456789abcdef`, and uses the exact catalogue assigned to the shipped LaunchAssets; the constructor rejects unapproved content. Retain the same catalogue, item/rule bytes, code and flags apart from explicit phase enablement. Each run still has fresh users/allocation and may swap which signed seat becomes host, with uncontrolled network/OS scheduling and differing tick/window counts. One disabled/enabled pair can establish that useful phase observations are obtainable and reveal a dominant measured section; it cannot isolate small instrumentation overhead, establish stable FPS or attribute every service/scheduling delay to CPU.
+The public method fixes TeamRace/Solo, two authenticated scripted clients, seed `0123456789abcdef`, and uses the exact catalogue assigned to the shipped LaunchAssets; the constructor rejects unapproved content. No human operators tested this fixture. Retain the same catalogue, item/rule bytes, code and flags apart from explicit phase enablement. Each run still has fresh users/allocation and may swap which signed seat becomes host, with uncontrolled network/OS scheduling and differing tick/window counts. One disabled/enabled pair can establish that useful phase observations are obtainable and reveal a dominant measured section; it cannot isolate small instrumentation overhead, establish stable FPS or attribute every service/scheduling delay to CPU.
 
 Enabled job announced and independently inspected: `.harness/delivery/native-phase-enabled-2035-job.json`, wrapper 30324, started 20:36:05.162Z, exact same 20-case filter and environment except PHASES=1. `git diff --name-only 714acc05 2eec7d91` contains only the Unity-generated `.meta` files for the collector, its tests and QA observer; no executable source differs. Root deferred the QA Return-boundary fix until this comparison finishes.
 
@@ -46,7 +46,7 @@ Read-only SHA-256 of frozen inputs at comparison time:
 
 Exact integration artifacts: `.harness/delivery/native-phase-enabled-2035-status.json` (exit 0, finished 20:37:44.640Z), `TestResults/editmode_20261023T203605Z.xml` and `Logs/gate_test_editmode_20261023T203605Z.log`. The XML reports **20/20 passed, 0 failed, 0 skipped**, duration 63.784 seconds; the public case took 62.387 seconds. All 19 collector cases passed again.
 
-The public case reached readiness at host canonical tick 157/client checkpoint tick 37. Movement passed in 6.653 seconds; the command passed in 2.429 seconds; its exact command-bearing snapshot ACK passed in 10.497 seconds. At ACK end host tick was 596, client checkpoint tick 450, client input reads 643 with 273 nonzero. Host paused=true remains an observed endpoint, with no reported session failure. The final pass includes existing real public allocation, roster, body, command, replica and cleanup checks. It is one TeamRace/Solo two-human case, not all-mode or full-race acceptance.
+The public case reached readiness at host canonical tick 157/client checkpoint tick 37. Movement passed in 6.653 seconds; the command passed in 2.429 seconds; its exact command-bearing snapshot ACK passed in 10.497 seconds. At ACK end host tick was 596, client checkpoint tick 450, client input reads 643 with 273 nonzero. Host paused=true remains an observed endpoint, with no reported session failure. The final pass includes existing real public allocation, roster, body, command, replica and cleanup checks. It is one TeamRace/Solo case with two authenticated scripted clients, not all-mode or full-race acceptance.
 
 Both phase windows were valid, with `invalid=None`, `inFlight=0`, thread 1, frequency 10,000,000 ticks/second and distinct generations. Values are Stopwatch **inclusive elapsed**, not CPU time; they aggregate all instances on the owner thread and all full-validation contexts.
 
@@ -90,7 +90,7 @@ Source-only candidates to revisit **after** this split: Bodies still scans the c
 
 ## Separate Windows workload
 
-Root launched the existing visible workshop QA scenario at 20:41:32Z using build `203920` (source `d8eb1804`, build PASS 102.6 seconds), `WORDBOUND_PROFILE_PHASES=1`. Its log is `Logs/player/20261023T204132Z-visible-wordbound_workshop_flow.log`. This includes local workshop playtest presentation in a Windows player and the reviewed explicit Return-boundary finish; it is not the native two-human public workload.
+Root launched the existing visible workshop QA scenario at 20:41:32Z using build `203920` (source `d8eb1804`, build PASS 102.6 seconds), `WORDBOUND_PROFILE_PHASES=1`. Its log is `Logs/player/20261023T204132Z-visible-wordbound_workshop_flow.log`. This includes local workshop playtest presentation in a Windows player and the reviewed explicit Return-boundary finish; it is not the native public workload with two authenticated scripted clients.
 
 Final evidence is now inspected: `.harness/delivery/20261023T204132Z-visible-wordbound_workshop_flow-status.json`, that player log, and `docs/qa/runs/20261023T204132Z-visible-wordbound_workshop_flow/checks.json`. The normal-window supplemental launch exited 1 at 20:43:47.259Z. It explicitly records `diagnosticOnly=true` and `officialGateReplacement=false`; this is not a substitute for official R4 acceptance. The player is non-development, Unity 6000.6.3f1, 1280x720, build 20261023T203920Z. The scenario's overall result is **FAIL**.
 
@@ -114,9 +114,9 @@ Both phase windows were valid (`None`, 0 inFlight), with 10,000,000 Hz Stopwatch
 
 FullValidation remains the largest measured ready phase (23.24% of ready elapsed). Its 3.873 ms/call must not be presented as a speedup over native 8.405 ms/call: local content has half the recorded bodies/resources/mechanisms, a different seed/mode/roster, real player presentation and a different runtime/window. The nested-phase and elapsed-not-CPU limits still apply. Even FrameChanged's 611.114 ms cannot stand for all rendering, GUI, driver or scheduling cost. The result supports measuring the five approved validation children next; it does not justify skipping validation, extending deadlines or claiming a tested smooth Windows build.
 
-## Hypotheses awaiting the 14-phase run
+## Historical hypotheses recorded before the 14-phase run
 
-This section is a read-only source inventory requested after the timing extension was approved. The five child costs have **not** been measured yet. None of these candidates is authorized or implemented as a behavior change. Relevant files are `MatchStateValidation.cs`, `MatchProgress.cs`, `MatchPhysicalValidation.cs`, `WordboundEntityBudget.cs` and `AuthoritativeLifecycle.cs` under `Assets/_Project/Scripts/Rules/Wordbound`.
+This read-only source inventory was recorded before individual child measurements existed. At that checkpoint no candidate was authorized or implemented as a behavior change. The later measurement and narrowly selected candidate follow this section; all other hypotheses remain unimplemented. Relevant files are `MatchStateValidation.cs`, `MatchProgress.cs`, `MatchPhysicalValidation.cs`, `WordboundEntityBudget.cs` and `AuthoritativeLifecycle.cs` under `Assets/_Project/Scripts/Rules/Wordbound`.
 
 | Child | Precisely repeated source work | Conditional smallest candidate and required invariant |
 | --- | --- | --- |
@@ -128,4 +128,22 @@ This section is a read-only source inventory requested after the timing extensio
 
 Meaningful follow-up regressions depend on the measured winner. Progress needs same-content/different-roster and ordered-route identity, reconnect/result boundaries and repeated independent restoration. Bodies needs missing/duplicate mechanisms both referenced and unreferenced, earlier competing body errors, moving-fixture parity and immutable prior/new snapshots. Resources needs duplicate/missing scope, wrong generation/team/lap, exact and excessive loose-letter batches and valid→invalid→valid calls. Mechanisms needs waiting/armed/complete evidence and retained physical rejection order. Budget needs all ownership modes, shared rounding, held/deployed reassignment, auxiliary receiver selection, mutation during atomic prepare and exact capacity edges. Existing guarded collector tests alone cannot establish those future behavior changes.
 
-The observed two-human ready shape is 186 bodies/588 resources/432 mechanisms; the separate Windows local shape is 93/294/216. These counts bound the source hypothesis but are not operation timing. Choose one candidate only after valid child data arrives, preserve the unchanged actual input workload for before/after evidence, and retain the other hypotheses as unimplemented.
+The observed public ready shape with two authenticated scripted clients is 186 bodies/588 resources/432 mechanisms; the separate Windows local shape is 93/294/216. These counts bound the source hypothesis but are not operation timing. Choose one candidate only after valid child data arrives, preserve the unchanged actual input workload for before/after evidence, and retain the other hypotheses as unimplemented.
+
+## Fourteen-phase native result and selected next change
+
+Integration `TestResults/editmode_20261023T205256Z.xml` and the matching `Logs/gate_test_editmode_20261023T205256Z.log` confirm **21/21 PASS, zero failed/skipped**, XML duration 66.620 seconds, on root source `0266b90d`. This is the expanded 20-case collector fixture plus the same real public TeamRace/Solo operation. Root's outer gate duration is separate from the XML test duration. Both phase windows remain valid (None, zero inFlight), with 10,000,000 Hz Stopwatch; the ready window lasted 20.982644 seconds, tick 140→547, retaining 186 bodies/588 resources/432 mechanisms.
+
+| Full-validation child | Calls | Inclusive elapsed ms | ms/call |
+| --- | ---: | ---: | ---: |
+| ProgressRestore | 427 | 273.194 | 0.640 |
+| ResourcesValidation | 427 | 919.074 | 2.152 |
+| BodiesValidation | 427 | 1,765.926 | 4.136 |
+| MechanismsValidation | 427 | 439.050 | 1.028 |
+| BodyBudgetValidation | 427 | 293.213 | 0.687 |
+
+FullValidation ran 427 times/3,994.866 ms. The disjoint child total is 3,690.456 ms and is already inside that parent. Bodies is the largest child, 44.20% of parent elapsed and 8.42% of ready elapsed. This selects a region, not a causal percentage for one expression. The remaining 304.410 ms includes uninstrumented parent work and timing overhead; combined Economy898 from the earlier run, or Economy834/356.758 ms from this run, must not be subtracted as though it were wholly inside FullValidation. MutableValidation407/525.083 ms still contains its separate economy/body-budget checks.
+
+The outer whole-test marker window was 57.520 seconds, Reconcile548/7,879.662 ms and Advance547/5,262.095 ms. The host's largest 60-tick batch lasted 2,547.296 ms. Passing the public operation does not establish smooth frame pacing, and this variable sample is not a diagnostic-overhead or FPS benchmark.
+
+Root authorized only the per-call mechanism grouping inside ValidateBodies. The source/test checkpoint is `df7fca65`, with review/execution pending at this evidence checkpoint; its bounded contract and required cases are in BODY-MECHANISM-LOOKUP.md. It preserves the original predicate SingleOrDefault error text and lazy query location. No after-timing is available yet, and no other source hypothesis was implemented.
