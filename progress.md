@@ -68,7 +68,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [~] Integrate and validate schema/protocol v3 across practice, defense, clients and service.
 - [~] Verify private codes, whole-party readiness/allocation, Solo/Duo/Squad and Fill On/Off.
 - [~] Verify concurrent last slots, cancellations, oversize parties and expired grants.
-- [~] Export final catalogue and deploy its exact public allowlist.
+- [x] Export and deploy the exact 36-entry public catalogue (nine mode/format combinations, four seeds). Deployment and module/catalogue readback pass; live HTTP party allocation/content admission and cleanup pass. Native Photon gameplay remains below.
 - [ ] Public Time Run: human cooperative allocation and playable match.
 - [ ] Public Team Race: Solo/Duo/Squad, intact parties and clean-team isolation.
 - [ ] Public Brawl Race: Solo/Duo/Squad, intact parties and enemy combat.
@@ -106,7 +106,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [~] Present camera settings in clearly labeled Inspector groups, with metre distances and degree angles. Source saved; native appearance and live behavior checks pending.
 - [ ] Validate the assembled source, import final content, run native gameplay/public/recovery checks, then build and smoke-test the exact Windows delivery.
 
-There is still no verified Windows player. Public matchmaking remains closed until the final matching catalogue and service are validated and deployed. This recovery does not change those acceptance states.
+There is still no verified Windows player. The public catalogue is now deployed and its live HTTP allocation/admission check passes. Native public Photon gameplay and final release acceptance remain unfinished.
 
 Root: integration, HUD/player/guide, native verification, content export, coordinated deployment and Windows delivery. Puzzle-race: independent defense review and additive Unity authoring tools. Map-workshop/assets: defense/arena verification and asset quality. Online: protocol v3, all-mode public allocation and private-map sharing.
 
@@ -136,4 +136,20 @@ Outstanding: three articulated transform basis mismatches; one EditMode camera S
 - [~] Diagnose the physical-puzzle failure. CollectLetters completed at tick 2160; TABLE crafting was accepted but the held output was not observed before the fixture ended. Check craft/frame state and fixture lifetime before changing any deadline or gameplay rule.
 - [~] Produce a small original-based SOFA/FAN/HAMMER pilot. Original-model hashes match the preserved main checkout. The twelve-item comparison is in `BuildNotes/equipment-polish/ORIGINAL-GAME-VISUAL-REVIEW.md`; the gallery now shows the original showcase and clearly labels DetailV2 rejected. Pilot production and review are pending.
 
-All seven worktrees and existing versions remain preserved. Public activation, completed native gameplay and a tested Windows build remain unfinished.
+All seven worktrees and existing versions remain preserved. Public activation is verified as recorded below; completed native gameplay and a tested Windows build remain unfinished.
+
+## Current verification — 2026-10-23T13:31Z
+
+| Work | State and exact evidence |
+| --- | --- |
+| Public service | [x] Deployed version `05384420-7e14-40c2-b965-0e8a91681df7`; exact module/catalogue readback, preserved storage/secret names and unchanged website. `BuildNotes/online/public-activation-20261023/readback-verification.json`. |
+| Live allocation/admission | [x] Two scripted Duo parties, four authenticated guest identities, exact content and signed start certificates; cleanup successful. `BuildNotes/online/public-activation-20261023/public-live.json`. Isolated pool; no Photon or production-population claim. |
+| Service validation | [x] Actual native catalogue: Node 10/10, Worker 41/41, both TypeScript checks. Worker evidence in the activation folder. |
+| Pivot/authoring/recovery | [x] Native pivot/detail 6/6, authoring persistence 8/8, workshop recovery 11/11 and existing workshop 9/9. `TestResults/editmode_20261023T125443Z.xml`; entire batch failed because input cases failed. Affected workshop core 23/23: `TestResults/core_20261023T125341Z.trx`. |
+| Input | [~] Latest native run: 15/23 passed, eight failed, zero skipped (`TestResults/editmode_20261023T131522Z.xml`). Reviewed fixture cleanup/frame/repaint repairs integrated; next run expects 24 cases. Production input protections unchanged. |
+| Workshop source selection | [~] Assigned-course/template/flagship drafts retain isolated histories, catalogues and profiles. Source and independent review pass; 25 new native cases pending. |
+| Physical puzzles | [~] TABLE craft wait remains unresolved. Diagnostic instrumentation now distinguishes per-action deadline from fixture lifetime; strict rerun pending. |
+| Original-based models | [~] SOFA V1 rejected internally and preserved. V2 three-quarter pair inspected by two agents: original silhouette/colours retained and floating seams fixed in that view. Side/detail rendering underway; full visual acceptance and Unity integration pending. FAN/HAMMER next. |
+| Public modes/build | [ ] Nine native public mode/format cases, private-map transfer, recovery, full-match gameplay, QA/player performance and release build remain required. |
+
+Earlier paragraphs above retain the sequence of failed and superseded checks. This table is the current acceptance state; a technical asset pass does not reverse the owner's DetailV2 rejection.
