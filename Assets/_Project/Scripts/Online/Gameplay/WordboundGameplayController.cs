@@ -255,6 +255,9 @@ namespace Wreckabulary.Online
         {
             if (handlingStep || !hostReady || runner == null || !runner.IsServer || !session.GameplayReady || Fault != "")
                 throw new InvalidOperationException("Only one admitted host physics step may advance the match.");
+#if UNITY_EDITOR || GSK_QA
+            using var hostStep = WordboundPhaseCapture.Measure(WordboundPhase.HostStep);
+#endif
             handlingStep = true;
             try
             {
