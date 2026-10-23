@@ -1,6 +1,6 @@
 # Online body capacity and reclamation acceptance plan
 
-STATUS: IN PROGRESS — source-only feasibility review. No fixture implemented, compiler/native job started, or SDK/configuration changed. Full FFA with the reviewed 64 MiB online policy is a prerequisite and remains root-owned. This report does not establish maximum live-body acceptance.
+STATUS: DESIGN SOURCE PASS WITH LIMITS — Input independently reviewed the bounded plan and requested the corrections recorded below. No fixture implemented, compiler/native job started, or SDK/configuration changed. Full FFA with the reviewed 64 MiB online policy is a prerequisite and remains root-owned. This report does not establish maximum live-body acceptance.
 
 ## Scope constraint that must remain visible
 
@@ -14,14 +14,14 @@ The unchanged installed rules reserve 10 letters, two carried slots and two depl
 
 Use a new factory and one afterStarted coroutine in the existing `WordboundNativeWorkshopTests` partial, returning `Run(2, false, authoredWorkshop: true, authoredContentFactory: ..., afterStarted: ...)` directly. Keep EnterPlayMode flattening, eight-minute cancellation, NUnit 600000 ms timeout, existing coordinator/startup/body/movement/command/ACK deadlines, cleanup and exact downloaded-content assertions. No changes to `WordboundNativeFullMatchTests`, production code, SDK, global Photon config or service.
 
-Proposed TimeRun content is an authored three-lap CLOCK circuit derived from the existing compact route and installed physical-site profile, with no reward letters and no smash/wind sites:
+Proposed TimeRun content retains the proven authored three-lap TABLE circuit, with no reward letters and no smash/wind sites. Add three legitimate gated connections and enough connected authored geometry for sparse prop placement; do not add a new timed CLOCK traversal just for this capacity test:
 
 | Count component | Budget reservation | Actual initial body target |
 | --- | ---: | ---: |
 | Player seats | 4 | 2 |
 | Keepsake | 1 | 1 |
 | Authored Props placements | 228 | 228 |
-| Authored moving fixtures, one per lap | 3 | 3 |
+| Gated connection Platform bodies | 3 | 3 |
 | Critical renewable source letters | 128 | 128 |
 | Optional initial letters | 4 | 4 |
 | Actor/burst headroom | 144 | 0 |
@@ -29,17 +29,17 @@ Proposed TimeRun content is an authored three-lap CLOCK circuit derived from the
 
 The resulting exact full-budget values should be FixedBodies236, PoolCount1, PoolBodies276, CriticalRecoveryBodies128, PhysicalAuxiliaryBodies0, ActorAndBurstBodies144 and OptionalBodies4. These are source arithmetic, not a successfully resolved manifest. The factory must assert the actual returned values and reject any different result before external allocation.
 
-The 128-letter critical source includes the required CLOCK letters plus surplus valid letters; every source stays within the existing 1–128 A–Z bound. The four optional letters are a separate unconsumed source. Geometry/placement planning must use installed catalogue assets and enough connected rooms to keep 228 props outside the working path and recovery/socket/sensor volumes. Random placement exhaustion is not a reason to relax validation. Prefer a deterministic fixed set or sparse bounded zones; CourseZones is capped256, each random zone count256. Actual CourseResolver, full authored-content construction, budget and initial snapshot validation are mandatory preflight, with exact unchanged item/rule bytes. Current public original-art/profile selection remains unchanged.
+The 128-letter critical source includes the required TABLE letters plus surplus valid letters; every source stays within the existing 1–128 A–Z bound. The four optional letters are a separate unconsumed source. Geometry/placement planning must use installed catalogue assets and enough connected rooms to keep 228 props outside the working path and recovery/socket/sensor volumes. Random placement exhaustion is not a reason to relax validation. Prefer a deterministic fixed set or sparse bounded zones; CourseZones is capped256, each random zone count256. Actual CourseResolver, full authored-content construction, budget and initial snapshot validation are mandatory preflight, with exact unchanged item/rule bytes. Current public original-art/profile selection remains unchanged. Gated connection platforms establish platform-kind capacity only; they do not establish moving-fixture/history coverage.
 
 ### Admitted retirement and recreation sequence
 
 1. Complete the common authenticated startup and exact-body checks. Read actual Runner.Config on both peers: 2048 pages × 32 KiB, original tick60, reliable mode and prefab identities. Require body-kind counts and canonical/network IDs matching the resolved target, with no duplicate or missing body. The election carrier is counted separately from the366 canonical bodies.
 2. Observe the populated steady phase and allocator/history evidence described below. Retain exact stable prop/platform IDs, all128 source tile IDs, and the immutable starting snapshot bytes.
-3. Through normal movement and commands, collect only the five CLOCK letters, craft, deploy, trigger the actual timed fixture, traverse its sensor and submit UsePuzzle. Do not invoke Authority.Advance/Submit directly or touch transforms/Rigidbodies. Require the real accepted receipt and physical evidence, not a scripted solved flag.
-4. At the source-retirement boundary, require the123 uncollected source IDs and consumed CLOCK body to disappear from both peers and the exact downloaded/ACKed checkpoint. Keep the four optional tiles and all authored root IDs unchanged. Observe allocator low-water before advancing the keepsake/checkpoint into the next lap. Root/test must first verify that this valid route exposes a stable low-water interval; if it does not, do not infer reclamation from a single mixed despawn/spawn frame.
-5. Advance the real route/checkpoint. Require128 new tile IDs for the next lap's source generation, exact conserved letters, unchanged roots and restored expected body count on both peers. New IDs must not reuse retired IDs. Repeat the next lap for a second retirement/recreation cycle, then retain normal exact durable-ACK and cleanup checks. Final scored/race finish is not needed for capacity proof, but no unexpected result or fault is permitted during the measured cycles.
+3. Through normal movement and commands, collect only the five TABLE letters, craft, deploy, hold the actual native TABLE collider at the socket and submit UsePuzzle. Do not invoke Authority.Advance/Submit directly or touch transforms/Rigidbodies. Require the real accepted receipt and physical evidence, not a scripted solved flag.
+4. Immediately before solving, capture the actual current loose source IDs and generation. Source recovery can refill missing letters600 canonical ticks after first collection, so123 is only the no-refill example and must not be a hardcoded claim. Require every observed loose source ID plus the consumed TABLE body to disappear from both peers and the exact downloaded/ACKed checkpoint. Check conserved letter counts and explicitly record any refill. Keep the four optional tiles unchanged only during this same-lap solved interval; keep all authored root IDs unchanged throughout. Observe allocator low-water before advancing the keepsake/checkpoint into the next lap. Root/test must first verify that this valid route exposes a stable low-water interval; if it does not, do not infer reclamation from a single mixed despawn/spawn frame.
+5. Advance the real route/checkpoint. Require128 new critical tile IDs and four new optional IDs for the next lap's generation, exact conserved letters, unchanged fixed roots and restored expected body count on both peers. The preceding lap's optional tiles retire too; only fixed roots retain identity across laps. New IDs must not reuse retired IDs. Repeat the next lap for a second retirement/recreation cycle, then retain normal exact durable-ACK and cleanup checks. Final scored/race finish is not needed for capacity proof, but no unexpected result or fault is permitted during the measured cycles.
 
-The expected initial366 body count is higher than the approximately178-body FFA history failure. It remains a legal stress candidate, not proof of 512 live bodies or every possible transient. Two physical CLOCK completions and two body churn cycles have unmeasured wall-time feasibility under the unchanged eight-minute lifetime. Do not extend the deadline if composition/validation cannot finish in time; preserve the result and separate capacity from throughput.
+The expected initial366 body count is higher than the approximately178-body FFA history failure. It remains a legal stress candidate, not proof of 512 live bodies or every possible transient. Two physical TABLE completions and two body churn cycles have unmeasured wall-time feasibility under the unchanged eight-minute lifetime. Do not extend the deadline if composition/validation cannot finish in time; preserve the result and separate capacity from throughput.
 
 ## Smaller reclamation discriminator if CLOCK route is too broad
 
@@ -63,3 +63,5 @@ The pinned installed DLL exposes NetworkObject.Meta and NetworkObjectMeta._snaps
 4. Root runs R0 and the exact new native method with existing external gameplay/workshop flags and profile flags. No jobs have run in this lane. Preserve failures rather than increasing memory/deadlines again.
 
 Source basis: current integration `WordboundEntityBudget`, `ModeDefinition`, `CourseDocument`/`CourseValidation`/`CoursePhysicalSite`, `AuthoritativeLifecycle`/`AuthoritativePractice`/source minting, `WordboundLiveWorkshop`, `WordboundNativeWorkshopTests`, `WordboundNetworkBody`, and installed Fusion.Runtime metadata. Allocator mechanics and public API limits are retained in `FUSION-FFA-ALLOCATOR-REVIEW.md`; heap implementation is c9be66f4 + ca58302b. Original unrelated ModeDefinition/log work is untouched.
+
+Independent Input review preferred the TABLE/gated-connection route and confirmed the missing-seat reservation constraint. Its two substantive corrections were incorporated: recovery can refill collected source letters before solve, and optional source IDs also change across laps. This is a bounded design verdict only; resolver, real history population, allocator reclamation and wall-time feasibility remain unexecuted requirements. The earlier CLOCK proposal remains in the preceding report commit1ed4a890 as review history.
