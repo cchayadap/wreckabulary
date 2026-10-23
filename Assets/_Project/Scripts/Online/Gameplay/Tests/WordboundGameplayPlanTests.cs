@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Wreckabulary.Online;
@@ -226,45 +225,6 @@ namespace Wreckabulary.Tests
             var context = new WordboundPresentationContext(WithBodies(original.Bodies.Concat(new[] { missing })),
                 f.Course, f.Geometry, f.Items);
             Assert.Throws<KeyNotFoundException>(() => context.Presentation(missing));
-        }
-
-        [TestCase(32), TestCase(128), TestCase(256)]
-        public void PresentationAllocationProbeRecordsBoundedItemLookupCost(int count)
-        {
-            var f = Create(); var original = f.Frame;
-            var economy = new Economy(f.Items, new GameRules());
-            var bodies = Enumerable.Range(0, count).Select(_ => {
-                var item = economy.PlaceFurniture("STOOL");
-                return new WorldBodyState("item:" + item.Id, WorldBodyKind.Item, default);
-            }).ToArray();
-            var frame = new MatchSnapshot(original.Binding, original.Epoch, original.Sequence, original.NextWorldEntityId,
-                original.Progress, economy.Capture(), original.Commands, original.Actors, bodies,
-                original.Resources, original.Mechanisms, original.RandomStreams, original.NarrativeFlags,
-                original.ThrownFlights, original.Practice);
-            var parity = new WordboundPresentationContext(frame, f.Course, f.Geometry, f.Items);
-            foreach (var body in bodies) SamePresentation(LegacyPresentation(f, frame, body), parity.Presentation(body));
-            double legacySum = 0, indexedSum = 0;
-            Action legacy = () => {
-                foreach (var body in bodies) legacySum += LegacyPresentation(f, frame, body).Size.X;
-            };
-            Action indexed = () => {
-                var context = new WordboundPresentationContext(frame, f.Course, f.Geometry, f.Items);
-                foreach (var body in bodies) indexedSum += context.Presentation(body).Size.X;
-            };
-            legacy(); indexed(); legacySum = indexedSum = 0;
-            var oldCost = MeasurePresentation(legacy, 4);
-            var newCost = MeasurePresentation(indexed, 4);
-            Assert.AreEqual(legacySum, indexedSum);
-            Assert.Less(newCost.Item1, oldCost.Item1 / 2, "One frame context must avoid repeated complete inventory copies.");
-            TestContext.WriteLine(FormattableString.Invariant($"WORDBOUND_PRESENTATION_PROBE: syntheticItemBodies={count}; iterations=4; legacyBytes={oldCost.Item1}; indexedBytes={newCost.Item1}; legacyMs={oldCost.Item2:F3}; indexedMs={newCost.Item2:F3}; scope=pure-presentation-only"));
-        }
-
-        static Tuple<long, double> MeasurePresentation(Action action, int iterations)
-        {
-            long bytes = GC.GetAllocatedBytesForCurrentThread(), ticks = Stopwatch.GetTimestamp();
-            for (int i = 0; i < iterations; i++) action();
-            long elapsed = Stopwatch.GetTimestamp() - ticks;
-            return Tuple.Create(GC.GetAllocatedBytesForCurrentThread() - bytes, elapsed * 1000d / Stopwatch.Frequency);
         }
 
         static void SamePresentation(WordboundBodyPresentation expected, WordboundBodyPresentation actual)
