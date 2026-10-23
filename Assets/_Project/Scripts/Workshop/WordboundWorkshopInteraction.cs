@@ -22,7 +22,7 @@ namespace Wreckabulary.Workshop
         {
             "Next module", "Previous module", "Rotate", "Duplicate", "Undo", "Redo",
             "Frame selection", "Preview", "Playtest", "Add module", "Next floor", "Share",
-            "Next physical puzzle", "Next puzzle control", "Edit modules"
+            "Next physical puzzle", "Next puzzle control", "Edit modules", "Assigned course"
         };
         public Func<string, Transform, GameObject> SpawnAssetVisual { get; set; }
         public Func<string, Texture> AssetIcon { get; set; }
@@ -430,6 +430,7 @@ namespace Wreckabulary.Workshop
                 case 12: StepPhysicalSite(); break;
                 case 13: StepPhysicalControl(1); break;
                 case 14: CancelGesture(); sitePuzzle = ""; status = "Module editing selected"; break;
+                case 15: QueueSourceChoice(1); break;
             }
         }
         void UpdateGesturePreview()

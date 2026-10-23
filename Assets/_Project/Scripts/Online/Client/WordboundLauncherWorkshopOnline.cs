@@ -25,12 +25,12 @@ namespace Wreckabulary.Online
                 if (destroying || !sourceWorkshop || localClient || activeClient || activeLaunch != null ||
                     !menu || !menu.CanOpenAuthoredPrivate)
                     throw new InvalidOperationException("Return to the party screen, connect as a guest and leave the current party before hosting this map.");
+                var inputs = InputsForWorkshop();
                 var content = WordboundWorkshopOnlineContent.Create(draft, resolved, sourceWorkshop.Catalogue,
-                    selected, workshopSource && workshopSource.Items ? workshopSource.Items.text : itemJson,
-                    workshopSource && workshopSource.RuleBook ? workshopSource.RuleBook.text : ruleJson);
+                    selected, inputs.Items, inputs.Rules);
                 authoredProfileBundleId = content.WorkshopBundle.Descriptor.BundleId;
-                authoredOnlineCamera = workshopSource && workshopSource.CameraProfile ? workshopSource.CameraProfile : Assets.CameraProfile;
-                authoredOnlineVisual = workshopSource && workshopSource.VisualProfile ? workshopSource.VisualProfile : Assets.VisualProfile;
+                authoredOnlineCamera = inputs.Camera;
+                authoredOnlineVisual = inputs.Visual;
                 await menu.OpenAuthoredPrivate(content, menu.SelectedRegion, menu.SelectedFill);
                 if (destroying || sourceWorkshop != workshop || !sourceWorkshop) return;
                 sourceWorkshop.Visible = false;

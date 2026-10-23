@@ -22,7 +22,7 @@ namespace Wreckabulary.Workshop
         string storageFolder;
         CourseDocument display;
         CourseValidation validation;
-        readonly Dictionary<WorkshopTemplate, WorkshopHistory> drafts = new Dictionary<WorkshopTemplate, WorkshopHistory>();
+        readonly Dictionary<WorkshopTemplate, DraftSession> drafts = new Dictionary<WorkshopTemplate, DraftSession>();
         WorkshopTemplate? currentTemplate;
         Vector2 paletteScroll, inspectorScroll, pointerStart;
         float autosaveAt;
@@ -39,29 +39,40 @@ namespace Wreckabulary.Workshop
         public void Open(CourseDocument course, CourseCatalogue catalogue, CoursePlayRequirements play, string folder = null)
         {
             RequireRecoveryChoice();
-            if (History != null && storage != null && History.Revision != savedRevision)
-            { storage.Save(History.Current); savedRevision = History.Revision; }
+            if (OnlineStarting) throw new InvalidOperationException("Wait for online preparation to finish before changing courses.");
+            SaveAndRememberDraft();
             Catalogue = catalogue ?? throw new ArgumentNullException(nameof(catalogue));
             PlayRequirements = play ?? throw new ArgumentNullException(nameof(play));
             History = new WorkshopHistory(new WorkshopSnapshot(course));
             storageFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
             storage = new WorkshopStorage(storageFolder);
-            currentTemplate = null; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
+            currentTemplate = null; UsesAssignedCourse = false; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
         }
         public void OpenTemplate(WorkshopTemplate template, string folder = null)
         {
             RequireRecoveryChoice();
-            if (currentTemplate.HasValue && History != null) drafts[currentTemplate.Value] = History;
+            if (OnlineStarting) throw new InvalidOperationException("Wait for online preparation to finish before changing courses.");
+            if (currentTemplate == template && (folder == null || folder == storageFolder)) return;
             var preset = WorkshopTemplates.Create(template);
-            Open(preset.Snapshot.Course(), preset.Catalogue, preset.Play, folder);
-            currentTemplate = template;
-            if (drafts.TryGetValue(template, out var saved)) History = saved;
-            else if (storage.HasRecovery(preset.Snapshot.Course().Id))
+            SaveAndRememberDraft();
+            if (drafts.TryGetValue(template, out var retained) && (folder == null || folder == retained.Folder))
+            { ActivateDraft(retained, false, template); return; }
+            string baseFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
+            var templateStorage = new WorkshopStorage(Path.Combine(baseFolder, "templates", template.ToString()));
+            var legacyStorage = new WorkshopStorage(baseFolder);
+            string id = preset.Snapshot.Course().Id;
+            var recoveryStorage = templateStorage.HasRecovery(id) ? templateStorage :
+                !HasAssignedCourse && legacyStorage.HasRecovery(id) ? legacyStorage : null;
+            var snapshot = preset.Snapshot;
+            string recoveryStatus = "";
+            if (recoveryStorage != null)
             {
-                History = new WorkshopHistory(storage.Recover(preset.Snapshot.Course().Id, out bool backup));
-                status = backup ? "Recovered previous template save" : "Recovered template autosave";
+                snapshot = recoveryStorage.Recover(id, out bool backup);
+                recoveryStatus = backup ? "Recovered previous template save" : "Recovered template autosave";
             }
-            ResetView(); Refresh(); savedRevision = History.Revision;
+            ActivateDraft(new DraftSession { History = new WorkshopHistory(snapshot), Catalogue = preset.Catalogue,
+                Play = preset.Play, Storage = templateStorage, Folder = baseFolder }, false, template);
+            ShowStatus(recoveryStatus.Length == 0 ? TemplateLabel(template) : recoveryStatus);
         }
         public void ResumeEditing() { Visible = true; Refresh(); }
         public CourseResolution Preview()
@@ -112,6 +123,7 @@ namespace Wreckabulary.Workshop
         {
             if (History == null) return;
             if (RecoveryChoicePending) { ProcessRecoveryChoice(Application.isFocused); return; }
+            ProcessSourceChoice(Application.isFocused);
             Refresh();
             if (view != null) view.Active = Visible;
             ControllerInput(Application.isFocused);
@@ -199,9 +211,11 @@ namespace Wreckabulary.Workshop
                 if (Button(definition.Id + "\n" + Metres(definition.WidthMm) + " × " + Metres(definition.DepthMm) + " m", "Select, then click the map to place."))
                 { placing = definition.Id; drawingZone = false; status = "Click a floor to place " + placing; }
             GUILayout.Space(12); GUILayout.Label("Start from", heading);
+            if (HasAssignedCourse && Button(UsesAssignedCourse ? "● Assigned course" : "Assigned course",
+                "Return to your assigned course, keeping its edits and Undo history.") && !UsesAssignedCourse) QueueSourceChoice(1);
             if (flagshipContent != null && Button("Flagship draft")) Attempt(() => OpenFlagship(flagshipContent));
             foreach (WorkshopTemplate template in Enum.GetValues(typeof(WorkshopTemplate)))
-                if (Button(TemplateLabel(template))) Attempt(() => OpenTemplate(template));
+                if (Button((currentTemplate == template ? "● " : "") + TemplateLabel(template))) QueueSourceChoice(2 + (int)template);
             GUILayout.Label("Templates start with geometry. Race playtests also need physical controls at every selected puzzle checkpoint.");
             GUILayout.Space(12);
             FloorPanel();

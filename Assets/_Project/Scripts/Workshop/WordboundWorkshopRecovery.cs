@@ -25,6 +25,7 @@ namespace Wreckabulary.Workshop
             Open(course, catalogue, play, folder);
             History = new WorkshopHistory(initial);
             ResetView(); Refresh(); savedRevision = History.Revision;
+            UsesAssignedCourse = true; assignedDraft = CaptureDraft();
             authoredOpening = initial; recoveredOpening = null; recoveryError = "";
             recoveryCourseId = course.Id; authoredLabel = course.Title + " · " + course.Id;
             recoveredLabel = ""; recoveryScroll = Vector2.zero;

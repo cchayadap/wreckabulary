@@ -16,7 +16,6 @@ namespace Wreckabulary.Online
         public Camera LobbyCamera;
         WordboundPartyMenu menu;
         WordboundWorkshop workshop;
-        WordboundCourseAsset workshopSource;
         WordboundMatchClient activeClient;
         WordboundLocalMatchClient localClient;
         WordboundPartyLaunchContext activeLaunch;
@@ -138,7 +137,7 @@ namespace Wreckabulary.Online
                     workshop.OnlinePlaytestRequested += HostWorkshopOnline;
                     workshop.CanStartOnline = () => !destroying && menu && menu.CanOpenAuthoredPrivate;
                     workshop.ConfigureLocalPlaytest(true);
-                    workshopSource = authored;
+                    BindAssignedWorkshopSource(authored);
                     if (authored)
                     {
                         workshop.OpenAuthored(authored.ReadDocument(), authored.Catalogue(),
@@ -161,7 +160,7 @@ namespace Wreckabulary.Online
                     workshop.Visible = false;
                     Destroy(workshop);
                     workshop = null;
-                    workshopSource = null;
+                    assignedWorkshopInputs = null;
                 }
                 menu.ShowFailure("Workshop could not open: " + error.Message);
             }
@@ -174,10 +173,10 @@ namespace Wreckabulary.Online
             WordboundLocalMatchClient client = null;
             try
             {
+                var inputs = InputsForWorkshop();
                 var content = WordboundWorkshopPlaytest.Create(workshop.LastPlaytestDraft, resolved,
                     workshop.Catalogue, workshop.PlayRequirements,
-                    workshopSource && workshopSource.Items ? workshopSource.Items.text : itemJson,
-                    workshopSource && workshopSource.RuleBook ? workshopSource.RuleBook.text : ruleJson);
+                    inputs.Items, inputs.Rules);
                 var prefabs = Assets.BodyPrefabs();
                 var scene = Assets.GameplayScene();
                 var root = new GameObject("Wordbound workshop playtest");
@@ -190,8 +189,7 @@ namespace Wreckabulary.Online
                 };
                 workshop.Visible = false;
                 await client.StartLocal(content, prefabs, scene,
-                    cameraProfile: workshopSource && workshopSource.CameraProfile ? workshopSource.CameraProfile : Assets.CameraProfile,
-                    visualProfile: workshopSource && workshopSource.VisualProfile ? workshopSource.VisualProfile : Assets.VisualProfile);
+                    cameraProfile: inputs.Camera, visualProfile: inputs.Visual);
                 if (!destroying && generation == localGeneration && localClient == client && LobbyCamera)
                     LobbyCamera.enabled = false;
             }
