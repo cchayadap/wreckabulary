@@ -97,7 +97,11 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T22:12Z
+## Current verification — 2026-10-23T22:47Z
+
+Initial-bootstrap native223028 passes58/60: all57 OnlineTests and actual host-departure recovery. Every initial host waits for exact imported bootstrap acknowledgements before its first canonical advance. Recovery18.762seconds misses the ten-second target. PublicTeam/Brawl fail a subsequent temporary-pause assertion; reviewed test repair keeps the existing25-second deadline and strict checks. Online heap capacity is now64MiB per heap with actual solo/local8MiB preserved; fullFFA and maximum-body execution remain pending. Evidence: `BuildNotes/client-view/native-bootstrap-barrier-20261023.json`, `native-ffa-memory-20261023.json`, `BuildNotes/online/FUSION-ONLINE-HEAP-POLICY.md`.
+
+The original-style editable UI theme is integrated and source-reviewed, with Unity default-asset creation underway. New resource tuple identity validation passes223/223 focused core224523 after correcting one invalid test fixture. Fixed-workload validation allocation medians fall16.7683%TimeRun and18.3594%TeamSolo; elapsed results are mixed. Native UI/configuration checks and a new Windows build remain next. Exact evidence: `BuildNotes/client-view/resource-identity-probe-20261023.json`. Earlier executable215906 does not contain these changes.
 
 Capture-key sourcec298d77d passes218/218 core220731; identical120capture probe reduces median allocations70.265%TimeRun/72.481%TeamSolo with exact unchanged hashes. Native221108 passes48/49: codec26, timing20 and publicTeamSolo/BrawlSolo pass. FullFFA fails on Fusion allocator exhaustion during first craft; later first real hit/replay succeeds before a return walk expires. Ten knockouts, respawns and terminal result remain unverified. A separate diagnostic rerun samples allocator occupancy without increasing its capacity or deadlines. Evidence: `BuildNotes/client-view/native-capture-ffa-20261023.json`. Actual Windows220124 passes the complete five-step workshop flow, with UI/art/performance limits recorded separately.
 
