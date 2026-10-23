@@ -1,6 +1,6 @@
 # Body source validation measurement
 
-STATUS: SOURCE CHECKPOINT — independent review pending; compiler/native NOT RUN.
+STATUS: SOURCE PASS — independent review complete; compiler/native NOT RUN.
 
 Root's same public workload after the per-call mechanism lookup did not demonstrate improvement: the 210425 run completed 20 collector tests but failed its public movement case. Read integration `BuildNotes/client-view/native-body-lookup-20261023.json` (source `10d8c68a`, XML/log stamp `20261023T210425Z`, 21 total / 20 passed / 1 failed / 0 skipped). Movement ended after 11.054 s. The ready window was valid (`None`, zero in-flight), 11.1796268 s, canonical ticks 226→503. Bodies was 1273.522 ms / 285 calls (4.468 ms/call), versus the earlier 1765.926 / 427 (4.136 ms/call); Full was 2753.003 / 285 (9.660), versus 3994.866 / 427 (9.356). Unequal work windows and machine scheduling prevent a causal speed comparison. Keep the raw failure and zero-error cleanup evidence; do not reinterpret collector passes as gameplay acceptance.
 
@@ -19,3 +19,5 @@ The five existing real-mode parity cases now require a nonempty Item/Tile worklo
 Root follow-up: R0; retain affected engine-free behavior gates as appropriate; run native `Wreckabulary.Tests.WordboundPhaseCaptureTests` (20) and the unchanged public TeamRace Solo case (1), using the prior flags/cold gate command and WORDBOUND_PROFILE_PHASES=1. Default core projection does not compile these diagnostic tests. Require actual 21-case XML and valid completed captures, preserving failures rather than interpreting missing phases as zero cost.
 
 Local verification: `git diff --check` plus exact API/call-site comparison only. Compiler/native NOT RUN. Next: independent review, then root gate execution. Source validation cost remains a hypothesis until the new measured data arrives.
+
+Independent Input review closed SOURCE PASS on `04031fde`: enum indices 0–13 remain stable, normal release removes the scope, only the two existing body branches reach it, and original query/order/catch semantics are unchanged. Exact full-only counts, nested nonadditivity, earlier rejection and cleanup assertions were checked. Native/QA consumers use the collector's dynamic Report output, so neither needs a hardcoded phase-count edit. No new source changes were made after review. Root's R0 and focused 20+1 native run remain the next verification step.
