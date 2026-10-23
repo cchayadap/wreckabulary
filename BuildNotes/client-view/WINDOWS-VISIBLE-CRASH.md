@@ -48,3 +48,27 @@ The workshop autosave error is caught and displayed by `WordboundWorkshop.Update
 Next acceptance step: use the existing matching PDB to resolve the fault and immediate callers, then select a bounded source/phase check based on those functions. Retain the full failed visible run and official hidden failure. A tested Windows delivery still requires a complete successful workshop→local playtest→return→Undo/Redo run and its captures, followed by the other stated multiplayer/performance gates.
 
 Evidence SHA-256: crash dump `C51E32E6DFBA3EDC5DD2B08C5D8DE40D3BE687D14D5EC8349AA27EF09BFA5409`; player log `384F99851A40850521B200F877E59D12CBD7B55170F9E94B64B8EA5AB90D745A`.
+## Offline public-symbol mapping follow-up
+
+Root's DbgHelp attempt could not load the required symbol-helper component (Windows error 126). No download or install followed. I parsed the already matched PDB's MSF directory, DBI symbol-record stream and `S_PUB32` records directly, using the installed Python 3.14 runtime. The first PowerShell parser was stopped at its verified owned PID because its record loop was slow; the completed Python parse took 1.16 seconds. Script/output are local ignored evidence: `.harness/delivery/pdb-public-symbols.py` and `.json` in the puzzle-race worktree. No executable/native game library was loaded.
+
+DBI version 19990903 identifies symbol stream 1147 and public hash stream 1146. The parse checked all 146,731 symbol record boundaries and mapped 128,425 section-addressed public records; 11 non-image-section public records were excluded. PDB section-header stream 7 is byte-identical to the exact build's PE headers, and both OMAP streams are absent. All ten queried addresses fall in `.text`. The method follows the [LLVM MSF format](https://llvm.org/docs/PDB/MsfFile.html), [DBI stream definition](https://llvm.org/docs/PDB/DbiStream.html), and [CodeView public symbol fields](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/DebugInfo/CodeView/SymbolRecord.h).
+
+| Logged RVA | Nearest preceding public symbol (readable form) | Symbol RVA | Displacement |
+| --- | --- | --- | --- |
+| `0x10A059F` | `core::vector<LocalKeywordInfo>::assign` | `0x10A0500` | `+0x9F` (159 bytes) |
+| `0x146E38E` | `ShaderRuntime::Variants::VariantUploadData` copy constructor | `0x146E340` | `+0x4E` (78 bytes) |
+| `0x146E67E` | `ShaderRuntime::Variants::ShaderVariantMonitor::FrameFinished` | `0x146E4F0` | `+0x18E` (398 bytes) |
+| `0x14E76B5` | `PlayerRender` | `0x14E65E0` | `+0x10D5` (4,309 bytes) |
+| `0x14FF045` | `ExecutePlayerLoop` | `0x14FEF90` | `+0xB5` (181 bytes) |
+| `0x14FF3C7` | `ExecutePlayerLoop` | `0x14FEF90` | `+0x437` (1,079 bytes) |
+| `0x12C780B` | `DoQuit` | `0x12C7160` | `+0x6AB` (1,707 bytes) |
+| `0x12CA59D` | `PlayerMainWndProc` | `0x12C7E60` | `+0x273D` (10,045 bytes) |
+| `0x12CE4FB` | `UnityMainImpl` | `0x12CCC90` | `+0x186B` (6,251 bytes) |
+| `0x12CE67B` | `UnityMain` / `UnityMain2` aliases | `0x12CE670` | `+0xB` (11 bytes) |
+
+The JSON preserves the exact decorated names, flags and next-public boundaries; all selected records have the function flag. At the fault, the next public symbol is another `assign` specialization at `0x10A05F0`, after the fault RVA. Nevertheless, a preceding public name is not proof of a function's exact end, inline frames or source line; this maps the existing crash-handler stack and is not a new unwind.
+
+The coherent nearest-symbol chain narrows the lead to shader keyword/variant-copy monitoring during a render/player-loop/quit path. It does **not** establish who requested quit, whether a prior fault initiated shutdown, which shader supplied the data, or a supported workaround. No Fusion physics callback or Intel driver frame appears in this logged chain; absence is not a general exclusion of upstream causes. The last player-added line alone must no longer be treated as a sufficient physics-startup lead.
+
+A bounded project search found no project runtime call to shader-variant tracing; URP shader variant log levels are zero, its export setting is enabled, and GraphicsSettings has no assigned GraphicsStateCollection. Build boot settings enable graphics jobs/threading mode 6. These are observed settings, not demonstrated causes, and none was changed. An official Unity issue search returned no exact matching `ShaderVariantMonitor::FrameFinished` / `LocalKeywordInfo` crash; no engine-version fix or configuration workaround is claimed. Root should use this narrowed engine path to choose the next isolated check while retaining the complete original failed build.
