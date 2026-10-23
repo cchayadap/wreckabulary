@@ -70,3 +70,4 @@ Next: root imports the final revision, executes native material/presentation che
 - [x] Prepared isolated SOFA-first Blender script and exact root-owned staged commands in `BuildNotes/equipment-polish/ORIGINAL-BASED-PILOT.md`; original geometry/materials are the base, no runtime replacement.
 - [~] Original-based SOFA: source-only pilot, native build and matched renders pending serial slot. FAN/HAMMER are bounded queued specifications, not generated assets.
 - [ ] Owner appearance acceptance and later Unity/material/export/performance validation.
+- [x] Closed pivot-basis investigation after directly reading root native matrices and the 6/6 detail pass in `editmode_20261023T125443Z.xml`; root fixed only fixture basis conversion in 5e9ad10. DetailV2 appearance remains owner-rejected.

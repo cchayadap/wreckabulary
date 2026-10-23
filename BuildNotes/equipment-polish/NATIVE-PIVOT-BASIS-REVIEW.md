@@ -1,6 +1,6 @@
 # Native articulated-pivot basis investigation
 
-STATUS: SOURCE REPAIR — native matrices confirm retained local basis; focused native rerun pending
+STATUS: CLOSED — native matrices confirm retained FBX local basis; root corrected fixture only and six detail checks pass
 
 Root `TestResults/editmode_20261023T122055Z.xml` records three failed basis comparisons: FAN_Rotor 1.25027609, CLOCK_HourHand 1.24342656 and CLOCK_MinuteHand 1.24197376 at basis column 1. Origin comparisons ran first and did not fail. The independent detailed dimensions/grips/material budgets, map settings and exact 27 renderer totals passed. This separates the basis disagreement from demonstrated geometry/budget failure; it does not yet establish the correct conversion.
 
@@ -18,8 +18,10 @@ A bounded, read-only binary FBX parser inspected the actual two frozen FBX files
 
 Let `C` swap Y/Z (the known source-world point conversion) and `F=diag(1,1,-1,1)` reflect local Z. The current test expects `C*M*C`. A retained FBX local basis predicts `C*M*F`, with a native root equivalent to +90° X. Its column-1 disagreement with the current expectation is exactly the length of source column1 minus source column2. The predicted magnitudes agree with the three existing failure magnitudes to float rounding. This remains a sign/basis hypothesis until the focused native output confirms all matrix columns. Origin/bounds alone cannot settle that distinction.
 
-## Native confirmation and bounded fixture correction
+## Measured closure
 
-`TestResults/editmode_20261023T123439Z.xml` now records each full matrix. The model root is +90° X to float rounding. FAN_Rotor columns are `(1,0,0)`, `(0,0,.7552871)` and `(0,-.9963592,0)`; the origin is `(0,.5579612,.0562688)`. Both CLOCK hands also retain their local Y-rotation basis and match the independently predicted `C*M*F`. The previous `C*M*C` expectation incorrectly assumed the exporter had baked the global conversion into each retained local basis.
+Read-only inspection of root `TestResults/editmode_20261023T123439Z.xml` confirms the prediction across the actual recorded matrices. FAN's native columns are approximately `(1,0,0)`, `(0,0,.7552871)`, `(0,-.9963592,0)`; its origin is `(0,.5579612,.0562688)`. CLOCK hour columns are `(.6216097,.7689101,0)`, `(0,0,.7484663)`, `(.7833270,-.6101692,0)`; minute columns are `(.6967067,-.7041532,0)`, `(0,0,.7484663)`, `(-.7173560,-.6838840,0)`. Both clock origins are approximately `(0,.2444173,.0695461)`. All three native model matrices show the expected +90° X root. These are `C*M*F`, including orientation and nonuniform scale, within float rounding; they are not `C*M*C`.
 
-The fixture now computes `C*M*F`. The 0.001 m origin tolerance, 0.001 basis tolerance, all three basis comparisons and separate articulated mesh-ownership checks remain unchanged. No models, import settings, source transforms or material files are modified. Maps, dimensions and renderer counts passed again in this native run; the three pivot tests still require their focused rerun. This technical correction does not change the owner's rejection of DetailV2 appearance.
+Root commit `5e9ad10` changes only the fixture's conversion to `axes * blender * Matrix4x4.Scale(new Vector3(1,1,-1))`; the strict origin and basis tolerances and mesh-ownership checks remain. Root `TestResults/editmode_20261023T125443Z.xml`, inspected directly in this lane, records **6/6 equipment detail cases passed**: all three articulated pivots, maps, dimensions/grips/material budget and exact renderer counts. No model or importer transformation repair was needed for this issue. The overall native batch had unrelated input failures, so this is not a full-suite pass.
+
+This lane ran no native processes and changed no test assertions or assets; root owns the executed tests and converter repair. DetailV2 remains **owner-rejected in appearance**. A technical pivot/map/budget pass does not approve its visual design or justify replacing the original game artwork.
