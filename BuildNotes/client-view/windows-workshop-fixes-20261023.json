@@ -1,0 +1,371 @@
+{
+  "recordedUtc": "2026-10-23T19:09:03.2728822Z",
+  "build": {
+    "schema": 1,
+    "id": "20261023T185900Z",
+    "kind": "release-qa",
+    "dir": "Builds/qa-20261023T185900Z",
+    "exe": "Wreckabulary.exe",
+    "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "utc": "2026-10-23T19:01:34Z",
+    "development": false,
+    "unity_version": "6000.6.3f1",
+    "head": "5aa933b78e8e586d1811d6d41060ee3f28760012",
+    "tree": "aa642f4313195b3dad0d1ce005d27c69da7b8c11a30c464dd92fe2e1d72adf0c",
+    "secs": 153.1,
+    "ok": true
+  },
+  "gateBuild": {
+    "cmd": "build --profile release-qa",
+    "rung": "R4",
+    "ok": true,
+    "exit": 0,
+    "verdict": "PASS",
+    "utc": "2026-10-23T18:59:00Z",
+    "secs": 154.3,
+    "route": "cold",
+    "errors": [],
+    "failures": [],
+    "log": "Logs/gate_build_release-qa_20261023T185900Z.log",
+    "evidence": [
+      "Builds/qa-20261023T185900Z/build.json",
+      "Builds/qa-20261023T185900Z/packed_assets.json"
+    ],
+    "infra": null,
+    "slot": null,
+    "build": {
+      "schema": 1,
+      "id": "20261023T185900Z",
+      "kind": "release-qa",
+      "dir": "Builds/qa-20261023T185900Z",
+      "exe": "Wreckabulary.exe",
+      "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+      "utc": "2026-10-23T19:01:34Z",
+      "development": false,
+      "unity_version": "6000.6.3f1",
+      "head": "5aa933b78e8e586d1811d6d41060ee3f28760012",
+      "tree": "aa642f4313195b3dad0d1ce005d27c69da7b8c11a30c464dd92fe2e1d72adf0c",
+      "secs": 153.1,
+      "ok": true
+    }
+  },
+  "officialSmoke": {
+    "cmd": "smoke --build 20261023T185900Z --scenario wordbound_workshop_flow",
+    "rung": "R4",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-23T19:02:28Z",
+    "secs": 94.1,
+    "route": "none",
+    "errors": [
+      {
+        "message": "[GSK] QA step return_to_workshop: System.NullReferenceException: Object reference not set to an instance of an object"
+      },
+      {
+        "message": "checks.json result is FAIL"
+      }
+    ],
+    "failures": [
+      {
+        "name": "open_wordbound",
+        "message": "The party did not finish splash, two menu repaints and assigned-camera rendering within 45 seconds; see party_frame probes."
+      },
+      {
+        "name": "edit_workshop",
+        "message": "The workshop PNG is blank or a uniform fill; the first capture is preserved."
+      },
+      {
+        "name": "exact_playtest",
+        "message": "Playtest requires verified primary autosave recovery and a completed capture of the exact edited draft.; exact_manifest is not true; markers = 0 < 1"
+      },
+      {
+        "name": "return_to_workshop",
+        "message": "action threw NullReferenceException: Object reference not set to an instance of an object"
+      }
+    ],
+    "log": "Logs/player/20261023T190228Z-wordbound_workshop_flow.log",
+    "evidence": [
+      "Docs/qa/runs/20261023T190228Z-wordbound_workshop_flow/checks.json"
+    ],
+    "infra": null,
+    "slot": null,
+    "smoke": {
+      "build": "Builds/qa-20261023T185900Z",
+      "kind": "release-qa",
+      "run_id": "20261023T190228Z-wordbound_workshop_flow",
+      "stripped": false,
+      "scenario": "wordbound_workshop_flow",
+      "seed": 1,
+      "exit": 1,
+      "timed_out": false
+    }
+  },
+  "visibleStatus": {
+    "status": "finished",
+    "diagnosticOnly": true,
+    "officialGateReplacement": false,
+    "build": "20261023T185900Z",
+    "runId": "20261023T190422Z-visible-wordbound_workshop_flow",
+    "executable": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Builds\\qa-20261023T185900Z\\Wreckabulary.exe",
+    "sha256": "96B492CB271111251FE42B8646E65370A1B7B566773A1E35B34C3F2D1AE70873",
+    "arguments": [
+      "-screen-fullscreen",
+      "0",
+      "-screen-width",
+      "1280",
+      "-screen-height",
+      "720",
+      "-qa-scenario",
+      "wordbound_workshop_flow",
+      "-qa-seed",
+      "1",
+      "-qa-out",
+      "\"C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\docs\\qa\\runs\\20261023T190422Z-visible-wordbound_workshop_flow\"",
+      "-logFile",
+      "\"C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\player\\20261023T190422Z-visible-wordbound_workshop_flow.log\""
+    ],
+    "windowStyle": "Normal",
+    "output": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\docs\\qa\\runs\\20261023T190422Z-visible-wordbound_workshop_flow",
+    "log": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\player\\20261023T190422Z-visible-wordbound_workshop_flow.log",
+    "pid": 16244,
+    "startedUtc": "2026-10-23T19:04:22.1824624Z",
+    "finishedUtc": "2026-10-23T19:06:10.0203289Z",
+    "exitCode": 1
+  },
+  "visibleChecks": {
+    "schema": 1,
+    "run_id": "20261023T190422Z-visible-wordbound_workshop_flow",
+    "commit": null,
+    "tree": null,
+    "build_id": "20261023T185900Z",
+    "scenario": "wordbound_workshop_flow",
+    "seed": 1,
+    "platform": "player",
+    "development_build": false,
+    "unity_version": "6000.6.3f1",
+    "started_utc": "2026-10-23T19:04:27Z",
+    "ended_utc": "2026-10-23T19:06:08Z",
+    "result": "FAIL",
+    "steps": [
+      {
+        "name": "open_wordbound",
+        "status": "PASS",
+        "t_s": 4.414031,
+        "probes": {
+          "party_frame_scene": "WordboundLobby",
+          "party_frame_screen": "1280x720",
+          "party_frame_focused": true,
+          "party_frame_splash_finished": true,
+          "party_frame_current": 5,
+          "party_frame_rendered": 5,
+          "party_frame_repaints": 4,
+          "party_frame_repaints_after_splash": 3,
+          "party_frame_last_repaint": 5,
+          "party_frame_menu_active": true,
+          "party_frame_menu_visible": true,
+          "party_frame_camera": "Wordbound lobby camera",
+          "party_frame_camera_active": true,
+          "party_frame_camera_display": 0,
+          "party_frame_camera_target": "none",
+          "party_frame_camera_callbacks": 3,
+          "party_frame_last_camera": 5,
+          "party_frame_camera_callback": "endCameraRendering",
+          "party_frame_ready": true,
+          "party_capture_width": 1280,
+          "party_capture_height": 720,
+          "party_capture_nonblack_pixels": 921600,
+          "party_capture_nonzero_alpha_pixels": 921600,
+          "party_capture_varied_rgb": true,
+          "party_capture_min_rgba": "2,3,4,255",
+          "party_capture_max_rgba": "201,201,201,255"
+        },
+        "assert_failures": [],
+        "captures": [
+          "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_party.png"
+        ]
+      },
+      {
+        "name": "edit_workshop",
+        "status": "PASS",
+        "t_s": 9.670795,
+        "probes": {
+          "workshop_autosave_verified": true,
+          "workshop_edit_completed": true,
+          "workshop_atomic_path_characters": 164,
+          "workshop_storage_folder": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\36c095c6ed9643e98309c0115ef64b90",
+          "manifest_hash": "146a289906d1cf3840a9985ce0a38e4ae968889b9e1cb1b60808333ed519e77f",
+          "seed": "0314159265358979",
+          "workshop_autosave_primary": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\36c095c6ed9643e98309c0115ef64b90\\templates\\Flagship\\wordbound-lost-address.autosave.json",
+          "workshop_autosave_bytes": 183314,
+          "workshop_autosave_used_backup": false,
+          "workshop_autosave_exact": true,
+          "workshop_autosave_draft_unchanged": true,
+          "workshop_autosave_temporary_files": 0,
+          "workshop_recovered_seed": "0314159265358979",
+          "workshop_autosave_evidence": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/workshop-autosave.json",
+          "workshop_capture_width": 1280,
+          "workshop_capture_height": 720,
+          "workshop_capture_nonblack_pixels": 921207,
+          "workshop_capture_nonzero_alpha_pixels": 921600,
+          "workshop_capture_varied_rgb": true,
+          "workshop_capture_min_rgba": "0,0,0,255",
+          "workshop_capture_max_rgba": "209,255,204,255"
+        },
+        "assert_failures": [],
+        "captures": [
+          "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_workshop.png"
+        ]
+      },
+      {
+        "name": "exact_playtest",
+        "status": "FAIL",
+        "t_s": 100.943695,
+        "probes": {},
+        "assert_failures": [
+          "timed out after 90 s"
+        ]
+      },
+      {
+        "name": "return_to_workshop",
+        "status": "PASS",
+        "t_s": 101.194359,
+        "probes": {
+          "same_history": true,
+          "draft_unchanged": true,
+          "client_destroyed": true,
+          "camera_destroyed": true,
+          "editor_visible": true
+        },
+        "assert_failures": [],
+        "captures": [
+          "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_returned_workshop.png"
+        ]
+      },
+      {
+        "name": "undo_redo_preserved",
+        "status": "PASS",
+        "t_s": 101.412552,
+        "probes": {
+          "undo_redo_exact": true
+        },
+        "assert_failures": []
+      }
+    ],
+    "perf": {},
+    "console": {
+      "errors": 0,
+      "exceptions": 0,
+      "warnings": 0,
+      "first_exception": null
+    },
+    "captures": [
+      {
+        "name": "wordbound_party",
+        "path": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_party.png",
+        "kind": "png",
+        "camera": "screen",
+        "utc": "2026-10-23T19:04:31Z"
+      },
+      {
+        "name": "wordbound_workshop",
+        "path": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_workshop.png",
+        "kind": "png",
+        "camera": "screen",
+        "utc": "2026-10-23T19:04:36Z"
+      },
+      {
+        "name": "wordbound_returned_workshop",
+        "path": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_returned_workshop.png",
+        "kind": "png",
+        "camera": "screen",
+        "utc": "2026-10-23T19:06:08Z"
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "Builds/qa-20261023T185900Z/build.json",
+      "bytes": 451,
+      "sha256": "45791828FD00BAC642709608B47088195270676136F3BDD2480964162AEC8A51"
+    },
+    {
+      "path": "Builds/qa-20261023T185900Z/packed_assets.json",
+      "bytes": 6198950,
+      "sha256": "8816DDD16057009B89E7B0FDC2A7F2BFE2AF31FA7E231E28265F61B6241D3C70"
+    },
+    {
+      "path": "Builds/qa-20261023T185900Z/Wreckabulary_Data/Managed/Wreckabulary.Wordbound.Qa.dll",
+      "bytes": 56320,
+      "sha256": "A246CD3182622AED04934C4355593D419E66B8CBF6CE2FC5705F2925827F50F1"
+    },
+    {
+      "path": "Builds/qa-20261023T185900Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Gameplay.dll",
+      "bytes": 52736,
+      "sha256": "90F65389FBEBCD3E2F306DD44C9F5237A0403E2E6E072BA016005931BD777110"
+    },
+    {
+      "path": "Builds/qa-20261023T185900Z/UnityPlayer.dll",
+      "bytes": 38696368,
+      "sha256": "7C8127007131559A3DAA04AA3A3E8D1477975FE449F59917C5C75D86FA1F904F"
+    },
+    {
+      "path": "Logs/player/20261023T190228Z-wordbound_workshop_flow.log",
+      "bytes": 2746,
+      "sha256": "6564F6EA6287FCBDC374CA9A2795EB564DAE6C8490812E1E107B5ED3C12F9CAB"
+    },
+    {
+      "path": "Logs/player/20261023T190422Z-visible-wordbound_workshop_flow.log",
+      "bytes": 3344,
+      "sha256": "D38418D22F69BD0ABE428CB1F13EACDFC295FC9F1D17D7FFAC4C34A758BC41DF"
+    },
+    {
+      "path": "docs/qa/runs/20261023T190228Z-wordbound_workshop_flow/checks.json",
+      "bytes": 4516,
+      "sha256": "F0ED8FCD669D00B5DEE8ED414E81B04D40D9C56B87C94BC5765F62C82CA806EE"
+    },
+    {
+      "path": "docs/qa/runs/20261023T190228Z-wordbound_workshop_flow/wordbound_workshop.png",
+      "bytes": 16170,
+      "sha256": "9FF2A7E523A17224D386443B5761330A43016430B524A6D028FCE6CB560D4356"
+    },
+    {
+      "path": "docs/qa/runs/20261023T190228Z-wordbound_workshop_flow/workshop-autosave.json",
+      "bytes": 183314,
+      "sha256": "A97B13DEDFA47126279D290B963CBF618E3E90E45502E0720FB6C77E90659678"
+    },
+    {
+      "path": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/checks.json",
+      "bytes": 5046,
+      "sha256": "50B62E8D457673EC78AD4C67A45D7DB43E98A100C5A98277D4EACFC9A5E580C4"
+    },
+    {
+      "path": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_party.png",
+      "bytes": 42088,
+      "sha256": "6B8C44D1F1415F4BBE2CF8639E5FF9A4264F02BA11DAE10056D87FCD1AE7103D"
+    },
+    {
+      "path": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_returned_workshop.png",
+      "bytes": 301086,
+      "sha256": "AD72EBA2592686855CB8E79D0156CA3C76E17E10B78BE01D0CAEF85D3D7BE8D0"
+    },
+    {
+      "path": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/wordbound_workshop.png",
+      "bytes": 301086,
+      "sha256": "AD72EBA2592686855CB8E79D0156CA3C76E17E10B78BE01D0CAEF85D3D7BE8D0"
+    },
+    {
+      "path": "docs/qa/runs/20261023T190422Z-visible-wordbound_workshop_flow/workshop-autosave.json",
+      "bytes": 183314,
+      "sha256": "A97B13DEDFA47126279D290B963CBF618E3E90E45502E0720FB6C77E90659678"
+    }
+  ],
+  "observations": [
+    "Root viewed actual visible workshop PNG: labels separated, outlines confined to viewport, no autosave error displayed. This does not establish all interactive/zoom states or owner approval.",
+    "Visible run open/edit/return/UndoRedo pass; exact primary autosave recovery passes, atomic path164characters, no backup or leftover temp files.",
+    "Visible exact_playtest fails outer90second deadline; absent stage probes do not distinguish readiness wait from the following90presented-frame wait.",
+    "Visible player exits1 normally; zero recorded managed errors/exceptions, no native crash this run. The earlier crash remains unresolved.",
+    "Official hidden launch still has zero menu repaint and camera callbacks; no render readiness. Guard blocks playtest, then Return currently produces a null-client cascade.",
+    "No tested Windows delivery. No production scene or owner artwork acceptance implied."
+  ]
+}

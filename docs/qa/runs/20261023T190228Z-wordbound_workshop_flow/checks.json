@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "run_id": "20261023T190228Z-wordbound_workshop_flow",
+  "commit": null,
+  "tree": null,
+  "build_id": "20261023T185900Z",
+  "scenario": "wordbound_workshop_flow",
+  "seed": 1,
+  "platform": "player",
+  "development_build": false,
+  "unity_version": "6000.6.3f1",
+  "started_utc": "2026-10-23T19:03:06Z",
+  "ended_utc": "2026-10-23T19:04:00Z",
+  "result": "FAIL",
+  "steps": [
+    {
+      "name": "open_wordbound",
+      "status": "FAIL",
+      "t_s": 48.70702,
+      "probes": {
+        "party_frame_scene": "WordboundLobby",
+        "party_frame_screen": "1280x720",
+        "party_frame_focused": true,
+        "party_frame_splash_finished": true,
+        "party_frame_current": 125041,
+        "party_frame_rendered": 125041,
+        "party_frame_repaints": 0,
+        "party_frame_repaints_after_splash": 0,
+        "party_frame_last_repaint": -1,
+        "party_frame_menu_active": true,
+        "party_frame_menu_visible": true,
+        "party_frame_camera": "Wordbound lobby camera",
+        "party_frame_camera_active": true,
+        "party_frame_camera_display": 0,
+        "party_frame_camera_target": "none",
+        "party_frame_camera_callbacks": 0,
+        "party_frame_last_camera": -1,
+        "party_frame_camera_callback": "none",
+        "party_frame_ready": false
+      },
+      "assert_failures": [
+        "The party did not finish splash, two menu repaints and assigned-camera rendering within 45 seconds; see party_frame probes."
+      ]
+    },
+    {
+      "name": "edit_workshop",
+      "status": "FAIL",
+      "t_s": 53.243324,
+      "probes": {
+        "workshop_autosave_verified": true,
+        "workshop_edit_completed": false,
+        "workshop_atomic_path_characters": 164,
+        "workshop_storage_folder": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\d3f665f73ef145f5b12a2082bb5f7312",
+        "manifest_hash": "146a289906d1cf3840a9985ce0a38e4ae968889b9e1cb1b60808333ed519e77f",
+        "seed": "0314159265358979",
+        "workshop_autosave_primary": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\d3f665f73ef145f5b12a2082bb5f7312\\templates\\Flagship\\wordbound-lost-address.autosave.json",
+        "workshop_autosave_bytes": 183314,
+        "workshop_autosave_used_backup": false,
+        "workshop_autosave_exact": true,
+        "workshop_autosave_draft_unchanged": true,
+        "workshop_autosave_temporary_files": 0,
+        "workshop_recovered_seed": "0314159265358979",
+        "workshop_autosave_evidence": "Docs/qa/runs/20261023T190228Z-wordbound_workshop_flow/workshop-autosave.json",
+        "workshop_capture_width": 1280,
+        "workshop_capture_height": 720,
+        "workshop_capture_nonblack_pixels": 0,
+        "workshop_capture_nonzero_alpha_pixels": 0,
+        "workshop_capture_varied_rgb": false,
+        "workshop_capture_min_rgba": "0,0,0,0",
+        "workshop_capture_max_rgba": "0,0,0,0"
+      },
+      "assert_failures": [
+        "The workshop PNG is blank or a uniform fill; the first capture is preserved."
+      ],
+      "captures": [
+        "Docs/qa/runs/20261023T190228Z-wordbound_workshop_flow/wordbound_workshop.png"
+      ]
+    },
+    {
+      "name": "exact_playtest",
+      "status": "FAIL",
+      "t_s": 53.248829,
+      "probes": {
+        "exact_manifest": false,
+        "draft_unchanged": true,
+        "markers": 0
+      },
+      "assert_failures": [
+        "Playtest requires verified primary autosave recovery and a completed capture of the exact edited draft.",
+        "exact_manifest is not true",
+        "markers = 0 < 1"
+      ]
+    },
+    {
+      "name": "return_to_workshop",
+      "status": "ERROR",
+      "t_s": 53.263763,
+      "probes": {},
+      "assert_failures": [
+        "action threw NullReferenceException: Object reference not set to an instance of an object"
+      ]
+    },
+    {
+      "name": "undo_redo_preserved",
+      "status": "PASS",
+      "t_s": 53.550484,
+      "probes": {
+        "undo_redo_exact": true
+      },
+      "assert_failures": []
+    }
+  ],
+  "perf": {
+    "frame_ms_p50": 0.300099,
+    "frame_ms_p95": 0.661699,
+    "worst_frame_ms": 3820.027344,
+    "sys_mem_mb_max": 623.039063,
+    "measured_s": 47.416218
+  },
+  "console": {
+    "errors": 0,
+    "exceptions": 0,
+    "warnings": 1,
+    "first_exception": null
+  },
+  "captures": [
+    {
+      "name": "wordbound_workshop",
+      "path": "Docs/qa/runs/20261023T190228Z-wordbound_workshop_flow/wordbound_workshop.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-23T19:04:00Z"
+    }
+  ]
+}
