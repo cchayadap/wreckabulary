@@ -86,8 +86,8 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 ## Tested Windows delivery
 
 - [x] Create/read back Windows release, QA and development profiles.
-- [x] Produce QA Windows builds: latest `20261023T215906Z` passes112.7s on exactecd968fd; subsequent capture-key source is not in this executable.
-- [~] Visible workshop→game→workshop220124 passes5/5:90waits complete76.228s, playtest79.579s, exact save/return/draft/Undo preserved, console0/0/0, exit0. Supplemental normal-window diagnostic only; official smoke, earlier crash recheck and sustained frame rate remain open. `BuildNotes/client-view/windows-source-index-20261023.json`.
+- [x] Produce QA Windows builds: latest `20261023T230521Z` passes119.5s on exact1ab60670; includes current original-style theme, capture/resource optimizations and online memory policy. Final stripped release remains separate.
+- [~] Visible workshop→game→workshop230748 passes5/5:90waits complete16.807s, playtest17.240s, exact save/return/draft/Undo preserved, console0/0/0, exit0. New theme improves contrast; Search wrapping, status contrast and party consistency remain under repair. Supplemental normal-window diagnostic only; official smoke and sustained frame rate remain open. `BuildNotes/client-view/windows-original-theme-20261023.json`.
 - [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair, party navigation, workshop focus protection and allocation cleanup are integrated; focused native input passes 24/24. Final player handling and reconnect acceptance remain pending.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
@@ -97,7 +97,11 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T22:47Z
+## Current verification — 2026-10-23T23:13Z
+
+WindowsQA230521 and visible230748 pass5/5 on1ab60670; original models remain default, actual cream/teal menus are inspected, game payload hashes and all six images preserved. Playtest17.240s versus earlier79.579s is a faster observed flow, not a controlled FPS result. All7native theme cases and bothnew theme save/reload/custom assignment cases pass225846. Existing changed-draft replacement still fails after releasing its file lock; a native discriminator is running. Public225207TeamSolo andBrawlSolo pass, fullFFA fails second letter collection before combat; the reviewed fixture now parks the other player away and checks real range/LOS before submitting each fresh command. No production reach or timeout relaxation. Full FFA rerun and the draft diagnostic are underway on8a2e061b. Remaining production gaps below stay open.
+
+### Earlier verified checkpoint — 22:47 UTC
 
 Initial-bootstrap native223028 passes58/60: all57 OnlineTests and actual host-departure recovery. Every initial host waits for exact imported bootstrap acknowledgements before its first canonical advance. Recovery18.762seconds misses the ten-second target. PublicTeam/Brawl fail a subsequent temporary-pause assertion; reviewed test repair keeps the existing25-second deadline and strict checks. Online heap capacity is now64MiB per heap with actual solo/local8MiB preserved; fullFFA and maximum-body execution remain pending. Evidence: `BuildNotes/client-view/native-bootstrap-barrier-20261023.json`, `native-ffa-memory-20261023.json`, `BuildNotes/online/FUSION-ONLINE-HEAP-POLICY.md`.
 
