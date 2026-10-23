@@ -313,9 +313,9 @@ namespace Wreckabulary.Tests
                 f.Source.Catalogue, f.Source.Rules);
 
         static MatchSnapshot ReplacePhysical(MatchSnapshot snapshot, IEnumerable<WorldBodyState> bodies = null,
-            IEnumerable<MatchMechanismState> mechanisms = null) => new MatchSnapshot(snapshot.Binding, snapshot.Epoch,
+            IEnumerable<MatchMechanismState> mechanisms = null, IEnumerable<MatchResourceState> resources = null) => new MatchSnapshot(snapshot.Binding, snapshot.Epoch,
                 snapshot.Sequence, snapshot.NextWorldEntityId, snapshot.Progress, snapshot.Economy, snapshot.Commands,
-                snapshot.Actors, bodies ?? snapshot.Bodies, snapshot.Resources, mechanisms ?? snapshot.Mechanisms,
+                snapshot.Actors, bodies ?? snapshot.Bodies, resources ?? snapshot.Resources, mechanisms ?? snapshot.Mechanisms,
                 snapshot.RandomStreams, snapshot.NarrativeFlags, snapshot.ThrownFlights, snapshot.Practice);
 
         [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("Freestyle")]
@@ -428,16 +428,34 @@ namespace Wreckabulary.Tests
         [TestCase("generation"), TestCase("deadline"), TestCase("inactive-lap"), TestCase("source")]
         public void PerCallResourceIndexesRetainScopeAndRecoveryRejections(string mutation)
         {
-            var f = WordboundSnapshotCodecTests.Create(mutation == "lap" ? "Freestyle" : "TimeRun");
+            if (mutation == "lap")
+            {
+                var physical = PhysicalFixture("Freestyle");
+                Assert.IsFalse(physical.Source.Mode.IsRace);
+                var before = physical.State;
+                Assert.Greater(before.Resources.Count, 0, "The non-race lap rejection needs actual authored recovery sources.");
+                Assert.AreEqual("", CheckPhysical(physical, before));
+                var changed = before.Resources.ToArray();
+                var source = changed[0];
+                changed[0] = new MatchResourceState(source.SourceId, source.Team, 1, source.Generation, source.RecoveryAtTick);
+                var wrongLap = ReplacePhysical(before, resources: changed);
+                const string rejected = "Recovery source, team, lap or deadline is invalid.";
+                Assert.AreEqual(rejected, CheckPhysical(physical, wrongLap));
+                Assert.AreEqual(rejected, CheckPhysical(physical, wrongLap));
+                Assert.AreEqual("", CheckPhysical(physical, before));
+                return;
+            }
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
             string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
             var valid = f.Snapshot();
+            Assert.Greater(f.Resources.Count, 0);
             Assert.AreEqual("", Check(valid));
             int at = mutation == "inactive-lap" ? f.Resources.FindIndex(r => r.Lap == 1) : 0;
             var original = f.Resources[at];
             if (mutation == "missing") f.Resources.RemoveAt(at);
             else if (mutation == "duplicate") f.Resources[1] = original;
             else f.Resources[at] = new MatchResourceState(mutation == "source" ? "foreign" : original.SourceId,
-                mutation == "team" ? original.Team + 1 : original.Team, mutation == "lap" ? 1 : original.Lap,
+                mutation == "team" ? original.Team + 1 : original.Team, original.Lap,
                 mutation == "generation" ? original.Generation + 1 : original.Generation,
                 mutation == "deadline" ? 0 : mutation == "inactive-lap" ? 1 : original.RecoveryAtTick);
             string expected = mutation == "missing" || mutation == "duplicate" ?
