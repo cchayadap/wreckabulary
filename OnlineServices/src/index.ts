@@ -2,6 +2,7 @@ import { z } from "zod";
 import { authenticate, photonConfiguration, publicKey, verifyPhotonTicket } from "./auth";
 import { rpcValue } from "./rpc";
 import { CheckpointRequests, type CheckpointAction } from "./checkpoints";
+import { BundleRequests, type BundleAction } from "./bundles";
 import { Hash, Id, QueueRequest, Revision, Settings, digest, equalSecret, requireThat, type ServiceEnv } from "./model";
 export { Identity } from "./identity";
 export { Party } from "./party";
@@ -85,6 +86,10 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
   if (path[1] === "parties" && (path.length === 3 || path.length === 4)) {
     const id = Id.parse(path[2]); const party = env.PARTIES.getByName(id);
     if (method === "GET" && path.length === 3) return party.get(actor);
+    if (method === "POST" && Object.hasOwn(BundleRequests, path[3])) {
+      const action = path[3] as BundleAction;
+      return party.content(actor, action, await body(request, BundleRequests[action]));
+    }
     const op = operation(request);
     if (method === "PATCH" && path.length === 3) {
       const data = await body(request, z.object({ expectedRevision: Revision, settings: Settings }).strict());
@@ -107,6 +112,8 @@ async function route(request: Request, env: ServiceEnv): Promise<unknown> {
   if (path[1] === "pools" && path[3] === "matches" && path.length === 6) {
     const pool = env.POOLS.getByName(PoolKey.parse(path[2])); const matchId = Id.parse(path[4]);
     requireThat(method === "POST", "METHOD_NOT_ALLOWED", 405);
+    if (path[5] === "content-info" || path[5] === "content-read")
+      return pool.content(matchId, actor, path[5], await body(request, BundleRequests[path[5]]));
     if (Object.hasOwn(CheckpointRequests, path[5])) {
       const action = path[5] as CheckpointAction;
       return pool.checkpoint(matchId, actor, action, await body(request, CheckpointRequests[action]));

@@ -1,5 +1,6 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import type { WorkshopDescriptor } from "./bundles";
 
 export const Id = z.string().uuid();
 export const Revision = z.string().regex(/^(0|[1-9][0-9]{0,18})$/);
@@ -43,13 +44,14 @@ export type Member = { playerId: string; ready: boolean };
 export type Attempt = {
   id: string; partyId: string; partyRevision: string; members: string[];
   settings: PartySettings; poolKey: string; channel: QueueInput["channel"];
-  content?: ContentBinding; code?: string; createdAt: number;
+  content?: ContentBinding; code?: string; createdAt: number; workshopId?: string;
 };
 export type PartyState = {
   id: string; revision: string; leaderId: string; members: Member[];
   settings: PartySettings; invite: string; active?: Attempt;
   operation?: { key: string; hash: string; kind: string; attempt?: Attempt };
   receipts: Record<string, { hash: string; result: unknown }>;
+  workshop?: WorkshopDescriptor;
 };
 export type Seat = {
   playerId: string; partyId: string; partyRevision: string; attemptId: string;
@@ -83,6 +85,7 @@ export type Match = {
   phase: "FORMING" | "ADMITTING" | "STARTED" | "ABORTED" | "CLOSED";
   reservations: Reservation[]; seats: Seat[]; rosterHash?: string; startedAt?: number;
   connectionRevision?: string;
+  workshop?: WorkshopDescriptor;
 };
 export type PoolState = {
   tickets: Record<string, Attempt>;

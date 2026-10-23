@@ -177,6 +177,11 @@ namespace Wreckabulary.Rules.Wordbound
             Send("POST", "/v1/party-joins", new Dictionary<string, object> {
                 ["partyId"] = Valid(partyId, OnlineJson.Uuid), ["invite"] = Valid(invite, "^[a-f0-9]{16}$") }, true, RequiredKey(key), ct);
         public Task<JsonNode> Party(string partyId, CancellationToken ct = default) => Send("GET", PartyPath(partyId), null, true, null, ct);
+        internal Task<JsonNode> WorkshopPartyAction(string partyId, string action, object body, CancellationToken ct) =>
+            Send("POST", PartyPath(partyId) + "/" + Valid(action, "^content-(begin|chunk|finalize|info|read)$"), body, true, null, ct);
+        internal Task<JsonNode> WorkshopMatchAction(OnlineSettings settings, string matchId, string action, object body, CancellationToken ct) =>
+            Send("POST", "/v1/pools/" + Uri.EscapeDataString(settings.PoolKey) + "/matches/" + Valid(matchId, OnlineJson.Uuid) +
+                "/" + Valid(action, "^content-(info|read)$"), body, true, null, ct);
         public Task<JsonNode> SetSettings(string partyId, string revision, OnlineSettings settings, string key, CancellationToken ct = default) =>
             Send("PATCH", PartyPath(partyId), new Dictionary<string, object> {
                 ["expectedRevision"] = Valid(revision, OnlineJson.Counter), ["settings"] = settings.ToValue() }, true, RequiredKey(key), ct);

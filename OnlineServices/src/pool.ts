@@ -2,6 +2,7 @@ import { z } from "zod";
 import { Store } from "./store";
 import { signGrant } from "./auth";
 import { CheckpointStore, type CheckpointAction } from "./checkpoints";
+import { BundleStore, BundleRequests, bindBundle, type BundleTransfer } from "./bundles";
 import {
   Content, NOW, RECONNECT_MS, capacity, code, digest, emptyPool, logicalFull, poolKey,
   publicRoster, requireThat, seal, secret, teamFor, validatePartySize, fullRacePacking, equalSecret,
@@ -10,6 +11,18 @@ import {
 
 export class MatchPool extends Store<PoolState> {
   private checkpointStore = new CheckpointStore(this.ctx.storage.sql);
+  private bundles = new BundleStore(this.ctx.storage.sql);
+  content(matchId: string, actor: string, action: "content-info" | "content-read", value: unknown) {
+    const data = BundleRequests[action].parse(value) as any;
+    return this.run((s, now) => {
+      const m = s.matches[matchId], seat = this.member(m, actor);
+      requireThat(!seat.returned && s.assignments[seat.attemptId] === matchId && m.phase !== "CLOSED", "CONTENT_ACCESS_EXPIRED", 403);
+      if (m.phase === "STARTED") this.checkReconnect(seat, now);
+      if (action === "content-info") return { descriptor: m.workshop ?? null };
+      requireThat(m.workshop?.bundleId === data.bundleId, "CONTENT_NOT_FOUND", 404);
+      return this.bundles.read(matchId, data.bundleId, data.index);
+    });
+  }
   checkpoint(matchId: string, actor: string, action: CheckpointAction, data: unknown) {
     return this.run((s, now) => {
       const match = s.matches[matchId];
@@ -27,6 +40,11 @@ export class MatchPool extends Store<PoolState> {
         m.phase === "ADMITTING" ? [m.deadline!] :
           m.phase === "FORMING" && !m.privateCode && (m.settings.mode === "FreeForAll" || m.settings.mode === "Freestyle") && m.seats.length >= 2
             ? [m.createdAt + 30_000] : []);
+      deadlines.push(...Object.values(s.matches).filter(m => m.phase === "FORMING" || m.phase === "ABORTED" || m.phase === "CLOSED")
+        .map(m => m.createdAt + 86400_000));
+      deadlines.push(...Object.values(s.matches).filter(m => m.phase === "STARTED")
+        .map(m => Math.max(...m.seats.filter(seat => !seat.returned).map(seat => seat.reconnectDeadline!))));
+      deadlines.push(...Object.values(s.tickets).map(a => a.createdAt + 86400_000));
       const checkpointExpiry = this.checkpointStore.nextExpiry();
       if (checkpointExpiry !== undefined) deadlines.push(checkpointExpiry);
       if (deadlines.length) this.ctx.waitUntil(this.ctx.storage.setAlarm(Math.max(now + 1, Math.min(...deadlines))));
@@ -48,7 +66,7 @@ export class MatchPool extends Store<PoolState> {
   resolveCode() {
     const s = this.read(); requireThat(s?.codeTarget, "PRIVATE_NOT_FOUND", 404); return s.codeTarget;
   }
-  enqueue(a: Attempt) {
+  enqueue(a: Attempt, bundle?: BundleTransfer) {
     return this.run((s, now) => {
       requireThat(!s.tombstones[a.id], "ATTEMPT_CANCELLED");
       requireThat(a.createdAt >= now - 86400_000 && a.createdAt <= now + 5000, "ATTEMPT_EXPIRED");
@@ -60,7 +78,10 @@ export class MatchPool extends Store<PoolState> {
       requireThat(new Set(a.members).size === a.members.length, "DUPLICATE_MEMBER");
       const assigned = s.assignments[a.id];
       if (assigned) {
-        const m = s.matches[assigned]; return { matchId: m.id, privateCode: m.privateCode };
+        const m = s.matches[assigned];
+        const stored = m.reservations.find(r => r.attempt.id === a.id)?.attempt;
+        requireThat(stored && digest(stored) === digest(a), "IDEMPOTENCY_CONFLICT");
+        return { matchId: m.id, privateCode: m.privateCode };
       }
       if (s.tickets[a.id]) { requireThat(digest(s.tickets[a.id]) === digest(a), "IDEMPOTENCY_CONFLICT"); return {}; }
       requireThat(Object.keys(s.tickets).length < 1000 && Object.keys(s.matches).length < 1000, "POOL_BUSY", 429);
@@ -69,11 +90,17 @@ export class MatchPool extends Store<PoolState> {
         .flatMap(m => m.reservations.filter(r => s.assignments[r.attempt.id] === m.id).map(r => r.attempt))];
       requireThat(!active.some(other => other.id !== a.id && other.members.some(p => a.members.includes(p))), "PLAYER_ALREADY_QUEUED");
       if (a.content) this.approve(a.content);
+      requireThat(!a.workshopId || (a.channel === "PrivateCreate" && bundle?.descriptor.bundleId === a.workshopId), "CONTENT_SOURCE_EXPIRED");
+      if (bundle) {
+        requireThat(a.channel === "PrivateCreate" && digest(a.content) === digest(bundle.descriptor.content), "CONTENT_BINDING", 422);
+        bindBundle(bundle.descriptor, a.settings);
+      }
       if (a.channel === "QuickPlay") requireThat(a.content?.kind === "BuiltIn", "QUICK_PLAY_BUILTIN_ONLY", 422);
       if (a.channel === "CustomFill") requireThat(a.settings.fill && !a.content, "CUSTOM_FILL_CONSENT_REQUIRED", 422);
       if (a.channel === "PrivateCreate") {
         requireThat(a.content, "CONTENT_REQUIRED", 422);
         const m = this.newMatch(a, now, true); s.matches[m.id] = m;
+        if (bundle) { this.bundles.install(m.id, bundle); m.workshop = bundle.descriptor; }
         this.enroll(s, m, a, 0);
       } else if (a.channel === "PrivateJoin") {
         const m = Object.values(s.matches).find(m => m.privateCode === a.code && m.phase === "FORMING");
@@ -190,6 +217,7 @@ export class MatchPool extends Store<PoolState> {
           }
         }
         this.checkpointStore.deleteMatch(m.id);
+        this.bundles.deleteScope(m.id);
         delete s.matches[m.id];
       }
     }
@@ -223,7 +251,7 @@ export class MatchPool extends Store<PoolState> {
   private view(m: Match) {
     return { matchId: m.id, state: m.phase, reservationGeneration: m.generation,
       content: m.content, settings: m.settings, privateCode: m.privateCode,
-      rosterHash: m.rosterHash, roster: publicRoster(m), deadline: m.deadline };
+      rosterHash: m.rosterHash, roster: publicRoster(m), deadline: m.deadline, workshop: m.workshop };
   }
   launch(matchId: string, actor: string) {
     return this.run((s, now) => {

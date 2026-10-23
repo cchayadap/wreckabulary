@@ -1,0 +1,63 @@
+{
+  "status": "PASS_SOURCE_GATES_NATIVE_NOT_RUN",
+  "recordedAt": "2026-10-23T09:10:05.6204302Z",
+  "integrationDependency": "a896be3 plus public eligibility from a960651",
+  "csharpPassed": 41,
+  "workerPassed": 98,
+  "workerFiles": 6,
+  "fixtureOriginalBytes": 447758,
+  "fixtureBytes": 37016,
+  "authoredRawBytes": 367999,
+  "authoredPacketBytes": 26868,
+  "authoredChunks": 7,
+  "commands": [
+    "dotnet test .harness/workshop-gates/Tests/Tests.csproj --no-restore --logger trx;LogFileName=workshop-csharp-final.trx --results-directory Logs/online-workshop",
+    "dotnet run --project .harness/workshop-gates/Export/Export.csproj --no-restore -- ../wordbound-integration OnlineServices/test/fixtures/workshop.ts",
+    "npm run check (OnlineServices)",
+    "node node_modules/typescript/bin/tsc --noEmit --project tsconfig.public.json (OnlineServices)",
+    "npm test -- --reporter=dot (OnlineServices)"
+  ],
+  "limits": [
+    "No Unity or live deployment performed by this lane",
+    "Native catalogue and all-mode Photon gameplay remain root-owned",
+    "C# recipe uses actual integration Rules and installed Unity/Fusion assemblies, no substitute SDK/domain types"
+  ],
+  "files": [
+    {
+      "path": "Logs/online-workshop/workshop-csharp-final.trx",
+      "sha256": "a1a6b807b0477b6d7506e328a57f05b7a633c43412eeeb18660a9eb423583bec"
+    },
+    {
+      "path": "Logs/online-public/workshop-csharp-final-20261023.log",
+      "sha256": "8e10c5fefd2a534cc2711b1822c2afa38d4ca57f47cc268374133ef788d413b4"
+    },
+    {
+      "path": "Logs/online-public/workshop-worker-typecheck-final-20261023.log",
+      "sha256": "00cef6d1f0c445d6bbdd58cdfed9000d8f22857276e60cc91eafdef604e1e39f"
+    },
+    {
+      "path": "Logs/online-public/public-catalogue-typecheck-final-20261023.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Logs/online-public/workshop-worker-tests-final-20261023.log",
+      "sha256": "f0f16a058692f3ba18c5b17d8cb2a7d0bdaff83b61be51af54ebbbb481967cbb"
+    },
+    {
+      "path": "Logs/online-public/workshop-export-compact-20261023.log",
+      "sha256": "c8ff80aa8cbd3188a36b3140e85fe697c3b8cff7df515fbee0e021cf9a4200db"
+    },
+    {
+      "path": "OnlineServices/test/fixtures/workshop.ts",
+      "sha256": "957d7595da05c89ddf313966c8bac798cad76db3a69397177280ea428ef7cdb0"
+    },
+    {
+      "path": "OnlineServices/src/bundles.ts",
+      "sha256": "e134bab76b6a5299f0ff274af3bcb708c134bf08756bd7a555f9fc9526d160e4"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/OnlineWorkshopBundle.cs",
+      "sha256": "b537c99e6642a8bb29fdf43d06e72b6bd8ac6b8d2aa547cc733abe12007b1add"
+    }
+  ]
+}

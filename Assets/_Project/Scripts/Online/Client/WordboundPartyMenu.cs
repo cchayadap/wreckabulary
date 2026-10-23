@@ -34,6 +34,22 @@ namespace Wreckabulary.Online
         public event Action CloseRequested;
         public WordboundPartyCoordinator Coordinator => coordinator;
         public string PhotonAppId { get; private set; }
+        public string SelectedRegion => Regions[region];
+        public bool SelectedFill => fill;
+        public bool CanOpenAuthoredPrivate => coordinator != null && coordinator.Authenticated && coordinator.Party == null &&
+            !coordinator.Busy && !coordinator.RetryRequired && !launching && !returning;
+        public async Task OpenAuthoredPrivate(WordboundClientContent content, string selectedRegion, bool fillParty)
+        {
+            if (coordinator == null || !coordinator.Authenticated) throw new InvalidOperationException("Connect with a guest name before sharing your workshop map.");
+            if (launching || returning || coordinator.Busy || coordinator.Party != null)
+                throw new InvalidOperationException("Finish the pending action and leave your current party before sharing a new map.");
+            if (content?.WorkshopBundle == null) throw new ArgumentException("Provide the exact validated workshop draft and resolved preview.");
+            var settings = coordinator.Settings(content.Mode.Id, content.Mode.Format.ToString(), fillParty, selectedRegion);
+            customSeedMode = true; seed = privateSeed = content.Seed;
+            await coordinator.CreateAuthoredParty(settings, content);
+            if (!string.IsNullOrEmpty(coordinator.Error)) throw new InvalidOperationException(coordinator.Error);
+            Visible = true;
+        }
 
         public void Initialize(string publicTrustJson, string actualItemsJson, string actualRuleBookJson,
             string mapPoolVersion, string approvedPublicContentJson = "[]")

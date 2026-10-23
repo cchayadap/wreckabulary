@@ -1,5 +1,6 @@
 import { Store } from "./store";
 import { rpcValue } from "./rpc";
+import { BundleStore, BundleRequests, bindBundle, type BundleAction, type BundleTransfer } from "./bundles";
 import {
   code, digest, equalSecret, poolKey, requireThat, NOW, validatePartySize,
   type PartySettings, type PartyState, type QueueInput, type Attempt,
@@ -10,6 +11,44 @@ type Mutation = { kind: "settings"; expectedRevision: string; settings: PartySet
   | { kind: "leave"; expectedRevision: string }
   | { kind: "cancel"; expectedRevision: string };
 export class Party extends Store<PartyState> {
+  private bundles = new BundleStore(this.ctx.storage.sql);
+  private contentCleanup(now: number) {
+    this.bundles.cleanup(now);
+  }
+  private contentAlarm() {
+    const expiry = this.bundles.nextExpiry();
+    if (expiry !== undefined) this.ctx.waitUntil(this.ctx.storage.setAlarm(Math.max(NOW() + 1, expiry)));
+  }
+  content(actor: string, action: BundleAction, value: unknown) {
+    const data = BundleRequests[action].parse(value) as any;
+    return this.transaction(() => {
+      const now = NOW(); this.contentCleanup(now);
+      const s = this.read(); requireThat(s, "PARTY_NOT_FOUND", 404); this.member(s, actor);
+      if (action === "content-info") return { descriptor: s.workshop ? this.bundles.info(s.id, s.workshop.bundleId) : null };
+      if (action === "content-read") {
+        requireThat(s.workshop?.bundleId === data.bundleId, "CONTENT_NOT_FOUND", 404);
+        return this.bundles.read(s.id, data.bundleId, data.index);
+      }
+      requireThat(s.leaderId === actor, "LEADER_REQUIRED", 403);
+      requireThat(!s.active && !s.operation, "PARTY_BUSY");
+      if (action === "content-finalize" && s.workshop?.bundleId === data.bundleId) {
+        this.bundles.finalize(s.id, data.expectedRevision, data.bundleId, now); return this.view(s);
+      }
+      requireThat(s.revision === data.expectedRevision, "REVISION_CONFLICT");
+      let result: unknown;
+      if (action === "content-begin") {
+        bindBundle(data.descriptor, s.settings);
+        result = this.bundles.begin(s.id, s.revision, data.descriptor, now, s.workshop?.bundleId);
+      } else if (action === "content-chunk")
+        result = this.bundles.chunk(s.id, s.revision, data.bundleId, data.index, data.data, now);
+      else {
+        const descriptor = this.bundles.finalize(s.id, s.revision, data.bundleId, now);
+        bindBundle(descriptor, s.settings); s.workshop = descriptor; this.changed(s); this.write(s); result = this.view(s);
+      }
+      this.contentAlarm(); return result;
+    });
+  }
+  async alarm() { this.transaction(() => this.contentCleanup(NOW())); this.contentAlarm(); }
   create(id: string, playerId: string, settings: PartySettings) {
     return this.transaction(() => {
       const existing = this.read();
@@ -21,7 +60,7 @@ export class Party extends Store<PartyState> {
   }
   private view(s: PartyState) {
     return { id: s.id, revision: s.revision, leaderId: s.leaderId, members: s.members, settings: s.settings,
-      invite: s.invite, state: s.operation ? "UPDATING" : s.active ? "QUEUED" : "OPEN", activeAttempt: s.active };
+      invite: s.invite, state: s.operation ? "UPDATING" : s.active ? "QUEUED" : "OPEN", activeAttempt: s.active, workshop: s.workshop };
   }
   private member(s: PartyState, actor: string) { requireThat(s.members.some(m => m.playerId === actor), "NOT_PARTY_MEMBER", 403); }
   private begin(actor: string, key: string, body: unknown, kind: string, joining = false) {
@@ -86,12 +125,24 @@ export class Party extends Store<PartyState> {
       requireThat(op.state.revision === body.expectedRevision, "REVISION_CONFLICT");
       if (body.kind === "settings" || body.kind === "cancel") requireThat(op.state.leaderId === actor, "LEADER_REQUIRED", 403);
       if (body.kind === "settings") validatePartySize(body.settings, op.state.members.length);
-      if (body.kind === "ready") requireThat(!op.state.active, "ALREADY_QUEUED");
+      if (body.kind === "ready") {
+        requireThat(!op.state.active, "ALREADY_QUEUED");
+        if (body.ready && op.state.workshop) {
+          this.transaction(() => {
+            this.contentCleanup(NOW());
+            requireThat(this.bundles.info(op.state.id, op.state.workshop!.bundleId), "CONTENT_SOURCE_EXPIRED");
+          });
+        }
+      }
       else await this.cancelActive(op.state);
       return this.finish(key, s => {
         if (body.kind === "ready") s.members.find(m => m.playerId === actor)!.ready = body.ready;
         else {
-          if (body.kind === "settings") s.settings = body.settings;
+          if (body.kind === "settings") {
+            if (s.settings.mode !== body.settings.mode || s.settings.format !== body.settings.format ||
+              s.settings.protocolVersion !== body.settings.protocolVersion) delete s.workshop;
+            s.settings = body.settings;
+          }
           if (body.kind === "leave") {
             s.members = s.members.filter(m => m.playerId !== actor);
             s.leaderId = s.members[0]?.playerId ?? "";
@@ -114,6 +165,15 @@ export class Party extends Store<PartyState> {
         (s.settings.mode !== "TimeRun" && s.settings.mode !== "Freestyle") || s.members.length >= 2,
       "PUBLIC_COOP_REQUIRES_HUMANS");
       requireThat(body.channel !== "CustomFill" || s.settings.fill, "FILL_CONSENT_REQUIRED");
+      let bundle: BundleTransfer | undefined;
+      if (s.workshop) {
+        requireThat(body.channel === "PrivateCreate", "AUTHORED_PRIVATE_CREATE_ONLY");
+        requireThat(digest(body.content) === digest(s.workshop.content), "CONTENT_BINDING", 422);
+        bundle = this.transaction(() => {
+          this.contentCleanup(NOW());
+          return this.bundles.info(s.id, s.workshop!.bundleId) ? this.bundles.transfer(s.id, s.workshop!.bundleId) : undefined;
+        });
+      }
       let target = poolKey(s.settings);
       if (body.channel === "PrivateJoin") {
         const locator = await rpcValue(this.env.POOLS.getByName(`code:${body.code}`).resolveCode());
@@ -127,6 +187,7 @@ export class Party extends Store<PartyState> {
           id: crypto.randomUUID(), partyId: current.id, partyRevision: current.revision,
           members: current.members.map(m => m.playerId), settings: current.settings,
           poolKey: target, channel: body.channel, content: body.content, code: body.code,
+          workshopId: current.workshop?.bundleId,
           createdAt: NOW(),
         };
         current.operation.attempt = pending; this.write(current);
@@ -134,7 +195,7 @@ export class Party extends Store<PartyState> {
       });
       if (locked.replay) return locked.result;
       const attempt = locked.attempt;
-      const result = await rpcValue(this.env.POOLS.getByName(target).enqueue(attempt));
+      const result = await rpcValue(this.env.POOLS.getByName(target).enqueue(attempt, bundle));
       if (body.channel === "PrivateCreate" && result.privateCode)
         await this.env.POOLS.getByName(`code:${result.privateCode}`).registerCode(target, result.matchId!, attempt.id);
       return this.finish(key, current => { current.active = attempt; });

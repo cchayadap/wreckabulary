@@ -67,6 +67,7 @@ namespace Wreckabulary.Online
         public JsonNode Assignment { get; }
         public bool HasAttempt { get; }
         public string Channel { get; }
+        public OnlineWorkshopDescriptor Workshop { get; }
         internal WordboundPartyView(JsonNode json, string player)
         {
             Id = WordboundPartyJson.Text(json, "id", WordboundPartyJson.Uuid);
@@ -83,6 +84,8 @@ namespace Wreckabulary.Online
             HasAttempt = json.Has("activeAttempt");
             Channel = HasAttempt ? json["activeAttempt"]["channel"].String() : null;
             Assignment = json.Has("assignment") ? json["assignment"] : null;
+            Workshop = json.Has("workshop") && !json["workshop"].IsNull ? new OnlineWorkshopDescriptor(json["workshop"]) : null;
+            Workshop?.Bind(Settings);
         }
     }
     public sealed class WordboundPartyMember
@@ -111,6 +114,8 @@ namespace Wreckabulary.Online
         int busy, disposed;
         string customAccepted, accepted, launched, selectedSeed;
         WordboundPartyLaunchContext launch;
+        WordboundClientContent stagedWorkshop;
+        string stagedPartyId;
 
         public WordboundPartyView Party { get; private set; }
         public WordboundClientContent Content { get; private set; }
@@ -150,8 +155,30 @@ namespace Wreckabulary.Online
         void Apply(JsonNode json, string seed)
         {
             var next = new WordboundPartyView(json, PlayerId);
-            Party = next; selectedSeed = seed; Content = null;
-            Content = Resolve(next.Settings, seed);
+            var descriptor = AssignedWorkshop(next) ?? next.Workshop;
+            var previous = Content;
+            Party = next; selectedSeed = descriptor?.Seed ?? seed; Content = null;
+            if (descriptor != null) {
+                descriptor.Bind(next.Settings);
+                if (previous?.WorkshopBundle?.Descriptor.BundleId == descriptor.BundleId) Content = previous;
+            } else if (next.Id == stagedPartyId && stagedWorkshop != null) {
+                stagedWorkshop.WorkshopBundle.Descriptor.Bind(next.Settings); Content = stagedWorkshop;
+            } else Content = Resolve(next.Settings, seed);
+        }
+        static OnlineWorkshopDescriptor AssignedWorkshop(WordboundPartyView party) => party.Assignment != null &&
+            party.Assignment.Has("workshop") && !party.Assignment["workshop"].IsNull ?
+                new OnlineWorkshopDescriptor(party.Assignment["workshop"]) : null;
+        async Task LoadContent(CancellationToken ct)
+        {
+            if (Party == null) return;
+            var assigned = AssignedWorkshop(Party); var descriptor = assigned ?? Party.Workshop;
+            if (descriptor == null || Content?.WorkshopBundle?.Descriptor.BundleId == descriptor.BundleId) return;
+            descriptor.Bind(Party.Settings);
+            CourseCatalogue geometry = WordboundClientContent.ResolveInstalledGeometry(descriptor.GeometryHash, items);
+            var service = new OnlineWorkshopService(client);
+            var bundle = assigned == null ? await service.DownloadParty(Party.Id, descriptor, geometry, items, rules, ct).ConfigureAwait(false) :
+                await service.DownloadMatch(Party.Settings, Party.Assignment["matchId"].String(), descriptor, geometry, items, rules, ct).ConfigureAwait(false);
+            Check(ct); Content = WordboundClientContent.FromDownloaded(bundle, geometry, items, rules); selectedSeed = descriptor.Seed;
         }
         public Task Connect(string displayName) => Action("Connect", async ct => {
             if (Authenticated) throw new InvalidOperationException("You are already connected.");
@@ -167,6 +194,7 @@ namespace Wreckabulary.Online
             {
                 var existing = await client.Party(profile["partyId"].String(), ct).ConfigureAwait(false); Check(ct);
                 Apply(existing, partySeed);
+                await LoadContent(ct).ConfigureAwait(false); Check(ct);
             }
         }, false);
         async Task EnsureAuthentication(CancellationToken ct, bool rotate = false)
@@ -191,6 +219,27 @@ namespace Wreckabulary.Online
                 Apply(json, seed); Content = content;
             }, () => { if (Party != null) throw new InvalidOperationException("Leave your current party first."); });
         }
+        public Task CreateAuthoredParty(OnlineSettings settings, WordboundClientContent content)
+        {
+            if (content?.WorkshopBundle?.Packet == null) throw new ArgumentException("Provide the exact locally validated workshop draft.");
+            content.WorkshopBundle.Descriptor.Bind(settings);
+            if (content.WorkshopBundle.Descriptor.ItemHash != WordboundIdentity.Sha256(items) ||
+                content.WorkshopBundle.Descriptor.RulesHash != WordboundIdentity.Sha256(rules))
+                throw new InvalidOperationException("Online workshop sharing requires this game's installed item and rule files. Use the installed release content before creating the party; custom item or rule files are not transferred.");
+            if (Party != null) throw new InvalidOperationException("Leave your current party before sharing a workshop draft.");
+            string key = Key(); WordboundPartyView created = null;
+            return Action("Share workshop map", async ct => {
+                await EnsureAuthentication(ct).ConfigureAwait(false);
+                if (created == null) {
+                    var json = await client.CreateParty(settings, key, ct).ConfigureAwait(false); Check(ct);
+                    created = new WordboundPartyView(json, PlayerId);
+                }
+                Party = created; Content = stagedWorkshop = content; stagedPartyId = created.Id; selectedSeed = content.Seed;
+                var result = await new OnlineWorkshopService(client).Upload(created.Id, created.Revision, content.WorkshopBundle, ct).ConfigureAwait(false);
+                Check(ct); Apply(result, content.Seed); stagedWorkshop = null; stagedPartyId = null;
+                await LoadContent(ct).ConfigureAwait(false);
+            }, true);
+        }
         public Task JoinParty(string copiedInvite)
         {
             var invite = new WordboundPartyInvite(copiedInvite); string key = Key();
@@ -200,7 +249,12 @@ namespace Wreckabulary.Online
         }
         public Task ChangeSettings(OnlineSettings settings)
         {
-            var party = RequireParty(); string seed = Seed, key = Key(); _ = Resolve(settings, seed);
+            var party = RequireParty(); string seed = Seed, key = Key();
+            if (Content?.WorkshopBundle != null) {
+                if (settings.Mode != Content.Mode.Id || settings.Format != Content.Mode.Format.ToString())
+                    throw new InvalidOperationException("This workshop preview is bound to its selected mode. Leave this party and validate the new mode in the workshop before sharing it.");
+                Content.WorkshopBundle.Descriptor.Bind(settings);
+            } else _ = Resolve(settings, seed);
             return Mutation("Apply settings", ct => client.SetSettings(party.Id, party.Revision, settings, key, ct),
                 json => Apply(json, seed), RequireLeader);
         }
@@ -236,7 +290,7 @@ namespace Wreckabulary.Online
         {
             var party = RequireParty(); string key = Key();
             return Mutation("Leave party", ct => client.Leave(party.Id, party.Revision, key, ct),
-                _ => { Party = null; Content = null; selectedSeed = null; launch = null; accepted = null; launched = null; },
+                _ => { Party = null; Content = null; stagedWorkshop = null; stagedPartyId = null; selectedSeed = null; launch = null; accepted = null; launched = null; },
                 () => { if (MatchActive) throw new InvalidOperationException("Return from your match before leaving the party."); });
         }
         public Task StartPrivate() => Action("Start private match", async ct => {
@@ -265,7 +319,11 @@ namespace Wreckabulary.Online
         }
         public string CopyInvite() { RequireContent(); return WordboundPartyInvite.Encode(RequireParty().Id, Party.Invite, Seed); }
         WordboundPartyView RequireParty() => Party ?? throw new InvalidOperationException("Create or join a party first.");
-        void RequireContent() { if (Content == null) throw new InvalidOperationException("This party's game content is unavailable. Leave the party or use the matching game release."); }
+        void RequireContent() {
+            if (Content == null) throw new InvalidOperationException("This party's game content is unavailable. Wait for its map download or use the matching game release.");
+            if (Content.WorkshopBundle != null && (AssignedWorkshop(Party) ?? Party.Workshop)?.BundleId != Content.WorkshopBundle.Descriptor.BundleId)
+                throw new InvalidOperationException("Finish uploading the workshop map before becoming ready. Retry the pending sharing action.");
+        }
         void RequireLeader() { if (!IsLeader) throw new InvalidOperationException("Only the party leader can do that."); }
 
         public Task Retry()
@@ -281,6 +339,7 @@ namespace Wreckabulary.Online
                 var json = await send(ct).ConfigureAwait(false); Check(ct);
                 pending = null; pendingName = null;
                 apply(json);
+                await LoadContent(ct).ConfigureAwait(false); Check(ct);
             }, true);
         }
         Task Action(string name, Func<CancellationToken, Task> operation, bool retryable, bool retry = false)
@@ -305,7 +364,7 @@ namespace Wreckabulary.Online
                 {
                     if (!ct.IsCancellationRequested)
                     {
-                        if (error is OnlineServiceException service && service.Status < 500 ||
+                        if (error is OnlineServiceException service && service.Status < 500 && service.Code != "CONTENT_UPLOAD_EXPIRED" ||
                             error is ArgumentException || error is FormatException || error is InvalidOperationException)
                         { pending = null; pendingName = null; }
                         Error = Friendly(error);
@@ -335,6 +394,7 @@ namespace Wreckabulary.Online
                 if (MatchActive) return;
                 var json = await client.Party(Party.Id, ct).ConfigureAwait(false); Check(ct);
                 Apply(json, Seed);
+                await LoadContent(ct).ConfigureAwait(false); Check(ct);
                 if (!Busy) await ProcessAssignment(ct).ConfigureAwait(false);
             }
             catch (Exception error) { if (!ct.IsCancellationRequested) Error = Friendly(error); }
@@ -416,6 +476,9 @@ namespace Wreckabulary.Online
                     case "REVISION_CONFLICT": return "The party changed. Refresh and try again.";
                     case "PARTY_NOT_READY": return "Every party member must be ready.";
                     case "PUBLIC_COOP_REQUIRES_HUMANS": return "Invite another human player or turn Fill on for public co-op. Private rooms support solo play.";
+                    case "CONTENT_UPLOAD_EXPIRED": return "The map upload expired. Retry the pending sharing action to upload it again.";
+                    case "CONTENT_SOURCE_EXPIRED": return "This unqueued workshop map expired. Leave the party and share the validated draft again.";
+                    case "AUTHORED_PRIVATE_CREATE_ONLY": return "Authored workshop parties use Create private room. Other parties can join with its code or Custom Fill.";
                     case "MATCH_NOT_FULL": return "Waiting for another team or more players. Fill off keeps an undersized team together.";
                     case "OWNER_REQUIRED": return "Only the private room creator can start this match.";
                     case "PRIVATE_SETTINGS_MISMATCH": return "Use the host's mode, team size, region and game release.";
