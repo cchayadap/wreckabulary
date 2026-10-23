@@ -1,0 +1,387 @@
+{
+  "recordedUtc": "2026-10-23T20:06:30.675185+00:00",
+  "source": "ce2985bef2b0683658b2d1375dcc8dcadf09fc60",
+  "summary": {
+    "result": "Failed(Child)",
+    "total": "65",
+    "passed": "63",
+    "failed": "2",
+    "skipped": "0",
+    "duration": "119.7424084",
+    "start-time": "2026-10-23 20:01:51Z",
+    "end-time": "2026-10-23 20:03:51Z"
+  },
+  "cases": [
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.AtomicCollisionRegistrationKeepsIsolatedNativePairsAndAbortRecovery",
+      "result": "Passed",
+      "duration": "3.725372",
+      "observations": [
+        "WORDBOUND_COLLISION_PAIRS: mode=TimeRun; mutationCase=0; bodies=30; fullPasses=6; incrementalPasses=30; pairDecisions=2987; nativePairs=verified; noTimingClaim=true",
+        "WORDBOUND_COLLISION_PAIRS: mode=TimeRun; mutationCase=1; bodies=30; fullPasses=7; incrementalPasses=29; pairDecisions=2988; nativePairs=verified; noTimingClaim=true"
+      ]
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.AtomicCollisionRegistrationKeepsSharedNativePairsAndAbortRecovery",
+      "result": "Passed",
+      "duration": "0.607225",
+      "observations": [
+        "WORDBOUND_COLLISION_PAIRS: mode=Freestyle; mutationCase=0; bodies=6; fullPasses=6; incrementalPasses=6; pairDecisions=95; nativePairs=verified; noTimingClaim=true",
+        "WORDBOUND_COLLISION_PAIRS: mode=Freestyle; mutationCase=1; bodies=6; fullPasses=7; incrementalPasses=5; pairDecisions=96; nativePairs=verified; noTimingClaim=true"
+      ]
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.AtomicPhysicsApplyRetainsValidationAndAbortGuards",
+      "result": "Passed",
+      "duration": "0.525722"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.FirstAppliedFrameCannotReenterInitialHostComposition",
+      "result": "Passed",
+      "duration": "0.494271"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.FreestyleUsesOfflineRunnerAndExactWorkshopManifest",
+      "result": "Passed",
+      "duration": "3.082796"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationFailureKeepsItsExceptionAndCannotPublishAFrame",
+      "result": "Passed",
+      "duration": "0.510579"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationPollCannotReenterInitialHostComposition",
+      "result": "Passed",
+      "duration": "0.491627"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationStopCannotPublishAnAbandonedReconciliation",
+      "result": "Passed",
+      "duration": "0.465638"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.RunningFrameStopPreventsCheckpointAndLocalViewContinuation",
+      "result": "Passed",
+      "duration": "0.474855"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.TimeRunUsesOfflineRunnerAndExactWorkshopManifest",
+      "result": "Passed",
+      "duration": "1.858030"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundHudLayoutTests.NativePanelMeasurementFitsWrappedStatusesAndShrinksWhenRowsDisappear(1280,720)",
+      "result": "Passed",
+      "duration": "1.111060"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundHudLayoutTests.NativePanelMeasurementFitsWrappedStatusesAndShrinksWhenRowsDisappear(1920,1080)",
+      "result": "Passed",
+      "duration": "0.063203"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundHudLayoutTests.NativePanelMeasurementFitsWrappedStatusesAndShrinksWhenRowsDisappear(854,480)",
+      "result": "Passed",
+      "duration": "0.091156"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.ActiveHintUsesExistingLocalizedPhysicalKeyFallback",
+      "result": "Passed",
+      "duration": "0.279217"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.ActualPlayerViewDefaultsToAutomaticBindingAndPadLossOpensMenuAndReleasesInput",
+      "result": "Passed",
+      "duration": "0.042237"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.ControlHintsFollowConsumedDesktopOverridesWithoutChangingInput",
+      "result": "Passed",
+      "duration": "0.019159"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.ControllerMenuHasBoundedRepeatConfirmBackAndScrollWithoutGameplayActions",
+      "result": "Passed",
+      "duration": "0.009538"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.DesktopReclaimsInputAndStationaryHeldStickCannotImmediatelyStealItBack",
+      "result": "Passed",
+      "duration": "0.005059"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.HeldMenuConfirmAndDirectionCannotActivateAcrossFocusOrMenuTransition",
+      "result": "Passed",
+      "duration": "0.005107"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.LowStickNoiseDoesNotSwitchDevices",
+      "result": "Passed",
+      "duration": "0.004122"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.MenuOrFocusSuspensionRequiresActionReleaseButKeepsCameraAndMovementResponsive",
+      "result": "Passed",
+      "duration": "0.005084"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.NativeInputScopeRestoresItsQuietFramesWithoutReleasingAnExistingGameplayLease",
+      "result": "Passed",
+      "duration": "0.006459"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.NativeInputScopesPreserveTemporaryOriginalSettingsAcrossRepeatedUse",
+      "result": "Passed",
+      "duration": "0.006002"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.PlayerViewForwardsWordboundBindingWhileLegacyAndUnknownBindingsStayGeneric",
+      "result": "Passed",
+      "duration": "0.009954"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.QuietConnectedPadDoesNotStealDesktopButDeliberateStickInputControlsMovementAndLook",
+      "result": "Passed",
+      "duration": "0.004308"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.ReadingHintsDoesNotSelectADeviceConsumeButtonsOrHideAnUnpluggedPad",
+      "result": "Passed",
+      "duration": "0.007084"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.RemovingActivePadReportsLossAndHotplugRequiresFreshIntent",
+      "result": "Passed",
+      "duration": "0.006316"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.SwapSpellJumpAndPauseKeepTheirExistingGamepadButtons",
+      "result": "Passed",
+      "duration": "0.004101"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.TabCyclesOnlyWordboundEquipmentAndOriginalDesktopBindingStaysUnchanged",
+      "result": "Passed",
+      "duration": "0.008184"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.TypingAndGameplayInputLeaseSuppressGamepadAttackDefenseAndPause",
+      "result": "Passed",
+      "duration": "0.007460"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.UnfocusedViewDoesNotSwitchDeviceOrAcceptMenuInputAndFocusLossReleasesImmediately",
+      "result": "Passed",
+      "duration": "0.008536"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundInputBindingTests.WordboundAddsHeldAttackAndRightShoulderThrowAimWithoutChangingLegacyGamepadMapping",
+      "result": "Passed",
+      "duration": "0.006543"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundMenuGuiTests.JournalConfirmationDuringRepaintKeepsTheMeasuredLayoutUntilNextUpdate",
+      "result": "Passed",
+      "duration": "0.138650"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundMenuGuiTests.PendingMenuActionsAreDiscardedOnLostFocusAndRunAtMostOnce",
+      "result": "Passed",
+      "duration": "0.003275"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Failed",
+      "duration": "41.298785",
+      "failure": "  Apply client movement through admitted Fusion input exceeded its deadline.\n  Expected: True\n  But was:  False\n",
+      "observations": [
+        "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; clients=2; parties=2"
+      ]
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPeersCompleteCompactAuthoredTimeRunAndConfirmDurableResult",
+      "result": "Failed",
+      "duration": "60.961645",
+      "failure": "  Carry the keepsake clear of the workbench exceeded its deadline.\n  Expected: True\n  But was:  False\n",
+      "observations": [
+        "WORDBOUND_WORKSHOP_ALLOCATION: phase=ADMITTING; peers=2; explicitLaunch=False",
+        "WORDBOUND_GAMEPLAY_OBSERVED: authenticated real bodies, client input and committed command; cleanup pending.",
+        "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; clients=2; parties=1"
+      ]
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.EachFamilyUsesExactAuthoredVolumesAndOnlyCurrentLocalTeamSites(\"CollectLetters\")",
+      "result": "Passed",
+      "duration": "0.023586"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.EachFamilyUsesExactAuthoredVolumesAndOnlyCurrentLocalTeamSites(\"PlaceObject\")",
+      "result": "Passed",
+      "duration": "0.003338"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.EachFamilyUsesExactAuthoredVolumesAndOnlyCurrentLocalTeamSites(\"RedirectWind\")",
+      "result": "Passed",
+      "duration": "0.001825"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.EachFamilyUsesExactAuthoredVolumesAndOnlyCurrentLocalTeamSites(\"TimedMechanism\")",
+      "result": "Passed",
+      "duration": "0.001313"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.EachFamilyUsesExactAuthoredVolumesAndOnlyCurrentLocalTeamSites(\"BuildRoute\")",
+      "result": "Passed",
+      "duration": "0.001196"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.EachFamilyUsesExactAuthoredVolumesAndOnlyCurrentLocalTeamSites(\"BalanceWeight\")",
+      "result": "Passed",
+      "duration": "0.003758"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.FinishUsesTheActualLastCheckpointSensorThenNextLapMarkers",
+      "result": "Passed",
+      "duration": "0.003271"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.ReturnDisconnectMigrationAndCompletionRemoveGuidance",
+      "result": "Passed",
+      "duration": "0.010824"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.SnapshotOverloadRejectsDifferentManifestSourceAndRoster",
+      "result": "Passed",
+      "duration": "0.026141"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.SolvedPuzzleDisappearsAndCheckpointBecomesReadyWithoutChangingProgress",
+      "result": "Passed",
+      "duration": "0.002245"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuidePlanTests.UnknownPlayerIsRejectedAndFreestyleDoesNotInventRaceObjectives",
+      "result": "Passed",
+      "duration": "0.327116"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.AuthoredFamilyRendersInOwnedSceneWithoutPhysicsOrDuplicateRefresh(\"CollectLetters\")",
+      "result": "Passed",
+      "duration": "0.127053"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.AuthoredFamilyRendersInOwnedSceneWithoutPhysicsOrDuplicateRefresh(\"PlaceObject\")",
+      "result": "Passed",
+      "duration": "0.002750"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.AuthoredFamilyRendersInOwnedSceneWithoutPhysicsOrDuplicateRefresh(\"RedirectWind\")",
+      "result": "Passed",
+      "duration": "0.008062"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.AuthoredFamilyRendersInOwnedSceneWithoutPhysicsOrDuplicateRefresh(\"TimedMechanism\")",
+      "result": "Passed",
+      "duration": "0.003733"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.AuthoredFamilyRendersInOwnedSceneWithoutPhysicsOrDuplicateRefresh(\"BuildRoute\")",
+      "result": "Passed",
+      "duration": "0.003612"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.AuthoredFamilyRendersInOwnedSceneWithoutPhysicsOrDuplicateRefresh(\"BalanceWeight\")",
+      "result": "Passed",
+      "duration": "0.003722"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.CheckpointAndFinishCaptionsStayAboveTheirDecorativePost(False)",
+      "result": "Passed",
+      "duration": "0.011513"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.CheckpointAndFinishCaptionsStayAboveTheirDecorativePost(True)",
+      "result": "Passed",
+      "duration": "0.002852"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPuzzleGuideViewTests.EmptyPlanAndDisposeHideAndDestroyOnlyOwnedGraphics",
+      "result": "Passed",
+      "duration": "0.002821"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryPlanTests.FutureFlagsCannotRevealUnreachedCluesOrAnotherTeamProgress",
+      "result": "Passed",
+      "duration": "0.003818"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryPlanTests.JournalNeedsBothReachedCheckpointAndItsOwnTeamNarrativeFlag",
+      "result": "Passed",
+      "duration": "0.001868"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryPlanTests.NoticesComeOnlyFromTheSelectedRouteAndExactAuthoredPositions",
+      "result": "Passed",
+      "duration": "0.002884"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryPlanTests.RestoredProgressReconstructsTheSameJournalWithoutMutatingProgress",
+      "result": "Passed",
+      "duration": "0.155493"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryPlanTests.UnknownReaderIsRejected",
+      "result": "Passed",
+      "duration": "0.005045"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryReadabilityTests.ActualNoticeFacingPreservesAnchorAndWordsWithBoundedReadableScale(6.0f)",
+      "result": "Passed",
+      "duration": "0.003821"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryReadabilityTests.ActualNoticeFacingPreservesAnchorAndWordsWithBoundedReadableScale(12.0f)",
+      "result": "Passed",
+      "duration": "0.000493"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryReadabilityTests.ActualNoticeFacingPreservesAnchorAndWordsWithBoundedReadableScale(18.0f)",
+      "result": "Passed",
+      "duration": "0.000401"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundStoryReadabilityTests.ActualNoticeFacingPreservesAnchorAndWordsWithBoundedReadableScale(20.0f)",
+      "result": "Passed",
+      "duration": "0.000368"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261023T200052Z.xml",
+      "bytes": 108730,
+      "sha256": "c7a64d817657354f10b56edb0613f6db4bf5f64370455b3918550047bc97969d"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261023T200052Z.log",
+      "bytes": 567676,
+      "sha256": "ca45d9efcfb37432c61045845f64fb59e1197476a5ed95d4a8631657a0297d9a"
+    },
+    {
+      "path": ".harness/delivery/native-collision-hud-full-online-2000-job.json",
+      "bytes": 1241,
+      "sha256": "81053dab033e0e32e3878f832535e690986e7df37007fc3b90bbd957b621dc68"
+    },
+    {
+      "path": ".harness/delivery/native-collision-hud-full-online-2000-status.json",
+      "bytes": 1281,
+      "sha256": "8197563f73870c4a63fae1633bdc6d5e9d5f13c3deef4ff55028d64c4d8648b3"
+    }
+  ],
+  "limits": [
+    "Two authenticated runners in one Unity Editor process; no independent Windows machine or network-loss acceptance.",
+    "All ten local atomic/collision and 53 input/HUD/guide/story cases pass. Both online movement cases fail with successful service cleanup.",
+    "Source operation counts do not establish FPS or startup timing improvement.",
+    "Original artwork remains default; native UI checks do not establish Windows visual or owner acceptance."
+  ]
+}
