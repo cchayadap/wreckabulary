@@ -1,0 +1,15 @@
+# Original artwork capture helper source review
+
+STATUS: SOURCE PASS — final source checkpoint pending; compiler/native render and visual approval NOT RUN.
+
+Reviewed the stable new `Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs` in the map-workshop lane, including the exact original-FBX path guard, pipeline type receipt, and explicit owned TactileMaterials release. This is a bounded read-only review of the Editor helper and its existing resolver, motion, material lifetime and assembly dependencies. Root retains execution ownership.
+
+The helper requires the actual assigned flagship Presentation profile with original artwork and no four-item overrides. Each SOFA/FAN/HAMMER/BAT and avatar model must match the original Imported FBX entry's actual shared Mesh references and counts. World item bounds and grounding are checked against canonical dimensions. Held BAT uses the existing avatar motion, outfit-dependent skin, miniature scale and right-hand grip placement; the receipt explicitly excludes input/equipment simulation, physics and vertex scanning. Bounds/framing do not prove unobstructed appearance, and minimum PNG diversity is not visual approval.
+
+The existing Editor-only authoring assembly has direct references for the used project APIs and Newtonsoft.Json. The helper adds no runtime, scene, prefab, profile or package writes. It creates one fresh simple-label folder below the project capture directory, rejects existing output and reparse ancestors, and writes with CreateNew. It records source/asset/hash/render facts rather than claiming the Git commit alone identifies dirty content.
+
+Preview stage, generated ground material, returned textures and manual animation graph have explicit cleanup. `TactileMaterials.Release(stage)` uses the existing owner API on only the generated hierarchy before visual disposal; external live scopes remain registered. Borrowed original meshes/materials are not directly destroyed. The outer cleanup restores the previous asynchronous shader-compilation setting and active render target. No persistent GraphicsOptions, user preference, scene or asset save API is called.
+
+The public static-preview sequence and preview-owned scene cleanup were checked against [Unity's PreviewRenderUtility reference source](https://github.com/Unity-Technologies/UnityCsReference/blob/master/Editor/Mono/Inspector/PreviewRenderUtility.cs). Its static readback returns the requested target dimensions and restores preview render state. That current source is supporting API evidence, not an executed guarantee for installed Unity 6000.6.3f1. The helper makes two native render calls per image and honestly records them.
+
+No concrete source blocker remains. Root still needs a successful compiler/native invocation, actual two-image inspection, receipt/hash verification and confirmation of cleanup. These isolated neutral Editor previews cannot establish Windows game-camera appearance, all-equipment acceptance, gameplay behavior or owner visual approval. The helper itself marks captures `CAPTURED_NOT_VISUALLY_APPROVED`.
