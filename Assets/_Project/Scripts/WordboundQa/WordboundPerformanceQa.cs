@@ -1,4 +1,5 @@
 #if UNITY_EDITOR || GSK_QA
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +38,8 @@ namespace Wreckabulary.Qa
 
         IEnumerator Prepare(QaContext context)
         {
-            if (Application.isEditor || Application.isBatchMode)
+            if (Application.platform != RuntimePlatform.WindowsPlayer || Application.isBatchMode ||
+                PerfProbe.BuildKind != "release-qa")
                 throw new QaFailException("Use a presented release-QA Windows player; Editor and headless timings are not accepted.");
             var root = new GameObject("Wordbound synthetic performance workload");
             Object.DontDestroyOnLoad(root);
@@ -107,14 +109,19 @@ namespace Wreckabulary.Qa
             context.Note("warmup_frames", Time.frameCount - warmupFrame);
             context.Note("sample_start_pose_seconds", workload.Elapsed);
             var probe = PerfProbe.GetOrCreate();
+            string startedUtc = DateTime.UtcNow.ToString("O");
             probe.Begin(Scenario, 0);
             float sampleStart = Time.realtimeSinceStartup;
             while (Time.realtimeSinceStartup - sampleStart < SampleSeconds)
             { RequireHealthy(); yield return null; }
+            float sampleEnd = Time.realtimeSinceStartup;
+            string endedUtc = DateTime.UtcNow.ToString("O");
             workload.Animate = false;
             var report = probe.Finish(true, context.OutDir);
             RequireLocalWorld();
-            context.Note("measured_seconds", Time.realtimeSinceStartup - sampleStart);
+            context.Note("sample_start_utc", startedUtc); context.Note("sample_end_utc", endedUtc);
+            context.Note("sample_start_realtime_seconds", sampleStart); context.Note("sample_end_realtime_seconds", sampleEnd);
+            context.Note("measured_seconds", sampleEnd - sampleStart);
             context.Note("sampled_frames", report.Frames); context.Note("frame_ms_p50", report.FrameMsP50);
             context.Note("frame_ms_p95", report.FrameMsP95); context.Note("frame_ms_p99", report.FrameMsP99);
             context.Note("worst_frame_ms", report.WorstFrameMs); context.Note("sample_end_pose_seconds", workload.Elapsed);

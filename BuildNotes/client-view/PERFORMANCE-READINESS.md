@@ -57,6 +57,7 @@ Root subsequently authorized two project-owned files: `Assets/_Project/Scripts/W
 - [x] Require all eight selected items to have the detailed 512×256 normal/mask material set and require created held models to share the selected collection meshes. Use eight animated avatars and eight moving held visuals, without colliders, gameplay attacks or fabricated peers. Record existing local actors/player bodies separately (normally one), total actors (normally nine), zero remote peers, body/renderer/triangle counts, seed/manifest, camera module, output size, preset/scale and hardware.
 - [x] Warm up for at least three seconds and 120 frames, restart PerfProbe, then sample 60 seconds. Per-frame health checks do not search the scene or allocate actor arrays. Fail on focus loss, changed output/settings, world/presentation faults, too few frames or p95 over 16.6 ms. Screenshots are outside the measured interval; the 30-second reference pose is explicitly a replay after measurement.
 - [~] Independent source review requested; native compilation and Windows execution remain NOT RUN.
+- [x] Independent review found and repaired two bounded issues: sampling duration now captures its end before JSON/reporting work, with explicit UTC and monotonic bounds retained in checks.json; partial setup does not restore uncaptured camera/view/HUD flags. The scenario also explicitly rejects non-Windows and non-release-QA players.
 
 After integration and a fresh successful release-QA build, the exact new command is:
 

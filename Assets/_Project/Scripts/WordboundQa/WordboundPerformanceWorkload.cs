@@ -27,7 +27,7 @@ namespace Wreckabulary.Qa
         float previousFov;
         int previousVsync, previousWidth, previousHeight;
         FullScreenMode previousScreenMode;
-        bool settingsCaptured, restored, viewEnabled, hudEnabled;
+        bool settingsCaptured, restored, viewEnabled, hudEnabled, viewStateCaptured;
         string label;
         public bool Animate { get; set; }
         public bool Ready { get; private set; }
@@ -84,6 +84,7 @@ namespace Wreckabulary.Qa
             if (!view || !view.Camera || !hud) throw new QaFailException("The actual local player camera and HUD are required.");
             camera = view.Camera; previousCameraPosition = camera.transform.position; previousCameraRotation = camera.transform.rotation;
             previousFov = camera.fieldOfView; viewEnabled = view.enabled; hudEnabled = hud.enabled;
+            viewStateCaptured = true;
             view.enabled = false; hud.enabled = false;
             camera.fieldOfView = 60; GraphicsOptions.ApplyTo(camera);
             var resolver = new WordboundVisualResolver(items);
@@ -176,9 +177,12 @@ namespace Wreckabulary.Qa
                 foreach (var item in held) item.Dispose();
                 foreach (var actor in actors) actor.Dispose();
                 foreach (var anchor in anchors) if (anchor) Destroy(anchor.gameObject);
-                if (camera) { camera.transform.SetPositionAndRotation(previousCameraPosition, previousCameraRotation); camera.fieldOfView = previousFov; }
-                if (view) view.enabled = viewEnabled;
-                if (hud) hud.enabled = hudEnabled;
+                if (viewStateCaptured)
+                {
+                    if (camera) { camera.transform.SetPositionAndRotation(previousCameraPosition, previousCameraRotation); camera.fieldOfView = previousFov; }
+                    if (view) view.enabled = viewEnabled;
+                    if (hud) hud.enabled = hudEnabled;
+                }
             }
             finally
             {
