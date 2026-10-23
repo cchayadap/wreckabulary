@@ -223,6 +223,88 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void NativeReplacementPublicationReportsNullAndNamedBackupFileState()
+        {
+            if (Application.platform != RuntimePlatform.WindowsEditor)
+                Assert.Ignore("This native replacement diagnostic requires the Windows Editor.");
+            string probeRoot = Path.GetFullPath(Path.Combine("Library", "Wordbound", "InspectorDraftProbes"));
+            string probeFolder = Path.GetFullPath(Path.Combine(probeRoot, Guid.NewGuid().ToString("N")));
+            string prefix = probeRoot + Path.DirectorySeparatorChar;
+            Assert.IsTrue(probeFolder.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            byte[] original = System.Text.Encoding.UTF8.GetBytes(new string('a', 2315));
+            byte[] replacement = System.Text.Encoding.UTF8.GetBytes(new string('b', 2336));
+            var observations = new System.Collections.Generic.List<ReplacementObservation>();
+            try
+            {
+                Directory.CreateDirectory(probeFolder);
+                foreach (bool namedBackup in new[] { false, true })
+                {
+                    string label = namedBackup ? "named" : "null";
+                    string path = Path.Combine(probeFolder, label + ".json");
+                    string temporary = path + ".tmp", backup = namedBackup ? path + ".bak" : null;
+                    File.WriteAllBytes(path, original); File.WriteAllBytes(temporary, replacement);
+                    observations.Add(ObserveReplacement(label + "_fresh", temporary, path, backup, original, replacement, false));
+                    File.Delete(path); File.Delete(temporary);
+                    if (backup != null) File.Delete(backup);
+                    File.WriteAllBytes(path, original); File.WriteAllBytes(temporary, replacement);
+                    using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        observations.Add(ObserveReplacement(label + "_locked", temporary, path, backup, original, replacement, true));
+                    observations.Add(ObserveReplacement(label + "_released", temporary, path, backup, original, replacement, false));
+                }
+            }
+            finally
+            {
+                Assert.IsTrue(Path.GetFullPath(probeFolder).StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+                if (Directory.Exists(probeFolder)) Directory.Delete(probeFolder, true);
+            }
+            Assert.AreEqual(6, observations.Count);
+            foreach (var result in observations)
+            {
+                if (result.Locked)
+                {
+                    Assert.AreEqual(typeof(IOException), result.ErrorType, result.Label);
+                    Assert.AreEqual(unchecked((int)0x80070020), result.HResult, result.Label);
+                    Assert.IsTrue(result.TargetOriginal && result.SourceReplacement && !result.BackupExists, result.Label);
+                }
+                else
+                {
+                    Assert.IsNull(result.ErrorType, result.Label + " HRESULT=0x" + result.HResult.ToString("X8"));
+                    Assert.IsTrue(result.TargetReplacement && !result.SourceExists, result.Label);
+                    Assert.AreEqual(result.NamedBackup, result.BackupExists, result.Label);
+                    if (result.NamedBackup) Assert.IsTrue(result.BackupOriginal, result.Label);
+                }
+            }
+        }
+
+        sealed class ReplacementObservation
+        {
+            public string Label;
+            public bool Locked, NamedBackup, TargetOriginal, TargetReplacement, SourceExists, SourceReplacement, BackupExists, BackupOriginal;
+            public Type ErrorType;
+            public int HResult;
+        }
+
+        static ReplacementObservation ObserveReplacement(string label, string temporary, string path, string backup,
+            byte[] original, byte[] replacement, bool locked)
+        {
+            var result = new ReplacementObservation { Label = label, Locked = locked, NamedBackup = backup != null };
+            try { File.Replace(temporary, path, backup); }
+            catch (Exception error) { result.ErrorType = error.GetType(); result.HResult = error.HResult; }
+            result.TargetOriginal = File.Exists(path) && File.ReadAllBytes(path).SequenceEqual(original);
+            result.TargetReplacement = File.Exists(path) && File.ReadAllBytes(path).SequenceEqual(replacement);
+            result.SourceExists = File.Exists(temporary);
+            result.SourceReplacement = result.SourceExists && File.ReadAllBytes(temporary).SequenceEqual(replacement);
+            result.BackupExists = backup != null && File.Exists(backup);
+            result.BackupOriginal = result.BackupExists && File.ReadAllBytes(backup).SequenceEqual(original);
+            TestContext.WriteLine("WORDBOUND_DRAFT_REPLACE: stage=" + label + "; type=" + (result.ErrorType?.Name ?? "none") +
+                "; hresult=0x" + result.HResult.ToString("X8") + "; targetOld=" + result.TargetOriginal +
+                "; targetNew=" + result.TargetReplacement + "; sourceExists=" + result.SourceExists +
+                "; sourceNew=" + result.SourceReplacement + "; backupExists=" + result.BackupExists +
+                "; backupOld=" + result.BackupOriginal);
+            return result;
+        }
+
+        [Test]
         public void InvalidPendingFormSurvivesClosingInspectorAndRejectedApplyWithoutChangingSavedCourse()
         {
             var asset = CreateDraftAsset();
