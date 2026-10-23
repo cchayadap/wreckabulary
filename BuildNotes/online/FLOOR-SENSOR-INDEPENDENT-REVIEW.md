@@ -1,6 +1,6 @@
 # Floor sensor source review
 
-STATUS: BOUNDED SOURCE PASS for assets `07ff789` plus the stable two-case fractional-boundary follow-up; final follow-up hash pending. No compiler/native job or asset mutation. Parent owns acceptance and integration.
+STATUS: BOUNDED SOURCE PASS for assets `07ff789` plus the two-case fractional-boundary follow-up `3e18625`. No compiler/native job or asset mutation. Parent owns acceptance and integration.
 
 The shared helper permits only a lower-Y gap of at most one authored millimetre, computed from the original integer bound in double precision. Explicit finite checks reject NaN/infinity. The native authored-runtime X/Z and upper-Y comparisons remain the same float metre comparisons. The native fixture preserves the signed +0.800 m travel requirement, 300 steps, same-tick wind requirement, stop/obstacle controls and raw `Bounds.Contains` results; first horizontal crossing reports both predicates and the measured lower gap. These diagnostics distinguish this new sensor result from the historically failed raw-exact arrival.
 
