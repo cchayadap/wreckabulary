@@ -210,10 +210,11 @@ namespace Wreckabulary.OnlineGameplayTests
         public async Task<int> Cleanup(CancellationToken ct)
         {
             int failures = 0;
+            int returnFailures = 0, cancelFailures = 0, leaveFailures = 0;
             if (Expected != null)
                 foreach (var client in Clients)
                     try { await client.MatchAction(Expected, "return", ct); }
-                    catch { failures++; }
+                    catch (Exception error) { failures++; returnFailures++; ReportServiceFailure("cleanup-return", Clients.IndexOf(client), error); }
             foreach (var group in parties)
             {
                 try
@@ -221,7 +222,7 @@ namespace Wreckabulary.OnlineGameplayTests
                     var party = await group.Members[0].Party(group.Id, ct);
                     await group.Members[0].Cancel(group.Id, party["revision"].String(), Key(), ct);
                 }
-                catch { failures++; }
+                catch (Exception error) { failures++; cancelFailures++; ReportServiceFailure("cleanup-cancel", -1, error); }
                 foreach (var client in group.Members.AsEnumerable().Reverse())
                 {
                     try
@@ -233,14 +234,41 @@ namespace Wreckabulary.OnlineGameplayTests
                         await client.Leave(group.Id, party["revision"].String(), Key(), ct);
                         if ((await client.Profile(ct)).Has("partyId")) throw new InvalidOperationException("Cleanup left a party membership.");
                     }
-                    catch { failures++; }
+                    catch (Exception error) { failures++; leaveFailures++; ReportServiceFailure("cleanup-leave", Clients.IndexOf(client), error); }
                 }
             }
+            UnityEngine.Debug.Log("WORDBOUND_SERVICE_CLEANUP: failures=" + failures + "; return=" + returnFailures +
+                "; cancel=" + cancelFailures + "; leave=" + leaveFailures + "; clients=" + Clients.Count + "; parties=" + parties.Count);
             foreach (var client in Clients) client.ClearCredentials();
             foreach (var coordinator in workshopCoordinators) coordinator.Dispose();
             foreach (var transport in transports) transport.Dispose();
             return failures;
         }
+        static void ReportServiceFailure(string stage, int peer, Exception error) =>
+            UnityEngine.Debug.Log("WORDBOUND_SERVICE_FAILURE: stage=" + stage + "; peer=" + peer +
+                "; type=" + SafeFailureType(error) + "; httpStatus=" + (error is OnlineServiceException service ? service.Status : 0) +
+                "; code=" + (error is OnlineServiceException coded ? SafeServiceCode(coded.Code) : "none"));
+        static string SafeFailureType(Exception error) => error switch
+        {
+            OnlineServiceException => "OnlineServiceException",
+            OperationCanceledException => "OperationCanceledException",
+            TimeoutException => "TimeoutException",
+            FormatException => "FormatException",
+            ArgumentException => "ArgumentException",
+            InvalidOperationException => "InvalidOperationException",
+            IOException => "IOException",
+            _ => "OtherException"
+        };
+        static string SafeServiceCode(string code) => code switch
+        {
+            "REVISION_CONFLICT" or "PARTY_NOT_READY" or "PUBLIC_COOP_REQUIRES_HUMANS" or "CONTENT_NOT_APPROVED" or
+            "CONTENT_SETTINGS_MISMATCH" or "CONTENT_UPLOAD_EXPIRED" or "CONTENT_SOURCE_EXPIRED" or
+            "AUTHORED_PRIVATE_CREATE_ONLY" or "MATCH_NOT_FULL" or "OWNER_REQUIRED" or "PRIVATE_SETTINGS_MISMATCH" or
+            "RECONNECT_EXPIRED" or "ALREADY_IN_PARTY" or "INVALID_REFRESH" or "PARTY_FULL" or "PARTY_NOT_FOUND" or
+            "MATCH_NOT_FOUND" or "MATCH_CLOSED" or "UNAUTHORIZED" or "FORBIDDEN" or "INVALID_REQUEST" or
+            "NOT_FOUND" or "INTERNAL_ERROR" or "RATE_LIMITED" or "CONTENT_INVALID" or "CONTENT_HASH_MISMATCH" => code,
+            _ => "unlisted"
+        };
         static string Key() => Guid.NewGuid().ToString("N");
         public static long Now() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }

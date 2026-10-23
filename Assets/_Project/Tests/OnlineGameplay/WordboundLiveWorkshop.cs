@@ -35,38 +35,40 @@ namespace Wreckabulary.OnlineGameplayTests
                 var client = new OnlineCoordinatorClient(cancellable); Clients.Add(client);
                 var coordinator = new WordboundPartyCoordinator(client, Verifier, installedItems, installedRules, Settings.MapPoolVersion);
                 workshopCoordinators.Add(coordinator);
-                await coordinator.Connect("NativeWorkshop" + i); CheckWorkshop(coordinator);
+                await WorkshopStep(i, "connect", () => coordinator.Connect("NativeWorkshop" + i));
             }
             var host = workshopCoordinators[0]; var remote = workshopCoordinators[1];
+            workshopTransports[0].ResetObservation();
             await host.CreateAuthoredParty(Settings, ProductionContent);
             if (host.Party != null)
             {
                 var group = new PartyGroup { Id = host.Party.Id };
                 group.Members.AddRange(Clients); parties.Add(group);
             }
-            CheckWorkshop(host);
-            await remote.JoinParty(host.CopyInvite()); CheckWorkshop(remote);
+            CheckWorkshop(0, "create-authored");
+            await WorkshopStep(1, "join-authored", () => remote.JoinParty(host.CopyInvite()));
             if (ReferenceEquals(host.Content, remote.Content) || remote.Content?.WorkshopBundle == null ||
                 remote.Content.Course.Hash != Course.Hash || remote.Content.Course.SourceHash != Course.SourceHash ||
                 remote.Content.WorkshopBundle.Descriptor.BundleId != ProductionContent.WorkshopBundle.Descriptor.BundleId ||
                 !remote.Content.Matches(Content))
                 throw new InvalidOperationException("The second peer did not independently download the exact authored map.");
-            foreach (var coordinator in workshopCoordinators)
+            for (int i = 0; i < workshopCoordinators.Count; i++)
             {
-                await coordinator.Poll(); CheckWorkshop(coordinator);
-                await coordinator.SetReady(true); CheckWorkshop(coordinator);
+                var coordinator = workshopCoordinators[i];
+                await WorkshopStep(i, "poll-before-ready", coordinator.Poll);
+                await WorkshopStep(i, "set-ready", () => coordinator.SetReady(true));
             }
-            await host.Poll(); CheckWorkshop(host);
+            await WorkshopStep(0, "poll-ready-roster", host.Poll);
             if (host.Party.Members.Count != count || host.Party.Members.Any(member => !member.Ready))
                 throw new InvalidOperationException("Every real authored-map peer must be ready before creating the private room.");
-            await host.Queue("PrivateCreate"); CheckWorkshop(host);
-            await host.Poll(); CheckWorkshop(host);
+            await WorkshopStep(0, "queue-private", () => host.Queue("PrivateCreate"));
+            await WorkshopStep(0, "poll-assignment", host.Poll);
             var assignment = host.Party.Assignment;
             if (assignment == null || !assignment.Has("matchId"))
                 throw new InvalidOperationException("The private room did not expose its assignment after the party refresh.");
             Expected = new OnlineMatchExpectation(assignment["matchId"].String(),
                 assignment["reservationGeneration"].String(), RosterHash(assignment), Settings, Content);
-            await host.StartPrivate(); CheckWorkshop(host);
+            await WorkshopStep(0, "start-private", host.StartPrivate);
             long deadline = Now() + 45000;
             while (workshopLaunches.Any(launch => launch == null) && Now() < deadline)
             {
@@ -74,7 +76,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 for (int i = 0; i < count; i++)
                 {
                     if (workshopLaunches[i] != null) continue;
-                    await workshopCoordinators[i].Poll(); CheckWorkshop(workshopCoordinators[i]);
+                    await WorkshopStep(i, "poll-admission", workshopCoordinators[i].Poll);
                     workshopLaunches[i] = workshopCoordinators[i].TakeLaunch();
                 }
                 if (workshopLaunches.Any(launch => launch == null)) await Task.Delay(250, ct);
@@ -89,24 +91,71 @@ namespace Wreckabulary.OnlineGameplayTests
                     launch.Verified.Match.RosterHash != Expected.RosterHash || !launch.Content.Matches(Expected.Content)))
                 throw new InvalidOperationException("The authored signed launch changed content or authenticated party membership.");
         }
-        static void CheckWorkshop(WordboundPartyCoordinator coordinator)
+        async Task WorkshopStep(int peer, string stage, Func<Task> action)
         {
-            if (coordinator.RetryRequired || !string.IsNullOrEmpty(coordinator.Error))
-                throw new InvalidOperationException("Authored party preparation failed: " + coordinator.Error);
+            workshopTransports[peer].ResetObservation();
+            try { await action(); }
+            catch (Exception error)
+            {
+                ReportServiceFailure("prepare-" + stage, peer, error);
+                throw;
+            }
+            CheckWorkshop(peer, stage);
         }
+        void CheckWorkshop(int peer, string stage)
+        {
+            var coordinator = workshopCoordinators[peer];
+            if (coordinator.RetryRequired || !string.IsNullOrEmpty(coordinator.Error))
+            {
+                var observed = workshopTransports[peer];
+                UnityEngine.Debug.Log("WORDBOUND_WORKSHOP_PREPARE_FAILURE: stage=" + stage + "; peer=" + peer +
+                    "; retry=" + coordinator.RetryRequired + "; coordinatorCode=" + CoordinatorFailureCode(coordinator.Error) +
+                    "; lastHttpStatus=" + observed.LastStatus + "; observedServiceError=" + observed.ServiceCode +
+                    "; transportType=" + observed.FailureType + "; observations=current-stage-only");
+                throw new InvalidOperationException("Authored party preparation failed at " + stage + ".");
+            }
+        }
+        static string CoordinatorFailureCode(string message) => message switch
+        {
+            "The response or game content could not be verified." => "verification",
+            "The request timed out. Retry the same pending action." => "request-cancelled",
+            "Connection interrupted. Retry the pending action without creating another reservation." => "connection-interrupted",
+            "Retry the pending action before starting another." => "pending-action",
+            null => "none",
+            "" => "none",
+            _ => "unclassified"
+        };
         sealed class WorkshopPreparationTransport : IOnlineHttpTransport
         {
             readonly WordboundHttpTransport transport;
             readonly CancellationToken preparation;
             volatile bool preparing = true;
+            public int LastStatus { get; private set; }
+            public string ServiceCode { get; private set; } = "none";
+            public string FailureType { get; private set; } = "none";
             public WorkshopPreparationTransport(WordboundHttpTransport transport, CancellationToken preparation)
             { this.transport = transport; this.preparation = preparation; }
             public void CompletePreparation() => preparing = false;
+            public void ResetObservation() { LastStatus = 0; ServiceCode = "none"; FailureType = "none"; }
             public async Task<OnlineResponse> Send(OnlineRequest request, CancellationToken cancellation)
             {
                 using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation,
                     preparing ? preparation : CancellationToken.None);
-                return await transport.Send(request, linked.Token);
+                OnlineResponse response;
+                try { response = await transport.Send(request, linked.Token); }
+                catch (Exception error) { FailureType = SafeFailureType(error); throw; }
+                LastStatus = response.Status;
+                if (response.Status < 200 || response.Status >= 300)
+                {
+                    ServiceCode = "unreadable";
+                    try
+                    {
+                        if (response.Json != null && response.Json.Length <= 4096)
+                            ServiceCode = SafeServiceCode(OnlineJson.Parse(response.Json)["error"]["code"].String());
+                    }
+                    catch { }
+                }
+                return response;
             }
         }
     }
