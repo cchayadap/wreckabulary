@@ -1,0 +1,48 @@
+{
+  "recordedUtc": "2026-10-23T17:06:09.092Z",
+  "sourceCommit": "02738cd94a92005f1857cd0f3ddc884a9d83b136",
+  "sourceNote": "Subsequent commits during execution were report-only; no source or asset changes.",
+  "cmd": "test editmode --cold --filter Wreckabulary.Tests.WordboundNativeWindPhysicsTests.CandidateItemContactReachesWindArrivalAndStopsWithoutObstacles",
+  "rung": "R3",
+  "ok": false,
+  "exit": 1,
+  "verdict": "FAIL",
+  "utc": "2026-10-23T16:57:42Z",
+  "secs": 276.2,
+  "route": "cold",
+  "errors": [],
+  "failures": [
+    {
+      "name": "Wreckabulary.Tests.WordboundNativeWindPhysicsTests.CandidateItemContactReachesWindArrivalAndStopsWithoutObstacles",
+      "message": "The candidate must enter the actual 3D arrival volume.\r\n  Expected: greater than or equal to 1\r\n  But was:  -1",
+      "location": "Assets/_Project/Scripts/Online/Puzzles/Tests/WordboundNativeWindPhysicsTests.cs:78"
+    }
+  ],
+  "log": "Logs/gate_test_editmode_20261023T165742Z.log",
+  "evidence": [
+    "TestResults/editmode_20261023T165742Z.xml"
+  ],
+  "infra": null,
+  "slot": null,
+  "crashAfterQuit": false,
+  "refreshSecs": 161.4,
+  "tests": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "logSha256": "49d003e4311c729610d587365c87950eea155e51ec2c5f75c35951d05057a5c6",
+  "evidenceHashes": [
+    {
+      "path": "TestResults/editmode_20261023T165742Z.xml",
+      "sha256": "e93e04260d23a8f0560897e8a98f4006a5abaaa8f2b4f7ba7131d3ae23df2d01"
+    }
+  ],
+  "windResults": [
+    "WB_WIND_RESULT: scenario=candidate-no-wind; steps=300; hz=60; start=(39,16.02,-20.25); end=(39,16,-20.25); velocity=(0,0,0); maximumSignedTravel=0; requiredTravel=0.799999237; windTicks=0; firstArrivalTick=-1; arrivalPosition=(0,0,0); arrivalReceivedWind=False; lastWindTick=0; fieldExitTick=-1; exitPosition=(0,0,0); exitVelocity=(0,0,0); windAfterExit=False; lastSecondMaxSpeed=0; lastSecondMaxDrift=0; nonFloorProximityTicks=0; scope=isolated-native-solver-not-Fusion",
+    "WB_WIND_RESULT: scenario=candidate-wind; steps=300; hz=60; start=(39,16.02,-20.25); end=(38.9567451,16,-16.29721); velocity=(0,0,0); maximumSignedTravel=3.95314026; requiredTravel=0.799999237; windTicks=75; firstArrivalTick=-1; arrivalPosition=(0,0,0); arrivalReceivedWind=False; lastWindTick=75; fieldExitTick=75; exitPosition=(38.9788933,15.9999886,-17.7900066); exitVelocity=(-0.0306485947,-0.000417932868,3.86863065); windAfterExit=False; lastSecondMaxSpeed=0; lastSecondMaxDrift=0; nonFloorProximityTicks=0; scope=isolated-native-solver-not-Fusion",
+    "WB_WIND_RESULT: scenario=candidate-inertia-stop; steps=300; hz=60; start=(39,16.02,-20.25); end=(38.9935837,16,-19.3478889); velocity=(0,0,0); maximumSignedTravel=0.902187347; requiredTravel=0.799999237; windTicks=0; firstArrivalTick=33; arrivalPosition=(38.9940529,16.0000019,-19.354435); arrivalReceivedWind=False; lastWindTick=0; fieldExitTick=-1; exitPosition=(0,0,0); exitVelocity=(0,0,0); windAfterExit=False; lastSecondMaxSpeed=0; lastSecondMaxDrift=0; nonFloorProximityTicks=0; scope=isolated-native-solver-not-Fusion"
+  ],
+  "interpretation": "Candidate moves 3.953 m and stops without obstacles, but fails exact 3D arrival. During travel its pivot falls about 0.0000114 m below the authored floor-level minimum. Production sensing parity is under review; no material assignment or full puzzle pass."
+}
