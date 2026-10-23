@@ -8,9 +8,9 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current delivery snapshot — 2026-10-23 18:15 UTC
+## Current delivery snapshot — 2026-10-23 18:49 UTC
 
-Original Wreckabulary artwork remains the default (48/48 native presentation checks). Both QA Windows builds compile; latest `20261023T174755Z` retains the saved render materials. Its official hidden launch fails rendering readiness. A normal-window comparison renders the party and workshop, then crashes entering local play with a native null read; matching Unity symbols are available and diagnosis is active. The workshop also needs label/outline and isolated QA autosave repairs. No tested Windows delivery exists yet.
+Original Wreckabulary artwork remains the default (48/48 native presentation checks). Both QA Windows builds compile; latest `20261023T174755Z` retains the saved render materials. Its official hidden launch fails rendering readiness. A normal-window comparison renders party/workshop, then crashes entering local play. Matching public symbols point to shader-variant monitoring; Unity6000.6.4f1 has a candidate fix, downloaded into an isolated toolchain installer and awaiting Windows administrator approval. No project/editor version has changed. Workshop label/outline calculations pass 13 native cases; shorter isolated QA paths and exact autosave/capture guards compile, but actual player acceptance remains open. No tested Windows delivery exists yet.
 
 The actual FAN prefab, motion/collision policies and atomic/local gameplay checks pass: native batch174133Z is 18/19, with only the full physical route failing at the CLOCK sorting arm after three completed families. Combined atomic/floor Rules pass233/233. Targeted CLOCK/public Team Solo execution is active. Earlier bounded public TimeRun and private exact authored-map transfer pass with two authenticated clients; sustained full matches and other public formats remain open. See [progress.md](../../progress.md) for acceptance. All seven worktrees, recovery snapshot and original main/font/Lunar work are preserved. No further Photon or Cloudflare setup is required.
 

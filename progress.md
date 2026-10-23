@@ -94,13 +94,16 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T18:31Z
+## Current verification — 2026-10-23T18:49Z
 
 | Work | State and exact evidence |
 | --- | --- |
 | Public service | [x] Deployed version `05384420-7e14-40c2-b965-0e8a91681df7`; exact module/catalogue readback, preserved storage/secret names and unchanged website. `BuildNotes/online/public-activation-20261023/readback-verification.json`. |
 | Live allocation/admission | [x] Two scripted Duo parties, four authenticated guest identities, exact content and signed start certificates; cleanup successful. `BuildNotes/online/public-activation-20261023/public-live.json`. Isolated pool; no Photon or production-population claim. |
 | Service validation | [x] Actual native catalogue: Node 10/10, Worker 41/41, both TypeScript checks. Worker evidence in the activation folder. |
+| Repeated snapshot work | [~] Reviewed tick/presence comparison avoids unnecessary full captures while preserving initial, post-advance, rollback and publication snapshots. R0 passes and authority core tests pass 35/35 (`TestResults/core_20261023T183349Z.trx`). Native Team Solo timing comparison remains pending. |
+| CLOCK test observation | [~] Tick-based scripted steering and bounded real field-decision observations are integrated. Combined R0 caught obsolete Unity identity APIs and ambiguous Fusion Boolean/readback code; repairs are in progress. Neither fixture compilation nor physical completion is claimed. |
+| Build size audit | [x] Measured optional equipment at 5,344,466 packed bytes (5.10 MiB), despite original artwork default. Editable sources are not shipped. Exclusion needs loader/profile compatibility work and is deferred until gameplay is stable; no deletion or memory/FPS claim. `BuildNotes/client-view/BUILD-ASSET-SIZE-REVIEW.md`. |
 | Pivot/authoring/recovery | [x] Native pivot/detail 6/6, authoring persistence 8/8, workshop recovery 11/11 and existing workshop 9/9. `TestResults/editmode_20261023T125443Z.xml`; entire batch failed because input cases failed. Affected workshop core 23/23: `TestResults/core_20261023T125341Z.trx`. |
 | Input | [x] Focused native input 24/24 now pass, including real menu repaint/focus and held-input protection. `TestResults/editmode_20261023T133902Z.xml`. Production input protections unchanged; Windows-player handling remains separate. |
 | Workshop source selection | [x] Native source-binding 25/25 pass (`TestResults/editmode_20261023T143652Z.xml`), including the large-course recovery and bounded quiet-frame wait repair. Affected core 66/66 pass (`TestResults/core_20261023T135423Z.trx`). Human usability and Windows-player editing remain separate. |
