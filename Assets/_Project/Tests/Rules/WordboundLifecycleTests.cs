@@ -38,25 +38,40 @@ namespace Wreckabulary.Tests
             return command;
         }
 
-        [Test]
-        public void CompletedPuzzleRetiresItsRefillButPreservesRivalSupplyAndSolvedEvidence()
+        [TestCase("BED"), TestCase("BBEEDD")]
+        public void CompletedPuzzleRetiresItsRefillButPreservesRivalSupplyAndSolvedEvidence(string letters)
         {
-            var f = Create(mode: "TeamRace");
+            var f = Create(d => d.Supplies.Single(s => s.Id == "BedSupply").Letters = letters, mode: "TeamRace");
             string id = f.CraftBed();
             f.Advance(601);
             string mine = Source(f), rival = Source(f, team: 1);
-            string[] rivalIds = f.State.Bodies.Where(b => b.SourceId == rival).Select(b => b.Id).ToArray();
-            Assert.AreEqual(3, f.State.Bodies.Count(b => b.SourceId == mine));
+            var before = f.State;
+            string beforeJson = MatchSnapshotCodec.Export(before);
+            var retired = before.Bodies.Where(b => b.Kind == WorldBodyKind.Tile && b.SourceId == mine).ToArray();
+            var tiles = before.Economy.Tiles.ToDictionary(t => "tile:" + t.Key, t => t.Value);
+            string[] rivalIds = before.Bodies.Where(b => b.SourceId == rival).Select(b => b.Id).ToArray();
+            string[] otherTiles = before.Bodies.Where(b => b.Kind == WorldBodyKind.Tile && b.SourceId != mine).Select(b => b.Id).ToArray();
+            Assert.AreEqual(letters.Length, retired.Length);
+            CollectionAssert.AreEquivalent(letters.ToCharArray(), retired.Select(b => tiles[b.Id]).ToArray());
+            Assert.IsTrue(retired.All(b => b.RecoveryGeneration == 3), "This must retire the newly recovered batch, not its collected predecessor.");
             var replay = SolveBed(f, id);
             Assert.IsFalse(f.State.Bodies.Any(b => b.SourceId == mine || b.Id == id));
             CollectionAssert.AreEqual(rivalIds, f.State.Bodies.Where(b => b.SourceId == rival).Select(b => b.Id).ToArray());
-            Assert.AreEqual(6, f.State.Economy.Spent);
+            CollectionAssert.AreEqual(otherTiles, f.State.Bodies.Where(b => b.Kind == WorldBodyKind.Tile).Select(b => b.Id).ToArray());
+            Assert.AreEqual(before.Economy.Spent + 3 + retired.Length, f.State.Economy.Spent);
+            Assert.AreEqual(before.Economy.Tiles.Count - retired.Length, f.State.Economy.Tiles.Count);
+            Assert.AreEqual(letters.Length - 3, f.State.Economy.Players.Single(p => p.PlayerId == 0).Letters.Count);
             Assert.IsTrue(f.State.Economy.Items.Single(i => "item:" + i.Id == id).IsGone);
             Assert.AreEqual(id, f.State.Mechanisms.Single(m => m.Team == 0 && m.Lap == 0 && m.PuzzleId == "BedBridge").ItemEntityId);
+            Assert.AreEqual(-1, f.State.Resources.Single(r => r.SourceId == mine && r.Lap == 0).RecoveryAtTick);
+            Assert.AreEqual(beforeJson, MatchSnapshotCodec.Export(before));
+            int spent = f.State.Economy.Spent, frontier = f.State.Economy.NextTileId;
             long firstTick = f.Match.Tick;
             Assert.AreEqual(firstTick, f.Step(replay).Receipts.Single().Tick);
             f.Advance(601);
             Assert.IsFalse(f.State.Bodies.Any(b => b.SourceId == mine));
+            Assert.AreEqual(spent, f.State.Economy.Spent, "Repeated retirement must not spend the same bucket twice.");
+            Assert.AreEqual(frontier, f.State.Economy.NextTileId);
             f.Ack();
         }
 

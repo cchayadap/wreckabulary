@@ -47,15 +47,31 @@ namespace Wreckabulary.Rules.Wordbound
         void RetireInactiveResources()
         {
             var teams = progress.Capture().Teams.ToDictionary(t => t.Team);
+            Dictionary<(string Source, int Team, int Generation), List<WorldBodyState>> tiles = null;
             foreach (var resource in resources.Values.ToArray())
             {
                 if (resourceLifecycle.Demanded(Mode.IsRace ? teams[resource.Team] : null, resource, practice, mechanisms.Values)) continue;
-                foreach (var body in bodies.Values.Where(b => b.Kind == WorldBodyKind.Tile &&
-                    b.SourceId == resource.SourceId && b.OwnerTeam == resource.Team &&
-                    b.RecoveryGeneration == resource.Generation).ToArray())
+                if (tiles == null)
                 {
-                    economy.RetireWordboundTile(Number(body.Id));
-                    bodies.Remove(body.Id);
+                    tiles = new Dictionary<(string Source, int Team, int Generation), List<WorldBodyState>>();
+                    foreach (var body in bodies.Values)
+                    {
+                        if (body.Kind != WorldBodyKind.Tile) continue;
+                        var identity = (body.SourceId, body.OwnerTeam, body.RecoveryGeneration);
+                        if (!tiles.TryGetValue(identity, out var group))
+                            tiles.Add(identity, group = new List<WorldBodyState>());
+                        group.Add(body);
+                    }
+                }
+                var key = (resource.SourceId, resource.Team, resource.Generation);
+                if (tiles.TryGetValue(key, out var retired))
+                {
+                    tiles.Remove(key);
+                    foreach (var body in retired)
+                    {
+                        economy.RetireWordboundTile(Number(body.Id));
+                        bodies.Remove(body.Id);
+                    }
                 }
                 if (resource.RecoveryAtTick >= 0)
                     resources[Key(resource.SourceId, resource.Team, resource.Lap)] =

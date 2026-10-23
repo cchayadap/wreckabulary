@@ -1,6 +1,6 @@
 # Resource retirement scan proposal
 
-STATUS: READ-ONLY DESIGN. Root requested this separate proposal after integrating the reviewed tick/presence optimization as `041ce4a8`. No implementation or heavy job is authorized here. The first optimized native comparison must remain separate for attribution. Existing dirty ModeDefinition and historical evidence are untouched.
+STATUS: IMPLEMENTATION IN PROGRESS. Root approved the bounded private per-call index after the separate count, collision and membership checkpoints. Root owns every compiler, core, Unity/native, player and measurement run. Existing dirty ModeDefinition and historical evidence are untouched. The original design/evidence below is retained; current implementation and regression findings are appended as established.
 
 ## Source and measured boundary
 
@@ -27,3 +27,34 @@ Keep the existing `WordboundLifecycleTests` and `WordboundAuthorityTests` retire
 Before editing, inspect existing tests for overlap and choose the smallest additions. Required affected core filter should include `FullyQualifiedName~WordboundLifecycleTests|FullyQualifiedName~WordboundAuthorityTests|FullyQualifiedName~WordboundEntityBudgetTests`; exact expected count depends on the eventual test delta. Root must run R0, these core cases and the same actual public TeamSolo/native profile workload after the first candidate's baseline is retained. Compare Advance inclusive time, full forward-tick batch wall time and actual public outcome, while disclosing whole-machine scheduling variability. No performance acceptance is claimed from asymptotic source analysis alone.
 
 Scope, if approved later: `AuthoritativeLifecycle.cs`, focused existing lifecycle/authority test file and this report. Do not bundle EnsureCapacity counters, resource sorting, source availability, mutable validation or additional capture changes.
+
+## Authorized implementation checkpoint
+
+Root subsequently approved this exact scope. Alignment-only commit `a71aa2c5` copies the current integration AuthoritativeLifecycle.cs, including existing Freestyle practice support, and MUST NOT be integrated. The lifecycle fixture already matched root. The later deliverable contains only the new retirement index, strengthened lifecycle regression and this report; the unrelated ModeDefinition change and untracked evidence remain excluded.
+
+The implementation builds the transient dictionary only after the first unchanged Demanded check returns false. It groups all current Tile bodies by exact `(SourceId, OwnerTeam, RecoveryGeneration)`, retaining dictionary encounter order within each list. No Active/Protected filter was added. Default tuple string equality has the same ordinal value semantics as the former string `==` predicate. Each resource still calls Demanded in the original frozen resource order, then performs economy retirement before body removal, then resets its recovery deadline exactly where it did before.
+
+The matched bucket is removed before processing. If separate resource scopes alias the same key, the later scope finds no already-retired bucket, matching the previous rescan of the now-smaller body ledger. Multiple actual tile bodies sharing a key remain a list, not a uniqueness error, so repeated letters are retained. No per-body skip hides an invalid economy reference: the original membership and checked spending operations still throw and the surrounding authoritative transaction still rolls back. Invalid snapshot/resource identities remain rejected by unchanged full validation. No new tolerance for malformed snapshots or private-state corruption is claimed.
+
+The index is local to one invocation and is discarded on success or exception. Neither retirement nor resource-deadline reset calls user code or creates/replaces bodies, so no between-item callback can invalidate the ordered bucket. Later recovery/minting occurs after this method and obtains a fresh index on the next invocation. Team capture, practice selection, progress queries, retry behavior, existing callbacks and snapshots are unchanged. Candidate discovery changes from repeated body scans to one body pass plus lookups, but there is no measured timing or FPS claim.
+
+## Regression and execution handoff
+
+The existing TeamRace refill/solve regression now runs both `BED` and `BBEEDD`, increasing WordboundLifecycleTests from nine to ten cases without adding a separate redundant fixture. Each case uses actual public collection, crafting, recovery, deployment and puzzle completion. It proves:
+
+- A nonempty generation3 recovered batch has the exact authored letter multiplicity.
+- Only that batch retires, while rival and all other loose-tile IDs stay unchanged.
+- Spending increases by the consumed three-letter recipe plus every retired tile; the economy tile count drops exactly and leftover inventory letters remain.
+- The recovery deadline resets, solved evidence and the destroyed crafted-item tombstone remain, and the retained pre-retirement snapshot exports unchanged.
+- Replayed commands and601 later ticks neither spend the batch again nor mint new retired-source identities; publication/import succeeds.
+
+The existing three-lap test already validates fresh generations and retirement repeatedly, and the committed-host restore test already validates that retired letters/deadlines stay retired. Those cases and all existing assertions are retained. Practice selection/cleanup and strict resource-generation rejection remain in their existing suites. No internal setter/reflection mutation was added to manufacture malformed live authority state.
+
+Root must run R0 then the bounded existing core suites, followed by its same actual public/native profile workload:
+
+```powershell
+node Tools/kit/gate/game_gate.mjs check all --json
+node Tools/kit/gate/game_gate.mjs core --filter 'FullyQualifiedName~WordboundLifecycleTests|FullyQualifiedName~WordboundAuthorityTests|FullyQualifiedName~WordboundEntityBudgetTests|FullyQualifiedName~WordboundSnapshotValidationTests|FullyQualifiedName~WordboundPracticeTests' --json
+```
+
+Only the lifecycle class has a new case; assembled total is for root to record. The existing standalone ValidationProbe does not execute this retirement method and cannot measure its performance. Compare inclusive Advance, actual forward-tick batch wall time, readiness and public outcome using unchanged content/deadlines; retain scheduling and workload limits. Compiler/core/native/performance execution: NOT RUN in this lane. Independent source review requested from recover_input and pending at this checkpoint.
