@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
 using Wreckabulary.Online;
 using Wreckabulary.Online.Editor;
 using Wreckabulary.Rules.Wordbound;
@@ -28,7 +29,138 @@ namespace Wreckabulary.Tests
         [TearDown] public void DeleteFolder()
         {
             if (folder != null && folder.StartsWith("Assets/__WordboundAuthoring_", StringComparison.Ordinal))
+            {
+                foreach (string guid in AssetDatabase.FindAssets("t:WordboundCourseAsset", new[] { folder }))
+                    WordboundCourseDraftStore.Clear(AssetDatabase.LoadAssetAtPath<WordboundCourseAsset>(AssetDatabase.GUIDToAssetPath(guid)));
                 AssetDatabase.DeleteAsset(folder);
+            }
+        }
+
+        [Test]
+        public void InvalidPendingFormSurvivesClosingInspectorAndRejectedApplyWithoutChangingSavedCourse()
+        {
+            var asset = CreateDraftAsset();
+            string original = asset.DocumentJson;
+            var inspector = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+            try
+            {
+                var pending = EditorField<CourseDocument>(inspector, "draft");
+                pending.Title = "Still editing";
+                pending.Modules[0].Position = new CoursePoint(int.MaxValue, -100, 31);
+                pending.ReservedVolumes.Add(new CourseReservedVolume {
+                    Id = "unfinished", Bounds = new CourseBox(new CoursePoint(900, 300, 100), new CoursePoint(-50, 0, -10))
+                });
+                InvokeEditor(inspector, "MarkDirty");
+                Object.DestroyImmediate(inspector);
+                inspector = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+                pending = EditorField<CourseDocument>(inspector, "draft");
+                Assert.IsTrue(EditorField<bool>(inspector, "dirty"));
+                Assert.AreEqual("Still editing", pending.Title);
+                Assert.AreEqual(int.MaxValue, pending.Modules[0].Position.X);
+                Assert.AreEqual(-50, pending.ReservedVolumes.Last().Bounds.Max.X);
+                Assert.Throws<ArgumentException>(() => InvokeEditor(inspector, "Save"));
+                Assert.AreEqual(original, asset.DocumentJson);
+                Assert.AreEqual("Still editing", WordboundCourseDraftStore.Load(asset).Document.Title);
+            }
+            finally { if (inspector) Object.DestroyImmediate(inspector); }
+        }
+
+        [Test]
+        public void ChangedSavedCourseRequiresExplicitRecoveryChoiceAndSuccessfulApplyClearsDraft()
+        {
+            var asset = CreateDraftAsset();
+            var pending = asset.ReadDocument(); pending.Title = "Pending title";
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, pending);
+            var saved = asset.ReadDocument(); saved.Title = "Changed elsewhere";
+            asset.SaveDocument(saved); EditorUtility.SetDirty(asset); AssetDatabase.SaveAssetIfDirty(asset);
+            var inspector = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+            try
+            {
+                Assert.AreEqual("Changed elsewhere", EditorField<CourseDocument>(inspector, "draft").Title);
+                Assert.AreEqual("Pending title", EditorField<WordboundCourseDraftStore.PendingDraft>(inspector, "conflictingDraft").Document.Title);
+                Assert.DoesNotThrow(() => InvokeEditor(inspector, "SceneGUI", new object[] { null }));
+                Assert.Throws<InvalidOperationException>(() => InvokeEditor(inspector, "Save"));
+                Assert.AreEqual("Changed elsewhere", asset.ReadDocument().Title);
+                InvokeEditor(inspector, "RestorePending");
+                InvokeEditor(inspector, "Save");
+                Assert.AreEqual("Pending title", asset.ReadDocument().Title);
+                Assert.IsNull(WordboundCourseDraftStore.Load(asset));
+                Assert.IsFalse(EditorField<bool>(inspector, "dirty"));
+            }
+            finally { Object.DestroyImmediate(inspector); }
+        }
+
+        [Test]
+        public void LockedRecoveryFileKeepsNewestEditsThroughSavedChangesAndInspectorRecreation()
+        {
+            var asset = CreateDraftAsset();
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, asset.ReadDocument());
+            string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+            string path = Path.Combine("Library", "Wordbound", "InspectorDrafts", guid + ".json");
+            var inspector = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+            try
+            {
+                EditorField<CourseDocument>(inspector, "draft").Title = "Newest edits";
+                InvokeEditor(inspector, "MarkDirty");
+                var external = asset.ReadDocument(); external.Title = "Saved elsewhere"; asset.SaveDocument(external);
+                using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("^Wordbound pending form could not be saved:"));
+                    InvokeEditor(inspector, "ReloadAfterUndo");
+                    Assert.AreEqual("Newest edits", EditorField<WordboundCourseDraftStore.PendingDraft>(inspector, "conflictingDraft").Document.Title);
+                    Assert.AreEqual("Saved elsewhere", asset.ReadDocument().Title);
+                    InvokeEditor(inspector, "RestorePending");
+                    LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("^Wordbound pending form could not be saved:"));
+                    Object.DestroyImmediate(inspector);
+                    inspector = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+                    Assert.AreEqual("Newest edits", EditorField<CourseDocument>(inspector, "draft").Title);
+                    Assert.IsTrue(EditorField<bool>(inspector, "dirty"));
+                    Assert.IsNotEmpty(EditorField<string>(inspector, "recoveryWarning"));
+                    Assert.IsFalse(double.IsPositiveInfinity(EditorField<double>(inspector, "saveDraftAt")));
+                }
+                InvokeEditor(inspector, "SavePendingDraft");
+                Assert.AreEqual("", EditorField<string>(inspector, "recoveryWarning"));
+                Object.DestroyImmediate(inspector);
+                inspector = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+                Assert.AreEqual("Newest edits", EditorField<CourseDocument>(inspector, "draft").Title);
+                InvokeEditor(inspector, "Save");
+                Assert.AreEqual("Newest edits", asset.ReadDocument().Title);
+                Assert.IsNull(WordboundCourseDraftStore.Load(asset));
+            }
+            finally { if (inspector) Object.DestroyImmediate(inspector); }
+        }
+
+        [Test]
+        public void DamagedPendingFileIsRetainedWhenInspectorCloses()
+        {
+            var asset = CreateDraftAsset();
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, asset.ReadDocument());
+            string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+            string path = Path.Combine("Library", "Wordbound", "InspectorDrafts", guid + ".json");
+            File.WriteAllText(path, "interrupted local draft");
+            var inspector = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+            try
+            {
+                Assert.IsTrue(EditorField<bool>(inspector, "recoveryFailed"));
+                Assert.Throws<InvalidOperationException>(() => InvokeEditor(inspector, "Save"));
+            }
+            finally { Object.DestroyImmediate(inspector); }
+            Assert.AreEqual("interrupted local draft", File.ReadAllText(path));
+        }
+
+        WordboundCourseAsset CreateDraftAsset()
+        {
+            var asset = ScriptableObject.CreateInstance<WordboundCourseAsset>();
+            asset.Initialize(CourseTemplates.FreestyleWorld(), CourseTemplates.ProofCatalogue());
+            AssetDatabase.CreateAsset(asset, folder + "/Draft.asset");
+            return asset;
+        }
+        static T EditorField<T>(UnityEditor.Editor editor, string name) =>
+            (T)typeof(WordboundCourseAssetEditor).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(editor);
+        static void InvokeEditor(UnityEditor.Editor editor, string name, params object[] arguments)
+        {
+            try { typeof(WordboundCourseAssetEditor).GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(editor, arguments); }
+            catch (TargetInvocationException error) { throw error.InnerException ?? error; }
         }
 
         [Test]
