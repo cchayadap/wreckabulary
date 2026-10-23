@@ -1,0 +1,106 @@
+{
+  "recordedUtc": "2026-10-23T15:39:43.5690376Z",
+  "exactInputLinesMatch": true,
+  "exactProbeSourceMatch": true,
+  "beforeSourceCommit": "cce83bcb122c8be35c6c7c3e9d769465053c0c28",
+  "afterSourceCommit": "7c4565549c02cab6927be224029cb7c6af6841e6",
+  "modes": [
+    {
+      "mode": "TimeRun",
+      "inputsExact": true,
+      "before": [
+        {
+          "batch": 1,
+          "iterations": 20,
+          "bytes": 52005408,
+          "milliseconds": 474.835
+        },
+        {
+          "batch": 2,
+          "iterations": 20,
+          "bytes": 52021936,
+          "milliseconds": 426.254
+        },
+        {
+          "batch": 3,
+          "iterations": 20,
+          "bytes": 51972576,
+          "milliseconds": 513.34
+        }
+      ],
+      "after": [
+        {
+          "batch": 1,
+          "iterations": 20,
+          "bytes": 11340896,
+          "milliseconds": 92.389
+        },
+        {
+          "batch": 2,
+          "iterations": 20,
+          "bytes": 11308064,
+          "milliseconds": 99.445
+        },
+        {
+          "batch": 3,
+          "iterations": 20,
+          "bytes": 11308064,
+          "milliseconds": 125.768
+        }
+      ],
+      "meanBytesPerCallBefore": 2599998.666666667,
+      "meanBytesPerCallAfter": 565950.4,
+      "meanAllocationReductionPercent": 78.23266576034142,
+      "timingInterpretation": "Three unpaired batches; variable timing, not native FPS or latency acceptance"
+    },
+    {
+      "mode": "TeamRace",
+      "inputsExact": true,
+      "before": [
+        {
+          "batch": 1,
+          "iterations": 20,
+          "bytes": 100861152,
+          "milliseconds": 1312.239
+        },
+        {
+          "batch": 2,
+          "iterations": 20,
+          "bytes": 100894144,
+          "milliseconds": 597.708
+        },
+        {
+          "batch": 3,
+          "iterations": 20,
+          "bytes": 100861152,
+          "milliseconds": 468.516
+        }
+      ],
+      "after": [
+        {
+          "batch": 1,
+          "iterations": 20,
+          "bytes": 25395488,
+          "milliseconds": 346.438
+        },
+        {
+          "batch": 2,
+          "iterations": 20,
+          "bytes": 25395648,
+          "milliseconds": 525.257
+        },
+        {
+          "batch": 3,
+          "iterations": 20,
+          "bytes": 25428320,
+          "milliseconds": 524.681
+        }
+      ],
+      "meanBytesPerCallBefore": 5043607.466666667,
+      "meanBytesPerCallAfter": 1270324.2666666666,
+      "meanAllocationReductionPercent": 74.81318133771764,
+      "timingInterpretation": "Three unpaired batches; variable timing, not native FPS or latency acceptance"
+    }
+  ],
+  "scope": "Frozen initial real flagship validation on .NET9; all changing-state rejection remains separately tested"
+}
