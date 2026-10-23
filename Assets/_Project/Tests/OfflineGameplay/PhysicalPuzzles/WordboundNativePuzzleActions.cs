@@ -76,7 +76,8 @@ namespace Wreckabulary.OfflineGameplayTests
                 var start = Metres(placement.Position) + Vector3.back * .15f + Vector3.up * .02f;
                 yield return SetBody(windReceiver, start, placement.Yaw);
                 yield return Until(() => Mechanism(site).Physical.Stage == MatchPhysicalStage.Complete,
-                    "FAN physically transports the authored receiver into its arrival volume", 12);
+                    "FAN physically transports the authored receiver into its arrival volume", 12,
+                    () => WindDetails(site, recipe, windReceiver, start));
                 Assert.AreEqual(windReceiver, Mechanism(site).Physical.AuxiliaryBodyId);
                 Assert.Greater(Body(windReceiver).Position.DistanceSquared(new WorldVector(start.x, start.y, start.z)), .16f);
                 Assert.IsTrue(observedStages.Contains(site.PuzzleId + "/" + MatchPhysicalStage.Armed));
@@ -149,6 +150,41 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(ItemState.Destroyed, Item(recipe).State);
             Debug.Log("WORDBOUND_PHYSICAL_FAMILY: " + puzzle.PresetId + " " + site.PuzzleId +
                 " completed at tick " + Frame.Progress.Tick + " with site hash " + site.Hash);
+        }
+
+        string WindDetails(ResolvedCoursePhysicalSite site, string recipe, string receiver, Vector3 start)
+        {
+            try { return ReadWindDetails(site, recipe, receiver, start); }
+            catch (Exception error) { return "windDetailsUnavailable=" + error.GetType().Name; }
+        }
+
+        string ReadWindDetails(ResolvedCoursePhysicalSite site, string recipe, string receiver, Vector3 start)
+        {
+            var fan = controller.Bodies[recipe];
+            var target = controller.Bodies[receiver];
+            var state = Mechanism(site);
+            var definition = content.Items.Get(Item(recipe).Word);
+            var origin = fan.Rigidbody.position + Vector3.up * .5f;
+            var delta = target.Rigidbody.worldCenterOfMass - origin;
+            var hits = new RaycastHit[32];
+            int count = delta.sqrMagnitude < .000001f ? 0 : controller.PhysicsWorld.PhysicsScene.Raycast(
+                origin, delta.normalized, hits, delta.magnitude, ~0, QueryTriggerInteraction.Ignore);
+            return "windStage=" + state.Physical.Stage + "; activated=" + state.ActivatedTick +
+                "; progressTicks=" + state.ProgressTicks + "; auxiliary=" + state.Physical.AuxiliaryBodyId +
+                "; observedStages=" + string.Join(",", observedStages.Where(s => s.StartsWith(site.PuzzleId + "/", StringComparison.Ordinal))) +
+                "; receiverStart=" + start.ToString("F3") + "; receiverCanonical=" + Vector(Body(receiver).Position).ToString("F3") +
+                "; receiverNative=" + target.Rigidbody.position.ToString("F3") +
+                "; receiverVelocity=" + target.Rigidbody.linearVelocity.ToString("F3") +
+                "; receiverState=" + Item(receiver).State + "; receiverKinematic=" + target.Rigidbody.isKinematic +
+                "; fanNative=" + fan.Rigidbody.position.ToString("F3") +
+                "; fanForward=" + (fan.Rigidbody.rotation * Vector3.forward).ToString("F3") +
+                "; fanState=" + Item(recipe).State + "; fanKinematic=" + fan.Rigidbody.isKinematic +
+                "; fieldContainsCanonical=" + WordboundFieldPolicy.Contains(definition.Deploy, Body(recipe), Body(receiver)) +
+                "; insideStart=" + Inside(site.ReceiverStartBounds, target.Rigidbody.position) +
+                "; insideArrival=" + Inside(site.ArrivalBounds, target.Rigidbody.position) +
+                "; arrivalMin=" + Metres(site.ArrivalBounds.Min).ToString("F3") +
+                "; arrivalMax=" + Metres(site.ArrivalBounds.Max).ToString("F3") +
+                "; rayHits=" + string.Join(",", hits.Take(count).Select(hit => hit.collider.name + "@" + hit.distance.ToString("F3")));
         }
 
         IEnumerator SmashMarkedProp(string bodyId)

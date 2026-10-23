@@ -83,7 +83,9 @@ Evidence: [FFA checks](../../BuildNotes/ffa-content/PROGRESS.md), [flagship seed
 - Owner signed in and supplied the Wreckabulary Photon app ID on 2026-10-20. Chrome's tab inventory shows the matching management URL, but repeated browser inspection fails with an unattached debugger and tab creation times out. App type, CCU allowance and SDK compatibility remain UNVERIFIED. No Fusion package exists in Downloads as of this check. Owner asked to save the official Fusion 2.1.3 and Physics Addon 2.1.2 packages there; no passwords or private keys requested.
 - All twelve individual image concepts and editable Blender meshes are staged outside the maintained checkout. Independent FBX/GLB reimports pass 24/24, with 1,676–4,296 triangles and two materials each. Bounds drift is at most 1.76e-7 m. Native mesh previews are rendering; held/placed/thrown gameplay checks have not run.
 
-## Next recoverable action
+## Historical implementation log
+
+These entries preserve earlier results and superseded next steps. Current work follows the snapshot above and progress.md: complete the active native cache/readiness run, repair demonstrated failures, verify public/private/recovery behavior, then build and smoke the actual Windows player.
 
 Five isolated feature worktrees now exist: map-core, online, pvp-assets, puzzle-race and map-workshop, each on its matching `sethypagna/*` branch from baseline 12842c7. Map contracts, party coordinator and workshop have separate owners. Root owns gameplay rules and Unity integration.
 
