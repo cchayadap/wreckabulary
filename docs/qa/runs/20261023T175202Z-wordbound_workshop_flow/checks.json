@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "run_id": "20261023T175202Z-wordbound_workshop_flow",
+  "commit": null,
+  "tree": null,
+  "build_id": "20261023T174755Z",
+  "scenario": "wordbound_workshop_flow",
+  "seed": 1,
+  "platform": "player",
+  "development_build": false,
+  "unity_version": "6000.6.3f1",
+  "started_utc": "2026-10-23T17:52:35Z",
+  "ended_utc": "2026-10-23T17:55:00Z",
+  "result": "FAIL",
+  "steps": [
+    {
+      "name": "open_wordbound",
+      "status": "FAIL",
+      "t_s": 48.15398,
+      "probes": {
+        "party_frame_scene": "WordboundLobby",
+        "party_frame_screen": "1280x720",
+        "party_frame_focused": true,
+        "party_frame_splash_finished": true,
+        "party_frame_current": 152131,
+        "party_frame_rendered": 152131,
+        "party_frame_repaints": 0,
+        "party_frame_repaints_after_splash": 0,
+        "party_frame_last_repaint": -1,
+        "party_frame_menu_active": true,
+        "party_frame_menu_visible": true,
+        "party_frame_camera": "Wordbound lobby camera",
+        "party_frame_camera_active": true,
+        "party_frame_camera_display": 0,
+        "party_frame_camera_target": "none",
+        "party_frame_camera_callbacks": 0,
+        "party_frame_last_camera": -1,
+        "party_frame_camera_callback": "none",
+        "party_frame_ready": false
+      },
+      "assert_failures": [
+        "The party did not finish splash, two menu repaints and assigned-camera rendering within 45 seconds; see party_frame probes."
+      ]
+    },
+    {
+      "name": "edit_workshop",
+      "status": "PASS",
+      "t_s": 53.144562,
+      "probes": {
+        "workshop_storage_folder": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Docs\\qa\\runs\\20261023T175202Z-wordbound_workshop_flow\\workshop-draft-c08d01ed0a60463db31bc1c29a2d879f",
+        "manifest_hash": "146a289906d1cf3840a9985ce0a38e4ae968889b9e1cb1b60808333ed519e77f",
+        "seed": "0314159265358979"
+      },
+      "assert_failures": [],
+      "captures": [
+        "Docs/qa/runs/20261023T175202Z-wordbound_workshop_flow/wordbound_workshop.png"
+      ]
+    },
+    {
+      "name": "exact_playtest",
+      "status": "FAIL",
+      "t_s": 143.990234,
+      "probes": {},
+      "assert_failures": [
+        "timed out after 90 s"
+      ]
+    },
+    {
+      "name": "return_to_workshop",
+      "status": "PASS",
+      "t_s": 144.214203,
+      "probes": {
+        "same_history": true,
+        "draft_unchanged": true,
+        "client_destroyed": true,
+        "camera_destroyed": true,
+        "editor_visible": true
+      },
+      "assert_failures": [],
+      "captures": [
+        "Docs/qa/runs/20261023T175202Z-wordbound_workshop_flow/wordbound_returned_workshop.png"
+      ]
+    },
+    {
+      "name": "undo_redo_preserved",
+      "status": "PASS",
+      "t_s": 144.400238,
+      "probes": {
+        "undo_redo_exact": true
+      },
+      "assert_failures": []
+    }
+  ],
+  "perf": {
+    "frame_ms_p50": 0.246599,
+    "frame_ms_p95": 0.552898,
+    "worst_frame_ms": 4815.098633,
+    "first_visit_hitch_ms": 2571.294189,
+    "sys_mem_mb_max": 650.433594,
+    "measured_s": 139.343159
+  },
+  "console": {
+    "errors": 0,
+    "exceptions": 0,
+    "warnings": 0,
+    "first_exception": null
+  },
+  "captures": [
+    {
+      "name": "wordbound_workshop",
+      "path": "Docs/qa/runs/20261023T175202Z-wordbound_workshop_flow/wordbound_workshop.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-23T17:53:28Z"
+    },
+    {
+      "name": "wordbound_returned_workshop",
+      "path": "Docs/qa/runs/20261023T175202Z-wordbound_workshop_flow/wordbound_returned_workshop.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-23T17:54:59Z"
+    }
+  ]
+}
