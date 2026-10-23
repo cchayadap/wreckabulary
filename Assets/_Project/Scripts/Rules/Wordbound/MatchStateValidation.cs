@@ -2,11 +2,44 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Wreckabulary.Rules.Wordbound
 {
     public static class MatchStateValidation
     {
+        static readonly ConditionalWeakTable<ResolvedCourse, CourseCache> CourseCaches =
+            new ConditionalWeakTable<ResolvedCourse, CourseCache>();
+        static readonly ConditionalWeakTable<ResolvedCourse, CourseCache>.CreateValueCallback CreateCourseCache =
+            course => new CourseCache(course);
+
+        sealed class CourseCache
+        {
+            readonly ConditionalWeakTable<ModeDefinition, StaticContent> modes =
+                new ConditionalWeakTable<ModeDefinition, StaticContent>();
+            readonly ConditionalWeakTable<ModeDefinition, StaticContent>.CreateValueCallback create;
+            public CourseCache(ResolvedCourse course) { create = mode => new StaticContent(course, mode); }
+            public StaticContent For(ModeDefinition mode) => modes.GetValue(mode, create);
+        }
+
+        sealed class StaticContent
+        {
+            public readonly RaceLap[] Route;
+            public readonly Dictionary<string, Tuple<int, bool, string>> Sources;
+            public readonly Dictionary<string, ResolvedCoursePlacement> Placements;
+            public readonly WordboundEntityBudget Budget;
+            public readonly WordboundResourceLifecycle Lifecycle;
+
+            public StaticContent(ResolvedCourse course, ModeDefinition mode)
+            {
+                Route = MatchStateValidation.Route(course);
+                Sources = MatchStateValidation.Sources(course);
+                Placements = course.Placements.ToDictionary(p => p.Id, StringComparer.Ordinal);
+                Budget = new WordboundEntityBudget(mode, course);
+                Lifecycle = new WordboundResourceLifecycle(course, mode);
+            }
+        }
+
         public static string Validate(MatchSnapshot snapshot, MatchBinding expectedBinding, ModeDefinition mode,
             ResolvedCourse course, ItemCatalogue catalogue, GameRules rules)
         {
@@ -26,7 +59,8 @@ namespace Wreckabulary.Rules.Wordbound
                 Need(snapshot.Epoch >= 0 && snapshot.Epoch < long.MaxValue && snapshot.Sequence > 0 && snapshot.Sequence < long.MaxValue &&
                     snapshot.NextWorldEntityId > 0 && snapshot.NextWorldEntityId < long.MaxValue,
                     "Snapshot allocation, sequence or epoch exceeds bounds.");
-                var progress = new MatchProgress(mode, expectedBinding.Seats, Route(course));
+                var content = CourseCaches.GetValue(course, CreateCourseCache).For(mode);
+                var progress = new MatchProgress(mode, expectedBinding.Seats, content.Route);
                 progress.Restore(snapshot.Progress);
                 var economy = new Economy(catalogue, rules);
                 for (int i = 0; i < expectedBinding.Seats.Count; i++) economy.AddPlayer(i, expectedBinding.Seats[i].Team);
@@ -45,11 +79,11 @@ namespace Wreckabulary.Rules.Wordbound
                 ValidateActors(snapshot, expectedBinding, rules, catalogue, mode);
                 ValidatePractice(snapshot, course, mode);
                 ValidateDeployments(snapshot, catalogue);
-                ValidateResources(snapshot, course, mode);
-                ValidateBodies(snapshot, expectedBinding, course, mode);
+                ValidateResources(snapshot, course, mode, content);
+                ValidateBodies(snapshot, expectedBinding, course, mode, content);
                 MatchThrownValidation.Validate(snapshot, mode, catalogue);
                 ValidateMechanisms(snapshot, course, mode);
-                ValidateBodyBudget(snapshot, course, mode, rules);
+                ValidateBodyBudget(snapshot, course, mode, rules, content);
                 Need(snapshot.RandomStreams.Select(r => r.StreamId).Distinct(StringComparer.Ordinal).Count() == snapshot.RandomStreams.Count &&
                     snapshot.RandomStreams.All(r => WordboundIdentity.IsId(r.StreamId) && (r.Increment & 1) == 1),
                     "Invalid or duplicate random stream state.");
@@ -79,9 +113,10 @@ namespace Wreckabulary.Rules.Wordbound
         public static string NarrativeFlag(int team, int lap) => "story:" + team.ToString(CultureInfo.InvariantCulture) + ":" + lap.ToString(CultureInfo.InvariantCulture);
         internal static void Need(bool condition, string message) { if (!condition) throw new ArgumentException(message); }
 
-        static void ValidateBodyBudget(MatchSnapshot snapshot, ResolvedCourse course, ModeDefinition mode, GameRules rules)
+        static void ValidateBodyBudget(MatchSnapshot snapshot, ResolvedCourse course, ModeDefinition mode, GameRules rules,
+            StaticContent content)
         {
-            var budget = new WordboundEntityBudget(mode, course);
+            var budget = content.Budget;
             int pools = budget.PoolCount, capacity = budget.PoolBodies;
             var items = snapshot.Economy.ItemStates.ToDictionary(i => "item:" + i.Id, StringComparer.Ordinal);
             var mapBodies = snapshot.Bodies.Where(b => b.Kind == WorldBodyKind.Item &&
@@ -103,7 +138,7 @@ namespace Wreckabulary.Rules.Wordbound
                 return player >= 0 ? snapshot.Binding.Seats[player].Team : body.OwnerTeam;
             }
             var teams = snapshot.Progress.Teams.ToDictionary(t => t.Team);
-            var lifecycle = new WordboundResourceLifecycle(course, mode);
+            var lifecycle = content.Lifecycle;
             var auxiliary = WordboundEntityBudget.AuxiliaryBodies(course, mode, snapshot.Bodies,
                 id => items.TryGetValue("item:" + id, out var item) ? item : null, snapshot.Mechanisms, snapshot.Progress.Teams, snapshot.Practice);
             var core = dynamicBodies.Where(b => !auxiliary.Contains(b.Id) &&
@@ -215,10 +250,10 @@ namespace Wreckabulary.Rules.Wordbound
             }
         }
 
-        static void ValidateResources(MatchSnapshot s, ResolvedCourse course, ModeDefinition mode)
+        static void ValidateResources(MatchSnapshot s, ResolvedCourse course, ModeDefinition mode, StaticContent content)
         {
-            var sources = Sources(course);
-            var lifecycle = new WordboundResourceLifecycle(course, mode);
+            var sources = content.Sources;
+            var lifecycle = content.Lifecycle;
             Need(s.Resources.Count == sources.Count * (mode.IsRace ? 3 : 1) &&
                 s.Resources.Select(r => ResourceKey(r.SourceId, r.Team, r.Lap)).Distinct(StringComparer.Ordinal).Count() == s.Resources.Count,
                 "Snapshot must include every static source, team and lap exactly once.");
@@ -256,15 +291,16 @@ namespace Wreckabulary.Rules.Wordbound
         }
         internal static string ResourceKey(string id, int team, int lap) => id + "/" + team.ToString(CultureInfo.InvariantCulture) + "/" + lap.ToString(CultureInfo.InvariantCulture);
 
-        static void ValidateBodies(MatchSnapshot s, MatchBinding binding, ResolvedCourse course, ModeDefinition mode)
+        static void ValidateBodies(MatchSnapshot s, MatchBinding binding, ResolvedCourse course, ModeDefinition mode,
+            StaticContent content)
         {
             Need(s.Bodies.Select(b => b.Id).Distinct(StringComparer.Ordinal).Count() == s.Bodies.Count, "Duplicate world body identity.");
             var bodies = s.Bodies.ToDictionary(b => b.Id, StringComparer.Ordinal);
             var items = s.Economy.ItemStates.ToDictionary(i => i.Id);
             var tiles = s.Economy.TileStates.ToDictionary(t => t.Key, t => t.Value);
-            var sources = Sources(course);
-            var lifecycle = new WordboundResourceLifecycle(course, mode);
-            var placements = course.Placements.ToDictionary(p => p.Id, StringComparer.Ordinal);
+            var sources = content.Sources;
+            var lifecycle = content.Lifecycle;
+            var placements = content.Placements;
             var teams = new HashSet<int>(binding.Seats.Select(seat => seat.Team));
             for (int i = 0; i < binding.Seats.Count; i++)
                 Need(bodies.TryGetValue("player:" + i, out var body) && body.Kind == WorldBodyKind.Player &&

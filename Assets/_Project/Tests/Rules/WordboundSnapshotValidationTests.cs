@@ -188,5 +188,104 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(f.Progress.Tick, restored.Result.Tick);
             CollectionAssert.AreEqual(new[] { 0 }, restored.Result.WinningTeams);
         }
+
+        [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("BrawlRace"), TestCase("FreeForAll"), TestCase("Freestyle")]
+        public void WarmCourseMetadataDoesNotCertifyAnotherSnapshot(string mode)
+        {
+            var f = WordboundSnapshotCodecTests.Create(mode);
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var valid = f.Snapshot();
+            Assert.AreEqual("", Check(valid));
+            var body = f.Bodies[0];
+            f.Bodies.RemoveAt(0);
+            var invalid = f.Snapshot();
+            string error = Check(invalid);
+            Assert.IsNotEmpty(error);
+            Assert.AreEqual(error, Check(invalid));
+            Assert.IsFalse(f.Import(MatchSnapshotCodec.Export(invalid)).Success);
+            f.Bodies.Insert(0, body);
+            Assert.AreEqual("", Check(f.Snapshot()));
+            Assert.AreEqual("", Check(valid));
+        }
+
+        [TestCase("health"), TestCase("stamina"), TestCase("inventory")]
+        public void WarmCourseMetadataStillReadsChangedRules(string field)
+        {
+            var f = WordboundSnapshotCodecTests.Create();
+            var snapshot = f.Snapshot();
+            string Check() => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            Assert.AreEqual("", Check());
+            float health = f.Rules.MaxHealth, stamina = f.Rules.MaxStamina;
+            int carried = f.Rules.MaxCarried;
+            if (field == "health") f.Rules.MaxHealth = 99;
+            else if (field == "stamina") f.Rules.MaxStamina = 99;
+            else f.Rules.MaxCarried = carried + 1;
+            Assert.IsNotEmpty(Check());
+            f.Rules.MaxHealth = health; f.Rules.MaxStamina = stamina; f.Rules.MaxCarried = carried;
+            Assert.AreEqual("", Check());
+        }
+
+        [TestCase(false), TestCase(true)]
+        public void WarmCourseMetadataStillReadsChangedPendingRecipe(bool changeLetters)
+        {
+            var f = WordboundSnapshotCodecTests.Create();
+            Wreckabulary.Rules.Tests.TestData.GiveLetters(f.Economy, 0, "BAT");
+            Assert.IsTrue(f.Economy.BeginCraft(0, "BAT", 0).Ok);
+            var snapshot = f.Snapshot();
+            string Check() => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            Assert.AreEqual("", Check());
+            var recipe = f.Catalogue.Get("BAT");
+            var letters = recipe.Letters; bool enabled = recipe.Enabled;
+            if (changeLetters) recipe.Letters = LetterBag.FromWord("BED");
+            else recipe.Enabled = false;
+            Assert.IsNotEmpty(Check());
+            recipe.Letters = letters; recipe.Enabled = enabled;
+            Assert.AreEqual("", Check());
+        }
+
+        [Test]
+        public void PublicRouteAndDocumentCopiesCannotMutateWarmValidationMetadata()
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            var snapshot = f.Snapshot();
+            string Check() => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            Assert.AreEqual("", Check());
+            var route = MatchStateValidation.Route(f.Course);
+            route[0] = null;
+            var document = f.Course.CopyDocument();
+            document.Laps.Clear(); document.Supplies.Clear(); document.Puzzles.Clear();
+            Assert.AreEqual("", Check());
+            Assert.IsNotNull(MatchStateValidation.Route(f.Course)[0]);
+        }
+
+        [Test]
+        public void ExactCourseAndModeChecksRemainLiveAfterMetadataWarmup()
+        {
+            var f = WordboundSnapshotCodecTests.Create("TeamRace");
+            var snapshot = f.Snapshot();
+            Assert.AreEqual("", MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
+            var equivalentMode = ModeDefinition.For("TeamRace");
+            Assert.AreEqual("", MatchStateValidation.Validate(snapshot, f.Binding, equivalentMode, f.Course, f.Catalogue, f.Rules));
+            Assert.IsNotEmpty(MatchStateValidation.Validate(snapshot, f.Binding, ModeDefinition.For("BrawlRace"), f.Course, f.Catalogue, f.Rules));
+            Assert.IsNotEmpty(MatchStateValidation.Validate(snapshot, f.Binding, ModeDefinition.For("TeamRace", RaceFormat.Duo), f.Course, f.Catalogue, f.Rules));
+            var document = f.Course.CopyDocument(); document.Id = "DifferentCourse";
+            var resolved = CourseResolver.Resolve(document, CourseTemplates.ProofCatalogue(),
+                new CourseResolveRequest("0123456789abcdef", MatchStateValidation.Requirements(f.Mode)));
+            Assert.IsTrue(resolved.Success, string.Join("\n", resolved.Issues));
+            Assert.IsNotEmpty(MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, resolved.Manifest, f.Catalogue, f.Rules));
+            Assert.IsNotEmpty(MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, null, f.Catalogue, f.Rules));
+            Assert.AreEqual("", MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
+        }
+
+        [Test]
+        public void ConcurrentValidationPublishesOnlyCompleteStaticMetadata()
+        {
+            var f = WordboundSnapshotCodecTests.Create("TeamRace");
+            var snapshot = f.Snapshot();
+            var errors = new string[16];
+            System.Threading.Tasks.Parallel.For(0, errors.Length, i =>
+                errors[i] = MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
+            Assert.IsTrue(errors.All(error => error == ""), string.Join("\n", errors));
+        }
     }
 }
