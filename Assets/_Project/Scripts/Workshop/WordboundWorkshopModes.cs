@@ -34,7 +34,7 @@ namespace Wreckabulary.Workshop
             ActivateDraft(new DraftSession { History = new WorkshopHistory(snapshot), Catalogue = content.Geometry,
                 Play = MatchStateValidation.Requirements(ModeDefinition.For("TimeRun")), Storage = scoped, Folder = baseFolder }, false, null, true);
             flagshipDraftHash = content.Hash;
-            ShowStatus(recovery == null ? "Flagship draft · TimeRun · preview validates this exact seed" :
+            ShowStatus(recovery == null ? "Flagship draft · Time Run · preview validates this exact seed" :
                 backup ? "Recovered previous Flagship save" : "Recovered Flagship autosave");
         }
         bool localPlaytest;
@@ -49,7 +49,7 @@ namespace Wreckabulary.Workshop
         {
             localPlaytest = enabled;
             if (enabled && History != null && !CanPlaytestLocally)
-                ShowStatus("Choose TimeRun or Freestyle for a one-player local playtest.");
+                ShowStatus("Choose Time Run or Freestyle for a one-player local playtest.");
         }
 
         public void SelectMode(string modeId, RaceFormat format = RaceFormat.Solo)
@@ -58,8 +58,8 @@ namespace Wreckabulary.Workshop
             var choice = WorkshopModes.Select(History.Current.Course(), modeId, format);
             CancelGesture(); PlayRequirements = choice.Requirements;
             LastPreview = null; LastPlaytestDraft = null; displayRevision = -1; Refresh();
-            ShowStatus(choice.Label + (localPlaytest && !choice.AllowsOneHumanLocal
-                ? " · preview available; local playtest requires TimeRun or Freestyle."
+            ShowStatus((choice.ModeId == "TimeRun" ? "Time Run" : choice.Label) + (localPlaytest && !choice.AllowsOneHumanLocal
+                ? " · preview available; local playtest requires Time Run or Freestyle."
                 : " selected · preview uses this exact mode and seed."));
         }
 
@@ -86,7 +86,7 @@ namespace Wreckabulary.Workshop
             {
                 var choice = group.First();
                 bool selected = PlayRequirements.ModeId == choice.ModeId;
-                if (Button((selected ? "● " : "") + choice.Label.Split('·')[0].Trim()) && !selected)
+                if (Button((selected ? "● " : "") + ModeLabel(choice.ModeId)) && !selected)
                     Attempt(() => SelectMode(choice.ModeId, choice.Format));
                 if (selected && group.Count() > 1)
                 {
@@ -98,11 +98,16 @@ namespace Wreckabulary.Workshop
             }
             if (!SelectedModeEnabled) GUILayout.Label("This map no longer enables the selected mode. Choose one above.");
             if (localPlaytest && !CanPlaytestLocally)
-                GUILayout.Label("Local playtest: TimeRun or Freestyle, one player.");
+                GUILayout.Label("Local playtest: Time Run or Freestyle, one player.");
             if (!display.SupportedModes.Contains("Freestyle") && Button("Enable Freestyle sandbox",
                 "Add Freestyle to this map's supported modes as an undoable edit, then select it."))
                 Attempt(EnableFreestyleSandbox);
             GUILayout.Label("The mode is resolved before preview. Player and team limits are kept in that exact manifest.");
         }
+
+        static string ModeLabel(string id) => id switch {
+            "TimeRun" => "Time Run", "TeamRace" => "Team race", "BrawlRace" => "Brawl race",
+            "FreeForAll" => "Free for all", "Freestyle" => "Freestyle", _ => id
+        };
     }
 }

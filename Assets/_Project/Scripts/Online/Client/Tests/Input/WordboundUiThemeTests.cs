@@ -189,6 +189,52 @@ namespace Wreckabulary.Online.Tests
             finally { if (window) window.Close(); styles.Dispose(); Object.DestroyImmediate(theme); }
         }
 
+        [TestCase(15, 34, 56, 16, 6)]
+        [TestCase(22, 40, 64, 24, 12)]
+        public void SearchStaysOnOneLineAndStatusFitsInsideTheThemedFooter(int body, int row, int module, int padding, int gap)
+        {
+            var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+            var styles = new WordboundUiStyles(); ThemeWindow window = null;
+            bool repainted = false;
+            try
+            {
+                theme.BodySize = body; theme.RowHeight = row; theme.ModuleHeight = module;
+                theme.Padding = padding; theme.Gap = gap;
+                window = Open(() => {
+                    using var scope = styles.Apply(theme);
+                    var text = new GUIContent("Search");
+                    float width = Mathf.Ceil(styles.SingleLine.CalcSize(text).x);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(text, styles.SingleLine, GUILayout.Width(width), GUILayout.MinHeight(styles.RowHeight));
+                    Rect label = GUILayoutUtility.GetLastRect();
+                    GUILayout.TextField("", GUILayout.MinHeight(styles.RowHeight));
+                    Rect field = GUILayoutUtility.GetLastRect();
+                    GUILayout.EndHorizontal();
+                    if (Event.current.type == EventType.Repaint)
+                    {
+                        Assert.IsFalse(styles.SingleLine.wordWrap);
+                        Assert.GreaterOrEqual(label.width, styles.SingleLine.CalcSize(text).x);
+                        Assert.LessOrEqual(label.xMax, field.xMin);
+                        Assert.LessOrEqual(styles.SingleLine.CalcHeight(text, width), label.height);
+                        repainted = true;
+                    }
+                    foreach (var size in new[] { new Vector2(960, 540), new Vector2(1280, 720) })
+                    {
+                        Rect footer = styles.FooterRect(size), status = styles.StatusRect(size);
+                        Assert.GreaterOrEqual(status.xMin, footer.xMin + padding);
+                        Assert.LessOrEqual(status.xMax, footer.xMax - padding);
+                        Assert.GreaterOrEqual(status.yMin, footer.yMin + padding + styles.RowHeight + gap);
+                        Assert.LessOrEqual(status.yMax, footer.yMax - padding);
+                        Assert.LessOrEqual(styles.SingleLine.CalcHeight(new GUIContent("Preview ready · exact draft and seed"), status.width), status.height);
+                        Assert.LessOrEqual(footer.yMax, size.y - 8);
+                    }
+                });
+                Send(window, EventType.Layout); Send(window, EventType.Repaint);
+                Assert.IsTrue(repainted);
+            }
+            finally { if (window) window.Close(); styles.Dispose(); Object.DestroyImmediate(theme); }
+        }
+
         static object Field(object value, string name) => value.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(value);
         static T Property<T>(object value, string name) => (T)value.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(value);
         static ThemeWindow Open(Action draw)

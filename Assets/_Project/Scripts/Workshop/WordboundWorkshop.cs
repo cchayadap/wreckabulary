@@ -95,7 +95,7 @@ namespace Wreckabulary.Workshop
             LastPlaytestDraft = null;
             if (!SelectedModeEnabled) { ShowStatus("Choose a mode enabled by this map before playtesting."); return; }
             if (localPlaytest && !CanPlaytestLocally)
-            { ShowStatus("Choose TimeRun or Freestyle for a one-player local playtest."); return; }
+            { ShowStatus("Choose Time Run or Freestyle for a one-player local playtest."); return; }
             if (PlaytestRequested == null) { status = "Playtest is unavailable in this view."; return; }
             var result = Preview();
             if (result.Success)
@@ -188,7 +188,7 @@ namespace Wreckabulary.Workshop
             if (OnlineStarting) { OnlinePreparationPanel(); return; }
             if (sharing) { SharePanel(); return; }
             float left = Mathf.Min(220, Screen.width * .22f), right = Mathf.Min(300, Screen.width * .28f);
-            float top = 14 + ui.ChromeHeight, bottom = Screen.height - 32 - ui.ChromeHeight;
+            float top = 14 + ui.ChromeHeight, bottom = ui.FooterRect(new Vector2(Screen.width, Screen.height)).y - 6;
             viewport = new Rect(left + 8, top, Screen.width - left - right - 24, Mathf.Max(1, bottom - top));
             Header();
             GUILayout.BeginArea(new Rect(8, viewport.y, left - 8, viewport.height), panel); Palette(); GUILayout.EndArea();
@@ -197,7 +197,8 @@ namespace Wreckabulary.Workshop
             Footer();
             CaptureWorkshopTextFocus();
             if (sharing) SharePanel();
-            if (!string.IsNullOrEmpty(GUI.tooltip)) GUI.Label(new Rect(14, Screen.height - 24, Screen.width - 28, 22), GUI.tooltip);
+            string footerText = string.IsNullOrEmpty(GUI.tooltip) ? status : GUI.tooltip;
+            GUI.Label(ui.StatusRect(new Vector2(Screen.width, Screen.height)), new GUIContent(footerText, footerText), ui.SingleLine);
         }
         void Header()
         {
@@ -205,7 +206,8 @@ namespace Wreckabulary.Workshop
             GUILayout.Label("Wordbound workshop", heading, GUILayout.Width(heading.CalcSize(new GUIContent("Wordbound workshop")).x));
             GUI.SetNextControlName("workshop-text:Course title"); title = GUILayout.TextField(title, GUILayout.MinWidth(140), GUILayout.MinHeight(ui.RowHeight));
             if (Button("Rename")) Edit("Rename", draft => draft.Course.Title = title.Trim());
-            GUILayout.Label(PlayRequirements.ModeId, GUILayout.Width(90));
+            string modeLabel = ModeLabel(PlayRequirements.ModeId);
+            GUILayout.Label(modeLabel, ui.SingleLine, GUILayout.Width(Mathf.Ceil(ui.SingleLine.CalcSize(new GUIContent(modeLabel)).x)));
             if (Button("Share")) { shareText = History.Current.CourseJsonText; sharing = true; }
             if (Button(OnlinePlaytestRequested != null ? "Back to party" : "Close")) Attempt(() => { CancelGesture(); storage.Save(History.Current); savedRevision = History.Revision; CloseRequested?.Invoke(); Visible = false; });
             GUILayout.EndHorizontal(); GUILayout.EndArea();
@@ -379,7 +381,7 @@ namespace Wreckabulary.Workshop
         }
         void Footer()
         {
-            GUILayout.BeginArea(new Rect(8, Screen.height - 26 - ui.ChromeHeight, Screen.width - 16, ui.ChromeHeight), panel); GUILayout.BeginHorizontal();
+            GUILayout.BeginArea(ui.FooterRect(new Vector2(Screen.width, Screen.height)), panel); GUILayout.BeginHorizontal();
             GUILayout.Label("Floor " + History.Current.ActiveLayer);
             GUI.enabled = History.CanUndo; if (Button("Undo")) { CancelGesture(); History.Undo(); Refresh(); } GUI.enabled = true;
             GUI.enabled = History.CanRedo; if (Button("Redo")) { CancelGesture(); History.Redo(); Refresh(); } GUI.enabled = true;
@@ -394,7 +396,6 @@ namespace Wreckabulary.Workshop
                 GUI.enabled = true;
             }
             GUILayout.EndHorizontal(); GUILayout.EndArea();
-            GUI.Label(new Rect(12, Screen.height - 27, Screen.width - 24, 23), status);
             GUILayout.BeginArea(new Rect(viewport.position + ToolbarRect.position, ToolbarRect.size), panel);
             GUILayout.BeginHorizontal();
             GUI.SetNextControlName("workshop-text:Seed"); seed = GUILayout.TextField(seed, 16, GUILayout.MinHeight(ui.RowHeight));

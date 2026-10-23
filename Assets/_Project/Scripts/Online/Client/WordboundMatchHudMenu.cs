@@ -168,7 +168,8 @@ namespace Wreckabulary.Online
                 EquipmentMenu();
                 GUILayout.Label("Recipes · letters: " + inventory.Letters);
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("Search", GUILayout.Width(48));
+                GUILayout.Label("Search", ui.SingleLine,
+                    GUILayout.Width(Mathf.Ceil(ui.SingleLine.CalcSize(new GUIContent("Search")).x)), GUILayout.MinHeight(ui.RowHeight));
                 string nextSearch = GUILayout.TextField(pendingSearch ?? search, 32, GUILayout.MinHeight(ui.RowHeight));
                 if (nextSearch != search) pendingSearch = nextSearch;
                 if (search.Length > 0 && MenuButton("clear-search", "Clear", GUILayout.Width(64), GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(() => search = "");

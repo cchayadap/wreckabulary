@@ -15,6 +15,7 @@ namespace Wreckabulary
         public GUIStyle Panel { get; private set; }
         public GUIStyle Heading { get; private set; }
         public GUIStyle Wrapped { get; private set; }
+        public GUIStyle SingleLine { get; private set; }
         public GUIStyle Primary { get; private set; }
         public GUIStyle Selected { get; private set; }
         public GUIStyle DisabledText { get; private set; }
@@ -24,6 +25,7 @@ namespace Wreckabulary
         public int Gap { get; private set; }
         public int RowHeight { get; private set; }
         public int ModuleHeight { get; private set; }
+        public int LabelHeight { get; private set; }
         public int MenuWidth { get; private set; }
         public string ConfigurationError { get; private set; } = "";
 
@@ -86,6 +88,7 @@ namespace Wreckabulary
                 Panel = skin.box;
                 Heading = new GUIStyle(skin.label) { font = headingFont, fontSize = selected.HeadingSize, wordWrap = true };
                 Wrapped = new GUIStyle(skin.label) { wordWrap = true };
+                SingleLine = new GUIStyle(skin.label) { wordWrap = false, clipping = TextClipping.Clip, alignment = TextAnchor.MiddleLeft };
                 Primary = new GUIStyle(skin.button);
                 foreach (var state in States(Primary)) { state.background = primary; state.textColor = selected.PrimaryText; }
                 Primary.hover.background = primaryFocus; Primary.focused.background = primaryFocus; Primary.active.background = primaryFocus;
@@ -99,6 +102,7 @@ namespace Wreckabulary
                     Mathf.CeilToInt(skin.textField.CalcHeight(new GUIContent("Ag"), 512)));
                 ModuleHeight = Mathf.Max(selected.ModuleHeight,
                     Mathf.CeilToInt(skin.button.CalcHeight(new GUIContent("Ag\nAg"), 512)));
+                LabelHeight = Mathf.CeilToInt(SingleLine.CalcHeight(new GUIContent("Ag"), 512));
                 MenuWidth = selected.MenuWidth;
                 source = theme; fingerprint = stamp; Generation++;
             }
@@ -134,6 +138,14 @@ namespace Wreckabulary
 
         public Rect ToolbarRect(Vector2 viewport) => new Rect(8, 8, Mathf.Max(1, Mathf.Min(520, viewport.x - 16)), ToolbarHeight);
         public float ChromeHeight => RowHeight + Padding * 2 + Gap;
+        public float FooterHeight => ChromeHeight + LabelHeight + Gap;
+        public Rect FooterRect(Vector2 screen) => new Rect(8, screen.y - 8 - FooterHeight, Mathf.Max(1, screen.x - 16), FooterHeight);
+        public Rect StatusRect(Vector2 screen)
+        {
+            Rect footer = FooterRect(screen);
+            return new Rect(footer.x + Padding, footer.yMax - Padding - LabelHeight,
+                Mathf.Max(1, footer.width - Padding * 2), LabelHeight);
+        }
         public float ToolbarHeight => RowHeight * 2 + Padding * 2 + Gap * 3;
         public Rect MenuRect(float width, float height) => new Rect(Mathf.Max(12, (width - Mathf.Min(MenuWidth, width - 24)) * .5f),
             24, Mathf.Max(1, Mathf.Min(MenuWidth, width - 24)), Mathf.Max(1, height - 48));
