@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -55,6 +56,12 @@ namespace Wreckabulary.OfflineGameplayTests
 
         [UnityTest, Category("LocalWordboundGameplay")]
         public IEnumerator RunningFrameStopPreventsCheckpointAndLocalViewContinuation() => Run("Freestyle", "running-frame-stop");
+
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator AtomicCollisionRegistrationKeepsSharedNativePairsAndAbortRecovery() => Run("Freestyle", "collision-pairs");
+
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator AtomicCollisionRegistrationKeepsIsolatedNativePairsAndAbortRecovery() => Run("TimeRun", "collision-pairs");
 
         IEnumerator Run(string selectedMode, string atomicCase = "")
         {
@@ -156,6 +163,15 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreNotEqual(UnityEngine.Physics.defaultPhysicsScene, controller.PhysicsWorld.PhysicsScene);
             CollectionAssert.AreEquivalent(controller.Frame.Bodies.Select(b => b.Id), controller.Bodies.Keys);
 
+            if (atomicCase == "collision-pairs")
+            {
+                CheckCollisionRegistrations(mode, course, items, rules, prefabs);
+                long tick = controller.Frame.Progress.Tick;
+                yield return Until(() => controller.Frame.Progress.Tick > tick, "Resume the original world after isolated pair checks", 10);
+                Assert.AreEqual("", controller.Fault);
+                yield break;
+            }
+
             if (atomicCase == "running-frame-stop")
             {
                 var committed = session.Committed;
@@ -230,6 +246,142 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(originalDraft, draft.RecoveryJson, "Playtest must not rewrite the authored document or seed.");
             Assert.IsFalse(session.Runner.IsCloudReady);
             Debug.Log("WORDBOUND_LOCAL_OBSERVED: exact workshop manifest, native bodies, local movement/jump and validated memory checkpoint; cleanup pending.");
+        }
+
+        void CheckCollisionRegistrations(ModeDefinition mode, ResolvedCourse course, ItemCatalogue items,
+            GameRules rules, WordboundGameplayPrefabs prefabs)
+        {
+            var snapshot = controller.Frame;
+            var runner = session.Runner;
+            var states = snapshot.Bodies.OrderBy(body => body.Kind == WorldBodyKind.Player).ToArray();
+            Assert.GreaterOrEqual(states.Count(state => state.Kind != WorldBodyKind.Player), 2,
+                "The actual local course must provide multiple native non-player bodies.");
+            for (int mutationCase = 0; mutationCase < 2; mutationCase++)
+            {
+                var registered = new Dictionary<string, WordboundNetworkBody>(StringComparer.Ordinal);
+                var created = new List<NetworkObject>();
+                var world = new WordboundPhysicsWorld(runner, snapshot.Binding, mode, course, items, rules,
+                    peer => peer == runner.LocalPlayer ? Actor : null, () => true);
+                world.HostStepCompleted += _ => { };
+                world.RegisterStatic(controller.CourseWorld);
+                PlayerRef Authority(WorldBodyState state) => state.Kind == WorldBodyKind.Player ? runner.LocalPlayer : PlayerRef.None;
+                WordboundNetworkBody Add(WorldBodyState state)
+                {
+                    var obj = runner.Spawn(prefabs.For(state.Kind), new Vector3(state.Position.X, state.Position.Y, state.Position.Z),
+                        Quaternion.identity, state.Kind == WorldBodyKind.Player ? (PlayerRef?)runner.LocalPlayer : null);
+                    Assert.IsNotNull(obj);
+                    created.Add(obj);
+                    var body = obj.GetComponent<WordboundNetworkBody>();
+                    world.Register(body, state, Authority(state));
+                    registered.Add(state.Id, body);
+                    CheckPairs();
+                    return body;
+                }
+                void Remove(string id, bool checkRebind = false)
+                {
+                    var body = registered[id];
+                    world.Unregister(body);
+                    world.Unregister(body);
+                    if (checkRebind)
+                        Assert.Throws<InvalidOperationException>(() => world.Register(body, body.Canonical, Authority(body.Canonical)));
+                    registered.Remove(id);
+                    created.Remove(body.Object);
+                    runner.Despawn(body.Object);
+                }
+                void CheckPairs()
+                {
+                    var all = registered.Values.ToArray();
+                    for (int i = 0; i < all.Length; i++)
+                        for (int j = i + 1; j < all.Length; j++)
+                            foreach (var first in all[i].OwnedColliders)
+                                foreach (var second in all[j].OwnedColliders)
+                                    Assert.AreEqual(!WordboundPhysicsPolicy.ShouldCollide(mode, all[i].Canonical, all[j].Canonical),
+                                        UnityEngine.Physics.GetIgnoreCollision(first, second),
+                                        "Native pair permissions must already match when Register returns to a callback.");
+                }
+                try
+                {
+                    Assert.IsTrue(world.ReconcileAndApplySnapshot(snapshot, rules, () => {
+                        for (int i = 0; i < states.Length; i++)
+                        {
+                            Add(states[i]);
+                            if (mutationCase == 1 && i == 1)
+                            {
+                                for (int change = 0; change < 2; change++)
+                                {
+                                    var state = states[change];
+                                    var changed = new WorldBodyState(state.Id, state.Kind, state.Position,
+                                        state.RotationXyz, state.RotationW, state.Velocity, state.AngularVelocity,
+                                        state.Sleeping, state.Kinematic, state.Active, change, true, state.SourceId, state.RecoveryGeneration);
+                                    registered[state.Id].ApplyCanonical(changed);
+                                }
+                                Assert.IsFalse(WordboundPhysicsPolicy.ShouldCollide(mode,
+                                    registered[states[0].Id].Canonical, registered[states[1].Id].Canonical));
+                            }
+                            if (mutationCase == 0) Assert.AreEqual(0, world.CollisionPairFullPasses);
+                            if (mutationCase == 1 && i == 2) Assert.AreEqual(1, world.CollisionPairFullPasses,
+                                "A changed immutable canonical reference must invalidate the incremental baseline.");
+                        }
+                        Assert.IsTrue(world.ShouldFreeze, "A partially composed world cannot simulate before validated apply.");
+                        Assert.Throws<ArgumentException>(() => world.Register(registered[states[0].Id], states[0], Authority(states[0])));
+                        return true;
+                    }));
+                    Assert.IsFalse(world.ShouldFreeze);
+                    CheckPairs();
+                    if (mutationCase == 0)
+                    {
+                        Assert.AreEqual(states.Length, world.CollisionPairIncrementalPasses);
+                        Assert.AreEqual(1, world.CollisionPairFullPasses);
+                        Assert.AreEqual((long)states.Length * (states.Length - 1), world.CollisionPairDecisions,
+                            "Each pair is visited once as its body is added and once in final apply.");
+                    }
+                    else Assert.AreEqual(2, world.CollisionPairFullPasses);
+
+                    long passes = world.CollisionPairFullPasses;
+                    Assert.IsFalse(world.ReconcileAndApplySnapshot(snapshot, rules, () => false));
+                    Assert.IsFalse(world.ShouldFreeze, "An abort without registry mutation retains resumability.");
+                    Assert.AreEqual(passes, world.CollisionPairFullPasses);
+
+                    var replacement = states[0];
+                    Remove(replacement.Id, true);
+                    passes = world.CollisionPairFullPasses;
+                    Add(replacement);
+                    Assert.AreEqual(passes + 1, world.CollisionPairFullPasses, "Standalone Register still refreshes immediately.");
+                    Assert.IsFalse(world.ShouldFreeze);
+
+                    foreach (bool throws in new[] { false, true })
+                    {
+                        var expected = new FormatException("collision registration callback failed");
+                        bool Prepare()
+                        {
+                            Remove(replacement.Id, true);
+                            Assert.IsTrue(world.ShouldFreeze);
+                            Assert.Throws<InvalidOperationException>(() => world.ApplySnapshot(snapshot));
+                            Assert.Throws<InvalidOperationException>(() => world.ReconcileAndApplySnapshot(snapshot, rules, () => true));
+                            if (throws) throw expected;
+                            return false;
+                        }
+                        if (throws) Assert.AreSame(expected, Assert.Throws<FormatException>(() =>
+                            world.ReconcileAndApplySnapshot(snapshot, rules, Prepare)));
+                        else Assert.IsFalse(world.ReconcileAndApplySnapshot(snapshot, rules, Prepare));
+                        Assert.IsTrue(world.ShouldFreeze, "Partial abort/throw remains frozen after returning to its caller.");
+                        CheckPairs();
+                        Assert.Throws<ArgumentException>(() => world.ApplySnapshot(snapshot),
+                            "A still-incomplete registry cannot clear the pending composition freeze.");
+                        Assert.IsTrue(world.ShouldFreeze);
+                        Assert.IsTrue(world.ReconcileAndApplySnapshot(snapshot, rules, () => { Add(replacement); return true; }));
+                        Assert.IsFalse(world.ShouldFreeze, "Successful retry restores a usable world without a permanent fault.");
+                        CheckPairs();
+                    }
+                    Debug.Log($"WORDBOUND_COLLISION_PAIRS: mode={mode.Id}; mutationCase={mutationCase}; bodies={states.Length}; fullPasses={world.CollisionPairFullPasses}; incrementalPasses={world.CollisionPairIncrementalPasses}; pairDecisions={world.CollisionPairDecisions}; nativePairs=verified; noTimingClaim=true");
+                }
+                finally
+                {
+                    world.Dispose();
+                    Assert.IsTrue(world.ShouldFreeze);
+                    foreach (var obj in created) if (obj != null) runner.Despawn(obj);
+                }
+            }
         }
 
         void CheckAtomicPhysics(GameRules initialRules)

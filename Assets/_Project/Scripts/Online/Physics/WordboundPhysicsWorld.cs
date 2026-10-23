@@ -40,12 +40,38 @@ namespace Wreckabulary.Online
         bool disposed;
         bool collisionPairsDirty;
         bool reconciling;
+        bool pendingComposition;
+        bool registeringBatch;
+        Dictionary<string, CollisionRegistration> collisionBatch;
+
+        sealed class CollisionRegistration
+        {
+            public readonly WordboundNetworkBody Body;
+            public readonly WorldBodyState State;
+            readonly Collider[] colliders;
+            public CollisionRegistration(WordboundNetworkBody body)
+            { Body = body; State = body.Canonical; colliders = body.OwnedColliders.ToArray(); }
+            public bool Matches(WordboundNetworkBody body)
+            {
+                if (!ReferenceEquals(Body, body) || !ReferenceEquals(State, body.Canonical) ||
+                    colliders.Length != body.OwnedColliders.Count) return false;
+                for (int i = 0; i < colliders.Length; i++)
+                    if (!ReferenceEquals(colliders[i], body.OwnedColliders[i])) return false;
+                return true;
+            }
+        }
+
+#if UNITY_EDITOR || GSK_QA
+        public long CollisionPairFullPasses { get; private set; }
+        public long CollisionPairIncrementalPasses { get; private set; }
+        public long CollisionPairDecisions { get; private set; }
+#endif
 
         public MatchBinding Binding { get; }
         public GameRules Rules { get; }
         public long Epoch => frame?.Epoch ?? -1;
         public bool IsHost => !disposed && runner != null && runner.IsRunning && runner.IsServer;
-        public bool ShouldFreeze => !IsHost || frame == null || failed || !canAdvance() ||
+        public bool ShouldFreeze => !IsHost || frame == null || failed || pendingComposition || !canAdvance() ||
             frame.Progress.Migrating || frame.Progress.Result != null || HostStepCompleted == null;
         public PhysicsScene PhysicsScene => scene;
         public IReadOnlyList<HostThrownContact> CompletedThrownContacts =>
@@ -100,15 +126,19 @@ namespace Wreckabulary.Online
                 throw new ArgumentException("Body is duplicated or belongs to a different runner.");
             body.BindHost(this, canonical, inputAuthority);
             bodies.Add(canonical.Id, body);
-            foreach (var collider in body.OwnedColliders) owned.Add(collider, body);
+            if (reconciling) { pendingComposition = true; registeringBatch = true; }
             collisionPairsDirty = true;
-            RefreshCollisionPairs();
+            foreach (var collider in body.OwnedColliders) owned.Add(collider, body);
+            if (reconciling && collisionBatch == null && bodies.Count == 1)
+                collisionBatch = new Dictionary<string, CollisionRegistration>(StringComparer.Ordinal);
+            if (!reconciling || !RefreshAddedCollisionPairs(body)) RefreshCollisionPairs(true);
         }
 
         public void Unregister(WordboundNetworkBody body)
         {
             if (body == null || body.Canonical == null) return;
-            bodies.Remove(body.Canonical.Id);
+            bool removed = bodies.Remove(body.Canonical.Id);
+            if (removed && reconciling) pendingComposition = true;
             foreach (var collider in body.OwnedColliders) owned.Remove(collider);
             collisionPairsDirty = true;
         }
@@ -129,13 +159,23 @@ namespace Wreckabulary.Online
             if (reconcile == null) throw new ArgumentNullException(nameof(reconcile));
             long revision = appliedRevision;
             reconciling = true;
+            Exception failure = null;
             try
             {
                 return MatchStateValidation.ReconcileAndApply(snapshot, Binding, mode, course, items, initialRules, Rules,
                     () => reconcile() && IsHost && !failed && appliedRevision == revision,
                     () => ApplyValidatedSnapshot(snapshot));
             }
-            finally { reconciling = false; }
+            catch (Exception error) { failure = error; throw; }
+            finally
+            {
+                try
+                {
+                    if (pendingComposition && collisionPairsDirty && IsHost) RefreshCollisionPairs();
+                }
+                catch when (failure != null) { failed = true; }
+                finally { collisionBatch = null; registeringBatch = false; reconciling = false; }
+            }
         }
 
         void ApplyValidatedSnapshot(MatchSnapshot snapshot)
@@ -145,6 +185,8 @@ namespace Wreckabulary.Online
                 snapshot.Epoch == frame.Epoch && snapshot.Progress.Tick < frame.Progress.Tick))
                 throw new ArgumentException("Physics restoration cannot rewind within the same authority epoch.");
             var states = snapshot.Bodies.ToDictionary(b => b.Id, StringComparer.Ordinal);
+            if (pendingComposition && states.Count != bodies.Count)
+                throw new ArgumentException("Complete the pending body registry before applying a snapshot.");
             var itemStates = snapshot.Economy.Items.ToDictionary(i => "item:" + i.Id);
             foreach (var state in states.Values)
                 if (state.Kind == WorldBodyKind.Item) WordboundPhysicsPolicy.ValidateItemMode(state, itemStates[state.Id].State);
@@ -167,6 +209,7 @@ namespace Wreckabulary.Online
                 pair.Value.SetItemMode(itemStates.TryGetValue(pair.Key, out var item) ? item.State : (ItemState?)null);
             }
             RefreshCollisionPairs();
+            pendingComposition = false;
         }
 
         public IReadOnlyList<WorldBodyState> CaptureHost()
@@ -362,18 +405,43 @@ namespace Wreckabulary.Online
                 WordboundPhysicsPolicy.ShouldCollide(mode, actor, other.Canonical));
         static bool ValidFootprint(float value) => value > 0 && value <= 10 && !float.IsNaN(value) && !float.IsInfinity(value);
 
-        void RefreshCollisionPairs()
+        void RefreshCollisionPairs(bool captureRegistration = false)
         {
             if (!collisionPairsDirty) return;
-            collisionPairsDirty = false;
+#if UNITY_EDITOR || GSK_QA
+            CollisionPairFullPasses++;
+#endif
             var all = bodies.Values.ToArray();
             for (int i = 0; i < all.Length; i++)
                 for (int j = i + 1; j < all.Length; j++)
-                {
-                    bool ignore = !WordboundPhysicsPolicy.ShouldCollide(mode, all[i].Canonical, all[j].Canonical);
-                    foreach (var a in all[i].OwnedColliders)
-                        foreach (var b in all[j].OwnedColliders) UnityEngine.Physics.IgnoreCollision(a, b, ignore);
-                }
+                    ApplyCollisionPair(all[i], all[j]);
+            collisionPairsDirty = false;
+            if (reconciling && registeringBatch && captureRegistration)
+                collisionBatch = bodies.ToDictionary(pair => pair.Key, pair => new CollisionRegistration(pair.Value), StringComparer.Ordinal);
+        }
+
+        bool RefreshAddedCollisionPairs(WordboundNetworkBody added)
+        {
+            if (collisionBatch == null || collisionBatch.Count != bodies.Count - 1) return false;
+            foreach (var pair in collisionBatch)
+                if (!bodies.TryGetValue(pair.Key, out var body) || !pair.Value.Matches(body)) return false;
+            foreach (var body in bodies.Values)
+                if (!ReferenceEquals(body, added)) ApplyCollisionPair(body, added);
+            collisionBatch.Add(added.Canonical.Id, new CollisionRegistration(added));
+#if UNITY_EDITOR || GSK_QA
+            CollisionPairIncrementalPasses++;
+#endif
+            return true;
+        }
+
+        void ApplyCollisionPair(WordboundNetworkBody first, WordboundNetworkBody second)
+        {
+#if UNITY_EDITOR || GSK_QA
+            CollisionPairDecisions++;
+#endif
+            bool ignore = !WordboundPhysicsPolicy.ShouldCollide(mode, first.Canonical, second.Canonical);
+            foreach (var a in first.OwnedColliders)
+                foreach (var b in second.OwnedColliders) UnityEngine.Physics.IgnoreCollision(a, b, ignore);
         }
 
         void BeforeSimulate(NetworkRunner current)
@@ -440,7 +508,7 @@ namespace Wreckabulary.Online
                 simulator.OnBeforeSimulate -= BeforeSimulate;
                 simulator.OnAfterSimulate -= AfterSimulate;
             }
-            bodies.Clear(); owned.Clear(); structure.Clear();
+            bodies.Clear(); owned.Clear(); structure.Clear(); collisionBatch = null; registeringBatch = false;
         }
     }
 }
