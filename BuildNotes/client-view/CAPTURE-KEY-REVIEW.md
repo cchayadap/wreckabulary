@@ -21,3 +21,13 @@ Reviewed committed candidate `c298d77d` (same three reviewed source/test/probe f
 Root reported R0 `220712Z` PASS in 17.9 s. Independently parsed `TestResults/core_20261023T220731Z.trx`: 218 total/executed/passed, zero failed/error/timeout/aborted/not-executed. Root's 49-case native batch on `6c1937ab` is still running at this checkpoint; its outcome must be appended only after final artifacts. No jobs were run by this reviewer.
 
 Verified SHA-256: MatchState `5660B780106389DA412FF277DBF93AA634D6E5114E4422DA6C49C1FA0541517E`; probe source `E5385C8BE93089745FB7AD59AF20CCAB7BA30E92178216DC97B7D8BAA9D0E582`; comparison JSON `7310A7EE529C16FCBFD032AE62FB7D8C17E8A9F822EB9D370105B4F92E5A3942`; before raw log `F7F7B90A95C4BFFBF7938B65816C60D7AB785EEE92E6EB9FABE363DD340450C0`; after raw log `B83202892C7C9035BD3D50F333770E8A25E19F6F716C64A0E53EBB3A660EECD2`.
+
+## Completed native 221108 — 48/49, separate FFA allocator failure
+
+Independently read final `TestResults/editmode_20261023T221108Z.xml`, log and gate stdout for root source `6c1937ab`. Actual 49 total / 48 passed / 1 failed / zero skipped; all codec26 and phase20 cases passed. Public Brawl Solo passed 56.071301 s and Team Solo passed 55.506574 s, including actual admitted remote movement, repeated command receipt, exact committed snapshot ACK, body checks and zero service-cleanup failures. These are entry/short-play acceptance cases, not full race completion or general network reliability.
+
+Whole-case Capture marker observations (no wrap/invalid samples): Brawl 579 calls / 476.546 ms (~0.823 ms/call), Team 560 / 574.274 ms (~1.025 ms/call). Prior 215152 observations were ~2.855/~2.925 ms/call. The cases have different tick counts, timing and outcomes, so this is an observed decrease, not a controlled FPS/causal speed estimate. Brawl ready phase is 15.0194599 s / 429 steps with HostStep 7,248.619 ms, rollback 391.468 ms and full validation 2,468.212 ms; Team ready is 17.8750137 s / 412 steps with HostStep 8,499.274 ms, rollback 436.665 ms and full validation 2,897.557 ms. All captures have valid/inFlight0 status; inclusive totals must not be added to nested children.
+
+The sole failed FFA full case is a distinct actual Fusion allocator exhaustion, beginning during its first hammer craft; no suppression or capacity change is justified by this review. The subsequent movement timeout cannot be isolated from that fault. Detailed partial progression/limits are recorded in `PUBLIC-FFA-SCORED-FINISH-REVIEW.md`. Gate exit1, 331.5 s, no crash-after-quit. No native or build was launched by this lane.
+
+SHA-256: final XML `3E33D3ADD7DF68E7115B39EC119CC5F13E272C3034BC4B4C3BD7708F0BDF21D0`; native log `570206680ADAD373F1B95E8BB4377704512881612731EAF458078EA647C25CBF`.
