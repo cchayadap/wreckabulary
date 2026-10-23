@@ -203,6 +203,7 @@ namespace Wreckabulary.Online
             authentication.SetAuthPostData(join.PhotonTicket.PhotonPostData());
             Runner = createRunner() ?? throw new InvalidOperationException("Runner factory returned no runner.");
             run.Runner = Runner;
+            migrationCandidates[Runner] = runGeneration;
             run.Runner.AddCallbacks(this);
             if (migration != null) consumeMigration?.Invoke();
             var result = await run.Runner.StartGame(new StartGameArgs {

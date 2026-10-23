@@ -19,7 +19,7 @@ namespace Wreckabulary.Online
         }
         readonly WordboundRecoveryWindow recovery = new WordboundRecoveryWindow();
         readonly HashSet<NetworkRunner> migrationSources = new HashSet<NetworkRunner>();
-        readonly HashSet<NetworkRunner> migrationCandidates = new HashSet<NetworkRunner>();
+        readonly Dictionary<NetworkRunner, long> migrationCandidates = new Dictionary<NetworkRunner, long>();
         readonly List<NetworkRunner> retiredRunners = new List<NetworkRunner>();
         CancellationTokenSource recoveryCancellation, recoveryAttempt;
         Task recoveryTask;
@@ -36,7 +36,7 @@ namespace Wreckabulary.Online
             (IsCurrent(activeRun) && runner == activeRun.Runner || recovery.Active && runner == recoverySource);
         bool OwnsMigrationCallback(NetworkRunner runner) => !ReferenceEquals(runner, null) &&
             !lifetime.IsCancellationRequested && !recovery.Cancelled && Failure == "" &&
-            (OwnsRecoveryCallback(runner) || recovery.Active && migrationCandidates.Contains(runner));
+            (OwnsRecoveryCallback(runner) || recovery.Active && migrationCandidates.ContainsKey(runner));
         static bool TransientShutdown(ShutdownReason reason) => reason == ShutdownReason.ConnectionTimeout ||
             reason == ShutdownReason.PhotonCloudTimeout || reason == ShutdownReason.OperationTimeout ||
             reason == ShutdownReason.GameNotFound;
@@ -49,14 +49,17 @@ namespace Wreckabulary.Online
         {
             if (!(token == null ? OwnsRecoveryCallback(runner) : OwnsMigrationCallback(runner)) ||
                 (!gameplayObserved && token == null)) return;
-            migrationCandidates.Add(runner);
+            if (!migrationCandidates.TryGetValue(runner, out long generation))
+                migrationCandidates[runner] = generation = runGeneration;
+            if (token != null && migrationSources.Contains(runner)) return;
+            bool beginning = recovery.Begin(clock());
             if (token != null)
             {
-                if (!migrationSources.Add(runner)) return;
+                if (!recovery.AcceptMigration(generation)) return;
+                migrationSources.Add(runner);
                 pendingMigration = token;
             }
             awaitTransportDecision = waitForElection && runner.IsRunning && token == null;
-            bool beginning = recovery.Begin(clock());
             if (beginning)
             {
                 recoverySource = runner;

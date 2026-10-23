@@ -9,6 +9,7 @@ namespace Wreckabulary.Online
         public bool Cancelled { get; private set; }
         public long Deadline { get; private set; }
         public int Attempts { get; private set; }
+        long latestMigrationGeneration = -1;
 
         public bool Begin(long now)
         {
@@ -35,7 +36,13 @@ namespace Wreckabulary.Online
             if (!Active || Cancelled || now < 0 || now >= Deadline)
                 throw new TimeoutException("The original reconnect window ended.");
         }
-        public void Complete() { Active = false; Deadline = 0; Attempts = 0; }
+        public bool AcceptMigration(long generation)
+        {
+            if (!Active || Cancelled || generation < 0 || generation < latestMigrationGeneration) return false;
+            latestMigrationGeneration = generation;
+            return true;
+        }
+        public void Complete() { Active = false; Deadline = 0; Attempts = 0; latestMigrationGeneration = -1; }
         public void Cancel() { Cancelled = true; Active = false; }
     }
 }

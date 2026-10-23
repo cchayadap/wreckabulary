@@ -76,5 +76,19 @@ namespace Wreckabulary.OnlineTests
         [TestCase(-1L), TestCase(long.MaxValue), Category("Wordbound")]
         public void InvalidClockCannotOverflowADeadline(long now)
             => Assert.Throws<ArgumentOutOfRangeException>(() => new WordboundRecoveryWindow().Begin(now));
+
+        [Test, Category("Wordbound")]
+        public void OlderDelayedElectionCannotSupersedeANewerRunnerElection()
+        {
+            var window = new WordboundRecoveryWindow();
+            window.Begin(1000);
+            Assert.IsTrue(window.AcceptMigration(4));
+            Assert.IsTrue(window.AcceptMigration(8));
+            Assert.IsFalse(window.AcceptMigration(6));
+            Assert.IsFalse(window.AcceptMigration(1));
+            Assert.AreEqual(121000, window.Deadline);
+            window.Cancel();
+            Assert.IsFalse(window.AcceptMigration(9));
+        }
     }
 }
