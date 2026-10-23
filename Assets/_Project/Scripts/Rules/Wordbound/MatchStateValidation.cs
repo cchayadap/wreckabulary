@@ -523,7 +523,7 @@ namespace Wreckabulary.Rules.Wordbound
 
         static void ValidateMechanisms(MatchSnapshot s, ResolvedCourse course, ModeDefinition mode, StaticContent content)
         {
-            Need(s.Mechanisms.Select(m => ResourceKey(m.PuzzleId, m.Team, m.Lap)).Distinct(StringComparer.Ordinal).Count() == s.Mechanisms.Count,
+            Need(new HashSet<(string PuzzleId, int Team, int Lap)>(s.Mechanisms.Select(m => (m.PuzzleId, m.Team, m.Lap))).Count == s.Mechanisms.Count,
                 "Duplicate mechanism state.");
             bool practiceMode = WordboundPracticePolicy.Supports(mode);
             if (!mode.IsRace && !practiceMode) { Need(s.Mechanisms.Count == 0, "This mode has no puzzle mechanisms."); return; }

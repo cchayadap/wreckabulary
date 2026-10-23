@@ -328,6 +328,95 @@ namespace Wreckabulary.Tests
             return snapshot.Mechanisms.Single(m => m.PuzzleId == site.PuzzleId && m.Lap == site.Lap - 1 && m.Team == body.OwnerTeam);
         }
 
+        [TestCase("en-US"), TestCase("fr-FR"), TestCase("ar-SA")]
+        public void MechanismUniquenessRetainsInvariantIdentityAcrossCultures(string cultureName)
+        {
+            var previous = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                var f = WordboundSnapshotCodecTests.Create("TimeRun");
+                string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+                var valid = f.Snapshot();
+                Assert.AreEqual("", Check(valid));
+                Assert.GreaterOrEqual(f.Mechanisms.Count, 2);
+                string retained = MatchSnapshotCodec.Export(valid);
+                var culture = (CultureInfo)CultureInfo.GetCultureInfo(cultureName).Clone();
+                culture.NumberFormat.NativeDigits = new[] { "٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩" };
+                CultureInfo.CurrentCulture = culture;
+
+                void Pair(MatchMechanismState first, MatchMechanismState second)
+                {
+                    for (int i = 0; i < f.Mechanisms.Count; i++)
+                        f.Mechanisms[i] = new MatchMechanismState("probe:padding:" + i.ToString(CultureInfo.InvariantCulture), 0, 0);
+                    f.Mechanisms[0] = first; f.Mechanisms[1] = second;
+                    string Key(MatchMechanismState row) => row.PuzzleId + "/" + row.Team.ToString(CultureInfo.InvariantCulture) +
+                        "/" + row.Lap.ToString(CultureInfo.InvariantCulture);
+                    bool duplicate = f.Mechanisms.Select(Key).Distinct(StringComparer.Ordinal).Count() != f.Mechanisms.Count;
+                    string expected = duplicate ? "Duplicate mechanism state." : "Mechanism has an unknown puzzle, team or lap.";
+                    var changed = f.Snapshot();
+                    Assert.AreEqual(expected, Check(changed), Key(first) + " versus " + Key(second));
+                    Assert.AreEqual(expected, Check(changed));
+                }
+
+                for (int team = 0; team < 8; team++)
+                    for (int lap = 0; lap < 3; lap++)
+                    {
+                        var first = new MatchMechanismState("probe", team, lap);
+                        Pair(first, new MatchMechanismState("probe", team, lap, phaseTick: 1));
+                        Pair(first, new MatchMechanismState("probe", (team + 1) % 8, lap));
+                        Pair(first, new MatchMechanismState("probe", team, (lap + 1) % 3));
+                    }
+                foreach (string id in new[] { "Probe", "probe-", "probe.", "probe:", "probe_", "probe0" })
+                    Pair(new MatchMechanismState("probe", 0, 0), new MatchMechanismState(id, 0, 0));
+                Assert.AreEqual("", Check(valid));
+                Assert.AreEqual(retained, MatchSnapshotCodec.Export(valid));
+            }
+            finally { CultureInfo.CurrentCulture = previous; }
+        }
+
+        [TestCase("TimeRun"), TestCase("Freestyle")]
+        public void MechanismIdentityIgnoresDifferentEvidenceWithoutMovingItsRejection(string mode)
+        {
+            var f = PhysicalFixture(mode);
+            var valid = f.State;
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            string retained = MatchSnapshotCodec.Export(valid);
+            var site = f.Source.Course.PhysicalSites.First(value => value.Fixtures.Count == 0);
+            var row = valid.Mechanisms.First(value => value.PuzzleId == site.PuzzleId && value.Lap == site.Lap - 1);
+            Assert.IsFalse(row.Solved);
+            Assert.AreEqual(-1, row.ActivatedTick);
+            var changed = new MatchMechanismState(row.PuzzleId, row.Team, row.Lap,
+                phaseTick: 1, physical: row.Physical);
+            var laterFailure = ReplacePhysical(valid, mechanisms: valid.Mechanisms.Select(value => ReferenceEquals(value, row) ? changed : value));
+            Assert.AreEqual("Mechanism completion or timing disagrees with ordered progress.", CheckPhysical(f, laterFailure));
+            var duplicate = ReplacePhysical(valid, mechanisms: valid.Mechanisms.Concat(new[] { changed }));
+            Assert.AreEqual("Duplicate mechanism state.", CheckPhysical(f, duplicate));
+            Assert.AreEqual("Duplicate mechanism state.", CheckPhysical(f, duplicate));
+            Assert.AreEqual("Snapshot must include every static source, team and lap exactly once.",
+                CheckPhysical(f, ReplacePhysical(duplicate, resources: Array.Empty<MatchResourceState>())));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            Assert.AreEqual(retained, MatchSnapshotCodec.Export(valid));
+        }
+
+        [Test]
+        public void MechanismDuplicateStillPrecedesTheNonPuzzleModeRejection()
+        {
+            var f = WordboundSnapshotCodecTests.Create("FreeForAll");
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var valid = f.Snapshot();
+            Assert.AreEqual("", Check(valid));
+            Assert.IsEmpty(valid.Mechanisms);
+            string retained = MatchSnapshotCodec.Export(valid);
+            var row = new MatchMechanismState("probe", 0, 0);
+            Assert.AreEqual("This mode has no puzzle mechanisms.", Check(ReplacePhysical(valid, mechanisms: new[] { row })));
+            var duplicate = ReplacePhysical(valid, mechanisms: new[] { row, new MatchMechanismState("probe", 0, 0, phaseTick: 1) });
+            Assert.AreEqual("Duplicate mechanism state.", Check(duplicate));
+            Assert.AreEqual("Duplicate mechanism state.", Check(duplicate));
+            Assert.AreEqual("", Check(valid));
+            Assert.AreEqual(retained, MatchSnapshotCodec.Export(valid));
+        }
+
         [TestCase("missing"), TestCase("referenced-duplicate"), TestCase("unreferenced-duplicate")]
         public void FixtureMechanismLookupRetainsQueryLocalMissingAndDuplicateRejections(string mutation)
         {
