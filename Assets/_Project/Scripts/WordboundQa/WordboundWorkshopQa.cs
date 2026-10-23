@@ -22,6 +22,7 @@ namespace Wreckabulary.Qa
         WorkshopHistory history;
         string initial, edited, manifest;
         Camera ownedCamera;
+        WordboundPhaseObservation phases;
         bool savedDraftVerified, editCompleted;
         string playtestStage = "not_started";
         int playtestStartFrame = -1, playtestReadyFrame = -1, playtestWaitedFrames;
@@ -207,7 +208,7 @@ namespace Wreckabulary.Qa
             playtestStartFrame = Time.frameCount; playtestReadyFrame = -1; playtestWaitedFrames = 0;
             playtestStage = "request_playtest";
             RecordPlaytest(context, "start");
-            var phases = WordboundPhaseObservation.StartIfEnabled(launcher, context);
+            phases = WordboundPhaseObservation.StartIfEnabled(launcher, context);
             try
             {
                 workshop.RequestPlaytest();
@@ -255,16 +256,23 @@ namespace Wreckabulary.Qa
                 playtestStage = "completed";
                 RecordPlaytest(context, "playtest_returned");
             }
-            finally { if (phases) phases.Finish(playtestStage == "completed" ? "completed" : "iterator-exit"); }
+            finally { FinishPhases(playtestStage == "completed" ? "completed" : "iterator-exit"); }
         }
 
         IEnumerator Return(QaContext context)
         {
+            FinishPhases("return-boundary");
             RecordPlaytest(context, "before_return");
             if (!client) throw new QaFailException("Return requires the local playtest client; inspect the preceding playtest result.");
             yield return Complete(context, client.ReturnToWorkshop());
             yield return context.WaitFrames(3);
             yield return context.CaptureScreen("wordbound_returned_workshop");
+        }
+
+        void FinishPhases(string outcome)
+        {
+            var observation = phases; phases = null;
+            if (observation) observation.Finish(outcome);
         }
 
         void RecordPlaytest(QaContext context, string observation)
