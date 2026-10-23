@@ -137,14 +137,14 @@ namespace Wreckabulary.Online
                     workshop.OnlinePlaytestRequested += HostWorkshopOnline;
                     workshop.CanStartOnline = () => !destroying && menu && menu.CanOpenAuthoredPrivate;
                     workshop.ConfigureLocalPlaytest(true);
-                    BindAssignedWorkshopSource(authored);
+                    var flagship = ConfigureWorkshopSources(authored);
                     if (authored)
                     {
                         workshop.OpenAuthored(authored.ReadDocument(), authored.Catalogue(),
                             MatchStateValidation.Requirements(ModeDefinition.For(authored.ModeId, authored.Format)), authored.Seed);
                         workshop.ResumeEditing();
                     }
-                    else workshop.OpenFlagship(WordboundFlagshipContent.Create(ItemCatalogue.FromJson(itemJson)));
+                    else workshop.OpenFlagship(flagship);
                 }
                 else workshop.ResumeEditing();
                 menu.Visible = false;

@@ -430,7 +430,7 @@ namespace Wreckabulary.Workshop
                 case 12: StepPhysicalSite(); break;
                 case 13: StepPhysicalControl(1); break;
                 case 14: CancelGesture(); sitePuzzle = ""; status = "Module editing selected"; break;
-                case 15: QueueSourceChoice(1); break;
+                case 15: QueueControllerSourceChoice(); break;
             }
         }
         void UpdateGesturePreview()

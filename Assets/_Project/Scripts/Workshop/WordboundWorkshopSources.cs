@@ -16,6 +16,7 @@ namespace Wreckabulary.Workshop
 
         DraftSession assignedDraft;
         int sourceDecision;
+        bool controllerSourceDecision;
         public bool HasAssignedCourse => assignedDraft != null;
         public bool UsesAssignedCourse { get; private set; }
 
@@ -60,10 +61,19 @@ namespace Wreckabulary.Workshop
             sourceDecision = choice;
         }
 
+        void QueueControllerSourceChoice()
+        {
+            if (sourceDecision != 0) return;
+            QueueSourceChoice(1);
+            controllerSourceDecision = sourceDecision != 0;
+        }
+
         void ProcessSourceChoice(bool focused)
         {
             int decision = sourceDecision; sourceDecision = 0;
-            if (decision == 0 || !focused || !Visible || DesktopBinding.Typing || KeyBindings.GameplayBlocked) return;
+            bool controller = controllerSourceDecision; controllerSourceDecision = false;
+            if (decision == 0 || !focused || !Visible || DesktopBinding.Typing || KeyBindings.GameplayBlocked ||
+                controller && workshopTyping) return;
             Attempt(() => {
                 if (decision == 1) OpenAssignedCourse();
                 else OpenTemplate((WorkshopTemplate)(decision - 2));

@@ -12,6 +12,7 @@ namespace Wreckabulary.Workshop
         {
             recoveryDecision = 0;
             sourceDecision = 0;
+            controllerSourceDecision = false;
             workshopPadGate.Suspend();
             controllerTools = false;
             CancelGesture();

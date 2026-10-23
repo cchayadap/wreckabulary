@@ -1,4 +1,6 @@
 using System;
+using Wreckabulary.Rules;
+using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Online
 {
@@ -12,6 +14,14 @@ namespace Wreckabulary.Online
         }
 
         WorkshopInputs assignedWorkshopInputs;
+
+        WordboundFlagshipContent ConfigureWorkshopSources(WordboundCourseAsset source)
+        {
+            var flagship = WordboundFlagshipContent.Create(ItemCatalogue.FromJson(itemJson));
+            workshop.ConfigureFlagship(flagship);
+            BindAssignedWorkshopSource(source);
+            return flagship;
+        }
 
         void BindAssignedWorkshopSource(WordboundCourseAsset source)
         {

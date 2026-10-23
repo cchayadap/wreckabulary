@@ -3,7 +3,7 @@
   "rootNamespace": "Wreckabulary.Online.Tests",
   "references": [
     "Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Client",
-    "Wreckabulary.Online.Gameplay", "Wreckabulary.Online.Physics", "Wreckabulary.Online.Presentation",
+    "Wreckabulary.Online.Gameplay", "Wreckabulary.Online.Physics", "Wreckabulary.Online.Presentation", "Wreckabulary.Online.Authoring", "Wreckabulary.Online.Puzzles",
     "Unity.InputSystem", "Fusion.Unity", "UnityEngine.TestRunner", "UnityEditor.TestRunner"
   ],
   "includePlatforms": ["Editor"],
