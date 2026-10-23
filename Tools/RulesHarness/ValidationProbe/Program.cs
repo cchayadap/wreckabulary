@@ -24,15 +24,18 @@ namespace Wreckabulary.ValidationProbe
         {
             try
             {
-                if (args.Length > 1) throw new ArgumentException("Use an optional checkout root path only.");
-                string root = Path.GetFullPath(args.Length == 0 ? Directory.GetCurrentDirectory() : args[0]);
+                bool capture = args.Length > 0 && args[0] == "--capture";
+                int rootIndex = capture ? 1 : 0;
+                if (args.Length > rootIndex + 1) throw new ArgumentException("Use optional --capture followed by an optional checkout root path.");
+                string root = Path.GetFullPath(args.Length == rootIndex ? Directory.GetCurrentDirectory() : args[rootIndex]);
                 string itemSource = File.ReadAllText(Path.Combine(root, "Assets/_Project/Data/Config/items.json"));
                 string ruleSource = File.ReadAllText(Path.Combine(root, "Assets/_Project/Data/Config/rules.json"));
                 Console.WriteLine("WORDBOUND_VALIDATION_RUNTIME: framework=" + RuntimeInformation.FrameworkDescription +
                     "; architecture=" + RuntimeInformation.ProcessArchitecture + "; os=" + RuntimeInformation.OSDescription +
-                    "; measurement=current-thread-managed-bytes; scope=frozen-flagship-validation; unity-runtime=false");
-                foreach (string modeId in new[] { "TimeRun", "TeamRace" }) Run(modeId, itemSource, ruleSource);
-                Console.WriteLine("WORDBOUND_VALIDATION_RESULT: modes=2; batches=6; validations=120; failed=0");
+                    "; measurement=current-thread-managed-bytes; scope=" + (capture ? "unchanged-flagship-capture" : "frozen-flagship-validation") + "; unity-runtime=false");
+                foreach (string modeId in new[] { "TimeRun", "TeamRace" }) Run(modeId, itemSource, ruleSource, capture);
+                Console.WriteLine(capture ? "WORDBOUND_CAPTURE_RESULT: modes=2; batches=6; captures=120; failed=0" :
+                    "WORDBOUND_VALIDATION_RESULT: modes=2; batches=6; validations=120; failed=0");
                 return 0;
             }
             catch (Exception exception)
@@ -42,7 +45,7 @@ namespace Wreckabulary.ValidationProbe
             }
         }
 
-        static void Run(string modeId, string itemSource, string ruleSource)
+        static void Run(string modeId, string itemSource, string ruleSource, bool capture)
         {
             var mode = ModeDefinition.For(modeId, RaceFormat.Solo);
             var items = ItemCatalogue.FromJson(itemSource);
@@ -76,6 +79,11 @@ namespace Wreckabulary.ValidationProbe
                 "; bindingHash=" + binding.Hash + "; snapshotHash=" + snapshotHash +
                 "; bindingScope=local-probe-not-public-admission");
             Require(MatchStateValidation.Validate(frame, binding, mode, course, items, rules) == "", "Warm validation failed.");
+            if (capture)
+            {
+                Capture(modeId, match, frame, snapshotHash);
+                return;
+            }
             Control();
             for (int batch = 1; batch <= Batches; batch++)
             {
@@ -97,6 +105,32 @@ namespace Wreckabulary.ValidationProbe
                 Require(calibrated && bytes > 0, "Current-thread allocation counter is unavailable or an allocating workload was not observed.");
                 Require(errors == 0, "Repeated validation failed: " + firstError);
                 Require(snapshotHash == MatchSnapshotCodec.ComputeHash(frame), "Validation changed the frozen canonical snapshot.");
+            }
+        }
+
+        static void Capture(string modeId, AuthoritativeMatch match, MatchSnapshot baseline, string hash)
+        {
+            for (int i = 0; i < 32; i++) GC.KeepAlive(match.Capture(1));
+            Control();
+            for (int batch = 1; batch <= Batches; batch++)
+            {
+                long beforeControl = Control();
+                MatchSnapshot captured = null;
+                long beforeBytes = GC.GetAllocatedBytesForCurrentThread(), started = Stopwatch.GetTimestamp();
+                for (int i = 0; i < Iterations; i++)
+                {
+                    captured = match.Capture(1);
+                    GC.KeepAlive(captured);
+                }
+                long elapsed = Stopwatch.GetTimestamp() - started;
+                long bytes = GC.GetAllocatedBytesForCurrentThread() - beforeBytes;
+                long afterControl = Control();
+                bool calibrated = beforeControl >= ControlBytes && afterControl >= ControlBytes;
+                bool unchanged = MatchSnapshotCodec.ComputeHash(captured) == hash && MatchSnapshotCodec.ComputeHash(baseline) == hash;
+                Console.WriteLine(FormattableString.Invariant(
+                    $"WORDBOUND_CAPTURE_BATCH: mode={modeId}; batch={batch}; iterations={Iterations}; bytes={bytes}; milliseconds={elapsed * 1000d / Stopwatch.Frequency:F3}; controlBeforeBytes={beforeControl}; controlAfterBytes={afterControl}; controlPayloadBytes={ControlBytes}; calibrated={calibrated}; unchangedHash={unchanged}"));
+                Require(calibrated && bytes > 0, "Capture allocation counter is unavailable.");
+                Require(unchanged, "Capturing unchanged authority changed its canonical snapshot.");
             }
         }
 

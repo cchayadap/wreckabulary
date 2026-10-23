@@ -135,6 +135,8 @@ namespace Wreckabulary.Rules.Wordbound
 
     public sealed class MatchResourceState
     {
+        readonly string sortingKey;
+        internal string SortingKey => sortingKey ?? SourceId + "/" + Team + "/" + Lap;
         public string SourceId { get; }
         public int Team { get; }
         public int Lap { get; }
@@ -145,11 +147,13 @@ namespace Wreckabulary.Rules.Wordbound
             if (!WordboundIdentity.IsId(sourceId) || team < -1 || team > 7 || lap < 0 || lap > 2 ||
                 generation < 0 || recoveryAtTick < -1) throw new ArgumentException("Invalid recovery source state.");
             SourceId = sourceId; Team = team; Lap = lap; Generation = generation; RecoveryAtTick = recoveryAtTick;
+            if (team >= 0) sortingKey = sourceId + "/" + team + "/" + lap;
         }
     }
 
     public sealed class MatchMechanismState
     {
+        internal string SortingKey { get; }
         public string PuzzleId { get; }
         public int Team { get; }
         public int Lap { get; }
@@ -170,6 +174,7 @@ namespace Wreckabulary.Rules.Wordbound
             PuzzleId = puzzleId; Team = team; Lap = lap; Solved = solved; ActivatedTick = activatedTick;
             PhaseTick = phaseTick; ProgressTicks = progressTicks; ItemEntityId = itemEntityId;
             Physical = physical ?? MatchPhysicalEvidence.Empty;
+            SortingKey = puzzleId + "/" + team + "/" + lap;
         }
     }
 
@@ -219,8 +224,8 @@ namespace Wreckabulary.Rules.Wordbound
             Progress = progress; Economy = economy; Commands = commands;
             Actors = Freeze(actors, actor => actor.PlayerId);
             Bodies = Freeze(bodies, body => body.Id);
-            Resources = Freeze(resources, resource => resource.SourceId + "/" + resource.Team + "/" + resource.Lap);
-            Mechanisms = Freeze(mechanisms, mechanism => mechanism.PuzzleId + "/" + mechanism.Team + "/" + mechanism.Lap);
+            Resources = Freeze(resources, resource => resource.SortingKey);
+            Mechanisms = Freeze(mechanisms, mechanism => mechanism.SortingKey);
             RandomStreams = Freeze(randomStreams, stream => stream.StreamId);
             ThrownFlights = Freeze(thrownFlights ?? Array.Empty<MatchThrownFlight>(), flight => flight.ItemBodyId);
             Practice = practice ?? MatchPracticeState.Empty;

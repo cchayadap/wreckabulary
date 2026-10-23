@@ -136,6 +136,81 @@ namespace Wreckabulary.Tests
             finally { CultureInfo.CurrentCulture = previous; }
         }
 
+        [TestCase("en-US"), TestCase("fr-FR"), TestCase("ar-SA")]
+        public void FrozenSectionOrderRetainsLiteralKeysAcrossConstructionAndCaptureCultures(string cultureName)
+        {
+            var previous = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                var f = Create();
+                f.Resources.Clear(); f.Mechanisms.Clear();
+                foreach (string id in new[] { "a", "a-", "a.", "a:", "a_", "a0", "aA" })
+                    for (int team = 0; team < 8; team++)
+                        for (int lap = 0; lap < 3; lap++)
+                            for (int duplicate = 0; duplicate < 2; duplicate++)
+                            {
+                                f.Resources.Add(new MatchResourceState(id, team, lap, duplicate));
+                                f.Mechanisms.Add(new MatchMechanismState(id, team, lap, phaseTick: duplicate));
+                            }
+                f.Resources.Reverse(); f.Mechanisms.Reverse();
+                var retained = f.Snapshot();
+                string json = MatchSnapshotCodec.Export(retained), hash = MatchSnapshotCodec.ComputeHash(retained);
+                var culture = (CultureInfo)CultureInfo.GetCultureInfo(cultureName).Clone();
+                culture.NumberFormat.NativeDigits = new[] { "٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩" };
+                culture.NumberFormat.PositiveSign = "positive"; culture.NumberFormat.NegativeSign = "negative";
+                culture.NumberFormat.NumberDecimalSeparator = "!"; culture.NumberFormat.NumberGroupSeparator = "?";
+                CultureInfo.CurrentCulture = culture;
+                AssertLiteralSectionOrder(f, f.Snapshot());
+                Assert.AreEqual(json, MatchSnapshotCodec.Export(f.Snapshot()));
+                f.Resources[0] = new MatchResourceState("a-", 7, 2, 12);
+                f.Mechanisms[0] = new MatchMechanismState("a-", 7, 2, phaseTick: 12);
+                var replaced = f.Snapshot();
+                AssertLiteralSectionOrder(f, replaced);
+                Assert.AreNotEqual(hash, MatchSnapshotCodec.ComputeHash(replaced));
+                Assert.AreEqual(json, MatchSnapshotCodec.Export(retained));
+                Assert.AreEqual(hash, MatchSnapshotCodec.ComputeHash(retained));
+            }
+            finally { CultureInfo.CurrentCulture = previous; }
+        }
+
+        [TestCase(false), TestCase(true)]
+        public void SharedResourceOrderRetainsLiveNegativeSignAndStableEqualKeys(bool reverse)
+        {
+            var previous = CultureInfo.CurrentCulture;
+            try
+            {
+                var culture = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+                CultureInfo.CurrentCulture = culture;
+                var f = Create(); f.Resources.Clear();
+                foreach (string id in new[] { "a", "a-", "a." })
+                    foreach (int team in new[] { -1, 0, 1, -1 })
+                        for (int lap = 0; lap < 3; lap++)
+                            f.Resources.Add(new MatchResourceState(id, team, lap, f.Resources.Count));
+                if (reverse) f.Resources.Reverse();
+                var retained = f.Snapshot();
+                string json = MatchSnapshotCodec.Export(retained), hash = MatchSnapshotCodec.ComputeHash(retained);
+                foreach (string sign in new[] { "~", "", "minus", "-" })
+                {
+                    culture.NumberFormat.NegativeSign = sign;
+                    AssertLiteralSectionOrder(f, f.Snapshot());
+                    Assert.AreEqual(json, MatchSnapshotCodec.Export(retained));
+                    Assert.AreEqual(hash, MatchSnapshotCodec.ComputeHash(retained));
+                }
+            }
+            finally { CultureInfo.CurrentCulture = previous; }
+        }
+
+        static void AssertLiteralSectionOrder(Fixture f, MatchSnapshot snapshot)
+        {
+            var resources = f.Resources.OrderBy(r => r.SourceId + "/" + r.Team + "/" + r.Lap, StringComparer.Ordinal).ToArray();
+            var mechanisms = f.Mechanisms.OrderBy(m => m.PuzzleId + "/" + m.Team + "/" + m.Lap, StringComparer.Ordinal).ToArray();
+            Assert.AreEqual(resources.Length, snapshot.Resources.Count);
+            Assert.AreEqual(mechanisms.Length, snapshot.Mechanisms.Count);
+            for (int i = 0; i < resources.Length; i++) Assert.AreSame(resources[i], snapshot.Resources[i]);
+            for (int i = 0; i < mechanisms.Length; i++) Assert.AreSame(mechanisms[i], snapshot.Mechanisms[i]);
+        }
+
         [TestCase("numeric-counter"), TestCase("leading-zero"), TestCase("counter-overflow"), TestCase("negative-counter")]
         [TestCase("nan"), TestCase("infinity"), TestCase("uppercase-bits"), TestCase("short-bits")]
         [TestCase("enum-number"), TestCase("duplicate-key"), TestCase("unknown-key"), TestCase("future-schema"), TestCase("bad-hash")]
