@@ -11,7 +11,6 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.Online.Tests
 {
-    [NonParallelizable]
     public sealed class WordboundWorkshopSourceBindingTests
     {
         readonly List<Object> assets = new List<Object>();
