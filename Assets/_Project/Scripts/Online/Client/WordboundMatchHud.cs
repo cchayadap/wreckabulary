@@ -148,13 +148,15 @@ namespace Wreckabulary.Online
 
         void Update()
         {
-            if (!initialized || !defenseHeld) return;
+            if (!initialized) return;
+            ExecuteMenuAction(Application.isFocused);
+            if (!defenseHeld) return;
             var shield = SelectedShield();
             if (!view || view.MenuOpen || !Application.isFocused || controller.IsSimulationPaused ||
                 shield == null || defenseItem != "item:" + shield.Id) ReleaseDefense();
         }
 
-        void MenuRequested() { ReleaseDefense(); crafting = false; menuFocus.Reset(); }
+        void MenuRequested() { ReleaseDefense(); crafting = false; ResetMenuInput(); }
         void ConnectionFailed(string reason)
             => ShowFailure("The session stopped. Choose " + returnLabel + " to continue.");
         public void ShowFailure(string message)
@@ -338,7 +340,7 @@ namespace Wreckabulary.Online
                 else if (!view.MenuOpen && WordboundPracticeGuidePlan.Nearest(course, frame, actorId) != null)
                     GUILayout.Label("Interact: select nearby practice station · Menu: station details");
                 GUILayout.EndArea();
-                if (view.MenuOpen) Menu(width, height);
+                if (view.MenuOpen) Menu(width, height, Application.isFocused);
             }
             finally { GUI.matrix = saved; GUI.enabled = enabled; }
         }
@@ -393,7 +395,7 @@ namespace Wreckabulary.Online
             _ => "That action could not be completed."
         };
 
-        void OnDisable() { ReleaseDefense(); menuFocus.Reset(); }
+        void OnDisable() { ReleaseDefense(); ResetMenuInput(); }
 
         void OnDestroy()
         {
