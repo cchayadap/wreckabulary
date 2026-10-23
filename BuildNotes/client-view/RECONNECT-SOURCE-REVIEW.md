@@ -15,6 +15,14 @@ Two confirmed source findings sent to the online owner for correction:
 
 The new fixtures cover ordinary client timeout-shutdown/rejoin, fresh admissions, unchanged room/seat/epoch, exact restored bodies and a command ACK, stale original shutdown rejection, and explicit stop / seat-expiry / authentication rejection. The pure window tests cover first-loss bounds, monotonic narrowing, backoff and terminal cancellation. These fixtures do not yet exercise the two migration/preflight orderings above. Review remains in progress; no approval of the partial implementation is implied.
 
+The owner accepted both findings and began the source corrections. During that correction, a further bounded issue was identified: an unconditional wait for `Runner.IsRunning` to become false at the top of every attempt also traps internally failed replacement attempts. For example, a new client connects, its admission/Head request returns 503, and `Fail` freezes the RunScope while leaving its transport running. The next loop waits for a shutdown that was never requested. Waiting for the original SDK disconnect/migration callback must be distinguished from retiring an internally failed replacement.
+
+## Stage 2 proposal review
+
+The proposal preserves compatibility with an optional per-term lease profile, legacy 15-second defaults, exactly seven public writer fields, strict idempotency, and no Photon Host promotion from a coordinator lease. These are coherent design constraints, not verified implementation.
+
+One concrete integration requirement was sent to root and the online owner: same-Runner writer recovery must explicitly reset/rebind gameplay composition. Current `WordboundGameplayController` runs `ChangeRunner` only when the Runner reference changes, and `GameplayStarted` calls `BeginHost`, which returns immediately when `hostReady` is already true. A replacement RunScope or writer term on the same Runner does not itself rebuild physics, clear host readiness, or repeat peer admission. Old publication/admission work must be fenced, canonical state restored, and composition/readiness re-established before input resumes. Stage 2 source changes remain outside this review assignment until authorized and provided.
+
 ## Verification limits
 
 No compiler, Unity, network, player, or native test was run for this review. Fixture inspection does not establish runtime recovery, host migration, or presented UI behavior.
