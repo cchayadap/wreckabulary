@@ -1,0 +1,102 @@
+{
+  "recordedUtc": "2026-10-23T20:20:41.236837+00:00",
+  "source": "924fa277782a176e9ffc4ceb4d9251f32be3d86c",
+  "summary": {
+    "result": "Failed(Child)",
+    "total": "2",
+    "passed": "0",
+    "failed": "2",
+    "skipped": "0",
+    "duration": "128.5522914",
+    "start-time": "2026-10-23 20:13:44Z",
+    "end-time": "2026-10-23 20:15:52Z"
+  },
+  "cases": [
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Failed",
+      "duration": "53.865227",
+      "failure": {
+        "message": "  Apply client movement through admitted Fusion input exceeded its deadline.\n  Expected: True\n  But was:  False\n",
+        "stack-trace": "at Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests+<Until>d__50.MoveNext () [0x00111] in C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Tests\\OnlineGameplay\\WordboundNativeGameplayTests.cs:479\nat UnityEngine.TestTools.TestEnumerator+<Execute>d__8.MoveNext () [0x0003a] in .\\Library\\PackageCache\\com.unity.test-framework@80f691d4262b\\UnityEngine.TestRunner\\NUnitExtensions\\Attributes\\TestEnumerator.cs:52\n"
+      },
+      "observations": [
+        "WORDBOUND_NATIVE_PROFILE_WINDOW: case=Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties; startFrame=1; endFrame=47490; elapsedSeconds=45.604; thread=main; instances=all-in-process; sampling=per-marker-invocation; scopes=inclusive-not-additive; max=sample-not-frame; inFlightScopes=not-yet-recorded; domainReloadRetention=false",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=observed; samples=391; invocations=391; capturedTotalCpuMs=4659.606; capturedMaxSampleCpuMs=186.316; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=observed; samples=391; invocations=391; capturedTotalCpuMs=680.859; capturedMaxSampleCpuMs=14.353; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=observed; samples=390; invocations=390; capturedTotalCpuMs=3090.472; capturedMaxSampleCpuMs=40.169; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=observed; samples=391; invocations=391; capturedTotalCpuMs=189.059; capturedMaxSampleCpuMs=14.229; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=observed; samples=391; invocations=391; capturedTotalCpuMs=355.205; capturedMaxSampleCpuMs=10.340; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=2; invocations=2; capturedTotalCpuMs=846.940; capturedMaxSampleCpuMs=668.455; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=observed; samples=390; invocations=390; capturedTotalCpuMs=798.980; capturedMaxSampleCpuMs=13.806; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none"
+      ]
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPeersCompleteCompactAuthoredTimeRunAndConfirmDurableResult",
+      "result": "Failed",
+      "duration": "74.411977",
+      "failure": {
+        "message": "System.InvalidOperationException : Sequence contains no matching element",
+        "stack-trace": "  at System.Linq.Enumerable.Single[TSource] (System.Collections.Generic.IEnumerable`1[T] source, System.Func`2[T,TResult] predicate) [0x00070] in <f1b392d8fe224ca2b1f9fab1000b77eb>:0 \n  at Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.Pose (Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests+Peer host, System.String id) [0x0000d] in C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Tests\\OnlineGameplay\\WordboundNativeInteractionTests.cs:149 \n  at Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests+<CompleteCompactTimeRun>d__7.MoveNext () [0x00deb] in C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Tests\\OnlineGameplay\\WordboundNativeFullMatchTests.cs:189 \n  at UnityEngine.TestTools.TestEnumerator+<Execute>d__8.MoveNext () [0x0003a] in .\\Library\\PackageCache\\com.unity.test-framework@80f691d4262b\\UnityEngine.TestRunner\\NUnitExtensions\\Attributes\\TestEnumerator.cs:52 "
+      },
+      "observations": [
+        "WORDBOUND_COMPACT_WALK: operation=Reach the native keepsake; phase=steering-end; tick=403; hostPosition=1.275391/0.000000/-2.328517; hostVelocity=0.265853/0.000000/0.120530; target=2.000/0.000/-2.000; distance=0.795602; radius=0.800; inside=True; delivered=False; samples=413; nonzeroObserved=True; minNonzeroInput=0.060000; maxInput=0.202575; lastInput=0.060000; canMove=True; moveScale=1.000000; kinematic=False; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_COMPACT_WALK: operation=Carry the keepsake clear of the workbench; phase=steering-end; tick=854; hostPosition=-3.753016/0.000000/-2.968496; hostVelocity=-0.289554/0.000000/-0.036934; target=-4.000/0.000/-3.000; distance=0.248985; radius=0.250; inside=True; delivered=False; samples=653; nonzeroObserved=True; minNonzeroInput=0.060000; maxInput=0.220000; lastInput=0.060000; canMove=True; moveScale=1.000000; kinematic=False; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_COMPACT_WALK: operation=Carry the keepsake away from the preceding lap's finish; phase=steering-end; tick=856; hostPosition=-3.757842/0.000000/-2.969112; hostVelocity=0.000000/-0.000006/0.000000; target=-4.000/0.000/-3.000; distance=0.244120; radius=0.250; inside=True; delivered=False; samples=0; nonzeroObserved=False; minNonzeroInput=0.000000; maxInput=0.000000; lastInput=0.000000; canMove=True; moveScale=1.000000; kinematic=False; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_COMPACT_WALK: operation=Reach each native letter through admitted input; phase=steering-end; tick=1211; hostPosition=-2.993197/0.000000/0.150903; hostVelocity=0.000492/0.000000/0.288520; target=-2.992/0.000/0.997; distance=0.846380; radius=0.850; inside=True; delivered=False; samples=507; nonzeroObserved=True; minNonzeroInput=0.060000; maxInput=0.220000; lastInput=0.060000; canMove=True; moveScale=1.000000; kinematic=False; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_COMPACT_WALK: operation=Reach each native letter through admitted input; phase=steering-end; tick=1227; hostPosition=-3.011742/0.000000/0.215211; hostVelocity=-0.066655/-0.000003/0.279991; target=-3.195/0.152/1.031; distance=0.835892; radius=0.850; inside=True; delivered=False; samples=14; nonzeroObserved=True; minNonzeroInput=0.060000; maxInput=0.060000; lastInput=0.060000; canMove=True; moveScale=1.000000; kinematic=False; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_COMPACT_WALK: operation=Reach each native letter through admitted input; phase=steering-end; tick=1308; hostPosition=-3.066111/0.000000/0.589965; hostVelocity=-0.041533/0.000000/0.283928; target=-3.189/0.000/1.428; distance=0.846600; radius=0.850; inside=True; delivered=False; samples=100; nonzeroObserved=True; minNonzeroInput=0.060000; maxInput=0.060000; lastInput=0.060000; canMove=True; moveScale=1.000000; kinematic=False; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_COMPACT_WALK: operation=Reach each native letter through admitted input; phase=steering-end; tick=1310; hostPosition=-3.066111/0.000000/0.589965; hostVelocity=0.000000/0.000000/0.000000; target=-3.345/0.000/0.868; distance=0.393429; radius=0.850; inside=True; delivered=False; samples=0; nonzeroObserved=False; minNonzeroInput=0.000000; maxInput=0.000000; lastInput=0.000000; canMove=True; moveScale=1.000000; kinematic=True; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_COMPACT_WALK: operation=Reach each native letter through admitted input; phase=steering-end; tick=1340; hostPosition=-2.937908/0.000000/0.648865; hostVelocity=0.265246/0.000000/0.121862; target=-2.168/0.120/1.002; distance=0.846952; radius=0.850; inside=True; delivered=False; samples=29; nonzeroObserved=True; minNonzeroInput=0.060000; maxInput=0.060000; lastInput=0.060000; canMove=True; moveScale=1.000000; kinematic=False; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_COMPACT_WALK: operation=Approach the authored socket without repositioning; phase=steering-end; tick=1773; hostPosition=-0.079142/0.000000/0.504010; hostVelocity=0.291526/0.000000/-0.014772; target=0.000/0.000/0.500; distance=0.079243; radius=0.080; inside=True; delivered=False; samples=509; nonzeroObserved=True; minNonzeroInput=0.060000; maxInput=0.203117; lastInput=0.060000; canMove=True; moveScale=1.000000; kinematic=False; paused=False; lifetimeCancelled=False; poseSource=host-native; inputs=requested-not-delivery-proof",
+        "WORDBOUND_NATIVE_PROFILE_WINDOW: case=Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPeersCompleteCompactAuthoredTimeRunAndConfirmDurableResult; startFrame=1; endFrame=122160; elapsedSeconds=69.547; thread=main; instances=all-in-process; sampling=per-marker-invocation; scopes=inclusive-not-additive; max=sample-not-frame; inFlightScopes=not-yet-recorded; domainReloadRetention=false",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=observed; samples=1808; invocations=1808; capturedTotalCpuMs=1303.809; capturedMaxSampleCpuMs=10.409; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=observed; samples=1808; invocations=1808; capturedTotalCpuMs=176.211; capturedMaxSampleCpuMs=9.072; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=observed; samples=1807; invocations=1807; capturedTotalCpuMs=1147.782; capturedMaxSampleCpuMs=14.691; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=observed; samples=1808; invocations=1808; capturedTotalCpuMs=65.120; capturedMaxSampleCpuMs=3.307; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=observed; samples=1808; invocations=1808; capturedTotalCpuMs=99.211; capturedMaxSampleCpuMs=0.309; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=2; invocations=2; capturedTotalCpuMs=190.523; capturedMaxSampleCpuMs=184.800; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=observed; samples=1807; invocations=1807; capturedTotalCpuMs=215.320; capturedMaxSampleCpuMs=8.589; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261023T201239Z.xml",
+      "bytes": 104866,
+      "sha256": "0d9b53b9ad7aa5f92a9d73e1727908462e6f8f19e8f05175df3801e6b00149e9"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261023T201239Z.log",
+      "bytes": 836489,
+      "sha256": "b6e89c46258c629e3a86683bd567479f503af78122e34cdc976d9095065f75da"
+    },
+    {
+      "path": ".harness/delivery/native-retirement-full-online-2012-job.json",
+      "bytes": 790,
+      "sha256": "b04f08884f15d6392dbafbad3592810b64562c8f1c5bf7fe7f4e7f4f63e661a6"
+    },
+    {
+      "path": ".harness/delivery/native-retirement-full-online-2012-status.json",
+      "bytes": 865,
+      "sha256": "4d37c23efd0f9211a7bef340420ca47c428111b6e8857fa9fee1d03512a6d59a"
+    },
+    {
+      "path": "TestResults/core_20261023T201209Z.trx",
+      "bytes": 238152,
+      "sha256": "0e28d8374db7b5084a3331cbaa438233619570796707629d6a9a1361c0d47bc3"
+    },
+    {
+      "path": "TestResults/core_20261023T201805Z.trx",
+      "bytes": 51452,
+      "sha256": "0852f676daa41be587cfe311002501a1e019de3efa05c6855e912ce0e338170d"
+    }
+  ],
+  "limits": [
+    "Same-process separate Fusion runners, not independent Windows machines.",
+    "Inclusive observed marker timings are not additive or player FPS.",
+    "No complete lap or durable terminal result passed."
+  ]
+}
