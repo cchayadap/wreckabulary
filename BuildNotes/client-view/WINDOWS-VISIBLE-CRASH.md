@@ -138,3 +138,30 @@ Two concrete additional cost paths are absent or much smaller in the unrendered 
 No unconditional object-growth loop was found in the bounded presentation paths inspected. GameplayPresentation.Refresh retains instances until body/parent/key/size changes; its Present removes dead views. Guide.Show compares a marker identity/readiness signature before rebuilding objects, and clears old children. StoryView only rebuilds signs when its narrative/progress signature changes. Recipe cards are already cached by letter-bag equality. This rules out those particular unconditional rebuild claims, not every possible leak or GPU/render cost.
 
 The next probe interpretation should remain conditional: `wait_readiness` with no canonical frame localizes startup/scene composition; frame/world present but paused or guide count zero localizes the readiness predicate; `wait_90_frames` with a ready image, advancing ticks and few Unity frames localizes post-readiness update throughput. A capture phase with stalled output remains distinct. Tick/frame deltas alone cannot separate CPU simulation, callbacks, rendering/GPU waits or scheduling contention. Preserve the existing gate result and use a bounded profiler/counter follow-up only after that split is observed. Online's separately owned capacity-count optimization does not overlap these read-only presentation findings.
+
+## Completed visible 192105Z run — post-readiness throughput failure
+
+Build `qa-20261023T191831Z` ran the new diagnostic scenario under the original 6000.6.3f1 release-QA player. Final `checks.json` again records **four passing steps and exact_playtest FAIL at its unchanged 90-second outer budget**. There is no console error/exception, controller/guide/presentation fault, or native crash recorded in this completed run. Party, exact workshop autosave, return/cleanup and Undo/Redo pass. This time the missing phase evidence is resolved:
+
+| Observation | Playtest elapsed s | Unity frame | Canonical tick | Completed 90-frame waits |
+| --- | ---: | ---: | ---: | ---: |
+| Request started | .002 | 9 | unavailable | 0 |
+| Request returned | 4.110 | 9 | unavailable | 0 |
+| Ready | 6.611 | 14 | 60 | 0 |
+| Ready image captured; frame wait starts | 6.793 | 14 | 60 | 0 |
+| Progress | 31.994 | 29 | 960 | 15 |
+| Progress | 55.590 | 44 | 1860 | 30 |
+| Progress | 76.847 | 59 | 2760 | 45 |
+| Return entry after timeout | 91.086 | 68 | 3300 | 53 |
+
+Every complete 15-frame observation interval advanced 900 canonical ticks. Readiness to return advanced 54 Unity frame counts, but the coroutine completed only 53 waits because the outer driver checks its deadline before resuming the next iterator continuation. Do not relabel that boundary as lost frames. At return entry the controller, world, frame and camera existed and were active; readiness remained true, simulation was unpaused, timeScale was one, the app was focused and menu closed. Visual count remained 93 and guide count one in the sampled records. The immediate ready PNG was written and passed 1280x720/nonblank/varied-pixel checks; root independently viewed its original character, world and HUD. This establishes successful startup and a real post-readiness throughput failure in this run, not a stalled scene, missing guide, input-focus pause or capture deadlock. It is still not CPU/GPU attribution or human play acceptance.
+
+The first next comparison should use the same scenario, content/seed, artwork and acceptance budget after the independently reviewed count-only core optimization. Preserve all 90 required waits and do not substitute a longer deadline for responsiveness. Broad visual changes would confound that comparison. The current evidence also does not prove that the optional patch editor is needed for this throughput failure.
+
+### Release-QA timing capability and smallest fallback design
+
+Existing `WB.Match.*` scopes use standard `ProfilerMarker.Auto`. The exact [Unity 6000.6 manual](https://docs.unity3d.com/6000.6/Documentation/Manual/profiler-adding-information-code-intro.html) states that Begin/End are removed from non-development builds and Auto becomes a no-op result. The current QA profile adds GSK_QA, with development_build false. Therefore those scopes cannot be assumed to produce timings in this actual player. [ProfilerRecorder supports release players](https://docs.unity3d.com/6000.6/Documentation/ScriptReference/Unity.Profiling.ProfilerRecorder.html), but only supported metrics; recorder existence or zero samples is not evidence of zero method cost. Installed CoreModule XML establishes the API signatures, not availability of those custom marker samples in this executable.
+
+If the same player remains slow after the count optimization, the smallest proposed timing change is a project-owned, opt-in **GSK_QA-only** synchronous Stopwatch observer for Capture, Authority.Advance, Reconcile and the FrameChanged invocation inside Reconcile. Each struct scope records count, total elapsed timestamp ticks and maximum in fixed scalar slots, closes in finally, and preserves the original return/exception/control flow. Enable only for this QA action; take the summary at the existing progress/Return boundary, with OnDisable cleanup for interrupted execution. Do not log or allocate strings per canonical tick. Include Stopwatch frequency, start/end phase/frame/tick and scope counts; label durations as synchronous elapsed time, including scheduler/blocking effects, and do not add inclusive Reconcile plus its FrameChanged child as wall time. This would distinguish core reconciliation from subscriber work without enabling a development build, changing simulation settings or relying on stripped markers. It is a design only: no source change or timing measurement was made.
+
+Artifact SHA-256: checks `E12FD34D3D7AA1C7379BB75BE95269B9569A47D5CD36201EA9BF6B296D1FD696`; player log `DEF182598ADDA2647B56A2503149102F124FADDBBDE69277314376D16D4E07AB`.
