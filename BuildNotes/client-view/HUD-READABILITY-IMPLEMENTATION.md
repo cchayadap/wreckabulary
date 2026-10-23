@@ -33,3 +33,5 @@ Source integration order: `966afe07` (active hints), `bc8a0d4b` (HUD/captions/st
 ## First assembled compile correction
 
 Root R0 `195747` failed before native execution: the new keyboard cases called `WordboundNativeInputScope.Sample(Keyboard, KeyboardState)` but the shared fixture had only its gamepad overload. The bounded follow-up adds the keyboard overload: require the owned device active, queue the supplied real state event and use the same `Pump()` that asserts a Dynamic input update. No direct action triggering or new input update mode is used; the existing test then checks the actual resulting action edges and commands. The shared gamepad path and fixture restore behavior remain unchanged. This closes a source API omission, not a native pass; root rerun is required.
+
+Input independently source-reviewed the `4b8c43b0` repair against the installed Input System API: SOURCE PASS. No compilation/native execution in that review.
