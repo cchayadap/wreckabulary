@@ -39,13 +39,36 @@ namespace Wreckabulary.Online.Editor
                 AssetGuid = guid, SavedSourceHash = savedSourceHash, Document = document
             }, Settings);
             if (Utf8.GetByteCount(json) > MaximumBytes) throw new ArgumentException("Pending form exceeds the 4 MiB recovery limit.");
+            byte[] bytes = Utf8.GetBytes(json);
             unsavedRecovery[guid] = json;
             Directory.CreateDirectory(Path.GetDirectoryName(path));
+            if (File.Exists(path) && SameBytes(path, bytes))
+            {
+                unsavedRecovery.Remove(guid);
+                return;
+            }
             string temporary = path + ".tmp";
-            File.WriteAllText(temporary, json, Utf8);
+            File.WriteAllBytes(temporary, bytes);
             if (File.Exists(path)) File.Replace(temporary, path, null);
             else File.Move(temporary, path);
             unsavedRecovery.Remove(guid);
+        }
+
+        static bool SameBytes(string path, byte[] bytes)
+        {
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            if (stream.Length != bytes.Length) return false;
+            var buffer = new byte[Math.Min(8192, bytes.Length)];
+            int offset = 0;
+            while (offset < bytes.Length)
+            {
+                int count = stream.Read(buffer, 0, Math.Min(buffer.Length, bytes.Length - offset));
+                if (count == 0) return false;
+                for (int i = 0; i < count; i++)
+                    if (buffer[i] != bytes[offset + i]) return false;
+                offset += count;
+            }
+            return stream.ReadByte() == -1;
         }
 
         public static PendingDraft Load(WordboundCourseAsset asset)

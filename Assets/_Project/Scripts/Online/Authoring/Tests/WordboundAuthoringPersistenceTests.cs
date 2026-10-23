@@ -183,6 +183,46 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void IdenticalDraftBytesAvoidReplacementButChangedLockedContentRemainsRecoverable()
+        {
+            if (Application.platform != RuntimePlatform.WindowsEditor)
+                Assert.Ignore("This native file-sharing regression requires the Windows Editor.");
+            var asset = CreateDraftAsset();
+            var document = asset.ReadDocument();
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+            string path = Path.Combine("Library", "Wordbound", "InspectorDrafts", guid + ".json");
+            byte[] original = File.ReadAllBytes(path);
+            string savedAsset = asset.DocumentJson;
+            using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+                Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
+                document.Title = "New pending content while the old disk file is read-shared";
+                var failure = Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+                TestContext.WriteLine("Changed locked draft save HRESULT: 0x" + failure.HResult.ToString("X8"));
+                Assert.IsTrue(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+                CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
+                Assert.AreEqual(savedAsset, asset.DocumentJson);
+            }
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
+            Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+            Assert.IsFalse(File.Exists(path + ".tmp"));
+            byte[] exact = File.ReadAllBytes(path);
+            var withBom = new byte[exact.Length + 3];
+            withBom[0] = 0xef; withBom[1] = 0xbb; withBom[2] = 0xbf;
+            Buffer.BlockCopy(exact, 0, withBom, 3, exact.Length);
+            File.WriteAllBytes(path, withBom);
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            CollectionAssert.AreEqual(exact, File.ReadAllBytes(path), "Text equality must not accept a different UTF-8 byte representation.");
+            Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
+            Assert.AreEqual(savedAsset, asset.DocumentJson);
+        }
+
+        [Test]
         public void InvalidPendingFormSurvivesClosingInspectorAndRejectedApplyWithoutChangingSavedCourse()
         {
             var asset = CreateDraftAsset();
