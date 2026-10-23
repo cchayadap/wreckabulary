@@ -49,23 +49,23 @@ namespace Wreckabulary.OnlineGameplayTests
             public NetworkRunner Runner => Session.Runner;
         }
 
-        [UnityTest, Category("ExternalPhotonGameplay")]
+        [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
         public IEnumerator TwoAuthenticatedPeersComposeCanonicalBodiesAndCommitClientCommands() => Run(2, false);
 
-        [UnityTest, Category("ExternalPhotonGameplay")]
+        [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
         public IEnumerator FourAuthenticatedPeersComposeCanonicalBodiesAndCommitClientCommands() => Run(4, false);
 
-        [UnityTest, Category("ExternalPhotonGameplay")]
+        [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
         public IEnumerator EightAuthenticatedPeersComposeCanonicalBodiesAndCommitClientCommands() => Run(8, false);
 
-        [UnityTest, Category("ExternalPhotonGameplay")]
+        [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
         public IEnumerator AuthenticatedGameplayRestoresAfterHostDeparture() => Run(2, true);
 
-        [UnityTest, Category("ExternalPhotonGameplay")]
+        [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
         public IEnumerator EightAuthenticatedPeersComposeFlagshipTeamRaceSquad() =>
             Run(8, false, productionMode: "TeamRace", productionFormat: RaceFormat.Squad);
 
-        [UnityTest, Category("ExternalPhotonGameplay")]
+        [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
         public IEnumerator FourAuthenticatedPeersRestoreFlagshipBrawlDuoAfterHostDeparture() =>
             Run(4, true, productionMode: "BrawlRace", productionFormat: RaceFormat.Duo);
 

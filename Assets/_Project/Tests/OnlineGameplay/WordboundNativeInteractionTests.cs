@@ -12,7 +12,7 @@ namespace Wreckabulary.OnlineGameplayTests
 {
     public sealed partial class WordboundNativeGameplayTests
     {
-        [UnityTest, Category("ExternalPhotonGameplay")]
+        [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
         public IEnumerator AuthenticatedPeersJumpCarryCraftEquipAndStrikeProps() => Run(2, false, true);
 
         IEnumerator Interactions(Peer host)
