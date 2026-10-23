@@ -16,6 +16,7 @@ namespace Wreckabulary.Online
         public string MapPoolVersion = "1";
         public WordboundCameraProfile CameraProfile;
         public WordboundVisualProfile VisualProfile;
+        public WordboundUiTheme UiTheme;
         public WordboundCourseAsset WorkshopCourse;
         public NetworkObject PlayerBody;
         public NetworkObject ItemBody;

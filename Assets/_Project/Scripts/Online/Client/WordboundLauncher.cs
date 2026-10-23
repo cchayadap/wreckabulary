@@ -101,7 +101,7 @@ namespace Wreckabulary.Online
                 await client.StartMatch(launch.Coordinator, launch.Verifier, launch.Verified,
                     content.Mode, content.Course, content.Geometry, content.Items, content.Rules,
                     prefabs, Assets.SnapshotChunk, menu.PhotonAppId, scene, launch.FreshJoin,
-                    content.PhysicalPuzzles, cameraProfile: OnlineCameraFor(content), visualProfile: OnlineVisualFor(content));
+                    content.PhysicalPuzzles, cameraProfile: OnlineCameraFor(content), visualProfile: OnlineVisualFor(content), uiTheme: Assets.UiTheme);
                 if (destroying || activeClient != client) return;
                 if (LobbyCamera) LobbyCamera.enabled = false;
             }
@@ -161,6 +161,7 @@ namespace Wreckabulary.Online
                     var authored = Assets.WorkshopCourse;
                     if (authored) authored.CreateContent(authored.Resolve());
                     workshop = gameObject.AddComponent<WordboundWorkshop>();
+                    workshop.Theme = Assets.UiTheme;
                     created = true;
                     workshop.CloseRequested += CloseWorkshop;
                     workshop.PlaytestRequested += PlaytestWorkshop;
@@ -219,7 +220,7 @@ namespace Wreckabulary.Online
                 };
                 workshop.Visible = false;
                 await client.StartLocal(content, prefabs, scene,
-                    cameraProfile: inputs.Camera, visualProfile: inputs.Visual);
+                    cameraProfile: inputs.Camera, visualProfile: inputs.Visual, uiTheme: Assets.UiTheme);
                 if (!destroying && generation == localGeneration && localClient == client && LobbyCamera)
                     LobbyCamera.enabled = false;
             }

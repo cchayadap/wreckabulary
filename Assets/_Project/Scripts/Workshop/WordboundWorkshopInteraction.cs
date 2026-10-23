@@ -42,7 +42,7 @@ namespace Wreckabulary.Workshop
             view.Sync(History.Current, Catalogue);
             view.Frame();
         }
-        void OnDestroy() { view?.Dispose(); view = null; }
+        void OnDestroy() { try { view?.Dispose(); } finally { view = null; ui.Dispose(); } }
         void Frame()
         {
             if (History == null || Catalogue == null) return;
@@ -178,7 +178,7 @@ namespace Wreckabulary.Workshop
             if (sharing || controllerMoving) return;
             var input = Event.current; Vector2 mouse = input.mousePosition - viewport.position;
             bool inside = viewport.Contains(input.mousePosition) &&
-                !(mouse.x < Mathf.Min(448, viewport.width - 8) && mouse.y < 106);
+                !ToolbarReserved.Contains(mouse);
             if (input.type == EventType.ScrollWheel && inside) { view.Zoom(input.delta.y); input.Use(); }
             if (input.type == EventType.MouseDown && inside && (input.button == 1 || input.button == 2))
             {

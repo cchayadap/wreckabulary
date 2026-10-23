@@ -36,6 +36,8 @@ namespace Wreckabulary.Online
         readonly HudPanel statusPanel = new HudPanel(), actionPanel = new HudPanel();
         bool panelsReady;
         public event Action ReturnRequested;
+        public WordboundUiTheme Theme;
+        readonly WordboundUiStyles ui = new WordboundUiStyles();
 
         public void Initialize(WordboundGameplayController gameplay, WordboundPlayerView playerView,
             ItemCatalogue catalogue, ModeDefinition definition, ResolvedCourse resolved, string localActor,
@@ -295,9 +297,12 @@ namespace Wreckabulary.Online
             try
             {
                 if (!panelsReady || Event.current.type == EventType.Layout) PreparePanels();
-                statusPanel.Draw(18, 18, Mathf.Min(380, width - 36), WrappedLabel, GUI.skin.box);
-                actionPanel.Draw(18, height - 18, width - 36, WrappedLabel, GUI.skin.box, bottom: true);
                 if (view.MenuOpen) Menu(width, height, Application.isFocused);
+                else
+                {
+                    statusPanel.Draw(18, 18, Mathf.Min(380, width - 36), WrappedLabel, GUI.skin.box);
+                    actionPanel.Draw(18, height - 18, width - 36, WrappedLabel, GUI.skin.box, bottom: true);
+                }
             }
             finally { GUI.matrix = saved; GUI.enabled = enabled; }
         }
@@ -468,6 +473,7 @@ namespace Wreckabulary.Online
 
         void OnDestroy()
         {
+            ui.Dispose();
             if (controller) { controller.FrameChanged -= ApplyFrame; controller.Faulted -= ConnectionFailed; }
             if (view)
             {

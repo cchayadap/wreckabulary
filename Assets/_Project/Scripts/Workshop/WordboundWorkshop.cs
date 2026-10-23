@@ -18,6 +18,11 @@ namespace Wreckabulary.Workshop
         public event Action<ResolvedCourse> PlaytestRequested;
         public event Action CloseRequested;
         public bool Visible { get; set; } = true;
+        public WordboundUiTheme Theme;
+        readonly WordboundUiStyles ui = new WordboundUiStyles();
+        int styleGeneration;
+        Rect ToolbarRect => ui.ToolbarRect(viewport.size);
+        Rect ToolbarReserved => Rect.MinMaxRect(0, 0, ToolbarRect.xMax + 8, ToolbarRect.yMax + 8);
         WorkshopStorage storage;
         string storageFolder;
         CourseDocument display;
@@ -155,36 +160,40 @@ namespace Wreckabulary.Workshop
         bool Button(string label, string tooltip = null)
         {
             GUI.SetNextControlName(label);
-            return GUILayout.Button(new GUIContent(label, tooltip ?? label), GUILayout.MinHeight(27));
+            return ui.Button(new GUIContent(label, tooltip ?? label), null,
+                GUILayout.MinHeight(label.Contains("\n") ? ui.ModuleHeight : ui.RowHeight));
         }
         string Field(string label, string value)
         {
             GUILayout.Label(label); GUI.SetNextControlName("workshop-text:" + label);
-            return GUILayout.TextField(value, GUILayout.MinHeight(24));
+            return GUILayout.TextField(value, GUILayout.MinHeight(ui.RowHeight));
         }
         void Styles()
         {
-            if (panel != null) return;
-            panel = new GUIStyle(GUI.skin.box) { padding = new RectOffset(10, 10, 10, 10) };
-            heading = new GUIStyle(GUI.skin.label) { fontSize = 17, fontStyle = FontStyle.Bold };
+            if (panel != null && styleGeneration == ui.Generation) return;
+            styleGeneration = ui.Generation;
+            panel = ui.Panel; heading = ui.Heading;
+            viewLabel = importantViewLabel = recoveryText = null;
             normalBox = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.MiddleCenter, wordWrap = true };
-            selectedBox = new GUIStyle(normalBox); selectedBox.normal.textColor = new Color(.45f, 1f, .8f);
+            selectedBox = new GUIStyle(normalBox); selectedBox.normal.textColor = ui.Ink;
             ghostBox = new GUIStyle(normalBox); ghostBox.normal.textColor = new Color(.6f, .6f, .6f);
-            issueBox = new GUIStyle(normalBox); issueBox.normal.textColor = new Color(1f, .55f, .4f);
+            issueBox = new GUIStyle(normalBox); issueBox.normal.textColor = ui.Error;
         }
         void OnGUI()
         {
             if (!Visible || History == null) return;
+            using var themeScope = ui.Apply(Theme);
             if (RecoveryChoicePending) { Styles(); RecoveryPanel(); return; }
             Styles(); Refresh();
             if (OnlineStarting) { OnlinePreparationPanel(); return; }
             if (sharing) { SharePanel(); return; }
             float left = Mathf.Min(220, Screen.width * .22f), right = Mathf.Min(300, Screen.width * .28f);
-            viewport = new Rect(left + 8, 56, Screen.width - left - right - 24, Screen.height - 140);
+            float top = 14 + ui.ChromeHeight, bottom = Screen.height - 32 - ui.ChromeHeight;
+            viewport = new Rect(left + 8, top, Screen.width - left - right - 24, Mathf.Max(1, bottom - top));
             Header();
-            GUILayout.BeginArea(new Rect(8, 56, left - 8, Screen.height - 140), panel); Palette(); GUILayout.EndArea();
+            GUILayout.BeginArea(new Rect(8, viewport.y, left - 8, viewport.height), panel); Palette(); GUILayout.EndArea();
             WorldView();
-            GUILayout.BeginArea(new Rect(Screen.width - right - 8, 56, right, Screen.height - 140), panel); Inspector(); GUILayout.EndArea();
+            GUILayout.BeginArea(new Rect(Screen.width - right - 8, viewport.y, right, viewport.height), panel); Inspector(); GUILayout.EndArea();
             Footer();
             CaptureWorkshopTextFocus();
             if (sharing) SharePanel();
@@ -192,8 +201,8 @@ namespace Wreckabulary.Workshop
         }
         void Header()
         {
-            GUILayout.BeginArea(new Rect(8, 8, Screen.width - 16, 42), panel); GUILayout.BeginHorizontal();
-            GUILayout.Label("Wordbound workshop", heading, GUILayout.Width(190));
+            GUILayout.BeginArea(new Rect(8, 8, Screen.width - 16, ui.ChromeHeight), panel); GUILayout.BeginHorizontal();
+            GUILayout.Label("Wordbound workshop", heading, GUILayout.Width(heading.CalcSize(new GUIContent("Wordbound workshop")).x));
             GUI.SetNextControlName("workshop-text:Course title"); title = GUILayout.TextField(title, GUILayout.MinWidth(140));
             if (Button("Rename")) Edit("Rename", draft => draft.Course.Title = title.Trim());
             GUILayout.Label(PlayRequirements.ModeId, GUILayout.Width(90));
@@ -370,7 +379,7 @@ namespace Wreckabulary.Workshop
         }
         void Footer()
         {
-            GUILayout.BeginArea(new Rect(8, Screen.height - 78, Screen.width - 16, 52), panel); GUILayout.BeginHorizontal();
+            GUILayout.BeginArea(new Rect(8, Screen.height - 26 - ui.ChromeHeight, Screen.width - 16, ui.ChromeHeight), panel); GUILayout.BeginHorizontal();
             GUILayout.Label("Floor " + History.Current.ActiveLayer);
             GUI.enabled = History.CanUndo; if (Button("Undo")) { CancelGesture(); History.Undo(); Refresh(); } GUI.enabled = true;
             GUI.enabled = History.CanRedo; if (Button("Redo")) { CancelGesture(); History.Redo(); Refresh(); } GUI.enabled = true;
@@ -386,7 +395,7 @@ namespace Wreckabulary.Workshop
             }
             GUILayout.EndHorizontal(); GUILayout.EndArea();
             GUI.Label(new Rect(12, Screen.height - 27, Screen.width - 24, 23), status);
-            GUILayout.BeginArea(new Rect(viewport.x + 8, viewport.y + 8, Mathf.Min(440, viewport.width - 16), 90), panel);
+            GUILayout.BeginArea(new Rect(viewport.position + ToolbarRect.position, ToolbarRect.size), panel);
             GUILayout.BeginHorizontal();
             GUI.SetNextControlName("workshop-text:Seed"); seed = GUILayout.TextField(seed, 16);
             if (Button("Set seed")) Edit("Set seed", draft => draft.Seed = seed);

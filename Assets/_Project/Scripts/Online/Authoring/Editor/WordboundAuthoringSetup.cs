@@ -10,6 +10,7 @@ namespace Wreckabulary.Online.Editor
     {
         public const string Folder = "Assets/_Project/Data/Wordbound/Authoring";
         public const string CameraPath = Folder + "/PlayerCamera.asset";
+        public const string ThemePath = Folder + "/Interface.asset";
         public const string VisualPath = Folder + "/Presentation.asset";
         public const string FreestylePath = Folder + "/FreestyleCourse.asset";
         public const string FlagshipPath = Folder + "/FlagshipCourse.asset";
@@ -27,6 +28,11 @@ namespace Wreckabulary.Online.Editor
             EnsureFolder(Folder);
             var camera = Create<WordboundCameraProfile>(CameraPath, value => value.Validate());
             var visual = Create<WordboundVisualProfile>(VisualPath, value => value.Validate());
+            var theme = Create<WordboundUiTheme>(ThemePath, value => {
+                value.BodyFont = Resources.Load<Font>("Fonts/Nunito-ExtraBold");
+                value.HeadingFont = Resources.Load<Font>("Fonts/Nunito-Black");
+                value.Validate();
+            });
             var freestyle = Create<WordboundCourseAsset>(FreestylePath, value => {
                 value.Initialize(CourseTemplates.FreestyleWorld(), CourseTemplates.ProofCatalogue());
                 Bind(value, items, rules, camera, visual);
@@ -36,17 +42,18 @@ namespace Wreckabulary.Online.Editor
                 value.Initialize(content.CopyDocument(), content.Geometry); value.ModeId = "TimeRun";
                 Bind(value, items, rules, camera, visual);
             });
-            camera.Validate(); visual.Validate();
+            camera.Validate(); visual.Validate(); theme.Validate();
             _ = freestyle.CreateContent(freestyle.Resolve());
             _ = flagship.CreateContent(flagship.Resolve());
             var serialized = new SerializedObject(launch);
             AssignIfEmpty(serialized, "CameraProfile", camera);
             AssignIfEmpty(serialized, "VisualProfile", visual);
+            AssignIfEmpty(serialized, "UiTheme", theme);
             AssignIfEmpty(serialized, "WorkshopCourse", flagship);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(launch); AssetDatabase.SaveAssetIfDirty(launch);
             Debug.Log("Wordbound Inspector assets verified. Camera: " + CameraPath + "; visuals: " + VisualPath +
-                "; Freestyle: " + FreestylePath + "; flagship copy: " + FlagshipPath +
+                "; interface: " + ThemePath + "; Freestyle: " + FreestylePath + "; flagship copy: " + FlagshipPath +
                 "; launcher: " + AssetDatabase.GetAssetPath(launch) + ". Existing assignments were preserved.");
         }
         static void Bind(WordboundCourseAsset course, TextAsset items, TextAsset rules,

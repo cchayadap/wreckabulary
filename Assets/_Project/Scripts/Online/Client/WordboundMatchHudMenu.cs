@@ -16,6 +16,7 @@ namespace Wreckabulary.Online
         bool revealMenuSelection, menuHasFocus;
         Action pendingMenuAction;
         string pendingSearch;
+        string menuConnectionStatus = "", menuResultStatus = "";
         float recipeViewportHeight = 180;
         GUIStyle WrappedLabel => wrappedLabel ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
 
@@ -98,12 +99,10 @@ namespace Wreckabulary.Online
         {
             if (Event.current.type == EventType.Layout && GUI.enabled) menuFocus.Register(id);
             bool selected = view.UsesGamepad && menuFocus.Selected == id;
-            Color previous = GUI.backgroundColor;
-            if (selected) GUI.backgroundColor = new Color(.35f, .85f, 1f);
+            var style = selected ? ui.Selected : id == "resume" ? ui.Primary : GUI.skin.button;
             GUI.SetNextControlName("wordbound:" + id);
-            bool clicked = GUILayout.Button((selected ? "› " : "") + label, options);
+            bool clicked = ui.Button(new GUIContent((selected ? "› " : "") + label), style, options);
             if (clicked) menuFocus.CancelConfirmation();
-            GUI.backgroundColor = previous;
             if (selected && Event.current.type == EventType.Repaint)
             {
                 GUI.FocusControl("wordbound:" + id);
@@ -122,16 +121,25 @@ namespace Wreckabulary.Online
 
         void Menu(float width, float height, bool focused)
         {
+            using var themeScope = ui.Apply(Theme);
             menuHasFocus = focused;
             if (!view.UsesGamepad) menuFocus.CancelConfirmation();
-            if (Event.current.type == EventType.Layout) menuFocus.BeginLayout();
-            GUILayout.BeginArea(new Rect((width - 580) / 2, 48, 580, height - 170), GUI.skin.box);
-            GUILayout.Label(journalOpen ? "Collected clues" : crafting ? "Spell equipment" : "Wordbound");
+            if (Event.current.type == EventType.Layout)
+            {
+                menuFocus.BeginLayout();
+                menuConnectionStatus = controller.Fault != "" ? "Connection interrupted · " + returnLabel + " to continue." :
+                    controller.IsSimulationPaused ? "Waiting for the host…" : "";
+                menuResultStatus = frame?.Progress.Result != null ? ResultText(frame.Progress.Result) : "";
+            }
+            GUILayout.BeginArea(ui.MenuRect(width, height), ui.Panel);
+            GUILayout.Label(journalOpen ? "Collected clues" : crafting ? "Spell equipment" : "Wordbound", ui.Heading);
+            if (menuConnectionStatus.Length != 0) GUILayout.Label(menuConnectionStatus, ui.Wrapped);
+            if (menuResultStatus.Length != 0) GUILayout.Label(menuResultStatus, ui.Wrapped);
             GUILayout.Label(view.UsesGamepad
                 ? "D-pad / left stick: select · A: confirm · B: back · Right stick: scroll"
-                : "Choose equipment, craft a word, or return to your game.", WrappedLabel);
+                : "Choose equipment, craft a word, or return to your game.", ui.Wrapped);
             GUI.enabled = controller.Fault == "";
-            if (MenuButton("resume", "Resume", GUILayout.Height(34))) QueueMenuAction(Resume);
+            if (MenuButton("resume", "Resume", GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(Resume);
             GUI.enabled = true;
             if (story && story.Journal.Count > 0)
             {
@@ -148,7 +156,7 @@ namespace Wreckabulary.Online
                 foreach (var clue in story.Journal)
                 {
                     GUILayout.Label("Lap " + clue.Lap + " · " + clue.Chapter);
-                    GUILayout.Label(clue.Place + ": " + clue.Clue, WrappedLabel);
+                    GUILayout.Label(clue.Place + ": " + clue.Clue, ui.Wrapped);
                     GUILayout.Space(8);
                 }
                 GUILayout.EndScrollView();
@@ -173,19 +181,19 @@ namespace Wreckabulary.Online
                     GUI.enabled = !controller.IsSimulationPaused && ready;
                     if (MenuButton("recipe:" + card.Item.Id,
                         card.Item.Id + (ready ? "  ·  Craft" : card.Craftable ? "  ·  Crafting…" : "  ·  Need " + card.Missing),
-                        GUILayout.Height(30)))
+                        GUILayout.MinHeight(ui.RowHeight)))
                     {
                         QueueMenuAction(() => { if (Send(WordboundAction.BeginCraft, value: card.Item.Id)) Resume(); });
                     }
                 }
                 GUI.enabled = true;
-                if (visible == 0) GUILayout.Label("No recipes match. Clear the search to see all equipment.", WrappedLabel);
+                if (visible == 0) GUILayout.Label("No recipes match. Clear the search to see all equipment.", ui.Wrapped);
                 GUILayout.EndScrollView();
                 if (Event.current.type == EventType.Repaint)
                     recipeViewportHeight = Mathf.Max(30, GUILayoutUtility.GetLastRect().height);
             }
             GUI.enabled = true;
-            if (MenuButton("return", returnLabel, GUILayout.Height(32))) QueueMenuAction(() => ReturnRequested?.Invoke());
+            if (MenuButton("return", returnLabel, GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(() => ReturnRequested?.Invoke());
             GUILayout.EndArea();
             if (Event.current.type == EventType.Layout) menuFocus.EndLayout();
         }
@@ -195,7 +203,7 @@ namespace Wreckabulary.Online
             var nearby = WordboundPracticeGuidePlan.Nearest(course, frame, actorId);
             if (nearby != null)
             {
-                GUILayout.Label(WordboundPracticeGuidePlan.Status(frame, nearby), WrappedLabel);
+                GUILayout.Label(WordboundPracticeGuidePlan.Status(frame, nearby), ui.Wrapped);
                 if (!WordboundPracticeGuidePlan.Completed(frame, nearby) && frame.Practice.SiteHash != nearby.Hash &&
                     MenuButton("practice", "Practise " + course.Puzzles.Single(p => p.Id == nearby.PuzzleId).RecipeId + " station"))
                     QueueMenuAction(() => { if (Send(WordboundAction.PracticePuzzle, nearby.Hash)) Resume(); });

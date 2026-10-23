@@ -83,7 +83,7 @@ namespace Wreckabulary.Workshop
         void BeginOverlay()
         {
             viewLabels.Clear(); labelSpace.Clear();
-            labelSpace.Add(new Rect(0, 0, Mathf.Min(448, viewport.width), 106));
+            labelSpace.Add(ToolbarReserved);
         }
 
         void AddViewLabel(CoursePoint position, string caption, string detail, int priority)
@@ -99,7 +99,8 @@ namespace Wreckabulary.Workshop
             {
                 viewLabel = new GUIStyle(normalBox) { wordWrap = false, clipping = TextClipping.Clip, fontSize = 12,
                     padding = new RectOffset(6, 6, 2, 2) };
-                importantViewLabel = new GUIStyle(viewLabel); importantViewLabel.normal.textColor = new Color(.45f, 1f, .8f);
+                importantViewLabel = new GUIStyle(viewLabel); importantViewLabel.normal.textColor = ui.Ink;
+                importantViewLabel.font = heading.font;
             }
             viewLabels.Sort((a, b) => { int priority = b.Priority.CompareTo(a.Priority); return priority != 0 ? priority : string.CompareOrdinal(a.Detail, b.Detail); });
             foreach (var label in viewLabels)

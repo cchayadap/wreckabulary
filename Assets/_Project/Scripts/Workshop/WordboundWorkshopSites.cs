@@ -270,7 +270,7 @@ namespace Wreckabulary.Workshop
             var selected = SelectedSite;
             if (!SiteVisible(selected) || drawingZone || placing != null || sharing) return false;
             var mouse = input.mousePosition - viewport.position;
-            bool inside = viewport.Contains(input.mousePosition) && !(mouse.x < Mathf.Min(448, viewport.width - 8) && mouse.y < 106);
+            bool inside = viewport.Contains(input.mousePosition) && !ToolbarReserved.Contains(mouse);
             if (siteDrag == null && input.type == EventType.MouseDown && input.button == 0 && inside)
             {
                 foreach (var handle in SiteHandles(selected))

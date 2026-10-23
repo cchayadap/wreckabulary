@@ -55,6 +55,8 @@ namespace Wreckabulary.Online.Tests
             finally
             {
                 if (window) window.Close();
+                var hud = root.GetComponent<WordboundMatchHud>();
+                if (hud) ((WordboundUiStyles)Field("ui").GetValue(hud)).Dispose();
                 Object.DestroyImmediate(root);
                 if (pad != null && pad.added) InputSystem.RemoveDevice(pad);
                 if (previousPad != null && previousPad.added) previousPad.MakeCurrent();
