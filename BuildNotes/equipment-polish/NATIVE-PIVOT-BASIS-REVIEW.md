@@ -1,6 +1,6 @@
 # Native articulated-pivot basis investigation
 
-STATUS: IN PROGRESS — read-only source/numerical investigation; no asset or assertion changes
+STATUS: SOURCE REPAIR — native matrices confirm retained local basis; focused native rerun pending
 
 Root `TestResults/editmode_20261023T122055Z.xml` records three failed basis comparisons: FAN_Rotor 1.25027609, CLOCK_HourHand 1.24342656 and CLOCK_MinuteHand 1.24197376 at basis column 1. Origin comparisons ran first and did not fail. The independent detailed dimensions/grips/material budgets, map settings and exact 27 renderer totals passed. This separates the basis disagreement from demonstrated geometry/budget failure; it does not yet establish the correct conversion.
 
@@ -17,3 +17,9 @@ A bounded, read-only binary FBX parser inspected the actual two frozen FBX files
 ## Prediction awaiting native matrices
 
 Let `C` swap Y/Z (the known source-world point conversion) and `F=diag(1,1,-1,1)` reflect local Z. The current test expects `C*M*C`. A retained FBX local basis predicts `C*M*F`, with a native root equivalent to +90° X. Its column-1 disagreement with the current expectation is exactly the length of source column1 minus source column2. The predicted magnitudes agree with the three existing failure magnitudes to float rounding. This remains a sign/basis hypothesis until the focused native output confirms all matrix columns. Origin/bounds alone cannot settle that distinction.
+
+## Native confirmation and bounded fixture correction
+
+`TestResults/editmode_20261023T123439Z.xml` now records each full matrix. The model root is +90° X to float rounding. FAN_Rotor columns are `(1,0,0)`, `(0,0,.7552871)` and `(0,-.9963592,0)`; the origin is `(0,.5579612,.0562688)`. Both CLOCK hands also retain their local Y-rotation basis and match the independently predicted `C*M*F`. The previous `C*M*C` expectation incorrectly assumed the exporter had baked the global conversion into each retained local basis.
+
+The fixture now computes `C*M*F`. The 0.001 m origin tolerance, 0.001 basis tolerance, all three basis comparisons and separate articulated mesh-ownership checks remain unchanged. No models, import settings, source transforms or material files are modified. Maps, dimensions and renderer counts passed again in this native run; the three pivot tests still require their focused rerun. This technical correction does not change the owner's rejection of DetailV2 appearance.

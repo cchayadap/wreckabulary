@@ -170,7 +170,8 @@ namespace Wreckabulary.EditorTests
                     blender[row, column] = rowMajor[row * 4 + column];
             var axes = new Matrix4x4(new Vector4(1, 0, 0, 0), new Vector4(0, 0, 1, 0),
                 new Vector4(0, 1, 0, 0), new Vector4(0, 0, 0, 1));
-            return axes * blender * axes;
+            var retainedLocalAxes = Matrix4x4.Scale(new Vector3(1, 1, -1));
+            return axes * blender * retainedLocalAxes;
         }
 
         static TextureImporter Importer(string file) =>
