@@ -1,6 +1,6 @@
 # Original-based Wreckabulary art pilot
 
-STATUS: V1 REJECTED; V2 BUILD AND FIRST PAIR REVIEWED — more views and owner acceptance pending
+STATUS: V1 REJECTED; V2 DETAIL REVIEW FAILED SEAM SMOOTHNESS — V3 repair source prepared, owner acceptance pending
 
 The owner rejected DetailV2 and identified the original Wreckabulary game artwork as the reference. This pilot starts with those original bytes. It does not replace runtime assets, overwrite either Wordbound revision, or establish that any artwork is ready to ship. Root owns the serial Blender/render slot.
 
@@ -27,6 +27,8 @@ In the viewed V2 pair, the floating inner/lower loops and cream seat-trim protru
 V2 evidence: blend SHA-256 `8047e5018b04c9d421d8688f7a445d778adf003dfb1dde7ff0c9fa54a3e85da2`; original PNG `f501ba6a7aa72a4e2cedca51934c2f9891f132309f2e5257aba3f085985f8ecf`; candidate PNG `5afb8e150c8d6e1b411cfa8390781ab2aa684fd0bd8858a7b7ee068eb5869dda`. Recorded rendering times are 98.484 s original and 111.366 s candidate at 960 pixels, 64 samples and six threads. See root `ArtSource/Collections/WordboundPvP/OriginalBasedPilotV2/PILOT-REVIEW.html` and its per-image receipts. Root owns all native execution; this lane performed read-only artifact verification and image inspection.
 
 ## Exact root-owned commands
+
+**Superseded for new generation:** V2 was later inspected from the side and in close-up by root and this lane. The close-up reveals a kinked top-left seam and awkward angular lower run, so V2 is not accepted. Preserve it; do not render remaining V2 views. Use [the V3 repair and exact new-destination commands](ORIGINAL-BASED-SOFA-V3-REPAIR.md). The V2 commands below are retained as historical provenance only.
 
 Run only after the current heavy gate releases. These commands assume the script commit is integrated into root. The build refuses an existing destination and verifies the exact original SOFA hash. It writes only the new `OriginalBasedPilotV2` folder. A failed/abandoned build is preserved; choose a new numbered revision instead of deleting or overwriting it.
 

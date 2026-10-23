@@ -171,14 +171,49 @@ def back_welt(obj, target, material):
     radius = .0013
     plane_center = center + normal * (half[2] * .55)
     reach = max(half[0], half[1]) * 2 + .02
-    values = []
+    section = []
     for i in range(256):
         angle = math.tau * i / 256
         radial = (horizontal * (half[0] * math.cos(angle)) + vertical * (half[1] * math.sin(angle))).normalized()
-        hit, hit_normal, _, _ = surface.ray_cast(plane_center + radial * reach, -radial, reach * 2)
+        hit, _, _, _ = surface.ray_cast(plane_center + radial * reach, -radial, reach * 2)
         if hit is None:
             raise RuntimeError("Cushion panel seam missed actual surface: " + obj.name)
-        values.append(hit + hit_normal * (radius * .45))
+        section.append(hit)
+    projected = np.array([((p-plane_center).dot(horizontal), (p-plane_center).dot(vertical)) for p in section])
+    section_center = (projected.min(axis=0) + projected.max(axis=0)) / 2
+    projected -= section_center
+    plane_center += horizontal * float(section_center[0]) + vertical * float(section_center[1])
+    width, height = np.abs(projected).max(axis=0)
+    candidates = np.linspace(.002, min(width, height) * .95, 600)
+    best_radius, best_error, best_residual = None, float("inf"), None
+    for corner_radius in candidates:
+        delta = np.abs(projected) - np.array((width-corner_radius, height-corner_radius))
+        residual = np.linalg.norm(np.maximum(delta, 0), axis=1) + np.minimum(np.maximum(delta[:, 0], delta[:, 1]), 0) - corner_radius
+        error = float(np.mean(residual * residual))
+        if error < best_error:
+            best_radius, best_error, best_residual = float(corner_radius), error, float(np.max(np.abs(residual)))
+    values = []
+    corners = ((width-best_radius, height-best_radius, 0), (-width+best_radius, height-best_radius, 90),
+               (-width+best_radius, -height+best_radius, 180), (width-best_radius, -height+best_radius, 270))
+    for index, (x, z, start) in enumerate(corners):
+        for i in range(65):
+            angle = math.radians(start + i * 90 / 64)
+            outward = horizontal * math.cos(angle) + vertical * math.sin(angle)
+            values.append(plane_center + horizontal * float(x) + vertical * float(z) + outward * (best_radius + radius * .30))
+        end = values[-1]
+        nx, nz, nstart = corners[(index+1) % 4]
+        next_angle = math.radians(nstart)
+        next_outward = horizontal * math.cos(next_angle) + vertical * math.sin(next_angle)
+        next_start = plane_center + horizontal * float(nx) + vertical * float(nz) + next_outward * (best_radius + radius * .30)
+        for i in range(1, 64):
+            values.append(end.lerp(next_start, i / 64))
+    turns = []
+    for i, point in enumerate(values):
+        incoming = point-values[i-1]
+        outgoing = values[(i+1) % len(values)]-point
+        turns.append(math.degrees(incoming.angle(outgoing)))
+    if max(turns) > 1.5:
+        raise RuntimeError("Fitted upholstery seam has a visible angular change: " + obj.name + " " + str(max(turns)))
     contact = []
     for i, point in enumerate(values):
         next_point = values[(i + 1) % len(values)]
@@ -204,9 +239,12 @@ def back_welt(obj, target, material):
     curve.materials.append(material)
     welt = bpy.data.objects.new(obj.name.replace("Cushion", "Welt"), curve)
     target.objects.link(welt)
-    welt["construction"] = "1.3 mm matching-fabric welt on actual cushion side band where front cover joins boxing; original cushion geometry retained"
+    welt["construction"] = "1.3 mm matching-fabric welt with smooth fitted side-band section and strict actual-surface contact; original cushion geometry retained"
     audit = {"part": welt.name, "radius_metres": radius, "surface_section_depth_fraction": .55,
              "curve_points": len(values), "contact_probes": len(contact),
+             "measured_section_points": len(section), "fitted_corner_radius_metres": best_radius,
+             "fit_maximum_2d_residual_metres": best_residual,
+             "maximum_polyline_turn_degrees": max(turns),
              "min_signed_surface_distance_metres": min(contact),
              "max_signed_surface_distance_metres": max(contact),
              "maximum_allowed_absolute_distance_metres": radius * .75}
