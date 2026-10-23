@@ -73,9 +73,9 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Export and deploy the exact 36-entry public catalogue (nine mode/format combinations, four seeds). Deployment and module/catalogue readback pass; live HTTP party allocation/content admission and cleanup pass. Native Photon gameplay remains below.
 - [~] Public Time Run: exact public entry, two authenticated scripted clients, movement, command and durable acknowledgement pass. Sustained full-match and human acceptance remain open.
 - [~] Public Team Race: two authenticated Solo parties pass entry, remote movement, command and exact durable acknowledgement in both native203305 and203605. Duo/Squad, full matches and clean-team isolation acceptance remain open.
-- [ ] Public Brawl Race: Solo/Duo/Squad, intact parties and enemy combat.
-- [ ] Public FFA: multiple humans, individual scoring and respawns.
-- [ ] Public Freestyle: multiple humans, shared exploration/practice, no damage/timer/winner.
+- [~] Public Brawl Race: Solo213856 fails initial snapshot transfer at14,209ms against the unchanged10,000ms limit. Header identity passes; completed payload validation, Duo/Squad and enemy combat remain open.
+- [~] Public FFA: two authenticated scripted individuals pass public entry, remote movement, command and exact durable ACK in213856. Actual scoring, respawns, full outcomes and capacity remain open.
+- [~] Public Freestyle: two authenticated scripted players with Fill enabled pass public entry/movement/command/ACK in213856. Shared practice/rewards/no teammate damage separately pass private212947. Sustained public practice and capacity remain open.
 - [ ] Prove public allocator use without private-code substitution, bots or silent solo fallback.
 - [ ] Verify automatic custom-map upload/download, exact content validation and retention after host departure.
 - [ ] Verify full four/eight-player flagship gameplay, reconnect and automatic host replacement.
@@ -96,7 +96,9 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T21:28Z
+## Current verification — 2026-10-23T21:50Z
+
+Native213856 passes2/3 public cases: FFA and Freestyle PASS; BrawlSolo FAIL on stale transfer age, with cleanup0 and no crash-after-quit. Evidence: `BuildNotes/client-view/native-public-three-20261023.json`. The next body-source lookup source passes R0, but core214428 is147/156 because nine new Item fixtures fail before reaching validation. Independently reviewed test-only repair975b4d14 is integrated asbb737f10; rerun pending. No performance improvement or production acceptance is claimed.
 
 | Work | State and exact evidence |
 | --- | --- |

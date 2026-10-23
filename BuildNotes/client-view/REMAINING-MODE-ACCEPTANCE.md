@@ -16,11 +16,11 @@ All public methods below use prefix `Wreckabulary.OnlineGameplayTests.WordboundN
 | PublicTeamRacePreservesWholeSoloParties | 2 / false | PASS, 203305Z and 203605Z; intermittent prior failures preserved |
 | PublicTeamRacePreservesWholeDuoParties | 4 / false | No case result found in saved XML |
 | PublicTeamRacePreservesWholeSquadParties | 8 / false | No case result found in saved XML |
-| PublicBrawlRacePreservesWholeSoloParties | 2 / false | Historical FAIL, 141231Z; current rerun needed |
+| PublicBrawlRacePreservesWholeSoloParties | 2 / false | FAIL213856Z: initial snapshot transfer age14,209ms/10,000ms; full matrix remains open |
 | PublicBrawlRacePreservesWholeDuoParties | 4 / false | No case result found in saved XML |
 | PublicBrawlRacePreservesWholeSquadParties | 8 / false | No case result found in saved XML |
-| PublicFreeForAllAllocatesTwoIndividuals | 2 / false | Historical FAIL, 141231Z; current rerun needed |
-| PublicFreestyleFillsTwoRealHumansWithCoopRules | 2 / true | Historical FAIL, 141231Z; current rerun needed |
+| PublicFreeForAllAllocatesTwoIndividuals | 2 / false | PASS213856Z: bounded public entry/movement/command/ACK; full scored outcome open |
+| PublicFreestyleFillsTwoRealHumansWithCoopRules | 2 / true | PASS213856Z: bounded public entry/movement/command/ACK; sustained public practice open |
 
 ## Smallest next execution, after timing blockers
 
@@ -69,3 +69,7 @@ The current authored-transfer helper explicitly permits only two private TimeRun
 Recovery remains separate: four existing `ExternalPhotonRecoveryGameplay` cases use injected timeout shutdown/election/credential failures; graceful host-stop fixtures are not process crashes. Actual loss during pickup/craft/lap/final delivery, two/four/eight peers under measured latency/loss, separate machines and ten-second recovery/two-second rewind acceptance remain open. The six-family native puzzle pass is a prerequisite, not three full flagship laps. Windows result/HUD/return, sustained performance and owner control/visual acceptance are also separate.
 
 Next recoverable action: after root accepts the timing/performance state, run the seven exact existing public filters above; then authorize one two-peer Freestyle or FFA behavior slice with a concrete real-input plan. Preserve current compact TimeRun as the known passing full-pipeline regression rather than extending it during public failure diagnosis.
+
+## 2026-10-23T21:50:00Z execution update
+
+The three existing public mode routes ran in213856: FFA55.969s and Freestyle48.756s PASS, BrawlSolo40.122s FAIL on unchanged initial-transfer age limit. Exact headers agree but complete reconstruction is not proven. Cleanup0/no crash-after-quit. Five combinations still lack a passing result: BrawlSolo plus Team/Brawl Duo/Squad. Private shared Freestyle212947 separately verifies actual cooperative station/reward/inventory/no-damage behavior. The next bounded run retries Brawl after the measured validation change and corrected core fixtures.
