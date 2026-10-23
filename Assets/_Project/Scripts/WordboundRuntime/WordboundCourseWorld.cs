@@ -17,6 +17,7 @@ namespace Wreckabulary.WordboundRuntime
         const int MaxSurfaces = 32768;
         readonly Dictionary<string, Transform> anchors = new Dictionary<string, Transform>(StringComparer.Ordinal);
         readonly List<Collider> surfaces = new List<Collider>();
+        readonly List<Mesh> surfaceMeshes = new List<Mesh>();
         WordboundCourseWorldOptions options;
         bool disposed;
 
@@ -67,8 +68,22 @@ namespace Wreckabulary.WordboundRuntime
             gameObject.SetActive(false);
             anchors.Clear();
             surfaces.Clear();
+            ReleaseSurfaceMeshes();
             if (Application.isPlaying) Destroy(gameObject);
             else DestroyImmediate(gameObject);
+        }
+
+        void OnDestroy() => ReleaseSurfaceMeshes();
+
+        void ReleaseSurfaceMeshes()
+        {
+            foreach (var mesh in surfaceMeshes)
+                if (mesh)
+                {
+                    if (Application.isPlaying) Destroy(mesh);
+                    else DestroyImmediate(mesh);
+                }
+            surfaceMeshes.Clear();
         }
 
         void Construct(CourseCatalogue catalogue)
@@ -123,7 +138,8 @@ namespace Wreckabulary.WordboundRuntime
             foreach (var piece in pieces)
                 Box(WordboundCourseNodeKind.Floor, module.Id, module.Id, "",
                     new Vector3(piece.center.x, min.y - FloorThickness / 2, piece.center.y),
-                    new Vector3(piece.width, FloorThickness, piece.height), Quaternion.identity, parent, FloorMaterial());
+                    new Vector3(piece.width, FloorThickness, piece.height), Quaternion.identity, parent, FloorMaterial(),
+                    options.FloorMaterial == null ? Art.Surfaces.Kind.Planks : (Art.Surfaces.Kind?)null);
         }
 
         void BuildWalls(ResolvedCourseModule module, float height, Transform parent)
@@ -166,7 +182,8 @@ namespace Wreckabulary.WordboundRuntime
                     Vector3 size = fixedX ? new Vector3(WallThickness, piece.height, piece.width) :
                         new Vector3(piece.width, piece.height, WallThickness);
                     Box(WordboundCourseNodeKind.Wall, module.Id, module.Id, "", centre, size,
-                        Quaternion.identity, parent, WallMaterial());
+                        Quaternion.identity, parent, WallMaterial(),
+                        options.WallMaterial == null ? Art.Surfaces.Kind.Plaster : (Art.Surfaces.Kind?)null);
                 }
             }
         }
@@ -187,7 +204,8 @@ namespace Wreckabulary.WordboundRuntime
             Box(WordboundCourseNodeKind.Connection, connection.Id, connection.FromModuleId, connection.GatePuzzleId,
                 (a + b) / 2 - normal * FloorThickness / 2,
                 new Vector3(connection.WidthMm / 1000f, FloorThickness, Vector3.Distance(a, b)),
-                rotation, node, ConnectorMaterial());
+                rotation, node, ConnectorMaterial(),
+                options.ConnectorMaterial == null ? Art.Surfaces.Kind.Wood : (Art.Surfaces.Kind?)null);
         }
 
         Transform Anchor(WordboundCourseNodeKind kind, string id, string module, Vector3 position,
@@ -202,7 +220,8 @@ namespace Wreckabulary.WordboundRuntime
         }
 
         void Box(WordboundCourseNodeKind kind, string id, string module, string gate,
-            Vector3 position, Vector3 size, Quaternion rotation, Transform parent, Material material)
+            Vector3 position, Vector3 size, Quaternion rotation, Transform parent, Material material,
+            Art.Surfaces.Kind? surface = null)
         {
             if (surfaces.Count >= MaxSurfaces) throw new InvalidOperationException("Course surface budget exceeded.");
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -210,6 +229,14 @@ namespace Wreckabulary.WordboundRuntime
             go.transform.SetParent(parent, false);
             SetCoursePose(go.transform, position, rotation);
             go.transform.localScale = size;
+            if (surface.HasValue)
+            {
+                var mesh = Art.Surfaces.CreateBox(size, Art.Surfaces.Tile(surface.Value),
+                    surface.Value == Art.Surfaces.Kind.Wood ? (Vector3?)null : position,
+                    surface.Value == Art.Surfaces.Kind.Wood);
+                surfaceMeshes.Add(mesh);
+                go.GetComponent<MeshFilter>().sharedMesh = mesh;
+            }
             go.GetComponent<MeshRenderer>().sharedMaterial = material;
             var collider = go.GetComponent<BoxCollider>();
             var tag = Tag(go, kind, id, module, gate);

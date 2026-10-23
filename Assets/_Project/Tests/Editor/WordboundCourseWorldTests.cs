@@ -214,6 +214,219 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void DefaultSurfaceUvsUseOriginalMetreScaleAcrossCutoutsAndTransformedParents()
+        {
+            var catalogue = CourseTemplates.ProofCatalogue();
+            var course = Resolve(CourseTemplates.RaceCircuit(), catalogue, "TimeRun");
+            parent.transform.SetPositionAndRotation(new Vector3(20, 3, -10), Quaternion.Euler(0, 90, 0));
+            world = WordboundCourseWorld.Build(course, catalogue, parent.transform);
+            var topCorners = new List<(Collider surface, Vector3 point, Vector2 uv)>();
+            var floorWidths = new HashSet<float>();
+            int wallVertices = 0;
+            foreach (var surface in world.Surfaces)
+            {
+                var kind = Node(surface).Kind;
+                if (kind != WordboundCourseNodeKind.Floor && kind != WordboundCourseNodeKind.Wall) continue;
+                var mesh = surface.GetComponent<MeshFilter>().sharedMesh;
+                var vertices = mesh.vertices; var normals = mesh.normals; var uv = mesh.uv;
+                if (kind == WordboundCourseNodeKind.Floor) floorWidths.Add(surface.transform.localScale.x);
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    var point = world.ToCourse(surface.transform.TransformPoint(vertices[i]));
+                    if (kind == WordboundCourseNodeKind.Floor && normals[i] == Vector3.up)
+                    {
+                        Assert.That(uv[i].x, Is.EqualTo(point.x / 4f).Within(.0001f));
+                        Assert.That(uv[i].y, Is.EqualTo(point.z / 1.2f).Within(.0001f));
+                        topCorners.Add((surface, point, uv[i]));
+                    }
+                    else if (kind == WordboundCourseNodeKind.Wall && Mathf.Abs(normals[i].y) < .01f)
+                    {
+                        float across = Mathf.Abs(normals[i].z) > .99f ? point.x : point.z;
+                        Assert.That(uv[i].x, Is.EqualTo(across / 3f).Within(.0001f));
+                        Assert.That(uv[i].y, Is.EqualTo(point.y / 3f).Within(.0001f));
+                        wallVertices++;
+                    }
+                }
+            }
+            Assert.Greater(floorWidths.Count, 1, "Actual cutouts must exercise unequal surface sizes.");
+            Assert.Greater(wallVertices, 0);
+            Assert.Greater(topCorners.Max(c => c.uv.x) - topCorners.Min(c => c.uv.x), 1f,
+                "A whole course must not stretch one stock cube UV repeat.");
+            int sharedCorners = 0;
+            for (int a = 0; a < topCorners.Count; a++)
+                for (int b = a + 1; b < topCorners.Count; b++)
+                    if (topCorners[a].surface != topCorners[b].surface &&
+                        Vector3.Distance(topCorners[a].point, topCorners[b].point) < .0001f)
+                    {
+                        Assert.That(Vector2.Distance(topCorners[a].uv, topCorners[b].uv), Is.LessThan(.0001f),
+                            "A floor cutout must not restart the pattern on adjacent pieces.");
+                        sharedCorners++;
+                    }
+            Assert.Greater(sharedCorners, 0, "The real split floor must exercise a shared seam.");
+        }
+
+        [TestCase("Stairs"), TestCase("Ramp")]
+        public void DefaultConnectorUvsFollowActualSlopedLengthWithoutChangingEndpoints(string kind)
+        {
+            var catalogue = CourseTemplates.ProofCatalogue();
+            var document = CourseTemplates.RaceCircuit();
+            var authored = document.Connections.Single(c => c.Id == "UpA");
+            authored.Kind = kind;
+            authored.From = new CoursePoint(5000, 0, -3000);
+            authored.To = new CoursePoint(-5000, 6000, -3000);
+            parent.transform.SetPositionAndRotation(new Vector3(-7, 2, 15), Quaternion.Euler(0, 90, 0));
+            world = WordboundCourseWorld.Build(Resolve(document, catalogue, "TimeRun"), catalogue, parent.transform);
+            var connection = world.Course.Connections.Single(c => c.Id == "UpA");
+            var surface = world.Surfaces.Single(c => Node(c).Kind == WordboundCourseNodeKind.Connection &&
+                Node(c).StableId == connection.Id);
+            var mesh = surface.GetComponent<MeshFilter>().sharedMesh;
+            var normals = mesh.normals; var uv = mesh.uv;
+            var top = Enumerable.Range(0, mesh.vertexCount).Where(i => normals[i] == Vector3.up).ToArray();
+            Assert.AreEqual(4, top.Length);
+            var from = world.ToWorld(connection.From); var to = world.ToWorld(connection.To);
+            Assert.That(top.Max(i => uv[i].x) - top.Min(i => uv[i].x),
+                Is.EqualTo(Vector3.Distance(from, to) / 2f).Within(.0001f), "Wood grain follows the full slope.");
+            Assert.That(top.Max(i => uv[i].y) - top.Min(i => uv[i].y),
+                Is.EqualTo(connection.WidthMm / 2000f).Within(.0001f));
+            Assert.That(Vector3.Distance(surface.transform.TransformPoint(new Vector3(0, .5f, -.5f)), from),
+                Is.LessThan(.0001f));
+            Assert.That(Vector3.Distance(surface.transform.TransformPoint(new Vector3(0, .5f, .5f)), to),
+                Is.LessThan(.0001f));
+            Assert.AreEqual(new Bounds(Vector3.zero, Vector3.one), mesh.bounds);
+            Assert.AreEqual(Vector3.zero, ((BoxCollider)surface).center);
+            Assert.AreEqual(Vector3.one, ((BoxCollider)surface).size);
+        }
+
+        [Test]
+        public void DefaultUvMeshesPreserveCustomSurfacesPhysicsAndBorrowedMaterials()
+        {
+            var catalogue = CourseTemplates.ProofCatalogue();
+            var course = Resolve(CourseTemplates.RaceCircuit(), catalogue, "TimeRun");
+            string manifest = CourseJson.ExportManifest(course);
+            parent.transform.SetPositionAndRotation(new Vector3(13, 2, -8), Quaternion.Euler(0, 90, 0));
+            int callbacks = 0;
+            options.ConfigureCollision = (_, __) => callbacks++;
+            world = WordboundCourseWorld.Build(course, catalogue, parent.transform, options);
+            var before = world.Surfaces.ToDictionary(c => c.name, c =>
+            {
+                var box = (BoxCollider)c;
+                Assert.AreSame(material, c.GetComponent<MeshRenderer>().sharedMaterial);
+                return (position: c.transform.position, rotation: c.transform.rotation, scale: c.transform.localScale,
+                    centre: box.center, size: box.size, mesh: c.GetComponent<MeshFilter>().sharedMesh);
+            });
+            Assert.AreEqual(before.Count, callbacks);
+            world.Dispose();
+            Assert.IsTrue(material != null);
+            callbacks = 0;
+            var defaults = new WordboundCourseWorldOptions { ConfigureCollision = (_, __) => callbacks++ };
+            world = WordboundCourseWorld.Build(course, catalogue, parent.transform, defaults);
+            Assert.AreEqual(before.Count, callbacks);
+            Assert.AreEqual(manifest, CourseJson.ExportManifest(world.Course));
+            var shared = world.Surfaces.ToDictionary(c => c.name, c =>
+            {
+                var previous = before[c.name]; var box = (BoxCollider)c;
+                var mesh = c.GetComponent<MeshFilter>().sharedMesh;
+                Assert.AreEqual(previous.position, c.transform.position);
+                Assert.AreEqual(previous.rotation, c.transform.rotation);
+                Assert.AreEqual(previous.scale, c.transform.localScale);
+                Assert.AreEqual(previous.centre, box.center);
+                Assert.AreEqual(previous.size, box.size);
+                Assert.AreEqual(previous.mesh.bounds, mesh.bounds);
+                Assert.IsNull(c.GetComponent<MeshCollider>());
+                Assert.AreNotSame(previous.mesh, mesh, "Only default rendering changes from the stock cube.");
+                return (mesh, uv: mesh.uv, material: c.GetComponent<MeshRenderer>().sharedMaterial);
+            });
+            world.Dispose();
+            foreach (var entry in shared.Values)
+            {
+                Assert.IsTrue(entry.mesh == null, "World disposal releases its generated UV mesh.");
+                Assert.IsTrue(entry.material != null);
+            }
+            world = WordboundCourseWorld.Build(course, catalogue, parent.transform, defaults);
+            foreach (var surface in world.Surfaces)
+            {
+                var mesh = surface.GetComponent<MeshFilter>().sharedMesh;
+                Assert.AreNotSame(shared[surface.name].mesh, mesh);
+                CollectionAssert.AreEqual(shared[surface.name].uv, mesh.uv);
+                Assert.AreSame(shared[surface.name].material, surface.GetComponent<MeshRenderer>().sharedMaterial);
+            }
+            world.Dispose();
+            world = WordboundCourseWorld.Build(course, catalogue, parent.transform, options);
+            foreach (var surface in world.Surfaces)
+            {
+                Assert.AreSame(before[surface.name].mesh, surface.GetComponent<MeshFilter>().sharedMesh);
+                Assert.AreSame(material, surface.GetComponent<MeshRenderer>().sharedMaterial);
+            }
+        }
+
+        [Test]
+        public void UncachedSurfaceFactoryMatchesOriginalBoxWithoutOwningBorrowedCache()
+        {
+            var size = new Vector3(3, .24f, 7); var tile = new Vector2(2, 2);
+            var origin = new Vector3(9, 3, -7);
+            var borrowed = Art.Surfaces.Box(size, tile, origin, true);
+            int count = Art.Surfaces.MeshCount;
+            var owned = Art.Surfaces.CreateBox(size, tile, origin, true);
+            try
+            {
+                Assert.AreNotSame(borrowed, owned);
+                Assert.AreEqual(count, Art.Surfaces.MeshCount);
+                Assert.AreEqual(borrowed.bounds, owned.bounds);
+                CollectionAssert.AreEqual(borrowed.vertices, owned.vertices);
+                CollectionAssert.AreEqual(borrowed.normals, owned.normals);
+                CollectionAssert.AreEqual(borrowed.tangents, owned.tangents);
+                CollectionAssert.AreEqual(borrowed.uv, owned.uv);
+                CollectionAssert.AreEqual(borrowed.triangles, owned.triangles);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(owned); }
+            Assert.IsTrue(borrowed != null);
+            Assert.AreSame(borrowed, Art.Surfaces.Box(size, tile, origin, true));
+        }
+
+        [Test]
+        public void ChangingCoursesReleaseUvMeshesOnDisposeParentDestructionAndConstructionFailure()
+        {
+            var proof = CourseTemplates.ProofCatalogue();
+            var borrowed = Art.Surfaces.Box(Vector3.one, Vector2.one);
+            int cachedMeshes = Art.Surfaces.MeshCount;
+            for (int revision = 0; revision < 3; revision++)
+            {
+                var catalogue = new CourseCatalogue(new[] {
+                    new CourseModuleDefinition("Room", 20000 + revision * 1000, 20000, 4000)
+                }, proof.Assets.Values, proof.PuzzlePresets, proof.Themes, proof.NarrativeEvents);
+                var document = CourseTemplates.CombatArena();
+                document.Modules[0].Position = new CoursePoint(revision * 500, 0, revision * 250);
+                world = WordboundCourseWorld.Build(Resolve(document, catalogue, "FreeForAll"), catalogue, parent.transform);
+                var meshes = world.Surfaces.Select(c => c.GetComponent<MeshFilter>().sharedMesh).ToArray();
+                var materials = world.Surfaces.Select(c => c.GetComponent<MeshRenderer>().sharedMaterial).ToArray();
+                Assert.Greater(meshes.Length, 0);
+                Assert.AreEqual(cachedMeshes, Art.Surfaces.MeshCount, "Course changes must not grow the original mesh cache.");
+                if (revision == 1)
+                {
+                    UnityEngine.Object.DestroyImmediate(parent);
+                    parent = new GameObject("CourseFixtureAfterParentDestruction");
+                }
+                else world.Dispose();
+                Assert.IsTrue(meshes.All(m => m == null), "Every owned native mesh must be destroyed.");
+                Assert.IsTrue(materials.All(m => m != null), "Shared original materials are borrowed.");
+                Assert.IsTrue(borrowed != null);
+            }
+            var failedMeshes = new List<Mesh>();
+            var fail = new WordboundCourseWorldOptions { ConfigureCollision = (collider, _) =>
+            {
+                failedMeshes.Add(collider.GetComponent<MeshFilter>().sharedMesh);
+                if (failedMeshes.Count == 3) throw new InvalidOperationException("fixture failure after owned meshes");
+            }};
+            var course = Resolve(CourseTemplates.CombatArena(), proof, "FreeForAll");
+            Assert.Throws<InvalidOperationException>(() => WordboundCourseWorld.Build(course, proof, parent.transform, fail));
+            Assert.AreEqual(3, failedMeshes.Count);
+            Assert.IsTrue(failedMeshes.All(m => m == null));
+            Assert.AreEqual(0, parent.transform.childCount);
+            Assert.AreEqual(cachedMeshes, Art.Surfaces.MeshCount);
+            Assert.IsTrue(borrowed != null);
+        }
+
+        [Test]
         public void UnsupportedTraversalAndWrongCatalogueFailBeforeCreatingGeometry()
         {
             var catalogue = CourseTemplates.ProofCatalogue();

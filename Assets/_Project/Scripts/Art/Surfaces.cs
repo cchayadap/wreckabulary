@@ -33,6 +33,7 @@ namespace Wreckabulary.Art
         public static Vector2 Tile(Kind kind) => specs[kind].Tile;
 
         public static int TextureCount => textures.Count;
+        public static int MeshCount => meshes.Count;
 
         public static Color Hex(uint rgb) => new Color32((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb, 255);
 
@@ -62,10 +63,16 @@ namespace Wreckabulary.Art
         }
 
         public static Mesh Box(Vector3 size, Vector2 tile, Vector3? at = null, bool grainAlongLength = false)
+            => BuildBox(size, tile, at, grainAlongLength, true);
+
+        public static Mesh CreateBox(Vector3 size, Vector2 tile, Vector3? at = null, bool grainAlongLength = false)
+            => BuildBox(size, tile, at, grainAlongLength, false);
+
+        static Mesh BuildBox(Vector3 size, Vector2 tile, Vector3? at, bool grainAlongLength, bool cache)
         {
             var origin = at ?? size * .5f;
             string key = $"{size.x:0.###},{size.y:0.###},{size.z:0.###}|{tile.x:0.###},{tile.y:0.###}|{(at.HasValue ? $"{origin.x:0.###},{origin.y:0.###},{origin.z:0.###}" : "-")}|{grainAlongLength}";
-            if (meshes.TryGetValue(key, out var cached) && cached) return cached;
+            if (cache && meshes.TryGetValue(key, out var cached) && cached) return cached;
             var vertices = new List<Vector3>(24);
             var normals = new List<Vector3>(24);
             var uvs = new List<Vector2>(24);
@@ -89,14 +96,15 @@ namespace Wreckabulary.Art
                 }
                 triangles.AddRange(new[] { first, first + 1, first + 2, first, first + 2, first + 3 });
             }
-            var mesh = new Mesh { name = "Surface box " + key, hideFlags = HideFlags.DontUnloadUnusedAsset };
+            var mesh = new Mesh { name = "Surface box " + key,
+                hideFlags = cache ? HideFlags.DontUnloadUnusedAsset : HideFlags.DontSave };
             mesh.SetVertices(vertices);
             mesh.SetNormals(normals);
             mesh.SetUVs(0, uvs);
             mesh.SetTriangles(triangles, 0);
             mesh.RecalculateBounds();
             mesh.RecalculateTangents();
-            meshes[key] = mesh;
+            if (cache) meshes[key] = mesh;
             return mesh;
         }
 

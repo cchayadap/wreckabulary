@@ -33,7 +33,7 @@ Implement only in `Assets/_Project/Scripts/WordboundRuntime/WordboundCourseWorld
 Meaningful acceptance before integration:
 
 - Native mesh assertions for actual course-generated surfaces: metre-based UV differences on two unequal floor sizes and split pieces; consistent seams across one cutout; wall/connector axes and slopes; exact mesh bounds, transforms and unchanged BoxCollider geometry. Exercise custom-material input explicitly.
-- Reuse existing cached mesh/material facilities, with no new per-frame work or full-screen texture generation. Verify shared identities and repeated build/dispose behavior under the existing cache contract.
+- Reuse the existing mesh builder and shared materials, with no new per-frame work or full-screen texture generation. Variable course-position meshes need explicit world ownership rather than permanent global-cache retention; verify rebuild/disposal behavior.
 - Root-owned matched ready capture with the same build settings, seed, avatar/camera pose and 1280×720 frame: board scale should read as small original-style timber, with no stretched stripes, missing faces, dark normals, seam discontinuities or text/readability regression. Inspect a floor opening and sloped connector as well as the starting room. Camera and lighting stay controlled.
 - Then a small original-only native arrangement or route-facing capture containing SOFA, FAN, HAMMER and BAT plus avatar at actual dimensions, followed by one held view. Confirm pale sage, powder-blue, steel/wood separation, rounded silhouettes, grounding and grips against original icons/showcase. These missing views remain acceptance work; this report does not imply they exist.
 
@@ -54,3 +54,23 @@ No-code review remains through the assigned visual profile's **Base Artwork → 
 | 204132 workshop PNG | `AD72EBA2592686855CB8E79D0156CA3C76E17E10B78BE01D0CAEF85D3D7BE8D0` |
 
 Parent subsequently authorized the bounded surface-UV implementation after this report checkpoint. That will be a separate source/test commit and independent review; implementation and native/visual acceptance are not completed by this audit.
+
+## Authorized source follow-up
+
+Status: implementation complete, independent bounded SOURCE PASS from Input; compiler/native/visible checks NOT RUN here. Audit-only checkpoint: `addc493e`. Pre-edit `WordboundCourseWorld.cs` SHA-256 `DFE76968B01A86E4CBFF9959E8DDEFF476ED8EB7D3CF07659CC16C5FF912D53B` and existing test file `C6251DEA6187030AA2CC48D24BC3CDE5DA2F79DE821A099ABD274C05FDAE29F5` matched integration exactly. Original `Surfaces.cs` Git blob also matched integration: `d49187f681e76a0cee2850d7adeec4ad8cf13c2c`. No baseline adoption is required.
+
+The separate implementation changes only the default surfaces' MeshFilter mesh: original metre-based mapping, course-space origin for adjacent floor/wall pieces, local connector mapping with grain along its actual sloped length. It does not write UVs into a shared stock mesh. Non-null author material overrides retain their previous primitive mesh/UV behavior. Renderer material references, physical cube dimensions, transforms, collider, tags and callback order are unchanged.
+
+Independent Input review found a concrete blocker in the first uncommitted implementation: `Surfaces.Box` caches every origin/size forever with `DontUnloadUnusedAsset`, so changing workshop drafts would retain native meshes. Same-key rebuild assertions did not cover that growth. Root authorized a bounded additional `Art/Surfaces.cs` extension. Existing `Box` retains its original cached behavior; new `CreateBox` uses the exact same builder without reading/inserting global mesh-cache entries. Only a read-only `MeshCount` observation is added. World-owned meshes are registered immediately and released on explicit Dispose, direct OnDestroy and failed construction; editor destruction is immediate, player destruction uses the normal deferred Destroy. Borrowed materials and original cached meshes are not destroyed. No per-frame work is added.
+
+Six new native cases in existing `Assets/_Project/Tests/Editor/WordboundCourseWorldTests.cs`:
+
+- `DefaultSurfaceUvsUseOriginalMetreScaleAcrossCutoutsAndTransformedParents`: actual RaceCircuit split pieces, unequal widths, metre-derived floor/wall coordinates, shared corner continuity, rotated/translated parent. The old stretched UV path cannot satisfy these numeric expectations.
+- `DefaultConnectorUvsFollowActualSlopedLengthWithoutChangingEndpoints` (Stairs and Ramp): reversed slope, wood repeat derived from true 3D length, width, actual top endpoints and unchanged unit mesh/collider bounds.
+- `DefaultUvMeshesPreserveCustomSurfacesPhysicsAndBorrowedMaterials`: compares actual custom-material stock surfaces with default mapped surfaces, retaining transforms/BoxCollider/bounds/manifest/callback count; verifies custom behavior, owned-mesh destruction, deterministic rebuilt UVs and borrowed material identity.
+- `UncachedSurfaceFactoryMatchesOriginalBoxWithoutOwningBorrowedCache`: exact vertices, normals, tangents, UVs, triangles and bounds parity with the original cached builder; independent ownership and no new cache entry.
+- `ChangingCoursesReleaseUvMeshesOnDisposeParentDestructionAndConstructionFailure`: three actual room origins/sizes, stable global cache count, direct parent destruction, disposal and an exception after three created surfaces; all owned meshes destroyed and borrowed cache/materials retained.
+
+Root native filter: `Wreckabulary.Tests.WordboundCourseWorldTests` (17 cases including the existing 11), with existing `Wreckabulary.Tests.SurfacesTests` (4 cases) for shared material/texture mapping and outward normal/tangent coverage if root elects the combined targeted run. Source whitespace check passes. These counts describe the source inventory, not execution. Lifecycle tests exercise Editor native destruction; the deferred player path still needs runtime acceptance. Visible acceptance remains the matched capture and original-item views specified above.
+
+Input independently re-reviewed the final source/tests and closed the cache-growth finding: factory math remains unchanged, owned registration precedes callback risk, disposal paths are idempotent, and only owned meshes are released. The reviewer found no further source blocker and explicitly withheld compile/native/visual acceptance. No camera, lighting, wardrobe, model, pilot, course content or kit edit is part of this source patch. The unrelated untracked focused-first-attempt log remains preserved.
