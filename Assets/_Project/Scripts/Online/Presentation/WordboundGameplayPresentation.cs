@@ -41,6 +41,7 @@ namespace Wreckabulary.Online
         public string Fault { get; private set; } = "";
         public event Action<string> Failed;
         public int VisualCount => views.Count;
+        public WordboundVisualResolver ArtworkResolver => resolver;
 
         public void Initialize(WordboundVisualResolver artwork)
         {

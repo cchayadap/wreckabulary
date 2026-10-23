@@ -19,6 +19,9 @@ namespace Wreckabulary.Qa
         readonly List<Transform> anchors = new List<Transform>();
         readonly Dictionary<string, string> savedPrefs = new Dictionary<string, string>();
         readonly List<string> absentPrefs = new List<string>();
+        readonly List<Dictionary<string, object>> artwork = new List<Dictionary<string, object>>();
+        WordboundGameplayPresentation presentation;
+        WordboundVisualResolver resolver;
         WordboundPlayerView view;
         WordboundMatchHud hud;
         Camera camera;
@@ -37,6 +40,9 @@ namespace Wreckabulary.Qa
         public int HeldItems => held.Count;
         public int RendererCount { get; private set; }
         public long ItemTriangles { get; private set; }
+        public string BaseArtworkSource { get; private set; }
+        public string VisualProfileName { get; private set; }
+        public IReadOnlyList<Dictionary<string, object>> Artwork => artwork.AsReadOnly();
 
         public void ConfigureDisplay()
         {
@@ -67,8 +73,11 @@ namespace Wreckabulary.Qa
         {
             if (Ready || !client || !client.Gameplay || !client.Gameplay.CourseWorld)
                 throw new QaFailException("The exact local flagship must be running before creating the synthetic workload.");
-            var collection = WordboundEquipmentCollection.Load();
-            if (!collection || collection.Entries.Count != 12) throw new QaFailException("The detailed equipment collection is not loaded.");
+            presentation = client.GetComponent<WordboundGameplayPresentation>();
+            resolver = presentation ? presentation.ArtworkResolver : null;
+            RequireArtwork();
+            BaseArtworkSource = resolver.UseWordboundCollection ? "wordbound_equipment" : "original_wreckabulary";
+            VisualProfileName = resolver.Profile ? resolver.Profile.name : "(none; legacy caller policy)";
             var world = client.Gameplay.CourseWorld;
             var module = world.Course.Geometry.Where(m => m.Bounds.Max.X - m.Bounds.Min.X >= 18000 &&
                 m.Bounds.Max.Z - m.Bounds.Min.Z >= 16000).OrderByDescending(m =>
@@ -87,23 +96,17 @@ namespace Wreckabulary.Qa
             viewStateCaptured = true;
             view.enabled = false; hud.enabled = false;
             camera.fieldOfView = 60; GraphicsOptions.ApplyTo(camera);
-            var resolver = new WordboundVisualResolver(items);
             for (int i = 0; i < Equipment.Length; i++)
             {
-                var entry = collection.Find(Equipment[i]);
-                RequireDetailedEntry(entry);
                 var anchor = new GameObject("Synthetic render actor " + i).transform;
                 anchor.SetParent(transform, false); anchors.Add(anchor);
                 var actor = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor);
                 actors.Add(actor); actor.Dress(""); motions.Add(new WordboundAvatarMotion(actor));
                 var item = items.Get(Equipment[i]);
-                var equipment = resolver.Create(Equipment[i], new Vector3(item.Size[0], item.Size[1], item.Size[2]), anchor);
+                string skin = resolver.SkinFor(Equipment[i], actor.Outfit);
+                var equipment = resolver.Create(Equipment[i], new Vector3(item.Size[0], item.Size[1], item.Size[2]), anchor, skin);
                 held.Add(equipment);
-                var sourceMeshes = entry.model.GetComponentsInChildren<MeshFilter>(true).Select(m => m.sharedMesh).ToArray();
-                var meshes = equipment.Model.GetComponentsInChildren<MeshFilter>(true).Select(m => m.sharedMesh).ToArray();
-                if (!sourceMeshes.SequenceEqual(meshes)) throw new QaFailException("The measured held item did not use the selected collection meshes.");
-                foreach (var mesh in meshes)
-                    for (int sub = 0; sub < mesh.subMeshCount; sub++) ItemTriangles += (long)mesh.GetIndexCount(sub) / 3;
+                ObserveArtwork(Equipment[i], skin, equipment);
             }
             RendererCount = GetComponentsInChildren<Renderer>(true).Length;
             label = "SYNTHETIC RENDER TEST | 8 animated actors + 8 held items | local world actors: " +
@@ -111,19 +114,96 @@ namespace Wreckabulary.Qa
             Ready = true; SetPose(0, 0); Animate = true;
         }
 
-        static void RequireDetailedEntry(WordboundEquipmentCollection.Entry entry)
+        public void RequireArtwork()
         {
-            if (entry == null || !entry.model) throw new QaFailException("A required equipment model is missing.");
-            bool detailed = entry.model.GetComponentsInChildren<Renderer>(true).SelectMany(r => r.sharedMaterials).Any(material => {
-                if (!material || !material.HasProperty("_BumpMap") || !material.HasProperty("_MetallicGlossMap") ||
-                    !material.IsKeywordEnabled("_NORMALMAP") || !material.IsKeywordEnabled("_METALLICSPECGLOSSMAP")) return false;
-                var color = material.GetTexture("_BaseMap"); var normal = material.GetTexture("_BumpMap");
-                var mask = material.GetTexture("_MetallicGlossMap");
-                return color && normal && mask && color.width == 512 && color.height == 256 &&
-                    normal.width == 512 && normal.height == 256 && mask.width == 512 && mask.height == 256;
-            });
-            if (!detailed) throw new QaFailException(entry.itemId + " is not using the detailed normal/mask material set.");
+            if (!presentation || presentation.Fault != "" || resolver == null ||
+                !ReferenceEquals(presentation.ArtworkResolver, resolver))
+                throw new QaFailException("The synthetic artwork must use the initialized resolver of the running local world.");
         }
+
+        void ObserveArtwork(string id, string skin, WordboundVisualInstance visual)
+        {
+            var replacement = resolver.Profile?.Overrides?.SingleOrDefault(candidate => candidate != null && candidate.VisualKey == id);
+            string modelKey = replacement == null ? resolver.ModelKey(id) : "";
+            var collection = replacement == null && resolver.UseWordboundCollection && skin == Skin.Standard
+                ? WordboundEquipmentCollection.Load() : null;
+            var entry = collection ? collection.FindByModelKey(modelKey) : null;
+            GameObject source = replacement != null ? replacement.Model : entry != null ? entry.model : ModelLibrary.Load()?.Find(modelKey);
+            string sourceKind = replacement != null ? "profile_override" : entry != null ? "wordbound_equipment" : "original_model_library";
+            if (!source) throw new QaFailException("The selected artwork source is missing for " + id + ".");
+            var meshes = Meshes(visual.Model);
+            if (meshes.Length == 0 || meshes.Any(mesh => !mesh) || !Meshes(source).SequenceEqual(meshes))
+                throw new QaFailException("The measured " + id + " did not use its selected " + sourceKind + " mesh assets.");
+            var meshFacts = new List<object>();
+            foreach (var mesh in meshes)
+            {
+                long triangles = 0;
+                var submeshes = new List<object>();
+                for (int sub = 0; sub < mesh.subMeshCount; sub++)
+                {
+                    long indices = mesh.GetIndexCount(sub);
+                    var topology = mesh.GetTopology(sub);
+                    if (topology == MeshTopology.Triangles) triangles += indices / 3;
+                    submeshes.Add(new Dictionary<string, object> { ["topology"] = topology.ToString(), ["index_count"] = indices });
+                }
+                ItemTriangles += triangles;
+                meshFacts.Add(new Dictionary<string, object> {
+                    ["name"] = mesh.name, ["vertices"] = mesh.vertexCount, ["triangles"] = triangles, ["submeshes"] = submeshes });
+            }
+            var materialFacts = new List<object>();
+            var sourceRenderers = source.GetComponentsInChildren<Renderer>(true);
+            var renderers = visual.Model.GetComponentsInChildren<Renderer>(true);
+            if (sourceRenderers.Length != renderers.Length) throw new QaFailException("Artwork renderer count changed for " + id + ".");
+            for (int r = 0; r < renderers.Length; r++)
+            {
+                var materials = renderers[r].sharedMaterials;
+                var sourceMaterials = sourceRenderers[r].sharedMaterials;
+                if (materials.Length != sourceMaterials.Length) throw new QaFailException("Artwork material slots changed for " + id + ".");
+                for (int slot = 0; slot < materials.Length; slot++)
+                {
+                    var material = materials[slot];
+                    if (!material || !material.shader) throw new QaFailException("The measured artwork has a missing material/shader: " + id);
+                    if (replacement != null)
+                    {
+                        var expected = slot < replacement.Materials.Length && replacement.Materials[slot]
+                            ? replacement.Materials[slot] : sourceMaterials[slot];
+                        if (material != expected) throw new QaFailException("The measured override material slot differs for " + id + ".");
+                    }
+                    materialFacts.Add(new Dictionary<string, object> {
+                        ["renderer"] = renderers[r].name, ["renderer_index"] = r, ["slot"] = slot,
+                        ["name"] = material.name, ["shader"] = material.shader.name,
+                        ["base_color"] = ColorFact(material, "_BaseColor"),
+                        ["metallic"] = FloatFact(material, "_Metallic"), ["smoothness"] = FloatFact(material, "_Smoothness"),
+                        ["normal_keyword"] = material.IsKeywordEnabled("_NORMALMAP"),
+                        ["metallic_gloss_keyword"] = material.IsKeywordEnabled("_METALLICSPECGLOSSMAP"),
+                        ["base_map"] = TextureFact(material, "_BaseMap"),
+                        ["normal_map"] = TextureFact(material, "_BumpMap"),
+                        ["metallic_gloss_map"] = TextureFact(material, "_MetallicGlossMap") });
+                }
+            }
+            artwork.Add(new Dictionary<string, object> {
+                ["item"] = id, ["skin"] = skin, ["source"] = sourceKind, ["model_key"] = modelKey,
+                ["source_model"] = source.name, ["spawned_model"] = visual.Model.name,
+                ["selected_source_meshes_verified"] = true, ["meshes"] = meshFacts, ["materials"] = materialFacts });
+        }
+
+        static Mesh[] Meshes(GameObject model) => model.GetComponentsInChildren<MeshFilter>(true).Select(filter => filter.sharedMesh)
+            .Concat(model.GetComponentsInChildren<SkinnedMeshRenderer>(true).Select(renderer => renderer.sharedMesh)).ToArray();
+
+        static object TextureFact(Material material, string property)
+        {
+            var texture = material.HasProperty(property) ? material.GetTexture(property) : null;
+            return texture ? new Dictionary<string, object> { ["name"] = texture.name, ["width"] = texture.width, ["height"] = texture.height } : null;
+        }
+
+        static object ColorFact(Material material, string property)
+        {
+            if (!material.HasProperty(property)) return null;
+            var color = material.GetColor(property);
+            return new[] { color.r, color.g, color.b, color.a };
+        }
+
+        static object FloatFact(Material material, string property) => material.HasProperty(property) ? (object)material.GetFloat(property) : null;
 
         void LateUpdate()
         {

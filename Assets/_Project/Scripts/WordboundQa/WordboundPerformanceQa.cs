@@ -84,7 +84,10 @@ namespace Wreckabulary.Qa
             context.Note("total_world_and_synthetic_actors", client.Gameplay.Frame.Actors.Count + workload.SyntheticActors);
             context.Note("remote_network_peers", 0); context.Note("local_session_count", 1);
             context.Note("equipment", string.Join(",", WordboundPerformanceWorkload.Equipment));
-            context.Note("collection_detail_materials_and_selected_meshes_verified", true);
+            context.Note("artwork_resolver", "same initialized instance as the running local world");
+            context.Note("base_artwork_source", workload.BaseArtworkSource);
+            context.Note("visual_profile", workload.VisualProfileName);
+            context.Note("held_item_artwork", workload.Artwork);
             context.Note("synthetic_renderer_count", workload.RendererCount); context.Note("held_item_triangles", workload.ItemTriangles);
             context.Note("camera_module", workload.ModuleId); context.Note("width", Screen.width); context.Note("height", Screen.height);
             context.Note("camera_path", "fixed room center; height6.5m, z=-11.5m, x=0.8*sin(t*0.18); FOV60");
@@ -150,6 +153,7 @@ namespace Wreckabulary.Qa
         void RequireHealthy()
         {
             workload.RequireDisplay();
+            workload.RequireArtwork();
             if (!Application.isFocused) throw new QaFailException("The presented performance player lost focus.");
             if (!client || !client.Gameplay || client.Gameplay.Fault != "" || client.Gameplay.IsSimulationPaused ||
                 !client.Gameplay.CourseWorld || client.Gameplay.Frame == null ||
