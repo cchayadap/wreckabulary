@@ -166,18 +166,18 @@ namespace Wreckabulary.Online
             if (observe)
             {
                 bool clear = ClearLine(fixture.Canonical, clock.Rigidbody.position + Vector3.up * .5f,
-                    fixture.Rigidbody.worldCenterOfMass, true, out var line, clock, fixture);
+                    WordboundClockLineTarget.FromCollider(fixture.Rigidbody), true, out var line, clock, fixture);
                 ReportNativeClock(frame, clock, fixture, clear ? WordboundClockDecisionKind.Applied :
                     line.BufferFull ? WordboundClockDecisionKind.LineBufferFull : WordboundClockDecisionKind.LineBlocked,
                     true, true, source, query, true, definition.Deploy, line);
                 return clear;
             }
             return ClearLine(fixture.Canonical, clock.Rigidbody.position + Vector3.up * .5f,
-                fixture.Rigidbody.worldCenterOfMass, clock, fixture);
+                WordboundClockLineTarget.FromCollider(fixture.Rigidbody), clock, fixture);
 #else
             return WordboundFieldPolicy.Contains(definition.Deploy, Pose(clock), query) &&
                 ClearLine(fixture.Canonical, clock.Rigidbody.position + Vector3.up * .5f,
-                    fixture.Rigidbody.worldCenterOfMass, clock, fixture);
+                    WordboundClockLineTarget.FromCollider(fixture.Rigidbody), clock, fixture);
 #endif
         }
 
