@@ -421,6 +421,7 @@ namespace Wreckabulary.OfflineGameplayTests
             profiler?.Dispose(); profiler = null;
             lifetime?.Cancel();
             movement = default;
+            DetachRouteClock();
             activeRoute = null;
             if (tickAdapter) tickAdapter.TickStarting = null;
             tickAdapter = null;

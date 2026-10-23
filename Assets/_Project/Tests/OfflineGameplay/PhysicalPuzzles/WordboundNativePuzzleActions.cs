@@ -39,6 +39,87 @@ namespace Wreckabulary.OfflineGameplayTests
             public long LastInjectedRunnerTick = -1, LastSteeredCanonicalTick = -1, MaximumSteeringCanonicalGap;
             public int Injections, PostPhysicsInputMatches, PostPhysicsInputMismatches, Polls, LastPollFrame = -1, PollsThisFrame, MaximumPollsPerFrame;
             public WordboundMovementInput InjectedInput;
+            public string ClockFixtureId = "", ClockObservationFailure = "";
+            public int ClockDecisions, ClockTickObservations, OmittedClockTransitions;
+            public long FirstClockTick = -1, LastClockTick = -1;
+            public readonly long[] ClockKindCounts = new long[Enum.GetValues(typeof(WordboundClockDecisionKind)).Length];
+            public readonly WordboundClockDecision?[] FirstClockKinds = new WordboundClockDecision?[Enum.GetValues(typeof(WordboundClockDecisionKind)).Length];
+            public readonly List<WordboundClockDecision> ClockTransitions = new List<WordboundClockDecision>();
+            public WordboundClockDecision? LastClockDecision;
+        }
+
+        void ObserveRouteClock(RouteObservation route)
+        {
+            if (content.Course.Puzzles.Single(p => p.Id == route.Site.PuzzleId).PresetId != "TimedMechanism") return;
+            Assert.IsNull(runtime.NativeClockDecision, "The fixture must own its CLOCK observation subscription.");
+            Assert.IsEmpty(runtime.NativeClockDiagnosticError);
+            route.ClockFixtureId = CourseFixtureMotion.BodyId(route.Site.Fixtures.Single().Id, 0);
+            runtime.NativeClockFixtureId = route.ClockFixtureId;
+            runtime.NativeClockDecision = RecordClockDecision;
+        }
+
+        void RecordClockDecision(WordboundClockDecision decision)
+        {
+            var route = activeRoute;
+            if (route == null || route.ClockFixtureId == "") return;
+            if (decision.Epoch != route.Epoch) route.ClockObservationFailure = "ClockEpochChanged";
+            if (decision.CompletedTick < route.LastClockTick) route.ClockObservationFailure = "ClockTickRegressed";
+            if (route.FirstClockTick < 0) route.FirstClockTick = decision.CompletedTick;
+            if (decision.CompletedTick != route.LastClockTick) route.ClockTickObservations++;
+            route.LastClockTick = decision.CompletedTick;
+            route.ClockDecisions++;
+            int kind = (int)decision.Kind;
+            route.ClockKindCounts[kind]++;
+            if (!route.FirstClockKinds[kind].HasValue) route.FirstClockKinds[kind] = decision;
+            bool changed = !route.LastClockDecision.HasValue ||
+                route.LastClockDecision.Value.Kind != decision.Kind ||
+                route.LastClockDecision.Value.SourceInstance != decision.SourceInstance ||
+                route.LastClockDecision.Value.FixtureInstance != decision.FixtureInstance ||
+                route.LastClockDecision.Value.Line.BlockerInstance != decision.Line.BlockerInstance;
+            if (changed)
+            {
+                if (route.ClockTransitions.Count == 24)
+                { route.ClockTransitions.RemoveAt(0); route.OmittedClockTransitions++; }
+                route.ClockTransitions.Add(decision);
+            }
+            route.LastClockDecision = decision;
+        }
+
+        void DetachRouteClock()
+        {
+            if (runtime == null) return;
+            runtime.NativeClockDecision = null;
+            runtime.NativeClockFixtureId = null;
+        }
+
+        static string ClockDecisionDetails(WordboundClockDecision decision)
+        {
+            var line = decision.Line;
+            return "prePhysicsCompletedTick=" + decision.CompletedTick + ",epoch=" + decision.Epoch + ",kind=" + decision.Kind +
+                ",sourceInstance=" + decision.SourceInstance + ",fixtureInstance=" + decision.FixtureInstance +
+                ",collision=" + decision.CollisionEvaluated + "/" + decision.CollisionAllowed +
+                ",containment=" + decision.ContainmentEvaluated + "/" + decision.ContainmentAllowed +
+                ",sourcePosition=" + Vector(decision.SourcePosition).ToString("F6") + ",fixturePosition=" + Vector(decision.FixturePosition).ToString("F6") +
+                ",radius=" + decision.Radius.ToString("F6") + ",arcDegrees=" + decision.ArcDegrees.ToString("F6") +
+                ",lineEvaluated=" + line.Evaluated + ",lineFrom=" + line.From.ToString("F6") + ",lineTo=" + line.To.ToString("F6") +
+                ",lineHits=" + line.HitCount + "/" + line.Capacity + ",lineBufferFull=" + line.BufferFull +
+                ",hasBlocker=" + line.HasBlocker + ",blockerInstance=" + line.BlockerInstance + ",blockerLayer=" + line.BlockerLayer +
+                ",blockerDistance=" + line.BlockerDistance.ToString("F6") + ",blockerCourseSurface=" + line.BlockerCourseSurface +
+                ",blockerRegisteredBody=" + line.BlockerRegisteredBody + ",blockerKind=" + line.BlockerKind;
+        }
+
+        string ClockDetails(RouteObservation route)
+        {
+            if (route.ClockFixtureId == "") return "; clockDecisionObservation=not requested";
+            return "; clockFixture=" + route.ClockFixtureId + "; clockDecisions=" + route.ClockDecisions +
+                "; clockTickObservations=" + route.ClockTickObservations + "; firstClockPrePhysicsTick=" + route.FirstClockTick +
+                "; lastClockPrePhysicsTick=" + route.LastClockTick + "; clockRuntimeObserverError=" + runtime.NativeClockDiagnosticError +
+                "; clockFixtureObserverError=" + route.ClockObservationFailure + "; clockKindCounts=" +
+                string.Join(",", route.ClockKindCounts.Select((count, index) => ((WordboundClockDecisionKind)index) + ":" + count)) +
+                "; clockFirstKinds=" + string.Join(" | ", route.FirstClockKinds.Where(value => value.HasValue).Select(value => ClockDecisionDetails(value.Value))) +
+                "; clockTransitionTail=" + string.Join(" | ", route.ClockTransitions.Select(ClockDecisionDetails)) +
+                "; clockOmittedTransitions=" + route.OmittedClockTransitions + "; clockLastDecision=" +
+                (route.LastClockDecision.HasValue ? ClockDecisionDetails(route.LastClockDecision.Value) : "none");
         }
 
         WordboundMovementInput ReadScriptedMovement()
@@ -248,7 +329,7 @@ namespace Wreckabulary.OfflineGameplayTests
                     "; recipeActive=" + (recipe && recipe.Canonical.Active) + "; recipeKinematic=" + (recipe && recipe.Rigidbody.isKinematic) +
                     "; armNative=" + arm + "; targets=" + points +
                     "; transitions=" + string.Join(" | ", route.Transitions) + "; firstArrivalSupport=" + route.FirstArrivalSupport +
-                    "; finalSupport=" + RouteSupport(actor.Rigidbody.position);
+                    "; finalSupport=" + RouteSupport(actor.Rigidbody.position) + ClockDetails(route);
             }
             catch (Exception error) { return "routeDetailsUnavailable=" + error.GetType().Name; }
         }
@@ -561,6 +642,7 @@ namespace Wreckabulary.OfflineGameplayTests
             activeRoute = observation;
             try
             {
+                ObserveRouteClock(observation);
                 while (Mechanism(site).Physical.Stage != MatchPhysicalStage.Complete &&
                     Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
                 {
@@ -578,6 +660,12 @@ namespace Wreckabulary.OfflineGameplayTests
                 movement = default;
                 entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, Vector(Player.Position));
                 Debug.Log("WORDBOUND_PHYSICAL_ROUTE: " + RouteDetails(observation));
+                if (observation.ClockFixtureId != "")
+                {
+                    Assert.IsEmpty(runtime.NativeClockDiagnosticError, "The real CLOCK decision observer must not fail silently.");
+                    Assert.IsEmpty(observation.ClockObservationFailure);
+                    Assert.Greater(observation.ClockDecisions, 0, "CLOCK traversal must observe actual pre-physics field decisions.");
+                }
                 Assert.IsEmpty(observation.SteeringFailure, "Tick-local scripted input must remain valid.");
                 Assert.Greater(observation.Injections, 0, "Traversal must use actual local input ticks.");
                 Assert.AreEqual(observation.Injections, observation.PostPhysicsInputMatches,
@@ -589,6 +677,7 @@ namespace Wreckabulary.OfflineGameplayTests
             finally
             {
                 movement = default;
+                DetachRouteClock();
                 if (ReferenceEquals(activeRoute, observation)) activeRoute = null;
             }
         }
