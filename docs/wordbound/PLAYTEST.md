@@ -58,7 +58,7 @@ The party screen also uses D-pad/left stick, A and B. The default guest name wor
 4. To use an edited map, leave the current party, open **Workshop**, choose a supported mode/team size and select **Host online**. This validates and shares the exact draft and resolved map with a new private party. Invite friends, ready up and create/start the private room there.
 5. Use the gameplay menu's **Return to party** before leaving or changing the party. An uncertain request exposes **Retry same action**, which reuses the pending request rather than creating another room.
 
-Private edited maps do not become approved public maps. Public matchmaking activation and the new controller routes still need the final assembled native tests and Windows build acceptance; this guide is not evidence those checks passed.
+Private edited maps do not become approved public maps. The approved public catalogue is deployed and public matchmaking is enabled. Successful gameplay across every supported mode and team size, plus the Windows mouse/controller routes, still needs final acceptance.
 
 Follow the current objective and its world markers. Craft the named object from collected letters, place it at the marked controls, then use it. Carry the keepsake through the ordered checkpoints and lap finish.
 
@@ -72,4 +72,4 @@ Follow the current objective and its world markers. Craft the named object from 
 - Use validation messages to locate missing links or invalid placements. Incomplete drafts can be edited and saved; they must validate before playtesting.
 - **Share** exports the course JSON. A locked seed preserves the same generated preview.
 
-Private online sessions are being verified separately. Public matchmaking is not enabled yet; its approved map assignment and service activation remain part of delivery preparation.
+Current native testing includes a bounded public Time Run pass with authenticated scripted clients. Team Race / Solo still fails during snapshot transfer; the other public mode/team-size combinations are not yet accepted. Private edited-map testing is separate. These results do not establish production readiness or a tested Windows release.
