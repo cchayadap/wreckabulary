@@ -55,3 +55,11 @@ Next: root imports the final revision, executes native material/presentation che
 - [x] Independently confirm authored entry can overwrite an existing draft before recovery; implement root-authorized explicit recovery choice and archive-before-new-course protection.
 - [x] Prepare 11 focused native Editor regressions and update the guide/report; source/diff checks pass.
 - [ ] Root integrates only the repair delta, reviews it, compiles and runs recovery + existing workshop/saved-authoring checks; implementation/native UI acceptance remains pending.
+
+## Owner visual rejection and original-game comparison
+
+- [x] Record DetailV2 appearance as owner-rejected; preserve both Wordbound revisions and original game assets.
+- [x] Inspect the original game showcase and all twelve original item icons against the twelve DetailV2 renders; confirm original SOFA/FAN model and SOFA/FAN/BED icon bytes match untouched main.
+- [x] Save ORIGINAL-GAME-VISUAL-REVIEW.md with exact references, observed regressions and a small original-based SOFA/FAN pilot brief.
+- [ ] Root schedules approved pilot production and matched Unity/source review. No new assets/rendering or full-set redesign has started.
+- [~] Pivot-basis source investigation is preserved in 430da89; actual native matrices remain pending. Camera help clarification is 8404b04. Broader template binding work is paused before implementation at root's instruction.
