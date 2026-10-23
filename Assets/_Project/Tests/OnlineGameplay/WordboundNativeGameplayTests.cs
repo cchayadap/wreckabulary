@@ -362,13 +362,7 @@ namespace Wreckabulary.OnlineGameplayTests
 
         static NetworkProjectConfig Configuration()
         {
-            var config = new NetworkProjectConfig { PeerMode = NetworkProjectConfig.PeerModes.Multiple };
-            foreach (var source in NetworkProjectConfig.Global.PrefabTable.Prefabs) config.PrefabTable.AddSource(source);
-            config.HostMigration.EnableAutoUpdate = false;
-            config.Network.ReliableDataTransferModes = NetworkConfiguration.ReliableDataTransfers.ClientToServer;
-            config.Simulation.TickRateSelection = new TickRate.Selection {
-                Client = 60, ClientSendInterval = 1, ServerTickInterval = 1, ServerSendInterval = 1
-            };
+            var config = WordboundFusionConfiguration.Create();
             Assert.AreEqual(TickRate.ValidateResult.Ok, config.Simulation.TickRateSelection.Validate());
             return config;
         }
@@ -414,6 +408,9 @@ namespace Wreckabulary.OnlineGameplayTests
             {
                 Assert.AreEqual(peers.Count, peer.Runner.ActivePlayers.Count());
                 Assert.AreEqual(peer.Actor, peer.Runner.GetPlayerUserId(peer.Runner.LocalPlayer));
+                Assert.AreEqual(PageSizes._32Kb, peer.Runner.Config.Heap.PageShift);
+                Assert.AreEqual(2048, peer.Runner.Config.Heap.PageCount,
+                    "Every running online peer must use the same admitted-body history budget as production.");
             }
         }
         void AssertScenes(Peer host)
