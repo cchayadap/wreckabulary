@@ -64,8 +64,6 @@ namespace Wreckabulary.Online
         internal static string ControlHint(InputBinding source, WordboundControl control) => source switch
         {
             WordboundInputBinding automatic => automatic.ControlHint(control),
-            DesktopBinding keys => Display(DesktopAction(keys, control)),
-            GamepadBinding pad => PadHint(pad.Pad, control),
             _ => ""
         };
 

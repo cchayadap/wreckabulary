@@ -168,17 +168,19 @@ namespace Wreckabulary.Online.Tests
         }
 
         [Test]
-        public void PlayerViewForwardsItsRealBindingAndUnknownBindingsStayGeneric()
+        public void PlayerViewForwardsWordboundBindingWhileLegacyAndUnknownBindingsStayGeneric()
         {
-            foreach (bool known in new[] { true, false })
+            using var legacyDesktop = new DesktopBinding();
+            foreach (var source in new InputBinding[] { binding, legacyDesktop, new GamepadBinding(pad), new UnreadableBinding() })
             {
                 var root = new GameObject("Wordbound prompt forwarding");
                 try
                 {
                     var view = root.AddComponent<WordboundPlayerView>(); view.enabled = false;
-                    view.Initialize(root.AddComponent<WordboundGameplayController>(), root.AddComponent<Camera>(),
-                        known ? binding : new UnreadableBinding());
-                    Assert.AreEqual(known ? binding.ControlHint(WordboundControl.Spell) : "", view.ControlHint(WordboundControl.Spell));
+                    view.Initialize(root.AddComponent<WordboundGameplayController>(), root.AddComponent<Camera>(), source);
+                    foreach (WordboundControl control in Enum.GetValues(typeof(WordboundControl)))
+                        Assert.AreEqual(ReferenceEquals(source, binding) ? binding.ControlHint(control) : "",
+                            view.ControlHint(control), source.GetType().Name + " " + control);
                     Assert.AreEqual("", view.ControlHint((WordboundControl)99));
                 }
                 finally { Object.DestroyImmediate(root); }
