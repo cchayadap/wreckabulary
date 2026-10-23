@@ -41,6 +41,82 @@ namespace Wreckabulary.Online
         }
     }
 
+    public sealed class WordboundPresentationContext
+    {
+        readonly MatchSnapshot snapshot;
+        readonly CourseCatalogue geometry;
+        readonly ItemCatalogue items;
+        readonly Dictionary<string, WorldBodyState> bodies;
+        readonly Dictionary<long, ItemInstance> inventory;
+        readonly Dictionary<long, char> tiles;
+        readonly Dictionary<string, ResolvedCourseMovingFixture> fixtures;
+        readonly Dictionary<string, ResolvedCourseConnection> connections;
+        readonly Dictionary<string, ResolvedCoursePlacement> placements;
+
+        public WordboundPresentationContext(MatchSnapshot snapshot, ResolvedCourse course,
+            CourseCatalogue geometry, ItemCatalogue items)
+        {
+            this.snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
+            if (course == null) throw new ArgumentNullException(nameof(course));
+            this.geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
+            this.items = items ?? throw new ArgumentNullException(nameof(items));
+            bodies = snapshot.Bodies.ToDictionary(body => body.Id, StringComparer.Ordinal);
+            inventory = snapshot.Economy.Items.ToDictionary(item => (long)item.Id);
+            tiles = snapshot.Economy.Tiles.ToDictionary(tile => (long)tile.Key, tile => tile.Value);
+            fixtures = course.PhysicalSites.SelectMany(site => site.Fixtures).ToDictionary(fixture => fixture.Id, StringComparer.Ordinal);
+            connections = course.Connections.ToDictionary(connection => connection.Id, StringComparer.Ordinal);
+            placements = course.Placements.ToDictionary(placement => placement.Id, StringComparer.Ordinal);
+        }
+
+        public WordboundBodyPresentation Presentation(WorldBodyState body)
+        {
+            if (body == null || !bodies.TryGetValue(body.Id, out var exact) || !ReferenceEquals(exact, body))
+                throw new ArgumentException("Presentation requires a body from the exact canonical frame.");
+            if (body.Kind == WorldBodyKind.Player)
+                return new WordboundBodyPresentation(new WorldVector(.6f, 1.8f, .6f), "player");
+            if (body.Kind == WorldBodyKind.Platform)
+            {
+                if (fixtures.TryGetValue(body.SourceId, out var fixture))
+                    return new WordboundBodyPresentation(new WorldVector(fixture.SizeMm.X / 1000f,
+                        fixture.SizeMm.Y / 1000f, fixture.SizeMm.Z / 1000f), "platform");
+                var connection = connections[body.SourceId];
+                return new WordboundBodyPresentation(new WorldVector(connection.WidthMm / 1000f, .24f, connection.WidthMm / 1000f), "platform");
+            }
+            if (body.Kind == WorldBodyKind.Keepsake)
+            {
+                var team = snapshot.Progress.Teams.Single(t => "keepsake:" + t.Team.ToString(CultureInfo.InvariantCulture) == body.Id);
+                int carrier = string.IsNullOrEmpty(team.KeepsakeCarrier) ? -1 : WordboundGameplayPlan.Seat(snapshot.Binding, team.KeepsakeCarrier);
+                return new WordboundBodyPresentation(new WorldVector(.45f, .45f, .45f), "keepsake", carrier);
+            }
+            long id = long.Parse(body.Id.Substring(body.Id.IndexOf(':') + 1), CultureInfo.InvariantCulture);
+            if (body.Kind == WorldBodyKind.Tile)
+                return new WordboundBodyPresentation(new WorldVector(.3f, .12f, .3f),
+                    "letter:" + tiles[id]);
+            var item = inventory[id];
+            WorldVector size;
+            string key;
+            if (placements.TryGetValue(body.SourceId, out var placement))
+            {
+                var asset = geometry.Assets[placement.AssetId];
+                size = new WorldVector(asset.WidthMm / 1000f, asset.HeightMm / 1000f, asset.DepthMm / 1000f);
+                key = asset.Id;
+            }
+            else
+            {
+                if (!items.TryGet(item.Word, out var definition) || definition.Size == null || definition.Size.Length != 3)
+                    throw new ArgumentException("Canonical crafted item has no approved dimensions.");
+                size = new WorldVector(definition.Size[0], definition.Size[1], definition.Size[2]);
+                key = definition.Id;
+            }
+            int owner = -1;
+            if (item.State == ItemState.Held || item.State == ItemState.Carried)
+            {
+                owner = item.HolderId;
+            }
+            return new WordboundBodyPresentation(size, key, owner);
+        }
+    }
+
     public static class WordboundGameplayPlan
     {
         public static bool IsPaused(bool localReady, bool transportReady, bool isHost, bool hostReady,

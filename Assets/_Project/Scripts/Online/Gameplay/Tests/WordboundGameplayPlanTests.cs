@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Wreckabulary.Online;
@@ -32,7 +33,7 @@ namespace Wreckabulary.Tests
             public WordboundBodyPresentation Present(MatchSnapshot frame, WorldBodyState body) =>
                 WordboundGameplayPlan.Presentation(body, frame, Course, Geometry, Items);
         }
-        static Fixture Create(string modeId = "Freestyle", int count = 2, RaceFormat format = RaceFormat.Solo)
+        static Fixture Create(string modeId = "Freestyle", int count = 2, RaceFormat format = RaceFormat.Solo, bool machinery = false)
         {
             var mode = ModeDefinition.For(modeId, format);
             var f = new Fixture { Geometry = CourseTemplates.ProofCatalogue(), Items = new ItemCatalogue() };
@@ -41,6 +42,24 @@ namespace Wreckabulary.Tests
                     Size = new[] { 2f, 1f, 1f }, Deploy = new DeployStats { FootprintX = 2, FootprintZ = 1 } });
             var document = modeId == "Freestyle" ? CourseTemplates.FreestyleWorld() :
                 modeId == "FreeForAll" ? CourseTemplates.CombatArena() : CourseTemplates.RaceCircuit();
+            if (machinery)
+            {
+                f.Items.Add(new ItemDefinition { Id = "CLOCK", Enabled = true, Durability = 100, Size = new[] { .5f, .6f, .3f } });
+                f.Geometry = new CourseCatalogue(f.Geometry.Modules.Values, f.Geometry.Assets.Values.Concat(new[] {
+                    new CourseAssetDefinition("CLOCK", "CLOCK", 500, 300, 600) }),
+                    f.Geometry.PuzzlePresets, f.Geometry.Themes, f.Geometry.NarrativeEvents);
+                var puzzle = document.Puzzles.Single(p => p.Id == "BedBridge");
+                puzzle.PresetId = "TimedMechanism"; puzzle.RecipeId = puzzle.RequiredLetters = "CLOCK";
+                document.Supplies.Single(s => s.Id == "BedSupply").Letters = "CLOCK";
+                document.PhysicalSites.Add(new CoursePhysicalSite {
+                    Lap = 1, PuzzleId = puzzle.Id, CheckpointId = "Begin", RecoverySupplyId = "BedSupply",
+                    ActiveWindowTicks = 120,
+                    ArrivalBounds = new CourseBox(new CoursePoint(-250, 0, 1500), new CoursePoint(250, 1800, 2000)),
+                    Fixtures = new List<CourseMovingFixture> { new CourseMovingFixture {
+                        Id = "SortingArm", From = new CoursePoint(-1000, 0, 1000), To = new CoursePoint(1000, 0, 1000),
+                        SizeMm = new CoursePoint(600, 1200, 200), PeriodTicks = 240, PhaseTicks = 40 } }
+                });
+            }
             var result = CourseResolver.Resolve(document, f.Geometry,
                 new CourseResolveRequest("0123456789abcdef", MatchStateValidation.Requirements(mode)));
             Assert.IsTrue(result.Success, string.Join("\n", result.Issues));
@@ -123,6 +142,131 @@ namespace Wreckabulary.Tests
             var f = Create(); var frame = f.Frame; var body = frame.Bodies[0];
             Assert.Throws<ArgumentException>(() => f.Present(frame, body.At(body.Position)));
         }
+
+        [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("BrawlRace"), TestCase("FreeForAll"), TestCase("Freestyle")]
+        public void SharedFramePresentationMatchesPreviousLookupSemanticsForEveryBody(string mode)
+        {
+            var f = Create(mode); var frame = f.Frame;
+            var context = new WordboundPresentationContext(frame, f.Course, f.Geometry, f.Items);
+            foreach (var body in frame.Bodies)
+                SamePresentation(LegacyPresentation(f, frame, body), context.Presentation(body));
+        }
+
+        [Test]
+        public void StandalonePresentationStillAcceptsUnusedNullDependencies()
+        {
+            var f = Create("TimeRun"); var frame = f.Frame;
+            foreach (var kind in new[] { WorldBodyKind.Player, WorldBodyKind.Tile, WorldBodyKind.Keepsake, WorldBodyKind.Platform })
+            {
+                var body = frame.Bodies.First(value => value.Kind == kind);
+                var expected = f.Present(frame, body);
+                SamePresentation(expected, WordboundGameplayPlan.Presentation(body, frame,
+                    kind == WorldBodyKind.Platform ? f.Course : null, null, null));
+                Assert.Throws<ArgumentException>(() => WordboundGameplayPlan.Presentation(
+                    body.At(body.Position), frame, null, null, null));
+            }
+        }
+
+        [Test]
+        public void PresentationContextUsesExactReferencesAndRetainsItsOwnInventorySnapshot()
+        {
+            var f = Create(); var before = f.Frame;
+            var prop = before.Bodies.First(b => b.Kind == WorldBodyKind.Item);
+            var oldContext = new WordboundPresentationContext(before, f.Course, f.Geometry, f.Items);
+            Assert.Throws<ArgumentException>(() => oldContext.Presentation(null));
+            Assert.Throws<ArgumentException>(() => oldContext.Presentation(prop.At(prop.Position)));
+            int revision = before.Economy.Items.Single(i => prop.Id == "item:" + i.Id).Revision;
+            Assert.AreEqual("Ok", f.Command(WordboundAction.PickUp, prop, revision).Receipts.Single().Effect.Code);
+            var after = f.Frame; var carried = after.Bodies.Single(b => b.Id == prop.Id);
+            var newContext = new WordboundPresentationContext(after, f.Course, f.Geometry, f.Items);
+            Assert.Throws<ArgumentException>(() => oldContext.Presentation(carried));
+            Assert.Throws<ArgumentException>(() => newContext.Presentation(prop));
+            var exposed = after.Economy.Items.Single(i => carried.Id == "item:" + i.Id);
+            exposed.State = ItemState.World; exposed.HolderId = 7; exposed.Word = "INVALID";
+            Assert.AreEqual(-1, oldContext.Presentation(prop).CarrierSeat);
+            Assert.AreEqual(0, newContext.Presentation(carried).CarrierSeat);
+            SamePresentation(LegacyPresentation(f, after, carried), newContext.Presentation(carried));
+            Assert.AreEqual(ItemState.Carried, after.Economy.Items.Single(i => carried.Id == "item:" + i.Id).State);
+        }
+
+        [Test]
+        public void IndexedMovingFixtureKeepsItsAuthoredDimensionsAndConnectionPlatforms()
+        {
+            var f = Create("TimeRun", machinery: true); var frame = f.Frame;
+            var context = new WordboundPresentationContext(frame, f.Course, f.Geometry, f.Items);
+            var fixture = frame.Bodies.First(b => b.Kind == WorldBodyKind.Platform && b.SourceId == "SortingArm");
+            var shape = context.Presentation(fixture);
+            Assert.AreEqual(.6f, shape.Size.X); Assert.AreEqual(1.2f, shape.Size.Y); Assert.AreEqual(.2f, shape.Size.Z);
+            Assert.AreEqual("platform", shape.VisualKey);
+            Assert.IsTrue(frame.Bodies.Any(b => b.Kind == WorldBodyKind.Platform && b.SourceId != "SortingArm"));
+            foreach (var body in frame.Bodies)
+                SamePresentation(LegacyPresentation(f, frame, body), context.Presentation(body));
+        }
+
+        [Test]
+        public void IndexedPresentationRejectsDuplicateBodiesAndMissingEconomyEntries()
+        {
+            var f = Create(); var original = f.Frame;
+            MatchSnapshot WithBodies(IEnumerable<WorldBodyState> bodies) => new MatchSnapshot(original.Binding,
+                original.Epoch, original.Sequence, original.NextWorldEntityId, original.Progress, original.Economy,
+                original.Commands, original.Actors, bodies, original.Resources, original.Mechanisms, original.RandomStreams,
+                original.NarrativeFlags, original.ThrownFlights, original.Practice);
+            Assert.Throws<ArgumentException>(() => new WordboundPresentationContext(
+                WithBodies(original.Bodies.Concat(original.Bodies.Take(1))), f.Course, f.Geometry, f.Items));
+            var missing = new WorldBodyState("item:999999", WorldBodyKind.Item, default);
+            var context = new WordboundPresentationContext(WithBodies(original.Bodies.Concat(new[] { missing })),
+                f.Course, f.Geometry, f.Items);
+            Assert.Throws<KeyNotFoundException>(() => context.Presentation(missing));
+        }
+
+        [TestCase(32), TestCase(128), TestCase(256)]
+        public void PresentationAllocationProbeRecordsBoundedItemLookupCost(int count)
+        {
+            var f = Create(); var original = f.Frame;
+            var economy = new Economy(f.Items, new GameRules());
+            var bodies = Enumerable.Range(0, count).Select(_ => {
+                var item = economy.PlaceFurniture("STOOL");
+                return new WorldBodyState("item:" + item.Id, WorldBodyKind.Item, default);
+            }).ToArray();
+            var frame = new MatchSnapshot(original.Binding, original.Epoch, original.Sequence, original.NextWorldEntityId,
+                original.Progress, economy.Capture(), original.Commands, original.Actors, bodies,
+                original.Resources, original.Mechanisms, original.RandomStreams, original.NarrativeFlags,
+                original.ThrownFlights, original.Practice);
+            var parity = new WordboundPresentationContext(frame, f.Course, f.Geometry, f.Items);
+            foreach (var body in bodies) SamePresentation(LegacyPresentation(f, frame, body), parity.Presentation(body));
+            double legacySum = 0, indexedSum = 0;
+            Action legacy = () => {
+                foreach (var body in bodies) legacySum += LegacyPresentation(f, frame, body).Size.X;
+            };
+            Action indexed = () => {
+                var context = new WordboundPresentationContext(frame, f.Course, f.Geometry, f.Items);
+                foreach (var body in bodies) indexedSum += context.Presentation(body).Size.X;
+            };
+            legacy(); indexed(); legacySum = indexedSum = 0;
+            var oldCost = MeasurePresentation(legacy, 4);
+            var newCost = MeasurePresentation(indexed, 4);
+            Assert.AreEqual(legacySum, indexedSum);
+            Assert.Less(newCost.Item1, oldCost.Item1 / 2, "One frame context must avoid repeated complete inventory copies.");
+            TestContext.WriteLine(FormattableString.Invariant($"WORDBOUND_PRESENTATION_PROBE: syntheticItemBodies={count}; iterations=4; legacyBytes={oldCost.Item1}; indexedBytes={newCost.Item1}; legacyMs={oldCost.Item2:F3}; indexedMs={newCost.Item2:F3}; scope=pure-presentation-only"));
+        }
+
+        static Tuple<long, double> MeasurePresentation(Action action, int iterations)
+        {
+            long bytes = GC.GetAllocatedBytesForCurrentThread(), ticks = Stopwatch.GetTimestamp();
+            for (int i = 0; i < iterations; i++) action();
+            long elapsed = Stopwatch.GetTimestamp() - ticks;
+            return Tuple.Create(GC.GetAllocatedBytesForCurrentThread() - bytes, elapsed * 1000d / Stopwatch.Frequency);
+        }
+
+        static void SamePresentation(WordboundBodyPresentation expected, WordboundBodyPresentation actual)
+        {
+            Assert.AreEqual(expected.VisualKey, actual.VisualKey); Assert.AreEqual(expected.CarrierSeat, actual.CarrierSeat);
+            Assert.AreEqual(expected.Size.X, actual.Size.X); Assert.AreEqual(expected.Size.Y, actual.Size.Y);
+            Assert.AreEqual(expected.Size.Z, actual.Size.Z);
+        }
+
+        static WordboundBodyPresentation LegacyPresentation(Fixture f, MatchSnapshot frame, WorldBodyState body) =>
+            WordboundGameplayPlan.Presentation(body, frame, f.Course, f.Geometry, f.Items);
 
         [Test]
         public void CommandFrontierPreservesPendingSequencesAndResetsOnlyForAnotherEpoch()

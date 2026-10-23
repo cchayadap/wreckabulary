@@ -270,7 +270,8 @@ namespace Wreckabulary.Online
             }
             if (disconnected) { Reconcile(Authority.Match.Capture(1), presenceRetries + 1); return; }
             var plan = new WordboundReconciliationPlan(bodies.Keys, next);
-            var views = next.Bodies.ToDictionary(b => b.Id, b => WordboundGameplayPlan.Presentation(b, next, course, geometry, items), StringComparer.Ordinal);
+            var presentation = new WordboundPresentationContext(next, course, geometry, items);
+            var views = next.Bodies.ToDictionary(b => b.Id, presentation.Presentation, StringComparer.Ordinal);
             foreach (var id in plan.Remove)
             {
                 var body = bodies[id]; physics.Unregister(body);
