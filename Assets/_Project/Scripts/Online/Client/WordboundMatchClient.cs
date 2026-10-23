@@ -88,6 +88,7 @@ namespace Wreckabulary.Online
                 gameplay.AttachSession(session);
                 gameplay.Faulted += GameplayFailed;
                 session.GameplayStarted += EnterWorld;
+                session.RecoveryStatusChanged += RecoveryChanged;
                 await session.Start(lifetime.Token);
             }
             catch
@@ -120,9 +121,16 @@ namespace Wreckabulary.Online
 
         void EnterWorld()
         {
+            if (!leaving && hud) hud.ShowFailure("");
             if (!leaving && playerView) playerView.SetMenuOpen(false);
         }
-        void GameplayFailed(string reason) => Failed?.Invoke("The match connection stopped. Return to your party to reconnect.");
+        void RecoveryChanged(string message)
+        {
+            if (leaving) return;
+            if (hud) hud.ShowFailure(message);
+            if (message == "" && playerView) playerView.SetMenuOpen(false);
+        }
+        void GameplayFailed(string reason) => Failed?.Invoke("The connection could not be restored. Return to your party to leave this match.");
         void PresentationFailed(string reason)
         {
             if (playerView) playerView.SetMenuOpen(true);
@@ -159,7 +167,11 @@ namespace Wreckabulary.Online
             lifetime.Cancel();
             if (hud) hud.ReturnRequested -= RequestReturn;
             if (gameplay) gameplay.Faulted -= GameplayFailed;
-            if (session != null) session.GameplayStarted -= EnterWorld;
+            if (session != null)
+            {
+                session.GameplayStarted -= EnterWorld;
+                session.RecoveryStatusChanged -= RecoveryChanged;
+            }
             _ = StopGameplay();
         }
     }

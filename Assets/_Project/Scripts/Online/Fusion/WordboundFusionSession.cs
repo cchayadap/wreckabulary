@@ -46,11 +46,13 @@ namespace Wreckabulary.Online
         }
     }
 
-    public sealed class WordboundFusionSession : IWordboundGameplaySession, INetworkRunnerCallbacks
+    public sealed partial class WordboundFusionSession : IWordboundGameplaySession, INetworkRunnerCallbacks
     {
         sealed class RunScope
         {
-            public readonly CancellationTokenSource Cancellation = new CancellationTokenSource();
+            public readonly CancellationTokenSource Cancellation;
+            public RunScope(CancellationToken request, CancellationToken lifetime)
+            { Cancellation = CancellationTokenSource.CreateLinkedTokenSource(request, lifetime); }
             public readonly HashSet<PlayerRef> Authorizing = new HashSet<PlayerRef>();
             public readonly HashSet<PlayerRef> Readied = new HashSet<PlayerRef>();
             public NetworkRunner Runner;
@@ -94,6 +96,7 @@ namespace Wreckabulary.Online
         bool localReady, localAdmitted, migrating, restored, initialStarted, beginReceived;
         OnlineSnapshotPacket committedPacket;
         int wireSequence;
+        Task stopTask;
         NetworkSceneInfo? initialScene;
         public NetworkRunner Runner { get; private set; }
         public bool RunnerStarted => IsCurrent(activeRun) && activeRun.Started;
@@ -168,21 +171,24 @@ namespace Wreckabulary.Online
             previous?.Cancellation.Cancel();
             return runGeneration;
         }
-        RunScope BeginRun()
+        RunScope BeginRun(CancellationToken cancellationToken)
         {
             lifetime.Token.ThrowIfCancellationRequested();
             InvalidateRun();
             localReady = false; localAdmitted = false; beginReceived = false;
-            return activeRun = new RunScope();
+            return activeRun = new RunScope(cancellationToken, lifetime.Token);
         }
-        async Task StartRunner(HostMigrationToken migration, CancellationToken cancellationToken)
+        async Task StartRunner(HostMigrationToken migration, CancellationToken cancellationToken, bool reconnect = false)
         {
-            var run = BeginRun();
+            var run = BeginRun(cancellationToken);
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token, run.Cancellation.Token);
             try {
             var join = await credentials(linked.Token);
             RequireCurrent(run);
             run.Join = join;
+            if (localPlayerId != null && join.PlayerId != localPlayerId)
+                throw new InvalidOperationException("The original match identity changed during recovery.");
+            localPlayerId = join.PlayerId;
             long now = clock();
             if (join.PhotonTicket.AppId != app.AppIdFusion || join.PhotonTicket.ExpiresAtMilliseconds <= now)
                 throw new InvalidOperationException("Photon authentication ticket is expired or belongs to another app.");
@@ -198,7 +204,7 @@ namespace Wreckabulary.Online
             run.Runner = Runner;
             run.Runner.AddCallbacks(this);
             var result = await run.Runner.StartGame(new StartGameArgs {
-                GameMode = migration?.GameMode ?? (initialHost ? GameMode.Host : GameMode.Client),
+                GameMode = migration?.GameMode ?? (!reconnect && initialHost ? GameMode.Host : GameMode.Client),
                 SessionName = "wb-" + expected.MatchId + "-" + expected.Generation,
                 PlayerCount = match.Roster.Count, IsVisible = false, IsOpen = true,
                 EnableClientSessionCreation = false, CustomPhotonAppSettings = app,
@@ -208,7 +214,7 @@ namespace Wreckabulary.Online
                 StartGameCancellationToken = linked.Token
             });
             RequireCurrent(run);
-            if (!result.Ok) throw new InvalidOperationException("Fusion startup failed: " + result.ShutdownReason);
+            if (!result.Ok) throw new WordboundRunnerStartException(result.ShutdownReason);
             if (run.Runner.GetPlayerUserId(run.Runner.LocalPlayer) != join.PlayerId)
                 throw new InvalidOperationException("Photon did not authenticate the coordinator identity.");
             if (connections.LocalPlayerId != join.PlayerId) throw new InvalidOperationException("Coordinator guest changed during startup.");
@@ -224,7 +230,7 @@ namespace Wreckabulary.Online
             }
             RequireCurrent(run);
             }
-            catch (Exception error) { if (IsCurrent(run)) Fail(error); throw; }
+            catch (Exception error) { if (IsCurrent(run) && !reconnect) Fail(error); throw; }
         }
         bool HasWriter(RunScope run) => IsCurrent(run) && run.Writer != null &&
             run.Writer.PlayerId == checkpoints.LocalPlayerId && run.Writer.ExpiresAtMilliseconds > clock();
@@ -410,6 +416,7 @@ namespace Wreckabulary.Online
             await SeedElection(run);
             if (!IsCurrent(run) || !HasWriter(run)) return;
             GameplayReady = true; run.Beginning = false;
+            gameplayObserved = true;
             authority.SetTransportReady(true, true);
             foreach (var player in Runner.ActivePlayers)
                 if (player != Runner.LocalPlayer && gate.Actor(Peer(player)) != null) Send(player, OnlineWireKind.Begin, Roster());
@@ -659,7 +666,8 @@ namespace Wreckabulary.Online
         void TryClientBegin()
         {
             if (GameplayReady || !beginReceived || !localAdmitted || !localReady || committedMark == null) return;
-            GameplayReady = true; migrating = false; authority.SetTransportReady(true, false); GameplayStarted?.Invoke();
+            GameplayReady = true; gameplayObserved = true; migrating = false;
+            authority.SetTransportReady(true, false); GameplayStarted?.Invoke();
         }
         void RestoreMigration(NetworkRunner runner)
         {
@@ -669,6 +677,12 @@ namespace Wreckabulary.Online
         void Fail(Exception error)
         {
             if (Failure != "") return;
+            if (recovery.Active && TransientRecoveryError(error))
+            {
+                FreezeRecovery();
+                return;
+            }
+            CancelRecovery();
             Failure = error.GetType().Name;
             InvalidateRun();
             GameplayReady = false; gate?.Freeze(); authority.PauseForMigration();
@@ -709,10 +723,13 @@ namespace Wreckabulary.Online
             "Coordinator clock is outside the supported tolerance." => "clock-outside-tolerance",
             _ => "unclassified"
         };
-        public async Task Stop()
+        public Task Stop() => stopTask ??= StopCore();
+        async Task StopCore()
         {
+            CancelRecovery();
             InvalidateRun(); lifetime.Cancel(); GameplayReady = false; gate?.Freeze();
             authority.SetTransportReady(false, Runner != null && Runner.IsServer);
+            if (recoveryTask != null) await recoveryTask;
             if (Runner != null) await Runner.Shutdown();
         }
         public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ReadOnlySpan<byte> data)
@@ -802,29 +819,22 @@ namespace Wreckabulary.Online
             string actor = gate.Disconnect(Peer(player), clock());
             if (actor != null) authority.Disconnect(actor, clock());
         }
-        public async void OnHostMigration(NetworkRunner runner, HostMigrationToken token)
-        {
-            if (!IsCurrent(activeRun) || runner != activeRun.Runner || migrating || Failure != "") return;
-            long recoveryGeneration = InvalidateRun();
-            migrating = true; restored = false; localAdmitted = false; GameplayReady = false; gate.Freeze(); authority.PauseForMigration();
-            authority.SetTransportReady(false, runner.IsServer); beginReceived = false; committedMark = null; committedPacket = null;
-            receivedMark = null; receivedChunks = null; pending.Clear(); rates.Clear(); sentMarks.Clear(); leases.Clear();
-            try
-            {
-                await runner.Shutdown(false, ShutdownReason.HostMigration);
-                if (runGeneration != recoveryGeneration || lifetime.IsCancellationRequested) return;
-                UnityEngine.Object.Destroy(runner.gameObject);
-                await StartRunner(token, lifetime.Token);
-            }
-            catch (Exception error) { if (runGeneration == recoveryGeneration && !lifetime.IsCancellationRequested) Fail(error); }
-        }
+        public void OnHostMigration(NetworkRunner runner, HostMigrationToken token) => RecoverTransport(runner, token);
         public void OnShutdown(NetworkRunner runner, ShutdownReason reason)
         {
-            if (IsCurrent(activeRun) && runner == activeRun.Runner && reason != ShutdownReason.HostMigration)
-            { InvalidateRun(); GameplayReady = false; authority.SetTransportReady(false, runner.IsServer); }
+            if (reason == ShutdownReason.HostMigration || ReferenceEquals(runner, retiringRunner) || !OwnsRecoveryCallback(runner)) return;
+            if (gameplayObserved && TransientShutdown(reason)) RecoverTransport(runner, null);
+            else if (gameplayObserved || recovery.Active) Fail(new WordboundRunnerStartException(reason));
+            else { InvalidateRun(); GameplayReady = false; authority.SetTransportReady(false, runner.IsServer); }
         }
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
-        { if (IsCurrent(activeRun) && runner == activeRun.Runner) { GameplayReady = false; authority.SetTransportReady(false, false); } }
+        {
+            if (ReferenceEquals(runner, retiringRunner) || !OwnsRecoveryCallback(runner)) return;
+            if (gameplayObserved && (reason == NetDisconnectReason.Timeout || reason == NetDisconnectReason.ByRemote ||
+                reason == NetDisconnectReason.Unknown)) RecoverTransport(runner, null);
+            else if (gameplayObserved || recovery.Active) Fail(new WordboundRunnerStartException(ShutdownReason.ConnectionRefused));
+            else { GameplayReady = false; authority.SetTransportReady(false, false); }
+        }
         public void OnConnectedToServer(NetworkRunner runner) { }
         public void OnConnectFailed(NetworkRunner runner, NetAddress address, NetConnectFailedReason reason) { }
         public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
