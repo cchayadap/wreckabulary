@@ -157,7 +157,7 @@ namespace Wreckabulary.OnlineGameplayTests
                         yield return FullWalk(host, victim, () => {
                             var origin = PlayerPose(host, host).Position;
                             return new WorldVector(origin.X + .95f, origin.Y, origin.Z);
-                        }, .04f, "Return the zero-score victim to native FFA contact through admitted movement");
+                        }, .04f, "Return the zero-score victim to native FFA contact through admitted movement", ffaReturn: true);
                         yield return FfaStrike(host, victim, weaponId, false, command => replay ??= command);
                         Assert.AreEqual(hit == 3 ? knockout : knockout - 1, FfaPlayer(host.Controller.Frame, host).Knockouts);
                         Assert.IsEmpty(observationError);
@@ -621,18 +621,24 @@ namespace Wreckabulary.OnlineGameplayTests
         }
 
         IEnumerator FullWalk(Peer host, Peer actor, Func<WorldVector> target, float radius, string operation,
-            Func<bool> delivered = null)
+            Func<bool> delivered = null, bool ffaReturn = false)
         {
             int samples = 0;
             float minimumInput = float.PositiveInfinity, maximumInput = 0, lastInput = 0;
+            float firstDistance = float.NaN, maximumDistance = 0;
             actor.ScriptedMovement = () => {
                 samples++; lastInput = 0;
                 if (delivered?.Invoke() == true) return default;
                 var body = host.Controller.Bodies["player:" + WordboundGameplayPlan.Seat(host.Controller.Frame.Binding, actor.Actor)];
                 var at = body.Rigidbody.position; var goal = target();
                 var delta = new Vector2(goal.X - at.x, goal.Z - at.z);
-                if (delta.magnitude <= radius) return default;
-                var value = delta.normalized * Mathf.Clamp((delta.magnitude - radius * .5f) * .07f, .06f, .22f);
+                float distance = delta.magnitude;
+                if (float.IsNaN(firstDistance)) firstDistance = distance;
+                maximumDistance = Mathf.Max(maximumDistance, distance);
+                if (distance <= radius) return default;
+                float magnitude = Mathf.Clamp((distance - radius * .5f) * .07f, .06f, .22f);
+                if (ffaReturn) magnitude = Mathf.Min(.8f, magnitude + Mathf.Max(0, distance - 1) * .5f);
+                var value = delta.normalized * magnitude;
                 lastInput = value.magnitude;
                 minimumInput = Mathf.Min(minimumInput, lastInput); maximumInput = Mathf.Max(maximumInput, lastInput);
                 return new WordboundMovementInput { MoveX = value.x, MoveZ = value.y };
@@ -651,6 +657,7 @@ namespace Wreckabulary.OnlineGameplayTests
                     var position = body.position; var velocity = body.linearVelocity; var goal = target();
                     float distance = Vector2.Distance(new Vector2(position.x, position.z), new Vector2(goal.X, goal.Z));
                     bool canMove = host.Controller.PhysicsWorld.CanMove(actor.Actor, out float moveScale);
+                    if (ffaReturn) Debug.Log(FormattableString.Invariant($"WORDBOUND_FFA_RETURN: firstSampleDistance={(float.IsNaN(firstDistance) ? -1 : firstDistance):F6}; maximumSampleDistance={maximumDistance:F6}; maximumInput={maximumInput:F6}; precisionRadius=1; inputCap=0.8; requestedInputOnly=true"));
                     Debug.Log(FormattableString.Invariant($"WORDBOUND_COMPACT_WALK: operation={operation}; phase=steering-end; tick={host.Controller.Frame.Progress.Tick}; ") +
                         FormattableString.Invariant($"hostPosition={position.x:F6}/{position.y:F6}/{position.z:F6}; hostVelocity={velocity.x:F6}/{velocity.y:F6}/{velocity.z:F6}; ") +
                         FormattableString.Invariant($"target={goal.X:F3}/{goal.Y:F3}/{goal.Z:F3}; distance={distance:F6}; radius={radius:F3}; inside={distance <= radius}; ") +
