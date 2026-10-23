@@ -1,6 +1,6 @@
 # Static validation metadata cache
 
-STATUS: SOURCE COMPLETE; independent cache source review PASS against `0df3cab`; execution pending. The measurement design below was committed before production edits (`f5a914a`). Root owns all heavy execution.
+STATUS: SOURCE COMPLETE; independent cache source review PASS against `0df3cab`; root R0, targeted core and comparative .NET benchmark PASS; native verification pending. The measurement design below was committed before production edits (`f5a914a`). Root owns all heavy execution.
 
 The completed physical profile in `Logs/gate_test_editmode_20261023T150959Z.log` reports 3,481 reconciliation invocations across 64 sampled frames: Validate 127,330.950 ms, PhysicsApply 130,675.734 ms, Presentation 1,613.030 ms, Advance 30,770.228 ms and Capture 12,677.063 ms. These inclusive scope totals are not additive wall time. Physical had no buffer wrap; public marker retention was incomplete and must not be treated as zero CPU.
 
@@ -41,3 +41,9 @@ Retain stdout/exit codes and compare exact input hashes/counts with the baseline
 Integration warning: `8cfd475` is an excluded lane-only copy of root's current MatchStateValidation baseline. Integrate only the subsequent cache/test/report delta. The original unrelated dirty ModeDefinition is untouched and excluded.
 
 Independent review confirmed the current root's partial budget/lifecycle remain read-only after construction, MatchProgress copies the private route array, and all dynamic validations remain live and ordered. Eager static construction could change the first error for an internally fabricated malformed ResolvedCourse; public resolver/import validation prevents that unsupported state from being published. No blocking supported-path finding was identified. This source verdict does not claim compiler, core, benchmark or native success.
+
+## Subsequent root execution
+
+Root reported R0 PASS in 17.3 seconds (`153522Z`) and targeted core 141/141 PASS in 31.6 seconds (`153611Z`), including the 13 new cases. The unchanged actual-flagship probe then passed all 120 validations. Its cached run is retained under `BuildNotes/online/validation-cached-20261023.log/.json`; both metadata JSON files confirm the same probe SHA256 `9E794DEB66EF62F33D94714DBB91AF57607C02B987D0C32045F712E2B16CB224` and exit0. Root is comparing all input identity rows automatically.
+
+Per 20 validations, TimeRun allocated 11.308–11.341 MB versus 51.973–52.022 MB (about 78% lower), with times 92.389/99.445/125.768 ms. TeamRace Solo allocated 25.395–25.428 MB versus 100.861–100.894 MB (about 75% lower), with times 346.438/525.257/524.681 ms. The TeamRace timing varies substantially across both runs; these results establish a bounded .NET allocation reduction, not a general latency/FPS claim. Native physical/public throughput, writer stability and readiness remain separate pending checks. Raw baseline and failed native history remain retained.
