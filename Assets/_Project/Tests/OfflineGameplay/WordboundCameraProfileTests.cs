@@ -1,3 +1,4 @@
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -34,23 +35,23 @@ namespace Wreckabulary.OfflineGameplayTests
 
                 profile.FieldOfView = 71;
                 profile.NearClip = .15f;
-                view.SendMessage("Update");
+                UpdateView(view);
                 Assert.AreEqual(71, camera.fieldOfView);
                 Assert.AreEqual(.15f, camera.nearClipPlane);
 
                 profile.FieldOfView = float.NaN;
                 profile.NearClip = .05f;
                 LogAssert.Expect(LogType.Warning, "Wordbound camera profile: FieldOfView is outside its supported camera range.");
-                view.SendMessage("Update");
+                UpdateView(view);
                 Assert.AreEqual(71, camera.fieldOfView);
                 Assert.AreEqual(.15f, camera.nearClipPlane);
 
                 profile.FieldOfView = 65;
-                view.SendMessage("Update");
+                UpdateView(view);
                 Assert.AreEqual(65, camera.fieldOfView);
                 Assert.AreEqual(.05f, camera.nearClipPlane);
                 view.Profile = null;
-                view.SendMessage("Update");
+                UpdateView(view);
                 Assert.AreEqual(ShoulderView.FieldOfView, camera.fieldOfView);
                 Assert.AreEqual(ShoulderView.NearClip, camera.nearClipPlane);
                 Assert.AreEqual(1800, camera.farClipPlane);
@@ -61,5 +62,8 @@ namespace Wreckabulary.OfflineGameplayTests
                 Object.DestroyImmediate(profile);
             }
         }
+
+        static void UpdateView(WordboundPlayerView view) => typeof(WordboundPlayerView)
+            .GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(view, null);
     }
 }

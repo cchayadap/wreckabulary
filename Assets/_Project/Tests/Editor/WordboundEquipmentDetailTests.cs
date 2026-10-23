@@ -134,6 +134,9 @@ namespace Wreckabulary.EditorTests
                 Assert.AreEqual(1, pivots.Length, pivotName + " must remain a distinct authored pivot");
                 var pivot = pivots[0];
                 var actual = anchor.transform.worldToLocalMatrix * pivot.localToWorldMatrix;
+                TestContext.WriteLine(pivotName + " expected converted world matrix:\n" + expected.ToString("F7") +
+                    "native world matrix:\n" + actual.ToString("F7") + "native model matrix:\n" +
+                    (anchor.transform.worldToLocalMatrix * model.transform.localToWorldMatrix).ToString("F7"));
                 Assert.LessOrEqual(Vector3.Distance(expected.MultiplyPoint3x4(Vector3.zero), actual.MultiplyPoint3x4(Vector3.zero)),
                     .001f, pivotName + " origin in metres");
                 for (int axis = 0; axis < 3; axis++)
