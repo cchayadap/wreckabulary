@@ -15,16 +15,17 @@ namespace Wreckabulary.Online
     {
         public readonly bool Evaluated, BufferFull, HasBlocker, BlockerCourseSurface, BlockerRegisteredBody;
         public readonly Vector3 From, To;
-        public readonly int HitCount, Capacity, BlockerInstance, BlockerLayer;
+        public readonly int HitCount, Capacity, BlockerLayer;
+        public readonly EntityId BlockerEntity;
         public readonly float BlockerDistance;
         public readonly WorldBodyKind BlockerKind;
 
         internal WordboundClockLineDecision(Vector3 from, Vector3 to, int count, int capacity,
-            bool hasBlocker = false, int blockerInstance = 0, int blockerLayer = 0, float blockerDistance = 0,
+            bool hasBlocker = false, EntityId blockerEntity = default, int blockerLayer = 0, float blockerDistance = 0,
             bool courseSurface = false, bool registeredBody = false, WorldBodyKind blockerKind = default)
         {
             Evaluated = true; From = from; To = to; HitCount = count; Capacity = capacity; BufferFull = count >= capacity;
-            HasBlocker = hasBlocker; BlockerInstance = blockerInstance; BlockerLayer = blockerLayer;
+            HasBlocker = hasBlocker; BlockerEntity = hasBlocker ? blockerEntity : EntityId.None; BlockerLayer = blockerLayer;
             BlockerDistance = blockerDistance; BlockerCourseSurface = courseSurface;
             BlockerRegisteredBody = registeredBody; BlockerKind = blockerKind;
         }
@@ -33,7 +34,7 @@ namespace Wreckabulary.Online
     public readonly struct WordboundClockDecision
     {
         public readonly long Epoch, CompletedTick;
-        public readonly int SourceInstance, FixtureInstance;
+        public readonly EntityId SourceEntity, FixtureEntity;
         public readonly WordboundClockDecisionKind Kind;
         public readonly bool CollisionEvaluated, CollisionAllowed, ContainmentEvaluated, ContainmentAllowed;
         public readonly WorldVector SourcePosition, FixturePosition;
@@ -46,7 +47,7 @@ namespace Wreckabulary.Online
             DeployStats stats, WordboundClockLineDecision line)
         {
             Epoch = frame.Epoch; CompletedTick = frame.Progress.Tick;
-            SourceInstance = source == null ? 0 : source.GetInstanceID(); FixtureInstance = fixture.GetInstanceID(); Kind = kind;
+            SourceEntity = source == null ? EntityId.None : source.GetEntityId(); FixtureEntity = fixture.GetEntityId(); Kind = kind;
             CollisionEvaluated = collisionEvaluated; CollisionAllowed = collisionAllowed;
             ContainmentEvaluated = sourcePose != null && fixturePose != null; ContainmentAllowed = containmentAllowed;
             SourcePosition = sourcePose?.Position ?? default; FixturePosition = fixturePose?.Position ?? default;

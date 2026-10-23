@@ -299,7 +299,7 @@ namespace Wreckabulary.Online
                             var collider = hits[i].collider;
                             bool registered = owned.TryGetValue(collider, out var body);
                             diagnostic = new WordboundClockLineDecision(from, to, count, hits.Length, true,
-                                collider.GetInstanceID(), collider.gameObject.layer, hits[i].distance,
+                                collider.GetEntityId(), collider.gameObject.layer, hits[i].distance,
                                 structure.Contains(collider), registered, registered ? body.Canonical.Kind : default);
                         }
                         catch (Exception error) { NativeClockDiagnosticFailed(error); }

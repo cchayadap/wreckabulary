@@ -39,3 +39,7 @@ The editor-only `ClearLine` overload shares the original implementation and retu
 Independent coordinator verdict: bounded source PASS. Assets owns fixture subscription, bounded aggregation, evidence-error assertions and teardown. No actual CLOCK cause or completed physical route is claimed yet.
 
 Lightweight release-branch comparison passed against exact aligned baseline `50dce010`: 2,562 tokens for AuthoredRuntime and 3,623 for PuzzleRuntime are identical after ignoring whitespace and the added scope braces. String literals were retained as tokens. All diagnostic identifiers are absent from those release branches. This is a textual preprocessing check, not compilation or executable equivalence proof. `git diff --check` also passed.
+
+## Compiler compatibility correction
+
+Root's combined R0 at 184145Z rejected `GetInstanceID` as obsolete with error severity. That result supersedes any suggestion that source review established compilation; native observer execution had not begun. The installed 6000.6.3f1 `UnityEngine.CoreModule.xml` documents `Object.GetEntityId`, `EntityId.None`, equality and `ToString`. The diagnostic fields now retain the actual opaque `EntityId` values as `SourceEntity`, `FixtureEntity` and `Line.BlockerEntity`, with `None` for absent source/non-blocker. No integer cast, hash code or raw bit extraction substitutes for object identity. Assets updates the fixture field comparisons and text labels in its separate lane. All changed code remains editor-only; the previously checked release token sequence is unaffected.
