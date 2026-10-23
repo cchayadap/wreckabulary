@@ -12,7 +12,6 @@ import time
 
 import bpy
 from mathutils import Vector
-from mathutils.bvhtree import BVHTree
 import numpy as np
 
 
@@ -163,92 +162,96 @@ def cushion_frame(obj):
     return center, horizontal, vertical, normal, half
 
 
-def back_welt(obj, target, material):
+def seam_profile_metrics():
+    distance = np.linspace(-.01, .01, 100001)
+    profile = (-np.exp(-(distance/.0015)**2)
+               + .12*np.exp(-((distance-.002)/.0009)**2)
+               + .12*np.exp(-((distance+.002)/.0009)**2)) * .00018 * .7
+    gradient = np.gradient(profile, distance)
+    tilt = math.degrees(math.atan(float(np.max(np.abs(gradient)))))
+    if not np.all(np.isfinite(profile)) or tilt > 6 or np.max(np.abs(profile)) > .00015:
+        raise RuntimeError("Shallow seam material profile exceeds intended relief/gradient")
+    return {"sample_count": len(distance), "minimum_equivalent_relief_metres": float(np.min(profile)),
+            "maximum_equivalent_relief_metres": float(np.max(profile)),
+            "maximum_profile_gradient": float(np.max(np.abs(gradient))), "approximate_maximum_normal_tilt_degrees": tilt,
+            "interpretation": "Analytical 1D profile bound only; not Blender shader execution or physical mesh displacement"}
+
+
+def back_seam_material(obj, material):
     center, horizontal, vertical, normal, half = cushion_frame(obj)
-    mesh = obj.data
-    surface = BVHTree.FromPolygons([v.co.copy() for v in mesh.vertices],
-                                   [list(face.vertices) for face in mesh.polygons])
-    radius = .0013
-    plane_center = center + normal * (half[2] * .55)
-    reach = max(half[0], half[1]) * 2 + .02
-    section = []
-    for i in range(256):
-        angle = math.tau * i / 256
-        radial = (horizontal * (half[0] * math.cos(angle)) + vertical * (half[1] * math.sin(angle))).normalized()
-        hit, _, _, _ = surface.ray_cast(plane_center + radial * reach, -radial, reach * 2)
-        if hit is None:
-            raise RuntimeError("Cushion panel seam missed actual surface: " + obj.name)
-        section.append(hit)
-    projected = np.array([((p-plane_center).dot(horizontal), (p-plane_center).dot(vertical)) for p in section])
-    section_center = (projected.min(axis=0) + projected.max(axis=0)) / 2
-    projected -= section_center
-    plane_center += horizontal * float(section_center[0]) + vertical * float(section_center[1])
-    width, height = np.abs(projected).max(axis=0)
-    candidates = np.linspace(.002, min(width, height) * .95, 600)
-    best_radius, best_error, best_residual = None, float("inf"), None
-    for corner_radius in candidates:
-        delta = np.abs(projected) - np.array((width-corner_radius, height-corner_radius))
-        residual = np.linalg.norm(np.maximum(delta, 0), axis=1) + np.minimum(np.maximum(delta[:, 0], delta[:, 1]), 0) - corner_radius
-        error = float(np.mean(residual * residual))
-        if error < best_error:
-            best_radius, best_error, best_residual = float(corner_radius), error, float(np.max(np.abs(residual)))
-    values = []
-    corners = ((width-best_radius, height-best_radius, 0), (-width+best_radius, height-best_radius, 90),
-               (-width+best_radius, -height+best_radius, 180), (width-best_radius, -height+best_radius, 270))
-    for index, (x, z, start) in enumerate(corners):
-        for i in range(65):
-            angle = math.radians(start + i * 90 / 64)
-            outward = horizontal * math.cos(angle) + vertical * math.sin(angle)
-            values.append(plane_center + horizontal * float(x) + vertical * float(z) + outward * (best_radius + radius * .30))
-        end = values[-1]
-        nx, nz, nstart = corners[(index+1) % 4]
-        next_angle = math.radians(nstart)
-        next_outward = horizontal * math.cos(next_angle) + vertical * math.sin(next_angle)
-        next_start = plane_center + horizontal * float(nx) + vertical * float(nz) + next_outward * (best_radius + radius * .30)
-        for i in range(1, 64):
-            values.append(end.lerp(next_start, i / 64))
-    turns = []
-    for i, point in enumerate(values):
-        incoming = point-values[i-1]
-        outgoing = values[(i+1) % len(values)]-point
-        turns.append(math.degrees(incoming.angle(outgoing)))
-    if max(turns) > 1.5:
-        raise RuntimeError("Fitted upholstery seam has a visible angular change: " + obj.name + " " + str(max(turns)))
-    contact = []
-    for i, point in enumerate(values):
-        next_point = values[(i + 1) % len(values)]
-        for fraction in (0, .25, .5, .75):
-            probe = point.lerp(next_point, fraction)
-            nearest, surface_normal, _, distance = surface.find_nearest(probe)
-            if nearest is None:
-                raise RuntimeError("Cannot verify upholstery seam contact: " + obj.name)
-            signed_distance = distance if (probe-nearest).dot(surface_normal) >= 0 else -distance
-            if abs(signed_distance) > radius * .75:
-                raise RuntimeError("Upholstery seam floats or is excessively buried: " + obj.name + " " + str(signed_distance))
-            contact.append(signed_distance)
-    curve = bpy.data.curves.new(obj.name + "_WeltGeometry", "CURVE")
-    curve.dimensions = "3D"
-    curve.resolution_u = 1
-    curve.bevel_depth = radius
-    curve.bevel_resolution = 3
-    spline = curve.splines.new("POLY")
-    spline.points.add(len(values) - 1)
-    for point, value in zip(spline.points, values):
-        point.co = (*value, 1)
-    spline.use_cyclic_u = True
-    curve.materials.append(material)
-    welt = bpy.data.objects.new(obj.name.replace("Cushion", "Welt"), curve)
-    target.objects.link(welt)
-    welt["construction"] = "1.3 mm matching-fabric welt with smooth fitted side-band section and strict actual-surface contact; original cushion geometry retained"
-    audit = {"part": welt.name, "radius_metres": radius, "surface_section_depth_fraction": .55,
-             "curve_points": len(values), "contact_probes": len(contact),
-             "measured_section_points": len(section), "fitted_corner_radius_metres": best_radius,
-             "fit_maximum_2d_residual_metres": best_residual,
-             "maximum_polyline_turn_degrees": max(turns),
-             "min_signed_surface_distance_metres": min(contact),
-             "max_signed_surface_distance_metres": max(contact),
-             "maximum_allowed_absolute_distance_metres": radius * .75}
-    return audit
+    material = material.copy()
+    material.name = obj.name + "_ShallowCoverSeam"
+    obj.data.materials[0] = material
+    nodes, links = material.node_tree.nodes, material.node_tree.links
+    frame = nodes.new("NodeFrame")
+    frame.label = "Shallow upholstery crease: normal only, original color unchanged"
+    def scalar(operation, *values):
+        node = nodes.new("ShaderNodeMath")
+        node.operation, node.parent = operation, frame
+        for i, value in enumerate(values):
+            if isinstance(value, (int, float)):
+                node.inputs[i].default_value = value
+            else:
+                links.new(value, node.inputs[i])
+        return node.outputs[0]
+    coordinates = nodes.new("ShaderNodeTexCoord")
+    coordinates.parent = frame
+    relative = nodes.new("ShaderNodeVectorMath")
+    relative.operation, relative.parent = "SUBTRACT", frame
+    links.new(coordinates.outputs["Object"], relative.inputs[0])
+    relative.inputs[1].default_value = center
+    def projection(axis):
+        node = nodes.new("ShaderNodeVectorMath")
+        node.operation, node.parent = "DOT_PRODUCT", frame
+        links.new(relative.outputs["Vector"], node.inputs[0])
+        node.inputs[1].default_value = axis
+        return node.outputs["Value"]
+    width, height = half[0]-.016, half[1]-.016
+    corner = min(width, height)*.4
+    x = scalar("SUBTRACT", scalar("ABSOLUTE", projection(horizontal)), width-corner)
+    y = scalar("SUBTRACT", scalar("ABSOLUTE", projection(vertical)), height-corner)
+    outside = scalar("SQRT", scalar("ADD", scalar("POWER", scalar("MAXIMUM", x, 0), 2), scalar("POWER", scalar("MAXIMUM", y, 0), 2)))
+    distance = scalar("SUBTRACT", scalar("ADD", outside, scalar("MINIMUM", scalar("MAXIMUM", x, y), 0)), corner)
+    def gaussian(value, width):
+        scaled = scalar("DIVIDE", value, width)
+        return scalar("POWER", math.e, scalar("MULTIPLY", -1, scalar("MULTIPLY", scaled, scaled)))
+    valley = scalar("MULTIPLY", -1, gaussian(distance, .0015))
+    shoulders = scalar("MULTIPLY", .12, scalar("ADD", gaussian(scalar("SUBTRACT", distance, .002), .0009), gaussian(scalar("ADD", distance, .002), .0009)))
+    front = scalar("MINIMUM", scalar("MAXIMUM", scalar("DIVIDE", scalar("SUBTRACT", projection(normal), half[2]*.2), half[2]*.3), 0), 1)
+    front = scalar("MULTIPLY", scalar("POWER", front, 2), scalar("SUBTRACT", 3, scalar("MULTIPLY", 2, front)))
+    profile = scalar("MULTIPLY", scalar("ADD", valley, shoulders), front)
+    shader = nodes.get("Principled BSDF")
+    previous_normal = shader.inputs["Normal"].links[0].from_socket if shader.inputs["Normal"].links else None
+    bump = nodes.new("ShaderNodeBump")
+    bump.name, bump.label, bump.parent = "ShallowCoverSeam", "0.18 mm relief, 0.70 strength; no displacement", frame
+    bump.inputs["Strength"].default_value = .7
+    bump.inputs["Distance"].default_value = .00018
+    links.new(profile, bump.inputs["Height"])
+    if previous_normal:
+        links.new(previous_normal, bump.inputs["Normal"])
+    links.new(bump.outputs["Normal"], shader.inputs["Normal"])
+    depths, rows = {}, {}
+    def depth(node):
+        if node.name not in depths:
+            parents = [link.from_node for socket in node.inputs for link in socket.links if link.from_node.parent == frame]
+            depths[node.name] = 1 + max((depth(parent) for parent in parents), default=-1)
+        return depths[node.name]
+    for node in [node for node in nodes if node.parent == frame]:
+        column = depth(node)
+        row = rows.get(column, 0)
+        node.location = (column*185, -row*170)
+        rows[column] = row+1
+    metrics = seam_profile_metrics()
+    fade_gradient = 1.5 / (half[2]*.3)
+    combined = metrics["maximum_profile_gradient"] + max(abs(metrics["minimum_equivalent_relief_metres"]), abs(metrics["maximum_equivalent_relief_metres"])) * fade_gradient
+    metrics["conservative_front_fade_combined_tilt_degrees"] = math.degrees(math.atan(combined))
+    if metrics["conservative_front_fade_combined_tilt_degrees"] > 6:
+        raise RuntimeError("Seam material front fade exceeds intended shallow normal change")
+    return {"part": obj.name, "material": material.name, "treatment": "Shallow procedural normal crease, no mesh welt or color outline",
+            "center": list(center), "horizontal": list(horizontal), "vertical": list(vertical), "front_normal": list(normal),
+            "panel_half_width_metres": width, "panel_half_height_metres": height, "corner_radius_metres": corner,
+            "gaussian_width_metres": .0015, "shoulder_offset_metres": .002, "shoulder_width_metres": .0009,
+            "height_distance_metres": .00018, "bump_strength": .7, "profile_metrics": metrics}
 
 
 def studio():
@@ -354,10 +357,10 @@ def build(args, output):
             parts.append(part)
     if len(parts) != 16 or sum("Cushion" in p.name for p in parts) != 4:
         raise RuntimeError("Unexpected original SOFA components; inspect before modifying")
-    seam_contacts = []
+    seam_materials = []
     for part in parts:
         if "BackCushion" in part.name:
-            seam_contacts.append(back_welt(part, candidate, part.data.materials[0]))
+            seam_materials.append(back_seam_material(part, part.data.materials[0]))
     candidate_grip = bpy.data.objects.new("SOFA_Grip_R_OriginalTransform", None)
     candidate.objects.link(candidate_grip)
     candidate_grip.matrix_world = original_grip
@@ -386,11 +389,12 @@ def build(args, output):
         "grip_world_matrix_blender": [list(row) for row in original_grip],
         "original_components": geometry_record,
         "primary_geometry_policy": "All original component positions, faces, UVs and transformed split normals retained; no cushion subdivision or shape replacement",
-        "seam_contact_checks": seam_contacts,
-        "candidate_mesh_parts": len(parts), "candidate_curve_welts": 2,
+        "seam_material_profiles": seam_materials,
+        "seam_contact_checks": "Not applicable: material normal treatment, no added welt geometry",
+        "candidate_mesh_parts": len(parts), "candidate_curve_welts": 0,
         "candidate_mesh_triangles": sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in parts),
-        "materials": [m.name for m in material_copies.values()],
-        "limitations": ["Seam construction and material quality await actual rendered review", "Procedural fabric relief is editable Blender material; no baked Unity maps or delivery exports yet", "Static avatar/table scale scene is not a gameplay capture", "No runtime replacement, budget acceptance, owner acceptance or production readiness claimed"],
+        "materials": sorted({m.name for part in parts for m in part.data.materials}),
+        "limitations": ["Shallow material seam appearance awaits actual rendered review; no physical seam/contact claim", "Procedural fabric/seam normals are editable Blender materials; Unity-map baking and delivery exports remain pending", "Static avatar/table scale scene is not a gameplay capture", "No runtime replacement, budget acceptance, owner acceptance or production readiness claimed"],
         "blend_sha256": digest(output / "SOFA-original-based-pilot.blend"),
     }
     write_json(output / "build-receipt.json", manifest)

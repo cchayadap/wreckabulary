@@ -1,5 +1,6 @@
 """Read-only original GLB geometry preflight; no Blender, no asset writes."""
 import hashlib
+import ast
 import json
 import math
 from pathlib import Path
@@ -142,6 +143,18 @@ for group in groups.values():
     vertical*=1 if vertical[2]>0 else -1
     normal=np.cross(horizontal,vertical);normal/=np.linalg.norm(normal)
     half=[max(abs((points-center)@axis)) for axis in (horizontal,vertical,normal)]
+    if '--material-profile' in sys.argv:
+        builder=Path(__file__).resolve().parents[2]/'Tools/AssetPipeline/build_wordbound_original_pilot.py'
+        function=next(node for node in ast.parse(builder.read_text(encoding='utf-8')).body if isinstance(node,ast.FunctionDef) and node.name=='seam_profile_metrics')
+        namespace={'np':np,'math':math}
+        exec(compile(ast.Module(body=[function],type_ignores=[]),str(builder),'exec'),namespace)
+        metrics=namespace['seam_profile_metrics']()
+        combined=metrics['maximum_profile_gradient']+max(abs(metrics['minimum_equivalent_relief_metres']),abs(metrics['maximum_equivalent_relief_metres']))*1.5/(half[2]*.3)
+        tilt=math.degrees(math.atan(combined))
+        results.append({'side':'left' if center[0]<0 else 'right','source_triangles':len(triangles),
+                        'half_depth_metres':half[2],'profile':metrics,'conservative_combined_tilt_degrees':tilt,
+                        'material_profile_pass':bool(tilt<=6),'scope':'Numerical intended height profile and front fade, not shader execution or mesh contact'})
+        continue
     plane_center=center+normal*(half[2]*.55)
     reach=max(half[:2])*2+.02
     section=[]
@@ -193,6 +206,7 @@ for group in groups.values():
                     'min_signed_distance_m':float(min(distances)),'max_signed_distance_m':float(max(distances)),
                     'max_absolute_distance_m':float(max(abs(distances))),'allowed_distance_m':radius*.75,
                     'contact_pass':bool(max(abs(distances))<=radius*.75),'turn_pass':bool(max(turns)<=1.5)})
-print(json.dumps({'source_sha256':hashlib.sha256(data).hexdigest(),'method':'Direct GLB triangles, vectorized ray/closest-triangle math, float32 emitted points; no Blender','results':results},indent=2))
-if len(results)!=2 or any(not r['contact_pass'] or not r['turn_pass'] for r in results):
+method = 'Direct GLB dimensions plus analytical material profile/front-fade bound; no Blender/shader execution' if '--material-profile' in sys.argv else 'Direct GLB triangles, vectorized ray/closest-triangle math, float32 emitted points; no Blender'
+print(json.dumps({'source_sha256':hashlib.sha256(data).hexdigest(),'method':method,'results':results},indent=2))
+if len(results)!=2 or any(not r['material_profile_pass'] if '--material-profile' in sys.argv else not r['contact_pass'] or not r['turn_pass'] for r in results):
     sys.exit(1)

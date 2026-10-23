@@ -1,6 +1,6 @@
 # Original-based Wreckabulary art pilot
 
-STATUS: V1 REJECTED; V2 DETAIL REVIEW FAILED SEAM SMOOTHNESS — V3 repair source prepared, owner acceptance pending
+STATUS: V1/V2 REJECTED IN DETAIL; V3 GEOMETRY PREFLIGHT FAILED — V4 shallow material pilot prepared, appearance pending
 
 The owner rejected DetailV2 and identified the original Wreckabulary game artwork as the reference. This pilot starts with those original bytes. It does not replace runtime assets, overwrite either Wordbound revision, or establish that any artwork is ready to ship. Root owns the serial Blender/render slot.
 
@@ -28,7 +28,7 @@ V2 evidence: blend SHA-256 `8047e5018b04c9d421d8688f7a445d778adf003dfb1dde7ff0c9
 
 ## Exact root-owned commands
 
-**Superseded for new generation:** V2 was later inspected from the side and in close-up by root and this lane. The close-up reveals a kinked top-left seam and awkward angular lower run, so V2 is not accepted. Preserve it; do not render remaining V2 views. Use [the V3 repair and exact new-destination commands](ORIGINAL-BASED-SOFA-V3-REPAIR.md). The V2 commands below are retained as historical provenance only.
+**Superseded for new generation:** V2 was later inspected from the side and in close-up by root and this lane. The close-up reveals a kinked top-left seam and awkward angular lower run, so V2 is not accepted. Preserve it; do not render remaining V2 views. V3's smooth wire fit subsequently failed numerical source-geometry checks before Blender. Use [the separately authorized V4 shallow material pilot](ORIGINAL-BASED-SOFA-MATERIAL-PILOT.md). The V2 commands below are retained as historical provenance only.
 
 Run only after the current heavy gate releases. These commands assume the script commit is integrated into root. The build refuses an existing destination and verifies the exact original SOFA hash. It writes only the new `OriginalBasedPilotV2` folder. A failed/abandoned build is preserved; choose a new numbered revision instead of deleting or overwriting it.
 
