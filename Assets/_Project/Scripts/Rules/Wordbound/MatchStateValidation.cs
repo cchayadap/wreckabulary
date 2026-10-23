@@ -477,6 +477,9 @@ namespace Wreckabulary.Rules.Wordbound
         static void ValidateSource(WorldBodyState body, Dictionary<string, Tuple<int, bool, string>> sources,
             Dictionary<string, ResolvedCoursePlacement> placements, MatchSnapshot s, ModeDefinition mode, WordboundResourceLifecycle lifecycle)
         {
+#if UNITY_EDITOR || GSK_QA
+            using var phase = WordboundPhaseCapture.Measure(WordboundPhase.BodySourceValidation);
+#endif
             if (body.SourceId == "")
             {
                 Need(!body.Protected && (mode.IsRace || body.OwnerTeam == -1) &&

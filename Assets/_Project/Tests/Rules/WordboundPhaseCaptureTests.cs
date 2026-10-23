@@ -180,6 +180,11 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(1, capture.Count(phase), phase.ToString());
             Assert.AreEqual(2, capture.Count(WordboundPhase.EconomyValidation));
             foreach (var child in FullChildren) Assert.AreEqual(1, capture.Count(child), child.ToString());
+            int sourceBodies = frame.Bodies.Count(body => body.Kind == WorldBodyKind.Item || body.Kind == WorldBodyKind.Tile);
+            Assert.Greater(sourceBodies, 0, "The real authority fixture must exercise source validation.");
+            Assert.AreEqual(sourceBodies, capture.Count(WordboundPhase.BodySourceValidation),
+                "Only the full validation visits each Item/Tile source; fresh mutable validation must not repeat it.");
+            Assert.GreaterOrEqual(capture.TotalTicks(WordboundPhase.BodiesValidation), capture.TotalTicks(WordboundPhase.BodySourceValidation));
             Assert.GreaterOrEqual(capture.TotalTicks(WordboundPhase.FullValidation), FullChildren.Sum(capture.TotalTicks));
         }
 
@@ -208,7 +213,7 @@ namespace Wreckabulary.Tests
                 WordboundPhase.EconomyValidation, WordboundPhase.ResourcesValidation })
                 Assert.AreEqual(1, capture.Count(phase), phase.ToString());
             foreach (var phase in new[] { WordboundPhase.BodiesValidation, WordboundPhase.MechanismsValidation,
-                WordboundPhase.BodyBudgetValidation, WordboundPhase.MutableValidation })
+                WordboundPhase.BodyBudgetValidation, WordboundPhase.MutableValidation, WordboundPhase.BodySourceValidation })
                 Assert.AreEqual(0, capture.Count(phase), phase.ToString());
             Assert.GreaterOrEqual(capture.TotalTicks(WordboundPhase.FullValidation), FullChildren.Sum(capture.TotalTicks));
         }
@@ -259,6 +264,9 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(1, capture.Count(WordboundPhase.FullValidation));
             Assert.AreEqual(ending == "apply-error" ? 1 : 0, capture.Count(WordboundPhase.MutableValidation));
             foreach (var child in FullChildren) Assert.AreEqual(1, capture.Count(child), child.ToString());
+            Assert.AreEqual(frame.Bodies.Count(body => body.Kind == WorldBodyKind.Item || body.Kind == WorldBodyKind.Tile),
+                capture.Count(WordboundPhase.BodySourceValidation));
+            Assert.GreaterOrEqual(capture.TotalTicks(WordboundPhase.BodiesValidation), capture.TotalTicks(WordboundPhase.BodySourceValidation));
             Assert.GreaterOrEqual(capture.TotalTicks(WordboundPhase.FullValidation), FullChildren.Sum(capture.TotalTicks));
         }
     }
