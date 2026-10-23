@@ -53,12 +53,13 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 ## Models and presentation
 
-**Owner direction, 2026-10-23:** DetailV2 appearance is rejected: old, generic and insufficiently detailed. The reference is the **original Wreckabulary game assets**, not the first Wordbound set. Preserve both Wordbound revisions, compare against the original supplied-item contact sheet and native game captures, and revise a small representative sample before rolling the new treatment across the collection. Existing technical passes remain valid only for their recorded bytes; they do not imply visual approval.
+**Owner direction, 2026-10-23:** DetailV2 appearance is rejected: old, generic and insufficiently detailed. Use the **original Wreckabulary game assets** as the reference and runtime default. Preserve both Wordbound revisions and experimental pilots. No further generation is underway. Check the original assets in actual held, placed and gameplay views; earlier import checks do not imply visual approval.
 
 - [x] Produce 12 concepts and editable Blender models: BAT, BROOM, HAMMER, SPEAR, SHIELD, PLATE, TABLE, SOFA, BED, STOOL, FAN, CLOCK.
 - [x] Pass 24 FBX/GLB reimports and native presentation checks.
 - [~] Inspect actual assets close-up/held/placed/at gameplay distance for believable detail, scale, materials and readability.
-- [~] Improve deficient models/materials while preserving editable sources and rendering/collision costs. The original game assets are restored as the default. DetailV2's technical import/mesh checks remain archived evidence for that rejected style, not visual acceptance. SOFA pilots did not improve the original; isolated FAN/HAMMER construction pilots await full multi-view and Unity review.
+- [x] Restore the original game assets as the default and preserve the rejected variants. The2157 neutral Unity preview shows all four representative originals and visible held-BAT contact; actual Windows220124 shows the original character/world. This is agent inspection, not owner visual approval.
+- [~] Match menu/workshop presentation to the original cream/teal/Nunito styling through an editable Unity theme. Repair opaque panel contrast, selection/focus, multiline rows and passive-HUD overlap; implementation and rendered acceptance are underway.
 - [ ] Verify Unity prefabs/materials/grips/icons and all held/placed/thrown/used/destroyed states.
 - [ ] Capture final assets/gameplay and obtain owner visual-quality/feel review on the reviewable build.
 
