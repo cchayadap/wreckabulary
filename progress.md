@@ -138,7 +138,7 @@ Outstanding: three articulated transform basis mismatches; one EditMode camera S
 
 All seven worktrees and existing versions remain preserved. Public activation is verified as recorded below; completed native gameplay and a tested Windows build remain unfinished.
 
-## Current verification — 2026-10-23T14:03Z
+## Current verification — 2026-10-23T14:30Z
 
 | Work | State and exact evidence |
 | --- | --- |
@@ -147,9 +147,10 @@ All seven worktrees and existing versions remain preserved. Public activation is
 | Service validation | [x] Actual native catalogue: Node 10/10, Worker 41/41, both TypeScript checks. Worker evidence in the activation folder. |
 | Pivot/authoring/recovery | [x] Native pivot/detail 6/6, authoring persistence 8/8, workshop recovery 11/11 and existing workshop 9/9. `TestResults/editmode_20261023T125443Z.xml`; entire batch failed because input cases failed. Affected workshop core 23/23: `TestResults/core_20261023T125341Z.trx`. |
 | Input | [x] Focused native input 24/24 now pass, including real menu repaint/focus and held-input protection. `TestResults/editmode_20261023T133902Z.xml`. Production input protections unchanged; Windows-player handling remains separate. |
-| Workshop source selection | [~] Initial native source-binding 23/25 pass. The large-course recovery wrapper now supports a bounded embedded course while preserving strict inner validation; affected core 66/66 pass (`TestResults/core_20261023T135423Z.trx`). The source-choice fixture now respects actual post-block quiet frames. Corrected native 25-case rerun pending. |
+| Workshop source selection | [~] Latest native source-binding 24/25 pass (`TestResults/editmode_20261023T141231Z.xml`), including the repaired large-course recovery. Affected core 66/66 pass (`TestResults/core_20261023T135423Z.trx`). One wait checked its deadline after the required quiet frame had cleared; bounded fixture repair is integrated, rerun pending. |
 | Physical puzzles | [~] TABLE craft wait remains unresolved. Diagnostic instrumentation now distinguishes per-action deadline from fixture lifetime; strict rerun pending. |
-| Original-based models | [~] SOFA V1/V2 preserved; V2 close-up seam kink remains rejected. V3 smooth raised seam failed contact feasibility before rendering. V4 preserves original geometry and tests a shallow editable fabric-normal seam; Blender build passes, close-up rendering underway. An Inspector choice to restore actual original-game artwork as the default is being implemented. |
-| Public modes/build | [~] First native public batch failed 0/5 (`TestResults/editmode_20261023T134237Z.xml`): the test wrapper did not enter Play Mode. Direct private comparison passes 1/1 with cleanup (`TestResults/editmode_20261023T135039Z.xml`). Reviewed public/HUD wrapper repair and explicit Play Mode guard integrated; R0 passes (`Logs/gate_check_all_20261023T135858Z.log`). Public rerun, Duo/Squad, private transfer, recovery, full matches and Windows delivery remain required. |
+| Original-game artwork | [x] Actual original models are now the default; optional Wordbound equipment remains an Inspector choice and explicit item overrides still win. Native presentation 48/48 pass (`TestResults/editmode_20261023T141231Z.xml`), including all twelve original model bounds/grips and collection opt-in. No owner visual acceptance is implied. |
+| Original-based models | [~] All SOFA experiments preserved. V4 has no convincing improvement, so the original SOFA stays the baseline. FAN/HAMMER construction pilots are isolated source experiments; FAN native Blender build passes, matched detail render/review underway. No pilot replaces runtime artwork. |
+| Public modes/build | [~] Corrected wrappers now enter Play Mode and obtain public certificates, but latest five native public cases all fail (`TestResults/editmode_20261023T141231Z.xml`): Brawl/FFA/TeamRace expire the canonical writer lease; Freestyle/TimeRun fail client movement. Diagnostic work is active. Earlier direct private comparison passes 1/1 with cleanup (`TestResults/editmode_20261023T135039Z.xml`). Duo/Squad, private transfer, recovery, full matches and Windows delivery remain required. |
 
 Earlier paragraphs above retain the sequence of failed and superseded checks. This table is the current acceptance state; a technical asset pass does not reverse the owner's DetailV2 rejection.

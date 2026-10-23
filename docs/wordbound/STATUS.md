@@ -8,9 +8,9 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current delivery snapshot — 2026-10-23 13:31 UTC
+## Current delivery snapshot — 2026-10-23 14:30 UTC
 
-Implementation and integration are active. There is no verified Windows player to deliver yet. No further Photon or Cloudflare account setup is currently required. The Oct23 recovery verified seven worktrees and preserved 719 dirty/untracked/authored files with binary patches and checked SHA-256 copies in the ignored recovery folder recorded in progress.md. Original main/font/Lunar work is unchanged. No old heavy process survived; caches were retained.
+Implementation and integration are active. There is no verified Windows player to deliver yet. No further Photon or Cloudflare account setup is currently required. Actual original Wreckabulary artwork is now the default, with 48/48 native presentation checks passing. The latest public Photon run reaches real sessions but fails writer-lease or client-movement checks; public gameplay is not yet verified. See the current evidence table in [progress.md](../../progress.md). The Oct23 recovery verified seven worktrees and preserved 719 dirty/untracked/authored files with binary patches and checked SHA-256 copies in the ignored recovery folder recorded in progress.md. Original main/font/Lunar work is unchanged; caches were retained.
 
 | Work package | What is verified | Work remaining |
 | --- | --- | --- |
@@ -27,7 +27,7 @@ Current assignments: root owns integration, exact Workshop online handoff, nativ
 
 Latest bounded Rules run: 409/410 PASS, followed by repair of the sole obsolete schema-2 assertion and 14/14 PASS in the affected deployment group. Earlier arena 1,000-seed and flagship 8,000-seed results remain recorded separately. Final assembled R0 passed in 140.6 seconds (`Logs/gate_check_all_20261023T094106Z.log`). Native batch `201950Z` previously hit its 1,200-second deadline during compilation before tests started. Caches are retained for the 3,600-second retry. The earlier physical fixture also has an unresolved runtime timeout; neither gap is closed by source checks.
 
-Native camera, six detailed model/pivot cases, eight authoring-persistence cases and eleven workshop-recovery cases now pass. The latest input batch passed 15/23 with eight failures; reviewed fixture frame/state repairs are integrated and the next batch expects 24. Assigned/template/flagship source binding adds 25 cases awaiting native execution. The six-family physical puzzle test still fails at TABLE crafting; instrumentation is integrated to distinguish an action deadline from the overall fixture lifetime. Private transfer, recovery and public Photon fixtures remain pending.
+Native camera, six detailed model/pivot cases, eight authoring-persistence cases and eleven workshop-recovery cases pass. Input now passes 24/24 (`editmode_20261023T133902Z.xml`). Assigned/template/flagship source binding passes 24/25; a remaining fixture wait-order repair awaits rerun. The six-family physical puzzle test still fails at TABLE crafting; instrumentation is integrated to distinguish an action deadline from the overall fixture lifetime. Private transfer and recovery remain pending. The five public Photon cases now execute in Play Mode but fail lease-expiry or movement checks (`editmode_20261023T141231Z.xml`); these failures are under investigation.
 
 The owner rejected DetailV2's appearance and chose the original Wreckabulary game assets as the reference. Both revisions are preserved. A small original-based sofa pilot retains the original geometry/colours; V1 failed internal visual review, V2's first pair resolves those visible seam defects, and further views are rendering. FAN/HAMMER and final Unity visual acceptance remain unfinished. The current checklist and evidence are in [progress.md](../../progress.md).
 
