@@ -38,7 +38,16 @@ namespace Wreckabulary.OfflineGameplayTests
         [UnityTest, Category("LocalWordboundGameplay")]
         public IEnumerator TimeRunUsesOfflineRunnerAndExactWorkshopManifest() => Run("TimeRun");
 
-        IEnumerator Run(string selectedMode)
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator AtomicPhysicsApplyRetainsValidationAndAbortGuards() => Run("Freestyle", "atomic");
+
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator PresentationStopCannotPublishAnAbandonedReconciliation() => Run("Freestyle", "stop");
+
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator PresentationFailureKeepsItsExceptionAndCannotPublishAFrame() => Run("Freestyle", "throw");
+
+        IEnumerator Run(string selectedMode, string atomicCase = "")
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_LOCAL_GAMEPLAY") != "1")
                 Assert.Ignore("Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof.");
@@ -68,10 +77,21 @@ namespace Wreckabulary.OfflineGameplayTests
                 "|" + WordboundIdentity.Sha256(ruleJson));
             var binding = WordboundLocalSession.CreateBinding(mode, course, contentHash, Actor);
             controller = new GameObject(Prefix + "Controller").AddComponent<WordboundGameplayController>();
+            int visualCallbacks = 0, framesAfterCallback = 0, advancesAfterCallback = 0;
+            MatchSnapshot frameAtCallback = null;
+            controller.FrameChanged += _ => { if (visualCallbacks > 0) framesAfterCallback++; };
+            controller.HostAdvanced += _ => { if (visualCallbacks > 0) advancesAfterCallback++; };
             controller.InitializeLocal(binding, mode, course, geometry, items, rules, Actor, prefabs,
                 new WordboundGameplayOptions {
                     GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
-                    ReadMovement = () => movement
+                    ReadMovement = () => movement,
+                    ConfigureVisual = body => {
+                        if (atomicCase != "stop" && atomicCase != "throw") return;
+                        visualCallbacks++;
+                        frameAtCallback = controller.Frame;
+                        if (atomicCase == "throw") throw new FormatException("atomic native presentation failure");
+                        _ = controller.Stop();
+                    }
                 });
             var config = new NetworkProjectConfig { PeerMode = NetworkProjectConfig.PeerModes.Multiple };
             foreach (var source in NetworkProjectConfig.Global.PrefabTable.Prefabs) config.PrefabTable.AddSource(source);
@@ -86,6 +106,20 @@ namespace Wreckabulary.OfflineGameplayTests
             }, config, controller.Authority, Actor);
             controller.AttachSession(session);
             yield return Wait(session.StartLocal(lifetime.Token), "Start local SDK runner", 30);
+            if (atomicCase == "stop" || atomicCase == "throw")
+            {
+                double deadline = Time.realtimeSinceStartupAsDouble + 30;
+                while (visualCallbacks == 0 && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
+                    yield return null;
+                Assert.AreEqual(1, visualCallbacks, "The actual presentation callback must run once before aborting.");
+                Assert.AreEqual(0, framesAfterCallback);
+                Assert.AreEqual(0, advancesAfterCallback);
+                Assert.AreSame(frameAtCallback, controller.Frame);
+                Assert.IsTrue(controller.IsSimulationPaused);
+                Assert.IsFalse(session.GameplayReady);
+                Assert.AreEqual(atomicCase == "throw" ? "FormatException: atomic native presentation failure" : "", controller.Fault);
+                yield break;
+            }
             yield return Until(() => session.GameplayReady && controller.PhysicsWorld != null &&
                 controller.Frame != null && !controller.IsSimulationPaused, "Build local canonical world", 30);
             Assert.AreEqual(GameMode.Single, session.Runner.GameMode);
@@ -95,6 +129,21 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(course.Hash, controller.CourseWorld.ManifestHash);
             Assert.AreNotEqual(UnityEngine.Physics.defaultPhysicsScene, controller.PhysicsWorld.PhysicsScene);
             CollectionAssert.AreEquivalent(controller.Frame.Bodies.Select(b => b.Id), controller.Bodies.Keys);
+
+            if (atomicCase == "atomic")
+            {
+                CheckAtomicPhysics(rules);
+                long tick = controller.Frame.Progress.Tick;
+                yield return Until(() => controller.Frame.Progress.Tick > tick, "Resume normal host ticks after guarded applications", 10);
+                var world = controller.PhysicsWorld;
+                bool stopped = world.ReconcileAndApplySnapshot(controller.Frame, rules, () => { _ = controller.Stop(); return true; });
+                Assert.IsFalse(stopped, "Disposal during preparation must abort the old world's apply.");
+                Assert.IsFalse(world.IsHost);
+                Assert.Throws<InvalidOperationException>(() => world.ApplySnapshot(controller.Frame));
+                Assert.IsTrue(controller.IsSimulationPaused);
+                Assert.AreEqual("", controller.Fault);
+                yield break;
+            }
 
             var initial = Player().Position;
             movement = new WordboundMovementInput { MoveZ = 1 };
@@ -129,6 +178,57 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(originalDraft, draft.RecoveryJson, "Playtest must not rewrite the authored document or seed.");
             Assert.IsFalse(session.Runner.IsCloudReady);
             Debug.Log("WORDBOUND_LOCAL_OBSERVED: exact workshop manifest, native bodies, local movement/jump and validated memory checkpoint; cleanup pending.");
+        }
+
+        void CheckAtomicPhysics(GameRules initialRules)
+        {
+            var world = controller.PhysicsWorld;
+            var original = controller.Frame;
+            var player = original.Bodies.Single(body => body.Kind == WorldBodyKind.Player);
+            var native = controller.Bodies[player.Id];
+            var prior = native.Canonical;
+            var moved = player.At(new WorldVector(player.Position.X + 1, player.Position.Y, player.Position.Z));
+            MatchSnapshot Replace(System.Collections.Generic.IEnumerable<WorldBodyState> bodies) =>
+                new MatchSnapshot(original.Binding, original.Epoch, original.Sequence, original.NextWorldEntityId,
+                    original.Progress, original.Economy, original.Commands, original.Actors, bodies, original.Resources,
+                    original.Mechanisms, original.RandomStreams, original.NarrativeFlags, original.ThrownFlights, original.Practice);
+            var candidate = Replace(original.Bodies.Select(body => body.Id == player.Id ? moved : body));
+            var invalid = Replace(original.Bodies.Where(body => body.Id != player.Id));
+            Assert.Throws<ArgumentException>(() => world.ApplySnapshot(invalid));
+            bool prepared = false;
+            Assert.Throws<ArgumentException>(() => world.ReconcileAndApplySnapshot(invalid, initialRules, () => { prepared = true; return true; }));
+            Assert.IsFalse(prepared);
+            Assert.AreSame(prior, native.Canonical);
+            Assert.IsFalse(world.ReconcileAndApplySnapshot(candidate, initialRules, () => false));
+            Assert.AreSame(prior, native.Canonical);
+
+            var callbackError = new FormatException("native prepare failure");
+            Assert.AreSame(callbackError, Assert.Throws<FormatException>(() =>
+                world.ReconcileAndApplySnapshot(candidate, initialRules, () => throw callbackError)));
+            Assert.AreSame(prior, native.Canonical);
+            Assert.IsFalse(world.ReconcileAndApplySnapshot(candidate, initialRules, () => {
+                Assert.Throws<InvalidOperationException>(() => world.ApplySnapshot(candidate));
+                Assert.Throws<InvalidOperationException>(() => world.ReconcileAndApplySnapshot(candidate, initialRules, () => true));
+                return false;
+            }));
+            Assert.AreSame(prior, native.Canonical);
+
+            float health = world.Rules.MaxHealth;
+            try
+            {
+                Assert.Throws<ArgumentException>(() => world.ReconcileAndApplySnapshot(candidate, initialRules, () => {
+                    world.Rules.MaxHealth = 1;
+                    return true;
+                }));
+                Assert.AreSame(prior, native.Canonical);
+                Assert.Throws<ArgumentException>(() => world.ApplySnapshot(candidate));
+            }
+            finally { world.Rules.MaxHealth = health; }
+            Assert.IsTrue(world.ReconcileAndApplySnapshot(candidate, initialRules, () => true));
+            Assert.AreSame(moved, native.Canonical);
+            world.ApplySnapshot(original);
+            Assert.AreSame(player, native.Canonical);
+            Debug.Log("WORDBOUND_ATOMIC_APPLY: actual local runner; direct validation, initial rejection, abort, callback exception, reentry, distinct live rules and later successful apply observed.");
         }
 
         WorldBodyState Player() => controller.Frame.Bodies.Single(b => b.Kind == WorldBodyKind.Player && b.SourceId == Actor);

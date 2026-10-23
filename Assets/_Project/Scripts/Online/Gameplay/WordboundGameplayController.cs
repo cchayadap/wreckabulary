@@ -141,6 +141,7 @@ namespace Wreckabulary.Online
                     if (options.Clock() - runnerStarted >= 30000) throw new TimeoutException("The runner-local gameplay scene did not become ready.");
                     return;
                 }
+                if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                 if (session.GameplayReady && runner.IsServer && !hostReady) BeginHost();
                 if (hostReady && runner.IsServer)
                 {
@@ -197,6 +198,7 @@ namespace Wreckabulary.Online
             {
                 if (!ReferenceEquals(runner, session.Runner)) ChangeRunner(session.Runner);
                 if (!localReady && !PrepareScene()) return;
+                if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                 if (runner.IsServer) BeginHost();
             }
             catch (Exception error) { Fail(error); }
@@ -235,6 +237,7 @@ namespace Wreckabulary.Online
                 if (Fault != "" || !session.GameplayReady || !hostReady) return;
                 var current = CaptureFrame();
                 if (!SameFrame(frame, current) && !Reconcile(current)) return;
+                if (stopping || Fault != "" || !hostReady || !session.GameplayReady) return;
                 if (!Authority.Match.IsPaused)
                     using (BeforePhysicsMarker.Auto()) options.BeforeHostPhysics?.Invoke(frame, bodies);
             }
