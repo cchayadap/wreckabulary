@@ -147,8 +147,7 @@ namespace Wreckabulary.Online
                 if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                 if (hostReady && runner.IsServer)
                 {
-                    var current = CaptureFrame();
-                    if (!SameFrame(frame, current) && !Reconcile(current)) return;
+                    if (!Authority.Match.MatchesTickAndPresence(frame) && !Reconcile(CaptureFrame())) return;
                     if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                     if (!publishing && options.Clock() >= nextCheckpoint) _ = PublishCheckpoint();
                 }
@@ -244,8 +243,7 @@ namespace Wreckabulary.Online
             {
                 session.Poll();
                 if (Fault != "" || !session.GameplayReady || !hostReady) return;
-                var current = CaptureFrame();
-                if (!SameFrame(frame, current) && !Reconcile(current)) return;
+                if (!Authority.Match.MatchesTickAndPresence(frame) && !Reconcile(CaptureFrame())) return;
                 if (stopping || Fault != "" || !hostReady || !session.GameplayReady) return;
                 if (!Authority.Match.IsPaused)
                     using (BeforePhysicsMarker.Auto()) options.BeforeHostPhysics?.Invoke(frame, bodies);
@@ -468,9 +466,6 @@ namespace Wreckabulary.Online
         }
         void VisualChanged(WordboundGameplayBody view) { if (view.VisualKey.ToString() != "") options.ConfigureVisual?.Invoke(view); }
 
-        static bool SameFrame(MatchSnapshot a, MatchSnapshot b) => a != null && a.Epoch == b.Epoch &&
-            a.Progress.Tick == b.Progress.Tick && a.Progress.Players.Zip(b.Progress.Players, (x, y) =>
-                x.Id == y.Id && x.Connected == y.Connected && x.Returned == y.Returned).All(x => x);
         void SessionFailed(string reason) => Fail(new InvalidOperationException("Session failed: " + reason));
         void Fail(Exception error)
         {

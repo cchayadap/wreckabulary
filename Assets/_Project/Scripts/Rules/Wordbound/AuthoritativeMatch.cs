@@ -242,6 +242,21 @@ namespace Wreckabulary.Rules.Wordbound
             return CaptureState(sequence);
         }
 
+        public bool MatchesTickAndPresence(MatchSnapshot snapshot)
+        {
+            if (inTick) throw new InvalidOperationException("Capture only a completed tick.");
+            if (snapshot == null || snapshot.Binding.Hash != Binding.Hash || snapshot.Epoch != Epoch ||
+                snapshot.Progress.Tick != Tick || snapshot.Progress.Players.Count != Binding.Seats.Count) return false;
+            for (int index = 0; index < Binding.Seats.Count; index++)
+            {
+                var previous = snapshot.Progress.Players[index];
+                var current = progress.Player(Binding.Seats[index].PlayerId);
+                if (previous.Id != current.Id || previous.Connected != current.Connected ||
+                    previous.Returned != current.Returned) return false;
+            }
+            return true;
+        }
+
         MatchSnapshot CaptureState(long sequence) => new MatchSnapshot(Binding, Epoch, sequence, nextWorldEntityId,
             progress.Capture(), economy.Capture(), journal.Capture(), actors.Values, bodies.Values,
             resources.Values, mechanisms.Values, random.Values, narrative, thrownFlights.Values, practice);

@@ -97,6 +97,96 @@ namespace Wreckabulary.Tests
             Console.WriteLine(mode + " initial snapshot UTF-8 bytes: " + System.Text.Encoding.UTF8.GetByteCount(json));
         }
 
+        [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("BrawlRace"), TestCase("FreeForAll"), TestCase("Freestyle")]
+        public void TickAndPresenceMatchesTheCapturedComparisonAcrossSeatChanges(string mode)
+        {
+            var f = Create(mode);
+            var original = f.State;
+            string originalJson = MatchSnapshotCodec.Export(original);
+            AssertTickAndPresence(f, null, false);
+            AssertTickAndPresence(f, original, true);
+            Assert.IsTrue(f.Step().Advanced);
+            AssertTickAndPresence(f, original, false);
+            var advanced = f.State;
+            AssertTickAndPresence(f, advanced, true);
+            Assert.IsTrue(f.Match.Disconnect("a", 1000));
+            AssertTickAndPresence(f, advanced, false);
+            var disconnected = f.State;
+            AssertTickAndPresence(f, disconnected, true);
+            Assert.IsFalse(f.Match.Disconnect("a", 1001));
+            AssertTickAndPresence(f, disconnected, true);
+            Assert.IsTrue(f.Match.Reconnect("a", 1002));
+            AssertTickAndPresence(f, disconnected, false);
+            AssertTickAndPresence(f, advanced, true);
+            var reconnected = f.State;
+            Assert.IsTrue(f.Match.Return("b", 1003));
+            AssertTickAndPresence(f, reconnected, false);
+            var returned = f.State;
+            AssertTickAndPresence(f, returned, true);
+            Assert.IsFalse(f.Match.Reconnect("b", 1004));
+            AssertTickAndPresence(f, returned, true);
+            Assert.AreEqual(originalJson, MatchSnapshotCodec.Export(original), "Comparison must not mutate retained frames.");
+        }
+
+        [Test]
+        public void TickAndPresenceTracksRestoredEpochWithoutTreatingPauseOrPublicationAsATick()
+        {
+            var f = Create();
+            var original = f.State;
+            var stamp = f.Match.PublishSnapshot(out string json);
+            AssertTickAndPresence(f, original, true);
+            Assert.IsTrue(f.Match.Acknowledge(stamp));
+            AssertTickAndPresence(f, original, true);
+            f.Match.PauseForMigration();
+            AssertTickAndPresence(f, original, true);
+            Assert.IsFalse(f.Step().Advanced);
+            AssertTickAndPresence(f, original, true);
+            var saved = f.Source.Import(json);
+            Assert.IsTrue(saved.Success, saved.Error);
+            f.Match.RestoreCommitted(saved.Snapshot, stamp, 1, 1000);
+            Assert.AreEqual(original.Progress.Tick, f.Match.Tick);
+            AssertTickAndPresence(f, original, false);
+            AssertTickAndPresence(f, f.State, true);
+        }
+
+        [Test]
+        public void TickAndPresenceRejectsAnotherBindingAndDoesNotReplaceSnapshotValidation()
+        {
+            var f = Create();
+            var state = f.State;
+            var binding = state.Binding;
+            var foreign = new MatchBinding("another-match", binding.ProtocolVersion, binding.ModeHash,
+                binding.CourseHash, binding.ManifestHash, binding.RosterHash, binding.CatalogueHash, binding.Seats);
+            MatchSnapshot Replace(MatchBinding replacement, IEnumerable<WorldBodyState> bodies, ProgressSnapshot progress = null) =>
+                new MatchSnapshot(replacement, state.Epoch, state.Sequence, state.NextWorldEntityId,
+                    progress ?? state.Progress, state.Economy, state.Commands, state.Actors, bodies, state.Resources,
+                    state.Mechanisms, state.RandomStreams, state.NarrativeFlags, state.ThrownFlights, state.Practice);
+            Assert.IsFalse(f.Match.MatchesTickAndPresence(Replace(foreign, state.Bodies)));
+            var shortRoster = new MatchProgress(f.Source.Mode, binding.Seats.Take(1),
+                MatchStateValidation.Route(f.Source.Course)).Capture();
+            Assert.IsFalse(f.Match.MatchesTickAndPresence(Replace(binding, state.Bodies, shortRoster)));
+            var differentRoster = new MatchProgress(f.Source.Mode,
+                new[] { new WordboundSeat("a", 0), new WordboundSeat("c", 0, 1) },
+                MatchStateValidation.Route(f.Source.Course)).Capture();
+            Assert.IsFalse(f.Match.MatchesTickAndPresence(Replace(binding, state.Bodies, differentRoster)));
+            var incomplete = Replace(binding, Array.Empty<WorldBodyState>());
+            AssertTickAndPresence(f, incomplete, true);
+            Assert.IsNotEmpty(MatchStateValidation.Validate(incomplete, binding, f.Source.Mode, f.Source.Course,
+                f.Source.Catalogue, f.Source.Rules), "Tick/presence equality is not a trusted-snapshot admission check.");
+            AssertTickAndPresence(f, state, true);
+        }
+
+        static void AssertTickAndPresence(Fixture f, MatchSnapshot previous, bool expected)
+        {
+            var captured = f.State;
+            bool legacy = previous != null && previous.Epoch == captured.Epoch &&
+                previous.Progress.Tick == captured.Progress.Tick && previous.Progress.Players.Zip(captured.Progress.Players,
+                    (a, b) => a.Id == b.Id && a.Connected == b.Connected && a.Returned == b.Returned).All(same => same);
+            Assert.AreEqual(expected, legacy, "The independent original captured-frame comparator must reach the expected state.");
+            Assert.AreEqual(legacy, f.Match.MatchesTickAndPresence(previous));
+            Assert.AreEqual(legacy, f.Match.MatchesTickAndPresence(previous), "Repeated queries must not mutate or cache dynamic state.");
+        }
+
         [Test]
         public void AuthoredFurnitureRotationSurvivesTheInitialRecoverySnapshot()
         {
@@ -210,13 +300,16 @@ namespace Wreckabulary.Tests
             var f = Create();
             string item = f.CraftBed();
             f.Step(f.Command("a", WordboundAction.Deploy, slot: 0));
-            string before = MatchSnapshotCodec.Export(f.State);
+            var beforeFrame = f.State;
+            string before = MatchSnapshotCodec.Export(beforeFrame);
             f.World.ThrowQuery = true;
             var request = f.Command("a", WordboundAction.UsePuzzle, "BedBridge", value: item);
             Assert.Throws<InvalidOperationException>(() => f.Step(request));
             Assert.AreEqual(before, MatchSnapshotCodec.Export(f.State));
+            AssertTickAndPresence(f, beforeFrame, true);
             f.World.ThrowQuery = false;
             Assert.AreEqual("Ok", f.Step(request).Receipts.Single().Effect.Code);
+            AssertTickAndPresence(f, beforeFrame, false);
             f.Ack();
         }
 
@@ -312,11 +405,14 @@ namespace Wreckabulary.Tests
             string item = f.CraftBed();
             f.Step(f.Command("a", WordboundAction.Deploy, slot: 0));
             var stamp = f.Match.PublishSnapshot(out _);
+            var completed = f.State;
             bool observed = false;
             f.World.DuringQuery = () =>
             {
                 observed = true;
                 Assert.Throws<InvalidOperationException>(() => f.Match.Capture(99));
+                Assert.Throws<InvalidOperationException>(() => f.Match.MatchesTickAndPresence(completed));
+                Assert.Throws<InvalidOperationException>(() => f.Match.MatchesTickAndPresence(null));
                 Assert.Throws<InvalidOperationException>(() => f.Match.PublishSnapshot(out _));
                 Assert.IsFalse(f.Match.Acknowledge(stamp));
             };
