@@ -51,6 +51,8 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 ## Models and presentation
 
+**Owner direction, 2026-10-23:** DetailV2 appearance is rejected: old, generic and insufficiently detailed. The reference is the **original Wreckabulary game assets**, not the first Wordbound set. Preserve both Wordbound revisions, compare against the original supplied-item contact sheet and native game captures, and revise a small representative sample before rolling the new treatment across the collection. Existing technical passes remain valid only for their recorded bytes; they do not imply visual approval.
+
 - [x] Produce 12 concepts and editable Blender models: BAT, BROOM, HAMMER, SPEAR, SHIELD, PLATE, TABLE, SOFA, BED, STOOL, FAN, CLOCK.
 - [x] Pass 24 FBX/GLB reimports and native presentation checks.
 - [~] Inspect actual assets close-up/held/placed/at gameplay distance for believable detail, scale, materials and readability.
