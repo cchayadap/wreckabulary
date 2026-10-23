@@ -264,3 +264,7 @@ Source `02738cd` passes R0 (`Logs/gate_check_all_20261023T165005Z.log`) and all 
 ## 2026-10-23T17:21:08.801Z Windows build succeeds; player exposes stripped preview shader
 
 Build `20261023T170613Z` passes R4, 491.3 seconds, exact HEAD d7b5a1b. Normal Windows smoke171517Z fails: missing preview shader, then dependent playtest/return/Undo failures. Inspected party screenshot is entirely black. Evidence/hashes and unchanged owner-workshop check are in `BuildNotes/client-view/windows-first-player-20261023.json`. Explicit saved material templates replace Shader.Find-only workshop/guide dependencies; root R0 passes171900Z. Native asset generation/rebuild and independent black-frame investigation follow.
+
+## 2026-10-23T17:34:00Z Floor-boundary rules pass; Windows material assets preserved
+
+The native material creator passes (Logs/exec/20261023T172111Z.json; 96.9 seconds gate), and Unity-generated opaque/transparent templates and metadata are committed. Source verification now checks blend, alpha, depth, queue and RenderType without overwriting edited assets. R0 passes 172632Z; core passes 208/208 at 173137Z in 46.2 seconds, including 19 floor-boundary cases. Candidate native FAN test is running from 8174c8d via wrapper 48928. Exact first Windows build/smoke evidence remains preserved; the all-zero RGBA party capture is not visual acceptance. Atomic reconciliation source review is complete through b7202ff, execution pending. No release or owner visual approval is claimed.
