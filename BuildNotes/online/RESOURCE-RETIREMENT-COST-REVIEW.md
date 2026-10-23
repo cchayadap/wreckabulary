@@ -1,6 +1,6 @@
 # Resource retirement scan proposal
 
-STATUS: IMPLEMENTATION IN PROGRESS. Root approved the bounded private per-call index after the separate count, collision and membership checkpoints. Root owns every compiler, core, Unity/native, player and measurement run. Existing dirty ModeDefinition and historical evidence are untouched. The original design/evidence below is retained; current implementation and regression findings are appended as established.
+STATUS: SOURCE COMPLETE at `0c08d9c1`, independent bounded SOURCE PASS. Root approved the bounded private per-call index after the separate count, collision and membership checkpoints. Root owns every compiler, core, Unity/native, player and measurement run. Existing dirty ModeDefinition and historical evidence are untouched. The original design/evidence below is retained; current implementation and regression findings are appended as established.
 
 ## Source and measured boundary
 
@@ -57,4 +57,6 @@ node Tools/kit/gate/game_gate.mjs check all --json
 node Tools/kit/gate/game_gate.mjs core --filter 'FullyQualifiedName~WordboundLifecycleTests|FullyQualifiedName~WordboundAuthorityTests|FullyQualifiedName~WordboundEntityBudgetTests|FullyQualifiedName~WordboundSnapshotValidationTests|FullyQualifiedName~WordboundPracticeTests' --json
 ```
 
-Only the lifecycle class has a new case; assembled total is for root to record. The existing standalone ValidationProbe does not execute this retirement method and cannot measure its performance. Compare inclusive Advance, actual forward-tick batch wall time, readiness and public outcome using unchanged content/deadlines; retain scheduling and workload limits. Compiler/core/native/performance execution: NOT RUN in this lane. Independent source review requested from recover_input and pending at this checkpoint.
+Only the lifecycle class has a new case; assembled total is for root to record. The existing standalone ValidationProbe does not execute this retirement method and cannot measure its performance. Compare inclusive Advance, actual forward-tick batch wall time, readiness and public outcome using unchanged content/deadlines; retain scheduling and workload limits. Compiler/core/native/performance execution: NOT RUN in this lane.
+
+Independent recover_input review returned bounded SOURCE PASS for `0c08d9c1`: exact tuple identity, retained body/resource/Demand/reset order, consumed-bucket protection against alias double retirement, no callback or hidden missing-ledger skip, per-call lifetime, and the real multiplicity/recovery/conservation regression. This verdict does not establish compiler, core or performance acceptance. Baseline `a71aa2c5` remains excluded.
