@@ -1,6 +1,6 @@
 # Per-frame presentation lookup optimization
 
-STATUS: Native behavioral tests 25/25 PASS; three original native allocation probes failed because Unity Mono returned unavailable zero counters. The byte probes are now moved to a standalone .NET measurement project; new execution is PENDING. Independent bounded source review PASS by recover_input against `c14c202` covered the context implementation. Root owns all compiler, native and performance execution. No network timeout, writer lease, validation or physics policy change is included in this slice.
+STATUS: Native behavioral tests 25/25 PASS; calibrated standalone .NET byte probes 3/3 PASS. The three original native allocation probes failed because Unity Mono returned unavailable zero counters; those failures remain recorded below. Independent bounded source review PASS by recover_input covered the context and replacement measurement. Root owns all compiler, native and performance execution. No network timeout, writer lease, validation or physics policy change is included in this slice.
 
 Confirmed source defect: `WordboundGameplayController.Reconcile` presents every canonical body on every completed host physics step. `WordboundGameplayPlan.Presentation` gets `snapshot.Economy.Items` for each item, but that defensive getter copies the entire item array and every item. This makes N item presentations create N² item copies per step. Tiles also repeatedly clone their full array; exact-body membership and content placement/fixture lookup scan their lists repeatedly.
 
@@ -38,12 +38,11 @@ Run from the exact integration checkout, retaining stdout and exit code:
 dotnet run --project Tools/RulesHarness/PresentationProbe/PresentationProbe.csproj --configuration Release
 ```
 
-Expected: three measured cases and `passed=3; failed=0`, or a nonzero exit with the measurement/behavior reason. The native filter now has exactly 25 behavioral cases. Source-only migration is complete; .NET execution and assembled compile are pending root's next gate.
+Expected: three measured cases and `passed=3; failed=0`, or a nonzero exit with the measurement/behavior reason. The native filter now has exactly 25 behavioral cases. Source-only migration was complete at that checkpoint; the measured follow-up below records subsequent .NET execution.
 
 Independent input-lane source review PASS against `24b04fb`: linked source paths and current integration APIs, retained 25 behavioral cases, real unchanged comparator, complete context construction, output parity/checksum, positive controls, strict byte threshold and failure reporting were checked. No compile/run was performed by either lane; native/runtime acceptance remains separate.
-# Measured follow-up — 2026-10-23
+## Measured follow-up — 2026-10-23
 
 Root executed the reviewed standalone probe on .NET 9.0.15 / Windows X64: **3 passed, 0 failed, exit 0**. Positive 65,536-byte controls reported 65,560 bytes before and after every case. Four complete passes including context construction allocated 467,680 versus 42,400 bytes at 32 bodies; 6,590,176 versus 149,472 at 128; and 25,763,552 versus 300,448 at 256. Every result satisfies the unchanged less-than-half allocation assertion and full output parity. Exact source/probe hashes and observations are in `presentation-probe-20261023.json`.
 
 This establishes reduced managed allocation in the specified synthetic pure-presentation workload. It is not a Unity frame-rate, whole-game allocation or multiplayer result. Native behavior already passed 25/25; the unsupported native byte-counter failures remain recorded. Native profiling of the physical scenario places presentation at 1,613.030 ms across 3,481 invocations, while validation and PhysicsApply dominate that run; optimizing presentation alone does not complete the performance goal.
-
