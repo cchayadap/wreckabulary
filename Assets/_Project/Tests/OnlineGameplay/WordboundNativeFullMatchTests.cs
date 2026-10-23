@@ -186,7 +186,15 @@ namespace Wreckabulary.OnlineGameplayTests
                     Assert.AreEqual(live.Course.PhysicalSites.Single(site => site.Lap == lap + 1).Hash, mechanism.Physical.SiteHash);
                     yield return Command(host, crafter, WordboundAction.UsePuzzle, FullPuzzle, value: tableId);
                     Assert.IsTrue(FullMechanism(host, lap).Solved);
-                    Assert.IsFalse(Pose(host, tableId).Active);
+                    Assert.AreEqual(tableId, FullMechanism(host, lap).ItemEntityId);
+                    var consumedFrame = host.Controller.Frame;
+                    Assert.IsTrue(consumedFrame.Economy.Items.Single(item => item.Id == table.Id).IsGone);
+                    Assert.IsFalse(consumedFrame.Actors.Any(actor => actor.Attack != null && actor.Attack.HitBodyIds.Contains(tableId)));
+                    Assert.IsFalse(consumedFrame.ThrownFlights.Any(flight => flight.ItemBodyId == tableId || flight.HitBodyIds.Contains(tableId)));
+                    Assert.IsFalse(consumedFrame.Mechanisms.Any(state => state.Physical.AuxiliaryBodyId == tableId ||
+                        !state.Solved && state.ItemEntityId == tableId), "This consumed table must have no live body-retention reference.");
+                    Assert.IsFalse(consumedFrame.Bodies.Any(body => body.Id == tableId), "The solved-only ledger must not retain a physical table body.");
+                    Assert.IsFalse(host.Controller.Bodies.ContainsKey(tableId), "The command-bearing host frame must reconcile the consumed native body.");
                     yield return FullWalk(host, crafter, () => FullCheckpoint, .25f, "Cross the supported ordered checkpoint");
                     yield return Until(() => FullTeam(host).NextCheckpoint == 1, "Observe the native first checkpoint", 10);
 
