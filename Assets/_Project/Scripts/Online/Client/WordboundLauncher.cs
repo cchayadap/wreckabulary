@@ -23,6 +23,32 @@ namespace Wreckabulary.Online
         int localGeneration;
         bool destroying;
 
+#if UNITY_EDITOR || GSK_QA
+        string qaWorkshopFolder;
+
+        public void ConfigureQaWorkshopStorage(string folder)
+        {
+            if (destroying || workshop || activeLaunch != null || activeClient || localClient)
+                throw new InvalidOperationException("Choose QA storage before opening a workshop or match.");
+            if (string.IsNullOrWhiteSpace(folder) || !System.IO.Path.IsPathFullyQualified(folder))
+                throw new ArgumentException("QA workshop storage must be a fully qualified folder.", nameof(folder));
+            string fullPath = System.IO.Path.GetFullPath(folder);
+            string path = fullPath.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
+            string root = System.IO.Path.GetPathRoot(fullPath).TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
+            if (path.Equals(root, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Use a dedicated QA folder, not a filesystem root.", nameof(folder));
+            string owner = System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.persistentDataPath, "wordbound-workshop"))
+                .TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
+            if (path.Equals(owner, StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith(owner + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
+                owner.StartsWith(path + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("QA storage must be separate from the owner's workshop storage.", nameof(folder));
+            if (System.IO.File.Exists(path) || System.IO.Directory.Exists(path) && System.IO.Directory.GetFileSystemEntries(path).Length != 0)
+                throw new ArgumentException("Use a new empty folder for this QA workshop run.", nameof(folder));
+            qaWorkshopFolder = path;
+        }
+#endif
+
         void Start()
         {
             try
@@ -124,6 +150,10 @@ namespace Wreckabulary.Online
         {
             if (activeLaunch != null || activeClient || localClient) return;
             bool created = false;
+            string folder = null;
+#if UNITY_EDITOR || GSK_QA
+            folder = qaWorkshopFolder;
+#endif
             try
             {
                 if (!workshop)
@@ -141,10 +171,10 @@ namespace Wreckabulary.Online
                     if (authored)
                     {
                         workshop.OpenAuthored(authored.ReadDocument(), authored.Catalogue(),
-                            MatchStateValidation.Requirements(ModeDefinition.For(authored.ModeId, authored.Format)), authored.Seed);
+                            MatchStateValidation.Requirements(ModeDefinition.For(authored.ModeId, authored.Format)), authored.Seed, folder);
                         workshop.ResumeEditing();
                     }
-                    else workshop.OpenFlagship(flagship);
+                    else workshop.OpenFlagship(flagship, folder);
                 }
                 else workshop.ResumeEditing();
                 menu.Visible = false;

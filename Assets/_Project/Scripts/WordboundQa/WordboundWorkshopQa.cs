@@ -67,12 +67,15 @@ namespace Wreckabulary.Qa
 
         IEnumerator EditWorkshop(QaContext context)
         {
+            string folder = Path.GetFullPath(Path.Combine(context.OutDir, "workshop-draft-" + System.Guid.NewGuid().ToString("N")));
+            launcher.ConfigureQaWorkshopStorage(folder);
+            context.Note("workshop_storage_folder", folder);
             launcher.SendMessage("OpenWorkshop", SendMessageOptions.RequireReceiver);
             workshop = launcher.GetComponent<WordboundWorkshop>();
             if (!workshop) throw new QaFailException("The launcher did not open its workshop.");
+            if (workshop.RecoveryChoicePending) throw new QaFailException("The isolated QA workshop unexpectedly requires recovery.");
             var data = Resources.Load<GameData>(GameData.ResourcePath);
-            workshop.OpenFlagship(WordboundFlagshipContent.Create(ItemCatalogue.FromJson(data.items.text)),
-                Path.Combine(context.OutDir, "workshop-draft"));
+            workshop.OpenFlagship(WordboundFlagshipContent.Create(ItemCatalogue.FromJson(data.items.text)));
             history = workshop.History;
             initial = history.Current.RecoveryJson;
             history.Execute("QA draft edit", draft => {

@@ -52,12 +52,16 @@ namespace Wreckabulary.Qa
             }, 45, "the Wordbound launcher");
             workload.ConfigureDisplay();
             yield return context.WaitUntil(() => Screen.width == 1920 && Screen.height == 1080, 15, "the actual 1080p output");
+            string folder = Path.GetFullPath(Path.Combine(context.OutDir, "synthetic-draft-" + Guid.NewGuid().ToString("N")));
+            launcher.ConfigureQaWorkshopStorage(folder);
+            context.Note("workshop_storage_folder", folder);
             launcher.SendMessage("OpenWorkshop", SendMessageOptions.RequireReceiver);
             workshop = launcher.GetComponent<WordboundWorkshop>();
             if (!workshop) throw new QaFailException("The launcher did not open the workshop.");
+            if (workshop.RecoveryChoicePending) throw new QaFailException("The isolated QA workshop unexpectedly requires recovery.");
             var data = Resources.Load<GameData>(GameData.ResourcePath);
             var items = ItemCatalogue.FromJson(data.items.text);
-            workshop.OpenFlagship(WordboundFlagshipContent.Create(items), Path.Combine(context.OutDir, "synthetic-draft"));
+            workshop.OpenFlagship(WordboundFlagshipContent.Create(items));
             workshop.History.Execute("QA exact synthetic workload seed", draft => { draft.Seed = Seed; draft.SeedLocked = true; });
             var preview = workshop.Preview();
             if (!preview.Success) throw new QaFailException("The exact flagship draft failed validation.");
