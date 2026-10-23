@@ -12,9 +12,17 @@ namespace Wreckabulary.OnlineGameplayTests
     public sealed partial class WordboundNativeGameplayTests
     {
         [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
+        public IEnumerator PublicTeamRacePreservesWholeSoloParties() => PublicEntry("TeamRace", RaceFormat.Solo, 2);
+        [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
         public IEnumerator PublicTeamRacePreservesWholeDuoParties() => PublicEntry("TeamRace", RaceFormat.Duo, 4);
         [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
+        public IEnumerator PublicTeamRacePreservesWholeSquadParties() => PublicEntry("TeamRace", RaceFormat.Squad, 8);
+        [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
+        public IEnumerator PublicBrawlRacePreservesWholeSoloParties() => PublicEntry("BrawlRace", RaceFormat.Solo, 2);
+        [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
         public IEnumerator PublicBrawlRacePreservesWholeDuoParties() => PublicEntry("BrawlRace", RaceFormat.Duo, 4);
+        [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
+        public IEnumerator PublicBrawlRacePreservesWholeSquadParties() => PublicEntry("BrawlRace", RaceFormat.Squad, 8);
         [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
         public IEnumerator PublicTimeRunRequiresTwoRealHumans() => PublicEntry("TimeRun", RaceFormat.Solo, 2);
         [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
@@ -39,8 +47,16 @@ namespace Wreckabulary.OnlineGameplayTests
             var selected = catalogue.ResolveSelection(File.ReadAllText(Path.Combine(folder, "items.json")),
                 File.ReadAllText(Path.Combine(folder, "rules.json")), mode, format.ToString(), "0123456789abcdef");
             Assert.IsTrue(new WordboundPublicCourseRegistry(catalogue.Json).Allows(selected));
+            Assert.AreEqual(mode, selected.Mode.Id);
+            Assert.AreEqual(format, selected.Mode.Format);
+            Assert.AreEqual(selected.Mode.HasRaceFormat ? 2 * selected.Mode.TeamCapacity : 2, count,
+                "Public race coverage must start two complete parties of the requested format; other cases use two authenticated clients.");
             yield return Run(count, false, productionMode: selected.Mode.Id,
                 productionFormat: format, publicCatalogue: catalogue);
+            Assert.AreEqual(mode == "Freestyle", live.Settings.Fill,
+                "Preserve the existing public test settings: full race parties and the cooperative Freestyle Fill case.");
+            Debug.Log("WORDBOUND_PUBLIC_MODE_OBSERVED: " + mode + "/" + format + "; authenticatedClients=" + count +
+                "; fill=" + live.Settings.Fill + "; exact public allocation, whole-party roster and authenticated Fusion gameplay observed; cleanup pending.");
         }
     }
 }
