@@ -28,3 +28,7 @@ Root found a real missed callsite in c9be66f4: production `WordboundLocalMatchCl
 The correction adds explicit `WordboundFusionConfiguration.CreateLocal()` containing the unchanged former factory, routes the actual local client to it, and lets online `Create()` apply only its larger heap to a fresh local configuration. The same test now calls the real local factory and verifies its default 256 pages, independent ownership, registrations and preserved shared tick/reliable/migration settings. A full project callsite search found the local caller plus separate native offline/connection-test factories; those other factories remain unchanged. Baseline-only bf43bb59 copies root's local camera/visual support and must also be excluded.
 
 Ordered integration requires c9be66f4 plus this correction; exclude fee597fc and bf43bb59. No compiler/native result is claimed. The independent review and full public FFA/capacity acceptance remain pending.
+
+## Independent heap source review
+
+Input reviewed c9be66f4 + ca58302b and reported bounded SOURCE PASS. The review specifically rechecked the actual local route, installed public SDK metadata, loaded-prefab word counting, asmdef dependencies and configuration ownership. Root's earlier offline finding remains recorded above. Compiler/native and maximum-body/reclamation acceptance remain NOT RUN by this lane.
