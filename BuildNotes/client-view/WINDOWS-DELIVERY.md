@@ -1,6 +1,8 @@
 # Windows delivery preparation
 
-STATUS: IN PROGRESS — PROFILES VERIFIED; FIRST BUILD TIMED OUT
+STATUS: IN PROGRESS — QA BUILD PASSES; PLAYER WORKSHOP SMOKE FAILS; REPAIRS UNDER VERIFICATION
+
+Current checkpoint (2026-10-23T17:42Z): QA build `20261023T170613Z` exists and compiled successfully. Its actual player smoke exposed a missing workshop shader and an empty party capture; it is not ready to hand over as a tested build. Unity has generated and verified explicit saved render materials (`Logs/exec/20261023T172111Z.json`). Item contact setup also passes (`Logs/exec/20261023T173844Z.json`), assigning only the item prefab's material. Rules pass 233/233 after the reconciliation and floor-boundary changes. Native prefab/local/puzzle checks and QA render observations precede the next Windows build. Historical entries below retain the earlier attempts.
 
 The gate configuration names `Assets/Settings/Build Profiles/Win.asset`, `Win-QA.asset` and `Win-Dev.asset`. That directory is absent in this checkout as of `49ca736`. Actual Windows builds must create and validate these project assets through Unity before using the configured gate; no gate configuration or kit source was changed.
 
