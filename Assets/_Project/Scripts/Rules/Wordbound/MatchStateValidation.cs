@@ -86,9 +86,7 @@ namespace Wreckabulary.Rules.Wordbound
                 var content = CourseCaches.GetValue(course, CreateCourseCache).For(mode);
                 var progress = new MatchProgress(mode, expectedBinding.Seats, content.Route);
                 progress.Restore(snapshot.Progress);
-                var economy = new Economy(catalogue, rules);
-                for (int i = 0; i < expectedBinding.Seats.Count; i++) economy.AddPlayer(i, expectedBinding.Seats[i].Team);
-                economy.Restore(snapshot.Economy);
+                ValidateEconomy(snapshot, expectedBinding, catalogue, rules);
                 var commands = new CommandJournal(expectedBinding.Hash, expectedBinding.Seats.Select(s => s.PlayerId));
                 commands.Restore(snapshot.Commands);
                 Need(snapshot.Commands.Epoch == snapshot.Epoch && snapshot.Commands.Receipts.All(r => r.Tick <= snapshot.Progress.Tick),
@@ -122,6 +120,46 @@ namespace Wreckabulary.Rules.Wordbound
             catch (Exception e) when (e is ArgumentException || e is InvalidOperationException || e is OverflowException ||
                 e is KeyNotFoundException || e is NullReferenceException)
             { return e.Message; }
+        }
+
+        public static bool ReconcileAndApply(MatchSnapshot snapshot, MatchBinding expectedBinding, ModeDefinition mode,
+            ResolvedCourse course, ItemCatalogue catalogue, GameRules initialRules, GameRules applyRules,
+            Func<bool> reconcile, Action apply)
+        {
+            if (reconcile == null) throw new ArgumentNullException(nameof(reconcile));
+            if (apply == null) throw new ArgumentNullException(nameof(apply));
+            string error = Validate(snapshot, expectedBinding, mode, course, catalogue, initialRules);
+            if (error != "") throw new ArgumentException(error);
+            if (!reconcile()) return false;
+            error = ValidateMutableDependencies(snapshot, expectedBinding, mode, course, catalogue, applyRules);
+            if (error != "") throw new ArgumentException(error);
+            apply();
+            return true;
+        }
+
+        static string ValidateMutableDependencies(MatchSnapshot snapshot, MatchBinding binding, ModeDefinition mode,
+            ResolvedCourse course, ItemCatalogue catalogue, GameRules rules)
+        {
+            try
+            {
+                Need(rules != null, "Snapshot and all trusted match dependencies are required.");
+                ValidateEconomy(snapshot, binding, catalogue, rules);
+                ValidateActors(snapshot, binding, rules, catalogue, mode);
+                ValidateDeployments(snapshot, catalogue);
+                MatchThrownValidation.Validate(snapshot, mode, catalogue);
+                ValidateBodyBudget(snapshot, course, mode, rules, CourseCaches.GetValue(course, CreateCourseCache).For(mode));
+                return "";
+            }
+            catch (Exception e) when (e is ArgumentException || e is InvalidOperationException || e is OverflowException ||
+                e is KeyNotFoundException || e is NullReferenceException)
+            { return e.Message; }
+        }
+
+        static void ValidateEconomy(MatchSnapshot snapshot, MatchBinding binding, ItemCatalogue catalogue, GameRules rules)
+        {
+            var economy = new Economy(catalogue, rules);
+            for (int i = 0; i < binding.Seats.Count; i++) economy.AddPlayer(i, binding.Seats[i].Team);
+            economy.Restore(snapshot.Economy);
         }
 
         public static CoursePlayRequirements Requirements(ModeDefinition mode) => new CoursePlayRequirements(mode.Id,

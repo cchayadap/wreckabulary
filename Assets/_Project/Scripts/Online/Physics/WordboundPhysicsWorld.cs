@@ -5,6 +5,7 @@ using Fusion;
 using Fusion.Addons.Physics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.Profiling;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 using Wreckabulary.WordboundRuntime;
@@ -13,6 +14,7 @@ namespace Wreckabulary.Online
 {
     public sealed class WordboundPhysicsWorld : IWordboundWorldQuery, IWordboundReleaseQuery, IDisposable
     {
+        static readonly ProfilerMarker ApplyMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.PhysicsApply");
         readonly NetworkRunner runner;
         readonly RunnerSimulatePhysics simulator;
         readonly PhysicsScene scene;
@@ -37,6 +39,7 @@ namespace Wreckabulary.Online
         bool failed;
         bool disposed;
         bool collisionPairsDirty;
+        bool reconciling;
 
         public MatchBinding Binding { get; }
         public GameRules Rules { get; }
@@ -112,9 +115,32 @@ namespace Wreckabulary.Online
 
         public void ApplySnapshot(MatchSnapshot snapshot)
         {
+            if (reconciling) throw new InvalidOperationException("Physics restoration cannot reenter reconciliation.");
             if (!IsHost) throw new InvalidOperationException("Only the active host restores physics.");
             string error = MatchStateValidation.Validate(snapshot, Binding, mode, course, items, Rules);
             if (error != "") throw new ArgumentException(error);
+            ApplyValidatedSnapshot(snapshot);
+        }
+
+        public bool ReconcileAndApplySnapshot(MatchSnapshot snapshot, GameRules initialRules, Func<bool> reconcile)
+        {
+            if (reconciling) throw new InvalidOperationException("Physics restoration cannot reenter reconciliation.");
+            if (!IsHost) throw new InvalidOperationException("Only the active host restores physics.");
+            if (reconcile == null) throw new ArgumentNullException(nameof(reconcile));
+            long revision = appliedRevision;
+            reconciling = true;
+            try
+            {
+                return MatchStateValidation.ReconcileAndApply(snapshot, Binding, mode, course, items, initialRules, Rules,
+                    () => reconcile() && IsHost && !failed && appliedRevision == revision,
+                    () => ApplyValidatedSnapshot(snapshot));
+            }
+            finally { reconciling = false; }
+        }
+
+        void ApplyValidatedSnapshot(MatchSnapshot snapshot)
+        {
+            using var scope = ApplyMarker.Auto();
             if (frame != null && (snapshot.Epoch < frame.Epoch ||
                 snapshot.Epoch == frame.Epoch && snapshot.Progress.Tick < frame.Progress.Tick))
                 throw new ArgumentException("Physics restoration cannot rewind within the same authority epoch.");

@@ -20,9 +20,7 @@ namespace Wreckabulary.Online
         static readonly ProfilerMarker ReconcileMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Reconcile");
         static readonly ProfilerMarker CaptureMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Capture");
         static readonly ProfilerMarker AdvanceMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Advance");
-        static readonly ProfilerMarker ValidateMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Validate");
         static readonly ProfilerMarker PresentationMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Presentation");
-        static readonly ProfilerMarker PhysicsApplyMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.PhysicsApply");
         static readonly ProfilerMarker BuildWorldMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.BuildWorld");
         static readonly ProfilerMarker BeforePhysicsMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.BeforePhysics");
 
@@ -57,7 +55,7 @@ namespace Wreckabulary.Online
         WordboundNetworkBody localBody;
         string localActor;
         long runnerStarted, nextCheckpoint, lastSequence, sentEpoch = -1;
-        bool initialized, localReady, hostReady, publishing, stopping, handlingStep;
+        bool initialized, localReady, hostReady, publishing, stopping, handlingStep, reconciling;
         Task stopTask;
         public WordboundFusionAuthority Authority { get; private set; }
         public MatchSnapshot Frame => frame;
@@ -147,7 +145,7 @@ namespace Wreckabulary.Online
                 if (hostReady && runner.IsServer)
                 {
                     var current = CaptureFrame();
-                    if (!SameFrame(frame, current)) Reconcile(current);
+                    if (!SameFrame(frame, current) && !Reconcile(current)) return;
                     if (!publishing && options.Clock() >= nextCheckpoint) _ = PublishCheckpoint();
                 }
                 UpdateClientBodies();
@@ -221,7 +219,9 @@ namespace Wreckabulary.Online
             physics.MovementFaulted += Fail;
             query.Target = physics;
             driver = runner.gameObject.AddComponent<WordboundGameplayDriver>(); driver.Controller = this; runner.AddGlobal(driver);
-            Reconcile(CaptureFrame());
+            var initializedPhysics = physics;
+            if (!Reconcile(CaptureFrame()) || stopping || Fault != "" || !ReferenceEquals(initializedPhysics, physics) ||
+                !session.GameplayReady) return;
             hostReady = true;
             nextCheckpoint = options.Clock() + options.CheckpointMilliseconds;
         }
@@ -234,7 +234,7 @@ namespace Wreckabulary.Online
                 session.Poll();
                 if (Fault != "" || !session.GameplayReady || !hostReady) return;
                 var current = CaptureFrame();
-                if (!SameFrame(frame, current)) Reconcile(current);
+                if (!SameFrame(frame, current) && !Reconcile(current)) return;
                 if (!Authority.Match.IsPaused)
                     using (BeforePhysicsMarker.Auto()) options.BeforeHostPhysics?.Invoke(frame, bodies);
             }
@@ -258,7 +258,7 @@ namespace Wreckabulary.Online
                 using (AdvanceMarker.Auto())
                     result = Authority.Advance(options.Clock(), poses, observations.Progress, observations.Damage, observations.Mechanisms,
                         physics.CompletedThrownContacts.Concat(observations.ThrownContacts ?? Array.Empty<HostThrownContact>()));
-                Reconcile(CaptureFrame());
+                if (!Reconcile(CaptureFrame()) || stopping || Fault != "" || !session.GameplayReady) return;
                 HostAdvanced?.Invoke(result);
             }
             catch (Exception error) { Fail(error); throw; }
@@ -270,77 +270,110 @@ namespace Wreckabulary.Online
             using (CaptureMarker.Auto()) return Authority.Match.Capture(1);
         }
 
-        void Reconcile(MatchSnapshot next, int presenceRetries = 0)
+        bool Reconcile(MatchSnapshot next)
         {
             using var scope = ReconcileMarker.Auto();
-            if (presenceRetries > 8) throw new InvalidOperationException("Canonical presence did not settle within the signed roster.");
-            string error;
-            using (ValidateMarker.Auto())
-                error = MatchStateValidation.Validate(next, Authority.Match.Binding, Authority.Match.Mode, course, items, rules);
-            if (error != "") throw new ArgumentException(error);
-            var inputs = new Dictionary<string, PlayerRef>(StringComparer.Ordinal);
-            bool disconnected = false;
-            foreach (var state in next.Bodies)
+            if (reconciling) throw new InvalidOperationException("Canonical reconciliation cannot reenter an active attempt.");
+            MatchSnapshot published = null;
+            reconciling = true;
+            try
             {
-                var peer = InputAuthority(state);
-                inputs.Add(state.Id, peer);
-                if (state.Kind == WorldBodyKind.Player && state.Active && peer == PlayerRef.None)
+                for (int presenceRetries = 0; ; presenceRetries++)
                 {
-                    Authority.Disconnect(state.SourceId, options.Clock());
-                    disconnected = true;
+                    if (presenceRetries > 8) throw new InvalidOperationException("Canonical presence did not settle within the signed roster.");
+                    var target = physics;
+                    var source = runner;
+                    bool Current() => !stopping && Fault == "" && target != null && ReferenceEquals(target, physics) &&
+                        ReferenceEquals(source, runner) && target.IsHost && session.GameplayReady;
+                    if (!Current()) return false;
+                    bool retry = false;
+                    bool Prepare()
+                    {
+                        if (!Current()) return false;
+                        var inputs = new Dictionary<string, PlayerRef>(StringComparer.Ordinal);
+                        foreach (var state in next.Bodies)
+                        {
+                            var peer = InputAuthority(state);
+                            if (!Current()) return false;
+                            inputs.Add(state.Id, peer);
+                            if (state.Kind == WorldBodyKind.Player && state.Active && peer == PlayerRef.None)
+                            {
+                                Authority.Disconnect(state.SourceId, options.Clock());
+                                retry = true;
+                            }
+                        }
+                        if (retry) return false;
+                        var plan = new WordboundReconciliationPlan(bodies.Keys, next);
+                        Dictionary<string, WordboundBodyPresentation> views;
+                        using (PresentationMarker.Auto())
+                        {
+                            var presentation = new WordboundPresentationContext(next, course, geometry, items);
+                            views = next.Bodies.ToDictionary(b => b.Id, presentation.Presentation, StringComparer.Ordinal);
+                        }
+                        foreach (var id in plan.Remove)
+                        {
+                            var body = bodies[id]; target.Unregister(body);
+                            Unwatch(id);
+                            bodies.Remove(id);
+                            if (body != null && body.Object != null) source.Despawn(body.Object);
+                            if (!Current()) return false;
+                        }
+                        foreach (var state in plan.Add)
+                        {
+                            PlayerRef peer = inputs[state.Id];
+                            var obj = source.Spawn(prefabs.For(state.Kind), Position(state.Position), Rotation(state),
+                                peer == PlayerRef.None ? (PlayerRef?)null : peer);
+                            if (!Current()) return false;
+                            if (obj == null) throw new InvalidOperationException("Canonical body spawn failed.");
+                            var body = obj.GetComponent<WordboundNetworkBody>();
+                            try { target.Register(body, state, peer); }
+                            catch (ArgumentException) when (state.Kind == WorldBodyKind.Player && state.Active &&
+                                !session.TryGetAdmittedActor(peer, out _))
+                            {
+                                source.Despawn(obj);
+                                if (!Current()) return false;
+                                Authority.Disconnect(state.SourceId, options.Clock());
+                                retry = true;
+                                return false;
+                            }
+                            if (!Current()) return false;
+                            bodies.Add(state.Id, body);
+                            Watch(state.Id, obj.GetComponent<WordboundGameplayBody>());
+                            if (!Current()) return false;
+                        }
+                        foreach (var state in next.Bodies)
+                        {
+                            var body = bodies[state.Id];
+                            PlayerRef peer = inputs[state.Id];
+                            if (body.Object.InputAuthority != peer)
+                            {
+                                if (peer == PlayerRef.None) body.Object.RemoveInputAuthority();
+                                else body.Object.AssignInputAuthority(peer);
+                            }
+                            if (peer != PlayerRef.None) source.SetPlayerObject(peer, body.Object);
+                            presentations[state.Id].Configure(views[state.Id]);
+                            if (!Current()) return false;
+                        }
+                        if (bodies.Count != next.Bodies.Count || !new HashSet<string>(bodies.Keys).SetEquals(next.Bodies.Select(b => b.Id)))
+                            throw new InvalidOperationException("Canonical reconciliation left missing or duplicate bodies.");
+                        return Current();
+                    }
+                    bool applied = target.ReconcileAndApplySnapshot(next, rules, Prepare);
+                    if (!Current()) return false;
+                    if (!applied)
+                    {
+                        if (!retry) return false;
+                        next = CaptureFrame();
+                        continue;
+                    }
+                    frame = next;
+                    published = next;
+                    break;
                 }
             }
-            if (disconnected) { Reconcile(CaptureFrame(), presenceRetries + 1); return; }
-            var plan = new WordboundReconciliationPlan(bodies.Keys, next);
-            Dictionary<string, WordboundBodyPresentation> views;
-            using (PresentationMarker.Auto())
-            {
-                var presentation = new WordboundPresentationContext(next, course, geometry, items);
-                views = next.Bodies.ToDictionary(b => b.Id, presentation.Presentation, StringComparer.Ordinal);
-            }
-            foreach (var id in plan.Remove)
-            {
-                var body = bodies[id]; physics.Unregister(body);
-                Unwatch(id);
-                bodies.Remove(id);
-                if (body != null && body.Object != null) runner.Despawn(body.Object);
-            }
-            foreach (var state in plan.Add)
-            {
-                PlayerRef peer = inputs[state.Id];
-                var obj = runner.Spawn(prefabs.For(state.Kind), Position(state.Position), Rotation(state),
-                    peer == PlayerRef.None ? (PlayerRef?)null : peer);
-                if (obj == null) throw new InvalidOperationException("Canonical body spawn failed.");
-                var body = obj.GetComponent<WordboundNetworkBody>();
-                try { physics.Register(body, state, peer); }
-                catch (ArgumentException) when (state.Kind == WorldBodyKind.Player && state.Active &&
-                    !session.TryGetAdmittedActor(peer, out _))
-                {
-                    runner.Despawn(obj);
-                    Authority.Disconnect(state.SourceId, options.Clock());
-                    Reconcile(CaptureFrame(), presenceRetries + 1);
-                    return;
-                }
-                bodies.Add(state.Id, body);
-                Watch(state.Id, obj.GetComponent<WordboundGameplayBody>());
-            }
-            foreach (var state in next.Bodies)
-            {
-                var body = bodies[state.Id];
-                PlayerRef peer = inputs[state.Id];
-                if (body.Object.InputAuthority != peer)
-                {
-                    if (peer == PlayerRef.None) body.Object.RemoveInputAuthority();
-                    else body.Object.AssignInputAuthority(peer);
-                }
-                if (peer != PlayerRef.None) runner.SetPlayerObject(peer, body.Object);
-                presentations[state.Id].Configure(views[state.Id]);
-            }
-            if (bodies.Count != next.Bodies.Count || !new HashSet<string>(bodies.Keys).SetEquals(next.Bodies.Select(b => b.Id)))
-                throw new InvalidOperationException("Canonical reconciliation left missing or duplicate bodies.");
-            using (PhysicsApplyMarker.Auto()) physics.ApplySnapshot(next);
-            frame = next;
-            FrameChanged?.Invoke(frame);
+            finally { reconciling = false; }
+            if (published != null) FrameChanged?.Invoke(published);
+            return published != null;
         }
 
         PlayerRef InputAuthority(WorldBodyState state)
