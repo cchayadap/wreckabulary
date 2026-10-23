@@ -61,3 +61,18 @@ XML SHA-256: `C7A64D817657354F10B56EDB0613F6DB4BF5F64370455B3918550047BC97969D`.
 Log SHA-256: `CA45D9EFCFB37432C61045845F64FB59E1197476A5ED95D4A8631657A0297D9A`.
 
 These are actual native input/layout/projection regression passes. They do not establish Windows glyph readability, world-label occlusion, real controller usability or owner appearance approval. The next root-owned Windows capture remains necessary; no further source changes or heavy jobs were performed for this review.
+
+## Actual Windows ready-frame comparison: 200812
+
+Independently opened both actual PNGs with the image-view tool: `docs/qa/runs/20261023T193821Z-visible-wordbound_workshop_flow/wordbound_local_ready.png` and `docs/qa/runs/20261023T200812Z-visible-wordbound_workshop_flow/wordbound_local_ready.png` in root integration. Both are 1280×720 ready views of the same Packing Yard start, rear original avatar and nearby checkpoint. Parent identifies the latter as QA build `200608`; this review assesses these images, not the build process or final scenario result.
+
+- The new top-left HUD ends immediately below health/stamina rather than carrying a large empty lower area. The bottom panel shrinks to two readable rows. Both remain within the frame with consistent margins; no visible text/box clipping or overlap in this view.
+- The actual visible footer reads `Letters: —` and **[E] Pick up · [Q] Craft · [LMB] Smash · [ESC] Menu**. These are the labels observed in this PNG; Space/Ctrl/M are not shown. This is not a rebound-key or pad-switch capture.
+- Packing Yard and its unchanged clue now form three larger, screen-horizontal lines. The earlier notice was smaller and visibly tilted in perspective. The new text is readable at this captured position without covering the avatar or checkpoint caption.
+- The checkpoint caption is now two lines (`CHECKPOINT` / `Bring keepsake`) above the short post, with a visible gap. The earlier long post crossed the single-line caption. The ring and keepsake remain recognizable; no new geometry defect is visible here.
+- The original rounded red avatar, black satchel/boots, pale cuffs, camera framing, doorway and room materials appear unchanged. The world is still visually sparse, and the avatar still occupies a substantial part of the frame; this bounded UI change does not claim an environment/camera/art redesign.
+
+This single ready view supports the intended static readability improvement. It does not prove motion readability, every camera angle, far/near occlusion, dense notices, equipment/shield hints, different resolutions, controller/rebinding behavior, final frame rate, completed workshop flow, multiplayer outcome or owner style approval. Those remain separate evidence. No art, runtime or QA changes were made during this review.
+
+Before PNG SHA-256: `278EEAC129394112410EC209CBC437B5047DB9C88E723501E8D4EDAE67E182AC`.
+After PNG SHA-256: `7DBF75226BD5E481F752BED68A48541468CD64037C260C5B5BF18292088EB28A` (621,080 bytes; last written 20:09:19 UTC on 2026-10-23).
