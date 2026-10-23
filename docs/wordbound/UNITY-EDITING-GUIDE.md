@@ -75,6 +75,14 @@ Workshop changes autosave locally. **Recover autosave** restores the saved recov
 
 For a Project course asset, use **Export course JSON** and **Import course JSON** in its Inspector. Course JSON contains the document only: keep the matching geometry catalogue, item/rule references, seed, selected mode and camera/visual profiles separately. Imported IDs must exist in that course's catalogue. Workshop edits do not automatically write back to the source `.asset`; export/share them and import into your intended course asset, then preview again. Keep the seed with any reproduction notes.
 
+## Edit menu and workshop appearance
+
+**Implemented source; generated asset, runtime and Windows verification pending.** In Edit Mode, choose **Tools → Wordbound → Create or verify Inspector authoring assets**. The setup creates `Assets/_Project/Data/Wordbound/Authoring/Interface.asset` and fills an empty **Ui Theme** slot in `Assets/_Project/Resources/Wordbound/LaunchAssets.asset`. Existing custom assignments are preserved.
+
+Select **Interface.asset** to edit its fonts, colours, text sizes, padding and row heights. The Inspector previews ordinary, selected and disabled controls plus a two-line module. **Module Height** controls multiline palette rows; **Row Height** controls ordinary action rows. Keep colours opaque and follow any validation message. Changes are picked up at the next menu layout during play; save the asset to retain them.
+
+For a personal version, duplicate the asset or use **Assets → Create → Wreckabulary → Wordbound → Interface theme**, then assign it to the launcher's **Ui Theme** slot. This theme is shared by equipment/crafting/journal menus and the workshop, including Inspector course playtests. It does not change the original lobby, models, gameplay camera, bindings or course content. Inspect disabled recipes, controller focus and toolbar spacing in the actual player before accepting a custom font or size. The Inspector preview is not Windows or owner visual approval.
+
 ## Adjust the gameplay camera
 
 Select your assigned camera profile. Its Inspector groups **View and follow**, **Look controls**, and **Walls and visibility**. Use field of view, follow distance, look-at height, lift and starting/minimum/maximum angles to compose the view. Angle sliders display degrees. Adjust mouse sensitivity and controller speeds separately. Wall probe radius, clearance, closest distance and return speed control obstruction handling.

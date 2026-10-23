@@ -18,6 +18,8 @@ This implements the bounded proposal in `ORIGINAL-UI-THEME-PROPOSAL.md`. The ori
 
 Seven new cases in `WordboundUiThemeTests` cover invalid configuration, exceptional GUI-state restoration and borrowed-skin identity, Layout-only rebuilding and native texture disposal, invalid-theme fallback, two viewport/custom-row toolbar configurations, and real font measurement of the two-line module plus bounded menu geometry. These use actual EditorWindow Layout/Repaint events, not calls to GUI APIs outside OnGUI. The existing direct-menu test explicitly releases its manually driven HUD styles because that EditMode fixture does not exercise the production PlayMode destruction lifecycle.
 
+The two toolbar cases establish rectangle consistency after resize/custom row metrics; they do not draw the actual Footer rows or prove text/content fits under wrapping or custom fonts. Only the module-font case performs actual text measurement. Toolbar content fit remains an explicit visible/native acceptance item. Independent review identified this distinction; no rendered toolbar-fit claim is made.
+
 Root should run `WordboundUiThemeTests` plus existing `WordboundMenuGuiTests`, `WordboundInputBindingTests`, `WordboundPartyMenuInputTests`, `WordboundWorkshopInputSafetyTests`, `WordboundWorkshopRecoveryTests`, `WordboundWorkshopSourceBindingTests` and workshop overlay/authoring regressions. Test names and filters must be reconciled with the actual native inventory. Required asset creation follows compilation through the existing authoring setup menu/gate entry point.
 
 ## Acceptance still open
