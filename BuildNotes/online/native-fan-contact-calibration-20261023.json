@@ -1,0 +1,68 @@
+{
+  "recordedUtc": "2026-10-23T16:30:47.597Z",
+  "sourceCommit": "c8a2079",
+  "cmd": "test editmode --cold --filter Wreckabulary.Tests.WordboundNativeWindPhysicsTests",
+  "rung": "R3",
+  "ok": false,
+  "exit": 1,
+  "verdict": "FAIL",
+  "utc": "2026-10-23T16:26:01Z",
+  "secs": 142.8,
+  "route": "cold",
+  "errors": [],
+  "failures": [
+    {
+      "name": "Wreckabulary.Tests.WordboundNativeWindPhysicsTests.ActualStoolCrossesAuthoredWindArrivalWithDefaultContacts",
+      "message": "Default contacts must let the actual FAN move the STOOL into its authored arrival volume.\r\n  Expected: greater than or equal to 1\r\n  But was:  -1",
+      "location": "Assets/_Project/Scripts/Online/Puzzles/Tests/WordboundNativeWindPhysicsTests.cs:67"
+    }
+  ],
+  "log": "Logs/gate_test_editmode_20261023T162601Z.log",
+  "evidence": [
+    "TestResults/editmode_20261023T162601Z.xml"
+  ],
+  "infra": null,
+  "slot": null,
+  "crashAfterQuit": false,
+  "refreshSecs": 99,
+  "tests": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "logSha256": "c18edb4ceb79ca0318f7a62afc1df4ba805bd887a5d24e4faf321f7d0a2f807e",
+  "evidenceHashes": [
+    {
+      "path": "TestResults/editmode_20261023T162601Z.xml",
+      "sha256": "c7bec20bd394a5b25e2fd883011bbb6c4eba4961f675ffbccebe0300b58b68f3"
+    }
+  ],
+  "diagnostics": [
+    "WB_WIND_SETUP: scenario=no-wind; unity=6000.6.3f1; manifest=6e86080bfbe61509ad1278de82c76cf8f0232782f8619db03820f0113212609b; site=f159fcd5f134baf54614006f06960da6595cce6ad077af63d39907b4788a133f; fan=(39,16,-21); arrivalMin=(38.75,16,-19.45); arrivalMax=(39.25,16.9000015,-18.95); floorTop=16; floorThickness=0.239999771; mass=5; gravity=(0,-9.81,0); linearDamping=0; angularDamping=0.05; constraints=None; solverIterations=6; solverVelocityIterations=1; contactOffset=0.01; frictionless=False; strength=8; radius=3.2; arc=90; simulationMode=FixedUpdate; fixedDeltaTime=0.0199999921",
+    "WB_WIND_SAMPLE: scenario=no-wind; tick=1; pose=(39,16.0172749,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,-0.163500011,0); signedTravel=0; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=no-wind; tick=60; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=no-wind; tick=120; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=no-wind; tick=180; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=no-wind; tick=240; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=no-wind; tick=300; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SETUP: scenario=default-contact-wind; unity=6000.6.3f1; manifest=6e86080bfbe61509ad1278de82c76cf8f0232782f8619db03820f0113212609b; site=f159fcd5f134baf54614006f06960da6595cce6ad077af63d39907b4788a133f; fan=(39,16,-21); arrivalMin=(38.75,16,-19.45); arrivalMax=(39.25,16.9000015,-18.95); floorTop=16; floorThickness=0.239999771; mass=5; gravity=(0,-9.81,0); linearDamping=0; angularDamping=0.05; constraints=None; solverIterations=6; solverVelocityIterations=1; contactOffset=0.01; frictionless=False; strength=8; radius=3.2; arc=90; simulationMode=FixedUpdate; fixedDeltaTime=0.0199999921",
+    "WB_WIND_SAMPLE: scenario=default-contact-wind; tick=1; pose=(39,16.0172749,-20.2477779); beforeWind=(0,0,0); beforeSolver=(0,0,0.13333334); afterSolver=(0,-0.163500011,0.13333334); signedTravel=0.00222206116; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=default-contact-wind; tick=60; pose=(38.9999046,16.0005264,-20.2364712); beforeWind=(-0.005885572,-0.009308189,-0.007017985); beforeSolver=(-0.005885572,-0.009308189,0.126315355); afterSolver=(-0.00588270463,-0.009318396,-0.007017985); signedTravel=0.0135288239; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=default-contact-wind; tick=120; pose=(38.9999046,16.0005264,-20.2364712); beforeWind=(-0.0058621834,-0.009309724,-0.00702399); beforeSolver=(-0.0058621834,-0.009309724,0.12630935); afterSolver=(-0.005875818,-0.009321436,-0.00702258945); signedTravel=0.0135288239; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=default-contact-wind; tick=180; pose=(38.9999046,16.0005264,-20.2364712); beforeWind=(-0.005918162,-0.009326339,-0.007006258); beforeSolver=(-0.005918162,-0.009326339,0.126327083); afterSolver=(-0.005885427,-0.009307966,-0.00701756775); signedTravel=0.0135288239; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=default-contact-wind; tick=240; pose=(38.9999046,16.0005264,-20.2364712); beforeWind=(-0.00586640555,-0.009319946,-0.007006705); beforeSolver=(-0.00586640555,-0.009319946,0.126326635); afterSolver=(-0.00586217735,-0.009309739,-0.00702397525); signedTravel=0.0135288239; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=default-contact-wind; tick=300; pose=(38.9999046,16.0005264,-20.2364712); beforeWind=(-0.00586763,-0.009319603,-0.00700569153); beforeSolver=(-0.00586763,-0.009319603,0.126327649); afterSolver=(-0.00591819454,-0.009326279,-0.00700618327); signedTravel=0.0135288239; sleeping=False",
+    "WB_WIND_SETUP: scenario=zero-friction-wind; unity=6000.6.3f1; manifest=6e86080bfbe61509ad1278de82c76cf8f0232782f8619db03820f0113212609b; site=f159fcd5f134baf54614006f06960da6595cce6ad077af63d39907b4788a133f; fan=(39,16,-21); arrivalMin=(38.75,16,-19.45); arrivalMax=(39.25,16.9000015,-18.95); floorTop=16; floorThickness=0.239999771; mass=5; gravity=(0,-9.81,0); linearDamping=0; angularDamping=0.05; constraints=None; solverIterations=6; solverVelocityIterations=1; contactOffset=0.01; frictionless=True; strength=8; radius=3.2; arc=90; simulationMode=FixedUpdate; fixedDeltaTime=0.0199999921",
+    "WB_WIND_SAMPLE: scenario=zero-friction-wind; tick=1; pose=(39,16.0172749,-20.2477779); beforeWind=(0,0,0); beforeSolver=(0,0,0.13333334); afterSolver=(0,-0.163500011,0.13333334); signedTravel=0.00222206116; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=zero-friction-wind; tick=60; pose=(39,16,-16.3855534); beforeWind=(0,7.15255737E-07,6.266666); beforeSolver=(0,7.15255737E-07,6.266666); afterSolver=(0,7.15255737E-07,6.266666); signedTravel=3.86444664; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=zero-friction-wind; tick=120; pose=(39,16,-10.1188831); beforeWind=(0,7.15255737E-07,6.266666); beforeSolver=(0,7.15255737E-07,6.266666); afterSolver=(0,7.15255737E-07,6.266666); signedTravel=10.1311169; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=zero-friction-wind; tick=180; pose=(39,16,-3.852213); beforeWind=(0,7.15255737E-07,6.266666); beforeSolver=(0,7.15255737E-07,6.266666); afterSolver=(0,7.15255737E-07,6.266666); signedTravel=16.3977871; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=zero-friction-wind; tick=240; pose=(39,16,-0.3774167); beforeWind=(0,1.41561031E-06,-0.0465931222); beforeSolver=(0,1.41561031E-06,-0.0465931222); afterSolver=(0,1.63912773E-06,-0.0465931222); signedTravel=19.8725834; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=zero-friction-wind; tick=300; pose=(39,16,-0.424010247); beforeWind=(0,1.475215E-06,-0.0465931222); beforeSolver=(0,1.475215E-06,-0.0465931222); afterSolver=(0,1.35600567E-06,-0.0465931222); signedTravel=19.82599; sleeping=False",
+    "WB_WIND_RESULT: scenario=no-wind; steps=300; hz=60; start=(39,16.02,-20.25); end=(39,16,-20.25); velocity=(0,0,0); maximumSignedTravel=0; requiredTravel=0.799999237; windTicks=0; firstArrivalTick=-1; arrivalPosition=(0,0,0); scope=isolated-native-solver-not-Fusion",
+    "WB_WIND_RESULT: scenario=default-contact-wind; steps=300; hz=60; start=(39,16.02,-20.25); end=(38.9999046,16.0005264,-20.2364712); velocity=(-0.00591819454,-0.009326279,-0.00700618327); maximumSignedTravel=0.0138988495; requiredTravel=0.799999237; windTicks=300; firstArrivalTick=-1; arrivalPosition=(0,0,0); scope=isolated-native-solver-not-Fusion",
+    "WB_WIND_RESULT: scenario=zero-friction-wind; steps=300; hz=60; start=(39,16.02,-20.25); end=(39,16,-0.424010247); velocity=(0,1.35600567E-06,-0.0465931222); maximumSignedTravel=19.9488983; requiredTravel=0.799999237; windTicks=47; firstArrivalTick=27; arrivalPosition=(39,16,-19.41); scope=isolated-native-solver-not-Fusion"
+  ],
+  "conclusion": "Default contacts reproduce the full-route stall; zero-friction control reaches the actual arrival. Moderate item contact material requires separate calibration; production unchanged."
+}
