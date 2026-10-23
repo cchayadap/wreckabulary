@@ -83,7 +83,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Create/read back Windows release, QA and development profiles.
 - [~] Complete QA build; first attempt exceeded 30 minutes, caches retained.
 - [ ] Launch QA player and complete workshop→game→workshop smoke; inspect frames/motion.
-- [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair and allocation cleanup are integrated and independently source-reviewed; 20 native input/menu regressions await execution.
+- [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair, party navigation, workshop focus protection and allocation cleanup are integrated and independently source-reviewed; 29 native input/menu regressions await execution.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
 - [ ] Build release player and smoke-test the exact stripped executable.
@@ -94,13 +94,13 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 ### Recovery and cleanup — 2026-10-23
 
-- [x] Confirm integration HEAD `a896be3`, original main/font/Lunar files, all feature branches, and no surviving Unity/compiler/Blender jobs.
+- [x] Confirm recovery baseline `a896be3`, original main/font/Lunar files and all feature branches. Final detailed assets are integrated through `93d4e35`; no Unity or Blender job remains from the interrupted work.
 - [x] Save a private recovery snapshot under `.harness/recovery/2026-10-23T08-53-03-542Z-da1d8676-0794-40fc-a246-cd5de5cc201a`; its manifest verifies every copied file. Existing Git history, caches and private service credentials remain in place.
 - [x] Recover the actual public C# result: 28 executed / 28 passed. No Worker success was inferred from the interrupted run.
-- [x] Integrate recovered public/all-five-mode and private custom-map sources; C# client 41/41 and unique Worker 98/98 checks pass. Additional multi-seed binding configuration checks are running separately.
-- [~] Remove repeated input allocations; gameplay controller navigation and neutral input release are integrated and reviewed, native input/menu verification pending. Cache public map labels by mode/format and normalize Fill for custom modes that do not support it. Additional party-screen controller navigation and workshop focus guards are in progress.
-- [~] Improve material/construction detail; preserve editable Blender components while combining static export meshes to reduce Unity renderer overhead. Measure before/after counts and verify all FBX/GLB bounds/grips.
-- [~] Bind public admission to the approved map's exact mode and team format. Source repair and negative Worker cases are integrated; new gates await the asset slot. Earlier green Worker results do not validate this later change.
+- [x] Integrate recovered public/all-five-mode and private custom-map sources; C# client 41/41 and pre-metadata-repair Worker 98/98 checks pass. Final Node binding checks pass 6/6 and both TypeScript checks pass.
+- [~] Remove repeated input allocations; gameplay and party controller navigation, neutral input release and workshop focus guards are integrated and reviewed. Public map labels are cached by mode/format and unsupported Fill is normalized. Native verification remains pending.
+- [x] Deliver DetailV2 source/models with 24 independent FBX/GLB reimports, preserved bounds/grips and 174-to-27 mesh reduction. The integrated-checkout integrity validator passes; Unity renderer counts, pivots, appearance and frame rate remain separate pending checks.
+- [~] Bind public admission to the approved map's exact mode and team format. Final Worker run passed 95/100; four cases hit the 20-second harness deadline and one orphan-expiry test assumed uploads existed at setup time. The test now uses persisted expiry; a bounded five-case rerun is in progress. Production deadlines are unchanged.
 - [~] Present camera settings in clearly labeled Inspector groups, with metre distances and degree angles. Source saved; native appearance and live behavior checks pending.
 - [ ] Validate the assembled source, import final content, run native gameplay/public/recovery checks, then build and smoke-test the exact Windows delivery.
 
@@ -110,4 +110,6 @@ Root: integration, HUD/player/guide, native verification, content export, coordi
 
 The bounded Rules run passed 409/410 cases (`TestResults/core_20261023T092813Z.trx`); its only failure was an obsolete schema-2 assertion. The corrected deployment group passes 14/14 (`TestResults/core_20261023T093147Z.trx`), explicitly rejecting both old schema versions. An earlier overbroad filter accidentally started the already-covered flagship seed sweep; it was stopped through verified test-process PIDs and is recorded as a cancelled/failed run, not a pass. The prior 8,000 flagship and 1,000 arena seed evidence remains unchanged.
 
-Final assembled R0 passed in 140.6 seconds (`Logs/gate_check_all_20261023T094106Z.log`), and Online's final Worker 98/98, both TypeScript and six shard/configuration checks pass. Detailed Blender generation now owns the heavy-process slot. A separate usability review found missing party-screen controller navigation and workshop focus protection; bounded repairs are in progress. Native physical/story/profile/authoring batch `editmode_20261020T201950Z` previously failed at its 1,200-second limit during compilation before tests; caches are retained for a 3,600-second retry. Schema-3 service remains deployed with live API 7/7 PASS, preserved credentials/state and unchanged website (`BuildNotes/online/V3-DEPLOYMENT.md`). Public activation, real final multiplayer checks and a tested Windows player are still pending.
+The previous assembled R0 passed in 140.6 seconds (`Logs/gate_check_all_20261023T094106Z.log`); controller, camera and native test additions require another check before Unity. Native physical/story/profile/authoring batch `editmode_20261020T201950Z` previously failed at its 1,200-second limit during compilation before tests; caches are retained for a 3,600-second retry. Schema-3 service remains deployed with live API 7/7 PASS, preserved credentials/state and unchanged website (`BuildNotes/online/V3-DEPLOYMENT.md`). Public activation, real final multiplayer checks and a tested Windows player are still pending.
+
+Performance audit found that the existing workshop smoke is solo at 720p. A project-owned 1080p Low synthetic eight-character/equipment render workload is being added; it will report its synthetic scope explicitly and cannot replace real eight-peer network/combat acceptance. Other projects are running on this PC, so current wall-clock test duration is not a representative performance measurement.
