@@ -10,7 +10,7 @@ namespace Wreckabulary.Online.Editor
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.HelpBox("Assign this profile to a Wordbound course or the launch assets. During play, valid changes update the camera immediately. Save the asset to keep them.", MessageType.Info);
+            EditorGUILayout.HelpBox("Assign this profile to a Wordbound course or the launch assets. Valid changes update during play, except Starting angle: recreate the playtest or switch profiles to apply it. Save the asset to keep changes.", MessageType.Info);
             EditorGUILayout.LabelField("View and follow", EditorStyles.boldLabel);
             Field("FieldOfView", "Field of view (degrees)");
             Field("Distance", "Follow distance (m)");
