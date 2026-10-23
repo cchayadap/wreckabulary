@@ -218,3 +218,30 @@ Source inspection shows `BakeMesh(false)` followed by `mitten.transform.Transfor
 | receipt.json | `C1772CD9860B209E04B48266929CA62F51D71E83599FF2AB80874419890D5D7F` |
 
 The gallery now foregrounds the inspected 212401 Windows view and this actual Unity preview pair, explicitly separating their lighting, camera, pose and acceptance scope. The 76/90 Windows playtest timeout remains visible. Original icons/showcase, the first failed held capture and all rejected/unapproved art revisions remain available; DetailV2 stays collapsed and labelled owner-rejected. No production artwork, original asset, runtime source or receipt was changed by this gallery/report update.
+
+Input's independent read-only follow-up agrees that MittenFacts applies only one explicit TransformPoint; no accidental second call was found. The installed skin/bindpose/inherited-scale behavior remains unresolved by the documented BakeMesh(false) contract alone. A future native control would need a unity-scale renderer or an independently compared renderer bound before accepting corrected CPU coordinates. No such control or production change was performed.
+
+## Latest actual Windows review: 220124
+
+STATUS: VISIBLE WORKSHOP SMOKE PASS 5/5; IMAGES INDEPENDENTLY INSPECTED; PERFORMANCE / PRESENTATION / FULL-GAME ACCEPTANCE OPEN. Directly read integration `docs/qa/runs/20261023T220124Z-visible-wordbound_workshop_flow/checks.json`, the matching player log and process status, then viewed the actual ready, world, equipment-menu and returned-workshop PNGs. The release-qa build `20261023T215906Z` records development=false, Unity 6000.6.3f1, success=true, 111.7 s and HEAD `ecd968fdee01c892a8c0536c966e473c9bc295b7`. Root reports the surrounding gate as 112.7 s. The process status explicitly says diagnosticOnly=true and officialGateReplacement=false; preserve that scope.
+
+All five named steps passed: `open_wordbound`, `edit_workshop`, `exact_playtest`, `return_to_workshop`, and `undo_redo_preserved`. Readiness took 4.30056 s. The unchanged 90 update waits completed at playtest elapsed 76.228 s, followed by world/equipment captures and completion at 79.57853 s. Return retained the same draft/history and verified client/camera destruction plus workshop visibility; Undo/Redo was exact. Autosave used the isolated QA folder, exact recovered seed/manifest, primary file and no leftover temporary file. Console counts are 0 errors, 0 exceptions, 0 warnings. The normal-window process ended exit 0 at 22:03:23 UTC. These waits and inclusive timings are not FPS, GPU timing, a human-input session or proof of all modes. The earlier 212401 timeout remains preserved above.
+
+The world/ready images retain the corrected original-scale timber boards, warm surface response and original red hood, black bag/boots and rounded silhouette. No new missing/magenta/black material, geometry gap or texture stretch is visible in this same starting-room view. E / Q / LMB / ESC hints, story and checkpoint caption are readable. The large rear avatar still occupies much of the frame against a mostly empty room and overhead ramp; route sightlines, active item scale, held animation and gameplay camera composition beyond this one position remain unaccepted. No new original-mesh or palette replacement is justified.
+
+The equipment-menu image now provides concrete unfinished UI evidence: its translucent gray window and broad gray gradient buttons leave the red avatar and room strongly visible beneath them; low-contrast unavailable-recipe labels are difficult to scan against changing background colours. The top edge also overlaps the HUD region. The controls/scrollbar are recognisable, but their visual hierarchy and generic default styling are not a polished match to the original artwork. A bounded future improvement should make the menu backing sufficiently opaque, provide readable text/disabled states and separate the modal from the HUD, while preserving actions/bindings and original art. This is a proposal only, not an implemented or owner-approved new style.
+
+The returned-workshop image shows separated short map labels, cyan outlines contained within the viewport, the locked authored seed, active Flagship draft and Undo control. No label overlap or outline spill is visible in this sampled camera. The default gray buttons and dense palette remain visually rough; the FlagshipRoom / 24 × 24 m tile text is crowded near its short button edges, without claiming proven truncation. A captured clean view does not establish all floor/zoom/hover/edge cases, arbitrary editing, drag interactions or controller usability. Passing saved-state checks and visually unfinished controls can both be true.
+
+| Actual 220124 artifact | SHA-256 |
+| --- | --- |
+| QA 215906 build.json | `D95A38C9D69ADE6C401FE4900D56A2FBDBB86F4FB8B3CE84AB98183095BD5331` |
+| checks.json | `2F9402589721334EF0625C37B6D451AE6F5318550C5EFF7EF54732216F0FDB4D` |
+| wordbound_local_ready.png | `45A533A2A645159D9E79F6ACDA81981CC6BF2FD980EB8F2CFE8D315F2E696CDB` |
+| wordbound_local_world.png | `4826F3CFD1A65AF207343D31257512B040912A0C7FA8361FCC24ED6B6B1E3BDE` |
+| wordbound_equipment_menu.png | `AE330F4CC587328F12B5901B87C07FEE4707E3A4161EEC76BC06134BE1237537` |
+| wordbound_returned_workshop.png | `AD72EBA2592686855CB8E79D0156CA3C76E17E10B78BE01D0CAEF85D3D7BE8D0` |
+| matching player log | `0928CFF6FB5605F695BDD7C84EC1D8D2C53E6F19DDB0C492C7B776EA28CEE949` |
+| matching visible process status | `4F7AE727CBB7A4CC968E7209CC8026962796264C3554932ACA6D07CB9B54F69D` |
+
+The gallery's current Windows section now uses these directly inspected actual images and the latest PASS context, with the diagnostic/non-FPS limits and UI gaps visible. The neutral Unity 2157 pair, original references, earlier timeout and rejected-art archive remain intact. This update changes only documentation/gallery content, not gameplay, camera, UI rendering or assets.
