@@ -59,7 +59,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Pass 24 FBX/GLB reimports and native presentation checks.
 - [~] Inspect actual assets close-up/held/placed/at gameplay distance for believable detail, scale, materials and readability.
 - [x] Restore the original game assets as the default and preserve the rejected variants. The2157 neutral Unity preview shows all four representative originals and visible held-BAT contact; actual Windows220124 shows the original character/world. This is agent inspection, not owner visual approval.
-- [~] Match menu/workshop presentation to the original cream/teal/Nunito styling through an editable Unity theme. Repair opaque panel contrast, selection/focus, multiline rows and passive-HUD overlap; implementation and rendered acceptance are underway.
+- [x] Restore the original cream/teal/Nunito menu style through an editable Unity theme; correct panel contrast, multiline rows, Search wrapping, footer status and party consistency. Native232239 passes all96 relevant UI/input/workshop cases, including theme9 and party7; actual Windows232850 confirms these visible corrections. Further compact layout and human usability work remain open.
 - [ ] Verify Unity prefabs/materials/grips/icons and all held/placed/thrown/used/destroyed states.
 - [ ] Capture final assets/gameplay and obtain owner visual-quality/feel review on the reviewable build.
 
@@ -86,8 +86,8 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 ## Tested Windows delivery
 
 - [x] Create/read back Windows release, QA and development profiles.
-- [x] Produce QA Windows builds: latest `20261023T230521Z` passes119.5s on exact1ab60670; includes current original-style theme, capture/resource optimizations and online memory policy. Final stripped release remains separate.
-- [~] Visible workshop→game→workshop230748 passes5/5:90waits complete16.807s, playtest17.240s, exact save/return/draft/Undo preserved, console0/0/0, exit0. New theme improves contrast; Search wrapping, status contrast and party consistency remain under repair. Supplemental normal-window diagnostic only; official smoke and sustained frame rate remain open. `BuildNotes/client-view/windows-original-theme-20261023.json`.
+- [x] Produce QA Windows builds: latest `20261023T232641Z` passes113.4s on exact8c02f106; includes corrected original-style menus and opt-in frame observation. Final stripped release remains separate.
+- [~] Visible workshop→game→workshop232850 passes5/5: playtest12.450s, exact save/return/draft/Undo preserved, console0/0/0, exit0. Six actual screenshots confirm the theme corrections. The measured90-update window takes7.240s with479 canonical ticks and a696.499ms maximum update gap; smoothness remains below acceptance. Supplemental normal-window diagnostic only; official smoke and sustained frame rate remain open. `BuildNotes/client-view/windows-original-theme-polish-20261023.json`.
 - [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair, party navigation, workshop focus protection and allocation cleanup are integrated; focused native input passes 24/24. Final player handling and reconnect acceptance remain pending.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
@@ -97,9 +97,11 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T23:13Z
+## Current verification — 2026-10-23T23:33Z
 
-WindowsQA230521 and visible230748 pass5/5 on1ab60670; original models remain default, actual cream/teal menus are inspected, game payload hashes and all six images preserved. Playtest17.240s versus earlier79.579s is a faster observed flow, not a controlled FPS result. All7native theme cases and bothnew theme save/reload/custom assignment cases pass225846. Existing changed-draft replacement still fails after releasing its file lock; a native discriminator is running. Public225207TeamSolo andBrawlSolo pass, fullFFA fails second letter collection before combat; the reviewed fixture now parks the other player away and checks real range/LOS before submitting each fresh command. No production reach or timeout relaxation. Full FFA rerun and the draft diagnostic are underway on8a2e061b. Remaining production gaps below stay open.
+WindowsQA232641 and visible232850 pass5/5 on8c02f106. Original models remain default; Search, footer status and party theme are visually corrected. Root and Assets independently inspect all six images, with exact game payload hashes retained. Native232239 passes96/97: all96 UI/input/workshop cases pass; the separate capacity preflight rejects an unregistered test prop before any external allocation. Its reviewed correction uses an existing PLATE asset while preserving512 reserved/366 initial live bodies. Preflight and the exact draft-store diagnostic are now running on2f85a953.
+
+Actual frame observation shows90 Unity updates in7.240s,479 canonical ticks and up to46 ticks/update, with a696.499ms worst gap. The assigned camera records89 matched callback pairs; callback wall time is not GPU time or presented FPS. Settings show no frame throttle. Performance investigation remains open. FullFFA231117 reaches five respawns but its eight-minute fixture lifetime expires during a slow scripted return; no ten-point finish is accepted.172 allocator samples show zero OOM headers, but growing allocated capacity does not prove reclamation. The reviewed FFA-only steering correction retains all deadlines and combat assertions; rerun remains pending. Isolated Unity null/named file replacement succeeds in both fresh and released-lock cases, so it does not explain the actual Store failure. Earlier failures remain preserved; no production closure is claimed.
 
 ### Earlier verified checkpoint — 22:47 UTC
 
