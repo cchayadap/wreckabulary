@@ -1,6 +1,6 @@
 # Native input fixture repair
 
-STATUS: FOLLOW-UP SOURCE REVIEW PASS — cleanup ownership repair ce44cd0; native rerun pending. No local compiler/Unity job.
+STATUS: SECOND FOLLOW-UP SOURCE REVIEW PASS — fixture quiet-window isolation repaired; native rerun pending. No local compiler/Unity job.
 
 Evidence: integration `TestResults/editmode_20261023T122055Z.xml` reports 11/13 InputBinding, 5/6 PartyMenuInput and 3/3 WorkshopInputSafety failures. Sampled pad state remained zero/null; the focus callback test also triggered Unity's `ShouldRunBehaviour()` assertion through EditMode `SendMessage`.
 
@@ -23,3 +23,17 @@ The follow-up protects the original's temporary flags only across replacement, r
 One additional native regression performs two real nested settings swaps with an original marked HideAndDontSave, asserting original instance/flags preservation and destruction only of each inactive clone. Expected focused result is now **23 cases: 14 InputBinding + 6 PartyMenuInput + 3 WorkshopInputSafety**, with zero skipped. The earlier 22-case native acceptance is not claimed; the follow-up still requires the coordinator's native rerun.
 
 Independent follow-up review by recover_online checked the actual installed InputManager setter and passed ce44cd0's protection/restoration/clone lifetime logic and repeated nested-scope regression. This closes the specific source ownership defect found by the native run, but does not replace the pending 23-case native acceptance.
+
+## 13:15 native rerun and quiet-window isolation
+
+The coordinator's `editmode_20261023T131522Z.xml` reports **15/23 PASS, 8 FAIL**. The settings-lifetime regression now passes. Remaining failures are one attack case, four Party cases and all three WorkshopInputSafety cases; this follow-up owns the attack/workshop fixtures and shared helper only. Online owns the Party fixture correction.
+
+Source cause: `KeyBindings.InputLease.Dispose()` calls `QuietInput()`, setting private `quietUntil` to `Time.frameCount + 1`. `GameplayBlocked` correctly remains true through that frame, and both the Wordbound binding and workshop focus gate correctly suppress actions while blocked. The synchronous EditMode fixture previously restored InputSettings and typing, but left this test-created static quiet window behind. The passing typing/input-lease case precedes the failing held-attack case in the native XML; Party's disposed-lease case likewise precedes the workshop fixture. Dynamic input pumps do not themselves advance Unity's frame count. The native failures did not record quietUntil, so final causal closure requires the rerun with the new diagnostics.
+
+The test-only scope now captures its entry quietUntil and restores that exact scalar at teardown, including settings-cleanup failure. It does not change production code, inputLeases, pending rebinding, or releaseControl. Suppression remains active within each test. A new nested-scope regression disposes an inner lease, restores its quiet state, proves an outer live lease still blocks, then proves disposal of that outer lease still starts the real production quiet window.
+
+Attack and workshop fixtures reject inherited blockers at entry and report frame, quietUntil, Dynamic update type, typing/blocking state and actual button state on behavior failure. Workshop diagnostics also identify its visible/typing/sharing/online-start state, undo availability and controller drag state. Current-device assertions precede the real input path without reading edge properties; detailed edge diagnostics run after the actual command path. Existing held/resume, neutral, unplug, Undo, drag and attack assertions are unchanged.
+
+Independent source review by recover_online passed the bounded quiet-window restoration and active-lease regression. My reciprocal read-only review found no concrete blocker in its Party fixture change: five pad cases now use UnityTest iteration, request QueuePlayerLoopUpdate while waiting for the actual blocker to clear with a five-second bound, preserve the immediate post-disposal blocked assertion, require actual Layout/Repaint and focused named control, then exercise the same deferred button handler and neutral transition. No quietUntil mutation occurs inside Party actions. The installed TestJobRunner uses EditorApplication.update, so yield-null alone is not assumed to mean a new player frame; [Unity documents QueuePlayerLoopUpdate as explicitly requesting that loop](https://docs.unity.com/en-us/engine/7000.0/script-reference/unityeditor/editorapplication/queueplayerloopupdate). Actual frame progression and rendered-control behavior remain native acceptance requirements.
+
+Expected focused inventory is now **24 cases: 15 InputBinding + 6 PartyMenuInput + 3 WorkshopInputSafety**. Require 24 pass / 0 fail / 0 skip. Native run NOT RUN in this lane; the coordinator owns the assembled R0 and focused native rerun. No production guard, input preference, package or assertion was weakened.

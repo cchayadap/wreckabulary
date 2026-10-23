@@ -28,6 +28,7 @@ namespace Wreckabulary.Online.Tests
             try
             {
                 input = new WordboundNativeInputScope();
+                Assert.IsFalse(KeyBindings.GameplayBlocked, "Input fixture must start without an inherited blocker: " + WordboundNativeInputScope.Context());
                 DesktopBinding.Typing = false; Time.timeScale = 1;
                 keyboard = Add<Keyboard>(); keyboard.MakeCurrent();
                 mouse = Add<Mouse>(); mouse.MakeCurrent();
@@ -137,12 +138,33 @@ namespace Wreckabulary.Online.Tests
         }
 
         [Test]
+        public void NativeInputScopeRestoresItsQuietFramesWithoutReleasingAnExistingGameplayLease()
+        {
+            int before = WordboundNativeInputScope.QuietUntil;
+            using (KeyBindings.BlockGameplay())
+            {
+                using (var nested = new WordboundNativeInputScope())
+                {
+                    using (KeyBindings.BlockGameplay()) { }
+                    Assert.AreEqual(Time.frameCount + 1, WordboundNativeInputScope.QuietUntil);
+                    Assert.IsTrue(KeyBindings.GameplayBlocked);
+                }
+                Assert.AreEqual(before, WordboundNativeInputScope.QuietUntil);
+                Assert.IsTrue(KeyBindings.GameplayBlocked, "Restoring fixture quiet frames must not release an existing input lease.");
+            }
+            Assert.AreEqual(Time.frameCount + 1, WordboundNativeInputScope.QuietUntil,
+                "The production quiet window remains active within the enclosing fixture.");
+        }
+
+        [Test]
         public void WordboundAddsHeldAttackAndRightShoulderThrowAimWithoutChangingLegacyGamepadMapping()
         {
             UsePad();
+            Assert.AreSame(pad, binding.ActiveGamepad, "The real neutral transition must select this gamepad before attacking.");
             var state = new GamepadState().WithButton(GamepadButton.West).WithButton(GamepadButton.RightShoulder);
             var commands = Read(state);
-            Assert.IsTrue(commands.attack);
+            Assert.IsTrue(pad.buttonWest.wasPressedThisFrame, WordboundNativeInputScope.Context(pad));
+            Assert.IsTrue(commands.attack, WordboundNativeInputScope.Context(pad));
             Assert.IsTrue(commands.attackHeld);
             Assert.IsTrue(commands.aimHeld);
             var legacy = new GamepadBinding(pad);

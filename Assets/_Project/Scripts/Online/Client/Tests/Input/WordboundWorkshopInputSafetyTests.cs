@@ -28,6 +28,7 @@ namespace Wreckabulary.Online.Tests
             try
             {
                 input = new WordboundNativeInputScope();
+                Assert.IsFalse(KeyBindings.GameplayBlocked, "Workshop fixture must start without an inherited blocker: " + WordboundNativeInputScope.Context());
                 DesktopBinding.Typing = false; pad = InputSystem.AddDevice<Gamepad>();
                 folder = Path.Combine(Path.GetTempPath(), "wordbound-pad-" + Guid.NewGuid().ToString("N"));
                 root = new GameObject("Workshop input safety native test");
@@ -71,7 +72,7 @@ namespace Wreckabulary.Online.Tests
             Sample(held, false); Sample(held, true);
             Assert.AreEqual("Pending user edit", workshop.History.Current.Course().Title);
             Sample(default, true); Sample(default, true); Sample(held, true);
-            Assert.AreEqual(original, workshop.History.Current.Course().Title);
+            Assert.AreEqual(original, workshop.History.Current.Course().Title, Context());
         }
 
         [Test]
@@ -86,7 +87,7 @@ namespace Wreckabulary.Online.Tests
             Sample(held, true);
             Assert.AreEqual("Typing edit", workshop.History.Current.Course().Title);
             Sample(default, true); Sample(default, true); Sample(held, true);
-            Assert.AreNotEqual("Typing edit", workshop.History.Current.Course().Title);
+            Assert.AreNotEqual("Typing edit", workshop.History.Current.Course().Title, Context());
         }
 
         [Test]
@@ -96,7 +97,7 @@ namespace Wreckabulary.Online.Tests
             workshop.History.Execute("Select", draft => draft.Selection.Add(id));
             string before = workshop.History.Current.CourseJsonText;
             Sample(new GamepadState { leftStick = new Vector2(.9f, 0) }, true);
-            Assert.IsTrue(Get<bool>("controllerMoving"));
+            Assert.IsTrue(Get<bool>("controllerMoving"), Context());
             InputSystem.RemoveDevice(pad);
             Invoke("ControllerInput", true);
             Assert.IsFalse(Get<bool>("controllerMoving"));
@@ -109,8 +110,13 @@ namespace Wreckabulary.Online.Tests
         void Sample(GamepadState state, bool focused)
         {
             WordboundNativeInputScope.Sample(pad, state);
+            Assert.AreSame(pad, Gamepad.current, "Sampled gamepad must be current before ControllerInput.");
             Invoke("ControllerInput", focused);
         }
+        string Context() => WordboundNativeInputScope.Context(pad) + "; visible=" + workshop.Visible +
+            "; workshopTyping=" + Get<bool>("workshopTyping") + "; sharing=" + Get<bool>("sharing") +
+            "; onlineStarting=" + workshop.OnlineStarting + "; canUndo=" + workshop.History.CanUndo +
+            "; controllerMoving=" + Get<bool>("controllerMoving") + "; status=" + Get<string>("status");
         T Get<T>(string name) => (T)typeof(WordboundWorkshop).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(workshop);
         void Set(string name, object value) => typeof(WordboundWorkshop).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(workshop, value);
         void Invoke(string name, params object[] args)

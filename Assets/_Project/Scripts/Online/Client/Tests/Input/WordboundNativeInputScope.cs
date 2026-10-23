@@ -14,13 +14,17 @@ namespace Wreckabulary.Online.Tests
     {
         const string PlayerUpdates = "RUN_PLAYER_UPDATES_IN_EDIT_MODE";
         const HideFlags OwnedFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
+        static readonly FieldInfo QuietInputField = typeof(KeyBindings).GetField("quietUntil", BindingFlags.Static | BindingFlags.NonPublic)
+            ?? throw new MissingFieldException(typeof(KeyBindings).FullName, "quietUntil");
         readonly InputSettings original;
         readonly InputSettings temporary;
         readonly bool originalPlayerUpdates;
+        readonly int originalQuietUntil;
         bool disposed;
 
         public WordboundNativeInputScope()
         {
+            originalQuietUntil = QuietUntil;
             original = InputSystem.settings;
             if (!original) throw new InvalidOperationException("The native input fixture requires live original InputSettings.");
             var featureField = typeof(InputSettings).GetField("m_FeatureFlags", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -59,6 +63,16 @@ namespace Wreckabulary.Online.Tests
             Assert.AreEqual(InputUpdateType.Dynamic, InputState.currentUpdateType,
                 "This fixture must process real game input actions through a Dynamic input update.");
         }
+
+        public static int QuietUntil => (int)QuietInputField.GetValue(null);
+
+        public static string Context(Gamepad pad = null) => "frame=" + Time.frameCount + "; quietUntil=" + QuietUntil +
+            "; update=" + InputState.currentUpdateType + "; typing=" + DesktopBinding.Typing +
+            "; gameplayBlocked=" + KeyBindings.GameplayBlocked + "; listening=" + KeyBindings.Listening +
+            (pad == null ? "" : "; pad=" + pad.deviceId + "; currentPad=" + (Gamepad.current?.deviceId ?? -1) +
+                "; added=" + pad.added + "; enabled=" + pad.enabled + "; stick=" + pad.leftStick.ReadValue() +
+                "; westHeld=" + pad.buttonWest.isPressed + "; westPressed=" + pad.buttonWest.wasPressedThisFrame +
+                "; lbHeld=" + pad.leftShoulder.isPressed + "; lbPressed=" + pad.leftShoulder.wasPressedThisFrame);
 
         public static void Sample(Gamepad pad, GamepadState state)
         {
@@ -105,7 +119,8 @@ namespace Wreckabulary.Online.Tests
             }
             finally
             {
-                if (temporary && !ReferenceEquals(InputSystem.settings, temporary)) Object.DestroyImmediate(temporary);
+                try { if (temporary && !ReferenceEquals(InputSystem.settings, temporary)) Object.DestroyImmediate(temporary); }
+                finally { QuietInputField.SetValue(null, originalQuietUntil); }
             }
         }
     }
