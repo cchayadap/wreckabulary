@@ -76,3 +76,11 @@ This single ready view supports the intended static readability improvement. It 
 
 Before PNG SHA-256: `278EEAC129394112410EC209CBC437B5047DB9C88E723501E8D4EDAE67E182AC`.
 After PNG SHA-256: `7DBF75226BD5E481F752BED68A48541468CD64037C260C5B5BF18292088EB28A` (621,080 bytes; last written 20:09:19 UTC on 2026-10-23).
+
+### Final visible-flow result
+
+Subsequently read the completed `200812` checks: **FAIL**, build `20261023T200608Z`, Unity 6000.6.3f1, non-development player. Open party and edit/autosave passed; the saved primary was exactly 183,314 bytes, no backup was used and no temporary file remained. Return-to-workshop passed with the same history/draft, destroyed gameplay client/camera and visible editor. Undo/redo also passed. Recorded console counts were zero errors, exceptions and warnings.
+
+`exact_playtest` still failed its unchanged 90-second deadline while waiting for ninety post-ready Unity update frames. Readiness took 3.619521 seconds (frame 14, canonical tick 35); at Return entry, elapsed time was 90.743923 seconds, only **78/90** post-ready frames had been counted, current frame 93 and canonical tick 4740. The client, controller, frame, world and camera remained active; focus and time scale were normal, with no pause or gameplay/guide/presentation fault reported, 93 visuals and one guide marker. Later world/equipment captures were not reached.
+
+The checks' performance object is empty. These update counts are not presented-frame/FPS evidence and do not establish the cause of the timeout. The static readability improvement is supported by its retained image, but the full Windows flow and performance acceptance remain open. The report's commit/tree fields are null, so source identity must be bound through the separate root build receipt rather than inferred from this checks file.
