@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using Wreckabulary.Rules.Wordbound;
@@ -12,9 +13,29 @@ namespace Wreckabulary.Workshop
         public void OpenFlagship(WordboundFlagshipContent content, string folder = null)
         {
             if (content == null) throw new ArgumentNullException(nameof(content));
+            RequireRecoveryChoice();
+            if (OnlineStarting) throw new InvalidOperationException("Wait for online preparation to finish before changing courses.");
+            if (usesFlagship && flagshipDraftHash == content.Hash && (folder == null || folder == storageFolder)) return;
+            SaveAndRememberDraft();
             ConfigureFlagship(content);
-            Open(content.CopyDocument(), content.Geometry, MatchStateValidation.Requirements(ModeDefinition.For("TimeRun")), folder);
-            ShowStatus("Flagship draft · TimeRun · preview validates this exact seed");
+            if (flagshipDraft != null && flagshipDraftHash == content.Hash && (folder == null || folder == flagshipDraft.Folder))
+            {
+                ActivateDraft(flagshipDraft, false, null, true);
+                ShowStatus("Flagship draft · your edits and Undo history are retained."); return;
+            }
+            string baseFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
+            var scoped = new WorkshopStorage(Path.Combine(baseFolder, "templates", "Flagship"));
+            var legacy = new WorkshopStorage(baseFolder);
+            var snapshot = new WorkshopSnapshot(content.CopyDocument());
+            string id = snapshot.Course().Id;
+            var recovery = scoped.HasRecovery(id) ? scoped : !HasAssignedCourse && legacy.HasRecovery(id) ? legacy : null;
+            bool backup = false;
+            if (recovery != null) snapshot = recovery.Recover(id, out backup);
+            ActivateDraft(new DraftSession { History = new WorkshopHistory(snapshot), Catalogue = content.Geometry,
+                Play = MatchStateValidation.Requirements(ModeDefinition.For("TimeRun")), Storage = scoped, Folder = baseFolder }, false, null, true);
+            flagshipDraftHash = content.Hash;
+            ShowStatus(recovery == null ? "Flagship draft · TimeRun · preview validates this exact seed" :
+                backup ? "Recovered previous Flagship save" : "Recovered Flagship autosave");
         }
         bool localPlaytest;
         public bool CanPlaytestLocally => History != null && SelectedModeEnabled &&

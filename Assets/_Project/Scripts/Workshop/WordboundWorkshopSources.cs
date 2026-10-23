@@ -14,7 +14,9 @@ namespace Wreckabulary.Workshop
             public string Folder;
         }
 
-        DraftSession assignedDraft;
+        DraftSession assignedDraft, flagshipDraft;
+        bool usesFlagship;
+        string flagshipDraftHash;
         int sourceDecision;
         bool controllerSourceDecision;
         public bool HasAssignedCourse => assignedDraft != null;
@@ -31,14 +33,15 @@ namespace Wreckabulary.Workshop
             if (storage != null && History.Revision != savedRevision)
             { storage.Save(History.Current); savedRevision = History.Revision; }
             if (UsesAssignedCourse) assignedDraft = CaptureDraft();
+            else if (usesFlagship) flagshipDraft = CaptureDraft();
             else if (currentTemplate.HasValue) drafts[currentTemplate.Value] = CaptureDraft();
         }
 
-        void ActivateDraft(DraftSession draft, bool assigned, WorkshopTemplate? template)
+        void ActivateDraft(DraftSession draft, bool assigned, WorkshopTemplate? template, bool flagship = false)
         {
             History = draft.History; Catalogue = draft.Catalogue; PlayRequirements = draft.Play;
             storage = draft.Storage; storageFolder = draft.Folder;
-            UsesAssignedCourse = assigned; currentTemplate = template;
+            UsesAssignedCourse = assigned; currentTemplate = template; usesFlagship = flagship;
             Visible = true; LastPlaytestDraft = null;
             ResetView(); Refresh(); savedRevision = History.Revision;
         }
@@ -56,8 +59,9 @@ namespace Wreckabulary.Workshop
 
         void QueueSourceChoice(int choice)
         {
-            if (RecoveryChoicePending || OnlineStarting || sourceDecision != 0 || choice < 1 || choice > 4) return;
+            if (RecoveryChoicePending || OnlineStarting || sourceDecision != 0 || choice < 1 || choice > 5) return;
             if (choice == 1 && !HasAssignedCourse) return;
+            if (choice == 5 && flagshipContent == null) return;
             sourceDecision = choice;
         }
 
@@ -76,6 +80,7 @@ namespace Wreckabulary.Workshop
                 controller && workshopTyping) return;
             Attempt(() => {
                 if (decision == 1) OpenAssignedCourse();
+                else if (decision == 5) OpenFlagship(flagshipContent);
                 else OpenTemplate((WorkshopTemplate)(decision - 2));
             });
         }

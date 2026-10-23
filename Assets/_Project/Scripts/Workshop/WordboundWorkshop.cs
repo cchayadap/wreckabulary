@@ -46,7 +46,7 @@ namespace Wreckabulary.Workshop
             History = new WorkshopHistory(new WorkshopSnapshot(course));
             storageFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
             storage = new WorkshopStorage(storageFolder);
-            currentTemplate = null; UsesAssignedCourse = false; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
+            currentTemplate = null; UsesAssignedCourse = false; usesFlagship = false; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
         }
         public void OpenTemplate(WorkshopTemplate template, string folder = null)
         {
@@ -56,7 +56,7 @@ namespace Wreckabulary.Workshop
             var preset = WorkshopTemplates.Create(template);
             SaveAndRememberDraft();
             if (drafts.TryGetValue(template, out var retained) && (folder == null || folder == retained.Folder))
-            { ActivateDraft(retained, false, template); return; }
+            { ActivateDraft(retained, false, template); ShowStatus(TemplateLabel(template) + " · your edits and Undo history are retained."); return; }
             string baseFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
             var templateStorage = new WorkshopStorage(Path.Combine(baseFolder, "templates", template.ToString()));
             var legacyStorage = new WorkshopStorage(baseFolder);
@@ -213,7 +213,7 @@ namespace Wreckabulary.Workshop
             GUILayout.Space(12); GUILayout.Label("Start from", heading);
             if (HasAssignedCourse && Button(UsesAssignedCourse ? "● Assigned course" : "Assigned course",
                 "Return to your assigned course, keeping its edits and Undo history.") && !UsesAssignedCourse) QueueSourceChoice(1);
-            if (flagshipContent != null && Button("Flagship draft")) Attempt(() => OpenFlagship(flagshipContent));
+            if (flagshipContent != null && Button(usesFlagship ? "● Flagship draft" : "Flagship draft")) QueueSourceChoice(5);
             foreach (WorkshopTemplate template in Enum.GetValues(typeof(WorkshopTemplate)))
                 if (Button((currentTemplate == template ? "● " : "") + TemplateLabel(template))) QueueSourceChoice(2 + (int)template);
             GUILayout.Label("Templates start with geometry. Race playtests also need physical controls at every selected puzzle checkpoint.");

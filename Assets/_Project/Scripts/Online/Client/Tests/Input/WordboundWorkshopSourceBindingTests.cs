@@ -244,6 +244,81 @@ namespace Wreckabulary.Online.Tests
             Assert.AreSame(history, workshop.History); Assert.AreEqual("Assigned work", workshop.History.Current.Course().Title);
         }
 
+        [Test]
+        public void SameIdFlagshipHasSeparateSavesAndRetainsItsHistoryModeAndRedo()
+        {
+            var flagship = Field<WordboundFlagshipContent>(workshop, "flagshipContent");
+            assigned.Initialize(flagship.CopyDocument(), flagship.Geometry); assigned.ModeId = "TimeRun";
+            Invoke(launcher, "BindAssignedWorkshopSource", assigned); OpenAssigned();
+            var authored = workshop.History;
+            authored.Execute("Assigned edit", draft => draft.Course.Title = "Keep assigned flagship");
+            Invoke(workshop, "QueueSourceChoice", 5); Assert.AreSame(authored, workshop.History);
+            Invoke(workshop, "ProcessSourceChoice", true);
+            var global = workshop.History; Assert.AreNotSame(authored, global);
+            Assert.AreEqual(assigned.ReadDocument().Id, global.Current.Course().Id);
+            string primary = Path.Combine(folder, assigned.ReadDocument().Id + ".autosave.json");
+            byte[] original = File.ReadAllBytes(primary);
+            global.Execute("Global edit", draft => draft.Course.Title = "Keep global flagship");
+            workshop.SelectMode("TeamRace", RaceFormat.Duo); var play = workshop.PlayRequirements;
+            Assert.IsTrue(global.Undo());
+            workshop.OpenAssignedCourse();
+            Assert.AreSame(authored, workshop.History); CollectionAssert.AreEqual(original, File.ReadAllBytes(primary));
+            Assert.AreEqual(assignedItems, Field<string>(Inputs(), "Items"));
+            workshop.OpenFlagship(flagship);
+            Assert.AreSame(global, workshop.History); Assert.AreSame(play, workshop.PlayRequirements);
+            Assert.IsTrue(global.Redo()); Assert.AreEqual("Keep global flagship", global.Current.Course().Title);
+            AssertInputs(globalItems, globalRules, launch.CameraProfile, launch.VisualProfile);
+            workshop.OpenAssignedCourse();
+            var scoped = new WorkshopStorage(Path.Combine(folder, "templates", "Flagship"));
+            Assert.AreEqual("Keep global flagship", scoped.Recover(assigned.ReadDocument().Id, out _).Course().Title);
+            CollectionAssert.AreEqual(original, File.ReadAllBytes(primary));
+        }
+
+        [Test]
+        public void FlagshipDeferredChoiceIsCancelledOnFocusLoss()
+        {
+            OpenAssigned(); var before = workshop.History;
+            Invoke(workshop, "QueueSourceChoice", 5); Invoke(workshop, "OnApplicationFocus", false);
+            Invoke(workshop, "ProcessSourceChoice", true);
+            Assert.AreSame(before, workshop.History); Assert.IsTrue(workshop.UsesAssignedCourse);
+        }
+
+        [Test]
+        public void FailedFlagshipSavePreventsAssignedReturn()
+        {
+            OpenAssigned(); workshop.OpenFlagship(Field<WordboundFlagshipContent>(workshop, "flagshipContent"));
+            var before = workshop.History; before.Execute("Keep unsaved", draft => draft.Course.Title = "Unsaved flagship");
+            string path = Path.Combine(folder, "templates", "Flagship");
+            new WorkshopStorage(path).Save(before.Current);
+            using (var locked = new FileStream(Path.Combine(path, before.Current.Course().Id + ".autosave.json"), FileMode.Open, FileAccess.Read, FileShare.None))
+            {
+                Assert.Throws<IOException>(() => workshop.OpenAssignedCourse());
+                Assert.AreSame(before, workshop.History); Assert.IsFalse(workshop.UsesAssignedCourse);
+            }
+        }
+
+        [TestCase(1)]
+        [TestCase(4)]
+        [TestCase(5)]
+        public void OnlinePreparationBlocksDirectAndPreviouslyQueuedSourceChanges(int choice)
+        {
+            OpenAssigned();
+            if (choice == 1) workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld);
+            var before = workshop.History; bool assignedBefore = workshop.UsesAssignedCourse;
+            Invoke(workshop, "QueueSourceChoice", choice);
+            typeof(WordboundWorkshop).GetProperty("OnlineStarting").GetSetMethod(true).Invoke(workshop, new object[] { true });
+            try
+            {
+                Assert.Throws<InvalidOperationException>(() => workshop.OpenAssignedCourse());
+                Assert.Throws<InvalidOperationException>(() => workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld));
+                Assert.Throws<InvalidOperationException>(() => workshop.OpenFlagship(Field<WordboundFlagshipContent>(workshop, "flagshipContent")));
+                Invoke(workshop, "ProcessSourceChoice", true);
+                Assert.AreSame(before, workshop.History); Assert.AreEqual(assignedBefore, workshop.UsesAssignedCourse);
+            }
+            finally { workshop.FinishOnlinePreparation(); }
+            Invoke(workshop, "ProcessSourceChoice", true); Assert.AreSame(before, workshop.History);
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void AssignedSourceRejectsMissingCaptureOrMismatchedGeometry(bool differentGeometry)
