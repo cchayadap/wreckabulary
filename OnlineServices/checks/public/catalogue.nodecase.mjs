@@ -16,17 +16,22 @@ test("projects the exact native bytes and preserves approved release provenance"
   for (const seed of seeds) assert.equal(new Set(projected.catalogue.courses
     .filter(row => row.seed === seed).map(row => `${row.mode}/${row.format}`)).size, 9);
   assert.equal(projected.builtinContentJson, canonical(projected.catalogue.courses.map(row => row.content)));
+  assert.equal(projected.publicBindingsJson, canonical(projected.catalogue.courses.map(({ mode, format, content }) => ({ mode, format, content }))));
   const result = activationProjection(projected);
   assert.equal(result.catalogueSha256, projected.sourceSha256);
   assert.equal(result.bindingsSha256, projected.bindingsSha256);
   assert.equal(result.builtinContentJson, projected.builtinContentJson);
+  assert.equal(result.publicBindingsJson, projected.publicBindingsJson);
   requireConfigParity(projected, configurePublicCatalogue(projected, { vars: {} }));
 });
 test("rejects a missing, closed or changed deployment allowlist", () => {
   assert.throws(() => requireConfigParity(projected, { vars: {} }), /MISSING/);
   assert.throws(() => requireConfigParity(projected, { vars: { BUILTIN_CONTENT_JSON: "[]" } }), /PARITY/);
-  const rows = JSON.parse(projected.builtinContentJson); rows[0].manifestHash = "0".repeat(64);
+  const rows = JSON.parse(projected.publicBindingsJson); rows[0].content.manifestHash = "0".repeat(64);
   assert.throws(() => requireConfigParity(projected, { vars: publicBindingVars(rows) }), /PARITY/);
+  const changedMode = JSON.parse(projected.publicBindingsJson);
+  changedMode[0].mode = changedMode[0].mode === "BrawlRace" ? "TeamRace" : "BrawlRace";
+  assert.throws(() => requireConfigParity(projected, { vars: publicBindingVars(changedMode) }), /PARITY/);
 });
 test("rejects duplicate keys, noncanonical order and legacy closed arrays as activation artifacts", () => {
   assert.throws(() => parsePublicCatalogue(source.replace("{", '{"schema":1,')), /CANONICAL/);

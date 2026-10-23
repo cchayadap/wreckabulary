@@ -1,5 +1,9 @@
-export type PublicBinding = {
+export type PublicContent = {
   kind: "BuiltIn"; courseId: string; courseHash: string; manifestHash: string; modeHash: string; catalogHash: string;
+};
+export type PublicBinding = {
+  mode: "TimeRun" | "TeamRace" | "BrawlRace" | "FreeForAll" | "Freestyle";
+  format: "Solo" | "Duo" | "Squad"; content: PublicContent;
 };
 export const PUBLIC_BINDING_BYTES: number;
 export const PUBLIC_BINDING_SHARDS: number;

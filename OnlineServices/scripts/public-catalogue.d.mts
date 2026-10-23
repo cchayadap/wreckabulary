@@ -7,7 +7,7 @@ export type PublicCourse = {
 };
 export type PublicCatalogueProjection = {
   catalogue: { schema: 1; protocolVersion: string; mapPoolVersion: string; courses: PublicCourse[] };
-  sourceSha256: string; builtinContentJson: string; bindingsSha256: string;
+  sourceSha256: string; builtinContentJson: string; publicBindingsJson: string; bindingsSha256: string;
 };
 export function canonical(value: unknown): string;
 export function parsePublicCatalogue(source: string): PublicCatalogueProjection;
@@ -16,5 +16,6 @@ export function requireConfigParity(projected: PublicCatalogueProjection, config
 export function configurePublicCatalogue(projected: PublicCatalogueProjection, config: object): object;
 export function activationProjection(projected: PublicCatalogueProjection): {
   schema: number; catalogueSha256: string; protocolVersion: string; mapPoolVersion: string;
-  courseCount: number; bindingsSha256: string; builtinContentJson: string; builtinContentVars: Record<string, string>;
+  courseCount: number; bindingsSha256: string; builtinContentJson: string; publicBindingsJson: string;
+  builtinContentVars: Record<string, string>;
 };

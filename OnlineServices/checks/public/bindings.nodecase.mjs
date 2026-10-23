@@ -18,7 +18,7 @@ const courses = variants.flatMap(variant => Array.from({ length: 4 }, (_, i) => 
     courseHash: digest("source"), manifestHash: digest(variant + seed), modeHash: digest(variant), catalogHash: digest("catalogue") } };
 }));
 const source = canonical({ schema: 1, protocolVersion: "wordbound-v3", mapPoolVersion: "unit-fixture", courses });
-const rows = courses.map(row => row.content), vars = publicBindingVars(rows);
+const rows = courses.map(({ mode, format, content }) => ({ mode, format, content })), vars = publicBindingVars(rows);
 const copy = () => ({ ...vars });
 
 test("36 synthetic binding units roundtrip losslessly in bounded exact shards", () => {
@@ -29,15 +29,20 @@ test("36 synthetic binding units roundtrip losslessly in bounded exact shards", 
   assert.deepEqual(readPublicBindings(vars), rows);
   validateDeploymentVars(vars);
 });
-test("explicit closed lists and small legacy lists retain strict identities", () => {
+test("explicit closed lists and small metadata lists retain strict identities", () => {
   assert.deepEqual(readPublicBindings({ BUILTIN_CONTENT_JSON: "[]" }), []);
   assert.deepEqual(readPublicBindings(publicBindingVars(rows.slice(0, 1))), rows.slice(0, 1));
   assert.throws(() => readPublicBindings({}), /MISSING/);
   assert.throws(() => readPublicBindings({ BUILTIN_CONTENT_JSON: "[]", BUILTIN_CONTENT_JSON_0: "[]" }), /SHARDS/);
   assert.throws(() => publicBindingVars([rows[0], rows[0]]), /DUPLICATE/);
-  assert.throws(() => publicBindingVars([{ ...rows[0], kind: "Workshop" }]), /BINDING/);
+  assert.throws(() => publicBindingVars([{ ...rows[0], content: { ...rows[0].content, kind: "Workshop" } }]), /BINDING/);
   assert.throws(() => publicBindingVars([{ ...rows[0], extra: true }]), /FIELDS/);
-  assert.throws(() => publicBindingVars([{ ...rows[0], manifestHash: "oops" }]), /BINDING/);
+  assert.throws(() => publicBindingVars([{ ...rows[0], content: { ...rows[0].content, manifestHash: "oops" } }]), /BINDING/);
+  assert.throws(() => publicBindingVars([rows[0].content]), /FIELDS/);
+  assert.throws(() => publicBindingVars([{ ...rows[0], mode: "Freestyle" }]), /SETTINGS/);
+  assert.throws(() => publicBindingVars([{ ...rows[0], format: "Unknown" }]), /SETTINGS/);
+  assert.throws(() => publicBindingVars([rows[0], { ...rows[0], mode: "TeamRace" }]), /DUPLICATE/);
+  assert.throws(() => readPublicBindings({ BUILTIN_CONTENT_JSON: JSON.stringify(rows.slice(0, 1)) }), /CANONICAL/);
 });
 test("missing, excess, mixed, tampered and noncanonical shards fail closed", () => {
   for (const mutate of [
@@ -48,7 +53,10 @@ test("missing, excess, mixed, tampered and noncanonical shards fail closed", () 
     v => { v.BUILTIN_CONTENT_JSON_0 = "[]"; },
     v => { v.BUILTIN_CONTENT_JSON_0 += "\n"; },
     v => { v.BUILTIN_CONTENT_JSON_0 = " ".repeat(4097); },
-    v => { const part = JSON.parse(v.BUILTIN_CONTENT_JSON_0); part[0].courseId = "changed"; v.BUILTIN_CONTENT_JSON_0 = canonical(part); },
+    v => { const part = JSON.parse(v.BUILTIN_CONTENT_JSON_0); part[0].content.courseId = "changed"; v.BUILTIN_CONTENT_JSON_0 = canonical(part); },
+    v => { const part = JSON.parse(v.BUILTIN_CONTENT_JSON_0); part[0].mode = "TeamRace"; v.BUILTIN_CONTENT_JSON_0 = canonical(part); },
+    v => { const part = JSON.parse(v.BUILTIN_CONTENT_JSON_0); part[0].format = "Squad"; v.BUILTIN_CONTENT_JSON_0 = canonical(part); },
+    v => { const manifest = JSON.parse(v.BUILTIN_CONTENT_JSON); manifest.schema = 1; v.BUILTIN_CONTENT_JSON = canonical(manifest); },
     v => { const manifest = JSON.parse(v.BUILTIN_CONTENT_JSON); manifest.count--; v.BUILTIN_CONTENT_JSON = canonical(manifest); },
     v => { v.BUILTIN_CONTENT_JSON = "[]"; },
     v => { v.BUILTIN_CONTENT_JSON += "\n"; },
@@ -65,6 +73,11 @@ test("config replacement removes stale shards and preserves all unrelated settin
   assert.deepEqual(updated.durable_objects, original.durable_objects);
   assert.equal(updated.account_id, original.account_id);
   requireConfigParity(projected, updated);
+  const mismatched = rows.map(row => ({ ...row })); mismatched[0].mode = "TeamRace";
+  assert.throws(() => requireConfigParity(projected, { vars: publicBindingVars(mismatched) }), /PARITY/);
+  assert.equal(projected.builtinContentJson, canonical(courses.map(row => row.content)));
+  assert.equal(projected.publicBindingsJson, canonical(rows));
+  assert.equal(projected.bindingsSha256, digest(canonical(rows)));
   assert.deepEqual(replacePublicBindingVars(updated.vars, []), { TOKEN_ISSUER: "unchanged", BUILTIN_CONTENT_JSON: "[]" });
 });
 test("deployment preflight checks variable bounds and prevents secret replacement", () => {
@@ -88,7 +101,8 @@ test("CLI writes only catalogue vars and repeats idempotently without touching s
   assert.equal(readFileSync(config, "utf8"), first);
   assert.equal(readFileSync(privateFile, "utf8"), secret);
   const activation = JSON.parse(readFileSync(output, "utf8"));
-  assert.equal(activation.schema, 2); assert.equal(activation.courseCount, 36);
+  assert.equal(activation.schema, 3); assert.equal(activation.courseCount, 36);
+  assert.equal(activation.publicBindingsJson, canonical(rows));
   assert.deepEqual(activation.builtinContentVars, vars);
   requireConfigParity(parsePublicCatalogue(source), JSON.parse(first));
 });

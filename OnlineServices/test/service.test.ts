@@ -4,10 +4,11 @@ import { runInDurableObject, runDurableObjectAlarm, evictDurableObject, reset } 
 import { importJWK, jwtVerify } from "jose";
 import { digest, poolKey, type ContentBinding, type PartySettings, type PartyState, type Attempt } from "../src/model";
 import { rpcValue } from "../src/rpc";
+import { publicContent } from "./fixtures/public-content";
 
 afterEach(async () => { vi.restoreAllMocks(); await reset(); });
 
-const content: ContentBinding = { kind: "BuiltIn", courseId: "test-circuit", courseHash: "a".repeat(64), manifestHash: "b".repeat(64), modeHash: "c".repeat(64), catalogHash: "d".repeat(64) };
+const content: ContentBinding = publicContent("TeamRace", "Squad");
 const settings = (fill = false, format: PartySettings["format"] = "Squad"): PartySettings =>
   ({ mode: "TeamRace", format, fill, region: "asia", protocolVersion: crypto.randomUUID().slice(0, 8), mapPoolVersion: "1" });
 type Guest = { playerId: string; accessToken: string; refreshToken: string };
@@ -36,7 +37,7 @@ async function party(s: PartySettings, count = 1) {
   return { members, p: r.data, s };
 }
 type Group = Awaited<ReturnType<typeof party>>;
-async function queue(g: Group, channel = "QuickPlay", extra: object = { content }) {
+async function queue(g: Group, channel = "QuickPlay", extra: object = { content: publicContent(g.s.mode, g.s.format) }) {
   return call<PartyView>(`/parties/${g.p.id}/queue`, { expectedRevision: g.p.revision, channel, ...extra }, g.members[0]);
 }
 async function status(g: Group) { return (await call<PartyView>(`/parties/${g.p.id}`, undefined, g.members[0])).data.assignment; }
@@ -221,7 +222,8 @@ describe("durable transitions, alarms and return to lobby", () => {
     const verified = await jwtVerify(result.data.certificate, key, {
       issuer: "wordbound-local", audience: "wordbound-match-start", algorithms: ["RS256"],
     });
-    expect(verified.payload).toMatchObject({ matchId: m.matchId, rosterHash: m.rosterHash, roster: m.roster, settings: s, content });
+    expect(verified.payload).toMatchObject({ matchId: m.matchId, rosterHash: m.rosterHash, roster: m.roster, settings: s,
+      content: publicContent(s.mode, s.format) });
     await expect(jwtVerify(result.data.certificate, key, { audience: "wordbound-admission" })).rejects.toThrow();
     expect((await call(matchPath(a, m, "certificate"), {}, await guest())).status).toBe(403);
   });
@@ -315,6 +317,18 @@ describe("durable transitions, alarms and return to lobby", () => {
 });
 
 describe("non-race modes", () => {
+  it.each(["mode", "format"] as const)("rejects approved content submitted with another %s", async field => {
+    const s = settings(false, field === "format" ? "Duo" : "Squad");
+    if (field === "mode") s.mode = "BrawlRace";
+    const g = await party(s);
+    const result = await queue(g, "QuickPlay", { content });
+    expect(result.status).toBe(422);
+    expect(result.data).toEqual({ error: { code: "CONTENT_SETTINGS_MISMATCH" } });
+    const view = (await call<PartyView>(`/parties/${g.p.id}`, undefined, g.members[0])).data;
+    expect(view.activeAttempt).toBeUndefined();
+    expect(view.assignment).toBeUndefined();
+  });
+
   it("starts TimeRun with the whole Fill Off party or fills to four with consent", async () => {
     const s: PartySettings = { ...settings(false, "Solo"), mode: "TimeRun" };
     const solo = await party(s);

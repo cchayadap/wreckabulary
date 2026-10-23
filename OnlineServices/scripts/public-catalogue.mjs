@@ -46,32 +46,34 @@ export function parsePublicCatalogue(source) {
   if (source !== canonical({ ...catalogue, courses: ordered }))
     throw new Error("PUBLIC_CATALOGUE_NOT_CANONICAL_EXPORT");
   const builtinContentJson = canonical(ordered.map(row => row.content));
+  const publicBindingsJson = canonical(ordered.map(({ mode, format, content }) => ({ mode, format, content })));
   return {
-    catalogue, sourceSha256: sha256(source), builtinContentJson,
-    bindingsSha256: sha256(builtinContentJson),
+    catalogue, sourceSha256: sha256(source), builtinContentJson, publicBindingsJson,
+    bindingsSha256: sha256(publicBindingsJson),
   };
 }
 function ordinal(a, b) { return a < b ? -1 : a > b ? 1 : 0; }
 export function readPublicCatalogue(path) { return parsePublicCatalogue(readFileSync(path, "utf8")); }
 export function requireConfigParity(projected, config) {
   const parsed = readPublicBindings(config?.vars);
-  if (canonical(parsed) !== projected.builtinContentJson) throw new Error("PUBLIC_ALLOWLIST_PARITY");
+  if (canonical(parsed) !== projected.publicBindingsJson) throw new Error("PUBLIC_ALLOWLIST_PARITY");
 }
 export function configurePublicCatalogue(projected, config) {
   if (!config || typeof config !== "object" || Array.isArray(config)) throw new Error("PUBLIC_CONFIG");
-  const result = { ...config, vars: replacePublicBindingVars(config.vars, JSON.parse(projected.builtinContentJson)) };
+  const result = { ...config, vars: replacePublicBindingVars(config.vars, JSON.parse(projected.publicBindingsJson)) };
   validateDeploymentVars(result.vars);
   requireConfigParity(projected, result);
   return result;
 }
 export function activationProjection(projected) {
   return {
-    schema: 2, catalogueSha256: projected.sourceSha256,
+    schema: 3, catalogueSha256: projected.sourceSha256,
     protocolVersion: projected.catalogue.protocolVersion,
     mapPoolVersion: projected.catalogue.mapPoolVersion,
     courseCount: projected.catalogue.courses.length,
     bindingsSha256: projected.bindingsSha256,
     builtinContentJson: projected.builtinContentJson,
-    builtinContentVars: publicBindingVars(JSON.parse(projected.builtinContentJson)),
+    publicBindingsJson: projected.publicBindingsJson,
+    builtinContentVars: publicBindingVars(JSON.parse(projected.publicBindingsJson)),
   };
 }

@@ -5,6 +5,8 @@ export const PUBLIC_BINDING_SHARDS = 8;
 const primary = "BUILTIN_CONTENT_JSON", prefix = primary + "_";
 const contentFields = ["catalogHash", "courseHash", "courseId", "kind", "manifestHash", "modeHash"];
 const hashFields = ["catalogHash", "courseHash", "manifestHash", "modeHash"];
+const variants = new Set(["TimeRun/Solo", "TeamRace/Solo", "TeamRace/Duo", "TeamRace/Squad",
+  "BrawlRace/Solo", "BrawlRace/Duo", "BrawlRace/Squad", "FreeForAll/Solo", "Freestyle/Solo"]);
 const hash = value => createHash("sha256").update(value).digest("hex");
 export function canonical(value) {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
@@ -25,10 +27,14 @@ function validate(rows) {
   if (!Array.isArray(rows) || rows.length > 128) fail("COUNT");
   const seen = new Set();
   for (const row of rows) {
-    fields(row, contentFields);
-    if (row.kind !== "BuiltIn" || typeof row.courseId !== "string" || !/^[A-Za-z0-9_-]{1,64}$/.test(row.courseId) ||
-        hashFields.some(key => typeof row[key] !== "string" || !/^[a-f0-9]{64}$/.test(row[key]))) fail("BINDING");
-    const identity = canonical(row);
+    fields(row, ["content", "format", "mode"]);
+    if (typeof row.mode !== "string" || typeof row.format !== "string" || !variants.has(`${row.mode}/${row.format}`))
+      fail("SETTINGS");
+    const content = row.content;
+    fields(content, contentFields);
+    if (content.kind !== "BuiltIn" || typeof content.courseId !== "string" || !/^[A-Za-z0-9_-]{1,64}$/.test(content.courseId) ||
+        hashFields.some(key => typeof content[key] !== "string" || !/^[a-f0-9]{64}$/.test(content[key]))) fail("BINDING");
+    const identity = canonical(content);
     if (seen.has(identity)) fail("DUPLICATE");
     seen.add(identity);
   }
@@ -40,11 +46,12 @@ export function readPublicBindings(bindings) {
   const shardKeys = Object.keys(values).filter(key => key.startsWith(prefix));
   if (Array.isArray(value)) {
     if (shardKeys.length) fail("SHARDS");
+    if (values[primary] !== canonical(value)) fail("CANONICAL");
     return validate(value);
   }
   fields(value, ["count", "schema", "sha256", "shards"]);
   if (values[primary] !== canonical(value)) fail("MANIFEST");
-  if (value.schema !== 1 || !Number.isInteger(value.shards) || value.shards < 1 || value.shards > PUBLIC_BINDING_SHARDS ||
+  if (value.schema !== 2 || !Number.isInteger(value.shards) || value.shards < 1 || value.shards > PUBLIC_BINDING_SHARDS ||
       !Number.isInteger(value.count) || value.count < 1 || value.count > 128 ||
       typeof value.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(value.sha256)) fail("MANIFEST");
   const expected = Array.from({ length: value.shards }, (_, i) => prefix + i);
@@ -74,7 +81,7 @@ export function publicBindingVars(rows) {
   }
   if (current.length) parts.push(canonical(current));
   if (parts.length > PUBLIC_BINDING_SHARDS) fail("SHARDS");
-  const bindings = { [primary]: canonical({ schema: 1, count: rows.length, shards: parts.length, sha256: hash(source) }) };
+  const bindings = { [primary]: canonical({ schema: 2, count: rows.length, shards: parts.length, sha256: hash(source) }) };
   parts.forEach((part, i) => { bindings[prefix + i] = part; });
   readPublicBindings(bindings);
   return bindings;

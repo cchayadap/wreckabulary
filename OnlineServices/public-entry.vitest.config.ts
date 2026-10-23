@@ -19,7 +19,7 @@ export default defineConfig({
       PHOTON_APP_ID: "11111111-1111-4111-a111-111111111111",
       PHOTON_PROVIDER_SECRET: randomBytes(48).toString("base64url"),
       ADMISSION_PRIVATE_JWK: JSON.stringify(privateKey.export({ format: "jwk" })),
-      ...publicBindingVars(projected.catalogue.courses.map(row => row.content)),
+      ...publicBindingVars(projected.catalogue.courses.map(({ mode, format, content }) => ({ mode, format, content }))),
       PUBLIC_CATALOGUE_JSON: source,
     } },
   })],

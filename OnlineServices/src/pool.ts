@@ -6,7 +6,7 @@ import { BundleStore, BundleRequests, bindBundle, type BundleTransfer } from "./
 import {
   NOW, RECONNECT_MS, capacity, code, digest, emptyPool, logicalFull, poolKey,
   publicRoster, requireThat, seal, secret, teamFor, validatePartySize, fullRacePacking, equalSecret,
-  type Attempt, type ContentBinding, type Match, type PoolState, type Seat,
+  type Attempt, type ContentBinding, type Match, type PartySettings, type PoolState, type Seat,
 } from "./model";
 
 export class MatchPool extends Store<PoolState> {
@@ -51,10 +51,12 @@ export class MatchPool extends Store<PoolState> {
       return result;
     });
   }
-  private approve(content: ContentBinding) {
+  private approve(content: ContentBinding, settings: PartySettings) {
     if (content.kind === "BuiltIn") {
       const allowed = readPublicBindings(this.env);
-      requireThat(allowed.some(c => digest(c) === digest(content)), "CONTENT_NOT_APPROVED", 422);
+      const approved = allowed.find(row => digest(row.content) === digest(content));
+      requireThat(approved, "CONTENT_NOT_APPROVED", 422);
+      requireThat(approved.mode === settings.mode && approved.format === settings.format, "CONTENT_SETTINGS_MISMATCH", 422);
     }
   }
   registerCode(target: string, matchId: string, ownerAttempt: string) {
@@ -89,7 +91,7 @@ export class MatchPool extends Store<PoolState> {
         .filter(m => m.phase !== "ABORTED" && m.phase !== "CLOSED")
         .flatMap(m => m.reservations.filter(r => s.assignments[r.attempt.id] === m.id).map(r => r.attempt))];
       requireThat(!active.some(other => other.id !== a.id && other.members.some(p => a.members.includes(p))), "PLAYER_ALREADY_QUEUED");
-      if (a.content) this.approve(a.content);
+      if (a.content) this.approve(a.content, a.settings);
       requireThat(!a.workshopId || (a.channel === "PrivateCreate" && bundle?.descriptor.bundleId === a.workshopId), "CONTENT_SOURCE_EXPIRED");
       if (bundle) {
         requireThat(a.channel === "PrivateCreate" && digest(a.content) === digest(bundle.descriptor.content), "CONTENT_BINDING", 422);

@@ -57,7 +57,7 @@ describe("actual native catalogue projected into the Worker", () => {
     expect(catalogue.mapPoolVersion).toMatch(/^[A-Za-z0-9_-]{1,24}$/);
     const seeds = new Set(catalogue.courses.map(row => row.seed));
     expect(catalogue.courses).toHaveLength(seeds.size * 9);
-    expect(canonical(readPublicBindings(env))).toBe(canonical(catalogue.courses.map(row => row.content)));
+    expect(canonical(readPublicBindings(env))).toBe(canonical(catalogue.courses.map(({ mode, format, content }) => ({ mode, format, content }))));
     for (const seed of seeds) expect(catalogue.courses.filter(row => row.seed === seed)
       .map(row => `${row.mode}/${row.format}`).sort()).toEqual([
       "BrawlRace/Duo", "BrawlRace/Solo", "BrawlRace/Squad", "FreeForAll/Solo", "Freestyle/Solo",
@@ -82,6 +82,20 @@ describe("actual native catalogue projected into the Worker", () => {
     expect((await queue(a, changed)).status).toBe(422);
     const b = await group(settings(row));
     expect((await queue(b, { ...row.content, kind: "Workshop" })).status).toBe(422);
+  });
+
+  it.each(["mode", "format"] as const)("rejects an exact approved binding with mismatched %s", async field => {
+    const row = catalogue.courses.find(row => row.mode === "TeamRace" && row.format === "Duo")!;
+    const s = settings(row);
+    if (field === "mode") s.mode = "BrawlRace";
+    else s.format = "Squad";
+    const g = await group(s);
+    const result = await queue(g, row.content);
+    expect(result.status).toBe(422);
+    expect(result.data).toEqual({ error: { code: "CONTENT_SETTINGS_MISMATCH" } });
+    const view = await ok<Party & { activeAttempt?: unknown }>(`/parties/${g.party.id}`, undefined, g.members[0]);
+    expect(view.activeAttempt).toBeUndefined();
+    expect(view.assignment).toBeUndefined();
   });
 
   it("keeps exact whole parties through SQLite eviction, signed start and explicit cleanup", async () => {
