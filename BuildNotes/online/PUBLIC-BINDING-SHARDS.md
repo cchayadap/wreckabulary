@@ -1,6 +1,8 @@
 # Bounded public catalogue deployment
 
-STATUS: SOURCE PREPARED; TESTS PENDING ROOT COMPILER SLOT
+STATUS: SOURCE GATES PASS; ACTUAL NATIVE EXPORT / DEPLOYMENT PENDING
+
+Verified on 2026-10-23 after commit `35e586d`: Node binding/config mechanics 6/6 PASS; `npm run check` PASS; `tsc --noEmit --project tsconfig.public.json` PASS; actual Worker suite 98/98 PASS in six files (86.65 seconds, start 17:39:11 Asia/Hong_Kong). The sequential command session exited 0. The Worker suite continues to include actual C# workshop fixture HTTP transfer and SQLite retention/retry tests. This is source verification, not a claim that the pending native 36-entry catalogue has been exported or deployed.
 
 Cloudflare's current [Worker limits](https://developers.cloudflare.com/workers/platform/limits/#environment-variables) allow 5 KB per environment variable and 64 variables on Free / 128 on Paid (including secrets). This deployment uses a conservative 4096 UTF-8 byte cap per value and the 64-variable ceiling, reserving the three existing secret bindings. The checked-in production catalogue is still explicitly closed: `BUILTIN_CONTENT_JSON="[]"` (2 bytes). No production catalogue or secrets were changed by this source patch.
 

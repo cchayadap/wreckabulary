@@ -8,4 +8,6 @@ The fixture edits the flagship document identity/title and uses seed `fedcba9876
 
 Each native peer composes from its own launch content, not the host's in-memory content. Checks compare independent source/course instances, complete canonical source, source hash, resolved manifest hash, bundle identity, catalogue and effective rules; gameplay frames and native world manifests must match. Existing native identity/body/movement/command/checkpoint assertions run afterward. Cleanup returns reservations, cancels queues, leaves parties, clears credentials and disposes transports/coordinators; teardown failure remains a test failure.
 
+The fixture's preparation transport delegates every request to the real HTTP transport and links the fixture cancellation token only during preparation. It stops linking that token when preparation finishes, so teardown's cancellation cannot erase credentials before authenticated return/leave requests. Coordinators are disposed only after service cleanup (`849978c`).
+
 This verifies authored transfer and actual composition when it runs. It does not claim a completed physical puzzle or manual user interface interaction. Source and native outcomes must be recorded separately.
