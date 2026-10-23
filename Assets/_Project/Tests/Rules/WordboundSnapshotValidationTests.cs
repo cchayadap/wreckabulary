@@ -367,16 +367,18 @@ namespace Wreckabulary.Tests
         public void IndexedAndPublicPhysicalChecksRetainTheSameEvidenceRejection(string mutation, string expected)
         {
             var f = PhysicalFixture();
+            if (mutation == "actor") Assert.IsTrue(f.Step().Advanced);
             var valid = f.State;
             Assert.AreEqual("", CheckPhysical(f, valid));
             var site = f.Source.Course.PhysicalSites.First(s => s.Fixtures.Count == 0);
             var original = mutation == "unbound" ? valid.Mechanisms.First(m => m.PuzzleId == site.PuzzleId && m.Lap != site.Lap - 1) :
                 valid.Mechanisms.Single(m => m.PuzzleId == site.PuzzleId && m.Lap == site.Lap - 1);
             var evidence = new MatchPhysicalEvidence(mutation == "actor" ? MatchPhysicalStage.Armed : MatchPhysicalStage.Waiting,
-                actorId: mutation == "actor" ? "foreign" : "", siteHash: mutation == "hash" || mutation == "unbound" ? new string('c', 64) : site.Hash,
+                actorId: mutation == "actor" ? "foreign" : "", stageTick: mutation == "actor" ? valid.Progress.Tick : 0,
+                siteHash: mutation == "hash" || mutation == "unbound" ? new string('c', 64) : site.Hash,
                 motionUnits: mutation == "phase" ? 1 : 0);
             var changed = new MatchMechanismState(original.PuzzleId, original.Team, original.Lap,
-                activatedTick: mutation == "actor" ? 0 : -1, physical: evidence);
+                activatedTick: mutation == "actor" ? valid.Progress.Tick : -1, physical: evidence);
             var invalid = ReplacePhysical(valid, mechanisms: valid.Mechanisms.Select(m => ReferenceEquals(m, original) ? changed : m));
             Assert.AreEqual(expected, Assert.Throws<ArgumentException>(() =>
                 MatchStateValidationPhysical.Validate(invalid, f.Source.Course, changed)).Message);
