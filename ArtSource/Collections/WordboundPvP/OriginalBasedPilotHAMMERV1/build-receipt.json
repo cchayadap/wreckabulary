@@ -1,0 +1,90 @@
+{
+  "status": "VISUAL CONSTRUCTION PILOT \u2014 NOT APPROVED OR IMPORTED INTO UNITY",
+  "item": "HAMMER",
+  "source_sha256": "b397ce961e7d7369118ca573e4bd5853391a3a1ea4c59076c686f13f4312b67f",
+  "build_script_sha256": "b81bb6e9387a3bd247c63af9bd6b93676646e251dc139691b6a8039877193ff5",
+  "helper_sha256": "5f1d81614050a55cc1be070b47deb804d728a2154e7ebf23accc535a2bf9c900",
+  "blender": "5.2.2 LTS",
+  "blend_sha256": "302328200307283b91648326c6ccd2187d5839ba25ff11372f052f779f843832",
+  "original_bounds_blender_metres": [
+    [
+      -0.17250001430511475,
+      -0.08750002831220627,
+      0.0
+    ],
+    [
+      0.17250001430511475,
+      0.08750002831220627,
+      0.6349999904632568
+    ]
+  ],
+  "candidate_bounds_blender_metres": [
+    [
+      -0.17250001430511475,
+      -0.08750002831220627,
+      0.0
+    ],
+    [
+      0.17250001430511475,
+      0.08750002831220627,
+      0.6349999904632568
+    ]
+  ],
+  "grip_world_matrix_blender": [
+    [
+      1.0,
+      -1.7484555314695172e-07,
+      0.0,
+      0.0
+    ],
+    [
+      1.7484555314695172e-07,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.1300000101327896
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "held_scale_from_original_config": 0.5669,
+  "original_components": 11,
+  "candidate_mesh_components": 13,
+  "candidate_triangles": 6880,
+  "parts": [
+    "HAMMER_PaleWoodHandle_01",
+    "HAMMER_OriginalGripBand_02",
+    "HAMMER_OriginalGripBand_03",
+    "HAMMER_OriginalGripBand_04",
+    "HAMMER_OriginalGripBand_05",
+    "HAMMER_OriginalGripBand_06",
+    "HAMMER_OriginalGripBand_07",
+    "HAMMER_OriginalGripBand_08",
+    "HAMMER_SteelHead_09",
+    "HAMMER_OriginalEndCap_10",
+    "HAMMER_OriginalEndCap_11",
+    "HAMMER_WoodTenonThroughEye",
+    "HAMMER_FittedSteelWedge"
+  ],
+  "construction": [
+    "Original rectangular blue-gray steel head, thin warm end caps, pale handle and seven grip bands retained",
+    "Candidate head UV seam vertices welded at 0.0000001 m for a closed solid; source model untouched",
+    "Actual eye cut through head interior; manifold, five eye/two surrounding section rays and outer bounds guarded",
+    "Pale wood tenon overlaps original handle inside head and fills the eye; small inset steel wedge closes the connection",
+    "No ivory mallet head, decorative plates or aging/noise added"
+  ],
+  "limitations": [
+    "Construction/contact/normal quality requires actual front, side, rear and detail inspection",
+    "Held scene is a static original-avatar grip-aligned source pose, not Unity hand-fit verification",
+    "No delivery export, baked map, runtime replacement, performance or owner-appearance acceptance"
+  ]
+}
