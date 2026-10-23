@@ -342,9 +342,10 @@ namespace Wreckabulary.Rules.Wordbound
         {
             var sources = content.Sources;
             var lifecycle = content.Lifecycle;
-            Need(s.Resources.Count == sources.Count * (mode.IsRace ? 3 : 1) &&
-                s.Resources.Select(r => ResourceKey(r.SourceId, r.Team, r.Lap)).Distinct(StringComparer.Ordinal).Count() == s.Resources.Count,
-                "Snapshot must include every static source, team and lap exactly once.");
+            const string identityError = "Snapshot must include every static source, team and lap exactly once.";
+            Need(s.Resources.Count == sources.Count * (mode.IsRace ? 3 : 1), identityError);
+            var resourceKeys = new HashSet<(string SourceId, int Team, int Lap)>(s.Resources.Select(r => (r.SourceId, r.Team, r.Lap)));
+            Need(resourceKeys.Count == s.Resources.Count, identityError);
             var teams = s.Progress.Teams.ToDictionary(t => t.Team);
             TeamProgress Team(int id) => teams.TryGetValue(id, out var team) ? team : s.Progress.Teams.Single(t => t.Team == id);
             foreach (var r in s.Resources)
@@ -360,7 +361,6 @@ namespace Wreckabulary.Rules.Wordbound
                     Need(r.RecoveryAtTick == -1, "Retired puzzle resources cannot retain a pending recovery deadline.");
             }
             var tiles = s.Economy.TileStates.ToDictionary(t => t.Key, t => t.Value);
-            var resourceKeys = new HashSet<(string SourceId, int Team, int Lap)>(s.Resources.Select(r => (r.SourceId, r.Team, r.Lap)));
             var looseTiles = s.Bodies.Where(b => b.Kind == WorldBodyKind.Tile).ToLookup(b => b.SourceId, StringComparer.Ordinal);
             foreach (var pair in sources)
             {

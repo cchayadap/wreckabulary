@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
@@ -616,6 +617,79 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(expected, Check(f.Snapshot()));
             f.Resources.Clear(); f.Resources.AddRange(originals);
             Assert.AreEqual("World ID suffix is invalid.", Check(f.Snapshot()), "The later malformed tile must remain a real competing failure.");
+            Assert.AreEqual("", Check(valid));
+        }
+
+        [TestCase("en-US"), TestCase("fr-FR"), TestCase("ar-SA")]
+        public void ResourceUniquenessRetainsInvariantIdentityAcrossCultures(string cultureName)
+        {
+            var previous = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                var f = WordboundSnapshotCodecTests.Create("TimeRun");
+                string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+                var valid = f.Snapshot();
+                Assert.AreEqual("", Check(valid));
+                Assert.GreaterOrEqual(f.Resources.Count, 2);
+                string retained = MatchSnapshotCodec.Export(valid);
+                var culture = (CultureInfo)CultureInfo.GetCultureInfo(cultureName).Clone();
+                culture.NumberFormat.NegativeSign = "";
+                culture.NumberFormat.NativeDigits = new[] { "٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩" };
+                CultureInfo.CurrentCulture = culture;
+
+                void Pair(MatchResourceState first, MatchResourceState second)
+                {
+                    for (int i = 0; i < f.Resources.Count; i++)
+                        f.Resources[i] = new MatchResourceState("probe:padding:" + i.ToString(CultureInfo.InvariantCulture), 0, 0);
+                    f.Resources[0] = first; f.Resources[1] = second;
+                    string Key(MatchResourceState row) => row.SourceId + "/" + row.Team.ToString(CultureInfo.InvariantCulture) +
+                        "/" + row.Lap.ToString(CultureInfo.InvariantCulture);
+                    bool duplicate = f.Resources.Select(Key).Distinct(StringComparer.Ordinal).Count() != f.Resources.Count;
+                    string expected = duplicate ? "Snapshot must include every static source, team and lap exactly once." :
+                        "Recovery source, team, lap or deadline is invalid.";
+                    var changed = f.Snapshot();
+                    Assert.AreEqual(expected, Check(changed), Key(first) + " versus " + Key(second));
+                    Assert.AreEqual(expected, Check(changed), "A previous validation must not cache this result.");
+                }
+
+                for (int team = -1; team <= 7; team++)
+                    for (int lap = 0; lap < 3; lap++)
+                    {
+                        var first = new MatchResourceState("probe", team, lap);
+                        Pair(first, new MatchResourceState("probe", team, lap, 9, 0));
+                        Pair(first, new MatchResourceState("probe", team == 7 ? -1 : team + 1, lap));
+                        Pair(first, new MatchResourceState("probe", team, (lap + 1) % 3));
+                    }
+                foreach (string id in new[] { "Probe", "probe-", "probe.", "probe:", "probe_", "probe0" })
+                    Pair(new MatchResourceState("probe", -1, 0), new MatchResourceState(id, -1, 0));
+                Pair(new MatchResourceState("probe", -1, 0), new MatchResourceState("probe", 1, 0));
+                Assert.AreEqual("", Check(valid));
+                Assert.AreEqual(retained, MatchSnapshotCodec.Export(valid));
+            }
+            finally { CultureInfo.CurrentCulture = previous; }
+        }
+
+        [TestCase("TimeRun"), TestCase("FreeForAll")]
+        public void DuplicateResourceIdentityRejectsDifferentMutableFieldsBeforeLaterFailures(string mode)
+        {
+            var f = PhysicalFixture(mode);
+            string Check(MatchSnapshot snapshot) => CheckPhysical(f, snapshot);
+            var valid = f.State;
+            Assert.AreEqual("", Check(valid));
+            Assert.GreaterOrEqual(valid.Resources.Count, 2);
+            var original = valid.Resources.ToArray();
+            var changed = original.ToArray();
+            var row = original[0];
+            changed[1] = new MatchResourceState(row.SourceId, row.Team, row.Lap, row.Generation + 3, 0);
+            var bodies = valid.Bodies.Concat(new[] { new WorldBodyState("tile:bad", WorldBodyKind.Tile, default,
+                ownerTeam: row.Team, protectedResource: true, sourceId: row.SourceId) }).ToArray();
+            var duplicate = ReplacePhysical(valid, bodies: bodies, resources: changed);
+            const string identity = "Snapshot must include every static source, team and lap exactly once.";
+            Assert.AreEqual(identity, Check(duplicate));
+            Assert.AreEqual(identity, Check(duplicate));
+            Assert.AreEqual("World ID suffix is invalid.", Check(ReplacePhysical(valid, bodies: bodies)),
+                "The later failure must be real once identity is repaired.");
             Assert.AreEqual("", Check(valid));
         }
 
