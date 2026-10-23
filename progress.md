@@ -71,7 +71,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [~] Verify concurrent last slots, cancellations, oversize parties and expired grants.
 - [x] Export and deploy the exact 36-entry public catalogue (nine mode/format combinations, four seeds). Deployment and module/catalogue readback pass; live HTTP party allocation/content admission and cleanup pass. Native Photon gameplay remains below.
 - [~] Public Time Run: exact public entry, two authenticated scripted clients, movement, command and durable acknowledgement pass. Sustained full-match and human acceptance remain open.
-- [ ] Public Team Race: Solo/Duo/Squad, intact parties and clean-team isolation.
+- [~] Public Team Race: two authenticated Solo parties pass entry, remote movement, command and exact durable acknowledgement in both native203305 and203605. Duo/Squad, full matches and clean-team isolation acceptance remain open.
 - [ ] Public Brawl Race: Solo/Duo/Squad, intact parties and enemy combat.
 - [ ] Public FFA: multiple humans, individual scoring and respawns.
 - [ ] Public Freestyle: multiple humans, shared exploration/practice, no damage/timer/winner.
@@ -84,8 +84,8 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 ## Tested Windows delivery
 
 - [x] Create/read back Windows release, QA and development profiles.
-- [x] Produce QA Windows builds: latest `20261023T201839Z` passes in 107.4 seconds; compilation alone does not establish a usable delivery.
-- [~] Launch QA player and complete workshop→game→workshop smoke. Visible202045 reaches local readiness in 5.671 seconds and passes workshop saving, return and Undo/Redo, but completes only 75 of the required 90 frame waits before timeout. No console errors or native crash occurred in this run. Official hidden rendering and the earlier crash remain open.
+- [x] Produce QA Windows builds: latest `20261023T203920Z` passes in 102.6 seconds; compilation alone does not establish a usable delivery.
+- [~] Launch QA player and complete workshop→game→workshop smoke. Visible204132 reaches local readiness in 5.855 seconds and passes exact workshop saving, return and Undo/Redo, but completes only 81 of the required 90 frame waits before timeout. Its two diagnostic timing windows close cleanly; full-state validation is the largest measured section (19,601 ms across 5,061 calls in the 84.350-second ready window). These inclusive measurements are not FPS or exclusive CPU costs. No console errors or native crash occurred in this run. Official hidden rendering and the earlier crash remain open.
 - [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair, party navigation, workshop focus protection and allocation cleanup are integrated; focused native input passes 24/24. Final player handling and reconnect acceptance remain pending.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
