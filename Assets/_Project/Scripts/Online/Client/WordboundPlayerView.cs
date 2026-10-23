@@ -56,6 +56,7 @@ namespace Wreckabulary.Online
                 ownedCamera = new GameObject("Wordbound player camera");
                 view = ownedCamera.AddComponent<Camera>();
                 view.clearFlags = CameraClearFlags.Skybox;
+                GraphicsOptions.ApplyTo(view);
             }
             if (cameraProfile) Profile = cameraProfile;
             Profile?.Validate();

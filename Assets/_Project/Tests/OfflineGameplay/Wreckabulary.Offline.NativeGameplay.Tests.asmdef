@@ -11,6 +11,8 @@
     "Wreckabulary.Online.Presentation",
     "Fusion.Unity",
     "Fusion.Addons.Physics",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],
