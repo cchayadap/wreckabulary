@@ -71,7 +71,7 @@ namespace Wreckabulary.OnlineGameplayTests
 
         IEnumerator Run(int count, bool migrate, bool interactions = false,
             string productionMode = null, RaceFormat productionFormat = RaceFormat.Solo,
-            WordboundPublicCourseCatalog publicCatalogue = null)
+            WordboundPublicCourseCatalog publicCatalogue = null, bool hudInteractions = false)
         {
             if (Environment.GetEnvironmentVariable(Gate) != "1")
                 Assert.Ignore("Set WORDBOUND_EXTERNAL_GAMEPLAY=1 after configuring production Photon custom authentication.");
@@ -92,7 +92,7 @@ namespace Wreckabulary.OnlineGameplayTests
                     File.ReadAllText(Path.Combine(folder, "rules.json")), productionMode, productionFormat.ToString(),
                     "0123456789abcdef");
             }
-            live = new WordboundLiveMatch(projectRoot, interactions ? WordboundInteractionCourse.Create() : null, production, publicCatalogue);
+            live = new WordboundLiveMatch(projectRoot, hudInteractions ? HudCourse() : interactions ? WordboundInteractionCourse.Create() : null, production, publicCatalogue);
             yield return Wait(live.Prepare(count, lifetime.Token), "Prepare real " + (live.PublicQueue ? "public" : "private") + " coordinator match", 120);
             if (live.PublicQueue)
             {
@@ -159,6 +159,7 @@ namespace Wreckabulary.OnlineGameplayTests
             if (production != null) AssertProductionContent(first, peers);
             Debug.Log("WORDBOUND_GAMEPLAY_OBSERVED: authenticated real bodies, client input and committed command; cleanup pending.");
 
+            if (hudInteractions) yield return HudInteractions(first);
             if (interactions) yield return Interactions(first);
 
             if (migrate)
