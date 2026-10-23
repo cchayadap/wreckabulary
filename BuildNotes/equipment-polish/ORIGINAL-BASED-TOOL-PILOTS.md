@@ -1,6 +1,21 @@
 # Original-game FAN and HAMMER construction pilots
 
-STATUS: SOURCE PREPARED — Blender build, construction contact, render, export and Unity checks NOT RUN
+STATUS: BOTH PILOTS BUILT BY ROOT — FAN rear-detail pair reviewed; HAMMER unrendered; neither approved for runtime replacement
+
+## Native build evidence addendum — 23 October 2026
+
+Root built HAMMER V1 with Blender 5.2.2 LTS in `ArtSource/Collections/WordboundPvP/OriginalBasedPilotHAMMERV1`. This lane read `.harness/delivery/hammer-pilot-v1-build.log`, the receipt and archived builder. The log reaches `TOOL_PILOT_BUILT` after saving the blend, with no bypass around the construction guards. I independently verified the saved blend, archived original GLB and both archived script SHA-256 values against the receipt, and confirmed the current original GLB still has the same hash.
+
+The executed candidate-only seam weld and exact Boolean therefore passed the required closed-manifold checks before/after, unchanged steel-head bounds, five empty-eye section rays and two retained-steel rays. Those probes execute against the steel head before adding the wood tenon/wedge. Overall original/candidate bounds also match exactly in the receipt: Blender metres `(-0.1725000143, -0.0875000283, 0)` to `(0.1725000143, 0.0875000283, 0.6349999905)`. Grip Z is `0.1300000101` m, and configured held scale is `0.5669`. Original components: 11; candidate mesh parts: 13; candidate triangles: 6,880. These are source-pilot counts, not accepted delivery budgets.
+
+| HAMMER artifact | Verified SHA-256 |
+| --- | --- |
+| Editable blend | `302328200307283b91648326c6ccd2187d5839ba25ff11372f052f779f843832` |
+| Original source GLB | `b397ce961e7d7369118ca573e4bd5853391a3a1ea4c59076c686f13f4312b67f` |
+| Builder | `b81bb6e9387a3bd247c63af9bd6b93676646e251dc139691b6a8039877193ff5` |
+| Shared helper | `5f1d81614050a55cc1be070b47deb804d728a2154e7ebf23accc535a2bf9c900` |
+
+The HAMMER preview folder contains **zero PNGs** at this check. Manifold/section success does not establish head shading, visible joint quality, hand fit or owner approval. No export, Unity import, runtime validation or visual pass is claimed. Root also completed FAN's build and one actual rear-detail pair; [its separate review](FAN-ORIGINAL-PILOT-V1-REVIEW.md) records useful construction from that angle and the remaining side/front/held/Unity gates. Original Wreckabulary remains the default. No additional build or render was run by this lane; the commands below are retained as the original staged specification, and the V1 build destinations now exist and must not be overwritten.
 
 These are separate experiments built from the actual original game GLBs, not from either rejected Wordbound artwork revision. The current original artwork stays the presentation baseline. Preserve original assets, DetailV2 and all SOFA pilots. No source file is overwritten and no runtime asset is replaced. Root owns every Blender invocation and the shared heavy-work slot.
 
@@ -57,4 +72,4 @@ The build receipt records item source, builder/helper/blend hashes, Blender vers
 
 Original/candidate views use identical studio lighting and camera framing. The `scale` view adds the original avatar; `held` uses its original `Hold_OneHand` action and right-grip pose at frame 1, with configured original item held scale. It restores the matching imported NLA action slot explicitly and fails if the action, slot or grip is absent. **This is a static Blender source reference, not Unity hand-fit or gameplay evidence.** Blender bone orientation and runtime avatar setup must still be checked in Unity. No mock screenshots or generated concept images stand in for rendered output.
 
-Completed in this lane: Python AST syntax check, original GLB SHA checks, bounded construction-coordinate/connection review, direct original-head topology inspection, exact output-path and resume-metadata review. Independent input-lane source review passed after adding the candidate-only weld/section guards and explicit animation slot: the reviewer checked preservation, isolated output refusal, world-coordinate component copies, unchanged bounds, held-root grip algebra, and render/gallery pair consistency. The reviewer confirmed the steel-only section rays execute before adding the tenon/wedge and use correct identity-transform candidate coordinates. No blocking source finding remains. Blender API execution, Boolean geometry, held-pose output and actual appearance are **NOT RUN**. The next action is root's isolated build followed by one matched detail pair per item.
+The original source-preparation check completed Python AST syntax, original GLB SHA checks, bounded construction-coordinate/connection review, direct original-head topology inspection, exact output-path and resume-metadata review. Independent input-lane source review passed after adding the candidate-only weld/section guards and explicit animation slot: the reviewer checked preservation, isolated output refusal, world-coordinate component copies, unchanged bounds, held-root grip algebra, and render/gallery pair consistency. The reviewer confirmed the steel-only section rays execute before adding the tenon/wedge and use correct identity-transform candidate coordinates. Subsequent root build evidence is recorded in the dated addendum above; held-pose imagery, HAMMER appearance and all export/Unity gates remain pending.
