@@ -72,3 +72,5 @@ Next: root imports the final revision, executes native material/presentation che
 - [ ] Owner appearance acceptance and later Unity/material/export/performance validation.
 - [x] Closed pivot-basis investigation after directly reading root native matrices and the 6/6 detail pass in `editmode_20261023T125443Z.xml`; root fixed only fixture basis conversion in 5e9ad10. DetailV2 appearance remains owner-rejected.
 - [x] Independent input-lane source review found a hash-only render-resume comparison risk; fixed current-setting checks and gallery pair consistency. Root reports first build passed and an uninterrupted three-quarter pair is rendering; native output/visual inspection pending in this lane.
+- [x] Directly viewed V1 original/candidate pair and rejected floating inner/lower back welts plus exposed cream seat trim; root independently agrees. V1 preserved; remaining V1 renders stopped.
+- [~] V2 source retains all original cushion geometry and places 1.3 mm welts on measured side-band cross sections, with 1,024 contact probes per welt. Static checks only; root-owned build/first pair pending.

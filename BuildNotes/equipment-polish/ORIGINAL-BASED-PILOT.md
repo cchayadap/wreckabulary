@@ -1,6 +1,6 @@
 # Original-based Wreckabulary art pilot
 
-STATUS: SOURCE PREPARED — Blender build, renders and appearance review NOT RUN
+STATUS: V1 REJECTED AFTER DIRECT RENDER REVIEW; V2 SOURCE PREPARED — V2 build and renders NOT RUN
 
 The owner rejected DetailV2 and identified the original Wreckabulary game artwork as the reference. This pilot starts with those original bytes. It does not replace runtime assets, overwrite either Wordbound revision, or establish that any artwork is ready to ship. Root owns the serial Blender/render slot.
 
@@ -8,29 +8,35 @@ The owner rejected DetailV2 and identified the original Wreckabulary game artwor
 
 Source: `Web/public/art/items/SOFA.glb`, SHA-256 `dfaca31fdc676de5d2d7fac74a4b6b26cbadea62bbd523f0739cbf7411705def`. This is the model used by the original game icon and `Web/public/art/supplied-showcase.png`; it is not a new concept. Its original Unity-space bounds are `[-0.76, 0, -0.39]` to `[0.76, 0.93, 0.423]` metres; grip `[0, 0.465, 0.0165]`.
 
-Keep the original sage upholstery, two-seat silhouette, continuous rounded arms/back, pale timber feet, cream seat welts and small back buttons. The script separates the actual original sixteen material/connectivity components into editable named parts while copying their UVs and transformed split normals. The original geometry remains separately available in the same scene and as an unchanged GLB copy. The four cushion components receive one subdivision after coincident-vertex welding and coplanar triangle joining, then return to their exact original component bounds. This is an experimental curvature refinement, not a claim of better appearance until rendered.
+Keep the original sage upholstery, two-seat silhouette, continuous rounded arms/back, pale timber feet, cream seat welts and small back buttons. The script separates the actual original sixteen material/connectivity components into editable named parts while copying their original positions/faces, UVs and transformed split normals. The original geometry remains separately available in the same scene and as an unchanged GLB copy. V2 retains all original cushions without subdivision or shape replacement.
 
-Two restrained 1.7 mm matching-fabric back welts make the upholstery assembly clearer. Existing fabric colors/textures remain intact; a small-scale normal response and modest sheen supplement them. Timber, feet, arm, back, base and button geometry stay from the original model. No orange/brown aging, broad grain noise, olive/red color replacement, extra plinth, third cushion or generic decorative hardware is introduced. The pilot does not claim new joinery that it has not modeled.
+Two restrained 1.3 mm matching-fabric back welts follow the actual cushion side-band cross section where a front cover panel can meet its boxing strip. Each of 256 curve points is ray-cast onto the original mesh; the centreline sits less than one radius from that surface, so the tube contacts it. Four probes per segment check both endpoints and interpolated spans, reject floating/excessively buried segments, and record signed distances in the build receipt. This replaces V1's guessed rectangular outline on the front face. Existing fabric colors/textures remain intact; a small-scale normal response and modest sheen supplement them. Timber, feet, arm, back, base and button geometry stay from the original model. No orange/brown aging, broad grain noise, olive/red color replacement, extra plinth, third cushion or generic decorative hardware is introduced. The pilot does not claim new joinery that it has not modeled.
 
-Review the cushion highlight flow, corner pinching, welt contact/placement, button contact and fabric response closely. If subdivision makes the original shape worse, retain that original component and revise its local surface deliberately; do not compensate with more noisy maps. A measured topology report follows generation, but visual quality is the first decision. Earlier DetailV2 budgets must not silently remove useful original curvature. Later runtime exports, baked maps, collision/grip validation and performance measurements remain separate work.
+Review cushion highlight flow, welt contact/placement, button contact and fabric response closely. The numerical seam checks establish geometric contact only; they do not prove good upholstery design. A measured topology report follows generation, but visual quality is the first decision. Earlier DetailV2 budgets must not silently remove useful original curvature. Later runtime exports, baked maps, collision/grip validation and performance measurements remain separate work.
+
+## V1 result and correction
+
+Root built V1 with Blender 5.2.2 LTS and rendered the original/candidate three-quarter pair at 960 pixels, 64 samples, six CPU threads in one uninterrupted invocation. This lane and root directly viewed both images. Pale sage/timber identity and the original overall shape are retained, but **V1 fails**: back welts float visibly at the inner/lower edges and the altered seat curvature exposes a tiny cream trim fragment. Subdivision did not establish a worthwhile visual improvement. V1 remains preserved at `ArtSource/Collections/WordboundPvP/OriginalBasedPilotV1`; do not render the remaining V1 views or treat its gallery as accepted artwork.
+
+V2 removes cushion subdivision entirely and replaces the guessed front-face piping with the measured side-band seam above. No production model is changed. The script's resume guard additionally rejects existing images whose source/settings differ, and the gallery refuses mismatched pairs. Independent input-lane source review confirms that isolation/comparison fix; it is not appearance acceptance.
 
 ## Exact root-owned commands
 
-Run only after the current heavy gate releases. These commands assume the script commit is integrated into root. The build refuses an existing destination and verifies the exact original SOFA hash. It writes only the new `OriginalBasedPilotV1` folder. A failed/abandoned build is preserved; choose a new numbered revision instead of deleting or overwriting it.
+Run only after the current heavy gate releases. These commands assume the script commit is integrated into root. The build refuses an existing destination and verifies the exact original SOFA hash. It writes only the new `OriginalBasedPilotV2` folder. A failed/abandoned build is preserved; choose a new numbered revision instead of deleting or overwriting it.
 
 ```powershell
-& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --factory-startup --python 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/Tools/AssetPipeline/build_wordbound_original_pilot.py' -- --source-root 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration' --output-root 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/ArtSource/Collections/WordboundPvP/OriginalBasedPilotV1' --stage build
+& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --factory-startup --python 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/Tools/AssetPipeline/build_wordbound_original_pilot.py' -- --source-root 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration' --output-root 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/ArtSource/Collections/WordboundPvP/OriginalBasedPilotV2' --stage build
 ```
 
 First render only the matched three-quarter pair. Both variants use the same camera matrix, framing, light rig, resolution, sampling and color transform. Inspect them before spending time on the rest.
 
 ```powershell
-& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --factory-startup --python 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/Tools/AssetPipeline/build_wordbound_original_pilot.py' -- --source-root 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration' --output-root 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/ArtSource/Collections/WordboundPvP/OriginalBasedPilotV1' --stage render --views three-quarter --size 960 --samples 64 --threads 6
+& 'C:/Program Files/Blender Foundation/Blender 5.2/blender.exe' --background --factory-startup --python 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/Tools/AssetPipeline/build_wordbound_original_pilot.py' -- --source-root 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration' --output-root 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/ArtSource/Collections/WordboundPvP/OriginalBasedPilotV2' --stage render --views three-quarter --size 960 --samples 64 --threads 6
 ```
 
 If that pair supports continuing, render front, side, rear, detail, neutral clay and original-avatar/table scale pairs with the same command, changing only `--views` to `front,side,rear,detail,clay,scale`. The scale image is a static studio composition, not a gameplay capture. Render receipts contain image SHA-256, source blend hash, renderer script hash, Blender version, camera, resolution, samples, thread count and elapsed time. Existing images are skipped only when their hash and every current render setting match; partial or changed images fail with a new-revision instruction. `PILOT-REVIEW.html` links only completed, hash-verified images, refuses pairs with different recorded settings and labels unrendered counterparts. A source review caught and repaired the initial hash-only resume path before any interrupted pair was resumed.
 
-Prerequisites checked read-only: Blender executable exists at the path above, original GLB exists in the lane/root, and script parses as Python. Blender's `bpy`, `bmesh` and bundled NumPy APIs have not been executed for this script. The build includes all imported images in its saved `.blend`. Procedural fabric nodes are editable source materials; they are not yet Unity-ready baked maps. No new FBX/GLB delivery exports or production defaults are created.
+Prerequisites checked read-only: Blender executable exists at the path above, original GLB exists in the lane/root, and script parses as Python. Root executed V1's `bpy`/NumPy build and render path; the V2 BVH seam/contact path is NOT RUN. The build includes all imported images in its saved `.blend`. Procedural fabric nodes are editable source materials; they are not yet Unity-ready baked maps. No new FBX/GLB delivery exports or production defaults are created.
 
 ## FAN and HAMMER queued after SOFA review
 
@@ -45,10 +51,11 @@ These two scripts have not been implemented or rendered. Their source GLBs have 
 
 - [x] Correct original-game references inspected; wrong DetailV2 direction recorded as owner-rejected.
 - [x] SOFA source geometry/component structure inspected without Blender; isolated script and root command prepared.
-- [ ] Native Blender build executes; component count, preserved bounds/grip, packed sources and receipt verified.
-- [ ] Matched three-quarter original/candidate images directly inspected by producer and root.
+- [x] V1 native build and matched first pair directly inspected; explicit rejection saved for floating seam and exposed trim.
+- [ ] V2 native build executes; component count, preserved original geometry/bounds/grip, seam contact, packed sources and receipt verified.
+- [ ] V2 matched three-quarter original/candidate images directly inspected by producer and root.
 - [ ] Front, side, rear, detail, clay and original-avatar scale views directly inspected; any construction defects repaired in a new revision.
 - [ ] Owner appearance acceptance; then bounded FAN and HAMMER implementations/reviews.
 - [ ] Approved visuals translated to runtime maps/exports, Unity authored materials/pivots, actual held views and performance validation.
 
-Current evidence is static source preparation only. No generated preview, Blender API pass, material-quality pass, Unity appearance acceptance or production-ready claim is made.
+Current V2 evidence is static source preparation only. V1 was actually built/rendered and failed visible construction review. No V2 Blender API pass, material-quality pass, Unity appearance acceptance or production-ready claim is made.

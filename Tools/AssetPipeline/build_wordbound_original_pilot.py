@@ -10,9 +10,9 @@ import shutil
 import sys
 import time
 
-import bmesh
 import bpy
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 import numpy as np
 
 
@@ -148,38 +148,6 @@ def fabric_material(source, name):
     return material
 
 
-def soften_cushion(obj):
-    before_lo, before_hi = bounds([obj])
-    mesh = obj.data
-    bm = bmesh.new()
-    bm.from_mesh(mesh)
-    bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=.000001)
-    bmesh.ops.join_triangles(bm, faces=list(bm.faces), angle_face_threshold=.01,
-                            angle_shape_threshold=math.pi, cmp_uvs=False)
-    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
-    bm.to_mesh(mesh)
-    bm.free()
-    mesh.update()
-    mesh.normals_split_custom_set([(0, 0, 0)] * len(mesh.loops))
-    # Refine the original component's topology and retain its extents.
-    subdivision = obj.modifiers.new("CushionSurfaceRefinement", "SUBSURF")
-    subdivision.subdivision_type = "CATMULL_CLARK"
-    subdivision.levels = 1
-    subdivision.render_levels = 1
-    bpy.context.view_layer.objects.active = obj
-    obj.select_set(True)
-    bpy.ops.object.modifier_apply(modifier=subdivision.name)
-    obj.select_set(False)
-    after_lo, after_hi = bounds([obj])
-    ratio = Vector([(before_hi[k] - before_lo[k]) / (after_hi[k] - after_lo[k]) for k in range(3)])
-    for vertex in obj.data.vertices:
-        vertex.co = before_lo + Vector([(vertex.co[k] - after_lo[k]) * ratio[k] for k in range(3)])
-    for face in obj.data.polygons:
-        face.use_smooth = True
-    obj.data.update()
-    obj["construction"] = "Original cushion, welded at coincident vertices, coplanar triangles joined, one subdivision, original bounds retained"
-
-
 def cushion_frame(obj):
     points = np.array([tuple(v.co) for v in obj.data.vertices])
     center = points.mean(axis=0)
@@ -197,21 +165,38 @@ def cushion_frame(obj):
 
 def back_welt(obj, target, material):
     center, horizontal, vertical, normal, half = cushion_frame(obj)
-    width, height = half[0] - .022, half[1] - .022
-    radius = .037
+    mesh = obj.data
+    surface = BVHTree.FromPolygons([v.co.copy() for v in mesh.vertices],
+                                   [list(face.vertices) for face in mesh.polygons])
+    radius = .0013
+    plane_center = center + normal * (half[2] * .55)
+    reach = max(half[0], half[1]) * 2 + .02
+    values = []
+    for i in range(256):
+        angle = math.tau * i / 256
+        radial = (horizontal * (half[0] * math.cos(angle)) + vertical * (half[1] * math.sin(angle))).normalized()
+        hit, hit_normal, _, _ = surface.ray_cast(plane_center + radial * reach, -radial, reach * 2)
+        if hit is None:
+            raise RuntimeError("Cushion panel seam missed actual surface: " + obj.name)
+        values.append(hit + hit_normal * (radius * .45))
+    contact = []
+    for i, point in enumerate(values):
+        next_point = values[(i + 1) % len(values)]
+        for fraction in (0, .25, .5, .75):
+            probe = point.lerp(next_point, fraction)
+            nearest, surface_normal, _, distance = surface.find_nearest(probe)
+            if nearest is None:
+                raise RuntimeError("Cannot verify upholstery seam contact: " + obj.name)
+            signed_distance = distance if (probe-nearest).dot(surface_normal) >= 0 else -distance
+            if abs(signed_distance) > radius * .75:
+                raise RuntimeError("Upholstery seam floats or is excessively buried: " + obj.name + " " + str(signed_distance))
+            contact.append(signed_distance)
     curve = bpy.data.curves.new(obj.name + "_WeltGeometry", "CURVE")
     curve.dimensions = "3D"
     curve.resolution_u = 1
-    curve.bevel_depth = .0017
+    curve.bevel_depth = radius
     curve.bevel_resolution = 3
     spline = curve.splines.new("POLY")
-    values = []
-    for x, z, start in ((width-radius, height-radius, 0), (-width+radius, height-radius, 90),
-                        (-width+radius, -height+radius, 180), (width-radius, -height+radius, 270)):
-        for j in range(13):
-            angle = math.radians(start + j * 90 / 12)
-            u, v = x + radius * math.cos(angle), z + radius * math.sin(angle)
-            values.append(center + horizontal * u + vertical * v + normal * (half[2] * .87))
     spline.points.add(len(values) - 1)
     for point, value in zip(spline.points, values):
         point.co = (*value, 1)
@@ -219,8 +204,13 @@ def back_welt(obj, target, material):
     curve.materials.append(material)
     welt = bpy.data.objects.new(obj.name.replace("Cushion", "Welt"), curve)
     target.objects.link(welt)
-    welt["construction"] = "1.7 mm matching-fabric welt; placement needs visual review in pilot"
-    return welt
+    welt["construction"] = "1.3 mm matching-fabric welt on actual cushion side band where front cover joins boxing; original cushion geometry retained"
+    audit = {"part": welt.name, "radius_metres": radius, "surface_section_depth_fraction": .55,
+             "curve_points": len(values), "contact_probes": len(contact),
+             "min_signed_surface_distance_metres": min(contact),
+             "max_signed_surface_distance_metres": max(contact),
+             "maximum_allowed_absolute_distance_metres": radius * .75}
+    return audit
 
 
 def studio():
@@ -326,12 +316,10 @@ def build(args, output):
             parts.append(part)
     if len(parts) != 16 or sum("Cushion" in p.name for p in parts) != 4:
         raise RuntimeError("Unexpected original SOFA components; inspect before modifying")
-    for part in parts:
-        if "Cushion" in part.name:
-            soften_cushion(part)
+    seam_contacts = []
     for part in parts:
         if "BackCushion" in part.name:
-            back_welt(part, candidate, part.data.materials[0])
+            seam_contacts.append(back_welt(part, candidate, part.data.materials[0]))
     candidate_grip = bpy.data.objects.new("SOFA_Grip_R_OriginalTransform", None)
     candidate.objects.link(candidate_grip)
     candidate_grip.matrix_world = original_grip
@@ -359,10 +347,12 @@ def build(args, output):
         "candidate_primary_bounds_blender_metres": [list(v) for v in candidate_bounds],
         "grip_world_matrix_blender": [list(row) for row in original_grip],
         "original_components": geometry_record,
+        "primary_geometry_policy": "All original component positions, faces, UVs and transformed split normals retained; no cushion subdivision or shape replacement",
+        "seam_contact_checks": seam_contacts,
         "candidate_mesh_parts": len(parts), "candidate_curve_welts": 2,
         "candidate_mesh_triangles": sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in parts),
         "materials": [m.name for m in material_copies.values()],
-        "limitations": ["Curvature and welt placement await actual rendered review", "Procedural fabric relief is editable Blender material; no baked Unity maps or delivery exports yet", "Static avatar/table scale scene is not a gameplay capture", "No runtime replacement, budget acceptance, owner acceptance or production readiness claimed"],
+        "limitations": ["Seam construction and material quality await actual rendered review", "Procedural fabric relief is editable Blender material; no baked Unity maps or delivery exports yet", "Static avatar/table scale scene is not a gameplay capture", "No runtime replacement, budget acceptance, owner acceptance or production readiness claimed"],
         "blend_sha256": digest(output / "SOFA-original-based-pilot.blend"),
     }
     write_json(output / "build-receipt.json", manifest)
