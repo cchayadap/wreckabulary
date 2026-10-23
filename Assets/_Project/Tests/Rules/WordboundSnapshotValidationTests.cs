@@ -668,7 +668,7 @@ namespace Wreckabulary.Tests
         public void BodySourceMembershipRetainsEveryIdentityAndDemandCheck(WorldBodyKind kind, string mutation)
         {
             var f = PhysicalFixture("TeamRace");
-            var valid = f.State;
+            var valid = kind == WorldBodyKind.Item ? ProtectedItemSnapshot(f) : f.State;
             Assert.AreEqual("", CheckPhysical(f, valid));
             string before = MatchSnapshotCodec.Export(valid);
             var body = ProtectedSourceBody(valid, kind);
@@ -694,7 +694,7 @@ namespace Wreckabulary.Tests
         public void MissingOrDuplicateResourcesStillFailBeforeAnInvalidBodySource(bool duplicate)
         {
             var f = PhysicalFixture("TeamRace");
-            var valid = f.State;
+            var valid = ProtectedItemSnapshot(f);
             Assert.AreEqual("", CheckPhysical(f, valid));
             var body = ProtectedSourceBody(valid, WorldBodyKind.Item);
             var bodies = valid.Bodies.Select(value => value.Id == body.Id ? SourceBody(body, generation: body.RecoveryGeneration + 3) : value).ToArray();
@@ -713,7 +713,7 @@ namespace Wreckabulary.Tests
         public void PhysicalBoundsStillRejectBeforeACompetingBodySourceMismatch()
         {
             var f = PhysicalFixture("TeamRace");
-            var valid = f.State;
+            var valid = ProtectedItemSnapshot(f);
             var body = ProtectedSourceBody(valid, WorldBodyKind.Item);
             string Check(WorldBodyState changed) => CheckPhysical(f,
                 ReplacePhysical(valid, bodies: valid.Bodies.Select(value => value.Id == body.Id ? changed : value)));
@@ -781,6 +781,47 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("", CheckPhysical(f, current));
             Assert.AreEqual(oldBytes, MatchSnapshotCodec.Export(old));
             Assert.AreEqual(currentBytes, MatchSnapshotCodec.Export(current));
+        }
+
+        static MatchSnapshot ProtectedItemSnapshot(WordboundAuthorityTests.Fixture f)
+        {
+            var before = f.State;
+            Assert.AreEqual("", CheckPhysical(f, before));
+            string original = MatchSnapshotCodec.Export(before);
+            var supply = f.Source.Course.Supplies.FirstOrDefault(source => source.Protected && source.TeamIndex == 0 &&
+                f.Source.Mode.Recipes.Contains(source.Letters) &&
+                before.Bodies.Count(body => body.Kind == WorldBodyKind.Tile && body.SourceId == source.Id &&
+                    body.OwnerTeam == source.TeamIndex && body.RecoveryGeneration == 0) == source.Letters.Length);
+            Assert.IsNotNull(supply, "The authored fixture must provide a complete protected recipe batch for the Item source cases.");
+            var resource = before.Resources.Single(row => row.SourceId == supply.Id && row.Team == supply.TeamIndex && row.Generation == 0);
+            var tiles = before.Bodies.Where(body => body.Kind == WorldBodyKind.Tile && body.SourceId == supply.Id &&
+                body.OwnerTeam == supply.TeamIndex && body.RecoveryGeneration == resource.Generation).ToArray();
+            var economy = new Economy(f.Source.Catalogue, f.Source.Rules);
+            foreach (var player in before.Economy.Players) economy.AddPlayer(player.PlayerId, player.Team);
+            economy.Restore(before.Economy);
+            int crafter = before.Economy.Players.First(player => player.Team == supply.TeamIndex).PlayerId;
+            foreach (var tile in tiles)
+                Assert.IsTrue(economy.CollectTile(crafter, int.Parse(tile.Id.Substring("tile:".Length))).Ok);
+            Assert.IsTrue(economy.Player(crafter).Letters.Equals(LetterBag.FromWord(supply.Letters)));
+            Assert.IsTrue(economy.BeginCraft(crafter, supply.Letters, 0).Ok);
+            var completion = economy.CompleteCraft(crafter, economy.Player(crafter).Craft.ReadyAt);
+            Assert.IsTrue(completion.Ok);
+            var item = completion.Item;
+            int slot = Array.IndexOf(economy.Player(crafter).Slots, item.Id);
+            Assert.GreaterOrEqual(slot, 0);
+            Assert.IsTrue(economy.Drop(crafter, slot).Ok);
+            Assert.AreEqual(ItemOrigin.Crafted, item.Origin);
+            Assert.AreEqual(ItemState.World, item.State);
+            var removed = new HashSet<string>(tiles.Select(tile => tile.Id), StringComparer.Ordinal);
+            var body = new WorldBodyState("item:" + item.Id, WorldBodyKind.Item, tiles[0].Position,
+                ownerTeam: supply.TeamIndex, protectedResource: true, sourceId: supply.Id, recoveryGeneration: resource.Generation);
+            var snapshot = new MatchSnapshot(before.Binding, before.Epoch, before.Sequence, before.NextWorldEntityId + 1,
+                before.Progress, economy.Capture(), before.Commands, before.Actors,
+                before.Bodies.Where(value => !removed.Contains(value.Id)).Concat(new[] { body }), before.Resources,
+                before.Mechanisms, before.RandomStreams, before.NarrativeFlags, before.ThrownFlights, before.Practice);
+            Assert.AreEqual("", CheckPhysical(f, snapshot), "The constructed protected Item snapshot must pass every validation phase before mutation.");
+            Assert.AreEqual(original, MatchSnapshotCodec.Export(before));
+            return snapshot;
         }
 
         static WorldBodyState ProtectedSourceBody(MatchSnapshot snapshot, WorldBodyKind kind) => snapshot.Bodies.First(body =>
