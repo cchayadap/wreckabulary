@@ -29,7 +29,7 @@ namespace Wreckabulary.OnlineGameplayTests
         public IEnumerator PublicFreeForAllAllocatesTwoIndividuals() => PublicEntry("FreeForAll", RaceFormat.Solo, 2);
         [UnityTest, Timeout(600000), Category("ExternalPhotonPublicGameplay")]
         public IEnumerator PublicFreestyleFillsTwoRealHumansWithCoopRules() => PublicEntry("Freestyle", RaceFormat.Solo, 2);
-        IEnumerator PublicEntry(string mode, RaceFormat format, int count)
+        IEnumerator PublicEntry(string mode, RaceFormat format, int count, Func<Peer, IEnumerator> afterStarted = null)
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_EXTERNAL_PUBLIC_GAMEPLAY") != "1")
                 Assert.Ignore("Set WORDBOUND_EXTERNAL_PUBLIC_GAMEPLAY=1 only after the exact exported catalogue is approved on the Worker.");
@@ -52,7 +52,7 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.AreEqual(selected.Mode.HasRaceFormat ? 2 * selected.Mode.TeamCapacity : 2, count,
                 "Public race coverage must start two complete parties of the requested format; other cases use two authenticated clients.");
             var run = Run(count, false, productionMode: selected.Mode.Id,
-                productionFormat: format, publicCatalogue: catalogue);
+                productionFormat: format, publicCatalogue: catalogue, afterStarted: afterStarted);
             try { while (run.MoveNext()) yield return run.Current; }
             finally { (run as IDisposable)?.Dispose(); }
             Assert.AreEqual(mode == "Freestyle", live.Settings.Fill,

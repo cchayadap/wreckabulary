@@ -1,6 +1,6 @@
 # Public FFA scored-finish native plan
 
-STATUS: READ-ONLY PROPOSAL; independent design review PASS — no fixture, runtime, service or deadline changes; no jobs started. Inspected existing public entry, full-match, interaction, combat/progression and arena sources in integration. Await root implementation approval.
+STATUS: Design review PASS; root approved bounded test-only implementation; source checkpoint under independent review. No runtime/service/deadline changes or jobs. The proposal below is retained as the approved contract; implementation status follows it.
 
 ## Existing evidence and smallest code boundary
 
@@ -39,3 +39,13 @@ Acceptance limits: two authenticated scripted clients on one machine; one approv
 Independent Input design review passed this bounded route, including terminal no-later-tick handling, lethal eligibility versus geometry, public iterator flattening, exact downloaded-mark ACK, real wear and fixed-scorer reuse. Implementation must prove the protected attack's complete active interval ends no later than ProtectedUntil, not merely that an accepted command or one sample occurred before expiry. This remains a source-feasibility review; the whole route and unchanged eight-minute budget are untested.
 
 Next action: independent plan review and root approval. If approved, implement only the optional private callback plus one existing-file behavior case/helper slice, then source gate and explicit named native run with WORDBOUND_EXTERNAL_GAMEPLAY=1, WORDBOUND_EXTERNAL_PUBLIC_GAMEPLAY=1, WORDBOUND_EXTERNAL_FULL_MATCH=1 and the exact shipped public catalogue. The proposed method does not exist yet and must not be reported as a runnable/passing gate.
+
+## Approved implementation checkpoint
+
+Root approved the exact two-file test slice after plan review. Both fixture files were synchronized to current integration in **baseline-only `4fc98d43`, which must never be integrated**. Its FullMatch source SHA256 was `128F07630B2D957261B1DEACF36EC14B9A35DDA5F50BF75F28646DF6D76641D2`, PublicEntry `8FC6DACBB9FAFE8975C21E6630A0CA44656E73B635D93F5D9CE63B422767D9E6`. Unrelated ModeDefinition and checkpoint artifacts remain unchanged.
+
+The source now contains the named case and scoped helpers in the existing FullMatch file, plus only optional callback forwarding in PublicEntry. It uses two actual six-letter kit batches and real crafted Held items, switches hammer after five points, keeps the host scorer stationary with explicit facing, and moves only the zero-score victim after scoring begins. One canonical observer records every distinct score and recovery-generation transition; each attack has its own bounded active-tick/geometry/health observer. The terminal branch accepts the natural result immediately and proves its tick belongs to the prior admitted attack's active interval. It never waits for a later terminal cycle or tenth respawn. Observer/input cleanup is in finally.
+
+Protected contact requires the whole active interval before expiry and exact unchanged health. Duplicate delivery retains one command receipt, the same next-attack frontier, unchanged health and no fresh attack. Final assertions require all scores0–10, exactly generations1–9, identical confirmed winner/tick/scores on both peers, a separately downloaded/imported exact durable result, and replica/host ACK of its exact mark. Coverage explicitly identifies host Attack submission and remote victim movement; it does not claim remote-client scoring.
+
+Exact follow-up filter is now source-defined: `Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult`, **one case expected**. It is in ExternalPhotonFullMatch (now two cases), not ExternalPhotonPublicGameplay (still nine). Root must run R0 then the explicitly gated native case after independent source review, with the three existing environment opt-ins and exact public catalogue above. No compilation/native/elapsed-budget pass is claimed here.

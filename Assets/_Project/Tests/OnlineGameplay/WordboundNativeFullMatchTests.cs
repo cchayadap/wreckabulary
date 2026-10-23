@@ -29,6 +29,302 @@ namespace Wreckabulary.OnlineGameplayTests
                 afterStarted: CompleteCompactTimeRun);
         }
 
+        [UnityTest, Category("ExternalPhotonFullMatch"), Timeout(600000)]
+        public IEnumerator TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult()
+        {
+            if (Environment.GetEnvironmentVariable("WORDBOUND_EXTERNAL_FULL_MATCH") != "1")
+                Assert.Ignore("Set WORDBOUND_EXTERNAL_FULL_MATCH=1 for public FFA scored-finish coverage.");
+            return PublicEntry("FreeForAll", RaceFormat.Solo, 2, CompletePublicFfa);
+        }
+
+        IEnumerator CompletePublicFfa(Peer host)
+        {
+            var victim = peers.Single(peer => peer != host);
+            Assert.AreEqual("FreeForAll", live.Mode.Id);
+            Assert.IsTrue(live.PublicQueue); Assert.IsFalse(live.Settings.Fill);
+            Assert.AreEqual(10, live.Mode.KnockoutTarget);
+            Assert.AreEqual(100, live.Rules.MaxHealth);
+            var stats = live.Items.Get("HAMMER").Melee;
+            Assert.AreEqual(28, stats.Damage);
+            Assert.AreEqual(30, live.Items.Get("HAMMER").Durability);
+            Assert.AreEqual(77, WordboundCombatPolicy.CycleTicks(stats));
+            Assert.AreNotEqual(FfaPlayer(host.Controller.Frame, host).Team, FfaPlayer(host.Controller.Frame, victim).Team);
+            Assert.IsTrue(host.Controller.Frame.Progress.Players.All(player => player.Knockouts == 0));
+            string document = CourseJson.ExportDocument(live.Course.CopyDocument());
+            string contentHash = live.Course.Hash;
+            var scores = new Dictionary<int, long> { [0] = host.Controller.Frame.Progress.Tick };
+            var respawns = new Dictionary<int, (long Tick, long ProtectedUntil)>();
+            var prior = host.Controller.Frame;
+            string observationError = "";
+            void Observe(MatchSnapshot frame)
+            {
+                var scorer = FfaPlayer(frame, host); var target = FfaPlayer(frame, victim);
+                if (target.Knockouts != 0) observationError = "The remote victim must never earn an unrelated knockout.";
+                if (frame.Progress.Result != null && scorer.Knockouts != 10) observationError = "FFA ended before the ten-point transition.";
+                if (frame.Progress.Tick <= prior.Progress.Tick) return;
+                var oldScorer = FfaPlayer(prior, host); var oldTarget = FfaPlayer(prior, victim);
+                if (scorer.Knockouts != oldScorer.Knockouts)
+                {
+                    if (scorer.Knockouts != oldScorer.Knockouts + 1 || !target.Eliminated ||
+                        FfaActor(frame, victim).Health != 0 || PlayerPose(host, victim).Active ||
+                        target.RespawnAt != frame.Progress.Tick + 2 * ModeDefinition.TickRate)
+                        observationError = "A point must be one real lethal transition with an automatic respawn deadline.";
+                    scores[scorer.Knockouts] = frame.Progress.Tick;
+                }
+                if (target.RecoveryGeneration != oldTarget.RecoveryGeneration)
+                {
+                    if (target.RecoveryGeneration != oldTarget.RecoveryGeneration + 1 || !oldTarget.Eliminated ||
+                        target.Eliminated || target.RespawnAt != -1 || FfaActor(frame, victim).Health != live.Rules.MaxHealth ||
+                        target.ProtectedUntil != frame.Progress.Tick + ModeDefinition.RecoveryProtectionSeconds * ModeDefinition.TickRate ||
+                        !PlayerPose(host, victim).Active)
+                        observationError = "The real respawn must restore health, activity and one generation with protection.";
+                    respawns[target.RecoveryGeneration] = (frame.Progress.Tick, target.ProtectedUntil);
+                }
+                prior = frame;
+            }
+            host.Controller.FrameChanged += Observe;
+            try
+            {
+                var weapons = new List<int>();
+                yield return FfaCraftHammer(host, 0, weapons);
+                yield return FfaCraftHammer(host, 1, weapons);
+                Assert.AreEqual(2, weapons.Distinct().Count());
+                int victimSeat = WordboundGameplayPlan.Seat(host.Controller.Frame.Binding, victim.Actor);
+                var spawn = live.Course.Spawns.Where(value => value.Kind == "Start").ElementAt(victimSeat).Position;
+                var recovery = new WorldVector(spawn.X / 1000f, spawn.Y / 1000f, spawn.Z / 1000f);
+                yield return FullWalk(host, victim, () => recovery, .04f, "Reach the real FFA recovery position before combat");
+                yield return FullWalk(host, host, () => new WorldVector(recovery.X - .95f, recovery.Y, recovery.Z), .04f,
+                    "Stand in the clear southern FFA contact lane before scoring");
+                host.InteractionInput = new WordboundMovementInput { HasFacing = true, FacingYaw = 90 };
+                int weaponId = weapons[0];
+                yield return Command(host, host, WordboundAction.Equip, slot: Array.IndexOf(Inventory(host, host).Slots, weaponId));
+                yield return CommittedState(host, frame => WordboundCombatPolicy.EquippedItemId(frame, host.Actor) == "item:" + weaponId,
+                    "Acknowledge the first genuinely crafted FFA hammer");
+                PlayerCommand replay = null;
+                for (int knockout = 1; knockout <= 10; knockout++)
+                {
+                    if (knockout == 6)
+                    {
+                        weaponId = weapons[1];
+                        yield return Command(host, host, WordboundAction.Equip, slot: Array.IndexOf(Inventory(host, host).Slots, weaponId));
+                        yield return CommittedState(host, frame => WordboundCombatPolicy.EquippedItemId(frame, host.Actor) == "item:" + weaponId,
+                            "Acknowledge the second held hammer without replenishing durability");
+                    }
+                    for (int hit = 0; hit < 4; hit++)
+                    {
+                        yield return FullWalk(host, victim, () => {
+                            var origin = PlayerPose(host, host).Position;
+                            return new WorldVector(origin.X + .95f, origin.Y, origin.Z);
+                        }, .04f, "Return the zero-score victim to native FFA contact through admitted movement");
+                        yield return FfaStrike(host, victim, weaponId, false, command => replay ??= command);
+                        Assert.AreEqual(hit == 3 ? knockout : knockout - 1, FfaPlayer(host.Controller.Frame, host).Knockouts);
+                        Assert.IsEmpty(observationError);
+                        if (knockout == 1 && hit == 0)
+                        {
+                            float health = FfaActor(host.Controller.Frame, victim).Health;
+                            long nextAttack = FfaActor(host.Controller.Frame, host).NextAttackTick;
+                            host.Session.SubmitCommand(WordboundGameplayPlan.Command(replay));
+                            yield return Until(() => host.CommandObservations.TryGetValue(Key(host.Actor, replay.Sequence), out int seen) && seen >= 2,
+                                "Observe delivery of the original FFA attack command twice", 15);
+                            Assert.AreEqual(1, host.Controller.Frame.Commands.Receipts.Count(receipt => receipt.ActorId == host.Actor &&
+                                receipt.Sequence == replay.Sequence && receipt.PayloadHash == replay.PayloadHash));
+                            Assert.AreEqual(health, FfaActor(host.Controller.Frame, victim).Health);
+                            Assert.AreEqual(nextAttack, FfaActor(host.Controller.Frame, host).NextAttackTick);
+                            Assert.IsNull(FfaActor(host.Controller.Frame, host).Attack);
+                            Assert.AreEqual(0, FfaPlayer(host.Controller.Frame, host).Knockouts);
+                        }
+                    }
+                    if (knockout == 10) break;
+                    yield return Until(() => respawns.ContainsKey(knockout), "Observe automatic FFA respawn generation " + knockout, 10);
+                    var respawn = respawns[knockout];
+                    Assert.AreEqual(scores[knockout] + 2 * ModeDefinition.TickRate, respawn.Tick);
+                    Assert.AreEqual(knockout, FfaPlayer(host.Controller.Frame, victim).RecoveryGeneration);
+                    if (knockout == 1) yield return FfaStrike(host, victim, weaponId, true);
+                    yield return Until(() => host.Controller.Frame.Progress.Tick >= respawn.ProtectedUntil,
+                        "Wait for the actual FFA protection window to expire", 10);
+                    Assert.AreEqual(live.Rules.MaxHealth, FfaActor(host.Controller.Frame, victim).Health);
+                    Assert.AreEqual(knockout, FfaPlayer(host.Controller.Frame, host).Knockouts);
+                    Assert.IsNull(host.Controller.Frame.Progress.Result);
+                }
+                yield return Until(() => peers.All(peer => peer.Controller.Frame.Progress.Result?.Confirmed == true),
+                    "Confirm the natural ten-knockout result on host and replica", 25);
+                long resultTick = scores[10];
+                foreach (var peer in peers) AssertFfaResult(peer.Controller.Frame, host, victim, resultTick);
+                CollectionAssert.AreEquivalent(Enumerable.Range(0, 11), scores.Keys);
+                CollectionAssert.AreEquivalent(Enumerable.Range(1, 9), respawns.Keys);
+                yield return VerifyFfaDurableResult(host, victim, resultTick);
+                Assert.IsEmpty(observationError);
+                Assert.AreEqual(contentHash, live.Course.Hash);
+                Assert.AreEqual(document, CourseJson.ExportDocument(live.Course.CopyDocument()));
+                Assert.AreEqual(0, victim.Advanced);
+                Assert.Greater(victim.MovingInputReads, 0);
+                Debug.Log("WORDBOUND_PUBLIC_FFA_FINISH_OBSERVED: two authenticated scripted individuals; hostScorer=true; remoteVictim=true; " +
+                    "two crafted hammers; ten native knockouts; nine automatic respawns; one protected active-contact block; " +
+                    "confirmed individual Win and exact downloaded durable checkpoint ACK; remoteAttackSubmission=false; cleanup pending.");
+            }
+            finally
+            {
+                host.Controller.FrameChanged -= Observe;
+                foreach (var peer in peers) { peer.ScriptedMovement = null; peer.InteractionInput = default; }
+            }
+        }
+
+        IEnumerator FfaCraftHammer(Peer host, int kit, List<int> weapons)
+        {
+            Assert.IsTrue(Inventory(host, host).Letters.IsEmpty);
+            var claimed = new HashSet<string>(StringComparer.Ordinal);
+            foreach (char letter in "HAMMER")
+            {
+                var source = live.Course.Supplies.First(value => value.SourceId.StartsWith("ArenaKit" + kit + "Tile", StringComparison.Ordinal) &&
+                    value.Letters == letter.ToString() && !claimed.Contains(value.Id));
+                Assert.IsTrue(claimed.Add(source.Id));
+                string tile = host.Controller.Frame.Bodies.Single(body => body.Kind == WorldBodyKind.Tile && body.SourceId == source.Id).Id;
+                yield return FullWalk(host, host, () => Pose(host, tile).Position, 1.1f, "Collect the actual public arena hammer letter");
+                yield return Command(host, host, WordboundAction.CollectLetter, tile);
+            }
+            Assert.IsTrue(Inventory(host, host).Letters.Equals(LetterBag.FromWord("HAMMER")));
+            int seat = WordboundGameplayPlan.Seat(host.Controller.Frame.Binding, host.Actor);
+            yield return Command(host, host, WordboundAction.BeginCraft, value: "HAMMER");
+            yield return Until(() => host.Controller.Frame.Economy.Items.Any(item => item.Word == "HAMMER" &&
+                item.Origin == ItemOrigin.Crafted && item.CrafterId == seat && item.State == ItemState.Held && !weapons.Contains(item.Id)),
+                "Complete the real FFA hammer craft timer", 20);
+            int id = host.Controller.Frame.Economy.Items.Single(item => item.Word == "HAMMER" &&
+                item.Origin == ItemOrigin.Crafted && item.CrafterId == seat && item.State == ItemState.Held && !weapons.Contains(item.Id)).Id;
+            weapons.Add(id);
+            Assert.IsTrue(Inventory(host, host).Letters.IsEmpty); Assert.IsTrue(Inventory(host, host).Reserved.IsEmpty);
+            yield return CommittedState(host, frame => frame.Economy.Items.Any(item => item.Id == id && item.State == ItemState.Held) &&
+                frame.Economy.Players[seat].Slots.Contains(id), "Acknowledge the actually crafted public FFA item on both peers");
+        }
+
+        IEnumerator FfaStrike(Peer host, Peer victim, int weapon, bool protectedContact, Action<PlayerCommand> submitted = null)
+        {
+            var stats = live.Items.Get("HAMMER").Melee;
+            int windup = WordboundCombatPolicy.WindupTicks(stats), active = WordboundCombatPolicy.ActiveTicks(stats);
+            yield return Until(() => {
+                var frame = host.Controller.Frame; var actor = FfaActor(frame, host); var target = FfaPlayer(frame, victim);
+                return Inventory(host, host).CanAct && Inventory(host, host).Craft == null && actor.Attack == null &&
+                    actor.NextAttackTick <= frame.Progress.Tick && WordboundCombatPolicy.EquippedItemId(frame, host.Actor) == "item:" + weapon &&
+                    !target.Eliminated && FfaActor(frame, victim).Health > 0 && FfaActor(frame, victim).Defense == null &&
+                    FfaActor(frame, victim).DodgeUntilTick <= frame.Progress.Tick &&
+                    (protectedContact ? frame.Progress.Tick + 1 + windup + active <= target.ProtectedUntil : target.ProtectedUntil <= frame.Progress.Tick) &&
+                    FfaContact(host, victim, frame, stats);
+            }, protectedContact ? "Reach a complete active attack opportunity inside real spawn protection" : "Reach an eligible native FFA hammer attack", 10);
+            var before = host.Controller.Frame;
+            float health = FfaActor(before, victim).Health, durability = Item(host, "item:" + weapon).Durability;
+            Assert.Greater(durability, 0);
+            float expected = protectedContact ? health : Math.Max(0, health - stats.Damage);
+            long started = -1, damageTick = -1;
+            var activeTicks = new HashSet<long>();
+            int geometricSamples = 0;
+            string error = "";
+            var prior = before;
+            void Observe(MatchSnapshot frame)
+            {
+                var attack = FfaActor(frame, host).Attack;
+                if (attack != null)
+                {
+                    if (attack.WeaponEntityId != "item:" + weapon || started >= 0 && started != attack.StartedTick)
+                        error = "The admitted command changed its weapon or started more than one attack.";
+                    started = attack.StartedTick;
+                }
+                long tick = frame.Progress.Tick;
+                if (started >= 0 && tick >= started + windup && tick < started + windup + active)
+                {
+                    activeTicks.Add(tick);
+                    if (FfaContact(host, victim, frame, stats)) geometricSamples++;
+                    if (protectedContact && (FfaPlayer(frame, victim).ProtectedUntil <= tick || FfaActor(frame, victim).Health != health))
+                        error = "The protected active interval must retain health and actual protection.";
+                }
+                if (tick > prior.Progress.Tick && FfaActor(frame, victim).Health < FfaActor(prior, victim).Health)
+                {
+                    var eligible = FfaPlayer(prior, victim);
+                    if (protectedContact || damageTick >= 0 || started < 0 || tick < started + windup || tick >= started + windup + active ||
+                        eligible.Eliminated || !eligible.Connected || eligible.ProtectedUntil > tick || FfaActor(prior, victim).Defense != null ||
+                        FfaActor(prior, victim).DodgeUntilTick > tick || FfaActor(frame, victim).Health != expected || !FfaContact(host, victim, frame, stats))
+                        error = "Health changed without one eligible native/canonical active hammer contact.";
+                    damageTick = tick;
+                }
+                prior = frame;
+            }
+            host.Controller.FrameChanged += Observe;
+            try
+            {
+                var command = host.Controller.Submit(WordboundAction.Attack);
+                submitted?.Invoke(command);
+                yield return Until(() => host.Controller.Frame.Commands.Frontiers[host.Actor] >= command.Sequence,
+                    "Apply the real FFA attack command", 15);
+                var receipt = host.Controller.Frame.Commands.Receipts.Single(value => value.ActorId == host.Actor && value.Sequence == command.Sequence);
+                Assert.AreEqual(command.PayloadHash, receipt.PayloadHash); Assert.AreEqual("Ok", receipt.Effect.Code);
+                yield return Until(() => started >= 0 && (host.Controller.Frame.Progress.Result != null ||
+                    host.Controller.Frame.Progress.Tick >= started + WordboundCombatPolicy.CycleTicks(stats)),
+                    "Observe the real hammer attack interval or its terminal knockout", 10);
+                Assert.IsEmpty(error);
+                Assert.Greater(activeTicks.Count, 0); Assert.Greater(geometricSamples, 0);
+                Assert.AreEqual(durability - 1, Item(host, "item:" + weapon).Durability);
+                if (protectedContact)
+                {
+                    Assert.AreEqual(active, activeTicks.Count);
+                    Assert.LessOrEqual(started + windup + active, FfaPlayer(before, victim).ProtectedUntil);
+                    Assert.AreEqual(-1, damageTick);
+                    Assert.AreEqual(health, FfaActor(host.Controller.Frame, victim).Health);
+                }
+                else Assert.GreaterOrEqual(damageTick, started + windup);
+                if (host.Controller.Frame.Progress.Result != null)
+                {
+                    Assert.AreEqual(damageTick, host.Controller.Frame.Progress.Result.Tick);
+                    Assert.Less(damageTick, started + windup + active);
+                }
+            }
+            finally { host.Controller.FrameChanged -= Observe; }
+        }
+
+        static PlayerProgress FfaPlayer(MatchSnapshot frame, Peer peer) => frame.Progress.Players.Single(player => player.Id == peer.Actor);
+        static MatchActorState FfaActor(MatchSnapshot frame, Peer peer) => frame.Actors.Single(actor => actor.PlayerId == peer.Actor);
+        static bool FfaContact(Peer host, Peer victim, MatchSnapshot frame, MeleeStats stats)
+        {
+            var origin = frame.Bodies.Single(body => body.Kind == WorldBodyKind.Player && body.SourceId == host.Actor);
+            var target = frame.Bodies.Single(body => body.Kind == WorldBodyKind.Player && body.SourceId == victim.Actor);
+            var q = origin.RotationXyz;
+            var delta = target.Position;
+            if (origin.Position.DistanceSquared(delta) > stats.Reach * stats.Reach ||
+                !Geometry.InFrontArc(2 * (q.X * q.Z + origin.RotationW * q.Y), 1 - 2 * (q.X * q.X + q.Y * q.Y),
+                    delta.X - origin.Position.X, delta.Z - origin.Position.Z, stats.ArcDegrees)) return false;
+            var nativeOrigin = host.Controller.Bodies[origin.Id].Rigidbody; var nativeTarget = host.Controller.Bodies[target.Id].Rigidbody;
+            Vector3 distance = nativeTarget.position - nativeOrigin.position, forward = nativeOrigin.rotation * Vector3.forward;
+            return distance.sqrMagnitude <= stats.Reach * stats.Reach && Geometry.InFrontArc(forward.x, forward.z, distance.x, distance.z, stats.ArcDegrees) &&
+                host.Controller.PhysicsWorld.HasLineOfSight(host.Actor, origin.Position, target.Position) &&
+                host.Controller.PhysicsWorld.HasLineOfSight(host.Actor,
+                    new WorldVector(nativeOrigin.position.x, nativeOrigin.position.y, nativeOrigin.position.z),
+                    new WorldVector(nativeTarget.position.x, nativeTarget.position.y, nativeTarget.position.z));
+        }
+
+        static void AssertFfaResult(MatchSnapshot frame, Peer scorer, Peer victim, long tick)
+        {
+            Assert.NotNull(frame.Progress.Result); Assert.IsTrue(frame.Progress.Result.Confirmed);
+            Assert.AreEqual("Win", frame.Progress.Result.Outcome); Assert.AreEqual(tick, frame.Progress.Result.Tick);
+            CollectionAssert.AreEqual(new[] { FfaPlayer(frame, scorer).Team }, frame.Progress.Result.WinningTeams);
+            Assert.AreEqual(10, FfaPlayer(frame, scorer).Knockouts); Assert.AreEqual(0, FfaPlayer(frame, victim).Knockouts);
+            Assert.AreEqual(9, FfaPlayer(frame, victim).RecoveryGeneration);
+        }
+        IEnumerator VerifyFfaDurableResult(Peer host, Peer victim, long tick)
+        {
+            int index = live.Clients.FindIndex(value => value.Credentials.PlayerId == victim.Actor);
+            var service = new OnlineCheckpointService(live.Clients[index], live.Expected, host.Controller.Authority.IdentityHash);
+            var head = service.Head(lifetime.Token);
+            yield return Wait(head, "Read the exact public FFA terminal checkpoint head", 20);
+            Assert.NotNull(head.Result.Head);
+            var manifest = head.Result.Head;
+            Assert.AreEqual(tick, manifest.Mark.Tick);
+            var download = service.Download(manifest, lifetime.Token);
+            yield return Wait(download, "Independently download the real FFA winning snapshot", 20);
+            var imported = MatchSnapshotCodec.Import(download.Result, host.Controller.Frame.Binding, live.Mode, live.Course, live.Items, live.Rules);
+            Assert.IsTrue(imported.Success, imported.Error); Assert.AreEqual(manifest.Mark.StateHash, imported.Hash);
+            AssertFfaResult(imported.Snapshot, host, victim, tick);
+            yield return Until(() => victim.Received.Values.Any(mark => mark.Same(manifest.Mark)) &&
+                host.Acknowledged.TryGetValue(Key(victim.Actor, manifest.Mark.Sequence), out var ack) && ack.Same(manifest.Mark),
+                "Acknowledge the exact independently downloaded FFA result mark", 25);
+        }
+
         static WordboundClientContent CreateCompactTimeRun(string projectRoot)
         {
             string folder = Path.Combine(projectRoot, "Assets/_Project/Data/Config");
