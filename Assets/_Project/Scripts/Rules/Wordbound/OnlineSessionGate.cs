@@ -4,6 +4,50 @@ using System.Linq;
 
 namespace Wreckabulary.Rules.Wordbound
 {
+    public sealed class OnlineBootstrapBarrier
+    {
+        readonly object owner;
+        readonly HashSet<string> required;
+        readonly HashSet<string> acknowledged = new HashSet<string>(StringComparer.Ordinal);
+        bool cancelled;
+        public OnlineSnapshotMark Mark { get; }
+        public long DeadlineMilliseconds { get; }
+
+        public OnlineBootstrapBarrier(object owner, OnlineSnapshotMark mark, IEnumerable<string> peers, long startedAtMilliseconds)
+        {
+            this.owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            Mark = mark ?? throw new ArgumentNullException(nameof(mark));
+            var values = peers?.Take(9).ToArray() ?? throw new ArgumentNullException(nameof(peers));
+            required = new HashSet<string>(values, StringComparer.Ordinal);
+            if (values.Length > 7 || values.Any(value => string.IsNullOrEmpty(value) || value.Length > 96) ||
+                required.Count != values.Length || startedAtMilliseconds < 0)
+                throw new ArgumentException("Bootstrap peers must be the distinct remote original seats.");
+            DeadlineMilliseconds = checked(startedAtMilliseconds + 90000);
+        }
+
+        public bool Acknowledge(object currentOwner, string peer, OnlineSnapshotMark mark, long nowMilliseconds)
+        {
+            Require(currentOwner, nowMilliseconds);
+            if (!required.Contains(peer) || mark == null || !Mark.Same(mark))
+                throw new FormatException("Bootstrap acknowledgement does not match its original peer and snapshot.");
+            return acknowledged.Add(peer);
+        }
+
+        public bool IsComplete(object currentOwner, long nowMilliseconds)
+        { Require(currentOwner, nowMilliseconds); return acknowledged.Count == required.Count; }
+
+        public void Cancel() => cancelled = true;
+
+        void Require(object currentOwner, long nowMilliseconds)
+        {
+            if (cancelled || !ReferenceEquals(owner, currentOwner))
+                throw new OperationCanceledException("Bootstrap acknowledgement belongs to an inactive run.");
+            if (nowMilliseconds < 0) throw new ArgumentOutOfRangeException(nameof(nowMilliseconds));
+            if (nowMilliseconds >= DeadlineMilliseconds)
+                throw new TimeoutException("The complete approved roster did not become ready.");
+        }
+    }
+
     public sealed class OnlineSeatPresence
     {
         public string PlayerId { get; }

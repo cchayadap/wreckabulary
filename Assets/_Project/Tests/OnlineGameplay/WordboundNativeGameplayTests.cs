@@ -320,8 +320,27 @@ namespace Wreckabulary.OnlineGameplayTests
             peer.Session.Failed += reason => Debug.Log("WORDBOUND_SESSION_FAULT: peer " + index + " " + reason +
                 " stage=" + peer.Session.FailureStage + " code=" + peer.Session.FailureCode +
                 " facts=" + peer.Session.FailureFacts + " origin=" + peer.Session.FailureOrigin);
+            OnlineSnapshotMark initialBootstrap = null;
+            peer.Session.GameplayStarted += () => {
+                if (!peer.Runner.IsServer || peer.RunnerCreations != 1) return;
+                Assert.IsNull(initialBootstrap, "The initial host must start once.");
+                initialBootstrap = peer.Session.Committed;
+                Assert.NotNull(initialBootstrap);
+                Assert.AreEqual(0, initialBootstrap.Tick); Assert.AreEqual(0, peer.Advanced);
+                Assert.AreEqual(live.Verified.Roster.Count, peers.Count);
+                foreach (var remote in peers.Where(value => value != peer))
+                {
+                    Assert.IsTrue(remote.Received.Values.Any(mark => mark.Same(initialBootstrap)),
+                        "Each original replica must import the exact bootstrap before host gameplay starts.");
+                    Assert.IsTrue(peer.Acknowledged.TryGetValue(Key(remote.Actor, initialBootstrap.Sequence), out var ack) && ack.Same(initialBootstrap),
+                        "Only an actual exact bootstrap ACK may release the initial host.");
+                }
+                Debug.Log("WORDBOUND_BOOTSTRAP_ACK_BARRIER_OBSERVED: originalPeers=" + peers.Count + "; canonicalTick=0; exactReplicaImportsAndAcks=true; hostStart=true.");
+            };
             peer.Controller.HostAdvanced += result => {
                 if (!result.Advanced) return;
+                if (peer.Advanced == 0 && peer.RunnerCreations == 1)
+                    Assert.NotNull(initialBootstrap, "The first canonical advance must follow the observed exact bootstrap ACK barrier.");
                 peer.Advanced++;
                 foreach (var receipt in result.Receipts)
                 {

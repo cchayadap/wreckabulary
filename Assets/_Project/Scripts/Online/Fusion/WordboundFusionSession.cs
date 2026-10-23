@@ -59,6 +59,10 @@ namespace Wreckabulary.Online
             public WordboundFusionJoin Join;
             public string ConnectionId, HostId;
             public bool Publishing, Beginning, Renewing, Started;
+            public bool InitialStarting;
+            public string BootstrapTerm;
+            public OnlineBootstrapBarrier Bootstrap;
+            public Dictionary<PlayerRef, (string Actor, string Connection, string Epoch, string Host)> BootstrapConnections;
             public long RenewAt;
             public OnlineCheckpointWriter Writer;
             public OnlineCheckpointManifest Head;
@@ -173,6 +177,7 @@ namespace Wreckabulary.Online
             var previous = activeRun;
             activeRun = null;
             runGeneration = checked(runGeneration + 1);
+            previous?.Bootstrap?.Cancel();
             previous?.Cancellation.Cancel();
             return runGeneration;
         }
@@ -410,26 +415,78 @@ namespace Wreckabulary.Online
             if (!begin) return;
             if (run.Beginning) return;
             run.Beginning = true;
+            run.InitialStarting = requiresCompleteRoster;
             _ = BeginAfterCheckpoint(run, requiresCompleteRoster);
         }
         async Task BeginAfterCheckpoint(RunScope run, bool requiresCompleteRoster)
         {
-            try { await RefreshConnectionState(run); }
-            catch (Exception error) { if (IsCurrent(run)) Fail(error); return; }
+            try {
+            if (requiresCompleteRoster)
+            {
+                run.BootstrapTerm = run.Writer?.Term;
+                RequireInitialStart(run);
+            }
+            await RefreshConnectionState(run);
             if (!IsCurrent(run)) return;
             if (Failure != "") return;
             if (requiresCompleteRoster && !gate.AllReady) { Fail(new InvalidOperationException("The starting roster changed.")); return; }
+            if (requiresCompleteRoster)
+            {
+                run.BootstrapConnections = leases.ToDictionary(pair => pair.Key,
+                    pair => (pair.Value.PlayerId, pair.Value.ConnectionId, pair.Value.Epoch, pair.Value.HostId));
+                RequireInitialStart(run);
+            }
             bool published = await PublishCheckpointCore(run, true, run.Cancellation.Token);
             if (!IsCurrent(run)) return;
             if (!published) { Fail(new InvalidOperationException("Initial checkpoint was not durable.")); return; }
             await SeedElection(run);
             if (!IsCurrent(run) || !HasWriter(run)) return;
+            if (requiresCompleteRoster)
+            {
+                if (run.Bootstrap == null) throw new InvalidOperationException("Initial checkpoint has no acknowledgement barrier.");
+                while (true)
+                {
+                    RequireInitialStart(run);
+                    if (run.Bootstrap.IsComplete(run, clock())) break;
+                    await Task.Delay(20, run.Cancellation.Token);
+                }
+                RequireInitialStart(run);
+                run.InitialStarting = false;
+                run.Bootstrap = null; run.BootstrapConnections = null;
+            }
             GameplayReady = true; run.Beginning = false;
             gameplayObserved = true;
             authority.SetTransportReady(true, true);
             foreach (var player in Runner.ActivePlayers)
                 if (player != Runner.LocalPlayer && gate.Actor(Peer(player)) != null) Send(player, OnlineWireKind.Begin, Roster());
             GameplayStarted?.Invoke();
+            }
+            catch (Exception error) { if (IsCurrent(run)) Fail(error); }
+        }
+        void RequireInitialStart(RunScope run)
+        {
+            RequireCurrent(run);
+            RequireWriter(run, run.BootstrapTerm);
+            long now = clock();
+            if (now >= checked(gate.Match.StartedAtMilliseconds + 90000))
+                throw new TimeoutException("The complete approved roster did not become ready.");
+            if (!run.Runner.IsRunning || !run.Runner.IsServer || !gate.AllReady)
+                throw new InvalidOperationException("The starting roster changed.");
+            if (run.BootstrapConnections == null) return;
+            if (run.BootstrapConnections.Count != gate.Match.Roster.Count ||
+                !new HashSet<string>(run.BootstrapConnections.Values.Select(value => value.Actor), StringComparer.Ordinal)
+                    .SetEquals(gate.Match.Roster.Select(seat => seat.PlayerId)))
+                throw new InvalidOperationException("The bootstrap must bind the complete original roster.");
+            foreach (var pair in run.BootstrapConnections)
+            {
+                var pinned = pair.Value;
+                if (!run.Readied.Contains(pair.Key) || !run.Runner.ActivePlayers.Contains(pair.Key) ||
+                    gate.Actor(Peer(pair.Key)) != pinned.Actor || run.Runner.GetPlayerUserId(pair.Key) != pinned.Actor ||
+                    !leases.TryGetValue(pair.Key, out var lease) || lease.PlayerId != pinned.Actor ||
+                    lease.ConnectionId != pinned.Connection || lease.Epoch != pinned.Epoch || lease.HostId != pinned.Host ||
+                    lease.HostId != connections.LocalPlayerId || lease.ExpiresAtMilliseconds <= now)
+                    throw new InvalidOperationException("The bootstrap connection changed or expired.");
+            }
         }
         Dictionary<string, object> Roster() => new Dictionary<string, object> { ["roster"] = expected.RosterHash };
         static string Peer(PlayerRef player) => player.RawEncoded.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -486,7 +543,7 @@ namespace Wreckabulary.Online
             if (run.Writer != null && !HasWriter(run)) { FailAt(WriterExpired(run), "writer-poll"); return; }
             if (run.Writer != null && !run.WriterRenewing && clock() >= run.WriterRenewAt) _ = RenewWriter(run);
             if (!run.CheckpointReady) return;
-            if (!gate.Started && clock() >= gate.Match.StartedAtMilliseconds + 90000)
+            if ((!gate.Started || run.InitialStarting) && clock() >= gate.Match.StartedAtMilliseconds + 90000)
             { Fail(new TimeoutException("The complete approved roster did not become ready.")); return; }
             foreach (var peer in pending.Where(p => p.Value <= clock()).Select(p => p.Key).ToArray())
             { pending.Remove(peer); Runner.Disconnect(peer); }
@@ -656,6 +713,16 @@ namespace Wreckabulary.Online
                 throw new InvalidOperationException("Checkpoint publication was superseded.");
             if (!authority.AcknowledgeDurable(receipt.Mark)) throw new InvalidOperationException("Durable checkpoint did not match its publication.");
             run.Head = receipt; run.Upload = null; committedMark = receipt.Mark; committedPacket = upload.Packet;
+            if (run.InitialStarting)
+            {
+                RequireInitialStart(run);
+                if (run.Bootstrap == null)
+                    run.Bootstrap = new OnlineBootstrapBarrier(run, receipt.Mark,
+                        run.BootstrapConnections.Keys.Where(peer => peer != run.Runner.LocalPlayer).Select(Peer),
+                        gate.Match.StartedAtMilliseconds);
+                else if (!run.Bootstrap.Mark.Same(receipt.Mark))
+                    throw new InvalidOperationException("The initial bootstrap publication changed.");
+            }
             foreach (var player in run.Runner.ActivePlayers)
                 if (player != run.Runner.LocalPlayer && gate.Actor(Peer(player)) != null) SendCommitted(player);
         }
@@ -860,6 +927,12 @@ namespace Wreckabulary.Online
                             var ack = OnlineSnapshotMark.Read(message.Body);
                             if (gate.Actor(Peer(player)) == null || !sentMarks.TryGetValue(player, out var sent) || !ack.Same(sent))
                                 throw new FormatException("Unknown snapshot acknowledgement.");
+                            if (activeRun.InitialStarting)
+                            {
+                                RequireInitialStart(activeRun);
+                                if (activeRun.Bootstrap == null || !activeRun.Bootstrap.Acknowledge(activeRun, Peer(player), ack, clock()))
+                                    throw new FormatException("Duplicate or unexpected bootstrap acknowledgement.");
+                            }
                             sentMarks.Remove(player); ReplicaAcknowledged?.Invoke(player, ack);
                             if (!ack.Same(committedMark)) SendCommitted(player);
                             break;
@@ -918,6 +991,8 @@ namespace Wreckabulary.Online
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
             if (!IsCurrent(activeRun) || runner != activeRun.Runner || !runner.IsServer) return;
+            if (activeRun.InitialStarting && activeRun.BootstrapConnections?.ContainsKey(player) == true)
+                activeRun.Bootstrap?.Cancel();
             activeRun.Readied.Remove(player);
             pending.Remove(player); rates.Remove(player); sentMarks.Remove(player); leases.Remove(player);
             string actor = gate.Disconnect(Peer(player), clock());

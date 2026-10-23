@@ -219,6 +219,105 @@ namespace Wreckabulary.Rules.Tests
             Assert.Throws<FormatException>(() => verifier.VerifyConnection(signedRetry, match, Player, Player, Attempt, originalExpiry));
         }
 
+        static OnlineSnapshotMark BootstrapMark() => new OnlineSnapshotMark(Match, new string('a', 64), 0, 1, 0, new string('b', 64));
+
+        [TestCase(2), TestCase(4), TestCase(8)]
+        public void BootstrapRequiresEveryExactRemoteReceiptBeforeInitialStart(int players)
+        {
+            var owner = new object(); var mark = BootstrapMark();
+            string[] peers = Enumerable.Range(1, players - 1).Select(value => "peer-" + value).ToArray();
+            var barrier = new OnlineBootstrapBarrier(owner, mark, peers, Now * 1000);
+            Assert.IsFalse(barrier.IsComplete(owner, Now * 1000 + 1));
+            foreach (string peer in peers.Take(peers.Length - 1))
+            {
+                Assert.IsTrue(barrier.Acknowledge(owner, peer, mark, Now * 1000 + 2));
+                Assert.IsFalse(barrier.Acknowledge(owner, peer, mark, Now * 1000 + 3));
+                Assert.IsFalse(barrier.IsComplete(owner, Now * 1000 + 3));
+            }
+            Assert.IsTrue(barrier.Acknowledge(owner, peers.Last(), OnlineSnapshotMark.Read(OnlineJson.Parse(OnlineJson.Encode(mark.ToValue()))),
+                Now * 1000 + 89999));
+            Assert.IsTrue(barrier.IsComplete(owner, Now * 1000 + 89999));
+            Assert.AreEqual(Now * 1000 + 90000, barrier.DeadlineMilliseconds);
+            Assert.Throws<TimeoutException>(() => barrier.IsComplete(owner, barrier.DeadlineMilliseconds));
+        }
+
+        [TestCase("match"), TestCase("identity"), TestCase("epoch"), TestCase("sequence"), TestCase("tick"), TestCase("hash")]
+        public void BootstrapRejectsEachWrongMarkFieldWithoutCountingAReceipt(string changed)
+        {
+            var owner = new object(); var mark = BootstrapMark();
+            var barrier = new OnlineBootstrapBarrier(owner, mark, new[] { "peer" }, Now * 1000);
+            var wrong = new OnlineSnapshotMark(changed == "match" ? Other : mark.MatchId,
+                changed == "identity" ? new string('c', 64) : mark.IdentityHash, changed == "epoch" ? 1 : 0,
+                changed == "sequence" ? 2 : 1, changed == "tick" ? 1 : 0, changed == "hash" ? new string('c', 64) : mark.StateHash);
+            Assert.Throws<FormatException>(() => barrier.Acknowledge(owner, "peer", wrong, Now * 1000 + 1));
+            Assert.IsFalse(barrier.IsComplete(owner, Now * 1000 + 1));
+            Assert.IsTrue(barrier.Acknowledge(owner, "peer", mark, Now * 1000 + 2));
+            Assert.IsTrue(barrier.IsComplete(owner, Now * 1000 + 2));
+        }
+
+        [Test] public void BootstrapPinsPeersAndRejectsUnknownPeerOrSupersededRun()
+        {
+            var owner = new object(); var replacement = new object(); var mark = BootstrapMark();
+            var peers = new[] { "peer" };
+            var barrier = new OnlineBootstrapBarrier(owner, mark, peers, Now * 1000);
+            peers[0] = "replacement";
+            Assert.Throws<FormatException>(() => barrier.Acknowledge(owner, "replacement", mark, Now * 1000));
+            Assert.Throws<OperationCanceledException>(() => barrier.Acknowledge(replacement, "peer", mark, Now * 1000));
+            Assert.Throws<OperationCanceledException>(() => barrier.IsComplete(replacement, Now * 1000));
+            Assert.IsFalse(barrier.IsComplete(owner, Now * 1000));
+            Assert.IsTrue(barrier.Acknowledge(owner, "peer", mark, Now * 1000));
+            Assert.IsTrue(barrier.IsComplete(owner, Now * 1000));
+        }
+
+        [TestCase(0), TestCase(1), TestCase(2)]
+        public void BootstrapCancellationCannotBeUndoneByLateOrAlreadyCompleteReceipts(int accepted)
+        {
+            var owner = new object(); var mark = BootstrapMark(); var peers = new[] { "first", "second" };
+            var barrier = new OnlineBootstrapBarrier(owner, mark, peers, Now * 1000);
+            foreach (string peer in peers.Take(accepted)) barrier.Acknowledge(owner, peer, mark, Now * 1000);
+            barrier.Cancel(); barrier.Cancel();
+            Assert.Throws<OperationCanceledException>(() => barrier.Acknowledge(owner, "second", mark, Now * 1000 + 1));
+            Assert.Throws<OperationCanceledException>(() => barrier.IsComplete(owner, Now * 1000 + 1));
+            var nextOwner = new object(); var next = new OnlineBootstrapBarrier(nextOwner, mark, peers, Now * 1000);
+            Assert.IsFalse(next.IsComplete(nextOwner, Now * 1000 + 1));
+            Assert.Throws<OperationCanceledException>(() => barrier.Acknowledge(nextOwner, "first", mark, Now * 1000 + 1));
+        }
+
+        [TestCase(0), TestCase(1)]
+        public void MissingBootstrapReceiptsExpireAtTheOriginalAbsoluteDeadline(int accepted)
+        {
+            var owner = new object(); var mark = BootstrapMark();
+            var barrier = new OnlineBootstrapBarrier(owner, mark, new[] { "first", "second" }, Now * 1000);
+            if (accepted == 1) barrier.Acknowledge(owner, "first", mark, Now * 1000 + 89998);
+            Assert.IsFalse(barrier.IsComplete(owner, Now * 1000 + 89999));
+            Assert.Throws<TimeoutException>(() => barrier.Acknowledge(owner, "second", mark, Now * 1000 + 90000));
+            Assert.Throws<TimeoutException>(() => barrier.IsComplete(owner, Now * 1000 + 90001));
+            Assert.AreEqual(Now * 1000 + 90000, barrier.DeadlineMilliseconds);
+        }
+
+        [Test] public void BootstrapCannotTreatADisconnectedRequiredPeerAsAnEmptyCompletedSendQueue()
+        {
+            var owner = new object(); var mark = BootstrapMark();
+            var sendQueue = new HashSet<string> { "first", "second" };
+            var barrier = new OnlineBootstrapBarrier(owner, mark, sendQueue, Now * 1000);
+            barrier.Acknowledge(owner, "first", mark, Now * 1000); sendQueue.Remove("first");
+            sendQueue.Remove("second");
+            Assert.IsEmpty(sendQueue); Assert.IsFalse(barrier.IsComplete(owner, Now * 1000 + 1));
+            barrier.Cancel();
+            Assert.Throws<OperationCanceledException>(() => barrier.Acknowledge(owner, "second", mark, Now * 1000 + 2));
+        }
+
+        [Test] public void BootstrapRejectsMalformedPeerSetsAndAllowsNoRemoteSeatsWithoutInventingAnAck()
+        {
+            var owner = new object(); var mark = BootstrapMark();
+            foreach (var peers in new[] { new[] { "peer", "peer" }, new[] { "" }, new string[] { null },
+                Enumerable.Range(0, 8).Select(value => value.ToString()).ToArray() })
+                Assert.Throws<ArgumentException>(() => new OnlineBootstrapBarrier(owner, mark, peers, Now * 1000));
+            var barrier = new OnlineBootstrapBarrier(owner, mark, Array.Empty<string>(), Now * 1000);
+            Assert.IsTrue(barrier.IsComplete(owner, Now * 1000));
+            Assert.Throws<FormatException>(() => barrier.Acknowledge(owner, "host", mark, Now * 1000));
+        }
+
         [Test] public void SessionGateRequiresEveryOriginalSeatReadyAndRejectsIdentityReplacement()
         {
             using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
