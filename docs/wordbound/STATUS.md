@@ -8,15 +8,15 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current delivery snapshot — 2026-10-23 22:12 UTC
+## Current delivery snapshot — 2026-10-23 22:22 UTC
 
 Original Wreckabulary artwork is the default; rejected DetailV2 and pilots remain preserved. The updated review gallery leads with actual Windows220124 and neutral Unity2157 images. All four original preview items are visible; held BAT contact is visually corrected in the Editor preview without production model/grip edits. Windows equipment-menu contrast, generic controls and sparse starting-room composition remain production gaps.
 
 QA215906PASS112.7s on exactecd968fd. Visible220124PASS5/5: readiness4.301s,90waits76.228s, completed79.579s, exact save/return/draft/Undo, console0/0/0 and exit0. It is a supplemental visible diagnostic, not official smoke, sustained FPS or complete delivery. The later capture-key optimization is not in this executable. Official smoke-launch and isolated Unity update still await the previously requested owner actions; kit/editor unchanged.
 
-Public213856 passes bounded FFA/Freestyle entry with two authenticated scripted clients. Public races remain intermittent: native215152passes21/23 (sharedFreestyle and20timing cases), while Brawl misses movement and TeamSolo misses initial-transfer deadlines. Private compact TimeRun has a verified three-lap confirmed durable result; shared Freestyle verifies physical completion, rewards/inventory/no teammate damage. Full public mode/party/capacity/recovery/human acceptance remains open.
+Public221108 passes both TeamSolo and BrawlSolo entry, movement, command replay and exact durable acknowledgement. Earlier transfer/movement failures remain recorded; one passing run does not establish sustained reliability. The fullFFA fixture fails with Fusion allocator exhaustion during the first craft, before reaching its ten-knockout/respawn/result objectives. A separate unchanged-capacity allocator diagnostic is running. Private compact TimeRun has a verified three-lap confirmed durable result; shared Freestyle verifies physical completion, rewards/inventory/no teammate damage. Full public mode/party/capacity/recovery/human acceptance remains open.
 
-Reviewed capture-key sourcec298d77d preserves snapshot ordering/bytes and passes218/218 core. The fixed-capture .NET probe reduces allocations70.265%TimeRun/72.481%TeamSolo; native throughput is not yet established. Native49cases now check codec/timing, publicTeam/Brawl and a new actual FFA scored-finish fixture. Seven worktrees, ICY/main/font/Lunar and all earlier failures remain preserved. No further Photon/Cloudflare setup is needed. See [progress.md](../../progress.md).
+Reviewed capture-key sourcec298d77d preserves snapshot ordering/bytes and passes218/218 core plus26 native codec checks. The fixed-capture .NET probe reduces allocations70.265%TimeRun/72.481%TeamSolo. Native221108 is48/49PASS; its whole-case capture means are lower, but the workload/timing comparison is uncontrolled and does not establish FPS. Initial bootstrap acknowledgement and an editable original-style UI theme are under implementation/review in isolated lanes. Seven worktrees, ICY/main/font/Lunar and all earlier failures remain preserved. No further Photon/Cloudflare setup is needed. See [progress.md](../../progress.md).
 
 | Work package | What is verified | Work remaining |
 | --- | --- | --- |
