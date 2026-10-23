@@ -3,6 +3,8 @@
   "rootNamespace": "Wreckabulary.EditorTools",
   "references": [
     "Wreckabulary",
+    "Wreckabulary.Editor",
+    "Wreckabulary.Online.Authoring.Editor",
     "Wreckabulary.Online.Client",
     "Wreckabulary.Online.Fusion",
     "Fusion.Unity",
