@@ -41,11 +41,11 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Implement 3D editing, layers, random zones, validation and route/checkpoint/spawn authoring.
 - [x] Verify exact-draft playtest/return preserves undo/redo history.
 - [~] Verify drag/rotate/resize/multi-select/group/snap/controller workflows, autosave/recovery and JSON sharing.
-- [~] Finish automatic exact custom-course sharing in private online sessions; Workshop handoff and exact-map/profile binding are integrated, service/client gates pending.
+- [~] Finish automatic exact custom-course sharing in private online sessions; exact-map/profile handoff is integrated, client checks pass 41/41 and unique Worker checks pass 98/98. Real two-peer authored transfer remains pending.
 - [~] Expose camera FOV/distance/sensitivity/obstruction settings through validated Inspector assets; source and live-edit regression are integrated, native test pending.
 - [~] Expose equipment visuals/materials/grips and presentation settings without code changes; replacement-bound/grip/custom-ID regressions are integrated, native test pending.
 - [~] Provide Unity course assets/editor controls for modules/layers/spawns/puzzles/random ranges, with preview/validate/playtest actions; source and reference compile complete, native asset creation/persistence pending.
-- [ ] Verify edit/save/reload/playtest, invalid-value errors, old-save compatibility and online content identity.
+- [~] Verify edit/save/reload/playtest, invalid-value errors, old-save compatibility and online content identity. Pending Inspector forms now survive selection changes and script reload through bounded recovery files, with explicit conflict handling and in-memory fallback; native regressions remain pending.
 - [ ] Save reusable prefabs/assets and an illustrated Unity editing guide.
 - [ ] Human usability: four of five new testers create/play a randomized course in ten minutes.
 
@@ -83,7 +83,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Create/read back Windows release, QA and development profiles.
 - [~] Complete QA build; first attempt exceeded 30 minutes, caches retained.
 - [ ] Launch QA player and complete workshop→game→workshop smoke; inspect frames/motion.
-- [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit; review found the gameplay launcher always selected desktop input, controller repair in progress.
+- [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair and allocation cleanup are integrated and independently source-reviewed; 20 native input/menu regressions await execution.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
 - [ ] Build release player and smoke-test the exact stripped executable.
@@ -97,8 +97,8 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Confirm integration HEAD `a896be3`, original main/font/Lunar files, all feature branches, and no surviving Unity/compiler/Blender jobs.
 - [x] Save a private recovery snapshot under `.harness/recovery/2026-10-23T08-53-03-542Z-da1d8676-0794-40fc-a246-cd5de5cc201a`; its manifest verifies every copied file. Existing Git history, caches and private service credentials remain in place.
 - [x] Recover the actual public C# result: 28 executed / 28 passed. No Worker success was inferred from the interrupted run.
-- [~] Finish public/custom-map service checks and harvest separate coherent commits.
-- [~] Remove repeated input allocations; finish controller menu navigation and prevent held actions leaking across focus/device/menu transitions.
+- [x] Integrate recovered public/all-five-mode and private custom-map sources; C# client 41/41 and unique Worker 98/98 checks pass. Additional multi-seed binding configuration checks are running separately.
+- [~] Remove repeated input allocations; controller navigation and neutral input release are integrated and reviewed, native input/menu verification pending. Cache public map labels by mode/format and normalize Fill for custom modes that do not support it.
 - [~] Improve material/construction detail; preserve editable Blender components while combining static export meshes to reduce Unity renderer overhead. Measure before/after counts and verify all FBX/GLB bounds/grips.
 - [ ] Validate the assembled source, import final content, run native gameplay/public/recovery checks, then build and smoke-test the exact Windows delivery.
 
@@ -106,4 +106,6 @@ There is still no verified Windows player. Public matchmaking remains closed unt
 
 Root: integration, HUD/player/guide, native verification, content export, coordinated deployment and Windows delivery. Puzzle-race: independent defense review and additive Unity authoring tools. Map-workshop/assets: defense/arena verification and asset quality. Online: protocol v3, all-mode public allocation and private-map sharing.
 
-Online currently holds the compiler/test slot; detailed Blender generation is next. Affected Rules passed128/128, and the separately selected arena test passed all1,000seeds (maximum194 initial bodies, minimum213 optional reserve, cap512). R0 passed148.3seconds before the latest source integration (`Logs/gate_check_all_20261020T201557Z.log`). Native physical/story/profile/authoring batch `editmode_20261020T201950Z` failed at the1200-second limit during compilation, before test execution; no C# error or native pass was reported. Its cache is retained. Schema-3 service is deployed with live API7/7PASS, preserved credentials/state and unchanged website (`BuildNotes/online/V3-DEPLOYMENT.md`). The public allowlist remains empty pending final integration/validation. No verified Windows player or production-ready claim exists yet.
+The bounded Rules run passed 409/410 cases (`TestResults/core_20261023T092813Z.trx`); its only failure was an obsolete schema-2 assertion. The corrected deployment group passes 14/14 (`TestResults/core_20261023T093147Z.trx`), explicitly rejecting both old schema versions. An earlier overbroad filter accidentally started the already-covered flagship seed sweep; it was stopped through verified test-process PIDs and is recorded as a cancelled/failed run, not a pass. The prior 8,000 flagship and 1,000 arena seed evidence remains unchanged.
+
+Final assembled R0 passed in 140.6 seconds (`Logs/gate_check_all_20261023T094106Z.log`), and Online's final Worker 98/98, both TypeScript and six shard/configuration checks pass. Detailed Blender generation now owns the heavy-process slot. A separate usability review found missing party-screen controller navigation and workshop focus protection; bounded repairs are in progress. Native physical/story/profile/authoring batch `editmode_20261020T201950Z` previously failed at its 1,200-second limit during compilation before tests; caches are retained for a 3,600-second retry. Schema-3 service remains deployed with live API 7/7 PASS, preserved credentials/state and unchanged website (`BuildNotes/online/V3-DEPLOYMENT.md`). Public activation, real final multiplayer checks and a tested Windows player are still pending.
