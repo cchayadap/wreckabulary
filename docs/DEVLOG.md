@@ -153,3 +153,7 @@ The preceding recovery-checkpoint heading was typed as 11:30:00Z before that tim
 - Preserved12 native-generated/normalized metadata files; existing ten GUIDs match HEAD. No caches deleted. Source import had not produced a new public catalogue or DetailV2 active revision.
 - Viewed BROOM/SPEAR/PLATE/STOOL three-quarter previews: distinct construction, grips/bristles/rim/support shapes visible. This completes root review of all12 final model silhouettes alongside earlier views; runtime appearance remains pending.
 - Integrated guide fcfe325 and starting-angle correction b9a02bd. Native screenshots and packed-asset evidence remain pending.
+
+## 2026-10-23T11:55:47Z Integrate reviewed reconnect and native fixture repairs
+
+Integrated source812a000/b851895/94f1bde and independent review47a38e1; four race findings closed at source, runtime NOT RUN. Timing probead659fc records detected-loss/restored/ready events without changing10s/15s settings. Fixture ae1d671 routes around the actual CLOCK with existing8s deadline; independent review1567f66. Fresh R0 running in Logs/gate_check_all_20261023T115335Z.log. Native interruption review2b95b6d found no supported crash/OOM/timeout cause. A private hidden-wrapper script is prepared to retain next gate stdout/stderr/exit status; no second Unity job launched. Public catalogue/deployment/player remain pending.
