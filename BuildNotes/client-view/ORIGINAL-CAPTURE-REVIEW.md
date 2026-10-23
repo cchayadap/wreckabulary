@@ -1,6 +1,6 @@
 # Original artwork capture helper source review
 
-STATUS: SOURCE PASS — final source checkpoint pending; compiler/native render and visual approval NOT RUN.
+STATUS: SOURCE PASS — final Assets checkpoint `226afb1cf97a0da37010c0fa21b04014a21dc104`; compiler/native render and visual approval NOT RUN.
 
 Reviewed the stable new `Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs` in the map-workshop lane, including the exact original-FBX path guard, pipeline type receipt, and explicit owned TactileMaterials release. This is a bounded read-only review of the Editor helper and its existing resolver, motion, material lifetime and assembly dependencies. Root retains execution ownership.
 

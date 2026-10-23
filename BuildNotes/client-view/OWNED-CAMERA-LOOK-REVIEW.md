@@ -17,3 +17,5 @@ Reviewed repair **`0ae86290`**: the owned-camera case is now a direct `UnityTest
 ## Actual native acceptance of the camera slice
 
 Directly read `TestResults/editmode_20261023T210954Z.xml` on assembled source **`752a8193`**: **all 3 camera cases PASS**. The combined batch is 24 total / 23 passed / 1 failed / 0 skipped; its sole failure is the separate course UV mesh-lifetime test. The owned-camera PlayMode correction passed with the original one-line production camera initialization unchanged. This confirms the tested camera/profile contracts, not final Windows visual quality or performance.
+
+The subsequent exact `TestResults/editmode_20261023T211545Z.xml` was also inspected: camera **3/3 PASS** again, with the complete surface/camera batch now **24/24 PASS**, zero skipped, on root-reported source `7c76f151`. The supplied-camera, Inspector profile and actual PlayMode owned-camera assertions all remain active. This does not replace Windows screenshot/performance acceptance.
