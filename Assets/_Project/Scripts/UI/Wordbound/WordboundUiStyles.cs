@@ -114,7 +114,7 @@ namespace Wreckabulary
             if (!GUI.enabled && Event.current.type == EventType.Repaint)
             {
                 bool wasEnabled = GUI.enabled;
-                try { GUI.enabled = true; GUI.Label(GUILayoutUtility.GetLastRect(), content, DisabledText); }
+                try { GUI.enabled = true; DisabledText.Draw(GUILayoutUtility.GetLastRect(), content, false, false, false, false); }
                 finally { GUI.enabled = wasEnabled; }
             }
             return clicked;

@@ -23,3 +23,5 @@ Root should run `WordboundUiThemeTests` plus existing `WordboundMenuGuiTests`, `
 ## Acceptance still open
 
 Source/tests do not establish rendered readability or owner approval. Repeat the actual 220124 Windows menu/workshop route at 1280×720, including disabled recipes, gamepad focus, search, two-line modules, toolbar-edge pointer movement, recovery and online-preparation panels. Check smaller windows and edited font/row sizes; verify Inspector save/reload and assignment survives setup rerun. Confirm the card does not cover critical state or leave interactive controls underneath it. Native destruction and custom-font measurement remain unexecuted. There is no FPS, completed multiplayer match, final art quality or production-ready claim here.
+
+The disabled overdraw uses `GUIStyle.Draw` directly during Repaint, after the actual disabled `GUILayout.Button`. This is explicitly draw-only and introduces neither a second GUI control nor a layout element. The installed 6000.6.3f1 IMGUIModule XML confirms this public overload; compilation/native execution remains pending.
