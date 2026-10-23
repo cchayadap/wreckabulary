@@ -476,6 +476,8 @@ namespace Wreckabulary.Online
                     case "REVISION_CONFLICT": return "The party changed. Refresh and try again.";
                     case "PARTY_NOT_READY": return "Every party member must be ready.";
                     case "PUBLIC_COOP_REQUIRES_HUMANS": return "Invite another human player or turn Fill on for public co-op. Private rooms support solo play.";
+                    case "CONTENT_NOT_APPROVED": return "This map is unavailable for public matchmaking. Leave the party and choose another public map. If all maps are unavailable, check for a game update.";
+                    case "CONTENT_SETTINGS_MISMATCH": return "This map does not match the selected mode and team size. Leave the party and choose a matching map.";
                     case "CONTENT_UPLOAD_EXPIRED": return "The map upload expired. Retry the pending sharing action to upload it again.";
                     case "CONTENT_SOURCE_EXPIRED": return "This unqueued workshop map expired. Leave the party and share the validated draft again.";
                     case "AUTHORED_PRIVATE_CREATE_ONLY": return "Authored workshop parties use Create private room. Other parties can join with its code or Custom Fill.";
