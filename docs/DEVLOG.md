@@ -145,3 +145,11 @@ The PC reported 100% CPU across 22 logical processors. This gate's verified Unit
 ## 2026-10-23T11:28:41Z Timestamp correction and owned helper scheduling
 
 The preceding recovery-checkpoint heading was typed as 11:30:00Z before that time; its actual append preceded the 11:28:14Z observation. This entry records the correction with machine UTC. The still-active retry uses Unity PID27028. Only its identity-checked Unity SDK compiler/Burst child processes below Normal priority were raised to Normal; no unrelated project process or permanent scheduler setting changed. Native result remains pending.
+
+## 2026-10-23T11:40:56Z Native import interruption preserved
+
+- Cold retry log Logs/gate_exec_PrepareFromEnvironment_20261023T112358Z.log confirms native compilation completed in320.615637s with no CS0012 recurrence, followed by asset import. The terminal session ended exit1 without gate JSON or a history row; final log line is Shut down. Import/export and completion remain NOT VERIFIED.
+- Fresh process inspection found gate PID52684, Unity PID27028 and its owned helpers exited. Application event inspection found no matching Unity/node/dotnet crash event in the inspected20-minute window. The cause is undetermined; no failure cause is inferred. Gate status sees a stale lock owned by52684; the gate will handle its own stale lock on the next invocation.
+- Preserved12 native-generated/normalized metadata files; existing ten GUIDs match HEAD. No caches deleted. Source import had not produced a new public catalogue or DetailV2 active revision.
+- Viewed BROOM/SPEAR/PLATE/STOOL three-quarter previews: distinct construction, grips/bristles/rim/support shapes visible. This completes root review of all12 final model silhouettes alongside earlier views; runtime appearance remains pending.
+- Integrated guide fcfe325 and starting-angle correction b9a02bd. Native screenshots and packed-asset evidence remain pending.
