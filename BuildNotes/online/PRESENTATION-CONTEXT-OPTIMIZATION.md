@@ -39,3 +39,5 @@ dotnet run --project Tools/RulesHarness/PresentationProbe/PresentationProbe.cspr
 ```
 
 Expected: three measured cases and `passed=3; failed=0`, or a nonzero exit with the measurement/behavior reason. The native filter now has exactly 25 behavioral cases. Source-only migration is complete; .NET execution and assembled compile are pending root's next gate.
+
+Independent input-lane source review PASS against `24b04fb`: linked source paths and current integration APIs, retained 25 behavioral cases, real unchanged comparator, complete context construction, output parity/checksum, positive controls, strict byte threshold and failure reporting were checked. No compile/run was performed by either lane; native/runtime acceptance remains separate.
