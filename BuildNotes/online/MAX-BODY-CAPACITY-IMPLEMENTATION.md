@@ -1,6 +1,6 @@
 # Authored capacity and reclamation fixture
 
-STATUS: IMPLEMENTED; independent source review pending; compiler, preflight and native execution NOT RUN. The prior plan is retained in MAX-BODY-CAPACITY-PLAN.md (1ed4a890 +6302cca0), including Input's conditional design review24605e0c. Root subsequently authorized the passive pinned-metadata reader and the new test-only partial-file boundary. No production, SDK, heap policy, service, existing fixture/helper, timeout or admission rule changes.
+STATUS: SOURCE REVIEW PASS; compiler, preflight and native execution NOT RUN. The prior plan is retained in MAX-BODY-CAPACITY-PLAN.md (1ed4a890 +6302cca0), including Input's conditional design review24605e0c. Root subsequently authorized the passive pinned-metadata reader and the new test-only partial-file boundary. No production, SDK, heap policy, service, existing fixture/helper, timeout or admission rule changes.
 
 ## Exact scope
 
@@ -28,6 +28,8 @@ The Editor-only fixture reads installed `NetworkObject.Meta` → `NetworkObjectM
 No interpolation getter, NextSnapshot, reflection write, forced state update, SDK code edit or global config mutation is used. Allocated-segment high-water is not called live memory. TotalBytesFree is not used. The connection platforms are platform-kind coverage, not moving-fixture history proof. A two-client test is not eight-process memory acceptance.
 
 ## Required verification
+
+Input independently reviewed404f2604, finding no blocking algorithm, public API or lifetime issue. Review checked actual geometry/content preflight, passive metadata, consecutive solve observations, exact spend/mint and retired-ID checks, acknowledgement, immutable roots/snapshots and bounded statistics lag. Its wording correction is applied: the final observation says retiredEntityIdsReused=false, not a claim that numeric resource generations never repeat across separate lap scopes. Source review does not establish the authored resolver, runtime allocator trajectory or wall-time feasibility.
 
 Root remains the sole executor. Run R0, then the exact local preflight first so a content/metadata error cannot create service records. After the separate full-scored FFA64MiB case succeeds, run the native case with existing private workshop flags and unchanged cleanup:
 

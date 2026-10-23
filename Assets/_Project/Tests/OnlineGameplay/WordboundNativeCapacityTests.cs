@@ -285,7 +285,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 Assert.AreEqual(startingBytes, MatchSnapshotCodec.Export(startingFrame));
                 Assert.AreEqual(2, FullTeam(host).Lap);
                 Debug.Log("WORDBOUND_CAPACITY_OBSERVED: budget=512; initialBodies=366; authenticatedScriptedPeers=2; " +
-                    "actualRetirementCycles=2; generationAndIdentityReuse=false; live512Claim=false; " +
+                    "actualRetirementCycles=2; retiredEntityIdsReused=false; live512Claim=false; " +
                     "recreatedAllocatedSegments=" + string.Join(",", allocated) + "; plateauClaim=false; cleanupPending=true");
             }
             finally
