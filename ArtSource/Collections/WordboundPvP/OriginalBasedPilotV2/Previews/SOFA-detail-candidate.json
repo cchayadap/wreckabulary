@@ -1,0 +1,44 @@
+{
+  "blend_sha256": "8047e5018b04c9d421d8688f7a445d778adf003dfb1dde7ff0c9fa54a3e85da2",
+  "render_script_sha256": "95240f24f602313068dcd279be7717fe205328c574de6a52ee2db6e145fe836c",
+  "blender": "5.2.2 LTS",
+  "variant": "candidate",
+  "view": "detail",
+  "camera_matrix": [
+    [
+      0.9486833214759827,
+      -0.11219367384910583,
+      0.2956561744213104,
+      1.25
+    ],
+    [
+      0.3162277638912201,
+      0.33658090233802795,
+      -0.8869686126708984,
+      -2.9800000190734863
+    ],
+    [
+      4.0784371435620415e-08,
+      0.9349470138549805,
+      0.3547874391078949,
+      1.8000000715255737
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "ortho_scale": 0.8199999928474426,
+  "resolution": [
+    960,
+    960
+  ],
+  "samples": 64,
+  "threads": 6,
+  "denoising": true,
+  "label": "Matched neutral studio preview",
+  "sha256": "76b18e691a7be4eb64825003906ecc65c252e7567af0ab009dfbc4efe619e411",
+  "elapsed_seconds": 130.219
+}
