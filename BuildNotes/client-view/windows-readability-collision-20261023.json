@@ -322,6 +322,46 @@
       "path": "docs/qa/runs/20261023T200812Z-visible-wordbound_workshop_flow/workshop-autosave.json",
       "bytes": 183314,
       "sha256": "a97b13dedfa47126279d290b963cbf618e3e90e45502e0720fb6c77e90659678"
+    },
+    {
+      "path": "Builds/qa-20261023T200608Z/Wreckabulary.exe",
+      "bytes": 667136,
+      "sha256": "96b492cb271111251fe42b8646e65370a1b7b566773a1e35b34c3f2d1ae70873"
+    },
+    {
+      "path": "Builds/qa-20261023T200608Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Client.dll",
+      "bytes": 171008,
+      "sha256": "afdc866ff2b13f2bd271e9b8ad34c31b17a86cc48482f08460d27ad1097fd94c"
+    },
+    {
+      "path": "Builds/qa-20261023T200608Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Gameplay.dll",
+      "bytes": 52736,
+      "sha256": "b5615aa10c5e8a6ac8e0da9a65d7e61778ece2a7abe3b9f80ce86d24fab1a563"
+    },
+    {
+      "path": "Builds/qa-20261023T200608Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Physics.dll",
+      "bytes": 48128,
+      "sha256": "22c5f6c927a98528b0e86933febb503590f60a57f5ab3ded9fb4412480c7df82"
+    },
+    {
+      "path": "Builds/qa-20261023T200608Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Presentation.dll",
+      "bytes": 64512,
+      "sha256": "568d4601db6e8bd8b1c931676b0416b437baccce215c357cd5ea89d32cd90573"
+    },
+    {
+      "path": "Builds/qa-20261023T200608Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Puzzles.dll",
+      "bytes": 74240,
+      "sha256": "db3e2378b0b9e3462bc40059e34152d5145fd8f697842537b5e08470bbe2dbd0"
+    },
+    {
+      "path": "Builds/qa-20261023T200608Z/Wreckabulary_Data/Managed/Wreckabulary.Rules.dll",
+      "bytes": 665600,
+      "sha256": "acea5a2ede454fe30dd5cb7508489bce203aa07ac5745a5fec228bbd06f23038"
+    },
+    {
+      "path": "Builds/qa-20261023T200608Z/Wreckabulary_Data/Managed/Wreckabulary.Wordbound.Qa.dll",
+      "bytes": 61952,
+      "sha256": "f6778fae9a7d071e1d6b62410865715340a28a959730961f24a1485f3ab195e1"
     }
   ],
   "limits": [
@@ -330,5 +370,7 @@
     "Root and independent reviewer inspected actual ready PNG; original character remains, HUD and world captions are clearer. Human appearance/feel approval remains open.",
     "perf data is empty; no FPS or production-readiness claim. Earlier native crash remains unresolved.",
     "Build includes collision and membership work, not later retirement index or FullWalk repair."
-  ]
+  ],
+  "sourceAtLaunch": "56f5326f",
+  "sourceNote": "Build manifest records fc202c12 after a documentation/evidence-only commit during build. Runtime source was unchanged."
 }
