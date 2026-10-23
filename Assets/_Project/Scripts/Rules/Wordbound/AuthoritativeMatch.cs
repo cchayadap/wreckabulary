@@ -783,7 +783,7 @@ namespace Wreckabulary.Rules.Wordbound
                             string key = Key(puzzle.Id, team.Team, lap);
                             var state = mechanisms[key];
                             bool solved = lap < team.Lap ? course.Laps[lap].Checkpoints.Any(c => c.PuzzleIds.Contains(puzzle.Id)) :
-                                lap == team.Lap && team.CompletedPuzzles.Contains(puzzle.Id);
+                                lap == team.Lap && team.HasPuzzle(puzzle.Id);
                             if (solved != state.Solved)
                                 mechanisms[key] = new MatchMechanismState(puzzle.Id, team.Team, lap, solved,
                                     solved ? Tick : -1, solved ? Tick : 0, solved ? 1 : 0, state.ItemEntityId,

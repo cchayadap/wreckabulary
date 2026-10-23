@@ -500,7 +500,7 @@ namespace Wreckabulary.Rules.Wordbound
                 Need(!practiceMode || practiceSite != null && m.Team == 0, "Practice mechanism is not an authored station.");
                 MatchStateValidationPhysical.Validate(s, course, m, site, puzzles[m.PuzzleId]);
                 bool expectedSolved = practiceMode ? m.Solved : m.Lap < team.Lap ? course.Laps[m.Lap].Checkpoints.Any(c => c.PuzzleIds.Contains(m.PuzzleId)) :
-                    m.Lap == team.Lap && team.CompletedPuzzles.Contains(m.PuzzleId);
+                    m.Lap == team.Lap && team.HasPuzzle(m.PuzzleId);
                 Need(m.Solved == expectedSolved && m.ActivatedTick >= -1 && m.ActivatedTick <= s.Progress.Tick &&
                     m.PhaseTick >= 0 && m.PhaseTick <= s.Progress.Tick && m.ProgressTicks >= 0 &&
                     m.ProgressTicks <= s.Progress.Tick && (!m.Solved || m.ActivatedTick >= 0) &&
@@ -530,7 +530,7 @@ namespace Wreckabulary.Rules.Wordbound
                         !team.Finished && m.Lap == team.Lap &&
                         team.NextCheckpoint < course.Laps[team.Lap].Checkpoints.Count &&
                         course.Laps[team.Lap].Checkpoints[team.NextCheckpoint].PuzzleIds.Contains(m.PuzzleId) &&
-                        puzzle.PrerequisiteIds.All(team.CompletedPuzzles.Contains),
+                        puzzle.PrerequisiteIds.All(team.HasPuzzle),
                         "Active mechanism is outside the reached objective or its prerequisites.");
                     Need(m.ItemEntityId != "" || puzzle.RecipeId == "", "Active mechanism requires its deployed recipe item.");
                     if (m.ItemEntityId != "")

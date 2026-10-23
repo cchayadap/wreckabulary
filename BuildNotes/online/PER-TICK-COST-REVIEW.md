@@ -118,3 +118,38 @@ Existing eighteen cases and assertions are retained. No reflection, internal set
 After root's frozen build/player work ends, required execution is assembled R0 and `node Tools/kit/gate/game_gate.mjs core 'FullyQualifiedName~WordboundOnlineTests' --json` (expected40), followed by the established exact public TeamSolo comparison. Retain the original184749 failure. A future token with iat in the next client second still rejects, and no general cross-second clock-skew support is claimed. Root owns all execution and deployment decisions.
 
 Independent recover_assets review returned bounded SOURCE PASS for `ae763dde`: intentional integer-floor final-second contract, unchanged signature/time/binding checks, all22 focused signed-token cases, exact retry expiry and no source blocker. This is not a compile, core, native or public acceptance result; those gates remain pending.
+
+## Steady-tick follow-up after capacity counts and collision candidate
+
+STATUS: three-line membership candidate SOURCE COMPLETE with independent recover_input SOURCE PASS; all execution pending. Read-only source comparison used integration `048ed1a9`. Only the substitutions described below are included; root's newer terminal-result comparator is not copied or replaced. Collision-registration candidate `c5c1a93c` is a separate checkpoint, awaiting root's native comparison.
+
+The actual public section of `Logs/gate_test_editmode_20261023T191029Z.log` records Reconcile764/11217.552ms, Advance763/10298.099ms and Capture764/1721.394ms: approximately14.68,13.50 and2.25ms per observed invocation. Reconcile includes initial/fresh validation, preparation, physical application and synchronous FrameChanged subscribers. Its Presentation and PhysicsApply markers are nested, so subtracting them does not establish exclusive validation CPU. Advance includes its required rollback capture, mechanism/command/economy/progress work, synchronization and budget checks. The Capture marker does not include Advance's internal rollback capture. These measurements precede the count-only change and include Editor scheduling; they do not establish current player FPS or the causal cost of an individual function.
+
+The largest still-known bounded repeated scan is RetireInactiveResources, which scans all current bodies for every resource no longer demanded, including future-lap scopes. The retained actual Team probe has588 resources and186 bodies; the exact number of inactive resources and time spent in retirement were not recorded. The existing per-call ordered tile-bucket proposal remains separate and unimplemented. Its next profiling scope is this single method: count resources visited/inactive, body candidates inspected, matched tiles retired and inclusive elapsed time, with no per-resource logging, no additional state captures and no changes to Demand, retirement order, overflow or rollback. Use the same real course/seed and native Team workload, including a progressed puzzle/lap state; an empty tick-zero proof alone cannot validate later retirement semantics.
+
+### Approved smaller membership substitution
+
+TeamProgress.CompletedPuzzles constructs a sorted array and read-only wrapper on every access. Its private backing set uses StringComparer.Ordinal. Existing internal HasPuzzle reads that same set, with the same ordinal string membership semantics and no exposure of mutable state. Three uses need membership only:
+
+- AuthoritativeMatch.Synchronize: determine whether a current-lap mechanism's puzzle is completed.
+- MatchStateValidation.ValidateMechanisms: derive expected current-lap completion.
+- The same validator: require every prerequisite for an active mechanism.
+
+Only these three expressions now call HasPuzzle. The first two avoid sorting/copying once per evaluated current-lap puzzle; the prerequisite All avoids the one copied collection formerly captured for that predicate. There is no across-call cache, new API, additional progress query, reordered guard, skipped validation, rule/catalogue assumption, or changed past-lap/practice branch. Public CompletedPuzzles, snapshot capture/restore, ordinal export order and copy isolation remain unchanged. Empty prerequisite sets still satisfy All; unknown/case-different IDs remain absent under ordinal equality. All arguments originate in the same validated course/puzzle paths and both callers reside in the Rules assembly.
+
+This is source-level operation/allocation reasoning only. No microbenchmark, compiler or runtime was run in the lane, and no claimed millisecond saving accompanies it. Existing focused tests already exercise successful solve and synchronization, retained solved evidence, future/unknown/forged progression rejection, active/reset mechanisms, full import and atomic dependency refresh. No new test duplicating HashSet membership was added.
+
+Root follow-up after the collision candidate's independent comparison:
+
+```powershell
+node Tools/kit/gate/game_gate.mjs check all --json
+node Tools/kit/gate/game_gate.mjs core --filter 'FullyQualifiedName~WordboundAuthorityTests|FullyQualifiedName~WordboundLifecycleTests|FullyQualifiedName~WordboundSnapshotValidationTests|FullyQualifiedName~WordboundMechanismTests|FullyQualifiedName~WordboundAtomicValidationTests' --json
+```
+
+Test counts are determined by root's assembled source; this candidate adds zero cases. Relevant existing cases include CraftReservationCancellationCompletionAndPuzzleSpendConserveLetters, ClientStylePuzzleCompletionObservationCannotOpenAWordGate, CompletedPuzzleRetiresItsRefillButPreservesRivalSupplyAndSolvedEvidence, RehashedRaceStateStillRequiresAConsistentProgression (solved-mechanism/unknown-puzzle), and the mechanism timing/reset/restore suite. Preserve all raw prior failures and unchanged public transfer/writer deadlines in subsequent native comparison.
+
+### Larger work deliberately not bundled
+
+Full reconciliation still restores/validates a temporary Economy twice against distinct controller and physics rules. ValidateReplacement validates live recipes/reservations, item and player references, conservation and ownership, and builds replacement dictionaries; Restore then copies those entries into the temporary destination. Skipping or caching those mutable checks is unsafe. A validation-only internal path would require separate scope, exact failure-order and callback-mutation tests, and measurement before adoption.
+
+Other confirmed source work remains unchanged: Synchronize repeatedly obtains defensive Team copies and scans supplies; BodyBudget scans placements despite an existing private immutable index; the puzzle runtime revalidates the live rule fingerprint and rebuilds collider ownership before its different native operations. Their precise costs are not isolated by current markers. Do not combine these with retirement or infer that safe source simplification alone will resolve the remaining render-frame catch-up and public snapshot deadline failures.
