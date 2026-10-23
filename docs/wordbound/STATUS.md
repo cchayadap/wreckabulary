@@ -8,9 +8,11 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current delivery snapshot — 2026-10-23 17:34 UTC
+## Current delivery snapshot — 2026-10-23 18:15 UTC
 
-Implementation and integration are active. The first Windows QA build passes, but its actual workshop smoke fails on a stripped shader; no fully tested Windows delivery exists yet. Saved render material assets now pass native creation/verification. The empty party capture is independently confirmed as all-zero RGBA; render readiness is being instrumented before a rebuilt player is tested. Original Wreckabulary artwork remains the default (48/48 native presentation checks). Bounded public TimeRun and private exact authored-map transfer pass with two authenticated clients; public Team Solo and sustained full-match reliability remain open. Shared floor sensing now allows at most one millimetre below the floor, with horizontal and upper bounds preserved; 208 focused Rules cases pass and native FAN verification is running. Atomic snapshot reconciliation has independent source review but is not yet integrated or executed. See [progress.md](../../progress.md) for current acceptance. All seven worktrees, the recovery snapshot and original main/font/Lunar work are preserved. No further Photon or Cloudflare setup is required.
+Original Wreckabulary artwork remains the default (48/48 native presentation checks). Both QA Windows builds compile; latest `20261023T174755Z` retains the saved render materials. Its official hidden launch fails rendering readiness. A normal-window comparison renders the party and workshop, then crashes entering local play with a native null read; matching Unity symbols are available and diagnosis is active. The workshop also needs label/outline and isolated QA autosave repairs. No tested Windows delivery exists yet.
+
+The actual FAN prefab, motion/collision policies and atomic/local gameplay checks pass: native batch174133Z is 18/19, with only the full physical route failing at the CLOCK sorting arm after three completed families. Combined atomic/floor Rules pass233/233. Targeted CLOCK/public Team Solo execution is active. Earlier bounded public TimeRun and private exact authored-map transfer pass with two authenticated clients; sustained full matches and other public formats remain open. See [progress.md](../../progress.md) for acceptance. All seven worktrees, recovery snapshot and original main/font/Lunar work are preserved. No further Photon or Cloudflare setup is required.
 
 | Work package | What is verified | Work remaining |
 | --- | --- | --- |
@@ -52,7 +54,7 @@ Evidence: [FFA checks](../../BuildNotes/ffa-content/PROGRESS.md), [flagship seed
 | M3 Large world and generator | IN PROGRESS | Complete flagship source exists; frozen earlier content passed 8,000/8,000 seeds. New practice/defense and final-content checks remain pending. |
 | M4 Workshop and assets | IN PROGRESS | Twelve assets and native presentation checks pass; exact workshop playtest/return preserves history. Custom online sharing and human usability acceptance remain open. |
 | M5 Mode suite and public play | IN PROGRESS | FFA content repair and public catalogue validation pass. Practice/defense, final catalogue activation and live public play remain open. |
-| M6 Release candidate | IN PROGRESS; NO VERIFIED PLAYER | First Windows QA build timed out. Cached rebuild, player smoke, release validation and human acceptance remain pending. |
+| M6 Release candidate | IN PROGRESS; NO VERIFIED PLAYER | Two QA builds compile. Hidden player fails rendering; normal-window player renders but crashes entering play. Crash/UI fixes, full player smoke, release validation and human acceptance remain pending. |
 
 ## Confirmed baseline issues
 
