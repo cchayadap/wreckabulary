@@ -41,3 +41,11 @@ This is a source conclusion, not a sealed player-file audit. After building, ins
 - Gameplay presentation SHA-256: `898ece4c72be5ac3e735c24ad231212422cbab84aeffbbf232883d5a7df590ea`.
 
 No importer/runtime source was changed. No Unity/native execution occurred. Next: add the authorized exact renderer/pivot assertions in the dedicated test class, then root compiles and runs that explicit fixture against the imported detailed revision, followed by game-camera, performance and packed-player verification.
+
+## Authorized coverage follow-up
+
+The dedicated `WordboundEquipmentDetailTests` fixture now has six cases: the existing two material/dimension tests, one exact renderer/mesh/material-slot comparison across all twelve entries, and three articulated-pivot cases (FAN rotor, CLOCK hour hand, CLOCK minute hand). Expected counts and matrices come from the existing verified DetailV2 manifest through the project's JSON reader. No importer data contract or runtime code changed.
+
+Pivot expectations convert row-major Blender matrices with the axis permutation `(x, y, z) → (x, z, y)` on both sides of the matrix. Actual matrices are measured relative to a translated, rotated, non-uniformly scaled test anchor, so source comparisons do not assume an identity scene parent. Origin tolerance is 1 mm; basis-column tolerance is 0.001 dimensionless units, checking orientation, scale and shear. Each articulated pivot must remain unique and own exactly one grouped mesh/renderer, preventing a static merge or one hand absorbing the other.
+
+Source inspection and whitespace checks are complete. Compilation and native execution of these added assertions remain NOT RUN in this lane; root owns those gates. If Unity exposes a different local-basis representation, inspect the actual matrices and source conversion before changing the comparison—do not simply broaden the tolerance. The test's material-slot counts are structural measurements, not GPU draw-call or FPS measurements.
