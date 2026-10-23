@@ -1,0 +1,347 @@
+{
+  "status": "VISUAL PILOT \u2014 NOT APPROVED, NOT IMPORTED INTO UNITY",
+  "source_path": "Web/public/art/items/SOFA.glb",
+  "source_sha256": "dfaca31fdc676de5d2d7fac74a4b6b26cbadea62bbd523f0739cbf7411705def",
+  "build_script_sha256": "087bbf6718ed53c89acc4ea963b0bc511ed0c3c7ab9f00f1e7a19c7d6ba59e34",
+  "blender": "5.2.2 LTS",
+  "source_bounds_blender_metres": [
+    [
+      -0.7600000500679016,
+      -0.42300012707710266,
+      0.0
+    ],
+    [
+      0.7600000500679016,
+      0.3900001049041748,
+      0.9300000071525574
+    ]
+  ],
+  "candidate_primary_bounds_blender_metres": [
+    [
+      -0.7600000500679016,
+      -0.42300012707710266,
+      0.0
+    ],
+    [
+      0.7600000500679016,
+      0.3900001049041748,
+      0.9300000071525574
+    ]
+  ],
+  "grip_world_matrix_blender": [
+    [
+      1.0,
+      -1.7484555314695172e-07,
+      0.0,
+      2.8849516109374918e-09
+    ],
+    [
+      1.7484555314695172e-07,
+      1.0,
+      0.0,
+      -0.016499999910593033
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.4650000035762787
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "original_components": [
+    {
+      "part": "SOFA_LeftFrontFoot",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          -0.6324999332427979,
+          -0.3025001287460327,
+          0.0
+        ],
+        [
+          -0.5274999141693115,
+          -0.1975000947713852,
+          0.15000000596046448
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_LeftRearFoot",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          -0.6325000524520874,
+          0.19749990105628967,
+          0.0
+        ],
+        [
+          -0.5275000333786011,
+          0.302499920129776,
+          0.15000000596046448
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_RightFrontFoot",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          0.5275000333786011,
+          -0.302499920129776,
+          0.0
+        ],
+        [
+          0.6325000524520874,
+          -0.19749990105628967,
+          0.15000000596046448
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_RightRearFoot",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          0.5274999141693115,
+          0.1975000947713852,
+          0.0
+        ],
+        [
+          0.6324999332427979,
+          0.3025001287460327,
+          0.15000000596046448
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_UpholsteredBase",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          -0.7100000381469727,
+          -0.38000011444091797,
+          0.12999999523162842
+        ],
+        [
+          0.7100000381469727,
+          0.38000011444091797,
+          0.36000001430511475
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_OuterBack",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          -0.7000000476837158,
+          0.18999989330768585,
+          0.3100000023841858
+        ],
+        [
+          0.6999999284744263,
+          0.3900001049041748,
+          0.9300000071525574
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_LeftArm",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          -0.7600000500679016,
+          -0.42300012707710266,
+          0.26499998569488525
+        ],
+        [
+          -0.5299999117851257,
+          0.38699987530708313,
+          0.6949999928474426
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_RightArm",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          0.5299999117851257,
+          -0.42299988865852356,
+          0.26499998569488525
+        ],
+        [
+          0.7600000500679016,
+          0.38700011372566223,
+          0.6949999928474426
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_LeftSeatCushion",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          -0.5570000410079956,
+          -0.3800000846385956,
+          0.3409999907016754
+        ],
+        [
+          -0.010999944061040878,
+          0.23999997973442078,
+          0.47099998593330383
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_LeftBackCushion",
+      "source_vertices": 341,
+      "source_faces": 432,
+      "bounds": [
+        [
+          -0.5590000748634338,
+          0.032084520906209946,
+          0.4456466734409332
+        ],
+        [
+          -0.009000019170343876,
+          0.2579153776168823,
+          0.8543533086776733
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_RightSeatCushion",
+      "source_vertices": 342,
+      "source_faces": 432,
+      "bounds": [
+        [
+          0.010999968275427818,
+          -0.3799999952316284,
+          0.3409999907016754
+        ],
+        [
+          0.5570000410079956,
+          0.24000008404254913,
+          0.47099998593330383
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_RightBackCushion",
+      "source_vertices": 341,
+      "source_faces": 432,
+      "bounds": [
+        [
+          0.008999968878924847,
+          0.032084617763757706,
+          0.4456466734409332
+        ],
+        [
+          0.5590000152587891,
+          0.2579154968261719,
+          0.8543533086776733
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_LeftOriginalSeatWelt",
+      "source_vertices": 210,
+      "source_faces": 336,
+      "bounds": [
+        [
+          -0.552897036075592,
+          -0.37139710783958435,
+          0.4194999933242798
+        ],
+        [
+          -0.015102916397154331,
+          0.23139701783657074,
+          0.4284999966621399
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_RightOriginalSeatWelt",
+      "source_vertices": 210,
+      "source_faces": 336,
+      "bounds": [
+        [
+          0.015102941542863846,
+          -0.3713970184326172,
+          0.4194999933242798
+        ],
+        [
+          0.552897036075592,
+          0.2313971221446991,
+          0.4284999966621399
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_LeftOriginalBackButton",
+      "source_vertices": 133,
+      "source_faces": 196,
+      "bounds": [
+        [
+          -0.30399999022483826,
+          0.025200527161359787,
+          0.6349999904632568
+        ],
+        [
+          -0.2639999985694885,
+          0.040799375623464584,
+          0.675000011920929
+        ]
+      ]
+    },
+    {
+      "part": "SOFA_RightOriginalBackButton",
+      "source_vertices": 133,
+      "source_faces": 196,
+      "bounds": [
+        [
+          0.2639999985694885,
+          0.025200625881552696,
+          0.6349999904632568
+        ],
+        [
+          0.30399999022483826,
+          0.04079947620630264,
+          0.675000011920929
+        ]
+      ]
+    }
+  ],
+  "candidate_mesh_parts": 16,
+  "candidate_curve_welts": 2,
+  "candidate_mesh_triangles": 12968,
+  "materials": [
+    "Pilot_wood_Classic",
+    "Pilot_green_Classic",
+    "Pilot_cream_Classic",
+    "Pilot_wood_dark_Classic"
+  ],
+  "limitations": [
+    "Curvature and welt placement await actual rendered review",
+    "Procedural fabric relief is editable Blender material; no baked Unity maps or delivery exports yet",
+    "Static avatar/table scale scene is not a gameplay capture",
+    "No runtime replacement, budget acceptance, owner acceptance or production readiness claimed"
+  ],
+  "blend_sha256": "ffce241d62ac56d8f28003cc0bb8f7b17ff80c306f70d05eb9dca8ccbd6d8e22"
+}
