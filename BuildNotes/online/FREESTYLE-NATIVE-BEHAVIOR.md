@@ -1,6 +1,6 @@
 # Shared Freestyle native acceptance
 
-STATUS: SOURCE CHECKPOINT — independent final review pending; compiler/native NOT RUN.
+STATUS: SOURCE PASS — independent review complete; compiler/native NOT RUN.
 
 Scope is one two-client private authored Freestyle case in the existing `WordboundNativeWorkshopTests.cs` partial. Root exclusively executes gates. The existing file matches integration apart from line endings, so no baseline copy or excluded baseline commit is needed. Existing unrelated ModeDefinition edits and checkpoint logs remain untouched.
 
@@ -29,3 +29,5 @@ node Tools/kit/gate/game_gate.mjs test editmode --assemblies Wreckabulary.Online
 Expected exact native count: 1, zero skipped. Existing NUnit Timeout remains 600000 ms, Run lifetime remains eight minutes, and all movement/command/physics/ACK waits reuse unchanged existing budgets. Require final XML PASS plus clean fixture/service teardown; early observation logs explicitly say cleanup pending. Root may batch the existing compact TimeRun case as a compatibility check; its source/output are unchanged.
 
 Local checks so far: `git diff --check` clean apart from expected line-ending warning; API/assembly references inspected against integration. No compiler/test/player/network execution by this lane. Next: independent source review, then root compile/native result.
+
+Independent Input review closed SOURCE PASS for `a6a2a72b`: exact integration helper/public APIs, document-copy isolation, immutable sorted tile/player snapshots, selection/reward/replay receipts, consumed ledger, station switching, and active-window canonical/native geometry plus LOS were checked. Callback/input cleanup and direct Run transition are preserved. This is source review only; root R0/native remain required. Next action is the exact one-case gate above, with final XML and cleanup inspected.
