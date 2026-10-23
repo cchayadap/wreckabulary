@@ -399,27 +399,31 @@ def render(args, output):
         context.hide_viewport = view != "scale"
         scene.view_layers[0].material_override = bpy.data.materials["NeutralClay"] if view == "clay" else None
         for variant in ("original", "candidate"):
-            path = output / "Previews" / ("SOFA-" + view + "-" + variant + ".png")
-            metadata = path.with_suffix(".json")
-            if path.exists() or metadata.exists():
-                if path.exists() and metadata.exists() and digest(path) == json.loads(metadata.read_text())["sha256"]:
-                    print("ORIGINAL_PILOT_EXISTING_VERIFIED " + str(path), flush=True)
-                    continue
-                raise RuntimeError("Incomplete or modified render exists: " + str(path))
             original.hide_render = original.hide_viewport = variant != "original"
             candidate.hide_render = candidate.hide_viewport = variant != "candidate"
             bpy.context.view_layer.update()
+            path = output / "Previews" / ("SOFA-" + view + "-" + variant + ".png")
+            metadata = path.with_suffix(".json")
+            settings = {"blend_sha256": receipt["blend_sha256"], "render_script_sha256": digest(__file__),
+                        "blender": bpy.app.version_string, "variant": variant, "view": view,
+                        "camera_matrix": [list(row) for row in scene.camera.matrix_world],
+                        "ortho_scale": scene.camera.data.ortho_scale,
+                        "resolution": [scene.render.resolution_x, scene.render.resolution_y],
+                        "samples": args.samples, "threads": args.threads, "denoising": True,
+                        "label": "Static original-game scale reference, not gameplay" if view == "scale" else "Matched neutral studio preview"}
+            if path.exists() or metadata.exists():
+                if not path.exists() or not metadata.exists():
+                    raise RuntimeError("Incomplete render exists; preserve it and use a new revision: " + str(path))
+                existing = json.loads(metadata.read_text(encoding="utf-8"))
+                changed = [key for key, value in settings.items() if existing.get(key) != value]
+                if digest(path) != existing.get("sha256") or changed:
+                    raise RuntimeError("Render bytes/settings changed; preserve it and use a new revision: " + str(path) + "; changed settings=" + ",".join(changed))
+                print("ORIGINAL_PILOT_EXISTING_VERIFIED " + str(path), flush=True)
+                continue
             scene.render.filepath = str(path)
             started = time.monotonic()
             bpy.ops.render.render(write_still=True)
-            write_json(metadata, {"sha256": digest(path), "blend_sha256": receipt["blend_sha256"],
-                                  "render_script_sha256": digest(__file__), "variant": variant, "view": view,
-                                  "camera_matrix": [list(row) for row in scene.camera.matrix_world],
-                                  "ortho_scale": scene.camera.data.ortho_scale,
-                                  "resolution": [scene.render.resolution_x, scene.render.resolution_y],
-                                  "samples": args.samples, "threads": args.threads, "denoising": True,
-                                  "elapsed_seconds": round(time.monotonic()-started,3),
-                                  "label": "Static original-game scale reference, not gameplay" if view == "scale" else "Matched neutral studio preview"})
+            write_json(metadata, {**settings, "sha256": digest(path), "elapsed_seconds": round(time.monotonic()-started,3)})
             print("ORIGINAL_PILOT_RENDERED " + str(path), flush=True)
     gallery(output)
 
@@ -428,18 +432,23 @@ def gallery(output):
     rows = []
     for view in VIEWS:
         cells = []
+        pair_settings = []
         for variant in ("original", "candidate"):
             path = output / "Previews" / ("SOFA-" + view + "-" + variant + ".png")
             meta = path.with_suffix(".json")
             if not path.exists() or not meta.exists():
                 cells.append("<td>Not rendered</td>")
                 continue
-            if digest(path) != json.loads(meta.read_text())["sha256"]:
+            metadata = json.loads(meta.read_text(encoding="utf-8"))
+            if digest(path) != metadata["sha256"]:
                 raise RuntimeError("Preview differs from its receipt: " + str(path))
+            pair_settings.append({key: value for key, value in metadata.items() if key not in ("variant", "sha256", "elapsed_seconds")})
             relative = "Previews/" + path.name
             cells.append('<td><a href="' + relative + '"><img src="' + relative + '" alt="' + html.escape(view + " " + variant) + '"></a></td>')
         if all("Not rendered" in cell for cell in cells):
             continue
+        if len(pair_settings) == 2 and pair_settings[0] != pair_settings[1]:
+            raise RuntimeError("Original/candidate preview settings differ for " + view + "; refusing matched-comparison gallery")
         rows.append('<tr><th colspan="2">' + html.escape(view) + '</th></tr><tr>' + ''.join(cells) + '</tr>')
     page = '''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Original Wreckabulary SOFA pilot</title><style>body{font:16px system-ui;background:#eeece5;color:#26352d;max-width:1250px;margin:auto;padding:24px}table{width:100%;border-collapse:collapse}td{width:50%;padding:8px;vertical-align:top}th{text-align:left;padding:20px 8px 4px}img{width:100%;border-radius:8px}a{color:#26634e}p{max-width:900px}</style>

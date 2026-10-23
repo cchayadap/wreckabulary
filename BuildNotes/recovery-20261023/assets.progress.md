@@ -71,3 +71,4 @@ Next: root imports the final revision, executes native material/presentation che
 - [~] Original-based SOFA: source-only pilot, native build and matched renders pending serial slot. FAN/HAMMER are bounded queued specifications, not generated assets.
 - [ ] Owner appearance acceptance and later Unity/material/export/performance validation.
 - [x] Closed pivot-basis investigation after directly reading root native matrices and the 6/6 detail pass in `editmode_20261023T125443Z.xml`; root fixed only fixture basis conversion in 5e9ad10. DetailV2 appearance remains owner-rejected.
+- [x] Independent input-lane source review found a hash-only render-resume comparison risk; fixed current-setting checks and gallery pair consistency. Root reports first build passed and an uninterrupted three-quarter pair is rendering; native output/visual inspection pending in this lane.
