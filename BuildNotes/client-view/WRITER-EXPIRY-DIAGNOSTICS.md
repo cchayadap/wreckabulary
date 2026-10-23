@@ -1,6 +1,6 @@
 # Writer-expiry failure diagnostics
 
-STATUS: Independent bounded source review PASS (recover_online). Compiler/native execution pending. No compiler, Unity or heavy job run in this lane.
+STATUS: Independent bounded source review PASS (recover_online); native diagnostic fields observed in root's completed run. Public acceptance still fails. No compiler, Unity or heavy job run in this lane.
 
 Root's public batch `editmode_20261023T141231Z` had three failures reaching `WordboundFusionSession.Poll`'s writer-expiry branch. The constructed TimeoutException had no thrown stack origin, no stable diagnostic code and no timing facts. This narrow change exposes evidence through the existing single failure notification; it does not repair or relax an expiry.
 
@@ -17,3 +17,9 @@ Offsets are event time minus failure observation time; elapsed past events are n
 The existing authority condition, local writer fence, cancellation token, swallowed-renewal-error behavior, 5,000 ms renewal scheduling and service-side 15,000 ms lease are unchanged. No retry, timeout, fallback, authentication or public allocation behavior was modified. String diagnostics are built only on failure, with no added logging loop or reflection test helpers.
 
 Owned source: `Assets/_Project/Scripts/Online/Fusion/WordboundFusionSession.cs`. Baseline-only `083206f` copied exact root `05c624b` bytes into this lane and must not be integrated. Integrate only the following diagnostics/report delta. Root owns the next assembled compile and two-case public diagnostic run; these facts do not yet establish why the writer expired.
+
+## First native observation
+
+Root log `Logs/gate_test_editmode_20261023T143652Z.log` now contains a readiness failure with the new fields: `writer-poll` / `writer-lease-expired`, remaining lease -1,302 ms, latest poll gap 2,341 ms, maximum poll gap 9,035 ms, writer age 26,493 ms, renewal in flight, three attempts, latest renewal start 7,089 ms ago and latest observed completion 16,145 ms ago. No prior renewal error was recorded. The surrounding readiness operation ended after 22.381 seconds with maximum frame gap 8.912 seconds and host canonical tick/advance count 3.
+
+These are actual emitted diagnostic observations, not a successful multiplayer result. They show an overdue lease while the current renewal continuation remains pending and the game loop has long scheduling gaps. They do not distinguish server/network response time from time waiting to run its continuation. The completed XML confirms this is the TeamRace Solo case's terminal session failure: the batch finished 25/28 passed, three failed, zero skipped. The other public case reached movement and command application before an exact checkpoint acknowledgement timeout; see `PUBLIC-STARTUP-REVIEW.md`. Root owns performance diagnosis and the next comparison.

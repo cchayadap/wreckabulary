@@ -1,6 +1,6 @@
 # Physical craft investigation
 
-STATUS: SOURCE INVESTIGATION COMPLETE — cause remains unconfirmed until the existing diagnostic rerun; no Unity/compiler/job or source change.
+STATUS: DIAGNOSTIC RERUN REVIEWED — aggregate lifetime cancellation confirmed in the latest run; six-family acceptance still fails. No Unity/compiler/job or source change by this reviewer. Earlier findings below are preserved as historical evidence.
 
 Scope: integrated six-family physical fixture at root e638853, including diagnostic delta 235cf5b. Prior native evidence is TestResults/editmode_20261023T123439Z.xml and matching gate log. Preserve the six-minute lifetime, local operation budgets, genuine crafting inputs/output predicate and native mechanism assertions.
 
@@ -46,3 +46,13 @@ The existing 235cf5b diagnostic delta already records each HAMMER/TABLE/etc. cra
 No source changes or budget increase are justified yet. If the aggregate lifetime is confirmed as the only failure, splitting independently named family cases may improve attribution, but each must still execute legitimate prerequisites or import a separately verified exact checkpoint. Directly stamping progress, granting crafted items, skipping pickup/receipt checks, or repeating the same expensive prerequisites under a larger hidden budget would not establish the intended proof.
 
 Source paths checked: Tests/OfflineGameplay/PhysicalPuzzles/WordboundNativePuzzleFlow.cs and WordboundNativePuzzleActions.cs; Online/Fusion/WordboundLocalSession.cs; Online/Gameplay/WordboundGameplayController.cs; Online/Puzzles/WordboundPuzzleContent.cs; Rules/Economy.cs; Rules/Wordbound/AuthoritativeMatch.cs and SnapshotCommitTracker.cs. All paths are below Assets/_Project. Diagnostic rerun remains coordinator-owned and NOT RUN by this reviewer.
+
+## Completed diagnostic rerun, 2026-10-23 14:36:52Z
+
+Root `TestResults/editmode_20261023T143652Z.xml` and matching gate log contain 28 cases: 25 passed, three failed, zero skipped. The physical case failed after 363.396625 seconds. Its precise cause is now reported: `Apply actual CollectLetter command` entered its wait at canonical tick 2640 with **fixtureSeconds=362.169, lifetimeCancelled=True, waitSeconds=0.000**. The local wait budget was eight seconds and was not consumed. Runner started/running and gameplay ready were true, simulation paused was false, and timeScale was 1. This is aggregate fixture cancellation, not evidence that this CollectLetter predicate or a 20-second craft wait expired.
+
+The same run successfully crafted HAMMER at tick 1020 / 179.006 seconds and TABLE at tick 1920 / 275.035 seconds, with the expected Crafted/Held owner and empty completed craft. TABLE began at tick 1800 / 257.837 seconds; acceptance was observed at tick 1860 / 267.265 seconds with 14 recipe ticks remaining. Its accepted-to-output observation took 7.770 wall seconds and 60 canonical ticks. CollectLetters completed its real mechanism/checkpoint path at tick 2160; the next logged stage approached CratePress. The failure occurred during subsequent letter collection, before a second TABLE craft was logged. This closes the claim that TABLE necessarily fails to produce its held output, while preserving the prior run's distinct, less-instrumented failure.
+
+The first HAMMER begin is already 166.484 seconds into the fixture. That interval combines setup, startup and genuine prerequisite actions; it does not isolate content loading or reconciliation cost. Later actions also show slow canonical progression. Long wall time with a ready, unpaused simulation supports a throughput investigation, but does not identify one dominant CPU/network/render cause. The pending per-frame presentation lookup optimization is a candidate intervention requiring its own measured rerun, not an established explanation for all elapsed time.
+
+Keep the existing six-minute lifetime, operation predicates and real prerequisites for the next comparison. Reuse the exact single-case filter above after root validates the scoped optimization. Compare craft boundary timestamps and final canonical tick against this baseline. No budget increase, family split, fabricated item/progress state or recipe change is justified by this source review.

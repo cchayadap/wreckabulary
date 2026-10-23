@@ -1,6 +1,6 @@
 # Workshop quiet-wait fixture repair
 
-STATUS: Independent bounded source review PASS for repair `5b53792` (recover_online); native rerun pending. Fixture-only change; no production input protection changed and no native/compiler jobs run.
+STATUS: Independent bounded source review PASS for repair `5b53792` (recover_online); root native rerun PASS. Fixture-only change; no production input protection changed and no native/compiler jobs run in this lane.
 
 Evidence: integration `TestResults/editmode_20261023T141231Z.xml` contains 48/48 presentation passes and 24/25 workshop source-binding passes. `DeferredSourceChoiceStaysCancelledThroughTheGameplayLeaseQuietFrames` failed at line 217 with engine frame 9, captured/current `quietUntil` 8, Editor uptime 95.624205 and the fixture deadline 94.434801. Case duration was 6.570720 seconds.
 
@@ -13,3 +13,5 @@ Owned source: `Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundWorksh
 Native follow-up: exact filter `Wreckabulary.Online.Tests.WordboundWorkshopSourceBindingTests.DeferredSourceChoiceStaysCancelledThroughTheGameplayLeaseQuietFrames` should discover one case. Full source-binding class remains 25 cases, with zero skipped required. Root owns execution.
 
 Separate read-only public evidence from the same batch: Brawl Solo, FFA and Team Solo failed with `TimeoutException`; their log stacks point to `WordboundFusionSession.Poll` line 473, the canonical writer-lease expiry check. Freestyle and TimeRun reached readiness/body assertions and then failed the admitted client movement predicate. Play Mode and approved public certificate markers are now present. This establishes different failure paths from the earlier nested-iterator issue, but does not establish why renewal or movement stalled. Root owns that diagnosis; no public production or fixture file was edited here.
+
+Completed root rerun `TestResults/editmode_20261023T143652Z.xml`: all **25/25 source-binding cases passed**, including this case, with zero skipped. Its release marker reports engine frame 7 beyond quietThrough 6, after 2.051 seconds. The test retained immediate blocking, stale-choice cancellation and fresh-choice behavior. The overall mixed batch still failed three unrelated physical/public cases; this source-binding result does not imply multiplayer or complete delivery acceptance.
