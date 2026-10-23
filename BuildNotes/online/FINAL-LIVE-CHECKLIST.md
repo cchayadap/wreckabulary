@@ -11,7 +11,7 @@ Review date: 2026-10-23. Reviewed integration sources through `1f1903d`, includi
 - [x] Root reported assembled R0 PASS in 140.6 seconds before the following repair.
 - [x] Source review found missing native timeouts: `1aba048` adds `Timeout(600000)` to six baseline network fixtures and one physical interaction fixture. This prevents the default 180-second runner cutoff from contradicting the existing eight-minute operation lifetime. Production timeouts are unchanged. Native execution remains pending.
 - [~] Public approval now binds exact catalogue mode and format in source, in addition to all six Content fields. JavaScript syntax checks and diff checks passed; new Worker rejection and projection tests await the heavy slot. The previous decoder dropped mode/format metadata, allowing a nonstandard client to queue an approved binding under different settings. Honest clients reject mismatched content, but server admission also needs to reject it.
-- [ ] Independently review the pending controller PartyMenu navigation and workshop focus repair.
+- [x] Independent bounded controller source review PASS through input lane `7a7aa50`; confirmed queued-pad blocker ordering finding repaired. Nine new native cases and actual rendered controls remain NOT-RUN. See [CONTROLLER-SOURCE-REVIEW.md](CONTROLLER-SOURCE-REVIEW.md).
 - [ ] Produce and validate the actual native four-seed catalogue, then stage the exact service artifact.
 - [ ] Deploy to the existing coordinator, verify independent readback, and run live API acceptance.
 - [ ] Run five native public cases, native authored transfer, physical/HUD/host migration acceptance, authoring persistence and editor use checks.
