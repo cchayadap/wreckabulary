@@ -53,6 +53,9 @@ namespace Wreckabulary.OfflineGameplayTests
         [UnityTest, Category("LocalWordboundGameplay")]
         public IEnumerator FirstAppliedFrameCannotReenterInitialHostComposition() => Run("Freestyle", "frame-reenter");
 
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator RunningFrameStopPreventsCheckpointAndLocalViewContinuation() => Run("Freestyle", "running-frame-stop");
+
         IEnumerator Run(string selectedMode, string atomicCase = "")
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_LOCAL_GAMEPLAY") != "1")
@@ -84,6 +87,7 @@ namespace Wreckabulary.OfflineGameplayTests
             var binding = WordboundLocalSession.CreateBinding(mode, course, contentHash, Actor);
             controller = new GameObject(Prefix + "Controller").AddComponent<WordboundGameplayController>();
             int visualCallbacks = 0, framesAfterCallback = 0, advancesAfterCallback = 0;
+            int activeViewsAfterCallback = 0, clockReadsAfterCallback = 0;
             MatchSnapshot frameAtCallback = null;
             controller.FrameChanged += _ => { if (visualCallbacks > 0) framesAfterCallback++; };
             controller.HostAdvanced += _ => { if (visualCallbacks > 0) advancesAfterCallback++; };
@@ -96,7 +100,12 @@ namespace Wreckabulary.OfflineGameplayTests
             controller.InitializeLocal(binding, mode, course, geometry, items, rules, Actor, prefabs,
                 new WordboundGameplayOptions {
                     GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
+                    Clock = () => {
+                        if (visualCallbacks > 0) clockReadsAfterCallback++;
+                        return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    },
                     ReadMovement = () => movement,
+                    LocalPlayerChanged = body => { if (visualCallbacks > 0 && body != null) activeViewsAfterCallback++; },
                     ConfigureVisual = body => {
                         if (atomicCase != "stop" && atomicCase != "throw" && atomicCase != "reenter") return;
                         visualCallbacks++;
@@ -127,6 +136,8 @@ namespace Wreckabulary.OfflineGameplayTests
                 Assert.AreEqual(1, visualCallbacks, "The actual native callback must run once before aborting.");
                 Assert.AreEqual(0, framesAfterCallback);
                 Assert.AreEqual(0, advancesAfterCallback);
+                Assert.AreEqual(0, activeViewsAfterCallback);
+                Assert.AreEqual(0, clockReadsAfterCallback);
                 Assert.AreSame(frameAtCallback, controller.Frame);
                 Assert.IsTrue(controller.IsSimulationPaused);
                 Assert.IsFalse(session.GameplayReady);
@@ -144,6 +155,32 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(course.Hash, controller.CourseWorld.ManifestHash);
             Assert.AreNotEqual(UnityEngine.Physics.defaultPhysicsScene, controller.PhysicsWorld.PhysicsScene);
             CollectionAssert.AreEquivalent(controller.Frame.Bodies.Select(b => b.Id), controller.Bodies.Keys);
+
+            if (atomicCase == "running-frame-stop")
+            {
+                var committed = session.Committed;
+                controller.FrameChanged += snapshot => {
+                    visualCallbacks++;
+                    frameAtCallback = snapshot;
+                    _ = controller.Stop();
+                };
+                Assert.IsTrue(controller.Authority.Match.Disconnect(Actor, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
+                    "An actual canonical presence change must make Poll reconcile a new frame.");
+                controller.Poll();
+                yield return null;
+                controller.Poll();
+                Assert.AreEqual(1, visualCallbacks);
+                Assert.AreSame(frameAtCallback, controller.Frame);
+                Assert.AreSame(committed, session.Committed, "Stopping publication cannot create another durable checkpoint.");
+                Assert.AreEqual(0, framesAfterCallback);
+                Assert.AreEqual(0, advancesAfterCallback);
+                Assert.AreEqual(0, activeViewsAfterCallback, "The required null cleanup notification is allowed; a new active view is not.");
+                Assert.AreEqual(0, clockReadsAfterCallback, "Poll must not reach checkpoint scheduling after the stop callback.");
+                Assert.IsTrue(controller.IsSimulationPaused);
+                Assert.IsFalse(session.GameplayReady);
+                Assert.AreEqual("", controller.Fault);
+                yield break;
+            }
 
             if (atomicCase == "atomic")
             {

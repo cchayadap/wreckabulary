@@ -134,6 +134,7 @@ namespace Wreckabulary.Online
             try
             {
                 session.Poll();
+                if (stopping || Fault != "") return;
                 if (!ReferenceEquals(runner, session.Runner)) ChangeRunner(session.Runner);
                 if (runner == null || !runner.IsRunning || !session.RunnerStarted) return;
                 if (!localReady && !PrepareScene())
@@ -143,10 +144,12 @@ namespace Wreckabulary.Online
                 }
                 if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                 if (session.GameplayReady && runner.IsServer && !hostReady) BeginHost();
+                if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                 if (hostReady && runner.IsServer)
                 {
                     var current = CaptureFrame();
                     if (!SameFrame(frame, current) && !Reconcile(current)) return;
+                    if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                     if (!publishing && options.Clock() >= nextCheckpoint) _ = PublishCheckpoint();
                 }
                 UpdateClientBodies();
