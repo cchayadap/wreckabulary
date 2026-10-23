@@ -16,7 +16,7 @@ The structured forms cover every current course field, including supported modes
 
 Use **Scene module** to select a room and **Frame module** to find it. Drag its Scene position handle to move it horizontally. **Rotate module 90°** and **Move to layer** carry its owned spawns, resources, zone bounds, connection endpoints and physical puzzle sites together through the same workshop transform implementation. Add/edit floor heights in Layers first. Direct form edits are precise but do not infer topology repairs; validation reports missing or inconsistent links.
 
-Configure a working puzzle by copying an existing authored station's record and updating its explicit puzzle/checkpoint/recovery references and sensor positions. Preserve valid per-lap IDs and Solo-solvable recipes. A physical site is gameplay data: cosmetic labels alone do not complete a puzzle. Smash requires the actual prop source, wind requires a receiver and recovery source, and CLOCK requires actual moving fixtures. Full validation refuses missing physical requirements.
+Use an existing authored station as a reference when configuring another puzzle. The Inspector has **Add** and **Remove**, but no record-copy button: add a record, then enter its puzzle/checkpoint/recovery references and sensor positions in the form. Preserve valid per-lap IDs and Solo-solvable recipes. A physical site is gameplay data: cosmetic labels alone do not complete a puzzle. Smash requires the actual prop source, wind requires a receiver and recovery source, and CLOCK requires actual moving fixtures. Full validation refuses missing physical requirements.
 
 ## Preview and play the same content
 
@@ -24,11 +24,13 @@ Choose **Validate and preview exact seed**. It runs document/manifest validation
 
 Choose **Play exact preview locally**. It pins the saved course, geometry, selected mode, seed, item bytes and rule bytes across the Play Mode reload; changing them requires a new preview. It uses the existing Single runner, real physics, commands and authored sensors. Existing registered Wordbound launch assets and gameplay scene are required. It does not modify Build Settings. The editor asks to save modified scenes, uses a temporary empty scene and restores the prior saved scene setup after returning. If scene restoration fails, the restoration data remains in SessionState; use **Tools → Wordbound → Restore authoring scene setup** in Edit Mode.
 
-Course JSON import/export uses the existing bounded format. Custom local edits do not register a course for public matchmaking. Multiplayer admission still requires exact approved content identities.
+Course JSON import/export uses the existing bounded format. Custom local edits do not register a course for public Quick Play, which uses approved content identities.
+
+For private multiplayer, open Wordbound's party screen, **Connect** with a guest name and leave any current party. Open **Workshop**, select a mode and team size supported by the map, then choose **Host online**. Validation shares the exact draft and resolved map in a private party. On the party screen, invite friends, mark ready, create a private room and start it when the players are ready. Private admission verifies that exact shared bundle; it does not approve the map for public Quick Play. Use **Back to party** if preparation needs a retry or an old party must be left.
 
 ## Camera, models and materials
 
-Create a **Camera profile** and assign it to the course (or LaunchAssets for the regular launcher). Its Inspector exposes FOV, clipping, distance, pivot, pitch limits, collision probe and look sensitivity. Defaults match the existing camera. Runtime edits apply live after validation; an invalid edit keeps the last valid applied values.
+Create a **Camera profile** and assign it to the course (or LaunchAssets for the regular launcher). Its grouped Inspector exposes FOV, clipping, distance, pivot, pitch limits, collision probe and look sensitivity. Distances are labelled in metres and pitch is edited in degrees; the Inspector handles the stored radians. Inline validation explains invalid combinations. Defaults match the existing camera. Runtime edits apply live after validation; an invalid edit keeps the last valid applied values.
 
 Create a **Visual profile**, add a canonical visual key such as `STOOL`, drag a render-only prefab into Model, and optionally assign replacement materials by slot. Add a `Grip_R` child to author the hand contact. Root resolver integration fits artwork to the unchanged canonical body dimensions; presentation models cannot add colliders, rigidbodies, scripts, cameras, lights or audio. Player rigs and letter tiles keep their existing rendering path. The profile also exposes the canonical shield/plate raised-pose offsets and rotation via DefensePose. Model/material changes are used by a fresh preview/spawn; they are not a gameplay-stat editor.
 

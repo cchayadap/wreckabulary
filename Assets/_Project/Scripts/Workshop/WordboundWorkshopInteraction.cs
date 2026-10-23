@@ -344,10 +344,12 @@ namespace Wreckabulary.Workshop
             GUILayout.Label("Pad: D-pad selects · Stick moves\nRight stick orbits · Triggers zoom\nX rotates · Y multiselect · LB/RB undo/redo");
             if (SelectedSite != null) GUILayout.Label("Puzzle controls: " + sitePart + "\nD-pad changes control · Stick moves it · X turns socket");
         }
-        void ControllerInput()
+        void ControllerInput(bool focused)
         {
             var pad = Gamepad.current;
-            if (pad == null) return;
+            if (!workshopPadGate.CanRead(pad, focused && Visible && !sharing && !OnlineStarting,
+                workshopTyping || DesktopBinding.Typing || KeyBindings.GameplayBlocked))
+            { if (controllerMoving || controllerTools) CancelGesture(); controllerTools = false; return; }
             try
             {
                 if (pad.startButton.wasPressedThisFrame) { controllerTools = !controllerTools; CancelGesture(); }

@@ -89,6 +89,7 @@ namespace Wreckabulary.Workshop
         }
         void ResetView()
         {
+            workshopPadGate.Suspend();
             displayRevision = -1; savedRevision = -1; placing = null; dragging = marquee = panning = drawingZone = sharing = false;
             zoneId = ""; resizingZone = null; LastPreview = null; CancelGesture(); Frame();
         }
@@ -109,13 +110,14 @@ namespace Wreckabulary.Workshop
             if (History == null) return;
             Refresh();
             if (view != null) view.Active = Visible;
-            if (Visible && !sharing && !OnlineStarting) ControllerInput();
+            ControllerInput(Application.isFocused);
             if (History.Revision == savedRevision || Time.unscaledTime < autosaveAt) return;
             try { storage.Save(History.Current); savedRevision = History.Revision; }
             catch (Exception error) { status = "Autosave: " + error.Message; autosaveAt = Time.unscaledTime + 5f; }
         }
         void OnDisable()
         {
+            SuspendWorkshopInput();
             if (view != null) view.Active = false;
             CancelGesture();
             if (History == null || storage == null || History.Revision == savedRevision) return;
@@ -139,7 +141,7 @@ namespace Wreckabulary.Workshop
         }
         string Field(string label, string value)
         {
-            GUILayout.Label(label); GUI.SetNextControlName(label);
+            GUILayout.Label(label); GUI.SetNextControlName("workshop-text:" + label);
             return GUILayout.TextField(value, GUILayout.MinHeight(24));
         }
         void Styles()
@@ -165,6 +167,7 @@ namespace Wreckabulary.Workshop
             WorldView();
             GUILayout.BeginArea(new Rect(Screen.width - right - 8, 56, right, Screen.height - 140), panel); Inspector(); GUILayout.EndArea();
             Footer();
+            CaptureWorkshopTextFocus();
             if (sharing) SharePanel();
             if (!string.IsNullOrEmpty(GUI.tooltip)) GUI.Label(new Rect(14, Screen.height - 24, Screen.width - 28, 22), GUI.tooltip);
         }
@@ -172,7 +175,7 @@ namespace Wreckabulary.Workshop
         {
             GUILayout.BeginArea(new Rect(8, 8, Screen.width - 16, 42), panel); GUILayout.BeginHorizontal();
             GUILayout.Label("Wordbound workshop", heading, GUILayout.Width(190));
-            GUI.SetNextControlName("Course title"); title = GUILayout.TextField(title, GUILayout.MinWidth(140));
+            GUI.SetNextControlName("workshop-text:Course title"); title = GUILayout.TextField(title, GUILayout.MinWidth(140));
             if (Button("Rename")) Edit("Rename", draft => draft.Course.Title = title.Trim());
             GUILayout.Label(PlayRequirements.ModeId, GUILayout.Width(90));
             if (Button("Share")) { shareText = History.Current.CourseJsonText; sharing = true; }
@@ -364,7 +367,7 @@ namespace Wreckabulary.Workshop
             GUI.Label(new Rect(12, Screen.height - 27, Screen.width - 24, 23), status);
             GUILayout.BeginArea(new Rect(viewport.x + 8, viewport.y + 8, Mathf.Min(440, viewport.width - 16), 90), panel);
             GUILayout.BeginHorizontal();
-            GUI.SetNextControlName("Seed"); seed = GUILayout.TextField(seed, 16);
+            GUI.SetNextControlName("workshop-text:Seed"); seed = GUILayout.TextField(seed, 16);
             if (Button("Set seed")) Edit("Set seed", draft => draft.Seed = seed);
             if (Button(History.Current.SeedLocked ? "Locked" : "Unlocked")) Edit("Seed lock", draft => draft.SeedLocked = !draft.SeedLocked);
             GUI.enabled = !History.Current.SeedLocked;

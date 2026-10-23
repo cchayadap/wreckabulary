@@ -8,7 +8,7 @@ using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Online
 {
-    public sealed class WordboundPartyMenu : MonoBehaviour
+    public sealed partial class WordboundPartyMenu : MonoBehaviour
     {
         static readonly string[] Modes = { "TimeRun", "TeamRace", "BrawlRace", "FreeForAll", "Freestyle" };
         static readonly string[] ModeLabels = { "Time Run", "Team Race", "Brawl Race", "Free-for-All", "Freestyle" };
@@ -91,6 +91,7 @@ namespace Wreckabulary.Online
                 var launch = coordinator.TakeLaunch();
                 if (launch != null) _ = Begin(launch);
             }
+            ProcessPartyInput(Application.isFocused);
         }
         async Task Begin(WordboundPartyLaunchContext launch)
         {
@@ -152,6 +153,12 @@ namespace Wreckabulary.Online
         {
             if (coordinator == null || !Visible) return;
             if (coordinator.MatchActive && string.IsNullOrEmpty(localError)) return;
+            BeginPartyGui(Application.isFocused);
+            try { DrawPartyGui(); }
+            finally { EndPartyGui(); }
+        }
+        void DrawPartyGui()
+        {
             title ??= new GUIStyle(GUI.skin.label) { fontSize = 23, fontStyle = FontStyle.Bold };
             hint ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
             float width = Mathf.Min(680, Screen.width - 24), height = Mathf.Min(850, Screen.height - 24);
@@ -159,19 +166,21 @@ namespace Wreckabulary.Online
             scroll = GUILayout.BeginScrollView(scroll);
             GUILayout.Label("WORDBOUND", title);
             GUILayout.Label("Build words. Make tools. Bring your team.", hint);
+            if (partyUsesPad) GUILayout.Label("D-pad / left stick: select · A: confirm · B: back · Right stick: scroll", hint);
             if (coordinator.MatchActive)
             {
                 GUILayout.Label(localError ?? "Joining your match…", hint);
                 GUI.enabled = !returning && !launching;
-                if (GUILayout.Button(returning ? "Returning…" : "Return to party")) _ = Return();
+                PartyControl("return", returning ? "Returning…" : "Return to party", () => { _ = Return(); });
                 GUI.enabled = true; GUILayout.EndScrollView(); GUILayout.EndArea(); return;
             }
             GUI.enabled = !coordinator.Busy && !launching && !returning && !coordinator.RetryRequired;
             if (!coordinator.Authenticated)
             {
                 GUILayout.Space(12); GUILayout.Label("Guest name");
-                displayName = GUILayout.TextField(displayName, 32);
-                if (GUILayout.Button("Connect")) Invoke(() => coordinator.Connect(displayName));
+                displayName = PartyText("name", displayName, 32);
+                PartyControl("connect", "Connect", () => Invoke(() => coordinator.Connect(displayName)));
+                if (partyUsesPad) GUILayout.Label("Connect with the default name, or use a keyboard to edit it.", hint);
                 GUILayout.Label("Your guest session stays in memory while this menu is open.", hint);
             }
             else
@@ -181,19 +190,19 @@ namespace Wreckabulary.Online
                 {
                     bool enabled = GUI.enabled;
                     GUI.enabled = enabled && (customSeedMode || publicCourses.Find(Modes[mode], Formats[format], seed) != null);
-                    if (GUILayout.Button("Create party")) Invoke(CreateParty);
+                    PartyControl("create-party", "Create party", () => Invoke(CreateParty));
                     GUI.enabled = enabled;
                     GUILayout.Space(12); GUILayout.Label("Join a friend's party");
-                    partyInvite = GUILayout.TextField(partyInvite, 160);
+                    partyInvite = PartyText("party-invite", partyInvite, 160);
                     GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Paste invite")) partyInvite = GUIUtility.systemCopyBuffer;
-                    if (GUILayout.Button("Join party")) Invoke(() => coordinator.JoinParty(partyInvite));
+                    PartyControl("paste-party", "Paste invite", () => partyInvite = GUIUtility.systemCopyBuffer);
+                    PartyControl("join-party", "Join party", () => Invoke(() => coordinator.JoinParty(partyInvite)));
                     GUILayout.EndHorizontal();
                     GUILayout.Label("Have a private room invite? Use its settings before creating your party.", hint);
-                    privateCode = GUILayout.TextField(privateCode, 220);
+                    privateCode = PartyText("room-invite", privateCode, 220);
                     GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Paste room invite")) privateCode = GUIUtility.systemCopyBuffer;
-                    if (GUILayout.Button("Use room settings")) Invoke(ApplyRoomSettings);
+                    PartyControl("paste-room", "Paste room invite", () => privateCode = GUIUtility.systemCopyBuffer);
+                    PartyControl("use-room-settings", "Use room settings", () => Invoke(ApplyRoomSettings));
                     GUILayout.EndHorizontal();
                 }
                 else DrawParty();
@@ -206,7 +215,7 @@ namespace Wreckabulary.Online
             {
                 GUILayout.Label("The result of “" + coordinator.PendingAction + "” is not yet confirmed.", hint);
                 GUI.enabled = !coordinator.Busy;
-                if (GUILayout.Button("Retry same action")) Invoke(() => coordinator.Retry());
+                PartyControl("retry", "Retry same action", () => Invoke(() => coordinator.Retry()));
                 GUI.enabled = true;
             }
             if (BeginMatchRequested == null)
@@ -215,11 +224,13 @@ namespace Wreckabulary.Online
                 coordinator.Party?.HasAttempt != true && !launching && !returning)
             {
                 GUILayout.Space(12); GUILayout.BeginHorizontal();
-                if (WorkshopRequested != null && GUILayout.Button("Workshop")) WorkshopRequested();
-                if (CloseRequested != null && GUILayout.Button("Back")) CloseRequested();
+                if (WorkshopRequested != null) PartyControl("workshop", "Workshop", () => WorkshopRequested?.Invoke());
+                if (CloseRequested != null) PartyControl("back", "Back", () => CloseRequested?.Invoke());
                 GUILayout.EndHorizontal();
             }
-            GUILayout.EndScrollView(); GUILayout.EndArea();
+            GUILayout.EndScrollView();
+            if (Event.current.type == EventType.Repaint) partyViewportHeight = Mathf.Max(60, GUILayoutUtility.GetLastRect().height - 16);
+            GUILayout.EndArea();
         }
         void DrawSettings()
         {
@@ -227,19 +238,20 @@ namespace Wreckabulary.Online
             bool previous = GUI.enabled;
             var party = coordinator.Party;
             GUI.enabled = previous && (party == null || coordinator.IsLeader && !party.HasAttempt);
-            int nextMode = GUILayout.SelectionGrid(mode, ModeLabels, 3);
-            if (nextMode != mode) { mode = nextMode; format = 0; fill = false; }
+            PartyChoices("mode", mode, ModeLabels, 3, next => {
+                if (next != mode) { mode = next; format = 0; fill = false; }
+            });
             GUILayout.Label("Region");
-            region = GUILayout.SelectionGrid(region, RegionLabels, 3);
+            PartyChoices("region", region, RegionLabels, 3, next => region = next);
             if (Modes[mode] == "TeamRace" || Modes[mode] == "BrawlRace")
             {
                 GUILayout.Label("Players per team");
-                format = GUILayout.SelectionGrid(format, Formats, 3);
+                PartyChoices("format", format, Formats, 3, next => format = next);
             }
             else { format = 0; if (Modes[mode] == "Freestyle") GUILayout.Label("Co-op · up to 8 players · no timer or winner", hint); }
             if (Modes[mode] != "FreeForAll")
             {
-                fill = GUILayout.Toggle(fill, "Fill open team seats with other players");
+                PartyControl("fill", "Fill open team seats with other players", () => fill = !fill, true, fill);
                 GUILayout.Label(fill ? "Human players can join your team before the match starts." :
                     "Only your party joins your team. Smaller teams are allowed.", hint);
             }
@@ -249,27 +261,24 @@ namespace Wreckabulary.Online
             else
             {
                 GUILayout.Label("Map seed: " + coordinator.Seed);
-                if (coordinator.IsLeader && GUILayout.Button("Apply settings · resets readiness"))
-                    Invoke(() => coordinator.ChangeSettings(SelectedSettings()));
+                if (coordinator.IsLeader) PartyControl("apply-settings", "Apply settings · resets readiness",
+                    () => Invoke(() => coordinator.ChangeSettings(SelectedSettings())));
             }
             GUI.enabled = previous;
         }
         void DrawSeedSelection()
         {
             {
-                bool nextCustom = GUILayout.SelectionGrid(customSeedMode ? 1 : 0,
-                    MapSourceLabels, 2) == 1;
-                if (nextCustom != customSeedMode)
-                {
-                    customSeedMode = nextCustom;
-                    if (customSeedMode) seed = privateSeed;
-                }
+                PartyChoices("map-source", customSeedMode ? 1 : 0, MapSourceLabels, 2, next => {
+                    bool nextCustom = next == 1;
+                    if (nextCustom != customSeedMode) { customSeedMode = nextCustom; if (customSeedMode) seed = privateSeed; }
+                });
             }
             if (customSeedMode)
             {
                 GUILayout.Label("Private map seed");
-                privateSeed = GUILayout.TextField(privateSeed, 16).ToLowerInvariant();
-                if (GUILayout.Button("New private seed")) privateSeed = Guid.NewGuid().ToString("N").Substring(0, 16);
+                privateSeed = PartyText("seed", privateSeed, 16).ToLowerInvariant();
+                PartyControl("new-seed", "New private seed", () => privateSeed = Guid.NewGuid().ToString("N").Substring(0, 16));
                 seed = privateSeed;
                 GUILayout.Label("Custom seeds use private rooms. Quick Play requires an approved map.", hint);
                 return;
@@ -284,10 +293,9 @@ namespace Wreckabulary.Online
             int selected = -1;
             for (int i = 0; i < choices.Count; i++) if (choices[i].Seed == seed) selected = i;
             if (selected < 0) { selected = 0; seed = choices[0].Seed; }
-            int choice = GUILayout.SelectionGrid(selected, mapLabels, 1);
-            if (choice >= 0) seed = choices[choice].Seed;
-            if (choices.Count > 1 && GUILayout.Button("Random public map"))
-                seed = choices[UnityEngine.Random.Range(0, choices.Count)].Seed;
+            PartyChoices("public-map", selected, mapLabels, 1, choice => seed = choices[choice].Seed);
+            if (choices.Count > 1) PartyControl("random-map", "Random public map",
+                () => seed = choices[UnityEngine.Random.Range(0, choices.Count)].Seed);
             GUILayout.Label("Your party plays the same layout. Choose another map for a different arrangement.", hint);
         }
         void RefreshMapChoices()
@@ -316,12 +324,12 @@ namespace Wreckabulary.Online
             GUILayout.BeginHorizontal();
             bool canAct = GUI.enabled;
             GUI.enabled = canAct && coordinator.Content != null;
-            if (GUILayout.Button("Copy party invite")) Invoke(() => {
+            PartyControl("copy-party", "Copy party invite", () => Invoke(() => {
                 GUIUtility.systemCopyBuffer = coordinator.CopyInvite(); return Task.CompletedTask;
-            });
+            }));
             GUI.enabled = canAct;
             bool ready = party.Members.Single(m => m.PlayerId == coordinator.PlayerId).Ready;
-            if (!party.HasAttempt && GUILayout.Button(ready ? "Unready" : "Ready")) Invoke(() => coordinator.SetReady(!ready));
+            if (!party.HasAttempt) PartyControl("ready", ready ? "Unready" : "Ready", () => Invoke(() => coordinator.SetReady(!ready)));
             GUILayout.EndHorizontal();
             var assignment = party.Assignment;
             if (assignment != null)
@@ -332,8 +340,8 @@ namespace Wreckabulary.Online
                     string code = assignment["privateCode"].String();
                     GUILayout.Label("Private code: " + code);
                     GUI.enabled = canAct && coordinator.Content != null;
-                    if (GUILayout.Button("Copy code and match settings"))
-                        Invoke(() => { GUIUtility.systemCopyBuffer = WordboundRoomInvite.Encode(code, party.Settings, coordinator.Seed); return Task.CompletedTask; });
+                    PartyControl("copy-room", "Copy code and match settings", () =>
+                        Invoke(() => { GUIUtility.systemCopyBuffer = WordboundRoomInvite.Encode(code, party.Settings, coordinator.Seed); return Task.CompletedTask; }));
                     GUI.enabled = canAct;
                 }
                 if (assignment.Has("roster"))
@@ -343,26 +351,26 @@ namespace Wreckabulary.Online
                 if (party.Channel == "CustomFill" && assignment.Has("matchId"))
                 {
                     GUILayout.Label("Custom Fill uses the host's map. Accept only when your installed map and seed match.", hint);
-                    if (GUILayout.Button("Verify and accept custom map")) Invoke(() => coordinator.AcceptCustomContent());
+                    PartyControl("accept-custom", "Verify and accept custom map", () => Invoke(() => coordinator.AcceptCustomContent()));
                 }
                 if (coordinator.IsLeader && party.Channel == "PrivateCreate" && assignment["state"].String() == "FORMING" && assignment.Has("privateCode"))
-                    if (GUILayout.Button("Start private match")) Invoke(() => coordinator.StartPrivate());
+                    PartyControl("start-private", "Start private match", () => Invoke(() => coordinator.StartPrivate()));
                 if (assignment["state"].String() == "STARTED")
-                    if (GUILayout.Button("Return from reservation")) _ = Return();
+                    PartyControl("return-reservation", "Return from reservation", () => { _ = Return(); });
             }
             if (coordinator.IsLeader && !party.HasAttempt)
             {
                 GUILayout.Space(12); GUILayout.Label("Play");
-                if (GUILayout.Button("Create private room")) Invoke(() => coordinator.Queue("PrivateCreate"));
+                PartyControl("create-private", "Create private room", () => Invoke(() => coordinator.Queue("PrivateCreate")));
                 GUILayout.Label("Join private room · paste a shared code and settings");
-                privateCode = GUILayout.TextField(privateCode, 220);
+                privateCode = PartyText("room-code", privateCode, 220);
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Paste room invite")) privateCode = GUIUtility.systemCopyBuffer;
-                if (GUILayout.Button("Join private room")) Invoke(JoinRoom);
+                PartyControl("paste-room", "Paste room invite", () => privateCode = GUIUtility.systemCopyBuffer);
+                PartyControl("join-private", "Join private room", () => Invoke(JoinRoom));
                 GUILayout.EndHorizontal();
                 bool previous = GUI.enabled;
                 GUI.enabled = previous && coordinator.PublicAvailable;
-                if (GUILayout.Button("Quick Play")) Invoke(() => coordinator.Queue("QuickPlay"));
+                PartyControl("quick-play", "Quick Play", () => Invoke(() => coordinator.Queue("QuickPlay")));
                 GUI.enabled = previous;
                 if (!coordinator.PublicAvailable)
                     GUILayout.Label(publicCourses.Choices(party.Settings.Mode, party.Settings.Format).Count == 0 ?
@@ -370,16 +378,17 @@ namespace Wreckabulary.Online
                         "This seed is for private rooms. To use Quick Play, leave the party and choose an approved map.", hint);
                 if (party.Settings.Fill)
                 {
-                    customFillConsent = GUILayout.Toggle(customFillConsent, "Also search private custom rooms that allow Fill");
+                    PartyControl("custom-consent", "Also search private custom rooms that allow Fill",
+                        () => customFillConsent = !customFillConsent, true, customFillConsent);
                     GUI.enabled = previous && customFillConsent;
-                    if (GUILayout.Button("Find custom Fill room")) Invoke(() => coordinator.Queue("CustomFill"));
+                    PartyControl("custom-fill", "Find custom Fill room", () => Invoke(() => coordinator.Queue("CustomFill")));
                     GUI.enabled = previous;
                 }
             }
             GUILayout.Space(12); GUILayout.BeginHorizontal();
-            if (coordinator.IsLeader && party.HasAttempt && GUILayout.Button("Cancel queue / reservation"))
-                Invoke(() => coordinator.CancelQueue());
-            if (GUILayout.Button("Leave party")) Invoke(() => coordinator.LeaveParty());
+            if (coordinator.IsLeader && party.HasAttempt) PartyControl("cancel-queue", "Cancel queue / reservation",
+                () => Invoke(() => coordinator.CancelQueue()));
+            PartyControl("leave-party", "Leave party", () => Invoke(() => coordinator.LeaveParty()));
             GUILayout.EndHorizontal();
         }
         Task JoinRoom()
@@ -404,6 +413,7 @@ namespace Wreckabulary.Online
         }
         void OnDestroy()
         {
+            partyInput?.Dispose();
             lifetime.Cancel(); coordinator?.Dispose(); transport?.Dispose();
         }
     }
