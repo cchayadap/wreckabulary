@@ -75,7 +75,7 @@ For a Project course asset, use **Export course JSON** and **Import course JSON*
 
 Select your assigned camera profile. Its Inspector groups **View and follow**, **Look controls**, and **Walls and visibility**. Use field of view, follow distance, look-at height, lift and starting/minimum/maximum angles to compose the view. Angle sliders display degrees. Adjust mouse sensitivity and controller speeds separately. Wall probe radius, clearance, closest distance and return speed control obstruction handling.
 
-Valid profile edits update the gameplay camera during play. Invalid settings display an error and leave the last valid settings active. Save the asset to retain your edits, then inspect a clear room, a wall/corner and a change of floor. Profile assets persist independently of temporary scene GameObjects. The workshop orbit camera is a separate navigation view, not this follow camera.
+Valid profile edits update the gameplay camera during play, except **Starting angle**: it is applied when the active profile changes, so recreate the playtest to see a changed starting angle on the same profile. Invalid settings display an error and leave the last valid settings active. Save the asset to retain your edits, then inspect a clear room, a wall/corner and a change of floor. Profile assets persist independently of temporary scene GameObjects. The workshop orbit camera is a separate navigation view, not this follow camera.
 
 ## Edit equipment appearance and grips
 
