@@ -63,3 +63,10 @@ Next: root imports the final revision, executes native material/presentation che
 - [x] Save ORIGINAL-GAME-VISUAL-REVIEW.md with exact references, observed regressions and a small original-based SOFA/FAN pilot brief.
 - [ ] Root schedules approved pilot production and matched Unity/source review. No new assets/rendering or full-set redesign has started.
 - [~] Pivot-basis source investigation is preserved in 430da89; actual native matrices remain pending. Camera help clarification is 8404b04. Broader template binding work is paused before implementation at root's instruction.
+
+# 2026-10-23 original-game pilot preparation
+
+- [x] Preserved owner rejection of DetailV2 and established original game SOFA/FAN/HAMMER references (1833479).
+- [x] Prepared isolated SOFA-first Blender script and exact root-owned staged commands in `BuildNotes/equipment-polish/ORIGINAL-BASED-PILOT.md`; original geometry/materials are the base, no runtime replacement.
+- [~] Original-based SOFA: source-only pilot, native build and matched renders pending serial slot. FAN/HAMMER are bounded queued specifications, not generated assets.
+- [ ] Owner appearance acceptance and later Unity/material/export/performance validation.
