@@ -1,7 +1,7 @@
 {
   "name": "Wreckabulary.Online.Puzzles.Tests",
   "rootNamespace": "Wreckabulary.Tests",
-  "references": ["Wreckabulary.Rules", "Wreckabulary.Online.Puzzles", "Wreckabulary.Online.Physics", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "references": ["Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Puzzles", "Wreckabulary.Online.Physics", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
   "includePlatforms": ["Editor"],
   "overrideReferences": true,
   "precompiledReferences": ["nunit.framework.dll", "Fusion.Runtime.dll", "Fusion.Common.dll", "Fusion.Sockets.dll", "Fusion.Realtime.dll", "Fusion.Log.dll"],
