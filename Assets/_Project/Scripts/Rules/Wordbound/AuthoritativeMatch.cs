@@ -242,7 +242,7 @@ namespace Wreckabulary.Rules.Wordbound
             return CaptureState(sequence);
         }
 
-        public bool MatchesTickAndPresence(MatchSnapshot snapshot)
+        public bool MatchesTickPresenceAndResult(MatchSnapshot snapshot)
         {
             if (inTick) throw new InvalidOperationException("Capture only a completed tick.");
             if (snapshot == null || snapshot.Binding.Hash != Binding.Hash || snapshot.Epoch != Epoch ||
@@ -254,6 +254,14 @@ namespace Wreckabulary.Rules.Wordbound
                 if (previous.Id != current.Id || previous.Connected != current.Connected ||
                     previous.Returned != current.Returned) return false;
             }
+            var previousResult = snapshot.Progress.Result;
+            var currentResult = progress.Result;
+            if (previousResult == null || currentResult == null) return previousResult == currentResult;
+            if (previousResult.Confirmed != currentResult.Confirmed || previousResult.Tick != currentResult.Tick ||
+                previousResult.Outcome != currentResult.Outcome ||
+                previousResult.WinningTeams.Count != currentResult.WinningTeams.Count) return false;
+            for (int index = 0; index < currentResult.WinningTeams.Count; index++)
+                if (previousResult.WinningTeams[index] != currentResult.WinningTeams[index]) return false;
             return true;
         }
 

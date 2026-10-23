@@ -161,14 +161,14 @@ namespace Wreckabulary.Tests
                 new MatchSnapshot(replacement, state.Epoch, state.Sequence, state.NextWorldEntityId,
                     progress ?? state.Progress, state.Economy, state.Commands, state.Actors, bodies, state.Resources,
                     state.Mechanisms, state.RandomStreams, state.NarrativeFlags, state.ThrownFlights, state.Practice);
-            Assert.IsFalse(f.Match.MatchesTickAndPresence(Replace(foreign, state.Bodies)));
+            Assert.IsFalse(f.Match.MatchesTickPresenceAndResult(Replace(foreign, state.Bodies)));
             var shortRoster = new MatchProgress(f.Source.Mode, binding.Seats.Take(1),
                 MatchStateValidation.Route(f.Source.Course)).Capture();
-            Assert.IsFalse(f.Match.MatchesTickAndPresence(Replace(binding, state.Bodies, shortRoster)));
+            Assert.IsFalse(f.Match.MatchesTickPresenceAndResult(Replace(binding, state.Bodies, shortRoster)));
             var differentRoster = new MatchProgress(f.Source.Mode,
                 new[] { new WordboundSeat("a", 0), new WordboundSeat("c", 0, 1) },
                 MatchStateValidation.Route(f.Source.Course)).Capture();
-            Assert.IsFalse(f.Match.MatchesTickAndPresence(Replace(binding, state.Bodies, differentRoster)));
+            Assert.IsFalse(f.Match.MatchesTickPresenceAndResult(Replace(binding, state.Bodies, differentRoster)));
             var incomplete = Replace(binding, Array.Empty<WorldBodyState>());
             AssertTickAndPresence(f, incomplete, true);
             Assert.IsNotEmpty(MatchStateValidation.Validate(incomplete, binding, f.Source.Mode, f.Source.Course,
@@ -183,8 +183,8 @@ namespace Wreckabulary.Tests
                 previous.Progress.Tick == captured.Progress.Tick && previous.Progress.Players.Zip(captured.Progress.Players,
                     (a, b) => a.Id == b.Id && a.Connected == b.Connected && a.Returned == b.Returned).All(same => same);
             Assert.AreEqual(expected, legacy, "The independent original captured-frame comparator must reach the expected state.");
-            Assert.AreEqual(legacy, f.Match.MatchesTickAndPresence(previous));
-            Assert.AreEqual(legacy, f.Match.MatchesTickAndPresence(previous), "Repeated queries must not mutate or cache dynamic state.");
+            Assert.AreEqual(legacy, f.Match.MatchesTickPresenceAndResult(previous));
+            Assert.AreEqual(legacy, f.Match.MatchesTickPresenceAndResult(previous), "Repeated queries must not mutate or cache dynamic state.");
         }
 
         [Test]
@@ -436,8 +436,8 @@ namespace Wreckabulary.Tests
             {
                 observed = true;
                 Assert.Throws<InvalidOperationException>(() => f.Match.Capture(99));
-                Assert.Throws<InvalidOperationException>(() => f.Match.MatchesTickAndPresence(completed));
-                Assert.Throws<InvalidOperationException>(() => f.Match.MatchesTickAndPresence(null));
+                Assert.Throws<InvalidOperationException>(() => f.Match.MatchesTickPresenceAndResult(completed));
+                Assert.Throws<InvalidOperationException>(() => f.Match.MatchesTickPresenceAndResult(null));
                 Assert.Throws<InvalidOperationException>(() => f.Match.PublishSnapshot(out _));
                 Assert.IsFalse(f.Match.Acknowledge(stamp));
             };
@@ -546,11 +546,22 @@ namespace Wreckabulary.Tests
             }
             Assert.AreEqual("Win", f.State.Progress.Result.Outcome);
             Assert.IsFalse(f.State.Progress.Result.Confirmed);
+            var unconfirmed = f.State;
+            string retainedResult = MatchSnapshotCodec.Export(unconfirmed);
+            Assert.IsTrue(f.Match.MatchesTickPresenceAndResult(unconfirmed));
             Assert.IsTrue(f.Match.Acknowledge(earlier));
             Assert.IsFalse(f.State.Progress.Result.Confirmed);
+            Assert.IsTrue(f.Match.MatchesTickPresenceAndResult(unconfirmed), "An acknowledgement before the result must not change its publication.");
             CollectionAssert.AreEqual(platformIds, f.State.Bodies.Where(b => b.Kind == WorldBodyKind.Platform).Select(b => b.Id).ToArray());
             f.Ack();
-            Assert.IsTrue(f.State.Progress.Result.Confirmed);
+            var confirmed = f.State;
+            Assert.IsTrue(confirmed.Progress.Result.Confirmed);
+            Assert.AreEqual(unconfirmed.Progress.Tick, confirmed.Progress.Tick);
+            Assert.IsFalse(f.Match.MatchesTickPresenceAndResult(unconfirmed), "Durable result confirmation must refresh the host frame without another tick.");
+            Assert.IsTrue(f.Match.MatchesTickPresenceAndResult(confirmed));
+            Assert.AreEqual(retainedResult, MatchSnapshotCodec.Export(unconfirmed), "The previously published frame must remain unchanged.");
+            f.Ack();
+            Assert.IsTrue(f.Match.MatchesTickPresenceAndResult(confirmed), "Repeated durable confirmation must not trigger another frame refresh.");
             Assert.IsFalse(f.Step().Advanced);
         }
 

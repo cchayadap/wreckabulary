@@ -147,7 +147,7 @@ namespace Wreckabulary.Online
                 if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                 if (hostReady && runner.IsServer)
                 {
-                    if (!Authority.Match.MatchesTickAndPresence(frame) && !Reconcile(CaptureFrame())) return;
+                    if (!Authority.Match.MatchesTickPresenceAndResult(frame) && !Reconcile(CaptureFrame())) return;
                     if (stopping || Fault != "" || runner == null || !runner.IsRunning) return;
                     if (!publishing && options.Clock() >= nextCheckpoint) _ = PublishCheckpoint();
                 }
@@ -243,7 +243,7 @@ namespace Wreckabulary.Online
             {
                 session.Poll();
                 if (Fault != "" || !session.GameplayReady || !hostReady) return;
-                if (!Authority.Match.MatchesTickAndPresence(frame) && !Reconcile(CaptureFrame())) return;
+                if (!Authority.Match.MatchesTickPresenceAndResult(frame) && !Reconcile(CaptureFrame())) return;
                 if (stopping || Fault != "" || !hostReady || !session.GameplayReady) return;
                 if (!Authority.Match.IsPaused)
                     using (BeforePhysicsMarker.Auto()) options.BeforeHostPhysics?.Invoke(frame, bodies);
