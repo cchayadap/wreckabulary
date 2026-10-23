@@ -8,7 +8,17 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current delivery snapshot — 2026-10-23 22:47 UTC
+## Current delivery snapshot — 2026-10-23 23:21 UTC
+
+Original Wreckabulary artwork remains the runtime default. QA Windows build `20261023T230521Z` passes on source `1ab60670`; visible run `20261023T230748Z-visible-wordbound_workshop_flow` passes all five workshop/playtest/return checks, with exact draft and Undo/Redo preserved, zero reported console errors/exceptions/warnings and normal exit. The actual six screenshots and game payload hashes are recorded in `BuildNotes/client-view/windows-original-theme-20261023.json`. Readiness is 4.273 seconds and playtest completes in 17.240 seconds; these are workflow timings, not an FPS result. The gallery now leads with these captures and retains the older menu comparison.
+
+All seven current theme tests and both new save/reload/custom-theme assignment checks pass natively. Three visible issues remain in that executable: the Search label wraps, workshop status has poor contrast, and the party menu retains its earlier styling. Independently reviewed source fixes are queued for integration after the current native job. Changed draft publication after releasing a read lock still fails in Unity; the isolated null-versus-named-backup diagnostic is running. Existing repeat saves pass after the exact-byte idempotence repair.
+
+Public Team Solo and Brawl Solo both pass the later `225207Z` authenticated entry/movement/command/durable-ACK checks. Its full FFA case fails during letter collection; the reviewed fixture correction parks the other player outside the collection lanes and checks real reach/line of sight before sending a fresh command. The full FFA rerun on `8a2e061b` is still running and has reached real knockouts and respawns. No full-match, allocator-reuse or final delivery acceptance is claimed. The maximum-capacity fixture is source-reviewed but not yet run. The prior host-recovery result remains 18.762 seconds, above the ten-second target.
+
+Source-controlled checklist: [progress.md](../../progress.md). The original main/font/Lunar work and all isolated feature work remain preserved. No new art generation is underway. Official smoke-launch and isolated Unity update still await the previously requested owner actions; the kit and active Editor version remain unchanged.
+
+### Earlier delivery snapshot — 22:47 UTC
 
 Original Wreckabulary artwork is the default; rejected DetailV2 and pilots remain preserved. The updated review gallery leads with actual Windows220124 and neutral Unity2157 images. All four original preview items are visible; held BAT contact is visually corrected in the Editor preview without production model/grip edits. Windows equipment-menu contrast, generic controls and sparse starting-room composition remain production gaps.
 
