@@ -85,6 +85,8 @@ namespace Wreckabulary.Qa
             context.Note("collection_detail_materials_and_selected_meshes_verified", true);
             context.Note("synthetic_renderer_count", workload.RendererCount); context.Note("held_item_triangles", workload.ItemTriangles);
             context.Note("camera_module", workload.ModuleId); context.Note("width", Screen.width); context.Note("height", Screen.height);
+            context.Note("camera_path", "fixed room center; height6.5m, z=-11.5m, x=0.8*sin(t*0.18); FOV60");
+            context.Note("gameplay_hud_enabled", false);
             context.Note("quality_preset", GraphicsOptions.Preset); context.Note("render_scale", GraphicsOptions.RenderScale);
             context.Note("cpu", SystemInfo.processorType); context.Note("gpu", SystemInfo.graphicsDeviceName);
             context.Note("graphics_api", SystemInfo.graphicsDeviceType.ToString());

@@ -156,7 +156,8 @@ namespace Wreckabulary.Qa
         {
             if (Screen.width != 1920 || Screen.height != 1080 || Screen.fullScreenMode != FullScreenMode.Windowed ||
                 !Mathf.Approximately(GraphicsOptions.RenderScale, .75f) || GraphicsOptions.Smoothing != "FXAA" ||
-                GraphicsOptions.Shadows != "Low" || GraphicsOptions.FrameCap != 0 || QualitySettings.vSyncCount != 0)
+                GraphicsOptions.Shadows != "Low" || GraphicsOptions.FrameCap != 0 || Application.targetFrameRate != -1 ||
+                QualitySettings.vSyncCount != 0 || camera && !camera.isActiveAndEnabled)
                 throw new QaFailException("The measured display must remain 1920x1080 Windowed, Low, uncapped, V-sync off.");
         }
 
