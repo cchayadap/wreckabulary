@@ -1,10 +1,14 @@
 # Windows delivery preparation
 
-STATUS: IN PROGRESS — QA BUILD PASSES; PLAYER WORKSHOP SMOKE FAILS; REPAIRS UNDER VERIFICATION
+STATUS: IN PROGRESS — QA BUILD AND VISIBLE WORKSHOP FLOW PASS; PRODUCTION ACCEPTANCE OPEN
 
-Current checkpoint (2026-10-23T21:29Z): QA212131PASS118.8s, nondevelopment GSK_QA/Unity6000.6.3. Manifestb81939cc includes evidence-only edits during build; executable source remained7c76f151. Actual normal-window212401 reaches readiness5.449s and confirms discrete original-scale floor/ceiling boards and original character shading. Root and Assets independently inspected the ready image against204132. No owner approval or equipment close-up coverage is implied.
+Current checkpoint (2026-10-23T22:12Z): QA215906PASS112.7s, nondevelopment GSK_QA/Unity6000.6.3, exact source/manifestecd968fd. Normal-window220124PASS5/5, exit0, console0errors/0exceptions/0warnings. Readiness4.301s; all90 update waits complete at76.228s and the playtest finishes79.579s within its unchanged90s limit. Exact183314-byte autosave, return to the same draft/history and Undo/Redo pass. `windows-source-index-20261023.json` binds14 exact artifacts and six actual screenshots.
 
-The unchanged workshop playtest still fails76/90 completed waits at return (last periodic note75) within90s. Other four steps pass: exact183314-byte save, return with same draft/history and Undo/Redo. Both14-phase windows close validly before teardown; ready85.121s/tick41→4661, FullValidation20.343s, Bodies6.358s and Resources5.171s. Inclusive elapsed phases are not additive CPU or FPS. Console0/0/0, perf empty, no new native crash observed. `windows-original-presentation-20261023.json` binds23 exact artifacts. Official normal-window smoke and actual Unity6000.6.4 installation remain pending the previously requested owner actions; kit/editor unchanged. Prior crash, frame throughput, full multiplayer matrix and final stripped release remain open.
+Root and Assets independently inspected the world/equipment/returned-workshop images. Original models and metre-scale boards remain; low-contrast translucent equipment controls, generic button styling and sparse starting-room composition still need polish. Neutral Unity2157 previews separately show all four original models and visible held-BAT contact; they are not Windows held/combat acceptance.
+
+The16-phase ready window is75.279s, tick38→4376: HostStep54.460s/4338, FullValidation15.879s/4482, BodySource1.532s/354078. Nested inclusive elapsed is not additive CPU or FPS. Whole-player process CPU95.031s; peak working-set measurement unavailable. No new native crash observed. This is the supplemental visible diagnostic, not the official smoke replacement or a60FPS result. Earlier failures remain preserved below. The newer capture-key source and FFA test are not in this Windows build.
+
+Official normal-window smoke and isolated Unity6000.6.4 installation await the already-requested owner actions; kit/editor unchanged. Full multiplayer matrix, prior crash recheck, sustained performance, UI/creator/human acceptance and final stripped release remain open.
 
 ## Initial preparation plan (historical)
 
