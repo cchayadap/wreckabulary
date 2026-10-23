@@ -116,6 +116,21 @@ namespace Wreckabulary.OnlineGameplayTests
             try
             {
                 var weapons = new List<int>();
+                var collection = live.Course.Supplies.Where(source => source.SourceId.StartsWith("ArenaKit0Tile", StringComparison.Ordinal) ||
+                    source.SourceId.StartsWith("ArenaKit1Tile", StringComparison.Ordinal)).ToArray();
+                Assert.Greater(collection.Length, 0);
+                var waiting = new WorldVector(recovery.X, recovery.Y, recovery.Z - .75f);
+                var bounds = live.Course.Geometry.Single(module => module.Id == "Start").Bounds;
+                Assert.Greater(waiting.X, bounds.Min.X / 1000f + .5f);
+                Assert.Less(waiting.X, bounds.Max.X / 1000f - .5f);
+                Assert.Greater(waiting.Z, bounds.Min.Z / 1000f + .5f);
+                Assert.Less(waiting.Z, collection.Min(source => source.Position.Z / 1000f) - 2);
+                yield return FullWalk(host, victim, () => waiting, .04f,
+                    "Park the remote player south of the public collection lanes through admitted movement");
+                Assert.LessOrEqual(PlayerPose(host, victim).Position.DistanceSquared(waiting), .25f * .25f);
+                var parked = host.Controller.Bodies["player:" + victimSeat].Rigidbody.position;
+                Assert.LessOrEqual((parked - new Vector3(waiting.X, waiting.Y, waiting.Z)).sqrMagnitude, .25f * .25f);
+                Assert.Less(parked.z, collection.Min(source => source.Position.Z / 1000f) - 1.75f);
                 yield return FfaCraftHammer(host, 0, weapons);
                 yield return FfaCraftHammer(host, 1, weapons);
                 Assert.AreEqual(2, weapons.Distinct().Count());
@@ -207,7 +222,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 Assert.IsTrue(claimed.Add(source.Id));
                 string tile = host.Controller.Frame.Bodies.Single(body => body.Kind == WorldBodyKind.Tile && body.SourceId == source.Id).Id;
                 yield return FullWalk(host, host, () => Pose(host, tile).Position, 1.1f, "Collect the actual public arena hammer letter");
-                yield return Command(host, host, WordboundAction.CollectLetter, tile);
+                yield return FfaCollectLetter(host, tile);
             }
             Assert.IsTrue(Inventory(host, host).Letters.Equals(LetterBag.FromWord("HAMMER")));
             int seat = WordboundGameplayPlan.Seat(host.Controller.Frame.Binding, host.Actor);
@@ -221,6 +236,46 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.IsTrue(Inventory(host, host).Letters.IsEmpty); Assert.IsTrue(Inventory(host, host).Reserved.IsEmpty);
             yield return CommittedState(host, frame => frame.Economy.Items.Any(item => item.Id == id && item.State == ItemState.Held) &&
                 frame.Economy.Players[seat].Slots.Contains(id), "Acknowledge the actually crafted public FFA item on both peers");
+        }
+
+        IEnumerator FfaCollectLetter(Peer host, string tile)
+        {
+            var before = FfaCollectOpportunity(host, tile);
+            if (!before.Eligible) Debug.Log("WORDBOUND_FFA_COLLECT: phase=precondition; " + before.Facts);
+            Assert.IsTrue(before.Eligible, "A fresh collection command requires actual host range, line of sight, active tile and ownership.");
+            var command = host.Controller.Submit(WordboundAction.CollectLetter, tile);
+            yield return Until(() => host.Controller.Frame.Commands.Frontiers[host.Actor] >= command.Sequence,
+                "Apply admitted CollectLetter", 15);
+            var receipt = host.Controller.Frame.Commands.Receipts.Single(value => value.ActorId == host.Actor && value.Sequence == command.Sequence);
+            if (receipt.Effect.Code != "Ok")
+            {
+                Debug.Log("WORDBOUND_FFA_COLLECT: phase=before-submit; " + before.Facts);
+                try { Debug.Log("WORDBOUND_FFA_COLLECT: phase=rejected-receipt; " + FfaCollectOpportunity(host, tile).Facts); }
+                catch (Exception) { Debug.Log("WORDBOUND_FFA_COLLECT: phase=rejected-receipt; observationAvailable=false"); }
+            }
+            Assert.AreEqual(command.PayloadHash, receipt.PayloadHash);
+            Assert.AreEqual("Ok", receipt.Effect.Code, "CollectLetter must succeed through real authority validation without retry.");
+        }
+
+        (bool Eligible, string Facts) FfaCollectOpportunity(Peer host, string tileId)
+        {
+            var frame = host.Controller.Frame;
+            var origin = PlayerPose(host, host);
+            var tile = Pose(host, tileId);
+            int team = frame.Binding.Seats.Single(seat => seat.PlayerId == host.Actor).Team;
+            bool ownership = live.Mode.CanInteract(team, tile.OwnerTeam, tile.Protected);
+            float distance = Mathf.Sqrt(origin.Position.DistanceSquared(tile.Position));
+            bool sight = host.Controller.PhysicsWorld.HasLineOfSight(host.Actor, origin.Position, tile.Position);
+            var nativeOrigin = host.Controller.Bodies[origin.Id].Rigidbody;
+            var nativeTile = host.Controller.Bodies[tile.Id].Rigidbody;
+            float nativeDistance = Vector3.Distance(nativeOrigin.position, nativeTile.position);
+            bool nativeSight = host.Controller.PhysicsWorld.HasLineOfSight(host.Actor,
+                new WorldVector(nativeOrigin.position.x, nativeOrigin.position.y, nativeOrigin.position.z),
+                new WorldVector(nativeTile.position.x, nativeTile.position.y, nativeTile.position.z));
+            bool eligible = origin.Active && tile.Kind == WorldBodyKind.Tile && tile.Active && ownership &&
+                distance <= 3 && nativeDistance <= 3 && sight && nativeSight;
+            string facts = FormattableString.Invariant($"tick={frame.Progress.Tick}; activeActor={origin.Active}; activeTile={tile.Active}; tileKind={(int)tile.Kind}; ownership={ownership}; canonicalDistance={distance:F6}; nativeDistance={nativeDistance:F6}; canonicalLos={sight}; nativeLos={nativeSight}; actor={nativeOrigin.position.x:F6}/{nativeOrigin.position.y:F6}/{nativeOrigin.position.z:F6}; tile={nativeTile.position.x:F6}/{nativeTile.position.y:F6}/{nativeTile.position.z:F6}; actorSpeed={nativeOrigin.linearVelocity.magnitude:F6}; tileSpeed={nativeTile.linearVelocity.magnitude:F6}");
+            return (eligible, facts);
         }
 
         IEnumerator FfaStrike(Peer host, Peer victim, int weapon, bool protectedContact, Action<PlayerCommand> submitted = null)
