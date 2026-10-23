@@ -11,6 +11,8 @@ namespace Wreckabulary.OfflineGameplayTests
 {
     public sealed partial class WordboundNativePuzzleFlow
     {
+        const float ClockWaypointTolerance = .03f;
+
         IEnumerator ReachObjective(ResolvedCoursePhysicalSite site)
         {
             var route = content.Course.Laps[0];
@@ -91,7 +93,8 @@ namespace Wreckabulary.OfflineGameplayTests
                 Assert.IsTrue(arm.GetComponent<BoxCollider>().enabled);
                 Assert.Less((arm.Rigidbody.position - Vector(CourseFixtureMotion.Position(fixture,
                     Mechanism(site).Physical.MotionUnits))).sqrMagnitude, .000001f);
-                yield return MoveIntoArrival(site, "Cross slowed native sorting arm with the keepsake", 8);
+                yield return MoveIntoArrival(site, "Cross slowed native sorting arm with the keepsake", 8,
+                    ClockApproach(site, recipe));
                 Assert.AreEqual("keepsake:0", Mechanism(site).Physical.AuxiliaryBodyId);
             }
             else if (puzzle.PresetId == "BuildRoute")
@@ -210,18 +213,56 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.IsTrue(controller.Bodies[id].Rigidbody.isKinematic);
         }
 
-        IEnumerator MoveIntoArrival(ResolvedCoursePhysicalSite site, string operation, double seconds)
+        Vector3[] ClockApproach(ResolvedCoursePhysicalSite site, string recipe)
+        {
+            var clock = controller.Bodies[recipe];
+            var box = clock.GetComponent<BoxCollider>();
+            var capsule = controller.Bodies[Player.Id].GetComponent<CapsuleCollider>();
+            Assert.IsNotNull(box); Assert.IsNotNull(capsule);
+            var origin = clock.Rigidbody.position;
+            var rotation = clock.Rigidbody.rotation;
+            var inverse = Quaternion.Inverse(rotation);
+            var start = inverse * (Vector(Player.Position) - origin);
+            float side = box.size.x / 2 + capsule.radius + .12f;
+            float forward = box.size.z / 2 + capsule.radius + .08f;
+            var arm = site.Fixtures.Single();
+            float beforeArm = Mathf.Min((inverse * (Metres(arm.From) - origin)).z,
+                (inverse * (Metres(arm.To) - origin)).z) - arm.SizeMm.Z / 2000f - capsule.radius;
+            Assert.Less(forward + ClockWaypointTolerance, beforeArm,
+                "The CLOCK detour must rejoin before the real sorting arm, including player clearance.");
+            var points = new[] {
+                origin + rotation * new Vector3(side, start.y, start.z),
+                origin + rotation * new Vector3(side, start.y, forward),
+                origin + rotation * new Vector3(0, start.y, forward)
+            };
+            string moduleId = content.Course.Puzzles.Single(p => p.Id == site.PuzzleId).ModuleId;
+            var room = content.Course.Geometry.Single(m => m.Id == moduleId).Bounds;
+            foreach (var point in points)
+            {
+                Assert.GreaterOrEqual(point.x - capsule.radius, room.Min.X / 1000f);
+                Assert.LessOrEqual(point.x + capsule.radius, room.Max.X / 1000f);
+                Assert.GreaterOrEqual(point.z - capsule.radius, room.Min.Z / 1000f);
+                Assert.LessOrEqual(point.z + capsule.radius, room.Max.Z / 1000f);
+            }
+            return points;
+        }
+
+        IEnumerator MoveIntoArrival(ResolvedCoursePhysicalSite site, string operation, double seconds,
+            Vector3[] approach = null)
         {
             double deadline = Time.realtimeSinceStartupAsDouble + seconds;
             bool entered = observedActorArrivals.Contains(site.Hash);
+            int waypoint = 0;
             while (Mechanism(site).Physical.Stage != MatchPhysicalStage.Complete &&
                 Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
             {
                 Healthy();
-                Vector3 at = Vector(Player.Position), target = Metres(site.Target);
+                bool approaching = approach != null && waypoint < approach.Length;
+                Vector3 at = Vector(Player.Position), target = approaching ? approach[waypoint] : Metres(site.Target);
                 entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, at);
                 Vector2 delta = new Vector2(target.x - at.x, target.z - at.z);
-                Vector2 direction = delta.magnitude <= .08f ? Vector2.zero :
+                if (approaching && delta.magnitude <= ClockWaypointTolerance) { waypoint++; continue; }
+                Vector2 direction = delta.magnitude <= (approaching ? ClockWaypointTolerance : .08f) ? Vector2.zero :
                     delta.normalized * Mathf.Clamp(delta.magnitude * .65f, .12f, .8f);
                 movement = new WordboundMovementInput { MoveX = direction.x, MoveZ = direction.y };
                 yield return null;

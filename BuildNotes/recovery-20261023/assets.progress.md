@@ -41,3 +41,9 @@ Next: root imports the final revision, executes native material/presentation che
 - [x] Verify exact current Unity authoring menus and runtime workshop controls at root b4a2cca; prepare docs/wordbound/UNITY-EDITING-GUIDE.md. Inspector course/profile workflow, workshop dragging/randomness/routes, saving, private hosting and real limitations are documented from source.
 - [x] Review source-to-player art packaging in BuildNotes/equipment-polish/PACKAGING-SOURCE-REVIEW.md. Explicit runtime allowlist and existing grouped/shared-map budgets confirmed; no additional safe deletion demonstrated. No source/caches removed and no native job run.
 - [ ] Root captures final Unity editing/runtime appearance and inspects actual Windows packed assets.
+
+## Native six-family source review
+
+- [x] Read targeted keepsake and timeout failure XML/logs and current native fixture/runtime source.
+- [x] Identify straight CLOCK approach obstruction and prepare root-authorized test-only movement waypoints inside the unchanged eight-second deadline; verify actual geometry/API references without native execution.
+- [ ] Root compiles and runs the repaired six-family fixture; runtime outcome remains NOT RUN in this lane.
