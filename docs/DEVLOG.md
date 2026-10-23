@@ -157,3 +157,7 @@ The preceding recovery-checkpoint heading was typed as 11:30:00Z before that tim
 ## 2026-10-23T11:55:47Z Integrate reviewed reconnect and native fixture repairs
 
 Integrated source812a000/b851895/94f1bde and independent review47a38e1; four race findings closed at source, runtime NOT RUN. Timing probead659fc records detected-loss/restored/ready events without changing10s/15s settings. Fixture ae1d671 routes around the actual CLOCK with existing8s deadline; independent review1567f66. Fresh R0 running in Logs/gate_check_all_20261023T115335Z.log. Native interruption review2b95b6d found no supported crash/OOM/timeout cause. A private hidden-wrapper script is prepared to retain next gate stdout/stderr/exit status; no second Unity job launched. Public catalogue/deployment/player remain pending.
+
+## 2026-10-23T12:02:44Z Reconnect reference compilation passed
+
+R0 Logs/gate_check_all_20261023T115335Z.log failed357.5s on31 identical Assert ambiguity errors in the new reconnect test file; runtime passed. Added its file-local NUnit Assert alias. Fresh full R0 PASS130.9s, Logs/gate_check_all_20261023T115910Z.log. This verifies assembled reference compilation, not native/runtime acceptance. The next cold native preparation uses the existing gate via a hidden project-local PowerShell wrapper, preserving durable stdout/stderr/status and the gate's own3600s timeout. No source, cache or lock bypass is involved.

@@ -10,6 +10,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Wreckabulary.Rules.Wordbound;
+using Assert = NUnit.Framework.Assert;
 
 namespace Wreckabulary.OnlineGameplayTests
 {
