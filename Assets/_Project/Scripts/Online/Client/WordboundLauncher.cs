@@ -66,6 +66,7 @@ namespace Wreckabulary.Online
                 if (!Assets.SnapshotChunk.IsValid)
                     throw new InvalidOperationException("The network snapshot prefab is missing.");
                 menu = gameObject.AddComponent<WordboundPartyMenu>();
+                menu.Theme = Assets.UiTheme;
                 menu.Initialize(Assets.PublicTrust.text, data.items.text, data.rules.text,
                     Assets.MapPoolVersion, Assets.PublicCoursesJson);
                 menu.BeginMatchRequested = BeginMatch;

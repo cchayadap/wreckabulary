@@ -127,13 +127,25 @@ namespace Wreckabulary
         public bool Button(GUIContent content, GUIStyle style, params GUILayoutOption[] options)
         {
             bool clicked = GUILayout.Button(content, style ?? skin.button, options);
+            DrawDisabled(content, false);
+            return clicked;
+        }
+
+        public bool Toggle(bool value, GUIContent content, GUIStyle style, params GUILayoutOption[] options)
+        {
+            bool next = GUILayout.Toggle(value, content, style ?? skin.button, options);
+            DrawDisabled(content, value);
+            return next;
+        }
+
+        void DrawDisabled(GUIContent content, bool on)
+        {
             if (!GUI.enabled && Event.current.type == EventType.Repaint)
             {
                 bool wasEnabled = GUI.enabled;
-                try { GUI.enabled = true; DisabledText.Draw(GUILayoutUtility.GetLastRect(), content, false, false, false, false); }
+                try { GUI.enabled = true; DisabledText.Draw(GUILayoutUtility.GetLastRect(), content, false, false, on, false); }
                 finally { GUI.enabled = wasEnabled; }
             }
-            return clicked;
         }
 
         public Rect ToolbarRect(Vector2 viewport) => new Rect(8, 8, Mathf.Max(1, Mathf.Min(520, viewport.x - 16)), ToolbarHeight);

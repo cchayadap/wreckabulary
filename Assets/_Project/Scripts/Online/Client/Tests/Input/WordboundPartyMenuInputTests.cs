@@ -82,6 +82,7 @@ namespace Wreckabulary.Online.Tests
             try
             {
                 if (window) window.Close();
+                if (menu) Get<WordboundUiStyles>(menu, "ui").Dispose();
                 if (root) Object.DestroyImmediate(root);
                 coordinator?.Dispose(); rsa?.Dispose();
                 if (pad != null && pad.added) InputSystem.RemoveDevice(pad);
@@ -127,6 +128,31 @@ namespace Wreckabulary.Online.Tests
             Assert.IsNull(coordinator.Party); Assert.IsTrue(http.Requests.Last().Path.EndsWith("/leave"));
             Sample(default); Sample(new GamepadState().WithButton(GamepadButton.East));
             Assert.AreEqual(1, closed);
+        }
+
+        [Test]
+        public void ActualPartyDrawUsesAssignedThemeAndRestoresTheBorrowedSkin()
+        {
+            var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+            try
+            {
+                theme.BodySize = 17; theme.RowHeight = 40; theme.ModuleHeight = 64;
+                menu.Theme = theme;
+                Draw(EventType.Layout); Draw(EventType.Repaint);
+                var styles = Get<WordboundUiStyles>(menu, "ui");
+                var owned = Get<GUISkin>(styles, "skin");
+                var textures = new List<Texture2D>(Get<List<Texture2D>>(styles, "textures"));
+                Assert.AreEqual(17, owned.label.fontSize);
+                Assert.GreaterOrEqual(styles.RowHeight, 40);
+                Assert.IsTrue(window.SkinRestored);
+                Assert.IsEmpty(http.Requests, "Styling must not dispatch a party action.");
+                window.Menu = null;
+                Invoke(menu, "OnDestroy");
+                Assert.IsFalse(owned);
+                foreach (var texture in textures) Assert.IsFalse(texture);
+                Assert.IsTrue(theme, "The designer's assigned asset is borrowed.");
+            }
+            finally { Object.DestroyImmediate(theme); }
         }
 
         [UnityTest]
@@ -296,10 +322,12 @@ namespace Wreckabulary.Online.Tests
             public Action BeforeRepaint;
             public int Layouts, Repaints;
             public string FocusedControl;
+            public bool SkinRestored = true;
             void OnGUI()
             {
                 if (!Menu) return;
                 bool enabled = GUI.enabled;
+                var borrowedSkin = GUI.skin;
                 try
                 {
                     if (Event.current.type == EventType.Layout) Layouts++;
@@ -311,7 +339,7 @@ namespace Wreckabulary.Online.Tests
                     finally { Invoke(Menu, "EndPartyGui"); FocusedControl = GUI.GetNameOfFocusedControl(); }
                 }
                 catch (Exception error) { Failure = error; }
-                finally { GUI.enabled = enabled; }
+                finally { SkinRestored &= ReferenceEquals(borrowedSkin, GUI.skin); GUI.enabled = enabled; }
             }
         }
     }

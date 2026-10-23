@@ -91,12 +91,13 @@ namespace Wreckabulary.Online
             bool enabled = GUI.enabled;
             if (Event.current.type == EventType.Layout && enabled) partyFocus.Register(id);
             bool focused = partyUsesPad && partyFocus.Selected == id;
-            Color previous = GUI.backgroundColor;
-            if (focused) GUI.backgroundColor = new Color(.35f, .85f, 1f);
             GUI.SetNextControlName("party:" + id);
-            string text = (focused ? "› " : "") + label;
-            bool clicked = toggle ? GUILayout.Toggle(value, text) != value : GUILayout.Button(text, GUILayout.MinHeight(27));
-            GUI.backgroundColor = previous;
+            string text = (focused ? "› " : "") + (toggle ? value ? "● " : "○ " : "") + label;
+            GUIStyle style = focused || toggle && value ? ui.Selected :
+                id == "connect" || id == "quick-play" ? ui.Primary : GUI.skin.button;
+            var content = new GUIContent(text);
+            bool clicked = toggle ? ui.Toggle(value, content, style, GUILayout.MinHeight(ui.RowHeight)) != value :
+                ui.Button(content, style, GUILayout.MinHeight(ui.RowHeight));
             if (focused && Event.current.type == EventType.Repaint)
             {
                 GUI.FocusControl("party:" + id);
@@ -131,7 +132,7 @@ namespace Wreckabulary.Online
         string PartyText(string id, string value, int maximum)
         {
             GUI.SetNextControlName("party-text:" + id);
-            return GUILayout.TextField(value, maximum);
+            return GUILayout.TextField(value, maximum, GUILayout.MinHeight(ui.RowHeight));
         }
 
         void BeginPartyGui(bool focused)

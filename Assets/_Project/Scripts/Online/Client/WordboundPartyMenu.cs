@@ -17,6 +17,8 @@ namespace Wreckabulary.Online
         static readonly string[] MapSourceLabels = { "Public maps", "Custom / private seed" };
         static readonly string[] Formats = { "Solo", "Duo", "Squad" };
         readonly CancellationTokenSource lifetime = new CancellationTokenSource();
+        readonly WordboundUiStyles ui = new WordboundUiStyles();
+        public WordboundUiTheme Theme;
         WordboundHttpTransport transport;
         WordboundPartyCoordinator coordinator;
         WordboundPartyLaunchContext currentLaunch;
@@ -170,12 +172,11 @@ namespace Wreckabulary.Online
         }
         void DrawPartyGui()
         {
-            title ??= new GUIStyle(GUI.skin.label) { fontSize = 23, fontStyle = FontStyle.Bold };
-            hint ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
-            float width = Mathf.Min(680, Screen.width - 24), height = Mathf.Min(850, Screen.height - 24);
-            GUILayout.BeginArea(new Rect((Screen.width - width) * .5f, 12, width, height), GUI.skin.box);
+            using var themeScope = ui.Apply(Theme);
+            title = ui.Heading; hint = ui.Wrapped;
+            GUILayout.BeginArea(ui.MenuRect(Screen.width, Screen.height), ui.Panel);
             scroll = GUILayout.BeginScrollView(scroll);
-            GUILayout.Label("WORDBOUND", title);
+            GUILayout.Label("Wordbound", title);
             GUILayout.Label("Build words. Make tools. Bring your team.", hint);
             if (partyUsesPad) GUILayout.Label("D-pad / left stick: select · A: confirm · B: back · Right stick: scroll", hint);
             if (coordinator.MatchActive)
@@ -424,8 +425,12 @@ namespace Wreckabulary.Online
         }
         void OnDestroy()
         {
-            partyInput?.Dispose();
-            lifetime.Cancel(); coordinator?.Dispose(); transport?.Dispose();
+            try
+            {
+                partyInput?.Dispose();
+                lifetime.Cancel(); coordinator?.Dispose(); transport?.Dispose();
+            }
+            finally { ui.Dispose(); }
         }
     }
 
