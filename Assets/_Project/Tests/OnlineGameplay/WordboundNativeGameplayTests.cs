@@ -31,6 +31,7 @@ namespace Wreckabulary.OnlineGameplayTests
         WordboundLiveMatch live;
         CancellationTokenSource lifetime;
         WordboundNativeProfiler profiler;
+        WordboundNativeTickBatches tickBatches;
         WordboundGameplayPrefabs prefabs;
         NetworkPrefabRef carrier;
         int sceneIndex;
@@ -90,6 +91,7 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.IsTrue(Application.isPlaying, "The native gameplay fixture must enter Play Mode before creating guests or Runners.");
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(8));
             profiler = WordboundNativeProfiler.StartIfEnabled();
+            tickBatches = WordboundNativeTickBatches.StartIfEnabled();
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             WordboundClientContent production = authoredWorkshop ? CreateAuthoredWorkshop(projectRoot) : null;
             if (productionMode != null)
@@ -292,6 +294,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 var runnerRoot = new GameObject(Prefix + "Runner-" + index + "-" + Guid.NewGuid().ToString("N"));
                 var runner = runnerRoot.AddComponent<NetworkRunner>();
                 runnerRoot.AddComponent<NetworkSceneManagerDefault>();
+                tickBatches?.Attach(runner, index, peer.RunnerCreations);
                 return runner;
             }, new FusionAppSettings { AppIdFusion = WordboundLiveMatch.AppId, UseNameServer = true },
                 Configuration(), carrier, live.Verifier, live.Expected, async ct => {
@@ -570,6 +573,7 @@ namespace Wreckabulary.OnlineGameplayTests
         public IEnumerator Cleanup()
         {
             profiler?.Dispose(); profiler = null;
+            tickBatches?.Dispose(); tickBatches = null;
             lifetime?.Cancel();
             int failures = 0;
             foreach (var peer in peers.OrderBy(p => p.Runner != null && p.Runner.IsServer))

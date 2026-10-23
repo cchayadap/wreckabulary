@@ -49,3 +49,13 @@ Keep the 10 s transfer limit, 15 s lease, 5 s renewal and gameplay tick rate unc
 - If a large shared-process gap persists after CPU optimization, compare the same exact-content public flow with host/client in separate Windows processes once the delivery build is available. That separates single-Editor multi-peer contention from a real one-peer client workload. It cannot excuse an over-budget host or replace the existing native tests.
 
 No new test observer has been implemented or executed in this report. The next recoverable action is parent authorization/integration of that bounded observer, followed by one serial native case. There is no evidence-based deadline increase recommended.
+
+## Authorized probe follow-up
+
+After report commit `260a02b`, the parent authorized the bounded test observer. It is implemented only in new `Assets/_Project/Tests/OnlineGameplay/WordboundNativeTickBatchObserver.cs` and four integration lines in `WordboundNativeGameplayTests.cs`. The latter's pre-edit SHA-256 exactly matched root: `083C652CC741C55B8BEA05E4054563E94A28009A90A5F0C608515FEC7617D002`; no baseline adoption is needed.
+
+The existing `WORDBOUND_PROFILE_NATIVE=1` gate enables it after entering real Play Mode. A component is attached to each fixture-created Runner before `StartGame`; the installed `SimulationBehaviour` XML explicitly documents automatic registration when present during runner initialization. Existing test assembly references already include Fusion.Runtime, NUnit and Unity. No assembly, production or SDK edits are needed.
+
+The observer records separate completed forward/resimulation totals and maxima, the count/frame/time of the worst complete batch, a fixed 16-completion tail, pairing/invalid-count errors, any unfinished batch, normal Unity-update gaps and `TicksExecuted` corroboration. Durations use `Stopwatch` wall time and include interruptions; they are not CPU time. Callback gaps are not packet arrival/service timestamps. Completed aggregate totals retain overwritten tail samples; overwritten counts are explicit. Absent observations remain unavailable. Managed records survive destruction of a failed Runner and are frozen/reported at teardown before cancellation. Callbacks only update scalar/struct fields; strings and logs are created during reporting.
+
+`git diff --check` PASS. Independent source review requested from the assets lane. Compilation and native execution NOT RUN; the parent owns both. No waits, deadlines, physics/input operations or production settings change. The next action is source review, integration and the single TeamSolo native case with profiling enabled; successful registration requires actual nonzero, well-paired callback evidence in that result.
