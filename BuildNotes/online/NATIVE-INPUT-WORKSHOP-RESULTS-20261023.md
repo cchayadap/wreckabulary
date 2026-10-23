@@ -2,7 +2,7 @@
 
 STATUS: Initial native batch reviewed: 67/69 passed, two confirmed failures, zero skipped. Root subsequently assigned this lane the bounded four-file correction; its independent source review passes, but corrected core/native execution is NOT RUN. No compiler, Unity process or service request started here.
 
-The public native five-case group is a later review target and is not covered until its own completed evidence exists.
+The completed public native five-case group is assessed separately below; its failure does not change the confirmed input/workshop results.
 
 ## Exact result
 
@@ -36,3 +36,11 @@ node Tools/kit/gate/game_gate.mjs test editmode --cold --assemblies Wreckabulary
 ```
 
 Root decides the assembled R0/native sequencing. Do not rerun unfiltered core or treat the earlier 24 input and 20 existing workshop passes as failed. If source integration changes those paths, repeat only the affected scope. Keep the original failed XML/logs as evidence.
+
+## Public two-client batch: failed before gameplay
+
+Read-only follow-up evidence: root `.harness/delivery/native-public-two-client-{status.json,stdout.log}`, `TestResults/editmode_20261023T134237Z.xml`, and `Logs/gate_test_editmode_20261023T134237Z.log`. Wrapper 33764 ran 13:42:37–13:48:59 UTC; gate elapsed 381.6 seconds, zero passed, five failed, zero skipped. Exact five-method/category/assembly filters and both enable flags match the reviewed public execution plan.
+
+All five cases reached an exact public whole-party certificate, then the first Runner failed Fusion `SendJoin` with `OperationTimeout` / `Join Confirmation timeout`. They did not reach the gameplay-observed marker. This provides additional public HTTP allocation evidence only; it proves no working public native mode. `/root/recover_input` owns the SDK/fixture-lifetime comparison investigation. No timeout increase, log suppression or private-room substitution is proposed.
+
+A separate teardown defect is directly evidenced: log lines 629 and 690 onward report `Destroy may not be called from edit mode! Use DestroyImmediate instead.` `WordboundNativeGameplayTests.Cleanup` line 523 always calls deferred `Destroy`, while the subsequent frame yield already depends on `Application.isPlaying`. The test then reports proof-owned objects remaining. Proposed narrow repair, sent to root for ownership assignment: use immediate destruction only for those same prefix-matched, valid-scene test objects when already outside Play Mode; retain the ownership filter and final leak assertion. Production Runner destruction also appears in the failure log and must be assessed with the failed start lifetime, not hidden by changing fixture expectations. No cleanup source was changed in this review.
