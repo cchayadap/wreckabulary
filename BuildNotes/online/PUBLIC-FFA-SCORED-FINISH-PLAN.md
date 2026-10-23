@@ -1,6 +1,6 @@
 # Public FFA scored-finish native plan
 
-STATUS: Design review PASS; root approved bounded test-only implementation; source checkpoint under independent review. No runtime/service/deadline changes or jobs. The proposal below is retained as the approved contract; implementation status follows it.
+STATUS: Independent design and implementation SOURCE PASS; compiler/native NOT RUN. No runtime/service/deadline changes or jobs. The proposal below is retained as the approved contract; implementation status follows it.
 
 ## Existing evidence and smallest code boundary
 
@@ -49,3 +49,5 @@ The source now contains the named case and scoped helpers in the existing FullMa
 Protected contact requires the whole active interval before expiry and exact unchanged health. Duplicate delivery retains one command receipt, the same next-attack frontier, unchanged health and no fresh attack. Final assertions require all scores0–10, exactly generations1–9, identical confirmed winner/tick/scores on both peers, a separately downloaded/imported exact durable result, and replica/host ACK of its exact mark. Coverage explicitly identifies host Attack submission and remote victim movement; it does not claim remote-client scoring.
 
 Exact follow-up filter is now source-defined: `Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult`, **one case expected**. It is in ExternalPhotonFullMatch (now two cases), not ExternalPhotonPublicGameplay (still nine). Root must run R0 then the explicitly gated native case after independent source review, with the three existing environment opt-ins and exact public catalogue above. No compilation/native/elapsed-budget pass is claimed here.
+
+Independent Input review closed bounded SOURCE PASS on `053e0431`. It checked current root APIs, actual kit multiplicity/inventory capacity, fixed-host and zero-score-victim movement, every-tick attack observation, terminal retained-start handling despite cleared Attack, and exact result-mark acknowledgement. The protected case requires every active tick to remain protected and health-stable, with at least one actual qualifying native/canonical geometry/LOS sample; it does not claim valid contact geometry on every active tick. Strict protected-window scheduling, travel/knockback feasibility and the unchanged wall-clock budget still require the native run. No source changed after review. Integrate `053e0431` followed by this report-only closure; exclude baseline `4fc98d43`.
