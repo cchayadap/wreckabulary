@@ -670,10 +670,11 @@ namespace Wreckabulary.Tests
             finally { CultureInfo.CurrentCulture = previous; }
         }
 
-        [TestCase("TimeRun"), TestCase("FreeForAll")]
-        public void DuplicateResourceIdentityRejectsDifferentMutableFieldsBeforeLaterFailures(string mode)
+        [TestCase("TimeRun", true), TestCase("Freestyle", false)]
+        public void DuplicateResourceIdentityRejectsDifferentMutableFieldsBeforeLaterFailures(string mode, bool race)
         {
             var f = PhysicalFixture(mode);
+            Assert.AreEqual(race, f.Source.Mode.IsRace);
             string Check(MatchSnapshot snapshot) => CheckPhysical(f, snapshot);
             var valid = f.State;
             Assert.AreEqual("", Check(valid));
