@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Fusion;
 using Fusion.Addons.Physics;
 using Fusion.Sockets;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wreckabulary.Rules;
@@ -16,6 +17,15 @@ namespace Wreckabulary.Online
     [DisallowMultipleComponent]
     public sealed class WordboundGameplayController : MonoBehaviour, INetworkRunnerCallbacks
     {
+        static readonly ProfilerMarker ReconcileMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Reconcile");
+        static readonly ProfilerMarker CaptureMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Capture");
+        static readonly ProfilerMarker AdvanceMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Advance");
+        static readonly ProfilerMarker ValidateMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Validate");
+        static readonly ProfilerMarker PresentationMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.Presentation");
+        static readonly ProfilerMarker PhysicsApplyMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.PhysicsApply");
+        static readonly ProfilerMarker BuildWorldMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.BuildWorld");
+        static readonly ProfilerMarker BeforePhysicsMarker = new ProfilerMarker(ProfilerCategory.Scripts, "WB.Match.BeforePhysics");
+
         sealed class QueryRelay : IWordboundWorldQuery, IWordboundReleaseQuery
         {
             public IWordboundWorldQuery Target;
@@ -136,7 +146,7 @@ namespace Wreckabulary.Online
                 if (session.GameplayReady && runner.IsServer && !hostReady) BeginHost();
                 if (hostReady && runner.IsServer)
                 {
-                    var current = Authority.Match.Capture(1);
+                    var current = CaptureFrame();
                     if (!SameFrame(frame, current)) Reconcile(current);
                     if (!publishing && options.Clock() >= nextCheckpoint) _ = PublishCheckpoint();
                 }
@@ -171,7 +181,8 @@ namespace Wreckabulary.Online
                 !runner.SceneManager.TryGetPhysicsScene3D(out var scene) || !scene.IsValid() || scene == UnityEngine.Physics.defaultPhysicsScene) return false;
             if (courseWorld == null)
             {
-                courseWorld = WordboundCourseWorld.Build(course, geometry, options: options.World);
+                using (BuildWorldMarker.Auto())
+                    courseWorld = WordboundCourseWorld.Build(course, geometry, options: options.World);
                 if (!runner.MoveGameObjectToScene(courseWorld.gameObject, options.GameplayScene ?? default) ||
                     courseWorld.gameObject.scene.GetPhysicsScene() != scene)
                 { courseWorld.Dispose(); courseWorld = null; return false; }
@@ -210,7 +221,7 @@ namespace Wreckabulary.Online
             physics.MovementFaulted += Fail;
             query.Target = physics;
             driver = runner.gameObject.AddComponent<WordboundGameplayDriver>(); driver.Controller = this; runner.AddGlobal(driver);
-            Reconcile(Authority.Match.Capture(1));
+            Reconcile(CaptureFrame());
             hostReady = true;
             nextCheckpoint = options.Clock() + options.CheckpointMilliseconds;
         }
@@ -222,9 +233,10 @@ namespace Wreckabulary.Online
             {
                 session.Poll();
                 if (Fault != "" || !session.GameplayReady || !hostReady) return;
-                var current = Authority.Match.Capture(1);
+                var current = CaptureFrame();
                 if (!SameFrame(frame, current)) Reconcile(current);
-                if (!Authority.Match.IsPaused) options.BeforeHostPhysics?.Invoke(frame, bodies);
+                if (!Authority.Match.IsPaused)
+                    using (BeforePhysicsMarker.Auto()) options.BeforeHostPhysics?.Invoke(frame, bodies);
             }
             catch (Exception error) { Fail(error); }
         }
@@ -242,19 +254,29 @@ namespace Wreckabulary.Online
                 if (poses == null || poses.Count != bodies.Count || !new HashSet<string>(poses.Select(p => p.Id), StringComparer.Ordinal).SetEquals(bodies.Keys))
                     throw new ArgumentException("Host pose capture must cover exactly the reconciled body ledger.");
                 var observations = options.ObserveHost?.Invoke(frame, poses) ?? new WordboundHostObservations();
-                var result = Authority.Advance(options.Clock(), poses, observations.Progress, observations.Damage, observations.Mechanisms,
-                    physics.CompletedThrownContacts.Concat(observations.ThrownContacts ?? Array.Empty<HostThrownContact>()));
-                Reconcile(Authority.Match.Capture(1));
+                MatchTickResult result;
+                using (AdvanceMarker.Auto())
+                    result = Authority.Advance(options.Clock(), poses, observations.Progress, observations.Damage, observations.Mechanisms,
+                        physics.CompletedThrownContacts.Concat(observations.ThrownContacts ?? Array.Empty<HostThrownContact>()));
+                Reconcile(CaptureFrame());
                 HostAdvanced?.Invoke(result);
             }
             catch (Exception error) { Fail(error); throw; }
             finally { handlingStep = false; }
         }
 
+        MatchSnapshot CaptureFrame()
+        {
+            using (CaptureMarker.Auto()) return Authority.Match.Capture(1);
+        }
+
         void Reconcile(MatchSnapshot next, int presenceRetries = 0)
         {
+            using var scope = ReconcileMarker.Auto();
             if (presenceRetries > 8) throw new InvalidOperationException("Canonical presence did not settle within the signed roster.");
-            string error = MatchStateValidation.Validate(next, Authority.Match.Binding, Authority.Match.Mode, course, items, rules);
+            string error;
+            using (ValidateMarker.Auto())
+                error = MatchStateValidation.Validate(next, Authority.Match.Binding, Authority.Match.Mode, course, items, rules);
             if (error != "") throw new ArgumentException(error);
             var inputs = new Dictionary<string, PlayerRef>(StringComparer.Ordinal);
             bool disconnected = false;
@@ -268,10 +290,14 @@ namespace Wreckabulary.Online
                     disconnected = true;
                 }
             }
-            if (disconnected) { Reconcile(Authority.Match.Capture(1), presenceRetries + 1); return; }
+            if (disconnected) { Reconcile(CaptureFrame(), presenceRetries + 1); return; }
             var plan = new WordboundReconciliationPlan(bodies.Keys, next);
-            var presentation = new WordboundPresentationContext(next, course, geometry, items);
-            var views = next.Bodies.ToDictionary(b => b.Id, presentation.Presentation, StringComparer.Ordinal);
+            Dictionary<string, WordboundBodyPresentation> views;
+            using (PresentationMarker.Auto())
+            {
+                var presentation = new WordboundPresentationContext(next, course, geometry, items);
+                views = next.Bodies.ToDictionary(b => b.Id, presentation.Presentation, StringComparer.Ordinal);
+            }
             foreach (var id in plan.Remove)
             {
                 var body = bodies[id]; physics.Unregister(body);
@@ -292,7 +318,7 @@ namespace Wreckabulary.Online
                 {
                     runner.Despawn(obj);
                     Authority.Disconnect(state.SourceId, options.Clock());
-                    Reconcile(Authority.Match.Capture(1), presenceRetries + 1);
+                    Reconcile(CaptureFrame(), presenceRetries + 1);
                     return;
                 }
                 bodies.Add(state.Id, body);
@@ -312,7 +338,7 @@ namespace Wreckabulary.Online
             }
             if (bodies.Count != next.Bodies.Count || !new HashSet<string>(bodies.Keys).SetEquals(next.Bodies.Select(b => b.Id)))
                 throw new InvalidOperationException("Canonical reconciliation left missing or duplicate bodies.");
-            physics.ApplySnapshot(next);
+            using (PhysicsApplyMarker.Auto()) physics.ApplySnapshot(next);
             frame = next;
             FrameChanged?.Invoke(frame);
         }
