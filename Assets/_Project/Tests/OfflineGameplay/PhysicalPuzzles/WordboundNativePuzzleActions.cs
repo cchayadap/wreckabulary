@@ -73,9 +73,9 @@ namespace Wreckabulary.OfflineGameplayTests
             if (!route.FirstClockKinds[kind].HasValue) route.FirstClockKinds[kind] = decision;
             bool changed = !route.LastClockDecision.HasValue ||
                 route.LastClockDecision.Value.Kind != decision.Kind ||
-                route.LastClockDecision.Value.SourceInstance != decision.SourceInstance ||
-                route.LastClockDecision.Value.FixtureInstance != decision.FixtureInstance ||
-                route.LastClockDecision.Value.Line.BlockerInstance != decision.Line.BlockerInstance;
+                route.LastClockDecision.Value.SourceEntity != decision.SourceEntity ||
+                route.LastClockDecision.Value.FixtureEntity != decision.FixtureEntity ||
+                route.LastClockDecision.Value.Line.BlockerEntity != decision.Line.BlockerEntity;
             if (changed)
             {
                 if (route.ClockTransitions.Count == 24)
@@ -96,14 +96,14 @@ namespace Wreckabulary.OfflineGameplayTests
         {
             var line = decision.Line;
             return "prePhysicsCompletedTick=" + decision.CompletedTick + ",epoch=" + decision.Epoch + ",kind=" + decision.Kind +
-                ",sourceInstance=" + decision.SourceInstance + ",fixtureInstance=" + decision.FixtureInstance +
+                ",sourceEntity=" + decision.SourceEntity + ",fixtureEntity=" + decision.FixtureEntity +
                 ",collision=" + decision.CollisionEvaluated + "/" + decision.CollisionAllowed +
                 ",containment=" + decision.ContainmentEvaluated + "/" + decision.ContainmentAllowed +
                 ",sourcePosition=" + Vector(decision.SourcePosition).ToString("F6") + ",fixturePosition=" + Vector(decision.FixturePosition).ToString("F6") +
                 ",radius=" + decision.Radius.ToString("F6") + ",arcDegrees=" + decision.ArcDegrees.ToString("F6") +
                 ",lineEvaluated=" + line.Evaluated + ",lineFrom=" + line.From.ToString("F6") + ",lineTo=" + line.To.ToString("F6") +
                 ",lineHits=" + line.HitCount + "/" + line.Capacity + ",lineBufferFull=" + line.BufferFull +
-                ",hasBlocker=" + line.HasBlocker + ",blockerInstance=" + line.BlockerInstance + ",blockerLayer=" + line.BlockerLayer +
+                ",hasBlocker=" + line.HasBlocker + ",blockerEntity=" + line.BlockerEntity + ",blockerLayer=" + line.BlockerLayer +
                 ",blockerDistance=" + line.BlockerDistance.ToString("F6") + ",blockerCourseSurface=" + line.BlockerCourseSurface +
                 ",blockerRegisteredBody=" + line.BlockerRegisteredBody + ",blockerKind=" + line.BlockerKind;
         }
@@ -212,10 +212,13 @@ namespace Wreckabulary.OfflineGameplayTests
             if (route == null) return;
             try
             {
+                WordboundMovementInput actual = default;
+                bool hasInput = session.Runner.TryGetInputForPlayer(session.Runner.LocalPlayer, out actual);
                 bool matches = session.Runner.Tick.Raw == route.LastInjectedRunnerTick &&
-                    session.Runner.TryGetInputForPlayer(session.Runner.LocalPlayer, out WordboundMovementInput actual) &&
+                    hasInput &&
                     actual.Epoch == route.InjectedInput.Epoch && actual.MoveX == route.InjectedInput.MoveX && actual.MoveZ == route.InjectedInput.MoveZ &&
-                    actual.Jump == route.InjectedInput.Jump && actual.HasFacing == route.InjectedInput.HasFacing && actual.FacingYaw == route.InjectedInput.FacingYaw;
+                    (bool)actual.Jump == (bool)route.InjectedInput.Jump && (bool)actual.HasFacing == (bool)route.InjectedInput.HasFacing &&
+                    actual.FacingYaw == route.InjectedInput.FacingYaw;
                 if (matches) route.PostPhysicsInputMatches++;
                 else { route.PostPhysicsInputMismatches++; route.SteeringFailure = "PostPhysicsInputMismatch"; }
             }
