@@ -172,12 +172,7 @@ namespace Wreckabulary.Rules.Wordbound
         internal static bool ReceiverCandidate(ResolvedCoursePhysicalSite site, WorldBodyState body, ItemInstance item) =>
             item != null && item.Origin == ItemOrigin.Crafted && item.Word == site.WindReceiverRecipeId &&
             item.State == ItemState.World && body.Active &&
-            body.Position.X * 1000 >= site.ReceiverStartBounds.Min.X &&
-            body.Position.X * 1000 <= site.ReceiverStartBounds.Max.X &&
-            body.Position.Y * 1000 >= site.ReceiverStartBounds.Min.Y &&
-            body.Position.Y * 1000 <= site.ReceiverStartBounds.Max.Y &&
-            body.Position.Z * 1000 >= site.ReceiverStartBounds.Min.Z &&
-            body.Position.Z * 1000 <= site.ReceiverStartBounds.Max.Z;
+            CourseSensorBoundary.ContainsFootPoint(site.ReceiverStartBounds, body.Position);
 
         internal static int FixedCount(ModeDefinition mode, ResolvedCourse course) =>
             checked(mode.MaximumPlayers + (WordboundPracticePolicy.HasKeepsake(mode) ? mode.TeamCount : 0) +

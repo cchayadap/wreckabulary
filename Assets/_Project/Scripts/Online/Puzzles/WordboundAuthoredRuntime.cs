@@ -198,7 +198,7 @@ namespace Wreckabulary.Online
             return false;
         }
 
-        static bool Inside(CourseBox box, Vector3 point) => point.x >= box.Min.X / 1000f && point.x <= box.Max.X / 1000f &&
-            point.y >= box.Min.Y / 1000f && point.y <= box.Max.Y / 1000f && point.z >= box.Min.Z / 1000f && point.z <= box.Max.Z / 1000f;
+        static bool Inside(CourseBox box, Vector3 point) =>
+            CourseSensorBoundary.ContainsFootPoint(box, point.x, point.y, point.z);
     }
 }

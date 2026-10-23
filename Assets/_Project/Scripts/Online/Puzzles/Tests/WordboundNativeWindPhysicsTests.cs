@@ -33,6 +33,10 @@ namespace Wreckabulary.Tests
             public bool ArrivalReceivedWind, WindAfterExit;
             public float LastSecondMaximumSpeed, LastSecondMaximumDrift;
             public Vector3 ExitPosition, ExitVelocity;
+            public int RawExactArrivalTick = -1, FirstHorizontalTick = -1;
+            public Vector3 FirstHorizontalPosition;
+            public bool FirstHorizontalRawContains, FirstHorizontalSharedContains;
+            public double FirstHorizontalLowerGapMm;
         }
 
         [UnityTest, Category("NativePhysics")]
@@ -132,6 +136,7 @@ namespace Wreckabulary.Tests
             float required = Vector3.Dot(arrival.ClosestPoint(start) - start, forward);
             Assert.AreEqual(.800f, required, .0001f, "Use the authored initial start, not the stalled final pose.");
             Assert.IsFalse(arrival.Contains(start));
+            Assert.IsFalse(CourseSensorBoundary.ContainsFootPoint(site.ArrivalBounds, Value(start)));
             Physics.SyncTransforms();
             Assert.IsTrue(physics.Raycast(start + Vector3.up * 2, Vector3.down, out var hit, 4, ~0, QueryTriggerInteraction.Ignore));
             var floor = hit.collider;
@@ -223,8 +228,24 @@ namespace Wreckabulary.Tests
                 physics.Simulate(1f / ModeDefinition.TickRate);
                 float travel = Vector3.Dot(body.position - start, forward);
                 result.MaximumTravel = Mathf.Max(result.MaximumTravel, travel);
-                if (result.ArrivalTick < 0 && arrival.Contains(body.position))
-                { result.ArrivalTick = tick; result.ArrivalPosition = body.position; result.ArrivalReceivedWind = pushed; }
+                var position = body.position;
+                bool rawContains = arrival.Contains(position);
+                bool sharedContains = CourseSensorBoundary.ContainsFootPoint(site.ArrivalBounds, Value(position));
+                bool horizontal = position.x >= site.ArrivalBounds.Min.X / 1000f && position.x <= site.ArrivalBounds.Max.X / 1000f &&
+                    position.z >= site.ArrivalBounds.Min.Z / 1000f && position.z <= site.ArrivalBounds.Max.Z / 1000f;
+                if (result.RawExactArrivalTick < 0 && rawContains) result.RawExactArrivalTick = tick;
+                bool firstHorizontal = result.FirstHorizontalTick < 0 && horizontal;
+                bool firstArrival = result.ArrivalTick < 0 && sharedContains;
+                if (firstHorizontal)
+                {
+                    result.FirstHorizontalTick = tick; result.FirstHorizontalPosition = position;
+                    result.FirstHorizontalRawContains = rawContains; result.FirstHorizontalSharedContains = sharedContains;
+                    result.FirstHorizontalLowerGapMm = site.ArrivalBounds.Min.Y - (double)position.y * 1000;
+                }
+                if (firstArrival)
+                { result.ArrivalTick = tick; result.ArrivalPosition = position; result.ArrivalReceivedWind = pushed; }
+                if (firstHorizontal || firstArrival)
+                    Console.WriteLine(FormattableString.Invariant($"WB_WIND_SENSOR: scenario={name}; tick={tick}; position={V(position)}; sensorMinMm=({site.ArrivalBounds.Min.X},{site.ArrivalBounds.Min.Y},{site.ArrivalBounds.Min.Z}); sensorMaxMm=({site.ArrivalBounds.Max.X},{site.ArrivalBounds.Max.Y},{site.ArrivalBounds.Max.Z}); rawExactContains={rawContains}; sharedContains={sharedContains}; lowerGapMm={site.ArrivalBounds.Min.Y - (double)position.y * 1000:R}; floorToleranceMm={CourseSensorBoundary.FloorContactToleranceMm}; pushed={pushed}"));
                 if (wind && result.FieldExitTick < 0 && !WordboundFieldPolicy.Contains(stats, fan, Pose(body)))
                 { result.FieldExitTick = tick; result.ExitPosition = body.position; result.ExitVelocity = body.linearVelocity; }
                 if (tick == Steps - ModeDefinition.TickRate) lastSecondStart = body.position;
@@ -252,7 +273,10 @@ namespace Wreckabulary.Tests
         static void WriteResults(IEnumerable<Result> results)
         {
             foreach (var result in results)
+            {
                 Console.WriteLine(FormattableString.Invariant($"WB_WIND_RESULT: scenario={result.Name}; steps={Steps}; hz={ModeDefinition.TickRate}; start={V(result.Start)}; end={V(result.End)}; velocity={V(result.Velocity)}; maximumSignedTravel={result.MaximumTravel:R}; requiredTravel={result.RequiredTravel:R}; windTicks={result.WindTicks}; firstArrivalTick={result.ArrivalTick}; arrivalPosition={V(result.ArrivalPosition)}; arrivalReceivedWind={result.ArrivalReceivedWind}; lastWindTick={result.LastWindTick}; fieldExitTick={result.FieldExitTick}; exitPosition={V(result.ExitPosition)}; exitVelocity={V(result.ExitVelocity)}; windAfterExit={result.WindAfterExit}; lastSecondMaxSpeed={result.LastSecondMaximumSpeed:R}; lastSecondMaxDrift={result.LastSecondMaximumDrift:R}; nonFloorProximityTicks={result.NonFloorProximityTicks}; scope=isolated-native-solver-not-Fusion"));
+                Console.WriteLine(FormattableString.Invariant($"WB_WIND_BOUNDARY: scenario={result.Name}; rawExactArrivalTick={result.RawExactArrivalTick}; firstHorizontalTick={result.FirstHorizontalTick}; firstHorizontalPosition={V(result.FirstHorizontalPosition)}; firstHorizontalRawContains={result.FirstHorizontalRawContains}; firstHorizontalSharedContains={result.FirstHorizontalSharedContains}; firstHorizontalLowerGapMm={result.FirstHorizontalLowerGapMm:R}; floorToleranceMm={CourseSensorBoundary.FloorContactToleranceMm}"));
+            }
         }
 
         [UnityTearDown]
