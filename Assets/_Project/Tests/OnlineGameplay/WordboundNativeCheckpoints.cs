@@ -111,7 +111,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 callback = observed => {
                     try
                     {
-                        if (!ReferenceEquals(observed, current())) { lock (sync) staleSamples++; return; }
+                        if (!ReferenceEquals(observed, current())) { lock (sync) { if (!stopped) staleSamples++; } return; }
                         if (!observed.IsServer || !observed.IsForward) return;
                         var snapshot = controller.Frame;
                         var active = session();
@@ -119,7 +119,7 @@ namespace Wreckabulary.OnlineGameplayTests
                             active?.Committed, active?.GameplayReady ?? false, snapshot?.Progress.Migrating ?? false,
                             snapshot?.Progress.Result != null, controller.IsSimulationPaused, controller.Authority.Match.IsPaused);
                     }
-                    catch { lock (sync) unavailable++; }
+                    catch { lock (sync) { if (!stopped) unavailable++; } }
                 };
                 adapter.TickStarting += callback;
             }
