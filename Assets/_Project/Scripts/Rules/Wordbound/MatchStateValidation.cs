@@ -67,6 +67,9 @@ namespace Wreckabulary.Rules.Wordbound
         public static string Validate(MatchSnapshot snapshot, MatchBinding expectedBinding, ModeDefinition mode,
             ResolvedCourse course, ItemCatalogue catalogue, GameRules rules)
         {
+#if UNITY_EDITOR || GSK_QA
+            using var phase = WordboundPhaseCapture.Measure(WordboundPhase.FullValidation);
+#endif
             try
             {
                 Need(snapshot != null && expectedBinding != null && mode != null && course != null && catalogue != null && rules != null,
@@ -140,6 +143,9 @@ namespace Wreckabulary.Rules.Wordbound
         static string ValidateMutableDependencies(MatchSnapshot snapshot, MatchBinding binding, ModeDefinition mode,
             ResolvedCourse course, ItemCatalogue catalogue, GameRules rules)
         {
+#if UNITY_EDITOR || GSK_QA
+            using var phase = WordboundPhaseCapture.Measure(WordboundPhase.MutableValidation);
+#endif
             try
             {
                 Need(rules != null, "Snapshot and all trusted match dependencies are required.");
@@ -157,6 +163,9 @@ namespace Wreckabulary.Rules.Wordbound
 
         static void ValidateEconomy(MatchSnapshot snapshot, MatchBinding binding, ItemCatalogue catalogue, GameRules rules)
         {
+#if UNITY_EDITOR || GSK_QA
+            using var phase = WordboundPhaseCapture.Measure(WordboundPhase.EconomyValidation);
+#endif
             var economy = new Economy(catalogue, rules);
             for (int i = 0; i < binding.Seats.Count; i++) economy.AddPlayer(i, binding.Seats[i].Team);
             economy.Restore(snapshot.Economy);

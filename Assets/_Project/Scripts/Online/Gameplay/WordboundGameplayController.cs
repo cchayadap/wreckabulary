@@ -263,7 +263,11 @@ namespace Wreckabulary.Online
                     throw new InvalidOperationException("Host authorization changed during the physics step.");
                 if (poses == null || poses.Count != bodies.Count || !new HashSet<string>(poses.Select(p => p.Id), StringComparer.Ordinal).SetEquals(bodies.Keys))
                     throw new ArgumentException("Host pose capture must cover exactly the reconciled body ledger.");
-                var observations = options.ObserveHost?.Invoke(frame, poses) ?? new WordboundHostObservations();
+                WordboundHostObservations observations;
+#if UNITY_EDITOR || GSK_QA
+                using (WordboundPhaseCapture.Measure(WordboundPhase.ObserveHost))
+#endif
+                    observations = options.ObserveHost?.Invoke(frame, poses) ?? new WordboundHostObservations();
                 MatchTickResult result;
                 using (AdvanceMarker.Auto())
                     result = Authority.Advance(options.Clock(), poses, observations.Progress, observations.Damage, observations.Mechanisms,
@@ -299,6 +303,9 @@ namespace Wreckabulary.Online
                     bool retry = false;
                     bool Prepare()
                     {
+#if UNITY_EDITOR || GSK_QA
+                        using var phase = WordboundPhaseCapture.Measure(WordboundPhase.Prepare);
+#endif
                         if (!Current()) return false;
                         var inputs = new Dictionary<string, PlayerRef>(StringComparer.Ordinal);
                         foreach (var state in next.Bodies)
@@ -382,7 +389,13 @@ namespace Wreckabulary.Online
                 }
             }
             finally { reconciling = false; }
-            if (published != null) FrameChanged?.Invoke(published);
+            if (published != null)
+            {
+#if UNITY_EDITOR || GSK_QA
+                using var phase = WordboundPhaseCapture.Measure(WordboundPhase.FrameChanged);
+#endif
+                FrameChanged?.Invoke(published);
+            }
             return published != null;
         }
 

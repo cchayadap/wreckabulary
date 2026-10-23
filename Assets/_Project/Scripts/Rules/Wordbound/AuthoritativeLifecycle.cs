@@ -46,6 +46,9 @@ namespace Wreckabulary.Rules.Wordbound
     {
         void RetireInactiveResources()
         {
+#if UNITY_EDITOR || GSK_QA
+            using var phase = WordboundPhaseCapture.Measure(WordboundPhase.RetireResources);
+#endif
             var teams = progress.Capture().Teams.ToDictionary(t => t.Team);
             Dictionary<(string Source, int Team, int Generation), List<WorldBodyState>> tiles = null;
             foreach (var resource in resources.Values.ToArray())

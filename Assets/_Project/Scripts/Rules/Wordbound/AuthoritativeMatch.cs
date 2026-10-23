@@ -200,7 +200,11 @@ namespace Wreckabulary.Rules.Wordbound
                 timings.Select(m => Key(m.PuzzleId, m.Team, m.Lap)).Distinct(StringComparer.Ordinal).Count() != timings.Length ||
                 wallClockMs < progress.WallClockMs || wallClockMs > long.MaxValue - 120000)
                 throw new ArgumentException("Invalid host frame.");
-            var before = Capture(Math.Max(1, commits.PublishedSequence));
+            MatchSnapshot before;
+#if UNITY_EDITOR || GSK_QA
+            using (WordboundPhaseCapture.Measure(WordboundPhase.RollbackCapture))
+#endif
+                before = Capture(Math.Max(1, commits.PublishedSequence));
             inTick = true;
             try
             {
@@ -738,6 +742,9 @@ namespace Wreckabulary.Rules.Wordbound
 
         void Synchronize(MatchSnapshot before)
         {
+#if UNITY_EDITOR || GSK_QA
+            using var phase = WordboundPhaseCapture.Measure(WordboundPhase.Synchronize);
+#endif
             foreach (var item in economy.Items.Where(i => i.State != ItemState.Deployed)) item.DeploymentTick = -1;
             foreach (var state in mechanisms.Values.Where(m => !m.Solved && m.ItemEntityId != "").ToArray())
             {
