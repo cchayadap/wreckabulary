@@ -1,0 +1,78 @@
+{
+  "sourceHead": "8174c8d",
+  "kind": "native-isolated-candidate-with-shared-floor-boundary",
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.Tests.WordboundNativeWindPhysicsTests.CandidateItemContactReachesWindArrivalAndStopsWithoutObstacles",
+    "rung": "R3",
+    "ok": true,
+    "exit": 0,
+    "verdict": "PASS",
+    "utc": "2026-10-23T17:32:51Z",
+    "secs": 172.7,
+    "route": "cold",
+    "errors": [],
+    "failures": [],
+    "log": "Logs/gate_test_editmode_20261023T173251Z.log",
+    "evidence": [
+      "TestResults/editmode_20261023T173251Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 97.9,
+    "tests": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "artifacts": [
+    {
+      "path": "Logs/gate_test_editmode_20261023T173251Z.log",
+      "sha256": "1D36EFD45BFB0957FCF6F974A70717E496F5919F95A40B8D1720ED8C377B7D4B"
+    },
+    {
+      "path": "TestResults/editmode_20261023T173251Z.xml",
+      "sha256": "A59211894026979E251E8A97E3B431F950F3E3E4B047D1F908A70804FD5A7DBA"
+    }
+  ],
+  "observations": [
+    "WB_WIND_SETUP: scenario=candidate-no-wind; unity=6000.6.3f1; manifest=6e86080bfbe61509ad1278de82c76cf8f0232782f8619db03820f0113212609b; site=f159fcd5f134baf54614006f06960da6595cce6ad077af63d39907b4788a133f; fan=(39,16,-21); arrivalMin=(38.75,16,-19.45); arrivalMax=(39.25,16.9000015,-18.95); floorTop=16; floorThickness=0.239999771; mass=5; gravity=(0,-9.81,0); linearDamping=0; angularDamping=0.05; constraints=None; solverIterations=6; solverVelocityIterations=1; contactOffset=0.01; frictionless=False; strength=8; radius=3.2; arc=90; simulationMode=FixedUpdate; fixedDeltaTime=0.0199999921",
+    "WB_WIND_CONTACT: scenario=candidate-no-wind; receiverOnlyCandidate=True; staticFriction=0.3; dynamicFriction=0.25; combine=Minimum; initialSpeed=0",
+    "WB_WIND_SAMPLE: scenario=candidate-no-wind; tick=1; pose=(39,16.0172749,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,-0.163500011,0); signedTravel=0; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=candidate-no-wind; tick=60; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-no-wind; tick=120; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-no-wind; tick=180; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-no-wind; tick=240; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-no-wind; tick=300; pose=(39,16,-20.25); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0; sleeping=True",
+    "WB_WIND_SETUP: scenario=candidate-wind; unity=6000.6.3f1; manifest=6e86080bfbe61509ad1278de82c76cf8f0232782f8619db03820f0113212609b; site=f159fcd5f134baf54614006f06960da6595cce6ad077af63d39907b4788a133f; fan=(39,16,-21); arrivalMin=(38.75,16,-19.45); arrivalMax=(39.25,16.9000015,-18.95); floorTop=16; floorThickness=0.239999771; mass=5; gravity=(0,-9.81,0); linearDamping=0; angularDamping=0.05; constraints=None; solverIterations=6; solverVelocityIterations=1; contactOffset=0.01; frictionless=False; strength=8; radius=3.2; arc=90; simulationMode=FixedUpdate; fixedDeltaTime=0.0199999921",
+    "WB_WIND_CONTACT: scenario=candidate-wind; receiverOnlyCandidate=True; staticFriction=0.3; dynamicFriction=0.25; combine=Minimum; initialSpeed=0",
+    "WB_WIND_SAMPLE: scenario=candidate-wind; tick=1; pose=(39,16.0172749,-20.2477779); beforeWind=(0,0,0); beforeSolver=(0,0,0.13333334); afterSolver=(0,-0.163500011,0.13333334); signedTravel=0.00222206116; sleeping=False",
+    "WB_WIND_SENSOR: scenario=candidate-wind; tick=43; position=(38.9924049,15.9999886,-19.4267845); sensorMinMm=(38750,16000,-19450); sensorMaxMm=(39250,16900,-18950); rawExactContains=False; sharedContains=True; lowerGapMm=0.011444091796875; floorToleranceMm=1; pushed=True",
+    "WB_WIND_SAMPLE: scenario=candidate-wind; tick=60; pose=(38.9860573,15.9999886,-18.66685); beforeWind=(-0.0244300384,-0.0003912151,3.043368); beforeSolver=(-0.0244300384,-0.0003912151,3.17670155); afterSolver=(-0.02482063,-0.0003928244,3.09494686); signedTravel=1.58315086; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=candidate-wind; tick=120; pose=(38.9568748,15.9999924,-16.29894); beforeWind=(-0.0123654567,0.000219643116,0.271172643); beforeSolver=(-0.0123654567,0.000219643116,0.271172643); afterSolver=(-0.009020478,-0.00156021118,0.19038105); signedTravel=3.95105934; sleeping=False",
+    "WB_WIND_SAMPLE: scenario=candidate-wind; tick=180; pose=(38.9567451,16,-16.29721); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=3.95278931; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-wind; tick=240; pose=(38.9567451,16,-16.29721); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=3.95278931; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-wind; tick=300; pose=(38.9567451,16,-16.29721); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=3.95278931; sleeping=True",
+    "WB_WIND_SETUP: scenario=candidate-inertia-stop; unity=6000.6.3f1; manifest=6e86080bfbe61509ad1278de82c76cf8f0232782f8619db03820f0113212609b; site=f159fcd5f134baf54614006f06960da6595cce6ad077af63d39907b4788a133f; fan=(39,16,-21); arrivalMin=(38.75,16,-19.45); arrivalMax=(39.25,16.9000015,-18.95); floorTop=16; floorThickness=0.239999771; mass=5; gravity=(0,-9.81,0); linearDamping=0; angularDamping=0.05; constraints=None; solverIterations=6; solverVelocityIterations=1; contactOffset=0.01; frictionless=False; strength=8; radius=3.2; arc=90; simulationMode=FixedUpdate; fixedDeltaTime=0.0199999921",
+    "WB_WIND_CONTACT: scenario=candidate-inertia-stop; receiverOnlyCandidate=True; staticFriction=0.3; dynamicFriction=0.25; combine=Minimum; initialSpeed=3",
+    "WB_WIND_SAMPLE: scenario=candidate-inertia-stop; tick=1; pose=(39,16.0172749,-20.2); beforeWind=(0,0,3); beforeSolver=(0,0,3); afterSolver=(0,-0.163500011,3); signedTravel=0.0499992371; sleeping=False",
+    "WB_WIND_SENSOR: scenario=candidate-inertia-stop; tick=24; position=(38.99601,15.9999886,-19.4488068); sensorMinMm=(38750,16000,-19450); sensorMaxMm=(39250,16900,-18950); rawExactContains=False; sharedContains=True; lowerGapMm=0.011444091796875; floorToleranceMm=1; pushed=False",
+    "WB_WIND_SAMPLE: scenario=candidate-inertia-stop; tick=60; pose=(38.9935837,16,-19.3478889); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0.902111053; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-inertia-stop; tick=120; pose=(38.9935837,16,-19.3478889); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0.902111053; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-inertia-stop; tick=180; pose=(38.9935837,16,-19.3478889); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0.902111053; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-inertia-stop; tick=240; pose=(38.9935837,16,-19.3478889); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0.902111053; sleeping=True",
+    "WB_WIND_SAMPLE: scenario=candidate-inertia-stop; tick=300; pose=(38.9935837,16,-19.3478889); beforeWind=(0,0,0); beforeSolver=(0,0,0); afterSolver=(0,0,0); signedTravel=0.902111053; sleeping=True",
+    "WB_WIND_RESULT: scenario=candidate-no-wind; steps=300; hz=60; start=(39,16.02,-20.25); end=(39,16,-20.25); velocity=(0,0,0); maximumSignedTravel=0; requiredTravel=0.799999237; windTicks=0; firstArrivalTick=-1; arrivalPosition=(0,0,0); arrivalReceivedWind=False; lastWindTick=0; fieldExitTick=-1; exitPosition=(0,0,0); exitVelocity=(0,0,0); windAfterExit=False; lastSecondMaxSpeed=0; lastSecondMaxDrift=0; nonFloorProximityTicks=0; scope=isolated-native-solver-not-Fusion",
+    "WB_WIND_BOUNDARY: scenario=candidate-no-wind; rawExactArrivalTick=-1; firstHorizontalTick=-1; firstHorizontalPosition=(0,0,0); firstHorizontalRawContains=False; firstHorizontalSharedContains=False; firstHorizontalLowerGapMm=0; floorToleranceMm=1",
+    "WB_WIND_RESULT: scenario=candidate-wind; steps=300; hz=60; start=(39,16.02,-20.25); end=(38.9567451,16,-16.29721); velocity=(0,0,0); maximumSignedTravel=3.95314026; requiredTravel=0.799999237; windTicks=75; firstArrivalTick=43; arrivalPosition=(38.9924049,15.9999886,-19.4267845); arrivalReceivedWind=True; lastWindTick=75; fieldExitTick=75; exitPosition=(38.9788933,15.9999886,-17.7900066); exitVelocity=(-0.0306485947,-0.000417932868,3.86863065); windAfterExit=False; lastSecondMaxSpeed=0; lastSecondMaxDrift=0; nonFloorProximityTicks=0; scope=isolated-native-solver-not-Fusion",
+    "WB_WIND_BOUNDARY: scenario=candidate-wind; rawExactArrivalTick=-1; firstHorizontalTick=43; firstHorizontalPosition=(38.9924049,15.9999886,-19.4267845); firstHorizontalRawContains=False; firstHorizontalSharedContains=True; firstHorizontalLowerGapMm=0.011444091796875; floorToleranceMm=1",
+    "WB_WIND_RESULT: scenario=candidate-inertia-stop; steps=300; hz=60; start=(39,16.02,-20.25); end=(38.9935837,16,-19.3478889); velocity=(0,0,0); maximumSignedTravel=0.902187347; requiredTravel=0.799999237; windTicks=0; firstArrivalTick=24; arrivalPosition=(38.99601,15.9999886,-19.4488068); arrivalReceivedWind=False; lastWindTick=0; fieldExitTick=-1; exitPosition=(0,0,0); exitVelocity=(0,0,0); windAfterExit=False; lastSecondMaxSpeed=0; lastSecondMaxDrift=0; nonFloorProximityTicks=0; scope=isolated-native-solver-not-Fusion",
+    "WB_WIND_BOUNDARY: scenario=candidate-inertia-stop; rawExactArrivalTick=33; firstHorizontalTick=24; firstHorizontalPosition=(38.99601,15.9999886,-19.4488068); firstHorizontalRawContains=False; firstHorizontalSharedContains=True; firstHorizontalLowerGapMm=0.011444091796875; floorToleranceMm=1"
+  ],
+  "limitations": [
+    "Candidate-only material during this run; actual prefab assignment and full six-family route remain unverified.",
+    "No player rendering, network, human feel or release acceptance."
+  ]
+}
