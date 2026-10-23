@@ -1,6 +1,6 @@
 # Shared Freestyle native behavior review
 
-STATUS: PLAN REVIEW COMPLETE; implementation/source and native execution pending.
+STATUS: SOURCE PASS — Online implementation **`a6a2a72b`**. Compiler/native execution pending; no heavy job run by this reviewer.
 
 ## Bounded plan reviewed before implementation
 
@@ -18,3 +18,15 @@ Source constraints checked in `AuthoritativePractice`, `AuthoritativeMatch`, `Wo
 - No race objectives/result should appear throughout and on both committed peers. No hazard-immunity claim is warranted unless an actual hazard is exercised.
 
 The plan is feasible within the existing fixture and unchanged budgets. Final scope is **compact private authored shared behavior with two authenticated scripted clients**, not public matchmaking, full flagship content, eight-player performance or human/Windows usability acceptance. Exact implementation and callback cleanup still require source review; root alone runs the native gate.
+
+## Implementation review
+
+Reviewed the exact new case and helpers in `WordboundNativeWorkshopTests.cs` against current integration APIs, including its existing FullMatch partial and real `Run`/command/ACK helpers. The historical Online lane does not contain those accepted helper files; this delta correctly does not overwrite them with an old baseline. Existing TimeRun, transfer and public cases are unchanged.
+
+The factory copies the accepted compact authored document, independently resolves it for Freestyle, adds eight legal starts, a distinct second station and GIFT reward, and checks the original document is unchanged. It uses installed geometry/items/rules and retains exact private bundle transfer/roster checks. The host is parked outside the socket actor radius before the teammate's physical hold, making the asserted solver actor meaningful.
+
+Reward checks use the public immutable snapshot counters, sorted tile IDs/letters and actual shared loose bodies. The successful command is resubmitted through the real session and requires a second observed delivery plus one receipt; a new repeat must return `AlreadySolved`. Both peers subsequently acknowledge the solved station, exact reward and rejection. Inventory baselines are defensive snapshot copies and compared after the actual shared station switch; the second station's five TABLE tiles must appear. No live economy/progress/pose field is edited.
+
+The admitted unarmed attack has positive configured damage and real active-window `FrameChanged` samples. A qualifying sample must satisfy native and canonical reach/facing, public physics line of sight, actionable attacker and a live connected victim without spawn protection, dodge or defense. Health/stun/knockouts must remain unchanged through attack completion and replica ACK. This is bounded teammate-damage immunity evidence; the log correctly excludes hazards. The no-race observer spans the actual scenario interval, and temporary observers/input delegates are detached in finally.
+
+No concrete source blocker found. Exact added filter: `Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPeersShareFreestyleStationRewardAndPreserveInventory`; expected **1 case**, with external gameplay and workshop flags enabled. `ExternalPhotonWorkshopGameplay` now contains 2 cases. The existing eight-minute Run lifetime, ten-minute NUnit limit and helper waits are unchanged. Require the final native XML and strict cleanup result before accepting behavior; early observation markers alone are insufficient.
