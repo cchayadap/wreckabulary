@@ -187,6 +187,16 @@ namespace Wreckabulary.OfflineGameplayTests
             var player = original.Bodies.Single(body => body.Kind == WorldBodyKind.Player);
             var native = controller.Bodies[player.Id];
             var prior = native.Canonical;
+            var priorPosition = native.Rigidbody.position;
+            var priorRotation = native.Rigidbody.rotation;
+            var priorVelocity = native.Rigidbody.linearVelocity;
+            void Unchanged()
+            {
+                Assert.AreSame(prior, native.Canonical);
+                Assert.AreEqual(priorPosition, native.Rigidbody.position);
+                Assert.AreEqual(priorRotation, native.Rigidbody.rotation);
+                Assert.AreEqual(priorVelocity, native.Rigidbody.linearVelocity);
+            }
             var moved = player.At(new WorldVector(player.Position.X + 1, player.Position.Y, player.Position.Z));
             MatchSnapshot Replace(System.Collections.Generic.IEnumerable<WorldBodyState> bodies) =>
                 new MatchSnapshot(original.Binding, original.Epoch, original.Sequence, original.NextWorldEntityId,
@@ -198,20 +208,20 @@ namespace Wreckabulary.OfflineGameplayTests
             bool prepared = false;
             Assert.Throws<ArgumentException>(() => world.ReconcileAndApplySnapshot(invalid, initialRules, () => { prepared = true; return true; }));
             Assert.IsFalse(prepared);
-            Assert.AreSame(prior, native.Canonical);
+            Unchanged();
             Assert.IsFalse(world.ReconcileAndApplySnapshot(candidate, initialRules, () => false));
-            Assert.AreSame(prior, native.Canonical);
+            Unchanged();
 
             var callbackError = new FormatException("native prepare failure");
             Assert.AreSame(callbackError, Assert.Throws<FormatException>(() =>
                 world.ReconcileAndApplySnapshot(candidate, initialRules, () => throw callbackError)));
-            Assert.AreSame(prior, native.Canonical);
+            Unchanged();
             Assert.IsFalse(world.ReconcileAndApplySnapshot(candidate, initialRules, () => {
                 Assert.Throws<InvalidOperationException>(() => world.ApplySnapshot(candidate));
                 Assert.Throws<InvalidOperationException>(() => world.ReconcileAndApplySnapshot(candidate, initialRules, () => true));
                 return false;
             }));
-            Assert.AreSame(prior, native.Canonical);
+            Unchanged();
 
             float health = world.Rules.MaxHealth;
             try
@@ -220,14 +230,17 @@ namespace Wreckabulary.OfflineGameplayTests
                     world.Rules.MaxHealth = 1;
                     return true;
                 }));
-                Assert.AreSame(prior, native.Canonical);
+                Unchanged();
                 Assert.Throws<ArgumentException>(() => world.ApplySnapshot(candidate));
+                Unchanged();
             }
             finally { world.Rules.MaxHealth = health; }
             Assert.IsTrue(world.ReconcileAndApplySnapshot(candidate, initialRules, () => true));
             Assert.AreSame(moved, native.Canonical);
+            Assert.AreEqual(new Vector3(moved.Position.X, moved.Position.Y, moved.Position.Z), native.Rigidbody.position);
             world.ApplySnapshot(original);
             Assert.AreSame(player, native.Canonical);
+            Assert.AreEqual(new Vector3(player.Position.X, player.Position.Y, player.Position.Z), native.Rigidbody.position);
             Debug.Log("WORDBOUND_ATOMIC_APPLY: actual local runner; direct validation, initial rejection, abort, callback exception, reentry, distinct live rules and later successful apply observed.");
         }
 
