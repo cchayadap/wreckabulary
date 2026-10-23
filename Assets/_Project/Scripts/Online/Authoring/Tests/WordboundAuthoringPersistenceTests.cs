@@ -37,6 +37,132 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void SerializedThemeColoursMetricsAndOriginalFontReferencesSurviveSaveAndReload()
+        {
+            WordboundUiTheme theme = null;
+            try
+            {
+                theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+                string path = folder + "/CustomInterface.asset";
+                AssetDatabase.CreateAsset(theme, path);
+                var body = AssetDatabase.LoadAssetAtPath<Font>("Assets/_Project/Resources/Fonts/Nunito-Black.ttf");
+                var heading = AssetDatabase.LoadAssetAtPath<Font>("Assets/_Project/Resources/Fonts/Nunito-ExtraBold.ttf");
+                Assert.IsNotNull(body); Assert.IsNotNull(heading);
+                using (var serialized = new SerializedObject(theme))
+                {
+                    serialized.FindProperty("BodyFont").objectReferenceValue = body;
+                    serialized.FindProperty("HeadingFont").objectReferenceValue = heading;
+                    serialized.FindProperty("BodySize").intValue = 17;
+                    serialized.FindProperty("HeadingSize").intValue = 25;
+                    serialized.FindProperty("Padding").intValue = 20;
+                    serialized.FindProperty("Gap").intValue = 8;
+                    serialized.FindProperty("RowHeight").intValue = 40;
+                    serialized.FindProperty("ModuleHeight").intValue = 70;
+                    serialized.FindProperty("MenuWidth").intValue = 740;
+                    serialized.FindProperty("CornerRadius").intValue = 8;
+                    serialized.FindProperty("Panel").colorValue = new Color(.91f, .86f, .72f, 1);
+                    serialized.FindProperty("Text").colorValue = new Color(.09f, .22f, .18f, 1);
+                    serialized.FindProperty("Focus").colorValue = new Color(.9f, .3f, .1f, 1);
+                    Assert.IsTrue(serialized.ApplyModifiedProperties());
+                }
+                theme.Validate(); EditorUtility.SetDirty(theme); AssetDatabase.SaveAssetIfDirty(theme);
+                string guid = AssetDatabase.AssetPathToGUID(path);
+                theme.BodyFont = null; theme.HeadingFont = null; theme.Panel = Color.black; theme.RowHeight = 1;
+                Resources.UnloadAsset(theme);
+                theme = AssetDatabase.LoadAssetAtPath<WordboundUiTheme>(path);
+                Assert.AreEqual(guid, AssetDatabase.AssetPathToGUID(path));
+                Assert.AreSame(body, theme.BodyFont); Assert.AreSame(heading, theme.HeadingFont);
+                Assert.AreEqual(17, theme.BodySize); Assert.AreEqual(25, theme.HeadingSize);
+                Assert.AreEqual(20, theme.Padding); Assert.AreEqual(8, theme.Gap);
+                Assert.AreEqual(40, theme.RowHeight); Assert.AreEqual(70, theme.ModuleHeight);
+                Assert.AreEqual(740, theme.MenuWidth); Assert.AreEqual(8, theme.CornerRadius);
+                Assert.AreEqual(new Color(.91f, .86f, .72f, 1), theme.Panel);
+                Assert.AreEqual(new Color(.09f, .22f, .18f, 1), theme.Text);
+                Assert.AreEqual(new Color(.9f, .3f, .1f, 1), theme.Focus);
+                Assert.DoesNotThrow(theme.Validate);
+            }
+            finally
+            {
+                if (theme && !AssetDatabase.Contains(theme)) Object.DestroyImmediate(theme);
+                DeleteFolder(); folder = null;
+            }
+        }
+
+        [Test]
+        public void AuthoringSetupPreservesReloadedCustomThemeAndExistingDefaultThenFillsOnlyAnEmptySlot()
+        {
+            WordboundLaunchAssets launch = null;
+            WordboundUiTheme custom = null;
+            const string productionLaunch = "Assets/_Project/Resources/Wordbound/LaunchAssets.asset";
+            byte[] launchBefore = File.ReadAllBytes(productionLaunch);
+            byte[] themeBefore = File.Exists(WordboundAuthoringSetup.ThemePath) ? File.ReadAllBytes(WordboundAuthoringSetup.ThemePath) : null;
+            try
+            {
+                string launchPath = folder + "/Launch.asset", customPath = folder + "/Custom.asset";
+                string defaults = folder + "/Defaults", defaultThemePath = defaults + "/Interface.asset";
+                launch = ScriptableObject.CreateInstance<WordboundLaunchAssets>();
+                AssetDatabase.CreateAsset(launch, launchPath);
+                custom = ScriptableObject.CreateInstance<WordboundUiTheme>(); custom.MenuWidth = 700;
+                AssetDatabase.CreateAsset(custom, customPath);
+                launch.UiTheme = custom;
+                EditorUtility.SetDirty(custom); AssetDatabase.SaveAssetIfDirty(custom);
+                EditorUtility.SetDirty(launch); AssetDatabase.SaveAssetIfDirty(launch);
+
+                InvokeAuthoringSetup(launch, defaults);
+                Assert.AreSame(custom, launch.UiTheme);
+                var generated = AssetDatabase.LoadAssetAtPath<WordboundUiTheme>(defaultThemePath);
+                Assert.IsNotNull(generated);
+                Assert.AreEqual("Assets/_Project/Resources/Fonts/Nunito-ExtraBold.ttf", AssetDatabase.GetAssetPath(generated.BodyFont));
+                Assert.AreEqual("Assets/_Project/Resources/Fonts/Nunito-Black.ttf", AssetDatabase.GetAssetPath(generated.HeadingFont));
+                Assert.AreEqual(defaults + "/PlayerCamera.asset", AssetDatabase.GetAssetPath(launch.CameraProfile));
+                Assert.AreEqual(defaults + "/Presentation.asset", AssetDatabase.GetAssetPath(launch.VisualProfile));
+                Assert.AreEqual(defaults + "/FlagshipCourse.asset", AssetDatabase.GetAssetPath(launch.WorkshopCourse));
+                string generatedGuid = AssetDatabase.AssetPathToGUID(defaultThemePath);
+                generated.Padding = 18; generated.MenuWidth = 710;
+                EditorUtility.SetDirty(generated); AssetDatabase.SaveAssetIfDirty(generated);
+                launch.UiTheme = null; custom.MenuWidth = 480;
+                Resources.UnloadAsset(launch); Resources.UnloadAsset(custom); Resources.UnloadAsset(generated);
+                launch = AssetDatabase.LoadAssetAtPath<WordboundLaunchAssets>(launchPath);
+                custom = AssetDatabase.LoadAssetAtPath<WordboundUiTheme>(customPath);
+                Assert.AreSame(custom, launch.UiTheme); Assert.AreEqual(700, custom.MenuWidth);
+
+                InvokeAuthoringSetup(launch, defaults);
+                Assert.AreSame(custom, launch.UiTheme);
+                generated = AssetDatabase.LoadAssetAtPath<WordboundUiTheme>(defaultThemePath);
+                Assert.AreEqual(generatedGuid, AssetDatabase.AssetPathToGUID(defaultThemePath));
+                Assert.AreEqual(18, generated.Padding); Assert.AreEqual(710, generated.MenuWidth);
+                Resources.UnloadAsset(launch);
+                launch = AssetDatabase.LoadAssetAtPath<WordboundLaunchAssets>(launchPath);
+                Assert.AreEqual(customPath, AssetDatabase.GetAssetPath(launch.UiTheme));
+
+                launch.UiTheme = null; EditorUtility.SetDirty(launch); AssetDatabase.SaveAssetIfDirty(launch);
+                InvokeAuthoringSetup(launch, defaults);
+                Assert.AreSame(generated, launch.UiTheme);
+                Resources.UnloadAsset(launch);
+                launch = AssetDatabase.LoadAssetAtPath<WordboundLaunchAssets>(launchPath);
+                Assert.AreEqual(defaultThemePath, AssetDatabase.GetAssetPath(launch.UiTheme));
+                Assert.AreEqual(710, launch.UiTheme.MenuWidth);
+                CollectionAssert.AreEqual(launchBefore, File.ReadAllBytes(productionLaunch));
+                if (themeBefore == null) Assert.IsFalse(File.Exists(WordboundAuthoringSetup.ThemePath));
+                else CollectionAssert.AreEqual(themeBefore, File.ReadAllBytes(WordboundAuthoringSetup.ThemePath));
+            }
+            finally
+            {
+                if (launch && !AssetDatabase.Contains(launch)) Object.DestroyImmediate(launch);
+                if (custom && !AssetDatabase.Contains(custom)) Object.DestroyImmediate(custom);
+                DeleteFolder(); folder = null;
+            }
+        }
+
+        static void InvokeAuthoringSetup(WordboundLaunchAssets launch, string destination)
+        {
+            var method = typeof(WordboundAuthoringSetup).GetMethod("CreateDefaultsAt", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.IsNotNull(method, "Use the exact full setup implementation called by the public menu.");
+            try { method.Invoke(null, new object[] { launch, destination }); }
+            catch (TargetInvocationException error) { throw error.InnerException ?? error; }
+        }
+
+        [Test]
         public void RepeatedDraftRecoveryPreservesExactValidZoneCollections()
         {
             var asset = CreateDraftAsset();

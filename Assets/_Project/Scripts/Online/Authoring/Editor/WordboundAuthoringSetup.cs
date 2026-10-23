@@ -21,23 +21,32 @@ namespace Wreckabulary.Online.Editor
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 throw new InvalidOperationException("Create authoring assets in Edit Mode.");
             var launch = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
+            CreateDefaultsAt(launch, Folder);
+        }
+        static void CreateDefaultsAt(WordboundLaunchAssets launch, string destination)
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new InvalidOperationException("Create authoring assets in Edit Mode.");
             if (!launch) throw new InvalidOperationException("Create the existing Wordbound launch assets first.");
             var items = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Data/Config/items.json");
             var rules = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Data/Config/rules.json");
             if (!items || !rules) throw new InvalidOperationException("The project item catalogue and rule book are missing.");
-            EnsureFolder(Folder);
-            var camera = Create<WordboundCameraProfile>(CameraPath, value => value.Validate());
-            var visual = Create<WordboundVisualProfile>(VisualPath, value => value.Validate());
-            var theme = Create<WordboundUiTheme>(ThemePath, value => {
+            EnsureFolder(destination);
+            string cameraPath = destination + "/PlayerCamera.asset", visualPath = destination + "/Presentation.asset";
+            string themePath = destination + "/Interface.asset", freestylePath = destination + "/FreestyleCourse.asset";
+            string flagshipPath = destination + "/FlagshipCourse.asset";
+            var camera = Create<WordboundCameraProfile>(cameraPath, value => value.Validate());
+            var visual = Create<WordboundVisualProfile>(visualPath, value => value.Validate());
+            var theme = Create<WordboundUiTheme>(themePath, value => {
                 value.BodyFont = Resources.Load<Font>("Fonts/Nunito-ExtraBold");
                 value.HeadingFont = Resources.Load<Font>("Fonts/Nunito-Black");
                 value.Validate();
             });
-            var freestyle = Create<WordboundCourseAsset>(FreestylePath, value => {
+            var freestyle = Create<WordboundCourseAsset>(freestylePath, value => {
                 value.Initialize(CourseTemplates.FreestyleWorld(), CourseTemplates.ProofCatalogue());
                 Bind(value, items, rules, camera, visual);
             });
-            var flagship = Create<WordboundCourseAsset>(FlagshipPath, value => {
+            var flagship = Create<WordboundCourseAsset>(flagshipPath, value => {
                 var content = WordboundFlagshipContent.Create(ItemCatalogue.FromJson(items.text));
                 value.Initialize(content.CopyDocument(), content.Geometry); value.ModeId = "TimeRun";
                 Bind(value, items, rules, camera, visual);
@@ -52,8 +61,8 @@ namespace Wreckabulary.Online.Editor
             AssignIfEmpty(serialized, "WorkshopCourse", flagship);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(launch); AssetDatabase.SaveAssetIfDirty(launch);
-            Debug.Log("Wordbound Inspector assets verified. Camera: " + CameraPath + "; visuals: " + VisualPath +
-                "; interface: " + ThemePath + "; Freestyle: " + FreestylePath + "; flagship copy: " + FlagshipPath +
+            Debug.Log("Wordbound Inspector assets verified. Camera: " + cameraPath + "; visuals: " + visualPath +
+                "; interface: " + themePath + "; Freestyle: " + freestylePath + "; flagship copy: " + flagshipPath +
                 "; launcher: " + AssetDatabase.GetAssetPath(launch) + ". Existing assignments were preserved.");
         }
         static void Bind(WordboundCourseAsset course, TextAsset items, TextAsset rules,
