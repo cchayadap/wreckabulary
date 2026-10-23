@@ -28,8 +28,7 @@ namespace Wreckabulary.Online.Tests
         RSA rsa;
         Gamepad pad, previousPad;
         bool previousTyping;
-        InputSettings.BackgroundBehavior background;
-        InputSettings.EditorInputBehaviorInPlayMode routing;
+        WordboundNativeInputScope input;
         OnlineSettings settings;
         bool ready;
         string channel;
@@ -39,44 +38,58 @@ namespace Wreckabulary.Online.Tests
         public void SetUp()
         {
             previousPad = Gamepad.current; previousTyping = DesktopBinding.Typing;
-            background = InputSystem.settings.backgroundBehavior; routing = InputSystem.settings.editorInputBehaviorInPlayMode;
-            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
-            DesktopBinding.Typing = false;
-            pad = InputSystem.AddDevice<Gamepad>();
-            string items = File.ReadAllText("Assets/_Project/Data/Config/items.json");
-            string rules = File.ReadAllText("Assets/_Project/Data/Config/rules.json");
-            var content = new WordboundClientContent(items, rules, "Freestyle", "Solo", Seed);
-            var catalogue = WordboundPublicCourseCatalog.FromTestedContent("pad-tests", new[] { content });
-            rsa = new RSACryptoServiceProvider(2048) { PersistKeyInCsp = false };
-            var key = rsa.ExportParameters(false);
-            var verifier = new OnlineAdmissionVerifier("wreckabulary-wordbound", OnlineJson.Parse(OnlineJson.Encode(new Dictionary<string, object> {
-                ["keys"] = new[] { new Dictionary<string, object> { ["kty"] = "RSA", ["kid"] = "pad-test", ["use"] = "sig",
-                    ["alg"] = "RS256", ["n"] = OnlineJson.Base64Url(key.Modulus), ["e"] = OnlineJson.Base64Url(key.Exponent) } }
-            })));
-            http = new FakeHttp { Handler = Respond };
-            coordinator = new WordboundPartyCoordinator(new OnlineCoordinatorClient(http), verifier, items, rules,
-                "pad-tests", new WordboundPublicCourseRegistry(catalogue.Json), () => 1000000);
-            root = new GameObject("Party input native test"); menu = root.AddComponent<WordboundPartyMenu>(); menu.enabled = false;
-            Set(menu, "coordinator", coordinator); Set(menu, "publicCourses", catalogue);
-            Set(menu, "itemSource", items); Set(menu, "ruleSource", rules);
-            menu.CloseRequested += () => closed++;
-            window = ScriptableObject.CreateInstance<MenuWindow>(); window.Menu = menu;
-            window.position = new Rect(100, 100, 700, 900); window.ShowUtility();
-            Sample(new GamepadState { leftStick = new Vector2(.8f, 0) });
-            Sample(default); Sample(default);
+            try
+            {
+                settings = null; ready = false; channel = null; revision = closed = 0;
+                input = new WordboundNativeInputScope();
+                DesktopBinding.Typing = false;
+                pad = InputSystem.AddDevice<Gamepad>();
+                string items = File.ReadAllText("Assets/_Project/Data/Config/items.json");
+                string rules = File.ReadAllText("Assets/_Project/Data/Config/rules.json");
+                var content = new WordboundClientContent(items, rules, "Freestyle", "Solo", Seed);
+                var catalogue = WordboundPublicCourseCatalog.FromTestedContent("pad-tests", new[] { content });
+                rsa = new RSACryptoServiceProvider(2048) { PersistKeyInCsp = false };
+                var key = rsa.ExportParameters(false);
+                var verifier = new OnlineAdmissionVerifier("wreckabulary-wordbound", OnlineJson.Parse(OnlineJson.Encode(new Dictionary<string, object> {
+                    ["keys"] = new[] { new Dictionary<string, object> { ["kty"] = "RSA", ["kid"] = "pad-test", ["use"] = "sig",
+                        ["alg"] = "RS256", ["n"] = OnlineJson.Base64Url(key.Modulus), ["e"] = OnlineJson.Base64Url(key.Exponent) } }
+                })));
+                http = new FakeHttp { Handler = Respond };
+                coordinator = new WordboundPartyCoordinator(new OnlineCoordinatorClient(http), verifier, items, rules,
+                    "pad-tests", new WordboundPublicCourseRegistry(catalogue.Json), () => 1000000);
+                root = new GameObject("Party input native test"); menu = root.AddComponent<WordboundPartyMenu>(); menu.enabled = false;
+                Set(menu, "coordinator", coordinator); Set(menu, "publicCourses", catalogue);
+                Set(menu, "itemSource", items); Set(menu, "ruleSource", rules);
+                menu.CloseRequested += () => closed++;
+                window = ScriptableObject.CreateInstance<MenuWindow>(); window.Menu = menu;
+                window.position = new Rect(100, 100, 700, 900); window.ShowUtility();
+                Sample(new GamepadState { leftStick = new Vector2(.8f, 0) });
+                Sample(default); Sample(default);
+            }
+            catch (Exception setupError)
+            {
+                try { TearDown(); }
+                catch (Exception cleanupError) { throw new AggregateException(setupError, cleanupError); }
+                throw;
+            }
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (window) window.Close();
-            if (root) Object.DestroyImmediate(root);
-            coordinator?.Dispose(); rsa?.Dispose();
-            if (pad != null && pad.added) InputSystem.RemoveDevice(pad);
-            if (previousPad != null && previousPad.added) previousPad.MakeCurrent();
-            DesktopBinding.Typing = previousTyping;
-            InputSystem.settings.backgroundBehavior = background; InputSystem.settings.editorInputBehaviorInPlayMode = routing;
+            try
+            {
+                if (window) window.Close();
+                if (root) Object.DestroyImmediate(root);
+                coordinator?.Dispose(); rsa?.Dispose();
+                if (pad != null && pad.added) InputSystem.RemoveDevice(pad);
+                if (previousPad != null && previousPad.added) previousPad.MakeCurrent();
+            }
+            finally
+            {
+                try { input?.Dispose(); }
+                finally { input = null; DesktopBinding.Typing = previousTyping; }
+            }
         }
 
         [Test]
@@ -136,7 +149,8 @@ namespace Wreckabulary.Online.Tests
                 int actions = 0;
                 window.BeforeRepaint = () => Invoke(menu, "QueuePartyAction", (Action)(() => actions++), false);
                 Draw(EventType.Layout); Draw(EventType.Repaint);
-                InputSystem.QueueStateEvent(mouse, new MouseState { buttons = 1 }); InputSystem.Update();
+                InputSystem.QueueStateEvent(mouse, new MouseState { buttons = 1 }); WordboundNativeInputScope.Pump();
+                Assert.IsTrue(mouse.leftButton.isPressed, "The pointer state must reach the input system before device handoff.");
                 Invoke(menu, "ProcessPartyInput", true);
                 Assert.AreEqual(1, actions);
                 Assert.IsFalse(Get<bool>(menu, "partyUsesPad"));
@@ -199,7 +213,7 @@ namespace Wreckabulary.Online.Tests
 
         void Sample(GamepadState state)
         {
-            InputSystem.QueueStateEvent(pad, state); InputSystem.Update();
+            WordboundNativeInputScope.Sample(pad, state);
             Invoke(menu, "ProcessPartyInput", true);
         }
         void Draw(EventType type)

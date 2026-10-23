@@ -19,35 +19,47 @@ namespace Wreckabulary.Online.Tests
         Gamepad pad, previousPad;
         string folder;
         bool oldTyping;
-        InputSettings.BackgroundBehavior background;
-        InputSettings.EditorInputBehaviorInPlayMode routing;
+        WordboundNativeInputScope input;
 
         [SetUp]
         public void SetUp()
         {
             previousPad = Gamepad.current; oldTyping = DesktopBinding.Typing;
-            background = InputSystem.settings.backgroundBehavior; routing = InputSystem.settings.editorInputBehaviorInPlayMode;
-            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
-            DesktopBinding.Typing = false; pad = InputSystem.AddDevice<Gamepad>();
-            folder = Path.Combine(Path.GetTempPath(), "wordbound-pad-" + Guid.NewGuid().ToString("N"));
-            root = new GameObject("Workshop input safety native test");
-            workshop = root.AddComponent<WordboundWorkshop>(); workshop.enabled = false;
-            workshop.Open(CourseTemplates.FreestyleWorld(), CourseTemplates.ProofCatalogue(),
-                MatchStateValidation.Requirements(ModeDefinition.For("Freestyle")), folder);
-            Sample(default, true); Sample(default, true);
+            try
+            {
+                input = new WordboundNativeInputScope();
+                DesktopBinding.Typing = false; pad = InputSystem.AddDevice<Gamepad>();
+                folder = Path.Combine(Path.GetTempPath(), "wordbound-pad-" + Guid.NewGuid().ToString("N"));
+                root = new GameObject("Workshop input safety native test");
+                workshop = root.AddComponent<WordboundWorkshop>(); workshop.enabled = false;
+                workshop.Open(CourseTemplates.FreestyleWorld(), CourseTemplates.ProofCatalogue(),
+                    MatchStateValidation.Requirements(ModeDefinition.For("Freestyle")), folder);
+                Sample(default, true); Sample(default, true);
+            }
+            catch (Exception setupError)
+            {
+                try { TearDown(); }
+                catch (Exception cleanupError) { throw new AggregateException(setupError, cleanupError); }
+                throw;
+            }
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (root) Object.DestroyImmediate(root);
-            if (pad != null && pad.added) InputSystem.RemoveDevice(pad);
-            if (previousPad != null && previousPad.added) previousPad.MakeCurrent();
-            DesktopBinding.Typing = oldTyping;
-            InputSystem.settings.backgroundBehavior = background; InputSystem.settings.editorInputBehaviorInPlayMode = routing;
-            if (folder != null && Path.GetFullPath(folder).StartsWith(Path.Combine(Path.GetTempPath(), "wordbound-pad-"), StringComparison.OrdinalIgnoreCase) && Directory.Exists(folder))
-                Directory.Delete(folder, true);
+            try
+            {
+                if (root) Object.DestroyImmediate(root);
+                if (pad != null && pad.added) InputSystem.RemoveDevice(pad);
+                if (previousPad != null && previousPad.added) previousPad.MakeCurrent();
+                if (folder != null && Path.GetFullPath(folder).StartsWith(Path.Combine(Path.GetTempPath(), "wordbound-pad-"), StringComparison.OrdinalIgnoreCase) && Directory.Exists(folder))
+                    Directory.Delete(folder, true);
+            }
+            finally
+            {
+                try { input?.Dispose(); }
+                finally { input = null; DesktopBinding.Typing = oldTyping; }
+            }
         }
 
         [Test]
@@ -96,7 +108,7 @@ namespace Wreckabulary.Online.Tests
 
         void Sample(GamepadState state, bool focused)
         {
-            InputSystem.QueueStateEvent(pad, state); InputSystem.Update();
+            WordboundNativeInputScope.Sample(pad, state);
             Invoke("ControllerInput", focused);
         }
         T Get<T>(string name) => (T)typeof(WordboundWorkshop).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(workshop);

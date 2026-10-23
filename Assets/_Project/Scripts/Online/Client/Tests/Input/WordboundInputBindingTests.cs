@@ -18,27 +18,32 @@ namespace Wreckabulary.Online.Tests
         WordboundInputBinding binding;
         bool typing;
         float scale;
-        InputSettings.BackgroundBehavior background;
-        InputSettings.EditorInputBehaviorInPlayMode editorRouting;
+        WordboundNativeInputScope input;
 
         [SetUp]
         public void SetUp()
         {
             previousKeyboard = Keyboard.current; previousMouse = Mouse.current; previousPad = Gamepad.current;
             typing = DesktopBinding.Typing; scale = Time.timeScale;
-            background = InputSystem.settings.backgroundBehavior;
-            editorRouting = InputSystem.settings.editorInputBehaviorInPlayMode;
-            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
-            DesktopBinding.Typing = false; Time.timeScale = 1;
-            keyboard = Add<Keyboard>(); keyboard.MakeCurrent();
-            mouse = Add<Mouse>(); mouse.MakeCurrent();
-            pad = Add<Gamepad>();
-            InputSystem.QueueStateEvent(keyboard, new KeyboardState());
-            InputSystem.QueueStateEvent(mouse, new MouseState());
-            InputSystem.QueueStateEvent(pad, new GamepadState());
-            InputSystem.Update();
-            binding = new WordboundInputBinding();
+            try
+            {
+                input = new WordboundNativeInputScope();
+                DesktopBinding.Typing = false; Time.timeScale = 1;
+                keyboard = Add<Keyboard>(); keyboard.MakeCurrent();
+                mouse = Add<Mouse>(); mouse.MakeCurrent();
+                pad = Add<Gamepad>();
+                InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+                InputSystem.QueueStateEvent(mouse, new MouseState());
+                InputSystem.QueueStateEvent(pad, new GamepadState());
+                WordboundNativeInputScope.Pump();
+                binding = new WordboundInputBinding();
+            }
+            catch (Exception setupError)
+            {
+                try { TearDown(); }
+                catch (Exception cleanupError) { throw new AggregateException(setupError, cleanupError); }
+                throw;
+            }
         }
 
         T Add<T>() where T : InputDevice, new()
@@ -49,20 +54,25 @@ namespace Wreckabulary.Online.Tests
         [TearDown]
         public void TearDown()
         {
-            binding?.Dispose(); binding = null;
-            foreach (var device in created) if (device != null && device.added) InputSystem.RemoveDevice(device);
-            created.Clear();
-            if (previousKeyboard != null && previousKeyboard.added) previousKeyboard.MakeCurrent();
-            if (previousMouse != null && previousMouse.added) previousMouse.MakeCurrent();
-            if (previousPad != null && previousPad.added) previousPad.MakeCurrent();
-            InputSystem.settings.backgroundBehavior = background;
-            InputSystem.settings.editorInputBehaviorInPlayMode = editorRouting;
-            DesktopBinding.Typing = typing; Time.timeScale = scale;
+            try
+            {
+                binding?.Dispose(); binding = null;
+                foreach (var device in created) if (device != null && device.added) InputSystem.RemoveDevice(device);
+                created.Clear();
+                if (previousKeyboard != null && previousKeyboard.added) previousKeyboard.MakeCurrent();
+                if (previousMouse != null && previousMouse.added) previousMouse.MakeCurrent();
+                if (previousPad != null && previousPad.added) previousPad.MakeCurrent();
+            }
+            finally
+            {
+                try { input?.Dispose(); }
+                finally { input = null; DesktopBinding.Typing = typing; Time.timeScale = scale; }
+            }
         }
 
         PlayerCommands Read(GamepadState state)
         {
-            InputSystem.QueueStateEvent(pad, state); InputSystem.Update();
+            WordboundNativeInputScope.Sample(pad, state);
             var commands = default(PlayerCommands); binding.Read(ref commands); return commands;
         }
 
@@ -138,11 +148,11 @@ namespace Wreckabulary.Online.Tests
         {
             var held = new GamepadState { leftStick = new Vector2(.8f, 0) };
             Read(held);
-            InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Space)); InputSystem.Update();
+            InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Space)); WordboundNativeInputScope.Pump();
             binding.RefreshDevice();
             Assert.IsTrue(binding.ReadsMouse);
             InputSystem.QueueStateEvent(keyboard, new KeyboardState());
-            InputSystem.QueueStateEvent(pad, held); InputSystem.Update();
+            WordboundNativeInputScope.Sample(pad, held);
             binding.RefreshDevice();
             Assert.IsTrue(binding.ReadsMouse);
             Read(new GamepadState());
@@ -159,7 +169,7 @@ namespace Wreckabulary.Online.Tests
             Assert.IsTrue(binding.ReadsMouse);
             Assert.IsFalse(binding.RefreshDevice());
             pad = Add<Gamepad>();
-            InputSystem.QueueStateEvent(pad, new GamepadState()); InputSystem.Update();
+            WordboundNativeInputScope.Sample(pad, new GamepadState());
             binding.RefreshDevice();
             Assert.IsNull(binding.ActiveGamepad);
             var commands = Read(new GamepadState().WithButton(GamepadButton.South));
@@ -201,7 +211,7 @@ namespace Wreckabulary.Online.Tests
                 int released = 0, menus = 0;
                 view.CommandsRead += commands => { if (!commands.attackHeld && !commands.blockHeld) released++; };
                 view.MenuRequested += () => menus++;
-                InputSystem.QueueStateEvent(pad, new GamepadState { leftTrigger = 1 }); InputSystem.Update();
+                WordboundNativeInputScope.Sample(pad, new GamepadState { leftTrigger = 1 });
                 Process(view, true);
                 Assert.AreSame(pad, automatic.ActiveGamepad);
                 view.SetMenuOpen(false);
@@ -224,7 +234,8 @@ namespace Wreckabulary.Online.Tests
         {
             using (var legacy = new DesktopBinding())
             {
-                InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Tab)); InputSystem.Update();
+                InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Tab)); WordboundNativeInputScope.Pump();
+                Assert.IsTrue(keyboard.tabKey.isPressed, "The Tab key state must reach the input system before reading its action.");
                 var commands = default(PlayerCommands); binding.Read(ref commands);
                 Assert.IsTrue(commands.swap);
                 commands = default;
@@ -297,13 +308,14 @@ namespace Wreckabulary.Online.Tests
                 int released = 0, menuInputs = 0;
                 view.CommandsRead += _ => released++;
                 view.MenuCommandsRead += _ => menuInputs++;
-                InputSystem.QueueStateEvent(pad, new GamepadState().WithButton(GamepadButton.South)); InputSystem.Update();
+                WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.South));
                 Process(view, false);
                 Assert.IsFalse(view.UsesGamepad);
                 Assert.AreEqual(0, menuInputs);
                 view.SetMenuOpen(false);
                 int before = released;
-                view.SendMessage("OnApplicationFocus", false, SendMessageOptions.RequireReceiver);
+                typeof(WordboundPlayerView).GetMethod("OnApplicationFocus", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(view, new object[] { false });
                 Assert.IsTrue(view.MenuOpen);
                 Assert.Greater(released, before);
             }
