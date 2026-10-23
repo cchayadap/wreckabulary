@@ -1,6 +1,6 @@
 # Gameplay HUD readability implementation
 
-Status: IN PROGRESS. Isolated `sethypagna/hud-readability` branch from integration `5427493ff5ce8ca0e8971543078e64504a0d4d06`. Parent authorized the three visual corrections plus read-only active binding hints and focused regressions. No heavy execution, generated metadata, camera/art/physics/content changes. Actual Windows visual acceptance remains pending, and this source will be integrated only after the root's count-only comparison.
+Status: SOURCE COMPLETE; independent bounded SOURCE PASS through `0d4bf128`. Isolated `sethypagna/hud-readability` branch from integration `5427493ff5ce8ca0e8971543078e64504a0d4d06`. Parent authorized the three visual corrections plus read-only active binding hints and focused regressions. No heavy execution, generated metadata, camera/art/physics/content changes. Actual Windows visual acceptance remains pending; root owns integration after its count-only comparison.
 
 ## Source checkpoint
 
@@ -24,6 +24,8 @@ Run the four whole classes alongside existing `WordboundMenuGuiTests`, `Wordboun
 
 These tests cover input identity and layout/projection mechanics. They do not establish glyph readability, occlusion, visual taste, actual Windows rendering, controller usability or owner approval. After compilation/native cases pass, inspect an actual Windows local-ready frame, checkpoint at multiple angles, near/far notice, equipped gear/shield, rebound keyboard controls and pad-switched hints. Keep all current original-art/profile settings.
 
-`git diff --check` passed (line-ending normalization warnings only). Independent source review requested from the online lane; pending. Compile/native/player/visual checks: NOT RUN.
+`git diff --check` passed (line-ending normalization warnings only). Compile/native/player/visual checks: NOT RUN in this lane.
 
-The independent review identified a real compatibility gap in the initial explicit support for raw legacy bindings: their Menu/Cycle/Aim behavior differs from Wordbound. Removed that mapping instead of inventing another legacy contract. The forwarding regression now checks every hint for automatic, raw desktop, raw pad and unknown bindings; only the automatic Wordbound binding supplies specific controls. Independent closure pending.
+The independent review identified a real compatibility gap in the initial explicit support for raw legacy bindings: their Menu/Cycle/Aim behavior differs from Wordbound. Removed that mapping instead of inventing another legacy contract. The forwarding regression now checks every hint for automatic, raw desktop, raw pad and unknown bindings; only the automatic Wordbound binding supplies specific controls. Online independently closed that finding and reviewed all thirteen new cases and production deltas: bounded SOURCE PASS, no remaining concrete source blocker found. It confirmed Layout/Repaint row consistency, restored GUI state, unchanged command/menu routes and display-only checkpoint/story changes. This is not native or owner visual acceptance.
+
+Source integration order: `966afe07` (active hints), `bc8a0d4b` (HUD/captions/story and report), `0d4bf128` (legacy mapping closure), then this report-only closure. Unrelated lane log remains preserved and unstaged.
