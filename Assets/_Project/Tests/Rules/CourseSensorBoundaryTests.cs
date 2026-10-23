@@ -61,6 +61,37 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(Inside(box, -16, center, Next(high, true)));
         }
 
+        [TestCase(127), TestCase(-127)]
+        public void FractionalMetreEdgesShareNativeComparisonsWithoutHorizontalOrUpperMargin(int upperMm)
+        {
+            var box = new CourseBox(new CoursePoint(-127, upperMm - 100, -127), new CoursePoint(127, upperMm, 127));
+            float low = box.Min.X / 1000f, high = box.Max.X / 1000f, top = upperMm / 1000f;
+            var authored = new CoursePhysicalSite { WindReceiverRecipeId = "STOOL", ReceiverStartBounds = box };
+            var site = (ResolvedCoursePhysicalSite)Activator.CreateInstance(typeof(ResolvedCoursePhysicalSite),
+                BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { authored }, null);
+            var method = typeof(WordboundEntityBudget).GetMethod("ReceiverCandidate", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.IsNotNull(method);
+            var item = new ItemInstance();
+            typeof(ItemInstance).GetProperty("Word").SetValue(item, "STOOL");
+            typeof(ItemInstance).GetProperty("Origin").SetValue(item, ItemOrigin.Crafted);
+            typeof(ItemInstance).GetProperty("State").SetValue(item, ItemState.World);
+            void Check(float x, float y, float z, bool expected)
+            {
+                var point = new WorldVector(x, y, z);
+                Assert.AreEqual(expected, CourseSensorBoundary.ContainsFootPoint(box, point));
+                var body = new WorldBodyState("item:1", WorldBodyKind.Item, point);
+                Assert.AreEqual(expected, (bool)method.Invoke(null, new object[] { site, body, item }));
+            }
+            Check(low, top, low, true);
+            Check(high, top, high, true);
+            Check(Next(low, false), top, 0, false);
+            Check(Next(high, true), top, 0, false);
+            Check(0, top, Next(low, false), false);
+            Check(0, top, Next(high, true), false);
+            Check(0, Next(top, true), 0, false);
+            Assert.Greater(high * 1000, box.Max.X, "This fixture must expose the former multiply-to-mm rounding difference.");
+        }
+
         [TestCase(float.NaN), TestCase(float.PositiveInfinity), TestCase(float.NegativeInfinity)]
         public void NonFiniteCoordinatesAreRejected(float value)
         {
