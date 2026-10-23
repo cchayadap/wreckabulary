@@ -1,6 +1,6 @@
 # Wordbound production delivery
 
-Owner: James / SethyPagna. Updated 2026-10-23 (Asia/Hong_Kong).
+Owner: James / SethyPagna. Updated 2026-10-24 (Asia/Hong_Kong).
 
 Legend: `[ ]` unfinished; `[~]` implementation or verification in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
@@ -69,7 +69,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [~] Verify private codes, whole-party readiness/allocation, Solo/Duo/Squad and Fill On/Off.
 - [~] Verify concurrent last slots, cancellations, oversize parties and expired grants.
 - [x] Export and deploy the exact 36-entry public catalogue (nine mode/format combinations, four seeds). Deployment and module/catalogue readback pass; live HTTP party allocation/content admission and cleanup pass. Native Photon gameplay remains below.
-- [ ] Public Time Run: human cooperative allocation and playable match.
+- [~] Public Time Run: exact public entry, two authenticated scripted clients, movement, command and durable acknowledgement pass. Sustained full-match and human acceptance remain open.
 - [ ] Public Team Race: Solo/Duo/Squad, intact parties and clean-team isolation.
 - [ ] Public Brawl Race: Solo/Duo/Squad, intact parties and enemy combat.
 - [ ] Public FFA: multiple humans, individual scoring and respawns.
@@ -94,7 +94,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T15:47Z
+## Current verification — 2026-10-23T16:04Z
 
 | Work | State and exact evidence |
 | --- | --- |
@@ -104,11 +104,11 @@ Earlier recovery and verification entries are preserved in [the evidence history
 | Pivot/authoring/recovery | [x] Native pivot/detail 6/6, authoring persistence 8/8, workshop recovery 11/11 and existing workshop 9/9. `TestResults/editmode_20261023T125443Z.xml`; entire batch failed because input cases failed. Affected workshop core 23/23: `TestResults/core_20261023T125341Z.trx`. |
 | Input | [x] Focused native input 24/24 now pass, including real menu repaint/focus and held-input protection. `TestResults/editmode_20261023T133902Z.xml`. Production input protections unchanged; Windows-player handling remains separate. |
 | Workshop source selection | [x] Native source-binding 25/25 pass (`TestResults/editmode_20261023T143652Z.xml`), including the large-course recovery and bounded quiet-frame wait repair. Affected core 66/66 pass (`TestResults/core_20261023T135423Z.trx`). Human usability and Windows-player editing remain separate. |
-| Physical puzzles | [~] Latest six-family run completes CollectLetters and CratePress, including both TABLE crafts, then reaches its overall six-minute lifetime before RibbonSwitch setup at tick 3480. `TestResults/editmode_20261023T150959Z.xml`. Validation and PhysicsApply consume 258,006.684 ms of the measured 362.519-second window; derived map/mode metadata reuse is in progress. No deadline or gameplay rule is relaxed. |
+| Physical puzzles | [~] Latest run completes CollectLetters and CratePress, then fails the FAN receiver-arrival wait at tick4560 after15.301 seconds against its12-second budget. Total fixture lifetime is no longer the failing condition. First TABLE held97.336 seconds versus207.733 previously. `TestResults/editmode_20261023T154541Z.xml`; exact scope in `BuildNotes/client-view/NATIVE-CACHED-VALIDATION-RESULTS.md`. No deadline or gameplay rule is relaxed. |
 | Original-game artwork | [x] Actual original models are now the default; optional Wordbound equipment remains an Inspector choice and explicit item overrides still win. Native presentation 48/48 pass (`TestResults/editmode_20261023T141231Z.xml`), including all twelve original model bounds/grips and collection opt-in. No owner visual acceptance is implied. |
 | Original-based models | [~] SOFA V4 has no convincing improvement; retain the original. FAN rear construction passes internal review of the matched detail pair; other views and Unity remain pending. HAMMER build passes geometric guards but is unrendered. Both editable pilot folders and receipts are committed (`5ced4a4`); neither replaces runtime artwork or has owner approval. |
 | Presentation lookup | [x] Native behavior passes 25/25. Calibrated standalone .NET measurement passes 3/3, allocating 42,400 versus 467,680 bytes at 32 bodies, 149,472 versus 6,590,176 at 128, and 300,448 versus 25,763,552 at 256, including context construction. `BuildNotes/online/presentation-probe-20261023.json`. This is pure presentation evidence, not Unity frame-rate acceptance; unsupported native counter failures remain recorded. |
 | Validation optimization | [x] Immutable map/mode metadata cache passes R0 and 141/141 focused core tests. Identical flagship inputs and probe: TimeRun averages 2,599,999→565,950 bytes per validation (78.2% lower); Team Solo 5,043,607→1,270,324 (74.8% lower). Both 120-validation runs pass with calibrated controls and unchanged snapshots. `BuildNotes/online/validation-comparison-20261023.json`. Timings vary; native gameplay and frame rate remain separate. |
-| Public modes/build | [~] Latest profiler run fails all three selected cases (`TestResults/editmode_20261023T150959Z.xml`). Team Solo loses its writer lease after 88 host ticks with an 11.958-second frame gap. Time Run reaches no gameplay frame during its readiness deadline, with a much smaller 0.245-second gap; this separate startup issue is under investigation. Prior partial movement/command success is not a mode pass. Duo/Squad, private transfer, recovery, full matches and Windows delivery remain required. |
+| Public modes/build | [~] Latest batch1/3 passes (`TestResults/editmode_20261023T154541Z.xml`). Public TimeRun passes two-client entry/movement/command/exact durable acknowledgement; final host is paused, so sustained reliability remains open. Team Solo fails in snapshot reception. Snapshot rejection classification and FAN failure facts are rerunning. Duo/Squad, private transfer, recovery, full matches and Windows delivery remain required. |
 
-The cache, corrected per-invocation CPU profiler and public readiness diagnostics are running in the same three native cases under unchanged deadlines. Latest R0 passes (`Logs/gate_check_all_20261023T154457Z.log`). No native result is claimed while that job runs. A technical asset pass does not reverse the owner's DetailV2 rejection.
+The cache and corrected profiler executed with24 valid non-wrapped marker records. Further static lookup optimization is under independent review. QA scenarios now select isolated workshop storage before recovery detection, preserving the owner's saved draft. Diagnostic/QA R0 passes (`Logs/gate_check_all_20261023T160005Z.log`); the two-case native failure investigation is running. There is still no verified Windows player. A technical asset pass does not reverse the owner's DetailV2 rejection.
