@@ -1,0 +1,167 @@
+{
+  "recordedUtc": "2026-10-23T20:37:25.081367+00:00",
+  "source": "714acc05",
+  "phaseTimingEnabled": false,
+  "summary": {
+    "result": "Passed",
+    "total": "20",
+    "passed": "20",
+    "failed": "0",
+    "skipped": "0",
+    "duration": "63.8406807"
+  },
+  "cases": [
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Passed",
+      "duration": "62.359596",
+      "phaseWindowCount": 0,
+      "observations": [
+        "WORDBOUND_NATIVE_PROFILE_WINDOW: case=Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties; startFrame=1; endFrame=43193; elapsedSeconds=54.778; thread=main; instances=all-in-process; sampling=per-marker-invocation; scopes=inclusive-not-additive; max=sample-not-frame; inFlightScopes=not-yet-recorded; domainReloadRetention=false",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=observed; samples=589; invocations=589; capturedTotalCpuMs=7308.022; capturedMaxSampleCpuMs=165.009; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=observed; samples=589; invocations=589; capturedTotalCpuMs=1087.425; capturedMaxSampleCpuMs=17.852; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=observed; samples=588; invocations=588; capturedTotalCpuMs=4922.768; capturedMaxSampleCpuMs=49.277; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=observed; samples=589; invocations=589; capturedTotalCpuMs=247.511; capturedMaxSampleCpuMs=10.481; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=observed; samples=589; invocations=589; capturedTotalCpuMs=541.477; capturedMaxSampleCpuMs=9.769; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=2; invocations=2; capturedTotalCpuMs=887.367; capturedMaxSampleCpuMs=711.471; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+        "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=observed; samples=588; invocations=588; capturedTotalCpuMs=1333.608; capturedMaxSampleCpuMs=31.479; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none"
+      ],
+      "operationEnds": [
+        "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=end; elapsed=11.894; maxFrameGap=2.161; lifetimeCancelled=False",
+        "WORDBOUND_GAMEPLAY_OPERATION: Replicate every canonical body exactly once; phase=end; elapsed=0.004; maxFrameGap=0.000; lifetimeCancelled=False",
+        "WORDBOUND_GAMEPLAY_OPERATION: Apply client movement through admitted Fusion input; phase=end; elapsed=7.088; maxFrameGap=1.839; lifetimeCancelled=False",
+        "WORDBOUND_GAMEPLAY_OPERATION: Apply authenticated client command on host; phase=end; elapsed=3.544; maxFrameGap=1.502; lifetimeCancelled=False",
+        "WORDBOUND_GAMEPLAY_OPERATION: Commit and acknowledge the exact command-bearing snapshot; phase=end; elapsed=8.744; maxFrameGap=1.531; lifetimeCancelled=False"
+      ]
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AnotherThreadHasAnIndependentOwnerAndCannotPolluteThisWindow",
+      "result": "Passed",
+      "duration": "0.007385"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"abort\")",
+      "result": "Passed",
+      "duration": "0.030918"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"prepare-error\")",
+      "result": "Passed",
+      "duration": "0.017358"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"apply-error\")",
+      "result": "Passed",
+      "duration": "0.037717"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.CrossThreadDisposalIsInvalidAndLeavesOwnerCleanupPossible",
+      "result": "Passed",
+      "duration": "0.002592"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DisabledScopesDoNotAcquireACaptureOrContributeToTheNextWindow",
+      "result": "Passed",
+      "duration": "0.000764"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DuplicateOrOutOfOrderDisposalInvalidatesEvenWhenOtherScopesRemain(False)",
+      "result": "Passed",
+      "duration": "0.001065"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DuplicateOrOutOfOrderDisposalInvalidatesEvenWhenOtherScopesRemain(True)",
+      "result": "Passed",
+      "duration": "0.000194"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.ExcessNestingIsBoundedAndDoesNotThrowThroughGameplay",
+      "result": "Passed",
+      "duration": "0.000990"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.FailedHostQueryStillRollsBackAndRetriesWithTheSameCommand",
+      "result": "Passed",
+      "duration": "0.123469"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.InvalidPhaseAndEmptyTimingAreNeverPresentedAsMeasuredZeroCost",
+      "result": "Passed",
+      "duration": "0.006426"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.NestedScopesReportInclusiveDurationsAndCloseOnExceptions",
+      "result": "Passed",
+      "duration": "0.002760"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.OverlappingCaptureCannotReplaceTheCurrentOwner",
+      "result": "Passed",
+      "duration": "0.000749"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"TimeRun\")",
+      "result": "Passed",
+      "duration": "0.062000"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"TeamRace\")",
+      "result": "Passed",
+      "duration": "0.080250"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"BrawlRace\")",
+      "result": "Passed",
+      "duration": "0.057109"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"FreeForAll\")",
+      "result": "Passed",
+      "duration": "0.326703"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"Freestyle\")",
+      "result": "Passed",
+      "duration": "0.029510"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.StoppedUnfinishedScopeCannotEndOrAddToANewGeneration",
+      "result": "Passed",
+      "duration": "0.000956"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261023T203305Z.xml",
+      "bytes": 39483,
+      "sha256": "521829565c8b12740f1f1644d1ca5b8188ddecb0ef6b5bd31dfb441c82663268"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261023T203305Z.log",
+      "bytes": 307282,
+      "sha256": "80c362b53f35f33cd2d0f54660c603ae725d480c8c25e88582a330411fb1675b"
+    },
+    {
+      "path": ".harness/delivery/native-phase-control-2033-job.json",
+      "bytes": 685,
+      "sha256": "5ecfbc91ec3ef39c3ab4524200cf9036a4a10f98de764d771e362bf02bbd720f"
+    },
+    {
+      "path": ".harness/delivery/native-phase-control-2033-status.json",
+      "bytes": 756,
+      "sha256": "e0473b06f4b1afe83a19b760b9f4a76811b8d0ac31e894593f6ecdfc7409de9c"
+    },
+    {
+      "path": "TestResults/core_20261023T203228Z.trx",
+      "bytes": 212946,
+      "sha256": "ef01d75793bfe6a132917b176ea31f1a8442a5019a486e0e5193795f016a48d7"
+    }
+  ],
+  "limits": [
+    "One successful bounded public TeamSolo entry/movement/command/durable ACK test, not stable performance or full mode completion.",
+    "Separate authenticated runners in one Editor, not independent Windows clients.",
+    "Nineteen diagnostic tests are native Editor cases; default core excludes them.",
+    "No phase timing windows should be present in the public control."
+  ]
+}

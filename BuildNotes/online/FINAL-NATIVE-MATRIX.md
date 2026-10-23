@@ -76,3 +76,9 @@ Require each case and its teardown to pass. Cleanup returns seats, cancels queue
 - **Windows acceptance is separate.** These are same-machine Editor peers, not independent Windows processes/machines or sustained release-player performance. The QA workshop/menu capture and stripped release build/smoke remain required. Do not weaken Photon custom authentication or substitute old transport-only fixtures for these gates. Set WORDBOUND_PROFILE_NATIVE=1 only for a deliberately comparable diagnostic run; it adds observers and is not a new acceptance case.
 
 No production edits, extra tests, account queries or gate execution were performed for this report.
+
+## Bounded execution checkpoint — 2026-10-23T20:37Z
+
+Public TeamSolo passes in native203305 (source714acc05): readiness11.894s, movement7.088s, authenticated command3.544s and exact committed ACK8.744s. Teardown passes. The same batch passes19 native diagnostic parity/ownership/exception cases,20/20 total. This is one observed pass after intermittent movement/ACK failures, not stable performance or completion of this nine-format matrix. Exact artifacts: ../client-view/native-phase-control-20261023.json.
+
+Separate compact private authored TimeRun202344 passes three real laps/nine objectives, both confirmed results, independent durable download/import/ACK and cleanup. It does not close public flagship or other-mode result coverage. Exact artifacts: ../client-view/native-compact-full-match-20261023.json. The earlier source audit and coverage limits above remain historical; new full-match coverage is bounded to this named case.

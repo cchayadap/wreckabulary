@@ -349,3 +349,9 @@ Consumed-table assertion repairb8e5df98 integrated32e2c99c after independent sou
 ## 2026-10-23T20:28:00Z Complete compact authenticated TimeRun passes
 
 Native202344PASS1/1,0skips,173.549497s case/216.4s gate, refresh21.7s, exit0 and no crash-after-quit. Laps complete at canonical3151/5819/8747 with3/6/9 objectives. Both clients confirm natural Win at8747; exact durable checkpoint is independently downloaded, imported/hash-verified and ACKed. Three fresh TABLE crafts/deployments/native socket holds are consumed and removed, keepsake deliveries use real input, and non-carrier finish protection passes. Cleanup/teardown assertions pass. Source32e2c99c; BuildNotes/client-view/native-compact-full-match-20261023.json binds exact artifacts. This is two scripted authenticated runners in one Editor on a compact private authored map, not public flagship, all modes, independent Windows clients or human feel acceptance. Timing instrumentation is the next bounded performance step.
+
+## 2026-10-23T20:37:00Z Public TeamSolo control and timing semantics pass
+
+R0203206PASS8.5s and ordinary core203228PASS149/14918.6s. Native203305PASS20/20 in140.7s (refresh53.5s), including19 native phase-capture cases and publicTeamSolo62.359596s. Public movement7.088s, command3.544s, exact durable ACK8.744s; cleanup passes. PHASES0 emits no phase windows. Exact XML/log/job hashes: BuildNotes/client-view/native-phase-control-20261023.json. This is one bounded successful entry after intermittent failures, not stable performance/allmodes.
+
+Enabled comparison uses identical executable source and exact20-casefilter with only PHASES1, wrapper30324, started20:36:04Z. Head2eec7d91 adds Unity-generated metadata only. The source-reviewed additive QA timeout boundary fixef202945 is deliberately not integrated during this native comparison; it must be applied before actual QA capture. No SDK/kit changes.
