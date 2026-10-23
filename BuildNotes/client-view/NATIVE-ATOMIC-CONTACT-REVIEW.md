@@ -59,3 +59,9 @@ Recommended bounded next work, owned by the coordinator:
 3. Repeat the same six-family case. CLOCK UsePuzzle/checkpoint, BuildRoute and BalanceWeight remain unaccepted; no six-family success marker exists. This result does not alter the earlier 18 passing atomic/contact/policy cases or establish Windows delivery.
 
 Artifact SHA-256: XML `27D60FA7FF994899681BEEB2476E3C671D9EA5A84A5305F0E52617B51AB53A36`; log `CD7C8F02516E6D95630D11E5D57E6649D76E61A29272D56AFF9E7716617DA791`.
+
+## Tick steering source checkpoint
+
+Independently reviewed Assets `62385dd8`: bounded source PASS after correcting the added `using Fusion` / NUnit `Assert` ambiguity with an explicit alias. The existing editor-only runtime adapter adds `IBeforeTick`; the fixture limits writes to the current local Single/forward runner's existing typed input. It validates epoch and movement before `GetRawInputForPlayer(...).TrySet`, leaves the actual motor/collision/physics path intact, and checks the same input after the native physics step. Route feedback uses the current canonical pose while preserving the prior movement formula, waypoint/final tolerances, route deadline and completion/arrival assertions. Lifetime/epoch/error checks neutralize the input; route `finally` clears steering and teardown detaches the adapter.
+
+This is explicitly scripted tick input, not normal hardware polling or a human-control acceptance test. Positive injection counts and equality counts are asserted; the actual callback delivery/order and successful traversal still require the coordinator's native run. The independent diagnostic observer implementation and its source/release checks are recorded in `CLOCK-DECISION-DIAGNOSTIC-DESIGN.md`; neither source review establishes the underlying CLOCK field cause.
