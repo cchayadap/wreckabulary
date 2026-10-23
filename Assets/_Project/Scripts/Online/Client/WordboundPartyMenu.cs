@@ -31,6 +31,10 @@ namespace Wreckabulary.Online
         float nextPoll;
         Vector2 scroll;
         GUIStyle title, hint;
+        Rect partyRect;
+        bool compactPartyLayout;
+        float guestHeight = -1, guestWidth = -1;
+        int guestStyleGeneration = -1;
         IReadOnlyList<WordboundPublicCourse> mapChoices;
         string[] mapLabels;
         int cachedMode = -1, cachedFormat = -1;
@@ -174,8 +178,33 @@ namespace Wreckabulary.Online
         {
             using var themeScope = ui.Apply(Theme);
             title = ui.Heading; hint = ui.Wrapped;
-            GUILayout.BeginArea(ui.MenuRect(Screen.width, Screen.height), ui.Panel);
+            Rect available = ui.MenuRect(Screen.width, Screen.height);
+            if (Event.current.type == EventType.Layout || partyRect.width == 0)
+            {
+                if (guestStyleGeneration != ui.Generation || guestWidth != available.width)
+                { guestHeight = -1; guestWidth = available.width; guestStyleGeneration = ui.Generation; }
+                compactPartyLayout = !coordinator.Authenticated && !coordinator.MatchActive;
+                partyRect = available;
+                if (compactPartyLayout && guestHeight > 0)
+                    partyRect.height = Mathf.Clamp(guestHeight, ui.ChromeHeight, available.height);
+            }
+            GUILayout.BeginArea(partyRect, ui.Panel);
             scroll = GUILayout.BeginScrollView(scroll);
+            if (compactPartyLayout) GUILayout.BeginVertical(GUILayout.ExpandHeight(false));
+            DrawPartyContents();
+            if (compactPartyLayout)
+            {
+                GUILayout.EndVertical();
+                if (Event.current.type == EventType.Repaint)
+                    guestHeight = Mathf.Ceil(GUILayoutUtility.GetLastRect().height + ui.Panel.padding.vertical +
+                        GUI.skin.scrollView.margin.vertical + GUI.skin.scrollView.padding.vertical);
+            }
+            GUILayout.EndScrollView();
+            if (Event.current.type == EventType.Repaint) partyViewportHeight = Mathf.Max(60, GUILayoutUtility.GetLastRect().height - 16);
+            GUILayout.EndArea();
+        }
+        void DrawPartyContents()
+        {
             GUILayout.Label("Wordbound", title);
             GUILayout.Label("Build words. Make tools. Bring your team.", hint);
             if (partyUsesPad) GUILayout.Label("D-pad / left stick: select · A: confirm · B: back · Right stick: scroll", hint);
@@ -184,7 +213,7 @@ namespace Wreckabulary.Online
                 GUILayout.Label(localError ?? "Joining your match…", hint);
                 GUI.enabled = !returning && !launching;
                 PartyControl("return", returning ? "Returning…" : "Return to party", () => { _ = Return(); });
-                GUI.enabled = true; GUILayout.EndScrollView(); GUILayout.EndArea(); return;
+                GUI.enabled = true; return;
             }
             GUI.enabled = !coordinator.Busy && !launching && !returning && !coordinator.RetryRequired;
             if (!coordinator.Authenticated)
@@ -193,7 +222,7 @@ namespace Wreckabulary.Online
                 displayName = PartyText("name", displayName, 32);
                 PartyControl("connect", "Connect", () => Invoke(() => coordinator.Connect(displayName)));
                 if (partyUsesPad) GUILayout.Label("Connect with the default name, or use a keyboard to edit it.", hint);
-                GUILayout.Label("Your guest session stays in memory while this menu is open.", hint);
+                GUILayout.Label("Connect to find matches or join friends.", hint);
             }
             else
             {
@@ -240,9 +269,6 @@ namespace Wreckabulary.Online
                 if (CloseRequested != null) PartyControl("back", "Back", () => CloseRequested?.Invoke());
                 GUILayout.EndHorizontal();
             }
-            GUILayout.EndScrollView();
-            if (Event.current.type == EventType.Repaint) partyViewportHeight = Mathf.Max(60, GUILayoutUtility.GetLastRect().height - 16);
-            GUILayout.EndArea();
         }
         void DrawSettings()
         {

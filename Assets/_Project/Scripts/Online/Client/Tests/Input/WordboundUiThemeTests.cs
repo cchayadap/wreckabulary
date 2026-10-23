@@ -225,7 +225,7 @@ namespace Wreckabulary.Online.Tests
                         Assert.LessOrEqual(status.xMax, footer.xMax - padding);
                         Assert.GreaterOrEqual(status.yMin, footer.yMin + padding + styles.RowHeight + gap);
                         Assert.LessOrEqual(status.yMax, footer.yMax - padding);
-                        Assert.LessOrEqual(styles.SingleLine.CalcHeight(new GUIContent("Preview ready · exact draft and seed"), status.width), status.height);
+                        Assert.LessOrEqual(styles.SingleLine.CalcHeight(new GUIContent("Preview ready · current map and seed"), status.width), status.height);
                         Assert.LessOrEqual(footer.yMax, size.y - 8);
                     }
                 });

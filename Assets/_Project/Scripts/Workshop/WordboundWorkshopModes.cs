@@ -102,7 +102,7 @@ namespace Wreckabulary.Workshop
             if (!display.SupportedModes.Contains("Freestyle") && Button("Enable Freestyle sandbox",
                 "Add Freestyle to this map's supported modes as an undoable edit, then select it."))
                 Attempt(EnableFreestyleSandbox);
-            GUILayout.Label("The mode is resolved before preview. Player and team limits are kept in that exact manifest.");
+            GUILayout.Label("Preview your selected mode and team size.");
         }
 
         static string ModeLabel(string id) => id switch {

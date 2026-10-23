@@ -167,6 +167,32 @@ namespace Wreckabulary.Online.Tests
             yield return Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
         }
 
+        [TestCase(700)]
+        [TestCase(420)]
+        public void DisconnectedPartyCardFitsActualMeasuredContentWithoutChangingItDuringRepaint(int width)
+        {
+            window.position = new Rect(100, 100, width, 800);
+            for (int i = 0; i < 3; i++) { Draw(EventType.Layout); Draw(EventType.Repaint); }
+            Rect before = Get<Rect>(menu, "partyRect");
+            float measured = Get<float>(menu, "guestHeight");
+            Assert.AreEqual(width, window.position.width, 1, "The native window must use the requested test width.");
+            var styles = Get<WordboundUiStyles>(menu, "ui");
+            Assert.AreEqual(styles.MenuRect(window.position.width, window.position.height).width, before.width, 1,
+                "The actual drawn card must use this window's viewport, not a wider shared Screen size.");
+            Assert.Greater(measured, 0);
+            Assert.IsTrue(Get<bool>(menu, "compactPartyLayout"));
+            Assert.GreaterOrEqual(before.height, measured, "The actual drawn content must fit without hiding controls.");
+            Assert.Less(before.height, window.position.height - 48, "The disconnected card should release its unused vertical space.");
+            window.BeforeRepaint = () => {
+                Rect layout = Get<Rect>(menu, "partyRect");
+                Set(menu, "guestHeight", measured + 20);
+                Assert.AreEqual(before, layout);
+            };
+            Draw(EventType.Repaint);
+            Assert.AreEqual(before, Get<Rect>(menu, "partyRect"), "Measured height is applied only during Layout.");
+            Assert.IsEmpty(http.Requests);
+        }
+
         [Test]
         public void ExplicitMouseActionSurvivesChangingFromPadToDesktop()
         {

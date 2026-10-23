@@ -87,7 +87,7 @@ namespace Wreckabulary.Workshop
             CancelGesture();
             LastPreview = History.Preview(Catalogue, PlayRequirements);
             if (view != null) view.Sync(History.Current, Catalogue, LastPreview.Success ? LastPreview.Manifest : null);
-            status = LastPreview.Success ? "Preview ready · exact draft and seed" : LastPreview.Issues.FirstOrDefault()?.Message ?? "Preview failed";
+            status = LastPreview.Success ? "Preview ready · current map and seed" : LastPreview.Issues.FirstOrDefault()?.Message ?? "Preview failed";
             return LastPreview;
         }
         public void RequestPlaytest()
@@ -204,10 +204,13 @@ namespace Wreckabulary.Workshop
         {
             GUILayout.BeginArea(new Rect(8, 8, Screen.width - 16, ui.ChromeHeight), panel); GUILayout.BeginHorizontal();
             GUILayout.Label("Wordbound workshop", heading, GUILayout.Width(heading.CalcSize(new GUIContent("Wordbound workshop")).x));
+            GUILayout.Space(ui.Gap);
             GUI.SetNextControlName("workshop-text:Course title"); title = GUILayout.TextField(title, GUILayout.MinWidth(140), GUILayout.MinHeight(ui.RowHeight));
             if (Button("Rename")) Edit("Rename", draft => draft.Course.Title = title.Trim());
+            GUILayout.Space(ui.Gap);
             string modeLabel = ModeLabel(PlayRequirements.ModeId);
             GUILayout.Label(modeLabel, ui.SingleLine, GUILayout.Width(Mathf.Ceil(ui.SingleLine.CalcSize(new GUIContent(modeLabel)).x)));
+            GUILayout.Space(ui.Gap);
             if (Button("Share")) { shareText = History.Current.CourseJsonText; sharing = true; }
             if (Button(OnlinePlaytestRequested != null ? "Back to party" : "Close")) Attempt(() => { CancelGesture(); storage.Save(History.Current); savedRevision = History.Revision; CloseRequested?.Invoke(); Visible = false; });
             GUILayout.EndHorizontal(); GUILayout.EndArea();
