@@ -472,7 +472,8 @@ namespace Wreckabulary.OnlineGameplayTests
         {
             try
             {
-                Debug.Log(FormattableString.Invariant($"WORDBOUND_GAMEPLAY_OPERATION: {operation}; phase={phase}; elapsed={Time.realtimeSinceStartupAsDouble - started:F3}; maxFrameGap={maximumGap:F3}; lifetimeCancelled={lifetime.IsCancellationRequested}; ") + string.Join("; ", peers.Select(DescribePeer)));
+                Debug.Log(FormattableString.Invariant($"WORDBOUND_GAMEPLAY_OPERATION: {operation}; phase={phase}; elapsed={Time.realtimeSinceStartupAsDouble - started:F3}; maxFrameGap={maximumGap:F3}; lifetimeCancelled={lifetime.IsCancellationRequested}; ") + string.Join("; ", peers.Select((peer, index) =>
+                    DescribePeer(peer, index) + (phase == "end" ? DescribeReadiness(peer) : ""))));
             }
             catch (Exception error) { Debug.Log("WORDBOUND_GAMEPLAY_OPERATION_UNAVAILABLE: " + error.GetType().Name); }
         }
@@ -488,6 +489,45 @@ namespace Wreckabulary.OnlineGameplayTests
                 return $"peer={index},host={peer.Runner != null && peer.Runner.IsServer},tick={snapshot?.Progress.Tick},advanced={peer.Advanced},inputReads={peer.InputReads},movingReads={peer.MovingInputReads},position={position},connected={progress?.Connected},canMove={canMove},paused={peer.Controller.IsSimulationPaused},failure={peer.Session.Failure}";
             }
             catch (Exception error) { return $"peer={index},diagnosticUnavailable={error.GetType().Name}"; }
+        }
+        string DescribeReadiness(Peer peer)
+        {
+            var facts = new List<string>();
+            try
+            {
+                var controller = peer.Controller;
+                bool alive = controller != null;
+                facts.Add($"controllerAlive={alive},controllerEnabled={alive && controller.enabled},controllerActive={alive && controller.gameObject.activeInHierarchy},courseWorldPresent={alive && controller.CourseWorld != null}");
+            }
+            catch (Exception error) { facts.Add("controllerFactsUnavailable=" + error.GetType().Name); }
+            try
+            {
+                var session = peer.Session;
+                facts.Add($"sessionPresent={session != null},sessionRunnerStarted={session != null && session.RunnerStarted},sessionGameplayReady={session != null && session.GameplayReady},committedMarkPresent={session?.Committed != null}");
+            }
+            catch (Exception error) { facts.Add("sessionFactsUnavailable=" + error.GetType().Name); }
+            try
+            {
+                var runner = peer.Runner;
+                bool present = runner != null;
+                facts.Add($"runnerPresent={present},runnerRunning={present && runner.IsRunning},runnerHost={present && runner.IsServer},runnerClient={present && runner.IsClient}");
+                if (present)
+                {
+                    bool hasInfo = runner.TryGetSceneInfo(out var info);
+                    bool hasScene = hasInfo && Enumerable.Range(0, info.SceneCount)
+                        .Any(index => info.Scenes[index] == SceneRef.FromIndex(sceneIndex));
+                    var manager = runner.SceneManager;
+                    bool physicsAvailable = false, physicsValid = false, physicsIsolated = false;
+                    if (manager != null && manager.TryGetPhysicsScene3D(out var physicsScene))
+                    {
+                        physicsAvailable = true; physicsValid = physicsScene.IsValid();
+                        physicsIsolated = physicsValid && physicsScene != UnityEngine.Physics.defaultPhysicsScene;
+                    }
+                    facts.Add($"sceneInfoAvailable={hasInfo},gameplayScenePresent={hasScene},sceneManagerPresent={manager != null},sceneManagerBusy={manager != null && manager.IsBusy},physicsSceneAvailable={physicsAvailable},physicsSceneValid={physicsValid},physicsSceneIsolated={physicsIsolated}");
+                }
+            }
+            catch (Exception error) { facts.Add("runnerSceneFactsUnavailable=" + error.GetType().Name); }
+            return "," + string.Join(",", facts);
         }
         IEnumerator Wait(Task task, string operation, double seconds)
         {
