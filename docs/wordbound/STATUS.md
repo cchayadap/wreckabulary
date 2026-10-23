@@ -8,7 +8,13 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current delivery snapshot — 2026-10-23 23:21 UTC
+## Current delivery snapshot — 2026-10-23T23:37:47Z
+
+Original Wreckabulary art is the runtime default. QA Windows232641 passes on8c02f106 and the actual232850 workshop/player/return flow passes5/5 with zero console errors/exceptions/warnings. Six images and game payload hashes are preserved. Native232239 passes96 UI/input/workshop tests; Search/footer/party theme corrections are visually verified. The measured90-update window still has substantial stalls, so smoothness and production acceptance remain open. See [Windows delivery](../../BuildNotes/client-view/WINDOWS-DELIVERY.md) and [try the review build](../../BuildNotes/client-view/TRY-WORDBOUND.md).
+
+Capacity preflight233231 passes with512 reserved/366 initial live bodies; it does not prove online reclamation. The original changed-save/BOM test and direct IO sequence also pass without changing production IO, leaving the earlier1175 cause unexplained. Full authoring-group/FFA rerun is active onb36ce231. FullFFA231117 hit the unchanged eight-minute fixture lifetime after five respawns; the reviewed test steering correction is under verification. Larger parties, full modes, host recovery, final stripped release and owner/human acceptance remain open. Original/ICY/font/Lunar work stays preserved. [progress.md](../../progress.md) is the current checklist.
+
+## Earlier delivery snapshot — 2026-10-23 23:21 UTC
 
 Original Wreckabulary artwork remains the runtime default. QA Windows build `20261023T230521Z` passes on source `1ab60670`; visible run `20261023T230748Z-visible-wordbound_workshop_flow` passes all five workshop/playtest/return checks, with exact draft and Undo/Redo preserved, zero reported console errors/exceptions/warnings and normal exit. The actual six screenshots and game payload hashes are recorded in `BuildNotes/client-view/windows-original-theme-20261023.json`. Readiness is 4.273 seconds and playtest completes in 17.240 seconds; these are workflow timings, not an FPS result. The gallery now leads with these captures and retains the older menu comparison.
 

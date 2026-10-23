@@ -1,5 +1,16 @@
 # Windows delivery preparation
 
+## Current tested review build — 2026-10-23T23:37:47Z
+
+Build `20261023T232641Z` passes113.4s on exact source `8c02f106c5e6beb9a72fc35f06d22264a94e504e`. Actual visible run `20261023T232850Z-visible-wordbound_workshop_flow` passes5/5, console0/0/0, exit0; exact183314-byte draft, return and Undo/Redo remain intact. Six actual images and48 hashed artifacts, including game DLL/data payloads, are recorded in [windows-original-theme-polish-20261023.json](windows-original-theme-polish-20261023.json). Playtest12.450s is the local workflow duration; checks.json step times are cumulative scenario timestamps.
+
+Root and Assets independently inspected all six captures. Original models/materials remain default. Search is one line, footer status stays inside its cream panel and the party menu uses the editable original theme. Native232239 passes all96 relevant UI/input/workshop cases, including9 theme and7 party tests; its separate capacity preflight fails and is subsequently corrected. Compact initial-party layout/help/header spacing still need the next polish; large-avatar/sparse-room composition and held/combat acceptance remain open.
+
+The opted-in90-update observation lasts7.240s, advances479 canonical ticks and records a696.499ms worst gap, with up to46 ticks/update. The assigned camera reports89 paired callbacks,249.891ms total callback wall time and6.895ms maximum; no missing pairs or in-flight callback. Boundary accounting explains the final update without a subsequent camera callback. V-sync0, targetFPS-1 and render interval1 show no configured frame throttle. These are update/callback observations, not GPU or presented-FPS measurements. The wider ready window records HostStep4.784s/502 and FullValidation1.443s/520; intervals differ, so they must not be subtracted as a common-frame CPU budget. Smoothness acceptance remains open.
+
+See [TRY-WORDBOUND.md](TRY-WORDBOUND.md) to try this exact review build. It is not the final stripped release or production acceptance. Public Team/Brawl bounded entry tests pass; full FFA and larger-party/capacity/recovery acceptance remain unfinished. Capacity preflight233231 passes; original Store save/BOM regression also passes without a production change, leaving the earlier1175 cause unresolved. Full authoring-group and FFA rerun are active onb36ce231. Official smoke/update approvals remain pending and earlier failures below are retained.
+
+
 STATUS: IN PROGRESS — QA BUILD AND VISIBLE WORKSHOP FLOW PASS; PRODUCTION ACCEPTANCE OPEN
 
 Current checkpoint (2026-10-23T23:13Z): QA230521PASS119.5s, nondevelopment GSK_QA/Unity6000.6.3, exact source1ab60670. Normal-window230748PASS5/5, exit0, console0errors/0exceptions/0warnings. Readiness4.273s; the same90 update waits finish16.807s and the playtest completes17.240s. Exact183314-byte autosave, return to the same draft/history and Undo/Redo pass. `windows-original-theme-20261023.json` binds48 artifacts, including actual game assemblies/data and six screenshots; the Unity bootstrap executable hash alone does not identify game content.
