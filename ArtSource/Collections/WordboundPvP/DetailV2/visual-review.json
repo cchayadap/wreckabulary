@@ -1,0 +1,267 @@
+{
+  "status": "AGENT VISUAL REVIEW COMPLETE; UNITY AND OWNER ACCEPTANCE PENDING",
+  "date": "2026-10-23",
+  "reviewer": "/root/recover_assets",
+  "source_sha256": "fefb1c851d674357aabc3f9e33a0983a6f1813476180b9447877a9b867bf0f25",
+  "style": "Detailed stylized household objects preserving the existing rounded Wreckabulary palette and silhouettes.",
+  "limits": [
+    "This inspection covers the listed Blender views, not hidden surfaces or a Unity game camera.",
+    "Soft grain, restrained weave and faceting remain visible at the 512-pixel texture and 6000-triangle budgets.",
+    "Native Unity materials, runtime performance, owner appearance and feel acceptance remain pending."
+  ],
+  "resolved_issue": "An inherited floating FAN motor was repaired with an axle and angled neck; final exports were regenerated and independently reimported.",
+  "independent_root_review": {
+    "final_revision_views": [
+      "FAN-side",
+      "SHIELD-three-quarter",
+      "TABLE-side",
+      "BED-three-quarter",
+      "CLOCK-side"
+    ],
+    "earlier_revision_context_views": [
+      "BAT-three-quarter",
+      "SOFA-three-quarter",
+      "FAN-three-quarter",
+      "FAN-side before repair"
+    ],
+    "reported_result": "Root confirmed the final FAN support connection and no blocking construction issue in the listed final views."
+  },
+  "assets": [
+    {
+      "id": "BAT",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/BAT-side.png",
+          "sha256": "21678cc8a5d1364b2451b5eb4cd2a28c93166e45b0f90945dbc60b651d96fa0b",
+          "bytes": 179471
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BAT-three-quarter.png",
+          "sha256": "5897c6bedf05cb0c93fd44b09387ac6a86ed1067cc99037ad1943e0e44f88423",
+          "bytes": 182427
+        }
+      ],
+      "observation": "Rounded barrel, wood grain, green collar and repeated grip wraps read in both views. Surface response is softly glossy at this atlas budget.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "BROOM",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/BROOM-side.png",
+          "sha256": "faef48237bcc6af987c3d43375b6a5cd4bce89e877c968ff49219c2059bf0836",
+          "bytes": 162287
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BROOM-three-quarter.png",
+          "sha256": "6c69191f9e633c7c530f69d516e8177d603c315e9d185fd8559abc527bc6d4ec",
+          "bytes": 177541
+        }
+      ],
+      "observation": "Separate bristle fibres, handle grain and collar fastener are readable; side view shows attached handle, ferrule and brush head.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "HAMMER",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/HAMMER-side.png",
+          "sha256": "bc5689c6a11ef14fbd93ba83b9f708955668ba39c818d82a8efa7378fe8e7100",
+          "bytes": 187828
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/HAMMER-three-quarter.png",
+          "sha256": "ce4267e5dd1089e77d42520d285de2d82981aae495b41d12b8b753b96ab497a0",
+          "bytes": 222482
+        }
+      ],
+      "observation": "Capped padded head, wood handle and wrapped green grip stay connected in both views; broad textile response is subtle.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "SPEAR",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/SPEAR-side.png",
+          "sha256": "b7d46caec0a8d54d9382f0ae610f9c06a230a1e7633c4ba8735e1d84a30a9613",
+          "bytes": 158826
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SPEAR-three-quarter.png",
+          "sha256": "a95172ebe96e004da7288048af727ec48b0964dcfc556541cfed10cdc266b1a0",
+          "bytes": 164204
+        }
+      ],
+      "observation": "Blunt cream head, brass socket, collar and grip bands read clearly; side view retains the intended thin silhouette without a visible break.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "SHIELD",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/SHIELD-side.png",
+          "sha256": "69dd25b56bf58d9ee150083b1dbca7cc8ccf91d1946d551ff6b24207ef6a648e",
+          "bytes": 208817
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SHIELD-three-quarter.png",
+          "sha256": "844a9fd108d481b5b39a77d90bf0fe7465e1ce50d39bbe1bbb8a03f5bdea2bd7",
+          "bytes": 298719
+        }
+      ],
+      "observation": "Rim, inset face and four brass fasteners are readable. Side view confirms attached rear grip and support blocks.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "PLATE",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/PLATE-side.png",
+          "sha256": "cc80afdcae01b3db23ea894b94a41a241b21e9cbfa6c8ca660bbc5938ec3a4c2",
+          "bytes": 139450
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/PLATE-three-quarter.png",
+          "sha256": "0aaeb0626fdfa5e550643ce90345ed0de651bb863b6298174d5b82c685ca2254",
+          "bytes": 218224
+        }
+      ],
+      "observation": "Glazed shallow dish, green inner ring and brass rim read as a plate; side view confirms continuous curved depth.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "TABLE",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/TABLE-side.png",
+          "sha256": "02bfe86b9fb38a80fde5c040de6448f5fe0c6f9e52a6871145b8026907f5a394",
+          "bytes": 285654
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/TABLE-three-quarter.png",
+          "sha256": "eb39951ab24405cee6e3195b7e62d794433998a87f134268211a359e16d823fd",
+          "bytes": 288200
+        }
+      ],
+      "observation": "Inset top joins, lower shelf, wood legs and collar fittings form a coherent structure in both views. Fine top-surface grain is restrained.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "SOFA",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/SOFA-side.png",
+          "sha256": "d4adea971a398be04844803596d97e38641703329edf294644ad43d03a3ebc70",
+          "bytes": 295659
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SOFA-three-quarter.png",
+          "sha256": "8b3f30e61334cfe77e337aa86264c0bb57337876eb95c21e6097b63fdc7cbf45",
+          "bytes": 319584
+        }
+      ],
+      "observation": "Separate cushions, tuft buttons, edge piping, arm panels and grained wooden base are readable; side view shows the connected seat/base/leg assembly.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "BED",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/BED-side.png",
+          "sha256": "f485508f9d527cb16b8d8af684c970ef808fa338df3a9186315bbcf3ce83e44e",
+          "bytes": 214116
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BED-three-quarter.png",
+          "sha256": "a96c713359c6ae3ed76f4ab1a4b72e7eaaf38f31a0bb1b9b6e101c261644f822",
+          "bytes": 327098
+        }
+      ],
+      "observation": "Wood frame, posts, mattress, pillow and stitched quilt are distinct; side view confirms mattress support and bed-frame continuity.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "STOOL",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/STOOL-side.png",
+          "sha256": "69292280c4b89458cc4953a2fe7ae9165dd262a2a5589711ebd86973a97b0a33",
+          "bytes": 274806
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/STOOL-three-quarter.png",
+          "sha256": "8926334b7186db34db8906a3374cd10b35d2d3ed7254a6b6f476e8fe0952da20",
+          "bytes": 313574
+        }
+      ],
+      "observation": "Padded seat piping, green rim, grain and crossbars read clearly; side view confirms the seat support and splayed legs.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "FAN",
+      "inspected_views": [
+        {
+          "view": "front",
+          "path": "Previews/FAN-front.png",
+          "sha256": "f8009dd8050b7710db5a563ca07bd2bc51dca8a421defa6a0b0bb25345b32232",
+          "bytes": 296488
+        },
+        {
+          "view": "side",
+          "path": "Previews/FAN-side.png",
+          "sha256": "f6379161f3791f877195430b34962ef3adac72760b3896fe9e364dc5e5a8f07f",
+          "bytes": 204467
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/FAN-three-quarter.png",
+          "sha256": "1f4348884a5dd6d1f45f83ce36c308fbbb66d9e2ce63362e931412fb781a0466",
+          "bytes": 294833
+        }
+      ],
+      "observation": "Grille, blades, motor, brass axle and angled support form a connected fan. The earlier floating motor gap is resolved in the final side view; front grille remains readable.",
+      "blocking_issue_observed": false
+    },
+    {
+      "id": "CLOCK",
+      "inspected_views": [
+        {
+          "view": "side",
+          "path": "Previews/CLOCK-side.png",
+          "sha256": "3d95d1946357b5b34884f935448c59a64262d7a122472cf9ffd62f63802abdc9",
+          "bytes": 209660
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/CLOCK-three-quarter.png",
+          "sha256": "3efe8dfb319ae9de70fa1cdba0a9c16bfae388c55025ce81ba2e5c6ee0bdbe9f",
+          "bytes": 351315
+        }
+      ],
+      "observation": "Wood case, feet, hour bars, minute marks, hands and centre boss are distinct. Side view confirms dial and hand layering within the intended shallow housing.",
+      "blocking_issue_observed": false
+    }
+  ],
+  "native_unity_validation": "NOT RUN",
+  "human_owner_acceptance": "NOT RUN"
+}

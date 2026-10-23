@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-23",
+  "workingDirectory": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop",
+  "blender": "C:/Program Files/Blender Foundation/Blender 5.2/blender.exe",
+  "sourceBlendSha256": "fefb1c851d674357aabc3f9e33a0983a6f1813476180b9447877a9b867bf0f25",
+  "originalSourceBlendSha256": "e99fc364cfc1f1ddad09ba17d4e58f115bc229675a6def224b2236567f9f1f60",
+  "runs": [
+    {
+      "phase": "final geometry build",
+      "exitCode": 0,
+      "elapsedSeconds": 48.7178,
+      "log": "assets-build-support.log",
+      "result": "12 models / 24 exports / 275 editable meshes / 27 delivery meshes"
+    },
+    {
+      "phase": "final independent reimport",
+      "exitCode": 0,
+      "elapsedSeconds": 29.0542,
+      "log": "assets-reimport-support.log",
+      "result": "24/24 passed"
+    },
+    {
+      "phase": "FAN final previews",
+      "exitCode": 0,
+      "elapsedSeconds": 155.9699153,
+      "cpuThreads": 2,
+      "samples": 24,
+      "log": "assets-preview-support.log",
+      "result": "4 images"
+    },
+    {
+      "phase": "remaining eleven final previews",
+      "exitCode": 0,
+      "elapsedSeconds": 647.539422,
+      "cpuThreads": 6,
+      "samples": 24,
+      "log": "assets-preview-final.log",
+      "result": "44 images"
+    },
+    {
+      "phase": "delivery verification",
+      "exitCode": 0,
+      "command": "node Tools/AssetPipeline/verify_wordbound_detail.mjs ArtSource/Collections/WordboundPvP/DetailV2 ../wordbound-integration/ArtSource/Collections/WordboundPvP",
+      "log": "assets-delivery-final.log",
+      "result": "PASS: 12 models, 24 exports, 36 previews, 12 icons"
+    }
+  ],
+  "timingSource": "PowerShell Stopwatch wall time returned by the actual completed processes; raw Blender per-image elapsed timestamps are in the linked logs.",
+  "nativeUnityValidation": "NOT RUN by asset lane",
+  "ownerAcceptance": "PENDING",
+  "preservedRecoveryCopies": [
+    ".harness/recovery/failed-detail-build-1",
+    ".harness/recovery/detail-before-fan-support"
+  ],
+  "correctedBaseline": "Original manifest totals 174 meshes; the earlier 193 estimate was wrong. Final 27 delivery meshes reduce that count by 84.5%."
+}

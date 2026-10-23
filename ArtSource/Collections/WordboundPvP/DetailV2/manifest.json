@@ -1,0 +1,2233 @@
+{
+  "collection": "WordboundPvP",
+  "revision": "DetailV2",
+  "status": "source-exports-and-previews-produced",
+  "blender": "5.2.2 LTS",
+  "generator": "build_wordbound_detail.py",
+  "generator_sha256": "e0ea5155727af8d9c4db015e8159373ef00f4b5387e3c110c05f2b8a61cea8b0",
+  "base_generator_sha256": "583d601fd8f072c142b5211c56e469d43e38ce90fb379820318e93d2c892cc7a",
+  "prior_source_sha256": "e99fc364cfc1f1ddad09ba17d4e58f115bc229675a6def224b2236567f9f1f60",
+  "provenance": "Original editable geometry revision and procedural material sources; unchanged original concept bytes. No external provider.",
+  "delivery_optimization": "Merge meshes only within the same parent pivot and material; editable source components remain separate.",
+  "source": {
+    "path": "Source/WordboundPvP.blend",
+    "sha256": "fefb1c851d674357aabc3f9e33a0983a6f1813476180b9447877a9b867bf0f25"
+  },
+  "palette": {
+    "path": "Exports/WordboundPvPPalette.png",
+    "sha256": "dd4d8964bc09c3b5ca8e15fe737108941c40d3e8a375be4884d69d9809f608a2"
+  },
+  "detail_maps": {
+    "normal": {
+      "path": "Exports/WordboundPvPNormal.png",
+      "sha256": "e7859880b5f0869a708d49c40d479be34eedd8cfde894667b23ddd5396ff1a04"
+    },
+    "mask": {
+      "path": "Exports/WordboundPvPMask.png",
+      "sha256": "c3aecf5a9b0e5840ef3303c48c8acd153cb8cc70e95c951f1e03efa66aa0087b"
+    },
+    "roughness": {
+      "path": "Exports/WordboundPvPRoughness.png",
+      "sha256": "067cb40dbfba78c55848089708774cdaca69971436937d301ffb3ab7f9d0aca8"
+    }
+  },
+  "material_contract": {
+    "size": [
+      512,
+      256
+    ],
+    "rows_bottom_to_top": [
+      "oiled wood",
+      "woven textile",
+      "glazed ceramic",
+      "painted surface"
+    ],
+    "base_color": "sRGB",
+    "normal": "linear tangent-space +Y",
+    "mask": "linear; R metallic (0), A smoothness (1 - roughness)",
+    "roughness": "linear grayscale for Blender/glTF"
+  },
+  "native_unity_validation": "NOT RUN",
+  "human_acceptance": "NOT RUN",
+  "assets": [
+    {
+      "id": "BAT",
+      "triangles": 2724,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "BAT",
+        "BAT_Front",
+        "BAT_Grip_R",
+        "BAT_NormalizedGeometry",
+        "BAT_NormalizedGeometry_WordboundPvPBrassMesh",
+        "BAT_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.0860000029206276,
+        -0.0860000029206276,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.0860000029206276,
+        0.0860000029206276,
+        1.0180000066757202
+      ],
+      "size_unity_metres": [
+        0.172,
+        1.018,
+        0.172
+      ],
+      "grip_unity_metres": [
+        0,
+        0.17,
+        0
+      ],
+      "held_scale": 0.5894,
+      "concept": "Concepts/BAT-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 0,
+      "editable_mesh_count": 5,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "BAT",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BAT_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.10320000350475311,
+            0.0,
+            0.0,
+            1.0,
+            0.5090000033378601,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BAT_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.17000000178813934,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BAT_NormalizedGeometry",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/BAT.fbx",
+          "sha256": "f667ba4de4160af0af3263965780217b3c226acac0a111093991515b4b175917",
+          "bytes": 76220
+        },
+        "glb": {
+          "path": "Exports/BAT.glb",
+          "sha256": "74251dc7645ee96fc0ab6462611c5220f6eadc1be5d61f677a2d30589af57633",
+          "bytes": 277496
+        }
+      },
+      "concept_sha256": "8751bf8f760317649ba932e3378b82b5d0ff473da3f84a2a88ca34c55c5609fc",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/BAT-front.png",
+          "sha256": "936f4a74eea948ef5aad72dff4d9502ce72247d50f015ec9520eedfd64ebb389",
+          "bytes": 179039
+        },
+        {
+          "view": "side",
+          "path": "Previews/BAT-side.png",
+          "sha256": "21678cc8a5d1364b2451b5eb4cd2a28c93166e45b0f90945dbc60b651d96fa0b",
+          "bytes": 179471
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BAT-three-quarter.png",
+          "sha256": "5897c6bedf05cb0c93fd44b09387ac6a86ed1067cc99037ad1943e0e44f88423",
+          "bytes": 182427
+        },
+        {
+          "view": "icon",
+          "path": "Icons/BAT.png",
+          "sha256": "11615e4a030e82cd8bc19381d345f3b005b786b3ded139377b0fbd8c3c2fe054",
+          "bytes": 120353
+        }
+      ]
+    },
+    {
+      "id": "BROOM",
+      "triangles": 2556,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "BROOM",
+        "BROOM_Front",
+        "BROOM_Grip_R",
+        "BROOM_NormalizedGeometry",
+        "BROOM_NormalizedGeometry_WordboundPvPBrassMesh",
+        "BROOM_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.15000000596046448,
+        -0.04749999940395355,
+        -7.450580596923828e-09
+      ],
+      "bounds_blender_max": [
+        0.15000003576278687,
+        0.04749999940395355,
+        1.0211999416351318
+      ],
+      "size_unity_metres": [
+        0.3,
+        1.0212,
+        0.095
+      ],
+      "grip_unity_metres": [
+        0,
+        0.6212,
+        0
+      ],
+      "held_scale": 0.5876,
+      "concept": "Concepts/BROOM-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 1.1992021597961866e-07,
+      "editable_mesh_count": 35,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "BROOM",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BROOM_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.05700000002980232,
+            0.0,
+            0.0,
+            1.0,
+            0.5105999708175659,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BROOM_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.6212000250816345,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BROOM_NormalizedGeometry",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0003360509872437,
+            -0.0003433012461755425,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/BROOM.fbx",
+          "sha256": "158bf7f1d977a9c0513d6e732144ec053b6bf6683d01cc8f40d8f5e0abd73c0c",
+          "bytes": 78060
+        },
+        "glb": {
+          "path": "Exports/BROOM.glb",
+          "sha256": "c45d2cec2012447457841469043a0ba4ebcea56b4f4e116c5c4744c402eb61a6",
+          "bytes": 312308
+        }
+      },
+      "concept_sha256": "c880629309c4a336cee09b8a2932e4a43a8e2f941b66c1310d02a6e5a1fb44a8",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/BROOM-front.png",
+          "sha256": "b1cc6e232ba88a75b7b4da95570760c0a7ee7a8a425af9dceadf5aa7b9eb145a",
+          "bytes": 178103
+        },
+        {
+          "view": "side",
+          "path": "Previews/BROOM-side.png",
+          "sha256": "faef48237bcc6af987c3d43375b6a5cd4bce89e877c968ff49219c2059bf0836",
+          "bytes": 162287
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BROOM-three-quarter.png",
+          "sha256": "6c69191f9e633c7c530f69d516e8177d603c315e9d185fd8559abc527bc6d4ec",
+          "bytes": 177541
+        },
+        {
+          "view": "icon",
+          "path": "Icons/BROOM.png",
+          "sha256": "c5e275c835760cb77ac634a1f38a21d842d6ec01a3ff7d602e4824b35b7b0fec",
+          "bytes": 117910
+        }
+      ]
+    },
+    {
+      "id": "HAMMER",
+      "triangles": 2852,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "HAMMER",
+        "HAMMER_Front",
+        "HAMMER_Grip_R",
+        "HAMMER_NormalizedGeometry",
+        "HAMMER_NormalizedGeometry_WordboundPvPBrassMesh",
+        "HAMMER_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.17249999940395355,
+        -0.08749999850988388,
+        -2.980232238769531e-08
+      ],
+      "bounds_blender_max": [
+        0.17249999940395355,
+        0.08749999850988388,
+        0.6349999904632568
+      ],
+      "size_unity_metres": [
+        0.345,
+        0.635,
+        0.175
+      ],
+      "grip_unity_metres": [
+        0,
+        0.13,
+        0
+      ],
+      "held_scale": 0.5669,
+      "concept": "Concepts/HAMMER-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 6.365778659755961e-08,
+      "editable_mesh_count": 9,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "HAMMER",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "HAMMER_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.10499999672174454,
+            0.0,
+            0.0,
+            1.0,
+            0.3174999952316284,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "HAMMER_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.12999999523162842,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "HAMMER_NormalizedGeometry",
+          "matrix_world": [
+            1.0747663974761963,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.9898189902305603,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.9985846281051636,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/HAMMER.fbx",
+          "sha256": "e7bd839b8cfb5e5b3503ecab7613461145985e7f87a5de33aa6090350c132c3d",
+          "bytes": 78780
+        },
+        "glb": {
+          "path": "Exports/HAMMER.glb",
+          "sha256": "afa08fbb6f3cb841a0290249eafec34dfc34e0daf0cb88bc0f2118120328fa5a",
+          "bytes": 277420
+        }
+      },
+      "concept_sha256": "26f735547df97ecfd141dd08be67ff6b876681afebc1f9df914c0c2782b2748d",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/HAMMER-front.png",
+          "sha256": "64291fa26eccdbda73a78c6efb0d858aca2bacdd3481da6179affe71ca6e17f0",
+          "bytes": 214316
+        },
+        {
+          "view": "side",
+          "path": "Previews/HAMMER-side.png",
+          "sha256": "bc5689c6a11ef14fbd93ba83b9f708955668ba39c818d82a8efa7378fe8e7100",
+          "bytes": 187828
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/HAMMER-three-quarter.png",
+          "sha256": "ce4267e5dd1089e77d42520d285de2d82981aae495b41d12b8b753b96ab497a0",
+          "bytes": 222482
+        },
+        {
+          "view": "icon",
+          "path": "Icons/HAMMER.png",
+          "sha256": "34fe6f6c303c14bbcb07e60b19129a555212a3a2fcf03c8a3b242258c1f98a3f",
+          "bytes": 148833
+        }
+      ]
+    },
+    {
+      "id": "SPEAR",
+      "triangles": 2608,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "SPEAR",
+        "SPEAR_Front",
+        "SPEAR_Grip_R",
+        "SPEAR_NormalizedGeometry",
+        "SPEAR_NormalizedGeometry_WordboundPvPBrassMesh",
+        "SPEAR_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.08500000089406967,
+        -0.03400000184774399,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.08500000089406967,
+        0.03399999812245369,
+        1.2350000143051147
+      ],
+      "size_unity_metres": [
+        0.17,
+        1.235,
+        0.068
+      ],
+      "grip_unity_metres": [
+        0,
+        0.465,
+        0
+      ],
+      "held_scale": 0.4858,
+      "concept": "Concepts/SPEAR-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 1.1928202070521365e-07,
+      "editable_mesh_count": 11,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "SPEAR",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SPEAR_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.040800001472234726,
+            0.0,
+            0.0,
+            1.0,
+            0.6175000071525574,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SPEAR_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.4650000035762787,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SPEAR_NormalizedGeometry",
+          "matrix_world": [
+            1.016855239868164,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.944444477558136,
+            0.0,
+            -0.0018888874910771847,
+            0.0,
+            0.0,
+            1.0024291276931763,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/SPEAR.fbx",
+          "sha256": "96875cdfac2c68edfbb86be6862c0d6abcd7e6ed6e02b2e06176d061b3e7324d",
+          "bytes": 80668
+        },
+        "glb": {
+          "path": "Exports/SPEAR.glb",
+          "sha256": "6fddb34d86f65d78d18a4666781c64b7c326565da74e4d2214484084e7ddcbb0",
+          "bytes": 292704
+        }
+      },
+      "concept_sha256": "c5e2ccfc85b8f2e5c174a442c5660fe9cb1edf88e4f877e1fd929e6de37f1087",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/SPEAR-front.png",
+          "sha256": "1faa6f791d20d3799817667e81cf130209c803e3d3d0e84aafdb3626ce700a64",
+          "bytes": 162737
+        },
+        {
+          "view": "side",
+          "path": "Previews/SPEAR-side.png",
+          "sha256": "b7d46caec0a8d54d9382f0ae610f9c06a230a1e7633c4ba8735e1d84a30a9613",
+          "bytes": 158826
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SPEAR-three-quarter.png",
+          "sha256": "a95172ebe96e004da7288048af727ec48b0964dcfc556541cfed10cdc266b1a0",
+          "bytes": 164204
+        },
+        {
+          "view": "icon",
+          "path": "Icons/SPEAR.png",
+          "sha256": "77dfc1c832a05c3c13c7ce5602f7f220c24c4962b2b54ac2e4600e585623e427",
+          "bytes": 108961
+        }
+      ]
+    },
+    {
+      "id": "SHIELD",
+      "triangles": 1964,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "SHIELD",
+        "SHIELD_Front",
+        "SHIELD_Grip_R",
+        "SHIELD_NormalizedGeometry",
+        "SHIELD_NormalizedGeometry_WordboundPvPBrassMesh",
+        "SHIELD_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.22999998927116394,
+        -0.12467499077320099,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.22999998927116394,
+        0.06302499771118164,
+        0.5699999928474426
+      ],
+      "size_unity_metres": [
+        0.46,
+        0.57,
+        0.1877
+      ],
+      "grip_unity_metres": [
+        0,
+        0.29,
+        -0.11
+      ],
+      "held_scale": 0.6316,
+      "concept": "Concepts/SHIELD-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 5.375918021854886e-08,
+      "editable_mesh_count": 17,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "SHIELD",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SHIELD_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.11262000352144241,
+            0.0,
+            0.0,
+            1.0,
+            0.2849999964237213,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SHIELD_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            -0.10999999940395355,
+            0.0,
+            0.0,
+            1.0,
+            0.28999999165534973,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SHIELD_NormalizedGeometry",
+          "matrix_world": [
+            1.0130670070648193,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.8286975622177124,
+            0.0,
+            -0.014043871313333511,
+            0.0,
+            0.0,
+            1.0134074687957764,
+            -0.0048087299801409245,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/SHIELD.fbx",
+          "sha256": "7a129a07e62474c59e711b7c212820e8562d32fed1e18185232bea094abe4e61",
+          "bytes": 64492
+        },
+        "glb": {
+          "path": "Exports/SHIELD.glb",
+          "sha256": "021ba9ea574e72b58af5c37bd33e1e425f84a0eb2cc6e5850789bf32506e18b0",
+          "bytes": 314876
+        }
+      },
+      "concept_sha256": "3387d4ab9a111216ebfc0b3560bbcb75ceb3c6013ae361d9145edfa658ba5875",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/SHIELD-front.png",
+          "sha256": "9f2f6579f8677218fa37f3be96386778be03b6c8856df4c4e570149991207643",
+          "bytes": 302480
+        },
+        {
+          "view": "side",
+          "path": "Previews/SHIELD-side.png",
+          "sha256": "69dd25b56bf58d9ee150083b1dbca7cc8ccf91d1946d551ff6b24207ef6a648e",
+          "bytes": 208817
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SHIELD-three-quarter.png",
+          "sha256": "844a9fd108d481b5b39a77d90bf0fe7465e1ce50d39bbe1bbb8a03f5bdea2bd7",
+          "bytes": 298719
+        },
+        {
+          "view": "icon",
+          "path": "Icons/SHIELD.png",
+          "sha256": "5001bcab3c540ba83b19fa11ae2d8fce279a74abbb83ce38a1329f74dee85f85",
+          "bytes": 200761
+        }
+      ]
+    },
+    {
+      "id": "PLATE",
+      "triangles": 2508,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "PLATE",
+        "PLATE_Front",
+        "PLATE_Grip_R",
+        "PLATE_NormalizedGeometry",
+        "PLATE_NormalizedGeometry_WordboundPvPBrassMesh",
+        "PLATE_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.27000001072883606,
+        -0.27000001072883606,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.27000001072883606,
+        0.27000001072883606,
+        0.0729999989271164
+      ],
+      "size_unity_metres": [
+        0.54,
+        0.073,
+        0.54
+      ],
+      "grip_unity_metres": [
+        0,
+        0.0365,
+        0
+      ],
+      "held_scale": 0.6667,
+      "concept": "Concepts/PLATE-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 3.725290298461914e-09,
+      "editable_mesh_count": 4,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "PLATE",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "PLATE_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.3240000009536743,
+            0.0,
+            0.0,
+            1.0,
+            0.0364999994635582,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "PLATE_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0364999994635582,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "PLATE_NormalizedGeometry",
+          "matrix_world": [
+            0.9890110492706299,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.9890110492706299,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.9673473834991455,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/PLATE.fbx",
+          "sha256": "1687444766024538903e003d5fc8b6f276cd88f2599fc59f4819d862c7516340",
+          "bytes": 68908
+        },
+        "glb": {
+          "path": "Exports/PLATE.glb",
+          "sha256": "bf6359571a9c5579c8f96d54f250388b1945c878556bc60a90bcc9a9e2fa8028",
+          "bytes": 254488
+        }
+      },
+      "concept_sha256": "09cfe7b981428ff1384383a0f39103f73719ddaee19e9d9ba4dfd545a6b3121e",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/PLATE-front.png",
+          "sha256": "be262b30ca555b713212388aa124539f1077b58476c6a7a0ac9ce54f547d7a9c",
+          "bytes": 139516
+        },
+        {
+          "view": "side",
+          "path": "Previews/PLATE-side.png",
+          "sha256": "cc80afdcae01b3db23ea894b94a41a241b21e9cbfa6c8ca660bbc5938ec3a4c2",
+          "bytes": 139450
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/PLATE-three-quarter.png",
+          "sha256": "0aaeb0626fdfa5e550643ce90345ed0de651bb863b6298174d5b82c685ca2254",
+          "bytes": 218224
+        },
+        {
+          "view": "icon",
+          "path": "Icons/PLATE.png",
+          "sha256": "ddb2229f218125c87557c4dbff6dc8f1e0ccd3edaac5f9ca98f96107579c2f50",
+          "bytes": 146688
+        }
+      ]
+    },
+    {
+      "id": "TABLE",
+      "triangles": 2628,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "TABLE",
+        "TABLE_Front",
+        "TABLE_Grip_R",
+        "TABLE_NormalizedGeometry",
+        "TABLE_NormalizedGeometry_WordboundPvPBrassMesh",
+        "TABLE_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.6000000238418579,
+        -0.34549999237060547,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.6000000238418579,
+        0.34549999237060547,
+        0.7200000286102295
+      ],
+      "size_unity_metres": [
+        1.2,
+        0.72,
+        0.691
+      ],
+      "grip_unity_metres": [
+        0,
+        0.36,
+        0
+      ],
+      "held_scale": 0.3,
+      "concept": "Concepts/TABLE-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 6.664001972467304e-08,
+      "editable_mesh_count": 23,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "TABLE",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "TABLE_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.4145999848842621,
+            0.0,
+            0.0,
+            1.0,
+            0.36000001430511475,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "TABLE_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.36000001430511475,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "TABLE_NormalizedGeometry",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.9762712121009827,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/TABLE.fbx",
+          "sha256": "cd9e01102625f6fd965708b4b00f5c266fc9dbba0dcc559be95a0a8ea06c6e2b",
+          "bytes": 72460
+        },
+        "glb": {
+          "path": "Exports/TABLE.glb",
+          "sha256": "50085be1dab892784637e359e392db36c552f7347c11b180e4a724b46aa70fdf",
+          "bytes": 304184
+        }
+      },
+      "concept_sha256": "75603d51c28367046d53881d5e1ced6a7fb2188b9fece7a0bdda903c61546631",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/TABLE-front.png",
+          "sha256": "d9193ac6fb29377ddfd64c472151e4bd83edfd900a47e54b941196e03d9485da",
+          "bytes": 223001
+        },
+        {
+          "view": "side",
+          "path": "Previews/TABLE-side.png",
+          "sha256": "02bfe86b9fb38a80fde5c040de6448f5fe0c6f9e52a6871145b8026907f5a394",
+          "bytes": 285654
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/TABLE-three-quarter.png",
+          "sha256": "eb39951ab24405cee6e3195b7e62d794433998a87f134268211a359e16d823fd",
+          "bytes": 288200
+        },
+        {
+          "view": "icon",
+          "path": "Icons/TABLE.png",
+          "sha256": "2cad7c6520c77437871029589763ac38887f5dc6f5b4dff2d105538141e20956",
+          "bytes": 193949
+        }
+      ]
+    },
+    {
+      "id": "SOFA",
+      "triangles": 4908,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "SOFA",
+        "SOFA_Front",
+        "SOFA_Grip_R",
+        "SOFA_NormalizedGeometry",
+        "SOFA_NormalizedGeometry_WordboundPvPBrassMesh",
+        "SOFA_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.7600001096725464,
+        -0.39000001549720764,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.7599998712539673,
+        0.4230000078678131,
+        0.9300000667572021
+      ],
+      "size_unity_metres": [
+        1.52,
+        0.93,
+        0.813
+      ],
+      "grip_unity_metres": [
+        0,
+        0.465,
+        0.0165
+      ],
+      "held_scale": 0.2368,
+      "concept": "Concepts/SOFA-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 2.4575624024691933e-07,
+      "editable_mesh_count": 34,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "SOFA",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SOFA_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.4878000020980835,
+            0.0,
+            0.0,
+            1.0,
+            0.4650000035762787,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SOFA_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.016499999910593033,
+            0.0,
+            0.0,
+            1.0,
+            0.4650000035762787,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "SOFA_NormalizedGeometry",
+          "matrix_world": [
+            0.9934640526771545,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0162500143051147,
+            0.0,
+            0.016499999910593033,
+            0.0,
+            0.0,
+            0.9925812482833862,
+            0.006899456027895212,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/SOFA.fbx",
+          "sha256": "20907dc6ab0289bdfd0986cbc8f7e02fffa4dd9c0278270da09e2d0a7d5b7ed0",
+          "bytes": 115116
+        },
+        "glb": {
+          "path": "Exports/SOFA.glb",
+          "sha256": "1927ed4c9b09a4edba8a5b15af5ad0aab28505821c9b556d472c0571a2442e65",
+          "bytes": 491192
+        }
+      },
+      "concept_sha256": "058625fe482c59fcc1ca093f3a67b8b19703433f8ddae32f3e7d52614bdae087",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/SOFA-front.png",
+          "sha256": "7b376c7b5b9d5a2d45f30073fe2a0a7be1fac80bafef9a36de3a9e5b99d9fea8",
+          "bytes": 275255
+        },
+        {
+          "view": "side",
+          "path": "Previews/SOFA-side.png",
+          "sha256": "d4adea971a398be04844803596d97e38641703329edf294644ad43d03a3ebc70",
+          "bytes": 295659
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SOFA-three-quarter.png",
+          "sha256": "8b3f30e61334cfe77e337aa86264c0bb57337876eb95c21e6097b63fdc7cbf45",
+          "bytes": 319584
+        },
+        {
+          "view": "icon",
+          "path": "Icons/SOFA.png",
+          "sha256": "f5ae120f7447f7e52820a079917cb42640abbfdfd76f54d43d07147f57754305",
+          "bytes": 214402
+        }
+      ]
+    },
+    {
+      "id": "BED",
+      "triangles": 3520,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "BED",
+        "BED_Front",
+        "BED_Grip_R",
+        "BED_NormalizedGeometry",
+        "BED_NormalizedGeometry_WordboundPvPBrassMesh",
+        "BED_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.5175000429153442,
+        -0.7899999022483826,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.5175000429153442,
+        0.7900000214576721,
+        0.8179998993873596
+      ],
+      "size_unity_metres": [
+        1.035,
+        0.818,
+        1.58
+      ],
+      "grip_unity_metres": [
+        0,
+        0.409,
+        0
+      ],
+      "held_scale": 0.2278,
+      "concept": "Concepts/BED-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 1.4600097131278744e-07,
+      "editable_mesh_count": 28,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "BED",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BED_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.9480000138282776,
+            0.0,
+            0.0,
+            1.0,
+            0.4090000092983246,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BED_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.4090000092983246,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "BED_NormalizedGeometry",
+          "matrix_world": [
+            0.9875953793525696,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0243111848831177,
+            0.0,
+            -0.004353312309831381,
+            0.0,
+            0.0,
+            0.9915151596069336,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/BED.fbx",
+          "sha256": "23e03e00f655a8a906356750053cf90e96996fe5d78f6b771571f9fb9ac32592",
+          "bytes": 91676
+        },
+        "glb": {
+          "path": "Exports/BED.glb",
+          "sha256": "f65097e6c788c11eee63818317a1ed16c7e7e30cf90633784a078ad5858cab74",
+          "bytes": 385756
+        }
+      },
+      "concept_sha256": "3d4dffc0b7fa9266777c2897fb8555ba6534a566bc16d4295ff3457cf232a41b",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/BED-front.png",
+          "sha256": "7912efc674c9fd8b787485ed1ef1db1c56d55d82aa88b75b56fc01d3105d6308",
+          "bytes": 321031
+        },
+        {
+          "view": "side",
+          "path": "Previews/BED-side.png",
+          "sha256": "f485508f9d527cb16b8d8af684c970ef808fa338df3a9186315bbcf3ce83e44e",
+          "bytes": 214116
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BED-three-quarter.png",
+          "sha256": "a96c713359c6ae3ed76f4ab1a4b72e7eaaf38f31a0bb1b9b6e101c261644f822",
+          "bytes": 327098
+        },
+        {
+          "view": "icon",
+          "path": "Icons/BED.png",
+          "sha256": "ce124e9e7268cc2530357f1b93aea2c1a37472100ba1a7d2bfa52893127eae18",
+          "bytes": 221621
+        }
+      ]
+    },
+    {
+      "id": "STOOL",
+      "triangles": 2136,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 2,
+      "parts": [
+        "STOOL",
+        "STOOL_Front",
+        "STOOL_Grip_R",
+        "STOOL_NormalizedGeometry",
+        "STOOL_NormalizedGeometry_WordboundPvPBrassMesh",
+        "STOOL_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.25999999046325684,
+        -0.25999999046325684,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.25999999046325684,
+        0.25999999046325684,
+        0.4659999907016754
+      ],
+      "size_unity_metres": [
+        0.52,
+        0.466,
+        0.52
+      ],
+      "grip_unity_metres": [
+        0,
+        0.233,
+        0
+      ],
+      "held_scale": 0.6923,
+      "concept": "Concepts/STOOL-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 6.322026990801533e-08,
+      "editable_mesh_count": 15,
+      "export_mesh_count": 2,
+      "material_draw_count": 2,
+      "export_pivots": [
+        {
+          "name": "STOOL",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "STOOL_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.31199997663497925,
+            0.0,
+            0.0,
+            1.0,
+            0.2329999953508377,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "STOOL_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.2329999953508377,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "STOOL_NormalizedGeometry",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.9927971363067627,
+            0.003356539411470294,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/STOOL.fbx",
+          "sha256": "86e360e54d4344928dbe5f0c5e2e598311fd84194d0221c9604ed1df086aa92b",
+          "bytes": 63596
+        },
+        "glb": {
+          "path": "Exports/STOOL.glb",
+          "sha256": "e924412d693c23e66d234bfac25feed05d028ada277af5d25f0f80ccaca58f99",
+          "bytes": 247740
+        }
+      },
+      "concept_sha256": "b9028c09d2cd382a6aa1485251eefa784b9c9892582dba6efdc528d9c953e0ab",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/STOOL-front.png",
+          "sha256": "3202879a81975713e18529e0ee39520dcc33ae5d50517855c7ac55702202c054",
+          "bytes": 273070
+        },
+        {
+          "view": "side",
+          "path": "Previews/STOOL-side.png",
+          "sha256": "69292280c4b89458cc4953a2fe7ae9165dd262a2a5589711ebd86973a97b0a33",
+          "bytes": 274806
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/STOOL-three-quarter.png",
+          "sha256": "8926334b7186db34db8906a3374cd10b35d2d3ed7254a6b6f476e8fe0952da20",
+          "bytes": 313574
+        },
+        {
+          "view": "icon",
+          "path": "Icons/STOOL.png",
+          "sha256": "c3d6b754f6fa3239d8cc7f284e86e0414e0bcc2fb6fcde70fae02dd9a94bc26c",
+          "bytes": 210948
+        }
+      ]
+    },
+    {
+      "id": "FAN",
+      "triangles": 4444,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 3,
+      "parts": [
+        "FAN",
+        "FAN_Front",
+        "FAN_Grip_R",
+        "FAN_NormalizedGeometry",
+        "FAN_NormalizedGeometry_WordboundPvPBrassMesh",
+        "FAN_NormalizedGeometry_WordboundPvPPaintMesh",
+        "FAN_Rotor",
+        "FAN_Rotor_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.26100000739097595,
+        -0.1250000149011612,
+        -3.725290298461914e-09
+      ],
+      "bounds_blender_max": [
+        0.26100000739097595,
+        0.125,
+        0.8209999799728394
+      ],
+      "size_unity_metres": [
+        0.522,
+        0.821,
+        0.25
+      ],
+      "grip_unity_metres": [
+        0,
+        0.4105,
+        0
+      ],
+      "held_scale": 0.4385,
+      "concept": "Concepts/FAN-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 1.1926748300084e-07,
+      "editable_mesh_count": 27,
+      "export_mesh_count": 3,
+      "material_draw_count": 3,
+      "export_pivots": [
+        {
+          "name": "FAN",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "FAN_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.15000000596046448,
+            0.0,
+            0.0,
+            1.0,
+            0.4104999899864197,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "FAN_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.4104999899864197,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "FAN_NormalizedGeometry",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.7552869915962219,
+            0.0,
+            0.03058912232518196,
+            0.0,
+            0.0,
+            0.9963591694831848,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "FAN_Rotor",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.7552869915962219,
+            0.0,
+            0.056268882006406784,
+            0.0,
+            0.0,
+            0.9963591694831848,
+            0.5579611659049988,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/FAN.fbx",
+          "sha256": "392032d823c7e7feb0eb831c2124a89cecbd0396f02665373572d445f5781dc6",
+          "bytes": 113964
+        },
+        "glb": {
+          "path": "Exports/FAN.glb",
+          "sha256": "e66d1bb1f45164879297d3debb4a6c0f1264830e14ea9dbc9cb2f9167b3bc9bf",
+          "bytes": 340092
+        }
+      },
+      "concept_sha256": "9e13f0fb6c96064f1ac907d8f6830a7ae750d9b8fc4b568631551f3cf8b1db47",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/FAN-front.png",
+          "sha256": "f8009dd8050b7710db5a563ca07bd2bc51dca8a421defa6a0b0bb25345b32232",
+          "bytes": 296488
+        },
+        {
+          "view": "side",
+          "path": "Previews/FAN-side.png",
+          "sha256": "f6379161f3791f877195430b34962ef3adac72760b3896fe9e364dc5e5a8f07f",
+          "bytes": 204467
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/FAN-three-quarter.png",
+          "sha256": "1f4348884a5dd6d1f45f83ce36c308fbbb66d9e2ce63362e931412fb781a0466",
+          "bytes": 294833
+        },
+        {
+          "view": "icon",
+          "path": "Icons/FAN.png",
+          "sha256": "dbee010bb07b1f3b0002a2cbafd49d4a2399670ecf77a1e8a46423c6bcf86574",
+          "bytes": 200605
+        }
+      ]
+    },
+    {
+      "id": "CLOCK",
+      "triangles": 3424,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 4,
+      "parts": [
+        "CLOCK",
+        "CLOCK_Front",
+        "CLOCK_Grip_R",
+        "CLOCK_NormalizedGeometry",
+        "CLOCK_HourHand",
+        "CLOCK_HourHand_WordboundPvPPaintMesh",
+        "CLOCK_MinuteHand",
+        "CLOCK_MinuteHand_WordboundPvPPaintMesh",
+        "CLOCK_NormalizedGeometry_WordboundPvPBrassMesh",
+        "CLOCK_NormalizedGeometry_WordboundPvPPaintMesh"
+      ],
+      "bounds_blender_min": [
+        -0.23999999463558197,
+        -0.030000001192092896,
+        -1.2841631757964933e-08
+      ],
+      "bounds_blender_max": [
+        0.23999999463558197,
+        0.09200000017881393,
+        0.48000001907348633
+      ],
+      "size_unity_metres": [
+        0.48,
+        0.48,
+        0.122
+      ],
+      "grip_unity_metres": [
+        0,
+        0.24,
+        0.031
+      ],
+      "held_scale": 0.75,
+      "concept": "Concepts/CLOCK-concept-v1.png",
+      "has_uv": true,
+      "max_grouping_vertex_error_metres": 6.018390763529169e-08,
+      "editable_mesh_count": 67,
+      "export_mesh_count": 4,
+      "material_draw_count": 4,
+      "export_pivots": [
+        {
+          "name": "CLOCK",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_Front",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.07320000231266022,
+            0.0,
+            0.0,
+            1.0,
+            0.23999999463558197,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_Grip_R",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.03099999949336052,
+            0.0,
+            0.0,
+            1.0,
+            0.23999999463558197,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_NormalizedGeometry",
+          "matrix_world": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.7484662532806396,
+            0.0,
+            0.008920245803892612,
+            0.0,
+            0.0,
+            0.9815950989723206,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_HourHand",
+          "matrix_world": [
+            0.6216099858283997,
+            0.0,
+            -0.7833269238471985,
+            0.0,
+            0.0,
+            0.7484662532806396,
+            0.0,
+            0.06954601407051086,
+            0.7689098715782166,
+            0.0,
+            0.6101692914962769,
+            0.24441717565059662,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_MinuteHand",
+          "matrix_world": [
+            0.6967067122459412,
+            0.0,
+            0.7173560857772827,
+            0.0,
+            0.0,
+            0.7484662532806396,
+            0.0,
+            0.06954601407051086,
+            -0.7041532397270203,
+            0.0,
+            0.6838839054107666,
+            0.24441717565059662,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "exports": {
+        "fbx": {
+          "path": "Exports/CLOCK.fbx",
+          "sha256": "7b0334c4900fa24f8dbe6cfa916a938ee868284a9cad6aaf2a1a91a0e35c7644",
+          "bytes": 95580
+        },
+        "glb": {
+          "path": "Exports/CLOCK.glb",
+          "sha256": "5109f533718e6d34c6916bd0af9ed85eb508da4228b3c2b07d5896ffad34b605",
+          "bytes": 376508
+        }
+      },
+      "concept_sha256": "779908aa87a2152f48636f32919f6d65538eae1172f1faa5dfda4764a8674135",
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/CLOCK-front.png",
+          "sha256": "8b085a08ea67df89c62cdee33c3e19b64957c5cb444faac3f40259d032df9d08",
+          "bytes": 380940
+        },
+        {
+          "view": "side",
+          "path": "Previews/CLOCK-side.png",
+          "sha256": "3d95d1946357b5b34884f935448c59a64262d7a122472cf9ffd62f63802abdc9",
+          "bytes": 209660
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/CLOCK-three-quarter.png",
+          "sha256": "3efe8dfb319ae9de70fa1cdba0a9c16bfae388c55025ce81ba2e5c6ee0bdbe9f",
+          "bytes": 351315
+        },
+        {
+          "view": "icon",
+          "path": "Icons/CLOCK.png",
+          "sha256": "2a63cfe008e49900863ac834b4b6ba59075ddcc372f28a3de56acb533aaa6325",
+          "bytes": 236378
+        }
+      ]
+    }
+  ],
+  "render_runs": [
+    {
+      "source_sha256": "fefb1c851d674357aabc3f9e33a0983a6f1813476180b9447877a9b867bf0f25",
+      "render_generator_sha256": "e0ea5155727af8d9c4db015e8159373ef00f4b5387e3c110c05f2b8a61cea8b0",
+      "base_generator_sha256": "583d601fd8f072c142b5211c56e469d43e38ce90fb379820318e93d2c892cc7a",
+      "items": [
+        "FAN"
+      ],
+      "engine": "CYCLES",
+      "device": "CPU",
+      "samples": 24,
+      "threads": 2,
+      "preview_pixels": [
+        640,
+        640
+      ],
+      "icon_pixels": [
+        512,
+        512
+      ],
+      "elapsed_seconds": 155.9699153,
+      "log": "../../../../BuildNotes/recovery-20261023/assets-preview-support.log"
+    },
+    {
+      "source_sha256": "fefb1c851d674357aabc3f9e33a0983a6f1813476180b9447877a9b867bf0f25",
+      "render_generator_sha256": "f2a868cdc76947ccc8b2fe022875e75013f5e0a76a72d9b85b65055e3a4deec3",
+      "base_generator_sha256": "583d601fd8f072c142b5211c56e469d43e38ce90fb379820318e93d2c892cc7a",
+      "items": [
+        "BAT",
+        "BROOM",
+        "HAMMER",
+        "SPEAR",
+        "SHIELD",
+        "PLATE",
+        "TABLE",
+        "SOFA",
+        "BED",
+        "STOOL",
+        "CLOCK"
+      ],
+      "engine": "CYCLES",
+      "device": "CPU",
+      "samples": 24,
+      "threads": 6,
+      "preview_pixels": [
+        640,
+        640
+      ],
+      "icon_pixels": [
+        512,
+        512
+      ],
+      "elapsed_seconds": 647.539422,
+      "log": "../../../../BuildNotes/recovery-20261023/assets-preview-final.log"
+    }
+  ],
+  "source_builders": {
+    "geometry": {
+      "path": "Source/build_wordbound_detail.geometry.py",
+      "sha256": "e0ea5155727af8d9c4db015e8159373ef00f4b5387e3c110c05f2b8a61cea8b0"
+    },
+    "render": {
+      "path": "Source/build_wordbound_detail.render.py",
+      "sha256": "f2a868cdc76947ccc8b2fe022875e75013f5e0a76a72d9b85b65055e3a4deec3"
+    },
+    "base": {
+      "path": "Source/build_wordbound_pvp.base.py",
+      "sha256": "583d601fd8f072c142b5211c56e469d43e38ce90fb379820318e93d2c892cc7a"
+    }
+  }
+}

@@ -1,5 +1,20 @@
 # Equipment detail and editable presentation
 
+## Current recovery checkpoint — 2026-10-23
+
+- [x] Generate all twelve DetailV2 models with editable Blender components, four material maps, FBX and GLB exports; retain the original revision.
+- [x] Correct the FAN's motor support after side-view inspection; reimport all 24 final exports successfully.
+- [x] Complete 36 final previews and twelve transparent icons. Inspect all twelve three-quarter/side views plus FAN front; root independently reviews selected construction views.
+- [x] Pass final channel, budget, dimension, pivot, alpha, provenance and file-hash checks.
+- [x] Preserve 275 editable mesh components while grouping delivery meshes by material and parent pivot: 27 delivery meshes versus 174 in the original collection. Maximum 4,908 triangles; two materials per item; 512 × 256 shared maps.
+- [x] Provide [the local review gallery](ASSET-REVIEW.html), [measured budget report](../recovery-20261023/assets-budget-review.md) and [recovery progress](../recovery-20261023/assets.progress.md).
+- [ ] Root performs native Unity import/material/presentation checks, runtime measurements and Windows build validation.
+- [ ] Owner accepts the appearance and feel in the assembled game.
+
+The generated files and receipts are in `ArtSource/Collections/WordboundPvP/DetailV2`. This is detailed stylized artwork. Source and preview checks are complete; native game-camera appearance and performance remain separate gates. The original sources and earlier intermediate revisions are preserved.
+
+## Historical preparation record — superseded by the checkpoint above
+
 - [x] Inspected all twelve actual Wordbound three-quarter renders and the legacy Arcade/Winter shield native screens.
 - [x] Confirmed current editable Blender source, two-material pipeline, 512px texture cap, 6000-triangle cap and immutable catalogue dimensions/grips.
 - [x] Audited current Unity usability: collection entries expose model/icon/size/grip/heldScale but imported FBX roots are not independent authoring prefabs; the dedicated importer overwrites material values from constants; default held placement follows the hand without a defensive pose. James owns the new persistent visual/camera profiles and authoring workflow.

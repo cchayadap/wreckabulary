@@ -1,0 +1,132 @@
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\BAT.fbx'
+export finished in 0.0997 sec.
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+17:59:19 | INFO: Starting glTF 2.0 export
+17:59:19 | INFO: Extracting primitive: Torus.001
+17:59:20 | INFO: Primitives created: 1
+17:59:20 | INFO: Extracting primitive: Cream_grip.001
+17:59:20 | INFO: Primitives created: 1
+17:59:20 | INFO: Finished glTF 2.0 export in 0.33638811111450195 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\BROOM.fbx'
+export finished in 0.0414 sec.
+17:59:20 | INFO: Starting glTF 2.0 export
+17:59:20 | INFO: Extracting primitive: Sphere.002
+17:59:20 | INFO: Primitives created: 1
+17:59:20 | INFO: Extracting primitive: Cube.011
+17:59:21 | INFO: Primitives created: 1
+17:59:21 | INFO: Finished glTF 2.0 export in 0.1284351348876953 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\HAMMER.fbx'
+export finished in 0.0400 sec.
+17:59:21 | INFO: Starting glTF 2.0 export
+17:59:21 | INFO: Extracting primitive: Brass_cap.002
+17:59:21 | INFO: Primitives created: 1
+17:59:21 | INFO: Extracting primitive: Torus.004
+17:59:21 | INFO: Primitives created: 1
+17:59:21 | INFO: Finished glTF 2.0 export in 0.11880683898925781 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\SPEAR.fbx'
+export finished in 0.0416 sec.
+17:59:22 | INFO: Starting glTF 2.0 export
+17:59:22 | INFO: Extracting primitive: Brass_foot.001
+17:59:22 | INFO: Primitives created: 1
+17:59:22 | INFO: Extracting primitive: Cream_grip.002
+17:59:22 | INFO: Primitives created: 1
+17:59:22 | INFO: Finished glTF 2.0 export in 0.11423873901367188 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\SHIELD.fbx'
+export finished in 0.0409 sec.
+17:59:23 | INFO: Starting glTF 2.0 export
+17:59:23 | INFO: Extracting primitive: Sphere.008
+17:59:23 | INFO: Primitives created: 1
+17:59:23 | INFO: Extracting primitive: Cream_diamond.001
+17:59:23 | INFO: Primitives created: 1
+17:59:23 | INFO: Finished glTF 2.0 export in 0.1345059871673584 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\PLATE.fbx'
+export finished in 0.0340 sec.
+17:59:24 | INFO: Starting glTF 2.0 export
+17:59:24 | INFO: Extracting primitive: Torus.007
+17:59:24 | INFO: Primitives created: 1
+17:59:24 | INFO: Extracting primitive: Ceramic_dish.001
+17:59:24 | INFO: Primitives created: 1
+17:59:24 | INFO: Finished glTF 2.0 export in 0.12825918197631836 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\TABLE.fbx'
+export finished in 0.0475 sec.
+17:59:26 | INFO: Starting glTF 2.0 export
+17:59:26 | INFO: Extracting primitive: Sphere.012
+17:59:26 | INFO: Primitives created: 1
+17:59:26 | INFO: Extracting primitive: Cube.028
+17:59:26 | INFO: Primitives created: 1
+17:59:26 | INFO: Finished glTF 2.0 export in 0.16968393325805664 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\SOFA.fbx'
+export finished in 0.0504 sec.
+17:59:30 | INFO: Starting glTF 2.0 export
+17:59:30 | INFO: Extracting primitive: Sphere.019
+17:59:30 | INFO: Primitives created: 1
+17:59:30 | INFO: Extracting primitive: Cube.048
+17:59:30 | INFO: Primitives created: 1
+17:59:30 | INFO: Finished glTF 2.0 export in 0.15022540092468262 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\BED.fbx'
+export finished in 0.0820 sec.
+17:59:34 | INFO: Starting glTF 2.0 export
+17:59:34 | INFO: Extracting primitive: Sphere.027
+17:59:34 | INFO: Primitives created: 1
+17:59:34 | INFO: Extracting primitive: Cube.063
+17:59:34 | INFO: Primitives created: 1
+17:59:34 | INFO: Finished glTF 2.0 export in 0.19491887092590332 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\STOOL.fbx'
+export finished in 0.0363 sec.
+17:59:35 | INFO: Starting glTF 2.0 export
+17:59:35 | INFO: Extracting primitive: Sphere.031
+17:59:35 | INFO: Primitives created: 1
+17:59:35 | INFO: Extracting primitive: Cream_padded_seat.001
+17:59:35 | INFO: Primitives created: 1
+17:59:35 | INFO: Finished glTF 2.0 export in 0.16344261169433594 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\FAN.fbx'
+export finished in 0.0692 sec.
+17:59:38 | INFO: Starting glTF 2.0 export
+17:59:38 | INFO: Extracting primitive: Torus.012
+17:59:38 | INFO: Primitives created: 1
+17:59:38 | INFO: Extracting primitive: Cube.069
+17:59:38 | INFO: Primitives created: 1
+17:59:38 | INFO: Extracting primitive: Sphere.036
+17:59:38 | INFO: Primitives created: 1
+17:59:38 | INFO: Finished glTF 2.0 export in 0.15347814559936523 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\CLOCK.fbx'
+export finished in 0.0802 sec.
+17:59:48 | INFO: Starting glTF 2.0 export
+17:59:48 | INFO: Extracting primitive: Cube.143
+17:59:48 | INFO: Primitives created: 1
+17:59:48 | INFO: Extracting primitive: Cube.192
+17:59:48 | INFO: Primitives created: 1
+17:59:48 | INFO: Extracting primitive: Sphere.038
+17:59:48 | INFO: Primitives created: 1
+17:59:48 | INFO: Extracting primitive: Cream_dial.001
+17:59:48 | INFO: Primitives created: 1
+17:59:48 | INFO: Finished glTF 2.0 export in 0.18510913848876953 s
+
+Info: Saved as "WordboundPvP.blend"
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit
