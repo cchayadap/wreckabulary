@@ -73,6 +73,8 @@ namespace Wreckabulary.Qa
             workload.RequireDisplay();
             context.Note("workload_kind", "synthetic-render-actors-with-held-equipment; not network or active-combat acceptance");
             context.Note("seed", Seed); context.Note("manifest_hash", manifest);
+            context.Note("catalogue_hash", client.Gameplay.Frame.Binding.CatalogueHash);
+            context.Note("mode_hash", client.Gameplay.Frame.Binding.ModeHash);
             context.Note("world_actor_count", client.Gameplay.Frame.Actors.Count);
             context.Note("world_player_body_count", client.Gameplay.Frame.Bodies.Count(body => body.Kind == WorldBodyKind.Player));
             context.Note("world_body_count", client.Gameplay.Frame.Bodies.Count);
@@ -114,7 +116,9 @@ namespace Wreckabulary.Qa
             context.Note("sampled_frames", report.Frames); context.Note("frame_ms_p50", report.FrameMsP50);
             context.Note("frame_ms_p95", report.FrameMsP95); context.Note("frame_ms_p99", report.FrameMsP99);
             context.Note("worst_frame_ms", report.WorstFrameMs); context.Note("sample_end_pose_seconds", workload.Elapsed);
-            context.Note("actors_in_camera_at_end", workload.ActorsInCamera());
+            int visible = workload.ActorsInCamera();
+            context.Note("actors_in_camera_at_end", visible);
+            if (visible != 8) context.Fail("All eight synthetic actors must remain in the camera at the end of measurement.");
             if (report.Frames < 120 || double.IsNaN(report.FrameMsP95) || report.FrameMsP95 > 16.6)
                 context.Fail("Synthetic render workload exceeds the 16.6 ms p95 target or collected too few frames.");
             yield return context.CaptureScreen("synthetic_end");
