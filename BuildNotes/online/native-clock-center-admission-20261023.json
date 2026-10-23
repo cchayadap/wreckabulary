@@ -1,0 +1,106 @@
+{
+  "recordedUtc": "2026-10-23T19:18:45.8566917Z",
+  "source": "1ba367ca75e408e9a87780b227d8c4faf2f70606",
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.OfflineGameplayTests.WordboundNativePuzzleFlow.SixAuthoredFamiliesUseNativeSensorsAndCanonicalCheckpoints;Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties;Wreckabulary.Tests.WordboundNativeClockLineTests.ActualPlatformColliderTargetClearsFloorAndRetainsWallOcclusion",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-23T19:10:29Z",
+    "secs": 385.7,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+        "message": "The actual session failed.\r\n  Expected string length 0 but was 15. Strings differ at index 0.\r\n  Expected: <string.Empty>\r\n  But was:  \"FormatException\"\r\n  -----------^",
+        "location": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs:451"
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261023T191029Z.log",
+    "evidence": [
+      "TestResults/editmode_20261023T191029Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 44.7,
+    "messages": [
+      "WORDBOUND_GAMEPLAY_FAULT: peer 1 InvalidOperationException: Session failed: FormatException"
+    ],
+    "tests": {
+      "total": 3,
+      "passed": 2,
+      "failed": 1,
+      "skipped": 0
+    }
+  },
+  "tests": [
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativePuzzleFlow.SixAuthoredFamiliesUseNativeSensorsAndCanonicalCheckpoints",
+      "result": "Passed",
+      "durationSeconds": 258.311444,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Failed",
+      "durationSeconds": 54.972788,
+      "failure": "  The actual session failed.\n  Expected string length 0 but was 15. Strings differ at index 0.\n  Expected: <string.Empty>\n  But was:  \"FormatException\"\n  -----------^\n"
+    },
+    {
+      "name": "Wreckabulary.Tests.WordboundNativeClockLineTests.ActualPlatformColliderTargetClearsFloorAndRetainsWallOcclusion",
+      "result": "Passed",
+      "durationSeconds": 1.314039,
+      "failure": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261023T191029Z.xml",
+      "sha256": "F868A7B68C966289EAC7FAAD0E0B223950C715809884FFB5AB3F401EA2F117D8"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261023T191029Z.log",
+      "sha256": "78B7A4C56A6928F371D571E57F708C53EF666197FC2643079D959084E25C2A9C"
+    }
+  ],
+  "nativeMarkers": [
+    "WORDBOUND_NATIVE_PROFILE_WINDOW: case=Wreckabulary.OfflineGameplayTests.WordboundNativePuzzleFlow.SixAuthoredFamiliesUseNativeSensorsAndCanonicalCheckpoints; startFrame=1; endFrame=141; elapsedSeconds=257.526; thread=main; instances=all-in-process; sampling=per-marker-invocation; scopes=inclusive-not-additive; max=sample-not-frame; inFlightScopes=not-yet-recorded; domainReloadRetention=false",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=observed; samples=8101; invocations=8101; capturedTotalCpuMs=75949.016; capturedMaxSampleCpuMs=387.303; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=observed; samples=8101; invocations=8101; capturedTotalCpuMs=12586.250; capturedMaxSampleCpuMs=163.474; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=observed; samples=8100; invocations=8100; capturedTotalCpuMs=75413.334; capturedMaxSampleCpuMs=388.079; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=observed; samples=8101; invocations=8101; capturedTotalCpuMs=3047.103; capturedMaxSampleCpuMs=25.520; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=observed; samples=8101; invocations=8101; capturedTotalCpuMs=5943.324; capturedMaxSampleCpuMs=142.969; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=1; invocations=1; capturedTotalCpuMs=988.703; capturedMaxSampleCpuMs=988.703; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=observed; samples=8100; invocations=8100; capturedTotalCpuMs=11096.247; capturedMaxSampleCpuMs=162.910; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=begin; elapsed=0.001; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=; peer=1,host=False,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=",
+    "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=end; elapsed=12.779; maxFrameGap=2.628; lifetimeCancelled=False; peer=0,host=True,tick=235,advanced=235,inputReads=540,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=0,advanced=0,inputReads=11,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Replicate every canonical body exactly once; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=235,advanced=235,inputReads=540,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=; peer=1,host=False,tick=0,advanced=0,inputReads=11,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=",
+    "WORDBOUND_GAMEPLAY_OPERATION: Replicate every canonical body exactly once; phase=end; elapsed=0.005; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=235,advanced=235,inputReads=540,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=0,advanced=0,inputReads=11,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply client movement through admitted Fusion input; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=235,advanced=235,inputReads=540,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=; peer=1,host=False,tick=0,advanced=0,inputReads=11,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply client movement through admitted Fusion input; phase=end; elapsed=4.472; maxFrameGap=2.537; lifetimeCancelled=False; peer=0,host=True,tick=323,advanced=323,inputReads=880,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=0,advanced=0,inputReads=58,movingReads=47,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply authenticated client command on host; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=323,advanced=323,inputReads=880,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=; peer=1,host=False,tick=0,advanced=0,inputReads=58,movingReads=47,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply authenticated client command on host; phase=end; elapsed=5.726; maxFrameGap=2.708; lifetimeCancelled=False; peer=0,host=True,tick=448,advanced=448,inputReads=1272,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=175,advanced=0,inputReads=148,movingReads=47,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Commit and acknowledge the exact command-bearing snapshot; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=448,advanced=448,inputReads=1272,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=; peer=1,host=False,tick=175,advanced=0,inputReads=148,movingReads=47,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=",
+    "WORDBOUND_GAMEPLAY_FAULT: peer 1 InvalidOperationException: Session failed: FormatException",
+    "WORDBOUND_GAMEPLAY_OPERATION: Commit and acknowledge the exact command-bearing snapshot; phase=end; elapsed=14.721; maxFrameGap=2.876; lifetimeCancelled=False; peer=0,host=True,tick=763,advanced=763,inputReads=1758,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=False,paused=True,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=175,advanced=0,inputReads=268,movingReads=47,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=True,failure=FormatException,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=False,sessionPresent=True,sessionRunnerStarted=False,sessionGameplayReady=False,committedMarkPresent=True,runnerPresent=True,runnerRunning=False,runnerHost=False,runnerClient=False,sceneInfoAvailable=False,gameplayScenePresent=False,sceneManagerPresent=False,sceneManagerBusy=False,physicsSceneAvailable=False,physicsSceneValid=False,physicsSceneIsolated=False",
+    "WORDBOUND_NATIVE_PROFILE_WINDOW: case=Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties; startFrame=1; endFrame=33131; elapsedSeconds=52.214; thread=main; instances=all-in-process; sampling=per-marker-invocation; scopes=inclusive-not-additive; max=sample-not-frame; inFlightScopes=not-yet-recorded; domainReloadRetention=false",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=observed; samples=764; invocations=764; capturedTotalCpuMs=11217.552; capturedMaxSampleCpuMs=645.472; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=observed; samples=764; invocations=764; capturedTotalCpuMs=1721.394; capturedMaxSampleCpuMs=17.937; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=observed; samples=763; invocations=763; capturedTotalCpuMs=10298.099; capturedMaxSampleCpuMs=71.789; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=observed; samples=764; invocations=764; capturedTotalCpuMs=429.865; capturedMaxSampleCpuMs=14.066; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=observed; samples=764; invocations=764; capturedTotalCpuMs=806.808; capturedMaxSampleCpuMs=4.546; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=2; invocations=2; capturedTotalCpuMs=759.116; capturedMaxSampleCpuMs=568.858; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=observed; samples=763; invocations=763; capturedTotalCpuMs=1961.761; capturedMaxSampleCpuMs=23.019; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none"
+  ],
+  "limits": [
+    "Six physical families pass in the native local fixture; this is not a three-lap match or human playthrough.",
+    "Public Team Solo reaches gameplay but fails snapshot acknowledgement; no public-format acceptance.",
+    "Profiler scopes are inclusive and not additive; editor measurements are not Windows FPS.",
+    "No validation or transfer deadlines were relaxed."
+  ]
+}
