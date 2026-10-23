@@ -1,0 +1,15 @@
+# Workshop quiet-wait fixture repair
+
+STATUS: Source repair complete; independent review and native rerun pending. Fixture-only change; no production input protection changed and no native/compiler jobs run.
+
+Evidence: integration `TestResults/editmode_20261023T141231Z.xml` contains 48/48 presentation passes and 24/25 workshop source-binding passes. `DeferredSourceChoiceStaysCancelledThroughTheGameplayLeaseQuietFrames` failed at line 217 with engine frame 9, captured/current `quietUntil` 8, Editor uptime 95.624205 and the fixture deadline 94.434801. Case duration was 6.570720 seconds.
+
+`KeyBindings.quietUntil` is an engine-frame counter. The two decimal values are fixture wall-clock measurements, not another production input lease. The old do/while resumed from `yield return null`, asserted the wall-clock deadline, and only then checked whether `GameplayBlocked` had cleared. Therefore a late Editor resume could report timeout even after the required quiet frames completed. The old failure did not record `GameplayBlocked` at that point, so it does not independently prove that every other blocker had cleared.
+
+The repair checks `GameplayBlocked` before each timeout assertion, requests an actual player-loop update and yields while blocked. The same five-second bound still fails if input remains blocked when the fixture is observed after that bound; it is not increased. The test retains the immediate post-disposal blocked assertion, cancellation of the queued source switch, exact draft/history checks, observed `frameCount > quietThrough`, and fresh-choice behavior after release. An explicit unblocked assertion and `WORDBOUND_WORKSHOP_QUIET_RELEASE_OBSERVED` marker record the actual release frame and elapsed wall time. No static input state is changed during the wait.
+
+Owned source: `Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundWorkshopSourceBindingTests.cs`, one method only. Baseline-only commit `49dd449` copied the exact integration `6a836aa` fixture into this lane and must **not** be integrated. Deliver only the subsequent repair/report commit. Existing fixture cleanup and its original quiet-state restoration remain unchanged.
+
+Native follow-up: exact filter `Wreckabulary.Online.Tests.WordboundWorkshopSourceBindingTests.DeferredSourceChoiceStaysCancelledThroughTheGameplayLeaseQuietFrames` should discover one case. Full source-binding class remains 25 cases, with zero skipped required. Root owns execution.
+
+Separate read-only public evidence from the same batch: Brawl Solo, FFA and Team Solo failed with `TimeoutException`; their log stacks point to `WordboundFusionSession.Poll` line 473, the canonical writer-lease expiry check. Freestyle and TimeRun reached readiness/body assertions and then failed the admitted client movement predicate. Play Mode and approved public certificate markers are now present. This establishes different failure paths from the earlier nested-iterator issue, but does not establish why renewal or movement stalled. Root owns that diagnosis; no public production or fixture file was edited here.

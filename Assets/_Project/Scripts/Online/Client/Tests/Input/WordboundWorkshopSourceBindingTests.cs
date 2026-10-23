@@ -209,15 +209,19 @@ namespace Wreckabulary.Online.Tests
             Invoke(workshop, "QueueSourceChoice", 2 + (int)WorkshopTemplate.FreestyleWorld);
             Invoke(workshop, "ProcessSourceChoice", true);
             Assert.AreSame(before, workshop.History); Assert.IsTrue(workshop.UsesAssignedCourse);
-            double deadline = EditorApplication.timeSinceStartup + 5;
-            do
+            double started = EditorApplication.timeSinceStartup;
+            double deadline = started + 5;
+            while (KeyBindings.GameplayBlocked)
             {
+                Assert.Less(EditorApplication.timeSinceStartup, deadline, "Gameplay quiet interval did not expire; frame=" +
+                    Time.frameCount + "; quietUntil=" + QuietUntil.GetValue(null) + "; blocked=" + KeyBindings.GameplayBlocked);
                 EditorApplication.QueuePlayerLoopUpdate();
                 yield return null;
-                Assert.Less(EditorApplication.timeSinceStartup, deadline, "Gameplay quiet interval did not expire; frame=" +
-                    Time.frameCount + "; quietUntil=" + QuietUntil.GetValue(null));
-            } while (KeyBindings.GameplayBlocked);
+            }
             Assert.Greater(Time.frameCount, quietThrough);
+            Assert.IsFalse(KeyBindings.GameplayBlocked);
+            Debug.Log("WORDBOUND_WORKSHOP_QUIET_RELEASE_OBSERVED: frame=" + Time.frameCount +
+                "; quietThrough=" + quietThrough + "; elapsed=" + (EditorApplication.timeSinceStartup - started).ToString("F3"));
             Invoke(workshop, "ProcessSourceChoice", true);
             Assert.AreSame(before, workshop.History); Assert.IsTrue(workshop.UsesAssignedCourse);
             Invoke(workshop, "QueueSourceChoice", 2 + (int)WorkshopTemplate.FreestyleWorld);
