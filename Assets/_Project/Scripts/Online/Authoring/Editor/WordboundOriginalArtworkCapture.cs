@@ -23,7 +23,7 @@ namespace Wreckabulary.Online.Editor
         const string ScriptPath = "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs";
         static readonly string[] Words = { "SOFA", "FAN", "HAMMER", "BAT" };
         static readonly Vector3[] Positions = {
-            new Vector3(-1.4f, 0, 0), new Vector3(1, 0, 0),
+            new Vector3(-2.9f, 0, 0), new Vector3(1, 0, 0),
             new Vector3(1.8f, 0, .6f), new Vector3(2.35f, 0, .6f)
         };
 
@@ -87,13 +87,17 @@ namespace Wreckabulary.Online.Editor
                 visuals.Add(avatar);
                 AssertOriginal(avatar, WordboundVisualResolver.AvatarKey);
                 avatar.Dress("");
+                var skinned = avatar.Model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+                foreach (var skin in skinned) skin.forceMatrixRecalculationPerRender = true;
                 motion = new WordboundAvatarMotion(avatar);
                 for (int i = 0; i < PoseSteps; i++) motion.Step(1f / 60, true, false, false);
                 facts.Add(VisualFacts("player", WordboundVisualResolver.AvatarKey, avatar,
                     new Vector3(.6f, 1.8f, .6f), avatar.Outfit.Serialize(), stage.transform));
                 Pose(camera, new Vector3(2.8f, 2, 4.8f), new Vector3(.05f, .75f, .2f));
                 foreach (var visual in visuals) RequireFramed(camera, VisibleBounds(visual), visual.Root.name);
+                var idleBefore = MittenFacts(avatar, "idle-before-world-render");
                 var worldImage = Capture(preview, output, "original-four-world.png");
+                var idleAfter = MittenFacts(avatar, "idle-after-world-render");
                 foreach (var visual in visuals.Take(Words.Length)) visual.Show(false);
                 var bat = items.Get("BAT");
                 string heldSkin = resolver.SkinFor("BAT", avatar.Outfit);
@@ -113,7 +117,9 @@ namespace Wreckabulary.Online.Editor
                 RequireFramed(camera, VisibleBounds(held), "Held BAT");
                 RequirePoint(camera, avatar.RightHand.position, "Right-hand socket");
                 RequirePoint(camera, avatar.Root.transform.position + Vector3.up, "Avatar torso");
+                var heldBefore = MittenFacts(avatar, "held-before-render");
                 var heldImage = Capture(preview, output, "original-bat-held.png");
+                var heldAfter = MittenFacts(avatar, "held-after-render");
                 var receipt = new {
                     schema = 1, status = "CAPTURED_NOT_VISUALLY_APPROVED", utc = DateTime.UtcNow.ToString("O"),
                     sourceCommit = ReadHead(project), sourceFileSha256 = Hash(File.ReadAllBytes(Path.Combine(project, ScriptPath))),
@@ -129,6 +135,9 @@ namespace Wreckabulary.Online.Editor
                         rotation = V(l.transform.eulerAngles), type = l.type.ToString() }).ToArray(), ambient = ColorFact(preview.ambientColor),
                     animation = new { idleSteps = PoseSteps, additionalHeldSteps = PoseSteps, stepSeconds = 1f / 60,
                         idleClip = "Idle", heldClip = "Hold_OneHand", inputOrEquipSimulation = false },
+                    previewSkinning = new { forceMatrixRecalculationPerRender = true, renderers = skinned.Length,
+                        observations = new[] { idleBefore, idleAfter, heldBefore, heldAfter },
+                        scope = "CPU-baked right-hand-weighted mitten vertices and socket facts; not a GPU pixel/contact or production fix claim." },
                     originals = facts, held = VisualFacts("BAT held", bat.Model, held, Size(bat), heldSkin, stage.transform),
                     hand = new { socket = V(avatar.RightHand.position), itemGrip = V(grip), gapMetres = gap, expectedScale = bat.HeldScale },
                     images = new[] { worldImage, heldImage }
@@ -206,6 +215,56 @@ namespace Wreckabulary.Online.Editor
                 if (opened) { var abandoned = preview.EndStaticPreview(); if (abandoned) Object.DestroyImmediate(abandoned); }
                 if (pixels) Object.DestroyImmediate(pixels);
             }
+        }
+
+        static object MittenFacts(WordboundVisualInstance avatar, string phase)
+        {
+            var mitten = avatar.Model.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                .Single(r => r.name == "SK_Mittens" && r.enabled && !r.forceRenderingOff);
+            var hand = ModelVisual.FindNamed(avatar.Model, "hand_R");
+            int bone = Array.IndexOf(mitten.bones, hand);
+            Require(hand && bone >= 0 && mitten.sharedMesh, "The actual visible mitten must bind the right-hand bone.");
+            var weights = new List<BoneWeight>();
+            mitten.sharedMesh.GetBoneWeights(weights);
+            var baked = new Mesh { name = "Owned mitten pose observation", hideFlags = HideFlags.HideAndDontSave };
+            try
+            {
+                mitten.BakeMesh(baked, false);
+                var vertices = new List<Vector3>();
+                baked.GetVertices(vertices);
+                Require(vertices.Count > 0 && vertices.Count == weights.Count, "Baked mitten vertices must retain their original weight indices.");
+                var bounds = new Bounds();
+                Vector3 sum = Vector3.zero, closest = Vector3.zero;
+                float distance = float.PositiveInfinity, minWeight = 1, maxWeight = 0;
+                int count = 0;
+                for (int i = 0; i < vertices.Count; i++)
+                {
+                    var weight = weights[i];
+                    float right = (weight.boneIndex0 == bone ? weight.weight0 : 0) +
+                        (weight.boneIndex1 == bone ? weight.weight1 : 0) +
+                        (weight.boneIndex2 == bone ? weight.weight2 : 0) +
+                        (weight.boneIndex3 == bone ? weight.weight3 : 0);
+                    Require(float.IsFinite(right) && right >= 0 && right <= 1.001f, "Original right-hand bone weights must be finite and normalized.");
+                    if (right <= .5f) continue;
+                    var point = mitten.transform.TransformPoint(vertices[i]);
+                    Require(float.IsFinite(point.x) && float.IsFinite(point.y) && float.IsFinite(point.z), "Baked mitten geometry must be finite.");
+                    if (count == 0) bounds = new Bounds(point, Vector3.zero); else bounds.Encapsulate(point);
+                    count++; sum += point; minWeight = Mathf.Min(minWeight, right); maxWeight = Mathf.Max(maxWeight, right);
+                    float gap = Vector3.Distance(point, avatar.RightHand.position);
+                    if (gap < distance) { distance = gap; closest = point; }
+                }
+                Require(count > 0, "The original mitten must contain right-hand-weighted vertices.");
+                return new { phase, unityFrame = Time.frameCount, editorTime = EditorApplication.timeSinceStartup,
+                    mesh = AssetFact(mitten.sharedMesh), vertexCount = vertices.Count, rightWeightedVertices = count,
+                    selection = "Original bone weight for hand_R exceeds 0.5; no left-mitten or nearest-side inference.",
+                    minWeight, maxWeight, forceMatrixRecalculationPerRender = mitten.forceMatrixRecalculationPerRender,
+                    bakeUseScale = false, rendererLossyScale = V(mitten.transform.lossyScale),
+                    handPosition = V(hand.position), handRotation = V(hand.eulerAngles), socketPosition = V(avatar.RightHand.position),
+                    socketInHand = V(hand.InverseTransformPoint(avatar.RightHand.position)),
+                    rightBounds = BoundsFact(bounds), rightCentroid = V(sum / count), closestSocketVertex = V(closest),
+                    closestSocketVertexDistanceMetres = distance, socketToRightBoundsMetres = Mathf.Sqrt(bounds.SqrDistance(avatar.RightHand.position)) };
+            }
+            finally { Object.DestroyImmediate(baked); }
         }
 
         static Transform Anchor(Transform stage, string name, Vector3 position)
