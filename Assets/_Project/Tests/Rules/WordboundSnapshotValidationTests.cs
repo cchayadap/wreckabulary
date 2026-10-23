@@ -658,5 +658,138 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("", Check());
             Assert.AreEqual("", Check());
         }
+
+        [TestCase(WorldBodyKind.Item, "generation"), TestCase(WorldBodyKind.Tile, "generation")]
+        [TestCase(WorldBodyKind.Item, "inactive-lap"), TestCase(WorldBodyKind.Tile, "inactive-lap")]
+        [TestCase(WorldBodyKind.Item, "rival"), TestCase(WorldBodyKind.Tile, "rival")]
+        [TestCase(WorldBodyKind.Item, "protection"), TestCase(WorldBodyKind.Tile, "protection")]
+        [TestCase(WorldBodyKind.Item, "unknown"), TestCase(WorldBodyKind.Tile, "unknown")]
+        [TestCase(WorldBodyKind.Item, "unsourced"), TestCase(WorldBodyKind.Tile, "unsourced")]
+        public void BodySourceMembershipRetainsEveryIdentityAndDemandCheck(WorldBodyKind kind, string mutation)
+        {
+            var f = PhysicalFixture("TeamRace");
+            var valid = f.State;
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            string before = MatchSnapshotCodec.Export(valid);
+            var body = ProtectedSourceBody(valid, kind);
+            var changed = SourceBody(body,
+                owner: mutation == "rival" ? 1 - body.OwnerTeam : body.OwnerTeam,
+                protection: mutation != "protection",
+                source: mutation == "unknown" ? "unbound-source" : mutation == "unsourced" ? "" : body.SourceId,
+                generation: mutation == "generation" ? body.RecoveryGeneration + 3 :
+                    mutation == "inactive-lap" ? body.RecoveryGeneration + 1 : body.RecoveryGeneration);
+            if (mutation == "inactive-lap")
+                Assert.IsTrue(valid.Resources.Any(resource => resource.SourceId == body.SourceId && resource.Team == body.OwnerTeam &&
+                    resource.Generation == changed.RecoveryGeneration), "A real matching but inactive resource must reach the demand predicate.");
+            var invalid = ReplacePhysical(valid, bodies: valid.Bodies.Select(value => value.Id == body.Id ? changed : value));
+            string expected = mutation == "unknown" ? "World source does not match an approved placement." : mutation == "unsourced" ?
+                "Unsourced loose object has invalid protection or ownership." : "Protected world object disagrees with its recovery source.";
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(valid));
+        }
+
+        [TestCase(false), TestCase(true)]
+        public void MissingOrDuplicateResourcesStillFailBeforeAnInvalidBodySource(bool duplicate)
+        {
+            var f = PhysicalFixture("TeamRace");
+            var valid = f.State;
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            var body = ProtectedSourceBody(valid, WorldBodyKind.Item);
+            var bodies = valid.Bodies.Select(value => value.Id == body.Id ? SourceBody(body, generation: body.RecoveryGeneration + 3) : value).ToArray();
+            Assert.AreEqual("Protected world object disagrees with its recovery source.", CheckPhysical(f, ReplacePhysical(valid, bodies: bodies)));
+            var resources = valid.Resources.ToList();
+            if (duplicate) resources[1] = resources[0];
+            else resources.RemoveAt(0);
+            var invalid = ReplacePhysical(valid, bodies: bodies, resources: resources);
+            const string expected = "Snapshot must include every static source, team and lap exactly once.";
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+        }
+
+        [Test]
+        public void PhysicalBoundsStillRejectBeforeACompetingBodySourceMismatch()
+        {
+            var f = PhysicalFixture("TeamRace");
+            var valid = f.State;
+            var body = ProtectedSourceBody(valid, WorldBodyKind.Item);
+            string Check(WorldBodyState changed) => CheckPhysical(f,
+                ReplacePhysical(valid, bodies: valid.Bodies.Select(value => value.Id == body.Id ? changed : value)));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            Assert.AreEqual("Protected world object disagrees with its recovery source.", Check(SourceBody(body, generation: body.RecoveryGeneration + 3)));
+            const string bounds = "World body exceeds physical bounds or names an absent team.";
+            Assert.AreEqual(bounds, Check(SourceBody(body, position: new WorldVector(10001, 0, 0))));
+            Assert.AreEqual(bounds, Check(SourceBody(body, position: new WorldVector(10001, 0, 0), generation: body.RecoveryGeneration + 3)));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+        }
+
+        [Test]
+        public void ResourceGenerationReplacementRequiresMatchingBodiesOnEveryValidationCall()
+        {
+            var f = PhysicalFixture("TeamRace");
+            var old = f.State;
+            Assert.AreEqual("", CheckPhysical(f, old));
+            var body = ProtectedSourceBody(old, WorldBodyKind.Tile);
+            var row = old.Resources.Single(resource => resource.SourceId == body.SourceId && resource.Team == body.OwnerTeam &&
+                resource.Generation == body.RecoveryGeneration);
+            var bodies = old.Bodies.Select(value => value.SourceId == body.SourceId && value.OwnerTeam == body.OwnerTeam &&
+                value.RecoveryGeneration == row.Generation ? SourceBody(value, generation: row.Generation + 3) : value).ToArray();
+            Assert.Greater(bodies.Count(value => value.SourceId == body.SourceId && value.RecoveryGeneration == row.Generation + 3), 1,
+                "The valid authored batch must exercise multiple bodies sharing one source group.");
+            var resources = old.Resources.Select(value => ReferenceEquals(value, row) ?
+                new MatchResourceState(row.SourceId, row.Team, row.Lap, row.Generation + 3, row.RecoveryAtTick) : value).ToArray();
+            const string mismatch = "Protected world object disagrees with its recovery source.";
+            Assert.AreEqual(mismatch, CheckPhysical(f, ReplacePhysical(old, resources: resources)));
+            Assert.AreEqual(mismatch, CheckPhysical(f, ReplacePhysical(old, bodies: bodies)));
+            var current = ReplacePhysical(old, bodies: bodies, resources: resources);
+            string oldBytes = MatchSnapshotCodec.Export(old), currentBytes = MatchSnapshotCodec.Export(current);
+            Assert.AreEqual("", CheckPhysical(f, current));
+            Assert.AreEqual("", CheckPhysical(f, old));
+            Assert.AreEqual("", CheckPhysical(f, current));
+            Assert.AreEqual(oldBytes, MatchSnapshotCodec.Export(old));
+            Assert.AreEqual(currentBytes, MatchSnapshotCodec.Export(current));
+        }
+
+        [Test]
+        public void RealPracticeSelectionChangesDemandWithoutReusingPriorSourceMembership()
+        {
+            var f = PhysicalFixture("Freestyle");
+            var first = f.Source.Course.PhysicalSites.First(site => site.RecoverySupplyId != "");
+            var second = f.Source.Course.PhysicalSites.First(site => site.RecoverySupplyId != "" &&
+                site.RecoverySupplyId != first.RecoverySupplyId && site.PuzzleId != first.PuzzleId &&
+                !f.Source.Course.Puzzles.Single(puzzle => puzzle.Id == site.PuzzleId).RecoverySupplyIds.Contains(first.RecoverySupplyId));
+            CommandReceipt Select(ResolvedCoursePhysicalSite site) => f.Step(f.Command("a", WordboundAction.PracticePuzzle, site.Hash),
+                new[] { f.Pose("a", new WorldVector(site.Position.X / 1000f, site.Position.Y / 1000f, site.Position.Z / 1000f)) }).Receipts.Single();
+            Assert.AreEqual("Ok", Select(first).Effect.Code);
+            var old = f.State;
+            string sourceId = f.Source.Course.Supplies.Single(source => source.SourceId == first.RecoverySupplyId).Id;
+            Assert.IsTrue(old.Bodies.Any(body => body.Kind == WorldBodyKind.Tile && body.SourceId == sourceId));
+            Assert.AreEqual("", CheckPhysical(f, old));
+            Assert.AreEqual("Ok", Select(second).Effect.Code);
+            var current = f.State;
+            Assert.IsFalse(current.Bodies.Any(body => body.Kind == WorldBodyKind.Tile && body.SourceId == sourceId));
+            Assert.AreEqual("", CheckPhysical(f, current));
+            var stale = new MatchSnapshot(current.Binding, current.Epoch, current.Sequence, current.NextWorldEntityId,
+                current.Progress, old.Economy, current.Commands, old.Actors, old.Bodies, old.Resources, old.Mechanisms,
+                old.RandomStreams, old.NarrativeFlags, old.ThrownFlights, current.Practice);
+            Assert.AreEqual("Protected world object disagrees with its recovery source.", CheckPhysical(f, stale),
+                "A matching resource key alone must not admit the preceding station's now-undemanded loose bodies.");
+            string oldBytes = MatchSnapshotCodec.Export(old), currentBytes = MatchSnapshotCodec.Export(current);
+            Assert.AreEqual("", CheckPhysical(f, old));
+            Assert.AreEqual("", CheckPhysical(f, current));
+            Assert.AreEqual(oldBytes, MatchSnapshotCodec.Export(old));
+            Assert.AreEqual(currentBytes, MatchSnapshotCodec.Export(current));
+        }
+
+        static WorldBodyState ProtectedSourceBody(MatchSnapshot snapshot, WorldBodyKind kind) => snapshot.Bodies.First(body =>
+            body.Kind == kind && body.Protected && body.SourceId != "" && snapshot.Resources.Any(resource =>
+                resource.SourceId == body.SourceId && resource.Team == body.OwnerTeam && resource.Generation == body.RecoveryGeneration));
+
+        static WorldBodyState SourceBody(WorldBodyState body, int? owner = null, bool? protection = null, string source = null,
+            int? generation = null, WorldVector? position = null) => new WorldBodyState(body.Id, body.Kind, position ?? body.Position,
+                body.RotationXyz, body.RotationW, body.Velocity, body.AngularVelocity, body.Sleeping, body.Kinematic, body.Active,
+                owner ?? body.OwnerTeam, protection ?? body.Protected, source ?? body.SourceId, generation ?? body.RecoveryGeneration);
     }
 }

@@ -396,6 +396,7 @@ namespace Wreckabulary.Rules.Wordbound
             var placements = content.Placements;
             var teams = new HashSet<int>(binding.Seats.Select(seat => seat.Team));
             ILookup<(string PuzzleId, int Lap, int Team), MatchMechanismState> mechanisms = null;
+            ILookup<(string SourceId, int Team, int Generation), MatchResourceState> resources = null;
             for (int i = 0; i < binding.Seats.Count; i++)
                 Need(bodies.TryGetValue("player:" + i, out var body) && body.Kind == WorldBodyKind.Player &&
                     body.OwnerTeam == binding.Seats[i].Team && body.SourceId == binding.Seats[i].PlayerId && !body.Protected,
@@ -426,7 +427,7 @@ namespace Wreckabulary.Rules.Wordbound
                     case WorldBodyKind.Item:
                         int itemId = Suffix(body.Id, "item:");
                         Need(items.TryGetValue(itemId, out var item) && (!item.IsGone || !body.Active), "World item has no matching economy state or active tombstone.");
-                        ValidateSource(body, sources, placements, s, mode, lifecycle);
+                        ValidateSource(body, sources, placements, s, mode, lifecycle, ref resources);
                         if (body.SourceId == "" && item.Origin == ItemOrigin.Crafted)
                         {
                             Need(item.CrafterId >= 0 && item.CrafterId < binding.Seats.Count, "Crafted item needs a valid creator.");
@@ -437,7 +438,7 @@ namespace Wreckabulary.Rules.Wordbound
                     case WorldBodyKind.Tile:
                         int tileId = Suffix(body.Id, "tile:");
                         Need(tiles.TryGetValue(tileId, out char letter), "World letter has no matching economy entity.");
-                        ValidateSource(body, sources, placements, s, mode, lifecycle);
+                        ValidateSource(body, sources, placements, s, mode, lifecycle, ref resources);
                         if (sources.TryGetValue(body.SourceId, out var source))
                             Need(source.Item3.IndexOf(letter) >= 0, "Letter does not belong to its recovery source.");
                         break;
@@ -475,7 +476,8 @@ namespace Wreckabulary.Rules.Wordbound
         }
 
         static void ValidateSource(WorldBodyState body, Dictionary<string, Tuple<int, bool, string>> sources,
-            Dictionary<string, ResolvedCoursePlacement> placements, MatchSnapshot s, ModeDefinition mode, WordboundResourceLifecycle lifecycle)
+            Dictionary<string, ResolvedCoursePlacement> placements, MatchSnapshot s, ModeDefinition mode, WordboundResourceLifecycle lifecycle,
+            ref ILookup<(string SourceId, int Team, int Generation), MatchResourceState> resources)
         {
 #if UNITY_EDITOR || GSK_QA
             using var phase = WordboundPhaseCapture.Measure(WordboundPhase.BodySourceValidation);
@@ -490,13 +492,21 @@ namespace Wreckabulary.Rules.Wordbound
             if (sources.TryGetValue(body.SourceId, out var source))
             {
                 Need(body.OwnerTeam == source.Item1 && body.Protected == source.Item2 &&
-                    s.Resources.Any(r => r.SourceId == body.SourceId && r.Team == body.OwnerTeam && r.Generation == body.RecoveryGeneration &&
-                        lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r, s.Practice, s.Mechanisms)),
+                    HasDemandedResource(body, s, mode, lifecycle, ref resources),
                     "Protected world object disagrees with its recovery source.");
                 return;
             }
             Need(placements.TryGetValue(body.SourceId, out var placement) && placement.Purpose != "Resources" &&
                 body.OwnerTeam == placement.TeamIndex && !body.Protected, "World source does not match an approved placement.");
+        }
+
+        static bool HasDemandedResource(WorldBodyState body, MatchSnapshot snapshot, ModeDefinition mode,
+            WordboundResourceLifecycle lifecycle, ref ILookup<(string SourceId, int Team, int Generation), MatchResourceState> resources)
+        {
+            resources ??= snapshot.Resources.ToLookup(resource => (resource.SourceId, resource.Team, resource.Generation));
+            return resources[(body.SourceId, body.OwnerTeam, body.RecoveryGeneration)].Any(resource =>
+                lifecycle.Demanded(mode.IsRace ? snapshot.Progress.Teams.Single(team => team.Team == resource.Team) : null,
+                    resource, snapshot.Practice, snapshot.Mechanisms));
         }
 
         static void ValidatePractice(MatchSnapshot s, ResolvedCourse course, ModeDefinition mode)
