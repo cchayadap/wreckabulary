@@ -1,0 +1,89 @@
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\BAT.fbx'
+export finished in 0.1274 sec.
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+17:45:01 | INFO: Starting glTF 2.0 export
+17:45:01 | INFO: Extracting primitive: Torus.001
+17:45:02 | INFO: Primitives created: 1
+17:45:02 | INFO: Extracting primitive: Cream_grip.001
+17:45:02 | INFO: Primitives created: 1
+17:45:02 | INFO: Finished glTF 2.0 export in 0.7951512336730957 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\BROOM.fbx'
+export finished in 0.1230 sec.
+17:45:03 | INFO: Starting glTF 2.0 export
+17:45:03 | INFO: Extracting primitive: Sphere.002
+17:45:03 | INFO: Primitives created: 1
+17:45:03 | INFO: Extracting primitive: Cube.011
+17:45:03 | INFO: Primitives created: 1
+17:45:03 | INFO: Finished glTF 2.0 export in 0.13736295700073242 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\HAMMER.fbx'
+export finished in 0.0547 sec.
+17:45:04 | INFO: Starting glTF 2.0 export
+17:45:04 | INFO: Extracting primitive: Brass_cap.002
+17:45:04 | INFO: Primitives created: 1
+17:45:04 | INFO: Extracting primitive: Torus.004
+17:45:05 | INFO: Primitives created: 1
+17:45:05 | INFO: Finished glTF 2.0 export in 0.23604369163513184 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\SPEAR.fbx'
+export finished in 0.0473 sec.
+17:45:05 | INFO: Starting glTF 2.0 export
+17:45:05 | INFO: Extracting primitive: Brass_foot.001
+17:45:05 | INFO: Primitives created: 1
+17:45:05 | INFO: Extracting primitive: Cream_grip.002
+17:45:05 | INFO: Primitives created: 1
+17:45:06 | INFO: Finished glTF 2.0 export in 0.1363530158996582 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\SHIELD.fbx'
+export finished in 0.0428 sec.
+17:45:07 | INFO: Starting glTF 2.0 export
+17:45:07 | INFO: Extracting primitive: Sphere.008
+17:45:07 | INFO: Primitives created: 1
+17:45:07 | INFO: Extracting primitive: Cream_diamond.001
+17:45:07 | INFO: Primitives created: 1
+17:45:07 | INFO: Finished glTF 2.0 export in 0.17168784141540527 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\PLATE.fbx'
+export finished in 0.0586 sec.
+17:45:08 | INFO: Starting glTF 2.0 export
+17:45:08 | INFO: Extracting primitive: Torus.007
+17:45:08 | INFO: Primitives created: 1
+17:45:08 | INFO: Extracting primitive: Ceramic_dish.001
+17:45:08 | INFO: Primitives created: 1
+17:45:08 | INFO: Finished glTF 2.0 export in 0.14886021614074707 s
+
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-map-workshop\\ArtSource\\Collections\\WordboundPvP\\DetailV2\\Exports\\TABLE.fbx'
+export finished in 0.0477 sec.
+17:45:10 | INFO: Starting glTF 2.0 export
+17:45:10 | INFO: Extracting primitive: Sphere.012
+17:45:10 | INFO: Primitives created: 1
+17:45:10 | INFO: Extracting primitive: Cube.028
+17:45:10 | INFO: Primitives created: 1
+17:45:10 | INFO: Finished glTF 2.0 export in 0.14247393608093262 s
+Traceback (most recent call last):
+  File "C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\Tools\AssetPipeline\build_wordbound_detail.py", line 436, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\Tools\AssetPipeline\build_wordbound_detail.py", line 428, in main
+    build(base, source, output)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\Tools\AssetPipeline\build_wordbound_detail.py", line 275, in build
+    entry = grouped_export(base, root, output, spec)
+  File "C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\Tools\AssetPipeline\build_wordbound_detail.py", line 233, in grouped_export
+    raise RuntimeError(spec["id"] + ": grouping changed vertex positions")
+RuntimeError: SOFA: grouping changed vertex positions
+
+
+Error: script failed, file: 'Tools/AssetPipeline/build_wordbound_detail.py', exiting.
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

@@ -117,6 +117,8 @@ for(const id of expected){
     model.export_mesh_count<model.editable_mesh_count,`${id} editable/export mesh contract`);
   assert(model.export_mesh_count===model.mesh_count&&model.material_draw_count===model.export_mesh_count,
     `${id} expected one material per grouped delivery mesh`);
+  assert(Number.isFinite(model.max_grouping_vertex_error_metres)&&model.max_grouping_vertex_error_metres<=.00001,
+    `${id} grouped vertices exceeded the original geometry tolerance`);
   assert(model.export_pivots?.some(pivot=>pivot.name===`${id}_Grip_R`)&&
     model.export_pivots.some(pivot=>pivot.name===`${id}_Front`),`${id} authored pivot records missing`);
   assert(JSON.stringify(model.size_unity_metres)===JSON.stringify(prompt.sizeUnityMetres),`${id} changed dimensions`);

@@ -8,6 +8,7 @@ import sys
 
 import bpy
 from mathutils import Vector
+from mathutils.kdtree import KDTree
 
 
 WIDTH, HEIGHT, CELL = 512, 256, 64
@@ -184,9 +185,28 @@ def record(base, output, path):
 
 def mesh_measurements(base, root):
     meshes = [obj for obj in base.descendants(root) if obj.type == "MESH"]
-    points = sorted(tuple(round(component, 6) for component in root.matrix_world.inverted() @ obj.matrix_world @ vertex.co)
-                    for obj in meshes for vertex in obj.data.vertices)
+    points = [root.matrix_world.inverted() @ obj.matrix_world @ vertex.co
+              for obj in meshes for vertex in obj.data.vertices]
     return meshes, points
+
+
+def verify_vertex_positions(before, after, item):
+    if len(before) != len(after):
+        raise RuntimeError(item + ": grouping changed vertex count")
+    tree = KDTree(len(before))
+    for index, point in enumerate(before):
+        tree.insert(point, index)
+    tree.balance()
+    matched = set()
+    maximum_error = 0
+    for point in after:
+        candidates = sorted(tree.find_range(point, .00001), key=lambda candidate: candidate[2])
+        match = next((candidate for candidate in candidates if candidate[1] not in matched), None)
+        if match is None:
+            raise RuntimeError(item + ": grouping changed a vertex position beyond 0.01 mm")
+        matched.add(match[1])
+        maximum_error = max(maximum_error, match[2])
+    return maximum_error
 
 
 def grouped_export(base, root, output, spec):
@@ -228,10 +248,9 @@ def grouped_export(base, root, output, spec):
             members[0].name = parent.name + "_" + material.name + "Mesh"
         bpy.context.view_layer.update()
         delivery_meshes, delivery_points = mesh_measurements(base, delivery)
-        if len(source_points) != len(delivery_points) or any(
-                abs(a - b) > .00001 for before, after in zip(source_points, delivery_points) for a, b in zip(before, after)):
-            raise RuntimeError(spec["id"] + ": grouping changed vertex positions")
+        vertex_error = verify_vertex_positions(source_points, delivery_points, spec["id"])
         measured = base.inspect_model(delivery, spec)
+        measured["max_grouping_vertex_error_metres"] = vertex_error
         measured["editable_mesh_count"] = len(source_meshes)
         measured["export_mesh_count"] = len(delivery_meshes)
         measured["material_draw_count"] = sum(len(obj.data.materials) for obj in delivery_meshes)
