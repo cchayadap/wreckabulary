@@ -74,6 +74,13 @@ namespace Wreckabulary.Online.Tests
                 "; westHeld=" + pad.buttonWest.isPressed + "; westPressed=" + pad.buttonWest.wasPressedThisFrame +
                 "; lbHeld=" + pad.leftShoulder.isPressed + "; lbPressed=" + pad.leftShoulder.wasPressedThisFrame);
 
+        public static void Sample(Keyboard keyboard, KeyboardState state)
+        {
+            Assert.IsTrue(keyboard.added && keyboard.enabled, "The synthetic keyboard must be active before sampling.");
+            InputSystem.QueueStateEvent(keyboard, state);
+            Pump();
+        }
+
         public static void Sample(Gamepad pad, GamepadState state)
         {
             Assert.IsTrue(pad.added && pad.enabled, "The synthetic gamepad must be active before sampling.");
