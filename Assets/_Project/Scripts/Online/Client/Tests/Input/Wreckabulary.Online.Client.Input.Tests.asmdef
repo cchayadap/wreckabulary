@@ -1,0 +1,14 @@
+{
+  "name": "Wreckabulary.Online.Client.Input.Tests",
+  "rootNamespace": "Wreckabulary.Online.Tests",
+  "references": [
+    "Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Client",
+    "Wreckabulary.Online.Gameplay", "Wreckabulary.Online.Physics", "Wreckabulary.Online.Presentation",
+    "Unity.InputSystem", "Fusion.Unity", "UnityEngine.TestRunner", "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll", "Fusion.Runtime.dll", "Fusion.Common.dll"],
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "autoReferenced": false
+}

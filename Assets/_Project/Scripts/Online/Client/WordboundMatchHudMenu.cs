@@ -1,0 +1,202 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using Wreckabulary.Rules;
+using Wreckabulary.Rules.Wordbound;
+
+namespace Wreckabulary.Online
+{
+    public sealed partial class WordboundMatchHud
+    {
+        readonly WordboundMenuFocus menuFocus = new WordboundMenuFocus();
+        List<RecipeCard> recipeCards = new List<RecipeCard>();
+        LetterBag recipeLetters;
+        GUIStyle wrappedLabel;
+        bool revealMenuSelection;
+        float recipeViewportHeight = 180;
+        GUIStyle WrappedLabel => wrappedLabel ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
+
+        void RefreshRecipes()
+        {
+            if (inventory == null || inventory.Letters.Equals(recipeLetters)) return;
+            recipeLetters = new LetterBag(inventory.Letters);
+            recipeCards = items.Cards(recipeLetters);
+            recipeCards.RemoveAll(card => !mode.Recipes.Contains(card.Item.Id));
+        }
+
+        string FirstCraftableRecipe()
+        {
+            foreach (var card in recipeCards)
+                if (card.Craftable && inventory?.Craft == null) return "recipe:" + card.Item.Id;
+            return "resume";
+        }
+
+        ItemInstance HeldItem(int slot)
+        {
+            if (frame == null || inventory == null || slot < 0 || slot >= inventory.Slots.Length) return null;
+            foreach (var item in frame.Economy.Items)
+                if (item.Id == inventory.Slots[slot] && item.State == ItemState.Held && item.HolderId == seat) return item;
+            return null;
+        }
+
+        void ReadMenuCommands(WordboundMenuCommands commands)
+        {
+            if (!initialized || !view.MenuOpen) return;
+            if (commands.Back)
+            {
+                if (journalOpen) { journalOpen = false; recipeScroll = Vector2.zero; menuFocus.Reset("journal"); }
+                else if (controller.Fault == "") Resume();
+                return;
+            }
+            if (commands.Step != 0)
+            {
+                menuFocus.Move(commands.Step);
+                revealMenuSelection = true;
+            }
+            if (commands.Confirm) menuFocus.Confirm();
+            if (Mathf.Abs(commands.Scroll) > .25f)
+                recipeScroll.y = Mathf.Max(0, recipeScroll.y - commands.Scroll * 420 * Time.unscaledDeltaTime);
+        }
+
+        void Resume()
+        {
+            view.SetMenuOpen(false);
+            crafting = false;
+            menuFocus.Reset();
+        }
+
+        bool MenuButton(string id, string label, params GUILayoutOption[] options)
+        {
+            if (Event.current.type == EventType.Layout && GUI.enabled) menuFocus.Register(id);
+            bool selected = view.UsesGamepad && menuFocus.Selected == id;
+            Color previous = GUI.backgroundColor;
+            if (selected) GUI.backgroundColor = new Color(.35f, .85f, 1f);
+            GUI.SetNextControlName("wordbound:" + id);
+            bool clicked = GUILayout.Button((selected ? "› " : "") + label, options);
+            if (clicked) menuFocus.CancelConfirmation();
+            GUI.backgroundColor = previous;
+            if (selected && Event.current.type == EventType.Repaint)
+            {
+                GUI.FocusControl("wordbound:" + id);
+                if (revealMenuSelection && id.StartsWith("recipe:", StringComparison.Ordinal))
+                {
+                    var row = GUILayoutUtility.GetLastRect();
+                    if (row.yMin < recipeScroll.y) recipeScroll.y = row.yMin;
+                    else if (row.yMax > recipeScroll.y + recipeViewportHeight)
+                        recipeScroll.y = Mathf.Max(0, row.yMax - recipeViewportHeight);
+                    revealMenuSelection = false;
+                }
+            }
+            return clicked || Application.isFocused && view.UsesGamepad && GUI.enabled &&
+                Event.current.type == EventType.Repaint && menuFocus.Consume(id);
+        }
+
+        void Menu(float width, float height)
+        {
+            if (!view.UsesGamepad) menuFocus.CancelConfirmation();
+            if (Event.current.type == EventType.Layout) menuFocus.BeginLayout();
+            GUILayout.BeginArea(new Rect((width - 580) / 2, 48, 580, height - 170), GUI.skin.box);
+            GUILayout.Label(journalOpen ? "Collected clues" : crafting ? "Spell equipment" : "Wordbound");
+            GUILayout.Label(view.UsesGamepad
+                ? "D-pad / left stick: select · A: confirm · B: back · Right stick: scroll"
+                : "Choose equipment, craft a word, or return to your game.", WrappedLabel);
+            GUI.enabled = controller.Fault == "";
+            if (MenuButton("resume", "Resume", GUILayout.Height(34))) Resume();
+            GUI.enabled = true;
+            if (story && story.Journal.Count > 0)
+            {
+                GUILayout.BeginHorizontal();
+                if (MenuButton("equipment", "Equipment")) { journalOpen = false; recipeScroll = Vector2.zero; }
+                if (MenuButton("journal", "Story clues · " + story.Journal.Count))
+                { journalOpen = true; recipeScroll = Vector2.zero; }
+                GUILayout.EndHorizontal();
+            }
+            GUI.enabled = frame != null && !controller.IsSimulationPaused;
+            if (journalOpen && story)
+            {
+                recipeScroll = GUILayout.BeginScrollView(recipeScroll);
+                foreach (var clue in story.Journal)
+                {
+                    GUILayout.Label("Lap " + clue.Lap + " · " + clue.Chapter);
+                    GUILayout.Label(clue.Place + ": " + clue.Clue, WrappedLabel);
+                    GUILayout.Space(8);
+                }
+                GUILayout.EndScrollView();
+            }
+            else if (inventory != null)
+            {
+                EquipmentMenu();
+                GUILayout.Label("Recipes · letters: " + inventory.Letters);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Search", GUILayout.Width(48));
+                search = GUILayout.TextField(search, 32);
+                if (search.Length > 0 && MenuButton("clear-search", "Clear", GUILayout.Width(64))) search = "";
+                GUILayout.EndHorizontal();
+                recipeScroll = GUILayout.BeginScrollView(recipeScroll);
+                int visible = 0;
+                foreach (var card in recipeCards)
+                {
+                    if (card.Item.Id.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0) continue;
+                    visible++;
+                    bool ready = card.Craftable && inventory.Craft == null;
+                    GUI.enabled = !controller.IsSimulationPaused && ready;
+                    if (MenuButton("recipe:" + card.Item.Id,
+                        card.Item.Id + (ready ? "  ·  Craft" : card.Craftable ? "  ·  Crafting…" : "  ·  Need " + card.Missing),
+                        GUILayout.Height(30)))
+                    {
+                        if (Send(WordboundAction.BeginCraft, value: card.Item.Id)) Resume();
+                    }
+                }
+                GUI.enabled = true;
+                if (visible == 0) GUILayout.Label("No recipes match. Clear the search to see all equipment.", WrappedLabel);
+                GUILayout.EndScrollView();
+                if (Event.current.type == EventType.Repaint)
+                    recipeViewportHeight = Mathf.Max(30, GUILayoutUtility.GetLastRect().height);
+            }
+            GUI.enabled = true;
+            if (MenuButton("return", returnLabel, GUILayout.Height(32))) ReturnRequested?.Invoke();
+            GUILayout.EndArea();
+            if (Event.current.type == EventType.Layout) menuFocus.EndLayout();
+        }
+
+        void EquipmentMenu()
+        {
+            var nearby = WordboundPracticeGuidePlan.Nearest(course, frame, actorId);
+            if (nearby != null)
+            {
+                GUILayout.Label(WordboundPracticeGuidePlan.Status(frame, nearby), WrappedLabel);
+                if (!WordboundPracticeGuidePlan.Completed(frame, nearby) && frame.Practice.SiteHash != nearby.Hash &&
+                    MenuButton("practice", "Practise " + course.Puzzles.Single(p => p.Id == nearby.PuzzleId).RecipeId + " station"))
+                { if (Send(WordboundAction.PracticePuzzle, nearby.Hash)) Resume(); }
+            }
+            if (inventory.Craft != null)
+            {
+                GUILayout.Label("Crafting " + inventory.Craft.ItemId);
+                if (MenuButton("cancel-craft", "Cancel craft")) Send(WordboundAction.CancelCraft);
+            }
+            GUILayout.BeginHorizontal();
+            if (MenuButton("fists", actor.EquippedSlot < 0 ? "• Fists" : "Fists")) Send(WordboundAction.Equip, slot: -1);
+            bool usable = GUI.enabled;
+            for (int i = 0; i < inventory.Slots.Length; i++)
+            {
+                var item = HeldItem(i);
+                GUI.enabled = usable && item != null;
+                if (MenuButton("slot:" + i, (actor.EquippedSlot == i ? "• " : "") + (i + 1) + ": " + (item?.Word ?? "Empty")))
+                    Send(WordboundAction.Equip, slot: i);
+            }
+            GUI.enabled = usable;
+            GUILayout.EndHorizontal();
+            if (inventory.CarriedFurniture >= 0 && MenuButton("drop-furniture", "Put down carried furniture")) Send(WordboundAction.Drop);
+            if (actor.EquippedSlot >= 0)
+            {
+                GUILayout.BeginHorizontal();
+                if (MenuButton("place", "Place selected item")) Send(WordboundAction.Deploy, slot: actor.EquippedSlot);
+                if (MenuButton("drop", "Drop selected item")) Send(WordboundAction.Drop, slot: actor.EquippedSlot);
+                GUILayout.EndHorizontal();
+            }
+            if ((mode.IsRace || mode.Id == "Freestyle") && frame.Progress.Teams.Single(t => t.Team == team).KeepsakeCarrier == actorId &&
+                MenuButton("drop-keepsake", "Put down keepsake")) Send(WordboundAction.DropKeepsake);
+        }
+    }
+}

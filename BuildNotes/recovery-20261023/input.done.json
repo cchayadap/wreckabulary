@@ -1,0 +1,8 @@
+{
+  "status": "source-reviewed-native-pending",
+  "scope": "Wordbound input wrapper, gameplay HUD menu and regression sources",
+  "verification": { "diffCheck": "PASS", "compile": "NOT-RUN", "native": "NOT-RUN", "human": "NOT-RUN" },
+  "contract_changes": ["WordboundPlayerView.MenuCommandsRead", "WordboundPlayerView.UsesGamepad"],
+  "requests": ["Root integrates only the delta after baseline 2893a03 and runs assembled verification", "Root captures the actual rendered controller menu before delivery"],
+  "preserved": ["InputBinding", "DesktopBinding", "GamepadBinding", "Launcher", "Workshop", "PartyMenu"]
+}

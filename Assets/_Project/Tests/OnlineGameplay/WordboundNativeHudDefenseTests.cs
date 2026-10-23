@@ -92,7 +92,7 @@ namespace Wreckabulary.OnlineGameplayTests
                                 view.SendMessage("OnApplicationFocus", false, SendMessageOptions.RequireReceiver);
                                 InvokeHud(hud, "Update");
                                 break;
-                            case "Selection": InvokeHud(hud, "ReadCommands", new PlayerCommands { slot = plateSlot + 1 }); break;
+                            case "Selection": InvokeHud(hud, "ReadCommands", new PlayerCommands { swap = true }); break;
                         }
                         if (releasePath == "Spell" || releasePath == "Menu" || releasePath == "Focus")
                             Assert.IsTrue(view.MenuOpen, releasePath + " must enter the actual player-view menu state.");

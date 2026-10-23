@@ -27,10 +27,14 @@ namespace Wreckabulary.Online
         float sensitivity = ShoulderView.MouseSensitivity, stickYaw = 2.6f, stickPitch = 1.8f;
         WordboundCameraProfile activeProfile;
         string profileError;
+        int bindingRevision;
         public bool MenuOpen { get; private set; } = true;
         public Camera Camera => view;
         public WordboundNetworkBody Player => player;
+        public bool UsesGamepad => binding is WordboundInputBinding automatic &&
+            automatic.ActiveGamepad != null && automatic.ActiveGamepad.added && automatic.ActiveGamepad.enabled;
         public event Action<PlayerCommands> CommandsRead;
+        public event Action<WordboundMenuCommands> MenuCommandsRead;
         public event Action MenuRequested;
 
         public void Initialize(WordboundGameplayController gameplay, Camera camera = null, InputBinding controls = null,
@@ -40,9 +44,9 @@ namespace Wreckabulary.Online
             controller = gameplay != null ? gameplay : throw new ArgumentNullException(nameof(gameplay));
             if (controls == null)
             {
-                var desktop = new DesktopBinding();
-                controls = desktop;
-                ownedBinding = desktop;
+                var automatic = new WordboundInputBinding();
+                controls = automatic;
+                ownedBinding = automatic;
             }
             binding = controls;
             view = camera;
@@ -109,6 +113,8 @@ namespace Wreckabulary.Online
             MenuOpen = open;
             movement = Vector2.zero;
             jumpPending = false;
+            (binding as WordboundInputBinding)?.SuspendGameplay();
+            if (open) CommandsRead?.Invoke(default);
             ApplyCursor();
         }
 
@@ -124,16 +130,52 @@ namespace Wreckabulary.Online
         {
             if (!initialized) return;
             ApplyCameraProfile();
-            bool pause = binding is DesktopBinding desktop ? desktop.Pause.WasPressedThisFrame() : binding.StartPressed();
-            if (pause && Application.isFocused)
+            ProcessInput(Application.isFocused);
+        }
+
+        void ProcessInput(bool focused)
+        {
+            if (binding is WordboundInputBinding automatic)
             {
-                SetMenuOpen(!MenuOpen);
-                MenuRequested?.Invoke();
+                bool lost = automatic.RefreshDevice(focused);
+                if (bindingRevision != automatic.Revision)
+                {
+                    bindingRevision = automatic.Revision;
+                    movement = Vector2.zero;
+                    jumpPending = false;
+                    CommandsRead?.Invoke(default);
+                    if (MenuOpen && !lost) MenuRequested?.Invoke();
+                    ApplyCursor();
+                }
+                if (lost) { SetMenuOpen(true); MenuRequested?.Invoke(); }
             }
-            if (MenuOpen || !Application.isFocused || player == null || controller.IsSimulationPaused)
+            if (!focused)
             {
                 movement = Vector2.zero;
                 jumpPending = false;
+                (binding as WordboundInputBinding)?.SuspendGameplay();
+                return;
+            }
+            bool pause = binding is DesktopBinding desktop ? desktop.Pause.WasPressedThisFrame() : binding.StartPressed();
+            if (pause)
+            {
+                SetMenuOpen(!MenuOpen);
+                MenuRequested?.Invoke();
+                return;
+            }
+            if (MenuOpen)
+            {
+                movement = Vector2.zero;
+                jumpPending = false;
+                if (binding is WordboundInputBinding menuBinding)
+                    MenuCommandsRead?.Invoke(menuBinding.ReadMenu(Time.unscaledTime));
+                return;
+            }
+            if (player == null || controller.IsSimulationPaused)
+            {
+                movement = Vector2.zero;
+                jumpPending = false;
+                (binding as WordboundInputBinding)?.SuspendGameplay();
                 return;
             }
             ApplyCursor();
@@ -158,7 +200,8 @@ namespace Wreckabulary.Online
 
         public WordboundMovementInput ReadMovement()
         {
-            if (!initialized || MenuOpen || !Application.isFocused || player == null || controller.IsSimulationPaused)
+            if (!initialized || MenuOpen || !Application.isFocused || player == null || controller.IsSimulationPaused ||
+                DesktopBinding.Typing || KeyBindings.GameplayBlocked)
             {
                 jumpPending = false;
                 return default;
@@ -200,13 +243,15 @@ namespace Wreckabulary.Online
 
         void OnApplicationFocus(bool focused)
         {
-            if (!focused && initialized) SetMenuOpen(true);
+            if (!focused && initialized) { SetMenuOpen(true); MenuRequested?.Invoke(); }
         }
 
         void OnDisable()
         {
             movement = Vector2.zero;
             jumpPending = false;
+            (binding as WordboundInputBinding)?.SuspendGameplay();
+            CommandsRead?.Invoke(default);
             if (capturedCursor)
             {
                 Cursor.lockState = previousLock;
