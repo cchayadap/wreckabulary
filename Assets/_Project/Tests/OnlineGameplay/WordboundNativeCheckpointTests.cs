@@ -85,6 +85,28 @@ namespace Wreckabulary.OnlineGameplayTests
         }
 
         [Test]
+        public void InterPublicationGapRejectsBootstrapAndChangedOrUnmatchedOwnership()
+        {
+            var probe = new WordboundNativeCheckpoints.Probe(0);
+            var source = new AuthorityStub { Accept = true }; var wrapped = probe.Wrap(source);
+            void Publish(long sequence, long tick, long epoch = 0)
+            { source.Mark = Mark(sequence, tick, epoch); wrapped.Publish(out _); }
+            void Ack() => Assert.IsTrue(wrapped.AcknowledgeDurable(source.Mark));
+            Publish(1, 0); Ack(); Publish(2, 50); Ack();
+            Assert.AreEqual(1, probe.GapCounts().BootstrapSkipped); Assert.AreEqual(0, probe.GapCounts().Count);
+            Publish(3, 100); Ack(); Assert.AreEqual(1, probe.GapCounts().Count);
+            Publish(4, 110, 1); Ack(); Assert.AreEqual(1, probe.GapCounts().BoundarySkipped);
+            probe.NewRunner(1); Publish(5, 120, 1); Ack(); Assert.AreEqual(1, probe.GapCounts().Count);
+            Assert.IsTrue(wrapped.AcknowledgeDurable(Mark(99, 130, 1)));
+            Publish(6, 130, 1); Ack(); Assert.AreEqual(1, probe.GapCounts().Count);
+            Publish(7, 140, 1); Publish(8, 150, 1); Ack();
+            Assert.AreEqual(2, probe.GapCounts().Count); Assert.AreEqual(1, probe.PublicationCounts().Superseded);
+            Publish(9, 160, 1); probe.NewRunner(2); Ack(); Publish(10, 170, 1);
+            Assert.AreEqual(3, probe.GapCounts().Count); Assert.AreEqual(1, probe.GapCounts().Abandoned);
+            Assert.AreEqual(2, probe.PublicationCounts().Unmatched);
+        }
+
+        [Test]
         public void HostSamplesSeparateReadinessMigrationResultAndExactDurableGap()
         {
             var probe = new WordboundNativeCheckpoints.Probe(0); var mark = Mark(tick: 40);

@@ -44,8 +44,9 @@ namespace Wreckabulary.OnlineGameplayTests
             readonly long started = Stopwatch.GetTimestamp();
             readonly Total[] stages = new Total[11];
             readonly long[] samples = new long[6], intervals = new long[6];
-            OnlineSnapshotMark pending, observedCommitted;
+            OnlineSnapshotMark pending, observedCommitted, lastMatchedAck;
             long pendingStarted, committedObservedAt, accepted, unmatchedAccepted, superseded, commitTotal, commitMaximum;
+            long lastMatchedAckAt, gapCount, gapTotal, gapMaximum, gapBootstrapSkipped, gapBoundarySkipped, abandonedPublications;
             long firstTick = -1, lastTick = -1, firstSdkTick = -1, lastSdkTick = -1, maximumGap, unavailable, staleSamples;
             long previousSample, maximumSampleGap;
             int creation;
@@ -87,6 +88,19 @@ namespace Wreckabulary.OnlineGameplayTests
                 {
                     if (stopped) return;
                     if (pending != null) superseded++;
+                    if (lastMatchedAck != null)
+                    {
+                        if (lastMatchedAck.Tick == 0 || mark.Tick == 0) gapBootstrapSkipped++;
+                        else if (lastMatchedAck.MatchId == mark.MatchId && lastMatchedAck.IdentityHash == mark.IdentityHash &&
+                            lastMatchedAck.Epoch == mark.Epoch && mark.Sequence > lastMatchedAck.Sequence &&
+                            mark.Tick >= lastMatchedAck.Tick && start >= lastMatchedAckAt)
+                        {
+                            long gap = start - lastMatchedAckAt;
+                            gapCount++; gapTotal += gap; gapMaximum = Math.Max(gapMaximum, gap);
+                        }
+                        else gapBoundarySkipped++;
+                        lastMatchedAck = null;
+                    }
                     pending = mark; pendingStarted = start;
                 }
             }
@@ -97,16 +111,17 @@ namespace Wreckabulary.OnlineGameplayTests
                 {
                     if (stopped) return;
                     accepted++;
-                    if (pending == null || !pending.Same(mark)) { unmatchedAccepted++; return; }
+                    if (pending == null || !pending.Same(mark)) { unmatchedAccepted++; lastMatchedAck = null; return; }
                     long elapsed = now - pendingStarted;
                     commitTotal += elapsed; commitMaximum = Math.Max(commitMaximum, elapsed); pending = null;
+                    lastMatchedAck = mark; lastMatchedAckAt = now;
                 }
             }
             internal void Attach(NetworkRunner runner, int runnerCreation, Func<NetworkRunner> current,
                 WordboundGameplayController controller, Func<WordboundFusionSession> session)
             {
                 Detach();
-                creation = runnerCreation; previousSample = 0;
+                NewRunner(runnerCreation);
                 adapter = runner.GetComponent<WordboundNativeTickBatchAdapter>() ?? runner.gameObject.AddComponent<WordboundNativeTickBatchAdapter>();
                 callback = observed => {
                     try
@@ -122,6 +137,16 @@ namespace Wreckabulary.OnlineGameplayTests
                     catch { lock (sync) { if (!stopped) unavailable++; } }
                 };
                 adapter.TickStarting += callback;
+            }
+            internal void NewRunner(int runnerCreation)
+            {
+                lock (sync)
+                {
+                    if (stopped) return;
+                    if (pending != null) abandonedPublications++;
+                    pending = null; lastMatchedAck = null; observedCommitted = null;
+                    creation = runnerCreation; previousSample = 0;
+                }
             }
             void Detach()
             {
@@ -178,6 +203,8 @@ namespace Wreckabulary.OnlineGameplayTests
             internal Total StageTotal(Stage stage) { lock (sync) return stages[(int)stage]; }
             internal (long Accepted, long Unmatched, long Superseded, bool Pending) PublicationCounts()
             { lock (sync) return (accepted, unmatchedAccepted, superseded, pending != null); }
+            internal (long Count, long BootstrapSkipped, long BoundarySkipped, long Abandoned) GapCounts()
+            { lock (sync) return (gapCount, gapBootstrapSkipped, gapBoundarySkipped, abandonedPublications); }
             internal long Samples(TickState state) { lock (sync) return samples[(int)state]; }
             internal void Finish()
             {
@@ -188,6 +215,7 @@ namespace Wreckabulary.OnlineGameplayTests
                     stopped = true;
                     long now = Stopwatch.GetTimestamp();
                     Debug.Log($"WORDBOUND_CHECKPOINT_WINDOW: peer={peerIndex}; runnerCreations={creation}; elapsedMs={Ms(now - started)}; canonicalFirst={firstTick}; canonicalLast={lastTick}; sdkFirst={firstSdkTick}; sdkLast={lastSdkTick}; maxCommittedGapTicks={maximumGap}; maxSampleGapMs={Ms(maximumSampleGap)}; staleSamples={staleSamples}; unavailable={unavailable}; accepted={accepted}; unmatchedAccepted={unmatchedAccepted}; superseded={superseded}; pending={pending != null}; matchedPublicationToAckTotalMs={Ms(commitTotal)}; matchedPublicationToAckMaxMs={Ms(commitMaximum)}; clock=Stopwatch; duration=inclusive-continuation-observed-wall-not-cpu-or-http-rtt; end=accepted-authority-ack-before-session-and-controller-scheduling; prepareCompression=unisolated; stages=nested-and-parallel-not-additive; sampleIntervals=previous-label-between-observations-not-exact-pause-time; finalInterval=omitted; endpoints=not-a-cross-runner-or-epoch-advance-ratio");
+                    Debug.Log($"WORDBOUND_CHECKPOINT_GAPS: peer={peerIndex}; completed={gapCount}; totalMs={Ms(gapTotal)}; maxMs={Ms(gapMaximum)}; bootstrapSkipped={gapBootstrapSkipped}; boundarySkipped={gapBoundarySkipped}; abandonedPublications={abandonedPublications}; duration=matched-accepted-ack-to-next-successful-publish-start-inclusive-gap-not-pure-controller-idle; sameRunnerAndEpoch=true; failedPublishAttempts=not-individually-isolated");
                     for (int i = 0; i < stages.Length; i++)
                     {
                         var total = stages[i];
