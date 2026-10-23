@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Fusion;
 using NUnit.Framework;
 using UnityEngine;
 using Wreckabulary.Online;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
+using Assert = NUnit.Framework.Assert;
 
 namespace Wreckabulary.OfflineGameplayTests
 {
@@ -14,6 +16,9 @@ namespace Wreckabulary.OfflineGameplayTests
     {
         const float ClockWaypointTolerance = .03f;
         RouteObservation activeRoute;
+        int beforeTickCallbacks, inputPolls;
+        long readyInputRunnerTick = -1, readyInputCanonicalTick = -1;
+        string inputReadinessError = "";
 
         sealed class RouteObservation
         {
@@ -21,15 +26,119 @@ namespace Wreckabulary.OfflineGameplayTests
             public Vector3[] Targets;
             public Vector3[] ClosestPositions;
             public float[] Closest;
-            public long[] ClosestTick, CanonicalInsideTick, CoroutineInsideTick, SegmentSkipTick;
+            public long[] ClosestTick, CanonicalInsideTick, CoroutineInsideTick, SegmentSkipTick, WaypointAdvanceTick;
             public long Epoch, StartedTick, LastTick, LastMotion, MaximumTickGap;
-            public double StartedAt;
+            public double StartedAt, Deadline;
             public Vector3 LastPosition;
             public int Waypoint, Samples, CoroutineSamples, MaximumSamplesPerFrame, SamplesThisFrame, LastFrame = -1;
             public int RawArrivalSamples, SharedArrivalSamples, SlowedSamples, CarrierMissingSamples, NonAdvancingCallbacks, OmittedTransitions;
             public MatchPhysicalStage LastStage;
             public readonly List<string> Transitions = new List<string>();
             public string Failure = "", FirstArrivalSupport = "not observed";
+            public string SteeringFailure = "", SteeringStopped = "";
+            public long LastInjectedRunnerTick = -1, LastSteeredCanonicalTick = -1, MaximumSteeringCanonicalGap;
+            public int Injections, PostPhysicsInputMatches, PostPhysicsInputMismatches, Polls, LastPollFrame = -1, PollsThisFrame, MaximumPollsPerFrame;
+            public WordboundMovementInput InjectedInput;
+        }
+
+        WordboundMovementInput ReadScriptedMovement()
+        {
+            inputPolls++;
+            var route = activeRoute;
+            if (route != null)
+            {
+                route.Polls++;
+                route.PollsThisFrame = route.LastPollFrame == Time.frameCount ? route.PollsThisFrame + 1 : 1;
+                route.LastPollFrame = Time.frameCount;
+                route.MaximumPollsPerFrame = Math.Max(route.MaximumPollsPerFrame, route.PollsThisFrame);
+            }
+            return movement;
+        }
+
+        void SteerRouteTick(NetworkRunner runner)
+        {
+            beforeTickCallbacks++;
+            var route = activeRoute;
+            NetworkInput? raw = null;
+            try
+            {
+                if (controller == null || controller.Frame == null || session == null || runner != session.Runner) return;
+                if (route == null && readyInputRunnerTick >= 0) return;
+                var frame = controller.Frame;
+                if (runner.GameMode != GameMode.Single || !runner.IsForward)
+                    throw new InvalidOperationException("Scripted traversal requires a forward local-only tick.");
+                raw = runner.GetRawInputForPlayer(runner.LocalPlayer);
+                if (!raw.HasValue || !raw.Value.IsValid || !raw.Value.TryGet(out WordboundMovementInput existing))
+                {
+                    if (route != null) throw new InvalidOperationException("The local tick has no typed movement input.");
+                    return;
+                }
+                if (!WordboundPhysicsPolicy.TryMovement(existing, frame.Epoch, out _))
+                    throw new InvalidOperationException("The polled local input failed epoch/movement validation.");
+                if (readyInputRunnerTick < 0)
+                { readyInputRunnerTick = runner.Tick.Raw; readyInputCanonicalTick = frame.Progress.Tick; }
+                if (route == null) return;
+                if (route.Epoch != frame.Epoch) throw new InvalidOperationException("The traversal epoch changed.");
+                if (runner.Tick.Raw <= route.LastInjectedRunnerTick) throw new InvalidOperationException("The scripted input tick did not advance.");
+                if (route.LastSteeredCanonicalTick >= 0)
+                    route.MaximumSteeringCanonicalGap = Math.Max(route.MaximumSteeringCanonicalGap, frame.Progress.Tick - route.LastSteeredCanonicalTick);
+                route.LastSteeredCanonicalTick = frame.Progress.Tick;
+                WordboundMovementInput desired = new WordboundMovementInput { Epoch = frame.Epoch };
+                if (route.SteeringFailure == "" && Time.realtimeSinceStartupAsDouble < route.Deadline && !lifetime.IsCancellationRequested &&
+                    Mechanism(route.Site).Physical.Stage != MatchPhysicalStage.Complete)
+                {
+                    Vector2 at = Horizontal(Vector(Player.Position));
+                    while (route.Waypoint < route.Targets.Length - 1 &&
+                        Vector2.Distance(at, Horizontal(route.Targets[route.Waypoint])) <= ClockWaypointTolerance)
+                    {
+                        route.WaypointAdvanceTick[route.Waypoint] = frame.Progress.Tick;
+                        route.Waypoint++;
+                    }
+                    Vector2 delta = Horizontal(route.Targets[route.Waypoint]) - at;
+                    float tolerance = route.Waypoint < route.Targets.Length - 1 ? ClockWaypointTolerance : .08f;
+                    Vector2 direction = delta.magnitude <= tolerance ? Vector2.zero : delta.normalized * Mathf.Clamp(delta.magnitude * .65f, .12f, .8f);
+                    desired.MoveX = direction.x; desired.MoveZ = direction.y;
+                }
+                else if (route.SteeringStopped == "")
+                    route.SteeringStopped = route.SteeringFailure != "" ? "failure" : lifetime.IsCancellationRequested ? "cancelled" :
+                        Time.realtimeSinceStartupAsDouble >= route.Deadline ? "deadline" : "complete";
+                if (!WordboundPhysicsPolicy.TryMovement(desired, frame.Epoch, out _) || !raw.Value.TrySet(desired))
+                    throw new InvalidOperationException("The current local input could not accept validated steering.");
+                movement = desired;
+                route.InjectedInput = desired; route.LastInjectedRunnerTick = runner.Tick.Raw; route.Injections++;
+            }
+            catch (Exception error)
+            {
+                movement = default;
+                if (route != null) route.SteeringFailure = error.GetType().Name;
+                else inputReadinessError = error.GetType().Name;
+                try
+                {
+                    if (raw.HasValue && raw.Value.IsValid)
+                        raw.Value.TrySet(new WordboundMovementInput { Epoch = controller?.Frame?.Epoch ?? 0 });
+                }
+                catch (Exception neutralError)
+                {
+                    if (route != null) route.SteeringFailure += "/neutral:" + neutralError.GetType().Name;
+                    else inputReadinessError += "/neutral:" + neutralError.GetType().Name;
+                }
+            }
+        }
+
+        void RecordRouteInputAfterPhysics()
+        {
+            var route = activeRoute;
+            if (route == null) return;
+            try
+            {
+                bool matches = session.Runner.Tick.Raw == route.LastInjectedRunnerTick &&
+                    session.Runner.TryGetInputForPlayer(session.Runner.LocalPlayer, out WordboundMovementInput actual) &&
+                    actual.Epoch == route.InjectedInput.Epoch && actual.MoveX == route.InjectedInput.MoveX && actual.MoveZ == route.InjectedInput.MoveZ &&
+                    actual.Jump == route.InjectedInput.Jump && actual.HasFacing == route.InjectedInput.HasFacing && actual.FacingYaw == route.InjectedInput.FacingYaw;
+                if (matches) route.PostPhysicsInputMatches++;
+                else { route.PostPhysicsInputMismatches++; route.SteeringFailure = "PostPhysicsInputMismatch"; }
+            }
+            catch (Exception error) { route.SteeringFailure = error.GetType().Name; }
         }
 
         void RecordRouteFrame(MatchSnapshot frame)
@@ -113,11 +222,17 @@ namespace Wreckabulary.OfflineGameplayTests
                 string arm = fixture == null ? "none" : controller.Bodies[CourseFixtureMotion.BodyId(fixture.Id, 0)].Rigidbody.position.ToString("F6");
                 string points = string.Join(" | ", route.Targets.Select((point, i) => i + ":" + point.ToString("F6") +
                     ",closest=" + route.Closest[i].ToString("F6") + "@" + route.ClosestTick[i] + ":" + route.ClosestPositions[i].ToString("F6") +
-                    ",canonicalInside=" + route.CanonicalInsideTick[i] + ",coroutineInside=" + route.CoroutineInsideTick[i] + ",segmentSkip=" + route.SegmentSkipTick[i]));
+                    ",canonicalInside=" + route.CanonicalInsideTick[i] + ",coroutineInside=" + route.CoroutineInsideTick[i] +
+                    ",waypointAdvanced=" + route.WaypointAdvanceTick[i] + ",segmentSkip=" + route.SegmentSkipTick[i]));
                 bool canMove = controller.PhysicsWorld.CanMove(Actor, out float moveScale);
                 return RunDetails() + "; routeStartedTick=" + route.StartedTick + "; routeSeconds=" +
                     (Time.realtimeSinceStartupAsDouble - route.StartedAt).ToString("F3") + "; waypoint=" + route.Waypoint +
                     "; canonicalSamples=" + route.Samples + "; coroutineSamples=" + route.CoroutineSamples +
+                    "; scriptedInput=before-tick-local-buffer; injections=" + route.Injections + "; inputPolls=" + route.Polls +
+                    "; maximumInputPollsPerUnityFrame=" + route.MaximumPollsPerFrame + "; postPhysicsInputMatches=" + route.PostPhysicsInputMatches +
+                    "; postPhysicsInputMismatches=" + route.PostPhysicsInputMismatches + "; lastInjectedRunnerTick=" + route.LastInjectedRunnerTick +
+                    "; lastSteeredCanonicalTick=" + route.LastSteeredCanonicalTick + "; maximumSteeringCanonicalGap=" + route.MaximumSteeringCanonicalGap +
+                    "; steeringFailure=" + route.SteeringFailure + "; steeringStopped=" + route.SteeringStopped +
                     "; maximumCanonicalTickGap=" + route.MaximumTickGap + "; maximumCanonicalSamplesPerUnityFrame=" + route.MaximumSamplesPerFrame +
                     "; nonAdvancingCallbacks=" + route.NonAdvancingCallbacks + "; omittedTransitions=" + route.OmittedTransitions +
                     "; observerError=" + route.Failure + "; rawArrivalSamples=" + route.RawArrivalSamples +
@@ -434,15 +549,15 @@ namespace Wreckabulary.OfflineGameplayTests
         {
             double deadline = Time.realtimeSinceStartupAsDouble + seconds;
             bool entered = observedActorArrivals.Contains(site.Hash);
-            int waypoint = 0;
             var targets = (approach ?? Array.Empty<Vector3>()).Concat(new[] { Metres(site.Target) }).ToArray();
             var observation = new RouteObservation { Site = site, Targets = targets, Epoch = Frame.Epoch, StartedTick = Frame.Progress.Tick,
-                LastTick = Frame.Progress.Tick, StartedAt = Time.realtimeSinceStartupAsDouble, LastPosition = Vector(Player.Position),
+                LastTick = Frame.Progress.Tick, StartedAt = Time.realtimeSinceStartupAsDouble, Deadline = deadline, LastPosition = Vector(Player.Position),
                 LastMotion = Mechanism(site).Physical.MotionUnits, LastStage = Mechanism(site).Physical.Stage,
                 Closest = Enumerable.Repeat(float.PositiveInfinity, targets.Length).ToArray(),
                 ClosestPositions = new Vector3[targets.Length],
                 ClosestTick = Enumerable.Repeat(-1L, targets.Length).ToArray(), CanonicalInsideTick = Enumerable.Repeat(-1L, targets.Length).ToArray(),
-                CoroutineInsideTick = Enumerable.Repeat(-1L, targets.Length).ToArray(), SegmentSkipTick = Enumerable.Repeat(-1L, targets.Length).ToArray() };
+                CoroutineInsideTick = Enumerable.Repeat(-1L, targets.Length).ToArray(), SegmentSkipTick = Enumerable.Repeat(-1L, targets.Length).ToArray(),
+                WaypointAdvanceTick = Enumerable.Repeat(-1L, targets.Length).ToArray() };
             activeRoute = observation;
             try
             {
@@ -451,27 +566,31 @@ namespace Wreckabulary.OfflineGameplayTests
                 {
                     Healthy();
                     observation.CoroutineSamples++;
-                    observation.Waypoint = waypoint;
-                    bool approaching = approach != null && waypoint < approach.Length;
-                    Vector3 at = Vector(Player.Position), target = approaching ? approach[waypoint] : Metres(site.Target);
+                    int waypoint = observation.Waypoint;
+                    bool approaching = waypoint < targets.Length - 1;
+                    Vector3 at = Vector(Player.Position), target = targets[waypoint];
                     entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, at);
                     Vector2 delta = new Vector2(target.x - at.x, target.z - at.z);
                     if (delta.magnitude <= (approaching ? ClockWaypointTolerance : .08f) && observation.CoroutineInsideTick[waypoint] < 0)
                         observation.CoroutineInsideTick[waypoint] = Frame.Progress.Tick;
-                    if (approaching && delta.magnitude <= ClockWaypointTolerance) { waypoint++; continue; }
-                    Vector2 direction = delta.magnitude <= (approaching ? ClockWaypointTolerance : .08f) ? Vector2.zero :
-                        delta.normalized * Mathf.Clamp(delta.magnitude * .65f, .12f, .8f);
-                    movement = new WordboundMovementInput { MoveX = direction.x, MoveZ = direction.y };
                     yield return null;
                 }
                 movement = default;
                 entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, Vector(Player.Position));
-                if (Mechanism(site).Physical.Stage != MatchPhysicalStage.Complete || !entered)
-                    Debug.Log("WORDBOUND_PHYSICAL_ROUTE: " + RouteDetails(observation));
+                Debug.Log("WORDBOUND_PHYSICAL_ROUTE: " + RouteDetails(observation));
+                Assert.IsEmpty(observation.SteeringFailure, "Tick-local scripted input must remain valid.");
+                Assert.Greater(observation.Injections, 0, "Traversal must use actual local input ticks.");
+                Assert.AreEqual(observation.Injections, observation.PostPhysicsInputMatches,
+                    "Every injected tick must retain the same normal motor input through its native physics step.");
+                Assert.AreEqual(0, observation.PostPhysicsInputMismatches);
                 Assert.AreEqual(MatchPhysicalStage.Complete, Mechanism(site).Physical.Stage, operation);
                 Assert.IsTrue(entered, operation + " must include an observed actor position inside the authored volume.");
             }
-            finally { if (ReferenceEquals(activeRoute, observation)) activeRoute = null; }
+            finally
+            {
+                movement = default;
+                if (ReferenceEquals(activeRoute, observation)) activeRoute = null;
+            }
         }
 
         IEnumerator SetBody(string id, Vector3 at, float yaw)

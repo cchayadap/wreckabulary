@@ -31,6 +31,7 @@ namespace Wreckabulary.OfflineGameplayTests
         WordboundPuzzleRuntime runtime;
         CancellationTokenSource lifetime;
         WordboundNativeProfiler profiler;
+        WordboundNativeTickBatchAdapter tickAdapter;
         WordboundMovementInput movement;
         Task pending;
         readonly Queue<Action> setup = new Queue<Action>();
@@ -102,7 +103,7 @@ namespace Wreckabulary.OfflineGameplayTests
                 Actor, prefabs, new WordboundGameplayOptions {
                     GameplayScene = SceneRef.FromIndex(sceneIndex),
                     CheckpointMilliseconds = 500,
-                    ReadMovement = () => movement,
+                    ReadMovement = ReadScriptedMovement,
                     BeforeHostPhysics = BeforePhysics,
                     ObserveHost = ObservePhysics,
                     PuzzleEvaluator = runtime.Evaluate,
@@ -117,6 +118,8 @@ namespace Wreckabulary.OfflineGameplayTests
             session = new WordboundLocalSession(() => {
                 var root = new GameObject(Prefix + "Runner");
                 var runner = root.AddComponent<NetworkRunner>();
+                tickAdapter = root.AddComponent<WordboundNativeTickBatchAdapter>();
+                tickAdapter.TickStarting = SteerRouteTick;
                 root.AddComponent<NetworkSceneManagerDefault>();
                 return runner;
             }, config, controller.Authority, Actor);
@@ -134,6 +137,11 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(1f / 60f, session.Runner.DeltaTime, .000001f);
             CollectionAssert.AreEquivalent(Frame.Bodies.Select(b => b.Id), controller.Bodies.Keys);
             yield return Ticks(3);
+            Debug.Log("WORDBOUND_PHYSICAL_INPUT_READY: beforeTickCallbacks=" + beforeTickCallbacks +
+                "; inputPolls=" + inputPolls + "; typedInputRunnerTick=" + readyInputRunnerTick +
+                "; typedInputCanonicalTick=" + readyInputCanonicalTick + "; readinessError=" + inputReadinessError);
+            Assert.IsEmpty(inputReadinessError);
+            Assert.GreaterOrEqual(readyInputRunnerTick, 0, "The real local tick callback must expose the expected epoch-validated input before traversal.");
             yield return SetPlayer(Vector(Body("keepsake:0").Position) + Vector3.back + Vector3.up * .03f, 0);
             yield return Until(() => Reachable("keepsake:0"),
                 "Observe the canonical player within keepsake range and native line of sight", 5,
@@ -171,6 +179,7 @@ namespace Wreckabulary.OfflineGameplayTests
 
         WordboundHostObservations ObservePhysics(MatchSnapshot frame, IReadOnlyList<WorldBodyState> poses)
         {
+            RecordRouteInputAfterPhysics();
             var observed = runtime.ObserveHost(frame, poses);
             foreach (var mechanism in observed.Mechanisms)
                 if (mechanism.Physical.Stage != MatchPhysicalStage.Waiting)
@@ -412,6 +421,9 @@ namespace Wreckabulary.OfflineGameplayTests
             profiler?.Dispose(); profiler = null;
             lifetime?.Cancel();
             movement = default;
+            activeRoute = null;
+            if (tickAdapter) tickAdapter.TickStarting = null;
+            tickAdapter = null;
             setup.Clear();
             pendingSetup = null;
             pendingLaunch = null;
