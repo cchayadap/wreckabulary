@@ -1,8 +1,8 @@
 {
-  "recordedUtc": "2026-10-23T22:51:24.051241+00:00",
+  "recordedUtc": "2026-10-24T06:51:24.051241+08:00",
   "source": "dc60af3b88ef4d70cbc9e313cfdbdd94feb61e14",
-  "phaseTimingEnabled": true,
-  "phaseCount": 16,
+  "phaseTimingEnabled": false,
+  "phaseCount": 0,
   "summary": {
     "result": "Failed(Child)",
     "total": "111",
@@ -647,8 +647,8 @@
     }
   ],
   "limits": [
-    "Native scripted clients in one Editor; not separate Windows machines or human gameplay acceptance.",
-    "Timing phases are nested inclusive elapsed; do not sum as exclusive CPU or infer FPS.",
-    "Existing correctness timeouts unchanged. Full production acceptance remains open."
+    "Native Unity editor regression checks; not separate Windows machines or human gameplay acceptance.",
+    "No phase timing was requested for this UI/configuration run.",
+    "Three failures remain open and are retained verbatim; full production acceptance remains open."
   ]
 }
