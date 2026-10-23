@@ -1,6 +1,6 @@
 # Original-based Wreckabulary art pilot
 
-STATUS: V1 REJECTED AFTER DIRECT RENDER REVIEW; V2 SOURCE PREPARED — V2 build and renders NOT RUN
+STATUS: V1 REJECTED; V2 BUILD AND FIRST PAIR REVIEWED — more views and owner acceptance pending
 
 The owner rejected DetailV2 and identified the original Wreckabulary game artwork as the reference. This pilot starts with those original bytes. It does not replace runtime assets, overwrite either Wordbound revision, or establish that any artwork is ready to ship. Root owns the serial Blender/render slot.
 
@@ -20,6 +20,12 @@ Root built V1 with Blender 5.2.2 LTS and rendered the original/candidate three-q
 
 V2 removes cushion subdivision entirely and replaces the guessed front-face piping with the measured side-band seam above. No production model is changed. The script's resume guard additionally rejects existing images whose source/settings differ, and the gallery refuses mismatched pairs. Independent input-lane source review confirms that isolation/comparison fix; it is not appearance acceptance.
 
+Root built and rendered V2 with Blender 5.2.2 LTS. This lane directly inspected its build receipt and both completed three-quarter images, then independently checked the source blend and PNG hashes and matched-pair metadata. V2 retains the original sixteen mesh components and 6,248 primary triangles. Each welt has 1,024 contact probes: maximum centreline-to-surface distance about `0.000775 m`, below the `0.000975 m` check limit and the `0.0013 m` tube radius; deepest sampled burial about `0.000046 m`. These probes cover each polyline vertex and its following segment at 25%, 50% and 75%.
+
+In the viewed V2 pair, the floating inner/lower loops and cream seat-trim protrusion are resolved. The seams sit subtly near the cushion cover edge, while the original sage palette, timber feet and rounded cushion/arm silhouette remain coherent. This is a restrained construction/material refinement, not proof of a broad realism upgrade. Producer judgement: continue to side/detail/clay and then scale views; do not declare art accepted from one view.
+
+V2 evidence: blend SHA-256 `8047e5018b04c9d421d8688f7a445d778adf003dfb1dde7ff0c9fa54a3e85da2`; original PNG `f501ba6a7aa72a4e2cedca51934c2f9891f132309f2e5257aba3f085985f8ecf`; candidate PNG `5afb8e150c8d6e1b411cfa8390781ab2aa684fd0bd8858a7b7ee068eb5869dda`. Recorded rendering times are 98.484 s original and 111.366 s candidate at 960 pixels, 64 samples and six threads. See root `ArtSource/Collections/WordboundPvP/OriginalBasedPilotV2/PILOT-REVIEW.html` and its per-image receipts. Root owns all native execution; this lane performed read-only artifact verification and image inspection.
+
 ## Exact root-owned commands
 
 Run only after the current heavy gate releases. These commands assume the script commit is integrated into root. The build refuses an existing destination and verifies the exact original SOFA hash. It writes only the new `OriginalBasedPilotV2` folder. A failed/abandoned build is preserved; choose a new numbered revision instead of deleting or overwriting it.
@@ -36,7 +42,7 @@ First render only the matched three-quarter pair. Both variants use the same cam
 
 If that pair supports continuing, render front, side, rear, detail, neutral clay and original-avatar/table scale pairs with the same command, changing only `--views` to `front,side,rear,detail,clay,scale`. The scale image is a static studio composition, not a gameplay capture. Render receipts contain image SHA-256, source blend hash, renderer script hash, Blender version, camera, resolution, samples, thread count and elapsed time. Existing images are skipped only when their hash and every current render setting match; partial or changed images fail with a new-revision instruction. `PILOT-REVIEW.html` links only completed, hash-verified images, refuses pairs with different recorded settings and labels unrendered counterparts. A source review caught and repaired the initial hash-only resume path before any interrupted pair was resumed.
 
-Prerequisites checked read-only: Blender executable exists at the path above, original GLB exists in the lane/root, and script parses as Python. Root executed V1's `bpy`/NumPy build and render path; the V2 BVH seam/contact path is NOT RUN. The build includes all imported images in its saved `.blend`. Procedural fabric nodes are editable source materials; they are not yet Unity-ready baked maps. No new FBX/GLB delivery exports or production defaults are created.
+Prerequisites checked read-only: Blender executable exists at the path above, original GLB exists in the lane/root, and script parses as Python. Root executed V1 and V2 build/first-pair render paths, including V2 BVH contact checks. V2 already exists, so do not repeat its build command; use only the render stage for unrendered views, or a new destination for future geometry revisions. The build includes all imported images in its saved `.blend`. Procedural fabric nodes are editable source materials; they are not yet Unity-ready baked maps. No new FBX/GLB delivery exports or production defaults are created.
 
 ## FAN and HAMMER queued after SOFA review
 
@@ -52,10 +58,11 @@ These two scripts have not been implemented or rendered. Their source GLBs have 
 - [x] Correct original-game references inspected; wrong DetailV2 direction recorded as owner-rejected.
 - [x] SOFA source geometry/component structure inspected without Blender; isolated script and root command prepared.
 - [x] V1 native build and matched first pair directly inspected; explicit rejection saved for floating seam and exposed trim.
-- [ ] V2 native build executes; component count, preserved original geometry/bounds/grip, seam contact, packed sources and receipt verified.
-- [ ] V2 matched three-quarter original/candidate images directly inspected by producer and root.
+- [x] V2 native build executed by root; original primary geometry/bounds/grip, seam contact and receipt checked in this lane.
+- [x] V2 matched three-quarter original/candidate images directly inspected by producer; visible V1 defects resolved in that view.
+- [ ] Independent root V2 appearance judgement and the remaining views.
 - [ ] Front, side, rear, detail, clay and original-avatar scale views directly inspected; any construction defects repaired in a new revision.
 - [ ] Owner appearance acceptance; then bounded FAN and HAMMER implementations/reviews.
 - [ ] Approved visuals translated to runtime maps/exports, Unity authored materials/pivots, actual held views and performance validation.
 
-Current V2 evidence is static source preparation only. V1 was actually built/rendered and failed visible construction review. No V2 Blender API pass, material-quality pass, Unity appearance acceptance or production-ready claim is made.
+Current V2 evidence includes root's native build/first-pair render and this lane's direct receipt/hash/image review. V1 failed visible construction review and remains preserved. No overall material-quality approval, Unity appearance acceptance, runtime replacement or production-ready claim is made.
