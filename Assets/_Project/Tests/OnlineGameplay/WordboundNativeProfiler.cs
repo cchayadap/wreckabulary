@@ -30,7 +30,7 @@ namespace Wreckabulary.OnlineGameplayTests
         WordboundNativeProfiler()
         {
             const ProfilerRecorderOptions options = ProfilerRecorderOptions.CollectOnlyOnCurrentThread |
-                ProfilerRecorderOptions.SumAllSamplesInFrame | ProfilerRecorderOptions.WrapAroundWhenCapacityReached;
+                ProfilerRecorderOptions.WrapAroundWhenCapacityReached;
             for (int i = 0; i < Names.Length; i++)
             {
                 try
@@ -58,9 +58,9 @@ namespace Wreckabulary.OnlineGameplayTests
                 Debug.Log("WORDBOUND_NATIVE_PROFILE_WINDOW: case=" + testName +
                     "; startFrame=" + firstFrame + "; endFrame=" + lastFrame +
                     "; elapsedSeconds=" + Format(ended - started) +
-                    "; thread=main; instances=all-in-process; sampling=sum-per-frame" +
-                    "; scopes=inclusive-not-additive; max=frame-total-not-single-call" +
-                    "; finalPartialFrame=may-be-omitted; domainReloadRetention=false");
+                    "; thread=main; instances=all-in-process; sampling=per-marker-invocation" +
+                    "; scopes=inclusive-not-additive; max=sample-not-frame" +
+                    "; inFlightScopes=not-yet-recorded; domainReloadRetention=false");
                 for (int i = 0; i < recorders.Length; i++)
                 {
                     try { Report(i); }
@@ -111,9 +111,9 @@ namespace Wreckabulary.OnlineGameplayTests
             Debug.Log("WORDBOUND_NATIVE_PROFILE: marker=" + Names[index] +
                 "; valid=true; unit=" + recorder.UnitType +
                 "; status=" + (observed ? wrapped ? "retained-tail" : "observed" : "unavailable") +
-                "; frameSamples=" + samples.Length + "; invocations=" + invocations +
+                "; samples=" + samples.Length + "; invocations=" + invocations +
                 "; capturedTotalCpuMs=" + (observed ? Format(total / 1000000d) : "unavailable") +
-                "; capturedMaxFrameCpuMs=" + (observed ? Format(maximum / 1000000d) : "unavailable") +
+                "; capturedMaxSampleCpuMs=" + (observed ? Format(maximum / 1000000d) : "unavailable") +
                 "; capacity=" + recorder.Capacity + "; wrapped=" + wrapped +
                 "; droppedSamples=" + (wrapped ? "unknown-at-least-one" : "no-buffer-wrap-observed") +
                 "; invalidSamples=" + invalid + "; error=" + (errors[index] ?? "none"));
