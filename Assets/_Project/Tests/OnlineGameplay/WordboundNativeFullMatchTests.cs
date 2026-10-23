@@ -59,8 +59,30 @@ namespace Wreckabulary.OnlineGameplayTests
             var recovery = new WorldVector(spawn.X / 1000f, spawn.Y / 1000f, spawn.Z / 1000f);
             var prior = host.Controller.Frame;
             string observationError = "";
+            double nextMemorySample = 0;
+            bool memorySamples = Environment.GetEnvironmentVariable("WORDBOUND_PROFILE_NATIVE") == "1";
+            void SampleMemory()
+            {
+                if (!memorySamples || Time.realtimeSinceStartupAsDouble < nextMemorySample) return;
+                nextMemorySample = Time.realtimeSinceStartupAsDouble + 5;
+                foreach (var peer in peers)
+                {
+                    if (peer.Runner == null || !peer.Runner.IsRunning) continue;
+                    bool available = peer.Runner.TryGetFusionStatistics(out var statistics);
+                    var memory = available ? statistics.MemorySnapshot : default;
+                    var objects = memory.ObjectAllocatorMemorySnapshot;
+                    var general = memory.GeneralAllocatorMemorySnapshot;
+                    Debug.Log($"WORDBOUND_FFA_MEMORY: peer={peers.IndexOf(peer)},host={peer.Runner.IsServer}," +
+                        $"tick={peer.Runner.Tick.Raw},matchTick={host.Controller.Frame.Progress.Tick}," +
+                        $"networkObjects={peer.Runner.GetAllNetworkObjects().Count},statisticsAvailable={available}," +
+                        $"objectUsed={objects.TotalBytesUsed},objectFree={objects.TotalBytesFree}," +
+                        $"objectBlocks={objects.TotalBlocks},objectFreeBlocks={objects.TotalFreeBlocks}," +
+                        $"generalUsed={general.TotalBytesUsed},generalFree={general.TotalBytesFree}");
+                }
+            }
             void Observe(MatchSnapshot frame)
             {
+                SampleMemory();
                 var scorer = FfaPlayer(frame, host); var target = FfaPlayer(frame, victim);
                 if (target.Knockouts != 0) observationError = "The remote victim must never earn an unrelated knockout.";
                 if (frame.Progress.Result != null && scorer.Knockouts != 10) observationError = "FFA ended before the ten-point transition.";

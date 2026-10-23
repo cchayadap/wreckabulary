@@ -1,0 +1,447 @@
+{
+  "recordedUtc": "2026-10-23T22:17:40.421964+00:00",
+  "source": "6c1937ab",
+  "phaseTimingEnabled": true,
+  "phaseCount": 16,
+  "summary": {
+    "result": "Failed(Child)",
+    "total": "49",
+    "passed": "48",
+    "failed": "1",
+    "skipped": "0",
+    "duration": "269.6136523"
+  },
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.Tests.WordboundSnapshotCodecTests;Wreckabulary.Tests.WordboundPhaseCaptureTests;Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties;Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicBrawlRacePreservesWholeSoloParties;Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-23T22:11:08Z",
+    "secs": 331.5,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+        "message": "Unhandled log message: '[Exception] OutOfMemoryException: [Allocator] Out of Memory. All buckets are full. [Size=1260]'. Use UnityEngine.TestTools.LogAssert.Expect",
+        "location": ""
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261023T221108Z.log",
+    "evidence": [
+      "TestResults/editmode_20261023T221108Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 33.6,
+    "messages": [
+      "OutOfMemoryException: [Allocator] Out of Memory. All buckets are full. [Size=1260]"
+    ],
+    "tests": {
+      "total": 49,
+      "passed": 48,
+      "failed": 1,
+      "skipped": 0
+    }
+  },
+  "cases": [
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicBrawlRacePreservesWholeSoloParties",
+      "result": "Passed",
+      "duration": "56.071301"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Passed",
+      "duration": "55.506574"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+      "result": "Failed",
+      "duration": "155.973838",
+      "failure": "Unhandled log message: '[Exception] OutOfMemoryException: [Allocator] Out of Memory. All buckets are full. [Size=1260]'. Use UnityEngine.TestTools.LogAssert.Expect"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AnotherThreadHasAnIndependentOwnerAndCannotPolluteThisWindow",
+      "result": "Passed",
+      "duration": "0.004858"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"abort\")",
+      "result": "Passed",
+      "duration": "0.017434"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"prepare-error\")",
+      "result": "Passed",
+      "duration": "0.007850"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"apply-error\")",
+      "result": "Passed",
+      "duration": "0.007046"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.CrossThreadDisposalIsInvalidAndLeavesOwnerCleanupPossible",
+      "result": "Passed",
+      "duration": "0.001720"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DisabledScopesDoNotAcquireACaptureOrContributeToTheNextWindow",
+      "result": "Passed",
+      "duration": "0.000461"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DuplicateOrOutOfOrderDisposalInvalidatesEvenWhenOtherScopesRemain(False)",
+      "result": "Passed",
+      "duration": "0.000520"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DuplicateOrOutOfOrderDisposalInvalidatesEvenWhenOtherScopesRemain(True)",
+      "result": "Passed",
+      "duration": "0.000126"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.ExcessNestingIsBoundedAndDoesNotThrowThroughGameplay",
+      "result": "Passed",
+      "duration": "0.000507"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.FailedHostQueryStillRollsBackAndRetriesWithTheSameCommand",
+      "result": "Passed",
+      "duration": "0.075560"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.InvalidPhaseAndEmptyTimingAreNeverPresentedAsMeasuredZeroCost",
+      "result": "Passed",
+      "duration": "0.001298"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.NestedScopesReportInclusiveDurationsAndCloseOnExceptions",
+      "result": "Passed",
+      "duration": "0.000783"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.OverlappingCaptureCannotReplaceTheCurrentOwner",
+      "result": "Passed",
+      "duration": "0.000667"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"TimeRun\")",
+      "result": "Passed",
+      "duration": "0.057486"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"TeamRace\")",
+      "result": "Passed",
+      "duration": "0.055764"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"BrawlRace\")",
+      "result": "Passed",
+      "duration": "0.036578"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"FreeForAll\")",
+      "result": "Passed",
+      "duration": "0.245961"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"Freestyle\")",
+      "result": "Passed",
+      "duration": "0.021394"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RejectedResourcesKeepTheFirstErrorAndCloseOnlyReachedFullValidationChildren",
+      "result": "Passed",
+      "duration": "0.018808"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.StoppedUnfinishedScopeCannotEndOrAddToANewGeneration",
+      "result": "Passed",
+      "duration": "0.001075"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.CultureAndInputCollectionOrderDoNotChangeCanonicalState",
+      "result": "Passed",
+      "duration": "0.012243"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.FrozenSectionOrderRetainsLiteralKeysAcrossConstructionAndCaptureCultures(\"en-US\")",
+      "result": "Passed",
+      "duration": "0.114810"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.FrozenSectionOrderRetainsLiteralKeysAcrossConstructionAndCaptureCultures(\"fr-FR\")",
+      "result": "Passed",
+      "duration": "0.092108"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.FrozenSectionOrderRetainsLiteralKeysAcrossConstructionAndCaptureCultures(\"ar-SA\")",
+      "result": "Passed",
+      "duration": "0.156431"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.FullSnapshotRoundTripPreservesBindingCountersAndFloatBits(\"TimeRun\")",
+      "result": "Passed",
+      "duration": "0.021107"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.FullSnapshotRoundTripPreservesBindingCountersAndFloatBits(\"TeamRace\")",
+      "result": "Passed",
+      "duration": "0.017843"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.FullSnapshotRoundTripPreservesBindingCountersAndFloatBits(\"BrawlRace\")",
+      "result": "Passed",
+      "duration": "0.044649"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.FullSnapshotRoundTripPreservesBindingCountersAndFloatBits(\"FreeForAll\")",
+      "result": "Passed",
+      "duration": "0.076891"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.FullSnapshotRoundTripPreservesBindingCountersAndFloatBits(\"Freestyle\")",
+      "result": "Passed",
+      "duration": "0.011544"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.MidCraftAndRetainedReceiptSurviveRecoveryWithoutDuplicateEffects",
+      "result": "Passed",
+      "duration": "0.014394"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.OversizeDepthAndInvalidUnicodeAreRejected",
+      "result": "Passed",
+      "duration": "0.014355"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.SharedResourceOrderRetainsLiveNegativeSignAndStableEqualKeys(False)",
+      "result": "Passed",
+      "duration": "0.035877"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.SharedResourceOrderRetainsLiveNegativeSignAndStableEqualKeys(True)",
+      "result": "Passed",
+      "duration": "0.016289"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"numeric-counter\")",
+      "result": "Passed",
+      "duration": "0.011718"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"leading-zero\")",
+      "result": "Passed",
+      "duration": "0.010048"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"counter-overflow\")",
+      "result": "Passed",
+      "duration": "0.014148"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"negative-counter\")",
+      "result": "Passed",
+      "duration": "0.030401"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"nan\")",
+      "result": "Passed",
+      "duration": "0.009870"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"infinity\")",
+      "result": "Passed",
+      "duration": "0.009647"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"uppercase-bits\")",
+      "result": "Passed",
+      "duration": "0.009711"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"short-bits\")",
+      "result": "Passed",
+      "duration": "0.009604"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"enum-number\")",
+      "result": "Passed",
+      "duration": "0.010791"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"duplicate-key\")",
+      "result": "Passed",
+      "duration": "0.025021"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"unknown-key\")",
+      "result": "Passed",
+      "duration": "0.020066"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"future-schema\")",
+      "result": "Passed",
+      "duration": "0.008422"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundSnapshotCodecTests.WireBoundaryRejectsMalformedOrAmbiguousEncoding(\"bad-hash\")",
+      "result": "Passed",
+      "duration": "0.010268"
+    }
+  ],
+  "observations": [
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicBrawlRacePreservesWholeSoloParties",
+    "WORDBOUND_PHASE_WINDOW: window=startup; outcome=all-peers-ready; generation=1; thread=1; frequency=10000000; elapsedTicks=332331952; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=-1,tick=-1,bodies=-1,resources=-1,mechanisms=-1}; last={epoch=0,tick=149,bodies=129,resources=588,mechanisms=432}",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=RollbackCapture; status=observed; count=149; totalTicks=1656302; maxTicks=134137; elapsedMs=165.630",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=Synchronize; status=observed; count=151; totalTicks=4763216; maxTicks=240440; elapsedMs=476.322",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=RetireResources; status=observed; count=151; totalTicks=695471; maxTicks=98901; elapsedMs=69.547",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=FullValidation; status=observed; count=162; totalTicks=11217047; maxTicks=1444001; elapsedMs=1121.705",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=MutableValidation; status=observed; count=150; totalTicks=1099339; maxTicks=127115; elapsedMs=109.934",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=EconomyValidation; status=observed; count=312; totalTicks=888618; maxTicks=120906; elapsedMs=88.862",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ObserveHost; status=observed; count=149; totalTicks=4171779; maxTicks=108548; elapsedMs=417.178",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=Prepare; status=observed; count=150; totalTicks=3113804; maxTicks=1204898; elapsedMs=311.380",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=FrameChanged; status=observed; count=150; totalTicks=967; maxTicks=169; elapsedMs=0.097",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ProgressRestore; status=observed; count=162; totalTicks=1001097; maxTicks=107176; elapsedMs=100.110",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ResourcesValidation; status=observed; count=162; totalTicks=3313827; maxTicks=142455; elapsedMs=331.383",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodiesValidation; status=observed; count=162; totalTicks=2494508; maxTicks=150699; elapsedMs=249.451",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=MechanismsValidation; status=observed; count=162; totalTicks=2016057; maxTicks=151972; elapsedMs=201.606",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodyBudgetValidation; status=observed; count=162; totalTicks=790921; maxTicks=101435; elapsedMs=79.092",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodySourceValidation; status=observed; count=16362; totalTicks=1023488; maxTicks=36316; elapsedMs=102.349",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=HostStep; status=observed; count=149; totalTicks=28145690; maxTicks=655871; elapsedMs=2814.569",
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicBrawlRacePreservesWholeSoloParties",
+    "WORDBOUND_PHASE_WINDOW: window=ready; outcome=teardown; generation=2; thread=1; frequency=10000000; elapsedTicks=150194599; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=0,tick=149,bodies=129,resources=588,mechanisms=432}; last={epoch=0,tick=578,bodies=129,resources=588,mechanisms=432}",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=RollbackCapture; status=observed; count=429; totalTicks=3914679; maxTicks=120114; elapsedMs=391.468",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=Synchronize; status=observed; count=429; totalTicks=12259855; maxTicks=299582; elapsedMs=1225.986",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=RetireResources; status=observed; count=429; totalTicks=1402129; maxTicks=44238; elapsedMs=140.213",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=FullValidation; status=observed; count=451; totalTicks=24682117; maxTicks=341964; elapsedMs=2468.212",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=MutableValidation; status=observed; count=429; totalTicks=3074668; maxTicks=110105; elapsedMs=307.467",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=EconomyValidation; status=observed; count=880; totalTicks=2079183; maxTicks=96479; elapsedMs=207.918",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ObserveHost; status=observed; count=429; totalTicks=11317695; maxTicks=121466; elapsedMs=1131.770",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=Prepare; status=observed; count=429; totalTicks=5165072; maxTicks=127167; elapsedMs=516.507",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=FrameChanged; status=observed; count=429; totalTicks=1860; maxTicks=12; elapsedMs=0.186",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ProgressRestore; status=observed; count=451; totalTicks=2659306; maxTicks=119386; elapsedMs=265.931",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ResourcesValidation; status=observed; count=451; totalTicks=8324908; maxTicks=180543; elapsedMs=832.491",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodiesValidation; status=observed; count=451; totalTicks=5882222; maxTicks=176806; elapsedMs=588.222",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=MechanismsValidation; status=observed; count=451; totalTicks=4060172; maxTicks=123043; elapsedMs=406.017",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodyBudgetValidation; status=observed; count=451; totalTicks=1741946; maxTicks=107833; elapsedMs=174.195",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodySourceValidation; status=observed; count=45551; totalTicks=2811180; maxTicks=147313; elapsedMs=281.118",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=HostStep; status=observed; count=429; totalTicks=72486187; maxTicks=612927; elapsedMs=7248.619",
+    "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; clients=2; parties=2",
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "WORDBOUND_PHASE_WINDOW: window=startup; outcome=all-peers-ready; generation=3; thread=1; frequency=10000000; elapsedTicks=309867794; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=-1,tick=-1,bodies=-1,resources=-1,mechanisms=-1}; last={epoch=0,tick=147,bodies=186,resources=588,mechanisms=432}",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=RollbackCapture; status=observed; count=147; totalTicks=1671480; maxTicks=41778; elapsedMs=167.148",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=Synchronize; status=observed; count=149; totalTicks=5961522; maxTicks=238956; elapsedMs=596.152",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=RetireResources; status=observed; count=149; totalTicks=751955; maxTicks=131828; elapsedMs=75.196",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=FullValidation; status=observed; count=160; totalTicks=12603058; maxTicks=523531; elapsedMs=1260.306",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=MutableValidation; status=observed; count=148; totalTicks=2171407; maxTicks=151775; elapsedMs=217.141",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=EconomyValidation; status=observed; count=308; totalTicks=1541133; maxTicks=121510; elapsedMs=154.113",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=ObserveHost; status=observed; count=147; totalTicks=5046117; maxTicks=78767; elapsedMs=504.612",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=Prepare; status=observed; count=148; totalTicks=4057624; maxTicks=1077329; elapsedMs=405.762",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=FrameChanged; status=observed; count=148; totalTicks=1006; maxTicks=17; elapsedMs=0.101",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=ProgressRestore; status=observed; count=160; totalTicks=1398134; maxTicks=153499; elapsedMs=139.813",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=ResourcesValidation; status=observed; count=160; totalTicks=3681882; maxTicks=198229; elapsedMs=368.188",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=BodiesValidation; status=observed; count=160; totalTicks=2867518; maxTicks=173687; elapsedMs=286.752",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=MechanismsValidation; status=observed; count=160; totalTicks=1956390; maxTicks=138023; elapsedMs=195.639",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=BodyBudgetValidation; status=observed; count=160; totalTicks=1119107; maxTicks=34804; elapsedMs=111.911",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=BodySourceValidation; status=observed; count=25280; totalTicks=1080032; maxTicks=43290; elapsedMs=108.003",
+    "WORDBOUND_PHASE: window=startup; generation=3; phase=HostStep; status=observed; count=147; totalTicks=36764461; maxTicks=642011; elapsedMs=3676.446",
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "WORDBOUND_PHASE_WINDOW: window=ready; outcome=teardown; generation=4; thread=1; frequency=10000000; elapsedTicks=178750137; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=0,tick=147,bodies=186,resources=588,mechanisms=432}; last={epoch=0,tick=559,bodies=186,resources=588,mechanisms=432}",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=RollbackCapture; status=observed; count=412; totalTicks=4366645; maxTicks=129005; elapsedMs=436.665",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=Synchronize; status=observed; count=412; totalTicks=13115628; maxTicks=276141; elapsedMs=1311.563",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=RetireResources; status=observed; count=412; totalTicks=1568059; maxTicks=92740; elapsedMs=156.806",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=FullValidation; status=observed; count=432; totalTicks=28975573; maxTicks=393990; elapsedMs=2897.557",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=MutableValidation; status=observed; count=412; totalTicks=4773962; maxTicks=109157; elapsedMs=477.396",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=EconomyValidation; status=observed; count=844; totalTicks=3328590; maxTicks=132697; elapsedMs=332.859",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=ObserveHost; status=observed; count=412; totalTicks=12216394; maxTicks=141137; elapsedMs=1221.639",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=Prepare; status=observed; count=412; totalTicks=6832311; maxTicks=138420; elapsedMs=683.231",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=FrameChanged; status=observed; count=412; totalTicks=2150; maxTicks=25; elapsedMs=0.215",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=ProgressRestore; status=observed; count=432; totalTicks=2318782; maxTicks=97338; elapsedMs=231.878",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=ResourcesValidation; status=observed; count=432; totalTicks=9281237; maxTicks=295111; elapsedMs=928.124",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=BodiesValidation; status=observed; count=432; totalTicks=7161111; maxTicks=166262; elapsedMs=716.111",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=MechanismsValidation; status=observed; count=432; totalTicks=4540127; maxTicks=145506; elapsedMs=454.013",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=BodyBudgetValidation; status=observed; count=432; totalTicks=2722850; maxTicks=119193; elapsedMs=272.285",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=BodySourceValidation; status=observed; count=68256; totalTicks=2897666; maxTicks=104992; elapsedMs=289.767",
+    "WORDBOUND_PHASE: window=ready; generation=4; phase=HostStep; status=observed; count=412; totalTicks=84992743; maxTicks=623053; elapsedMs=8499.274",
+    "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; clients=2; parties=2",
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+    "WORDBOUND_PHASE_WINDOW: window=startup; outcome=all-peers-ready; generation=5; thread=1; frequency=10000000; elapsedTicks=494605066; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=-1,tick=-1,bodies=-1,resources=-1,mechanisms=-1}; last={epoch=0,tick=27,bodies=178,resources=169,mechanisms=0}",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=RollbackCapture; status=observed; count=27; totalTicks=139509; maxTicks=17709; elapsedMs=13.951",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=Synchronize; status=observed; count=29; totalTicks=745604; maxTicks=60651; elapsedMs=74.560",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=RetireResources; status=observed; count=29; totalTicks=13906; maxTicks=1993; elapsedMs=1.391",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=FullValidation; status=observed; count=34; totalTicks=724650; maxTicks=165064; elapsedMs=72.465",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=MutableValidation; status=observed; count=28; totalTicks=71867; maxTicks=3464; elapsedMs=7.187",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=EconomyValidation; status=observed; count=62; totalTicks=48034; maxTicks=5755; elapsedMs=4.803",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=ObserveHost; status=observed; count=27; totalTicks=579; maxTicks=167; elapsedMs=0.058",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=Prepare; status=observed; count=28; totalTicks=1021676; maxTicks=695755; elapsedMs=102.168",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=FrameChanged; status=observed; count=28; totalTicks=124; maxTicks=10; elapsedMs=0.012",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=ProgressRestore; status=observed; count=34; totalTicks=55364; maxTicks=15088; elapsedMs=5.536",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=ResourcesValidation; status=observed; count=34; totalTicks=240718; maxTicks=37642; elapsedMs=24.072",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=BodiesValidation; status=observed; count=34; totalTicks=305006; maxTicks=114853; elapsedMs=30.501",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=MechanismsValidation; status=observed; count=34; totalTicks=1197; maxTicks=61; elapsedMs=0.120",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=BodyBudgetValidation; status=observed; count=34; totalTicks=39029; maxTicks=1630; elapsedMs=3.903",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=BodySourceValidation; status=observed; count=5984; totalTicks=187532; maxTicks=104988; elapsedMs=18.753",
+    "WORDBOUND_PHASE: window=startup; generation=5; phase=HostStep; status=observed; count=27; totalTicks=2543585; maxTicks=312691; elapsedMs=254.359",
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+    "WORDBOUND_PHASE_WINDOW: window=ready; outcome=teardown; generation=6; thread=1; frequency=10000000; elapsedTicks=999049984; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=0,tick=27,bodies=178,resources=169,mechanisms=0}; last={epoch=0,tick=4079,bodies=180,resources=169,mechanisms=0}",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=RollbackCapture; status=observed; count=4052; totalTicks=25207156; maxTicks=149886; elapsedMs=2520.716",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=Synchronize; status=observed; count=4052; totalTicks=98997167; maxTicks=192967; elapsedMs=9899.717",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=RetireResources; status=observed; count=4052; totalTicks=2177370; maxTicks=93524; elapsedMs=217.737",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=FullValidation; status=observed; count=4270; totalTicks=90530672; maxTicks=366773; elapsedMs=9053.067",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=MutableValidation; status=observed; count=4052; totalTicks=14983000; maxTicks=119996; elapsedMs=1498.300",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=EconomyValidation; status=observed; count=8322; totalTicks=10795205; maxTicks=113127; elapsedMs=1079.521",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=ObserveHost; status=observed; count=4052; totalTicks=67136; maxTicks=845; elapsedMs=6.714",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=Prepare; status=observed; count=4052; totalTicks=58310809; maxTicks=154885; elapsedMs=5831.081",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=FrameChanged; status=observed; count=4052; totalTicks=390343; maxTicks=12575; elapsedMs=39.034",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=ProgressRestore; status=observed; count=4270; totalTicks=5542709; maxTicks=118630; elapsedMs=554.271",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=ResourcesValidation; status=observed; count=4270; totalTicks=31618633; maxTicks=334062; elapsedMs=3161.863",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=BodiesValidation; status=observed; count=4270; totalTicks=30742522; maxTicks=160262; elapsedMs=3074.252",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=MechanismsValidation; status=observed; count=4270; totalTicks=245740; maxTicks=36299; elapsedMs=24.574",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=BodyBudgetValidation; status=observed; count=4270; totalTicks=5823015; maxTicks=102091; elapsedMs=582.302",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=BodySourceValidation; status=observed; count=749988; totalTicks=13665729; maxTicks=112251; elapsedMs=1366.573",
+    "WORDBOUND_PHASE: window=ready; generation=6; phase=HostStep; status=observed; count=4052; totalTicks=388342355; maxTicks=708867; elapsedMs=38834.236",
+    "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; clients=2; parties=2"
+  ],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261023T221108Z.xml",
+      "bytes": 266430,
+      "sha256": "3e33d3add7df68e7115b39ec119cc5f13e272c3034bc4b4c3bd7708f0bdf21d0"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261023T221108Z.log",
+      "bytes": 3482331,
+      "sha256": "570206680adad373f1b95e8bb4377704512881612731eaf458078ea647c25cbf"
+    },
+    {
+      "path": ".harness/delivery/native-capture-ffa-2211-job.json",
+      "bytes": 1062,
+      "sha256": "d1717d8dd32de16486120fa39a004cc386adf32779ac36cc879c447cdd946725"
+    },
+    {
+      "path": ".harness/delivery/native-capture-ffa-2211-status.json",
+      "bytes": 1038,
+      "sha256": "22146f39c76aa7e6eb069693a342df87fef1efd4d972b7e4763fb382e557fae0"
+    },
+    {
+      "path": ".harness/delivery/native-capture-ffa-2211-stdout.log",
+      "bytes": 1273,
+      "sha256": "3f14cb73a9e955e72ea93030e66a44ee041ca66fe6546eb72439419af6af8503"
+    },
+    {
+      "path": ".harness/delivery/native-capture-ffa-2211-stderr.log",
+      "bytes": 1265,
+      "sha256": "6b0bc5993a628af17322be901d40f16349ee982a81f41342de2149e86acc02e1"
+    }
+  ],
+  "limits": [
+    "Native scripted clients in one Editor; not separate Windows machines or human gameplay acceptance.",
+    "Timing phases are nested inclusive elapsed; do not sum as exclusive CPU or infer FPS.",
+    "Existing correctness timeouts unchanged. Full production acceptance remains open."
+  ]
+}
