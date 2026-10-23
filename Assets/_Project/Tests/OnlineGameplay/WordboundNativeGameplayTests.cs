@@ -44,6 +44,7 @@ namespace Wreckabulary.OnlineGameplayTests
             public int Advanced;
             public int PhysicalSteps, PhysicalObservations, MovementQueries;
             public int RunnerCreations, CredentialRequests;
+            public int InputReads, MovingInputReads;
             public Func<CancellationToken, Task> BeforeJoin;
             public readonly Dictionary<long, OnlineSnapshotMark> Received = new Dictionary<long, OnlineSnapshotMark>();
             public readonly Dictionary<string, OnlineSnapshotMark> Acknowledged = new Dictionary<string, OnlineSnapshotMark>();
@@ -262,7 +263,11 @@ namespace Wreckabulary.OnlineGameplayTests
             peer.Controller = root.AddComponent<WordboundGameplayController>();
             var options = new WordboundGameplayOptions {
                 GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
-                ReadMovement = () => peer.Move ? new WordboundMovementInput { MoveZ = 1 } : peer.InteractionInput
+                ReadMovement = () => {
+                    peer.InputReads++;
+                    if (peer.Move) peer.MovingInputReads++;
+                    return peer.Move ? new WordboundMovementInput { MoveZ = 1 } : peer.InteractionInput;
+                }
             };
             var content = live.ContentFor(index);
             peer.Controller.Initialize(live.Verified, content?.Mode ?? live.Mode, content?.Course ?? live.Course,
@@ -444,11 +449,43 @@ namespace Wreckabulary.OnlineGameplayTests
         }
         IEnumerator Until(Func<bool> complete, string operation, double seconds, bool allowStoppedFirst = false)
         {
-            double deadline = Time.realtimeSinceStartupAsDouble + seconds;
-            while (!complete() && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
-            { Healthy(allowStoppedFirst); yield return null; }
+            double started = Time.realtimeSinceStartupAsDouble, previous = started, maximumGap = 0;
+            double deadline = started + seconds;
+            ObserveOperation(operation, "begin", started, 0);
+            try
+            {
+                while (!complete() && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
+                {
+                    Healthy(allowStoppedFirst);
+                    yield return null;
+                    double now = Time.realtimeSinceStartupAsDouble;
+                    maximumGap = Math.Max(maximumGap, now - previous); previous = now;
+                }
+            }
+            finally { ObserveOperation(operation, "end", started, maximumGap); }
             Healthy(allowStoppedFirst);
             Assert.IsTrue(complete(), operation + " exceeded its deadline.");
+        }
+        void ObserveOperation(string operation, string phase, double started, double maximumGap)
+        {
+            try
+            {
+                Debug.Log(FormattableString.Invariant($"WORDBOUND_GAMEPLAY_OPERATION: {operation}; phase={phase}; elapsed={Time.realtimeSinceStartupAsDouble - started:F3}; maxFrameGap={maximumGap:F3}; lifetimeCancelled={lifetime.IsCancellationRequested}; ") + string.Join("; ", peers.Select(DescribePeer)));
+            }
+            catch (Exception error) { Debug.Log("WORDBOUND_GAMEPLAY_OPERATION_UNAVAILABLE: " + error.GetType().Name); }
+        }
+        static string DescribePeer(Peer peer, int index)
+        {
+            try
+            {
+                var snapshot = peer.Controller.Frame;
+                var actor = snapshot?.Bodies.FirstOrDefault(body => body.Kind == WorldBodyKind.Player && body.SourceId == peer.Actor);
+                var progress = snapshot?.Progress.Players.FirstOrDefault(player => player.Id == peer.Actor);
+                bool canMove = peer.Controller.PhysicsWorld != null && peer.Controller.PhysicsWorld.CanMove(peer.Actor, out _);
+                string position = actor == null ? "none" : FormattableString.Invariant($"{actor.Position.X:F3}/{actor.Position.Y:F3}/{actor.Position.Z:F3}");
+                return $"peer={index},host={peer.Runner != null && peer.Runner.IsServer},tick={snapshot?.Progress.Tick},advanced={peer.Advanced},inputReads={peer.InputReads},movingReads={peer.MovingInputReads},position={position},connected={progress?.Connected},canMove={canMove},paused={peer.Controller.IsSimulationPaused},failure={peer.Session.Failure}";
+            }
+            catch (Exception error) { return $"peer={index},diagnosticUnavailable={error.GetType().Name}"; }
         }
         IEnumerator Wait(Task task, string operation, double seconds)
         {
