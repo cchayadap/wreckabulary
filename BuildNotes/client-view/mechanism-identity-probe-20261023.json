@@ -1,0 +1,334 @@
+{
+  "recordedUtc": "2026-10-23T23:50:21.178453+00:00",
+  "verdict": "PASS",
+  "records": {
+    "before": {
+      "source": {
+        "utc": "2026-10-23T23:44:15.4847422Z",
+        "head": "858abd2cb834901f98aa7c1d741ca8206993b5a1",
+        "files": [
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Scripts\\Rules\\Wordbound\\MatchStateValidation.cs",
+            "Hash": "10EF4AEDE04601DD5D9A942ED890B80576C328364AA411BC2514CCD538DA2EEE"
+          },
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Tests\\Rules\\WordboundSnapshotValidationTests.cs",
+            "Hash": "5F56C6376CC4B04D9DB4FA4AC004A393310CFC430953F2E597E78763AA06C260"
+          },
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Tools\\RulesHarness\\ValidationProbe\\Program.cs",
+            "Hash": "E5385C8BE93089745FB7AD59AF20CCAB7BA30E92178216DC97B7D8BAA9D0E582"
+          },
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Data\\Config\\items.json",
+            "Hash": "79363C8F1F14E7ACA553718B552468D34B3140FE4BA88688FD4DED8330CF2416"
+          },
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Data\\Config\\rules.json",
+            "Hash": "F183D9B79D1B438A78FB682455C6CE5E6B15CBD09D47B0831B3AF47B2F697D4C"
+          }
+        ]
+      },
+      "runtime": "WORDBOUND_VALIDATION_RUNTIME: framework=.NET 9.0.15; architecture=X64; os=Microsoft Windows 10.0.26200; measurement=current-thread-managed-bytes; scope=frozen-flagship-validation; unity-runtime=false",
+      "inputs": [
+        "WORDBOUND_VALIDATION_INPUT: mode=TimeRun; format=Solo; seed=0123456789abcdef; roster=a:0:0,b:0:1; tick=0; epoch=0; bodies=94; items=57; tiles=22; resources=294; mechanisms=216; itemSourceHash=79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416; ruleSourceHash=f183d9b79d1b438a78fb682455c6ce5e6b15cbd09d47b0831b3af47b2f697d4c; effectiveRulesHash=c5262a10a987ef4a6a00ef73e4e2315ba273a12c77183ffb7718d1ef85f7d414; geometryHash=3a5550b32385ddfd77ae0625081f173c062910e67efff6b842b80210d00206cd; modeHash=9e114ec92835d4b5ff0ecda80aaf7aaa0fe2a28920f65fe3b4e5c7c8f037e1a2; courseHash=83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9; manifestHash=6e86080bfbe61509ad1278de82c76cf8f0232782f8619db03820f0113212609b; bindingHash=c2f6595281af4a3cc337df7e91f01e1c47c4dac0a1f66183b0c36332ac0f8b03; snapshotHash=1a21b3d30ee4611f25e30f32b60bc651be7bf438d426960ddb813e01ebc29464; bindingScope=local-probe-not-public-admission",
+        "WORDBOUND_VALIDATION_INPUT: mode=TeamRace; format=Solo; seed=0123456789abcdef; roster=a:0:0,b:1:0; tick=0; epoch=0; bodies=186; items=114; tiles=44; resources=588; mechanisms=432; itemSourceHash=79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416; ruleSourceHash=f183d9b79d1b438a78fb682455c6ce5e6b15cbd09d47b0831b3af47b2f697d4c; effectiveRulesHash=bfee4f9558f563b68105448b2c3a4921ed30071f67cd9ba064cdf4b4de74f524; geometryHash=3a5550b32385ddfd77ae0625081f173c062910e67efff6b842b80210d00206cd; modeHash=0e2a1e9d8d99efac3329dc03894c40cce1e6d05a80a0457e1be941e0c7e2992f; courseHash=83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9; manifestHash=c8528c929424b6962d1c08e781ec44b209f88b2965e2017232ffad62c6c562b1; bindingHash=7736814c1b864007668761628969ddbb48f727e8dfce9bdd8fbe0d1556016908; snapshotHash=304a3cd56afc99c8948d929460d8b1142f149eb3b2471311d7602dcc637f50a0; bindingScope=local-probe-not-public-admission"
+      ],
+      "batches": [
+        {
+          "mode": "TimeRun",
+          "batch": "1",
+          "iterations": "20",
+          "bytes": "6776736",
+          "milliseconds": "28.798",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TimeRun",
+          "batch": "2",
+          "iterations": "20",
+          "bytes": "6743040",
+          "milliseconds": "36.904",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TimeRun",
+          "batch": "3",
+          "iterations": "20",
+          "bytes": "6743688",
+          "milliseconds": "38.713",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TeamRace",
+          "batch": "1",
+          "iterations": "20",
+          "bytes": "12283424",
+          "milliseconds": "64.315",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TeamRace",
+          "batch": "2",
+          "iterations": "20",
+          "bytes": "12316904",
+          "milliseconds": "96.302",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TeamRace",
+          "batch": "3",
+          "iterations": "20",
+          "bytes": "12283424",
+          "milliseconds": "78.789",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        }
+      ],
+      "result": "WORDBOUND_VALIDATION_RESULT: modes=2; batches=6; validations=120; failed=0"
+    },
+    "after": {
+      "source": {
+        "files": [
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Scripts\\Rules\\Wordbound\\MatchStateValidation.cs",
+            "Hash": "30C3710301E036B878D3E4C92D9780DECA55D800FBB13FB4E0AFC5A9ED18256F"
+          },
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Tests\\Rules\\WordboundSnapshotValidationTests.cs",
+            "Hash": "1F6E242400F71748EDE2185EC78C8BBB3C3D65EB3FA51893496E2CD073C50381"
+          },
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Tools\\RulesHarness\\ValidationProbe\\Program.cs",
+            "Hash": "E5385C8BE93089745FB7AD59AF20CCAB7BA30E92178216DC97B7D8BAA9D0E582"
+          },
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Data\\Config\\items.json",
+            "Hash": "79363C8F1F14E7ACA553718B552468D34B3140FE4BA88688FD4DED8330CF2416"
+          },
+          {
+            "Path": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Data\\Config\\rules.json",
+            "Hash": "F183D9B79D1B438A78FB682455C6CE5E6B15CBD09D47B0831B3AF47B2F697D4C"
+          }
+        ],
+        "head": "bfed99902c691ad48bca1835aea84a7fe84feb6b",
+        "utc": "2026-10-23T23:49:13.6931926Z"
+      },
+      "runtime": "WORDBOUND_VALIDATION_RUNTIME: framework=.NET 9.0.15; architecture=X64; os=Microsoft Windows 10.0.26200; measurement=current-thread-managed-bytes; scope=frozen-flagship-validation; unity-runtime=false",
+      "inputs": [
+        "WORDBOUND_VALIDATION_INPUT: mode=TimeRun; format=Solo; seed=0123456789abcdef; roster=a:0:0,b:0:1; tick=0; epoch=0; bodies=94; items=57; tiles=22; resources=294; mechanisms=216; itemSourceHash=79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416; ruleSourceHash=f183d9b79d1b438a78fb682455c6ce5e6b15cbd09d47b0831b3af47b2f697d4c; effectiveRulesHash=c5262a10a987ef4a6a00ef73e4e2315ba273a12c77183ffb7718d1ef85f7d414; geometryHash=3a5550b32385ddfd77ae0625081f173c062910e67efff6b842b80210d00206cd; modeHash=9e114ec92835d4b5ff0ecda80aaf7aaa0fe2a28920f65fe3b4e5c7c8f037e1a2; courseHash=83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9; manifestHash=6e86080bfbe61509ad1278de82c76cf8f0232782f8619db03820f0113212609b; bindingHash=c2f6595281af4a3cc337df7e91f01e1c47c4dac0a1f66183b0c36332ac0f8b03; snapshotHash=1a21b3d30ee4611f25e30f32b60bc651be7bf438d426960ddb813e01ebc29464; bindingScope=local-probe-not-public-admission",
+        "WORDBOUND_VALIDATION_INPUT: mode=TeamRace; format=Solo; seed=0123456789abcdef; roster=a:0:0,b:1:0; tick=0; epoch=0; bodies=186; items=114; tiles=44; resources=588; mechanisms=432; itemSourceHash=79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416; ruleSourceHash=f183d9b79d1b438a78fb682455c6ce5e6b15cbd09d47b0831b3af47b2f697d4c; effectiveRulesHash=bfee4f9558f563b68105448b2c3a4921ed30071f67cd9ba064cdf4b4de74f524; geometryHash=3a5550b32385ddfd77ae0625081f173c062910e67efff6b842b80210d00206cd; modeHash=0e2a1e9d8d99efac3329dc03894c40cce1e6d05a80a0457e1be941e0c7e2992f; courseHash=83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9; manifestHash=c8528c929424b6962d1c08e781ec44b209f88b2965e2017232ffad62c6c562b1; bindingHash=7736814c1b864007668761628969ddbb48f727e8dfce9bdd8fbe0d1556016908; snapshotHash=304a3cd56afc99c8948d929460d8b1142f149eb3b2471311d7602dcc637f50a0; bindingScope=local-probe-not-public-admission"
+      ],
+      "batches": [
+        {
+          "mode": "TimeRun",
+          "batch": "1",
+          "iterations": "20",
+          "bytes": "6238176",
+          "milliseconds": "24.002",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TimeRun",
+          "batch": "2",
+          "iterations": "20",
+          "bytes": "6204480",
+          "milliseconds": "24.038",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TimeRun",
+          "batch": "3",
+          "iterations": "20",
+          "bytes": "6205344",
+          "milliseconds": "26.787",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TeamRace",
+          "batch": "1",
+          "iterations": "20",
+          "bytes": "11229504",
+          "milliseconds": "55.365",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TeamRace",
+          "batch": "2",
+          "iterations": "20",
+          "bytes": "11229288",
+          "milliseconds": "52.415",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        },
+        {
+          "mode": "TeamRace",
+          "batch": "3",
+          "iterations": "20",
+          "bytes": "11262336",
+          "milliseconds": "51.900",
+          "errors": "0",
+          "controlBeforeBytes": "65560",
+          "controlAfterBytes": "65560",
+          "controlPayloadBytes": "65536",
+          "calibrated": "True",
+          "firstError": ""
+        }
+      ],
+      "result": "WORDBOUND_VALIDATION_RESULT: modes=2; batches=6; validations=120; failed=0"
+    }
+  },
+  "comparison": [
+    {
+      "mode": "TimeRun",
+      "format": "Solo",
+      "scope": "three batches of twenty frozen full validations under .NET 9; not Unity or frame rate",
+      "bytes": {
+        "before": [
+          6776736.0,
+          6743040.0,
+          6743688.0
+        ],
+        "after": [
+          6238176.0,
+          6204480.0,
+          6205344.0
+        ],
+        "beforeMedian": 6743688.0,
+        "afterMedian": 6205344.0,
+        "medianReductionPercent": 7.98293159470011
+      },
+      "milliseconds": {
+        "before": [
+          28.798,
+          36.904,
+          38.713
+        ],
+        "after": [
+          24.002,
+          24.038,
+          26.787
+        ],
+        "beforeMedian": 36.904,
+        "afterMedian": 24.038,
+        "medianReductionPercent": 34.86342943854326
+      }
+    },
+    {
+      "mode": "TeamRace",
+      "format": "Solo",
+      "scope": "three batches of twenty frozen full validations under .NET 9; not Unity or frame rate",
+      "bytes": {
+        "before": [
+          12283424.0,
+          12316904.0,
+          12283424.0
+        ],
+        "after": [
+          11229504.0,
+          11229288.0,
+          11262336.0
+        ],
+        "beforeMedian": 12283424.0,
+        "afterMedian": 11229504.0,
+        "medianReductionPercent": 8.580018079649452
+      },
+      "milliseconds": {
+        "before": [
+          64.315,
+          96.302,
+          78.789
+        ],
+        "after": [
+          55.365,
+          52.415,
+          51.9
+        ],
+        "beforeMedian": 78.789,
+        "afterMedian": 52.415,
+        "medianReductionPercent": 33.474215943850034
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".harness/delivery/mechanism-probe-before-2344.log",
+      "bytes": 3482,
+      "sha256": "71efa560a3451f08a1f0d6dcdeb7e22a4d4df4b82061d8a88b21d8a151b91817"
+    },
+    {
+      "path": ".harness/delivery/mechanism-probe-before-2344-source.json",
+      "bytes": 1348,
+      "sha256": "13ae2fc4435651efe9ffdb7518e18f4db86ba1bddaa3b43d5bf6a406fecb242d"
+    },
+    {
+      "path": ".harness/delivery/mechanism-probe-after-2349.log",
+      "bytes": 3482,
+      "sha256": "23f86e3b327068b9fc67256a5f1498e9c0b078c6dca0adab9814365ec418bfa4"
+    },
+    {
+      "path": ".harness/delivery/mechanism-probe-after-2349-source.json",
+      "bytes": 1348,
+      "sha256": "1311537939c56fc3ea6cb43baff0ce23f3bb64f497aef3b4e5e33f131e2cfeeb"
+    }
+  ],
+  "limits": [
+    "Sequential standalone processes with no concurrent Unity, player or test job; source compilation can warm runtime/filesystem differently.",
+    "Unchanged input and snapshot hashes, all 240 validations and twelve positive allocation calibration pairs passed.",
+    "Elapsed medians are lower in these samples; three batches do not establish stable speedup, rendered FPS or native-player improvement.",
+    "Only the initial transient mechanism identity guard changed in production rules. No cached validation or changed acceptance/deadlines."
+  ]
+}

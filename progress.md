@@ -97,11 +97,18 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T23:33Z
+## Current verification — 2026-10-23T23:52Z
 
-WindowsQA232641 and visible232850 pass5/5 on8c02f106. Original models remain default; Search, footer status and party theme are visually corrected. Root and Assets independently inspect all six images, with exact game payload hashes retained. Native232239 passes96/97: all96 UI/input/workshop cases pass; the separate capacity preflight rejects an unregistered test prop before any external allocation. Its reviewed correction uses an existing PLATE asset while preserving512 reserved/366 initial live bodies. Preflight and the exact draft-store diagnostic are now running on2f85a953.
+The original game artwork remains the default. Windows QA build `20261023T232641Z` and its visible workshop/playtest/return run `232850` pass all five workflow checks. Two agents inspected all six images: Search, footer status and the original cream/teal/Nunito party theme are corrected. The next compact party panel and clearer workshop guidance are integrated and undergoing native checks. See [the current build instructions](BuildNotes/client-view/TRY-WORDBOUND.md).
 
-Actual frame observation shows90 Unity updates in7.240s,479 canonical ticks and up to46 ticks/update, with a696.499ms worst gap. The assigned camera records89 matched callback pairs; callback wall time is not GPU time or presented FPS. Settings show no frame throttle. Performance investigation remains open. FullFFA231117 reaches five respawns but its eight-minute fixture lifetime expires during a slow scripted return; no ten-point finish is accepted.172 allocator samples show zero OOM headers, but growing allocated capacity does not prove reclamation. The reviewed FFA-only steering correction retains all deadlines and combat assertions; rerun remains pending. Isolated Unity null/named file replacement succeeds in both fresh and released-lock cases, so it does not explain the actual Store failure. Earlier failures remain preserved; no production closure is claimed.
+- [x] All 13 Unity authoring persistence cases pass in `233437`, including actual changed-save/BOM handling, retained drafts, custom themes, course assets and scene restoration. The earlier intermittent Windows replacement error remains unexplained; no new production IO workaround was added.
+- [x] Capacity preflight `233231` passes with 512 reserved / 366 initial live bodies using registered PLATE props. This is validation before live allocation, not a maximum-capacity gameplay result.
+- [x] Mechanism identity optimization passes R0 and 198 focused core cases (`234828`). The unchanged standalone probe preserves every input/snapshot hash and passes 120 validations before and 120 after. Median managed allocation falls 7.98% for Time Run and 8.58% for Team Race Solo. These are .NET measurements, not Unity frame-rate results.
+- [~] Native compact-menu, timing-collector and public Team Race Solo checks are running on source `bfed9990`.
+- [~] Full FFA `233437` reaches six scored knockouts and respawns, then the eight-minute fixture lifetime expires. Its final return operation lasts 5.999 seconds, below its separate 35-second limit. No ten-point result is accepted. The 162 allocator samples show no observed OOM; stable late object capacity does not prove leak freedom or maximum capacity.
+- [~] Add test-only checkpoint timing and pause measurements to identify the online stalls without changing recovery guards or deadlines.
+
+Actual Windows frame observation still shows substantial stalls: 90 updates in 7.240 seconds, 479 canonical ticks and a 696.499 ms maximum update gap. The assigned camera records 89 matched callback pairs; those are not GPU completion or presented-FPS measurements. A fresh Windows build and the same visible workload follow the current native checks. Larger parties, full-match outcomes, recovery targets, final release and human acceptance remain open.
 
 ### Earlier verified checkpoint — 22:47 UTC
 
