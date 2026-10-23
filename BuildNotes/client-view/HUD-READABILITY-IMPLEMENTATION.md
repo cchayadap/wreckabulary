@@ -2,6 +2,8 @@
 
 Status: SOURCE COMPLETE; independent bounded SOURCE PASS through `0d4bf128`. Isolated `sethypagna/hud-readability` branch from integration `5427493ff5ce8ca0e8971543078e64504a0d4d06`. Parent authorized the three visual corrections plus read-only active binding hints and focused regressions. No heavy execution, generated metadata, camera/art/physics/content changes. Actual Windows visual acceptance remains pending; root owns integration after its count-only comparison.
 
+Latest execution: root native batch `200052` passed all **53 selected UI/input/menu/guide/story cases**, including all thirteen additions. The full batch was **63/65 passed, 2 online failures, 0 skipped**; it is not an overall green result. Actual Windows capture/readability acceptance remains pending. Source-only statements below are the earlier checkpoint history.
+
 ## Source checkpoint
 
 - Active hints read the exact `WordboundPlayerView` binding. The automatic binding reads its existing private desktop actions or its already selected pad, including current overrides and localized physical-key fallback. Hints do not poll commands, select a device, create an input map, change bindings, or write preferences. An unavailable selected pad yields no guessed hint until normal input handling changes devices. Raw legacy desktop/pad and unknown bindings retain generic action text because their consumed commands differ from Wordbound's automatic binding.
@@ -35,3 +37,27 @@ Source integration order: `966afe07` (active hints), `bc8a0d4b` (HUD/captions/st
 Root R0 `195747` failed before native execution: the new keyboard cases called `WordboundNativeInputScope.Sample(Keyboard, KeyboardState)` but the shared fixture had only its gamepad overload. The bounded follow-up adds the keyboard overload: require the owned device active, queue the supplied real state event and use the same `Pump()` that asserts a Dynamic input update. No direct action triggering or new input update mode is used; the existing test then checks the actual resulting action edges and commands. The shared gamepad path and fixture restore behavior remain unchanged. This closes a source API omission, not a native pass; root rerun is required.
 
 Input independently source-reviewed the `4b8c43b0` repair against the installed Input System API: SOURCE PASS. No compilation/native execution in that review.
+
+## Native evidence: 200052
+
+Independently parsed root `TestResults/editmode_20261023T200052Z.xml` and read its matching `Logs/gate_test_editmode_20261023T200052Z.log`. XML ran 65 cases from 20:01:51–20:03:51 UTC, duration 119.7424084 seconds. The initial R0 `195747` keyboard-overload failure remains recorded above; this later native result verifies execution after its repair.
+
+| Executed class | Passed / total |
+| --- | ---: |
+| `WordboundHudLayoutTests` | 3 / 3 |
+| `WordboundInputBindingTests` | 19 / 19 |
+| `WordboundMenuGuiTests` | 2 / 2 |
+| `WordboundPuzzleGuidePlanTests` | 11 / 11 |
+| `WordboundPuzzleGuideViewTests` | 9 / 9 |
+| `WordboundStoryPlanTests` | 5 / 5 |
+| `WordboundStoryReadabilityTests` | 4 / 4 |
+| **UI/input/menu/guide/story total** | **53 / 53** |
+
+The same batch passed all ten selected local atomic/collision/gameplay cases. Its two separate online cases failed: public TeamRace Solo at admitted client movement (41.298785 seconds), and compact private TimeRun at carrying the keepsake clear of the workbench (60.961645 seconds). They do not invalidate the individually passed UI cases, but neither online completion nor the whole batch is accepted.
+
+No UI case contains a warning/failure output; only the final story case contains the test runner's results-save message. Targeted log inspection found no invalid GUILayout/control-group, missing glyph or missing shader message for this slice. The log is not warning-free: it includes existing obsolete object-search API warnings in workshop/performance QA, a deferred Fusion import-dependency warning, licensing messages and a Unity telemetry hostname resolution error. No new HUD/input/story warning was identified.
+
+XML SHA-256: `C7A64D817657354F10B56EDB0613F6DB4BF5F64370455B3918550047BC97969D`.
+Log SHA-256: `CA45D9EFCFB37432C61045845F64FB59E1197476A5ED95D4A8631657A0297D9A`.
+
+These are actual native input/layout/projection regression passes. They do not establish Windows glyph readability, world-label occlusion, real controller usability or owner appearance approval. The next root-owned Windows capture remains necessary; no further source changes or heavy jobs were performed for this review.
