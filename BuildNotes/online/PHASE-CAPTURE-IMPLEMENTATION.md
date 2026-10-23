@@ -1,6 +1,6 @@
 # Bounded phase measurements
 
-STATUS: ORIGINAL NINE-PHASE SOURCE AND NATIVE COMPARISON PASS; FIVE-CHILD EXTENSION SOURCE READY, REVIEW/EXECUTION PENDING. Root owns every heavy job.
+STATUS: ORIGINAL NINE-PHASE SOURCE AND NATIVE COMPARISON PASS; FIVE-CHILD EXTENSION SOURCE REVIEW PASS, EXECUTION PENDING. Root owns every heavy job.
 
 Approved scope is the timing-only slice of HOST-COST-MEASUREMENT-PLAN.md. Input-flow observations remain unimplemented. Baseline alignment f58c60f4 is excluded from integration; it copies only five required files from root 5feb4e7d, preserving the unrelated ModeDefinition changes and prior logs.
 
@@ -33,3 +33,5 @@ Independent review caught an earlier version of that negative test using duplica
 Before editing, MatchStateValidation matched current root bytes exactly; collector/tests differed only in line endings (no `git diff --no-index --ignore-space-at-eol` changes). No baseline-copy commit is required. Owned source paths: Rules/Wordbound/WordboundPhaseCapture.cs, Rules/Wordbound/MatchStateValidation.cs, Tests/Rules/WordboundPhaseCaptureTests.cs; this report is the fourth file. ModeDefinition and prior logs remain excluded.
 
 Next root gates: assembledR0; actual Unity `Wreckabulary.Tests.WordboundPhaseCaptureTests` expecting20; existing bounded snapshot/atomic validation regressions; unchanged public TeamSolo with PHASES1 and normal public flags. Inspect nested child counts and invalid/inFlight; do not add combined Economy total to child totals or infer CPU/FPS. The next Windows comparison requires a build containing these additional call sites; the already-running204132 player contains only the original nine. No jobs were run in this lane.
+
+Input independently passed ordered commits `95b43ecd` + `a7324be9` at source. The review confirmed constructor+Restore scope, full-only children, unchanged fresh mutable BodyBudget call, original enum numbering and all 20 test cases' intended public API paths. It caught the earlier duplicate-ID test defect before execution and verified its corrected body-only/control/combined rejection sequence. No compiler, native or Windows execution of the 14-phase extension is claimed here. Separate report commit `b1b18a2e` records completed Windows204132 evidence and its existing playtest timeout.
