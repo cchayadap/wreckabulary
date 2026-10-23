@@ -132,6 +132,92 @@ namespace Wreckabulary.Rules.Tests
             Assert.IsTrue(CourseJson.ImportDocument(restored.CourseJsonText).Success);
             Assert.Throws<FormatException>(() => WorkshopSnapshot.Recover("{\"schema\":1,\"map\":\"home\",\"props\":[]}"));
         }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LargeSavedCourseRoundTripsRecoveryAndEscapedCourseProperty(bool escapedProperty)
+        {
+            var course = Course();
+            for (int i = 0; i < 250; i++) course.Modules.Add(new CourseModule
+            {
+                Id = "room-" + i, DefinitionId = "Room", LayerId = "ground", Position = new CoursePoint(i * 500, 0, 10000)
+            });
+            var history = new WorkshopHistory(new WorkshopSnapshot(course));
+            history.Select(new[] { "a", "b" });
+            history.Execute("Workspace", draft =>
+            {
+                WorkshopCommands.Group(draft, "pair"); draft.HiddenLayers.Add("upper");
+                draft.LockedLayers.Add("upper"); draft.Seed = "0123456789abcdef"; draft.GridMm = 1000;
+            });
+            Assert.Greater(history.Current.CourseJsonText.Length, 24578, "Exercise a document that exceeds an ordinary JSON string token.");
+            string saved = history.Current.RecoveryJson;
+            if (escapedProperty) saved = saved.Replace("\"course\":", "\"cour\\u0073e\":");
+            var restored = WorkshopSnapshot.Recover(saved);
+            Assert.AreEqual(history.Current.RecoveryJson, restored.RecoveryJson);
+            Assert.AreEqual(history.Current.CourseJsonText, restored.CourseJsonText);
+            Assert.IsTrue(CourseJson.ImportDocument(restored.CourseJsonText).Success);
+        }
+
+        [TestCase("metadata")]
+        [TestCase("escaped-metadata")]
+        [TestCase("nested-course")]
+        [TestCase("course-array")]
+        [TestCase("course-object")]
+        [TestCase("after-course")]
+        public void RecoveryLargeTokenExceptionIsLimitedToTheRootCourseValue(string location)
+        {
+            string large = RecoveryQuote(new string('x', 30000));
+            string json;
+            switch (location)
+            {
+                case "metadata": json = "{\"activeLayer\":" + large + "}"; break;
+                case "escaped-metadata": json = "{\"activeL\\u0061yer\":" + large + "}"; break;
+                case "nested-course": json = "{\"wrapper\":{\"course\":" + large + "}}"; break;
+                case "course-array": json = "{\"course\":[" + large + "]}"; break;
+                case "course-object": json = "{\"course\":{\"course\":" + large + "}}"; break;
+                default: json = "{\"course\":\"{}\",\"activeLayer\":" + large + "}"; break;
+            }
+            Assert.AreEqual("JSON string token too long.", Assert.Throws<FormatException>(() => WorkshopSnapshot.Recover(json)).Message);
+        }
+
+        [TestCase("ordinary-string")]
+        [TestCase("byte-limit")]
+        [TestCase("depth")]
+        [TestCase("schema")]
+        [TestCase("duplicate-field")]
+        [TestCase("escape")]
+        public void RecoveryStillAppliesTheStrictEmbeddedCourseBoundary(string mutation)
+        {
+            var snapshot = new WorkshopSnapshot(Course());
+            string changed = snapshot.CourseJsonText;
+            switch (mutation)
+            {
+                case "ordinary-string": changed = changed.Replace("Workshop test", new string('x', 30000)); break;
+                case "byte-limit": changed = new string(' ', CourseLimits.DocumentBytes + 1); break;
+                case "depth": changed = new string('[', CourseLimits.JsonDepth + 1) + "0" + new string(']', CourseLimits.JsonDepth + 1); break;
+                case "schema": changed = changed.Replace("\"schema\":1", "\"schema\":99"); break;
+                case "duplicate-field": changed = "{\"schema\":1," + changed.Substring(1); break;
+                case "escape": changed = changed.Replace("Workshop test", "Workshop\\qtest"); break;
+            }
+            Assert.AreNotEqual(snapshot.CourseJsonText, changed);
+            string recovery = snapshot.RecoveryJson.Replace(RecoveryQuote(snapshot.CourseJsonText), RecoveryQuote(changed));
+            Assert.AreNotEqual(snapshot.RecoveryJson, recovery);
+            var failure = Assert.Throws<FormatException>(() => WorkshopSnapshot.Recover(recovery));
+            if (mutation == "ordinary-string") StringAssert.Contains("JSON string token too long.", failure.Message);
+        }
+
+        [Test]
+        public void RecoveryEnvelopeKeepsItsByteDepthAndTokenBounds()
+        {
+            Assert.Throws<FormatException>(() => WorkshopSnapshot.Recover(new string(' ', CourseLimits.DocumentBytes * 3 + 1)));
+            Assert.AreEqual("JSON nesting limit exceeded.", Assert.Throws<FormatException>(() =>
+                WorkshopSnapshot.Recover(new string('[', CourseLimits.JsonDepth + 1) + "0" + new string(']', CourseLimits.JsonDepth + 1))).Message);
+            Assert.AreEqual("JSON token limit exceeded.", Assert.Throws<FormatException>(() =>
+                WorkshopSnapshot.Recover("[" + string.Join(",", Enumerable.Repeat("0", 250000)) + "]")).Message);
+        }
+
+        static string RecoveryQuote(string value) => "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+
         [Test]
         public void LockedSeedRejectsRerollUntilExplicitlyUnlocked()
         {

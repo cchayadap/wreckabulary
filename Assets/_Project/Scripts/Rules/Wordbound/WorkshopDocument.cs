@@ -95,7 +95,7 @@ namespace Wreckabulary.Rules.Wordbound
 
         public static WorkshopSnapshot Recover(string json)
         {
-            CourseJson.Preflight(json, CourseLimits.DocumentBytes * 3);
+            CourseJson.Preflight(json, CourseLimits.DocumentBytes * 3, "course");
             var node = Json.Parse(json, "workshop recovery");
             CourseJson.Keys(node, new[] { "format", "schema", "course", "seed", "seedLocked", "gridMm", "activeLayer", "selection", "hiddenLayers", "lockedLayers", "groups" });
             if (node["format"].String() != Format || node["schema"].Int() != 1) throw new FormatException("Not a workshop recovery file.");

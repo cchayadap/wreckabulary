@@ -1,10 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.TestTools;
 using Wreckabulary.Rules.Wordbound;
 using Wreckabulary.Workshop;
 using Object = UnityEngine.Object;
@@ -13,6 +16,8 @@ namespace Wreckabulary.Online.Tests
 {
     public sealed class WordboundWorkshopSourceBindingTests
     {
+        static readonly FieldInfo QuietUntil = typeof(KeyBindings).GetField("quietUntil", BindingFlags.Static | BindingFlags.NonPublic)
+            ?? throw new MissingFieldException(typeof(KeyBindings).FullName, "quietUntil");
         readonly List<Object> assets = new List<Object>();
         GameObject owner;
         WordboundWorkshop workshop;
@@ -22,11 +27,13 @@ namespace Wreckabulary.Online.Tests
         WorkshopTemplatePreset template;
         string folder, globalItems, globalRules, assignedItems, assignedRules;
         bool oldTyping;
+        int oldQuietUntil;
 
         [SetUp]
         public void SetUp()
         {
             oldTyping = DesktopBinding.Typing;
+            oldQuietUntil = (int)QuietUntil.GetValue(null);
             try
             {
                 DesktopBinding.Typing = false;
@@ -67,7 +74,7 @@ namespace Wreckabulary.Online.Tests
                 if (folder != null && Path.GetFullPath(folder).StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && Directory.Exists(folder))
                     Directory.Delete(folder, true);
             }
-            finally { DesktopBinding.Typing = oldTyping; }
+            finally { DesktopBinding.Typing = oldTyping; QuietUntil.SetValue(null, oldQuietUntil); }
         }
 
         [Test]
@@ -170,22 +177,47 @@ namespace Wreckabulary.Online.Tests
         [TestCase("focus")]
         [TestCase("disable")]
         [TestCase("typing")]
-        [TestCase("gameplay-block")]
         public void DeferredSourceChoiceIsCancelledBeforeItCanReplaceTheDraft(string interruption)
         {
             OpenAssigned(); var before = workshop.History;
             Invoke(workshop, "QueueSourceChoice", 2 + (int)WorkshopTemplate.FreestyleWorld);
             Assert.AreSame(before, workshop.History);
-            IDisposable lease = null;
             try
             {
                 if (interruption == "focus") Invoke(workshop, "OnApplicationFocus", false);
                 if (interruption == "disable") Invoke(workshop, "OnDisable");
                 if (interruption == "typing") DesktopBinding.Typing = true;
-                if (interruption == "gameplay-block") lease = KeyBindings.BlockGameplay();
                 Invoke(workshop, "ProcessSourceChoice", true);
             }
-            finally { lease?.Dispose(); DesktopBinding.Typing = false; }
+            finally { DesktopBinding.Typing = false; }
+            Invoke(workshop, "ProcessSourceChoice", true);
+            Assert.AreSame(before, workshop.History); Assert.IsTrue(workshop.UsesAssignedCourse);
+            Invoke(workshop, "QueueSourceChoice", 2 + (int)WorkshopTemplate.FreestyleWorld);
+            Invoke(workshop, "ProcessSourceChoice", true); Assert.IsFalse(workshop.UsesAssignedCourse);
+            Invoke(workshop, "QueueSourceChoice", 1); Assert.IsFalse(workshop.UsesAssignedCourse);
+            Invoke(workshop, "ProcessSourceChoice", true); Assert.AreSame(before, workshop.History);
+        }
+
+        [UnityTest]
+        public IEnumerator DeferredSourceChoiceStaysCancelledThroughTheGameplayLeaseQuietFrames()
+        {
+            OpenAssigned(); var before = workshop.History;
+            Invoke(workshop, "QueueSourceChoice", 2 + (int)WorkshopTemplate.FreestyleWorld);
+            using (KeyBindings.BlockGameplay()) Invoke(workshop, "ProcessSourceChoice", true);
+            Assert.IsTrue(KeyBindings.GameplayBlocked, "Releasing the lease must retain the production quiet interval.");
+            int quietThrough = (int)QuietUntil.GetValue(null);
+            Invoke(workshop, "QueueSourceChoice", 2 + (int)WorkshopTemplate.FreestyleWorld);
+            Invoke(workshop, "ProcessSourceChoice", true);
+            Assert.AreSame(before, workshop.History); Assert.IsTrue(workshop.UsesAssignedCourse);
+            double deadline = EditorApplication.timeSinceStartup + 5;
+            do
+            {
+                EditorApplication.QueuePlayerLoopUpdate();
+                yield return null;
+                Assert.Less(EditorApplication.timeSinceStartup, deadline, "Gameplay quiet interval did not expire; frame=" +
+                    Time.frameCount + "; quietUntil=" + QuietUntil.GetValue(null));
+            } while (KeyBindings.GameplayBlocked);
+            Assert.Greater(Time.frameCount, quietThrough);
             Invoke(workshop, "ProcessSourceChoice", true);
             Assert.AreSame(before, workshop.History); Assert.IsTrue(workshop.UsesAssignedCourse);
             Invoke(workshop, "QueueSourceChoice", 2 + (int)WorkshopTemplate.FreestyleWorld);

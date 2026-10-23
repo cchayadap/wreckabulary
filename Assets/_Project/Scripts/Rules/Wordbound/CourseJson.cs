@@ -218,26 +218,30 @@ namespace Wreckabulary.Rules.Wordbound
                     i++;
                 }
         }
-        internal static void Preflight(string text, int byteLimit)
+        internal static void Preflight(string text, int byteLimit, string embeddedDocumentProperty = null)
         {
             if (text == null || text.Length > byteLimit) throw new FormatException("JSON exceeds the byte limit or is null.");
             ValidateText(text);
             if (Utf8.GetByteCount(text) > byteLimit) throw new FormatException("JSON exceeds the UTF-8 byte limit.");
             int depth = 0, tokens = 0;
+            bool embeddedDocumentValue = false;
             for (int i = 0; i < text.Length; i++)
             {
                 char c = text[i];
                 if (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == ':' || c == ',') continue;
+                bool allowDocumentString = embeddedDocumentValue && depth == 1 && c == '"';
+                embeddedDocumentValue = false;
                 if (++tokens > 250000) throw new FormatException("JSON token limit exceeded.");
                 if (c == '{' || c == '[') { if (++depth > CourseLimits.JsonDepth) throw new FormatException("JSON nesting limit exceeded."); continue; }
                 if (c == '}' || c == ']') { if (--depth < 0) throw new FormatException("Unexpected closing delimiter."); continue; }
                 if (c == '"')
                 {
                     bool closed = false; int start = i;
+                    int stringLimit = allowDocumentString ? byteLimit : 24578;
                     while (++i < text.Length)
                     {
                         c = text[i];
-                        if (i - start > 24578) throw new FormatException("JSON string token too long.");
+                        if (i - start > stringLimit) throw new FormatException("JSON string token too long.");
                         if (c == '"') { closed = true; break; }
                         if (c < 32) throw new FormatException("Unescaped control character.");
                         if (c != '\\') continue;
@@ -252,6 +256,13 @@ namespace Wreckabulary.Rules.Wordbound
                         else if ("\"\\/bfnrt".IndexOf(c) < 0) throw new FormatException("Invalid string escape.");
                     }
                     if (!closed) throw new FormatException("Unterminated string.");
+                    if (embeddedDocumentProperty != null && depth == 1 && !allowDocumentString)
+                    {
+                        int next = i + 1;
+                        while (next < text.Length && " \t\r\n".IndexOf(text[next]) >= 0) next++;
+                        if (next < text.Length && text[next] == ':')
+                            embeddedDocumentValue = Json.Parse(text.Substring(start, i - start + 1), "JSON property").String() == embeddedDocumentProperty;
+                    }
                     continue;
                 }
                 int begin = i;
