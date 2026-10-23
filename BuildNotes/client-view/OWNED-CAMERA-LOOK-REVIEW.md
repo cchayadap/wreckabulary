@@ -10,6 +10,6 @@ The added direct URP/Core Runtime assembly references match the test's public ca
 
 ## Native context failure and source closure
 
-Root's actual native `205848Z` run failed 2/3: the new owned-camera case invoked `EnsureLook` in EditMode, where `DontDestroyOnLoad` is forbidden; its resulting log also affected the batch. This was a fixture-context gap missed by the initial source review, not a production camera workaround to make. The raw failure remains evidence.
+Direct inspection of `TestResults/editmode_20261023T205848Z.xml` confirms **3 total, 2 passed, 1 failed, 0 skipped**. Only the new owned-camera case failed: it invoked `EnsureLook` in EditMode, where `DontDestroyOnLoad` is forbidden. The supplied-camera and profile-edit cases passed. This corrects the earlier appendix's misreading of a short status message. The fixture-context gap was missed by the initial source review; it does not justify a production workaround. The raw failure remains evidence.
 
 Reviewed repair **`0ae86290`**: the owned-camera case is now a direct `UnityTest` yielding `EnterPlayMode` before initialization. A `UnityTearDown` yields `ExitPlayMode` whenever necessary, including assertion failures. The supplied-camera and profile-edit cases remain ordinary Editor cases. All rendering assertions and cleanup remain; production code is unchanged. Bounded source closure PASS; root reported R0 `210108Z` pass. Native rerun and visual acceptance still pending.
