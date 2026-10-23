@@ -161,3 +161,7 @@ Integrated source812a000/b851895/94f1bde and independent review47a38e1; four rac
 ## 2026-10-23T12:02:44Z Reconnect reference compilation passed
 
 R0 Logs/gate_check_all_20261023T115335Z.log failed357.5s on31 identical Assert ambiguity errors in the new reconnect test file; runtime passed. Added its file-local NUnit Assert alias. Fresh full R0 PASS130.9s, Logs/gate_check_all_20261023T115910Z.log. This verifies assembled reference compilation, not native/runtime acceptance. The next cold native preparation uses the existing gate via a hidden project-local PowerShell wrapper, preserving durable stdout/stderr/status and the gate's own3600s timeout. No source, cache or lock bypass is involved.
+
+## 2026-10-23T12:08:43Z Retained native preparation job ownership
+
+Cold retry runs via hidden wrapper27484, gate49544, Unity8580, log Logs/gate_exec_PrepareFromEnvironment_20261023T120315Z.log; status/stdout/stderr live under ignored .harness/delivery/native-preparation-*. The gate replaced the dead52684 lock itself. Root verified Unity executable/command identity before raising only its compiler children11208/12224 from BelowNormal to Normal; Burst child5412 was already Normal. No other project process/settings changed. Burst named-pipe startup errors are recorded again; independent read-only investigation assigned, no suppression/package change. Gate result remains pending.
