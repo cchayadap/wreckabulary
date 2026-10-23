@@ -135,7 +135,8 @@ namespace Wreckabulary.OnlineGameplayTests
             phases?.Ready(first.Controller.Frame);
             AssertIdentities(first);
             AssertScenes(first);
-            yield return Until(() => peers.All(ExactBodies), "Replicate every canonical body exactly once", 25);
+            yield return Until(() => peers.All(peer => Ready(peer) && ExactBodies(peer)),
+                "Replicate every canonical body exactly once with all peers ready", 25);
             foreach (var peer in peers)
             {
                 AssertBodies(peer, peer == first);
