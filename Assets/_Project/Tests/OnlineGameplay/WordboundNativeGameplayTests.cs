@@ -43,6 +43,7 @@ namespace Wreckabulary.OnlineGameplayTests
             public string Actor;
             public bool Move;
             public WordboundMovementInput InteractionInput;
+            public Func<WordboundMovementInput> ScriptedMovement;
             public int Advanced;
             public int PhysicalSteps, PhysicalObservations, MovementQueries;
             public int RunnerCreations, CredentialRequests;
@@ -77,8 +78,11 @@ namespace Wreckabulary.OnlineGameplayTests
         IEnumerator Run(int count, bool migrate, bool interactions = false,
             string productionMode = null, RaceFormat productionFormat = RaceFormat.Solo,
             WordboundPublicCourseCatalog publicCatalogue = null, bool hudInteractions = false, bool authoredWorkshop = false,
-            RecoveryEnding recoveryEnding = RecoveryEnding.None, bool migrationPreflightFailure = false)
+            RecoveryEnding recoveryEnding = RecoveryEnding.None, bool migrationPreflightFailure = false,
+            Func<string, WordboundClientContent> authoredContentFactory = null, Func<Peer, IEnumerator> afterStarted = null)
         {
+            if (authoredContentFactory != null && (!authoredWorkshop || productionMode != null || publicCatalogue != null))
+                throw new ArgumentException("A custom authored fixture must use only the private workshop route.");
             if (Environment.GetEnvironmentVariable(Gate) != "1")
                 Assert.Ignore("Set WORDBOUND_EXTERNAL_GAMEPLAY=1 after configuring production Photon custom authentication.");
             Assert.IsFalse(Application.isPlaying, "Run this gated Editor fixture outside Play Mode.");
@@ -93,7 +97,7 @@ namespace Wreckabulary.OnlineGameplayTests
             profiler = WordboundNativeProfiler.StartIfEnabled();
             tickBatches = WordboundNativeTickBatches.StartIfEnabled();
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-            WordboundClientContent production = authoredWorkshop ? CreateAuthoredWorkshop(projectRoot) : null;
+            WordboundClientContent production = authoredWorkshop ? (authoredContentFactory ?? CreateAuthoredWorkshop)(projectRoot) : null;
             if (productionMode != null)
             {
                 string folder = Path.Combine(projectRoot, "Assets/_Project/Data/Config");
@@ -165,13 +169,14 @@ namespace Wreckabulary.OnlineGameplayTests
                 Assert.AreEqual(0, peer.Controller.Authority.Match.Tick);
             }
             foreach (var peer in peers) AssertBodies(peer, peer == first);
-            if (production != null) AssertProductionContent(first, peers);
+            if (production != null && authoredContentFactory == null) AssertProductionContent(first, peers);
             if (authoredWorkshop) AssertDownloadedWorkshop();
             Debug.Log("WORDBOUND_GAMEPLAY_OBSERVED: authenticated real bodies, client input and committed command; cleanup pending.");
 
             if (hudInteractions) yield return HudInteractions(first);
             if (interactions) yield return Interactions(first);
             if (recoveryEnding != RecoveryEnding.None) yield return Reconnect(first, second, recoveryEnding);
+            if (afterStarted != null) yield return afterStarted(first);
 
             if (migrate)
             {
@@ -269,8 +274,10 @@ namespace Wreckabulary.OnlineGameplayTests
                 GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
                 ReadMovement = () => {
                     peer.InputReads++;
-                    if (peer.Move) peer.MovingInputReads++;
-                    return peer.Move ? new WordboundMovementInput { MoveZ = 1 } : peer.InteractionInput;
+                    var input = peer.Move ? new WordboundMovementInput { MoveZ = 1 } :
+                        peer.ScriptedMovement != null ? peer.ScriptedMovement() : peer.InteractionInput;
+                    if (input.MoveX != 0 || input.MoveZ != 0) peer.MovingInputReads++;
+                    return input;
                 }
             };
             var content = live.ContentFor(index);

@@ -24,8 +24,8 @@ namespace Wreckabulary.OnlineGameplayTests
         }
         async Task PrepareWorkshopCore(int count, CancellationToken ct)
         {
-            if (PublicQueue || count != 2 || Mode.Id != "Freestyle")
-                throw new InvalidOperationException("The authored transfer fixture requires two private Freestyle peers.");
+            if (PublicQueue || count != 2 || Mode.Id != "Freestyle" && Mode.Id != "TimeRun")
+                throw new InvalidOperationException("The authored transfer fixture requires two private Freestyle or TimeRun peers.");
             workshopLaunches = new WordboundPartyLaunchContext[count];
             for (int i = 0; i < count; i++)
             {
