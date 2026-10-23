@@ -162,12 +162,16 @@ namespace Wreckabulary.Tests
         {
             var f = Deploy(out _, out _);
             string json = MatchSnapshotCodec.Export(f.State);
-            Assert.AreEqual(2, MatchSnapshot.Schema);
-            Assert.AreEqual(2, MatchSnapshotCodec.CanonicalVersion);
-            Assert.AreEqual("wordbound-v2", MatchSnapshotCodec.ProtocolVersion);
-            foreach (string changed in new[] { json.Replace("\"schema\":2", "\"schema\":1"),
-                json.Replace("\"canonicalVersion\":2", "\"canonicalVersion\":1") })
-                Assert.IsFalse(f.Source.Import(WordboundSnapshotCodecTests.Rehash(changed)).Success);
+            Assert.AreEqual(3, MatchSnapshot.Schema);
+            Assert.AreEqual(3, MatchSnapshotCodec.CanonicalVersion);
+            Assert.AreEqual("wordbound-v3", MatchSnapshotCodec.ProtocolVersion);
+            foreach (int oldVersion in new[] { 1, 2 })
+                foreach (string changed in new[] { json.Replace("\"schema\":3", "\"schema\":" + oldVersion),
+                    json.Replace("\"canonicalVersion\":3", "\"canonicalVersion\":" + oldVersion) })
+                {
+                    Assert.AreNotEqual(json, changed, "The rejection case must actually change the current wire version.");
+                    Assert.IsFalse(f.Source.Import(WordboundSnapshotCodecTests.Rehash(changed)).Success);
+                }
         }
     }
 }
