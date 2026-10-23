@@ -1,6 +1,6 @@
 # Phase capture control and enabled evidence
 
-STATUS: NATIVE COMPARISON COMPLETE — report-only evidence. Root exclusively executes all jobs. Existing unrelated ModeDefinition changes and prior logs remain untouched. The later Windows QA workload is separate and pending final evidence.
+STATUS: NATIVE COMPARISON AND WINDOWS OBSERVATION COMPLETE — report-only evidence. Root exclusively executes all jobs. Existing unrelated ModeDefinition changes and prior logs remain untouched. Native 20/20 passed in both runs; the separate Windows scenario failed its existing 90-second playtest deadline.
 
 Control requested by root: native-phase-control-2033, source 714acc05, WORDBOUND_PROFILE_PHASES=0 and WORDBOUND_PROFILE_NATIVE=1, collector fixture (19 expected cases) plus public TeamSolo. Exact saved status, XML, logs and subsequent enabled job will determine the result. No absent measurement is treated as zero cost, no failed scenario as acceptance, and no source-only prediction as measured performance.
 
@@ -90,4 +90,26 @@ Source-only candidates to revisit **after** this split: Bodies still scans the c
 
 ## Separate Windows workload
 
-Root launched the existing visible workshop QA scenario at 20:41:32Z using build `203920` (source `d8eb1804`, build PASS 102.6 seconds), `WORDBOUND_PROFILE_PHASES=1`. Its log is `Logs/player/20261023T204132Z-visible-wordbound_workshop_flow.log`. This includes local workshop playtest presentation in a Windows player and the reviewed explicit Return-boundary finish; it is not the native two-human public workload. Await final scenario checks and phase windows before appending its outcome or comparing its individual scopes.
+Root launched the existing visible workshop QA scenario at 20:41:32Z using build `203920` (source `d8eb1804`, build PASS 102.6 seconds), `WORDBOUND_PROFILE_PHASES=1`. Its log is `Logs/player/20261023T204132Z-visible-wordbound_workshop_flow.log`. This includes local workshop playtest presentation in a Windows player and the reviewed explicit Return-boundary finish; it is not the native two-human public workload.
+
+Final evidence is now inspected: `.harness/delivery/20261023T204132Z-visible-wordbound_workshop_flow-status.json`, that player log, and `docs/qa/runs/20261023T204132Z-visible-wordbound_workshop_flow/checks.json`. The normal-window supplemental launch exited 1 at 20:43:47.259Z. It explicitly records `diagnosticOnly=true` and `officialGateReplacement=false`; this is not a substitute for official R4 acceptance. The player is non-development, Unity 6000.6.3f1, 1280x720, build 20261023T203920Z. The scenario's overall result is **FAIL**.
+
+Open, edit/autosave, return and Undo/Redo steps passed. Actual autosave matched edited bytes, recovered without backup, left zero temporary files and preserved draft/history. Four captures were written; pixel checks report nonblack, nontransparent, varied images. This report does not substitute pixel checks for visual-quality review. Console checks recorded zero errors, exceptions and warnings. Local gameplay became ready at 5.855 seconds/tick 50/frame 14 with 93 visuals; its ready capture passed the same pixel checks.
+
+The existing 90-frame wait did not finish before the unchanged 90-second deadline. The failed step retained the last periodic 75-frame observation at 83.850 seconds/tick 4550/frame 89. Return entry supplied the later, explicit final observation: 81 waited frames at 90.205 seconds/tick 4970/frame 96, still ready, unpaused, timeScale 1, focused, with no gameplay/guide/presentation fault. Those are distinct observation times, not contradictory final counts. Each logged 15-frame interval advanced 900 canonical ticks, consistent with 60 simulation ticks per observed frame over those intervals. This is evidence of poor responsiveness, not a measured graphics-only FPS or a claim that every frame contains exactly 60 SDK ticks.
+
+Both phase windows were valid (`None`, 0 inFlight), with 10,000,000 Hz Stopwatch and separate generations. Startup lasted 5.846360 seconds and ended tick 50 with 93 bodies/294 resources/216 mechanisms; full validation ran 59 times/367.449 ms. The ready window ended explicitly at `return-boundary` **before** workshop teardown, lasted 84.349911 seconds, and covered tick 50→4970 with unchanged section counts. Its 4,920 canonical advances match rollback/synchronization/observe/prepare/mutable/FrameChanged counts. Full validation's 5,061 calls include 141 other-context validations, and Economy's 9,981 calls equal 5,061 full + 4,920 mutable calls.
+
+| Ready phase | Calls | Inclusive elapsed ms | ms/call |
+| --- | ---: | ---: | ---: |
+| RollbackCapture | 4,920 | 5,526.181 | 1.123 |
+| Synchronize | 4,920 | 7,717.210 | 1.569 |
+| RetireResources | 4,920 | 1,091.268 | 0.222 |
+| FullValidation | 5,061 | 19,601.250 | 3.873 |
+| MutableValidation | 4,920 | 3,005.204 | 0.611 |
+| EconomyValidation | 9,981 | 2,272.127 | 0.228 |
+| ObserveHost | 4,920 | 6,019.018 | 1.223 |
+| Prepare | 4,920 | 4,953.966 | 1.007 |
+| FrameChanged | 4,920 | 611.114 | 0.124 |
+
+FullValidation remains the largest measured ready phase (23.24% of ready elapsed). Its 3.873 ms/call must not be presented as a speedup over native 8.405 ms/call: local content has half the recorded bodies/resources/mechanisms, a different seed/mode/roster, real player presentation and a different runtime/window. The nested-phase and elapsed-not-CPU limits still apply. Even FrameChanged's 611.114 ms cannot stand for all rendering, GUI, driver or scheduling cost. The result supports measuring the five approved validation children next; it does not justify skipping validation, extending deadlines or claiming a tested smooth Windows build.
