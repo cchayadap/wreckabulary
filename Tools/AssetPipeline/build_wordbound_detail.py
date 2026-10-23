@@ -165,6 +165,8 @@ def details(base, item):
     elif item == "STOOL":
         base.torus("Seat_piping", (0, 0, .427), .252, .0025, base.LINEN, segments=32, sides=6)
     elif item == "FAN":
+        base.rod("Motor_support_neck", (0, 0, .315), (0, -.135, .43), .026, base.SAGE, sectors=12)
+        base.rod("Motor_axle", (0, -.086, .56), (0, .09, .56), .016, metal=True, sectors=12)
         for radius in (.12, .20):
             base.torus("Inner_safety_grille", (0, .076, .56), radius, .003, metal=True,
                        rotation=(math.pi / 2, 0, 0), segments=32, sides=6)
@@ -401,7 +403,7 @@ def verify(base, output):
         raise RuntimeError("Wordbound detail export validation failed")
 
 
-def render(base, output, selected):
+def render(base, output, selected, threads):
     manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
     source = output / manifest["source"]["path"]
     if base.sha256(source) != manifest["source"]["sha256"]:
@@ -411,7 +413,7 @@ def render(base, output, selected):
     if selected and set(selected) - {root.name for root in roots}:
         raise RuntimeError("Unknown requested asset")
     camera = base.studio()
-    bpy.context.scene.render.threads = 2
+    bpy.context.scene.render.threads = threads
     for root in roots:
         for obj in base.descendants(root):
             obj.hide_set(False)
@@ -428,6 +430,11 @@ def render(base, output, selected):
         entry["previews"] = base.preview_records(output, entry["id"])
     if all(len(entry["previews"]) == 4 for entry in manifest["assets"]):
         manifest["status"] = "source-exports-and-previews-produced"
+    manifest.setdefault("render_runs", []).append({
+        "source_sha256": base.sha256(source), "render_generator_sha256": base.sha256(__file__),
+        "base_generator_sha256": base.sha256(base.__file__), "items": selected or [root.name for root in roots],
+        "engine": "CYCLES", "device": "CPU", "samples": 24, "threads": threads,
+        "preview_pixels": [640, 640], "icon_pixels": [512, 512]})
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
@@ -438,6 +445,7 @@ def main():
     parser.add_argument("--source", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--items", nargs="*")
+    parser.add_argument("--render-threads", type=int, choices=range(1, 7), default=2)
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:])
     base = load_builder(args.base_builder.resolve())
     source, output = args.source.resolve(), args.output.resolve()
@@ -448,7 +456,7 @@ def main():
     elif args.command == "verify":
         verify(base, output)
     else:
-        render(base, output, args.items)
+        render(base, output, args.items, args.render_threads)
 
 
 if __name__ == "__main__":
