@@ -193,6 +193,7 @@ namespace Wreckabulary.Tests
             string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
             string path = Path.Combine("Library", "Wordbound", "InspectorDrafts", guid + ".json");
             byte[] original = File.ReadAllBytes(path);
+            byte[] replacement;
             string savedAsset = asset.DocumentJson;
             using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -206,8 +207,9 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
                 CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
                 Assert.AreEqual(savedAsset, asset.DocumentJson);
+                replacement = File.ReadAllBytes(path + ".tmp");
             }
-            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            SaveDraftWithFailureFacts("store_released", asset, document, path, original, replacement);
             Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
             Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
             Assert.IsFalse(File.Exists(path + ".tmp"));
@@ -216,10 +218,113 @@ namespace Wreckabulary.Tests
             withBom[0] = 0xef; withBom[1] = 0xbb; withBom[2] = 0xbf;
             Buffer.BlockCopy(exact, 0, withBom, 3, exact.Length);
             File.WriteAllBytes(path, withBom);
-            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            SaveDraftWithFailureFacts("store_bom", asset, document, path, withBom, exact);
             CollectionAssert.AreEqual(exact, File.ReadAllBytes(path), "Text equality must not accept a different UTF-8 byte representation.");
             Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
             Assert.AreEqual(savedAsset, asset.DocumentJson);
+        }
+
+        static void SaveDraftWithFailureFacts(string stage, WordboundCourseAsset asset, CourseDocument document,
+            string path, byte[] previous, byte[] expected)
+        {
+            try { WordboundCourseDraftStore.Save(asset, asset.SourceHash, document); }
+            catch (Exception error)
+            {
+                try
+                {
+                    TestContext.WriteLine("WORDBOUND_DRAFT_STORE_FAILURE: stage=" + stage + "; type=" + error.GetType().Name +
+                        "; hresult=0x" + error.HResult.ToString("X8") + "; memoryOnly=" + WordboundCourseDraftStore.IsMemoryOnly(asset));
+                    ObserveDraftFile(stage, "target", path, previous, expected);
+                    ObserveDraftFile(stage, "temporary", path + ".tmp", previous, expected);
+                }
+                catch (Exception) { }
+                throw;
+            }
+        }
+
+        static void ObserveDraftFile(string stage, string role, string path, byte[] previous, byte[] expected)
+        {
+            try
+            {
+                var info = new FileInfo(path);
+                bool exists = info.Exists;
+                long length = exists ? info.Length : -1;
+                byte[] bytes = exists && length <= 4 * 1024 * 1024 ? File.ReadAllBytes(path) : null;
+                TestContext.WriteLine("WORDBOUND_DRAFT_FILE: stage=" + stage + "; role=" + role + "; exists=" + exists +
+                    "; length=" + length + "; attributes=" + (exists ? (int)info.Attributes : -1) +
+                    "; equalsPrevious=" + (bytes != null && bytes.SequenceEqual(previous)) +
+                    "; equalsExpected=" + (bytes != null && bytes.SequenceEqual(expected)));
+            }
+            catch (Exception error)
+            {
+                TestContext.WriteLine("WORDBOUND_DRAFT_FILE: stage=" + stage + "; role=" + role + "; readType=" +
+                    error.GetType().Name + "; hresult=0x" + error.HResult.ToString("X8"));
+            }
+            try
+            {
+                using (new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { }
+                TestContext.WriteLine("WORDBOUND_DRAFT_EXCLUSIVE_OPEN: stage=" + stage + "; role=" + role + "; success=True");
+            }
+            catch (Exception error)
+            {
+                TestContext.WriteLine("WORDBOUND_DRAFT_EXCLUSIVE_OPEN: stage=" + stage + "; role=" + role + "; success=False; type=" +
+                    error.GetType().Name + "; hresult=0x" + error.HResult.ToString("X8"));
+            }
+        }
+
+        [Test]
+        public void NativeDraftSequenceRewritesRetainedTemporaryAfterComparisonRead()
+        {
+            if (Application.platform != RuntimePlatform.WindowsEditor)
+                Assert.Ignore("This native draft sequence diagnostic requires the Windows Editor.");
+            var asset = CreateDraftAsset();
+            var document = asset.ReadDocument();
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+            Assert.AreEqual(32, guid.Length);
+            string root = Path.GetFullPath(Path.Combine("Library", "Wordbound", "InspectorDrafts")) + Path.DirectorySeparatorChar;
+            string path = Path.Combine("Library", "Wordbound", "InspectorDrafts", guid + ".json");
+            Assert.IsTrue(Path.GetFullPath(path).StartsWith(root, StringComparison.OrdinalIgnoreCase));
+            string temporary = path + ".tmp";
+            byte[] original = File.ReadAllBytes(path), replacement;
+            string savedAsset = asset.DocumentJson;
+            try
+            {
+                using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+                    Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                    document.Title = "New pending content while the old disk file is read-shared";
+                    var failure = Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+                    TestContext.WriteLine("WORDBOUND_DRAFT_SEQUENCE: stage=store_locked; type=" + failure.GetType().Name +
+                        "; hresult=0x" + failure.HResult.ToString("X8"));
+                    Assert.AreEqual(unchecked((int)0x80070020), failure.HResult);
+                    Assert.IsTrue(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                    Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+                    CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
+                    Assert.AreEqual(savedAsset, asset.DocumentJson);
+                    replacement = File.ReadAllBytes(temporary);
+                }
+                var comparison = typeof(WordboundCourseDraftStore).GetMethod("SameBytes", BindingFlags.Static | BindingFlags.NonPublic);
+                Assert.IsNotNull(comparison, "Exercise the actual Store comparison handle lifetime without exposing a new production API.");
+                Assert.IsFalse((bool)comparison.Invoke(null, new object[] { path, replacement }));
+                File.WriteAllBytes(temporary, replacement);
+                var result = ObserveReplacement("actual_payload_compare_rewrite_released", temporary, path, null, original, replacement, false);
+                if (result.ErrorType != null)
+                {
+                    ObserveDraftFile("direct_released", "target", path, original, replacement);
+                    ObserveDraftFile("direct_released", "temporary", temporary, original, replacement);
+                }
+                Assert.IsNull(result.ErrorType, "Direct Store IO sequence HRESULT=0x" + result.HResult.ToString("X8"));
+                Assert.IsTrue(result.TargetReplacement && !result.SourceExists);
+                Assert.IsTrue(WordboundCourseDraftStore.IsMemoryOnly(asset), "The direct IO control does not run Store success bookkeeping.");
+                Assert.AreEqual(savedAsset, asset.DocumentJson);
+            }
+            finally
+            {
+                Assert.IsTrue(Path.GetFullPath(temporary).StartsWith(root, StringComparison.OrdinalIgnoreCase));
+                if (File.Exists(temporary)) File.Delete(temporary);
+            }
         }
 
         [Test]
