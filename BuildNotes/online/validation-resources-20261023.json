@@ -1,0 +1,10 @@
+{
+  "recordedUtc": "2026-10-23T16:56:03.6285Z",
+  "sourceCommit": "02738cd94a92005f1857cd0f3ddc884a9d83b136",
+  "validationSha256": "781A07D56307999E878142A00D89C1F877B19F13267F9D26BD408729DEE08A34",
+  "physicalValidationSha256": "DCC2DB749ECAB53EEDC421699E06E666D8D5EA441068D2111B680629D54692C3",
+  "probeSha256": "9E794DEB66EF62F33D94714DBB91AF57607C02B987D0C32045F712E2B16CB224",
+  "command": "dotnet run --project Tools/RulesHarness/ValidationProbe/ValidationProbe.csproj --configuration Release",
+  "exitCode": 0,
+  "metadataCorrection": "Physical validation path corrected after execution; no source edits occurred during the probe."
+}

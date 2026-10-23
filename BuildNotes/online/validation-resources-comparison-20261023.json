@@ -1,0 +1,46 @@
+{
+  "recordedUtc": "2026-10-23T16:57:40.708Z",
+  "before": "validation-indexed-20261023",
+  "after": "validation-resources-20261023",
+  "identicalInputs": true,
+  "identicalProbe": true,
+  "totalValidations": 120,
+  "allValid": true,
+  "positiveAllocationControls": true,
+  "scope": "Standalone .NET allocation; not Unity frame-rate or network acceptance",
+  "modes": [
+    {
+      "mode": "TimeRun",
+      "beforeBytesPerValidation": 523899.2,
+      "afterBytesPerValidation": 455446.4,
+      "reductionPercent": 13.066024914716412,
+      "beforeBatchMilliseconds": [
+        60.612,
+        63.523,
+        66.417
+      ],
+      "afterBatchMilliseconds": [
+        769.361,
+        841.298,
+        670.173
+      ]
+    },
+    {
+      "mode": "TeamRace",
+      "beforeBytesPerValidation": 1190317.4666666666,
+      "afterBytesPerValidation": 1055937.6,
+      "reductionPercent": 11.289413994989106,
+      "beforeBatchMilliseconds": [
+        230.641,
+        201.799,
+        333.234
+      ],
+      "afterBatchMilliseconds": [
+        1500.048,
+        1225.868,
+        1086.201
+      ]
+    }
+  ],
+  "timingNote": "Later timings were substantially slower despite lower allocations; machine scheduling was not controlled, so no speed improvement is claimed."
+}
