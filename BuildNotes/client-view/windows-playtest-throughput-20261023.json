@@ -341,6 +341,41 @@
       "path": "docs/qa/runs/20261023T192105Z-visible-wordbound_workshop_flow/workshop-autosave.json",
       "sha256": "A97B13DEDFA47126279D290B963CBF618E3E90E45502E0720FB6C77E90659678",
       "bytes": 183314
+    },
+    {
+      "path": "Builds/qa-20261023T191831Z/build.json",
+      "sha256": "9741B6F03F830FFDEC3AA6CE14143F4D37ED238BC37B881E29511F6946A24400",
+      "bytes": 451
+    },
+    {
+      "path": "Builds/qa-20261023T191831Z/packed_assets.json",
+      "sha256": "F171037B9F4FFAB043A5C825ACE72F1598E7D6092A374A146576D83DCD13C557",
+      "bytes": 6199187
+    },
+    {
+      "path": "Builds/qa-20261023T191831Z/UnityPlayer.dll",
+      "sha256": "7C8127007131559A3DAA04AA3A3E8D1477975FE449F59917C5C75D86FA1F904F",
+      "bytes": 38696368
+    },
+    {
+      "path": "Builds/qa-20261023T191831Z/Wreckabulary_Data/Managed/Wreckabulary.Wordbound.Qa.dll",
+      "sha256": "482E1528C680C0154E6847F35576527565D29BC7CEB456EAC819A54F23DD3519",
+      "bytes": 61952
+    },
+    {
+      "path": "Builds/qa-20261023T191831Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Gameplay.dll",
+      "sha256": "90F65389FBEBCD3E2F306DD44C9F5237A0403E2E6E072BA016005931BD777110",
+      "bytes": 52736
+    },
+    {
+      "path": "Builds/qa-20261023T191831Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Puzzles.dll",
+      "sha256": "F88FB52B36A2D5A9B67013A2A4ACAC345C0A23F4CC474F6F459FC5D8B5E4A37D",
+      "bytes": 74240
+    },
+    {
+      "path": "Logs/player/20261023T192105Z-visible-wordbound_workshop_flow.log",
+      "sha256": "DEF182598ADDA2647B56A2503149102F124FADDBBDE69277314376D16D4E07AB",
+      "bytes": 4777
     }
   ],
   "findings": [
