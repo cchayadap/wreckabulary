@@ -1,6 +1,6 @@
 # Wordbound production delivery
 
-Owner: James / SethyPagna. Updated 2026-10-21 (Asia/Hong_Kong).
+Owner: James / SethyPagna. Updated 2026-10-23 (Asia/Hong_Kong).
 
 Legend: `[ ]` unfinished; `[~]` implementation or verification in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
@@ -15,6 +15,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Compare James/ICY/Sethy histories; create isolated integration and feature worktrees.
 - [x] Reconcile ICY changes and preserve original main, modified font and unfinished Lunar work.
 - [~] Maintain coherent commits, exact evidence and recoverable checkpoints.
+- [x] Recover all seven worktrees after interruption; preserve 719 dirty/untracked/authored files with binary patches and verified SHA-256 copies (2026-10-23).
 - [ ] Prepare final review branch/PR and attach it to this chat.
 
 ## Gameplay, world and story
@@ -24,7 +25,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Pass 8,000 seed cases on the recorded frozen flagship revision; this does not prove final content or physical playthrough.
 - [x] Repair FFA supplies for all 13 enabled recipes; 19 focused cases pass.
 - [x] Run 1,000 arena seeds: exact replay/import, source/spawn/placement bounds and budgets pass (`TestResults/core_20261020T201057Z.trx`, 255.7 seconds).
-- [~] Verify native letter selection/collection; review found remote HUD lookup and occluded-target defects, repairs/regressions are in progress.
+- [~] Verify native letter selection/collection; remote HUD lookup and occluded-target repairs/regressions are integrated, native execution pending.
 - [x] Implement Freestyle station selection, shared keepsake and persistent practice; 63 related source cases pass.
 - [~] Integrate Freestyle HUD/guide and verify native practice.
 - [~] Implement/test SHIELD/PLATE direction, raising, wear/breakage, movement and input.
@@ -40,7 +41,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Implement 3D editing, layers, random zones, validation and route/checkpoint/spawn authoring.
 - [x] Verify exact-draft playtest/return preserves undo/redo history.
 - [~] Verify drag/rotate/resize/multi-select/group/snap/controller workflows, autosave/recovery and JSON sharing.
-- [~] Finish automatic exact custom-course sharing in private online sessions.
+- [~] Finish automatic exact custom-course sharing in private online sessions; Workshop handoff and exact-map/profile binding are integrated, service/client gates pending.
 - [~] Expose camera FOV/distance/sensitivity/obstruction settings through validated Inspector assets; source and live-edit regression are integrated, native test pending.
 - [~] Expose equipment visuals/materials/grips and presentation settings without code changes; replacement-bound/grip/custom-ID regressions are integrated, native test pending.
 - [~] Provide Unity course assets/editor controls for modules/layers/spawns/puzzles/random ranges, with preview/validate/playtest actions; source and reference compile complete, native asset creation/persistence pending.
@@ -82,7 +83,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Create/read back Windows release, QA and development profiles.
 - [~] Complete QA build; first attempt exceeded 30 minutes, caches retained.
 - [ ] Launch QA player and complete workshop→game→workshop smoke; inspect frames/motion.
-- [ ] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit.
+- [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit; review found the gameplay launcher always selected desktop input, controller repair in progress.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
 - [ ] Build release player and smoke-test the exact stripped executable.
@@ -91,6 +92,18 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 ## Active work and evidence
 
+### Recovery and cleanup — 2026-10-23
+
+- [x] Confirm integration HEAD `a896be3`, original main/font/Lunar files, all feature branches, and no surviving Unity/compiler/Blender jobs.
+- [x] Save a private recovery snapshot under `.harness/recovery/2026-10-23T08-53-03-542Z-da1d8676-0794-40fc-a246-cd5de5cc201a`; its manifest verifies every copied file. Existing Git history, caches and private service credentials remain in place.
+- [x] Recover the actual public C# result: 28 executed / 28 passed. No Worker success was inferred from the interrupted run.
+- [~] Finish public/custom-map service checks and harvest separate coherent commits.
+- [~] Remove repeated input allocations; finish controller menu navigation and prevent held actions leaking across focus/device/menu transitions.
+- [~] Improve material/construction detail; preserve editable Blender components while combining static export meshes to reduce Unity renderer overhead. Measure before/after counts and verify all FBX/GLB bounds/grips.
+- [ ] Validate the assembled source, import final content, run native gameplay/public/recovery checks, then build and smoke-test the exact Windows delivery.
+
+There is still no verified Windows player. Public matchmaking remains closed until the final matching catalogue and service are validated and deployed. This recovery does not change those acceptance states.
+
 Root: integration, HUD/player/guide, native verification, content export, coordinated deployment and Windows delivery. Puzzle-race: independent defense review and additive Unity authoring tools. Map-workshop/assets: defense/arena verification and asset quality. Online: protocol v3, all-mode public allocation and private-map sharing.
 
-Root currently holds the native slot. Affected Rules passed128/128, and the separately selected arena test passed all1,000seeds (maximum194 initial bodies, minimum213 optional reserve, cap512). Final source R0 passed148.3seconds (`Logs/gate_check_all_20261020T201557Z.log`). Native physical/story/profile/authoring batch `editmode_20261020T201950Z` is running. Schema-3 service is deployed with live API7/7PASS, preserved credentials/state and unchanged website (`BuildNotes/online/V3-DEPLOYMENT.md`). The public allowlist remains empty pending final integration/validation. No verified Windows player or production-ready claim exists yet.
+Online currently holds the compiler/test slot; detailed Blender generation is next. Affected Rules passed128/128, and the separately selected arena test passed all1,000seeds (maximum194 initial bodies, minimum213 optional reserve, cap512). R0 passed148.3seconds before the latest source integration (`Logs/gate_check_all_20261020T201557Z.log`). Native physical/story/profile/authoring batch `editmode_20261020T201950Z` failed at the1200-second limit during compilation, before test execution; no C# error or native pass was reported. Its cache is retained. Schema-3 service is deployed with live API7/7PASS, preserved credentials/state and unchanged website (`BuildNotes/online/V3-DEPLOYMENT.md`). The public allowlist remains empty pending final integration/validation. No verified Windows player or production-ready claim exists yet.

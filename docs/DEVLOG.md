@@ -92,3 +92,17 @@ The standalone Explicit arena gate passed all1,000seeds in255.7seconds total (`T
 
 Final assembled R0 passed148.3seconds (`Logs/gate_check_all_20261020T201557Z.log`). The verified schema-3 service was uploaded once and read back at100% traffic; existing secrets/DO namespaces/migrationv1 were preserved and the website timestamp stayed unchanged. Live API7/7passed with complete cleanup (`BuildNotes/online/V3-DEPLOYMENT.json`, `V3-LIVE-API-CHECK.json`). Public allowlist remains empty. Native local batch201950 is active; no runtime or Windows completion is claimed. Independent review found remote HUD lookup and occluded-target defects, now assigned for source repair plus actual remote-input regression.
 
+
+## 2026-10-20T20:44:00Z Native compilation timeout and exact Workshop handoff
+
+Native batch201950Z returned FAIL, exit1,1205.3seconds: the1200-second deadline expired during compilation. The log has no C# diagnostic and no native test result. Unity/Bee/VBCS from the gate process tree were absent after termination. Cache retained; no test was credited. Online owns the next compiler slot, followed by detailed Blender generation.
+
+Integrated reviewed remote HUD canonical body lookup/LOS, saved CourseAsset launcher regression, Freestyle expectation correction and detail-revision preflight. The bundle durability review is retained with its source-only limits. Root added Workshop Host online handoff using captured draft/manifest/mode, a busy UI, preserved history on failure, and exact BundleId association for local CourseAsset camera/visual overrides. These source changes await Online A1 APIs and new R0/native checks. Controller review found default desktop-only gameplay binding; its isolated repair is assigned to the authoring/input lane.
+
+Evidence: Logs/gate_test_editmode_20261020T201950Z.log; BuildNotes/unity-authoring/NATIVE-ACCEPTANCE-REVIEW.md; BuildNotes/durability-review/BUNDLE-REVIEW.md; progress.md. No verified Windows delivery or production-ready assertion.
+
+## 2026-10-23T08:53:27Z Resume and preserve unfinished Wordbound work
+
+Confirmed seven worktrees, integration HEAD a896be3 and the unchanged original main/font/Lunar direction. No surviving Unity/Bee/Blender/compiler job was found. Saved tracked binary/index patches and 719 dirty/untracked/authored files to the ignored `.harness/recovery/2026-10-23T08-53-03-542Z-da1d8676-0794-40fc-a246-cd5de5cc201a`; reread every copied file and verified its SHA-256 against the manifest. Caches and private service credentials remain in place.
+
+Recovered the actual public C# 28/28 result. The interrupted Worker gate has no surviving verdict and must run; no success was inferred. Online owns those source gates; input owns controller/menu cleanup and transition safety; assets owns material/construction detail with measured static export mesh reduction. Root owns integration, native validation, final public activation and tested Windows delivery. No Windows player or production acceptance is claimed. Updated progress.md and stale Task/TODO/MAP pointers to match recorded state.
