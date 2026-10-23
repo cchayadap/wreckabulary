@@ -45,7 +45,14 @@ namespace Wreckabulary.EditorTools
             if (!material || !material.shader || material.shader.name != "Universal Render Pipeline/Unlit" ||
                 !material.HasProperty("_BaseMap") || !material.HasProperty("_BaseColor") ||
                 material.GetFloat("_Surface") != (transparent ? 1 : 0) ||
-                material.IsKeywordEnabled("_SURFACE_TYPE_TRANSPARENT") != transparent)
+                material.IsKeywordEnabled("_SURFACE_TYPE_TRANSPARENT") != transparent ||
+                material.GetFloat("_SrcBlend") != (float)(transparent ? BlendMode.SrcAlpha : BlendMode.One) ||
+                material.GetFloat("_DstBlend") != (float)(transparent ? BlendMode.OneMinusSrcAlpha : BlendMode.Zero) ||
+                material.GetFloat("_SrcBlendAlpha") != (float)BlendMode.One ||
+                material.GetFloat("_DstBlendAlpha") != (float)(transparent ? BlendMode.OneMinusSrcAlpha : BlendMode.Zero) ||
+                material.GetFloat("_ZWrite") != (transparent ? 0 : 1) ||
+                material.renderQueue != (int)(transparent ? RenderQueue.Transparent : RenderQueue.Geometry) ||
+                material.GetTag("RenderType", false) != (transparent ? "Transparent" : "Opaque"))
                 throw new InvalidOperationException("Render material differs from the required surface contract; preserve and inspect " + path);
         }
 
