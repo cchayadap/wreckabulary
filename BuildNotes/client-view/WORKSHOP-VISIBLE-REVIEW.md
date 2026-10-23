@@ -53,3 +53,24 @@ The QA edit step currently captures after `WaitFrames(3)` and only validates in-
 ## Follow-up ownership and verification
 
 No production fix is included in this report. Coordinate exclusive ownership before editing workshop/UI or QA files. Keep crash diagnosis separate. After a bounded correction, root should run the existing workshop projection/source/Undo/recovery gates, the targeted clipping/label cases, then a real visible Windows workshop save/recover/play/return capture using the same build identity. Supplemental results remain separate from official R4 and all multiplayer acceptance.
+
+## Assigned QA persistence follow-up
+
+STATUS: SOURCE READY, independent review pending; compile/player NOT-RUN. Root assigned only the existing QA workflow persistence repair. The lane first copied the exact root `305ff093` `WordboundWorkshopQa.cs` into baseline-only commit `8127d1f2`; do not integrate that baseline. The deliverable is the following separate delta, without viewport or product storage edits.
+
+- `WordboundWorkshopQa.EditWorkshop` now chooses `Path.GetTempPath()/wbqa/<full GUID>` and records/preflights the exact flagship atomic temporary path length below 260 before opening. It retains the existing launcher's root/owner-directory/empty-directory isolation checks.
+- The same `edit_workshop` step waits up to 15 seconds within its unchanged 60-second step bound for the real workshop `Update` to write the primary file. It does not call `Save` or change `savedRevision`. It recovers through `WorkshopStorage`, requires no backup fallback, exact disk JSON and recovered `RecoveryJson`, unchanged live history, and no pending atomic temporary files. Full recovery equality includes the edited title, seed/lock and editor metadata.
+- The verified primary is copied once to the run's `workshop-autosave.json`, and exact location/bytes/seed/booleans are recorded as probes. The unique temporary draft is retained as failure evidence; it is not deleted while workshop callbacks can still save. Root can clean up only this recorded owned directory after the player exits and evidence is retained.
+- `exact_playtest` refuses to start unless that verification succeeded and the same live draft remains. This is necessary because the QA runner proceeds to later steps after a step failure. All existing render, manifest, local-play, return and Undo/Redo assertions remain; no existing deadlines or product error messages changed.
+
+The meaningful new regression checks are in existing scenario `wordbound_workshop_flow`, steps `edit_workshop` and `exact_playtest`. No helper-only unit test was added. `git diff --check` passed. Independent source review requested from `recover_input`; no heavy job ran here.
+
+Root follow-up gates after integration:
+
+```powershell
+node Tools/kit/gate/game_gate.mjs check all --json
+node Tools/kit/gate/game_gate.mjs build --profile release-qa --cold --json --timeout 3600
+node Tools/kit/gate/game_gate.mjs smoke --build <exact-new-QA-build-id> --scenario wordbound_workshop_flow --seconds 240 --json
+```
+
+The existing hidden-launch issue and native local-play crash remain independent blockers. If root repeats the authorized visible-launch comparison, label it supplemental and keep the exact new build/arguments; inspect the autosave evidence and probes before interpreting later failure. No player save success, crash repair or R4 pass is claimed by this source change.

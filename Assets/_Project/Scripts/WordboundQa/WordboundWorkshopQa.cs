@@ -21,6 +21,7 @@ namespace Wreckabulary.Qa
         WorkshopHistory history;
         string initial, edited, manifest;
         Camera ownedCamera;
+        bool savedDraftVerified;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         static void Register() => QaScenarios.Register("wordbound_workshop_flow", () => new WordboundWorkshopQa());
@@ -124,7 +125,15 @@ namespace Wreckabulary.Qa
 
         IEnumerator EditWorkshop(QaContext context)
         {
-            string folder = Path.GetFullPath(Path.Combine(context.OutDir, "workshop-draft-" + System.Guid.NewGuid().ToString("N")));
+            savedDraftVerified = false;
+            context.Note("workshop_autosave_verified", false);
+            string folder = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "wbqa", System.Guid.NewGuid().ToString("N")));
+            string scopedFolder = Path.Combine(folder, "templates", "Flagship");
+            string primary = Path.Combine(scopedFolder, WordboundFlagshipContent.CourseId + ".autosave.json");
+            int temporaryPathCharacters = primary.Length + 37;
+            context.Note("workshop_atomic_path_characters", temporaryPathCharacters);
+            if (temporaryPathCharacters >= 260)
+                throw new QaFailException("The QA temporary storage path is too long for the Windows atomic save; use a shorter temporary directory.");
             launcher.ConfigureQaWorkshopStorage(folder);
             context.Note("workshop_storage_folder", folder);
             launcher.SendMessage("OpenWorkshop", SendMessageOptions.RequireReceiver);
@@ -147,12 +156,33 @@ namespace Wreckabulary.Qa
             manifest = preview.Manifest.Hash;
             context.Note("manifest_hash", manifest);
             context.Note("seed", history.Current.Seed);
+            yield return context.WaitUntil(() => File.Exists(primary), 15, "the workshop's edited primary autosave");
+            var recovered = new WorkshopStorage(scopedFolder).Recover(WordboundFlagshipContent.CourseId, out bool usedBackup);
+            bool exact = File.ReadAllText(primary) == edited && recovered.RecoveryJson == edited;
+            bool unchanged = ReferenceEquals(workshop.History, history) && history.Current.RecoveryJson == edited;
+            int temporaryFiles = Directory.GetFiles(scopedFolder, WordboundFlagshipContent.CourseId + ".autosave.json.*.tmp").Length;
+            context.Note("workshop_autosave_primary", primary);
+            context.Note("workshop_autosave_bytes", new FileInfo(primary).Length);
+            context.Note("workshop_autosave_used_backup", usedBackup);
+            context.Note("workshop_autosave_exact", exact);
+            context.Note("workshop_autosave_draft_unchanged", unchanged);
+            context.Note("workshop_autosave_temporary_files", temporaryFiles);
+            context.Note("workshop_recovered_seed", recovered.Seed);
+            if (usedBackup || !exact || !unchanged || temporaryFiles != 0)
+                throw new QaFailException("The workshop did not atomically save and recover the exact edited draft from its primary file.");
+            string evidence = context.PathInRun("workshop-autosave.json");
+            File.Copy(primary, evidence, false);
+            context.Note("workshop_autosave_evidence", context.ToWorkspacePath(evidence));
+            savedDraftVerified = true;
+            context.Note("workshop_autosave_verified", true);
             yield return context.WaitFrames(3);
             yield return context.CaptureScreen("wordbound_workshop");
         }
 
         IEnumerator Playtest(QaContext context)
         {
+            if (!savedDraftVerified || !ReferenceEquals(workshop.History, history) || history.Current.RecoveryJson != edited)
+                throw new QaFailException("Playtest requires the exact edited draft to pass primary autosave recovery first.");
             workshop.RequestPlaytest();
             yield return context.WaitUntil(() => {
                 client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
