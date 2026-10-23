@@ -13,6 +13,7 @@ namespace Wreckabulary.Online.Tests
     internal sealed class WordboundNativeInputScope : IDisposable
     {
         const string PlayerUpdates = "RUN_PLAYER_UPDATES_IN_EDIT_MODE";
+        const HideFlags OwnedFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
         readonly InputSettings original;
         readonly InputSettings temporary;
         readonly bool originalPlayerUpdates;
@@ -21,12 +22,13 @@ namespace Wreckabulary.Online.Tests
         public WordboundNativeInputScope()
         {
             original = InputSystem.settings;
+            if (!original) throw new InvalidOperationException("The native input fixture requires live original InputSettings.");
             var featureField = typeof(InputSettings).GetField("m_FeatureFlags", BindingFlags.Instance | BindingFlags.NonPublic)
                 ?? throw new MissingFieldException(typeof(InputSettings).FullName, "m_FeatureFlags");
             var originalFeatures = (HashSet<string>)featureField.GetValue(original);
             originalPlayerUpdates = originalFeatures?.Contains(PlayerUpdates) == true;
             temporary = Object.Instantiate(original);
-            temporary.hideFlags = HideFlags.HideAndDontSave;
+            temporary.hideFlags = OwnedFlags;
             try
             {
                 temporary.updateMode = InputSettings.UpdateMode.ProcessEventsInDynamicUpdate;
@@ -35,11 +37,18 @@ namespace Wreckabulary.Online.Tests
                 if (originalFeatures != null)
                     foreach (string feature in originalFeatures) temporary.SetInternalFeatureFlag(feature, true);
                 temporary.SetInternalFeatureFlag(PlayerUpdates, true);
-                InputSystem.settings = temporary;
+                var originalFlags = original.hideFlags;
+                try
+                {
+                    if (originalFlags == HideFlags.HideAndDontSave) original.hideFlags = OwnedFlags;
+                    InputSystem.settings = temporary;
+                }
+                finally { if (original) original.hideFlags = originalFlags; }
             }
-            catch
+            catch (Exception setupError)
             {
-                Restore();
+                try { Restore(); }
+                catch (Exception cleanupError) { throw new AggregateException(setupError, cleanupError); }
                 throw;
             }
         }
@@ -91,10 +100,13 @@ namespace Wreckabulary.Online.Tests
         {
             try
             {
-                try { temporary.SetInternalFeatureFlag(PlayerUpdates, originalPlayerUpdates); }
+                try { if (temporary) temporary.SetInternalFeatureFlag(PlayerUpdates, originalPlayerUpdates); }
                 finally { InputSystem.settings = original; }
             }
-            finally { Object.DestroyImmediate(temporary); }
+            finally
+            {
+                if (temporary && !ReferenceEquals(InputSystem.settings, temporary)) Object.DestroyImmediate(temporary);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 # Native input fixture repair
 
-STATUS: SOURCE REVIEW COMPLETE — repair committed as b26e097; native rerun pending. No local compiler/Unity job.
+STATUS: NATIVE CLEANUP FAILURE DIAGNOSED — follow-up repair prepared; rerun pending. No local compiler/Unity job.
 
 Evidence: integration `TestResults/editmode_20261023T122055Z.xml` reports 11/13 InputBinding, 5/6 PartyMenuInput and 3/3 WorkshopInputSafety failures. Sampled pad state remained zero/null; the focus callback test also triggered Unity's `ShouldRunBehaviour()` assertion through EditMode `SendMessage`.
 
@@ -15,3 +15,9 @@ Source repair also preserves the original nonserialized feature flags on the clo
 The three tracked fixture baselines match the current integration source after line-ending normalization; no baseline-only commit or old-source overwrite is needed. New helper APIs were checked against the installed package's `InputSettings`, `InputState`, `GamepadState` and `ButtonControl` source. Native expected cases remain **22** across the three affected fixtures (13 + 6 + 3); no behavioral assertion was removed and no new test case was added.
 
 Independent bounded review by recover_online confirmed the installed 1.20 API behavior, independent cloned flag collection, pre-swap cache restoration, setup-failure cleanup and exact original-settings restoration. Source verdict PASS; this is not native, rendered-control or hardware acceptance. The coordinator must rerun the 22 affected cases and require 22 pass / 0 fail / 0 skip before claiming the native repair succeeds.
+
+The first rerun (`editmode_20261023T125443Z.xml`) invalidated the earlier complete source verdict: the first InputBinding body reached TearDown, but restoration threw ArgumentNullException; the other 21 cases failed setup after encountering the destroyed active settings object. Installed `InputManager.settings` lines 190–192 automatically destroy an old settings object whose hideFlags equals HideAndDontSave. The manager-created default used that flag, so installing the clone destroyed the original reference; unconditional cleanup then destroyed the still-active clone after restoration failed. This is fixture ownership/lifetime behavior, not a product input regression.
+
+The follow-up protects the original's temporary flags only across replacement, restores its exact flags immediately afterward, and gives the scope-owned clone HideInHierarchy|DontSave so ownership stays explicit. Cleanup never destroys that clone while it remains the active settings object, including restoration failure. A missing/destroyed original at scope entry fails explicitly. Constructor setup and cleanup errors are both preserved rather than hiding the first. Original nonserialized feature flags and the pre-swap cached override restoration remain intact.
+
+One additional native regression performs two real nested settings swaps with an original marked HideAndDontSave, asserting original instance/flags preservation and destruction only of each inactive clone. Expected focused result is now **23 cases: 14 InputBinding + 6 PartyMenuInput + 3 WorkshopInputSafety**, with zero skipped. The earlier 22-case native acceptance is not claimed; the follow-up still requires the coordinator's native rerun.

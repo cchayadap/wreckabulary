@@ -84,6 +84,34 @@ namespace Wreckabulary.Online.Tests
         }
 
         [Test]
+        public void NativeInputScopesPreserveTemporaryOriginalSettingsAcrossRepeatedUse()
+        {
+            var original = InputSystem.settings;
+            var originalFlags = original.hideFlags;
+            try
+            {
+                original.hideFlags = HideFlags.HideAndDontSave;
+                for (int attempt = 0; attempt < 2; attempt++)
+                {
+                    InputSettings scoped;
+                    using (var nested = new WordboundNativeInputScope())
+                    {
+                        scoped = InputSystem.settings;
+                        Assert.IsTrue(original, "Installing test settings must not destroy manager-owned temporary settings.");
+                        Assert.AreNotSame(original, scoped);
+                        Assert.AreEqual(HideFlags.HideAndDontSave, original.hideFlags);
+                        WordboundNativeInputScope.Pump();
+                    }
+                    Assert.AreSame(original, InputSystem.settings);
+                    Assert.IsTrue(original);
+                    Assert.AreEqual(HideFlags.HideAndDontSave, original.hideFlags);
+                    Assert.IsFalse(scoped, "Only the inactive scope-owned settings should be destroyed.");
+                }
+            }
+            finally { if (original) original.hideFlags = originalFlags; }
+        }
+
+        [Test]
         public void QuietConnectedPadDoesNotStealDesktopButDeliberateStickInputControlsMovementAndLook()
         {
             Assert.IsTrue(binding.ReadsMouse);
