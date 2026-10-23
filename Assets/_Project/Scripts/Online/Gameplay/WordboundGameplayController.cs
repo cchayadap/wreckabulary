@@ -55,7 +55,7 @@ namespace Wreckabulary.Online
         WordboundNetworkBody localBody;
         string localActor;
         long runnerStarted, nextCheckpoint, lastSequence, sentEpoch = -1;
-        bool initialized, localReady, hostReady, publishing, stopping, handlingStep, reconciling;
+        bool initialized, localReady, hostReady, publishing, stopping, handlingStep, reconciling, startingHost;
         Task stopTask;
         public WordboundFusionAuthority Authority { get; private set; }
         public MatchSnapshot Frame => frame;
@@ -207,26 +207,31 @@ namespace Wreckabulary.Online
         void BeginHost()
         {
             if (hostReady) return;
-            if (reconciling) throw new InvalidOperationException("Canonical reconciliation cannot reenter an active attempt.");
+            if (startingHost || reconciling) throw new InvalidOperationException("Canonical reconciliation cannot reenter an active attempt.");
             if (!session.GameplayReady || !runner.IsServer || session.Committed == null)
                 throw new InvalidOperationException("Host composition requires a validated committed session start.");
-            var simulator = runner.GetComponent<RunnerSimulatePhysics>();
-            if (simulator == null) { simulator = runner.gameObject.AddComponent<RunnerSimulatePhysics>(); runner.AddGlobal(simulator); }
-            simulator.Update3DPhysicsScene = true;
-            physics = new WordboundPhysicsWorld(runner, Authority.Match.Binding, Authority.Match.Mode, course, items, rules,
-                peer => session.TryGetAdmittedActor(peer, out var actor) ? actor : null,
-                () => hostReady && Fault == "" && !stopping && session.GameplayReady && !Authority.Match.IsPaused,
-                options.PuzzleEvaluator, options.MovementEnvironment);
-            physics.RegisterStatic(courseWorld);
-            physics.HostStepCompleted += AdvanceHost;
-            physics.MovementFaulted += Fail;
-            query.Target = physics;
-            driver = runner.gameObject.AddComponent<WordboundGameplayDriver>(); driver.Controller = this; runner.AddGlobal(driver);
-            var initializedPhysics = physics;
-            if (!Reconcile(CaptureFrame()) || stopping || Fault != "" || !ReferenceEquals(initializedPhysics, physics) ||
-                !session.GameplayReady) return;
-            hostReady = true;
-            nextCheckpoint = options.Clock() + options.CheckpointMilliseconds;
+            startingHost = true;
+            try
+            {
+                var simulator = runner.GetComponent<RunnerSimulatePhysics>();
+                if (simulator == null) { simulator = runner.gameObject.AddComponent<RunnerSimulatePhysics>(); runner.AddGlobal(simulator); }
+                simulator.Update3DPhysicsScene = true;
+                physics = new WordboundPhysicsWorld(runner, Authority.Match.Binding, Authority.Match.Mode, course, items, rules,
+                    peer => session.TryGetAdmittedActor(peer, out var actor) ? actor : null,
+                    () => hostReady && Fault == "" && !stopping && session.GameplayReady && !Authority.Match.IsPaused,
+                    options.PuzzleEvaluator, options.MovementEnvironment);
+                physics.RegisterStatic(courseWorld);
+                physics.HostStepCompleted += AdvanceHost;
+                physics.MovementFaulted += Fail;
+                query.Target = physics;
+                driver = runner.gameObject.AddComponent<WordboundGameplayDriver>(); driver.Controller = this; runner.AddGlobal(driver);
+                var initializedPhysics = physics;
+                if (!Reconcile(CaptureFrame()) || stopping || Fault != "" || !ReferenceEquals(initializedPhysics, physics) ||
+                    !session.GameplayReady) return;
+                hostReady = true;
+                nextCheckpoint = options.Clock() + options.CheckpointMilliseconds;
+            }
+            finally { startingHost = false; }
         }
 
         public void PrepareHostPhysics(NetworkRunner source)

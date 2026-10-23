@@ -50,6 +50,9 @@ namespace Wreckabulary.OfflineGameplayTests
         [UnityTest, Category("LocalWordboundGameplay")]
         public IEnumerator PresentationPollCannotReenterInitialHostComposition() => Run("Freestyle", "reenter");
 
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator FirstAppliedFrameCannotReenterInitialHostComposition() => Run("Freestyle", "frame-reenter");
+
         IEnumerator Run(string selectedMode, string atomicCase = "")
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_LOCAL_GAMEPLAY") != "1")
@@ -84,6 +87,12 @@ namespace Wreckabulary.OfflineGameplayTests
             MatchSnapshot frameAtCallback = null;
             controller.FrameChanged += _ => { if (visualCallbacks > 0) framesAfterCallback++; };
             controller.HostAdvanced += _ => { if (visualCallbacks > 0) advancesAfterCallback++; };
+            controller.FrameChanged += _ => {
+                if (atomicCase != "frame-reenter" || controller.PhysicsWorld == null) return;
+                visualCallbacks++;
+                frameAtCallback = controller.Frame;
+                controller.Poll();
+            };
             controller.InitializeLocal(binding, mode, course, geometry, items, rules, Actor, prefabs,
                 new WordboundGameplayOptions {
                     GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
@@ -110,19 +119,19 @@ namespace Wreckabulary.OfflineGameplayTests
             }, config, controller.Authority, Actor);
             controller.AttachSession(session);
             yield return Wait(session.StartLocal(lifetime.Token), "Start local SDK runner", 30);
-            if (atomicCase == "stop" || atomicCase == "throw" || atomicCase == "reenter")
+            if (atomicCase == "stop" || atomicCase == "throw" || atomicCase == "reenter" || atomicCase == "frame-reenter")
             {
                 double deadline = Time.realtimeSinceStartupAsDouble + 30;
                 while (visualCallbacks == 0 && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
                     yield return null;
-                Assert.AreEqual(1, visualCallbacks, "The actual presentation callback must run once before aborting.");
+                Assert.AreEqual(1, visualCallbacks, "The actual native callback must run once before aborting.");
                 Assert.AreEqual(0, framesAfterCallback);
                 Assert.AreEqual(0, advancesAfterCallback);
                 Assert.AreSame(frameAtCallback, controller.Frame);
                 Assert.IsTrue(controller.IsSimulationPaused);
                 Assert.IsFalse(session.GameplayReady);
                 string expectedFault = atomicCase == "throw" ? "FormatException: atomic native presentation failure" :
-                    atomicCase == "reenter" ? "InvalidOperationException: Canonical reconciliation cannot reenter an active attempt." : "";
+                    atomicCase == "reenter" || atomicCase == "frame-reenter" ? "InvalidOperationException: Canonical reconciliation cannot reenter an active attempt." : "";
                 Assert.AreEqual(expectedFault, controller.Fault);
                 yield break;
             }
