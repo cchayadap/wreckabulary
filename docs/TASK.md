@@ -21,4 +21,4 @@ Use the approved plan's complete acceptance list. Unity checks go through `Tools
 
 ## Authorization and outstanding human input
 
-Implementation, isolated worktrees and commits after green steps are already authorized. Built-in image generation followed by local Blender work is authorized; external paid generation is not required. Photon account access remains unavailable. Do not invent account credentials, test results, owner acceptance, or external deployment evidence.
+Implementation, isolated worktrees, commits after green steps, and the separate Wordbound coordinator deployment are already authorized. Built-in image generation followed by local Blender work is authorized; external paid generation is not required. Photon authentication and the coordinator are configured and have recorded live checks; no additional account setup is currently needed. The final public catalogue, complete gameplay verification and Windows delivery remain open. Do not invent test results, owner acceptance, or external deployment evidence.
