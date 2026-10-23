@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -64,9 +65,16 @@ namespace Wreckabulary.OfflineGameplayTests
             }
         }
 
-        [Test]
-        public void RuntimeOwnedCameraReceivesTheOriginalGameLookAndCurrentSmoothing()
+        [UnityTearDown]
+        public IEnumerator LeaveRuntimeContext()
         {
+            if (Application.isPlaying) yield return new ExitPlayMode();
+        }
+
+        [UnityTest]
+        public IEnumerator RuntimeOwnedCameraReceivesTheOriginalGameLookAndCurrentSmoothing()
+        {
+            yield return new EnterPlayMode();
             var root = new GameObject("Owned camera look test");
             var previousLook = GraphicsOptions.Look;
             Camera camera = null;
