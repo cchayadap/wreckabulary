@@ -134,3 +134,10 @@ Detailed asset generation,24independentFBX/GLBreimports and final48renderedviews
 
 ## 2026-10-23T11:07:35Z Compiler scheduling observation
 The PC reported 100% CPU across 22 logical processors. This gate's verified Unity child compiler PIDs 45024 (VBCSCompiler) and 51980 (Unity.ILPP.Runner), both parented by gate-owned Unity PID 38176, were BelowNormal. Changed only those two helpers to Normal priority; other projects/processes are untouched. Subsequently observed Rules Csc completion and Bee's second pass in Logs/gate_exec_PrepareFromEnvironment_20261023T104740Z.log. This is a scheduling observation, not a benchmark or final native pass. Unity-generated metadata remains untracked until the import completes and its diff is reviewed.
+
+## 2026-10-23T11:30:00Z Recovery checkpoint and native retry
+
+- Confirmed integration branch b4a2cca clean before retry; preserved all seven worktrees and the verified recovery snapshot. Portable harness checkpoint revision37 remains active.
+- R0 PASS386.4s in Logs/gate_check_all_20261023T111607Z.log after direct Presentation reference repair and integrated QA/detail tests.
+- Cold DeliverySetup retry started from b4a2cca with explicit wordbound-20261023-v1 release/four saved seeds; log Logs/gate_exec_PrepareFromEnvironment_20261023T112358Z.log. No result claimed while active.
+- Online source checkpoint e3194fe remains isolated pending independent review, tests and integration. Separate guide/packaging review owns only documentation. Public activation and Windows delivery are pending.
