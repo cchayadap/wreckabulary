@@ -29,6 +29,8 @@ Paths below are relative to the root checkout. Methods are existing source, not 
 
 The HUD-defense, visible-letter, exact-workshop transfer and reconnect fixtures add important independent coverage. Their current methods do not extend the shared runner into complete matches.
 
+Online lane independently source-reviewed this coverage map. Its additional implementation caution: the existing `AssertComposition` requires every `Progress.Result == null`; a future terminal driver must retain that assertion only for startup and use explicit result assertions after completion.
+
 ## Completion contract that native tests must reach
 
 `Assets/_Project/Scripts/Rules/Wordbound/ModeDefinition.cs:54–88` fixes all race modes at three laps and 1,500 seconds. TimeRun has one team, 1–4 players; TeamRace/BrawlRace have two teams with Solo/Duo/Squad capacities. FFA uses individual teams, ten knockouts and 480 seconds. Freestyle has one shared team, no time limit, no race laps and no knockout target.
