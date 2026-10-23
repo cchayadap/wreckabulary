@@ -61,3 +61,9 @@ Integration `TestResults/editmode_20261023T225846Z.xml`, source `73a3326cfbe8fb7
 Both new theme persistence cases passed: serialized colours/metrics/original font references survived save/unload/reload, and complete isolated setup preserved a custom assignment and existing default edits before filling/saving an empty slot. The original repeated-draft case also passed. The run is still a failed overall gate because `IdenticalDraftBytesAvoidReplacementButChangedLockedContentRemainsRecoverable` threw `IOException: Unable to remove the file to be replaced`; the input lane owns that separate investigation. No whole-suite success is claimed.
 
 The XML SHA256 is `DB5B49BA46801DD9D7864A85A91CFE6D6A50B68A23AD70EB41E25863E1DCA229`; root summary `BuildNotes/client-view/native-ui-persistence-20261023.json` SHA256 is `ACD975EA78A7ADC060719EC3032B2FBF8D76A9FDE08709842CD5B6114AC7D47F`. These native results close the bounded theme geometry/cache/persistence checks, not actual Footer wrapping, Windows visuals, controller interaction in the player, owner approval or performance acceptance.
+
+## Windows build 230031 compile failure
+
+Root reported build 230031 failed on source `02a3a2ea` with CS1061 at `WordboundUiStyles.cs:113`: `GUIStyleState.scaledBackgrounds` is unavailable to player code. No new player was produced. Independently read the installed Unity 6000.6.3f1 `UnityEngine.IMGUIModule.xml`: its property documentation explicitly says this is Editor-only, not copied to player data and inaccessible from player code.
+
+The bounded repair wraps only the clearing of `scaledBackgrounds` in `#if UNITY_EDITOR`. Runtime `background`/`textColor` assignments, textures, cache lifetime and measured geometry are unchanged. Previous Editor tests could not establish player API availability; a fresh Windows build is required. No job was run in this lane.

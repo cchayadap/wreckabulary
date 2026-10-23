@@ -110,7 +110,14 @@ namespace Wreckabulary
             style.font = skin.font; style.fontSize = theme.BodySize; style.fontStyle = FontStyle.Normal;
             style.fixedHeight = 0; style.margin = new RectOffset(2, 2, theme.Gap / 2, theme.Gap / 2);
             style.border = new RectOffset(12, 12, 12, 12);
-            foreach (var state in States(style)) { state.background = background; state.scaledBackgrounds = null; state.textColor = text; }
+            foreach (var state in States(style))
+            {
+                state.background = background;
+#if UNITY_EDITOR
+                state.scaledBackgrounds = null;
+#endif
+                state.textColor = text;
+            }
         }
 
         public bool Button(GUIContent content, GUIStyle style, params GUILayoutOption[] options)
