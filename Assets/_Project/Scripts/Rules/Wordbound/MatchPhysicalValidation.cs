@@ -7,8 +7,14 @@ namespace Wreckabulary.Rules.Wordbound
     {
         public static void Validate(MatchSnapshot snapshot, ResolvedCourse course, MatchMechanismState mechanism)
         {
-            void Need(bool value, string error) { if (!value) throw new ArgumentException(error); }
             var site = course.PhysicalSites.SingleOrDefault(s => s.Lap == mechanism.Lap + 1 && s.PuzzleId == mechanism.PuzzleId);
+            Validate(snapshot, course, mechanism, site, null);
+        }
+
+        internal static void Validate(MatchSnapshot snapshot, ResolvedCourse course, MatchMechanismState mechanism,
+            ResolvedCoursePhysicalSite site, ResolvedCoursePuzzle puzzle)
+        {
+            void Need(bool value, string error) { if (!value) throw new ArgumentException(error); }
             var evidence = mechanism.Physical;
             if (site == null)
             {
@@ -26,7 +32,7 @@ namespace Wreckabulary.Rules.Wordbound
             Need(evidence.StageTick >= mechanism.ActivatedTick && evidence.StageTick <= snapshot.Progress.Tick &&
                 snapshot.Binding.Seats.Any(s => s.PlayerId == evidence.ActorId && s.Team == mechanism.Team),
                 "Physical evidence has an invalid actor or milestone tick.");
-            var puzzle = course.Puzzles.Single(p => p.Id == mechanism.PuzzleId);
+            if (puzzle == null) puzzle = course.Puzzles.Single(p => p.Id == mechanism.PuzzleId);
             if (puzzle.PresetId == "TimedMechanism")
                 Need(evidence.AuxiliaryBodyId == "keepsake:" + mechanism.Team, "Timed evidence has a foreign keepsake.");
             else if (puzzle.PresetId == "CollectLetters" || puzzle.PresetId == "RedirectWind")

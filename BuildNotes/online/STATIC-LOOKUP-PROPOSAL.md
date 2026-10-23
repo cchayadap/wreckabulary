@@ -1,6 +1,6 @@
 # Static validation lookup proposal
 
-STATUS: DESIGN ONLY, pending completed native measurements and implementation assignment. No source edits or heavy jobs. Builds on the private weak course/mode cache already measured by the validation probe; does not propose the broader MatchProgress definition descriptor.
+STATUS: IMPLEMENTED, SOURCE REVIEW IN PROGRESS; compiler/core/probe/native NOT RUN for this delta. Root authorized this bounded implementation after the physical profiler reported 4,561 validation calls totaling 44,897.139 ms and 48,234.315 ms in PhysicsApply. These are inclusive CPU scopes, not additive wall time. No heavy jobs ran in this lane. The current pre-index cached probe remains the comparison baseline. This change does not add the broader MatchProgress definition descriptor.
 
 ## Exact repeated work
 
@@ -34,3 +34,11 @@ Keep public `MatchStateValidationPhysical.Validate(snapshot, course, mechanism)`
 3. Cover waiting/no-site behavior and wrong site hash, physical phase, actor/team, lap and auxiliary source. Assert the same relevant error text/public exception before and after warm lookup use.
 4. Resolve/import authored duplicate site, fixture, puzzle, module and connection IDs; rejection must remain upstream. Copy-document edits must not affect an already resolved course; separately resolved different courses must not share indexes. Keep the existing concurrent validation and mutable catalogue/rules regressions.
 5. Root alone runs R0, the bounded affected core fixture(s), the unchanged actual-flagship ValidationProbe and the same three native profiler cases. Compare hashes, error outcomes, positive byte controls and actual timings. No changed lease/deadline/transport defaults; no Unity speed claim from .NET allocation alone.
+
+## Checkpoint and exact follow-up
+
+- Production scope: `MatchStateValidation.cs` and `MatchPhysicalValidation.cs`. Tests: `WordboundSnapshotValidationTests.cs`, 18 added cases / 59 expected total. Those three files matched root SHA-256 exactly before edits; no baseline copy commit is needed.
+- New tests exercise real flagship TimeRun, TeamRace and Freestyle initial/advanced frames; five warmed fixture/connection corruptions; four exact public/indexed physical-evidence errors; five upstream duplicate-key failures; document-copy isolation and concurrent readers. Existing tests retain mutable catalogue/rules and other mode coverage.
+- The snapshot-copy test helper uses root's already existing `MatchSnapshot.Practice` constructor argument. The lane's unrelated older `MatchState.cs` is deliberately unchanged; validate the delta in assembled root, never copy that older source into root.
+- Root follow-up: R0; bounded core filters `WordboundSnapshotValidationTests`, `WordboundPhysicalEvidenceTests` and `WorkshopPhysicalSiteTests`; unchanged `dotnet run --project Tools/RulesHarness/ValidationProbe/ValidationProbe.csproj --configuration Release`; then the same native TeamRace Solo, TimeRun and six-family physical cases with the existing profiler flag. Do not run unfiltered flagship seed sweeps.
+- No changes to MatchProgress, dynamic validation, canonical format, service, defaults, assets, or original dirty ModeDefinition/checkpoint files.

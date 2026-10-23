@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
@@ -286,6 +287,139 @@ namespace Wreckabulary.Tests
             System.Threading.Tasks.Parallel.For(0, errors.Length, i =>
                 errors[i] = MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
             Assert.IsTrue(errors.All(error => error == ""), string.Join("\n", errors));
+        }
+
+        static WordboundAuthorityTests.Fixture PhysicalFixture(string mode = "TimeRun")
+        {
+            var source = new WordboundSnapshotCodecTests.Fixture
+            { Mode = ModeDefinition.For(mode), Catalogue = Wreckabulary.Rules.Tests.TestData.Catalogue() };
+            source.Rules = source.Mode.CreateGameplayRules(Wreckabulary.Rules.Tests.TestData.RulesFor("Dibs"));
+            var content = WordboundFlagshipContent.Create(source.Catalogue);
+            var resolved = content.Resolve("0123456789abcdef", MatchStateValidation.Requirements(source.Mode));
+            Assert.IsTrue(resolved.Success, string.Join("\n", resolved.Issues));
+            source.Course = resolved.Manifest;
+            var seats = Enumerable.Range(0, 2).Select(i => new WordboundSeat(((char)('a' + i)).ToString(),
+                i % source.Mode.TeamCount, i / source.Mode.TeamCount)).ToArray();
+            source.Binding = new MatchBinding("static-lookups", MatchSnapshotCodec.ProtocolVersion, source.Mode.Hash,
+                source.Course.SourceHash, source.Course.Hash, new string('a', 64), new string('b', 64), seats);
+            var result = new WordboundAuthorityTests.Fixture { Source = source };
+            result.Match = new AuthoritativeMatch(source.Binding, source.Mode, source.Course,
+                content.Geometry, source.Catalogue, source.Rules, result.World);
+            return result;
+        }
+
+        static string CheckPhysical(WordboundAuthorityTests.Fixture f, MatchSnapshot snapshot) =>
+            MatchStateValidation.Validate(snapshot, f.Source.Binding, f.Source.Mode, f.Source.Course,
+                f.Source.Catalogue, f.Source.Rules);
+
+        static MatchSnapshot ReplacePhysical(MatchSnapshot snapshot, IEnumerable<WorldBodyState> bodies = null,
+            IEnumerable<MatchMechanismState> mechanisms = null) => new MatchSnapshot(snapshot.Binding, snapshot.Epoch,
+                snapshot.Sequence, snapshot.NextWorldEntityId, snapshot.Progress, snapshot.Economy, snapshot.Commands,
+                snapshot.Actors, bodies ?? snapshot.Bodies, snapshot.Resources, mechanisms ?? snapshot.Mechanisms,
+                snapshot.RandomStreams, snapshot.NarrativeFlags, snapshot.ThrownFlights, snapshot.Practice);
+
+        [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("Freestyle")]
+        public void IndexedPhysicalContentAcceptsRealFramesAndPublicPhysicalValidation(string mode)
+        {
+            var f = PhysicalFixture(mode);
+            var before = f.State;
+            Assert.AreEqual("", CheckPhysical(f, before));
+            foreach (var mechanism in before.Mechanisms)
+                Assert.DoesNotThrow(() => MatchStateValidationPhysical.Validate(before, f.Source.Course, mechanism));
+            Assert.IsTrue(f.Step().Advanced);
+            var after = f.State;
+            Assert.Greater(after.Progress.Tick, before.Progress.Tick);
+            Assert.AreEqual("", CheckPhysical(f, after));
+            Assert.AreEqual("", CheckPhysical(f, before));
+            Assert.IsTrue(f.Source.Import(MatchSnapshotCodec.Export(after)).Success);
+        }
+
+        [TestCase("source", "Unbound platform body.")]
+        [TestCase("owner", "Unbound physical fixture body.")]
+        [TestCase("pose", "Fixture pose differs from its canonical physical phase.")]
+        [TestCase("missing", "An authored physical fixture is missing.")]
+        [TestCase("connection", "Unbound platform body.")]
+        public void WarmStaticLookupsStillRejectChangedFixtureAndConnectionBodies(string mutation, string expected)
+        {
+            var f = PhysicalFixture();
+            var valid = f.State;
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            var fixture = valid.Bodies.First(b => b.Id.StartsWith("fixture:", StringComparison.Ordinal));
+            var bodies = valid.Bodies.ToList();
+            int at = bodies.IndexOf(fixture);
+            if (mutation == "missing") bodies.RemoveAt(at);
+            else if (mutation == "pose") bodies[at] = fixture.At(new WorldVector(0, 100, 0));
+            else if (mutation == "connection")
+                bodies[at] = new WorldBodyState("platform:foreign", WorldBodyKind.Platform, fixture.Position, kinematic: true);
+            else bodies[at] = new WorldBodyState(fixture.Id, fixture.Kind, fixture.Position,
+                kinematic: true, ownerTeam: mutation == "owner" ? -1 : fixture.OwnerTeam, protectedResource: true,
+                sourceId: mutation == "source" ? "foreign" : fixture.SourceId);
+            var invalid = ReplacePhysical(valid, bodies);
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+        }
+
+        [TestCase("hash", "Physical profile or motion phase is invalid.")]
+        [TestCase("phase", "Physical profile or motion phase is invalid.")]
+        [TestCase("unbound", "Mechanism has unbound physical evidence.")]
+        [TestCase("actor", "Physical evidence has an invalid actor or milestone tick.")]
+        public void IndexedAndPublicPhysicalChecksRetainTheSameEvidenceRejection(string mutation, string expected)
+        {
+            var f = PhysicalFixture();
+            var valid = f.State;
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            var site = f.Source.Course.PhysicalSites.First(s => s.Fixtures.Count == 0);
+            var original = mutation == "unbound" ? valid.Mechanisms.First(m => m.PuzzleId == site.PuzzleId && m.Lap != site.Lap - 1) :
+                valid.Mechanisms.Single(m => m.PuzzleId == site.PuzzleId && m.Lap == site.Lap - 1);
+            var evidence = new MatchPhysicalEvidence(mutation == "actor" ? MatchPhysicalStage.Armed : MatchPhysicalStage.Waiting,
+                actorId: mutation == "actor" ? "foreign" : "", siteHash: mutation == "hash" || mutation == "unbound" ? new string('c', 64) : site.Hash,
+                motionUnits: mutation == "phase" ? 1 : 0);
+            var changed = new MatchMechanismState(original.PuzzleId, original.Team, original.Lap,
+                activatedTick: mutation == "actor" ? 0 : -1, physical: evidence);
+            var invalid = ReplacePhysical(valid, mechanisms: valid.Mechanisms.Select(m => ReferenceEquals(m, original) ? changed : m));
+            Assert.AreEqual(expected, Assert.Throws<ArgumentException>(() =>
+                MatchStateValidationPhysical.Validate(invalid, f.Source.Course, changed)).Message);
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+        }
+
+        [TestCase("site", "physical.count"), TestCase("fixture", "physical.fixture")]
+        [TestCase("puzzle", "id.duplicate"), TestCase("module", "id.duplicate"), TestCase("connection", "id.duplicate")]
+        public void DuplicateStaticKeysStillFailBeforeCourseResolution(string collection, string code)
+        {
+            var content = WordboundFlagshipContent.Create(Wreckabulary.Rules.Tests.TestData.Catalogue());
+            var document = content.CopyDocument();
+            if (collection == "site") document.PhysicalSites.Add(document.PhysicalSites[0]);
+            else if (collection == "fixture")
+            {
+                var site = document.PhysicalSites.First(s => s.Fixtures.Count != 0);
+                site.Fixtures.Add(site.Fixtures[0]);
+            }
+            else if (collection == "puzzle") document.Puzzles.Add(document.Puzzles[0]);
+            else if (collection == "module") document.Modules.Add(document.Modules[0]);
+            else document.Connections.Add(document.Connections[0]);
+            var result = CourseResolver.Resolve(document, content.Geometry,
+                new CourseResolveRequest("0123456789abcdef", MatchStateValidation.Requirements(ModeDefinition.For("TimeRun"))));
+            Assert.IsFalse(result.Success);
+            Assert.IsTrue(result.Issues.Any(issue => issue.Code == code), string.Join("\n", result.Issues));
+        }
+
+        [Test]
+        public void PhysicalIndexesStayIsolatedFromDocumentCopiesAndConcurrentReaders()
+        {
+            var f = PhysicalFixture();
+            var valid = f.State;
+            var errors = new string[8];
+            System.Threading.Tasks.Parallel.For(0, errors.Length, i => errors[i] = CheckPhysical(f, valid));
+            Assert.IsTrue(errors.All(error => error == ""), string.Join("\n", errors));
+            var copy = f.Source.Course.CopyDocument();
+            copy.PhysicalSites.Clear(); copy.Modules.Clear(); copy.Puzzles.Clear(); copy.Connections.Clear();
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            var other = PhysicalFixture();
+            Assert.AreNotSame(f.Source.Course, other.Source.Course);
+            Assert.AreEqual("", CheckPhysical(other, other.State));
+            Assert.AreEqual("", CheckPhysical(f, valid));
         }
     }
 }
