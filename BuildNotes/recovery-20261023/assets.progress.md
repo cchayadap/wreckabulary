@@ -35,3 +35,9 @@ Exact final geometry builder SHA-256: `e0ea5155727af8d9c4db015e8159373ef00f4b538
 The first partial build and full pre-support revision remain under `.harness/recovery/failed-detail-build-1` and `.harness/recovery/detail-before-fan-support`; neither original work nor caches were deleted. DetailV2's local Git attributes preserve exact source/provenance bytes across Windows checkouts.
 
 Next: root imports the final revision, executes native material/presentation checks, measures game performance and validates the Windows build. Unity and owner appearance acceptance remain pending. The assets are detailed stylized artwork; native appearance, photorealism and runtime speed are not claimed by the Blender checks.
+
+## No-code guide and packaging follow-up
+
+- [x] Verify exact current Unity authoring menus and runtime workshop controls at root b4a2cca; prepare docs/wordbound/UNITY-EDITING-GUIDE.md. Inspector course/profile workflow, workshop dragging/randomness/routes, saving, private hosting and real limitations are documented from source.
+- [x] Review source-to-player art packaging in BuildNotes/equipment-polish/PACKAGING-SOURCE-REVIEW.md. Explicit runtime allowlist and existing grouped/shared-map budgets confirmed; no additional safe deletion demonstrated. No source/caches removed and no native job run.
+- [ ] Root captures final Unity editing/runtime appearance and inspects actual Windows packed assets.
