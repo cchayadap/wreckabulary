@@ -1,6 +1,6 @@
 # Original-based SOFA V3 seam repair
 
-STATUS: SOURCE PREPARED — V3 build/render NOT RUN; V2 detailed appearance not accepted
+STATUS: NUMERICAL PREFLIGHT FAILED — DO NOT BUILD/RENDER V3; V2 detailed appearance not accepted
 
 Root and this lane directly inspected the V2 original/candidate side and detail pairs. The side silhouette stays faithful and no detached seam is visible there. The closer detail reveals a kink near the back cushion's upper-left corner and an awkward angular lower-left run. The original uninterrupted surface is cleaner at those locations. The first three-quarter contact improvement therefore does not constitute a full V2 visual pass. Both V1 and V2 remain preserved, with no runtime replacement.
 
@@ -11,6 +11,8 @@ This is a bounded seam-path experiment, not an appearance claim. Original cushio
 The V2 side studio images also have a gray strip at the bottom because the low orthographic camera allows lower ray origins beneath the floor plane. This is a preview staging artifact visible in both variants, not a geometry regression. The current repair deliberately leaves the frozen comparison camera setup untouched. A later presentation-only rerender can move the same side camera farther along its view ray while preserving direction/framing.
 
 ## Root-owned staged commands
+
+**Historical proposal only: do not execute these commands.** Read-only source-GLB feasibility below failed before Blender. A separate shallow material-normal seam pilot is being prepared; no contact thresholds are relaxed.
 
 Integrate the V3 source checkpoint after any active renderer exits. Root alone schedules the heavy slot. Build into a new destination:
 
@@ -25,3 +27,11 @@ Render the failing close-up first. Inspect the upper-left corner and lower-left 
 ```
 
 If actual close-up quality improves, continue three-quarter/side/clay, then scale/front/rear; preserve all failed revisions and their receipts. FAN/HAMMER remain separately scoped original-based pilots. No whole-set rollout or owner appearance acceptance is implied.
+
+## Direct GLB feasibility result
+
+Executed `python BuildNotes/equipment-polish/check-v3-seam-feasibility.py Web/public/art/items/SOFA.glb` in this lane, using NumPy 2.5.3 and the exact original SHA-256 recorded in the main pilot report. Runtime was about 6.6 seconds; process exit 1 denotes the rejected fit. No Blender, Unity or asset writes occurred. The saved evidence script independently reads the GLB node transforms and actual triangles, casts the section rays, fits the proposed smooth path, and measures closest triangle distances at emitted float32 points and span quarters.
+
+Both back cushions contain 432 source triangles. The fitted corner radius is about 78.694 mm and the maximum section-fit residual is 2.366 mm. The smooth paths pass the angular check (about 1.41° maximum), but fail contact: maximum outside distance **2.317 mm**, deepest burial **1.242 mm**, against the unchanged **0.975 mm** absolute limit. This confirms that the particular smooth wire fit is unsuitable on the retained faceted geometry. It does not prove all possible seam geometry impossible, but it removes any justification to run this rejected candidate or merely loosen the limit.
+
+Failed source is preserved in Git commit `43191ef`; the independent feasibility script and these measurements are preserved in the following evidence checkpoint. Root authorized exploring a separate shallow normal/crease material treatment on the original cloth. That treatment must be labeled material detail, not a physical welt/contact pass, and should remain restrained without a dark drawn outline. Eventual Unity-map baking remains pending actual appearance review.

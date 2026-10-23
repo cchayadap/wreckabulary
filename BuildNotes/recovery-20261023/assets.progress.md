@@ -78,3 +78,5 @@ Next: root imports the final revision, executes native material/presentation che
 - [~] V2 side/detail/clay/scale/front/rear and independent root/owner appearance review remain pending. FAN/HAMMER remain queued original-based specifications; no broad replacements.
 - [x] Root and producer inspected V2 side/detail: side retains silhouette, but close-up reveals kinked/awkward seam. V2 is not visually accepted; remaining views stopped and artifact preserved.
 - [~] V3 source fits a smooth rounded side-band section, checks 512-point turn continuity and 2,048 contact probes per welt without weakening the existing radius/contact bounds. Root build/failing-detail render pending; commands in ORIGINAL-BASED-SOFA-V3-REPAIR.md.
+- [x] V3 direct GLB preflight rejected the smooth wire fit before Blender: 2.317 mm outside / 1.242 mm inside vs 0.975 mm contact limit. Failed source remains at 43191ef; saved standalone feasibility calculation/report. Do not run V3.
+- [~] Root authorized a separate shallow normal/crease material pilot on unchanged cloth; no mesh/contact-pass claim, no heavy jobs here. FAN/HAMMER source additions follow that bounded setup.
