@@ -96,9 +96,9 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T21:50Z
+## Current verification — 2026-10-23T21:59Z
 
-Native213856 passes2/3 public cases: FFA and Freestyle PASS; BrawlSolo FAIL on stale transfer age, with cleanup0 and no crash-after-quit. Evidence: `BuildNotes/client-view/native-public-three-20261023.json`. The next body-source lookup source passes R0, but core214428 is147/156 because nine new Item fixtures fail before reaching validation. Independently reviewed test-only repair975b4d14 is integrated asbb737f10; rerun pending. No performance improvement or production acceptance is claimed.
+Native213856 passes2/3 public cases: FFA and Freestyle PASS; BrawlSolo FAIL on stale transfer age, with cleanup0 and no crash-after-quit. Evidence: `BuildNotes/client-view/native-public-three-20261023.json`. The test-only Item fixture correction now passes192/192 core215023. The identical120-validation probe allocates14.235% less TimeRun memory and30.996% less TeamSolo memory, with slower standalone timings. Native215152 passes21/23: timing20 and sharedFreestyle pass, but Brawl misses movement deadline and TeamSolo rejects stale initial transfer15,006ms/10,000ms. No throughput improvement or production acceptance is claimed.
 
 | Work | State and exact evidence |
 | --- | --- |

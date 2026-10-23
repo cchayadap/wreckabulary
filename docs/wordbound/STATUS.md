@@ -8,9 +8,9 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current delivery snapshot — 2026-10-23 21:50 UTC
+## Current delivery snapshot — 2026-10-23 21:59 UTC
 
-Public213856 passes FFA and Freestyle at two authenticated scripted players; BrawlSolo still fails initial snapshot transfer age14,209ms/10,000ms. All three clean up service state. The source-index candidate compiles; nine new Item fixture setup errors leave core214428 at147/156. Their independently reviewed test-only correction is integrated; rerun pending. See `BuildNotes/client-view/native-public-three-20261023.json`.
+Public213856 passes FFA and Freestyle at two authenticated scripted players; BrawlSolo still fails initial snapshot transfer age14,209ms/10,000ms. All three clean up service state. The corrected source-index fixtures pass192/192 core215023. Native215152 is21/23: sharedFreestyle and20 timing cases pass; Brawl movement and TeamSolo initial snapshot deadlines fail. Managed allocations improve in the standalone probe but elapsed timings are slower; no throughput gain established. See `BuildNotes/client-view/native-public-three-20261023.json`.
 
 Original Wreckabulary artwork remains the runtime default; rejected DetailV2 and unapproved pilots are preserved. Native211545 passes24/24 for original metre-scale surfaces, safe owned-mesh cleanup and original rendering settings on owned runtime cameras. QA212131 passes118.8s with unchanged executable source7c76f151 (manifestb81939cc includes evidence-only edits). Visible212401 confirms discrete original-scale boards and original avatar shading; readiness5.449s and exact save/return/history/Undo pass, but only76/90 update waits complete. No console errors/exceptions/warnings or observed native crash in that run. Official normal-window smoke and actual Unity6000.6.4 installation still await the already-requested owner actions; kit/editor versions are unchanged.
 
