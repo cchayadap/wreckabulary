@@ -10,7 +10,7 @@ using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.OnlineGameplayTests
 {
-    sealed class WordboundLiveMatch
+    sealed partial class WordboundLiveMatch
     {
         public const string Origin = "https://wreckabulary-wordbound-coordinator.pagna.workers.dev";
         public const string AppId = "f6fb7f4c-b8a9-44a3-ac63-bee1c5f23552";
@@ -61,6 +61,9 @@ namespace Wreckabulary.OnlineGameplayTests
                 key["kid"].String() != trust["keyId"].String())
                 throw new InvalidOperationException("The production public key fingerprint does not match.");
             Verifier = new OnlineAdmissionVerifier(trust["issuer"].String(), trust["jwks"]);
+            string installedFolder = Path.Combine(projectRoot, "Assets/_Project/Data/Config");
+            installedItems = File.ReadAllText(Path.Combine(installedFolder, "items.json"));
+            installedRules = File.ReadAllText(Path.Combine(installedFolder, "rules.json"));
             if (productionContent != null)
             {
                 Mode = productionContent.Mode; Geometry = productionContent.Geometry;
@@ -73,9 +76,8 @@ namespace Wreckabulary.OnlineGameplayTests
             else
             {
                 Mode = ModeDefinition.For("Freestyle"); Geometry = CourseTemplates.ProofCatalogue();
-                string folder = Path.Combine(projectRoot, "Assets/_Project/Data/Config");
-                string itemJson = File.ReadAllText(Path.Combine(folder, "items.json"));
-                string ruleJson = File.ReadAllText(Path.Combine(folder, "rules.json"));
+                string itemJson = installedItems;
+                string ruleJson = installedRules;
                 Items = ItemCatalogue.FromJson(itemJson, "native-proof-items");
                 Rules = Mode.CreateGameplayRules(RuleBook.FromJson(ruleJson, "native-proof-rules").For("Dibs"));
                 var document = proofCourse ?? CourseTemplates.FreestyleWorld();
@@ -94,6 +96,7 @@ namespace Wreckabulary.OnlineGameplayTests
 
         public async Task Prepare(int count, CancellationToken ct)
         {
+            if (ProductionContent?.WorkshopBundle != null) { await PrepareWorkshop(count, ct); return; }
             if (count != 2 && count != 4 && count != 8) throw new ArgumentOutOfRangeException(nameof(count));
             if (count > Mode.MaximumPlayers) throw new ArgumentException("The requested peers exceed the selected mode.");
             for (int i = 0; i < count; i++)
@@ -185,6 +188,7 @@ namespace Wreckabulary.OnlineGameplayTests
 
         public async Task<WordboundFusionJoin> FreshJoin(int seat, CancellationToken ct)
         {
+            if (workshopLaunches != null) return await workshopLaunches[seat].FreshJoin(ct);
             var client = Clients[seat];
             var certificate = await client.MatchAction(Expected, "certificate", ct);
             var admission = await client.MatchAction(Expected, "admission", ct);
@@ -233,6 +237,8 @@ namespace Wreckabulary.OnlineGameplayTests
                 }
             }
             foreach (var client in Clients) client.ClearCredentials();
+            foreach (var registration in workshopCancellation) registration.Dispose();
+            foreach (var coordinator in workshopCoordinators) coordinator.Dispose();
             foreach (var transport in transports) transport.Dispose();
             return failures;
         }

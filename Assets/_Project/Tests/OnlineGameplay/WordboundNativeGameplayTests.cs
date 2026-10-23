@@ -71,7 +71,7 @@ namespace Wreckabulary.OnlineGameplayTests
 
         IEnumerator Run(int count, bool migrate, bool interactions = false,
             string productionMode = null, RaceFormat productionFormat = RaceFormat.Solo,
-            WordboundPublicCourseCatalog publicCatalogue = null, bool hudInteractions = false)
+            WordboundPublicCourseCatalog publicCatalogue = null, bool hudInteractions = false, bool authoredWorkshop = false)
         {
             if (Environment.GetEnvironmentVariable(Gate) != "1")
                 Assert.Ignore("Set WORDBOUND_EXTERNAL_GAMEPLAY=1 after configuring production Photon custom authentication.");
@@ -84,7 +84,7 @@ namespace Wreckabulary.OnlineGameplayTests
             yield return new EnterPlayMode();
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(8));
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-            WordboundClientContent production = null;
+            WordboundClientContent production = authoredWorkshop ? CreateAuthoredWorkshop(projectRoot) : null;
             if (productionMode != null)
             {
                 string folder = Path.Combine(projectRoot, "Assets/_Project/Data/Config");
@@ -157,6 +157,7 @@ namespace Wreckabulary.OnlineGameplayTests
             }
             foreach (var peer in peers) AssertBodies(peer, peer == first);
             if (production != null) AssertProductionContent(first, peers);
+            if (authoredWorkshop) AssertDownloadedWorkshop();
             Debug.Log("WORDBOUND_GAMEPLAY_OBSERVED: authenticated real bodies, client input and committed command; cleanup pending.");
 
             if (hudInteractions) yield return HudInteractions(first);
@@ -253,12 +254,15 @@ namespace Wreckabulary.OnlineGameplayTests
                 GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
                 ReadMovement = () => peer.Move ? new WordboundMovementInput { MoveZ = 1 } : peer.InteractionInput
             };
-            peer.Controller.Initialize(live.Verified, live.Mode, live.Course, live.Geometry, live.Items, live.Rules, peer.Actor, prefabs,
+            var content = live.ContentFor(index);
+            peer.Controller.Initialize(live.Verified, content?.Mode ?? live.Mode, content?.Course ?? live.Course,
+                content?.Geometry ?? live.Geometry, content?.Items ?? live.Items, content?.Rules ?? live.Rules, peer.Actor, prefabs,
                 options);
-            if (live.PhysicalPuzzles != null)
+            var physical = content?.PhysicalPuzzles ?? live.PhysicalPuzzles;
+            if (physical != null)
             {
-                live.PhysicalPuzzles.Validate(peer.Controller.Authority.Match.Binding, live.Rules);
-                var puzzles = new WordboundPuzzleRuntime(peer.Controller, live.PhysicalPuzzles);
+                physical.Validate(peer.Controller.Authority.Match.Binding, content?.Rules ?? live.Rules);
+                var puzzles = new WordboundPuzzleRuntime(peer.Controller, physical);
                 options.BeforeHostPhysics = (frame, bodies) => { puzzles.BeforeHostPhysics(frame, bodies); peer.PhysicalSteps++; };
                 options.ObserveHost = (frame, poses) => { var observations = puzzles.ObserveHost(frame, poses); peer.PhysicalObservations++; return observations; };
                 options.PuzzleEvaluator = puzzles.Evaluate;
