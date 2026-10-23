@@ -7,11 +7,86 @@ using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Online
 {
+#if UNITY_EDITOR
+    public enum WordboundClockDecisionKind
+    { NoEligibleSlowField, CollisionRejected, ContainmentRejected, LineBlocked, LineBufferFull, Applied }
+
+    public readonly struct WordboundClockLineDecision
+    {
+        public readonly bool Evaluated, BufferFull, HasBlocker, BlockerCourseSurface, BlockerRegisteredBody;
+        public readonly Vector3 From, To;
+        public readonly int HitCount, Capacity, BlockerInstance, BlockerLayer;
+        public readonly float BlockerDistance;
+        public readonly WorldBodyKind BlockerKind;
+
+        internal WordboundClockLineDecision(Vector3 from, Vector3 to, int count, int capacity,
+            bool hasBlocker = false, int blockerInstance = 0, int blockerLayer = 0, float blockerDistance = 0,
+            bool courseSurface = false, bool registeredBody = false, WorldBodyKind blockerKind = default)
+        {
+            Evaluated = true; From = from; To = to; HitCount = count; Capacity = capacity; BufferFull = count >= capacity;
+            HasBlocker = hasBlocker; BlockerInstance = blockerInstance; BlockerLayer = blockerLayer;
+            BlockerDistance = blockerDistance; BlockerCourseSurface = courseSurface;
+            BlockerRegisteredBody = registeredBody; BlockerKind = blockerKind;
+        }
+    }
+
+    public readonly struct WordboundClockDecision
+    {
+        public readonly long Epoch, CompletedTick;
+        public readonly int SourceInstance, FixtureInstance;
+        public readonly WordboundClockDecisionKind Kind;
+        public readonly bool CollisionEvaluated, CollisionAllowed, ContainmentEvaluated, ContainmentAllowed;
+        public readonly WorldVector SourcePosition, FixturePosition;
+        public readonly float Radius, ArcDegrees;
+        public readonly WordboundClockLineDecision Line;
+
+        internal WordboundClockDecision(MatchSnapshot frame, WordboundNetworkBody source, WordboundNetworkBody fixture,
+            WordboundClockDecisionKind kind, bool collisionEvaluated, bool collisionAllowed,
+            WorldBodyState sourcePose, WorldBodyState fixturePose, bool containmentAllowed,
+            DeployStats stats, WordboundClockLineDecision line)
+        {
+            Epoch = frame.Epoch; CompletedTick = frame.Progress.Tick;
+            SourceInstance = source == null ? 0 : source.GetInstanceID(); FixtureInstance = fixture.GetInstanceID(); Kind = kind;
+            CollisionEvaluated = collisionEvaluated; CollisionAllowed = collisionAllowed;
+            ContainmentEvaluated = sourcePose != null && fixturePose != null; ContainmentAllowed = containmentAllowed;
+            SourcePosition = sourcePose?.Position ?? default; FixturePosition = fixturePose?.Position ?? default;
+            Radius = stats?.Radius ?? 0; ArcDegrees = stats?.ArcDegrees ?? 0; Line = line;
+        }
+    }
+#endif
+
     public sealed partial class WordboundPuzzleRuntime
     {
         readonly Dictionary<string, string> launches = new Dictionary<string, string>(StringComparer.Ordinal);
         readonly HashSet<string> windPushes = new HashSet<string>(StringComparer.Ordinal);
         readonly Dictionary<string, long> fixturePhases = new Dictionary<string, long>(StringComparer.Ordinal);
+
+#if UNITY_EDITOR
+        public string NativeClockFixtureId { get; set; }
+        public Action<WordboundClockDecision> NativeClockDecision { get; set; }
+        public string NativeClockDiagnosticError { get; private set; } = "";
+
+        bool ObserveNativeClock(WordboundNetworkBody fixture) => NativeClockDecision != null &&
+            string.Equals(NativeClockFixtureId, fixture.Canonical.Id, StringComparison.Ordinal);
+
+        void NativeClockDiagnosticFailed(Exception error)
+        {
+            if (NativeClockDiagnosticError == "") NativeClockDiagnosticError = error.GetType().Name;
+            NativeClockDecision = null;
+        }
+
+        void ReportNativeClock(MatchSnapshot frame, WordboundNetworkBody source, WordboundNetworkBody fixture,
+            WordboundClockDecisionKind kind, bool collisionEvaluated = false, bool collisionAllowed = false,
+            WorldBodyState sourcePose = null, WorldBodyState fixturePose = null, bool containmentAllowed = false,
+            DeployStats stats = null, WordboundClockLineDecision line = default)
+        {
+            var observer = NativeClockDecision;
+            if (observer == null) return;
+            try { observer(new WordboundClockDecision(frame, source, fixture, kind, collisionEvaluated, collisionAllowed,
+                sourcePose, fixturePose, containmentAllowed, stats, line)); }
+            catch (Exception error) { NativeClockDiagnosticFailed(error); }
+        }
+#endif
 
         static string PhaseKey(WordboundPhysicalSite site, int team) => site.Lap + "/" + site.PuzzleId + "/" + team;
 
@@ -28,9 +103,27 @@ namespace Wreckabulary.Online
                         foreach (var fixture in site.Authored.Fixtures)
                         {
                             var body = controller.Bodies[CourseFixtureMotion.BodyId(fixture.Id, team.Team)];
+#if UNITY_EDITOR
+                            bool observe = ObserveNativeClock(body), eligible = false;
+#endif
                             foreach (var field in Fields(frame).Where(f => f.Definition.Deploy.Effect == DeployEffect.SlowField))
-                                if (ClockAffects(field.Definition, field.Body, body))
+                            {
+#if UNITY_EDITOR
+                                eligible = true;
+#endif
+                                if (ClockAffects(field.Definition, field.Body, body
+#if UNITY_EDITOR
+                                    , frame, observe
+#endif
+                                    ))
                                     speed = Math.Min(speed, field.Definition.Deploy.Strength);
+#if UNITY_EDITOR
+                                observe &= NativeClockDecision != null;
+#endif
+                            }
+#if UNITY_EDITOR
+                            if (observe && !eligible) ReportNativeClock(frame, null, body, WordboundClockDecisionKind.NoEligibleSlowField);
+#endif
                         }
                         units = checked(units + Math.Max(1, (int)Math.Round(speed * CourseFixtureMotion.UnitsPerTick)));
                     }
@@ -46,14 +139,45 @@ namespace Wreckabulary.Online
                 }
         }
 
-        bool ClockAffects(ItemDefinition definition, WordboundNetworkBody clock, WordboundNetworkBody fixture)
+        bool ClockAffects(ItemDefinition definition, WordboundNetworkBody clock, WordboundNetworkBody fixture
+#if UNITY_EDITOR
+            , MatchSnapshot frame, bool observe
+#endif
+            )
         {
-            if (!WordboundPhysicsPolicy.ShouldCollide(proof.Mode, clock.Canonical, fixture.Canonical)) return false;
+            if (!WordboundPhysicsPolicy.ShouldCollide(proof.Mode, clock.Canonical, fixture.Canonical))
+            {
+#if UNITY_EDITOR
+                if (observe) ReportNativeClock(frame, clock, fixture, WordboundClockDecisionKind.CollisionRejected, true);
+#endif
+                return false;
+            }
             var pose = Pose(fixture);
             var query = new WorldBodyState(pose.Id, pose.Kind, pose.Position, active: pose.Active, ownerTeam: pose.OwnerTeam);
+#if UNITY_EDITOR
+            var source = Pose(clock);
+            if (!WordboundFieldPolicy.Contains(definition.Deploy, source, query))
+            {
+                if (observe) ReportNativeClock(frame, clock, fixture, WordboundClockDecisionKind.ContainmentRejected,
+                    true, true, source, query, false, definition.Deploy);
+                return false;
+            }
+            if (observe)
+            {
+                bool clear = ClearLine(fixture.Canonical, clock.Rigidbody.position + Vector3.up * .5f,
+                    fixture.Rigidbody.worldCenterOfMass, true, out var line, clock, fixture);
+                ReportNativeClock(frame, clock, fixture, clear ? WordboundClockDecisionKind.Applied :
+                    line.BufferFull ? WordboundClockDecisionKind.LineBufferFull : WordboundClockDecisionKind.LineBlocked,
+                    true, true, source, query, true, definition.Deploy, line);
+                return clear;
+            }
+            return ClearLine(fixture.Canonical, clock.Rigidbody.position + Vector3.up * .5f,
+                fixture.Rigidbody.worldCenterOfMass, clock, fixture);
+#else
             return WordboundFieldPolicy.Contains(definition.Deploy, Pose(clock), query) &&
                 ClearLine(fixture.Canonical, clock.Rigidbody.position + Vector3.up * .5f,
                     fixture.Rigidbody.worldCenterOfMass, clock, fixture);
+#endif
         }
 
         void ObserveAuthored(MatchSnapshot frame, TeamProgress team, List<HostMechanismObservation> output)

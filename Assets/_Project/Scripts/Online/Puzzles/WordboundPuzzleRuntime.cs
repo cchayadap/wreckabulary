@@ -266,12 +266,47 @@ namespace Wreckabulary.Online
         }
         bool ClearLine(WorldBodyState actor, Vector3 from, Vector3 to, params WordboundNetworkBody[] ignored)
         {
+#if UNITY_EDITOR
+            return ClearLine(actor, from, to, false, out _, ignored);
+        }
+
+        bool ClearLine(WorldBodyState actor, Vector3 from, Vector3 to, bool observe,
+            out WordboundClockLineDecision diagnostic, params WordboundNetworkBody[] ignored)
+        {
+            diagnostic = default;
+#endif
             var delta = to - from;
-            if (delta.sqrMagnitude < .000001f) return true;
+            if (delta.sqrMagnitude < .000001f)
+            {
+#if UNITY_EDITOR
+                if (observe) diagnostic = new WordboundClockLineDecision(from, to, 0, hits.Length);
+#endif
+                return true;
+            }
             int count = scene.Raycast(from, delta.normalized, hits, delta.magnitude, ~0, QueryTriggerInteraction.Ignore);
+#if UNITY_EDITOR
+            if (observe) diagnostic = new WordboundClockLineDecision(from, to, count, hits.Length);
+#endif
             if (count >= hits.Length) return false;
             for (int i = 0; i < count; i++)
-                if (Blocks(actor, hits[i].collider, ignored)) return false;
+                if (Blocks(actor, hits[i].collider, ignored))
+                {
+#if UNITY_EDITOR
+                    if (observe)
+                    {
+                        try
+                        {
+                            var collider = hits[i].collider;
+                            bool registered = owned.TryGetValue(collider, out var body);
+                            diagnostic = new WordboundClockLineDecision(from, to, count, hits.Length, true,
+                                collider.GetInstanceID(), collider.gameObject.layer, hits[i].distance,
+                                structure.Contains(collider), registered, registered ? body.Canonical.Kind : default);
+                        }
+                        catch (Exception error) { NativeClockDiagnosticFailed(error); }
+                    }
+#endif
+                    return false;
+                }
             return true;
         }
         bool Blocks(WorldBodyState actor, Collider collider, params WordboundNetworkBody[] ignored) =>

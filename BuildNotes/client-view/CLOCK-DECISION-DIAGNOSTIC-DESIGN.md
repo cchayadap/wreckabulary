@@ -27,3 +27,15 @@ The fixture should retain bounded outcome counters and the first/last decision p
 Source review must confirm identical predicate evaluation, unchanged ray count/mask/trigger handling and unchanged motion result with the observer off/on, including observer failure cleanup. The next actual six-family run must show the pre-physics decision corresponding to observed 600/1000 increments. Only then choose a product correction. This instrumentation cannot itself prove correct human controls, network performance, a completed CLOCK puzzle, or Windows build readiness.
 
 The coordinator retains implementation ownership and must authorize the concrete source slice. Assets owns the separate `IBeforeTick` test-input repair; no source overlap is needed except the native fixture's bounded observer setup/reporting.
+
+## Authorized implementation checkpoint
+
+The coordinator approved and independently source-reviewed the implementation on 2026-10-23. It changes only `WordboundAuthoredRuntime.cs` and `WordboundPuzzleRuntime.cs`; alignment-only commit `50dce010` is excluded from delivery. No new assembly or source dependency is introduced. Compile/native execution of this delta remains pending.
+
+The implemented observer uses `NativeClockFixtureId`, `NativeClockDecision` and `NativeClockDiagnosticError`. Public readonly records contain epoch/completed tick, numeric source/fixture component instances, stage evaluation flags/outcome, containment geometry and actual line-query/first-blocker scalars. It emits each eligible slow-field decision for the watched fixture, or `NoEligibleSlowField` when the original loop yields none. Per-field decisions are deliberately not described as final aggregate motion; multiple fields can contribute to the minimum speed. The fixture will correlate with actual canonical motion separately.
+
+The editor-only `ClearLine` overload shares the original implementation and returns an `out` record from that same query. It avoids a scoped mutable trace context entirely. Existing callers use observation off. Actual collision, containment, raycast and `Blocks` calls remain outside diagnostic exception handlers. Only observer delivery and added blocker metadata are caught; failure disables the observer and retains its exception type so the fixture can reject missing evidence. The release preprocessing removes all observer/types/extra calculations; only explicit braces around existing single-statement scopes remain.
+
+Independent coordinator verdict: bounded source PASS. Assets owns fixture subscription, bounded aggregation, evidence-error assertions and teardown. No actual CLOCK cause or completed physical route is claimed yet.
+
+Lightweight release-branch comparison passed against exact aligned baseline `50dce010`: 2,562 tokens for AuthoredRuntime and 3,623 for PuzzleRuntime are identical after ignoring whitespace and the added scope braces. String literals were retained as tokens. All diagnostic identifiers are absent from those release branches. This is a textual preprocessing check, not compilation or executable equivalence proof. `git diff --check` also passed.
