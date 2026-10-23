@@ -1,6 +1,6 @@
 # Reconnect source review
 
-STATUS: IN PROGRESS — read-only production review; native verification NOT RUN.
+STATUS: PASS — bounded stage 1 source review; native verification NOT RUN.
 
 Scope: online lane checkpoint `e3194fe` and its current reconnect fixtures. Review covers fresh Runner ownership, callback identity, the first-loss deadline, explicit leave cancellation, migration serialization, and the user-visible recovery notice. Production changes remain owned by the online lane. Integration and native jobs remain owned by root.
 
@@ -16,6 +16,18 @@ Two confirmed source findings sent to the online owner for correction:
 The new fixtures cover ordinary client timeout-shutdown/rejoin, fresh admissions, unchanged room/seat/epoch, exact restored bodies and a command ACK, stale original shutdown rejection, and explicit stop / seat-expiry / authentication rejection. The pure window tests cover first-loss bounds, monotonic narrowing, backoff and terminal cancellation. These fixtures do not yet exercise the two migration/preflight orderings above. Review remains in progress; no approval of the partial implementation is implied.
 
 The owner accepted both findings and began the source corrections. During that correction, a further bounded issue was identified: an unconditional wait for `Runner.IsRunning` to become false at the top of every attempt also traps internally failed replacement attempts. For example, a new client connects, its admission/Head request returns 503, and `Fail` freezes the RunScope while leaving its transport running. The next loop waits for a shutdown that was never requested. Waiting for the original SDK disconnect/migration callback must be distinguished from retiring an internally failed replacement.
+
+The revised source retains stopped token candidates, marks token consumption immediately before `StartGame`, and limits the live-transport wait to SDK disconnect/election handling. Those three triggers are closed at source level. The revised fourth native fixture delays host departure for one second after an early disconnect callback, then injects an unused-token credential 503; its initial Runner/credential assertions would fail against `e3194fe` after the original 500 ms retirement. The explicit-stop fixture now also injects one checkpoint-Head 503 after the replacement actually starts, exercising the internally failed transport path.
+
+A final generation-order finding was corrected: the retained migration-candidate set previously had no ordering. After a newer replacement runner's election token was accepted, a first late token from an older candidate could overwrite `pendingMigration` and cancel the newer attempt. The corrected source stamps every Runner before callback registration and accepts only election generations at least as new as the last accepted generation. Rejection occurs before token mutation, cancellation or freeze. Late tokens remain eligible during ordinary retries; completed recovery clears the generation watermark.
+
+## Bounded verdict and fixture coverage
+
+PASS for stage 1 source through `aeadba5` (ordered implementation commits: `e3194fe`, `f549505`, `aeadba5`). All four findings above are closed at source level. The nine pure window cases include the ordered-election policy. The four native fixtures remain unrun and cover the client rejoin/terminal paths plus delayed graceful-host election and unused-token preflight failure. The post-connect admission fault is injected through the real HTTP wrapper only after the replacement Runner is running. It is not a manually queued replacement action.
+
+The delayed-election test would fail against `e3194fe` because the original Runner is retired after 500 ms, before the one-second pre-departure assertions. With only that lifetime defect repaired, the injected first host-token credential 503 would still expose the original premature token loss. The admission503 path covers the intermediate unconditional-wait regression. The ordered-election case tests the policy directly; source inspection additionally verifies its call occurs before the real callback mutates pending state. No mutation run was performed.
+
+Fresh runners are created only after retirement, identity/room/generation remain fixed, a retry cannot create a new room, the first-loss deadline is only narrowed by coordinator state, and cancellation propagates through the active attempt/RunScope into credential and restoration requests. Explicit stop and terminal failures disable recovery before waiting for its loop to finish. The narrow MatchClient notice opens the existing HUD and successful gameplay clears it; no separate navigation or menu tree was introduced.
 
 ## Stage 2 proposal review
 
