@@ -64,17 +64,48 @@ namespace Wreckabulary.Online.Tests
             var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
             var styles = new WordboundUiStyles(); ThemeWindow window = null;
             GUISkin borrowed = null, owned = null;
+            GUISkin oldSkin = null;
+            List<Texture2D> oldTextures = null;
+            var events = new List<string>();
+            int generation = 0;
+            bool changeOnRepaint = false, changed = false, verifiedRepaint = false, verifiedLayout = false;
             try
             {
-                window = Open(() => { borrowed = GUI.skin; using var scope = styles.Apply(theme); owned = GUI.skin; });
+                window = Open(() => {
+                    EventType type = Event.current.type;
+                    if (type == EventType.Repaint && changeOnRepaint)
+                    { theme.Padding++; changeOnRepaint = false; changed = true; }
+                    int before = styles.Generation;
+                    borrowed = GUI.skin;
+                    using var scope = styles.Apply(theme);
+                    owned = GUI.skin;
+                    if (events.Count == 16) events.RemoveAt(0);
+                    events.Add(type + ":" + before + "->" + styles.Generation);
+                    if (changed && !verifiedLayout && type == EventType.Repaint)
+                    {
+                        Assert.AreEqual(generation, styles.Generation, "An edit inside Repaint must retain the measured layout.");
+                        Assert.AreSame(oldSkin, owned);
+                        foreach (var texture in oldTextures) Assert.IsTrue(texture);
+                        verifiedRepaint = true;
+                    }
+                    if (changed && !verifiedLayout && type == EventType.Layout)
+                    {
+                        Assert.IsTrue(verifiedRepaint);
+                        Assert.AreEqual(generation + 1, styles.Generation, "The first actual Layout after the edit must rebuild once.");
+                        Assert.IsFalse(oldSkin);
+                        foreach (var texture in oldTextures) Assert.IsFalse(texture, "Theme replacement must release native textures.");
+                        verifiedLayout = true;
+                    }
+                });
                 Send(window, EventType.Layout);
-                int generation = styles.Generation; var oldSkin = owned;
-                var oldTextures = new List<Texture2D>((List<Texture2D>)Field(styles, "textures"));
+                generation = styles.Generation; oldSkin = owned;
+                oldTextures = new List<Texture2D>((List<Texture2D>)Field(styles, "textures"));
                 Assert.AreEqual(8, oldTextures.Count);
-                theme.Padding++;
+                changeOnRepaint = true;
                 Send(window, EventType.Repaint);
-                Assert.AreEqual(generation, styles.Generation); Assert.AreSame(oldSkin, owned);
+                Assert.IsTrue(verifiedRepaint, "The changed theme must be observed in an actual Repaint.");
                 Send(window, EventType.Layout);
+                Assert.IsTrue(verifiedLayout, "The changed theme must be observed in a subsequent actual Layout.");
                 Assert.AreEqual(generation + 1, styles.Generation); Assert.IsFalse(oldSkin);
                 foreach (var texture in oldTextures) Assert.IsFalse(texture, "Theme replacement must release native textures.");
                 var finalSkin = owned;
@@ -83,7 +114,11 @@ namespace Wreckabulary.Online.Tests
                 Assert.IsFalse(finalSkin); foreach (var texture in finalTextures) Assert.IsFalse(texture);
                 Assert.IsTrue(borrowed); Assert.IsTrue(theme);
             }
-            finally { if (window) window.Close(); styles.Dispose(); Object.DestroyImmediate(theme); }
+            finally
+            {
+                TestContext.WriteLine("Actual theme GUI events: " + string.Join(", ", events));
+                if (window) window.Close(); styles.Dispose(); Object.DestroyImmediate(theme);
+            }
         }
 
         [Test]
@@ -134,6 +169,8 @@ namespace Wreckabulary.Online.Tests
             var styles = new WordboundUiStyles(); ThemeWindow window = null;
             try
             {
+                int newDefault = theme.ModuleHeight;
+                theme.ModuleHeight = 50;
                 window = Open(() => {
                     using var scope = styles.Apply(theme);
                     float measured = GUI.skin.button.CalcHeight(new GUIContent("Flagship Room\n12 × 12 m"), 174);
@@ -145,6 +182,9 @@ namespace Wreckabulary.Online.Tests
                         Assert.LessOrEqual(menu.xMax, size.x - 12); Assert.LessOrEqual(menu.yMax, size.y - 12);
                     }
                 }); Send(window, EventType.Layout); Send(window, EventType.Repaint);
+                Assert.AreEqual(50, theme.ModuleHeight, "Measured minimums must not rewrite an existing designer asset.");
+                theme.ModuleHeight = newDefault;
+                Send(window, EventType.Layout); Send(window, EventType.Repaint);
             }
             finally { if (window) window.Close(); styles.Dispose(); Object.DestroyImmediate(theme); }
         }

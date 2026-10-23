@@ -94,7 +94,12 @@ namespace Wreckabulary
                 DisabledText = new GUIStyle(skin.button);
                 foreach (var state in States(DisabledText)) { state.background = disabled; state.textColor = selected.DisabledText; }
                 Error = selected.Error; Ink = selected.Text; Padding = selected.Padding; Gap = selected.Gap;
-                RowHeight = selected.RowHeight; ModuleHeight = selected.ModuleHeight; MenuWidth = selected.MenuWidth;
+                RowHeight = Mathf.Max(selected.RowHeight,
+                    Mathf.CeilToInt(skin.button.CalcHeight(new GUIContent("Ag"), 512)),
+                    Mathf.CeilToInt(skin.textField.CalcHeight(new GUIContent("Ag"), 512)));
+                ModuleHeight = Mathf.Max(selected.ModuleHeight,
+                    Mathf.CeilToInt(skin.button.CalcHeight(new GUIContent("Ag\nAg"), 512)));
+                MenuWidth = selected.MenuWidth;
                 source = theme; fingerprint = stamp; Generation++;
             }
             catch { ReleaseSkin(); throw; }

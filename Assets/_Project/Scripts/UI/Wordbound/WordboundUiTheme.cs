@@ -27,7 +27,7 @@ namespace Wreckabulary
         [Range(8, 24)] public int Padding = 16;
         [Range(2, 12)] public int Gap = 6;
         [Range(30, 52)] public int RowHeight = 34;
-        [Range(44, 90)] public int ModuleHeight = 50;
+        [Range(44, 90)] public int ModuleHeight = 56;
         [Range(480, 820)] public int MenuWidth = 620;
         [Range(0, 10)] public int CornerRadius = 5;
 
