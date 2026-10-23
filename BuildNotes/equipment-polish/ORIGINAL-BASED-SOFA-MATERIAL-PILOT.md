@@ -1,6 +1,20 @@
 # Original-based SOFA V4 shallow material-seam pilot
 
-STATUS: NUMERICAL PROFILE CHECK PASSED — Blender nodes/build/render NOT RUN; appearance pending
+STATUS: BUILT AND DETAIL PAIR REVIEWED — no convincing visible improvement; original SOFA remains the baseline
+
+## Completed root render and independent visual result
+
+Root built V4 with Blender 5.2.2 LTS and rendered the matched detail pair at 960 × 960, 64 samples, six CPU threads. This lane directly viewed both actual PNGs and independently checked their SHA-256 values, the saved blend hash and every paired metadata field except variant, image hash and elapsed time. They match the same camera, lighting source, blend and render settings.
+
+The floating line and kink seen in prior geometric experiments are absent, but the shallow normal seam is barely discernible. I do not see a convincing visible quality improvement over the actual original model. Root independently reached the same conclusion. **Keep the original SOFA surface; stop further SOFA render iterations.** V4 stays preserved as an optional editable material experiment, with no appearance approval, bake, Unity rollout or production-art claim.
+
+| Artifact | Verified SHA-256 |
+| --- | --- |
+| Editable V4 blend | `ac3185ffff0295cc0de6dc8fb08f2a2fcc840c774034dfd1a1f8512a6ec555ae` |
+| Detail original PNG | `7e1e5793814555e61ea1d1c34e28b2de73b6edbeda1aa49ed8f214309671c4ad` |
+| Detail candidate PNG | `3103ec66e5dd06c313b5ae1c0e5709d755b33ae311115241968db7923a27dd37` |
+
+Actual files are in `ArtSource/Collections/WordboundPvP/OriginalBasedPilotV4/Previews/` in the integration checkout. Root render times were 122.430 seconds for original and 169.623 seconds for candidate; these are source-render timings, not runtime performance. The receipt confirms unchanged original bounds, 16 mesh parts, 6,248 triangles and no added curve welts. The plan below is retained as the historical experiment specification; its build destination now exists and must not be overwritten.
 
 V1 had floating trim; V2 seated the trim but exposed a kink in the original mesh cross section. V3's smooth wire fit failed direct source-triangle contact checks before native execution. Those revisions and evidence remain preserved (`43191ef` failed fit source, `660798c` feasibility evidence). No limit was loosened. Root authorized a separate shallow material treatment on the original cloth.
 
