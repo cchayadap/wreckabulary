@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parsePublicCatalogue, canonical, requireConfigParity, activationProjection } from "../../scripts/public-catalogue.mjs";
+import { parsePublicCatalogue, canonical, requireConfigParity, activationProjection, configurePublicCatalogue } from "../../scripts/public-catalogue.mjs";
+import { publicBindingVars } from "../../shared/public-bindings.mjs";
 
 if (!process.env.WORDBOUND_PUBLIC_CATALOGUE) throw new Error("Actual native-exported WORDBOUND_PUBLIC_CATALOGUE is required.");
 const source = readFileSync(process.env.WORDBOUND_PUBLIC_CATALOGUE, "utf8");
@@ -19,13 +20,13 @@ test("projects the exact native bytes and preserves approved release provenance"
   assert.equal(result.catalogueSha256, projected.sourceSha256);
   assert.equal(result.bindingsSha256, projected.bindingsSha256);
   assert.equal(result.builtinContentJson, projected.builtinContentJson);
-  requireConfigParity(projected, { vars: { BUILTIN_CONTENT_JSON: projected.builtinContentJson } });
+  requireConfigParity(projected, configurePublicCatalogue(projected, { vars: {} }));
 });
 test("rejects a missing, closed or changed deployment allowlist", () => {
   assert.throws(() => requireConfigParity(projected, { vars: {} }), /MISSING/);
   assert.throws(() => requireConfigParity(projected, { vars: { BUILTIN_CONTENT_JSON: "[]" } }), /PARITY/);
   const rows = JSON.parse(projected.builtinContentJson); rows[0].manifestHash = "0".repeat(64);
-  assert.throws(() => requireConfigParity(projected, { vars: { BUILTIN_CONTENT_JSON: canonical(rows) } }), /PARITY/);
+  assert.throws(() => requireConfigParity(projected, { vars: publicBindingVars(rows) }), /PARITY/);
 });
 test("rejects duplicate keys, noncanonical order and legacy closed arrays as activation artifacts", () => {
   assert.throws(() => parsePublicCatalogue(source.replace("{", '{"schema":1,')), /CANONICAL/);

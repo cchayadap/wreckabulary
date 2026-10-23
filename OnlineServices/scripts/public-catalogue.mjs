@@ -1,16 +1,13 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { canonical, readPublicBindings, publicBindingVars, replacePublicBindingVars, validateDeploymentVars } from "../shared/public-bindings.mjs";
+export { canonical } from "../shared/public-bindings.mjs";
 
 const variants = new Set(["TimeRun/Solo", "TeamRace/Solo", "TeamRace/Duo", "TeamRace/Squad",
   "BrawlRace/Solo", "BrawlRace/Duo", "BrawlRace/Squad", "FreeForAll/Solo", "Freestyle/Solo"]);
 const contentFields = ["kind", "courseId", "courseHash", "manifestHash", "modeHash", "catalogHash"];
 const hashFields = ["courseHash", "manifestHash", "modeHash", "catalogHash"];
 const sha256 = text => createHash("sha256").update(text).digest("hex");
-export function canonical(value) {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
-  return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`;
-}
 function fields(value, expected) {
   if (!value || typeof value !== "object" || Array.isArray(value) ||
       Object.keys(value).sort().join(",") !== [...expected].sort().join(","))
@@ -57,19 +54,24 @@ export function parsePublicCatalogue(source) {
 function ordinal(a, b) { return a < b ? -1 : a > b ? 1 : 0; }
 export function readPublicCatalogue(path) { return parsePublicCatalogue(readFileSync(path, "utf8")); }
 export function requireConfigParity(projected, config) {
-  const configured = config?.vars?.BUILTIN_CONTENT_JSON;
-  if (typeof configured !== "string") throw new Error("PUBLIC_ALLOWLIST_MISSING");
-  let parsed;
-  try { parsed = JSON.parse(configured); } catch { throw new Error("PUBLIC_ALLOWLIST_JSON"); }
+  const parsed = readPublicBindings(config?.vars);
   if (canonical(parsed) !== projected.builtinContentJson) throw new Error("PUBLIC_ALLOWLIST_PARITY");
+}
+export function configurePublicCatalogue(projected, config) {
+  if (!config || typeof config !== "object" || Array.isArray(config)) throw new Error("PUBLIC_CONFIG");
+  const result = { ...config, vars: replacePublicBindingVars(config.vars, JSON.parse(projected.builtinContentJson)) };
+  validateDeploymentVars(result.vars);
+  requireConfigParity(projected, result);
+  return result;
 }
 export function activationProjection(projected) {
   return {
-    schema: 1, catalogueSha256: projected.sourceSha256,
+    schema: 2, catalogueSha256: projected.sourceSha256,
     protocolVersion: projected.catalogue.protocolVersion,
     mapPoolVersion: projected.catalogue.mapPoolVersion,
     courseCount: projected.catalogue.courses.length,
     bindingsSha256: projected.bindingsSha256,
     builtinContentJson: projected.builtinContentJson,
+    builtinContentVars: publicBindingVars(JSON.parse(projected.builtinContentJson)),
   };
 }

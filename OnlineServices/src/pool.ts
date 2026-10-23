@@ -1,10 +1,10 @@
-import { z } from "zod";
+import { readPublicBindings } from "../shared/public-bindings.mjs";
 import { Store } from "./store";
 import { signGrant } from "./auth";
 import { CheckpointStore, type CheckpointAction } from "./checkpoints";
 import { BundleStore, BundleRequests, bindBundle, type BundleTransfer } from "./bundles";
 import {
-  Content, NOW, RECONNECT_MS, capacity, code, digest, emptyPool, logicalFull, poolKey,
+  NOW, RECONNECT_MS, capacity, code, digest, emptyPool, logicalFull, poolKey,
   publicRoster, requireThat, seal, secret, teamFor, validatePartySize, fullRacePacking, equalSecret,
   type Attempt, type ContentBinding, type Match, type PoolState, type Seat,
 } from "./model";
@@ -53,7 +53,7 @@ export class MatchPool extends Store<PoolState> {
   }
   private approve(content: ContentBinding) {
     if (content.kind === "BuiltIn") {
-      const allowed = z.array(Content).parse(JSON.parse(this.env.BUILTIN_CONTENT_JSON));
+      const allowed = readPublicBindings(this.env);
       requireThat(allowed.some(c => digest(c) === digest(content)), "CONTENT_NOT_APPROVED", 422);
     }
   }

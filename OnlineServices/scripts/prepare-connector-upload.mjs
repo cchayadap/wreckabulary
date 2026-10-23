@@ -4,10 +4,13 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import { parseArgs } from "node:util";
+import { readPublicBindings, validateDeploymentVars } from "../shared/public-bindings.mjs";
+import { readPublicCatalogue, requireConfigParity } from "./public-catalogue.mjs";
 
 const serviceRoot = fileURLToPath(new URL("../", import.meta.url));
 const { values } = parseArgs({ options: {
   mode: { type: "string" }, "private-dir": { type: "string" },
+  catalogue: { type: "string" },
 } });
 if (values.mode !== "initial" && values.mode !== "update")
   throw new Error("Select --mode initial or --mode update after inspecting the deployment target.");
@@ -16,6 +19,11 @@ const config = JSON.parse(readFileSync(resolve(serviceRoot, "wrangler.production
 if (config.account_id !== "d105a82bc26b6913575355352c2d1bb1" ||
     config.name !== "wreckabulary-wordbound-coordinator" || config.routes || config.route)
   throw new Error("Deployment target does not match the approved isolated service.");
+validateDeploymentVars(config.vars);
+if (readPublicBindings(config.vars).length && !values.catalogue)
+  throw new Error("An enabled public allowlist requires --catalogue <actual native export> for exact deployment parity.");
+const catalogue = values.catalogue ? readPublicCatalogue(resolve(values.catalogue)) : null;
+if (catalogue) requireConfigParity(catalogue, config);
 if (!existsSync(privateRoot)) throw new Error("Create and restrict the private directory before preparing secrets.");
 const secretPath = resolve(privateRoot, "production.json");
 if (!existsSync(secretPath)) {
@@ -62,6 +70,8 @@ const handoff = {
   keyId: config.vars.SIGNING_KEY_ID, photonAppId: config.vars.PHOTON_APP_ID,
   publicKeyFingerprint, jwks: { keys: [jwk] },
   moduleSha256: createHash("sha256").update(module).digest("hex"),
+  ...(catalogue ? { catalogueSha256: catalogue.sourceSha256, bindingsSha256: catalogue.bindingsSha256,
+    publicCourseCount: catalogue.catalogue.courses.length } : {}),
 };
 writeFileSync(resolve(privateRoot, "public-handoff.json"), JSON.stringify(handoff, null, 2));
 console.log(JSON.stringify({ prepared: true, mode: values.mode, accountId: config.account_id, worker: config.name,

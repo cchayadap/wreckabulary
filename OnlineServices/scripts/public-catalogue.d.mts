@@ -13,7 +13,8 @@ export function canonical(value: unknown): string;
 export function parsePublicCatalogue(source: string): PublicCatalogueProjection;
 export function readPublicCatalogue(path: string): PublicCatalogueProjection;
 export function requireConfigParity(projected: PublicCatalogueProjection, config: unknown): void;
+export function configurePublicCatalogue(projected: PublicCatalogueProjection, config: object): object;
 export function activationProjection(projected: PublicCatalogueProjection): {
   schema: number; catalogueSha256: string; protocolVersion: string; mapPoolVersion: string;
-  courseCount: number; bindingsSha256: string; builtinContentJson: string;
+  courseCount: number; bindingsSha256: string; builtinContentJson: string; builtinContentVars: Record<string, string>;
 };

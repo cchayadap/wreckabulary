@@ -4,6 +4,7 @@ import { generateKeyPairSync, randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parsePublicCatalogue } from "./scripts/public-catalogue.mjs";
+import { publicBindingVars } from "./shared/public-bindings.mjs";
 
 const path = process.env.WORDBOUND_PUBLIC_CATALOGUE;
 if (!path) throw new Error("Provide WORDBOUND_PUBLIC_CATALOGUE pointing to the actual native exporter output.");
@@ -18,7 +19,7 @@ export default defineConfig({
       PHOTON_APP_ID: "11111111-1111-4111-a111-111111111111",
       PHOTON_PROVIDER_SECRET: randomBytes(48).toString("base64url"),
       ADMISSION_PRIVATE_JWK: JSON.stringify(privateKey.export({ format: "jwk" })),
-      BUILTIN_CONTENT_JSON: projected.builtinContentJson,
+      ...publicBindingVars(projected.catalogue.courses.map(row => row.content)),
       PUBLIC_CATALOGUE_JSON: source,
     } },
   })],

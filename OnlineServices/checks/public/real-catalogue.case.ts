@@ -4,6 +4,7 @@ import { evictDurableObject, reset } from "cloudflare:test";
 import { importJWK, jwtVerify, type JWK } from "jose";
 import { canonical, poolKey, type ContentBinding, type PartySettings } from "../../src/model";
 import type { PublicCatalogueProjection } from "../../scripts/public-catalogue.mjs";
+import { readPublicBindings } from "../../shared/public-bindings.mjs";
 
 type Guest = { playerId: string; accessToken: string };
 type Seat = { playerId: string; partyId: string; teamId: number; seat: number };
@@ -56,7 +57,7 @@ describe("actual native catalogue projected into the Worker", () => {
     expect(catalogue.mapPoolVersion).toMatch(/^[A-Za-z0-9_-]{1,24}$/);
     const seeds = new Set(catalogue.courses.map(row => row.seed));
     expect(catalogue.courses).toHaveLength(seeds.size * 9);
-    expect(canonical(JSON.parse(env.BUILTIN_CONTENT_JSON))).toBe(canonical(catalogue.courses.map(row => row.content)));
+    expect(canonical(readPublicBindings(env))).toBe(canonical(catalogue.courses.map(row => row.content)));
     for (const seed of seeds) expect(catalogue.courses.filter(row => row.seed === seed)
       .map(row => `${row.mode}/${row.format}`).sort()).toEqual([
       "BrawlRace/Duo", "BrawlRace/Solo", "BrawlRace/Squad", "FreeForAll/Solo", "Freestyle/Solo",

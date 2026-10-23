@@ -2,18 +2,19 @@
 
 STATUS: PREPARED SOURCE; ACTUAL FINAL EXPORT AND EXECUTION PENDING.
 
-All positive inputs come from the native `WordboundPublicCourseSetup.ExportAndAssignFromEnvironment` exporter. Do not create substitute hashes or edit the exported document. Each seed has nine variants on the current `wordbound-v3` protocol. Use a fresh release for changed content, and include seed `0123456789abcdef` for the native gameplay fixtures. The native fixture requires byte-for-byte parity with the catalogue assigned to the player launch assets. The Worker continues to use its existing flat allowlist; the projection preserves exact content fields and records source and projection SHA-256.
+All positive release inputs come from the native `WordboundPublicCourseSetup.ExportAndAssignFromEnvironment` exporter. Do not create substitute hashes or edit the exported document. Each seed has nine variants on the current `wordbound-v3` protocol. Use a fresh release for changed content, and include seed `0123456789abcdef` for the native gameplay fixtures. The native fixture requires byte-for-byte parity with the catalogue assigned to the player launch assets. The projection preserves exact content fields and records source and projection SHA-256. Large allowlists are split into bounded text bindings by the shared Worker/deployment decoder; see `BuildNotes/online/PUBLIC-BINDING-SHARDS.md`.
 
 From `OnlineServices`, set `WORDBOUND_PUBLIC_CATALOGUE` to the absolute native export path, then run these gates sequentially when the root releases the compiler:
 
 ```powershell
 node --test checks/public/catalogue.nodecase.mjs
+node --test checks/public/bindings.nodecase.mjs
 npx tsc --noEmit --project tsconfig.public.json
 npx vitest run --config public-entry.vitest.config.ts
 node scripts/project-public-catalogue.mjs --catalogue "$env:WORDBOUND_PUBLIC_CATALOGUE" --output "<new activation artifact>"
 ```
 
-The projection CLI optionally accepts `--verify-config <strict JSON config>` to compare that config's `vars.BUILTIN_CONTENT_JSON` against the exact projection. It neither modifies config nor deploys. A preexisting output is accepted only when its bytes already match; a differing release requires a new output.
+The projection CLI optionally accepts `--verify-config <strict JSON config>` to compare the decoded config bindings against the exact projection. `--write-config <existing strict JSON config>` replaces only the public catalogue vars, removes stale shards, preserves unrelated config, and checks parity before atomically replacing the file. It never deploys or opens a secret file. A preexisting output is accepted only when its bytes already match; a differing release requires a new output. The separate `bindings.nodecase.mjs` uses synthetic values only to test encoding/config mechanics; it is not native release evidence.
 
 The local Worker suite uses actual SQLite Durable Objects with temporary signing/access keys generated only in memory. It checks all nine exact bindings, altered/private binding rejection, two full Duo parties, eviction, signed start and cleanup. These tests exercise the installed Worker runtime, not Photon or native gameplay.
 
