@@ -1,6 +1,6 @@
 # Public FFA collection handoff
 
-STATUS: IMPLEMENTED; independent source review and native execution pending. Source-only repair of the existing full FFA fixture. No production reach/collision rules, input speeds, deadlines, SDK, heap or service changed.
+STATUS: SOURCE REVIEW PASS; native execution pending. Source-only repair of the existing full FFA fixture. No production reach/collision rules, input speeds, deadlines, SDK, heap or service changed.
 
 ## Retained failure
 
@@ -15,6 +15,8 @@ Raw evidence remains root `TestResults/editmode_20261023T225207Z.xml` and `Logs/
 ## Bounded repair
 
 Before collecting either hammer kit, move the remote through existing FullWalk/admitted movement to a point0.75m south of its bound Start. Verify that location is inside the actual Start module, at least2m south of the authored kit rows, and the observed canonical/native player position settles within0.25m. The later existing movement back to the real recovery Start before combat remains unchanged. No teleport or state mutation is introduced.
+
+Assets independently source-reviewed commit1ecec6b6 in report022812e7 (`BuildNotes/client-view/PUBLIC-FFA-COLLECTION-SOURCE-REVIEW.md`). It verified actual CombatArena Start geometry, clear waiting location, canonical/native reach and LOS queries, and unchanged one-submit/15-second/strict-Ok contract. No source blocker was found. Baseline9674b5fe is excluded from integration. This verdict does not establish the failed receipt's exact raycast cause or a completed native full-scored FFA.
 
 Each fresh collection now checks actual host canonical and native distance≤3m, both actual host LOS queries, active actor/tile, tile kind and mode ownership. Then it uses the same Submit→frontier wait15s→exact payload receipt→Ok assertion. It submits once; it does not retry, replay, ignore OutOfReach, or loosen any gameplay condition. A failed precondition or non-Ok receipt records numeric positions, distances, LOS flags, activity, ownership, speeds and canonical tick without credentials or player/body identities. Failure-time diagnostics are best effort and cannot replace the original receipt assertion.
 
