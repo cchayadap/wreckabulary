@@ -423,5 +423,120 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("", CheckPhysical(other, other.State));
             Assert.AreEqual("", CheckPhysical(f, valid));
         }
+
+        [TestCase("missing"), TestCase("duplicate"), TestCase("team"), TestCase("lap")]
+        [TestCase("generation"), TestCase("deadline"), TestCase("inactive-lap"), TestCase("source")]
+        public void PerCallResourceIndexesRetainScopeAndRecoveryRejections(string mutation)
+        {
+            var f = WordboundSnapshotCodecTests.Create(mutation == "lap" ? "Freestyle" : "TimeRun");
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var valid = f.Snapshot();
+            Assert.AreEqual("", Check(valid));
+            int at = mutation == "inactive-lap" ? f.Resources.FindIndex(r => r.Lap == 1) : 0;
+            var original = f.Resources[at];
+            if (mutation == "missing") f.Resources.RemoveAt(at);
+            else if (mutation == "duplicate") f.Resources[1] = original;
+            else f.Resources[at] = new MatchResourceState(mutation == "source" ? "foreign" : original.SourceId,
+                mutation == "team" ? original.Team + 1 : original.Team, mutation == "lap" ? 1 : original.Lap,
+                mutation == "generation" ? original.Generation + 1 : original.Generation,
+                mutation == "deadline" ? 0 : mutation == "inactive-lap" ? 1 : original.RecoveryAtTick);
+            string expected = mutation == "missing" || mutation == "duplicate" ?
+                "Snapshot must include every static source, team and lap exactly once." : mutation == "inactive-lap" ?
+                "Inactive lap resources cannot retain a pending recovery deadline." : "Recovery source, team, lap or deadline is invalid.";
+            var invalid = f.Snapshot();
+            Assert.AreEqual(expected, Check(invalid));
+            Assert.AreEqual(expected, Check(invalid));
+            Assert.AreEqual("", Check(valid));
+        }
+
+        [TestCase("excess"), TestCase("foreign-letter"), TestCase("missing-tile")]
+        [TestCase("inactive-excess"), TestCase("other-team-excess"), TestCase("other-generation-excess")]
+        public void PerSourceTileLookupStillChecksEveryMatchingBodyAndLetterMultiplicity(string mutation)
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var valid = f.Snapshot();
+            Assert.AreEqual("", Check(valid));
+            var source = f.Course.Supplies[0];
+            if (mutation == "missing-tile")
+                f.Bodies.Add(new WorldBodyState("tile:999999", WorldBodyKind.Tile, default,
+                    ownerTeam: source.TeamIndex, protectedResource: true, sourceId: source.Id));
+            else
+            {
+                string word = mutation == "foreign-letter" ? Enumerable.Range('A', 26).Select(i => (char)i)
+                    .First(c => !source.Letters.Contains(c)).ToString() : source.Letters + source.Letters[0];
+                foreach (var tile in f.Economy.MintTiles(word).Tiles)
+                    f.Bodies.Add(new WorldBodyState("tile:" + tile.TileId, WorldBodyKind.Tile, default,
+                        active: mutation != "inactive-excess", ownerTeam: mutation == "other-team-excess" ? 1 : source.TeamIndex,
+                        protectedResource: true, sourceId: source.Id, recoveryGeneration: mutation == "other-generation-excess" ? 3 : 0));
+            }
+            var invalid = f.Snapshot();
+            const string expected = "Recovery source contains more loose letters than its authored batch.";
+            Assert.AreEqual(expected, Check(invalid));
+            Assert.AreEqual(expected, Check(invalid));
+            Assert.AreEqual("", Check(valid));
+        }
+
+        [TestCase("count"), TestCase("duplicate"), TestCase("resource")]
+        public void ResourceLookupConstructionDoesNotReorderCompetingFailures(string first)
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var valid = f.Snapshot();
+            Assert.AreEqual("", Check(valid));
+            var originals = f.Resources.ToArray();
+            var resource = originals[0];
+            f.Resources[0] = new MatchResourceState("foreign", resource.Team, resource.Lap, resource.Generation);
+            if (first == "count") f.Resources.RemoveAt(f.Resources.Count - 1);
+            else if (first == "duplicate") f.Resources[1] = f.Resources[0];
+            f.Bodies.Add(new WorldBodyState("tile:bad", WorldBodyKind.Tile, default,
+                ownerTeam: resource.Team, protectedResource: true, sourceId: resource.SourceId));
+            string expected = first == "resource" ? "Recovery source, team, lap or deadline is invalid." :
+                "Snapshot must include every static source, team and lap exactly once.";
+            Assert.AreEqual(expected, Check(f.Snapshot()));
+            f.Resources.Clear(); f.Resources.AddRange(originals);
+            Assert.AreEqual("World ID suffix is invalid.", Check(f.Snapshot()), "The later malformed tile must remain a real competing failure.");
+            Assert.AreEqual("", Check(valid));
+        }
+
+        [Test]
+        public void PerCallTileLookupAcceptsExactBatchThenCollectionWithoutChangingPriorSnapshot()
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var source = f.Course.Supplies[0];
+            var batch = f.Economy.MintTiles(source.Letters);
+            foreach (var tile in batch.Tiles)
+                f.Bodies.Add(new WorldBodyState("tile:" + tile.TileId, WorldBodyKind.Tile, default,
+                    ownerTeam: source.TeamIndex, protectedResource: source.Protected, sourceId: source.Id));
+            var fullBatch = f.Snapshot();
+            Assert.AreEqual("", Check(fullBatch));
+            int collected = batch.Tiles[0].TileId;
+            Assert.IsTrue(f.Economy.CollectTile(0, collected).Ok);
+            Assert.AreEqual(1, f.Bodies.RemoveAll(body => body.Id == "tile:" + collected));
+            var afterCollection = f.Snapshot();
+            Assert.AreEqual(fullBatch.Economy.Tiles.Count - 1, afterCollection.Economy.Tiles.Count);
+            Assert.AreEqual("", Check(afterCollection));
+            Assert.AreEqual("", Check(fullBatch));
+            Assert.AreEqual("", Check(afterCollection));
+        }
+
+        [Test]
+        public void EmptyLooseBatchesKeepResolvedLetterValidationAndCurrentProgress()
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            string Check() => MatchStateValidation.Validate(f.Snapshot(), f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            Assert.AreEqual(0, f.Economy.Capture().Tiles.Count);
+            Assert.AreEqual("", Check());
+            var document = f.Course.CopyDocument();
+            document.Supplies[0].Letters = "invalid";
+            var rejected = CourseResolver.Resolve(document, CourseTemplates.ProofCatalogue(),
+                new CourseResolveRequest(f.Course.Seed, MatchStateValidation.Requirements(f.Mode)));
+            Assert.IsFalse(rejected.Success);
+            Assert.IsTrue(rejected.Issues.Any(issue => issue.Code == "letters.invalid"));
+            f.Progress.Advance(1, 16);
+            Assert.AreEqual("", Check());
+            Assert.AreEqual("", Check());
+        }
     }
 }

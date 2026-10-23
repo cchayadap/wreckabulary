@@ -281,6 +281,8 @@ namespace Wreckabulary.Rules.Wordbound
             Need(s.Resources.Count == sources.Count * (mode.IsRace ? 3 : 1) &&
                 s.Resources.Select(r => ResourceKey(r.SourceId, r.Team, r.Lap)).Distinct(StringComparer.Ordinal).Count() == s.Resources.Count,
                 "Snapshot must include every static source, team and lap exactly once.");
+            var teams = s.Progress.Teams.ToDictionary(t => t.Team);
+            TeamProgress Team(int id) => teams.TryGetValue(id, out var team) ? team : s.Progress.Teams.Single(t => t.Team == id);
             foreach (var r in s.Resources)
             {
                 Need(sources.TryGetValue(r.SourceId, out var source) && source.Item1 == r.Team &&
@@ -288,19 +290,22 @@ namespace Wreckabulary.Rules.Wordbound
                     r.Generation >= 0 && (!mode.IsRace || r.Generation % 3 == r.Lap) && r.RecoveryAtTick >= -1 &&
                     (r.RecoveryAtTick == -1 || r.RecoveryAtTick > s.Progress.Tick && r.RecoveryAtTick <= s.Progress.Tick + 3600),
                     "Recovery source, team, lap or deadline is invalid.");
-                if (mode.IsRace && r.Team >= 0 && r.Lap != Math.Min(s.Progress.Teams.Single(t => t.Team == r.Team).Lap, 2))
+                if (mode.IsRace && r.Team >= 0 && r.Lap != Math.Min(Team(r.Team).Lap, 2))
                     Need(r.RecoveryAtTick == -1, "Inactive lap resources cannot retain a pending recovery deadline.");
-                if (!lifecycle.Demanded(mode.IsRace ? s.Progress.Teams.Single(t => t.Team == r.Team) : null, r, s.Practice, s.Mechanisms))
+                if (!lifecycle.Demanded(mode.IsRace ? Team(r.Team) : null, r, s.Practice, s.Mechanisms))
                     Need(r.RecoveryAtTick == -1, "Retired puzzle resources cannot retain a pending recovery deadline.");
             }
             var tiles = s.Economy.TileStates.ToDictionary(t => t.Key, t => t.Value);
+            var resourceKeys = new HashSet<(string SourceId, int Team, int Lap)>(s.Resources.Select(r => (r.SourceId, r.Team, r.Lap)));
+            var looseTiles = s.Bodies.Where(b => b.Kind == WorldBodyKind.Tile).ToLookup(b => b.SourceId, StringComparer.Ordinal);
             foreach (var pair in sources)
             {
-                int lap = mode.IsRace && pair.Value.Item1 >= 0 ? Math.Min(s.Progress.Teams.Single(t => t.Team == pair.Value.Item1).Lap, 2) : 0;
-                Need(s.Resources.Any(r => r.SourceId == pair.Key && r.Team == pair.Value.Item1 && r.Lap == lap),
+                int lap = mode.IsRace && pair.Value.Item1 >= 0 ? Math.Min(Team(pair.Value.Item1).Lap, 2) : 0;
+                Need(resourceKeys.Contains((pair.Key, pair.Value.Item1, lap)),
                     "Snapshot omits a current recovery source.");
+                if (!looseTiles.Contains(pair.Key) && (pair.Value.Item3 == null || pair.Value.Item3.All(LetterBag.IsLetter))) continue;
                 var available = LetterBag.FromWord(pair.Value.Item3);
-                foreach (var body in s.Bodies.Where(b => b.Kind == WorldBodyKind.Tile && b.SourceId == pair.Key))
+                foreach (var body in looseTiles[pair.Key])
                     Need(tiles.TryGetValue(Suffix(body.Id, "tile:"), out char letter) && available.TryRemove(letter),
                         "Recovery source contains more loose letters than its authored batch.");
             }
