@@ -1,6 +1,6 @@
 # Authored capacity and reclamation fixture
 
-STATUS: NATIVE PREFLIGHT FAILED; bounded test-only correction implemented, source review and preflight rerun pending. The prior plan is retained in MAX-BODY-CAPACITY-PLAN.md (1ed4a890 +6302cca0), including Input's conditional design review24605e0c. Root subsequently authorized the passive pinned-metadata reader and the new test-only partial-file boundary. No production, SDK, heap policy, service, existing fixture/helper, timeout or admission rule changes.
+STATUS: NATIVE PREFLIGHT FAILED; bounded test-only correction SOURCE REVIEW PASS, preflight rerun pending. The prior plan is retained in MAX-BODY-CAPACITY-PLAN.md (1ed4a890 +6302cca0), including Input's conditional design review24605e0c. Root subsequently authorized the passive pinned-metadata reader and the new test-only partial-file boundary. No production, SDK, heap policy, service, existing fixture/helper, timeout or admission rule changes.
 
 ## Exact scope
 
@@ -32,6 +32,8 @@ No interpolation getter, NextSnapshot, reflection write, forced state update, SD
 Native232239 on the root integration candidate compiled and ran97 selected cases:96 passed, capacity preflight failed before guest/service creation. Its resolver reported asset.unknown for every BALL prop zone. The fixture and initial source review incorrectly assumed the broad item catalogue's BALL was also in the installed authored geometry. The flagship geometry explicitly registers only its twelve equipment recipes; BALL has no approved alias there (nor in the proof catalogue). This is a fixture error, not a reason to broaden runtime catalogue admission.
 
 Root approved substituting the actual registered PLATE for the228 props. Its installed size0.54×0.073×0.54m fits the unchanged0.6×1×0.6m zone and1m grid, without overlap. The factory now explicitly asserts registered asset membership, letter identity and geometry dimensions before constructing zones, then verifies all228 resolved placements and every initial/recreated prop's real Map origin and PLATE word. The reserved body arithmetic, optional four BALL letters (ordinary valid A–Z letters), real TABLE route and all retirement/memory assertions are unchanged. The original failed XML is retained at root TestResults/editmode_20261023T232239Z.xml. Compiler/preflight rerun and live capacity acceptance remain required.
+
+Input independently source-reviewed correctione444cc70 and confirmed the actual flagship recipe registration,540×73×540mm dimensions, unchanged spacing/counts and strict assertions. No source blocker was found; the prior review's missed BALL membership and native failure remain part of the evidence. This is not a preflight or live pass.
 
 Input independently reviewed404f2604, finding no blocking algorithm, public API or lifetime issue. Review checked actual geometry/content preflight, passive metadata, consecutive solve observations, exact spend/mint and retired-ID checks, acknowledgement, immutable roots/snapshots and bounded statistics lag. Its wording correction is applied: the final observation says retiredEntityIdsReused=false, not a claim that numeric resource generations never repeat across separate lap scopes. Source review does not establish the authored resolver, runtime allocator trajectory or wall-time feasibility.
 
