@@ -237,13 +237,18 @@ namespace Wreckabulary.OnlineGameplayTests
         IEnumerator FullWalk(Peer host, Peer actor, Func<WorldVector> target, float radius, string operation,
             Func<bool> delivered = null)
         {
+            int samples = 0;
+            float minimumInput = float.PositiveInfinity, maximumInput = 0, lastInput = 0;
             actor.ScriptedMovement = () => {
+                samples++; lastInput = 0;
                 if (delivered?.Invoke() == true) return default;
                 var body = host.Controller.Bodies["player:" + WordboundGameplayPlan.Seat(host.Controller.Frame.Binding, actor.Actor)];
                 var at = body.Rigidbody.position; var goal = target();
                 var delta = new Vector2(goal.X - at.x, goal.Z - at.z);
                 if (delta.magnitude <= radius) return default;
-                var value = delta.normalized * Mathf.Min(.22f, (delta.magnitude - radius * .5f) * .07f);
+                var value = delta.normalized * Mathf.Clamp((delta.magnitude - radius * .5f) * .07f, .06f, .22f);
+                lastInput = value.magnitude;
+                minimumInput = Mathf.Min(minimumInput, lastInput); maximumInput = Mathf.Max(maximumInput, lastInput);
                 return new WordboundMovementInput { MoveX = value.x, MoveZ = value.y };
             };
             try
@@ -251,7 +256,24 @@ namespace Wreckabulary.OnlineGameplayTests
                 yield return Until(() => delivered?.Invoke() == true || HorizontalDistance(PlayerPose(host, actor).Position, target()) <= radius,
                     operation, 35);
             }
-            finally { actor.ScriptedMovement = null; actor.InteractionInput = default; }
+            finally
+            {
+                actor.ScriptedMovement = null; actor.InteractionInput = default;
+                try
+                {
+                    var body = host.Controller.Bodies["player:" + WordboundGameplayPlan.Seat(host.Controller.Frame.Binding, actor.Actor)].Rigidbody;
+                    var position = body.position; var velocity = body.linearVelocity; var goal = target();
+                    float distance = Vector2.Distance(new Vector2(position.x, position.z), new Vector2(goal.X, goal.Z));
+                    bool canMove = host.Controller.PhysicsWorld.CanMove(actor.Actor, out float moveScale);
+                    Debug.Log(FormattableString.Invariant($"WORDBOUND_COMPACT_WALK: operation={operation}; phase=steering-end; tick={host.Controller.Frame.Progress.Tick}; ") +
+                        FormattableString.Invariant($"hostPosition={position.x:F6}/{position.y:F6}/{position.z:F6}; hostVelocity={velocity.x:F6}/{velocity.y:F6}/{velocity.z:F6}; ") +
+                        FormattableString.Invariant($"target={goal.X:F3}/{goal.Y:F3}/{goal.Z:F3}; distance={distance:F6}; radius={radius:F3}; inside={distance <= radius}; ") +
+                        FormattableString.Invariant($"delivered={delivered?.Invoke() == true}; samples={samples}; nonzeroObserved={maximumInput > 0}; minNonzeroInput={(float.IsPositiveInfinity(minimumInput) ? 0 : minimumInput):F6}; ") +
+                        FormattableString.Invariant($"maxInput={maximumInput:F6}; lastInput={lastInput:F6}; canMove={canMove}; moveScale={moveScale:F6}; kinematic={body.isKinematic}; ") +
+                        FormattableString.Invariant($"paused={host.Controller.IsSimulationPaused}; lifetimeCancelled={lifetime.IsCancellationRequested}; poseSource=host-native; inputs=requested-not-delivery-proof"));
+                }
+                catch (Exception) { Debug.Log("WORDBOUND_COMPACT_WALK_UNAVAILABLE: observation-failed"); }
+            }
             if (host.Controller.Frame.Progress.Result == null)
                 yield return Until(() => {
                     var velocity = PlayerPose(host, actor).Velocity;
