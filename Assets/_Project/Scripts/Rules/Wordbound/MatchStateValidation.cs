@@ -395,6 +395,7 @@ namespace Wreckabulary.Rules.Wordbound
             var lifecycle = content.Lifecycle;
             var placements = content.Placements;
             var teams = new HashSet<int>(binding.Seats.Select(seat => seat.Team));
+            ILookup<(string PuzzleId, int Lap, int Team), MatchMechanismState> mechanisms = null;
             for (int i = 0; i < binding.Seats.Count; i++)
                 Need(bodies.TryGetValue("player:" + i, out var body) && body.Kind == WorldBodyKind.Player &&
                     body.OwnerTeam == binding.Seats[i].Team && body.SourceId == binding.Seats[i].PlayerId && !body.Protected,
@@ -454,7 +455,8 @@ namespace Wreckabulary.Rules.Wordbound
                                 body.RotationXyz.X == 0 && body.RotationXyz.Y == 0 && body.RotationXyz.Z == 0,
                                 "Unbound physical fixture body.");
                             var site = physicalFixture.Site;
-                            var mechanism = s.Mechanisms.SingleOrDefault(m => m.PuzzleId == site.PuzzleId && m.Lap == site.Lap - 1 && m.Team == body.OwnerTeam);
+                            mechanisms ??= s.Mechanisms.ToLookup(m => (m.PuzzleId, m.Lap, m.Team));
+                            var mechanism = mechanisms[(site.PuzzleId, site.Lap - 1, body.OwnerTeam)].SingleOrDefault(m => true);
                             Need(mechanism != null && body.Position.DistanceSquared(CourseFixtureMotion.Position(fixture, mechanism.Physical.MotionUnits)) < .000001f,
                                 "Fixture pose differs from its canonical physical phase.");
                         }

@@ -318,6 +318,108 @@ namespace Wreckabulary.Tests
                 snapshot.Actors, bodies ?? snapshot.Bodies, resources ?? snapshot.Resources, mechanisms ?? snapshot.Mechanisms,
                 snapshot.RandomStreams, snapshot.NarrativeFlags, snapshot.ThrownFlights, snapshot.Practice);
 
+        static ResolvedCoursePhysicalSite FixtureSite(WordboundAuthorityTests.Fixture f, WorldBodyState body) =>
+            f.Source.Course.PhysicalSites.Single(site => site.Fixtures.Any(fixture => fixture.Id == body.SourceId));
+
+        static MatchMechanismState FixtureMechanism(WordboundAuthorityTests.Fixture f, MatchSnapshot snapshot, WorldBodyState body)
+        {
+            var site = FixtureSite(f, body);
+            return snapshot.Mechanisms.Single(m => m.PuzzleId == site.PuzzleId && m.Lap == site.Lap - 1 && m.Team == body.OwnerTeam);
+        }
+
+        [TestCase("missing"), TestCase("referenced-duplicate"), TestCase("unreferenced-duplicate")]
+        public void FixtureMechanismLookupRetainsQueryLocalMissingAndDuplicateRejections(string mutation)
+        {
+            var f = PhysicalFixture("TeamRace");
+            var valid = f.State;
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            string before = MatchSnapshotCodec.Export(valid);
+            var fixture = valid.Bodies.First(b => b.Id.StartsWith("fixture:", StringComparison.Ordinal));
+            var selected = FixtureMechanism(f, valid, fixture);
+            if (mutation == "unreferenced-duplicate")
+            {
+                var site = f.Source.Course.PhysicalSites.First(s => s.Fixtures.Count == 0);
+                selected = valid.Mechanisms.Single(m => m.PuzzleId == site.PuzzleId && m.Lap == site.Lap - 1 && m.Team == fixture.OwnerTeam);
+            }
+            var mechanisms = valid.Mechanisms.ToList();
+            if (mutation == "missing") mechanisms.Remove(selected);
+            else mechanisms.Add(selected);
+            var invalid = ReplacePhysical(valid, mechanisms: mechanisms);
+            string expected = mutation == "missing" ? "Fixture pose differs from its canonical physical phase." :
+                mutation == "unreferenced-duplicate" ? "Duplicate mechanism state." :
+                Assert.Throws<InvalidOperationException>(() => invalid.Mechanisms.SingleOrDefault(m =>
+                    m.PuzzleId == selected.PuzzleId && m.Lap == selected.Lap && m.Team == selected.Team)).Message;
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(valid));
+        }
+
+        [TestCase("identity"), TestCase("bounds"), TestCase("earlier-pose"), TestCase("resources")]
+        public void FixtureMechanismLookupDoesNotMoveDuplicateRejectionAheadOfEarlierErrors(string mutation)
+        {
+            var f = PhysicalFixture("TeamRace");
+            var valid = f.State;
+            Assert.AreEqual("", CheckPhysical(f, valid));
+            var fixtures = valid.Bodies.Where(b => b.Id.StartsWith("fixture:", StringComparison.Ordinal)).ToArray();
+            var first = fixtures[0];
+            var target = FixtureMechanism(f, valid, first);
+            if (mutation == "earlier-pose")
+                target = fixtures.Select(body => FixtureMechanism(f, valid, body)).First(m =>
+                    m.PuzzleId != target.PuzzleId || m.Lap != target.Lap || m.Team != target.Team);
+            var changed = mutation == "identity" ? first.At(first.Position, kinematic: false) :
+                mutation == "bounds" ? first.At(new WorldVector(10001, first.Position.Y, first.Position.Z)) :
+                first.At(new WorldVector(first.Position.X + .1f, first.Position.Y, first.Position.Z));
+            var invalid = ReplacePhysical(valid,
+                bodies: valid.Bodies.Select(body => ReferenceEquals(body, first) ? changed : body),
+                mechanisms: valid.Mechanisms.Concat(new[] { target }),
+                resources: mutation == "resources" ? Array.Empty<MatchResourceState>() : null);
+            string expected = mutation == "identity" ? "Unbound physical fixture body." :
+                mutation == "bounds" ? "World body exceeds physical bounds or names an absent team." :
+                mutation == "resources" ? "Snapshot must include every static source, team and lap exactly once." :
+                "Fixture pose differs from its canonical physical phase.";
+            Assert.AreEqual(expected, CheckPhysical(f, invalid));
+            Assert.AreEqual("", CheckPhysical(f, valid));
+        }
+
+        [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("Freestyle")]
+        public void FixtureMechanismLookupUsesEachSnapshotsExactMovingPhase(string mode)
+        {
+            var f = PhysicalFixture(mode);
+            var before = f.State;
+            string retained = MatchSnapshotCodec.Export(before);
+            Assert.AreEqual("", CheckPhysical(f, before));
+            Assert.IsTrue(f.Step().Advanced);
+            var advanced = f.State;
+            Assert.AreEqual("", CheckPhysical(f, advanced));
+            var body = advanced.Bodies.First(b => b.Id.StartsWith("fixture:", StringComparison.Ordinal));
+            var site = FixtureSite(f, body);
+            var mechanism = FixtureMechanism(f, advanced, body);
+            var moved = new MatchMechanismState(mechanism.PuzzleId, mechanism.Team, mechanism.Lap,
+                mechanism.Solved, mechanism.ActivatedTick, mechanism.PhaseTick, mechanism.ProgressTicks,
+                mechanism.ItemEntityId, mechanism.Physical.WithMotion(CourseFixtureMotion.UnitsPerTick));
+            var moving = ReplacePhysical(advanced,
+                bodies: advanced.Bodies.Select(current => {
+                    var fixture = site.Fixtures.SingleOrDefault(value => value.Id == current.SourceId);
+                    return fixture != null && current.OwnerTeam == body.OwnerTeam ?
+                        current.At(CourseFixtureMotion.Position(fixture, moved.Physical.MotionUnits)) : current;
+                }),
+                mechanisms: advanced.Mechanisms.Select(current => ReferenceEquals(current, mechanism) ? moved : current));
+            var oldBody = before.Bodies.Single(current => current.Id == body.Id);
+            var movedBody = moving.Bodies.Single(current => current.Id == body.Id);
+            Assert.GreaterOrEqual(movedBody.Position.DistanceSquared(oldBody.Position), .000001f);
+            string movingBefore = MatchSnapshotCodec.Export(moving);
+            Assert.AreEqual("", CheckPhysical(f, moving));
+            var stalePose = ReplacePhysical(moving, bodies: moving.Bodies.Select(current =>
+                ReferenceEquals(current, movedBody) ? current.At(oldBody.Position) : current));
+            Assert.AreEqual("Fixture pose differs from its canonical physical phase.", CheckPhysical(f, stalePose));
+            Assert.AreEqual("", CheckPhysical(f, moving));
+            Assert.AreEqual("", CheckPhysical(f, advanced));
+            Assert.AreEqual("", CheckPhysical(f, before));
+            Assert.AreEqual(movingBefore, MatchSnapshotCodec.Export(moving));
+            Assert.AreEqual(retained, MatchSnapshotCodec.Export(before));
+        }
+
         [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("Freestyle")]
         public void IndexedPhysicalContentAcceptsRealFramesAndPublicPhysicalValidation(string mode)
         {
