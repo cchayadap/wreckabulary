@@ -2,6 +2,18 @@
 
 Root owns Unity, production deployment, generated catalogue assets and final acceptance. Current source lane: `sethypagna/online`.
 
+## Current recovery step — 2026-10-23
+
+- [x] Metadata-bound public approval repair and bounded gates recorded in `METADATA-APPROVAL-VERIFICATION.md`: Node 6/6, TypeScript pass, Worker 95/100 followed by the exact five cases 5/5. No single clean 100-case suite claim.
+- [x] Independent deployment source review complete; native export/readback/live acceptance remain separate.
+- [x] Network acceptance audit complete in `NETWORK-ACCEPTANCE-GAPS.md`; identified missing transient reconnect and hard-loss/timing/outcome acceptance.
+- [~] Root assigned stage 1 automatic transient transport reconnect: session lifecycle, narrowly necessary MatchClient recovery status, and dedicated regressions. Before editing, session source matches root `fc7cae3`; MatchClient's root camera/profile changes will be preserved.
+- [ ] Implement one recovery generation for the same match/identity/room, preserving the original absolute 120-second seat deadline and fresh admission. Serialize with Photon migration; explicit leave, definitive authentication rejection and expired seat cancel recovery. Do not send terminal Return or create a room on retry.
+- [ ] Run bounded lifecycle/native recovery gates only when root releases the heavy slot. Source-only checkpoints remain NOT-RUN until those results exist.
+- [ ] Propose stage 2 timing/compatibility changes separately. Writer TTL remains 15 seconds in stage 1; no service constants, deployment or root source changes are authorized in this step.
+
+Next recoverable action: commit the read-only network report, preserve root's existing MatchClient baseline, then implement the bounded session recovery state machine in this isolated worktree while root's cold Unity import continues.
+
 - [x] Recover the interrupted lane from root's verified seven-worktree snapshot on 2026-10-23.
 - [x] Schema 3 cutover: previous 3351ff5 integrated by root; actual regenerated public-eligibility fixture replay is byte-identical.
 - [x] Public eligibility for all five modes and nine variants per seed: a960651 and 7cdc1a5. Freestyle Fill On requires at least two humans after the coalescing deadline or eight immediately; Fill Off requires an existing party of at least two. Public Time Run never starts alone. Whole parties remain intact.
