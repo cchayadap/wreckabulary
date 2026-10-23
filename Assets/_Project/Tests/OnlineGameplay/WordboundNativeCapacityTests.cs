@@ -16,6 +16,7 @@ namespace Wreckabulary.OnlineGameplayTests
     public sealed partial class WordboundNativeGameplayTests
     {
         const int CapacityBodies = 366;
+        const string CapacityProp = "PLATE";
 
         [Test]
         public void AuthoredCapacityPreflightUsesTheFullBudgetAndPinnedPassiveHistoryMetadata()
@@ -37,6 +38,11 @@ namespace Wreckabulary.OnlineGameplayTests
         static WordboundClientContent CreateCapacityCourse(string projectRoot)
         {
             var original = CreateCompactTimeRun(projectRoot);
+            Assert.IsTrue(original.Geometry.Assets.TryGetValue(CapacityProp, out var propAsset),
+                "Capacity props must use an asset registered by the installed authored geometry.");
+            Assert.AreEqual(CapacityProp, propAsset.Letters);
+            Assert.LessOrEqual(propAsset.WidthMm, 600); Assert.LessOrEqual(propAsset.DepthMm, 600);
+            Assert.LessOrEqual(propAsset.HeightMm, 1000);
             var document = original.Course.CopyDocument();
             document.Id = "native-capacity-" + Guid.NewGuid().ToString("N").Substring(0, 12);
             document.Title = "Maximum admitted budget and actual body reclamation";
@@ -69,7 +75,7 @@ namespace Wreckabulary.OnlineGameplayTests
                         Bounds = new CourseBox(new CoursePoint(point.X - 300, 0, point.Z - 300),
                             new CoursePoint(point.X + 300, 1000, point.Z + 300)),
                         LayerIds = new List<string> { "Ground" }, Yaws = new List<int> { 0 },
-                        Pool = new List<CourseWeightedAsset> { new CourseWeightedAsset { AssetId = "BALL" } }
+                        Pool = new List<CourseWeightedAsset> { new CourseWeightedAsset { AssetId = CapacityProp } }
                     });
                 }
             }
@@ -81,6 +87,8 @@ namespace Wreckabulary.OnlineGameplayTests
             var content = WordboundClientContent.FromAuthored(CourseJson.ExportDocument(document), CourseJson.ExportManifest(resolved.Manifest),
                 original.Geometry, File.ReadAllText(Path.Combine(folder, "items.json")), File.ReadAllText(Path.Combine(folder, "rules.json")),
                 mode.Id, mode.Format.ToString(), resolved.Manifest.Seed);
+            Assert.AreEqual(228, content.Course.Placements.Count);
+            Assert.IsTrue(content.Course.Placements.All(placement => placement.AssetId == CapacityProp && placement.Purpose == "Props"));
             var budget = new WordboundEntityBudget(mode, content.Course, content.Geometry, content.Items, content.Rules);
             Assert.AreEqual(236, budget.FixedBodies); Assert.AreEqual(1, budget.PoolCount);
             Assert.AreEqual(276, budget.PoolBodies); Assert.AreEqual(128, budget.CriticalRecoveryBodies);
@@ -114,6 +122,9 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.AreEqual(3, frame.Bodies.Count(body => body.Kind == WorldBodyKind.Platform));
             Assert.AreEqual(228, frame.Bodies.Count(body => body.Kind == WorldBodyKind.Item));
             Assert.AreEqual(132, frame.Bodies.Count(body => body.Kind == WorldBodyKind.Tile));
+            var items = frame.Economy.Items.ToDictionary(item => "item:" + item.Id, StringComparer.Ordinal);
+            Assert.IsTrue(frame.Bodies.Where(body => body.Kind == WorldBodyKind.Item).All(body =>
+                items[body.Id].Origin == ItemOrigin.Map && items[body.Id].Word == CapacityProp));
         }
 
         static void AssertCapacitySourceLetters(MatchSnapshot frame, ResolvedCourse course, int lap)
