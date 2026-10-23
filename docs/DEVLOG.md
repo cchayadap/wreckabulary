@@ -290,3 +290,13 @@ QA exact autosave/capture prerequisites and workshop clipped/decluttered overlay
 ## 2026-10-23T18:31:00Z Workshop overlay native calculations pass
 
 Corrected overlay class182832Z passes13/13, zero skipped,109.8seconds including82.5seconds refresh. Full two-pixel line bounds, rejected segments, label priorities/collision, active/hidden-floor camera framing and near-plane projection pass. Actual Windows screenshots and interactive acceptance remain pending. No further suite repetition planned absent changes. Source/report/progress committed; engine candidate download continues in ignored local toolchain, with original editors/project version unchanged.
+
+## 2026-10-23T18:49:00Z Preserve combined-check failures and measured packaging evidence
+
+Capture optimization041ce4a8 passes R0 and35 authority core tests183349Z; native timing remains pending. Integrated CLOCK steering, editor-only observer and bounded aggregation. CombinedR0 184145Z fails on obsolete GetInstanceID and FusionNetworkBool/readback compatibility; source owners are repairing those exact errors without changing physical predicates or deadlines. Optional equipment is5,344,466packedbytes in QA174755Z; report BUILD-ASSET-SIZE-REVIEW.md records dependency/compatibility analysis and defers migration. Original artwork and all editable revisions remain preserved. Unity6000.6.4f1 download completed3,851,126,776bytes; CLI still requested runas despite no-elevate and is waiting on Windows approval. User was asked to handle the actual OS prompt. Existing Unity/project versions remain unchanged. No new native or Windows PASS claim.
+
+
+## 2026-10-23T18:50:00Z Combined diagnostic compile repaired; native comparison running
+
+The preceding entry headed18:49 was written at18:45UTC; that heading was rounded incorrectly. Its content and failure evidence are preserved. Diagnostic fixes9ef21365 and65d1b4ea replace obsolete IDs with opaqueEntityId, initialize input readback and compare NetworkBool explicitly. CombinedR0 184701Z PASS13.5seconds. Native184749Z now runs six-family, publicTeamSolo and eight local/atomic cases on unchanged6000.6.3f1. Wrapper52492/gate49388 owns the only active editor. No outcomes yet. Unity6.4installer signature is Valid, signerUnityTechnologiesSF; MD5 68A3DAD8CC78181AA7D088D974ADEECD matches officialdownloadchecksum. OSapproval remains pending, target unchanged and empty. Report-only compatibilityaudit d4753442 identifies exact version metadata and optional profilehelper guard requirements; no package change required.
+
