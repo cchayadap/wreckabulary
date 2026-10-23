@@ -1,0 +1,136 @@
+{
+  "recordedUtc": "2026-10-23T19:36:17.330372+00:00",
+  "source": "e5bce9f19f69317885258896428198df4905cc02",
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests;Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-23T19:29:28Z",
+    "secs": 183.2,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+        "message": "The actual session failed.\r\n  Expected string length 0 but was 16. Strings differ at index 0.\r\n  Expected: <string.Empty>\r\n  But was:  \"TimeoutException\"\r\n  -----------^",
+        "location": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs:451"
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261023T192928Z.log",
+    "evidence": [
+      "TestResults/editmode_20261023T192928Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 63.7,
+    "messages": [
+      "WORDBOUND_GAMEPLAY_FAULT: peer 0 InvalidOperationException: Session failed: TimeoutException"
+    ],
+    "tests": {
+      "total": 9,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 8
+    }
+  },
+  "tests": [
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.AtomicPhysicsApplyRetainsValidationAndAbortGuards",
+      "result": "Skipped",
+      "durationSeconds": 0.070641,
+      "failure": null,
+      "skipReason": "Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof."
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.FirstAppliedFrameCannotReenterInitialHostComposition",
+      "result": "Skipped",
+      "durationSeconds": 0.001688,
+      "failure": null,
+      "skipReason": "Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof."
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.FreestyleUsesOfflineRunnerAndExactWorkshopManifest",
+      "result": "Skipped",
+      "durationSeconds": 0.001124,
+      "failure": null,
+      "skipReason": "Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof."
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationFailureKeepsItsExceptionAndCannotPublishAFrame",
+      "result": "Skipped",
+      "durationSeconds": 0.001145,
+      "failure": null,
+      "skipReason": "Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof."
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationPollCannotReenterInitialHostComposition",
+      "result": "Skipped",
+      "durationSeconds": 0.001063,
+      "failure": null,
+      "skipReason": "Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof."
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationStopCannotPublishAnAbandonedReconciliation",
+      "result": "Skipped",
+      "durationSeconds": 0.001382,
+      "failure": null,
+      "skipReason": "Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof."
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.RunningFrameStopPreventsCheckpointAndLocalViewContinuation",
+      "result": "Skipped",
+      "durationSeconds": 0.000835,
+      "failure": null,
+      "skipReason": "Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof."
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.TimeRunUsesOfflineRunnerAndExactWorkshopManifest",
+      "result": "Skipped",
+      "durationSeconds": 0.000936,
+      "failure": null,
+      "skipReason": "Set WORDBOUND_LOCAL_GAMEPLAY=1 to run the native offline workshop proof."
+    },
+    {
+      "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Failed",
+      "durationSeconds": 71.260551,
+      "failure": "  The actual session failed.\n  Expected string length 0 but was 16. Strings differ at index 0.\n  Expected: <string.Empty>\n  But was:  \"TimeoutException\"\n  -----------^\n",
+      "skipReason": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261023T192928Z.xml",
+      "sha256": "552C1AD8023A86B34717082DF7F1C1AAA47B13CC21BC261EDAF710F476A73FED",
+      "bytes": 27562
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261023T192928Z.log",
+      "sha256": "90C5D1635090CBFF442044F17E1862F2D8C01C27CF1675819A187663A57BD611",
+      "bytes": 285848
+    }
+  ],
+  "markers": [
+    "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=begin; elapsed=0.005; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=; peer=1,host=False,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=",
+    "WORDBOUND_GAMEPLAY_FAULT: peer 0 InvalidOperationException: Session failed: TimeoutException",
+    "WORDBOUND_SESSION_FAULT: peer 0 TimeoutException stage=writer-poll code=writer-lease-expired facts=leaseRemainingMilliseconds=-654,latestPollGapMilliseconds=12157,maxPollGapMilliseconds=12157,writerAcquiredOffsetMilliseconds=-38392,writerRenewInFlight=0,writerRenewAttempts=4,writerRenewDueOffsetMilliseconds=-11032,writerRenewStartedOffsetMilliseconds=-16032,writerRenewCompletedOffsetMilliseconds=-15565 origin=Wreckabulary.Online.WordboundFusionSession.Poll",
+    "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=end; elapsed=29.625; maxFrameGap=12.018; lifetimeCancelled=False; peer=0,host=False,tick=0,advanced=0,inputReads=60,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=True,failure=TimeoutException,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=False,sessionPresent=True,sessionRunnerStarted=False,sessionGameplayReady=False,committedMarkPresent=True,runnerPresent=True,runnerRunning=False,runnerHost=False,runnerClient=False,sceneInfoAvailable=False,gameplayScenePresent=False,sceneManagerPresent=False,sceneManagerBusy=False,physicsSceneAvailable=False,physicsSceneValid=False,physicsSceneIsolated=False; peer=1,host=False,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=False,committedMarkPresent=False,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=observed; samples=1; invocations=1; capturedTotalCpuMs=11872.894; capturedMaxSampleCpuMs=11872.894; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=observed; samples=1; invocations=1; capturedTotalCpuMs=40.884; capturedMaxSampleCpuMs=40.884; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=observed; samples=1; invocations=1; capturedTotalCpuMs=230.960; capturedMaxSampleCpuMs=230.960; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=observed; samples=1; invocations=1; capturedTotalCpuMs=45.328; capturedMaxSampleCpuMs=45.328; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=2; invocations=2; capturedTotalCpuMs=4074.327; capturedMaxSampleCpuMs=3293.620; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none"
+  ],
+  "limitations": [
+    "Eight local tests were skipped because the job omitted WORDBOUND_LOCAL_GAMEPLAY=1. The next combined native job must include it.",
+    "Public failed during startup writer-lease expiry at canonical tick0. No Advance or snapshot-transfer comparison was reached.",
+    "The 11.873-second initial reconciliation scope includes descheduling and child work; it is not exclusive CPU attribution.",
+    "Count-only optimization remains core-verified only; no runtime performance improvement is claimed."
+  ]
+}
