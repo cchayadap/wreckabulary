@@ -189,8 +189,10 @@ namespace Wreckabulary.Tests
             var f = WordboundSnapshotCodecTests.Create("TeamRace");
             Assert.IsNotEmpty(f.Resources);
             Assert.IsEmpty(MatchStateValidation.Validate(f.Snapshot(), f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
+            f.Bodies.Add(new WorldBodyState("platform:unbound", WorldBodyKind.Platform, default, kinematic: true));
+            Assert.AreEqual("Unbound platform body.",
+                MatchStateValidation.Validate(f.Snapshot(), f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
             f.Resources.Clear();
-            f.Bodies.Add(f.Bodies[0]);
             var frame = f.Snapshot();
             string before = MatchSnapshotCodec.Export(frame);
             string control = MatchStateValidation.Validate(frame, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
