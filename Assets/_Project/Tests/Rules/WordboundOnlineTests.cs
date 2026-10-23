@@ -102,6 +102,123 @@ namespace Wreckabulary.Rules.Tests
                 Assert.Throws<FormatException>(() => verifier.VerifyHostAuthorization(Sign(rsa, altered), match, Player, Attempt, Now * 1000));
             }
         }
+
+        static Dictionary<string, object> ConnectionClaims(long leaseExpiresAt)
+        {
+            var claims = Base("wordbound-connection");
+            claims["exp"] = Now + 15; claims["playerId"] = Player; claims["hostId"] = Player;
+            claims["connectionId"] = Attempt; claims["connectionEpoch"] = "1"; claims["connectionRevision"] = "2";
+            claims["leaseExpiresAt"] = leaseExpiresAt;
+            return claims;
+        }
+
+        [TestCase(0, 0)]
+        [TestCase(504, 500)]
+        [TestCase(999, 0)]
+        [TestCase(999, 999)]
+        public void ConnectionLeaseRetainsTheSignedExpirationSecondsFinalFraction(int issuanceFraction, int verificationFraction)
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            long leaseExpiresAt = (Now + 15) * 1000 + issuanceFraction;
+            long verificationTime = Now * 1000 + verificationFraction;
+            string signed = Sign(rsa, ConnectionClaims(leaseExpiresAt));
+            var lease = verifier.VerifyConnection(signed, match, Player, Player, Attempt, verificationTime);
+            Assert.AreEqual(leaseExpiresAt, lease.ExpiresAtMilliseconds);
+            Assert.AreEqual(leaseExpiresAt, verifier.VerifyHostAuthorization(signed, match, Player, Attempt,
+                verificationTime).ExpiresAtMilliseconds);
+            if (issuanceFraction == 504)
+                Assert.AreEqual(15004, lease.ExpiresAtMilliseconds - verificationTime);
+        }
+
+        [TestCase(1000L, 0)]
+        [TestCase(1001L, 0)]
+        [TestCase(1000L, 14000)]
+        [TestCase(1001L, 14000)]
+        [TestCase(5000L, 14000)]
+        public void ConnectionLeaseRejectsTheNextSecondBoundaryAndBeyond(long beyondExpirationSecondStart, int verificationOffset)
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            string signed = Sign(rsa, ConnectionClaims((Now + 15) * 1000 + beyondExpirationSecondStart));
+            long verificationTime = Now * 1000 + verificationOffset;
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(signed, match, Player, Player, Attempt, verificationTime));
+            Assert.Throws<FormatException>(() => verifier.VerifyHostAuthorization(signed, match, Player, Attempt, verificationTime));
+        }
+
+        [TestCase("expired-jwt")]
+        [TestCase("future-jwt")]
+        [TestCase("overlong-jwt")]
+        [TestCase("expired-lease")]
+        [TestCase("lease-at-now")]
+        public void FractionalConnectionLeaseDoesNotRelaxJwtOrExclusiveLeaseTime(string invalid)
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            long verificationTime = Now * 1000 + 500;
+            var claims = ConnectionClaims((Now + 15) * 1000 + 999);
+            if (invalid == "expired-jwt") verificationTime = (Now + 15) * 1000;
+            if (invalid == "future-jwt")
+            {
+                claims["iat"] = Now + 1; claims["exp"] = Now + 16;
+                claims["leaseExpiresAt"] = (Now + 16) * 1000 + 999;
+            }
+            if (invalid == "overlong-jwt")
+            {
+                claims["exp"] = Now + 16;
+                claims["leaseExpiresAt"] = (Now + 16) * 1000 + 999;
+            }
+            if (invalid == "expired-lease") claims["leaseExpiresAt"] = verificationTime - 1;
+            if (invalid == "lease-at-now") claims["leaseExpiresAt"] = verificationTime;
+            string signed = Sign(rsa, claims);
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(signed, match, Player, Player, Attempt, verificationTime));
+            Assert.Throws<FormatException>(() => verifier.VerifyHostAuthorization(signed, match, Player, Attempt, verificationTime));
+        }
+
+        [TestCase("playerId")]
+        [TestCase("hostId")]
+        [TestCase("connectionId")]
+        [TestCase("matchId")]
+        [TestCase("reservationGeneration")]
+        [TestCase("rosterHash")]
+        public void FractionalConnectionLeaseStillPinsEveryTransportAndMatchBinding(string field)
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            var claims = ConnectionClaims((Now + 15) * 1000 + 999);
+            claims[field] = field == "reservationGeneration" ? "2" : field == "rosterHash" ? new string('e', 64) : Other;
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(Sign(rsa, claims), match, Player, Player, Attempt, Now * 1000));
+        }
+
+        [Test] public void FractionalConnectionLeaseRejectsOutsidersAndAlteredSignature()
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            var player = ConnectionClaims((Now + 15) * 1000 + 999); player["playerId"] = Other;
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(Sign(rsa, player), match, Other, Player, Attempt, Now * 1000));
+            var host = ConnectionClaims((Now + 15) * 1000 + 999); host["hostId"] = Other;
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(Sign(rsa, host), match, Player, Other, Attempt, Now * 1000));
+            string[] pieces = Sign(rsa, ConnectionClaims((Now + 15) * 1000 + 999)).Split('.');
+            byte[] signature = OnlineJson.DecodeBase64Url(pieces[2], 512); signature[0] ^= 1;
+            string tampered = pieces[0] + "." + pieces[1] + "." + OnlineJson.Base64Url(signature);
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(tampered, match, Player, Player, Attempt, Now * 1000));
+        }
+
+        [Test] public void ResignedExactRetryDoesNotExtendTheOriginalMillisecondLease()
+        {
+            using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
+            var match = verifier.VerifyStart(Sign(rsa, Start()), Expected(), Now);
+            long originalExpiry = (Now + 15) * 1000 + 504;
+            var claims = ConnectionClaims(originalExpiry);
+            var original = verifier.VerifyConnection(Sign(rsa, claims), match, Player, Player, Attempt, Now * 1000 + 500);
+            claims["iat"] = Now + 4; claims["exp"] = Now + 19;
+            string signedRetry = Sign(rsa, claims);
+            var retry = verifier.VerifyConnection(signedRetry, match, Player, Player, Attempt, Now * 1000 + 4500);
+            Assert.AreEqual(original.ExpiresAtMilliseconds, retry.ExpiresAtMilliseconds);
+            Assert.AreEqual(original.Epoch, retry.Epoch);
+            Assert.Throws<FormatException>(() => verifier.VerifyConnection(signedRetry, match, Player, Player, Attempt, originalExpiry));
+        }
+
         [Test] public void SessionGateRequiresEveryOriginalSeatReadyAndRejectsIdentityReplacement()
         {
             using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));

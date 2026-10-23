@@ -168,7 +168,7 @@ namespace Wreckabulary.Rules.Wordbound
             var lease = new OnlineConnectionLease(claims, authorization);
             if (lease.PlayerId != playerId || (hostId != null && lease.HostId != hostId) ||
                 lease.ConnectionId != connectionId || lease.ExpiresAtMilliseconds <= nowMilliseconds ||
-                lease.ExpiresAtMilliseconds > nowMilliseconds + 15000 ||
+                lease.ExpiresAtMilliseconds / 1000 > OnlineJson.Integer(claims, "exp") ||
                 OnlineJson.Integer(claims, "exp") - OnlineJson.Integer(claims, "iat") > 15 ||
                 !match.Roster.Any(s => s.PlayerId == lease.PlayerId) || !match.Roster.Any(s => s.PlayerId == lease.HostId))
             {
