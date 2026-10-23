@@ -95,7 +95,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T20:14Z
+## Current verification — 2026-10-23T21:28Z
 
 | Work | State and exact evidence |
 | --- | --- |
@@ -124,4 +124,4 @@ Earlier recovery and verification entries are preserved in [the evidence history
 
 Native191029Z passes the six-family physical route and collider-centre regression. The later200052 batch passes63/65: ten local/atomic and53 UI/input/guide/story checks; both online movement cases fail, with cleanup successful. Compact private TimeRun subsequently passes all three laps in202344; full flagship and remaining modes stay open. Retained exact evidence: `BuildNotes/client-view/native-collision-readability-20261023.json`. Full-match gaps remain mapped in `BuildNotes/client-view/FULL-MATCH-ACCEPTANCE-REVIEW.md`.
 
-Latest completed QA build203920Z passes; visible204132 reaches readiness in5.855 seconds and completes81/90 update waits before timeout. Workshop save, return and Undo/Redo pass with zero console counts and no observed native crash. Timing windows close validly; performance remains unacceptable. `BuildNotes/client-view/windows-phase-capture-20261023.json` binds19 actual artifacts. A new QA build on7c76f151 is running to inspect the native-verified original surface/camera fixes. The reviewed two-file official smoke-launch fix awaits bounded owner approval; the isolated Unity6000.6.4 installer awaits actual Windows approval. Neither kit source nor editor version changed. Original artwork remains default. No tested Windows delivery or owner visual approval is claimed; previous failures remain preserved.
+Latest QA build212131Z passes118.8s; visible212401 reaches readiness5.449s but fails76/90 update waits. Exact save, return/history and Undo/Redo pass; console0/0/0, no observed native crash. Root and independent reviewer see correct discrete floor/ceiling boards and original avatar colors/shading. Timing windows close validly; performance remains unacceptable. `BuildNotes/client-view/windows-original-presentation-20261023.json` binds23 actual artifacts. The unchanged wait remains90frames/90s; no controlled speedup or owner visual acceptance is claimed. The reviewed two-file official smoke-launch fix awaits bounded owner approval; the isolated Unity6000.6.4 installer awaits actual Windows approval. Neither kit source nor editor version changed. Original artwork remains default. No tested Windows delivery or owner visual approval is claimed; previous failures remain preserved.
