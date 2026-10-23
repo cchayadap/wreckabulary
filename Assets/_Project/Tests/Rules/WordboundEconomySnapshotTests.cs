@@ -1,11 +1,83 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Rules.Tests
 {
     public sealed class WordboundEconomySnapshotTests
     {
+        [Test]
+        public void CanonicalCountsRetainDestroyedItemsAtTheLimitAndSeparateCollectedLetters()
+        {
+            var economy = TestData.NewEconomy();
+            int limit = WordboundEntityBudget.MaximumCanonicalEntities;
+            for (int i = 0; i < limit; i++) economy.Break(economy.PlaceFurniture("A").Id);
+            Assert.AreEqual(limit, economy.ItemCount);
+            Assert.AreEqual(limit, economy.Tiles.Count);
+            Assert.IsTrue(economy.Items.All(item => item.IsGone), "Destroyed ledger entries still consume canonical capacity.");
+            var retained = economy.Capture();
+            Assert.AreEqual(retained.Items.Count, economy.ItemCount);
+            Assert.AreEqual(retained.Tiles.Count, economy.Tiles.Count);
+            int notifications = 0;
+            economy.ItemChanged += _ => notifications++;
+            for (int i = 0; i < 3; i++)
+            {
+                Assert.AreEqual(limit, economy.ItemCount);
+                Assert.AreEqual(limit, economy.Tiles.Count);
+            }
+            Assert.AreEqual(0, notifications);
+            Assert.IsTrue(economy.CollectTile(0, economy.Tiles.Keys.First()).Ok);
+            Assert.AreEqual(limit - 1, economy.Tiles.Count);
+            Assert.AreEqual(1, economy.Player(0).LetterCount);
+            economy.PlaceFurniture("A");
+            Assert.AreEqual(limit + 1, economy.ItemCount);
+            Assert.Greater(economy.ItemCount, limit);
+            Assert.AreEqual(limit - 1, economy.Tiles.Count);
+            economy.MintTiles("AA");
+            Assert.AreEqual(limit + 1, economy.Tiles.Count);
+            Assert.Greater(economy.Tiles.Count, limit);
+            Assert.AreEqual(limit, retained.Items.Count);
+            Assert.AreEqual(limit, retained.Tiles.Count);
+            var recovered = TestData.NewEconomy();
+            recovered.Restore(retained);
+            Assert.AreEqual(limit, recovered.ItemCount);
+            Assert.AreEqual(limit, recovered.Tiles.Count);
+            Assert.AreEqual(0, recovered.Player(0).LetterCount);
+            Assert.AreEqual(limit + 1, economy.ItemCount);
+            Assert.AreEqual(limit + 1, economy.Tiles.Count);
+            TestData.AssertConserved(economy);
+            TestData.AssertConserved(recovered);
+        }
+
+        [Test]
+        public void CanonicalItemCountFollowsCraftCompletionAndRestoreWithoutCountingReservations()
+        {
+            var economy = TestData.NewEconomy();
+            TestData.GiveLetters(economy, 0, "BAT");
+            Assert.IsTrue(economy.BeginCraft(0, "BAT", 10).Ok);
+            var pending = economy.Capture();
+            Assert.AreEqual(0, economy.ItemCount);
+            Assert.AreEqual(0, economy.Tiles.Count);
+            Assert.AreEqual(3, economy.Player(0).Reserved.Count);
+            var crafted = economy.CompleteCraft(0, 100);
+            Assert.IsTrue(crafted.Ok);
+            Assert.AreEqual(ItemState.Held, crafted.Item.State);
+            Assert.AreEqual(1, economy.ItemCount);
+            economy.Break(crafted.Item.Id);
+            Assert.AreEqual(1, economy.ItemCount);
+            Assert.AreEqual(3, economy.Tiles.Count);
+            economy.Restore(pending);
+            Assert.AreEqual(0, economy.ItemCount);
+            Assert.AreEqual(0, economy.Tiles.Count);
+            Assert.AreEqual(3, economy.Player(0).Reserved.Count);
+            Assert.IsTrue(economy.CompleteCraft(0, 100).Ok);
+            Assert.AreEqual(1, economy.ItemCount);
+            Assert.AreEqual(0, pending.Items.Count);
+            Assert.AreEqual(3, pending.Players[0].Reserved.Count);
+            TestData.AssertConserved(economy);
+        }
+
         [Test]
         public void MidCraftRestorePreservesReservationAndCreatesExactlyOneItem()
         {

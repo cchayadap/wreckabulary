@@ -333,6 +333,31 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void ReturnDuringCraftPreservesRetainedSnapshotAndCanonicalLedgerCounts()
+        {
+            var f = Create();
+            var source = f.Source.Course.Supplies.Single(s => s.SourceId == "BedSupply");
+            foreach (var tile in f.State.Bodies.Where(b => b.SourceId == source.Id).ToArray())
+                Assert.AreEqual("Ok", f.Collect("a", tile.Id).Effect.Code);
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.BeginCraft, value: "BED")).Receipts.Single().Effect.Code);
+            var retained = f.State;
+            string before = MatchSnapshotCodec.Export(retained);
+            Assert.IsNotNull(retained.Economy.Players[0].Craft);
+            Assert.AreEqual(3, retained.Economy.Players[0].Reserved.Count);
+            Assert.IsTrue(f.Match.Return("a", retained.Progress.WallClockMs + 17));
+            var returned = f.State;
+            Assert.IsTrue(returned.Progress.Players.Single(p => p.Id == "a").Returned);
+            Assert.IsNull(returned.Economy.Players[0].Craft);
+            Assert.AreEqual(0, returned.Economy.Players[0].LetterCount);
+            Assert.AreEqual(retained.Economy.Items.Count, returned.Economy.Items.Count);
+            Assert.AreEqual(retained.Economy.Tiles.Count + 3, returned.Economy.Tiles.Count);
+            Assert.AreEqual(retained.Economy.Minted, returned.Economy.Minted);
+            Assert.AreEqual(retained.Economy.Spent, returned.Economy.Spent);
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(retained));
+            f.Ack();
+        }
+
+        [Test]
         public void FreezeBoundsUnacknowledgedTimeAndRejectsWrongHashAcknowledgement()
         {
             var f = Create();

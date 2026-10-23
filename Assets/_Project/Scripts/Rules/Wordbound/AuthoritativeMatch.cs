@@ -1039,10 +1039,9 @@ namespace Wreckabulary.Rules.Wordbound
         }
         void EnsureCapacity()
         {
-            var state = economy.Capture();
             if (bodies.Count > WordboundEntityBudget.MaximumBodies ||
-                state.ItemStates.Length > WordboundEntityBudget.MaximumCanonicalEntities ||
-                state.TileStates.Length > WordboundEntityBudget.MaximumCanonicalEntities)
+                economy.ItemCount > WordboundEntityBudget.MaximumCanonicalEntities ||
+                economy.Tiles.Count > WordboundEntityBudget.MaximumCanonicalEntities)
                 throw new InvalidOperationException("Match entity capacity exceeded.");
         }
         static void Replace<T>(Dictionary<string, T> destination, IEnumerable<T> values, Func<T, string> key)

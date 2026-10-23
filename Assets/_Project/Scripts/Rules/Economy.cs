@@ -76,6 +76,7 @@ namespace Wreckabulary.Rules
 
         public IEnumerable<PlayerInventory> Players => players.Values;
         public IEnumerable<ItemInstance> Items => items.Values;
+        public int ItemCount => items.Count;
         public IReadOnlyDictionary<int, char> Tiles => tiles;
 
         public PlayerInventory Player(int playerId) => players.TryGetValue(playerId, out var p) ? p : null;
