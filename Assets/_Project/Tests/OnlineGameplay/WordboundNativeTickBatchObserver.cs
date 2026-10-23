@@ -6,25 +6,11 @@ using System.Text;
 using Fusion;
 using NUnit.Framework;
 using UnityEngine;
+using Wreckabulary.Online;
 using Debug = UnityEngine.Debug;
 
 namespace Wreckabulary.OnlineGameplayTests
 {
-    public sealed class WordboundNativeTickBatchObserver : SimulationBehaviour, IBeforeAllTicks, IAfterAllTicks
-    {
-        WordboundNativeTickBatches.Observation observation;
-
-        internal void Configure(WordboundNativeTickBatches.Observation value) => observation = value;
-        public void BeforeAllTicks(bool resimulation, int tickCount) =>
-            observation?.Begin(resimulation, tickCount, Runner.IsServer);
-        public void AfterAllTicks(bool resimulation, int tickCount) => observation?.End(resimulation, tickCount);
-        void Update()
-        {
-            if (Runner != null && Runner.IsRunning) observation?.UnityUpdate(Runner.TicksExecuted);
-        }
-        void OnDestroy() => observation?.Destroyed();
-    }
-
     internal sealed class WordboundNativeTickBatches : IDisposable
     {
         readonly List<Observation> observations = new List<Observation>();
@@ -39,7 +25,12 @@ namespace Wreckabulary.OnlineGameplayTests
         {
             var observation = new Observation(peerIndex, creation, started);
             observations.Add(observation);
-            runner.gameObject.AddComponent<WordboundNativeTickBatchObserver>().Configure(observation);
+            var adapter = runner.gameObject.AddComponent<WordboundNativeTickBatchAdapter>();
+            Assert.IsNotNull(adapter, "The native tick probe needs its editor-guarded runtime-assembly adapter.");
+            adapter.BeforeTicks = observation.Begin;
+            adapter.AfterTicks = observation.End;
+            adapter.Updated = observation.UnityUpdate;
+            adapter.Destroyed = observation.Destroyed;
         }
 
         public void Dispose()
