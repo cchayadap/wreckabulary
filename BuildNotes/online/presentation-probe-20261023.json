@@ -1,0 +1,43 @@
+{
+  "recordedUtc": "2026-10-23T15:23:24.3312425Z",
+  "sourceCommit": "f7877dc6a08ff6dd418e687d476ee8e611769445",
+  "command": "dotnet run --project Tools/RulesHarness/PresentationProbe/PresentationProbe.csproj --configuration Release",
+  "exitCode": 0,
+  "runtime": ".NET 9.0.15",
+  "architecture": "X64",
+  "os": "Microsoft Windows 10.0.26200",
+  "scope": "pure presentation on synthetic item-only frames; not Unity runtime or multiplayer throughput",
+  "sourceSha256": "5094A8830A7914A47BAE8982CA4D4E26C5A866FA84D17EBA0F1442D13DCA3A83",
+  "probeSha256": "3E466DA165F09C86910FC4746E2BEF506C21B63D3267BD431306FAF6B31617A2",
+  "iterations": 4,
+  "controlPayloadBytes": 65536,
+  "controlBeforeBytes": 65560,
+  "controlAfterBytes": 65560,
+  "calibrated": true,
+  "contextConstructionIncluded": true,
+  "cases": [
+    {
+      "indexedMs": 0.321,
+      "bodies": 32,
+      "legacyMs": 2.197,
+      "legacyBytes": 467680,
+      "indexedBytes": 42400
+    },
+    {
+      "indexedMs": 0.879,
+      "bodies": 128,
+      "legacyMs": 33.457,
+      "legacyBytes": 6590176,
+      "indexedBytes": 149472
+    },
+    {
+      "indexedMs": 1.35,
+      "bodies": 256,
+      "legacyMs": 78.64,
+      "legacyBytes": 25763552,
+      "indexedBytes": 300448
+    }
+  ],
+  "passed": 3,
+  "failed": 0
+}
