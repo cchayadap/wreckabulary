@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using GameStudioKit.Capture;
 using GameStudioKit.Qa;
 using UnityEngine;
 using Wreckabulary.Online;
@@ -21,7 +22,7 @@ namespace Wreckabulary.Qa
         WorkshopHistory history;
         string initial, edited, manifest;
         Camera ownedCamera;
-        bool savedDraftVerified;
+        bool savedDraftVerified, editCompleted;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         static void Register() => QaScenarios.Register("wordbound_workshop_flow", () => new WordboundWorkshopQa());
@@ -79,21 +80,21 @@ namespace Wreckabulary.Qa
                 observation.Record();
                 yield return context.CaptureScreen("wordbound_party");
                 observation.Record();
-                RequirePartyPixels(context);
+                RequireScreenPixels(context, "wordbound_party", "party");
                 if (!observation.Ready) throw new QaFailException("The party stopped rendering while its first PNG was captured.");
             }
             finally { if (observation) observation.Dispose(); }
         }
 
-        static void RequirePartyPixels(QaContext context)
+        static void RequireScreenPixels(QaContext context, string name, string label)
         {
-            string path = Path.Combine(context.OutDir, "wordbound_party.png");
-            if (!File.Exists(path)) throw new QaFailException("The party PNG was not written.");
+            string path = Path.Combine(context.OutDir, name + ".png");
+            if (!File.Exists(path)) throw new QaFailException("The " + label + " PNG was not written.");
             var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false, true);
             try
             {
                 if (!ImageConversion.LoadImage(texture, File.ReadAllBytes(path), false))
-                    throw new QaFailException("The party PNG could not be decoded.");
+                    throw new QaFailException("The " + label + " PNG could not be decoded.");
                 var pixels = texture.GetPixels32();
                 int nonblack = 0, nonzeroAlpha = 0;
                 int minR = 255, minG = 255, minB = 255, minA = 255, maxR = 0, maxG = 0, maxB = 0, maxA = 0;
@@ -109,24 +110,25 @@ namespace Wreckabulary.Qa
                     maxR = Mathf.Max(maxR, pixel.r); maxG = Mathf.Max(maxG, pixel.g);
                     maxB = Mathf.Max(maxB, pixel.b); maxA = Mathf.Max(maxA, pixel.a);
                 }
-                context.Note("party_capture_width", texture.width); context.Note("party_capture_height", texture.height);
-                context.Note("party_capture_nonblack_pixels", nonblack);
-                context.Note("party_capture_nonzero_alpha_pixels", nonzeroAlpha);
-                context.Note("party_capture_varied_rgb", variedRgb);
-                context.Note("party_capture_min_rgba", $"{minR},{minG},{minB},{minA}");
-                context.Note("party_capture_max_rgba", $"{maxR},{maxG},{maxB},{maxA}");
+                context.Note(label + "_capture_width", texture.width); context.Note(label + "_capture_height", texture.height);
+                context.Note(label + "_capture_nonblack_pixels", nonblack);
+                context.Note(label + "_capture_nonzero_alpha_pixels", nonzeroAlpha);
+                context.Note(label + "_capture_varied_rgb", variedRgb);
+                context.Note(label + "_capture_min_rgba", $"{minR},{minG},{minB},{minA}");
+                context.Note(label + "_capture_max_rgba", $"{maxR},{maxG},{maxB},{maxA}");
                 if (texture.width != Screen.width || texture.height != Screen.height)
-                    throw new QaFailException("The party PNG dimensions differ from the presented screen.");
+                    throw new QaFailException("The " + label + " PNG dimensions differ from the presented screen.");
                 if (nonblack == 0 || nonzeroAlpha == 0 || !variedRgb)
-                    throw new QaFailException("The party PNG is blank or a uniform fill; the first capture is preserved.");
+                    throw new QaFailException("The " + label + " PNG is blank or a uniform fill; the first capture is preserved.");
             }
             finally { Object.Destroy(texture); }
         }
 
         IEnumerator EditWorkshop(QaContext context)
         {
-            savedDraftVerified = false;
+            savedDraftVerified = editCompleted = false;
             context.Note("workshop_autosave_verified", false);
+            context.Note("workshop_edit_completed", false);
             string folder = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "wbqa", System.Guid.NewGuid().ToString("N")));
             string scopedFolder = Path.Combine(folder, "templates", "Flagship");
             string primary = Path.Combine(scopedFolder, WordboundFlagshipContent.CourseId + ".autosave.json");
@@ -156,7 +158,7 @@ namespace Wreckabulary.Qa
             manifest = preview.Manifest.Hash;
             context.Note("manifest_hash", manifest);
             context.Note("seed", history.Current.Seed);
-            yield return context.WaitUntil(() => File.Exists(primary), 15, "the workshop's edited primary autosave");
+            yield return context.WaitUntil(() => SavedPrimaryMatches(primary, edited), 15, "the workshop's exact edited primary autosave");
             var recovered = new WorkshopStorage(scopedFolder).Recover(WordboundFlagshipContent.CourseId, out bool usedBackup);
             bool exact = File.ReadAllText(primary) == edited && recovered.RecoveryJson == edited;
             bool unchanged = ReferenceEquals(workshop.History, history) && history.Current.RecoveryJson == edited;
@@ -176,13 +178,28 @@ namespace Wreckabulary.Qa
             savedDraftVerified = true;
             context.Note("workshop_autosave_verified", true);
             yield return context.WaitFrames(3);
-            yield return context.CaptureScreen("wordbound_workshop");
+            string capture = context.PathInRun("wordbound_workshop.png"), captureError = null;
+            yield return StoryCamera.CaptureScreen(capture, error => captureError = error);
+            if (captureError != null) throw new QaFailException("Workshop screen capture failed: " + captureError);
+            context.AddCapture("wordbound_workshop", capture, "png", "screen");
+            RequireScreenPixels(context, "wordbound_workshop", "workshop");
+            editCompleted = true;
+            context.Note("workshop_edit_completed", true);
+        }
+
+        static bool SavedPrimaryMatches(string path, string expected)
+        {
+            if (!File.Exists(path)) return false;
+            try { return File.ReadAllText(path) == expected; }
+            catch (FileNotFoundException) { return false; }
+            catch (IOException error) when ((error.HResult & 0xffff) == 32 || (error.HResult & 0xffff) == 33)
+            { return false; }
         }
 
         IEnumerator Playtest(QaContext context)
         {
-            if (!savedDraftVerified || !ReferenceEquals(workshop.History, history) || history.Current.RecoveryJson != edited)
-                throw new QaFailException("Playtest requires the exact edited draft to pass primary autosave recovery first.");
+            if (!savedDraftVerified || !editCompleted || !ReferenceEquals(workshop.History, history) || history.Current.RecoveryJson != edited)
+                throw new QaFailException("Playtest requires verified primary autosave recovery and a completed capture of the exact edited draft.");
             workshop.RequestPlaytest();
             yield return context.WaitUntil(() => {
                 client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
