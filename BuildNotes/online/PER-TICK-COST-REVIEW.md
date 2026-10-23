@@ -1,6 +1,6 @@
 # Per-tick main-thread cost review
 
-STATUS: SOURCE READY FOR REVIEW. Root authorized the narrow tick/presence comparison after the read-only diagnosis below. No compiler, test, Unity, player, benchmark or deployment job ran in this lane. Existing dirty ModeDefinition and historical logs remain untouched.
+STATUS: INDEPENDENT SOURCE PASS for `4c038d45`; integrated by root as `041ce4a8`. Root started R0 then the35-case core filter. No compiler, test, Unity, player, benchmark or deployment job ran in this lane. Existing dirty ModeDefinition and historical logs remain untouched.
 
 ## Measured baseline and its limits
 
@@ -57,4 +57,4 @@ node Tools/kit/gate/game_gate.mjs test editmode --filter 'Wreckabulary.OfflineGa
 
 Expected counts:35 focused core and8 existing native local cases, including FrameChanged→Stop after a real canonical Disconnect. Native public comparison requires the same exact TeamSolo workload, actual content, environment flags and opt-in native profiler/tick observer as181114Z; root owns those established invocation settings. Preserve the10000ms transfer deadline and every behavioral assertion. Compare Capture calls per advanced tick, inclusive Reconcile/Advance, maximum60-tick batch wall time, and actual public admission/gameplay outcome. A lower Capture count alone is not acceptance. Retain both raw runs and machine/workload limits; never derive zero cost from an unavailable marker or claim60Hz from this source change.
 
-Only whitespace/diff inspection has run in this lane. Compilation, independent review, core/native execution and comparative performance remain pending.
+Independent recover_assets source review confirmed ordinal-ID order in Binding.Seats and ProgressSnapshot.Players, completed-tick rejection, preserved captures/validation/atomic fences and the seven new cases plus strengthened rollback/in-tick assertions. Root separately reviewed the same contract before integration. Neither source review is a compile/native/performance pass. Only whitespace/diff inspection ran in this lane; root's compiler/core results and native comparative performance are still pending at this checkpoint.
