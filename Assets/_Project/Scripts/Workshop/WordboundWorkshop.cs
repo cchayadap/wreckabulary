@@ -465,14 +465,6 @@ namespace Wreckabulary.Workshop
             if (Button("Done")) sharing = false;
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
-        static void DrawLine(Vector2 from, Vector2 to, Color color)
-        {
-            var matrix = GUI.matrix; var previous = GUI.color; var delta = to - from;
-            GUI.color = color;
-            GUI.matrix *= Matrix4x4.TRS(from, Quaternion.Euler(0, 0, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg), Vector3.one);
-            GUI.DrawTexture(new Rect(0, -1, Mathf.Max(3, delta.magnitude), 2), Texture2D.whiteTexture);
-            GUI.matrix = matrix; GUI.color = previous;
-        }
         static void Replace(WorkshopDraft target, WorkshopDraft source)
         {
             target.Course = source.Course; target.Seed = source.Seed; target.SeedLocked = source.SeedLocked; target.GridMm = source.GridMm;

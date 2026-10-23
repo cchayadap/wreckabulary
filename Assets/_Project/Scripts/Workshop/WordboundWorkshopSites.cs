@@ -247,17 +247,18 @@ namespace Wreckabulary.Workshop
                 var upper = lower.Select(p => new CoursePoint(p.X, box.Max.Y, p.Z)).ToArray();
                 for (int i = 0; i < 4; i++)
                 {
-                    DrawLine(ScreenPoint(lower[i]), ScreenPoint(lower[(i + 1) % 4]), Color.cyan);
-                    DrawLine(ScreenPoint(upper[i]), ScreenPoint(upper[(i + 1) % 4]), Color.cyan);
-                    DrawLine(ScreenPoint(lower[i]), ScreenPoint(upper[i]), Color.cyan);
+                    DrawWorldLine(lower[i], lower[(i + 1) % 4], Color.cyan);
+                    DrawWorldLine(upper[i], upper[(i + 1) % 4], Color.cyan);
+                    DrawWorldLine(lower[i], upper[i], Color.cyan);
                 }
             }
-            foreach (var arm in selected.Fixtures) DrawLine(ScreenPoint(arm.From), ScreenPoint(arm.To), Color.yellow);
+            foreach (var arm in selected.Fixtures) DrawWorldLine(arm.From, arm.To, Color.yellow);
             foreach (var handle in SiteHandles(selected))
             {
-                var at = ScreenPoint(handle.point);
-                GUI.Box(new Rect(at.x - 8, at.y - 8, 16, 16), "", handle.part == sitePart ? selectedBox : normalBox);
-                GUI.Label(new Rect(at.x + 10, at.y - 12, 100, 24), handle.label);
+                if (!view.TryProject(handle.point, viewport, out var at)) continue;
+                OverlayBox(new Rect(at.x - 8, at.y - 8, 16, 16), "", handle.part == sitePart ? selectedBox : normalBox);
+                AddViewLabel(handle.point, handle.label, handle.label + " · " + selected.PuzzleId,
+                    handle.part == sitePart ? 6 : 5);
             }
         }
         bool HandleSitePointer()

@@ -85,31 +85,47 @@ namespace Wreckabulary.Workshop
             EnsureView(); view.Resize((int)viewport.width, (int)viewport.height);
             GUI.DrawTexture(viewport, view.Texture, ScaleMode.StretchToFill, false);
             GUI.BeginGroup(viewport);
-            foreach (var module in display.Modules.Where(module => module.LayerId == History.Current.ActiveLayer &&
-                !History.Current.HiddenLayers.Contains(module.LayerId)))
+            try
             {
-                var at = ScreenPoint(module.Position);
-                GUI.Label(new Rect(at.x - 75, at.y - 22, 150, 20), module.Id +
-                    (History.Current.LockedLayers.Contains(module.LayerId) ? " · locked" : ""),
-                    History.Current.Selection.Contains(module.Id) ? selectedBox : normalBox);
+                BeginOverlay();
+                var mouse = Event.current.mousePosition;
+                bool hovering = LocalViewport.Contains(mouse) && !labelSpace[0].Contains(mouse) && !orbiting && !panning;
+                string hoveredModule = hovering ? view.Pick(mouse, viewport) : null;
+                string hoveredZone = hovering ? view.PickFixed(mouse, viewport) : null;
+                if (hovering && hoveredZone == null && view.Surface(mouse, viewport, ActiveHeight, out var hit))
+                    hoveredZone = display.Zones.FirstOrDefault(zone => zone.Placement != "Fixed" && zone.LayerIds.Contains(History.Current.ActiveLayer) &&
+                        hit.X >= zone.Bounds.Min.X && hit.X <= zone.Bounds.Max.X && hit.Z >= zone.Bounds.Min.Z && hit.Z <= zone.Bounds.Max.Z)?.Id;
+                foreach (var module in display.Modules.Where(module => module.LayerId == History.Current.ActiveLayer &&
+                    !History.Current.HiddenLayers.Contains(module.LayerId)))
+                {
+                    bool selected = History.Current.Selection.Contains(module.Id);
+                    if (!selected && module.Id != hoveredModule && !RoomLabelVisible(module)) continue;
+                    AddViewLabel(module.Position, RoomCaption(module.Id), module.Id +
+                        (History.Current.LockedLayers.Contains(module.LayerId) ? " · locked floor" : ""), selected ? 3 : module.Id == hoveredModule ? 2 : 0);
+                }
+                foreach (var zone in display.Zones.Where(item => item.LayerIds.Contains(History.Current.ActiveLayer) &&
+                    !History.Current.HiddenLayers.Contains(History.Current.ActiveLayer)))
+                {
+                    var bounds = zone.Id == resizingZone ? ResizeBounds(zone.Bounds, resizeAnchor, resizePoint) : zone.Bounds;
+                    var corners = Corners(bounds);
+                    var color = validation.Issues.Any(issue => issue.EntityId == zone.Id) ? new Color(1, .5f, .35f) : new Color(.4f, 1, .8f);
+                    for (int i = 0; i < 4; i++) DrawWorldLine(corners[i], corners[(i + 1) % 4], color);
+                    if (zone.Id == zoneId || zone.Id == hoveredZone)
+                    {
+                        string caption = zone.Placement == "Fixed" && zone.Pool.Count == 1 ? zone.Pool[0].AssetId :
+                            "Random · " + zone.MinCount + (zone.MinCount == zone.MaxCount ? "" : "–" + zone.MaxCount);
+                        AddViewLabel(zone.Placement == "Fixed" ? zone.FixedPosition : bounds.Min, caption, zone.Id, zone.Id == zoneId ? 4 : 2);
+                    }
+                    if (zone.Id == zoneId && zone.Placement != "Fixed")
+                        foreach (var corner in corners)
+                            if (view.TryProject(corner, viewport, out var at)) OverlayBox(new Rect(at.x - 6, at.y - 6, 12, 12), "");
+                }
+                if (CanShowHandles && !drawingZone && placing == null && SelectedSite == null) Handles();
+                PhysicalSiteOverlay();
+                DrawViewLabels();
+                if (marquee) GUI.Box(DragRect(pointerStart, Event.current.mousePosition), "", selectedBox);
             }
-            foreach (var zone in display.Zones.Where(item => item.LayerIds.Contains(History.Current.ActiveLayer) &&
-                !History.Current.HiddenLayers.Contains(History.Current.ActiveLayer)))
-            {
-                var bounds = zone.Id == resizingZone ? ResizeBounds(zone.Bounds, resizeAnchor, resizePoint) : zone.Bounds;
-                var corners = Corners(bounds);
-                var color = validation.Issues.Any(issue => issue.EntityId == zone.Id) ? new Color(1, .5f, .35f) : new Color(.4f, 1, .8f);
-                for (int i = 0; i < 4; i++) DrawLine(ScreenPoint(corners[i]), ScreenPoint(corners[(i + 1) % 4]), color);
-                var at = ScreenPoint(zone.Placement == "Fixed" ? zone.FixedPosition : bounds.Min);
-                GUI.Label(new Rect(at.x, at.y, 160, 22), zone.Id);
-                if (zone.Id == zoneId && zone.Placement != "Fixed")
-                    foreach (var corner in corners)
-                    { at = ScreenPoint(corner); GUI.Box(new Rect(at.x - 6, at.y - 6, 12, 12), ""); }
-            }
-            if (CanShowHandles && !drawingZone && placing == null && SelectedSite == null) Handles();
-            PhysicalSiteOverlay();
-            if (marquee) GUI.Box(DragRect(pointerStart, Event.current.mousePosition), "", selectedBox);
-            GUI.EndGroup();
+            finally { GUI.EndGroup(); }
             try { if (!HandleSitePointer()) HandlePointer(); }
             catch (Exception error)
             {
@@ -119,14 +135,16 @@ namespace Wreckabulary.Workshop
         }
         void Handles()
         {
-            var pivot = SelectionPivot(); var at = ScreenPoint(pivot);
-            var x = ScreenPoint(HandleEnd(pivot, WorkshopHandle.X));
-            var z = ScreenPoint(HandleEnd(pivot, WorkshopHandle.Z));
-            DrawLine(at, x, new Color(1, .45f, .4f)); DrawLine(at, z, new Color(.4f, .65f, 1));
-            GUI.Box(new Rect(x.x - 12, x.y - 12, 24, 24), "X");
-            GUI.Box(new Rect(z.x - 12, z.y - 12, 24, 24), "Z");
-            GUI.Box(new Rect(at.x - 12, at.y - 12, 24, 24), "↔");
-            GUI.Box(new Rect(at.x - 14, at.y - 58, 28, 28), "R");
+            var pivot = SelectionPivot();
+            var x = HandleEnd(pivot, WorkshopHandle.X); var z = HandleEnd(pivot, WorkshopHandle.Z);
+            DrawWorldLine(pivot, x, new Color(1, .45f, .4f)); DrawWorldLine(pivot, z, new Color(.4f, .65f, 1));
+            if (view.TryProject(x, viewport, out var screenX)) OverlayBox(new Rect(screenX.x - 12, screenX.y - 12, 24, 24), "X");
+            if (view.TryProject(z, viewport, out var screenZ)) OverlayBox(new Rect(screenZ.x - 12, screenZ.y - 12, 24, 24), "Z");
+            if (view.TryProject(pivot, viewport, out var at))
+            {
+                OverlayBox(new Rect(at.x - 12, at.y - 12, 24, 24), "↔");
+                OverlayBox(new Rect(at.x - 14, at.y - 58, 28, 28), "R");
+            }
         }
         WorkshopHandle? HandleAt(Vector2 point)
         {

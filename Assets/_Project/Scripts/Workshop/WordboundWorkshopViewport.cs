@@ -82,6 +82,7 @@ namespace Wreckabulary.Workshop
 
         public void Sync(WorkshopSnapshot state, CourseCatalogue approved, ResolvedCourse resolved = null)
         {
+            bool changedFloor = snapshot != null && snapshot.ActiveLayer != state.ActiveLayer;
             snapshot = state; catalogue = approved;
             if (content) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
             content = new GameObject("Draft geometry").transform; content.SetParent(stage.transform, false);
@@ -122,7 +123,7 @@ namespace Wreckabulary.Workshop
             else
                 foreach (var zone in document.Zones.Where(item => item.Placement == "Fixed" && item.Pool.Count == 1))
                     Asset(zone.Pool[0].AssetId, zone.ModuleId, zone.FixedPosition, zone.FixedYaw, zone.Id);
-            UpdateCamera();
+            if (changedFloor) Frame(); else UpdateCamera();
         }
 
         void Asset(string assetId, string moduleId, CoursePoint position, int angle, string name)
@@ -153,12 +154,23 @@ namespace Wreckabulary.Workshop
 
         public void Frame(IEnumerable<CourseModule> selection = null)
         {
-            var all = (selection ?? snapshot.Course().Modules).Where(module => catalogue.Modules.ContainsKey(module.DefinitionId)).ToArray();
+            var all = (selection ?? authored.Values.Where(module => module.LayerId == snapshot.ActiveLayer))
+                .Where(module => authored.ContainsKey(module.Id)).ToArray();
+            if (all.Length == 0 && selection == null) all = authored.Values.ToArray();
             if (all.Length == 0) { target = Vector3.zero; distance = 70; UpdateCamera(); return; }
             Bounds bounds = Bounds(catalogue.Bounds(all[0]));
             foreach (var module in all.Skip(1)) bounds.Encapsulate(Bounds(catalogue.Bounds(module)));
             target = bounds.center;
-            distance = Mathf.Clamp(bounds.size.magnitude / Mathf.Tan(lens.fieldOfView * Mathf.Deg2Rad * .5f), 5, 9000);
+            float fit = 0, slope = Mathf.Tan(lens.fieldOfView * Mathf.Deg2Rad * .5f);
+            var inverse = Quaternion.Inverse(lens.transform.localRotation);
+            for (int x = -1; x <= 1; x += 2)
+                for (int y = -1; y <= 1; y += 2)
+                    for (int z = -1; z <= 1; z += 2)
+                    {
+                        var corner = inverse * Vector3.Scale(bounds.extents, new Vector3(x, y, z));
+                        fit = Mathf.Max(fit, Mathf.Max(Mathf.Abs(corner.x) / (slope * lens.aspect), Mathf.Abs(corner.y) / slope) - corner.z);
+                    }
+            distance = Mathf.Clamp(fit * 1.15f, 5, 9000);
             UpdateCamera();
         }
         public void Focus(CoursePoint point) { target = Point(point); UpdateCamera(); }
@@ -182,11 +194,33 @@ namespace Wreckabulary.Workshop
         }
         public Vector2 Project(CoursePoint point, Rect viewport)
         {
-            var cameraPoint = Quaternion.Inverse(lens.transform.localRotation) * (Point(point) - lens.transform.localPosition);
-            if (cameraPoint.z <= 0) return new Vector2(-100000, -100000);
+            return TryProject(point, viewport, out var screen) ? screen : new Vector2(-100000, -100000);
+        }
+        Vector3 CameraPoint(CoursePoint point) => Quaternion.Inverse(lens.transform.localRotation) * (Point(point) - lens.transform.localPosition);
+        Vector2 ProjectCamera(Vector3 cameraPoint, Rect viewport)
+        {
             float halfHeight = Mathf.Tan(lens.fieldOfView * Mathf.Deg2Rad * .5f);
             return new Vector2((cameraPoint.x / (cameraPoint.z * halfHeight * lens.aspect) + 1) * viewport.width * .5f,
                 (1 - cameraPoint.y / (cameraPoint.z * halfHeight)) * viewport.height * .5f);
+        }
+        public bool TryProject(CoursePoint point, Rect viewport, out Vector2 screen)
+        {
+            var cameraPoint = CameraPoint(point);
+            screen = default;
+            if (cameraPoint.z < lens.nearClipPlane) return false;
+            screen = ProjectCamera(cameraPoint, viewport);
+            return WordboundWorkshopOverlay.Finite(screen);
+        }
+        public bool ProjectSegment(CoursePoint from, CoursePoint to, Rect viewport, out Vector2 a, out Vector2 b)
+        {
+            a = b = default;
+            var first = CameraPoint(from); var last = CameraPoint(to);
+            float near = lens.nearClipPlane;
+            if (first.z < near && last.z < near) return false;
+            if (first.z < near) first = Vector3.LerpUnclamped(first, last, (near - first.z) / (last.z - first.z));
+            else if (last.z < near) last = Vector3.LerpUnclamped(last, first, (near - last.z) / (first.z - last.z));
+            a = ProjectCamera(first, viewport); b = ProjectCamera(last, viewport);
+            return WordboundWorkshopOverlay.ClipLine(new Rect(0, 0, viewport.width, viewport.height), ref a, ref b);
         }
         Ray Ray(Vector2 local, Rect viewport)
         {
