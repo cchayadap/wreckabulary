@@ -48,3 +48,20 @@ The inspected integration checkout has no `Docs/qa/runs` directory and no discov
 The smallest missing measurement is one project-owned QA scenario which opens the existing local flagship, explicitly sets/asserts output dimensions and the Low preset, prepares a deterministic visible eight-actor/equipment workload, restarts the existing PerfProbe only after loading, warms up, samples a fixed duration, and records its actual workload/settings with captures. A synthetic eight-actor scene can reveal rendering/animation cost and is useful before the larger live session, but must be labelled **synthetic render workload**, with network peers recorded as one or zero as applicable. It does not replace the existing eight-authenticated-peer fixture or final presented-client measurement while eight real network peers are active.
 
 Recommended next check: finish the current release-QA build and run `wordbound_workshop_flow` once against that exact build ID to establish the Windows route and captures. Add only the bounded workload scenario afterward; reuse PerfProbe and the existing launcher/local-play path. Do not create a second benchmark framework or modify the kit. Final acceptance still requires the populated large map, actual eight-peer gameplay, active equipment and sustained Windows frame-time evidence on the reference PC, with background build/render jobs stopped.
+
+## Authorized bounded implementation — source only
+
+Root subsequently authorized two project-owned files: `Assets/_Project/Scripts/WordboundQa/WordboundPerformanceQa.cs` and `WordboundPerformanceWorkload.cs`. They add `wordbound_synthetic8_low`, reusing the existing QA assembly, launcher/workshop/local-client route, visual resolver, avatar motion and PerfProbe. No kit or production behavior is edited.
+
+- [x] Set and verify 1920×1080 Windowed, the actual Low preset, no frame cap and V-sync off. Snapshot the four string graphics preferences; restore their original existence/bytes immediately after the synchronous preset calls, while retaining the temporary runtime settings. Cleanup reloads the original preferences and restores V-sync, window mode/size and camera/HUD state; it also runs on destroy/quit. No V-sync preference is written. Forced process termination during the synchronous preset writes remains outside graceful cleanup guarantees.
+- [x] Require all eight selected items to have the detailed 512×256 normal/mask material set and require created held models to share the selected collection meshes. Use eight animated avatars and eight moving held visuals, without colliders, gameplay attacks or fabricated peers. Record existing local actors/player bodies separately (normally one), total actors (normally nine), zero remote peers, body/renderer/triangle counts, seed/manifest, camera module, output size, preset/scale and hardware.
+- [x] Warm up for at least three seconds and 120 frames, restart PerfProbe, then sample 60 seconds. Per-frame health checks do not search the scene or allocate actor arrays. Fail on focus loss, changed output/settings, world/presentation faults, too few frames or p95 over 16.6 ms. Screenshots are outside the measured interval; the 30-second reference pose is explicitly a replay after measurement.
+- [~] Independent source review requested; native compilation and Windows execution remain NOT RUN.
+
+After integration and a fresh successful release-QA build, the exact new command is:
+
+```powershell
+node Tools/kit/gate/game_gate.mjs smoke --build <successful-build-id> --scenario wordbound_synthetic8_low --seconds 300 --json
+```
+
+The scenario explicitly writes `perf.json` next to `checks.json`, so no gate argument or kit edit is needed. Its loaded map has real single-player local physics; the synthetic rigs exercise cosmetic locomotion and held-equipment rendering only. This does not establish eight-network-peer, combat/throw physics, full-map traversal, long-soak or human acceptance.
