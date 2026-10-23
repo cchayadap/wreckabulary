@@ -63,7 +63,7 @@ namespace Wreckabulary.Online
                 hud.Initialize(gameplay, playerView, content.Items, content.Mode, content.Course,
                     LocalActor, "Return to workshop");
                 hud.ReturnRequested += RequestReturn;
-                session = new WordboundLocalSession(CreateRunner, WordboundMatchClient.Configuration(),
+                session = new WordboundLocalSession(CreateRunner, WordboundFusionConfiguration.CreateLocal(),
                     gameplay.Authority, LocalActor);
                 gameplay.AttachSession(session);
                 gameplay.Faulted += GameplayFailed;

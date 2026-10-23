@@ -20,3 +20,11 @@ Root follow-up gates, in order:
 3. Separately exercise maximum admitted bodies, history population and despawn/recreate reclamation, followed by outstanding 4/8-peer and recovery acceptance. Until then 64 MiB is an approved candidate backed by a source envelope, not verified worst-case production capacity.
 
 Changes are limited to the new factory, two existing callsites, one live configuration assertion, two native tests and this report. No SDK/kit/protocol/rules/timeouts/service change or hand-authored metadata. Original ModeDefinition/log work remains untouched.
+
+## Pre-integration source review correction
+
+Root found a real missed callsite in c9be66f4: production `WordboundLocalMatchClient` called `WordboundMatchClient.Configuration()`. The first delta therefore also raised the offline heap; its standalone-default test did not establish the promised production-local behavior. That source checkpoint is not sufficient by itself.
+
+The correction adds explicit `WordboundFusionConfiguration.CreateLocal()` containing the unchanged former factory, routes the actual local client to it, and lets online `Create()` apply only its larger heap to a fresh local configuration. The same test now calls the real local factory and verifies its default 256 pages, independent ownership, registrations and preserved shared tick/reliable/migration settings. A full project callsite search found the local caller plus separate native offline/connection-test factories; those other factories remain unchanged. Baseline-only bf43bb59 copies root's local camera/visual support and must also be excluded.
+
+Ordered integration requires c9be66f4 plus this correction; exclude fee597fc and bf43bb59. No compiler/native result is claimed. The independent review and full public FFA/capacity acceptance remain pending.

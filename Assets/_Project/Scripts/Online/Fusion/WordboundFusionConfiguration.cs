@@ -6,11 +6,17 @@ namespace Wreckabulary.Online
     {
         public static NetworkProjectConfig Create()
         {
+            var config = CreateLocal();
+            config.Heap.PageShift = PageSizes._32Kb;
+            config.Heap.PageCount = 2048;
+            return config;
+        }
+
+        public static NetworkProjectConfig CreateLocal()
+        {
             var config = new NetworkProjectConfig { PeerMode = NetworkProjectConfig.PeerModes.Multiple };
             foreach (var source in NetworkProjectConfig.Global.PrefabTable.Prefabs)
                 config.PrefabTable.AddSource(source);
-            config.Heap.PageShift = PageSizes._32Kb;
-            config.Heap.PageCount = 2048;
             config.HostMigration.EnableAutoUpdate = false;
             config.Network.ReliableDataTransferModes = NetworkConfiguration.ReliableDataTransfers.ClientToServer;
             config.Simulation.TickRateSelection = new TickRate.Selection {

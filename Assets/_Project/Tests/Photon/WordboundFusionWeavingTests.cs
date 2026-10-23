@@ -38,11 +38,12 @@ namespace Wreckabulary.PhotonTests
             var sharedShift = shared.Heap.PageShift;
             int sharedPages = shared.Heap.PageCount;
             var registrations = shared.PrefabTable.Prefabs.ToArray();
-            var offlineDefaults = new NetworkProjectConfig();
+            var local = WordboundFusionConfiguration.CreateLocal();
             var first = WordboundFusionConfiguration.Create();
             var second = WordboundFusionConfiguration.Create();
             Assert.AreNotSame(shared.Heap, first.Heap);
             Assert.AreNotSame(first.Heap, second.Heap);
+            Assert.AreNotSame(local.Heap, first.Heap);
             Assert.AreEqual(PageSizes._32Kb, first.Heap.PageShift);
             Assert.AreEqual(2048, first.Heap.PageCount);
             Assert.AreEqual(64L * 1024 * 1024, (1L << (int)first.Heap.PageShift) * first.Heap.PageCount);
@@ -57,14 +58,22 @@ namespace Wreckabulary.PhotonTests
             Assert.AreEqual(1, first.Simulation.TickRateSelection.ServerSendInterval);
             Assert.AreEqual(TickRate.ValidateResult.Ok, first.Simulation.TickRateSelection.Validate());
             CollectionAssert.AreEqual(registrations, first.PrefabTable.Prefabs.ToArray());
+            CollectionAssert.AreEqual(registrations, local.PrefabTable.Prefabs.ToArray());
+            Assert.AreEqual(first.PeerMode, local.PeerMode);
+            Assert.AreEqual(first.HostMigration.EnableAutoUpdate, local.HostMigration.EnableAutoUpdate);
+            Assert.AreEqual(first.Network.ReliableDataTransferModes, local.Network.ReliableDataTransferModes);
+            Assert.AreEqual(first.Simulation.TickRateSelection.Client, local.Simulation.TickRateSelection.Client);
+            Assert.AreEqual(first.Simulation.TickRateSelection.ClientSendInterval, local.Simulation.TickRateSelection.ClientSendInterval);
+            Assert.AreEqual(first.Simulation.TickRateSelection.ServerTickInterval, local.Simulation.TickRateSelection.ServerTickInterval);
+            Assert.AreEqual(first.Simulation.TickRateSelection.ServerSendInterval, local.Simulation.TickRateSelection.ServerSendInterval);
             Assert.IsNotEmpty(registrations, "Prepared online prefabs must be registered before this native check.");
             first.Heap.PageCount = 1;
             Assert.AreEqual(2048, second.Heap.PageCount);
             Assert.AreEqual(sharedShift, shared.Heap.PageShift);
             Assert.AreEqual(sharedPages, shared.Heap.PageCount);
             CollectionAssert.AreEqual(registrations, shared.PrefabTable.Prefabs.ToArray());
-            Assert.AreEqual(PageSizes._32Kb, offlineDefaults.Heap.PageShift);
-            Assert.AreEqual(256, offlineDefaults.Heap.PageCount);
+            Assert.AreEqual(PageSizes._32Kb, local.Heap.PageShift);
+            Assert.AreEqual(256, local.Heap.PageCount);
         }
 
         [Test]
