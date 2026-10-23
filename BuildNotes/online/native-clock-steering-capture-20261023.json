@@ -1,0 +1,150 @@
+{
+  "sourceCommitAtLaunch": "65d1b4ea",
+  "recordedUtc": "2026-10-23T18:54:51.5075931Z",
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.OfflineGameplayTests.WordboundNativePuzzleFlow.SixAuthoredFamiliesUseNativeSensorsAndCanonicalCheckpoints;Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties;Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-23T18:47:49Z",
+    "secs": 333,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.OfflineGameplayTests.WordboundNativePuzzleFlow.SixAuthoredFamiliesUseNativeSensorsAndCanonicalCheckpoints",
+        "message": "Cross slowed native sorting arm with the keepsake\r\n  Expected: Complete\r\n  But was:  Waiting",
+        "location": "Assets/_Project/Tests/OfflineGameplay/PhysicalPuzzles/WordboundNativePuzzleActions.cs:677"
+      },
+      {
+        "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+        "message": "Authenticate and start first Runner was cancelled.\r\n  Expected: False\r\n  But was:  True",
+        "location": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs:542"
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261023T184749Z.log",
+    "evidence": [
+      "TestResults/editmode_20261023T184749Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 60.1,
+    "messages": [
+      "WORDBOUND_GAMEPLAY_FAULT: peer 0 InvalidOperationException: Session failed: FormatException"
+    ],
+    "tests": {
+      "total": 10,
+      "passed": 8,
+      "failed": 2,
+      "skipped": 0
+    }
+  },
+  "cases": [
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.AtomicPhysicsApplyRetainsValidationAndAbortGuards",
+      "result": "Passed",
+      "duration": 4.694633,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.FirstAppliedFrameCannotReenterInitialHostComposition",
+      "result": "Passed",
+      "duration": 0.674401,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.FreestyleUsesOfflineRunnerAndExactWorkshopManifest",
+      "result": "Passed",
+      "duration": 3.202104,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationFailureKeepsItsExceptionAndCannotPublishAFrame",
+      "result": "Passed",
+      "duration": 0.669318,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationPollCannotReenterInitialHostComposition",
+      "result": "Passed",
+      "duration": 0.657544,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationStopCannotPublishAnAbandonedReconciliation",
+      "result": "Passed",
+      "duration": 0.716099,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.RunningFrameStopPreventsCheckpointAndLocalViewContinuation",
+      "result": "Passed",
+      "duration": 0.717899,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.TimeRunUsesOfflineRunnerAndExactWorkshopManifest",
+      "result": "Passed",
+      "duration": 2.268738,
+      "failure": null
+    },
+    {
+      "name": "Wreckabulary.OfflineGameplayTests.WordboundNativePuzzleFlow.SixAuthoredFamiliesUseNativeSensorsAndCanonicalCheckpoints",
+      "result": "Failed",
+      "duration": 206.979016,
+      "failure": "  Cross slowed native sorting arm with the keepsake\n  Expected: Complete\n  But was:  Waiting\n"
+    },
+    {
+      "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Failed",
+      "duration": 17.398877,
+      "failure": "  Authenticate and start first Runner was cancelled.\n  Expected: False\n  But was:  True\n"
+    }
+  ],
+  "files": [
+    {
+      "path": "Logs/gate_test_editmode_20261023T184749Z.log",
+      "sha256": "66729B8957714774CC63A0A27D07D6EAA95623EB0C2527B27AE3A321B4C1AFC1"
+    },
+    {
+      "path": "TestResults/editmode_20261023T184749Z.xml",
+      "sha256": "DD9909FF100F944D1F7E40AD2A30D2A30F2BD2CA7C0D5D4ED507B8E09FE1DFE9"
+    }
+  ],
+  "observations": [
+    "Eight local/atomic cases pass.",
+    "CLOCK fixture: 300 actual before-tick injections, 300 matching post-physics reads, zero mismatches; first three approach waypoints advance.",
+    "CLOCK actual arrival: seven raw and fifteen shared arrival samples; mechanism remains Waiting.",
+    "CLOCK field decisions: 295 LineBlocked, five Applied, zero collision/containment/eligibility/buffer failures; most blocking records identify course geometry and endpoint Y=0. Geometry attribution still under review.",
+    "Public Team Solo fails earlier at connection authorization with tokenLifetimeSeconds=15 and leaseRemainingMilliseconds=15004. This run did not reach the snapshot timing comparison; zero/unavailable profiler samples are not zero runtime cost."
+  ],
+  "markers": [
+    "WORDBOUND_PHYSICAL_INPUT_READY: beforeTickCallbacks=175; inputPolls=52; typedInputRunnerTick=124; typedInputCanonicalTick=0; readinessError=",
+    "WORDBOUND_PHYSICAL_FAMILY: CollectLetters Puzzle_L1_Packing_LabelBench completed at tick 2152 with site hash c51c97109d18f0f041d163ec420718d87051a26fdfc540167e5e0ee6874aadff",
+    "WORDBOUND_PHYSICAL_FAMILY: PlaceObject Puzzle_L1_Packing_CratePress completed at tick 3472 with site hash 7b6cb5b1cde00fef6c2461c9e9117c7e95d758a7aff63b5437f9edff32c5b7f3",
+    "WORDBOUND_PHYSICAL_FAMILY: RedirectWind Puzzle_L1_Packing_RibbonSwitch completed at tick 4372 with site hash 495478559c617fce17b0cdcf3b6d8834778436590a4dde39ead6740fef6726f5",
+    "WORDBOUND_PHYSICAL_ROUTE: tick=5752; fixtureSeconds=206.401; lifetimeCancelled=False; runnerStarted=True; runnerRunning=True; gameplayReady=True; simulationPaused=False; timeScale=1.000; routeStartedTick=5452; routeSeconds=8.191; waypoint=3; canonicalSamples=300; coroutineSamples=5; scriptedInput=before-tick-local-buffer; injections=300; inputPolls=300; maximumInputPollsPerUnityFrame=60; postPhysicsInputMatches=300; postPhysicsInputMismatches=0; lastInjectedRunnerTick=5875; lastSteeredCanonicalTick=5751; maximumSteeringCanonicalGap=1; steeringFailure=; steeringStopped=; maximumCanonicalTickGap=1; maximumCanonicalSamplesPerUnityFrame=60; nonAdvancingCallbacks=5; omittedTransitions=0; observerError=; rawArrivalSamples=7; sharedArrivalSamples=15; slowedSamples=5; missingCarrierSamples=0; carrier=native-puzzle-player; actorCanonical=(38.849320, 0.000000, 4.361867); actorNative=(38.849320, 0.000000, 4.361867); actorVelocity=(0.368506, -0.000006, 0.032118); canMove=True; moveScale=1; stage=Waiting; stageTick=0; activeWindowTicks=180; progressTicks=0; recipe=item:62; recipeState=Deployed; deploymentTick=5273; lifetimeSeconds=10; recipeNative=(39.000000, 0.000000, 3.000000); recipeActive=True; recipeKinematic=True; armNative=(38.292000, 0.000000, 3.916000); targets=0:(39.660000, 0.000000, 1.500000),closest=0.028061@5512:(39.631940, 0.000000, 1.500000),canonicalInside=5512,coroutineInside=5512,waypointAdvanced=5512,segmentSkip=-1 | 1:(39.660000, 0.000000, 3.441000),closest=0.025937@5603:(39.659780, 0.000000, 3.415064),canonicalInside=5603,coroutineInside=-1,waypointAdvanced=5603,segmentSkip=-1 | 2:(39.000000, 0.000000, 3.441000),closest=0.028212@5663:(39.028200, 0.000000, 3.440106),canonicalInside=5663,coroutineInside=-1,waypointAdvanced=5663,segmentSkip=-1 | 3:(39.000000, 0.000000, 4.375000),closest=0.151256@5752:(38.849320, 0.000000, 4.361867),canonicalInside=-1,coroutineInside=-1,waypointAdvanced=-1,segmentSkip=-1; transitions=5453:Armed->Waiting@(39.008370, 0.000000, 1.500000),stageTick=0,motionDelta=1000,raw=False,shared=False | 5522:Waiting->Armed@(39.646510, 0.000000, 1.877651),stageTick=5522,motionDelta=600,raw=False,shared=False | 5523:Armed->Waiting@(39.646950, 0.000000, 1.928014),stageTick=0,motionDelta=1000,raw=False,shared=False | 5526:Waiting->Armed@(39.648250, 0.000000, 2.079104),stageTick=5526,motionDelta=600,raw=False,shared=False | 5527:Armed->Waiting@(39.648690, 0.000000, 2.129467),stageTick=0,motionDelta=1000,raw=False,shared=False | 5568:Waiting->Armed@(39.657790, 0.000000, 3.184631),stageTick=5568,motionDelta=600,raw=False,shared=False | 5569:Armed->Waiting@(39.657870, 0.000000, 3.193828),stageTick=0,motionDelta=1000,raw=False,shared=False | 5573:Waiting->Armed@(39.658150, 0.000000, 3.226890),stageTick=5573,motionDelta=600,raw=False,shared=False | 5575:Armed->Waiting@(39.658280, 0.000000, 3.241399),stageTick=0,motionDelta=1000,raw=False,shared=False; firstArrivalSupport=tick=5738; rawSupportRayCount=1; supportBufferFull=False; rawSupportHits=Floor:Packing_ConveyorTurn:159:distance=0.100000:normalY=1.000000:courseSurface=True:body=none; finalSupport=rawSupportRayCount=1; supportBufferFull=False; rawSupportHits=Floor:Packing_ConveyorTurn:159:distance=0.100000:normalY=1.000000:courseSurface=True:body=none; clockFixture=fixture:Arm_Puzzle_L1_Packing_ConveyorTurn:t0; clockDecisions=300; clockTickObservations=300; firstClockPrePhysicsTick=5452; lastClockPrePhysicsTick=5751; clockRuntimeObserverError=; clockFixtureObserverError=; clockKindCounts=NoEligibleSlowField:0,CollisionRejected:0,ContainmentRejected:0,LineBlocked:295,LineBufferFull:0,Applied:5; clockFirstKinds=prePhysicsCompletedTick=5452,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(39.162000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(39.162000, 0.000000, 3.916000),lineHits=3/128,lineBufferFull=False,hasBlocker=True,blockerEntity=30786:256,blockerLayer=0,blockerDistance=1.056077,blockerCourseSurface=True,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5521,epoch=0,kind=Applied,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.127000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.127000, 0.000000, 3.916000),lineHits=2/128,lineBufferFull=False,hasBlocker=False,blockerEntity=0:0,blockerLayer=0,blockerDistance=0.000000,blockerCourseSurface=False,blockerRegisteredBody=False,blockerKind=Player; clockTransitionTail=prePhysicsCompletedTick=5452,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(39.162000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(39.162000, 0.000000, 3.916000),lineHits=3/128,lineBufferFull=False,hasBlocker=True,blockerEntity=30786:256,blockerLayer=0,blockerDistance=1.056077,blockerCourseSurface=True,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5521,epoch=0,kind=Applied,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.127000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.127000, 0.000000, 3.916000),lineHits=2/128,lineBufferFull=False,hasBlocker=False,blockerEntity=0:0,blockerLayer=0,blockerDistance=0.000000,blockerCourseSurface=False,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5522,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.118000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.118000, 0.000000, 3.916000),lineHits=3/128,lineBufferFull=False,hasBlocker=True,blockerEntity=30786:256,blockerLayer=0,blockerDistance=1.366375,blockerCourseSurface=True,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5525,epoch=0,kind=Applied,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.127000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.127000, 0.000000, 3.916000),lineHits=2/128,lineBufferFull=False,hasBlocker=False,blockerEntity=0:0,blockerLayer=0,blockerDistance=0.000000,blockerCourseSurface=False,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5526,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.136000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.136000, 0.000000, 3.916000),lineHits=3/128,lineBufferFull=False,hasBlocker=True,blockerEntity=30786:256,blockerLayer=0,blockerDistance=1.354824,blockerCourseSurface=True,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5567,epoch=0,kind=Applied,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.751000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.751000, 0.000000, 3.916000),lineHits=2/128,lineBufferFull=False,hasBlocker=False,blockerEntity=0:0,blockerLayer=0,blockerDistance=0.000000,blockerCourseSurface=False,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5568,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.760000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.760000, 0.000000, 3.916000),lineHits=3/128,lineBufferFull=False,hasBlocker=True,blockerEntity=30786:256,blockerLayer=0,blockerDistance=1.070821,blockerCourseSurface=True,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5572,epoch=0,kind=Applied,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.820000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.820000, 0.000000, 3.916000),lineHits=2/128,lineBufferFull=False,hasBlocker=False,blockerEntity=0:0,blockerLayer=0,blockerDistance=0.000000,blockerCourseSurface=False,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5574,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.838000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.838000, 0.000000, 3.916000),lineHits=3/128,lineBufferFull=False,hasBlocker=True,blockerEntity=30786:256,blockerLayer=0,blockerDistance=1.056077,blockerCourseSurface=True,blockerRegisteredBody=False,blockerKind=Player | prePhysicsCompletedTick=5643,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(39.873000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(39.873000, 0.000000, 3.916000),lineHits=3/128,lineBufferFull=False,hasBlocker=True,blockerEntity=34037:256,blockerLayer=0,blockerDistance=0.203396,blockerCourseSurface=False,blockerRegisteredBody=True,blockerKind=Player | prePhysicsCompletedTick=5644,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(39.888000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(39.888000, 0.000000, 3.916000),lineHits=4/128,lineBufferFull=False,hasBlocker=True,blockerEntity=30786:256,blockerLayer=0,blockerDistance=1.370256,blockerCourseSurface=True,blockerRegisteredBody=False,blockerKind=Player; clockOmittedTransitions=0; clockLastDecision=prePhysicsCompletedTick=5751,epoch=0,kind=LineBlocked,sourceEntity=34182:2304,fixtureEntity=33291:256,collision=True/True,containment=True/True,sourcePosition=(39.000000, 0.000000, 3.000000),fixturePosition=(38.307000, 0.000000, 3.916000),radius=2.750000,arcDegrees=360.000000,lineEvaluated=True,lineFrom=(39.000000, 0.500000, 3.000000),lineTo=(38.307000, 0.000000, 3.916000),lineHits=3/128,lineBufferFull=False,hasBlocker=True,blockerEntity=30786:256,blockerLayer=0,blockerDistance=1.252719,blockerCourseSurface=True,blockerRegisteredBody=False,blockerKind=Player",
+    "WORDBOUND_NATIVE_PROFILE_WINDOW: case=Wreckabulary.OfflineGameplayTests.WordboundNativePuzzleFlow.SixAuthoredFamiliesUseNativeSensorsAndCanonicalCheckpoints; startFrame=1; endFrame=102; elapsedSeconds=206.429; thread=main; instances=all-in-process; sampling=per-marker-invocation; scopes=inclusive-not-additive; max=sample-not-frame; inFlightScopes=not-yet-recorded; domainReloadRetention=false",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=observed; samples=5753; invocations=5753; capturedTotalCpuMs=60766.271; capturedMaxSampleCpuMs=362.115; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=observed; samples=5753; invocations=5753; capturedTotalCpuMs=10932.446; capturedMaxSampleCpuMs=177.430; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=observed; samples=5752; invocations=5752; capturedTotalCpuMs=59338.207; capturedMaxSampleCpuMs=421.756; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=observed; samples=5753; invocations=5753; capturedTotalCpuMs=2576.746; capturedMaxSampleCpuMs=31.109; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=observed; samples=5753; invocations=5753; capturedTotalCpuMs=4779.142; capturedMaxSampleCpuMs=34.930; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=1; invocations=1; capturedTotalCpuMs=499.447; capturedMaxSampleCpuMs=499.447; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=observed; samples=5752; invocations=5752; capturedTotalCpuMs=9916.647; capturedMaxSampleCpuMs=156.816; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_GAMEPLAY_FAULT: peer 0 InvalidOperationException: Session failed: FormatException",
+    "WORDBOUND_SESSION_FAULT: peer 0 FormatException stage=connection-authorization code=connection-time-or-binding facts=tokenLifetimeSeconds=15,leaseRemainingMilliseconds=15004 origin=Wreckabulary.Rules.Wordbound.OnlineAdmissionVerifier.VerifyConnectionCore > Wreckabulary.Rules.Wordbound.OnlineAdmissionVerifier.VerifyConnection > Wreckabulary.Rules.Wordbound.OnlineConnectionService+<Authorize>d__8.MoveNext > System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw",
+    "WORDBOUND_NATIVE_PROFILE_WINDOW: case=Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties; startFrame=1; endFrame=17531; elapsedSeconds=13.748; thread=main; instances=all-in-process; sampling=per-marker-invocation; scopes=inclusive-not-additive; max=sample-not-frame; inFlightScopes=not-yet-recorded; domainReloadRetention=false",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=1; invocations=1; capturedTotalCpuMs=824.659; capturedMaxSampleCpuMs=824.659; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none"
+  ]
+}
