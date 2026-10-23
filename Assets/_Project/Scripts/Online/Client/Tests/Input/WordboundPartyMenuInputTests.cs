@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.TestTools;
 using Wreckabulary.Rules.Wordbound;
 using Object = UnityEngine.Object;
 
@@ -92,34 +94,34 @@ namespace Wreckabulary.Online.Tests
             }
         }
 
-        [Test]
-        public void RealPadButtonsConnectSelectCreateReadyAndQuickPlayOnlyAfterRepaint()
+        [UnityTest]
+        public IEnumerator RealPadButtonsConnectSelectCreateReadyAndQuickPlayOnlyAfterRepaint()
         {
-            Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
-            Activate("mode:4"); Assert.AreEqual(4, Get<int>(menu, "mode"));
-            Activate("region:1"); Assert.AreEqual(1, Get<int>(menu, "region"));
-            Activate("fill");
-            Activate("create-party"); Assert.IsNotNull(coordinator.Party);
+            yield return Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
+            yield return Activate("mode:4"); Assert.AreEqual(4, Get<int>(menu, "mode"));
+            yield return Activate("region:1"); Assert.AreEqual(1, Get<int>(menu, "region"));
+            yield return Activate("fill");
+            yield return Activate("create-party"); Assert.IsNotNull(coordinator.Party);
             Assert.AreEqual("Freestyle", coordinator.Party.Settings.Mode); Assert.AreEqual("eu", coordinator.Party.Settings.Region);
-            Activate("ready"); Assert.IsTrue(coordinator.Party.Members.Single().Ready);
-            Activate("quick-play"); Assert.AreEqual("QuickPlay", coordinator.Party.Channel);
+            yield return Activate("ready"); Assert.IsTrue(coordinator.Party.Members.Single().Ready);
+            yield return Activate("quick-play"); Assert.AreEqual("QuickPlay", coordinator.Party.Channel);
             Assert.IsTrue(http.Requests.Any(r => r.Path == "/v1/guests"));
             Assert.IsTrue(http.Requests.Any(r => r.Path.EndsWith("/queue") && OnlineJson.Parse(r.JsonBody)["channel"].String() == "QuickPlay"));
             Assert.Greater(window.Layouts, 0); Assert.Greater(window.Repaints, 0); Assert.IsNull(window.Failure);
         }
 
-        [Test]
-        public void RetryReusesPendingCreateAndPrivateQueueThenBackLeavesParty()
+        [UnityTest]
+        public IEnumerator RetryReusesPendingCreateAndPrivateQueueThenBackLeavesParty()
         {
-            Activate("connect"); Activate("mode:4");
-            http.FailNext = true; Activate("create-party");
+            yield return Activate("connect"); yield return Activate("mode:4");
+            http.FailNext = true; yield return Activate("create-party");
             Assert.IsTrue(coordinator.RetryRequired);
             var first = http.Requests.Last();
-            Activate("retry");
+            yield return Activate("retry");
             Assert.IsFalse(coordinator.RetryRequired); Assert.IsNotNull(coordinator.Party);
             Assert.AreEqual(first.IdempotencyKey, http.Requests.Last().IdempotencyKey);
             Assert.AreEqual(first.JsonBody, http.Requests.Last().JsonBody);
-            Activate("ready"); Activate("create-private");
+            yield return Activate("ready"); yield return Activate("create-private");
             Assert.AreEqual("PrivateCreate", coordinator.Party.Channel);
             Sample(default); Sample(default); Sample(new GamepadState().WithButton(GamepadButton.East));
             Assert.IsNull(coordinator.Party); Assert.IsTrue(http.Requests.Last().Path.EndsWith("/leave"));
@@ -127,16 +129,16 @@ namespace Wreckabulary.Online.Tests
             Assert.AreEqual(1, closed);
         }
 
-        [Test]
-        public void FocusLossDiscardsActualQueuedConnectAndHeldConfirmNeedsNeutral()
+        [UnityTest]
+        public IEnumerator FocusLossDiscardsActualQueuedConnectAndHeldConfirmNeedsNeutral()
         {
-            QueueControl("connect");
+            yield return QueueControl("connect");
             Invoke(menu, "ProcessPartyInput", false);
             Sample(new GamepadState().WithButton(GamepadButton.South));
             Draw(EventType.Layout); Draw(EventType.Repaint);
             Assert.IsEmpty(http.Requests); Assert.IsFalse(coordinator.Authenticated);
             Sample(default); Sample(default);
-            Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
+            yield return Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
         }
 
         [Test]
@@ -164,14 +166,18 @@ namespace Wreckabulary.Online.Tests
             }
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public void NewInputBlockerDiscardsActualQueuedPadConnect(bool gameplayLease)
+        [UnityTest]
+        public IEnumerator NewInputBlockerDiscardsActualQueuedPadConnectWithTyping() => BlockQueuedConnect(false);
+
+        [UnityTest]
+        public IEnumerator NewInputBlockerDiscardsActualQueuedPadConnectWithGameplayLease() => BlockQueuedConnect(true);
+
+        IEnumerator BlockQueuedConnect(bool gameplayLease)
         {
             IDisposable lease = null;
             try
             {
-                QueueControl("connect");
+                yield return QueueControl("connect");
                 if (gameplayLease) lease = KeyBindings.BlockGameplay();
                 else DesktopBinding.Typing = true;
                 Invoke(menu, "ProcessPartyInput", true);
@@ -184,32 +190,53 @@ namespace Wreckabulary.Online.Tests
                 lease?.Dispose();
                 DesktopBinding.Typing = false;
             }
+            if (gameplayLease) Assert.IsTrue(KeyBindings.GameplayBlocked, "Lease release intentionally suppresses input through the next engine frame.");
             Sample(new GamepadState().WithButton(GamepadButton.South));
             Draw(EventType.Layout); Draw(EventType.Repaint);
             Assert.IsEmpty(http.Requests);
             Sample(default); Sample(default);
-            Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
+            yield return Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
         }
 
-        void Activate(string id)
+        IEnumerator Activate(string id)
         {
             int count = http.Requests.Count;
-            QueueControl(id);
+            yield return QueueControl(id);
             Assert.AreEqual(count, http.Requests.Count, "The real button handler must not execute during Repaint.");
             Sample(default);
             Assert.IsNull(window.Failure);
         }
 
-        void QueueControl(string id)
+        IEnumerator QueueControl(string id)
         {
+            double deadline = EditorApplication.timeSinceStartup + 5;
+            do
+            {
+                EditorApplication.QueuePlayerLoopUpdate();
+                yield return null;
+                Assert.Less(EditorApplication.timeSinceStartup, deadline, "Input capture did not release: " + InputState());
+            } while (KeyBindings.GameplayBlocked);
+            if (Get<WordboundInputBinding>(menu, "partyInput")?.ActiveGamepad != pad)
+                Sample(new GamepadState { leftStick = new Vector2(.8f, 0) });
             Sample(default); Sample(default);
             Get<WordboundMenuFocus>(menu, "partyFocus").Reset(id);
             Draw(EventType.Layout);
             Assert.AreEqual(id, Get<WordboundMenuFocus>(menu, "partyFocus").Selected, "The intended enabled control must exist.");
+            Draw(EventType.Repaint);
+            Assert.AreEqual("party:" + id, window.FocusedControl, "The selected real control must receive rendered focus before confirmation: " + InputState());
+            Assert.IsFalse(Get<bool>(menu, "partyTyping"), "A rendered button must not remain in text-entry mode.");
+            Sample(default); Sample(default);
             Sample(new GamepadState().WithButton(GamepadButton.South));
             Draw(EventType.Repaint);
-            Assert.IsNotNull(Get<Action>(menu, "pendingPartyAction"), "Confirmation must use the real drawn control.");
+            Assert.IsNotNull(Get<Action>(menu, "pendingPartyAction"), "Confirmation must use the real drawn control: " + InputState());
         }
+
+        string InputState() => "frame=" + Time.frameCount + ", quietUntil=" +
+            typeof(KeyBindings).GetField("quietUntil", BindingFlags.Static | BindingFlags.NonPublic)?.GetValue(null) +
+            ", blocked=" + KeyBindings.GameplayBlocked +
+            ", typing=" + DesktopBinding.Typing + ", menuTyping=" + Get<bool>(menu, "partyTyping") +
+            ", pad=" + Get<bool>(menu, "partyUsesPad") + ", selected=" + Get<WordboundMenuFocus>(menu, "partyFocus").Selected +
+            ", focused=" + window.FocusedControl + ", layouts=" + window.Layouts + ", repaints=" + window.Repaints;
 
         void Sample(GamepadState state)
         {
@@ -218,8 +245,11 @@ namespace Wreckabulary.Online.Tests
         }
         void Draw(EventType type)
         {
+            int before = type == EventType.Layout ? window.Layouts : window.Repaints;
             window.SendEvent(new Event { type = type });
             Assert.IsNull(window.Failure);
+            Assert.Greater(type == EventType.Layout ? window.Layouts : window.Repaints, before,
+                "EditorWindow did not process the requested " + type + ": " + InputState());
         }
         OnlineResponse Respond(OnlineRequest request)
         {
@@ -265,6 +295,7 @@ namespace Wreckabulary.Online.Tests
             public Exception Failure;
             public Action BeforeRepaint;
             public int Layouts, Repaints;
+            public string FocusedControl;
             void OnGUI()
             {
                 if (!Menu) return;
@@ -277,7 +308,7 @@ namespace Wreckabulary.Online.Tests
                     if (Event.current.type == EventType.Repaint && BeforeRepaint != null)
                     { var action = BeforeRepaint; BeforeRepaint = null; action(); }
                     try { Invoke(Menu, "DrawPartyGui"); }
-                    finally { Invoke(Menu, "EndPartyGui"); }
+                    finally { Invoke(Menu, "EndPartyGui"); FocusedControl = GUI.GetNameOfFocusedControl(); }
                 }
                 catch (Exception error) { Failure = error; }
                 finally { GUI.enabled = enabled; }
