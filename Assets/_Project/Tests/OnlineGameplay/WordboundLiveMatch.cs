@@ -19,6 +19,7 @@ namespace Wreckabulary.OnlineGameplayTests
         public readonly CourseCatalogue Geometry;
         public readonly List<OnlineCoordinatorClient> Clients = new List<OnlineCoordinatorClient>();
         readonly List<WordboundHttpTransport> transports = new List<WordboundHttpTransport>();
+        readonly WordboundNativeCheckpoints checkpointObservations;
         public ItemCatalogue Items { get; }
         public GameRules Rules { get; }
         public ResolvedCourse Course { get; }
@@ -39,8 +40,10 @@ namespace Wreckabulary.OnlineGameplayTests
         readonly List<PartyGroup> parties = new List<PartyGroup>();
 
         public WordboundLiveMatch(string projectRoot, CourseDocument proofCourse = null,
-            WordboundClientContent productionContent = null, WordboundPublicCourseCatalog publicCatalogue = null)
+            WordboundClientContent productionContent = null, WordboundPublicCourseCatalog publicCatalogue = null,
+            WordboundNativeCheckpoints checkpointObservations = null)
         {
+            this.checkpointObservations = checkpointObservations;
             if (proofCourse != null && productionContent != null)
                 throw new ArgumentException("Choose an exact production course or the existing proof document.");
             ProductionContent = productionContent;
@@ -103,7 +106,9 @@ namespace Wreckabulary.OnlineGameplayTests
             {
                 var transport = new WordboundHttpTransport(new Uri(Origin));
                 transports.Add(transport);
-                var client = new OnlineCoordinatorClient(new ReconnectFaultTransport(this, i, transport));
+                IOnlineHttpTransport observed = new ReconnectFaultTransport(this, i, transport);
+                if (checkpointObservations != null) observed = checkpointObservations.ForPeer(i).Wrap(observed);
+                var client = new OnlineCoordinatorClient(observed);
                 Clients.Add(client);
                 await client.CreateGuest("NativeGameplay" + i, ct);
             }

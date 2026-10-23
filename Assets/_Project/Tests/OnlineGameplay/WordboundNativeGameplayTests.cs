@@ -33,6 +33,7 @@ namespace Wreckabulary.OnlineGameplayTests
         WordboundNativeProfiler profiler;
         WordboundNativePhases phases;
         WordboundNativeTickBatches tickBatches;
+        WordboundNativeCheckpoints checkpointObservations;
         WordboundGameplayPrefabs prefabs;
         NetworkPrefabRef carrier;
         int sceneIndex;
@@ -50,6 +51,7 @@ namespace Wreckabulary.OnlineGameplayTests
             public int RunnerCreations, CredentialRequests;
             public int InputReads, MovingInputReads;
             public Func<CancellationToken, Task> BeforeJoin;
+            public WordboundNativeCheckpoints.Probe Checkpoints;
             public readonly Dictionary<long, OnlineSnapshotMark> Received = new Dictionary<long, OnlineSnapshotMark>();
             public readonly Dictionary<string, OnlineSnapshotMark> Acknowledged = new Dictionary<string, OnlineSnapshotMark>();
             public readonly Dictionary<string, int> CommandObservations = new Dictionary<string, int>();
@@ -98,6 +100,7 @@ namespace Wreckabulary.OnlineGameplayTests
             profiler = WordboundNativeProfiler.StartIfEnabled();
             phases = WordboundNativePhases.StartIfEnabled();
             tickBatches = WordboundNativeTickBatches.StartIfEnabled();
+            checkpointObservations = WordboundNativeCheckpoints.StartIfEnabled();
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             WordboundClientContent production = authoredWorkshop ? (authoredContentFactory ?? CreateAuthoredWorkshop)(projectRoot) : null;
             if (productionMode != null)
@@ -107,7 +110,7 @@ namespace Wreckabulary.OnlineGameplayTests
                     File.ReadAllText(Path.Combine(folder, "rules.json")), productionMode, productionFormat.ToString(),
                     "0123456789abcdef");
             }
-            live = new WordboundLiveMatch(projectRoot, hudInteractions ? HudCourse() : interactions ? WordboundInteractionCourse.Create() : null, production, publicCatalogue);
+            live = new WordboundLiveMatch(projectRoot, hudInteractions ? HudCourse() : interactions ? WordboundInteractionCourse.Create() : null, production, publicCatalogue, checkpointObservations);
             yield return Wait(live.Prepare(count, lifetime.Token), "Prepare real " + (live.PublicQueue ? "public" : "private") + " coordinator match", 120);
             if (live.PublicQueue)
             {
@@ -271,7 +274,7 @@ namespace Wreckabulary.OnlineGameplayTests
 
         Peer CreatePeer(int index)
         {
-            var peer = new Peer { Actor = live.Clients[index].Credentials.PlayerId };
+            var peer = new Peer { Actor = live.Clients[index].Credentials.PlayerId, Checkpoints = checkpointObservations?.ForPeer(index) };
             var root = new GameObject(Prefix + "Controller-" + index);
             peer.Controller = root.AddComponent<WordboundGameplayController>();
             var options = new WordboundGameplayOptions {
@@ -306,6 +309,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 var runner = runnerRoot.AddComponent<NetworkRunner>();
                 runnerRoot.AddComponent<NetworkSceneManagerDefault>();
                 tickBatches?.Attach(runner, index, peer.RunnerCreations);
+                peer.Checkpoints?.Attach(runner, peer.RunnerCreations, () => peer.Runner, peer.Controller, () => peer.Session);
                 return runner;
             }, new FusionAppSettings { AppIdFusion = WordboundLiveMatch.AppId, UseNameServer = true },
                 Configuration(), carrier, live.Verifier, live.Expected, async ct => {
@@ -314,7 +318,7 @@ namespace Wreckabulary.OnlineGameplayTests
                     ct.ThrowIfCancellationRequested();
                     return await live.FreshJoin(index, ct);
                 },
-                peer.Controller.Authority, live.Connections(index),
+                peer.Checkpoints?.Wrap(peer.Controller.Authority) ?? peer.Controller.Authority, live.Connections(index),
                 new OnlineCheckpointService(live.Clients[index], live.Expected, peer.Controller.Authority.IdentityHash));
             peer.Controller.AttachSession(peer.Session);
             peer.Controller.Faulted += reason => Debug.Log("WORDBOUND_GAMEPLAY_FAULT: peer " + index + " " + reason);
@@ -516,7 +520,8 @@ namespace Wreckabulary.OnlineGameplayTests
                 var progress = snapshot?.Progress.Players.FirstOrDefault(player => player.Id == peer.Actor);
                 bool canMove = peer.Controller.PhysicsWorld != null && peer.Controller.PhysicsWorld.CanMove(peer.Actor, out _);
                 string position = actor == null ? "none" : FormattableString.Invariant($"{actor.Position.X:F3}/{actor.Position.Y:F3}/{actor.Position.Z:F3}");
-                return $"peer={index},host={peer.Runner != null && peer.Runner.IsServer},tick={snapshot?.Progress.Tick},advanced={peer.Advanced},inputReads={peer.InputReads},movingReads={peer.MovingInputReads},position={position},connected={progress?.Connected},canMove={canMove},paused={peer.Controller.IsSimulationPaused},failure={peer.Session.Failure}";
+                return $"peer={index},host={peer.Runner != null && peer.Runner.IsServer},tick={snapshot?.Progress.Tick},advanced={peer.Advanced},inputReads={peer.InputReads},movingReads={peer.MovingInputReads},position={position},connected={progress?.Connected},canMove={canMove},paused={peer.Controller.IsSimulationPaused},failure={peer.Session.Failure}" +
+                    (peer.Checkpoints?.Facts(peer.Controller, peer.Session) ?? "");
             }
             catch (Exception error) { return $"peer={index},diagnosticUnavailable={error.GetType().Name}"; }
         }
@@ -607,6 +612,7 @@ namespace Wreckabulary.OnlineGameplayTests
         [UnityTearDown]
         public IEnumerator Cleanup()
         {
+            checkpointObservations?.Dispose(); checkpointObservations = null;
             if (phases != null)
             {
                 MatchSnapshot boundary = null;
