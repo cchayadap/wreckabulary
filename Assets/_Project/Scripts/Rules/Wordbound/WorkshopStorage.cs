@@ -33,14 +33,29 @@ namespace Wreckabulary.Rules.Wordbound
         {
             string primary = PathFor(id, ".autosave.json");
             usedBackup = false;
-            try { return WorkshopSnapshot.Recover(ReadBounded(primary, RecoveryBytes)); }
+            try { return ReadRecovery(primary, id); }
             catch (Exception error) when (error is IOException || error is ArgumentException || error is FormatException)
             {
                 string backup = primary + ".bak";
                 if (!File.Exists(backup)) throw;
-                var recovered = WorkshopSnapshot.Recover(ReadBounded(backup, RecoveryBytes));
+                var recovered = ReadRecovery(backup, id);
                 usedBackup = true; return recovered;
             }
+        }
+        static WorkshopSnapshot ReadRecovery(string path, string id)
+        {
+            var recovered = WorkshopSnapshot.Recover(ReadBounded(path, RecoveryBytes));
+            if (recovered.Course().Id != id) throw new FormatException("The saved draft belongs to a different course ID.");
+            return recovered;
+        }
+        public string ArchiveRecovery(string id)
+        {
+            string primary = PathFor(id, ".autosave.json");
+            string archive = Path.Combine(root, "recovery-archives", id + "-" + DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ") + "-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(archive);
+            foreach (string path in new[] { primary, primary + ".bak" })
+                if (File.Exists(path)) File.Copy(path, Path.Combine(archive, Path.GetFileName(path)), false);
+            return archive;
         }
         public string ExportCourse(WorkshopSnapshot snapshot) => snapshot?.CourseJsonText ?? throw new ArgumentNullException(nameof(snapshot));
         public WorkshopSnapshot ImportCourse(string json)

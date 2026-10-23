@@ -141,9 +141,8 @@ namespace Wreckabulary.Online
                     workshopSource = authored;
                     if (authored)
                     {
-                        workshop.Open(authored.ReadDocument(), authored.Catalogue(),
-                            MatchStateValidation.Requirements(ModeDefinition.For(authored.ModeId, authored.Format)));
-                        workshop.History.Execute("Use authored seed", draft => draft.Seed = authored.Seed);
+                        workshop.OpenAuthored(authored.ReadDocument(), authored.Catalogue(),
+                            MatchStateValidation.Requirements(ModeDefinition.For(authored.ModeId, authored.Format)), authored.Seed);
                         workshop.ResumeEditing();
                     }
                     else workshop.OpenFlagship(WordboundFlagshipContent.Create(ItemCatalogue.FromJson(itemJson)));

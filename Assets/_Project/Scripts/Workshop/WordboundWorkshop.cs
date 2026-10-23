@@ -38,6 +38,7 @@ namespace Wreckabulary.Workshop
 
         public void Open(CourseDocument course, CourseCatalogue catalogue, CoursePlayRequirements play, string folder = null)
         {
+            RequireRecoveryChoice();
             if (History != null && storage != null && History.Revision != savedRevision)
             { storage.Save(History.Current); savedRevision = History.Revision; }
             Catalogue = catalogue ?? throw new ArgumentNullException(nameof(catalogue));
@@ -49,6 +50,7 @@ namespace Wreckabulary.Workshop
         }
         public void OpenTemplate(WorkshopTemplate template, string folder = null)
         {
+            RequireRecoveryChoice();
             if (currentTemplate.HasValue && History != null) drafts[currentTemplate.Value] = History;
             var preset = WorkshopTemplates.Create(template);
             Open(preset.Snapshot.Course(), preset.Catalogue, preset.Play, folder);
@@ -64,6 +66,7 @@ namespace Wreckabulary.Workshop
         public void ResumeEditing() { Visible = true; Refresh(); }
         public CourseResolution Preview()
         {
+            RequireRecoveryChoice();
             if (!SelectedModeEnabled) throw new InvalidOperationException("Choose a mode enabled by this map before previewing.");
             CancelGesture();
             LastPreview = History.Preview(Catalogue, PlayRequirements);
@@ -108,6 +111,7 @@ namespace Wreckabulary.Workshop
         void Update()
         {
             if (History == null) return;
+            if (RecoveryChoicePending) { ProcessRecoveryChoice(Application.isFocused); return; }
             Refresh();
             if (view != null) view.Active = Visible;
             ControllerInput(Application.isFocused);
@@ -120,6 +124,8 @@ namespace Wreckabulary.Workshop
             SuspendWorkshopInput();
             if (view != null) view.Active = false;
             CancelGesture();
+            recoveryDecision = 0;
+            if (RecoveryChoicePending) return;
             if (History == null || storage == null || History.Revision == savedRevision) return;
             try { storage.Save(History.Current); savedRevision = History.Revision; }
             catch (Exception error) { Debug.LogWarning("Wordbound autosave: " + error.Message); }
@@ -157,6 +163,7 @@ namespace Wreckabulary.Workshop
         void OnGUI()
         {
             if (!Visible || History == null) return;
+            if (RecoveryChoicePending) { Styles(); RecoveryPanel(); return; }
             Styles(); Refresh();
             if (OnlineStarting) { OnlinePreparationPanel(); return; }
             if (sharing) { SharePanel(); return; }

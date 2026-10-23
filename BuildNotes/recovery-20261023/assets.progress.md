@@ -48,3 +48,10 @@ Next: root imports the final revision, executes native material/presentation che
 - [x] Identify straight CLOCK approach obstruction and prepare root-authorized test-only movement waypoints inside the unchanged eight-second deadline; verify actual geometry/API references without native execution.
 - [x] Independent input-lane source review of 8378889 confirms current fixture geometry and unchanged physics evidence; no concrete defect found.
 - [ ] Root compiles and runs the repaired six-family fixture; runtime outcome remains NOT RUN in this lane.
+
+## Authored-workshop recovery and usability review
+
+- [x] Review current plan/progress/guide, generated default references, workshop entry and packaging source without native jobs or deletion.
+- [x] Independently confirm authored entry can overwrite an existing draft before recovery; implement root-authorized explicit recovery choice and archive-before-new-course protection.
+- [x] Prepare 11 focused native Editor regressions and update the guide/report; source/diff checks pass.
+- [ ] Root integrates only the repair delta, reviews it, compiles and runs recovery + existing workshop/saved-authoring checks; implementation/native UI acceptance remains pending.

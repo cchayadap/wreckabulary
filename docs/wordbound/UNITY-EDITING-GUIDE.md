@@ -28,6 +28,8 @@ Use **Play exact preview locally**, or **Play this exact preview locally** in th
 
 Open **Wreckabulary → Open Latest Hub**, enter Play Mode, choose **WORDBOUND**, then **Workshop** on the Wordbound party screen. This is separate from the older home-design Workshop queue in the main lobby.
 
+If a draft already exists for the assigned course, choose **Recover draft**, **Use saved course**, or **Back** before editing. Recovery preserves the draft's seed and editor settings, using the assigned course's current catalogue and presentation; validate it again before playing. **Use saved course** keeps a separate copy of the old recovery files under `wordbound-workshop/recovery-archives` before starting again. **Back** leaves those files unchanged. Controller D-pad chooses, A confirms and B returns.
+
 | Action | Control |
 | --- | --- |
 | Add a room/module | Choose a **Palette** entry, then click the map |
