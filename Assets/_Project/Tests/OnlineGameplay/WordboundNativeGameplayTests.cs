@@ -30,6 +30,7 @@ namespace Wreckabulary.OnlineGameplayTests
         readonly List<Task> pending = new List<Task>();
         WordboundLiveMatch live;
         CancellationTokenSource lifetime;
+        WordboundNativeProfiler profiler;
         WordboundGameplayPrefabs prefabs;
         NetworkPrefabRef carrier;
         int sceneIndex;
@@ -88,6 +89,7 @@ namespace Wreckabulary.OnlineGameplayTests
             yield return new EnterPlayMode();
             Assert.IsTrue(Application.isPlaying, "The native gameplay fixture must enter Play Mode before creating guests or Runners.");
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(8));
+            profiler = WordboundNativeProfiler.StartIfEnabled();
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             WordboundClientContent production = authoredWorkshop ? CreateAuthoredWorkshop(projectRoot) : null;
             if (productionMode != null)
@@ -527,6 +529,7 @@ namespace Wreckabulary.OnlineGameplayTests
         [UnityTearDown]
         public IEnumerator Cleanup()
         {
+            profiler?.Dispose(); profiler = null;
             lifetime?.Cancel();
             int failures = 0;
             foreach (var peer in peers.OrderBy(p => p.Runner != null && p.Runner.IsServer))

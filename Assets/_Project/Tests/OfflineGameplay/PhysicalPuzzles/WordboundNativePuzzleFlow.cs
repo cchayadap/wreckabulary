@@ -30,6 +30,7 @@ namespace Wreckabulary.OfflineGameplayTests
         WordboundAuthoredPuzzleContent content;
         WordboundPuzzleRuntime runtime;
         CancellationTokenSource lifetime;
+        WordboundNativeProfiler profiler;
         WordboundMovementInput movement;
         Task pending;
         readonly Queue<Action> setup = new Queue<Action>();
@@ -83,6 +84,7 @@ namespace Wreckabulary.OfflineGameplayTests
             Debug.Log("WORDBOUND_PHYSICAL_STAGE: entered Play Mode");
             lifetimeStartedAt = Time.realtimeSinceStartupAsDouble;
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(6));
+            profiler = WordboundNativeProfiler.StartIfEnabled();
             string configFolder = Path.Combine(Application.dataPath, "_Project/Data/Config");
             string itemJson = File.ReadAllText(Path.Combine(configFolder, "items.json"));
             string ruleJson = File.ReadAllText(Path.Combine(configFolder, "rules.json"));
@@ -406,6 +408,7 @@ namespace Wreckabulary.OfflineGameplayTests
         [UnityTearDown]
         public IEnumerator Cleanup()
         {
+            profiler?.Dispose(); profiler = null;
             lifetime?.Cancel();
             movement = default;
             setup.Clear();
