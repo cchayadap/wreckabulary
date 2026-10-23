@@ -188,7 +188,10 @@ namespace Wreckabulary.OnlineGameplayTests
                         advancesAtFirstRestore.Add(survivor, survivor.Advanced);
                     };
                 Peer replacement = null;
+                using var timing = new RecoveryTiming(survivors, oldEpoch + 1, migrationPreflightFailure ?
+                    "injected-disconnect-notification-then-graceful-host-stop-with-credential-503" : "graceful-host-controller-stop");
                 if (migrationPreflightFailure) yield return DelayMigrationWithFailedPreflight(survivors, originalRunners);
+                timing.MarkHostStopRequested();
                 yield return Wait(first.Controller.Stop(), "Depart original host", 25);
                 yield return Until(() =>
                 {
@@ -199,6 +202,7 @@ namespace Wreckabulary.OnlineGameplayTests
                         Ready(peer) && peer.Controller.Frame.Epoch == oldEpoch + 1);
                 }, "Restore authenticated gameplay on the elected replacement host and every survivor", 75,
                     allowStoppedFirst: true);
+                timing.MarkReadyObserved();
                 Assert.IsTrue(firstRestoredFrames.TryGetValue(replacement, out var firstRestored),
                     "Capture the replacement host's first reconciled frame before gameplay advances.");
                 Assert.AreEqual(0, advancesAtFirstRestore[replacement],

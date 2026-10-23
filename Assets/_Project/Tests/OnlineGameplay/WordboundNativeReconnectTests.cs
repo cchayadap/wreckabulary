@@ -91,9 +91,15 @@ namespace Wreckabulary.OnlineGameplayTests
                 firstDeadline = client.Session.RecoveryDeadlineMilliseconds;
                 noticedAt = WordboundLiveMatch.Now();
             };
-            yield return Wait(original.Shutdown(false, ShutdownReason.ConnectionTimeout), "Inject a timeout shutdown into the real client Runner", 25);
-            yield return Until(() => client.Runner != original && Ready(client) && !client.Session.Recovering,
-                "Automatically reauthenticate the original seat in the existing room", 120);
+            using (var timing = new RecoveryTiming(new[] { client }, epoch,
+                ending == RecoveryEnding.ExplicitStop ? "injected-client-timeout-shutdown-with-credential-and-admission-503" :
+                "injected-client-timeout-shutdown-with-credential-503"))
+            {
+                yield return Wait(original.Shutdown(false, ShutdownReason.ConnectionTimeout), "Inject a timeout shutdown into the real client Runner", 25);
+                yield return Until(() => client.Runner != original && Ready(client) && !client.Session.Recovering,
+                    "Automatically reauthenticate the original seat in the existing room", 120);
+                timing.MarkReadyObserved();
+            }
             int expectedAttempts = ending == RecoveryEnding.ExplicitStop ? 3 : 2;
             Assert.AreEqual(expectedAttempts, attempts, "Each transient credential/admission failure must retry with fresh admission.");
             Assert.AreEqual(requests + expectedAttempts, client.CredentialRequests);
