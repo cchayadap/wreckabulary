@@ -37,6 +37,26 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void RepeatedDraftRecoveryPreservesExactValidZoneCollections()
+        {
+            var asset = CreateDraftAsset();
+            var document = asset.ReadDocument();
+            document.Title = "Recovered without collection defaults";
+            Assert.That(document.Zones.Count, Is.GreaterThan(0));
+            Assert.IsTrue(document.Zones.Any(zone => zone.Placement == "Fixed"));
+            string expected = CourseJson.ExportDocument(document);
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+                Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                document = WordboundCourseDraftStore.Load(asset).Document;
+                Assert.AreEqual(expected, CourseJson.ExportDocument(document), "Recovery pass " + attempt);
+            }
+            asset.SaveDocument(document);
+            Assert.AreEqual(expected, asset.DocumentJson);
+        }
+
+        [Test]
         public void InvalidPendingFormSurvivesClosingInspectorAndRejectedApplyWithoutChangingSavedCourse()
         {
             var asset = CreateDraftAsset();
@@ -47,6 +67,8 @@ namespace Wreckabulary.Tests
                 var pending = EditorField<CourseDocument>(inspector, "draft");
                 pending.Title = "Still editing";
                 pending.Modules[0].Position = new CoursePoint(int.MaxValue, -100, 31);
+                pending.Zones[0].Yaws.Clear();
+                pending.Zones[0].Yaws.AddRange(new[] { 90, 90, 13 });
                 pending.ReservedVolumes.Add(new CourseReservedVolume {
                     Id = "unfinished", Bounds = new CourseBox(new CoursePoint(900, 300, 100), new CoursePoint(-50, 0, -10))
                 });
@@ -58,6 +80,8 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual("Still editing", pending.Title);
                 Assert.AreEqual(int.MaxValue, pending.Modules[0].Position.X);
                 Assert.AreEqual(-50, pending.ReservedVolumes.Last().Bounds.Max.X);
+                CollectionAssert.AreEqual(new[] { 90, 90, 13 }, pending.Zones[0].Yaws,
+                    "Recovery must preserve unfinished values, including duplicates and invalid angles.");
                 Assert.Throws<ArgumentException>(() => InvokeEditor(inspector, "Save"));
                 Assert.AreEqual(original, asset.DocumentJson);
                 Assert.AreEqual("Still editing", WordboundCourseDraftStore.Load(asset).Document.Title);
@@ -251,15 +275,22 @@ namespace Wreckabulary.Tests
         public void RestorationRetainsSavedSceneBesideUntitledAdditiveSceneAndOriginalActiveSelection()
         {
             var previous = EditorSceneManager.GetSceneManagerSetup();
-            for (int i = 0; i < SceneManager.sceneCount; i++)
-            {
-                var scene = SceneManager.GetSceneAt(i);
+            var originalScenes = Enumerable.Range(0, SceneManager.sceneCount).Select(SceneManager.GetSceneAt).ToArray();
+            var originalRoots = originalScenes.Select(scene => scene.isLoaded
+                ? scene.GetRootGameObjects().OrderBy(root => root.transform.GetSiblingIndex()).ToArray()
+                : Array.Empty<GameObject>()).ToArray();
+            var clearDirtiness = typeof(EditorSceneManager).GetMethod("ClearSceneDirtiness", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.IsNotNull(clearDirtiness, "The native fixture must be able to restore clean ambient scene flags.");
+            foreach (var scene in originalScenes)
                 Assert.IsFalse(scene.isDirty, "Run scene restoration checks from a clean editor setup.");
-                Assert.IsTrue(scene.path != "" || scene.rootCount == 0, "Save populated untitled scenes before this native check.");
-            }
             string oldScenes = SessionState.GetString(SessionPrefix + "scenes", "");
+            var parking = EditorSceneManager.NewPreviewScene();
+            bool replacedSetup = false;
             try
             {
+                foreach (var roots in originalRoots)
+                    foreach (var root in roots) SceneManager.MoveGameObjectToScene(root, parking);
+                replacedSetup = true;
                 var saved = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
                 string path = folder + "/Saved.unity";
                 Assert.IsTrue(EditorSceneManager.SaveScene(saved, path));
@@ -278,11 +309,46 @@ namespace Wreckabulary.Tests
             }
             finally
             {
-                SessionState.SetString(SessionPrefix + "scenes", JsonUtility.ToJson(new SavedSetup {
-                    scenes = previous.Select(s => new SavedScene { path = s.path, loaded = s.isLoaded, active = s.isActive }).ToArray() }));
-                SessionState.SetBool(SessionPrefix + "active", true);
-                InvokeRestore();
-                SessionState.SetString(SessionPrefix + "scenes", oldScenes);
+                try
+                {
+                    if (replacedSetup)
+                    {
+                        SessionState.SetString(SessionPrefix + "scenes", JsonUtility.ToJson(new SavedSetup {
+                            scenes = previous.Select(s => new SavedScene { path = s.path, loaded = s.isLoaded, active = s.isActive }).ToArray() }));
+                        SessionState.SetBool(SessionPrefix + "active", true);
+                        InvokeRestore();
+                    }
+                    for (int i = 0; i < originalScenes.Length; i++)
+                    {
+                        var scene = replacedSetup ? SceneManager.GetSceneAt(i) : originalScenes[i];
+                        if (!scene.isLoaded) continue;
+                        if (replacedSetup)
+                            foreach (var generated in scene.GetRootGameObjects()) Object.DestroyImmediate(generated);
+                        for (int index = 0; index < originalRoots[i].Length; index++)
+                        {
+                            var root = originalRoots[i][index];
+                            SceneManager.MoveGameObjectToScene(root, scene);
+                            root.transform.SetSiblingIndex(index);
+                        }
+                    }
+                    for (int i = 0; i < originalScenes.Length; i++)
+                    {
+                        var scene = replacedSetup ? SceneManager.GetSceneAt(i) : originalScenes[i];
+                        if (!scene.isLoaded) continue;
+                        clearDirtiness.Invoke(null, new object[] { scene });
+                        CollectionAssert.AreEqual(originalRoots[i], scene.GetRootGameObjects().OrderBy(root => root.transform.GetSiblingIndex()).ToArray());
+                        Assert.IsFalse(scene.isDirty);
+                    }
+                    CollectionAssert.AreEqual(previous.Select(s => s.path), EditorSceneManager.GetSceneManagerSetup().Select(s => s.path));
+                    CollectionAssert.AreEqual(previous.Select(s => s.isLoaded), EditorSceneManager.GetSceneManagerSetup().Select(s => s.isLoaded));
+                    CollectionAssert.AreEqual(previous.Select(s => s.isActive), EditorSceneManager.GetSceneManagerSetup().Select(s => s.isActive));
+                }
+                finally
+                {
+                    SessionState.SetString(SessionPrefix + "scenes", oldScenes);
+                    SessionState.EraseBool(SessionPrefix + "active");
+                    if (parking.IsValid() && parking.rootCount == 0) EditorSceneManager.ClosePreviewScene(parking);
+                }
             }
         }
 

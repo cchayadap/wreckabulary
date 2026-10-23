@@ -18,6 +18,7 @@ namespace Wreckabulary.Online.Editor
             TypeNameHandling = TypeNameHandling.None,
             MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
             MissingMemberHandling = MissingMemberHandling.Error,
+            ObjectCreationHandling = ObjectCreationHandling.Replace,
             MaxDepth = 32,
             Converters = { new PointConverter(), new BoxConverter() }
         };
