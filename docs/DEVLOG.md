@@ -141,3 +141,7 @@ The PC reported 100% CPU across 22 logical processors. This gate's verified Unit
 - R0 PASS386.4s in Logs/gate_check_all_20261023T111607Z.log after direct Presentation reference repair and integrated QA/detail tests.
 - Cold DeliverySetup retry started from b4a2cca with explicit wordbound-20261023-v1 release/four saved seeds; log Logs/gate_exec_PrepareFromEnvironment_20261023T112358Z.log. No result claimed while active.
 - Online source checkpoint e3194fe remains isolated pending independent review, tests and integration. Separate guide/packaging review owns only documentation. Public activation and Windows delivery are pending.
+
+## 2026-10-23T11:28:41Z Timestamp correction and owned helper scheduling
+
+The preceding recovery-checkpoint heading was typed as 11:30:00Z before that time; its actual append preceded the 11:28:14Z observation. This entry records the correction with machine UTC. The still-active retry uses Unity PID27028. Only its identity-checked Unity SDK compiler/Burst child processes below Normal priority were raised to Normal; no unrelated project process or permanent scheduler setting changed. Native result remains pending.
