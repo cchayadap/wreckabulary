@@ -66,9 +66,16 @@ namespace Wreckabulary.OnlineGameplayTests
             var assignment = host.Party.Assignment;
             if (assignment == null || !assignment.Has("matchId"))
                 throw new InvalidOperationException("The private room did not expose its assignment after the party refresh.");
+            string phase = assignment["state"].String();
+            if (phase != "FORMING" && phase != "ADMITTING" && phase != "STARTED")
+                throw new InvalidOperationException("The authored private allocation is not available for launch or admission.");
+            if (assignment["roster"].Items.Count != count)
+                throw new InvalidOperationException("The authored private allocation changed its original peer count.");
             Expected = new OnlineMatchExpectation(assignment["matchId"].String(),
                 assignment["reservationGeneration"].String(), RosterHash(assignment), Settings, Content);
-            await WorkshopStep(0, "start-private", host.StartPrivate);
+            UnityEngine.Debug.Log("WORDBOUND_WORKSHOP_ALLOCATION: phase=" + phase + "; peers=" + count +
+                "; explicitLaunch=" + (phase == "FORMING"));
+            if (phase == "FORMING") await WorkshopStep(0, "start-private", host.StartPrivate);
             long deadline = Now() + 45000;
             while (workshopLaunches.Any(launch => launch == null) && Now() < deadline)
             {

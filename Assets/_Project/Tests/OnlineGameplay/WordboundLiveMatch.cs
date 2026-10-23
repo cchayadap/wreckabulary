@@ -266,7 +266,9 @@ namespace Wreckabulary.OnlineGameplayTests
             "AUTHORED_PRIVATE_CREATE_ONLY" or "MATCH_NOT_FULL" or "OWNER_REQUIRED" or "PRIVATE_SETTINGS_MISMATCH" or
             "RECONNECT_EXPIRED" or "ALREADY_IN_PARTY" or "INVALID_REFRESH" or "PARTY_FULL" or "PARTY_NOT_FOUND" or
             "MATCH_NOT_FOUND" or "MATCH_CLOSED" or "UNAUTHORIZED" or "FORBIDDEN" or "INVALID_REQUEST" or
-            "NOT_FOUND" or "INTERNAL_ERROR" or "RATE_LIMITED" or "CONTENT_INVALID" or "CONTENT_HASH_MISMATCH" => code,
+            "NOT_FOUND" or "INTERNAL_ERROR" or "RATE_LIMITED" or "CONTENT_INVALID" or "CONTENT_HASH_MISMATCH" or
+            "NOT_FORMING" or "MATCH_NOT_STARTED" or "NOT_ADMITTING" or "ROSTER_NOT_LOCKED" or
+            "CONTENT_OR_ROSTER_MISMATCH" or "NOT_MATCH_MEMBER" => code,
             _ => "unlisted"
         };
         static string Key() => Guid.NewGuid().ToString("N");
