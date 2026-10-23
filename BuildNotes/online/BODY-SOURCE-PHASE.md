@@ -1,6 +1,6 @@
 # Body source validation measurement
 
-STATUS: Diagnostic native run passed 22/22; membership candidate SOURCE PASS; first core run exposed nine fixture setup failures; reviewed test-only correction awaits root rerun.
+STATUS: Diagnostic native run passed 22/22; membership candidate SOURCE PASS; repaired selected core 192/192 PASS; standalone allocation reduction measured with slower elapsed batches; native comparison pending.
 
 Root's same public workload after the per-call mechanism lookup did not demonstrate improvement: the 210425 run completed 20 collector tests but failed its public movement case. Read integration `BuildNotes/client-view/native-body-lookup-20261023.json` (source `10d8c68a`, XML/log stamp `20261023T210425Z`, 21 total / 20 passed / 1 failed / 0 skipped). Movement ended after 11.054 s. The ready window was valid (`None`, zero in-flight), 11.1796268 s, canonical ticks 226→503. Bodies was 1273.522 ms / 285 calls (4.468 ms/call), versus the earlier 1765.926 / 427 (4.136 ms/call); Full was 2753.003 / 285 (9.660), versus 3994.866 / 427 (9.356). Unequal work windows and machine scheduling prevent a causal speed comparison. Keep the raw failure and zero-error cleanup evidence; do not reinterpret collector passes as gameplay acceptance.
 
@@ -79,3 +79,18 @@ The correction changes tests only. An Item-only fixture now takes an actual comp
 This is an explicitly constructed valid validator fixture, not a claim that normal authority startup or crafting preserves a protected source on items. All original Item mutations and exact first-error assertions remain; Tile, actual station-selection, and generation-replacement cases are unchanged. The expected focused count remains 105. Source review and root rerun are pending for this test-only correction; no compiler or jobs ran in this lane.
 
 Independent Input review closed SOURCE PASS on the stable correction: real public economy operations retain conservation and ownership, the Crafted origin avoids the unrelated Map placement guard, complete baseline/constructed validation runs before corruption, and original bytes remain isolated. The previous source review missed the absent initial Item setup; the executed failure and this limitation are retained. Root must rerun the same selected core coverage before interpreting any timing comparison or proceeding to native acceptance.
+
+## Corrected core and exact standalone before/after comparison
+
+Root reports R0 `215008` PASS and corrected selected core `215023` **192/192 PASS**, including the retained Item cases. The original 147/156 failure above remains a test-setup failure record. Independently read both raw integration `.harness/delivery/body-source-{before,after}-probe.log` files. Machine-readable transcription and calculations are in [body-source-membership-probe-20261023.json](body-source-membership-probe-20261023.json). All runtime and input fields match exactly, including seed, two-seat roster, tick/epoch, body/item/tile/resource/mechanism counts, all content hashes, binding and snapshot hash. Both runs have 120/120 successful full validations with zero errors; every before/after 65,536-byte calibration reports 65,560 bytes.
+
+Each number below is one batch of twenty repeated validations of the same frozen tick-zero flagship snapshot, in .NET 9.0.15 X64. All three batches are retained; no batch is discarded.
+
+| Mode | Before managed bytes | After managed bytes | Before elapsed ms | After elapsed ms |
+| --- | --- | --- | --- | --- |
+| TimeRun Solo | 9,447,104 / 9,447,104 / 9,447,104 | 8,135,136 / 8,102,304 / 8,101,440 | 16.599 / 16.381 / 17.690 | 23.343 / 27.042 / 26.453 |
+| TeamRace Solo | 21,804,128 / 21,803,912 / 21,804,128 | 15,045,728 / 15,044,864 / 15,078,560 | 38.117 / 32.969 / 32.932 | 65.089 / 57.769 / 58.419 |
+
+Median batch allocation fell **14.235%** for TimeRun and **30.996%** for TeamRace Solo. Median elapsed time rose from 16.599 to 26.453 ms (**+59.365%**) and from 32.969 to 58.419 ms (**+77.194%**), respectively. This is a measured allocation reduction with slower elapsed batches, not established speed improvement. The measurements do not isolate scheduling/JIT effects or establish causality; they are not Unity/Mono allocation, CPU/FPS, evolving-state gameplay or public-admission evidence.
+
+The raw logs do not embed a commit. Root identifies the before execution as `81a8ca42`; integration HEAD observed while reading both logs was `3aa74c6f`. The JSON labels these provenance limits rather than inventing an embedded execution revision. Runtime candidate is lane `00ee23ba`, test repair `975b4d14`. Root's unchanged native comparison is running separately as `native-source-index-2152-fixed-*`, source `3aa74c6f`, expected twenty collector cases plus TeamRace Solo, Brawl Solo and shared Freestyle (23). No outcome is assigned to that still-pending run here; use its actual final XML and valid nested phase captures before any runtime performance conclusion.
