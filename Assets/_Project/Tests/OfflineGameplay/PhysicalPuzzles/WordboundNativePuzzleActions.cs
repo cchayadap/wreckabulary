@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
@@ -12,6 +13,130 @@ namespace Wreckabulary.OfflineGameplayTests
     public sealed partial class WordboundNativePuzzleFlow
     {
         const float ClockWaypointTolerance = .03f;
+        RouteObservation activeRoute;
+
+        sealed class RouteObservation
+        {
+            public ResolvedCoursePhysicalSite Site;
+            public Vector3[] Targets;
+            public Vector3[] ClosestPositions;
+            public float[] Closest;
+            public long[] ClosestTick, CanonicalInsideTick, CoroutineInsideTick, SegmentSkipTick;
+            public long Epoch, StartedTick, LastTick, LastMotion, MaximumTickGap;
+            public double StartedAt;
+            public Vector3 LastPosition;
+            public int Waypoint, Samples, CoroutineSamples, MaximumSamplesPerFrame, SamplesThisFrame, LastFrame = -1;
+            public int RawArrivalSamples, SharedArrivalSamples, SlowedSamples, CarrierMissingSamples, NonAdvancingCallbacks, OmittedTransitions;
+            public MatchPhysicalStage LastStage;
+            public readonly List<string> Transitions = new List<string>();
+            public string Failure = "", FirstArrivalSupport = "not observed";
+        }
+
+        void RecordRouteFrame(MatchSnapshot frame)
+        {
+            var route = activeRoute;
+            if (route == null || route.Failure != "") return;
+            try
+            {
+                if (frame.Epoch != route.Epoch) { route.Failure = "EpochChanged"; return; }
+                if (frame.Progress.Tick <= route.LastTick) { route.NonAdvancingCallbacks++; return; }
+                var actor = frame.Bodies.Single(b => b.Kind == WorldBodyKind.Player && b.SourceId == Actor);
+                var state = frame.Mechanisms.Single(m => m.Team == 0 && m.Lap == route.Site.Lap - 1 && m.PuzzleId == route.Site.PuzzleId);
+                Vector3 at = Vector(actor.Position);
+                long tick = frame.Progress.Tick, gap = tick - route.LastTick;
+                route.MaximumTickGap = Math.Max(route.MaximumTickGap, gap);
+                route.Samples++;
+                route.SamplesThisFrame = route.LastFrame == Time.frameCount ? route.SamplesThisFrame + 1 : 1;
+                route.MaximumSamplesPerFrame = Math.Max(route.MaximumSamplesPerFrame, route.SamplesThisFrame);
+                route.LastFrame = Time.frameCount;
+                int index = Math.Min(route.Waypoint, route.Targets.Length - 1);
+                Vector2 target = Horizontal(route.Targets[index]), prior = Horizontal(route.LastPosition), next = Horizontal(at);
+                float tolerance = index < route.Targets.Length - 1 ? ClockWaypointTolerance : .08f;
+                float distance = Vector2.Distance(next, target);
+                if (distance < route.Closest[index])
+                { route.Closest[index] = distance; route.ClosestTick[index] = tick; route.ClosestPositions[index] = at; }
+                if (distance <= tolerance && route.CanonicalInsideTick[index] < 0) route.CanonicalInsideTick[index] = tick;
+                Vector2 segment = next - prior;
+                float along = segment.sqrMagnitude <= .00000001f ? 0 : Mathf.Clamp01(Vector2.Dot(target - prior, segment) / segment.sqrMagnitude);
+                if (gap == 1 && distance > tolerance && Vector2.Distance(prior, target) > tolerance &&
+                    Vector2.Distance(prior + segment * along, target) <= tolerance && route.SegmentSkipTick[index] < 0)
+                    route.SegmentSkipTick[index] = tick;
+                bool raw = Inside(route.Site.ArrivalBounds, at);
+                bool shared = CourseSensorBoundary.ContainsFootPoint(route.Site.ArrivalBounds, actor.Position);
+                if (raw) route.RawArrivalSamples++;
+                if (shared)
+                {
+                    route.SharedArrivalSamples++;
+                    if (route.FirstArrivalSupport == "not observed")
+                        route.FirstArrivalSupport = "tick=" + tick + "; " + RouteSupport(at);
+                }
+                long motionDelta = state.Physical.MotionUnits - route.LastMotion;
+                if (gap == 1 && motionDelta > 0 && motionDelta < CourseFixtureMotion.UnitsPerTick) route.SlowedSamples++;
+                if (frame.Progress.Teams.Single().KeepsakeCarrier != Actor) route.CarrierMissingSamples++;
+                if (state.Physical.Stage != route.LastStage)
+                {
+                    if (route.Transitions.Count < 24)
+                        route.Transitions.Add(tick + ":" + route.LastStage + "->" + state.Physical.Stage +
+                            "@" + at.ToString("F6") + ",stageTick=" + state.Physical.StageTick + ",motionDelta=" + motionDelta + ",raw=" + raw + ",shared=" + shared);
+                    else route.OmittedTransitions++;
+                }
+                route.LastStage = state.Physical.Stage; route.LastMotion = state.Physical.MotionUnits;
+                route.LastTick = tick; route.LastPosition = at;
+            }
+            catch (Exception error) { route.Failure = error.GetType().Name; }
+        }
+
+        static Vector2 Horizontal(Vector3 point) => new Vector2(point.x, point.z);
+
+        string RouteSupport(Vector3 at)
+        {
+            var hits = new RaycastHit[32];
+            int count = controller.PhysicsWorld.PhysicsScene.Raycast(at + Vector3.up * .1f, Vector3.down,
+                hits, .2f, ~0, QueryTriggerInteraction.Ignore);
+            return "rawSupportRayCount=" + count + "; supportBufferFull=" + (count >= hits.Length) +
+                "; rawSupportHits=" + string.Join(" | ", hits.Take(Math.Min(count, hits.Length)).Select(hit =>
+                hit.collider.name + ":distance=" + hit.distance.ToString("F6") + ":normalY=" + hit.normal.y.ToString("F6") +
+                ":courseSurface=" + controller.CourseWorld.Surfaces.Contains(hit.collider) +
+                ":body=" + (hit.collider.GetComponentInParent<WordboundNetworkBody>()?.Canonical?.Id ?? "none")));
+        }
+
+        string RouteDetails(RouteObservation route)
+        {
+            try
+            {
+                var state = Mechanism(route.Site);
+                var actor = controller.Bodies[Player.Id];
+                string itemId = state.ItemEntityId != "" ? state.ItemEntityId : lastCrafted;
+                var item = Frame.Economy.Items.SingleOrDefault(i => "item:" + i.Id == itemId);
+                controller.Bodies.TryGetValue(itemId, out var recipe);
+                var fixture = route.Site.Fixtures.FirstOrDefault();
+                string arm = fixture == null ? "none" : controller.Bodies[CourseFixtureMotion.BodyId(fixture.Id, 0)].Rigidbody.position.ToString("F6");
+                string points = string.Join(" | ", route.Targets.Select((point, i) => i + ":" + point.ToString("F6") +
+                    ",closest=" + route.Closest[i].ToString("F6") + "@" + route.ClosestTick[i] + ":" + route.ClosestPositions[i].ToString("F6") +
+                    ",canonicalInside=" + route.CanonicalInsideTick[i] + ",coroutineInside=" + route.CoroutineInsideTick[i] + ",segmentSkip=" + route.SegmentSkipTick[i]));
+                bool canMove = controller.PhysicsWorld.CanMove(Actor, out float moveScale);
+                return RunDetails() + "; routeStartedTick=" + route.StartedTick + "; routeSeconds=" +
+                    (Time.realtimeSinceStartupAsDouble - route.StartedAt).ToString("F3") + "; waypoint=" + route.Waypoint +
+                    "; canonicalSamples=" + route.Samples + "; coroutineSamples=" + route.CoroutineSamples +
+                    "; maximumCanonicalTickGap=" + route.MaximumTickGap + "; maximumCanonicalSamplesPerUnityFrame=" + route.MaximumSamplesPerFrame +
+                    "; nonAdvancingCallbacks=" + route.NonAdvancingCallbacks + "; omittedTransitions=" + route.OmittedTransitions +
+                    "; observerError=" + route.Failure + "; rawArrivalSamples=" + route.RawArrivalSamples +
+                    "; sharedArrivalSamples=" + route.SharedArrivalSamples + "; slowedSamples=" + route.SlowedSamples +
+                    "; missingCarrierSamples=" + route.CarrierMissingSamples + "; carrier=" + Team.KeepsakeCarrier +
+                    "; actorCanonical=" + Vector(Player.Position).ToString("F6") + "; actorNative=" + actor.Rigidbody.position.ToString("F6") +
+                    "; actorVelocity=" + actor.Rigidbody.linearVelocity.ToString("F6") + "; canMove=" + canMove + "; moveScale=" + moveScale +
+                    "; stage=" + state.Physical.Stage + "; stageTick=" + state.Physical.StageTick + "; activeWindowTicks=" + route.Site.ActiveWindowTicks +
+                    "; progressTicks=" + state.ProgressTicks + "; recipe=" + itemId + "; recipeState=" + (item == null ? "missing" : item.State.ToString()) +
+                    "; deploymentTick=" + (item?.DeploymentTick ?? -1) + "; lifetimeSeconds=" +
+                    content.Items.Get(content.Course.Puzzles.Single(p => p.Id == route.Site.PuzzleId).RecipeId).Deploy.LifetimeSeconds +
+                    "; recipeNative=" + (recipe ? recipe.Rigidbody.position.ToString("F6") : "missing") +
+                    "; recipeActive=" + (recipe && recipe.Canonical.Active) + "; recipeKinematic=" + (recipe && recipe.Rigidbody.isKinematic) +
+                    "; armNative=" + arm + "; targets=" + points +
+                    "; transitions=" + string.Join(" | ", route.Transitions) + "; firstArrivalSupport=" + route.FirstArrivalSupport +
+                    "; finalSupport=" + RouteSupport(actor.Rigidbody.position);
+            }
+            catch (Exception error) { return "routeDetailsUnavailable=" + error.GetType().Name; }
+        }
 
         IEnumerator ReachObjective(ResolvedCoursePhysicalSite site)
         {
@@ -310,24 +435,43 @@ namespace Wreckabulary.OfflineGameplayTests
             double deadline = Time.realtimeSinceStartupAsDouble + seconds;
             bool entered = observedActorArrivals.Contains(site.Hash);
             int waypoint = 0;
-            while (Mechanism(site).Physical.Stage != MatchPhysicalStage.Complete &&
-                Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
+            var targets = (approach ?? Array.Empty<Vector3>()).Concat(new[] { Metres(site.Target) }).ToArray();
+            var observation = new RouteObservation { Site = site, Targets = targets, Epoch = Frame.Epoch, StartedTick = Frame.Progress.Tick,
+                LastTick = Frame.Progress.Tick, StartedAt = Time.realtimeSinceStartupAsDouble, LastPosition = Vector(Player.Position),
+                LastMotion = Mechanism(site).Physical.MotionUnits, LastStage = Mechanism(site).Physical.Stage,
+                Closest = Enumerable.Repeat(float.PositiveInfinity, targets.Length).ToArray(),
+                ClosestPositions = new Vector3[targets.Length],
+                ClosestTick = Enumerable.Repeat(-1L, targets.Length).ToArray(), CanonicalInsideTick = Enumerable.Repeat(-1L, targets.Length).ToArray(),
+                CoroutineInsideTick = Enumerable.Repeat(-1L, targets.Length).ToArray(), SegmentSkipTick = Enumerable.Repeat(-1L, targets.Length).ToArray() };
+            activeRoute = observation;
+            try
             {
-                Healthy();
-                bool approaching = approach != null && waypoint < approach.Length;
-                Vector3 at = Vector(Player.Position), target = approaching ? approach[waypoint] : Metres(site.Target);
-                entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, at);
-                Vector2 delta = new Vector2(target.x - at.x, target.z - at.z);
-                if (approaching && delta.magnitude <= ClockWaypointTolerance) { waypoint++; continue; }
-                Vector2 direction = delta.magnitude <= (approaching ? ClockWaypointTolerance : .08f) ? Vector2.zero :
-                    delta.normalized * Mathf.Clamp(delta.magnitude * .65f, .12f, .8f);
-                movement = new WordboundMovementInput { MoveX = direction.x, MoveZ = direction.y };
-                yield return null;
+                while (Mechanism(site).Physical.Stage != MatchPhysicalStage.Complete &&
+                    Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
+                {
+                    Healthy();
+                    observation.CoroutineSamples++;
+                    observation.Waypoint = waypoint;
+                    bool approaching = approach != null && waypoint < approach.Length;
+                    Vector3 at = Vector(Player.Position), target = approaching ? approach[waypoint] : Metres(site.Target);
+                    entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, at);
+                    Vector2 delta = new Vector2(target.x - at.x, target.z - at.z);
+                    if (delta.magnitude <= (approaching ? ClockWaypointTolerance : .08f) && observation.CoroutineInsideTick[waypoint] < 0)
+                        observation.CoroutineInsideTick[waypoint] = Frame.Progress.Tick;
+                    if (approaching && delta.magnitude <= ClockWaypointTolerance) { waypoint++; continue; }
+                    Vector2 direction = delta.magnitude <= (approaching ? ClockWaypointTolerance : .08f) ? Vector2.zero :
+                        delta.normalized * Mathf.Clamp(delta.magnitude * .65f, .12f, .8f);
+                    movement = new WordboundMovementInput { MoveX = direction.x, MoveZ = direction.y };
+                    yield return null;
+                }
+                movement = default;
+                entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, Vector(Player.Position));
+                if (Mechanism(site).Physical.Stage != MatchPhysicalStage.Complete || !entered)
+                    Debug.Log("WORDBOUND_PHYSICAL_ROUTE: " + RouteDetails(observation));
+                Assert.AreEqual(MatchPhysicalStage.Complete, Mechanism(site).Physical.Stage, operation);
+                Assert.IsTrue(entered, operation + " must include an observed actor position inside the authored volume.");
             }
-            movement = default;
-            entered |= observedActorArrivals.Contains(site.Hash) || Inside(site.ArrivalBounds, Vector(Player.Position));
-            Assert.AreEqual(MatchPhysicalStage.Complete, Mechanism(site).Physical.Stage, operation);
-            Assert.IsTrue(entered, operation + " must include an observed actor position inside the authored volume.");
+            finally { if (ReferenceEquals(activeRoute, observation)) activeRoute = null; }
         }
 
         IEnumerator SetBody(string id, Vector3 at, float yaw)

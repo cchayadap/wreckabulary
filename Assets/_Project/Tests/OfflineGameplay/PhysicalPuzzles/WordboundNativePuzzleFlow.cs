@@ -211,6 +211,7 @@ namespace Wreckabulary.OfflineGameplayTests
                         observedActorArrivals.Add(site.Hash);
                 }
             }
+            RecordRouteFrame(frame);
         }
 
         IEnumerator SetPlayer(Vector3 position, float yaw)
