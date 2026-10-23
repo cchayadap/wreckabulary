@@ -15,7 +15,9 @@ namespace Wreckabulary.OnlineGameplayTests
         [UnityTest, Timeout(600000), Category("ExternalPhotonGameplay")]
         public IEnumerator HostAndRemoteHudRefreshDefenseAndReleaseForKeySpellMenuFocusAndSelection()
         {
-            yield return Run(2, false, hudInteractions: true);
+            var run = Run(2, false, hudInteractions: true);
+            try { while (run.MoveNext()) yield return run.Current; }
+            finally { (run as IDisposable)?.Dispose(); }
             yield return HudDefenseInteractions(peers.Single(p => p.Runner.IsServer));
         }
 

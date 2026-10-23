@@ -85,6 +85,7 @@ namespace Wreckabulary.OnlineGameplayTests
             sceneIndex = PrepareScene();
             SessionState.SetBool(PlayStartedKey, true);
             yield return new EnterPlayMode();
+            Assert.IsTrue(Application.isPlaying, "The native gameplay fixture must enter Play Mode before creating guests or Runners.");
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(8));
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             WordboundClientContent production = authoredWorkshop ? CreateAuthoredWorkshop(projectRoot) : null;
@@ -520,7 +521,10 @@ namespace Wreckabulary.OnlineGameplayTests
             }
             foreach (var root in Resources.FindObjectsOfTypeAll<GameObject>()
                 .Where(g => g && g.scene.IsValid() && g.name.StartsWith(Prefix, StringComparison.Ordinal)).ToArray())
-                UnityEngine.Object.Destroy(root);
+            {
+                if (Application.isPlaying) UnityEngine.Object.Destroy(root);
+                else UnityEngine.Object.DestroyImmediate(root);
+            }
             if (Application.isPlaying) yield return null;
             bool leaked = Resources.FindObjectsOfTypeAll<GameObject>()
                 .Any(g => g && g.scene.IsValid() && g.name.StartsWith(Prefix, StringComparison.Ordinal));

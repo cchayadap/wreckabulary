@@ -51,8 +51,10 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.AreEqual(format, selected.Mode.Format);
             Assert.AreEqual(selected.Mode.HasRaceFormat ? 2 * selected.Mode.TeamCapacity : 2, count,
                 "Public race coverage must start two complete parties of the requested format; other cases use two authenticated clients.");
-            yield return Run(count, false, productionMode: selected.Mode.Id,
+            var run = Run(count, false, productionMode: selected.Mode.Id,
                 productionFormat: format, publicCatalogue: catalogue);
+            try { while (run.MoveNext()) yield return run.Current; }
+            finally { (run as IDisposable)?.Dispose(); }
             Assert.AreEqual(mode == "Freestyle", live.Settings.Fill,
                 "Preserve the existing public test settings: full race parties and the cooperative Freestyle Fill case.");
             Debug.Log("WORDBOUND_PUBLIC_MODE_OBSERVED: " + mode + "/" + format + "; authenticatedClients=" + count +
