@@ -1,6 +1,6 @@
 # Static validation metadata cache
 
-STATUS: SOURCE COMPLETE; independent cache review and execution pending. The measurement design below was committed before production edits (`f5a914a`). Root owns all heavy execution.
+STATUS: SOURCE COMPLETE; independent cache source review PASS against `0df3cab`; execution pending. The measurement design below was committed before production edits (`f5a914a`). Root owns all heavy execution.
 
 The completed physical profile in `Logs/gate_test_editmode_20261023T150959Z.log` reports 3,481 reconciliation invocations across 64 sampled frames: Validate 127,330.950 ms, PhysicsApply 130,675.734 ms, Presentation 1,613.030 ms, Advance 30,770.228 ms and Capture 12,677.063 ms. These inclusive scope totals are not additive wall time. Physical had no buffer wrap; public marker retention was incomplete and must not be treated as zero CPU.
 
@@ -39,3 +39,5 @@ dotnet run --project Tools/RulesHarness/ValidationProbe/ValidationProbe.csproj -
 Retain stdout/exit codes and compare exact input hashes/counts with the baseline. Then rerun the same native physical/public cases with the corrected per-invocation CPU recorder and unchanged behavior/deadlines. No pass or speedup is claimed until those gates complete.
 
 Integration warning: `8cfd475` is an excluded lane-only copy of root's current MatchStateValidation baseline. Integrate only the subsequent cache/test/report delta. The original unrelated dirty ModeDefinition is untouched and excluded.
+
+Independent review confirmed the current root's partial budget/lifecycle remain read-only after construction, MatchProgress copies the private route array, and all dynamic validations remain live and ordered. Eager static construction could change the first error for an internally fabricated malformed ResolvedCourse; public resolver/import validation prevents that unsupported state from being published. No blocking supported-path finding was identified. This source verdict does not claim compiler, core, benchmark or native success.
