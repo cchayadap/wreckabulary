@@ -195,7 +195,12 @@ describe("canonical checkpoints in actual SQLite Durable Objects", () => {
   });
   it("bounds orphan upload count and removes uncommitted chunks on the actual alarm", async () => {
     const f = await setup(); await f.call("checkpoint-claim", f.claimInput()); const a = packet(f), b = packet(f, "1", "0", "2"), c = packet(f, "1", "0", "3"); await upload(f, a); await upload(f, b);
-    expect((await f.call("checkpoint-begin", c.manifest)).status).toBe(429); vi.spyOn(Date, "now").mockReturnValue(f.now + 61_000); await runDurableObjectAlarm(f.stub);
+    expect((await f.call("checkpoint-begin", c.manifest)).status).toBe(429);
+    const expiry = await runInDurableObject(f.stub, (_, state) => state.storage.sql.exec<{ expiry: number }>(
+      "SELECT MAX(json_extract(value,'$.expiresAt')) AS expiry FROM checkpoint_uploads").one().expiry);
+    expect(expiry).toBeGreaterThan(f.now);
+    vi.spyOn(Date, "now").mockReturnValue(expiry);
+    expect(await runDurableObjectAlarm(f.stub)).toBe(true);
     await runInDurableObject(f.stub, async (_, state) => { expect(state.storage.sql.exec<{ n: number }>("SELECT COUNT(*) AS n FROM checkpoint_uploads").one().n).toBe(0); expect(state.storage.sql.exec<{ n: number }>("SELECT COUNT(*) AS n FROM checkpoint_chunks").one().n).toBe(0); });
   });
   it("accepts real C# codec+Deflate bytes including control characters and supplementary Unicode", async () => {
