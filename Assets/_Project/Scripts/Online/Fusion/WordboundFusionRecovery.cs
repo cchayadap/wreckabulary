@@ -19,12 +19,14 @@ namespace Wreckabulary.Online
         }
         readonly WordboundRecoveryWindow recovery = new WordboundRecoveryWindow();
         readonly HashSet<NetworkRunner> migrationSources = new HashSet<NetworkRunner>();
+        readonly HashSet<NetworkRunner> migrationCandidates = new HashSet<NetworkRunner>();
+        readonly List<NetworkRunner> retiredRunners = new List<NetworkRunner>();
         CancellationTokenSource recoveryCancellation, recoveryAttempt;
         Task recoveryTask;
         NetworkRunner recoverySource, retiringRunner;
         HostMigrationToken pendingMigration;
         string localPlayerId;
-        bool gameplayObserved, recoveryRetry;
+        bool gameplayObserved, recoveryRetry, awaitTransportDecision;
         public bool Recovering => recovery.Active;
         public long RecoveryDeadlineMilliseconds => recovery.Deadline;
         public event Action<string> RecoveryStatusChanged;
@@ -32,6 +34,9 @@ namespace Wreckabulary.Online
         bool OwnsRecoveryCallback(NetworkRunner runner) => runner != null && !lifetime.IsCancellationRequested &&
             !recovery.Cancelled && Failure == "" &&
             (IsCurrent(activeRun) && runner == activeRun.Runner || recovery.Active && runner == recoverySource);
+        bool OwnsMigrationCallback(NetworkRunner runner) => !ReferenceEquals(runner, null) &&
+            !lifetime.IsCancellationRequested && !recovery.Cancelled && Failure == "" &&
+            (OwnsRecoveryCallback(runner) || recovery.Active && migrationCandidates.Contains(runner));
         static bool TransientShutdown(ShutdownReason reason) => reason == ShutdownReason.ConnectionTimeout ||
             reason == ShutdownReason.PhotonCloudTimeout || reason == ShutdownReason.OperationTimeout ||
             reason == ShutdownReason.GameNotFound;
@@ -40,14 +45,17 @@ namespace Wreckabulary.Online
             error is OnlineServiceException service && (service.Status == 429 || service.Status >= 500) ||
             error is WordboundRunnerStartException start && TransientShutdown(start.Reason);
 
-        void RecoverTransport(NetworkRunner runner, HostMigrationToken token)
+        void RecoverTransport(NetworkRunner runner, HostMigrationToken token, bool waitForElection = false)
         {
-            if (!OwnsRecoveryCallback(runner) || (!gameplayObserved && token == null)) return;
+            if (!(token == null ? OwnsRecoveryCallback(runner) : OwnsMigrationCallback(runner)) ||
+                (!gameplayObserved && token == null)) return;
+            migrationCandidates.Add(runner);
             if (token != null)
             {
                 if (!migrationSources.Add(runner)) return;
                 pendingMigration = token;
             }
+            awaitTransportDecision = waitForElection && runner.IsRunning && token == null;
             bool beginning = recovery.Begin(clock());
             if (beginning)
             {
@@ -55,7 +63,7 @@ namespace Wreckabulary.Online
                 recoveryCancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
                 recoveryCancellation.CancelAfter(TimeSpan.FromMilliseconds(WordboundRecoveryWindow.MaximumMilliseconds));
             }
-            else if (runner != recoverySource) recoverySource = runner;
+            else if (runner != recoverySource && !retiredRunners.Contains(runner)) recoverySource = runner;
             FreezeRecovery();
             if (!beginning) return;
             RecoveryStatusChanged?.Invoke("Connection interrupted. Reconnecting to your match…");
@@ -82,7 +90,7 @@ namespace Wreckabulary.Online
                 await runner.Shutdown(false, ShutdownReason.HostMigration);
                 if (ReferenceEquals(recoverySource, runner)) recoverySource = null;
                 if (ReferenceEquals(Runner, runner)) Runner = null;
-                UnityEngine.Object.Destroy(runner.gameObject);
+                retiredRunners.Add(runner);
             }
             finally { retiringRunner = null; }
             ct.ThrowIfCancellationRequested();
@@ -92,14 +100,20 @@ namespace Wreckabulary.Online
             var ct = owner.Token;
             try
             {
-                await Task.Delay(500, ct);
                 while (recovery.Active && !ct.IsCancellationRequested)
                 {
                     recovery.RequireTime(clock());
+                    while (awaitTransportDecision && Runner != null && Runner.IsRunning && pendingMigration == null)
+                    {
+                        recovery.RequireTime(clock());
+                        await Task.Delay(50, ct);
+                    }
                     await RetireRecoveryRunner(Runner, ct);
+                    awaitTransportDecision = false;
                     recovery.RequireTime(clock());
                     int backoff = recovery.NextAttempt(clock());
                     HostMigrationToken migration = null;
+                    bool migrationConsumed = false;
                     try
                     {
                         using var attempt = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -114,7 +128,7 @@ namespace Wreckabulary.Online
                         owner.CancelAfter(TimeSpan.FromMilliseconds(Math.Max(0, recovery.Deadline - clock())));
                         migration = pendingMigration;
                         pendingMigration = null;
-                        await StartRunner(migration, attempt.Token, true);
+                        await StartRunner(migration, attempt.Token, true, () => migrationConsumed = true);
                         while (!GameplayReady && !recoveryRetry && IsCurrent(activeRun) && Failure == "")
                         {
                             recovery.RequireTime(clock());
@@ -122,15 +136,21 @@ namespace Wreckabulary.Online
                         }
                         if (GameplayReady && !recoveryRetry && IsCurrent(activeRun))
                         {
-                            recovery.Complete(); migrationSources.Clear(); recoverySource = null;
+                            CleanupRetiredRunners();
+                            recovery.Complete(); migrationSources.Clear(); migrationCandidates.Clear(); recoverySource = null;
                             owner.CancelAfter(Timeout.Infinite);
                             RecoveryStatusChanged?.Invoke("");
                             return;
                         }
                         if (Failure != "") return;
+                        if (migrationConsumed && migration.GameMode == GameMode.Host && pendingMigration == null)
+                            throw new InvalidOperationException("The elected replacement host stopped before recovery completed.");
                     }
                     catch (Exception error) when (TransientRecoveryError(error) && !ct.IsCancellationRequested &&
-                        (migration == null || migration.GameMode != GameMode.Host)) { }
+                        (!migrationConsumed || migration.GameMode != GameMode.Host || pendingMigration != null))
+                    {
+                        if (!migrationConsumed && pendingMigration == null) pendingMigration = migration;
+                    }
                     finally { recoveryAttempt = null; }
                     FreezeRecovery();
                     await Task.Delay(backoff, ct);
@@ -149,6 +169,7 @@ namespace Wreckabulary.Online
                 {
                     recoveryAttempt = null;
                     recoveryCancellation = null;
+                    CleanupRetiredRunners();
                 }
                 owner.Dispose();
             }
@@ -158,6 +179,12 @@ namespace Wreckabulary.Online
             recovery.Cancel();
             recoveryCancellation?.Cancel();
             recoveryAttempt?.Cancel();
+        }
+        void CleanupRetiredRunners()
+        {
+            foreach (var runner in retiredRunners)
+                if (runner != null) UnityEngine.Object.Destroy(runner.gameObject);
+            retiredRunners.Clear();
         }
     }
 }

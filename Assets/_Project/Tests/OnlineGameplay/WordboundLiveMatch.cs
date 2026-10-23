@@ -103,7 +103,7 @@ namespace Wreckabulary.OnlineGameplayTests
             {
                 var transport = new WordboundHttpTransport(new Uri(Origin));
                 transports.Add(transport);
-                var client = new OnlineCoordinatorClient(transport);
+                var client = new OnlineCoordinatorClient(new ReconnectFaultTransport(this, i, transport));
                 Clients.Add(client);
                 await client.CreateGuest("NativeGameplay" + i, ct);
             }

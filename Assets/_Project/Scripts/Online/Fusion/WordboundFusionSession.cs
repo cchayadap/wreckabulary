@@ -178,7 +178,8 @@ namespace Wreckabulary.Online
             localReady = false; localAdmitted = false; beginReceived = false;
             return activeRun = new RunScope(cancellationToken, lifetime.Token);
         }
-        async Task StartRunner(HostMigrationToken migration, CancellationToken cancellationToken, bool reconnect = false)
+        async Task StartRunner(HostMigrationToken migration, CancellationToken cancellationToken, bool reconnect = false,
+            Action consumeMigration = null)
         {
             var run = BeginRun(cancellationToken);
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token, run.Cancellation.Token);
@@ -203,6 +204,7 @@ namespace Wreckabulary.Online
             Runner = createRunner() ?? throw new InvalidOperationException("Runner factory returned no runner.");
             run.Runner = Runner;
             run.Runner.AddCallbacks(this);
+            if (migration != null) consumeMigration?.Invoke();
             var result = await run.Runner.StartGame(new StartGameArgs {
                 GameMode = migration?.GameMode ?? (!reconnect && initialHost ? GameMode.Host : GameMode.Client),
                 SessionName = "wb-" + expected.MatchId + "-" + expected.Generation,
@@ -679,6 +681,7 @@ namespace Wreckabulary.Online
             if (Failure != "") return;
             if (recovery.Active && TransientRecoveryError(error))
             {
+                awaitTransportDecision = false;
                 FreezeRecovery();
                 return;
             }
@@ -822,7 +825,7 @@ namespace Wreckabulary.Online
         public void OnHostMigration(NetworkRunner runner, HostMigrationToken token) => RecoverTransport(runner, token);
         public void OnShutdown(NetworkRunner runner, ShutdownReason reason)
         {
-            if (reason == ShutdownReason.HostMigration || ReferenceEquals(runner, retiringRunner) || !OwnsRecoveryCallback(runner)) return;
+            if (reason == ShutdownReason.HostMigration || !OwnsRecoveryCallback(runner)) return;
             if (gameplayObserved && TransientShutdown(reason)) RecoverTransport(runner, null);
             else if (gameplayObserved || recovery.Active) Fail(new WordboundRunnerStartException(reason));
             else { InvalidateRun(); GameplayReady = false; authority.SetTransportReady(false, runner.IsServer); }
@@ -831,7 +834,7 @@ namespace Wreckabulary.Online
         {
             if (ReferenceEquals(runner, retiringRunner) || !OwnsRecoveryCallback(runner)) return;
             if (gameplayObserved && (reason == NetDisconnectReason.Timeout || reason == NetDisconnectReason.ByRemote ||
-                reason == NetDisconnectReason.Unknown)) RecoverTransport(runner, null);
+                reason == NetDisconnectReason.Unknown)) RecoverTransport(runner, null, true);
             else if (gameplayObserved || recovery.Active) Fail(new WordboundRunnerStartException(ShutdownReason.ConnectionRefused));
             else { GameplayReady = false; authority.SetTransportReady(false, false); }
         }

@@ -43,6 +43,8 @@ namespace Wreckabulary.OnlineGameplayTests
             public WordboundMovementInput InteractionInput;
             public int Advanced;
             public int PhysicalSteps, PhysicalObservations, MovementQueries;
+            public int RunnerCreations, CredentialRequests;
+            public Func<CancellationToken, Task> BeforeJoin;
             public readonly Dictionary<long, OnlineSnapshotMark> Received = new Dictionary<long, OnlineSnapshotMark>();
             public readonly Dictionary<string, OnlineSnapshotMark> Acknowledged = new Dictionary<string, OnlineSnapshotMark>();
             public readonly Dictionary<string, int> CommandObservations = new Dictionary<string, int>();
@@ -71,7 +73,8 @@ namespace Wreckabulary.OnlineGameplayTests
 
         IEnumerator Run(int count, bool migrate, bool interactions = false,
             string productionMode = null, RaceFormat productionFormat = RaceFormat.Solo,
-            WordboundPublicCourseCatalog publicCatalogue = null, bool hudInteractions = false, bool authoredWorkshop = false)
+            WordboundPublicCourseCatalog publicCatalogue = null, bool hudInteractions = false, bool authoredWorkshop = false,
+            RecoveryEnding recoveryEnding = RecoveryEnding.None, bool migrationPreflightFailure = false)
         {
             if (Environment.GetEnvironmentVariable(Gate) != "1")
                 Assert.Ignore("Set WORDBOUND_EXTERNAL_GAMEPLAY=1 after configuring production Photon custom authentication.");
@@ -162,6 +165,7 @@ namespace Wreckabulary.OnlineGameplayTests
 
             if (hudInteractions) yield return HudInteractions(first);
             if (interactions) yield return Interactions(first);
+            if (recoveryEnding != RecoveryEnding.None) yield return Reconnect(first, second, recoveryEnding);
 
             if (migrate)
             {
@@ -184,6 +188,7 @@ namespace Wreckabulary.OnlineGameplayTests
                         advancesAtFirstRestore.Add(survivor, survivor.Advanced);
                     };
                 Peer replacement = null;
+                if (migrationPreflightFailure) yield return DelayMigrationWithFailedPreflight(survivors, originalRunners);
                 yield return Wait(first.Controller.Stop(), "Depart original host", 25);
                 yield return Until(() =>
                 {
@@ -269,12 +274,20 @@ namespace Wreckabulary.OnlineGameplayTests
                 options.MovementEnvironment = actor => { var environment = puzzles.EvaluateMovementEnvironment(actor); peer.MovementQueries++; return environment; };
             }
             peer.Session = new WordboundFusionSession(() => {
+                Assert.IsTrue(peer.Runner == null || !peer.Runner.IsRunning,
+                    "A replacement Runner must not overlap the original transport.");
+                peer.RunnerCreations++;
                 var runnerRoot = new GameObject(Prefix + "Runner-" + index + "-" + Guid.NewGuid().ToString("N"));
                 var runner = runnerRoot.AddComponent<NetworkRunner>();
                 runnerRoot.AddComponent<NetworkSceneManagerDefault>();
                 return runner;
             }, new FusionAppSettings { AppIdFusion = WordboundLiveMatch.AppId, UseNameServer = true },
-                Configuration(), carrier, live.Verifier, live.Expected, ct => live.FreshJoin(index, ct),
+                Configuration(), carrier, live.Verifier, live.Expected, async ct => {
+                    peer.CredentialRequests++;
+                    if (peer.BeforeJoin != null) await peer.BeforeJoin(ct);
+                    ct.ThrowIfCancellationRequested();
+                    return await live.FreshJoin(index, ct);
+                },
                 peer.Controller.Authority, live.Connections(index),
                 new OnlineCheckpointService(live.Clients[index], live.Expected, peer.Controller.Authority.IdentityHash));
             peer.Controller.AttachSession(peer.Session);
