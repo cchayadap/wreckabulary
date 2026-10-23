@@ -42,10 +42,10 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Verify exact-draft playtest/return preserves undo/redo history.
 - [~] Verify drag/rotate/resize/multi-select/group/snap/controller workflows, autosave/recovery and JSON sharing.
 - [~] Finish automatic exact custom-course sharing in private online sessions; exact-map/profile handoff is integrated, client checks pass 41/41 and unique Worker checks pass 98/98. Real two-peer authored transfer remains pending.
-- [~] Expose camera FOV/distance/sensitivity/obstruction settings through validated Inspector assets; source and live-edit regression are integrated, native test pending.
-- [~] Expose equipment visuals/materials/grips and presentation settings without code changes; replacement-bound/grip/custom-ID regressions are integrated, native test pending.
+- [x] Expose camera FOV/distance/sensitivity/obstruction settings through validated Inspector assets; native camera-profile regression passes. Windows interaction and human usability remain below.
+- [~] Expose equipment visuals/materials/grips and presentation settings without code changes; native original/optional/override presentation checks pass 48/48. Final held/placed/combat appearance remains pending.
 - [~] Provide Unity course assets/editor controls for modules/layers/spawns/puzzles/random ranges, with preview/validate/playtest actions; native default asset creation passes, editor interaction/persistence verification remains pending.
-- [~] Verify edit/save/reload/playtest, invalid-value errors, old-save compatibility and online content identity. Pending Inspector forms now survive selection changes and script reload through bounded recovery files, with explicit conflict handling and in-memory fallback; native regressions remain pending.
+- [~] Verify edit/save/reload/playtest, invalid-value errors, old-save compatibility and online content identity. Native authoring persistence passes 8/8, workshop recovery 11/11 and source selection 25/25. Exact native online transfer and Windows interaction remain pending.
 - [~] Save reusable prefabs/assets and an illustrated Unity editing guide. The source-verified no-code guide and native default assets are available; final Unity screenshots remain pending.
 - [ ] Human usability: four of five new testers create/play a randomized course in ten minutes.
 
@@ -56,7 +56,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Produce 12 concepts and editable Blender models: BAT, BROOM, HAMMER, SPEAR, SHIELD, PLATE, TABLE, SOFA, BED, STOOL, FAN, CLOCK.
 - [x] Pass 24 FBX/GLB reimports and native presentation checks.
 - [~] Inspect actual assets close-up/held/placed/at gameplay distance for believable detail, scale, materials and readability.
-- [~] Improve deficient models/materials while preserving editable sources and appropriate rendering/collision costs. DetailV2 build, all 24 independent reimports, 48 final views and delivery-integrity checks pass; exported meshes fall from the verified original count of 174 to 27 (84.5%), with a maximum 4,908 triangles per model. Earlier hand-summed reports said 193; the final manifest comparison corrects that baseline. Side-view review found and repaired the fan's missing shaft/support. Unity appearance remains pending.
+- [~] Improve deficient models/materials while preserving editable sources and rendering/collision costs. The original game assets are restored as the default. DetailV2's technical import/mesh checks remain archived evidence for that rejected style, not visual acceptance. SOFA pilots did not improve the original; isolated FAN/HAMMER construction pilots await full multi-view and Unity review.
 - [ ] Verify Unity prefabs/materials/grips/icons and all held/placed/thrown/used/destroyed states.
 - [ ] Capture final assets/gameplay and obtain owner visual-quality/feel review on the reviewable build.
 
@@ -85,7 +85,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 - [x] Create/read back Windows release, QA and development profiles.
 - [~] Complete QA build; first attempt exceeded 30 minutes, caches retained.
 - [ ] Launch QA player and complete workshop→game→workshop smoke; inspect frames/motion.
-- [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair, party navigation, workshop focus protection and allocation cleanup are integrated and independently source-reviewed; 29 native input/menu regressions await execution.
+- [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair, party navigation, workshop focus protection and allocation cleanup are integrated; focused native input passes 24/24. Final player handling and reconnect acceptance remain pending.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
 - [ ] Build release player and smoke-test the exact stripped executable.
@@ -138,7 +138,7 @@ Outstanding: three articulated transform basis mismatches; one EditMode camera S
 
 All seven worktrees and existing versions remain preserved. Public activation is verified as recorded below; completed native gameplay and a tested Windows build remain unfinished.
 
-## Current verification — 2026-10-23T15:07Z
+## Current verification — 2026-10-23T15:31Z
 
 | Work | State and exact evidence |
 | --- | --- |
@@ -148,10 +148,11 @@ All seven worktrees and existing versions remain preserved. Public activation is
 | Pivot/authoring/recovery | [x] Native pivot/detail 6/6, authoring persistence 8/8, workshop recovery 11/11 and existing workshop 9/9. `TestResults/editmode_20261023T125443Z.xml`; entire batch failed because input cases failed. Affected workshop core 23/23: `TestResults/core_20261023T125341Z.trx`. |
 | Input | [x] Focused native input 24/24 now pass, including real menu repaint/focus and held-input protection. `TestResults/editmode_20261023T133902Z.xml`. Production input protections unchanged; Windows-player handling remains separate. |
 | Workshop source selection | [x] Native source-binding 25/25 pass (`TestResults/editmode_20261023T143652Z.xml`), including the large-course recovery and bounded quiet-frame wait repair. Affected core 66/66 pass (`TestResults/core_20261023T135423Z.trx`). Human usability and Windows-player editing remain separate. |
-| Physical puzzles | [~] Latest six-family run fails at the overall six-minute fixture lifetime while collecting a letter for CratePress, before the second TABLE craft. The first HAMMER and TABLE both craft and become held; CollectLetters completes. `TestResults/editmode_20261023T143652Z.xml` and its matching log. Performance attribution is in progress; no timeout or gameplay rule is relaxed. |
+| Physical puzzles | [~] Latest six-family run completes CollectLetters and CratePress, including both TABLE crafts, then reaches its overall six-minute lifetime before RibbonSwitch setup at tick 3480. `TestResults/editmode_20261023T150959Z.xml`. Validation and PhysicsApply consume 258,006.684 ms of the measured 362.519-second window; derived map/mode metadata reuse is in progress. No deadline or gameplay rule is relaxed. |
 | Original-game artwork | [x] Actual original models are now the default; optional Wordbound equipment remains an Inspector choice and explicit item overrides still win. Native presentation 48/48 pass (`TestResults/editmode_20261023T141231Z.xml`), including all twelve original model bounds/grips and collection opt-in. No owner visual acceptance is implied. |
 | Original-based models | [~] SOFA V4 has no convincing improvement; retain the original. FAN rear construction passes internal review of the matched detail pair; other views and Unity remain pending. HAMMER build passes geometric guards but is unrendered. Both editable pilot folders and receipts are committed (`5ced4a4`); neither replaces runtime artwork or has owner approval. |
-| Presentation lookup | [~] Per-frame lookup context replaces repeated inventory copies. Native behavioral checks pass 25/25 (`TestResults/editmode_20261023T145714Z.xml`). Three allocation probes fail because this Unity Mono byte counter returns zero for both paths; allocation reduction is not yet measured. A supported byte measurement and opt-in native CPU attribution are being prepared. |
-| Public modes/build | [~] Latest two public diagnostics fail (`TestResults/editmode_20261023T143652Z.xml`). Team Solo expires its writer lease amid an 8.9-second observed frame gap and a pending renewal. Time Run passes body replication, movement and client command, then misses the exact checkpoint acknowledgement deadline with a 6.8-second frame gap. These are partial observations, not public-mode passes. Earlier direct private comparison passes 1/1 (`TestResults/editmode_20261023T135039Z.xml`). Duo/Squad, private transfer, recovery, full matches and Windows delivery remain required. |
+| Presentation lookup | [x] Native behavior passes 25/25. Calibrated standalone .NET measurement passes 3/3, allocating 42,400 versus 467,680 bytes at 32 bodies, 149,472 versus 6,590,176 at 128, and 300,448 versus 25,763,552 at 256, including context construction. `BuildNotes/online/presentation-probe-20261023.json`. This is pure presentation evidence, not Unity frame-rate acceptance; unsupported native counter failures remain recorded. |
+| Validation baseline | [x] Actual flagship TimeRun/TeamSolo snapshots each pass 60 repeated .NET validations with positive byte controls and unchanged state hashes. Roughly 2.6 MB/5.0 MB allocated per validation. Exact metadata and variable timing batches: `BuildNotes/online/validation-baseline-20261023.log` and `.json`. Static metadata optimization and comparison remain in progress. |
+| Public modes/build | [~] Latest profiler run fails all three selected cases (`TestResults/editmode_20261023T150959Z.xml`). Team Solo loses its writer lease after 88 host ticks with an 11.958-second frame gap. Time Run reaches no gameplay frame during its readiness deadline, with a much smaller 0.245-second gap; this separate startup issue is under investigation. Prior partial movement/command success is not a mode pass. Duo/Squad, private transfer, recovery, full matches and Windows delivery remain required. |
 
 Earlier paragraphs above retain the sequence of failed and superseded checks. This table is the current acceptance state; a technical asset pass does not reverse the owner's DetailV2 rejection.
