@@ -8,9 +8,9 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current delivery snapshot — 2026-10-23 15:47 UTC
+## Current delivery snapshot — 2026-10-23 16:24 UTC
 
-Implementation and integration are active. There is no verified Windows player to deliver yet. No further Photon or Cloudflare account setup is currently required. Original Wreckabulary artwork is the default, with 48/48 native presentation checks passing. Workshop source selection passes 25/25. The latest completed public batch failed: Team Solo lost its writer lease; TimeRun stalled before gameplay readiness. The physical route completed two puzzle families before its total lifetime expired. A measured validation optimization and richer readiness diagnostics are now running against those same cases. See [progress.md](../../progress.md) for current acceptance. Recovery preserved seven worktrees and 719 dirty/untracked/authored files with verified copies. Original main/font/Lunar work is unchanged; caches are retained.
+Implementation and integration are active. There is no verified Windows player yet, and no further Photon or Cloudflare setup is required. Original Wreckabulary artwork is the default (48/48 native presentation checks). Public TimeRun passes a bounded two-client entry, movement, command and durable-ack test; full-match reliability remains open. Team Solo now has a specific failure: a matching snapshot transfer exceeds its ten-second deadline. The physical route completes its first two families but the armed FAN moves its receiver only 14 mm. Reviewed validation optimization passes 170 targeted tests and the calibrated 120-call comparison; native follow-up remains pending. See [progress.md](../../progress.md) for the current checklist. All seven worktrees, the recovery snapshot and original main/font/Lunar work are preserved.
 
 | Work package | What is verified | Work remaining |
 | --- | --- | --- |
