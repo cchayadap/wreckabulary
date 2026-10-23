@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ namespace Wreckabulary.Online
         static readonly string[] Modes = { "TimeRun", "TeamRace", "BrawlRace", "FreeForAll", "Freestyle" };
         static readonly string[] ModeLabels = { "Time Run", "Team Race", "Brawl Race", "Free-for-All", "Freestyle" };
         static readonly string[] Regions = { "asia", "eu", "us" };
+        static readonly string[] RegionLabels = { "Asia", "Europe", "US" };
+        static readonly string[] MapSourceLabels = { "Public maps", "Custom / private seed" };
         static readonly string[] Formats = { "Solo", "Duo", "Squad" };
         readonly CancellationTokenSource lifetime = new CancellationTokenSource();
         WordboundHttpTransport transport;
@@ -26,6 +29,9 @@ namespace Wreckabulary.Online
         float nextPoll;
         Vector2 scroll;
         GUIStyle title, hint;
+        IReadOnlyList<WordboundPublicCourse> mapChoices;
+        string[] mapLabels;
+        int cachedMode = -1, cachedFormat = -1;
 
         public Func<WordboundPartyLaunchContext, CancellationToken, Task> BeginMatchRequested { get; set; }
         public Func<CancellationToken, Task> ReturnRequested { get; set; }
@@ -44,7 +50,7 @@ namespace Wreckabulary.Online
             if (launching || returning || coordinator.Busy || coordinator.Party != null)
                 throw new InvalidOperationException("Finish the pending action and leave your current party before sharing a new map.");
             if (content?.WorkshopBundle == null) throw new ArgumentException("Provide the exact validated workshop draft and resolved preview.");
-            var settings = coordinator.Settings(content.Mode.Id, content.Mode.Format.ToString(), fillParty, selectedRegion);
+            var settings = coordinator.Settings(content.Mode.Id, content.Mode.Format.ToString(), content.Mode.SupportsFill && fillParty, selectedRegion);
             customSeedMode = true; seed = privateSeed = content.Seed;
             await coordinator.CreateAuthoredParty(settings, content);
             if (!string.IsNullOrEmpty(coordinator.Error)) throw new InvalidOperationException(coordinator.Error);
@@ -224,7 +230,7 @@ namespace Wreckabulary.Online
             int nextMode = GUILayout.SelectionGrid(mode, ModeLabels, 3);
             if (nextMode != mode) { mode = nextMode; format = 0; fill = false; }
             GUILayout.Label("Region");
-            region = GUILayout.SelectionGrid(region, new[] { "Asia", "Europe", "US" }, 3);
+            region = GUILayout.SelectionGrid(region, RegionLabels, 3);
             if (Modes[mode] == "TeamRace" || Modes[mode] == "BrawlRace")
             {
                 GUILayout.Label("Players per team");
@@ -252,7 +258,7 @@ namespace Wreckabulary.Online
         {
             {
                 bool nextCustom = GUILayout.SelectionGrid(customSeedMode ? 1 : 0,
-                    new[] { "Approved maps", "Custom / private seed" }, 2) == 1;
+                    MapSourceLabels, 2) == 1;
                 if (nextCustom != customSeedMode)
                 {
                     customSeedMode = nextCustom;
@@ -268,7 +274,8 @@ namespace Wreckabulary.Online
                 GUILayout.Label("Custom seeds use private rooms. Quick Play requires an approved map.", hint);
                 return;
             }
-            var choices = publicCourses.Choices(Modes[mode], Formats[format]);
+            RefreshMapChoices();
+            var choices = mapChoices;
             if (choices.Count == 0)
             {
                 GUILayout.Label("No approved public map for this mode yet. Choose a custom/private seed to create a private room.", hint);
@@ -276,13 +283,20 @@ namespace Wreckabulary.Online
             }
             int selected = -1;
             for (int i = 0; i < choices.Count; i++) if (choices[i].Seed == seed) selected = i;
-            int choice = GUILayout.SelectionGrid(selected,
-                choices.Select((course, i) => "Map " + (i + 1) + " · " + course.Seed).ToArray(), 1);
+            if (selected < 0) { selected = 0; seed = choices[0].Seed; }
+            int choice = GUILayout.SelectionGrid(selected, mapLabels, 1);
             if (choice >= 0) seed = choices[choice].Seed;
-            if (choices.Count > 1 && GUILayout.Button("Random approved map"))
+            if (choices.Count > 1 && GUILayout.Button("Random public map"))
                 seed = choices[UnityEngine.Random.Range(0, choices.Count)].Seed;
-            if (choice < 0) GUILayout.Label("Select an approved map before creating the party.", hint);
-            else GUILayout.Label("This exact map and seed will be shared with your party.", hint);
+            GUILayout.Label("Your party plays the same layout. Choose another map for a different arrangement.", hint);
+        }
+        void RefreshMapChoices()
+        {
+            if (mapChoices != null && cachedMode == mode && cachedFormat == format) return;
+            mapChoices = publicCourses.Choices(Modes[mode], Formats[format]);
+            mapLabels = new string[mapChoices.Count];
+            for (int i = 0; i < mapChoices.Count; i++) mapLabels[i] = "Map " + (i + 1) + " · " + mapChoices[i].Seed;
+            cachedMode = mode; cachedFormat = format;
         }
         Task CreateParty()
         {

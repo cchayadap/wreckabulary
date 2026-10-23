@@ -10,7 +10,7 @@ using Wreckabulary.Workshop;
 namespace Wreckabulary.Online
 {
     [DisallowMultipleComponent]
-    public sealed class WordboundLauncher : MonoBehaviour
+    public sealed partial class WordboundLauncher : MonoBehaviour
     {
         public WordboundLaunchAssets Assets;
         public Camera LobbyCamera;
@@ -76,7 +76,7 @@ namespace Wreckabulary.Online
                 await client.StartMatch(launch.Coordinator, launch.Verifier, launch.Verified,
                     content.Mode, content.Course, content.Geometry, content.Items, content.Rules,
                     prefabs, Assets.SnapshotChunk, menu.PhotonAppId, scene, launch.FreshJoin,
-                    content.PhysicalPuzzles, cameraProfile: Assets.CameraProfile, visualProfile: Assets.VisualProfile);
+                    content.PhysicalPuzzles, cameraProfile: OnlineCameraFor(content), visualProfile: OnlineVisualFor(content));
                 if (destroying || activeClient != client) return;
                 if (LobbyCamera) LobbyCamera.enabled = false;
             }
@@ -135,6 +135,8 @@ namespace Wreckabulary.Online
                     created = true;
                     workshop.CloseRequested += CloseWorkshop;
                     workshop.PlaytestRequested += PlaytestWorkshop;
+                    workshop.OnlinePlaytestRequested += HostWorkshopOnline;
+                    workshop.CanStartOnline = () => !destroying && menu && menu.CanOpenAuthoredPrivate;
                     workshop.ConfigureLocalPlaytest(true);
                     workshopSource = authored;
                     if (authored)
@@ -155,6 +157,8 @@ namespace Wreckabulary.Online
                 {
                     workshop.CloseRequested -= CloseWorkshop;
                     workshop.PlaytestRequested -= PlaytestWorkshop;
+                    workshop.OnlinePlaytestRequested -= HostWorkshopOnline;
+                    workshop.CanStartOnline = null;
                     workshop.Visible = false;
                     Destroy(workshop);
                     workshop = null;
@@ -225,7 +229,7 @@ namespace Wreckabulary.Online
 
         void CloseWorkshop()
         {
-            if (localClient) return;
+            if (localClient || workshop && workshop.OnlineStarting) return;
             if (workshop) workshop.Visible = false;
             if (menu) menu.Visible = true;
         }
@@ -256,6 +260,8 @@ namespace Wreckabulary.Online
             {
                 workshop.CloseRequested -= CloseWorkshop;
                 workshop.PlaytestRequested -= PlaytestWorkshop;
+                workshop.OnlinePlaytestRequested -= HostWorkshopOnline;
+                workshop.CanStartOnline = null;
             }
         }
     }

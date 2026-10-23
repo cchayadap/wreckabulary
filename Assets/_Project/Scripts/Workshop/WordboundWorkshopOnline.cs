@@ -1,0 +1,51 @@
+using System;
+using UnityEngine;
+using Wreckabulary.Rules.Wordbound;
+
+namespace Wreckabulary.Workshop
+{
+    public sealed partial class WordboundWorkshop
+    {
+        public event Action<WorkshopSnapshot, ResolvedCourse, CoursePlayRequirements> OnlinePlaytestRequested;
+        public Func<bool> CanStartOnline { get; set; }
+        public bool OnlineStarting { get; private set; }
+
+        public void RequestOnlinePlaytest()
+        {
+            if (OnlineStarting) return;
+            if (OnlinePlaytestRequested == null || CanStartOnline?.Invoke() != true)
+            {
+                ShowStatus("Connect as a guest and leave your current party before hosting this map. Close the workshop to return to the party screen.");
+                return;
+            }
+            if (!SelectedModeEnabled)
+            {
+                ShowStatus("Choose a mode enabled by this map before hosting online.");
+                return;
+            }
+            var preview = Preview();
+            if (!preview.Success) return;
+            string physicalIssue = WorkshopPhysicalSites.PlaytestIssue(preview.Manifest);
+            if (physicalIssue.Length != 0) { ShowStatus(physicalIssue); return; }
+            OnlineStarting = true;
+            ShowStatus("Preparing your private party and sharing this exact map…");
+            try { OnlinePlaytestRequested.Invoke(History.Current, preview.Manifest, PlayRequirements); }
+            catch (Exception error) { FinishOnlinePreparation(error.Message); }
+        }
+
+        public void FinishOnlinePreparation(string message = null)
+        {
+            OnlineStarting = false;
+            if (message != null) ShowStatus(message);
+        }
+
+        void OnlinePreparationPanel()
+        {
+            float width = Mathf.Min(560, Screen.width - 32);
+            GUILayout.BeginArea(new Rect((Screen.width - width) * .5f, 80, width, 150), panel);
+            GUILayout.Label("Preparing online play", heading);
+            GUILayout.Label(status, new GUIStyle(GUI.skin.label) { wordWrap = true });
+            GUILayout.EndArea();
+        }
+    }
+}

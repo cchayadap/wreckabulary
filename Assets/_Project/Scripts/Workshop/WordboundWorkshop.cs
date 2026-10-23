@@ -109,7 +109,7 @@ namespace Wreckabulary.Workshop
             if (History == null) return;
             Refresh();
             if (view != null) view.Active = Visible;
-            if (Visible && !sharing) ControllerInput();
+            if (Visible && !sharing && !OnlineStarting) ControllerInput();
             if (History.Revision == savedRevision || Time.unscaledTime < autosaveAt) return;
             try { storage.Save(History.Current); savedRevision = History.Revision; }
             catch (Exception error) { status = "Autosave: " + error.Message; autosaveAt = Time.unscaledTime + 5f; }
@@ -156,6 +156,7 @@ namespace Wreckabulary.Workshop
         {
             if (!Visible || History == null) return;
             Styles(); Refresh();
+            if (OnlineStarting) { OnlinePreparationPanel(); return; }
             if (sharing) { SharePanel(); return; }
             float left = Mathf.Min(220, Screen.width * .22f), right = Mathf.Min(300, Screen.width * .28f);
             viewport = new Rect(left + 8, 56, Screen.width - left - right - 24, Screen.height - 140);
@@ -175,7 +176,7 @@ namespace Wreckabulary.Workshop
             if (Button("Rename")) Edit("Rename", draft => draft.Course.Title = title.Trim());
             GUILayout.Label(PlayRequirements.ModeId, GUILayout.Width(90));
             if (Button("Share")) { shareText = History.Current.CourseJsonText; sharing = true; }
-            if (Button("Close")) Attempt(() => { CancelGesture(); storage.Save(History.Current); savedRevision = History.Revision; CloseRequested?.Invoke(); Visible = false; });
+            if (Button(OnlinePlaytestRequested != null ? "Back to party" : "Close")) Attempt(() => { CancelGesture(); storage.Save(History.Current); savedRevision = History.Revision; CloseRequested?.Invoke(); Visible = false; });
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
         void Palette()
@@ -352,6 +353,13 @@ namespace Wreckabulary.Workshop
             GUI.enabled = SelectedModeEnabled; if (Button("Preview")) Attempt(() => Preview());
             GUI.enabled = PlaytestRequested != null && SelectedModeEnabled && (!localPlaytest || CanPlaytestLocally);
             if (Button("Playtest")) Attempt(RequestPlaytest); GUI.enabled = true;
+            if (OnlinePlaytestRequested != null)
+            {
+                GUI.enabled = SelectedModeEnabled;
+                if (Button("Host online", "Share this exact map with a private party. Connect as a guest first; leave any existing party."))
+                    Attempt(RequestOnlinePlaytest);
+                GUI.enabled = true;
+            }
             GUILayout.EndHorizontal(); GUILayout.EndArea();
             GUI.Label(new Rect(12, Screen.height - 27, Screen.width - 24, 23), status);
             GUILayout.BeginArea(new Rect(viewport.x + 8, viewport.y + 8, Mathf.Min(440, viewport.width - 16), 90), panel);
