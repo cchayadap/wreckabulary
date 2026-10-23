@@ -1,6 +1,6 @@
 # Static validation lookup proposal
 
-STATUS: IMPLEMENTED, SOURCE REVIEW IN PROGRESS; compiler/core/probe/native NOT RUN for this delta. Root authorized this bounded implementation after the physical profiler reported 4,561 validation calls totaling 44,897.139 ms and 48,234.315 ms in PhysicsApply. These are inclusive CPU scopes, not additive wall time. No heavy jobs ran in this lane. The current pre-index cached probe remains the comparison baseline. This change does not add the broader MatchProgress definition descriptor.
+STATUS: IMPLEMENTED, INDEPENDENT SOURCE REVIEW PASS for `b4157a5` + `dc58072`; compiler/core/probe/native NOT RUN for this delta. Root authorized this bounded implementation after the physical profiler reported 4,561 validation calls totaling 44,897.139 ms and 48,234.315 ms in PhysicsApply. These are inclusive CPU scopes, not additive wall time. No heavy jobs ran in this lane. The current pre-index cached probe remains the comparison baseline. This change does not add the broader MatchProgress definition descriptor.
 
 ## Exact repeated work
 
@@ -43,3 +43,4 @@ Keep public `MatchStateValidationPhysical.Validate(snapshot, course, mechanism)`
 - Root follow-up: R0; bounded core filters `WordboundSnapshotValidationTests`, `WordboundPhysicalEvidenceTests` and `WorkshopPhysicalSiteTests`; unchanged `dotnet run --project Tools/RulesHarness/ValidationProbe/ValidationProbe.csproj --configuration Release`; then the same native TeamRace Solo, TimeRun and six-family physical cases with the existing profiler flag. Do not run unfiltered flagship seed sweeps.
 - No changes to MatchProgress, dynamic validation, canonical format, service, defaults, assets, or original dirty ModeDefinition/checkpoint files.
 - Independent review found the new foreign-actor case initially used zero stage tick for Armed evidence, which the public constructor rejects before validation. The fixture now advances the real authority one tick and uses that valid nonzero activation/stage tick, leaving only the foreign actor as the intended rejection. Production source is unchanged by this repair; execution remains pending.
+- Final independent reviewer confirmed original public physical lookup/error order, one shared set of dynamic assertions, equivalent indexed membership for publicly constructible states, upstream duplicate rejection, exact immutable course/mode ownership, and all 18 new cases against root's real Practice constructor/assembly boundary. Source count is 47 parameterized cases plus 12 plain tests = 59; this is not an execution result.
