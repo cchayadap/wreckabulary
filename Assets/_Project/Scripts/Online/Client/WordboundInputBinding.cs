@@ -6,6 +6,8 @@ using UnityEngine.InputSystem.Controls;
 
 namespace Wreckabulary.Online
 {
+    public enum WordboundControl { Interact, Spell, Attack, Aim, Block, Drop, CycleGear, Menu }
+
     public readonly struct WordboundMenuCommands
     {
         public readonly int Step;
@@ -26,11 +28,93 @@ namespace Wreckabulary.Online
         HoldToFire dropHold;
         int menuDirection;
         float nextMenuStep;
+        readonly string[] hintPaths = new string[8], hints = new string[8];
+        int hintVersion = -1;
+        Keyboard hintKeyboard;
+        string hintLayout;
         public int Revision { get; private set; }
         public Gamepad ActiveGamepad => selected;
         public override string Id => selected == null ? desktop.Id : gamepad.Id;
         public override bool CanLook => true;
         public override bool ReadsMouse => selected == null;
+
+        public string ControlHint(WordboundControl control)
+        {
+            if (disposed) return "";
+            if (selected != null) return PadHint(selected, control);
+            var action = DesktopAction(desktop, control);
+            if (action == null) return "";
+            var keyboard = Keyboard.current;
+            string layout = keyboard?.keyboardLayout;
+            if (hintVersion != KeyBindings.Version || hintKeyboard != keyboard || hintLayout != layout)
+            {
+                Array.Clear(hints, 0, hints.Length);
+                hintVersion = KeyBindings.Version; hintKeyboard = keyboard; hintLayout = layout;
+            }
+            int index = (int)control;
+            string path = action.bindings[0].effectivePath;
+            if (hints[index] == null || hintPaths[index] != path)
+            {
+                hintPaths[index] = path;
+                hints[index] = Display(action);
+            }
+            return hints[index];
+        }
+
+        internal static string ControlHint(InputBinding source, WordboundControl control) => source switch
+        {
+            WordboundInputBinding automatic => automatic.ControlHint(control),
+            DesktopBinding keys => Display(DesktopAction(keys, control)),
+            GamepadBinding pad => PadHint(pad.Pad, control),
+            _ => ""
+        };
+
+        static InputAction DesktopAction(DesktopBinding keys, WordboundControl control) => control switch
+        {
+            WordboundControl.Interact => keys.Interact,
+            WordboundControl.Spell => keys.Spell,
+            WordboundControl.Attack or WordboundControl.Block => keys.Attack,
+            WordboundControl.Aim => keys.Aim,
+            WordboundControl.Drop => keys.Drop,
+            WordboundControl.CycleGear => keys.Bag,
+            WordboundControl.Menu => keys.Pause,
+            _ => null
+        };
+
+        static string Display(InputAction action)
+        {
+            if (action == null) return "";
+            string value = KeyBindings.Display(action);
+            return string.IsNullOrEmpty(value) ? "Unbound" : value;
+        }
+
+        static string PadHint(Gamepad pad, WordboundControl control)
+        {
+            if (pad == null || !pad.added || !pad.enabled) return "";
+            var button = control switch
+            {
+                WordboundControl.Interact => pad.rightTrigger,
+                WordboundControl.Spell => pad.buttonNorth,
+                WordboundControl.Attack => pad.buttonWest,
+                WordboundControl.Aim => pad.rightShoulder,
+                WordboundControl.Block => pad.leftTrigger,
+                WordboundControl.Drop => pad.leftShoulder,
+                WordboundControl.CycleGear => pad.rightStickButton,
+                WordboundControl.Menu => pad.startButton,
+                _ => null
+            };
+            if (button == null) return "";
+            string name = button.shortDisplayName;
+            if (string.IsNullOrEmpty(name)) name = button.displayName;
+            if (!string.IsNullOrEmpty(name) && KeyBindings.IsLatin(name)) return name;
+            return control switch
+            {
+                WordboundControl.Interact => "RT", WordboundControl.Spell => "Y",
+                WordboundControl.Attack => "X", WordboundControl.Aim => "RB",
+                WordboundControl.Block => "LT", WordboundControl.Drop => "LB",
+                WordboundControl.CycleGear => "RS", WordboundControl.Menu => "Start", _ => ""
+            };
+        }
 
         public bool RefreshDevice(bool allowSelection = true)
         {

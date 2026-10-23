@@ -85,6 +85,115 @@ namespace Wreckabulary.Online.Tests
         }
 
         [Test]
+        public void ControlHintsFollowConsumedDesktopOverridesWithoutChangingInput()
+        {
+            var keys = (DesktopBinding)typeof(WordboundInputBinding)
+                .GetField("desktop", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(binding);
+            binding.ControlHint(WordboundControl.Interact);
+            int version = KeyBindings.Version, revision = binding.Revision;
+            keys.Interact.ApplyBindingOverride(0, "<Keyboard>/f");
+            keys.Spell.ApplyBindingOverride(0, "<Keyboard>/t");
+            keys.Pause.ApplyBindingOverride(0, "<Keyboard>/p");
+            WordboundNativeInputScope.Sample(keyboard, new KeyboardState(Key.F, Key.T, Key.P));
+            for (int i = 0; i < 3; i++)
+            {
+                Assert.AreEqual("F", binding.ControlHint(WordboundControl.Interact));
+                Assert.AreEqual("T", binding.ControlHint(WordboundControl.Spell));
+                Assert.AreEqual("P", binding.ControlHint(WordboundControl.Menu));
+            }
+            Assert.AreEqual(version, KeyBindings.Version);
+            Assert.AreEqual(revision, binding.Revision);
+            Assert.IsTrue(keys.Interact.WasPressedThisFrame());
+            var commands = default(PlayerCommands); binding.Read(ref commands);
+            Assert.IsTrue(commands.grab && commands.spellDown && binding.StartPressed());
+            keys.Interact.ApplyBindingOverride(0, "<Keyboard>/g");
+            Assert.AreEqual("G", binding.ControlHint(WordboundControl.Interact));
+            WordboundNativeInputScope.Sample(keyboard, new KeyboardState());
+            WordboundNativeInputScope.Sample(keyboard, new KeyboardState(Key.F));
+            binding.Read(ref commands); Assert.IsFalse(commands.grab);
+            WordboundNativeInputScope.Sample(keyboard, new KeyboardState(Key.G));
+            binding.Read(ref commands); Assert.IsTrue(commands.grab);
+            keys.Interact.ApplyBindingOverride(0, "");
+            Assert.AreEqual("Unbound", binding.ControlHint(WordboundControl.Interact));
+        }
+
+        [Test]
+        public void ReadingHintsDoesNotSelectADeviceConsumeButtonsOrHideAnUnpluggedPad()
+        {
+            string desktop = binding.ControlHint(WordboundControl.Interact);
+            int revision = binding.Revision;
+            WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.West));
+            Assert.AreEqual(desktop, binding.ControlHint(WordboundControl.Interact));
+            Assert.IsNull(binding.ActiveGamepad);
+            Assert.AreEqual(revision, binding.Revision);
+            UsePad();
+            WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.West));
+            revision = binding.Revision;
+            string attack = pad.buttonWest.shortDisplayName;
+            if (string.IsNullOrEmpty(attack)) attack = pad.buttonWest.displayName;
+            Assert.AreEqual(attack, binding.ControlHint(WordboundControl.Attack));
+            Assert.AreNotEqual(binding.ControlHint(WordboundControl.CycleGear), binding.ControlHint(WordboundControl.Menu));
+            Assert.IsTrue(pad.buttonWest.wasPressedThisFrame);
+            Assert.AreEqual(revision, binding.Revision);
+            var commands = default(PlayerCommands); binding.Read(ref commands);
+            Assert.IsTrue(commands.attack && commands.attackHeld);
+            InputSystem.RemoveDevice(pad);
+            Assert.AreEqual("", binding.ControlHint(WordboundControl.Interact));
+            Assert.AreSame(pad, binding.ActiveGamepad, "Hints do not perform a device transition.");
+            Assert.AreEqual(revision, binding.Revision);
+            Assert.IsTrue(binding.RefreshDevice());
+            Assert.AreEqual(desktop, binding.ControlHint(WordboundControl.Interact));
+        }
+
+        [Test]
+        public void ActiveHintUsesExistingLocalizedPhysicalKeyFallback()
+        {
+            const string layout = "WordboundHintLocalizedDevice";
+            InputDevice localized = null;
+            try
+            {
+                InputSystem.RegisterLayout("{\"name\":\"" + layout + "\",\"controls\":[{\"name\":\"q\",\"layout\":\"Button\",\"displayName\":\"木\"}]}");
+                localized = InputSystem.AddDevice(layout);
+                var keys = (DesktopBinding)typeof(WordboundInputBinding)
+                    .GetField("desktop", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(binding);
+                keys.Spell.ApplyBindingOverride(0, "<" + layout + ">/q");
+                Assert.IsFalse(KeyBindings.IsLatin(keys.Spell.GetBindingDisplayString()));
+                Assert.AreEqual("Q", binding.ControlHint(WordboundControl.Spell));
+            }
+            finally
+            {
+                if (localized != null && localized.added) InputSystem.RemoveDevice(localized);
+                InputSystem.RemoveLayout(layout);
+            }
+        }
+
+        [Test]
+        public void PlayerViewForwardsItsRealBindingAndUnknownBindingsStayGeneric()
+        {
+            foreach (bool known in new[] { true, false })
+            {
+                var root = new GameObject("Wordbound prompt forwarding");
+                try
+                {
+                    var view = root.AddComponent<WordboundPlayerView>(); view.enabled = false;
+                    view.Initialize(root.AddComponent<WordboundGameplayController>(), root.AddComponent<Camera>(),
+                        known ? binding : new UnreadableBinding());
+                    Assert.AreEqual(known ? binding.ControlHint(WordboundControl.Spell) : "", view.ControlHint(WordboundControl.Spell));
+                    Assert.AreEqual("", view.ControlHint((WordboundControl)99));
+                }
+                finally { Object.DestroyImmediate(root); }
+            }
+        }
+
+        sealed class UnreadableBinding : InputBinding
+        {
+            public override string Id => "test-custom";
+            public override void Read(ref PlayerCommands commands) => throw new InvalidOperationException("Hints must not read commands.");
+            public override bool JoinPressed() => throw new InvalidOperationException("Hints must not read join.");
+            public override bool StartPressed() => throw new InvalidOperationException("Hints must not read start.");
+        }
+
+        [Test]
         public void NativeInputScopesPreserveTemporaryOriginalSettingsAcrossRepeatedUse()
         {
             var original = InputSystem.settings;

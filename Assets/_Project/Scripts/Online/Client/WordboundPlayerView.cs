@@ -33,6 +33,7 @@ namespace Wreckabulary.Online
         public WordboundNetworkBody Player => player;
         public bool UsesGamepad => binding is WordboundInputBinding automatic &&
             automatic.ActiveGamepad != null && automatic.ActiveGamepad.added && automatic.ActiveGamepad.enabled;
+        public string ControlHint(WordboundControl control) => WordboundInputBinding.ControlHint(binding, control);
         public event Action<PlayerCommands> CommandsRead;
         public event Action<WordboundMenuCommands> MenuCommandsRead;
         public event Action MenuRequested;
