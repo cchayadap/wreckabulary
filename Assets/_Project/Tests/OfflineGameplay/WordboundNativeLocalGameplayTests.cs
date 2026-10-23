@@ -47,6 +47,9 @@ namespace Wreckabulary.OfflineGameplayTests
         [UnityTest, Category("LocalWordboundGameplay")]
         public IEnumerator PresentationFailureKeepsItsExceptionAndCannotPublishAFrame() => Run("Freestyle", "throw");
 
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator PresentationPollCannotReenterInitialHostComposition() => Run("Freestyle", "reenter");
+
         IEnumerator Run(string selectedMode, string atomicCase = "")
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_LOCAL_GAMEPLAY") != "1")
@@ -86,10 +89,11 @@ namespace Wreckabulary.OfflineGameplayTests
                     GameplayScene = SceneRef.FromIndex(sceneIndex), CheckpointMilliseconds = 500,
                     ReadMovement = () => movement,
                     ConfigureVisual = body => {
-                        if (atomicCase != "stop" && atomicCase != "throw") return;
+                        if (atomicCase != "stop" && atomicCase != "throw" && atomicCase != "reenter") return;
                         visualCallbacks++;
                         frameAtCallback = controller.Frame;
                         if (atomicCase == "throw") throw new FormatException("atomic native presentation failure");
+                        if (atomicCase == "reenter") { controller.Poll(); return; }
                         _ = controller.Stop();
                     }
                 });
@@ -106,7 +110,7 @@ namespace Wreckabulary.OfflineGameplayTests
             }, config, controller.Authority, Actor);
             controller.AttachSession(session);
             yield return Wait(session.StartLocal(lifetime.Token), "Start local SDK runner", 30);
-            if (atomicCase == "stop" || atomicCase == "throw")
+            if (atomicCase == "stop" || atomicCase == "throw" || atomicCase == "reenter")
             {
                 double deadline = Time.realtimeSinceStartupAsDouble + 30;
                 while (visualCallbacks == 0 && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
@@ -117,7 +121,9 @@ namespace Wreckabulary.OfflineGameplayTests
                 Assert.AreSame(frameAtCallback, controller.Frame);
                 Assert.IsTrue(controller.IsSimulationPaused);
                 Assert.IsFalse(session.GameplayReady);
-                Assert.AreEqual(atomicCase == "throw" ? "FormatException: atomic native presentation failure" : "", controller.Fault);
+                string expectedFault = atomicCase == "throw" ? "FormatException: atomic native presentation failure" :
+                    atomicCase == "reenter" ? "InvalidOperationException: Canonical reconciliation cannot reenter an active attempt." : "";
+                Assert.AreEqual(expectedFault, controller.Fault);
                 yield break;
             }
             yield return Until(() => session.GameplayReady && controller.PhysicsWorld != null &&

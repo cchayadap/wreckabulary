@@ -207,6 +207,7 @@ namespace Wreckabulary.Online
         void BeginHost()
         {
             if (hostReady) return;
+            if (reconciling) throw new InvalidOperationException("Canonical reconciliation cannot reenter an active attempt.");
             if (!session.GameplayReady || !runner.IsServer || session.Committed == null)
                 throw new InvalidOperationException("Host composition requires a validated committed session start.");
             var simulator = runner.GetComponent<RunnerSimulatePhysics>();
