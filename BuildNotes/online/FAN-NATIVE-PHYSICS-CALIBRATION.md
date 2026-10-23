@@ -1,6 +1,6 @@
 # FAN native physics calibration
 
-STATUS: SOURCE CHECKPOINT IN PROGRESS; compile/native NOT RUN. Root owns execution; the default-contact regression may fail and its measurements must be retained. No production settings, material, field formula, timeout, prefab or asset is modified.
+STATUS: INDEPENDENT SOURCE REVIEW PASS for `adb962e`; compile/native NOT RUN by this lane. Root owns execution; the default-contact regression may fail and its measurements must be retained. No production settings, material, field formula, timeout, prefab or asset is modified.
 
 `WordboundNativeWindPhysicsTests.ActualStoolCrossesAuthoredWindArrivalWithDefaultContacts` runs one native Unity test with three isolated PhysicsScenes: no wind/default contacts, wind/default contacts, and wind/explicit zero-friction controls. Each manually simulates 300 steps at 1/60 s. The actual flagship resolves the first lap-one RedirectWind site, actual STOOL placement and arrival bounds. Start matches the native puzzle fixture's authored placement plus -0.15 m Z and +0.02 m Y. Required initial travel is +0.800 m to the near arrival edge; +0.786 m was measured from the already drifted failure endpoint and is not substituted.
 
@@ -11,3 +11,5 @@ Each step calls the actual dynamic motion policy, checks actual field radius/arc
 This isolates native contact/solver behavior and the field formula. It does not exercise `Affected`/ClearLine, Fusion ordering, canonical restoration, peer admission, multiplayer or the full six-family puzzle outcome. It does not establish frame rate, RTT or packet loss. Root should first compile and run the exact fixture filter, retain all `WB_WIND_SETUP`, `WB_WIND_SAMPLE` and `WB_WIND_RESULT` lines and the XML, then compare the three controls before any product repair.
 
 Unity documents fixed-step isolated-scene simulation and confirms that manual simulation covers native contacts; the fixture enters Play Mode explicitly and creates local physics scenes through the runtime API: [PhysicsScene.Simulate](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/PhysicsScene.Simulate.html), [SceneManager.CreateScene](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/SceneManagement.SceneManager.CreateScene.html).
+
+Assets reviewer confirmed actual floor/prefab-native ownership parity, private zero-friction controls, signed +0.800 m/three-dimensional arrival assertions, output ordering, cleanup and absence of a network lifecycle. No concrete source blocker remained. This verdict does not establish native success or the cause of the observed full-gameplay stall.
