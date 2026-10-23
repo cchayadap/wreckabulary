@@ -361,7 +361,7 @@ namespace Wreckabulary.Online.Tests
                     Invoke(Menu, "BeginPartyGui", true);
                     if (Event.current.type == EventType.Repaint && BeforeRepaint != null)
                     { var action = BeforeRepaint; BeforeRepaint = null; action(); }
-                    try { Invoke(Menu, "DrawPartyGui"); }
+                    try { Invoke(Menu, "DrawPartyGui", position.size); }
                     finally { Invoke(Menu, "EndPartyGui"); FocusedControl = GUI.GetNameOfFocusedControl(); }
                 }
                 catch (Exception error) { Failure = error; }

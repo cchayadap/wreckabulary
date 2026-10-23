@@ -164,7 +164,7 @@ namespace Wreckabulary.Online
             if (coordinator == null || !Visible) return;
             if (coordinator.MatchActive && string.IsNullOrEmpty(localError)) return;
             BeginPartyGui(Application.isFocused);
-            try { DrawPartyGui(); }
+            try { DrawPartyGui(new Vector2(Screen.width, Screen.height)); }
             finally { EndPartyGui(); }
 #if UNITY_EDITOR || GSK_QA
             if (Event.current.type == EventType.Repaint && QaLastRepaintFrame != Time.frameCount)
@@ -174,11 +174,11 @@ namespace Wreckabulary.Online
             }
 #endif
         }
-        void DrawPartyGui()
+        void DrawPartyGui(Vector2 viewport)
         {
             using var themeScope = ui.Apply(Theme);
             title = ui.Heading; hint = ui.Wrapped;
-            Rect available = ui.MenuRect(Screen.width, Screen.height);
+            Rect available = ui.MenuRect(viewport.x, viewport.y);
             if (Event.current.type == EventType.Layout || partyRect.width == 0)
             {
                 if (guestStyleGeneration != ui.Generation || guestWidth != available.width)
