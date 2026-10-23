@@ -13,6 +13,7 @@ namespace Wreckabulary.EditorTools
     public static class WordboundGameplaySetup
     {
         public const string Folder = "Assets/_Project/Prefabs/Wordbound/Network";
+        public const string ItemContactPath = "Assets/_Project/Materials/Wordbound/WordboundItemContact.physicMaterial";
 
         public static void CreateBodyPrefabs()
         {
@@ -85,9 +86,20 @@ namespace Wreckabulary.EditorTools
                     root.GetComponentsInChildren<Collider>(true).Length != 1 ||
                     player && !root.GetComponent<CapsuleCollider>() || !player && !root.GetComponent<BoxCollider>())
                     throw new InvalidOperationException(path + " differs from the approved native body contract; preserve for inspection.");
+                PhysicsMaterial itemContact = null;
+                if (!player && !platform)
+                {
+                    itemContact = ItemContact();
+                    var collider = root.GetComponent<BoxCollider>();
+                    if (collider.sharedMaterial != null && collider.sharedMaterial != itemContact)
+                        throw new InvalidOperationException(path + " has a different contact material; preserve it for inspection.");
+                    collider.sharedMaterial = itemContact;
+                }
                 new NetworkObjectBakerEditTime().Bake(root);
                 if (!PrefabUtility.SaveAsPrefabAsset(root, path))
                     throw new InvalidOperationException("Could not save " + path);
+                if (itemContact != null && AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<BoxCollider>().sharedMaterial != itemContact)
+                    throw new InvalidOperationException(path + " did not retain its item contact material.");
             }
             finally
             {
@@ -97,6 +109,30 @@ namespace Wreckabulary.EditorTools
                     else UnityEngine.Object.DestroyImmediate(root);
                 }
             }
+        }
+
+        static PhysicsMaterial ItemContact()
+        {
+            var material = AssetDatabase.LoadAssetAtPath<PhysicsMaterial>(ItemContactPath);
+            if (material == null)
+            {
+                if (File.Exists(ItemContactPath) || AssetDatabase.LoadMainAssetAtPath(ItemContactPath) != null)
+                    throw new InvalidOperationException(ItemContactPath + " is not a PhysicsMaterial; preserve it for inspection.");
+                EnsureFolder(Path.GetDirectoryName(ItemContactPath).Replace('\\', '/'));
+                material = new PhysicsMaterial("WordboundItemContact")
+                {
+                    staticFriction = .30f, dynamicFriction = .25f, bounciness = 0,
+                    frictionCombine = PhysicsMaterialCombine.Minimum, bounceCombine = PhysicsMaterialCombine.Minimum
+                };
+                AssetDatabase.CreateAsset(material, ItemContactPath);
+                AssetDatabase.SaveAssetIfDirty(material);
+                material = AssetDatabase.LoadAssetAtPath<PhysicsMaterial>(ItemContactPath);
+            }
+            if (material == null || material.staticFriction != .30f || material.dynamicFriction != .25f ||
+                material.bounciness != 0 || material.frictionCombine != PhysicsMaterialCombine.Minimum ||
+                material.bounceCombine != PhysicsMaterialCombine.Minimum)
+                throw new InvalidOperationException(ItemContactPath + " differs from the validated contact settings; preserve edits and revalidate before changing the prefab.");
+            return material;
         }
 
         static void EnsureFolder(string path)

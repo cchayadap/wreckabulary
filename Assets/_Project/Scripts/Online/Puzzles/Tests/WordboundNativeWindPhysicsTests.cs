@@ -20,6 +20,8 @@ namespace Wreckabulary.Tests
     {
         const int Steps = 300;
         const string PrefabPath = "Assets/_Project/Prefabs/Wordbound/Network/WordboundItemBody.prefab";
+        const string ContactPath = "Assets/_Project/Materials/Wordbound/WordboundItemContact.physicMaterial";
+        enum Contacts { Prefab, NullControl, ZeroFrictionControl, Candidate }
         readonly List<Scene> scenes = new List<Scene>();
         readonly List<PhysicsMaterial> materials = new List<PhysicsMaterial>();
 
@@ -40,26 +42,34 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest, Category("NativePhysics")]
-        public IEnumerator ActualStoolCrossesAuthoredWindArrivalWithDefaultContacts()
+        public IEnumerator ActualPrefabContactReachesWindArrivalAndStopsWithoutObstacles()
         {
             yield return new EnterPlayMode();
             Assert.IsTrue(Application.isPlaying, "The isolated native solver requires Play Mode.");
             Load(out var content, out var course, out var site, out var placement, out var items, out var prefab);
-            var results = new[]
+            var assigned = prefab.GetComponent<BoxCollider>().sharedMaterial;
+            Assert.IsNotNull(assigned, "The item prefab must carry the validated contact material.");
+            Assert.AreEqual(ContactPath, AssetDatabase.GetAssetPath(assigned));
+            Assert.AreSame(AssetDatabase.LoadAssetAtPath<PhysicsMaterial>(ContactPath), assigned);
+            Assert.AreEqual(.30f, assigned.staticFriction);
+            Assert.AreEqual(.25f, assigned.dynamicFriction);
+            Assert.AreEqual(0, assigned.bounciness);
+            Assert.AreEqual(PhysicsMaterialCombine.Minimum, assigned.frictionCombine);
+            Assert.AreEqual(PhysicsMaterialCombine.Minimum, assigned.bounceCombine);
+            foreach (string name in new[] { "WordboundPlayerBody", "WordboundPlatformBody" })
             {
-                Run("no-wind", false, false, content, course, site, placement, items, prefab),
-                Run("default-contact-wind", true, false, content, course, site, placement, items, prefab),
-                Run("zero-friction-wind", true, true, content, course, site, placement, items, prefab)
-            };
-            WriteResults(results);
-            Assert.Less(results[0].MaximumTravel, .05f, "The no-wind floor control must not travel toward the target.");
-            Assert.AreEqual(-1, results[0].ArrivalTick);
-            Assert.Greater(results[1].WindTicks, 0, "Default contacts must actually receive wind.");
-            Assert.Greater(results[2].WindTicks, 0, "Zero-friction control must actually receive wind.");
-            Assert.GreaterOrEqual(results[2].ArrivalTick, 1, "Zero friction must reach the actual arrival volume within 300 solver steps.");
-            Assert.GreaterOrEqual(results[2].MaximumTravel + .00001f, results[2].RequiredTravel);
-            Assert.GreaterOrEqual(results[1].ArrivalTick, 1, "Default contacts must let the actual FAN move the STOOL into its authored arrival volume.");
-            Assert.GreaterOrEqual(results[1].MaximumTravel + .00001f, results[1].RequiredTravel);
+                var other = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/Wordbound/Network/" + name + ".prefab");
+                Assert.IsNotNull(other);
+                Assert.IsNull(other.GetComponent<Collider>().sharedMaterial, name + " must retain its original contact settings.");
+            }
+            var results = RunControls(Contacts.Prefab, "prefab", content, course, site, placement, items, prefab);
+            var historical = Run("historical-null-contact-wind", true, Contacts.NullControl, content, course, site, placement, items, prefab);
+            var frictionless = Run("zero-friction-wind", true, Contacts.ZeroFrictionControl, content, course, site, placement, items, prefab);
+            WriteResults(results.Concat(new[] { historical, frictionless }));
+            Assert.Greater(historical.WindTicks, 0, "The explicit historical control must actually receive wind.");
+            Assert.GreaterOrEqual(frictionless.ArrivalTick, 1);
+            Assert.GreaterOrEqual(frictionless.MaximumTravel + .00001f, frictionless.RequiredTravel);
+            RequireArrivalAndStopping(results);
         }
 
         [UnityTest, Category("NativePhysics")]
@@ -68,18 +78,26 @@ namespace Wreckabulary.Tests
             yield return new EnterPlayMode();
             Assert.IsTrue(Application.isPlaying, "The isolated native solver requires Play Mode.");
             Load(out var content, out var course, out var site, out var placement, out var items, out var prefab);
-            var results = new[]
-            {
-                Run("candidate-no-wind", false, false, content, course, site, placement, items, prefab, true),
-                Run("candidate-wind", true, false, content, course, site, placement, items, prefab, true),
-                Run("candidate-inertia-stop", false, false, content, course, site, placement, items, prefab, true, 3)
-            };
+            var results = RunControls(Contacts.Candidate, "candidate", content, course, site, placement, items, prefab);
             WriteResults(results);
+            RequireArrivalAndStopping(results);
+        }
+
+        Result[] RunControls(Contacts contacts, string name, WordboundFlagshipContent content, ResolvedCourse course,
+            ResolvedCoursePhysicalSite site, ResolvedCoursePlacement placement, ItemCatalogue items, GameObject prefab) => new[]
+        {
+            Run(name + "-no-wind", false, contacts, content, course, site, placement, items, prefab),
+            Run(name + "-wind", true, contacts, content, course, site, placement, items, prefab),
+            Run(name + "-inertia-stop", false, contacts, content, course, site, placement, items, prefab, 3)
+        };
+
+        static void RequireArrivalAndStopping(Result[] results)
+        {
             Assert.Less(results[0].MaximumTravel, .05f);
             Assert.Less(Vector3.Distance(results[0].Start, results[0].End), .05f, "The stationary control must not drift.");
             Assert.AreEqual(-1, results[0].ArrivalTick);
             Assert.AreEqual(0, results[0].WindTicks);
-            Assert.GreaterOrEqual(results[1].ArrivalTick, 1, "The candidate must enter the actual 3D arrival volume.");
+            Assert.GreaterOrEqual(results[1].ArrivalTick, 1, "The receiver must enter the actual 3D arrival volume.");
             Assert.IsTrue(results[1].ArrivalReceivedWind, "Arrival must occur during an actual wind push, as the mechanism requires.");
             Assert.GreaterOrEqual(results[1].MaximumTravel + .00001f, results[1].RequiredTravel);
             Assert.Greater(results[1].FieldExitTick, results[1].ArrivalTick, "Continue beyond arrival until the receiver leaves the field.");
@@ -116,9 +134,9 @@ namespace Wreckabulary.Tests
             Assert.IsNotNull(prefab, "Native item prefab must already be generated.");
         }
 
-        Result Run(string name, bool wind, bool frictionless, WordboundFlagshipContent content, ResolvedCourse course,
+        Result Run(string name, bool wind, Contacts contacts, WordboundFlagshipContent content, ResolvedCourse course,
             ResolvedCoursePhysicalSite site, ResolvedCoursePlacement placement, ItemCatalogue items, GameObject prefab,
-            bool candidate = false, float initialSpeed = 0)
+            float initialSpeed = 0)
         {
             var scene = SceneManager.CreateScene("WB_Wind_" + name + "_" + Guid.NewGuid().ToString("N"),
                 new CreateSceneParameters(LocalPhysicsMode.Physics3D));
@@ -172,13 +190,14 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(prefabBody.angularDamping, body.angularDamping);
             Assert.AreEqual(prefabBody.constraints, body.constraints);
             Assert.AreEqual(prefabBody.useGravity, body.useGravity); Assert.IsTrue(body.useGravity);
-            Assert.AreSame(prefabCollider.sharedMaterial, collider.sharedMaterial); Assert.IsNull(collider.sharedMaterial);
+            Assert.AreSame(prefabCollider.sharedMaterial, collider.sharedMaterial);
             Assert.AreEqual(prefabCollider.contactOffset, collider.contactOffset);
             Assert.IsFalse(collider.isTrigger); Assert.IsTrue(collider.enabled);
             WordboundBodyMotion.Apply(body, false, false);
             body.position = start; body.rotation = Quaternion.Euler(0, placement.Yaw, 0);
             body.linearVelocity = forward * initialSpeed; body.angularVelocity = Vector3.zero;
-            if (frictionless)
+            if (contacts == Contacts.NullControl) collider.sharedMaterial = null;
+            if (contacts == Contacts.ZeroFrictionControl)
             {
                 var material = new PhysicsMaterial("Owned zero friction control")
                 { staticFriction = 0, dynamicFriction = 0, bounciness = 0,
@@ -187,17 +206,19 @@ namespace Wreckabulary.Tests
                 collider.sharedMaterial = material;
                 foreach (var surface in world.Surfaces) surface.sharedMaterial = material;
             }
-            if (candidate)
+            if (contacts == Contacts.Candidate)
             {
-                Assert.IsFalse(frictionless);
                 var material = new PhysicsMaterial("Owned Wordbound item contact candidate")
                 { staticFriction = .30f, dynamicFriction = .25f, bounciness = 0,
                     frictionCombine = PhysicsMaterialCombine.Minimum, bounceCombine = PhysicsMaterialCombine.Minimum };
                 materials.Add(material);
                 collider.sharedMaterial = material;
                 Assert.AreSame(material, collider.sharedMaterial);
-                Assert.IsTrue(world.Surfaces.All(surface => surface.sharedMaterial == null), "The candidate changes only the receiver contact material.");
             }
+            if (contacts != Contacts.ZeroFrictionControl)
+                Assert.IsTrue(world.Surfaces.All(surface => surface.sharedMaterial == null), "Only the explicit zero-friction control may change course contact materials.");
+            if (contacts == Contacts.NullControl) Assert.IsNull(collider.sharedMaterial);
+            if (contacts == Contacts.Prefab) Assert.AreSame(prefabCollider.sharedMaterial, collider.sharedMaterial);
             Physics.SyncTransforms();
             Assert.AreEqual(start, body.position);
             Assert.AreEqual(start.y, collider.bounds.min.y, .0001f);
@@ -206,8 +227,8 @@ namespace Wreckabulary.Tests
                 new WorldVector(rotation.x, rotation.y, rotation.z), rotation.w, kinematic: true);
             var stats = items.Get("FAN").Deploy;
             Assert.IsTrue(WordboundFieldPolicy.Contains(stats, fan, Pose(body)));
-            Console.WriteLine(FormattableString.Invariant($"WB_WIND_SETUP: scenario={name}; unity={Application.unityVersion}; manifest={course.Hash}; site={site.Hash}; fan={V(Metres(site.Position))}; arrivalMin={V(arrival.min)}; arrivalMax={V(arrival.max)}; floorTop={floor.bounds.max.y:R}; floorThickness={floor.bounds.size.y:R}; mass={body.mass:R}; gravity={V(Physics.gravity)}; linearDamping={body.linearDamping:R}; angularDamping={body.angularDamping:R}; constraints={body.constraints}; solverIterations={body.solverIterations}; solverVelocityIterations={body.solverVelocityIterations}; contactOffset={collider.contactOffset:R}; frictionless={frictionless}; strength={stats.Strength:R}; radius={stats.Radius:R}; arc={stats.ArcDegrees:R}; simulationMode={Physics.simulationMode}; fixedDeltaTime={Time.fixedDeltaTime:R}"));
-            Console.WriteLine(FormattableString.Invariant($"WB_WIND_CONTACT: scenario={name}; receiverOnlyCandidate={candidate}; staticFriction={collider.sharedMaterial?.staticFriction.ToString("R", CultureInfo.InvariantCulture) ?? "default"}; dynamicFriction={collider.sharedMaterial?.dynamicFriction.ToString("R", CultureInfo.InvariantCulture) ?? "default"}; combine={collider.sharedMaterial?.frictionCombine.ToString() ?? "default"}; initialSpeed={initialSpeed:R}"));
+            Console.WriteLine(FormattableString.Invariant($"WB_WIND_SETUP: scenario={name}; unity={Application.unityVersion}; manifest={course.Hash}; site={site.Hash}; fan={V(Metres(site.Position))}; arrivalMin={V(arrival.min)}; arrivalMax={V(arrival.max)}; floorTop={floor.bounds.max.y:R}; floorThickness={floor.bounds.size.y:R}; mass={body.mass:R}; gravity={V(Physics.gravity)}; linearDamping={body.linearDamping:R}; angularDamping={body.angularDamping:R}; constraints={body.constraints}; solverIterations={body.solverIterations}; solverVelocityIterations={body.solverVelocityIterations}; contactOffset={collider.contactOffset:R}; contacts={contacts}; strength={stats.Strength:R}; radius={stats.Radius:R}; arc={stats.ArcDegrees:R}; simulationMode={Physics.simulationMode}; fixedDeltaTime={Time.fixedDeltaTime:R}"));
+            Console.WriteLine(FormattableString.Invariant($"WB_WIND_CONTACT: scenario={name}; contacts={contacts}; materialAsset={AssetDatabase.GetAssetPath(collider.sharedMaterial)}; staticFriction={collider.sharedMaterial?.staticFriction.ToString("R", CultureInfo.InvariantCulture) ?? "default"}; dynamicFriction={collider.sharedMaterial?.dynamicFriction.ToString("R", CultureInfo.InvariantCulture) ?? "default"}; combine={collider.sharedMaterial?.frictionCombine.ToString() ?? "default"}; initialSpeed={initialSpeed:R}"));
             var result = new Result { Name = name, Start = start, RequiredTravel = required };
             var nearby = new Collider[32];
             var lastSecondStart = Vector3.zero;
@@ -254,7 +275,7 @@ namespace Wreckabulary.Tests
                     result.LastSecondMaximumSpeed = Mathf.Max(result.LastSecondMaximumSpeed, body.linearVelocity.magnitude);
                     result.LastSecondMaximumDrift = Mathf.Max(result.LastSecondMaximumDrift, Vector3.Distance(lastSecondStart, body.position));
                 }
-                if (candidate)
+                if (contacts == Contacts.Candidate || contacts == Contacts.Prefab)
                 {
                     int count = physics.OverlapBox(body.position + body.rotation * collider.center,
                         collider.size / 2 + Vector3.one * collider.contactOffset, nearby, body.rotation, ~0, QueryTriggerInteraction.Ignore);
