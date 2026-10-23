@@ -53,3 +53,11 @@ The cache test no longer treats `SendEvent(Repaint)` as proof that Unity deliver
 These source repairs have not been compiled or run in this lane. The theme fixture remains seven cases; no timeout, assertion tolerance or test skip was added. Generated default asset values are not overwritten.
 
 Independent input-lane review gave bounded SOURCE PASS for `0872ec66`: actual styled-font/padding measurement, preservation of existing asset values, Layout-only cache behavior, strict old/new resource checks inside observed events, and both legacy/new default font-fit assertions. Native rerun and actual Windows content fit remain pending.
+
+## Native 225846 outcome — independently read
+
+Integration `TestResults/editmode_20261023T225846Z.xml`, source `73a3326cfbe8fb7d09c67fac355bd5dc0c3d64e9`, records **17/18 passed, 1 failed, 0 skipped**. All **seven theme tests passed**, including both original failed cases and strict font measurement for existing/new profile sizes. The actual cache trace is `Layout:0->1, Layout:1->1, repaint:1->1, Layout:1->2`: the edited Repaint retained its skin and the next actual Layout rebuilt it.
+
+Both new theme persistence cases passed: serialized colours/metrics/original font references survived save/unload/reload, and complete isolated setup preserved a custom assignment and existing default edits before filling/saving an empty slot. The original repeated-draft case also passed. The run is still a failed overall gate because `IdenticalDraftBytesAvoidReplacementButChangedLockedContentRemainsRecoverable` threw `IOException: Unable to remove the file to be replaced`; the input lane owns that separate investigation. No whole-suite success is claimed.
+
+The XML SHA256 is `DB5B49BA46801DD9D7864A85A91CFE6D6A50B68A23AD70EB41E25863E1DCA229`; root summary `BuildNotes/client-view/native-ui-persistence-20261023.json` SHA256 is `ACD975EA78A7ADC060719EC3032B2FBF8D76A9FDE08709842CD5B6114AC7D47F`. These native results close the bounded theme geometry/cache/persistence checks, not actual Footer wrapping, Windows visuals, controller interaction in the player, owner approval or performance acceptance.
