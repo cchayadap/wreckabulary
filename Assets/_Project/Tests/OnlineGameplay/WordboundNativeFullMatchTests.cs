@@ -54,6 +54,9 @@ namespace Wreckabulary.OnlineGameplayTests
             string contentHash = live.Course.Hash;
             var scores = new Dictionary<int, long> { [0] = host.Controller.Frame.Progress.Tick };
             var respawns = new Dictionary<int, (long Tick, long ProtectedUntil)>();
+            int victimSeat = WordboundGameplayPlan.Seat(host.Controller.Frame.Binding, victim.Actor);
+            var spawn = live.Course.Spawns.Where(value => value.Kind == "Start").ElementAt(victimSeat).Position;
+            var recovery = new WorldVector(spawn.X / 1000f, spawn.Y / 1000f, spawn.Z / 1000f);
             var prior = host.Controller.Frame;
             string observationError = "";
             void Observe(MatchSnapshot frame)
@@ -78,6 +81,11 @@ namespace Wreckabulary.OnlineGameplayTests
                         target.ProtectedUntil != frame.Progress.Tick + ModeDefinition.RecoveryProtectionSeconds * ModeDefinition.TickRate ||
                         !PlayerPose(host, victim).Active)
                         observationError = "The real respawn must restore health, activity and one generation with protection.";
+                    var pose = frame.Bodies.Single(body => body.Kind == WorldBodyKind.Player && body.SourceId == victim.Actor);
+                    var native = host.Controller.Bodies[pose.Id].Rigidbody.position;
+                    if (!(pose.Position.DistanceSquared(recovery) <= .001f * .001f) ||
+                        !((native - new Vector3(recovery.X, recovery.Y, recovery.Z)).sqrMagnitude <= .001f * .001f))
+                        observationError = "The respawn transition must restore both canonical and native poses within 1 mm of the bound Start.";
                     respawns[target.RecoveryGeneration] = (frame.Progress.Tick, target.ProtectedUntil);
                 }
                 prior = frame;
@@ -89,9 +97,6 @@ namespace Wreckabulary.OnlineGameplayTests
                 yield return FfaCraftHammer(host, 0, weapons);
                 yield return FfaCraftHammer(host, 1, weapons);
                 Assert.AreEqual(2, weapons.Distinct().Count());
-                int victimSeat = WordboundGameplayPlan.Seat(host.Controller.Frame.Binding, victim.Actor);
-                var spawn = live.Course.Spawns.Where(value => value.Kind == "Start").ElementAt(victimSeat).Position;
-                var recovery = new WorldVector(spawn.X / 1000f, spawn.Y / 1000f, spawn.Z / 1000f);
                 yield return FullWalk(host, victim, () => recovery, .04f, "Reach the real FFA recovery position before combat");
                 yield return FullWalk(host, host, () => new WorldVector(recovery.X - .95f, recovery.Y, recovery.Z), .04f,
                     "Stand in the clear southern FFA contact lane before scoring");
