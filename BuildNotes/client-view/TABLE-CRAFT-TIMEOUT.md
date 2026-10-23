@@ -1,6 +1,6 @@
 # TABLE native craft timeout investigation
 
-STATUS: IN PROGRESS — bounded fixture diagnostics prepared; no native rerun or compiler job.
+STATUS: DIAGNOSTIC SOURCE CHECKPOINT READY — 22eb0db reviewed by coordinator without a source blocker; no native rerun or compiler job.
 
 Observed root evidence: `TestResults/editmode_20261023T123439Z.xml` records the six-family fixture running for 363.172282 seconds. CollectLetters completed at canonical tick 2160, after which CratePress reached the TABLE craft wait. The failure says its 20-second deadline expired, but no craft/inventory/tick or cancellation state was captured at failure.
 

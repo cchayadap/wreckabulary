@@ -1,6 +1,6 @@
 # Native input fixture repair
 
-STATUS: NATIVE CLEANUP FAILURE DIAGNOSED — follow-up repair prepared; rerun pending. No local compiler/Unity job.
+STATUS: FOLLOW-UP SOURCE REVIEW PASS — cleanup ownership repair ce44cd0; native rerun pending. No local compiler/Unity job.
 
 Evidence: integration `TestResults/editmode_20261023T122055Z.xml` reports 11/13 InputBinding, 5/6 PartyMenuInput and 3/3 WorkshopInputSafety failures. Sampled pad state remained zero/null; the focus callback test also triggered Unity's `ShouldRunBehaviour()` assertion through EditMode `SendMessage`.
 
@@ -21,3 +21,5 @@ The first rerun (`editmode_20261023T125443Z.xml`) invalidated the earlier comple
 The follow-up protects the original's temporary flags only across replacement, restores its exact flags immediately afterward, and gives the scope-owned clone HideInHierarchy|DontSave so ownership stays explicit. Cleanup never destroys that clone while it remains the active settings object, including restoration failure. A missing/destroyed original at scope entry fails explicitly. Constructor setup and cleanup errors are both preserved rather than hiding the first. Original nonserialized feature flags and the pre-swap cached override restoration remain intact.
 
 One additional native regression performs two real nested settings swaps with an original marked HideAndDontSave, asserting original instance/flags preservation and destruction only of each inactive clone. Expected focused result is now **23 cases: 14 InputBinding + 6 PartyMenuInput + 3 WorkshopInputSafety**, with zero skipped. The earlier 22-case native acceptance is not claimed; the follow-up still requires the coordinator's native rerun.
+
+Independent follow-up review by recover_online checked the actual installed InputManager setter and passed ce44cd0's protection/restoration/clone lifetime logic and repeated nested-scope regression. This closes the specific source ownership defect found by the native run, but does not replace the pending 23-case native acceptance.
