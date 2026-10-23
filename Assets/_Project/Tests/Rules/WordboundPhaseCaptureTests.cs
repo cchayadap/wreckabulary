@@ -9,6 +9,11 @@ namespace Wreckabulary.Tests
 {
     public sealed class WordboundPhaseCaptureTests
     {
+        static readonly WordboundPhase[] FullChildren = {
+            WordboundPhase.ProgressRestore, WordboundPhase.ResourcesValidation, WordboundPhase.BodiesValidation,
+            WordboundPhase.MechanismsValidation, WordboundPhase.BodyBudgetValidation
+        };
+
         [Test]
         public void DisabledScopesDoNotAcquireACaptureOrContributeToTheNextWindow()
         {
@@ -174,6 +179,36 @@ namespace Wreckabulary.Tests
                 WordboundPhase.RetireResources, WordboundPhase.FullValidation, WordboundPhase.MutableValidation })
                 Assert.AreEqual(1, capture.Count(phase), phase.ToString());
             Assert.AreEqual(2, capture.Count(WordboundPhase.EconomyValidation));
+            foreach (var child in FullChildren) Assert.AreEqual(1, capture.Count(child), child.ToString());
+            Assert.GreaterOrEqual(capture.TotalTicks(WordboundPhase.FullValidation), FullChildren.Sum(capture.TotalTicks));
+        }
+
+        [Test]
+        public void RejectedResourcesKeepTheFirstErrorAndCloseOnlyReachedFullValidationChildren()
+        {
+            var f = WordboundSnapshotCodecTests.Create("TeamRace");
+            Assert.IsNotEmpty(f.Resources);
+            Assert.IsEmpty(MatchStateValidation.Validate(f.Snapshot(), f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
+            f.Resources.Clear();
+            f.Bodies.Add(f.Bodies[0]);
+            var frame = f.Snapshot();
+            string before = MatchSnapshotCodec.Export(frame);
+            string control = MatchStateValidation.Validate(frame, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            Assert.AreEqual("Snapshot must include every static source, team and lap exactly once.", control);
+            using var capture = WordboundPhaseCapture.TryStart();
+            string measured = MatchStateValidation.Validate(frame, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            capture.Dispose();
+            Assert.AreEqual(control, measured);
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(frame));
+            Assert.AreEqual(WordboundPhaseInvalid.None, capture.Invalid);
+            Assert.AreEqual(0, capture.InFlight);
+            foreach (var phase in new[] { WordboundPhase.FullValidation, WordboundPhase.ProgressRestore,
+                WordboundPhase.EconomyValidation, WordboundPhase.ResourcesValidation })
+                Assert.AreEqual(1, capture.Count(phase), phase.ToString());
+            foreach (var phase in new[] { WordboundPhase.BodiesValidation, WordboundPhase.MechanismsValidation,
+                WordboundPhase.BodyBudgetValidation, WordboundPhase.MutableValidation })
+                Assert.AreEqual(0, capture.Count(phase), phase.ToString());
+            Assert.GreaterOrEqual(capture.TotalTicks(WordboundPhase.FullValidation), FullChildren.Sum(capture.TotalTicks));
         }
 
         [Test]
@@ -221,6 +256,8 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(WordboundPhaseInvalid.None, capture.Invalid);
             Assert.AreEqual(1, capture.Count(WordboundPhase.FullValidation));
             Assert.AreEqual(ending == "apply-error" ? 1 : 0, capture.Count(WordboundPhase.MutableValidation));
+            foreach (var child in FullChildren) Assert.AreEqual(1, capture.Count(child), child.ToString());
+            Assert.GreaterOrEqual(capture.TotalTicks(WordboundPhase.FullValidation), FullChildren.Sum(capture.TotalTicks));
         }
     }
 }

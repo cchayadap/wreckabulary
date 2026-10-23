@@ -10,7 +10,8 @@ namespace Wreckabulary.Rules.Wordbound
     public enum WordboundPhase
     {
         RollbackCapture, Synchronize, RetireResources, FullValidation, MutableValidation,
-        EconomyValidation, ObserveHost, Prepare, FrameChanged
+        EconomyValidation, ObserveHost, Prepare, FrameChanged,
+        ProgressRestore, ResourcesValidation, BodiesValidation, MechanismsValidation, BodyBudgetValidation
     }
 
     [Flags]
@@ -36,7 +37,7 @@ namespace Wreckabulary.Rules.Wordbound
 
     public sealed class WordboundPhaseCapture : IDisposable
     {
-        public const int PhaseCount = 9;
+        public const int PhaseCount = 14;
         [ThreadStatic] static WordboundPhaseCapture active;
         static long nextGeneration;
         readonly long[] counts = new long[PhaseCount], totals = new long[PhaseCount], maxima = new long[PhaseCount];

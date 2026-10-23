@@ -87,8 +87,13 @@ namespace Wreckabulary.Rules.Wordbound
                     snapshot.NextWorldEntityId > 0 && snapshot.NextWorldEntityId < long.MaxValue,
                     "Snapshot allocation, sequence or epoch exceeds bounds.");
                 var content = CourseCaches.GetValue(course, CreateCourseCache).For(mode);
-                var progress = new MatchProgress(mode, expectedBinding.Seats, content.Route);
-                progress.Restore(snapshot.Progress);
+#if UNITY_EDITOR || GSK_QA
+                using (WordboundPhaseCapture.Measure(WordboundPhase.ProgressRestore))
+#endif
+                {
+                    var progress = new MatchProgress(mode, expectedBinding.Seats, content.Route);
+                    progress.Restore(snapshot.Progress);
+                }
                 ValidateEconomy(snapshot, expectedBinding, catalogue, rules);
                 var commands = new CommandJournal(expectedBinding.Hash, expectedBinding.Seats.Select(s => s.PlayerId));
                 commands.Restore(snapshot.Commands);
@@ -104,11 +109,23 @@ namespace Wreckabulary.Rules.Wordbound
                 ValidateActors(snapshot, expectedBinding, rules, catalogue, mode);
                 ValidatePractice(snapshot, course, mode);
                 ValidateDeployments(snapshot, catalogue);
-                ValidateResources(snapshot, course, mode, content);
-                ValidateBodies(snapshot, expectedBinding, course, mode, content);
+#if UNITY_EDITOR || GSK_QA
+                using (WordboundPhaseCapture.Measure(WordboundPhase.ResourcesValidation))
+#endif
+                    ValidateResources(snapshot, course, mode, content);
+#if UNITY_EDITOR || GSK_QA
+                using (WordboundPhaseCapture.Measure(WordboundPhase.BodiesValidation))
+#endif
+                    ValidateBodies(snapshot, expectedBinding, course, mode, content);
                 MatchThrownValidation.Validate(snapshot, mode, catalogue);
-                ValidateMechanisms(snapshot, course, mode, content);
-                ValidateBodyBudget(snapshot, course, mode, rules, content);
+#if UNITY_EDITOR || GSK_QA
+                using (WordboundPhaseCapture.Measure(WordboundPhase.MechanismsValidation))
+#endif
+                    ValidateMechanisms(snapshot, course, mode, content);
+#if UNITY_EDITOR || GSK_QA
+                using (WordboundPhaseCapture.Measure(WordboundPhase.BodyBudgetValidation))
+#endif
+                    ValidateBodyBudget(snapshot, course, mode, rules, content);
                 Need(snapshot.RandomStreams.Select(r => r.StreamId).Distinct(StringComparer.Ordinal).Count() == snapshot.RandomStreams.Count &&
                     snapshot.RandomStreams.All(r => WordboundIdentity.IsId(r.StreamId) && (r.Increment & 1) == 1),
                     "Invalid or duplicate random stream state.");
