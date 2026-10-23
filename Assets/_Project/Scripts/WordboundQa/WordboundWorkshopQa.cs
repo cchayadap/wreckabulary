@@ -23,6 +23,9 @@ namespace Wreckabulary.Qa
         string initial, edited, manifest;
         Camera ownedCamera;
         bool savedDraftVerified, editCompleted;
+        string playtestStage = "not_started";
+        int playtestStartFrame = -1, playtestReadyFrame = -1, playtestWaitedFrames;
+        double playtestStartedAt = -1;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         static void Register() => QaScenarios.Register("wordbound_workshop_flow", () => new WordboundWorkshopQa());
@@ -200,29 +203,116 @@ namespace Wreckabulary.Qa
         {
             if (!savedDraftVerified || !editCompleted || !ReferenceEquals(workshop.History, history) || history.Current.RecoveryJson != edited)
                 throw new QaFailException("Playtest requires verified primary autosave recovery and a completed capture of the exact edited draft.");
+            playtestStartedAt = Time.realtimeSinceStartupAsDouble;
+            playtestStartFrame = Time.frameCount; playtestReadyFrame = -1; playtestWaitedFrames = 0;
+            playtestStage = "request_playtest";
+            RecordPlaytest(context, "start");
             workshop.RequestPlaytest();
+            client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
+            playtestStage = "wait_readiness";
+            RecordPlaytest(context, "requested");
+            int lastReadinessFrame = Time.frameCount;
             yield return context.WaitUntil(() => {
                 client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
+                if (Time.frameCount - lastReadinessFrame >= 15)
+                { RecordPlaytest(context, "readiness_progress"); lastReadinessFrame = Time.frameCount; }
                 if (!client || !client.Gameplay) return false;
-                if (client.Gameplay.Fault != "") throw new QaFailException("The local playtest faulted.");
+                if (client.Gameplay.Fault != "")
+                { RecordPlaytest(context, "gameplay_fault"); throw new QaFailException("The local playtest faulted."); }
                 var guide = client.GetComponent<WordboundPuzzleGuide>();
-                if (guide && guide.Fault != "") throw new QaFailException("The puzzle guide faulted.");
+                if (guide && guide.Fault != "")
+                { RecordPlaytest(context, "guide_fault"); throw new QaFailException("The puzzle guide faulted."); }
                 return client.Gameplay.CourseWorld && client.Gameplay.Frame != null &&
                     !client.Gameplay.IsSimulationPaused && guide && guide.MarkerCount > 0;
             }, 60, "the local flagship and puzzle markers");
+            playtestReadyFrame = Time.frameCount;
+            playtestStage = "capture_ready";
+            context.Note("playtest_ready_elapsed_seconds", Time.realtimeSinceStartupAsDouble - playtestStartedAt);
+            context.Note("playtest_ready_canonical_tick", client.Gameplay.Frame.Progress.Tick);
+            RecordPlaytest(context, "ready");
             ownedCamera = client.GetComponent<WordboundPlayerView>().Camera;
-            yield return context.WaitFrames(90);
+            yield return CaptureVerified(context, "wordbound_local_ready", "local_ready");
+            playtestStage = "wait_90_frames";
+            RecordPlaytest(context, "begin_frame_wait");
+            for (int frame = 1; frame <= 90; frame++)
+            {
+                yield return null;
+                playtestWaitedFrames = frame;
+                if (frame % 15 == 0) RecordPlaytest(context, "frame_wait_progress");
+            }
+            playtestStage = "capture_world";
+            RecordPlaytest(context, "world_capture_begin");
             yield return context.CaptureScreen("wordbound_local_world");
+            playtestStage = "capture_equipment";
+            RecordPlaytest(context, "world_capture_returned");
             client.GetComponent<WordboundPlayerView>().SetMenuOpen(true);
             yield return context.WaitFrames(3);
             yield return context.CaptureScreen("wordbound_equipment_menu");
+            playtestStage = "completed";
+            RecordPlaytest(context, "playtest_returned");
         }
 
         IEnumerator Return(QaContext context)
         {
+            RecordPlaytest(context, "before_return");
+            if (!client) throw new QaFailException("Return requires the local playtest client; inspect the preceding playtest result.");
             yield return Complete(context, client.ReturnToWorkshop());
             yield return context.WaitFrames(3);
             yield return context.CaptureScreen("wordbound_returned_workshop");
+        }
+
+        void RecordPlaytest(QaContext context, string observation)
+        {
+            var gameplay = client ? client.Gameplay : null;
+            var guide = client ? client.GetComponent<WordboundPuzzleGuide>() : null;
+            var presentation = client ? client.GetComponent<WordboundGameplayPresentation>() : null;
+            var playerView = client ? client.GetComponent<WordboundPlayerView>() : null;
+            var camera = playerView ? playerView.Camera : null;
+            bool hasFrame = gameplay && gameplay.Frame != null;
+            bool hasWorld = gameplay && gameplay.CourseWorld;
+            bool paused = !gameplay || gameplay.IsSimulationPaused;
+            bool ready = hasWorld && hasFrame && !paused && guide && guide.MarkerCount > 0;
+            long tick = hasFrame ? gameplay.Frame.Progress.Tick : -1;
+            double elapsed = playtestStartedAt < 0 ? 0 : Time.realtimeSinceStartupAsDouble - playtestStartedAt;
+            context.Note("playtest_observation", observation);
+            context.Note("playtest_stage", playtestStage);
+            context.Note("playtest_start_frame", playtestStartFrame);
+            context.Note("playtest_ready_frame", playtestReadyFrame);
+            context.Note("playtest_current_frame", Time.frameCount);
+            context.Note("playtest_post_ready_waited_frames", playtestWaitedFrames);
+            context.Note("playtest_elapsed_seconds", elapsed);
+            context.Note("playtest_canonical_tick", tick);
+            context.Note("playtest_has_client", client != null);
+            context.Note("playtest_has_controller", gameplay != null);
+            context.Note("playtest_controller_active", gameplay && gameplay.isActiveAndEnabled);
+            context.Note("playtest_has_frame", hasFrame);
+            context.Note("playtest_has_world", hasWorld);
+            context.Note("playtest_paused", paused);
+            context.Note("playtest_ready_condition", ready);
+            context.Note("playtest_gameplay_fault", gameplay && gameplay.Fault != "");
+            context.Note("playtest_guide_fault", guide && guide.Fault != "");
+            context.Note("playtest_presentation_fault", presentation && presentation.Fault != "");
+            context.Note("playtest_marker_count", guide ? guide.MarkerCount : 0);
+            context.Note("playtest_visual_count", presentation ? presentation.VisualCount : 0);
+            context.Note("playtest_camera_exists", camera != null);
+            context.Note("playtest_camera_active", camera && camera.isActiveAndEnabled);
+            context.Note("playtest_menu_open", playerView && playerView.MenuOpen);
+            context.Note("playtest_time_scale", Time.timeScale);
+            context.Note("playtest_focused", Application.isFocused);
+            Debug.Log("WORDBOUND_QA_PLAYTEST: observation=" + observation + "; stage=" + playtestStage +
+                "; elapsed=" + elapsed.ToString("F3", System.Globalization.CultureInfo.InvariantCulture) +
+                "; startFrame=" + playtestStartFrame + "; readyFrame=" + playtestReadyFrame +
+                "; frame=" + Time.frameCount + "; waitedFrames=" + playtestWaitedFrames + "; tick=" + tick +
+                "; ready=" + ready + "; paused=" + paused);
+        }
+
+        static IEnumerator CaptureVerified(QaContext context, string name, string label)
+        {
+            string path = context.PathInRun(name + ".png"), error = null;
+            yield return StoryCamera.CaptureScreen(path, value => error = value);
+            if (error != null) throw new QaFailException("The " + label + " screen capture failed: " + error);
+            context.AddCapture(name, path, "png", "screen");
+            RequireScreenPixels(context, name, label);
         }
 
         IEnumerator UndoRedo(QaContext context)
