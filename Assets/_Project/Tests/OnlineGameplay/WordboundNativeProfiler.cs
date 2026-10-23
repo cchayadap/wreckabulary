@@ -3,9 +3,52 @@ using System.Globalization;
 using NUnit.Framework;
 using Unity.Profiling;
 using UnityEngine;
+using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.OnlineGameplayTests
 {
+    internal sealed class WordboundNativePhases
+    {
+        WordboundPhaseCapture capture;
+        WordboundPhaseBoundary first;
+        string window = "startup";
+
+        public static WordboundNativePhases StartIfEnabled() =>
+            Environment.GetEnvironmentVariable("WORDBOUND_PROFILE_PHASES") == "1" ? new WordboundNativePhases() : null;
+
+        WordboundNativePhases()
+        {
+            first = new WordboundPhaseBoundary(null);
+            capture = WordboundPhaseCapture.TryStart();
+            if (capture == null) Debug.Log("WORDBOUND_PHASE_UNAVAILABLE: capture-already-owned");
+        }
+
+        public void Ready(MatchSnapshot frame)
+        {
+            if (capture == null) return;
+            var boundary = new WordboundPhaseBoundary(frame);
+            Stop(boundary, "all-peers-ready");
+            first = boundary; window = "ready";
+            capture = WordboundPhaseCapture.TryStart();
+            if (capture == null) Debug.Log("WORDBOUND_PHASE_UNAVAILABLE: ready-capture-already-owned");
+        }
+
+        public void Finish(MatchSnapshot frame, string outcome) => Stop(new WordboundPhaseBoundary(frame), outcome);
+
+        void Stop(WordboundPhaseBoundary last, string outcome)
+        {
+            var completed = capture; capture = null;
+            if (completed == null) return;
+            completed.Dispose();
+            try
+            {
+                Debug.Log("WORDBOUND_PHASE_CASE: " + TestContext.CurrentContext.Test.FullName);
+                foreach (string line in completed.Report(window, outcome, first, last)) Debug.Log(line);
+            }
+            catch (Exception error) { Debug.Log("WORDBOUND_PHASE_UNAVAILABLE: report-" + error.GetType().Name); }
+        }
+    }
+
     internal sealed class WordboundNativeProfiler : IDisposable
     {
         const int Capacity = 32768;

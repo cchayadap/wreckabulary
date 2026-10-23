@@ -207,49 +207,55 @@ namespace Wreckabulary.Qa
             playtestStartFrame = Time.frameCount; playtestReadyFrame = -1; playtestWaitedFrames = 0;
             playtestStage = "request_playtest";
             RecordPlaytest(context, "start");
-            workshop.RequestPlaytest();
-            client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
-            playtestStage = "wait_readiness";
-            RecordPlaytest(context, "requested");
-            int lastReadinessFrame = Time.frameCount;
-            yield return context.WaitUntil(() => {
-                client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
-                if (Time.frameCount - lastReadinessFrame >= 15)
-                { RecordPlaytest(context, "readiness_progress"); lastReadinessFrame = Time.frameCount; }
-                if (!client || !client.Gameplay) return false;
-                if (client.Gameplay.Fault != "")
-                { RecordPlaytest(context, "gameplay_fault"); throw new QaFailException("The local playtest faulted."); }
-                var guide = client.GetComponent<WordboundPuzzleGuide>();
-                if (guide && guide.Fault != "")
-                { RecordPlaytest(context, "guide_fault"); throw new QaFailException("The puzzle guide faulted."); }
-                return client.Gameplay.CourseWorld && client.Gameplay.Frame != null &&
-                    !client.Gameplay.IsSimulationPaused && guide && guide.MarkerCount > 0;
-            }, 60, "the local flagship and puzzle markers");
-            playtestReadyFrame = Time.frameCount;
-            playtestStage = "capture_ready";
-            context.Note("playtest_ready_elapsed_seconds", Time.realtimeSinceStartupAsDouble - playtestStartedAt);
-            context.Note("playtest_ready_canonical_tick", client.Gameplay.Frame.Progress.Tick);
-            RecordPlaytest(context, "ready");
-            ownedCamera = client.GetComponent<WordboundPlayerView>().Camera;
-            yield return CaptureVerified(context, "wordbound_local_ready", "local_ready");
-            playtestStage = "wait_90_frames";
-            RecordPlaytest(context, "begin_frame_wait");
-            for (int frame = 1; frame <= 90; frame++)
+            var phases = WordboundPhaseObservation.StartIfEnabled(launcher, context);
+            try
             {
-                yield return null;
-                playtestWaitedFrames = frame;
-                if (frame % 15 == 0) RecordPlaytest(context, "frame_wait_progress");
+                workshop.RequestPlaytest();
+                client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
+                playtestStage = "wait_readiness";
+                RecordPlaytest(context, "requested");
+                int lastReadinessFrame = Time.frameCount;
+                yield return context.WaitUntil(() => {
+                    client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
+                    if (Time.frameCount - lastReadinessFrame >= 15)
+                    { RecordPlaytest(context, "readiness_progress"); lastReadinessFrame = Time.frameCount; }
+                    if (!client || !client.Gameplay) return false;
+                    if (client.Gameplay.Fault != "")
+                    { RecordPlaytest(context, "gameplay_fault"); throw new QaFailException("The local playtest faulted."); }
+                    var guide = client.GetComponent<WordboundPuzzleGuide>();
+                    if (guide && guide.Fault != "")
+                    { RecordPlaytest(context, "guide_fault"); throw new QaFailException("The puzzle guide faulted."); }
+                    return client.Gameplay.CourseWorld && client.Gameplay.Frame != null &&
+                        !client.Gameplay.IsSimulationPaused && guide && guide.MarkerCount > 0;
+                }, 60, "the local flagship and puzzle markers");
+                playtestReadyFrame = Time.frameCount;
+                if (phases) phases.Ready(client.Gameplay.Frame);
+                playtestStage = "capture_ready";
+                context.Note("playtest_ready_elapsed_seconds", Time.realtimeSinceStartupAsDouble - playtestStartedAt);
+                context.Note("playtest_ready_canonical_tick", client.Gameplay.Frame.Progress.Tick);
+                RecordPlaytest(context, "ready");
+                ownedCamera = client.GetComponent<WordboundPlayerView>().Camera;
+                yield return CaptureVerified(context, "wordbound_local_ready", "local_ready");
+                playtestStage = "wait_90_frames";
+                RecordPlaytest(context, "begin_frame_wait");
+                for (int frame = 1; frame <= 90; frame++)
+                {
+                    yield return null;
+                    playtestWaitedFrames = frame;
+                    if (frame % 15 == 0) RecordPlaytest(context, "frame_wait_progress");
+                }
+                playtestStage = "capture_world";
+                RecordPlaytest(context, "world_capture_begin");
+                yield return context.CaptureScreen("wordbound_local_world");
+                playtestStage = "capture_equipment";
+                RecordPlaytest(context, "world_capture_returned");
+                client.GetComponent<WordboundPlayerView>().SetMenuOpen(true);
+                yield return context.WaitFrames(3);
+                yield return context.CaptureScreen("wordbound_equipment_menu");
+                playtestStage = "completed";
+                RecordPlaytest(context, "playtest_returned");
             }
-            playtestStage = "capture_world";
-            RecordPlaytest(context, "world_capture_begin");
-            yield return context.CaptureScreen("wordbound_local_world");
-            playtestStage = "capture_equipment";
-            RecordPlaytest(context, "world_capture_returned");
-            client.GetComponent<WordboundPlayerView>().SetMenuOpen(true);
-            yield return context.WaitFrames(3);
-            yield return context.CaptureScreen("wordbound_equipment_menu");
-            playtestStage = "completed";
-            RecordPlaytest(context, "playtest_returned");
+            finally { if (phases) phases.Finish(playtestStage == "completed" ? "completed" : "iterator-exit"); }
         }
 
         IEnumerator Return(QaContext context)

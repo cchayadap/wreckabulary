@@ -31,6 +31,7 @@ namespace Wreckabulary.OnlineGameplayTests
         WordboundLiveMatch live;
         CancellationTokenSource lifetime;
         WordboundNativeProfiler profiler;
+        WordboundNativePhases phases;
         WordboundNativeTickBatches tickBatches;
         WordboundGameplayPrefabs prefabs;
         NetworkPrefabRef carrier;
@@ -95,6 +96,7 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.IsTrue(Application.isPlaying, "The native gameplay fixture must enter Play Mode before creating guests or Runners.");
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(8));
             profiler = WordboundNativeProfiler.StartIfEnabled();
+            phases = WordboundNativePhases.StartIfEnabled();
             tickBatches = WordboundNativeTickBatches.StartIfEnabled();
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             WordboundClientContent production = authoredWorkshop ? (authoredContentFactory ?? CreateAuthoredWorkshop)(projectRoot) : null;
@@ -130,6 +132,7 @@ namespace Wreckabulary.OnlineGameplayTests
             }
             var second = peers[1];
             yield return Until(() => peers.All(Ready), "Prepare every scene and durable gameplay start", 65);
+            phases?.Ready(first.Controller.Frame);
             AssertIdentities(first);
             AssertScenes(first);
             yield return Until(() => peers.All(ExactBodies), "Replicate every canonical body exactly once", 25);
@@ -587,6 +590,13 @@ namespace Wreckabulary.OnlineGameplayTests
         [UnityTearDown]
         public IEnumerator Cleanup()
         {
+            if (phases != null)
+            {
+                MatchSnapshot boundary = null;
+                try { boundary = peers.FirstOrDefault(peer => peer.Runner != null && peer.Runner.IsServer)?.Controller.Frame; }
+                catch (Exception error) { Debug.Log("WORDBOUND_PHASE_UNAVAILABLE: native-boundary-" + error.GetType().Name); }
+                finally { phases.Finish(boundary, "teardown"); phases = null; }
+            }
             profiler?.Dispose(); profiler = null;
             tickBatches?.Dispose(); tickBatches = null;
             lifetime?.Cancel();
