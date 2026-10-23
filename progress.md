@@ -138,7 +138,7 @@ Outstanding: three articulated transform basis mismatches; one EditMode camera S
 
 All seven worktrees and existing versions remain preserved. Public activation is verified as recorded below; completed native gameplay and a tested Windows build remain unfinished.
 
-## Current verification — 2026-10-23T13:31Z
+## Current verification — 2026-10-23T14:03Z
 
 | Work | State and exact evidence |
 | --- | --- |
@@ -147,9 +147,9 @@ All seven worktrees and existing versions remain preserved. Public activation is
 | Service validation | [x] Actual native catalogue: Node 10/10, Worker 41/41, both TypeScript checks. Worker evidence in the activation folder. |
 | Pivot/authoring/recovery | [x] Native pivot/detail 6/6, authoring persistence 8/8, workshop recovery 11/11 and existing workshop 9/9. `TestResults/editmode_20261023T125443Z.xml`; entire batch failed because input cases failed. Affected workshop core 23/23: `TestResults/core_20261023T125341Z.trx`. |
 | Input | [x] Focused native input 24/24 now pass, including real menu repaint/focus and held-input protection. `TestResults/editmode_20261023T133902Z.xml`. Production input protections unchanged; Windows-player handling remains separate. |
-| Workshop source selection | [~] Native source-binding 23/25 pass; deferred source choice under a gameplay blocker and same-ID Flagship draft serialization fail. The same batch passes existing workshop/recovery 20/20: total 67/69, zero skipped. Both failures remain under investigation. |
+| Workshop source selection | [~] Initial native source-binding 23/25 pass. The large-course recovery wrapper now supports a bounded embedded course while preserving strict inner validation; affected core 66/66 pass (`TestResults/core_20261023T135423Z.trx`). The source-choice fixture now respects actual post-block quiet frames. Corrected native 25-case rerun pending. |
 | Physical puzzles | [~] TABLE craft wait remains unresolved. Diagnostic instrumentation now distinguishes per-action deadline from fixture lifetime; strict rerun pending. |
-| Original-based models | [~] SOFA V1 and V2 preserved. V2 three-quarter/side pairs retain the original silhouette/colours; close-up exposes an angular seam kink. V3 feasibility/repair underway. Full visual acceptance and Unity integration pending. FAN/HAMMER next. |
-| Public modes/build | [~] Five two-client native public cases now running. Duo/Squad, private-map transfer, recovery, full-match gameplay, QA/player performance and release build remain required. |
+| Original-based models | [~] SOFA V1/V2 preserved; V2 close-up seam kink remains rejected. V3 smooth raised seam failed contact feasibility before rendering. V4 preserves original geometry and tests a shallow editable fabric-normal seam; Blender build passes, close-up rendering underway. An Inspector choice to restore actual original-game artwork as the default is being implemented. |
+| Public modes/build | [~] First native public batch failed 0/5 (`TestResults/editmode_20261023T134237Z.xml`): the test wrapper did not enter Play Mode. Direct private comparison passes 1/1 with cleanup (`TestResults/editmode_20261023T135039Z.xml`). Reviewed public/HUD wrapper repair and explicit Play Mode guard integrated; R0 passes (`Logs/gate_check_all_20261023T135858Z.log`). Public rerun, Duo/Squad, private transfer, recovery, full matches and Windows delivery remain required. |
 
 Earlier paragraphs above retain the sequence of failed and superseded checks. This table is the current acceptance state; a technical asset pass does not reverse the owner's DetailV2 rejection.
