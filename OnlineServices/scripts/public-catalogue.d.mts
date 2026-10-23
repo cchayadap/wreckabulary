@@ -2,7 +2,7 @@ export type PublicContent = {
   kind: "BuiltIn"; courseId: string; courseHash: string; manifestHash: string; modeHash: string; catalogHash: string;
 };
 export type PublicCourse = {
-  mode: "TimeRun" | "TeamRace" | "BrawlRace" | "FreeForAll";
+  mode: "TimeRun" | "TeamRace" | "BrawlRace" | "FreeForAll" | "Freestyle";
   format: "Solo" | "Duo" | "Squad"; seed: string; content: PublicContent;
 };
 export type PublicCatalogueProjection = {
