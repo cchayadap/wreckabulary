@@ -6,6 +6,12 @@ using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Online
 {
+    public enum WordboundBaseArtwork
+    {
+        OriginalWreckabulary = 0,
+        WordboundEquipment = 1
+    }
+
     [Serializable]
     public sealed class WordboundVisualOverride
     {
@@ -19,10 +25,13 @@ namespace Wreckabulary.Online
     [CreateAssetMenu(menuName = "Wreckabulary/Wordbound/Visual profile")]
     public sealed class WordboundVisualProfile : ScriptableObject
     {
+        [Tooltip("Choose the original Wreckabulary models or the optional Wordbound equipment collection. Per-item Overrides take priority.")]
+        public WordboundBaseArtwork BaseArtwork = WordboundBaseArtwork.OriginalWreckabulary;
         public WordboundDefensePose DefensePose = new WordboundDefensePose();
         public List<WordboundVisualOverride> Overrides = new List<WordboundVisualOverride>();
         public void Validate()
         {
+            if (!Enum.IsDefined(typeof(WordboundBaseArtwork), BaseArtwork)) throw new ArgumentException("Choose a supported base artwork source.");
             if (DefensePose == null) throw new ArgumentException("Assign a held-defense visual pose.");
             DefensePose.Validate();
             if (Overrides == null || Overrides.Count > 256) throw new ArgumentException("At most 256 visual overrides are supported.");

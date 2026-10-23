@@ -20,8 +20,9 @@ namespace Wreckabulary.Online
             IReadOnlyDictionary<string, string> courseModels = null, WordboundVisualProfile profile = null)
         {
             this.items = items ?? throw new ArgumentNullException(nameof(items));
-            UseWordboundCollection = useWordboundCollection;
             if (profile) profile.Validate();
+            UseWordboundCollection = useWordboundCollection &&
+                (!profile || profile.BaseArtwork == WordboundBaseArtwork.WordboundEquipment);
             Profile = profile;
             mappings = new Dictionary<string, string>(StringComparer.Ordinal)
             {

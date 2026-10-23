@@ -29,21 +29,99 @@ namespace Wreckabulary.Tests
         [TestCase("BAT"), TestCase("BROOM"), TestCase("HAMMER"), TestCase("SPEAR")]
         [TestCase("SHIELD"), TestCase("PLATE"), TestCase("TABLE"), TestCase("SOFA")]
         [TestCase("BED"), TestCase("STOOL"), TestCase("FAN"), TestCase("CLOCK")]
+        public void DefaultPresentationUsesOriginalMeshesWithCanonicalBoundsAndGrip(string id)
+        {
+            var profile = AssetDatabase.LoadAssetAtPath<WordboundVisualProfile>("Assets/_Project/Data/Wordbound/Authoring/Presentation.asset");
+            Assert.IsNotNull(profile, "The actual launch presentation profile must exist.");
+            Assert.AreEqual(WordboundBaseArtwork.OriginalWreckabulary, profile.BaseArtwork);
+            var item = GameConfig.Current.Items.Get(id);
+            var source = ModelLibrary.Load().Find(item.Model);
+            Assert.IsNotNull(source, "The original imported model must exist: " + item.Model);
+            var target = Vector3.Scale(new Vector3(item.Size[0], item.Size[1], item.Size[2]), new Vector3(.8f, 1.1f, .9f));
+            var originals = new WordboundVisualResolver(GameConfig.Current.Items, profile: profile);
+            using var visual = originals.Create(id, target, anchor.transform);
+            SameMeshes(source, visual.Model);
+            var bounds = VertexBounds(visual.Model, anchor.transform);
+            Near(target, bounds.size);
+            Near(new Vector3(0, target.y / 2, 0), bounds.center);
+            Assert.IsEmpty(visual.Root.GetComponentsInChildren<Collider>(true));
+            Assert.IsEmpty(visual.Root.GetComponentsInChildren<Rigidbody>(true));
+            Assert.IsEmpty(visual.Root.GetComponentsInChildren<Collider2D>(true));
+            Assert.IsEmpty(visual.Root.GetComponentsInChildren<Rigidbody2D>(true));
+            Assert.AreEqual(item.HeldScale, visual.HeldScale); Assert.AreEqual(item.IsTwoHanded, visual.TwoHanded);
+            var grip = ModelVisual.FindNamed(visual.Model, "Grip_R");
+            var itemGrip = new Vector3(item.Grip[0], item.Grip[1], item.Grip[2]);
+            Vector3 contact = grip ? grip.position : visual.Model.transform.parent.TransformPoint(itemGrip);
+            Near(visual.Root.transform.InverseTransformPoint(contact), visual.Grip);
+            var hand = new GameObject("Original artwork hand").transform;
+            hand.SetParent(anchor.transform, false);
+            hand.SetPositionAndRotation(new Vector3(2, 3, 4), Quaternion.Euler(17, 43, 71));
+            bool miniature = item.Category == ItemCategory.Combat;
+            visual.PlaceAtHand(anchor.transform, hand, miniature);
+            Near(hand.position, grip ? grip.position : visual.Model.transform.parent.TransformPoint(itemGrip));
+            Near(Vector3.one * (miniature ? item.HeldScale : 1), visual.Root.transform.localScale);
+        }
+
+        [TestCase("BAT"), TestCase("BROOM"), TestCase("HAMMER"), TestCase("SPEAR")]
+        [TestCase("SHIELD"), TestCase("PLATE"), TestCase("TABLE"), TestCase("SOFA")]
+        [TestCase("BED"), TestCase("STOOL"), TestCase("FAN"), TestCase("CLOCK")]
         public void CollectionArtworkFitsCanonicalBoundsWithoutPhysicsAndKeepsItsMaterials(string id)
         {
             var collection = WordboundEquipmentCollection.Load();
             Assert.IsNotNull(collection, "Import Wordbound equipment before these native tests.");
             var entry = collection.Find(id);
             var target = Vector3.Scale(entry.size, new Vector3(.8f, 1.1f, .9f));
-            using var visual = resolver.Create(id, target, anchor.transform);
-            var bounds = VertexBounds(visual.Model, anchor.transform);
-            Near(target, bounds.size);
-            Assert.That(Mathf.Abs(bounds.min.y), Is.LessThan(.002f));
-            Assert.That(Mathf.Abs(bounds.center.x) + Mathf.Abs(bounds.center.z), Is.LessThan(.002f));
-            Assert.IsEmpty(visual.Root.GetComponentsInChildren<Collider>(true));
-            Assert.IsEmpty(visual.Root.GetComponentsInChildren<Rigidbody>(true));
-            var originals = new HashSet<Material>(entry.model.GetComponentsInChildren<Renderer>(true).SelectMany(r => r.sharedMaterials));
-            Assert.IsTrue(visual.Model.GetComponentsInChildren<Renderer>(true).All(r => r.sharedMaterials.All(originals.Contains)));
+            var profile = ScriptableObject.CreateInstance<WordboundVisualProfile>();
+            profile.BaseArtwork = WordboundBaseArtwork.WordboundEquipment;
+            try
+            {
+                var selected = new WordboundVisualResolver(GameConfig.Current.Items, profile: profile);
+                using var visual = selected.Create(id, target, anchor.transform);
+                SameMeshes(entry.model, visual.Model);
+                var bounds = VertexBounds(visual.Model, anchor.transform);
+                Near(target, bounds.size);
+                Assert.That(Mathf.Abs(bounds.min.y), Is.LessThan(.002f));
+                Assert.That(Mathf.Abs(bounds.center.x) + Mathf.Abs(bounds.center.z), Is.LessThan(.002f));
+                Assert.IsEmpty(visual.Root.GetComponentsInChildren<Collider>(true));
+                Assert.IsEmpty(visual.Root.GetComponentsInChildren<Rigidbody>(true));
+                var originals = new HashSet<Material>(entry.model.GetComponentsInChildren<Renderer>(true).SelectMany(r => r.sharedMaterials));
+                Assert.IsTrue(visual.Model.GetComponentsInChildren<Renderer>(true).All(r => r.sharedMaterials.All(originals.Contains)));
+            }
+            finally { Object.DestroyImmediate(profile); }
+        }
+
+        [TestCase(false, false), TestCase(false, true)]
+        [TestCase(true, false), TestCase(true, true)]
+        public void CollectionOptInRespectsCallerFlagAndNullProfileKeepsItsLegacySelection(bool withProfile, bool allowCollection)
+        {
+            var profile = withProfile ? ScriptableObject.CreateInstance<WordboundVisualProfile>() : null;
+            if (profile) profile.BaseArtwork = WordboundBaseArtwork.WordboundEquipment;
+            try
+            {
+                var selected = new WordboundVisualResolver(GameConfig.Current.Items, allowCollection, profile: profile);
+                var expected = allowCollection ? WordboundEquipmentCollection.Load().Find("BAT").model : ModelLibrary.Load().Find("Items/BAT");
+                using var visual = selected.Create("BAT", new Vector3(.2f, 1f, .2f), anchor.transform);
+                SameMeshes(expected, visual.Model);
+            }
+            finally { if (profile) Object.DestroyImmediate(profile); }
+        }
+
+        [Test]
+        public void NewProfileDefaultsToOriginalArtworkAndRejectsUnknownChoices()
+        {
+            var profile = ScriptableObject.CreateInstance<WordboundVisualProfile>();
+            try
+            {
+                Assert.AreEqual(WordboundBaseArtwork.OriginalWreckabulary, profile.BaseArtwork);
+                var serialized = new SerializedObject(profile);
+                var choice = serialized.FindProperty("BaseArtwork");
+                Assert.AreEqual(SerializedPropertyType.Enum, choice.propertyType);
+                Assert.AreEqual(0, choice.enumValueIndex);
+                CollectionAssert.AreEqual(new[] { "Original Wreckabulary", "Wordbound Equipment" }, choice.enumDisplayNames);
+                profile.BaseArtwork = (WordboundBaseArtwork)99;
+                Assert.Throws<ArgumentException>(() => new WordboundVisualResolver(GameConfig.Current.Items, profile: profile));
+            }
+            finally { Object.DestroyImmediate(profile); }
         }
 
         [TestCase("BAT", true), TestCase("TABLE", false)]
@@ -111,11 +189,14 @@ namespace Wreckabulary.Tests
                 courseModels: new Dictionary<string, string> { ["player"] = "Items/TABLE" }));
         }
 
-        [TestCase("BAT", false), TestCase("BAT", true)]
-        [TestCase("custom-inspector-prop", false), TestCase("custom-inspector-prop", true)]
-        public void InspectorModelOverrideUsesItsOwnBoundsAndGripInsteadOfOriginalMetadata(string visualKey, bool authoredGrip)
+        [TestCase("BAT", false, WordboundBaseArtwork.OriginalWreckabulary), TestCase("BAT", true, WordboundBaseArtwork.OriginalWreckabulary)]
+        [TestCase("custom-inspector-prop", false, WordboundBaseArtwork.OriginalWreckabulary), TestCase("custom-inspector-prop", true, WordboundBaseArtwork.OriginalWreckabulary)]
+        [TestCase("BAT", false, WordboundBaseArtwork.WordboundEquipment), TestCase("BAT", true, WordboundBaseArtwork.WordboundEquipment)]
+        [TestCase("custom-inspector-prop", false, WordboundBaseArtwork.WordboundEquipment), TestCase("custom-inspector-prop", true, WordboundBaseArtwork.WordboundEquipment)]
+        public void InspectorModelOverrideUsesItsOwnBoundsAndGripInsteadOfOriginalMetadata(string visualKey, bool authoredGrip, WordboundBaseArtwork baseArtwork)
         {
             var profile = ScriptableObject.CreateInstance<WordboundVisualProfile>();
+            profile.BaseArtwork = baseArtwork;
             var model = GameObject.CreatePrimitive(PrimitiveType.Cube);
             model.transform.SetParent(anchor.transform, false);
             Object.DestroyImmediate(model.GetComponent<Collider>());
@@ -151,6 +232,15 @@ namespace Wreckabulary.Tests
 
         static void Near(Vector3 expected, Vector3 actual) =>
             Assert.That(Vector3.Distance(expected, actual), Is.LessThan(.002f), $"Expected {expected}, got {actual}");
+
+        static void SameMeshes(GameObject expected, GameObject actual)
+        {
+            Mesh[] Meshes(GameObject model) => model.GetComponentsInChildren<MeshFilter>(true).Select(f => f.sharedMesh)
+                .Concat(model.GetComponentsInChildren<SkinnedMeshRenderer>(true).Select(r => r.sharedMesh)).ToArray();
+            var source = Meshes(expected);
+            Assert.IsNotEmpty(source);
+            CollectionAssert.AreEquivalent(source, Meshes(actual), "Spawn the selected imported mesh assets, not merely a matching object name.");
+        }
 
         static Bounds VertexBounds(GameObject model, Transform space)
         {
