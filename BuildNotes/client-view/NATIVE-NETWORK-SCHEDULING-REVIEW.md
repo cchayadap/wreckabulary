@@ -71,3 +71,40 @@ The bounded repair moves only the `SimulationBehaviour` callback adapter to `Scr
 Source/diff review only; corrected compilation, attachment and callback delivery await the parent's native rerun. A missing/failed probe cannot be interpreted as a passing scheduling result.
 
 Root integrated the adapter as `90ac700`; R0 then caught a new NUnit/Fusion `Assert` ambiguity in the Editor aggregate. Root `c40fe19` qualifies `NUnit.Framework.Assert.IsNotNull`, and that fix must be preserved by later helper edits. The same root commit repairs a separate private authored-fixture preparation failure by awaiting the status-bearing party refresh before reading its assignment, and adds at most four safe method/type stack origins to failed task diagnostics. Independent bounded source review is PASS; detailed evidence is in [NATIVE-WORKSHOP-SETUP-REVIEW.md](NATIVE-WORKSHOP-SETUP-REVIEW.md), report-only commit `c98e8e3`. The corrected native batch was running at review time; no attachment or network success is inferred before its completed result.
+
+## Completed corrected native run — 20261023T163900Z
+
+Independently read root `TestResults/editmode_20261023T163900Z.xml`, `Logs/gate_test_editmode_20261023T163900Z.log` and `.harness/delivery/native-team-private-repaired-probes-stdout.log`. The tested source was root `c40fe19`. XML: **2 total, 1 PASS, 1 FAIL, 0 skipped**, 149.0402821 s, 16:41:22–16:43:51 UTC. The cold gate remains **FAIL**, 302.1 s including 118.4 s refresh; its only test failure is public TeamRace. This is not a successful delivery gate.
+
+| Case | Completed result | Narrow evidence |
+| --- | --- | --- |
+| `PublicTeamRacePreservesWholeSoloParties` | FAIL, 82.230695 s | Exact approved public allocation/whole-party certificate observed; scene/durable-start readiness failed on a stale snapshot before client gameplay readiness. |
+| `TwoAuthenticatedPeersDownloadAndPlayExactAuthoredWorkshopMap` | PASS, 66.573732 s | Two authenticated scripted clients independently downloaded matching authored content and composed actual bodies; client movement, command/deduplication, durable snapshot acknowledgement and fixture cleanup passed. |
+
+### Public failure and measured tick batches
+
+Log line 1080 reports transfer elapsed **21,052 ms** against **10,000 ms**, with same mark/count/length/wire hash all 1 and duplicate chunk 0. This identifies the stale predicate again, without attributing all elapsed time to the network. Readiness ended after **46.139 s**, max observed coroutine gap **7.068 s**; host canonical tick/advance count were 360, host was paused, client had no canonical frame and reported `FormatException`.
+
+The adapter now actually attached and delivered native callbacks. Both peer records have no pending batch, unmatched begin/end, pairing mismatch or invalid tick count. The two-runner observer window is 74,064.160 ms. Aggregates cover every completed callback; tails retain only 16 completions and disclose 550 host / 406 client overwritten samples.
+
+- Host: **566 forward batches, 1,908 Fusion forward ticks**, maximum **60 ticks**; worst complete batch was **60 ticks / 6,482.646 ms**, frame 26190, observer offsets 34,719.048→41,201.694 ms. No resimulation batch was observed. `TicksExecuted` also reached 60 at a normal Unity update.
+- Client: 222 forward batches / 339 ticks (maximum 41) and 200 resimulation batches / 5,385 ticks (maximum 33). Maximum forward duration was 21.082 ms for an 11-tick batch; maximum resimulation duration 8.170 ms for a 23-tick batch. The largest **batch-start callback gap** was **21,264.360 ms**, from the retained forward callback at 32,917.856 ms to the next at 54,182.216 ms.
+- The client gap overlaps host forward batches lasting 6,482.646, 5,711.140 and 5,378.924 ms on consecutive frames, followed by two shorter batches. Normal Unity-update gaps also reached approximately 8,838.8 ms for both peers.
+
+This establishes that large, expensive synchronous forward batches really occur in this setup, rather than only being a theory from tick-rate configuration. It strengthens the shared-main-thread scheduling explanation. It still does **not** prove a universal SDK cap of 60, timestamp socket arrivals, or establish that `NetworkRecv` was absent throughout the client callback gap; callbacks occur only when that runner performs ticks. These are Stopwatch **wall** durations, not CPU samples. The 1,908 Fusion ticks span pre-gameplay and paused periods and must not be equated to the 360 canonical advances. Existing protocol deadlines remain unchanged.
+
+### Private authored-map pass and limits
+
+Private operation durations in log lines 1975–4119 were: readiness **7.503 s** (max gap 1.304 s), exact body replication **0.004 s**, admitted client movement **2.614 s** (max gap 0.370 s), host command application **1.104 s** (max gap 0.587 s), and exact committed snapshot acknowledgement **11.163 s** (max gap 1.870 s). The authored-transfer marker at line 4140 follows assertions for independently constructed content, exact document/manifest/catalogue/rule binding and canonical world composition. No private session failure was recorded.
+
+At the **last durable-ack observation**, the host was nevertheless `paused=True`, `canMove=False`, tick 438, with running/ready/committed state true and no failure. The client was `paused=False`, tick 300, with running/ready/committed state true and no failure. The case does not require both peers to remain unpaused after this final acknowledgement, so its PASS must not be described as a sustained smooth-playing acceptance or a proven recovered final host state. Pause cause was not captured by this diagnostic.
+
+Private observer maximum host batch was also 60 ticks, but **1,860.718 ms**; maximum client batch-start gap was **4,873.477 ms**. Host and client pairing counters were clean. This private Freestyle authored workload is a useful successful comparison, not an equivalent public TeamRace workload or a 60 Hz performance pass.
+
+The private XML PASS includes `UnityTearDown`: controller stops, pending task completion, service match-return/queue-cancel/party-leave cleanup, and the existing zero-failure/no-proof-owned-object-leak assertions. The intermediate transfer/gameplay markers correctly say cleanup pending; final XML supplies the completed verdict. This is fixture-owned cleanup, not a claim that all remote historical records or every Unity allocation disappeared.
+
+### Preserved infrastructure caveat and next action
+
+Startup log lines 544–558 retain Burst's **60,000 ms compiler command-queue timeout**. The gate also retains those messages and `crashAfterQuit=false`; the tests did execute to final XML. Later shutdown helper/Mono warnings remain in the raw log. None is proven to cause the snapshot failure, and none is erased or relabelled as a clean startup.
+
+Next: parent measures the approved resource-lookup optimization and reruns the exact public case with the same batch/protocol diagnostics. Compare content identity, native marker costs, maximum host batch duration, callback gaps, readiness and final paused state before any scheduling or deadline intervention. The private authored acceptance is now one real narrow PASS; public TeamRace and production-ready Windows acceptance remain incomplete.
