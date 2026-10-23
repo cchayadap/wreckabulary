@@ -101,7 +101,9 @@ namespace Wreckabulary.Online
             bool selected = view.UsesGamepad && menuFocus.Selected == id;
             var style = selected ? ui.Selected : id == "resume" ? ui.Primary : GUI.skin.button;
             GUI.SetNextControlName("wordbound:" + id);
-            bool clicked = ui.Button(new GUIContent((selected ? "› " : "") + label), style, options);
+            bool clicked = options.Length == 0
+                ? ui.Button(new GUIContent((selected ? "› " : "") + label), style, GUILayout.MinHeight(ui.RowHeight))
+                : ui.Button(new GUIContent((selected ? "› " : "") + label), style, options);
             if (clicked) menuFocus.CancelConfirmation();
             if (selected && Event.current.type == EventType.Repaint)
             {
@@ -167,9 +169,9 @@ namespace Wreckabulary.Online
                 GUILayout.Label("Recipes · letters: " + inventory.Letters);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Search", GUILayout.Width(48));
-                string nextSearch = GUILayout.TextField(pendingSearch ?? search, 32);
+                string nextSearch = GUILayout.TextField(pendingSearch ?? search, 32, GUILayout.MinHeight(ui.RowHeight));
                 if (nextSearch != search) pendingSearch = nextSearch;
-                if (search.Length > 0 && MenuButton("clear-search", "Clear", GUILayout.Width(64))) QueueMenuAction(() => search = "");
+                if (search.Length > 0 && MenuButton("clear-search", "Clear", GUILayout.Width(64), GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(() => search = "");
                 GUILayout.EndHorizontal();
                 recipeScroll = GUILayout.BeginScrollView(recipeScroll);
                 int visible = 0;

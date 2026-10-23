@@ -203,7 +203,7 @@ namespace Wreckabulary.Workshop
         {
             GUILayout.BeginArea(new Rect(8, 8, Screen.width - 16, ui.ChromeHeight), panel); GUILayout.BeginHorizontal();
             GUILayout.Label("Wordbound workshop", heading, GUILayout.Width(heading.CalcSize(new GUIContent("Wordbound workshop")).x));
-            GUI.SetNextControlName("workshop-text:Course title"); title = GUILayout.TextField(title, GUILayout.MinWidth(140));
+            GUI.SetNextControlName("workshop-text:Course title"); title = GUILayout.TextField(title, GUILayout.MinWidth(140), GUILayout.MinHeight(ui.RowHeight));
             if (Button("Rename")) Edit("Rename", draft => draft.Course.Title = title.Trim());
             GUILayout.Label(PlayRequirements.ModeId, GUILayout.Width(90));
             if (Button("Share")) { shareText = History.Current.CourseJsonText; sharing = true; }
@@ -397,7 +397,7 @@ namespace Wreckabulary.Workshop
             GUI.Label(new Rect(12, Screen.height - 27, Screen.width - 24, 23), status);
             GUILayout.BeginArea(new Rect(viewport.position + ToolbarRect.position, ToolbarRect.size), panel);
             GUILayout.BeginHorizontal();
-            GUI.SetNextControlName("workshop-text:Seed"); seed = GUILayout.TextField(seed, 16);
+            GUI.SetNextControlName("workshop-text:Seed"); seed = GUILayout.TextField(seed, 16, GUILayout.MinHeight(ui.RowHeight));
             if (Button("Set seed")) Edit("Set seed", draft => draft.Seed = seed);
             if (Button(History.Current.SeedLocked ? "Locked" : "Unlocked")) Edit("Seed lock", draft => draft.SeedLocked = !draft.SeedLocked);
             GUI.enabled = !History.Current.SeedLocked;
