@@ -11,13 +11,18 @@ namespace Wreckabulary.OnlineGameplayTests
     sealed partial class WordboundLiveMatch
     {
         readonly List<WordboundPartyCoordinator> workshopCoordinators = new List<WordboundPartyCoordinator>();
-        readonly List<CancellationTokenRegistration> workshopCancellation = new List<CancellationTokenRegistration>();
+        readonly List<WorkshopPreparationTransport> workshopTransports = new List<WorkshopPreparationTransport>();
         readonly string installedItems, installedRules;
         WordboundPartyLaunchContext[] workshopLaunches;
 
         public WordboundClientContent ContentFor(int index) => workshopLaunches == null ? ProductionContent : workshopLaunches[index].Content;
 
         async Task PrepareWorkshop(int count, CancellationToken ct)
+        {
+            try { await PrepareWorkshopCore(count, ct); }
+            finally { foreach (var transport in workshopTransports) transport.CompletePreparation(); }
+        }
+        async Task PrepareWorkshopCore(int count, CancellationToken ct)
         {
             if (PublicQueue || count != 2 || Mode.Id != "Freestyle")
                 throw new InvalidOperationException("The authored transfer fixture requires two private Freestyle peers.");
@@ -26,9 +31,10 @@ namespace Wreckabulary.OnlineGameplayTests
             {
                 ct.ThrowIfCancellationRequested();
                 var transport = new WordboundHttpTransport(new Uri(Origin)); transports.Add(transport);
-                var client = new OnlineCoordinatorClient(transport); Clients.Add(client);
+                var cancellable = new WorkshopPreparationTransport(transport, ct); workshopTransports.Add(cancellable);
+                var client = new OnlineCoordinatorClient(cancellable); Clients.Add(client);
                 var coordinator = new WordboundPartyCoordinator(client, Verifier, installedItems, installedRules, Settings.MapPoolVersion);
-                workshopCoordinators.Add(coordinator); workshopCancellation.Add(ct.Register(coordinator.Dispose));
+                workshopCoordinators.Add(coordinator);
                 await coordinator.Connect("NativeWorkshop" + i); CheckWorkshop(coordinator);
             }
             var host = workshopCoordinators[0]; var remote = workshopCoordinators[1];
@@ -84,6 +90,21 @@ namespace Wreckabulary.OnlineGameplayTests
         {
             if (coordinator.RetryRequired || !string.IsNullOrEmpty(coordinator.Error))
                 throw new InvalidOperationException("Authored party preparation failed: " + coordinator.Error);
+        }
+        sealed class WorkshopPreparationTransport : IOnlineHttpTransport
+        {
+            readonly WordboundHttpTransport transport;
+            readonly CancellationToken preparation;
+            volatile bool preparing = true;
+            public WorkshopPreparationTransport(WordboundHttpTransport transport, CancellationToken preparation)
+            { this.transport = transport; this.preparation = preparation; }
+            public void CompletePreparation() => preparing = false;
+            public async Task<OnlineResponse> Send(OnlineRequest request, CancellationToken cancellation)
+            {
+                using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation,
+                    preparing ? preparation : CancellationToken.None);
+                return await transport.Send(request, linked.Token);
+            }
         }
     }
 }

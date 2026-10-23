@@ -237,7 +237,6 @@ namespace Wreckabulary.OnlineGameplayTests
                 }
             }
             foreach (var client in Clients) client.ClearCredentials();
-            foreach (var registration in workshopCancellation) registration.Dispose();
             foreach (var coordinator in workshopCoordinators) coordinator.Dispose();
             foreach (var transport in transports) transport.Dispose();
             return failures;
