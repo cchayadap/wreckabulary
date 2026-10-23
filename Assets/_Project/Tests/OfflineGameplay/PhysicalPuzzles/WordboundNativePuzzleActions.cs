@@ -192,13 +192,34 @@ namespace Wreckabulary.OfflineGameplayTests
             var required = content.Items.Get(recipeId).Letters;
             Assert.IsTrue(Inventory.Letters.Contains(required));
             int prior = Frame.Economy.NextItemId;
+            Debug.Log("WORDBOUND_PHYSICAL_CRAFT: begin " + CraftDetails(recipeId, prior));
             yield return Command(WordboundAction.BeginCraft, value: recipeId);
+            Debug.Log("WORDBOUND_PHYSICAL_CRAFT: accepted " + CraftDetails(recipeId, prior));
             yield return Until(() => Frame.Economy.Items.Any(i => i.Id >= prior && i.Word == recipeId &&
                 i.Origin == ItemOrigin.Crafted && i.HolderId == 0 && i.State == ItemState.Held),
-                "Complete the unchanged " + recipeId + " craft timer", 20);
+                "Complete the unchanged " + recipeId + " craft timer", 20, () => CraftDetails(recipeId, prior));
             lastCrafted = "item:" + Frame.Economy.Items.Single(i => i.Id >= prior && i.Word == recipeId &&
                 i.HolderId == 0 && i.State == ItemState.Held).Id;
             Assert.IsTrue(Inventory.Reserved.IsEmpty);
+            Debug.Log("WORDBOUND_PHYSICAL_CRAFT: completed " + CraftDetails(recipeId, prior));
+        }
+
+        string CraftDetails(string recipeId, int firstItemId)
+        {
+            var frame = Frame;
+            var inventory = frame.Economy.Players[0];
+            var job = inventory.Craft;
+            string timer = job == null ? "none" : job.ItemId + "@slot" + job.Slot +
+                ",started=" + job.StartedAt.ToString("F6") + ",ready=" + job.ReadyAt.ToString("F6") +
+                ",remainingTicks=" + Math.Max(0, Math.Ceiling(job.ReadyAt * ModeDefinition.TickRate) - frame.Progress.Tick);
+            return recipeId + "; " + RunDetails() + "; secondsPerRecipe=" +
+                content.Rules.CraftSeconds(content.Items.Get(recipeId)).ToString("F6") +
+                "; firstItemId=" + firstItemId + "; nextItemId=" + frame.Economy.NextItemId +
+                "; letters=" + inventory.Letters + "; reserved=" + inventory.Reserved +
+                "; slots=" + string.Join(",", inventory.Slots) + "; carriedFurniture=" + inventory.CarriedFurniture +
+                "; canAct=" + inventory.CanAct + "; craft=" + timer + "; matchingItems=" +
+                string.Join(" | ", frame.Economy.Items.Where(i => i.Word == recipeId).Select(i =>
+                    i.Id + ":" + i.Origin + ":" + i.State + ":holder=" + i.HolderId + ":crafter=" + i.CrafterId));
         }
 
         IEnumerator Deploy(string id, ResolvedCoursePhysicalSite site, Vector3 offset)

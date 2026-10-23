@@ -38,6 +38,7 @@ namespace Wreckabulary.OfflineGameplayTests
         readonly HashSet<string> observedStages = new HashSet<string>();
         readonly HashSet<string> observedActorArrivals = new HashSet<string>();
         int setupMoves;
+        double lifetimeStartedAt;
         string sourceJson;
         CommandReceipt lastReceipt;
         string lastCrafted;
@@ -80,6 +81,7 @@ namespace Wreckabulary.OfflineGameplayTests
             SessionState.SetBool(PlayStartedKey, true);
             yield return new EnterPlayMode();
             Debug.Log("WORDBOUND_PHYSICAL_STAGE: entered Play Mode");
+            lifetimeStartedAt = Time.realtimeSinceStartupAsDouble;
             lifetime = new CancellationTokenSource(TimeSpan.FromMinutes(6));
             string configFolder = Path.Combine(Application.dataPath, "_Project/Data/Config");
             string itemJson = File.ReadAllText(Path.Combine(configFolder, "items.json"));
@@ -329,13 +331,28 @@ namespace Wreckabulary.OfflineGameplayTests
 
         IEnumerator Until(Func<bool> complete, string operation, double seconds, Func<string> details = null)
         {
-            double deadline = Time.realtimeSinceStartupAsDouble + seconds;
+            double startedAt = Time.realtimeSinceStartupAsDouble;
+            long startedTick = controller?.Frame?.Progress.Tick ?? -1;
+            double deadline = startedAt + seconds;
             while (!complete() && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
             { Healthy(); yield return null; }
             Healthy();
-            Assert.IsTrue(complete(), operation + " exceeded its deadline." +
-                (details == null ? "" : " " + details()));
+            if (!complete())
+                Assert.Fail(operation + (lifetime.IsCancellationRequested ?
+                    " stopped because the six-minute fixture lifetime was cancelled." : " exceeded its deadline.") +
+                    " Wait seconds=" + (Time.realtimeSinceStartupAsDouble - startedAt).ToString("F3") +
+                    "; budgetSeconds=" + seconds + "; startedTick=" + startedTick + "; " + RunDetails() +
+                    (details == null ? "" : "; " + details()));
         }
+
+        string RunDetails() => "tick=" + (controller?.Frame?.Progress.Tick ?? -1) +
+            "; fixtureSeconds=" + (Time.realtimeSinceStartupAsDouble - lifetimeStartedAt).ToString("F3") +
+            "; lifetimeCancelled=" + (lifetime?.IsCancellationRequested ?? false) +
+            "; runnerStarted=" + (session?.RunnerStarted ?? false) +
+            "; runnerRunning=" + (session?.Runner != null && session.Runner.IsRunning) +
+            "; gameplayReady=" + (session?.GameplayReady ?? false) +
+            "; simulationPaused=" + (controller?.IsSimulationPaused ?? true) +
+            "; timeScale=" + Time.timeScale.ToString("F3");
 
         IEnumerator Wait(Task task, string operation, double seconds)
         {
@@ -343,7 +360,8 @@ namespace Wreckabulary.OfflineGameplayTests
             double deadline = Time.realtimeSinceStartupAsDouble + seconds;
             while (!task.IsCompleted && Time.realtimeSinceStartupAsDouble < deadline && !lifetime.IsCancellationRequested)
             { Healthy(); yield return null; }
-            Assert.IsTrue(task.IsCompleted, operation + " exceeded its deadline.");
+            Assert.IsTrue(task.IsCompleted, operation + (lifetime.IsCancellationRequested ?
+                " stopped because the six-minute fixture lifetime was cancelled. " : " exceeded its deadline. ") + RunDetails());
             Assert.IsFalse(task.IsCanceled, operation + " was cancelled.");
             if (task.IsFaulted) Assert.Fail(operation + " failed: " + task.Exception.GetBaseException());
             pending = null;
