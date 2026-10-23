@@ -8,7 +8,7 @@ using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.WordboundRuntime
 {
-    [DisallowMultipleComponent]
+    [ExecuteAlways, DisallowMultipleComponent]
     public sealed class WordboundCourseWorld : MonoBehaviour, IDisposable
     {
         public const float FloorThickness = .24f;

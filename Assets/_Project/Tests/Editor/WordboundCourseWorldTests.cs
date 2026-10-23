@@ -407,7 +407,10 @@ namespace Wreckabulary.Tests
                     parent = new GameObject("CourseFixtureAfterParentDestruction");
                 }
                 else world.Dispose();
-                Assert.IsTrue(meshes.All(m => m == null), "Every owned native mesh must be destroyed.");
+                Assert.IsTrue(meshes.All(m => m == null),
+                    "Every owned native mesh must be destroyed after " +
+                    (revision == 1 ? "direct parent destruction" : "explicit Dispose") +
+                    " at revision " + revision + "; retained=" + meshes.Count(m => m != null) + ".");
                 Assert.IsTrue(materials.All(m => m != null), "Shared original materials are borrowed.");
                 Assert.IsTrue(borrowed != null);
             }
@@ -420,7 +423,8 @@ namespace Wreckabulary.Tests
             var course = Resolve(CourseTemplates.CombatArena(), proof, "FreeForAll");
             Assert.Throws<InvalidOperationException>(() => WordboundCourseWorld.Build(course, proof, parent.transform, fail));
             Assert.AreEqual(3, failedMeshes.Count);
-            Assert.IsTrue(failedMeshes.All(m => m == null));
+            Assert.IsTrue(failedMeshes.All(m => m == null),
+                "Failed construction must release every owned mesh; retained=" + failedMeshes.Count(m => m != null) + ".");
             Assert.AreEqual(0, parent.transform.childCount);
             Assert.AreEqual(cachedMeshes, Art.Surfaces.MeshCount);
             Assert.IsTrue(borrowed != null);
