@@ -21,7 +21,7 @@ Older `PUBLIC-MATCHMAKING-ACTIVATION.md` and `DEPLOYMENT.md` describe earlier sc
 
 ## 1. Freeze the exact candidate and export in Unity
 
-From `C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration`, record HEAD, dirty paths, integrated lane commits, installed SDK versions and gate results. Integrate the metadata repair, timeout patch, input repair and completed asset work first. Re-run R0/core when those changes invalidate the previous result. Do not run Unity beside Blender or a Worker compiler job.
+From `C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration`, record HEAD, dirty paths, integrated lane commits, installed SDK versions and gate results. Integrate the metadata repair, timeout patch, input repair and completed asset work first. Re-run only the R0/core checks invalidated by those changes; retain unaffected green evidence. Do not run Unity beside Blender or a Worker compiler job.
 
 Set an explicit fresh `WORDBOUND_PUBLIC_RELEASE` (1–24 letters, digits, underscore or hyphen) and `WORDBOUND_PUBLIC_SEEDS` (exactly four distinct lowercase 16-digit hexadecimal seeds). Include `0123456789abcdef`, because the five native public fixtures select that seed. Record all four values before exporting; never reuse a release identifier for changed bytes. Existing source does not choose the other three seeds automatically.
 
@@ -31,14 +31,14 @@ Set-Location $wordboundRoot
 if (-not $env:WORDBOUND_PUBLIC_RELEASE -or -not $env:WORDBOUND_PUBLIC_SEEDS) { throw 'Set the explicit release and four seeds first.' }
 $wordboundSeeds = $env:WORDBOUND_PUBLIC_SEEDS.Split(',').Trim()
 if ($wordboundSeeds.Count -ne 4 -or @($wordboundSeeds | Select-Object -Unique).Count -ne 4 -or $wordboundSeeds -notcontains '0123456789abcdef') { throw 'Four distinct seeds including the native public fixture seed are required.' }
-node Tools/kit/gate/game_gate.mjs check all --json
-node Tools/kit/gate/game_gate.mjs core --json
-node Tools/kit/gate/game_gate.mjs exec Wreckabulary.EditorTools.WordboundDeliverySetup.PrepareFromEnvironment --cold --json --timeout 1800
+node Tools/kit/gate/game_gate.mjs exec Wreckabulary.EditorTools.WordboundDeliverySetup.PrepareFromEnvironment --cold --json --timeout 3600
 if ($LASTEXITCODE -ne 0) { throw 'Native delivery preparation did not pass.' }
 $env:WORDBOUND_PUBLIC_CATALOGUE = Join-Path $wordboundRoot 'Assets/_Project/Resources/Wordbound/public-catalogue.json'
 ```
 
 Run commands sequentially and stop at each nonzero result; do not launch later gates merely because an earlier command printed a result. Gate exit 75 means a held editor/lock: report and stop, with no retry loop or process-name kill. Exit 3 is infrastructure, not a code pass/fail.
+
+R0 command, when invalidated: `node Tools/kit/gate/game_gate.mjs check all --json`. Bounded core command, when affected: `node Tools/kit/gate/game_gate.mjs core 'FullyQualifiedName~Wordbound&FullyQualifiedName!~FlagshipSeeds&FullyQualifiedName!~ArenaSeeds' --json`. Do not replace that filter with an unfiltered suite: the latter includes the roughly 8,000-case flagship seed sweep and previously ran for about an hour. Root retains the affected deployment-test repair evidence (14/14). Prior 1200-second compile / 1800-second build timeouts are retained failures, so delivery preparation gets a 3600-second allowance. Root chooses final native/build durations from the observed imports and available memory.
 
 `--cold` matters: a resident warm editor does not inherit newly set arbitrary `WORDBOUND_*` variables from the invoking shell. Cold export/test receives these variables. Do not silently fall back to warm execution.
 
@@ -99,7 +99,7 @@ $env:WORDBOUND_EXTERNAL_PUBLIC_GAMEPLAY = '1'
 $env:WORDBOUND_EXTERNAL_WORKSHOP_GAMEPLAY = '1'
 ```
 
-Use this exact command form for each method in the table, sequentially, inspecting each gate XML/log before continuing:
+Use this command form for a focused method, or batch compatible non-Explicit fixtures to avoid repeated editor startup. Root chooses the exact batch and timeout from observed durations; inspect each case's XML/log result, not only the batch exit:
 
 ```powershell
 node Tools/kit/gate/game_gate.mjs test editmode --filter 'Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeDuoParties' --cold --json --timeout 660
@@ -114,6 +114,8 @@ node Tools/kit/gate/game_gate.mjs test editmode --filter 'Wreckabulary.OnlineGam
 | PublicFreestyleFillsTwoRealHumansWithCoopRules | 2 | Independent guests, Fill On, cooperative rules |
 
 These are EditMode fixtures that enter Play Mode themselves. They validate exact player-assigned catalogue bytes and release, actual Photon authentication, Fusion canonical bodies, remote movement, command acknowledgement/deduplication and checkpoint replication. All five use seed `0123456789abcdef`; they complement the local 36-binding service test. A skipped/ignored native case is NOT-RUN, not PASS.
+
+For example, `--category ExternalPhotonPublicGameplay --cold --timeout 3600` selects the five public fixtures in one native session; the per-test 600000ms timeout still applies. Do not combine an Explicit detail test into an unfiltered batch and assume it ran.
 
 Use the same filter prefix for `TwoAuthenticatedPeersDownloadAndPlayExactAuthoredWorkshopMap`. It must create a changed authored document, upload through the real PartyCoordinator, join/download on the second coordinator, Ready both parties, launch and compose each peer from its independent source. Require equal complete source, SourceHash, Course.Hash, bundle identity, catalogue/rules, world manifest and frame identities. This is private authored sharing and does not replace any public test. Cleanup failure fails acceptance. If creation has an uncertain response before a party ID is recorded, inspect each test guest's actual membership before claiming cleanup.
 
@@ -131,11 +133,18 @@ The detail test class is Explicit and must be selected deliberately; require bot
 
 Manually/native-UI exercise saved course selection, drag/move module handles with attached ranges/endpoints, bounded random seeds/ranges, Apply/Save/reload, invalid pending edit recovery, preview, Playtest, Return and restoration of the original saved plus untitled additive scene. Change camera/presentation profiles and confirm the native view honors them without code. Inspect material/mesh/LOD/grip and collision behavior separately. Exercise keyboard/mouse and controller PartyMenu/navigation, text entry, menu close/reopen, device removal, focus loss and return; inspect actual rendered layout and motion rather than only synthetic input callbacks.
 
-After final acceptance, build the same integrated assets/catalogue and source:
+After final native acceptance, build the QA player, inspect the exact build ID from its gate result, and use it for the workshop scenario:
 
 ```powershell
-node Tools/kit/gate/game_gate.mjs build --profile release --json
-node Tools/kit/gate/game_gate.mjs smoke --build latest --json
+node Tools/kit/gate/game_gate.mjs build --profile release-qa --cold --json --timeout 3600
+node Tools/kit/gate/game_gate.mjs smoke --build $wordboundQaBuildId --scenario wordbound_workshop_flow --seconds 240 --json
 ```
 
-Verify the actual gate-reported Windows path and build SHA, launch the delivered `Wreckabulary.exe`, capture logs/screenshots/motion and the multiplayer/user-flow result. Keep dependency/license notices and editable Unity sources with the delivery instructions. Publish the executable location and a short launch/control guide; distinguish implemented, agent-verified and owner visual/feel review. Do not mark production ready while any required row above is pending or failed.
+Then build the stripped release from the same integrated assets/catalogue and source, capture its own exact build ID, and smoke that artifact:
+
+```powershell
+node Tools/kit/gate/game_gate.mjs build --profile release --cold --json --timeout 3600
+node Tools/kit/gate/game_gate.mjs smoke --stripped --build $wordboundReleaseBuildId --json
+```
+
+Set each build-ID variable from the corresponding successful gate output before invoking its smoke. Do not use `latest` or omit `--stripped` for the final release: the generic smoke expects a QA build and can fail with `wrong_build_kind`. Verify the actual gate-reported Windows path and build SHA, launch the delivered `Wreckabulary.exe`, capture logs/screenshots/motion and the multiplayer/user-flow result. Keep dependency/license notices and editable Unity sources with the delivery instructions. Publish the executable location and a short launch/control guide; distinguish implemented, agent-verified and owner visual/feel review. Do not mark production ready while any required row above is pending or failed.
