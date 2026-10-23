@@ -1,6 +1,6 @@
 # Native input fixture repair
 
-STATUS: IN PROGRESS — source repair after native failures; no local compiler/Unity job.
+STATUS: SOURCE REVIEW COMPLETE — repair committed as b26e097; native rerun pending. No local compiler/Unity job.
 
 Evidence: integration `TestResults/editmode_20261023T122055Z.xml` reports 11/13 InputBinding, 5/6 PartyMenuInput and 3/3 WorkshopInputSafety failures. Sampled pad state remained zero/null; the focus callback test also triggered Unity's `ShouldRunBehaviour()` assertion through EditMode `SendMessage`.
 
@@ -13,3 +13,5 @@ Authorized repair: a test-only cloned InputSettings scope enables the installed 
 Source repair also preserves the original nonserialized feature flags on the clone and explicitly restores the player-update flag before swapping the original settings back: installed `InputManager.ApplySettings` skips all flag reapplication when the original flag collection is null. Setup failures call cleanup, and cleanup restores settings in `finally`, including when another cleanup step fails. Existing fake party-server state is reset per test so reused NUnit fixture instances cannot leak QuickPlay/ready state into a later case.
 
 The three tracked fixture baselines match the current integration source after line-ending normalization; no baseline-only commit or old-source overwrite is needed. New helper APIs were checked against the installed package's `InputSettings`, `InputState`, `GamepadState` and `ButtonControl` source. Native expected cases remain **22** across the three affected fixtures (13 + 6 + 3); no behavioral assertion was removed and no new test case was added.
+
+Independent bounded review by recover_online confirmed the installed 1.20 API behavior, independent cloned flag collection, pre-swap cache restoration, setup-failure cleanup and exact original-settings restoration. Source verdict PASS; this is not native, rendered-control or hardware acceptance. The coordinator must rerun the 22 affected cases and require 22 pass / 0 fail / 0 skip before claiming the native repair succeeds.
