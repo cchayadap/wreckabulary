@@ -39,6 +39,10 @@ namespace Wreckabulary.Online
         public event Action WorkshopRequested;
         public event Action CloseRequested;
         public WordboundPartyCoordinator Coordinator => coordinator;
+#if UNITY_EDITOR || GSK_QA
+        public int QaCompletedRepaintCount { get; private set; }
+        public int QaLastRepaintFrame { get; private set; } = -1;
+#endif
         public string PhotonAppId { get; private set; }
         public string SelectedRegion => Regions[region];
         public bool SelectedFill => fill;
@@ -156,6 +160,13 @@ namespace Wreckabulary.Online
             BeginPartyGui(Application.isFocused);
             try { DrawPartyGui(); }
             finally { EndPartyGui(); }
+#if UNITY_EDITOR || GSK_QA
+            if (Event.current.type == EventType.Repaint && QaLastRepaintFrame != Time.frameCount)
+            {
+                QaLastRepaintFrame = Time.frameCount;
+                QaCompletedRepaintCount++;
+            }
+#endif
         }
         void DrawPartyGui()
         {

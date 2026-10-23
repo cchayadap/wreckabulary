@@ -56,13 +56,70 @@ namespace Wreckabulary.Qa
         IEnumerator OpenWordbound(QaContext context)
         {
             if (Application.isBatchMode) throw new QaFailException("This visual scenario requires a presented player window.");
+            float deadline = Time.realtimeSinceStartup + 45;
             Object.FindFirstObjectByType<LobbyMenu>().OpenWordbound();
             yield return context.WaitUntil(() => {
                 launcher = Object.FindFirstObjectByType<WordboundLauncher>();
                 return launcher && launcher.GetComponent<WordboundPartyMenu>()?.Coordinator != null;
             }, 45, "the Wordbound party menu");
-            yield return context.WaitFrames(3);
-            yield return context.CaptureScreen("wordbound_party");
+            var observation = launcher.gameObject.AddComponent<WordboundPartyFrameObservation>();
+            try
+            {
+                observation.Begin(context, launcher.GetComponent<WordboundPartyMenu>(), launcher.LobbyCamera);
+                while (!observation.Ready)
+                {
+                    if (Time.realtimeSinceStartup >= deadline)
+                    {
+                        observation.Record();
+                        throw new QaFailException("The party did not finish splash, two menu repaints and assigned-camera rendering within 45 seconds; see party_frame probes.");
+                    }
+                    yield return null;
+                }
+                observation.Record();
+                yield return context.CaptureScreen("wordbound_party");
+                observation.Record();
+                RequirePartyPixels(context);
+                if (!observation.Ready) throw new QaFailException("The party stopped rendering while its first PNG was captured.");
+            }
+            finally { if (observation) observation.Dispose(); }
+        }
+
+        static void RequirePartyPixels(QaContext context)
+        {
+            string path = Path.Combine(context.OutDir, "wordbound_party.png");
+            if (!File.Exists(path)) throw new QaFailException("The party PNG was not written.");
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false, true);
+            try
+            {
+                if (!ImageConversion.LoadImage(texture, File.ReadAllBytes(path), false))
+                    throw new QaFailException("The party PNG could not be decoded.");
+                var pixels = texture.GetPixels32();
+                int nonblack = 0, nonzeroAlpha = 0;
+                int minR = 255, minG = 255, minB = 255, minA = 255, maxR = 0, maxG = 0, maxB = 0, maxA = 0;
+                bool variedRgb = false;
+                var first = pixels[0];
+                foreach (var pixel in pixels)
+                {
+                    if (pixel.r != 0 || pixel.g != 0 || pixel.b != 0) nonblack++;
+                    if (pixel.a != 0) nonzeroAlpha++;
+                    if (pixel.r != first.r || pixel.g != first.g || pixel.b != first.b) variedRgb = true;
+                    minR = Mathf.Min(minR, pixel.r); minG = Mathf.Min(minG, pixel.g);
+                    minB = Mathf.Min(minB, pixel.b); minA = Mathf.Min(minA, pixel.a);
+                    maxR = Mathf.Max(maxR, pixel.r); maxG = Mathf.Max(maxG, pixel.g);
+                    maxB = Mathf.Max(maxB, pixel.b); maxA = Mathf.Max(maxA, pixel.a);
+                }
+                context.Note("party_capture_width", texture.width); context.Note("party_capture_height", texture.height);
+                context.Note("party_capture_nonblack_pixels", nonblack);
+                context.Note("party_capture_nonzero_alpha_pixels", nonzeroAlpha);
+                context.Note("party_capture_varied_rgb", variedRgb);
+                context.Note("party_capture_min_rgba", $"{minR},{minG},{minB},{minA}");
+                context.Note("party_capture_max_rgba", $"{maxR},{maxG},{maxB},{maxA}");
+                if (texture.width != Screen.width || texture.height != Screen.height)
+                    throw new QaFailException("The party PNG dimensions differ from the presented screen.");
+                if (nonblack == 0 || nonzeroAlpha == 0 || !variedRgb)
+                    throw new QaFailException("The party PNG is blank or a uniform fill; the first capture is preserved.");
+            }
+            finally { Object.Destroy(texture); }
         }
 
         IEnumerator EditWorkshop(QaContext context)
