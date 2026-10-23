@@ -37,3 +37,13 @@ Terminal review found a pre-existing host-view issue: durable ACK changes `Match
 Self-review checked actual public types, direct test-assembly references, sensor/recipe/consume semantics and movement input fields. `git diff --check` passes. No source-review statement here is a compile or runtime pass. Assets was asked for independent review but is currently completing another assigned checkpoint; that review remains pending.
 
 Next action: parent/source reviewer inspects the bounded delta; parent compiles and runs the single full native method after the result-confirmation correction. Preserve the resulting operation logs/receipt/cleanup result whether it passes or fails. Flagship/public full matches and the rest of the coverage map remain open.
+
+## Independent terminal matcher review
+
+Bounded **SOURCE PASS** for parent's uncommitted three-file correction inspected after `f87bce30`: `AuthoritativeMatch`, `WordboundGameplayController`, and `WordboundAuthorityTests`. No root source edits or execution by this reviewer. This is review of the result-refresh repair, not independent acceptance of this lane's new native fixture.
+
+The renamed `MatchesTickPresenceAndResult` retains the original in-tick guard, binding/epoch/tick/seat/presence comparisons, then compares result absence, confirmation, tick, outcome and ordered winning teams. The result-only addition does not capture a snapshot, allocate a collection, mutate state or cache a previous answer. Both controller call sites use it; a search under `Assets`/`Tools` found no stale old-name code references.
+
+The extended existing three-lap authority test retains an unconfirmed snapshot and its canonical bytes, acknowledges an earlier pre-result stamp, then acknowledges the real result. Its new false-match assertion would fail with the old comparison at the unchanged canonical tick. The current confirmed snapshot matches; retained old bytes remain unchanged; repeated durable confirmation matches without creating another refresh requirement. These are actual authoritative match/commit APIs, not direct result-field edits.
+
+The controller path is sound at source level: once ACK changes confirmation, normal `Poll` or `PrepareHostPhysics` reaches the existing full capture/atomic reconciliation even though terminal physics is frozen. Physics application allows the same tick, full snapshot validation is retained, and `FrameChanged` remains after the reconciliation guard with the existing post-callback stop checks. This should refresh the host HUD through its normal frame publication. The pure regression does not itself execute Unity or prove the host HUD; the new full native case retains that necessary host-plus-replica assertion and the real Windows result screen remains separate.
