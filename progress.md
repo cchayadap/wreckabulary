@@ -83,8 +83,8 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 ## Tested Windows delivery
 
 - [x] Create/read back Windows release, QA and development profiles.
-- [~] Complete QA build; first attempt exceeded 30 minutes, caches retained.
-- [ ] Launch QA player and complete workshop→game→workshop smoke; inspect frames/motion.
+- [x] Produce the first QA Windows build: `20261023T170613Z` passes in 491.3 seconds. The first player smoke fails; rebuild after repairs remains required.
+- [~] Launch QA player and complete workshop→game→workshop smoke; first launch exposes a stripped workshop shader and black party capture. Exact playtest/return remains unverified.
 - [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair, party navigation, workshop focus protection and allocation cleanup are integrated; focused native input passes 24/24. Final player handling and reconnect acceptance remain pending.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
@@ -94,7 +94,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T16:59Z
+## Current verification — 2026-10-23T17:20Z
 
 | Work | State and exact evidence |
 | --- | --- |
@@ -111,4 +111,4 @@ Earlier recovery and verification entries are preserved in [the evidence history
 | Validation optimization | [x] Immutable metadata and per-call resource indexes preserve dynamic validation; R0 and focused core pass 189/189 (`TestResults/core_20261023T165505Z.trx`). Identical probe/flagship inputs pass 120/120 with positive controls. Resource indexes reduce allocation another 13.07% for TimeRun and 11.29% for Team Solo versus the preceding indexed version. Later elapsed timings were substantially slower; no speed or FPS improvement is claimed. `BuildNotes/online/validation-resources-comparison-20261023.json`. |
 | Public modes/build | [~] Latest native batch passes exact private authored-map transfer, fails public Team Solo (`TestResults/editmode_20261023T163900Z.xml`). Team matching chunks exceed 10,000 ms at 21,052 ms; paired callback evidence observes a 60-forward-tick host batch lasting 6,482.646 ms. Callback gaps are not socket-arrival measurements. Earlier bounded public TimeRun pass remains valid. Native full matches, remaining modes and Windows delivery remain open. |
 
-The latest native batch is 1/2 PASS, 1 FAIL, zero skipped; its startup Burst queue timeout is retained in the evidence. The resource-test fixture setup is corrected, and all 189 focused cases now pass. The moderate-contact candidate failed its exact 3D arrival assertion; movement and stopping controls succeeded. A QA Windows build is starting for player inspection. An isolated reconciliation optimization is being prepared and reviewed; it is not integrated or verified yet. No verified Windows player or owner visual approval is claimed.
+The latest native batch is 1/2 PASS, 1 FAIL, zero skipped; its startup Burst queue timeout is retained in the evidence. The resource-test fixture setup is corrected, and all 189 focused cases now pass. The moderate-contact candidate failed its exact 3D arrival assertion; movement and stopping controls succeeded. The first QA Windows build passes; its player smoke fails on a missing workshop shader, and its party capture is black. An isolated reconciliation optimization is being prepared and reviewed; it is not integrated or verified yet. A built QA executable exists, but no fully tested Windows delivery or owner visual approval is claimed.

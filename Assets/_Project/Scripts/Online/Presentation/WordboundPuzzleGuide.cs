@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using Wreckabulary.Art;
 using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Online
@@ -117,9 +118,7 @@ namespace Wreckabulary.Online
                 (courseRoot.lossyScale - Vector3.one).sqrMagnitude > .000001f)
                 throw new ArgumentException("Guide visuals need a loaded, unit-scale course scene.");
             Parent = courseRoot;
-            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Sprites/Default");
-            if (!shader) throw new InvalidOperationException("No guide line shader is available.");
-            lines = new Material(shader) { name = "Wordbound guide lines", hideFlags = HideFlags.DontSave };
+            lines = WordboundRenderMaterials.Create(false, "Wordbound guide lines");
             if (lines.HasProperty("_BaseColor")) lines.SetColor("_BaseColor", Color.white);
             lines.color = Color.white;
             root = NewObject("Wordbound puzzle guide", null);

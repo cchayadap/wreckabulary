@@ -1,0 +1,133 @@
+{
+  "recordedUtc": "2026-10-23T17:21:08.782Z",
+  "build": {
+    "cmd": "build --cold --profile release-qa",
+    "rung": "R4",
+    "ok": true,
+    "exit": 0,
+    "verdict": "PASS",
+    "utc": "2026-10-23T17:06:13Z",
+    "secs": 491.3,
+    "route": "cold",
+    "errors": [],
+    "failures": [],
+    "log": "Logs/gate_build_release-qa_20261023T170613Z.log",
+    "evidence": [
+      "Builds/qa-20261023T170613Z/build.json",
+      "Builds/qa-20261023T170613Z/packed_assets.json"
+    ],
+    "infra": null,
+    "slot": null,
+    "build": {
+      "schema": 1,
+      "id": "20261023T170613Z",
+      "kind": "release-qa",
+      "dir": "Builds/qa-20261023T170613Z",
+      "exe": "Wreckabulary.exe",
+      "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+      "utc": "2026-10-23T17:14:23Z",
+      "development": false,
+      "unity_version": "6000.6.3f1",
+      "head": "d7b5a1bfecc9840d914342e5a1e2c13be63cc7da",
+      "tree": "97d4dee6933d571b0e2bd1975ae5a2e1bf45b77f7b20aae79fa159e3833de055",
+      "secs": 490.2,
+      "ok": true
+    }
+  },
+  "smoke": {
+    "cmd": "smoke --build 20261023T170613Z --scenario wordbound_workshop_flow",
+    "rung": "R4",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-23T17:15:17Z",
+    "secs": 104.8,
+    "route": "none",
+    "errors": [
+      {
+        "message": "[GSK] QA step edit_workshop: System.ArgumentNullException: Value cannot be null."
+      },
+      {
+        "message": "[GSK] QA step return_to_workshop: System.NullReferenceException: Object reference not set to an instance of an object"
+      },
+      {
+        "message": "[GSK] QA step undo_redo_preserved: System.NullReferenceException: Object reference not set to an instance of an object"
+      },
+      {
+        "message": "checks.json result is FAIL"
+      }
+    ],
+    "failures": [
+      {
+        "name": "edit_workshop",
+        "message": "action threw ArgumentNullException: Value cannot be null.\r\nParameter name: shader"
+      },
+      {
+        "name": "exact_playtest",
+        "message": "timed out after 60 s waiting for the local flagship and puzzle markers; probe threw NullReferenceException: Object reference not set to an instance of an object"
+      },
+      {
+        "name": "return_to_workshop",
+        "message": "action threw NullReferenceException: Object reference not set to an instance of an object"
+      },
+      {
+        "name": "undo_redo_preserved",
+        "message": "action threw NullReferenceException: Object reference not set to an instance of an object"
+      }
+    ],
+    "log": "Logs/player/20261023T171517Z-wordbound_workshop_flow.log",
+    "evidence": [
+      "Docs/qa/runs/20261023T171517Z-wordbound_workshop_flow/checks.json"
+    ],
+    "infra": null,
+    "slot": null,
+    "smoke": {
+      "build": "Builds/qa-20261023T170613Z",
+      "kind": "release-qa",
+      "run_id": "20261023T171517Z-wordbound_workshop_flow",
+      "stripped": false,
+      "scenario": "wordbound_workshop_flow",
+      "seed": 1,
+      "exit": 1,
+      "timed_out": false
+    }
+  },
+  "evidenceHashes": [
+    {
+      "path": "Logs/gate_build_release-qa_20261023T170613Z.log",
+      "sha256": "2328e06e159b84ae471f17d29fd0fb36412a51f021461e319b331df5326b22e0"
+    },
+    {
+      "path": "Builds/qa-20261023T170613Z/build.json",
+      "sha256": "01ec6cd3bbc27fc9e05a1b0d9efb5a8cadcf9517d49301ed315cd2bd71014642"
+    },
+    {
+      "path": "Builds/qa-20261023T170613Z/packed_assets.json",
+      "sha256": "59cabb45811f67e80a758fdefcc56b868774d034de166475a33297c3edea4811"
+    },
+    {
+      "path": "Builds/qa-20261023T170613Z/Wreckabulary.exe",
+      "sha256": "96b492cb271111251fe42b8646e65370a1b7b566773a1e35b34c3f2d1ae70873"
+    },
+    {
+      "path": "Logs/player/20261023T171517Z-wordbound_workshop_flow.log",
+      "sha256": "bb4414c96539455c8387b8193d0e5b8dcc026d2902fc62aa79e0062e52839fa8"
+    },
+    {
+      "path": "Docs/qa/runs/20261023T171517Z-wordbound_workshop_flow/checks.json",
+      "sha256": "ad89b38383e0a7e9ff218c699bab3b66c6b7dda3cd8a676436723bb13c5c3049"
+    },
+    {
+      "path": "docs/qa/runs/20261023T171517Z-wordbound_workshop_flow/wordbound_party.png",
+      "sha256": "9ff2a7e523a17224d386443b5761330a43016430b524a6d028fce6cb560d4356"
+    }
+  ],
+  "packedBytes": 140645729,
+  "optionalCollectionPackedBytes": 5344466,
+  "ownerWorkshopBeforeFiles": [],
+  "ownerWorkshopAfterFiles": [],
+  "ownerWorkshopUnchanged": true,
+  "visualInspection": "Viewed the actual 1280x720 party PNG: completely black; no visible UI or game artwork. Not visual acceptance.",
+  "cause": "Workshop material construction received a null shader because its Shader.Find-only dependencies were absent from the player. QA generated an isolated draft; subsequent flow steps failed.",
+  "scope": "Successful QA build, failed Windows functionality smoke. Not a tested release or complete art/online acceptance."
+}

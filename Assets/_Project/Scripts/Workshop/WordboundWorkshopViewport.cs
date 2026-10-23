@@ -54,8 +54,8 @@ namespace Wreckabulary.Workshop
         Material Material(Color color, Surfaces.Kind surface)
         {
             var source = Surfaces.Get(surface, Color.white);
-            var result = new Material(Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Texture"))
-            { name = "Workshop " + surface, hideFlags = HideFlags.DontSave, mainTexture = source.mainTexture };
+            var result = WordboundRenderMaterials.Create(color.a < 1, "Workshop " + surface);
+            result.mainTexture = source.mainTexture;
             result.color = color;
             if (result.HasProperty("_BaseMap")) result.SetTexture("_BaseMap", source.mainTexture);
             if (result.HasProperty("_BaseColor")) result.SetColor("_BaseColor", color);

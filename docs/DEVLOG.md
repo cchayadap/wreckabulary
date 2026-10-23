@@ -260,3 +260,7 @@ Source `02738cd` passes R0 (`Logs/gate_check_all_20261023T165005Z.log`) and all 
 ## 2026-10-23T17:06:09.095Z Moderate FAN contact native result
 
 `TestResults/editmode_20261023T165742Z.xml` is FAIL (1 case, 0 skipped; gate 276.2 seconds). The candidate moves 3.953 m, exits wind at tick 75 and naturally stops, with zero recorded non-floor proximity and zero last-second speed/drift. It never satisfies the exact 3D pivot arrival; samples place the pivot at Y15.9999886 against authored minimum16. The source lane is investigating production sensing parity. No material/prefab assignment occurred; the failed assertion is retained. Exact results/hashes: `BuildNotes/online/native-fan-moderate-contact-20261023.json`. Starting the QA Windows build on existing verified-source baseline for actual visual/smoke evidence; it is not release acceptance.
+
+## 2026-10-23T17:21:08.801Z Windows build succeeds; player exposes stripped preview shader
+
+Build `20261023T170613Z` passes R4, 491.3 seconds, exact HEAD d7b5a1b. Normal Windows smoke171517Z fails: missing preview shader, then dependent playtest/return/Undo failures. Inspected party screenshot is entirely black. Evidence/hashes and unchanged owner-workshop check are in `BuildNotes/client-view/windows-first-player-20261023.json`. Explicit saved material templates replace Shader.Find-only workshop/guide dependencies; root R0 passes171900Z. Native asset generation/rebuild and independent black-frame investigation follow.
