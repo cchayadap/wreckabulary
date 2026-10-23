@@ -4,7 +4,7 @@
   "references": [
     "Wreckabulary", "Wreckabulary.Rules", "Wreckabulary.Online.Client",
     "Wreckabulary.Online.Gameplay", "Wreckabulary.Online.Presentation",
-    "GameStudioKit.Runtime"
+    "GameStudioKit.Runtime", "Unity.RenderPipelines.Universal.Runtime"
   ],
   "autoReferenced": true,
   "defineConstraints": ["UNITY_EDITOR || GSK_QA"]

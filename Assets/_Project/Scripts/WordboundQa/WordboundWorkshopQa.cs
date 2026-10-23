@@ -23,6 +23,7 @@ namespace Wreckabulary.Qa
         string initial, edited, manifest;
         Camera ownedCamera;
         WordboundPhaseObservation phases;
+        WordboundFrameObservation frames;
         bool savedDraftVerified, editCompleted;
         string playtestStage = "not_started";
         int playtestStartFrame = -1, playtestReadyFrame = -1, playtestWaitedFrames;
@@ -239,12 +240,14 @@ namespace Wreckabulary.Qa
                 yield return CaptureVerified(context, "wordbound_local_ready", "local_ready");
                 playtestStage = "wait_90_frames";
                 RecordPlaytest(context, "begin_frame_wait");
+                frames = WordboundFrameObservation.StartIfEnabled(launcher, client.Gameplay, ownedCamera, context);
                 for (int frame = 1; frame <= 90; frame++)
                 {
                     yield return null;
                     playtestWaitedFrames = frame;
                     if (frame % 15 == 0) RecordPlaytest(context, "frame_wait_progress");
                 }
+                FinishFrames("frame-wait-completed");
                 playtestStage = "capture_world";
                 RecordPlaytest(context, "world_capture_begin");
                 yield return context.CaptureScreen("wordbound_local_world");
@@ -256,17 +259,28 @@ namespace Wreckabulary.Qa
                 playtestStage = "completed";
                 RecordPlaytest(context, "playtest_returned");
             }
-            finally { FinishPhases(playtestStage == "completed" ? "completed" : "iterator-exit"); }
+            finally
+            {
+                FinishFrames("iterator-exit");
+                FinishPhases(playtestStage == "completed" ? "completed" : "iterator-exit");
+            }
         }
 
         IEnumerator Return(QaContext context)
         {
+            FinishFrames("return-boundary");
             FinishPhases("return-boundary");
             RecordPlaytest(context, "before_return");
             if (!client) throw new QaFailException("Return requires the local playtest client; inspect the preceding playtest result.");
             yield return Complete(context, client.ReturnToWorkshop());
             yield return context.WaitFrames(3);
             yield return context.CaptureScreen("wordbound_returned_workshop");
+        }
+
+        void FinishFrames(string outcome)
+        {
+            var observation = frames; frames = null;
+            if (observation) observation.Finish(outcome);
         }
 
         void FinishPhases(string outcome)
