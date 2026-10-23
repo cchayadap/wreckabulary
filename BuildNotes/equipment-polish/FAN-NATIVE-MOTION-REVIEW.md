@@ -2,6 +2,10 @@
 
 STATUS: NATIVE FAILURE REVIEWED; cause isolation pending. No production change or native job run by this reviewer.
 
+## Calibration fixture source review
+
+Independent review of online checkpoint `adb962e`: **SOURCE PASS**, native/compile not run by this reviewer. `Wreckabulary.Tests.WordboundNativeWindPhysicsTests.ActualStoolCrossesAuthoredWindArrivalWithDefaultContacts` builds the actual course floor and verifies floor identity/top/default contact material. It copies only the actual prefab's native Rigidbody/BoxCollider, verifies owned scene/attachment/settings and absence of MonoBehaviours, then applies the actual STOOL dimensions and motion policy. Three isolated 300-step runs keep global settings unchanged, emit all results before travel assertions, and require both signed +0.800 m reach and entry into the real 3D arrival volume. The private frictionless material is confined to its control scene. Teardown unloads owned scenes, destroys that material and exits Play Mode. The test assembly's added `Wreckabulary` reference is required for `WordboundCourseWorld` and creates no reference cycle. No concrete source blocker found; this remains a native solver isolation, not a full Fusion or puzzle pass.
+
 ## Measured failure
 
 Root's `TestResults/editmode_20261023T160217Z.xml` reports 0/2 selected cases passed. The physical fixture failed in 218.115201 seconds at FAN arrival; its unchanged 12-second wait observed 13.189 seconds, ticks 4320–4620. The six-minute fixture lifetime was not cancelled and gameplay was running/unpaused.
