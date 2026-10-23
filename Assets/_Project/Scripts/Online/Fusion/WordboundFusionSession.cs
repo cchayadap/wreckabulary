@@ -66,6 +66,11 @@ namespace Wreckabulary.Online
             public bool CheckpointReady, WriterRenewing, HostAvailableSeen, CheckingHost;
             public int HostPromptChecks;
             public long WriterRenewAt;
+            public bool PollObserved, WriterRenewCompleted, WriterRenewFailed;
+            public long LastPollAt, LastPollGap, MaxPollGap, WriterAcquiredAt;
+            public long WriterRenewAttempts, WriterRenewStartedAt, WriterRenewCompletedAt, WriterRenewErrorAt;
+            public long WriterRenewErrorStatus;
+            public string WriterRenewErrorType, WriterRenewErrorCode;
         }
         const int WireChannel = 0x57424e44;
         readonly Func<NetworkRunner> createRunner;
@@ -260,7 +265,8 @@ namespace Wreckabulary.Online
                 }
             }
             RequireCurrent(run);
-            run.Writer = state.Writer; run.Head = state.Head; run.WriterRenewAt = clock() + 5000;
+            run.Writer = state.Writer; run.Head = state.Head;
+            run.WriterAcquiredAt = clock(); run.WriterRenewAt = run.WriterAcquiredAt + 5000;
             RequireWriter(run, state.Writer.Term);
             if (state.Head != null)
             {
@@ -470,7 +476,14 @@ namespace Wreckabulary.Online
             var run = activeRun;
             if (!IsCurrent(run) || Runner == null || !Runner.IsRunning || !Runner.IsServer) return;
             if (Failure != "") return;
-            if (run.Writer != null && !HasWriter(run)) { Fail(new TimeoutException("Canonical writer lease expired.")); return; }
+            long now = clock();
+            if (run.PollObserved)
+            {
+                run.LastPollGap = now - run.LastPollAt;
+                run.MaxPollGap = Math.Max(run.MaxPollGap, run.LastPollGap);
+            }
+            run.LastPollAt = now; run.PollObserved = true;
+            if (run.Writer != null && !HasWriter(run)) { FailAt(WriterExpired(run), "writer-poll"); return; }
             if (run.Writer != null && !run.WriterRenewing && clock() >= run.WriterRenewAt) _ = RenewWriter(run);
             if (!run.CheckpointReady) return;
             if (!gate.Started && clock() >= gate.Match.StartedAtMilliseconds + 90000)
@@ -484,7 +497,8 @@ namespace Wreckabulary.Online
         }
         async Task RenewWriter(RunScope run)
         {
-            run.WriterRenewing = true; run.WriterRenewAt = clock() + 5000;
+            run.WriterRenewing = true; run.WriterRenewStartedAt = clock();
+            run.WriterRenewAt = run.WriterRenewStartedAt + 5000; run.WriterRenewAttempts++;
             string term = run.Writer.Term;
             try
             {
@@ -492,8 +506,64 @@ namespace Wreckabulary.Online
                 RequireWriter(run, term);
                 run.Writer = renewed.Writer;
             }
-            catch { }
-            finally { run.WriterRenewing = false; }
+            catch (Exception error)
+            {
+                run.WriterRenewFailed = true; run.WriterRenewErrorAt = clock();
+                run.WriterRenewErrorType = error switch {
+                    OnlineServiceException => nameof(OnlineServiceException),
+                    OperationCanceledException => nameof(OperationCanceledException),
+                    TimeoutException => nameof(TimeoutException),
+                    FormatException => nameof(FormatException),
+                    InvalidOperationException => nameof(InvalidOperationException),
+                    ArgumentException => nameof(ArgumentException),
+                    _ => "OtherException"
+                };
+                run.WriterRenewErrorCode = WriterRenewCode(error);
+                run.WriterRenewErrorStatus = error is OnlineServiceException service ? service.Status : 0;
+            }
+            finally
+            {
+                run.WriterRenewCompletedAt = clock(); run.WriterRenewCompleted = true;
+                run.WriterRenewing = false;
+            }
+        }
+        Exception WriterExpired(RunScope run)
+        {
+            long now = clock();
+            var error = new TimeoutException("Canonical writer lease expired.");
+            error.Data["latestPollGapMilliseconds"] = run.LastPollGap;
+            error.Data["maxPollGapMilliseconds"] = run.MaxPollGap;
+            error.Data["leaseRemainingMilliseconds"] = run.Writer.ExpiresAtMilliseconds - now;
+            error.Data["writerAcquiredOffsetMilliseconds"] = run.WriterAcquiredAt - now;
+            error.Data["writerRenewInFlight"] = run.WriterRenewing ? 1L : 0L;
+            error.Data["writerRenewAttempts"] = run.WriterRenewAttempts;
+            error.Data["writerRenewDueOffsetMilliseconds"] = run.WriterRenewAt - now;
+            if (run.WriterRenewAttempts > 0) error.Data["writerRenewStartedOffsetMilliseconds"] = run.WriterRenewStartedAt - now;
+            if (run.WriterRenewCompleted) error.Data["writerRenewCompletedOffsetMilliseconds"] = run.WriterRenewCompletedAt - now;
+            if (run.WriterRenewFailed)
+            {
+                error.Data["writerRenewErrorOffsetMilliseconds"] = run.WriterRenewErrorAt - now;
+                error.Data["writerRenewErrorHttpStatus"] = run.WriterRenewErrorStatus;
+                error.Data["writerRenewErrorType"] = run.WriterRenewErrorType;
+                error.Data["writerRenewErrorCode"] = run.WriterRenewErrorCode;
+            }
+            return error;
+        }
+        static string WriterRenewCode(Exception error)
+        {
+            if (error is OnlineServiceException service)
+                return service.Code switch {
+                    "CHECKPOINT_WRITER_EXPIRED" => "checkpoint-writer-expired",
+                    "MATCH_NOT_STARTED" => "match-not-started",
+                    "NOT_MATCH_MEMBER" => "not-match-member",
+                    "CONTENT_OR_ROSTER_MISMATCH" => "content-or-roster-mismatch",
+                    "RECONNECT_EXPIRED" => "reconnect-expired",
+                    "AUTH_REQUIRED" => "auth-required",
+                    _ => "service-error"
+                };
+            if (error is OperationCanceledException) return "cancelled";
+            if (error is TimeoutException) return "timeout";
+            return DiagnosticCode(error);
         }
         async Task RenewConnections(RunScope run)
         {
@@ -694,12 +764,18 @@ namespace Wreckabulary.Online
             try
             {
                 FailureCode = DiagnosticCode(error);
-                FailureOrigin = string.Join(" > ", (new System.Diagnostics.StackTrace(error, false).GetFrames() ??
+                FailureOrigin = FailureCode == "writer-lease-expired" ? typeof(WordboundFusionSession).FullName + "." + nameof(Poll) :
+                    string.Join(" > ", (new System.Diagnostics.StackTrace(error, false).GetFrames() ??
                     Array.Empty<System.Diagnostics.StackFrame>()).Take(4).Select(frame => frame.GetMethod())
                     .Where(method => method != null).Select(method => method.DeclaringType?.FullName + "." + method.Name));
                 FailureFacts = string.Join(",", new[] { "issuedOffsetSeconds", "expiresOffsetSeconds",
-                    "tokenLifetimeSeconds", "leaseRemainingMilliseconds" }.Where(key => error.Data[key] is long)
-                    .Select(key => key + "=" + ((long)error.Data[key]).ToString(System.Globalization.CultureInfo.InvariantCulture)));
+                    "tokenLifetimeSeconds", "leaseRemainingMilliseconds", "latestPollGapMilliseconds", "maxPollGapMilliseconds",
+                    "writerAcquiredOffsetMilliseconds", "writerRenewInFlight", "writerRenewAttempts", "writerRenewDueOffsetMilliseconds",
+                    "writerRenewStartedOffsetMilliseconds", "writerRenewCompletedOffsetMilliseconds", "writerRenewErrorOffsetMilliseconds",
+                    "writerRenewErrorHttpStatus" }.Where(key => error.Data[key] is long)
+                    .Select(key => key + "=" + ((long)error.Data[key]).ToString(System.Globalization.CultureInfo.InvariantCulture))
+                    .Concat(new[] { "writerRenewErrorType", "writerRenewErrorCode" }.Where(key => error.Data[key] is string)
+                        .Select(key => key + "=" + (string)error.Data[key])));
             }
             catch { FailureCode = "diagnostic-unavailable"; FailureOrigin = ""; FailureFacts = ""; }
             Failed?.Invoke(Failure);
@@ -725,6 +801,8 @@ namespace Wreckabulary.Online
             "Admission content mismatch." => "admission-content",
             "Connection ticket expired." => "connection-ticket-expired",
             "Coordinator clock is outside the supported tolerance." => "clock-outside-tolerance",
+            "Canonical writer lease expired." => "writer-lease-expired",
+            "Canonical writer lease expired or changed." => "writer-lease-fence",
             _ => "unclassified"
         };
         public Task Stop() => stopTask ??= StopCore();

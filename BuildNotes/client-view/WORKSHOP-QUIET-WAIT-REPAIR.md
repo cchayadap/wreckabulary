@@ -1,6 +1,6 @@
 # Workshop quiet-wait fixture repair
 
-STATUS: Source repair complete; independent review and native rerun pending. Fixture-only change; no production input protection changed and no native/compiler jobs run.
+STATUS: Independent bounded source review PASS for repair `5b53792` (recover_online); native rerun pending. Fixture-only change; no production input protection changed and no native/compiler jobs run.
 
 Evidence: integration `TestResults/editmode_20261023T141231Z.xml` contains 48/48 presentation passes and 24/25 workshop source-binding passes. `DeferredSourceChoiceStaysCancelledThroughTheGameplayLeaseQuietFrames` failed at line 217 with engine frame 9, captured/current `quietUntil` 8, Editor uptime 95.624205 and the fixture deadline 94.434801. Case duration was 6.570720 seconds.
 
