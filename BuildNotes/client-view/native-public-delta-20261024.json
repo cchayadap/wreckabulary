@@ -1,0 +1,218 @@
+{
+  "recordedUtc": "2026-10-24T00:33:47.073237+00:00",
+  "source": "596822484af17e272b631c9a55304daac1ff61da",
+  "phaseTimingEnabled": true,
+  "phaseCount": 16,
+  "summary": {
+    "result": "Failed(Child)",
+    "total": "5",
+    "passed": "4",
+    "failed": "1",
+    "skipped": "0",
+    "duration": "47.31904"
+  },
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.OnlineGameplayTests.WordboundNativeTickFrameTests;Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-24T00:31:40Z",
+    "secs": 102.4,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+        "message": "The actual session failed.\r\n  Expected string length 0 but was 15. Strings differ at index 0.\r\n  Expected: <string.Empty>\r\n  But was:  \"FormatException\"\r\n  -----------^",
+        "location": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs:482"
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261024T003140Z.log",
+    "evidence": [
+      "TestResults/editmode_20261024T003140Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 32.3,
+    "messages": [
+      "WORDBOUND_GAMEPLAY_FAULT: peer 1 InvalidOperationException: Session failed: FormatException"
+    ],
+    "tests": {
+      "total": 5,
+      "passed": 4,
+      "failed": 1,
+      "skipped": 0
+    }
+  },
+  "cases": [
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Failed",
+      "duration": "47.068910",
+      "failure": "  The actual session failed.\n  Expected string length 0 but was 15. Strings differ at index 0.\n  Expected: <string.Empty>\n  But was:  \"FormatException\"\n  -----------^\n"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeTickFrameTests.ActualDeltaThresholdIsStrictAndKeepsSdkFrontiersDistinct",
+      "result": "Passed",
+      "duration": "0.005140"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeTickFrameTests.ExceptionalTailKeepsOnlyLatestSixteenWithoutLosingTotalsOrMode",
+      "result": "Passed",
+      "duration": "0.002863"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeTickFrameTests.InvalidAndUnavailableReadsDoNotInventLongFramesOrExposeMessages",
+      "result": "Passed",
+      "duration": "0.000751"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeTickFrameTests.StopFreezesCountersAndRetainedFramesAgainstLateCallbacks",
+      "result": "Passed",
+      "duration": "0.000756"
+    }
+  ],
+  "observations": [
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "WORDBOUND_PHASE_WINDOW: window=startup; outcome=all-peers-ready; generation=1; thread=1; frequency=10000000; elapsedTicks=208996668; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=-1,tick=-1,bodies=-1,resources=-1,mechanisms=-1}; last={epoch=0,tick=42,bodies=186,resources=588,mechanisms=432}",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=RollbackCapture; status=observed; count=42; totalTicks=462779; maxTicks=43433; elapsedMs=46.278",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=Synchronize; status=observed; count=44; totalTicks=2022793; maxTicks=267947; elapsedMs=202.279",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=RetireResources; status=observed; count=44; totalTicks=246936; maxTicks=68790; elapsedMs=24.694",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=FullValidation; status=observed; count=51; totalTicks=4165496; maxTicks=1325260; elapsedMs=416.550",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=MutableValidation; status=observed; count=43; totalTicks=618968; maxTicks=113946; elapsedMs=61.897",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=EconomyValidation; status=observed; count=94; totalTicks=711952; maxTicks=142981; elapsedMs=71.195",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ObserveHost; status=observed; count=42; totalTicks=1489508; maxTicks=119783; elapsedMs=148.951",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=Prepare; status=observed; count=43; totalTicks=2452328; maxTicks=1567757; elapsedMs=245.233",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=FrameChanged; status=observed; count=43; totalTicks=302; maxTicks=41; elapsedMs=0.030",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ProgressRestore; status=observed; count=51; totalTicks=392685; maxTicks=120529; elapsedMs=39.269",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ResourcesValidation; status=observed; count=51; totalTicks=798874; maxTicks=145579; elapsedMs=79.887",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodiesValidation; status=observed; count=51; totalTicks=981896; maxTicks=207353; elapsedMs=98.190",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=MechanismsValidation; status=observed; count=51; totalTicks=431888; maxTicks=87948; elapsedMs=43.189",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodyBudgetValidation; status=observed; count=51; totalTicks=411061; maxTicks=63829; elapsedMs=41.106",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodySourceValidation; status=observed; count=8058; totalTicks=377496; maxTicks=43005; elapsedMs=37.750",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=HostStep; status=observed; count=42; totalTicks=9744996; maxTicks=661879; elapsedMs=974.500",
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "WORDBOUND_PHASE_WINDOW: window=ready; outcome=teardown; generation=2; thread=1; frequency=10000000; elapsedTicks=218503302; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=0,tick=42,bodies=186,resources=588,mechanisms=432}; last={epoch=0,tick=784,bodies=186,resources=588,mechanisms=432}",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=RollbackCapture; status=observed; count=742; totalTicks=7222597; maxTicks=142573; elapsedMs=722.260",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=Synchronize; status=observed; count=742; totalTicks=23812872; maxTicks=196357; elapsedMs=2381.287",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=RetireResources; status=observed; count=742; totalTicks=2664292; maxTicks=35201; elapsedMs=266.429",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=FullValidation; status=observed; count=762; totalTicks=37767415; maxTicks=333837; elapsedMs=3776.742",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=MutableValidation; status=observed; count=742; totalTicks=9005210; maxTicks=123469; elapsedMs=900.521",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=EconomyValidation; status=observed; count=1504; totalTicks=5929363; maxTicks=129753; elapsedMs=592.936",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ObserveHost; status=observed; count=742; totalTicks=21773847; maxTicks=292391; elapsedMs=2177.385",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=Prepare; status=observed; count=742; totalTicks=12766491; maxTicks=133817; elapsedMs=1276.649",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=FrameChanged; status=observed; count=742; totalTicks=3698; maxTicks=20; elapsedMs=0.370",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ProgressRestore; status=observed; count=762; totalTicks=4163370; maxTicks=146561; elapsedMs=416.337",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ResourcesValidation; status=observed; count=762; totalTicks=7433512; maxTicks=159144; elapsedMs=743.351",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodiesValidation; status=observed; count=762; totalTicks=12158224; maxTicks=216297; elapsedMs=1215.822",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=MechanismsValidation; status=observed; count=762; totalTicks=4250556; maxTicks=122754; elapsedMs=425.056",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodyBudgetValidation; status=observed; count=762; totalTicks=4572300; maxTicks=100850; elapsedMs=457.230",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodySourceValidation; status=observed; count=120396; totalTicks=5105564; maxTicks=165283; elapsedMs=510.556",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=HostStep; status=observed; count=742; totalTicks=140816710; maxTicks=688008; elapsedMs=14081.671",
+    "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; clients=2; parties=2"
+  ],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261024T003140Z.xml",
+      "bytes": 52437,
+      "sha256": "9d8d3cd3a7b7638d74e528ed64e888fab4117a4a7039810f5204312c79345770"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261024T003140Z.log",
+      "bytes": 875521,
+      "sha256": "7365e9fc8d11a7926d689807e44c243129d3556b9381a2fd395ea7e7fd7d7b42"
+    },
+    {
+      "path": ".harness/delivery/native-public-delta-0032-job.json",
+      "bytes": 744,
+      "sha256": "1cd5c51608642c3d33e971443367ea33d44936d05592f9edf459a8a46d541a60"
+    },
+    {
+      "path": ".harness/delivery/native-public-delta-0032-status.json",
+      "bytes": 771,
+      "sha256": "d924f2aaabdd8e9b269316831cc208cd8be3438646b42bab0fd6c0e967778971"
+    },
+    {
+      "path": ".harness/delivery/native-public-delta-0032-stdout.log",
+      "bytes": 1064,
+      "sha256": "be310e3d274d06b3114a60007c991fe28583ddda9fadb1bddf9a3db5fe5c212d"
+    },
+    {
+      "path": ".harness/delivery/native-public-delta-0032-stderr.log",
+      "bytes": 996,
+      "sha256": "8dbbea829945837546b04fe9fdf931025d04d3b40028217fe9133a604d69bc8a"
+    }
+  ],
+  "limits": [
+    "Native Unity Editor checks; not separate Windows machines or human gameplay acceptance.",
+    "Timing phases, when enabled, are nested inclusive elapsed; do not sum as exclusive CPU or infer FPS.",
+    "Existing correctness timeouts unchanged. Full production acceptance remains open."
+  ],
+  "liveCaseObservations": [
+    "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=begin; elapsed=0.001; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=,checkpointCanonicalTick=,committedTick=,committedEpoch=,committedObservedAgeMs=unavailable,migration=,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=317,sdkInputTick=317,sdkLatestServerTick=317,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False; peer=1,host=False,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=,checkpointCanonicalTick=,committedTick=,committedEpoch=,committedObservedAgeMs=unavailable,migration=,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=320,sdkInputTick=320,sdkLatestServerTick=317,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=end; elapsed=4.192; maxFrameGap=1.079; lifetimeCancelled=False; peer=0,host=True,tick=42,advanced=42,inputReads=42,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=42,committedTick=0,committedEpoch=0,committedObservedAgeMs=2449.206,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=207.487,sdkTick=510,sdkInputTick=510,sdkLatestServerTick=510,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=0,advanced=0,inputReads=30,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=0,committedTick=0,committedEpoch=0,committedObservedAgeMs=0.000,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=515,sdkInputTick=515,sdkLatestServerTick=468,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Replicate every canonical body exactly once with all peers ready; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=42,advanced=42,inputReads=42,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=42,committedTick=0,committedEpoch=0,committedObservedAgeMs=2481.679,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=239.960,sdkTick=510,sdkInputTick=510,sdkLatestServerTick=510,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False; peer=1,host=False,tick=0,advanced=0,inputReads=30,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=0,committedTick=0,committedEpoch=0,committedObservedAgeMs=29.782,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=515,sdkInputTick=515,sdkLatestServerTick=468,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Replicate every canonical body exactly once with all peers ready; phase=end; elapsed=3.509; maxFrameGap=1.552; lifetimeCancelled=False; peer=0,host=True,tick=162,advanced=162,inputReads=319,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=162,committedTick=162,committedEpoch=0,committedObservedAgeMs=0.000,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=787,sdkInputTick=787,sdkLatestServerTick=787,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=0,advanced=0,inputReads=55,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=0,committedTick=0,committedEpoch=0,committedObservedAgeMs=3539.212,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=540,sdkInputTick=540,sdkLatestServerTick=480,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply client movement through admitted Fusion input; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=162,advanced=162,inputReads=319,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=162,committedTick=162,committedEpoch=0,committedObservedAgeMs=84.064,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=787,sdkInputTick=787,sdkLatestServerTick=787,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False; peer=1,host=False,tick=0,advanced=0,inputReads=55,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=0,committedTick=0,committedEpoch=0,committedObservedAgeMs=3623.242,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=540,sdkInputTick=540,sdkLatestServerTick=480,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply client movement through admitted Fusion input; phase=end; elapsed=7.223; maxFrameGap=1.836; lifetimeCancelled=False; peer=0,host=True,tick=388,advanced=388,inputReads=746,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=388,committedTick=366,committedEpoch=0,committedObservedAgeMs=474.196,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=1214,sdkInputTick=1214,sdkLatestServerTick=1214,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=42,advanced=0,inputReads=94,movingReads=39,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=42,committedTick=42,committedEpoch=0,committedObservedAgeMs=0.000,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=1223,sdkInputTick=1223,sdkLatestServerTick=1214,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply authenticated client command on host; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=388,advanced=388,inputReads=746,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=388,committedTick=366,committedEpoch=0,committedObservedAgeMs=477.957,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=1214,sdkInputTick=1214,sdkLatestServerTick=1214,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False; peer=1,host=False,tick=42,advanced=0,inputReads=94,movingReads=39,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=42,committedTick=42,committedEpoch=0,committedObservedAgeMs=3.713,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=1223,sdkInputTick=1223,sdkLatestServerTick=1214,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply authenticated client command on host; phase=end; elapsed=3.177; maxFrameGap=1.784; lifetimeCancelled=False; peer=0,host=True,tick=484,advanced=484,inputReads=842,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=484,committedTick=401,committedEpoch=0,committedObservedAgeMs=1780.226,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=219.142,sdkTick=1310,sdkInputTick=1310,sdkLatestServerTick=1310,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=42,advanced=0,inputReads=186,movingReads=39,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=42,committedTick=42,committedEpoch=0,committedObservedAgeMs=3181.162,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=1342,sdkInputTick=1315,sdkLatestServerTick=1310,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Commit and acknowledge the exact command-bearing snapshot; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=484,advanced=484,inputReads=842,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=484,committedTick=401,committedEpoch=0,committedObservedAgeMs=1781.656,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=220.571,sdkTick=1310,sdkInputTick=1310,sdkLatestServerTick=1310,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False; peer=1,host=False,tick=42,advanced=0,inputReads=186,movingReads=39,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=42,committedTick=42,committedEpoch=0,committedObservedAgeMs=3182.514,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=1342,sdkInputTick=1315,sdkLatestServerTick=1310,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=True",
+    "WORDBOUND_GAMEPLAY_FAULT: peer 1 InvalidOperationException: Session failed: FormatException",
+    "WORDBOUND_SESSION_FAULT: peer 1 FormatException stage= code=snapshot-transfer-mismatch-duplicate-or-stale facts=snapshotSameMark=1,snapshotSameCount=1,snapshotSameLength=1,snapshotSameWireHash=1,snapshotDuplicateChunk=0,snapshotTransferElapsedMilliseconds=11485,snapshotTransferTimeoutMilliseconds=10000 origin=Wreckabulary.Online.WordboundFusionSession.ReceiveSnapshot > Wreckabulary.Online.WordboundFusionSession.OnReliableDataReceived",
+    "WORDBOUND_GAMEPLAY_OPERATION: Commit and acknowledge the exact command-bearing snapshot; phase=end; elapsed=7.810; maxFrameGap=1.608; lifetimeCancelled=False; peer=0,host=True,tick=784,advanced=784,inputReads=1262,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=784,committedTick=761,committedEpoch=0,committedObservedAgeMs=0.000,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,sdkTick=1730,sdkInputTick=1730,sdkLatestServerTick=1730,sdkProvideInput=True,sdkState=Running,sdkStage=0,sdkConnectedToServer=False,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=42,advanced=0,inputReads=328,movingReads=39,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=True,failure=FormatException,checkpointCanonicalTick=42,committedTick=42,committedEpoch=0,committedObservedAgeMs=10993.022,migration=False,result=False,authorityPaused=True,checkpointPendingAgeMs=none,sdkTick=0,sdkInputTick=0,sdkLatestServerTick=0,sdkProvideInput=True,sdkState=Shutdown,sdkStage=0,sdkConnectedToServer=False,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=False,sessionPresent=True,sessionRunnerStarted=False,sessionGameplayReady=False,committedMarkPresent=True,runnerPresent=True,runnerRunning=False,runnerHost=False,runnerClient=False,sceneInfoAvailable=False,gameplayScenePresent=False,sceneManagerPresent=False,sceneManagerBusy=False,physicsSceneAvailable=False,physicsSceneValid=False,physicsSceneIsolated=False",
+    "WORDBOUND_CHECKPOINT_WINDOW: peer=0; runnerCreations=1; elapsedMs=41721.257; canonicalFirst=0; canonicalLast=784; sdkFirst=1; sdkLast=1730; maxCommittedGapTicks=120; maxSampleGapMs=698.240; staleSamples=0; unavailable=0; accepted=11; unmatchedAccepted=0; superseded=0; pending=False; matchedPublicationToAckTotalMs=11761.787; matchedPublicationToAckMaxMs=2050.525; clock=Stopwatch; duration=inclusive-continuation-observed-wall-not-cpu-or-http-rtt; end=accepted-authority-ack-before-session-and-controller-scheduling; prepareCompression=unisolated; stages=nested-and-parallel-not-additive; sampleIntervals=previous-label-between-observations-not-exact-pause-time; finalInterval=omitted; endpoints=not-a-cross-runner-or-epoch-advance-ratio",
+    "WORDBOUND_CHECKPOINT_GAPS: peer=0; completed=9; totalMs=11166.885; maxMs=1595.818; bootstrapSkipped=1; boundarySkipped=0; abandonedPublications=0; duration=matched-accepted-ack-to-next-successful-publish-start-inclusive-gap-not-pure-controller-idle; sameRunnerAndEpoch=true; failedPublishAttempts=not-individually-isolated",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Publish; completed=11; failed=0; inFlight=0; maxInFlight=1; totalMs=994.252; maxMs=166.033",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Validate; completed=11; failed=0; inFlight=0; maxInFlight=1; totalMs=1278.118; maxMs=186.859",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Acknowledge; completed=11; failed=0; inFlight=0; maxInFlight=1; totalMs=11.354; maxMs=11.109",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Begin; completed=11; failed=0; inFlight=0; maxInFlight=1; totalMs=1473.632; maxMs=340.092",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Chunk; completed=45; failed=0; inFlight=0; maxInFlight=4; totalMs=6507.544; maxMs=221.014",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Finalize; completed=11; failed=0; inFlight=0; maxInFlight=1; totalMs=1432.951; maxMs=168.137",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Head; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=72.477; maxMs=72.477",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Renew; completed=5; failed=0; inFlight=0; maxInFlight=1; totalMs=853.308; maxMs=235.266",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Read; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Claim; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=123.583; maxMs=123.583",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Open; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=101.051; maxMs=101.051",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=NotReady; samples=468; observedIntervalsMs=6255.722",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Migration; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Result; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=DurableGapObserved; samples=478; observedIntervalsMs=1271.368",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=OtherPaused; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Eligible; samples=784; observedIntervalsMs=22079.076",
+    "WORDBOUND_CHECKPOINT_WINDOW: peer=1; runnerCreations=1; elapsedMs=40449.314; canonicalFirst=-1; canonicalLast=-1; sdkFirst=-1; sdkLast=-1; maxCommittedGapTicks=0; maxSampleGapMs=0.000; staleSamples=0; unavailable=0; accepted=0; unmatchedAccepted=0; superseded=0; pending=False; matchedPublicationToAckTotalMs=0.000; matchedPublicationToAckMaxMs=0.000; clock=Stopwatch; duration=inclusive-continuation-observed-wall-not-cpu-or-http-rtt; end=accepted-authority-ack-before-session-and-controller-scheduling; prepareCompression=unisolated; stages=nested-and-parallel-not-additive; sampleIntervals=previous-label-between-observations-not-exact-pause-time; finalInterval=omitted; endpoints=not-a-cross-runner-or-epoch-advance-ratio",
+    "WORDBOUND_CHECKPOINT_GAPS: peer=1; completed=0; totalMs=0.000; maxMs=0.000; bootstrapSkipped=0; boundarySkipped=0; abandonedPublications=0; duration=matched-accepted-ack-to-next-successful-publish-start-inclusive-gap-not-pure-controller-idle; sameRunnerAndEpoch=true; failedPublishAttempts=not-individually-isolated",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Publish; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Validate; completed=2; failed=0; inFlight=0; maxInFlight=1; totalMs=255.159; maxMs=134.253",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Acknowledge; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Begin; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Chunk; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Finalize; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Head; completed=2; failed=0; inFlight=0; maxInFlight=1; totalMs=195.678; maxMs=105.689",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Renew; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Read; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Claim; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Open; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=NotReady; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=Migration; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=Result; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=DurableGapObserved; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=OtherPaused; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=Eligible; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_NATIVE_TICK_WINDOW: case=Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties; elapsedMs=42785.293; runners=2; clock=Stopwatch; thread=main; duration=wall-not-cpu; callbackGaps=not-network-arrival-or-service-times; domainReloadRetention=false",
+    "WORDBOUND_NATIVE_TICK_RUNNER: peer=0; creation=1; status=observed; hostObserved=True; clientObserved=False; completedBatches=275; pendingBatch=False; destroyed=False; pendingBatchAgeAtStopMs=unavailable; unmatchedBegins=0; unmatchedEnds=0; pairingMismatches=0; invalidTickCounts=0; maxBatchStartGapMs=1835.871; unityUpdates=8069; lastBatchAgeAtStopMs=693.706; lastUnityUpdateAgeAtStopMs=63.877; maxUnityUpdateGapMs=1821.857; maxTicksExecutedAtUnityUpdate=60",
+    "WORDBOUND_NATIVE_TICK_BATCHES: peer=0; creation=1; kind=forward; status=observed; batches=275; ticks=1730; maxBatchTicks=60; totalBatchWallMs=20216.230; maxBatchWallMs=1594.044; maxWallBatchTicks=60; maxWallBatchFrame=28587; maxWallBatchStartMs=29071.700; maxWallBatchEndMs=30665.744",
+    "WORDBOUND_NATIVE_TICK_BATCHES: peer=0; creation=1; kind=resimulation; status=unavailable; batches=0; ticks=0; maxBatchTicks=0; totalBatchWallMs=0.000; maxBatchWallMs=0.000; maxWallBatchTicks=0; maxWallBatchFrame=0; maxWallBatchStartMs=unavailable; maxWallBatchEndMs=unavailable",
+    "WORDBOUND_NATIVE_TICK_TAIL: peer=0; creation=1; capacity=16; retained=16; overwritten=259; totalsIncludeOverwritten=true; samples=[host,forward,ticks=1,frames=28607/28607,startMs=31236.640,endMs=31238.059,wallMs=1.419|host,forward,ticks=1,frames=28612/28612,startMs=31255.641,endMs=31256.985,wallMs=1.344|host,forward,ticks=1,frames=28613/28613,startMs=31269.434,endMs=31295.129,wallMs=25.695|host,forward,ticks=3,frames=28614/28614,startMs=31332.088,endMs=31390.473,wallMs=58.385|host,forward,ticks=5,frames=28615/28615,startMs=31403.690,endMs=31531.792,wallMs=128.102|host,forward,ticks=8,frames=28616/28616,startMs=31547.120,endMs=31728.277,wallMs=181.157|host,forward,ticks=13,frames=28617/28617,startMs=31752.242,endMs=32055.900,wallMs=303.658|host,forward,ticks=30,frames=28618/28618,startMs=32265.985,endMs=33106.059,wallMs=840.074|host,forward,ticks=53,frames=28619/28619,startMs=33144.577,endMs=34680.495,wallMs=1535.918|host,forward,ticks=60,frames=28620/28620,startMs=34927.765,endMs=35838.951,wallMs=911.186|host,forward,ticks=60,frames=28621/28621,startMs=35845.633,endMs=37225.738,wallMs=1380.105|host,forward,ticks=60,frames=28622/28622,startMs=37434.713,endMs=38024.266,wallMs=589.553|host,forward,ticks=60,frames=28623/28623,startMs=38030.988,endMs=39372.103,wallMs=1341.115|host,forward,ticks=60,frames=28624/28624,startMs=39584.679,endMs=40476.592,wallMs=891.913|host,forward,ticks=60,frames=28625/28625,startMs=40483.688,endMs=41873.835,wallMs=1390.147|host,forward,ticks=60,frames=28626/28626,startMs=42091.763,endMs=42672.811,wallMs=581.048]",
+    "WORDBOUND_NATIVE_TICK_FRAME_DELTAS: peer=0; creation=1; samples=8069; unavailable=0; lastUnavailableType=none; invalidDeltas=0; aboveOneSecond=11; maxUnscaledDeltaMs=1835.871; latestUpdateTimeMode=UnscaledDeltaTime; phase=MonoBehaviour.Update-frame-observation-not-time-provider-trace; ticksExecuted=at-Unity-Update-not-assumed-same-phase; threshold=strict-unscaled-delta-greater-than-one-second; unscaledDeltaMatchesSdkArgumentOnlyInMode=UnscaledDeltaTime",
+    "WORDBOUND_NATIVE_TICK_LONG_FRAMES: peer=0; creation=1; capacity=16; retained=11; overwritten=0; totalsIncludeOverwritten=true; samples=[frame=20558,mode=UnscaledDeltaTime,unscaledDeltaMs=1675.966,sdkTick=60,inputTick=60,latestServerTick=60,ticksExecutedAtUnityUpdate=60|frame=28418,mode=UnscaledDeltaTime,unscaledDeltaMs=1117.732,sdkTick=570,inputTick=570,latestServerTick=570,ticksExecutedAtUnityUpdate=60|frame=28419,mode=UnscaledDeltaTime,unscaledDeltaMs=1500.825,sdkTick=630,inputTick=630,latestServerTick=630,ticksExecutedAtUnityUpdate=60|frame=28420,mode=UnscaledDeltaTime,unscaledDeltaMs=1550.913,sdkTick=690,inputTick=690,latestServerTick=690,ticksExecutedAtUnityUpdate=60|frame=28586,mode=UnscaledDeltaTime,unscaledDeltaMs=1320.955,sdkTick=936,inputTick=936,latestServerTick=936,ticksExecutedAtUnityUpdate=60|frame=28587,mode=UnscaledDeltaTime,unscaledDeltaMs=1835.871,sdkTick=996,inputTick=996,latestServerTick=996,ticksExecutedAtUnityUpdate=60|frame=28588,mode=UnscaledDeltaTime,unscaledDeltaMs=1788.491,sdkTick=1056,inputTick=1056,latestServerTick=1056,ticksExecutedAtUnityUpdate=60|frame=28620,mode=UnscaledDeltaTime,unscaledDeltaMs=1786.904,sdkTick=1370,inputTick=1370,latestServerTick=1370,ticksExecutedAtUnityUpdate=60|frame=28622,mode=UnscaledDeltaTime,unscaledDeltaMs=1588.851,sdkTick=1490,inputTick=1490,latestServerTick=1490,ticksExecutedAtUnityUpdate=60|frame=28624,mode=UnscaledDeltaTime,unscaledDeltaMs=1553.745,sdkTick=1610,inputTick=1610,latestServerTick=1610,ticksExecutedAtUnityUpdate=60|frame=28626,mode=UnscaledDeltaTime,unscaledDeltaMs=1607.964,sdkTick=1730,inputTick=1730,latestServerTick=1730,ticksExecutedAtUnityUpdate=60]",
+    "WORDBOUND_NATIVE_TICK_RUNNER: peer=1; creation=1; status=observed; hostObserved=False; clientObserved=True; completedBatches=127; pendingBatch=False; destroyed=False; pendingBatchAgeAtStopMs=unavailable; unmatchedBegins=0; unmatchedEnds=0; pairingMismatches=0; invalidTickCounts=0; maxBatchStartGapMs=6819.613; unityUpdates=2171; lastBatchAgeAtStopMs=908.629; lastUnityUpdateAgeAtStopMs=696.992; maxUnityUpdateGapMs=1823.204; maxTicksExecutedAtUnityUpdate=32",
+    "WORDBOUND_NATIVE_TICK_BATCHES: peer=1; creation=1; kind=forward; status=observed; batches=78; ticks=306; maxBatchTicks=32; totalBatchWallMs=135.230; maxBatchWallMs=28.595; maxWallBatchTicks=26; maxWallBatchFrame=28618; maxWallBatchStartMs=33107.868; maxWallBatchEndMs=33136.463",
+    "WORDBOUND_NATIVE_TICK_BATCHES: peer=1; creation=1; kind=resimulation; status=observed; batches=49; ticks=250; maxBatchTicks=48; totalBatchWallMs=124.875; maxBatchWallMs=93.077; maxWallBatchTicks=48; maxWallBatchFrame=28562; maxWallBatchStartMs=24277.205; maxWallBatchEndMs=24370.283",
+    "WORDBOUND_NATIVE_TICK_TAIL: peer=1; creation=1; capacity=16; retained=16; overwritten=111; totalsIncludeOverwritten=true; samples=[client,forward,ticks=1,frames=28607/28607,startMs=31239.052,endMs=31239.947,wallMs=0.896|client,forward,ticks=1,frames=28611/28611,startMs=31251.405,endMs=31252.338,wallMs=0.934|client,forward,ticks=10,frames=28612/28612,startMs=31258.992,endMs=31265.630,wallMs=6.638|client,resim,ticks=8,frames=28613/28613,startMs=31298.535,endMs=31313.203,wallMs=14.667|client,forward,ticks=1,frames=28613/28613,startMs=31313.240,endMs=31314.606,wallMs=1.367|client,resim,ticks=6,frames=28614/28614,startMs=31392.972,endMs=31398.487,wallMs=5.515|client,forward,ticks=3,frames=28614/28614,startMs=31398.528,endMs=31400.585,wallMs=2.056|client,resim,ticks=4,frames=28615/28615,startMs=31533.919,endMs=31539.589,wallMs=5.670|client,forward,ticks=5,frames=28615/28615,startMs=31539.632,endMs=31543.488,wallMs=3.856|client,resim,ticks=1,frames=28616/28616,startMs=31729.604,endMs=31731.067,wallMs=1.463|client,forward,ticks=8,frames=28616/28616,startMs=31731.107,endMs=31740.871,wallMs=9.764|client,forward,ticks=12,frames=28617/28617,startMs=32057.027,endMs=32066.044,wallMs=9.017|client,forward,ticks=26,frames=28618/28618,startMs=33107.868,endMs=33136.463,wallMs=28.595|client,forward,ticks=32,frames=28619/28619,startMs=34681.991,endMs=34705.433,wallMs=23.442|client,forward,ticks=26,frames=28621/28621,startMs=37229.380,endMs=37247.696,wallMs=18.316|client,forward,ticks=1,frames=28625/28625,startMs=41876.842,endMs=41878.121,wallMs=1.278]",
+    "WORDBOUND_NATIVE_TICK_FRAME_DELTAS: peer=1; creation=1; samples=2171; unavailable=0; lastUnavailableType=none; invalidDeltas=0; aboveOneSecond=9; maxUnscaledDeltaMs=1835.871; latestUpdateTimeMode=UnscaledDeltaTime; phase=MonoBehaviour.Update-frame-observation-not-time-provider-trace; ticksExecuted=at-Unity-Update-not-assumed-same-phase; threshold=strict-unscaled-delta-greater-than-one-second; unscaledDeltaMatchesSdkArgumentOnlyInMode=UnscaledDeltaTime",
+    "WORDBOUND_NATIVE_TICK_LONG_FRAMES: peer=1; creation=1; capacity=16; retained=9; overwritten=0; totalsIncludeOverwritten=true; samples=[frame=28418,mode=UnscaledDeltaTime,unscaledDeltaMs=1117.732,sdkTick=515,inputTick=515,latestServerTick=468,ticksExecutedAtUnityUpdate=0|frame=28419,mode=UnscaledDeltaTime,unscaledDeltaMs=1500.825,sdkTick=515,inputTick=515,latestServerTick=468,ticksExecutedAtUnityUpdate=0|frame=28420,mode=UnscaledDeltaTime,unscaledDeltaMs=1550.913,sdkTick=515,inputTick=515,latestServerTick=468,ticksExecutedAtUnityUpdate=0|frame=28586,mode=UnscaledDeltaTime,unscaledDeltaMs=1320.955,sdkTick=540,inputTick=540,latestServerTick=480,ticksExecutedAtUnityUpdate=0|frame=28587,mode=UnscaledDeltaTime,unscaledDeltaMs=1835.871,sdkTick=540,inputTick=540,latestServerTick=480,ticksExecutedAtUnityUpdate=0|frame=28588,mode=UnscaledDeltaTime,unscaledDeltaMs=1788.491,sdkTick=540,inputTick=540,latestServerTick=480,ticksExecutedAtUnityUpdate=0|frame=28620,mode=UnscaledDeltaTime,unscaledDeltaMs=1786.904,sdkTick=1342,inputTick=1315,latestServerTick=1370,ticksExecutedAtUnityUpdate=0|frame=28622,mode=UnscaledDeltaTime,unscaledDeltaMs=1588.851,sdkTick=1456,inputTick=1368,latestServerTick=1490,ticksExecutedAtUnityUpdate=0|frame=28624,mode=UnscaledDeltaTime,unscaledDeltaMs=1553.745,sdkTick=1456,inputTick=1403,latestServerTick=1610,ticksExecutedAtUnityUpdate=0]"
+  ]
+}
