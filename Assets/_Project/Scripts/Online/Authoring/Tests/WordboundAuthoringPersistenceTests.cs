@@ -203,16 +203,16 @@ namespace Wreckabulary.Tests
                 document.Title = "New pending content while the old disk file is read-shared";
                 var failure = Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
                 TestContext.WriteLine("Changed locked draft save HRESULT: 0x" + failure.HResult.ToString("X8"));
-                Assert.IsTrue(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset), "The failed publication now has a complete committed recovery copy.");
                 Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
                 CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
                 Assert.AreEqual(savedAsset, asset.DocumentJson);
-                replacement = File.ReadAllBytes(path + ".tmp");
+                replacement = File.ReadAllBytes(path + ".publish");
             }
             SaveDraftWithFailureFacts("store_released", asset, document, path, original, replacement);
             Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
             Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
-            Assert.IsFalse(File.Exists(path + ".tmp"));
+            Assert.IsFalse(File.Exists(path + ".publish"));
             byte[] exact = File.ReadAllBytes(path);
             var withBom = new byte[exact.Length + 3];
             withBom[0] = 0xef; withBom[1] = 0xbb; withBom[2] = 0xbf;
@@ -235,7 +235,7 @@ namespace Wreckabulary.Tests
                     TestContext.WriteLine("WORDBOUND_DRAFT_STORE_FAILURE: stage=" + stage + "; type=" + error.GetType().Name +
                         "; hresult=0x" + error.HResult.ToString("X8") + "; memoryOnly=" + WordboundCourseDraftStore.IsMemoryOnly(asset));
                     ObserveDraftFile(stage, "target", path, previous, expected);
-                    ObserveDraftFile(stage, "temporary", path + ".tmp", previous, expected);
+                    ObserveDraftFile(stage, "temporary", path + ".publish", previous, expected);
                 }
                 catch (Exception) { }
                 throw;
@@ -285,7 +285,7 @@ namespace Wreckabulary.Tests
             string root = Path.GetFullPath(Path.Combine("Library", "Wordbound", "InspectorDrafts")) + Path.DirectorySeparatorChar;
             string path = Path.Combine("Library", "Wordbound", "InspectorDrafts", guid + ".json");
             Assert.IsTrue(Path.GetFullPath(path).StartsWith(root, StringComparison.OrdinalIgnoreCase));
-            string temporary = path + ".tmp";
+            string temporary = path + ".publish";
             byte[] original = File.ReadAllBytes(path), replacement;
             string savedAsset = asset.DocumentJson;
             try
@@ -299,7 +299,7 @@ namespace Wreckabulary.Tests
                     TestContext.WriteLine("WORDBOUND_DRAFT_SEQUENCE: stage=store_locked; type=" + failure.GetType().Name +
                         "; hresult=0x" + failure.HResult.ToString("X8"));
                     Assert.AreEqual(unchecked((int)0x80070020), failure.HResult);
-                    Assert.IsTrue(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                    Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset), "The pending revision is durable before primary publication.");
                     Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
                     CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
                     Assert.AreEqual(savedAsset, asset.DocumentJson);
@@ -317,7 +317,7 @@ namespace Wreckabulary.Tests
                 }
                 Assert.IsNull(result.ErrorType, "Direct Store IO sequence HRESULT=0x" + result.HResult.ToString("X8"));
                 Assert.IsTrue(result.TargetReplacement && !result.SourceExists);
-                Assert.IsTrue(WordboundCourseDraftStore.IsMemoryOnly(asset), "The direct IO control does not run Store success bookkeeping.");
+                Assert.IsTrue(HasMemoryDraft(asset), "The direct IO control does not run Store success bookkeeping.");
                 Assert.AreEqual(savedAsset, asset.DocumentJson);
             }
             finally
@@ -524,6 +524,228 @@ namespace Wreckabulary.Tests
             finally { Object.DestroyImmediate(inspector); }
             Assert.AreEqual("interrupted local draft", File.ReadAllText(path));
         }
+
+        [Test]
+        public void FailedPublicationRecoversLatestCommittedEditAfterMemoryLossAndPartialLaterWrite()
+        {
+            RequireWindowsDraftIo();
+            var asset = CreateDraftAsset(); var document = asset.ReadDocument();
+            string saved = asset.DocumentJson, path = DraftPath(asset);
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            byte[] previous = File.ReadAllBytes(path);
+            using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                document.Title = "First failed publication";
+                Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+                document.Title = "Latest complete pending edit";
+                Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+                string[] pending = PendingFiles(asset);
+                Assert.AreEqual(1, pending.Length, "A new complete revision reclaims the older failed candidate.");
+                byte[] committed = File.ReadAllBytes(pending[0]);
+                Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+                CollectionAssert.AreEqual(pending, PendingFiles(asset), "Identical retries reuse the committed revision.");
+                CollectionAssert.AreEqual(committed, File.ReadAllBytes(pending[0]));
+                File.WriteAllText(path + ".stage", "partial next write");
+                ForgetMemoryDraft(asset);
+                Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+                var editor = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+                try
+                {
+                    Assert.AreEqual(document.Title, EditorField<CourseDocument>(editor, "draft").Title);
+                    Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                    Assert.IsNotEmpty(EditorField<string>(editor, "recoveryWarning"));
+                    Assert.AreEqual("partial next write", File.ReadAllText(path + ".stage"));
+                    LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("^Wordbound pending form could not be saved:"));
+                }
+                finally { Object.DestroyImmediate(editor); }
+                CollectionAssert.AreEqual(previous, File.ReadAllBytes(path));
+                Assert.AreEqual(saved, asset.DocumentJson);
+            }
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            ForgetMemoryDraft(asset);
+            Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+            Assert.AreEqual(0, PendingFiles(asset).Length);
+            Assert.IsFalse(File.Exists(path + ".stage"));
+            Assert.AreEqual(saved, asset.DocumentJson);
+        }
+
+        [Test]
+        public void CommittedOrderingIgnoresTimestampsAndRevertingToOldPrimaryIsANewEdit()
+        {
+            RequireWindowsDraftIo();
+            var asset = CreateDraftAsset(); var document = asset.ReadDocument();
+            string path = DraftPath(asset), firstTitle = document.Title;
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            byte[] first = File.ReadAllBytes(path);
+            using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                document.Title = "Second revision";
+                Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+                File.SetLastWriteTimeUtc(PendingFiles(asset).Single(), new DateTime(2001, 1, 1));
+                ForgetMemoryDraft(asset);
+                Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+                document.Title = firstTitle;
+                Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+                ForgetMemoryDraft(asset);
+                Assert.AreEqual(firstTitle, WordboundCourseDraftStore.Load(asset).Document.Title);
+                Assert.AreEqual(3, ReadRevision(PendingFiles(asset).Single(), asset));
+                CollectionAssert.AreEqual(first, File.ReadAllBytes(path));
+            }
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            File.WriteAllBytes(PendingPath(asset, 1), first);
+            File.SetLastWriteTimeUtc(PendingPath(asset, 1), new DateTime(2099, 1, 1));
+            ForgetMemoryDraft(asset);
+            Assert.AreEqual(3, ReadRevision(path, asset));
+            Assert.AreEqual(firstTitle, WordboundCourseDraftStore.Load(asset).Document.Title);
+        }
+
+        [TestCase("checksum")]
+        [TestCase("guid")]
+        [TestCase("source")]
+        [TestCase("utf8")]
+        [TestCase("oversize")]
+        public void InvalidCommittedNewestRecordBlocksSilentRollbackAndPreservesBytes(string damage)
+        {
+            var asset = CreateDraftAsset(); var document = asset.ReadDocument();
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            string path = DraftPath(asset), pending = PendingPath(asset, 2);
+            byte[] original = File.ReadAllBytes(path);
+            object record = ReadDraftRecord(path, asset);
+            SetRecord(record, "Revision", 2L);
+            if (damage == "guid") SetRecord(record, "AssetGuid", new string('a', 32));
+            if (damage == "source") ((WordboundCourseDraftStore.PendingDraft)GetRecord(record, "Draft")).SavedSourceHash = new string('z', 64);
+            byte[] bytes = EncodeDraftRecord(record);
+            if (damage == "checksum") bytes[bytes.Length - 3] = bytes[bytes.Length - 3] == (byte)'a' ? (byte)'b' : (byte)'a';
+            if (damage == "utf8") bytes = new byte[] { 0xff, 0xfe, 0x7b, 0 };
+            if (damage == "oversize") bytes = new byte[4 * 1024 * 1024 + 1];
+            File.WriteAllBytes(pending, bytes); ForgetMemoryDraft(asset);
+            Assert.Catch(() => WordboundCourseDraftStore.Load(asset));
+            var editor = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+            try { Assert.IsTrue(EditorField<bool>(editor, "recoveryFailed")); }
+            finally { Object.DestroyImmediate(editor); }
+            CollectionAssert.AreEqual(bytes, File.ReadAllBytes(pending));
+            CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
+            Assert.AreEqual(asset.DocumentJson, CourseJson.ExportDocument(asset.ReadDocument()));
+        }
+
+        [Test]
+        public void SameRevisionDisagreementFailsClosedAndEquivalentPublicationResidueIsHarmless()
+        {
+            var asset = CreateDraftAsset(); var document = asset.ReadDocument();
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            string path = DraftPath(asset), pending = PendingPath(asset, 1);
+            byte[] original = File.ReadAllBytes(path);
+            File.WriteAllBytes(pending, original); ForgetMemoryDraft(asset);
+            Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+            object record = ReadDraftRecord(path, asset);
+            ((WordboundCourseDraftStore.PendingDraft)GetRecord(record, "Draft")).Document.Title = "Conflicting same revision";
+            byte[] conflict = EncodeDraftRecord(record); File.WriteAllBytes(pending, conflict);
+            Assert.Throws<ArgumentException>(() => WordboundCourseDraftStore.Load(asset));
+            CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
+            CollectionAssert.AreEqual(conflict, File.ReadAllBytes(pending));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void LegacyOrphanNeedsExplicitChoiceAndCannotAutosaveOverCurrentDraft(bool restore)
+        {
+            var asset = CreateDraftAsset(); var document = asset.ReadDocument();
+            string saved = asset.DocumentJson, path = DraftPath(asset);
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            string current = document.Title; document.Title = "Legacy temporary edit";
+            string legacy = LegacyDraftJson(asset, document); File.WriteAllText(path + ".tmp", legacy);
+            ForgetMemoryDraft(asset);
+            Assert.Throws<WordboundCourseDraftStore.LegacyDraftChoiceException>(() => WordboundCourseDraftStore.Load(asset));
+            var editor = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+            try
+            {
+                Assert.IsTrue(EditorField<bool>(editor, "legacyChoice"));
+                InvokeEditor(editor, "SavePendingDraft");
+                Assert.AreEqual(legacy, File.ReadAllText(path + ".tmp"));
+                InvokeEditor(editor, "ResolveLegacy", restore);
+                Assert.IsFalse(EditorField<bool>(editor, "legacyChoice"));
+                Assert.AreEqual(restore ? document.Title : current, EditorField<CourseDocument>(editor, "draft").Title);
+                Assert.AreEqual(saved, asset.DocumentJson);
+                Assert.IsFalse(File.Exists(path + ".tmp"));
+            }
+            finally { Object.DestroyImmediate(editor); }
+        }
+
+        [Test]
+        public void LegacyPrimaryStillLoadsAndMigratesWithoutChangingCourseOrUnfinishedValues()
+        {
+            var asset = CreateDraftAsset(); string saved = asset.DocumentJson;
+            var document = asset.ReadDocument(); document.Title = "Legacy pending"; document.Zones[0].Yaws.Add(13);
+            string path = DraftPath(asset); Directory.CreateDirectory(Path.GetDirectoryName(path));
+            File.WriteAllText(path, LegacyDraftJson(asset, document));
+            Assert.AreEqual(0, ReadRevision(path, asset));
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, WordboundCourseDraftStore.Load(asset).Document);
+            ForgetMemoryDraft(asset);
+            Assert.AreEqual(1, ReadRevision(path, asset));
+            CollectionAssert.AreEqual(document.Zones[0].Yaws, WordboundCourseDraftStore.Load(asset).Document.Zones[0].Yaws);
+            Assert.AreEqual(saved, asset.DocumentJson);
+        }
+
+        [Test]
+        public void CommittedDiscardSurvivesCleanupFailureAndInspectorCloseWithoutResurrectingEdits()
+        {
+            RequireWindowsDraftIo();
+            var asset = CreateDraftAsset(); string path = DraftPath(asset), saved = asset.DocumentJson;
+            var editor = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+            try
+            {
+                EditorField<CourseDocument>(editor, "draft").Title = "Intentionally discarded";
+                InvokeEditor(editor, "MarkDirty"); InvokeEditor(editor, "SavePendingDraft");
+                byte[] old = File.ReadAllBytes(path);
+                using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    InvokeEditor(editor, "DiscardPending");
+                    Assert.IsFalse(EditorField<bool>(editor, "dirty"));
+                    Assert.IsNotEmpty(EditorField<string>(editor, "recoveryWarning"));
+                    Assert.IsNull(WordboundCourseDraftStore.Load(asset));
+                    CollectionAssert.AreEqual(old, File.ReadAllBytes(path));
+                    string discard = PendingFiles(asset).Single(); byte[] committed = File.ReadAllBytes(discard);
+                    Object.DestroyImmediate(editor); editor = null; ForgetMemoryDraft(asset);
+                    editor = UnityEditor.Editor.CreateEditor(asset, typeof(WordboundCourseAssetEditor));
+                    Assert.IsFalse(EditorField<bool>(editor, "dirty"));
+                    Assert.AreEqual(asset.ReadDocument().Title, EditorField<CourseDocument>(editor, "draft").Title);
+                    CollectionAssert.AreEqual(committed, File.ReadAllBytes(discard));
+                }
+                Assert.AreEqual(saved, asset.DocumentJson);
+                WordboundCourseDraftStore.Clear(asset); ForgetMemoryDraft(asset);
+                Assert.IsNull(WordboundCourseDraftStore.Load(asset)); Assert.AreEqual(0, PendingFiles(asset).Length);
+            }
+            finally { if (editor) Object.DestroyImmediate(editor); }
+        }
+
+        static void RequireWindowsDraftIo()
+        {
+            if (Application.platform != RuntimePlatform.WindowsEditor) Assert.Ignore("Requires actual Windows file-sharing semantics.");
+        }
+        static string DraftGuid(WordboundCourseAsset asset) => AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+        static string DraftPath(WordboundCourseAsset asset) => Path.Combine("Library", "Wordbound", "InspectorDrafts", DraftGuid(asset) + ".json");
+        static string PendingPath(WordboundCourseAsset asset, long revision) => DraftPath(asset) + ".pending." + revision.ToString("D20", System.Globalization.CultureInfo.InvariantCulture);
+        static string[] PendingFiles(WordboundCourseAsset asset) => Directory.GetFiles(Path.GetDirectoryName(DraftPath(asset)), Path.GetFileName(DraftPath(asset)) + ".pending.*").OrderBy(p => p, StringComparer.Ordinal).ToArray();
+        static System.Collections.IDictionary MemoryDrafts => (System.Collections.IDictionary)typeof(WordboundCourseDraftStore)
+            .GetField("unsavedRecovery", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+        static bool HasMemoryDraft(WordboundCourseAsset asset) => MemoryDrafts.Contains(DraftGuid(asset));
+        static void ForgetMemoryDraft(WordboundCourseAsset asset) => MemoryDrafts.Remove(DraftGuid(asset));
+        static object StoreMethod(string name, params object[] args)
+        {
+            try { return typeof(WordboundCourseDraftStore).GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, args); }
+            catch (TargetInvocationException error) { throw error.InnerException ?? error; }
+        }
+        static object ReadDraftRecord(string path, WordboundCourseAsset asset) => StoreMethod("ReadRecord", path, DraftGuid(asset));
+        static object GetRecord(object record, string field) => record.GetType().GetField(field).GetValue(record);
+        static void SetRecord(object record, string field, object value) => record.GetType().GetField(field).SetValue(record, value);
+        static long ReadRevision(string path, WordboundCourseAsset asset) => (long)GetRecord(ReadDraftRecord(path, asset), "Revision");
+        static byte[] EncodeDraftRecord(object record)
+        {
+            SetRecord(record, "Checksum", StoreMethod("ContentHash", record));
+            return (byte[])StoreMethod("Encode", record);
+        }
+        static string LegacyDraftJson(WordboundCourseAsset asset, CourseDocument document) => (string)StoreMethod("DraftJson",
+            new WordboundCourseDraftStore.PendingDraft { AssetGuid = DraftGuid(asset), SavedSourceHash = asset.SourceHash, Document = document });
 
         WordboundCourseAsset CreateDraftAsset()
         {

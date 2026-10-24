@@ -107,3 +107,13 @@ Meaningful acceptance cases, alongside the existing 13:
 - Existing genuine changed-save/BOM, strict source-change choice, invalid form retention, saved-asset integrity and scene/theme persistence tests continue unchanged in intent. Use controlled owned temp assets and real file locks; do not manufacture the historical unexpected Windows error or call its cause fixed.
 
 Implementation is awaiting root's selection of the bounded envelope/cleanup contract. No source or file-recovery behavior was changed in this review.
+
+## Authorized implementation checkpoint — source review in progress
+
+Root subsequently authorized the bounded Store/Inspector/persistence-test change. Baseline-only commit `7b01f5fa` copies those owned files from root `0ff2996d` and must be **excluded** from integration. The implementation adds no assembly, runtime, kit or asset changes.
+
+The current Store uses checksummed v2 envelopes while reading legacy v1 payloads, one uncommitted `.stage` slot, revision-named committed pending records and a separate `.publish` temporary for the unchanged primary `File.Replace`. Strict bounded UTF-8 decoding explicitly permits the existing UTF-8 BOM normalization path. A successful committed candidate permits older pending revisions to be reclaimed before primary publication; ordinary operation retains one latest candidate. Eight retained committed records is the safety cap when cleanup repeatedly fails: failure to commit another edit keeps it in memory, preserves all complete records and reports the limitation. No timestamp selects recovery.
+
+Explicit discard commits a higher record before cleanup and clears logical pending state even if later deletion fails; Inspector reload then clears dirty state so OnDisable cannot resave the discarded form. The discard record remains until cleanup succeeds. Legacy orphan decisions remain explicit, and invalid forms remain recoverable without running authored-content validation prematurely.
+
+Twelve additive native cases currently cover actual locked publication plus static-memory loss/Inspector recreation, partial staging, newest/reverted revision ordering, five invalid committed-record variants, same-revision disagreement, both legacy choices, v1 migration, and real discard cleanup failure followed by Inspector close/reopen. Existing changed-save, source-asset integrity, BOM, null/named controls and theme/scene cases remain. Their former RAM-only assertions now check a real committed copy; the direct IO control separately checks retained Store bookkeeping. Compile/native execution is **NOT RUN**; Input reviews Inspector/lifecycle and Online reviews Store ordering/corruption independently.

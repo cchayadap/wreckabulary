@@ -21,7 +21,7 @@ namespace Wreckabulary.Online.Editor
         string error = "", status = "", lastSaved = "", previewInput = "";
         string recoveryWarning = "", lastStorageError = "";
         int section, module;
-        bool dirty, settings, handles = true, recoveryFailed;
+        bool dirty, settings, handles = true, recoveryFailed, legacyChoice;
         double saveDraftAt = double.PositiveInfinity;
         WordboundCourseAsset Asset => (WordboundCourseAsset)target;
         void OnEnable()
@@ -42,7 +42,7 @@ namespace Wreckabulary.Online.Editor
             try
             {
                 draft = Asset.HasDocument ? Asset.ReadDocument() : null; lastSaved = Asset.DocumentJson;
-                dirty = false; preview = null; error = ""; recoveryWarning = ""; lastStorageError = ""; conflictingDraft = null; recoveryFailed = false;
+                dirty = false; preview = null; error = ""; recoveryWarning = ""; lastStorageError = ""; conflictingDraft = null; recoveryFailed = false; legacyChoice = false;
                 saveDraftAt = double.PositiveInfinity;
                 if (AssetDatabase.Contains(Asset))
                 {
@@ -52,14 +52,12 @@ namespace Wreckabulary.Online.Editor
                         if (pending.SavedSourceHash == CourseJson.Sha256(lastSaved))
                         { draft = pending.Document; dirty = true; status = "Recovered your unapplied form edits. Apply to save them to the course."; }
                         else conflictingDraft = pending;
-                        if (WordboundCourseDraftStore.IsMemoryOnly(Asset))
-                        {
-                            recoveryWarning = "Recovery is in memory only. Resolve the file error before reloading scripts or closing Unity. Saving will retry automatically.";
-                            saveDraftAt = EditorApplication.timeSinceStartup + 5;
-                        }
                     }
+                    recoveryWarning = WordboundCourseDraftStore.RecoveryNotice(Asset);
+                    if (pending != null && recoveryWarning != "") saveDraftAt = EditorApplication.timeSinceStartup + 5;
                 }
             }
+            catch (WordboundCourseDraftStore.LegacyDraftChoiceException e) { legacyChoice = true; error = e.Message; }
             catch (Exception e) { recoveryFailed = true; error = "Pending form recovery: " + e.Message; }
             Repaint();
         }
@@ -94,14 +92,14 @@ namespace Wreckabulary.Online.Editor
         void SavePendingDraft() => TrySavePendingDraft();
         bool TrySavePendingDraft()
         {
-            if (!target || recoveryFailed) return false;
+            if (!target || recoveryFailed || legacyChoice) return false;
             if ((!dirty && conflictingDraft == null) || !AssetDatabase.Contains(Asset)) return true;
             try
             {
                 WordboundCourseDraftStore.Save(Asset, conflictingDraft?.SavedSourceHash ?? CourseJson.Sha256(lastSaved),
                     conflictingDraft?.Document ?? draft);
                 saveDraftAt = double.PositiveInfinity;
-                recoveryWarning = "";
+                recoveryWarning = WordboundCourseDraftStore.RecoveryNotice(Asset);
                 if (error == lastStorageError) error = "";
                 lastStorageError = "";
                 return true;
@@ -110,21 +108,33 @@ namespace Wreckabulary.Online.Editor
             {
                 if (error != e.Message) Debug.LogWarning("Wordbound pending form could not be saved: " + e.Message, target);
                 error = lastStorageError = e.Message; saveDraftAt = EditorApplication.timeSinceStartup + 5;
-                recoveryWarning = "Recovery is in memory only. Resolve the file error before reloading scripts or closing Unity. Saving will retry automatically.";
+                try { recoveryWarning = WordboundCourseDraftStore.RecoveryNotice(Asset); }
+                catch (Exception) { recoveryWarning = "Recovery needs attention. Keep Unity open until the file error is resolved."; }
                 return false;
             }
         }
         bool DrawRecoveryChoice()
         {
+            if (legacyChoice)
+            {
+                EditorGUILayout.HelpBox(error, MessageType.Warning);
+                if (GUILayout.Button("Restore the temporary draft")) Run(() => ResolveLegacy(true));
+                if (GUILayout.Button("Keep the current draft")) Run(() => ResolveLegacy(false));
+                return true;
+            }
             if (conflictingDraft == null && !recoveryFailed) return false;
             EditorGUILayout.HelpBox(recoveryFailed ? error + " The recovery file has been preserved." :
                 "This course was saved or changed elsewhere while form edits were pending. Choose which version to edit.", MessageType.Warning);
             if (conflictingDraft != null && GUILayout.Button("Restore pending edits into the form")) RestorePending();
-            if (GUILayout.Button("Discard pending form and use saved course")) Run(() => {
-                WordboundCourseDraftStore.Clear(Asset); Reload();
-            });
+            if (GUILayout.Button("Discard pending form and use saved course")) Run(DiscardPending);
             return true;
         }
+        void ResolveLegacy(bool restoreTemporary)
+        {
+            try { WordboundCourseDraftStore.ResolveLegacy(Asset, restoreTemporary); }
+            finally { Reload(); }
+        }
+        void DiscardPending() { WordboundCourseDraftStore.Clear(Asset); Reload(); }
         void RestorePending()
         {
             if (conflictingDraft == null) return;
@@ -170,7 +180,7 @@ namespace Wreckabulary.Online.Editor
                 using (new EditorGUI.DisabledScope(!dirty))
                 {
                     if (GUILayout.Button("Apply form edits and save asset")) Run(Save);
-                    if (GUILayout.Button("Discard unapplied form edits")) Run(() => { WordboundCourseDraftStore.Clear(Asset); Reload(); });
+                    if (GUILayout.Button("Discard unapplied form edits")) Run(DiscardPending);
                 }
                 if (dirty) EditorGUILayout.HelpBox("Form changes are pending and kept locally for recovery. Apply to update the saved course. Invalid edits do not replace saved data.", MessageType.Info);
                 using (new EditorGUI.DisabledScope(dirty))
@@ -249,7 +259,7 @@ namespace Wreckabulary.Online.Editor
         }
         void Save()
         {
-            if (recoveryFailed || conflictingDraft != null)
+            if (recoveryFailed || legacyChoice || conflictingDraft != null)
                 throw new InvalidOperationException("Resolve the pending form recovery choice before applying.");
             if (lastSaved != Asset.DocumentJson)
             {
