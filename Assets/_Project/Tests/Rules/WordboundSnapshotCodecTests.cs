@@ -78,11 +78,15 @@ namespace Wreckabulary.Tests
         {
             var f = Create(mode);
             var snapshot = f.Snapshot();
-            string json = MatchSnapshotCodec.Export(snapshot);
+            string json = MatchSnapshotCodec.Export(snapshot, out string hash);
+            Assert.AreEqual(MatchSnapshotCodec.ComputeHash(snapshot), hash);
+            Assert.AreEqual(json, MatchSnapshotCodec.Export(snapshot));
+            Assert.AreEqual(json, Rehash(json));
             var imported = f.Import(json);
             Assert.IsTrue(imported.Success, imported.Error);
             Assert.AreEqual(json, MatchSnapshotCodec.Export(imported.Snapshot));
             Assert.AreEqual(MatchSnapshotCodec.ComputeHash(snapshot), imported.Hash);
+            Assert.AreEqual(hash, imported.Hash);
             Assert.AreEqual(snapshot.Sequence, imported.Snapshot.Sequence);
             Assert.AreEqual(snapshot.NextWorldEntityId, imported.Snapshot.NextWorldEntityId);
             Assert.AreEqual(ulong.MaxValue, imported.Snapshot.RandomStreams[0].State);
@@ -125,13 +129,19 @@ namespace Wreckabulary.Tests
         {
             var f = Create();
             var snapshot = f.Snapshot();
-            string expected = MatchSnapshotCodec.Export(snapshot);
+            string expected = MatchSnapshotCodec.Export(snapshot, out string hash);
             f.Bodies.Reverse(); f.Resources.Reverse(); f.Mechanisms.Reverse();
             var previous = CultureInfo.CurrentCulture;
             try
             {
-                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("fr-FR");
-                Assert.AreEqual(expected, MatchSnapshotCodec.Export(f.Snapshot()));
+                foreach (string culture in new[] { "en-US", "fr-FR", "ar-SA" })
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(culture);
+                    string actual = MatchSnapshotCodec.Export(f.Snapshot(), out string actualHash);
+                    Assert.AreEqual(expected, actual);
+                    Assert.AreEqual(hash, actualHash);
+                    Assert.AreEqual(MatchSnapshotCodec.ComputeHash(f.Snapshot()), actualHash);
+                }
             }
             finally { CultureInfo.CurrentCulture = previous; }
         }
@@ -209,6 +219,92 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(mechanisms.Length, snapshot.Mechanisms.Count);
             for (int i = 0; i < resources.Length; i++) Assert.AreSame(resources[i], snapshot.Resources[i]);
             for (int i = 0; i < mechanisms.Length; i++) Assert.AreSame(mechanisms[i], snapshot.Mechanisms[i]);
+        }
+
+        [TestCase("null"), TestCase("null-text"), TestCase("nan"), TestCase("infinity")]
+        [TestCase("unicode"), TestCase("string-limit"), TestCase("token-limit"), TestCase("utf8-limit")]
+        public void CombinedExportRetainsIndependentHashRejections(string invalid)
+        {
+            var f = Create();
+            TestData.GiveLetters(f.Economy, 0, "BAT");
+            Assert.IsTrue(f.Economy.BeginCraft(0, "BAT", 0).Ok);
+            var job = f.Economy.Player(0).Craft;
+            switch (invalid)
+            {
+                case "null-text": job.ItemId = null; break;
+                case "nan": job.ReadyAt = double.NaN; break;
+                case "infinity": job.StartedAt = double.PositiveInfinity; break;
+                case "unicode": job.ItemId = "\ud800"; break;
+                case "string-limit": job.ItemId = new string('A', 24579); break;
+            }
+            var snapshot = invalid == "null" ? null : f.Snapshot();
+            if (invalid == "token-limit" || invalid == "utf8-limit")
+            {
+                var actors = invalid == "utf8-limit"
+                    ? Enumerable.Repeat(new MatchActorState("a", 100, 100, appearance: new string('界', 2048)), 1400)
+                    : snapshot.Actors;
+                var bodies = invalid == "token-limit" ? Enumerable.Repeat(snapshot.Bodies[0], 8192) : snapshot.Bodies;
+                snapshot = new MatchSnapshot(snapshot.Binding, snapshot.Epoch, snapshot.Sequence, snapshot.NextWorldEntityId,
+                    snapshot.Progress, snapshot.Economy, snapshot.Commands, actors, bodies, snapshot.Resources,
+                    snapshot.Mechanisms, snapshot.RandomStreams, snapshot.NarrativeFlags, snapshot.ThrownFlights, snapshot.Practice);
+            }
+            var independent = Assert.Catch(() => MatchSnapshotCodec.ComputeHash(snapshot));
+            var combined = Assert.Catch(() => MatchSnapshotCodec.Export(snapshot, out _));
+            var legacyEntry = Assert.Catch(() => MatchSnapshotCodec.Export(snapshot));
+            Assert.AreEqual(independent.GetType(), combined.GetType());
+            Assert.AreEqual(independent.Message, combined.Message);
+            Assert.AreEqual(combined.GetType(), legacyEntry.GetType());
+            Assert.AreEqual(combined.Message, legacyEntry.Message);
+            if (invalid == "token-limit") Assert.AreEqual("JSON token limit exceeded.", combined.Message);
+            if (invalid == "utf8-limit") Assert.AreEqual("JSON exceeds the UTF-8 byte limit.", combined.Message);
+        }
+
+        [Test]
+        public void PublicationRevalidatesMutableRecipeWithoutConsumingSequenceAndKeepsRetainedBytes()
+        {
+            var f = WordboundAuthorityTests.Create();
+            string source = f.Source.Course.Supplies.Single(s => s.SourceId == "BedSupply" && s.TeamIndex == 0).Id;
+            foreach (var tile in f.State.Bodies.Where(b => b.SourceId == source).ToArray())
+                Assert.AreEqual("Ok", f.Collect("a", tile.Id).Effect.Code);
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.BeginCraft, value: "BED")).Receipts.Single().Effect.Code);
+            var first = f.Match.PublishSnapshot(out string firstJson);
+            var retained = f.Source.Import(firstJson);
+            Assert.IsTrue(retained.Success, retained.Error);
+            Assert.AreEqual(1, first.Sequence);
+            Assert.AreEqual(retained.Hash, first.StateHash);
+            Assert.AreEqual(retained.Snapshot.Progress.Tick, first.Tick);
+            Assert.IsTrue(f.Match.Acknowledge(first));
+            var recipe = f.Source.Catalogue.Get("BED");
+            bool enabled = recipe.Enabled;
+            try
+            {
+                recipe.Enabled = false;
+                string expected = MatchStateValidation.Validate(f.State, f.Source.Binding, f.Source.Mode,
+                    f.Source.Course, f.Source.Catalogue, f.Source.Rules);
+                Assert.IsNotEmpty(expected);
+                for (int attempt = 0; attempt < 2; attempt++)
+                    Assert.AreEqual(expected, Assert.Throws<ArgumentException>(() => f.Match.PublishSnapshot(out _)).Message);
+            }
+            finally { recipe.Enabled = enabled; }
+            var second = f.Match.PublishSnapshot(out string secondJson);
+            Assert.AreEqual(first.Sequence + 1, second.Sequence);
+            Assert.AreEqual(first.Tick, second.Tick);
+            var secondImport = f.Source.Import(secondJson);
+            Assert.IsTrue(secondImport.Success, secondImport.Error);
+            Assert.AreEqual(secondImport.Hash, second.StateHash);
+            Assert.IsTrue(f.Match.Acknowledge(second));
+            Assert.IsFalse(f.Match.Acknowledge(first));
+            Assert.IsTrue(f.Step().Advanced);
+            var third = f.Match.PublishSnapshot(out string thirdJson);
+            var thirdImport = f.Source.Import(thirdJson);
+            Assert.IsTrue(thirdImport.Success, thirdImport.Error);
+            Assert.AreEqual(second.Sequence + 1, third.Sequence);
+            Assert.AreEqual(second.Tick + 1, third.Tick);
+            Assert.AreEqual(thirdImport.Hash, third.StateHash);
+            Assert.AreNotEqual(second.StateHash, third.StateHash);
+            Assert.IsTrue(f.Match.Acknowledge(third));
+            Assert.AreEqual(firstJson, MatchSnapshotCodec.Export(retained.Snapshot, out string retainedHash));
+            Assert.AreEqual(first.StateHash, retainedHash);
         }
 
         [TestCase("numeric-counter"), TestCase("leading-zero"), TestCase("counter-overflow"), TestCase("negative-counter")]

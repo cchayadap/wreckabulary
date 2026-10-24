@@ -278,8 +278,8 @@ namespace Wreckabulary.Rules.Wordbound
             if (inTick) throw new InvalidOperationException("Publish only a completed tick.");
             var snapshot = Capture(checked(commits.PublishedSequence + 1));
             EnsureValid(snapshot);
-            json = MatchSnapshotCodec.Export(snapshot);
-            return commits.Publish(Tick, MatchSnapshotCodec.ComputeHash(snapshot));
+            json = MatchSnapshotCodec.Export(snapshot, out string hash);
+            return commits.Publish(Tick, hash);
         }
 
         public bool Acknowledge(SnapshotStamp durableCommit)

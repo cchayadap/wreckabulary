@@ -22,10 +22,13 @@ namespace Wreckabulary.Rules.Wordbound
         static readonly Regex Signed = new Regex(@"\A(?:0|[1-9][0-9]*|-1)\z");
         static readonly Regex Unsigned = new Regex(@"\A(?:0|[1-9][0-9]*)\z");
 
-        public static string Export(MatchSnapshot snapshot)
+        public static string Export(MatchSnapshot snapshot) => Export(snapshot, out _);
+
+        public static string Export(MatchSnapshot snapshot, out string hash)
         {
             var envelope = Envelope(snapshot);
-            envelope["hash"] = CourseJson.Sha256(CourseJson.Encode(envelope));
+            hash = CourseJson.Sha256(CourseJson.Encode(envelope));
+            envelope["hash"] = hash;
             string json = CourseJson.Encode(envelope);
             CourseJson.Preflight(json, MaximumBytes);
             return json;
