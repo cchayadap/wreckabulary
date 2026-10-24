@@ -7,6 +7,10 @@ using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 using Wreckabulary.WordboundRuntime;
 
+#if UNITY_EDITOR
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Wreckabulary.Online.Puzzles.Tests")]
+#endif
+
 namespace Wreckabulary.Online
 {
     public sealed partial class WordboundPuzzleRuntime
@@ -104,6 +108,21 @@ namespace Wreckabulary.Online
                 target.Rigidbody.worldCenterOfMass, source, target);
         }
 
+        internal struct AuthoredMechanismLookup
+        {
+            readonly MatchSnapshot frame;
+            ILookup<(int Team, int Lap, string PuzzleId), MatchMechanismState> lookup;
+
+            internal AuthoredMechanismLookup(MatchSnapshot frame)
+            { this.frame = frame; lookup = null; }
+
+            internal MatchMechanismState Single(int team, int lap, string puzzleId)
+            {
+                lookup ??= frame.Mechanisms.ToLookup(m => (m.Team, m.Lap, m.PuzzleId));
+                return lookup[(team, lap, puzzleId)].Single(m => true);
+            }
+        }
+
         public WordboundHostObservations ObserveHost(MatchSnapshot frame, IReadOnlyList<WorldBodyState> poses)
         {
             RequireHost(frame);
@@ -111,12 +130,13 @@ namespace Wreckabulary.Online
                 !new HashSet<string>(poses.Select(p => p.Id)).SetEquals(controller.Bodies.Keys))
                 throw new ArgumentException("Physical observations require the exact completed host pose set.");
             RefreshColliders();
+            var authoredStates = new AuthoredMechanismLookup(frame);
             var mechanisms = new List<HostMechanismObservation>();
             var progress = new List<ProgressEvent>();
             foreach (var team in frame.Progress.Teams.Where(t => !t.Finished))
             {
                 if (proof.Course.PhysicalSites.Count != 0)
-                    ObserveAuthored(frame, team, mechanisms);
+                    ObserveAuthored(frame, team, mechanisms, ref authoredStates);
                 else foreach (var socket in proof.Plan.Sockets)
                 {
                     if (!WordboundPuzzlePolicy.ActiveObjective(proof.Course, team, socket.PuzzleId)) continue;

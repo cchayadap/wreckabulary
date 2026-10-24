@@ -181,11 +181,12 @@ namespace Wreckabulary.Online
 #endif
         }
 
-        void ObserveAuthored(MatchSnapshot frame, TeamProgress team, List<HostMechanismObservation> output)
+        void ObserveAuthored(MatchSnapshot frame, TeamProgress team, List<HostMechanismObservation> output,
+            ref AuthoredMechanismLookup states)
         {
             foreach (var site in proof.Plan.Sites)
             {
-                var previous = frame.Mechanisms.Single(m => m.Team == team.Team && m.Lap == site.Lap && m.PuzzleId == site.PuzzleId);
+                var previous = states.Single(team.Team, site.Lap, site.PuzzleId);
                 if (previous.Solved) continue;
                 long units = site.Authored.Fixtures.Count == 0 ? 0 :
                     fixturePhases.TryGetValue(PhaseKey(site, team.Team), out var phase) ? phase :
@@ -212,7 +213,7 @@ namespace Wreckabulary.Online
                         .FirstOrDefault(id => ActorNear(id, recipe.Rigidbody.position)) ?? "";
                 if (actor == "") { Reset(); continue; }
                 string auxiliary = evidence.AuxiliaryBodyId;
-                bool qualifies = FamilyReady(frame, team, site, puzzle, recipe, actor, evidence, ref auxiliary, out bool completed);
+                bool qualifies = FamilyReady(frame, team, site, puzzle, recipe, actor, evidence, ref auxiliary, out bool completed, ref states);
                 if (!qualifies) { Reset(); continue; }
                 long nextTick = checked(frame.Progress.Tick + 1);
                 MatchPhysicalStage stage = evidence.Stage;
@@ -230,7 +231,8 @@ namespace Wreckabulary.Online
         }
 
         bool FamilyReady(MatchSnapshot frame, TeamProgress team, WordboundPhysicalSite site, ResolvedCoursePuzzle puzzle,
-            WordboundNetworkBody recipe, string actor, MatchPhysicalEvidence evidence, ref string auxiliary, out bool complete)
+            WordboundNetworkBody recipe, string actor, MatchPhysicalEvidence evidence, ref string auxiliary, out bool complete,
+            ref AuthoredMechanismLookup states)
         {
             complete = false;
             var player = controller.Bodies["player:" + WordboundGameplayPlan.Seat(frame.Binding, actor)];
@@ -274,8 +276,8 @@ namespace Wreckabulary.Online
                 case "TimedMechanism":
                     if (team.KeepsakeCarrier != actor) return false;
                     auxiliary = "keepsake:" + team.Team;
-                    bool slowed = fixturePhases[PhaseKey(site, team.Team)] - frame.Mechanisms.Single(m =>
-                        m.Team == team.Team && m.PuzzleId == site.PuzzleId && m.Lap == site.Lap).Physical.MotionUnits <
+                    bool slowed = fixturePhases[PhaseKey(site, team.Team)] -
+                        states.Single(team.Team, site.Lap, site.PuzzleId).Physical.MotionUnits <
                         CourseFixtureMotion.UnitsPerTick;
                     if (!slowed || evidence.Stage == MatchPhysicalStage.Waiting && !ActorNear(actor, recipe.Rigidbody.position) ||
                         evidence.Stage == MatchPhysicalStage.Armed && frame.Progress.Tick + 1 - evidence.StageTick > site.ActiveWindowTicks)
