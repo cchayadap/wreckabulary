@@ -332,7 +332,8 @@ namespace Wreckabulary.Tests
                     var failure = Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
                     TestContext.WriteLine("WORDBOUND_DRAFT_SEQUENCE: stage=store_locked; type=" + failure.GetType().Name +
                         "; hresult=0x" + failure.HResult.ToString("X8"));
-                    Assert.AreEqual(unchecked((int)0x80070020), failure.HResult);
+                    Assert.That(failure.HResult, Is.EqualTo(unchecked((int)0x80070005)).Or.EqualTo(unchecked((int)0x80070020)),
+                        "A primary opened without delete sharing must reject rename publication with access denied or sharing violation.");
                     Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset), "The pending revision is durable before primary publication.");
                     Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
                     CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
