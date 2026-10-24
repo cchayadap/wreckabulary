@@ -565,3 +565,7 @@ Native gate032722 completed72.4s:44/47PASS,3FAIL,0SKIP, no compiler errors or cr
 ## 2026-10-24T03:36:04Z Current public race checks pass
 
 Public gate033100 on932784f0 passes2/2,0SKIP in129.5s. Opened XML and recorded native-public-races-short-editor-20261024.json: Brawl45.937335s and Team42.830920s, both service teardown failures=0, no compiler errors/crash. Actual authenticated allocation, remote movement, command and exact durable ACK remain within unchanged deadlines. Earlier failures and fullmatch/4–8peer/recovery/performance gaps remain. Reviewed startup fixture correction40d99ee5 only skips pre-physics publication and requires paused tick0; no gameplay assertions removed.
+
+## 2026-10-24T03:41:57Z Initial geometry and publication reproductions pass
+
+Native033851 on25d2fb86 finishes47/48PASS,1FAIL,0SKIP85.9s. Initial native keepsake shape/clearance/five-ray support passes at tick0 paused; all12local cases pass. Both original Store failure reproductions and new actual read-only-primary recovery test pass. Only NativeDraftSequence still expects old File.Replace sharing HRESULT0x80070020 for the Store locked step, while new MoveFileEx reports0x80070005; preserve failure and correct the test's API-specific error contract without weakening lock/data checks. Opened evidence: TestResults/editmode_20261024T033851Z.xml and BuildNotes/client-view/native-publication-repair-first-20261024.json. No build/readiness claim yet.

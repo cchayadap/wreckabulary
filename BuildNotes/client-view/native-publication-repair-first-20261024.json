@@ -1,0 +1,328 @@
+{
+  "recordedUtc": "2026-10-24T03:41:57.327991+00:00",
+  "source": "25d2fb867439abf9f70e5045014ff6ab98e4c25a",
+  "phaseTimingEnabled": false,
+  "phaseCount": 0,
+  "observedPhaseNames": [],
+  "summary": {
+    "result": "Failed(Child)",
+    "total": "48",
+    "passed": "47",
+    "failed": "1",
+    "skipped": "0",
+    "duration": "45.2061305"
+  },
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests;Wreckabulary.Tests.WordboundAuthoringPersistenceTests",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-24T03:38:51Z",
+    "secs": 85.9,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.NativeDraftSequenceRewritesRetainedTemporaryAfterComparisonRead",
+        "message": "Expected: -2147024864\r\n  But was:  -2147024891",
+        "location": "Assets/_Project/Scripts/Online/Authoring/Tests/WordboundAuthoringPersistenceTests.cs:335"
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261024T033851Z.log",
+    "evidence": [
+      "TestResults/editmode_20261024T033851Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 37,
+    "tests": {
+      "total": 48,
+      "passed": 47,
+      "failed": 1,
+      "skipped": 0
+    }
+  },
+  "cases": [
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.AtomicCollisionRegistrationKeepsIsolatedNativePairsAndAbortRecovery",
+      "result": "Passed",
+      "duration": "3.556147"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.AtomicCollisionRegistrationKeepsSharedNativePairsAndAbortRecovery",
+      "result": "Passed",
+      "duration": "0.599327"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.AtomicPhysicsApplyRetainsValidationAndAbortGuards",
+      "result": "Passed",
+      "duration": "0.507218"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.FirstAppliedFrameCannotReenterInitialHostComposition",
+      "result": "Passed",
+      "duration": "0.496621"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.FreestyleUsesOfflineRunnerAndExactWorkshopManifest",
+      "result": "Passed",
+      "duration": "1.832257"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.InitialFreestyleKeepsakeHasNativeFloorSupportAndClearanceBeforeSimulation",
+      "result": "Passed",
+      "duration": "0.529845"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationFailureKeepsItsExceptionAndCannotPublishAFrame",
+      "result": "Passed",
+      "duration": "0.461787"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationPollCannotReenterInitialHostComposition",
+      "result": "Passed",
+      "duration": "0.516976"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationStopCannotPublishAnAbandonedReconciliation",
+      "result": "Passed",
+      "duration": "0.490701"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationTupleReusePreservesImmediateShapeCallbacksAndVisibility",
+      "result": "Passed",
+      "duration": "0.505064"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.RunningFrameStopPreventsCheckpointAndLocalViewContinuation",
+      "result": "Passed",
+      "duration": "0.531132"
+    },
+    {
+      "fullname": "Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.TimeRunUsesOfflineRunnerAndExactWorkshopManifest",
+      "result": "Passed",
+      "duration": "1.910398"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.AuthoringSetupPreservesReloadedCustomThemeAndExistingDefaultThenFillsOnlyAnEmptySlot",
+      "result": "Passed",
+      "duration": "6.106205"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.ChangedSavedCourseRequiresExplicitRecoveryChoiceAndSuccessfulApplyClearsDraft",
+      "result": "Passed",
+      "duration": "0.858516"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.CommittedDiscardOrApplySurvivesCleanupFailureAndInspectorCloseWithoutResurrectingEdits(False)",
+      "result": "Passed",
+      "duration": "0.501028"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.CommittedDiscardOrApplySurvivesCleanupFailureAndInspectorCloseWithoutResurrectingEdits(True)",
+      "result": "Passed",
+      "duration": "0.562396"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.CommittedOrderingIgnoresTimestampsAndRevertingToOldPrimaryIsANewEdit",
+      "result": "Passed",
+      "duration": "0.616899"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.CorruptNewestAtCapacityCannotPruneTheSoleValidRecoveryBeforeDiscardCommits",
+      "result": "Passed",
+      "duration": "0.473554"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.DamagedPendingFileIsRetainedWhenInspectorCloses",
+      "result": "Passed",
+      "duration": "0.428903"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.FailedPendingCommitPreservesPriorDraftAndUncommittedStageIsNotRecovered",
+      "result": "Passed",
+      "duration": "0.566869"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.FailedPublicationRecoversLatestCommittedEditAfterMemoryLossAndPartialLaterWrite",
+      "result": "Passed",
+      "duration": "0.600969"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.IdenticalDraftBytesAvoidReplacementButChangedLockedContentRemainsRecoverable",
+      "result": "Passed",
+      "duration": "0.619076"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.InvalidCommittedNewestRecordBlocksSilentRollbackAndPreservesBytes(\"checksum\")",
+      "result": "Passed",
+      "duration": "0.660157"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.InvalidCommittedNewestRecordBlocksSilentRollbackAndPreservesBytes(\"guid\")",
+      "result": "Passed",
+      "duration": "0.693622"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.InvalidCommittedNewestRecordBlocksSilentRollbackAndPreservesBytes(\"source\")",
+      "result": "Passed",
+      "duration": "0.566562"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.InvalidCommittedNewestRecordBlocksSilentRollbackAndPreservesBytes(\"utf8\")",
+      "result": "Passed",
+      "duration": "0.517760"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.InvalidCommittedNewestRecordBlocksSilentRollbackAndPreservesBytes(\"oversize\")",
+      "result": "Passed",
+      "duration": "5.206796"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.InvalidCommittedNewestRecordBlocksSilentRollbackAndPreservesBytes(\"missing_format\")",
+      "result": "Passed",
+      "duration": "0.398784"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.InvalidCommittedNewestRecordBlocksSilentRollbackAndPreservesBytes(\"missing_payload_format\")",
+      "result": "Passed",
+      "duration": "0.362042"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.InvalidPendingFormSurvivesClosingInspectorAndRejectedApplyWithoutChangingSavedCourse",
+      "result": "Passed",
+      "duration": "0.388597"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.LegacyOrphanNeedsExplicitChoiceAndCannotAutosaveOverCurrentDraft(True)",
+      "result": "Passed",
+      "duration": "0.485782"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.LegacyOrphanNeedsExplicitChoiceAndCannotAutosaveOverCurrentDraft(False)",
+      "result": "Passed",
+      "duration": "0.459090"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.LegacyPrimaryStillLoadsAndMigratesWithoutChangingCourseOrUnfinishedValues",
+      "result": "Passed",
+      "duration": "0.445188"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.LockedRecoveryFileKeepsNewestEditsThroughSavedChangesAndInspectorRecreation",
+      "result": "Passed",
+      "duration": "0.765216"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.MissingSavedSceneKeepsCurrentSetupAndRecoveryRecord",
+      "result": "Passed",
+      "duration": "0.225845"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.NativeDraftSequenceRewritesRetainedTemporaryAfterComparisonRead",
+      "result": "Failed",
+      "duration": "0.455843",
+      "failure": "  Expected: -2147024864\n  But was:  -2147024891\n"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.NativeReplacementPublicationReportsNullAndNamedBackupFileState",
+      "result": "Passed",
+      "duration": "0.347317"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.OversizedLegacyBytesAndExcessMatchingNamesFailBeforeRecoveryMutation(False)",
+      "result": "Passed",
+      "duration": "0.562951"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.OversizedLegacyBytesAndExcessMatchingNamesFailBeforeRecoveryMutation(True)",
+      "result": "Passed",
+      "duration": "0.748383"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.ReadOnlyPrimaryRejectsPublicationButRetainsTheExactCommittedDraftAfterMemoryLoss",
+      "result": "Passed",
+      "duration": "0.719483"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.RecoveryNoticeDoesNotReparseAnExplicitlyDiscardedCorruptPrimary",
+      "result": "Passed",
+      "duration": "0.830929"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.ReleasedResidueLocksAllowSaveOrDiscardWithoutLosingTheLatestCommittedCandidate(False)",
+      "result": "Passed",
+      "duration": "0.693624"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.ReleasedResidueLocksAllowSaveOrDiscardWithoutLosingTheLatestCommittedCandidate(True)",
+      "result": "Passed",
+      "duration": "0.779980"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.RepeatedDraftRecoveryPreservesExactValidZoneCollections",
+      "result": "Passed",
+      "duration": "0.592075"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.RestorationRetainsSavedSceneBesideUntitledAdditiveSceneAndOriginalActiveSelection",
+      "result": "Passed",
+      "duration": "1.159398"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.SameRevisionDisagreementFailsClosedAndEquivalentPublicationResidueIsHarmless",
+      "result": "Passed",
+      "duration": "0.700384"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.SavedCourseProfilesPrefabAndMaterialsReloadIntoTheExactPreviewAndPlayContent",
+      "result": "Passed",
+      "duration": "2.330913"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundAuthoringPersistenceTests.SerializedThemeColoursMetricsAndOriginalFontReferencesSurviveSaveAndReload",
+      "result": "Passed",
+      "duration": "0.482870"
+    }
+  ],
+  "observations": [],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261024T033851Z.xml",
+      "bytes": 54877,
+      "sha256": "1d99a8927267a1fd5a471e24a9a431c72b865387eef6240fec347698401986bf"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261024T033851Z.log",
+      "bytes": 306265,
+      "sha256": "bf7f3bcd89266a6bf2ee1c70dc06f5417013ef48dcee156139c0285b6ef25b86"
+    },
+    {
+      "path": ".harness/delivery/native-local-authoring-publication-repair-20261024-job.json",
+      "bytes": 392,
+      "sha256": "5f9a877ae92803dadebf56f347c31a0859f7a07acb21a62d634a91adf77bcac6"
+    },
+    {
+      "path": ".harness/delivery/native-local-authoring-publication-repair-20261024-status.json",
+      "bytes": 780,
+      "sha256": "171abfc9ab69b9625e12e7afdc937e0756e729d6739d6ccb6983e5d80e4877f6"
+    },
+    {
+      "path": ".harness/delivery/native-local-authoring-publication-repair-20261024-stdout.log",
+      "bytes": 815,
+      "sha256": "f4abd7dd31b513e5bbca917d862132147b4161ff7adac83f7d6b8c703de4ba87"
+    },
+    {
+      "path": ".harness/delivery/native-local-authoring-publication-repair-20261024-stderr.log",
+      "bytes": 953,
+      "sha256": "508ca5bac86a257b9bb87f8f5f8b9ac9722126928eaa28a0a92376cb72414411"
+    }
+  ],
+  "limits": [
+    "Native Unity Editor checks; not separate Windows machines or human gameplay acceptance.",
+    "Timing phases, when enabled, are nested inclusive elapsed; do not sum as exclusive CPU or infer FPS.",
+    "Existing correctness timeouts unchanged. Full production acceptance remains open."
+  ]
+}
