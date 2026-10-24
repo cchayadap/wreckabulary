@@ -99,7 +99,7 @@ Earlier recovery and verification entries are preserved in [the evidence history
 
 ## Current verification — 2026-10-24T00:27Z
 
-The original game artwork remains the default. Windows QA build `20261024T002136Z` and its visible workshop/playtest/return run `002434` pass all five workflow checks. Root inspected all six images: the party panel fits its content, and original cream/teal/Nunito menus, Search, footer status and workshop guidance remain readable. Independent image review is in progress. See [the current build instructions](BuildNotes/client-view/TRY-WORDBOUND.md).
+The original game artwork remains the default. Windows QA build `20261024T002136Z` and its visible workshop/playtest/return run `002434` pass all five workflow checks. Root inspected all six images: the party panel fits its content, and original cream/teal/Nunito menus, Search, footer status and workshop guidance remain readable. Independent review also inspected all six images and confirmed these changes; sparse-room composition, close camera framing and held equipment remain open. See [the current build instructions](BuildNotes/client-view/TRY-WORDBOUND.md).
 
 - [x] All 13 Unity authoring persistence cases pass in `233437`, including actual changed-save/BOM handling, retained drafts, custom themes, course assets and scene restoration. The earlier intermittent Windows replacement error remains unexplained; no new production IO workaround was added.
 - [x] Capacity preflight `233231` passes with 512 reserved / 366 initial live bodies using registered PLATE props. This is validation before live allocation, not a maximum-capacity gameplay result.
