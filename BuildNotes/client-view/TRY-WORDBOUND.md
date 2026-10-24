@@ -24,7 +24,7 @@ Use the isolated `wordbound-integration` project with the verified editor at `C:
 
 - The measured playtest still has substantial update stalls. The 60 FPS acceptance target remains open; the test does not measure presented frame rate.
 - Starting rooms still need richer visual composition. The held BAT is partly hidden by the head in the inspection view; full grip, animation, combat and camera comfort remain under review.
-- Current native Team Race/Brawl two-player checks pass, but earlier intermittent movement/transfer failures remain unresolved as a reliability requirement. All five modes at full party size and complete match outcomes are not yet verified.
+- Current native two-client public checks pass for all five modes, but earlier intermittent movement/transfer failures remain unresolved as a reliability requirement. These are separate clients in one Editor process. Full party sizes, separate Windows clients and complete match outcomes are not yet verified.
 - Initial Freestyle overlap is repaired: native floor/clearance and actual Windows grounded collection pass. Recovery/drop paths remain separate unfinished work.
 - Windows Inspector draft publication is repaired; all 36 persistence cases pass, including locked/read-only files and recovery after memory loss. A new-process Windows-player repeat-save recovery check remains open.
 - Separate Windows clients, full mode/party coverage, human usability and the final stripped release are unfinished.

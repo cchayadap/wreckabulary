@@ -10,13 +10,13 @@ Deliver a tested Windows build with five modes, a changing four-destination/four
 
 The latest instruction includes public matchmaking for **all five multiplayer modes**, including Freestyle, superseding its original private-only restriction. Public games must never silently substitute AI or a solo session. Designs need believable construction/material detail, readable silhouettes and consistent physical scale.
 
-## At a glance — 2026-10-24T03:52:19Z
+## At a glance — 2026-10-24T04:09:22Z
 
 | Area | Actual progress | Still required |
 | --- | --- | --- |
 | Plot and player experience | Full [story and play design](docs/wordbound/STORY-AND-PLAYER-EXPERIENCE.md) written: three chapters, three proposed principal endings, mode conclusions, player strategies, ratings, Unity editing and acceptance | Implement new epilogues/optional restoration and narrative assets; verify comprehension and pacing with players |
 | Core gameplay/world | Five modes, layered flagship, six physical puzzle families, story journal and deterministic content implemented; compact two-client Time Run completes all three laps | Full flagship matches, FFA ten-point finish, remaining recovery/drop cases and all supported formats |
-| Public online | Live catalogue for all five modes; current repaired-editor Team Race/Brawl two-player entry, movement, command and exact acknowledgement pass 2/2 with clean service teardown | Earlier intermittent failures remain evidence; repeat reliability, other current-mode receipts, full 4/8-player matches, network stress and recovery targets remain open |
+| Public online | Live catalogue for all five modes; current two-client public entry, movement, command and exact acknowledgement pass across two native runs (2 race cases + 3 other modes), with clean service teardown | Earlier intermittent failures remain evidence; repeat reliability, full 4/8-player matches, network stress and recovery targets remain open |
 | Workshop/Unity editing | Windows exact-draft playtest/return passes 5/5; editable camera/course/equipment controls exist; corrected Windows recovery publication passes all 36 native persistence cases | Finish full controls and human no-code usability checks; verify final built-player workflow |
 | Artwork | Original assets remain default; Windows world and genuinely crafted/held BAT/HAMMER inspection passes; prior variants preserved | Full equipment states, grip/animation/camera polish, richer rooms and James's visual review |
 | Windows release | [Review build 034544](BuildNotes/client-view/TRY-WORDBOUND.md) passes build, official workshop 5/5 and original equipment 5/5; local 12/12 and persistence 36/36 native checks pass | Full online acceptance, performance, human usability and final stripped release packaging |
@@ -99,11 +99,11 @@ Native run `034318` passes 36/36 persistence cases, zero skipped, in 84.7 second
 - [~] Verify private codes, whole-party readiness/allocation, Solo/Duo/Squad and Fill On/Off.
 - [~] Verify concurrent last slots, cancellations, oversize parties and expired grants.
 - [x] Export and deploy the exact 36-entry public catalogue (nine mode/format combinations, four seeds). Deployment and module/catalogue readback pass; live HTTP party allocation/content admission and cleanup pass. Native Photon gameplay remains below.
-- [~] Public Time Run: exact public entry, two authenticated scripted clients, movement, command and durable acknowledgement pass. Sustained full-match and human acceptance remain open.
+- [~] Public Time Run: current native run `040530` passes exact public entry, two authenticated scripted clients, movement, command and durable acknowledgement, with zero service cleanup failures. Sustained full-match and human acceptance remain open.
 - [~] Public Team Race: two authenticated Solo parties pass entry, remote movement, command and exact durable acknowledgement in current native run `033100`, with zero service cleanup failures. Duo/Squad, full matches and clean-team isolation acceptance remain open.
 - [~] Public Brawl Race: current native run `033100` passes bounded public entry, remote movement, command replay and exact durable acknowledgement, with zero service cleanup failures. Earlier transfer/movement failures remain recorded; repeat reliability, Duo/Squad, combat and full match remain open.
-- [~] Public FFA: two authenticated scripted individuals pass public entry, remote movement, command and exact durable ACK in213856. Actual scoring, respawns, full outcomes and capacity remain open.
-- [~] Public Freestyle: two authenticated scripted players with Fill enabled pass public entry/movement/command/ACK in213856. Shared practice/rewards/no teammate damage separately pass private212947. Sustained public practice and capacity remain open.
+- [~] Public FFA: current native run `040530` passes public entry, remote movement, command and exact durable ACK for two authenticated scripted individuals, with zero service cleanup failures. Actual scoring, respawns, full outcomes and capacity remain open.
+- [~] Public Freestyle: current native run `040530` passes public entry/movement/command/ACK for two authenticated scripted players with Fill enabled, with zero service cleanup failures. Shared practice/rewards/no teammate damage separately pass private run `212947`. Sustained public practice and capacity remain open.
 - [~] Prove public allocator use without private-code substitution, bots or silent solo fallback across all supported formats and maximum rosters. Bounded two-client public cases already use the real allocator; remaining formats and scale are unfinished.
 - [ ] Verify automatic custom-map upload/download, exact content validation and retention after host departure.
 - [ ] Verify full four/eight-player flagship gameplay, reconnect and automatic host replacement.
@@ -130,6 +130,8 @@ Earlier recovery and verification entries are preserved in [the evidence history
 
 The current review build is available for James to try. Official workshop and equipment flows pass; all six workshop screenshots and three equipment screenshots were inspected and retained. The 90-update workshop observation takes 7.694559 seconds, with substantial stalls. This does not measure presented frame rate or establish a controlled speedup; the 60 FPS acceptance target remains open. Original assets are visible and the character is grounded. Held-item occlusion, sparse rooms and motion quality remain to improve. See the independent [timing review](BuildNotes/client-view/OFFICIAL-OBSERVER-RESULTS-20261024.md), [visual review](BuildNotes/equipment-polish/WINDOWS-ORIGINAL-REVIEW-20261024.md) and [runtime save coverage](BuildNotes/client-view/RUNTIME-SAVE-COVERAGE-20261024.md).
 
-Next: current public checks for the other three modes and all maximum rosters; full-match/draw/recovery acceptance; measured performance and all equipment states; player repeat-save/restart recovery; narrative implementation and human no-code/feel review. New full-duration fixtures are source-reviewed in an isolated lane and have not run.
+Current public run `040530` passes the remaining three modes in 201.3 seconds, with zero skips and zero service cleanup failures. Combined with race run `033100`, all five modes have current two-client entry/movement/command/durable-acknowledgement receipts. These scripted clients share one Editor process; full matches and separate Windows clients remain open. [Three-mode receipt](BuildNotes/client-view/native-public-remaining-short-editor-20261024.json).
+
+Next: all maximum public rosters; full-match/draw/recovery acceptance; measured performance and all equipment states; player repeat-save/restart recovery; narrative implementation and human no-code/feel review. New full-duration fixtures are source-reviewed in an isolated lane and have not run.
 
 Earlier detailed runs are preserved in [the verification history](BuildNotes/client-view/VERIFICATION-HISTORY-BEFORE-035028-20261024.md), including failed attempts and all limitations.
