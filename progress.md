@@ -97,7 +97,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-24T02:28:00Z
+## Current verification — 2026-10-24T02:46:12Z
 
 The original game artwork remains the default. QA Windows `20261024T005254Z` and actual workshop run `005757` pass all five workflow checks. Root inspected all six images; original theme, fitted party card and grounded character remain visible. Exact draft and Undo/Redo are preserved. [Try this tested review build](BuildNotes/client-view/TRY-WORDBOUND.md).
 
@@ -105,7 +105,7 @@ The original game artwork remains the default. QA Windows `20261024T005254Z` and
 - [x] All four currently shipped Freestyle seeds pass engine-free startup with both one and eight seats (8/8): real flagship content, complete snapshot publication/import, active keepsake, acknowledgement and first advance. This does not establish native floor contact or eight connected players. The same source-check record binds the fixture and catalogue hashes.
 - [~] Verify the new placement against actual native floor support and Windows equipment collection. The new first-frame collision/support case has not run. Recovery, voluntary/implicit drop and below-course placement remain separate open work. The earlier airborne image is preserved; the change is not yet proof of its sole cause.
 - [~] Complete the short-path Unity patch installation. Download finished; Windows administrator approval is still pending for the repair at `C:/Users/mrkl6/wb64/6000.6.4f1`. The original approval covered the earlier incomplete long-path install. Source checks used managed reference files only; no native execution is accepted from that incomplete installation.
-- [~] Preserve newest Inspector edits across a failed primary draft publication and Unity reload/exit. The existing memory-only fallback does not provide this guarantee. A bounded ordered, validated pending-file recovery change is underway; historical unexpected replacement failures remain unexplained, and its native checks are pending.
+- [~] Preserve newest Inspector edits across a failed main draft save and Unity reload/exit. Ordered, validated pending-file recovery is integrated and independently source-reviewed; final R0 passes14.5s. It retains the newest committed draft through later failures, bounds recovery reads, supports explicit legacy choices and prevents discarded edits returning after partial cleanup. All35 native persistence cases and the actual Inspector/reload check remain NOT RUN. Historical unexpected replacement failures remain unexplained. Evidence: `BuildNotes/client-view/durable-draft-source-checks-20261024.json`.
 
 - [x] All 13 Unity authoring persistence cases pass in `233437`, including actual changed-save/BOM handling, retained drafts, custom themes, course assets and scene restoration. The earlier intermittent Windows replacement error remains unexplained; no new production IO workaround was added.
 - [x] Capacity preflight `233231` passes with 512 reserved / 366 initial live bodies using registered PLATE props. This is validation before live allocation, not a maximum-capacity gameplay result.
