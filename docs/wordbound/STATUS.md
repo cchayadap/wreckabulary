@@ -8,11 +8,13 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current design and verification snapshot — 2026-10-24T03:06:53Z
+## Current design and verification snapshot — 2026-10-24T03:44:43Z
 
 The owner-requested [plot and player-experience design](STORY-AND-PLAYER-EXPERIENCE.md) is written and linked from the approved plan and [current checklist](../../progress.md). It covers the actual three-chapter canon, proposed multiple endings, mode outcomes, likely player behaviour, recovery/abuse cases, rating distinctions, Unity narrative authoring and human acceptance. Alternative endings and optional restoration tasks are not implemented. Independent narrative, player-experience and online-rule reviews distinguish source contracts from new design and unmeasured targets.
 
 Initial-only Freestyle keepsake placement passes the 307-case source suite plus eight actual shipped-map startup cases. Native032722 on `3fb06f37` completed44/47 passed,3 failed,0 skipped: local11/12 and persistence33/35. The initial keepsake test observed the pre-physics callback; a reviewed test-only correction retains all tick-zero, paused-state, collision and floor checks. Two draft tests still expose Windows primary-publication failure with their newest journal records preserved. Exact receipt: `BuildNotes/client-view/native-local-authoring-short-editor-20261024.json`. Native equipment geometry and corrected publication remain pending. These fixes are not in the existing QA player below.
+
+That failed run is superseded for the corrected source by native033851's12/12 local pass, including paused tick-zero native geometry, and native034318's36/36 persistence pass,0 skipped,84.7s. The latter verifies Windows publication repair, both original reproductions, the new read-only recovery case and complete direct-IO diagnostic after its API error-code correction. Exact receipts: `BuildNotes/client-view/native-publication-repair-first-20261024.json` and `native-authoring-lock-contract-pass-20261024.json`. These are two runs, not a single48-case green batch. Built-player equipment and official smoke remain pending on the forthcoming rebuilt candidate.
 
 Public033100 on `932784f0` passes both Team Race Solo and Brawl Race Solo cases, zero skips/cleanup failures,129.5s. Real allocation/authentication, remote movement, command and exact durable acknowledgement are checked. This current pass does not erase earlier intermittent failures, establish full matches or cover larger parties. Receipt: `BuildNotes/client-view/native-public-races-short-editor-20261024.json`. Three additional maximum-public-roster fixtures are source-reviewed/compiled but not run.
 
