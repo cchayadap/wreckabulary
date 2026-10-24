@@ -57,3 +57,7 @@ A successful publication currently adds the configured interval after the entire
 6. Compare the same exact public workload with the present diagnostic flags and separately inspect client SDK batching. Require unchanged authority/ACK correctness and record request count, accepted gaps, pause samples, observed intervals and real movement outcome. A shorter gap is only a pacing improvement; it is not acceptance of a fix for missing client batches, full FFA completion,8-peer memory, or60fps.
 
 No implementation is authorized by this report itself. Root must choose the next scoped change after the independent scheduling investigation; no timeout increase, guard relaxation or network-authentication bypass is proposed.
+
+## Decision after root review
+
+Cadence implementation is on hold. More frequent publication would repeat the measured synchronous Publish and ValidateSnapshot work: approximately101.094+110.530ms per observed publication on average in this run, before unisolated preparation and transport work. Those are blocking-call wall observations, not isolated CPU measurements. Removing completion-based idle could therefore increase main-thread contention and request volume while the client already stops producing SDK batches. The current evidence does not show that this tradeoff is beneficial. Next priority is the existing operation-boundary SDK frontier/input state and actual HostStep/reconciliation costs; keep the present cadence and all guards unchanged until that evidence supports a specific fix.
