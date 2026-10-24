@@ -18,7 +18,7 @@ All multiplayer modes have public catalogue entries. Full matches, Duo/Squad gam
 
 ## Edit in Unity
 
-Use the isolated `wordbound-integration` project and its current Unity version, 6000.6.3f1. Follow the [Unity editing guide](../../docs/wordbound/UNITY-EDITING-GUIDE.md) for course handles, random placement ranges, camera profiles, visual overrides and the interface theme. Ordinary design changes use these Inspector controls.
+Use the isolated `wordbound-integration` project. It currently selects the 6000.6.4f1 patch candidate, whose isolated installation and native verification are still in progress; the Windows review build above was tested with 6000.6.3f1. Wait for that editor verification before opening the candidate project. Follow the [Unity editing guide](../../docs/wordbound/UNITY-EDITING-GUIDE.md) for course handles, random placement ranges, camera profiles, visual overrides and the interface theme. Ordinary design changes use these Inspector controls.
 
 ## Known limits of this build
 
