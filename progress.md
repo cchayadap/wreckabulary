@@ -21,7 +21,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 | Artwork | Original Wreckabulary assets restored as the default; experimental variants preserved | Held/placed/used equipment and motion review, final camera/visual polish and James's review |
 | Windows release | QA build `20261024T005254Z` available for limited review; newer source fixes are committed separately | Repaired editor, native checks, rebuild, official smoke, performance and final release packaging |
 
-The short-path Unity repair completed successfully at 03:04:46 UTC. Exact signed version6000.6.4f1 and all14 previously missing critical files are verified; project package hashes are unchanged. R0 runtime/editor checks pass28.5s using the repaired toolchain. Profile import, native tests and a rebuild follow; no new production-build or production-readiness claim is made. Detailed evidence follows below; no percentage is inferred from test counts.
+The short-path Unity repair and fresh package resolution now pass. Exact signed version6000.6.4f1 and all14 critical installed files are verified; all20 checked resolved source/metadata files match it. Profile import031937 passes179.1s with no compiler errors; R0 passes28.5s. Incomplete prior cache copies are preserved with verified hashes and package versions are unchanged. Native tests and a rebuild follow; no new production-build or production-readiness claim is made. [Repair evidence](BuildNotes/client-view/unity-short-resolve-recovery-20261024.json).
 
 ## Story, endings and player behaviour
 

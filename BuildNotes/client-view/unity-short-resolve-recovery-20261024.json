@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "status": "IN_PROGRESS",
-  "updatedUtc": "2026-10-24T03:19:33.830086+00:00",
+  "status": "PASS",
+  "updatedUtc": "2026-10-24T03:27:19.4437421Z",
   "sourceBeforeFailedImport": "bace5e5d",
   "failedProfileGate": {
     "cmd": "exec Wreckabulary.EditorTools.WordboundBuildProfiles.Create --cold",
@@ -206,6 +206,207 @@
   "limits": [
     "No cache data deleted; original copies and resolution records retained under .harness.",
     "No game source, metadata, global caches, package versions or Bee files changed.",
-    "Fresh normal resolution and native compilation remain to be verified."
-  ]
+    "Fresh normal resolution and profile compilation pass; the twenty checked files match the installation. Native gameplay/persistence tests and rebuilt Windows acceptance remain pending."
+  ],
+  "freshResolvedFileChecks": {
+    "observedUtc": "2026-10-24T11:22:43.88628+08:00",
+    "resolutionSha256": "a0480cea7fe257ab3cc96bcecbbff01945fcaa55a01d7d8aab60e07f4f072938",
+    "checks": [
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeToolStripBase.cs",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\Overlay\\SpriteFrameModeToolStripBase.cs",
+        "installedSha256": "f5604632295f99b4a7b1f4c1bfbb264c5e469b84291859d2be6049dc928b3a8f",
+        "resolvedSha256": "f5604632295f99b4a7b1f4c1bfbb264c5e469b84291859d2be6049dc928b3a8f",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeToolStripBase.cs.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\Overlay\\SpriteFrameModeToolStripBase.cs.meta",
+        "installedSha256": "bd00c30dc34295173e01654a17c9ae56cd57d5adab54903adc9162e03031cc2a",
+        "resolvedSha256": "bd00c30dc34295173e01654a17c9ae56cd57d5adab54903adc9162e03031cc2a",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/SpriteFameModuleDataProviderOverride.cs",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\SpriteFameModuleDataProviderOverride.cs",
+        "installedSha256": "ebbc6a3196453f529b4e3cf223a2625bb3e3ac82abb1c65934db1771c6d128a7",
+        "resolvedSha256": "ebbc6a3196453f529b4e3cf223a2625bb3e3ac82abb1c65934db1771c6d128a7",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/SpriteFameModuleDataProviderOverride.cs.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\SpriteFameModuleDataProviderOverride.cs.meta",
+        "installedSha256": "9063e5ad3baf5183e6ad9942b9587183724fc9012335ae81fed0e26c798d8704",
+        "resolvedSha256": "9063e5ad3baf5183e6ad9942b9587183724fc9012335ae81fed0e26c798d8704",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameEditor/SpriteFrameEditorMode.cs",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\SpriteFrameEditor\\SpriteFrameEditorMode.cs",
+        "installedSha256": "b603242119baf8e460d02df9c5b54e775e9caf9b8c1deacbe1eda7758d457a41",
+        "resolvedSha256": "b603242119baf8e460d02df9c5b54e775e9caf9b8c1deacbe1eda7758d457a41",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameEditor/SpriteFrameEditorMode.cs.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\SpriteFrameEditor\\SpriteFrameEditorMode.cs.meta",
+        "installedSha256": "ad8c7fc1cb1671b64bb40ba8862ca1bd744fa12f4593324c5627f7a1c95843d8",
+        "resolvedSha256": "ad8c7fc1cb1671b64bb40ba8862ca1bd744fa12f4593324c5627f7a1c95843d8",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameEditor/SpriteFrameEditorModeToggle.cs",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\SpriteFrameEditor\\SpriteFrameEditorModeToggle.cs",
+        "installedSha256": "01f6a082c67928dd1f32fecaa14529532db1008b74af4e9e442cf1ddf6fd0e0d",
+        "resolvedSha256": "01f6a082c67928dd1f32fecaa14529532db1008b74af4e9e442cf1ddf6fd0e0d",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameEditor/SpriteFrameEditorModeToggle.cs.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\SpriteFrameEditor\\SpriteFrameEditorModeToggle.cs.meta",
+        "installedSha256": "53c5d901ede8147dc389bb19d0409808dc6c21655096d6bceeec452abd8ab6c6",
+        "resolvedSha256": "53c5d901ede8147dc389bb19d0409808dc6c21655096d6bceeec452abd8ab6c6",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameEditor/SpriteFrameScenePreview.cs",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\SpriteFrameEditor\\SpriteFrameScenePreview.cs",
+        "installedSha256": "2c64bdd81b03020f68f540a037f12c68672761356519e641c2f0bbf3f271159a",
+        "resolvedSha256": "2c64bdd81b03020f68f540a037f12c68672761356519e641c2f0bbf3f271159a",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameEditor/SpriteFrameScenePreview.cs.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\SpriteFrameEditor\\SpriteFrameScenePreview.cs.meta",
+        "installedSha256": "5545e59e5ce3fe809da7db518902d4f0a425c79b7cef1ebf43ec61d241c7ba0c",
+        "resolvedSha256": "5545e59e5ce3fe809da7db518902d4f0a425c79b7cef1ebf43ec61d241c7ba0c",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/UndoObject/SpriteFrameModeUndoObject.cs",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\UndoObject\\SpriteFrameModeUndoObject.cs",
+        "installedSha256": "328643313c4a956f1bed87888fab3b633788bfd65bbb20bc6f56253170b2688e",
+        "resolvedSha256": "328643313c4a956f1bed87888fab3b633788bfd65bbb20bc6f56253170b2688e",
+        "matches": true
+      },
+      {
+        "package": "com.unity.2d.sprite",
+        "relative": "Editor/SpriteEditorModule/SpriteFrameModule/UndoObject/SpriteFrameModeUndoObject.cs.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f\\Editor\\SpriteEditorModule\\SpriteFrameModule\\UndoObject\\SpriteFrameModeUndoObject.cs.meta",
+        "installedSha256": "ad1653ccf3351f491d3402895b068aaeb006c75bd8cdb076fc30c9003c8f33ac",
+        "resolvedSha256": "ad1653ccf3351f491d3402895b068aaeb006c75bd8cdb076fc30c9003c8f33ac",
+        "matches": true
+      },
+      {
+        "package": "com.unity.render-pipelines.core",
+        "relative": "Runtime/ObjectDispatcher/Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.asmdef",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.render-pipelines.core@285af6b8c83f\\Runtime\\ObjectDispatcher\\Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.asmdef",
+        "installedSha256": "1f59309350367675600a8aab96566e990c29e36e2f3cc31551b68f0cdeb8f0ac",
+        "resolvedSha256": "1f59309350367675600a8aab96566e990c29e36e2f3cc31551b68f0cdeb8f0ac",
+        "matches": true
+      },
+      {
+        "package": "com.unity.render-pipelines.core",
+        "relative": "Runtime/ObjectDispatcher/Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.asmdef.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.render-pipelines.core@285af6b8c83f\\Runtime\\ObjectDispatcher\\Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.asmdef.meta",
+        "installedSha256": "727565a029aec16e99bd8c1893866526a9e6858cdc7c0bc6cace1664431f70c5",
+        "resolvedSha256": "727565a029aec16e99bd8c1893866526a9e6858cdc7c0bc6cace1664431f70c5",
+        "matches": true
+      },
+      {
+        "package": "com.unity.shadergraph",
+        "relative": "Editor/Generation/Targets/BuiltIn/Editor/ShaderGraph/Includes/PBRGBufferPass.hlsl",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.shadergraph@58bcb150677d\\Editor\\Generation\\Targets\\BuiltIn\\Editor\\ShaderGraph\\Includes\\PBRGBufferPass.hlsl",
+        "installedSha256": "92d02cfc901165a51f977b918682cb48e827f5209b30aa9b904142384bb42cd2",
+        "resolvedSha256": "92d02cfc901165a51f977b918682cb48e827f5209b30aa9b904142384bb42cd2",
+        "matches": true
+      },
+      {
+        "package": "com.unity.shadergraph",
+        "relative": "Editor/Generation/Targets/BuiltIn/Editor/ShaderGraph/Includes/PBRGBufferPass.hlsl.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.shadergraph@58bcb150677d\\Editor\\Generation\\Targets\\BuiltIn\\Editor\\ShaderGraph\\Includes\\PBRGBufferPass.hlsl.meta",
+        "installedSha256": "e0555bb9b31f3c333fb150476b29b6619fe10a5fe539bb4e0465e28a70aea5f8",
+        "resolvedSha256": "e0555bb9b31f3c333fb150476b29b6619fe10a5fe539bb4e0465e28a70aea5f8",
+        "matches": true
+      },
+      {
+        "package": "com.unity.render-pipelines.universal",
+        "relative": "ShaderLibrary/Unity.RenderPipelines.Universal.ShaderLibrary.asmdef",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.render-pipelines.universal@b0678dfc9e21\\ShaderLibrary\\Unity.RenderPipelines.Universal.ShaderLibrary.asmdef",
+        "installedSha256": "abc54315cacf6aa2745122d8ce98fcd07b67126bb23e8896c8e74ba95aacf96e",
+        "resolvedSha256": "abc54315cacf6aa2745122d8ce98fcd07b67126bb23e8896c8e74ba95aacf96e",
+        "matches": true
+      },
+      {
+        "package": "com.unity.render-pipelines.universal",
+        "relative": "ShaderLibrary/Unity.RenderPipelines.Universal.ShaderLibrary.asmdef.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.render-pipelines.universal@b0678dfc9e21\\ShaderLibrary\\Unity.RenderPipelines.Universal.ShaderLibrary.asmdef.meta",
+        "installedSha256": "0d1e3b4e6fee5b24f4728603c6fd7eff75d9be13303588566d69fdf56637fa12",
+        "resolvedSha256": "0d1e3b4e6fee5b24f4728603c6fd7eff75d9be13303588566d69fdf56637fa12",
+        "matches": true
+      },
+      {
+        "package": "com.unity.render-pipelines.universal",
+        "relative": "Tests/Runtime/Unity.RenderPipelines.Universal.Runtime.Tests.asmdef",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.render-pipelines.universal@b0678dfc9e21\\Tests\\Runtime\\Unity.RenderPipelines.Universal.Runtime.Tests.asmdef",
+        "installedSha256": "211cad0590a032845aad86075b5d8279d68a880fa1709881d1137bfe99074380",
+        "resolvedSha256": "211cad0590a032845aad86075b5d8279d68a880fa1709881d1137bfe99074380",
+        "matches": true
+      },
+      {
+        "package": "com.unity.render-pipelines.universal",
+        "relative": "Tests/Runtime/Unity.RenderPipelines.Universal.Runtime.Tests.asmdef.meta",
+        "resolvedPath": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.render-pipelines.universal@b0678dfc9e21\\Tests\\Runtime\\Unity.RenderPipelines.Universal.Runtime.Tests.asmdef.meta",
+        "installedSha256": "67bee6ea2f16e0b11a9b9174ff7235b04de0b595f61462ea10c46a773b945e43",
+        "resolvedSha256": "67bee6ea2f16e0b11a9b9174ff7235b04de0b595f61462ea10c46a773b945e43",
+        "matches": true
+      }
+    ],
+    "allMatch": true
+  },
+  "successfulProfileGate": {
+    "cmd": "exec Wreckabulary.EditorTools.WordboundBuildProfiles.Create --cold",
+    "rung": "R3",
+    "ok": true,
+    "exit": 0,
+    "verdict": "PASS",
+    "utc": "2026-10-24T03:19:37Z",
+    "secs": 179.1,
+    "route": "cold",
+    "errors": [],
+    "failures": [],
+    "log": "Logs/gate_exec_Create_20261024T031937Z.log",
+    "evidence": [
+      "Logs/exec/20261024T031937Z.json"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 165.4,
+    "messages": [
+      "[Wreckabulary] Windows release, QA and development profiles verified; global scene order and active profile preserved.",
+      "[GSK] exec Wreckabulary.EditorTools.WordboundBuildProfiles.Create ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261024T031937Z.json"
+    ],
+    "exec": {
+      "method": "Wreckabulary.EditorTools.WordboundBuildProfiles.Create",
+      "ok": true,
+      "error": null,
+      "result": null
+    }
+  },
+  "successfulGateLogSha256": "1919b91b2fe4c429d7c0f2afb7bc6be5d156fe81bedbf3bf692b28b403cfd173",
+  "sourceAtRetryStart": "a96635b3",
+  "sourceAtRetryEnd": "e9908d7c",
+  "sourceDuringRetryNote": "Only a documentation report was committed during this profile import; game source, packages and profiles remained unchanged."
 }
