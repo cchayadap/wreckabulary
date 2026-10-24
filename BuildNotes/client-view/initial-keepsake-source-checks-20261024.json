@@ -1,0 +1,85 @@
+{
+  "recordedUtc": "2026-10-24T02:26:13.0820302Z",
+  "source": "0ff2996d44a790cb83f52253ccce1dbc3da6184b",
+  "scope": "Initial Freestyle keepsake placement at a clear unconditional authored anchor; exact existing committed restores preserved",
+  "checks": [
+    {
+      "gate": "R0",
+      "utc": "2026-10-24T02:23:18Z",
+      "verdict": "INFRA",
+      "seconds": 5.6,
+      "reason": "Process-local GSK_UNITY was omitted; gate could not locate isolated candidate. No Unity launched."
+    },
+    {
+      "gate": "R0",
+      "utc": "2026-10-24T02:23:42Z",
+      "verdict": "PASS",
+      "seconds": 18.8
+    },
+    {
+      "gate": "R1",
+      "utc": "2026-10-24T02:24:40Z",
+      "verdict": "PASS",
+      "seconds": 42.9,
+      "total": 307,
+      "passed": 307,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "toolchain": "Source checks use managed references from the first isolated 6000.6.4f1 installation via process-local GSK_UNITY. Native/editor execution is not accepted from that incomplete install.",
+  "limits": [
+    "Native 12-case local gameplay fixture including first-frame floor support is NOT RUN.",
+    "New Windows equipment and official smoke execution pending complete short-path editor installation.",
+    "Recovery, voluntary/implicit drop and below-course placement are unchanged and remain open.",
+    "Prior airborne-character failure retained; no claim that initial overlap alone explains its measured height.",
+    "No pickup range, physics dimensions, artwork, wire or content hash changes."
+  ],
+  "artifacts": [
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/AuthoritativePractice.cs",
+      "bytes": 8806,
+      "sha256": "fb032001987c7325f69b90f891c11e18d374cea5b8af379dd3fbd9dac56bc5cf"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/AuthoritativeMatch.cs",
+      "bytes": 74022,
+      "sha256": "74aa10b805e494ff045446e72c4ea37b52ada468ea6d7c2761963272d3fb4f48"
+    },
+    {
+      "path": "Assets/_Project/Tests/Rules/WordboundPracticeTests.cs",
+      "bytes": 25418,
+      "sha256": "4f5a00b5731737392bc5f84055cdab40b9a9c63bcaedf11205ecaabd176c04db"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/WordboundNativeLocalGameplayTests.cs",
+      "bytes": 48731,
+      "sha256": "2351f851d27a39c037fd8e4aac0b4ba8e5608779582af6e82558dd1acc588e4e"
+    },
+    {
+      "path": "Logs/gate_check_all_20261024T022347Z.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Logs/gate_core_20261024T022440Z.log",
+      "bytes": 533,
+      "sha256": "4cdc974d49ff8d341b221c59819ba5cbdc4b394bba086ee749392d09c0fa74c1"
+    },
+    {
+      "path": "TestResults/core_20261024T022440Z.trx",
+      "bytes": 436662,
+      "sha256": "9bba1c37436265b7238b788a580ca69237c02f2c00c4bf1e40dba4b8272ce643"
+    },
+    {
+      "path": "BuildNotes/client-view/FREESTYLE-SPAWN-FIX-REVIEW.md",
+      "bytes": 28968,
+      "sha256": "1ac0cb5eea94e648658fdbd0cb164b0cffffe6817d0dd07689e8dfdc841bd154"
+    },
+    {
+      "path": "BuildNotes/online/FREESTYLE-KEEPSAKE-PLACEMENT-PLAN.md",
+      "bytes": 7614,
+      "sha256": "92df2215359cbcd4f681a6275c627803af548374127550f7ff30c065b98c1134"
+    }
+  ]
+}
