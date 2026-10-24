@@ -29,7 +29,7 @@ namespace Wreckabulary.OnlineGameplayTests
             NUnit.Framework.Assert.IsNotNull(adapter, "The native tick probe needs its editor-guarded runtime-assembly adapter.");
             adapter.BeforeTicks = observation.Begin;
             adapter.AfterTicks = observation.End;
-            adapter.Updated = observation.UnityUpdate;
+            adapter.Updated = ticks => observation.UnityUpdate(runner, ticks);
             adapter.Destroyed = observation.Destroyed;
         }
 
@@ -58,6 +58,7 @@ namespace Wreckabulary.OnlineGameplayTests
             readonly long started;
             readonly Totals forward = new Totals(), resimulated = new Totals();
             readonly Sample[] tail = new Sample[TailCapacity];
+            readonly FrameDeltas frameDeltas = new FrameDeltas();
             long previousBegin, previousUnityUpdate, maxBeginGap, maxUnityUpdateGap, stoppedAt;
             long completed, unityUpdates;
             int tailNext, unmatchedBegins, unmatchedEnds, pairingMismatches, invalidTickCounts, maxTicksExecuted;
@@ -104,7 +105,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 completed++;
             }
 
-            internal void UnityUpdate(int ticksExecuted)
+            internal void UnityUpdate(NetworkRunner runner, int ticksExecuted)
             {
                 if (stopped) return;
                 long now = Stopwatch.GetTimestamp();
@@ -112,6 +113,12 @@ namespace Wreckabulary.OnlineGameplayTests
                 previousUnityUpdate = now;
                 unityUpdates++;
                 maxTicksExecuted = Math.Max(maxTicksExecuted, ticksExecuted);
+                try
+                {
+                    frameDeltas.Record(Time.unscaledDeltaTime, runner.Config.Simulation.SimulationUpdateTimeMode,
+                        Time.frameCount, runner.Tick.Raw, runner.InputTick.Raw, runner.LatestServerTick.Raw, ticksExecuted);
+                }
+                catch (Exception error) { frameDeltas.Unavailable(error); }
             }
 
             internal void Destroyed() { destroyed = true; Stop(); }
@@ -120,6 +127,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 if (stopped) return;
                 stoppedAt = Stopwatch.GetTimestamp();
                 stopped = true;
+                frameDeltas.Stop();
             }
 
             internal void Report()
@@ -155,6 +163,29 @@ namespace Wreckabulary.OnlineGameplayTests
                         .Append(",wallMs=").Append(Milliseconds(sample.End - sample.Begin));
                 }
                 Debug.Log(text.Append(']').ToString());
+                Debug.Log("WORDBOUND_NATIVE_TICK_FRAME_DELTAS: " + identity + "; samples=" + frameDeltas.Samples +
+                    "; unavailable=" + frameDeltas.UnavailableReads + "; lastUnavailableType=" + (frameDeltas.LastUnavailableType ?? "none") +
+                    "; invalidDeltas=" + frameDeltas.InvalidDeltas + "; aboveOneSecond=" + frameDeltas.AboveOneSecond +
+                    "; maxUnscaledDeltaMs=" + (frameDeltas.Samples > frameDeltas.InvalidDeltas ?
+                        (frameDeltas.MaxUnscaledDelta * 1000d).ToString("F3", CultureInfo.InvariantCulture) : "unavailable") +
+                    "; latestUpdateTimeMode=" + (frameDeltas.Samples > 0 ? frameDeltas.LatestMode.ToString() : "unavailable") +
+                    "; phase=MonoBehaviour.Update-frame-observation-not-time-provider-trace; ticksExecuted=at-Unity-Update-not-assumed-same-phase" +
+                    "; threshold=strict-unscaled-delta-greater-than-one-second; unscaledDeltaMatchesSdkArgumentOnlyInMode=UnscaledDeltaTime");
+                var frameText = new StringBuilder("WORDBOUND_NATIVE_TICK_LONG_FRAMES: ").Append(identity)
+                    .Append("; capacity=").Append(FrameDeltas.Capacity).Append("; retained=").Append(frameDeltas.Retained)
+                    .Append("; overwritten=").Append(frameDeltas.AboveOneSecond - frameDeltas.Retained)
+                    .Append("; totalsIncludeOverwritten=true; samples=[");
+                for (int i = 0; i < frameDeltas.Retained; i++)
+                {
+                    var sample = frameDeltas.At(i);
+                    if (i > 0) frameText.Append('|');
+                    frameText.Append("frame=").Append(sample.Frame).Append(",mode=").Append(sample.Mode)
+                        .Append(",unscaledDeltaMs=").Append((sample.UnscaledDelta * 1000d).ToString("F3", CultureInfo.InvariantCulture))
+                        .Append(",sdkTick=").Append(sample.SdkTick).Append(",inputTick=").Append(sample.InputTick)
+                        .Append(",latestServerTick=").Append(sample.LatestServerTick)
+                        .Append(",ticksExecutedAtUnityUpdate=").Append(sample.TicksExecuted);
+                }
+                Debug.Log(frameText.Append(']').ToString());
             }
 
             void ReportTotals(string identity, string kind, Totals total) =>
@@ -177,6 +208,64 @@ namespace Wreckabulary.OnlineGameplayTests
                 internal long Begin, End;
                 internal int Frame, EndFrame, Ticks;
                 internal bool Resimulation, Host;
+            }
+        }
+
+        internal sealed class FrameDeltas
+        {
+            internal const int Capacity = 16;
+            readonly FrameDelta[] tail = new FrameDelta[Capacity];
+            int next;
+            bool stopped;
+            internal long Samples { get; private set; }
+            internal long UnavailableReads { get; private set; }
+            internal long InvalidDeltas { get; private set; }
+            internal long AboveOneSecond { get; private set; }
+            internal double MaxUnscaledDelta { get; private set; }
+            internal SimulationConfig.SimulationTimeMode LatestMode { get; private set; }
+            internal string LastUnavailableType { get; private set; }
+            internal int Retained => (int)Math.Min(AboveOneSecond, Capacity);
+
+            internal void Record(float delta, SimulationConfig.SimulationTimeMode mode, int frame,
+                int sdkTick, int inputTick, int latestServerTick, int ticksExecuted)
+            {
+                if (stopped) return;
+                Samples++; LatestMode = mode;
+                if (float.IsNaN(delta) || float.IsInfinity(delta) || delta < 0) { InvalidDeltas++; return; }
+                MaxUnscaledDelta = Math.Max(MaxUnscaledDelta, delta);
+                if (delta <= 1) return;
+                AboveOneSecond++;
+                tail[next] = new FrameDelta(delta, mode, frame, sdkTick, inputTick, latestServerTick, ticksExecuted);
+                next = (next + 1) % Capacity;
+            }
+
+            internal void Unavailable(Exception error)
+            {
+                if (stopped) return;
+                UnavailableReads++; LastUnavailableType = error.GetType().Name;
+            }
+
+            internal FrameDelta At(int index)
+            {
+                if (index < 0 || index >= Retained) throw new ArgumentOutOfRangeException(nameof(index));
+                int first = AboveOneSecond >= Capacity ? next : 0;
+                return tail[(first + index) % Capacity];
+            }
+
+            internal void Stop() => stopped = true;
+        }
+
+        internal readonly struct FrameDelta
+        {
+            internal readonly float UnscaledDelta;
+            internal readonly SimulationConfig.SimulationTimeMode Mode;
+            internal readonly int Frame, SdkTick, InputTick, LatestServerTick, TicksExecuted;
+
+            internal FrameDelta(float delta, SimulationConfig.SimulationTimeMode mode, int frame,
+                int sdkTick, int inputTick, int latestServerTick, int ticksExecuted)
+            {
+                UnscaledDelta = delta; Mode = mode; Frame = frame; SdkTick = sdkTick;
+                InputTick = inputTick; LatestServerTick = latestServerTick; TicksExecuted = ticksExecuted;
             }
         }
     }
