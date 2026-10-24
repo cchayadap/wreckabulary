@@ -49,3 +49,28 @@ STATUS: SOURCE PASS from independent Online review; compiler/native NOT RUN by t
 Installed Fusion.Runtime.dll metadata was read with Mono.Cecil, without executing the game assembly. All seven public getters are read-only wrappers over Runner/simulation state. Tick/InputTick/LatestServerTick can return default zero without a simulation; State and existing runner/readiness facts must therefore accompany interpretation. IsConnectedToServer returns false for a server, and Stage sampled outside a simulation callback does not prove a tick occurred. These sequential boundary observations are SDK frontiers, not canonical checkpoint ticks, packet arrival timestamps or a coherent network snapshot. The installed DLL hash remains `D213B95E4694C167F5F6FAFFCBD75CA1E47F19A9249C91A4964F8342FAC9B560`.
 
 Integration: baseline-only commit `1f3d3852` aligns the fixture to root SHA256 `0030D2302019623962A41FC612D3F2F5B8E8F7366A83C50D09CA0267FA6B9B11` and MUST NOT be integrated. Deliver only the following diagnostic/report delta. Git diff whitespace check passes; the parent owns compilation and the exact public TeamSolo rerun.
+
+## Isolated 001235 result — server frontier advances while client falls behind
+
+The exact single TeamSolo case on root `e2b890fa` fails the unchanged movement deadline after 44.439626 seconds; gate 81.3 seconds, refresh 19.1 seconds, no crash reported. There are no preceding UI or synthetic diagnostic cases in this run. Boundary diagnostics execute successfully. During the 10.077-second movement wait (maximum observed frame gap 1.887 seconds):
+
+| Observed frontier or counter | Host begin → end | Client begin → end |
+| --- | --- | --- |
+| Canonical frame tick | 226 → 625 | 106 → 106 |
+| SDK state tick | 991 → 1467 | 993 → 1268 |
+| SDK input tick | 991 → 1467 | 993 → 1249 |
+| Latest confirmed server tick | 991 → 1467 | 991 → 1467 |
+| Local movement delegate reads | 447 → 923 | 115 → 371 |
+| Nonzero movement delegate reads | 0 → 0 | 0 → 256 |
+
+Both endpoints show ready scenes, Running, ProvideInput=True, no session fault and unpaused controllers; the client remains connected to its server. At the final boundary its SDK state/input frontiers trail the latest confirmed server tick by 199/218 ticks. Its unchanged canonical frame106 is a separate durable-import frontier. LatestServerTick confirms knowledge of the server tick; it does not establish that every object snapshot or the complete reliable canonical checkpoint payload arrived or was applied. This run does not support total receive cessation, and differs from 000038's zero movement reads. It also does not prove that any of the 256 local requests reached the host motor at a usable SDK tick.
+
+There are exactly **83 current-case input-buffer-full warnings**, for SDK ticks1167–1249. The generic warning still does not identify which Runner/buffer emitted it. The client completes133 forward batches/338 ticks and116 resimulation batches/347 ticks, with no pending/unmatched/pairing faults. Its final forward batch runs34341.307→34373.078ms; no later batch appears before the observer window ends39535.810ms, while its latest component Update is76.913ms old. The host completes365 forward batches/1467 ticks, maximum60 ticks/1674.814ms. These establish an extended client simulation gap despite component updates and a progressed confirmed-server frontier; they do not isolate the SDK's scheduling or buffer-retention cause.
+
+Source interpretation correction: `lastBatchAgeAtStopMs` uses `stoppedAt - previousBegin`, not completion time. Thus the client's reported5194.681ms includes the final31.772ms batch: the gap after completion is approximately5162.909ms. The host's1959.422ms includes its final1674.814ms batch, leaving about284.608ms after completion. For historical000038, subtracting the final7.256ms from11092.939ms still leaves11085.683ms without a completed client batch, longer than its10.876-second movement wait. Raw labels and artifacts remain unchanged.
+
+Checkpoint observations separately show625 eligible and298 durable-gap samples, with prior-state intervals15689.360/1719.769ms;544 not-ready samples cover7150.602ms. Eight accepted publication→ACK spans total9187.972ms, maximum2142.168ms. Seven matched ACK→next successful publication gaps total8729.905ms, maximum1691.425ms. These broader inclusive windows cannot be subtracted from movement time or treated as HTTP RTT. Cleanup reports failures/return/cancel/leave all zero.
+
+The next smallest investigation is read-only inspection of the installed SDK client forward-tick/input-buffer pruning conditions against these divergent frontiers. No tick-rate, buffer-size, catch-up or timeout change is justified yet. If another native discriminator is needed, reuse the existing fixture callback for one watched remote player on the host: count current SDK-tick typed input availability/epoch validity/nonzero direction alongside host eligibility and that body's actual position/velocity. An adjacent public input read must be labelled as such, not proof that the motor passed every branch. This would distinguish unusable/missing host input from eligible input with no physical motion; further local ReadMovement counters would repeat known evidence. The exact host motor read would require separately authorized instrumentation. No source change or job was performed for this review.
+
+Evidence: XML SHA256 `D43B19EA6ED4A23B1DF23758C17EAFE8E6BBA44E11B1CDD3705D8FB56158158A`; raw log SHA256 `1267DFE9C828B0FD9E96354B1583E726EFD6B1ACEE09A298F3203EFD33C3BE28`. Files are root `TestResults/editmode_20261024T001235Z.xml` and `Logs/gate_test_editmode_20261024T001235Z.log`. No public acceptance or causal performance improvement is claimed.
