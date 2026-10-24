@@ -134,6 +134,8 @@ namespace Wreckabulary.Qa
             if (client.Gameplay.CourseWorld.ManifestHash != manifest) throw new QaFailException("The running equipment course differs from the authored preview.");
             observation.Prepare(client);
             observation.FrameWorld();
+            yield return context.WaitUntil(() => { RequireHealthy(); return observation.Settled; }, 30,
+                "30 fresh grounded player/keepsake observation frames spanning at least 30 ticks; initial launch remains diagnostic evidence");
             yield return Capture(context, "wordbound_original_world", null);
             worldCaptured = true;
         }
@@ -186,6 +188,7 @@ namespace Wreckabulary.Qa
         IEnumerator Command(QaContext context, WordboundAction action, string target = "", int revision = 0, int slot = -1, string value = "")
         {
             RequireHealthy();
+            if (action == WordboundAction.CollectLetter) observation.RecordPhysics("before_collect_" + (receipts.Count + 1), target);
             var command = client.Gameplay.Submit(action, target, revision, slot, value);
             yield return context.WaitUntil(() => Frame.Commands.Frontiers[Actor] >= command.Sequence, 15, "actual " + action + " receipt");
             var receipt = Frame.Commands.Receipts.Single(entry => entry.ActorId == Actor && entry.Sequence == command.Sequence);
@@ -193,6 +196,7 @@ namespace Wreckabulary.Qa
                 ["tick"] = Frame.Progress.Tick, ["action"] = action.ToString(), ["target"] = target,
                 ["code"] = receipt.Effect.Code, ["payload_matches"] = receipt.PayloadHash == command.PayloadHash });
             File.WriteAllText(context.PathInRun("equipment-command-receipts.json"), OnlineJson.Encode(receipts));
+            if (action == WordboundAction.CollectLetter) observation.RecordPhysics("after_collect_" + command.Sequence, target);
             if (receipt.PayloadHash != command.PayloadHash || receipt.Effect.Code != "Ok")
                 throw new QaFailException("Actual " + action + " failed without retry: " + receipt.Effect.Code);
         }
@@ -212,6 +216,7 @@ namespace Wreckabulary.Qa
 
         IEnumerator Return(QaContext context)
         {
+            if (observation) observation.RecordBeforeCleanup();
             if (observation) observation.RestoreView();
             if (!client) client = launcher ? launcher.GetComponentInChildren<WordboundLocalMatchClient>() : null;
             if (client)
