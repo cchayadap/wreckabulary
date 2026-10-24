@@ -1,6 +1,6 @@
 # Try the current Windows review build
 
-Open `Builds/qa-20261023T232641Z/Wreckabulary.exe` from the integration project. Keep its whole folder together, including `Wreckabulary_Data` and the DLLs. This is the tested review build; final production acceptance is still in progress.
+Open `Builds/qa-20261024T002136Z/Wreckabulary.exe` from the integration project. Keep its whole folder together, including `Wreckabulary_Data` and the DLLs. This is the tested review build; final production acceptance is still in progress.
 
 ## Try the workshop
 
@@ -23,8 +23,9 @@ Use the isolated `wordbound-integration` project and its current Unity version, 
 ## Known limits of this build
 
 - The measured playtest still has noticeable update stalls. The 60 FPS target is not met.
-- The initial party card is taller than its content; a compact layout is being prepared. Starting-room composition and held/combat views still need review.
+- The initial party card now fits its content. Starting-room composition, camera framing and held/combat views still need review.
+- The latest public Team Race Solo test fails during remote movement. Server updates arrive while the client simulation falls behind; the cause is still being measured. Reliable online play across all modes is not yet verified.
 - An earlier Unity Inspector draft-save failure remains unexplained. The latest exact save and recovery tests pass; failed writes retain in-memory recovery.
 - Separate Windows clients, full mode/party coverage, human usability and the final stripped release are unfinished.
 
-Build source: `8c02f106c5e6beb9a72fc35f06d22264a94e504e`. Windows run: `20261023T232850Z-visible-wordbound_workshop_flow`, **5/5 PASS**, normal exit and no reported console errors, exceptions or warnings. [Evidence and screenshots](windows-original-theme-polish-20261023.json).
+Build source: `f1b20833dd1b2b401b800a390855411c49bfa385`. Windows run: `20261024T002434Z-visible-wordbound_workshop_flow`, **5/5 PASS**, normal exit and no reported console errors, exceptions or warnings. [Evidence and screenshots](windows-original-party-fit-20261024.json).

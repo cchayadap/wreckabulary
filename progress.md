@@ -86,8 +86,8 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 ## Tested Windows delivery
 
 - [x] Create/read back Windows release, QA and development profiles.
-- [x] Produce QA Windows builds: latest `20261023T232641Z` passes113.4s on exact8c02f106; includes corrected original-style menus and opt-in frame observation. Final stripped release remains separate.
-- [~] Visible workshop→game→workshop232850 passes5/5: playtest12.450s, exact save/return/draft/Undo preserved, console0/0/0, exit0. Six actual screenshots confirm the theme corrections. The measured90-update window takes7.240s with479 canonical ticks and a696.499ms maximum update gap; smoothness remains below acceptance. Supplemental normal-window diagnostic only; official smoke and sustained frame rate remain open. `BuildNotes/client-view/windows-original-theme-polish-20261023.json`.
+- [x] Produce QA Windows builds: latest `20261024T002136Z` passes146s on exactf1b20833; includes original assets, the corrected compact party card and the latest mechanism-allocation optimization. Final stripped release remains separate.
+- [~] Visible workshop→game→workshop002434 passes5/5: playtest13.767s, exact save/return/draft/Undo preserved, console0/0/0, exit0. Six actual screenshots show the compact card, original artwork and readable workshop/equipment menus. The measured90-update window takes9.371s with603 canonical ticks and an895.562ms maximum update gap; smoothness remains below acceptance. Supplemental normal-window diagnostic only; official smoke and sustained frame rate remain open. `BuildNotes/client-view/windows-original-party-fit-20261024.json`.
 - [~] Exercise keyboard/mouse/controller, focus loss, cameras, reconnect, return and quit. Controller selection/menu repair, party navigation, workshop focus protection and allocation cleanup are integrated; focused native input passes 24/24. Final player handling and reconnect acceptance remain pending.
 - [ ] Profile eight players/active equipment against 60 fps at 1080p Low on Core Ultra 7 + Intel Arc.
 - [ ] Recheck affected lobby/wardrobe/Escape/controls/local multiplayer/home-save regressions.
@@ -97,9 +97,9 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-24T00:20Z
+## Current verification — 2026-10-24T00:27Z
 
-The original game artwork remains the default. Windows QA build `20261023T232641Z` and its visible workshop/playtest/return run `232850` pass all five workflow checks. Two agents inspected all six images: Search, footer status and the original cream/teal/Nunito party theme are corrected. The next compact party panel and clearer workshop guidance are integrated and undergoing native checks. See [the current build instructions](BuildNotes/client-view/TRY-WORDBOUND.md).
+The original game artwork remains the default. Windows QA build `20261024T002136Z` and its visible workshop/playtest/return run `002434` pass all five workflow checks. Root inspected all six images: the party panel fits its content, and original cream/teal/Nunito menus, Search, footer status and workshop guidance remain readable. Independent image review is in progress. See [the current build instructions](BuildNotes/client-view/TRY-WORDBOUND.md).
 
 - [x] All 13 Unity authoring persistence cases pass in `233437`, including actual changed-save/BOM handling, retained drafts, custom themes, course assets and scene restoration. The earlier intermittent Windows replacement error remains unexplained; no new production IO workaround was added.
 - [x] Capacity preflight `233231` passes with 512 reserved / 366 initial live bodies using registered PLATE props. This is validation before live allocation, not a maximum-capacity gameplay result.
@@ -110,7 +110,7 @@ The original game artwork remains the default. Windows QA build `20261023T232641
 - [~] Checkpoint measurements are now available: 12 exact accepted publications, mean 1,075 ms from publication to ACK and mean 1,417 ms from ACK to next publication. These are inclusive observations, not isolated network or controller-idle time. All requests succeed. Cadence is unchanged because increasing it could add CPU/request cost.
 - [~] Isolated public Team Solo `001235` still fails its unchanged movement deadline. The client's latest confirmed server tick reaches 1467, matching the host, while its own simulation/input ticks remain 1268/1249. Unity updates continue, but no client simulation batch completes for approximately 5.163 seconds before observation stops. This is receive-progress evidence, not proof that complete snapshots or host motor input arrived. Installed SDK scheduling/buffer conditions are under read-only investigation; timing and capacity settings remain unchanged. See `native-public-frontiers-20261024.json` and `PUBLIC-MOVEMENT-234950-REVIEW.md` under `BuildNotes/client-view/`.
 
-Actual Windows frame observation still shows substantial stalls: 90 updates in 7.240 seconds, 479 canonical ticks and a 696.499 ms maximum update gap. The assigned camera records 89 matched callback pairs; those are not GPU completion or presented-FPS measurements. A fresh Windows build and the same visible workload follow the current native checks. Larger parties, full-match outcomes, recovery targets, final release and human acceptance remain open.
+Actual Windows frame observation still shows substantial stalls: 90 updates in 9.371 seconds, 603 canonical ticks and an 895.562 ms maximum update gap. The assigned camera records 89 matched callback pairs; those are not GPU completion or presented-FPS measurements. This fresh run does not establish a frame-rate improvement. Larger parties, full-match outcomes, recovery targets, final release and human acceptance remain open.
 
 ### Earlier verified checkpoint — 22:47 UTC
 

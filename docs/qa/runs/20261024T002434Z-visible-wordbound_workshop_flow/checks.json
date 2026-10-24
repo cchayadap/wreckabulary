@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "run_id": "20261024T002434Z-visible-wordbound_workshop_flow",
+  "commit": null,
+  "tree": null,
+  "build_id": "20261024T002136Z",
+  "scenario": "wordbound_workshop_flow",
+  "seed": 1,
+  "platform": "player",
+  "development_build": false,
+  "unity_version": "6000.6.3f1",
+  "started_utc": "2026-10-24T00:25:01Z",
+  "ended_utc": "2026-10-24T00:25:24Z",
+  "result": "PASS",
+  "steps": [
+    {
+      "name": "open_wordbound",
+      "status": "PASS",
+      "t_s": 4.809147,
+      "probes": {
+        "party_frame_scene": "WordboundLobby",
+        "party_frame_screen": "1280x720",
+        "party_frame_focused": true,
+        "party_frame_splash_finished": true,
+        "party_frame_current": 5,
+        "party_frame_rendered": 5,
+        "party_frame_repaints": 4,
+        "party_frame_repaints_after_splash": 3,
+        "party_frame_last_repaint": 5,
+        "party_frame_menu_active": true,
+        "party_frame_menu_visible": true,
+        "party_frame_camera": "Wordbound lobby camera",
+        "party_frame_camera_active": true,
+        "party_frame_camera_display": 0,
+        "party_frame_camera_target": "none",
+        "party_frame_camera_callbacks": 3,
+        "party_frame_last_camera": 5,
+        "party_frame_camera_callback": "endCameraRendering",
+        "party_frame_ready": true,
+        "party_capture_width": 1280,
+        "party_capture_height": 720,
+        "party_capture_nonblack_pixels": 921600,
+        "party_capture_nonzero_alpha_pixels": 921600,
+        "party_capture_varied_rgb": true,
+        "party_capture_min_rgba": "2,11,11,255",
+        "party_capture_max_rgba": "255,247,232,255"
+      },
+      "assert_failures": [],
+      "captures": [
+        "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_party.png"
+      ]
+    },
+    {
+      "name": "edit_workshop",
+      "status": "PASS",
+      "t_s": 9.365972,
+      "probes": {
+        "workshop_autosave_verified": true,
+        "workshop_edit_completed": true,
+        "workshop_atomic_path_characters": 164,
+        "workshop_storage_folder": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\0e8b1157935e46a2ba20adf6c51c7b4a",
+        "manifest_hash": "146a289906d1cf3840a9985ce0a38e4ae968889b9e1cb1b60808333ed519e77f",
+        "seed": "0314159265358979",
+        "workshop_autosave_primary": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\0e8b1157935e46a2ba20adf6c51c7b4a\\templates\\Flagship\\wordbound-lost-address.autosave.json",
+        "workshop_autosave_bytes": 183314,
+        "workshop_autosave_used_backup": false,
+        "workshop_autosave_exact": true,
+        "workshop_autosave_draft_unchanged": true,
+        "workshop_autosave_temporary_files": 0,
+        "workshop_recovered_seed": "0314159265358979",
+        "workshop_autosave_evidence": "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/workshop-autosave.json",
+        "workshop_capture_width": 1280,
+        "workshop_capture_height": 720,
+        "workshop_capture_nonblack_pixels": 921600,
+        "workshop_capture_nonzero_alpha_pixels": 921600,
+        "workshop_capture_varied_rgb": true,
+        "workshop_capture_min_rgba": "1,11,11,255",
+        "workshop_capture_max_rgba": "255,255,232,255"
+      },
+      "assert_failures": [],
+      "captures": [
+        "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_workshop.png"
+      ]
+    },
+    {
+      "name": "exact_playtest",
+      "status": "PASS",
+      "t_s": 23.137791,
+      "probes": {
+        "playtest_observation": "playtest_returned",
+        "playtest_stage": "completed",
+        "playtest_start_frame": 9,
+        "playtest_ready_frame": 14,
+        "playtest_current_frame": 107,
+        "playtest_post_ready_waited_frames": 90,
+        "playtest_elapsed_seconds": 13.766716,
+        "playtest_canonical_tick": 657,
+        "playtest_has_client": true,
+        "playtest_has_controller": true,
+        "playtest_controller_active": true,
+        "playtest_has_frame": true,
+        "playtest_has_world": true,
+        "playtest_paused": false,
+        "playtest_ready_condition": true,
+        "playtest_gameplay_fault": false,
+        "playtest_guide_fault": false,
+        "playtest_presentation_fault": false,
+        "playtest_marker_count": 1,
+        "playtest_visual_count": 93,
+        "playtest_camera_exists": true,
+        "playtest_camera_active": true,
+        "playtest_menu_open": true,
+        "playtest_time_scale": 1,
+        "playtest_focused": true,
+        "phase_startup_generation": 1,
+        "phase_startup_invalid": "None",
+        "phase_startup_inflight": 0,
+        "phase_startup_outcome": "local-ready",
+        "playtest_ready_elapsed_seconds": 3.769578,
+        "playtest_ready_canonical_tick": 37,
+        "local_ready_capture_width": 1280,
+        "local_ready_capture_height": 720,
+        "local_ready_capture_nonblack_pixels": 921550,
+        "local_ready_capture_nonzero_alpha_pixels": 921600,
+        "local_ready_capture_varied_rgb": true,
+        "local_ready_capture_min_rgba": "0,0,0,255",
+        "local_ready_capture_max_rgba": "233,225,217,255",
+        "frame_observation_outcome": "frame-wait-completed",
+        "frame_observation_error": "",
+        "frame_observation_updates": 90,
+        "frame_observation_seconds": 9.371069,
+        "frame_observation_camera_end_frames": 89,
+        "phase_ready_generation": 2,
+        "phase_ready_invalid": "None",
+        "phase_ready_inflight": 0,
+        "phase_ready_outcome": "completed",
+        "exact_manifest": true,
+        "draft_unchanged": true,
+        "markers": 1
+      },
+      "assert_failures": [],
+      "captures": [
+        "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_local_ready.png",
+        "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_local_world.png",
+        "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_equipment_menu.png"
+      ]
+    },
+    {
+      "name": "return_to_workshop",
+      "status": "PASS",
+      "t_s": 23.25518,
+      "probes": {
+        "playtest_observation": "before_return",
+        "playtest_stage": "completed",
+        "playtest_start_frame": 9,
+        "playtest_ready_frame": 14,
+        "playtest_current_frame": 107,
+        "playtest_post_ready_waited_frames": 90,
+        "playtest_elapsed_seconds": 13.770804,
+        "playtest_canonical_tick": 657,
+        "playtest_has_client": true,
+        "playtest_has_controller": true,
+        "playtest_controller_active": true,
+        "playtest_has_frame": true,
+        "playtest_has_world": true,
+        "playtest_paused": false,
+        "playtest_ready_condition": true,
+        "playtest_gameplay_fault": false,
+        "playtest_guide_fault": false,
+        "playtest_presentation_fault": false,
+        "playtest_marker_count": 1,
+        "playtest_visual_count": 93,
+        "playtest_camera_exists": true,
+        "playtest_camera_active": true,
+        "playtest_menu_open": true,
+        "playtest_time_scale": 1,
+        "playtest_focused": true,
+        "same_history": true,
+        "draft_unchanged": true,
+        "client_destroyed": true,
+        "camera_destroyed": true,
+        "editor_visible": true
+      },
+      "assert_failures": [],
+      "captures": [
+        "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_returned_workshop.png"
+      ]
+    },
+    {
+      "name": "undo_redo_preserved",
+      "status": "PASS",
+      "t_s": 23.368395,
+      "probes": {
+        "undo_redo_exact": true
+      },
+      "assert_failures": []
+    }
+  ],
+  "perf": {},
+  "console": {
+    "errors": 0,
+    "exceptions": 0,
+    "warnings": 0,
+    "first_exception": null
+  },
+  "captures": [
+    {
+      "name": "wordbound_party",
+      "path": "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_party.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-24T00:25:05Z"
+    },
+    {
+      "name": "wordbound_workshop",
+      "path": "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_workshop.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-24T00:25:10Z"
+    },
+    {
+      "name": "wordbound_local_ready",
+      "path": "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_local_ready.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-24T00:25:14Z"
+    },
+    {
+      "name": "wordbound_local_world",
+      "path": "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_local_world.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-24T00:25:23Z"
+    },
+    {
+      "name": "wordbound_equipment_menu",
+      "path": "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_equipment_menu.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-24T00:25:24Z"
+    },
+    {
+      "name": "wordbound_returned_workshop",
+      "path": "docs/qa/runs/20261024T002434Z-visible-wordbound_workshop_flow/wordbound_returned_workshop.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-24T00:25:24Z"
+    }
+  ]
+}
