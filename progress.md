@@ -97,7 +97,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-24T00:27Z
+## Current verification — 2026-10-24T00:35Z
 
 The original game artwork remains the default. Windows QA build `20261024T002136Z` and its visible workshop/playtest/return run `002434` pass all five workflow checks. Root inspected all six images: the party panel fits its content, and original cream/teal/Nunito menus, Search, footer status and workshop guidance remain readable. Independent review also inspected all six images and confirmed these changes; sparse-room composition, close camera framing and held equipment remain open. See [the current build instructions](BuildNotes/client-view/TRY-WORDBOUND.md).
 
@@ -109,6 +109,8 @@ The original game artwork remains the default. Windows QA build `20261024T002136
 - [~] Full FFA `233437` reaches six scored knockouts and respawns, then the eight-minute fixture lifetime expires. Its final return operation lasts 5.999 seconds, below its separate 35-second limit. No ten-point result is accepted. The 162 allocator samples show no observed OOM; stable late object capacity does not prove leak freedom or maximum capacity.
 - [~] Checkpoint measurements are now available: 12 exact accepted publications, mean 1,075 ms from publication to ACK and mean 1,417 ms from ACK to next publication. These are inclusive observations, not isolated network or controller-idle time. All requests succeed. Cadence is unchanged because increasing it could add CPU/request cost.
 - [~] Isolated public Team Solo `001235` still fails its unchanged movement deadline. The client's latest confirmed server tick reaches 1467, matching the host, while its own simulation/input ticks remain 1268/1249. Unity updates continue, but no client simulation batch completes for approximately 5.163 seconds before observation stops. This is receive-progress evidence, not proof that complete snapshots or host motor input arrived. Installed SDK scheduling/buffer conditions are under read-only investigation; timing and capacity settings remain unchanged. See `native-public-frontiers-20261024.json` and `PUBLIC-MOVEMENT-234950-REVIEW.md` under `BuildNotes/client-view/`.
+- [x] The added actual-frame-delta collector passes all four native cases in `003140`; runtime measurement reads the active UnscaledDeltaTime mode and records nine client frames above one second, maximum 1835.871 ms. This observes the documented input to the installed SDK clock gate, not an internal trace of every gate activation.
+- [~] Public Team Solo `003140` completes movement and an authenticated host command, then rejects a snapshot transfer aged 11485 ms against the unchanged 10000 ms limit. Identity/count/length/hash match and no duplicate chunk is reported. This is a transfer-age failure, not malformed JSON. The six-batch, 360-step real Advance baseline passes; per-call team-copy optimization and an identical comparison are in progress.
 
 Actual Windows frame observation still shows substantial stalls: 90 updates in 9.371 seconds, 603 canonical ticks and an 895.562 ms maximum update gap. The assigned camera records 89 matched callback pairs; those are not GPU completion or presented-FPS measurements. This fresh run does not establish a frame-rate improvement. Larger parties, full-match outcomes, recovery targets, final release and human acceptance remain open.
 

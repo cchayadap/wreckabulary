@@ -24,7 +24,7 @@ Use the isolated `wordbound-integration` project and its current Unity version, 
 
 - The measured playtest still has noticeable update stalls. The 60 FPS target is not met.
 - The initial party card now fits its content. Starting-room composition, camera framing and held/combat views still need review.
-- The latest public Team Race Solo test fails during remote movement. Server updates arrive while the client simulation falls behind; the cause is still being measured. Reliable online play across all modes is not yet verified.
+- Public Team Race Solo tests have failed remote movement and snapshot transfer deadlines. The latest run completes movement and a host command, then rejects an overdue snapshot. Long client frames are confirmed; reliable online play across all modes is not yet verified.
 - An earlier Unity Inspector draft-save failure remains unexplained. The latest exact save and recovery tests pass; failed writes retain in-memory recovery.
 - Separate Windows clients, full mode/party coverage, human usability and the final stripped release are unfinished.
 
