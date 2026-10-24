@@ -52,6 +52,7 @@ namespace Wreckabulary.Online.Editor
         sealed class DiskState
         {
             public RecoveryRecord Latest;
+            public RecoveryRecord Primary;
             public readonly List<string> Files = new List<string>();
         }
 
@@ -83,6 +84,7 @@ namespace Wreckabulary.Online.Editor
                 (resolvedLegacyHash == null || record.LegacyHash == resolvedLegacyHash);
             if (!same)
             {
+                if (state.Latest != null) ReclaimOlder(guid, state.Latest);
                 record = new RecoveryRecord {
                     AssetGuid = guid, Revision = checked((record?.Revision ?? 0) + 1), Kind = "draft", Draft = draft,
                     LegacyHash = resolvedLegacyHash ?? record?.LegacyHash, PriorPrimaryHash = record?.PriorPrimaryHash
@@ -131,6 +133,8 @@ namespace Wreckabulary.Online.Editor
 
         static PendingDraft ParseDraft(string json, string guid)
         {
+            if ((string)JObject.Parse(json)["Format"] != "wordbound.inspector-draft-v1")
+                throw new ArgumentException("Unsupported pending draft format. The file has been preserved.");
             var saved = JsonConvert.DeserializeObject<PendingDraft>(json, Settings);
             ValidateDraft(saved, guid);
             return saved;
@@ -147,6 +151,13 @@ namespace Wreckabulary.Online.Editor
         {
             string guid = GuidFor(asset), path = PathFor(guid);
             Directory.CreateDirectory(Path.GetDirectoryName(path));
+            try
+            {
+                RecoveryRecord latest = ReadState(guid, true).Latest;
+                if (latest != null) ReclaimOlder(guid, latest);
+            }
+            catch (ArgumentException) { }
+            catch (JsonException) { }
             long revision = 0;
             foreach (string file in RecordFiles(guid)) revision = Math.Max(revision, RevisionFromPath(guid, file));
             if (File.Exists(path))
@@ -182,14 +193,13 @@ namespace Wreckabulary.Online.Editor
         {
             string guid = GuidFor(asset);
             if (IsMemoryOnly(asset)) return "Newest edits are in memory only. Resolve the file error before closing Unity or reloading scripts. Saving will retry.";
-            if (unsavedRecovery.ContainsKey(guid)) return "Newest edits are saved in local recovery. Publishing the draft failed; saving will retry.";
+            if (unsavedRecovery.ContainsKey(guid)) return "Your latest edits are backed up locally. Saving will retry.";
             DiskState state = ReadState(guid, false);
             if (state.Latest?.Kind == "discard") return "Your discard is saved. Older recovery files still need cleanup.";
             if (state.Latest?.Kind == "draft" && state.Files.Contains(RecordPath(guid, state.Latest.Revision)))
             {
-                string primary = PathFor(guid);
-                if (!File.Exists(primary) || ContentHash(ReadRecord(primary, guid)) != ContentHash(state.Latest))
-                    return "Recovered a locally saved draft. Publishing the draft will retry.";
+                if (state.Primary == null || ContentHash(state.Primary) != ContentHash(state.Latest))
+                    return "Recovered your backed-up edits. Saving will retry.";
             }
             return cleanupWarnings.TryGetValue(guid, out string warning) ? warning : "";
         }
@@ -224,6 +234,7 @@ namespace Wreckabulary.Online.Editor
             if (File.Exists(path) && !(state.Latest?.PriorPrimaryHash != null && HashFile(path) == state.Latest.PriorPrimaryHash))
             {
                 RecoveryRecord primary = ReadRecord(path, guid);
+                state.Primary = primary;
                 if (!(discarded != null && primary.Revision < discarded.Revision)) AddRecord(records, primary);
                 if (state.Latest == null || primary.Revision > state.Latest.Revision) state.Latest = primary;
             }
@@ -247,9 +258,11 @@ namespace Wreckabulary.Online.Editor
         static RecoveryRecord ReadRecord(string path, string guid)
         {
             string json = ReadText(path);
-            string format = (string)JObject.Parse(json)["Format"];
+            var fields = JObject.Parse(json);
+            string format = (string)fields["Format"];
             if (format == "wordbound.inspector-draft-v1")
                 return new RecoveryRecord { AssetGuid = guid, Revision = 0, Kind = "draft", Draft = ParseDraft(json, guid) };
+            if (format != RecordFormat) throw new ArgumentException("Unsupported committed recovery format. The file has been preserved.");
             var record = JsonConvert.DeserializeObject<RecoveryRecord>(json, Settings);
             if (record == null || record.Format != RecordFormat || record.AssetGuid != guid || record.Revision <= 0 ||
                 (record.Kind != "draft" && record.Kind != "discard") || !IsHash(record.Checksum) ||
@@ -258,6 +271,8 @@ namespace Wreckabulary.Online.Editor
                 throw new ArgumentException("Committed recovery record is damaged or belongs to another course.");
             if (record.Kind == "draft")
             {
+                if ((string)fields["Draft"]?["Format"] != "wordbound.inspector-draft-v1")
+                    throw new ArgumentException("Unsupported pending payload format. The file has been preserved.");
                 ValidateDraft(record.Draft, guid);
             }
             else if (record.Draft != null) throw new ArgumentException("A discard record cannot contain draft data.");
@@ -278,6 +293,12 @@ namespace Wreckabulary.Online.Editor
             (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'));
         static string ReadText(string path)
         {
+            byte[] data = ReadBytes(path);
+            int start = data.Length >= 3 && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf ? 3 : 0;
+            return Utf8.GetString(data, start, data.Length - start);
+        }
+        static byte[] ReadBytes(string path)
+        {
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             if (stream.Length > MaximumBytes) throw new ArgumentException("Pending form exceeds the 4 MiB recovery limit.");
             using var bytes = new MemoryStream();
@@ -287,15 +308,12 @@ namespace Wreckabulary.Online.Editor
                 if (bytes.Length + count > MaximumBytes) throw new ArgumentException("Pending form exceeds the 4 MiB recovery limit.");
                 bytes.Write(buffer, 0, count);
             }
-            byte[] data = bytes.ToArray();
-            int start = data.Length >= 3 && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf ? 3 : 0;
-            return Utf8.GetString(data, start, data.Length - start);
+            return bytes.ToArray();
         }
         static string HashFile(string path)
         {
-            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var hash = SHA256.Create();
-            return BitConverter.ToString(hash.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
+            return BitConverter.ToString(hash.ComputeHash(ReadBytes(path))).Replace("-", "").ToLowerInvariant();
         }
         static void WriteFlushed(string path, byte[] bytes, FileMode mode)
         {
@@ -320,8 +338,9 @@ namespace Wreckabulary.Online.Editor
         {
             string path = PathFor(guid), directory = Path.GetDirectoryName(path);
             string[] files = Directory.Exists(directory) ? Directory.EnumerateFiles(directory, Path.GetFileName(path) + ".pending.*")
-                .Where(file => RevisionFromPath(guid, file) > 0).Take(MaximumRetainedRecords + 1).ToArray() : Array.Empty<string>();
+                .Take(MaximumRetainedRecords + 1).ToArray() : Array.Empty<string>();
             if (files.Length > MaximumRetainedRecords) throw new IOException("Too many retained recovery records. The files have been preserved for recovery.");
+            if (files.Any(file => RevisionFromPath(guid, file) == 0)) throw new ArgumentException("An unrecognized recovery filename has been preserved for inspection.");
             return files;
         }
         static long RevisionFromPath(string guid, string file)
