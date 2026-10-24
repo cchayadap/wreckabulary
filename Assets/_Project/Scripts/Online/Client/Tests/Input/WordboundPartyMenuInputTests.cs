@@ -172,7 +172,27 @@ namespace Wreckabulary.Online.Tests
         public void DisconnectedPartyCardFitsActualMeasuredContentWithoutChangingItDuringRepaint(int width)
         {
             window.position = new Rect(100, 100, width, 800);
-            for (int i = 0; i < 3; i++) { Draw(EventType.Layout); Draw(EventType.Repaint); }
+            var observations = new List<(int Layout, Vector4 Metrics)>();
+            window.AfterRepaint = () => {
+                Rect drawn = Get<Rect>(menu, "partyRect");
+                if (observations.Count > 0 && observations[observations.Count - 1].Layout == window.Layouts)
+                    observations.RemoveAt(observations.Count - 1);
+                if (observations.Count == 16) observations.RemoveAt(0);
+                observations.Add((window.Layouts, new Vector4(drawn.width, drawn.height, Get<float>(menu, "guestHeight"),
+                    Get<float>(menu, "partyViewportHeight"))));
+            };
+            for (int i = 0; i < 12; i++) { Draw(EventType.Layout); Draw(EventType.Repaint); }
+            window.AfterRepaint = null;
+            string trace = string.Join(" | ", observations.Select(value =>
+                $"layout={value.Layout},width={value.Metrics.x},card={value.Metrics.y},measured={value.Metrics.z},scroll={value.Metrics.w}"));
+            TestContext.WriteLine("WORDBOUND_PARTY_CARD_LAYOUT: requestedWidth=" + width + "; " + trace);
+            Assert.GreaterOrEqual(observations.Count, 3, "Observe actual rendered layout convergence: " + trace);
+            var settled = observations.Skip(observations.Count - 3).Select(value => value.Metrics).ToArray();
+            foreach (var value in settled)
+            {
+                Assert.AreEqual(settled[0].y, value.y, .5f, "The narrow card must stop changing height: " + trace);
+                Assert.AreEqual(value.z, value.y, .5f, "The settled card must fit its current measured content: " + trace);
+            }
             Rect before = Get<Rect>(menu, "partyRect");
             float measured = Get<float>(menu, "guestHeight");
             Assert.AreEqual(width, window.position.width, 1, "The native window must use the requested test width.");
@@ -183,13 +203,22 @@ namespace Wreckabulary.Online.Tests
             Assert.IsTrue(Get<bool>(menu, "compactPartyLayout"));
             Assert.GreaterOrEqual(before.height, measured, "The actual drawn content must fit without hiding controls.");
             Assert.Less(before.height, window.position.height - 48, "The disconnected card should release its unused vertical space.");
+            Rect repaintStart = default;
+            int repaintSerial = -1;
+            bool checkedRepaint = false;
             window.BeforeRepaint = () => {
-                Rect layout = Get<Rect>(menu, "partyRect");
-                Set(menu, "guestHeight", measured + 20);
-                Assert.AreEqual(before, layout);
+                repaintStart = Get<Rect>(menu, "partyRect");
+                repaintSerial = window.Repaints;
+                Set(menu, "guestHeight", repaintStart.height + 20);
+            };
+            window.AfterRepaint = () => {
+                Assert.AreEqual(repaintSerial, window.Repaints, "Compare within the same actual Repaint event.");
+                Assert.AreEqual(repaintStart, Get<Rect>(menu, "partyRect"), "Measured height is applied only during Layout.");
+                checkedRepaint = true;
+                window.AfterRepaint = null;
             };
             Draw(EventType.Repaint);
-            Assert.AreEqual(before, Get<Rect>(menu, "partyRect"), "Measured height is applied only during Layout.");
+            Assert.IsTrue(checkedRepaint, "The same-event guard must actually execute.");
             Assert.IsEmpty(http.Requests);
         }
 
@@ -345,7 +374,7 @@ namespace Wreckabulary.Online.Tests
         {
             public WordboundPartyMenu Menu;
             public Exception Failure;
-            public Action BeforeRepaint;
+            public Action BeforeRepaint, AfterRepaint;
             public int Layouts, Repaints;
             public string FocusedControl;
             public bool SkinRestored = true;
@@ -363,6 +392,7 @@ namespace Wreckabulary.Online.Tests
                     { var action = BeforeRepaint; BeforeRepaint = null; action(); }
                     try { Invoke(Menu, "DrawPartyGui", position.size); }
                     finally { Invoke(Menu, "EndPartyGui"); FocusedControl = GUI.GetNameOfFocusedControl(); }
+                    if (Event.current.type == EventType.Repaint) AfterRepaint?.Invoke();
                 }
                 catch (Exception error) { Failure = error; }
                 finally { SkinRestored &= ReferenceEquals(borrowedSkin, GUI.skin); GUI.enabled = enabled; }
