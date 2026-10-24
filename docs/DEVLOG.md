@@ -561,3 +561,7 @@ Gate031937 profile creation passes in179.1s with no compiler errors and no crash
 ## 2026-10-24T03:29:57Z First repaired-editor native suite
 
 Native gate032722 completed72.4s:44/47PASS,3FAIL,0SKIP, no compiler errors or crash. Keepsake startup assertion cannot find keepsake:0 in the world dictionary; two durable draft tests still encounter File.Replace IOException after releasing locks. Exact XML/gate/hash record opened and saved in BuildNotes/client-view/native-local-authoring-short-editor-20261024.json. Input owns persistence repair and Assets owns startup-test lifecycle diagnosis in isolated lanes; no failures waived. Public capacity source independently reviewed and integrated; live acceptance pending.
+
+## 2026-10-24T03:36:04Z Current public race checks pass
+
+Public gate033100 on932784f0 passes2/2,0SKIP in129.5s. Opened XML and recorded native-public-races-short-editor-20261024.json: Brawl45.937335s and Team42.830920s, both service teardown failures=0, no compiler errors/crash. Actual authenticated allocation, remote movement, command and exact durable ACK remain within unchanged deadlines. Earlier failures and fullmatch/4–8peer/recovery/performance gaps remain. Reviewed startup fixture correction40d99ee5 only skips pre-physics publication and requires paused tick0; no gameplay assertions removed.
