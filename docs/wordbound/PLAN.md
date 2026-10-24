@@ -320,3 +320,9 @@ The project is complete when the packaged build delivers the mode suite, large e
 ### Unity authoring and production update — 2026-10-21
 
 Ordinary camera, equipment/presentation and course-design changes must be possible through saved Unity assets, Inspector fields and editor tools without editing code. Provide validated camera profiles; editable visual prefabs/materials/grips; course controls for modules, layers, spawns, puzzle parameters and random ranges; scene preview/handles and exact playtest/export actions. Preserve canonical gameplay dimensions, document validation and multiplayer content identity. Deliver an illustrated editing guide and verify edit/save/reload/playtest behavior. Track the complete remaining production acceptance in the repository-root `progress.md` using `[ ]`, `[~]` and `[x]`.
+
+### Story and player-experience expansion — 2026-10-24
+
+James requested the written plot, anticipated play, multiple endings, gameplay variations and rating considerations. [Story and player experience](STORY-AND-PLAYER-EXPERIENCE.md) now specifies the Lost Address's three chapters, expected session flow, player hypotheses, result-aware epilogues, optional cooperative restoration, rating distinctions, no-code story authoring and acceptance tests. It preserves the existing mode rules and unranked public scope.
+
+The existing chapter clues and journal are source implementation. Alternative epilogues, four optional restoration tasks, contextual pings, feedback interfaces and designer-editable story profiles are new design work, not completed features. The checklist in [progress.md](../../progress.md) separates documentation, implementation and player verification. Stabilize the Windows/online baseline first; new story systems must preserve exact content identity, team isolation and durable recovery. This addendum does not close any production milestone or alter the original approval history.

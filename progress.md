@@ -10,6 +10,31 @@ Deliver a tested Windows build with five modes, a changing four-destination/four
 
 The latest instruction includes public matchmaking for **all five multiplayer modes**, including Freestyle, superseding its original private-only restriction. Public games must never silently substitute AI or a solo session. Designs need believable construction/material detail, readable silhouettes and consistent physical scale.
 
+## At a glance — 2026-10-24T02:59:30Z
+
+| Area | Actual progress | Still required |
+| --- | --- | --- |
+| Plot and player experience | Full [story and play design](docs/wordbound/STORY-AND-PLAYER-EXPERIENCE.md) written: three chapters, three proposed principal endings, mode conclusions, player strategies, ratings, Unity editing and acceptance | Implement new epilogues/optional restoration and narrative assets; verify comprehension and pacing with players |
+| Core gameplay/world | Five modes, layered flagship, six physical puzzle families, story journal and deterministic content implemented; compact two-client Time Run completes all three laps | Full flagship matches, FFA ten-point finish, remaining recovery/drop cases and all supported formats |
+| Public online | Live catalogue for all five modes; bounded two-player entry/movement/command/confirmation passes recorded for each | Repeat reliability still fails in recent Team Race tests; full 4/8-player matches, network stress and recovery targets remain open |
+| Workshop/Unity editing | Windows exact-draft playtest/return passes 5/5; editable camera/course/equipment controls exist; safer draft recovery source-reviewed | Run the 35 new/current persistence cases in Unity; finish full controls and human no-code usability checks |
+| Artwork | Original Wreckabulary assets restored as the default; experimental variants preserved | Held/placed/used equipment and motion review, final camera/visual polish and James's review |
+| Windows release | QA build `20261024T005254Z` available for limited review; newer source fixes are committed separately | Repaired editor, native checks, rebuild, official smoke, performance and final release packaging |
+
+James has approved the short-path repair's Windows prompt. At 02:59:30 UTC its wrapper is still running, the consent process has gone and the target Unity executable is not yet present. Installation completion/integrity verification comes before native tests and a rebuild. The first approved install was incomplete because of long paths. No new production-build or production-readiness claim is made. Detailed evidence follows below; no percentage is inferred from test counts.
+
+## Story, endings and player behaviour
+
+- [x] Write the full Lost Address plot and three-chapter route, proposed staging and expected session flow in [STORY-AND-PLAYER-EXPERIENCE.md](docs/wordbound/STORY-AND-PLAYER-EXPERIENCE.md).
+- [x] Define proposed success, optional full-restoration and timeout endings, plus competitive/FFA/Freestyle/interruption presentations; distinguish them from existing Win/Draw/TimeExpired rules.
+- [x] Review anticipated first-time, expert, speedrun, mixed-skill, silent-public, solo, accessibility, language and disruptive play from narrative, player-experience and online-rule perspectives.
+- [x] Document unassigned age classification, unranked run feedback, map-feedback principles, no-code narrative authoring and concrete playtest targets. No predicted store score or official age rating is claimed.
+- [ ] Move current story text/presentation into validated Unity assets and provide chapter/ending preview controls without code editing.
+- [ ] Implement result-aware epilogues from exact confirmed state; verify ties, timeout, team isolation, reconnect and no duplicate outcomes.
+- [ ] Implement four optional cooperative restoration tasks and their versioned authoritative state; verify recovery, solo validity and the richer ending.
+- [ ] Resolve active keepsake withholding and repeated shared-practice station changes with tested player-facing rules.
+- [ ] Test story understanding, meaningful contributions and full-course pacing. Current 72 puzzle sites make the 18–25-minute target an explicit risk, not a measured result.
+
 ## Preserve existing work
 
 - [x] Compare James/ICY/Sethy histories; create isolated integration and feature worktrees.
