@@ -14,6 +14,7 @@ using UnityEngine.TestTools;
 using Wreckabulary.Online;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
+using Wreckabulary.WordboundRuntime;
 using Assert = NUnit.Framework.Assert;
 
 namespace Wreckabulary.OfflineGameplayTests
@@ -66,6 +67,9 @@ namespace Wreckabulary.OfflineGameplayTests
         [UnityTest, Category("LocalWordboundGameplay")]
         public IEnumerator PresentationTupleReusePreservesImmediateShapeCallbacksAndVisibility() => Run("Freestyle", "presentation-cache");
 
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator InitialFreestyleKeepsakeHasNativeFloorSupportAndClearanceBeforeSimulation() => Run("Freestyle", "initial-keepsake");
+
         IEnumerator Run(string selectedMode, string atomicCase = "")
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_LOCAL_GAMEPLAY") != "1")
@@ -99,6 +103,14 @@ namespace Wreckabulary.OfflineGameplayTests
             int visualCallbacks = 0, framesAfterCallback = 0, advancesAfterCallback = 0;
             int activeViewsAfterCallback = 0, clockReadsAfterCallback = 0;
             MatchSnapshot frameAtCallback = null;
+            bool initialKeepsakeObserved = false;
+            Exception initialKeepsakeError = null;
+            controller.FrameChanged += snapshot => {
+                if (atomicCase != "initial-keepsake" || initialKeepsakeObserved) return;
+                initialKeepsakeObserved = true;
+                try { CheckInitialKeepsake(snapshot); }
+                catch (Exception error) { initialKeepsakeError = error; }
+            };
             controller.FrameChanged += _ => { if (visualCallbacks > 0) framesAfterCallback++; };
             controller.HostAdvanced += _ => { if (visualCallbacks > 0) advancesAfterCallback++; };
             controller.FrameChanged += _ => {
@@ -165,6 +177,16 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(course.Hash, controller.CourseWorld.ManifestHash);
             Assert.AreNotEqual(UnityEngine.Physics.defaultPhysicsScene, controller.PhysicsWorld.PhysicsScene);
             CollectionAssert.AreEquivalent(controller.Frame.Bodies.Select(b => b.Id), controller.Bodies.Keys);
+
+            if (atomicCase == "initial-keepsake")
+            {
+                Assert.IsTrue(initialKeepsakeObserved, "Observe the first applied frame before native settling can conceal initial overlap.");
+                Assert.IsNull(initialKeepsakeError, initialKeepsakeError?.ToString());
+                long tick = controller.Frame.Progress.Tick;
+                yield return Until(() => controller.Frame.Progress.Tick > tick, "Advance the unchanged local runner after initial geometry checks", 10);
+                Assert.AreEqual("", controller.Fault);
+                yield break;
+            }
 
             if (atomicCase == "presentation-cache")
             {
@@ -258,6 +280,53 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(originalDraft, draft.RecoveryJson, "Playtest must not rewrite the authored document or seed.");
             Assert.IsFalse(session.Runner.IsCloudReady);
             Debug.Log("WORDBOUND_LOCAL_OBSERVED: exact workshop manifest, native bodies, local movement/jump and validated memory checkpoint; cleanup pending.");
+        }
+
+        void CheckInitialKeepsake(MatchSnapshot snapshot)
+        {
+            Assert.AreEqual(0, snapshot.Progress.Tick);
+            var canonical = snapshot.Bodies.Single(b => b.Id == "keepsake:0");
+            var keepsake = controller.Bodies[canonical.Id];
+            var box = keepsake.GetComponent<BoxCollider>();
+            Assert.IsNotNull(box); Assert.IsTrue(box.enabled); Assert.IsFalse(box.isTrigger);
+            Assert.AreSame(keepsake.Rigidbody, box.attachedRigidbody);
+            Assert.AreEqual(new Vector3(.45f, .45f, .45f), box.size);
+            Assert.AreEqual(new Vector3(0, .225f, 0), box.center);
+            Assert.AreEqual(Vector3.one, box.transform.lossyScale);
+            Assert.AreEqual(new Vector3(canonical.Position.X, canonical.Position.Y, canonical.Position.Z), keepsake.Rigidbody.position);
+            Assert.IsTrue(canonical.Active); Assert.IsFalse(canonical.Kinematic);
+            var start = controller.CourseWorld.Course.Spawns.First(s => s.Kind == "Start");
+            var anchor = controller.CourseWorld.Course.RecoveryAnchors.Single(a => a.Id == "StartSafe");
+            Assert.AreEqual(start.ModuleId, anchor.ModuleId);
+            Assert.AreEqual(controller.CourseWorld.ToWorld(anchor.Position), keepsake.Rigidbody.position);
+            foreach (var player in controller.Bodies.Values.Where(b => b.Canonical.Kind == WorldBodyKind.Player))
+            {
+                var capsule = player.GetComponent<CapsuleCollider>();
+                Assert.IsNotNull(capsule); Assert.AreEqual(.3f, capsule.radius); Assert.AreEqual(1.8f, capsule.height);
+                Assert.AreEqual(new Vector3(0, .9f, 0), capsule.center); Assert.AreEqual(1, capsule.direction);
+                Assert.AreEqual(Vector3.one, capsule.transform.lossyScale);
+                Assert.IsTrue(UnityEngine.Physics.ComputePenetration(box, player.Rigidbody.position, keepsake.Rigidbody.rotation,
+                    capsule, player.Rigidbody.position, player.Rigidbody.rotation, out _, out float oldOverlap));
+                Assert.Greater(oldOverlap, 0, "The old shared-root placement really overlaps these loaded native shapes.");
+            }
+            foreach (var other in controller.Bodies.Values.SelectMany(b => b.OwnedColliders).Concat(controller.CourseWorld.Surfaces))
+            {
+                if (other == box || !other.enabled || other.isTrigger) continue;
+                bool overlap = UnityEngine.Physics.ComputePenetration(box, keepsake.Rigidbody.position, keepsake.Rigidbody.rotation,
+                    other, other.transform.position, other.transform.rotation, out _, out float depth);
+                Assert.IsFalse(overlap && depth > .0001f, "Initial keepsake penetrates an actual body or authored surface.");
+            }
+            var floors = controller.CourseWorld.Surfaces.Where(c => c.GetComponent<WordboundCourseNode>()?.Kind == WordboundCourseNodeKind.Floor).ToArray();
+            Assert.IsNotEmpty(floors);
+            foreach (var offset in new[] { Vector3.zero, new Vector3(-.225f, 0, -.225f), new Vector3(-.225f, 0, .225f),
+                new Vector3(.225f, 0, -.225f), new Vector3(.225f, 0, .225f) })
+            {
+                Vector3 bottom = keepsake.Rigidbody.position + keepsake.Rigidbody.rotation * offset;
+                var ray = new Ray(bottom + Vector3.up * .05f, Vector3.down);
+                Assert.IsTrue(floors.Any(floor => floor.Raycast(ray, out var hit, .1f) && Math.Abs(hit.point.y - bottom.y) <= .001f),
+                    "The centre and every actual box corner require native authored floor support.");
+            }
+            Debug.Log("WORDBOUND_INITIAL_KEEPSAKE: firstTick=0; nativeShapeParity=true; oldRootOverlap=true; currentOverlap=false; floorSupportSamples=5.");
         }
 
         void CheckPresentationTupleReuse(ModeDefinition mode, ResolvedCourse course, CourseCatalogue geometry,

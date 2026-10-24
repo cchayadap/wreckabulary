@@ -178,6 +178,7 @@ namespace Wreckabulary.Rules.Wordbound
                                 CourseFixtureMotion.Position(fixture, 0), kinematic: true, ownerTeam: team,
                                 protectedResource: true, sourceId: fixture.Id));
             Synchronize(null);
+            PlaceInitialPracticeKeepsake();
             EnsureValid(Capture(1));
         }
 
@@ -187,6 +188,7 @@ namespace Wreckabulary.Rules.Wordbound
             IEnumerable<HostThrownContact> hostThrownContacts = null)
         {
             if (inTick) throw new InvalidOperationException("A tick cannot be reentered.");
+            RequireInitialPracticePlacement();
             if (IsPaused) return new MatchTickResult(false, Array.Empty<CommandReceipt>());
             var requests = Bounded(commands, CommandJournal.MaximumBatch);
             var poses = Bounded(hostBodyStates, 8192);
@@ -276,6 +278,7 @@ namespace Wreckabulary.Rules.Wordbound
         public SnapshotStamp PublishSnapshot(out string json)
         {
             if (inTick) throw new InvalidOperationException("Publish only a completed tick.");
+            RequireInitialPracticePlacement();
             var snapshot = Capture(checked(commits.PublishedSequence + 1));
             EnsureValid(snapshot);
             json = MatchSnapshotCodec.Export(snapshot, out string hash);
@@ -314,6 +317,7 @@ namespace Wreckabulary.Rules.Wordbound
             progress.ConfirmResult(Tick);
             SettleThrows(Tick);
             SetPermissions(Tick);
+            initialPracticePlacementUnresolved = false;
         }
 
         public bool Disconnect(string playerId, long wallClockMs)
@@ -845,6 +849,7 @@ namespace Wreckabulary.Rules.Wordbound
 
         void UpdateKeepsakes()
         {
+            if (initialPracticePlacementUnresolved) return;
             if (!WordboundPracticePolicy.HasKeepsake(Mode)) return;
             foreach (int teamId in Binding.Seats.Select(s => s.Team).Distinct())
             {

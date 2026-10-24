@@ -1,6 +1,6 @@
 # Freestyle keepsake placement implementation plan
 
-STATUS: IN PROGRESS — INITIAL-only implementation authorized; no jobs.
+STATUS: IN PROGRESS — INITIAL-only source implemented; independent review and execution pending.
 
 ## Approved first patch
 
@@ -16,7 +16,10 @@ on the module floor, inside the wall interior, clear of declared Start/Respawn
 capsules, actual resolved prop bounds (quarter-turn yaw), all resource/supply tile
 positions, gated connection platforms and complete moving-fixture swept bounds.
 Conservatively reject stair/ramp projected envelopes on floors affected by native
-floor cutouts and connector solids. Other-layer obstacles only exclude when their
+floor cutouts. Every non-Walk/Door connector solid, including diagonal raised
+Traversal and Bridge, uses its endpoint AABB inflated by half width plus the full
+240 mm thickness on every axis. This contains the rotated native box, at the cost
+of rejecting some physically usable nearby anchors. Other-layer obstacles only exclude when their
 vertical volumes intersect. Selection uses bounded authored data, no world-query
 callbacks, grid search, new content, or engine dependency.
 
@@ -29,6 +32,42 @@ restore and rollback cannot clear it. Saved valid legacy poses are restored exac
 Tests will cover determinism, blockers and layers, no-anchor refusal, retained
 snapshots and successful/failed durable restore, plus one actual native floor/
 collider support and clearance check. No compiler or native execution in this lane.
+
+## Implemented checkpoint
+
+Four changed source/test files: `AuthoritativePractice.cs`, `AuthoritativeMatch.cs`,
+`WordboundPracticeTests.cs`, and `WordboundNativeLocalGameplayTests.cs`. The aligned
+authority-test file required no implementation change. Initial placement runs after
+constructor Synchronize and before its unchanged full EnsureValid. The extra
+UpdateKeepsakes guard prevents pre-start Disconnect/Return from reactivating the
+unresolved placeholder; it is inactive for all ordinary matches/restored authorities.
+
+Twelve new pure cases (six obstruction variants, two no-anchor variants, four other
+geometry/ordering cases) and one native case are source-ready. Existing practice
+helpers retain their command/timeout behavior; optional edit/bodies parameters are
+appended or default null. The legacy restore case validates the old active overlap
+pose, rejects invalid content and wrong durable hashes, then restores exactly and
+successfully publishes/advances. No constructor/ordinary tick re-selection occurs.
+
+The native case observes first FrameChanged at tick zero, before settling. It uses
+actual loaded root BoxCollider/CapsuleCollider dimensions, virtual-pose
+ComputePenetration to establish that the old shared root overlaps, actual current
+body/surface non-penetration and five floor Collider.Raycast support samples. It
+then requires an ordinary advancing local runner. This is prepared evidence, not a
+native pass, equipment-course rendering result or proof of the prior lift's cause.
+
+Resolver already rejects a resolved prop/resource shape intersecting an anchor's
+reserved radius. Tests preserve that restriction, use a legal rotated adjacent
+prop, and use reachable Start/supply/fixture/cutout conflicts for rejection cases.
+All native TakeKeepsake callers checked either target the actual keepsake via
+movement/Reachable or are race-only; the existing pure practice test supplies its
+actual pose. No interaction distance or out-of-scope fixture changed.
+
+Required root verification: focused `WordboundPracticeTests|WordboundAuthorityTests`
+plus related lifecycle/return/snapshot/atomic rules coverage, then exact native
+`InitialFreestyleKeepsakeHasNativeFloorSupportAndClearanceBeforeSimulation` with
+`WORDBOUND_LOCAL_GAMEPLAY=1`, and the existing equipment startup/Windows diagnostic.
+`git diff --check` passed; no build/core/native/probe jobs were run here.
 
 ## Deferred whole-scope correction
 
