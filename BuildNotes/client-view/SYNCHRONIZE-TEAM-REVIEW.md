@@ -1,0 +1,11 @@
+# Synchronize team-copy review
+
+STATUS: IN PROGRESS. Scope is Online's authorized per-invocation defensive team-copy reuse and ordinal HasPuzzle membership in Synchronize, plus meaningful state-transition regressions. No runtime source edits or CPU-heavy jobs are owned by this reviewer. Candidate commit is pending; no acceptance or performance result is implied.
+
+The unchanged Advance baseline is parent-reported PASS for six measured batches/360 steps. Review will preserve the exact workload and require root's recorded source/content hashes, calibration and batch hashes for any comparison. Idle authority measurement is distinct from the still-failing public movement case and actual native/render frame pacing.
+
+Current source inspection confirms public MatchProgress.Team returns a fresh defensive copy, and TeamProgress.HasPuzzle queries the same ordinal HashSet used by the sorted/copied public CompletedPuzzles getter. The resource loop's current progress queries occur after progress advancement, mechanism reconciliation and inactive-resource retirement. The candidate must retain the first-query point and race/team short-circuits, leave live demand/practice/mechanism checks at their original positions, and preserve previous-snapshot availability as independent transition evidence.
+
+Pending review: exact delta, all called resource-mutation paths for progress changes or external callbacks, null/error ordering, per-call lifetime on rollback/restore, and tests covering solved prerequisites, lap transitions, rival isolation and shared practice behavior. No supply or validation-result cache is authorized.
+
+Confirmed call-path boundary: MintSource and RecoverSource update economy tiles, world bodies, generation and retry state. Economy.MintTiles calls no ItemChanged callback; AddBody only inserts and advances its ID. SourceCapacity's ReserveOptional call uses recycle=false, so it cannot enter the optional-retirement mutation branch. These paths neither change team progress nor yield or invoke an external callback. The optimization must not extend this proof to other phases or reuse a copy across Synchronize calls. Existing SourceCapacity, constructor SourceAvailable, UpdateKeepsakes and previous-snapshot availability reads remain independently scoped.
