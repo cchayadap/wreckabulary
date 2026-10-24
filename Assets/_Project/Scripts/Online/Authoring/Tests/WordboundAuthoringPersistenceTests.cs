@@ -610,7 +610,7 @@ namespace Wreckabulary.Tests
         {
             var asset = CreateDraftAsset(); var document = asset.ReadDocument();
             WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
-            string path = DraftPath(asset), pending = PendingPath(asset, 2);
+            string path = DraftPath(asset), pending = PendingPath(asset, 2), saved = asset.DocumentJson;
             byte[] original = File.ReadAllBytes(path);
             object record = ReadDraftRecord(path, asset);
             SetRecord(record, "Revision", 2L);
@@ -631,7 +631,7 @@ namespace Wreckabulary.Tests
             finally { Object.DestroyImmediate(editor); }
             CollectionAssert.AreEqual(bytes, File.ReadAllBytes(pending));
             CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
-            Assert.AreEqual(asset.DocumentJson, CourseJson.ExportDocument(asset.ReadDocument()));
+            Assert.AreEqual(saved, asset.DocumentJson);
         }
 
         [Test]
@@ -757,8 +757,9 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(saved, asset.DocumentJson);
         }
 
-        [Test]
-        public void ReleasedResidueLocksAllowANewerEditWithoutLosingTheLatestCommittedCandidate()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ReleasedResidueLocksAllowSaveOrDiscardWithoutLosingTheLatestCommittedCandidate(bool discardAfterRelease)
         {
             RequireWindowsDraftIo();
             var asset = CreateDraftAsset(); var document = asset.ReadDocument();
@@ -785,10 +786,18 @@ namespace Wreckabulary.Tests
                 CollectionAssert.AreEqual(primary, File.ReadAllBytes(path));
             }
             finally { foreach (var held in locks) held.Dispose(); }
-            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
-            ForgetMemoryDraft(asset);
-            Assert.AreEqual(10, ReadRevision(path, asset));
-            Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+            if (discardAfterRelease)
+            {
+                WordboundCourseDraftStore.Clear(asset); ForgetMemoryDraft(asset);
+                Assert.IsNull(WordboundCourseDraftStore.Load(asset));
+                Assert.IsFalse(File.Exists(path));
+            }
+            else
+            {
+                WordboundCourseDraftStore.Save(asset, asset.SourceHash, document); ForgetMemoryDraft(asset);
+                Assert.AreEqual(10, ReadRevision(path, asset));
+                Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+            }
             Assert.AreEqual(0, PendingFiles(asset).Length);
             Assert.AreEqual(saved, asset.DocumentJson);
         }
@@ -822,10 +831,17 @@ namespace Wreckabulary.Tests
         [Test]
         public void FailedPendingCommitPreservesPriorDraftAndUncommittedStageIsNotRecovered()
         {
+            RequireWindowsDraftIo();
             var asset = CreateDraftAsset(); var document = asset.ReadDocument();
             WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
-            string path = DraftPath(asset), blocked = PendingPath(asset, 2), saved = asset.DocumentJson;
+            string path = DraftPath(asset), blocked = PendingPath(asset, 3), saved = asset.DocumentJson;
             byte[] prior = File.ReadAllBytes(path);
+            using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                document.Title = "Latest committed pending edit";
+                Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+            }
+            string pending = PendingPath(asset, 2); byte[] newest = File.ReadAllBytes(pending);
             Directory.CreateDirectory(blocked);
             try
             {
@@ -834,9 +850,10 @@ namespace Wreckabulary.Tests
                 Assert.IsTrue(failure is IOException || failure is UnauthorizedAccessException);
                 Assert.IsTrue(WordboundCourseDraftStore.IsMemoryOnly(asset));
                 CollectionAssert.AreEqual(prior, File.ReadAllBytes(path));
+                CollectionAssert.AreEqual(newest, File.ReadAllBytes(pending));
                 Assert.IsTrue(File.Exists(path + ".stage"));
                 ForgetMemoryDraft(asset);
-                Assert.AreEqual(asset.ReadDocument().Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+                Assert.AreEqual("Latest committed pending edit", WordboundCourseDraftStore.Load(asset).Document.Title);
                 Assert.AreEqual(saved, asset.DocumentJson);
             }
             finally { Directory.Delete(blocked); }
