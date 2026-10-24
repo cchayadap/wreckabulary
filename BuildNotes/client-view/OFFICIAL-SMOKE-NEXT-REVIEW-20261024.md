@@ -57,3 +57,31 @@ Raw reads in integration:
 Recomputed SHA-256: private log `31637518279223aa09fad5405a0a8e6db342048dc9f572bb7fb09c1e39e41a98`; official clean log `3c10981ee4ae9d666ebbb6067b68682ca90a4e07bb64be8b8d71b7380336379b`; private checks `7fc06d52bb6db3debd9512ad1f77dfff5f951c9b5b4311d46f3fcd15cf08bd3c`. The recorded build tree is `fd77e607d796c8e8b5bf23e9fbffdd241cc5e82b2f642bca7d8fc8e65295f724`; EXE hash alone is not complete payload identity.
 
 Conclusion: the existing report's unresolved launch association is supported; no additional source-proven cause or safe launcher fix was found. The actionable gap is exact child-start/CPU/window history for the official route, especially its pre-game interval. Official FAIL and private supplemental PASS remain separate. No execution or visual acceptance is claimed by this review; no integration files or running processes were changed.
+
+## Prepared private observer (not executed)
+
+Root subsequently authorized preparation only. Script: `wordbound-puzzle-race/.harness/delivery/observe-official-player.ps1`; this ignored file stays private and is not a kit or game change. The existing report is the only tracked deliverable. Root may review and copy the exact bytes before running it later.
+
+Use PowerShell 7 on Windows. Required inputs are the **actual wrapper process creation time** and PID, exact game EXE, fresh QA run directory and player log path. `WrapperCreatedUtc` must come from that process's `StartTime.ToUniversalTime()` with round-trip precision; the wrapper status file's `startedUtc` is a later record timestamp and is not a valid substitute. Absolute target paths are required. `OutputPath`, if supplied, must be a fresh file directly beside the private observer, outside the observed run directory and distinct from the player log. Default output is a fresh timestamped JSONL file there; existing files are never overwritten. Read the JSONL end reason and unavailable facts; observer process exit alone is not proof that discovery succeeded or that the game passed.
+
+Invocation shape for root's later use, **not run here**:
+
+```powershell
+pwsh -NoProfile -File <private-script-path> `
+  -WrapperPid <recorded-wrapper-pid> `
+  -WrapperCreatedUtc '<actual-process-creation-time-in-UTC>' `
+  -ExpectedGameExe '<absolute-build-directory>/Wreckabulary.exe' `
+  -RunDirectory '<absolute-fresh-QA-run-directory>' `
+  -PlayerLogPath '<absolute-fresh-player-log>' `
+  -MaximumSeconds 180
+```
+
+Start early enough to observe the parent chain. Only direct `wrapper → node.exe → exact expected EXE` children are discovered. Discovery revalidates the parent and matches CIM/process creation times (within 1 ms for provider precision); the pinned identity thereafter uses the exact process `StartTime`. Multiple eligible children, an inaccessible executable path, or a parent already gone are unavailable evidence, never permission to scan all players or guess a PID. Once discovered, each identity is read directly without repeating child discovery. No process command lines or environment blocks are requested.
+
+Output contains process-wide user/kernel CPU, working set, priority and affinity; main-window handle/visibility/minimized/foreground facts when safely readable; and fixed expected capture/check/autosave/log file metadata. Zero main-window handle is labelled unavailable, not hidden. A strict full-line expression admits only the existing workshop `WORDBOUND_QA_PLAYTEST` enum/numeric/boolean fields; other log text, arbitrary messages and malformed phase lines are never emitted. Reads are limited to 64 KiB of incremental log bytes per sample; partial lines are bounded and backlog/reset/rejection counters are recorded. Observation UTC is separate from the action's own elapsed time and is not the log emission time.
+
+The schedule targets two seconds, at most 90 samples, and accepts a maximum from 1 to 180 seconds. It stops scheduling new iterations at the bound or when all known identities have ended. An in-progress synchronous OS/file read can overrun that bound; the final record explicitly reports overrun, setup elapsed, total/max sampling elapsed and the reason. It neither kills nor otherwise controls a process. Native window calls are read-only; there is no window title/text collection, focus change, debugger attachment or game DLL loading. Failed window API setup leaves process/file observation available with type-only failure facts.
+
+Frozen script SHA-256: `c36a214cfdf4a7e4b7b95d59da251d45d50dcde5aa8d5eaa38191d3172b60022`. Source path is `C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-puzzle-race/.harness/delivery/observe-official-player.ps1`. It remains ignored/private; copy and verify this exact hash if root elects to run it.
+
+Preparation validation: PowerShell AST parsing only, zero syntax errors. Online independently reviewed those exact bytes and returned bounded SOURCE PASS for lineage/identity, pipeline-return behavior, read-only window APIs, bounded scalar/file output and deterministic process/file/writer disposal. **The observer body, embedded window API compilation, process discovery, sampling and output behavior have NOT RUN** by either reviewer. Root retains execution ownership and the official smoke verdict remains unchanged.
