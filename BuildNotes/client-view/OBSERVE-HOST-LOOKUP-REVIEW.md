@@ -1,7 +1,23 @@
 # ObserveHost lookup independent review
 
-STATUS: IN PROGRESS; awaiting Online's stable source/test checkpoint. Review only, no production edits or heavy jobs.
+STATUS: SOURCE PASS for Online `2d33768505701de112d4c94919745f10420fe33b`; compiler, native and performance execution NOT RUN by this reviewer. Exclude baseline-only `1c8f1575`.
 
 Root authorized prospective implementation from the preserved `c585553c` → `5f110981` ObserveHost cost proposal. This review will check exact predicate `Single` missing/duplicate failure behavior, first-error and phase/contact order, lazy per-call construction, immutable snapshot ownership and test coverage across changing frames. Existing fingerprint, pose, collider, admission, physical evidence, timing and authority-validation checks must remain intact.
 
-No implementation verdict or measured improvement is claimed. Root owns compilation, native execution and controlled measurement. Next recoverable action: inspect the exact source/test delta supplied by `/root/recover_online`, record any blocker before integration, then commit the bounded closure.
+## Exact bounded findings
+
+The two runtime partials create one local internal value-type lookup after unchanged RequireHost, exact completed-pose coverage and RefreshColliders checks. Its constructor stores only the frozen snapshot; grouping starts at the first original authored mechanism query. Passing it by ref through ObserveAuthored and FamilyReady shares that one index across teams and the optional second CLOCK query. No authored query means no lookup allocation. There is no cross-call cache or shared mutable lifetime.
+
+Both changed query positions are preserved. In particular, CLOCK still reads `fixturePhases[PhaseKey(...)]` before querying prior motion. Site iteration, solved/active checks, required phase failures, recipe/actor selection, physical queries, evidence/stage progression and output order remain unchanged. Legacy sockets, Evaluate and MoveAuthoredFixtures retain their original scans. No authority, admission, pose, collider, rules, timing or callback check is removed or delayed.
+
+Grouping uses exact tuple identity with ordinal string equality and permits duplicate groups. Querying with the predicate overload `Single(m => true)` preserves the original missing/duplicate exception type and message at the first queried fault. It does not eagerly reject an unrelated duplicate. MatchSnapshot freezes a bounded non-null array; MatchMechanismState and MatchPhysicalEvidence expose immutable values. Key enumeration introduces no live Unity or custom getter callbacks. Replacement snapshots and later frames cannot alter the retained lookup's data.
+
+The root-approved friend declaration is UNITY_EDITOR-only and names the exact existing `Wreckabulary.Online.Puzzles.Tests` assembly. That Editor-only asmdef already references the runtime and Rules assemblies. No public runtime API, reflection, hidden setter, extra asmdef dependency or normal-player friend access is added.
+
+## Test construction and limits
+
+Eight added cases make the existing fixture 22 source-counted cases. They use the actual production helper and actual flagship TeamRace Solo snapshot: 72 sites, 432 records and 144 ordered team/site queries with exact reference equality. Missing/duplicate messages, valid queries beside malformed keys, both competing-error orders, case-distinct keys, caller-array mutation and replacement-frame isolation are covered. The deliberately solved replacement with waiting evidence is a lookup-identity fixture, explicitly not a fully valid gameplay snapshot.
+
+The real Authority.Advance case is source-feasible against root APIs: only the selected team's fixture pose changes, together with its legal +1000 MotionUnits inactive/waiting observation. ApplyMechanism accepts that causal inactive motion, ValidateFixturePoses sees its matching pose, other fixtures retain their matching zero phases, and the resulting tick-one snapshot passes the existing full validator in the test. The old lookup/export remain unchanged. This is domain-level supplied host evidence; it does not exercise ObserveHost's Unity contacts, actual physics traversal or complete emitted family observations.
+
+`git diff --check` passed for the exact commit. No concrete source blocker remains. Root must compile and run `Wreckabulary.Tests.WordboundAuthoredPuzzleContentTests` (22 expected), then retain appropriate native physical/CLOCK and public comparison coverage. Any elapsed/allocation comparison must include index construction on the same snapshot/query workload; the new grouping allocation is real. Existing inclusive ObserveHost timings are neither attributable wholly to these scans nor proof of FPS improvement. No jobs or production writes were performed in this review.
