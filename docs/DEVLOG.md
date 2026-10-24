@@ -475,3 +475,8 @@ Per-call defensive team-copy reuse passes R0 in15s and65/65 authority/lifecycle/
 Native003910 on0adab099 still fails its unchanged movement deadline; gate113.8s, refresh47.8s, no crash. Ready503steps span16.0679429s; Synchronize1377.433ms, HostStep9779.482ms, ObserveHost1576.921ms, FullValidation2849.340ms/519. Client7frames exceed1second, maximum2032.150ms. Different counts/windows prevent a controlled overall-performance claim. Record: BuildNotes/client-view/native-public-team-copy-20261024.json. This optimization reduces repeated work but does not solve online reliability.
 
 Original-equipment Windows QA source is under independent review, using actual map pickups, letter crafting/equip and explicitly labelled inspection camera. No runtime art, SDK, validation, cadence or deadline change. The existing normal-window helper is backed up locally and accepts the new named scenario; its wrapper allows the scenario's summed step budgets, leaving the workshop default unchanged.
+
+## 2026-10-24T00:52:41Z Original-equipment QA compiles
+
+Native compile PASS in 33.3 seconds, refresh 22 seconds, with no reported errors or crash after quit. Source e34293a2bee931bde5760738ab2bbfa48610f605. Unity generated metadata for the two new QA scripts. Evidence: BuildNotes/client-view/compile-original-equipment-20261024.json and Logs/gate_compile_20261024T004801Z.log. Actual Windows captures and visual acceptance remain pending.
+
