@@ -1,6 +1,6 @@
 # Freestyle keepsake placement implementation plan
 
-STATUS: IN PROGRESS — INITIAL-only source implemented; independent review and execution pending.
+STATUS: SOURCE REVIEW COMPLETE — INITIAL-only implementation; compiler/core/native execution pending root.
 
 ## Approved first patch
 
@@ -100,3 +100,17 @@ runtime bytes remain those in `04e5673a` and execution is still pending.
 The first-frame native query explicitly calls test-only Physics.SyncTransforms
 before Collider.Raycast/shape reads, as existing course-world native tests do;
 it performs no simulation or canonical pose mutation and still requires tick0.
+
+## Independent closure
+
+Recover_input reports bounded SOURCE PASS for ordered `04e5673a` → `c4557834` →
+`d684a5c7`, with exact four pre-edit blobs matched to root `f60ef8dc`. Exclude
+`1ae138bf`; deliver report creation `79de5594` before its updates. No concrete
+source/API blocker remained after checking conservative support/connector/static
+bounds, flag lifetime, valid authored fixtures, unsuccessful and exact durable
+restore, asymmetric yaw sizing and native first-frame query behavior.
+
+Static discovery counts: practice fixture 28 cases (12 new), existing native local
+fixture 12 Unity cases (one new). This count is not an executed result. Final
+`git diff 1ae138bf HEAD --check` is clean. The unrelated ModeDefinition modification,
+ProtocolV3 folder and checkpoint logs remain untouched and excluded.
