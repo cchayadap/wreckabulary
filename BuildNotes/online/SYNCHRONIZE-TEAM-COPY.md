@@ -1,6 +1,6 @@
 # Per-pass team copies in Synchronize
 
-STATUS: SOURCE READY; independent review and candidate execution pending. Root authorized this source slice after its unchanged-production Advance baseline passed at `cd4ec714`. No lane CPU jobs. Runtime edits are limited to the resource loop in AuthoritativeMatch plus a private supplied-team availability overload; focused lifecycle/practice regressions and this report accompany it.
+STATUS: INDEPENDENT SOURCE PASS for `70cd4c6b`; compilation/core/probe/native candidate execution NOT RUN. Root authorized this source slice after its unchanged-production Advance baseline passed at `cd4ec714`. No lane CPU jobs. Runtime edits are limited to the resource loop in AuthoritativeMatch plus a private supplied-team availability overload; focused lifecycle/practice regressions and this report accompany it.
 
 Baseline source: AuthoritativeMatch SHA256 `3130A6F5F6A934BB1CD4B6041B3B190B5B029646846D6FDDC876A89CABF1DA0E`; lifecycle fixture `BE85490982D1AAC7237A820140CD424F3C9A71F8CD3B0F0DC9784906CCF5115E`; practice fixture `74C7152155D1E858519CE51704AA1474784495E46687176008D1A7D3DE09977C`. Baseline-only commit `7d5d35a9` supplies the previously absent exact root practice fixture and MUST NOT be integrated. Other synchronized paths were already byte-identical. Preserve unrelated ModeDefinition/ProtocolV3/logs.
 
@@ -34,3 +34,5 @@ dotnet run --project Tools/RulesHarness/ValidationProbe/ValidationProbe.csproj -
 ```
 
 Use the same probe source as the recorded baseline; compare all six mode/batch start/end hashes, clocks, epoch/counts, positive controls, raw allocated bytes and every elapsed sample. Keep actual native Synchronize/HostStep and public movement acceptance separate; root chooses the unchanged native workload after correctness passes. Existing unrelated lane dirt is excluded from all commits.
+
+Recover_input independently source-reviewed `70cd4c6b`: PASS for lazy first-query/null/negative-team/non-race ordering, one-call lifetime, live demand/short-circuit and ordinal membership, unchanged other callers and real root assembly APIs. The three added and two strengthened fixtures retain their meaningful transition/rollback/restore assertions. They use synthetic host poses/query through existing domain fixtures; they do not establish native traversal or performance. No source changes followed that review. Exclude baseline `7d5d35a9`.
