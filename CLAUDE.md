@@ -5,7 +5,7 @@ Project facts for every session. Keep this file short (80 lines at most) and tru
 ## Project
 
 - Game: Wreckabulary, a physics word game: smash furniture, collect its letters, spell equipment, and solve or disrupt.
-- Engine: Unity 6000.6.3f1, URP 17.6, Input System 1.20. Local Fusion 2.1.3 and Physics Addon 2.1.2 are installed; multiplayer acceptance is pending. Restore ignored SDK files using `docs/wordbound/PHOTON-SETUP.md`.
+- Engine: integration candidate Unity 6000.6.4f1 (prior tested player: 6000.6.3f1), URP 17.6, Input System 1.20. Local Fusion 2.1.3 and Physics Addon 2.1.2 are installed; multiplayer acceptance is pending. Restore ignored SDK files using `docs/wordbound/PHOTON-SETUP.md`.
 - Unity project folder, relative to this workspace: `.`.
 - Player build name: `Wreckabulary.exe`. Log and console prefix: `[Wreckabulary]`.
 - Authority: direct owner instructions, then the approved `docs/wordbound/PLAN.md`. `docs/wordbound/STATUS.md` records actual implementation and evidence. Kit templates must not change approved scope or add approval requirements.

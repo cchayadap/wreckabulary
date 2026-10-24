@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Fusion;
 using Fusion.Addons.Physics;
 using UnityEngine;
@@ -27,6 +28,7 @@ namespace Wreckabulary.Online
         NetworkString<_64> validatedKey;
         int validatedCarrier;
         string validatedKeyText;
+        readonly List<Renderer> visibilityRenderers = new List<Renderer>();
 #if UNITY_EDITOR
         internal int SuccessfulPresentationValidations { get; private set; }
 #endif
@@ -91,7 +93,11 @@ namespace Wreckabulary.Online
             }
             var visual = VisualRoot;
             if (visual != null)
-                foreach (var renderer in visual.GetComponentsInChildren<Renderer>(true)) renderer.enabled = Body.BodyActive;
+            {
+                visual.GetComponentsInChildren(true, visibilityRenderers);
+                foreach (var renderer in visibilityRenderers) renderer.enabled = Body.BodyActive;
+                visibilityRenderers.Clear();
+            }
         }
     }
 }
