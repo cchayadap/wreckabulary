@@ -557,3 +557,7 @@ With Unity/package workers absent, root validated all paths beneath integration 
 ## 2026-10-24T03:27:19Z Repaired package resolution passes
 
 Gate031937 profile creation passes in179.1s with no compiler errors and no crash after quit. All20 checked resolved source/metadata files match the complete short-path Unity6000.6.4f1 installation. The original10,255 cache files remain hash-verified in the recovery manifest; no source/package/profile changes were generated. Opened evidence: BuildNotes/client-view/unity-short-resolve-recovery-20261024.json, Logs/exec/20261024T031937Z.json and the gate stdout/log. Next: prepared47 native local/authoring cases, then rebuild and Windows equipment/official smoke. This is toolchain recovery, not release acceptance.
+
+## 2026-10-24T03:29:57Z First repaired-editor native suite
+
+Native gate032722 completed72.4s:44/47PASS,3FAIL,0SKIP, no compiler errors or crash. Keepsake startup assertion cannot find keepsake:0 in the world dictionary; two durable draft tests still encounter File.Replace IOException after releasing locks. Exact XML/gate/hash record opened and saved in BuildNotes/client-view/native-local-authoring-short-editor-20261024.json. Input owns persistence repair and Assets owns startup-test lifecycle diagnosis in isolated lanes; no failures waived. Public capacity source independently reviewed and integrated; live acceptance pending.
