@@ -1,6 +1,6 @@
 # Genuine public mode capacity fixtures
 
-STATUS: SOURCE READY, independent review pending — source implementation only; compiler, Unity, gates, core, network and live tests NOT RUN. Root owns execution and integration.
+STATUS: SOURCE READY, independent SOURCE PASS — source implementation only; compiler, Unity, gates, core, network and live tests NOT RUN. Root owns execution and integration.
 
 ## Scope and baseline
 
@@ -28,4 +28,6 @@ New exact method suffixes, all under `Wreckabulary.OnlineGameplayTests.Wordbound
 
 Root execution filter: `--assemblies Wreckabulary.Online.NativeGameplay.Tests --category '^ExternalPhotonPublicCapacityGameplay$'`, via existing `node Tools/kit/gate/game_gate.mjs test editmode --cold --json`, with an outer batch allowance such as 3600 seconds. This outer allowance does not change any internal deadline. The unchanged shared Run moves/submits for one remote client; the new coverage is the complete maximum roster/body/ACK path, not every participant's input/combat.
 
-Static inspection confirms public preparation permits all requested counts, signed-seat `Slot` and canonical `Team`/`Slot` are public getters, and all former `PublicEntry` callers retain the old default. `git diff --check` passed. No baseline commit or new asmdef/meta file. Next: independent source review, then root compilation and the exact three live cases after the current runtime job.
+Static inspection confirms public preparation permits all requested counts, signed-seat `Slot` and canonical `Team`/`Slot` are public getters, and all former `PublicEntry` callers retain the old default. `git diff --check` passed. No baseline commit or new asmdef/meta file.
+
+Independent `recover_input` review of exact source commit `b943a28e498de00939a0ff1530763317aee2cabc`: bounded SOURCE PASS. Reviewer traced current root Run/Prepare, signed mode/party shapes, optional argument and iterator forwarding, assertions before teardown, unchanged movement/receipt/body/ACK checks, and public assembly APIs. No compiler or live execution by either lane. The sequential queue sealing risk and selected-remote-only interaction limit remain explicit. Next: root integrates the source/report chain, runs compilation and the exact three live cases after the current runtime job, and records final XML/cleanup with zero skipped cases before any capacity acceptance claim.
