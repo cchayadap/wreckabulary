@@ -1,6 +1,6 @@
 # Try the current Windows review build
 
-Open `Builds/qa-20261024T005254Z/Wreckabulary.exe` from the integration project. Keep its whole folder together, including `Wreckabulary_Data` and the DLLs. This is the tested review build; final production acceptance is still in progress.
+Open [Wreckabulary.exe](../../Builds/qa-20261024T034544Z/Wreckabulary.exe). Keep its whole folder together, including `Wreckabulary_Data` and the DLLs. This tested review build uses Unity 6000.6.4f1; final production acceptance remains in progress.
 
 ## Try the workshop
 
@@ -8,7 +8,7 @@ Open `Builds/qa-20261024T005254Z/Wreckabulary.exe` from the integration project.
 2. Choose **Time Run** or **Freestyle**, edit the course, then select **Preview** and **Playtest**.
 3. In the game, use **E** to pick up, **Q** to craft, **left mouse** to smash and **Esc** for the menu. Use **Return to workshop** to continue editing.
 
-The automated Windows run verified the exact draft, playtest, return and Undo/Redo. Original Wreckabulary models are the default. The menu uses the original cream/teal colours and Nunito font.
+The official Windows test passed all five checks: exact draft, playtest, return and Undo/Redo, with no reported console errors, exceptions or warnings. A separate five-check equipment run passed real collection, crafting and equipping of BAT/HAMMER, then returned to the unchanged draft. Original Wreckabulary models are the default; the menu uses the original cream/teal colours and Nunito font.
 
 ## Try online with another person
 
@@ -18,15 +18,17 @@ All multiplayer modes have public catalogue entries. Full matches, Duo/Squad gam
 
 ## Edit in Unity
 
-Use the isolated `wordbound-integration` project. It currently selects the 6000.6.4f1 patch candidate, whose isolated installation and native verification are still in progress; the Windows review build above was tested with 6000.6.3f1. Wait for that editor verification before opening the candidate project. Follow the [Unity editing guide](../../docs/wordbound/UNITY-EDITING-GUIDE.md) for course handles, random placement ranges, camera profiles, visual overrides and the interface theme. Ordinary design changes use these Inspector controls.
+Use the isolated `wordbound-integration` project with the verified editor at `C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Unity.exe`. The installation, package resolution, native checks and this Windows build pass. Follow the [Unity editing guide](../../docs/wordbound/UNITY-EDITING-GUIDE.md) for course handles, random placement ranges, camera profiles, visual overrides and the interface theme. Ordinary design changes use these Inspector controls. Avoid opening a second Editor on this project while an automated Unity job is running.
 
 ## Known limits of this build
 
-- The measured playtest still has noticeable update stalls. The 60 FPS target is not met.
-- The initial party card now fits its content. Starting-room composition, camera framing and held/combat views still need review.
-- Public Team Race Solo tests have failed remote movement and snapshot transfer deadlines. The latest native run fails movement; an earlier run reaches a host command, then rejects an overdue snapshot. Long client frames are confirmed; reliable online play across all modes is not yet verified.
-- The separate Freestyle equipment inspection exposed an airborne starting character and rejected collection. Held-item inspection remains unfinished while the starting collision is investigated.
-- An earlier Unity Inspector draft-save failure remains unexplained. The latest exact save and recovery tests pass; failed writes retain in-memory recovery.
+- The measured playtest still has substantial update stalls. The 60 FPS acceptance target remains open; the test does not measure presented frame rate.
+- Starting rooms still need richer visual composition. The held BAT is partly hidden by the head in the inspection view; full grip, animation, combat and camera comfort remain under review.
+- Current native Team Race/Brawl two-player checks pass, but earlier intermittent movement/transfer failures remain unresolved as a reliability requirement. All five modes at full party size and complete match outcomes are not yet verified.
+- Initial Freestyle overlap is repaired: native floor/clearance and actual Windows grounded collection pass. Recovery/drop paths remain separate unfinished work.
+- Windows Inspector draft publication is repaired; all 36 persistence cases pass, including locked/read-only files and recovery after memory loss. A new-process Windows-player repeat-save recovery check remains open.
 - Separate Windows clients, full mode/party coverage, human usability and the final stripped release are unfinished.
 
-Build source: `c7b0d8a933c2235ba7cca7c195799c7964ae3b33`. Windows run: `20261024T005757Z-visible-wordbound_workshop_flow`, **5/5 PASS**, normal exit and no reported console errors, exceptions or warnings. [Evidence and screenshots](windows-synchronize-workshop-20261024.json).
+Build source: `9e013dc9e766a616ae1d45ed037cbbd863dbf89e`. Build `20261024T034544Z` passes its gate in 237.3 seconds. Official workshop run `035028`: **5/5 PASS**, 60.7 seconds. Equipment run `035159`: **5/5 PASS**, 13 successful commands and a normal exit. [Official evidence](official-short-editor-pass-20261024.json), [equipment evidence](windows-original-equipment-pass-20261024.json), [visual review gallery](../equipment-polish/ASSET-REVIEW.html).
+
+The [plot and player-experience design](../../docs/wordbound/STORY-AND-PLAYER-EXPERIENCE.md) covers anticipated play, endings and rating principles. New epilogues and optional restoration tasks are specified but not implemented.

@@ -1,0 +1,161 @@
+{
+  "boundary": "after_collect_9",
+  "sample": {
+    "epoch": 0,
+    "tick": 203,
+    "unity_frame": 125,
+    "realtime_seconds": 13.926269,
+    "player": {
+      "id": "player:0",
+      "canonical_position": [
+        0,
+        0,
+        -1.2
+      ],
+      "canonical_velocity": [
+        0,
+        0,
+        0
+      ],
+      "canonical_active": true,
+      "canonical_kinematic": false,
+      "native_position": [
+        0,
+        0,
+        -1.2
+      ],
+      "native_velocity": [
+        0,
+        0,
+        0
+      ],
+      "native_kinematic": false,
+      "native_active": true,
+      "transform_position": [
+        0,
+        0,
+        -1.2
+      ],
+      "visual_parent_world": [
+        0,
+        0,
+        -1.2
+      ],
+      "visual_parent_local": [
+        0,
+        0,
+        0
+      ],
+      "owned_colliders": [
+        {
+          "type": "CapsuleCollider",
+          "enabled": true,
+          "active": true,
+          "trigger": false,
+          "attached_to_this_body": true,
+          "center_world": [
+            0,
+            0.9,
+            -1.2
+          ],
+          "size_world": [
+            0.6,
+            1.8,
+            0.6
+          ],
+          "contact_offset": 0.01
+        }
+      ]
+    },
+    "keepsake": {
+      "id": "keepsake:0",
+      "canonical_position": [
+        -0.000001,
+        0,
+        -5
+      ],
+      "canonical_velocity": [
+        0,
+        0,
+        0
+      ],
+      "canonical_active": true,
+      "canonical_kinematic": false,
+      "native_position": [
+        -0.000001,
+        0,
+        -5
+      ],
+      "native_velocity": [
+        0,
+        0,
+        0
+      ],
+      "native_kinematic": false,
+      "native_active": true,
+      "transform_position": [
+        -0.000001,
+        0,
+        -5
+      ],
+      "visual_parent_world": [
+        -0.000001,
+        0,
+        -5
+      ],
+      "visual_parent_local": [
+        0,
+        0,
+        0
+      ],
+      "owned_colliders": [
+        {
+          "type": "BoxCollider",
+          "enabled": true,
+          "active": true,
+          "trigger": false,
+          "attached_to_this_body": true,
+          "center_world": [
+            -0.000001,
+            0.225,
+            -5
+          ],
+          "size_world": [
+            0.45,
+            0.45,
+            0.45
+          ],
+          "contact_offset": 0.01
+        }
+      ]
+    },
+    "player_keepsake_penetrating": false,
+    "penetration_depth": 1
+  },
+  "observation_error": "",
+  "first_tick": 0,
+  "last_tick": 62,
+  "canonical_callbacks": 63,
+  "unobserved_ticks": 0,
+  "largest_tick_gap": 1,
+  "observed_epoch_changes": 0,
+  "maximum_observed_player_native_y": 0,
+  "maximum_observed_keepsake_native_y": 0,
+  "settle_frames": 30,
+  "settle_first_tick": 19,
+  "settle_last_tick": 61,
+  "settle_observation_unobserved_ticks": 31,
+  "settle_observation_largest_tick_gap": 19,
+  "floor_name": "Floor:Room:0",
+  "floor_top_y": 0,
+  "scope": "Same-callback canonical/native/visual observations; visual interpolation may lag. Settling uses distinct LateUpdate frames, not continuous contact proof. No pose or physics writes.",
+  "player_keepsake_penetrating": false,
+  "penetration_direction": [
+    0,
+    0,
+    0
+  ],
+  "penetration_depth": 1,
+  "player_grounded_predicate": true,
+  "keepsake_grounded_predicate": true
+}
