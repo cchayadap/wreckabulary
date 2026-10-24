@@ -1,0 +1,444 @@
+{
+  "recordedUtc": "2026-10-24T00:04:20.657584+00:00",
+  "source": "e8dddc6bfff6377f839745ed95ae4bdd5f02497b",
+  "phaseTimingEnabled": true,
+  "phaseCount": 16,
+  "summary": {
+    "result": "Failed(Child)",
+    "total": "47",
+    "passed": "45",
+    "failed": "2",
+    "skipped": "0",
+    "duration": "83.8165482"
+  },
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.Online.Tests.WordboundUiThemeTests;Wreckabulary.Online.Tests.WordboundPartyMenuInputTests;Wreckabulary.Tests.WordboundPhaseCaptureTests;Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests;Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-24T00:00:38Z",
+    "secs": 139.5,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.DisconnectedPartyCardFitsActualMeasuredContentWithoutChangingItDuringRepaint(420)",
+        "message": "Expected: null\r\n  But was:  <NUnit.Framework.AssertionException:   Expected: (x:12.00, y:24.00, width:396.00, height:425.00)\r\n  But was:  (x:12.00, y:24.00, width:396.00, height:404.00)\r\n\r\n  at NUnit.Framework.Assert.That[TActual] (TActual actual, NUnit.Framework.Constraints.IResolveConstraint expression, System.String message, System.Object[] args) [0x00044] in <8b63e8ac0a4746599ed207982825ae6c>:0 \r\n  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00008] in <8b63e8ac0a4746599ed207982825ae6c>:0 \r\n  at Wreckabulary.Online.Tests.WordboundPartyMenuInputTests+<>c__DisplayClass25_0.<DisconnectedPartyCardFitsActualMeasuredContentWithoutChangingItDuringRepaint>b__0 () [0x0003c] in C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Scripts\\Online\\Client\\Tests\\Input\\WordboundPartyMenuInputTests.cs:189 \r\n  at Wreckabulary.Online.Tests.WordboundPartyMenuInputTests+MenuWindow.OnGUI () [0x00091] in C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Scripts\\Online\\Client\\Tests\\Input\\WordboundPartyMenuInputTests.cs:363 >",
+        "location": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundPartyMenuInputTests.cs:302"
+      },
+      {
+        "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+        "message": "Apply client movement through admitted Fusion input exceeded its deadline.\r\n  Expected: True\r\n  But was:  False",
+        "location": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs:503"
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261024T000038Z.log",
+    "evidence": [
+      "TestResults/editmode_20261024T000038Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 29,
+    "tests": {
+      "total": 47,
+      "passed": 45,
+      "failed": 2,
+      "skipped": 0
+    }
+  },
+  "cases": [
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.ActualPartyDrawUsesAssignedThemeAndRestoresTheBorrowedSkin",
+      "result": "Passed",
+      "duration": "3.478725"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.DisconnectedPartyCardFitsActualMeasuredContentWithoutChangingItDuringRepaint(700)",
+      "result": "Passed",
+      "duration": "4.527423"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.DisconnectedPartyCardFitsActualMeasuredContentWithoutChangingItDuringRepaint(420)",
+      "result": "Failed",
+      "duration": "1.387395",
+      "failure": "  Expected: null\n  But was:  <NUnit.Framework.AssertionException:   Expected: (x:12.00, y:24.00, width:396.00, height:425.00)\n  But was:  (x:12.00, y:24.00, width:396.00, height:404.00)\n\n  at NUnit.Framework.Assert.That[TActual] (TActual actual, NUnit.Framework.Constraints.IResolveConstraint expression, System.String message, System.Object[] args) [0x00044] in <8b63e8ac0a4746599ed207982825ae6c>:0 \n  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00008] in <8b63e8ac0a4746599ed207982825ae6c>:0 \n  at Wreckabulary.Online.Tests.WordboundPartyMenuInputTests+<>c__DisplayClass25_0.<DisconnectedPartyCardFitsActualMeasuredContentWithoutChangingItDuringRepaint>b__0 () [0x0003c] in C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Scripts\\Online\\Client\\Tests\\Input\\WordboundPartyMenuInputTests.cs:189 \n  at Wreckabulary.Online.Tests.WordboundPartyMenuInputTests+MenuWindow.OnGUI () [0x00091] in C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Assets\\_Project\\Scripts\\Online\\Client\\Tests\\Input\\WordboundPartyMenuInputTests.cs:363 >\n"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.ExplicitMouseActionSurvivesChangingFromPadToDesktop",
+      "result": "Passed",
+      "duration": "1.522751"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.FocusLossDiscardsActualQueuedConnectAndHeldConfirmNeedsNeutral",
+      "result": "Passed",
+      "duration": "3.043399"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.NewInputBlockerDiscardsActualQueuedPadConnectWithGameplayLease",
+      "result": "Passed",
+      "duration": "2.609242"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.NewInputBlockerDiscardsActualQueuedPadConnectWithTyping",
+      "result": "Passed",
+      "duration": "1.848956"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.RealPadButtonsConnectSelectCreateReadyAndQuickPlayOnlyAfterRepaint",
+      "result": "Passed",
+      "duration": "4.974930"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.RetryReusesPendingCreateAndPrivateQueueThenBackLeavesParty",
+      "result": "Passed",
+      "duration": "5.743528"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.InvalidThemeUsesReadableFallbackWithoutChangingAssignedAsset",
+      "result": "Passed",
+      "duration": "0.062384"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.MultilineModuleAndMenuUseMeasuredAvailableSpace",
+      "result": "Passed",
+      "duration": "0.088103"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.OwnerScopeRestoresGuiStateAfterFailureWithoutMutatingBorrowedSkinOrFonts",
+      "result": "Passed",
+      "duration": "0.085574"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.SearchStaysOnOneLineAndStatusFitsInsideTheThemedFooter(15,34,56,16,6)",
+      "result": "Passed",
+      "duration": "0.064345"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.SearchStaysOnOneLineAndStatusFitsInsideTheThemedFooter(22,40,64,24,12)",
+      "result": "Passed",
+      "duration": "0.071086"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.ThemeChangesWaitForLayoutAndReleaseOnlyOwnedSkinAndTextures",
+      "result": "Passed",
+      "duration": "0.088404"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.ThemeRejectsUnreadableGeometryAndNonopaqueOrNonfiniteColours",
+      "result": "Passed",
+      "duration": "0.004885"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.WorkshopToolbarDrawnBoundsAndPointerExclusionTrackResizeAndCustomRows(760,500,34,16,6)",
+      "result": "Passed",
+      "duration": "0.053647"
+    },
+    {
+      "fullname": "Wreckabulary.Online.Tests.WordboundUiThemeTests.WorkshopToolbarDrawnBoundsAndPointerExclusionTrackResizeAndCustomRows(420,340,52,24,12)",
+      "result": "Passed",
+      "duration": "0.051968"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests.AuthorityDecoratorForwardsEveryOperationWithoutExtraStateCalls",
+      "result": "Passed",
+      "duration": "0.015535"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests.AuthorityFailuresRetainOriginalExceptionAndCloseTheirMeasurement(\"Publish\")",
+      "result": "Passed",
+      "duration": "0.002563"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests.AuthorityFailuresRetainOriginalExceptionAndCloseTheirMeasurement(\"ValidateSnapshot\")",
+      "result": "Passed",
+      "duration": "0.000502"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests.AuthorityFailuresRetainOriginalExceptionAndCloseTheirMeasurement(\"AcknowledgeDurable\")",
+      "result": "Passed",
+      "duration": "0.000396"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests.ConcurrentHttpObservationsPreserveRequestsResponsesCancellationAndFailures",
+      "result": "Passed",
+      "duration": "0.146247"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests.HostSamplesSeparateReadinessMigrationResultAndExactDurableGap",
+      "result": "Passed",
+      "duration": "0.001896"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests.InterPublicationGapRejectsBootstrapAndChangedOrUnmatchedOwnership",
+      "result": "Passed",
+      "duration": "0.002731"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeCheckpointTests.OnlyExactAcceptedAcknowledgementCompletesTheRetainedPublication",
+      "result": "Passed",
+      "duration": "0.019629"
+    },
+    {
+      "fullname": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+      "result": "Failed",
+      "duration": "52.044084",
+      "failure": "  Apply client movement through admitted Fusion input exceeded its deadline.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AnotherThreadHasAnIndependentOwnerAndCannotPolluteThisWindow",
+      "result": "Passed",
+      "duration": "0.002503"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"abort\")",
+      "result": "Passed",
+      "duration": "0.019875"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"prepare-error\")",
+      "result": "Passed",
+      "duration": "0.009381"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.AtomicAbortAndCallbackExceptionsKeepTheirBoundariesAndIdentity(\"apply-error\")",
+      "result": "Passed",
+      "duration": "0.012981"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.CrossThreadDisposalIsInvalidAndLeavesOwnerCleanupPossible",
+      "result": "Passed",
+      "duration": "0.020362"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DisabledScopesDoNotAcquireACaptureOrContributeToTheNextWindow",
+      "result": "Passed",
+      "duration": "0.000580"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DuplicateOrOutOfOrderDisposalInvalidatesEvenWhenOtherScopesRemain(False)",
+      "result": "Passed",
+      "duration": "0.000600"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.DuplicateOrOutOfOrderDisposalInvalidatesEvenWhenOtherScopesRemain(True)",
+      "result": "Passed",
+      "duration": "0.000133"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.ExcessNestingIsBoundedAndDoesNotThrowThroughGameplay",
+      "result": "Passed",
+      "duration": "0.000520"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.FailedHostQueryStillRollsBackAndRetriesWithTheSameCommand",
+      "result": "Passed",
+      "duration": "0.093055"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.InvalidPhaseAndEmptyTimingAreNeverPresentedAsMeasuredZeroCost",
+      "result": "Passed",
+      "duration": "0.001891"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.NestedScopesReportInclusiveDurationsAndCloseOnExceptions",
+      "result": "Passed",
+      "duration": "0.001206"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.OverlappingCaptureCannotReplaceTheCurrentOwner",
+      "result": "Passed",
+      "duration": "0.000575"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"TimeRun\")",
+      "result": "Passed",
+      "duration": "0.062013"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"TeamRace\")",
+      "result": "Passed",
+      "duration": "0.051121"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"BrawlRace\")",
+      "result": "Passed",
+      "duration": "0.041619"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"FreeForAll\")",
+      "result": "Passed",
+      "duration": "0.238397"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RealAdvanceAndAtomicValidationHaveIdenticalResultsWithCaptureEnabled(\"Freestyle\")",
+      "result": "Passed",
+      "duration": "0.046943"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.RejectedResourcesKeepTheFirstErrorAndCloseOnlyReachedFullValidationChildren",
+      "result": "Passed",
+      "duration": "0.015568"
+    },
+    {
+      "fullname": "Wreckabulary.Tests.WordboundPhaseCaptureTests.StoppedUnfinishedScopeCannotEndOrAddToANewGeneration",
+      "result": "Passed",
+      "duration": "0.000629"
+    }
+  ],
+  "observations": [
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "WORDBOUND_PHASE_WINDOW: window=startup; outcome=all-peers-ready; generation=1; thread=1; frequency=10000000; elapsedTicks=193914197; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=-1,tick=-1,bodies=-1,resources=-1,mechanisms=-1}; last={epoch=0,tick=25,bodies=186,resources=588,mechanisms=432}",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=RollbackCapture; status=observed; count=25; totalTicks=286253; maxTicks=99593; elapsedMs=28.625",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=Synchronize; status=observed; count=27; totalTicks=886422; maxTicks=229859; elapsedMs=88.642",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=RetireResources; status=observed; count=27; totalTicks=133575; maxTicks=71023; elapsedMs=13.358",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=FullValidation; status=observed; count=34; totalTicks=3509247; maxTicks=2226721; elapsedMs=350.925",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=MutableValidation; status=observed; count=26; totalTicks=216243; maxTicks=23179; elapsedMs=21.624",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=EconomyValidation; status=observed; count=60; totalTicks=531777; maxTicks=353003; elapsedMs=53.178",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ObserveHost; status=observed; count=25; totalTicks=713267; maxTicks=112673; elapsedMs=71.327",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=Prepare; status=observed; count=26; totalTicks=1576154; maxTicks=1171450; elapsedMs=157.615",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=FrameChanged; status=observed; count=26; totalTicks=152; maxTicks=55; elapsedMs=0.015",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ProgressRestore; status=observed; count=34; totalTicks=489003; maxTicks=367485; elapsedMs=48.900",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=ResourcesValidation; status=observed; count=34; totalTicks=470628; maxTicks=179615; elapsedMs=47.063",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodiesValidation; status=observed; count=34; totalTicks=598706; maxTicks=268734; elapsedMs=59.871",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=MechanismsValidation; status=observed; count=34; totalTicks=317059; maxTicks=108740; elapsedMs=31.706",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodyBudgetValidation; status=observed; count=34; totalTicks=249557; maxTicks=91508; elapsedMs=24.956",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=BodySourceValidation; status=observed; count=5372; totalTicks=213379; maxTicks=74364; elapsedMs=21.338",
+    "WORDBOUND_PHASE: window=startup; generation=1; phase=HostStep; status=observed; count=25; totalTicks=4170816; maxTicks=449172; elapsedMs=417.082",
+    "WORDBOUND_PHASE_CASE: Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "WORDBOUND_PHASE_WINDOW: window=ready; outcome=teardown; generation=2; thread=1; frequency=10000000; elapsedTicks=262531888; invalid=None; inFlight=0; scope=inclusive-elapsed-not-cpu; instances=all-on-owner-thread; fullValidationContexts=combined; first={epoch=0,tick=25,bodies=186,resources=588,mechanisms=432}; last={epoch=0,tick=865,bodies=186,resources=588,mechanisms=432}",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=RollbackCapture; status=observed; count=840; totalTicks=9029163; maxTicks=150774; elapsedMs=902.916",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=Synchronize; status=observed; count=840; totalTicks=30228712; maxTicks=397797; elapsedMs=3022.871",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=RetireResources; status=observed; count=840; totalTicks=3251447; maxTicks=35776; elapsedMs=325.145",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=FullValidation; status=observed; count=862; totalTicks=44659278; maxTicks=373352; elapsedMs=4465.928",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=MutableValidation; status=observed; count=840; totalTicks=10776945; maxTicks=230864; elapsedMs=1077.695",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=EconomyValidation; status=observed; count=1702; totalTicks=7455866; maxTicks=243161; elapsedMs=745.587",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ObserveHost; status=observed; count=840; totalTicks=27013429; maxTicks=196494; elapsedMs=2701.343",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=Prepare; status=observed; count=840; totalTicks=15264795; maxTicks=255919; elapsedMs=1526.480",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=FrameChanged; status=observed; count=840; totalTicks=10309; maxTicks=5405; elapsedMs=1.031",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ProgressRestore; status=observed; count=862; totalTicks=5277467; maxTicks=166342; elapsedMs=527.747",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=ResourcesValidation; status=observed; count=862; totalTicks=9525657; maxTicks=219437; elapsedMs=952.566",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodiesValidation; status=observed; count=862; totalTicks=13049229; maxTicks=145335; elapsedMs=1304.923",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=MechanismsValidation; status=observed; count=862; totalTicks=4790437; maxTicks=124786; elapsedMs=479.044",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodyBudgetValidation; status=observed; count=862; totalTicks=5881986; maxTicks=123306; elapsedMs=588.199",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=BodySourceValidation; status=observed; count=136196; totalTicks=5185717; maxTicks=116252; elapsedMs=518.572",
+    "WORDBOUND_PHASE: window=ready; generation=2; phase=HostStep; status=observed; count=840; totalTicks=172480501; maxTicks=845094; elapsedMs=17248.050",
+    "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; clients=2; parties=2"
+  ],
+  "artifacts": [
+    {
+      "path": "TestResults/editmode_20261024T000038Z.xml",
+      "bytes": 83788,
+      "sha256": "539850ad840232f4904e40166a93d108405345a2065264f93040f2170969da6b"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261024T000038Z.log",
+      "bytes": 947200,
+      "sha256": "6bd9659aa32d3a4bc4f642826252500b3b18f4498d264975eecc684134ac9cb6"
+    },
+    {
+      "path": ".harness/delivery/native-checkpoint-viewport-0000-job.json",
+      "bytes": 901,
+      "sha256": "ae5c1433f35ebd1ae1c5a943fe57b40e961fb11e881233566e48001c167442b9"
+    },
+    {
+      "path": ".harness/delivery/native-checkpoint-viewport-0000-status.json",
+      "bytes": 935,
+      "sha256": "395fbfee550d051bdbf0a55be29cc56fa1960b65de3052d1751c19d09f727464"
+    },
+    {
+      "path": ".harness/delivery/native-checkpoint-viewport-0000-stdout.log",
+      "bytes": 2473,
+      "sha256": "d3189fc167aac412f6998139f2aee6b8e42ed0aee669f05884f75965d98778d9"
+    },
+    {
+      "path": ".harness/delivery/native-checkpoint-viewport-0000-stderr.log",
+      "bytes": 1146,
+      "sha256": "75c6d4a6cbfeb048dec16a0e1b16270679c27b3b375f280158c329f3b9711ac9"
+    }
+  ],
+  "limits": [
+    "Native Unity Editor checks; not separate Windows machines or human gameplay acceptance.",
+    "Timing phases, when enabled, are nested inclusive elapsed; do not sum as exclusive CPU or infer FPS.",
+    "Existing correctness timeouts unchanged. Full production acceptance remains open.",
+    "Checkpoint stage/gap/tick records above come only from the named live public test, never from the eight synthetic diagnostic cases.",
+    "Local movement-read counters are not proof of host-delivered inputs. Peer-position log fields are each peer own committed actor frame, not the host remote native body.",
+    "Measured stage sums are nested/parallel and interval labels are observations, not exact duty cycle, network RTT or controller idle.",
+    "In this failed case the client had no completed SDK tick batch during the movement wait while Unity updates continued; this locates the stall boundary but does not establish its underlying cause."
+  ],
+  "liveCheckpointObservations": {
+    "testCase": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties",
+    "result": "Failed",
+    "duration": "52.044084",
+    "lines": [
+      "WORDBOUND_CHECKPOINT_WINDOW: peer=0; runnerCreations=1; elapsedMs=44757.672; canonicalFirst=0; canonicalLast=865; sdkFirst=1; sdkLast=1845; maxCommittedGapTicks=120; maxSampleGapMs=632.947; staleSamples=0; unavailable=0; accepted=12; unmatchedAccepted=0; superseded=0; pending=False; matchedPublicationToAckTotalMs=12903.532; matchedPublicationToAckMaxMs=1749.236; clock=Stopwatch; duration=inclusive-continuation-observed-wall-not-cpu-or-http-rtt; end=accepted-authority-ack-before-session-and-controller-scheduling; prepareCompression=unisolated; stages=nested-and-parallel-not-additive; sampleIntervals=previous-label-between-observations-not-exact-pause-time; finalInterval=omitted; endpoints=not-a-cross-runner-or-epoch-advance-ratio",
+      "WORDBOUND_CHECKPOINT_GAPS: peer=0; completed=10; totalMs=14173.105; maxMs=2179.346; bootstrapSkipped=1; boundarySkipped=0; abandonedPublications=0; duration=matched-accepted-ack-to-next-successful-publish-start-inclusive-gap-not-pure-controller-idle; sameRunnerAndEpoch=true; failedPublishAttempts=not-individually-isolated",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Publish; completed=12; failed=0; inFlight=0; maxInFlight=1; totalMs=1213.125; maxMs=238.708",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Validate; completed=12; failed=0; inFlight=0; maxInFlight=1; totalMs=1326.359; maxMs=149.204",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Acknowledge; completed=12; failed=0; inFlight=0; maxInFlight=1; totalMs=6.556; maxMs=6.289",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Begin; completed=12; failed=0; inFlight=0; maxInFlight=1; totalMs=1400.822; maxMs=159.842",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Chunk; completed=49; failed=0; inFlight=0; maxInFlight=4; totalMs=7347.825; maxMs=272.409",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Finalize; completed=12; failed=0; inFlight=0; maxInFlight=1; totalMs=1482.280; maxMs=173.112",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Head; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=145.212; maxMs=145.212",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Renew; completed=6; failed=0; inFlight=0; maxInFlight=1; totalMs=736.017; maxMs=173.169",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Read; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Claim; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=105.028; maxMs=105.028",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Open; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=80.480; maxMs=80.480",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=NotReady; samples=461; observedIntervalsMs=6070.659",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Migration; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Result; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=DurableGapObserved; samples=519; observedIntervalsMs=821.849",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=OtherPaused; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Eligible; samples=865; observedIntervalsMs=26148.572",
+      "WORDBOUND_CHECKPOINT_WINDOW: peer=1; runnerCreations=1; elapsedMs=43569.368; canonicalFirst=-1; canonicalLast=-1; sdkFirst=-1; sdkLast=-1; maxCommittedGapTicks=0; maxSampleGapMs=0.000; staleSamples=0; unavailable=0; accepted=0; unmatchedAccepted=0; superseded=0; pending=False; matchedPublicationToAckTotalMs=0.000; matchedPublicationToAckMaxMs=0.000; clock=Stopwatch; duration=inclusive-continuation-observed-wall-not-cpu-or-http-rtt; end=accepted-authority-ack-before-session-and-controller-scheduling; prepareCompression=unisolated; stages=nested-and-parallel-not-additive; sampleIntervals=previous-label-between-observations-not-exact-pause-time; finalInterval=omitted; endpoints=not-a-cross-runner-or-epoch-advance-ratio",
+      "WORDBOUND_CHECKPOINT_GAPS: peer=1; completed=0; totalMs=0.000; maxMs=0.000; bootstrapSkipped=0; boundarySkipped=0; abandonedPublications=0; duration=matched-accepted-ack-to-next-successful-publish-start-inclusive-gap-not-pure-controller-idle; sameRunnerAndEpoch=true; failedPublishAttempts=not-individually-isolated",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Publish; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Validate; completed=2; failed=0; inFlight=0; maxInFlight=1; totalMs=213.617; maxMs=133.867",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Acknowledge; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Begin; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Chunk; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Finalize; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Head; completed=2; failed=0; inFlight=0; maxInFlight=1; totalMs=178.488; maxMs=95.735",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Renew; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Read; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Claim; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_STAGE: peer=1; stage=Open; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=NotReady; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=Migration; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=Result; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=DurableGapObserved; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=OtherPaused; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_CHECKPOINT_TICKS: peer=1; state=Eligible; samples=0; observedIntervalsMs=0.000",
+      "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; clients=2; parties=2"
+    ]
+  },
+  "liveOperationObservations": [
+    "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=begin; elapsed=0.001; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=,checkpointCanonicalTick=,committedTick=,committedEpoch=,committedObservedAgeMs=unavailable,migration=,result=False,authorityPaused=False,checkpointPendingAgeMs=none; peer=1,host=False,tick=,advanced=0,inputReads=0,movingReads=0,position=none,connected=,canMove=False,paused=True,failure=,checkpointCanonicalTick=,committedTick=,committedEpoch=,committedObservedAgeMs=unavailable,migration=,result=False,authorityPaused=False,checkpointPendingAgeMs=none",
+    "WORDBOUND_GAMEPLAY_OPERATION: Prepare every scene and durable gameplay start; phase=end; elapsed=2.937; maxFrameGap=0.478; lifetimeCancelled=False; peer=0,host=True,tick=25,advanced=25,inputReads=25,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=25,committedTick=0,committedEpoch=0,committedObservedAgeMs=1484.690,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=164.791,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=0,advanced=0,inputReads=16,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=0,committedTick=0,committedEpoch=0,committedObservedAgeMs=0.000,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Replicate every canonical body exactly once with all peers ready; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=25,advanced=25,inputReads=25,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=25,committedTick=0,committedEpoch=0,committedObservedAgeMs=1506.897,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=186.998; peer=1,host=False,tick=0,advanced=0,inputReads=16,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=0,committedTick=0,committedEpoch=0,committedObservedAgeMs=20.125,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none",
+    "WORDBOUND_GAMEPLAY_OPERATION: Replicate every canonical body exactly once with all peers ready; phase=end; elapsed=15.249; maxFrameGap=2.031; lifetimeCancelled=False; peer=0,host=True,tick=543,advanced=543,inputReads=970,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=543,committedTick=533,committedEpoch=0,committedObservedAgeMs=0.000,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=0,advanced=0,inputReads=53,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=0,committedTick=0,committedEpoch=0,committedObservedAgeMs=15268.840,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply client movement through admitted Fusion input; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False; peer=0,host=True,tick=543,advanced=543,inputReads=970,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=543,committedTick=533,committedEpoch=0,committedObservedAgeMs=84.266,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none; peer=1,host=False,tick=0,advanced=0,inputReads=53,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=0,committedTick=0,committedEpoch=0,committedObservedAgeMs=15353.066,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none",
+    "WORDBOUND_GAMEPLAY_OPERATION: Apply client movement through admitted Fusion input; phase=end; elapsed=10.876; maxFrameGap=2.438; lifetimeCancelled=False; peer=0,host=True,tick=865,advanced=865,inputReads=1384,movingReads=0,position=-42.000/0.000/-18.000,connected=True,canMove=True,paused=False,failure=,checkpointCanonicalTick=865,committedTick=837,committedEpoch=0,committedObservedAgeMs=0.000,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=True,runnerClient=False,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True; peer=1,host=False,tick=25,advanced=0,inputReads=53,movingReads=0,position=-38.000/0.000/-18.000,connected=True,canMove=False,paused=False,failure=,checkpointCanonicalTick=25,committedTick=25,committedEpoch=0,committedObservedAgeMs=0.000,migration=False,result=False,authorityPaused=False,checkpointPendingAgeMs=none,controllerAlive=True,controllerEnabled=True,controllerActive=True,courseWorldPresent=True,sessionPresent=True,sessionRunnerStarted=True,sessionGameplayReady=True,committedMarkPresent=True,runnerPresent=True,runnerRunning=True,runnerHost=False,runnerClient=True,sceneInfoAvailable=True,gameplayScenePresent=True,sceneManagerPresent=True,sceneManagerBusy=False,physicsSceneAvailable=True,physicsSceneValid=True,physicsSceneIsolated=True"
+  ],
+  "liveNativeProfileAndTickObservations": [
+    "WORDBOUND_NATIVE_PROFILE_WINDOW: case=Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties; startFrame=1; endFrame=31968; elapsedSeconds=45.687; thread=main; instances=all-in-process; sampling=per-marker-invocation; scopes=inclusive-not-additive; max=sample-not-frame; inFlightScopes=not-yet-recorded; domainReloadRetention=false",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Reconcile; valid=true; unit=TimeNanoseconds; status=observed; samples=866; invocations=866; capturedTotalCpuMs=8150.520; capturedMaxSampleCpuMs=135.014; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Capture; valid=true; unit=TimeNanoseconds; status=observed; samples=866; invocations=866; capturedTotalCpuMs=848.270; capturedMaxSampleCpuMs=12.726; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Advance; valid=true; unit=TimeNanoseconds; status=observed; samples=865; invocations=865; capturedTotalCpuMs=5931.397; capturedMaxSampleCpuMs=52.386; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Validate; valid=true; unit=TimeNanoseconds; status=unavailable; samples=0; invocations=0; capturedTotalCpuMs=unavailable; capturedMaxSampleCpuMs=unavailable; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.Presentation; valid=true; unit=TimeNanoseconds; status=observed; samples=866; invocations=866; capturedTotalCpuMs=370.892; capturedMaxSampleCpuMs=7.596; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.PhysicsApply; valid=true; unit=TimeNanoseconds; status=observed; samples=866; invocations=866; capturedTotalCpuMs=909.457; capturedMaxSampleCpuMs=11.772; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BuildWorld; valid=true; unit=TimeNanoseconds; status=observed; samples=2; invocations=2; capturedTotalCpuMs=776.452; capturedMaxSampleCpuMs=608.143; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_PROFILE: marker=WB.Match.BeforePhysics; valid=true; unit=TimeNanoseconds; status=observed; samples=865; invocations=865; capturedTotalCpuMs=2215.754; capturedMaxSampleCpuMs=26.726; capacity=32768; wrapped=False; droppedSamples=no-buffer-wrap-observed; invalidSamples=0; error=none",
+    "WORDBOUND_NATIVE_TICK_WINDOW: case=Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSoloParties; elapsedMs=45694.623; runners=2; clock=Stopwatch; thread=main; duration=wall-not-cpu; callbackGaps=not-network-arrival-or-service-times; domainReloadRetention=false",
+    "WORDBOUND_NATIVE_TICK_RUNNER: peer=0; creation=1; status=observed; hostObserved=True; clientObserved=False; completedBatches=269; pendingBatch=False; destroyed=False; pendingBatchAgeAtStopMs=unavailable; unmatchedBegins=0; unmatchedEnds=0; pairingMismatches=0; invalidTickCounts=0; maxBatchStartGapMs=2437.665; unityUpdates=9940; lastBatchAgeAtStopMs=1024.580; lastUnityUpdateAgeAtStopMs=81.595; maxUnityUpdateGapMs=2437.189; maxTicksExecutedAtUnityUpdate=60",
+    "WORDBOUND_NATIVE_TICK_BATCHES: peer=0; creation=1; kind=forward; status=observed; batches=269; ticks=1845; maxBatchTicks=60; totalBatchWallMs=23846.494; maxBatchWallMs=2177.443; maxWallBatchTicks=60; maxWallBatchFrame=31967; maxWallBatchStartMs=42232.492; maxWallBatchEndMs=44409.935",
+    "WORDBOUND_NATIVE_TICK_BATCHES: peer=0; creation=1; kind=resimulation; status=unavailable; batches=0; ticks=0; maxBatchTicks=0; totalBatchWallMs=0.000; maxBatchWallMs=0.000; maxWallBatchTicks=0; maxWallBatchFrame=0; maxWallBatchStartMs=unavailable; maxWallBatchEndMs=unavailable",
+    "WORDBOUND_NATIVE_TICK_TAIL: peer=0; creation=1; capacity=16; retained=16; overwritten=253; totalsIncludeOverwritten=true; samples=[host,forward,ticks=60,frames=31947/31947,startMs=34150.032,endMs=34421.230,wallMs=271.198|host,forward,ticks=60,frames=31948/31948,startMs=34423.456,endMs=34460.781,wallMs=37.326|host,forward,ticks=14,frames=31949/31949,startMs=34614.686,endMs=34626.418,wallMs=11.732|host,forward,ticks=1,frames=31950/31950,startMs=34631.307,endMs=34632.354,wallMs=1.047|host,forward,ticks=1,frames=31952/31952,startMs=34638.645,endMs=34639.577,wallMs=0.933|host,forward,ticks=1,frames=31958/31958,startMs=34654.007,endMs=34655.040,wallMs=1.033|host,forward,ticks=5,frames=31959/31959,startMs=34744.442,endMs=34844.999,wallMs=100.557|host,forward,ticks=6,frames=31960/31960,startMs=34851.654,endMs=35009.783,wallMs=158.129|host,forward,ticks=11,frames=31961/31961,startMs=35021.655,endMs=35317.292,wallMs=295.637|host,forward,ticks=32,frames=31962/31962,startMs=35560.242,endMs=36711.638,wallMs=1151.397|host,forward,ticks=60,frames=31963/31963,startMs=36717.633,endMs=38503.362,wallMs=1785.729|host,forward,ticks=60,frames=31964/31964,startMs=38992.273,endMs=39686.266,wallMs=693.993|host,forward,ticks=60,frames=31965/31965,startMs=39707.824,endMs=41134.841,wallMs=1427.017|host,forward,ticks=60,frames=31966/31966,startMs=41338.465,endMs=42228.213,wallMs=889.748|host,forward,ticks=60,frames=31967/31967,startMs=42232.492,endMs=44409.935,wallMs=2177.443|host,forward,ticks=60,frames=31968/31968,startMs=44670.157,endMs=45612.714,wallMs=942.556]",
+    "WORDBOUND_NATIVE_TICK_RUNNER: peer=1; creation=1; status=observed; hostObserved=False; clientObserved=True; completedBatches=143; pendingBatch=False; destroyed=False; pendingBatchAgeAtStopMs=unavailable; unmatchedBegins=0; unmatchedEnds=0; pairingMismatches=0; invalidTickCounts=0; maxBatchStartGapMs=14405.920; unityUpdates=4022; lastBatchAgeAtStopMs=11092.939; lastUnityUpdateAgeAtStopMs=80.745; maxUnityUpdateGapMs=2437.178; maxTicksExecutedAtUnityUpdate=28",
+    "WORDBOUND_NATIVE_TICK_BATCHES: peer=1; creation=1; kind=forward; status=observed; batches=75; ticks=172; maxBatchTicks=28; totalBatchWallMs=14.896; maxBatchWallMs=7.257; maxWallBatchTicks=9; maxWallBatchFrame=31948; maxWallBatchStartMs=34601.800; maxWallBatchEndMs=34609.056",
+    "WORDBOUND_NATIVE_TICK_BATCHES: peer=1; creation=1; kind=resimulation; status=observed; batches=68; ticks=465; maxBatchTicks=51; totalBatchWallMs=133.920; maxBatchWallMs=129.068; maxWallBatchTicks=51; maxWallBatchFrame=31948; maxWallBatchStartMs=34472.226; maxWallBatchEndMs=34601.293",
+    "WORDBOUND_NATIVE_TICK_TAIL: peer=1; creation=1; capacity=16; retained=16; overwritten=127; totalsIncludeOverwritten=true; samples=[client,forward,ticks=1,frames=31683/31683,startMs=18147.325,endMs=18147.335,wallMs=0.010|client,resim,ticks=7,frames=31726/31726,startMs=18163.887,endMs=18163.913,wallMs=0.026|client,forward,ticks=1,frames=31726/31726,startMs=18163.918,endMs=18163.924,wallMs=0.006|client,resim,ticks=7,frames=31780/31780,startMs=18180.537,endMs=18180.565,wallMs=0.028|client,forward,ticks=1,frames=31780/31780,startMs=18180.572,endMs=18180.578,wallMs=0.006|client,resim,ticks=7,frames=31832/31832,startMs=18197.152,endMs=18197.178,wallMs=0.026|client,forward,ticks=1,frames=31832/31832,startMs=18197.183,endMs=18197.189,wallMs=0.006|client,resim,ticks=7,frames=31880/31880,startMs=18213.963,endMs=18213.990,wallMs=0.027|client,forward,ticks=1,frames=31880/31880,startMs=18213.996,endMs=18214.002,wallMs=0.006|client,forward,ticks=15,frames=31896/31896,startMs=18471.973,endMs=18472.037,wallMs=0.064|client,resim,ticks=14,frames=31930/31930,startMs=18898.589,endMs=18898.623,wallMs=0.035|client,forward,ticks=2,frames=31930/31930,startMs=18898.631,endMs=18898.638,wallMs=0.007|client,forward,ticks=16,frames=31931/31931,startMs=19221.417,endMs=19221.476,wallMs=0.060|client,forward,ticks=28,frames=31932/31932,startMs=20066.305,endMs=20066.372,wallMs=0.067|client,resim,ticks=51,frames=31948/31948,startMs=34472.226,endMs=34601.293,wallMs=129.068|client,forward,ticks=9,frames=31948/31948,startMs=34601.800,endMs=34609.056,wallMs=7.257]"
+  ]
+}
