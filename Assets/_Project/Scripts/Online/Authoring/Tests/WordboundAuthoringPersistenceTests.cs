@@ -224,6 +224,40 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(savedAsset, asset.DocumentJson);
         }
 
+        [Test]
+        public void ReadOnlyPrimaryRejectsPublicationButRetainsTheExactCommittedDraftAfterMemoryLoss()
+        {
+            RequireWindowsDraftIo();
+            var asset = CreateDraftAsset(); var document = asset.ReadDocument();
+            string path = DraftPath(asset), savedAsset = asset.DocumentJson;
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            byte[] original = File.ReadAllBytes(path), committed;
+            FileAttributes attributes = File.GetAttributes(path);
+            try
+            {
+                File.SetAttributes(path, attributes | FileAttributes.ReadOnly);
+                document.Title = "Committed edit while primary is read-only";
+                var failure = Assert.Throws<IOException>(() => WordboundCourseDraftStore.Save(asset, asset.SourceHash, document));
+                Assert.AreEqual(unchecked((int)0x80070005), failure.HResult, "Windows must preserve access-denied as a failed publication.");
+                CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
+                Assert.IsFalse(WordboundCourseDraftStore.IsMemoryOnly(asset));
+                Assert.AreEqual(1, PendingFiles(asset).Length);
+                committed = File.ReadAllBytes(PendingFiles(asset).Single());
+                CollectionAssert.AreEqual(committed, File.ReadAllBytes(path + ".publish"));
+                ForgetMemoryDraft(asset);
+                Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+                Assert.AreEqual(savedAsset, asset.DocumentJson);
+            }
+            finally { if (File.Exists(path)) File.SetAttributes(path, attributes); }
+            WordboundCourseDraftStore.Save(asset, asset.SourceHash, document);
+            CollectionAssert.AreEqual(committed, File.ReadAllBytes(path));
+            Assert.IsFalse(File.Exists(path + ".publish"));
+            Assert.AreEqual(0, PendingFiles(asset).Length);
+            ForgetMemoryDraft(asset);
+            Assert.AreEqual(document.Title, WordboundCourseDraftStore.Load(asset).Document.Title);
+            Assert.AreEqual(savedAsset, asset.DocumentJson);
+        }
+
         static void SaveDraftWithFailureFacts(string stage, WordboundCourseAsset asset, CourseDocument document,
             string path, byte[] previous, byte[] expected)
         {

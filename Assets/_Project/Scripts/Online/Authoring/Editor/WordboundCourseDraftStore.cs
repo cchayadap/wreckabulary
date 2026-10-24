@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
@@ -98,13 +99,37 @@ namespace Wreckabulary.Online.Editor
                 if (!File.Exists(RecordPath(guid, record.Revision))) Commit(record);
                 string temporary = path + ".publish";
                 WriteFlushed(temporary, bytes, FileMode.Create);
-                if (File.Exists(path)) File.Replace(temporary, path, null);
+                if (File.Exists(path)) ReplacePublished(temporary, path);
                 else File.Move(temporary, path);
                 if (!SameBytes(path, bytes)) throw new IOException("The published recovery draft did not match its committed bytes.");
             }
             unsavedRecovery.Remove(guid);
             Cleanup(guid, record, false);
         }
+
+        static void ReplacePublished(string temporary, string path)
+        {
+#if UNITY_EDITOR_WIN
+            string source = Path.GetFullPath(temporary), destination = Path.GetFullPath(path);
+            if (!string.Equals(Path.GetDirectoryName(source), Path.GetDirectoryName(destination), StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Recovery publication must stay in its original directory.");
+            const int ReplaceExisting = 0x1, WriteThrough = 0x8;
+            if (!MoveFileEx(source, destination, ReplaceExisting | WriteThrough))
+            {
+                int error = Marshal.GetLastWin32Error();
+                int hresult = error <= 0 ? error : unchecked((int)0x80070000) | (error & 0xffff);
+                throw new IOException("Recovery publication failed (Windows error " + error.ToString(CultureInfo.InvariantCulture) + ").", hresult);
+            }
+#else
+            File.Replace(temporary, path, null);
+#endif
+        }
+
+#if UNITY_EDITOR_WIN
+        [DllImport("kernel32.dll", EntryPoint = "MoveFileExW", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool MoveFileEx(string source, string destination, int flags);
+#endif
 
         static bool SameBytes(string path, byte[] bytes)
         {

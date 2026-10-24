@@ -1,6 +1,6 @@
 # Draft primary publication repair — native 032722
 
-STATUS: IN PROGRESS — actual failure preserved; no compiler/native/probe execution in this lane.
+STATUS: SOURCE PASS — bounded implementation and independent reviews complete; actual failure preserved. Compiler/native/Windows IO acceptance remains NOT RUN in this lane.
 
 Root assigned the Store/Inspector/current persistence-test slice after native `20261024T032722Z`, integration source `3fb06f37`: 47 cases, 44 PASS / 3 FAIL / 0 SKIP. Two failures are persistence publication errors; the separate first-frame keepsake fixture belongs to Assets. Only the owned lane is writable. Root owns every Unity/core/native/build/player job.
 
@@ -13,3 +13,23 @@ Root assigned the Store/Inspector/current persistence-test slice after native `2
 Raw source: root `TestResults/editmode_20261024T032722Z.xml`, exact failed test-case failure/output elements; corresponding `Logs/gate_test_editmode_20261024T032722Z.log`. Earlier 224855/225846 unexplained replacement failures and later passing controls remain valid history; this run now captures 1175 numerically for the BOM phase. Neither surviving recovery bytes nor earlier passing tests converts these failures to success.
 
 Next: align only required source blobs with root in an explicitly excluded baseline if needed; inspect primary-publication alternatives which retain complete committed recovery before replacement, exact post-publication bytes, original lock rejection and bounded storage. No blanket retry, primary deletion, test weakening or journal-format change.
+
+## Bounded implementation candidate
+
+Evidence commit `06da3ce3` precedes **excluded baseline-only `71c0b8f1`**. Only Store/tests needed alignment: exact root Git blobs `5ceffb354918a447dc0e7c456ec372f5f28fb129` and `2b2dbe0abda5d83e5fd9a1e5c2b6c88951e76bd8`. The Inspector was inspected read-only and is not in the patch. Root authorized this narrow publication helper after seeing the actual failure facts.
+
+For an existing primary on Windows Editor, replace the single `File.Replace` call with one Unicode `MoveFileExW` call using `REPLACE_EXISTING | WRITE_THROUGH`. Full source/destination paths must have the same directory. No cross-volume copy flag, backup fallback, pre-deletion, retry or failure suppression exists. Initial primary creation still uses `File.Move`; non-Windows replacement still uses the previous `File.Replace` path. Win32 last-error is captured immediately after a false result and translated using HRESULT_FROM_WIN32 into a thrown `IOException`.
+
+The surrounding protocol is unchanged: validated/checksummed committed revision exists before `.publish` is written/flushed; exact primary bytes are checked after successful publication; only then is RAM recovery removed and journal cleanup attempted. Any publication failure retains committed recovery and propagates. Revision ordering, eight-record/four-MiB bounds, strict readback, discard tombstones, legacy choice and Inspector readiness remain unchanged. The existing two failing tests and their diagnostic/error assertions are untouched.
+
+Microsoft documents 1175 as a failure to delete the replaced file, with both names retained, matching this run's readback. That classification does not identify why Windows/Mono/filesystem state produced it. [ReplaceFileW contract](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-replacefilew).
+
+Microsoft documents replacement of an existing file through `MOVEFILE_REPLACE_EXISTING`, subject to access checks; `MOVEFILE_WRITE_THROUGH` waits for the move, and its stated flush guarantee specifically discusses copy/delete moves. This patch does **not** enable cross-volume copy/delete, and does not infer universal physical-power-loss atomicity or media durability from those flags. Its existing flushed journal and post-publication verification remain the recovery mechanism. [MoveFileExW contract](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefileexw).
+
+This is a private `Library/Wordbound/InspectorDrafts` publication operation, not a general replacement for asset saves. Rename uses the already-created `.publish` file rather than requesting `ReplaceFile`'s additional original metadata/stream merging; arbitrary per-file metadata preservation is not claimed. Both staging and journal already live under the same recovery directory's access policy.
+
+One added native regression makes the primary genuinely read-only, demands failed publication with exact access-denied HRESULT `0x80070005`, and requires unchanged primary bytes plus exact committed/publish bytes. It then removes only static RAM recovery and loads the new journal-backed form, restores the owned file attributes in `finally`, saves again and requires exact primary bytes, removal of staging/journal and unchanged saved course content. This covers the new OS error boundary; the unchanged BOM and released-cap cases remain the direct reproduction/acceptance checks. Expected persistence fixture count becomes **36**.
+
+Source-only validation: `git diff --check` passes. Assets and Online independently gave bounded SOURCE PASS on the frozen Store SHA256 `0E9799A760D919F1907FE1CFDF8D700E94D49350873A9A1DA1405DD864073533` and tests SHA256 `3A99E7E6DCB6C27AFBFDE65767EA93AB1F2D0A36AC14C9A2FE81639F3702261A`. Both checked the native signature/error capture, journal-before-publication and verification-before-cleanup order, unchanged failure regressions and new test's real attribute/retained-byte semantics. Neither executed code or inferred the historical OS cause.
+
+Compiler/native/Windows IO behavior has **NOT RUN** in this lane; the candidate is not a measured fix until root runs the unchanged reproductions and full `Wreckabulary.Tests.WordboundAuthoringPersistenceTests` class (36 source-counted cases). Root plans the combined 48-case suite with 12 local cases. Integrate the implementation delta and evidence report, **not baseline-only `71c0b8f1`**. No source work exists outside the two aligned files and this report.
