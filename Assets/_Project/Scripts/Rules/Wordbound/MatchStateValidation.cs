@@ -209,7 +209,7 @@ namespace Wreckabulary.Rules.Wordbound
             var items = snapshot.Economy.ItemStates.ToDictionary(i => "item:" + i.Id, StringComparer.Ordinal);
             var mapBodies = snapshot.Bodies.Where(b => b.Kind == WorldBodyKind.Item &&
                 items[b.Id].Origin == ItemOrigin.Map).ToArray();
-            Need(mapBodies.All(b => course.Placements.Any(p => p.Id == b.SourceId && p.Purpose != "Resources")) &&
+            Need(mapBodies.All(b => content.Placements.TryGetValue(b.SourceId, out var placement) && placement.Purpose != "Resources") &&
                 mapBodies.Select(b => b.SourceId).Distinct(StringComparer.Ordinal).Count() == mapBodies.Length,
                 "Authored map bodies must retain one unique placement identity.");
             foreach (var player in snapshot.Economy.PlayerStates)

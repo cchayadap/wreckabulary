@@ -947,6 +947,113 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(currentBytes, MatchSnapshotCodec.Export(current));
         }
 
+        [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("FreeForAll"), TestCase("Freestyle")]
+        public void MapBudgetLookupPreservesOrdinalIdentityAndRetainedSnapshots(string mode)
+        {
+            var f = MapPlacementFixture(mode);
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var valid = f.Snapshot();
+            string retained = MatchSnapshotCodec.Export(valid);
+            Assert.AreEqual("", Check(valid));
+            var body = valid.Bodies.First(value => value.Kind == WorldBodyKind.Item);
+            string differentCase = body.SourceId.ToUpperInvariant();
+            Assert.AreNotEqual(body.SourceId, differentCase);
+            Assert.IsFalse(f.Course.Placements.Any(placement => placement.Id == differentCase));
+            var wrongCase = ReplacePhysical(valid, bodies: valid.Bodies.Select(value => ReferenceEquals(value, body) ?
+                SourceBody(value, source: differentCase) : value));
+            Assert.AreEqual("World source does not match an approved placement.", Check(wrongCase));
+            var unsourced = ReplacePhysical(valid, bodies: valid.Bodies.Select(value => ReferenceEquals(value, body) ?
+                SourceBody(value, source: "") : value));
+            const string identity = "Authored map bodies must retain one unique placement identity.";
+            Assert.AreEqual(identity, Check(unsourced));
+            Assert.AreEqual(identity, Check(unsourced));
+            Assert.IsFalse(f.Import(MatchSnapshotCodec.Export(unsourced)).Success);
+            Assert.AreEqual("", Check(valid));
+            var imported = f.Import(retained);
+            Assert.IsTrue(imported.Success, imported.Error);
+            Assert.AreEqual(retained, MatchSnapshotCodec.Export(imported.Snapshot));
+            int prepared = 0, applied = 0;
+            Assert.IsTrue(MatchStateValidation.ReconcileAndApply(valid, f.Binding, f.Mode, f.Course, f.Catalogue,
+                f.Rules, f.Rules.Clone(), () => { prepared++; return true; }, () => applied++));
+            Assert.AreEqual(1, prepared); Assert.AreEqual(1, applied);
+            Assert.AreEqual(retained, MatchSnapshotCodec.Export(valid));
+        }
+
+        [Test]
+        public void MapBudgetDuplicateIdentityKeepsEarlierAndLaterErrorOrder()
+        {
+            var f = MapPlacementFixture("Freestyle");
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var valid = f.Snapshot();
+            Assert.AreEqual("", Check(valid));
+            string retained = MatchSnapshotCodec.Export(valid);
+            var placement = f.Course.Placements.First(value => value.Purpose != "Resources");
+            AddMapPlacement(f, placement);
+            var duplicate = f.Snapshot();
+            Assert.AreEqual(2, duplicate.Bodies.Count(body => body.Kind == WorldBodyKind.Item && body.SourceId == placement.Id));
+            const string identity = "Authored map bodies must retain one unique placement identity.";
+            Assert.AreEqual(identity, Check(duplicate));
+            var first = duplicate.Bodies[0];
+            var outside = ReplacePhysical(duplicate, bodies: duplicate.Bodies.Select(body => ReferenceEquals(body, first) ?
+                SourceBody(body, position: new WorldVector(10001, 0, 0)) : body));
+            Assert.AreEqual("World body exceeds physical bounds or names an absent team.", Check(outside));
+            MatchSnapshot Story(MatchSnapshot snapshot) => new MatchSnapshot(snapshot.Binding, snapshot.Epoch,
+                snapshot.Sequence, snapshot.NextWorldEntityId, snapshot.Progress, snapshot.Economy, snapshot.Commands,
+                snapshot.Actors, snapshot.Bodies, snapshot.Resources, snapshot.Mechanisms, snapshot.RandomStreams,
+                new[] { "story:unknown" }, snapshot.ThrownFlights, snapshot.Practice);
+            Assert.AreEqual(identity, Check(Story(duplicate)));
+            Assert.AreEqual("Narrative flags must belong to reached team laps.", Check(Story(valid)));
+            Assert.AreEqual(identity, Check(duplicate));
+            Assert.AreEqual("", Check(valid));
+            Assert.AreEqual(retained, MatchSnapshotCodec.Export(valid));
+        }
+
+        [TestCase("TimeRun"), TestCase("FreeForAll")]
+        public void MapBudgetCannotUseAnApprovedResourcePlacementAsAMapProp(string mode)
+        {
+            var f = MapPlacementFixture(mode);
+            string Check(MatchSnapshot snapshot) => MatchStateValidation.Validate(snapshot, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules);
+            var valid = f.Snapshot();
+            Assert.AreEqual("", Check(valid));
+            string retained = MatchSnapshotCodec.Export(valid);
+            var placement = f.Course.Placements.First(value => value.Purpose == "Resources");
+            Assert.IsTrue(f.Resources.Any(row => row.SourceId == placement.Id && row.Team == placement.TeamIndex && row.Generation == 0));
+            AddMapPlacement(f, placement, true);
+            var invalid = f.Snapshot();
+            const string identity = "Authored map bodies must retain one unique placement identity.";
+            Assert.AreEqual(identity, Check(invalid));
+            Assert.AreEqual(identity, Check(invalid));
+            bool prepared = false, applied = false;
+            var error = Assert.Throws<ArgumentException>(() => MatchStateValidation.ReconcileAndApply(invalid,
+                f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules, f.Rules.Clone(),
+                () => { prepared = true; return true; }, () => applied = true));
+            Assert.AreEqual(identity, error.Message);
+            Assert.IsFalse(prepared); Assert.IsFalse(applied);
+            Assert.AreEqual("", Check(valid));
+            Assert.AreEqual(retained, MatchSnapshotCodec.Export(valid));
+        }
+
+        static WordboundSnapshotCodecTests.Fixture MapPlacementFixture(string mode)
+        {
+            var f = WordboundSnapshotCodecTests.Create(mode);
+            var placements = f.Course.Placements.Where(placement => placement.Purpose != "Resources").ToArray();
+            Assert.IsNotEmpty(placements, "The fixture must exercise actual approved map placements.");
+            foreach (var placement in placements) AddMapPlacement(f, placement);
+            Assert.IsTrue(f.Economy.Capture().Items.All(item => item.Origin == ItemOrigin.Map));
+            return f;
+        }
+
+        static void AddMapPlacement(WordboundSnapshotCodecTests.Fixture f, ResolvedCoursePlacement placement, bool protectedResource = false)
+        {
+            var item = f.Economy.PlaceFurniture(CourseTemplates.ProofCatalogue().Assets[placement.AssetId].Letters);
+            float y = placement.Yaw == 180 ? 1 : placement.Yaw == 0 ? 0 : .70710677f;
+            float w = placement.Yaw == 180 ? 0 : placement.Yaw == 0 ? 1 : placement.Yaw == 90 ? .70710677f : -.70710677f;
+            f.Bodies.Add(new WorldBodyState("item:" + item.Id, WorldBodyKind.Item,
+                new WorldVector(placement.Position.X / 1000f, placement.Position.Y / 1000f, placement.Position.Z / 1000f),
+                rotationXyz: new WorldVector(0, y, 0), rotationW: w,
+                ownerTeam: placement.TeamIndex, protectedResource: protectedResource, sourceId: placement.Id));
+        }
+
         static MatchSnapshot ProtectedItemSnapshot(WordboundAuthorityTests.Fixture f)
         {
             var before = f.State;
