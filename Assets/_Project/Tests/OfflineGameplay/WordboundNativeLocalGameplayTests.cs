@@ -285,6 +285,7 @@ namespace Wreckabulary.OfflineGameplayTests
         void CheckInitialKeepsake(MatchSnapshot snapshot)
         {
             Assert.AreEqual(0, snapshot.Progress.Tick);
+            UnityEngine.Physics.SyncTransforms();
             var canonical = snapshot.Bodies.Single(b => b.Id == "keepsake:0");
             var keepsake = controller.Bodies[canonical.Id];
             var box = keepsake.GetComponent<BoxCollider>();

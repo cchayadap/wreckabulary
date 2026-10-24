@@ -97,3 +97,6 @@ Independent review strengthened the same rotated-prop case to asymmetric BED
 swap would change its result. Native parity also requires GetIgnoreCollision=false
 for the actual player/keepsake pair. These are additive test improvements only;
 runtime bytes remain those in `04e5673a` and execution is still pending.
+The first-frame native query explicitly calls test-only Physics.SyncTransforms
+before Collider.Raycast/shape reads, as existing course-world native tests do;
+it performs no simulation or canonical pose mutation and still requires tick0.
