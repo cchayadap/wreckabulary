@@ -178,11 +178,22 @@ namespace Wreckabulary.Tests
         public void FailedPracticeSolveRollsBackSelectionEvidenceInventoryAndReceipt()
         {
             var f = Create(); Select(f, 1); string item = Craft(f, 1); CompleteEvidence(f, 1, item);
-            string before = MatchSnapshotCodec.Export(f.State);
+            var retained = f.State;
+            string before = MatchSnapshotCodec.Export(retained);
             f.World.ThrowQuery = true;
             var command = f.Command("a", WordboundAction.UsePuzzle, "BedBridge", value: item);
             Assert.Throws<InvalidOperationException>(() => f.Step(command));
             Assert.AreEqual(before, MatchSnapshotCodec.Export(f.State));
+            f.World.ThrowQuery = false;
+            Assert.AreEqual("Ok", f.Step(command).Receipts.Single().Effect.Code);
+            string bed = f.Source.Course.Supplies.Single(s => s.SourceId == "BedSupply").Id;
+            Assert.IsFalse(f.State.Bodies.Any(b => b.Kind == WorldBodyKind.Tile && b.SourceId == bed));
+            Assert.AreEqual("Ok", Select(f, 2, "b").Effect.Code);
+            string fan = f.Source.Course.Supplies.Single(s => s.SourceId == "FanSupply").Id;
+            Assert.AreEqual(3, f.State.Bodies.Count(b => b.Kind == WorldBodyKind.Tile && b.SourceId == fan));
+            Assert.IsEmpty(f.State.Progress.Teams[0].CompletedPuzzles);
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(retained));
+            f.Ack();
         }
 
         [Test]

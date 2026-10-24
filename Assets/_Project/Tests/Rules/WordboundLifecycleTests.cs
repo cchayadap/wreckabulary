@@ -87,6 +87,65 @@ namespace Wreckabulary.Tests
             f.Ack();
         }
 
+        [TestCase("TimeRun"), TestCase("TeamRace"), TestCase("BrawlRace")]
+        public void PrerequisiteSupplyUsesFreshTeamStateAfterRollbackAndCommittedRestore(string mode)
+        {
+            var f = Create(d => d.Supplies.Single(s => s.Id == "FanSupply").AfterPuzzleIds.Add("BedBridge"), mode);
+            string unlocked = Source(f, "FanSupply");
+            string[] rivalIds = f.State.Bodies.Where(b => b.OwnerTeam == 1).Select(b => b.Id).ToArray();
+            Assert.IsFalse(f.State.Bodies.Any(b => b.SourceId == unlocked));
+            if (mode != "TimeRun") Assert.IsNotEmpty(rivalIds);
+            string item = f.CraftBed();
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.Deploy, slot: 0)).Receipts.Single().Effect.Code);
+            var stamp = f.Match.PublishSnapshot(out string json);
+            Assert.IsTrue(f.Match.Acknowledge(stamp));
+            var saved = f.Source.Import(json);
+            Assert.IsTrue(saved.Success, saved.Error);
+            var before = f.State;
+            string beforeJson = MatchSnapshotCodec.Export(before);
+            string actor = mode == "TimeRun" ? "b" : "a";
+            var at = before.Bodies.Single(b => b.Id == item).Position;
+            var command = f.Command(actor, WordboundAction.UsePuzzle, "BedBridge", value: item);
+            f.World.ThrowQuery = true;
+            Assert.Throws<InvalidOperationException>(() => f.Step(command, new[] { f.Pose(actor, at) }));
+            Assert.AreEqual(beforeJson, MatchSnapshotCodec.Export(f.State));
+            Assert.IsFalse(f.State.Bodies.Any(b => b.SourceId == unlocked));
+
+            f.World.ThrowQuery = false;
+            var receipt = f.Step(command, new[] { f.Pose(actor, at) }).Receipts.Single();
+            Assert.AreEqual("Ok", receipt.Effect.Code);
+            Assert.AreEqual(before.Progress.Tick + 1, receipt.Tick);
+            Assert.AreEqual(receipt.Tick, f.Match.Tick);
+            var minted = f.State.Bodies.Where(b => b.SourceId == unlocked).ToArray();
+            Assert.AreEqual(3, minted.Length);
+            Assert.IsTrue(minted.All(b => b.Kind == WorldBodyKind.Tile && b.OwnerTeam == 0 && b.RecoveryGeneration == 0));
+            var letters = f.State.Economy.Tiles.ToDictionary(t => "tile:" + t.Key, t => t.Value);
+            CollectionAssert.AreEquivalent("FAN".ToCharArray(), minted.Select(b => letters[b.Id]).ToArray());
+            Assert.AreEqual(before.Economy.NextTileId + 3, f.State.Economy.NextTileId);
+            Assert.IsTrue(f.State.Progress.Teams.Single(t => t.Team == 0).CompletedPuzzles.Contains("BedBridge"));
+            CollectionAssert.AreEqual(rivalIds, f.State.Bodies.Where(b => b.OwnerTeam == 1).Select(b => b.Id).ToArray());
+            if (mode != "TimeRun") Assert.IsFalse(f.State.Bodies.Any(b => b.SourceId == Source(f, "FanSupply", 1)));
+            f.Advance(2);
+            CollectionAssert.AreEqual(minted.Select(b => b.Id).ToArray(), f.State.Bodies.Where(b => b.SourceId == unlocked).Select(b => b.Id).ToArray());
+            Assert.AreEqual(before.Economy.NextTileId + 3, f.State.Economy.NextTileId);
+            f.Ack();
+
+            f.Match.PauseForMigration();
+            f.Match.RestoreCommitted(saved.Snapshot, stamp, saved.Snapshot.Epoch + 1, saved.Snapshot.Progress.WallClockMs + 100);
+            Assert.IsTrue(f.Step().Advanced);
+            Assert.IsFalse(f.State.Progress.Teams.Single(t => t.Team == 0).CompletedPuzzles.Contains("BedBridge"));
+            Assert.IsFalse(f.State.Bodies.Any(b => b.SourceId == unlocked));
+            var restoredCommand = new AuthenticatedCommand(actor, new PlayerCommand(saved.Snapshot.Commands.Frontiers[actor] + 1,
+                f.Match.Epoch, WordboundAction.UsePuzzle, "BedBridge", value: item));
+            Assert.AreEqual("Ok", f.Step(restoredCommand, new[] { f.Pose(actor, at) }).Receipts.Single().Effect.Code);
+            Assert.AreEqual(3, f.State.Bodies.Count(b => b.SourceId == unlocked));
+            Assert.AreEqual(saved.Snapshot.Economy.NextTileId + 3, f.State.Economy.NextTileId);
+            CollectionAssert.AreEqual(rivalIds, f.State.Bodies.Where(b => b.OwnerTeam == 1).Select(b => b.Id).ToArray());
+            Assert.AreEqual(beforeJson, MatchSnapshotCodec.Export(before));
+            Assert.AreEqual(json, MatchSnapshotCodec.Export(saved.Snapshot));
+            f.Ack();
+        }
+
         [Test]
         public void GeneralSuppliesAndNonconsumedDeployedItemsArePreserved()
         {
@@ -153,7 +212,7 @@ namespace Wreckabulary.Tests
         [Test]
         public void CompletedLapRetiresGeneralScopeAndFreshLapStillMintsTheSameSources()
         {
-            var f = Create();
+            var f = Create(d => d.Supplies.Single(s => s.Id == "FanSupply").AfterPuzzleIds.Add("BedBridge"));
             var keepsake = f.State.Bodies.Single(b => b.Kind == WorldBodyKind.Keepsake);
             f.Step(f.Command("a", WordboundAction.TakeKeepsake), new[] { f.Pose("a", keepsake.Position) });
             int previousTileFrontier = f.State.Economy.NextTileId;
@@ -179,14 +238,20 @@ namespace Wreckabulary.Tests
                         module.Position.Y / 1000f, module.Position.Z / 1000f)) },
                         observations: new[] { new ProgressEvent(ProgressEventKind.CheckpointReached, "a", checkpoint.Id, lap) });
                 }
+                var beforeFinish = f.State;
+                string beforeFinishJson = MatchSnapshotCodec.Export(beforeFinish);
                 f.Step(observations: new[] {
                     new ProgressEvent(ProgressEventKind.FinishReached, "a", f.Source.Course.Laps[lap].FinishModuleId, lap) });
                 Assert.AreEqual(lap + 1, f.State.Progress.Teams[0].Lap);
+                Assert.AreEqual(beforeFinishJson, MatchSnapshotCodec.Export(beforeFinish));
                 Assert.IsFalse(f.State.Bodies.Any(b => b.Kind == WorldBodyKind.Tile && b.Protected &&
                     b.RecoveryGeneration % 3 <= lap));
                 Assert.IsTrue(f.State.Resources.Where(r => r.Lap <= lap).All(r => r.RecoveryAtTick == -1));
                 if (lap < 2)
                 {
+                    Assert.IsEmpty(f.State.Progress.Teams[0].CompletedPuzzles);
+                    Assert.IsFalse(f.State.Bodies.Any(b => b.SourceId == Source(f, "FanSupply")),
+                        "The prior lap's completed prerequisite must not unlock the fresh lap's supply.");
                     Assert.IsTrue(f.State.Bodies.Any(b => b.Kind == WorldBodyKind.Tile &&
                         b.SourceId == Source(f) && b.RecoveryGeneration == lap + 1));
                     Assert.Greater(f.State.Economy.NextTileId, previousTileFrontier);

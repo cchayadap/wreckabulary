@@ -798,9 +798,16 @@ namespace Wreckabulary.Rules.Wordbound
                         }
                 }
             RetireInactiveResources();
+            Dictionary<int, TeamProgress> resourceTeams = null;
+            TeamProgress ResourceTeam(int id)
+            {
+                resourceTeams ??= new Dictionary<int, TeamProgress>();
+                if (!resourceTeams.TryGetValue(id, out var team)) resourceTeams.Add(id, team = progress.Team(id));
+                return team;
+            }
             foreach (var state in resources.Values.OrderBy(r => r.Generation).ThenBy(r => r.SourceId, StringComparer.Ordinal).ToArray())
             {
-                int currentLap = CurrentLap(state.Team);
+                int currentLap = Mode.IsRace && state.Team >= 0 ? Math.Min(ResourceTeam(state.Team).Lap, 2) : 0;
                 if (state.Lap != currentLap)
                 {
                     if (state.RecoveryAtTick >= 0)
@@ -808,7 +815,7 @@ namespace Wreckabulary.Rules.Wordbound
                             new MatchResourceState(state.SourceId, state.Team, state.Lap, state.Generation);
                     continue;
                 }
-                if (!SourceAvailable(state)) continue;
+                if (!SourceAvailable(state, Mode.IsRace ? ResourceTeam(state.Team) : null)) continue;
                 bool newLap = before != null && Mode.IsRace &&
                     Math.Min(before.Progress.Teams.Single(t => t.Team == state.Team).Lap, 2) < state.Lap;
                 if (newLap) MintSource(state);
@@ -912,6 +919,9 @@ namespace Wreckabulary.Rules.Wordbound
         bool SourceAvailable(MatchResourceState state) =>
             resourceLifecycle.Demanded(Mode.IsRace ? progress.Team(state.Team) : null, state, practice, mechanisms.Values) &&
             (PracticeRecoverySource(state.SourceId) || SourceAfterPuzzles(state).All(id => Mode.IsRace && progress.Team(state.Team).CompletedPuzzles.Contains(id)));
+        bool SourceAvailable(MatchResourceState state, TeamProgress team) =>
+            resourceLifecycle.Demanded(team, state, practice, mechanisms.Values) &&
+            (PracticeRecoverySource(state.SourceId) || SourceAfterPuzzles(state).All(id => Mode.IsRace && team.HasPuzzle(id)));
         bool WasSourceAvailable(MatchSnapshot before, MatchResourceState state) => before != null && SourceAfterPuzzles(state).All(id =>
             Mode.IsRace && before.Progress.Teams.Single(t => t.Team == state.Team).CompletedPuzzles.Contains(id));
         int CurrentLap(int team) => Mode.IsRace && team >= 0 ? Math.Min(progress.Team(team).Lap, 2) : 0;
