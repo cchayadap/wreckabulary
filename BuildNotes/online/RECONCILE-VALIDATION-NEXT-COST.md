@@ -1,6 +1,6 @@
 # Next bounded reconciliation/validation cost candidate
 
-STATUS: IN PROGRESS — bounded implementation and regressions source-ready; independent review and all execution pending.
+STATUS: SOURCE REVIEW PASS — bounded implementation f6b76fb5 independently reviewed by recover_input; all execution pending.
 
 Scope: current integration validator and atomic reconciliation path. Root owns all
 measurement/build/native work. Installer completion evidence is separate in
@@ -68,10 +68,16 @@ This candidate cannot be presented as fixing the online failure or whole hitch.
 
 Root should run R0 and focused core coverage for
 `WordboundSnapshotValidationTests|WordboundEntityBudgetTests|WordboundAtomicValidationTests`.
-Use the unchanged `Tools/ValidationProbe` default workload (not capture/advance)
+Use the unchanged `Tools/RulesHarness/ValidationProbe` default workload (not capture/advance)
 before/after with actual flagship inputs, fixed seed 0123456789abcdef, positive
 byte controls, unchanged input/output hashes, counts, all raw elapsed and allocated
 bytes. Compare the same public TeamSolo/Windows workload only after source gates;
 installer load must be absent. No new microbenchmark or lane execution was added.
 
 Compiler, core, native and performance acceptance: NOT RUN by this lane.
+
+Independent source closure: recover_input confirmed exact original root blobs,
+ordinal/non-null immutable keys and preserved All/error ordering. It traced the
+seven fixtures through current root APIs, including the protected Resources Map
+case reaching the intended guard and existing fresh MaxDeployed rule coverage.
+No source finding remained; no compiler, test or measurement claim was made.
