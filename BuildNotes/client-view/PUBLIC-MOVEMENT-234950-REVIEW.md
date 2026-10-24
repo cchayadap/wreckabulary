@@ -99,3 +99,30 @@ Two final records report count/max/strictly-over-one-second count and the most r
 Four cases in `Wreckabulary.OnlineGameplayTests.WordboundNativeTickFrameTests` cover the strict1-second boundary and distinct SDK frontiers, oldest-first bounded-tail eviction with preserved totals/modes, invalid/unavailable reads with sanitized error identity, and frozen cleanup against late callbacks. They exercise collector behavior without running Unity simulation, Photon, service calls or fake game state. Existing Editor test assembly already directly references Fusion.Runtime; no asmdef or handmade metadata change is needed. Source/API checks and git diff whitespace check pass; only the parent will execute these four tests and the exact public case.
 
 Integration: exclude baseline-only `4b6636e5`, which aligns the observer to root SHA256 `69D4BEF762FE638E37C97ED30BF6DAAEFE924893330D7C2CAF5444ECF29F0391`. The following delta contains only the observer, its four-case test file and this report.
+
+## Completed 003140: observed large deltas, movement passes, stale transfer fails
+
+Independent read of root `TestResults/editmode_20261024T003140Z.xml`, corresponding log and `native-public-delta-20261024.json`, source `596822484af17e272b631c9a55304daac1ff61da`: four collector tests PASS; exact public TeamSolo case FAIL in47.068910s; total4/5, zero skip. Gate102.4s, refresh32.3s, no crash-after-quit. Diagnostic source is the only new runtime observation in this comparison; no gameplay fix or causal performance improvement is established.
+
+This run **passes the actual host-observed remote-player movement predicate** (Z greater than initialZ+0.25m) in7.223s, then authenticates the client's CancelCraft sequence/payload on the host in3.177s. The command-bearing snapshot ACK wait fails after7.810s due to peer1 session failure, before its25-second deadline; lifetime cancellation is false. Do not describe this as another movement deadline failure or completed public acceptance. The printed client position remains its stale committed snapshot, not the host's remote-player pose used by the passing movement assertion.
+
+The exact failure is `ReceiveSnapshot > OnReliableDataReceived`, code `snapshot-transfer-mismatch-duplicate-or-stale`, with same mark/count/length/advertised wire hash all1, duplicate chunk0, transfer elapsed11,485ms versus10,000ms. The stage field is blank. Source executes this rejection before assigning/decoding the incoming chunk, final packet restore, full snapshot validation and ACK. These fixed facts isolate the age predicate; they do not indicate malformed JSON, changed identity, proved payload integrity, transport RTT or a new auth setup defect. The client then shuts down; its final SDK zeros are post-failure observations. Host canonical484→784 and committed401→761 during the failed wait; client committed42 remains unchanged. Service cleanup failures/return/cancel/leave are all0.
+
+Actual new frame observations are valid: host8,069 samples/11 above1s; client2,171/9 above1s; both max1,835.871ms, modeUnscaledDeltaTime, zero invalid/unavailable, and no exceptional-tail overwrite. The nine client exceptional frame IDs are28418,28419,28420,28586,28587,28588,28620,28622,28624. All have observed TicksExecutedAtUnityUpdate0. At28418–28420 its SDK/Input stay515 and latest server468; at28586–28588 they stay540/540/480. Late samples separately show latest server1370→1490→1610 while state1342→1456→1456 and input1315→1368→1403 diverge.
+
+Existing host batch records and new actual deltas can be matched by adjacent frame numbers:
+
+| Host batch frame | Host batch ticks / wall ms | Next frame | Actual unscaled delta ms | Client batch evidence |
+| --- | ---: | --- | ---: | --- |
+| 28587 | 60 /1594.044 | 28588 | 1788.491 | Update observes0; earlier batch tail overwritten |
+| 28619 | 53 /1535.918 | 28620 | 1786.904 | No batch in retained chronological tail |
+| 28621 | 60 /1380.105 | 28622 | 1588.851 | No batch in retained chronological tail |
+| 28623 | 60 /1341.115 | 28624 | 1553.745 | No batch in retained chronological tail |
+
+The first host batch above is the recorded maximum; later rows are from the16-batch tail. This is now measured Unity delta, not an inference from a Stopwatch update gap. It matches the installed mode0 updater argument and the previously inspected client time-provider's strict greater-than1s guard. The frame samples still occur in MonoBehaviour.Update, not inside that provider: they do not prove every exact internal invocation, attribute the entire delta to the preceding host batch, or exclude other work/feedback adjustments. The observed host batches account for substantial portions of the adjacent frame duration; remaining elapsed work is not isolated. Retained client batch records resume on28621 and28625, so this is intermittent missing work, not permanent simulation stoppage.
+
+Whole case: host275 forward batches/1730SDK ticks, max60 ticks/1594.044ms; client78 forward batches/306ticks plus49 resimulation batches/250ticks. Both have zero pairing faults and no pending batch. There are28 generic full-buffer warnings at input ticks1376–1403; their emitter remains unidentified. Local input reads are not accepted-buffer or motor-receipt evidence. Ready phase spans21.8503302s, canonical42→784; inclusive HostStep14,081.671ms and Synchronize2,381.287ms overlap other phases and cannot be added into exclusive CPU/FPS claims.
+
+The new observations support investigating the shared update workload against the installed client time guard; they do not authorize SDK edits, delta clamping, tick/buffer settings or longer transfer/movement deadlines. Root's independently measured per-call Synchronize candidate remains a separate, behavior-preserving cost investigation. No additional runtime diagnostics or gameplay source changes were made for this evidence review.
+
+Artifact SHA256: XML `9D8D3CD3A7B7638D74E528ED64E888FAB4117A4A7039810F5204312C79345770`; log `7365E9FC8D11A7926D689807E44C243129D3556B9381A2FD395EA7E7FD7D7B42`.
