@@ -25,3 +25,7 @@ Save complete stdout and exit status to a new before artifact before any product
 After a separately reviewed synchronization change, run the identical command with identical source inputs/environment and compare every mode/batch start/end hash, tick, epoch, body/item/tile/resource/mechanism count and calibration. Compare all raw allocation and elapsed samples; do not silently discard slower batches or interpret different terminal hashes as comparable. The baseline and candidate retain the same probe source and warmup. This small deterministic probe does not establish statistical significance, physical-world cost, public movement correctness or sustained frame rate. Use the unchanged native public phase workload for those separate evidence boundaries.
 
 No SDK, kit, configuration, authority, publication cadence, deadline or validation bypass is introduced. No CPU jobs were run in the online lane.
+
+## Independent source review
+
+Recover_input reviewed exact source commit `a709edf6`: bounded SOURCE PASS. The review checked the real root public Advance/Capture/PublishSnapshot/Acknowledge APIs and120-tick guard, monotonic17ms inputs from default0, unchanged default/capture workloads, real flagship setup, positive controls and raw evidence preceding strict assertions. No compile or execution was performed. Root has the source delta and the excluded baseline `79a11061`; measurement remains pending.
