@@ -97,16 +97,18 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
-## Current verification — 2026-10-23T23:52Z
+## Current verification — 2026-10-24T00:10Z
 
 The original game artwork remains the default. Windows QA build `20261023T232641Z` and its visible workshop/playtest/return run `232850` pass all five workflow checks. Two agents inspected all six images: Search, footer status and the original cream/teal/Nunito party theme are corrected. The next compact party panel and clearer workshop guidance are integrated and undergoing native checks. See [the current build instructions](BuildNotes/client-view/TRY-WORDBOUND.md).
 
 - [x] All 13 Unity authoring persistence cases pass in `233437`, including actual changed-save/BOM handling, retained drafts, custom themes, course assets and scene restoration. The earlier intermittent Windows replacement error remains unexplained; no new production IO workaround was added.
 - [x] Capacity preflight `233231` passes with 512 reserved / 366 initial live bodies using registered PLATE props. This is validation before live allocation, not a maximum-capacity gameplay result.
 - [x] Mechanism identity optimization passes R0 and 198 focused core cases (`234828`). The unchanged standalone probe preserves every input/snapshot hash and passes 120 validations before and 120 after. Median managed allocation falls 7.98% for Time Run and 8.58% for Team Race Solo. These are .NET measurements, not Unity frame-rate results.
-- [~] Native `234950` passes 37/39: all 20 timing-collector and nine theme cases pass, while the narrow party test uses the wrong viewport and public Team Race Solo misses its movement deadline. The reviewed viewport repair keeps all strict assertions and is awaiting a rerun. The player build must be refreshed after verification.
+- [x] Native `000038` passes all eight checkpoint diagnostic cases, all 20 timing-collector cases and all nine theme cases. Its total is 45/47 because the narrow party fixture and public Team Race Solo fail. The record separates synthetic diagnostics from the exact live public case.
+- [~] The corrected narrow viewport and same-event test expose actual card-height oscillation: `000747` passes 17/18, with the 420-pixel window alternating between 404 and 425 pixels. A production layout correction is in progress; the strict convergence check remains. The Windows build will be refreshed after this passes.
 - [~] Full FFA `233437` reaches six scored knockouts and respawns, then the eight-minute fixture lifetime expires. Its final return operation lasts 5.999 seconds, below its separate 35-second limit. No ten-point result is accepted. The 162 allocator samples show no observed OOM; stable late object capacity does not prove leak freedom or maximum capacity.
-- [~] Add test-only checkpoint timing and pause measurements to identify the online stalls without changing recovery guards or deadlines.
+- [~] Checkpoint measurements are now available: 12 exact accepted publications, mean 1,075 ms from publication to ACK and mean 1,417 ms from ACK to next publication. These are inclusive observations, not isolated network or controller-idle time. All requests succeed. Cadence is unchanged because increasing it could add CPU/request cost.
+- [~] In the same failed public case, the client has no completed network-simulation batch for the whole movement wait, while its Unity updates continue. Boundary measurements will distinguish input polling, client simulation and received-server progress. Local input counters and committed replica positions are not proof of host input delivery or native remote-body movement.
 
 Actual Windows frame observation still shows substantial stalls: 90 updates in 7.240 seconds, 479 canonical ticks and a 696.499 ms maximum update gap. The assigned camera records 89 matched callback pairs; those are not GPU completion or presented-FPS measurements. A fresh Windows build and the same visible workload follow the current native checks. Larger parties, full-match outcomes, recovery targets, final release and human acceptance remain open.
 
