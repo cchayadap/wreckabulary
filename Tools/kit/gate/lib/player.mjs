@@ -259,7 +259,7 @@ export async function cmdSmoke(ctx, res, opts, flags) {
   res.log = relU(ctx, playerLog);
   res.smoke = { build: b.dir, kind: b.kind, run_id: runId, stripped, scenario: stripped ? null : scenario, seed: stripped ? null : seed };
   let pid = null;
-  const r = await run(exeAbs, args, { cwd: path.dirname(exeAbs), timeoutMs, onSpawn: (p) => { pid = p; liveChildren.add(p); } });
+  const r = await run(exeAbs, args, { cwd: path.dirname(exeAbs), timeoutMs, windowsHide: false, onSpawn: (p) => { pid = p; liveChildren.add(p); } });
   if (pid) liveChildren.delete(pid);
   if (r.exit === null && !r.timedOut && r.error) return setVerdict(res, 'INFRA', { infra: 'player_start', message: `cannot start the player: ${r.error}` });
   let log = '';

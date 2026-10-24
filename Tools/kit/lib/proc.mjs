@@ -134,7 +134,7 @@ export function resolveSpawn(cmd, args = [], opts = {}) {
  *   timedOut is true only when the timer fired before the child exited.
  * @param {string} cmd
  * @param {string[]} [args]
- * @param {{cwd?: string, env?: NodeJS.ProcessEnv, timeoutMs?: number, input?: string, logFile?: string, onSpawn?: (pid: number) => void, drainMs?: number}} [opts]
+ * @param {{cwd?: string, env?: NodeJS.ProcessEnv, timeoutMs?: number, input?: string, logFile?: string, onSpawn?: (pid: number) => void, drainMs?: number, windowsHide?: boolean}} [opts]
  * @returns {Promise<{exit: number|null, signal: string|null, timedOut: boolean, stdout: string, stderr: string, secs: number, pid: number|undefined, error?: string, stdin_error?: string}>}
  *   exit is null when the command could not be started (then `error` says why) or when it was killed by a signal.
  */
@@ -150,7 +150,7 @@ export function run(cmd, args = [], opts = {}) {
         cwd: opts.cwd,
         env,
         stdio: [opts.input !== undefined ? 'pipe' : 'ignore', 'pipe', 'pipe'],
-        windowsHide: true,
+        windowsHide: opts.windowsHide ?? true,
         windowsVerbatimArguments: plan.verbatim,
         detached: !IS_WIN,
       });
