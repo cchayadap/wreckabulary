@@ -513,6 +513,13 @@ namespace Wreckabulary.OnlineGameplayTests
         }
         static string DescribePeer(Peer peer, int index)
         {
+            string sdkFacts;
+            try
+            {
+                var runner = peer.Runner;
+                sdkFacts = runner == null ? ",sdkFactsUnavailable=missing-runner" : FormattableString.Invariant($",sdkTick={runner.Tick.Raw},sdkInputTick={runner.InputTick.Raw},sdkLatestServerTick={runner.LatestServerTick.Raw},sdkProvideInput={runner.ProvideInput},sdkState={runner.State},sdkStage={runner.Stage},sdkConnectedToServer={runner.IsConnectedToServer}");
+            }
+            catch (Exception error) { sdkFacts = ",sdkFactsUnavailable=" + error.GetType().Name; }
             try
             {
                 var snapshot = peer.Controller.Frame;
@@ -521,9 +528,9 @@ namespace Wreckabulary.OnlineGameplayTests
                 bool canMove = peer.Controller.PhysicsWorld != null && peer.Controller.PhysicsWorld.CanMove(peer.Actor, out _);
                 string position = actor == null ? "none" : FormattableString.Invariant($"{actor.Position.X:F3}/{actor.Position.Y:F3}/{actor.Position.Z:F3}");
                 return $"peer={index},host={peer.Runner != null && peer.Runner.IsServer},tick={snapshot?.Progress.Tick},advanced={peer.Advanced},inputReads={peer.InputReads},movingReads={peer.MovingInputReads},position={position},connected={progress?.Connected},canMove={canMove},paused={peer.Controller.IsSimulationPaused},failure={peer.Session.Failure}" +
-                    (peer.Checkpoints?.Facts(peer.Controller, peer.Session) ?? "");
+                    (peer.Checkpoints?.Facts(peer.Controller, peer.Session) ?? "") + sdkFacts;
             }
-            catch (Exception error) { return $"peer={index},diagnosticUnavailable={error.GetType().Name}"; }
+            catch (Exception error) { return $"peer={index},diagnosticUnavailable={error.GetType().Name}" + sdkFacts; }
         }
         string DescribeReadiness(Peer peer)
         {
