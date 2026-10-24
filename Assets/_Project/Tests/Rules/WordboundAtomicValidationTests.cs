@@ -119,6 +119,46 @@ namespace Wreckabulary.Tests
             });
         }
 
+        [TestCase("enabled"), TestCase("letters"), TestCase("capacity")]
+        public void ValidationOnlyEconomyRechecksCallbackMutationsAndRecoversWithoutChangingTheSnapshot(string mutation)
+        {
+            var f = WordboundSnapshotCodecTests.Create();
+            TestData.GiveLetters(f.Economy, 0, "BAT");
+            Assert.IsTrue(f.Economy.BeginCraft(0, "BAT", 0).Ok);
+            var snapshot = f.Snapshot();
+            string before = MatchSnapshotCodec.Export(snapshot);
+            var finalRules = f.Rules.Clone();
+            var recipe = f.Catalogue.Get("BAT");
+            var letters = recipe.Letters;
+            int prepared = 0, applied = 0;
+            string expected = null;
+            Assert.AreEqual("", Check(f, snapshot, f.Rules));
+            var failure = Assert.Throws<ArgumentException>(() => Apply(f, snapshot, finalRules, () => {
+                prepared++;
+                if (mutation == "enabled") recipe.Enabled = false;
+                else if (mutation == "letters") recipe.Letters = LetterBag.FromWord("BED");
+                else finalRules.MaxCarried++;
+                var reference = new Economy(f.Catalogue, finalRules);
+                for (int i = 0; i < f.Binding.Seats.Count; i++) reference.AddPlayer(i, f.Binding.Seats[i].Team);
+                expected = Assert.Throws<ArgumentException>(() => reference.Restore(snapshot.Economy)).Message;
+                finalRules.MaxHealth = 1;
+                return true;
+            }, () => applied++));
+            Assert.AreEqual(expected, failure.Message);
+            Assert.AreEqual(1, prepared);
+            Assert.AreEqual(0, applied);
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(snapshot));
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(f.Snapshot()));
+            recipe.Enabled = true;
+            recipe.Letters = letters;
+            finalRules.MaxCarried = f.Rules.MaxCarried;
+            finalRules.MaxHealth = f.Rules.MaxHealth;
+            Assert.IsTrue(Apply(f, snapshot, finalRules, () => { prepared++; return true; }, () => applied++));
+            Assert.AreEqual(2, prepared);
+            Assert.AreEqual(1, applied);
+            Assert.AreEqual(before, MatchSnapshotCodec.Export(snapshot));
+        }
+
         [TestCase(false), TestCase(true)]
         public void DeployedEquipmentUsesCurrentLifetimeAndPlayerCapacity(bool capacity)
         {

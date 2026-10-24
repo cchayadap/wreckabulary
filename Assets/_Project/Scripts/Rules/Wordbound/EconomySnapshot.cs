@@ -71,6 +71,12 @@ namespace Wreckabulary.Rules
             Minted = replacement.Minted; Spent = replacement.Spent;
         }
 
+        internal void ValidateSnapshot(EconomySnapshot snapshot)
+        {
+            if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
+            ValidateReplacement(snapshot);
+        }
+
         Economy ValidateReplacement(EconomySnapshot snapshot)
         {
             if (snapshot.NextItemId < 1 || snapshot.NextItemId >= int.MaxValue ||

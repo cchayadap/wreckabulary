@@ -185,7 +185,7 @@ namespace Wreckabulary.Rules.Wordbound
 #endif
             var economy = new Economy(catalogue, rules);
             for (int i = 0; i < binding.Seats.Count; i++) economy.AddPlayer(i, binding.Seats[i].Team);
-            economy.Restore(snapshot.Economy);
+            economy.ValidateSnapshot(snapshot.Economy);
         }
 
         public static CoursePlayRequirements Requirements(ModeDefinition mode) => new CoursePlayRequirements(mode.Id,

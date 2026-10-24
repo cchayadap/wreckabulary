@@ -1,6 +1,6 @@
 # Per-tick validation architecture audit
 
-STATUS: AUDIT COMPLETE — source-only; implementation authorized separately below.
+STATUS: IMPLEMENTED, SOURCE REVIEW PENDING — no compiler/test/probe jobs run here.
 
 Baseline inspected: integration 26c41802, including the reviewed body-budget
 placement index and presentation tuple cache. Scope is the actual authoritative
@@ -148,3 +148,41 @@ Next recoverable action: implement the approved economy-only delta, obtain
 independent Input source review, then hand exact commits/filters to root for
 compilation, correctness and comparable measurement. No runtime edits or jobs
 were performed during this audit.
+
+## Approved implementation checkpoint
+
+The four scoped files matched integration `6eed388b` byte-for-byte before edits:
+EconomySnapshot `6f130cbc`, MatchStateValidation `87ad6c02`,
+WordboundEconomySnapshotTests `e33b9ee2`, WordboundAtomicValidationTests `707afb7a`.
+No baseline-only synchronization commit is needed. Other lane sources remain
+stale/unrelated; integrate this delta, never replace complete root files.
+
+Production is one internal six-line entry and one caller change. `Restore` and
+`ValidateReplacement` are unchanged, including all null/current-dependency/error
+checks and their order. Only the disposable validation Economy calls the new
+entry. Required roster setup still runs first.
+
+Eleven added cases use public runtime APIs through the existing full/atomic
+validators, with public Restore as the failure and reconstructed-state oracle.
+There is no new friend assembly, reflection or internal-setter dependency:
+
+- One real authoritative BED lifecycle retains initial, pending, cancelled,
+  held, deployed and consumed snapshots, compares public Restore output, and
+  revalidates the old snapshots without mutating the current authority.
+- Seven invalid economy variants cover counts, roster, slots, orphan reservation,
+  craft timing, ownership and conservation. Exact Restore errors must precede a
+  competing missing-resource error; repeated failures and later valid snapshots
+  retain bytes. Public Restore's failed destination and notification count remain
+  unchanged. The temporary validator destination is intentionally not exposed.
+- Three atomic cases mutate enabled recipe, required letters or inventory
+  capacity during preparation, add a competing later health error, require the
+  exact fresh Restore error before apply, then restore dependencies and apply the
+  original immutable snapshot successfully. Existing callback/abort/five-mode,
+  thrown/deployment and mutable-rule tests remain relevant.
+
+Required root verification: R0; focused core filter
+`WordboundEconomySnapshotTests|WordboundAtomicValidationTests|WordboundSnapshotValidationTests`
+(actual discovered case count must be read from the result); unchanged
+ValidationProbe before/after with positive controls/hashes; same native/public
+and Windows ready workload where scheduled. No allocation, elapsed-time or
+online-acceptance improvement has been measured for this candidate.

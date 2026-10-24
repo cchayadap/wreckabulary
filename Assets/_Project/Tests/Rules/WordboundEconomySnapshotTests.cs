@@ -1,12 +1,134 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Wreckabulary.Rules.Wordbound;
+using Wreckabulary.Tests;
 
 namespace Wreckabulary.Rules.Tests
 {
     public sealed class WordboundEconomySnapshotTests
     {
+        static MatchSnapshot WithEconomy(MatchSnapshot snapshot, EconomySnapshot economy) =>
+            new MatchSnapshot(snapshot.Binding, snapshot.Epoch, snapshot.Sequence, snapshot.NextWorldEntityId,
+                snapshot.Progress, economy, snapshot.Commands, snapshot.Actors, snapshot.Bodies, snapshot.Resources,
+                snapshot.Mechanisms, snapshot.RandomStreams, snapshot.NarrativeFlags, snapshot.ThrownFlights, snapshot.Practice);
+
+        static Economy Destination(WordboundSnapshotCodecTests.Fixture f)
+        {
+            var result = new Economy(f.Catalogue, f.Rules);
+            for (int i = 0; i < f.Binding.Seats.Count; i++) result.AddPlayer(i, f.Binding.Seats[i].Team);
+            return result;
+        }
+
+        [Test]
+        public void ValidationOnlyEconomyAcceptsRetainedCraftAndConsumptionStatesWithoutInstallingThem()
+        {
+            var f = WordboundAuthorityTests.Create();
+            var retained = new List<(MatchSnapshot Snapshot, string Json)>();
+            void Check()
+            {
+                var snapshot = f.State;
+                string before = MatchSnapshotCodec.Export(snapshot);
+                var restored = Destination(f.Source);
+                restored.MintTiles("Q");
+                restored.Restore(snapshot.Economy);
+                Assert.AreEqual(before, MatchSnapshotCodec.Export(WithEconomy(snapshot, restored.Capture())));
+                Assert.AreEqual("", MatchStateValidation.Validate(snapshot, f.Source.Binding, f.Source.Mode,
+                    f.Source.Course, f.Source.Catalogue, f.Source.Rules));
+                Assert.AreEqual(before, MatchSnapshotCodec.Export(f.State));
+                retained.Add((snapshot, before));
+            }
+            Check();
+            string source = f.Source.Course.Supplies.Single(s => s.SourceId == "BedSupply").Id;
+            foreach (var body in f.State.Bodies.Where(b => b.SourceId == source).ToArray())
+                Assert.AreEqual("Ok", f.Collect("a", body.Id).Effect.Code);
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.BeginCraft, value: "BED")).Receipts.Single().Effect.Code);
+            Assert.IsNotNull(f.State.Economy.Players[0].Craft);
+            Check();
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.CancelCraft)).Receipts.Single().Effect.Code);
+            Assert.IsNull(f.State.Economy.Players[0].Craft);
+            Check();
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.BeginCraft, value: "BED")).Receipts.Single().Effect.Code);
+            f.Advance(61);
+            var item = f.State.Economy.Items.Single(i => i.Word == "BED" && i.Origin == ItemOrigin.Crafted);
+            Assert.AreEqual(ItemState.Held, item.State);
+            Check();
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.Deploy, slot: 0)).Receipts.Single().Effect.Code);
+            Assert.AreEqual(ItemState.Deployed, f.State.Economy.Items.Single(i => i.Id == item.Id).State);
+            Check();
+            Assert.AreEqual("Ok", f.Step(f.Command("a", WordboundAction.UsePuzzle, "BedBridge", value: "item:" + item.Id)).Receipts.Single().Effect.Code);
+            Assert.IsTrue(f.State.Economy.Items.Single(i => i.Id == item.Id).IsGone);
+            Check();
+            string current = MatchSnapshotCodec.Export(f.State);
+            foreach (var earlier in retained)
+            {
+                Assert.AreEqual("", MatchStateValidation.Validate(earlier.Snapshot, f.Source.Binding, f.Source.Mode,
+                    f.Source.Course, f.Source.Catalogue, f.Source.Rules));
+                Assert.AreEqual(earlier.Json, MatchSnapshotCodec.Export(earlier.Snapshot));
+            }
+            Assert.AreEqual(current, MatchSnapshotCodec.Export(f.State));
+        }
+
+        [TestCase("count", "counts or allocation frontiers")]
+        [TestCase("roster", "roster or inventory")]
+        [TestCase("slot", "roster or inventory")]
+        [TestCase("reservation", "orphan reserved letters")]
+        [TestCase("craft", "pending craft reservation")]
+        [TestCase("ownership", "letter conservation or item ownership")]
+        [TestCase("conservation", "letter conservation or item ownership")]
+        public void ValidationOnlyEconomyRetainsRestoreFailuresBeforeLaterSnapshotErrors(string mutation, string expected)
+        {
+            var f = WordboundSnapshotCodecTests.Create("TimeRun");
+            var original = f.Snapshot();
+            string originalBytes = MatchSnapshotCodec.Export(original);
+            Assert.AreEqual("", MatchStateValidation.Validate(original, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
+            var source = Destination(f);
+            if (mutation == "count")
+            {
+                source = new Economy(f.Catalogue, f.Rules);
+                source.AddPlayer(0, f.Binding.Seats[0].Team);
+            }
+            else if (mutation == "roster")
+            {
+                source = new Economy(f.Catalogue, f.Rules);
+                for (int i = 0; i < f.Binding.Seats.Count; i++) source.AddPlayer(i, f.Binding.Seats[i].Team + 1);
+            }
+            else if (mutation == "slot") source.Player(0).Slots[0] = 0;
+            else if (mutation == "reservation") source.Player(0).Reserved.Add('X');
+            else if (mutation == "craft")
+            {
+                TestData.GiveLetters(source, 0, "BAT");
+                Assert.IsTrue(source.BeginCraft(0, "BAT", 0).Ok);
+                source.Player(0).Craft.ReadyAt = -1;
+            }
+            else if (mutation == "ownership")
+            {
+                var item = TestData.Craft(source, 0, "BAT");
+                source.Player(1).Slots[0] = item.Id;
+            }
+            else source.Player(0).Letters.Add('X');
+            var malformed = source.Capture();
+            var destination = Destination(f);
+            TestData.Craft(destination, 0, "BAT");
+            int notifications = 0;
+            destination.ItemChanged += _ => notifications++;
+            string destinationBytes = MatchSnapshotCodec.Export(WithEconomy(original, destination.Capture()));
+            var failure = Assert.Throws<ArgumentException>(() => destination.Restore(malformed));
+            Assert.AreEqual("Invalid economy snapshot: " + expected + ".", failure.Message);
+            Assert.AreEqual(destinationBytes, MatchSnapshotCodec.Export(WithEconomy(original, destination.Capture())));
+            Assert.AreEqual(0, notifications);
+            f.Resources.Clear();
+            var competing = WithEconomy(f.Snapshot(), malformed);
+            string malformedBytes = MatchSnapshotCodec.Export(competing);
+            for (int i = 0; i < 2; i++)
+                Assert.AreEqual(failure.Message, MatchStateValidation.Validate(competing, f.Binding, f.Mode,
+                    f.Course, f.Catalogue, f.Rules));
+            Assert.AreEqual(malformedBytes, MatchSnapshotCodec.Export(competing));
+            Assert.AreEqual(originalBytes, MatchSnapshotCodec.Export(original));
+            Assert.AreEqual("", MatchStateValidation.Validate(original, f.Binding, f.Mode, f.Course, f.Catalogue, f.Rules));
+        }
+
         [Test]
         public void CanonicalCountsRetainDestroyedItemsAtTheLimitAndSeparateCollectedLetters()
         {
