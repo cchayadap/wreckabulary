@@ -172,28 +172,7 @@ namespace Wreckabulary.Online.Tests
         public void DisconnectedPartyCardFitsActualMeasuredContentWithoutChangingItDuringRepaint(int width)
         {
             window.position = new Rect(100, 100, width, 800);
-            var observations = new List<(int Layout, Vector4 Metrics)>();
-            window.AfterRepaint = () => {
-                Rect drawn = Get<Rect>(menu, "partyRect");
-                if (observations.Count > 0 && observations[observations.Count - 1].Layout == window.Layouts)
-                    observations.RemoveAt(observations.Count - 1);
-                if (observations.Count == 16) observations.RemoveAt(0);
-                observations.Add((window.Layouts, new Vector4(drawn.width, drawn.height, Get<float>(menu, "guestHeight"),
-                    Get<float>(menu, "partyViewportHeight"))));
-            };
-            for (int i = 0; i < 12; i++) { Draw(EventType.Layout); Draw(EventType.Repaint); }
-            window.AfterRepaint = null;
-            string trace = string.Join(" | ", observations.Select(value =>
-                $"layout={value.Layout},width={value.Metrics.x},card={value.Metrics.y},measured={value.Metrics.z},scroll={value.Metrics.w}"));
-            TestContext.WriteLine("WORDBOUND_PARTY_CARD_LAYOUT: requestedWidth=" + width + "; " + trace);
-            Assert.GreaterOrEqual(observations.Count, 3, "Observe actual rendered layout convergence: " + trace);
-            var settled = observations.Skip(observations.Count - 3).Select(value => value.Metrics).ToArray();
-            foreach (var value in settled)
-            {
-                Assert.AreEqual(settled[0].y, value.y, .5f, "The narrow card must stop changing height: " + trace);
-                Assert.AreEqual(value.z, value.y, .5f, "The settled card must fit its current measured content: " + trace);
-            }
-            Rect before = Get<Rect>(menu, "partyRect");
+            Rect before = StablePartyCard(width);
             float measured = Get<float>(menu, "guestHeight");
             Assert.AreEqual(width, window.position.width, 1, "The native window must use the requested test width.");
             var styles = Get<WordboundUiStyles>(menu, "ui");
@@ -220,6 +199,84 @@ namespace Wreckabulary.Online.Tests
             Draw(EventType.Repaint);
             Assert.IsTrue(checkedRepaint, "The same-event guard must actually execute.");
             Assert.IsEmpty(http.Requests);
+        }
+
+        [Test]
+        public void DisconnectedCardReflowsAfterResizeAndThemedErrorScrollThenShrinksWithoutClippingActions()
+        {
+            var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+            try
+            {
+                window.position = new Rect(100, 100, 420, 600);
+                Rect narrow = StablePartyCard(420);
+                window.position = new Rect(100, 100, 700, 600);
+                Rect wide = StablePartyCard(700);
+                Assert.LessOrEqual(wide.height, narrow.height);
+                theme.BodySize = 18; theme.Padding = 20; theme.RowHeight = 42;
+                menu.Theme = theme;
+                window.position = new Rect(100, 100, 420, 600);
+                Set(menu, "localError", string.Join(" ", Enumerable.Repeat("Connection could not finish. Please try again.", 30)));
+                Rect overflow = StablePartyCard(420, true);
+                window.SendEvent(new Event { type = EventType.ScrollWheel, mousePosition = overflow.center,
+                    delta = new Vector2(0, 100) });
+                Draw(EventType.Layout); Draw(EventType.Repaint);
+                Assert.Greater(Get<Vector2>(menu, "scroll").y, 0, "Overflow must remain scrollable through the actual GUI event.");
+                Set(menu, "localError", null);
+                Rect smaller = StablePartyCard(420);
+                Assert.Less(smaller.height, overflow.height, "Clearing content must release height rather than preserve a maximum.");
+                Assert.AreEqual(Vector2.zero, Get<Vector2>(menu, "scroll"));
+                Assert.IsEmpty(http.Requests);
+                Assert.IsTrue(theme, "The assigned theme remains borrowed.");
+            }
+            finally { menu.Theme = null; Object.DestroyImmediate(theme); }
+        }
+
+        Rect StablePartyCard(int width, bool overflow = false)
+        {
+            var observations = new List<(int Layout, Vector4 Metrics)>();
+            window.AfterRepaint = () => {
+                Rect drawn = Get<Rect>(menu, "partyRect");
+                if (observations.Count > 0 && observations[observations.Count - 1].Layout == window.Layouts)
+                    observations.RemoveAt(observations.Count - 1);
+                if (observations.Count == 16) observations.RemoveAt(0);
+                observations.Add((window.Layouts, new Vector4(drawn.width, drawn.height, Get<float>(menu, "guestHeight"),
+                    Get<float>(menu, "partyViewportHeight"))));
+            };
+            try { for (int i = 0; i < 12; i++) { Draw(EventType.Layout); Draw(EventType.Repaint); } }
+            finally { window.AfterRepaint = null; }
+            string trace = string.Join(" | ", observations.Select(value =>
+                $"layout={value.Layout},width={value.Metrics.x},card={value.Metrics.y},measured={value.Metrics.z},scroll={value.Metrics.w}"));
+            TestContext.WriteLine("WORDBOUND_PARTY_CARD_LAYOUT: requestedWidth=" + width + "; overflow=" + overflow + "; " + trace);
+            Assert.GreaterOrEqual(observations.Count, 3, "Observe actual rendered layout convergence: " + trace);
+            var styles = Get<WordboundUiStyles>(menu, "ui");
+            Rect available = styles.MenuRect(window.position.width, window.position.height);
+            Assert.AreEqual(width, window.position.width, 1);
+            var settled = observations.Skip(observations.Count - 3).Select(value => value.Metrics).ToArray();
+            foreach (var value in settled)
+            {
+                Assert.AreEqual(available.width, value.x, 1, "Draw the actual window viewport: " + trace);
+                Assert.AreEqual(settled[0].y, value.y, .5f, "The card must stop changing height: " + trace);
+                if (overflow)
+                {
+                    Assert.AreEqual(available.height, value.y, .5f, "Overflow stays inside the available viewport: " + trace);
+                    Assert.Greater(value.z, value.y, "The control must exercise actual overflow: " + trace);
+                }
+                else Assert.AreEqual(value.z, value.y, .5f, "The settled card must fit its current measured content: " + trace);
+            }
+            Rect card = Get<Rect>(menu, "partyRect");
+            if (!overflow)
+            {
+                foreach (string field in new[] { "guestFirstContentRect", "guestLastContentRect" })
+                {
+                    Rect child = Get<Rect>(menu, field);
+                    Assert.Greater(child.height, 0, field);
+                    Assert.GreaterOrEqual(child.xMin, styles.Panel.padding.left - .5f, field + " left edge");
+                    Assert.GreaterOrEqual(child.yMin, styles.Panel.padding.top - .5f, field + " top edge");
+                    Assert.LessOrEqual(child.xMax, card.width - styles.Panel.padding.right + .5f, field + " right edge");
+                    Assert.LessOrEqual(child.yMax, card.height - styles.Panel.padding.bottom + .5f, field + " bottom edge");
+                }
+            }
+            return card;
         }
 
         [Test]

@@ -32,7 +32,8 @@ namespace Wreckabulary.Online
         Vector2 scroll;
         GUIStyle title, hint;
         Rect partyRect;
-        bool compactPartyLayout;
+        bool compactPartyLayout, compactPartyScroll;
+        Rect guestFirstContentRect, guestLastContentRect;
         float guestHeight = -1, guestWidth = -1;
         int guestStyleGeneration = -1;
         IReadOnlyList<WordboundPublicCourse> mapChoices;
@@ -184,28 +185,38 @@ namespace Wreckabulary.Online
                 if (guestStyleGeneration != ui.Generation || guestWidth != available.width)
                 { guestHeight = -1; guestWidth = available.width; guestStyleGeneration = ui.Generation; }
                 compactPartyLayout = !coordinator.Authenticated && !coordinator.MatchActive;
+                compactPartyScroll = compactPartyLayout && guestHeight > available.height;
                 partyRect = available;
                 if (compactPartyLayout && guestHeight > 0)
                     partyRect.height = Mathf.Clamp(guestHeight, ui.ChromeHeight, available.height);
+                if (compactPartyLayout && !compactPartyScroll) scroll = Vector2.zero;
             }
             GUILayout.BeginArea(partyRect, ui.Panel);
-            scroll = GUILayout.BeginScrollView(scroll);
+            bool scrolling = !compactPartyLayout || compactPartyScroll;
+            if (scrolling) scroll = GUILayout.BeginScrollView(scroll, false, compactPartyLayout);
             if (compactPartyLayout) GUILayout.BeginVertical(GUILayout.ExpandHeight(false));
             DrawPartyContents();
             if (compactPartyLayout)
             {
+                if (Event.current.type == EventType.Repaint) guestLastContentRect = GUILayoutUtility.GetLastRect();
                 GUILayout.EndVertical();
                 if (Event.current.type == EventType.Repaint)
-                    guestHeight = Mathf.Ceil(GUILayoutUtility.GetLastRect().height + ui.Panel.padding.vertical +
-                        GUI.skin.scrollView.margin.vertical + GUI.skin.scrollView.padding.vertical);
+                {
+                    Rect content = GUILayoutUtility.GetLastRect();
+                    float bottom = Mathf.Max(content.yMax, guestLastContentRect.yMax);
+                    guestHeight = Mathf.Ceil(scrolling ? bottom - content.yMin + ui.Panel.padding.vertical +
+                        GUI.skin.scrollView.margin.vertical + GUI.skin.scrollView.padding.vertical : bottom + ui.Panel.padding.bottom);
+                }
             }
-            GUILayout.EndScrollView();
-            if (Event.current.type == EventType.Repaint) partyViewportHeight = Mathf.Max(60, GUILayoutUtility.GetLastRect().height - 16);
+            if (scrolling) GUILayout.EndScrollView();
+            if (Event.current.type == EventType.Repaint) partyViewportHeight = scrolling ?
+                Mathf.Max(60, GUILayoutUtility.GetLastRect().height - 16) : Mathf.Max(1, partyRect.height - ui.Panel.padding.vertical);
             GUILayout.EndArea();
         }
         void DrawPartyContents()
         {
             GUILayout.Label("Wordbound", title);
+            if (compactPartyLayout && Event.current.type == EventType.Repaint) guestFirstContentRect = GUILayoutUtility.GetLastRect();
             GUILayout.Label("Build words. Make tools. Bring your team.", hint);
             if (partyUsesPad) GUILayout.Label("D-pad / left stick: select · A: confirm · B: back · Right stick: scroll", hint);
             if (coordinator.MatchActive)
