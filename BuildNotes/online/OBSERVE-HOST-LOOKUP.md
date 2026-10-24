@@ -1,6 +1,6 @@
 # ObserveHost mechanism lookup
 
-STATUS: SOURCE REVIEW PASS for implementation; separate opt-in measurement added, review pending. No compiler, core, native or probe jobs run.
+STATUS: SOURCE REVIEW PASS for implementation and separate opt-in measurement. No compiler, core, native or probe jobs run.
 
 Authorized scope is a lazy, one-ObserveHost lookup keyed by exact team/lap/puzzle
 identity, with the original queried-key predicate Single failure behavior and
@@ -105,6 +105,12 @@ per-query assertions, exports, physical queries or controller work occur inside.
 No benchmark has been executed here. A separately approved pure projection must
 link the actual helper if .NET allocation evidence is desired, not a copy.
 
+The standalone Original predicate reproduces lookup results/errors but its closure
+allocation shape may differ from ObserveAuthored's enclosing team/site/Reset
+closures. Even calibrated bytes therefore describe this isolated query benchmark,
+not the exact allocations removed from whole ObserveHost. Preserve this limit
+when interpreting a positive construction-inclusive result.
+
 Then repeat the unchanged native public workload and actual six-family progression
 with existing ObserveHost/HostStep scopes. Compare valid complete windows and
 call/state counts, including failures. Inclusive ObserveHost includes fingerprint,
@@ -117,7 +123,10 @@ Source/static only: `git diff --check` passes. Recover_input source-reviewed
 `2d337685` with PASS: exact query/phase order, per-call ref lifetime, predicate
 errors, friend assembly guard and all eight new cases, including the actual
 Advance pose/motion setup. Review is recorded separately in its `b9012927`.
-The Explicit measurement addition is sent for its own independent review.
+Recover_input separately source-reviewed `9e818bfd` with PASS for equal work and
+warmup, alternating order, per-iteration construction, parity/checksum checks,
+sample retention and calibrated-only byte reporting, with the closure-allocation
+limit above. No source change follows either source verdict.
 Compiler, native 22-case fixture, moving-family behavior and performance are NOT RUN.
 Root runs normal R0 and the exact native filter
 `Wreckabulary.Tests.WordboundAuthoredPuzzleContentTests` before accepting the helper,
