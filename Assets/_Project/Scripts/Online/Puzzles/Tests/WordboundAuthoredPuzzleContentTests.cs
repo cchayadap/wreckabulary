@@ -301,6 +301,113 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(retained, MatchSnapshotCodec.Export(before));
         }
 
+        [Test, Explicit("Select this construction-inclusive lookup measurement separately from correctness tests.")]
+        public void MeasureObservationLookupIncludingConstruction()
+        {
+            const int samples = 7, iterations = 64;
+            var frame = ObservationFrame();
+            string retainedHash = MatchSnapshotCodec.ComputeHash(frame);
+            var queries = frame.Progress.Teams.Where(t => !t.Finished).SelectMany(team => observationContent.Plan.Sites
+                .Select(site => (Team: team.Team, Lap: site.Lap, PuzzleId: site.PuzzleId))).ToArray();
+            Assert.AreEqual(144, queries.Length);
+            var expected = queries.Select(q => Original(frame, q.Team, q.Lap, q.PuzzleId)).ToArray();
+            AssertLookupReferences(frame, queries, expected);
+            ulong checksum = RunLookupQueries(frame, queries, iterations, false);
+            Assert.AreEqual(checksum, RunLookupQueries(frame, queries, iterations, true));
+            ControlAllocation();
+            var observations = new LookupMeasurement[samples * 2];
+            for (int sample = 0; sample < samples; sample++)
+                for (int order = 0; order < 2; order++)
+                {
+                    bool indexed = (sample + order) % 2 != 0;
+                    long controlBefore = ControlAllocation();
+                    long allocatedBefore = AllocationCounter();
+                    long started = System.Diagnostics.Stopwatch.GetTimestamp();
+                    ulong consumed = RunLookupQueries(frame, queries, iterations, indexed);
+                    long elapsed = System.Diagnostics.Stopwatch.GetTimestamp() - started;
+                    long allocatedAfter = AllocationCounter();
+                    long controlAfter = ControlAllocation();
+                    observations[sample * 2 + order] = new LookupMeasurement(sample, order, indexed, elapsed,
+                        allocatedBefore < 0 || allocatedAfter < allocatedBefore ? -1 : allocatedAfter - allocatedBefore,
+                        controlBefore, controlAfter, consumed);
+                }
+            Console.WriteLine(FormattableString.Invariant($"WB_OBSERVE_LOOKUP_INPUT: unity={UnityEngine.Application.unityVersion}; runtime={Environment.Version}; mono={Type.GetType("Mono.Runtime") != null}; pointerBytes={IntPtr.Size}; frequency={System.Diagnostics.Stopwatch.Frequency}; mode={observationContent.Mode.Id}; seed={observationContent.Course.Seed}; manifestHash={observationContent.Course.Hash}; bindingHash={frame.Binding.Hash}; stateHash={retainedHash}; mechanisms={frame.Mechanisms.Count}; queriesPerIteration={queries.Length}; samplesPerPath={samples}; iterationsPerSample={iterations}; warmupIterationsPerPath={iterations}; construction=every-indexed-iteration; scope=lookup-only-inclusive-elapsed-not-cpu-or-FPS"));
+            foreach (var sample in observations)
+            {
+                bool calibrated = sample.BeforeControl >= 65536 && sample.AfterControl >= 65536 && sample.Bytes > 0;
+                string bytes = calibrated ? sample.Bytes.ToString(System.Globalization.CultureInfo.InvariantCulture) : "unavailable";
+                Console.WriteLine(FormattableString.Invariant($"WB_OBSERVE_LOOKUP_SAMPLE: sample={sample.Sample}; order={sample.Order}; path={(sample.Indexed ? "indexed" : "original")}; elapsedTicks={sample.Elapsed}; elapsedMs={sample.Elapsed * 1000d / System.Diagnostics.Stopwatch.Frequency:F6}; checksum={sample.Checksum}; allocatedBytes={bytes}; calibrated={calibrated}; controlPayloadBytes=65536; controlBeforeCounterDelta={sample.BeforeControl}; controlAfterCounterDelta={sample.AfterControl}; allocationScope=current-thread-managed-counter-no-Unity-runtime-byte-inference-when-unavailable"));
+            }
+            foreach (var sample in observations)
+            {
+                Assert.AreEqual(checksum, sample.Checksum);
+                Assert.Greater(sample.Elapsed, 0);
+            }
+            AssertLookupReferences(frame, queries, expected);
+            Assert.AreEqual(retainedHash, MatchSnapshotCodec.ComputeHash(frame));
+            Assert.AreEqual("", MatchStateValidation.Validate(frame, frame.Binding, observationContent.Mode,
+                observationContent.Course, observationContent.Items, observationContent.Rules));
+        }
+
+        static void AssertLookupReferences(MatchSnapshot frame, (int Team, int Lap, string PuzzleId)[] queries,
+            MatchMechanismState[] expected)
+        {
+            var lookup = new WordboundPuzzleRuntime.AuthoredMechanismLookup(frame);
+            for (int i = 0; i < queries.Length; i++)
+            {
+                var q = queries[i];
+                Assert.AreSame(expected[i], Original(frame, q.Team, q.Lap, q.PuzzleId));
+                Assert.AreSame(expected[i], lookup.Single(q.Team, q.Lap, q.PuzzleId));
+            }
+        }
+
+        static ulong RunLookupQueries(MatchSnapshot frame, (int Team, int Lap, string PuzzleId)[] queries,
+            int iterations, bool indexed)
+        {
+            ulong checksum = 0;
+            for (int iteration = 0; iteration < iterations; iteration++)
+                if (indexed)
+                {
+                    var lookup = new WordboundPuzzleRuntime.AuthoredMechanismLookup(frame);
+                    foreach (var q in queries) checksum = ConsumeLookup(checksum, lookup.Single(q.Team, q.Lap, q.PuzzleId));
+                }
+                else foreach (var q in queries) checksum = ConsumeLookup(checksum, Original(frame, q.Team, q.Lap, q.PuzzleId));
+            return checksum;
+        }
+
+        static ulong ConsumeLookup(ulong checksum, MatchMechanismState state) => unchecked(checksum * 1099511628211UL +
+            (uint)(state.Team * 10 + state.Lap) + (uint)state.PuzzleId.Length + (ulong)state.Physical.MotionUnits + (state.Solved ? 1UL : 0UL));
+
+        static long AllocationCounter()
+        {
+            try { return GC.GetAllocatedBytesForCurrentThread(); }
+            catch (NotSupportedException) { return -1; }
+        }
+
+        static long ControlAllocation()
+        {
+            long before = AllocationCounter();
+            var payload = new byte[65536];
+            payload[0] = 1;
+            long after = AllocationCounter();
+            GC.KeepAlive(payload);
+            return before < 0 || after < before ? -1 : after - before;
+        }
+
+        readonly struct LookupMeasurement
+        {
+            internal readonly int Sample, Order;
+            internal readonly bool Indexed;
+            internal readonly long Elapsed, Bytes, BeforeControl, AfterControl;
+            internal readonly ulong Checksum;
+            internal LookupMeasurement(int sample, int order, bool indexed, long elapsed, long bytes,
+                long beforeControl, long afterControl, ulong checksum)
+            {
+                Sample = sample; Order = order; Indexed = indexed; Elapsed = elapsed; Bytes = bytes;
+                BeforeControl = beforeControl; AfterControl = afterControl; Checksum = checksum;
+            }
+        }
+
         MatchSnapshot ObservationFrame() => observationFrame ??= ObservationMatch().Capture(1);
 
         AuthoritativeMatch ObservationMatch()

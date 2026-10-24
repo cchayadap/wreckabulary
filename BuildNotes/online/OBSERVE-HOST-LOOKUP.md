@@ -1,6 +1,6 @@
 # ObserveHost mechanism lookup
 
-STATUS: IN PROGRESS — source implementation; no compiler, core, native or probe jobs run.
+STATUS: SOURCE REVIEW PASS for implementation; separate opt-in measurement added, review pending. No compiler, core, native or probe jobs run.
 
 Authorized scope is a lazy, one-ObserveHost lookup keyed by exact team/lap/puzzle
 identity, with the original queried-key predicate Single failure behavior and
@@ -84,11 +84,26 @@ Retain every sample and report iteration/query counts, inputs and runtime.
 This removes repeated scanning but adds a per-call lookup with groups/arrays, so
 lower allocation is not assumed. Unity Mono previously returned ineffective zero
 thread-allocation counters; do not treat that as zero allocation or reuse that
-unsupported byte comparison. A root-approved allocation recorder must first pass
-a positive byte control and expose its overhead/window; otherwise label bytes
-unavailable and retain elapsed data. No benchmark is added or executed in this
-source-only slice. A separately approved pure projection must link the actual
-helper if .NET allocation evidence is desired, not benchmark a copied algorithm.
+unsupported byte comparison as supported evidence. Root subsequently authorized
+the bounded Explicit test `MeasureObservationLookupIncludingConstruction` in the
+existing fixture. It warms each path for 64 iterations, then takes seven samples
+per path of 64 iterations each, alternates which path goes first, and constructs
+a fresh lazy lookup inside every indexed iteration. The exact 144-query sequence
+comes from the actual initial flagship frame/plan; both paths consume the same
+state fields into a retained checksum. Exact-reference parity and frame hash/full
+validation checks stay outside timing. All raw elapsed/checksum samples print
+before assertions, with runtime/count/input metadata and Stopwatch frequency.
+
+Each measured path is bracketed by retained 65,536-byte positive controls. Managed
+bytes are printed only if both controls return at least the payload and the
+measured counter delta is positive; otherwise they are explicitly unavailable.
+Raw control deltas remain visible, including Mono's known ineffective zero. No
+allocation or elapsed improvement threshold is imposed: this case measures the
+construction tradeoff, and it must not turn unavailable bytes into zero/pass.
+Only lookup execution, construction and equal checksum work are timed; no
+per-query assertions, exports, physical queries or controller work occur inside.
+No benchmark has been executed here. A separately approved pure projection must
+link the actual helper if .NET allocation evidence is desired, not a copy.
 
 Then repeat the unchanged native public workload and actual six-family progression
 with existing ObserveHost/HostStep scopes. Compare valid complete windows and
@@ -98,10 +113,18 @@ evaluations are not measured cost savings, exclusive CPU or FPS evidence.
 
 ## Remaining verification
 
-Source/static only: `git diff --check` passes. Independent source review is pending.
+Source/static only: `git diff --check` passes. Recover_input source-reviewed
+`2d337685` with PASS: exact query/phase order, per-call ref lifetime, predicate
+errors, friend assembly guard and all eight new cases, including the actual
+Advance pose/motion setup. Review is recorded separately in its `b9012927`.
+The Explicit measurement addition is sent for its own independent review.
 Compiler, native 22-case fixture, moving-family behavior and performance are NOT RUN.
 Root runs normal R0 and the exact native filter
 `Wreckabulary.Tests.WordboundAuthoredPuzzleContentTests` before accepting the helper,
 then selects the existing physical/CLOCK and same public comparison with unchanged
 deadlines/environment. No core projection includes this Unity Puzzles assembly;
 an engine-free core pass alone cannot validate these new tests or friend access.
+
+The fixture has 22 ordinary correctness cases plus one Explicit measurement case.
+Select the latter by its exact full method name when root schedules an isolated
+measurement window; do not mix its work with the public/physical comparison.
