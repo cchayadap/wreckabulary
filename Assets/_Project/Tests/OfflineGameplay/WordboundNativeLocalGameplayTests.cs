@@ -106,7 +106,7 @@ namespace Wreckabulary.OfflineGameplayTests
             bool initialKeepsakeObserved = false;
             Exception initialKeepsakeError = null;
             controller.FrameChanged += snapshot => {
-                if (atomicCase != "initial-keepsake" || initialKeepsakeObserved) return;
+                if (atomicCase != "initial-keepsake" || initialKeepsakeObserved || controller.PhysicsWorld == null) return;
                 initialKeepsakeObserved = true;
                 try { CheckInitialKeepsake(snapshot); }
                 catch (Exception error) { initialKeepsakeError = error; }
@@ -285,6 +285,7 @@ namespace Wreckabulary.OfflineGameplayTests
         void CheckInitialKeepsake(MatchSnapshot snapshot)
         {
             Assert.AreEqual(0, snapshot.Progress.Tick);
+            Assert.IsTrue(controller.IsSimulationPaused, "Check the first applied native frame before host simulation is enabled.");
             UnityEngine.Physics.SyncTransforms();
             var canonical = snapshot.Bodies.Single(b => b.Id == "keepsake:0");
             var keepsake = controller.Bodies[canonical.Id];
