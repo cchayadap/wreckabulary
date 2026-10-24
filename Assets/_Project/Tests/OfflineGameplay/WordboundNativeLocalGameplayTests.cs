@@ -63,6 +63,9 @@ namespace Wreckabulary.OfflineGameplayTests
         [UnityTest, Category("LocalWordboundGameplay")]
         public IEnumerator AtomicCollisionRegistrationKeepsIsolatedNativePairsAndAbortRecovery() => Run("TimeRun", "collision-pairs");
 
+        [UnityTest, Category("LocalWordboundGameplay")]
+        public IEnumerator PresentationTupleReusePreservesImmediateShapeCallbacksAndVisibility() => Run("Freestyle", "presentation-cache");
+
         IEnumerator Run(string selectedMode, string atomicCase = "")
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_LOCAL_GAMEPLAY") != "1")
@@ -163,6 +166,15 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreNotEqual(UnityEngine.Physics.defaultPhysicsScene, controller.PhysicsWorld.PhysicsScene);
             CollectionAssert.AreEquivalent(controller.Frame.Bodies.Select(b => b.Id), controller.Bodies.Keys);
 
+            if (atomicCase == "presentation-cache")
+            {
+                CheckPresentationTupleReuse(mode, course, geometry, items, rules, prefabs);
+                long tick = controller.Frame.Progress.Tick;
+                yield return Until(() => controller.Frame.Progress.Tick > tick, "Resume after isolated presentation checks", 10);
+                Assert.AreEqual("", controller.Fault);
+                yield break;
+            }
+
             if (atomicCase == "collision-pairs")
             {
                 CheckCollisionRegistrations(mode, course, items, rules, prefabs);
@@ -246,6 +258,126 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual(originalDraft, draft.RecoveryJson, "Playtest must not rewrite the authored document or seed.");
             Assert.IsFalse(session.Runner.IsCloudReady);
             Debug.Log("WORDBOUND_LOCAL_OBSERVED: exact workshop manifest, native bodies, local movement/jump and validated memory checkpoint; cleanup pending.");
+        }
+
+        void CheckPresentationTupleReuse(ModeDefinition mode, ResolvedCourse course, CourseCatalogue geometry,
+            ItemCatalogue items, GameRules rules, WordboundGameplayPrefabs prefabs)
+        {
+            var snapshot = controller.Frame;
+            var runner = session.Runner;
+            var created = new List<NetworkObject>();
+            var world = new WordboundPhysicsWorld(runner, snapshot.Binding, mode, course, items, rules,
+                peer => peer == runner.LocalPlayer ? Actor : null, () => true);
+            WordboundGameplayBody observed = null;
+            Action<WordboundGameplayBody> callback = null;
+            WordboundGameplayBody Add(WorldBodyState state)
+            {
+                PlayerRef peer = state.Kind == WorldBodyKind.Player ? runner.LocalPlayer : PlayerRef.None;
+                var obj = runner.Spawn(prefabs.For(state.Kind), new Vector3(state.Position.X, state.Position.Y, state.Position.Z),
+                    new Quaternion(state.RotationXyz.X, state.RotationXyz.Y, state.RotationXyz.Z, state.RotationW),
+                    peer == PlayerRef.None ? (PlayerRef?)null : peer);
+                Assert.IsNotNull(obj); created.Add(obj);
+                var body = obj.GetComponent<WordboundNetworkBody>();
+                world.Register(body, state, peer);
+                var view = obj.GetComponent<WordboundGameplayBody>();
+                Assert.IsNotNull(view);
+                Assert.AreEqual(0, view.SuccessfulPresentationValidations, "An unconfigured spawn must not reuse a prior validation.");
+                return view;
+            }
+            try
+            {
+                var context = new WordboundPresentationContext(snapshot, course, geometry, items);
+                var item = snapshot.Bodies.First(body => body.Kind == WorldBodyKind.Item && body.Active);
+                observed = Add(item);
+                var original = context.Presentation(item);
+                var expected = original;
+                Assert.IsNotNull(observed.VisualRoot);
+                var rendered = new GameObject("Presentation cache renderer").AddComponent<MeshRenderer>();
+                rendered.transform.SetParent(observed.VisualRoot, false);
+                rendered.enabled = false;
+                int callbacks = 0;
+                bool throwOnce = false, reenterOnce = false;
+                var failure = new FormatException("presentation callback sentinel");
+                callback = view => {
+                    callbacks++;
+                    Assert.AreSame(observed, view);
+                    Assert.AreEqual(expected.VisualKey, view.VisualKey.ToString());
+                    Assert.AreEqual(expected.CarrierSeat, view.CarrierSeat);
+                    Assert.AreEqual(new Vector3(expected.Size.X, expected.Size.Y, expected.Size.Z), view.GetComponent<BoxCollider>().size);
+                    if (callbacks == 1) Assert.IsFalse(rendered.enabled, "Shape and callback precede the visibility loop.");
+                    if (throwOnce) { throwOnce = false; throw failure; }
+                    if (reenterOnce) { reenterOnce = false; view.Configure(expected); }
+                };
+                observed.PresentationChanged += callback;
+                observed.Configure(expected);
+                Assert.AreEqual(1, observed.SuccessfulPresentationValidations);
+                Assert.AreEqual(1, callbacks); Assert.IsTrue(rendered.enabled);
+                for (int i = 0; i < 4; i++)
+                {
+                    observed.Configure(expected); observed.FixedUpdateNetwork();
+                    rendered.enabled = false; observed.Render();
+                    Assert.IsTrue(rendered.enabled, "An unchanged tuple must still restore current visibility.");
+                }
+                Assert.AreEqual(1, observed.SuccessfulPresentationValidations); Assert.AreEqual(1, callbacks);
+                var nested = new GameObject("Late presentation renderer").AddComponent<MeshRenderer>();
+                nested.transform.SetParent(rendered.transform, false); nested.enabled = false;
+                observed.Render(); Assert.IsTrue(nested.enabled, "Nested replacement discovery remains live.");
+                observed.Body.ApplyCanonical(item.At(item.Position, active: false)); observed.Render();
+                Assert.IsFalse(rendered.enabled); Assert.IsFalse(nested.enabled);
+                observed.Body.ApplyCanonical(item); observed.Render();
+                Assert.IsTrue(rendered.enabled); Assert.IsTrue(nested.enabled);
+                Assert.AreEqual(1, observed.SuccessfulPresentationValidations);
+
+                expected = new WordboundBodyPresentation(original.Size, original.VisualKey, 0);
+                observed.Configure(expected);
+                Assert.AreEqual(2, observed.SuccessfulPresentationValidations); Assert.AreEqual(2, callbacks);
+                float nextX = BitConverter.Int32BitsToSingle(BitConverter.SingleToInt32Bits(original.Size.X) + 1);
+                expected = new WordboundBodyPresentation(new WorldVector(nextX, original.Size.Y, original.Size.Z), original.VisualKey, 0);
+                observed.Configure(expected);
+                Assert.AreEqual(nextX, observed.GetComponent<BoxCollider>().size.x);
+                Assert.AreEqual(3, observed.SuccessfulPresentationValidations); Assert.AreEqual(2, callbacks);
+                expected = new WordboundBodyPresentation(expected.Size, "letter:Q", 0);
+                observed.Configure(expected);
+                Assert.AreEqual(4, observed.SuccessfulPresentationValidations); Assert.AreEqual(3, callbacks);
+                expected = original; observed.Configure(expected);
+                Assert.AreEqual(5, observed.SuccessfulPresentationValidations); Assert.AreEqual(4, callbacks);
+
+                expected = new WordboundBodyPresentation(original.Size, original.VisualKey, 1);
+                throwOnce = true; rendered.enabled = false;
+                Assert.AreSame(failure, Assert.Throws<FormatException>(() => observed.Configure(expected)));
+                Assert.IsFalse(rendered.enabled, "Callback exceptions must still stop the later visibility loop.");
+                Assert.AreEqual(6, observed.SuccessfulPresentationValidations); Assert.AreEqual(5, callbacks);
+                observed.Configure(expected);
+                Assert.IsTrue(rendered.enabled);
+                Assert.AreEqual(6, observed.SuccessfulPresentationValidations); Assert.AreEqual(5, callbacks);
+                expected = new WordboundBodyPresentation(original.Size, original.VisualKey, 2);
+                reenterOnce = true; observed.Configure(expected);
+                Assert.AreEqual(7, observed.SuccessfulPresentationValidations); Assert.AreEqual(6, callbacks);
+
+                var player = Add(snapshot.Bodies.Single(body => body.Kind == WorldBodyKind.Player));
+                var playerPresentation = new WordboundBodyPresentation(new WorldVector(.6f, 1.8f, .6f), "player");
+                player.Configure(playerPresentation);
+                var badCapsule = new WordboundBodyPresentation(new WorldVector(.7f, 1.8f, .6f), "player");
+                const string shapeError = "Player capsule differs from its canonical shape.";
+                Assert.AreEqual(shapeError, Assert.Throws<InvalidOperationException>(() => player.Configure(badCapsule)).Message);
+                Assert.AreEqual(shapeError, Assert.Throws<InvalidOperationException>(() => player.Configure(badCapsule)).Message);
+                Assert.AreEqual(2, player.SuccessfulPresentationValidations, "Pure tuple validity must not cache collider success.");
+                player.Configure(playerPresentation);
+                Assert.AreEqual(3, player.SuccessfulPresentationValidations);
+                Assert.AreEqual(.3f, player.GetComponent<CapsuleCollider>().radius);
+
+                observed.PresentationChanged -= callback;
+                var retired = observed.Object; runner.Despawn(retired); created.Remove(retired); observed = null;
+                var replacement = Add(item); replacement.Configure(original);
+                Assert.AreEqual(1, replacement.SuccessfulPresentationValidations);
+                Debug.Log("WORDBOUND_PRESENTATION_TUPLE: actual isolated spawned bodies; exact tuple reuse, immediate shape/callback, exception/reentry, nested visibility and new spawn observed; no allocation/timing claim.");
+            }
+            finally
+            {
+                if (observed != null && callback != null) observed.PresentationChanged -= callback;
+                world.Dispose();
+                foreach (var obj in created) if (obj != null && obj.IsValid) runner.Despawn(obj);
+            }
         }
 
         void CheckCollisionRegistrations(ModeDefinition mode, ResolvedCourse course, ItemCatalogue items,

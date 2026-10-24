@@ -1,6 +1,6 @@
 # Reconciliation versus render-frame work
 
-STATUS: IN PROGRESS — source-only audit and proposal. No production edit or job.
+STATUS: IN PROGRESS — approved tuple-only implementation source-ready; independent review pending. No jobs.
 
 Evidence is the exact PublicTeamRacePreservesWholeSoloParties output in root
 TestResults/editmode_20261024T010750Z.xml, source95219ddd, with current root source
@@ -28,7 +28,7 @@ all invocations on the owner thread, not only Reconcile. Native test subscribers
 are not the Windows HUD/artwork subscribers, so tiny native FrameChanged time
 does not establish the cost of rendered client presentation.
 
-The measured context/view work is about5.45% of inclusive Reconcile time in this
+The measured context/view work is about 5.45% of inclusive Reconcile time in this
 case. Its marker does **not** cover GameplayBody.Configure/Apply, artwork callbacks,
 renderer scans, or ApplyFrame. No dominant visual cost can be inferred from it.
 
@@ -81,7 +81,8 @@ hierarchy invalidation at every replacement/reparent plus state restoration
 boundaries, or initially a reusable GetComponentsInChildren list retaining every
 scan/visit but removing result-array allocation. The latter is narrower but must
 not be described as eliminating hierarchy traversal. Independent Input proposal
-review requested before choosing the scope; no such source change yet.
+review requested before choosing the scope. The later approved checkpoint below
+keeps all renderer scans and visits unchanged.
 
 ## Comparison requirements
 
@@ -94,3 +95,46 @@ positive byte calibration where supported and full raw samples. Current native
 markers cannot isolate GameplayBody.Apply, which runs at multiple sites; a bounded
 opt-in scope is justified only if requested for attribution. No measured saving,
 FPS result or online-stall fix is established by this source proposal.
+
+## Approved implementation checkpoint
+
+Root and Input agreed the tuple-only boundary. The implementation is limited to
+`WordboundGameplayBody.cs` and one case in the existing
+`WordboundNativeLocalGameplayTests.cs`. Both baseline files matched root aea79369
+exactly (no baseline-copy commit). Their SHA256 values were respectively
+`5405C7139DA2EC399AA46D6B899764E4509AABBCEEC3405C0EDCB172C0AE666A` and
+`7BF6AC2AB325932169BEA276153975DAC09CA5EDF535D96026406733E77EF0CD`.
+
+The cache holds a copied NetworkString, exact Vector3.Equals size, carrier, and
+the resulting string from a successful scalar validation. Cache state is separate
+from applied shape/key/carrier bookkeeping. A failed scalar validation cannot
+mark its tuple valid; collider and callback failures retain the original retry
+behavior because their checks/bookkeeping are unchanged. Spawned invalidates the
+scalar cache for a fresh/reused component lifetime. No networked fields changed.
+The existing hierarchy scan and renderer visit still occur on every Apply;
+renderer replacement and external visibility correction therefore remain live.
+
+Root authorized an internal successful-validation counter under UNITY_EDITOR
+only, with a matching guarded friend attribute for the existing offline native
+test assembly. This has no public runtime API or player telemetry. It proves
+the repeated tuple takes the cached branch; it is not a byte-allocation measure.
+
+The single new case
+`Wreckabulary.OfflineGameplayTests.WordboundNativeLocalGameplayTests.PresentationTupleReusePreservesImmediateShapeCallbacksAndVisibility`
+returns the existing Run iterator directly. It uses actual isolated spawned
+prefabs and host field writes, plus immediate scalar/collider/callback readbacks.
+Repeated Configure/FixedUpdateNetwork/Render calls retain current active state and
+discover a late nested renderer. Exact next-float size, key, carrier, return to a
+prior tuple, callback failure/reentry and repeat invalid capsule shape all have
+behavior and counter assertions. A despawn/new spawn begins without a prior tuple
+validation. Existing live controller bodies are never rebound or modified; the
+secondary world and spawned bodies are disposed before any yield, followed by
+observed progress of the original controller.
+
+Remaining limits: this local case does not inject malformed replicated wire data,
+prove a remote replication rollback, or force the SDK to reuse one pooled instance.
+Those are source-contract/lifetime claims until separately exercised. Changed
+tuples still take the original validation; no overall validation skip is implied.
+The complete local fixture now has 11 cases, all requiring WORDBOUND_LOCAL_GAMEPLAY=1.
+R0, native case/full local fixture and measured Windows/public comparisons remain
+root-owned and NOT RUN by this lane. Independent exact-diff source review pending.

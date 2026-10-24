@@ -4,6 +4,10 @@ using Fusion.Addons.Physics;
 using UnityEngine;
 using Wreckabulary.Rules.Wordbound;
 
+#if UNITY_EDITOR
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Wreckabulary.Offline.NativeGameplay.Tests")]
+#endif
+
 namespace Wreckabulary.Online
 {
     [DisallowMultipleComponent]
@@ -18,6 +22,14 @@ namespace Wreckabulary.Online
         Vector3 appliedSize;
         string appliedKey;
         int appliedCarrier = -2;
+        bool hasValidated;
+        Vector3 validatedSize;
+        NetworkString<_64> validatedKey;
+        int validatedCarrier;
+        string validatedKeyText;
+#if UNITY_EDITOR
+        internal int SuccessfulPresentationValidations { get; private set; }
+#endif
         public WordboundNetworkBody Body => body != null ? body : body = GetComponent<WordboundNetworkBody>();
         public Transform VisualRoot => GetComponent<NetworkRigidbody>().InterpolationTarget;
         public event Action<WordboundGameplayBody> PresentationChanged;
@@ -30,15 +42,33 @@ namespace Wreckabulary.Online
             Apply();
         }
 
-        public override void Spawned() { if (ShapeSize.x > 0) Apply(); }
+        public override void Spawned()
+        {
+            hasValidated = false;
+#if UNITY_EDITOR
+            SuccessfulPresentationValidations = 0;
+#endif
+            if (ShapeSize.x > 0) Apply();
+        }
         public override void FixedUpdateNetwork() { if (ShapeSize.x > 0) Apply(); }
         public override void Render() { if (ShapeSize.x > 0) Apply(); }
 
         void Apply()
         {
             var size = ShapeSize;
-            var key = VisualKey.ToString();
-            _ = new WordboundBodyPresentation(new WorldVector(size.x, size.y, size.z), key, CarrierSeat);
+            var networkKey = VisualKey;
+            int carrier = CarrierSeat;
+            if (!hasValidated || !size.Equals(validatedSize) || !networkKey.Equals(validatedKey) || carrier != validatedCarrier)
+            {
+                string text = networkKey.ToString();
+                _ = new WordboundBodyPresentation(new WorldVector(size.x, size.y, size.z), text, carrier);
+                validatedSize = size; validatedKey = networkKey; validatedCarrier = carrier;
+                validatedKeyText = text; hasValidated = true;
+#if UNITY_EDITOR
+                SuccessfulPresentationValidations++;
+#endif
+            }
+            var key = validatedKeyText;
             if (!size.Equals(appliedSize))
             {
                 var capsule = GetComponent<CapsuleCollider>();
