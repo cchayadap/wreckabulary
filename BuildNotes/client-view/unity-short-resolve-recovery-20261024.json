@@ -1,0 +1,211 @@
+{
+  "schema": 1,
+  "status": "IN_PROGRESS",
+  "updatedUtc": "2026-10-24T03:19:33.830086+00:00",
+  "sourceBeforeFailedImport": "bace5e5d",
+  "failedProfileGate": {
+    "cmd": "exec Wreckabulary.EditorTools.WordboundBuildProfiles.Create --cold",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-24T03:07:43Z",
+    "secs": 189.3,
+    "route": "cold",
+    "errors": [
+      {
+        "message": "The type or namespace name 'SpriteFrameEditor' does not exist in the namespace 'UnityEditor.U2D.Sprites' (are you missing an assembly reference?)",
+        "code": "CS0234",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModule.cs",
+        "line": 10,
+        "col": 31,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameEditor' does not exist in the namespace 'UnityEditor.U2D.Sprites' (are you missing an assembly reference?)",
+        "code": "CS0234",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModuleView.cs",
+        "line": 2,
+        "col": 31,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeOverlay.cs",
+        "line": 135,
+        "col": 45,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeOverlay.cs",
+        "line": 151,
+        "col": 16,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeOverlay.cs",
+        "line": 17,
+        "col": 14,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeOverlay.cs",
+        "line": 18,
+        "col": 14,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModule.cs",
+        "line": 93,
+        "col": 36,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModule.cs",
+        "line": 173,
+        "col": 9,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeUndoObject' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModule.cs",
+        "line": 30,
+        "col": 9,
+        "severity": "error"
+      },
+      {
+        "message": "'TypeDispatchData' is inaccessible due to its protection level",
+        "code": "CS0122",
+        "file": "Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/ObjectDispatcher/ObjectDispatcher.cs",
+        "line": 8,
+        "col": 21,
+        "severity": "error"
+      },
+      {
+        "message": "'TypeDispatchData' is inaccessible due to its protection level",
+        "code": "CS0122",
+        "file": "Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/ObjectDispatcher/ObjectDispatcher.cs",
+        "line": 14,
+        "col": 45,
+        "severity": "error"
+      },
+      {
+        "message": "'ObjectDispatcher' is inaccessible due to its protection level",
+        "code": "CS0122",
+        "file": "Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/ObjectDispatcher/ObjectDispatcher.cs",
+        "line": 84,
+        "col": 28,
+        "severity": "error"
+      },
+      {
+        "message": "'ObjectDispatcher' is inaccessible due to its protection level",
+        "code": "CS0122",
+        "file": "Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/ObjectDispatcher/ObjectDispatcher.cs",
+        "line": 45,
+        "col": 21,
+        "severity": "error"
+      }
+    ],
+    "failures": [],
+    "log": "Logs/gate_exec_Create_20261024T030743Z.log",
+    "evidence": [],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": null,
+    "messages": [
+      "Scripts have compiler errors."
+    ]
+  },
+  "failedGateLogSha256": "d4eb287dec8f17d434edc100002fd844177197cbe82a33166b224716d9dffbab",
+  "diagnosis": "The new short editor installation is intact for checked pairs; the project reused four incomplete built-in package caches created by the first long-path import.",
+  "recovery": {
+    "manifest": ".harness\\cache-recovery\\20261024T031434Z\\manifest.json",
+    "manifestSha256": "61f71c41c61dcfeff8938be0657e92e06ee6da7bc84235245c5d087df0d7d357",
+    "status": "preserved-and-verified",
+    "finishedUtc": "2026-10-24T03:17:16.5950327Z",
+    "totalFiles": 10255,
+    "totalBytes": 345619813,
+    "entries": [
+      {
+        "source": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.2d.sprite@752945c75a6f",
+        "destination": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\cache-recovery\\20261024T031434Z\\p0",
+        "fileCount": 245,
+        "bytes": 888560.0,
+        "moved": true,
+        "verified": true
+      },
+      {
+        "source": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.render-pipelines.core@285af6b8c83f",
+        "destination": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\cache-recovery\\20261024T031434Z\\p1",
+        "fileCount": 2895,
+        "bytes": 42034325.0,
+        "moved": true,
+        "verified": true
+      },
+      {
+        "source": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.render-pipelines.universal@b0678dfc9e21",
+        "destination": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\cache-recovery\\20261024T031434Z\\p2",
+        "fileCount": 2365,
+        "bytes": 49182980.0,
+        "moved": true,
+        "verified": true
+      },
+      {
+        "source": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageCache\\com.unity.shadergraph@58bcb150677d",
+        "destination": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\cache-recovery\\20261024T031434Z\\p3",
+        "fileCount": 4747,
+        "bytes": 253349737.0,
+        "moved": true,
+        "verified": true
+      },
+      {
+        "source": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageManager\\ProjectCache",
+        "destination": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\cache-recovery\\20261024T031434Z\\r0",
+        "fileCount": 1,
+        "bytes": 140690.0,
+        "moved": true,
+        "verified": true
+      },
+      {
+        "source": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageManager\\ProjectCache.md5",
+        "destination": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\cache-recovery\\20261024T031434Z\\r1",
+        "fileCount": 1,
+        "bytes": 32.0,
+        "moved": true,
+        "verified": true
+      },
+      {
+        "source": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Library\\PackageManager\\projectResolution.json",
+        "destination": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\cache-recovery\\20261024T031434Z\\r2",
+        "fileCount": 1,
+        "bytes": 23489.0,
+        "moved": true,
+        "verified": true
+      }
+    ],
+    "scriptSha256": "3b1c3484c1473009f6ccbd6f9a89c92f409bbf9192c2b7d7339e31ec42f30420",
+    "summaryCounterNote": "The helper terminal aggregate fields returned null due to OrderedDictionary Measure-Object adaptation. Counts here are calculated from the persisted per-entry inventory; all per-file before/after hashes were verified."
+  },
+  "packageHashes": {
+    "Packages\\manifest.json": "db1c638bd54a4bb37306ccaeded26e463fb1ef2a3fc249be09348dfa435196e3",
+    "Packages\\packages-lock.json": "028ab0ccf1da79acc545b2bf9a55a9f26bf5edab950e664cc7d550e138d6a61c"
+  },
+  "limits": [
+    "No cache data deleted; original copies and resolution records retained under .harness.",
+    "No game source, metadata, global caches, package versions or Bee files changed.",
+    "Fresh normal resolution and native compilation remain to be verified."
+  ]
+}
