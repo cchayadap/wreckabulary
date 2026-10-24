@@ -1,0 +1,205 @@
+{
+  "recordedUtc": "2026-10-24T01:41:57.911018+00:00",
+  "launchSource": "eeee132f4d54aacde4b7e013cdd4566f7681a005",
+  "status": {
+    "status": "finished",
+    "wrapperPid": 45032,
+    "startedUtc": "2026-10-24T01:29:59.9274676Z",
+    "finishedUtc": "2026-10-24T01:36:10.6600722Z",
+    "exitCode": 1,
+    "stdout": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\delivery\\candidate-profiles-0130-stdout.log",
+    "stderr": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\.harness\\delivery\\candidate-profiles-0130-stderr.log",
+    "arguments": [
+      "exec",
+      "Wreckabulary.EditorTools.WordboundBuildProfiles.Create",
+      "--cold",
+      "--timeout",
+      "1800",
+      "--json"
+    ]
+  },
+  "gate": {
+    "cmd": "exec Wreckabulary.EditorTools.WordboundBuildProfiles.Create --cold",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-24T01:30:00Z",
+    "secs": 370,
+    "route": "cold",
+    "errors": [
+      {
+        "message": "The type or namespace name 'SpriteFrameEditor' does not exist in the namespace 'UnityEditor.U2D.Sprites' (are you missing an assembly reference?)",
+        "code": "CS0234",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModule.cs",
+        "line": 10,
+        "col": 31,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameEditor' does not exist in the namespace 'UnityEditor.U2D.Sprites' (are you missing an assembly reference?)",
+        "code": "CS0234",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModuleView.cs",
+        "line": 2,
+        "col": 31,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeOverlay.cs",
+        "line": 135,
+        "col": 45,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeOverlay.cs",
+        "line": 151,
+        "col": 16,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModule.cs",
+        "line": 93,
+        "col": 36,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeOverlay.cs",
+        "line": 17,
+        "col": 14,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/Overlay/SpriteFrameModeOverlay.cs",
+        "line": 18,
+        "col": 14,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeToolStripBase' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModule.cs",
+        "line": 173,
+        "col": 9,
+        "severity": "error"
+      },
+      {
+        "message": "The type or namespace name 'SpriteFrameModeUndoObject' could not be found (are you missing a using directive or an assembly reference?)",
+        "code": "CS0246",
+        "file": "Library/PackageCache/com.unity.2d.sprite@752945c75a6f/Editor/SpriteEditorModule/SpriteFrameModule/SpriteFrameModule.cs",
+        "line": 30,
+        "col": 9,
+        "severity": "error"
+      },
+      {
+        "message": "'ObjectDispatcher' is inaccessible due to its protection level",
+        "code": "CS0122",
+        "file": "Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/ObjectDispatcher/ObjectDispatcher.cs",
+        "line": 84,
+        "col": 28,
+        "severity": "error"
+      },
+      {
+        "message": "'ObjectDispatcher' is inaccessible due to its protection level",
+        "code": "CS0122",
+        "file": "Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/ObjectDispatcher/ObjectDispatcher.cs",
+        "line": 45,
+        "col": 21,
+        "severity": "error"
+      },
+      {
+        "message": "'TypeDispatchData' is inaccessible due to its protection level",
+        "code": "CS0122",
+        "file": "Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/ObjectDispatcher/ObjectDispatcher.cs",
+        "line": 8,
+        "col": 21,
+        "severity": "error"
+      },
+      {
+        "message": "'TypeDispatchData' is inaccessible due to its protection level",
+        "code": "CS0122",
+        "file": "Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/ObjectDispatcher/ObjectDispatcher.cs",
+        "line": 14,
+        "col": 45,
+        "severity": "error"
+      }
+    ],
+    "failures": [],
+    "log": "Logs/gate_exec_Create_20261024T013000Z.log",
+    "evidence": [],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": null,
+    "messages": [
+      "Scripts have compiler errors."
+    ]
+  },
+  "editorOverride": "C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/.harness/toolchain/6000.6.4f1/Editor/Unity.exe",
+  "prerequisites": {
+    "R0": "PASS56.2s at012742",
+    "core": "PASS65/65 at012915,34.6s"
+  },
+  "diagnosis": [
+    "13 package compiler errors precede profile validation. The profile method did not run.",
+    "Read-only comparison found missing SpriteFrame metadata and ObjectDispatcher bridge assembly definition in installed BuiltInPackages and cache.",
+    "Candidate Sprite/Core inventories stop at absolute path length259; required missing files reach260-270. Correct short-path installation must be tested before attributing failures to patch API compatibility.",
+    "No package versions, metadata or SDK files patched; no cache deletion. The incomplete install remains preserved."
+  ],
+  "artifacts": [
+    {
+      "path": "Logs/gate_exec_Create_20261024T013000Z.log",
+      "bytes": 417358,
+      "sha256": "33ec5c4a34b269d6b25f927422c84b005b0c12b81614437b7b88eddcc42ef41c"
+    },
+    {
+      "path": "Packages/manifest.json",
+      "bytes": 1757,
+      "sha256": "db1c638bd54a4bb37306ccaeded26e463fb1ef2a3fc249be09348dfa435196e3"
+    },
+    {
+      "path": "Packages/packages-lock.json",
+      "bytes": 12486,
+      "sha256": "028ab0ccf1da79acc545b2bf9a55a9f26bf5edab950e664cc7d550e138d6a61c"
+    },
+    {
+      "path": "ProjectSettings/ProjectVersion.txt",
+      "bytes": 85,
+      "sha256": "a35c2c87870781882617d3e5fa7188e6e5528821fb74c74e29a43c4559f57390"
+    },
+    {
+      "path": "Assets/_Project/Editor/Online/WordboundBuildProfiles.cs",
+      "bytes": 7021,
+      "sha256": "2fbb87a73fa2e3b567b024c7ebdfd3ceb393c0fda54731db0d11961e2f36ce5c"
+    },
+    {
+      "path": ".harness/delivery/candidate-profiles-0130-job.json",
+      "bytes": 201,
+      "sha256": "bf5122abb92c3cfd8429e2b971217d2f06da66058eea43b435f5f8f7730314ac"
+    },
+    {
+      "path": ".harness/delivery/candidate-profiles-0130-status.json",
+      "bytes": 625,
+      "sha256": "163fffd06cf9455c366c0263e7f0493511d123a82ec2d0d5bb9fcd144b8b6e1f"
+    },
+    {
+      "path": ".harness/delivery/candidate-profiles-0130-stdout.log",
+      "bytes": 4468,
+      "sha256": "a1b0f6a2888d1845b26f9950b01ed6c3e906ca090c7bc644ef5484d1fb7b5551"
+    },
+    {
+      "path": ".harness/delivery/candidate-profiles-0130-stderr.log",
+      "bytes": 126,
+      "sha256": "f3104a408e191292bc3a05f6cee434158f34c7d3937cfbfc080757e01b96a021"
+    }
+  ]
+}
