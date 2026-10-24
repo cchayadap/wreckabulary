@@ -25,6 +25,28 @@
       "passed": 307,
       "failed": 0,
       "skipped": 0
+    },
+    {
+      "gate": "R0",
+      "utc": "2026-10-24T02:29:04Z",
+      "verdict": "PASS",
+      "seconds": 11.7,
+      "scope": "Added shipped-seed startup fixture"
+    },
+    {
+      "gate": "R1",
+      "utc": "2026-10-24T02:29:35Z",
+      "verdict": "PASS",
+      "seconds": 10.4,
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "Four currently shipped Freestyle seeds, each with one and eight seats: real flagship content, authority Publish/Import/ACK/Advance",
+      "sourceAtRun": "134b81dfdc12efc42e31df1f8f0c6db30a54a670",
+      "modifiedTest": "Assets/_Project/Tests/Rules/WordboundFlagshipTests.cs",
+      "reviewedBlob": "0e947302506528e748bce085b3056e4fcd5beed8",
+      "limits": "Engine-free startup only; no native contact, deployed public admission or eight-peer execution claim."
     }
   ],
   "toolchain": "Source checks use managed references from the first isolated 6000.6.4f1 installation via process-local GSK_UNITY. Native/editor execution is not accepted from that incomplete install.",
@@ -80,6 +102,31 @@
       "path": "BuildNotes/online/FREESTYLE-KEEPSAKE-PLACEMENT-PLAN.md",
       "bytes": 7614,
       "sha256": "92df2215359cbcd4f681a6275c627803af548374127550f7ff30c065b98c1134"
+    },
+    {
+      "path": "Logs/gate_check_all_20261024T022904Z.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Logs/gate_core_20261024T022935Z.log",
+      "bytes": 532,
+      "sha256": "1eba5cd3fa1bdcaf426daa38a94c044d520c6ff259302e3dc04c6dbff95c9b47"
+    },
+    {
+      "path": "TestResults/core_20261024T022935Z.trx",
+      "bytes": 13493,
+      "sha256": "7479d7669607019eb31f895e8284bfa97ce03a1c888fb4b4ab6378af5506a4e9"
+    },
+    {
+      "path": "Assets/_Project/Tests/Rules/WordboundFlagshipTests.cs",
+      "bytes": 25325,
+      "sha256": "7ad481d22deeef11bbb7a092a3a5d9bc27d5f2556e74dc57e61a8c48a6528357"
+    },
+    {
+      "path": "Assets/_Project/Resources/Wordbound/public-catalogue.json",
+      "bytes": 16202,
+      "sha256": "4633207d08f8acce18ca3463bb86a71b1f3eaba41a2adfd475b46e9e5826ea23"
     }
   ]
 }

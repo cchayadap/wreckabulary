@@ -323,6 +323,42 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(34, course.Geometry.Count); Assert.AreEqual(0, course.Laps.Count);
         }
 
+        [TestCase("0000000000000001", 1)]
+        [TestCase("0000000000000002", 1)]
+        [TestCase("0000000000000003", 1)]
+        [TestCase("0123456789abcdef", 1)]
+        [TestCase("0000000000000001", 8)]
+        [TestCase("0000000000000002", 8)]
+        [TestCase("0000000000000003", 8)]
+        [TestCase("0123456789abcdef", 8)]
+        public void ShippedFreestyleSeedsStartWithAnActiveKeepsakeForOneOrEightPlayers(string seed, int players)
+        {
+            var items = Items();
+            var content = WordboundFlagshipContent.Create(items);
+            var mode = ModeDefinition.For("Freestyle");
+            var rules = mode.CreateGameplayRules(TestData.RulesFor("Dibs"));
+            var course = Resolve(content, "Freestyle", seed: seed);
+            var seats = Enumerable.Range(0, players).Select(i => new WordboundSeat("p" + i, 0, i)).ToArray();
+            var binding = new MatchBinding("flagship-start", MatchSnapshotCodec.ProtocolVersion, mode.Hash,
+                course.SourceHash, course.Hash, new string('a', 64), new string('b', 64), seats);
+            var match = new AuthoritativeMatch(binding, mode, course, content.Geometry, items, rules,
+                new Wreckabulary.Tests.WordboundAuthorityTests.World());
+
+            var stamp = match.PublishSnapshot(out string json);
+            var imported = MatchSnapshotCodec.Import(json, binding, mode, course, items, rules);
+            Assert.IsTrue(imported.Success, imported.Error);
+            var keepsake = imported.Snapshot.Bodies.Single(b => b.Kind == WorldBodyKind.Keepsake);
+            Assert.IsTrue(keepsake.Active);
+            Assert.IsFalse(keepsake.Kinematic);
+            Assert.AreEqual(players, imported.Snapshot.Bodies.Count(b => b.Kind == WorldBodyKind.Player));
+            var firstStart = course.Spawns.First(s => s.Kind == "Start");
+            Assert.IsTrue(course.RecoveryAnchors.Any(a => a.ModuleId == firstStart.ModuleId &&
+                a.AfterPuzzleIds.Count == 0 && keepsake.Position.Equals(new WorldVector(
+                    a.Position.X / 1000f, a.Position.Y / 1000f, a.Position.Z / 1000f))));
+            Assert.IsTrue(match.Acknowledge(stamp));
+            Assert.IsTrue(match.Advance(17).Advanced);
+        }
+
         [TestCase("TimeRun", RaceFormat.Solo)]
         [TestCase("TeamRace", RaceFormat.Solo)]
         [TestCase("TeamRace", RaceFormat.Duo)]
