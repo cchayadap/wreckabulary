@@ -1,0 +1,13 @@
+# Economy validation-only independent review
+
+STATUS: SOURCE PASS for Online `fab3271a1364c3467efac21d12e96191f5bd8097`. Compilation/core/native/performance NOT RUN by this reviewer.
+
+The new internal `Economy.ValidateSnapshot` retains the identical null guard and calls the entire unchanged `ValidateReplacement`. Only the temporary economy in `MatchStateValidation.ValidateEconomy` uses it; public Restore is unchanged. Construction and AddPlayer/roster setup remain before this call, including failures arising from current rules. Both full validation and the fresh post-callback mutable validation use the same helper in their original order.
+
+After ValidateReplacement succeeds, the old Restore tail only cleared and installed the validated replacement's dictionaries and scalar frontiers/counters into the temporary object that the caller immediately discarded. It has no further domain checks, external callbacks or ItemChanged events. This candidate omits that installation; it does not omit replacement construction, defensive copying, recipe/current-rules checks, conservation/ownership validation, or final held-item category checks. No cache or reusable validity token is introduced. Ordinary resource-exhaustion exceptions during the removed dictionary allocation are not claimed to remain byte-identical behavior.
+
+The eleven new cases have meaningful public entry points: one real authority BED collect/reserve/cancel/complete/deploy/consume progression retains and revalidates prior snapshots; seven malformed economy cases compare exact public Restore error messages with full validation despite a later resource error, while retaining destination/snapshot bytes and checking no event; three atomic cases mutate recipe enabled state/letters or inventory capacity in the prepare callback and add a competing health error. They require the economy rejection first, no application, unchanged snapshot bytes, then a restored-dependency successful retry. The existing authority fixture's proof BedBridge route supports this actual consumed-item ledger check; no native traversal is asserted.
+
+The runtime partial and validator share Wreckabulary.Rules; test helpers share the existing Wreckabulary.Rules.Tests assembly despite differing namespaces. Tests do not directly call the new internal method, require a friend/reflection seam, or assign inaccessible setters. Source baseline identities were checked against root 6eed388b; no baseline alignment commit is part of this candidate. `git diff --check` passes.
+
+Root still needs focused EconomySnapshot/AtomicValidation/SnapshotValidation execution and its unchanged measurement. This source review establishes neither an allocation amount nor production FPS improvement.
