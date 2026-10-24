@@ -1,6 +1,6 @@
 # Compact party card — explicit drawing viewport
 
-STATUS: SOURCE PASS after Input's independent bounded review; native and Windows verification NOT RUN for this repair.
+STATUS: SOURCE PASS and native 001905 PASS19/19 for the final repair; fresh Windows visual verification pending. Earlier failures and their repairs remain below.
 
 Native `TestResults/editmode_20261023T234950Z.xml` records 37/39 PASS, no skips. All nine theme cases, twenty phase cases and eight of nine party cases passed. The 420-pixel party case correctly failed its strict drawn-width assertion: expected 396 pixels, actual 620. The 700 case passed. The unrelated TeamSolo admitted movement deadline failed separately. Gate reported no crash; this change does not address networking.
 
@@ -29,3 +29,13 @@ The compact card now draws its measured vertical content directly when it fits t
 Height derives from the actual content group and, if farther down, its actual last child, plus the existing panel and applicable scroll-view chrome. The direct path uses actual bottom plus panel bottom padding, preserving any real top placement from collapsed margins instead of assuming it equals panel top padding. Repaint retains first/last real content rectangles. The fixture independently checks these actual heading/final action-row edges against the panel's padded inner bounds on fitted cards, rather than relying only on equality to the height formula. Existing same-Repaint identity and actual396/620 widths remain strict.
 
 One additional native case exercises narrow→wide resize, a larger borrowed theme plus a long error that must overflow, actual wheel scrolling, and shrinking again after the error clears. Every stage uses the bounded actual-layout convergence trace; fitted stages also check visible child bounds. Required filters now total19 cases: PartyMenuInputTests10 + UiThemeTests9. Input independently reviewed the production correction and added case as SOURCE PASS, including the installed GUILayout overload, fixed branch decisions, direct height coordinates, unchanged controls/deferred input and meaningful native checks. No native/player success is claimed and no jobs were run here.
+
+## Independently read native 001905 — PASS19/19
+
+The actual XML `TestResults/editmode_20261024T001905Z.xml` and matching log/parent record bind source `669b08fe5a626823a3aa50e7156e6f04548aab54`: all ten party and nine theme cases pass, zero failures/skips, test duration41.2638754 s. Gate duration91.4 s, refresh28.8 s, exit0 and no crash. The log ends in normal successful test completion/shutdown.
+
+The actual narrow trace is width396, height404 and measured404 for every retained settled layout5–25; the wider trace is width620, height364 and measured364. The former alternating404/425 feedback is absent in these observations. The resize case reproduces both stable sizes. Its larger-theme long error holds the card at the available552 pixels while measured content settles at1458; the real wheel event assertion passes. After clearing the error, that same larger theme shrinks to518 and stays there across layouts81–102, with scroll reset and actual first/last child edge assertions passing. It does not need to return to404 because the larger font/padding remains assigned.
+
+Same-Repaint geometry identity, borrowed theme/skin ownership, real connected pad actions, explicit pointer handoff, focus/blocker suppression and retry/back cases also pass. These native observations establish bounded layout convergence, content edge containment and exercised input behavior; they are not rendered Windows visual approval, universal custom-theme coverage or production/full-match acceptance. No source or root artifact was edited during this review and no jobs ran in this lane.
+
+Independently recomputed hashes match `native-party-fit-20261024.json`: XML24869 bytes SHA256 `c212e8c7dda9ec4a67b6a3f8e0e5a4d4d7526b954973f68e623ded242964f819`; log60266 bytes SHA256 `adbc28fcb22fbfdd0d3bfc78afde7a9a5b5101b7065b7a5506e26b0ae49e3abc`.
