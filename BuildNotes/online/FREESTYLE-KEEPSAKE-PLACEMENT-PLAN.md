@@ -79,13 +79,21 @@ collider dimensions. A new initial pose is deterministic but differs from old ne
 match construction under the existing contract; no mixed-version equivalence is
 claimed. Restore compatibility is tested explicitly.
 
-Root requested one bounded correction covering initial placement, selected/no-site
+The earlier whole-scope request covered initial placement, selected/no-site
 recovery, voluntary drop and below-course recovery, while preserving exact legacy
 snapshot restoration. This extends the earlier `FREESTYLE-KEEPSAKE-SPAWN-AUDIT.md`
 scope. Initial source overlap is established; actual avatar lift magnitude and
-its causal share remain unproven pending unchanged native diagnostics.
+its causal share remain unproven. Root authorized proceeding from source-confirmed
+overlap and preserved old Windows evidence; a second failing pre-fix build is not
+required. The existing diagnostic will inspect actual post-fix startup.
 
 Current constraints: no arbitrary offset, player teleport, ignored collision pair,
 new general placement framework or unbounded search; authored anchor candidates
 come first. Existing wire fields and construction/Restore route are preferred.
 Root owns policy choice, implementation authorization and all verification.
+
+Independent review strengthened the same rotated-prop case to asymmetric BED
+(2000×1000 mm, yaw90) rather than square-footprint STOOL, so a missing width/depth
+swap would change its result. Native parity also requires GetIgnoreCollision=false
+for the actual player/keepsake pair. These are additive test improvements only;
+runtime bytes remain those in `04e5673a` and execution is still pending.

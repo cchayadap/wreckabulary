@@ -149,12 +149,15 @@ namespace Wreckabulary.Tests
         [Test]
         public void InitialAnchorRespectsRotatedResolvedPropsAndOtherFloorSeparation()
         {
-            var f = Initial(d => d.RecoveryAnchors.Add(new CourseRecovery {
-                Id = "AClearBesideProp", ModuleId = "Start", Position = new CoursePoint(-4200, 0, 3000), RadiusMm = 500
-            }));
+            var f = Initial(d => {
+                d.Zones.Single(z => z.Id == "FixedStool").Pool[0].AssetId = "BED";
+                d.RecoveryAnchors.Add(new CourseRecovery {
+                    Id = "AClearBesideProp", ModuleId = "Start", Position = new CoursePoint(-4000, 0, 3000), RadiusMm = 500
+                });
+            });
             var prop = f.Source.Course.Placements.Single(p => p.ZoneId == "FixedStool");
-            Assert.AreEqual(90, prop.Yaw);
-            Assert.AreEqual(new WorldVector(-4.2f, 0, 3), f.State.Bodies.Single(b => b.Id == "keepsake:0").Position);
+            Assert.AreEqual("BED", prop.AssetId); Assert.AreEqual(90, prop.Yaw);
+            Assert.AreEqual(new WorldVector(-4, 0, 3), f.State.Bodies.Single(b => b.Id == "keepsake:0").Position);
             f.Ack();
             var layered = Create(d => {
                 d.RecoveryAnchors.Add(new CourseRecovery { Id = "AUnderUpperSupply", ModuleId = "Start", Position = new CoursePoint(0, 0, -6000) });

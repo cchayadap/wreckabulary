@@ -305,6 +305,7 @@ namespace Wreckabulary.OfflineGameplayTests
                 Assert.IsNotNull(capsule); Assert.AreEqual(.3f, capsule.radius); Assert.AreEqual(1.8f, capsule.height);
                 Assert.AreEqual(new Vector3(0, .9f, 0), capsule.center); Assert.AreEqual(1, capsule.direction);
                 Assert.AreEqual(Vector3.one, capsule.transform.lossyScale);
+                Assert.IsFalse(UnityEngine.Physics.GetIgnoreCollision(box, capsule), "Clearance must preserve the actual player/keepsake collision policy.");
                 Assert.IsTrue(UnityEngine.Physics.ComputePenetration(box, player.Rigidbody.position, keepsake.Rigidbody.rotation,
                     capsule, player.Rigidbody.position, player.Rigidbody.rotation, out _, out float oldOverlap));
                 Assert.Greater(oldOverlap, 0, "The old shared-root placement really overlaps these loaded native shapes.");
