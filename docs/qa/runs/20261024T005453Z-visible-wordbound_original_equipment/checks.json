@@ -1,0 +1,414 @@
+{
+  "schema": 1,
+  "run_id": "20261024T005453Z-visible-wordbound_original_equipment",
+  "commit": null,
+  "tree": null,
+  "build_id": "20261024T005254Z",
+  "scenario": "wordbound_original_equipment",
+  "seed": 1,
+  "platform": "player",
+  "development_build": false,
+  "unity_version": "6000.6.3f1",
+  "started_utc": "2026-10-24T00:55:19Z",
+  "ended_utc": "2026-10-24T00:55:31Z",
+  "result": "FAIL",
+  "steps": [
+    {
+      "name": "equipment_open",
+      "status": "PASS",
+      "t_s": 9.763421,
+      "probes": {
+        "equipment_manifest": "1480ecb6ea264a34a7cf8961dd1ad99012a8db2e50d3f949d3aabe848b989d6e",
+        "equipment_seed": "0000000000000001",
+        "equipment_catalogue": "3a5550b32385ddfd77ae0625081f173c062910e67efff6b842b80210d00206cd",
+        "equipment_isolated_storage": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\3b98a44192554e59b1ee281260944ec6",
+        "equipment_original_definitions": [
+          {
+            "id": "BAT",
+            "model": "Items/BAT",
+            "canonical_size_metres": [
+              0.172,
+              1.018,
+              0.172
+            ],
+            "held_scale": 0.5894,
+            "authored_grip": [
+              0,
+              0.17,
+              0
+            ]
+          },
+          {
+            "id": "HAMMER",
+            "model": "Items/HAMMER",
+            "canonical_size_metres": [
+              0.345,
+              0.635,
+              0.175
+            ],
+            "held_scale": 0.5669,
+            "authored_grip": [
+              0,
+              0.13,
+              0
+            ]
+          },
+          {
+            "id": "FAN",
+            "model": "Items/FAN",
+            "canonical_size_metres": [
+              0.522,
+              0.821,
+              0.25
+            ],
+            "held_scale": 0.4385,
+            "authored_grip": [
+              0,
+              0.4105,
+              0
+            ]
+          },
+          {
+            "id": "SOFA",
+            "model": "Items/SOFA",
+            "canonical_size_metres": [
+              1.52,
+              0.93,
+              0.813
+            ],
+            "held_scale": 0.2368,
+            "authored_grip": [
+              0,
+              0.465,
+              0.0165
+            ]
+          }
+        ],
+        "equipment_scope": "Actual local Windows Freestyle; QA inspection camera; no remote peers or human-input claim."
+      },
+      "assert_failures": []
+    },
+    {
+      "name": "equipment_world",
+      "status": "PASS",
+      "t_s": 12.128838,
+      "probes": {
+        "wordbound_original_world_facts": {
+          "scope": "Actual local presentation with QA inspection camera; not ordinary camera, multiplayer, GPU timing or art approval.",
+          "canonical_tick": 40,
+          "mode": "Freestyle",
+          "local_actors": 1,
+          "artwork_source": "original_model_library",
+          "profile": "Presentation",
+          "camera_position": [
+            7.5,
+            4.3,
+            -6.5
+          ],
+          "camera_rotation": [
+            17.85475,
+            318.4566,
+            0
+          ],
+          "camera_fov": 48,
+          "camera_callbacks": 27,
+          "last_camera_frame": 33,
+          "right_hand_socket_world": [
+            0.513662,
+            3.14067,
+            -1.145949
+          ],
+          "held_recipe": "",
+          "artwork": [
+            {
+              "visual_key": "player",
+              "original_model": "Avatar/Avatar",
+              "original_mesh_identity": true,
+              "mesh_names": [
+                "SK_Badge_T",
+                "SK_Boots",
+                "SK_Cap",
+                "SK_Crewneck",
+                "SK_Glasses",
+                "SK_Head",
+                "SK_Hood",
+                "SK_Hoodie",
+                "SK_Joggers",
+                "SK_Mittens",
+                "SK_Satchel"
+              ],
+              "world_bounds_center": [
+                -0.00018,
+                3.443741,
+                -1.28781
+              ],
+              "world_bounds_size": [
+                1.334362,
+                1.790283,
+                0.846238
+              ],
+              "visual_root_local_scale": [
+                1,
+                1,
+                1
+              ],
+              "visual_root_world": [
+                -0.00018,
+                2.548599,
+                -1.200401
+              ],
+              "authored_grip_marker_world": null,
+              "material_names": [
+                "ivory_badge",
+                "rubber",
+                "boots_color",
+                "ivory_vinyl",
+                "eyes",
+                "hair",
+                "fabric_main",
+                "fabric_rib",
+                "fabric_main",
+                "fabric_rib",
+                "ivory_badge",
+                "joggers_color",
+                "gloves_color",
+                "ivory_badge",
+                "satchel_canvas",
+                "satchel_straps",
+                "accessory_hardware"
+              ],
+              "shader_names": [
+                "Universal Render Pipeline/Lit"
+              ],
+              "bounds_inside_frame": true,
+              "occlusion_or_hand_contact_visually_approved": false
+            },
+            {
+              "visual_key": "BAT",
+              "original_model": "Items/BAT",
+              "original_mesh_identity": true,
+              "mesh_names": [
+                "BAT"
+              ],
+              "world_bounds_center": [
+                -1.500189,
+                0.509049,
+                0.500198
+              ],
+              "world_bounds_size": [
+                0.172371,
+                1.018132,
+                0.172428
+              ],
+              "visual_root_local_scale": [
+                1,
+                1,
+                1
+              ],
+              "visual_root_world": [
+                -1.500008,
+                0.000049,
+                0.499988
+              ],
+              "authored_grip_marker_world": [
+                -1.500068,
+                0.170049,
+                0.500058
+              ],
+              "material_names": [
+                "wood_light_Classic",
+                "cream_Classic"
+              ],
+              "shader_names": [
+                "Universal Render Pipeline/Lit"
+              ],
+              "bounds_inside_frame": true,
+              "occlusion_or_hand_contact_visually_approved": false
+            },
+            {
+              "visual_key": "HAMMER",
+              "original_model": "Items/HAMMER",
+              "original_mesh_identity": true,
+              "mesh_names": [
+                "HAMMER"
+              ],
+              "world_bounds_center": [
+                1.500006,
+                0.317499,
+                0.500006
+              ],
+              "world_bounds_size": [
+                0.345013,
+                0.635009,
+                0.17501
+              ],
+              "visual_root_local_scale": [
+                1,
+                1,
+                1
+              ],
+              "visual_root_world": [
+                1.5,
+                -0.000001,
+                0.500001
+              ],
+              "authored_grip_marker_world": [
+                1.500003,
+                0.129999,
+                0.500003
+              ],
+              "material_names": [
+                "wood_light_Classic",
+                "wood_dark_Classic",
+                "metal_Classic",
+                "gold_Classic"
+              ],
+              "shader_names": [
+                "Universal Render Pipeline/Lit"
+              ],
+              "bounds_inside_frame": true,
+              "occlusion_or_hand_contact_visually_approved": false
+            },
+            {
+              "visual_key": "FAN",
+              "original_model": "Items/FAN",
+              "original_mesh_identity": true,
+              "mesh_names": [
+                "FAN"
+              ],
+              "world_bounds_center": [
+                3.800003,
+                0.4105,
+                2.200003
+              ],
+              "world_bounds_size": [
+                0.522005,
+                0.821005,
+                0.250005
+              ],
+              "visual_root_local_scale": [
+                1,
+                1,
+                1
+              ],
+              "visual_root_world": [
+                3.8,
+                0,
+                2.200001
+              ],
+              "authored_grip_marker_world": [
+                3.800003,
+                0.4105,
+                2.200003
+              ],
+              "material_names": [
+                "blue_Classic",
+                "metal_Classic",
+                "ivory_Classic",
+                "gold_Classic"
+              ],
+              "shader_names": [
+                "Universal Render Pipeline/Lit"
+              ],
+              "bounds_inside_frame": true,
+              "occlusion_or_hand_contact_visually_approved": false
+            },
+            {
+              "visual_key": "SOFA",
+              "original_model": "Items/SOFA",
+              "original_mesh_identity": true,
+              "mesh_names": [
+                "SOFA"
+              ],
+              "world_bounds_center": [
+                -2,
+                0.465,
+                3.3
+              ],
+              "world_bounds_size": [
+                1.52,
+                0.93,
+                0.813
+              ],
+              "visual_root_local_scale": [
+                1,
+                1,
+                1
+              ],
+              "visual_root_world": [
+                -2,
+                0,
+                3.3
+              ],
+              "authored_grip_marker_world": [
+                -2,
+                0.465,
+                3.3
+              ],
+              "material_names": [
+                "wood_Classic",
+                "green_Classic",
+                "cream_Classic",
+                "wood_dark_Classic"
+              ],
+              "shader_names": [
+                "Universal Render Pipeline/Lit"
+              ],
+              "bounds_inside_frame": true,
+              "occlusion_or_hand_contact_visually_approved": false
+            }
+          ]
+        },
+        "wordbound_original_world_sha256": "298bf4690e9b3eb873995c244e65d48b040a2a6649ca6cab3e2683cfd430e74f",
+        "wordbound_original_world_dimensions": "1280x720"
+      },
+      "assert_failures": [],
+      "captures": [
+        "docs/qa/runs/20261024T005453Z-visible-wordbound_original_equipment/wordbound_original_world.png"
+      ]
+    },
+    {
+      "name": "equipment_bat",
+      "status": "FAIL",
+      "t_s": 12.18348,
+      "probes": {},
+      "assert_failures": [
+        "Actual CollectLetter failed without retry: OutOfReach"
+      ]
+    },
+    {
+      "name": "equipment_hammer",
+      "status": "FAIL",
+      "t_s": 12.195674,
+      "probes": {},
+      "assert_failures": [
+        "The actual crafted BAT capture must complete first."
+      ]
+    },
+    {
+      "name": "equipment_return",
+      "status": "FAIL",
+      "t_s": 12.241735,
+      "probes": {},
+      "assert_failures": [
+        "All three actual captures and clean return to the unchanged inspection draft are required."
+      ]
+    }
+  ],
+  "perf": {},
+  "console": {
+    "errors": 0,
+    "exceptions": 0,
+    "warnings": 0,
+    "first_exception": null
+  },
+  "captures": [
+    {
+      "name": "wordbound_original_world",
+      "path": "docs/qa/runs/20261024T005453Z-visible-wordbound_original_equipment/wordbound_original_world.png",
+      "kind": "png",
+      "camera": "screen",
+      "utc": "2026-10-24T00:55:31Z"
+    }
+  ]
+}
