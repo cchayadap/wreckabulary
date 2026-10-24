@@ -1,6 +1,6 @@
 # Try the current Windows review build
 
-Open `Builds/qa-20261024T002136Z/Wreckabulary.exe` from the integration project. Keep its whole folder together, including `Wreckabulary_Data` and the DLLs. This is the tested review build; final production acceptance is still in progress.
+Open `Builds/qa-20261024T005254Z/Wreckabulary.exe` from the integration project. Keep its whole folder together, including `Wreckabulary_Data` and the DLLs. This is the tested review build; final production acceptance is still in progress.
 
 ## Try the workshop
 
@@ -24,8 +24,9 @@ Use the isolated `wordbound-integration` project and its current Unity version, 
 
 - The measured playtest still has noticeable update stalls. The 60 FPS target is not met.
 - The initial party card now fits its content. Starting-room composition, camera framing and held/combat views still need review.
-- Public Team Race Solo tests have failed remote movement and snapshot transfer deadlines. The latest run completes movement and a host command, then rejects an overdue snapshot. Long client frames are confirmed; reliable online play across all modes is not yet verified.
+- Public Team Race Solo tests have failed remote movement and snapshot transfer deadlines. The latest native run fails movement; an earlier run reaches a host command, then rejects an overdue snapshot. Long client frames are confirmed; reliable online play across all modes is not yet verified.
+- The separate Freestyle equipment inspection exposed an airborne starting character and rejected collection. Held-item inspection remains unfinished while the starting collision is investigated.
 - An earlier Unity Inspector draft-save failure remains unexplained. The latest exact save and recovery tests pass; failed writes retain in-memory recovery.
 - Separate Windows clients, full mode/party coverage, human usability and the final stripped release are unfinished.
 
-Build source: `f1b20833dd1b2b401b800a390855411c49bfa385`. Windows run: `20261024T002434Z-visible-wordbound_workshop_flow`, **5/5 PASS**, normal exit and no reported console errors, exceptions or warnings. [Evidence and screenshots](windows-original-party-fit-20261024.json).
+Build source: `c7b0d8a933c2235ba7cca7c195799c7964ae3b33`. Windows run: `20261024T005757Z-visible-wordbound_workshop_flow`, **5/5 PASS**, normal exit and no reported console errors, exceptions or warnings. [Evidence and screenshots](windows-synchronize-workshop-20261024.json).

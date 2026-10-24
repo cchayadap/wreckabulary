@@ -480,3 +480,7 @@ Original-equipment Windows QA source is under independent review, using actual m
 
 Native compile PASS in 33.3 seconds, refresh 22 seconds, with no reported errors or crash after quit. Source e34293a2bee931bde5760738ab2bbfa48610f605. Unity generated metadata for the two new QA scripts. Evidence: BuildNotes/client-view/compile-original-equipment-20261024.json and Logs/gate_compile_20261024T004801Z.log. Actual Windows captures and visual acceptance remain pending.
 
+
+## 2026-10-24T01:01:26Z Windows originals tested; Freestyle equipment issue preserved
+
+Build 20261024T005254Z PASS109.5s on exact c7b0d8a933c2235ba7cca7c195799c7964ae3b33. Actual normal-window workshop 20261024T005757Z-visible-wordbound_workshop_flow PASS5/5, exit0, console0/0/0, exact draft/return/UndoRedo preserved. Root viewed all six PNGs. Evidence: BuildNotes/client-view/windows-synchronize-workshop-20261024.json (48 hashes). The 90-update window is5.004s, worst678.386ms, tick44→393; no causal FPS claim. First equipment005453 fails after2/5 steps: exact sequence1 CollectLetter→OutOfReach, with actual avatar rootY2.548599 at capturetick40. Root viewed the first world PNG; original meshes/unit scale match, but grounding and held/return acceptance fail. Evidence: windows-original-equipment-first-20261024.json (45 hashes). Freestyle initial keepsake/player overlap is being investigated; all artifacts retained in99b701ec. No production physics/reach workaround or new artwork generation.
