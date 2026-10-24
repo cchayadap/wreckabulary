@@ -16,7 +16,7 @@ namespace Wreckabulary.EditorTools
 
         public static void Create()
         {
-            if (Application.unityVersion != "6000.6.3f1")
+            if (Application.unityVersion != "6000.6.3f1" && Application.unityVersion != "6000.6.4f1")
                 throw new InvalidOperationException("Recheck the profile factory against this editor before creating build profiles.");
             if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer)
                 throw new InvalidOperationException("Create profiles outside Play Mode and player builds.");
