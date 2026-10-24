@@ -8,13 +8,13 @@ Owner: James (SethyPagna). Started 2026-10-20.
 
 Deliver the complete approved [plan](PLAN.md). Source implementation, runtime verification, generated assets, service deployment and human usability acceptance are separate evidence.
 
-## Current design and verification snapshot — 2026-10-24T02:59:30Z
+## Current design and verification snapshot — 2026-10-24T03:06:53Z
 
 The owner-requested [plot and player-experience design](STORY-AND-PLAYER-EXPERIENCE.md) is written and linked from the approved plan and [current checklist](../../progress.md). It covers the actual three-chapter canon, proposed multiple endings, mode outcomes, likely player behaviour, recovery/abuse cases, rating distinctions, Unity narrative authoring and human acceptance. Alternative endings and optional restoration tasks are not implemented. Independent narrative, player-experience and online-rule reviews distinguish source contracts from new design and unmeasured targets.
 
 Source baseline before these documentation changes is `7f8ac615`. Initial-only Freestyle keepsake placement passes the 307-case source suite plus eight actual shipped-map startup cases; native floor/equipment proof remains pending. New durable Inspector draft recovery is integrated and source-reviewed, with 35 native persistence cases NOT RUN. Exact evidence is in `BuildNotes/client-view/initial-keepsake-source-checks-20261024.json` and `durable-draft-source-checks-20261024.json`. These fixes are not in the existing QA player below.
 
-James has approved the short-path repair's Windows prompt. At 02:59:30 UTC wrapper34936 remains running, consent52800 is gone, and `C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Unity.exe` is not yet present. Next: verify the completed install; import profiles; run the prepared 12 local-gameplay plus 35 authoring native cases; rebuild; verify equipment and official smoke; resume full public reliability/recovery/outcome coverage. No second installer, runtime test, generation or deployment was started for the design request. The goal remains active.
+After James approved the Windows prompt, the short-path installation finished03:04:46UTC with exit0. Signed Unity6000.6.4f1, all14 critical files and unchanged project manifest/lock pass the bounded integrity checks; evidence is `BuildNotes/client-view/unity-short-install-integrity-20261024.json`. Root R0030600 passes runtime/editor checks in28.5s using the repaired editor's managed references. Next: import profiles; run the prepared12 local-gameplay plus35 authoring native cases; rebuild; verify equipment and official smoke; resume full public reliability/recovery/outcome coverage. No duplicate installer, generation or deployment was started. The goal remains active; file integrity/source checks are not a native or Windows result.
 
 ## Earlier delivery snapshot — 2026-10-24T01:01:26Z
 

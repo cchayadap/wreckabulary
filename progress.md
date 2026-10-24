@@ -10,7 +10,7 @@ Deliver a tested Windows build with five modes, a changing four-destination/four
 
 The latest instruction includes public matchmaking for **all five multiplayer modes**, including Freestyle, superseding its original private-only restriction. Public games must never silently substitute AI or a solo session. Designs need believable construction/material detail, readable silhouettes and consistent physical scale.
 
-## At a glance — 2026-10-24T02:59:30Z
+## At a glance — 2026-10-24T03:06:53Z
 
 | Area | Actual progress | Still required |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ The latest instruction includes public matchmaking for **all five multiplayer mo
 | Artwork | Original Wreckabulary assets restored as the default; experimental variants preserved | Held/placed/used equipment and motion review, final camera/visual polish and James's review |
 | Windows release | QA build `20261024T005254Z` available for limited review; newer source fixes are committed separately | Repaired editor, native checks, rebuild, official smoke, performance and final release packaging |
 
-James has approved the short-path repair's Windows prompt. At 02:59:30 UTC its wrapper is still running, the consent process has gone and the target Unity executable is not yet present. Installation completion/integrity verification comes before native tests and a rebuild. The first approved install was incomplete because of long paths. No new production-build or production-readiness claim is made. Detailed evidence follows below; no percentage is inferred from test counts.
+The short-path Unity repair completed successfully at 03:04:46 UTC. Exact signed version6000.6.4f1 and all14 previously missing critical files are verified; project package hashes are unchanged. R0 runtime/editor checks pass28.5s using the repaired toolchain. Profile import, native tests and a rebuild follow; no new production-build or production-readiness claim is made. Detailed evidence follows below; no percentage is inferred from test counts.
 
 ## Story, endings and player behaviour
 
@@ -129,7 +129,7 @@ The original game artwork remains the default. QA Windows `20261024T005254Z` and
 - [x] Initial Freestyle keepsake placement now selects a clear unconditional authored anchor in the starting room, excluding declared player starts, props, supplies, moving fixtures and connector openings. R0 passes; the combined practice/snapshot/authority/lifecycle/budget suite passes307/307. Exact evidence: `BuildNotes/client-view/initial-keepsake-source-checks-20261024.json`. Existing committed restores retain their exact poses.
 - [x] All four currently shipped Freestyle seeds pass engine-free startup with both one and eight seats (8/8): real flagship content, complete snapshot publication/import, active keepsake, acknowledgement and first advance. This does not establish native floor contact or eight connected players. The same source-check record binds the fixture and catalogue hashes.
 - [~] Verify the new placement against actual native floor support and Windows equipment collection. The new first-frame collision/support case has not run. Recovery, voluntary/implicit drop and below-course placement remain separate open work. The earlier airborne image is preserved; the change is not yet proof of its sole cause.
-- [~] Complete the short-path Unity patch installation. Download finished; Windows administrator approval is still pending for the repair at `C:/Users/mrkl6/wb64/6000.6.4f1`. The original approval covered the earlier incomplete long-path install. Source checks used managed reference files only; no native execution is accepted from that incomplete installation.
+- [x] Complete and verify the short-path Unity patch installation at `C:/Users/mrkl6/wb64/6000.6.4f1`. It finished03:04:46UTC after James's approval; signed version and14/14 critical files pass, with unchanged project package hashes. R0030600 passes28.5s. Evidence: `BuildNotes/client-view/unity-short-install-integrity-20261024.json`. Native execution and the Windows crash hypothesis remain separate verification tasks.
 - [~] Preserve newest Inspector edits across a failed main draft save and Unity reload/exit. Ordered, validated pending-file recovery is integrated and independently source-reviewed; final R0 passes14.5s. It retains the newest committed draft through later failures, bounds recovery reads, supports explicit legacy choices and prevents discarded edits returning after partial cleanup. All35 native persistence cases and the actual Inspector/reload check remain NOT RUN. Historical unexpected replacement failures remain unexplained. Evidence: `BuildNotes/client-view/durable-draft-source-checks-20261024.json`.
 
 - [x] All 13 Unity authoring persistence cases pass in `233437`, including actual changed-save/BOM handling, retained drafts, custom themes, course assets and scene restoration. The earlier intermittent Windows replacement error remains unexplained; no new production IO workaround was added.
