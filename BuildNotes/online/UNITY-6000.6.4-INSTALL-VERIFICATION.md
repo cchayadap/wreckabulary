@@ -50,3 +50,39 @@ current installer actually fails, first inspect that failure and validate the ex
 cached installer while the measurement slot is idle; use the same approved target
 with the valid cache rather than initiating another download. This lane did not
 launch an Editor or claim a usable toolchain/build result.
+
+## Completion follow-up — 2026-10-24 01:23:36 UTC
+
+STATUS: INSTALLATION COMPLETION CONFIRMED; Editor launch/build remains NOT RUN by
+this lane. The earlier extraction/measurement-overlap observations remain valid.
+
+The original PID 39804 log pair is now complete: `install 6000.6.4f1` started at
+2026-10-23 18:27:39.892 UTC and finished at 2026-10-24 01:21:57.217 UTC with exit
+code 0 (24,856,923 ms including its long wait for approval). Installer PID 51284
+and CLI PID 39804 were both absent at 01:23:36 UTC. The installation wrote
+`metadata.hub.json` and `modules.json` at 01:21:56 UTC.
+
+All these required files now exist at the isolated target, with nonzero lengths:
+
+| File under Editor | Bytes | Relevant version |
+| --- | ---: | --- |
+| Unity.exe | 279,976 | 6000.6.4f1_12bfff696524 |
+| Unity.dll | 93,418,928 | 6000.6.4f1_12bfff696524 |
+| Data/Managed/UnityEditor.dll | 23,749,632 | managed version 0.0.0.0 |
+| Data/Managed/UnityEngine/UnityEngine.CoreModule.dll | 2,212,864 | managed version 0.0.0.0 |
+| Data/Resources/PackageManager/Server/UnityPackageManager.exe | 96,002,992 | 24.18.0 |
+| Data/Tools/UnityShaderCompiler.exe | 8,873,904 | 6000.6.4.1228799 |
+| Data/PlaybackEngines/windowsstandalonesupport/Variations/win64_player_nondevelopment_mono/UnityPlayer.dll | 38,704,560 | 6000.6.4f1 (12bfff696524) |
+| Data/PlaybackEngines/windowsstandalonesupport/Variations/win64_player_nondevelopment_mono/WindowsPlayer.exe | 667,136 | 6000.6.4f1 (12bfff696524) |
+| Data/PlaybackEngines/windowsstandalonesupport/Variations/win64_player_development_mono/UnityPlayer.dll | 91,416,488 | 6000.6.4f1 (12bfff696524) |
+
+The installation metadata reports x86_64. CLI installed-editor inventory still
+lists only the two ProgramFiles editors; absence from that registry does not
+override the completed isolated installation. Optional modules remain unselected
+in its metadata; only the observed built-in Windows Mono target is verified here.
+
+Root was notified that these owned installer processes had ended before its clean
+same-build official smoke comparison. No further download/resume is needed. Root
+still owns the exact-path binding and official Editor/build validation; existence
+and installer exit do not substitute for those gates. No cache hash/signature scan,
+process action, configuration change or Editor launch occurred in this follow-up.
