@@ -692,8 +692,9 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(saved, asset.DocumentJson);
         }
 
-        [Test]
-        public void CommittedDiscardSurvivesCleanupFailureAndInspectorCloseWithoutResurrectingEdits()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void CommittedDiscardOrApplySurvivesCleanupFailureAndInspectorCloseWithoutResurrectingEdits(bool apply)
         {
             RequireWindowsDraftIo();
             var asset = CreateDraftAsset(); string path = DraftPath(asset), saved = asset.DocumentJson;
@@ -701,11 +702,12 @@ namespace Wreckabulary.Tests
             try
             {
                 EditorField<CourseDocument>(editor, "draft").Title = "Intentionally discarded";
+                string expectedSaved = apply ? CourseJson.ExportDocument(EditorField<CourseDocument>(editor, "draft")) : saved;
                 InvokeEditor(editor, "MarkDirty"); InvokeEditor(editor, "SavePendingDraft");
                 byte[] old = File.ReadAllBytes(path);
                 using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    InvokeEditor(editor, "DiscardPending");
+                    InvokeEditor(editor, apply ? "Save" : "DiscardPending");
                     Assert.IsFalse(EditorField<bool>(editor, "dirty"));
                     Assert.IsNotEmpty(EditorField<string>(editor, "recoveryWarning"));
                     Assert.IsNull(WordboundCourseDraftStore.Load(asset));
@@ -717,7 +719,7 @@ namespace Wreckabulary.Tests
                     Assert.AreEqual(asset.ReadDocument().Title, EditorField<CourseDocument>(editor, "draft").Title);
                     CollectionAssert.AreEqual(committed, File.ReadAllBytes(discard));
                 }
-                Assert.AreEqual(saved, asset.DocumentJson);
+                Assert.AreEqual(expectedSaved, asset.DocumentJson);
                 WordboundCourseDraftStore.Clear(asset); ForgetMemoryDraft(asset);
                 Assert.IsNull(WordboundCourseDraftStore.Load(asset)); Assert.AreEqual(0, PendingFiles(asset).Length);
             }

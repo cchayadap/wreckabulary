@@ -1,6 +1,6 @@
 # Authoring save failure evidence review
 
-STATUS: COMPLETE — bounded read-only evidence review; historical cause unresolved. No tests, Unity, filesystem repair, installer polling, or runtime/source edits.
+STATUS: Evidence review COMPLETE; authorized Editor implementation SOURCE REVIEW PASS, native/compile NOT RUN. Historical OS failure cause remains unresolved. No tests, Unity, installer polling or runtime/kit changes were performed in this lane.
 
 Question: what exactly failed in the earlier Inspector/draft-save IOException 1175 evidence, what do the later 13 native authoring passes establish, and is there evidence connecting this failure to the separate long-path Unity installation omission?
 
@@ -12,7 +12,7 @@ Scope: current delivery/progress statements, existing authoring persistence/reco
 - Both unexpected messages are `System.IO.IOException: Unable to remove the file to be replaced`. Their numerical unexpected HRESULT was not retained. The recorded `0x80070020` belongs to the intentionally locked-save control and must not be substituted for the unexpected failure. The historical report's 1175 classification is a message/call-path interpretation, not a directly logged unexpected code.
 - The save target is `Library/Wordbound/InspectorDrafts/<32-character AssetDatabase GUID>.json`, with adjacent `.tmp`. Under the actual integration checkout those normalized paths are 140 and 144 characters. The historical individual GUID was not captured, so the exact original basename is unavailable. This is separate from the later Unity installer omissions at 260 or more characters.
 - Native `233437` has 13/13 authoring cases passing (13/14 overall, with an unrelated FFA failure). This includes changed locked content recovery, save after release, BOM normalization, real draft payload replacement, null/named-backup controls, saved course/profile content, custom/default theme persistence, and scene restoration. The raw source and result limitations will be recorded below.
-- Current Inspector behavior preserves newest failed pending content in a static in-memory dictionary, retries a failed save after five seconds, displays a warning to resolve it before script reload/Unity shutdown, and prevents Apply from overwriting the saved course until the pending backup succeeds. In-memory retention is not durable recovery across process exit or domain reload.
+- At the initial evidence checkpoint, Inspector behavior preserved newest failed pending content in a static in-memory dictionary, retried a failed save after five seconds, warned before script reload/Unity shutdown, and prevented Apply from overwriting the saved course until the pending backup succeeded. In-memory retention alone was not durable recovery across process exit or domain reload.
 
 ## Exact failure and subsequent evidence
 
@@ -77,7 +77,7 @@ Evidence SHA-256 read during this review:
 | `233437` XML | `1d2a363b6f43014beb5e6671c4458c32e44414e2c8fc680fa6a86d030a241ac1` |
 | Current `WordboundCourseDraftStore.cs` | `e3835936d586a66a7679b1747ccc41afb0497a820f7fd83128ab5035e176a44b` |
 
-Related preserved reports: `INSPECTOR-DRAFT-IO-REVIEW.md`, `NATIVE-FFA-AUTHORING-233437-REVIEW.md`, `UNITY-PATCH-PACKAGE-DIAGNOSIS.md`. Installer polling remains stopped. Only this report was written; unrelated logs and all source/evidence files were preserved.
+Related preserved reports: `INSPECTOR-DRAFT-IO-REVIEW.md`, `NATIVE-FFA-AUTHORING-233437-REVIEW.md`, `UNITY-PATCH-PACKAGE-DIAGNOSIS.md`. Installer polling remains stopped. During the initial evidence phase only this report was written; unrelated logs and all original source/evidence files were preserved.
 
 ## Proposed bounded durable-recovery follow-up — NOT IMPLEMENTED
 
@@ -106,9 +106,9 @@ Meaningful acceptance cases, alongside the existing 13:
 - Two failed successive distinct edits preserve the latest complete record if a subsequent staging write is interrupted. Identical retries do not create unbounded duplicate records, and all records remain under the per-file size bound.
 - Existing genuine changed-save/BOM, strict source-change choice, invalid form retention, saved-asset integrity and scene/theme persistence tests continue unchanged in intent. Use controlled owned temp assets and real file locks; do not manufacture the historical unexpected Windows error or call its cause fixed.
 
-Implementation is awaiting root's selection of the bounded envelope/cleanup contract. No source or file-recovery behavior was changed in this review.
+The proposal above was subsequently authorized by root. The implementation and its distinct verification limits follow.
 
-## Authorized implementation checkpoint — source review in progress
+## Authorized implementation — source review complete, native pending
 
 Root subsequently authorized the bounded Store/Inspector/persistence-test change. Baseline-only commit `7b01f5fa` copies those owned files from root `0ff2996d` and must be **excluded** from integration. The implementation adds no assembly, runtime, kit or asset changes.
 
@@ -116,4 +116,18 @@ The current Store uses checksummed v2 envelopes while reading legacy v1 payloads
 
 Explicit discard commits a higher record before cleanup and clears logical pending state even if later deletion fails; Inspector reload then clears dirty state so OnDisable cannot resave the discarded form. The discard record remains until cleanup succeeds. Legacy orphan decisions remain explicit, and invalid forms remain recoverable without running authored-content validation prematurely.
 
-Twelve additive native cases currently cover actual locked publication plus static-memory loss/Inspector recreation, partial staging, newest/reverted revision ordering, five invalid committed-record variants, same-revision disagreement, both legacy choices, v1 migration, and real discard cleanup failure followed by Inspector close/reopen. Existing changed-save, source-asset integrity, BOM, null/named controls and theme/scene cases remain. Their former RAM-only assertions now check a real committed copy; the direct IO control separately checks retained Store bookkeeping. Compile/native execution is **NOT RUN**; Input reviews Inspector/lifecycle and Online reviews Store ordering/corruption independently.
+The first checkpoint contained twelve added cases; review-driven coverage now totals **35 native persistence cases: 13 existing and 22 additive**, source-counted as 20 `[Test]` plus 15 `[TestCase]` attributes. Existing changed-save, source-asset integrity, BOM, null/named controls and theme/scene cases remain. Their former RAM-only assertions now check a real committed copy; the direct IO control separately checks retained Store bookkeeping. Tests simulate loss of the pending-memory entry and recreate the real Inspector; they do not themselves quit/restart the Editor or simulate a power failure.
+
+Review findings and closures:
+
+- Input identified notice code reparsing an explicitly discarded corrupt primary after a newer edit committed. `DiskState.Primary` now carries only the primary recognized by the same recovery rules. The exact discard-lock → new pending edit → memory-loss → Inspector-open/close regression checks usable dirty state, warning and unchanged saved course.
+- Online identified unbounded hashing/raw name scanning and a retained-record cap that could still reject new edits after old locks were released. All hashes now use the bounded byte reader; filename enumeration stops after nine raw matches before suffix parsing. Both Save and Clear can reclaim only older **already validated** records while retaining the latest complete candidate before checking the eight-record cap. A corrupt newer record prevents this pre-commit pruning. Tests retain the sole valid candidate and verify both Save and Clear after eight real locks are released.
+- Root identified constructor defaults masking a missing envelope Format. Both envelope and nested legacy payload require their actual serialized version tag. Missing-tag cases retain exact damaged evidence and refuse silent rollback.
+- Failed fresh-name commit testing now starts with a real newer pending revision produced by a locked primary, then blocks the next revision's destination. It proves the newer pending bytes survive older-record reclamation and recover after memory loss, independently of the old primary.
+- Actual Apply and Discard are both tested while cleanup is denied by a read-share lock. The higher discard record commits first, Inspector dirty state resets, and close/reopen cannot resave the discarded form. Applied course bytes and untouched-discard course bytes are checked separately. Pre-commit failures still preserve the current form and recovery; only post-commit cleanup has separate warning semantics.
+
+Input's bounded SOURCE PASS covers Inspector/lifecycle/API and the final Apply/Discard test parameterization. Online's bounded SOURCE PASS covers ordered storage, corruption, strict bounds, cap recovery and sole-candidate preservation. Production source has not changed after reviewed `7b324460`; `b248e2ce` and the final checkpoint only tighten tests/report. The implementation chain starts at `6849bfa1`; **exclude baseline `7b01f5fa`**.
+
+Exact root verification request: compile the integrated Editor sources, then native filter `Wreckabulary.Tests.WordboundAuthoringPersistenceTests`, expected **35 cases, zero skips on Windows Editor**. Retain failure-only file facts and all original failed XML. Only `git diff --check` and read-only source/API inspection ran here. A real Windows Editor reload/reopen and concise warning/legacy-choice UI review are still needed; source review is not native persistence or visual acceptance.
+
+The checksum binds the canonical serialized record fields (revision, kind, GUID, saved-source hash and exact serialized draft values). Write/readback additionally checks exact UTF-8 bytes before committing. The existing intentional UTF-8 BOM normalization remains supported; other encodings are refused. The recovery-file bound is 4 MiB including its envelope, with no truncation. A failure before committed recovery exists still produces the memory-only warning. No claim is made to fix the historical Windows replacement error, guarantee hardware durability, or preserve writes across an unavailable disk.
