@@ -1,6 +1,6 @@
 # Actual Windows original equipment capture
 
-STATUS: IN PROGRESS — source implementation; no compiler, Unity or player execution in this lane.
+STATUS: SOURCE REVIEW PASS — implemented and independently reviewed; compiler, Unity and actual Windows captures NOT RUN in this lane.
 
 Root authorized an opt-in `wordbound_original_equipment` scenario following the six-image `002434` review. It must use an isolated authored Freestyle draft, the actual local launcher/client, real command receipts and existing presentation/animation. Three intended images: four map-placed originals with the actual avatar, genuinely crafted/equipped BAT, genuinely crafted/equipped HAMMER. The inspection camera is explicitly labelled QA; it is not ordinary gameplay camera acceptance.
 
@@ -10,7 +10,7 @@ Owned scope: new QA scenario and matching lifecycle component, minimal direct QA
 
 - `Assets/_Project/Scripts/WordboundQa/WordboundOriginalEquipmentQa.cs`: registered only in Editor/`GSK_QA`, explicitly selected as `wordbound_original_equipment`; its open step additionally requires a normal Windows player. It uses the real `LobbyMenu.OpenWordbound`, launcher workshop action, `WordboundWorkshop.Open`/history/preview/autosave/recovery, and `RequestPlaytest` callback. The temporary directory is selected through `ConfigureQaWorkshopStorage` before any owner draft recovery lookup.
 - The draft uses the installed `FlagshipRoom` catalogue (one 24 × 24 × 6 m room), eight valid start positions required by Freestyle, four fixed original props, and nine separate nonrenewable supplies spelling `BATHAMMER`. Seed is `0000000000000001`. A real title edit changes the history revision; repeating the default seed alone would not autosave, and that source issue was corrected before review. No shipped course/catalogue/profile is edited.
-- The initial world capture precedes any pickup. It then submits map BAT `PickUp` with the real item revision, verifies carried furniture/inactive body, and submits normal `Drop`. This deliberately does not call map pickup a crafted held-item test.
+- The initial world capture shows four map-placed props. The first source checkpoint additionally attempted map BAT pickup/drop, but root explicitly removed that auxiliary path: Freestyle's normal keepsake begins at the player and could legitimately obstruct release, while the three requested images do not require furniture carrying. There is no obstruction workaround and no carried/deployed-item claim.
 - Each held capture collects its actual letter entities, checks the exact letter bag, submits `BeginCraft`, waits the production timer, verifies `Crafted`/`Held`/holder/crafter/slot state, and submits `Equip`. Every command requires the exact sequence frontier, payload hash and `Ok` receipt, without command retry. No inventory, actor, physics or animation writes.
 - `WordboundOriginalEquipmentView.cs`: matching QA-only MonoBehaviour observes the actual player's and items' public `WordboundGameplayBody.VisualRoot`. Existing `WordboundGameplayPresentation.Present`/`ShowHeld`, avatar animation and grip placement continue normally. It requires the assigned Original Wreckabulary profile, rejects relevant overrides, compares actual mesh assets with `ModelLibrary`, and records canonical item definitions plus actual renderer bounds/material/shader names. Bounds-in-frame is a framing guard, not occlusion or hand-contact proof.
 - Camera position, rotation, FOV, view enabled and HUD enabled states are saved and restored. Only the assigned camera's pose/FOV and owner view/HUD enabled flags change. Graphics presets, quality, resolution, frame cap, v-sync, preferences, original models/materials and physics remain untouched. Captures carry a visible `QA INSPECTION CAMERA` label.
@@ -29,4 +29,8 @@ The only existing-file edit is `Wreckabulary.Wordbound.Qa.asmdef`, adding the di
 
 Limitations: no human input/navigation, multiplayer, attack/deploy animation, ordinary camera usability, GPU timing/FPS or owner art approval is claimed. The four world objects are map-placed props, not a `Deploy` proof. Freestyle's normal keepsake can also appear; no extra avatar is synthesized. Source review and native/player execution status will be recorded separately.
 
-Next recoverable action: finish independent source review, save the scoped source checkpoint, then root compiles/builds/runs. Native/player rendering and owner art approval remain pending.
+## Source verification
+
+Initial source checkpoint: `0954a7ad`. Root then directed removal of the seven-line auxiliary pickup/drop path; all three intended capture prerequisites remain strict. Input independently reviewed that exact source plus simplification and reported bounded SOURCE PASS: real title edit/autosave, installed geometry/letter inputs, command receipt/timer/slot checks, actual mesh/presentation roots, and owned view/client cleanup. It found no remaining source blocker. `git diff --check` passes. The original unrelated `focused-first-attempt.log` is preserved and excluded.
+
+Next recoverable action: root integrates both scoped checkpoints, compiles, generates metadata, builds the actual Windows QA player and runs `wordbound_original_equipment`. All runtime framing, occlusion, hand contact, normal and failure cleanup, player rendering and owner art approval remain pending.

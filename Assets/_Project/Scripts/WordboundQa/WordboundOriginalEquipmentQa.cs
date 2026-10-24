@@ -141,13 +141,6 @@ namespace Wreckabulary.Qa
         IEnumerator Bat(QaContext context)
         {
             if (!worldCaptured) throw new QaFailException("The verified world capture must precede equipment commands.");
-            var map = Frame.Economy.Items.Single(item => item.Word == "BAT" && item.Origin == ItemOrigin.Map);
-            yield return Command(context, WordboundAction.PickUp, "item:" + map.Id, map.Revision);
-            if (Inventory.CarriedFurniture != map.Id || Frame.Bodies.Single(body => body.Id == "item:" + map.Id).Active)
-                throw new QaFailException("Actual map pickup did not enter the carried-furniture state.");
-            yield return Command(context, WordboundAction.Drop);
-            if (Inventory.CarriedFurniture != -1 || !Frame.Bodies.Single(body => body.Id == "item:" + map.Id).Active)
-                throw new QaFailException("The real drop did not release the map BAT before crafting.");
             yield return Craft(context, "BAT", 0);
             yield return Capture(context, "wordbound_original_held_bat", "BAT");
             batCaptured = true;
