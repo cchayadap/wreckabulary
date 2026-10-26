@@ -9,6 +9,7 @@
     "Wreckabulary.Online.Presentation",
     "Wreckabulary.Online.Physics",
     "GameStudioKit.Runtime",
+    "Unity.InputSystem",
     "Unity.RenderPipelines.Universal.Runtime",
     "Unity.TextMeshPro",
     "UnityEngine.UI"

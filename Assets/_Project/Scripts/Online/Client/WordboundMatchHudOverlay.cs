@@ -63,7 +63,7 @@ namespace Wreckabulary.Online
             if (held != null) inventoryPanel.Add(held.Word);
             string context = ContextPrompt();
             if (context.Length != 0) actionPanel.Add(context);
-            menuHintPanel.Add(Hint(WordboundControl.Spell, "Craft") + " Craft · " + Hint(WordboundControl.Menu, "Menu") + " Menu");
+            menuHintPanel.Add(Hint(WordboundControl.Spell, "Craft") + " · " + Hint(WordboundControl.Menu, "Menu"));
             panelsReady = true;
         }
 
@@ -85,17 +85,17 @@ namespace Wreckabulary.Online
                 var kind = (WorldBodyKind)target.BodyKind;
                 var item = kind == WorldBodyKind.Item ? frame.Economy.Items.FirstOrDefault(i => target.BodyId.ToString() == "item:" + i.Id) : null;
                 string action = InteractionCaption(kind, item?.Word, item != null && InteractionPuzzle(item) != null);
-                if (action.Length != 0) return Hint(WordboundControl.Interact, "Interact") + " " + action;
+                if (action.Length != 0) return Hint(WordboundControl.Interact, action);
             }
             var nearby = WordboundPracticeGuidePlan.Nearest(course, frame, actorId);
             if (nearby != null && frame.Practice.SiteHash != nearby.Hash && !WordboundPracticeGuidePlan.Completed(frame, nearby))
-                return Hint(WordboundControl.Interact, "Interact") + " Practise " + course.Puzzles.Single(p => p.Id == nearby.PuzzleId).RecipeId;
-            if (inventory.CarriedFurniture >= 0) return "Hold " + Hint(WordboundControl.Drop, "Drop") + " Drop";
+                return Hint(WordboundControl.Interact, "Practise " + course.Puzzles.Single(p => p.Id == nearby.PuzzleId).RecipeId);
+            if (inventory.CarriedFurniture >= 0) return "Hold " + Hint(WordboundControl.Drop, "Drop");
             var shield = SelectedShield();
             if (shield != null)
-                return actor.Defense == null ? "Hold " + Hint(WordboundControl.Block, "Block") + " Block" :
+                return actor.Defense == null ? "Hold " + Hint(WordboundControl.Block, "Block") :
                     WordboundDefensePolicy.Raised(actor.Defense, items.Get(shield.Word).Shield, frame.Progress.Tick) ? "Blocking" : "Raising shield…";
-            return showQuickTips ? Hint(WordboundControl.Attack, "Attack") + " Smash furniture" : "";
+            return showQuickTips ? Hint(WordboundControl.Attack, "Smash furniture") : "";
         }
 
         void SetNotice(string message)
@@ -155,15 +155,21 @@ namespace Wreckabulary.Online
             GUILayout.EndScrollView();
         }
 
+        string ThrowHint()
+        {
+            string aim = view.ControlHint(WordboundControl.Aim), attack = view.ControlHint(WordboundControl.Attack);
+            return string.IsNullOrEmpty(aim) || string.IsNullOrEmpty(attack) ? "Throw" : "[" + aim + "] + [" + attack + "] Throw";
+        }
+
         string[] HelpControls() => new[] {
-            Hint(WordboundControl.Interact, "Interact") + " Pick up / use",
-            Hint(WordboundControl.Attack, "Attack") + " Smash",
-            Hint(WordboundControl.Spell, "Spell") + " Craft from letters",
-            Hint(WordboundControl.Aim, "Aim") + " + " + Hint(WordboundControl.Attack, "Attack") + " Throw",
-            "Hold " + Hint(WordboundControl.Drop, "Drop") + " Drop",
-            Hint(WordboundControl.CycleGear, "Cycle") + " Change equipment",
-            "Hold " + Hint(WordboundControl.Block, "Block") + " Block with a shield",
-            Hint(WordboundControl.Menu, "Menu") + " Resume / menu"
+            Hint(WordboundControl.Interact, "Pick up / use"),
+            Hint(WordboundControl.Attack, "Smash"),
+            Hint(WordboundControl.Spell, "Craft from letters"),
+            ThrowHint(),
+            "Hold " + Hint(WordboundControl.Drop, "Drop"),
+            Hint(WordboundControl.CycleGear, "Change equipment"),
+            "Hold " + Hint(WordboundControl.Block, "Block with a shield"),
+            Hint(WordboundControl.Menu, "Resume / menu")
         };
     }
 }

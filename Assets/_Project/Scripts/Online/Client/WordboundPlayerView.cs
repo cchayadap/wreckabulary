@@ -12,7 +12,7 @@ namespace Wreckabulary.Online
         readonly RaycastHit[] obstructions = new RaycastHit[64];
         WordboundGameplayController controller;
         WordboundNetworkBody player;
-        InputBinding binding;
+        InputBinding binding, effectiveBinding;
         IDisposable ownedBinding;
         Camera view;
         GameObject ownedCamera;
@@ -31,9 +31,9 @@ namespace Wreckabulary.Online
         public bool MenuOpen { get; private set; } = true;
         public Camera Camera => view;
         public WordboundNetworkBody Player => player;
-        public bool UsesGamepad => binding is WordboundInputBinding automatic &&
+        public bool UsesGamepad => effectiveBinding is WordboundInputBinding automatic &&
             automatic.ActiveGamepad != null && automatic.ActiveGamepad.added && automatic.ActiveGamepad.enabled;
-        public string ControlHint(WordboundControl control) => WordboundInputBinding.ControlHint(binding, control);
+        public string ControlHint(WordboundControl control) => WordboundInputBinding.ControlHint(effectiveBinding, control);
         public event Action<PlayerCommands> CommandsRead;
         public event Action<WordboundMenuCommands> MenuCommandsRead;
         public event Action MenuRequested;
@@ -50,6 +50,10 @@ namespace Wreckabulary.Online
                 ownedBinding = automatic;
             }
             binding = controls;
+            effectiveBinding = controls;
+            if (controls is DesktopBinding desktop) effectiveBinding = new WordboundInputBinding(desktop);
+            else if (controls is GamepadBinding gamepad) effectiveBinding = new WordboundInputBinding(gamepad);
+            if (!ReferenceEquals(effectiveBinding, controls)) ownedBinding = (IDisposable)effectiveBinding;
             view = camera;
             if (view == null)
             {
@@ -115,7 +119,7 @@ namespace Wreckabulary.Online
             MenuOpen = open;
             movement = Vector2.zero;
             jumpPending = false;
-            (binding as WordboundInputBinding)?.SuspendGameplay();
+            (effectiveBinding as WordboundInputBinding)?.SuspendGameplay();
             if (open) CommandsRead?.Invoke(default);
             ApplyCursor();
         }
@@ -123,7 +127,7 @@ namespace Wreckabulary.Online
         void ApplyCursor()
         {
             if (!initialized) return;
-            bool lockMouse = binding.ReadsMouse && !MenuOpen && Application.isFocused && player != null;
+            bool lockMouse = effectiveBinding.ReadsMouse && !MenuOpen && Application.isFocused && player != null;
             Cursor.lockState = lockMouse ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !lockMouse;
         }
@@ -137,7 +141,7 @@ namespace Wreckabulary.Online
 
         void ProcessInput(bool focused)
         {
-            if (binding is WordboundInputBinding automatic)
+            if (effectiveBinding is WordboundInputBinding automatic)
             {
                 bool lost = automatic.RefreshDevice(focused);
                 if (bindingRevision != automatic.Revision)
@@ -155,10 +159,10 @@ namespace Wreckabulary.Online
             {
                 movement = Vector2.zero;
                 jumpPending = false;
-                (binding as WordboundInputBinding)?.SuspendGameplay();
+                (effectiveBinding as WordboundInputBinding)?.SuspendGameplay();
                 return;
             }
-            bool pause = binding is DesktopBinding desktop ? desktop.Pause.WasPressedThisFrame() : binding.StartPressed();
+            bool pause = effectiveBinding.StartPressed();
             if (pause)
             {
                 SetMenuOpen(!MenuOpen);
@@ -169,7 +173,7 @@ namespace Wreckabulary.Online
             {
                 movement = Vector2.zero;
                 jumpPending = false;
-                if (binding is WordboundInputBinding menuBinding)
+                if (effectiveBinding is WordboundInputBinding menuBinding)
                     MenuCommandsRead?.Invoke(menuBinding.ReadMenu(Time.unscaledTime));
                 return;
             }
@@ -177,13 +181,13 @@ namespace Wreckabulary.Online
             {
                 movement = Vector2.zero;
                 jumpPending = false;
-                (binding as WordboundInputBinding)?.SuspendGameplay();
+                (effectiveBinding as WordboundInputBinding)?.SuspendGameplay();
                 return;
             }
             ApplyCursor();
             var commands = default(PlayerCommands);
-            binding.Read(ref commands);
-            if (binding.ReadsMouse)
+            effectiveBinding.Read(ref commands);
+            if (effectiveBinding.ReadsMouse)
             {
                 yaw += commands.lookDelta.x * sensitivity;
                 pitch -= commands.lookDelta.y * sensitivity;
@@ -252,7 +256,7 @@ namespace Wreckabulary.Online
         {
             movement = Vector2.zero;
             jumpPending = false;
-            (binding as WordboundInputBinding)?.SuspendGameplay();
+            (effectiveBinding as WordboundInputBinding)?.SuspendGameplay();
             CommandsRead?.Invoke(default);
             if (capturedCursor)
             {

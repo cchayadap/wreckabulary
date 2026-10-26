@@ -1,0 +1,203 @@
+{
+  "utc": "2026-10-26T21:03:08.4026781Z",
+  "status": "BORROWED_INPUT_NATIVE_PASS",
+  "scope": "51 synthetic-input/HUD and actual Solo/Creator entry cases; explicit destruction-handler tests, not physical input or actual player teardown acceptance",
+  "runs": [
+    {
+      "prefix": ".harness/delivery/completion-check-2026-10-26T21-00-44-369Z",
+      "end": {
+        "utc": "2026-10-26T21:00:51.361Z",
+        "code": 0,
+        "signal": null
+      },
+      "gate": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T21:00:44Z",
+        "secs": 6.5,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T210047Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      }
+    },
+    {
+      "prefix": ".harness/delivery/solo-controls-2026-10-26T20-52-41-469Z",
+      "end": {
+        "utc": "2026-10-26T20:54:06.104Z",
+        "code": 1,
+        "signal": null
+      },
+      "gate": {
+        "cmd": "test editmode --cold --filter WordboundInputBindingTests|WordboundHudClarityTests|WordboundMenuGuiTests|WordboundRecipeGridTests|WordboundRecipeGridGuiTests|WordboundNativeSoloEntryTests|WordboundNativeWorkshopEntryTests",
+        "rung": "R3",
+        "ok": false,
+        "exit": 1,
+        "verdict": "FAIL",
+        "utc": "2026-10-26T20:52:41Z",
+        "secs": 84.4,
+        "route": "cold",
+        "errors": [],
+        "failures": [
+          {
+            "name": "Wreckabulary.Online.Tests.WordboundInputBindingTests.BorrowedDesktopHintsCommandsAndMenuUseExactOverridesWithoutOwningTheMap",
+            "message": "Only the wrapper was disposed.\r\n  Expected string length 0 but was 1. Strings differ at index 0.\r\n  Expected: <string.Empty>\r\n  But was:  \"T\"\r\n  -----------^",
+            "location": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundInputBindingTests.cs:266"
+          },
+          {
+            "name": "Wreckabulary.Online.Tests.WordboundInputBindingTests.BorrowedGamepadAddsWordboundActionsWithoutSelectingAnotherSeatOrDisposingTheSource",
+            "message": "Expected: null\r\n  But was:  \"Start\"",
+            "location": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundInputBindingTests.cs:298"
+          },
+          {
+            "name": "Wreckabulary.Online.Tests.WordboundInputBindingTests.PlayerViewKeepsOriginalBindingAndOwnsOnlyItsFixedAdapter",
+            "message": "Expected: null\r\n  But was:  \"Start\"",
+            "location": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundInputBindingTests.cs:209"
+          }
+        ],
+        "log": "Logs/gate_test_editmode_20261026T205241Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T205241Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 35.4,
+        "tests": {
+          "total": 51,
+          "passed": 48,
+          "failed": 3,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "prefix": ".harness/delivery/solo-controls-2026-10-26T20-59-27-520Z",
+      "end": {
+        "utc": "2026-10-26T20:59:47.544Z",
+        "code": 1,
+        "signal": null
+      },
+      "gate": {
+        "cmd": "test editmode --cold --filter WordboundInputBindingTests|WordboundHudClarityTests|WordboundMenuGuiTests|WordboundRecipeGridTests|WordboundRecipeGridGuiTests|WordboundNativeSoloEntryTests|WordboundNativeWorkshopEntryTests",
+        "rung": "R3",
+        "ok": false,
+        "exit": 1,
+        "verdict": "FAIL",
+        "utc": "2026-10-26T20:59:27Z",
+        "secs": 19.7,
+        "route": "cold",
+        "errors": [
+          {
+            "message": "The type 'InputActionMap' is defined in an assembly that is not referenced. You must add a reference to assembly 'Unity.InputSystem, Version=1.20.0.0, Culture=neutral, PublicKeyToken=null'.",
+            "code": "CS0012",
+            "file": "Assets/_Project/Scripts/WordboundQa/WordboundSoloQa.cs",
+            "line": 185,
+            "col": 70,
+            "severity": "error"
+          },
+          {
+            "message": "no results file (Unity exit 1): compile errors or a run failure; see the log"
+          }
+        ],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T205927Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": null,
+        "messages": [
+          "Scripts have compiler errors."
+        ]
+      }
+    },
+    {
+      "prefix": ".harness/delivery/solo-controls-2026-10-26T21-01-01-326Z",
+      "end": {
+        "utc": "2026-10-26T21:02:32.849Z",
+        "code": 0,
+        "signal": null
+      },
+      "gate": {
+        "cmd": "test editmode --cold --filter WordboundInputBindingTests|WordboundHudClarityTests|WordboundMenuGuiTests|WordboundRecipeGridTests|WordboundRecipeGridGuiTests|WordboundNativeSoloEntryTests|WordboundNativeWorkshopEntryTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T21:01:01Z",
+        "secs": 91.2,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T210101Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T210101Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 34.3,
+        "tests": {
+          "total": 51,
+          "passed": 51,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundHudClarityTests.cs",
+      "sha256": "c4b21aba8f65efb163ff0d91568c0db4ed6f0abf333d6c1590a99ec0cfc59da0"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundInputBindingTests.cs",
+      "sha256": "c8ad1c21b5efdba5509f4402ee8de7a9c0aceb4bd24c8f08e75538a6a5d8e8f7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundInputBinding.cs",
+      "sha256": "7e4c3abc69d5cf4cf5d71f904595ad012b643004e2a6f45e9c4b3c6db9e4dc22"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundMatchHud.cs",
+      "sha256": "b21c0bcb8707c967a9b87c57eaa73db6abbe267596ea13fca200d371cb144672"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundMatchHudOverlay.cs",
+      "sha256": "ec8713876cc27e5c665413a37f6f580abe5b775eb068f14c42403386dd22b414"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPlayerView.cs",
+      "sha256": "4e7faaf86f3b957fb8f46a8ba526a73a3d469798e2d1945b2380e6d27149a0a3"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundSoloQa.cs",
+      "sha256": "1998128669c66f76a32796d7f509e581c2f7c4c855d071fd9a5c780ad6623709"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/Wreckabulary.Wordbound.Qa.asmdef",
+      "sha256": "708348ce71773425d8bf7fe559810a324af85372f2a1109bd0211367c0c99bd9"
+    }
+  ],
+  "cleanup": [
+    "WORDBOUND_LOCAL_CREATOR_CLEANUP: failures=0",
+    "WORDBOUND_LOCAL_CREATOR_CLEANUP: failures=0",
+    "WORDBOUND_LOCAL_CREATOR_CLEANUP: failures=0",
+    "WORDBOUND_SOLO_ENTRY_CLEANUP: failures=0",
+    "WORDBOUND_SOLO_ENTRY_CLEANUP: failures=0",
+    "WORDBOUND_SOLO_ENTRY_CLEANUP: failures=0"
+  ],
+  "priorFailures": "205241 48/51 fixture label fallback and unobserved lifecycle;205927 compile error from missing direct QA InputSystem reference. Original failure evidence preserved. Runtime assertions/deadlines retained."
+}

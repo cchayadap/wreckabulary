@@ -110,6 +110,14 @@ namespace Wreckabulary.Qa
             var controls = Session.Bindings.ToArray();
             Require(controls.Length == 1 && Session.LobbyQueue == queue && Session.LobbyMode == house && Session.MapId == map,
                 "Local entry changed the house selection or seats.");
+            Require(ReferenceEquals(Read<InputBinding>(view, "binding"), controls[0]), "Solo lost the exact invoking input binding.");
+            var adapted = Read<InputBinding>(view, "effectiveBinding") as WordboundInputBinding;
+            if (controls[0] is DesktopBinding || controls[0] is GamepadBinding)
+                Require(adapted != null && ReferenceEquals(adapted.BorrowedSource, controls[0]), "Solo must adapt only the invoking device.");
+            context.Note("solo_input_" + mode, new Dictionary<string, object> {
+                ["source"] = controls[0].GetType().Name, ["borrowed_exact_source"] = adapted != null && ReferenceEquals(adapted.BorrowedSource, controls[0]),
+                ["craft_hint"] = view.ControlHint(WordboundControl.Spell), ["menu_hint"] = view.ControlHint(WordboundControl.Menu),
+                ["scope"] = "Actual player composition and displayed bindings; no physical device events are injected." });
             var camera = view.Camera;
             var world = gameplay.CourseWorld;
             long tick = gameplay.Frame.Progress.Tick;
@@ -170,6 +178,13 @@ namespace Wreckabulary.Qa
             menu = LobbyMenu.Instance;
             Require(menu.Page<PlayPage>().WordboundSolo && WordboundSoloEntry.SelectedMode == mode && menu.Mode == house && menu.Map == map &&
                 menu.Queue == queue && menu.PartySize == 1 && Session.Bindings.SequenceEqual(controls), "Return lost the solo or original house/device state.");
+            if (adapted?.BorrowedSource != null)
+            {
+                Require(Read<bool>(adapted, "disposed"), "Returning to the lobby retained a live borrowed-input wrapper.");
+                Require(adapted.ControlHint(WordboundControl.Spell) == "", "Returning to the lobby did not dispose the borrowed-input wrapper.");
+                if (controls[0] is DesktopBinding keys) Require(keys.Map.enabled, "Returning disposed the caller's desktop controls.");
+                context.Note("solo_input_released_" + mode, new Dictionary<string, object> { ["wrapper_disposed"] = true, ["source_preserved"] = true });
+            }
             yield return Shot(context, "solo_" + mode.ToLowerInvariant() + "_returned");
         }
 

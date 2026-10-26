@@ -832,3 +832,7 @@ Windows QA adds one creator-selection screenshot (20 lobby frames total), retain
 Compact parent-size observation passes native204939 10/10 after preserving first204407 9/10 resize failure. R0204844 passes. Exact source and results: BuildNotes/client-view/windows-202047-compact-play/native-verification.json. Failed Windows202047 receipt preserves build/lobby PASS, Freestyle readiness FAIL and4190 authored-file preservation; no delivery promotion. Mode-aware readiness patch source-reviewed and compiled, still requires fresh Windows. Borrowed Solo controls correction remains separate draft. Original assets and other jobs preserved.
 
 Next: finish borrowed-input source review, run native controls/entry regressions, then build and inspect a fresh Windows candidate.
+
+## 2026-10-26T21:03:08Z Exact local controls and minimal hints
+
+Fixed-device borrowed input adapters preserve the original Session binding/map/device while adding Wordbound menu, aim, held attack and equipment cycling. HUD uses real remapped labels or concise generic actions. R0210044 and native210101 pass51/51 with six zero-failure scene cleanups. First48/51 fixture failure and missing QA InputSystem compile reference remain preserved in BuildNotes/client-view/solo-input-hints/native-verification.json. Destruction-handler tests are distinct from fresh Windows actual teardown assertions, which now read disposed state and preserve caller map. Next: commit source, baseline4190 authored inputs, build exact Windows and run both scenarios.

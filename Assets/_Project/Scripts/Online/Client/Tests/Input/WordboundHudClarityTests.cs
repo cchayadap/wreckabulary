@@ -105,6 +105,24 @@ namespace Wreckabulary.Online.Tests
         }
 
         [Test]
+        public void UnknownBindingShowsConciseActionsWithoutInventedKeysOrDuplicatedLabels()
+        {
+            var root = new GameObject("Unknown HUD hint test");
+            try
+            {
+                var view = root.AddComponent<WordboundPlayerView>(); view.enabled = false;
+                view.Initialize(root.AddComponent<WordboundGameplayController>(), root.AddComponent<Camera>(), new ScriptedBinding());
+                var hud = root.AddComponent<WordboundMatchHud>(); Field("view").SetValue(hud, view);
+                Assert.AreEqual("Craft", Invoke(hud, "Hint", WordboundControl.Spell, "Craft"));
+                Assert.AreEqual("Menu", Invoke(hud, "Hint", WordboundControl.Menu, "Menu"));
+                Assert.AreEqual("Smash furniture", Invoke(hud, "Hint", WordboundControl.Attack, "Smash furniture"));
+                CollectionAssert.AreEqual(new[] { "Pick up / use", "Smash", "Craft from letters", "Throw", "Hold Drop",
+                    "Change equipment", "Hold Block with a shield", "Resume / menu" }, (string[])Invoke(hud, "HelpControls"));
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void EmptyLetterBagIsHiddenAndLongBagIsSummarizedWithoutMutation()
         {
             var bag = LetterBag.FromWord("ABCDEFGHIJKLMNOPQRSTUVWXYZ");

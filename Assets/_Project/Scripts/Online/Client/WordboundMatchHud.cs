@@ -304,7 +304,7 @@ namespace Wreckabulary.Online
         string Hint(WordboundControl control, string fallback)
         {
             string hint = view.ControlHint(control);
-            return string.IsNullOrEmpty(hint) ? fallback : "[" + hint + "]";
+            return string.IsNullOrEmpty(hint) ? fallback : "[" + hint + "] " + fallback;
         }
 
         sealed class HudPanel

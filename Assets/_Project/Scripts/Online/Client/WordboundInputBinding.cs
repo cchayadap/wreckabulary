@@ -20,7 +20,9 @@ namespace Wreckabulary.Online
 
     public sealed class WordboundInputBinding : InputBinding, IDisposable
     {
-        readonly DesktopBinding desktop = new DesktopBinding();
+        readonly DesktopBinding desktop;
+        public InputBinding BorrowedSource { get; }
+        bool fixedPadUnavailable;
         readonly Dictionary<Gamepad, Vector4> sticks = new Dictionary<Gamepad, Vector4>();
         readonly List<Gamepad> removed = new List<Gamepad>();
         Gamepad selected;
@@ -35,9 +37,24 @@ namespace Wreckabulary.Online
         string hintLayout;
         public int Revision { get; private set; }
         public Gamepad ActiveGamepad => selected;
-        public override string Id => selected == null ? desktop.Id : gamepad.Id;
+        public override string Id => gamepad?.Id ?? desktop?.Id ?? "wordbound-input";
         public override bool CanLook => true;
-        public override bool ReadsMouse => selected == null;
+        public override bool ReadsMouse => !disposed && selected == null && desktop != null;
+
+        public WordboundInputBinding() => desktop = new DesktopBinding();
+
+        public WordboundInputBinding(DesktopBinding source)
+        {
+            desktop = source ?? throw new ArgumentNullException(nameof(source));
+            BorrowedSource = source;
+        }
+
+        public WordboundInputBinding(GamepadBinding source)
+        {
+            gamepad = source ?? throw new ArgumentNullException(nameof(source));
+            selected = source.Pad ?? throw new ArgumentException("A borrowed gamepad binding needs its original device.", nameof(source));
+            BorrowedSource = source;
+        }
 
         public string ControlHint(WordboundControl control)
         {
@@ -118,6 +135,14 @@ namespace Wreckabulary.Online
         public bool RefreshDevice(bool allowSelection = true)
         {
             if (disposed) return false;
+            if (BorrowedSource != null)
+            {
+                bool unavailable = selected != null && (!selected.added || !selected.enabled);
+                bool lostFixed = unavailable && !fixedPadUnavailable;
+                if (unavailable != fixedPadUnavailable) SuspendGameplay();
+                fixedPadUnavailable = unavailable;
+                return lostFixed;
+            }
             bool lost = selected != null && (!selected.added || !selected.enabled);
             if (lost) Select(null);
             removed.Clear();
@@ -172,7 +197,7 @@ namespace Wreckabulary.Online
             commands = default;
             if (disposed) return;
             RefreshDevice();
-            if (DesktopBinding.Typing || KeyBindings.GameplayBlocked || Time.timeScale <= 0)
+            if (fixedPadUnavailable || DesktopBinding.Typing || KeyBindings.GameplayBlocked || Time.timeScale <= 0)
             {
                 SuspendGameplay();
                 return;
@@ -244,13 +269,13 @@ namespace Wreckabulary.Online
         {
             RefreshDevice();
             return !disposed && !DesktopBinding.Typing && !KeyBindings.GameplayBlocked &&
-                (selected == null ? desktop.JoinPressed() : gamepad.JoinPressed());
+                (selected == null ? desktop.JoinPressed() : selected.added && selected.enabled && gamepad.JoinPressed());
         }
 
         public override bool StartPressed()
         {
             return !disposed && !DesktopBinding.Typing && !KeyBindings.GameplayBlocked &&
-                (selected == null ? desktop.Pause.WasPressedThisFrame() : selected.startButton.wasPressedThisFrame);
+                (selected == null ? desktop.Pause.WasPressedThisFrame() : selected.added && selected.enabled && selected.startButton.wasPressedThisFrame);
         }
 
         public void Dispose()
@@ -259,7 +284,7 @@ namespace Wreckabulary.Online
             disposed = true;
             selected = null; gamepad = null; sticks.Clear();
             removed.Clear();
-            desktop.Dispose();
+            if (BorrowedSource == null) desktop?.Dispose();
         }
     }
 }

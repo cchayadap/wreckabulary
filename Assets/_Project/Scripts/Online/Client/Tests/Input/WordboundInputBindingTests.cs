@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Controls;
 using Object = UnityEngine.Object;
 
 namespace Wreckabulary.Online.Tests
@@ -168,7 +170,7 @@ namespace Wreckabulary.Online.Tests
         }
 
         [Test]
-        public void PlayerViewForwardsWordboundBindingWhileLegacyAndUnknownBindingsStayGeneric()
+        public void PlayerViewKeepsOriginalBindingAndOwnsOnlyItsFixedAdapter()
         {
             using var legacyDesktop = new DesktopBinding();
             foreach (var source in new InputBinding[] { binding, legacyDesktop, new GamepadBinding(pad), new UnreadableBinding() })
@@ -178,13 +180,260 @@ namespace Wreckabulary.Online.Tests
                 {
                     var view = root.AddComponent<WordboundPlayerView>(); view.enabled = false;
                     view.Initialize(root.AddComponent<WordboundGameplayController>(), root.AddComponent<Camera>(), source);
+                    Assert.AreSame(source, ViewField("binding").GetValue(view), "The invoking seat identity must remain exact.");
+                    var effective = (InputBinding)ViewField("effectiveBinding").GetValue(view);
+                    if (source is DesktopBinding || source is GamepadBinding)
+                    {
+                        Assert.AreNotSame(source, effective);
+                        Assert.AreSame(source, ((WordboundInputBinding)effective).BorrowedSource);
+                        Assert.AreSame(effective, ViewField("ownedBinding").GetValue(view));
+                    }
+                    else Assert.AreSame(source, effective);
                     foreach (WordboundControl control in Enum.GetValues(typeof(WordboundControl)))
-                        Assert.AreEqual(ReferenceEquals(source, binding) ? binding.ControlHint(control) : "",
-                            view.ControlHint(control), source.GetType().Name + " " + control);
+                    {
+                        string hint = view.ControlHint(control);
+                        if (source is UnreadableBinding) Assert.AreEqual("", hint);
+                        else Assert.IsNotEmpty(hint, source.GetType().Name + " " + control);
+                    }
                     Assert.AreEqual("", view.ControlHint((WordboundControl)99));
+                    if (source is DesktopBinding desktopSource)
+                    {
+                        Assert.AreEqual(KeyBindings.Display(desktopSource.Interact), view.ControlHint(WordboundControl.Interact));
+                        Assert.AreEqual(KeyBindings.Display(desktopSource.Spell), view.ControlHint(WordboundControl.Spell));
+                        Assert.AreEqual(KeyBindings.Display(desktopSource.Pause), view.ControlHint(WordboundControl.Menu));
+                        Assert.AreEqual(KeyBindings.Display(desktopSource.Bag), view.ControlHint(WordboundControl.CycleGear));
+                    }
+                    if (source is GamepadBinding padSource)
+                    {
+                        Assert.AreEqual(ExpectedButtonName(padSource.Pad.buttonWest, "X"), view.ControlHint(WordboundControl.Attack));
+                        Assert.AreEqual(ExpectedButtonName(padSource.Pad.buttonNorth, "Y"), view.ControlHint(WordboundControl.Spell));
+                        Assert.AreEqual(ExpectedButtonName(padSource.Pad.startButton, "Start"), view.ControlHint(WordboundControl.Menu));
+                    }
                 }
-                finally { Object.DestroyImmediate(root); }
+                finally { DestroyViewThroughHandlers(root); }
             }
+            Assert.IsTrue(legacyDesktop.Map.enabled, "The destruction handler must preserve the borrowed source map.");
+        }
+
+        static string ExpectedButtonName(ButtonControl button, string fallback)
+        {
+            string name = button.shortDisplayName;
+            if (string.IsNullOrEmpty(name)) name = button.displayName;
+            return !string.IsNullOrEmpty(name) && KeyBindings.IsLatin(name) ? name : fallback;
+        }
+
+        static void DestroyViewThroughHandlers(GameObject root)
+        {
+            var view = root ? root.GetComponent<WordboundPlayerView>() : null;
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            try
+            {
+                if (view) typeof(WordboundPlayerView).GetMethod("OnDisable", flags).Invoke(view, null);
+            }
+            finally
+            {
+                try
+                {
+                    if (view)
+                    {
+                        var destroy = typeof(WordboundPlayerView).GetMethod("OnDestroy", flags);
+                        destroy.Invoke(view, null);
+                        Assert.IsNull(ViewField("ownedBinding").GetValue(view), "The production destruction handler releases its ownership.");
+                        destroy.Invoke(view, null);
+                        Assert.IsNull(ViewField("ownedBinding").GetValue(view), "Repeated destruction is harmless.");
+                    }
+                }
+                finally { if (root) Object.DestroyImmediate(root); }
+            }
+        }
+
+        static FieldInfo ViewField(string name) => typeof(WordboundPlayerView).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+        static void ProcessView(WordboundPlayerView view, bool focused) => typeof(WordboundPlayerView)
+            .GetMethod("ProcessInput", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(view, new object[] { focused });
+
+        [Test]
+        public void BorrowedDesktopDestroyHandlerPreservesSourceMapAndRemappedControls()
+        {
+            using var source = new DesktopBinding();
+            source.Interact.ApplyBindingOverride(0, "<Keyboard>/f");
+            source.Spell.ApplyBindingOverride(0, "<Keyboard>/t");
+            source.Pause.ApplyBindingOverride(0, "<Keyboard>/p");
+            source.Bag.ApplyBindingOverride(0, "<Keyboard>/h");
+            int version = KeyBindings.Version;
+            var seats = Session.Bindings.ToArray();
+            string overrides = source.Map.SaveBindingOverridesAsJson();
+            var root = new GameObject("Borrowed desktop input test");
+            WordboundInputBinding adapted = null;
+            try
+            {
+                var view = root.AddComponent<WordboundPlayerView>(); view.enabled = false;
+                view.Initialize(root.AddComponent<WordboundGameplayController>(), root.AddComponent<Camera>(), source);
+                adapted = (WordboundInputBinding)ViewField("effectiveBinding").GetValue(view);
+                Assert.AreSame(source, ViewField("binding").GetValue(view));
+                Assert.AreSame(source, adapted.BorrowedSource);
+                WordboundNativeInputScope.Sample(keyboard, new KeyboardState(Key.F, Key.T, Key.H, Key.P));
+                Assert.AreEqual("F", view.ControlHint(WordboundControl.Interact));
+                Assert.AreEqual("T", view.ControlHint(WordboundControl.Spell));
+                Assert.AreEqual("P", view.ControlHint(WordboundControl.Menu));
+                Assert.AreEqual("H", view.ControlHint(WordboundControl.CycleGear));
+                Assert.AreEqual(KeyBindings.Display(source.Attack), view.ControlHint(WordboundControl.Attack));
+                var command = default(PlayerCommands); adapted.Read(ref command);
+                Assert.IsTrue(command.grab && command.spellDown && command.swap);
+                Assert.IsTrue(source.Interact.WasPressedThisFrame(), "Hints do not consume the source action.");
+                Assert.IsTrue(view.MenuOpen);
+                ProcessView(view, true);
+                Assert.IsFalse(view.MenuOpen, "The displayed remapped Pause action must open/close the actual view menu.");
+                ProcessView(view, false);
+                adapted.Read(ref command);
+                Assert.IsFalse(command.grab || command.spellDown || command.swap, "Focus loss must require release.");
+                WordboundNativeInputScope.Sample(keyboard, new KeyboardState()); adapted.Read(ref command);
+                WordboundNativeInputScope.Sample(keyboard, new KeyboardState(Key.F, Key.T, Key.H)); adapted.Read(ref command);
+                Assert.IsTrue(command.grab && command.spellDown && command.swap);
+                source.Spell.ApplyBindingOverride(0, "<Keyboard>/g");
+                Assert.AreEqual("G", view.ControlHint(WordboundControl.Spell));
+                source.Spell.ApplyBindingOverride(0, "");
+                Assert.AreEqual("Unbound", view.ControlHint(WordboundControl.Spell));
+                source.Spell.ApplyBindingOverride(0, "<Keyboard>/t");
+            }
+            finally { DestroyViewThroughHandlers(root); }
+            Assert.AreEqual("", adapted.ControlHint(WordboundControl.Spell), "The production destruction handler must dispose only the wrapper.");
+            Assert.IsTrue(source.Map.enabled);
+            Assert.AreEqual(overrides, source.Map.SaveBindingOverridesAsJson());
+            Assert.AreEqual(version, KeyBindings.Version);
+            CollectionAssert.AreEqual(seats, Session.Bindings);
+        }
+
+        [Test]
+        public void BorrowedGamepadDestroyHandlerPreservesSourceAfterWordboundActions()
+        {
+            var source = new GamepadBinding(pad);
+            var other = Add<Gamepad>();
+            var root = new GameObject("Borrowed gamepad input test");
+            WordboundInputBinding adapted = null;
+            try
+            {
+                var view = root.AddComponent<WordboundPlayerView>(); view.enabled = false;
+                view.Initialize(root.AddComponent<WordboundGameplayController>(), root.AddComponent<Camera>(), source);
+                adapted = (WordboundInputBinding)ViewField("effectiveBinding").GetValue(view);
+                Assert.AreSame(source, ViewField("binding").GetValue(view));
+                Assert.AreSame(source, adapted.BorrowedSource);
+                WordboundNativeInputScope.Sample(keyboard, new KeyboardState(Key.F));
+                WordboundNativeInputScope.Sample(other, new GamepadState().WithButton(GamepadButton.West));
+                Assert.IsFalse(adapted.RefreshDevice());
+                Assert.AreSame(pad, adapted.ActiveGamepad);
+                Assert.IsTrue(view.UsesGamepad);
+                WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.West)
+                    .WithButton(GamepadButton.North).WithButton(GamepadButton.RightShoulder).WithButton(GamepadButton.RightStick));
+                var command = default(PlayerCommands); adapted.Read(ref command);
+                Assert.IsTrue(command.attack && command.attackHeld && command.aimHeld && command.spellDown && command.swap);
+                Assert.AreEqual(ExpectedButtonName(pad.buttonNorth, "Y"), view.ControlHint(WordboundControl.Spell));
+                Assert.AreEqual(ExpectedButtonName(pad.rightShoulder, "RB"), view.ControlHint(WordboundControl.Aim));
+                Assert.AreEqual(ExpectedButtonName(pad.startButton, "Start"), view.ControlHint(WordboundControl.Menu));
+                WordboundNativeInputScope.Sample(pad, new GamepadState());
+                WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.Start));
+                ProcessView(view, true); Assert.IsFalse(view.MenuOpen);
+                ProcessView(view, false);
+                WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.West));
+                adapted.Read(ref command); Assert.IsFalse(command.attack || command.attackHeld);
+                WordboundNativeInputScope.Sample(pad, new GamepadState()); adapted.Read(ref command);
+                WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.West));
+                adapted.Read(ref command); Assert.IsTrue(command.attack && command.attackHeld);
+            }
+            finally { DestroyViewThroughHandlers(root); }
+            Assert.AreEqual("", adapted.ControlHint(WordboundControl.Attack));
+            Assert.IsTrue(pad.added && pad.enabled);
+            var original = default(PlayerCommands); source.Read(ref original);
+            Assert.IsTrue(original.attack, "The caller still owns a usable original binding.");
+        }
+
+        [Test]
+        public void BorrowedPadMenuUsesSharedReleaseRepeatConfirmAndBackPolicy()
+        {
+            using var adapted = new WordboundInputBinding(new GamepadBinding(pad));
+            WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.South));
+            adapted.SuspendGameplay();
+            Assert.IsFalse(adapted.ReadMenu(0).Confirm, "Opening craft while confirm is held must not activate it.");
+            WordboundNativeInputScope.Sample(pad, new GamepadState()); adapted.ReadMenu(.1f);
+            WordboundNativeInputScope.Sample(pad, new GamepadState { leftStick = new Vector2(0, -1) });
+            Assert.AreEqual(1, adapted.ReadMenu(.2f).Step);
+            Assert.AreEqual(0, adapted.ReadMenu(.3f).Step);
+            Assert.AreEqual(1, adapted.ReadMenu(.56f).Step);
+            WordboundNativeInputScope.Sample(pad, new GamepadState()); adapted.ReadMenu(.6f);
+            WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.South));
+            Assert.IsTrue(adapted.ReadMenu(.7f).Confirm);
+            WordboundNativeInputScope.Sample(pad, new GamepadState()); adapted.ReadMenu(.8f);
+            WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.East));
+            Assert.IsTrue(adapted.ReadMenu(.9f).Back);
+        }
+
+        [Test]
+        public void BorrowedPadCraftCommandAndBackUseTheActualHudAndViewMenuHandlers()
+        {
+            var source = new GamepadBinding(pad);
+            var root = new GameObject("Borrowed pad craft menu routing");
+            try
+            {
+                var controller = root.AddComponent<WordboundGameplayController>();
+                var view = root.AddComponent<WordboundPlayerView>(); view.enabled = false;
+                view.Initialize(controller, root.AddComponent<Camera>(), source);
+                var hud = root.AddComponent<WordboundMatchHud>(); hud.enabled = false;
+                var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                typeof(WordboundMatchHud).GetField("controller", flags).SetValue(hud, controller);
+                typeof(WordboundMatchHud).GetField("view", flags).SetValue(hud, view);
+                typeof(WordboundMatchHud).GetField("initialized", flags).SetValue(hud, true);
+                var readCommands = typeof(WordboundMatchHud).GetMethod("ReadCommands", flags);
+                var readMenu = typeof(WordboundMatchHud).GetMethod("ReadMenuCommands", flags);
+                view.MenuCommandsRead += command => readMenu.Invoke(hud, new object[] { command });
+                var adapted = (WordboundInputBinding)ViewField("effectiveBinding").GetValue(view);
+                view.SetMenuOpen(false);
+                WordboundNativeInputScope.Sample(pad, new GamepadState());
+                var command = default(PlayerCommands); adapted.Read(ref command);
+                WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.North));
+                adapted.Read(ref command); Assert.IsTrue(command.spellDown);
+                readCommands.Invoke(hud, new object[] { command });
+                Assert.IsTrue(view.MenuOpen);
+                Assert.IsTrue((bool)typeof(WordboundMatchHud).GetField("crafting", flags).GetValue(hud));
+                WordboundNativeInputScope.Sample(pad, new GamepadState()); ProcessView(view, true);
+                WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.East));
+                ProcessView(view, true);
+                Assert.IsFalse(view.MenuOpen);
+                Assert.IsFalse((bool)typeof(WordboundMatchHud).GetField("crafting", flags).GetValue(hud));
+                int lost = 0; view.MenuRequested += () => lost++;
+                InputSystem.DisableDevice(pad); ProcessView(view, true);
+                Assert.IsTrue(view.MenuOpen); Assert.AreEqual(1, lost);
+                ProcessView(view, true); Assert.AreEqual(1, lost);
+                Assert.AreSame(source, ViewField("binding").GetValue(view));
+                Assert.AreSame(source, adapted.BorrowedSource);
+            }
+            finally { DestroyViewThroughHandlers(root); }
+        }
+
+        [Test]
+        public void RemovedOrDisabledBorrowedPadNeverFallsBackToAnotherDevice()
+        {
+            using var adapted = new WordboundInputBinding(new GamepadBinding(pad));
+            var other = Add<Gamepad>();
+            WordboundNativeInputScope.Sample(other, new GamepadState().WithButton(GamepadButton.West));
+            InputSystem.DisableDevice(pad);
+            Assert.IsTrue(adapted.RefreshDevice());
+            Assert.IsFalse(adapted.RefreshDevice(), "Loss is reported once per availability transition.");
+            Assert.AreSame(pad, adapted.ActiveGamepad);
+            Assert.IsFalse(adapted.ReadsMouse || adapted.StartPressed());
+            Assert.AreEqual("", adapted.ControlHint(WordboundControl.Attack));
+            var command = default(PlayerCommands); adapted.Read(ref command);
+            Assert.IsFalse(command.attack || command.attackHeld || command.spellDown);
+            Assert.IsFalse(adapted.ReadMenu(1).Confirm);
+            InputSystem.EnableDevice(pad); Assert.IsFalse(adapted.RefreshDevice());
+            WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.West));
+            adapted.Read(ref command); Assert.IsFalse(command.attack || command.attackHeld);
+            WordboundNativeInputScope.Sample(pad, new GamepadState()); adapted.Read(ref command);
+            WordboundNativeInputScope.Sample(pad, new GamepadState().WithButton(GamepadButton.West));
+            adapted.Read(ref command); Assert.IsTrue(command.attack && command.attackHeld);
+            InputSystem.RemoveDevice(pad);
+            Assert.IsTrue(adapted.RefreshDevice());
+            Assert.AreSame(pad, adapted.ActiveGamepad);
+            adapted.Read(ref command); Assert.IsFalse(command.attack || command.attackHeld);
+            Assert.AreEqual("", adapted.ControlHint(WordboundControl.Attack));
         }
 
         sealed class UnreadableBinding : InputBinding
