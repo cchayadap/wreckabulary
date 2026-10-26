@@ -56,6 +56,101 @@ namespace Wreckabulary.Tests
             ExecuteEvents.Execute(button.gameObject, new BaseEventData(EventSystem.current), ExecuteEvents.submitHandler);
         }
 
+        [UnityTest]
+        public IEnumerator CompactWordboundFamiliesRefitWithoutChangingChoicesOrFooter()
+        {
+            var menu = LobbyMenu.Instance;
+            menu.Choose(LobbyMenu.Practice, "Duos", "flat");
+            menu.Open(LobbyMenu.Play);
+            var second = new ScriptedBinding();
+            menu.Join(second);
+            yield return null;
+            Submit("Family Wordbound");
+            yield return null;
+            Assert.IsFalse(Find("Solo GO").interactable);
+            var focus = EventSystem.current.currentSelectedGameObject;
+            foreach (var size in new[] { new Vector2(1868, 968), new Vector2(1388, 968), new Vector2(900, 920), new Vector2(900, 580), new Vector2(1868, 968) })
+            {
+                Page.anchorMin = Page.anchorMax = Vector2.zero;
+                Page.sizeDelta = size;
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                AssertCompactFamily(size, "Solo modes", "Solo summary");
+                Assert.AreSame(focus, EventSystem.current.currentSelectedGameObject, "resizing must not recreate focus");
+                Assert.IsFalse(Find("Solo GO").interactable, "the extra-seat guard survives refit");
+            }
+            Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
+            Assert.AreSame(second, menu.Party.Single());
+            Submit("Family house");
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            AssertFullHousePanel();
+            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            Submit("Queue " + LobbyMenu.Workshop);
+            yield return null;
+            Submit("Create Wordbound");
+            yield return null;
+            foreach (var size in new[] { new Vector2(1868, 968), new Vector2(900, 580) })
+            {
+                Page.sizeDelta = size;
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                AssertCompactFamily(size, "Wordbound workshop", "Workshop summary");
+                Assert.AreEqual(Session.CanLoad(Session.WordboundScene), Find("Workshop OPEN").interactable);
+            }
+            Submit("Create house");
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            AssertFullHousePanel();
+            CollectionAssert.AreEqual(new[] { LobbyMenu.TutorialMode, LobbyMenu.WorkshopMode }, Modes);
+            menu.Leave(second);
+        }
+
+        static void AssertFullHousePanel()
+        {
+            var panel = Page.Find("Panel") as RectTransform;
+            Assert.IsNull(panel.GetComponent<LobbyCompactPanel>());
+            Assert.That(panel.rect.width, Is.EqualTo(Page.rect.width).Within(.1f));
+            Assert.That(panel.rect.height, Is.EqualTo(Page.rect.height).Within(.1f));
+        }
+
+        static void AssertCompactFamily(Vector2 available, string rowName, string summaryName)
+        {
+            var panel = Page.Find("Panel") as RectTransform;
+            Assert.IsNotNull(panel.GetComponent<LobbyCompactPanel>());
+            Assert.That(panel.rect.width, Is.EqualTo(Mathf.Min(1100, available.x)).Within(.1f));
+            Assert.That(panel.rect.height, Is.EqualTo(Mathf.Min(600, available.y)).Within(.1f));
+            var panelBounds = InPage(panel);
+            Assert.That(panelBounds.xMax, Is.EqualTo(Page.rect.xMax).Within(.1f));
+            Assert.That(panelBounds.yMax, Is.EqualTo(Page.rect.yMax).Within(.1f));
+            var rects = panel.GetComponentsInChildren<RectTransform>();
+            var row = InPage(rects.Single(rect => rect.name == rowName));
+            var summary = InPage(rects.Single(rect => rect.name == summaryName));
+            Assert.LessOrEqual(summary.yMax, row.yMin - 1f, "the footer must not overlap cards");
+            foreach (var button in panel.GetComponentsInChildren<Button>())
+            {
+                var bounds = InPage((RectTransform)button.transform);
+                Assert.GreaterOrEqual(bounds.xMin, panelBounds.xMin - .1f, button.name);
+                Assert.LessOrEqual(bounds.xMax, panelBounds.xMax + .1f, button.name);
+                Assert.GreaterOrEqual(bounds.yMin, panelBounds.yMin - .1f, button.name);
+                Assert.LessOrEqual(bounds.yMax, panelBounds.yMax + .1f, button.name);
+            }
+            foreach (var text in panel.GetComponentsInChildren<TMP_Text>())
+            {
+                text.ForceMeshUpdate();
+                Assert.IsFalse(text.isTextTruncated || text.isTextOverflowing, text.name + ": " + text.text);
+            }
+        }
+
+        static Rect InPage(RectTransform rect)
+        {
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            var min = Page.InverseTransformPoint(corners[0]);
+            var max = Page.InverseTransformPoint(corners[2]);
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+        }
+
         [Test]
         public void LocalCreatorIntentIsOneShotExclusiveAndResetWithSession()
         {

@@ -4,6 +4,9 @@ Owner: James / SethyPagna. Updated 2026-10-27 (Asia/Hong_Kong).
 
 ## Current continuation — online presentation and match stability
 
+- [~] Windows candidate **20261026T202047Z** builds successfully from **c44a39a0**. Lobby202433 passes five stages and 20 actual screenshots. Solo202643 passes selection and Time Run, then fails Freestyle's 12-second render/guide readiness conjunction; the recorded failure does not isolate its cause. Both mode cleanups pass and all **4,190** authored files remain unchanged. This candidate is not promoted over the previous delivery.
+- [~] Review the actual Windows images: shrink the oversized Solo/Wordbound Maps panels, and fix Solo's borrowed desktop/controller support and repeated action labels. The mode-specific guide check is independently source-reviewed; fresh native and Windows verification is required after these corrections.
+
 - [x] Integrate the original Home background into the online screen, separate Create/Join, and fold party settings/private-room actions behind concise controls. Keyboard/controller focus, cancellation and hidden-action guards pass in the focused **51/51** Unity suite.
 - [x] Capture **16 actual Unity GameView images** at 1280×720 and 854×480, including larger text, searching, private rooms and retry. Source/theme/font hashes and cleanup pass. Coordinator responses are synthetic; this does not prove online play or physical input. [Evidence](BuildNotes/completion-20261027/online-shell-verification.json).
 - [x] Recheck the stronger physical Workshop starter: native185112 passes all three laps, enabled/active colliders, saved draft and Undo/Redo return, with zero cleanup failures. [Revision 2 proof](BuildNotes/completion-20261027/workshop-starter-revision2-verification.json).
@@ -14,7 +17,7 @@ Owner: James / SethyPagna. Updated 2026-10-27 (Asia/Hong_Kong).
 - [~] Correct successful durable-save scheduling so publication time does not add an unnecessary second waiting interval. R0, **222/222** rules tests and the focused Unity suite pass. Full public FFA184207 fails its unchanged 35-second contact-return bound, with zero cleanup failures or session faults. Save scheduling gaps decrease, but observed request latency remains high. [Evidence](BuildNotes/completion-20261027/ffa-full-match-184207.json). Full-match acceptance remains open.
 - [~] FAN build07 now passes native original-contact selection, all four GLB/FBX reimports, clearance, envelope and source preservation. Its detailed LOD uses **8,775 / 15,032 triangles (58.38%)**, preserving eight problem parts. Matched render, Unity hand contact, motion and visual acceptance remain pending. Original production artwork remains active. [Native source proof](BuildNotes/completion-20261027/assets-build07/native-build-verification.md).
 
-Latest Windows build remains **20261026T164019Z** until the new source completes player checks. Recovery snapshot20:01:58 preserves **1,272** modified/untracked files; all unrelated jobs remain running. The new Windows lobby scenario covers **20** views, including creator selection; the separate solo scenario covers **9** views. Both player runs remain pending.
+Latest delivered Windows build remains **20261026T164019Z** until the new source completes player checks. Recovery snapshot20:39:58 preserves **1,337** modified/untracked files; all unrelated jobs remain running. The new Windows lobby scenario covers **20** views, including creator selection; the separate solo scenario expects **9** views and produced six before its first recorded failure.
 
 Legend: `[ ]` unfinished; `[~]` in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 

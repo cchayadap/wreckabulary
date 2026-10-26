@@ -1,0 +1,33 @@
+{
+  "revision": 2,
+  "scope": "Source-only parent-resize observation fix; native first revision9/10 failed preserved",
+  "files": [
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/PlayPage.cs",
+      "baselineSha256": "1bedd36527e15cefd1a6021c1be0dddea3f92510fcee7c006ad8c4846cad6823",
+      "candidateSha256": "717f3a59e4fe8144d8363f96955cbd7e1387b8fd57b3beb0ca0c10d30aa4168b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyCompactPanel.cs",
+      "baselineSha256": null,
+      "candidateSha256": "aeedbb8ae236d39f3fbf751d563ed7dead4a06bb499d6bfd0b626e69f72b4c92"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyPlayChoiceTests.cs",
+      "baselineSha256": "d15025eca05027a357e05710f96e821f3c2a8f88cd6967046c1bf311e62cc341",
+      "candidateSha256": "bdcf0c9e568c5a6529a05ef8fedd642ce11ea238c6b75451c44b3734fb9dbf39"
+    }
+  ],
+  "patchSha256": "7398bc4a7cf26bcb0fdab67e47126cbdb5f859e6da366dc31d3fb0251fc2ce75",
+  "incrementalPatchSha256": "99c5c909e6c1443e2a014c3e0b1ef77f28ea155aba9df616152891dd71bb92fa",
+  "strictIncrementalApplyCheck": {
+    "exit": 0,
+    "output": ""
+  },
+  "strictFullBaselineApplyCheck": {
+    "exit": 0,
+    "output": ""
+  },
+  "nativeTests": "Revision1 FAIL9/10; revision2 NOT RUN",
+  "nativeVisualAcceptance": "PENDING"
+}

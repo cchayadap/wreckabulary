@@ -34,6 +34,13 @@ namespace Wreckabulary
         protected override void Build()
         {
             var body = Panel(Vector2.zero, Vector2.one, "Play", QueueLine(DisplayQueue));
+            if ((DisplayQueue == LobbyMenu.Practice && WordboundSolo) ||
+                (DisplayQueue == LobbyMenu.Workshop && WordboundMaps))
+            {
+                var fit = body.parent.gameObject.AddComponent<LobbyCompactPanel>();
+                fit.MaximumSize = new Vector2(1100, 600);
+                fit.Fit();
+            }
             var queues = LobbyKit.Segmented(body.parent, "Queues", Queues, "Queue " + DisplayQueue, PickQueue, 52, 20);
             queues.Place(Vector2.one, Vector2.one, new Vector2(-688, -78), new Vector2(-88, -26));
 

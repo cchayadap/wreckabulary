@@ -125,8 +125,27 @@ namespace Wreckabulary.Qa
             try
             {
                 view.SetMenuOpen(false);
-                yield return context.WaitUntil(() => cameraFrames >= 3 && gameplay.Frame.Progress.Tick > tick + 5 && guide.MarkerCount > 0,
-                    12, "fresh assigned camera frames, simulation and guide");
+                int expectedMarkers = -1;
+                bool RenderReady()
+                {
+                    var frame = gameplay.Frame;
+                    expectedMarkers = WordboundPuzzleGuidePlan.Build(course, frame, frame.Progress.Players.Single().Id).Count;
+                    return cameraFrames >= 3 && frame.Progress.Tick > tick + 5 && guide.Fault == "" &&
+                        guide.isActiveAndEnabled && Read<object>(guide, "view") != null &&
+                        guide.MarkerCount == expectedMarkers && (mode != "TimeRun" || expectedMarkers > 0);
+                }
+                try
+                {
+                    yield return context.WaitUntil(RenderReady, 12, "fresh assigned camera frames, simulation and the exact mode guide");
+                }
+                finally
+                {
+                    context.Note("solo_render_readiness_" + mode, new Dictionary<string, object> {
+                        ["expected_markers"] = expectedMarkers, ["rendered_markers"] = guide ? guide.MarkerCount : -1,
+                        ["camera_frames"] = cameraFrames, ["canonical_ticks"] = gameplay.Frame.Progress.Tick - tick,
+                        ["guide_fault"] = guide ? guide.Fault : "guide unavailable",
+                        ["scope"] = "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station." });
+                }
                 Require(camera.enabled && camera.targetTexture == null && guide.Fault == "", "The assigned game camera or guide is unavailable.");
                 yield return Shot(context, "solo_" + mode.ToLowerInvariant() + "_world");
                 view.SetMenuOpen(true);
