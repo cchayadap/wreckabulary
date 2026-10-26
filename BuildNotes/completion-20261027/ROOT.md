@@ -51,3 +51,9 @@ Source/menu/cadence commit cd716e6a is saved. Full FFA184207 is terminal FAIL502
 Current sole native job: strengthened starter185112, gatePID34552/session84914, prefix .harness/delivery/starter-physical-2026-10-26T18-51-11-950Z. Read its terminal receipt before another native operation.
 
 FAN admission inspection found original V1 GLB/catalogue grip at y0.4105 but inherited05/06 pilot grip at origin. Existing pilot preservation checks do not prove original hand contact. Build06 native is held; fresh07 source must combine its reviewed LOD protections with the original grip contract. No model/profile/default was changed.
+
+## 2026-10-26T18:56:00Z Strengthened creator verification and solo integration
+
+Starter185112 passes1/1 in154.1s with active/enabled deployed colliders, three physical laps, same editable save/history return and cleanup0. Exact evidence is workshop-starter-revision2-verification.json; the pre-solo source base is33b4c5d1 plus the bounded fixture revision. This rerun also includes committed cadence logic.
+
+Direct solo revision2 patch27a7f59b is now integrated after root caller/failure-path review. R0 185433 passes, core185459 passes117/117. The current sole native job is solo-lobby185537, session81002/gatePID20908, prefix .harness/delivery/solo-lobby-2026-10-26T18-55-37-190Z. No native solo mode launch or new Windows delivery is claimed yet. FAN07 original-grip correction and compact online Create remain source drafts. Root must read terminal job status, then run the3-case native solo fixture before player/build acceptance.

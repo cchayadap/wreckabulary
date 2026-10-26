@@ -12,6 +12,8 @@ The reviewed defaults use Idle **75 / 0** and Hurt **18 / 60** (Brow Relax / Bli
 
 The compact Wordbound HUD uses **Interface fonts, colours & spacing** (`Interface.asset`): **Primary** controls the panel colour, **Primary Text** its lettering and **Body Size** its type size. Full controls are in the player's **Menu → Help**; quick tips can be hidden there. HUD positions remain generated in this correction, so dragging temporary Play-mode panels is not a saved layout edit.
 
+The same Interface asset now has an **Online room** group. **Online Use Lobby Background** follows the room selected on Home. Drag a texture into **Online Background** for a separate backdrop, and adjust **Online Background Shade** to darken it behind the menu. Clear the override to follow Home again. These fields are Inspector editable; this update does not overwrite your saved theme or textures. Online party controls still use generated layout. Their 16-image Unity review includes normal/narrow windows and larger type; ordinary Inspector save/reopen and physical navigation remain separate acceptance work.
+
 ## Saved lobby layouts
 
 The lobby refinement keeps the original room and saved layouts. **Customize** opens the existing Loadout editor; **Shop** is visible beside the coin balance. **Local 1/4** counts players on this PC. Play separates **Local**, **Online** (the actual Wordbound lobby), and **Create** (learning and the home-building workshop). The selected mode shows its objective and real human/bot composition once. These labels do not add online support to the original house modes.

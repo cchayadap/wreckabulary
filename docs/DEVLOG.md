@@ -802,3 +802,7 @@ Successful checkpoint starts use the existing configured interval without adding
 Online shell/cadence source is committed as cd716e6a. Full public FFA184207 fails502.4s after an unchanged35.012s contact-return deadline, not the global lifetime; zero sessionfaults and cleanup failures. ffa-full-match-184207.json pins the exact native log/XML and metrics. Reduced ACK-to-next scheduling gap does not close full-match/performance acceptance. A source-only trajectory/timing review follows; no automatic unchanged repeat or relaxed bound.
 
 Original FAN source/catalogue grip differs from inherited pilot identity marker. Build06's LOD source review remains valid but its native admission is held for a fresh original-contact correction. No live art override. Strengthened starter185112 is the sole running native job; ordinary Windows and owner visual acceptance remain open.
+
+## 2026-10-26T18:57:00Z Strengthened starter verified
+
+Native185112 passes the exact three-lap creator fixture1/1 in154.1s with zero skips/cleanup failures. Revision2 requires the deployed collider to be active/enabled and separates input restoration from observer removal on cleanup. Three genuine STOOL crafts/socket holds/consumptions and keepsake deliveries lead to a Win, followed by same saved draft and Undo/Redo through production ReturnToWorkshop. The cadence source is included. Evidence: BuildNotes/completion-20261027/workshop-starter-revision2-verification.json. Physical devices, Windows visuals and multiplayer remain separate.

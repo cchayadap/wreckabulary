@@ -187,7 +187,9 @@ namespace Wreckabulary.OfflineGameplayTests
                 scriptedMovement = () => default;
                 Assert.AreEqual(ItemState.Deployed, Frame.Economy.Items.Single(item => item.Id == stool.Id).State);
                 Assert.IsTrue(controller.Bodies[id].Rigidbody.isKinematic);
-                Assert.IsNotNull(controller.Bodies[id].GetComponent<BoxCollider>());
+                var collider = controller.Bodies[id].GetComponent<BoxCollider>();
+                Assert.IsNotNull(collider); Assert.IsTrue(collider.enabled);
+                Assert.IsTrue(collider.gameObject.activeInHierarchy);
                 yield return Until(() => Mechanism(currentLap).Physical.Stage == MatchPhysicalStage.Complete,
                     "Hold the real native STOOL in the unchanged physical socket", 15);
                 Assert.AreEqual(id, Mechanism(lap).ItemEntityId);
@@ -347,8 +349,10 @@ namespace Wreckabulary.OfflineGameplayTests
         {
             var failures = new List<string>();
             lifetime?.Cancel();
-            try { RestoreMovement(); DetachObservation(); }
-            catch (Exception error) { failures.Add("input/observer: " + error.GetType().Name); }
+            try { RestoreMovement(); }
+            catch (Exception error) { failures.Add("input restore: " + error.GetType().Name); }
+            try { DetachObservation(); }
+            catch (Exception error) { failures.Add("observer detach: " + error.GetType().Name); }
             Task stop = null;
             try { if (client) stop = client.ReturnToWorkshop(); }
             catch (Exception error) { failures.Add("stop start: " + error.GetType().Name); }
