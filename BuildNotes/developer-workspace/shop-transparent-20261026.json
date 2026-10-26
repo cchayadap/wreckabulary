@@ -1,0 +1,341 @@
+{
+  "utc": "2026-10-26T12:26:57.040Z",
+  "status": "NATIVE_VERIFIED_PENDING_WINDOWS_AND_OWNER_REVIEW",
+  "headBeforeCommit": "290b3b6c9fc44f297e966b7b78b3b4ec052e6dd7",
+  "scope": "Six original-rig shop portraits with measured neutral front lighting and verified native transparency. Truthful local-house versus Wordbound-online copy; behavior remains blocked for unsupported legacy online modes.",
+  "selectedLighting": {
+    "control": "D-neutral-front-soft",
+    "key": 0.8,
+    "fill": 0.4,
+    "ambient": 0.45
+  },
+  "sources": [
+    {
+      "path": "Assets/_Project/Editor/Art/ShopPreviewImporter.cs",
+      "sha256": "4bfb2a86301079eedebac264f30865266e7ef16e092caefc36bd8dcbc7035f75",
+      "bytes": 38910
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyMenu.cs",
+      "sha256": "064fbe138d606ad8fd35dcb2528cd247023fc26f371cf4af338183b57798ee5e",
+      "bytes": 44977
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs",
+      "sha256": "0464b7b96707bfc73315d4f4b46ba94324ad397d8dcb1a2f171085f06369c5b3",
+      "bytes": 91117
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyTests.cs",
+      "sha256": "0aeaf08d7bb5dff62621baa52cc9b910653dcec5398913ff0e8ad5b6dc6f68c0",
+      "bytes": 66187
+    }
+  ],
+  "portraitReceipt": {
+    "path": "BuildNotes/developer-workspace/shop-portraits-corrected/20261026T122401995Z-906b87b0/receipt.json",
+    "sha256": "a18137e14a91bae2ffbc5ed7e9e3430d49ca4ce246bbce5942ebdb4e6ea7b857",
+    "bytes": 269769
+  },
+  "gates": [
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T12-22-52-097Z-stdout.txt",
+      "sha256": "a2239f5c27cf1b84f9e9a54695810ad8abf95d11b947767bb8beab1f8d16cd4d",
+      "bytes": 289,
+      "result": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T12:22:52Z",
+        "secs": 16.4,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T122252Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-core-2026-10-26T12-12-56-112Z-stdout.txt",
+      "sha256": "8034e9c3593d42f674388f25bc25f436d62aa239a4781958e2731ff5ce2b6813",
+      "bytes": 390,
+      "result": {
+        "cmd": "core --filter CosmeticBundleTests|WardrobeTests|CatalogueTests|CareerTests",
+        "rung": "R1",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T12:12:56Z",
+        "secs": 20.7,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_core_20261026T121256Z.log",
+        "evidence": [
+          "TestResults/core_20261026T121256Z.trx"
+        ],
+        "infra": null,
+        "slot": 0,
+        "tests": {
+          "total": 41,
+          "passed": 41,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-portraitlighting-2026-10-26T12-09-56-950Z-stdout.txt",
+      "sha256": "bfebeee624a9814844a0eb851d21966bd423a5661dc3ce99ee0ac38c0de3048c",
+      "bytes": 708,
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.ShopPreviewImporter.CompareLighting --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T12:09:57Z",
+        "secs": 95.3,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_CompareLighting_20261026T120957Z.log",
+        "evidence": [
+          "Logs/exec/20261026T120957Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 68.9,
+        "messages": [
+          "[GSK] exec Wreckabulary.EditorTools.ShopPreviewImporter.CompareLighting ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T120957Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.ShopPreviewImporter.CompareLighting",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-portraitlighting-2026-10-26T12-16-11-476Z-stdout.txt",
+      "sha256": "bf6132e52f68af4c9b9e1d424967b9a54512f4fe92516f835bec44337d342905",
+      "bytes": 708,
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.ShopPreviewImporter.CompareLighting --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T12:16:11Z",
+        "secs": 60.9,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_CompareLighting_20261026T121611Z.log",
+        "evidence": [
+          "Logs/exec/20261026T121611Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 40.4,
+        "messages": [
+          "[GSK] exec Wreckabulary.EditorTools.ShopPreviewImporter.CompareLighting ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T121611Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.ShopPreviewImporter.CompareLighting",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-portraitrebuild-2026-10-26T12-23-19-573Z-stdout.txt",
+      "sha256": "7bfc0a7225c827a948bf024f276b11b59dd0a29204428258b97905511f592e28",
+      "bytes": 676,
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.ShopPreviewImporter.Rebuild --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T12:23:19Z",
+        "secs": 58.5,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_Rebuild_20261026T122319Z.log",
+        "evidence": [
+          "Logs/exec/20261026T122319Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 31.1,
+        "messages": [
+          "[GSK] exec Wreckabulary.EditorTools.ShopPreviewImporter.Rebuild ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T122319Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.ShopPreviewImporter.Rebuild",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-lobbycapture-2026-10-26T12-24-26-146Z-stdout.txt",
+      "sha256": "e31741f05c7b82b87c61d27421ebb30259f073d144723daebce1d4dea851ce31",
+      "bytes": 511,
+      "result": {
+        "cmd": "test playmode --cold --filter Wreckabulary.Tests.CaptureTests.CaptureLobby|Wreckabulary.Tests.LobbyTests.MatchmakingSaysWhyItCannotStartYet",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T12:24:26Z",
+        "secs": 79.9,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_playmode_20261026T122426Z.log",
+        "evidence": [
+          "TestResults/playmode_20261026T122426Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 16.7,
+        "tests": {
+          "total": 2,
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    }
+  ],
+  "captures": [
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_1_home.png",
+      "sha256": "01bdf6123ecf4127b7ed9e53de477aeee7db2f59874f68683645b67cb74487c7",
+      "bytes": 2085304
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_2_play.png",
+      "sha256": "760a7a612cd411b82f862436426bb836bdfbc294d01a41c0b4611b737bc41ae5",
+      "bytes": 606559
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_3b_recipes.png",
+      "sha256": "cfc27fd9f62c4b90c74de5d154d3ddf4e6b94066bbdbf2943c2282f894026c8d",
+      "bytes": 1671850
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_3_loadout.png",
+      "sha256": "5169fcd307c775b94ba223d5e45190978ae76ce4024ba775f68652cb0850ea2b",
+      "bytes": 1619554
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_4_career.png",
+      "sha256": "a9c75a16a8ea4eba2acef55b87ae6de305ac14ed6f528ce4c7751d1bc36592c4",
+      "bytes": 1402010
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_5b_shop_spotlight.png",
+      "sha256": "d544b801bc190c8549aa9a993af2e2c73d31613797d2a2ad67b4856d4f26c337",
+      "bytes": 1337287
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_5_shop.png",
+      "sha256": "bef9b81816bdbd5a0ed16ba54920dfa1a943d6e9c5e1d85edcbb49cef8dd106e",
+      "bytes": 1381976
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_6_trophy.png",
+      "sha256": "c7e5e096e28054178f2e0a43fde516bb92ff46edac19a7c5fc201b9bb306f086",
+      "bytes": 1486870
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_7_quit.png",
+      "sha256": "3ec3a7c6ae8a8d090d5c31957624642bfd20c50d492cc3b0e94daae8ebbd9f7c",
+      "bytes": 1714063
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_7_settings.png",
+      "sha256": "22fafc36a97ea501db741ac1ce1e1f967b2e53513c5253c2256cffbda3d9b599",
+      "bytes": 770350
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_7_settings_controls.png",
+      "sha256": "fc117940e0b20c0a1fc178a629a590a1bd7b3b58111833d824e05702c81c7bf9",
+      "bytes": 800698
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_7_settings_graphics.png",
+      "sha256": "0d65557d763d577965558d01c60506e08e9387928e2a9badc36e17d372c43a36",
+      "bytes": 812178
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_7_settings_how.png",
+      "sha256": "88e99be62e9647a122e57507464592e4bf756a181b9c86a6a682892c1f4c52cd",
+      "bytes": 821756
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_8_party.png",
+      "sha256": "e1a15af8a897ee2665ace99770f177d8339df5d84268448f19c3c2589687c9f0",
+      "bytes": 1906826
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_map_courtyard.png",
+      "sha256": "d6c851e2e46fc15eb101e5128babf70f3277d8a873fdfceb530a890cd5c778f7",
+      "bytes": 2033417
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_map_flat.png",
+      "sha256": "f6cfb9e5edd2c5f2a2b3067cbeba1da49ea2e94642415d0c74d691ec78437753",
+      "bytes": 2032227
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_map_pinwheel.png",
+      "sha256": "559dd8649a6102e56a8d7ff9ae738c7c2b57f681d6d7916b387f1ead8f2cf4b1",
+      "bytes": 2056310
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_map_terrace.png",
+      "sha256": "2aaa32405d91b79f08e5aa2c78d2b31740389fa142a0518f3bc8189f32104e39",
+      "bytes": 2033233
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_map_walkup.png",
+      "sha256": "5f2937a0546de3e7a58b9f27a067e5fa3ce2be04487fd755fbddab03ecb2c342",
+      "bytes": 2037045
+    }
+  ],
+  "authoredPreservation": {
+    "compared": 146,
+    "changed": 0,
+    "baseline": {
+      "path": "BuildNotes/developer-workspace/home-output-preservation-20261026.json",
+      "sha256": "328d082e678297caa3c7814623d71a5b15586e5cdae63e1114460fbd383bce53",
+      "bytes": 29732
+    }
+  },
+  "limitations": [
+    "Agent visual inspection is separate from James approval.",
+    "Not a fresh Windows or full-match online result.",
+    "Legacy house networking remains unimplemented.",
+    "No new painted skins or final detailed hero-art acceptance.",
+    "Native output has binary alpha; actual composite review is required, not inferred from counts."
+  ]
+}

@@ -28,7 +28,7 @@ Story/presentation/menu/cleanup `081750` passes all 144 cases, zero skipped. Its
 
 Deliver a tested Windows build with five modes, a changing four-destination/four-layer/three-lap world, physical word-and-equipment puzzles, public/private human multiplayer and recovery, a comprehensive workshop, detailed editable models, and Unity authoring controls requiring no code changes for ordinary design work.
 
-The latest instruction includes public matchmaking for **all five multiplayer modes**, including Freestyle, superseding its original private-only restriction. Public games must never silently substitute AI or a solo session. Designs need believable construction/material detail, readable silhouettes and consistent physical scale.
+The five Wordbound modes require public matchmaking, including Freestyle, superseding its original private-only restriction. James also asked for online support for every multiplayer/team mode: the older house modes still use local sessions, so that broader requirement remains open and is being audited separately. Public games must never silently substitute AI or a solo session. Designs need believable construction/material detail, readable silhouettes and consistent physical scale.
 
 ## Supplied assets and richer map art — 2026-10-26
 
@@ -46,7 +46,9 @@ The supplied packs contain static furniture, with no glTF skins or animation cli
 
 Avatar surface repair: the saved derived head mesh and profile are generated. The actual Wordbound wrapper validation and Editor source-change checks are integrated. Native Editor `114449` passes 79/79 and Play `114921` passes 102/102, zero skipped, covering the correction, 27 pose/expression combinations, original animation bindings, appearance, navigation, Shop/Loadout/Home, camera and cleanup. The original FBX, rig and materials remain unchanged. Six shop portraits rebuilt with stable GUIDs and exact 256×320 imports; all prior images are preserved. [Integrated evidence](BuildNotes/asset-expansion/avatar-integrated-20261026.json).
 
-Current menu capture `115448` passes and produces 19 images; Home, Loadout and Shop were inspected and the 146 existing authored files remain unchanged. Portrait outfits look too muted under default preview lights, and their RGB background creates cream rectangles inside the shop cards. Neutral lighting and genuine alpha readback are under review before final portrait/Windows acceptance. No full production readiness claim is implied by these native passes.
+Current menu capture `122426` passes both the capture and local/online explanation case, producing 19 images. Six portraits now use measured neutral lighting and genuine transparent output; rebuild `122319` passes stable GUIDs, 256×320 uncompressed sRGB/alpha imports, source/global preservation and zero owned leftovers. Root and an independent reviewer inspected all six images and the actual Shop: cream rectangles are gone and face/clothing shading is balanced. The local party heading and text fit. All 146 existing authored files and the separate 275-file Household preservation set remain unchanged. [Evidence](BuildNotes/developer-workspace/shop-transparent-20261026.json), [visual review](BuildNotes/developer-workspace/shop-portraits-corrected/production-acceptance-20261026.md). Current Windows and James's visual acceptance remain pending.
+
+Post-restart continuation: checkpoint `290b3b6c` preserves the avatar and Household integration. Final R0 `122252` passes and focused core `121256` passes 41/41. Native comparisons `120957` and `121611` retain all five earlier lighting controls; D (.8 key/.4 fill) was selected and used for the six verified production portraits above. The stronger B/C controls wash out face highlights and remain evidence only. A fresh Windows build and the broader online scope remain open.
 
 ## Experience direction — 2026-10-26
 
@@ -151,6 +153,7 @@ Native run `034318` passes 36/36 persistence cases, zero skipped, in 84.7 second
 
 ## Public and private human multiplayer
 
+- [ ] Add online support for the five original house modes: Dibs, Duos, Moving Out, Moving Day and Escape. Their current local objectives are distinct from the five Wordbound modes and must be preserved. The [scope audit](BuildNotes/restart-20261026/all-modes-online-scope.md) identifies authority, mode state, content admission, recovery, saved scenes and separate-client acceptance work; changing the menu alone does not complete it.
 - [x] Configure Fusion/Physics Addon and deploy a separate coordinator on the correct account.
 - [x] Pass Photon authentication 3/3 and actual authenticated two-peer gameplay/durable checkpoint acknowledgement.
 - [x] Pass earlier 2/4/8-peer transport; final full-gameplay acceptance remains separate.

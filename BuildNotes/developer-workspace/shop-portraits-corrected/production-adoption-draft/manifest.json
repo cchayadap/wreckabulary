@@ -1,0 +1,13 @@
+{
+  "status": "DRAFT_SOURCE_REVIEW_ONLY",
+  "selected_control": "D-neutral-front-soft",
+  "native_basis": "20261026T121705173Z-54f5a1c3",
+  "files": [
+    {
+      "path": "Assets/_Project/Editor/Art/ShopPreviewImporter.cs",
+      "baseline_sha256": "6593694c047a59c01a79e0ed2893673199ef9c79346d24079c2290b0cd3717ba",
+      "candidate_sha256": "e4241b8c365ebd6eec505b94b9cec6af53947ba1158031f324e186858f740421"
+    }
+  ],
+  "patch_sha256": "6fd93c90f8f680bcf9ec680d30356a3194222b4745cf0f0ecba59c890349ea48"
+}

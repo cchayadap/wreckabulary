@@ -363,7 +363,7 @@ namespace Wreckabulary
             LobbyKit.Display(who, Career.Name, 26, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft).Size(-1, 32).name = "Name";
             LobbyKit.Text(who, "Level " + Career.Level + "  ·  in the lobby", 17, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft).Size(-1, 24).name = "Level";
             partyList = LobbyKit.Column(column, "Couch", 8, 0);
-            var friends = LobbyKit.Text(column, "Friends show up here once online or LAN play is built. Bots fill the empty seats.",
+            var friends = LobbyKit.Text(column, "Local players on this PC. Open Wordbound for online parties.",
                 16, LobbyKit.Muted, TextAlignmentOptions.TopLeft);
             friends.textWrappingMode = TextWrappingModes.Normal;
             friends.Size(-1, 44);
@@ -395,7 +395,7 @@ namespace Wreckabulary
         {
             if (Stage) Stage.SetPartySize(PartySize);
             if (!partyList) return;
-            partyHeading.text = $"PARTY  {PartySize} / {PartyMax}";
+            partyHeading.text = $"LOCAL PARTY  {PartySize} / {PartyMax}";
             if (partyCount) partyCount.text = $"{PartySize}/{PartyMax}";
             LobbyKit.Clear(partyList);
             for (int i = 0; i < party.Count; i++)
@@ -695,7 +695,7 @@ namespace Wreckabulary
         }
 
         public string Blocked => Queue == Matchmaking
-            ? "Matchmaking needs online or LAN play, which isn't built yet. Practice plays every mode with bots."
+            ? "These house modes are local. For online matches, open Wordbound on Home."
             : null;
 
         public void Go()

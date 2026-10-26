@@ -300,7 +300,7 @@ namespace Wreckabulary
         }
 
         static string QueueLine(string queue) => queue == LobbyMenu.Matchmaking
-            ? "Friends and other players, once online play is built. Pick a mode and a house, then GO."
+            ? "These house modes are local. Open Wordbound on Home for online play."
             : queue == LobbyMenu.Workshop
                 ? "Learn the controls in the tutorial room, or build a home from the furniture you spell."
                 : "Every mode, with bots in the empty seats. Pick a mode and a house, then GO.";
@@ -1162,7 +1162,7 @@ namespace Wreckabulary
             LobbyKit.Rect(column, "Gap").Size(-1, 4);
 
             var rows = Rows(career, board);
-            Note(column, "Online boards arrive with online play. Showing this PC.");
+            Note(column, "Records on this PC.");
             if (rows.Count == 0) Note(column, "No scores yet. Be the first!");
             for (int i = 0; i < rows.Count; i++) Entry(column, i + 1, rows[i].score, career.Name, rows[i].detail, i == 0);
             Grow(LobbyKit.Rect(column, "Space"));

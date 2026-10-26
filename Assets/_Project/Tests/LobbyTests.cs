@@ -987,10 +987,11 @@ namespace Wreckabulary.Tests
             Click("Queue " + LobbyMenu.Matchmaking);
             yield return null;
             Find("Mode " + LobbyMenu.RoomMode);
-            Assert.IsFalse(Find("GO").interactable, "GO is off until online play exists");
+            Assert.IsFalse(Find("GO").interactable, "House modes cannot launch an unsupported online session");
             menu.Go();
             Assert.IsFalse(menu.Starting);
-            StringAssert.Contains("online or LAN", menu.Messages[0]);
+            StringAssert.Contains("house modes are local", menu.Messages[0]);
+            StringAssert.Contains("Wordbound on Home", menu.Messages[0]);
             Click("Home");
             yield return null;
             Assert.IsFalse(Find("GO").interactable);

@@ -20,6 +20,7 @@ namespace Wreckabulary.EditorTools
         const string Evidence = "BuildNotes/developer-workspace/shop-portraits-corrected";
         const string ScriptPath = "Assets/_Project/Editor/Art/ShopPreviewImporter.cs";
         const int Width = 256, Height = 320;
+        const string ProductionControl = "D-neutral-front-soft";
         static readonly string[] Ids = { "sunroom", "courier", "candy", "arcade", "lantern", "winter" };
 
         [Serializable] sealed class FileProof { public string path, before, after; public bool unchanged; }
@@ -32,11 +33,16 @@ namespace Wreckabulary.EditorTools
         [Serializable] sealed class Lighting { public Color ambient; public LightState[] lights; }
         [Serializable] sealed class Portrait
         {
+            public string control, outfit, rgbReferenceSha256, importedGraphicsFormat;
+            public bool publishRgba, importedHasAlpha, importedSrgb, importedCompressed;
             public string id, name, previousPng, previousMeta, previousGuid, previousImporter;
             public string stagedPng, installedPng, installedMeta, installedGuid, installedImporter, error = "";
             public string originalHeadPath, correctedHeadPath, sourceFingerprint, imageGraphicsFormat, imageTextureFormat;
             public bool exactHeadCorrection, originalMeshIdentity, previewClosed, imageIsDataSRGB, installed;
             public bool ssaoBeforeRender, ssaoAfterRender;
+            public string nativeTargetFormat, rgbaFormat, rgbaSha256;
+            public bool nativeTargetSrgb, rgbaIsDataSrgb, alphaVerified;
+            public int alphaZero, alphaOpaque, alphaPartial, borderNonzeroAlpha, rgbMaxDelta, rgbChangedPixels;
             public int bytes, distinctRgb, remainingOwnedObjects, importedWidth, importedHeight;
             public Bounds bounds; public Matrix4x4 camera; public float orthographicSize, near, far; public Color background;
             public Lighting beforeBegin, afterBegin, afterRender;
@@ -45,7 +51,7 @@ namespace Wreckabulary.EditorTools
         [Serializable] sealed class Report
         {
             public string utc, unity, graphics, colorSpace, status = "IN_PROGRESS", error = "", folder, globalBefore, globalAfter;
-            public string scope = "Six existing shop looks through ModelVisual.Spawn and the saved exact head correction; original Idle, wardrobe, materials, camera, numerical lights and framing. Existing target PNG/meta backed up before rendering. Original source files/meta and memory preserved. Sequential target-only publication after staging; art acceptance remains pending.";
+            public string scope = "Six existing shop looks through ModelVisual.Spawn and the saved exact head correction; selected D neutral front lights at 0.8/0.4, original Idle, wardrobe, materials, camera and framing. Native RGBA output is validated against an RGB reference and imported with input alpha, sRGB and no compression. Existing target PNG/meta backed up before rendering. Original source files/meta and memory preserved. Sequential target-only publication after staging; actual Shop edge review and art acceptance remain pending.";
             public bool sourcesAndGlobalPreserved; public int width = Width, height = Height;
             public string[] excludedNonFileDependencies;
             public List<FileProof> files = new List<FileProof>(); public List<MemoryProof> memory = new List<MemoryProof>();
@@ -53,7 +59,7 @@ namespace Wreckabulary.EditorTools
         }
         [Serializable] sealed class GlobalState
         {
-            public string active, scenes, skybox, sun, pipeline, renderTexture, ambientMode; public bool asyncShaders, ssao, fog;
+            public string active, scenes, skybox, sun, pipeline, renderTexture, ambientMode; public bool asyncShaders, ssao, fog, srgbWrite;
             public Color ambient, sky, equator, ground, fogColor; public float ambientIntensity, reflectionIntensity, fogDensity;
         }
 
@@ -76,7 +82,7 @@ namespace Wreckabulary.EditorTools
                 string path = Target(look.Id);
                 if (!File.Exists(Full(path)) || !File.Exists(Full(path + ".meta")) || AssetImporter.GetAtPath(path) is not TextureImporter importer)
                     throw new IOException("This bounded rebuild requires the existing portrait and metadata: " + path);
-                report.portraits.Add(new Portrait { id = look.Id, name = look.Name, previousPng = FileHash(path), previousMeta = FileHash(path + ".meta"),
+                report.portraits.Add(new Portrait { id = look.Id, name = look.Name, control = ProductionControl, publishRgba = true, previousPng = FileHash(path), previousMeta = FileHash(path + ".meta"),
                     previousGuid = AssetDatabase.AssetPathToGUID(path), previousImporter = EditorJsonUtility.ToJson(importer) });
             }
             TrackSources(report, avatar, idle, library, materialLibrary, data, profile);
@@ -113,14 +119,23 @@ namespace Wreckabulary.EditorTools
                     var importer = AssetImporter.GetAtPath(path) as TextureImporter;
                     if (!importer) throw new IOException("Portrait texture importer missing after import: " + portrait.id);
                     importer.textureType = TextureImporterType.Default; importer.alphaIsTransparency = true;
+                    importer.alphaSource = TextureImporterAlphaSource.FromInput; importer.sRGBTexture = true;
+                    importer.textureCompression = TextureImporterCompression.Uncompressed;
                     importer.mipmapEnabled = false; importer.maxTextureSize = 512; importer.npotScale = TextureImporterNPOTScale.None;
                     importer.SaveAndReimport();
                     var image = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
                     portrait.importedWidth = image ? image.width : 0; portrait.importedHeight = image ? image.height : 0;
+                    portrait.importedGraphicsFormat = image ? image.graphicsFormat.ToString() : "MISSING";
+                    portrait.importedHasAlpha = image && UnityEngine.Experimental.Rendering.GraphicsFormatUtility.HasAlphaChannel(image.graphicsFormat);
+                    portrait.importedSrgb = image && image.isDataSRGB;
+                    portrait.importedCompressed = image && UnityEngine.Experimental.Rendering.GraphicsFormatUtility.IsCompressedFormat(image.graphicsFormat);
                     portrait.installedPng = FileHash(path); portrait.installedMeta = FileHash(path + ".meta");
                     portrait.installedGuid = AssetDatabase.AssetPathToGUID(path); portrait.installedImporter = EditorJsonUtility.ToJson(importer);
                     portrait.installed = portrait.installedPng == portrait.stagedPng && portrait.installedGuid == portrait.previousGuid
-                        && portrait.importedWidth == Width && portrait.importedHeight == Height;
+                        && portrait.importedWidth == Width && portrait.importedHeight == Height && portrait.alphaVerified
+                        && portrait.importedHasAlpha && portrait.importedSrgb && !portrait.importedCompressed
+                        && importer.alphaSource == TextureImporterAlphaSource.FromInput && importer.sRGBTexture
+                        && importer.textureCompression == TextureImporterCompression.Uncompressed;
                     if (!portrait.installed) throw new InvalidOperationException("Portrait publication verification failed: " + portrait.id);
                 }
                 report.status = "REBUILT_NOT_VISUALLY_APPROVED";
@@ -139,12 +154,57 @@ namespace Wreckabulary.EditorTools
                 WriteNew(Path.Combine(folder, "receipt.json"), Encoding.UTF8.GetBytes(JsonUtility.ToJson(report, true)));
             }
             if (report.status == "FAIL") throw new InvalidOperationException("Shop portrait rebuild failed; retain previous/staged images and receipt at " + folder + "\n" + report.error);
-            Debug.Log("SHOP_PORTRAITS: count=6; source=original-avatar; saved_head_correction=true; width=256; height=320; receipt=" + report.folder + "/receipt.json; art acceptance pending.");
+            Debug.Log("SHOP_PORTRAITS: count=6; source=original-avatar; saved_head_correction=true; lighting=D-neutral-front-soft; rgba_verified=true; width=256; height=320; receipt=" + report.folder + "/receipt.json; art acceptance pending.");
+        }
+
+        [MenuItem("Wreckabulary/Art/Compare corrected portrait lighting")]
+        public static void CompareLighting()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null || !GraphicsSettings.currentRenderPipeline)
+                throw new InvalidOperationException("Compare in Edit Mode with the active render pipeline and a graphics device.");
+            var profile = AvatarSurfaceCorrectionSetup.VerifyExistingProfile(true);
+            var library = ModelLibrary.Load(); var avatar = library ? library.Find("Avatar/Avatar") : null;
+            var idle = library ? library.FindClip("Avatar/Avatar", "Idle") : null;
+            var materials = MaterialLibrary.Load(); var data = Resources.Load<GameData>(GameData.ResourcePath);
+            if (!avatar || !idle || !materials || !data || CosmeticBundles.Find("courier") == null)
+                throw new InvalidOperationException("The original courier portrait inputs are required.");
+            var report = new Report { utc = DateTime.UtcNow.ToString("O"), unity = Application.unityVersion,
+                graphics = SystemInfo.graphicsDeviceType + ": " + SystemInfo.graphicsDeviceName, colorSpace = QualitySettings.activeColorSpace.ToString(), globalBefore = Global(),
+                folder = Evidence + "-lighting/" + DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ") + "-" + Guid.NewGuid().ToString("N").Substring(0, 8),
+                scope = "Nonpublishing courier lighting comparison: neutral front/fill 0.8/0.4 and 0.7/0.35, with the same neutral directions as prior B/C. Both use the saved corrected head, original materials/tints, Idle at zero, pose, camera and ambient. Only intensities change from prior B/C; old A/B/C evidence remains untouched. Each frame also has native RGBA readback with alpha and RGB-transfer validation. No target portrait, metadata, original material, texture or scene is saved." };
+            TrackSources(report, avatar, idle, library, materials, data, profile);
+            foreach (string id in Ids)
+                foreach (string target in new[] { Target(id), Target(id) + ".meta" })
+                    report.files.Add(new FileProof { path = target, before = FileHash(target) });
+            string folder = Full(report.folder);
+            if (Directory.Exists(folder) || File.Exists(folder)) throw new IOException("Preserve existing lighting evidence: " + folder);
+            Directory.CreateDirectory(Path.Combine(folder, "Rendered"));
+            var active = RenderTexture.active; bool asyncShaders = EditorSettings.asyncShaderCompilation, ssao = Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION");
+            try
+            {
+                EditorSettings.asyncShaderCompilation = false;
+                foreach (string control in new[] { "D-neutral-front-soft", "E-neutral-front-softer" })
+                {
+                    var portrait = new Portrait { id = "courier", name = "Mint Messenger", control = control, previousPng = FileHash(Target("courier")) };
+                    report.portraits.Add(portrait); Capture(portrait, folder, profile, idle);
+                }
+                report.status = "CAPTURED_NOT_VISUALLY_APPROVED";
+            }
+            catch (Exception error) { report.status = "FAIL"; report.error = error.ToString(); }
+            finally
+            {
+                try { Restore(active, asyncShaders, ssao); } catch (Exception error) { report.error += "\nRestore: " + error; }
+                try { VerifySources(report); } catch (Exception error) { report.error += "\nPreservation: " + error; }
+                if (!report.sourcesAndGlobalPreserved || report.error.Length != 0) report.status = "FAIL";
+                WriteNew(Path.Combine(folder, "receipt.json"), Encoding.UTF8.GetBytes(JsonUtility.ToJson(report, true)));
+            }
+            if (report.status == "FAIL") throw new InvalidOperationException("Lighting comparison failed; preserve " + folder + "\n" + report.error);
+            Debug.Log("SHOP_PORTRAIT_LIGHTING: comparisons=2; published=0; preserved=true; receipt=" + report.folder + "/receipt.json; visual review pending.");
         }
 
         static void Capture(Portrait result, string folder, AvatarSurfaceProfile profile, AnimationClip idle)
         {
-            PreviewRenderUtility preview = null; GameObject holder = null; Texture2D image = null; Scene scene = default; bool begun = false;
+            PreviewRenderUtility preview = null; GameObject holder = null; Texture2D image = null, rgba = null; Scene scene = default; bool begun = false;
             var active = RenderTexture.active; bool ssao = Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION");
             try
             {
@@ -164,6 +224,7 @@ namespace Wreckabulary.EditorTools
                 var outfit = CosmeticBundles.Find(result.id).Apply(GameConfig.Current.Wardrobe.Default, GameConfig.Current.Wardrobe);
                 if (outfit == null) throw new InvalidOperationException("Invalid shop outfit: " + result.id);
                 PlayerAppearance.Dress(model.GetComponentsInChildren<SkinnedMeshRenderer>(true), outfit);
+                result.outfit = outfit.Serialize();
                 result.shapeNames = Enumerable.Range(0, head.sharedMesh.blendShapeCount).Select(head.sharedMesh.GetBlendShapeName).ToArray();
                 result.shapeWeights = Enumerable.Range(0, head.sharedMesh.blendShapeCount).Select(head.GetBlendShapeWeight).ToArray();
                 holder.transform.rotation = Quaternion.Euler(0f, 160f, 0f);
@@ -184,34 +245,110 @@ namespace Wreckabulary.EditorTools
                 preview.lights[0].intensity = 1.15f; preview.lights[0].transform.rotation = Quaternion.Euler(35f, 35f, 0f);
                 preview.lights[1].intensity = .65f; preview.lights[1].transform.rotation = Quaternion.Euler(340f, 218f, 0f);
                 preview.ambientColor = new Color(.45f, .45f, .45f);
+                if (result.control == "B-neutral-front" || result.control == "C-neutral-front-brighter"
+                    || result.control == "D-neutral-front-soft" || result.control == "E-neutral-front-softer")
+                {
+                    preview.lights[0].color = preview.lights[1].color = Color.white;
+                    preview.lights[0].transform.rotation = camera.transform.rotation * Quaternion.Euler(25f, -25f, 0f);
+                    preview.lights[1].transform.rotation = camera.transform.rotation * Quaternion.Euler(10f, 35f, 0f);
+                    if (result.control == "C-neutral-front-brighter")
+                    { preview.lights[0].intensity = 1.55f; preview.lights[1].intensity = .85f; }
+                    else if (result.control == "D-neutral-front-soft")
+                    { preview.lights[0].intensity = .8f; preview.lights[1].intensity = .4f; }
+                    else if (result.control == "E-neutral-front-softer")
+                    { preview.lights[0].intensity = .7f; preview.lights[1].intensity = .35f; }
+                }
                 result.camera = camera.transform.localToWorldMatrix; result.orthographicSize = camera.orthographicSize;
                 result.near = camera.nearClipPlane; result.far = camera.farClipPlane; result.background = camera.backgroundColor;
                 result.beforeBegin = Lights(preview); result.ssaoBeforeRender = Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION");
                 preview.BeginStaticPreview(new Rect(0, 0, Width, Height)); begun = true; result.afterBegin = Lights(preview);
                 RequireSameLighting(result.beforeBegin, result.afterBegin);
                 preview.Render(true); result.afterRender = Lights(preview); RequireSameLighting(result.beforeBegin, result.afterRender);
+                if (!string.IsNullOrEmpty(result.control)) rgba = ReadNativeRgba(preview.camera.targetTexture, result);
                 image = preview.EndStaticPreview(); begun = false; result.ssaoAfterRender = Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION");
                 if (!image || image.width != Width || image.height != Height) throw new InvalidOperationException("Invalid portrait render: " + result.id);
                 result.imageGraphicsFormat = image.graphicsFormat.ToString(); result.imageTextureFormat = image.format.ToString(); result.imageIsDataSRGB = image.isDataSRGB;
                 result.distinctRgb = image.GetPixels32().Select(color => color.r << 16 | color.g << 8 | color.b).Distinct().Take(4096).Count();
                 if (result.distinctRgb < 64) throw new InvalidOperationException("Portrait has insufficient pixel variation: " + result.id);
                 byte[] bytes = image.EncodeToPNG(); result.bytes = bytes.Length; result.stagedPng = AvatarSurfaceMeshData.Hash(bytes);
-                WriteNew(Path.Combine(folder, "Rendered", result.id + ".png"), bytes);
+                result.rgbReferenceSha256 = result.stagedPng;
+                string imageName = result.publishRgba || string.IsNullOrEmpty(result.control) ? result.id : result.control + "-" + result.id;
+                WriteNew(Path.Combine(folder, "Rendered", imageName + (result.publishRgba ? "-rgb-reference.png" : ".png")), bytes);
+                if (result.publishRgba && !rgba) throw new InvalidOperationException("Native RGBA is required before portrait publication.");
+                if (rgba)
+                {
+                    byte[] alphaBytes = rgba.EncodeToPNG(); result.rgbaSha256 = AvatarSurfaceMeshData.Hash(alphaBytes);
+                    WriteNew(Path.Combine(folder, "Rendered", imageName + (result.publishRgba ? ".png" : "-rgba.png")), alphaBytes);
+                    ValidateAlphaAndTransfer(rgba, image, result);
+                    if (result.publishRgba)
+                    {
+                        result.stagedPng = result.rgbaSha256; result.bytes = alphaBytes.Length;
+                        result.imageGraphicsFormat = rgba.graphicsFormat.ToString(); result.imageTextureFormat = rgba.format.ToString(); result.imageIsDataSRGB = rgba.isDataSRGB;
+                    }
+                }
             }
             catch (Exception error) { result.error = error.ToString(); throw; }
             finally
             {
                 Clean(() => { if (begun) { var pending = preview.EndStaticPreview(); if (pending) Object.DestroyImmediate(pending); } }, result);
                 Clean(() => { if (image) Object.DestroyImmediate(image); }, result);
+                Clean(() => { if (rgba) Object.DestroyImmediate(rgba); }, result);
                 Clean(() => preview?.Cleanup(), result);
                 Clean(() => { if (holder) Object.DestroyImmediate(holder); }, result);
                 Clean(() => { if (scene.IsValid() && scene.isLoaded && EditorSceneManager.IsPreviewScene(scene)) EditorSceneManager.ClosePreviewScene(scene); }, result);
                 Clean(() => RenderTexture.active = active, result);
                 Clean(() => { if (ssao) Shader.EnableKeyword("_SCREEN_SPACE_OCCLUSION"); else Shader.DisableKeyword("_SCREEN_SPACE_OCCLUSION"); }, result);
-                result.remainingOwnedObjects = (holder ? 1 : 0) + (image ? 1 : 0); result.previewClosed = !scene.IsValid() || !scene.isLoaded;
+                result.remainingOwnedObjects = (holder ? 1 : 0) + (image ? 1 : 0) + (rgba ? 1 : 0); result.previewClosed = !scene.IsValid() || !scene.isLoaded;
             }
             if (result.error.Length != 0 || result.remainingOwnedObjects != 0 || !result.previewClosed)
                 throw new InvalidOperationException("Portrait cleanup failed: " + result.id + "\n" + result.error);
+        }
+
+        static Texture2D ReadNativeRgba(RenderTexture source, Portrait result)
+        {
+            if (!source || !UnityEngine.Experimental.Rendering.GraphicsFormatUtility.HasAlphaChannel(source.graphicsFormat))
+                throw new InvalidOperationException("The native preview target has no alpha channel.");
+            result.nativeTargetFormat = source.graphicsFormat.ToString(); result.nativeTargetSrgb = source.sRGB;
+            RenderTexture encoded = null; Texture2D copy = null; var active = RenderTexture.active; bool srgbWrite = GL.sRGBWrite;
+            try
+            {
+                encoded = new RenderTexture(Width, Height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB)
+                    { hideFlags = HideFlags.HideAndDontSave, antiAliasing = 1 };
+                if (!encoded.Create() || !encoded.sRGB || !UnityEngine.Experimental.Rendering.GraphicsFormatUtility.HasAlphaChannel(encoded.graphicsFormat))
+                    throw new InvalidOperationException("Could not create a native sRGB alpha output target.");
+                GL.sRGBWrite = QualitySettings.activeColorSpace == ColorSpace.Linear;
+                Graphics.Blit(source, encoded); RenderTexture.active = encoded;
+                copy = new Texture2D(Width, Height, TextureFormat.RGBA32, false, false) { hideFlags = HideFlags.HideAndDontSave };
+                copy.ReadPixels(new Rect(0, 0, Width, Height), 0, 0, false); copy.Apply(false, false);
+                result.rgbaFormat = copy.graphicsFormat.ToString(); result.rgbaIsDataSrgb = copy.isDataSRGB;
+                var output = copy; copy = null; return output;
+            }
+            finally
+            {
+                RenderTexture.active = active; GL.sRGBWrite = srgbWrite;
+                if (copy) Object.DestroyImmediate(copy);
+                if (encoded) { encoded.Release(); Object.DestroyImmediate(encoded); }
+            }
+        }
+
+        static void ValidateAlphaAndTransfer(Texture2D rgba, Texture2D rgb, Portrait result)
+        {
+            var alphaPixels = rgba.GetPixels32(); var reference = rgb.GetPixels32();
+            if (alphaPixels.Length != reference.Length || rgba.width != Width || rgba.height != Height || !rgba.isDataSRGB
+                || !UnityEngine.Experimental.Rendering.GraphicsFormatUtility.HasAlphaChannel(rgba.graphicsFormat))
+                throw new InvalidOperationException("Invalid alpha readback dimensions or format.");
+            for (int i = 0; i < alphaPixels.Length; i++)
+            {
+                var a = alphaPixels[i]; var b = reference[i];
+                if (a.a == 0) result.alphaZero++; else if (a.a == 255) result.alphaOpaque++; else result.alphaPartial++;
+                int x = i % Width, y = i / Width;
+                if ((x == 0 || x == Width - 1 || y == 0 || y == Height - 1) && a.a != 0) result.borderNonzeroAlpha++;
+                int delta = Mathf.Max(Mathf.Abs(a.r - b.r), Mathf.Abs(a.g - b.g), Mathf.Abs(a.b - b.b));
+                result.rgbMaxDelta = Mathf.Max(result.rgbMaxDelta, delta); if (delta != 0) result.rgbChangedPixels++;
+            }
+            result.alphaVerified = result.alphaZero > 1000 && result.alphaOpaque > 1000 && result.borderNonzeroAlpha == 0
+                && alphaPixels[0].a == 0 && alphaPixels[(Height - 1 - 200) * Width + 128].a == 255 && result.rgbMaxDelta <= 2;
+            if (!result.alphaVerified) throw new InvalidOperationException("Native alpha or RGB transfer did not pass; preserve both images and inspect the receipt.");
         }
 
         static void TrackSources(Report report, GameObject avatar, AnimationClip idle, ModelLibrary library, MaterialLibrary materials, GameData data, AvatarSurfaceProfile profile)
@@ -266,7 +403,7 @@ namespace Wreckabulary.EditorTools
                 scenes = string.Join(";", Enumerable.Range(0, SceneManager.sceneCount).Select(i => { var s = SceneManager.GetSceneAt(i); return s.handle.GetRawData() + ":" + s.path + ":" + s.isDirty + ":" + string.Join(",", s.GetRootGameObjects().Select(root => root.GetEntityId().ToString())); })),
                 skybox = RenderSettings.skybox ? RenderSettings.skybox.GetEntityId().ToString() : "", sun = RenderSettings.sun ? RenderSettings.sun.GetEntityId().ToString() : "",
                 pipeline = AssetDatabase.GetAssetPath(GraphicsSettings.currentRenderPipeline), renderTexture = RenderTexture.active ? RenderTexture.active.GetEntityId().ToString() : "",
-                asyncShaders = EditorSettings.asyncShaderCompilation, ssao = Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION"),
+                asyncShaders = EditorSettings.asyncShaderCompilation, ssao = Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION"), srgbWrite = GL.sRGBWrite,
                 ambientMode = RenderSettings.ambientMode.ToString(), ambient = RenderSettings.ambientLight, sky = RenderSettings.ambientSkyColor,
                 equator = RenderSettings.ambientEquatorColor, ground = RenderSettings.ambientGroundColor, ambientIntensity = RenderSettings.ambientIntensity,
                 reflectionIntensity = RenderSettings.reflectionIntensity, fog = RenderSettings.fog, fogDensity = RenderSettings.fogDensity, fogColor = RenderSettings.fogColor });

@@ -1,0 +1,826 @@
+{
+  "scope": "Read-only PNG decoding and fixed pixel/rectangle comparisons; no image edits, color correction or semantic segmentation.",
+  "pairs": [
+    {
+      "id": "sunroom",
+      "previous": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "91973147107d26a81f3a67084a2f4a3838e6d5b3bb44dc90a9e6c61069de8bf4"
+      },
+      "rendered": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "3e6728712c1d9389592f519d795a661d19820bde4f7b1645a68165b7a26425d9"
+      },
+      "samples": [
+        {
+          "xy": [
+            0,
+            0
+          ],
+          "old": [
+            247,
+            240,
+            216
+          ],
+          "new": [
+            247,
+            240,
+            216
+          ]
+        },
+        {
+          "xy": [
+            128,
+            120
+          ],
+          "old": [
+            143,
+            136,
+            121
+          ],
+          "new": [
+            150,
+            143,
+            128
+          ]
+        },
+        {
+          "xy": [
+            100,
+            185
+          ],
+          "old": [
+            255,
+            250,
+            90
+          ],
+          "new": [
+            173,
+            139,
+            53
+          ]
+        },
+        {
+          "xy": [
+            128,
+            200
+          ],
+          "old": [
+            255,
+            255,
+            93
+          ],
+          "new": [
+            159,
+            129,
+            50
+          ]
+        },
+        {
+          "xy": [
+            100,
+            275
+          ],
+          "old": [
+            255,
+            236,
+            90
+          ],
+          "new": [
+            185,
+            145,
+            59
+          ]
+        }
+      ],
+      "torso_roi_92_185_164_190": {
+        "old_mean_rgb": [
+          255,
+          252.22,
+          91.84
+        ],
+        "new_mean_rgb": [
+          158.26,
+          127.34,
+          50.16
+        ]
+      }
+    },
+    {
+      "id": "courier",
+      "previous": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "13cbdd6e7acd70533bad55cae9c05e5e39722d338ae9a73fad5c5264201bc25c"
+      },
+      "rendered": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "4f9f376399c329cc8940f2cc25b8821e8702cd6e18b8bc4d17dbfadf324d1ede"
+      },
+      "samples": [
+        {
+          "xy": [
+            0,
+            0
+          ],
+          "old": [
+            247,
+            240,
+            216
+          ],
+          "new": [
+            247,
+            240,
+            216
+          ]
+        },
+        {
+          "xy": [
+            128,
+            120
+          ],
+          "old": [
+            142,
+            134,
+            120
+          ],
+          "new": [
+            148,
+            141,
+            126
+          ]
+        },
+        {
+          "xy": [
+            100,
+            185
+          ],
+          "old": [
+            181,
+            255,
+            209
+          ],
+          "new": [
+            99,
+            150,
+            118
+          ]
+        },
+        {
+          "xy": [
+            128,
+            200
+          ],
+          "old": [
+            183,
+            255,
+            213
+          ],
+          "new": [
+            85,
+            130,
+            102
+          ]
+        },
+        {
+          "xy": [
+            100,
+            275
+          ],
+          "old": [
+            135,
+            209,
+            140
+          ],
+          "new": [
+            81,
+            128,
+            88
+          ]
+        }
+      ],
+      "torso_roi_92_185_164_190": {
+        "old_mean_rgb": [
+          174.96,
+          249.69,
+          203.39
+        ],
+        "new_mean_rgb": [
+          92.44,
+          140.88,
+          111.14
+        ]
+      }
+    },
+    {
+      "id": "candy",
+      "previous": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "472191794d18351817d83a4dd87b0b9393b8e670426ee0b57aa148a3e8b6506c"
+      },
+      "rendered": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "e8e3042ed287bfbfc45999cc3607453a1a2abec1e4cd993ae3444ef2fe4133cd"
+      },
+      "samples": [
+        {
+          "xy": [
+            0,
+            0
+          ],
+          "old": [
+            247,
+            240,
+            216
+          ],
+          "new": [
+            247,
+            240,
+            216
+          ]
+        },
+        {
+          "xy": [
+            128,
+            120
+          ],
+          "old": [
+            143,
+            136,
+            121
+          ],
+          "new": [
+            149,
+            142,
+            127
+          ]
+        },
+        {
+          "xy": [
+            100,
+            185
+          ],
+          "old": [
+            255,
+            178,
+            228
+          ],
+          "new": [
+            171,
+            99,
+            130
+          ]
+        },
+        {
+          "xy": [
+            128,
+            200
+          ],
+          "old": [
+            255,
+            181,
+            233
+          ],
+          "new": [
+            147,
+            85,
+            112
+          ]
+        },
+        {
+          "xy": [
+            100,
+            275
+          ],
+          "old": [
+            255,
+            113,
+            108
+          ],
+          "new": [
+            183,
+            69,
+            69
+          ]
+        }
+      ],
+      "torso_roi_92_185_164_190": {
+        "old_mean_rgb": [
+          254.82,
+          174.35,
+          224.18
+        ],
+        "new_mean_rgb": [
+          159.99,
+          92.76,
+          121.46
+        ]
+      }
+    },
+    {
+      "id": "arcade",
+      "previous": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "be5bb8300b8346abae36b5dfa168057fb1cf6d54ab0d7474281b94f90819be83"
+      },
+      "rendered": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "d826983fdeffab7d4d55d2ce9010d57767d6c66586cbfc2513bde9235cd8529f"
+      },
+      "samples": [
+        {
+          "xy": [
+            0,
+            0
+          ],
+          "old": [
+            247,
+            240,
+            216
+          ],
+          "new": [
+            247,
+            240,
+            216
+          ]
+        },
+        {
+          "xy": [
+            128,
+            120
+          ],
+          "old": [
+            143,
+            136,
+            121
+          ],
+          "new": [
+            150,
+            143,
+            128
+          ]
+        },
+        {
+          "xy": [
+            100,
+            185
+          ],
+          "old": [
+            181,
+            120,
+            221
+          ],
+          "new": [
+            99,
+            66,
+            126
+          ]
+        },
+        {
+          "xy": [
+            128,
+            200
+          ],
+          "old": [
+            185,
+            124,
+            228
+          ],
+          "new": [
+            92,
+            61,
+            115
+          ]
+        },
+        {
+          "xy": [
+            100,
+            275
+          ],
+          "old": [
+            152,
+            169,
+            205
+          ],
+          "new": [
+            92,
+            104,
+            129
+          ]
+        }
+      ],
+      "torso_roi_92_185_164_190": {
+        "old_mean_rgb": [
+          182.76,
+          121.61,
+          225.13
+        ],
+        "new_mean_rgb": [
+          90.57,
+          61.87,
+          115.4
+        ]
+      }
+    },
+    {
+      "id": "lantern",
+      "previous": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "3f9e3cf438be2039377ba91ab29d4c08e58a57a314e9fb661abb4841806f8295"
+      },
+      "rendered": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "15097378d0ac429657bbf19a3e7659f9804c2056f433f35cad1b042b302b8597"
+      },
+      "samples": [
+        {
+          "xy": [
+            0,
+            0
+          ],
+          "old": [
+            247,
+            240,
+            216
+          ],
+          "new": [
+            247,
+            240,
+            216
+          ]
+        },
+        {
+          "xy": [
+            128,
+            120
+          ],
+          "old": [
+            142,
+            134,
+            120
+          ],
+          "new": [
+            148,
+            141,
+            126
+          ]
+        },
+        {
+          "xy": [
+            100,
+            185
+          ],
+          "old": [
+            255,
+            187,
+            85
+          ],
+          "new": [
+            171,
+            104,
+            50
+          ]
+        },
+        {
+          "xy": [
+            128,
+            200
+          ],
+          "old": [
+            255,
+            191,
+            86
+          ],
+          "new": [
+            148,
+            90,
+            46
+          ]
+        },
+        {
+          "xy": [
+            100,
+            275
+          ],
+          "old": [
+            255,
+            213,
+            125
+          ],
+          "new": [
+            178,
+            130,
+            79
+          ]
+        }
+      ],
+      "torso_roi_92_185_164_190": {
+        "old_mean_rgb": [
+          252.95,
+          181.75,
+          82.63
+        ],
+        "new_mean_rgb": [
+          160.92,
+          97.43,
+          47.91
+        ]
+      }
+    },
+    {
+      "id": "winter",
+      "previous": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "47a91faf35cd3aa3e2d4066d74847c36e7479774718a69f12fedd4f563c2a063"
+      },
+      "rendered": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "67d49c2314d53e29549dbeed636790072b79aa3fe4d471909b1b81573bdd2451"
+      },
+      "samples": [
+        {
+          "xy": [
+            0,
+            0
+          ],
+          "old": [
+            247,
+            240,
+            216
+          ],
+          "new": [
+            247,
+            240,
+            216
+          ]
+        },
+        {
+          "xy": [
+            128,
+            120
+          ],
+          "old": [
+            142,
+            134,
+            120
+          ],
+          "new": [
+            148,
+            141,
+            126
+          ]
+        },
+        {
+          "xy": [
+            100,
+            185
+          ],
+          "old": [
+            255,
+            113,
+            90
+          ],
+          "new": [
+            161,
+            64,
+            53
+          ]
+        },
+        {
+          "xy": [
+            128,
+            200
+          ],
+          "old": [
+            255,
+            115,
+            93
+          ],
+          "new": [
+            139,
+            56,
+            50
+          ]
+        },
+        {
+          "xy": [
+            100,
+            275
+          ],
+          "old": [
+            135,
+            209,
+            140
+          ],
+          "new": [
+            81,
+            128,
+            88
+          ]
+        }
+      ],
+      "torso_roi_92_185_164_190": {
+        "old_mean_rgb": [
+          251.43,
+          109.74,
+          88.05
+        ],
+        "new_mean_rgb": [
+          151.18,
+          59.79,
+          50.49
+        ]
+      }
+    }
+  ],
+  "courier_controls": [
+    {
+      "control": "A-original-lit",
+      "metadata": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "5194dd49f4d906e6bcf6ac8bee4103c68451c6c19442ce8d920b3a45021eea57"
+      },
+      "full_changed_pixels": 10517,
+      "body_y150_plus_changed_pixels": 0,
+      "body_pixels": 43520,
+      "body_max_channel_delta": 0
+    },
+    {
+      "control": "H-head-recalculate-normals",
+      "metadata": {
+        "width": 256,
+        "height": 320,
+        "channels": 3,
+        "chunks": [
+          "IHDR",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IDAT",
+          "IEND"
+        ],
+        "sha256": "71584f1c020976e377a6354a3bccf71b79a45d872eb6e673ccdf5e2bb69ac6c6"
+      },
+      "full_changed_pixels": 107,
+      "body_y150_plus_changed_pixels": 0,
+      "body_pixels": 43520,
+      "body_max_channel_delta": 0
+    }
+  ]
+}
