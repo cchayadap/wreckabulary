@@ -59,21 +59,22 @@ namespace Wreckabulary.EditorTests
         [Test]
         public void FrameUsesActiveVisibleFloorAndFloorSwitchKeepsCourseUnchanged()
         {
-            var preset = WorkshopTemplates.Create(WorkshopTemplate.RaceCircuit);
+            var snapshotSource = new WorkshopSnapshot(CourseTemplates.RaceCircuit());
+            var catalogue = CourseTemplates.ProofCatalogue();
             var owner = new GameObject("Workshop framing regression");
             try
             {
                 using (var view = new WordboundWorkshopViewport(owner.transform))
                 {
-                    view.Resize(736, 580); view.Sync(preset.Snapshot, preset.Catalogue); view.Frame();
+                    view.Resize(736, 580); view.Sync(snapshotSource, catalogue); view.Frame();
                     Assert.That(view.Target, Is.EqualTo(new Vector3(0, 2, 0)));
-                    var draft = preset.Snapshot.Edit(); draft.ActiveLayer = "Loft";
+                    var draft = snapshotSource.Edit(); draft.ActiveLayer = "Loft";
                     var snapshot = new WorkshopSnapshot(draft); string before = snapshot.RecoveryJson;
-                    view.Sync(snapshot, preset.Catalogue);
+                    view.Sync(snapshot, catalogue);
                     Assert.That(view.Target, Is.EqualTo(new Vector3(10, 8, 0)));
                     foreach (var module in snapshot.Course().Modules.Where(m => m.LayerId == "Loft"))
                     {
-                        var box = preset.Catalogue.Bounds(module);
+                        var box = catalogue.Bounds(module);
                         foreach (int x in new[] { box.Min.X, box.Max.X })
                             foreach (int y in new[] { box.Min.Y, box.Max.Y })
                                 foreach (int z in new[] { box.Min.Z, box.Max.Z })
@@ -83,7 +84,7 @@ namespace Wreckabulary.EditorTests
                                 }
                     }
                     Assert.AreEqual(before, snapshot.RecoveryJson);
-                    draft.HiddenLayers.Add("Loft"); view.Sync(new WorkshopSnapshot(draft), preset.Catalogue); view.Frame();
+                    draft.HiddenLayers.Add("Loft"); view.Sync(new WorkshopSnapshot(draft), catalogue); view.Frame();
                     Assert.That(view.Target, Is.EqualTo(new Vector3(0, 2, 0)), "Hidden geometry must not expand the view.");
                 }
             }

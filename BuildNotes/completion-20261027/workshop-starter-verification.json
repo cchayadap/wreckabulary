@@ -1,0 +1,234 @@
+{
+  "utc": "2026-10-26T18:13:25.097Z",
+  "status": "SOURCE, RULES, UNITY AND SCRIPTED LOCAL THREE-LAP FLOW PASS; Windows and human acceptance pending",
+  "sourceBase": "82a67fa6",
+  "sources": [
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/Tests/WordboundWorkshopLaunchTests.cs",
+      "sha256": "caf44e0462a0af9652cbbfd9117f0437ac439dafd33cb69bde975b232852801d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/WorkshopTemplates.cs",
+      "sha256": "19b9e8226028b6f596a01ad59e1ce262e18137beb396164ddd47bf12d6165626"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+      "sha256": "fbe9f2bf0289452d19405a33950f985f2b66fd00994073977637f49fb35177e2"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WordboundWorkshopModeTests.cs",
+      "sha256": "77f3cca21eab1413f7851bb71f79643d0c78fd42ddfbf2f7afdaa53182e80af9"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WordboundWorkshopOverlayTests.cs",
+      "sha256": "77ba95f367f9b2e957bce5ff294fbaf9ac44028ff749a9d2a916ab37b0df51ed"
+    },
+    {
+      "path": "Assets/_Project/Tests/Rules/WorkshopStarterTests.cs",
+      "sha256": "f4e9b88bec5780781e7ef19bb873f074109e7eb151678f93f7cd31b5b3e6ec9a"
+    },
+    {
+      "path": "Assets/_Project/Tests/Rules/WorkshopTests.cs",
+      "sha256": "3f927eef75ff2865bc0b1e083c1e476c36c045e650f0bc3f968719659117b7fc"
+    },
+    {
+      "path": "Assets/_Project/Tests/Rules/WorkshopStarterTests.cs.meta",
+      "sha256": "16595780d64cf6ecc68059fdb1f0b8705c59a62ec9cb95c4f4c7c1185f9b4a16"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/WordboundNativeStarterTests.cs",
+      "sha256": "36f0fd1ea4626b65c31b0e4fd32be41cdbd74c1a57efe5ebb5851e7655fc24a3"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/WordboundNativeStarterTests.cs.meta",
+      "sha256": "ea6dbf74ba8503a770f9ff8fa524d5511d45544e458828429fe359a1484eda3f"
+    }
+  ],
+  "unchangedContent": [
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/CourseTemplates.cs",
+      "sha256": "f0e34865553ec7c3ca0a038843393b32e1c2cd9a98e1d4a1f0dc3c6df8cb8a09"
+    },
+    {
+      "path": "Assets/_Project/Resources/Wordbound/public-catalogue.json",
+      "sha256": "4633207d08f8acce18ca3463bb86a71b1f3eaba41a2adfd475b46e9e5826ea23"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/Presentation.asset",
+      "sha256": "b369e748fd25ab84a371b4708650b89210e1e65d51d8084951b1d2bd5fc21137"
+    }
+  ],
+  "check": {
+    "result": {
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T18:05:25Z",
+      "secs": 8.9,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T180525Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ]
+    },
+    "files": [
+      {
+        "path": ".harness/delivery/starter-check-2026-10-26T18-05-25-534Z-stdout.txt",
+        "sha256": "7ed6238dade076fc43dc9c6ca5e3354d01449ec0c32cd1fbc093697a6ec66f8b"
+      },
+      {
+        "path": "Logs/gate_check_all_20261026T180525Z.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "core": {
+    "result": {
+      "cmd": "core --filter Workshop|CourseResolverTests|CourseJsonTests",
+      "rung": "R1",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T18:02:07Z",
+      "secs": 11.3,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_core_20261026T180207Z.log",
+      "evidence": [
+        "TestResults/core_20261026T180207Z.trx"
+      ],
+      "infra": null,
+      "slot": 0,
+      "tests": {
+        "total": 117,
+        "passed": 117,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "files": [
+      {
+        "path": ".harness/delivery/starter-core-2026-10-26T18-02-07-706Z-stdout.txt",
+        "sha256": "b12d668ad07839859c5d2fa138a6c25fb623716b5597144871547e5cd5c658db"
+      },
+      {
+        "path": "Logs/gate_core_20261026T180207Z.log",
+        "sha256": "be6a12b04f95cfe29bb4b42918301e1f401b17e1211c7e7b65061e621bc5fd69"
+      },
+      {
+        "path": "TestResults/core_20261026T180207Z.trx",
+        "sha256": "302f28ec492b06f7c248a59ac3c651b0405d52228831b0dc0ca9271124241c2e"
+      }
+    ]
+  },
+  "editor": {
+    "result": {
+      "cmd": "test editmode --cold --filter WorkshopStarterTests|WorkshopModeTests|WorkshopTests|WordboundWorkshopModeTests|WordboundWorkshopOverlayTests|WordboundWorkshopLaunchTests|WordboundWorkshopOnlineLaunchTests|WordboundWorkshopSourceBindingTests|WorkshopPhysicalSiteTests",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T18:05:44Z",
+      "secs": 85.8,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_editmode_20261026T180545Z.log",
+      "evidence": [
+        "TestResults/editmode_20261026T180545Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 37.4,
+      "tests": {
+        "total": 133,
+        "passed": 133,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "files": [
+      {
+        "path": ".harness/delivery/starter-editor-2026-10-26T18-05-44-848Z-stdout.txt",
+        "sha256": "c294291174813dad33b605cd89484443534ba4ca86305a7f243500f9a034e38b"
+      },
+      {
+        "path": "Logs/gate_test_editmode_20261026T180545Z.log",
+        "sha256": "0351ae11b0e7fad0d33ac7272f3e87ba3f6de02928ffd4f8e2cf401582b8c780"
+      },
+      {
+        "path": "TestResults/editmode_20261026T180545Z.xml",
+        "sha256": "77acc441a7471b996e0f1e9d96327f638ac7ed2655747e2fc63691fd4a90ebff"
+      }
+    ]
+  },
+  "physical": {
+    "result": {
+      "cmd": "test editmode --cold --filter Wreckabulary.OfflineGameplayTests.WordboundNativeStarterTests.ExactRaceStarterCompletesThreePhysicalLapsAndReturnsToSameEditableDraft",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T18:09:52Z",
+      "secs": 146.2,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_editmode_20261026T180952Z.log",
+      "evidence": [
+        "TestResults/editmode_20261026T180952Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 12.8,
+      "tests": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "files": [
+      {
+        "path": ".harness/delivery/starter-physical-2026-10-26T18-09-52-637Z-stdout.txt",
+        "sha256": "95aef3a358b119a0452fa311c0badddbd92919c32947e3e78f82abab1b5c5053"
+      },
+      {
+        "path": "Logs/gate_test_editmode_20261026T180952Z.log",
+        "sha256": "f5c7c538a290fe1ecd1c64734bc3115ec151980987f16fd1a15f366f94abf64b"
+      },
+      {
+        "path": "TestResults/editmode_20261026T180952Z.xml",
+        "sha256": "73604f45d8f703ad8addc0e805113e9d6e5b7b768854af36ea7a83a89de2af21"
+      }
+    ]
+  },
+  "observations": [
+    "WORDBOUND_STARTER_LAP: lap=1; tick=2578; item=item:1; renewableGeneration=0; physicalSocket=true; originalMesh=true; nativeCarrierDelivery=true",
+    "WORDBOUND_STARTER_LAP: lap=2; tick=4392; item=item:2; renewableGeneration=1; physicalSocket=true; originalMesh=true; nativeCarrierDelivery=true",
+    "WORDBOUND_STARTER_LAP: lap=3; tick=6390; item=item:3; renewableGeneration=2; physicalSocket=true; originalMesh=true; nativeCarrierDelivery=true",
+    "WORDBOUND_STARTER_COMPLETE: exact RaceCircuit template; three real STOOL batches/crafts/socket holds/consumptions; three native carrier deliveries; confirmed local Win; actual ReturnToWorkshop; same saved draft and Undo/Redo history; scripted admitted motor input and submitted commands; not physical device/menu-selection or public matchmaking acceptance; cleanup pending."
+  ],
+  "cleanup": "WORDBOUND_STARTER_CLEANUP: failures=0; autosaveEvidence=C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wb-starter\\e0e6ffb3759842d190fc947eed5f83d3",
+  "review": {
+    "path": "BuildNotes/completion-20261027/workshop-draft/review.md",
+    "sha256": "855079353e444ad4fd601bfae6e36ac8406fee9f80ba21f3db80a09391a2315e"
+  },
+  "limits": [
+    "Exact fresh RaceCircuit and installed original STOOL/rules; no teleports or injected solved state.",
+    "Movement is scripted through admitted input; commands use the public controller Submit path.",
+    "This does not verify physical device input, Windows rendering, multiplayer starter play or human creator usability.",
+    "A separate follow-up will split failure-path input restoration and observer-detachment cleanup guards; current successful flow cleanup passed."
+  ]
+}

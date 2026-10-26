@@ -34,7 +34,7 @@ namespace Wreckabulary.EditorTests
         }
 
         [Test]
-        public void LocalRacePracticeDispatchesOnlyTheExplicitTimeRunManifestAndDraft()
+        public void RaceStarterAndFlagshipDispatchExactTimeRunDraftsAndRejectCompetitiveLocal()
         {
             workshop.OpenTemplate(WorkshopTemplate.RaceCircuit, folder);
             ResolvedCourse received = null;
@@ -45,13 +45,22 @@ namespace Wreckabulary.EditorTests
                 received = manifest; capturedPlay = workshop.PlayRequirements; capturedDraft = workshop.LastPlaytestDraft;
                 workshop.Visible = false;
             };
+            Assert.IsTrue(workshop.CanPlaytestLocally);
+            string starterDraft = workshop.History.Current.RecoveryJson;
+            var starterPreview = workshop.Preview();
+            Assert.IsTrue(starterPreview.Success, string.Join("\n", starterPreview.Issues));
+            workshop.RequestPlaytest();
+            Assert.IsNotNull(received); Assert.AreEqual(starterPreview.Manifest.Hash, received.Hash);
+            Assert.AreEqual("TimeRun", capturedPlay.ModeId);
+            Assert.AreEqual(starterDraft, capturedDraft.RecoveryJson);
+            workshop.ResumeEditing();
+            Assert.IsTrue(workshop.Visible); Assert.AreEqual(starterDraft, workshop.History.Current.RecoveryJson);
+            received = null;
+            workshop.SelectMode("TeamRace");
             workshop.RequestPlaytest();
             Assert.IsNull(received); Assert.IsFalse(workshop.CanPlaytestLocally);
-            workshop.SelectMode("TimeRun");
-            Assert.IsTrue(workshop.Preview().Success);
-            workshop.RequestPlaytest();
-            Assert.IsNull(received, "Geometry-only race templates cannot dispatch missing physical controls.");
             Assert.IsNull(workshop.LastPlaytestDraft);
+            workshop.SelectMode("TimeRun");
             var items = ItemCatalogue.FromJson(File.ReadAllText(Path.Combine(Application.dataPath, "_Project/Data/Config/items.json")));
             workshop.OpenFlagship(WordboundFlagshipContent.Create(items), folder);
             string draft = workshop.History.Current.RecoveryJson;
@@ -65,6 +74,71 @@ namespace Wreckabulary.EditorTests
             workshop.ResumeEditing();
             Assert.IsTrue(workshop.Visible); Assert.AreEqual(draft, workshop.History.Current.RecoveryJson);
             Assert.AreSame(capturedPlay, workshop.PlayRequirements);
+        }
+
+        [Test]
+        public void RemovingOneLapControlStillBlocksStarterPlaytest()
+        {
+            workshop.OpenTemplate(WorkshopTemplate.RaceCircuit, folder);
+            int launches = 0;
+            workshop.PlaytestRequested += _ => launches++;
+            workshop.RequestPlaytest(); Assert.AreEqual(1, launches);
+            workshop.History.Execute("Remove lap two socket", d => d.Course.PhysicalSites.RemoveAll(site => site.Lap == 2));
+            Assert.IsTrue(workshop.Preview().Success, "Preview remains useful while physical controls are incomplete.");
+            workshop.RequestPlaytest(); Assert.AreEqual(1, launches);
+            Assert.IsNull(workshop.LastPlaytestDraft);
+            Assert.IsTrue(workshop.History.Undo());
+            workshop.RequestPlaytest(); Assert.AreEqual(2, launches);
+        }
+
+        [Test]
+        public void ExistingGeometryAutosaveIsRecoveredWithoutReplacingItsDraftOrRetainedMode()
+        {
+            var legacy = CourseTemplates.RaceCircuit();
+            legacy.Title = "My earlier race";
+            var saved = new WorkshopSnapshot(new WorkshopDraft { Course = legacy, Seed = "fedcba9876543210" });
+            var storage = new WorkshopStorage(folder);
+            storage.Save(saved);
+            string path = Path.Combine(folder, legacy.Id + ".autosave.json");
+            byte[] bytes = File.ReadAllBytes(path);
+            workshop.OpenTemplate(WorkshopTemplate.RaceCircuit, folder);
+            Assert.AreEqual(saved.RecoveryJson, workshop.History.Current.RecoveryJson);
+            Assert.IsEmpty(workshop.History.Current.Course().PhysicalSites);
+            CollectionAssert.AreEqual(bytes, File.ReadAllBytes(path));
+            workshop.SelectMode("TeamRace", RaceFormat.Duo);
+            var chosen = workshop.PlayRequirements;
+            var history = workshop.History;
+            workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld, folder);
+            workshop.OpenTemplate(WorkshopTemplate.RaceCircuit, folder);
+            Assert.AreSame(history, workshop.History);
+            Assert.AreSame(chosen, workshop.PlayRequirements);
+            Assert.IsFalse(workshop.CanPlaytestLocally);
+            int launches = 0;
+            workshop.PlaytestRequested += _ => launches++;
+            workshop.RequestPlaytest(); Assert.AreEqual(0, launches);
+            Assert.AreEqual(saved.RecoveryJson, workshop.History.Current.RecoveryJson);
+            CollectionAssert.AreEqual(bytes, File.ReadAllBytes(path));
+        }
+
+        [Test]
+        public void ExportedAndRecoveredStarterDispatchesItsExactSavedDraft()
+        {
+            workshop.OpenTemplate(WorkshopTemplate.RaceCircuit, folder);
+            var storage = new WorkshopStorage(Path.Combine(folder, "roundtrip"));
+            var saved = workshop.History.Current;
+            storage.Save(saved);
+            var recovered = storage.Recover(saved.Course().Id, out bool backup);
+            Assert.IsFalse(backup); Assert.AreEqual(saved.RecoveryJson, recovered.RecoveryJson);
+            var imported = storage.ImportCourse(storage.ExportCourse(recovered));
+            Assert.AreEqual(saved.CourseJsonText, imported.CourseJsonText);
+            var catalogue = workshop.Catalogue; var play = workshop.PlayRequirements;
+            workshop.Open(imported.Course(), catalogue, play, folder);
+            ResolvedCourse received = null;
+            workshop.PlaytestRequested += course => received = course;
+            var preview = workshop.Preview();
+            workshop.RequestPlaytest();
+            Assert.IsNotNull(received); Assert.AreEqual(preview.Manifest.Hash, received.Hash);
+            Assert.AreEqual(imported.CourseJsonText, workshop.LastPlaytestDraft.CourseJsonText);
         }
 
         [Test]

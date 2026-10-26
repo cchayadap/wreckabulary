@@ -278,11 +278,11 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void PuzzleAndGateEditsRejectUnapprovedRecipesAndLockedConnections()
         {
-            var preset = WorkshopTemplates.Create(WorkshopTemplate.RaceCircuit);
-            var history = new WorkshopHistory(preset.Snapshot);
+            var catalogue = CourseTemplates.ProofCatalogue();
+            var history = new WorkshopHistory(new WorkshopSnapshot(CourseTemplates.RaceCircuit()));
             Assert.Throws<ArgumentException>(() => history.Execute("Bad recipe", draft =>
                 WorkshopCommands.SetPuzzle(draft, new CoursePuzzle
-                { Id = "bad", ModuleId = "Start", PresetId = "PlaceObject", RecipeId = "DOWNLOAD", RequiredLetters = "DOWNLOAD" }, preset.Catalogue)));
+                { Id = "bad", ModuleId = "Start", PresetId = "PlaceObject", RecipeId = "DOWNLOAD", RequiredLetters = "DOWNLOAD" }, catalogue)));
             history.Execute("Lock", draft => draft.LockedLayers.Add("Ground"));
             Assert.Throws<InvalidOperationException>(() => history.Execute("Gate", draft => WorkshopCommands.Gate(draft, "UpA", "BedBridge")));
         }

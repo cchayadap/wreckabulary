@@ -1,0 +1,99 @@
+{
+  "utc": "2026-10-26T18:01:14.080Z",
+  "sourceCommit": "82a67fa6",
+  "status": "FAIL; scored-finish acceptance remains pending",
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-26T17:50:59Z",
+    "secs": 523.7,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+        "message": "Return the zero-score victim to native FFA contact through admitted movement exceeded its deadline.\r\n  Expected: True\r\n  But was:  False",
+        "location": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs:520"
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261026T175059Z.log",
+    "evidence": [
+      "TestResults/editmode_20261026T175059Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 16.2,
+    "tests": {
+      "total": 1,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0
+    }
+  },
+  "cleanup": "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; dispose=0; clients=2; parties=2",
+  "sessionFaultCount": 0,
+  "observedRespawnGenerations": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "checkpointTimings": [
+    "WORDBOUND_CHECKPOINT_WINDOW: peer=0; runnerCreations=1; elapsedMs=479868.899; canonicalFirst=0; canonicalLast=19579; sdkFirst=1; sdkLast=26280; maxCommittedGapTicks=120; maxSampleGapMs=363.369; staleSamples=0; unavailable=0; accepted=265; unmatchedAccepted=0; superseded=0; pending=False; matchedPublicationToAckTotalMs=283989.689; matchedPublicationToAckMaxMs=6621.256; clock=Stopwatch; duration=inclusive-continuation-observed-wall-not-cpu-or-http-rtt; end=accepted-authority-ack-before-session-and-controller-scheduling; prepareCompression=unisolated; stages=nested-and-parallel-not-additive; sampleIntervals=previous-label-between-observations-not-exact-pause-time; finalInterval=omitted; endpoints=not-a-cross-runner-or-epoch-advance-ratio",
+    "WORDBOUND_CHECKPOINT_GAPS: peer=0; completed=263; totalMs=144938.236; maxMs=950.317; bootstrapSkipped=1; boundarySkipped=0; abandonedPublications=0; duration=matched-accepted-ack-to-next-successful-publish-start-inclusive-gap-not-pure-controller-idle; sameRunnerAndEpoch=true; failedPublishAttempts=not-individually-isolated",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Publish; completed=265; failed=0; inFlight=0; maxInFlight=1; totalMs=5151.543; maxMs=63.054",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Validate; completed=265; failed=0; inFlight=0; maxInFlight=1; totalMs=11403.786; maxMs=89.560",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Acknowledge; completed=265; failed=0; inFlight=0; maxInFlight=1; totalMs=23.761; maxMs=8.738",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Begin; completed=265; failed=0; inFlight=0; maxInFlight=1; totalMs=74079.534; maxMs=4024.912",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Chunk; completed=696; failed=0; inFlight=0; maxInFlight=3; totalMs=253392.731; maxMs=4601.725",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Finalize; completed=265; failed=0; inFlight=0; maxInFlight=1; totalMs=62903.654; maxMs=2277.486",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Head; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=169.741; maxMs=169.741",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Renew; completed=87; failed=1; inFlight=0; maxInFlight=1; totalMs=42319.999; maxMs=4017.941",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Read; completed=0; failed=0; inFlight=0; maxInFlight=0; totalMs=0.000; maxMs=0.000",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Claim; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=259.030; maxMs=259.030",
+    "WORDBOUND_CHECKPOINT_STAGE: peer=0; stage=Open; completed=1; failed=0; inFlight=0; maxInFlight=1; totalMs=133.278; maxMs=133.278",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=NotReady; samples=537; observedIntervalsMs=7748.947",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Migration; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Result; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=DurableGapObserved; samples=6163; observedIntervalsMs=93547.677",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=OtherPaused; samples=0; observedIntervalsMs=0.000",
+    "WORDBOUND_CHECKPOINT_TICKS: peer=0; state=Eligible; samples=19580; observedIntervalsMs=335349.900"
+  ],
+  "finalOperation": [
+    "WORDBOUND_GAMEPLAY_OPERATION: Return the zero-score victim to native FFA contact through admitted movement; phase=begin; elapsed=0.000; maxFrameGap=0.000; lifetimeCancelled=False",
+    "WORDBOUND_GAMEPLAY_OPERATION: Return the zero-score victim to native FFA contact through admitted movement; phase=end; elapsed=2.121; maxFrameGap=0.031; lifetimeCancelled=True"
+  ],
+  "raw": [
+    {
+      "path": ".harness/delivery/completion-ffa-2026-10-26T17-50-59-171Z-start.json",
+      "sha256": "ac7e4213d1c9589526dabd68c8ea36b33eae731ad6d7fa158648d6d9e04c8964"
+    },
+    {
+      "path": ".harness/delivery/completion-ffa-2026-10-26T17-50-59-171Z-end.json",
+      "sha256": "98338964ad1a6aaf19dd6a1fff7dbab854b4dd494b6000db522e568286d47853"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261026T175059Z.log",
+      "sha256": "f716d450540ed2895b977e0adfbd50a83ddea310fbaf2b8a45ec35a7d2cd52e0"
+    },
+    {
+      "path": "TestResults/editmode_20261026T175059Z.xml",
+      "sha256": "f6c0f606471d6647a2f71e06f188b3f7eadeb50f7250f52fa004d71c2f0f2c0b"
+    }
+  ],
+  "limits": [
+    "The same full-match case and assertions ran without changing bounds, scores, test lifetime or service TTLs.",
+    "Prior writer-poll failure did not recur, but this failed full match does not close native acceptance.",
+    "The existing test lifetime expired before complete ten-knockout durable result verification.",
+    "All cleanup stages passed for two clients and two parties."
+  ]
+}

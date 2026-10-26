@@ -230,7 +230,7 @@ namespace Wreckabulary.Workshop
             if (flagshipContent != null && Button(usesFlagship ? "● Flagship draft" : "Flagship draft")) QueueSourceChoice(5);
             foreach (WorkshopTemplate template in Enum.GetValues(typeof(WorkshopTemplate)))
                 if (Button((currentTemplate == template ? "● " : "") + TemplateLabel(template))) QueueSourceChoice(2 + (int)template);
-            GUILayout.Label("Templates start with geometry. Race playtests also need physical controls at every selected puzzle checkpoint.");
+            GUILayout.Label("New puzzles need physical controls before playtest.");
             GUILayout.Space(12);
             FloorPanel();
             GUILayout.Space(12);
