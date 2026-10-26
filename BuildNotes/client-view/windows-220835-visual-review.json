@@ -1,0 +1,413 @@
+{
+  "status": "VISUAL_REVIEW_COMPLETE_DELIVERY_PROVENANCE_REJECTED",
+  "build": {
+    "schema": 1,
+    "id": "20261026T220835Z",
+    "kind": "release-qa",
+    "dir": "Builds/qa-20261026T220835Z",
+    "exe": "Wreckabulary.exe",
+    "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "utc": "2026-10-26T22:09:57Z",
+    "development": false,
+    "unity_version": "6000.6.4f1",
+    "head": "c4810d6a2b83c597c6d30e8ab3017891fb44941c",
+    "tree": "3656b62392c7e01d2c7a043043bd2a84e50fe59cf5f7e0cf6374be5dda29b098",
+    "secs": 81.9,
+    "ok": true
+  },
+  "gameRuns": "Both PASS; lobby5/5 plus solo3/3",
+  "deliveryPromotion": false,
+  "viewerPublished": false,
+  "method": "All31 actual PNGs opened with view_image; selected seven prior210349 comparison images reopened/read. No image editing or generation.",
+  "checks": [
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/checks.json",
+      "sha256": "8c269ec1f78d49512ad15500282b9586bf68ddf5dca6fc31c05e3f3634a808de",
+      "steps": [
+        {
+          "name": "local_choices",
+          "status": "PASS"
+        },
+        {
+          "name": "create_choices",
+          "status": "PASS"
+        },
+        {
+          "name": "customize_and_shop",
+          "status": "PASS"
+        },
+        {
+          "name": "settings_navigation",
+          "status": "PASS"
+        },
+        {
+          "name": "open_wordbound",
+          "status": "PASS"
+        }
+      ],
+      "console": {
+        "errors": 0,
+        "exceptions": 0,
+        "warnings": 0,
+        "first_exception": null
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/checks.json",
+      "sha256": "5502ddb8bfe18223c0794f6f2bf21b8bc23739cd2fe198cc25f542eadf87ced9",
+      "steps": [
+        {
+          "name": "solo_selection",
+          "status": "PASS"
+        },
+        {
+          "name": "time_run",
+          "status": "PASS"
+        },
+        {
+          "name": "freestyle",
+          "status": "PASS"
+        }
+      ],
+      "console": {
+        "errors": 0,
+        "exceptions": 0,
+        "warnings": 0,
+        "first_exception": null
+      }
+    }
+  ],
+  "images": [
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_local_dibs.png",
+      "sha256": "2de75581ddc946b5778f59c7973f659c3f13c282397cf2311e0ca202a473f7e0",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Original colorful mode/map grid, selected outline and footer readable; mode-specific bot/team summary visible."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_local_duos.png",
+      "sha256": "71616537487a4ce5c0830a9c72c6610ff5b2f75533414ccc763727b1652878da",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Original colorful mode/map grid, selected outline and footer readable; mode-specific bot/team summary visible."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_local_escape.png",
+      "sha256": "2847afd9aa122f7514aa31d3b0f231dff172f197f77ebffd672e87b9914b49c3",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Random house label and icon fully readable; selected Escape and participant summary clear."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_solo_timerun.png",
+      "sha256": "8230bf7fd3a64a79cbb398f93edf3da86f6fb3d73229c6879c838ddd787144b4",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Full original red-hooded avatar beside compact mode panel; selected card, detail and GO unobstructed."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_solo_freestyle.png",
+      "sha256": "1cd1ce23ca2689c558ab110b193f7f50527d6c17ddcb10195b5b173607e3270f",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Full original red-hooded avatar beside compact mode panel; selected card, detail and GO unobstructed."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_solo_two_seats.png",
+      "sha256": "42f67f8d24b7a9399ca8d949e255ba85839d5decce1d0ce33c8deecf326a90ac",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Full avatar beside compact Solo panel; Local2/4, restriction sentence and disabled GO clear."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_create_learn.png",
+      "sha256": "2ba4392033847d07d288cf2a2a526179898ab375a0945ab796c92e52d419930a",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Tutorial card, room explanation and GO clear within full house-tools layout."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_create_build.png",
+      "sha256": "4feba80813c3a4dcd7ad4b43771af3d042e6bd813133342ad528a8d2c43c7e7c",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Home workshop card/maps visible; unsupported houses visibly disabled; selected Pinwheel and GO clear."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_create_wordbound.png",
+      "sha256": "4d4030219ba6bba94c1e58380a6396f8d97b6069e2a5c2a759edca2ec138e064",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Full avatar on left, readable Wordbound Maps card and OPEN footer on right."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_customize.png",
+      "sha256": "60bc56b0447a3c27b8110ee224507cd6e446638f789cf9faef37bee6a2aac5c2",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Original avatar fully visible beside loadout, colors, accessories, gear and Done controls."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_shop.png",
+      "sha256": "3c798445a186d1b80d2c32b5f7f2e98a3e101a2f83ba5cddfa298d411f2d83f7",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Six original style portraits retain vivid outfits and clean mint backgrounds; cards and price/equip labels readable."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_profile.png",
+      "sha256": "fc68a3e8817be4d2afd6461051b3e5ec1fcc75ad9587fda9d7d6a8c202b9f612",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Settings category, selected tab and rows readable without overlap; larger empty lower space remains on sparse categories."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_audio.png",
+      "sha256": "ff1b9a8c7083819009dde3161884c20f71a40cd76f6d071c8b9cd8514676fb45",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Settings category, selected tab and rows readable without overlap; larger empty lower space remains on sparse categories."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_gameplay.png",
+      "sha256": "9230c1738f7e196154c397f833998d88ec9a41c1f916c97601d603a58042de96",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Settings category, selected tab and rows readable without overlap; larger empty lower space remains on sparse categories."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_graphics.png",
+      "sha256": "df00f38cba150437a982f838db6c24af657ac517015e38bb18957f9021b37608",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Settings category, selected tab and rows readable without overlap; larger empty lower space remains on sparse categories."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_controls.png",
+      "sha256": "719ccac4a3d415042f443bb1c4729144d0d5a3c044679ece50ea1828cae7131f",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "House/Wordbound selector and fixed House title visible; shortened invert note fits; scrollbar apparent."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_controls_bottom.png",
+      "sha256": "2a50b963be4eb2125f437d554769e24fcef933722980e1ca3c3558606f8b129d",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Fixed HOUSE CONTROLS header; original Hand1/2, held spelling, Bag and View/Share pause visible."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_wordbound_controls_mid.png",
+      "sha256": "f47215308b65c3c932833943794acf5e85cb56e3f6064d144c09071f0d8523f6",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Fixed WORDBOUND CONTROLS header; Aim RB/R1 and crafting Y/Triangle plus Jump/Interact rows fully readable."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_wordbound_controls_bottom.png",
+      "sha256": "bfd9d623098b9d65b12cf5a6d4935a60597f6cf57d82f5a46b6123fa8e621da7",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Fixed Wordbound header; Equipment1/2 dashes, R3 gear cycle and Start/Options fully visible; footer separate."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_settings_help.png",
+      "sha256": "cbe83c804a203a365708fa0f1500a8459836b9d1e693304ce79fa0f29a2b66c2",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "House-help instructions and Wordbound menu-help note readable; keyboard grid and CTA fit."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_home_returned.png",
+      "sha256": "f03e89293d5be81718cd64532cf5dccda8f54290d1b7d9b2998917d99187b28d",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Home avatar, original vivid Sunroom and local/online actions readable; no gameplay HUD remains."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221014Z-lobby_experience/lobby_online_ready.png",
+      "sha256": "e0d0d605be35f2f5d83b776469ed0989a698a934054bcc278604741432c03202",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Actual guest Online Play form readable over Sunroom backdrop; no network acceptance implied."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_initial_lobby.png",
+      "sha256": "fda078c87a60dcd46af29af512310e1f1b8230224bc0c3255de9a516e9e811cc",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Home avatar, original vivid Sunroom and local/online actions readable; no gameplay HUD remains."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_timerun_selected.png",
+      "sha256": "a1f869c77f44f95e7bda0850fb3f3653e2877af7b518d6482a242e907ef3d0e5",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Full original red-hooded avatar beside compact mode panel; selected card, detail and GO unobstructed."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_timerun_world.png",
+      "sha256": "f75899ee46722cb3c810a69be7278d316329acf83638d0fa33719933a92f93c3",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Readable LMB/Q/ESC HUD and stable original avatar; starting room remains sparse; TimeRun checkpoint has pale contrast where present."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_timerun_menu.png",
+      "sha256": "e2884f22da63d267e849d4369de38fb51137470ec799a2641a9891f186625d68",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Original recipe icons and separate Craft/Return to lobby controls readable; grid clips only at scroll viewport."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_timerun_returned.png",
+      "sha256": "5260a4f1575bc0079b05ebc1d1cce191c4af95bbbcabdc2c31cd3c50df86d7fb",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Full original red-hooded avatar beside compact mode panel; selected card, detail and GO unobstructed."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_freestyle_selected.png",
+      "sha256": "2035c5d1b4fd17a1223efffaea70eac1ba23ff87a1b8e98fa226e9b820448f62",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Full original red-hooded avatar beside compact mode panel; selected card, detail and GO unobstructed."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_freestyle_world.png",
+      "sha256": "565685167d0a730568d033ac085bb699c509dacf7018f5e352f7939bc091c2dc",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Readable LMB/Q/ESC HUD and stable original avatar; starting room remains sparse; TimeRun checkpoint has pale contrast where present."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_freestyle_menu.png",
+      "sha256": "c0c8ddcf4c16139b5347b492f6cec52c17e0884d9de4a7565e597bbde4f1875d",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Original recipe icons and separate Craft/Return to lobby controls readable; grid clips only at scroll viewport."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221214Z-wordbound_solo/solo_freestyle_returned.png",
+      "sha256": "7615fd6a8afd8004771cf21e184169a044bd1b424c9bab1a99269264f860aed8",
+      "width": 1280,
+      "height": 720,
+      "visuallyOpened": true,
+      "observation": "Full original red-hooded avatar beside compact mode panel; selected card, detail and GO unobstructed."
+    }
+  ],
+  "previousComparisons": [
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_solo_timerun.png",
+      "sha256": "8fce5541027af3ee02078c31c8c64d0ace62cdcfb4e5f0fbcd646714ab2e7d77",
+      "visuallyOpened": true
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_create_wordbound.png",
+      "sha256": "65c05a59a086849c38fab373f598c38c93fd9496fddf9d9f13f7c36d42a6e52e",
+      "visuallyOpened": true
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_settings_controls.png",
+      "sha256": "80130015519ac40d5815cae5c7a77c7ba5564efd0ad31181d77cdcba70685a73",
+      "visuallyOpened": true
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_settings_controls_bottom.png",
+      "sha256": "2d7f3e2404daeb2c6b9fb2760484f41e71e541b775bd713bdcce8fb5dd7afabb",
+      "visuallyOpened": true
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_shop.png",
+      "sha256": "01c3057a9e6b218194704d4286b44433454cc2a8635c9c1375f75a519ed3f59b",
+      "visuallyOpened": true
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210721Z-wordbound_solo/solo_timerun_world.png",
+      "sha256": "563a56b1e18fccf9f18fdb49399249ace6aef51087fe3c99ce3a6d1553b1cb13",
+      "visuallyOpened": true
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210721Z-wordbound_solo/solo_timerun_menu.png",
+      "sha256": "4c01aeae1abaf6e91e9f65cb3eecf0d2803e8970ade0b69725bf92225c42e94a",
+      "visuallyOpened": true
+    }
+  ],
+  "blockingVisualFindings": [],
+  "improvements": [
+    "Full original avatar is visibly left of compact Solo/Maps panel rather than hidden behind it.",
+    "Fixed House/Wordbound controls headers and exact supported mappings stay readable at observed scroll positions."
+  ],
+  "remainingPolish": [
+    "Sparse starter room and pale TimeRun checkpoint contrast.",
+    "Large empty lower space in low-density Settings categories."
+  ],
+  "provenanceRejection": {
+    "path": "BuildNotes/client-view/delivery-220835-provenance-rejection.json",
+    "sha256": "51b7ffd35ecf84b3baafdb597dc125ddb815d3e20a15c5b9ffff729209d57936",
+    "record": {
+      "utc": "2026-10-26T22:15:40.1779844Z",
+      "status": "FAIL",
+      "scope": "Delivery-verifier provenance check; the build and both game walkthroughs themselves passed.",
+      "build": "20261026T220835Z",
+      "source": "c4810d6a2b83c597c6d30e8ab3017891fb44941c",
+      "rejectedBaseline": ".harness/delivery/ui-authored-before-2026-10-26T21-47-50-317Z.json",
+      "capturedHead": "3767eb1c01e4cb999f4bcff945c23e854d9ab8be",
+      "reason": "Preservation baseline belongs to another source commit",
+      "unchangedFiles": 4208,
+      "preservation": "BuildNotes/client-view/windows-220835-authored-preservation.json",
+      "next": "Capture a fresh baseline at the exact committed source before a new build and repeat the two delivery walkthroughs. Do not alter the old baseline or relax the verifier."
+    }
+  },
+  "authoredPreservation": {
+    "path": "BuildNotes/client-view/windows-220835-authored-preservation.json",
+    "sha256": "4aa298a34c322a6a8798dcd681095c5f35fc9c4c615a7e2e2366282e5d2eb6b6",
+    "record": {
+      "utc": "2026-10-26T22:13:48.347Z",
+      "status": "PASS",
+      "baseline": ".harness/delivery/ui-authored-before-2026-10-26T21-47-50-317Z.json",
+      "baseline_sha256": "65e7aa419cbd43ba688de53da60e5ae5b3c6e8e18f1e9404103990cb4514b2ed",
+      "files": 4208,
+      "changed": [],
+      "scope": "All non-ignored Assets .asset/.unity/.prefab/.mat/.ttf/.otf and adjacent metadata, plus project/build settings. Read-only preservation fingerprint, no Unity/player execution."
+    },
+    "independentRehashAllFiles": false
+  },
+  "limits": [
+    "Observed1280x720 layouts only; no physical controller/keyboard or full match/story/animation/physics acceptance.",
+    "Journal counts0 are observations, not story-introduction delivery.",
+    "Online screenshot is guest frontend only.",
+    "Owner visual acceptance pending; final delivery blocked by prior-commit preservation baseline."
+  ]
+}

@@ -4,11 +4,13 @@ Open **Wreckabulary → Open Current Workspace → Design**. Edit outside Play M
 
 ## Quick edit, save and try
 
-Use **Scenes → Play Lobby / Play Shop / Play Loadout** for a real preview. Stop Play before saving a scene or prefab edit. These previews use your actual player save, including purchases and equipped items.
+Open a saved asset from **Design**, edit and save it outside Play, then choose **Scenes → Play Lobby / Play choices / Play Settings / Play Shop / Play Loadout**. Stop Play and reopen the asset to confirm the edit. These previews use your actual player save, including purchases and equipped items.
 
 | Change | Open and save | Try it |
 | --- | --- | --- |
 | Home buttons and spacing | Design → Edit Home dock & turn hint | Scenes → Play Lobby |
+| Play frame and compact size | Design → Edit Play panel / Play layout assignments | Scenes → Play choices |
+| Settings frame and confirmation space | Design → Edit Settings panel / Settings layout assignments | Scenes → Play Settings |
 | Shop grid and offer picture | Design → Edit Shop panel / Edit offer card | Scenes → Play Shop |
 | Customize panel and recipe cards | Design → Edit Loadout panel & recipe shelf / Edit recipe card | Scenes → Play Loadout |
 | Lobby framing | Design → Framing, height & field of view | Restart Play Lobby |
@@ -17,7 +19,7 @@ Use **Scenes → Play Lobby / Play Shop / Play Loadout** for a real preview. Sto
 
 For a local variation, duplicate the profile/material/prefab and assign the copy where it is used. Moving a prop in Equipment Studio changes that saved review scene only; use a **Presentation → Overrides** entry to put a compatible copy into gameplay. Preserve the original imported models and rig. Reopen the saved asset after stopping Play to verify the intended edit survived.
 
-**What is still generated:** Play mode cards, Settings panels, top navigation, online party layout and the inside of wearable/recipe pickers. Their temporary Play hierarchy is not a persistent drag-and-drop layout. Home, Shop and Loadout containers/cards are saved prefabs. `Interface.asset` styles Wordbound menus; it does not replace lobby fonts or lobby prefab colours.
+**What is still generated:** Play mode cards and their controls, Settings tabs/option/rebinding rows, top navigation, online party layout and the inside of wearable/recipe pickers. Home, Play, Settings, Shop and Loadout have saved frames; Shop/Loadout also have saved offer/recipe cards. Generated children inside those frames are temporary, so dragging them during Play does not save a layout. `Interface.asset` styles Wordbound menus; it does not replace lobby fonts or lobby prefab colours.
 
 **Map-editor route:** **Play → Create → Wordbound maps → OPEN** opens the assigned course locally without online configuration. **Back to lobby** saves the draft and returns to Create; local seats are retained. Playtests use one player and return to the same editable history. Closing the scene retains the recovery draft but not Undo. **Home & tutorial** keeps the original learning room and home builder. The Online screen still offers Workshop for private online hosting. Use **Scenes → Edit Flagship course** for the saved course Inspector; workshop autosaves do not overwrite that Project asset.
 
@@ -40,16 +42,22 @@ The lobby refinement keeps the original room and saved layouts. **Customize** op
 
 Home's saved **LOCAL PLAY** action still starts the selected local mode; its mode and house buttons open the chooser. **ONLINE PLAY** opens Wordbound. Edit these static labels in HomePage.prefab. The one-time **Authoring → Apply Reviewed Home Navigation Labels** command accepts only the complete old or new default label set and preserves custom text rather than overwriting it.
 
-For the new puzzle world, use **Play → Local → Wordbound solo**, choose **Time Run** or **Freestyle**, then **GO**. This uses the installed flagship and saved gameplay camera, presentation, story and interface profiles. It works without online configuration. **Return to lobby** stops the local session and restores the solo chooser. Switching between House games and Wordbound keeps house selections and local seats; remove extra local seats explicitly before launching solo. Home's quick Local Play button still launches the selected house game.
+For the new puzzle world, use **Play → Local → Wordbound solo**, choose **Time Run** or **Freestyle**, then **GO**. This uses the installed flagship and saved gameplay camera, presentation, story and interface profiles. It works without online configuration. **Return to lobby** stops the local session and restores the solo chooser. Switching between House games and Wordbound keeps house selections and local seats; remove extra local seats explicitly before launching solo. Home's quick Local Play button still launches the selected house game. Compact Solo and Wordbound maps choosers move the camera framing left of the panel and follow its fitted width; House and Home restore centred framing.
 
-Settings groups the existing options into **Profile / Audio / Gameplay / Graphics / Controls / Help**. Gameplay includes reduced lobby theme motion and combat feedback. Controls supports the existing keyboard/mouse remapping; the controller legend describes fixed bindings. Overflowing lists have a visible scrollbar and keep their tab position. Display confirmation retains its timed rollback across tabs; this delivery captured the pending layout without actually switching resolution. These settings panels and the responsive top navigation are still generated; their structural layout is not yet a saved drag-and-drop prefab.
+Settings groups the existing options into **Profile / Audio / Gameplay / Graphics / Controls / Help**. Gameplay includes reduced lobby theme motion and combat feedback. Controls has a **House games / Wordbound** legend selector; the heading stays visible while scrolling to show the current context. Both legends edit the same saved keyboard/mouse bindings; controller mappings stay fixed. Wordbound includes **Equipment 1 / 2** on keyboard **1 / 2** and cycling on **Tab / R3**. Help labels its original instructions **House games**; Wordbound has its own **Menu → Help**. Overflowing lists have a visible scrollbar and keep their tab position. Display confirmation retains its timed rollback across tabs; this delivery captured the pending layout without actually switching resolution. The Settings frame is now a saved prefab; individual settings controls and the responsive top navigation remain generated.
 
-Home, Shop, Loadout, lobby-camera and typography assets are saved in this checkout. For a grey asset button, scroll to **Design → Workspace Tools → Create missing developer assets**. Setup preserves existing authored assets; repair any reported invalid reference. Home's five Editor cases and 70 combined Play cases pass, with all 146 authored files preserved. Loadout/camera checks also pass. Current lobby Windows walkthrough 20261026T164019Z passes 5/5 with 16 captures; ordinary physical editor interaction remains pending. [Verification](../../BuildNotes/developer-workspace/home-recovery-20261026.json).
+Home, Play, Settings, Shop, Loadout, lobby-camera and typography assets are saved in this checkout. For a grey asset button, scroll to **Design → Workspace Tools → Create missing developer assets**. For only the new frames, use **Wreckabulary → Authoring → Create or Verify Saved Play and Settings Frames**. Setup creates missing defaults and preserves saved edits; repair any reported invalid reference.
+
+Native verification: **27/27 Editor cases** and **31/31 Play cases** pass with none skipped; setup/repeat checks pass and all **4,208 recorded authored files** remain unchanged after Play. The Play checks include frame integration, controls legends, navigation and avatar projection. [Editor evidence](../../BuildNotes/client-view/lobby-authoring-draft/independent-editor-214606.md), [Play results](../../TestResults/playmode_20261026T220430Z.xml), [preservation](../../BuildNotes/client-view/lobby-authoring-draft/native-play-220430-preservation.json). Windows review build **20261026T221541Z**, source **c4810d6a**, passes lobby 5/5 and Solo 3/3 with all 31 actual images reviewed. [Try the build](../../BuildNotes/client-view/TRY-WORDBOUND.md) and [compare the layouts](../../BuildNotes/client-view/UI-REVIEW-221541.html). Ordinary physical editor/controller interaction remains separate acceptance work.
 
 | Design button | What to edit | Saved location within the Unity project |
 | --- | --- | --- |
 | **Edit Home dock & turn hint** | Next-match dock, hint placement, action spacing and static button copy | `Assets/_Project/Prefabs/UI/Home/HomePage.prefab` |
 | **Home layout assignments** | Which saved page the Home screen uses | `Assets/_Project/Resources/UI/LobbyHomeLayout.asset` |
+| **Edit Play panel** | Panel/title/subtitle style, queue strip, Choices spacing and Summary bounds | `Assets/_Project/Prefabs/UI/Play/PlayPage.prefab` |
+| **Play layout assignments** | Saved `Page` and responsive `Compact Maximum` | `Assets/_Project/Resources/UI/LobbyPlayLayout.asset` |
+| **Edit Settings panel** | Panel/title, Tabs, content-stack spacing and display confirmation height | `Assets/_Project/Prefabs/UI/Settings/SettingsPage.prefab` |
+| **Settings layout assignments** | Which saved `Page` Settings uses | `Assets/_Project/Resources/UI/LobbySettingsLayout.asset` |
 | **Edit Shop panel** | Panel size, tabs, scroll area and offer-grid spacing | `Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab` |
 | **Edit offer card** | Picture area, title font/size and action placement | `Assets/_Project/Prefabs/UI/Shop/ShopOfferCard.prefab` |
 | **Shop layout assignments** | Which saved page and card the Shop uses | `Assets/_Project/Resources/UI/LobbyShopLayout.asset` |
@@ -62,15 +70,19 @@ Home, Shop, Loadout, lobby-camera and typography assets are saved in this checko
 
 1. Open a panel/card. In Prefab Mode, select an element and use the Rect Tool or Inspector to move/resize it. On grids, edit **Cell Size** and **Spacing**.
 2. Select text to edit its font, matching Material Preset and size. Button colors use **Idle Ink** / **Active Ink**; recipe selection uses **Selected Ink**. Edit visual children inside the **Motion (runtime animation)** wrapper.
-3. Save, leave Prefab Mode, then choose **Workspace → Scenes → Play Lobby**, **Play Shop** or **Play Loadout**. Check long names, hover/selection and scrolling. Stop, reopen the prefab and confirm the saved edit. Changes to the temporary Play hierarchy are not saved. The preview is designed to restore your previous scene and Play entry.
+3. Use **Check references**, save, leave Prefab Mode, then choose **Workspace → Scenes → Play Lobby**, **Play choices**, **Play Settings**, **Play Shop** or **Play Loadout**. Check long names, hover/selection and scrolling. Stop, reopen the prefab and confirm the saved edit. Changes to the temporary Play hierarchy are not saved. The preview is designed to restore your previous scene and Play entry.
 
 These previews run the real game and use your player save. Purchases and equipment changes can persist.
+
+For Play, `Compact Maximum` defaults to **1100 × 600** and accepts **900–1920 × 580–1080** UI units. Compact mode owns the panel's responsive root placement; edit its inner regions and profile size. Keep Queues, Choices and Summary separate, and keep Title/Close outside them. Title and Subtitle need separate text references; the game supplies the subtitle text.
+
+For Settings, adjust Tabs width and the content stack's left inset together. Keep Content flexible. **Display confirmation → Layout Element → Preferred Height** reserves **64–200** units while Keep/Revert is shown; the default is **80**, plus **12** stack spacing. Keep Min Height no greater than Preferred Height and Flexible Height at zero. Keep Title/Close outside Tabs, Content and the hidden confirmation region. The timer and settings behavior stay runtime-controlled.
 
 For the lobby camera, **Distance** moves nearer/farther, **Eye Height** changes camera height, **Look Height** changes its aim and **Field Of View** changes the lens angle. Save and restart Play; small rooms still limit distance. **Design → Player camera** opens the separate Wordbound gameplay-camera asset.
 
 Saved fonts are `LilitaOne-Regular SDF.asset`, `Nunito-ExtraBold SDF.asset` and `Nunito-Black SDF.asset`. Presets include `Lobby Display Stroke.mat`, `Lobby Display Drop.mat` and `Lobby … Foreground.mat`. Keep presets paired with their font. Swapping a role in `LobbyTypography.asset` does not reassign existing prefab labels: edit those labels too. Shared font/material edits affect every referencing label; duplicate and assign for a local variation. Restart Play afterward.
 
-Keep Finish, scroll/grid and header controls outside **Recipe detail**. Keep card visuals/motion outside **Letters (runtime contents)**. Both slots are refilled during play. Shop and Loadout Inspectors' **Check references** catches broken bindings; it does not replace a visual/navigation check.
+Keep Finish, scroll/grid and header controls outside **Recipe detail**. Keep card visuals/motion outside **Letters (runtime contents)**. Both slots are refilled during play. Play, Settings, Shop and Loadout Inspectors' **Check references** catches broken bindings; it does not replace a visual/navigation check.
 
 For Home, keep **Turn hint** separate from **Next match**. Keep Start, mode, house, Wordbound and its note independently visible inside the dock. The default Vertical Layout Group controls action positions; edit its spacing and child Layout Elements, or deliberately replace it for free placement. Current mode/house labels, countdown visibility, availability and callbacks are runtime-owned. **Wreckabulary → Authoring → Create or Verify Saved Home Layout** validates an existing layout without replacing it.
 

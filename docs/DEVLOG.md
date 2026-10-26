@@ -848,3 +848,10 @@ Saved Play and Settings prefab/profile frames now have Workspace edit and real p
 R0 220330 passes. Editor 214606 passes 27/27; setup 214714 and repeat 214750 pass; Play 220430 passes 31/31, zero skips. All 4,208 recorded authored files remain unchanged after setup (4,190 pre-existing files plus 18 new prefab/profile/graphic files and metadata). Exact sources, native results and preserved failures: BuildNotes/client-view/lobby-frames-verification-20261027.json. Earlier fixture issues and the measured nested-layout settling correction remain recorded; no bounds or text assertions were removed.
 
 Next: commit this verified source, build Windows, run the updated 22-image lobby and 9-image Solo walkthroughs, inspect actual images, and update the user guides. Physical controls, complete public matches, broader art/story and production release remain open.
+
+
+## 2026-10-26T22:35:00Z Windows lobby frames delivery
+
+Source c4810d6a builds 221541 PASS. Lobby 221653 passes 5/5 with 22 actual captures; Solo 221852 passes 3/3 with nine. Both normal exits and console 0/0/0; all 4,208 authored inputs preserved against the fresh exact-source prebuild baseline. Strict verifier revision4 passes: BuildNotes/client-view/windows-lobby-frames-20261027.json. Independent visual review opened all 31 images; compact avatar composition and mode-specific controls are clear. The observed trial-version overlay and sparse room/checkpoint polish remain open. Earlier 220835 game smokes passed but delivery provenance was rejected because the baseline preceded the source commit; that rejection and its unchanged evidence remain saved.
+
+Updated TRY, controls/editing guides, before/after viewer and consolidated progress checklist. The entire previous progress file is archived intact. No public-match, physical-device, full artwork or production-release acceptance is inferred.

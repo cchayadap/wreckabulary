@@ -1,0 +1,15 @@
+# Windows 220835 visual review
+
+STATUS: VISUAL REVIEW COMPLETE — DELIVERY PROVENANCE REJECTED. Keep this as design/test history; no delivery promotion or new viewer publication.
+
+Candidate: build `20261026T220835Z`, source `c4810d6a2b83c597c6d30e8ab3017891fb44941c`, Unity `6000.6.4f1`. Build and actual game walkthroughs passed: lobby `20261026T221014Z-lobby_experience` 5/5; solo `20261026T221214Z-wordbound_solo` 3/3. Both have zero console errors/warnings/exceptions. All **31 actual 1280×720 images were opened**. The companion JSON pins every image and records observations; seven prior 210349 images provide focused comparisons.
+
+No blocking visual defect was found in the observed layouts. Solo and Wordbound Maps now show the full original character clearly on the left, replacing the previous head/torso occlusion; compact cards, detail and GO/OPEN remain readable. Original house grids and unavailable home-workshop maps retain their distinct states. Customize and all six Shop portraits preserve their vivid palette and clean mint backgrounds.
+
+The fixed HOUSE CONTROLS / WORDBOUND CONTROLS titles remain visible while scrolling. The new mid view clearly shows RB/R1 aim and Y/Triangle crafting; bottom shows Equipment 1/2 with dashes, R3 cycling and Start/Options. Required rows and footer are separate and readable. Exact shared source/map, override JSON/version, mouse settings and map-enabled checks pass, with no listener and House restored. The shortened invert note fits. Other Settings pages and the original Help instructions are readable; sparse categories still have considerable empty lower space.
+
+Both solo starts show readable LMB/Q/ESC prompts and original avatar materials. Recipe icons, scrolling menu and Return to lobby are clear; both returned pages retain their selected mode and full avatar. The room is still visually sparse, and the pale TimeRun checkpoint could use stronger contrast. These are existing polish limits, not a new UI blocker. Actual Solo probes record Single/one human/72 sites, seven camera callbacks each, 102/63 observed ticks and journal counts of zero; no completed course or story introduction is inferred.
+
+**Delivery remains rejected:** the strict verifier found that the 4,208-file preservation baseline was captured at commit `3767eb1c…`, while this build is `c4810d6a…`. The file-preservation result itself reports no changed files, but that does not repair the source-binding mismatch. `delivery-220835-provenance-rejection.json` records the failure. Root is capturing a new baseline before another build and repeating both smokes; this review cannot substitute for those new images.
+
+This is bounded agent visual review, not James's acceptance, physical input testing, all-resolution verification, animation/physics assessment, or fresh matchmaking/full-online acceptance. The Online image is the actual guest frontend only. Prior 210349 reports/viewer and all screenshots are unchanged. No native jobs, live edits or final viewer publication by this lane.

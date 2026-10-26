@@ -1,15 +1,17 @@
 # Try Wreckabulary
 
-Open [Wreckabulary.exe](../../Builds/qa-20261026T210349Z/Wreckabulary.exe). Keep the complete build folder together.
+Open [Wreckabulary.exe](../../Builds/qa-20261026T221541Z/Wreckabulary.exe). Keep the complete build folder together.
 
-- **Play → Local → House games:** choose the original house mode and map. The summary shows its supported human/bot setup.
-- **Play → Local → Wordbound solo:** choose **Time Run** for the delivery circuit or **Freestyle** to explore and craft. Use one local player, then **GO**. The game menu returns to the lobby.
-- **Play → Create → Wordbound maps → OPEN:** edit locally, playtest and return to the same draft. **Home & tutorial** keeps the original learning/home-building choices.
-- **Play → Online:** open the Wordbound party screen for public or private human matches. This build's delivery walkthrough checks the frontend; it does not establish complete online-match acceptance.
-- **Customize / Shop / Settings:** preview your original character and equipment, or adjust controls, camera and display. Long settings lists scroll; the scrollbar shows more below.
+- **Play → Local → House games:** original modes/maps, with the actual human/bot setup shown. Dibs/Duos support local bots; the other house modes use humans.
+- **Play → Local → Wordbound solo → GO:** Time Run for the delivery circuit, or Freestyle to explore and craft. Use one local player; the game menu returns to the chooser.
+- **Play → Create → Wordbound maps → OPEN:** edit, playtest and return to the same draft. **Home & tutorial** retains the original tools.
+- **Play → Online:** Wordbound public/private human parties. Full online-match acceptance and original-house networking remain unfinished.
+- **Customize / Shop / Settings:** preview original artwork and adjust real options. **Controls → House games / Wordbound** shows the correct shortcuts; its heading stays visible while scrolling. Keyboard remaps are shared and saved; controller mappings stay fixed.
 
-Build **20261026T210349Z**, source **0ba2309aaad25c01e2e75da4232c07a25f989567**. The exact Windows delivery checks cover **5/5 lobby steps and 3/3 solo steps**, with **20 lobby and 9 solo captures**. Solo evidence covers launch and return for both modes, not full completion or physical-device testing. [Exact evidence](windows-lobby-solo-20261027.json).
+Build **20261026T221541Z**, source **c4810d6a2b83c597c6d30e8ab3017891fb44941c**, Unity **6000.6.4f1**. Editor 27/27 and Play 31/31 pass. The exact Windows build passes 5/5 lobby and 3/3 Solo stages with 22 lobby plus 9 Solo images reviewed, clean exits and no console errors/exceptions/warnings. All 4,208 recorded authored files are preserved. [Delivery evidence](windows-lobby-frames-20261027.json).
 
-To edit in Unity, open **Wreckabulary → Open Current Workspace → Design**. Saved Home, Shop, Loadout, camera, typography, expressions and held-pose profiles are organized for editing outside Play Mode. Play/Settings/navigation structure is still generated. [Editing guide](../../Docs/wordbound/LOBBY-EDITING-GUIDE.md) · [Remaining work](../../progress.md).
+For Unity editing, open **Wreckabulary → Open Current Workspace → Design**. Home, Play, Settings, Shop and Loadout have saved frames; use the matching **Scenes** preview after saving outside Play. Inner cards/settings rows and some other layouts remain generated. [Editing guide](../../docs/wordbound/LOBBY-EDITING-GUIDE.md) · [Controls](../../docs/wordbound/CONTROLS-AND-EDITING.md).
 
-[Visual review](windows-210349-visual-review.md) · [Controls and Unity editing](../../docs/wordbound/CONTROLS-AND-EDITING.md). The starting room is still sparse, the compact panel partly covers the lobby avatar, and Settings currently shows the original house-game controller legend. Wordbound’s in-game Help shows its controls. Physical controller testing, full public matches, performance and final artwork remain open.
+This is a review build. A small **“trial version”** label is visible; its origin is unconfirmed. Starting rooms still need richer art and stronger checkpoint contrast. Physical input, full public matches, performance, final artwork and stripped production release remain open. [Progress](../../progress.md).
+
+[Before/after viewer](UI-REVIEW-221541.html) · [Visual review](windows-221541-visual-review.md).

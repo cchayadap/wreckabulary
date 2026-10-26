@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><title>Wreckabulary - Windows UI review 221541</title><style>
+    :root { --ink:#f6eedc; --muted:#b6c9c3; --bg:#122426; --panel:#1b3335; --line:#365052; --accent:#f1c46a; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, sans-serif; }
+    main { max-width:1600px; margin:auto; padding:28px clamp(16px,3vw,48px); }
+    header { display:flex; justify-content:space-between; align-items:start; gap:20px; flex-wrap:wrap; }
+    h1 { font-size:clamp(24px,3vw,36px); line-height:1.2; margin:0 0 8px; }
+    h2 { font-size:23px; margin:0 0 5px; }
+    p { margin:0 0 14px; }
+    .meta,.note { color:var(--muted); font-size:14px; }
+    .meta code { overflow-wrap:anywhere; }
+    a { color:var(--accent); text-underline-offset:4px; }
+    .try { display:inline-block; border:1px solid var(--accent); border-radius:10px; padding:10px 16px; text-decoration:none; font-weight:700; }
+    nav { display:flex; flex-wrap:wrap; gap:8px; margin:22px 0; }
+    button { font:inherit; font-weight:650; cursor:pointer; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:9px 15px; }
+    button[aria-selected="true"] { background:var(--accent); border-color:var(--accent); color:#192b2d; }
+    button:hover { border-color:var(--accent); }
+    :focus-visible { outline:3px solid #8cd8cf; outline-offset:4px; }
+    [hidden] { display:none !important; }
+    .images { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .images.single { grid-template-columns:minmax(0,1fr); max-width:1280px; margin:auto; }
+    figure { margin:0; border:1px solid var(--line); background:#0b1719; border-radius:10px; overflow:hidden; }
+    figcaption { display:flex; justify-content:space-between; gap:12px; padding:10px 13px; color:var(--muted); font-size:13px; }
+    figcaption strong { color:var(--ink); }
+    figure a { display:block; line-height:0; }
+    img { width:100%; height:auto; display:block; aspect-ratio:16/9; object-fit:contain; }
+    .panel-note { margin:12px 0 0; color:var(--muted); font-size:14px; }
+    footer { margin-top:24px; border-top:1px solid var(--line); padding-top:18px; color:var(--muted); font-size:14px; }
+    footer p { max-width:1050px; }
+    .links { display:flex; gap:18px; flex-wrap:wrap; }
+    @media(max-width:950px) { .images { grid-template-columns:1fr; } }
+    @media(prefers-reduced-motion:no-preference) { button { transition:background .12s, border-color .12s; } }
+  </style></head><body><main>
+<header><div><h1>Wreckabulary - UI review</h1><p class="meta">Windows build <strong>20261026T221541Z</strong> - Lobby 5/5 - Solo 3/3<br>Source <code>c4810d6a2b83c597c6d30e8ab3017891fb44941c</code></p></div><a class="try" href="TRY-WORDBOUND.md">Build &amp; editing guide</a></header>
+<p class="note"><strong>Release limitation:</strong> the final captures visibly contain small “trial version” text at the bottom-right. Its cause is unconfirmed. All images remain unaltered.</p>
+<nav role="tablist" aria-label="Review views"><button type="button" role="tab" id="tab-solo" aria-controls="solo" aria-selected="true">Solo choice</button>
+<button type="button" role="tab" id="tab-create" aria-controls="create" aria-selected="false" tabindex="-1">Create</button>
+<button type="button" role="tab" id="tab-controls" aria-controls="controls" aria-selected="false" tabindex="-1">Controls</button>
+<button type="button" role="tab" id="tab-shop" aria-controls="shop" aria-selected="false" tabindex="-1">Shop</button>
+<button type="button" role="tab" id="tab-hud" aria-controls="hud" aria-selected="false" tabindex="-1">Time Run HUD</button>
+<button type="button" role="tab" id="tab-freestyle" aria-controls="freestyle" aria-selected="false" tabindex="-1">Freestyle</button></nav>
+<p class="note">Actual 1280 × 720 Windows captures. Click an image for the original. Arrow keys move between tabs.</p>
+<section id="solo" role="tabpanel" aria-labelledby="tab-solo" tabindex="0"><h2>The character now stays in view</h2><p class="note">The full original avatar sits beside the same compact choices and GO.</p><div class="images"><figure><figcaption><strong>Before</strong><span>Build 210349</span></figcaption><a href="../../Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_solo_timerun.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_solo_timerun.png" alt="Prior compact Solo panel hiding the character except its boots" width="1280" height="720"></a></figure>
+<figure><figcaption><strong>Current</strong><span>Build 221541</span></figcaption><a href="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_solo_timerun.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_solo_timerun.png" alt="Full original character left of the compact Solo panel" width="1280" height="720"></a></figure></div></section>
+<section id="create" role="tabpanel" aria-labelledby="tab-create" tabindex="0" hidden><h2>A visible character beside Wordbound Maps</h2><p class="note">The local editor entry, original table artwork and OPEN remain clear. This frame checks selection, not creator playtesting.</p><div class="images"><figure><figcaption><strong>Before</strong><span>Build 210349</span></figcaption><a href="../../Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_create_wordbound.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_create_wordbound.png" alt="Prior Wordbound Maps entry with character mostly hidden" width="1280" height="720"></a></figure>
+<figure><figcaption><strong>Current</strong><span>Build 221541</span></figcaption><a href="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_create_wordbound.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_create_wordbound.png" alt="Full character beside Wordbound Maps and its Open button" width="1280" height="720"></a></figure></div></section>
+<section id="controls" role="tabpanel" aria-labelledby="tab-controls" tabindex="0" hidden><h2>Wordbound controls keep their own heading</h2><p class="note">Aim, crafting, equipment slots and Menu stay readable. These captures show the legend, not physical controller testing.</p><div class="images"><figure><figcaption><strong>Current - middle</strong><span>Lobby 221653</span></figcaption><a href="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_wordbound_controls_mid.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_wordbound_controls_mid.png" alt="Wordbound Controls heading and RB aim and Y crafting rows" width="1280" height="720"></a></figure>
+<figure><figcaption><strong>Current - bottom</strong><span>Lobby 221653</span></figcaption><a href="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_wordbound_controls_bottom.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_wordbound_controls_bottom.png" alt="Wordbound Equipment 1 and 2, R3 cycling and Start Options Menu" width="1280" height="720"></a></figure></div></section>
+<section id="shop" role="tabpanel" aria-labelledby="tab-shop" tabindex="0" hidden><h2>Original style, distinct outfit previews</h2><p class="note">Six colored portraits and clean backgrounds remain visible. No purchase was made.</p><div class="images single"><figure><figcaption><strong>Current</strong><span>Lobby 221653</span></figcaption><a href="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_shop.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_shop.png" alt="Original character beside six colorful outfit cards" width="1280" height="720"></a></figure></div></section>
+<section id="hud" role="tabpanel" aria-labelledby="tab-hud" tabindex="0" hidden><h2>The tested HUD remains readable</h2><p class="note">LMB Smash, Q Craft and ESC Menu remain visible. This comparison confirms continuity, not a new HUD redesign.</p><div class="images"><figure><figcaption><strong>Earlier</strong><span>Build 210349</span></figcaption><a href="../../Docs/qa/runs/20261026T210721Z-wordbound_solo/solo_timerun_world.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T210721Z-wordbound_solo/solo_timerun_world.png" alt="Earlier Time Run world with correct bound control hints" width="1280" height="720"></a></figure>
+<figure><figcaption><strong>Current</strong><span>Build 221541</span></figcaption><a href="../../Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_timerun_world.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_timerun_world.png" alt="Current Time Run world with original character, checkpoint and correct control hints" width="1280" height="720"></a></figure></div></section>
+<section id="freestyle" role="tabpanel" aria-labelledby="tab-freestyle" tabindex="0" hidden><h2>Freestyle reaches its actual world</h2><p class="note">The tested route launches, opens its menu and returns to the lobby. Zero guide markers matches this mode plan.</p><div class="images single"><figure><figcaption><strong>Current</strong><span>Solo 221852</span></figcaption><a href="../../Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_freestyle_world.png" target="_blank" rel="noopener"><img loading="lazy" src="../../Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_freestyle_world.png" alt="Freestyle world and original avatar with LMB Q and Escape hints" width="1280" height="720"></a></figure></div></section>
+<footer><p><strong>Still to improve:</strong> the unexplained overlay, sparse starting-room art and pale checkpoint contrast. Owner visual acceptance remains pending.</p><p>All 31 final images were independently opened. The strict delivery checks passed with 4,208 authored files preserved. This is bounded UI and solo launch/return evidence, not full game completion, physical-device testing, multiplayer acceptance or production release approval.</p><div class="links"><a href="windows-221541-visual-review.md">Visual findings</a><a href="windows-221541-visual-review.json">31-image manifest</a><a href="windows-lobby-frames-20261027.json">Delivery evidence</a><a href="windows-221541-authored-preservation.json">Preservation</a><a href="UI-REVIEW-210349.html">Earlier review</a></div></footer>
+<noscript><p>JavaScript switches the views. The findings and image manifest links also open the evidence directly.</p></noscript></main><script>
+  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+  function selectTab(index, focus) {
+    tabs.forEach((tab, position) => {
+      const active = position === index;
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+      document.getElementById(tab.getAttribute('aria-controls')).hidden = !active;
+    });
+    if (focus) tabs[index].focus();
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectTab(index, false));
+    tab.addEventListener('keydown', event => {
+      let next = index;
+      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      selectTab(next, true);
+    });
+  });
+</script></body></html>

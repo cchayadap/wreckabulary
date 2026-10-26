@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-26T22:15:40.1779844Z",
+  "status": "FAIL",
+  "scope": "Delivery-verifier provenance check; the build and both game walkthroughs themselves passed.",
+  "build": "20261026T220835Z",
+  "source": "c4810d6a2b83c597c6d30e8ab3017891fb44941c",
+  "rejectedBaseline": ".harness/delivery/ui-authored-before-2026-10-26T21-47-50-317Z.json",
+  "capturedHead": "3767eb1c01e4cb999f4bcff945c23e854d9ab8be",
+  "reason": "Preservation baseline belongs to another source commit",
+  "unchangedFiles": 4208,
+  "preservation": "BuildNotes/client-view/windows-220835-authored-preservation.json",
+  "next": "Capture a fresh baseline at the exact committed source before a new build and repeat the two delivery walkthroughs. Do not alter the old baseline or relax the verifier."
+}

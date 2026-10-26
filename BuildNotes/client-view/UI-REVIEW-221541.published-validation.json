@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "utc": "2026-10-26T22:36:23.446Z",
+  "status": "PUBLISHED_LOCAL_REFERENCES_AND_SCRIPT_PASS",
+  "viewer": {
+    "path": "BuildNotes/client-view/UI-REVIEW-221541.html",
+    "sha256": "f1ca0aa546a9b137dcb0e2d2545565b02e65fda8720b967b9891d8cdb4fb6332",
+    "bytes": 11916
+  },
+  "visualReport": {
+    "path": "BuildNotes/client-view/windows-221541-visual-review.md",
+    "sha256": "b30b74c585bcc20411552262dc4932cfb9d7c3682ab55971a42ccbf100a9f61e",
+    "bytes": 4195
+  },
+  "imageManifest": {
+    "path": "BuildNotes/client-view/windows-221541-visual-review.json",
+    "sha256": "e589d4d3104851d05e677247d53d163f1d8128676789f9bec561dbfb69b7d5ce",
+    "bytes": 30454
+  },
+  "initialValidation": {
+    "path": "BuildNotes/client-view/UI-REVIEW-221541.validation.json",
+    "sha256": "d73ee6b2cf058de0288e61a7e91f0698092637efb081b51753e61ee9acbd07eb",
+    "bytes": 4632
+  },
+  "publishedGuide": {
+    "path": "BuildNotes/client-view/TRY-WORDBOUND.md",
+    "sha256": "36953fb12830a7091b93a660fe5304e0b5b11e1ec481180b1bd7b039ff11f220",
+    "bytes": 2237
+  },
+  "publishedGuideContainsReviewedBuild": true,
+  "changedReferencesSinceInitialValidation": [
+    {
+      "path": "BuildNotes/client-view/TRY-WORDBOUND.md",
+      "before_sha256": "75e39961edc7019abd1cd6f591750c7a46115e4ac878652a498fb69bb4b205ae",
+      "after_sha256": "36953fb12830a7091b93a660fe5304e0b5b11e1ec481180b1bd7b039ff11f220"
+    }
+  ],
+  "views": 6,
+  "images": 10,
+  "uniqueLocalReferences": 16,
+  "references": [
+    {
+      "path": "BuildNotes/client-view/TRY-WORDBOUND.md",
+      "sha256": "36953fb12830a7091b93a660fe5304e0b5b11e1ec481180b1bd7b039ff11f220",
+      "bytes": 2237
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_solo_timerun.png",
+      "sha256": "8fce5541027af3ee02078c31c8c64d0ace62cdcfb4e5f0fbcd646714ab2e7d77",
+      "bytes": 766005
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_solo_timerun.png",
+      "sha256": "5a59e1cb7fa7b305d4e6c228d1377205498fe9f9d646fc18d6a095ba75b5769a",
+      "bytes": 774937
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_create_wordbound.png",
+      "sha256": "65c05a59a086849c38fab373f598c38c93fd9496fddf9d9f13f7c36d42a6e52e",
+      "bytes": 716682
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_create_wordbound.png",
+      "sha256": "8ef334229fdf178ae80d8d2dd9aaddf5931fd87f381d9c78cf114cac16122e62",
+      "bytes": 725870
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_wordbound_controls_mid.png",
+      "sha256": "e9b5b171e5be11c132a76b3e8f2552312cccec48f6c694204c553671fc4efaa7",
+      "bytes": 635824
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_wordbound_controls_bottom.png",
+      "sha256": "95fed98dea187869a2e6b0acd1534fa8c844e79675e22765b9a6ebe656961426",
+      "bytes": 636371
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_shop.png",
+      "sha256": "bd00c9e2a84c2b87dfa433a7372ae45c357e0500cd6fba0db9979c2f6381f1f5",
+      "bytes": 1098829
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210721Z-wordbound_solo/solo_timerun_world.png",
+      "sha256": "563a56b1e18fccf9f18fdb49399249ace6aef51087fe3c99ce3a6d1553b1cb13",
+      "bytes": 1153555
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_timerun_world.png",
+      "sha256": "8e3f9837dc60add98c9d7956046757ebac7f692124821fa603fc11fa6ab2d8cc",
+      "bytes": 1155523
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_freestyle_world.png",
+      "sha256": "1b0a99359ed98c1b515105d9d8ea20add27d449938c5c4a00c1b27cd993c82dc",
+      "bytes": 1146246
+    },
+    {
+      "path": "BuildNotes/client-view/windows-221541-visual-review.md",
+      "sha256": "b30b74c585bcc20411552262dc4932cfb9d7c3682ab55971a42ccbf100a9f61e",
+      "bytes": 4195
+    },
+    {
+      "path": "BuildNotes/client-view/windows-221541-visual-review.json",
+      "sha256": "e589d4d3104851d05e677247d53d163f1d8128676789f9bec561dbfb69b7d5ce",
+      "bytes": 30454
+    },
+    {
+      "path": "BuildNotes/client-view/windows-lobby-frames-20261027.json",
+      "sha256": "16d686427b6ffc8dff70a012afdcdc182e03066781c161776fcc2da106204fda",
+      "bytes": 1109326
+    },
+    {
+      "path": "BuildNotes/client-view/windows-221541-authored-preservation.json",
+      "sha256": "650a835506a44cbebec48560f161d5c3729ac58914deabf2ae089cece5a3ba0f",
+      "bytes": 456
+    },
+    {
+      "path": "BuildNotes/client-view/UI-REVIEW-210349.html",
+      "sha256": "675ab626f23427f82a126dce5ab9094d86347b68b9203d3bc07c44f70421661b",
+      "bytes": 12088
+    }
+  ],
+  "imageHashesMatchOpenedReview": true,
+  "tabClickCases": 6,
+  "keyboardCases": [
+    "ArrowRight wraps",
+    "ArrowLeft wraps",
+    "Home",
+    "End"
+  ],
+  "noExternalAssetsOrTrackers": true,
+  "fullImagesNoCropping": true,
+  "earlierViewerUnchanged": {
+    "path": "BuildNotes/client-view/UI-REVIEW-210349.html",
+    "sha256": "675ab626f23427f82a126dce5ab9094d86347b68b9203d3bc07c44f70421661b",
+    "bytes": 12088
+  },
+  "initialValidationAndViewerAndReportsUnchanged": true,
+  "browserRendered": false,
+  "limits": "Static file/link/hash and Node VM tab-state checks only; no browser, native player or screenshot generation. All current screenshots preserve the visible trial version overlay. Published guide is the only changed linked file."
+}

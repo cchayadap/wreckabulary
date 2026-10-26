@@ -1,0 +1,870 @@
+{
+  "schema": 1,
+  "utc": "2026-10-26T22:33:33.475Z",
+  "status": "VISUAL_REVIEW_COMPLETE_WITH_RELEASE_LIMITATION",
+  "build": "20261026T221541Z",
+  "source": "c4810d6a2b83c597c6d30e8ab3017891fb44941c",
+  "reviewer": "visual_plan",
+  "method": "All 31 final PNGs opened using view_image; three earlier comparison PNGs reopened. No image changes, native jobs or browser launch.",
+  "visual": {
+    "layout": "No new blocking layout, button or text defect observed at 1280x720.",
+    "ownerAcceptance": "PENDING",
+    "releaseAcceptance": "NOT ESTABLISHED",
+    "releaseLimitation": "Small trial version overlay visible in all 31 final images; cause unconfirmed. Original images preserved."
+  },
+  "receipts": {
+    "delivery": {
+      "path": "BuildNotes/client-view/windows-lobby-frames-20261027.json",
+      "bytes": 1109326,
+      "sha256": "16d686427b6ffc8dff70a012afdcdc182e03066781c161776fcc2da106204fda"
+    },
+    "build": {
+      "path": "Builds/qa-20261026T221541Z/build.json",
+      "bytes": 450,
+      "sha256": "a9bb3c6dfb0beccf6da822a1e6a6d8f482c457d061a19838de0a4b86eb1089cd"
+    },
+    "preservation": {
+      "path": "BuildNotes/client-view/windows-221541-authored-preservation.json",
+      "bytes": 456,
+      "sha256": "650a835506a44cbebec48560f161d5c3729ac58914deabf2ae089cece5a3ba0f"
+    },
+    "preservationBaseline": {
+      "path": ".harness/delivery/ui-authored-before-2026-10-26T22-15-41-230Z.json",
+      "bytes": 890881,
+      "sha256": "09eba5de8e762e900b88ada38a20a5b102a64930e437e3ddfdd6dc365bc448d8"
+    },
+    "authoredFilesVerifiedByRoot": 4208,
+    "independentRehashOfAllAuthoredFiles": false
+  },
+  "runs": [
+    {
+      "id": "20261026T221653Z-lobby_experience",
+      "build": "20261026T221541Z",
+      "result": "PASS",
+      "checks": {
+        "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/checks.json",
+        "bytes": 18742,
+        "sha256": "2e10182a10e529fa1d4f12e25ef9bfdd069a849b21ae7613ac5172c51f790f3a"
+      },
+      "console": {
+        "errors": 0,
+        "exceptions": 0,
+        "warnings": 0,
+        "first_exception": null
+      },
+      "steps": [
+        {
+          "name": "local_choices",
+          "status": "PASS"
+        },
+        {
+          "name": "create_choices",
+          "status": "PASS"
+        },
+        {
+          "name": "customize_and_shop",
+          "status": "PASS"
+        },
+        {
+          "name": "settings_navigation",
+          "status": "PASS"
+        },
+        {
+          "name": "open_wordbound",
+          "status": "PASS"
+        }
+      ],
+      "gate": {
+        "cmd": "smoke --build 20261026T221541Z --scenario lobby_experience",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T22:16:53Z",
+        "secs": 55.5,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261026T221653Z-lobby_experience.log",
+        "evidence": [
+          "Docs/qa/runs/20261026T221653Z-lobby_experience/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261026T221541Z",
+          "kind": "release-qa",
+          "run_id": "20261026T221653Z-lobby_experience",
+          "stripped": false,
+          "scenario": "lobby_experience",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      }
+    },
+    {
+      "id": "20261026T221852Z-wordbound_solo",
+      "build": "20261026T221541Z",
+      "result": "PASS",
+      "checks": {
+        "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/checks.json",
+        "bytes": 8760,
+        "sha256": "aaa193e2f31ef9e526792f68e453bb55883b7b3e53787fb2a07b7b1c9e05e5a1"
+      },
+      "console": {
+        "errors": 0,
+        "exceptions": 0,
+        "warnings": 0,
+        "first_exception": null
+      },
+      "steps": [
+        {
+          "name": "solo_selection",
+          "status": "PASS"
+        },
+        {
+          "name": "time_run",
+          "status": "PASS"
+        },
+        {
+          "name": "freestyle",
+          "status": "PASS"
+        }
+      ],
+      "gate": {
+        "cmd": "smoke --build 20261026T221541Z --scenario wordbound_solo",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T22:18:52Z",
+        "secs": 17.8,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261026T221852Z-wordbound_solo.log",
+        "evidence": [
+          "Docs/qa/runs/20261026T221852Z-wordbound_solo/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261026T221541Z",
+          "kind": "release-qa",
+          "run_id": "20261026T221852Z-wordbound_solo",
+          "stripped": false,
+          "scenario": "wordbound_solo",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      }
+    }
+  ],
+  "controls": {
+    "mid": {
+      "family": "Wordbound",
+      "capture": "lobby_settings_wordbound_controls_mid",
+      "header_text": "WORDBOUND CONTROLS",
+      "selected_control": "Rebind Spell a word",
+      "active_binding_count": 14,
+      "rows": [
+        {
+          "action": "Aim",
+          "label": "Aim (hold)",
+          "controller": "RB / R1",
+          "fully_visible": true
+        },
+        {
+          "action": "Jump",
+          "label": "Jump",
+          "controller": "A / Cross",
+          "fully_visible": true
+        },
+        {
+          "action": "Interact",
+          "label": "Pick up / use",
+          "controller": "RT / R2",
+          "fully_visible": true
+        },
+        {
+          "action": "Spell",
+          "label": "Open crafting",
+          "controller": "Y / Triangle",
+          "fully_visible": true
+        }
+      ],
+      "listening": false,
+      "input_lease_active": true
+    },
+    "bottom": {
+      "family": "Wordbound",
+      "capture": "lobby_settings_wordbound_controls_bottom",
+      "header_text": "WORDBOUND CONTROLS",
+      "selected_control": "Rebind Pause",
+      "active_binding_count": 14,
+      "rows": [
+        {
+          "action": "Hand 1",
+          "label": "Equipment 1",
+          "controller": "—",
+          "fully_visible": true
+        },
+        {
+          "action": "Hand 2",
+          "label": "Equipment 2",
+          "controller": "—",
+          "fully_visible": true
+        },
+        {
+          "action": "Bag",
+          "label": "Change equipment",
+          "controller": "R3 cycles gear",
+          "fully_visible": true
+        },
+        {
+          "action": "Pause",
+          "label": "Menu",
+          "controller": "Start / Options",
+          "fully_visible": true
+        }
+      ],
+      "listening": false,
+      "input_lease_active": true
+    },
+    "bindings": {
+      "shared_source_same": true,
+      "shared_map_same": true,
+      "overrides_unchanged": true,
+      "version_unchanged": true,
+      "before_version": 0,
+      "after_version": 0,
+      "mouse_settings_unchanged": true,
+      "map_enabled_unchanged": true,
+      "listening": false,
+      "restored_house_legend": true
+    }
+  },
+  "soloObservations": [
+    {
+      "step": "time_run",
+      "probes": {
+        "solo_input_TimeRun": {
+          "source": "DesktopBinding",
+          "borrowed_exact_source": true,
+          "craft_hint": "Q",
+          "menu_hint": "ESC",
+          "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+        },
+        "solo_render_readiness_TimeRun": {
+          "expected_markers": 1,
+          "rendered_markers": 1,
+          "camera_frames": 3,
+          "canonical_ticks": 100,
+          "guide_fault": "",
+          "scope": "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station."
+        },
+        "solo_TimeRun": {
+          "source": "83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9",
+          "manifest": "2ce5a73cac5e1d683e37a5cb4772cd56880a001559a959b27335f1319fa5f5fa",
+          "mode": "TimeRun",
+          "physical_sites": 72,
+          "humans": 1,
+          "runner": "Single",
+          "actual_camera_frames": 7,
+          "journal_entries": 0,
+          "canonical_ticks_observed": 122,
+          "return_label": "Return to lobby"
+        },
+        "solo_input_released_TimeRun": {
+          "wrapper_disposed": true,
+          "source_preserved": true
+        },
+        "solo_source_preferences_preserved": true,
+        "solo_cleanup": {
+          "client_released": true,
+          "bindings_restored": true,
+          "failure": "none",
+          "work_budget_seconds": 145,
+          "stop_budget_seconds": 25,
+          "outer_budget_seconds": 180
+        }
+      }
+    },
+    {
+      "step": "freestyle",
+      "probes": {
+        "solo_input_Freestyle": {
+          "source": "DesktopBinding",
+          "borrowed_exact_source": true,
+          "craft_hint": "Q",
+          "menu_hint": "ESC",
+          "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+        },
+        "solo_render_readiness_Freestyle": {
+          "expected_markers": 0,
+          "rendered_markers": 0,
+          "camera_frames": 3,
+          "canonical_ticks": 46,
+          "guide_fault": "",
+          "scope": "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station."
+        },
+        "solo_Freestyle": {
+          "source": "83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9",
+          "manifest": "3ace3a72286eef8129967db8f2814041dfa971883934cfcbac4f3b9ce507ad06",
+          "mode": "Freestyle",
+          "physical_sites": 72,
+          "humans": 1,
+          "runner": "Single",
+          "actual_camera_frames": 7,
+          "journal_entries": 0,
+          "canonical_ticks_observed": 122,
+          "return_label": "Return to lobby"
+        },
+        "solo_input_released_Freestyle": {
+          "wrapper_disposed": true,
+          "source_preserved": true
+        },
+        "solo_source_preferences_preserved": true,
+        "solo_cleanup": {
+          "client_released": true,
+          "bindings_restored": true,
+          "failure": "none",
+          "work_budget_seconds": 145,
+          "stop_budget_seconds": 25,
+          "outer_budget_seconds": 180
+        }
+      }
+    }
+  ],
+  "images": [
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_local_dibs.png",
+      "bytes": 458896,
+      "sha256": "4730113850d1d8ae65d2ea2d58239f72e6c67292dfaa0d29383f63d75b474e32",
+      "name": "lobby_local_dibs",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Dibs selected; full house grid, selected objective and GO readable.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_local_duos.png",
+      "bytes": 462688,
+      "sha256": "b9ef9133ec5be90aec72d8263ed6509520c8307500af2be0d764f8e80b945fa0",
+      "name": "lobby_local_duos",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Duos selected; partner/bot participation summary and house grid readable.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_local_escape.png",
+      "bytes": 357813,
+      "sha256": "245eeca14620abaf380dfaddc4f7e4aa61c98d0f68b3dbfa7c88ed57b2a9e168",
+      "name": "lobby_local_escape",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Escape selected; complete Random house label, icon and selected objective readable.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_solo_timerun.png",
+      "bytes": 774937,
+      "sha256": "5a59e1cb7fa7b305d4e6c228d1377205498fe9f9d646fc18d6a095ba75b5769a",
+      "name": "lobby_solo_timerun",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Compact Time Run panel; entire original avatar visible to its left; GO and one-player summary readable.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_solo_freestyle.png",
+      "bytes": 775256,
+      "sha256": "f1f034cbf1731addd054d4ae6ffee9ab9622ddf13892a378d630c4be2bff8c2b",
+      "name": "lobby_solo_freestyle",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Freestyle card and exploration summary readable; avatar remains fully visible.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_solo_two_seats.png",
+      "bytes": 779716,
+      "sha256": "3bd8f5e13c993d56db39cd6f2836951eb4c573f5900d9b553f23d4ac514f785c",
+      "name": "lobby_solo_two_seats",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Two-seat restriction visible; separate local avatars and disabled solo launch distinguish unsupported party size.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_create_learn.png",
+      "bytes": 237380,
+      "sha256": "97c07f9b98287d654548929a7116d51e399a6d8d89dabb46d3212f202a51063e",
+      "name": "lobby_create_learn",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Original Learn card, room detail and GO readable in full layout.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_create_build.png",
+      "bytes": 360431,
+      "sha256": "ce32b2eff623dd438a5ed08bb82e1907b8e7abb90cf753890b7c51dfb169258b",
+      "name": "lobby_create_build",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Original home workshop and available house cards visible; unavailable house cards remain disabled.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_create_wordbound.png",
+      "bytes": 725870,
+      "sha256": "8ef334229fdf178ae80d8d2dd9aaddf5931fd87f381d9c78cf114cac16122e62",
+      "name": "lobby_create_wordbound",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Compact Wordbound Maps entry with original table art, local editor description and OPEN; full avatar visible on left.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_customize.png",
+      "bytes": 1293239,
+      "sha256": "0691d68cc3b1ee4d02cfa5fa4134ccd136a4ae27a40e0fa29f6df7450c6e4118",
+      "name": "lobby_customize",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Original vivid sunroom and character; colors, extras and gear controls readable.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_shop.png",
+      "bytes": 1098829,
+      "sha256": "bd00c9e2a84c2b87dfa433a7372ae45c357e0500cd6fba0db9979c2f6381f1f5",
+      "name": "lobby_shop",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "All six portrait cards readable, cream faces and distinct colors; no opaque portrait rectangles.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_profile.png",
+      "bytes": 579088,
+      "sha256": "a2bd8f1b76d9e768345f8d20e6bd6ef76da19ea3c71e5b15b9d228728cd19d04",
+      "name": "lobby_settings_profile",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Profile name and Customize rows readable; substantial unused lower space remains.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_audio.png",
+      "bytes": 589047,
+      "sha256": "c8480e50a714718b5d92ccaa8e06462ecaccf28d2dfd39ef7c4e06a0ed93fdc0",
+      "name": "lobby_settings_audio",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Sound, pack, preview, volume and reset readable.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_gameplay.png",
+      "bytes": 588012,
+      "sha256": "89b0d1f21de6b92f625646d15ea322b521ec7e9f2e162eb8750ae27464506ac0",
+      "name": "lobby_settings_gameplay",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Feedback and reduce-motion settings readable.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_graphics.png",
+      "bytes": 653691,
+      "sha256": "f036db4fef2f6beb27e6ab2f94cc65f4cca666261d3ff270de3ac7c166804437",
+      "name": "lobby_settings_graphics",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Complete display, quality, anti-aliasing and reset rows readable at captured size.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_controls.png",
+      "bytes": 642285,
+      "sha256": "63caa7a15352fd7af397e697cd6d1560212653db56fc176dd8d14a85cc8d7635",
+      "name": "lobby_settings_controls",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Fixed HOUSE CONTROLS heading, family selectors, shorter mouse hint and top binding rows fit.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_controls_bottom.png",
+      "bytes": 642192,
+      "sha256": "fbadd1635a0ec726f3b87e0ca8738fa70768611e252d40c53a631d4e6fe503a3",
+      "name": "lobby_settings_controls_bottom",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Fixed House heading remains visible; final bindings and View/Share pause row reachable; topmost row clipping is within viewport.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_wordbound_controls_mid.png",
+      "bytes": 635824,
+      "sha256": "e9b5b171e5be11c132a76b3e8f2552312cccec48f6c694204c553671fc4efaa7",
+      "name": "lobby_settings_wordbound_controls_mid",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Fixed WORDBOUND CONTROLS heading; complete Aim RB/R1, Jump, Pick up/use and Open crafting Y/Triangle rows.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_wordbound_controls_bottom.png",
+      "bytes": 636371,
+      "sha256": "95fed98dea187869a2e6b0acd1534fa8c844e79675e22765b9a6ebe656961426",
+      "name": "lobby_settings_wordbound_controls_bottom",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Fixed Wordbound heading; Equipment 1/2 controller dashes, R3 cycles gear and Start/Options menu rows fully visible.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_settings_help.png",
+      "bytes": 659477,
+      "sha256": "8f3877b431140e5667cf1c6b50d6c6d74d81a2581d42e2d45cca18345e685f64",
+      "name": "lobby_settings_help",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Readable three-step house help and explicit Wordbound Menu/Help instruction.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_home_returned.png",
+      "bytes": 1655483,
+      "sha256": "90c857ef0155cd2108c574d8e3c6b2f4d63f617e4be2864ce545048cac6cce32",
+      "name": "lobby_home_returned",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Home Local/Online labels readable; fixture-generated join/leave history notices visible.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221653Z-lobby_experience/lobby_online_ready.png",
+      "bytes": 1336046,
+      "sha256": "213b4988041b3124be8f390d0628e2439f72ae7525c88569e190e3114614771e",
+      "name": "lobby_online_ready",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Actual guest frontend with Connect, Workshop and Back; no connection exercised.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_initial_lobby.png",
+      "bytes": 1665084,
+      "sha256": "96087f21c3c8d87baef7f667825f99e60b5fcca437f7365d08238009908213a3",
+      "name": "solo_initial_lobby",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Initial Home readable; two-row top navigation fits without overlap.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_timerun_selected.png",
+      "bytes": 772064,
+      "sha256": "851126933cc36d818094ed5d0cad797c8807e17b31eab91d0a5897d967f932fb",
+      "name": "solo_timerun_selected",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Actual Time Run choice and GO, full avatar left of compact panel.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_timerun_world.png",
+      "bytes": 1155523,
+      "sha256": "8e3f9837dc60add98c9d7956046757ebac7f692124821fa603fc11fa6ab2d8cc",
+      "name": "solo_timerun_world",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Actual Time Run camera, avatar and checkpoint; LMB/Q/ESC hints readable; sparse room and pale checkpoint text remain polish.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_timerun_menu.png",
+      "bytes": 766472,
+      "sha256": "1ec7471c2c7155749d5cd7c1f44138709bb21215931de5cc1464b779589a5980",
+      "name": "solo_timerun_menu",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Original recipe thumbnails and fixed Craft/Return controls readable; last visible recipe row is clipped inside scroll viewport.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_timerun_returned.png",
+      "bytes": 772903,
+      "sha256": "f2b5b64c1cbcb1990710472ac3e67c805aaf44c47102f4f678b59d66aa2fe42d",
+      "name": "solo_timerun_returned",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Normal Return to lobby restores selected Time Run page and full avatar.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_freestyle_selected.png",
+      "bytes": 775679,
+      "sha256": "90d3882b92d31398765cf16ab188d1ef0ab4b07b500fc9a95c52461468b69771",
+      "name": "solo_freestyle_selected",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Actual Freestyle choice and GO, full avatar left of compact panel.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_freestyle_world.png",
+      "bytes": 1146246,
+      "sha256": "1b0a99359ed98c1b515105d9d8ea20add27d449938c5c4a00c1b27cd993c82dc",
+      "name": "solo_freestyle_world",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Actual Freestyle camera and avatar; correct LMB/Q/ESC hints; no guide marker matches recorded zero-marker plan.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_freestyle_menu.png",
+      "bytes": 761103,
+      "sha256": "b4a248b1f8d5020547c7394bc3261add44da1c05dcf51e600ad1bcd554406e04",
+      "name": "solo_freestyle_menu",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Freestyle recipe grid and actual Return to lobby control readable.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    },
+    {
+      "path": "Docs/qa/runs/20261026T221852Z-wordbound_solo/solo_freestyle_returned.png",
+      "bytes": 772867,
+      "sha256": "45275359171bf07293fb346bb2aecd82eed03b2a1f97946e0cd9b27cd214e7b6",
+      "name": "solo_freestyle_returned",
+      "width": 1280,
+      "height": 720,
+      "opened_in_view_image": true,
+      "observation": "Normal return restores selected Freestyle page and full avatar.",
+      "overlay": {
+        "text": "trial version",
+        "location": "bottom-right",
+        "visible": true,
+        "cause": "unconfirmed"
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_solo_timerun.png",
+      "bytes": 766005,
+      "sha256": "8fce5541027af3ee02078c31c8c64d0ace62cdcfb4e5f0fbcd646714ab2e7d77",
+      "reopened_for_this_review": true,
+      "observation": "Full avatar now visible beside the compact panel; prior frame hid its upper body."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_create_wordbound.png",
+      "bytes": 716682,
+      "sha256": "65c05a59a086849c38fab373f598c38c93fd9496fddf9d9f13f7c36d42a6e52e",
+      "reopened_for_this_review": true,
+      "observation": "Full avatar now visible beside Wordbound Maps; original compact entry remains readable."
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210721Z-wordbound_solo/solo_timerun_world.png",
+      "bytes": 1153555,
+      "sha256": "563a56b1e18fccf9f18fdb49399249ace6aef51087fe3c99ce3a6d1553b1cb13",
+      "reopened_for_this_review": true,
+      "observation": "Previously corrected LMB/Q/ESC HUD remains readable; no new HUD redesign claimed."
+    }
+  ],
+  "limits": [
+    "Visual review covers these recorded frames, not full interaction feel or every resolution.",
+    "No physical keyboard/controller operation, full-match completion, creator editing, purchases, new online connection or matchmaking acceptance.",
+    "Zero journal entries is an observation; story introduction is not accepted.",
+    "Sparse initial room and pale checkpoint contrast remain art polish.",
+    "Original 210349/220835 reports and images stay unchanged.",
+    "Delivery source Git comparison excludes ignored inputs; build.tree is a metadata freshness fingerprint, not a content hash."
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "status": "REVISION_4_SOURCE_FROZEN_NATIVE_PENDING",
+  "revision": 4,
+  "files": [
+    {
+      "path": "BuildNotes/completion-20261027/windows-delivery-draft/revision4/verify-windows-delivery.mjs",
+      "sha256": "babe709d1645ea93e4be8e1c8c8a85fcc1ce03813d1a5367d166cfa3707e0fbc",
+      "bytes": 22982
+    },
+    {
+      "path": "BuildNotes/completion-20261027/windows-delivery-draft/revision4/verify-windows-delivery.test.mjs",
+      "sha256": "85f6a5ad6b1cfbe0e494df8e3d0a9143fe62c567204cfe99a17c82d30d132ab0",
+      "bytes": 19294
+    },
+    {
+      "path": "BuildNotes/completion-20261027/windows-delivery-draft/revision4/README.md",
+      "sha256": "d4dbe4623791b945079d33a4b2fa2666be1cf07bcb78f84b64913acac1e993ab",
+      "bytes": 3376
+    },
+    {
+      "path": "BuildNotes/completion-20261027/windows-delivery-draft/revision4/progress.md",
+      "sha256": "50d916e33a7551ae70eb4f5fd34cd1c66fcc3927a05c0de3be6a9825ea268370",
+      "bytes": 558
+    },
+    {
+      "path": "BuildNotes/completion-20261027/windows-delivery-draft/revision4/synthetic-tests.tap.txt",
+      "sha256": "ef5a7da02610d0665b3cd2a8ec88b9f9407a0e2f8cb2d9e7ab92a2881c775e8b",
+      "bytes": 2656
+    }
+  ],
+  "readOnlyReferences": [
+    {
+      "path": "BuildNotes/completion-20261027/windows-delivery-draft/verify-windows-delivery.mjs",
+      "sha256": "6f0334b5fb53385226cf754548ea9d14adec5dcc9bbc6b315f067a42b9195955"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/windows-delivery-draft/verify-windows-delivery.test.mjs",
+      "sha256": "0878ed80d14e51e2ee243701bb17e4555c4158a2837ee52fc5b2e995c2d35602"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/windows-delivery-draft/manifest.json",
+      "sha256": "1cdce4cf570a252d8042a4b827c622e61566b38e664642980f6310bde0db93a1"
+    },
+    {
+      "path": "BuildNotes/client-view/control-legend/windows-qa/controls-legend-qa.patch",
+      "sha256": "81f17e5ef2ffd5bb3f5019a8d7e660f9eabd4366f49a7199091b40e8878b74e7"
+    },
+    {
+      "path": "BuildNotes/client-view/control-legend/windows-qa/manifest.json",
+      "sha256": "51463ab1214aca64a9a76122ea988b426a8d4480400b6f14c08c3935205252fc"
+    },
+    {
+      "path": "BuildNotes/client-view/control-legend/windows-qa/candidate/Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs",
+      "sha256": "0b87528d549f26c2ac6b4b4c2b85a6ee3f019f6d5fb32287bc04af3451796bce"
+    }
+  ],
+  "captureCounts": {
+    "lobby": 22,
+    "solo": 9,
+    "combined": 31
+  },
+  "syntheticTests": {
+    "pass": 39,
+    "fail": 0,
+    "milliseconds": 21267.9865
+  },
+  "nativeOrRealDeliveryExecution": false,
+  "followupRevision": 2,
+  "previousRevision": "revision1/manifest.json",
+  "visibleHeaderRequired": "WORDBOUND CONTROLS in both new capture probes"
+}

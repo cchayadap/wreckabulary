@@ -99,3 +99,10 @@ Compact Solo/Maps source draft4c269f8f is with visual_plan review. Asset_intake 
 HEAD source0ba2309a; nativecompact10/10 and controls51/51. ActualWindowsbuild210349 PASS, lobby210547 PASS5/5/20PNG, Solo210721 PASS3/3/9PNG. ExactDesktopbinding wrappers disposed/source maps preserved; TimeRun guide1/1,Freestyle0/0, both camera3 atreadiness, cleanupalltrue. Authored4190 preserved baseline21:03:28; deliveryverifier3 PASS and all29 images independentlyreviewed. LatestTRY points210349. No native job active.
 
 Next source-only work: story_status drafts mode-specific House/Wordbound ControlsPanel legend (original house Pause=View/Share, Wordbound=Start; do not conflate). asset_intake drafts saved typed Play/Settings frames and Workspace previews, preserving existing compactlayout/focus/logic; no handYAML. visual_plan creates actual screenshot HTMLviewer. All currentlive source committed; newdrafts outsideAssets. Broader multiplayer/contactobserver/FAN optional Unityintake remain pending, goalactive. Latestrecovery20:57:42 verified1394files; snapshot after currentdocs follows.
+
+
+## 2026-10-26T22:35:00Z Current recoverable UI delivery
+
+Source c4810d6a, final build221541, lobby221653 5/5/22PNG and solo221852 3/3/9PNG pass. Strict delivery receipt windows-lobby-frames-20261027.json binds the fresh exact-source prebuild baseline; all4208 authored inputs preserved. Native Editor27/27 and Play31/31 pass, all31 final images reviewed. Saved Play/Settings profiles and frames, persistent family control headings, concise inversion hint and compact avatar framing are delivered. Original code/art directions and uncommitted drafts remain preserved.
+
+No native job active. Next: investigate the observed trial-version overlay without guessing its source or altering evidence; complete physical/owner review, then resume public FFA contact observation, sustained full flagship/recovery and original-house networking. Workshop controls, optional FAN07/Household/skin intake, richer maps/story, performance and stripped release remain open in consolidated progress.md. Prior failed gates and220835 provenance rejection remain historical failures.
