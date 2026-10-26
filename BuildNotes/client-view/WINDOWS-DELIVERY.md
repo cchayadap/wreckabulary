@@ -1,10 +1,14 @@
 # Windows delivery preparation
 
-## Current baseline — 2026-10-26
+## Current character/UI review build — 2026-10-26
 
-Windows `20261026T125941Z`, source `78ac4514810e7267887e2ca7fa549f427d3474de`, Unity6000.6.4f1 passes Home3/3 (`130820`), Workshop5/5 (`130906`) and original equipment6/6 (`130132`), each with exit0, no timeout and zero reported console errors/exceptions/warnings. Eight BAT phases have same-frame measured upright orientation. [Receipt and artifact hashes](windows-reviewed-baseline-20261026.json), [launch instructions](TRY-WORDBOUND.md).
+Windows **20261026T145311Z**, source **be648835b38f00cb38f47e76bb8de5bd14b49674**, Unity6000.6.4f1 passes equipment6/6 (20261026T145634Z-wordbound_original_equipment), Workshop5/5 (20261026T145731Z-wordbound_workshop_flow) and Home3/3 (20261026T145824Z-smoke_frontend), each exit0/no timeout/zero reported console errors, exceptions and warnings. The rebuilt player includes corrected grip rotation, saved facial tuning/action mapping, compact HUD and full-colour original-art recipe grid. Exact one accepted HUD Craft and stale-action rejection pass.
 
-James identified unacceptable holding poses, weak facial/action responses and excessive text panels. This build is the preserved baseline for those corrections, not visual or production acceptance. Current source/draft work and remaining online scope are tracked in [progress](../../progress.md). Earlier entries below are historical; their failures and build folders remain preserved.
+[Launch instructions](TRY-WORDBOUND.md), [build and artifact hashes](windows-character-ui-20261026.json), [remaining work](../../progress.md). This is agent-verified bounded review evidence; owner visual, full online, performance and production acceptance remain open. Five original house modes still need networking.
+
+Earlier build144235 passed compilation and Workshop5/5; its equipment144544 FAIL exposed an invalid QA comparison of fresh inventory copies. The replacement verifies the retained canonical snapshot and full content without relaxing submission/menu/cleanup checks. That failure and all older baselines/captures remain preserved. [Repair evidence](../character-experience-20261026/recipe-followup-native-20261026.json).
+
+The sections below are historical.
 
 ## Current tested review build — 2026-10-24T01:01:26Z
 

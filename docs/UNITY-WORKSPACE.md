@@ -4,7 +4,7 @@ Open `wordbound-integration` with Unity **6000.6.4f1**, as recorded in `ProjectS
 
 The [lobby editing guide](wordbound/LOBBY-EDITING-GUIDE.md) lists the exact saved Shop/Loadout, card, camera, font and material controls, with a short save-and-test workflow and the remaining generated sections.
 
-The workspace has **Scenes**, **Design** and **Assets** navigation. Native studio/typography creation and repeat setup pass; all 77 generated files remain byte-identical after the repeat. Actual Play/Stop interaction, rendered review and a new Windows build still need verification. The [developer workspace plan](wordbound/DEVELOPER-WORKSPACE-PLAN.md) tracks the remaining authoring work, including saved shop/loadout UI layouts.
+The workspace has **Scenes**, **Design** and **Assets** navigation. Native studio/typography creation and repeat setup pass; all 77 generated files remain byte-identical after the repeat. Ordinary human Play/Stop authoring checks remain open. Current native and Windows verification is tracked in [progress](../progress.md). The [developer workspace plan](wordbound/DEVELOPER-WORKSPACE-PLAN.md) tracks the remaining authoring work, including saved shop/loadout UI layouts.
 
 ## A short editing loop
 
