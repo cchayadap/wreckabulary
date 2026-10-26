@@ -1,6 +1,6 @@
 # Story presentation and gameplay rubric — story26
 
-STATUS: IN PROGRESS
+STATUS: SOURCE DELIVERED — root integration and native/visual/human acceptance pending
 
 Lane: `experience-refresh/story26`. Owner: SethyPagna. Started 2026-10-26 UTC.
 
@@ -26,7 +26,7 @@ Lane: `experience-refresh/story26`. Owner: SethyPagna. Started 2026-10-26 UTC.
 
 ## Next recoverable action
 
-Inspect root story callers, localization and existing tests; send exact additive interface and scope to root before runtime edits. Write rubric with anchored scores, confidence, perspectives and measurable acceptance. Then implement the smallest safe profile/cue slice and hand root exact commits and verification requests.
+Root integrates `1fd6fc90`, `6348559f`, `e7a03e14` and this final evidence commit; excludes baseline `075b30b3`; preserves/integrates performance report `6cc4f20b` separately. Wire/generate the profile, execute the focused native checks below, and record actual view/capture and human evidence before claiming experience acceptance.
 
 ## 2026-10-26 source contract and rubric checkpoint
 
@@ -54,3 +54,11 @@ Inspect root story callers, localization and existing tests; send exact additive
 2. Run normal R0/core prerequisites, then focused native `WordboundStoryPlanTests`, `WordboundStoryProfileTests`, `WordboundStoryReadabilityTests`, `WordboundStoryProfilePersistenceTests` and existing `WordboundMenuGuiTests` for constructor/journal compatibility.
 3. Capture current, next-chapter, restored and opponent-ahead states with original art. Verify one reached cue, no automatic story banner, optional journal navigation, 720p/1080p readability and actual Unicode font coverage. Human rubric rows remain pending.
 4. Update the main story document's implementation status after integration; this lane intentionally did not overwrite the root-owned current document.
+
+## 2026-10-26 final independent source review
+
+- Reviewer `/root/story26/story_review` inspected the changed source, actual root course/callers and rubric; reported **no blocking source findings**. Confirmed all fourteen canonical cue IDs, preserved old call/reflection shapes, own-team/reached/current-lap cue gating and copy-only profile fields. No independent jobs or writes occurred.
+- Review explicitly leaves real `Apply` → `LateUpdate` creation/removal across transition/reconnect, actual Unity asset persistence, on-screen Unicode glyphs and human experience pending. Plan-selection tests plus isolated text helper tests are not full view composition evidence.
+- Runtime/source commit: `e7a03e14`. New regression source contains 22 NUnit cases; execution count/pass rate is not yet available. Root's normal verification owns compilation and all native runs.
+- New authoring files require Unity-generated metadata at integration. No shared catalogue, core protocol, course identity, match result, scene or package change was made by this lane.
+- Final source/diff check: PASS. Rubric acceptance lint: PASS, 10 rows, no failures/warnings. No push, release, asset generation spend or heavy job.

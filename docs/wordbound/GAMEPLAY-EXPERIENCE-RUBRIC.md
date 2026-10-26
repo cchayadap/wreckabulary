@@ -1,6 +1,6 @@
 # Gameplay experience rubric and first narrative slice
 
-STATUS: IN PROGRESS — source evaluation, 2026-10-26. Owner: James / SethyPagna.
+STATUS: SOURCE REVIEW COMPLETE — implementation delivered for root integration; native, visual and human acceptance pending, 2026-10-26. Owner: James / SethyPagna.
 
 This applies the requested minimal, immersive direction to the existing Lost Address course. It extends [the story plan](STORY-AND-PLAYER-EXPERIENCE.md), not the authoritative match contract. The review inspected integration `9fce9f25`; implementation is in the `experience-refresh/story26` lane. No participant sessions, player survey, visual approval or new full-course completion are claimed here.
 

@@ -1,0 +1,31 @@
+{
+  "status": "source-reviewed-native-pending",
+  "lane": "experience-refresh/story26",
+  "scope": "Gameplay experience rubric, presentation-only Unity Story Profile, concise earned world cue, optional journal and additive editor/regression source",
+  "commits": ["1fd6fc90", "6348559f", "e7a03e14"],
+  "excluded_baseline_commit": "075b30b3",
+  "preserve_pending_performance_commit": "6cc4f20b",
+  "verification": {
+    "diffCheck": "PASS",
+    "rubricAcceptanceLint": "PASS: 10 rows, zero failures or warnings",
+    "independentSourceReview": "PASS: no blocking findings",
+    "compile": "NOT-RUN",
+    "native": "NOT-RUN",
+    "visual": "NOT-RUN",
+    "human": "NOT-RUN"
+  },
+  "contract_changes": [
+    "Additive WordboundStoryProfile ScriptableObject and editor",
+    "WordboundStoryNotice.Cue; original seven-argument constructor retained",
+    "Optional profile/localizer StoryPlan constructor and StoryView.Bind overloads; old signatures retained",
+    "WordboundStoryPlan.ContextualCue overloads select only earned own-team current-chapter copy"
+  ],
+  "new_regression_cases_authored": 22,
+  "requests": [
+    "Root integrates scoped commits, excludes baseline sync and generates new metadata/profile asset through Unity",
+    "Root wires the profile as sixth StoryView.Bind argument and runs StoryPlan/Profile/Readability/ProfilePersistence plus existing MenuGui tests",
+    "Root verifies actual Apply-to-LateUpdate lifecycle across transition and reconnect, then captures cue/journal at supported resolutions",
+    "Root keeps actual font coverage, accessibility, first-loop, pacing, silent-coop and comprehension claims pending participant evidence"
+  ],
+  "preserved": ["canonical clue IDs", "selected route/checkpoint/anchor identity", "team journal gating", "authoritative transitions", "match results", "shared catalogues", "core protocol", "original assets", "existing optional journal"]
+}
