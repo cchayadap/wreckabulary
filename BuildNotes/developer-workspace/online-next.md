@@ -35,7 +35,7 @@ Run the following process-scoped preparation in root's controlled PowerShell run
 
 ```powershell
 Set-Location -LiteralPath 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration'
-$env:GSK_UNITY = 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/.harness/toolchain/6000.6.4f1/Editor/Unity.exe'
+$env:GSK_UNITY = 'C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Unity.exe'
 $env:WORDBOUND_EXTERNAL_GAMEPLAY = '1'
 $env:WORDBOUND_EXTERNAL_PUBLIC_GAMEPLAY = '1'
 $env:WORDBOUND_PUBLIC_CATALOGUE = 'C:/Users/mrkl6/Downloads/Projects/Wreckabulary/wordbound-integration/Assets/_Project/Resources/Wordbound/public-catalogue.json'
@@ -89,3 +89,5 @@ Source anchors: `WordboundNativePublicEntryTests.cs:30–39, 42–134`; `Wordbou
 Review fingerprints (SHA256): LiveMatch `e6d3f045a6b5b74d98e4c3e5ed31f22e580b13f89c019f1cdb36478659a89426`; NativeGameplayTests `769f6091f706009abc4527a4cf02edf27308c18db0731782e0dab8f0722c4c63`; NativePublicEntryTests `e90ee2fe7a5f7881b1288f3c67bf264b5184b447c70a6eba8bb0e24449976ddc`; LiveCleanupTests `b495e99daaac1953c858e118bb764a687a4d7379f00a77dfacc024c39d903bf2`.
 
 No service request, native/source gate, new test, source edit, commit or provider mutation ran during this review. Next recoverable action: root rechecks the source freeze and current prerequisites, then executes the isolated TimeRun4 invocation and accepts/reconciles its complete receipt before considering Freestyle8.
+
+Toolchain correction: the only approved GSK_UNITY path is **C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Unity.exe**. The earlier long-path assignment was a documentation carry-forward error, not an executed command. Read-only verification confirms the short executable's6000.6.4f1_12bfff696524 product version and valid Unity Technologies signature against the project's pinned version. Root's short-path recovery/launch contract governs; file existence at another path is insufficient. No job was launched for this correction.

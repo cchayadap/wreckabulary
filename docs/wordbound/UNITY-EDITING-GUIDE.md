@@ -2,6 +2,8 @@
 
 Use the isolated `wordbound-integration` Unity project for the assembled game. This guide describes the available controls, not a completed native acceptance test. Original Wreckabulary artwork is the default choice; the generated Wordbound equipment remains optional. Final Unity screenshots and Windows interaction checks are pending.
 
+For saved Shop/Loadout panels, cards, lobby camera, fonts and materials, use the [lobby editing guide](LOBBY-EDITING-GUIDE.md). Open **Wreckabulary → Open Current Workspace** for the scene and asset shortcuts.
+
 ## Start with your own course and profiles
 
 1. In Edit Mode, choose **Tools → Wordbound → Create or verify Inspector authoring assets**. It creates missing defaults and preserves existing assets and launcher assignments. The prepared project must already contain its Wordbound launch assets.

@@ -2,6 +2,8 @@
 
 Open `wordbound-integration` with Unity **6000.6.4f1**, as recorded in `ProjectSettings/ProjectVersion.txt`. Use **Wreckabulary → Open Current Workspace**. Work in Edit Mode, save the actual scene/prefab/profile, then try the result in Play.
 
+The [lobby editing guide](wordbound/LOBBY-EDITING-GUIDE.md) lists the exact saved Shop/Loadout, card, camera, font and material controls, with a short save-and-test workflow and the remaining generated sections.
+
 The workspace has **Scenes**, **Design** and **Assets** navigation. Native studio/typography creation and repeat setup pass; all 77 generated files remain byte-identical after the repeat. Actual Play/Stop interaction, rendered review and a new Windows build still need verification. The [developer workspace plan](wordbound/DEVELOPER-WORKSPACE-PLAN.md) tracks the remaining authoring work, including saved shop/loadout UI layouts.
 
 ## A short editing loop

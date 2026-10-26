@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "status": "FINAL: both attempts FAIL; no capture02",
+  "capturedUtc": "2026-10-26T09:37:59.5654738Z",
+  "scope": "Allowlisted gate fields, sanitized startup errors and log provenance only; no raw startup logs copied",
+  "receipts": [
+    {
+      "path": ".harness/delivery/workspace-portraitcontrols-2026-10-26T09-23-39-353Z-stdout.txt",
+      "ok": false,
+      "verdict": "FAIL",
+      "exit": 1,
+      "utc": "2026-10-26T09:23:39Z",
+      "secs": 413.2,
+      "log": "Logs/gate_exec_Run_20261026T092340Z.log",
+      "receiptLastWriteUtc": "2026-10-26T09:30:33.4032428Z",
+      "bytes": 419,
+      "sha256": "edd25b81bf3d2748c71282f6b012b0fcd9f4b5f2ad8ec3a3a62365d4edaf24be"
+    },
+    {
+      "path": ".harness/delivery/workspace-portraitcontrols-2026-10-26T09-30-55-262Z-stdout.txt",
+      "ok": false,
+      "verdict": "FAIL",
+      "exit": 1,
+      "utc": "2026-10-26T09:30:55Z",
+      "secs": 10,
+      "log": "Logs/gate_exec_Run_20261026T093055Z.log",
+      "receiptLastWriteUtc": "2026-10-26T09:31:06.1794244Z",
+      "bytes": 416,
+      "sha256": "fe1b91972af7a89243cfe02b02eeff4eca72f0753d1f9a63cfcee7c6e61f728f"
+    }
+  ],
+  "logs": [
+    {
+      "path": "Logs/gate_exec_Run_20261026T092340Z.log",
+      "bytes": 9492,
+      "lastWriteUtc": "2026-10-26T09:23:54.7636012Z",
+      "sha256": "5ae043995069f059ded0fac54df9bdfbae7ef612ce62be88c00b3884c9a7b2b3",
+      "storage": "Original ignored Logs file; not copied"
+    },
+    {
+      "path": "Logs/gate_exec_Run_20261026T093055Z.log",
+      "bytes": 7749,
+      "lastWriteUtc": "2026-10-26T09:31:05.2176165Z",
+      "sha256": "e206c90cc7a90503c09847f086034b5673e335d59d95b8cb36481e346e305724",
+      "storage": "Original ignored Logs file; not copied"
+    },
+    {
+      "path": "Logs/Editor-UDS.log",
+      "bytes": 274,
+      "lastWriteUtc": "2026-10-26T09:30:59.5731197Z",
+      "sha256": "46735d4c592bc4da516209d49b047ec5a8f91e36d57b1af4873e0f27fe1912c6",
+      "storage": "Original ignored Logs file; not copied"
+    },
+    {
+      "path": "Logs/Editor-UDS-prev.log",
+      "bytes": 2536,
+      "lastWriteUtc": "2026-10-26T09:23:54.7636012Z",
+      "sha256": "1976787310cda9c79e68dda01c082ab65474eed3d1315f4808c27c9d2e3a80e8",
+      "storage": "Original ignored Logs file; not copied"
+    }
+  ],
+  "excerpts": [
+    {
+      "path": "Logs/gate_exec_Run_20261026T092340Z.log",
+      "line": 126,
+      "text": "[Error] Command buffer shared memory issue, are you sure this is the correct memory pool?"
+    },
+    {
+      "path": "Logs/gate_exec_Run_20261026T092340Z.log",
+      "line": 142,
+      "text": "[Warning] Failed to connect to existing shared system data - rebuilding..."
+    },
+    {
+      "path": "Logs/gate_exec_Run_20261026T092340Z.log",
+      "line": 143,
+      "text": "[Error] Tried to create a new semaphore handle, but one already existed for ID 0"
+    },
+    {
+      "path": "Logs/gate_exec_Run_20261026T092340Z.log",
+      "line": 160,
+      "text": "[Error] Failed to initialise lock: [mixed-encoding suffix omitted]",
+      "localizedSuffixCp950": "操作順利完成。",
+      "translation": "The operation completed successfully."
+    },
+    {
+      "path": "Logs/gate_exec_Run_20261026T093055Z.log",
+      "line": 136,
+      "text": "Unity Data Store initialise timeout, continuing as client processing."
+    }
+  ],
+  "capture02Exists": false,
+  "parentReportedObservation": {
+    "at": "2026-10-26T09:33Z",
+    "unityDataStoreProcesses": 0,
+    "unityEditorProcesses": 0,
+    "freePhysicalApproxGB": 4.4,
+    "freeVirtualApproxGB": 13,
+    "source": "Parent report; this lane did not query processes or memory"
+  },
+  "limits": "No cause established; no evidence another job caused the failure; no native/process/cache action by this lane"
+}

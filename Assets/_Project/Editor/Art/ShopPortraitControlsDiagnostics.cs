@@ -17,7 +17,7 @@ namespace Wreckabulary.EditorTools
 {
     public static class ShopPortraitControlsDiagnostics
     {
-        const string Output = "BuildNotes/developer-workspace/portrait-controls/capture-01";
+        const string Output = "BuildNotes/developer-workspace/portrait-controls/capture-02";
         const string Lit = "Universal Render Pipeline/Lit", Unlit = "Universal Render Pipeline/Unlit";
         const string PureAlbedo = "Hidden/Wordbound/PortraitPureAlbedoDiagnostic";
         static readonly string[] Floats = { "_BumpScale", "_DetailNormalMapScale", "_Metallic", "_Smoothness", "_OcclusionStrength", "_Cull", "_Surface", "_Blend", "_AlphaClip", "_Cutoff", "_SrcBlend", "_DstBlend", "_SrcBlendAlpha", "_DstBlendAlpha", "_ZWrite", "_AlphaToMask", "_QueueOffset" };
@@ -46,7 +46,7 @@ namespace Wreckabulary.EditorTools
             public bool previewCleanupAttempted, previewSceneClosed;
             public bool ssaoKeywordBeforeRender, ssaoKeywordAfterRender;
             public List<string> cleanupErrors = new List<string>();
-            public LightReport[] lights;
+            public LightReport[] lights, lightsAfterBegin, lightsAfterRender;
             public List<SlotReport> slots = new List<SlotReport>();
         }
         [Serializable] sealed class LightReport
@@ -58,11 +58,15 @@ namespace Wreckabulary.EditorTools
             public Vector3 position, forward;
             public Quaternion rotation;
             public int cullingMask;
+            public uint renderingLayerMask;
         }
         [Serializable] sealed class SlotReport
         {
             public string renderer;
             public int slot;
+            public uint renderingLayerMask;
+            public string lightProbeUsage;
+            public bool receiveShadows;
             public MaterialReport source, rendered;
             public BlockReport rendererBlock, slotBlock;
             public string albedoBlockScope;
@@ -144,7 +148,7 @@ namespace Wreckabulary.EditorTools
             var framing = new Bounds();
             try
             {
-                foreach (string control in new[] { "A-original-lit", "B-no-normal-map", "C-urp-unlit", "D-frontal-key", "E-pure-albedo" })
+                foreach (string control in new[] { "A-original-lit", "D-frontal-key", "F-back-key" })
                 {
                     var result = new CaseReport { control = control, image = control + ".png" };
                     report.cases.Add(result);
@@ -222,7 +226,9 @@ namespace Wreckabulary.EditorTools
                         foreach (string property in source.GetTexturePropertyNames()) Track(source.GetTexture(property), proofs);
                         var block = new MaterialPropertyBlock(); renderer.GetPropertyBlock(block, i);
                         var slot = new SlotReport { renderer = AnimationUtility.CalculateTransformPath(renderer.transform, holder.transform),
-                            slot = i, source = Describe(source), rendererBlock = Describe(whole), slotBlock = Describe(block) };
+                            slot = i, renderingLayerMask = renderer.renderingLayerMask, lightProbeUsage = renderer.lightProbeUsage.ToString(),
+                            receiveShadows = renderer.receiveShadows,
+                            source = Describe(source), rendererBlock = Describe(whole), slotBlock = Describe(block) };
                         var albedo = !block.isEmpty ? block : whole;
                         slot.albedoBlockScope = !block.isEmpty ? "material slot" : !whole.isEmpty ? "renderer" : "material asset";
                         slot.effectiveBaseColor = albedo.HasProperty("_BaseColor") ? albedo.GetColor("_BaseColor") : source.GetColor("_BaseColor");
@@ -253,16 +259,19 @@ namespace Wreckabulary.EditorTools
                 camera.allowHDR = false; camera.transform.position = framing.center + Vector3.back * 5;
                 camera.transform.LookAt(framing.center);
                 preview.lights[0].intensity = 1.15f;
-                preview.lights[0].transform.rotation = result.control == "D-frontal-key" ? camera.transform.rotation : Quaternion.Euler(35, 35, 0);
+                preview.lights[0].transform.rotation = result.control == "D-frontal-key" ? camera.transform.rotation :
+                    result.control == "F-back-key" ? camera.transform.rotation * Quaternion.Euler(0, 180, 0) : Quaternion.Euler(35, 35, 0);
                 preview.lights[1].intensity = .65f; preview.lights[1].transform.rotation = Quaternion.Euler(340, 218, 0);
                 preview.ambientColor = new Color(.45f, .45f, .45f);
                 result.camera = camera.transform.localToWorldMatrix; result.orthographicSize = camera.orthographicSize;
                 result.background = camera.backgroundColor; result.ambient = preview.ambientColor;
-                result.lights = preview.lights.Select(l => new LightReport { type = l.type.ToString(), shadows = l.shadows.ToString(),
-                    enabled = l.enabled, intensity = l.intensity, color = l.color, position = l.transform.position,
-                    forward = l.transform.forward, rotation = l.transform.rotation, cullingMask = l.cullingMask }).ToArray();
+                result.lights = DescribeLights(preview.lights);
                 result.ssaoKeywordBeforeRender = Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION");
-                preview.BeginStaticPreview(new Rect(0, 0, 256, 320)); preview.Render(true); image = preview.EndStaticPreview();
+                preview.BeginStaticPreview(new Rect(0, 0, 256, 320));
+                result.lightsAfterBegin = DescribeLights(preview.lights);
+                preview.Render(true);
+                result.lightsAfterRender = DescribeLights(preview.lights);
+                image = preview.EndStaticPreview();
                 result.ssaoKeywordAfterRender = Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION");
                 result.ownedImages = image ? 1 : 0;
                 if (!image || image.width != 256 || image.height != 320) throw new InvalidOperationException("Invalid control image.");
@@ -287,6 +296,13 @@ namespace Wreckabulary.EditorTools
             if (result.cleanupErrors.Count != 0 || result.remainingOwnedObjects != 0 || !result.previewSceneClosed)
                 throw new InvalidOperationException("Portrait control cleanup incomplete: " + result.control);
         }
+
+        static LightReport[] DescribeLights(Light[] lights) => lights.Select(l => new LightReport
+        {
+            type = l.type.ToString(), shadows = l.shadows.ToString(), enabled = l.enabled, intensity = l.intensity,
+            color = l.color, position = l.transform.position, forward = l.transform.forward, rotation = l.transform.rotation,
+            cullingMask = l.cullingMask, renderingLayerMask = unchecked((uint)l.renderingLayerMask)
+        }).ToArray();
 
         static void DisableNormals(Material copy)
         {

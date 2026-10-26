@@ -1,6 +1,6 @@
 # Unity developer workspace: implementation and acceptance
 
-Status: 2026-10-26. Source audit started at integration revision `4b04437f`; workspace navigation and asset browsing are being added in the working tree. This is an implementation plan, not a native acceptance report. `[x]` means the stated source/data fact is confirmed, `[~]` means work is in progress, and `[ ]` means the outcome remains unverified or unimplemented.
+Status: 2026-10-26. Saved workspace/studios and Shop layouts are committed through `8304fa93`. Loadout panels/cards and the lobby-camera profile are saved; 16 focused Editor and 82 combined Play cases pass. All 125 authored outputs survive repeat setup and Play unchanged. Interactive visual and Windows verification remains in progress. `[x]` means the stated fact is confirmed, `[~]` means work is in progress, and `[ ]` means the outcome remains unverified or unimplemented.
 
 ## Goal
 
@@ -15,7 +15,7 @@ The editor should expose a few clear categories and direct actions. The game its
 | Scenes and worlds | Six entry scenes, five saved house prefabs, saved Player prefab and lighting assets | Native workspace restoration and new page shortcuts still need verification |
 | Wordbound design | Saved camera, visual, theme, story and two course assets with custom Inspectors | Different profiles have different scopes; a theme is not a complete saved lobby layout |
 | Course editing | Form/Scene editing, save action, exact-seed preview and local TimeRun/Freestyle playtest APIs | Other modes, public publishing and online consistency require separate evidence |
-| Shop/loadout | Real runtime page builders and art assets exist | Layout is generated in C#; the Play hierarchy is temporary |
+| Shop/loadout | Saved runtime-connected panel/card prefabs and profiles; editable geometry, spacing and typography | Home, wearable pickers, recipe details and some Shop sections still use generated layouts; Play hierarchy edits remain temporary |
 | New studio/typography setup | Two saved studios, 24 original-model prefab variants, three TMP fonts, five text materials and a runtime typography profile are generated | Native creation/repeat setup and36 focused cases pass; live editor interaction, rendered review and Windows acceptance remain |
 | Assets | Original FBX, shared material library, wardrobe mapping, collection/seasonal assets, fonts and icons exist | Physical folder names are mixed; moving imported/Resources assets can break keys |
 | Packing Club | Editable source and export receipts exist; optional validation/import source exists | Import, Unity appearance and owner acceptance must be recorded separately |
@@ -40,9 +40,9 @@ Implemented browser categories: **Weapons**, **Furniture**, **Tools**, **Charact
 This is required to meet the user's no-code UI request. A button that opens C# or a temporary Canvas does not satisfy it.
 
 - [~] Create runtime-connected saved lobby typography through `LobbyTypographySetup.CreateOrVerify()`: `Resources/UI/LobbyTypography.asset`, `UI/Fonts` and `UI/Materials`. Native setup and persistence cases pass; actual rendered behavior remains pending. Verify actual assigned Display/Body/Black fonts and matching presets after restarting Play; invalid profiles warn and fall back to generated defaults.
-- [ ] Add saved menu root/page/card prefabs and serialized UI/camera/presentation settings, or an equivalent saved UI Toolkit document/profile setup. Choose one authoritative layout per surface. The typography slice alone does not complete layout authoring.
-- [ ] Bind the real Lobby/Shop/Loadout runtime controllers to those assets. Runtime code may populate item data and state, but must not rebuild an independent layout that ignores authored geometry, style or camera choices.
-- [ ] Expose drag/move/resize of page containers and card templates in Scene/Prefab Mode, plus Inspector fields for fonts, icons, materials, spacing, preview framing and selected/locked/equipped states.
+- [~] Saved Shop/Loadout panel and card prefabs, typography and lobby-camera profiles now exist. Home and inner generated sections remain outstanding. Each assigned saved surface is authoritative; missing-profile compatibility uses the existing default construction.
+- [~] Real Shop/Loadout controllers bind item data/state to saved layouts. Combined runtime and authored-output preservation checks pass; Home/shared navigation and inner generated sections remain.
+- [~] Shop/Loadout containers and cards expose Rect Transform/grid editing, fonts/materials, picture/letter slots and state inks; the lobby camera exposes framing. Focused Editor persistence checks pass; actual visual/navigation checks remain.
 - [ ] Provide Edit Mode previews with sample data that never write purchases, currency, ownership, equipped slots, PlayerPrefs or network state.
 - [ ] Keep action bindings explicit and validated. Warn on a missing button/view/reference before Play; retain the previous valid asset on invalid apply.
 - [ ] Make duplicates/variants and Undo/Redo work. A saved variant must have an explicit runtime binding, not depend on an editor-only selection.

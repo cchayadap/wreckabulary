@@ -550,7 +550,7 @@ namespace Wreckabulary
         public const float Width = 600f;
         public override string Id => LobbyMenu.Loadout;
         public override LobbyStage.Focus Focus => LobbyStage.Focus.Left;
-        public override float PanelWidth => Width;
+        public override float PanelWidth => authoredPage && authoredPage.Panel.rect.width > 0 ? authoredPage.Panel.rect.width : Width;
         public bool ShowingRecipes { get; private set; }
         public string Part { get; private set; } = "Top";
         public string Pinned { get; private set; }
@@ -559,6 +559,8 @@ namespace Wreckabulary
         TMP_Text recipeFinish;
         float scrolled;
         string trying, previewing, shownRecipe;
+        LobbyLoadoutLayout layout;
+        LobbyLoadoutPageView authoredPage;
 
         public override void Opened()
         {
@@ -578,6 +580,17 @@ namespace Wreckabulary
             lockerList = detail = null;
             recipeFinish = null;
             trying = previewing = shownRecipe = null;
+            authoredPage = null;
+            layout = Resources.Load<LobbyLoadoutLayout>(LobbyLoadoutLayout.ResourcePath);
+            if (layout)
+            {
+                layout.Validate();
+                authoredPage = LobbyRuntimeTypography.Instantiate(layout.Page, Root, false);
+                authoredPage.Bind(ShowingRecipes, Menu.Close, ShowRecipes, CustomizeRecipe);
+                if (ShowingRecipes) Recipes(authoredPage.RecipesBody);
+                else Locker(authoredPage.LockerBody);
+                return;
+            }
             var body = Side("Loadout");
             var tabs = LobbyKit.Segmented(body.parent, "Tabs", new[] { ("LOCKER", "Locker"), ("RECIPES", "Recipes") },
                 ShowingRecipes ? "RECIPES" : "LOCKER", id => ShowRecipes(id == "RECIPES"));
@@ -883,6 +896,14 @@ namespace Wreckabulary
         void Recipes(RectTransform body)
         {
             var shown = Shown();
+            if (authoredPage)
+            {
+                recipeFinish = authoredPage.Finish.Label;
+                detail = authoredPage.RecipeDetail;
+                foreach (var item in GameConfig.Current.Items.Enabled) RecipeCard(authoredPage.RecipeGrid.transform, item, item == shown);
+                Detail(shown);
+                return;
+            }
             var finish = LobbyKit.TextAction(body, "Recipe finish", "Finish", 18,
                 CustomizeRecipe, icon: LobbyIcons.Chevron);
             ((RectTransform)finish.transform).Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 44));
@@ -898,6 +919,17 @@ namespace Wreckabulary
 
         void RecipeCard(Transform parent, ItemDefinition item, bool on)
         {
+            if (authoredPage)
+            {
+                var savedTile = LobbyRuntimeTypography.Instantiate(layout.Recipe, parent, false);
+                savedTile.Bind(item.Id, on, () => PinRecipe(item.Id), hot =>
+                {
+                    if (hot) { previewing = item.Id; Detail(item); }
+                    else if (previewing == item.Id) { previewing = null; Detail(Shown()); }
+                });
+                if (on) First = savedTile.Button;
+                return;
+            }
             var card = LobbyKit.Button(parent, "Recipe " + item.Id, Color.white, () => PinRecipe(item.Id), 14, LobbyKit.Navy, 3, 4);
             var press = card.GetComponent<LobbyPress>();
             press.Lift = 4f; press.Tilt = 2f;

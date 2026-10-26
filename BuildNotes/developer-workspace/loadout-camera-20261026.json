@@ -1,0 +1,477 @@
+{
+  "utc": "2026-10-26T09:37:31.136Z",
+  "head": "8304fa9375688952faffa64ee0ecb1f5327e8961",
+  "scope": "Saved Loadout panel/recipe layout, lobby camera, screenshot preference cleanup and portrait diagnostic. No Windows or complete online acceptance is inferred.",
+  "sourceBoundary": "Receipt-time hashes are not attributed to older gates. The 084703 check failed before telemetry casting was corrected; later inspector and capture cleanup additions were checked at 090305. Broad core084834 was explicitly cancelled as out-of-scope, not a test assertion failure or pass; its FAIL is preserved.",
+  "sourceAtReceipt": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceStudioSetup.cs",
+      "sha256": "c082059431c55592054128f0965dd3804420956bc4c908e6dc49fe429218f0d6"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceWindow.cs",
+      "sha256": "e4919d552227c864451208e61783ce67623f7a6a0b542e6e1dace2622f210db6"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyCameraSetup.cs",
+      "sha256": "886d38569e6945d45d2aee8b6e70b915cc2b08bfd3284dcc2e1110a19c451854"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyLoadoutLayoutSetup.cs",
+      "sha256": "cc94ac3cb8bcbfd3974bbdd0a16cd704aa8b1ce3f3c10ed326f7cdd3ddd59d8f"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyLoadoutLayoutEditor.cs",
+      "sha256": "d12e5009ef063edba7974706d50dfa942ab112c411a310ba8acf42a7718e0118"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyCameraProfile.cs",
+      "sha256": "3b75dd9b2268b54c112b3437bb18f6cd8d94bd9058eb36fcb3a5ebcd21ac82a7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyStage.cs",
+      "sha256": "eba8c79c64c928839bbb6075aef2aa435f6ee03fb83bd0299b7ee1122c0cffb4"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs",
+      "sha256": "1578593df65293cd56b81cb45afa1d316db4852797a485a3ec1d618c20b39da6"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyLoadoutLayout.cs",
+      "sha256": "bfeb9377bab3b26fcf110a4aed2c54a2a19816cd8f23344d300751b20a4bd7c7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyLoadoutPageView.cs",
+      "sha256": "a5e1fa541c9d91be3de2a2ab32f3c47f466581eff876bdc209031e0c28b985fe"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyRecipeTileView.cs",
+      "sha256": "882ecf8615f0368ab635024ba8096df781d727ea70765af79461ff4ab585e454"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/LobbyCameraProfileTests.cs",
+      "sha256": "eadc09265222aaffbae6e5bb75c54c55a4f7041012fbb3cd2a6649fc99c64434"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/ShopLayout/LoadoutLayoutAuthoringTests.cs",
+      "sha256": "3fd0c9c619b932be49f1c82e99a38de3b7a1ca0b1715ef043e5470317959d454"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyCameraRuntimeTests.cs",
+      "sha256": "5426767f40e49d51abbdf47daff78201442f6d47b43fde162096d5f63a5ac564"
+    },
+    {
+      "path": "Assets/_Project/Tests/LoadoutLayoutRuntimeTests.cs",
+      "sha256": "8269d15850b72ad4f4a484e2c0a9347135b125c92d4103719564ea7ecb3bb984"
+    },
+    {
+      "path": "Assets/_Project/Tests/CaptureTests.cs",
+      "sha256": "e1c9dadb95f91ba5ecc7bee49c7c59f7f1de38989493efa35d073e75214602f1"
+    },
+    {
+      "path": "Assets/_Project/Tests/CaptureCleanupTests.cs",
+      "sha256": "c40c05941b20a1632ee7ad181d8c4822a192cb2ec86884d269fa8167b5be5b33"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs",
+      "sha256": "2da5c14a19b50570e3348ef6053b562c518c95bb3354f766a5e6d0f27ac1cef9"
+    }
+  ],
+  "gates": [
+    {
+      "cmd": "test editmode --cold --filter LobbyCameraProfileTests|LoadoutLayoutAuthoringTests",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T09:04:19Z",
+      "secs": 315.7,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_editmode_20261026T090419Z.log",
+      "evidence": [
+        "TestResults/editmode_20261026T090419Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 233.7,
+      "tests": {
+        "total": 16,
+        "passed": 16,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": false,
+      "exit": 1,
+      "verdict": "FAIL",
+      "utc": "2026-10-26T08:47:03Z",
+      "secs": 14.2,
+      "route": "none",
+      "errors": [
+        {
+          "message": "Cannot implicitly convert type 'int' to 'uint'. An explicit conversion exists (are you missing a cast?)",
+          "code": "CS0266",
+          "file": "Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs",
+          "line": 304,
+          "col": 63,
+          "severity": "error"
+        }
+      ],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T084704Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] FAILED (1 errors)"
+      ]
+    },
+    {
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T08:48:08Z",
+      "secs": 11.9,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T084808Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ]
+    },
+    {
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T09:01:16Z",
+      "secs": 20.2,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T090116Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ]
+    },
+    {
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T09:03:05Z",
+      "secs": 65,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T090306Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ]
+    },
+    {
+      "cmd": "core",
+      "rung": "R1",
+      "ok": false,
+      "exit": 1,
+      "verdict": "FAIL",
+      "utc": "2026-10-26T08:48:34Z",
+      "secs": 748.5,
+      "route": "none",
+      "errors": [
+        {
+          "message": "zero tests ran (zero tests is a FAIL)"
+        }
+      ],
+      "failures": [],
+      "log": "Logs/gate_core_20261026T084834Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "tests": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "cmd": "core --filter CosmeticBundleTests|WardrobeTests|CatalogueTests|CareerTests",
+      "rung": "R1",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T09:01:04Z",
+      "secs": 4.7,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_core_20261026T090104Z.log",
+      "evidence": [
+        "TestResults/core_20261026T090104Z.trx"
+      ],
+      "infra": null,
+      "slot": 0,
+      "tests": {
+        "total": 41,
+        "passed": 41,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "cmd": "test playmode --cold --filter ShopCollectionsTests|WinterCollectionTests|LobbyTests|ShopLayoutRuntimeTests|LobbyRuntimeTypographyRuntimeTests|LoadoutLayoutRuntimeTests|LobbyCameraRuntimeTests|CaptureCleanupTests",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T09:16:20Z",
+      "secs": 409.2,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_playmode_20261026T091621Z.log",
+      "evidence": [
+        "TestResults/playmode_20261026T091621Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 110,
+      "tests": {
+        "total": 82,
+        "passed": 82,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "cmd": "exec Wreckabulary.EditorTools.ShopPortraitControlsDiagnostics.Run --cold",
+      "rung": "R3",
+      "ok": false,
+      "exit": 1,
+      "verdict": "FAIL",
+      "utc": "2026-10-26T09:23:39Z",
+      "secs": 413.2,
+      "route": "cold",
+      "errors": [
+        {
+          "message": "Unity exited 1 before \"Batchmode quit successfully invoked\""
+        }
+      ],
+      "failures": [],
+      "log": "Logs/gate_exec_Run_20261026T092340Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": null
+    },
+    {
+      "cmd": "exec Wreckabulary.EditorTools.ShopPortraitControlsDiagnostics.Run --cold",
+      "rung": "R3",
+      "ok": false,
+      "exit": 1,
+      "verdict": "FAIL",
+      "utc": "2026-10-26T09:30:55Z",
+      "secs": 10,
+      "route": "cold",
+      "errors": [
+        {
+          "message": "Unity exited 1 before \"Batchmode quit successfully invoked\""
+        }
+      ],
+      "failures": [],
+      "log": "Logs/gate_exec_Run_20261026T093055Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": null
+    },
+    {
+      "cmd": "exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify --cold",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T09:09:49Z",
+      "secs": 231.5,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_exec_CreateOrVerify_20261026T090949Z.log",
+      "evidence": [
+        "Logs/exec/20261026T090949Z.json"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 190.8,
+      "messages": [
+        "[GSK] exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T090949Z.json"
+      ],
+      "exec": {
+        "method": "Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify",
+        "ok": true,
+        "error": null,
+        "result": null
+      }
+    },
+    {
+      "cmd": "exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify --cold",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T09:14:03Z",
+      "secs": 125.3,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_exec_CreateOrVerify_20261026T091403Z.log",
+      "evidence": [
+        "Logs/exec/20261026T091403Z.json"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 101.6,
+      "messages": [
+        "[GSK] exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T091403Z.json"
+      ],
+      "exec": {
+        "method": "Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify",
+        "ok": true,
+        "error": null,
+        "result": null
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Logs/exec/20261026T090949Z.json",
+      "exists": true,
+      "sha256": "c0b75f595518d5e09388439b44d997cbbd5586989747af6e96adee99ed29e56b"
+    },
+    {
+      "path": "Logs/exec/20261026T091403Z.json",
+      "exists": true,
+      "sha256": "779e4b667b28b82076abf7a20abdb53437e9566e94bb56203fb4b9c908f741f8"
+    },
+    {
+      "path": "Logs/gate_check_all_20261026T084704Z.log",
+      "exists": true,
+      "sha256": "76dee8a75a2a44c31c5c9bc96160cff0cf4277262f1c05ea1177c025c6480a59"
+    },
+    {
+      "path": "Logs/gate_check_all_20261026T084808Z.log",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Logs/gate_check_all_20261026T090116Z.log",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Logs/gate_check_all_20261026T090306Z.log",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Logs/gate_core_20261026T084834Z.log",
+      "exists": true,
+      "sha256": "c8dff5a02b70f0e32d6efa803563551029bf3f6d5275721bdc9e26b8dd2e9e21"
+    },
+    {
+      "path": "Logs/gate_core_20261026T090104Z.log",
+      "exists": true,
+      "sha256": "e0b34185e76b190d6a43c141e20de528fbf5cc83c37b96c6e9b54903b0770369"
+    },
+    {
+      "path": "Logs/gate_exec_CreateOrVerify_20261026T090949Z.log",
+      "exists": true,
+      "sha256": "13018e1002bc39dcd4ced219772ea9ced7f8db8046e90012653193e20d4fa5f3"
+    },
+    {
+      "path": "Logs/gate_exec_CreateOrVerify_20261026T091403Z.log",
+      "exists": true,
+      "sha256": "802b0d43edd986693b225b90c1ff296e306acc8565e8fb2aa118500ed9b0a516"
+    },
+    {
+      "path": "Logs/gate_exec_Run_20261026T092340Z.log",
+      "exists": true,
+      "sha256": "5ae043995069f059ded0fac54df9bdfbae7ef612ce62be88c00b3884c9a7b2b3"
+    },
+    {
+      "path": "Logs/gate_exec_Run_20261026T093055Z.log",
+      "exists": true,
+      "sha256": "e206c90cc7a90503c09847f086034b5673e335d59d95b8cb36481e346e305724"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261026T090419Z.log",
+      "exists": true,
+      "sha256": "cc3a83f986d4f59f3a871814df7c3ee73d34641b095358faed2e032f649be4df"
+    },
+    {
+      "path": "Logs/gate_test_playmode_20261026T091621Z.log",
+      "exists": true,
+      "sha256": "4b337d64be0f34b9acb682aac25166e42ea1c47576ff18f8cc05656462b6ad0f"
+    },
+    {
+      "path": "TestResults/core_20261026T090104Z.trx",
+      "exists": true,
+      "sha256": "ff76e2f25ec9f306df65e6861c7dec9b9ecb6bc24397f5bb3e4d5802d15b86de"
+    },
+    {
+      "path": "TestResults/editmode_20261026T090419Z.xml",
+      "exists": true,
+      "sha256": "0cea65736dba46503e0cf0fce8e15ae8af4c503b553e5044dc0ebbe59f642e54"
+    },
+    {
+      "path": "TestResults/playmode_20261026T091621Z.xml",
+      "exists": true,
+      "sha256": "1a39347f5803d8955c7e4216eb0db5307e44024878e5817be86af0d8956c5634"
+    }
+  ],
+  "recoverySnapshot": ".harness/recovery/developer-workspace-2026-10-26T09-03-47-842Z",
+  "scopeCancellation": {
+    "utc": "2026-10-26T09:01:01.8692093Z",
+    "gatePid": 29868,
+    "terminatedPid": 53628,
+    "creationUtc": "2026-10-26T08:48:34.4679660Z",
+    "reason": "Broad core unintentionally includes long seeded map sweeps outside UI change scope. Stop only this exact owned subtree, retain gate evidence, and run relevant rules filter."
+  },
+  "remaining": [
+    "Interactive two-Play editor cycles including disabled reloads",
+    "Current Windows build/smokes",
+    "Portrait correction and visual review",
+    "Saved Home and inner wearable/detail layouts",
+    "Complete public mode matches/capacity/recovery"
+  ]
+}

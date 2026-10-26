@@ -64,7 +64,7 @@ namespace Wreckabulary.EditorTools
                 PreviewButton("Play Loadout", LobbyMenu.Loadout);
                 EditorGUILayout.EndHorizontal();
             }
-            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Edit Shop's saved panel and card from Design. Home and Loadout still use generated layouts; their Play hierarchy is temporary.", MessageType.Info);
+            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Edit saved Shop and Loadout layouts from Design. Changes to the Play hierarchy are temporary.", MessageType.Info);
             if (!string.IsNullOrEmpty(WorkspacePlayPreview.Message))
                 EditorGUILayout.LabelField(WorkspacePlayPreview.Message, EditorStyles.wordWrappedMiniLabel);
 
@@ -104,6 +104,13 @@ namespace Wreckabulary.EditorTools
             AssetButton("Edit Shop panel", "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab", true);
             AssetButton("Edit offer card", "Assets/_Project/Prefabs/UI/Shop/ShopOfferCard.prefab", true);
             AssetButton("Shop layout assignments", "Assets/_Project/Resources/UI/LobbyShopLayout.asset");
+            Section("LOADOUT LAYOUT");
+            AssetButton("Edit Loadout panel & recipe shelf", "Assets/_Project/Prefabs/UI/Loadout/LoadoutPage.prefab", true);
+            AssetButton("Edit recipe card", "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab", true);
+            AssetButton("Loadout layout assignments", "Assets/_Project/Resources/UI/LobbyLoadoutLayout.asset");
+            EditorGUILayout.LabelField("Wearable pickers and recipe detail contents are created inside the saved body slots during Play.", EditorStyles.wordWrappedMiniLabel);
+            Section("LOBBY CAMERA");
+            AssetButton("Framing, height & field of view", "Assets/_Project/Resources/UI/LobbyCamera.asset");
             Section("LOBBY TYPOGRAPHY");
             AssetButton("Lobby fonts & material presets", "Assets/_Project/Resources/UI/LobbyTypography.asset");
             AssetButton("Saved fonts", "Assets/_Project/UI/Fonts");
@@ -116,7 +123,7 @@ namespace Wreckabulary.EditorTools
             AssetButton("Story & optional ending copy", "Assets/_Project/Data/Wordbound/Authoring/LostAddressStory.asset");
             AssetButton("Interface fonts, colours & spacing", "Assets/_Project/Data/Wordbound/Authoring/Interface.asset");
             AssetButton("Gameplay artwork & held pose", "Assets/_Project/Data/Wordbound/Authoring/Presentation.asset");
-            EditorGUILayout.LabelField("These are saved defaults. Check the launcher and course assignments for custom copies. Interface styles Wordbound menus and workshop; the original lobby uses its existing C# layout.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.LabelField("These are saved defaults. Check the launcher and course assignments for custom copies. Interface styles Wordbound menus and workshop; use the Shop and Loadout prefabs above for those lobby pages.", EditorStyles.wordWrappedMiniLabel);
 
             Section("CHARACTER & ART");
             AssetButton("Edit Player Prefab", "Assets/_Project/Prefabs/Player.prefab", true);
@@ -160,7 +167,7 @@ namespace Wreckabulary.EditorTools
             AssetButton("Shop page layout", "Assets/_Project/Scripts/UI/Lobby/ShopPage.cs", true);
             AssetButton("Arena Maps & Game Rules", "Assets/_Project/Data/Config");
             AssetButton("Recipe Balance & Powers", "Assets/_Project/Data/Config/items.json", true);
-            EditorGUILayout.LabelField("Edit the saved Shop panel and offer card above. Home, Loadout and the gameplay HUD still use code layouts; the separate inventory study uses UI Builder assets.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.LabelField("Edit saved Shop and Loadout layouts above. Home, wearable pickers, recipe details and the gameplay HUD still use code layouts; the separate inventory study uses UI Builder assets.", EditorStyles.wordWrappedMiniLabel);
 
             Section("WORKSPACE TOOLS");
             using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))

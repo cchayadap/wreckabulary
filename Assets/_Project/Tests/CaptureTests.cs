@@ -19,6 +19,7 @@ namespace Wreckabulary.Tests
     public class CaptureTests
     {
         ShaderCompilationScope shaderCompilationScope;
+        LobbyPreferenceScope lobbyPreferenceScope;
 
         [UnityTest]
         public IEnumerator CaptureLivingRoom() => RunWithSynchronousShaders(CaptureLivingRoomSequence());
@@ -27,7 +28,7 @@ namespace Wreckabulary.Tests
         public IEnumerator CaptureHubAndTutorial() => RunWithSynchronousShaders(CaptureHubAndTutorialSequence());
 
         [UnityTest]
-        public IEnumerator CaptureLobby() => RunWithSynchronousShaders(CaptureLobbySequence());
+        public IEnumerator CaptureLobby() => RunWithSynchronousShaders(RunWithLobbyPreferences(CaptureLobbySequence()));
 
         [UnityTest]
         public IEnumerator CaptureMaps() => RunWithSynchronousShaders(CaptureMapsSequence());
@@ -38,8 +39,69 @@ namespace Wreckabulary.Tests
         [TearDown]
         public void RestoreShaderCompilation()
         {
-            shaderCompilationScope?.Dispose();
-            shaderCompilationScope = null;
+            try
+            {
+                lobbyPreferenceScope?.Dispose();
+                lobbyPreferenceScope = null;
+            }
+            finally
+            {
+                shaderCompilationScope?.Dispose();
+                shaderCompilationScope = null;
+            }
+        }
+
+        internal IEnumerator RunWithLobbyPreferences(IEnumerator sequence)
+        {
+            if (lobbyPreferenceScope != null)
+                throw new InvalidOperationException("A lobby capture is already running on this fixture.");
+            var scope = new LobbyPreferenceScope();
+            lobbyPreferenceScope = scope;
+            try
+            {
+                while (sequence.MoveNext()) yield return sequence.Current;
+            }
+            finally
+            {
+                try { (sequence as IDisposable)?.Dispose(); }
+                finally
+                {
+                    scope.Dispose();
+                    if (ReferenceEquals(lobbyPreferenceScope, scope)) lobbyPreferenceScope = null;
+                }
+            }
+        }
+
+        sealed class LobbyPreferenceScope : IDisposable
+        {
+            readonly string[] keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, LobbyThemes.PreferenceKey };
+            readonly string[] values;
+            readonly LobbyMenu previousMenu = LobbyMenu.Instance;
+            bool disposed;
+
+            public LobbyPreferenceScope() => values = keys.Select(key => PlayerPrefs.HasKey(key) ? PlayerPrefs.GetString(key) : null).ToArray();
+
+            public void Dispose()
+            {
+                if (disposed) return;
+                try
+                {
+                    var menu = LobbyMenu.Instance;
+                    if (menu && menu != previousMenu) UnityEngine.Object.DestroyImmediate(menu.gameObject);
+                }
+                finally
+                {
+                    try
+                    {
+                        Session.Clear();
+                        for (int i = 0; i < keys.Length; i++)
+                            if (values[i] == null) PlayerPrefs.DeleteKey(keys[i]); else PlayerPrefs.SetString(keys[i], values[i]);
+                        PlayerPrefs.Save();
+                        LobbyThemes.Restore();
+                    }
+                    finally { disposed = true; }
+                }
+            }
         }
 
         internal IEnumerator RunWithSynchronousShaders(IEnumerator sequence)

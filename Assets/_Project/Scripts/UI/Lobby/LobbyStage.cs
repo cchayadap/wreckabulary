@@ -15,7 +15,11 @@ namespace Wreckabulary
     {
         public static readonly Vector3 Origin = new Vector3(0f, 0f, -400f);
         const string AvatarKey = "Avatar/Avatar";
-        const float Distance = 4.2f, EyeHeight = .95f, LookHeight = .5f, FieldOfView = 30f;
+        [Tooltip("Optional saved framing override. Otherwise UI/LobbyCamera is loaded. Read once per stage; restart Play after editing.")]
+        public LobbyCameraProfile CameraProfile;
+        bool cameraProfileLoaded;
+        float cameraDistance = LobbyCameraProfile.DefaultDistance, cameraEyeHeight = LobbyCameraProfile.DefaultEyeHeight;
+        float cameraLookHeight = LobbyCameraProfile.DefaultLookHeight, cameraFieldOfView = LobbyCameraProfile.DefaultFieldOfView;
 
         public enum Focus { Centre, Left }
 
@@ -163,6 +167,7 @@ namespace Wreckabulary
 
         public void SetMap(string mapId)
         {
+            LoadCameraProfile();
             if (Map == mapId && set) return;
             if (!GameConfig.Current.Houses.ContainsKey(mapId))
                 foreach (var key in GameConfig.Current.Houses.Keys) { mapId = key; break; }
@@ -183,7 +188,7 @@ namespace Wreckabulary
                 { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             }
             float depth = room.MaxZ - room.MinZ;
-            float distance = Mathf.Min(Distance, depth * .62f);
+            float distance = Mathf.Min(cameraDistance, depth * .62f);
             var local = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY, Mathf.Min(room.MaxZ - 1.6f, room.MinZ + .45f + distance + depth * .12f));
             toCamera = new Vector3(0f, 0f, -distance);
             Furnish(layout, storey, local, local + toCamera);
@@ -381,6 +386,23 @@ namespace Wreckabulary
 
         public void Turn(float degrees) => targetYaw += degrees;
 
+        void LoadCameraProfile()
+        {
+            if (cameraProfileLoaded) return;
+            cameraProfileLoaded = true;
+            var profile = CameraProfile ? CameraProfile : Resources.Load<LobbyCameraProfile>(LobbyCameraProfile.ResourcePath);
+            if (!profile) return;
+            if (!profile.TryValidate(out string reason))
+            {
+                Debug.LogWarning("Lobby camera profile is invalid; using the existing default framing. " + reason, this);
+                return;
+            }
+            cameraDistance = profile.Distance;
+            cameraEyeHeight = profile.EyeHeight;
+            cameraLookHeight = profile.LookHeight;
+            cameraFieldOfView = profile.FieldOfView;
+        }
+
         public void Frame(Focus focus, float panel = 0f)
         {
             targetSide = focus == Focus.Left ? 1f : 0f;
@@ -392,6 +414,7 @@ namespace Wreckabulary
 
         public void TakeCamera()
         {
+            LoadCameraProfile();
             if (cameraTaken) return;
             cam = Camera.main;
             if (!cam) return;
@@ -402,7 +425,7 @@ namespace Wreckabulary
             savedPosition = t.position; savedRotation = t.rotation; savedOrtho = cam.orthographic;
             savedFov = cam.fieldOfView; savedNear = cam.nearClipPlane; savedClear = cam.clearFlags; savedBackground = cam.backgroundColor;
             cam.orthographic = false;
-            cam.fieldOfView = FieldOfView;
+            cam.fieldOfView = cameraFieldOfView;
             cam.nearClipPlane = .1f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = LobbyThemes.Current.Surface;
@@ -637,8 +660,8 @@ namespace Wreckabulary
             var right = Vector3.Cross(Vector3.up, -toCamera.normalized);
             float halfWidth = Mathf.Tan(cam.fieldOfView * .5f * Mathf.Deg2Rad) * cam.aspect;
             var shift = right * side * ((1f - 2f * StandAt(panel, cam.aspect)) * toCamera.magnitude * halfWidth);
-            var eye = spot + toCamera + Vector3.up * EyeHeight + shift;
-            cam.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(spot + Vector3.up * LookHeight + shift - eye));
+            var eye = spot + toCamera + Vector3.up * cameraEyeHeight + shift;
+            cam.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(spot + Vector3.up * cameraLookHeight + shift - eye));
             FitItemPreview();
             PlaceArtwork();
         }

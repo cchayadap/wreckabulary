@@ -1,0 +1,636 @@
+{
+  "utc": "2026-10-26T09:37:30.714Z",
+  "verdict": "PASS",
+  "scope": "Existing post-Shop authored outputs and, after creation, saved Camera/Loadout outputs remain byte-identical across the specified checks. Initial Shop font-ratio normalization remains recorded separately.",
+  "existingBaselineUtc": "2026-10-26T08:53:12.813Z",
+  "newBaselineUtc": "2026-10-26T09:14:02.657Z",
+  "comparedFiles": 125,
+  "changes": [],
+  "files": [
+    {
+      "path": "Assets/_Project/Prefabs/Equipment.meta",
+      "bytes": 172,
+      "sha256": "f7089ac79a04f238ab6231a7e76f121904a17f307fa55ed1cfb4a61e3dfa3900"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools.meta",
+      "bytes": 172,
+      "sha256": "55f8f2740a9d9aba3b0ab711288dbb9d2518391f98273621f9994401b62b2c0e"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/APPLE.prefab",
+      "bytes": 2502,
+      "sha256": "f2c99bcb74ccf00426a668fb3736dadbf13ea9bdc3fa36e054134b9cde706296"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/APPLE.prefab.meta",
+      "bytes": 154,
+      "sha256": "ccb19b5f62731c87463d57a106e60ce28b3b0698cbb6dba8e002594ae456810b"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/BOMB.prefab",
+      "bytes": 2496,
+      "sha256": "2e260545eeaf41ef390d2ba1a8131e9536c9f6cef11bcdf70571a70e57f0fb7b"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/BOMB.prefab.meta",
+      "bytes": 154,
+      "sha256": "72ba0527b1468f57f38fc7f3d40305b773f92cf1c33479b36ba39cf1a9c19bd1"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/CAKE.prefab",
+      "bytes": 2496,
+      "sha256": "2170ba85624f36f74a4e6dac0e80728b1cfa0a021cddea31045e52092c572386"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/CAKE.prefab.meta",
+      "bytes": 154,
+      "sha256": "57966ab913d83650718cad606c36d7e9b4740ca6bfe0e37e7192cf9d1bf4a3dd"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/CLOCK.prefab",
+      "bytes": 2497,
+      "sha256": "f1a673e7e77a85130a37cdcb04931485a353f011b939a8dc9d27bbf3c9b0c7fe"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/CLOCK.prefab.meta",
+      "bytes": 154,
+      "sha256": "d575a39ee687c7248447fe025de2570c8eab0075e4cfc47990b1b094e7c6ad74"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/FAN.prefab",
+      "bytes": 2495,
+      "sha256": "b44bcf439f831f7a9d37674a23c29709e3ab9bf90f2806e75f702963bf24f58f"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/FAN.prefab.meta",
+      "bytes": 154,
+      "sha256": "3787ad450b90f7f972dec9d991d3edac913549dacbd8bfeac4d6384d495bd4d9"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/FOAM.prefab",
+      "bytes": 2496,
+      "sha256": "bda5cf3b67a2cca4341c0edcf972565a675af55cf81dfe159fd7c88cf1964008"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/FOAM.prefab.meta",
+      "bytes": 154,
+      "sha256": "ba5bf3434afc2f12e1241d38665c20f27eba6286627ed958b0142522012a9c51"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/LAMP.prefab",
+      "bytes": 2496,
+      "sha256": "9c1198cb81593c90ae0493aa96cf7775e5a4de8c1e950c33c591d14e6ccaf742"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/LAMP.prefab.meta",
+      "bytes": 154,
+      "sha256": "793c63dd787fb1ae7ad955cfcaa9a0dac106e80de66c632addf84b6b1e184159"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/MAT.prefab",
+      "bytes": 2495,
+      "sha256": "5c061c780f983a287c02577ab94c70c6694210b1501cc792b2e65501448d8346"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/MAT.prefab.meta",
+      "bytes": 154,
+      "sha256": "41b1e053f92cb35c5696e04518c0533eeaf27fe8037bbf1b056752e667e31ebe"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/PIE.prefab",
+      "bytes": 2495,
+      "sha256": "04e0115193622d50f647fc290c42f637ea01e0a00e2ca8d63d9eaf85ed5c0d13"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/PIE.prefab.meta",
+      "bytes": 154,
+      "sha256": "d8b2eea33da0a32039b94d4f5a18b3f5fba6a3c3736310d5ee8422e42d84382c"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/SOAP.prefab",
+      "bytes": 2502,
+      "sha256": "3e4eba2be255b47b339a9e7aaf766b45b52dc219f857054c60c64c30a60fa10e"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/SOAP.prefab.meta",
+      "bytes": 154,
+      "sha256": "1c3e31ef313a761dac74699fca1bdad446655e6f479fe15ecff908d283637ce3"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/SODA.prefab",
+      "bytes": 2496,
+      "sha256": "fa1af61a0bc92df39fd39c6852d18beebc9258f8bacb9b0888382890e4414382"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/SODA.prefab.meta",
+      "bytes": 154,
+      "sha256": "b07bf64ccb1c320ec1f283334a8bd02933c42983739688a9ef60ad921d99aa0f"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/WATER.prefab",
+      "bytes": 2497,
+      "sha256": "ed58368c69247c7b51ab7afca816384a8555218341066727ddf33fb07280b1aa"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Tools/WATER.prefab.meta",
+      "bytes": 154,
+      "sha256": "defe9cb0c5aa68d8a516974f51599ab0724844722051fa65c8add7f0f2d875cd"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons.meta",
+      "bytes": 172,
+      "sha256": "39253c5a9d94c83a27a85a4fe2ced44690639a780c82b25d888b875219cb7971"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/BALL.prefab",
+      "bytes": 2501,
+      "sha256": "0b939e1eb661db6c48c660338c6a45fc5de4cd60b42c29b38470ea340450361b"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/BALL.prefab.meta",
+      "bytes": 154,
+      "sha256": "3021673ff47eaf4166137b7f77beea139cbc54d8ed042612945a0d75ea4116d6"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/BAT.prefab",
+      "bytes": 2495,
+      "sha256": "de664199e0e31cb7ae0efc21220454b0f42d76c6641758fdda3fc543b7262578"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/BAT.prefab.meta",
+      "bytes": 154,
+      "sha256": "0b70e01bc15f60d14f052cd30d71b261c9e883259de55f885d6ceda090f5d4d3"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/BLADE.prefab",
+      "bytes": 2501,
+      "sha256": "f1fb842b5eaaa9829b5a9a831b201e5fd2d491167a37720a6857358eb69c1a6d"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/BLADE.prefab.meta",
+      "bytes": 154,
+      "sha256": "bcf1aa006bd6979202a8865f1aed1577a39786a8dec1d7aa27a188ff5d033027"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/BROOM.prefab",
+      "bytes": 2508,
+      "sha256": "0c76262979aa009791076ce80c1fb2586865407300d1a0c74705239443918d12"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/BROOM.prefab.meta",
+      "bytes": 154,
+      "sha256": "ab81c33009d0e2ddc210873a71b7998442df4cc1f3413e44a594bacf56159e28"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/HAMMER.prefab",
+      "bytes": 2502,
+      "sha256": "b70eacd0acad732c64717e27aafd9dd81de6dd62662d05241522165f8f776250"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/HAMMER.prefab.meta",
+      "bytes": 154,
+      "sha256": "4bb8f1ca5b517c83511e5c3bb6f90229a2f23cfc1f6b4a5b6668e7dece2080b2"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/PLATE.prefab",
+      "bytes": 2497,
+      "sha256": "fc1143511e210a8c297b3dfe04e0024cbeb8f2945f504757c46bc8cb92d7c216"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/PLATE.prefab.meta",
+      "bytes": 154,
+      "sha256": "bf1e7c0b6c567c0a50aa78489f6080d61b3e9ea130568ed9b66538b27f4b6945"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/SHIELD.prefab",
+      "bytes": 2502,
+      "sha256": "c736a83c0c0af7a68b352be26ff0d519e9dfd01ab0ad384b27e52d7c596acfb3"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/SHIELD.prefab.meta",
+      "bytes": 154,
+      "sha256": "856c3863832646d9a0e78b72679a7a6c62ad844593fe46955b5fa7d157851431"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/SPEAR.prefab",
+      "bytes": 2502,
+      "sha256": "dc6c149a0abcf9db6ece2cb4913f14c3aba1a2046e31b5707141b476b8ee16a4"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Equipment/Weapons/SPEAR.prefab.meta",
+      "bytes": 154,
+      "sha256": "558b49cfcaa285babbb6eafeef3b355030e6defb97a861d32b2b094fd2a5bc47"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture.meta",
+      "bytes": 172,
+      "sha256": "09878b48025313f366743b60817c3bb1c3682475a47e6b1003159d4c41b83ab0"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture/BED.prefab",
+      "bytes": 2495,
+      "sha256": "47efcdcd9b92dfaca32eceeea52e7282c60f3567bf848bd00c81a47648cb3421"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture/BED.prefab.meta",
+      "bytes": 154,
+      "sha256": "0cedc76b3f694f8a33c926d0e99dbabb3723a8511ba197598b542700b26b9820"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture/SOFA.prefab",
+      "bytes": 2496,
+      "sha256": "d88250dfa2b067121e563ba4e219d7456b8891f42f859e719c1adc34d1819504"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture/SOFA.prefab.meta",
+      "bytes": 154,
+      "sha256": "4ea17d714e2f085b1c613278df1a8d1625b30c8966f404098cb53f5b65779207"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture/STOOL.prefab",
+      "bytes": 2508,
+      "sha256": "42c2b8c1acd0c10c216e1804263c9303801fac68013799dcbee0b6b718a2ac8e"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture/STOOL.prefab.meta",
+      "bytes": 154,
+      "sha256": "73d94a7e570c0056df0b0a4b8cff88c29617a9a038c09829b16b478dbd725122"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture/TABLE.prefab",
+      "bytes": 2496,
+      "sha256": "5c5dce0e5922e8759c9756a2c07eb0a2472ad346f8c9ca9a171c4005969d137f"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Furniture/TABLE.prefab.meta",
+      "bytes": 154,
+      "sha256": "5d1074e1229a62945f288a8874a8f38be82db6dc985ad91fd5ad7e2ae9238951"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop.meta",
+      "bytes": 172,
+      "sha256": "17262c687cbf470b8736986b8a6f7e1b061752b0d4b79237e2282797fab7b915"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopOfferCard.prefab",
+      "bytes": 48471,
+      "sha256": "6cd7bedab8e72f7408a3a0fa6993247b5465ecdee4c6807797d9428e97c11689"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopOfferCard.prefab.meta",
+      "bytes": 154,
+      "sha256": "286d5fd2d975a19d3e70da5092c40dc9a7a38b5f3ca876eb521719f991e5d932"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab",
+      "bytes": 161849,
+      "sha256": "b077dde29cd570001b28486e4e2084752cc152d19d26c14634cc6fc91cdc1ede"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab.meta",
+      "bytes": 154,
+      "sha256": "0a2875d600bce48936dc9e0d16bd36c524fb380abf52db2f5ee9482731ea4651"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyShopLayout.asset",
+      "bytes": 621,
+      "sha256": "87dea00cf37f0a1a0520b92f3ed6b2afe1fe39da38e0758b3cec2c0c53574111"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyShopLayout.asset.meta",
+      "bytes": 189,
+      "sha256": "4b16d24e42839263766d92de52076f34017fc410e4897de002b3495cb81ecd2e"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyTypography.asset",
+      "bytes": 1096,
+      "sha256": "5b4afbfbe5eca92baaec04e79f44d1aa2ab46a45f8ec2553ec9ddc7cdaead8ed"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyTypography.asset.meta",
+      "bytes": 189,
+      "sha256": "c1b1864d7c73db4cf30adcd96879f725dc9300327b28ed714e8d6e4c1df6ced7"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring.meta",
+      "bytes": 172,
+      "sha256": "b2ab4c800a905f7072dfc2bd2daca29b99cc46e0f338ea2a34055990ebf7f4a1"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/CharacterStudio.unity",
+      "bytes": 26064,
+      "sha256": "164d7f2c69ec932425fd88bc1e24f4f30972f313586653609e218c77cedc97b1"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/CharacterStudio.unity.meta",
+      "bytes": 155,
+      "sha256": "f8b9aec3f95ef8a0d8627818c76aca38a8dc4c165f59a41fca2cfc4674a7876b"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/EquipmentStudio.unity",
+      "bytes": 74598,
+      "sha256": "f950dfb79c1d09a99a00bb940bf01e2aa5f9d84ffe2ecc71ddf2da8c2a587bc5"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/EquipmentStudio.unity.meta",
+      "bytes": 155,
+      "sha256": "b8f17a0eaedb8700696b297703f4b6d29555a65087973270d8acacfe88bdbc8c"
+    },
+    {
+      "path": "Assets/_Project/UI/Fonts.meta",
+      "bytes": 172,
+      "sha256": "7d7de89907babcbbce33bafd15bce442bb4bc48db1a93b1ecf2862c28c900e05"
+    },
+    {
+      "path": "Assets/_Project/UI/Fonts/LilitaOne-Regular SDF.asset",
+      "bytes": 8439061,
+      "sha256": "e5e8c921bb5b1473952b90bfbac8e0067427bf57e5c915cd5e4e69a65733f9af"
+    },
+    {
+      "path": "Assets/_Project/UI/Fonts/LilitaOne-Regular SDF.asset.meta",
+      "bytes": 189,
+      "sha256": "c87d831d79adacba1d9f928f1a158be37a60a43215dcab9651f1d2a33d00b2a6"
+    },
+    {
+      "path": "Assets/_Project/UI/Fonts/Nunito-Black SDF.asset",
+      "bytes": 8438651,
+      "sha256": "70c6cc98aaa8ec0b200fc8f76a3fa3e7663615fd250b42d1ea13cb323ed71a98"
+    },
+    {
+      "path": "Assets/_Project/UI/Fonts/Nunito-Black SDF.asset.meta",
+      "bytes": 189,
+      "sha256": "1005c7e1f6ef4993f678374d3ef64bb78fc8d563fd40b0643f170678fcd289bd"
+    },
+    {
+      "path": "Assets/_Project/UI/Fonts/Nunito-ExtraBold SDF.asset",
+      "bytes": 8438753,
+      "sha256": "7dc1942d0780961541f1b52fead711e844701ba90c097b291f0dbcd9e5698db3"
+    },
+    {
+      "path": "Assets/_Project/UI/Fonts/Nunito-ExtraBold SDF.asset.meta",
+      "bytes": 189,
+      "sha256": "0a66b03148e9372f1893c5360a578f75a11d6556d784dc815beb2bde3814d481"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials.meta",
+      "bytes": 172,
+      "sha256": "2095221f876185f962aeddfa5eda9f71fe164dab89b1659225da2fa979c3fb5b"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Black Foreground.mat",
+      "bytes": 1904,
+      "sha256": "b35bd1507f03a8033dd664d4ee8bb7a259685d9fd1ea6c5e6eadd1cc65d74e27"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Black Foreground.mat.meta",
+      "bytes": 188,
+      "sha256": "95d12758335618e97576da9b1b8878db49a216b7cdb2460e2c79d0953cb68969"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Body Foreground.mat",
+      "bytes": 1903,
+      "sha256": "ff34d7244d5ea4b85f33346b90b5dbf4a77edb4e2210bd47691c6584f5a27c23"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Body Foreground.mat.meta",
+      "bytes": 188,
+      "sha256": "fb233972d347150a02134aa5f1673029672dda8f17624427fccee2e1a1a3de52"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Display Drop.mat",
+      "bytes": 1963,
+      "sha256": "9da8e61aa1a1be26e23fd2219e2230f9ad544ae4bd7d639f450d556dbbdaa9f7"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Display Drop.mat.meta",
+      "bytes": 188,
+      "sha256": "0a043259709bb5c05cd09d82ddccdf35b3500238d32e5a23314464e7f9a2e3d1"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Display Foreground.mat",
+      "bytes": 1904,
+      "sha256": "bbcfae40852c74f8f523676bcb61d393b8c0788bc09edeff566189e8007ec901"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Display Foreground.mat.meta",
+      "bytes": 188,
+      "sha256": "8b9b1dad5373d1c3c9147b9d28dc9dd2b938d11696894c9ee46fa101734eba6e"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Display Stroke.mat",
+      "bytes": 1917,
+      "sha256": "52c9cfba83a9f7ace649441dc410467d9b5aaa661cbe2fb6e9d43a9fe79f84c1"
+    },
+    {
+      "path": "Assets/_Project/UI/Materials/Lobby Display Stroke.mat.meta",
+      "bytes": 188,
+      "sha256": "8a8ce26e127eedf1b33737565df8e0e203f6f1fd3d3a7e959e7dfc1a33a7e755"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop.meta",
+      "bytes": 172,
+      "sha256": "7b7d33df800b3882d78a65872aea815a7d59aca38e320959dfcf69ce853baa4c"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics.meta",
+      "bytes": 172,
+      "sha256": "a2e9d59197f7a5e3feb0f5feb8ed6da9f6c4e770ba3678a77fdb1e48682e0ac3"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/0e607b57bcd8dcfaa22e11ed92938e6cf9e0bf32dbd342da5274409dbe5e56bf.asset",
+      "bytes": 137074,
+      "sha256": "a5d5e93b83c6e0915cddf99e7524da66eb257ffad4629c198ae16a76eb16961b"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/0e607b57bcd8dcfaa22e11ed92938e6cf9e0bf32dbd342da5274409dbe5e56bf.asset.meta",
+      "bytes": 188,
+      "sha256": "d0f3c7798570ad55301e9cb68250f7993a971ae5d01b5375730e342793351acd"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/1b79ce92b538552a402fd9b2b2cb707ac312af7fd5854b1f27f7fc2ca39fd570.asset",
+      "bytes": 18797,
+      "sha256": "33401beb6528aa39b29ae7d6f7b1bce76c4509e943e95f298b2096f16f1a4fce"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/1b79ce92b538552a402fd9b2b2cb707ac312af7fd5854b1f27f7fc2ca39fd570.asset.meta",
+      "bytes": 188,
+      "sha256": "528665e930da9dce2c88e59fcfdc41b9afaf780b585d49dd13fa4727afcc3633"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/2cd04b7ed8359c01e248f171ae629a58db25d7e08984c87c73888ecaa764dc59.asset",
+      "bytes": 17549,
+      "sha256": "ae7a013e2d537b0c140d1c6b44d6a612c81a736adec2ec0721c3911958edeb15"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/2cd04b7ed8359c01e248f171ae629a58db25d7e08984c87c73888ecaa764dc59.asset.meta",
+      "bytes": 188,
+      "sha256": "893751a1cdaaa04c63c07349b550abf45c4533389e1807f29af3454ef3816552"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/386472f627b5a0f5cb720c0853c9094763beaf532c4b3fa31b42eb9eef73d67d.asset",
+      "bytes": 15244,
+      "sha256": "e6256d9ea59a3ae5a9a5c890936afe50889583670c9443e56f31449cc070e5fa"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/386472f627b5a0f5cb720c0853c9094763beaf532c4b3fa31b42eb9eef73d67d.asset.meta",
+      "bytes": 188,
+      "sha256": "5a97964a55b96ef9b052849bf7fd712c23d013263934c0eff21b0470542d3196"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/5737d65e8cb2d0c2eaaea975f5b3e4541df2020629b6b350acc7899227560680.asset",
+      "bytes": 22924,
+      "sha256": "20c4dfd8af91a7837181aa3e4e0cad247577b684911dd3bf6def2e0640bd82f2"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/5737d65e8cb2d0c2eaaea975f5b3e4541df2020629b6b350acc7899227560680.asset.meta",
+      "bytes": 188,
+      "sha256": "2e6eec515509d5671ec2910da28451f9687d84e9e1ce5ea823308b6b76ffedaf"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/6b3450bd05bfe1825e36655e7fcfcd8d99e27db7075f430ca55c0de9a4481f54.asset",
+      "bytes": 137074,
+      "sha256": "2f30dfbf0823565d94309f5021a03f87790a4e3dadff88e6b888d8a48c4a80d1"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/6b3450bd05bfe1825e36655e7fcfcd8d99e27db7075f430ca55c0de9a4481f54.asset.meta",
+      "bytes": 188,
+      "sha256": "664f8bf29afa324664a048285a8ccaaedcc3e07d0ff3123231469b187a544fe6"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/72dd6960d1cfd2bd3fb1ab08bd5341e8b7c78b2a62c5acb975e9ecedf963206a.asset",
+      "bytes": 38766,
+      "sha256": "9f335509de7b68c006d4049ac24b56a101b2c16811e0f9eb0eb7157d1a61e7f6"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/72dd6960d1cfd2bd3fb1ab08bd5341e8b7c78b2a62c5acb975e9ecedf963206a.asset.meta",
+      "bytes": 188,
+      "sha256": "1f5ca17df16134eb9bd1eaba8b4baa16ce6dc8e9eabfbfc618046e303f4529be"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/83c42dd26affa31aeffbe36ad8b70b82d353f2649b523e0e3cba8b1bc5b1eb23.asset",
+      "bytes": 10603,
+      "sha256": "7e72418eefc080d3836eb671f1263436c25c4b056fb5978e1e8425cb0af65337"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/83c42dd26affa31aeffbe36ad8b70b82d353f2649b523e0e3cba8b1bc5b1eb23.asset.meta",
+      "bytes": 188,
+      "sha256": "fe2622d80c25c554cc1922351284b33563b350717c9eaef7341ee11355556d5c"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/92743cf689795103c885f541c6f2d16c958437de106899531dbad1b68259c7a2.asset",
+      "bytes": 18797,
+      "sha256": "70c67646b47044600e14483fe863cde9f0f113e8bfdeb88f41b9d07c919d9209"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/92743cf689795103c885f541c6f2d16c958437de106899531dbad1b68259c7a2.asset.meta",
+      "bytes": 188,
+      "sha256": "ad98715b11f9d2ddad1be3ae068d83ecdd038c0962876b4003e692def9dcca64"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/947bf4de8e5f345276edad4da389b45b8d145b9ffce80772e8b3bc7215345127.asset",
+      "bytes": 6786,
+      "sha256": "38d572532508b6d77748aa0ed941e97be903646f0a79925d17bd895e46362f42"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/947bf4de8e5f345276edad4da389b45b8d145b9ffce80772e8b3bc7215345127.asset.meta",
+      "bytes": 188,
+      "sha256": "9a1c80891a59874e7ce8245304f88d6b64014d4c3a0605a70ddac5cae1a0e370"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/e2e94f4f92552cdf5d441d89f3082e376b6cbf4a5188366c40ff420d44b866a4.asset",
+      "bytes": 14188,
+      "sha256": "4be85a075dc49c97fb2d09ae8d94047337ddf015ba67f8d95549650e9cb90617"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/e2e94f4f92552cdf5d441d89f3082e376b6cbf4a5188366c40ff420d44b866a4.asset.meta",
+      "bytes": 188,
+      "sha256": "55d67cd403075d2204cd4f23d19cdb6367432560e6a7bb137cc8a530679394e9"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/e440a2458305a6c6862e4c9cb78ecd9df6f2572a738ec58df9cfda6cfe6e1b1a.asset",
+      "bytes": 137075,
+      "sha256": "ffe04f7d16b533ad9b34c64c7c7d1ebe4016643f1a929f514ab161b046e73ffe"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/e440a2458305a6c6862e4c9cb78ecd9df6f2572a738ec58df9cfda6cfe6e1b1a.asset.meta",
+      "bytes": 188,
+      "sha256": "f9ebc5ed372837902fd5f5c35d67f4cbc512b4a44a633d0269f0c673d126e488"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/e5524edd1d17fc5b102892853e9e0ef68742103c9514a5a874a9c061bc921a52.asset",
+      "bytes": 38767,
+      "sha256": "16201d6863462c148eb51f440ad7602cd6795fc2f316a18c46b7e90dffd67948"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/e5524edd1d17fc5b102892853e9e0ef68742103c9514a5a874a9c061bc921a52.asset.meta",
+      "bytes": 188,
+      "sha256": "716c7651b42f09b6dfab202608081a0ffe65fa517c7b74f0358a6a1900f55a94"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/f5b5d53d2e87f3064aa86f3aa13e635529024e86550c5b5f92a1848517e02a56.asset",
+      "bytes": 12269,
+      "sha256": "41dc30a718b217a85650ac436867a0216a3c5688f6093a9ee2bde4dbc4eb04fe"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/f5b5d53d2e87f3064aa86f3aa13e635529024e86550c5b5f92a1848517e02a56.asset.meta",
+      "bytes": 188,
+      "sha256": "2e0e48d4485a2475a23ae1eee8973b5dcf2deff2f921d320ec5843255386cd7e"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/fb36a5b4ee49cd3501c2037852aea2e3539226aa4ec687c2566aa91c015fb0c9.asset",
+      "bytes": 25998,
+      "sha256": "51351bf9e73b5790ceca61d499de230baf0591c06d529a31a35831e792da9954"
+    },
+    {
+      "path": "Assets/_Project/UI/Shop/Graphics/fb36a5b4ee49cd3501c2037852aea2e3539226aa4ec687c2566aa91c015fb0c9.asset.meta",
+      "bytes": 188,
+      "sha256": "dad96e4de992f465a35159d54347164b0e8fe6a30331b1b6aa93a5471ba00b16"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyCamera.asset",
+      "bytes": 515,
+      "sha256": "8cc9057536e9f97a41b95a992d612f6d131c2281c9820c778c98a1c14e8248ff"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyCamera.asset.meta",
+      "bytes": 189,
+      "sha256": "0b6ae3775ab0419ee08a991c060179e173c804eebcae8d5d47220ab1e55a425f"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyLoadoutLayout.asset",
+      "bytes": 627,
+      "sha256": "7efa9acfec671c3a376af072be6f756d9c1f8d5d7d94b108d12fc6fb56bbc121"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyLoadoutLayout.asset.meta",
+      "bytes": 189,
+      "sha256": "f72ff4599e49275e5078faaa819681cf3520ca6f05ae65f4c78703bb2a3903fa"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout.meta",
+      "bytes": 172,
+      "sha256": "49d47f5f820230411ce7bc4c7be1706124fa47cb7bc147e9ed9f47dd0c3ca32b"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/LoadoutPage.prefab",
+      "bytes": 112725,
+      "sha256": "ea9f071d6767b9940a43da454c87ac70efd2f507c2652a6d4150d222febe3e11"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/LoadoutPage.prefab.meta",
+      "bytes": 154,
+      "sha256": "8eac83c743bfacbaa25c03e6811f1eb4961380b8d6126469a8386ab9aa899891"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab",
+      "bytes": 21967,
+      "sha256": "ed4f89256ac15ca66c2b4adbfdd7f594242e7e624949fdb62ed1db1305b6e69a"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab.meta",
+      "bytes": 154,
+      "sha256": "610046f2b23c887dcc7f4c7276d286fddbab005c77ef9f54e963df497d6e572a"
+    }
+  ]
+}
