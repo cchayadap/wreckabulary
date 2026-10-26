@@ -513,6 +513,7 @@ namespace Wreckabulary.OnlineGameplayTests
                     yield return null;
                     double now = Time.realtimeSinceStartupAsDouble;
                     maximumGap = Math.Max(maximumGap, now - previous); previous = now;
+                    SampleContactObservation(operation, now, maximumGap);
                 }
             }
             finally { ObserveOperation(operation, "end", started, maximumGap); }
@@ -527,6 +528,7 @@ namespace Wreckabulary.OnlineGameplayTests
                     DescribePeer(peer, index) + (phase == "end" ? DescribeReadiness(peer) : ""))));
             }
             catch (Exception error) { Debug.Log("WORDBOUND_GAMEPLAY_OPERATION_UNAVAILABLE: " + error.GetType().Name); }
+            finally { ObserveContactOperation(operation, phase, started, maximumGap); }
         }
         static string DescribePeer(Peer peer, int index)
         {

@@ -643,6 +643,7 @@ namespace Wreckabulary.OnlineGameplayTests
                 minimumInput = Mathf.Min(minimumInput, lastInput); maximumInput = Mathf.Max(maximumInput, lastInput);
                 return new WordboundMovementInput { MoveX = value.x, MoveZ = value.y };
             };
+            if (ffaReturn) BeginContactObservation(host, actor, target, radius, operation);
             try
             {
                 yield return Until(() => delivered?.Invoke() == true || HorizontalDistance(PlayerPose(host, actor).Position, target()) <= radius,
