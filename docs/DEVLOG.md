@@ -615,3 +615,11 @@ Verified all 15 source, PNG and metadata files against the private portrait-draf
 Corrected the two R3 log references and hashes in BuildNotes/experience-refresh/native-experience-blocker-20261026.json after independent review. The original logs are unchanged. BuildNotes/experience-refresh/ilpp26-diagnosis.md records the inspected compiler startup failure, uncertainty and retry criteria. Current machine sampling still reports 100% CPU; no native job or new Windows build is running.
 
 Packing Club build-b already has eight verified exports and sixteen renders, recorded in packing-club-build-b-20261026.json. Updated progress.md to reflect this result and the implemented epilogue source without claiming native or owner acceptance. Online cleanup commit 96a334792759bb82869bc25cca23f94e0f36b7e3 is frozen in its isolated worktree and under integration review; its 15 fake tests are not yet run.
+
+## 2026-10-26T04:41:55Z Integrate bounded online cleanup and pass source checks
+
+Integrated cleanup as 0c083004 after independent source review and verification of the real return response. All 15 new fake tests compile in the whole-project Editor check; execution is NOT-RUN. R0 042624 passes in 196 seconds. See BuildNotes/experience-refresh/continuation-source-20261026.json for source hashes, scope and limits. The optional Packing Club importer selects verified build-b; native import remains pending. Original runtime assets, the tested 034544 Windows build, unrelated worktree dirt and historical failure evidence are preserved.
+
+## 2026-10-26T04:45:38Z Compiler isolation result preserved
+
+Gate043145 FAIL after605.7 seconds at its unchanged600s deadline; no portrait callback/images. Session-only Burst disable did not prevent ILPP connectivity waits. Restoring four exact owned helper processes from BelowNormal to Normal coincided with later compilation progress but did not complete the diagnostic. No cause or production fix is claimed. All owned Unity/compiler processes are gone; an unrelated reused PID was excluded and untouched. See BuildNotes/experience-refresh/portrait-compiler-isolation-20261026.json for13 verified artifacts, exact phases and limitations. No new Windows build or live capacity retry ran. Updated progress.md and root.progress.md with the remaining queue and current blocker.

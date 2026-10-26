@@ -18,7 +18,7 @@ namespace Wreckabulary.EditorTools
 {
     public static class WordboundPackingClubSetup
     {
-        public const string SourceRoot = "ArtSource/Collections/PackingClub/V1/build-20261026-a";
+        public const string SourceRoot = "ArtSource/Collections/PackingClub/V1/build-20261026-b";
         public const string ArtRoot = "Assets/_Project/Art/Collections/PackingClub/V1";
         public const string ProfilePath = "Assets/_Project/Data/Wordbound/Authoring/PackingClubPreview.asset";
         const string PaletteName = "PackingClubPalette.png";

@@ -1,0 +1,170 @@
+{
+  "recordedUtc": "2026-10-26T04:43:19.8330571Z",
+  "sourceRevision": "0c0830043f81fa37899b7c23d3abb5cf299cdef0",
+  "trackedSourceDifference": "Optional PackingClubSetup SourceRoot build-a to build-b; hash retained in continuation-source-20261026.json",
+  "gate": {
+    "cmd": "exec Wreckabulary.EditorTools.ShopPreviewDiagnostics.Run --cold",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-26T04:31:45Z",
+    "secs": 605.7,
+    "route": "cold",
+    "errors": [
+      {
+        "message": "Unity timed out after 600 s; the process tree was killed"
+      }
+    ],
+    "failures": [],
+    "log": "Logs/gate_exec_Run_20261026T043146Z.log",
+    "evidence": [],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": null
+  },
+  "configuration": [
+    "--burst-disable-compilation",
+    "-timestamps"
+  ],
+  "phaseA": "Burst disabled using supported session-only arguments; ILPP connection still waited.",
+  "phaseB": [
+    {
+      "utc": "2026-10-26T04:38:18.2257644Z",
+      "phase": "B: Normal priority for three verified owned helpers",
+      "meaning": "Additional scheduling variable; cannot attribute later progress solely to Burst isolation",
+      "timeoutSeconds": 600,
+      "changes": [
+        {
+          "cpuBefore": 8.125,
+          "createdUtc": "2026-10-26T04:31:56.681968Z",
+          "path": "C:\\Users\\mrkl6\\wb64\\6000.6.4f1\\Editor\\Data\\DotNetSdk\\dotnet.exe",
+          "after": "Normal",
+          "pid": 42908,
+          "before": "BelowNormal"
+        },
+        {
+          "cpuBefore": 1.609375,
+          "createdUtc": "2026-10-26T04:31:57.212166Z",
+          "path": "C:\\Users\\mrkl6\\wb64\\6000.6.4f1\\Editor\\Data\\DotNetSdk\\dotnet.exe",
+          "after": "Normal",
+          "pid": 42484,
+          "before": "BelowNormal"
+        },
+        {
+          "cpuBefore": 1.609375,
+          "createdUtc": "2026-10-26T04:32:46.60752Z",
+          "path": "C:\\Users\\mrkl6\\wb64\\6000.6.4f1\\Editor\\Data\\Tools\\Unity.DataStore.exe",
+          "after": "Normal",
+          "pid": 36724,
+          "before": "BelowNormal"
+        }
+      ]
+    },
+    {
+      "utc": "2026-10-26T04:39:47.1641326Z",
+      "phase": "B continued: directly verified ILPP runner",
+      "pid": 54628,
+      "parent": 49364,
+      "createdUtc": "2026-10-26T04:37:19.515059Z",
+      "path": "C:\\Users\\mrkl6\\wb64\\6000.6.4f1\\Editor\\Data\\Tools\\BuildPipeline\\Compilation\\Unity.ILPP.Runner\\Unity.ILPP.Runner.exe",
+      "before": "BelowNormal",
+      "cpuBefore": 2.71875,
+      "after": "Normal",
+      "timeoutSeconds": 600
+    }
+  ],
+  "observations": [
+    "Script compilation began at04:39:52Z after ILPP was restored to Normal at04:39:47Z. This timing does not establish causation.",
+    "The600-second deadline remained unchanged; the probe callback and images did not run.",
+    "Three directly verified helper processes and one directly verified ILPP runner were changed from BelowNormal to Normal. No persistent priority or installed setting was changed."
+  ],
+  "probeOutputExists": false,
+  "ownedProcessesRemaining": 0,
+  "artifacts": [
+    {
+      "path": "Logs/gate_exec_Run_20261026T043146Z.log",
+      "bytes": 32799,
+      "sha256": "d72ba57e34bef2ab9b0dcb3a25b4692a2019dc20ff32386af724de8cda2cd7b0"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-job.json",
+      "bytes": 207,
+      "sha256": "e951655a0c79659b32b60d3fbef44d24e8b9404f7c71178ef9f8d5195ef1096a"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-start.json",
+      "bytes": 458,
+      "sha256": "86be0631fa395f7c3bd30d7edc8d11b2f35e8f6af08a97523211447418d2d658"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-status.json",
+      "bytes": 641,
+      "sha256": "59eb67d45becaa0b063e798b606508007c876c993fa463c29ae90e6d65cd8215"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-stdout.log",
+      "bytes": 405,
+      "sha256": "333d8364caf601ea859a4f4791cda0d94e7f85c47d1cb29c5066a9cfbe1bad60"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-stderr.log",
+      "bytes": 125,
+      "sha256": "94ab112341ce7bab7c40ddba20ae2dce542ebf94708aa574511795bdfc607eb8"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-processes-1.json",
+      "bytes": 3575,
+      "sha256": "67f4a4cdd65f36527449a9f4366130538a617464a05fa4f00e43ba96df1251e7"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-processes-2.json",
+      "bytes": 2671,
+      "sha256": "4938f89d3492047438f431f3ca08b53784c4a8c740bdac924733a39f5616f9e8"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-processes-3.json",
+      "bytes": 1653,
+      "sha256": "e14c63ba5161c119eae35426c4d9f3c80b7c02f76f7cda43b3336ae823056c85"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-priority-phase.json",
+      "bytes": 1068,
+      "sha256": "d977d32d271acfd954416374d50531912f7b055b864ba6e0ff01438163fd9198"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-priority-ilpp.json",
+      "bytes": 432,
+      "sha256": "eeee982e9b640ec1519e0177f4c21bfc531186614013c98667e28bb1d8af8e10"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-after.json",
+      "bytes": 416,
+      "sha256": "3eaa2218b9d6a0a2362d5fffb70443b3fc05d29d7d9926dc95332114b4652f9a"
+    },
+    {
+      "path": ".harness/delivery/portrait-burst-isolation-20261026-after-verified.json",
+      "bytes": 385,
+      "sha256": "370a145923c4267c0eca0f88646487151b95d6f3026b645fe9e4753a72773d6b"
+    }
+  ],
+  "limits": [
+    "FAIL diagnostic timeout, not successful native or normal Burst-enabled validation.",
+    "Root cause remains unproven; no new Windows build, fake-test execution or public-capacity retry.",
+    "Existing review build20261024T034544Z preserved."
+  ],
+  "next": "Wait for reduced host contention or a concrete compiler infrastructure correction before another native launch; preserve logs and source snapshot.",
+  "documentation": [
+    "https://docs.unity.com/en-us/engine/6000.6/manual/programming-environment/script-compilation/burst/getting-started",
+    "https://docs.unity3d.com/6000.6/Documentation/Manual/EditorCommandLineArguments.html"
+  ],
+  "cleanupVerification": {
+    "utc": "2026-10-26T04:44:20.1668389Z",
+    "remaining": [],
+    "remainingOwnedCount": 0,
+    "excluded": "The earlier PID-only candidate11848 is now node.exe with parent54552, not this run UnityAutoQuitter.exe. It is unrelated PID reuse and was not altered.",
+    "method": "Verified installed-editor executable paths, run lifetime and known ancestry; no process modifications."
+  },
+  "receiptCorrection": "Completed all supplemental artifact hashes and excluded an unrelated reused PID before committing the draft receipt. Original raw artifacts remain preserved."
+}
