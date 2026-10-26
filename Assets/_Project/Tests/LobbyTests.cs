@@ -1032,6 +1032,7 @@ namespace Wreckabulary.Tests
             yield return null;
             Assert.AreEqual("sky", menu.Outfit.ColourOf("Top"));
 
+            Click("Shop category gear");
             Click("Buy skin:Arcade");
             yield return null;
             Assert.AreEqual(380, menu.Career.Coins, "Arcade costs 400");
@@ -1115,7 +1116,7 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator TheShopScrollsToTheOfferYouCameFor()
+        public IEnumerator TheShopOpensTheCategoryAndShowsTheOfferYouCameFor()
         {
             yield return OpenLobby();
             var menu = LobbyMenu.Instance;
@@ -1123,9 +1124,9 @@ namespace Wreckabulary.Tests
             yield return null;
             yield return null;
             var buy = Find("Buy colour:charcoal");
+            Assert.AreEqual(ShopPage.Colours, menu.Page<ShopPage>().Category);
             Assert.AreSame(buy.gameObject, Selected, "a keyboard or controller lands on what buys it");
             var list = buy.GetComponentInParent<ScrollRect>();
-            Assert.Greater(list.content.anchoredPosition.y, 0f, "the last shelf is below the fold, so the list scrolls down to it");
             var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(list.viewport, buy.transform);
             Assert.GreaterOrEqual(bounds.min.y, list.viewport.rect.yMin - .5f, "and shows it whole");
             Assert.LessOrEqual(bounds.max.y, list.viewport.rect.yMax + .5f);

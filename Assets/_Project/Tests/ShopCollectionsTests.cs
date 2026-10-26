@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.TestTools;
@@ -50,6 +51,58 @@ namespace Wreckabulary.Tests
             Assert.IsNotNull(button, name);
             Assert.IsTrue(button.interactable, name);
             button.onClick.Invoke();
+        }
+
+        [UnityTest]
+        public IEnumerator CategoriesIsolateShelvesAndRestoreUncommittedPreviews()
+        {
+            var menu = LobbyMenu.Instance;
+            var shop = menu.Page<ShopPage>();
+            string savedOutfit = menu.Outfit.Serialize();
+            Assert.AreEqual(ShopPage.Looks, shop.Category);
+            Assert.IsTrue(shop.Root.GetComponentsInChildren<Button>()
+                .Where(button => button.name.StartsWith("Offer "))
+                .All(button => button.name.StartsWith("Offer look:")));
+            Click("Offer look:candy");
+            Assert.AreEqual(savedOutfit, menu.Outfit.Serialize());
+            Assert.AreEqual(1000, menu.Career.Coins);
+
+            Click("Shop category gear");
+            Assert.AreEqual(ShopPage.Gear, shop.Category);
+            Assert.IsTrue(shop.Root.GetComponentsInChildren<Button>()
+                .Where(button => button.name.StartsWith("Offer "))
+                .All(button => button.name.StartsWith("Offer skin:")));
+            Click("Offer skin:Candy");
+            Assert.IsNotNull(menu.Stage.ItemPreview);
+            Click("Shop category colours");
+            Assert.IsNull(menu.Stage.ItemPreview, "Leaving the shelf releases the uncommitted miniature.");
+            Assert.AreEqual(savedOutfit, menu.Outfit.Serialize());
+            Assert.AreEqual(1000, menu.Career.Coins);
+            Assert.IsFalse(menu.Career.Owns("skin", "Candy"));
+            Assert.AreEqual("Shop category colours", EventSystem.current.currentSelectedGameObject.name);
+            Assert.IsFalse(shop.ShowCategory("missing"));
+            Assert.AreEqual(ShopPage.Colours, shop.Category);
+            menu.Open(LobbyMenu.Home);
+            menu.Open(LobbyMenu.Shop);
+            yield return null;
+            Assert.AreEqual(ShopPage.Colours, shop.Category, "Returning keeps the browsing category.");
+            Assert.AreEqual(savedOutfit, menu.Outfit.Serialize());
+        }
+
+        [UnityTest]
+        public IEnumerator GearSpotlightKeepsTheChosenRecipeAndTargetsThePurchase()
+        {
+            var menu = LobbyMenu.Instance;
+            var shop = menu.Page<ShopPage>();
+            Assert.IsTrue(shop.SelectRecipe("SHIELD"));
+            Click("Shop category looks");
+            menu.OpenShop("skin:Arcade");
+            yield return null;
+            Assert.AreEqual(ShopPage.Gear, shop.Category);
+            Assert.AreEqual("SHIELD", shop.SelectedRecipe);
+            Assert.AreEqual("Buy skin:Arcade", EventSystem.current.currentSelectedGameObject.name);
+            Assert.AreEqual(1000, menu.Career.Coins);
+            Assert.IsFalse(menu.Career.Owns("skin", "Arcade"));
         }
 
         static IEnumerator WaitForParty(LobbyMenu menu, System.Func<bool> ready, string action, System.Func<string> diagnostics = null)
@@ -159,6 +212,7 @@ namespace Wreckabulary.Tests
         {
             var menu = LobbyMenu.Instance;
             string outfit = menu.Outfit.Serialize();
+            Click("Shop category rooms");
             Click("Offer theme:candy");
             Assert.AreEqual("candy", LobbyThemes.Current.Id);
             Assert.IsFalse(PlayerPrefs.HasKey(LobbyThemes.PreferenceKey));
@@ -214,6 +268,7 @@ namespace Wreckabulary.Tests
         public IEnumerator LockerShowsMixedRecipesUntilApplyToAllIsExplicitlyChosen()
         {
             var menu = LobbyMenu.Instance;
+            Click("Shop category gear");
             Click("Buy skin:Candy");
             yield return null;
             var mixed = menu.Outfit.Clone();
@@ -242,8 +297,10 @@ namespace Wreckabulary.Tests
         public IEnumerator CollectionCheckoutCreditsOwnedPartsAndAccessoriesStayFree()
         {
             var menu = LobbyMenu.Instance;
+            Click("Shop category colours");
             Click("Buy colour:bubblegum");
             yield return null;
+            Click("Shop category looks");
             Click("Buy look:candy");
             yield return null;
             Assert.AreEqual(600, menu.Career.Coins, "150 owned colour + 250 remaining finish");
@@ -252,6 +309,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("bubblegum", menu.Outfit.ColourOf("Top"));
             Assert.AreEqual("Candy", menu.Outfit.SkinFor("BAT"));
             Assert.IsTrue(GameConfig.Current.Wardrobe.Fits(menu.Outfit));
+            Click("Shop category extras");
             Click("Accessory toggle Hood");
             yield return null;
             Assert.AreEqual("Hood", menu.Outfit.PieceIn("Headwear"));

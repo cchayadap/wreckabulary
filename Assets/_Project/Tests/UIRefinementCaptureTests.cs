@@ -113,9 +113,11 @@ namespace Wreckabulary.Tests
             LobbyThemes.Preview("sunroom");
             menu.Open(LobbyMenu.Shop);
             var shop = menu.Page<ShopPage>();
+            Assert.IsTrue(shop.ShowCategory(ShopPage.Rooms));
             yield return Settle();
             yield return Reveal(menu.transform, "Offer theme:candy");
             yield return Capture("shop-themes");
+            Assert.IsTrue(shop.ShowCategory(ShopPage.Looks));
             shop.Preview(Career.Shop.First(offer => offer.Id == "look:candy"));
             yield return Settle();
             yield return Reveal(menu.transform, "Offer look:candy");
