@@ -1,0 +1,732 @@
+{
+  "schemaVersion": 1,
+  "scope": "read-only exact abandoned Freestyle pool inspection",
+  "sourceCommit": "c23590b7674dc244f7670ef7d115d7f78bfb8b44",
+  "pool": {
+    "observedUtc": "2026-10-26T02:17:57.655Z",
+    "success": true,
+    "status": 200,
+    "result": {
+      "results": [
+        {
+          "columns": [
+            "matchCount",
+            "ticketCount",
+            "assignmentCount",
+            "tombstoneCount"
+          ],
+          "rows": [
+            [
+              1,
+              0,
+              8,
+              0
+            ]
+          ],
+          "meta": {
+            "rows_read": 10,
+            "rows_written": 0
+          }
+        },
+        {
+          "columns": [
+            "phase",
+            "createdAt",
+            "seatCount",
+            "returnedCount",
+            "maxReconnectDeadline",
+            "maxConnectionLeaseExpiry"
+          ],
+          "rows": [
+            [
+              "CLOSED",
+              1792979629817,
+              8,
+              0,
+              1792979854706,
+              1792979749706
+            ]
+          ],
+          "meta": {
+            "rows_read": 26,
+            "rows_written": 0
+          }
+        }
+      ]
+    },
+    "errors": []
+  },
+  "members": {
+    "observedUtc": "2026-10-26T02:19:14.154Z",
+    "targetPool": "asia:wordbound-v3:pub-da6f14f6b78f:Freestyle:Solo",
+    "rosterCount": 8,
+    "rosterQueryMeta": {
+      "rows_read": 10,
+      "rows_written": 0
+    },
+    "partiesAndIdentities": [
+      {
+        "seatIndex": 0,
+        "party": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "memberCount",
+                  "originalMemberCount",
+                  "originalLeader",
+                  "activeOriginalPool",
+                  "pendingOperation",
+                  "receiptCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    null,
+                    2,
+                    3006
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 4,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        },
+        "identity": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "originalPartyMembership",
+                  "membershipStatus",
+                  "refreshExpires",
+                  "photonTicketCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    "ACTIVE",
+                    1795571621173,
+                    0,
+                    456
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 1,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        }
+      },
+      {
+        "seatIndex": 1,
+        "party": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "memberCount",
+                  "originalMemberCount",
+                  "originalLeader",
+                  "activeOriginalPool",
+                  "pendingOperation",
+                  "receiptCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    null,
+                    2,
+                    3006
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 4,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        },
+        "identity": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "originalPartyMembership",
+                  "membershipStatus",
+                  "refreshExpires",
+                  "photonTicketCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    "ACTIVE",
+                    1795571622097,
+                    0,
+                    456
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 1,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        }
+      },
+      {
+        "seatIndex": 2,
+        "party": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "memberCount",
+                  "originalMemberCount",
+                  "originalLeader",
+                  "activeOriginalPool",
+                  "pendingOperation",
+                  "receiptCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    null,
+                    2,
+                    3006
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 4,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        },
+        "identity": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "originalPartyMembership",
+                  "membershipStatus",
+                  "refreshExpires",
+                  "photonTicketCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    "ACTIVE",
+                    1795571623225,
+                    0,
+                    456
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 1,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        }
+      },
+      {
+        "seatIndex": 3,
+        "party": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "memberCount",
+                  "originalMemberCount",
+                  "originalLeader",
+                  "activeOriginalPool",
+                  "pendingOperation",
+                  "receiptCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    null,
+                    2,
+                    3006
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 4,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        },
+        "identity": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "originalPartyMembership",
+                  "membershipStatus",
+                  "refreshExpires",
+                  "photonTicketCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    "ACTIVE",
+                    1795571624125,
+                    0,
+                    456
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 1,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        }
+      },
+      {
+        "seatIndex": 4,
+        "party": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "memberCount",
+                  "originalMemberCount",
+                  "originalLeader",
+                  "activeOriginalPool",
+                  "pendingOperation",
+                  "receiptCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    null,
+                    2,
+                    3006
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 4,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        },
+        "identity": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "originalPartyMembership",
+                  "membershipStatus",
+                  "refreshExpires",
+                  "photonTicketCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    "ACTIVE",
+                    1795571624903,
+                    0,
+                    456
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 1,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        }
+      },
+      {
+        "seatIndex": 5,
+        "party": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "memberCount",
+                  "originalMemberCount",
+                  "originalLeader",
+                  "activeOriginalPool",
+                  "pendingOperation",
+                  "receiptCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    null,
+                    2,
+                    3006
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 4,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        },
+        "identity": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "originalPartyMembership",
+                  "membershipStatus",
+                  "refreshExpires",
+                  "photonTicketCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    "ACTIVE",
+                    1795571626014,
+                    0,
+                    456
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 1,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        }
+      },
+      {
+        "seatIndex": 6,
+        "party": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "memberCount",
+                  "originalMemberCount",
+                  "originalLeader",
+                  "activeOriginalPool",
+                  "pendingOperation",
+                  "receiptCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    null,
+                    2,
+                    3006
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 4,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        },
+        "identity": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "originalPartyMembership",
+                  "membershipStatus",
+                  "refreshExpires",
+                  "photonTicketCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    "ACTIVE",
+                    1795571626891,
+                    0,
+                    456
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 1,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        }
+      },
+      {
+        "seatIndex": 7,
+        "party": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "memberCount",
+                  "originalMemberCount",
+                  "originalLeader",
+                  "activeOriginalPool",
+                  "pendingOperation",
+                  "receiptCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    null,
+                    2,
+                    3006
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 4,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        },
+        "identity": {
+          "success": true,
+          "status": 200,
+          "result": {
+            "results": [
+              {
+                "columns": [
+                  "originalPartyMembership",
+                  "membershipStatus",
+                  "refreshExpires",
+                  "photonTicketCount",
+                  "stateBytes"
+                ],
+                "rows": [
+                  [
+                    1,
+                    "ACTIVE",
+                    1795571627934,
+                    0,
+                    456
+                  ]
+                ],
+                "meta": {
+                  "rows_read": 1,
+                  "rows_written": 0
+                }
+              }
+            ]
+          },
+          "errors": []
+        }
+      }
+    ]
+  },
+  "credentialsIncluded": false,
+  "queriesWereSelectOnly": true,
+  "status": "read-only inspection complete",
+  "account": "d105a82bc26b6913575355352c2d1bb1",
+  "worker": "wreckabulary-wordbound-coordinator",
+  "deployedVersion": "05384420-7e14-40c2-b965-0e8a91681df7",
+  "latestDeploymentUtc": "2026-10-23T13:20:33.680965Z",
+  "namespaces": {
+    "MatchPool": "5e33c688204e44cc816d165d119ddf35",
+    "Party": "3efc2e405746416ab8474c1d2965417c",
+    "Identity": "24340c3b888f4e378f55ab8cf4c94eef"
+  },
+  "operatorEndpoint": "POST /accounts/{account_id}/workers/durable_objects/namespaces/{id}/query/v2; SELECT statements only",
+  "selectorsAndStorage": {
+    "observedUtc": "2026-10-26T02:21:12.767Z",
+    "success": true,
+    "status": 200,
+    "result": {
+      "results": [
+        {
+          "columns": [
+            "matchId",
+            "partyId",
+            "playerId"
+          ],
+          "rows": [
+            [
+              "38b45819-ebfc-4c20-998a-bec784903d68",
+              "901ba348-8baa-4129-a12e-33cd3a3364e9",
+              "dd8529ec-b31f-4011-8c2c-55f8ba25a991"
+            ],
+            [
+              "38b45819-ebfc-4c20-998a-bec784903d68",
+              "439a0ce4-9a64-411f-aa62-ebf05213940e",
+              "643d4738-54d2-4a8c-ad79-ee88059230ff"
+            ],
+            [
+              "38b45819-ebfc-4c20-998a-bec784903d68",
+              "9c6ff590-0be4-4a2b-af65-87a7a43d2fc2",
+              "94fa16fc-c97f-42bb-8e8d-8599385bf942"
+            ],
+            [
+              "38b45819-ebfc-4c20-998a-bec784903d68",
+              "fb957a23-c4d8-495a-ad09-74db4ee5df87",
+              "cbe4a8c5-a84b-4d32-b3bc-71e28403814a"
+            ],
+            [
+              "38b45819-ebfc-4c20-998a-bec784903d68",
+              "99c21d8b-2718-46bc-abcd-858153ad0123",
+              "5bfe54a2-c866-4727-86fd-8a2bc1fd2db4"
+            ],
+            [
+              "38b45819-ebfc-4c20-998a-bec784903d68",
+              "ff4709d0-df8f-4b81-a551-ff2f33ba4dc0",
+              "8b595b01-0e24-4956-b016-e7cb74b20e58"
+            ],
+            [
+              "38b45819-ebfc-4c20-998a-bec784903d68",
+              "32d1d29c-8a76-4206-ac03-a7ed4710bca8",
+              "4daacf15-0da8-4442-b7e1-f32dcc2e7308"
+            ],
+            [
+              "38b45819-ebfc-4c20-998a-bec784903d68",
+              "0f8e9a7f-d145-4f83-aecc-a42af4bbc930",
+              "eab2e7be-48a5-4916-99b1-7bc4d559efe8"
+            ]
+          ],
+          "meta": {
+            "rows_read": 10,
+            "rows_written": 0
+          }
+        },
+        {
+          "columns": [
+            "checkpointStates",
+            "writerExpiresAt",
+            "committedUploads",
+            "pendingUploads",
+            "checkpointChunks",
+            "checkpointEncodedCharacters",
+            "workshopBundles",
+            "workshopChunks"
+          ],
+          "rows": [
+            [
+              1,
+              1792979749695,
+              2,
+              0,
+              6,
+              26314,
+              0,
+              0
+            ]
+          ],
+          "meta": {
+            "rows_read": 18,
+            "rows_written": 0
+          }
+        }
+      ]
+    },
+    "errors": []
+  },
+  "limits": [
+    "Object IDs are correlation selectors only; no credentials, tokens, invites, connection secrets or credential hashes are included.",
+    "Queries verify projected stored state only, not the historical connectivity cause.",
+    "No service writes, deletes, config changes, deployment or authentication recovery were performed.",
+    "Character lengths are serialized data measures, not allocated SQLite database size or a billing estimate."
+  ]
+}

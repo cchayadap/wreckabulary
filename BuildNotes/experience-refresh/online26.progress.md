@@ -1,6 +1,6 @@
 # Public maximum-roster identity visibility repair
 
-STATUS: FOLLOW-UP DIAGNOSIS COMPLETE — FFA capacity PASS; Freestyle gameplay/roster observed but cleanup FAIL; TimeRun preparation FAIL. Historical network cause and Freestyle residual service state remain unproven. Runtime execution remains reserved for root.
+STATUS: OPERATOR INSPECTION COMPLETE — abandoned match is CLOSED with expired leases, but all eight original party memberships remain. Match-data expiry is source-predicted; identities/parties have no automatic deletion path. No service mutation or runtime execution by this lane.
 
 ## Recovery and scope
 
@@ -79,3 +79,52 @@ Service source provides a 120-second reconnect window and closes a started match
 For root's next **fresh verification**, preserve both failed receipts, confirm the pinned read-only key route at job start, then select `Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.PublicTimeRunAllocatesFourAuthenticatedCooperativePlayers` alone through the existing gate and unchanged limits. This is the smallest unaccepted capacity case and begins at the failing guest operation. If it passes with zero cleanup failures, select `PublicFreestyleFillsEightAuthenticatedCooperativePlayers` alone and require its complete cleanup as well. Do not rerun the entire category, extend deadlines, waive cleanup or silently retry mutations based on this diagnosis. A fresh isolated-pool success would establish that new run's acceptance only; it would not resolve the old Freestyle parties.
 
 Potential later diagnostic improvement, not implemented: whitelist `HttpRequestException` (and a bounded inner exception/status category) in the existing safe service-failure logger so a recurrence can distinguish transport failure without printing raw messages or responses. This follow-up changes only this report. `git diff --check` is the source-format verification; no production or test code changed.
+
+## Operator-path follow-up opened 2026-10-26
+
+Root integrated the preceding diagnosis and requested read-only inspection of the exact abandoned Freestyle pool through a supported operator API if available. Scope remains this report plus credential-free receipts. Discovered the installed Cloudflare connector's `search`, `execute`, `docs` and `whoami` capabilities; read its Cloudflare skill. Next: enumerate documented read endpoints and trace exact source expiry/janitor behavior for match, checkpoint, party and guest identity state. Do not infer deployed cleanup from source timers alone.
+
+## Supported operator observation
+
+The connector's current OpenAPI documents `POST /accounts/{account_id}/workers/durable_objects/namespaces/{id}/query/v2`, accepting SQL against an exact Durable Object name. The existing connection to the configured `Apps` account authorized the queries. Namespace metadata confirms the coordinator's SQLite-backed `MatchPool`, `Party` and `Identity` classes. Latest deployment metadata reports version `05384420-7e14-40c2-b965-0e8a91681df7` at 100%, deployed 2026-10-23T13:20:33.680965Z. No provider setting, deployment or credential was changed.
+
+Used only bounded **SELECT** projections against `asia:wordbound-v3:pub-da6f14f6b78f:Freestyle:Solo` and the eight party/identity names selected from that pool's actual roster. Every query reported `rows_written=0`. Queries returned counts, status, timestamps and size measurements; no tokens, secrets, invites, refresh hashes, connection secrets or raw checkpoint data were selected. This is the supported operator SQL surface, not a forged guest or an added administration route. Official [Data Studio documentation](https://developers.cloudflare.com/durable-objects/observability/data-studio/) describes inspecting deployed SQLite objects by name or ID; its normal audit/usage records do not constitute application-state cleanup.
+
+Credential-free receipt: `BuildNotes/experience-refresh/online-cleanup-operator-20261026.json`. It includes the exact original match/party/player IDs as correlation selectors for a later narrowly scoped inspection, so those objects remain identifiable after pool expiry. IDs are not authentication credentials. The receipt also preserves every query's zero-write metadata.
+
+At **02:17:57.655Z** the exact pool contained:
+
+- One `CLOSED` match, created **01:53:49.817Z**; eight seats, **zero returned seats**.
+- Zero queued tickets, eight assignment entries, zero tombstones.
+- Latest connection lease expired **01:55:49.706Z**; latest reconnect deadline was **01:57:34.706Z**. Closure and expired connection eligibility are observed; the precise time/trigger that performed closure was not traced.
+
+By **02:19:14.154Z**, all eight individually inspected original parties still had exactly one member, the matching original leader/member, the original pool as their active attempt, two stored operation receipts and no pending party operation. All eight corresponding identities still had `ACTIVE` membership to the exact original party and zero unused Photon tickets. Serialized party state totaled **24,048 characters**; identity state totaled **3,648 characters**. These are string-length measures, not allocated database sizes or a billing estimate.
+
+At **02:21:12.767Z**, the pool also retained one checkpoint state, two committed uploads and six chunks containing **26,314 encoded characters**; pending uploads and workshop bundles/chunks were zero. The checkpoint writer expired at **01:55:49.695Z**. No checkpoint contents were read.
+
+## Exact source expiry boundary
+
+Inspected `OnlineServices/src` has no diff against tested source `c23590b7674dc244f7670ef7d115d7f78bfb8b44`. Deployment metadata was checked, but deployed source bytes were not downloaded or asserted identical to this checkout. The following timings describe inspected source; only the state above is live observation.
+
+| State | Source behavior | Residual consequence |
+| --- | --- | --- |
+| Connection and checkpoint writer leases | Connection leases and writer leases last 15 seconds; renewals require valid current state. Reconnect eligibility lasts 120 seconds. | The inspected leases/deadlines are expired; a closed match is not eligible for new admission. |
+| Started match | `MatchPool.run` schedules the latest outstanding reconnect deadline. `expire` closes the match once every seat returned or expired. | Live query confirms `CLOSED`, without pretending that return calls succeeded. |
+| Closed/aborted match, assignment and checkpoint data | An alarm is scheduled for match creation plus 24 hours; expiry deletes assignments, match checkpoint tables, match bundle scope and the match entry once strictly older than 24 hours. | This match becomes deletion-eligible just after **2026-10-27T01:53:49.817Z**. Future execution/deletion has not been observed. |
+| Queue tickets and tombstones | Tickets expire after 24 hours. Removed assignments become tombstones; tombstones older than two days are pruned on a later `run`. | Tombstone expiry itself is omitted from the alarm-deadline list. Once an isolated pool has only tombstones, no future alarm is scheduled for them; full automatic pool-row deletion is not implemented. |
+| Guest authentication | Access tokens expire after 15 minutes; refresh eligibility is stored for 30 days. `refresh` checks/extends that timestamp. | Authentication expiry does **not** delete identity state or membership. Observed refresh timestamps fall on 2026-11-25, but no refresh credential was read or recovered. |
+| Guest identity and membership | `Identity` has no alarm/expiry deletion routine. Membership is removed on successful explicit leave or a failed pending enter rollback. | All eight observed `ACTIVE` memberships persist until a valid lifecycle action or a separately designed administration/migration operation changes them. |
+| Party membership and active attempt | Party alarms clean workshop content only; `Party.get` returns pool status without deleting the stored active attempt. Cancel/leave changes active state; leave removes the member. No party-row deletion exists. | Match expiry alone will not remove the eight party rows, members, active-attempt references or stored receipts. Even successful normal leave preserves an empty party row/receipt history. |
+| Checkpoint upload residue | Uncommitted uploads have a 60-second expiry and cleanup; current/previous committed uploads remain until later replacement or match deletion. | The two observed committed uploads should leave with match deletion, not on their writer lease expiry. |
+
+Relevant source anchors: `pool.ts` `run` (33–51), `expire` (201–227), `returnToLobby` (388–402); `model.ts` reconnect constant (100); `checkpoints.ts` lease/upload constants (32–33), `deleteMatch`/`cleanupExpired` (159–170); `identity.ts` `create`/`refresh` (15–33) and `leave` (100–139); `party.ts` content alarm (18–21, 51), `changed`/leave (117–152), `get` (204–208); `store.ts` retains its state row. A source search found no identity alarm, state-row deletion, or automatic membership janitor in these classes.
+
+## Actual impact and remaining action
+
+The abandoned run no longer has an active match or queued ticket, and its live connection/writer eligibility is expired. It retains eight stale assignments plus checkpoint storage until the scheduled match cleanup, and **confirmed persistent** guest/party membership records beyond that cleanup. Because the fixture used its own pool suffix and disposable original guests, these records do not occupy slots in a fresh fixture pool. The original identities would still encounter existing-membership guards when attempting a new party; the state remains a cleanup failure and a storage-retention issue.
+
+The receipt makes a later exact read-only check possible immediately after the 24-hour deletion boundary; it should require zero matches/assignments/checkpoint rows and separately acknowledge any tombstones, parties and identities still present. No automation or future job was created by this lane. Match data expiry is likely under the inspected alarm code but is not accepted cleanup until observed.
+
+Normal authenticated return/cancel/leave remains the supported lifecycle repair, but the native proof discarded its guest credentials. Existing operator access allows state inspection; it is not authority to fabricate guest authentication, extract authentication material, or issue direct SQL repairs across dependent records. No such action was attempted. If root elects to repair retained memberships, first prepare a separate bounded administrative/janitor design with exact object selectors and lifecycle invariants; current authorization here is read-only. Keep fresh TimeRun/Freestyle acceptance separate from this original residual-state record.
+
+No historical network cause is inferred from the later closed state. Receipt validation confirms **21 SELECT statements, 114 reported rows read, zero rows written**, one original match/eight original parties/eight original identities, and no credential-valued fields. `git diff --check` passes. No code, compiler, Unity, service mutation or cleanup execution is included in this follow-up.
