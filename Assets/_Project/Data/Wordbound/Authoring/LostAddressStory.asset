@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5ac3c74b1c4c8047b16d5ae5ac2d6b2, type: 3}
+  m_Name: LostAddressStory
+  m_EditorClassIdentifier: Wreckabulary.Online.Presentation::Wreckabulary.Online.WordboundStoryProfile
+  Title:
+    Key: wordbound.story.title
+    Fallback: The Lost Address
+  Chapters:
+  - Id: FindAddress
+    Title:
+      Key: wordbound.story.chapter.FindAddress
+      Fallback: Find the address
+  - Id: WrongDelivery
+    Title:
+      Key: wordbound.story.chapter.WrongDelivery
+      Fallback: Follow the wrong delivery
+  - Id: RestoreHome
+    Title:
+      Key: wordbound.story.chapter.RestoreHome
+      Fallback: Put home back together
+  Notices:
+  - Id: 1:L1_Packing_ParcelGate
+    Cue:
+      Key: wordbound.story.notice.1:L1_Packing_ParcelGate.cue
+      Fallback: An address nobody wrote.
+    Clue:
+      Key: wordbound.story.notice.1:L1_Packing_ParcelGate.clue
+      Fallback: The bell rings for an address that nobody wrote.
+  - Id: 1:L1_Kitchen_ServiceLanding
+    Cue:
+      Key: wordbound.story.notice.1:L1_Kitchen_ServiceLanding.cue
+      Fallback: These labels belong upstairs.
+    Clue:
+      Key: wordbound.story.notice.1:L1_Kitchen_ServiceLanding.clue
+      Fallback: The kitchen labels describe rooms upstairs.
+  - Id: 1:L1_Attic_TrunkLanding
+    Cue:
+      Key: wordbound.story.notice.1:L1_Attic_TrunkLanding.cue
+      Fallback: These rooms once fit together.
+    Clue:
+      Key: wordbound.story.notice.1:L1_Attic_TrunkLanding.clue
+      Fallback: Old labels show this house used to fit together.
+  - Id: 1:L1_Rooftop_GardenGate
+    Cue:
+      Key: wordbound.story.notice.1:L1_Rooftop_GardenGate.cue
+      Fallback: One address is missing.
+    Clue:
+      Key: wordbound.story.notice.1:L1_Rooftop_GardenGate.clue
+      Fallback: The windmill repeats one missing address.
+  - Id: 2:L2_Rooftop_RooftopSorter
+    Cue:
+      Key: wordbound.story.notice.2:L2_Rooftop_RooftopSorter.cue
+      Fallback: Wrong instructions lead downstairs.
+    Clue:
+      Key: wordbound.story.notice.2:L2_Rooftop_RooftopSorter.clue
+      Fallback: The windmill is sending the broken pointer's instructions back downstairs.
+  - Id: 2:L2_Attic_ChimneyLanding
+    Cue:
+      Key: wordbound.story.notice.2:L2_Attic_ChimneyLanding.cue
+      Fallback: The sorting pointer is broken.
+    Clue:
+      Key: wordbound.story.notice.2:L2_Attic_ChimneyLanding.clue
+      Fallback: The archive shows a toy-house sorting diagram with a broken pointer.
+  - Id: 2:L2_Kitchen_Dumbwaiter
+    Cue:
+      Key: wordbound.story.notice.2:L2_Kitchen_Dumbwaiter.cue
+      Fallback: Kitchen parcels. Attic labels.
+    Clue:
+      Key: wordbound.story.notice.2:L2_Kitchen_Dumbwaiter.clue
+      Fallback: A sorter stamped the kitchen's parcels with attic labels.
+  - Id: 2:L2_Packing_RepairBay
+    Cue:
+      Key: wordbound.story.notice.2:L2_Packing_RepairBay.cue
+      Fallback: The mistake began at the sorter.
+    Clue:
+      Key: wordbound.story.notice.2:L2_Packing_RepairBay.clue
+      Fallback: The misprinted labels came from the rooftop sorter.
+  - Id: 2:L2_Packing_LiftLanding
+    Cue:
+      Key: wordbound.story.notice.2:L2_Packing_LiftLanding.cue
+      Fallback: The Movers obey the labels.
+    Clue:
+      Key: wordbound.story.notice.2:L2_Packing_LiftLanding.clue
+      Fallback: The Movers follow the labels exactly, even when they are wrong.
+  - Id: 3:L3_Packing_RepairBay
+    Cue:
+      Key: wordbound.story.notice.3:L3_Packing_RepairBay.cue
+      Fallback: The pointer is repaired.
+    Clue:
+      Key: wordbound.story.notice.3:L3_Packing_RepairBay.clue
+      Fallback: The repaired pointer can now carry the true address upstairs.
+  - Id: 3:L3_Packing_ParcelGate
+    Cue:
+      Key: wordbound.story.notice.3:L3_Packing_ParcelGate.cue
+      Fallback: Send the right labels home.
+    Clue:
+      Key: wordbound.story.notice.3:L3_Packing_ParcelGate.clue
+      Fallback: Repair the labels in the workshop and send them home.
+  - Id: 3:L3_Kitchen_ServiceLanding
+    Cue:
+      Key: wordbound.story.notice.3:L3_Kitchen_ServiceLanding.cue
+      Fallback: Return labels to their drawers.
+    Clue:
+      Key: wordbound.story.notice.3:L3_Kitchen_ServiceLanding.clue
+      Fallback: Restore the recipe labels to their proper drawers.
+  - Id: 3:L3_Attic_TrunkLanding
+    Cue:
+      Key: wordbound.story.notice.3:L3_Attic_TrunkLanding.cue
+      Fallback: Put the diagram in order.
+    Clue:
+      Key: wordbound.story.notice.3:L3_Attic_TrunkLanding.clue
+      Fallback: Return the old house diagram to its correct order.
+  - Id: 3:L3_Rooftop_GardenGate
+    Cue:
+      Key: wordbound.story.notice.3:L3_Rooftop_GardenGate.cue
+      Fallback: Deliver the keepsake home.
+    Clue:
+      Key: wordbound.story.notice.3:L3_Rooftop_GardenGate.clue
+      Fallback: Set the final address and deliver the keepsake to the rooftop sorter.

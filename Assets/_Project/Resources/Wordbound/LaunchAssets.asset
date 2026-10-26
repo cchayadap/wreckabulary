@@ -17,6 +17,7 @@ MonoBehaviour:
   MapPoolVersion: wordbound-20261023-v1
   CameraProfile: {fileID: 11400000, guid: aa3aabd6d6fb281488c422c770328a56, type: 2}
   VisualProfile: {fileID: 11400000, guid: 8513f12a73657d54393cf5b4d5749239, type: 2}
+  StoryProfile: {fileID: 11400000, guid: d44158cd6a767ae419be4d1e1f6cfe9b, type: 2}
   UiTheme: {fileID: 11400000, guid: 06870fff6033eca40b283dbc562719c5, type: 2}
   WorkshopCourse: {fileID: 11400000, guid: ddfd2af41a229134ebb093eaeffa3b83, type: 2}
   PlayerBody: {fileID: 4802382135351779463, guid: 42744fe471ef25c45b00766b69bfac05, type: 3}

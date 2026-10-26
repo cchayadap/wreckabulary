@@ -89,6 +89,16 @@ Select your assigned camera profile. Its Inspector groups **View and follow**, *
 
 Valid profile edits update the gameplay camera during play, except **Starting angle**: it is applied when the active profile changes, so recreate the playtest to see a changed starting angle on the same profile. Invalid settings display an error and leave the last valid settings active. Save the asset to retain your edits, then inspect a clear room, a wall/corner and a change of floor. Profile assets persist independently of temporary scene GameObjects. The workshop orbit camera is a separate navigation view, not this follow camera.
 
+## Edit story copy
+
+In Edit Mode choose **Tools → Wordbound → Create or verify story profile**. Select `Assets/_Project/Data/Wordbound/Authoring/LostAddressStory.asset`. For your own version, duplicate this asset and assign the copy to **Story Profile** in `Assets/_Project/Resources/Wordbound/LaunchAssets.asset`. Setup preserves existing assignments and nonempty copy.
+
+Under **Notices**, keep each **Id** unchanged. Edit **Cue → Fallback** for the short line shown in the world, and **Clue → Fallback** for the optional journal explanation. Defaults use seven words or fewer for cues. **Chapters → Title → Fallback** changes journal chapter names. The Inspector validates copy and offers **Copy preview → Clue** to inspect it without granting progress.
+
+Save and start a fresh match or playtest. Online matches, the in-game Workshop and Inspector course playtests use the assigned profile. At most one earned cue appears near its existing anchor; **Story clues** in the equipment menu retains the full collected journal. Text is captured at match setup, so changing the asset does not update an already running match.
+
+The profile changes the existing Lost Address copy. It does not create triggers, endings or restoration tasks for a custom course. **Key** is an optional localization identifier; the current launcher uses fallback text and does not supply translations. Check font coverage in play before adding another language.
+
 ## Edit equipment appearance and grips
 
 Select your assigned **Visual profile** and choose **Base Artwork**:

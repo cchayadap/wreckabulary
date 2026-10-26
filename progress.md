@@ -17,9 +17,15 @@ Continue from the tested build after the credit interruption. Keep player-facing
 - [x] Recover all seven worktrees again; verify 632 dirty, untracked and authored files in the local 2026-10-26 snapshot. Preserve the failed capacity receipt and unfinished lane commits.
 - [~] Audit current shop/loadout and redesign browsing around a small number of visual categories with a clear preview and minimal repeated copy.
 - [~] Inspect current models, skins, grips and animation, then implement a coherent first collection with editable assets and measured runtime cost.
-- [~] Expand the gameplay rubric to cover onboarding, agency, comprehension, plot complexity, immersion, pacing, cooperation, accessibility and replay value, with evidence and acceptance criteria for each.
+- [x] Write and review the [gameplay experience rubric](docs/wordbound/GAMEPLAY-EXPERIENCE-RUBRIC.md): eight dimensions, seven player perspectives and ten measurable acceptance rows. Player scores and human tests remain unmeasured.
 - [~] Make story presentation editable in Unity and introduce the story through concise contextual cues and optional journal detail.
 - [ ] Verify the combined experience in Unity and the Windows player, including navigation, motion, readability, saved choices and online consistency.
+
+Current native checks: R0 passes; 58 selected engine-free cosmetic/combat cases pass. EditMode `022355` passes 92 story/presentation/persistence cases, including 13 new melee cases; PlayMode `022713` passes 58 shop/lobby/collection cases, zero skipped. The configured default Story Profile is generated and wired into online, Workshop and Inspector playtests. Shop categories and actual-outfit portraits are implemented; portrait lighting and screen captures remain under review. These changes are not yet in a new Windows build. [Exact evidence](BuildNotes/experience-refresh/native-slice-20261026.json).
+
+The Packing Club BAT/SHIELD authoring script and original-scale/grip specification are integrated; no generated model or selectable online skin is claimed yet. The skin review found that catalogue additions require a versioned public-content rollout, and online outfit initialization/thrown appearance need wiring. The original item bytes and deployed approval are preserved while that contract is resolved.
+
+Public capacity `014532`: FFA8 passes with clean cleanup. Freestyle8 reaches exact roster/gameplay checks but cleanup fails; TimeRun fails at its first guest request. Read-only operator verification confirms the Freestyle match closed, with eight temporary test parties/memberships still present. [Cleanup evidence](BuildNotes/experience-refresh/online-cleanup-operator-20261026.json). Fresh isolated retries and cleanup repair remain open.
 
 ## At a glance — 2026-10-24T04:09:22Z
 

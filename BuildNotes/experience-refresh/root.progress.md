@@ -19,3 +19,17 @@ All seven worktrees were inspected. Recovery snapshot `.harness/recovery/2026-10
 The shop currently puts themes, collections, accessories, recipe finishes and colours in one long scroll. Existing live previews, earned-coin checkout, ownership and per-recipe equip APIs will be reused. Initial scope changes presentation and navigation; new real-money commerce is outside this slice. Screens should reveal one choice at a time while retaining accessible labels and optional explanation.
 
 Agent reviews are analysis, not human-playtest scores. Visual approval, sustained performance and full online matches remain separate acceptance requirements. Root alone runs Unity/build/player/core/Blender jobs; no kit changes or new paid generation are part of this initial slice.
+
+## 2026-10-26 native integration checkpoint
+
+Source through `229d48be`: shop categories/portrait importer, editable story profile/cues and all three launch paths, confirmed upper-body melee sampling, rubric and bounded Packing Club source generator integrated. Native-generated story asset and metadata are present. The original item catalogue/public approval and earlier Windows review build remain unchanged.
+
+R0 `021502` PASS 33.6 s; selected core `021558` PASS 58/58, 37.3 s. Story setup `022152` PASS 41.7 s. Focused EditMode `022355` PASS 92/92, 75.8 s: 61 presentation, 10 story plan, 13 profile, 7 readability and 1 native persistence. The requested MenuGui fixture did not run because root supplied an incorrect Input assembly name; a correctly scoped invocation remains required. PlayMode `022713` PASS 58/58, 192.5 s. Receipt: `native-slice-20261026.json`, hashes of actual logs/results. No skipped cases.
+
+Portrait import `021707` and `022533` ran successfully; direct image review rejected the first face lighting and found the second still too dark. Root is correcting preview lighting only, without changing original avatar materials. Motion still needs a built-player frame sequence, story actual cue lifecycle still needs composition/capture, and shop needs current UI screenshots.
+
+Capacity rerun is complete, not active: FFA8 passed; Freestyle8 gameplay reached but cleanup failed; TimeRun failed first guest POST. Read-only operator receipt confirms the failed match is CLOSED and leases expired, but eight guest parties/memberships remain. No service mutation was performed. Fresh isolated tests remain queued after local presentation verification.
+
+Collection source is not generated art. Independent review requests a complete eight-export matrix and external palette/material checks before root runs Blender. Separate skin contract review identifies immutable public catalogue hashes, missing authoritative online outfit initialization and thrown appearance. Do not claim current shop choices synchronize online until that full seam is implemented/tested.
+
+Next recoverable action: finish portrait review, rerun idempotent story setup and correctly scoped MenuGui cases, capture actual shop/motion; build/verify/render new geometry after generator repair; preserve exact source receipts and update the Windows review build after green checks.

@@ -1,0 +1,188 @@
+{
+  "recordedUtc": "2026-10-26T02:33:40.711084+00:00",
+  "sourceAtFirstNative": "0953c30d",
+  "recordHead": "229d48be936069ef4d53cb6f5f38f60e892187bb",
+  "sourceDelta": "Portrait light constants changed between first import and focused native tests; no story/motion/shop runtime source changed after 0953c30d.",
+  "gates": [
+    {
+      "utc": "2026-10-26T02:15:02Z",
+      "cmd": "check all",
+      "rung": "R0",
+      "secs": 33.6,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "none",
+      "crashAfterQuit": false,
+      "refreshSecs": null,
+      "head": "20d7def3c5b737363e0c700b7c97da1621134cc4",
+      "tree": null,
+      "evidence": [
+        "Logs/gate_check_all_20261026T021508Z.log"
+      ]
+    },
+    {
+      "utc": "2026-10-26T02:15:58Z",
+      "cmd": "core --filter FullyQualifiedName~WordboundCombatTests|FullyQualifiedName~CosmeticBundleTests|FullyQualifiedName~CareerTests|FullyQualifiedName~WardrobeTests",
+      "rung": "R1",
+      "secs": 37.3,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "none",
+      "crashAfterQuit": false,
+      "refreshSecs": null,
+      "head": "20d7def3c5b737363e0c700b7c97da1621134cc4",
+      "tree": null,
+      "evidence": [
+        "Logs/gate_core_20261026T021558Z.log",
+        "TestResults/core_20261026T021558Z.trx"
+      ],
+      "tests": {
+        "total": "58",
+        "executed": "58",
+        "passed": "58",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "utc": "2026-10-26T02:21:52Z",
+      "cmd": "exec Wreckabulary.EditorTools.WordboundStorySetup.Configure",
+      "rung": "R3",
+      "secs": 41.7,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 23.7,
+      "head": "0953c30d7f4070d1b8ab6beaf00cb55d9ac9961f",
+      "tree": null,
+      "evidence": [
+        "Logs/gate_exec_Configure_20261026T022152Z.log",
+        "Logs/exec/20261026T022152Z.json"
+      ]
+    },
+    {
+      "utc": "2026-10-26T02:23:55Z",
+      "cmd": "test editmode --filter WordboundStoryPlanTests|WordboundStoryProfileTests|WordboundStoryReadabilityTests|WordboundStoryProfilePersistenceTests|WordboundPresentationTests|WordboundMenuGuiTests",
+      "rung": "R3",
+      "secs": 75.8,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 29.9,
+      "head": "0953c30d7f4070d1b8ab6beaf00cb55d9ac9961f",
+      "tree": null,
+      "evidence": [
+        "Logs/gate_test_editmode_20261026T022355Z.log",
+        "TestResults/editmode_20261026T022355Z.xml"
+      ],
+      "executedFixtures": {
+        "Wreckabulary.Tests.WordboundStoryProfilePersistenceTests": 1,
+        "Wreckabulary.Tests.WordboundPresentationTests": 61,
+        "Wreckabulary.Tests.WordboundStoryPlanTests": 10,
+        "Wreckabulary.Tests.WordboundStoryProfileTests": 13,
+        "Wreckabulary.Tests.WordboundStoryReadabilityTests": 7
+      },
+      "tests": {
+        "total": "92",
+        "passed": "92",
+        "failed": "0",
+        "skipped": "0"
+      }
+    },
+    {
+      "utc": "2026-10-26T02:27:13Z",
+      "cmd": "test playmode --filter ShopCollectionsTests|WinterCollectionTests|LobbyTests",
+      "rung": "R3",
+      "secs": 192.5,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 23.1,
+      "head": "21e5af1d45c64e50b74f373d2b2ed4d1f37d4011",
+      "tree": null,
+      "evidence": [
+        "Logs/gate_test_playmode_20261026T022713Z.log",
+        "TestResults/playmode_20261026T022713Z.xml"
+      ],
+      "executedFixtures": {
+        "Wreckabulary.Tests.LobbyTests": 46,
+        "Wreckabulary.Tests.ShopCollectionsTests": 7,
+        "Wreckabulary.Tests.WinterCollectionTests": 5
+      },
+      "tests": {
+        "total": "58",
+        "passed": "58",
+        "failed": "0",
+        "skipped": "0"
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Logs/gate_check_all_20261026T021508Z.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Logs/gate_core_20261026T021558Z.log",
+      "bytes": 533,
+      "sha256": "e545bbb3e35f357df239d050e2a4c54740c0fb7a5a9407c4a677b97e0776bd7a"
+    },
+    {
+      "path": "TestResults/core_20261026T021558Z.trx",
+      "bytes": 79864,
+      "sha256": "be8a5a39b4b0ef96c95875f6f0c0c06955ae147bacc594819e8eb4a994062a97"
+    },
+    {
+      "path": "Logs/gate_exec_Configure_20261026T022152Z.log",
+      "bytes": 38863,
+      "sha256": "abb317ea3fd8744467f13470cfc08336b600b887c49060d6ac9cf81d203206db"
+    },
+    {
+      "path": "Logs/exec/20261026T022152Z.json",
+      "bytes": 134,
+      "sha256": "f6fbd1e25395f9f6d569ab3e404876bd9020e51b4207932b8c52ce7eeb4dcbe0"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261026T022355Z.log",
+      "bytes": 48912,
+      "sha256": "4df9dbf31343683cf51094382ff82bd2d13ec47ec867e7ffdc214f8416b57b73"
+    },
+    {
+      "path": "TestResults/editmode_20261026T022355Z.xml",
+      "bytes": 82285,
+      "sha256": "e6fb99cd94c13b860b460dabcdb7d503b8dce4fce2115875b72e77b3352ae27f"
+    },
+    {
+      "path": "Logs/gate_test_playmode_20261026T022713Z.log",
+      "bytes": 150865,
+      "sha256": "67e34582c47597345ae09b91c41ed931532f54dbf21a206b8bd69f9254316940"
+    },
+    {
+      "path": "TestResults/playmode_20261026T022713Z.xml",
+      "bytes": 45624,
+      "sha256": "c127b821372c6abc13aa1d21680ae34c04e2f1fc30a56cba6221e4d2470b5a69"
+    }
+  ],
+  "limits": [
+    "Editor checks; no updated Windows build or human acceptance is implied.",
+    "The incorrectly named Wreckabulary.Online.Input.Tests assembly did not run. MenuGui coverage is pending a correctly scoped invocation.",
+    "Melee cases establish sampled motion, cancellation and grip invariants; built-player frame sequence still required.",
+    "First portraits rendered successfully but visual review rejected dark face lighting; revised portraits remain under review.",
+    "Full story view lifecycle and setup repeat-idempotence are separate pending checks."
+  ]
+}
