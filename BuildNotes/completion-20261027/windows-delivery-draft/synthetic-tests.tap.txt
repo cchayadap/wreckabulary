@@ -1,0 +1,178 @@
+TAP version 13
+# Subtest: synthetic complete receipt passes with 20+9 captures and refuses overwrite
+ok 1 - synthetic complete receipt passes with 20+9 captures and refuses overwrite
+  ---
+  duration_ms: 553.0702
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: failed gate
+ok 2 - synthetic rejection: failed gate
+  ---
+  duration_ms: 423.3286
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: missing capture
+ok 3 - synthetic rejection: missing capture
+  ---
+  duration_ms: 409.708
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: wrong source commit
+ok 4 - synthetic rejection: wrong source commit
+  ---
+  duration_ms: 316.2675
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: changed production file
+ok 5 - synthetic rejection: changed production file
+  ---
+  duration_ms: 355.3538
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: preservation baseline hash mismatch
+ok 6 - synthetic rejection: preservation baseline hash mismatch
+  ---
+  duration_ms: 386.1639
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: preservation file hash mismatch
+ok 7 - synthetic rejection: preservation file hash mismatch
+  ---
+  duration_ms: 524.8782
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: preservation baseline used as result
+ok 8 - synthetic rejection: preservation baseline used as result
+  ---
+  duration_ms: 686.9293
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: wrong smoke build
+ok 9 - synthetic rejection: wrong smoke build
+  ---
+  duration_ms: 930.8637
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: unrelated player log
+ok 10 - synthetic rejection: unrelated player log
+  ---
+  duration_ms: 2770.1868
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: missing journal count
+ok 11 - synthetic rejection: missing journal count
+  ---
+  duration_ms: 1929.8775
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: old run missing mode readiness
+ok 12 - synthetic rejection: old run missing mode readiness
+  ---
+  duration_ms: 886.7933
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: guide count mismatch
+ok 13 - synthetic rejection: guide count mismatch
+  ---
+  duration_ms: 605.7449
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: nonfinite expected guide count
+ok 14 - synthetic rejection: nonfinite expected guide count
+  ---
+  duration_ms: 671.8536
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: TimeRun empty guide plan
+ok 15 - synthetic rejection: TimeRun empty guide plan
+  ---
+  duration_ms: 623.5793
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: Freestyle negative guide plan
+ok 16 - synthetic rejection: Freestyle negative guide plan
+  ---
+  duration_ms: 1287.3346
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: mode readiness stale camera
+ok 17 - synthetic rejection: mode readiness stale camera
+  ---
+  duration_ms: 5272.7573
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: mode readiness stale ticks
+ok 18 - synthetic rejection: mode readiness stale ticks
+  ---
+  duration_ms: 800.6683
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: mode readiness guide fault
+ok 19 - synthetic rejection: mode readiness guide fault
+  ---
+  duration_ms: 1319.3258
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: missing cleanup proof
+ok 20 - synthetic rejection: missing cleanup proof
+  ---
+  duration_ms: 3380.1484
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: abandoned cleanup
+ok 21 - synthetic rejection: abandoned cleanup
+  ---
+  duration_ms: 3776.7761
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: PNG dimension mismatch
+ok 22 - synthetic rejection: PNG dimension mismatch
+  ---
+  duration_ms: 2274.5272
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: packed size mismatch
+ok 23 - synthetic rejection: packed size mismatch
+  ---
+  duration_ms: 1194.7799
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: packed path escape
+ok 24 - synthetic rejection: packed path escape
+  ---
+  duration_ms: 747.641
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: missing preservation boolean
+ok 25 - synthetic rejection: missing preservation boolean
+  ---
+  duration_ms: 1287.769
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: merged retry gates
+ok 26 - synthetic rejection: merged retry gates
+  ---
+  duration_ms: 690.1555
+  type: 'test'
+  ...
+# Subtest: synthetic rejection: truncated terminal gate
+ok 27 - synthetic rejection: truncated terminal gate
+  ---
+  duration_ms: 645.3451
+  type: 'test'
+  ...
+# Subtest: explicit argument parser rejects missing/duplicate inputs
+ok 28 - explicit argument parser rejects missing/duplicate inputs
+  ---
+  duration_ms: 5.4052
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 34849.6955
