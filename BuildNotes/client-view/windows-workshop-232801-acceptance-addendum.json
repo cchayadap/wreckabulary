@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "status": "BOUNDED_WORKSHOP_FLOW_VISUAL_AND_ROOT_PRESERVATION_ACCEPTED",
+  "createdUtc": "2026-10-26T23:40:58.953699+00:00",
+  "buildId": "20261026T232801Z",
+  "sourceRevision": "ec4b127b23c9d084aa281f2248a362d92b313399",
+  "runId": "20261026T233042Z-wordbound_workshop_flow",
+  "linkedReports": [
+    {
+      "path": "BuildNotes/client-view/windows-workshop-232801-verification.md",
+      "bytes": 5683,
+      "sha256": "35b73767e89a4b4829dcd3c44162e259b134ac5512128cdb4ded85431f7ba913"
+    },
+    {
+      "path": "BuildNotes/client-view/windows-workshop-232801-verification.json",
+      "bytes": 108654,
+      "sha256": "9fdc310288923e88aa66608fa486bfaa0673fb0d7155bea27f21b5e158397dc8"
+    },
+    {
+      "path": "BuildNotes/client-view/windows-workshop-232801-visual-review.md",
+      "bytes": 3013,
+      "sha256": "65907cdb820f9c1aee766853a2a82cdf6020346ea2d7c59b1c0a639bbae9674d"
+    },
+    {
+      "path": "BuildNotes/client-view/windows-workshop-232801-visual-review.json",
+      "bytes": 9956,
+      "sha256": "4a16ac55879dc1560f9569ae9e4bc1e655794d106bf179a2ae92e2230c8e28f4"
+    },
+    {
+      "path": "BuildNotes/client-view/windows-232801-authored-preservation.json",
+      "bytes": 456,
+      "sha256": "82093ffc4c7908ad40ac12699174876583b97c5bcd10c42b10f8435fb63a8c31"
+    }
+  ],
+  "consistencyChecks": {
+    "flowAndVisualSameBuildSourceRun": true,
+    "fiveStepsPassInBothReports": true,
+    "sameEightImagePathsAndCurrentHashes": true,
+    "eightImagesOpenedByIndependentVisualReviewer": true,
+    "correctedHeaderVisualFindingResolved": true,
+    "normalAndReturnedPngBytesEqual": true,
+    "rootPreservationReceiptPass4208NoChangedEntries": true,
+    "baselineBytesHashAndCountMatchReceipt": true,
+    "baselineSameBuildRevision": true
+  },
+  "images": [
+    {
+      "path": "Docs/qa/runs/20261026T233042Z-wordbound_workshop_flow/wordbound_equipment_menu.png",
+      "bytes": 765590,
+      "sha256": "bb9c40b46921338af4ecf2267679083cd2848d3253c22bbc6878367d6233e308"
+    },
+    {
+      "path": "Docs/qa/runs/20261026T233042Z-wordbound_workshop_flow/wordbound_local_ready.png",
+      "bytes": 1153930,
+      "sha256": "3a6e8b2b46e5a5c58d8ebfd53373ebc385adad82717cc86e1b256b4e82d140c9"
+    },
+    {
+      "path": "Docs/qa/runs/20261026T233042Z-wordbound_workshop_flow/wordbound_local_world.png",
+      "bytes": 1151479,
+      "sha256": "acc1f37af0627f0b2fceeee29133ed15773b2d18b00f208a9ac16525a6aeffac"
+    },
+    {
+      "path": "Docs/qa/runs/20261026T233042Z-wordbound_workshop_flow/wordbound_party.png",
+      "bytes": 1336046,
+      "sha256": "213b4988041b3124be8f390d0628e2439f72ae7525c88569e190e3114614771e"
+    },
+    {
+      "path": "Docs/qa/runs/20261026T233042Z-wordbound_workshop_flow/wordbound_returned_workshop.png",
+      "bytes": 273232,
+      "sha256": "fb42f66487663c1b0acf5c1002c582656e7f72c9b1a3448158cf3fb2c5e0ae71"
+    },
+    {
+      "path": "Docs/qa/runs/20261026T233042Z-wordbound_workshop_flow/wordbound_workshop.png",
+      "bytes": 273232,
+      "sha256": "fb42f66487663c1b0acf5c1002c582656e7f72c9b1a3448158cf3fb2c5e0ae71"
+    },
+    {
+      "path": "Docs/qa/runs/20261026T233042Z-wordbound_workshop_flow/wordbound_workshop_range_floors.png",
+      "bytes": 271817,
+      "sha256": "833185b97905d67c4f349ece26c7aaca20ef370434ee956a8317ddff0f7e1a11"
+    },
+    {
+      "path": "Docs/qa/runs/20261026T233042Z-wordbound_workshop_flow/wordbound_workshop_range_height.png",
+      "bytes": 272207,
+      "sha256": "1d6b3518db45ff1f3ff08920ba4b4f7041267cb9d23559ae48a9324ef404b37c"
+    }
+  ],
+  "authoredPreservation": {
+    "receiptPath": "BuildNotes/client-view/windows-232801-authored-preservation.json",
+    "reportedAtUtc": "2026-10-26T23:35:42.205Z",
+    "status": "PASS",
+    "files": 4208,
+    "changed": [],
+    "scope": "All non-ignored Assets .asset/.unity/.prefab/.mat/.ttf/.otf and adjacent metadata, plus project/build settings. Read-only preservation fingerprint, no Unity/player execution.",
+    "baseline": {
+      "path": ".harness/delivery/ui-authored-before-2026-10-26T23-28-01-405Z.json",
+      "bytes": 890881,
+      "sha256": "cd99140a952ea4d87a5d182059f0978b9133bc2b9867b34ad2febbbc0951f8ac"
+    },
+    "baselineUtc": "2026-10-26T23:28:01.406Z",
+    "baselineHead": "ec4b127b23c9d084aa281f2248a362d92b313399",
+    "independentWorkHere": "Verified receipt/baseline linkage, exact baseline hash, count and source. Root performed the full4208 current-file comparison; this addendum did not rerun it."
+  },
+  "acceptedScope": [
+    "Scripted Windows workshop flow: mandatory exact primary autosave/recovery, view-only range-preservation, exact playtest manifest/draft, real return/shutdown and Undo/Redo.",
+    "Agent visual review of all8 actual1280x720 images: Group/Ungroup plus separate Move to floor row fits; new range controls remain visible in paired views.",
+    "Root preservation receipt reports4208 scoped authored files unchanged; frozen flow/visual reports and image hashes agree."
+  ],
+  "pendingStatementsResolved": [
+    "The frozen flow audit records pixel review pending and authored verification separate. This later addendum links the completed independent visual review and root preservation receipt without altering that historical report."
+  ],
+  "limits": [
+    "This bounded acceptance is not owner approval or final production readiness.",
+    "Separate lobby/Solo strict verification and overall delivery promotion remain root-owned; this addendum performs neither.",
+    "No physical mouse/controller, edited range Apply, all resolutions/fonts, full course/story completion, public multiplayer or final artwork claim.",
+    "Sparse dressing, light checkpoint contrast and unexplained visible trial-version overlay remain stated limitations.",
+    "Four raw postprocessing shader diagnostics remain despite zero scenario console counters.",
+    "Current file/image hashes are audit-time observations; no historical per-run executable hash or complete historical build-input content proof is added.",
+    "Unity CLI provenance dirty=true and Git/untracked/ignored input limitations remain unchanged."
+  ],
+  "unchangedReportsVerifiedBeforeWrite": true
+}

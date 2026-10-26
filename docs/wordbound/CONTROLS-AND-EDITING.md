@@ -1,6 +1,6 @@
 # Wordbound controls and editing
 
-Windows review build **20261026T221541Z**, source **c4810d6a**. The lobby and both Solo launch/menu/return walkthroughs pass, with 31 actual images reviewed. Saved Play/Settings frames, the two control legends and compact character framing are included. Physical controller testing and full multiplayer matches remain open. [Try it](../../BuildNotes/client-view/TRY-WORDBOUND.md).
+Windows review build **20261026T232801Z**, source **ec4b127b**. Lobby, Solo and workshop walkthroughs pass: 13 stages and 39 actual images reviewed. Saved Play/Settings frames, accurate control legends, compact character framing and staged map-range controls are included. Physical controller testing and complete multiplayer-mode coverage remain open. [Try it](../../BuildNotes/client-view/TRY-WORDBOUND.md).
 
 ## Start playing or building
 
@@ -39,6 +39,14 @@ Crafting is a two-step choice: select an item, then choose **Craft**. Missing le
 - **Return to lobby** ends Solo. A local map playtest returns to the same editor history. **Back to lobby** from that editor saves the draft; reopening can recover the draft, but closing the scene does not preserve Undo history.
 - A stopped or failed local session offers a safe return. These local flows do not imply online host recovery, matchmaking or a completed full-match acceptance test.
 
+## Map randomness
+
+Open **Play → Create → Wordbound maps → OPEN** and select a room, then choose its existing named zone under **Placement** (or select the zone directly). Its fields show X/Z bounds and **Height min / max** in world metres. Expand **Rotation & floors** for quarter-turn choices and permitted floors. The owning room's floor stays selected; **spawns stay in that room**. These permissions do not distribute objects randomly across floors.
+
+Edit the values, then choose **Apply** to make one undoable change, or **Cancel** to restore the saved fields. Malformed numbers, reversed bounds and invalid rotation/floor choices stay unapplied; applying identical values leaves history and Redo intact. Room-fit and clearance errors are checked by validation/Preview, so a saved draft may still need correction before playtest. Group/Ungroup have their own row; **Move to floor** moves the selection to the current floor.
+
+The Workshop suite passes 35 Editor checks, including 26 placement cases covering cancellation, invalid values and history preservation. The Windows walkthrough checks exact draft/save/playtest/return and shows the controls; changed-value Apply and ordinary physical input still need player acceptance. [Actual workshop views](../../BuildNotes/client-view/WORKSHOP-REVIEW-232801.md).
+
 ## What you can edit in Unity
 
 Open **Wreckabulary → Open Current Workspace → Design**. Stop Play before saving edits.
@@ -50,6 +58,6 @@ Open **Wreckabulary → Open Current Workspace → Design**. Stop Play before sa
 - **Inner Play cards, Settings tabs/option/rebinding rows, top navigation, online party layout, HUD placement and inner pickers remain generated.** Their surrounding saved frames are editable; dragging temporary generated children during Play does not save a layout.
 - **Scenes → Edit Flagship course** opens the saved course. Workshop autosaves are separate from that Project asset. Keep map rules, objectives and physical puzzle setup consistent when editing; decorative changes alone do not create playable interactions.
 
-Native checks: **27/27 Editor** and **31/31 Play** cases pass with no skips. Missing-only setup/repeat checks pass; the recorded **4,208 authored files** are preserved. These native checks cover source integration and projected avatar bounds; the separate Windows review covers its 31 actual images. Physical controller acceptance remains open.
+Saved-frame native checks: **27/27 Editor** and **31/31 Play** cases pass with no skips. Missing-only setup/repeat checks pass; the recorded **4,208 authored files** are preserved. These checks cover source integration and projected avatar bounds; the current Windows review covers **39 actual images**, including eight workshop views. Physical controller acceptance remains open.
 
 Source basis: `LobbyMenu.OpenWordboundSolo/OpenWordboundWorkshop`, `WordboundLauncherSolo`, `WordboundLauncher` local playtest route, `WordboundInputBinding`, `WordboundPlayerView`, `WordboundMatchHud/Menu`, `DesktopBinding`, `ControlsPanel`, and the current lobby editing guide.

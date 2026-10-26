@@ -1,0 +1,109 @@
+{
+  "status": "BOUNDED_VISUAL_REVIEW_PASS_WITH_EXISTING_LIMITATIONS",
+  "reviewer": "story_status",
+  "buildId": "20261026T232801Z",
+  "method": "All 31 current PNGs independently opened at original resolution through view_image; eight named prior-delivery images reopened for direct comparison; remaining prior images only hashed. No image alteration, native jobs or source writes.",
+  "runs": [
+    {
+      "group": "lobby",
+      "run": "20261026T233250Z-lobby_experience",
+      "buildId": "20261026T232801Z",
+      "checksPath": "Docs/qa/runs/20261026T233250Z-lobby_experience/checks.json",
+      "checksSha256": "7dffe88f14f33269696e49be7148578386cf2c3e685c0c1ca03687742895ac77",
+      "result": "PASS",
+      "steps": [
+        {
+          "name": "local_choices",
+          "status": "PASS"
+        },
+        {
+          "name": "create_choices",
+          "status": "PASS"
+        },
+        {
+          "name": "customize_and_shop",
+          "status": "PASS"
+        },
+        {
+          "name": "settings_navigation",
+          "status": "PASS"
+        },
+        {
+          "name": "open_wordbound",
+          "status": "PASS"
+        }
+      ],
+      "console": {
+        "errors": 0,
+        "exceptions": 0,
+        "warnings": 0,
+        "first_exception": null
+      },
+      "captures": 22,
+      "startedUtc": "2026-10-26T23:32:54Z",
+      "endedUtc": "2026-10-26T23:33:07Z"
+    },
+    {
+      "group": "solo",
+      "run": "20261026T233412Z-wordbound_solo",
+      "buildId": "20261026T232801Z",
+      "checksPath": "Docs/qa/runs/20261026T233412Z-wordbound_solo/checks.json",
+      "checksSha256": "986fac048d901b00ac9dc6253d4874f8f0a00b7106c071e0d290cf906b57e07f",
+      "result": "PASS",
+      "steps": [
+        {
+          "name": "solo_selection",
+          "status": "PASS"
+        },
+        {
+          "name": "time_run",
+          "status": "PASS"
+        },
+        {
+          "name": "freestyle",
+          "status": "PASS"
+        }
+      ],
+      "console": {
+        "errors": 0,
+        "exceptions": 0,
+        "warnings": 0,
+        "first_exception": null
+      },
+      "captures": 9,
+      "startedUtc": "2026-10-26T23:34:16Z",
+      "endedUtc": "2026-10-26T23:34:27Z"
+    }
+  ],
+  "soloTerminal": {
+    "path": ".harness/delivery/solo-windows-2026-10-26T23-34-12-390Z-end.json",
+    "sha256": "da721680ee453546bb6b312fc129df4066ea9e353239eb124994dd96a8e5581a",
+    "content": {
+      "utc": "2026-10-26T23:34:28.853Z",
+      "code": 0,
+      "signal": null
+    },
+    "stdoutPath": ".harness/delivery/solo-windows-2026-10-26T23-34-12-390Z-stdout.txt",
+    "stdoutSha256": "3af5fc5c6b4502ef7bbd0135553d27563ee96dded488fde17c6befba31285227"
+  },
+  "imagesOpened": 31,
+  "baselineImagesReopened": 8,
+  "byteIdenticalCurrentBaselinePairs": 4,
+  "newBlockingVisualFindings": [],
+  "observations": [
+    "Compact Wordbound solo/map creation panels leave the original red-hood avatar fully visible; both return views restore selected mode and framing.",
+    "House and Wordbound fixed legend headings remain visible while scrolling; shown Aim RB/R1 and Menu Start/Options differ correctly from House Pause View/Share.",
+    "Original outfit portraits remain fully colored without cream matte rectangles; Customize swatches and Done, Shop names and equip/prices remain readable.",
+    "The two-seat solo guard visibly disables GO and explains the one-seat requirement.",
+    "Settings labels, selected choices and footer are readable at 1280x720; partial rows are confined to scroll viewport edges.",
+    "Both solo worlds retain compact status and action prompts; recipe menus show original item icons, one missing-letter summary, Resume and Return to lobby.",
+    "Guest online entry is readable and explicitly Wordbound human players; this capture is before connection or queueing."
+  ],
+  "remainingLimitations": [
+    "The small bottom-right trial version label remains visible; its cause is unknown, and no attribution/removal is claimed.",
+    "The shown starting rooms remain sparsely dressed with large pale surfaces; this is not detailed-map or final art acceptance.",
+    "Some legacy House Create and Settings pages retain large unused cream panel areas, a polish limitation rather than a new regression.",
+    "Static 1280x720 captures do not prove other resolutions, maximum fonts, motion/rig behavior, physical input, purchases, rebind completion, complete solo matches or live networking.",
+    "This review does not establish complete project production readiness; root owns exact-source build and preservation verification."
+  ]
+}
