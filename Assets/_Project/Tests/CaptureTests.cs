@@ -31,6 +31,9 @@ namespace Wreckabulary.Tests
         public IEnumerator CaptureLobby() => RunWithSynchronousShaders(RunWithLobbyPreferences(CaptureLobbySequence()));
 
         [UnityTest]
+        public IEnumerator CaptureSettings() => RunWithSynchronousShaders(RunWithLobbyPreferences(CaptureSettingsSequence()));
+
+        [UnityTest]
         public IEnumerator CaptureMaps() => RunWithSynchronousShaders(CaptureMapsSequence());
 
         [UnityTest]
@@ -304,7 +307,7 @@ namespace Wreckabulary.Tests
             }
             menu.Open(LobbyMenu.Settings);
             var settings = menu.Page<SettingsPage>();
-            foreach (string tab in new[] { "graphics", "controls", "how" })
+            foreach (string tab in new[] { "audio", "gameplay", "graphics", "controls", "how" })
             {
                 settings.ShowTab(tab);
                 yield return new WaitForSeconds(.5f);
@@ -343,6 +346,113 @@ namespace Wreckabulary.Tests
                 yield return CaptureFramed(Path.Combine(dir, $"lobby_map_{map}.png"));
             }
             Session.Clear();
+        }
+
+        IEnumerator CaptureSettingsSequence()
+        {
+            string root = Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
+            if (string.IsNullOrEmpty(root)) root = Path.Combine(Application.dataPath, "../Temp/Captures");
+            string dir = Path.Combine(root, "settings-" + DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ") + "-" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            if (Directory.Exists(dir)) throw new IOException("Preserve existing settings capture evidence.");
+            Directory.CreateDirectory(dir);
+            var report = new SettingsCaptureReport { folder = dir, beforeMode = Screen.fullScreenMode.ToString(), beforeWidth = Screen.width, beforeHeight = Screen.height };
+            float volume = AudioListener.volume; int vsync = QualitySettings.vSyncCount;
+            string[] inputKeys = { KeyBindings.OverridesKey, KeyBindings.LegacyBackupKey };
+            var inputValues = inputKeys.Select(key => PlayerPrefs.HasKey(key) ? PlayerPrefs.GetString(key) : null).ToArray();
+            bool hadSensitivity = PlayerPrefs.HasKey(KeyBindings.SensitivityKey), hadInvert = PlayerPrefs.HasKey(KeyBindings.InvertKey);
+            float savedSensitivity = PlayerPrefs.GetFloat(KeyBindings.SensitivityKey);
+            int savedInvert = PlayerPrefs.GetInt(KeyBindings.InvertKey);
+            var map = DesktopBinding.Shared.Map;
+            string overrides = UnityEngine.InputSystem.InputActionRebindingExtensions.SaveBindingOverridesAsJson(map);
+            float sensitivity = KeyBindings.Sensitivity; bool invert = KeyBindings.InvertY;
+            SettingsPage settings = null;
+            const System.Reflection.BindingFlags access = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var pending = typeof(SettingsPage).GetField("revertTo", access);
+            var timerField = typeof(SettingsPage).GetField("timer", access);
+            var stop = typeof(SettingsPage).GetMethod("Stop", access);
+            try
+            {
+                Session.Clear();
+                yield return SceneManager.LoadSceneAsync(Session.HubScene);
+                yield return null; yield return null;
+                var menu = LobbyMenu.Instance;
+                Assert.IsNotNull(menu);
+                menu.Open(LobbyMenu.Settings);
+                settings = menu.Page<SettingsPage>();
+                var tabs = new[] { "profile", "audio", "gameplay", "graphics", "controls", "help" };
+                foreach (bool preview in new[] { false, true })
+                {
+                    if (preview)
+                    {
+                        pending.SetValue(settings, (Screen.fullScreenMode, Screen.width, Screen.height));
+                        var timer = menu.gameObject.AddComponent<LobbyCountdown>();
+                        timer.Ends = Time.unscaledTime + 10;
+                        timerField.SetValue(settings, timer);
+                    }
+                    foreach (string tab in tabs)
+                    {
+                        if (preview) ((LobbyCountdown)timerField.GetValue(settings)).Ends = Time.unscaledTime + 10;
+                        settings.ShowTab(tab);
+                        yield return new WaitForSecondsRealtime(.35f);
+                        string file = (preview ? "preview-" : "normal-") + tab + ".png";
+                        yield return CaptureFramed(Path.Combine(dir, file));
+                        Assert.IsTrue(File.Exists(Path.Combine(dir, file)) && new FileInfo(Path.Combine(dir, file)).Length > 0);
+                        report.images.Add(file);
+                    }
+                }
+                report.status = "CAPTURED; VISUAL REVIEW REQUIRED";
+            }
+            finally
+            {
+                try
+                {
+                    if (settings != null)
+                    {
+                        pending.SetValue(settings, null);
+                        stop.Invoke(settings, null);
+                        settings.Closed();
+                    }
+                }
+                catch (Exception error)
+                {
+                    report.status = "FAIL: PENDING STATE CLEANUP"; report.error = error.ToString(); throw;
+                }
+                finally
+                {
+                    try
+                    {
+                        UnityEngine.InputSystem.InputActionRebindingExtensions.RemoveAllBindingOverrides(map);
+                        if (!string.IsNullOrEmpty(overrides)) UnityEngine.InputSystem.InputActionRebindingExtensions.LoadBindingOverridesFromJson(map, overrides);
+                        KeyBindings.SetSensitivity(sensitivity); KeyBindings.SetInvertY(invert);
+                    }
+                    catch (Exception error)
+                    {
+                        report.status = "FAIL: INPUT RESTORATION"; report.error += "\n" + error; throw;
+                    }
+                    finally
+                    {
+                        for (int i = 0; i < inputKeys.Length; i++)
+                            if (inputValues[i] == null) PlayerPrefs.DeleteKey(inputKeys[i]); else PlayerPrefs.SetString(inputKeys[i], inputValues[i]);
+                        if (hadSensitivity) PlayerPrefs.SetFloat(KeyBindings.SensitivityKey, savedSensitivity); else PlayerPrefs.DeleteKey(KeyBindings.SensitivityKey);
+                        if (hadInvert) PlayerPrefs.SetInt(KeyBindings.InvertKey, savedInvert); else PlayerPrefs.DeleteKey(KeyBindings.InvertKey);
+                        PlayerPrefs.Save(); AudioListener.volume = volume; QualitySettings.vSyncCount = vsync;
+                        report.displayUnchanged = report.beforeMode == Screen.fullScreenMode.ToString() && report.beforeWidth == Screen.width && report.beforeHeight == Screen.height;
+                        if (!report.displayUnchanged) report.status = "FAIL: DISPLAY CHANGED";
+                        File.WriteAllText(Path.Combine(dir, "receipt.json"), JsonUtility.ToJson(report, true));
+                    }
+                }
+            }
+            Assert.IsTrue(report.displayUnchanged, "Pending display is presentation-only; no resolution change is requested.");
+            Assert.AreEqual(12, report.images.Count);
+        }
+
+        [Serializable]
+        sealed class SettingsCaptureReport
+        {
+            public string status = "INCOMPLETE", error = "", folder, beforeMode;
+            public int beforeWidth, beforeHeight;
+            public bool simulatedDisplayPreview = true, displayUnchanged;
+            public System.Collections.Generic.List<string> images = new();
         }
 
         IEnumerator CaptureMapsSequence()

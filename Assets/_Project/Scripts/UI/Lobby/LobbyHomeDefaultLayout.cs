@@ -29,12 +29,12 @@ namespace Wreckabulary
                 view.Dock.Pin(new Vector2(1, 0), Vector2.zero, new Vector2(HomePage.DockWidth, 0));
                 view.Dock.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                 LobbyKit.PanelFace(view.Dock, 14, 1, 0);
-                view.Start = Action(view.Dock, "GO", "START", typography, 42); view.Start.Size(-1, 64);
+                view.Start = Action(view.Dock, "GO", "LOCAL PLAY", typography, 42); view.Start.Size(-1, 64);
                 view.Start.Underline.enabled = true; view.Start.Label.color = view.Start.ActiveInk;
                 view.Mode = Action(view.Dock, "Choose mode", "Dibs!", typography, 22); view.Mode.Size(-1, 38);
                 view.House = Action(view.Dock, "Change house", "House", typography, 20); view.House.Size(-1, 36);
-                view.Wordbound = Action(view.Dock, "Wordbound", "WORDBOUND", typography, 24); view.Wordbound.Size(-1, 42);
-                view.WordboundNote = Text(view.Dock, "Wordbound note", "Online parties · Map workshop", typography, false, 15, LobbyKit.Muted, TextAlignmentOptions.TopLeft);
+                view.Wordbound = Action(view.Dock, "Wordbound", "ONLINE PLAY", typography, 24); view.Wordbound.Size(-1, 42);
+                view.WordboundNote = Text(view.Dock, "Wordbound note", "Human players · Public / private", typography, false, 15, LobbyKit.Muted, TextAlignmentOptions.TopLeft);
                 view.WordboundNote.textWrappingMode = TextWrappingModes.Normal;
                 view.WordboundNote.Size(-1, 24);
                 view.Validate();

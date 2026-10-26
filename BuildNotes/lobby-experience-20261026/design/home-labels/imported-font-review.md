@@ -1,0 +1,13 @@
+# Independent imported-font guard review
+
+STATUS: SOURCE REVIEW COMPLETE — cleared for root-owned native verification. No live source edits, font mutation or native runs by reviewer `/root/asset_intake`.
+
+Reviewed delta `1228861a2961b224c48c01883a85b2f81fea4f9acb8974093100396fac13c685`. Helper `d6fde4c2fff6ae72ea1e90dc14f0b2f5202672017117e45175995b8bccfc0c4b`; test `4d3a2699b1a992828702a0eb28fec1cbf5a5d2c90c33c3cc3c6eb20cd4039f3f`. Both baseline/candidate hashes and patch match manifest. Independent C#9 / UNITY_EDITOR / UNITY_INCLUDE_TESTS / GSK_QA parsing: 2/2 zero errors. Exact strict forward apply check passed during review; no semantic compilation or native outcome is inferred.
+
+The exception is narrowly identified by all of: imported main asset, Unity Font type, TrueTypeFontImporter, and .ttf/.otf extension. A dirty importer is rejected before the asset loop. Authored TMP font assets, materials, prefab objects/components and other asset types retain the existing dirty refusal. This does not clear dirty flags or broaden SaveAssets: the only migration save remains the reviewed Home prefab; no font write, save, reimport or normalization is introduced.
+
+Every included Font has serialized-state hash and dirty flag recorded before/after; its importer has serialized-state hash and a required clean dirty flag. Missing references fail the hash comparison. Existing dependency byte/meta hashes remain in force alongside those memory checks, scene checks and exact three-text-field prefab proof. A pre-existing dirty imported Font is accepted only if that same state remains unchanged; this is preservation, not an assertion that all dirty fonts are safe to alter.
+
+The new tests operate on an AssetDatabase-copied TTF under the fixture's unique temporary folder, referenced by a disabled legacy Text on its owned Home prefab. One case explicitly dirties that copied Font and verifies dirty state, serialized proof and exact font/meta bytes remain unchanged after migration. The other dirties its importer and requires rejection before saving the prefab. Original source fonts are never dirtied by the tests. Existing customized-label refusal and unrelated-prefab-field persistence tests remain intact.
+
+No blocking source finding. Native must still verify the imported Font/importer identities and serialization remain stable through Unity's actual prefab save/import, the two new owned-copy tests pass, and the real Nunito dependency is preserved. The fixture creates its temporary text child before parenting to loaded prefab contents, following its existing temporary setup route; it is not a native proof of arbitrary open-scene preservation. Production migration scene preservation remains checked by its own receipt.

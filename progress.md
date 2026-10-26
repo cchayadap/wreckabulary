@@ -1,10 +1,21 @@
 # Wordbound production delivery
 
-Owner: James / SethyPagna. Updated 2026-10-26 (Asia/Hong_Kong).
+Owner: James / SethyPagna. Updated 2026-10-27 (Asia/Hong_Kong).
 
 Legend: `[ ]` unfinished; `[~]` implementation or verification in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
-## Current checkpoint — character feel and minimal UI
+## Current work — lobby, play choices and settings
+
+- [x] Recover and snapshot existing work; baseline source fd5bb147 and 564 verified recovery files. Unrelated drafts and heavy jobs remain preserved.
+- [x] Research official Xbox navigation/input guidance and Epic/Rocket League play organization; review actual Home, Play, customization and settings captures. [Plan and sources](BuildNotes/lobby-experience-20261026/PLAN.md).
+- [x] Clarify Local / Online / Create and actual bot/team participation; save Home labels, expose Shop and Customize, reflow narrow navigation and remove repeated card paragraphs/welcome toast.
+- [x] Group settings, preserve per-tab scroll/focus, fix display confirmation overlap, and retain existing remapping/rollback behavior. 12 normal/pending-state settings screenshots are captured; the pending display state is simulated without changing resolution.
+- [x] Native source verification: 41 core cases and 12 Home Editor cases pass. The 91-case lobby run passes 90; its sole stale height assertion is corrected and passes with the capture in targeted run160635. All276 authored outputs are unchanged after the approved three-label Home save, repeat and Play. [Exact evidence and limits](BuildNotes/lobby-experience-20261026/verification/native.json).
+- [~] Review actual Windows menus and deliver an exact-source build. New public match or full remote-game acceptance is not implied by this UI work.
+
+The last tested build below remains the review build until this work is verified. Original house-mode online support, full remote match acceptance and broader production tasks remain unfinished.
+
+## Previous checkpoint — character feel and minimal UI
 
 The latest Windows review build is **20261026T145311Z**, source **be648835**, Unity **6000.6.4f1**. [Try it](BuildNotes/client-view/TRY-WORDBOUND.md). This section supersedes older dated status below. The overall production goal and James's visual acceptance remain open.
 

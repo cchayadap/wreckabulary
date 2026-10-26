@@ -1,0 +1,349 @@
+{
+  "utc": "2026-10-26T16:09:58.445Z",
+  "baseHead": "fd5bb14777def6df40fdbf8d3b2e88d04755b480",
+  "status": "NATIVE SOURCE VERIFIED; WINDOWS PENDING",
+  "coverage": "41 rules and 12 Home Editor cases pass. Full lobby run passed90/91; its sole stale-height assertion was updated to intentional260/244 sizing and passes in targeted160635, which also captures12 settings views. This is combined evidence, not one91/91 run.",
+  "scope": "Local/Online/Create navigation, settings, Home labels and authored preservation. No full multiplayer or physical-controller acceptance.",
+  "runs": {
+    "source": {
+      "stdout": ".harness/delivery/workspace-check-2026-10-26T16-05-32-466Z-stdout.txt",
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:05:32Z",
+      "secs": 13.3,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T160532Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ]
+    },
+    "rules": {
+      "stdout": ".harness/delivery/workspace-core-2026-10-26T16-06-30-762Z-stdout.txt",
+      "cmd": "core --filter CosmeticBundleTests|WardrobeTests|CatalogueTests|CareerTests",
+      "rung": "R1",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:06:30Z",
+      "secs": 3.2,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_core_20261026T160630Z.log",
+      "evidence": [
+        "TestResults/core_20261026T160630Z.trx"
+      ],
+      "infra": null,
+      "slot": 0,
+      "tests": {
+        "total": 41,
+        "passed": 41,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "homeAuthoring": {
+      "stdout": ".harness/delivery/workspace-hometests-2026-10-26T15-58-40-909Z-stdout.txt",
+      "cmd": "test editmode --cold --filter HomeLayoutAuthoringTests|HomeNavigationMigrationTests",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T15:58:41Z",
+      "secs": 83.5,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_editmode_20261026T155841Z.log",
+      "evidence": [
+        "TestResults/editmode_20261026T155841Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 39.4,
+      "tests": {
+        "total": 12,
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "homeSave": {
+      "stdout": ".harness/delivery/workspace-setup-2026-10-26T16-00-28-222Z-stdout.txt",
+      "cmd": "exec Wreckabulary.EditorTools.LobbyHomeNavigationSetup.Run --cold",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:00:28Z",
+      "secs": 26.1,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_exec_Run_20261026T160028Z.log",
+      "evidence": [
+        "Logs/exec/20261026T160028Z.json"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 11.1,
+      "messages": [
+        "[Wreckabulary] Home navigation labels: APPLIED; VERIFIED; BuildNotes/lobby-experience-20261026/design/home-labels/runs/20261026T160043635Z-6678083d",
+        "[GSK] exec Wreckabulary.EditorTools.LobbyHomeNavigationSetup.Run ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T160028Z.json"
+      ],
+      "exec": {
+        "method": "Wreckabulary.EditorTools.LobbyHomeNavigationSetup.Run",
+        "ok": true,
+        "error": null,
+        "result": null
+      }
+    },
+    "homeRepeat": {
+      "stdout": ".harness/delivery/workspace-setup-2026-10-26T16-01-58-474Z-stdout.txt",
+      "cmd": "exec Wreckabulary.EditorTools.LobbyHomeNavigationSetup.Run --cold",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:01:58Z",
+      "secs": 26,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_exec_Run_20261026T160158Z.log",
+      "evidence": [
+        "Logs/exec/20261026T160158Z.json"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 9.8,
+      "messages": [
+        "[Wreckabulary] Home navigation labels: ALREADY APPLIED; NO SAVE; BuildNotes/lobby-experience-20261026/design/home-labels/runs/20261026T160212907Z-dc3398ac",
+        "[GSK] exec Wreckabulary.EditorTools.LobbyHomeNavigationSetup.Run ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T160158Z.json"
+      ],
+      "exec": {
+        "method": "Wreckabulary.EditorTools.LobbyHomeNavigationSetup.Run",
+        "ok": true,
+        "error": null,
+        "result": null
+      }
+    },
+    "lobbyRegression": {
+      "stdout": ".harness/delivery/workspace-homeplaytests-2026-10-26T16-03-02-331Z-stdout.txt",
+      "cmd": "test playmode --cold --filter HomeLayoutRuntimeTests|LobbyTests|LobbyNavigationRefinementTests|LobbyMapSelectionTests|CaptureCleanupTests|LobbyPlayChoiceTests|LobbySettingsNavigationTests|ControlsSettingsTests|LobbyNavigationLayoutTests",
+      "rung": "R3",
+      "ok": false,
+      "exit": 1,
+      "verdict": "FAIL",
+      "utc": "2026-10-26T16:03:02Z",
+      "secs": 92.2,
+      "route": "cold",
+      "errors": [],
+      "failures": [
+        {
+          "name": "Wreckabulary.Tests.LobbyTests.FixedRowsKeepTheirHeight",
+          "message": "the mode posters\r\n  Expected: 330.0d +/- 1.0d\r\n  But was:  260.0d",
+          "location": "Assets/_Project/Tests/LobbyTests.cs:772"
+        }
+      ],
+      "log": "Logs/gate_test_playmode_20261026T160302Z.log",
+      "evidence": [
+        "TestResults/playmode_20261026T160302Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 10.8,
+      "tests": {
+        "total": 91,
+        "passed": 90,
+        "failed": 1,
+        "skipped": 0
+      }
+    },
+    "correctedHeightAndCapture": {
+      "stdout": ".harness/delivery/workspace-lobbycapture-2026-10-26T16-06-35-057Z-stdout.txt",
+      "cmd": "test playmode --cold --filter Wreckabulary.Tests.CaptureTests.CaptureSettings|Wreckabulary.Tests.LobbyTests.FixedRowsKeepTheirHeight",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:06:35Z",
+      "secs": 48,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_playmode_20261026T160635Z.log",
+      "evidence": [
+        "TestResults/playmode_20261026T160635Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 17.3,
+      "tests": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "source": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyHomeNavigationSetup.cs",
+      "sha256": "5efd2d9d2d482408b564bd554069dc0f3c9185873f5ad4660cdd434a7fb5481e"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyHomeNavigationSetup.cs.meta",
+      "sha256": "6eed6e81e5f2028c0e63f3cba18c2113ef869bea2eb222228513f93fbbc353aa"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/PlayPage.cs",
+      "sha256": "3ba4b1c838ea7c81846424941e6273e54ba765c5a22bcf4ad89e2a7fff0526eb"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/PlayPage.cs.meta",
+      "sha256": "65c5de6c32bf12dd5eefad505e8e560a5d1d4842955dda31cb91dc2ce0f1c048"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/SettingsPage.cs",
+      "sha256": "35f750b3e9812411670632e2510a5e99c8e8a84455bb70c91001222dcc635cf5"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/SettingsPage.cs.meta",
+      "sha256": "c628dbde8fa4d6b6967e4620fd744896e5f9d3400319c7a5230b3227a4c048b6"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs",
+      "sha256": "a2ddfae274affdf1b05007ac7702659bfd64cc4eafaecdda29ab17ecc0ad8351"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs.meta",
+      "sha256": "b7d70083f82a518ec9f1f03638a63754260c1c2a9f375d1c2d148f237a528ca9"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/ShopLayout/HomeNavigationMigrationTests.cs",
+      "sha256": "89ec98756a17e5e2552ff138684b2e964ac414102d1d1bf1e277cb2744371d1e"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/ShopLayout/HomeNavigationMigrationTests.cs.meta",
+      "sha256": "55e8d21ca3cd3e2bbfcb499606caa72b027de13057f9564ac530cf91851561d6"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyNavigationLayoutTests.cs",
+      "sha256": "ed43eb7ac10294209b355c0dd858a9824db8529625f5b96d756a15c07b8bd12a"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyNavigationLayoutTests.cs.meta",
+      "sha256": "0aee2be4eacc3670d03dff1acf1eb088a5de71073aa33e0866ac187e8fc3b24a"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyPlayChoiceTests.cs",
+      "sha256": "179d225d987fa47963f70d51be6302b3510f2644e77949de8c3a44ec66dd296c"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyPlayChoiceTests.cs.meta",
+      "sha256": "d160007299ad1ffa5ba414127665097157b12a5f0fd2fea43b24244ace456505"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbySettingsNavigationTests.cs",
+      "sha256": "9504f4604a6f192d25cc77a781ee53fca31fd295f9a21ddbcb1fe325a44074ae"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbySettingsNavigationTests.cs.meta",
+      "sha256": "a86294525611181a43275853465fb48b8bf8c7f86b11e53104b41f40840b6857"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyHomeDefaultLayout.cs",
+      "sha256": "9fcaafb88fa8d94a202516adc77737bb1aa3c35a496b3567056be5869f73e14f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyMenu.cs",
+      "sha256": "872ceb85cdde3c3836cd135debe67caae8f48992ab6322873f9e5c5baa32c5a5"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs",
+      "sha256": "2a9891db20a089f2a274027e6dfc4150ff01f497439104d2c7f12ec10f3c5d27"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/Wreckabulary.Wordbound.Qa.asmdef",
+      "sha256": "c08a1ce23afe5c64305167f89dbbde63ef7b381f26ac158c5ad573017685721c"
+    },
+    {
+      "path": "Assets/_Project/Tests/CaptureTests.cs",
+      "sha256": "80c7cacb5caf7e934bd71505a6fe65d182218fbc0a1abdf7bf535c9ced83c730"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyTests.cs",
+      "sha256": "fa198e2591d4b87a8b0a616e5337f1cc27290004eb051de647d7743ed8a8e11d"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Home/HomePage.prefab",
+      "sha256": "1f5f2c32da8556c95d36954e37212199e7ae2c347c30960c3145d10c0875824b"
+    }
+  ],
+  "authoredPreservation": "BuildNotes/lobby-experience-20261026/verification/preservation-after-capture.json",
+  "captures": [
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/normal-profile.png",
+      "sha256": "958ca3628ed613cbb0f1a7df933d29a2615a311f5230673cedb42cab7c405dbd"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/normal-audio.png",
+      "sha256": "a99e209e69193b1996ab2d4264c6dda7f630a152c2238f00d5fdf6817592a933"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/normal-gameplay.png",
+      "sha256": "5ac722cf73935f3f18e7d3577a7c19a3dca7a173297fc3f0b2638eef6f8662b3"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/normal-graphics.png",
+      "sha256": "ff642138006417df060acfebcc0ba3b7b7025dd1defa30c9b5db53123f68daac"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/normal-controls.png",
+      "sha256": "11f36677b79b5d0882ec31a85d53818cec69258c172440e244c9494246e12d19"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/normal-help.png",
+      "sha256": "ccaddf92373b456760bbdaf5963265c1bc5948079c81c2d6d796da135f598f06"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/preview-profile.png",
+      "sha256": "fcbca507b12bd91c2a660df986ac87adf7d60f79c2abb67aa0a62bcd004297eb"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/preview-audio.png",
+      "sha256": "23079d377c719107c54277a123e441ae446d7ed80146ee231d441ef0e9ce1004"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/preview-gameplay.png",
+      "sha256": "07332de53f99b70bc9a9edab4dcc67918c468f50d6bff5381999a1ccfc0371ad"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/preview-graphics.png",
+      "sha256": "d065e859fbe5fe183283c1f4d3d33c28b0ae9d743e27dd53feb222683442fa79"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/preview-controls.png",
+      "sha256": "5dcba5e8612ab3f91392cf27df6b31219120569a7a185343eb7989f4bd1da74f"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51/preview-help.png",
+      "sha256": "90c2c971c1492fde7ef822ba34d2e8667d10a3207d9d9a952d432377bbdaf82a"
+    }
+  ]
+}

@@ -315,7 +315,7 @@ namespace Wreckabulary.Tests
             dock.GetWorldCorners(corners);
             Assert.Less(corners[0].y, Screen.height * .1f, "down at the bottom");
             Assert.AreEqual(64f, ((RectTransform)go.transform).rect.height, 1f, "a compact START");
-            Assert.AreEqual("START", go.GetComponentInChildren<TMPro.TMP_Text>().text);
+            Assert.AreEqual("LOCAL PLAY", go.GetComponentInChildren<TMPro.TMP_Text>().text);
             Assert.Less(Find("Choose mode").transform.position.y, go.transform.position.y);
             Assert.Less(Find("Change house").transform.position.y, Find("Choose mode").transform.position.y);
             Assert.AreEqual(300f, dock.rect.width, 1f);
@@ -335,18 +335,20 @@ namespace Wreckabulary.Tests
             yield return null;
             var page = menu.Page<PlayPage>().Root;
             var posters = page.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Mode ")).Select(b => b.name.Substring(5)).ToArray();
-            CollectionAssert.AreEqual(new[] { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape", LobbyMenu.TutorialMode }, posters,
-                "the web's posters in its order, with Play & learn in practice too");
+            CollectionAssert.AreEqual(new[] { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" }, posters,
+                "the original five house modes remain local");
             Assert.AreEqual(GameConfig.Current.Houses.Count, page.GetComponentsInChildren<Button>().Count(b => b.name.StartsWith("Map ")), "every house");
             Assert.IsTrue(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Rays"), "posters wear the web's rays");
             Assert.IsTrue(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Start"), "plans mark where players start");
             AssertNoEllipsis(page, "PLAY");
             Assert.AreEqual("Double trouble", LobbyMenu.ModeName("Duos"), "the web's names");
 
+            Click("Queue " + LobbyMenu.Workshop);
+            yield return null;
             Click("Mode " + LobbyMenu.TutorialMode);
             yield return null;
             Assert.AreEqual(LobbyMenu.TutorialMode, menu.Mode);
-            Assert.AreEqual(LobbyMenu.Practice, menu.Queue, "practice keeps its queue");
+            Assert.AreEqual(LobbyMenu.Workshop, menu.Queue, "the tutorial belongs to Create");
             Assert.IsFalse(page.GetComponentsInChildren<Button>().Any(b => b.name.StartsWith("Map ")), "the tutorial has its own room");
             Assert.IsTrue(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Tutorial room"), "and says so");
             StringAssert.Contains("Play & learn", menu.Describe());
@@ -585,7 +587,7 @@ namespace Wreckabulary.Tests
             Click("Settings");
             yield return null;
             var root = menu.Page<SettingsPage>().Root;
-            foreach (string tab in new[] { "general", "graphics", "controls", "how" })
+            foreach (string tab in new[] { "profile", "audio", "gameplay", "graphics", "controls", "help" })
             {
                 Click("Settings tab " + tab);
                 yield return null;
@@ -654,6 +656,7 @@ namespace Wreckabulary.Tests
                 var menu = LobbyMenu.Instance;
                 Assert.IsTrue(menu.Stage.ThemeEffectsEnabled);
                 Click("Settings");
+                Click("Settings tab gameplay");
                 Click("Reduce theme motion on");
                 Assert.IsFalse(menu.Stage.ThemeEffectsEnabled);
                 Assert.AreEqual(0, PlayerPrefs.GetInt("wv.theme.effects", 1));
@@ -766,8 +769,8 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(74f, Height("You", typeof(HorizontalLayoutGroup)), 1f, "your party card");
             Click("PLAY");
             yield return null;
-            Assert.AreEqual(330f, Height("Modes", typeof(LobbyFit)), 1f, "the mode posters");
-            Assert.AreEqual(280f, Height("Houses", typeof(LobbyFit)), 1f, "the house cards");
+            Assert.AreEqual(260f, Height("Modes", typeof(LobbyFit)), 1f, "the compact mode posters");
+            Assert.AreEqual(244f, Height("Houses", typeof(LobbyFit)), 1f, "the compact house cards");
             Click("CAREER");
             yield return null;
             Assert.AreEqual(112f, Height("Level", typeof(HorizontalLayoutGroup)), 1f, "the level header");
@@ -984,14 +987,16 @@ namespace Wreckabulary.Tests
             var menu = LobbyMenu.Instance;
             Click("PLAY");
             yield return null;
-            Click("Queue " + LobbyMenu.Matchmaking);
+            menu.Choose(LobbyMenu.Matchmaking, LobbyMenu.RoomMode);
+            menu.Open(LobbyMenu.Play);
             yield return null;
-            Find("Mode " + LobbyMenu.RoomMode);
+            Assert.IsFalse(menu.Page<PlayPage>().Root.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Mode ")),
+                "a stale queue never presents house cards as online modes");
             Assert.IsFalse(Find("GO").interactable, "House modes cannot launch an unsupported online session");
             menu.Go();
             Assert.IsFalse(menu.Starting);
             StringAssert.Contains("house modes are local", menu.Messages[0]);
-            StringAssert.Contains("Wordbound on Home", menu.Messages[0]);
+            StringAssert.Contains("Online Play on Home", menu.Messages[0]);
             Click("Home");
             yield return null;
             Assert.IsFalse(Find("GO").interactable);

@@ -360,7 +360,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: WORDBOUND
+  m_text: ONLINE PLAY
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
   m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
@@ -851,7 +851,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: START
+  m_text: LOCAL PLAY
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
   m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
@@ -1444,7 +1444,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Online parties \xB7 Map workshop"
+  m_text: "Human players \xB7 Public / private"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
   m_sharedMaterial: {fileID: 120012894540960718, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}

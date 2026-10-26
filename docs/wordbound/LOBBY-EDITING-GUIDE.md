@@ -14,6 +14,12 @@ The compact Wordbound HUD uses **Interface fonts, colours & spacing** (`Interfac
 
 ## Saved lobby layouts
 
+The lobby refinement keeps the original room and saved layouts. **Customize** opens the existing Loadout editor; **Shop** is visible beside the coin balance. **Local 1/4** counts players on this PC. Play separates **Local**, **Online** (the actual Wordbound lobby), and **Create** (learning and the home-building workshop). The selected mode shows its objective and real human/bot composition once. These labels do not add online support to the original house modes.
+
+Home's saved **LOCAL PLAY** action still starts the selected local mode; its mode and house buttons open the chooser. **ONLINE PLAY** opens Wordbound. Edit these static labels in HomePage.prefab. The one-time **Authoring → Apply Reviewed Home Navigation Labels** command accepts only the complete old or new default label set and preserves custom text rather than overwriting it.
+
+Settings groups the existing options into **Profile / Audio / Gameplay / Graphics / Controls / Help**. Gameplay includes reduced lobby theme motion and combat feedback. Controls supports the existing keyboard/mouse remapping; the controller legend describes fixed bindings. Display confirmation keeps its timed rollback across tabs. These settings panels and the responsive top navigation are still generated; their structural layout is not yet a saved drag-and-drop prefab.
+
 Home, Shop, Loadout, lobby-camera and typography assets are saved in this checkout. For a grey asset button, scroll to **Design → Workspace Tools → Create missing developer assets**. Setup preserves existing authored assets; repair any reported invalid reference. Home's five Editor cases and 70 combined Play cases pass, with all 146 authored files preserved. Loadout/camera checks also pass. Physical editor interaction, visual and current Windows checks remain in progress. [Verification](../../BuildNotes/developer-workspace/home-recovery-20261026.json).
 
 | Design button | What to edit | Saved location within the Unity project |
