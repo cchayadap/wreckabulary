@@ -54,6 +54,8 @@ namespace Wreckabulary.Online
             return items.TryGet(visualKey, out var item) ? Appearance.Pick(item, outfit?.SkinFor(visualKey)) : Skin.Standard;
         }
 
+        internal bool TryGetItem(string visualKey, out ItemDefinition item) => items.TryGet(visualKey, out item);
+
         public WordboundVisualInstance Create(string visualKey, Vector3 size, Transform parent,
             string skin = Skin.Standard)
         {

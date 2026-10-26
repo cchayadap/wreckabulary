@@ -32,6 +32,11 @@ namespace Wreckabulary.Online
         readonly Dictionary<string, string> appearances = new Dictionary<string, string>(StringComparer.Ordinal);
         readonly Dictionary<string, string> equipped = new Dictionary<string, string>(StringComparer.Ordinal);
         readonly Dictionary<string, MatchDefenseState> defenses = new Dictionary<string, MatchDefenseState>(StringComparer.Ordinal);
+        readonly Dictionary<string, MatchActorState> actors = new Dictionary<string, MatchActorState>(StringComparer.Ordinal);
+        readonly Dictionary<string, ItemDefinition> meleeItems = new Dictionary<string, ItemDefinition>(StringComparer.Ordinal);
+        readonly HashSet<string> meleeAvailable = new HashSet<string>(StringComparer.Ordinal);
+        readonly Dictionary<int, ItemInstance> inventoryItems = new Dictionary<int, ItemInstance>();
+        readonly HashSet<string> presentPlayers = new HashSet<string>(StringComparer.Ordinal);
         readonly WordboundDefensePose defaultDefensePose = new WordboundDefensePose();
         WordboundVisualResolver resolver;
         WordboundGameplayController controller;
@@ -73,13 +78,41 @@ namespace Wreckabulary.Online
             appearances.Clear();
             equipped.Clear();
             defenses.Clear();
+            actors.Clear(); meleeItems.Clear(); meleeAvailable.Clear(); inventoryItems.Clear(); presentPlayers.Clear();
+            var inventories = frame.Economy.Players;
+            bool needsMelee = false;
+            foreach (var actor in frame.Actors) needsMelee |= actor.Attack != null;
+            foreach (var view in views) needsMelee |= view.Motion != null && view.Motion.HasMelee;
+            if (needsMelee)
+                foreach (var item in frame.Economy.Items) inventoryItems.Add(item.Id, item);
+            foreach (var player in frame.Progress.Players)
+                if (player.Connected && !player.Eliminated && !player.Returned) presentPlayers.Add(player.Id);
             foreach (var actor in frame.Actors)
             {
                 appearances.Add(actor.PlayerId, actor.Appearance);
-                equipped.Add(actor.PlayerId, WordboundCombatPolicy.EquippedItemId(frame, actor.PlayerId));
+                actors.Add(actor.PlayerId, actor);
                 if (actor.Defense != null) defenses.Add(actor.PlayerId, actor.Defense);
+                int seat = -1;
+                for (int i = 0; i < frame.Binding.Seats.Count; i++)
+                    if (frame.Binding.Seats[i].PlayerId == actor.PlayerId) { seat = i; break; }
+                string selected = "";
+                foreach (var inventory in inventories)
+                {
+                    if (inventory.PlayerId != seat) continue;
+                    if (inventory.CarriedFurniture < 0 && actor.EquippedSlot >= 0 && actor.EquippedSlot < inventory.Slots.Length &&
+                        inventory.Slots[actor.EquippedSlot] > 0) selected = "item:" + inventory.Slots[actor.EquippedSlot];
+                    if (inventory.CanAct && inventory.Craft == null && inventory.CarriedFurniture < 0 &&
+                        presentPlayers.Contains(actor.PlayerId)) meleeAvailable.Add(actor.PlayerId);
+                    break;
+                }
+                equipped.Add(actor.PlayerId, selected);
+                if (selected.StartsWith("item:", StringComparison.Ordinal) &&
+                    int.TryParse(selected.Substring(5), NumberStyles.None, CultureInfo.InvariantCulture, out int id) &&
+                    inventoryItems.TryGetValue(id, out var held) && held.State == ItemState.Held &&
+                    held.HolderId == seat && !held.IsGone && resolver.TryGetItem(held.Word, out var definition))
+                    meleeItems.Add(actor.PlayerId, definition);
             }
-            foreach (var view in views) ApplyAppearance(view);
+            foreach (var view in views) { ApplyAppearance(view); ApplyMelee(view); }
         }
 
         public void ConfigureVisual(WordboundGameplayBody body)
@@ -135,6 +168,18 @@ namespace Wreckabulary.Online
                 ApplyAppearance(view);
             }
             view.World.Show(body.Body.BodyActive);
+            ApplyMelee(view);
+        }
+
+        void ApplyMelee(View view)
+        {
+            if (view.Motion == null) return;
+            string id = view.Actor ?? "";
+            actors.TryGetValue(id, out var actor);
+            equipped.TryGetValue(id, out var item);
+            meleeItems.TryGetValue(id, out var definition);
+            view.Motion.ObserveMelee(frameEpoch, frameTick, actor, item, definition,
+                !frameUnavailable && meleeAvailable.Contains(id));
         }
 
         void ApplyAppearance(View view)
@@ -172,7 +217,8 @@ namespace Wreckabulary.Online
                     carrier.TwoHanded |= view.World.TwoHanded;
                 }
                 foreach (var view in views)
-                    view.Motion?.Step(deltaTime, view.Body.Body.BodyActive, view.Carrying, view.TwoHanded);
+                    view.Motion?.Step(deltaTime, view.Body.Body.BodyActive, view.Carrying, view.TwoHanded,
+                        !frameUnavailable && (controller == null || !controller.IsSimulationPaused));
                 foreach (var view in views) ShowHeld(view, deltaTime);
             }
             catch (Exception error) { SetFault(error); }
@@ -238,12 +284,13 @@ namespace Wreckabulary.Online
         }
         void OnDisable()
         {
-            foreach (var view in views) { view.World?.Show(false); view.Held?.Show(false); }
+            foreach (var view in views) { view.Motion?.StopMelee(); view.World?.Show(false); view.Held?.Show(false); }
         }
         public void Clear()
         {
             foreach (var view in views) view.Dispose();
             views.Clear(); appearances.Clear(); equipped.Clear(); defenses.Clear();
+            actors.Clear(); meleeItems.Clear(); meleeAvailable.Clear(); inventoryItems.Clear(); presentPlayers.Clear();
             frameEpoch = -1; frameTick = 0; frameUnavailable = true; binding = null; Fault = "";
         }
         void OnDestroy()

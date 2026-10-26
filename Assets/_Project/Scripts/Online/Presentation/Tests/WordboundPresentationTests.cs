@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
 using Wreckabulary.Art;
 using Wreckabulary.Online;
 using Wreckabulary.Rules;
+using Wreckabulary.Rules.Wordbound;
 using Object = UnityEngine.Object;
 
 namespace Wreckabulary.Tests
@@ -229,6 +233,165 @@ namespace Wreckabulary.Tests
             }
             finally { Object.DestroyImmediate(profile); }
         }
+
+        [TestCase("BAT"), TestCase("SPEAR")]
+        public void ConfirmedMeleeMovesAuthoredHandWhilePreservingLocomotionAndHeldGrip(string word)
+        {
+            var item = GameConfig.Current.Items.Get(word);
+            using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var control = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var motion = new WordboundAvatarMotion(avatar);
+            using var idle = new WordboundAvatarMotion(control);
+            motion.Step(.1f, true, true, false); idle.Step(.1f, true, true, false);
+            anchor.transform.position += Vector3.forward * .3f;
+            long tick = 100 + WordboundCombatPolicy.WindupTicks(item.Melee);
+            ObserveMelee(motion, 0, tick, MeleeActor(item), item);
+            motion.Step(.03f, true, true, false); idle.Step(.03f, true, true, false);
+            Assert.That(Vector3.Distance(avatar.RightHand.position, control.RightHand.position), Is.GreaterThan(.01f));
+            foreach (string bone in new[] { "root", "pelvis", "thigh_L", "shin_L", "foot_L", "thigh_R", "shin_R", "foot_R" })
+            {
+                var a = ModelVisual.FindNamed(avatar.Model, bone);
+                var b = ModelVisual.FindNamed(control.Model, bone);
+                Near(b.position, a.position);
+                Assert.That(Quaternion.Angle(a.rotation, b.rotation), Is.LessThan(.01f), bone);
+            }
+            using var held = resolver.Create(word, new Vector3(item.Size[0], item.Size[1], item.Size[2]), anchor.transform);
+            held.PlaceAtHand(anchor.transform, avatar.RightHand, true);
+            Near(avatar.RightHand.position, ModelVisual.FindNamed(held.Model, "Grip_R").position);
+        }
+
+        [Test]
+        public void DuplicateAndRegressiveMeleeObservationsDoNotRestartTheClip()
+        {
+            var item = GameConfig.Current.Items.Get("BAT");
+            using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var control = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var motion = new WordboundAvatarMotion(avatar);
+            using var reference = new WordboundAvatarMotion(control);
+            long tick = 100 + WordboundCombatPolicy.WindupTicks(item.Melee);
+            ObserveMelee(motion, 0, tick, MeleeActor(item), item);
+            ObserveMelee(reference, 0, tick, MeleeActor(item), item);
+            motion.Step(.02f, true, true, false); reference.Step(.02f, true, true, false);
+            ObserveMelee(motion, 0, tick, MeleeActor(item), item);
+            ObserveMelee(motion, 0, tick - 1, MeleeActor(item), item);
+            motion.Step(.02f, true, true, false); reference.Step(.02f, true, true, false);
+            Assert.AreEqual(MeleeTime(reference), MeleeTime(motion), .00001);
+            Near(control.RightHand.position, avatar.RightHand.position);
+        }
+
+        [Test]
+        public void LateConfirmedMeleeUsesBoundWeaponPhaseInsteadOfReplayingFromZero()
+        {
+            var item = new ItemDefinition { Family = HandlingFamily.MeleeSwing, Melee = new MeleeStats
+                { Damage = 1, Reach = 1, ArcDegrees = 90, Windup = .8f, Active = .2f, Recovery = .5f } };
+            using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var motion = new WordboundAvatarMotion(avatar);
+            ObserveMelee(motion, 0, 100 + WordboundCombatPolicy.WindupTicks(item.Melee), MeleeActor(item), item);
+            motion.Step(0, true, true, false);
+            var clip = ModelLibrary.Load().FindClip(WordboundVisualResolver.AvatarKey, "Swing_OneHand");
+            Assert.AreEqual(clip.length * 7d / 33d, MeleeTime(motion), .00001);
+            Assert.That(MeleeWeight(motion), Is.GreaterThan(.9f));
+        }
+
+        [Test]
+        public void RecoveryRequiresAnObservedAttackAndEndsAtItsConfirmedCooldown()
+        {
+            var item = GameConfig.Current.Items.Get("BAT");
+            using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var motion = new WordboundAvatarMotion(avatar);
+            long recovery = 100 + WordboundCombatPolicy.WindupTicks(item.Melee) + WordboundCombatPolicy.ActiveTicks(item.Melee);
+            ObserveMelee(motion, 0, recovery, MeleeActor(item, attack: false), item);
+            motion.Step(0, true, true, false);
+            Assert.AreEqual(0, MeleeWeight(motion), "Cooldown alone is not acceptance evidence.");
+            ObserveMelee(motion, 1, recovery - 1, MeleeActor(item), item);
+            motion.Step(0, true, true, false);
+            Assert.That(MeleeWeight(motion), Is.GreaterThan(0));
+            ObserveMelee(motion, 1, recovery, MeleeActor(item, attack: false), item);
+            motion.Step(0, true, true, false);
+            Assert.That(MeleeWeight(motion), Is.GreaterThan(0));
+            ObserveMelee(motion, 1, MeleeActor(item).NextAttackTick, MeleeActor(item, attack: false), item);
+            motion.Step(0, true, true, false);
+            Assert.AreEqual(0, MeleeWeight(motion));
+        }
+
+        [TestCase("unavailable"), TestCase("downed"), TestCase("stunned")]
+        [TestCase("unequipped"), TestCase("cancelled"), TestCase("defending")]
+        public void InterruptedMeleeStopsAndCannotReplayTheSameAttack(string reason)
+        {
+            var item = GameConfig.Current.Items.Get("BAT");
+            using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var motion = new WordboundAvatarMotion(avatar);
+            ObserveMelee(motion, 0, 101, MeleeActor(item), item);
+            motion.Step(0, true, true, false);
+            Assert.That(MeleeWeight(motion), Is.GreaterThan(0));
+            var actor = new MatchActorState("actor-a", reason == "downed" ? 0 : 100, 100,
+                nextAttackTick: MeleeActor(item).NextAttackTick, stunnedUntilTick: reason == "stunned" ? 120 : 0,
+                equippedSlot: 0, attack: reason == "cancelled" ? null : new MatchAttackState(100, "item:1"),
+                defense: reason == "defending" ? new MatchDefenseState("item:1", 100, 120) : null);
+            ObserveMelee(motion, 0, 102, actor, item, reason != "unavailable", reason == "unequipped" ? "item:2" : "item:1");
+            motion.Step(0, true, true, false);
+            Assert.AreEqual(0, MeleeWeight(motion));
+            ObserveMelee(motion, 0, 102, MeleeActor(item), item);
+            motion.Step(0, true, true, false);
+            Assert.AreEqual(0, MeleeWeight(motion));
+        }
+
+        [Test]
+        public void PausedMeleeAndStalledSnapshotsDoNotAdvanceWithoutBound()
+        {
+            var item = GameConfig.Current.Items.Get("HAMMER");
+            using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var motion = new WordboundAvatarMotion(avatar);
+            ObserveMelee(motion, 0, 105, MeleeActor(item), item);
+            motion.Step(0, true, true, false);
+            double initial = MeleeTime(motion);
+            var pausedStep = typeof(WordboundAvatarMotion).GetMethod("Step", BindingFlags.Instance | BindingFlags.NonPublic);
+            for (int i = 0; i < 20; i++) pausedStep.Invoke(motion, new object[] { .1f, true, true, false, false });
+            Assert.AreEqual(initial, MeleeTime(motion), .00001);
+            motion.Step(.1f, true, true, false);
+            double bounded = MeleeTime(motion);
+            for (int i = 0; i < 20; i++) motion.Step(.1f, true, true, false);
+            Assert.AreEqual(bounded, MeleeTime(motion), .00001);
+            motion.Step(0, false, true, false);
+            Assert.AreEqual(0, MeleeWeight(motion));
+        }
+
+        [Test]
+        public void EpochRestoreSamplesItsConfirmedPhaseAndRejectsThePriorEpoch()
+        {
+            var item = GameConfig.Current.Items.Get("HAMMER");
+            using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
+            using var motion = new WordboundAvatarMotion(avatar);
+            ObserveMelee(motion, 0, 110, MeleeActor(item), item);
+            motion.Step(0, true, true, false);
+            double later = MeleeTime(motion);
+            ObserveMelee(motion, 1, 105, MeleeActor(item), item);
+            motion.Step(0, true, true, false);
+            double restored = MeleeTime(motion);
+            Assert.That(restored, Is.GreaterThan(0));
+            Assert.That(restored, Is.LessThan(later));
+            ObserveMelee(motion, 0, 110, MeleeActor(item), item);
+            motion.Step(0, true, true, false);
+            Assert.AreEqual(restored, MeleeTime(motion), .00001);
+        }
+
+        static MatchActorState MeleeActor(ItemDefinition item, bool attack = true) =>
+            new MatchActorState("actor-a", 100, 100,
+                nextAttackTick: 100 + WordboundCombatPolicy.CycleTicks(item.Melee), equippedSlot: 0,
+                attack: attack ? new MatchAttackState(100, "item:1") : null);
+
+        static void ObserveMelee(WordboundAvatarMotion motion, long epoch, long tick, MatchActorState actor,
+            ItemDefinition item, bool available = true, string equipped = "item:1") =>
+            typeof(WordboundAvatarMotion).GetMethod("ObserveMelee", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(motion, new object[] { epoch, tick, actor, equipped, item, available });
+
+        static float MeleeWeight(WordboundAvatarMotion motion) =>
+            ((AnimationLayerMixerPlayable)typeof(WordboundAvatarMotion).GetField("layers", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(motion)).GetInputWeight(2);
+
+        static double MeleeTime(WordboundAvatarMotion motion) =>
+            ((AnimationClipPlayable)typeof(WordboundAvatarMotion).GetField("swing", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(motion)).GetTime();
 
         static void Near(Vector3 expected, Vector3 actual) =>
             Assert.That(Vector3.Distance(expected, actual), Is.LessThan(.002f), $"Expected {expected}, got {actual}");
