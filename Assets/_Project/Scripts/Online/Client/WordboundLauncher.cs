@@ -102,7 +102,8 @@ namespace Wreckabulary.Online
                 await client.StartMatch(launch.Coordinator, launch.Verifier, launch.Verified,
                     content.Mode, content.Course, content.Geometry, content.Items, content.Rules,
                     prefabs, Assets.SnapshotChunk, menu.PhotonAppId, scene, launch.FreshJoin,
-                    content.PhysicalPuzzles, cameraProfile: OnlineCameraFor(content), visualProfile: OnlineVisualFor(content), uiTheme: Assets.UiTheme);
+                    content.PhysicalPuzzles, cameraProfile: OnlineCameraFor(content), visualProfile: OnlineVisualFor(content),
+                    uiTheme: Assets.UiTheme, storyProfile: Assets.StoryProfile);
                 if (destroying || activeClient != client) return;
                 if (LobbyCamera) LobbyCamera.enabled = false;
             }
@@ -221,7 +222,8 @@ namespace Wreckabulary.Online
                 };
                 workshop.Visible = false;
                 await client.StartLocal(content, prefabs, scene,
-                    cameraProfile: inputs.Camera, visualProfile: inputs.Visual, uiTheme: Assets.UiTheme);
+                    cameraProfile: inputs.Camera, visualProfile: inputs.Visual, uiTheme: Assets.UiTheme,
+                    storyProfile: Assets.StoryProfile);
                 if (!destroying && generation == localGeneration && localClient == client && LobbyCamera)
                     LobbyCamera.enabled = false;
             }

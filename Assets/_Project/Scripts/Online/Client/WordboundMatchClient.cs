@@ -35,7 +35,8 @@ namespace Wreckabulary.Online
             string photonAppId, SceneRef gameplayScene,
             Func<CancellationToken, Task<WordboundFusionJoin>> freshCredentials,
             IWordboundPuzzleContent physicalPuzzles = null, InputBinding controls = null,
-            WordboundCameraProfile cameraProfile = null, WordboundVisualProfile visualProfile = null, WordboundUiTheme uiTheme = null)
+            WordboundCameraProfile cameraProfile = null, WordboundVisualProfile visualProfile = null, WordboundUiTheme uiTheme = null,
+            WordboundStoryProfile storyProfile = null)
         {
             if (started) throw new InvalidOperationException("Create a fresh match client for each match.");
             if (client?.Credentials == null || verified == null || verifier == null || freshCredentials == null)
@@ -79,6 +80,7 @@ namespace Wreckabulary.Online
                 artwork.Failed += PresentationFailed;
                 hud = matchRoot.AddComponent<WordboundMatchHud>();
                 hud.Theme = uiTheme;
+                hud.StoryProfile = storyProfile;
                 hud.Initialize(gameplay, playerView, items, mode, course, client.Credentials.PlayerId);
                 hud.ReturnRequested += RequestReturn;
                 session = new WordboundFusionSession(CreateRunner,

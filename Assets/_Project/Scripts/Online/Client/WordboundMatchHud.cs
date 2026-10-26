@@ -37,6 +37,7 @@ namespace Wreckabulary.Online
         bool panelsReady;
         public event Action ReturnRequested;
         public WordboundUiTheme Theme;
+        public WordboundStoryProfile StoryProfile;
         readonly WordboundUiStyles ui = new WordboundUiStyles();
 
         public void Initialize(WordboundGameplayController gameplay, WordboundPlayerView playerView,
@@ -56,7 +57,7 @@ namespace Wreckabulary.Online
             seat = Enumerable.Range(0, binding.Seats.Count).Single(i => binding.Seats[i].PlayerId == actorId);
             team = binding.Seats[seat].Team;
             story = gameObject.AddComponent<WordboundStoryView>();
-            story.Bind(controller, course, items, actorId, view.Camera);
+            story.Bind(controller, course, items, actorId, view.Camera, StoryProfile);
             controller.FrameChanged += ApplyFrame;
             controller.Faulted += ConnectionFailed;
             view.CommandsRead += ReadCommands;

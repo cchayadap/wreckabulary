@@ -70,7 +70,8 @@ namespace Wreckabulary.Online.Editor
                 client.ReturnedToWorkshop += Returned;
                 client.Failed += Failed;
                 await client.StartLocal(content, launch.BodyPrefabs(), launch.GameplayScene(),
-                    cameraProfile: asset.CameraProfile, visualProfile: asset.VisualProfile, uiTheme: launch.UiTheme);
+                    cameraProfile: asset.CameraProfile, visualProfile: asset.VisualProfile, uiTheme: launch.UiTheme,
+                    storyProfile: launch.StoryProfile);
             }
             catch (Exception e)
             {
