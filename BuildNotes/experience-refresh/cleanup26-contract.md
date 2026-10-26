@@ -83,3 +83,41 @@ Use local result objects per asynchronous task and deterministic sorting/aggrega
 Adjacent limitation to keep explicit: current Prepare records a newly joined member only after JoinParty returns, and records a created party only after receiving its ID. An ambiguous setup response can leave service state outside that known-membership list. The fully prepared014532 Freestyle roster had all eight original groups/clients recorded, so this does not explain its teardown. Do not silently expand this patch into credential discovery or whole-service cleanup; any preparation ownership-journal/reconciliation repair needs its own bounded design.
 
 STATUS: COMPLETE — contract ready for root's scope/budget approval. Only this report changed. No source edits, service requests, tests, native jobs or cleanup execution occurred; the historical Freestyle cleanup failure remains unresolved by this design.
+
+## Approved implementation checkpoint
+
+STATUS: IN PROGRESS — root approved the exact bounded fixture implementation on2026-10-26. No services/heavy jobs/metadata/push; root reports native validation unavailable after compiler IPC timeouts under CPU load.
+
+Pre-edit comparison: WordboundLiveMatch.cs matches root exactly. WordboundNativeGameplayTests.cs differs only in the preserved full-duration Run optional fixtureLifetime parameter and fallback eight-minute CTS. Those baseline differences remain untouched; only the service-cleanup block will enter the new commit. No other lane files will be imported.
+
+Implementation scope: the two approved fixture files, new fake-transport cleanup tests and this report. Keep HTTP/gameplay/gate limits and terminal assertions unchanged; derived service watchdog120/180/300s plus5s drain is explicitly approved.
+
+## Implementation source review — 2026-10-26
+
+STATUS: COMPLETE — bounded source implementation and independent source review complete; executable/native validation remains pending root. This is not a live-cleanup success receipt.
+
+The helper snapshots the original client/party membership and authenticated player IDs. It refuses duplicate ownership or more than eight clients/parties, runs all owned returns as one phase, and waits for every return stage before beginning any party chain. Independent parties then overlap; each chain reads its leader's current revision for Cancel and processes members in reverse order, fetching a fresh revision for every Leave and verifying the post-Leave profile. A failed Cancel remains failed even when subsequent Leave succeeds. A failed prerequisite read or changed membership never fabricates a revision or deletes another party; later safe member stages still run.
+
+Every HTTP delegate invocation receives a fresh CTS with a15s deadline linked only to the dedicated cleanup watchdog. There is no retry loop and exactly one idempotency key per intended Cancel/Leave. The default production HTTP transport remains unchanged. Watchdog computation follows the documented longest party chain plus return wave and15s allowance:120s/180s/300s for prepared one/two/four-member parties; partial preparation with no Expected skips the absent return wave. The native service block consumes the helper's full stage count, records watchdog expiration as an additional failure, aborts outstanding requests/resources, and drains for up to5s. An unsettled task adds an incomplete failure and gets a fault-observation continuation. Zero-cleanup-failure and native-object-leak assertions, native stop20s/pending5s caps, gameplay/preparation/HTTP/gate deadlines, and protected full-duration differences are unchanged.
+
+Receipts retain the existing failure and summary prefixes and add bounded request/stage records. Request records include validated match ID (or none before assignment), peer/party index, subrequest, attempt1, delegate-started flag, monotonic start/end,15s budget, outcome, request cancellation, outer cancellation, explicit abort, allowlisted error class/code and HTTP status. `started` means invocation of the client request delegate, not proof of transmission. The native caller identifies outer cancellation as watchdog expiration. No receipt contains credentials, raw bodies, raw exceptions, invites or idempotency keys. A request's2xx completion does not erase a later stage validation failure. Failure aggregation reads terminal stage outcomes after WhenAll; no shared asynchronous failure-counter increments are used.
+
+Resource release is attempted once for every client, workshop coordinator and transport, even after another disposal throws. Normal cleanup disposes after both phases settle. Watchdog abort explicitly releases resources to interrupt uncooperative work and marks it incomplete; it does not claim a remote write was rolled back. Player-ID snapshots avoid reading credentials after abort has cleared them.
+
+New fake-transport coverage (`WordboundLiveCleanupTests`) exercises the eight-return barrier with one retained service failure, eight singleton cancel chains overlapping, two four-member party chains and leader-last fresh-revision leaves, independent request cancellation, failed Cancel plus failed prerequisite reads, changed/already-left membership, post-Leave membership verification, wrong return actor, uncooperative abort with blocked later mutations, derived budgets, partial preparation, duplicate ownership, and no repeated mutation/idempotency key. Fake guest credentials exist only in memory and never leave the fake transport. The abort test checks incomplete accounting and absence of later service calls; injecting its late fault does not prove the observer has run. The source continuation is reviewed, but no runtime observer-completion claim is made.
+
+Independent source review found and resolved an ambiguous `Select(Clients.IndexOf)` method group by using an explicit lambda; the return actor is also snapshotted before awaits. The final review found no remaining concrete blocker in scheduling, safe dependency order, failure retention or the fake-test oracles. Scoped `git diff --check` passes. No R0, fake tests, Unity/native, core, Blender, service or cleanup job ran: R0 here invokes dotnet builds and can regenerate projects, and root reports compiler IPC timeouts under CPU saturation. The original014532 artifacts and historical failures remain unchanged; source correction does not establish their network cause or prove residual service state is cleaned.
+
+### Root validation and integration handoff
+
+Import only the scoped implementation commit. Its existing-file hunks are confined to WordboundLiveMatch cleanup/helpers and the native service-cleanup block. Exclude the unrelated ModeDefinition.cs dirt, ProtocolV3 directory, checkpoint logs, all other lane files, and the preexisting full-duration Run signature/CTS differences. Do not import baseline-only29ef9783 or modify the8605ad59->2f7b8482 chain. Unity metadata for the new test remains root-owned and was not created here.
+
+When the compiler is usable, run the source gate and the full `Wreckabulary.OnlineGameplayTests.WordboundLiveCleanupTests` fixture first. Then run these native cases individually with fresh identities and retain new raw XML/log/JSON receipts:
+
+1. `WordboundNativeGameplayTests.PublicFreestyleFillsEightAuthenticatedCooperativePlayers` — reproduces the original singleton-party cleanup shape.
+2. `WordboundNativeGameplayTests.PublicTimeRunAllocatesFourAuthenticatedCooperativePlayers` — one four-member chain and partial preparation failure visibility.
+3. `WordboundNativeGameplayTests.PublicFreeForAllAllocatesEightAuthenticatedIndividuals` — previously passing maximum singleton baseline.
+4. `WordboundNativeGameplayTests.PublicTeamRacePreservesWholeSquadParties` — two concurrent four-member chains, leader-last membership revisions.
+5. `WordboundNativeGameplayTests.TwoAuthenticatedPeersDownloadAndPlayExactAuthoredWorkshopMap` — shared workshop credentials/transport release regression.
+
+Retain all original native identity/roster/gameplay assertions and require service summary failures0, no watchdog expiration/incomplete outcome, and no native-object leak. A new failing receipt stays failing even if every later cleanup stage succeeds. Root remains the sole owner of live/native execution and any supported residual-state follow-up.

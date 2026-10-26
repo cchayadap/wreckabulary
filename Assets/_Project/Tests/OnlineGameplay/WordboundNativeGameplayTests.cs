@@ -650,12 +650,28 @@ namespace Wreckabulary.OnlineGameplayTests
             pending.Clear();
             if (live != null)
             {
-                using var cleanup = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+                var budget = live.CleanupWatchdog;
+                Debug.Log("WORDBOUND_SERVICE_WATCHDOG: budgetSeconds=" + budget.TotalSeconds + "; drainSeconds=5");
+                using var cleanup = new CancellationTokenSource(budget);
                 var task = live.Cleanup(cleanup.Token);
                 while (!task.IsCompleted && !cleanup.IsCancellationRequested) yield return null;
+                if (cleanup.IsCancellationRequested)
+                {
+                    failures++;
+                    Debug.Log("WORDBOUND_SERVICE_WATCHDOG: outcome=expired");
+                    live.AbortCleanup();
+                    double drainDeadline = Time.realtimeSinceStartupAsDouble + 5;
+                    while (!task.IsCompleted && Time.realtimeSinceStartupAsDouble < drainDeadline) yield return null;
+                }
                 if (!task.IsCompleted || task.IsCanceled) failures++;
                 else if (task.IsFaulted) { _ = task.Exception; failures++; }
                 else failures += task.Result;
+                if (!task.IsCompleted)
+                {
+                    Debug.Log("WORDBOUND_SERVICE_WATCHDOG: outcome=incomplete-after-drain");
+                    _ = task.ContinueWith(done => { _ = done.Exception; }, CancellationToken.None,
+                        TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+                }
                 live = null;
             }
             foreach (var root in Resources.FindObjectsOfTypeAll<GameObject>()

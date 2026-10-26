@@ -212,42 +212,240 @@ namespace Wreckabulary.OnlineGameplayTests
                 ["teamId"] = (int)s["teamId"].Number(), ["seat"] = (int)s["seat"].Number(),
                 ["connectionSecretHash"] = s["connectionSecretHash"].String() }).ToArray());
 
-        public async Task<int> Cleanup(CancellationToken ct)
+        CleanupExecution cleanupExecution;
+        Task<int> cleanupTask;
+        bool cleanupResourcesDisposed;
+        int cleanupResourceFailures;
+        CleanupExecution CleanupPlan => cleanupExecution ??= new CleanupExecution(Clients,
+            parties.Select(group => new CleanupParty(group.Id, group.Members.Select(member => Clients.IndexOf(member)))), Expected,
+            message => UnityEngine.Debug.Log(message));
+        public TimeSpan CleanupWatchdog => CleanupPlan.Watchdog;
+        public Task<int> Cleanup(CancellationToken ct) => cleanupTask ??= FinishCleanup(ct);
+        public void AbortCleanup()
+        {
+            cleanupExecution?.Abort();
+            DisposeCleanupResources();
+        }
+        async Task<int> FinishCleanup(CancellationToken ct)
         {
             int failures = 0;
-            int returnFailures = 0, cancelFailures = 0, leaveFailures = 0;
-            if (Expected != null)
-                foreach (var client in Clients)
-                    try { await client.MatchAction(Expected, "return", ct); }
-                    catch (Exception error) { failures++; returnFailures++; ReportServiceFailure("cleanup-return", Clients.IndexOf(client), error); }
-            foreach (var group in parties)
+            try { failures = await CleanupPlan.Run(ct); }
+            catch (Exception error) { failures = 1 + (cleanupExecution?.FailureCount ?? 0); ReportServiceFailure("cleanup-plan", -1, error); }
+            finally { DisposeCleanupResources(); }
+            failures += cleanupResourceFailures;
+            UnityEngine.Debug.Log("WORDBOUND_SERVICE_CLEANUP: failures=" + failures +
+                "; return=" + (cleanupExecution?.Failures("return") ?? 0) +
+                "; cancel=" + (cleanupExecution?.Failures("cancel") ?? 0) +
+                "; leave=" + (cleanupExecution?.Failures("leave") ?? 0) +
+                "; dispose=" + cleanupResourceFailures + "; clients=" + Clients.Count + "; parties=" + parties.Count);
+            return failures;
+        }
+        void DisposeCleanupResources()
+        {
+            if (cleanupResourcesDisposed) return;
+            cleanupResourcesDisposed = true;
+            void Dispose(Action action)
             {
+                try { action(); }
+                catch (Exception error) { cleanupResourceFailures++; ReportServiceFailure("cleanup-dispose", -1, error); }
+            }
+            foreach (var client in Clients) Dispose(client.ClearCredentials);
+            foreach (var coordinator in workshopCoordinators) Dispose(coordinator.Dispose);
+            foreach (var transport in transports) Dispose(transport.Dispose);
+        }
+
+        internal sealed class CleanupParty
+        {
+            public string Id { get; }
+            public IReadOnlyList<int> Members { get; }
+            public CleanupParty(string id, IEnumerable<int> members)
+            { Id = id; Members = Array.AsReadOnly(members.ToArray()); }
+        }
+
+        internal sealed class CleanupReceipt
+        {
+            public string MatchId { get; }
+            public string Stage { get; }
+            public int Peer { get; }
+            public int Party { get; }
+            public string Request { get; }
+            public bool Started { get; }
+            public string Outcome { get; }
+            public bool RequestCancelled { get; }
+            public bool OuterCancelled { get; }
+            public bool Aborted { get; }
+            public string FailureType { get; }
+            public int HttpStatus { get; }
+            public string Code { get; }
+            public double StartMilliseconds { get; }
+            public double EndMilliseconds { get; }
+            public CleanupReceipt(string matchId, string stage, int peer, int party, string request, bool started, string outcome,
+                bool requestCancelled, bool outerCancelled, bool aborted, Exception error, double start, double end)
+            {
+                MatchId = matchId; Stage = stage; Peer = peer; Party = party; Request = request; Started = started; Outcome = outcome;
+                RequestCancelled = requestCancelled; OuterCancelled = outerCancelled; Aborted = aborted;
+                FailureType = error == null ? "none" : SafeFailureType(error);
+                HttpStatus = error is OnlineServiceException service ? service.Status : 0;
+                Code = error is OnlineServiceException coded ? SafeServiceCode(coded.Code) : "none";
+                StartMilliseconds = start; EndMilliseconds = end;
+            }
+            public string Line => FormattableString.Invariant($"WORDBOUND_SERVICE_REQUEST: match={MatchId}; stage=cleanup-{Stage}; peer={Peer}; party={Party}; request={Request}; attempt=1; started={Started}; outcome={Outcome}; startMs={StartMilliseconds:F3}; endMs={EndMilliseconds:F3}; budgetMs=15000; requestCancelled={RequestCancelled}; outerCancelled={OuterCancelled}; aborted={Aborted}; type={FailureType}; httpStatus={HttpStatus}; code={Code}");
+        }
+
+        internal sealed class CleanupExecution
+        {
+            sealed class Stage
+            {
+                public readonly string Kind;
+                public readonly int Peer, Party;
+                public string Outcome = "pending";
+                public Stage(string kind, int peer, int party) { Kind = kind; Peer = peer; Party = party; }
+            }
+            sealed class IncompleteRequestException : TimeoutException { }
+            readonly OnlineCoordinatorClient[] clients;
+            readonly string[] playerIds;
+            readonly CleanupParty[] groups;
+            readonly OnlineMatchExpectation expected;
+            readonly Action<string> log;
+            readonly Action<CancellationTokenSource> scheduleDeadline;
+            readonly TaskCompletionSource<bool> aborted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            readonly List<CleanupReceipt> receipts = new List<CleanupReceipt>();
+            readonly Stage[] returns, cancels;
+            readonly Stage[][] leaves;
+            readonly System.Diagnostics.Stopwatch elapsed = new System.Diagnostics.Stopwatch();
+            CancellationToken outer;
+            bool started;
+            public TimeSpan Watchdog { get; }
+            public IReadOnlyList<CleanupReceipt> Receipts { get { lock (receipts) return receipts.ToArray(); } }
+            public int FailureCount => AllStages().Count(stage => stage.Outcome != "success" && stage.Outcome != "already-left");
+            public int Failures(string kind) => AllStages().Count(stage => stage.Kind == kind &&
+                stage.Outcome != "success" && stage.Outcome != "already-left");
+            IEnumerable<Stage> AllStages() => returns.Concat(cancels).Concat(leaves.SelectMany(group => group));
+
+            public CleanupExecution(IEnumerable<OnlineCoordinatorClient> clients, IEnumerable<CleanupParty> groups,
+                OnlineMatchExpectation expected, Action<string> log, Action<CancellationTokenSource> scheduleDeadline = null)
+            {
+                this.clients = clients.ToArray(); this.groups = groups.ToArray(); this.expected = expected;
+                this.log = log ?? throw new ArgumentNullException(nameof(log));
+                this.scheduleDeadline = scheduleDeadline ?? (source => source.CancelAfter(TimeSpan.FromSeconds(15)));
+                if (this.clients.Length > 8 || this.clients.Any(client => client == null) ||
+                    this.clients.Distinct().Count() != this.clients.Length || this.groups.Length > 8 ||
+                    this.groups.Any(group => group == null || !Guid.TryParse(group.Id, out _) || group.Members.Count < 1 || group.Members.Count > 4) ||
+                    this.groups.Select(group => group.Id).Distinct(StringComparer.Ordinal).Count() != this.groups.Length)
+                    throw new ArgumentException("Cleanup must describe a bounded original fixture roster.");
+                var members = this.groups.SelectMany(group => group.Members).ToArray();
+                if (members.Any(peer => peer < 0 || peer >= this.clients.Length) || members.Distinct().Count() != members.Length)
+                    throw new ArgumentException("Cleanup party membership must be unique and owned by the fixture.");
+                playerIds = this.clients.Select(client => client.Credentials?.PlayerId).ToArray();
+                returns = expected == null ? Array.Empty<Stage>() : this.clients.Select((_, peer) => new Stage("return", peer, -1)).ToArray();
+                cancels = this.groups.Select((group, party) => new Stage("cancel", group.Members[0], party)).ToArray();
+                leaves = this.groups.Select((group, party) => group.Members.Reverse().Select(peer => new Stage("leave", peer, party)).ToArray()).ToArray();
+                int waves = returns.Length == 0 ? 0 : 1;
+                int partyRequests = this.groups.Length == 0 ? 0 : this.groups.Max(group => 2 + 4 * group.Members.Count);
+                Watchdog = TimeSpan.FromSeconds(15 * (waves + partyRequests) + 15);
+            }
+
+            public void Abort() => aborted.TrySetResult(true);
+            public async Task<int> Run(CancellationToken cancellation)
+            {
+                if (started) throw new InvalidOperationException("Cleanup may run only once.");
+                started = true; outer = cancellation; elapsed.Start();
+                await Task.WhenAll(returns.Select(stage => Execute(stage, async () => {
+                    var returned = await Request(stage, "return", token => clients[stage.Peer].MatchAction(expected, "return", token));
+                    if (returned["state"].String() != "RETURNED" || returned["playerId"].String() != playerIds[stage.Peer])
+                        throw new InvalidOperationException("Cleanup return did not confirm the original actor.");
+                    return false;
+                })));
+                await Task.WhenAll(groups.Select((group, party) => CleanupGroup(group, party)));
+                return FailureCount;
+            }
+
+            async Task CleanupGroup(CleanupParty group, int partyIndex)
+            {
+                var cancel = cancels[partyIndex];
+                await Execute(cancel, async () => {
+                    var party = await Request(cancel, "party-before-cancel", token => clients[cancel.Peer].Party(group.Id, token));
+                    string key = Key();
+                    await Request(cancel, "cancel", token => clients[cancel.Peer].Cancel(group.Id, party["revision"].String(), key, token));
+                    return false;
+                });
+                foreach (var leave in leaves[partyIndex])
+                    await Execute(leave, async () => {
+                        var client = clients[leave.Peer];
+                        var profile = await Request(leave, "profile-before-leave", client.Profile);
+                        if (!profile.Has("partyId")) return true;
+                        if (profile["partyId"].String() != group.Id) throw new InvalidOperationException("Cleanup membership changed.");
+                        var party = await Request(leave, "party-before-leave", token => client.Party(group.Id, token));
+                        string key = Key();
+                        await Request(leave, "leave", token => client.Leave(group.Id, party["revision"].String(), key, token));
+                        if ((await Request(leave, "profile-after-leave", client.Profile)).Has("partyId"))
+                            throw new InvalidOperationException("Cleanup left a party membership.");
+                        return false;
+                    });
+            }
+
+            async Task Execute(Stage stage, Func<Task<bool>> operation)
+            {
+                if (outer.IsCancellationRequested || aborted.Task.IsCompleted)
+                {
+                    stage.Outcome = "blocked";
+                    log($"WORDBOUND_SERVICE_STAGE: stage=cleanup-{stage.Kind}; peer={stage.Peer}; party={stage.Party}; outcome=blocked; outerCancelled={outer.IsCancellationRequested}");
+                    return;
+                }
+                try { stage.Outcome = await operation() ? "already-left" : "success"; }
+                catch (Exception error)
+                {
+                    stage.Outcome = error is IncompleteRequestException ? "incomplete" : "failed";
+                    log("WORDBOUND_SERVICE_FAILURE: stage=cleanup-" + stage.Kind + "; peer=" + stage.Peer +
+                        "; type=" + SafeFailureType(error) + "; httpStatus=" + (error is OnlineServiceException service ? service.Status : 0) +
+                        "; code=" + (error is OnlineServiceException coded ? SafeServiceCode(coded.Code) : "none"));
+                }
+                log($"WORDBOUND_SERVICE_STAGE: stage=cleanup-{stage.Kind}; peer={stage.Peer}; party={stage.Party}; outcome={stage.Outcome}");
+            }
+
+            async Task<JsonNode> Request(Stage stage, string name, Func<CancellationToken, Task<JsonNode>> send)
+            {
+                using var request = CancellationTokenSource.CreateLinkedTokenSource(outer);
+                double start = elapsed.Elapsed.TotalMilliseconds;
+                bool sent = false;
+                string outcome = "failed";
+                Exception failure = null;
                 try
                 {
-                    var party = await group.Members[0].Party(group.Id, ct);
-                    await group.Members[0].Cancel(group.Id, party["revision"].String(), Key(), ct);
-                }
-                catch (Exception error) { failures++; cancelFailures++; ReportServiceFailure("cleanup-cancel", -1, error); }
-                foreach (var client in group.Members.AsEnumerable().Reverse())
-                {
-                    try
+                    outer.ThrowIfCancellationRequested();
+                    if (aborted.Task.IsCompleted) throw new IncompleteRequestException();
+                    scheduleDeadline(request);
+                    request.Token.ThrowIfCancellationRequested();
+                    sent = true;
+                    var task = send(request.Token);
+                    await Task.WhenAny(task, aborted.Task);
+                    if (!task.IsCompleted)
                     {
-                        var profile = await client.Profile(ct);
-                        if (!profile.Has("partyId")) continue;
-                        if (profile["partyId"].String() != group.Id) throw new InvalidOperationException("Cleanup membership changed.");
-                        var party = await client.Party(group.Id, ct);
-                        await client.Leave(group.Id, party["revision"].String(), Key(), ct);
-                        if ((await client.Profile(ct)).Has("partyId")) throw new InvalidOperationException("Cleanup left a party membership.");
+                        request.Cancel();
+                        _ = task.ContinueWith(done => { _ = done.Exception; }, CancellationToken.None,
+                            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+                        throw new IncompleteRequestException();
                     }
-                    catch (Exception error) { failures++; leaveFailures++; ReportServiceFailure("cleanup-leave", Clients.IndexOf(client), error); }
+                    var result = await task;
+                    request.Token.ThrowIfCancellationRequested();
+                    outcome = "success";
+                    return result;
+                }
+                catch (Exception error)
+                {
+                    failure = error;
+                    outcome = error is IncompleteRequestException ? "incomplete" : sent ? "failed" : "blocked";
+                    throw;
+                }
+                finally
+                {
+                    var receipt = new CleanupReceipt(expected?.MatchId ?? "none", stage.Kind, stage.Peer, stage.Party, name, sent, outcome,
+                        request.IsCancellationRequested && !outer.IsCancellationRequested && !aborted.Task.IsCompleted,
+                        outer.IsCancellationRequested, aborted.Task.IsCompleted, failure, start, elapsed.Elapsed.TotalMilliseconds);
+                    lock (receipts) receipts.Add(receipt);
+                    log(receipt.Line);
                 }
             }
-            UnityEngine.Debug.Log("WORDBOUND_SERVICE_CLEANUP: failures=" + failures + "; return=" + returnFailures +
-                "; cancel=" + cancelFailures + "; leave=" + leaveFailures + "; clients=" + Clients.Count + "; parties=" + parties.Count);
-            foreach (var client in Clients) client.ClearCredentials();
-            foreach (var coordinator in workshopCoordinators) coordinator.Dispose();
-            foreach (var transport in transports) transport.Dispose();
-            return failures;
         }
         static void ReportServiceFailure(string stage, int peer, Exception error) =>
             UnityEngine.Debug.Log("WORDBOUND_SERVICE_FAILURE: stage=" + stage + "; peer=" + peer +
