@@ -43,3 +43,11 @@ HEAD a1292064 contains the tested three-lap creator starter; lease fix82a67fa6 p
 The sole live native job is unchanged full public FFA184207, gatePID33524, command session42172, prefix .harness/delivery/completion-ffa-2026-10-26T18-42-07-695Z. Read terminal status before launching another native job. Original Windows review build remains164019Z.
 
 FAN build05 and its render stage both terminated code0; all4 GLB/FBX reimports/grip/clearance/source tests pass. Sixteen matched views show LOD stand/grille/yoke/rear-support defects. Fresh build06 source is independently reviewed at assets-build06/review.md; wrapper .harness/delivery/run-fan-build06.mjs is prepared but not run. No asset replacement. Recovery snapshot18:45:13 preserves1034 files. Other jobs/power policy untouched.
+
+## 2026-10-26T18:51:00Z FFA terminal result and original grip mismatch
+
+Source/menu/cadence commit cd716e6a is saved. Full FFA184207 is terminal FAIL502.4s at18:50:30UTC: contact-return35.012s, lifetimeCancelled=False, no sessionfault and cleanup0 for2clients/2parties. Its ACK-to-next-publication observations total49.676s over228 gaps versus144.938s/263 previously; publication-to-ACK total325.060s/229 with13.350s maximum remains high. This does not establish overall faster gameplay or full-match acceptance. Exact terminal raw hashes/metrics are in ffa-full-match-184207.json; source-only trajectory/timing diagnosis is underway without changing bounds.
+
+Current sole native job: strengthened starter185112, gatePID34552/session84914, prefix .harness/delivery/starter-physical-2026-10-26T18-51-11-950Z. Read its terminal receipt before another native operation.
+
+FAN admission inspection found original V1 GLB/catalogue grip at y0.4105 but inherited05/06 pilot grip at origin. Existing pilot preservation checks do not prove original hand contact. Build06 native is held; fresh07 source must combine its reviewed LOD protections with the original grip contract. No model/profile/default was changed.
