@@ -29,9 +29,9 @@
       "errors": null,
       "refreshSecs": null,
       "log": {
-        "path": "Logs/gate_check_all_20261026T034217Z.log",
-        "bytes": 0,
-        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "path": "Logs/gate_exec_Run_20261026T031649Z.log",
+        "bytes": 24545,
+        "sha256": "30a7838e33e5cd582f332d2d72c6fc1cd196deabfab85d793998428c5280eec6"
       },
       "probeCompletedMarker": false
     },
@@ -61,9 +61,9 @@
       "errors": null,
       "refreshSecs": null,
       "log": {
-        "path": "Logs/gate_check_all_20261026T034217Z.log",
-        "bytes": 0,
-        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "path": "Logs/gate_exec_Run_20261026T034659Z.log",
+        "bytes": 28366,
+        "sha256": "d2f2f152dd9619b2a5f21e09302459b49c4a6a6af8c0df3e50ed55c492821f24"
       },
       "probeCompletedMarker": false
     }
@@ -82,5 +82,6 @@
     "No updated Windows build or public-capacity retry was launched.",
     "Previous review build20261024T034544Z is preserved."
   ],
-  "next": "Read-only compiler IPC comparison; avoid identical retries without a changed condition or concrete correction."
+  "next": "Read-only compiler IPC comparison; avoid identical retries without a changed condition or concrete correction.",
+  "receiptCorrection": "Corrected R3 log references after independent review: gate history omits log paths; the initial fallback mistakenly selected the R0 log. Original logs unchanged."
 }
