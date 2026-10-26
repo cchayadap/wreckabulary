@@ -769,3 +769,8 @@ The first Windows lobby walkthrough passed all five stages with 15 actual captur
 ## 2026-10-27 Final lobby screenshot corrections
 
 Windows walkthrough 162634 passes 5/5 with 16 captures. Independent review finds a truncated Random house placeholder and stale map-change toast; the card now uses the shared poster layout and map changes update their existing selection/footer without a redundant toast. R0, core 41/41 and the full lobby Play suite 91/91 pass on this correction. All 276 saved authored files match the post-Home baseline. Final Windows rebuild follows this source checkpoint.
+
+
+## 2026-10-27 Lobby Windows delivery
+
+Build 20261026T164019Z uses source abeba5411e4f087a372ea57371edd7354157c1d2; final lobby walkthrough 20261026T164249Z-lobby_experience passes 5/5 with 16 real Windows captures. Full native lobby91/91, core41/41 and prior Home12/12 pass. The corrected Random house card and Home notice cleanup are independently reviewed. All 276 authored files are preserved. Try guide, before/after viewer, progress and Unity editing notes now identify this exact build. Online navigation only is checked here; full remote matches, original-house online support, physical input/editor acceptance and production release remain open. Existing character/art drafts and older failures remain preserved.

@@ -1,6 +1,6 @@
 # Lobby verification
 
-STATUS: NATIVE SOURCE VERIFIED; WINDOWS PENDING. The last delivered Windows build remains 20261026T145311Z until the Windows walkthrough passes.
+STATUS: FINAL NATIVE AND BOUNDED WINDOWS VERIFICATION PASSED. Latest build 20261026T164019Z, source abeba541. Earlier failures below are retained as history.
 
 The integrated change separates Local / Online / Create, retains the original art, shortens card copy, shows actual participants once, exposes Customize and Shop, labels local devices explicitly, removes the routine welcome toast, and groups settings. Narrow navigation reflows to two rows; large coin balances also participate in the width decision. Home labels are saved through Unity, with exact other-field and dependency preservation checks.
 
@@ -19,3 +19,12 @@ Editor 155841 passes all 12 Home cases. Production migration 160028 applies and 
 The Windows scenario uses actual UI Submit callbacks and 15 requested screenshots. It checks mode summaries, navigation bounds, six settings categories, controls lease release, Back focus and the real initialized Wordbound frontend. It does not claim physical keyboard/gamepad acceptance, matchmaking or a completed online match. Original house modes remain local.
 
 Full Play run160302 passes90/91. Its only failure is the old330/280 fixed-card-size expectation; those values were intentionally reduced to260/244. Targeted run160635 passes the corrected case and the settings capture,2/2. This completes all91 behavior checks across the full and targeted runs, not one91/91 result. The12 settings images include all six normal tabs and the simulated confirmation footer on all six. Display dimensions/mode remain unchanged. All276 authored outputs remain identical to the post-Home baseline.
+
+
+## Final delivery — 2026-10-27 Asia/Hong_Kong
+
+The first Windows run161357 passed 5/5 with 15 captures. Image review prompted a visible Settings scrollbar. Native161936 passed 21/21 and capture162055 passed 2/2 with 12 images; Windows162634 then passed 5/5 with 16 captures, including the final Controls bindings. Review of those images found Random house truncated and an old map toast on Home. The final correction uses the shared poster layout and suppresses only redundant map-state notices.
+
+Final R0163218 passes; core163716 passes 41/41; full lobby Play163740 passes 91/91, zero skipped. Build 20261026T164019Z compiles exact committed source abeba5411e4f087a372ea57371edd7354157c1d2. Windows 20261026T164249Z-lobby_experience passes all 5 stages and captures 16 actual 1280×720 frames. Final image review accepts the corrected Escape card and unobstructed Home. All 276 authored files remain identical to the post-Home baseline.
+
+The scenario submits real UI callbacks and moves the actual scrollbar programmatically. It preserves preferences and verifies initialized Wordbound handoff, not physical input or a network connection/match. The 12 separate settings confirmation images simulate the pending state without changing display mode. Original house modes remain local. This is a QA-enabled review build, not final production acceptance. [Bound artifacts and limitations](../../client-view/windows-lobby-ui-20261027.json).

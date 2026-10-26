@@ -1,6 +1,6 @@
 # Lobby and play experience refinement
 
-STATUS: IN PROGRESS. Owner: James / SethyPagna. Baseline source fd5bb147; tested Windows 20261026T145311Z. This work continues the existing production goal and preserves its unfinished work.
+STATUS: IMPLEMENTED AND BOUNDED WINDOWS VERIFICATION PASSED. Owner: James / SethyPagna. Baseline source fd5bb147; tested Windows 20261026T145311Z. This work continues the existing production goal and preserves its unfinished work.
 
 ## Intent
 
@@ -12,13 +12,13 @@ Keep the vivid sunroom and original character as the visual focus. Make the next
 - [x] Read official navigation, input and matchmaking references; record their application separately from our design choices.
 - [x] Extract the unchanged Play and Settings page classes for separate ownership; R0 151628 and core 152023 (41/41) pass.
 - [x] Capture the unchanged lobby, Play, customization and settings as a visual baseline. Native 152213 passes 2/2 with unique capture folder; original sunroom and character preview remain the visual basis.
-- [~] Replace the misleading house-mode Matchmaking destination with a direct route to real Wordbound online play. Group local play, online play and creation/learning; show actual solo/local/bot/team composition.
-- [~] Keep Play cards visual and concise, with one selected objective and participants summary instead of repeated paragraphs.
-- [x] Save Home's Local Play / Online Play labels through Unity; native 155841 passes 12/12, migration 160028 changes exactly three text fields, repeat 160158 makes no save and preserves all 276 authored outputs. Shop/Customize/local-count navigation and narrow-width reflow still await full visual acceptance.
-- [~] Group real settings into meaningful categories; preserve rebind cancellation and display rollback, and repair content overlap/scroll/focus behavior.
-- [~] Review customization with actual captures; preserve its useful full-character preview, use the explicit Customize destination and shorten its completion action to Done. Saved appearance/recipe layouts remain intact.
-- [ ] Run focused behavior/layout/persistence checks, inspect changed screenshots at useful sizes, create an exact-source Windows build and verify the affected routes.
-- [ ] Update progress.md, editing instructions and recovery checkpoint with evidence and remaining work.
+- [x] Replace the misleading house-mode Matchmaking destination with a direct route to real Wordbound online play. Group local play, online play and creation/learning; show actual solo/local/bot/team composition.
+- [x] Keep Play cards visual and concise, with one selected objective and participants summary instead of repeated paragraphs.
+- [x] Save Home's Local Play / Online Play labels through Unity; native 155841 passes 12/12, migration 160028 changes exactly three text fields, repeat 160158 makes no save and preserves all 276 authored outputs. Native layout checks and Windows captures verify Shop/Customize/local-count navigation; physical input and owner acceptance remain separate.
+- [x] Group real settings into meaningful categories; preserve rebind cancellation and display rollback, and repair content overlap/scroll/focus behavior.
+- [x] Review customization with actual captures; preserve its useful full-character preview, use the explicit Customize destination and shorten its completion action to Done. Saved appearance/recipe layouts remain intact.
+- [x] Run focused behavior/layout/persistence checks, inspect changed screenshots at useful sizes, create an exact-source Windows build and verify the affected routes.
+- [x] Update progress.md, editing instructions and recovery checkpoint with evidence and remaining work.
 
 ## Behavior boundaries
 
@@ -34,3 +34,10 @@ This slice improves choosing and understanding gameplay; it does not claim to fi
 - [The Last of Us Part II: accessibility](https://www.playstation.com/en-ie/games/the-last-of-us-part-ii/accessibility/): a reference for discoverable control customization and separately adjustable options. It is inspiration for organization, not evidence that those features are implemented here.
 
 Root owns shared integration, saved asset changes and serialized Unity/player jobs. Modes, settings and visual/reference lanes draft in separate BuildNotes subfolders. No original checkout, ICY/Lunar work, Tools/kit, networking secrets or unrelated heavy jobs are changed.
+
+
+## Delivered evidence
+
+Final source abeba5411e4f087a372ea57371edd7354157c1d2; build 20261026T164019Z; lobby walkthrough 20261026T164249Z-lobby_experience: 5/5 with 16 actual Windows captures. Final native lobby91/91 and core41/41 pass; Home Editor12/12 passed earlier. The final image corrections remove the truncated random-map placeholder and redundant old-map toast. All 276 authored outputs match the post-Home baseline. [Windows receipt](../client-view/windows-lobby-ui-20261027.json), [review viewer](REVIEW.html), [remaining production work](../../progress.md).
+
+Play, Settings and top navigation structure remain generated. The online party shell still needs visual unification. Physical input, real display-switch rollback, accessibility measurements and complete multiplayer matches are separate outstanding acceptance work.

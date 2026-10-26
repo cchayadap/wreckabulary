@@ -2,22 +2,30 @@
 
 Owner: James / SethyPagna. Updated 2026-10-27 (Asia/Hong_Kong).
 
-Legend: `[ ]` unfinished; `[~]` implementation or verification in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
+Legend: `[ ]` unfinished; `[~]` in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
-## Current work — lobby, play choices and settings
+## Current delivery — lobby, play choices and settings
 
-- [x] Recover and snapshot existing work; baseline source fd5bb147 and 564 verified recovery files. Unrelated drafts and heavy jobs remain preserved.
-- [x] Research official Xbox navigation/input guidance and Epic/Rocket League play organization; review actual Home, Play, customization and settings captures. [Plan and sources](BuildNotes/lobby-experience-20261026/PLAN.md).
-- [x] Clarify Local / Online / Create and actual bot/team participation; save Home labels, expose Shop and Customize, reflow narrow navigation and remove repeated card paragraphs/welcome toast.
-- [x] Group settings, preserve per-tab scroll/focus, fix display confirmation overlap, and retain existing remapping/rollback behavior. 12 normal/pending-state settings screenshots are captured; the pending display state is simulated without changing resolution.
-- [x] Native source verification: 41 core cases and 12 Home Editor cases pass. The 91-case lobby run passes 90; its sole stale height assertion is corrected and passes with the capture in targeted run160635. All276 authored outputs are unchanged after the approved three-label Home save, repeat and Play. [Exact evidence and limits](BuildNotes/lobby-experience-20261026/verification/native.json).
-- [~] Review actual Windows menus and deliver an exact-source build. New public match or full remote-game acceptance is not implied by this UI work.
+Latest Windows review build: **20261026T164019Z**, source **abeba541**, Unity **6000.6.4f1**. [Try it](BuildNotes/client-view/TRY-WORDBOUND.md) · [Before/after viewer](BuildNotes/lobby-experience-20261026/REVIEW.html).
 
-The last tested build below remains the review build until this work is verified. Original house-mode online support, full remote match acceptance and broader production tasks remain unfinished.
+- [x] Preserve the integration branch, original artwork, saved assets and unrelated uncommitted drafts; record native failures and recovery snapshots. Recovery snapshot `.harness/recovery/developer-workspace-2026-10-26T16-49-04-480Z` verifies 764 files before the delivery-document commit.
+- [x] Research official Xbox navigation guidance and Epic/Rocket League play organization. [Plan and sources](BuildNotes/lobby-experience-20261026/PLAN.md).
+- [x] Separate Local / Online / Create; show one objective and truthful human/bot composition. Original five house modes remain local; Dibs/Duos fill empty seats with bots, other house modes use human crews.
+- [x] Save Home's Local Play / Online Play labels; expose Customize and Shop; identify local devices and reflow narrow navigation. Preserve the vivid original room and character.
+- [x] Group six settings categories, preserve scroll/focus and input cancellation, add visible scrolling, and keep the display-confirmation footer clear on every tab. Twelve normal/simulated-confirmation captures pass; no real resolution switch is claimed.
+- [x] Fix the truncated Random house card and stale map-change notices discovered in actual Windows review.
+- [x] Verify final source: R0, core **41/41**, full lobby Play **91/91**, zero skips. Earlier Home Editor **12/12** and idempotent save checks pass. All **276** authored files remain unchanged after the intentional three-label Home save. [Native evidence](BuildNotes/lobby-experience-20261026/verification/final-source.json).
+- [x] Build exact committed source and pass all **5/5** Windows lobby stages with **16** captures. Review Home, Local/Create choices, Shop/Customize, all Settings tabs, last bindings and initialized Online handoff. [Artifact hashes and limits](BuildNotes/client-view/windows-lobby-ui-20261027.json).
+- [x] Update editing instructions, verification and recovery handoff. Source and delivery documentation are committed separately; existing drafts remain preserved.
+- [ ] Complete physical keyboard/controller and ordinary Unity edit/save/reopen/Play acceptance, actual display-switch rollback, rendered accessibility measurements and owner visual acceptance.
+- [ ] Give Wordbound's online party screen the same visual shell; save Play/Settings/navigation as editable prefab structure.
+- [ ] Complete original house-mode networking, full remote matches/recovery, broader animation/maps/skins work, performance and stripped production release.
+
+This is a tested lobby refinement, not a claim that the whole production goal is complete. Existing dedicated equipment/Workshop and public capacity results below retain their original build/run scope.
 
 ## Previous checkpoint — character feel and minimal UI
 
-The latest Windows review build is **20261026T145311Z**, source **be648835**, Unity **6000.6.4f1**. [Try it](BuildNotes/client-view/TRY-WORDBOUND.md). This section supersedes older dated status below. The overall production goal and James's visual acceptance remain open.
+The historical character/UI Windows review build is **20261026T145311Z**, source **be648835**, Unity **6000.6.4f1**. [Earlier build evidence](BuildNotes/client-view/windows-character-ui-20261026.json). This checkpoint supersedes the older dated character status below; the lobby delivery above is newer. The overall production goal and James's visual acceptance remain open.
 
 - [x] Correct BAT/HAMMER placement using the original authored grip rotation. Eight actual Windows BAT phases keep hand contact; 18 front/side/rear sampled poses show synchronized mittens and equipment without an obvious visible penetration blocker. This is bounded visual review, not all-weapon or full-cycle collision acceptance. [Holding review](BuildNotes/character-experience-20261026/holding/views/visual-review-143859.md).
 - [x] Save and reload the selected original-rig facial tuning: calm Idle 75/0 and stronger Hurt 18/60. The idempotent repeat makes no save and preserves metadata; ten tuned crops preserve 322 inputs. The original mouthless face uses BrowRelax/Blink. [Tuning evidence](BuildNotes/character-experience-20261026/tuned-expressions-20261026.json).

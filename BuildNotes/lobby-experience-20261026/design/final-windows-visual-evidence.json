@@ -1,0 +1,63 @@
+{
+  "runId": "20261026T164249Z-lobby_experience",
+  "buildId": "20261026T164019Z",
+  "parentReportedSource": "abeba541",
+  "result": "PASS",
+  "checksSha256": "cfaca522dfaec09cc17296dd6809b935788a94d0fb763f644e930873de13706d",
+  "console": {
+    "errors": 0,
+    "exceptions": 0,
+    "warnings": 0,
+    "first_exception": null
+  },
+  "allRunCaptureCount": 16,
+  "independentlyViewedImageCount": 4,
+  "steps": [
+    {
+      "name": "local_choices",
+      "status": "PASS"
+    },
+    {
+      "name": "create_choices",
+      "status": "PASS"
+    },
+    {
+      "name": "customize_and_shop",
+      "status": "PASS"
+    },
+    {
+      "name": "settings_navigation",
+      "status": "PASS"
+    },
+    {
+      "name": "open_wordbound",
+      "status": "PASS"
+    }
+  ],
+  "images": [
+    {
+      "file": "lobby_local_escape.png",
+      "sha256": "27852c74efdf4af72354bd34029d7c22bd78c3816b897be4eed27064d257a6d0",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "file": "lobby_home_returned.png",
+      "sha256": "8552d6f2021d0f6a6467f8eaed61aba4d3532e8a02881bb42ccf0a67d320816c",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "file": "lobby_local_dibs.png",
+      "sha256": "01cc9834b578945598be4bb661bcce55a8ac0bc4f2cb80edd425f01ad259afc5",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "file": "lobby_settings_controls_bottom.png",
+      "sha256": "247785445a933c18e58dc2767806f173fd38799971dce1455cb5577ef8ce249a",
+      "width": 1280,
+      "height": 720
+    }
+  ]
+}

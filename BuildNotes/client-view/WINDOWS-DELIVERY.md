@@ -1,5 +1,15 @@
 # Windows delivery preparation
 
+## Current lobby review build — 2026-10-27
+
+Windows **20261026T164019Z**, source **abeba5411e4f087a372ea57371edd7354157c1d2**, Unity **6000.6.4f1**. Final lobby walkthrough **20261026T164249Z-lobby_experience** passes **5/5**, with **16** actual Windows screenshots. Final native lobby **91/91**, core **41/41**, earlier Home Editor **12/12** pass. All 276 authored files remain unchanged after the intentional Home label save.
+
+Local / Online / Create, truthful bots/teams, concise original-art cards, explicit Customize/Shop, local device count, six settings categories, scrolling and focus are verified within the recorded scope. The last review fixes a truncated random-map label and stale map-change notification.
+
+[Try the build](TRY-WORDBOUND.md) · [Before/after viewer](../lobby-experience-20261026/REVIEW.html) · [Build and screenshot hashes](windows-lobby-ui-20261027.json) · [Remaining work](../../progress.md).
+
+Real UI callbacks and Windows frames were checked. Physical input, full multiplayer matches, original-house networking, performance and final release acceptance remain open. Later sections are historical; dedicated equipment/Workshop tests keep their original build scope.
+
 ## Current character/UI review build — 2026-10-26
 
 Windows **20261026T145311Z**, source **be648835b38f00cb38f47e76bb8de5bd14b49674**, Unity6000.6.4f1 passes equipment6/6 (20261026T145634Z-wordbound_original_equipment), Workshop5/5 (20261026T145731Z-wordbound_workshop_flow) and Home3/3 (20261026T145824Z-smoke_frontend), each exit0/no timeout/zero reported console errors, exceptions and warnings. The rebuilt player includes corrected grip rotation, saved facial tuning/action mapping, compact HUD and full-colour original-art recipe grid. Exact one accepted HUD Craft and stale-action rejection pass.
