@@ -15,6 +15,7 @@ namespace Wreckabulary
         public override string Id => LobbyMenu.Play;
         public string Aim;
         public bool WordboundSolo;
+        public bool WordboundMaps;
 
         static readonly Vector2 ModeSize = new Vector2(348, 260), HouseSize = new Vector2(346, 244);
         static readonly Color ArtShadow = new Color(LobbyKit.Navy.r, LobbyKit.Navy.g, LobbyKit.Navy.b, .4f);
@@ -57,6 +58,16 @@ namespace Wreckabulary
                     SoloChoices(column, body);
                     return;
                 }
+            }
+            else if (DisplayQueue == LobbyMenu.Workshop)
+            {
+                LobbyKit.Segmented(column, "Create families", new[] {
+                    ("Create house", "Home & tutorial"), ("Create Wordbound", "Wordbound maps")
+                }, WordboundMaps ? "Create Wordbound" : "Create house", id => {
+                    WordboundMaps = id == "Create Wordbound";
+                    Refresh(); Reselect(id);
+                }, 44, 18);
+                if (WordboundMaps) { WorkshopChoices(column, body); return; }
             }
             else LobbyKit.SectionLabel(column, "Mode");
             var modes = ModesFor(DisplayQueue).ToList();
@@ -140,6 +151,36 @@ namespace Wreckabulary
             var go = LobbyKit.Primary(bar, "Solo GO", "GO", () => Menu.OpenWordboundSolo(WordboundSoloEntry.SelectedMode), 48, 30);
             ((RectTransform)go.transform).Place(new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-268, -34), new Vector2(-12, 34));
             go.interactable = blocked == null;
+        }
+
+        void WorkshopChoices(RectTransform column, RectTransform body)
+        {
+            var row = Centred(LobbyKit.FitRow(column, "Wordbound workshop", ModeSize, 16, 1));
+            var card = Poster(row, "Wordbound maps", LobbyKit.Lime, true, Menu.OpenWordboundWorkshop, ModeSize);
+            var art = LobbyKit.ItemImage(card.Body(), "TABLE", 136);
+            if (art)
+            {
+                art.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -14), new Vector2(136, 136));
+                LobbyKit.Drop(art.rectTransform, 6, ArtShadow);
+            }
+            var words = Words(card.Body(), 16);
+            var title = LobbyKit.Display(words, "Wordbound maps", 30, LobbyKit.Cream, TextAlignmentOptions.BottomLeft, LobbyKit.Ink.Stroke);
+            title.enableAutoSizing = true; title.fontSizeMin = 24; title.fontSizeMax = 30;
+            title.Size(-1, 42);
+            TagLine(words, "Build & playtest");
+            bool available = Session.CanLoad(Session.WordboundScene);
+            card.interactable = available;
+            var bar = LobbyKit.Rect(body, "Workshop summary").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 88));
+            LobbyKit.Face(bar, LobbyKit.ChipFill, 18, LobbyKit.Line, 2);
+            var detail = LobbyKit.Text(bar, available ? "Local editor. One-player playtests." : "Wordbound is unavailable in this build.",
+                18, available ? LobbyKit.Muted : LobbyKit.Sun, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            detail.name = "Workshop detail";
+            detail.enableAutoSizing = true; detail.fontSizeMin = 14; detail.fontSizeMax = 18;
+            detail.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(20, 10), new Vector2(-300, -10));
+            var open = LobbyKit.Primary(bar, "Workshop OPEN", "OPEN", Menu.OpenWordboundWorkshop, 48, 30);
+            ((RectTransform)open.transform).Place(new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-268, -34), new Vector2(-12, 34));
+            open.interactable = available;
+            First = open;
         }
 
         void PickQueue(string id)

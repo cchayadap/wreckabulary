@@ -1,0 +1,12 @@
+# Independent creator-selection Windows QA review
+
+STATUS: COMPLETE — no blocking source finding; actual Windows run and image review remain pending.
+
+Reviewed single-file patch `56a117b1ffa15215c2a86a62ec50de2c8ded5f56cbbfb37714d8bda66c1563a5`. Candidate `d7ad88f7bf2c8278e5fc38507fd4cbf3cf730c1b68de3894af2ad04b393cf542` and exact baseline hashes independently match. Strict apply against the owned baseline passed with `--whitespace=error-all`. No live source, scene, autosave, service or native job was changed/run by this reviewer.
+
+- The new path submits actual Create-family buttons, captures the Wordbound maps card, checks its concise one-player-playtest label and OPEN availability, and returns to the original house family. It does not submit OPEN. The production family callback only changes the selected family/rebuilds the page; no creator scene/storage route is invoked.
+- The existing Tutorial/home-workshop checks and screenshots remain. New checks compare the selected house queue/mode/map and exact party/binding references before and after the family switch. This preserves the state established by the existing Create scenario, not a claim to restore every pre-scenario selection.
+- A finally restores the original WordboundMaps family and preserves preferences even when a nested capture fails. The existing owned iterator-stack guard now accepts explicit labels/budgets; Local retains its unchanged 25-second work/30-second step limits. Create gets 15 seconds of work inside its unchanged 20-second outer step. It flattens nested enumerators and disposes remaining entries in reverse order, recording cleanup errors. Assertions are not removed and deadlines are not lengthened.
+- The same documented framework limit remains: abrupt process termination, an externally shorter overall deadline or a synchronous stall across the remaining outer deadline can bypass scenario cleanup. This patch does not claim to repair the protected QaRunner.
+
+Producer reports full QA semantic compilation (11 sources/303 references, zero errors); this reviewer did not execute it. Root must run the actual Windows lobby scenario and inspect the new `lobby_create_wordbound.png` plus retained views before accepting rendering/input. This is selection-only QA, not local creator playtest completion, physical-device acceptance or networking evidence.

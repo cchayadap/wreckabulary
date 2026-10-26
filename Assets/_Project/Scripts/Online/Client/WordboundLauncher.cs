@@ -21,7 +21,8 @@ namespace Wreckabulary.Online
         WordboundPartyLaunchContext activeLaunch;
         string failure, itemJson, ruleJson;
         int localGeneration;
-        bool destroying;
+        bool destroying, localWorkshopEntry;
+        const string WorkshopStartupFailure = "Workshop could not open. Return to the lobby and try again.";
 
 #if UNITY_EDITOR || GSK_QA
         string qaWorkshopFolder;
@@ -52,6 +53,7 @@ namespace Wreckabulary.Online
         void Start()
         {
             string soloMode = WordboundSoloEntry.TakeRequest();
+            localWorkshopEntry = WordboundWorkshopEntry.TakeRequest();
             try
             {
                 if (!Assets) Assets = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
@@ -62,6 +64,13 @@ namespace Wreckabulary.Online
                     throw new InvalidOperationException("The item catalogue or rule book is missing.");
                 itemJson = data.items.text;
                 ruleJson = data.rules.text;
+                if (localWorkshopEntry)
+                {
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                    OpenWorkshop();
+                    return;
+                }
                 Assets.BodyPrefabs();
                 Assets.GameplayScene();
                 if (soloMode != null)
@@ -84,7 +93,7 @@ namespace Wreckabulary.Online
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
-            catch (Exception error) { failure = soloMode == null ? error.Message : SoloStartupFailure; }
+            catch (Exception error) { failure = localWorkshopEntry ? WorkshopStartupFailure : soloMode == null ? error.Message : SoloStartupFailure; }
         }
 
         async Task BeginMatch(WordboundPartyLaunchContext launch, CancellationToken cancellation)
@@ -175,7 +184,8 @@ namespace Wreckabulary.Online
                     created = true;
                     workshop.CloseRequested += CloseWorkshop;
                     workshop.PlaytestRequested += PlaytestWorkshop;
-                    workshop.OnlinePlaytestRequested += HostWorkshopOnline;
+                    if (!localWorkshopEntry) workshop.OnlinePlaytestRequested += HostWorkshopOnline;
+                    if (localWorkshopEntry) workshop.CloseLabel = "Back to lobby";
                     workshop.CanStartOnline = () => !destroying && menu && menu.CanOpenAuthoredPrivate;
                     workshop.ConfigureLocalPlaytest(true);
                     var flagship = ConfigureWorkshopSources(authored);
@@ -188,7 +198,7 @@ namespace Wreckabulary.Online
                     else workshop.OpenFlagship(flagship, folder);
                 }
                 else workshop.ResumeEditing();
-                menu.Visible = false;
+                if (menu) menu.Visible = false;
             }
             catch (Exception error)
             {
@@ -203,7 +213,8 @@ namespace Wreckabulary.Online
                     workshop = null;
                     assignedWorkshopInputs = null;
                 }
-                menu.ShowFailure("Workshop could not open: " + error.Message);
+                if (localWorkshopEntry) failure = WorkshopStartupFailure;
+                else menu.ShowFailure("Workshop could not open: " + error.Message);
             }
         }
 
@@ -230,6 +241,7 @@ namespace Wreckabulary.Online
                 };
                 workshop.Visible = false;
                 await client.StartLocal(content, prefabs, scene,
+                    controls: localWorkshopEntry && Session.Bindings.Count > 0 ? Session.Bindings[0] : null,
                     cameraProfile: inputs.Camera, visualProfile: inputs.Visual, uiTheme: Assets.UiTheme,
                     storyProfile: Assets.StoryProfile);
                 if (!destroying && generation == localGeneration && localClient == client && LobbyCamera)
@@ -269,6 +281,7 @@ namespace Wreckabulary.Online
         void CloseWorkshop()
         {
             if (localClient || workshop && workshop.OnlineStarting) return;
+            if (localWorkshopEntry) { BackToLobby(); return; }
             if (workshop) workshop.Visible = false;
             if (menu) menu.Visible = true;
         }
@@ -276,7 +289,12 @@ namespace Wreckabulary.Online
         void BackToLobby()
         {
             if (activeLaunch != null || activeClient || localClient) return;
-            if (!Session.GoHome()) failure = "The main lobby is unavailable in this build.";
+            if (localWorkshopEntry) WordboundWorkshopEntry.MarkReturned();
+            if (!Session.GoHome())
+            {
+                if (localWorkshopEntry) WordboundWorkshopEntry.CancelRequest();
+                failure = "The main lobby is unavailable in this build.";
+            }
         }
 
         void OnGUI()

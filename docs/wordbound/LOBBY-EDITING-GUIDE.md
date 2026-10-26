@@ -2,6 +2,26 @@
 
 Open **Wreckabulary → Open Current Workspace → Design**. Edit outside Play Mode.
 
+## Quick edit, save and try
+
+Use **Scenes → Play Lobby / Play Shop / Play Loadout** for a real preview. Stop Play before saving a scene or prefab edit. These previews use your actual player save, including purchases and equipped items.
+
+| Change | Open and save | Try it |
+| --- | --- | --- |
+| Home buttons and spacing | Design → Edit Home dock & turn hint | Scenes → Play Lobby |
+| Shop grid and offer picture | Design → Edit Shop panel / Edit offer card | Scenes → Play Shop |
+| Customize panel and recipe cards | Design → Edit Loadout panel & recipe shelf / Edit recipe card | Scenes → Play Loadout |
+| Lobby framing | Design → Framing, height & field of view | Restart Play Lobby |
+| Gameplay camera, colours or held pose | Design → Launcher / assigned profiles; follow its Camera, Visual and Ui Theme references | Play → Local → Wordbound solo → GO |
+| Character expressions | Design → Facial reactions & blending | Try the matching action; inspect both sides |
+
+For a local variation, duplicate the profile/material/prefab and assign the copy where it is used. Moving a prop in Equipment Studio changes that saved review scene only; use a **Presentation → Overrides** entry to put a compatible copy into gameplay. Preserve the original imported models and rig. Reopen the saved asset after stopping Play to verify the intended edit survived.
+
+**What is still generated:** Play mode cards, Settings panels, top navigation, online party layout and the inside of wearable/recipe pickers. Their temporary Play hierarchy is not a persistent drag-and-drop layout. Home, Shop and Loadout containers/cards are saved prefabs. `Interface.asset` styles Wordbound menus; it does not replace lobby fonts or lobby prefab colours.
+
+**Map-editor route:** **Play → Create → Wordbound maps → OPEN** opens the assigned course locally without online configuration. **Back to lobby** saves the draft and returns to Create; local seats are retained. Playtests use one player and return to the same editable history. Closing the scene retains the recovery draft but not Undo. **Home & tutorial** keeps the original learning room and home builder. The Online screen still offers Workshop for private online hosting. Use **Scenes → Edit Flagship course** for the saved course Inspector; workshop autosaves do not overwrite that Project asset.
+
+
 ## Character reactions and held items
 
 **Facial reactions & blending** opens `Assets/_Project/Resources/Art/AvatarExpressions.asset`. Select a state in **Poses** and adjust **Brow Relax** / **Blink** (0–100); use **Blend Seconds** for transition softness. This preserves the original mouthless character. Local and Wordbound characters use the saved default; an assigned component profile can override it. Save outside Play and try the action again. These controls change appearance, not combat rules.

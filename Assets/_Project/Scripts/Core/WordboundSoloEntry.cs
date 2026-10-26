@@ -16,6 +16,7 @@ namespace Wreckabulary
         public static void Request(string mode)
         {
             Select(mode);
+            WordboundWorkshopEntry.CancelRequest();
             pending = mode;
             returnToSelection = false;
         }

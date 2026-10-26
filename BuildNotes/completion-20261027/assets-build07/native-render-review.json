@@ -1,0 +1,166 @@
+{
+  "status": "16 MATCHED SOURCE RENDERS REVIEWED; UNITY AND OWNER ACCEPTANCE PENDING",
+  "utc": "2026-10-26T20:00:36.229939+00:00",
+  "blend_sha256": "ac5bc55acc71c2981d016d6a8a6b0e76aaceb998be388069270d1f48f6c34911",
+  "matched_keys": [
+    "camera_matrix",
+    "ortho_scale",
+    "resolution",
+    "samples",
+    "view_transform",
+    "look",
+    "exposure",
+    "gamma",
+    "world",
+    "lights",
+    "rotor_degrees",
+    "tilt_degrees"
+  ],
+  "images": [
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-front-original.png",
+      "sha256": "ee80300213722672825f47aaf8eedb45de9dbc175500590a36a7bec608e71778",
+      "receipt_sha256": "e59cd5327d72f7da3fe2cbe854414092fd243d53f3c71b3985efe4ee2f62a18d",
+      "view": "front",
+      "variant": "original",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-front-vivid-v2.png",
+      "sha256": "6fe7533eed070770c8b2f89fe466bace9ded95e838178934ff7e051bb73be41c",
+      "receipt_sha256": "b2e4124deda788f206695f0450ccb05284e9e7aff7b89a862192b3a7939d7868",
+      "view": "front",
+      "variant": "vivid-v2",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-front-construction-v3.png",
+      "sha256": "075a4addb6514eca27a0f053c9e92e86585b92e47f82099576426735bd6f1b3e",
+      "receipt_sha256": "65c342754f11badbd18b67c33b21bb57d6718bc0eaaaf7661667a94e4e1024fa",
+      "view": "front",
+      "variant": "construction-v3",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-front-lod1.png",
+      "sha256": "467b547ae0eccec055887dd46a60145ebc24f9033f10728d50f361ef40512b7b",
+      "receipt_sha256": "786af39be4cfa1f18277936bc3027a79519405b02c53f0cf76895120e8618d93",
+      "view": "front",
+      "variant": "lod1",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-side-original.png",
+      "sha256": "376caac7642c8824646f04621e53a1135ad420cce57e11ee70b4fe64fb7320fe",
+      "receipt_sha256": "9cc036c50da29a363a17a5da9c2b988c2feab81fa099308dcf42c39c8210dd8d",
+      "view": "side",
+      "variant": "original",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-side-vivid-v2.png",
+      "sha256": "dd03f4b4e869e8e881a17cea74588f5f49402987516f8b11c7357e33de52b7f0",
+      "receipt_sha256": "bbdc3869ba7b6f5b5319cc73cf329c02203480902c510805c12209375c3d37c8",
+      "view": "side",
+      "variant": "vivid-v2",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-side-construction-v3.png",
+      "sha256": "4e310effeaabb31b2b1faa6ae4e9c8afa10d648816b31b35847c9436f86f8117",
+      "receipt_sha256": "ccda79581899a85ac8db2454f5b44fa1effc35af76add4fdae30efbead3ccb10",
+      "view": "side",
+      "variant": "construction-v3",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-side-lod1.png",
+      "sha256": "fd2d96fe298da7bab239b6b43380615406c2ff3e0da1bec725fe32e02097b453",
+      "receipt_sha256": "d2e654929c4b97d2088490ea92a2c237e22d45a0e44e3252d29dbff1aa3a00c7",
+      "view": "side",
+      "variant": "lod1",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-rear-original.png",
+      "sha256": "aa1b6238c57a96329f68fafd29b378179e5a04f4a9fd912f9e109cf2bc3717ee",
+      "receipt_sha256": "fffab2b390b5d016a87e9f623d0f7ac63b56d8a17299307ae9041bcafc918d6b",
+      "view": "rear",
+      "variant": "original",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-rear-vivid-v2.png",
+      "sha256": "3b03929bbdcad3ddbfbd7c80824da6b894e53d25e56cdfa04e33e33bf79494e0",
+      "receipt_sha256": "8f917559b448f498db032bed48105ee6bd01ced96aae8b48e0ae345d7a6af507",
+      "view": "rear",
+      "variant": "vivid-v2",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-rear-construction-v3.png",
+      "sha256": "3e2e92a5f808ad39aad1aa6cddd9a5ae67cc5b0428376eb4f471d96c2c35962d",
+      "receipt_sha256": "68a589367fc720999b2a5846c1be5cd56b9adc90252fc2abc5b87e4c2f52f325",
+      "view": "rear",
+      "variant": "construction-v3",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-rear-lod1.png",
+      "sha256": "a906e3a44e8c89fe1ff5611caa8ed67ad0230cbaba0f3f67962e935546004f3c",
+      "receipt_sha256": "a07198581fa338d8f8ee0bc0c9505e8089e52b9d07736439a0503dffa170bec1",
+      "view": "rear",
+      "variant": "lod1",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-detail-original.png",
+      "sha256": "5b77c83c40f506c826a51feae7502add3d0bf6c1599465c9861ee9fb1692fd81",
+      "receipt_sha256": "3edafa54e940e7dfa5ab776ecedd1b3d8821bc42149afcd31eea40dd64ba34d9",
+      "view": "detail",
+      "variant": "original",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-detail-vivid-v2.png",
+      "sha256": "248ec0d8dc5b3df6b38a4f1f1a6873fdd6b814f18212705df329b1048f657644",
+      "receipt_sha256": "a986c37bd137dd82c9d9682a64db1da1221624dcfdf5d1c955cb00064b23f919",
+      "view": "detail",
+      "variant": "vivid-v2",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-detail-construction-v3.png",
+      "sha256": "29316c5a383622bdda7f3d9730f322917da72a6e058e648cdab5b6bf761f7539",
+      "receipt_sha256": "da318fbd4e6916b60859275b461b59ba33b3b345c8b9eb7c68d3566280134435",
+      "view": "detail",
+      "variant": "construction-v3",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    },
+    {
+      "image": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/Previews/FAN-detail-lod1.png",
+      "sha256": "89a3c3721ec1d6953b232813afe9c41a9af2321b44c0d878075d40f3f30e78f0",
+      "receipt_sha256": "4124f8ba7e244789d5edc8d02bbde8f6028de3ceac2f9a6fc2703de95373a0c9",
+      "view": "detail",
+      "variant": "lod1",
+      "viewed_by_reviewer": true,
+      "matched_settings": true
+    }
+  ],
+  "limit": "640px offline AgX neutral-pose images; no Unity, gameplay, continuous motion or owner style acceptance."
+}

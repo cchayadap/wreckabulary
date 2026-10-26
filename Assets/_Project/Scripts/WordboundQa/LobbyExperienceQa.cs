@@ -36,14 +36,15 @@ namespace Wreckabulary.Qa
                     if (localDeadline == 0) localDeadline = Time.realtimeSinceStartupAsDouble + 25;
                     return LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning;
                 })
-                .Do(value => GuardLocal(value, Local(value), localDeadline));
-            yield return QaStep.Named("create_choices").Timeout(20).Do(Create);
+                .Do(value => GuardChoices(value, Local(value), localDeadline, 25, 30, "local_owned_stack_cleanup"));
+            yield return QaStep.Named("create_choices").Timeout(20).Do(value =>
+                GuardChoices(value, Create(value), Time.realtimeSinceStartupAsDouble + 15, 15, 20, "create_owned_stack_cleanup"));
             yield return QaStep.Named("customize_and_shop").Timeout(20).Do(CustomizeAndShop);
             yield return QaStep.Named("settings_navigation").Timeout(30).Do(Settings);
             yield return QaStep.Named("open_wordbound").Timeout(60).Do(Online);
         }
 
-        IEnumerator GuardLocal(QaContext context, IEnumerator body, double deadline)
+        IEnumerator GuardChoices(QaContext context, IEnumerator body, double deadline, int workBudget, int outerBudget, string note)
         {
             var stack = new Stack<IEnumerator>(); stack.Push(body);
             Exception failure = null;
@@ -53,7 +54,7 @@ namespace Wreckabulary.Qa
                 while (stack.Count != 0 && failure == null)
                 {
                     if (Time.realtimeSinceStartupAsDouble >= deadline)
-                    { failure = new QaFailException("Local choices exceeded their owned 25-second work budget."); break; }
+                    { failure = new QaFailException("Choice work exceeded its owned " + workBudget + "-second budget."); break; }
                     object current = null; bool next = false;
                     try
                     {
@@ -71,12 +72,12 @@ namespace Wreckabulary.Qa
                 while (stack.Count != 0)
                     try { (stack.Pop() as IDisposable)?.Dispose(); }
                     catch (Exception error) { cleanupErrors.Add(error.GetType().Name); }
-                context.Note("local_owned_stack_cleanup", new Dictionary<string, object> {
+                context.Note(note, new Dictionary<string, object> {
                     ["errors"] = cleanupErrors.ToArray(), ["failure"] = failure?.GetType().Name ?? "none",
-                    ["work_budget_seconds"] = 25, ["outer_budget_seconds"] = 30 });
+                    ["work_budget_seconds"] = workBudget, ["outer_budget_seconds"] = outerBudget });
             }
             if (failure != null) throw failure;
-            Require(cleanupErrors.Count == 0, "Local-choice cleanup failed: " + string.Join(", ", cleanupErrors));
+            Require(cleanupErrors.Count == 0, "Choice cleanup failed: " + string.Join(", ", cleanupErrors));
         }
 
         IEnumerator Local(QaContext context)
@@ -169,10 +170,12 @@ namespace Wreckabulary.Qa
 
         IEnumerator Create(QaContext context)
         {
+            bool priorFamily = menu.Page<PlayPage>().WordboundMaps;
             try
             {
                 Submit(Find(Page(), "Queue " + LobbyMenu.Workshop));
                 yield return Settle();
+                if (menu.Page<PlayPage>().WordboundMaps) { Submit(Find(Page(), "Create house")); yield return Settle(); }
                 Require(ModeCards().SequenceEqual(new[] { LobbyMenu.TutorialMode, LobbyMenu.WorkshopMode }), "Create has unexpected modes.");
                 Require(menu.Mode == LobbyMenu.TutorialMode && !Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")),
                     "Tutorial must keep its own room.");
@@ -182,9 +185,33 @@ namespace Wreckabulary.Qa
                 Require(menu.Mode == LobbyMenu.WorkshopMode && HomeDesigner.Supports(menu.Map) && !menu.Starting,
                     "Creative workshop selection must keep a supported house without launching it.");
                 yield return Capture(context, "lobby_create_build");
-                context.Note("create_routes", "Tutorial and original home workshop; no Wordbound-map-authoring or bot-mode alias.");
+                string queue = menu.Queue, mode = menu.Mode, map = menu.Map;
+                var party = menu.Party.ToArray(); var bindings = Session.Bindings.ToArray();
+                Submit(Find(Page(), "Create Wordbound")); yield return Settle();
+                Require(menu.Page<PlayPage>().WordboundMaps && !ModeCards().Any(), "Wordbound maps must be a separate creator destination.");
+                Require(menu.Queue == queue && menu.Mode == mode && menu.Map == map &&
+                    menu.Party.SequenceEqual(party) && Session.Bindings.SequenceEqual(bindings), "Creator family changed house selection or local seats.");
+                foreach (string name in new[] { "Create house", "Create Wordbound", "Wordbound maps", "Workshop OPEN" }) ControlFits(Find(Page(), name));
+                var detail = Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Workshop detail");
+                Require(detail.text == "Local editor. One-player playtests." && Find(Page(), "Workshop OPEN").interactable,
+                    "The installed local editor entry must be concise and available.");
+                TextFits(detail);
+                Require(SceneManager.GetActiveScene().name == Session.HubScene && !menu.Starting,
+                    "Creator selection must not open a scene or touch workshop autosaves.");
+                yield return Capture(context, "lobby_create_wordbound");
+                Submit(Find(Page(), "Create house")); yield return Settle();
+                Require(ModeCards().SequenceEqual(new[] { LobbyMenu.TutorialMode, LobbyMenu.WorkshopMode }) &&
+                    menu.Queue == queue && menu.Mode == mode && menu.Map == map && menu.Party.SequenceEqual(party) &&
+                    Session.Bindings.SequenceEqual(bindings), "Returning to home tools lost the original selection or seats.");
+                context.Note("create_routes", "Tutorial, original home workshop and distinct local Wordbound maps entry; selection-only, no creator launch or autosave access.");
             }
-            finally { PreservePreferences(context); }
+            finally
+            {
+                try {
+                    if (menu) { menu.Page<PlayPage>().WordboundMaps = priorFamily; if (menu.Current == LobbyMenu.Play) menu.Open(LobbyMenu.Play); }
+                }
+                finally { PreservePreferences(context); }
+            }
         }
 
         IEnumerator CustomizeAndShop(QaContext context)

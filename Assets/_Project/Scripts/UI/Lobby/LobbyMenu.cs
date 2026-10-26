@@ -94,6 +94,7 @@ namespace Wreckabulary
         {
             if (Starting || !Session.CanLoad(Session.WordboundScene)) return;
             WordboundSoloEntry.CancelRequest();
+            WordboundWorkshopEntry.CancelRequest();
             Session.LobbyQueue = Queue;
             Session.LobbyMode = Mode;
             Session.Load(Session.WordboundScene);
@@ -110,6 +111,18 @@ namespace Wreckabulary
             WordboundSoloEntry.Request(mode);
             try { Session.Load(Session.WordboundScene); }
             catch { WordboundSoloEntry.CancelRequest(); throw; }
+        }
+
+        public void OpenWordboundWorkshop()
+        {
+            if (Starting || !Session.CanLoad(Session.WordboundScene)) return;
+            var pad = Gamepad.all.FirstOrDefault(p => p.buttonSouth.wasPressedThisFrame || p.startButton.wasPressedThisFrame);
+            Seat(pad);
+            Session.LobbyQueue = Queue;
+            Session.LobbyMode = Mode;
+            WordboundWorkshopEntry.Request();
+            try { Session.Load(Session.WordboundScene); }
+            catch { WordboundWorkshopEntry.CancelRequest(); throw; }
         }
 
         void Start()
@@ -151,7 +164,12 @@ namespace Wreckabulary
                 page.Create(this, pageHost);
                 pages[page.Id] = page;
             }
-            if (WordboundSoloEntry.TakeReturn())
+            if (WordboundWorkshopEntry.TakeReturn())
+            {
+                ((PlayPage)pages[Play]).WordboundMaps = true;
+                Open(Play);
+            }
+            else if (WordboundSoloEntry.TakeReturn())
             {
                 ((PlayPage)pages[Play]).WordboundSolo = true;
                 Open(Play);

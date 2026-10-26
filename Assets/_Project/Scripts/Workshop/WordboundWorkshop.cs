@@ -17,6 +17,7 @@ namespace Wreckabulary.Workshop
         public WorkshopSnapshot LastPlaytestDraft { get; private set; }
         public event Action<ResolvedCourse> PlaytestRequested;
         public event Action CloseRequested;
+        public string CloseLabel { get; set; }
         public bool Visible { get; set; } = true;
         public WordboundUiTheme Theme;
         readonly WordboundUiStyles ui = new WordboundUiStyles();
@@ -80,6 +81,14 @@ namespace Wreckabulary.Workshop
             ShowStatus(recoveryStatus.Length == 0 ? TemplateLabel(template) : recoveryStatus);
         }
         public void ResumeEditing() { Visible = true; Refresh(); }
+        public void RequestClose()
+        {
+            if (OnlineStarting || RecoveryChoicePending || History == null || storage == null) return;
+            Attempt(() => {
+                CancelGesture(); storage.Save(History.Current); savedRevision = History.Revision;
+                CloseRequested?.Invoke(); Visible = false;
+            });
+        }
         public CourseResolution Preview()
         {
             RequireRecoveryChoice();
@@ -212,7 +221,7 @@ namespace Wreckabulary.Workshop
             GUILayout.Label(modeLabel, ui.SingleLine, GUILayout.Width(Mathf.Ceil(ui.SingleLine.CalcSize(new GUIContent(modeLabel)).x)));
             GUILayout.Space(ui.Gap);
             if (Button("Share")) { shareText = History.Current.CourseJsonText; sharing = true; }
-            if (Button(OnlinePlaytestRequested != null ? "Back to party" : "Close")) Attempt(() => { CancelGesture(); storage.Save(History.Current); savedRevision = History.Revision; CloseRequested?.Invoke(); Visible = false; });
+            if (Button(CloseLabel ?? (OnlinePlaytestRequested != null ? "Back to party" : "Close"))) RequestClose();
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
         void Palette()

@@ -56,6 +56,53 @@ namespace Wreckabulary.Tests
             ExecuteEvents.Execute(button.gameObject, new BaseEventData(EventSystem.current), ExecuteEvents.submitHandler);
         }
 
+        [Test]
+        public void LocalCreatorIntentIsOneShotExclusiveAndResetWithSession()
+        {
+            WordboundSoloEntry.Request("Freestyle");
+            WordboundWorkshopEntry.Request();
+            Assert.IsNull(WordboundSoloEntry.TakeRequest());
+            Assert.IsTrue(WordboundWorkshopEntry.TakeRequest());
+            Assert.IsFalse(WordboundWorkshopEntry.TakeRequest());
+            WordboundWorkshopEntry.MarkReturned();
+            Assert.IsTrue(WordboundWorkshopEntry.TakeReturn());
+            Assert.IsFalse(WordboundWorkshopEntry.TakeReturn());
+            WordboundWorkshopEntry.Request();
+            WordboundSoloEntry.Request("TimeRun");
+            Assert.IsFalse(WordboundWorkshopEntry.TakeRequest());
+            Assert.AreEqual("TimeRun", WordboundSoloEntry.TakeRequest());
+            WordboundWorkshopEntry.Request(); WordboundWorkshopEntry.MarkReturned();
+            Session.Clear();
+            Assert.IsFalse(WordboundWorkshopEntry.TakeRequest());
+            Assert.IsFalse(WordboundWorkshopEntry.TakeReturn());
+        }
+
+        [UnityTest]
+        public IEnumerator CreateFamilyKeepsHomeModeMapAndEveryLocalSeat()
+        {
+            var menu = LobbyMenu.Instance;
+            menu.Choose(LobbyMenu.Workshop, LobbyMenu.WorkshopMode, "courtyard"); menu.Open(LobbyMenu.Play);
+            Assert.AreEqual("courtyard", menu.Map, "Start with a supported, non-default home-builder map.");
+            var second = new KeyboardBinding(KeyboardBinding.Side.Right);
+            menu.Join(second);
+            var bindings = Session.Bindings.ToArray();
+            Submit("Create Wordbound"); yield return null;
+            Assert.IsTrue(menu.Page<PlayPage>().WordboundMaps);
+            Assert.IsEmpty(Modes);
+            Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")));
+            Assert.IsTrue(Find("Workshop OPEN").interactable);
+            Assert.AreEqual("Local editor. One-player playtests.", Page.GetComponentsInChildren<TMP_Text>()
+                .Single(text => text.name == "Workshop detail").text);
+            Assert.AreEqual(LobbyMenu.Workshop, menu.Queue); Assert.AreEqual(LobbyMenu.WorkshopMode, menu.Mode);
+            Assert.AreEqual("courtyard", menu.Map); Assert.AreEqual(2, menu.PartySize);
+            Assert.AreSame(second, menu.Party.Single()); CollectionAssert.AreEqual(bindings, Session.Bindings);
+            Submit("Create house"); yield return null;
+            CollectionAssert.AreEqual(new[] { LobbyMenu.TutorialMode, LobbyMenu.WorkshopMode }, Modes);
+            Assert.AreEqual(LobbyMenu.WorkshopMode, menu.Mode); Assert.AreEqual("courtyard", menu.Map);
+            Assert.AreSame(second, menu.Party.Single()); CollectionAssert.AreEqual(bindings, Session.Bindings);
+            menu.Leave(second);
+        }
+
         [UnityTest]
         public IEnumerator LocalAndCreateOfferActualModesWithConciseCards()
         {

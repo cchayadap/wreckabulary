@@ -1,0 +1,250 @@
+{
+  "utc": "2026-10-26T20:17:50.301Z",
+  "status": "LOCAL_CREATOR_NATIVE_PASS",
+  "head_before_commit": "b2968d77c726bd58c57e71c50cfe953a7608a163",
+  "scope": "Direct Create > Wordbound maps, actual installed assigned course with missing online configuration, runtime edit/Single playtest/same history/save/return, scripted unfocused/focused recovery decisions and safe invalid-course failure. No Windows, physical-device, actual window-focus, full-finish or multiplayer acceptance.",
+  "routes": {
+    "solo": "Play > Local > Wordbound solo",
+    "creator": "Play > Create > Wordbound maps > OPEN",
+    "online": "Play > Online"
+  },
+  "source_files": [
+    {
+      "path": "Assets/_Project/Scripts/Core/Session.cs",
+      "sha256": "ff542258f73e0c68ca7783ebec245fc32f05a2275329a8accf3277a1e356f3da"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Core/Session.cs.meta",
+      "sha256": "32269ad1b2bed5ca119541bbba2791752bec84fc8f00b69431c01a3b5e7226f8"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Core/WordboundSoloEntry.cs",
+      "sha256": "8c1a641666f1a068e489493193e454610cc0251431cfa8b10e5dd1ff3e0ea987"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Core/WordboundSoloEntry.cs.meta",
+      "sha256": "9f53f235e72ba2c7a6d0e00b38f9e14702932bbaa4d1d7f9626bf20280327c11"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Core/WordboundWorkshopEntry.cs",
+      "sha256": "01ea807f0175f6ca029c7f150c9cb28a6002ee9c34248ce40a5f9a37370d4d76"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Core/WordboundWorkshopEntry.cs.meta",
+      "sha256": "22a4ccdcd140ce1f593f34094e21e879d086eb7906e20c871be565aa03850b3b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundLauncher.cs",
+      "sha256": "121bff7fe4e76614642a9095e4e35ae808c04678e915e27a7926b9cdfbb737d2"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundLauncher.cs.meta",
+      "sha256": "0c4e9b274c30d6e7471979f6fb007e7607157e81b116f6e1214fab83ce3d8177"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyMenu.cs",
+      "sha256": "18cbb1b2f6468b051033ce6ee184bf9fd8b91ff5cd32817231fb9e9801396f8a"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyMenu.cs.meta",
+      "sha256": "550896c394f7610c7f40b050fddad32b45fa054118f1d224de493b8c79cfe410"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/PlayPage.cs",
+      "sha256": "1bedd36527e15cefd1a6021c1be0dddea3f92510fcee7c006ad8c4846cad6823"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/PlayPage.cs.meta",
+      "sha256": "65c5de6c32bf12dd5eefad505e8e560a5d1d4842955dda31cb91dc2ce0f1c048"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+      "sha256": "9604307d46ccfa9aa3a1eaf10e0d587530098e0d1b9d0787a90587338f15a70d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs.meta",
+      "sha256": "720d4e5a793efb2128964c7653b6d0126aec63e3afae4f407f23596a9cb6bc6b"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyPlayChoiceTests.cs",
+      "sha256": "d15025eca05027a357e05710f96e821f3c2a8f88cd6967046c1bf311e62cc341"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyPlayChoiceTests.cs.meta",
+      "sha256": "d160007299ad1ffa5ba414127665097157b12a5f0fd2fea43b24244ace456505"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/Authoring/WordboundNativeWorkshopEntryTests.cs",
+      "sha256": "48b2e00e539516f7f62395e4993416ef3f379d6b9e83f716240602d8ef2eb779"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/Authoring/WordboundNativeWorkshopEntryTests.cs.meta",
+      "sha256": "1d4fc40a65d309cef15f2ead734f50551a53f7d133636af170ca0e336156efdb"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs",
+      "sha256": "d7ad88f7bf2c8278e5fc38507fd4cbf3cf730c1b68de3894af2ad04b393cf542"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs.meta",
+      "sha256": "b7d70083f82a518ec9f1f03638a63754260c1c2a9f375d1c2d148f237a528ca9"
+    },
+    {
+      "path": "docs/wordbound/LOBBY-EDITING-GUIDE.md",
+      "sha256": "5a9e588230d14d94da021c21132f199b00a68626e9136c233e06f4666a1a09d5"
+    }
+  ],
+  "runs": [
+    {
+      "scope": "r0",
+      "prefix": ".harness/delivery/completion-check-2026-10-26T20-14-21-658Z",
+      "gate": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T20:14:21Z",
+        "secs": 9.7,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T201421Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      },
+      "end": {
+        "utc": "2026-10-26T20:14:31.982Z",
+        "code": 0,
+        "signal": null
+      },
+      "evidence": [
+        {
+          "path": "Logs/gate_check_all_20261026T201421Z.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "scope": "lobby",
+      "prefix": ".harness/delivery/solo-lobby-2026-10-26T20-10-08-727Z",
+      "gate": {
+        "cmd": "test playmode --cold --filter LobbyPlayChoiceTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T20:10:08Z",
+        "secs": 43.8,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_playmode_20261026T201009Z.log",
+        "evidence": [
+          "TestResults/playmode_20261026T201009Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 17.8,
+        "tests": {
+          "total": 9,
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "end": {
+        "utc": "2026-10-26T20:10:53.142Z",
+        "code": 0,
+        "signal": null
+      },
+      "evidence": [
+        {
+          "path": "Logs/gate_test_playmode_20261026T201009Z.log",
+          "sha256": "ba4550ef7f9542f95318dc4d683efac757055c63b5ac7804ba66a1299f439501"
+        },
+        {
+          "path": "TestResults/playmode_20261026T201009Z.xml",
+          "sha256": "4906b62b5857556d54fc81a166e4adb90fe74ac4d20c116c1732f8692d705852"
+        }
+      ]
+    },
+    {
+      "scope": "creator",
+      "prefix": ".harness/delivery/solo-creator-2026-10-26T20-15-49-982Z",
+      "gate": {
+        "cmd": "test editmode --cold --filter WordboundNativeWorkshopEntryTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T20:15:50Z",
+        "secs": 46.4,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T201550Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T201550Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 14.7,
+        "tests": {
+          "total": 3,
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "end": {
+        "utc": "2026-10-26T20:16:36.698Z",
+        "code": 0,
+        "signal": null
+      },
+      "evidence": [
+        {
+          "path": "Logs/gate_test_editmode_20261026T201550Z.log",
+          "sha256": "0ad9359bb2072548f41f47adfd7c19101d738623df0ab44e3c379c26a73b228d"
+        },
+        {
+          "path": "TestResults/editmode_20261026T201550Z.xml",
+          "sha256": "d482a3d23f7829881799a9938402c0189861d04b36906d1e906f7c7e221e2df5"
+        }
+      ]
+    }
+  ],
+  "cleanup": [
+    "WORDBOUND_LOCAL_CREATOR_CLEANUP: failures=0",
+    "WORDBOUND_LOCAL_CREATOR_CLEANUP: failures=0",
+    "WORDBOUND_LOCAL_CREATOR_CLEANUP: failures=0"
+  ],
+  "prior_failures": [
+    {
+      "path": "TestResults/playmode_20261026T200347Z.xml",
+      "sha256": "da152a188b47213da51a714a9835af4007097d239314540569056d490f131d75",
+      "passed": 8,
+      "total": 9,
+      "reason": "New fixture selected flat, unsupported by existing home builder; Choose normalized to pinwheel before family action. Corrected only new tests to supported non-default courtyard and asserted it before entry. Runtime unchanged."
+    },
+    {
+      "path": "TestResults/editmode_20261026T201133Z.xml",
+      "sha256": "cb8dfe047dcd5c70948e5ca03c2557a8e86dd36a5254ac9d25f54eadd628240c",
+      "passed": 2,
+      "total": 3,
+      "reason": "Recovery return exceeded30s after a queued decision. Application focus was not recorded at that decision; an unfocused background Editor is a hypothesis. Corrected fixture explicitly tests the production unfocused discard and focused decision handlers with unchanged autosave/return/deadline checks. No runtime change or physical-focus acceptance."
+    }
+  ],
+  "limits": [
+    "Existing autosave recovery remains; Undo survives playtest, not closing/reopening the scene.",
+    "Windows lobby QA adds one selection screenshot, twenty total; Windows execution remains pending.",
+    "Original house modes still local; no newly enabled house networking."
+  ]
+}
