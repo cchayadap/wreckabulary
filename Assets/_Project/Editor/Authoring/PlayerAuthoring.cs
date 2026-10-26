@@ -139,16 +139,17 @@ namespace Wreckabulary.EditorTools
 
         static Material DefaultMaterial(Material source, Color tint)
         {
-            if (!AssetDatabase.IsValidFolder(MaterialFolder))
-                AssetDatabase.CreateFolder("Assets/_Project/Materials", "CharacterDefaults");
             string name = source.name + "__Default_" + ColorUtility.ToHtmlStringRGBA(tint);
             string path = MaterialFolder + "/" + name + ".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material) return material;
+            WorkspaceAssetCopies.ValidateDestination(path, ".mat");
+            WorkspaceAssetCopies.EnsureFolder(MaterialFolder);
             material = new Material(source) { name = name };
             material.SetColor("_BaseColor", tint);
             material.SetColor("_Color", tint);
             AssetDatabase.CreateAsset(material, path);
+            AssetDatabase.SaveAssetIfDirty(material);
             return material;
         }
     }

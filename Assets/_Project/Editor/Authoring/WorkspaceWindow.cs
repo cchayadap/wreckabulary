@@ -10,6 +10,10 @@ namespace Wreckabulary.EditorTools
     {
         public const string HubGuid = "4829ca58046a07b4db4cd309dd5093a8";
         public const string EmptyGuid = "58d0348edda8ffa4583aba09a2f26a9d";
+        public const string WordboundLobbyGuid = "8fb103840aae32947b0a9b13c7af0fba";
+        public const string WordboundGameplayGuid = "38e8ae58953ea874c9550132f992c100";
+        [SerializeField] int tab;
+        static readonly string[] Tabs = { "Scenes", "Design", "Assets" };
         Vector2 scroll;
         readonly List<GameObject> hiddenCeilings = new();
 
@@ -34,18 +38,49 @@ namespace Wreckabulary.EditorTools
 
         void OnGUI()
         {
-            scroll = EditorGUILayout.BeginScrollView(scroll);
             GUILayout.Space(14);
             GUILayout.Label("CURRENT WORKSPACE", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("Edit the saved scenes and assets used by the game.", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.LabelField("Open a saved scene, edit its design assets, or try the real game.", EditorStyles.wordWrappedLabel);
+            GUILayout.Space(10);
+            tab = GUILayout.Toolbar(tab, Tabs);
+            scroll = EditorGUILayout.BeginScrollView(scroll);
+            if (tab == 0) DrawScenes();
+            else if (tab == 1) DrawDesign();
+            else WorkspaceAssetBrowser.Draw();
             GUILayout.Space(12);
+            EditorGUILayout.EndScrollView();
+        }
 
+        void DrawScenes()
+        {
+            Section("TRY THE LOBBY");
+            using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode ||
+                EditorApplication.isCompiling || EditorApplication.isUpdating || WorkspacePlayPreview.IsActive ||
+                WorkspaceBootstrap.IsAutomatedSession || WorkspaceBootstrap.IsTestRun))
+            {
+                EditorGUILayout.BeginHorizontal();
+                PreviewButton("Play Lobby", LobbyMenu.Home);
+                PreviewButton("Play Shop", LobbyMenu.Shop);
+                PreviewButton("Play Loadout", LobbyMenu.Loadout);
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Lobby, shop and loadout controls are built during Play; their temporary hierarchy is not a saved editable Canvas.", MessageType.Info);
+            if (!string.IsNullOrEmpty(WorkspacePlayPreview.Message))
+                EditorGUILayout.LabelField(WorkspacePlayPreview.Message, EditorStyles.wordWrappedMiniLabel);
+
+            Section("SAVED SCENES");
             using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))
             {
-                SceneButton("Edit Hub / Main Menu", HubGuid);
+                SceneButton("Open Hub / Lobby environment", HubGuid);
+                SceneButton("Open Wordbound Lobby", WordboundLobbyGuid);
+                SceneButton("Open Wordbound Gameplay shell", WordboundGameplayGuid);
+                EditorGUILayout.LabelField("Wordbound Lobby contains its launcher and camera. Gameplay contains lighting; courses and players are created by the existing launcher or local course playtest.", EditorStyles.wordWrappedMiniLabel);
                 SceneButton("Edit Arena / Dibs", "82b92a76ebd641c49b5e9ed8aa025a1a");
                 SceneButton("Edit Moving Day", "ac5fed3922febf84ca59faadd8da4e64");
                 SceneButton("Edit Tutorial", "db2c4e6815ecee14ba4faa77ac3f3945");
+                ScenePathButton("Open Equipment Studio", WorkspaceStudioSetup.EquipmentScene);
+                ScenePathButton("Open Character Studio", WorkspaceStudioSetup.CharacterScene);
+                EditorGUILayout.LabelField("Studios save a visual review layout. Equipment uses editable prefab copies; assign a copy in a Wordbound visual profile to use it in gameplay.", EditorStyles.wordWrappedMiniLabel);
                 GUILayout.Space(8);
                 bool openedScene = EditorGUILayout.ToggleLeft("Play the opened scene", WorkspaceBootstrap.PlayOpenedScene);
                 if (openedScene != WorkspaceBootstrap.PlayOpenedScene) WorkspaceBootstrap.PlayOpenedScene = openedScene;
@@ -53,6 +88,31 @@ namespace Wreckabulary.EditorTools
                     ? "Play starts in your currently opened scene."
                     : "Play starts at the Hub. Your open authoring scene is restored after Play.", MessageType.Info);
             }
+
+            Section("COURSE & WORKSHOP");
+            AssetButton("Edit Flagship course", "Assets/_Project/Data/Wordbound/Authoring/FlagshipCourse.asset");
+            AssetButton("Edit Freestyle course", "Assets/_Project/Data/Wordbound/Authoring/FreestyleCourse.asset");
+            EditorGUILayout.LabelField("Use the course Inspector to validate, preview and play its exact seed locally. For direct dragging, play Wordbound Lobby and choose Workshop. Workshop drafts do not automatically overwrite the source course asset.", EditorStyles.wordWrappedMiniLabel);
+            string guide = System.IO.Path.GetFullPath("docs/wordbound/UNITY-EDITING-GUIDE.md");
+            using (new EditorGUI.DisabledScope(!System.IO.File.Exists(guide)))
+                if (GUILayout.Button("Open Wordbound editing guide")) EditorUtility.OpenWithDefaultApp(guide);
+        }
+
+        void DrawDesign()
+        {
+            Section("LOBBY TYPOGRAPHY");
+            AssetButton("Lobby fonts & material presets", "Assets/_Project/Resources/UI/LobbyTypography.asset");
+            AssetButton("Saved fonts", "Assets/_Project/UI/Fonts");
+            AssetButton("Saved text materials", "Assets/_Project/UI/Materials");
+            Section("WORDBOUND INSPECTOR ASSETS");
+            AssetButton("Launcher / assigned profiles", "Assets/_Project/Resources/Wordbound/LaunchAssets.asset");
+            AssetButton("Flagship course", "Assets/_Project/Data/Wordbound/Authoring/FlagshipCourse.asset");
+            AssetButton("Freestyle course", "Assets/_Project/Data/Wordbound/Authoring/FreestyleCourse.asset");
+            AssetButton("Player camera", "Assets/_Project/Data/Wordbound/Authoring/PlayerCamera.asset");
+            AssetButton("Story & optional ending copy", "Assets/_Project/Data/Wordbound/Authoring/LostAddressStory.asset");
+            AssetButton("Interface fonts, colours & spacing", "Assets/_Project/Data/Wordbound/Authoring/Interface.asset");
+            AssetButton("Gameplay artwork & held pose", "Assets/_Project/Data/Wordbound/Authoring/Presentation.asset");
+            EditorGUILayout.LabelField("These are saved defaults. Check the launcher and course assignments for custom copies. Interface styles Wordbound menus and workshop; the original lobby uses its existing C# layout.", EditorStyles.wordWrappedMiniLabel);
 
             Section("CHARACTER & ART");
             AssetButton("Edit Player Prefab", "Assets/_Project/Prefabs/Player.prefab", true);
@@ -92,6 +152,8 @@ namespace Wreckabulary.EditorTools
             AssetButton("Gameplay HUD Layout", "Assets/_Project/Scripts/Game/GameHud.cs", true);
             AssetButton("Pause & Result Cards", "Assets/_Project/Scripts/Game/GameHudCards.cs", true);
             AssetButton("Main Menu Layout", "Assets/_Project/Scripts/UI/Lobby/LobbyMenu.cs", true);
+            AssetButton("Loadout & lobby page layouts", "Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs", true);
+            AssetButton("Shop page layout", "Assets/_Project/Scripts/UI/Lobby/ShopPage.cs", true);
             AssetButton("Arena Maps & Game Rules", "Assets/_Project/Data/Config");
             AssetButton("Recipe Balance & Powers", "Assets/_Project/Data/Config/items.json", true);
             EditorGUILayout.LabelField("HUD and menu layouts are authored in C#. The inventory uses UI Builder assets.", EditorStyles.wordWrappedMiniLabel);
@@ -99,12 +161,19 @@ namespace Wreckabulary.EditorTools
             Section("WORKSPACE TOOLS");
             using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))
             {
+                if (GUILayout.Button("Create missing developer assets", GUILayout.Height(30)))
+                    WorkspaceStudioSetup.CreateOrVerify();
                 if (GUILayout.Button("Upgrade Missing Authoring Assets", GUILayout.Height(30)))
                     SceneWorkspace.UpgradeAll();
             }
             EditorGUILayout.LabelField("Adds missing authoring assets while preserving upgraded scene edits. Legacy prototype generation is under Wreckabulary / Legacy.", EditorStyles.wordWrappedMiniLabel);
-            GUILayout.Space(12);
-            EditorGUILayout.EndScrollView();
+        }
+
+        static void PreviewButton(string label, string page)
+        {
+            if (!GUILayout.Button(label, GUILayout.Height(32))) return;
+            try { WorkspacePlayPreview.Start(page); }
+            catch (System.Exception error) { EditorUtility.DisplayDialog("Workspace preview", error.Message, "Close"); }
         }
 
         static void Section(string title)
@@ -144,6 +213,12 @@ namespace Wreckabulary.EditorTools
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(path)))
+                if (GUILayout.Button(label, GUILayout.Height(32))) OpenScene(path);
+        }
+
+        static void ScenePathButton(string label, string path)
+        {
+            using (new EditorGUI.DisabledScope(!AssetDatabase.LoadAssetAtPath<SceneAsset>(path)))
                 if (GUILayout.Button(label, GUILayout.Height(32))) OpenScene(path);
         }
 

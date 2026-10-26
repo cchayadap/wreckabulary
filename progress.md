@@ -4,6 +4,18 @@ Owner: James / SethyPagna. Updated 2026-10-26 (Asia/Hong_Kong).
 
 Legend: `[ ]` unfinished; `[~]` implementation or verification in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
+## Unity developer workspace — 2026-10-26
+
+- [x] Audit existing scenes and asset identity. Imported model paths drive logical keys and rig settings; original assets and accessory submeshes stay intact.
+- [~] Extend the existing workspace with Scenes / Design / Assets, direct Lobby / Shop / Loadout previews, categorized browsing and independent material/prefab copies. Source is implemented; native preservation and Play/Stop checks are pending.
+- [x] Create saved Equipment Studio and Character Studio scenes, 24 categorized editable prefab variants, three saved fonts and five text-material presets. Native setup and repeat pass; all77 outputs are preserved and36 focused editor tests pass. Live interaction/render review remains separate.
+- [ ] Convert runtime-built shop/loadout/lobby layouts into authoritative saved Unity UI assets so dragging and editing the saved layout changes the real game.
+- [ ] Verify ordinary edit → save → reopen → Play workflows, camera controls, preview restoration, authored-asset preservation, and the current Windows build.
+
+Other heavy jobs remain running at James's request. Only this task's Unity work is serialized. Current source work and existing drafts remain preserved; no new Windows build or production-ready claim is implied by these authoring improvements. See [developer workspace plan](docs/wordbound/DEVELOPER-WORKSPACE-PLAN.md).
+
+Workspace R0 `055415` passes Runtime and Editor in15.2seconds. Native setup `054612` and repeat `054859` pass; native `055552` passes36/36 cases, zero skipped. The first setup and first test failures are preserved with their corrections. [Native and preservation evidence](BuildNotes/developer-workspace/native-20261026.json).
+
 ## Goal
 
 Deliver a tested Windows build with five modes, a changing four-destination/four-layer/three-lap world, physical word-and-equipment puzzles, public/private human multiplayer and recovery, a comprehensive workshop, detailed editable models, and Unity authoring controls requiring no code changes for ordinary design work.

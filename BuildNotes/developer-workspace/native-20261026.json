@@ -1,0 +1,508 @@
+{
+  "utc": "2026-10-26T06:02:16.067Z",
+  "sourceBase": "4b04437f3dd96337e5d7ae0102091180b7cbbd24",
+  "verdict": "PASS",
+  "scope": "Saved developer workspace/studios/typography and36 focused native Editor tests; not a Windows or production acceptance.",
+  "gates": [
+    {
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T05:31:33Z",
+      "secs": 36.6,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T053140Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ],
+      "capturedOutput": ".harness/delivery/workspace-check-2026-10-26T05-31-33-210Z-stdout.txt"
+    },
+    {
+      "cmd": "exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify --cold",
+      "rung": "R3",
+      "ok": false,
+      "exit": 1,
+      "verdict": "FAIL",
+      "utc": "2026-10-26T05:33:11Z",
+      "secs": 303.7,
+      "route": "cold",
+      "errors": [
+        {
+          "message": "Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify threw an exception (see the log)"
+        }
+      ],
+      "failures": [],
+      "log": "Logs/gate_exec_CreateOrVerify_20261026T053311Z.log",
+      "evidence": [
+        "Logs/exec/20261026T053311Z.json"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 209.4,
+      "messages": [
+        "[GSK] exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify threw exception: System.InvalidOperationException: Cannot create a new scene additively with an untitled scene unsaved.",
+        "[GSK] exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify failed: InvalidOperationException: Cannot create a new scene additively with an untitled scene unsaved. -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T053311Z.json",
+        "[GSK] exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify threw exception: System.InvalidOperationException: Cannot create a new scene additively with an untitled scene unsaved.",
+        "[GSK] exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify failed: InvalidOperationException: Cannot create a new scene additively with an untitled scene unsaved. -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T053311Z.json"
+      ],
+      "exec": {
+        "method": "Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify",
+        "ok": false,
+        "error": "InvalidOperationException: Cannot create a new scene additively with an untitled scene unsaved.",
+        "result": null
+      },
+      "capturedOutput": ".harness/delivery/workspace-setup-2026-10-26T05-33-11-476Z-stdout.txt"
+    },
+    {
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T05:45:30Z",
+      "secs": 21.4,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T054531Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ],
+      "capturedOutput": ".harness/delivery/workspace-check-2026-10-26T05-45-30-573Z-stdout.txt"
+    },
+    {
+      "cmd": "exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify --cold",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T05:46:12Z",
+      "secs": 74,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_exec_CreateOrVerify_20261026T054612Z.log",
+      "evidence": [
+        "Logs/exec/20261026T054612Z.json"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 49.6,
+      "messages": [
+        "[GSK] exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T054612Z.json"
+      ],
+      "exec": {
+        "method": "Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify",
+        "ok": true,
+        "error": null,
+        "result": null
+      },
+      "capturedOutput": ".harness/delivery/workspace-setup-2026-10-26T05-46-11-987Z-stdout.txt"
+    },
+    {
+      "cmd": "exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify --cold",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T05:48:59Z",
+      "secs": 46.4,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_exec_CreateOrVerify_20261026T054859Z.log",
+      "evidence": [
+        "Logs/exec/20261026T054859Z.json"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 27.7,
+      "messages": [
+        "[GSK] exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T054859Z.json"
+      ],
+      "exec": {
+        "method": "Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify",
+        "ok": true,
+        "error": null,
+        "result": null
+      },
+      "capturedOutput": ".harness/delivery/workspace-setup-2026-10-26T05-48-58-727Z-stdout.txt"
+    },
+    {
+      "cmd": "test editmode --cold --filter WorkspaceEditorTests|WorkspaceAssetBrowserTests|WorkspaceStudioTests|LobbyTypographyTests",
+      "rung": "R3",
+      "ok": false,
+      "exit": 1,
+      "verdict": "FAIL",
+      "utc": "2026-10-26T05:50:13Z",
+      "secs": 136.1,
+      "route": "cold",
+      "errors": [],
+      "failures": [
+        {
+          "name": "Wreckabulary.Tests.Editor.LobbyTypographyTests.DefaultsPersistFontsAtlasesMaterialsAndCurrentVisualSettings",
+          "message": "Expected: RGBA(0.118, 0.118, 0.141, 1.000)\r\n  But was:  RGBA(0.118, 0.118, 0.141, 1.000)",
+          "location": "Assets/_Project/Tests/Editor/LobbyTypographyTests.cs:72"
+        }
+      ],
+      "log": "Logs/gate_test_editmode_20261026T055014Z.log",
+      "evidence": [
+        "TestResults/editmode_20261026T055014Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 38.2,
+      "tests": {
+        "total": 36,
+        "passed": 35,
+        "failed": 1,
+        "skipped": 0
+      },
+      "capturedOutput": ".harness/delivery/workspace-tests-2026-10-26T05-50-13-325Z-stdout.txt"
+    },
+    {
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T05:54:15Z",
+      "secs": 15.2,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T055415Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ],
+      "capturedOutput": ".harness/delivery/workspace-check-2026-10-26T05-54-15-040Z-stdout.txt"
+    },
+    {
+      "cmd": "test editmode --cold --filter WorkspaceEditorTests|WorkspaceAssetBrowserTests|WorkspaceStudioTests|LobbyTypographyTests",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T05:55:52Z",
+      "secs": 156.6,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_editmode_20261026T055552Z.log",
+      "evidence": [
+        "TestResults/editmode_20261026T055552Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 69.9,
+      "tests": {
+        "total": 36,
+        "passed": 36,
+        "failed": 0,
+        "skipped": 0
+      },
+      "capturedOutput": ".harness/delivery/workspace-tests-2026-10-26T05-55-51-715Z-stdout.txt"
+    }
+  ],
+  "fixtures": {
+    "Wreckabulary.Tests.Editor.LobbyTypographyTests": 6,
+    "Wreckabulary.Tests.Editor.WorkspaceAssetBrowserTests": 6,
+    "Wreckabulary.Tests.Editor.WorkspaceEditorTests": 20,
+    "Wreckabulary.Tests.Editor.WorkspaceStudioTests": 4
+  },
+  "sources": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/PlayerAuthoring.cs",
+      "bytes": 8103,
+      "sha256": "6a50cc11381f4f4235b15c95273bfd6e5ef4b67e6c4796c48101022eeac7a0e7"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceBootstrap.cs",
+      "bytes": 5600,
+      "sha256": "0a480b9c674068335451313ba47641d315a029063689910086dec3da950a5561"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceWindow.cs",
+      "bytes": 15099,
+      "sha256": "999c235f0999167926dd06490a2e9bfc34349cdffc3406f6810ba2c16d86d5e1"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspacePlayPreview.cs",
+      "bytes": 6723,
+      "sha256": "f75a578703dd9f9af38ed28102d130eecc582d241b8c297cc8a2acccaf7a2401"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceAssetBrowser.cs",
+      "bytes": 10346,
+      "sha256": "ff4789acaabc26df38b13c5e211909d3310bd503e669169dea762620e97cd256"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceAssetCopies.cs",
+      "bytes": 4105,
+      "sha256": "3acc8686ecf523342c8d774628f5024147138c9ea821d956d1d7548aac378a5e"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceStudioSetup.cs",
+      "bytes": 9717,
+      "sha256": "db0fc96a0d4ec54b52b2cd5bb52b130f2755c2a3435af04d1a550e7d5ab35432"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyTypographySetup.cs",
+      "bytes": 12923,
+      "sha256": "9c50fd71997e66ee3164eca32b92ce059b5ee26e190702c7345e0d046cb9ce3b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyFonts.cs",
+      "bytes": 6103,
+      "sha256": "a5644904f32a020c52a2e64834a8c89091a6997c64591664c0a6649911742fad"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyTypographyProfile.cs",
+      "bytes": 4249,
+      "sha256": "971a3220d9f109981165f0e67746b3d9a64f5f56d305fcc4adeeae4db29196c1"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceEditorTests.cs",
+      "bytes": 16879,
+      "sha256": "130f84a5ef97ace9dcc8bd6013a24cfae1c29cb7b9974a1abd8863c4bf05f286"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceAssetBrowserTests.cs",
+      "bytes": 5178,
+      "sha256": "1755454d2b67cbe3e8706dee25f36d93e9a5d6386b3a36f832360f5b74cda7a5"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/LobbyTypographyTests.cs",
+      "bytes": 12294,
+      "sha256": "682aaaa08186efa692a734d4742b263a7bfe1926e90979c87d8179930dcd9a1a"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceStudioTests.cs",
+      "bytes": 8076,
+      "sha256": "aa0ceaf520f6971d199d69279b150fc6247c0093a8f829b3dcf1c6e2ab89024b"
+    }
+  ],
+  "metadata": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/PlayerAuthoring.cs.meta",
+      "bytes": 59,
+      "sha256": "871f9d2942f3101dcf19aae8cb20893934f5e8318ae40e2aeca1eceadb6a13a3"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceBootstrap.cs.meta",
+      "bytes": 60,
+      "sha256": "4d48c5b98f21c71a6c11b42842f48cc0725b2860ac5388dab277ec6a2743c8c8"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceWindow.cs.meta",
+      "bytes": 60,
+      "sha256": "b7a20c4f768ce226efbdcdab363d65fd84db42b4e027f2d0844147e45efd2389"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspacePlayPreview.cs.meta",
+      "bytes": 59,
+      "sha256": "2ec123b20e9a0a41e115e7d317392ac66425d47b4e7ee6a2721f46c720606c0c"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceAssetBrowser.cs.meta",
+      "bytes": 59,
+      "sha256": "993ea4089928fdaa9664810007de6541994a2a372cd6e77b3e70b3bce7ce7f44"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceAssetCopies.cs.meta",
+      "bytes": 59,
+      "sha256": "1b52534531bc3a61820cc4ea979c4646f0f43549ecd847f06e537819ac8bf2dc"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceStudioSetup.cs.meta",
+      "bytes": 59,
+      "sha256": "e8b2f224c3de76a8b450c2a8a61136de42c2d007167c0f85f5eb6248390e1e2a"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyTypographySetup.cs.meta",
+      "bytes": 59,
+      "sha256": "b1d12c68fcedb01985d2440bc5beceb71eaa1e70baaa8c0be3885a1b16de7143"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyFonts.cs.meta",
+      "bytes": 240,
+      "sha256": "d30b0f37ed2b4536dc79a631cd20a0870413ac98dddbad3ff345aa556e568f09"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyTypographyProfile.cs.meta",
+      "bytes": 59,
+      "sha256": "0a54de51686b0d01e62f3d753fde9ded8df5e05abe6ca821089e09bf96a9ff80"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceEditorTests.cs.meta",
+      "bytes": 60,
+      "sha256": "d4af3c21f3a28321b9e65d4dee745b000f345124f2ca60f7c6e0bc7d122394f0"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceAssetBrowserTests.cs.meta",
+      "bytes": 59,
+      "sha256": "a3c7b439e4ad6c278ff3d5d5d006cc81cf1ac2166a4dd195121519f312e30b98"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/LobbyTypographyTests.cs.meta",
+      "bytes": 59,
+      "sha256": "ce96cb98a849615b6fc13ebf200963285513c65fce4c69b0398be2eb831f5f06"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceStudioTests.cs.meta",
+      "bytes": 59,
+      "sha256": "7abec0db6805c2068de2957cf1024fed7c1b774d132dcf74fcc617b39feef688"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Logs/gate_check_all_20261026T053140Z.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T05-31-33-210Z-stdout.txt",
+      "bytes": 289,
+      "sha256": "e47ebcaad7346ccb82cd27face21c882e7677ef3a5a2d154d1472e7f819647fc"
+    },
+    {
+      "path": "Logs/gate_exec_CreateOrVerify_20261026T053311Z.log",
+      "bytes": 122236,
+      "sha256": "1f4b057e1129ad815c7b72de350e4428256be99b228cf6180f77904ed7697197"
+    },
+    {
+      "path": "Logs/exec/20261026T053311Z.json",
+      "bytes": 234,
+      "sha256": "13ba1f15132c79be5a7cc27d344f1b2cc233d910b3d71e1608286b6d4407fa92"
+    },
+    {
+      "path": ".harness/delivery/workspace-setup-2026-10-26T05-33-11-476Z-stdout.txt",
+      "bytes": 1691,
+      "sha256": "d5df38c030727f89227385566fda0208f22eb5b1e9bba5d3428c8e0701e0ecd9"
+    },
+    {
+      "path": "Logs/gate_check_all_20261026T054531Z.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T05-45-30-573Z-stdout.txt",
+      "bytes": 289,
+      "sha256": "0d9e5aaa14dcb92859c1ebcc501db51ccbe3b4147146d03eedf8a5a7228d6c6d"
+    },
+    {
+      "path": "Logs/gate_exec_CreateOrVerify_20261026T054612Z.log",
+      "bytes": 64114,
+      "sha256": "a95dca1c6e8e689f0b1226008d4ef3c9a578a12ae1b6ff806f619bc39366d88c"
+    },
+    {
+      "path": "Logs/exec/20261026T054612Z.json",
+      "bytes": 140,
+      "sha256": "a716911a4e3b5ffb5fbeea3804895e3cdcf8b59cb4712652a822a1e3aa49f44d"
+    },
+    {
+      "path": ".harness/delivery/workspace-setup-2026-10-26T05-46-11-987Z-stdout.txt",
+      "bytes": 705,
+      "sha256": "019ddf6ac71c3af3b4b6c7f18913f873edcad1af5a3a29ee4822656841d8924b"
+    },
+    {
+      "path": "Logs/gate_exec_CreateOrVerify_20261026T054859Z.log",
+      "bytes": 33346,
+      "sha256": "f7af9e392cecbfb931874955009fa4aa4f2595c986b5d885aefe0ead0dbc48ce"
+    },
+    {
+      "path": "Logs/exec/20261026T054859Z.json",
+      "bytes": 140,
+      "sha256": "fbbf2862a72d5fdbd4746077029c012467773e2aee4f0e359b611f23e62d1d36"
+    },
+    {
+      "path": ".harness/delivery/workspace-setup-2026-10-26T05-48-58-727Z-stdout.txt",
+      "bytes": 707,
+      "sha256": "b851fcce0f03c2ace6841fbf01a3df2bdd69397a07b8dac427999b664cf8e7bd"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261026T055014Z.log",
+      "bytes": 138909,
+      "sha256": "bb9bca1d2fb7c5c53aff3ce6783ea3f56382b1ccfe0b823f938c451a2325b515"
+    },
+    {
+      "path": "TestResults/editmode_20261026T055014Z.xml",
+      "bytes": 37678,
+      "sha256": "8cc1ca55ad1a3b09ee2579c59ed8c9a93a88d7d90dfb8897ccd781dfa2968757"
+    },
+    {
+      "path": ".harness/delivery/workspace-tests-2026-10-26T05-50-13-325Z-stdout.txt",
+      "bytes": 785,
+      "sha256": "72d38d6ff42021fbbe6177ec88006b168ac408cf5523c74ad813443cd03b3456"
+    },
+    {
+      "path": "Logs/gate_check_all_20261026T055415Z.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T05-54-15-040Z-stdout.txt",
+      "bytes": 289,
+      "sha256": "ad8d0ef148e31432ff5946c762a2fc287fa1c64fbd098093600ff369562ca593"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261026T055552Z.log",
+      "bytes": 138354,
+      "sha256": "8873e347fc7f0a5c68d856cf2b9b901c5fe364d464e77e7b5f84c1f6042693c1"
+    },
+    {
+      "path": "TestResults/editmode_20261026T055552Z.xml",
+      "bytes": 36368,
+      "sha256": "fbb46e52525c213419d4a6c41580091d2d8befa5fd685a03d59fbb46f9a0de22"
+    },
+    {
+      "path": ".harness/delivery/workspace-tests-2026-10-26T05-55-51-715Z-stdout.txt",
+      "bytes": 494,
+      "sha256": "8e5e0340b3da62a2479586a767a57677924a17dc6f59ed52e3f8b8bd8ed94c7c"
+    }
+  ],
+  "outputPreservation": {
+    "path": "BuildNotes/developer-workspace/output-preservation-20261026.json",
+    "bytes": 14554,
+    "sha256": "777227ba124c6cb5aad12b8d052a3ce3caad072ae119eb10da26f6ff91adcfea"
+  },
+  "outputs": {
+    "scenes": 2,
+    "prefabVariants": 24,
+    "fontAssets": 3,
+    "materialPresets": 5,
+    "profiles": 1,
+    "preservedFiles": 77
+  },
+  "repairedFailures": [
+    "Additive creation with an untitled scene: direct preview-scene prefab variants and owned saved studio staging preserve current work.",
+    "Exact Color equality after material serialization: use Unity ColorEqualityComparer. No runtime material change."
+  ],
+  "limits": [
+    "Actual editor interaction and Play/Stop with both reload settings still need visual/live verification.",
+    "Saved Shop layout draft is not integrated; Home/Loadout remain runtime layouts.",
+    "No new Windows build, public-capacity result, online appearance parity or production-ready claim."
+  ],
+  "preservation": "Original imports, ICY/Lunar work, portrait drafts and other jobs remain unchanged. Exact owned BelowNormal compiler helpers were restored only to Normal and observations are retained privately."
+}

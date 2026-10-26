@@ -1,0 +1,209 @@
+{
+  "utc": "2026-10-26T05:37:47.424Z",
+  "sourceBase": "4b04437f3dd96337e5d7ae0102091180b7cbbd24",
+  "status": "SOURCE VERIFIED; NATIVE SETUP IN PROGRESS",
+  "gate": {
+    "cmd": "check all",
+    "rung": "R0",
+    "ok": true,
+    "exit": 0,
+    "verdict": "PASS",
+    "utc": "2026-10-26T05:31:33Z",
+    "secs": 36.6,
+    "route": "none",
+    "errors": [],
+    "failures": [],
+    "log": "Logs/gate_check_all_20261026T053140Z.log",
+    "evidence": [],
+    "infra": null,
+    "slot": 0,
+    "messages": [
+      "[check:Runtime] OK",
+      "[check:Editor] OK"
+    ]
+  },
+  "priorAttempts": [
+    {
+      "utc": "2026-10-26T05:11:04Z",
+      "verdict": "FAIL",
+      "reason": "Obsolete GetInstanceID API corrected by grouping on Unity object identity.",
+      "log": "Logs/gate_check_all_20261026T051106Z.log"
+    },
+    {
+      "utc": "2026-10-26T05:19:39Z",
+      "verdict": "INFRA",
+      "reason": "New shell lacked GSK_UNITY; explicit path supplied by local invocation wrapper."
+    }
+  ],
+  "sources": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/PlayerAuthoring.cs",
+      "bytes": 8103,
+      "sha256": "6a50cc11381f4f4235b15c95273bfd6e5ef4b67e6c4796c48101022eeac7a0e7"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceBootstrap.cs",
+      "bytes": 5600,
+      "sha256": "0a480b9c674068335451313ba47641d315a029063689910086dec3da950a5561"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceWindow.cs",
+      "bytes": 15099,
+      "sha256": "999c235f0999167926dd06490a2e9bfc34349cdffc3406f6810ba2c16d86d5e1"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspacePlayPreview.cs",
+      "bytes": 6723,
+      "sha256": "f75a578703dd9f9af38ed28102d130eecc582d241b8c297cc8a2acccaf7a2401"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceAssetBrowser.cs",
+      "bytes": 10346,
+      "sha256": "ff4789acaabc26df38b13c5e211909d3310bd503e669169dea762620e97cd256"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceAssetCopies.cs",
+      "bytes": 4682,
+      "sha256": "1256680e11cebafea13af307cf1663a3e67e07a714c4d9e875bdb75e49aacf05"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceStudioSetup.cs",
+      "bytes": 7117,
+      "sha256": "6332ef918952b187c3ae77066805f55b0ac3a84612477c0b87fbb53574cbc695"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyTypographySetup.cs",
+      "bytes": 12923,
+      "sha256": "9c50fd71997e66ee3164eca32b92ce059b5ee26e190702c7345e0d046cb9ce3b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyFonts.cs",
+      "bytes": 6103,
+      "sha256": "a5644904f32a020c52a2e64834a8c89091a6997c64591664c0a6649911742fad"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyTypographyProfile.cs",
+      "bytes": 4249,
+      "sha256": "971a3220d9f109981165f0e67746b3d9a64f5f56d305fcc4adeeae4db29196c1"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceEditorTests.cs",
+      "bytes": 16879,
+      "sha256": "130f84a5ef97ace9dcc8bd6013a24cfae1c29cb7b9974a1abd8863c4bf05f286"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceAssetBrowserTests.cs",
+      "bytes": 5210,
+      "sha256": "c543029266354c89badc6fc05a488c051f402feff9a46809bbc1c8222491ef7f"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/LobbyTypographyTests.cs",
+      "bytes": 12146,
+      "sha256": "d9e9d293e6696223c4b71c84d5962c3c16df489b3f32257e0cfc37d7c3c21092"
+    }
+  ],
+  "metadata": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/PlayerAuthoring.cs.meta",
+      "bytes": 59,
+      "sha256": "871f9d2942f3101dcf19aae8cb20893934f5e8318ae40e2aeca1eceadb6a13a3"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceBootstrap.cs.meta",
+      "bytes": 60,
+      "sha256": "4d48c5b98f21c71a6c11b42842f48cc0725b2860ac5388dab277ec6a2743c8c8"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceWindow.cs.meta",
+      "bytes": 60,
+      "sha256": "b7a20c4f768ce226efbdcdab363d65fd84db42b4e027f2d0844147e45efd2389"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspacePlayPreview.cs.meta",
+      "bytes": 59,
+      "sha256": "2ec123b20e9a0a41e115e7d317392ac66425d47b4e7ee6a2721f46c720606c0c"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceAssetBrowser.cs.meta",
+      "bytes": 59,
+      "sha256": "993ea4089928fdaa9664810007de6541994a2a372cd6e77b3e70b3bce7ce7f44"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceAssetCopies.cs.meta",
+      "bytes": 59,
+      "sha256": "1b52534531bc3a61820cc4ea979c4646f0f43549ecd847f06e537819ac8bf2dc"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceStudioSetup.cs.meta",
+      "bytes": 59,
+      "sha256": "e8b2f224c3de76a8b450c2a8a61136de42c2d007167c0f85f5eb6248390e1e2a"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyTypographySetup.cs.meta",
+      "bytes": 59,
+      "sha256": "b1d12c68fcedb01985d2440bc5beceb71eaa1e70baaa8c0be3885a1b16de7143"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyFonts.cs.meta",
+      "bytes": 240,
+      "sha256": "d30b0f37ed2b4536dc79a631cd20a0870413ac98dddbad3ff345aa556e568f09"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyTypographyProfile.cs.meta",
+      "bytes": 59,
+      "sha256": "0a54de51686b0d01e62f3d753fde9ded8df5e05abe6ca821089e09bf96a9ff80"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceEditorTests.cs.meta",
+      "bytes": 60,
+      "sha256": "d4af3c21f3a28321b9e65d4dee745b000f345124f2ca60f7c6e0bc7d122394f0"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceAssetBrowserTests.cs.meta",
+      "bytes": 59,
+      "sha256": "a3c7b439e4ad6c278ff3d5d5d006cc81cf1ac2166a4dd195121519f312e30b98"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/LobbyTypographyTests.cs.meta",
+      "bytes": 59,
+      "sha256": "ce96cb98a849615b6fc13ebf200963285513c65fce4c69b0398be2eb831f5f06"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Logs/gate_check_all_20261026T053140Z.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Logs/gate_check_all_20261026T051106Z.log",
+      "bytes": 322,
+      "sha256": "abdfbab798a7eec14b84ced5200f5c71205cea9785cad9e35bb627e739a1b7c9"
+    },
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T05-31-33-210Z-stdout.txt",
+      "bytes": 289,
+      "sha256": "e47ebcaad7346ccb82cd27face21c882e7677ef3a5a2d154d1472e7f819647fc"
+    }
+  ],
+  "plannedNativeCases": {
+    "WorkspaceEditorTests": 20,
+    "WorkspaceAssetBrowserTests": 6,
+    "LobbyTypographyTests": 6,
+    "total": 32,
+    "executed": false
+  },
+  "preservation": {
+    "snapshot": ".harness/recovery/developer-workspace-2026-10-26T05-18-53-957Z",
+    "verifiedFiles": 34,
+    "originalModelPaths": "unchanged",
+    "rejectedPortraitDrafts": "preserved and excluded from source commit",
+    "otherJobs": "remain running"
+  },
+  "limits": [
+    "Type-check success does not execute tests or create the studio/font assets.",
+    "Real Play shortcuts use normal game save behaviour.",
+    "Studio edits need explicit gameplay profile assignment; saved authoritative Shop layout remains future work.",
+    "No new Windows build or public-capacity acceptance is established by this receipt."
+  ]
+}

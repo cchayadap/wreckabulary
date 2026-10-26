@@ -623,3 +623,19 @@ Integrated cleanup as 0c083004 after independent source review and verification 
 ## 2026-10-26T04:45:38Z Compiler isolation result preserved
 
 Gate043145 FAIL after605.7 seconds at its unchanged600s deadline; no portrait callback/images. Session-only Burst disable did not prevent ILPP connectivity waits. Restoring four exact owned helper processes from BelowNormal to Normal coincided with later compilation progress but did not complete the diagnostic. No cause or production fix is claimed. All owned Unity/compiler processes are gone; an unrelated reused PID was excluded and untouched. See BuildNotes/experience-refresh/portrait-compiler-isolation-20261026.json for13 verified artifacts, exact phases and limitations. No new Windows build or live capacity retry ran. Updated progress.md and root.progress.md with the remaining queue and current blocker.
+
+## 2026-10-26T05:38:00Z Developer workspace source and preservation review
+
+Extended the existing Unity workspace with Scenes/Design/Assets navigation, real Lobby/Shop/Loadout Play shortcuts, original-asset categories and independent saved material/prefab copies. Added missing-only equipment/character studio and runtime-connected lobby typography setup. Imported paths remain unchanged because they encode model identities and rig settings. Generated typography and studios are still pending native execution; runtime-built Shop/Loadout layout conversion remains explicit unfinished work.
+
+Independent review corrected subasset browsing, active-scene isolation during copying, CharacterDefaults collision handling and preview recovery after editor-test interruption. Added source coverage for 20 workspace, 6 browser and 6 typography cases, not yet executed. R0 053133 passes Runtime and Editor in 36.6 seconds after correcting an obsolete Unity API and a separate missing-editor-path invocation. Exact source/metadata hashes and prior attempt details are recorded in BuildNotes/developer-workspace/source-20261026.json.
+
+All 34 dirty/untracked files at the first source checkpoint were copied and SHA-256 verified in .harness/recovery/developer-workspace-2026-10-26T05-18-53-957Z. Rejected portrait drafts remain preserved. The owner explicitly kept other jobs running; native setup 053311 is serialized with a 900-second deadline and normal Burst configuration. Only verified owned toolchain descendants may change from BelowNormal to Normal. No unrelated process, original checkout, current release or public service was changed.
+
+## 2026-10-26T06:03:49.943Z Saved Unity workspace native verification
+
+Native setup054612 PASS74s and repeat054859 PASS46.4s create two studios,24 original-model prefab variants,three saved fonts,five material presets and a typography profile. All77 output files remain byte-identical after repeat and after tests. Native055552 passes36/36 focused cases, zero skipped; fixtures are WorkspaceEditor20, AssetBrowser6, Studio4 and Typography6. R0 055415 PASS15.2s.
+
+The first native setup failure remains recorded: Unity disallowed a second untitled additive scene. Prefab copying now instantiates directly in a hidden preview scene and saves a variant; studio creation stages an owned saved scene and publishes only after success. The first test run passed35/36; the remaining exact Color assertion was replaced with Unity ColorEqualityComparer for serialized floating-point values. Runtime materials were unchanged. Native receipt: BuildNotes/developer-workspace/native-20261026.json.
+
+Read-only audit confirmed original FBX links, scene camera/light composition, saved atlas/material references, no duplicate Assets GUIDs and no temporary studio leftovers. Actual visual review, real Play/Stop, Windows and online appearance remain separate. Shop layout proposals stay under BuildNotes/developer-workspace/shop-layout and are not integrated by this checkpoint. Other jobs stayed running.
