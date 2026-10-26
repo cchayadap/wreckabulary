@@ -1,0 +1,35 @@
+{
+  "lane": "experience-refresh/collection26",
+  "utc": "2026-10-26T02:29:02Z",
+  "status": "SOURCE_DELIVERED",
+  "source_commit": "de9dcaa2d32c4466e69b1d1c5573428c6ea76b15",
+  "source_sha256": "dd4955bb5564aa41f5c0658a9b5e93470c495b8019de15bcac42e8c0418fd479",
+  "paths": [
+    "Tools/AssetPipeline/collections/packing_club.py",
+    "ArtSource/Collections/PackingClub/V1/spec.md",
+    "BuildNotes/experience-refresh/collection26.progress.md"
+  ],
+  "checks": {
+    "python_ast": "PASS",
+    "staged_diff_check": "PASS",
+    "blender_generation": "NOT-RUN",
+    "export_round_trip": "NOT-RUN",
+    "preview_rendering": "NOT-RUN",
+    "unity_import": "NOT-RUN",
+    "human_visual_acceptance": "NOT-RUN"
+  },
+  "contract_changes": [],
+  "requests": [
+    "Root schedules new-output Blender build, export verification and matched original/candidate rendering",
+    "Root owns additive presentation-only itemId/skinId model and thumbnail binding with Classic fallback",
+    "Root maps shared palette materials and checks imported bounds/full composed Grip_R transform",
+    "Root defines consistent cosmetic identity through shop, held, world, drop and throw states"
+  ],
+  "preserved": ["BuildNotes/flagship-content/focused-first-attempt.log"],
+  "provider_spend": 0,
+  "limitations": [
+    "Self-reviewed source; independent agent spawn returned thread limit",
+    "LOD source exists only as generator logic; runtime switching is not implemented",
+    "Actual geometry, appearance, native compatibility and performance remain unverified"
+  ]
+}

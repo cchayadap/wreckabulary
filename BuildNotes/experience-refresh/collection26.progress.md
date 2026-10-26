@@ -1,6 +1,6 @@
 # Packing Club source authoring — collection26
 
-STATUS: IN PROGRESS
+STATUS: SOURCE DELIVERED — generation and native acceptance NOT-RUN
 
 Scope: source-only Blender authoring for two cosmetic geometry variants, BAT and SHIELD, in the original Wreckabulary style. Root owns all Blender/Unity/player execution, catalogue bindings, imports and acceptance. No provider jobs or spend, no changes to original artwork, physics, recipes or statistics.
 
@@ -27,3 +27,5 @@ Matched front/side/rear/three-quarter original/candidate rendering and transpare
 Static checks: Python AST parse PASS and `git diff --check` PASS. Blender API compatibility, actual generation, material appearance, counts, topology, export round-trip and native import remain NOT-RUN. An independent source reviewer could not be spawned because the collaboration tool returned agent thread limit; this is a self-reviewed source delivery, not independent approval.
 
 Runtime request to root: additive `(itemId, skinId)` binding for PackingClub model/thumbnail/bounds/grip/held scale; map shared palette materials in Unity; define one identity through shop/held/world/drop/throw and retain Classic/Candy/Arcade. Existing per-course Overrides and Classic-only equipment collection are insufficient. `spec.md` contains bounded commands and import/visual acceptance steps. Root alone schedules Blender and Unity.
+
+Handoff at 2026-10-26T02:29:02Z: source commit `de9dcaa2d32c4466e69b1d1c5573428c6ea76b15`; exact three new paths, correct configured SethyPagna identity. Staged diff whitespace check PASS after the new files were staged. The unrelated focused-first-attempt log remains untouched/untracked. Script SHA-256 at handoff: `dd4955bb5564aa41f5c0658a9b5e93470c495b8019de15bcac42e8c0418fd479`. Root can integrate this commit without source baseline commits. Next recoverable action: root reviews source and schedules build into a new `ArtSource/Collections/PackingClub/V1/build-20261026-a` folder, then verifies exports before rendering/importing. No binary, image, runtime skin, performance or owner-approval claim is made.
