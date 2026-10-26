@@ -171,8 +171,13 @@ namespace Wreckabulary
             var card = Poster(parent, "Map random", LobbyKit.Sun, Menu.Map == Session.LobbyRandomMap,
                 () => { Menu.Choose(map: Session.LobbyRandomMap); Refresh(); Reselect("Map random"); }, HouseSize);
             var body = card.Body();
-            var title = LobbyKit.Display(body, "random", 34, LobbyKit.Cream, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke);
-            title.Size(-1, 44);
+            var icon = LobbyKit.Icon(body, LobbyIcons.Home, LobbyKit.Navy);
+            icon.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -20), new Vector2(110, 110));
+            var words = Words(body, 14);
+            var title = LobbyKit.Display(words, "Random house", 30, LobbyKit.Cream, TextAlignmentOptions.BottomLeft, LobbyKit.Ink.Stroke);
+            title.enableAutoSizing = true; title.fontSizeMin = 22; title.fontSizeMax = 30;
+            title.Size(-1, 36);
+            TagLine(words, "New each run");
         }
 
         void HouseCard(Transform parent, string id, HouseLayout layout, int index)

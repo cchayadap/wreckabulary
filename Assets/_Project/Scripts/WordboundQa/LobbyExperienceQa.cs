@@ -65,6 +65,7 @@ namespace Wreckabulary.Qa
                     Require(detail.text.ToLowerInvariant().Contains("bot") == (mode == "Dibs" || mode == "Duos"), "Incorrect bot claim: " + mode);
                     TextFits(detail);
                     foreach (string id in HouseModes) ControlFits(Find(Page(), "Mode " + id));
+                    if (mode == "Escape") ControlFits(Find(Page(), "Map random"));
                     Require(Find(Page(), "GO").interactable, "The selected local mode cannot start.");
                     context.Note("local_" + mode, new Dictionary<string, object> { ["summary"] = detail.text, ["map"] = menu.Map,
                         ["humans"] = menu.PartySize, ["selected"] = EventSystem.current.currentSelectedGameObject.name });

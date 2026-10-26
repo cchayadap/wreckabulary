@@ -703,14 +703,12 @@ namespace Wreckabulary
                 if (map == Session.LobbyRandomMap)
                 {
                     Map = map;
-                    Post("Random house every run.");
                 }
                 else
                 {
                     Session.SelectMap(map);
                     Map = map;
                     Stage.SetMap(map);
-                    Post("Map: " + GameConfig.Current.HouseFor(map).Name + ".");
                 }
             }
             RefreshBar();

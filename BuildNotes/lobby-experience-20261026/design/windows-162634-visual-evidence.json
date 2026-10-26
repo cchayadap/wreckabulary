@@ -1,0 +1,149 @@
+{
+  "runId": "20261026T162634Z-lobby_experience",
+  "buildId": "20261026T162356Z",
+  "parentReportedSource": "f328c814",
+  "result": "PASS",
+  "checksSha256": "fb40716983ad5922e06b26a0553586bf0e3c38384c5ec67429dbb6c5527a63e4",
+  "console": {
+    "errors": 0,
+    "exceptions": 0,
+    "warnings": 0,
+    "first_exception": null
+  },
+  "steps": [
+    {
+      "name": "local_choices",
+      "status": "PASS"
+    },
+    {
+      "name": "create_choices",
+      "status": "PASS"
+    },
+    {
+      "name": "customize_and_shop",
+      "status": "PASS"
+    },
+    {
+      "name": "settings_navigation",
+      "status": "PASS"
+    },
+    {
+      "name": "open_wordbound",
+      "status": "PASS"
+    }
+  ],
+  "images": [
+    {
+      "file": "lobby_local_dibs.png",
+      "sha256": "70a428dfe47d621afa688512e0a41918dcfa1266f03d3b0bbf9800a0cc325cd4",
+      "width": 1280,
+      "height": 720,
+      "bytes": 449557
+    },
+    {
+      "file": "lobby_local_duos.png",
+      "sha256": "9c5aa41605b122e114255a0736debeec0a37a5eede18569251cfa7fbf4dca9c9",
+      "width": 1280,
+      "height": 720,
+      "bytes": 454348
+    },
+    {
+      "file": "lobby_local_escape.png",
+      "sha256": "292e72775315a78b38d75a72d3552b70942e2bc423c79444cff8518fbd5f82fe",
+      "width": 1280,
+      "height": 720,
+      "bytes": 349087
+    },
+    {
+      "file": "lobby_create_learn.png",
+      "sha256": "25862227b00d47aa8ec0dea955928e0015ca6037486fa89919919240ddb4b18a",
+      "width": 1280,
+      "height": 720,
+      "bytes": 229625
+    },
+    {
+      "file": "lobby_create_build.png",
+      "sha256": "bbb6530eca242f752117f986039c1632b8bd72d4cd7a75774c90c9d691838e69",
+      "width": 1280,
+      "height": 720,
+      "bytes": 350405
+    },
+    {
+      "file": "lobby_customize.png",
+      "sha256": "0a7b519532e812c4d92e6e0c00f3ba5176dc5671cd819f69c1fb000fa26d5388",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1290060
+    },
+    {
+      "file": "lobby_shop.png",
+      "sha256": "e0011b09f9ba91adb82e388afd2e6b18409141233b4712a624cc04931a1f5084",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1095902
+    },
+    {
+      "file": "lobby_settings_profile.png",
+      "sha256": "3c0e8eea7c5d3fdec0f0b6e05dc43f6df16e5036f9553e9442a9b682e8e7467e",
+      "width": 1280,
+      "height": 720,
+      "bytes": 575174
+    },
+    {
+      "file": "lobby_settings_audio.png",
+      "sha256": "2103ac02a68603e39672e8879e333e255c89f2ce48d91703b4f2ace560c84693",
+      "width": 1280,
+      "height": 720,
+      "bytes": 584264
+    },
+    {
+      "file": "lobby_settings_gameplay.png",
+      "sha256": "8f687c0bf593807134aaa2cccf118b9022bd6f6e77dc022f61133520d4367ccb",
+      "width": 1280,
+      "height": 720,
+      "bytes": 583144
+    },
+    {
+      "file": "lobby_settings_graphics.png",
+      "sha256": "0af3a3a745580b13774bcb3b723d4883eedf60cf485defcbea0f728bec2d8b60",
+      "width": 1280,
+      "height": 720,
+      "bytes": 649360
+    },
+    {
+      "file": "lobby_settings_controls.png",
+      "sha256": "16d13c9b9cfb4b49e574e562144a3a126ce2bf3127c3da89493a7de162795c2b",
+      "width": 1280,
+      "height": 720,
+      "bytes": 638919
+    },
+    {
+      "file": "lobby_settings_controls_bottom.png",
+      "sha256": "b7ae45c32291472a5ea256973ec73053c8134e1daef110849375f03d023b0836",
+      "width": 1280,
+      "height": 720,
+      "bytes": 635559
+    },
+    {
+      "file": "lobby_settings_help.png",
+      "sha256": "3bb52090149720bc83739920f4df7df145c14609496993c440bdb16bb89665b2",
+      "width": 1280,
+      "height": 720,
+      "bytes": 652759
+    },
+    {
+      "file": "lobby_home_returned.png",
+      "sha256": "53a6a3b8099c33a249eab717174304da500723380b968dc3a38f5a327294c4d5",
+      "width": 1280,
+      "height": 720,
+      "bytes": 1646636
+    },
+    {
+      "file": "lobby_online_ready.png",
+      "sha256": "ca1195298da70a1d201d263c0485e934d3ba4c8e5328a9ebb05ea74760d68ffa",
+      "width": 1280,
+      "height": 720,
+      "bytes": 41956
+    }
+  ]
+}

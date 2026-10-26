@@ -115,6 +115,16 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(Detail.ToLowerInvariant().Contains("bot"));
             Assert.AreEqual(Session.LobbyRandomMap, menu.Map);
             Assert.AreEqual(1, Page.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Map ")));
+            Canvas.ForceUpdateCanvases();
+            var random = Find("Map random");
+            Assert.IsTrue(random.GetComponentsInChildren<TMP_Text>().Any(text => text.text == "Random house"));
+            foreach (var text in random.GetComponentsInChildren<TMP_Text>())
+            {
+                text.ForceMeshUpdate();
+                Assert.IsFalse(text.isTextTruncated || text.isTextOverflowing, "random house card: " + text.text);
+            }
+            Assert.IsFalse(menu.Messages.Any(message => message == "Random house every run." || message.StartsWith("Map: ")),
+                "map state is shown in the selected card and footer, without stale map notifications");
         }
 
         [UnityTest]

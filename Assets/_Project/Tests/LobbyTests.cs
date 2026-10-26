@@ -825,7 +825,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(other, menu.Stage.Map, "the backdrop follows the map");
             Assert.IsTrue(!oldBackdrop, "the old map is taken down");
             StringAssert.Contains(GameConfig.Current.HouseFor(other).Name, Backdrop(menu.Stage).name);
-            StringAssert.Contains(GameConfig.Current.HouseFor(other).Name, menu.Messages[0]);
+            StringAssert.Contains(GameConfig.Current.HouseFor(other).Name, menu.Describe(), "the selected match shows the current house");
             AssertFramed(menu.Stage, "you stand in the new map");
 
             Click("GO");

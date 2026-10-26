@@ -1,0 +1,104 @@
+{
+  "utc": "2026-10-26T16:39:57.106Z",
+  "baseHead": "f328c814697ddeb56066cac7698990d7a1fbff61",
+  "status": "SOURCE VERIFIED; FINAL WINDOWS PENDING",
+  "runs": [
+    {
+      "stdout": ".harness/delivery/workspace-check-2026-10-26T16-32-17-861Z-stdout.txt",
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:32:17Z",
+      "secs": 19.1,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T163218Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ]
+    },
+    {
+      "stdout": ".harness/delivery/workspace-core-2026-10-26T16-37-15-872Z-stdout.txt",
+      "cmd": "core --filter CosmeticBundleTests|WardrobeTests|CatalogueTests|CareerTests",
+      "rung": "R1",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:37:16Z",
+      "secs": 15.1,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_core_20261026T163716Z.log",
+      "evidence": [
+        "TestResults/core_20261026T163716Z.trx"
+      ],
+      "infra": null,
+      "slot": 0,
+      "tests": {
+        "total": 41,
+        "passed": 41,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "stdout": ".harness/delivery/workspace-homeplaytests-2026-10-26T16-37-39-840Z-stdout.txt",
+      "cmd": "test playmode --cold --filter HomeLayoutRuntimeTests|LobbyTests|LobbyNavigationRefinementTests|LobbyMapSelectionTests|CaptureCleanupTests|LobbyPlayChoiceTests|LobbySettingsNavigationTests|ControlsSettingsTests|LobbyNavigationLayoutTests",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:37:40Z",
+      "secs": 127.9,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_playmode_20261026T163740Z.log",
+      "evidence": [
+        "TestResults/playmode_20261026T163740Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 50.8,
+      "tests": {
+        "total": 91,
+        "passed": 91,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "source": [
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyMenu.cs",
+      "sha256": "ee98c8b5a0cbda02fa0aa6fc4aac8188e59fb9c36029f26b3ec24ba63f0bddf8"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/PlayPage.cs",
+      "sha256": "d50b7e3f711a308e07772de358d07dfe5d221c22700139234cb81c47e160556b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs",
+      "sha256": "b51b90e825efc9dc6fd8bf9743ddab4aa8836eecdeda43531a5eb6dc87c335b7"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyPlayChoiceTests.cs",
+      "sha256": "93b8817af12cc9ee0563dc9343442114e0f6af5ba1308d5c002c49e05f7bb08e"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyTests.cs",
+      "sha256": "c53056a5ae625aab4594229f74cbb8c96f413ddeae559ed24cedd4c48ef7646d"
+    }
+  ],
+  "preservation": "BuildNotes/lobby-experience-20261026/verification/preservation-final-source.json",
+  "scope": "Correct Random house label fit and remove redundant map-change toasts. Full lobby tests preserve actual map selection and local launch behavior."
+}

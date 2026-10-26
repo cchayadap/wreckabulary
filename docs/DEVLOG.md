@@ -764,3 +764,8 @@ Separated Local/Online/Create with accurate human/bot summaries and original art
 ## 2026-10-26T16:23:00Z Visible settings scrolling
 
 The first Windows lobby walkthrough passed all five stages with 15 actual captures. Independent visual review found weak scroll discoverability. Settings now provides a small teal scrollbar beside overflowing lists, without more instructional text. Native Play 161936 passes all 21 focused cases; capture 162055 passes 2/2, including all 12 normal/pending settings views. All 276 authored outputs remain unchanged. Final Windows QA additionally reaches the last Controls bindings and requests a 16th capture.
+
+
+## 2026-10-27 Final lobby screenshot corrections
+
+Windows walkthrough 162634 passes 5/5 with 16 captures. Independent review finds a truncated Random house placeholder and stale map-change toast; the card now uses the shared poster layout and map changes update their existing selection/footer without a redundant toast. R0, core 41/41 and the full lobby Play suite 91/91 pass on this correction. All 276 saved authored files match the post-Home baseline. Final Windows rebuild follows this source checkpoint.
