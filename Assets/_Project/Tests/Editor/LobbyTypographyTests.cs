@@ -62,6 +62,18 @@ namespace Wreckabulary.Tests.Editor
                 }
                 Assert.AreEqual(path, AssetDatabase.GetAssetPath((Object)Property(font, "material")));
                 Assert.IsFalse(new SerializedObject(font).FindProperty("m_ClearDynamicDataOnBuild").boolValue);
+                var material = (Material)Property(font, "material");
+                var normalized = new Material(material);
+                try
+                {
+                    var update = font.GetType().Assembly.GetType("TMPro.ShaderUtilities")
+                        .GetMethod("UpdateShaderRatios", BindingFlags.Public | BindingFlags.Static);
+                    Assert.IsNotNull(update);
+                    update.Invoke(null, new object[] { normalized });
+                    foreach (string ratio in new[] { "_ScaleRatioA", "_ScaleRatioB", "_ScaleRatioC" })
+                        Assert.AreEqual(normalized.GetFloat(ratio), material.GetFloat(ratio), FontFields[index] + " " + ratio);
+                }
+                finally { Object.DestroyImmediate(normalized); }
             }
             foreach (string name in MaterialFields)
                 StringAssert.StartsWith(root + "/Defaults/Materials/", AssetDatabase.GetAssetPath(Reference(defaults, name)));

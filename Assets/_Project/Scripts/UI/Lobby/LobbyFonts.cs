@@ -12,7 +12,7 @@ namespace Wreckabulary
         static readonly Dictionary<TMP_FontAsset, Material> foreground = new();
         static readonly List<TMP_FontAsset> generatedFonts = new();
         static readonly List<Material> generatedMaterials = new();
-        static bool failed;
+        static bool failed, cacheForPlay;
 
         public static TMP_FontAsset Display { get { Load(); return display; } }
         public static TMP_FontAsset Body { get { Load(); return body; } }
@@ -32,12 +32,17 @@ namespace Wreckabulary
             material.SetFloat("_FaceDilate", .02f);
             ShaderUtilities.UpdateShaderRatios(material);
             foreground[font] = material;
-            generatedMaterials.Add(material);
+            Own(material);
             return material;
         }
 
         static void Load()
         {
+            if (cacheForPlay != Application.isPlaying)
+            {
+                ResetCache();
+                cacheForPlay = Application.isPlaying;
+            }
             if (display || failed) return;
             var profile = Resources.Load<LobbyTypographyProfile>(LobbyTypographyProfile.ResourcePath);
             if (profile)
@@ -63,11 +68,14 @@ namespace Wreckabulary
                 Debug.LogWarning("Lobby typography profile is invalid; using generated defaults. " + reason, profile);
                 return false;
             }
-            display = profile.Display; body = profile.Body; black = profile.Black;
-            stroke = profile.Stroke; drop = profile.Drop;
-            foreground[display] = profile.DisplayForeground;
-            foreground[body] = profile.BodyForeground;
-            foreground[black] = profile.BlackForeground;
+            display = LobbyRuntimeTypography.ResolveFont(profile.Display);
+            body = LobbyRuntimeTypography.ResolveFont(profile.Body);
+            black = LobbyRuntimeTypography.ResolveFont(profile.Black);
+            stroke = LobbyRuntimeTypography.ResolveMaterial(profile.Display, profile.Stroke);
+            drop = LobbyRuntimeTypography.ResolveMaterial(profile.Display, profile.Drop);
+            foreground[display] = LobbyRuntimeTypography.ResolveMaterial(profile.Display, profile.DisplayForeground);
+            foreground[body] = LobbyRuntimeTypography.ResolveMaterial(profile.Body, profile.BodyForeground);
+            foreground[black] = LobbyRuntimeTypography.ResolveMaterial(profile.Black, profile.BlackForeground);
             return true;
         }
 
@@ -97,13 +105,15 @@ namespace Wreckabulary
             if (!font) { Debug.LogWarning("Lobby font missing: Resources/Fonts/" + file); return null; }
             var asset = TMP_FontAsset.CreateFontAsset(font, size, padding, GlyphRenderMode.SDFAA, 2048, 2048);
             if (!asset) return null;
-            generatedFonts.Add(asset);
+            if (Application.isPlaying) LobbyRuntimeTypography.OwnGenerated(asset);
+            else generatedFonts.Add(asset);
             asset.name = file;
             asset.isMultiAtlasTexturesEnabled = true;
             // TMP resolves ellipsis and underline before laying out the first visible text.
             asset.TryAddCharacters(LobbyTypographyProfile.InitialCharacters);
             foreach (var atlas in asset.atlasTextures) if (atlas) atlas.filterMode = FilterMode.Bilinear;
-            if (GameAssets.I && GameAssets.I.font) asset.fallbackFontAssetTable = new List<TMP_FontAsset> { GameAssets.I.font };
+            if (GameAssets.I && GameAssets.I.font)
+                asset.fallbackFontAssetTable = new List<TMP_FontAsset> { LobbyRuntimeTypography.ResolveFont(GameAssets.I.font) };
             return asset;
         }
 
@@ -124,8 +134,14 @@ namespace Wreckabulary
                 material.SetFloat("_UnderlaySoftness", 0f);
             }
             ShaderUtilities.UpdateShaderRatios(material);
-            generatedMaterials.Add(material);
+            Own(material);
             return material;
+        }
+
+        static void Own(Material material)
+        {
+            if (Application.isPlaying) LobbyRuntimeTypography.OwnGenerated(material);
+            else generatedMaterials.Add(material);
         }
     }
 }

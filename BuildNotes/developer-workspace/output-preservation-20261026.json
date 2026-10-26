@@ -1,7 +1,7 @@
 {
-  "utc": "2026-10-26T06:00:51.237Z",
+  "utc": "2026-10-26T08:13:08.864Z",
   "baselineUtc": "2026-10-26T05:48:58.484Z",
-  "verdict": "PASS",
+  "verdict": "FAIL",
   "comparedFiles": 77,
   "files": [
     {
@@ -306,8 +306,8 @@
     },
     {
       "path": "Assets/_Project/UI/Fonts/LilitaOne-Regular SDF.asset",
-      "bytes": 8439050,
-      "sha256": "e63d1fa930326cf5f964bc83ba44e725283ec3d0896f22a0516f0cb89a574d35"
+      "bytes": 8439061,
+      "sha256": "e5e8c921bb5b1473952b90bfbac8e0067427bf57e5c915cd5e4e69a65733f9af"
     },
     {
       "path": "Assets/_Project/UI/Fonts/LilitaOne-Regular SDF.asset.meta",
@@ -326,8 +326,8 @@
     },
     {
       "path": "Assets/_Project/UI/Fonts/Nunito-ExtraBold SDF.asset",
-      "bytes": 8438736,
-      "sha256": "a60ded3e30dda3d5c21a48c94bfde82676f492bd765c13803d726f4f6b7f9c94"
+      "bytes": 8438753,
+      "sha256": "7dc1942d0780961541f1b52fead711e844701ba90c097b291f0dbcd9e5698db3"
     },
     {
       "path": "Assets/_Project/UI/Fonts/Nunito-ExtraBold SDF.asset.meta",

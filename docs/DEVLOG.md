@@ -639,3 +639,26 @@ Native setup054612 PASS74s and repeat054859 PASS46.4s create two studios,24 orig
 The first native setup failure remains recorded: Unity disallowed a second untitled additive scene. Prefab copying now instantiates directly in a hidden preview scene and saves a variant; studio creation stages an owned saved scene and publishes only after success. The first test run passed35/36; the remaining exact Color assertion was replaced with Unity ColorEqualityComparer for serialized floating-point values. Runtime materials were unchanged. Native receipt: BuildNotes/developer-workspace/native-20261026.json.
 
 Read-only audit confirmed original FBX links, scene camera/light composition, saved atlas/material references, no duplicate Assets GUIDs and no temporary studio leftovers. Actual visual review, real Play/Stop, Windows and online appearance remain separate. Shop layout proposals stay under BuildNotes/developer-workspace/shop-layout and are not integrated by this checkpoint. Other jobs stayed running.
+
+## 2026-10-26T07:15:00Z Saved UI and authored-font preservation follow-up
+
+The saved workspace/studios are committed at a351d799. PlayMode060642 passed59/59 functional cases but modified three saved TMP font assets. Their exact mutated bytes are retained in .harness/recovery/developer-workspace-2026-10-26T06-39-36-388Z; exact authored restoration is recorded in BuildNotes/developer-workspace/font-cache-restoration-20261026.json. Runtime ownership is being repaired, including saved Shop templates; functional tests alone do not establish asset preservation.
+
+Shop065958 (TestResults/editmode_20261026T065958Z.xml) passed7/12. The render-target creation repair allowed exact pixels to be checked. Four stale Sprite-wrapper unload assertions and one material managed-wrapper identity assertion failed; the independent lane is strengthening persisted identity and disk-vs-cache checks. Native062041 passed143/144; WordboundStoryEpilogueTests now preserves rejection of the contradictory timeout snapshot and constructs valid non-actionable recovery state. R0 065657 passed before the new typography work; both revised native slices remain pending.
+
+The five portrait controls are copied into Editor/Art with their draft hashes unchanged. They have not yet run. Other user jobs remain running. Root serializes this project's heavy gates, preserves source snapshots, and keeps Windows/public-match acceptance open.
+
+## 2026-10-26T08:08:58Z Shop persistence and runtime font ownership pass
+
+Native073048 passes all12 Shop persistence cases; its6 font failures exposed Unity's non-readable static fallback atlas. After exact-format owned GPU copy repair, native075254 passes8/8 ownership cases, zero skipped, including three-mip Alpha8 GPU bytes before/after owned disposal. R0 074834 passes. The original77 authored outputs still match their pre-Play baseline. Full Play lifecycle and live saved-Shop integration are not yet verified.
+
+Evidence: TestResults/editmode_20261026T073048Z.xml, TestResults/editmode_20261026T075254Z.xml and BuildNotes/developer-workspace/continuation-20261026.json. Recovery snapshot .harness/recovery/developer-workspace-2026-10-26T07-54-41-050Z preserves108files. Root started explicit saved-Shop setup080701; camera and Loadout drafts remain outsideAssets. All15 cleanup cases passed in062041; live capacity retries and historical service cleanup remain pending.
+
+
+## 2026-10-26T08:37:03Z Saved Shop and ending recovery checkpoint
+
+Setup080702 and repeat081136 pass; all39 Shop outputs are identical after repeat and Play. Play081310 passes61/61 and retains all77 existing workspace bytes relative to the exact post-Shop-creation baseline. Creation initially normalized4 derived ratio fields in2 generated font assets; font-derived-ratios.review.md distinguishes this from authored style loss and retains both versions. New font creation now initializes those values before saving; R0 082836 and all6 typography cases083206 pass. Existing valid assets remain verification-only.
+
+Native081750 passes144/144 presentation/story/profile/menu/cleanup cases, including22 epilogues and15 transport-cleanup cases. Portrait controls082029 pass with original sources/global state unchanged and no remaining owned objects. All5 images were inspected: A/B/D retain a dark face; C/E show cream albedo. Front-light rotation affects clothing but not sampled face pixels; a rear-key diagnostic remains a separate prepared draft. These are test/source checkpoints, not Windows or full public-match acceptance. See BuildNotes/developer-workspace/continuation-20261026.json for logs/XML hashes.
+
+Checkpoint scope remains saved Shop authoring, typography ownership and the tested epilogue fixture; camera/Loadout proposals and rejected portrait drafts are preserved separately for subsequent work.

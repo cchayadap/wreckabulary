@@ -83,14 +83,17 @@ namespace Wreckabulary
         public static TextMeshProUGUI Text(Transform parent, string text, float size, Color colour,
             TextAlignmentOptions align = TextAlignmentOptions.Left, FontStyles style = FontStyles.Normal)
         {
-            var label = Rect(parent, "Text").gameObject.AddComponent<TextMeshProUGUI>();
+            var rect = Rect(parent, "Text");
+            rect.gameObject.SetActive(false);
+            var label = rect.gameObject.AddComponent<TextMeshProUGUI>();
             var font = (style & FontStyles.Bold) != 0 ? LobbyFonts.Black : LobbyFonts.Body;
             if (font) { label.font = font; style &= ~FontStyles.Bold; }
-            else if (GameAssets.I && GameAssets.I.font) label.font = GameAssets.I.font;
+            else if (GameAssets.I && GameAssets.I.font) label.font = LobbyRuntimeTypography.ResolveFont(GameAssets.I.font);
             label.text = text; label.fontSize = size; label.color = colour; label.alignment = align;
             label.fontStyle = style; label.raycastTarget = false;
             label.extraPadding = true;
             label.textWrappingMode = TextWrappingModes.NoWrap; label.overflowMode = TextOverflowModes.Ellipsis;
+            rect.gameObject.SetActive(true);
             return label;
         }
 

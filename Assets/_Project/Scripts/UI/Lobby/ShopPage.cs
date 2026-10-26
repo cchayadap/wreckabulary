@@ -19,9 +19,13 @@ namespace Wreckabulary
         bool recipePicker;
         TMP_Text footnote;
         readonly Dictionary<string, (Image outline, bool worn)> outlines = new Dictionary<string, (Image, bool)>(StringComparer.Ordinal);
+        readonly Dictionary<string, LobbyShopOfferView> authoredOffers = new Dictionary<string, LobbyShopOfferView>(StringComparer.Ordinal);
+        LobbyShopLayout layout;
+        LobbyShopPageView authoredPage;
 
         public override string Id => LobbyMenu.Shop;
         public override LobbyStage.Focus Focus => LobbyStage.Focus.Left;
+        public override float PanelWidth => authoredPage && authoredPage.Panel ? authoredPage.Panel.rect.width : base.PanelWidth;
         public string Spotlit => spotlight;
         public string SelectedRecipe => recipe;
         public string Category { get; private set; } = Looks;
@@ -49,6 +53,26 @@ namespace Wreckabulary
         protected override void Build()
         {
             outlines.Clear();
+            authoredOffers.Clear();
+            authoredPage = null;
+            layout = Resources.Load<LobbyShopLayout>(LobbyShopLayout.ResourcePath);
+            RectTransform list;
+            if (layout)
+            {
+                layout.Validate();
+                authoredPage = LobbyRuntimeTypography.Instantiate(layout.Page, Root, false);
+                First = authoredPage.Bind(Category, Menu.Close, id => ShowCategory(id), note);
+                footnote = authoredPage.Footnote;
+                list = authoredPage.Content;
+                authoredPage.Offers.gameObject.SetActive(Category != Extras);
+            }
+            else list = BuildLegacyShell();
+
+            BuildOffers(list);
+        }
+
+        RectTransform BuildLegacyShell()
+        {
             var body = Side("Shop");
             var tabs = LobbyKit.Row(body, "Shop categories", 8);
             tabs.Place(new Vector2(0, 1), Vector2.one, new Vector2(0, -48), Vector2.zero);
@@ -66,28 +90,32 @@ namespace Wreckabulary
             var view = LobbyKit.Rect(body, "Offers").Place(Vector2.zero, Vector2.one, new Vector2(0, 46), new Vector2(0, -62));
             var list = LobbyKit.Scroll(view, "Scroll", 12);
             list.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(4, 4, 8, 12);
+            return list;
+        }
 
+        void BuildOffers(RectTransform list)
+        {
             if (Category == Looks)
             {
-                var looks = LobbyKit.Grid(list, "Looks", Card, 16);
+                var looks = OfferGrid(list, "Looks");
                 foreach (var bundle in CosmeticBundles.All) LookCard(looks, bundle);
             }
             else if (Category == Gear)
             {
                 RecipeChooser(list);
-                var finishes = LobbyKit.Grid(list, "Finishes", Card, 16);
+                var finishes = OfferGrid(list, "Finishes");
                 foreach (string skin in GameConfig.Current.Items.Get(recipe).Skins)
                     FinishCard(finishes, Career.Shop.FirstOrDefault(o => o.Kind == "skin" && o.Value == skin)
                         ?? new ShopOffer("skin", skin, skin, 0));
             }
             else if (Category == Colours)
             {
-                var colours = LobbyKit.Grid(list, "Colours", Card, 16);
+                var colours = OfferGrid(list, "Colours");
                 foreach (var offer in Career.Shop.Where(o => o.Kind == "colour")) ColourCard(colours, offer);
             }
             else if (Category == Rooms)
             {
-                var themes = LobbyKit.Grid(list, "Themes", Card, 16);
+                var themes = OfferGrid(list, "Themes");
                 foreach (var theme in LobbyThemes.All) ThemeCard(themes, theme);
             }
             else
@@ -96,6 +124,15 @@ namespace Wreckabulary
                 foreach (string piece in new[] { "Cap", "Hood", "Glasses", "Satchel", "TBadge" }) Accessory(accessories, piece);
                 WinterEmote(list);
             }
+        }
+
+        RectTransform OfferGrid(Transform parent, string name)
+        {
+            if (!authoredPage) return LobbyKit.Grid(parent, name, Card, 16);
+            var grid = (RectTransform)authoredPage.Offers.transform;
+            grid.name = name;
+            grid.SetAsLastSibling();
+            return grid;
         }
 
         static string CategoryFor(string offerId)
@@ -140,6 +177,18 @@ namespace Wreckabulary
 
         RectTransform ArtCard(Transform parent, ShopOffer offer, string title, string description, bool worn, out RectTransform art)
         {
+            if (authoredPage)
+            {
+                bool owned = Menu.Career.Owns(offer.Kind, offer.Value);
+                var view = LobbyRuntimeTypography.Instantiate(layout.Offer, parent, false);
+                view.Bind(offer.Id, title, description, owned, worn, Menu.Career.PriceOf(offer), offer.Id == spotlight,
+                    () => Preview(offer), owned ? () => Wear(offer) : () => Buy(offer));
+                authoredOffers[offer.Id] = view;
+                outlines[offer.Id] = (view.Outline, worn);
+                if (!worn && (offer.Id == spotlight || !First)) First = view.Action.Button;
+                art = view.Art;
+                return view.Face;
+            }
             var card = LobbyKit.Button(parent, "Offer " + offer.Id, Color.white, () => Preview(offer), 16, LobbyKit.Line, 2, 3);
             var face = card.Body();
             var outline = LobbyKit.Ring(face, offer.Id == spotlight ? LobbyKit.Sun : LobbyKit.Cyan, 16, 3);
@@ -176,8 +225,12 @@ namespace Wreckabulary
             {
                 var image = LobbyKit.Rect(art, "Theme picture").Fill().gameObject.AddComponent<RawImage>();
                 image.texture = theme.Background; image.raycastTarget = false;
-                float crop = Mathf.Min(1f, (Card.x - 20f) / 156f / ((float)theme.Background.width / theme.Background.height));
-                image.uvRect = new Rect((1f - crop) * .5f, 0, crop, 1);
+                if (authoredPage) image.gameObject.AddComponent<LobbyShopPictureCrop>();
+                else
+                {
+                    float crop = Mathf.Min(1f, (Card.x - 20f) / 156f / ((float)theme.Background.width / theme.Background.height));
+                    image.uvRect = new Rect((1f - crop) * .5f, 0, crop, 1);
+                }
             }
         }
 
@@ -286,6 +339,8 @@ namespace Wreckabulary
             foreach (var entry in outlines)
             {
                 if (!entry.Value.outline) continue;
+                if (authoredOffers.TryGetValue(entry.Key, out var authored) && authored)
+                { authored.SetPreview(entry.Key == offer.Id); continue; }
                 entry.Value.outline.enabled = entry.Value.worn || entry.Key == offer.Id;
                 entry.Value.outline.color = entry.Key == offer.Id ? LobbyKit.Sun : LobbyKit.Cyan;
             }

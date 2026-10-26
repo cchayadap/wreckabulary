@@ -132,6 +132,7 @@ namespace Wreckabulary.EditorTools
             if (clearOnBuild == null) throw new InvalidOperationException("The installed TMP font build settings are unavailable.");
             clearOnBuild.boolValue = false;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            ShaderUtilities.UpdateShaderRatios(font.material);
             return font;
         }
 

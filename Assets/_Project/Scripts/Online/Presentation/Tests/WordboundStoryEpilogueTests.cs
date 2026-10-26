@@ -278,10 +278,23 @@ namespace Wreckabulary.Tests
             var rules = mode.CreateGameplayRules(new GameRules());
             var authority = new AuthoritativeMatch(binding, mode, course, content.Geometry, items, rules, new EmptyWorld());
             var initial = authority.Capture(1);
+            string initialJson = MatchSnapshotCodec.Export(initial);
+            Assert.IsTrue(initial.Economy.Players.All(player => player.CanAct));
             WaitUntil(Limit);
-            var timeout = new MatchSnapshot(binding, 0, 1, initial.NextWorldEntityId, progress.Capture(), initial.Economy,
+            MatchSnapshot Timeout(EconomySnapshot economy) => new MatchSnapshot(binding, 0, 1, initial.NextWorldEntityId, progress.Capture(), economy,
                 initial.Commands, initial.Actors, initial.Bodies, initial.Resources, initial.Mechanisms,
                 initial.RandomStreams, initial.NarrativeFlags, initial.ThrownFlights, initial.Practice);
+            var contradictory = MatchSnapshotCodec.Import(MatchSnapshotCodec.Export(Timeout(initial.Economy)), binding, mode, course, items, rules);
+            Assert.IsFalse(contradictory.Success);
+            Assert.IsNull(contradictory.Snapshot);
+            StringAssert.Contains("inventory action permission", contradictory.Error.ToLowerInvariant());
+            var endedEconomy = new Economy(items, rules);
+            foreach (var player in initial.Economy.Players) endedEconomy.AddPlayer(player.PlayerId, player.Team);
+            endedEconomy.Restore(initial.Economy);
+            foreach (var player in endedEconomy.Players) player.CanAct = false;
+            var timeout = Timeout(endedEconomy.Capture());
+            Assert.AreEqual(initialJson, MatchSnapshotCodec.Export(initial));
+            Assert.IsFalse(timeout.Progress.Result.Confirmed);
             string provisionalJson = MatchSnapshotCodec.Export(timeout, out string hash);
             var imported = MatchSnapshotCodec.Import(provisionalJson, binding, mode, course, items, rules);
             Assert.IsTrue(imported.Success, imported.Error);
@@ -291,6 +304,7 @@ namespace Wreckabulary.Tests
             var first = authority.Capture(2);
             Assert.AreEqual(timeout.Progress.Tick, first.Progress.Tick);
             Assert.IsTrue(first.Progress.Result.Confirmed);
+            Assert.IsTrue(first.Economy.Players.All(player => !player.CanAct));
             var ending = plan.Epilogue(first, "a", mode);
             Assert.AreEqual("TimeRunExpired", ending.Id);
             string confirmedJson = MatchSnapshotCodec.Export(first, out string confirmedHash);
@@ -301,6 +315,7 @@ namespace Wreckabulary.Tests
             authority.RestoreCommitted(restored.Snapshot, new SnapshotStamp(binding.MatchId, binding.Hash, 1, 2,
                 first.Progress.Tick, confirmedHash), 2, first.Progress.WallClockMs + 1);
             var migrated = authority.Capture(3);
+            Assert.IsTrue(migrated.Economy.Players.All(player => !player.CanAct));
             Assert.AreEqual(ending.Id, plan.Epilogue(migrated, "a", mode).Id);
             Assert.AreEqual(ending.ResultKey, plan.Epilogue(migrated, "a", mode).ResultKey);
             Assert.AreEqual(ending.Title, plan.Epilogue(migrated, "a", mode).Title);

@@ -42,7 +42,8 @@ namespace Wreckabulary.EditorTools
                     WorkspaceAssetCopies.Create(library.Find(item.Model), PrefabPath(item));
             CreateSceneIfMissing(EquipmentScene, () => CreateEquipment(items));
             CreateSceneIfMissing(CharacterScene, CreateCharacter);
-            Debug.Log("WORKSPACE_AUTHORING_READY: saved equipment and character studios; categorized editable prefab copies; saved lobby typography. Existing assets preserved; gameplay visual assignments unchanged.");
+            LobbyShopLayoutSetup.CreateAt(LobbyShopLayoutSetup.ProfilePath, LobbyShopLayoutSetup.PrefabFolder, LobbyShopLayoutSetup.GraphicFolder, typography);
+            Debug.Log("WORKSPACE_AUTHORING_READY: saved equipment and character studios; categorized editable prefab variants; saved lobby typography and Shop layout. Existing assets preserved; gameplay visual assignments unchanged.");
         }
 
         public static string PrefabPath(ItemDefinition item) => "Assets/_Project/Prefabs/" +

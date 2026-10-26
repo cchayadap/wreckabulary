@@ -1,0 +1,10 @@
+{
+  "name": "Wreckabulary.ShopLayout.Editor.Tests",
+  "rootNamespace": "Wreckabulary.Tests.Editor",
+  "references": ["Wreckabulary", "Wreckabulary.Editor", "Unity.TextMeshPro", "UnityEngine.UI", "UnityEngine.TestRunner", "UnityEditor.TestRunner", "Unity.Collections"],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}

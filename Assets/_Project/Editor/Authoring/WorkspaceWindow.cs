@@ -64,7 +64,7 @@ namespace Wreckabulary.EditorTools
                 PreviewButton("Play Loadout", LobbyMenu.Loadout);
                 EditorGUILayout.EndHorizontal();
             }
-            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Lobby, shop and loadout controls are built during Play; their temporary hierarchy is not a saved editable Canvas.", MessageType.Info);
+            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Edit Shop's saved panel and card from Design. Home and Loadout still use generated layouts; their Play hierarchy is temporary.", MessageType.Info);
             if (!string.IsNullOrEmpty(WorkspacePlayPreview.Message))
                 EditorGUILayout.LabelField(WorkspacePlayPreview.Message, EditorStyles.wordWrappedMiniLabel);
 
@@ -100,6 +100,10 @@ namespace Wreckabulary.EditorTools
 
         void DrawDesign()
         {
+            Section("SHOP LAYOUT");
+            AssetButton("Edit Shop panel", "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab", true);
+            AssetButton("Edit offer card", "Assets/_Project/Prefabs/UI/Shop/ShopOfferCard.prefab", true);
+            AssetButton("Shop layout assignments", "Assets/_Project/Resources/UI/LobbyShopLayout.asset");
             Section("LOBBY TYPOGRAPHY");
             AssetButton("Lobby fonts & material presets", "Assets/_Project/Resources/UI/LobbyTypography.asset");
             AssetButton("Saved fonts", "Assets/_Project/UI/Fonts");
@@ -156,7 +160,7 @@ namespace Wreckabulary.EditorTools
             AssetButton("Shop page layout", "Assets/_Project/Scripts/UI/Lobby/ShopPage.cs", true);
             AssetButton("Arena Maps & Game Rules", "Assets/_Project/Data/Config");
             AssetButton("Recipe Balance & Powers", "Assets/_Project/Data/Config/items.json", true);
-            EditorGUILayout.LabelField("HUD and menu layouts are authored in C#. The inventory uses UI Builder assets.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.LabelField("Edit the saved Shop panel and offer card above. Home, Loadout and the gameplay HUD still use code layouts; the separate inventory study uses UI Builder assets.", EditorStyles.wordWrappedMiniLabel);
 
             Section("WORKSPACE TOOLS");
             using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))

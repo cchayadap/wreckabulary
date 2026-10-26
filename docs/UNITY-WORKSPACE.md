@@ -28,7 +28,7 @@ Neither a copied prefab nor a copied material is automatically equipped, assigne
 
 The same setup calls the typography setup, whose saved outputs are `Resources/UI/LobbyTypography.asset`, saved TMP fonts under `UI/Fonts`, and text material presets under `UI/Materials`. **Lobby fonts & material presets** in Design selects the runtime-connected profile after creation. Its **Display**, **Body** and **Black** fields reference the actual TMP font assets; **Stroke**, **Drop** and the foreground fields reference the actual text materials. Select the assigned object from its Inspector field to edit it, save, then restart Play to check the lobby. The runtime caches these assignments; a live refresh after changing them is not promised.
 
-The font and its material must use matching atlas/shader settings and valid bold-typeface assignments. If the profile is invalid, the source logs a warning and uses generated defaults, so check the Console if a saved choice does not appear. Native creation, persistence and 36 focused editor cases pass. Rendered appearance and actual Play/Stop interaction remain pending. Individual label positions and sizes still come from page builders; saved typography alone does not create a saved Canvas layout. Keep original source TTF files and their licenses in `Resources/Fonts`.
+The font and its material must use matching atlas/shader settings and valid bold-typeface assignments. If the profile is invalid, the source logs a warning and uses generated defaults, so check the Console if a saved choice does not appear. Native creation, persistence and 36 focused editor cases pass. Rendered appearance, actual Play/Stop interaction and preservation of saved font assets during real Play remain unfinished. Home and Loadout label positions still come from page builders; the Shop panel and common card use the saved prefabs described below. Keep original source TTF files and their licenses in `Resources/Fonts`.
 
 ## What is saved and editable now
 
@@ -97,13 +97,17 @@ Boots, glasses, satchel and other wardrobe pieces are skinned meshes inside `Art
 
 ## UI editing: current limit
 
-Hub, shop, loadout and gameplay HUD layouts are currently created in C#. Their workspace source links open the actual builders. The Canvas hierarchy visible during Play is temporary; moving a card there does not save a reusable menu layout. The inventory UXML/USS is a separate UI Builder presentation asset, and the source audit did not find a runtime loader for it. Empty legacy TMP seed labels in the HUD supply references used by the current runtime controller.
+Home, Loadout and gameplay HUD layouts are currently created in C#. Their workspace source links open the actual builders. The Canvas hierarchy visible during Play is temporary; moving a card there does not save a reusable menu layout. The inventory UXML/USS is a separate UI Builder presentation asset, and the source audit did not find a runtime loader for it. Empty legacy TMP seed labels in the HUD supply references used by the current runtime controller.
+
+The Shop now has saved `Prefabs/UI/Shop/ShopPage.prefab` and `ShopOfferCard.prefab`, assigned by `Resources/UI/LobbyShopLayout.asset`. Workspace **Design → Edit Shop panel / Edit offer card** opens the actual prefabs. Move and resize their elements in Prefab Mode, save, then use **Scenes → Play Shop**. The layout profile and view Inspectors provide **Check references**. Edit the panel, grid, picture area, title style and action placement; the game supplies item names, prices, pictures and equipped state. Leave the reserved Motion wrapper for button animation and edit its Body/children. Gear's recipe chooser and Extras still use generated layouts; Home and Loadout also remain procedural.
+
+Native setup `080702` created these assets, and all 12 focused Shop persistence cases pass. All eight font-ownership cases also pass after the static-atlas repair. Real-page Play/Stop preservation, rendered review and Windows acceptance remain pending; the generated Play hierarchy itself is temporary.
 
 The next authoring milestone is a saved authoritative menu prefab/profile that the real runtime instantiates, with persistent camera, layout, font, material and card-template references. Until that is implemented and verified, the page previews provide a quick way to try the current game, not a complete no-code UI editor. See the plan's acceptance checklist before marking this complete.
 
 ## Folder map and safe organization
 
-Paths below are relative to `Assets/_Project/` unless shown otherwise. This is the existing asset baseline; the new studio/typography outputs described above remain pending creation. The Assets browser groups content by use while retaining its existing physical path.
+Paths below are relative to `Assets/_Project/` unless shown otherwise. The studio and typography outputs described above are saved in this checkout: two studios, 24 prefab variants, three fonts and five material presets. Native setup/repeat and 36 focused editor cases pass; actual interaction, Play and font-preservation acceptance remain unfinished. The Assets browser groups content by use while retaining its existing physical path.
 
 | Category | Current saved location and boundary |
 | --- | --- |
