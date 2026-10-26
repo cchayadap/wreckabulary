@@ -2,7 +2,7 @@
 
 STATUS: IN PROGRESS
 
-Owner: James / SethyPagna. Updated 2026-10-24. The complete active checklist is [progress.md](../../progress.md); the approved scope is [PLAN.md](PLAN.md).
+Owner: James / SethyPagna. Updated 2026-10-26. The complete active checklist, including the latest minimal-interface/art/story direction, is [progress.md](../../progress.md); the original approved scope is [PLAN.md](PLAN.md).
 
 ## Current delivery
 
@@ -10,7 +10,7 @@ Windows QA build `034544`, from source `9e013dc9`, uses the repaired Unity 6000.
 
 Native run `033851` passes all 12 local gameplay cases, including initial keepsake clearance and floor support. Native run `034318` passes all 36 persistence cases with zero skips, including the original failure reproductions, read-only recovery and retained direct file-replacement control. These are separate runs; failed earlier attempts remain preserved. [Local and first repair evidence](../../BuildNotes/client-view/native-publication-repair-first-20261024.json), [persistence pass](../../BuildNotes/client-view/native-authoring-lock-contract-pass-20261024.json).
 
-Current public run `033100` passes Team Race Solo and Brawl Race Solo; run `040530` passes Time Run, FFA and Freestyle. All five modes now have two-client checks with real authentication, remote movement, commands, exact durable acknowledgement and zero service cleanup failures. These are separate Runners in one Editor process. Earlier intermittent failures remain evidence. Maximum parties, complete flagship outcomes and recovery/network targets remain open. New capacity and full-duration tests have not yet been run. [Latest three-mode receipt](../../BuildNotes/client-view/native-public-remaining-short-editor-20261024.json).
+Public run `033100` passes Team Race Solo and Brawl Race Solo; run `040530` passes Time Run, FFA and Freestyle. All five modes have two-client checks with real authentication, remote movement, commands, exact durable acknowledgement and zero service cleanup failures. These are separate Runners in one Editor process. Maximum-roster run `041032` subsequently failed all three cases at the remote user-ID assertion; cleanup succeeded for all 8/8/4 clients. The failure is under investigation, and capacity is unverified. Complete flagship outcomes and recovery/network targets remain open; the separate full-duration tests have not run. [Three-mode receipt](../../BuildNotes/client-view/native-public-remaining-short-editor-20261024.json), [failed capacity receipt](../../BuildNotes/client-view/native-public-max-rosters-first-20261024.json).
 
 ## Story and production gaps
 

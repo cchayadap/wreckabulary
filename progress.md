@@ -1,6 +1,6 @@
 # Wordbound production delivery
 
-Owner: James / SethyPagna. Updated 2026-10-24 (Asia/Hong_Kong).
+Owner: James / SethyPagna. Updated 2026-10-26 (Asia/Hong_Kong).
 
 Legend: `[ ]` unfinished; `[~]` implementation or verification in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
@@ -9,6 +9,17 @@ Legend: `[ ]` unfinished; `[~]` implementation or verification in progress; `[x]
 Deliver a tested Windows build with five modes, a changing four-destination/four-layer/three-lap world, physical word-and-equipment puzzles, public/private human multiplayer and recovery, a comprehensive workshop, detailed editable models, and Unity authoring controls requiring no code changes for ordinary design work.
 
 The latest instruction includes public matchmaking for **all five multiplayer modes**, including Freestyle, superseding its original private-only restriction. Public games must never silently substitute AI or a solo session. Designs need believable construction/material detail, readable silhouettes and consistent physical scale.
+
+## Experience direction — 2026-10-26
+
+Continue from the tested build after the credit interruption. Keep player-facing UI minimal and visual: short labels, contextual controls, immediate previews and optional detail. Preserve the original Wreckabulary material, character and silhouette language while improving equipment, adding distinct designs and skins, and reviewing animation in motion. Shop/loadout browsing, preview, ownership and equip state must be easy to understand. Cosmetic purchases retain their existing earned-coin rules and do not change gameplay stats.
+
+- [x] Recover all seven worktrees again; verify 632 dirty, untracked and authored files in the local 2026-10-26 snapshot. Preserve the failed capacity receipt and unfinished lane commits.
+- [~] Audit current shop/loadout and redesign browsing around a small number of visual categories with a clear preview and minimal repeated copy.
+- [~] Inspect current models, skins, grips and animation, then implement a coherent first collection with editable assets and measured runtime cost.
+- [~] Expand the gameplay rubric to cover onboarding, agency, comprehension, plot complexity, immersion, pacing, cooperation, accessibility and replay value, with evidence and acceptance criteria for each.
+- [~] Make story presentation editable in Unity and introduce the story through concise contextual cues and optional journal detail.
+- [ ] Verify the combined experience in Unity and the Windows player, including navigation, motion, readability, saved choices and online consistency.
 
 ## At a glance — 2026-10-24T04:09:22Z
 
@@ -127,6 +138,8 @@ Native run `034318` passes 36/36 persistence cases, zero skipped, in 84.7 second
 Earlier recovery and verification entries are preserved in [the evidence history](BuildNotes/client-view/RECOVERY-AND-VERIFICATION-HISTORY-20261023.md).
 
 ## Latest verification and next steps
+
+The interrupted maximum-roster run `041032` finished FAIL: 0/3 passed, zero skipped, all three failed at the assertion comparing every Runner's `GetPlayerUserId` results with the signed roster. Most remote IDs were null. Shared entry/movement/command/checkpoint checks had progressed; service cleanup reported zero failures for 8/8/4 clients. This is preserved as a failure while the exact API contract is investigated. No capacity pass or runtime cause is claimed. [Failed capacity receipt](BuildNotes/client-view/native-public-max-rosters-first-20261024.json).
 
 The current review build is available for James to try. Official workshop and equipment flows pass; all six workshop screenshots and three equipment screenshots were inspected and retained. The 90-update workshop observation takes 7.694559 seconds, with substantial stalls. This does not measure presented frame rate or establish a controlled speedup; the 60 FPS acceptance target remains open. Original assets are visible and the character is grounded. Held-item occlusion, sparse rooms and motion quality remain to improve. See the independent [timing review](BuildNotes/client-view/OFFICIAL-OBSERVER-RESULTS-20261024.md), [visual review](BuildNotes/equipment-polish/WINDOWS-ORIGINAL-REVIEW-20261024.md) and [runtime save coverage](BuildNotes/client-view/RUNTIME-SAVE-COVERAGE-20261024.md).
 
