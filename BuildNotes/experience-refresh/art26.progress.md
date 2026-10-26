@@ -2,6 +2,8 @@
 
 STATUS: IN PROGRESS
 
+Current checkpoint, 2026-10-26T01:53:51Z: first collection proposal and confirmed-melee source delivered; root R0/native checks and player motion capture remain NOT-RUN. Source commit `5fecaf1ee1934b5f613a44222d4a93d0b6603f7f` uses the configured SethyPagna identity. Root should integrate initial report `b0179f83` without retaining its mistaken author-email prefix, then apply this source commit. No source baseline exclusions are needed. Earlier scope/next-action entries below are retained as the chronological inspection record; the later authorized motion scope supersedes the initial report-only boundary.
+
 Owner: art26, branch `sethypagna/hud-readability`, start revision `eb49368757efb4b6eae5bbc5f28c6a3a81106c9e`.
 
 Scope: read actual original Wreckabulary assets, current equipment/cosmetic/motion source and 035159 Windows images; propose an implementable first collection in the original silhouette/material/rig language. Report only. Root owns catalogue/shop UI, runtime edits and heavy jobs. No provider calls, uploads, new asset generation, Blender, Unity, tests or player execution in this lane.
@@ -58,7 +60,7 @@ Epoch/tick ordering, repeated snapshots, late entry, expiry, early cancellation 
 
 The locomotion graph, its timings, lower-body mask behavior and placement code are unchanged. The graph still evaluates before ShowHeld attaches equipment to animated sockets. No transform offsets, colliders, physics, damage windows, input or authority code changed. Snapshot economy getters are defensive-copy APIs: the new path copies Players once for equipped/availability selection, copies Items at most once only while an observed/current melee needs it, and performs no such copy per rendered frame. Exact native allocations/performance remain unmeasured.
 
-Added 14 focused native cases in the existing presentation test file: actual authored BAT/SPEAR hand movement with preserved moving lower body and hand-grip contact; duplicate/regressive observations; late custom-catalogue timing; cooldown without acceptance; recovery/expiry; six cancellation cases; pause/stalled snapshots; epoch restore and old-epoch rejection. Tests use reflection for internal observation/diagnostics so no public testing API was added. They have NOT RUN in this lane. Root owns R0/native execution and capture. A successful native fixture will still not prove pleasing motion or complete clipping/contact behavior; a frame sequence in the built player remains necessary.
+Added 13 focused native cases in the existing presentation test file: actual authored BAT/SPEAR hand movement with preserved moving lower body and hand-grip contact; duplicate/regressive observations; late custom-catalogue timing; cooldown without acceptance; recovery/expiry; six cancellation cases; pause/stalled snapshots; epoch restore and old-epoch rejection. Tests use reflection for internal observation/diagnostics so no public testing API was added. They have NOT RUN in this lane. Root owns R0/native execution and capture. A successful native fixture will still not prove pleasing motion or complete clipping/contact behavior; a frame sequence in the built player remains necessary.
 
 ## Exact first-batch authoring and review handoff
 

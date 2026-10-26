@@ -1,0 +1,11 @@
+{
+  "status": "source-delivered-native-pending",
+  "scope": "Original artwork inspection, two-item Packing Club collection proposal and confirmed melee presentation",
+  "source_commit": "5fecaf1ee1934b5f613a44222d4a93d0b6603f7f",
+  "verification": { "diffCheck": "PASS", "compile": "NOT-RUN", "native": "NOT-RUN", "motionCapture": "NOT-RUN", "human": "NOT-RUN" },
+  "contract_changes": ["Internal resolver item lookup for bound catalogue timing; no public API or protocol change"],
+  "targeted_regression_cases": 13,
+  "independent_review": "Read-only helper confirmed authoritative attack lifecycle, clip landmarks and bound-catalogue requirement before implementation; final code self-reviewed",
+  "requests": ["Integrate b0179f83 report with no-commit then configured SethyPagna commit because its author email prefix was mistaken", "Cherry-pick 5fecaf1e and final report/marker delta; no excluded source baseline", "Run R0 and WordboundPresentationTests native checks, then actual built-player melee frame sequence", "Root owns geometry skin binding, world-state skin policy and all heavy asset jobs"],
+  "preserved": ["BuildNotes/flagship-content/focused-first-attempt.log", "Original avatar/items and existing clips", "DetailV2 rejected archive", "All previous pilots", "Original checkout font and Lunar work"]
+}
