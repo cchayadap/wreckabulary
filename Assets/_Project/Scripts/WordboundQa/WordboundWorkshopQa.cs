@@ -250,7 +250,7 @@ namespace Wreckabulary.Qa
                 var styles = (WordboundUiStyles)type.GetField("ui", flags).GetValue(workshop);
                 float deadline = Time.realtimeSinceStartup + 12;
                 string[] names = { "wordbound_workshop_range_height", "wordbound_workshop_range_floors" };
-                int[] rows = { 22, 29 };
+                int[] rows = { 23, 30 };
                 for (int index = 0; index < names.Length; index++)
                 {
                     float requested = styles.RowHeight * rows[index];

@@ -275,8 +275,9 @@ namespace Wreckabulary.Workshop
                 GUILayout.BeginHorizontal();
                 if (Button("Group")) Edit("Group", draft => WorkshopCommands.Group(draft, WorkshopCommands.Unique("group", draft.Groups.Keys)));
                 if (Button("Ungroup")) Edit("Ungroup", WorkshopCommands.Ungroup);
-                if (Button("To this floor")) Edit("Change floor", draft => WorkshopCommands.ChangeLayer(draft, draft.ActiveLayer));
                 GUILayout.EndHorizontal();
+                if (Button("Move to floor", "Move selection to the current floor"))
+                    Edit("Change floor", draft => WorkshopCommands.ChangeLayer(draft, draft.ActiveLayer));
                 advanced = GUILayout.Toggle(advanced, "Advanced position");
                 if (advanced)
                 {
