@@ -4,6 +4,22 @@ Owner: James / SethyPagna. Updated 2026-10-26 (Asia/Hong_Kong).
 
 Legend: `[ ]` unfinished; `[~]` implementation or verification in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
+## Current checkpoint — character feel and minimal UI
+
+This section supersedes older dated status paragraphs below. James has identified unacceptable held-item poses, weak action/facial reactions and excessive text boxes. A passing functional test is not approval of those visuals.
+
+- [x] Recover and preserve the restart work. Source checkpoint `78ac4514` builds Windows candidate `20261026T125941Z`; equipment `130132` passes 6/6, Home `130820` passes 3/3 and Workshop `130906` passes 5/5, all with normal exit and no reported console errors, exceptions or warnings. [Exact baseline evidence](BuildNotes/client-view/windows-reviewed-baseline-20261026.json).
+- [x] Correct the motion evidence orientation. Same-frame calibration finds an exact vertical-row match, then captures eight real BAT phases after one ordinary settling frame. This fixes the recorder; the held pose itself remains rejected.
+- [~] Correct held-item orientation, wrist/contact alignment, head/body clearance and action follow-through while preserving actual combat timing and grip contact. Compare front, side, rear and real action phases.
+- [~] Add action-aware, smoothly blended facial responses using the original rig's supported eye/brow channels. Verify priority, interruption, recovery and reset in local and Wordbound paths; retain the original character style.
+- [~] Replace the oversized persistent gameplay text panels with compact status and contextual cues; move full controls and story detail into optional views. Keep failures, recovery and input access understandable.
+- [ ] Save new tuning assets and preview controls in the Unity workspace; verify save/reopen and Play behavior.
+- [ ] Run source/native regression checks, rebuild Windows and inspect the combined corrected character and UI before presenting it as improved.
+- [x] Fresh public TimeRun4 and Freestyle8 capacity retries pass, including cleanup. These are authenticated scripted clients in one Editor process, not complete matches or separate Windows machines. [Evidence](BuildNotes/client-view/native-public-capacity-retries-20261026.json).
+- [ ] Finish full-match and recovery coverage, the five original house modes' online bridge, richer maps/skins and release acceptance. The overall production goal remains incomplete.
+
+The current Windows build is preserved as the **before-correction baseline**. Earlier failures and art drafts remain intact. Three independent work lanes own holding, expressions and UI drafts in `BuildNotes/character-experience-20261026/`; root integrates and serializes native verification. Other heavy jobs remain running as requested.
+
 ## Unity developer workspace — 2026-10-26
 
 - [x] Audit existing scenes and asset identity. Imported model paths drive logical keys and rig settings; original assets and accessory submeshes stay intact.

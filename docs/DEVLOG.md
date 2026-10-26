@@ -719,3 +719,11 @@ Windows build122831 on3cec5407 passes163.8s. Frontend123152 PASS3/3; workshop123
 ## 2026-10-26T12:59:39Z Measured motion export orientation ready for Windows
 
 R0 125530 PASS; native Editor125627 PASS5/5, zero skipped, covering identity/vertical alignment, odd middle-row preservation, symmetric ambiguity, RGB mismatch and invalid input rejection. The QA recorder measures a same-frame upright reference before Attack, lets one ordinary frame advance, then preserves its bounded actual phase capture and exports measured orientation afterward. Native Windows calibration remains pending. Evidence: BuildNotes/restart-20261026/motion-orientation-native-20261026.json. Existing inverted PNGs and timing failure are preserved.
+
+## 2026-10-26T13:15:00Z Windows baseline and character/UI correction scope
+
+Windows build20261026T125941Z (source78ac4514810e7267887e2ca7fa549f427d3474de) passes Home3/3, Workshop5/5 and equipment6/6 with normal exit, no timeout and clean reported console. Same-frame motion calibration measures exact vertical row match, one ordinary settle frame,39 canonical callbacks/0 missed and eight phases. Evidence: BuildNotes/client-view/windows-reviewed-baseline-20261026.json. Root inspected Home, gameplay, equipment menu and multiple upright action frames; independent motion review inspected all8 and BAT/HAMMER stills. This is a functional baseline, not visual acceptance.
+
+Owner now explicitly requests substantial held-item, action/facial and excessive-text corrections. Three disjoint draft lanes in BuildNotes/character-experience-20261026 are active. Initial review identifies discarded authored grip rotation and absent Wordbound facial state driving; neither is yet repaired in this build. progress.md and delivery notes identify this boundary. Earlier workshop timeout and original sources remain preserved.
+
+Reviewed FANV3 build-02 was executed serially with Blender --python-exit-code1. It fails LOD bounds tolerance (0.000531420111656189m versus0.00001m) after all11 tilt samples show zero surface overlap. Source-preservation PASS. The failed receipt and outputs remain at ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-02; no Unity admission or completed art claim.

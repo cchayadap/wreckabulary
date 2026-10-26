@@ -1,5 +1,11 @@
 # Windows delivery preparation
 
+## Current baseline — 2026-10-26
+
+Windows `20261026T125941Z`, source `78ac4514810e7267887e2ca7fa549f427d3474de`, Unity6000.6.4f1 passes Home3/3 (`130820`), Workshop5/5 (`130906`) and original equipment6/6 (`130132`), each with exit0, no timeout and zero reported console errors/exceptions/warnings. Eight BAT phases have same-frame measured upright orientation. [Receipt and artifact hashes](windows-reviewed-baseline-20261026.json), [launch instructions](TRY-WORDBOUND.md).
+
+James identified unacceptable holding poses, weak facial/action responses and excessive text panels. This build is the preserved baseline for those corrections, not visual or production acceptance. Current source/draft work and remaining online scope are tracked in [progress](../../progress.md). Earlier entries below are historical; their failures and build folders remain preserved.
+
 ## Current tested review build — 2026-10-24T01:01:26Z
 
 Original Wreckabulary models remain the default. Windows QA build `20261024T005254Z` passes on exact source `c7b0d8a933c2235ba7cca7c195799c7964ae3b33`. Its normal-window workshop run `20261024T005757Z-visible-wordbound_workshop_flow` passes **5/5**, exits normally and records no console errors, exceptions or warnings. Exact draft, return and Undo/Redo checks pass. Root personally inspected all six images: compact party card, original cream/teal/Nunito interface, readable Search/footer and grounded original character remain visible. [Build instructions](TRY-WORDBOUND.md).
