@@ -1,0 +1,86 @@
+{
+  "recordedUtc": "2026-10-26T04:07:19.472303+00:00",
+  "sourceRevision": "0f2da0114132a166ad0b1862a3f6065ffc907121",
+  "runtimeSourceRevision": "a1000f5c",
+  "gates": [
+    {
+      "utc": "2026-10-26T03:12:47Z",
+      "cmd": "check all",
+      "rung": "R0",
+      "verdict": "PASS",
+      "secs": 213,
+      "route": "none",
+      "errors": null,
+      "refreshSecs": null,
+      "log": {
+        "path": "Logs/gate_check_all_20261026T031248Z.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "probeCompletedMarker": false
+    },
+    {
+      "utc": "2026-10-26T03:16:49Z",
+      "cmd": "exec Wreckabulary.EditorTools.ShopPreviewDiagnostics.Run",
+      "rung": "R3",
+      "verdict": "FAIL",
+      "secs": 304.5,
+      "route": "cold",
+      "errors": null,
+      "refreshSecs": null,
+      "log": {
+        "path": "Logs/gate_check_all_20261026T034217Z.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "probeCompletedMarker": false
+    },
+    {
+      "utc": "2026-10-26T03:42:11Z",
+      "cmd": "check all",
+      "rung": "R0",
+      "verdict": "PASS",
+      "secs": 209.5,
+      "route": "none",
+      "errors": null,
+      "refreshSecs": null,
+      "log": {
+        "path": "Logs/gate_check_all_20261026T034217Z.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "probeCompletedMarker": false
+    },
+    {
+      "utc": "2026-10-26T03:46:59Z",
+      "cmd": "exec Wreckabulary.EditorTools.ShopPreviewDiagnostics.Run",
+      "rung": "R3",
+      "verdict": "FAIL",
+      "secs": 605.7,
+      "route": "cold",
+      "errors": null,
+      "refreshSecs": null,
+      "log": {
+        "path": "Logs/gate_check_all_20261026T034217Z.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "probeCompletedMarker": false
+    }
+  ],
+  "probeImages": [],
+  "observations": [
+    "Latest Unity log repeatedly waits for IL postprocessor connectivity.",
+    "Kestrel heartbeat warning states that thread-pool starvation could cause the delay.",
+    "A host resource snapshot at 03:51:44Z measured CPU100% and 4337MiB free of32123MiB.",
+    "Owned Unity31340, ILPP43860, Trigger9976 and dotnet50004 are absent after gate timeout."
+  ],
+  "cause": "Not established. Resource pressure and compiler IPC waits are observations, not a proven root cause.",
+  "limits": [
+    "No portrait diagnostic images or new native pass from these attempts.",
+    "New epilogue, loadout, motion-capture fixture and Packing Club importer remain native NOT-RUN.",
+    "No updated Windows build or public-capacity retry was launched.",
+    "Previous review build20261024T034544Z is preserved."
+  ],
+  "next": "Read-only compiler IPC comparison; avoid identical retries without a changed condition or concrete correction."
+}
