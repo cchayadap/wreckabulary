@@ -57,3 +57,27 @@ FAN admission inspection found original V1 GLB/catalogue grip at y0.4105 but inh
 Starter185112 passes1/1 in154.1s with active/enabled deployed colliders, three physical laps, same editable save/history return and cleanup0. Exact evidence is workshop-starter-revision2-verification.json; the pre-solo source base is33b4c5d1 plus the bounded fixture revision. This rerun also includes committed cadence logic.
 
 Direct solo revision2 patch27a7f59b is now integrated after root caller/failure-path review. R0 185433 passes, core185459 passes117/117. The current sole native job is solo-lobby185537, session81002/gatePID20908, prefix .harness/delivery/solo-lobby-2026-10-26T18-55-37-190Z. No native solo mode launch or new Windows delivery is claimed yet. FAN07 original-grip correction and compact online Create remain source drafts. Root must read terminal job status, then run the3-case native solo fixture before player/build acceptance.
+
+## 2026-10-26T19:06:00Z Solo source committed; compact UI capture running
+
+Direct solo source and3-case native receipt are committed6dbf8ca1. Both offline modes launch without online config and preserve56files; actual controller-fault and missing-body return pass. Latest recovery snapshot18:59:25 verifies1049files.
+
+Compact Create4-file patch6b4276e5 and19-frame capture extension58dd96c3 are integrated. Root source review in online-shell/compact-create/root-review.md. R0 190047 and focused190255 PASS53/53. The current sole native job is online capture launched19:06UTC; inspect newest completion-capture start/end files before another native operation. Then inspect unforced failure onset and compact/max-font primary-action visibility; do not assume the retained bottom-positioned error is visible.
+
+FAN07 frozen builder0a9adee32b12a306a4dc2aa8e4ad3b3173b3e8d73138e90444dbd3fe9f06d5dc selects actual CandidateItem Grip_R.001, preserving the reference matrix and checking original transform on4reimports. Source review pending. FFA184207 analysis is complete: only200canonical ticks during2104SDK ticks in the failed35s return; no host-victim final trace exists. Source-only diagnostic draft pending; no further public retry.
+
+## 2026-10-26T19:19:00Z Preserve recovery-layout failure and bounded correction
+
+Capture190656 passed19frames/cleanup0 but root opened failure-onset854x480 and confirmed Error/Retry hidden beneath disabled forms. Default compact Create already exposes Create/Back. Recovery-layout4ced8231 was independently reviewed and integrated to show a dedicated Retry view and content-fit panels. Focused191259 then FAIL48/53: five existing controller cases cannot focus region/fill immediately after expanding Create because the prior compact height clips those controls. No test timing/assertion is waived.
+
+Bounded revision201f51b9d is now integrated: expanded Create/party/private forms use the existing full-height scroll path; short states and Retry retain measured height. The21-frame follow-up59c7bb3d requires a real prior expanded native repaint with positive scroll, then untouched Retry onset plus larger-font Retry. Original53tests unchanged. R0 launched191919, session91176; no heavy native currently live. Windows QA2-file draftb528a5d5 also integrated after root review; new metadata must come from Unity.
+
+Next: read R0 terminal, run focused53 again then actual21-frame capture. Independent FAN07 review still pending; do not run model build yet. Startup-failure keyboard/controller Back is a separate source draft. Source/goal remains active; latest tested Windows build is still164019Z.
+
+## 2026-10-26T19:50:00Z Current recoverable checkpoint
+
+Current HEAD6dbf8ca1; green compact online UI, startup Back input and Windows QA source are pending targeted commits. Focused192038 PASS53; capture193149 PASS21/cleanup0. Root verified default Create/Back and immediate/max-font Retry pixels. Failure input194030 FAIL5/6 preserved; test-only actual-player-loop correction passes1943306/6. Combined194544 passes3solo+1actual three-lap starter with cleanup0. R0 latest194205 PASS. Windows QA cleanup revision2 is integrated/compiled, not yet run in Windows. Latest tested executable still164019Z.
+
+Sole native job: FAN07 render, PID25960, command session86854, prefix .harness/delivery/fan-build07-render-2026-10-26T19-48-41-806Z. Read terminal durablefiles before another Unity/Blender/player operation. FAN07 build19:38 code0, all4exchange original-matrix checks and geometry/clearance/source preservation verified in assets-build07/native-build-verification.md/json; no Unity import. Root serializes jobs; no unrelated jobs/power changes.
+
+Direct Create→Wordbound Workshop is an isolated source draft with visual_plan, preserving original house builder and existing autosave/history behavior. Asset_intake drafts optional FAN Unity admission without touching defaults; story_status records final21 review and input/QA evidence. Next: commit green UI/source, inspect final FAN07 renders, review/test creator entry, then exact source Windows build and lobby/solo smoke. Goal remains active; full online matches/recovery/house online and broader release gates remain open. Snapshot19:38:28 preserved1205files.

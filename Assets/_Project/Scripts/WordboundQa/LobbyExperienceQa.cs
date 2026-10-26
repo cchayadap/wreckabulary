@@ -30,12 +30,53 @@ namespace Wreckabulary.Qa
 
         public IEnumerable<QaStep> BuildSteps(QaContext context)
         {
+            double localDeadline = 0;
             yield return QaStep.Named("local_choices").Timeout(30)
-                .When(_ => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning).Do(Local);
+                .When(_ => {
+                    if (localDeadline == 0) localDeadline = Time.realtimeSinceStartupAsDouble + 25;
+                    return LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning;
+                })
+                .Do(value => GuardLocal(value, Local(value), localDeadline));
             yield return QaStep.Named("create_choices").Timeout(20).Do(Create);
             yield return QaStep.Named("customize_and_shop").Timeout(20).Do(CustomizeAndShop);
             yield return QaStep.Named("settings_navigation").Timeout(30).Do(Settings);
             yield return QaStep.Named("open_wordbound").Timeout(60).Do(Online);
+        }
+
+        IEnumerator GuardLocal(QaContext context, IEnumerator body, double deadline)
+        {
+            var stack = new Stack<IEnumerator>(); stack.Push(body);
+            Exception failure = null;
+            var cleanupErrors = new List<string>();
+            try
+            {
+                while (stack.Count != 0 && failure == null)
+                {
+                    if (Time.realtimeSinceStartupAsDouble >= deadline)
+                    { failure = new QaFailException("Local choices exceeded their owned 25-second work budget."); break; }
+                    object current = null; bool next = false;
+                    try
+                    {
+                        next = stack.Peek().MoveNext();
+                        if (next) current = stack.Peek().Current;
+                        else (stack.Pop() as IDisposable)?.Dispose();
+                    }
+                    catch (Exception error) { failure = error; }
+                    if (failure != null || !next) continue;
+                    if (current is IEnumerator nested) stack.Push(nested); else yield return current;
+                }
+            }
+            finally
+            {
+                while (stack.Count != 0)
+                    try { (stack.Pop() as IDisposable)?.Dispose(); }
+                    catch (Exception error) { cleanupErrors.Add(error.GetType().Name); }
+                context.Note("local_owned_stack_cleanup", new Dictionary<string, object> {
+                    ["errors"] = cleanupErrors.ToArray(), ["failure"] = failure?.GetType().Name ?? "none",
+                    ["work_budget_seconds"] = 25, ["outer_budget_seconds"] = 30 });
+            }
+            if (failure != null) throw failure;
+            Require(cleanupErrors.Count == 0, "Local-choice cleanup failed: " + string.Join(", ", cleanupErrors));
         }
 
         IEnumerator Local(QaContext context)
@@ -71,8 +112,59 @@ namespace Wreckabulary.Qa
                         ["humans"] = menu.PartySize, ["selected"] = EventSystem.current.currentSelectedGameObject.name });
                     if (mode == "Dibs" || mode == "Duos" || mode == "Escape") yield return Capture(context, "lobby_local_" + mode.ToLowerInvariant());
                 }
+                yield return SoloFamilies(context);
             }
             finally { PreservePreferences(context); }
+        }
+
+        IEnumerator SoloFamilies(QaContext context)
+        {
+            Require(menu.PartySize == 1, "The bounded solo UI check starts with one local human.");
+            string queue = menu.Queue, mode = menu.Mode, map = menu.Map, solo = WordboundSoloEntry.SelectedMode;
+            var originalBindings = Session.Bindings.ToArray();
+            var second = new ScriptedBinding();
+            try
+            {
+                Submit(Find(Page(), "Family Wordbound"));
+                yield return Settle();
+                Require(!ModeCards().Any() && !Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")),
+                    "Solo Wordbound must not display house or team mode cards.");
+                foreach (string selected in new[] { "TimeRun", "Freestyle" })
+                {
+                    Submit(Find(Page(), "Solo " + selected));
+                    yield return Settle();
+                    Require(WordboundSoloEntry.SelectedMode == selected && Find(Page(), "Solo GO").interactable,
+                        "The selected one-human Wordbound entry is unavailable.");
+                    foreach (string name in new[] { "Family house", "Family Wordbound", "Solo TimeRun", "Solo Freestyle", "Solo GO" })
+                        ControlFits(Find(Page(), name));
+                    TextFits(Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Solo detail"));
+                    yield return Capture(context, "lobby_solo_" + selected.ToLowerInvariant());
+                }
+                menu.Join(second);
+                yield return Settle();
+                Require(menu.PartySize == 2 && ReferenceEquals(menu.Party.Single(), second), "Only the fixture-owned extra seat may be present.");
+                Require(!Find(Page(), "Solo GO").interactable, "Solo GO must be disabled with two local humans.");
+                var note = Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Solo detail");
+                Require(note.text == "Solo only. Leave extra local seats to start.", "The one-human restriction must be visible.");
+                TextFits(note);
+                menu.OpenWordboundSolo("TimeRun");
+                Require(SceneManager.GetActiveScene().name == Session.HubScene && menu.PartySize == 2 && WordboundSoloEntry.TakeRequest() == null,
+                    "The secondary solo launch guard lost a seat or entered a scene.");
+                yield return Capture(context, "lobby_solo_two_seats");
+                Submit(Find(Page(), "Family house"));
+                yield return Settle();
+                Require(ModeCards().SequenceEqual(HouseModes) && menu.Queue == queue && menu.Mode == mode && menu.Map == map,
+                    "Changing family must restore the exact house choice.");
+                Require(menu.PartySize == 2 && ReferenceEquals(menu.Party.Single(), second) && Session.Bindings.SequenceEqual(originalBindings),
+                    "Changing family must preserve local seats/devices.");
+                context.Note("local_solo_families", "Two real solo cards; one-human GO; owned second seat blocks launch; exact original house and bindings preserved.");
+            }
+            finally
+            {
+                if (menu && menu.Party.Any(binding => ReferenceEquals(binding, second))) menu.Leave(second);
+                WordboundSoloEntry.Select(solo);
+                if (menu) { menu.Page<PlayPage>().WordboundSolo = false; menu.Open(LobbyMenu.Play); }
+            }
         }
 
         IEnumerator Create(QaContext context)
@@ -272,7 +364,7 @@ namespace Wreckabulary.Qa
             if (changed.Length != 0) PlayerPrefs.Save();
             Require(changed.Length == 0, "Navigation changed preferences; originals restored: " + string.Join(", ", changed.Select(value => value.Key)));
         }
-        sealed class Preference
+        internal sealed class Preference
         {
             public string Key; int kind; bool existed; string text; int integer; float number;
             static Preference Read(string key, int type) => new Preference { Key = key, kind = type, existed = PlayerPrefs.HasKey(key),
@@ -288,7 +380,7 @@ namespace Wreckabulary.Qa
                 else PlayerPrefs.SetFloat(Key, number);
             }
             public static Preference[] Capture() => GraphicsOptions.Keys.Concat(new[] { MatchTally.CareerKey, LobbyMenu.OutfitKey,
-                LobbyMenu.TurnHintKey, GameSoundPacks.PreferenceKey, KeyBindings.OverridesKey, KeyBindings.LegacyBackupKey }).Select(key => Read(key, 0))
+                LobbyMenu.TurnHintKey, LobbyThemes.PreferenceKey, GameSoundPacks.PreferenceKey, KeyBindings.OverridesKey, KeyBindings.LegacyBackupKey }).Select(key => Read(key, 0))
                 .Concat(new[] { "wv.muted", LobbyMenu.VsyncKey, CombatFeedbackOptions.DamageKey, CombatFeedbackOptions.PointsKey,
                     "wv.theme.effects", KeyBindings.InvertKey }.Select(key => Read(key, 1)))
                 .Concat(new[] { LobbyMenu.VolumeKey, KeyBindings.SensitivityKey }.Select(key => Read(key, 2))).ToArray();

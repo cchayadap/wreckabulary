@@ -1,0 +1,176 @@
+{
+  "status": "ROOT-OWNED STARTUP/QA RECEIPT DRAFT; no staging or commit performed",
+  "head_at_review": "18730031823e498f125568aea70a8d3a60553a7f",
+  "source_hashes_at_review": [
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundLauncher.cs",
+      "sha256": "fd8f1d3d53e8088c49ff8aebeaa3d66217cf526f909c2a9c21e96f37f51b5e44",
+      "meta_sha256": "0c4e9b274c30d6e7471979f6fb007e7607157e81b116f6e1214fab83ce3d8177"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundLauncherFailureInput.cs",
+      "sha256": "400ba3c4abe051db5cb1c70f6600526583f80673a80b0741217e8f6de8647bcf",
+      "meta_sha256": "06e09a2ec966a7c8c57fcab78d60656175cca9bd4da150e8960903ddc9b7817f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundLauncherFailureInputTests.cs",
+      "sha256": "7807a2bb229db45d2b6e588f466a80a2e3772010698e68cf74a05148c0f2fcc1",
+      "meta_sha256": "498befa62318d0c9b1068dae35440147316e0ce2d025ad83fd672af34886cc74"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs",
+      "sha256": "1f8f86e7576f022abcbcbe0d085603ce0cf086bc49a22b056ceaa922d669dc0f",
+      "meta_sha256": "b7d70083f82a518ec9f1f03638a63754260c1c2a9f375d1c2d148f237a528ca9"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundSoloQa.cs",
+      "sha256": "2d5932f36a984628415fb12fc0c150b97b4b09aceb0de59dda038f9787e29e52",
+      "meta_sha256": "3b33693adb0500ab1f9952925832b8c71ec4e70c9e078715d9315dc61c428653"
+    }
+  ],
+  "native_runs": [
+    {
+      "gate": {
+        "cmd": "test editmode --cold --filter WordboundLauncherFailureInputTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T19:43:30Z",
+        "secs": 31.6,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T194330Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T194330Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 11.6,
+        "tests": {
+          "total": 6,
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "end": {
+        "utc": "2026-10-26T19:44:02.488Z",
+        "code": 0,
+        "signal": null
+      },
+      "end_path": ".harness/delivery/solo-failure-2026-10-26T19-43-30-645Z-end.json",
+      "end_sha256": "8bb95879c6c5e0ae9d0f81565893e4b0c902ed1807ecb277b706af633385616f",
+      "stdout_sha256": "cf4883d99e067eff3b78d3028c5b5a30e7bad1587abdf9e3bb22b57b67c29d08",
+      "xml_sha256": "db348f20caf3df65270fcef79eb8721dc89a447df6712f0af812b7aad730b9d4",
+      "cases": [
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundLauncherFailureInputTests.AbsentFailureOrAnActiveLocalClientDoesNotConsumeBack",
+          "result": "Passed"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundLauncherFailureInputTests.EscapeUsesExistingInputStateOnceAfterRelease",
+          "result": "Passed"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundLauncherFailureInputTests.PadBackRequiresNeutralAfterSelectionAndFocusLoss",
+          "result": "Passed"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundLauncherFailureInputTests.PartiallyCreatedPartyMenuAllowsBackButInitializedMenuOwnsItsInput",
+          "result": "Passed"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundLauncherFailureInputTests.PointerReturnIsDeferredAndBoundToTheSameFailure",
+          "result": "Passed"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundLauncherFailureInputTests.TypingAndInputLeaseDiscardBackUntilReleased",
+          "result": "Passed"
+        }
+      ]
+    },
+    {
+      "gate": {
+        "cmd": "test editmode --cold --filter WordboundNativeSoloEntryTests|WordboundNativeStarterTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T19:45:44Z",
+        "secs": 153.9,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T194544Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T194544Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 6.6,
+        "tests": {
+          "total": 4,
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "end": {
+        "utc": "2026-10-26T19:48:18.373Z",
+        "code": 0,
+        "signal": null
+      },
+      "end_path": ".harness/delivery/solo-combined-2026-10-26T19-45-44-279Z-end.json",
+      "end_sha256": "87c0101924bf9f32765880e8710f6439340ed142304d88167fd19f4aa74bda8c",
+      "stdout_sha256": "b722147910463644cf3efc1c83813d458774c8631a144bfbc365309efa9bed8c",
+      "xml_sha256": "c52067ed7f0b296600472ccd5c60984e799428e66e47190dc90dcf8611c11457",
+      "cases": [
+        {
+          "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeSoloEntryTests.FreestyleStartsInstalledFlagshipOfflineAndReturnsToLobby",
+          "result": "Passed"
+        },
+        {
+          "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeSoloEntryTests.MissingLocalBodyShowsSafeReturnWithoutLeakingAClient",
+          "result": "Passed"
+        },
+        {
+          "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeSoloEntryTests.TimeRunStartsInstalledFlagshipOfflineAndReturnsToLobby",
+          "result": "Passed"
+        },
+        {
+          "name": "Wreckabulary.OfflineGameplayTests.WordboundNativeStarterTests.ExactRaceStarterCompletesThreePhysicalLapsAndReturnsToSameEditableDraft",
+          "result": "Passed"
+        }
+      ]
+    }
+  ],
+  "preserved_failed_run": {
+    "path": "TestResults/editmode_20261026T194030Z.xml",
+    "sha256": "12d577e5aa27e6cadee7c6378a16855aee880d1673b44ad54bd6a60a1e6179f6",
+    "passed": 5,
+    "failed": 1,
+    "reason": "Input lease test yielded EditMode turns without requesting actual player-loop frames. Root changed only the test to request bounded ordinary frames, retain block immediately after release and require frameCount > quietThrough."
+  },
+  "combined_cleanup": {
+    "solo_entry_reports": 3,
+    "solo_entry_failure_counts": [
+      0,
+      0,
+      0
+    ],
+    "starter_reports": 1,
+    "starter_failure_count": 0
+  },
+  "qa_source_revision": "20b0119d3264fbed56609544b123489577209b41218df32f27d07822d8baa82d",
+  "qa_live_matches_revision2": true,
+  "remaining": [
+    "Windows wordbound_solo scenario execution and captured-image review pending",
+    "Actual keyboard/controller Update-to-scene-return behavior in delivered Windows build not established by Editor decision tests",
+    "QA early cleanup budgets do not guarantee cleanup after process kill, external overall timeout or a synchronous stall across the outer deadline",
+    "No real online/full-flagship completion claim"
+  ]
+}

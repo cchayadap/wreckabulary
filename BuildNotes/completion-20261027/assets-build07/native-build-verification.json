@@ -1,0 +1,894 @@
+{
+  "status": "NATIVE BUILD RECEIPTS AND READ-ONLY FILE VERIFICATION PASS; RENDER/UNITY/PHYSICS ACCEPTANCE PENDING",
+  "utc": "2026-10-26T19:41:22.161975+00:00",
+  "native_receipt_utc": "2026-10-26T19:38:01Z",
+  "blender": "5.2.2 LTS",
+  "input_files_rehashed": 69,
+  "inputs": [
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/build-receipt.json",
+      "expected": "777c7a47d0590de0e7e2d0ff4148f5f67ce90c84e8e8a5428ce4ba278beb6e10",
+      "actual": "777c7a47d0590de0e7e2d0ff4148f5f67ce90c84e8e8a5428ce4ba278beb6e10"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/FAN-original-based-pilot-v2.blend",
+      "expected": "73000d2546a714b8c3939e66d2f3563c02a0d2f702318d7870a2a3355e6f5e21",
+      "actual": "73000d2546a714b8c3939e66d2f3563c02a0d2f702318d7870a2a3355e6f5e21"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/PILOT-REVIEW.html",
+      "expected": "bf299cd8132fdb5255e849585006040993feab2793c763947691b68a66fb30d3",
+      "actual": "bf299cd8132fdb5255e849585006040993feab2793c763947691b68a66fb30d3"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Exports/FAN-vivid-v2.fbx",
+      "expected": "dd1c4f67c699e03284658a21b462bcb5866ddf2a3582398a591e406307c567f9",
+      "actual": "dd1c4f67c699e03284658a21b462bcb5866ddf2a3582398a591e406307c567f9"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Exports/FAN-vivid-v2.glb",
+      "expected": "031ecbdc3972b4ef7f7935e7c7d13a0999e05447412f3d66a9d20cbc77b98ce8",
+      "actual": "031ecbdc3972b4ef7f7935e7c7d13a0999e05447412f3d66a9d20cbc77b98ce8"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Previews/FAN-three-quarter-construction-v1.json",
+      "expected": "bf2c5977a8c5104db184bf54c7b44244faf6f0c063012747bcf6260c0a25ea82",
+      "actual": "bf2c5977a8c5104db184bf54c7b44244faf6f0c063012747bcf6260c0a25ea82"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Previews/FAN-three-quarter-construction-v1.png",
+      "expected": "1106591187faad75a8b7b8f894c7df2731e4cca6a3de38dfc2fb7669d7e65652",
+      "actual": "1106591187faad75a8b7b8f894c7df2731e4cca6a3de38dfc2fb7669d7e65652"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Previews/FAN-three-quarter-original.json",
+      "expected": "09ead91c5afd64baaf33fa664b6c56987a5b502c29cc4d6db6d184289f37c7cd",
+      "actual": "09ead91c5afd64baaf33fa664b6c56987a5b502c29cc4d6db6d184289f37c7cd"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Previews/FAN-three-quarter-original.png",
+      "expected": "fcf0103438f7dff95483081a15846b4c1a5214e2b46b534e227ce6836b28571e",
+      "actual": "fcf0103438f7dff95483081a15846b4c1a5214e2b46b534e227ce6836b28571e"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Previews/FAN-three-quarter-vivid-v2.json",
+      "expected": "593141d72ddf9738cf29ec278217bc3f1b73c46c3404d436dd21a7f31c4d9b30",
+      "actual": "593141d72ddf9738cf29ec278217bc3f1b73c46c3404d436dd21a7f31c4d9b30"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Previews/FAN-three-quarter-vivid-v2.png",
+      "expected": "1a3a57fcf8bd46e96b46f07be91d87623f00323387a78fa08547f637c568daab",
+      "actual": "1a3a57fcf8bd46e96b46f07be91d87623f00323387a78fa08547f637c568daab"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Source/build_fan_v2.py",
+      "expected": "39349fc8b450a61a2aa3a288e5a50c3a10d7886d777c990b51c84fd802dd4f86",
+      "actual": "39349fc8b450a61a2aa3a288e5a50c3a10d7886d777c990b51c84fd802dd4f86"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV2/Source/FAN.original.glb",
+      "expected": "67bd384322b83617ac801211fb487f6be4e57c9d712f1b294660c13957700cd7",
+      "actual": "67bd384322b83617ac801211fb487f6be4e57c9d712f1b294660c13957700cd7"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/assets-build06/build_fan_v3.py",
+      "expected": "be7a7b0e99ca82c95dc8e1c6140b868281d70b6b8542de5294fbe2867b0e477e",
+      "actual": "be7a7b0e99ca82c95dc8e1c6140b868281d70b6b8542de5294fbe2867b0e477e"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/assets-build06/manifest.json",
+      "expected": "f977c990e618da3f3eaaa9c8a84e1de5823be9f420cd66373558f43faa8b57b8",
+      "actual": "f977c990e618da3f3eaaa9c8a84e1de5823be9f420cd66373558f43faa8b57b8"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/assets-build06/lod-detail.patch",
+      "expected": "a89c295cbf8d1ff744cbf4b2da49165ef7e9b1871f4f5693a25463776ede599d",
+      "actual": "a89c295cbf8d1ff744cbf4b2da49165ef7e9b1871f4f5693a25463776ede599d"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV1/Source/FAN.original.glb",
+      "expected": "67bd384322b83617ac801211fb487f6be4e57c9d712f1b294660c13957700cd7",
+      "actual": "67bd384322b83617ac801211fb487f6be4e57c9d712f1b294660c13957700cd7"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV1/build-receipt.json",
+      "expected": "b24b93fd69102956b47df68a7ecaab67c0aa1e6d76a33521ba440e1f586275a9",
+      "actual": "b24b93fd69102956b47df68a7ecaab67c0aa1e6d76a33521ba440e1f586275a9"
+    },
+    {
+      "path": "Assets/_Project/Data/Config/items.json",
+      "expected": "79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416",
+      "actual": "79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-rear-construction-v3.png",
+      "expected": "be3c088c43288e58e2e2593ea753578c2649400df5e7f445eea02dec06b0c93f",
+      "actual": "be3c088c43288e58e2e2593ea753578c2649400df5e7f445eea02dec06b0c93f"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-rear-construction-v3.json",
+      "expected": "f3ca6288b8225fc3d78bcf81b3d62ecc42f84d83134acda16b5db10b32f23cd7",
+      "actual": "f3ca6288b8225fc3d78bcf81b3d62ecc42f84d83134acda16b5db10b32f23cd7"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-rear-lod1.png",
+      "expected": "8f2103850078326634b187fe6757870ef002e07f2b5b2fced0c5b99b23d56f60",
+      "actual": "8f2103850078326634b187fe6757870ef002e07f2b5b2fced0c5b99b23d56f60"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-rear-lod1.json",
+      "expected": "d2580200b52982f14a55c621b3d4ac3ba00ca08b745e155dfd3b3358ed7884e1",
+      "actual": "d2580200b52982f14a55c621b3d4ac3ba00ca08b745e155dfd3b3358ed7884e1"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-detail-construction-v3.png",
+      "expected": "836d79d272a40c8d2bb3525d73ad79b4f3b8493f91436f601ce147c90577fc91",
+      "actual": "836d79d272a40c8d2bb3525d73ad79b4f3b8493f91436f601ce147c90577fc91"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-detail-construction-v3.json",
+      "expected": "604923ecfa5317dfea293839111169af5004e3c137b43d72ca6815864f937a1a",
+      "actual": "604923ecfa5317dfea293839111169af5004e3c137b43d72ca6815864f937a1a"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-detail-lod1.png",
+      "expected": "1df817ba5603de637102dfd79cfc199d5f308a792ba97df6435b77c86a8e10a6",
+      "actual": "1df817ba5603de637102dfd79cfc199d5f308a792ba97df6435b77c86a8e10a6"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-detail-lod1.json",
+      "expected": "808e09203a1a71a3e1036ba79bd31c3bcddebf3a1d8ba6290dcfbd6192701276",
+      "actual": "808e09203a1a71a3e1036ba79bd31c3bcddebf3a1d8ba6290dcfbd6192701276"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/assets-build05/build_fan_v3.py",
+      "expected": "f0627d8e073238a09a3218e5baf473abc1298a102360f8b503e1105be7dae9d3",
+      "actual": "f0627d8e073238a09a3218e5baf473abc1298a102360f8b503e1105be7dae9d3"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/build-receipt.json",
+      "expected": "634be56b5bfac47208b4072a5e6883395a45a50e2334dbc9642a6c654356e896",
+      "actual": "634be56b5bfac47208b4072a5e6883395a45a50e2334dbc9642a6c654356e896"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/clearance-probe.json",
+      "expected": "613df4fe1fd3c77634ed4a7f063f7fa0ad0d2ef37cd00be59bcf1bd9ba99dd0b",
+      "actual": "613df4fe1fd3c77634ed4a7f063f7fa0ad0d2ef37cd00be59bcf1bd9ba99dd0b"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/lod-probe.json",
+      "expected": "608d4b576363559c47052e05bad58bcbd6451db6d6221873ea3ee4b6d489a436",
+      "actual": "608d4b576363559c47052e05bad58bcbd6451db6d6221873ea3ee4b6d489a436"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/FAN-original-based-pilot-v3.blend",
+      "expected": "04e746eefc2827ec1abeef1f22106e57261632ed047cfd328316049535f0c8d6",
+      "actual": "04e746eefc2827ec1abeef1f22106e57261632ed047cfd328316049535f0c8d6"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Exports/FAN-construction-v3-LOD1.fbx",
+      "expected": "040ebac2c1b26c50689fd0d708c920cdd6aafbc260e9c90dc9957c4ce9ad5152",
+      "actual": "040ebac2c1b26c50689fd0d708c920cdd6aafbc260e9c90dc9957c4ce9ad5152"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Exports/FAN-construction-v3-LOD1.glb",
+      "expected": "63a2eb2edc5ba243714057793680c628c33bed121205f149202ee7f79120d0d4",
+      "actual": "63a2eb2edc5ba243714057793680c628c33bed121205f149202ee7f79120d0d4"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Exports/FAN-construction-v3.fbx",
+      "expected": "e2ceea795099d9af0ab78122de8489cefeda32235ac363ea3570da21c9e1a15f",
+      "actual": "e2ceea795099d9af0ab78122de8489cefeda32235ac363ea3570da21c9e1a15f"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Exports/FAN-construction-v3.glb",
+      "expected": "945f1304d8a4a98e53ec6fe52dfbe69c3c109b0dc1df55c50b432737d9ec48b3",
+      "actual": "945f1304d8a4a98e53ec6fe52dfbe69c3c109b0dc1df55c50b432737d9ec48b3"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-front-construction-v3.png",
+      "expected": "815a801d79ab53e69a2fbf3bf891a76ac1d0824f6c6f4aed951e129765d86377",
+      "actual": "815a801d79ab53e69a2fbf3bf891a76ac1d0824f6c6f4aed951e129765d86377"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-front-construction-v3.json",
+      "expected": "76276d1fe3567b59bb3b15bc0e62e142d189991cf80ebb18d976f4e29e3d9253",
+      "actual": "76276d1fe3567b59bb3b15bc0e62e142d189991cf80ebb18d976f4e29e3d9253"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-front-lod1.png",
+      "expected": "af4ad2843932f096f5028b715b1dab4e9fe06b0a8630649252b99849857a7152",
+      "actual": "af4ad2843932f096f5028b715b1dab4e9fe06b0a8630649252b99849857a7152"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-front-lod1.json",
+      "expected": "f29e1724f221e4f90dd43e839ab238fee10053b87dc242c37a1fc82b6c8302e4",
+      "actual": "f29e1724f221e4f90dd43e839ab238fee10053b87dc242c37a1fc82b6c8302e4"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-side-construction-v3.png",
+      "expected": "12ec5277241a707e6351c471203279d50261800f118049c0915f88a393d19a15",
+      "actual": "12ec5277241a707e6351c471203279d50261800f118049c0915f88a393d19a15"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-side-construction-v3.json",
+      "expected": "35fb6cf4e7e7a23f4568c4d11512f92f8a24ad491489d40f6cc45b9efd91d20b",
+      "actual": "35fb6cf4e7e7a23f4568c4d11512f92f8a24ad491489d40f6cc45b9efd91d20b"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-side-lod1.png",
+      "expected": "e2228791bd14456059e6bbc6db1fe4d2f7a273ee5af7673adb3c51230b113917",
+      "actual": "e2228791bd14456059e6bbc6db1fe4d2f7a273ee5af7673adb3c51230b113917"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-05/Previews/FAN-side-lod1.json",
+      "expected": "2162720d817da0c24eb659f542a5ef802cbf4456129ce23da699ac7f689bd6ce",
+      "actual": "2162720d817da0c24eb659f542a5ef802cbf4456129ce23da699ac7f689bd6ce"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/assets-build04/build_fan_v3.py",
+      "expected": "86065b092426b2f49245ab0a55792ba511859df417d24e6b09347b02c914d9e2",
+      "actual": "86065b092426b2f49245ab0a55792ba511859df417d24e6b09347b02c914d9e2"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/assets-build06/inspect-fan04-glb.mjs",
+      "expected": "8d4e735cfeb8ae0df11970cd38bada81b5c02c20c819c0e550e749c0804d4db1",
+      "actual": "8d4e735cfeb8ae0df11970cd38bada81b5c02c20c819c0e550e749c0804d4db1"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/build-receipt.json",
+      "expected": "eb64ab427e29137abbdec1eb35a2b4e12e0d6739dd54303df582e48107d0a322",
+      "actual": "eb64ab427e29137abbdec1eb35a2b4e12e0d6739dd54303df582e48107d0a322"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/clearance-probe.json",
+      "expected": "613df4fe1fd3c77634ed4a7f063f7fa0ad0d2ef37cd00be59bcf1bd9ba99dd0b",
+      "actual": "613df4fe1fd3c77634ed4a7f063f7fa0ad0d2ef37cd00be59bcf1bd9ba99dd0b"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Exports/FAN-construction-v3-LOD1.fbx",
+      "expected": "a03ddee38ea1f970d9d88e3fca865ba725284449da1020b6db6092b1e02e0624",
+      "actual": "a03ddee38ea1f970d9d88e3fca865ba725284449da1020b6db6092b1e02e0624"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Exports/FAN-construction-v3-LOD1.glb",
+      "expected": "4d49c65bfe9d113cd911c532d943cc31c48f33c22b7f35e98e4a40f297016a45",
+      "actual": "4d49c65bfe9d113cd911c532d943cc31c48f33c22b7f35e98e4a40f297016a45"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Exports/FAN-construction-v3.fbx",
+      "expected": "6413cbcaf4a4576e11c49e7ce5f674b309fb058ceaf0d89078cc84e0743f2e6d",
+      "actual": "6413cbcaf4a4576e11c49e7ce5f674b309fb058ceaf0d89078cc84e0743f2e6d"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Exports/FAN-construction-v3.glb",
+      "expected": "31e23c4c6892324427017defcbcdaadcf30fe8038543533060e702b74aff0b7f",
+      "actual": "31e23c4c6892324427017defcbcdaadcf30fe8038543533060e702b74aff0b7f"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/FAN-original-based-pilot-v3.blend",
+      "expected": "ddcdbc8b95c28633288181f1a9b21ec7313f4498c49cb98e6e43ac1802545045",
+      "actual": "ddcdbc8b95c28633288181f1a9b21ec7313f4498c49cb98e6e43ac1802545045"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/lod-probe.json",
+      "expected": "608d4b576363559c47052e05bad58bcbd6451db6d6221873ea3ee4b6d489a436",
+      "actual": "608d4b576363559c47052e05bad58bcbd6451db6d6221873ea3ee4b6d489a436"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Source/build_fan_v2.py",
+      "expected": "39349fc8b450a61a2aa3a288e5a50c3a10d7886d777c990b51c84fd802dd4f86",
+      "actual": "39349fc8b450a61a2aa3a288e5a50c3a10d7886d777c990b51c84fd802dd4f86"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Source/build_fan_v3.py",
+      "expected": "86065b092426b2f49245ab0a55792ba511859df417d24e6b09347b02c914d9e2",
+      "actual": "86065b092426b2f49245ab0a55792ba511859df417d24e6b09347b02c914d9e2"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Source/fan_geometry.py",
+      "expected": "1099611865b7a55cd5f53cdc5a11028c83f36aece8a7747a87af5db39c53829e",
+      "actual": "1099611865b7a55cd5f53cdc5a11028c83f36aece8a7747a87af5db39c53829e"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Source/fan_lod_bounds.py",
+      "expected": "81b6032dc4935eb049de3a9d746c353fde446e6d86dac1122b5f5568e4316736",
+      "actual": "81b6032dc4935eb049de3a9d746c353fde446e6d86dac1122b5f5568e4316736"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-04/Source/fan_yoke.py",
+      "expected": "ffb2e30482be0fa6168634958f84e3ade56b2fa99c7e5ab5d5cd502c68a1b98a",
+      "actual": "ffb2e30482be0fa6168634958f84e3ade56b2fa99c7e5ab5d5cd502c68a1b98a"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-03/build-receipt.json",
+      "expected": "4916fa4a68d81804958cc8871a1a6522862d68d2f08c3dddaee94f81e145b5c2",
+      "actual": "4916fa4a68d81804958cc8871a1a6522862d68d2f08c3dddaee94f81e145b5c2"
+    },
+    {
+      "path": "BuildNotes/completion-20261027/assets-draft/candidate/build_fan_v3.py",
+      "expected": "7780f071a53e1a96d9ce1688e484456fb65def73fd670d63442740e4b4b8e0e4",
+      "actual": "7780f071a53e1a96d9ce1688e484456fb65def73fd670d63442740e4b4b8e0e4"
+    },
+    {
+      "path": "BuildNotes/asset-expansion/fan-v3/repair-draft/build_fan_v3.py",
+      "expected": "4598cbf854c38b10694c332d6881e3d56f606f224ef046129be654e5f6089390",
+      "actual": "4598cbf854c38b10694c332d6881e3d56f606f224ef046129be654e5f6089390"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-02/build-receipt.json",
+      "expected": "48178d9b2def4de09edb4dbd323d71b7c74c976a9aa4aed7d5fbec03ea607a83",
+      "actual": "48178d9b2def4de09edb4dbd323d71b7c74c976a9aa4aed7d5fbec03ea607a83"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-02/clearance-probe.json",
+      "expected": "613df4fe1fd3c77634ed4a7f063f7fa0ad0d2ef37cd00be59bcf1bd9ba99dd0b",
+      "actual": "613df4fe1fd3c77634ed4a7f063f7fa0ad0d2ef37cd00be59bcf1bd9ba99dd0b"
+    },
+    {
+      "path": "BuildNotes/asset-expansion/fan-v3/build_fan_v3.py",
+      "expected": "b4ae4ee8e14914bc4372326708195751002b5ef1088ef096a5d7627b59e41ff0",
+      "actual": "b4ae4ee8e14914bc4372326708195751002b5ef1088ef096a5d7627b59e41ff0"
+    },
+    {
+      "path": "BuildNotes/asset-expansion/fan-v3/diagnostic-01/receipt.json",
+      "expected": "677096c5ca76dcfa79eab684d1741e2b048ce43a6a5b65baf3e10c5fff518bd8",
+      "actual": "677096c5ca76dcfa79eab684d1741e2b048ce43a6a5b65baf3e10c5fff518bd8"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-01/FAN-v3-diagnostic-only.blend",
+      "expected": "438ce6524f2eda0e491928a06819d0cafa48062df17d5b76638ab6546c05be26",
+      "actual": "438ce6524f2eda0e491928a06819d0cafa48062df17d5b76638ab6546c05be26"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-01/clearance-probe.json",
+      "expected": "c01a58a6f0757839cfe07c74f997972fa337f17795061731302a1e1576f701b6",
+      "actual": "c01a58a6f0757839cfe07c74f997972fa337f17795061731302a1e1576f701b6"
+    },
+    {
+      "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-01/build-receipt.json",
+      "expected": "3a2264e8bdaeea83c7c1b10577472565bd7c02ee291e67fb7021408e94aa1507",
+      "actual": "3a2264e8bdaeea83c7c1b10577472565bd7c02ee291e67fb7021408e94aa1507"
+    }
+  ],
+  "receipts": {
+    "build-receipt.json": "8640eff57172db5c80ae913b864d7c51f6a2efa15e774d0876dabb846df6ec8b",
+    "clearance-probe.json": "613df4fe1fd3c77634ed4a7f063f7fa0ad0d2ef37cd00be59bcf1bd9ba99dd0b",
+    "lod-probe.json": "87f9f58617c1d1e0107efdc27dd976f67df7111b1ecd6d1307acd6e310c8863b"
+  },
+  "blend": {
+    "path": "ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-07/FAN-original-based-pilot-v3.blend",
+    "sha256": "ac5bc55acc71c2981d016d6a8a6b0e76aaceb998be388069270d1f48f6c34911"
+  },
+  "exports": [
+    {
+      "file": "FAN-construction-v3.glb",
+      "sha256": "e3d154c20a8465a5bed8bfe53e4c6ef0ba33adfeca39548747d73866e5c9b7b3",
+      "bytes": 518268,
+      "triangles": 15032,
+      "meshes": 58,
+      "native_reimport_grip_translation_error_metres": 0.0,
+      "native_reimport_grip_basis_error": 1.7484555314695172e-07,
+      "native_reimport_grip_tolerance": 1e-06,
+      "native_reimport_bounds_error_metres": 0.0,
+      "controls_and_mesh_parentage_checked": true,
+      "independent_glb_readback": {
+        "triangles": 15032,
+        "meshes": 58,
+        "materials": [
+          "FAN_V2_Ivory",
+          "FAN_V2_Blue",
+          "FAN_V3_EnamelRecess",
+          "FAN_V2_Recess",
+          "FAN_V2_Metal",
+          "FAN_V2_Gold"
+        ],
+        "skins": 0,
+        "animations": 0,
+        "bounds_blender_metres": [
+          [
+            -0.26100000739097595,
+            -0.1250000298023224,
+            0.0
+          ],
+          [
+            0.26100000739097595,
+            0.1250000298023224,
+            0.8209999799728394
+          ]
+        ],
+        "bounds_error_metres": 0.0,
+        "grip_matrix": {
+          "translation_max_error_metres": 0.0,
+          "basis_max_error": 1.7484555314695172e-07,
+          "tolerance": 1e-06,
+          "actual_world_matrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.4104999899864197
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "expected_world_matrix": [
+            [
+              1.0,
+              -1.7484555314695172e-07,
+              0.0,
+              0.0
+            ],
+            [
+              1.7484555314695172e-07,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.4104999899864197
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "file": "FAN-construction-v3.fbx",
+      "sha256": "a4c341e7124cddba644adf171f6f1d0fbd456ae17923717d4e9cd657f85eff6b",
+      "bytes": 435692,
+      "triangles": 15032,
+      "meshes": 58,
+      "native_reimport_grip_translation_error_metres": 6.687893261414501e-08,
+      "native_reimport_grip_basis_error": 1.6292067073209182e-07,
+      "native_reimport_grip_tolerance": 1e-06,
+      "native_reimport_bounds_error_metres": 7.450580596923828e-08,
+      "controls_and_mesh_parentage_checked": true
+    },
+    {
+      "file": "FAN-construction-v3-LOD1.glb",
+      "sha256": "5af8715baac3df7cbb2fde1eec6797a716fabb5c76868bcb8f02ed5df6a9b5a6",
+      "bytes": 321680,
+      "triangles": 8775,
+      "meshes": 14,
+      "native_reimport_grip_translation_error_metres": 0.0,
+      "native_reimport_grip_basis_error": 1.7484555314695172e-07,
+      "native_reimport_grip_tolerance": 1e-06,
+      "native_reimport_bounds_error_metres": 0.0,
+      "controls_and_mesh_parentage_checked": true,
+      "independent_glb_readback": {
+        "triangles": 8775,
+        "meshes": 14,
+        "materials": [
+          "FAN_V2_Ivory",
+          "FAN_V2_Recess",
+          "FAN_V2_Blue",
+          "FAN_V3_EnamelRecess",
+          "FAN_V2_Metal",
+          "FAN_V2_Gold"
+        ],
+        "skins": 0,
+        "animations": 0,
+        "bounds_blender_metres": [
+          [
+            -0.26100000739097595,
+            -0.1250000298023224,
+            0.0
+          ],
+          [
+            0.26100000739097595,
+            0.1250000298023224,
+            0.8209999799728394
+          ]
+        ],
+        "bounds_error_metres": 0.0,
+        "grip_matrix": {
+          "translation_max_error_metres": 0.0,
+          "basis_max_error": 1.7484555314695172e-07,
+          "tolerance": 1e-06,
+          "actual_world_matrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.4104999899864197
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "expected_world_matrix": [
+            [
+              1.0,
+              -1.7484555314695172e-07,
+              0.0,
+              0.0
+            ],
+            [
+              1.7484555314695172e-07,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.4104999899864197
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "file": "FAN-construction-v3-LOD1.fbx",
+      "sha256": "fc0d9e9dc9329f5a3afcf905e040acbf72bbbf2dbbf9aa93e6c1095c772b1989",
+      "bytes": 285532,
+      "triangles": 8775,
+      "meshes": 14,
+      "native_reimport_grip_translation_error_metres": 6.687893261414501e-08,
+      "native_reimport_grip_basis_error": 1.6292067073209182e-07,
+      "native_reimport_grip_tolerance": 1e-06,
+      "native_reimport_bounds_error_metres": 7.450580596923828e-08,
+      "controls_and_mesh_parentage_checked": true
+    }
+  ],
+  "original_grip_selection": {
+    "selected_collection": "CandidateItem",
+    "candidate_name_before": "Grip_R.001",
+    "candidate_name_after": "Grip_R",
+    "inherited_source_comparison": {
+      "translation_max_error_metres": 0.0,
+      "basis_max_error": 0.0,
+      "tolerance": 1e-06,
+      "actual_world_matrix": [
+        [
+          1.0,
+          -1.7484555314695172e-07,
+          0.0,
+          0.0
+        ],
+        [
+          1.7484555314695172e-07,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.4104999899864197
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "expected_world_matrix": [
+        [
+          1.0,
+          -1.7484555314695172e-07,
+          0.0,
+          0.0
+        ],
+        [
+          1.7484555314695172e-07,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.4104999899864197
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "original_reference_rename": {
+      "old_name": "Grip_R",
+      "new_name": "FAN_OriginalReference_Grip_R",
+      "world_matrix_preserved": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "exact_original_matrix": {
+      "translation_max_error_metres": 0.0,
+      "basis_max_error": 0.0,
+      "tolerance": 0.0,
+      "actual_world_matrix": [
+        [
+          1.0,
+          -1.7484555314695172e-07,
+          0.0,
+          0.0
+        ],
+        [
+          1.7484555314695172e-07,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.4104999899864197
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "expected_world_matrix": [
+        [
+          1.0,
+          -1.7484555314695172e-07,
+          0.0,
+          0.0
+        ],
+        [
+          1.7484555314695172e-07,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.4104999899864197
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "limit": "Only the candidate empty is normalized to the original native float32 matrix; no mesh, material or reference transform is moved."
+  },
+  "grip_parentage": {
+    "original_parent": "FAN_V2_Root",
+    "candidate_parent": "FAN_V3_Root",
+    "world_matrix_before": [
+      [
+        1.0,
+        -1.7484555314695172e-07,
+        0.0,
+        0.0
+      ],
+      [
+        1.7484555314695172e-07,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.4104999899864197
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "world_matrix_after": [
+      [
+        1.0,
+        -1.7484555314695172e-07,
+        0.0,
+        0.0
+      ],
+      [
+        1.7484555314695172e-07,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.4104999899864197
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "exact_world_matrix_preserved": true,
+    "limit": "Rigid authoring parent only; exchange-format reimports must still preserve this relationship."
+  },
+  "held_scale": 0.4385,
+  "lod": {
+    "triangles_lod0": 15032,
+    "triangles_lod1": 8775,
+    "ratio": 0.5837546567323044,
+    "limit": 0.65,
+    "bounds_error_metres": 0,
+    "bounds_tolerance_metres": 1e-05,
+    "detail_parts": [
+      "FAN_LeftTiltSupport",
+      "FAN_OriginalFrontGrille_04",
+      "FAN_OriginalFrontGrille_05",
+      "FAN_OriginalFrontGrille_06",
+      "FAN_OriginalStand_03",
+      "FAN_RearGuardInnerSupport",
+      "FAN_RightTiltSupport",
+      "FAN_TiltYokeCrossbar"
+    ]
+  },
+  "clearance": {
+    "status": "PASS",
+    "continuous_blade_solid_cylinder_lower_bound": 0.006000007676583929,
+    "blade_nearest_part": "FAN_BlueGuardRim_02",
+    "continuous_hub_slab_envelope_lower_bound": 0.000999998301267624,
+    "hub_nearest_part": "FAN_RearMotorShell",
+    "thresholds_metres": {
+      "blade": 0.003,
+      "hub": 0.0005,
+      "tilt_sample": 0.001
+    },
+    "tilt_samples": [
+      {
+        "tilt_degrees": -10,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": -8,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": -6,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": -4,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": -2,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": 0,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": 2,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": 4,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": 6,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": 8,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      },
+      {
+        "tilt_degrees": 10,
+        "surface_triangle_overlap_pairs": 0,
+        "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+      }
+    ],
+    "intentional_mates_excluded_from_tilt_check": [
+      "FAN_LeftTiltAxle",
+      "FAN_RightTiltAxle",
+      "FAN_LeftTiltFastener",
+      "FAN_RightTiltFastener"
+    ],
+    "limits": [
+      "Rotor blade/hub envelopes conservatively cover every Y rotation in the neutral head frame; they test stationary source triangles, not physics colliders.",
+      "Tilt checks are discrete surface-overlap and vertex-to-surface measurements, not continuous minimum triangle distance, containment proof or all combined rotor/tilt poses.",
+      "The motor shaft enters the motor shell intentionally; bearing friction, skinning and rigidbody physics are not certified.",
+      "No collision meshes, mass, online timing or runtime animation are produced."
+    ]
+  },
+  "limits": [
+    "No native job by verifier; FBX native readback is evidence from root-produced receipt, independently hashed but not reimported again.",
+    "Two GLB binaries independently decoded for actual positions/node matrices/counts; source reference matrix retained exactly in blend, exchange transforms differ within original 1e-6 tolerance.",
+    "No matched render, Unity import/LODGroup/held/socket, collider, continuous combined-motion or runtime acceptance."
+  ]
+}

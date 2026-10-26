@@ -286,13 +286,21 @@ namespace Wreckabulary.Online
             GUILayout.BeginArea(new Rect((Screen.width - width) * .5f, 40, width, 170), GUI.skin.box);
             GUILayout.Label("Wordbound could not open");
             GUILayout.Label(failure, new GUIStyle(GUI.skin.label) { wordWrap = true });
-            if (GUILayout.Button("Back to main lobby")) BackToLobby();
+            bool enabled = GUI.enabled;
+            try
+            {
+                GUI.enabled = StandaloneStartupFailure;
+                if (GUILayout.Button("Back to main lobby")) QueueStartupFailureReturn();
+            }
+            finally { GUI.enabled = enabled; }
+            if (StandaloneStartupFailure) GUILayout.Label("Esc / B - Back");
             GUILayout.EndArea();
         }
 
         void OnDestroy()
         {
             destroying = true;
+            DisposeFailureInput();
             localGeneration++;
             if (menu) { menu.WorkshopRequested -= OpenWorkshop; menu.CloseRequested -= BackToLobby; }
             if (workshop)
