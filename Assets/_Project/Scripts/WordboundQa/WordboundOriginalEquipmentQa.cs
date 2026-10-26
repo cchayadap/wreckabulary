@@ -215,8 +215,9 @@ namespace Wreckabulary.Qa
                 throw new QaFailException("Recipe guard proof bindings no longer match the actual runtime.");
             long before = (long)sequenceField.GetValue(gameplay), epoch = Frame.Epoch;
             long frontier = Frame.Commands.Frontiers[Actor];
-            var authoritativeInventory = Inventory;
-            string letters = authoritativeInventory.Letters.ToString();
+            var authoritativeFrame = Frame;
+            string authoritativeJson = MatchSnapshotCodec.Export(authoritativeFrame);
+            string letters = authoritativeFrame.Economy.Players.Single(player => player.PlayerId == 0).Letters.ToString();
             view.SetMenuOpen(true);
             HudInvoke(hud, "SelectRecipe", "STOOL");
             HudInvoke(hud, "QueueMenuAction", new Action(() => HudInvoke(hud, "SelectRecipe", recipe)));
@@ -240,17 +241,40 @@ namespace Wreckabulary.Qa
                     else readyField.SetValue(gameplay, false);
                     HudInvoke(hud, "ExecuteMenuAction", true);
                     HudInvoke(hud, "ExecuteMenuAction", true);
-                    if ((long)sequenceField.GetValue(gameplay) != before || !view.MenuOpen ||
-                        !ReferenceEquals(Inventory, authoritativeInventory) || Inventory.Letters.ToString() != letters)
-                        throw new QaFailException("A deferred recipe action escaped a changed letter/readiness guard or mutated authoritative inventory.");
+                    string label = guard == 0 ? "letters" : "readiness";
+                    string note = "recipe_grid_guard_" + label;
+                    var afterFrame = Frame;
+                    long afterSequence = (long)sequenceField.GetValue(gameplay);
+                    bool noSubmission = afterSequence == before;
+                    bool menuStayedOpen = view.MenuOpen;
+                    bool snapshotReferencePreserved = ReferenceEquals(afterFrame, authoritativeFrame);
+                    bool snapshotContentPreserved = MatchSnapshotCodec.Export(afterFrame) == authoritativeJson;
+                    bool lettersPreserved = afterFrame.Economy.Players.Single(player => player.PlayerId == 0).Letters.ToString() == letters;
+                    context.Note(note + "_before_sequence", before);
+                    context.Note(note + "_after_sequence", afterSequence);
+                    context.Note(note + "_no_submission", noSubmission);
+                    context.Note(note + "_menu_open", menuStayedOpen);
+                    context.Note(note + "_snapshot_reference_preserved", snapshotReferencePreserved);
+                    context.Note(note + "_snapshot_content_preserved", snapshotContentPreserved);
+                    context.Note(note + "_letter_values_preserved", lettersPreserved);
+                    if (!noSubmission) throw new QaFailException("Recipe " + label + " guard submitted a command: " + before + " -> " + afterSequence + ".");
+                    if (!menuStayedOpen) throw new QaFailException("Recipe " + label + " guard unexpectedly resumed the menu.");
+                    if (!snapshotReferencePreserved) throw new QaFailException("Recipe " + label + " guard replaced the canonical MatchSnapshot without a yielded frame.");
+                    if (!snapshotContentPreserved) throw new QaFailException("Recipe " + label + " guard changed serialized canonical snapshot content.");
+                    if (!lettersPreserved) throw new QaFailException("Recipe " + label + " guard changed authoritative inventory letter values.");
                 }
                 finally
                 {
                     hudInventory.SetValue(hud, savedInventory);
                     readyField.SetValue(gameplay, savedReady);
+                    string label = guard == 0 ? "letters" : "readiness";
+                    context.Note("recipe_grid_guard_" + label + "_hud_inventory_restored", ReferenceEquals(hudInventory.GetValue(hud), savedInventory));
+                    context.Note("recipe_grid_guard_" + label + "_readiness_restored", (bool)readyField.GetValue(gameplay) == savedReady);
                 }
-                if (!ReferenceEquals(hudInventory.GetValue(hud), savedInventory) || (bool)readyField.GetValue(gameplay) != savedReady)
-                    throw new QaFailException("Temporary recipe guard injection was not restored.");
+                if (!ReferenceEquals(hudInventory.GetValue(hud), savedInventory))
+                    throw new QaFailException("Temporary recipe guard HUD inventory reference was not restored.");
+                if ((bool)readyField.GetValue(gameplay) != savedReady)
+                    throw new QaFailException("Temporary recipe guard readiness flag was not restored.");
             }
             context.Note("recipe_grid_guard_injection", "HUD inventory reference with no letters and localReady=false; synchronous, no yielded frame, authoritative inventory unchanged; both restored in finally");
             context.Note("recipe_grid_letter_and_readiness_guards_no_submit", true);

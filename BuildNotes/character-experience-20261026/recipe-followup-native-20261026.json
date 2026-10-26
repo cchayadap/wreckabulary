@@ -1,0 +1,124 @@
+{
+  "utc": "2026-10-26T14:53:03.902Z",
+  "status": "NATIVE_PASS_REBUILT_WINDOWS_PENDING",
+  "native": [
+    {
+      "result": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:51:13Z",
+        "secs": 26.3,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T145113Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-check-2026-10-26T14-51-13-284Z-stdout.txt",
+        "sha256": "e47d13b2b7ffe9934acbc3ec052355b64438e20726b9823832b16d817e311094",
+        "bytes": 289
+      },
+      "log": {
+        "path": "Logs/gate_check_all_20261026T145113Z.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "evidence": []
+    },
+    {
+      "result": {
+        "cmd": "test editmode --cold --filter WordboundInputBindingTests|WordboundRecipeGridTests|WordboundRecipeGridGuiTests|WordboundRecipeCacheTests|WordboundHudLayoutTests|WordboundMenuGuiTests|WordboundUiThemeTests|WordboundHudClarityTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:51:47Z",
+        "secs": 46.2,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T145147Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T145147Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 19.3,
+        "tests": {
+          "total": 52,
+          "passed": 52,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-hudtests-2026-10-26T14-51-46-864Z-stdout.txt",
+        "sha256": "296c0de88574b330dfe2b7dd53747c81ef25cfbb5efd4381bacd82d7b7f9912b",
+        "bytes": 602
+      },
+      "log": {
+        "path": "Logs/gate_test_editmode_20261026T145147Z.log",
+        "sha256": "9d6eb005e9f043bd8d5d4ab38f489db47d779fadf78e826192da0a24b64509ce",
+        "bytes": 78644
+      },
+      "evidence": [
+        {
+          "path": "TestResults/editmode_20261026T145147Z.xml",
+          "sha256": "f3a9687d6c87b77a6cc55600f1d7ac92ed8a493a95177f468c60eb8e9ef5d97d",
+          "bytes": 49819
+        }
+      ]
+    }
+  ],
+  "preservedWindows": {
+    "build": {
+      "path": "Builds/qa-20261026T144235Z/build.json",
+      "sha256": "7267f22bc7e50d8eb1ad0e8b258f78f74c080d4ab5bc3955921ff688f12ec1ce",
+      "bytes": 451
+    },
+    "equipmentFailure": {
+      "path": "Docs/qa/runs/20261026T144544Z-wordbound_original_equipment/checks.json",
+      "sha256": "a3f25348b2d885ee210c75e7882d445971928f65c23018e7d3b5d217d254c400",
+      "bytes": 187852
+    },
+    "workshopPass": {
+      "path": "Docs/qa/runs/20261026T144717Z-wordbound_workshop_flow/checks.json",
+      "sha256": "5ac74316498ec471a095c07ed473615ef61cfc4e5e8156ecb69bff5c1ab34122",
+      "bytes": 8481
+    }
+  },
+  "cause": "The introduced QA ReferenceEquals comparison used fresh defensive PlayerInventory copies, so it necessarily failed. Runtime inventory protection is unchanged.",
+  "correction": "QA now checks retained MatchSnapshot identity, full canonical export equality and letter values, with per-guard submission/menu/restoration evidence. Original art tiles keep full opacity; unavailable crafting remains indicated by selected missing-letter detail and the disabled Craft action.",
+  "source": [
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundOriginalEquipmentQa.cs",
+      "sha256": "9b01881f816db64bedc70a88fe6fc03db64d38156a81b3d58c875743480608a9",
+      "bytes": 27191
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundMatchHudRecipes.cs",
+      "sha256": "14bb113b237a8408015e4231c9e8fc4066e2db0fde1b72f265dbe0bbc0ba870c",
+      "bytes": 5895
+    }
+  ],
+  "review": {
+    "path": "BuildNotes/character-experience-20261026/ui/recipe-grid/qa-guard-fix/review.md",
+    "sha256": "568a0815eaf6b1ac593cd7976e90afebd9b17c12206ee2063385df77603fc156",
+    "bytes": 2515
+  },
+  "limits": [
+    "The earlier equipment failure remains FAIL. A rebuilt Windows run must verify actual positive Craft and all remaining equipment/motion checks.",
+    "The prior character native evidence is unchanged except for this bounded icon presentation and QA diagnostic follow-up."
+  ]
+}

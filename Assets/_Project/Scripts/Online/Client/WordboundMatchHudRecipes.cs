@@ -95,13 +95,7 @@ namespace Wreckabulary.Online
             Rect tile = GUILayoutUtility.GetLastRect();
             var picture = new Rect(tile.x + 8, tile.y + 6, tile.width - 16, tile.height - ui.LabelHeight - 18);
             var texture = OriginalItemArt.Find(id);
-            Color before = GUI.color;
-            try
-            {
-                if (!card.Craftable) GUI.color = new Color(before.r, before.g, before.b, before.a * .6f);
-                if (texture) GUI.DrawTexture(FitRecipeIcon(picture, texture.width, texture.height), texture, ScaleMode.StretchToFill, true);
-            }
-            finally { GUI.color = before; }
+            if (texture) GUI.DrawTexture(FitRecipeIcon(picture, texture.width, texture.height), texture, ScaleMode.StretchToFill, true);
             GUI.Label(new Rect(tile.x + 4, tile.yMax - ui.LabelHeight - 8, tile.width - 8, ui.LabelHeight),
                 selectedRecipe == id ? "• " + id : id, recipeName);
         }
