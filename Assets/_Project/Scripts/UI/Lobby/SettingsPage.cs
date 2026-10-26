@@ -89,9 +89,30 @@ namespace Wreckabulary
                     default: Profile(list); break;
                 }
             }
+            AddScrollbar(scroll);
             if (revertTo.HasValue) KeepBar(page);
             Canvas.ForceUpdateCanvases();
             if (scroll && scrollPositions.TryGetValue(tab, out float position)) scroll.verticalNormalizedPosition = position;
+        }
+
+        static void AddScrollbar(ScrollRect list)
+        {
+            if (!list) return;
+            var view = (RectTransform)list.transform;
+            view.offsetMax = new Vector2(-24, view.offsetMax.y);
+            var track = LobbyKit.Rect(view.parent, "Scroll position").Place(new Vector2(1, 0), Vector2.one,
+                new Vector2(-16, 0), Vector2.zero);
+            track.Paint(LobbyKit.Hex(0x136b68, .12f), 8);
+            var area = LobbyKit.Rect(track, "Sliding area").Fill();
+            area.offsetMin = new Vector2(2, 2); area.offsetMax = new Vector2(-2, -2);
+            var handle = LobbyKit.Rect(area, "Handle").Fill();
+            var ink = handle.Paint(LobbyKit.Cyan, 6);
+            var bar = track.gameObject.AddComponent<Scrollbar>();
+            bar.direction = Scrollbar.Direction.BottomToTop;
+            bar.handleRect = handle; bar.targetGraphic = ink;
+            bar.navigation = new Navigation { mode = Navigation.Mode.None };
+            list.verticalScrollbar = bar;
+            list.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
         }
 
         void Profile(Transform list)

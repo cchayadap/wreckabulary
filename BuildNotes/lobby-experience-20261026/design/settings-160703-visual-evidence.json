@@ -1,0 +1,96 @@
+{
+  "captureFolder": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-06-35-057Z/settings-20261026T160703033Z-79819a51",
+  "receiptSha256": "5b2cd1667e1eb9af2baccde1f25adad8e674faa579a26e87bb0573a033fa5c1e",
+  "receiptStatus": "CAPTURED; VISUAL REVIEW REQUIRED",
+  "simulatedDisplayPreview": true,
+  "displayUnchanged": true,
+  "observedWindowMode": "Windowed",
+  "observedWindowWidth": 640,
+  "observedWindowHeight": 480,
+  "images": [
+    {
+      "file": "normal-profile.png",
+      "sha256": "958ca3628ed613cbb0f1a7df933d29a2615a311f5230673cedb42cab7c405dbd",
+      "width": 1600,
+      "height": 900,
+      "bytes": 711485
+    },
+    {
+      "file": "normal-audio.png",
+      "sha256": "a99e209e69193b1996ab2d4264c6dda7f630a152c2238f00d5fdf6817592a933",
+      "width": 1600,
+      "height": 900,
+      "bytes": 722289
+    },
+    {
+      "file": "normal-gameplay.png",
+      "sha256": "5ac722cf73935f3f18e7d3577a7c19a3dca7a173297fc3f0b2638eef6f8662b3",
+      "width": 1600,
+      "height": 900,
+      "bytes": 721295
+    },
+    {
+      "file": "normal-graphics.png",
+      "sha256": "ff642138006417df060acfebcc0ba3b7b7025dd1defa30c9b5db53123f68daac",
+      "width": 1600,
+      "height": 900,
+      "bytes": 800689
+    },
+    {
+      "file": "normal-controls.png",
+      "sha256": "11f36677b79b5d0882ec31a85d53818cec69258c172440e244c9494246e12d19",
+      "width": 1600,
+      "height": 900,
+      "bytes": 789153
+    },
+    {
+      "file": "normal-help.png",
+      "sha256": "ccaddf92373b456760bbdaf5963265c1bc5948079c81c2d6d796da135f598f06",
+      "width": 1600,
+      "height": 900,
+      "bytes": 806070
+    },
+    {
+      "file": "preview-profile.png",
+      "sha256": "fcbca507b12bd91c2a660df986ac87adf7d60f79c2abb67aa0a62bcd004297eb",
+      "width": 1600,
+      "height": 900,
+      "bytes": 724056
+    },
+    {
+      "file": "preview-audio.png",
+      "sha256": "23079d377c719107c54277a123e441ae446d7ed80146ee231d441ef0e9ce1004",
+      "width": 1600,
+      "height": 900,
+      "bytes": 734751
+    },
+    {
+      "file": "preview-gameplay.png",
+      "sha256": "07332de53f99b70bc9a9edab4dcc67918c468f50d6bff5381999a1ccfc0371ad",
+      "width": 1600,
+      "height": 900,
+      "bytes": 733236
+    },
+    {
+      "file": "preview-graphics.png",
+      "sha256": "d065e859fbe5fe183283c1f4d3d33c28b0ae9d743e27dd53feb222683442fa79",
+      "width": 1600,
+      "height": 900,
+      "bytes": 811053
+    },
+    {
+      "file": "preview-controls.png",
+      "sha256": "5dcba5e8612ab3f91392cf27df6b31219120569a7a185343eb7989f4bd1da74f",
+      "width": 1600,
+      "height": 900,
+      "bytes": 789764
+    },
+    {
+      "file": "preview-help.png",
+      "sha256": "90c2c971c1492fde7ef822ba34d2e8667d10a3207d9d9a952d432377bbdaf82a",
+      "width": 1600,
+      "height": 900,
+      "bytes": 818613
+    }
+  ]
+}

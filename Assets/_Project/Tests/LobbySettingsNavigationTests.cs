@@ -150,6 +150,12 @@ namespace Wreckabulary.Tests
         public IEnumerator ScrolledGraphicsControlRetainsItsContextAndFocusAfterChangingValueAndTabs()
         {
             Tab("graphics");
+            yield return null;
+            Assert.IsNotNull(Scroll().verticalScrollbar);
+            Assert.IsTrue(Scroll().verticalScrollbar.gameObject.activeInHierarchy);
+            Scroll().verticalScrollbar.value = 0f;
+            yield return null;
+            Assert.LessOrEqual(Scroll().verticalNormalizedPosition, .001f, "the visible scrollbar reaches the bottom");
             var target = Button("V-sync off");
             LobbyScrollFollow.Show(Scroll(), (RectTransform)target.transform);
             EventSystem.current.SetSelectedGameObject(target.gameObject);

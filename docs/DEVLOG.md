@@ -759,3 +759,8 @@ Build20261026T145311Z onbe648835b38f00cb38f47e76bb8de5bd14b49674 passes equipmen
 ## 2026-10-26T16:10:00Z Lobby organization and settings refinement
 
 Separated Local/Online/Create with accurate human/bot summaries and original art; shortened cards, clarified Home/Customize/Shop/local-party labels, removed routine greeting, and added responsive navigation. Settings now groups actual options and preserves scroll/focus; pending display confirmation reserves space on all tabs. Native Editor155841 passes12/12; Home save160028 changes onlythree texts and repeat160158 makes no save. Play160302 passes90/91; the intentionally reduced card-height expectation is corrected and targeted160635 passes2/2 including12 settings captures. Core160630 passes41/41. All276 authored files match after repeat and Play. Failure evidence and imported-font preservation corrections are retained in BuildNotes/lobby-experience-20261026. Windows build/walkthrough remains pending; original house modes remain local.
+
+
+## 2026-10-26T16:23:00Z Visible settings scrolling
+
+The first Windows lobby walkthrough passed all five stages with 15 actual captures. Independent visual review found weak scroll discoverability. Settings now provides a small teal scrollbar beside overflowing lists, without more instructional text. Native Play 161936 passes all 21 focused cases; capture 162055 passes 2/2, including all 12 normal/pending settings views. All 276 authored outputs remain unchanged. Final Windows QA additionally reaches the last Controls bindings and requests a 16th capture.

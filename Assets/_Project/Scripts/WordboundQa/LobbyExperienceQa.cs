@@ -135,6 +135,16 @@ namespace Wreckabulary.Qa
                         "Tab selection lost keyboard/controller focus: " + tab);
                     foreach (string id in SettingsTabs) ControlFits(Find(Page(), "Settings tab " + id));
                     yield return Capture(context, "lobby_settings_" + tab);
+                    if (tab == "controls")
+                    {
+                        var list = Page().GetComponentInChildren<ScrollRect>();
+                        Require(list && list.verticalScrollbar && list.verticalScrollbar.gameObject.activeInHierarchy,
+                            "Long controls must expose a visible scrollbar.");
+                        list.verticalScrollbar.value = 0f;
+                        yield return Settle();
+                        Require(list.verticalNormalizedPosition <= .001f, "Controls scrollbar did not reach the final bindings.");
+                        yield return Capture(context, "lobby_settings_controls_bottom");
+                    }
                 }
                 Submit(Find(Page(), "Close page"));
                 yield return Settle();

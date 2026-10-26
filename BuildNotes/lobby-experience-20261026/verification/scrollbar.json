@@ -1,0 +1,173 @@
+{
+  "utc": "2026-10-26T16:23:54.948Z",
+  "baseHead": "9668d28c56d3141bd9fba5fe1f8912c91a37e219",
+  "status": "SOURCE VERIFIED; FINAL WINDOWS PENDING",
+  "runs": [
+    {
+      "stdout": ".harness/delivery/workspace-check-2026-10-26T16-17-27-452Z-stdout.txt",
+      "cmd": "check all",
+      "rung": "R0",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:17:27Z",
+      "secs": 13.1,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_check_all_20261026T161727Z.log",
+      "evidence": [],
+      "infra": null,
+      "slot": 0,
+      "messages": [
+        "[check:Runtime] OK",
+        "[check:Editor] OK"
+      ]
+    },
+    {
+      "stdout": ".harness/delivery/workspace-core-2026-10-26T16-18-40-267Z-stdout.txt",
+      "cmd": "core --filter CosmeticBundleTests|WardrobeTests|CatalogueTests|CareerTests",
+      "rung": "R1",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:18:40Z",
+      "secs": 15.2,
+      "route": "none",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_core_20261026T161840Z.log",
+      "evidence": [
+        "TestResults/core_20261026T161840Z.trx"
+      ],
+      "infra": null,
+      "slot": 0,
+      "tests": {
+        "total": 41,
+        "passed": 41,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "stdout": ".harness/delivery/workspace-homeplaytests-2026-10-26T16-19-36-607Z-stdout.txt",
+      "cmd": "test playmode --cold --filter LobbyPlayChoiceTests|LobbySettingsNavigationTests|ControlsSettingsTests|LobbyNavigationLayoutTests",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:19:36Z",
+      "secs": 58.2,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_playmode_20261026T161936Z.log",
+      "evidence": [
+        "TestResults/playmode_20261026T161936Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 28.3,
+      "tests": {
+        "total": 21,
+        "passed": 21,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "stdout": ".harness/delivery/workspace-lobbycapture-2026-10-26T16-20-55-427Z-stdout.txt",
+      "cmd": "test playmode --cold --filter Wreckabulary.Tests.CaptureTests.CaptureSettings|Wreckabulary.Tests.LobbyTests.FixedRowsKeepTheirHeight",
+      "rung": "R3",
+      "ok": true,
+      "exit": 0,
+      "verdict": "PASS",
+      "utc": "2026-10-26T16:20:55Z",
+      "secs": 37.9,
+      "route": "cold",
+      "errors": [],
+      "failures": [],
+      "log": "Logs/gate_test_playmode_20261026T162055Z.log",
+      "evidence": [
+        "TestResults/playmode_20261026T162055Z.xml"
+      ],
+      "infra": null,
+      "slot": null,
+      "crashAfterQuit": false,
+      "refreshSecs": 9.8,
+      "tests": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "source": [
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/SettingsPage.cs",
+      "sha256": "f9678be5ca1b9d4c3f79094252f3b67f0b1ccf80ce78f75a15878c2aca0ac033"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbySettingsNavigationTests.cs",
+      "sha256": "1dc111e189d2834c7ea5769768a1388caef032f1ab79881098775a91ea636408"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs",
+      "sha256": "8c0399e0a8afcb41079fa0500c9cd556436f3c9cd6c459ed34c0d49363f48d89"
+    }
+  ],
+  "captures": [
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/normal-profile.png",
+      "sha256": "c63d2e02eee9eef2936f8d50d2f7491b8817b682c8beff263d9df7269d693bb6"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/normal-audio.png",
+      "sha256": "dc54980dc3655f0e62acf80e0dffd347e63f00ed84e58789a369acd6b0675360"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/normal-gameplay.png",
+      "sha256": "bf370b2920bd18306fea411f3d9cc741e853625098265e44db30e151a40f65ed"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/normal-graphics.png",
+      "sha256": "516c4cec11a8393028e910102cdfdfad458fef78c481e96726ab74236088d800"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/normal-controls.png",
+      "sha256": "ba5fb8df46c9ec5098e58f34a504969f8d46925a9ae4a902b3252c782b91bf2b"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/normal-help.png",
+      "sha256": "d422f49617b7e5002af842a2de9b3585c497082539a6678b081ecc3e1b0f7bb2"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/preview-profile.png",
+      "sha256": "2c67c567425fc1272e11e4e04d634eafc94810feac23f35f9c272546f5ca0011"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/preview-audio.png",
+      "sha256": "5bc7edb0a8b249ec72168998aaa69959d6a15eacb0096c9421114ae2f2c11839"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/preview-gameplay.png",
+      "sha256": "b8eb7130e1d8b6d5b19700ecb094430289ee2d9cff166573c1928638cbb811af"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/preview-graphics.png",
+      "sha256": "6c6e58f81ebd80ac48ec6f483772d3f0b4ed5f2aa44138144dc5da147b395f1f"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/preview-controls.png",
+      "sha256": "67760ea55f17b096a9354a9469f1d79b95895ab1a88d126c88a54a10a8e9f4b0"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/lobby-capture-2026-10-26T16-20-55-427Z/settings-20261026T162112913Z-0e9a2b14/preview-help.png",
+      "sha256": "3ec11dbb9aaf074cd84cf92275322f81e8097e1d551c31d5d19c6e7463c61b92"
+    }
+  ],
+  "preservation": "BuildNotes/lobby-experience-20261026/verification/preservation-after-scrollbar.json",
+  "scope": "Visible scroll position and actual Scrollbar-to-content linkage; no physical mouse-drag claim. Final Windows scenario now requests 16 captures."
+}
