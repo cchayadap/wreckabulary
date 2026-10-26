@@ -328,7 +328,8 @@ namespace Wreckabulary.Workshop
             int nextMode = GUILayout.Toolbar(zoneMode, new[] { "Fixed", "Zone", "Pool" });
             if (nextMode != zoneMode)
             {
-                CancelGesture(); zoneMode = nextMode;
+                CancelGesture();
+                zoneMode = nextMode;
                 if (zoneMode != 2) pool = pool.Split(',')[0].Split(':')[0].Trim();
             }
             PlacementAssetPicker();
@@ -341,8 +342,11 @@ namespace Wreckabulary.Workshop
             if (editing != null)
             {
                 GUILayout.Label("Editing " + editing.Id);
-                if (zoneMode != 0) PlacementRangeFields();
-                if (Button("Apply placement settings")) ApplyPlacementSettings(module.Id);
+                if (zoneMode != 0) PlacementRangeFields(module);
+                GUILayout.BeginHorizontal();
+                if (Button("Apply", "Apply placement settings")) ApplyPlacementSettings(module.Id);
+                if (Button("Cancel", "Discard placement changes")) CancelPlacementSettings();
+                GUILayout.EndHorizontal();
             }
             if (Button(zoneMode == 0 ? editing == null ? "Place object" : "Reposition object" : editing == null ? "Draw zone" : "Redraw bounds"))
             { CancelGesture(); drawingZone = true; status = zoneMode == 0 ? "Click the fixed position · Esc cancels" : "Drag the placement bounds · Esc cancels"; }

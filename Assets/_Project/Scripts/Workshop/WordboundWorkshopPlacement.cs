@@ -10,6 +10,8 @@ namespace Wreckabulary.Workshop
     {
         public int Mode, MinCount = 1, MaxCount = 3, ChancePermille = 1000, SpacingMm = 500;
         public List<CourseWeightedAsset> Pool = new List<CourseWeightedAsset>();
+        public List<int> Yaws;
+        public List<string> LayerIds;
 
         public static List<CourseWeightedAsset> ParsePool(string text)
         {
@@ -45,6 +47,13 @@ namespace Wreckabulary.Workshop
             var module = draft.Course.Modules.Single(item => item.Id == moduleId);
             var existing = string.IsNullOrEmpty(zoneId) ? null : draft.Course.Zones.Single(item => item.Id == zoneId);
             if (existing != null && existing.ModuleId != moduleId) throw new ArgumentException("Select the placement's room first.");
+            if (Mode != 0 && Yaws != null && (Yaws.Count == 0 || Yaws.Count > 4 ||
+                Yaws.Any(yaw => yaw != 0 && yaw != 90 && yaw != 180 && yaw != 270) || Yaws.Distinct().Count() != Yaws.Count))
+                throw new ArgumentException("Choose at least one distinct quarter-turn rotation.");
+            if (Mode != 0 && LayerIds != null && (LayerIds.Count == 0 || !LayerIds.Contains(module.LayerId) ||
+                LayerIds.Distinct(StringComparer.Ordinal).Count() != LayerIds.Count ||
+                LayerIds.Any(id => !draft.Course.Layers.Any(layer => layer.Id == id))))
+                throw new ArgumentException("Allowed floors must include this room's floor and only existing floors.");
             var zone = existing == null ? new CourseZone
             {
                 Id = WorkshopCommands.Unique("zone", draft.Course.Zones.Select(item => item.Id)),
@@ -66,6 +75,8 @@ namespace Wreckabulary.Workshop
             if (position.HasValue) zone.FixedPosition = position.Value;
             if (Mode == 0) zone.Yaws = new List<int> { zone.FixedYaw };
             else if (zone.Placement == "Fixed") zone.Yaws = new List<int> { 0, 90, 180, 270 };
+            if (Mode != 0 && Yaws != null) zone.Yaws = Yaws.ToList();
+            if (Mode != 0 && LayerIds != null) zone.LayerIds = LayerIds.ToList();
             zone.Placement = Mode == 0 ? "Fixed" : "Random";
             zone.MinCount = Mode == 0 ? 1 : MinCount; zone.MaxCount = Mode == 0 ? 1 : MaxCount;
             zone.ChancePermille = Mode == 0 ? 1000 : ChancePermille; zone.SpacingMm = SpacingMm;
