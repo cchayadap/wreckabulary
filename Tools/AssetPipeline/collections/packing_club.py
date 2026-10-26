@@ -174,27 +174,22 @@ def tube(path, width, thickness):
 
 def bat(target, root, materials, lod):
     segments = 32 if lod == 0 else 16
-    rings = [(0.025, .035, .035, 2), (.055, .025, .025, 2), (.26, .024, .024, 2),
-             (.34, .033, .033, 2.3), (.47, .050, .050, 3.2), (.68, .072, .072, 4),
-             (.90, .086, .086, 4), (.965, .086, .086, 4), (1.003, .077, .077, 3.4),
-             (1.018, .063, .063, 3)]
+    rings = [(.025, .037, .037, 2), (.055, .029, .029, 2), (.26, .029, .029, 2),
+             (.34, .037, .037, 2.4), (.47, .052, .052, 2.8), (.68, .073, .073, 3),
+             (.90, .086, .086, 3), (.95, .086, .086, 3), (.975, .083, .083, 3),
+             (.993, .074, .074, 2.9), (1.005, .059, .059, 2.7),
+             (1.013, .039, .039, 2.5), (1.017, .020, .020, 2.2), (1.018, .007, .007, 2)]
     vertices, faces = ring_mesh(rings, segments)
-    swatches = []
-    for ring in range(len(rings) - 1):
-        for i in range(segments):
-            angle = (i + .5) * math.tau / segments
-            swatches.append(1 if ring >= 3 and abs(math.sin(angle)) < .4 else 0)
-    swatches.extend((0, 0))
-    mesh_part("BarrelAndHandle", vertices, faces, target, root, materials, swatches)
-    knob = [(0, .023, .023, 2), (.008, .033, .033, 2), (.019, .038, .038, 2),
-            (.028, .036, .036, 2), (.042, .028, .028, 2)]
+    mesh_part("CrownedBarrelAndHandle", vertices, faces, target, root, materials, 0)
+    knob = [(0, .032, .032, 2), (.008, .046, .046, 2), (.019, .053, .053, 2),
+            (.028, .050, .050, 2), (.042, .034, .034, 2)]
     mesh_part("RoundedKnob", *ring_mesh(knob, segments), target, root, materials, 0)
-    steps = 84 if lod == 0 else 56
+    steps = 84 if lod == 0 else 42
     vertices, faces = [], []
     for i in range(steps + 1):
         angle = math.tau * 7 * i / steps
         z = .065 + .19 * i / steps
-        for radius, height in ((.0253, -.004), (.0288, -.004), (.0288, .004), (.0253, .004)):
+        for radius, height in ((.0294, -.004), (.0340, -.004), (.0340, .004), (.0294, .004)):
             vertices.append((radius * math.cos(angle), radius * math.sin(angle), z + height))
     for i in range(steps):
         for side in range(4):
@@ -202,26 +197,102 @@ def bat(target, root, materials, lod):
             faces.append((a, b, b + 4, a + 4))
     faces.extend(((3, 2, 1, 0), tuple(steps * 4 + i for i in range(4))))
     mesh_part("ContinuousCreamWrap", vertices, faces, target, root, materials, 2, wrap=True)
+    for name, heights in (("LowerGripCuff", (.052, .056, .061)), ("UpperGripCuff", (.259, .264, .269))):
+        cuff = [(height, radius, radius, 2) for height, radius in zip(heights, (.031, .035, .032))]
+        mesh_part(name, *ring_mesh(cuff, 24 if lod == 0 else 12), target, root, materials, 2, wrap=True)
+    levels = (.455, .465, .50, .68, .90, .944, .952) if lod == 0 else (.455, .48, .90, .952)
+    for side in (-1, 1):
+        vertices, faces = [], []
+        for index, height in enumerate(levels):
+            radius, exponent = bat_section(rings, height)
+            width = radius * (.056 if index in (0, len(levels) - 1) else .14)
+            center = radius * .48 * side
+            for x, depth in ((center - width / 2, .001), (center + width / 2, .001),
+                             (center + width / 2, -.0012), (center - width / 2, -.0012)):
+                front = -radius * (1 - (abs(x) / radius) ** exponent) ** (1 / exponent)
+                vertices.append((x, front + depth, height))
+        for index in range(len(levels) - 1):
+            for edge in range(4):
+                a, b = index * 4 + edge, index * 4 + (edge + 1) % 4
+                faces.append((a, b, b + 4, a + 4))
+        faces.extend(((3, 2, 1, 0), tuple((len(levels) - 1) * 4 + index for index in range(4))))
+        mesh_part("TimberLaminateLeft" if side < 0 else "TimberLaminateRight", vertices, faces, target, root, materials, 1)
+    vertices = []
+    for depth in (.002, -.0006):
+        for index in range(10):
+            angle = math.pi / 2 + index * math.pi / 5
+            size = .026 if index % 2 == 0 else .0118
+            x, height = size * math.cos(angle), .80 + size * math.sin(angle)
+            radius, exponent = bat_section(rings, height)
+            front = -radius * (1 - (abs(x) / radius) ** exponent) ** (1 / exponent)
+            vertices.append((x, front + depth, height))
+    faces = [(index, (index + 1) % 10, (index + 1) % 10 + 10, index + 10) for index in range(10)]
+    radius, _ = bat_section(rings, .80)
+    vertices.extend(((0, -radius + .002, .80), (0, -radius - .0006, .80)))
+    faces.extend((20, (index + 1) % 10, index) for index in range(10))
+    faces.extend((21, index + 10, (index + 1) % 10 + 10) for index in range(10))
+    mesh_part("FlushCreamStarInlay", vertices, faces, target, root, materials, 2, wrap=True)
+
+
+def bat_section(rings, height):
+    for lower, upper in zip(rings, rings[1:]):
+        if lower[0] <= height <= upper[0]:
+            fraction = (height - lower[0]) / (upper[0] - lower[0])
+            return lower[1] + (upper[1] - lower[1]) * fraction, lower[3] + (upper[3] - lower[3]) * fraction
+    raise ValueError("Bat detail lies outside its authored profile")
+
+
+def shield_outline(lod):
+    corners = [Vector(point) for point in ((0, .57), (.23, .50), (.22, .18), (0, 0), (-.22, .18), (-.23, .50))]
+    outline = []
+    count = 4 if lod == 0 else 2
+    for index, corner in enumerate(corners):
+        start = corner.lerp(corners[index - 1], .045)
+        end = corner.lerp(corners[(index + 1) % len(corners)], .045)
+        for step in range(count):
+            t = step / (count - 1)
+            outline.append((1 - t) ** 2 * start + 2 * (1 - t) * t * corner + t ** 2 * end)
+    min_x, max_x = min(point.x for point in outline), max(point.x for point in outline)
+    min_z, max_z = min(point.y for point in outline), max(point.y for point in outline)
+    return [((point.x - min_x) / (max_x - min_x) * .46 - .23, (point.y - min_z) / (max_z - min_z) * .57) for point in outline]
+
+
+def outline_mesh(outline, sections, closed_cross_section=False):
+    vertices = [(x * scale, depth, .285 + (height - .285) * scale)
+                for depth, scale in sections for x, height in outline]
+    faces, count = [], len(outline)
+    for ring in range(len(sections) if closed_cross_section else len(sections) - 1):
+        following = (ring + 1) % len(sections)
+        for index in range(count):
+            faces.append((ring * count + index, ring * count + (index + 1) % count,
+                          following * count + (index + 1) % count, following * count + index))
+    if not closed_cross_section:
+        faces.extend((tuple(reversed(range(count))), tuple((len(sections) - 1) * count + index for index in range(count))))
+    return vertices, faces
 
 
 def shield(target, root, materials, lod, original_bounds):
-    segments = 48 if lod == 0 else 24
-    sections = [(-.047, .05), (-.046, .88), (-.043, .92), (-.043, .975),
-                (-.032, 1), (.008, 1), (.020, .965), (.021, .91), (.021, .05)]
-    rings = [(depth, .23 * scale, .285 * scale, 2) for depth, scale in sections]
-    vertices, faces = ring_mesh(rings, segments, axis="Y")
-    swatches = [0 if 2 <= ring <= 6 else 3 for ring in range(len(rings) - 1) for _ in range(segments)]
-    swatches.extend((3, 3))
-    mesh_part("OvalBoardAndTimberRim", vertices, faces, target, root, materials, swatches)
+    outline = shield_outline(lod)
+    sections = [(-.042, .06), (-.042, .84), (-.045, .90), (-.050, .96), (-.043, .985),
+                (-.035, 1), (.014, 1), (.024, .96), (.025, .88), (.025, .06)]
+    vertices, faces = outline_mesh(outline, sections)
+    swatches = [3 if ring < 2 else 0 if ring < 7 else 1 for ring in range(len(sections) - 1) for _ in outline]
+    swatches.extend((3, 1))
+    mesh_part("HeraldicBoardAndLayeredTimberRim", vertices, faces, target, root, materials, swatches)
+    binding = [(-.041, .853), (-.046, .854), (-.0485, .860), (-.0485, .889), (-.046, .897), (-.041, .898)] if lod == 0 else [
+        (-.041, .853), (-.0485, .860), (-.0485, .889), (-.041, .898)]
+    mesh_part("CreamFabricPanelBinding", *outline_mesh(outline, binding, closed_cross_section=True),
+              target, root, materials, 2, wrap=True)
     vertices = []
-    for depth in (-.044, original_bounds[0].y):
+    for depth, scale in ((-.041, 1), (original_bounds[0].y + .003, 1), (original_bounds[0].y, .93)):
         for i in range(10):
             angle = math.pi / 2 + i * math.pi / 5
-            radius = .084 if i % 2 == 0 else .038
+            radius = (.094 if i % 2 == 0 else .042) * scale
             vertices.append((radius * math.cos(angle), depth, .31 + radius * math.sin(angle)))
-    faces = [(i, (i + 1) % 10, (i + 1) % 10 + 10, i + 10) for i in range(10)]
-    faces.extend((tuple(reversed(range(10))), tuple(range(10, 20))))
-    mesh_part("InsetCreamStar", vertices, faces, target, root, materials, 2, wrap=True)
+    faces = [(ring * 10 + i, ring * 10 + (i + 1) % 10, (ring + 1) * 10 + (i + 1) % 10, (ring + 1) * 10 + i)
+             for ring in range(2) for i in range(10)]
+    faces.extend((tuple(reversed(range(10))), tuple(range(20, 30))))
+    mesh_part("BevelledCreamStar", vertices, faces, target, root, materials, 2, wrap=True)
     steps = 16 if lod == 0 else 8
     path = [(0, .016, .365)]
     path.extend((0, .035 + .075 * math.sin(i * math.pi / steps), .29 + .075 * math.cos(i * math.pi / steps))

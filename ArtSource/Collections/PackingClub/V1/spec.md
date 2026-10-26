@@ -1,6 +1,6 @@
 # Packing Club — first geometry collection
 
-Status: source authored; Blender execution, export round-trip, Unity import, motion review and owner style approval are **NOT RUN**. This document describes the candidate, not completed assets.
+Status: build-a was generated and passed all eight Blender export checks, but its front appearance was rejected during root's direct visual review. Those files are preserved. This document now describes the separate **build-b source candidate**; its generation, Unity import, motion review and owner style approval are **NOT RUN**.
 
 The collection adds two optional equipment shapes while preserving Classic. Its reference is the original Wreckabulary household language: soft outlines, pale timber, cream cloth, powder-blue paint and clear useful construction. No distressed metal, generic medieval trim, noisy surface aging, paid generation or new gameplay statistics.
 
@@ -8,8 +8,8 @@ The collection adds two optional equipment shapes while preserving Classic. Its 
 
 | Item | Shape and details | Editable source parts | Hard triangle limit, LOD0 / LOD1 |
 | --- | --- | --- | --- |
-| BAT | Narrow round grip rising into four softened barrel flats and a rounded-square crown. Two broad timber laminations run up the barrel; the cream grip is one continuous seven-turn raised wrap. A rounded knob closes the base. | BarrelAndHandle, RoundedKnob, ContinuousCreamWrap, original Grip_R transform | 3,000 / 1,200 |
-| SHIELD | Shallow oval blue board with a rounded timber perimeter. A cream five-point star projects from its front. One curved rear strap connects back to the board and preserves the original hand location. | OvalBoardAndTimberRim, InsetCreamStar, BentBackStrap, original Grip_R transform | 1,200 / 600 |
+| BAT | Fuller round wrapped grip rising into a soft square-section barrel and a smoothly crowned end. Two timber laminate strips have real fitted edges. A small flush cream star repeats the game's existing motif, with simple cuffs and a fuller rounded knob closing the grip. | CrownedBarrelAndHandle, RoundedKnob, ContinuousCreamWrap, LowerGripCuff, UpperGripCuff, TimberLaminateLeft/Right, FlushCreamStarInlay, original Grip_R transform | 3,000 / 1,200 |
+| SHIELD | Original six-corner heraldic outline with softly rounded corners. A layered timber bevel frames the blue panel and a narrow cream fabric binding. The cream star has a softened edge. The already-readable build-a rear strap stays unchanged. | HeraldicBoardAndLayeredTimberRim, CreamFabricPanelBinding, BevelledCreamStar, BentBackStrap, original Grip_R transform | 1,200 / 600 |
 
 LOD1 is a separately exported source option, not an implemented distance switch. Both resolutions retain the exact envelope and socket. Source parts stay separate for editing; each exported level combines them into one rigid mesh, at most two materials. The entire collection shares one 512 × 512 five-swatch palette. No extra rig, bone, light, particle or per-object behavior is required. These budgets are per source model; they do not prove runtime frame rate or draw count after import.
 
@@ -35,7 +35,7 @@ The script fails if these bytes change. Reference meshes are imported for measur
 
 ## Reproducible generation
 
-Root schedules these commands serially with the project's existing Blender installation. `OUTPUT` must be a **new** child folder under this checkout's `ArtSource/Collections/PackingClub`, for example `V1/build-20261026-a`. `build` refuses an existing folder, including an incomplete previous attempt. It neither writes under Assets nor generates metadata.
+Root schedules these commands serially with the project's existing Blender installation. `OUTPUT` must be a **new** child folder under this checkout's `ArtSource/Collections/PackingClub`, for example `V1/build-20261026-b`. `build` refuses an existing folder, including an incomplete previous attempt. It neither writes under Assets nor generates metadata. To reproduce build-a later, use the exact script copied into build-a/Source; the current source intentionally differs and its digest guard rejects mixing revisions.
 
 ```text
 blender --background --python Tools/AssetPipeline/collections/packing_club.py -- build --repo REPO --output OUTPUT
