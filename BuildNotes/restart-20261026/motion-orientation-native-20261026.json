@@ -1,0 +1,76 @@
+{
+  "utc": "2026-10-26T12:59:39.475Z",
+  "status": "SOURCE_AND_FOCUSED_NATIVE_TESTS_PASS_WINDOWS_PENDING",
+  "sources": [
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundMeleeCapture.cs",
+      "sha256": "7ef919cb3794a0fda9e6a8737d097e078dc70c55f33ebc07c33b7529cba5cd68"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WordboundMeleeOrientationTests.cs",
+      "sha256": "1bd52bb4bd569d69b07d8d0149d4288234849be62907162c4cef89f90e648147"
+    }
+  ],
+  "gates": [
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T12-55-29-928Z-stdout.txt",
+      "sha256": "6204aa5770d2ad02938787335a5380591f2be0b11eefcf367a9707c6a78f9e79",
+      "result": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T12:55:30Z",
+        "secs": 26.1,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T125530Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-motionorientation-2026-10-26T12-56-27-397Z-stdout.txt",
+      "sha256": "1b3e20212f1ebad33617c44508eb21d883b66ed3023be93781f2ae9905f832ee",
+      "result": {
+        "cmd": "test editmode --cold --filter WordboundMeleeOrientationTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T12:56:27Z",
+        "secs": 54.9,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T125627Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T125627Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 32,
+        "tests": {
+          "total": 5,
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    }
+  ],
+  "scope": "QA-only same-frame identity/vertical calibration before Attack, natural settle frame, measured export orientation after actual motion capture.",
+  "limits": [
+    "Fresh Windows baseline/reference calibration has not run.",
+    "Old inverted capture remains preserved.",
+    "No gameplay animation, materials, camera, canonical rules or time controls changed."
+  ]
+}

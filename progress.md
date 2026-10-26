@@ -157,6 +157,7 @@ Native run `034318` passes 36/36 persistence cases, zero skipped, in 84.7 second
 - [x] Configure Fusion/Physics Addon and deploy a separate coordinator on the correct account.
 - [x] Pass Photon authentication 3/3 and actual authenticated two-peer gameplay/durable checkpoint acknowledgement.
 - [x] Pass earlier 2/4/8-peer transport; final full-gameplay acceptance remains separate.
+- [x] Retry maximum public Time Run (4 authenticated players) and Freestyle (8): native `124741` and `125219` each pass their exact case with zero skips. Exact signed/native/canonical rosters, real gameplay smoke and cleanup pass: 9 stages / 22 requests and 24 stages / 56 requests, all successful on first attempt with zero cleanup failures. These are scripted clients in one Editor process, not full matches or separate Windows machines. [Evidence](BuildNotes/client-view/native-public-capacity-retries-20261026.json).
 - [~] Integrate and validate schema/protocol v3 across practice, defense, clients and service.
 - [~] Verify private codes, whole-party readiness/allocation, Solo/Duo/Squad and Fill On/Off.
 - [~] Verify concurrent last slots, cancellations, oversize parties and expired grants.
@@ -174,6 +175,7 @@ Native run `034318` passes 36/36 persistence cases, zero skipped, in 84.7 second
 
 ## Tested Windows delivery
 
+- [~] Current source `3cec5407` builds as Windows QA `20261026T122831Z`. Frontend `123152` passes 3/3; plain workshop `124326` passes 5/5; equipment `124029` passes 6/6, all with exit 0 and no reported console errors/exceptions/warnings. The first workshop run timed out while unfocused; unchanged-build profiled and plain repeats pass, so timing/reliability remains unresolved. The eight actual BAT motion PNGs are vertically inverted by the recorder although normal captures are upright; a measured-orientation correction is undergoing native verification before the next build. [All five run receipts](BuildNotes/client-view/windows-current-stage1-20261026.json).
 - [x] Create/read back Windows release, QA and development profiles.
 - [x] Produce Windows QA build `034544` on exact source `9e013dc9` with Unity 6000.6.4f1; build gate PASS in 237.3 seconds. It includes the original models, initial keepsake placement and current runtime optimizations. Final stripped release remains separate.
 - [x] Official Windows workshop run `035028` passes 5/5 in 60.7 seconds, within the unchanged 120-second bound: exact save/draft/return/UndoRedo, normal exit and zero console errors, exceptions and warnings. [Evidence](BuildNotes/client-view/official-short-editor-pass-20261024.json).

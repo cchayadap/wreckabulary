@@ -1,0 +1,16 @@
+{
+  "scope": "Draft only; no live edits or native execution",
+  "patch_sha256": "4b6fa4024b8b9a6be5dbd5ec6294ba961adb78cff779247464498a33651e7bcf",
+  "files": [
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundMeleeCapture.cs",
+      "baseline_sha256_lf": "98acb93e54ca3743874e4f683a0b031b312f1713fc8c3c47563a204ea60e6989",
+      "candidate_sha256": "fc6aff1d2a2f97ca0633120dea810763a8a8e64f2b378d4cdc1ecc73c2a1e194"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WordboundMeleeOrientationTests.cs",
+      "baseline_sha256_lf": null,
+      "candidate_sha256": "33932bcfbc71fd385df4730de8475e6736ef97c43ec311defd5dcc8c473f9da2"
+    }
+  ]
+}

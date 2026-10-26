@@ -1,0 +1,240 @@
+diff --git a/Assets/_Project/Scripts/WordboundQa/WordboundMeleeCapture.cs b/Assets/_Project/Scripts/WordboundQa/WordboundMeleeCapture.cs
+--- a/Assets/_Project/Scripts/WordboundQa/WordboundMeleeCapture.cs
++++ b/Assets/_Project/Scripts/WordboundQa/WordboundMeleeCapture.cs
+@@ -34,6 +34,8 @@
+         int lastFrame = -1;
+         string error = "";
+         bool disposed, subscribed, reported, readbackStarted;
++        string readbackOrientation = "unverified";
++        readonly Dictionary<string, object> orientationFacts = new Dictionary<string, object>();
+         CommandReceipt receipt;
+         public PlayerCommand Command { get; private set; }
+         public bool Passed { get; private set; }
+@@ -101,6 +103,15 @@
+             {
+                 yield return new WaitForEndOfFrame();
+                 Capture("baseline");
++                if (error == "") CalibrateReadback();
++            }
++            if (error == "")
++            {
++                yield return new WaitForEndOfFrame();
++                orientationFacts["attack_submit_unity_frame"] = Time.frameCount;
++                orientationFacts["natural_frames_before_attack"] = Time.frameCount - samples[0].Frame;
++                orientationFacts["attack_submit_realtime_seconds"] = Time.realtimeSinceStartupAsDouble;
++                if (Time.frameCount <= samples[0].Frame) Fail("BAT calibration must drain through a later natural frame before Attack submission.");
+             }
+             if (error == "")
+             {
+@@ -249,6 +260,99 @@
+                 Fail("Canonical attack occurred, but the rendered hand and held BAT did not show measurable motion relative to the avatar.");
+         }
+ 
++        void CalibrateReadback()
++        {
++            Texture2D reference = null, buffered = null;
++            var previous = RenderTexture.active;
++            double began = Time.realtimeSinceStartupAsDouble;
++            try
++            {
++                if (Command != null || samples.Count != 1 || samples[0].Phase != "baseline" || samples[0].Frame != Time.frameCount)
++                    throw new QaFailException("BAT orientation calibration requires the same baseline frame before Attack submission.");
++                int frame = Time.frameCount;
++                reference = ScreenCapture.CaptureScreenshotAsTexture();
++                if (!reference || reference.width != width || reference.height != height)
++                    throw new QaFailException("The upright native baseline reference has unexpected dimensions.");
++                reference.hideFlags = HideFlags.DontSave;
++                RenderTexture.active = buffers[0];
++                buffered = new Texture2D(width, height, TextureFormat.RGBA32, false, false) { hideFlags = HideFlags.DontSave };
++                buffered.ReadPixels(new Rect(0, 0, width, height), 0, 0, false); buffered.Apply(false, false);
++                string selected = MatchOrientation(buffered.GetPixels32(), reference.GetPixels32(), width, height, out var errors);
++                orientationFacts["reference_method"] = "ScreenCapture.CaptureScreenshotAsTexture at the same WaitForEndOfFrame, before Attack";
++                orientationFacts["unity_frame"] = frame;
++                orientationFacts["same_frame"] = frame == Time.frameCount && frame == samples[0].Frame;
++                orientationFacts["before_attack"] = Command == null;
++                orientationFacts["identity_rgb_mean_delta"] = errors[0]; orientationFacts["identity_rgb_max_delta"] = errors[1];
++                orientationFacts["vertical_rgb_mean_delta"] = errors[2]; orientationFacts["vertical_rgb_max_delta"] = errors[3];
++                orientationFacts["required_rgb_mean_delta_at_most"] = 1;
++                orientationFacts["required_rgb_max_delta_at_most"] = 2;
++                orientationFacts["compared_rgb_channels"] = (long)width * height * 3;
++                orientationFacts["selected"] = selected;
++                orientationFacts["maximum_temporary_texture_bytes"] = (long)width * height * 4 * 2;
++                string name = "wordbound_original_bat_baseline_reference";
++                string path = context.PathInRun(name + ".png");
++                byte[] bytes = reference.EncodeToPNG();
++                using (var stream = new FileStream(path, FileMode.CreateNew, FileAccess.Write)) stream.Write(bytes, 0, bytes.Length);
++                using var hash = SHA256.Create();
++                orientationFacts["reference_path"] = Path.GetFileName(path);
++                orientationFacts["reference_sha256"] = BitConverter.ToString(hash.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
++                context.AddCapture(name, path, "png", "screen");
++                if (frame != Time.frameCount || Command != null || string.IsNullOrEmpty(selected))
++                    throw new QaFailException("BAT readback orientation was ambiguous or did not match the same-frame upright reference within RGB tolerance; Attack was not submitted.");
++                readbackOrientation = selected;
++            }
++            catch (Exception failure) { Fail(failure.Message); }
++            finally
++            {
++                RenderTexture.active = previous;
++                if (buffered) Object.Destroy(buffered);
++                if (reference) Object.Destroy(reference);
++                orientationFacts["calibration_seconds_before_attack"] = Time.realtimeSinceStartupAsDouble - began;
++            }
++        }
++
++        static string MatchOrientation(Color32[] buffered, Color32[] reference, int width, int height, out double[] errors)
++        {
++            if (width < 1 || height < 2 || buffered == null || reference == null ||
++                (long)width * height != buffered.Length || reference.Length != buffered.Length)
++                throw new ArgumentException("Orientation requires two equal, complete pixel arrays with at least two rows.");
++            long identitySum = 0, verticalSum = 0;
++            int identityMax = 0, verticalMax = 0;
++            for (int y = 0; y < height; y++)
++                for (int x = 0; x < width; x++)
++                {
++                    int index = y * width + x;
++                    AccumulateRgb(buffered[index], reference[index], ref identitySum, ref identityMax);
++                    AccumulateRgb(buffered[(height - 1 - y) * width + x], reference[index], ref verticalSum, ref verticalMax);
++                }
++            double channels = (long)width * height * 3;
++            errors = new[] { identitySum / channels, identityMax, verticalSum / channels, verticalMax };
++            bool identity = errors[0] <= 1 && identityMax <= 2;
++            bool vertical = errors[2] <= 1 && verticalMax <= 2;
++            return identity == vertical ? "" : identity ? "identity" : "vertical_rows";
++        }
++
++        static void AccumulateRgb(Color32 a, Color32 b, ref long sum, ref int maximum)
++        {
++            int r = Math.Abs(a.r - b.r), g = Math.Abs(a.g - b.g), blue = Math.Abs(a.b - b.b);
++            sum += r + g + blue;
++            maximum = Math.Max(maximum, Math.Max(r, Math.Max(g, blue)));
++        }
++
++        static void OrientRows(Color32[] pixels, int width, int height, string orientation)
++        {
++            if (pixels == null || width < 1 || height < 2 || (long)width * height != pixels.Length ||
++                (orientation != "identity" && orientation != "vertical_rows"))
++                throw new ArgumentException("A complete pixel array and measured orientation are required.");
++            if (orientation == "identity") return;
++            for (int y = 0; y < height / 2; y++)
++                for (int x = 0; x < width; x++)
++                {
++                    int a = y * width + x, b = (height - 1 - y) * width + x;
++                    Color32 value = pixels[a]; pixels[a] = pixels[b]; pixels[b] = value;
++                }
++        }
++
+         void SaveFrame(int index)
+         {
+             Texture2D texture = null;
+@@ -262,7 +366,10 @@
+                 RenderTexture.active = buffers[index];
+                 texture = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
+                 texture.ReadPixels(new Rect(0, 0, width, height), 0, 0, false); texture.Apply(false, false);
+-                var pixels = texture.GetPixels32(); var first = pixels[0];
++                var pixels = texture.GetPixels32();
++                OrientRows(pixels, width, height, readbackOrientation);
++                texture.SetPixels32(pixels); texture.Apply(false, false);
++                var first = pixels[0];
+                 if (!pixels.Any(p => p.a != 0 && (p.r != 0 || p.g != 0 || p.b != 0)) ||
+                     !pixels.Any(p => p.r != first.r || p.g != first.g || p.b != first.b))
+                     throw new QaFailException("Buffered BAT frame is blank.");
+@@ -271,6 +378,7 @@
+                 using var hash = SHA256.Create();
+                 sample.Sha = BitConverter.ToString(hash.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
+                 sample.Facts["path"] = Path.GetFileName(path); sample.Facts["sha256"] = sample.Sha;
++                sample.Facts["readback_orientation"] = readbackOrientation;
+                 sample.Facts["width"] = width; sample.Facts["height"] = height; sample.Facts["png_bytes"] = bytes.Length;
+                 context.AddCapture(name, path, "png", "screen");
+             }
+@@ -285,7 +393,7 @@
+         {
+             var facts = new Dictionary<string, object> {
+                 ["status"] = status, ["failure"] = error, ["scope"] = "Actual local Windows QA camera. Canonical phase labels; interpolated visual pose may lead within a tick. No multiplayer, human input, art approval or performance claim.",
+-                ["capture_method"] = "Bounded GPU copies of presented frames at WaitForEndOfFrame; synchronous readback and PNG encoding only after capture stops.",
++                ["capture_method"] = "Same-frame upright baseline calibration before Attack; bounded GPU copies at WaitForEndOfFrame during Attack; attack-frame readback, measured row orientation and PNG encoding only after capture stops.",
+                 ["epoch"] = epoch, ["weapon_entity"] = weapon, ["attack_started_tick"] = start, ["attack_finished_tick"] = end,
+                 ["windup_ticks"] = windup, ["active_ticks"] = active, ["cycle_ticks"] = cycle,
+                 ["command_sequence"] = Command == null ? (object)null : Command.Sequence, ["command_payload_hash"] = Command?.PayloadHash,
+@@ -293,6 +401,7 @@
+                     ["sequence"] = receipt.Sequence, ["tick"] = receipt.Tick, ["payload_hash"] = receipt.PayloadHash,
+                     ["code"] = receipt.Effect.Code, ["entity"] = receipt.Effect.EntityId },
+                 ["canonical_callbacks"] = canonicalCount, ["unobserved_canonical_ticks"] = missedTicks, ["canonical_samples"] = canonical,
++                ["readback_orientation"] = readbackOrientation, ["orientation_calibration"] = orientationFacts,
+                 ["maximum_gpu_bytes"] = (long)width * height * 4 * MaximumFrames, ["readback_started"] = readbackStarted,
+                 ["time_scale"] = timeScale, ["capture_delta_time"] = captureDelta,
+                 ["samples"] = samples.Select(s => s.Facts).ToArray() };
+diff --git a/Assets/_Project/Tests/Editor/WordboundMeleeOrientationTests.cs b/Assets/_Project/Tests/Editor/WordboundMeleeOrientationTests.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Tests/Editor/WordboundMeleeOrientationTests.cs
+@@ -0,0 +1,70 @@
++using System;
++using System.Linq;
++using System.Reflection;
++using NUnit.Framework;
++using UnityEngine;
++
++namespace Wreckabulary.EditorTests
++{
++    public sealed class WordboundMeleeOrientationTests
++    {
++        static readonly Color32[] Reference = {
++            new Color32(10, 20, 30, 255), new Color32(40, 50, 60, 255),
++            new Color32(70, 80, 90, 255), new Color32(100, 110, 120, 255),
++            new Color32(130, 140, 150, 255), new Color32(160, 170, 180, 255) };
++
++        static object Invoke(string name, params object[] args)
++        {
++            var type = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType("Wreckabulary.Qa.WordboundMeleeCapture"))
++                .SingleOrDefault(t => t != null);
++            Assert.IsNotNull(type, "The editor must load the existing Wordbound QA assembly.");
++            var method = type.GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic);
++            Assert.IsNotNull(method);
++            return method.Invoke(null, args);
++        }
++
++        static string Select(Color32[] pixels, Color32[] reference) =>
++            (string)Invoke("MatchOrientation", pixels, reference, 2, 3, null);
++
++        [Test]
++        public void UprightReferenceSelectsIdentityAndPreservesPixels()
++        {
++            var pixels = Reference.ToArray();
++            Assert.AreEqual("identity", Select(pixels, Reference));
++            Invoke("OrientRows", pixels, 2, 3, "identity");
++            CollectionAssert.AreEqual(Reference, pixels);
++        }
++
++        [Test]
++        public void VerticalRowsAreMeasuredAndRestoredIncludingOddMiddleRow()
++        {
++            var pixels = new[] { Reference[4], Reference[5], Reference[2], Reference[3], Reference[0], Reference[1] };
++            Assert.AreEqual("vertical_rows", Select(pixels, Reference));
++            Invoke("OrientRows", pixels, 2, 3, "vertical_rows");
++            CollectionAssert.AreEqual(Reference, pixels);
++        }
++
++        [Test]
++        public void SymmetricImageCannotChooseAnOrientation()
++        {
++            var pixels = Enumerable.Repeat(new Color32(80, 90, 100, 255), 6).ToArray();
++            Assert.AreEqual("", Select(pixels, pixels));
++        }
++
++        [Test]
++        public void ColorTransferMismatchCannotBeHiddenByAFlip()
++        {
++            var pixels = Reference.Select(p => new Color32((byte)(p.r + 10), p.g, p.b, p.a)).ToArray();
++            Assert.AreEqual("", Select(pixels, Reference));
++        }
++
++        [Test]
++        public void UnmeasuredOrientationAndIncompleteArraysFailClosed()
++        {
++            var failure = Assert.Throws<TargetInvocationException>(() => Invoke("OrientRows", Reference.ToArray(), 2, 3, "unverified"));
++            Assert.IsInstanceOf<ArgumentException>(failure.InnerException);
++            failure = Assert.Throws<TargetInvocationException>(() => Select(new Color32[4], Reference));
++            Assert.IsInstanceOf<ArgumentException>(failure.InnerException);
++        }
++    }
++}

@@ -20,3 +20,7 @@ No new blocking layout failure is visible in this set. Primary navigation, Start
 - The five selected-map images are Home states with changed map labels and toasts. They do not show the maps themselves or prove their geometry, scale, navigation or playability.
 - The shown Play page is Practice. Matchmaking and Workshop tabs are present, but their contents and public-queue states are not shown in this capture set.
 - No further concrete clipping, overlap or unreadable primary-action defect was observed in the reviewed states. The known portrait issue remains the only clear image-compositing defect identified here.
+
+## Follow-up — corrected portraits
+
+Independently opened the [12:24 actual Shop capture](../developer-workspace/lobby-capture-2026-10-26T12-24-26-146Z/lobby_5_shop.png) after the bounded production rebuild. All six cream rectangles are gone; the mint image area now surrounds each character. Outfit hues are clearer, faces retain shading, and no obvious fringe, missing silhouette or stretching is visible at this 1600-by-900 size. The original screenshot remains preserved above. This resolves the reported portrait matte at this captured size; interaction, Windows rendering, other resolutions and owner style acceptance remain separate. Full six-image/native evidence is recorded in [production acceptance](../developer-workspace/shop-portraits-corrected/production-acceptance-20261026.md).
