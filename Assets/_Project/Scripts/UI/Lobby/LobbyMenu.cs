@@ -93,9 +93,23 @@ namespace Wreckabulary
         public void OpenWordbound()
         {
             if (Starting || !Session.CanLoad(Session.WordboundScene)) return;
+            WordboundSoloEntry.CancelRequest();
             Session.LobbyQueue = Queue;
             Session.LobbyMode = Mode;
             Session.Load(Session.WordboundScene);
+        }
+
+        public void OpenWordboundSolo(string mode)
+        {
+            if (!WordboundSoloEntry.Supports(mode)) throw new ArgumentException("Choose a solo Wordbound mode.", nameof(mode));
+            if (Starting || PartySize != 1 || !Session.CanLoad(Session.WordboundScene)) return;
+            var pad = Gamepad.all.FirstOrDefault(p => p.buttonSouth.wasPressedThisFrame || p.startButton.wasPressedThisFrame);
+            Seat(pad);
+            Session.LobbyQueue = Queue;
+            Session.LobbyMode = Mode;
+            WordboundSoloEntry.Request(mode);
+            try { Session.Load(Session.WordboundScene); }
+            catch { WordboundSoloEntry.CancelRequest(); throw; }
         }
 
         void Start()
@@ -137,7 +151,12 @@ namespace Wreckabulary
                 page.Create(this, pageHost);
                 pages[page.Id] = page;
             }
-            Open(Home);
+            if (WordboundSoloEntry.TakeReturn())
+            {
+                ((PlayPage)pages[Play]).WordboundSolo = true;
+                Open(Play);
+            }
+            else Open(Home);
             if (MatchTally.LastResult != null)
             {
                 var last = MatchTally.LastResult;

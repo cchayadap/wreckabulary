@@ -51,10 +51,11 @@ namespace Wreckabulary.Online
 
         void Start()
         {
+            string soloMode = WordboundSoloEntry.TakeRequest();
             try
             {
                 if (!Assets) Assets = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
-                if (!Assets || !Assets.PublicTrust)
+                if (!Assets)
                     throw new InvalidOperationException("Wordbound launch data is missing.");
                 var data = Resources.Load<GameData>(GameData.ResourcePath);
                 if (!data || !data.items || !data.rules)
@@ -63,6 +64,13 @@ namespace Wreckabulary.Online
                 ruleJson = data.rules.text;
                 Assets.BodyPrefabs();
                 Assets.GameplayScene();
+                if (soloMode != null)
+                {
+                    StartSolo(soloMode);
+                    return;
+                }
+                if (!Assets.PublicTrust)
+                    throw new InvalidOperationException("Wordbound online launch data is missing.");
                 if (!Assets.SnapshotChunk.IsValid)
                     throw new InvalidOperationException("The network snapshot prefab is missing.");
                 menu = gameObject.AddComponent<WordboundPartyMenu>();
@@ -76,7 +84,7 @@ namespace Wreckabulary.Online
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
-            catch (Exception error) { failure = error.Message; }
+            catch (Exception error) { failure = soloMode == null ? error.Message : SoloStartupFailure; }
         }
 
         async Task BeginMatch(WordboundPartyLaunchContext launch, CancellationToken cancellation)

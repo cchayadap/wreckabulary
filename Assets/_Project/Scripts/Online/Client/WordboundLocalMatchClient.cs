@@ -17,20 +17,24 @@ namespace Wreckabulary.Online
         WordboundMatchHud hud;
         bool started, leaving, returned, stopped;
         bool shutdownFailed;
-        const string ShutdownFailure = "The playtest could not close. Restart Wordbound to continue.";
+        const string ShutdownFailure = "The local game could not close. Restart Wordbound to continue.";
+        string returnLabel = "Return to workshop";
         public WordboundGameplayController Gameplay => gameplay;
         public bool ShutdownConfirmed => !started || stopped;
-        public event Action ReturnedToWorkshop;
+        public event Action Returned;
+        public event Action ReturnedToWorkshop { add => Returned += value; remove => Returned -= value; }
         public event Action<string> Failed;
 
         public async Task StartLocal(IWordboundPuzzleContent content, WordboundGameplayPrefabs prefabs,
             SceneRef gameplayScene, InputBinding controls = null,
             WordboundCameraProfile cameraProfile = null, WordboundVisualProfile visualProfile = null, WordboundUiTheme uiTheme = null,
-            WordboundStoryProfile storyProfile = null)
+            WordboundStoryProfile storyProfile = null, string returnLabel = "Return to workshop")
         {
-            if (started) throw new InvalidOperationException("Create a fresh local client for each playtest.");
+            if (started) throw new InvalidOperationException("Create a fresh local client for each game.");
             if (content == null || !content.BindsRules || !gameplayScene.IsValid)
                 throw new ArgumentException("A complete local course and registered gameplay scene are required.");
+            if (string.IsNullOrWhiteSpace(returnLabel)) throw new ArgumentException("A return destination is required.", nameof(returnLabel));
+            this.returnLabel = returnLabel;
             started = true;
             try
             {
@@ -63,7 +67,7 @@ namespace Wreckabulary.Online
                 hud.Theme = uiTheme;
                 hud.StoryProfile = storyProfile;
                 hud.Initialize(gameplay, playerView, content.Items, content.Mode, content.Course,
-                    LocalActor, "Return to workshop");
+                    LocalActor, returnLabel);
                 hud.ReturnRequested += RequestReturn;
                 session = new WordboundLocalSession(CreateRunner, WordboundFusionConfiguration.CreateLocal(),
                     gameplay.Authority, LocalActor);
@@ -77,20 +81,20 @@ namespace Wreckabulary.Online
 
         NetworkRunner CreateRunner()
         {
-            var root = new GameObject("Wordbound local playtest");
+            var root = new GameObject("Wordbound local game");
             var runner = root.AddComponent<NetworkRunner>();
             root.AddComponent<NetworkSceneManagerDefault>();
             return runner;
         }
 
         void EnterWorld() { if (!leaving && playerView) playerView.SetMenuOpen(false); }
-        void GameplayFailed(string reason) => Failed?.Invoke("The playtest stopped. Return to your map to continue editing.");
+        void GameplayFailed(string reason) => Failed?.Invoke("The local game stopped. " + returnLabel + " to continue.");
         void DisplayFailed(string reason)
         {
             if (playerView) playerView.SetMenuOpen(true);
-            if (hud) hud.ShowFailure("The playtest world could not be displayed. Return to your map.");
+            if (hud) hud.ShowFailure("The local world could not be displayed. " + returnLabel + ".");
             _ = StopGameplay();
-            Failed?.Invoke("The playtest world could not be displayed. Return to your map.");
+            Failed?.Invoke("The local world could not be displayed. " + returnLabel + ".");
         }
         public void ShowStartupFailure()
         {
@@ -100,14 +104,16 @@ namespace Wreckabulary.Online
         }
         async void RequestReturn()
         {
-            try { await ReturnToWorkshop(); }
+            try { await ReturnToMenu(); }
             catch
             {
                 ShowStartupFailure();
                 Failed?.Invoke(ShutdownFailure);
             }
         }
-        public async Task ReturnToWorkshop()
+        public Task ReturnToWorkshop() => ReturnToMenu();
+
+        public async Task ReturnToMenu()
         {
             if (leaving || returned) return;
             leaving = true;
@@ -115,7 +121,7 @@ namespace Wreckabulary.Online
             {
                 await StopGameplay();
                 returned = true;
-                ReturnedToWorkshop?.Invoke();
+                Returned?.Invoke();
             }
             finally { leaving = false; }
         }

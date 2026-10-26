@@ -27,6 +27,7 @@ namespace Wreckabulary
         public static void Clear()
         {
             Bindings.Clear();
+            WordboundSoloEntry.Clear();
             MovingDayStars.Clear();
             MapId = "pinwheel";
             LobbyQueue = LobbyMode = null;

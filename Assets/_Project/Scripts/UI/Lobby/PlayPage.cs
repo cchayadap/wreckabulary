@@ -14,6 +14,7 @@ namespace Wreckabulary
     {
         public override string Id => LobbyMenu.Play;
         public string Aim;
+        public bool WordboundSolo;
 
         static readonly Vector2 ModeSize = new Vector2(348, 260), HouseSize = new Vector2(346, 244);
         static readonly Color ArtShadow = new Color(LobbyKit.Navy.r, LobbyKit.Navy.g, LobbyKit.Navy.b, .4f);
@@ -43,7 +44,21 @@ namespace Wreckabulary
             }
 
             var column = LobbyKit.Column(body, "Choices", 8).Place(Vector2.zero, Vector2.one, new Vector2(0, 104), Vector2.zero);
-            LobbyKit.SectionLabel(column, "Mode");
+            if (DisplayQueue == LobbyMenu.Practice)
+            {
+                LobbyKit.Segmented(column, "Local families", new[] {
+                    ("Family house", "House games"), ("Family Wordbound", "Wordbound solo")
+                }, WordboundSolo ? "Family Wordbound" : "Family house", id => {
+                    WordboundSolo = id == "Family Wordbound";
+                    Refresh(); Reselect(id);
+                }, 44, 18);
+                if (WordboundSolo)
+                {
+                    SoloChoices(column, body);
+                    return;
+                }
+            }
+            else LobbyKit.SectionLabel(column, "Mode");
             var modes = ModesFor(DisplayQueue).ToList();
             var posters = Centred(LobbyKit.FitRow(column, "Modes", ModeSize, 16, modes.Count));
             Selectable chosen = null;
@@ -84,6 +99,47 @@ namespace Wreckabulary
                 if (aimed) First = aimed;
                 Aim = null;
             }
+        }
+
+        void SoloChoices(RectTransform column, RectTransform body)
+        {
+            var row = Centred(LobbyKit.FitRow(column, "Solo modes", ModeSize, 16, 2));
+            foreach (string mode in new[] { "TimeRun", "Freestyle" })
+            {
+                bool timed = mode == "TimeRun";
+                var card = Poster(row, "Solo " + mode, timed ? LobbyKit.Sun : LobbyKit.Lime,
+                    WordboundSoloEntry.SelectedMode == mode,
+                    () => { WordboundSoloEntry.Select(mode); Refresh(); Reselect("Solo " + mode); }, ModeSize);
+                var art = LobbyKit.ItemImage(card.Body(), timed ? "CLOCK" : "BOX", 136);
+                if (art)
+                {
+                    art.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -14), new Vector2(136, 136));
+                    LobbyKit.Drop(art.rectTransform, 6, ArtShadow);
+                    Wiggle(card, art.rectTransform);
+                }
+                var words = Words(card.Body(), 16);
+                var title = LobbyKit.Display(words, timed ? "Time Run" : "Freestyle", 34, LobbyKit.Cream,
+                    TextAlignmentOptions.BottomLeft, LobbyKit.Ink.Stroke);
+                title.Size(-1, 42);
+                TagLine(words, timed ? "Against the clock" : "Explore & practise");
+                if (WordboundSoloEntry.SelectedMode == mode) First = card;
+            }
+            var bar = LobbyKit.Rect(body, "Solo summary").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 88));
+            LobbyKit.Face(bar, LobbyKit.ChipFill, 18, LobbyKit.Line, 2);
+            string blocked = Menu.PartySize != 1 ? "Solo only. Leave extra local seats to start." :
+                !Session.CanLoad(Session.WordboundScene) ? "Wordbound is unavailable in this build." : null;
+            var heading = LobbyKit.Display(bar, "WORDBOUND  ·  SOLO", 28, LobbyKit.Cream, TextAlignmentOptions.BottomLeft);
+            heading.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(20, 44), new Vector2(-300, -8));
+            var detail = LobbyKit.Text(bar, blocked ?? (WordboundSoloEntry.SelectedMode == "TimeRun"
+                ? "Solve the delivery circuit. 1 player."
+                : "Explore, craft and try the puzzles. 1 player."), 18,
+                blocked == null ? LobbyKit.Muted : LobbyKit.Sun, TextAlignmentOptions.TopLeft, FontStyles.Bold);
+            detail.name = "Solo detail";
+            detail.enableAutoSizing = true; detail.fontSizeMin = 14; detail.fontSizeMax = 18;
+            detail.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(20, 10), new Vector2(-300, -48));
+            var go = LobbyKit.Primary(bar, "Solo GO", "GO", () => Menu.OpenWordboundSolo(WordboundSoloEntry.SelectedMode), 48, 30);
+            ((RectTransform)go.transform).Place(new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-268, -34), new Vector2(-12, 34));
+            go.interactable = blocked == null;
         }
 
         void PickQueue(string id)

@@ -167,6 +167,84 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(Find("GO").interactable);
         }
 
+        [Test]
+        public void SoloIntentIsExplicitOneShotAndRejectsMultiplayerModes()
+        {
+            try
+            {
+                foreach (string mode in new[] { "TeamRace", "FreeForAll", "Brawl", "Dibs", "", null })
+                    Assert.Throws<System.ArgumentException>(() => WordboundSoloEntry.Request(mode));
+                foreach (string mode in new[] { "TimeRun", "Freestyle" })
+                {
+                    WordboundSoloEntry.Request(mode);
+                    Assert.AreEqual(mode, WordboundSoloEntry.TakeRequest());
+                    Assert.IsNull(WordboundSoloEntry.TakeRequest());
+                }
+                WordboundSoloEntry.Request("TimeRun");
+                WordboundSoloEntry.CancelRequest();
+                Assert.IsNull(WordboundSoloEntry.TakeRequest());
+                WordboundSoloEntry.MarkReturned();
+                Assert.IsTrue(WordboundSoloEntry.TakeReturn());
+                Assert.IsFalse(WordboundSoloEntry.TakeReturn());
+                WordboundSoloEntry.Request("Freestyle");
+                Session.Clear();
+                Assert.IsNull(WordboundSoloEntry.TakeRequest());
+                Assert.AreEqual("TimeRun", WordboundSoloEntry.SelectedMode);
+            }
+            finally { WordboundSoloEntry.Clear(); }
+        }
+
+        [UnityTest]
+        public IEnumerator SoloFamilyPreservesHouseSelectionPartyAndOriginalArtwork()
+        {
+            var menu = LobbyMenu.Instance;
+            menu.Choose(LobbyMenu.Practice, "Duos", "flat");
+            menu.Open(LobbyMenu.Play);
+            var second = new ScriptedBinding();
+            menu.Join(second);
+            var bindings = Session.Bindings.ToArray();
+            yield return null;
+            Submit("Family Wordbound");
+            yield return null;
+            Assert.IsEmpty(Modes);
+            Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")));
+            CollectionAssert.AreEqual(new[] { "Solo TimeRun", "Solo Freestyle" },
+                Page.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Solo ") && button.name != "Solo GO")
+                    .Select(button => button.name).ToArray());
+            Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
+            Assert.AreEqual(LobbyMenu.Practice, menu.Queue);
+            Assert.AreSame(second, menu.Party.Single());
+            CollectionAssert.AreEqual(bindings, Session.Bindings);
+            Assert.IsFalse(Find("Solo GO").interactable);
+            menu.OpenWordboundSolo("TimeRun");
+            Assert.AreEqual(Session.HubScene, SceneManager.GetActiveScene().name);
+            Assert.IsNull(WordboundSoloEntry.TakeRequest());
+            Submit("Solo Freestyle");
+            yield return null;
+            Assert.AreEqual("Freestyle", WordboundSoloEntry.SelectedMode);
+            foreach (var pair in new[] { ("Solo TimeRun", "CLOCK"), ("Solo Freestyle", "BOX") })
+            {
+                Assert.IsTrue(Wreckabulary.UI.ItemArt.TryGet(pair.Item2, out var texture, out var uv));
+                var art = Find(pair.Item1).GetComponentsInChildren<RawImage>().Single(image => image.name == "Art " + pair.Item2);
+                Assert.AreSame(texture, art.texture); Assert.AreEqual(uv, art.uvRect);
+            }
+            Submit("Family house");
+            yield return null;
+            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
+            Assert.AreSame(second, menu.Party.Single());
+            menu.Leave(second);
+            Submit("Family Wordbound");
+            yield return null;
+            Assert.IsTrue(Find("Solo GO").interactable);
+            Canvas.ForceUpdateCanvases();
+            foreach (var text in Page.GetComponentsInChildren<TMP_Text>())
+            {
+                text.ForceMeshUpdate();
+                Assert.IsFalse(text.isTextTruncated || text.isTextOverflowing, text.name + ": " + text.text);
+            }
+        }
+
         [UnityTest]
         public IEnumerator OnlineSubmitLoadsWordboundWithoutReclassifyingTheLocalSelection()
         {
@@ -174,9 +252,11 @@ namespace Wreckabulary.Tests
             menu.Choose(LobbyMenu.Practice, "Duos", "flat");
             menu.Open(LobbyMenu.Play);
             yield return null;
+            WordboundSoloEntry.Request("Freestyle");
             Submit("Queue " + LobbyMenu.Matchmaking);
             yield return TestScenes.WaitForActive(Session.WordboundScene);
             Assert.AreEqual(Session.WordboundScene, SceneManager.GetActiveScene().name);
+            Assert.IsNull(WordboundSoloEntry.TakeRequest());
             Assert.AreEqual(LobbyMenu.Practice, Session.LobbyQueue);
             Assert.AreEqual("Duos", Session.LobbyMode);
             Assert.AreEqual("flat", Session.MapId);
