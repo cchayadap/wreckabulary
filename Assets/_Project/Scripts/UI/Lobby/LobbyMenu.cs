@@ -881,7 +881,12 @@ namespace Wreckabulary
             }
         }
 
-        void LateUpdate() => typedLastFrame = Typing;
+        void LateUpdate()
+        {
+            typedLastFrame = Typing;
+            if (!hidden && Current == Play && Stage && Stage.IsPresenting && pages.TryGetValue(Play, out var page))
+                Stage.Frame(page.Focus, (Gutter + page.PanelWidth) / ReferenceHeight);
+        }
 
         static bool AnyPad(Func<Gamepad, ButtonControl> button)
         {

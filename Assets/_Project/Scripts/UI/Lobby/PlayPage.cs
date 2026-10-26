@@ -16,6 +16,12 @@ namespace Wreckabulary
         public string Aim;
         public bool WordboundSolo;
         public bool WordboundMaps;
+        LobbyPlayPageView authoredFrame;
+        RectTransform framePanel;
+        bool Compact => Menu && ((DisplayQueue == LobbyMenu.Practice && WordboundSolo) ||
+            (DisplayQueue == LobbyMenu.Workshop && WordboundMaps));
+        public override LobbyStage.Focus Focus => Compact ? LobbyStage.Focus.Left : LobbyStage.Focus.Centre;
+        public override float PanelWidth => framePanel && framePanel.rect.width > 0 ? framePanel.rect.width : base.PanelWidth;
 
         static readonly Vector2 ModeSize = new Vector2(348, 260), HouseSize = new Vector2(346, 244);
         static readonly Color ArtShadow = new Color(LobbyKit.Navy.r, LobbyKit.Navy.g, LobbyKit.Navy.b, .4f);
@@ -33,16 +39,28 @@ namespace Wreckabulary
 
         protected override void Build()
         {
-            var body = Panel(Vector2.zero, Vector2.one, "Play", QueueLine(DisplayQueue));
-            if ((DisplayQueue == LobbyMenu.Practice && WordboundSolo) ||
-                (DisplayQueue == LobbyMenu.Workshop && WordboundMaps))
+            authoredFrame = null; framePanel = null;
+            var saved = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
+            bool compact = Compact;
+            RectTransform body;
+            if (saved)
+            {
+                saved.Validate();
+                authoredFrame = LobbyRuntimeTypography.Instantiate(saved.Page, Root, false);
+                authoredFrame.Bind(Menu.Close, QueueLine(DisplayQueue), compact, saved.CompactMaximum);
+                body = authoredFrame.Body;
+            }
+            else body = Panel(Vector2.zero, Vector2.one, "Play", QueueLine(DisplayQueue));
+            framePanel = authoredFrame ? authoredFrame.Panel : (RectTransform)body.parent;
+            if (!authoredFrame && compact)
             {
                 var fit = body.parent.gameObject.AddComponent<LobbyCompactPanel>();
                 fit.MaximumSize = new Vector2(1100, 600);
                 fit.Fit();
             }
-            var queues = LobbyKit.Segmented(body.parent, "Queues", Queues, "Queue " + DisplayQueue, PickQueue, 52, 20);
-            queues.Place(Vector2.one, Vector2.one, new Vector2(-688, -78), new Vector2(-88, -26));
+            var queues = LobbyKit.Segmented(authoredFrame ? authoredFrame.Queues : body.parent, "Queues", Queues, "Queue " + DisplayQueue, PickQueue, 52, 20);
+            if (authoredFrame) queues.Fill();
+            else queues.Place(Vector2.one, Vector2.one, new Vector2(-688, -78), new Vector2(-88, -26));
 
             if (Menu.Queue == LobbyMenu.Matchmaking)
             {
@@ -51,7 +69,7 @@ namespace Wreckabulary
                 return;
             }
 
-            var column = LobbyKit.Column(body, "Choices", 8).Place(Vector2.zero, Vector2.one, new Vector2(0, 104), Vector2.zero);
+            var column = authoredFrame ? authoredFrame.Choices : LobbyKit.Column(body, "Choices", 8).Place(Vector2.zero, Vector2.one, new Vector2(0, 104), Vector2.zero);
             if (DisplayQueue == LobbyMenu.Practice)
             {
                 LobbyKit.Segmented(column, "Local families", new[] {
@@ -142,7 +160,7 @@ namespace Wreckabulary
                 TagLine(words, timed ? "Against the clock" : "Explore & practise");
                 if (WordboundSoloEntry.SelectedMode == mode) First = card;
             }
-            var bar = LobbyKit.Rect(body, "Solo summary").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 88));
+            var bar = SummaryFrame(body, "Solo summary");
             LobbyKit.Face(bar, LobbyKit.ChipFill, 18, LobbyKit.Line, 2);
             string blocked = Menu.PartySize != 1 ? "Solo only. Leave extra local seats to start." :
                 !Session.CanLoad(Session.WordboundScene) ? "Wordbound is unavailable in this build." : null;
@@ -177,7 +195,7 @@ namespace Wreckabulary
             TagLine(words, "Build & playtest");
             bool available = Session.CanLoad(Session.WordboundScene);
             card.interactable = available;
-            var bar = LobbyKit.Rect(body, "Workshop summary").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 88));
+            var bar = SummaryFrame(body, "Workshop summary");
             LobbyKit.Face(bar, LobbyKit.ChipFill, 18, LobbyKit.Line, 2);
             var detail = LobbyKit.Text(bar, available ? "Local editor. One-player playtests." : "Wordbound is unavailable in this build.",
                 18, available ? LobbyKit.Muted : LobbyKit.Sun, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
@@ -321,9 +339,13 @@ namespace Wreckabulary
             text.rectTransform.Place(new Vector2(0, .5f), new Vector2(1, .5f), new Vector2(250, -76), new Vector2(-48, -4));
         }
 
+        RectTransform SummaryFrame(RectTransform body, string name) => authoredFrame
+            ? LobbyKit.Rect(authoredFrame.Summary, name).Fill()
+            : LobbyKit.Rect(body, name).Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 88));
+
         void Footer(RectTransform body)
         {
-            var bar = LobbyKit.Rect(body, "Summary").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 88));
+            var bar = SummaryFrame(body, "Summary");
             LobbyKit.Face(bar, LobbyKit.ChipFill, 18, LobbyKit.Line, 2);
             string blocked = Menu.Blocked;
             var badge = LobbyKit.Rect(bar, "Badge").Pin(new Vector2(0, .5f), new Vector2(14, 0), new Vector2(64, 64));

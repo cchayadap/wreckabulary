@@ -63,8 +63,12 @@ namespace Wreckabulary.EditorTools
                 PreviewButton("Play Shop", LobbyMenu.Shop);
                 PreviewButton("Play Loadout", LobbyMenu.Loadout);
                 EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
+                PreviewButton("Play choices", LobbyMenu.Play);
+                PreviewButton("Play Settings", LobbyMenu.Settings);
+                EditorGUILayout.EndHorizontal();
             }
-            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Edit saved Home, Shop and Loadout layouts from Design. Changes to the Play hierarchy are temporary.", MessageType.Info);
+            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Edit saved page frames from Design. Changes to the Play hierarchy are temporary.", MessageType.Info);
             if (!string.IsNullOrEmpty(WorkspacePlayPreview.Message))
                 EditorGUILayout.LabelField(WorkspacePlayPreview.Message, EditorStyles.wordWrappedMiniLabel);
 
@@ -113,6 +117,12 @@ namespace Wreckabulary.EditorTools
             AssetButton("Edit recipe card", "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab", true);
             AssetButton("Loadout layout assignments", "Assets/_Project/Resources/UI/LobbyLoadoutLayout.asset");
             EditorGUILayout.LabelField("Wearable pickers and recipe detail contents are created inside the saved body slots during Play.", EditorStyles.wordWrappedMiniLabel);
+            Section("PLAY & SETTINGS FRAMES");
+            AssetButton("Edit Play panel", LobbyPlaySettingsLayoutSetup.PlayPrefab, true);
+            AssetButton("Play layout assignments", LobbyPlaySettingsLayoutSetup.PlayProfile);
+            AssetButton("Edit Settings panel", LobbyPlaySettingsLayoutSetup.SettingsPrefab, true);
+            AssetButton("Settings layout assignments", LobbyPlaySettingsLayoutSetup.SettingsProfile);
+            EditorGUILayout.LabelField("Edit saved frame regions outside Play. Cards, settings controls and binding rows remain generated inside them.", EditorStyles.wordWrappedMiniLabel);
             Section("LOBBY CAMERA");
             AssetButton("Framing, height & field of view", "Assets/_Project/Resources/UI/LobbyCamera.asset");
             Section("LOBBY TYPOGRAPHY");

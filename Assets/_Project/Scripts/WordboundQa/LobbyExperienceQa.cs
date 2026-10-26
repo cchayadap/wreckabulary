@@ -8,6 +8,7 @@ using GameStudioKit.Qa;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Wreckabulary.Online;
@@ -239,6 +240,13 @@ namespace Wreckabulary.Qa
 
         IEnumerator Settings(QaContext context)
         {
+            var keys = DesktopBinding.Shared;
+            var actionMap = keys.Map;
+            string overrides = actionMap.SaveBindingOverridesAsJson();
+            int bindingVersion = KeyBindings.Version;
+            float sensitivity = KeyBindings.Sensitivity;
+            bool invert = KeyBindings.InvertY, mapEnabled = actionMap.enabled;
+            bool restoredHouseLegend = false;
             try
             {
                 Submit(Top("Settings"));
@@ -264,6 +272,8 @@ namespace Wreckabulary.Qa
                         yield return Settle();
                         Require(list.verticalNormalizedPosition <= .001f, "Controls scrollbar did not reach the final bindings.");
                         yield return Capture(context, "lobby_settings_controls_bottom");
+                        yield return WordboundControls(context, list);
+                        restoredHouseLegend = true;
                     }
                 }
                 Submit(Find(Page(), "Close page"));
@@ -271,9 +281,107 @@ namespace Wreckabulary.Qa
                 Require(menu.Current == LobbyMenu.Home && !KeyBindings.GameplayBlocked, "Closing Settings did not release input on Home.");
                 Require(EventSystem.current.currentSelectedGameObject == Top("Settings").gameObject, "Back did not return focus to the Settings opener.");
                 yield return Capture(context, "lobby_home_returned");
-                context.Note("settings_scope", "Six tabs, Controls lease, close and opener focus; no binding, graphics, display, volume or profile value changed.");
+                context.Note("settings_scope", "Six tabs, actual House/Wordbound legend Submit, Controls lease, close and opener focus; no binding, graphics, display, volume or profile value changed.");
             }
-            finally { PreservePreferences(context); }
+            finally
+            {
+                bool sourceSame = ReferenceEquals(keys, DesktopBinding.Shared), mapSame = ReferenceEquals(actionMap, DesktopBinding.Shared.Map);
+                bool overridesSame = overrides == actionMap.SaveBindingOverridesAsJson(), versionSame = bindingVersion == KeyBindings.Version;
+                bool mouseSame = sensitivity == KeyBindings.Sensitivity && invert == KeyBindings.InvertY;
+                bool enabledSame = mapEnabled == actionMap.enabled;
+                context.Note("controls_legend_bindings_preserved", new Dictionary<string, object> {
+                    ["shared_source_same"] = sourceSame, ["shared_map_same"] = mapSame, ["overrides_unchanged"] = overridesSame,
+                    ["version_unchanged"] = versionSame, ["before_version"] = bindingVersion, ["after_version"] = KeyBindings.Version,
+                    ["mouse_settings_unchanged"] = mouseSame, ["map_enabled_unchanged"] = enabledSame,
+                    ["listening"] = KeyBindings.Listening, ["restored_house_legend"] = restoredHouseLegend });
+                try { Require(sourceSame && mapSame && overridesSame && versionSame && mouseSame && enabledSame && !KeyBindings.Listening,
+                    "Control legend navigation changed shared input state."); }
+                finally { PreservePreferences(context); }
+            }
+        }
+
+        IEnumerator WordboundControls(QaContext context, ScrollRect list)
+        {
+            var panel = Page().GetComponentInChildren<ControlsPanel>();
+            Require(panel && !panel.IsListening, "The real controls panel is unavailable or rebinding.");
+            list.verticalScrollbar.value = 1f;
+            yield return Settle();
+            var wordbound = Find(panel.transform, "Wordbound controls");
+            ControlFits(wordbound);
+            Submit(wordbound);
+            yield return Settle();
+            Require(EventSystem.current.currentSelectedGameObject == Find(panel.transform, "Wordbound controls").gameObject,
+                "Wordbound legend Submit did not retain selector focus.");
+            Require(!panel.GetComponentsInChildren<Button>(true).Single(button => button.name == "Rebind Dodge").gameObject.activeInHierarchy &&
+                panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")) == 14,
+                "Wordbound must retain both numbered equipment bindings and hide only Dodge.");
+            var craft = BindingButton(panel, "Spell");
+            EventSystem.current.SetSelectedGameObject(craft.gameObject);
+            LobbyScrollFollow.Show(list, (RectTransform)craft.transform.parent.parent);
+            yield return Settle();
+            context.Note("controls_legend_Wordbound_mid", LegendView(panel, list, "lobby_settings_wordbound_controls_mid",
+                new[] { "Aim", "Jump", "Interact", "Spell" }, new[] { "Aim (hold)", "Jump", "Pick up / use", "Open crafting" },
+                new[] { "RB / R1", "A / Cross", "RT / R2", "Y / Triangle" }));
+            yield return Capture(context, "lobby_settings_wordbound_controls_mid");
+            EventSystem.current.SetSelectedGameObject(BindingButton(panel, "Pause").gameObject);
+            list.verticalScrollbar.value = 0f;
+            yield return Settle();
+            Require(list.verticalNormalizedPosition <= .001f, "Wordbound controls did not reach the final bindings.");
+            context.Note("controls_legend_Wordbound_bottom", LegendView(panel, list, "lobby_settings_wordbound_controls_bottom",
+                new[] { "Hand 1", "Hand 2", "Bag", "Pause" }, new[] { "Equipment 1", "Equipment 2", "Change equipment", "Menu" },
+                new[] { "—", "—", "R3 cycles gear", "Start / Options" }));
+            yield return Capture(context, "lobby_settings_wordbound_controls_bottom");
+            list.verticalScrollbar.value = 1f;
+            yield return Settle();
+            var house = Find(panel.transform, "House controls");
+            ControlFits(house);
+            Submit(house);
+            yield return Settle();
+            Require(panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")) == 15 &&
+                panel.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Controller Pause").text == "View / Share" &&
+                EventSystem.current.currentSelectedGameObject == house.gameObject && !panel.IsListening,
+                "House legend and selector focus were not restored.");
+        }
+
+        static Button BindingButton(ControlsPanel panel, string action)
+        {
+            var row = KeyBindings.Rows(DesktopBinding.Shared).Single(value => value.action.name == action);
+            return Find(panel.transform, "Rebind " + row.label);
+        }
+
+        static Dictionary<string, object> LegendView(ControlsPanel panel, ScrollRect list, string capture,
+            string[] actions, string[] labels, string[] hints)
+        {
+            Require(!panel.IsListening && KeyBindings.GameplayBlocked && DesktopBinding.Shared.Map.enabled,
+                "Legend capture must preserve the controls lease without starting a rebind.");
+            var viewport = ScreenRect(list.viewport);
+            var header = panel.GetComponentsInChildren<TMP_Text>().Single(value => value.name == "Control legend title");
+            Require(header.text == "WORDBOUND CONTROLS", "The scrolled capture needs its visible Wordbound header.");
+            TextFits(header);
+            var headerRect = ScreenRect(header.rectTransform); var safe = Screen.safeArea;
+            Require(headerRect.width > 1 && headerRect.height > 1 && headerRect.xMin >= safe.xMin - 2 &&
+                headerRect.xMax <= safe.xMax + 2 && headerRect.yMin >= viewport.yMax - 2 && headerRect.yMax <= safe.yMax + 2,
+                "The fixed Wordbound header is clipped or overlaps the scrolling viewport.");
+            var rows = new List<Dictionary<string, object>>();
+            for (int index = 0; index < actions.Length; index++)
+            {
+                var button = BindingButton(panel, actions[index]);
+                var row = (RectTransform)button.transform.parent.parent;
+                var text = row.GetComponentInChildren<TMP_Text>();
+                var legend = row.GetComponentsInChildren<TMP_Text>().Single(value => value.name == "Controller " + actions[index]);
+                Require(text.text == labels[index] && legend.text == hints[index], "Incorrect Wordbound control label: " + actions[index]);
+                var bounds = ScreenRect(row);
+                Require(bounds.xMin >= viewport.xMin - 2 && bounds.xMax <= viewport.xMax + 2 &&
+                    bounds.yMin >= viewport.yMin - 2 && bounds.yMax <= viewport.yMax + 2, "Required legend row is clipped: " + actions[index]);
+                ControlFits(button);
+                foreach (var value in row.GetComponentsInChildren<TMP_Text>()) TextFits(value);
+                rows.Add(new Dictionary<string, object> { ["action"] = actions[index], ["label"] = text.text,
+                    ["controller"] = legend.text, ["fully_visible"] = true });
+            }
+            return new Dictionary<string, object> { ["family"] = "Wordbound", ["capture"] = capture, ["header_text"] = header.text,
+                ["selected_control"] = EventSystem.current.currentSelectedGameObject.name,
+                ["active_binding_count"] = panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")),
+                ["rows"] = rows.ToArray(), ["listening"] = panel.IsListening, ["input_lease_active"] = KeyBindings.GameplayBlocked };
         }
 
         IEnumerator Online(QaContext context)

@@ -1,0 +1,247 @@
+{
+  "status": "PASS WITH EXPLICIT EDITOR-ONLY SCOPE",
+  "utc": "2026-10-26T21:49:58.866841+00:00",
+  "run": {
+    "id": "2",
+    "testcasecount": "27",
+    "result": "Passed",
+    "total": "27",
+    "passed": "27",
+    "failed": "0",
+    "inconclusive": "0",
+    "skipped": "0",
+    "asserts": "0",
+    "engine-version": "3.5.0.0",
+    "clr-version": "4.0.30319.42000",
+    "start-time": "2026-10-26 21:46:37Z",
+    "end-time": "2026-10-26 21:46:47Z",
+    "duration": "10.3748186"
+  },
+  "cases": [
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.ActiveTestRunDisablesDefaultPlayEntry",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.InvalidAndAutomatedPreviewRequestsLeaveTheWorkspaceUntouched",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.MissingStopNotificationRecoversPendingOrPlayingPreviewWithoutReplayingItsPage(False)",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.MissingStopNotificationRecoversPendingOrPlayingPreviewWithoutReplayingItsPage(True)",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(null,\"shop\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(\"4829ca58046a07b4db4cd309dd5093a8\",\"shop\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(\"58d0348edda8ffa4583aba09a2f26a9d\",\"shop\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(null,\"play\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(\"58d0348edda8ffa4583aba09a2f26a9d\",\"play\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(null,\"settings\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(\"58d0348edda8ffa4583aba09a2f26a9d\",\"settings\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.PreviewRecoveryWaitsForPlayCompilationAndImportToFinish(True,False,False)",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.PreviewRecoveryWaitsForPlayCompilationAndImportToFinish(False,True,False)",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.PreviewRecoveryWaitsForPlayCompilationAndImportToFinish(False,False,True)",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.PrototypeBootstrapRefusesBeforeTouchingProductionAssets",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupCanReplacePreviousEmptyTestScene",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupCanUseACleanBlankScene",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesAdditiveWorkspace",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesSavedAuthoringScene",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.StartupPreservesUnsavedAuthoringWork",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility(False)",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.TemporaryCeilingsRestoreBeforeClosingAndPreserveExistingVisibility(True)",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.WordboundSceneShortcutsResolveRegisteredSavedScenes(\"8fb103840aae32947b0a9b13c7af0fba\",\"Assets/_Project/Scenes/WordboundLobby.unity\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.WorkspaceEditorTests.WordboundSceneShortcutsResolveRegisteredSavedScenes(\"38e8ae58953ea874c9550132f992c100\",\"Assets/_Project/Scenes/WordboundGameplay.unity\")",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.PlaySettingsFrameAuthoringTests.InvalidOrAliasedRolesAndUnsafeSizingAreRejected",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.PlaySettingsFrameAuthoringTests.InvalidPathAndOccupiedDestinationAreRefusedWithoutWrites",
+      "result": "Passed"
+    },
+    {
+      "name": "Wreckabulary.Tests.Editor.PlaySettingsFrameAuthoringTests.SavedFrameEditsSurviveReopenBindingAndRepeatedMissingOnlySetup",
+      "result": "Passed"
+    }
+  ],
+  "proofs": [
+    {
+      "path": "TestResults/editmode_20261026T214606Z.xml",
+      "sha256": "275ea622a63f6cae014281280718f119f4474ac0087f4b4ea03755e04fb3229f"
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261026T214606Z.log",
+      "sha256": "3dd94ef2d7786311fa68237f6fd0ca6bbe088f634d23ff61a6208b725bd1f8d1"
+    },
+    {
+      "path": "BuildNotes/client-view/lobby-authoring-draft/native-editor-preservation.json",
+      "sha256": "121590f637a081f0f567af656b63734538cc25fa331e8d203b169d583a9ad76e"
+    },
+    {
+      "path": ".harness/delivery/ui-authored-before-2026-10-26T21-35-47-648Z.json",
+      "sha256": "de04729e863b256f04cbbe57c8df5e3a20a41835cde93f338b0b00897e082606"
+    }
+  ],
+  "live_source": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyPlaySettingsLayoutEditor.cs",
+      "live_sha256": "16abe13221cd00f289de52fa2d4c5454e9b3d8bb90f283d64d4b96a78074e89e",
+      "candidate_sha256": "6a6208b23da2fcfa7c8a0ecd28aab6a175628ceef4b9077b4990b456367cbb3d",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyPlaySettingsLayoutSetup.cs",
+      "live_sha256": "205bdc0f65779ae1732cc90bf11846bb7126cb56748b399a82ae16f9b7bf11c2",
+      "candidate_sha256": "2a62bd75d14fe9268465e381be3353205ae4b224f5eae159de2053366321ccbf",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspacePlayPreview.cs",
+      "live_sha256": "b09ca51ca370aad2347fe510baa0f6739d8dc0a3818b4f2a160d7559250dbf68",
+      "candidate_sha256": "4ac5127562971f5980dbcd7e520e1eae0ca3988b683d85367963179124e8bead",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceStudioSetup.cs",
+      "live_sha256": "2e72485fab29d91ffd62564d60ea7082e1edd5080644e4c0f5156d2da97ec70f",
+      "candidate_sha256": "5442f8d975cf78fb574d8c7af47bc4a8339e395da710dd41f0025024ce2a17b4",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceWindow.cs",
+      "live_sha256": "aed31d9feda3ebaf9609501cd0bc0b1131abf76f871e839849537ebadbcec7d0",
+      "candidate_sha256": "1b1480d11f39e911c90bab3e10990e7abe3005d8b9eeff80b2dc0132505f7a4f",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPlayLayout.cs",
+      "live_sha256": "040a2dc71cef81db6711dd62a257257515a3dacf44e0f546f2ca78f5c4794cda",
+      "candidate_sha256": "c02952957c91e38aa5a310a81db937d4bb8188a96263f6ba3c6eb5bb94d0c709",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPlayPageView.cs",
+      "live_sha256": "22958ce189a1b9f15eb3bb2da471ebb2c0d14f6f0bf4397281ee116b654ed239",
+      "candidate_sha256": "6f58c80089ddc59a2ee3d5b15f392707412dfc0d483b5a5b00e1b20c8e882675",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbySettingsLayout.cs",
+      "live_sha256": "75c3d6f610635060f2f426e15326d216800bb49e20314c5761589f8e5480132d",
+      "candidate_sha256": "e02f9a902b9046bb979bebe39a7d537cdcb81bb1c617b27dcf67dcd2780c90f0",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbySettingsPageView.cs",
+      "live_sha256": "c2b48d3aff913731afe24884c7e8aa3cf83a93c643e92ceefac6dd63a514a75f",
+      "candidate_sha256": "f6b25256bf986ec92d2f868703caaf3547c265038e038644251d83d1db69325c",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/PlayPage.cs",
+      "live_sha256": "12bcc673263beb318433e236bcb0d82ab51764f282e4108294db4ed104553447",
+      "candidate_sha256": "fa7189c3da06bcda5d4984809f7ea731f5ff38ef3fe0a3a7a760e6551d8082d1",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/SettingsPage.cs",
+      "live_sha256": "6991bd4a6c8938e07fb9ea79ba743648c165ccfe041e3b02ed212555ab131aa3",
+      "candidate_sha256": "93727da7292707f603db50cc8ec49836f24bf1c77c82fb2f577bba14621f4527",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/ShopLayout/PlaySettingsFrameAuthoringTests.cs",
+      "live_sha256": "48c884969c12fe51dd004e93bbecef6e4cf6620e7ecfcec6bba05cf8417155e4",
+      "candidate_sha256": "08d293872482dcf0be7655cf094d756693252d616e1c3b9cecaf52322832d8a9",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceEditorTests.cs",
+      "live_sha256": "10545b9897346f0c33dcb63b2d7c12fb4a40d607d2eaa60592e62ed080c9bb9c",
+      "candidate_sha256": "a22235432864c6056577634e460537f343822e1bf4514ad6841f5426b02e4831",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyPlayChoiceTests.cs",
+      "live_sha256": "97aa028f5f4b6a3a6ceab23381f1841d18b8491dd33cfcdcaf68b0e63ced4f34",
+      "candidate_sha256": "e8ce954fb851c963d92fa4496455dc1e2fc3eec629dd2d618fce1dc9164d67fb",
+      "normalized_match": true
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbySettingsNavigationTests.cs",
+      "live_sha256": "430c0214a1901fe925fce41aa4b07bea8ad28e3b74ea69a733f3382997bd28fe",
+      "candidate_sha256": "99305e8aeb6869a0c5df2f2c49478be2d9ee82f5c708ddfb35c16e5e92e348e8",
+      "normalized_match": true
+    }
+  ],
+  "preservation_recheck": {
+    "files": 4190,
+    "changed": [],
+    "scope": "Rehashed every original baseline entry at review time; additions are outside this original-file preservation check."
+  },
+  "original213620_proofs_unchanged": true,
+  "no_native_job_by_reviewer": true
+}

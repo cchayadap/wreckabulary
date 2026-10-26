@@ -106,9 +106,151 @@ namespace Wreckabulary.Tests
             menu.Leave(second);
         }
 
+        [UnityTest]
+        public IEnumerator CompactFamiliesKeepHeadAndTorsoBesideThePanelAndRestoreCentre()
+        {
+            var menu = LobbyMenu.Instance;
+            menu.Choose(LobbyMenu.Practice, "Duos", "flat"); menu.Open(LobbyMenu.Play);
+            var profile = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
+            string savedProfile = JsonUtility.ToJson(profile);
+            using var viewport = new StageViewport(menu);
+            viewport.Set(1920, 1080);
+            yield return null;
+            Submit("Family Wordbound");
+            yield return new WaitForSecondsRealtime(1f);
+            var frame = Page.GetComponentInChildren<LobbyPlayPageView>();
+            var focus = EventSystem.current.currentSelectedGameObject;
+            foreach (var size in new[] { new Vector2(1920, 1080), new Vector2(1920, 1200), new Vector2(2560, 1080), new Vector2(854, 480), new Vector2(1920, 1080) })
+            {
+                viewport.Set(size.x, size.y);
+                yield return new WaitForSecondsRealtime(1f);
+                Assert.AreSame(frame, Page.GetComponentInChildren<LobbyPlayPageView>(), "resize must not rebuild the frame");
+                Assert.AreSame(focus, EventSystem.current.currentSelectedGameObject, "resize must retain keyboard/controller focus");
+                AssertAvatarBesidePanel(viewport.Safe, frame.Panel);
+            }
+            var fit = frame.Panel.GetComponent<LobbyCompactPanel>();
+            var initialMaximum = fit.MaximumSize;
+            float before = menu.Stage.Camera.WorldToViewportPoint(menu.Stage.Spot).x;
+            try
+            {
+                fit.MaximumSize = new Vector2(initialMaximum.x > 1000 ? 1000 : 1100, initialMaximum.y);
+                yield return new WaitForSecondsRealtime(1f);
+                Assert.AreSame(frame, Page.GetComponentInChildren<LobbyPlayPageView>());
+                Assert.AreSame(focus, EventSystem.current.currentSelectedGameObject);
+                Assert.AreEqual(fit.MaximumSize.x, frame.Panel.rect.width, .1f);
+                Assert.AreEqual(frame.Panel.rect.width, menu.Page<PlayPage>().PanelWidth, .1f);
+                float after = menu.Stage.Camera.WorldToViewportPoint(menu.Stage.Spot).x;
+                Assert.Greater(Mathf.Abs(after - before), .01f, "the camera must follow changed fitted width without reopening");
+                AssertAvatarBesidePanel(viewport.Safe, frame.Panel);
+            }
+            finally { if (fit) fit.MaximumSize = initialMaximum; }
+            Submit("Family house");
+            yield return new WaitForSecondsRealtime(1f);
+            AssertFullHousePanel();
+            Assert.AreEqual(.5f, menu.Stage.Camera.WorldToViewportPoint(menu.Stage.Spot).x, .03f, "House restores centred framing");
+            Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
+            Submit("Queue " + LobbyMenu.Workshop); yield return null;
+            Submit("Create Wordbound");
+            yield return new WaitForSecondsRealtime(1f);
+            AssertAvatarBesidePanel(viewport.Safe, Page.GetComponentInChildren<LobbyPlayPageView>().Panel);
+            Submit("Create house");
+            yield return new WaitForSecondsRealtime(1f);
+            AssertFullHousePanel();
+            Assert.AreEqual(.5f, menu.Stage.Camera.WorldToViewportPoint(menu.Stage.Spot).x, .03f, "Home & tutorial restores centred framing");
+            Submit("Create Wordbound"); yield return new WaitForSecondsRealtime(1f);
+            menu.Close(); yield return new WaitForSecondsRealtime(1f);
+            Assert.AreEqual(LobbyMenu.Home, menu.Current);
+            Assert.AreEqual(.5f, menu.Stage.Camera.WorldToViewportPoint(menu.Stage.Spot).x, .03f, "Home restores centred framing");
+            Assert.AreEqual(savedProfile, JsonUtility.ToJson(profile), "responsive presentation must not change the saved profile");
+        }
+
+        static void AssertAvatarBesidePanel(RectTransform viewport, RectTransform panel)
+        {
+            var stage = LobbyMenu.Instance.Stage;
+            Assert.IsTrue(stage.IsPresenting);
+            var corners = new Vector3[4]; panel.GetWorldCorners(corners);
+            float left = (viewport.InverseTransformPoint(corners[0]).x - viewport.rect.xMin) / viewport.rect.width;
+            Assert.Greater(left, .25f, "this desktop composition needs visible space beside the frame");
+            var bones = stage.Avatar.GetComponentsInChildren<Transform>(true);
+            foreach (string name in new[] { "head", "chest" })
+            {
+                var bone = bones.Single(t => t.name == name);
+                var point = stage.Camera.WorldToViewportPoint(bone.position);
+                Assert.Greater(point.z, 0f, name);
+                Assert.That(point.x, Is.InRange(.02f, left - .005f), name + " stays left of the compact panel");
+                Assert.That(point.y, Is.InRange(.02f, .98f), name + " stays in the viewport");
+            }
+            var head = stage.Avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true).Single(renderer => renderer.name == "SK_Head");
+            Assert.IsTrue(head.enabled && head.gameObject.activeInHierarchy);
+            var bounds = head.bounds;
+            Assert.Greater(bounds.size.sqrMagnitude, .001f);
+            for (int i = 0; i < 8; i++)
+            {
+                var sign = new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1);
+                var point = stage.Camera.WorldToViewportPoint(bounds.center + Vector3.Scale(bounds.extents, sign));
+                Assert.Greater(point.z, 0f);
+                Assert.That(point.x, Is.InRange(.005f, left - .005f), "the whole head envelope stays beside the panel");
+            }
+        }
+
+        sealed class StageViewport : System.IDisposable
+        {
+            readonly Canvas canvas;
+            readonly CanvasScaler scaler;
+            readonly Camera camera;
+            readonly Vector2 size;
+            readonly float scale, aspect;
+            readonly bool scaled;
+            public readonly RectTransform Safe;
+
+            public StageViewport(LobbyMenu menu)
+            {
+                canvas = menu.GetComponent<Canvas>(); scaler = menu.GetComponent<CanvasScaler>(); camera = menu.Stage.Camera;
+                Safe = (RectTransform)menu.transform.Find("Safe area");
+                size = Safe.sizeDelta; scale = canvas.scaleFactor; scaled = scaler.enabled; aspect = camera.aspect;
+                scaler.enabled = false; canvas.scaleFactor = Screen.height / 1080f;
+                Canvas.ForceUpdateCanvases();
+            }
+
+            public void Set(float width, float height)
+            {
+                var requested = new Vector2(width / height * 1080f, 1080f);
+                Safe.sizeDelta += requested - Safe.rect.size;
+                camera.aspect = width / height;
+                Canvas.ForceUpdateCanvases();
+            }
+
+            public void Dispose()
+            {
+                if (Safe) Safe.sizeDelta = size;
+                if (camera) camera.aspect = aspect;
+                if (canvas) canvas.scaleFactor = scale;
+                if (scaler) scaler.enabled = scaled;
+                Canvas.ForceUpdateCanvases();
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator SavedPlayFrameSuppliesRuntimeRegionsWithoutReplacingActions()
+        {
+            var saved = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
+            Assert.IsNotNull(saved); saved.Validate();
+            var frame = Page.GetComponentInChildren<LobbyPlayPageView>();
+            Assert.IsNotNull(frame); Assert.AreNotSame(saved.Page, frame);
+            Assert.AreEqual(saved.Page.Queues.offsetMin, frame.Queues.offsetMin);
+            Assert.AreEqual(saved.Page.Choices.offsetMin, frame.Choices.offsetMin);
+            Assert.AreEqual(saved.Page.Summary.sizeDelta, frame.Summary.sizeDelta);
+            Assert.IsTrue(Find("Queue " + LobbyMenu.Practice).transform.IsChildOf(frame.Queues));
+            Assert.IsTrue(Find("GO").transform.IsChildOf(frame.Summary));
+            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            yield return null;
+        }
+
         static void AssertFullHousePanel()
         {
-            var panel = Page.Find("Panel") as RectTransform;
+            var frame = Page.GetComponentInChildren<LobbyPlayPageView>();
+            Assert.IsNotNull(frame, "The real Play page must instantiate the saved frame.");
+            var panel = frame.Panel;
             Assert.IsNull(panel.GetComponent<LobbyCompactPanel>());
             Assert.That(panel.rect.width, Is.EqualTo(Page.rect.width).Within(.1f));
             Assert.That(panel.rect.height, Is.EqualTo(Page.rect.height).Within(.1f));
@@ -116,10 +258,14 @@ namespace Wreckabulary.Tests
 
         static void AssertCompactFamily(Vector2 available, string rowName, string summaryName)
         {
-            var panel = Page.Find("Panel") as RectTransform;
+            var frame = Page.GetComponentInChildren<LobbyPlayPageView>();
+            Assert.IsNotNull(frame, "The real Play page must instantiate the saved frame.");
+            var panel = frame.Panel;
             Assert.IsNotNull(panel.GetComponent<LobbyCompactPanel>());
-            Assert.That(panel.rect.width, Is.EqualTo(Mathf.Min(1100, available.x)).Within(.1f));
-            Assert.That(panel.rect.height, Is.EqualTo(Mathf.Min(600, available.y)).Within(.1f));
+            var maximum = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath).CompactMaximum;
+            Assert.AreEqual(maximum, panel.GetComponent<LobbyCompactPanel>().MaximumSize);
+            Assert.That(panel.rect.width, Is.EqualTo(Mathf.Min(maximum.x, available.x)).Within(.1f));
+            Assert.That(panel.rect.height, Is.EqualTo(Mathf.Min(maximum.y, available.y)).Within(.1f));
             var panelBounds = InPage(panel);
             Assert.That(panelBounds.xMax, Is.EqualTo(Page.rect.xMax).Within(.1f));
             Assert.That(panelBounds.yMax, Is.EqualTo(Page.rect.yMax).Within(.1f));

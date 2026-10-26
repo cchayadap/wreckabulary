@@ -45,6 +45,8 @@ namespace Wreckabulary.EditorTools
             var shop = LobbyShopLayoutSetup.CreateAt(LobbyShopLayoutSetup.ProfilePath, LobbyShopLayoutSetup.PrefabFolder, LobbyShopLayoutSetup.GraphicFolder, typography);
             LobbyLoadoutLayoutSetup.CreateAt(LobbyLoadoutLayoutSetup.ProfilePath, LobbyLoadoutLayoutSetup.PrefabFolder, shop);
             LobbyHomeLayoutSetup.CreateAt(LobbyHomeLayoutSetup.ProfilePath, LobbyHomeLayoutSetup.PrefabFolder, LobbyHomeLayoutSetup.GraphicFolder, typography);
+            LobbyPlaySettingsLayoutSetup.CreatePlayAt(LobbyPlaySettingsLayoutSetup.PlayProfile, LobbyPlaySettingsLayoutSetup.PlayPrefab, LobbyPlaySettingsLayoutSetup.Graphics, typography);
+            LobbyPlaySettingsLayoutSetup.CreateSettingsAt(LobbyPlaySettingsLayoutSetup.SettingsProfile, LobbyPlaySettingsLayoutSetup.SettingsPrefab, LobbyPlaySettingsLayoutSetup.Graphics, typography);
             if (!LobbyCameraSetup.CreateOrVerifyAt(LobbyCameraSetup.ProfilePath))
                 throw new InvalidOperationException("Lobby camera setup needs attention; existing assets were preserved.");
             Debug.Log("WORKSPACE_AUTHORING_READY: saved equipment and character studios; categorized editable prefab variants; saved lobby typography, camera, Home, Shop and Loadout layouts. Existing assets preserved; gameplay visual assignments unchanged.");

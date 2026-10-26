@@ -41,8 +41,8 @@ namespace Wreckabulary.EditorTools
 
         static void ValidatePage(string page)
         {
-            if (page != LobbyMenu.Home && page != LobbyMenu.Shop && page != LobbyMenu.Loadout)
-                throw new ArgumentException("Choose Lobby, Shop or Loadout.", nameof(page));
+            if (page != LobbyMenu.Home && page != LobbyMenu.Shop && page != LobbyMenu.Loadout && page != LobbyMenu.Play && page != LobbyMenu.Settings)
+                throw new ArgumentException("Choose Lobby, Play, Settings, Shop or Loadout.", nameof(page));
         }
 
         static void Arm(string page, SceneAsset previousEntry)
@@ -149,6 +149,7 @@ namespace Wreckabulary.EditorTools
             return true;
         }
 
-        static string Label(string page) => page == LobbyMenu.Home ? "Lobby" : page == LobbyMenu.Shop ? "Shop" : "Loadout";
+        static string Label(string page) => page switch { LobbyMenu.Home => "Lobby", LobbyMenu.Shop => "Shop",
+            LobbyMenu.Loadout => "Loadout", LobbyMenu.Play => "Play choices", LobbyMenu.Settings => "Settings", _ => throw new ArgumentException("Unknown preview page.") };
     }
 }

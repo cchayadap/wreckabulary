@@ -123,10 +123,14 @@ namespace Wreckabulary.Tests.Editor
             Assert.IsTrue(EditorBuildSettings.scenes.Any(scene => scene.enabled && scene.path == path));
         }
 
-        [TestCase(null)]
-        [TestCase(WorkspaceWindow.HubGuid)]
-        [TestCase(WorkspaceWindow.EmptyGuid)]
-        public void OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(string previousGuid)
+        [TestCase(null, LobbyMenu.Shop)]
+        [TestCase(WorkspaceWindow.HubGuid, LobbyMenu.Shop)]
+        [TestCase(WorkspaceWindow.EmptyGuid, LobbyMenu.Shop)]
+        [TestCase(null, LobbyMenu.Play)]
+        [TestCase(WorkspaceWindow.EmptyGuid, LobbyMenu.Play)]
+        [TestCase(null, LobbyMenu.Settings)]
+        [TestCase(WorkspaceWindow.EmptyGuid, LobbyMenu.Settings)]
+        public void OneShotPreviewRestoresItsPreviousEntryAndPreservesAuthoringState(string previousGuid, string page)
         {
             using var preview = new PreviewState();
             var prior = previousGuid == null ? null : AssetDatabase.LoadAssetAtPath<SceneAsset>(AssetDatabase.GUIDToAssetPath(previousGuid));
@@ -135,7 +139,7 @@ namespace Wreckabulary.Tests.Editor
             string outfit = PlayerPrefs.GetString(LobbyMenu.OutfitKey, "<unset>");
             string theme = PlayerPrefs.GetString(LobbyThemes.PreferenceKey, "<unset>");
             var scenes = EditorSceneManager.GetSceneManagerSetup();
-            InvokePreview("Arm", LobbyMenu.Shop, prior);
+            InvokePreview("Arm", page, prior);
             Assert.IsTrue(WorkspacePlayPreview.IsActive);
             Assert.IsTrue((bool)InvokePreview("ApplyPlayEntry"));
             Assert.AreEqual(WorkspaceWindow.HubPath, AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));

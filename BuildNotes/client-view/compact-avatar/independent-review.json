@@ -1,0 +1,89 @@
+{
+  "status": "Independent source review complete; native/render pending",
+  "patch_sha256": "3663a18f9c08ae48e14ac59cd71f9c967d7336da25df3b7fcaa40e11ab302c40",
+  "patch_match": true,
+  "checks": [
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\baseline\\Assets\\_Project\\Scripts\\UI\\Lobby\\LobbyMenu.cs",
+      "sha256": "18cbb1b2f6468b051033ce6ee184bf9fd8b91ff5cd32817231fb9e9801396f8a",
+      "match": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\candidate\\Assets\\_Project\\Scripts\\UI\\Lobby\\LobbyMenu.cs",
+      "sha256": "37b267327f829da53ec957755b12edcbbab67ca607e91b0c9108963e3e055b09",
+      "match": true
+    },
+    {
+      "path": "live/Assets/_Project/Scripts/UI/Lobby/LobbyMenu.cs",
+      "sha256": "ac435e808ed998badc680e2cf125facf775e2bdfc5e8cd668980f4e680e744e0",
+      "matches_candidate": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\baseline\\Assets\\_Project\\Scripts\\UI\\Lobby\\PlayPage.cs",
+      "sha256": "12bcc673263beb318433e236bcb0d82ab51764f282e4108294db4ed104553447",
+      "match": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\candidate\\Assets\\_Project\\Scripts\\UI\\Lobby\\PlayPage.cs",
+      "sha256": "91a88563ea67a111286baa0865daa78cc5931f216beaa9645f6b884c0e197b0f",
+      "match": true
+    },
+    {
+      "path": "live/Assets/_Project/Scripts/UI/Lobby/PlayPage.cs",
+      "sha256": "855600a224f025fb4c00e9bdf7dc99236a8309849f17db65c3fdaffc008569cf",
+      "matches_candidate": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\baseline\\Assets\\_Project\\Tests\\LobbyPlayChoiceTests.cs",
+      "sha256": "97aa028f5f4b6a3a6ceab23381f1841d18b8491dd33cfcdcaf68b0e63ced4f34",
+      "match": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\candidate\\Assets\\_Project\\Tests\\LobbyPlayChoiceTests.cs",
+      "sha256": "8c6e9534d2db565b27fa99b64b34e433206470929179b4d38201672bd36e6e48",
+      "match": true
+    },
+    {
+      "path": "live/Assets/_Project/Tests/LobbyPlayChoiceTests.cs",
+      "sha256": "723fbb10121a5a2e5150f64a42251ccb97ec6609fea408502b387cc70f2785ab",
+      "matches_candidate": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\README.md",
+      "sha256": "ac40de1a0ab2b69a1b525db866a519bcf493843cbeec891902896ee8f9a6eb85",
+      "match": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\progress.md",
+      "sha256": "b8ad30a398521f94a211e7ebf181fd1b09e4e7bc933dff2d738fc90af1766440",
+      "match": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\design.md",
+      "sha256": "b64e3d76500de9d86479667ed727dccb6cb9b740859a8c041deb6292d24872dd",
+      "match": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\check-source.ps1",
+      "sha256": "ecb3b88389b023222486a939b89a8eb0e392537a89629e115017649f5a444a39",
+      "match": true
+    },
+    {
+      "path": "BuildNotes\\client-view\\compact-avatar\\source-check.json",
+      "sha256": "9e7c2265bd113a0dfd80fbe70b7034e609cbd06c8d886969c869db7336aa2d79",
+      "match": true
+    },
+    {
+      "path": "Docs/qa/runs/20261026T210547Z-lobby_experience/lobby_solo_timerun.png",
+      "sha256": "8fce5541027af3ee02078c31c8c64d0ace62cdcfb4e5f0fbcd646714ab2e7d77",
+      "match": true,
+      "scope": "Integrity only; not opened in this source review"
+    }
+  ],
+  "all_match": true,
+  "reverse_apply": {
+    "exit": 0,
+    "output": ""
+  },
+  "semantic": "Producer source-check.json inspected: runtime176/302 and tests68/292 zero errors; not independently rerun"
+}

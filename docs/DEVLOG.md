@@ -840,3 +840,11 @@ Fixed-device borrowed input adapters preserve the original Session binding/map/d
 ## 2026-10-26T21:20:24Z Windows lobby and Solo delivery
 
 Exact source0ba2309a builds210349 PASS108.1s. Lobby210547 passes5/5 with20 actual captures; Solo210721 passes3/3 with9captures, both DesktopBinding wrappers disposed through actual RequestReturn/Hub and original maps enabled. Console0/0/0 in both. All4190 authored inputs preserved. Reviewed delivery verifier passes; independent review openedall29 with no new primary text/button layout blocker. Evidence: BuildNotes/client-view/windows-lobby-solo-20261027.json, windows-210349-authored-preservation.json and windows-210349-visual-review.md/json. TRY-WORDBOUND and controls/editing guide updated. Remaining: partly hidden lobby avatar, sparse rooms, mode-specific control guidance, editable Play/Settings frames, physical-device/performance/full-match/art/release acceptance.
+
+## 2026-10-26T22:07:30Z Saved lobby frames and clear control families
+
+Saved Play and Settings prefab/profile frames now have Workspace edit and real preview routes. The missing-only authoring setup preserves existing edits. Controls distinguish House and Wordbound with a persistent heading and accurate shared keyboard/fixed controller guidance. Compact Solo/Maps use existing left-side character framing and restore centred House/Home views.
+
+R0 220330 passes. Editor 214606 passes 27/27; setup 214714 and repeat 214750 pass; Play 220430 passes 31/31, zero skips. All 4,208 recorded authored files remain unchanged after setup (4,190 pre-existing files plus 18 new prefab/profile/graphic files and metadata). Exact sources, native results and preserved failures: BuildNotes/client-view/lobby-frames-verification-20261027.json. Earlier fixture issues and the measured nested-layout settling correction remain recorded; no bounds or text assertions were removed.
+
+Next: commit this verified source, build Windows, run the updated 22-image lobby and 9-image Solo walkthroughs, inspect actual images, and update the user guides. Physical controls, complete public matches, broader art/story and production release remain open.

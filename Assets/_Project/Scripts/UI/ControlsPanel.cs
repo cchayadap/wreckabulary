@@ -17,15 +17,17 @@ namespace Wreckabulary
             public InputAction Action;
             public int Binding;
             public Button Button;
-            public TextMeshProUGUI Label;
+            public TextMeshProUGUI Label, ActionLabel, Legend;
+            public RectTransform Root;
         }
 
         readonly List<BindingRow> rows = new();
         readonly List<Button> buttons = new();
         IDisposable inputLease;
         BindingRow listening;
-        TextMeshProUGUI sensitivity, invert, status;
-        Button cancel, first;
+        TextMeshProUGUI sensitivity, invert, status, legendNote, legendTitle;
+        Button cancel, first, houseLegend, wordboundLegend;
+        bool showWordbound;
         Canvas canvas;
         bool cancelRequested;
 
@@ -46,7 +48,8 @@ namespace Wreckabulary
         void Build(RectTransform root)
         {
             canvas = root.GetComponentInParent<Canvas>();
-            var title = LobbyKit.Display(root, "MAKE IT YOURS", 28, LobbyKit.Sun, TextAlignmentOptions.MidlineLeft);
+            var title = legendTitle = LobbyKit.Display(root, "HOUSE CONTROLS", 28, LobbyKit.Sun, TextAlignmentOptions.MidlineLeft);
+            title.name = "Control legend title";
             title.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(4, -38), new Vector2(-4, 0));
             var hint = LobbyKit.Text(root, "Choose a key. Press its replacement. Shared keys swap.", 18, LobbyKit.Muted);
             hint.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(4, -68), new Vector2(-4, -38));
@@ -54,11 +57,19 @@ namespace Wreckabulary
             var area = LobbyKit.Rect(root, "Controls list").Place(Vector2.zero, Vector2.one, new Vector2(0, 88), new Vector2(0, -76));
             var list = LobbyKit.Scroll(area, "Controls scroll", 8);
 
+            var legends = LobbyKit.Segmented(list, "Control legends", new[] {
+                ("House controls", "House games"), ("Wordbound controls", "Wordbound")
+            }, "House controls", name => SelectLegend(name == "Wordbound controls"), 44, 18);
+            houseLegend = legends.Find("House controls").GetComponent<Button>();
+            wordboundLegend = legends.Find("Wordbound controls").GetComponent<Button>();
+            buttons.Add(houseLegend); buttons.Add(wordboundLegend);
+            BindLegendStyle(houseLegend, false); BindLegendStyle(wordboundLegend, true);
+
             var look = Row(list, "Mouse sensitivity", "Turn speed · saved automatically");
             first = ActionButton(look, "Sensitivity less", "−", () => KeyBindings.SetSensitivity(KeyBindings.Sensitivity - KeyBindings.SensitivityStep), 46);
             sensitivity = LobbyKit.Display(look, "", 22, LobbyKit.Sun).Size(90, 40);
             ActionButton(look, "Sensitivity more", "+", () => KeyBindings.SetSensitivity(KeyBindings.Sensitivity + KeyBindings.SensitivityStep), 46);
-            var inverted = Row(list, "Invert mouse Y", "Mouse up looks down when enabled");
+            var inverted = Row(list, "Invert mouse Y", "Mouse up looks down");
             var flip = ActionButton(inverted, "Invert mouse Y", "", () => KeyBindings.SetInvertY(!KeyBindings.InvertY), 150);
             invert = flip.GetComponentInChildren<TextMeshProUGUI>();
 
@@ -67,18 +78,22 @@ namespace Wreckabulary
             foreach (var (name, action, binding) in KeyBindings.Rows(DesktopBinding.Shared))
             {
                 var controls = Row(list, name);
-                var row = new BindingRow { Name = name, Action = action, Binding = binding };
+                var rowRoot = (RectTransform)controls.parent;
+                var row = new BindingRow { Name = name, Action = action, Binding = binding, Root = rowRoot,
+                    ActionLabel = rowRoot.GetComponentInChildren<TextMeshProUGUI>() };
                 row.Button = ActionButton(controls, "Rebind " + name, "", () => Begin(row), 158);
                 row.Label = row.Button.GetComponentInChildren<TextMeshProUGUI>();
                 rows.Add(row);
-                var legend = LobbyKit.Text(controls, PadHint(action.name), 16, LobbyKit.Cyan, TextAlignmentOptions.MidlineRight);
+                var legend = row.Legend = LobbyKit.Text(controls, "", 16, LobbyKit.Cyan, TextAlignmentOptions.MidlineRight);
+                legend.name = "Controller " + action.name;
                 legend.enableAutoSizing = false;
                 legend.textWrappingMode = TextWrappingModes.Normal;
                 legend.Size(130, 46);
             }
-            var touch = LobbyKit.Text(list, "Touch: move with the left stick, drag to look, tap action buttons and hand slots.\nController bindings stay fixed. Keyboard changes apply to the mouse-player seat.", 16, LobbyKit.Muted);
-            touch.textWrappingMode = TextWrappingModes.Normal;
-            touch.Size(-1, 84);
+            legendNote = LobbyKit.Text(list, "", 16, LobbyKit.Muted);
+            legendNote.name = "Control legend note";
+            legendNote.textWrappingMode = TextWrappingModes.Normal;
+            legendNote.Size(-1, 84);
 
             var footer = LobbyKit.Rect(root, "Controls footer").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 80));
             status = LobbyKit.Text(footer, "", 17, LobbyKit.Muted);
@@ -125,11 +140,42 @@ namespace Wreckabulary
             return button;
         }
 
-        static string PadHint(string action) => action switch
+        void SelectLegend(bool wordbound)
         {
-            "Move" => "Left stick / D-pad", "Attack" => "X / Square\nLT / L2 blocks", "Aim" => "Right stick", "Jump" => "A / Cross",
-            "Dodge" => "B / Circle", "Interact" => "RT / R2", "Spell" => "Hold Y / Triangle", "Drop" => "Hold LB / L1",
-            "Hand 1" or "Hand 2" => "R3 swaps hands", "Pause" => "View / Share", _ => "—"
+            if (IsListening) return;
+            showWordbound = wordbound;
+            Refresh();
+            EventSystem.current?.SetSelectedGameObject((wordbound ? wordboundLegend : houseLegend).gameObject);
+        }
+
+        void BindLegendStyle(Button button, bool wordbound)
+        {
+            var label = button.GetComponentInChildren<TMP_Text>();
+            var line = button.Body().Find("Underline").GetComponent<Image>();
+            button.GetComponent<LobbyPress>().Hot = hot => {
+                bool chosen = showWordbound == wordbound;
+                line.enabled = chosen || hot;
+                label.color = chosen || hot ? LobbyKit.Cyan : LobbyKit.Navy;
+            };
+        }
+
+        static bool WordboundAction(string action) => action != "Dodge";
+
+        static string WordboundLabel(string action, string original) => action switch
+        {
+            "Attack" => "Smash, throw, block", "Interact" => "Pick up / use", "Spell" => "Open crafting",
+            "Hand 1" => "Equipment 1", "Hand 2" => "Equipment 2",
+            "Bag" => "Change equipment", "Pause" => "Menu", _ => original
+        };
+
+        static string PadHint(string action, bool wordbound) => action switch
+        {
+            "Move" => "Left stick / D-pad", "Attack" => "X / Square\nLT / L2 blocks",
+            "Aim" => wordbound ? "RB / R1" : "—", "Jump" => "A / Cross",
+            "Dodge" => wordbound ? "—" : "B / Circle", "Interact" => "RT / R2",
+            "Spell" => wordbound ? "Y / Triangle" : "Hold Y / Triangle", "Drop" => "Hold LB / L1",
+            "Hand 1" or "Hand 2" => wordbound ? "—" : "R3 swaps hands",
+            "Bag" => wordbound ? "R3 cycles gear" : "—", "Pause" => wordbound ? "Start / Options" : "View / Share", _ => "—"
         };
 
         void Begin(BindingRow row)
@@ -200,9 +246,21 @@ namespace Wreckabulary
         {
             if (!status) return;
             bool waiting = IsListening;
+            legendTitle.text = showWordbound ? "WORDBOUND CONTROLS" : "HOUSE CONTROLS";
             sensitivity.text = Mathf.RoundToInt(KeyBindings.Sensitivity * 100f) + "%";
             invert.text = KeyBindings.InvertY ? "ON" : "OFF";
-            foreach (var row in rows) row.Label.text = waiting && row == listening ? "PRESS A KEY…" : KeyBindings.KeyName(row.Action, row.Binding);
+            foreach (var row in rows)
+            {
+                row.Root.gameObject.SetActive(!showWordbound || WordboundAction(row.Action.name));
+                row.ActionLabel.text = showWordbound ? WordboundLabel(row.Action.name, row.Name) : row.Name;
+                row.Legend.text = PadHint(row.Action.name, showWordbound);
+                row.Label.text = waiting && row == listening ? "PRESS A KEY…" : KeyBindings.KeyName(row.Action, row.Binding);
+            }
+            houseLegend.GetComponent<LobbyPress>().Hot(houseLegend.GetComponent<LobbyPress>().IsHot);
+            wordboundLegend.GetComponent<LobbyPress>().Hot(wordboundLegend.GetComponent<LobbyPress>().IsHot);
+            legendNote.text = showWordbound
+                ? "Right stick: look. Controller mappings stay fixed.\nKeyboard changes apply to the mouse-player seat."
+                : "Right stick: look / aim. Controller mappings stay fixed.\nTouch: move, drag to look, tap actions or hand slots.\nKeyboard changes apply to the mouse-player seat.";
             foreach (var button in buttons) if (button) button.interactable = !waiting;
             cancel.gameObject.SetActive(waiting);
             status.text = waiting ? "Waiting for a key · ESC / controller B cancels" : KeyBindings.LoadWarning ?? "Saved automatically · reset restores keys and mouse settings";

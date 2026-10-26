@@ -88,6 +88,23 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator SavedSettingsFrameSuppliesRealTabsAndKeepsHelpScopeExplicit()
+        {
+            var saved = Resources.Load<LobbySettingsLayout>(LobbySettingsLayout.ResourcePath);
+            Assert.IsNotNull(saved); saved.Validate();
+            var frame = page.Root.GetComponentInChildren<LobbySettingsPageView>();
+            Assert.IsNotNull(frame); Assert.AreNotSame(saved.Page, frame);
+            Assert.AreEqual(saved.Page.Tabs.offsetMax, frame.Tabs.offsetMax);
+            Assert.IsTrue(Button("Settings tab profile").transform.IsChildOf(frame.Tabs));
+            Assert.IsTrue(Button("Open loadout").transform.IsChildOf(frame.Content));
+            Assert.IsFalse(frame.Confirmation.gameObject.activeSelf);
+            Tab("help");
+            Assert.AreEqual("House games", page.Root.GetComponentsInChildren<TMPro.TMP_Text>().Single(text => text.name == "Help scope").text);
+            Assert.IsTrue(page.Root.GetComponentsInChildren<TMPro.TMP_Text>().Any(text => text.text == "For Wordbound controls, open its Menu → Help."));
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator GroupsKeepRealOptionsAliasesAndControlsInputLease()
         {
             var names = page.Root.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Settings tab "))

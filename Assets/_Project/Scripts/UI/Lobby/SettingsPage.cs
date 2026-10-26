@@ -29,6 +29,7 @@ namespace Wreckabulary
         (FullScreenMode mode, int width, int height)? revertTo;
         LobbyCountdown timer;
         ControlsPanel controlsPanel;
+        LobbySettingsPageView authoredFrame;
 
         public override void Opened()
         {
@@ -55,9 +56,19 @@ namespace Wreckabulary
             builtTab = tab;
             scroll = null;
             controlsPanel = null;
-            var body = Panel(new Vector2(.12f, 0), new Vector2(.88f, 1), "Settings");
-            var side = LobbyKit.Column(body, "Tabs", 8);
-            side.Place(Vector2.zero, new Vector2(0, 1), Vector2.zero, new Vector2(230, 0));
+            authoredFrame = null;
+            var saved = Resources.Load<LobbySettingsLayout>(LobbySettingsLayout.ResourcePath);
+            RectTransform body;
+            if (saved)
+            {
+                saved.Validate();
+                authoredFrame = LobbyRuntimeTypography.Instantiate(saved.Page, Root, false);
+                authoredFrame.Bind(Menu.Close, revertTo.HasValue);
+                body = authoredFrame.Body;
+            }
+            else body = Panel(new Vector2(.12f, 0), new Vector2(.88f, 1), "Settings");
+            var side = authoredFrame ? authoredFrame.Tabs : LobbyKit.Column(body, "Tabs", 8);
+            if (!authoredFrame) side.Place(Vector2.zero, new Vector2(0, 1), Vector2.zero, new Vector2(230, 0));
             foreach (var (id, title) in Tabs)
             {
                 string name = "Settings tab " + id;
@@ -67,9 +78,9 @@ namespace Wreckabulary
                 chip.Size(-1, 50);
                 if (tab == id) First = chip;
             }
-            var page = LobbyKit.Rect(body, "Tab " + tab).Place(Vector2.zero, Vector2.one, new Vector2(254, 0), Vector2.zero);
+            var page = authoredFrame ? authoredFrame.Content : LobbyKit.Rect(body, "Tab " + tab).Place(Vector2.zero, Vector2.one, new Vector2(254, 0), Vector2.zero);
             var holder = LobbyKit.Rect(page, "Tab content").Fill();
-            if (revertTo.HasValue) holder.offsetMin = new Vector2(0, 92);
+            if (revertTo.HasValue && !authoredFrame) holder.offsetMin = new Vector2(0, 92);
             if (tab == "controls")
             {
                 controlsPanel = ControlsPanel.Mount(holder);
@@ -209,9 +220,11 @@ namespace Wreckabulary
         void HowToPlay(RectTransform column)
         {
             column.GetComponent<VerticalLayoutGroup>().spacing = 14;
-            var kicker = LobbyKit.Caps(column, "A house full of possibilities", 14, TextAlignmentOptions.BottomLeft);
+            var kicker = LobbyKit.Text(column, "House games", 18, LobbyKit.Cyan, TextAlignmentOptions.BottomLeft);
+            kicker.name = "Help scope";
             kicker.color = LobbyKit.Cyan;
-            kicker.Size(-1, 20);
+            kicker.Size(-1, 24);
+            Wrapped(column, "For Wordbound controls, open its Menu → Help.", 17, LobbyKit.Muted, 42);
             LobbyKit.Display(column, "Everything starts with a word.", 36, LobbyKit.Sun, TextAlignmentOptions.MidlineLeft, LobbyKit.Ink.Stroke).Size(-1, 46);
             var steps = LobbyKit.Row(column, "Steps", 14);
             steps.Size(-1, 200);
@@ -415,8 +428,9 @@ namespace Wreckabulary
 
         void KeepBar(RectTransform page)
         {
-            var bar = LobbyKit.Row(page, "Keep display", 12);
-            bar.Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 80));
+            var bar = LobbyKit.Row(authoredFrame ? authoredFrame.Confirmation : page, "Keep display", 12);
+            if (authoredFrame) bar.Fill();
+            else bar.Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 80));
             var layout = bar.GetComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(22, 14, 0, 0);
             layout.childForceExpandHeight = false;
