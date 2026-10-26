@@ -1,0 +1,144 @@
+{
+  "utc": "2026-10-26T11:29:29.968Z",
+  "status": "PASS — first saved mesh and focused native tests; wrapper QA repair and final render pending",
+  "gates": [
+    {
+      "path": ".harness/delivery/workspace-avatarsetup-2026-10-26T11-22-02-206Z-stdout.txt",
+      "sha256": "25324ec6be4e68dde18f2e1e2ca4a414bbf91bdc065b7dec950e07b31ec6880d",
+      "utc": "2026-10-26T11:22:02Z",
+      "cmd": "exec Wreckabulary.EditorTools.AvatarSurfaceCorrectionSetup.CreateOrVerify --cold",
+      "verdict": "PASS",
+      "secs": 34,
+      "log": "Logs/gate_exec_CreateOrVerify_20261026T112202Z.log",
+      "evidence": [
+        "Logs/exec/20261026T112202Z.json"
+      ]
+    },
+    {
+      "path": ".harness/delivery/workspace-avatartests-2026-10-26T11-23-11-067Z-stdout.txt",
+      "sha256": "327b76c4b479a87ae9695e4e0bd842b53d29cd26b24895264d1c8a9ae31e7b7f",
+      "utc": "2026-10-26T11:23:11Z",
+      "cmd": "test editmode --cold --filter AvatarSurfaceCorrectionTests",
+      "verdict": "PASS",
+      "secs": 52.5,
+      "tests": {
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      },
+      "log": "Logs/gate_test_editmode_20261026T112311Z.log",
+      "evidence": [
+        "TestResults/editmode_20261026T112311Z.xml"
+      ]
+    },
+    {
+      "path": ".harness/delivery/workspace-avatarplaytests-2026-10-26T11-25-17-649Z-stdout.txt",
+      "sha256": "08fda3555d38c23cea4c70a39e2fdd36df19690d47ee0b242ed5d8c948424526",
+      "utc": "2026-10-26T11:25:17Z",
+      "cmd": "test playmode --cold --filter AvatarSurfaceRuntimeTests",
+      "verdict": "PASS",
+      "secs": 41.5,
+      "tests": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "log": "Logs/gate_test_playmode_20261026T112517Z.log",
+      "evidence": [
+        "TestResults/playmode_20261026T112517Z.xml"
+      ]
+    }
+  ],
+  "sourceNormalization": "Git apply used configured CRLF for four new files. Exact text equals the frozen reviewed candidates after LF normalization; hashes below identify actual compiled bytes.",
+  "sources": [
+    {
+      "path": "Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs",
+      "sha256": "d8bde1bf45f5967292979057e7f1e8454d91210f933293c76a0f557cc6d38b73",
+      "candidateSha256": "19f4d7afe8839987d98b5cd7c896787ffc9c6e60b1cea26f3dc565855549de31"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/AvatarSurfaceMeshData.cs",
+      "sha256": "78dc0f9dc5ca59a6a389b2c11d5f35d999a4dee3395ed18c96dd4e387888115d",
+      "candidateSha256": "78dc0f9dc5ca59a6a389b2c11d5f35d999a4dee3395ed18c96dd4e387888115d"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs",
+      "sha256": "6ed695d2c0174cd18c4f32973c50a6c57f97a74c7af8092963c3cd37a7781af6",
+      "candidateSha256": "6ed695d2c0174cd18c4f32973c50a6c57f97a74c7af8092963c3cd37a7781af6"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/PlayerAuthoring.cs",
+      "sha256": "b91d67a97b55d58b4891a27c84ccab370048cfef41b9efe3c27e4deae996b63a",
+      "candidateSha256": "b91d67a97b55d58b4891a27c84ccab370048cfef41b9efe3c27e4deae996b63a"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs",
+      "sha256": "8a679c77fefdbca1ca5788350f71ee6c3bce2b39ff667577b1a17ab8ca66ba64",
+      "candidateSha256": "a609287c559d4369093ed3d8295f6854eb8088a4ce76725d768bea0fa653e760"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/ModelLibrary.cs",
+      "sha256": "b642c066f4401525e10e703b5eec6c13d6b381a95d09af14fa22f80257be5e7b",
+      "candidateSha256": "b642c066f4401525e10e703b5eec6c13d6b381a95d09af14fa22f80257be5e7b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs",
+      "sha256": "2a7ad133e435435d2af01f15ee32c08a7dc906b4b77a44290c3605559ebbbe48",
+      "candidateSha256": "2a7ad133e435435d2af01f15ee32c08a7dc906b4b77a44290c3605559ebbbe48"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Player/PlayerAppearance.cs",
+      "sha256": "9285fca5b80cf1c8ccce6a3bafd08c51b3cfa4b6d561dad0dfefbb21142b1a8e",
+      "candidateSha256": "9285fca5b80cf1c8ccce6a3bafd08c51b3cfa4b6d561dad0dfefbb21142b1a8e"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundOriginalEquipmentView.cs",
+      "sha256": "789d2fe641cc6d1e373402e5043491d6cc016f6535f75afe9730b940e5b41d08",
+      "candidateSha256": "789d2fe641cc6d1e373402e5043491d6cc016f6535f75afe9730b940e5b41d08"
+    },
+    {
+      "path": "Assets/_Project/Tests/AvatarSurfaceRuntimeTests.cs",
+      "sha256": "e52304a5ac9bd5f0e56ccf0c8eb28610ba4ca52965e8a6ca690e4683616167b7",
+      "candidateSha256": "d3c8df8e1e9ed6ca2710cf5e10e741c4af58f35a43aff70388eee59246c2bd38"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/AvatarSurfaceCorrectionTests.cs",
+      "sha256": "f4ab153c8c0afde85c53320d67cb18abb6c3c96f4ea2caf57b4a218da05ce471",
+      "candidateSha256": "b1661ae0ccc0eb0438ca1a4d306611f9ebd0f85989c7c535f028c56760622287"
+    }
+  ],
+  "assets": [
+    {
+      "path": "Assets/_Project/Art/Imported/Avatar/Avatar.fbx",
+      "sha256": "f1199f15a333de765e49aa4b6773a1c71c3347c9ca4a5169c93ab54190a1c6c3"
+    },
+    {
+      "path": "Assets/_Project/Art/Imported/Avatar/Avatar.fbx.meta",
+      "sha256": "5019b95427453cefa10c0ccabdf5ff6bb77435948908132120ef5fc20cef9417"
+    },
+    {
+      "path": "Assets/_Project/Art/Corrections/Avatar/SK_Head_Surface.asset",
+      "sha256": "7368556bcc98a57cd192a194e8446dc77814010b5c9f5c59a4ee6848432a9813"
+    },
+    {
+      "path": "Assets/_Project/Art/Corrections/Avatar/SK_Head_Surface.asset.meta",
+      "sha256": "ef46eccf292b367fed6c37ae6a128d2e5451778021dbe609a9bf6e111b3343d0"
+    },
+    {
+      "path": "Assets/_Project/Resources/Art/AvatarSurfaceCorrection.asset",
+      "sha256": "9cd019aaef3e7d16c7fa0b78d4807c7b7c534e2ab1cd041341e0ebaa3b52420f"
+    },
+    {
+      "path": "Assets/_Project/Resources/Art/AvatarSurfaceCorrection.asset.meta",
+      "sha256": "3e7c4f235a0b0435540e0d0ff07ee5803d27dd7bef12e1b487802d2d60400ad9"
+    }
+  ],
+  "evidence": "Ten Editor cases include repeat setup preservation and 27 pose/expression combinations; one PlayMode case exercises actual authored PlayerAppearance initialization.",
+  "openFindings": [
+    "Actual Windows equipment QA passes the enclosing Wordbound artwork wrapper into a direct-avatar path validator; fix and test the real resolver wrapper before Windows build.",
+    "Editor source-change protection before Play/build/new authoring is being added.",
+    "Six shop portraits and current Windows visual/animation acceptance remain pending."
+  ]
+}

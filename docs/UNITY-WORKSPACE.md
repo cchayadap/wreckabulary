@@ -32,6 +32,28 @@ The same setup calls the typography setup, whose saved outputs are `Resources/UI
 
 The font and its material must use matching atlas/shader settings and valid bold-typeface assignments. If the profile is invalid, the source logs a warning and uses generated defaults, so check the Console if a saved choice does not appear. Native creation/persistence and runtime ownership checks pass; authored fonts are preserved during the recorded Play tests. Physical Play/Stop interaction and rendered appearance remain under review. Home, Shop and Loadout panels now use saved prefabs; inner generated controls remain listed in the [lobby editing guide](wordbound/LOBBY-EDITING-GUIDE.md). Keep original source TTF files and their licenses in `Resources/Fonts`.
 
+### Household furniture studio
+
+The Household importer passes all four Editor tests. Permanent setup has created the expected 102 files, and the existing 146 authored files remain unchanged. **Repeat preservation and rendered review are still being verified.**
+
+1. Choose **Workspace → Scenes → Open Household Studio** for `Assets/_Project/Scenes/Authoring/HouseholdStudio.unity`. Its camera, light and eight furniture instances are editable. If setup is needed, use **Design → Workspace Tools → Create missing Household Studio**; the menu equivalent is **Wreckabulary → Authoring → Create Missing Household Studio**. Setup preserves existing assets.
+2. Move or rotate a scene instance to change this studio's arrangement, then save the scene. To change the reusable item, use **Design → Household furniture prefabs**, open its prefab in Prefab Mode, edit and save it. Apply scene overrides to the prefab only when you intend to share them.
+3. Select a renderer's saved material under `Assets/_Project/Art/Collections/HouseholdExpansionV1/Materials/<sourceName>/`. Editing that material affects every referencing instance. For a local color/style variation, duplicate the material and assign the copy to the intended prefab or instance. The source model files stay under the collection's `Models/` folder; use the game-owned wrappers below for placement.
+4. **Design → Household initial sizing** selects `Assets/_Project/Data/Wordbound/Authoring/HouseholdExpansion.asset`. Its heights are creation defaults for missing prefabs, not controls that overwrite existing ones. Resize an existing saved prefab directly in Prefab Mode. Reopening or repeating setup preserves that edit.
+
+| Area | Exact wrapper prefab path |
+| --- | --- |
+| Kitchen — stove | `Assets/_Project/Prefabs/Furniture/HouseholdExpansionV1/Kitchen/kitchenStove.prefab` |
+| Kitchen — fridge | `Assets/_Project/Prefabs/Furniture/HouseholdExpansionV1/Kitchen/kitchenFridge.prefab` |
+| Kitchen — cabinet | `Assets/_Project/Prefabs/Furniture/HouseholdExpansionV1/Kitchen/kitchenCabinet.prefab` |
+| Attic — bookcase | `Assets/_Project/Prefabs/Furniture/HouseholdExpansionV1/Attic/bookcaseClosedDoors.prefab` |
+| Attic — drawer cabinet | `Assets/_Project/Prefabs/Furniture/HouseholdExpansionV1/Attic/cabinetBedDrawer.prefab` |
+| Rooftop — plant | `Assets/_Project/Prefabs/Furniture/HouseholdExpansionV1/Rooftop/pottedPlant.prefab` |
+| Rooftop — bench | `Assets/_Project/Prefabs/Furniture/HouseholdExpansionV1/Rooftop/bench.prefab` |
+| Packing Yard — parcel | `Assets/_Project/Prefabs/Furniture/HouseholdExpansionV1/PackingYard/cardboardBoxClosed.prefab` |
+
+Household Studio is an art review scene. Seven props still need collision authoring; only the parcel has a simple static box collider. None has tested dynamic physics, hinges, drawer motion or breakage. Complete those checks before interactive map use. Setup does not add these props to gameplay catalogues or replace existing equipment.
+
 ## What is saved and editable now
 
 | Edit | Current source |

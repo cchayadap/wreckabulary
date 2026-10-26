@@ -33,3 +33,13 @@ Keep Finish, scroll/grid and header controls outside **Recipe detail**. Keep car
 For Home, keep **Turn hint** separate from **Next match**. Keep Start, mode, house, Wordbound and its note independently visible inside the dock. The default Vertical Layout Group controls action positions; edit its spacing and child Layout Elements, or deliberately replace it for free placement. Current mode/house labels, countdown visibility, availability and callbacks are runtime-owned. **Wreckabulary → Authoring → Create or Verify Saved Home Layout** validates an existing layout without replacing it.
 
 Still procedural: wearable pickers/swatches/accessories/finishes, recipe-detail contents and letter-tile styling, Shop's Gear recipe picker and Extras, and gameplay HUD. Names, pictures, prices, ownership and actions come from game data. Blank recipe/detail slots in Prefab Mode are expected; a data-filled editor preview remains future work.
+
+## Household props and review layout
+
+The importer passes four Editor tests, and permanent setup has created the expected 102 files. **Repeat preservation and rendered review remain pending.** Use **Workspace → Scenes → Open Household Studio**. If the shortcut is disabled because assets are missing, **Design → Workspace Tools → Create missing Household Studio** creates missing defaults and preserves saved work.
+
+Move an instance or camera and save `Assets/_Project/Scenes/Authoring/HouseholdStudio.unity` to change the review layout. For a reusable prop edit, choose **Design → Household furniture prefabs**, open the prefab and save in Prefab Mode. The eight exact paths, grouped into Kitchen, Attic, Rooftop and Packing Yard, are in the [workspace guide](../UNITY-WORKSPACE.md#household-furniture-studio).
+
+Saved surfaces are under `Assets/_Project/Art/Collections/HouseholdExpansionV1/Materials/<sourceName>/`. Material edits affect all references; duplicate and assign a material for a local variation. **Household initial sizing** opens `Assets/_Project/Data/Wordbound/Authoring/HouseholdExpansion.asset`: its heights apply when a missing prefab is created. They do not resize existing prefabs or overwrite Inspector edits.
+
+Seven props still need colliders; only the parcel has a static box collider. These are review assets awaiting gameplay/physics acceptance. Moving one into this studio does not place it in the Hub, shop or a playable map.

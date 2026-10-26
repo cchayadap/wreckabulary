@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3355d284e955f2545894f57945d0a2d7, type: 3}
+  m_Name: HouseholdExpansion
+  m_EditorClassIdentifier: Wreckabulary.Editor::Wreckabulary.EditorTools.WordboundHouseholdSettings
+  items:
+  - id: kitchenStove
+    targetHeight: 0.9
+  - id: kitchenFridge
+    targetHeight: 1.8
+  - id: kitchenCabinet
+    targetHeight: 0.9
+  - id: bookcaseClosedDoors
+    targetHeight: 1.8
+  - id: cabinetBedDrawer
+    targetHeight: 0.6
+  - id: pottedPlant
+    targetHeight: 1.2
+  - id: bench
+    targetHeight: 0.9
+  - id: cardboardBoxClosed
+    targetHeight: 0.45

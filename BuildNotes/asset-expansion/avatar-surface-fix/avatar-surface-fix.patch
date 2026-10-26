@@ -1,0 +1,878 @@
+diff --git a/Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs b/Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs
+@@ -0,0 +1,275 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using UnityEditor;
++using UnityEditor.SceneManagement;
++using UnityEngine;
++using UnityEngine.Rendering;
++using Wreckabulary.Art;
++using Object = UnityEngine.Object;
++
++namespace Wreckabulary.EditorTools
++{
++    public static class AvatarSurfaceCorrectionSetup
++    {
++        public const string AvatarPath = "Assets/_Project/Art/Imported/Avatar/Avatar.fbx";
++        public const string MeshPath = "Assets/_Project/Art/Corrections/Avatar/SK_Head_Surface.asset";
++        public const string ProfilePath = "Assets/_Project/Resources/Art/AvatarSurfaceCorrection.asset";
++        public const string ExpectedSource = "997ebb6a6441b01f9a673683405a7b99678b6c272099068ed786a134d5cfe65f";
++        const string ExpectedFbx = "f1199f15a333de765e49aa4b6773a1c71c3347c9ca4a5169c93ab54190a1c6c3";
++        const string ExpectedMeta = "5019b95427453cefa10c0ccabdf5ff6bb77435948908132120ef5fc20cef9417";
++
++        sealed class Frame
++        {
++            public string name;
++            public float weight;
++            public Vector3[] delta;
++        }
++
++        [MenuItem("Wreckabulary/Art/Create or Verify Avatar Surface Correction")]
++        public static void CreateOrVerify()
++        {
++            var profile = EnsureDefaults();
++            Selection.activeObject = profile; EditorGUIUtility.PingObject(profile);
++        }
++
++        public static AvatarSurfaceProfile EnsureDefaults()
++        {
++            if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Run outside Play Mode.");
++            var library = ModelLibrary.Load();
++            var avatar = library ? library.Find("Avatar/Avatar") : null;
++            if (!avatar || AssetDatabase.GetAssetPath(avatar) != AvatarPath)
++                throw new InvalidOperationException("Expected the original imported avatar entry; no library rewrite is performed.");
++            var head = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true).Single(r => r.name == "SK_Head");
++            var source = head.sharedMesh;
++            ValidateSource(source);
++            string before = AvatarSurfaceMeshData.Fingerprint(source);
++            bool dirty = EditorUtility.IsDirty(source);
++            Mesh createdMesh = null; AvatarSurfaceProfile createdProfile = null;
++            try
++            {
++                var profileObject = AssetDatabase.LoadMainAssetAtPath(ProfilePath);
++                var meshObject = AssetDatabase.LoadMainAssetAtPath(MeshPath);
++                if (profileObject && profileObject is not AvatarSurfaceProfile) throw new IOException("Profile path is occupied.");
++                if (meshObject && meshObject is not Mesh) throw new IOException("Mesh path is occupied.");
++                var profile = profileObject as AvatarSurfaceProfile;
++                var corrected = meshObject as Mesh;
++                string path = AnimationUtility.CalculateTransformPath(head.transform, avatar.transform);
++                if (profile)
++                {
++                    if (!profile.TryValidate(out string reason) || profile.SourceAvatar != avatar || profile.SourceMesh != source
++                        || profile.CorrectedMesh != corrected || profile.RendererPath != path || profile.SourceFingerprint != ExpectedSource)
++                        throw new InvalidOperationException("Preserve the existing authored profile and inspect its references: " + reason);
++                    ValidateCorrected(source, corrected);
++                    return profile;
++                }
++                RequireVacant(ProfilePath);
++                if (!corrected)
++                {
++                    RequireVacant(MeshPath);
++                    createdMesh = CreateCorrectedMesh(source);
++                    createdMesh.name = "SK_Head Surface";
++                    EnsureFolder("Assets/_Project/Art/Corrections/Avatar");
++                    RequireVacant(MeshPath);
++                    AssetDatabase.CreateAsset(createdMesh, MeshPath);
++                    AssetDatabase.SaveAssetIfDirty(createdMesh);
++                    corrected = createdMesh;
++                }
++                else ValidateCorrected(source, corrected);
++                EnsureFolder("Assets/_Project/Resources/Art");
++                createdProfile = ScriptableObject.CreateInstance<AvatarSurfaceProfile>();
++                createdProfile.name = "Avatar Surface Correction";
++                createdProfile.Initialize(avatar, source, corrected, path, ExpectedSource);
++                if (!createdProfile.TryValidate(out string invalid)) throw new InvalidOperationException(invalid);
++                RequireVacant(ProfilePath);
++                AssetDatabase.CreateAsset(createdProfile, ProfilePath);
++                AssetDatabase.SaveAssetIfDirty(createdProfile);
++                return createdProfile;
++            }
++            finally
++            {
++                if (createdMesh && !EditorUtility.IsPersistent(createdMesh)) Object.DestroyImmediate(createdMesh);
++                if (createdProfile && !EditorUtility.IsPersistent(createdProfile)) Object.DestroyImmediate(createdProfile);
++                if (AvatarSurfaceMeshData.Fingerprint(source) != before || EditorUtility.IsDirty(source) != dirty)
++                    throw new InvalidOperationException("Original source memory changed; no automatic repair attempted.");
++                ValidateSource(source);
++            }
++        }
++
++        public static void ValidateSource(Mesh source)
++        {
++            if (!source || !EditorUtility.IsPersistent(source) || AssetDatabase.GetAssetPath(source) != AvatarPath
++                || source.name != "SK_Head" || source.vertexCount != 6630 || source.subMeshCount != 3)
++                throw new InvalidOperationException("This correction is bound to the reviewed original SK_Head only.");
++            if (AvatarSurfaceMeshData.Hash(File.ReadAllBytes(AvatarPath)) != ExpectedFbx
++                || AvatarSurfaceMeshData.Hash(File.ReadAllBytes(AvatarPath + ".meta")) != ExpectedMeta
++                || AvatarSurfaceMeshData.Fingerprint(source) != ExpectedSource)
++                throw new InvalidOperationException("Avatar source changed; preserve it and review a new correction version.");
++            var face = Measure(source, 0);
++            if (face.invalid != 0 || face.zero != 0 || face.opposed != face.samples || face.meanDot > -.97)
++                throw new InvalidOperationException("The reviewed face-normal inversion is no longer present; do not apply this recipe.");
++        }
++
++        public static Mesh CreateCorrectedMesh(Mesh source)
++        {
++            ValidateSource(source);
++            var frames = ReadFrames(source);
++            Mesh corrected = null, frameMesh = null;
++            try
++            {
++                corrected = Object.Instantiate(source);
++                corrected.ClearBlendShapes();
++                corrected.RecalculateNormals(); corrected.RecalculateTangents();
++                RequireSurfaceArrays(corrected);
++                var baseVertices = source.vertices;
++                var baseNormals = corrected.normals;
++                var baseTangents = corrected.tangents;
++                frameMesh = Object.Instantiate(corrected);
++                foreach (var frame in frames)
++                {
++                    var vertices = new Vector3[baseVertices.Length];
++                    for (int i = 0; i < vertices.Length; i++) vertices[i] = baseVertices[i] + frame.delta[i];
++                    frameMesh.vertices = vertices;
++                    frameMesh.RecalculateNormals(); frameMesh.RecalculateTangents();
++                    RequireSurfaceArrays(frameMesh);
++                    var normals = frameMesh.normals; var tangents = frameMesh.tangents;
++                    var deltaNormals = new Vector3[vertices.Length]; var deltaTangents = new Vector3[vertices.Length];
++                    for (int i = 0; i < vertices.Length; i++)
++                    {
++                        if (Mathf.Sign(baseTangents[i].w) != Mathf.Sign(tangents[i].w))
++                            throw new InvalidOperationException("Blendshape changes tangent handedness at " + frame.name + "/" + frame.weight + "/" + i
++                                + "; a three-component tangent delta cannot represent this safely.");
++                        deltaNormals[i] = normals[i] - baseNormals[i];
++                        deltaTangents[i] = new Vector3(tangents[i].x - baseTangents[i].x,
++                            tangents[i].y - baseTangents[i].y, tangents[i].z - baseTangents[i].z);
++                    }
++                    corrected.AddBlendShapeFrame(frame.name, frame.weight, frame.delta, deltaNormals, deltaTangents);
++                }
++                ValidateCorrected(source, corrected);
++                var result = corrected; corrected = null; return result;
++            }
++            finally
++            {
++                if (frameMesh) Object.DestroyImmediate(frameMesh);
++                if (corrected) Object.DestroyImmediate(corrected);
++            }
++        }
++
++        static List<Frame> ReadFrames(Mesh source)
++        {
++            var frames = new List<Frame>();
++            for (int shape = 0; shape < source.blendShapeCount; shape++)
++                for (int frame = 0; frame < source.GetBlendShapeFrameCount(shape); frame++)
++                {
++                    var delta = new Vector3[source.vertexCount];
++                    source.GetBlendShapeFrameVertices(shape, frame, delta, null, null);
++                    frames.Add(new Frame { name = source.GetBlendShapeName(shape), weight = source.GetBlendShapeFrameWeight(shape, frame), delta = delta });
++                }
++            return frames;
++        }
++
++        public static void ValidateCorrected(Mesh source, Mesh corrected)
++        {
++            if (!corrected || source == corrected || AvatarSurfaceMeshData.Fingerprint(source, false) != AvatarSurfaceMeshData.Fingerprint(corrected, false))
++                throw new InvalidOperationException("Correction changed geometry, UVs, skinning, shape positions or other protected values.");
++            RequireSurfaceArrays(corrected);
++            var face = Measure(corrected, 0);
++            if (face.invalid != 0 || face.zero != 0 || face.opposed != 0 || face.meanDot < .97)
++                throw new InvalidOperationException("Corrected face normals do not follow the outward face geometry.");
++        }
++
++        static void RequireSurfaceArrays(Mesh mesh)
++        {
++            var normals = mesh.normals; var tangents = mesh.tangents;
++            if (normals.Length != mesh.vertexCount || tangents.Length != mesh.vertexCount || mesh.uv.Length != mesh.vertexCount)
++                throw new InvalidOperationException("Expected complete UV0, normals and tangents.");
++            for (int i = 0; i < mesh.vertexCount; i++)
++            {
++                var tangent = new Vector3(tangents[i].x, tangents[i].y, tangents[i].z);
++                if (!AvatarSurfaceMeshData.Finite(normals[i]) || !AvatarSurfaceMeshData.Finite(tangent)
++                    || normals[i].sqrMagnitude < .5f || tangent.sqrMagnitude < .5f
++                    || float.IsNaN(tangents[i].w) || float.IsInfinity(tangents[i].w) || Mathf.Abs(tangents[i].w) < .9f)
++                    throw new InvalidOperationException("Invalid generated surface basis at " + i);
++            }
++        }
++
++        public readonly struct SurfaceMeasure
++        {
++            public readonly int samples, opposed, invalid, zero;
++            public readonly double meanDot;
++            public SurfaceMeasure(int count, int negative, int bad, int tiny, double mean)
++            { samples = count; opposed = negative; invalid = bad; zero = tiny; meanDot = mean; }
++        }
++
++        public static SurfaceMeasure Measure(Mesh mesh, int submesh)
++        {
++            if (mesh.GetTopology(submesh) != MeshTopology.Triangles) throw new InvalidOperationException("Expected triangle topology.");
++            var vertices = mesh.vertices; var normals = mesh.normals; var indices = mesh.GetIndices(submesh);
++            if (normals.Length != vertices.Length || indices.Length % 3 != 0) throw new InvalidOperationException("Incomplete mesh data.");
++            int samples = 0, opposed = 0, invalid = 0, zero = 0; double weighted = 0, total = 0;
++            for (int i = 0; i < indices.Length; i += 3)
++            {
++                Vector3 a = vertices[indices[i]], b = vertices[indices[i + 1]], c = vertices[indices[i + 2]];
++                Vector3 geometric = Vector3.Cross(b - a, c - a); float area2 = geometric.magnitude;
++                if (!AvatarSurfaceMeshData.Finite(geometric) || float.IsInfinity(area2)) { invalid++; continue; }
++                if (area2 < 1e-12f) { zero++; continue; }
++                geometric /= area2;
++                for (int corner = 0; corner < 3; corner++)
++                {
++                    samples++; var normal = normals[indices[i + corner]];
++                    if (!AvatarSurfaceMeshData.Finite(normal)) { invalid++; continue; }
++                    if (normal.sqrMagnitude < 1e-10f) { zero++; continue; }
++                    float dot = Vector3.Dot(geometric, normal.normalized);
++                    if (dot < -.05f) opposed++;
++                    weighted += dot * area2; total += area2;
++                }
++            }
++            return new SurfaceMeasure(samples, opposed, invalid, zero, total > 0 ? weighted / total : 0);
++        }
++
++        [MenuItem("Wreckabulary/Art/Apply Avatar Surface Correction to Selected Instance")]
++        public static void ApplyToSelectedInstance()
++        {
++            var instance = Selection.activeGameObject;
++            if (!instance || EditorUtility.IsPersistent(instance) || EditorApplication.isPlayingOrWillChangePlaymode)
++                throw new InvalidOperationException("Select a scene or prefab-stage avatar root outside Play Mode.");
++            var profile = EnsureDefaults();
++            var target = instance.transform.Find(profile.RendererPath);
++            var skin = target ? target.GetComponent<SkinnedMeshRenderer>() : null;
++            if (!skin || skin.sharedMesh != profile.SourceMesh) throw new InvalidOperationException("Selected root does not use the bound original head.");
++            Undo.RecordObject(skin, "Apply saved avatar surface correction");
++            if (!profile.TryApply(profile.SourceAvatar, instance)) throw new InvalidOperationException("Correction is disabled or no longer matches.");
++            PrefabUtility.RecordPrefabInstancePropertyModifications(skin);
++            EditorUtility.SetDirty(skin); EditorSceneManager.MarkSceneDirty(instance.scene);
++        }
++
++        static void RequireVacant(string path)
++        {
++            if (AssetDatabase.LoadMainAssetAtPath(path) || File.Exists(path) || File.Exists(path + ".meta") || Directory.Exists(path))
++                throw new IOException("Preserve occupied asset path: " + path);
++        }
++
++        static void EnsureFolder(string folder)
++        {
++            if (AssetDatabase.IsValidFolder(folder)) return;
++            if (File.Exists(folder) || File.Exists(folder + ".meta") || Directory.Exists(folder)) throw new IOException("Unrecognized folder path: " + folder);
++            int slash = folder.LastIndexOf('/');
++            if (slash < 0) throw new IOException("Assets folder unavailable.");
++            EnsureFolder(folder.Substring(0, slash));
++            if (string.IsNullOrEmpty(AssetDatabase.CreateFolder(folder.Substring(0, slash), folder.Substring(slash + 1))))
++                throw new IOException("Could not create folder: " + folder);
++        }
++    }
++
++    [CustomEditor(typeof(AvatarSurfaceProfile))]
++    public sealed class AvatarSurfaceProfileEditor : Editor
++    {
++        public override void OnInspectorGUI()
++        {
++            DrawDefaultInspector();
++            if (!((AvatarSurfaceProfile)target).TryValidate(out string reason)) EditorGUILayout.HelpBox(reason, MessageType.Error);
++            EditorGUILayout.HelpBox("One saved head mesh is shared by new avatars. Original FBX, clips and materials remain the source. Existing scene avatars can use Art > Apply Avatar Surface Correction to Selected Instance; save that scene or prefab afterward.", MessageType.Info);
++        }
++    }
++}
+diff --git a/Assets/_Project/Editor/Art/AvatarSurfaceMeshData.cs b/Assets/_Project/Editor/Art/AvatarSurfaceMeshData.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Editor/Art/AvatarSurfaceMeshData.cs
+@@ -0,0 +1,68 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using System.Security.Cryptography;
++using System.Text;
++using UnityEngine;
++using UnityEngine.Rendering;
++
++namespace Wreckabulary.EditorTools
++{
++    public static class AvatarSurfaceMeshData
++    {
++        public static string Fingerprint(Mesh mesh, bool includeSurface = true)
++        {
++            using var stream = new MemoryStream();
++            using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
++            writer.Write(mesh.vertexCount); writer.Write((int)mesh.indexFormat); writer.Write(mesh.subMeshCount);
++            Write(writer, mesh.bounds.center); Write(writer, mesh.bounds.extents);
++            var vertices = mesh.vertices; writer.Write(vertices.Length); foreach (var value in vertices) Write(writer, value);
++            if (includeSurface)
++            { var normals = mesh.normals; writer.Write(normals.Length); foreach (var value in normals) Write(writer, value); }
++            var attributes = includeSurface ? DescribeVertexAttributes(mesh) : mesh.GetVertexAttributes().Where(a => a.attribute != VertexAttribute.Normal && a.attribute != VertexAttribute.Tangent).Select(a => a.attribute + ":" + a.format + "x" + a.dimension + " stream" + a.stream).ToArray(); writer.Write(attributes.Length); foreach (string value in attributes) writer.Write(value);
++            if (includeSurface) { var tangents = mesh.tangents; writer.Write(tangents.Length); foreach (var value in tangents) Write(writer, value); }
++            var colors = mesh.colors; writer.Write(colors.Length);
++            foreach (var value in colors) { writer.Write(value.r); writer.Write(value.g); writer.Write(value.b); writer.Write(value.a); }
++            var uv = new List<Vector4>();
++            for (int channel = 0; channel < 8; channel++)
++            { uv.Clear(); mesh.GetUVs(channel, uv); writer.Write(uv.Count); foreach (var value in uv) Write(writer, value); }
++            var bindposes = mesh.bindposes; writer.Write(bindposes.Length);
++            foreach (var matrix in bindposes) for (int i = 0; i < 16; i++) writer.Write(matrix[i]);
++            var counts = mesh.GetBonesPerVertex(); writer.Write(counts.Length);
++            for (int i = 0; i < counts.Length; i++) writer.Write(counts[i]);
++            var weights = mesh.GetAllBoneWeights(); writer.Write(weights.Length);
++            for (int i = 0; i < weights.Length; i++) { writer.Write(weights[i].boneIndex); writer.Write(weights[i].weight); }
++            for (int i = 0; i < mesh.subMeshCount; i++)
++            {
++                var descriptor = mesh.GetSubMesh(i);
++                writer.Write((int)descriptor.topology); writer.Write(descriptor.indexStart); writer.Write(descriptor.indexCount);
++                writer.Write(descriptor.baseVertex); writer.Write(descriptor.firstVertex); writer.Write(descriptor.vertexCount);
++                Write(writer, descriptor.bounds.center); Write(writer, descriptor.bounds.extents);
++                var indices = mesh.GetIndices(i); writer.Write(indices.Length); foreach (int index in indices) writer.Write(index);
++            }
++            writer.Write(mesh.blendShapeCount);
++            var positions = new Vector3[mesh.vertexCount]; var shapeNormals = new Vector3[mesh.vertexCount]; var shapeTangents = new Vector3[mesh.vertexCount];
++            for (int shape = 0; shape < mesh.blendShapeCount; shape++)
++            {
++                writer.Write(mesh.GetBlendShapeName(shape)); int frames = mesh.GetBlendShapeFrameCount(shape); writer.Write(frames);
++                for (int frame = 0; frame < frames; frame++)
++                {
++                    writer.Write(mesh.GetBlendShapeFrameWeight(shape, frame));
++                    mesh.GetBlendShapeFrameVertices(shape, frame, positions, shapeNormals, shapeTangents);
++                    for (int i = 0; i < mesh.vertexCount; i++) { Write(writer, positions[i]); if (includeSurface) { Write(writer, shapeNormals[i]); Write(writer, shapeTangents[i]); } }
++                }
++            }
++            writer.Flush(); return Hash(stream.ToArray());
++        }
++
++        static void Write(BinaryWriter writer, Vector3 value) { writer.Write(value.x); writer.Write(value.y); writer.Write(value.z); }
++        static void Write(BinaryWriter writer, Vector4 value) { writer.Write(value.x); writer.Write(value.y); writer.Write(value.z); writer.Write(value.w); }
++        static string[] DescribeVertexAttributes(Mesh mesh) => mesh.GetVertexAttributes()
++            .Select(value => value.attribute + ":" + value.format + "x" + value.dimension + " stream" + value.stream).ToArray();
++        public static bool Finite(Vector3 value) => !(float.IsNaN(value.x) || float.IsNaN(value.y) || float.IsNaN(value.z)
++            || float.IsInfinity(value.x) || float.IsInfinity(value.y) || float.IsInfinity(value.z));
++
++        public static string Hash(byte[] bytes) { using var hash = SHA256.Create(); return BitConverter.ToString(hash.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant(); }
++    }
++}
+diff --git a/Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs b/Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs
+--- a/Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs
++++ b/Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs
+@@ -236,8 +236,13 @@
+                 holder = new GameObject("Courier " + result.control) { hideFlags = HideFlags.HideAndDontSave };
+                 preview.AddSingleGO(holder);
+                 if (holder.scene != scene) throw new InvalidOperationException("Avatar holder did not enter the owned preview scene.");
+-                var model = ModelVisual.Spawn("Avatar/Avatar", holder.transform);
++                var original = ModelLibrary.Load().Find("Avatar/Avatar");
++                var model = original ? Object.Instantiate(original, holder.transform, false) : null;
+                 if (!model) throw new InvalidOperationException("Original avatar spawn failed.");
++                model.name = original.name;
++                foreach (var collider in model.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
++                var materialLibrary = MaterialLibrary.Load();
++                if (materialLibrary) materialLibrary.ApplySkin(model, MaterialLibrary.StandardSkin);
+                 idle.SampleAnimation(model, 0);
+                 PlayerAppearance.Dress(model.GetComponentsInChildren<SkinnedMeshRenderer>(true), outfit);
+                 holder.transform.rotation = Quaternion.Euler(0, 160, 0);
+diff --git a/Assets/_Project/Editor/Authoring/PlayerAuthoring.cs b/Assets/_Project/Editor/Authoring/PlayerAuthoring.cs
+--- a/Assets/_Project/Editor/Authoring/PlayerAuthoring.cs
++++ b/Assets/_Project/Editor/Authoring/PlayerAuthoring.cs
+@@ -99,6 +99,15 @@
+             var asset = library ? library.Find("Avatar/Avatar") : null;
+             if (!asset) throw new InvalidOperationException("Run Set Up Imported Art before authoring the player.");
+             var model = (GameObject)PrefabUtility.InstantiatePrefab(asset, parent);
++            try
++            {
++                if (AvatarSurfaceProfile.ApplyDefault("Avatar/Avatar", asset, model))
++                {
++                    var profile = AvatarSurfaceProfile.Load();
++                    PrefabUtility.RecordPrefabInstancePropertyModifications(model.transform.Find(profile.RendererPath).GetComponent<SkinnedMeshRenderer>());
++                }
++            }
++            catch { UnityEngine.Object.DestroyImmediate(model); throw; }
+             foreach (var collider in model.GetComponentsInChildren<Collider>(true))
+             {
+                 collider.enabled = false;
+diff --git a/Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs b/Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs
+@@ -0,0 +1,99 @@
++using System;
++using UnityEngine;
++
++namespace Wreckabulary.Art
++{
++    [CreateAssetMenu(menuName = "Wreckabulary/Art/Avatar Surface Correction", fileName = "AvatarSurfaceCorrection")]
++    public sealed class AvatarSurfaceProfile : ScriptableObject
++    {
++        public const string ResourcePath = "Art/AvatarSurfaceCorrection";
++        [SerializeField] bool enabledCorrection = true;
++        [SerializeField] GameObject sourceAvatar;
++        [SerializeField] Mesh sourceMesh, correctedMesh;
++        [SerializeField] string rendererPath = "SK_Head";
++        [SerializeField, TextArea] string sourceFingerprint;
++        static AvatarSurfaceProfile loaded;
++
++        public GameObject SourceAvatar => sourceAvatar;
++        public Mesh SourceMesh => sourceMesh;
++        public Mesh CorrectedMesh => correctedMesh;
++        public string RendererPath => rendererPath;
++        public string SourceFingerprint => sourceFingerprint;
++
++        public static AvatarSurfaceProfile Load()
++        {
++            if (!loaded) loaded = Resources.Load<AvatarSurfaceProfile>(ResourcePath);
++            return loaded;
++        }
++
++        public static bool ApplyDefault(string key, GameObject source, GameObject instance)
++        {
++            if (key != "Avatar/Avatar") return false;
++            var profile = Load();
++            return profile && profile.TryApply(source, instance);
++        }
++
++        public void Initialize(GameObject avatar, Mesh original, Mesh corrected, string path, string fingerprint)
++        {
++            sourceAvatar = avatar; sourceMesh = original; correctedMesh = corrected;
++            rendererPath = path; sourceFingerprint = fingerprint;
++        }
++
++        public bool TryValidate(out string reason)
++        {
++            reason = "";
++            if (!sourceAvatar || !sourceMesh || !correctedMesh || sourceMesh == correctedMesh)
++                reason = "Assign the original avatar, original head and a separate corrected mesh.";
++            else if (string.IsNullOrEmpty(rendererPath) || rendererPath.StartsWith("/", StringComparison.Ordinal)
++                || rendererPath.Contains("..") || string.IsNullOrEmpty(sourceFingerprint))
++                reason = "The exact renderer path and source fingerprint are required.";
++            else if (sourceMesh.vertexCount != correctedMesh.vertexCount || sourceMesh.subMeshCount != correctedMesh.subMeshCount
++                || sourceMesh.blendShapeCount != correctedMesh.blendShapeCount)
++                reason = "The correction must preserve vertex, submesh and blendshape counts.";
++            if (reason.Length == 0)
++            {
++                var bound = sourceAvatar.transform.Find(rendererPath);
++                var renderer = bound ? bound.GetComponent<SkinnedMeshRenderer>() : null;
++                if (!renderer || renderer.sharedMesh != sourceMesh) reason = "The source renderer no longer matches the bound original mesh.";
++                for (int i = 0; reason.Length == 0 && i < sourceMesh.blendShapeCount; i++)
++                    if (sourceMesh.GetBlendShapeName(i) != correctedMesh.GetBlendShapeName(i)
++                        || sourceMesh.GetBlendShapeFrameCount(i) != correctedMesh.GetBlendShapeFrameCount(i))
++                        reason = "Blendshape names, ordering and frame counts must match the source.";
++            }
++            return reason.Length == 0;
++        }
++
++        public bool TryApply(GameObject source, GameObject instance)
++        {
++            if (!enabledCorrection || !source || !instance || source != sourceAvatar || instance == sourceAvatar) return false;
++            if (!TryValidate(out string reason)) throw new InvalidOperationException("Avatar surface correction: " + reason);
++            var target = instance.transform.Find(rendererPath);
++            var skin = target ? target.GetComponent<SkinnedMeshRenderer>() : null;
++            if (!skin || skin.sharedMesh != sourceMesh) return false;
++            var weights = new float[sourceMesh.blendShapeCount];
++            for (int i = 0; i < weights.Length; i++) weights[i] = skin.GetBlendShapeWeight(i);
++            var bounds = skin.localBounds;
++            skin.sharedMesh = correctedMesh;
++            for (int i = 0; i < weights.Length; i++) skin.SetBlendShapeWeight(i, weights[i]);
++            skin.localBounds = bounds;
++            return true;
++        }
++
++        public bool MatchesOnlyBoundHeadReplacement(GameObject source, GameObject instance, Mesh[] expected, Mesh[] actual)
++        {
++            if (!source || !instance || source != sourceAvatar || !TryValidate(out _)
++                || expected == null || actual == null || expected.Length != actual.Length) return false;
++            var target = instance.transform.Find(rendererPath);
++            var skin = target ? target.GetComponent<SkinnedMeshRenderer>() : null;
++            if (!skin || skin.sharedMesh != correctedMesh) return false;
++            int replacements = 0;
++            for (int i = 0; i < expected.Length; i++)
++            {
++                if (!expected[i] || !actual[i]) return false;
++                if (expected[i] == actual[i]) continue;
++                if (expected[i] != sourceMesh || actual[i] != correctedMesh || ++replacements > 1) return false;
++            }
++            return replacements == 1;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Art/ModelLibrary.cs b/Assets/_Project/Scripts/Art/ModelLibrary.cs
+--- a/Assets/_Project/Scripts/Art/ModelLibrary.cs
++++ b/Assets/_Project/Scripts/Art/ModelLibrary.cs
+@@ -72,6 +72,12 @@
+             if (model == null) throw new KeyNotFoundException($"No imported model '{key}'. Run Wreckabulary > Art > Set Up Imported Art.");
+             var copy = Instantiate(model, parent, false);
+             copy.name = model.name;
++            try { AvatarSurfaceProfile.ApplyDefault(key, model, copy); }
++            catch
++            {
++                if (Application.isPlaying) Destroy(copy); else DestroyImmediate(copy);
++                throw;
++            }
+             return copy;
+         }
+     }
+diff --git a/Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs b/Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs
+--- a/Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs
++++ b/Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs
+@@ -85,6 +85,7 @@
+                 var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f),
+                     Anchor(stage.transform, "Avatar", new Vector3(-.1f, 0, .7f)));
+                 visuals.Add(avatar);
++                RestoreOriginalHeadForBaseline(avatar.Model);
+                 AssertOriginal(avatar, WordboundVisualResolver.AvatarKey);
+                 avatar.Dress("");
+                 var skinned = avatar.Model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+@@ -129,6 +130,7 @@
+                     course = AssetFact(course), profile = AssetFact(profile), artwork = profile.BaseArtwork.ToString(),
+                     scope = "Isolated Editor PreviewRenderUtility; neutral preview lighting, not Windows gameplay or owner acceptance.",
+                     geometryEvidence = "Original shared Mesh identity and transformed mesh/renderer bounds; no new vertex scan or physics coverage.",
++                    avatarSurface = "Original imported head explicitly retained; the saved surface correction is excluded from this original-art baseline.",
+                     cameraSettings = new { fov = camera.fieldOfView, near = camera.nearClipPlane, far = camera.farClipPlane,
+                         hdr = camera.allowHDR, msaa = camera.allowMSAA, cameraType = camera.cameraType.ToString() },
+                     lights = preview.lights.Select(l => new { l.intensity, color = ColorFact(l.color),
+@@ -287,6 +289,19 @@
+             ground.GetComponent<Renderer>().sharedMaterial = material;
+             return material;
+         }
++        static void RestoreOriginalHeadForBaseline(GameObject instance)
++        {
++            var correction = AvatarSurfaceProfile.Load();
++            if (!correction || correction.SourceAvatar != ModelLibrary.Load().Find(WordboundVisualResolver.AvatarKey)) return;
++            var target = instance.transform.Find(correction.RendererPath);
++            var skin = target ? target.GetComponent<SkinnedMeshRenderer>() : null;
++            if (!skin || skin.sharedMesh != correction.CorrectedMesh) return;
++            var weights = Enumerable.Range(0, skin.sharedMesh.blendShapeCount).Select(skin.GetBlendShapeWeight).ToArray();
++            var bounds = skin.localBounds;
++            skin.sharedMesh = correction.SourceMesh;
++            for (int i = 0; i < weights.Length; i++) skin.SetBlendShapeWeight(i, weights[i]);
++            skin.localBounds = bounds;
++        }
+         static void AssertOriginal(WordboundVisualInstance visual, string modelKey)
+         {
+             var original = ModelLibrary.Load().Find(modelKey);
+diff --git a/Assets/_Project/Scripts/Player/PlayerAppearance.cs b/Assets/_Project/Scripts/Player/PlayerAppearance.cs
+--- a/Assets/_Project/Scripts/Player/PlayerAppearance.cs
++++ b/Assets/_Project/Scripts/Player/PlayerAppearance.cs
+@@ -112,7 +112,13 @@
+                 foreach (var renderer in controller.visual.GetComponentsInChildren<Renderer>(true)) oldRenderers.Add(renderer);
+                 createdRoot = new GameObject("ImportedAvatar");
+                 createdRoot.transform.SetParent(controller.visual, false);
+-                model = ModelVisual.Spawn(AvatarKey, createdRoot.transform);
++                try { model = ModelVisual.Spawn(AvatarKey, createdRoot.transform); }
++                catch
++                {
++                    createdRoot.SetActive(false);
++                    if (Application.isPlaying) Destroy(createdRoot); else DestroyImmediate(createdRoot);
++                    throw;
++                }
+             }
+             var animator = model ? model.GetComponentInChildren<Animator>(true) : null;
+             if (!animator)
+@@ -122,6 +128,7 @@
+                 clips.Clear();
+                 return false;
+             }
++            AvatarSurfaceProfile.ApplyDefault(AvatarKey, library.Find(AvatarKey), model);
+             meshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+             gripL = ModelVisual.FindNamed(model, "grip_L");
+             gripR = ModelVisual.FindNamed(model, "grip_R");
+diff --git a/Assets/_Project/Scripts/WordboundQa/WordboundOriginalEquipmentView.cs b/Assets/_Project/Scripts/WordboundQa/WordboundOriginalEquipmentView.cs
+--- a/Assets/_Project/Scripts/WordboundQa/WordboundOriginalEquipmentView.cs
++++ b/Assets/_Project/Scripts/WordboundQa/WordboundOriginalEquipmentView.cs
+@@ -348,7 +348,7 @@
+             owner.Note(name + "_facts", new Dictionary<string, object> {
+                 ["scope"] = "Actual local presentation with QA inspection camera; not ordinary camera, multiplayer, GPU timing or art approval.",
+                 ["canonical_tick"] = client.Gameplay.Frame.Progress.Tick, ["mode"] = "Freestyle", ["local_actors"] = client.Gameplay.Frame.Actors.Count,
+-                ["artwork_source"] = "original_model_library", ["profile"] = presentation.ArtworkResolver.Profile.name,
++                ["artwork_source"] = "original_model_library; saved head surface correction recorded per visual", ["profile"] = presentation.ArtworkResolver.Profile.name,
+                 ["camera_position"] = V(camera.transform.position), ["camera_rotation"] = V(camera.transform.eulerAngles), ["camera_fov"] = camera.fieldOfView,
+                 ["camera_callbacks"] = cameraFrames, ["last_camera_frame"] = lastCameraFrame,
+                 ["right_hand_socket_world"] = hand ? V(hand.position) : null,
+@@ -360,8 +360,14 @@
+             if (!root) throw new QaFailException("Missing active actual artwork: " + key);
+             string modelKey = presentation.ArtworkResolver.ModelKey(key);
+             var source = ModelLibrary.Load()?.Find(modelKey);
+-            if (!source || !Meshes(source).SequenceEqual(Meshes(root.gameObject)))
+-                throw new QaFailException("Actual " + key + " meshes do not match the original ModelLibrary source.");
++            var expectedMeshes = source ? Meshes(source) : Array.Empty<Mesh>();
++            var actualMeshes = Meshes(root.gameObject);
++            bool originalIdentity = source && expectedMeshes.SequenceEqual(actualMeshes);
++            var correction = key == "player" && modelKey == "Avatar/Avatar" ? AvatarSurfaceProfile.Load() : null;
++            bool correctedHead = !originalIdentity && correction
++                && correction.MatchesOnlyBoundHeadReplacement(source, root.gameObject, expectedMeshes, actualMeshes);
++            if (!originalIdentity && !correctedHead)
++                throw new QaFailException("Actual " + key + " must match every original mesh or the exact saved player-head correction pair.");
+             var renderers = root.GetComponentsInChildren<Renderer>(true).Where(renderer => renderer.enabled &&
+                 !renderer.forceRenderingOff && renderer.gameObject.activeInHierarchy).ToArray();
+             if (renderers.Length == 0) throw new QaFailException("Actual " + key + " has no enabled visible renderer.");
+@@ -380,7 +386,11 @@
+                 material.shader.name.Contains("InternalErrorShader"))) throw new QaFailException("Invalid actual artwork material/shader: " + key);
+             var grip = ModelVisual.FindNamed(root.gameObject, "Grip_R");
+             return new Dictionary<string, object> { ["visual_key"] = key, ["original_model"] = modelKey,
+-                ["original_mesh_identity"] = true, ["mesh_names"] = Meshes(source).Select(mesh => mesh.name).ToArray(),
++                ["original_mesh_identity"] = originalIdentity, ["bound_head_surface_correction"] = correctedHead,
++                ["remaining_mesh_identity"] = true,
++                ["source_mesh_names"] = expectedMeshes.Select(mesh => mesh.name).ToArray(),
++                ["mesh_names"] = actualMeshes.Select(mesh => mesh.name).ToArray(),
++                ["head_source_fingerprint"] = correctedHead ? correction.SourceFingerprint : "",
+                 ["world_bounds_center"] = V(bounds.center), ["world_bounds_size"] = V(bounds.size),
+                 ["visual_root_local_scale"] = V(root.localScale), ["visual_root_world"] = V(root.position),
+                 ["authored_grip_marker_world"] = grip ? V(grip.position) : null,
+diff --git a/Assets/_Project/Tests/AvatarSurfaceRuntimeTests.cs b/Assets/_Project/Tests/AvatarSurfaceRuntimeTests.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Tests/AvatarSurfaceRuntimeTests.cs
+@@ -0,0 +1,44 @@
++using System.Collections;
++using System.Linq;
++using NUnit.Framework;
++using UnityEngine;
++using UnityEngine.TestTools;
++using Wreckabulary.Art;
++using Object = UnityEngine.Object;
++
++namespace Wreckabulary.Tests
++{
++    public sealed class AvatarSurfaceRuntimeTests
++    {
++        [UnitySetUp] public IEnumerator SetUp() => TestScenes.Reset();
++        [UnityTearDown] public IEnumerator TearDown() => TestScenes.Reset();
++
++        [UnityTest]
++        public IEnumerator ExistingAuthoredPlayerIsCorrectedDuringActualAppearanceInitialization()
++        {
++            var profile = AvatarSurfaceProfile.Load();
++            Assert.IsNotNull(profile);
++            var player = Object.Instantiate(GameAssets.I.playerPrefab, Vector3.zero, Quaternion.identity);
++            var appearance = player.GetComponent<PlayerAppearance>();
++            var authored = appearance.AuthoredAvatar;
++            Assert.IsNotNull(authored);
++            var head = authored.GetComponentsInChildren<SkinnedMeshRenderer>(true).Single(renderer => renderer.name == "SK_Head");
++            head.sharedMesh = profile.SourceMesh;
++            var wrapper = authored.transform.parent;
++            var offset = new Vector3(.03f, .01f, -.02f); wrapper.localPosition = offset;
++            int rendererCount = player.GetComponentsInChildren<SkinnedMeshRenderer>(true).Length;
++            player.Setup(0, new ScriptedBinding());
++            player.Respawn(Vector3.zero);
++            Assert.IsTrue(appearance.Initialize(player));
++            yield return null;
++            Assert.AreSame(authored, appearance.AvatarModel);
++            Assert.AreSame(profile.CorrectedMesh, head.sharedMesh);
++            Assert.AreEqual(rendererCount, player.GetComponentsInChildren<SkinnedMeshRenderer>(true).Length);
++            Assert.That(Vector3.Distance(offset, wrapper.localPosition), Is.LessThan(.0001f));
++            Assert.IsTrue(appearance.Initialize(player));
++            Assert.AreSame(profile.CorrectedMesh, head.sharedMesh);
++            Assert.AreSame(profile.SourceMesh, profile.SourceAvatar.GetComponentsInChildren<SkinnedMeshRenderer>(true)
++                .Single(renderer => renderer.name == "SK_Head").sharedMesh);
++        }
++    }
++}
+diff --git a/Assets/_Project/Tests/Editor/AvatarSurfaceCorrectionTests.cs b/Assets/_Project/Tests/Editor/AvatarSurfaceCorrectionTests.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Tests/Editor/AvatarSurfaceCorrectionTests.cs
+@@ -0,0 +1,207 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using NUnit.Framework;
++using UnityEditor;
++using UnityEngine;
++using UnityEngine.SceneManagement;
++using Wreckabulary.Art;
++using Wreckabulary.EditorTools;
++using Object = UnityEngine.Object;
++
++namespace Wreckabulary.EditorTests
++{
++    public sealed class AvatarSurfaceCorrectionTests
++    {
++        AvatarSurfaceProfile profile;
++        GameObject source;
++        readonly List<Object> owned = new List<Object>();
++
++        [SetUp]
++        public void LoadSavedCorrection()
++        {
++            profile = AssetDatabase.LoadAssetAtPath<AvatarSurfaceProfile>(AvatarSurfaceCorrectionSetup.ProfilePath);
++            Assert.IsNotNull(profile, "Run the missing-only avatar surface setup before these native tests.");
++            source = ModelLibrary.Load().Find("Avatar/Avatar");
++            Assert.AreSame(source, profile.SourceAvatar);
++        }
++
++        [TearDown]
++        public void ReleaseOwnedObjects()
++        {
++            foreach (var value in owned.AsEnumerable().Reverse()) if (value) Object.DestroyImmediate(value);
++            owned.Clear();
++        }
++
++        T Own<T>(T value) where T : Object { owned.Add(value); return value; }
++        SkinnedMeshRenderer Head(GameObject root) => root.transform.Find(profile.RendererPath).GetComponent<SkinnedMeshRenderer>();
++        GameObject Raw() => Own(Object.Instantiate(source));
++
++        [Test]
++        public void SavedMeshChangesOnlyTheReviewedSurfaceData()
++        {
++            AvatarSurfaceCorrectionSetup.ValidateSource(profile.SourceMesh);
++            AvatarSurfaceCorrectionSetup.ValidateCorrected(profile.SourceMesh, profile.CorrectedMesh);
++            Assert.AreEqual(AvatarSurfaceMeshData.Fingerprint(profile.SourceMesh, false), AvatarSurfaceMeshData.Fingerprint(profile.CorrectedMesh, false));
++            Assert.AreNotEqual(AvatarSurfaceMeshData.Fingerprint(profile.SourceMesh), AvatarSurfaceMeshData.Fingerprint(profile.CorrectedMesh));
++            Assert.AreEqual(AvatarSurfaceCorrectionSetup.MeshPath, AssetDatabase.GetAssetPath(profile.CorrectedMesh));
++            Assert.AreEqual(AvatarSurfaceCorrectionSetup.ExpectedSource, profile.SourceFingerprint);
++        }
++
++        [Test]
++        public void FreshSpawnsShareOneSavedMeshAndLeaveLibraryEntryUnchanged()
++        {
++            var library = ModelLibrary.Load();
++            var first = Own(library.Spawn("Avatar/Avatar", null));
++            var second = Own(library.Spawn("Avatar/Avatar", null));
++            Assert.AreSame(profile.CorrectedMesh, Head(first).sharedMesh);
++            Assert.AreSame(Head(first).sharedMesh, Head(second).sharedMesh);
++            Assert.AreSame(source, library.Find("Avatar/Avatar"));
++            Assert.AreSame(profile.SourceMesh, Head(source).sharedMesh);
++            Assert.IsFalse(profile.TryApply(source, first), "Applying again is an idempotent no-op.");
++        }
++
++        [Test]
++        public void ExistingAuthoredInstanceKeepsPoseWeightsMaterialsAndBounds()
++        {
++            var model = Raw(); var head = Head(model);
++            model.transform.localPosition = new Vector3(.4f, .2f, -.3f);
++            model.transform.localScale = Vector3.one * .87f;
++            head.enabled = false;
++            int blink = head.sharedMesh.GetBlendShapeIndex("Blink"), brow = head.sharedMesh.GetBlendShapeIndex("BrowRelax");
++            Assert.That(blink, Is.GreaterThanOrEqualTo(0)); Assert.That(brow, Is.GreaterThanOrEqualTo(0));
++            head.SetBlendShapeWeight(blink, 37); head.SetBlendShapeWeight(brow, 81);
++            var localBounds = new Bounds(head.localBounds.center + Vector3.up * .1f, head.localBounds.size * 1.1f);
++            head.localBounds = localBounds;
++            var materials = head.sharedMaterials; var bones = head.bones; var rootBone = head.rootBone;
++            var matrix = head.localToWorldMatrix;
++            var block = new MaterialPropertyBlock(); block.SetFloat("_DiagnosticPreserved", .73f); head.SetPropertyBlock(block);
++            Assert.IsTrue(profile.TryApply(source, model));
++            Assert.AreEqual(matrix, head.localToWorldMatrix); Assert.AreEqual(localBounds, head.localBounds);
++            CollectionAssert.AreEqual(materials, head.sharedMaterials); CollectionAssert.AreEqual(bones, head.bones);
++            Assert.AreSame(rootBone, head.rootBone); Assert.IsFalse(head.enabled);
++            Assert.AreEqual(37, head.GetBlendShapeWeight(blink)); Assert.AreEqual(81, head.GetBlendShapeWeight(brow));
++            var afterBlock = new MaterialPropertyBlock(); head.GetPropertyBlock(afterBlock);
++            Assert.AreEqual(.73f, afterBlock.GetFloat("_DiagnosticPreserved"));
++            Assert.AreEqual(AvatarSurfaceCorrectionSetup.ExpectedSource, AvatarSurfaceMeshData.Fingerprint(profile.SourceMesh));
++        }
++
++        [Test]
++        public void UnrelatedMeshSourceAndOriginalAssetAreNeverRebound()
++        {
++            Assert.IsFalse(profile.TryApply(source, source));
++            Assert.AreSame(profile.SourceMesh, Head(source).sharedMesh);
++            var model = Raw(); var head = Head(model); var custom = Own(Object.Instantiate(profile.SourceMesh));
++            head.sharedMesh = custom;
++            Assert.IsFalse(profile.TryApply(source, model)); Assert.AreSame(custom, head.sharedMesh);
++            var foreignSource = Own(new GameObject("Different avatar source"));
++            var originalMeshInstance = Raw();
++            Assert.IsFalse(profile.TryApply(foreignSource, originalMeshInstance));
++            Assert.AreSame(profile.SourceMesh, Head(originalMeshInstance).sharedMesh);
++            Assert.IsFalse(AvatarSurfaceProfile.ApplyDefault("Items/Head", source, originalMeshInstance));
++        }
++
++        [Test]
++        public void ExactIdentityAllowanceRejectsAnyOtherChangedMesh()
++        {
++            var model = Raw();
++            Assert.IsTrue(profile.TryApply(source, model));
++            Mesh[] Read(GameObject value) => value.GetComponentsInChildren<MeshFilter>(true).Select(renderer => renderer.sharedMesh)
++                .Concat(value.GetComponentsInChildren<SkinnedMeshRenderer>(true).Select(renderer => renderer.sharedMesh)).ToArray();
++            Assert.IsTrue(profile.MatchesOnlyBoundHeadReplacement(source, model, Read(source), Read(model)));
++            var other = model.GetComponentsInChildren<SkinnedMeshRenderer>(true).First(renderer => renderer.name != "SK_Head");
++            other.sharedMesh = Own(Object.Instantiate(other.sharedMesh));
++            Assert.IsFalse(profile.MatchesOnlyBoundHeadReplacement(source, model, Read(source), Read(model)));
++            Assert.IsFalse(profile.MatchesOnlyBoundHeadReplacement(source, source, Read(source), Read(source)));
++        }
++
++        [Test]
++        public void NewEditorPreviewUsesSavedCorrectionAndExistingPreviewRemainsAuthored()
++        {
++            var parent = Own(new GameObject("Avatar surface preview test"));
++            var preview = PlayerAuthoring.CreatePreview(parent.transform);
++            var skin = preview.GetComponentsInChildren<SkinnedMeshRenderer>(true).Single(renderer => renderer.name == "SK_Head");
++            Assert.AreSame(profile.CorrectedMesh, skin.sharedMesh);
++            var custom = Own(Object.Instantiate(profile.SourceMesh));
++            skin.sharedMesh = custom;
++            preview.transform.localPosition = new Vector3(.2f, .1f, -.1f);
++            Assert.AreSame(preview, PlayerAuthoring.CreatePreview(parent.transform));
++            Assert.AreSame(custom, skin.sharedMesh, "Existing authoring preview overrides must remain untouched.");
++            Assert.AreEqual(new Vector3(.2f, .1f, -.1f), preview.transform.localPosition);
++        }
++
++        [Test]
++        public void RepeatedMissingOnlySetupPreservesSavedAssetsAndOriginalSources()
++        {
++            var paths = new List<string> { AvatarSurfaceCorrectionSetup.AvatarPath, AvatarSurfaceCorrectionSetup.MeshPath,
++                AvatarSurfaceCorrectionSetup.ProfilePath, AssetDatabase.GetAssetPath(ModelLibrary.Load()) };
++            paths.AddRange(Head(source).sharedMaterials.Select(AssetDatabase.GetAssetPath));
++            paths.AddRange(Directory.EnumerateFiles("Assets/_Project/UI/Fonts", "*", SearchOption.TopDirectoryOnly).Where(path => !path.EndsWith(".meta", StringComparison.Ordinal)));
++            paths.AddRange(Directory.EnumerateFiles("Assets/_Project/Resources/Fonts", "*", SearchOption.TopDirectoryOnly).Where(path => !path.EndsWith(".meta", StringComparison.Ordinal)));
++            paths = paths.Where(path => !string.IsNullOrEmpty(path)).Distinct().SelectMany(path => new[] { path, path + ".meta" }).ToList();
++            var hashes = paths.ToDictionary(path => path, path => AvatarSurfaceMeshData.Hash(File.ReadAllBytes(path)));
++            string sceneState = SceneState();
++            string sourceMemory = AvatarSurfaceMeshData.Fingerprint(profile.SourceMesh);
++            var clips = ModelLibrary.Load().Entries.Single(entry => entry.key == "Avatar/Avatar").clips.ToArray();
++            Assert.AreSame(profile, AvatarSurfaceCorrectionSetup.EnsureDefaults());
++            Assert.AreSame(profile, AvatarSurfaceCorrectionSetup.EnsureDefaults());
++            foreach (var pair in hashes) Assert.AreEqual(pair.Value, AvatarSurfaceMeshData.Hash(File.ReadAllBytes(pair.Key)), pair.Key);
++            Assert.AreEqual(sourceMemory, AvatarSurfaceMeshData.Fingerprint(profile.SourceMesh));
++            CollectionAssert.AreEqual(clips, ModelLibrary.Load().Entries.Single(entry => entry.key == "Avatar/Avatar").clips);
++            Assert.AreEqual(sceneState, SceneState(), "Repeat setup changed active/loaded scenes, roots or dirty state.");
++        }
++
++        static string SceneState()
++        {
++            var state = new List<string> { "active=" + SceneManager.GetActiveScene().handle.GetRawData() };
++            for (int i = 0; i < SceneManager.sceneCount; i++)
++            {
++                var scene = SceneManager.GetSceneAt(i);
++                state.Add(scene.handle.GetRawData() + ":" + scene.path + ":" + scene.isLoaded + ":" + scene.isDirty);
++                state.AddRange(scene.GetRootGameObjects().OrderBy(root => root.GetEntityId().ToString(), StringComparer.Ordinal)
++                    .Select(root => root.GetEntityId() + ":" + root.name));
++            }
++            return string.Join("\n", state);
++        }
++
++        [TestCase("Idle", 0f)]
++        [TestCase("Walk_InPlace", .37f)]
++        [TestCase("Swing_OneHand", .41f)]
++        public void ExpressionsAndAnimationPreserveDeformedPositionsAndCorrectFaceNormals(string clipName, float phase)
++        {
++            var original = Raw(); var corrected = Raw();
++            Assert.IsTrue(profile.TryApply(source, corrected));
++            var clip = ModelLibrary.Load().FindClip("Avatar/Avatar", clipName);
++            Assert.IsNotNull(clip);
++            clip.SampleAnimation(original, clip.length * phase); clip.SampleAnimation(corrected, clip.length * phase);
++            var originalHead = Head(original); var correctedHead = Head(corrected);
++            var originalBaked = Own(new Mesh()); var correctedBaked = Own(new Mesh());
++            int blink = profile.SourceMesh.GetBlendShapeIndex("Blink"), brow = profile.SourceMesh.GetBlendShapeIndex("BrowRelax");
++            foreach (float blinkWeight in new[] { 0f, 50f, 100f })
++                foreach (float browWeight in new[] { 0f, 50f, 100f })
++                {
++                    foreach (var skin in new[] { originalHead, correctedHead })
++                    { skin.SetBlendShapeWeight(blink, blinkWeight); skin.SetBlendShapeWeight(brow, browWeight); }
++                    originalHead.BakeMesh(originalBaked, false); correctedHead.BakeMesh(correctedBaked, false);
++                    var left = originalBaked.vertices; var right = correctedBaked.vertices;
++                    Assert.AreEqual(left.Length, right.Length);
++                    float maxError = 0;
++                    for (int i = 0; i < left.Length; i++) maxError = Mathf.Max(maxError, Vector3.Distance(left[i], right[i]));
++                    string context = clipName + " blink=" + blinkWeight + " brow=" + browWeight;
++                    Assert.That(maxError, Is.LessThan(0.000001f), context + " changed deformed positions");
++                    var face = AvatarSurfaceCorrectionSetup.Measure(correctedBaked, 0);
++                    Assert.AreEqual(0, face.invalid, context); Assert.AreEqual(0, face.zero, context);
++                    Assert.AreEqual(0, face.opposed, context); Assert.That(face.meanDot, Is.GreaterThan(.97), context);
++                    for (int submesh = 1; submesh < correctedBaked.subMeshCount; submesh++)
++                    {
++                        var surface = AvatarSurfaceCorrectionSetup.Measure(correctedBaked, submesh);
++                        Assert.AreEqual(0, surface.invalid, context);
++                        Assert.That(surface.meanDot, Is.GreaterThan(.8), context + " submesh=" + submesh);
++                    }
++                }
++            CollectionAssert.AreEqual(originalHead.sharedMaterials, correctedHead.sharedMaterials);
++            Assert.AreEqual(AvatarSurfaceCorrectionSetup.ExpectedSource, AvatarSurfaceMeshData.Fingerprint(profile.SourceMesh));
++        }
++    }
++}

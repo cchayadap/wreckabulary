@@ -80,6 +80,7 @@ namespace Wreckabulary.EditorTools
                 SceneButton("Edit Tutorial", "db2c4e6815ecee14ba4faa77ac3f3945");
                 ScenePathButton("Open Equipment Studio", WorkspaceStudioSetup.EquipmentScene);
                 ScenePathButton("Open Character Studio", WorkspaceStudioSetup.CharacterScene);
+                ScenePathButton("Open Household Studio", WordboundHouseholdSetup.ScenePath);
                 EditorGUILayout.LabelField("Studios save a visual review layout. Equipment uses editable prefab copies; assign a copy in a Wordbound visual profile to use it in gameplay.", EditorStyles.wordWrappedMiniLabel);
                 GUILayout.Space(8);
                 bool openedScene = EditorGUILayout.ToggleLeft("Play the opened scene", WorkspaceBootstrap.PlayOpenedScene);
@@ -131,6 +132,8 @@ namespace Wreckabulary.EditorTools
             Section("CHARACTER & ART");
             AssetButton("Edit Player Prefab", "Assets/_Project/Prefabs/Player.prefab", true);
             AssetButton("Character Models", "Assets/_Project/Art/Imported/Avatar");
+            AssetButton("Household furniture prefabs", WordboundHouseholdSetup.PrefabRoot);
+            AssetButton("Household initial sizing", WordboundHouseholdSetup.SettingsPath);
             AssetButton("Model Library", "Assets/_Project/Resources/ModelLibrary.asset");
             AssetButton("Generated UI Art", "Assets/_Project/Resources/UI/Generated");
             AssetButton("Power Item Illustrations", "Assets/_Project/Art/Generated/Items");
@@ -177,6 +180,8 @@ namespace Wreckabulary.EditorTools
             {
                 if (GUILayout.Button("Create missing developer assets", GUILayout.Height(30)))
                     WorkspaceStudioSetup.CreateOrVerify();
+                if (GUILayout.Button("Create missing Household Studio", GUILayout.Height(30)))
+                    WordboundHouseholdSetup.CreateOrVerify();
                 if (GUILayout.Button("Upgrade Missing Authoring Assets", GUILayout.Height(30)))
                     SceneWorkspace.UpgradeAll();
             }

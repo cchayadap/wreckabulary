@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "status": "DRAFT_NOT_APPLIED",
+  "createdUtc": "2026-10-26T11:08:26.555Z",
+  "file": {
+    "target": "Assets/_Project/Editor/Art/HouseholdReviewCapture.cs",
+    "draft": "draft/Assets/_Project/Editor/Art/HouseholdReviewCapture.cs",
+    "sha256": "48537351656ef42f2200622947b9413519eba5a034f1f94b39134deeb66ee55c",
+    "bytes": 19771,
+    "lines": 225
+  },
+  "patch": {
+    "path": "patch",
+    "sha256": "9a5c458881c096095e9dde0ab0c9280a2ee6ee074fa1618a6b48fd463020ad9e"
+  },
+  "dependencies": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/WordboundHouseholdSetup.cs",
+      "sha256": "35d7614165efa3429f3e045d23d7adee0bad48e47be904d99c6a88f15341efda"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs",
+      "sha256": "28be4af2ed60b79572819ac6874e1494752722c8f8474fcc7826d91ddffebe07"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs",
+      "sha256": "6f02411f51446e487f0d34d19580f5f670ce77963c35b8eda71688ced224fc51"
+    }
+  ],
+  "verification": {
+    "nativeCompile": "NOT-RUN",
+    "nativeCapture": "NOT-RUN",
+    "imageInspection": "NOT-RUN",
+    "sourceReview": "PASS: independent story_status review of revision2; no remaining blocking source finding. Native rendering/preservation acceptance pending.",
+    "staticSyntax": "Reviewer reports CSharp9 parse with UNITY_EDITOR/GSK_QA: zero errors.",
+    "patchApplicability": "git apply --check PASS; independently rechecked by story_status."
+  },
+  "reviewRevision": 2,
+  "sourceReviewCorrection": "Validate explicit required inputs and package files before dependency filtering; reject missing Assets dependencies, disclose virtual/non-file exclusions."
+}
