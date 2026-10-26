@@ -98,10 +98,20 @@ namespace Wreckabulary.OnlineGameplayTests
             Assert.IsTrue(parties.All(party => party.Count() == (mode.Id == "TimeRun" ? count : 1)),
                 "TimeRun keeps its complete cooperative party; FFA and Fill Freestyle keep each individual party.");
             var seats = roster.Select(seat => (seat.PlayerId, seat.TeamId, seat.Slot)).ToArray();
+            var host = peers.Single(peer => peer.Runner.IsServer);
+            var nativePlayers = peers.Select(peer => peer.Runner.LocalPlayer).ToArray();
+            Assert.AreEqual(count, nativePlayers.Distinct().Count(), "Every authenticated peer must own a distinct native PlayerRef.");
+            CollectionAssert.AreEquivalent(players, nativePlayers.Select(host.Runner.GetPlayerUserId),
+                "The host must resolve the exact authenticated roster in Fusion Client/Server mode.");
             foreach (var peer in peers)
             {
                 Assert.IsTrue(peer.Runner.IsRunning);
-                CollectionAssert.AreEquivalent(players, peer.Runner.ActivePlayers.Select(peer.Runner.GetPlayerUserId));
+                CollectionAssert.AreEquivalent(nativePlayers, peer.Runner.ActivePlayers,
+                    "Every peer must observe the exact native PlayerRef roster.");
+                Assert.AreEqual(peer.Actor, peer.Runner.GetPlayerUserId(peer.Runner.LocalPlayer));
+                Assert.IsTrue(host.Session.TryGetAdmittedActor(peer.Runner.LocalPlayer, out var admittedActor),
+                    "Every native player must retain its authenticated production admission.");
+                Assert.AreEqual(peer.Actor, admittedActor);
                 var frame = peer.Controller.Frame;
                 Assert.AreEqual(live.Verified.Match.RosterHash, frame.Binding.RosterHash);
                 CollectionAssert.AreEquivalent(seats, frame.Binding.Seats.Select(seat => (seat.PlayerId, seat.Team, seat.Slot)));
