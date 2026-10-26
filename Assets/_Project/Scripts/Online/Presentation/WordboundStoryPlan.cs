@@ -14,10 +14,14 @@ namespace Wreckabulary.Online
         public string Chapter { get; }
         public string Place { get; }
         public string Clue { get; }
+        public string Cue { get; }
         public CoursePoint Position { get; }
         internal WordboundStoryNotice(string id, int lap, int checkpoint, string chapter,
             string place, string clue, CoursePoint position)
-        { Id = id; Lap = lap; Checkpoint = checkpoint; Chapter = chapter; Place = place; Clue = clue; Position = position; }
+            : this(id, lap, checkpoint, chapter, place, clue, position, clue) { }
+        internal WordboundStoryNotice(string id, int lap, int checkpoint, string chapter,
+            string place, string clue, CoursePoint position, string cue)
+        { Id = id; Lap = lap; Checkpoint = checkpoint; Chapter = chapter; Place = place; Clue = clue; Position = position; Cue = cue; }
     }
 
     public sealed class WordboundStoryPlan
@@ -27,6 +31,10 @@ namespace Wreckabulary.Online
         public IReadOnlyList<WordboundStoryNotice> Notices => notices;
 
         public WordboundStoryPlan(ResolvedCourse resolved, ItemCatalogue items)
+            : this(resolved, items, null) { }
+
+        public WordboundStoryPlan(ResolvedCourse resolved, ItemCatalogue items, WordboundStoryProfile profile,
+            Func<string, string> localize = null)
         {
             course = resolved ?? throw new ArgumentNullException(nameof(resolved));
             if (items == null) throw new ArgumentNullException(nameof(items));
@@ -35,6 +43,7 @@ namespace Wreckabulary.Online
             if (document.Id == WordboundFlagshipContent.CourseId && course.Laps.Count > 0)
             {
                 var story = WordboundFlagshipContent.Create(items);
+                if (profile) profile.Validate(story);
                 foreach (var lap in course.Laps)
                     for (int index = 0; index < lap.Checkpoints.Count; index++)
                     {
@@ -45,9 +54,12 @@ namespace Wreckabulary.Online
                         var anchor = course.RecoveryAnchors.Single(a => a.Id == checkpoint.RecoveryAnchorId);
                         var room = story.Rooms.SingleOrDefault(r => r.Id == checkpoint.ModuleId);
                         var destination = story.Destinations.SingleOrDefault(d => d.ModuleIds.Contains(checkpoint.ModuleId));
-                        selected.Add(new WordboundStoryNotice(lap.Number + ":" + checkpoint.Id, lap.Number,
-                            index, Chapter(lap.NarrativeId), destination?.Name ?? room?.Name ?? "Parcel notice",
-                            beat.Clue, anchor.Position));
+                        string id = lap.Number + ":" + checkpoint.Id;
+                        selected.Add(new WordboundStoryNotice(id, lap.Number, index,
+                            profile ? profile.Chapter(lap.NarrativeId, localize) : WordboundStoryProfile.DefaultChapter(lap.NarrativeId),
+                            destination?.Name ?? room?.Name ?? "Parcel notice",
+                            profile ? profile.Clue(id, beat.Clue, localize) : beat.Clue, anchor.Position,
+                            profile ? profile.Cue(id, localize) : WordboundStoryProfile.DefaultCue(id)));
                     }
             }
             notices = selected.AsReadOnly();
@@ -73,12 +85,23 @@ namespace Wreckabulary.Online
                 (n.Lap <= team.Lap || n.Lap == team.Lap + 1 && n.Checkpoint < team.NextCheckpoint)).ToArray());
         }
 
-        static string Chapter(string id) => id switch
+        public WordboundStoryNotice ContextualCue(ProgressSnapshot progress, IEnumerable<string> narrativeFlags, string actor)
         {
-            "FindAddress" => "Find the address",
-            "WrongDelivery" => "Follow the wrong delivery",
-            "RestoreHome" => "Put home back together",
-            _ => "The lost address"
-        };
+            if (progress == null || progress.Migrating || progress.Result != null) return null;
+            var player = progress.Players.SingleOrDefault(p => p.Id == actor)
+                ?? throw new ArgumentException("Story reader is not in the roster.");
+            if (player.Returned || !player.Connected || player.Eliminated) return null;
+            var team = progress.Teams.Single(t => t.Team == player.Team);
+            if (team.Finished) return null;
+            return Journal(progress, narrativeFlags, actor).LastOrDefault(n => n.Lap == team.Lap + 1);
+        }
+
+        public WordboundStoryNotice ContextualCue(MatchSnapshot frame, string actor)
+        {
+            if (frame == null) return null;
+            if (frame.Binding.ManifestHash != course.Hash || frame.Binding.CourseHash != course.SourceHash)
+                throw new ArgumentException("Story progress must belong to the exact course.");
+            return ContextualCue(frame.Progress, frame.NarrativeFlags, actor);
+        }
     }
 }

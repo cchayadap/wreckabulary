@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -6,6 +8,20 @@ namespace Wreckabulary.Tests
 {
     public sealed class WordboundStoryReadabilityTests
     {
+        [TestCase("字"), TestCase("e\u0301"), TestCase("\U0001f4e6")]
+        public void CueWrappingHandlesUnspacedTextWithoutBreakingTextElements(string element)
+        {
+            string text = string.Concat(Enumerable.Repeat(element, 50));
+            string wrapped = (string)typeof(Wreckabulary.Online.WordboundStoryView)
+                .GetMethod("Wrap", BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, new object[] { text, 36 });
+            string[] lines = wrapped.Split('\n');
+            Assert.AreEqual(2, lines.Length);
+            Assert.AreEqual(text, string.Concat(lines));
+            Assert.AreEqual(36, StringInfo.ParseCombiningCharacters(lines[0]).Length);
+            Assert.AreEqual(14, StringInfo.ParseCombiningCharacters(lines[1]).Length);
+        }
+
         [TestCase(6f), TestCase(12f), TestCase(18f), TestCase(20f)]
         public void ActualNoticeFacingPreservesAnchorAndWordsWithBoundedReadableScale(float distance)
         {

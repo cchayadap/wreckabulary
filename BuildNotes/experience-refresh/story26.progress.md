@@ -37,3 +37,20 @@ Inspect root story callers, localization and existing tests; send exact additive
 - Baseline synchronization commit `075b30b3` copies ten exact existing root story/test files from `9fce9f25`, including their already-generated metadata. **Exclude this commit when integrating**; no new metadata was authored.
 - Added `docs/wordbound/GAMEPLAY-EXPERIENCE-RUBRIC.md`: anchored eight-dimension 0–4 rubric, source estimates separated from human evidence, seven participant lenses, causal gameplay application and ten measurable acceptance rows.
 - Next: implement profile, plan cue selection and additive editor/tests; inspect diff, then send root exact native-test requests. No jobs have run.
+
+## 2026-10-26 implementation checkpoint
+
+- Root approved the bounded interface. Added `WordboundStoryProfile`: three chapter rows, fourteen default stable clue rows, short cue / full journal text and localization-key/fallback pairs. Validation rejects unknown/duplicate identities and empty/overlong authored copy; empty/absent/key-echo translations use fallback. Default population refuses to replace authored rows.
+- Existing two-argument plan constructor, five-argument view binding, seven-argument notice constructor and `Journal` property remain. New profile/localizer arguments are additive. No-profile callers receive concise defaults and unchanged canonical journal prose.
+- `ContextualCue` uses exact course identity, local-team reached journal and current lap; migration, disconnection, return, elimination and confirmed completion hide the world cue. Journal history is retained.
+- View now creates at most one short cue at its existing recovery anchor and removes the automatic prose banner. Existing camera-facing, 20 m distance and scale bounds remain. Unspaced text wraps at Unicode text-element boundaries; actual glyph coverage is unverified.
+- Added an Inspector with validation, empty-profile default population, Undo and canonical clue preview; added a Create menu. No asset was created in this lane, no `.meta` was authored, and no progress is awarded by preview.
+- Added regression source for canonical copy/IDs, localization fallback, schema-free Unity serialization, team/future/recovery/transition/result cue gating, exact snapshot identity, unspaced Unicode wrapping and native asset save/reload. These tests are NOT-RUN here; root owns compilation and execution.
+- Independent source review delegated before delivery; findings will be recorded separately. Static `git diff --check` passed; rubric lint passed 10 rows without warnings. No gameplay/performance/visual/human pass is implied.
+
+### Root integration requests
+
+1. Pass a configured `WordboundStoryProfile` as sixth argument to `StoryView.Bind`; seventh optional argument is `Func<string,string> localize`. Null profile preserves full canonical prose and uses default short cues. Generate assets/metadata in Unity only.
+2. Run normal R0/core prerequisites, then focused native `WordboundStoryPlanTests`, `WordboundStoryProfileTests`, `WordboundStoryReadabilityTests`, `WordboundStoryProfilePersistenceTests` and existing `WordboundMenuGuiTests` for constructor/journal compatibility.
+3. Capture current, next-chapter, restored and opponent-ahead states with original art. Verify one reached cue, no automatic story banner, optional journal navigation, 720p/1080p readability and actual Unicode font coverage. Human rubric rows remain pending.
+4. Update the main story document's implementation status after integration; this lane intentionally did not overwrite the root-owned current document.
