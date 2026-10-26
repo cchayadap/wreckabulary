@@ -22,6 +22,8 @@ The current Windows build is preserved as the **before-correction baseline**. Ea
 
 Character/UI source is now integrated. R0 `133440` passes; core `132524` passes41/41; combined Editor `132959` passes102/102; Play `133124` passes17/17, zero skipped. Unity saved the held-pose settings (`132613`) and expression profile (`132815`). Ten native facial crops (`133514`) preserve322 input hashes and all recorded scene/global state, with owned preview objects released. Root's visual review finds the initial idle brow too stern; a matched tuning comparison and actual corrected Windows grip/HUD captures remain pending. [Exact native evidence](BuildNotes/character-experience-20261026/native-20261026.json).
 
+Follow-up: Windows `133920` (source `1b15272e`) passes equipment `134114` 6/6 and Workshop `134216` 5/5 with normal exits and clean reported console. The upright BAT/HAMMER hold is visibly improved; eight BAT phases retain grip contact, though windup obscures the weapon behind the head from this camera. The smaller gameplay HUD is readable at 1280×720; the long equipment recipe list is now being replaced with a visual grid. Matched facial comparison `134831` passes five controls with 322 inputs preserved. Root and independent review choose Idle 75/0 and Hurt 18/60; native saving and final combined delivery remain pending. [Comparison evidence](BuildNotes/character-experience-20261026/comparison-20261026.json).
+
 ## Unity developer workspace — 2026-10-26
 
 - [x] Audit existing scenes and asset identity. Imported model paths drive logical keys and rig settings; original assets and accessory submeshes stay intact.

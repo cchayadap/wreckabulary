@@ -1,0 +1,512 @@
+{
+  "utc": "2026-10-26T13:54:45.410Z",
+  "status": "BOUNDED_COMPARISON_PASS",
+  "build": {
+    "schema": 1,
+    "id": "20261026T133920Z",
+    "kind": "release-qa",
+    "dir": "Builds/qa-20261026T133920Z",
+    "exe": "Wreckabulary.exe",
+    "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "utc": "2026-10-26T13:41:02Z",
+    "development": false,
+    "unity_version": "6000.6.4f1",
+    "head": "1b15272e9570c5d69f0476badc6627e2cc08e499",
+    "tree": "147267d257b1884a0003e5270dbc3fc6cee915356c3adf40f587e6a8a4c8f157",
+    "secs": 101.9,
+    "ok": true
+  },
+  "buildReceipt": {
+    "path": "Builds/qa-20261026T133920Z/build.json",
+    "sha256": "a242b91970107a3a335e6430fb187241d3ae2a189c6d1ffe72e6ee8dd153317e",
+    "bytes": 451
+  },
+  "runs": [
+    {
+      "id": "20261026T134114Z-wordbound_original_equipment",
+      "result": {
+        "cmd": "smoke --build 20261026T133920Z --scenario wordbound_original_equipment",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T13:41:14Z",
+        "secs": 44.7,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261026T134114Z-wordbound_original_equipment.log",
+        "evidence": [
+          "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261026T133920Z",
+          "kind": "release-qa",
+          "run_id": "20261026T134114Z-wordbound_original_equipment",
+          "stripped": false,
+          "scenario": "wordbound_original_equipment",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-equipment-2026-10-26T13-41-14-031Z-stdout.txt",
+        "sha256": "481cb7a959582dc7ac407bbd4aaba1f7dbaeadf1d6d02309728a5b51584aff4d",
+        "bytes": 611
+      },
+      "log": {
+        "path": "Logs/player/20261026T134114Z-wordbound_original_equipment.log",
+        "sha256": "72353f624658e384ad571dde71d2828f467267bcb6d5ed8640416840b7c1f74a",
+        "bytes": 3346
+      },
+      "evidence": [
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/checks.json",
+          "sha256": "077b3a83114f9414651f78f5607d1ed45803a01d09788da2ee789a95ab95af63",
+          "bytes": 358789
+        }
+      ],
+      "checks": {
+        "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/checks.json",
+        "sha256": "077b3a83114f9414651f78f5607d1ed45803a01d09788da2ee789a95ab95af63",
+        "bytes": 358789
+      },
+      "artifacts": [
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/checks.json",
+          "sha256": "077b3a83114f9414651f78f5607d1ed45803a01d09788da2ee789a95ab95af63",
+          "bytes": 358789
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-bat-motion.json",
+          "sha256": "13e55d561fdd40dc92a81683336a15fa3a974b884ab70e0206155ea65a21ca9f",
+          "bytes": 59018
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-command-receipts.json",
+          "sha256": "34c7fb981226f623236c4e75c44c8a37ceffc31e6526e16ae4afc5db7a42ea82",
+          "bytes": 1543
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-course.json",
+          "sha256": "d3beee38276571defc8e5e6d56fa4748a8411089a3d9097cc30e6595b74e168a",
+          "bytes": 3672
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-manifest.json",
+          "sha256": "20114a2a19609c7bd6d1b003d46ac2c4577262ba5a72f160d1a5d000928c939c",
+          "bytes": 6531
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_1.json",
+          "sha256": "9a21a6f73bb29aa5d4f4fdd5537ea0f76280a08c621d3aaac777a9dca4c9d267",
+          "bytes": 3293
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_10.json",
+          "sha256": "55d8c559f87049da860c7bc13d5fc1b4e73ea451ede5d8727003411d7c199907",
+          "bytes": 3335
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_11.json",
+          "sha256": "eeb7c67c29d9f9d2624f3045272639d192c4147ef954d71e4e8c0eb22b416c7d",
+          "bytes": 3335
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_12.json",
+          "sha256": "3688d0f5f23f6c92ff4bea795abdb3d49bab1faa669e0ded47c8dfaa8253a481",
+          "bytes": 3335
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_2.json",
+          "sha256": "8ae9a8ab7af91e2851419fcd47680a0e82ccf8203743c37458c696b330d31722",
+          "bytes": 3293
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_3.json",
+          "sha256": "b00af760d81f3dfbda923b6a5fa40702b7c49b7ef560fa0ad04047598abbd9ae",
+          "bytes": 3293
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_7.json",
+          "sha256": "c3f370d18d28cd6fd1a55684bdb1805e38cb56ec92043b47c66fc499c1e08844",
+          "bytes": 3334
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_8.json",
+          "sha256": "af15d0e3518161030b7c5c888fc367bfb2232d8e392f647cc34d11f77c0c525b",
+          "bytes": 3334
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-after_collect_9.json",
+          "sha256": "c7f9511d3b75c09ce52556eaae2246b2013807fdeb65ff04bfd13c3d4694c76d",
+          "bytes": 3334
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_1.json",
+          "sha256": "345abd3758d9370c2267be5716bf6d44d71a3ced3dd0f2b7978810860f6ca88e",
+          "bytes": 3489
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_10.json",
+          "sha256": "1b78c3f1f205185485b4dbe6dcd6b38d5f2b69ff65315054518ef9087d311d9e",
+          "bytes": 3531
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_11.json",
+          "sha256": "db46e421bf3b88ae2696020399b0d89224985a745cbafec686b4e1e53640284c",
+          "bytes": 3524
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_12.json",
+          "sha256": "35b76e32ae64076a9229de56e502bdd511c2b82d505e771480e8f000cfe2cc32",
+          "bytes": 3531
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_2.json",
+          "sha256": "81270fd6363fc6e4dd54c2b291d7cf78084d2a1d1d7c0ac32f264aed68233885",
+          "bytes": 3483
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_3.json",
+          "sha256": "5e55ace45be96fdeb859ca62cc6f7305a6b7034fc04b3bfa9a56416e4e773c71",
+          "bytes": 3490
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_7.json",
+          "sha256": "2e6401917492c3ccdad0f149fa9151b0b3b5a5d811794c9a9adb2dde14e361f9",
+          "bytes": 3532
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_8.json",
+          "sha256": "6ef023f62ce70e244ad52f3603be7101f23b8662a8040715393b2658b6e6ad7d",
+          "bytes": 3518
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_collect_9.json",
+          "sha256": "1a011e6137c373910143340128353363f70620d87f173e13cfe418a1b960ea89",
+          "bytes": 3531
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_wordbound_original_held_bat.json",
+          "sha256": "1c9cf64960a3d920c39376caf2c3b1d985ae00ebb08ba7f3b2a3a2e11f53138d",
+          "bytes": 3353
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_wordbound_original_held_hammer.json",
+          "sha256": "785b5780b2c4a5ae87b508e07ed65242df85273c6b66372f7c098e7d71dddf9a",
+          "bytes": 3356
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-before_wordbound_original_world.json",
+          "sha256": "5c9c23cef28a35e1bd50ddc6017fc7fe8ba12fe086de29dc7101b84cb8fd5f0f",
+          "bytes": 52456
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-first_ready.json",
+          "sha256": "2716bebf8d92d540a9e244b5aa29320af70fe01a0686666d14b5facd39f67cb6",
+          "bytes": 5967
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/equipment-physics-return_entry.json",
+          "sha256": "73f08fd5ee725077af028360c227f8180056918ce68a0374f15ebd8609956e3a",
+          "bytes": 52479
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_baseline_reference.png",
+          "sha256": "168db2145ed73457fed89ff3ad63ef9798e7795f619365b565570a0c90153845",
+          "bytes": 1244759
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_motion_00_baseline.png",
+          "sha256": "168db2145ed73457fed89ff3ad63ef9798e7795f619365b565570a0c90153845",
+          "bytes": 1244759
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_motion_01_windup.png",
+          "sha256": "219bb8302a7732159df4c849dd642f01333f48f1639dfb1c931f751c9d23759f",
+          "bytes": 1236798
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_motion_02_windup.png",
+          "sha256": "6461f0efc09a49cf93720044f2f3c7782d55e1fff7135fab791b2be971c4d71f",
+          "bytes": 1236026
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_motion_03_active.png",
+          "sha256": "af9e8213004508afe4ff5010a7e74c97b430fa7edb109076fb2418c9a5679769",
+          "bytes": 1239248
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_motion_04_active.png",
+          "sha256": "8faeb4d3bc7a51c1c2408dac2d74b660da84fb57c3082f76d4e3133c6b437ede",
+          "bytes": 1238463
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_motion_05_recovery.png",
+          "sha256": "f620d8f928e389d6d71f695eb64a8e52abae192f22c724e25caac959147c2089",
+          "bytes": 1241083
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_motion_06_recovery.png",
+          "sha256": "bdd426d651e249eaf8edb151d437555b894db020e9dbe240cb056388a27f2679",
+          "bytes": 1238498
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_bat_motion_07_complete.png",
+          "sha256": "606ddbdc03e0947c24c794945ecc9a9e501ea2040de4e826b5db920f7ef77010",
+          "bytes": 1241771
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_held_bat.png",
+          "sha256": "c3cae9c1fe1ba64be6b26caf80b8ba0a10eb61754bd3cd884e698371b53b3b0e",
+          "bytes": 1238367
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_held_hammer.png",
+          "sha256": "44ae01e840aa6f8049462a057363e33ef7b7d800e972603e3152478f72409844",
+          "bytes": 1234682
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134114Z-wordbound_original_equipment/wordbound_original_world.png",
+          "sha256": "4df48043f5062f2c280e29835e1b09f965c9cf78c68e9af527f179462bdb542e",
+          "bytes": 1212160
+        }
+      ]
+    },
+    {
+      "id": "20261026T134216Z-wordbound_workshop_flow",
+      "result": {
+        "cmd": "smoke --build 20261026T133920Z --scenario wordbound_workshop_flow",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T13:42:16Z",
+        "secs": 26.1,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261026T134216Z-wordbound_workshop_flow.log",
+        "evidence": [
+          "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261026T133920Z",
+          "kind": "release-qa",
+          "run_id": "20261026T134216Z-wordbound_workshop_flow",
+          "stripped": false,
+          "scenario": "wordbound_workshop_flow",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-workshop-2026-10-26T13-42-16-691Z-stdout.txt",
+        "sha256": "64a6c07d2153b82e61e84b4c333cd97b6ee9b5e969a64a29b9736bc050628e3d",
+        "bytes": 586
+      },
+      "log": {
+        "path": "Logs/player/20261026T134216Z-wordbound_workshop_flow.log",
+        "sha256": "8f532e533ac9dce20334925aef089ca157781370bafc95e6378a34100d79e2c8",
+        "bytes": 5875
+      },
+      "evidence": [
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/checks.json",
+          "sha256": "3bc0ee3ef15cf9362f253a989bebcc6077a7dadc89761b760e3fbb95bb9e0d22",
+          "bytes": 8480
+        }
+      ],
+      "checks": {
+        "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/checks.json",
+        "sha256": "3bc0ee3ef15cf9362f253a989bebcc6077a7dadc89761b760e3fbb95bb9e0d22",
+        "bytes": 8480
+      },
+      "artifacts": [
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/checks.json",
+          "sha256": "3bc0ee3ef15cf9362f253a989bebcc6077a7dadc89761b760e3fbb95bb9e0d22",
+          "bytes": 8480
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/wordbound_equipment_menu.png",
+          "sha256": "a79c97b3a3bc07da0aa4cbe155a453cbfd1df163a3fc226452211ed51a6de445",
+          "bytes": 724482
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/wordbound_local_ready.png",
+          "sha256": "d5d77069429e2d974dd2d052ad236ac5d9334f072f0ee18ae455749175d51701",
+          "bytes": 1152518
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/wordbound_local_world.png",
+          "sha256": "c3591b12818678995231687180cbea18102b5696144530867e2b6f336047bd03",
+          "bytes": 1150324
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/wordbound_party.png",
+          "sha256": "ca1195298da70a1d201d263c0485e934d3ba4c8e5328a9ebb05ea74760d68ffa",
+          "bytes": 41956
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/wordbound_returned_workshop.png",
+          "sha256": "bab607d5327059a9d4e5b9978fc5570b715293af24450a287a5db48b1b9e246a",
+          "bytes": 247409
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/wordbound_workshop.png",
+          "sha256": "bab607d5327059a9d4e5b9978fc5570b715293af24450a287a5db48b1b9e246a",
+          "bytes": 247409
+        },
+        {
+          "path": "Docs/qa/runs/20261026T134216Z-wordbound_workshop_flow/workshop-autosave.json",
+          "sha256": "a97b13dedfa47126279d290b963cbf618e3e90e45502e0720fb6c77e90659678",
+          "bytes": 183314
+        }
+      ]
+    }
+  ],
+  "source": {
+    "path": "Assets/_Project/Editor/Art/AvatarExpressionCapture.cs",
+    "sha256": "4906ce69099e45c38ca76fd5d751dd132838a76f40e04185f5171c6ebd669341",
+    "bytes": 17868
+  },
+  "native": [
+    {
+      "result": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T13:47:45Z",
+        "secs": 18.2,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T134745Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-check-2026-10-26T13-47-45-574Z-stdout.txt",
+        "sha256": "6bbc98970725494993a877553ae78260ace642f97ddfee331300b282b34b05d8",
+        "bytes": 289
+      },
+      "log": {
+        "path": "Logs/gate_check_all_20261026T134745Z.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "evidence": []
+    },
+    {
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.AvatarExpressionCapture.RunBrowComparison --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T13:48:31Z",
+        "secs": 50.2,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_RunBrowComparison_20261026T134831Z.log",
+        "evidence": [
+          "Logs/exec/20261026T134831Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 27.3,
+        "messages": [
+          "[GSK] exec Wreckabulary.EditorTools.AvatarExpressionCapture.RunBrowComparison ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T134831Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.AvatarExpressionCapture.RunBrowComparison",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-expressioncapture-2026-10-26T13-48-31-006Z-stdout.txt",
+        "sha256": "6c9af9b87ad4c3768f0eedab76309eb474b38ae913b0e09eb38883a6417d7a2c",
+        "bytes": 728
+      },
+      "log": {
+        "path": "Logs/gate_exec_RunBrowComparison_20261026T134831Z.log",
+        "sha256": "52cbbb9e7cce47de3ff6648d36b2e2c05dd5af7ba8de83c68ab1f5ebb43e66f3",
+        "bytes": 55658
+      },
+      "evidence": [
+        {
+          "path": "Logs/exec/20261026T134831Z.json",
+          "sha256": "cae82c8bd791d11017d9f60df475e1526264ca742c286317e420f5a0c89b60c5",
+          "bytes": 146
+        }
+      ]
+    }
+  ],
+  "capture": {
+    "path": "BuildNotes/character-experience-20261026/emotion/capture-02/receipt.json",
+    "sha256": "c51f37c4328dd7aa3121f6b3b1eef1f44418f0b1b440e1a17d44868c4d76d8b2",
+    "bytes": 94097
+  },
+  "frames": [
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-02/idle-brow55-front.png",
+      "sha256": "93c4edd569bc66cb313f72651a62bcdaed4004ede2808cc997ee527a8d52097c",
+      "bytes": 113310
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-02/idle-brow75-front.png",
+      "sha256": "667660b1608b49851ad49bfae3696ddceeb38cdd7a235e5422e0086b996bfcce",
+      "bytes": 113229
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-02/idle-brow95-front.png",
+      "sha256": "be1781ff87ea3eb6842ea682cf033aa9e98a917c302749fbf94f2ce1d8f5572b",
+      "bytes": 113082
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-02/hurt-brow4-blink38-front.png",
+      "sha256": "ecf3dca73a07a423aa527f299c9081cadd169f3e58abb6b8953c4cd0034573b0",
+      "bytes": 108815
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-02/hurt-brow18-blink60-front.png",
+      "sha256": "45e7b3365e7ad1b6fd285ee1acda8e3f12846e7ea87c66bcf52d496dbcc5a2d7",
+      "bytes": 108890
+    }
+  ],
+  "selectedForNextSave": {
+    "idle": {
+      "brow": 75,
+      "blink": 0
+    },
+    "hurt": {
+      "brow": 18,
+      "blink": 60
+    }
+  },
+  "limits": [
+    "Chosen face weights are not saved yet. Matched stills do not prove all runtime transitions or remote actors.",
+    "BAT/HAMMER upright placement improved; windup still occludes the BAT from this inspection camera. Other views and handling families remain open.",
+    "Gameplay overlay is smaller; equipment recipe menu remains text-heavy and its visual-grid correction is in progress.",
+    "This intermediate build has equipment/workshop smoke coverage only. Final delivery needs an exact-source build and all three smoke routes."
+  ]
+}

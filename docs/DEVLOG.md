@@ -735,3 +735,9 @@ Full authored socket rotation is now respected for Wordbound BAT/HAMMER; saved P
 R0 133440 PASS, core13252441/41, Editor132959102/102, Play13312417/17 (zero skips). Native setup132613/132815 saved profiles. Facecapture133514 produces10 actual crops,322 inputs preserved, recorded scenes/globals unchanged, owned previews released. Root inspected five fronts: effort/hurt distinct, idle still stern and recovery similar; native tuning comparison is next. Functional/source passes do not imply art acceptance or Windows delivery. Evidence: BuildNotes/character-experience-20261026/native-20261026.json. Initial R0132347 namespace failure remains preserved; setup uses EditorTools after correction.
 
 Timestamp correction: the preceding entry's manually supplied13:15:00Z heading was approximately one minute ahead of its actual13:14Z append/commit. Subsequent machine evidence retains its exact returned UTC timestamps.
+
+## 2026-10-26T13:55:28Z Character comparison and intermediate Windows evidence
+
+Windows133920 on1b15272e passes equipment134114 six steps and Workshop134216 five steps, normal exits and clean reported console. Root and independent review see improved upright BAT/HAMMER placement and reduced gameplay panels. All8 BAT phases preserve contact; windup still occludes the weapon from this view and does not prove clearance. Equipment menu remains too text-heavy; bounded original-icon recipe grid is in progress.
+
+R0134745 PASS; matched facial exec134831 PASS. All5 native controls have exact target weights, identical camera/scale and322 input proofs preserved. Root and independent reviewer select Idle75/0 and Hurt18/60; saved profile not yet changed. Earlier55/0 and4/38 controls remain intact. Evidence: BuildNotes/character-experience-20261026/comparison-20261026.json. No final visual/production claim. Recovery snapshot13-54-45-530Z verifies346 files.

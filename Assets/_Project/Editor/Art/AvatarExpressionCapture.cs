@@ -15,11 +15,12 @@ namespace Wreckabulary.EditorTools
     public static class AvatarExpressionCapture
     {
         const string Folder = "BuildNotes/character-experience-20261026/emotion/capture-01";
+        const string ComparisonFolder = "BuildNotes/character-experience-20261026/emotion/capture-02";
         [Serializable] sealed class FileProof { public string path, before, after; }
         [Serializable] sealed class Frame
         {
             public string state, view, clip, image, sha256;
-            public float clipTime, blink, brow, orthographicSize;
+            public float clipTime, blink, brow, orthographicSize, targetBrow, targetBlink;
             public string[] shapeBindings;
             public Vector3 cameraPosition, cameraEuler;
             public bool ownedObjectsReleased;
@@ -27,19 +28,26 @@ namespace Wreckabulary.EditorTools
         [Serializable] sealed class Report
         {
             public string status = "IN PROGRESS", error = "", utc, unity;
-            public bool filesPreserved, scenesPreserved, globalsPreserved;
+            public string temporaryCleanupError = "";
+            public bool filesPreserved, scenesPreserved, globalsPreserved, profilePreserved, temporaryProfileReleased;
             public List<FileProof> inputs = new List<FileProof>();
             public List<Frame> frames = new List<Frame>();
         }
 
-        public static void Run()
+        public static void Run() => RunCapture(Folder, false);
+        public static void RunBrowComparison() => RunCapture(ComparisonFolder, true);
+
+        static void RunCapture(string folder, bool compareBrows)
         {
-            if (Directory.Exists(Folder)) throw new IOException("Preserve the existing expression capture; choose a reviewed new run path.");
+            if (Directory.Exists(folder)) throw new IOException("Preserve the existing expression capture; choose a reviewed new run path.");
             var library = ModelLibrary.Load(); var source = library ? library.Find("Avatar/Avatar") : null;
             var profile = AssetDatabase.LoadAssetAtPath<AvatarExpressionProfile>(AvatarExpressionSetup.Path);
             var surface = AvatarSurfaceCorrectionSetup.VerifyExistingProfile(true);
             if (!source || !profile || !surface) throw new InvalidOperationException("Saved avatar, expression and surface profiles are required.");
             profile.Validate();
+            string profileJson = EditorJsonUtility.ToJson(profile);
+            AvatarExpressionProfile temporary = null;
+            Exception runFailure = null;
             var report = new Report { utc = DateTime.UtcNow.ToString("O"), unity = Application.unityVersion };
             string[] explicitInputs = { AssetDatabase.GetAssetPath(source), AssetDatabase.GetAssetPath(library), AvatarExpressionSetup.Path,
                 AvatarSurfaceCorrectionSetup.ProfilePath, AvatarSurfaceCorrectionSetup.MeshPath,
@@ -62,18 +70,51 @@ namespace Wreckabulary.EditorTools
             if (materials.Any(m => !m.shader || !m.shader.isSupported || m.shader.name.Contains("InternalErrorShader")))
                 throw new InvalidOperationException("Original material shader unavailable.");
             var materialJson = materials.Select(EditorJsonUtility.ToJson).ToArray();
-            Directory.CreateDirectory(Folder);
+            Directory.CreateDirectory(folder);
             try
             {
                 float size = 0;
-                foreach (string view in new[] { "front", "three-quarter" })
-                    foreach (var state in new[] { AvatarExpression.Idle, AvatarExpression.Focus, AvatarExpression.Hurt, AvatarExpression.Downed, AvatarExpression.Recover })
-                        report.frames.Add(Capture(source, library, profile, state, view, ref size));
+                if (compareBrows)
+                {
+                    temporary = ScriptableObject.CreateInstance<AvatarExpressionProfile>();
+                    EditorJsonUtility.FromJsonOverwrite(profileJson, temporary);
+                    temporary.hideFlags = HideFlags.HideAndDontSave;
+                    temporary.BlendSeconds = .02f;
+                    foreach (float brow in new[] { 55f, 75f, 95f })
+                    {
+                        for (int i = 0; i < temporary.Poses.Length; i++)
+                            if (temporary.Poses[i].State == AvatarExpression.Idle)
+                                temporary.Poses[i] = new AvatarExpressionPose(AvatarExpression.Idle, brow, 0, false);
+                        temporary.Validate();
+                        Vector3? center = report.frames.Count == 0 ? (Vector3?)null : report.frames[0].cameraPosition - Vector3.back * 5;
+                        report.frames.Add(Capture(source, library, temporary, AvatarExpression.Idle, "front", ref size,
+                            folder, "idle-brow" + ((int)brow).ToString(), center));
+                    }
+                    foreach (var pose in new[] { new Vector2(4, 38), new Vector2(18, 60) })
+                    {
+                        for (int i = 0; i < temporary.Poses.Length; i++)
+                            if (temporary.Poses[i].State == AvatarExpression.Hurt)
+                                temporary.Poses[i] = new AvatarExpressionPose(AvatarExpression.Hurt, pose.x, pose.y, false);
+                        temporary.Validate();
+                        Vector3 center = report.frames[0].cameraPosition - Vector3.back * 5;
+                        report.frames.Add(Capture(source, library, temporary, AvatarExpression.Hurt, "front", ref size,
+                            folder, "hurt-brow" + ((int)pose.x).ToString() + "-blink" + ((int)pose.y).ToString(), center));
+                    }
+                }
+                else
+                    foreach (string view in new[] { "front", "three-quarter" })
+                        foreach (var state in new[] { AvatarExpression.Idle, AvatarExpression.Focus, AvatarExpression.Hurt, AvatarExpression.Downed, AvatarExpression.Recover })
+                            report.frames.Add(Capture(source, library, profile, state, view, ref size, folder));
                 report.status = "CAPTURED; HUMAN FACIAL REVIEW AND RUNTIME TRANSITIONS PENDING";
             }
-            catch (Exception error) { report.status = "FAIL"; report.error = error.ToString(); throw; }
+            catch (Exception error) { runFailure = error; report.status = "FAIL"; report.error = error.ToString(); throw; }
             finally
             {
+                var cleanupErrors = new List<Exception>();
+                Cleanup(() => { if (temporary) Object.DestroyImmediate(temporary); }, cleanupErrors);
+                report.temporaryCleanupError = string.Join("\n", cleanupErrors.Select(error => error.ToString()));
+                report.temporaryProfileReleased = !temporary;
+                report.profilePreserved = EditorJsonUtility.ToJson(profile) == profileJson;
                 foreach (var proof in report.inputs) proof.after = File.Exists(proof.path) ? Hash(proof.path) : "MISSING";
                 report.filesPreserved = report.inputs.All(p => p.before == p.after) &&
                     meshes.Select(m => AvatarSurfaceMeshData.Fingerprint(m)).SequenceEqual(meshHashes) &&
@@ -83,13 +124,15 @@ namespace Wreckabulary.EditorTools
                     .SequenceEqual(after.Select(s => s.path + ":" + s.isLoaded + ":" + s.isActive)) &&
                     SceneManager.GetActiveScene() == active && active.isDirty == activeDirty;
                 report.globalsPreserved = RenderTexture.active == renderTarget && Shader.IsKeywordEnabled("_SCREEN_SPACE_OCCLUSION") == ssao;
-                if (!report.filesPreserved || !report.scenesPreserved || !report.globalsPreserved) report.status = "FAIL: preservation";
-                File.WriteAllText(Folder + "/receipt.json", JsonUtility.ToJson(report, true));
-                if (!report.filesPreserved || !report.scenesPreserved || !report.globalsPreserved) throw new InvalidOperationException("Expression capture changed protected input/state.");
+                if (cleanupErrors.Count > 0 || !report.filesPreserved || !report.scenesPreserved || !report.globalsPreserved || !report.profilePreserved || !report.temporaryProfileReleased) report.status = "FAIL: preservation";
+                File.WriteAllText(folder + "/receipt.json", JsonUtility.ToJson(report, true));
+                if (cleanupErrors.Count > 0) { if (runFailure != null) cleanupErrors.Insert(0, runFailure); throw new AggregateException("Temporary expression profile cleanup failed.", cleanupErrors); }
+                if (!report.filesPreserved || !report.scenesPreserved || !report.globalsPreserved || !report.profilePreserved || !report.temporaryProfileReleased) throw new InvalidOperationException("Expression capture changed protected input/state.");
             }
         }
 
-        static Frame Capture(GameObject source, ModelLibrary library, AvatarExpressionProfile profile, AvatarExpression state, string view, ref float scale)
+        static Frame Capture(GameObject source, ModelLibrary library, AvatarExpressionProfile profile, AvatarExpression state, string view, ref float scale,
+            string folder, string label = null, Vector3? centerOverride = null)
         {
             PreviewRenderUtility preview = null; Texture2D image = null; Mesh baked = null; GameObject clone = null;
             AvatarExpressionDriver driver = null; Scene scene = default; bool begun = false;
@@ -120,6 +163,7 @@ namespace Wreckabulary.EditorTools
                 sample.Downed = state == AvatarExpression.Downed; driver.Observe(sample); driver.Step(state == AvatarExpression.Recover ? .25f : .35f);
                 baked = new Mesh(); head.BakeMesh(baked);
                 var bounds = baked.bounds; Vector3 center = head.transform.TransformPoint(bounds.center);
+                if (centerOverride.HasValue) center = centerOverride.Value;
                 float radius = Vector3.Scale(bounds.extents, head.transform.lossyScale).magnitude;
                 if (scale == 0) scale = radius * 1.25f;
                 if (radius <= 0 || float.IsNaN(radius) || float.IsInfinity(radius) || scale <= 0 || float.IsNaN(scale) || float.IsInfinity(scale) ||
@@ -139,10 +183,11 @@ namespace Wreckabulary.EditorTools
                 if (!image || image.width != 512 || image.height != 512) throw new InvalidOperationException("Native image missing or wrong dimensions.");
                 if (image.GetPixels32().Select(c => c.r << 16 | c.g << 8 | c.b).Distinct().Take(128).Count() < 64)
                     throw new InvalidOperationException("Native face capture has insufficient image variation.");
-                string path = Folder + "/" + state.ToString().ToLowerInvariant() + "-" + view + ".png";
+                string path = folder + "/" + (label ?? state.ToString().ToLowerInvariant()) + "-" + view + ".png";
                 using (var file = new FileStream(path, FileMode.CreateNew)) { var bytes = image.EncodeToPNG(); file.Write(bytes, 0, bytes.Length); }
-                result = new Frame { state = state.ToString(), view = view, clip = clipName, clipTime = clipTime,
+                result = new Frame { state = label ?? state.ToString(), view = view, clip = clipName, clipTime = clipTime,
                     image = path, sha256 = Hash(path), orthographicSize = scale,
+                    targetBrow = profile.Get(state).BrowRelax, targetBlink = profile.Get(state).Blink,
                     blink = head.GetBlendShapeWeight(head.sharedMesh.GetBlendShapeIndex("Blink")),
                     brow = head.GetBlendShapeWeight(head.sharedMesh.GetBlendShapeIndex("BrowRelax")),
                     shapeBindings = AnimationUtility.GetCurveBindings(clip).Where(b => b.propertyName.StartsWith("blendShape.", StringComparison.Ordinal))
