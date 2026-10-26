@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using GameStudioKit.Capture;
 using GameStudioKit.Qa;
@@ -155,6 +157,13 @@ namespace Wreckabulary.Qa
                 draft.Course.Title = "Wordbound playtest draft";
                 draft.Seed = "0314159265358979";
                 draft.SeedLocked = true;
+                var owner = draft.Course.Zones.Where(zone => zone.Placement != "Fixed" && zone.Pool.Count > 0)
+                    .OrderBy(zone => zone.Id, System.StringComparer.Ordinal)
+                    .Select(zone => draft.Course.Modules.Single(module => module.Id == zone.ModuleId))
+                    .FirstOrDefault(module => module.LayerId == draft.ActiveLayer &&
+                        !draft.HiddenLayers.Contains(module.LayerId) && !draft.LockedLayers.Contains(module.LayerId));
+                if (owner == null) throw new QaFailException("The flagship has no editable random zone on its active floor.");
+                draft.Selection.Clear(); draft.Selection.Add(owner.Id);
             });
             edited = history.Current.RecoveryJson;
             workshop.ResumeEditing();
@@ -188,8 +197,123 @@ namespace Wreckabulary.Qa
             if (captureError != null) throw new QaFailException("Workshop screen capture failed: " + captureError);
             context.AddCapture("wordbound_workshop", capture, "png", "screen");
             RequireScreenPixels(context, "wordbound_workshop", "workshop");
+            yield return CapturePlacementViews(context, primary);
             editCompleted = true;
             context.Note("workshop_edit_completed", true);
+        }
+
+        IEnumerator CapturePlacementViews(QaContext context, string primary)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var type = typeof(WordboundWorkshop);
+            foreach (string name in new[] { "dragging", "marquee", "panning", "drawingZone", "orbiting", "controllerMoving" })
+                if ((bool)type.GetField(name, flags).GetValue(workshop))
+                    throw new QaFailException("Range capture requires an idle workshop: " + name);
+            foreach (string name in new[] { "siteDrag", "gesture", "placementGesture", "resizingZone", "placing" })
+                if (type.GetField(name, flags).GetValue(workshop) != null)
+                    throw new QaFailException("Range capture must not cancel an existing gesture: " + name);
+            var snapshot = history.Current;
+            int revision = history.Revision;
+            bool undo = history.CanUndo, redo = history.CanRedo;
+            byte[] primaryBytes = File.ReadAllBytes(primary);
+            var lastPreview = workshop.LastPreview;
+            var zone = snapshot.Course().Zones.Where(item => item.Placement != "Fixed" && item.Pool.Count > 0 &&
+                    snapshot.Selection.Contains(item.ModuleId))
+                .OrderBy(item => item.Id, System.StringComparer.Ordinal).First();
+            var saved = new Dictionary<FieldInfo, object>();
+            foreach (string name in new[] { "zoneId", "zoneMode", "pool", "minCount", "maxCount", "probability", "spacing",
+                "rangeMinX", "rangeMaxX", "rangeMinY", "rangeMaxY", "rangeMinZ", "rangeMaxZ", "rangeYaws", "rangeLayers",
+                "assetSearch", "advanced", "advancedPool", "placementHelp", "placementLimits", "inspectorScroll" })
+            {
+                var field = type.GetField(name, flags);
+                if (field == null) throw new QaFailException("Missing range view field: " + name);
+                saved.Add(field, field.GetValue(workshop));
+            }
+            var stack = new Stack<IEnumerator>();
+            var cleanupErrors = new List<string>();
+            bool preserved = false;
+            try
+            {
+                type.GetMethod("SelectZone", flags).Invoke(workshop, new object[] { zone });
+                type.GetField("assetSearch", flags).SetValue(workshop, zone.Pool[0].AssetId);
+                type.GetField("advanced", flags).SetValue(workshop, false);
+                type.GetField("advancedPool", flags).SetValue(workshop, false);
+                type.GetField("placementHelp", flags).SetValue(workshop, false);
+                type.GetField("placementLimits", flags).SetValue(workshop, true);
+                context.Note("workshop_ranges_zone", zone.Id);
+                context.Note("workshop_ranges_owner", zone.ModuleId);
+                context.Note("workshop_ranges_active_floor", snapshot.ActiveLayer);
+                context.Note("workshop_ranges_height_mm", new[] { zone.Bounds.Min.Y, zone.Bounds.Max.Y });
+                context.Note("workshop_ranges_yaws", zone.Yaws.ToArray());
+                context.Note("workshop_ranges_allowed_floors", zone.LayerIds.ToArray());
+                context.Note("workshop_ranges_scope", "Existing zone; view-only handler and scroll, no Apply or physical pointer proof; inspect PNGs for visibility.");
+                var styles = (WordboundUiStyles)type.GetField("ui", flags).GetValue(workshop);
+                float deadline = Time.realtimeSinceStartup + 12;
+                string[] names = { "wordbound_workshop_range_height", "wordbound_workshop_range_floors" };
+                int[] rows = { 22, 29 };
+                for (int index = 0; index < names.Length; index++)
+                {
+                    float requested = styles.RowHeight * rows[index];
+                    type.GetField("inspectorScroll", flags).SetValue(workshop, new Vector2(0, requested));
+                    for (int frame = 0; frame < 3; frame++)
+                    {
+                        if (Time.realtimeSinceStartup >= deadline) throw new QaFailException("Range view capture exceeded its bounded work window.");
+                        yield return null;
+                    }
+                    context.Note(names[index] + "_scroll_requested", requested);
+                    context.Note(names[index] + "_scroll_actual", ((Vector2)type.GetField("inspectorScroll", flags).GetValue(workshop)).y);
+                    stack.Push(CaptureVerified(context, names[index], names[index]));
+                    while (stack.Count > 0)
+                    {
+                        if (Time.realtimeSinceStartup >= deadline) throw new QaFailException("Range view capture exceeded its bounded work window.");
+                        var current = stack.Peek();
+                        bool moved = current.MoveNext();
+                        if (!moved)
+                        {
+                            stack.Pop(); (current as System.IDisposable)?.Dispose(); continue;
+                        }
+                        if (current.Current is IEnumerator nested) { stack.Push(nested); continue; }
+                        yield return current.Current;
+                    }
+                }
+            }
+            finally
+            {
+                while (stack.Count > 0)
+                {
+                    try { (stack.Pop() as System.IDisposable)?.Dispose(); }
+                    catch (System.Exception error) { cleanupErrors.Add("capture iterator: " + error.GetType().Name); }
+                }
+                foreach (var pair in saved)
+                {
+                    try { pair.Key.SetValue(workshop, pair.Value); }
+                    catch (System.Exception error) { cleanupErrors.Add(pair.Key.Name + ": " + error.GetType().Name); }
+                }
+                try
+                {
+                    bool fields = saved.All(pair => Equals(pair.Key.GetValue(workshop), pair.Value));
+                    bool sameHistory = ReferenceEquals(workshop.History, history);
+                    bool sameSnapshot = ReferenceEquals(history.Current, snapshot) && history.Current.RecoveryJson == edited;
+                    bool sameRevision = history.Revision == revision;
+                    bool sameUndoRedo = history.CanUndo == undo && history.CanRedo == redo;
+                    bool samePrimary = File.ReadAllBytes(primary).SequenceEqual(primaryBytes);
+                    var resolved = history.Preview(workshop.Catalogue, workshop.PlayRequirements);
+                    bool sameManifest = resolved.Success && resolved.Manifest.Hash == manifest && ReferenceEquals(workshop.LastPreview, lastPreview);
+                    context.Note("workshop_ranges_fields_restored", fields);
+                    context.Note("workshop_ranges_history_same", sameHistory);
+                    context.Note("workshop_ranges_snapshot_same", sameSnapshot);
+                    context.Note("workshop_ranges_revision_same", sameRevision);
+                    context.Note("workshop_ranges_undo_redo_same", sameUndoRedo);
+                    context.Note("workshop_ranges_primary_same", samePrimary);
+                    context.Note("workshop_ranges_manifest_same", sameManifest);
+                    preserved = fields && sameHistory && sameSnapshot && sameRevision && sameUndoRedo && samePrimary && sameManifest;
+                }
+                catch (System.Exception error) { cleanupErrors.Add("preservation proof: " + error.GetType().Name); }
+                context.Note("workshop_ranges_cleanup_errors", cleanupErrors.ToArray());
+                context.Note("workshop_ranges_preserved", preserved && cleanupErrors.Count == 0);
+            }
+            if (!preserved || cleanupErrors.Count != 0)
+                throw new QaFailException("Range capture did not preserve its exact draft, autosave, history, manifest or view fields.");
         }
 
         static bool SavedPrimaryMatches(string path, string expected)
