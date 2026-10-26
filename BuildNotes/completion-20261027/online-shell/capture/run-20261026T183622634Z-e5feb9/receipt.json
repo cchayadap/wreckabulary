@@ -1,0 +1,586 @@
+{
+    "status": "PASS",
+    "engine": "6000.6.4f1",
+    "utc": "2026-10-26T18:36:41.0569673Z",
+    "scope": "Actual GameView menu rendering with in-memory coordinator responses. No public networking, physical input or match acceptance.",
+    "synthetic": true,
+    "frames": [
+        {
+            "file": "00-guest-1280x720.png",
+            "state": "guest",
+            "sha256": "21f25303318f411b50b1c2162d5a6b447e7e29d60560e4e7f539a5d2365f4f22",
+            "error": "",
+            "width": 1280,
+            "height": 720,
+            "repaintFrame": 18,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 330.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 253.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "connect",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "01-guest-854x480.png",
+            "state": "guest",
+            "sha256": "49b74f8272c21861331ece15463854c363665399dde88da7793d09d171a7e8fc",
+            "error": "",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 22,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 253.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "connect",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "02-create-1280x720.png",
+            "state": "create",
+            "sha256": "f270c4b4e78ab0646622d2699b50f6bb04298c8f640f25544612e2db9f82999a",
+            "error": "",
+            "width": 1280,
+            "height": 720,
+            "repaintFrame": 26,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 330.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 672.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "entry:0",
+                "entry:1",
+                "mode:0",
+                "mode:1",
+                "mode:2",
+                "mode:3",
+                "mode:4",
+                "region:0",
+                "region:1",
+                "region:2",
+                "fill",
+                "map-source:0",
+                "map-source:1",
+                "public-map:0",
+                "create-party",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "03-create-854x480.png",
+            "state": "create",
+            "sha256": "615e3850fa0ef024c1186827a96503d08cd89a266a10de95287dc5130edc3103",
+            "error": "",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 30,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 432.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "entry:0",
+                "entry:1",
+                "mode:0",
+                "mode:1",
+                "mode:2",
+                "mode:3",
+                "mode:4",
+                "region:0",
+                "region:1",
+                "region:2",
+                "fill",
+                "map-source:0",
+                "map-source:1",
+                "public-map:0",
+                "create-party",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "04-create-bottom-854x480.png",
+            "state": "create-bottom",
+            "sha256": "f1f3fd7bb7e898b7642d7c2413cecd6cd7fc9a186a804cf4971f8de6d226890b",
+            "error": "",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 34,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 432.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 102.015625
+            },
+            "controls": [
+                "entry:0",
+                "entry:1",
+                "mode:0",
+                "mode:1",
+                "mode:2",
+                "mode:3",
+                "mode:4",
+                "region:0",
+                "region:1",
+                "region:2",
+                "fill",
+                "map-source:0",
+                "map-source:1",
+                "public-map:0",
+                "create-party",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "05-join-1280x720.png",
+            "state": "join",
+            "sha256": "2b8d0f390252a1b1f869ebc40a44a7f5072541670552895e629a3809d44dedb5",
+            "error": "",
+            "width": 1280,
+            "height": 720,
+            "repaintFrame": 38,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 330.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 672.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "entry:0",
+                "entry:1",
+                "paste-party",
+                "join-party",
+                "paste-room",
+                "use-room-settings",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "06-join-854x480.png",
+            "state": "join",
+            "sha256": "f50465232434c6d7329c130e946d5a18c1503c8a664e03a9d0f2e5566367b5a8",
+            "error": "",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 42,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 432.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "entry:0",
+                "entry:1",
+                "paste-party",
+                "join-party",
+                "paste-room",
+                "use-room-settings",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "07-party-ready-1280x720.png",
+            "state": "party-ready",
+            "sha256": "7fd1e96fad3465fcafe44bcff13d8856716fcae936c4272485d34a3b0a92b02f",
+            "error": "",
+            "width": 1280,
+            "height": 720,
+            "repaintFrame": 47,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 330.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 672.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "party-settings",
+                "copy-party",
+                "ready",
+                "quick-play",
+                "private-actions",
+                "leave-party",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "08-party-ready-854x480.png",
+            "state": "party-ready",
+            "sha256": "452d3ce951fe16900dabc8a5de4108d904aa9285fd47630b277a834b88ba518a",
+            "error": "",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 51,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 432.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "party-settings",
+                "copy-party",
+                "ready",
+                "quick-play",
+                "private-actions",
+                "leave-party",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "09-private-expanded-bottom-1280x720.png",
+            "state": "private-expanded-bottom",
+            "sha256": "654a36d84bb1021f9eaa4be371b0420ee8084d0f3c0ec5d51ac5a0fd86fc43c5",
+            "error": "",
+            "width": 1280,
+            "height": 720,
+            "repaintFrame": 55,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 330.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 672.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 11.71875
+            },
+            "controls": [
+                "party-settings",
+                "copy-party",
+                "ready",
+                "quick-play",
+                "private-actions",
+                "create-private",
+                "paste-room",
+                "join-private",
+                "custom-consent",
+                "leave-party",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "10-private-expanded-bottom-854x480.png",
+            "state": "private-expanded-bottom",
+            "sha256": "67bb58c25f39913fc5859a29ab2d77c1da16d065f8a5e204277adeb62799eb78",
+            "error": "",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 59,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 432.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 251.71875
+            },
+            "controls": [
+                "party-settings",
+                "copy-party",
+                "ready",
+                "quick-play",
+                "private-actions",
+                "create-private",
+                "paste-room",
+                "join-private",
+                "custom-consent",
+                "leave-party",
+                "workshop",
+                "back"
+            ]
+        },
+        {
+            "file": "11-searching-1280x720.png",
+            "state": "searching",
+            "sha256": "1576ba7ac3dab3a10e8ac333cd672dbc0ba27c55c32719b78a3a9638e882feb2",
+            "error": "",
+            "width": 1280,
+            "height": 720,
+            "repaintFrame": 63,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 330.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 672.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "cancel-queue",
+                "copy-party",
+                "leave-party"
+            ]
+        },
+        {
+            "file": "12-searching-854x480.png",
+            "state": "searching",
+            "sha256": "44de8c5550a6eed2ef57a67e1c09a73e6e3a86f308e49112fc7b0da7cd38a4ef",
+            "error": "",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 67,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 432.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "cancel-queue",
+                "copy-party",
+                "leave-party"
+            ]
+        },
+        {
+            "file": "13-failure-retry-bottom-1280x720.png",
+            "state": "failure-retry-bottom",
+            "sha256": "531947c2a82ba393001c5e4ad48712d3b1c4ef50a7a8c02c1af8568eddbe72d0",
+            "error": "Connection interrupted. Retry the pending action without creating another reservation.",
+            "width": 1280,
+            "height": 720,
+            "repaintFrame": 72,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 330.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 672.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "retry"
+            ]
+        },
+        {
+            "file": "14-failure-retry-bottom-854x480.png",
+            "state": "failure-retry-bottom",
+            "sha256": "ff5d19da123dc4d4fa81b176633f86abb3256ff13785b1aa62e5f481d2b83f39",
+            "error": "Connection interrupted. Retry the pending action without creating another reservation.",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 76,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 432.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 102.609375
+            },
+            "controls": [
+                "retry"
+            ]
+        },
+        {
+            "file": "15-party-ready-max-font-854x480.png",
+            "state": "party-ready-max-font",
+            "sha256": "f685f8bc59321924aa574622b12a63acf9671686f68c005a5717946ee5641db4",
+            "error": "",
+            "width": 854,
+            "height": 480,
+            "repaintFrame": 81,
+            "panel": {
+                "serializedVersion": "2",
+                "x": 117.0,
+                "y": 24.0,
+                "width": 620.0,
+                "height": 432.0
+            },
+            "scroll": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "controls": [
+                "party-settings",
+                "copy-party",
+                "ready",
+                "quick-play",
+                "private-actions",
+                "leave-party",
+                "workshop",
+                "back"
+            ]
+        }
+    ],
+    "requests": [
+        "/v1/guests",
+        "/v1/parties",
+        "/v1/parties/20000000-0000-4000-8000-000000000001/ready",
+        "/v1/parties/20000000-0000-4000-8000-000000000001/queue",
+        "/v1/parties/20000000-0000-4000-8000-000000000001/cancel",
+        "/v1/parties/20000000-0000-4000-8000-000000000001/queue",
+        "/v1/parties/20000000-0000-4000-8000-000000000001/queue",
+        "/v1/parties/20000000-0000-4000-8000-000000000001/cancel",
+        "/v1/parties/20000000-0000-4000-8000-000000000001/leave"
+    ],
+    "checkedFiles": [
+        "Assets/_Project/Data/Wordbound/Authoring/Interface.asset",
+        "Assets/_Project/Data/Wordbound/Authoring/Interface.asset.meta",
+        "Assets/_Project/Resources/Fonts/Nunito-Black.ttf",
+        "Assets/_Project/Resources/Fonts/Nunito-Black.ttf.meta",
+        "Assets/_Project/Resources/Fonts/Nunito-ExtraBold.ttf",
+        "Assets/_Project/Resources/Fonts/Nunito-ExtraBold.ttf.meta",
+        "Assets/_Project/Resources/UI/Themes/sunroom-v1.png",
+        "Assets/_Project/Resources/UI/Themes/sunroom-v1.png.meta",
+        "Assets/_Project/Scripts/Online/Client/WordboundPartyMenu.cs",
+        "Assets/_Project/Scripts/Online/Client/WordboundPartyMenu.cs.meta",
+        "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuInput.cs",
+        "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuInput.cs.meta",
+        "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuPresentation.cs",
+        "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuPresentation.cs.meta",
+        "Assets/_Project/Scripts/UI/Wordbound/WordboundUiTheme.cs",
+        "Assets/_Project/Scripts/UI/Wordbound/WordboundUiTheme.cs.meta"
+    ],
+    "cleanupErrors": [],
+    "files": [
+        {
+            "path": "Assets/_Project/Data/Wordbound/Authoring/Interface.asset",
+            "sha256": "1e036a63ca8b44522f8e193cdce851ffaaa163e7c745fc081459d7a032f7d70c"
+        },
+        {
+            "path": "Assets/_Project/Data/Wordbound/Authoring/Interface.asset.meta",
+            "sha256": "47190e47549d4f7e15ecbfce355f29e76642b15dc8b19bb60893b7a225e4eb17"
+        },
+        {
+            "path": "Assets/_Project/Resources/Fonts/Nunito-Black.ttf",
+            "sha256": "9caa6d5464d4438c3092a05d47952099e208862cacd5f655acb64012a1a15e78"
+        },
+        {
+            "path": "Assets/_Project/Resources/Fonts/Nunito-Black.ttf.meta",
+            "sha256": "9b9968c8991eba36c463597e8fa2574dd34a7cd3f17b6440b8260af3a6dc3df6"
+        },
+        {
+            "path": "Assets/_Project/Resources/Fonts/Nunito-ExtraBold.ttf",
+            "sha256": "c5776505c7b3df3c3ca763477b795d6bbc6517760bede0462ab77d1fb44954a6"
+        },
+        {
+            "path": "Assets/_Project/Resources/Fonts/Nunito-ExtraBold.ttf.meta",
+            "sha256": "2976254bdb1a22001a0a1420cb4045b9471a1fdd69e6ceef898d9d8f6be3c4f4"
+        },
+        {
+            "path": "Assets/_Project/Resources/UI/Themes/sunroom-v1.png",
+            "sha256": "ab10a6c082a3fecf07767d80daec4ecb96139acbf3ed3210632acddbdfcb37bf"
+        },
+        {
+            "path": "Assets/_Project/Resources/UI/Themes/sunroom-v1.png.meta",
+            "sha256": "a6e77157cab96c6705b91eba97cafab310518354d7df6a86191b0b4d028ebd5a"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenu.cs",
+            "sha256": "64c09091b83c0995403112c587fd21cf139bef41d0a65ff2a21614d181912127"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenu.cs.meta",
+            "sha256": "5487fe248d1fb96f17daa0214a85037700814d355f62e7f1324a71ecb8a8914b"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuInput.cs",
+            "sha256": "718e7b9e9ca95834e1684a0e9d207037a3b0c278056bcb1ccf84001f50d0f07d"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuInput.cs.meta",
+            "sha256": "634252b9e3a0d57ebc1a9dfa3a57afeeceae2b2299336a9d8e2a2ec295c13ab4"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuPresentation.cs",
+            "sha256": "5b470235b0c4aee99c4339bc03e6951d7a5884f36ed2b8cd238c405ad84d54f9"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuPresentation.cs.meta",
+            "sha256": "fe603482a347a77e6dd2d5749e60c60b3bc9f66e849458baeda43cd16eb4cd16"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/Wordbound/WordboundUiTheme.cs",
+            "sha256": "c6d6c945e2c993456497bc5c5ff0669bc25b29a408a2fb535891ae06cbaf3e91"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/Wordbound/WordboundUiTheme.cs.meta",
+            "sha256": "52efd022b4669b0d9c1c218b3402542f91d6780dbefe791c1727450ef23208d5"
+        }
+    ]
+}

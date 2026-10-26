@@ -1,0 +1,168 @@
+{
+  "utc": "2026-10-26T18:45:13.200Z",
+  "status": "R0, focused rules and Unity checks PASS; rendered capture PASS; full public match and Windows delivery pending",
+  "sourceBase": "a1292064",
+  "sources": [
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenu.cs",
+      "sha256": "64c09091b83c0995403112c587fd21cf139bef41d0a65ff2a21614d181912127"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenu.cs.meta",
+      "sha256": "5487fe248d1fb96f17daa0214a85037700814d355f62e7f1324a71ecb8a8914b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuInput.cs",
+      "sha256": "718e7b9e9ca95834e1684a0e9d207037a3b0c278056bcb1ccf84001f50d0f07d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuInput.cs.meta",
+      "sha256": "634252b9e3a0d57ebc1a9dfa3a57afeeceae2b2299336a9d8e2a2ec295c13ab4"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuPresentation.cs",
+      "sha256": "5b470235b0c4aee99c4339bc03e6951d7a5884f36ed2b8cd238c405ad84d54f9"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuPresentation.cs.meta",
+      "sha256": "fe603482a347a77e6dd2d5749e60c60b3bc9f66e849458baeda43cd16eb4cd16"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Wordbound/WordboundUiTheme.cs",
+      "sha256": "c6d6c945e2c993456497bc5c5ff0669bc25b29a408a2fb535891ae06cbaf3e91"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Wordbound/WordboundUiTheme.cs.meta",
+      "sha256": "52efd022b4669b0d9c1c218b3402542f91d6780dbefe791c1727450ef23208d5"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundPartyMenuInputTests.cs",
+      "sha256": "b9fd546e4d16274587686fefa06ddd3dbdb3f6f676c747312b4e6aa790ed9023"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundPartyMenuInputTests.cs.meta",
+      "sha256": "d1a8f72db78616d3db5c3339723e4a4f67dd3b7b01e0637b05d83552b422778b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Gameplay/WordboundGameplayController.cs",
+      "sha256": "87e265189a54132b0b1a8d2b01b303baeb2db4d658ffb3a7ebdd00341233c51c"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Gameplay/WordboundGameplayController.cs.meta",
+      "sha256": "4cff507cfeb2674836e23d0c94f528b32e411ee38c5f116e294c6ef608f217bc"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/WordboundCheckpointCadenceTests.cs",
+      "sha256": "872764160a66cc120942069b4e4aff89097212f21d7a5b688b0ea20975439556"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/WordboundCheckpointCadenceTests.cs.meta",
+      "sha256": "31043e1c171e6d2fd23cd8067673077dd347d3b5886b574ab2dd943d0772d006"
+    },
+    {
+      "path": "Assets/_Project/Tests/WordboundOnlineShellCaptureTests.cs",
+      "sha256": "806c91597107be4489be666624d1ac72b525cd02408cc44c54792dc450a44437"
+    },
+    {
+      "path": "Assets/_Project/Tests/WordboundOnlineShellCaptureTests.cs.meta",
+      "sha256": "c05f4e4a42873ecafbe627347170a294be81ae935790d85e0cfd1214329375c1"
+    },
+    {
+      "path": "Assets/_Project/Tests/Wreckabulary.Tests.asmdef",
+      "sha256": "7415948430cd993060b925bf801cc94787be7fc6cab3aa0ff52c3b358abbdb0b"
+    },
+    {
+      "path": "Assets/_Project/Tests/Wreckabulary.Tests.asmdef.meta",
+      "sha256": "09921777168020d71cc3c19e388f3d23886575b74e262c85a0b940109121702a"
+    }
+  ],
+  "gates": [
+    {
+      "path": ".harness/delivery/completion-capture-2026-10-26T18-35-33-677Z-end.json",
+      "sha256": "372ddd91e56849b4d7a6ebe6f7227ba955b4b045a4b92ce9091c77e390c78e35"
+    },
+    {
+      "path": ".harness/delivery/completion-capture-2026-10-26T18-35-33-677Z-stdout.txt",
+      "sha256": "7fdc50971a6eb8baca7747183f12a250156ccc87c57bb95c9f0db596af6fbb2a"
+    },
+    {
+      "path": ".harness/delivery/completion-check-2026-10-26T18-22-02-503Z-end.json",
+      "sha256": "30b9eac9840000df5a6205c371f277312d0dabebe9a558f421ad6b02733c25d2"
+    },
+    {
+      "path": ".harness/delivery/completion-check-2026-10-26T18-22-02-503Z-stdout.txt",
+      "sha256": "4a46c59944d3f38d06a2c04ae5d2a5b2c681222ad04f2426f67e0703cc74235d"
+    },
+    {
+      "path": ".harness/delivery/completion-check-2026-10-26T18-26-32-525Z-end.json",
+      "sha256": "c9ab7cbaaa21447db067958a6ac62c67b20687830729bbdbc35cdeccb7e41454"
+    },
+    {
+      "path": ".harness/delivery/completion-check-2026-10-26T18-26-32-525Z-stdout.txt",
+      "sha256": "7815203d8667cdfd9f616826f8e117a6555bf5a51702422ce4f148d26e2e3cbf"
+    },
+    {
+      "path": ".harness/delivery/completion-check-2026-10-26T18-32-57-502Z-end.json",
+      "sha256": "eddf5cdf257414d9de931518cdaff70a84dcad64bf6f1e8248143538b193516a"
+    },
+    {
+      "path": ".harness/delivery/completion-check-2026-10-26T18-32-57-502Z-stdout.txt",
+      "sha256": "cefdf20714e6e3fca9dc97e143f2c575f1d0b7b776847c3594d294da2463a89c"
+    },
+    {
+      "path": ".harness/delivery/completion-core-2026-10-26T18-20-17-041Z-end.json",
+      "sha256": "398da197f0ff25af881fa84f8cf89268370bd64fd96b9b2e7ef8da5d3f691602"
+    },
+    {
+      "path": ".harness/delivery/completion-core-2026-10-26T18-20-17-041Z-stdout.txt",
+      "sha256": "3355020e0ef3a709c18db29e006a1773c0044b5870650815a4c872590071483b"
+    },
+    {
+      "path": ".harness/delivery/completion-focused-2026-10-26T18-27-59-090Z-end.json",
+      "sha256": "7c13fa947969918737c1f8b4d8464eb0c037569d6d2b320491242e1a4555d8e3"
+    },
+    {
+      "path": ".harness/delivery/completion-focused-2026-10-26T18-27-59-090Z-stdout.txt",
+      "sha256": "3085890cae0e13f267f258bea9eefa1c1dbfc56ea5a4fbc4c2ae87b9aa754c5b"
+    }
+  ],
+  "testResults": [
+    {
+      "path": "TestResults/editmode_20261026T182759Z.xml",
+      "sha256": "06f7a7eac43b4b6e433dde010f88c5ad01d57a4429c75b32f82d8b9c08968c6b"
+    },
+    {
+      "path": "TestResults/playmode_20261026T183534Z.xml",
+      "sha256": "87f3abede7b1d09b83cc03fc5e8aabc1109a5d5d5b0b08f09a5c094c8b5f35be"
+    }
+  ],
+  "capture": {
+    "receipt": {
+      "path": "BuildNotes/completion-20261027/online-shell/capture/run-20261026T183622634Z-e5feb9/receipt.json",
+      "sha256": "0a63cf99df2e767bb95fa58ad6d20ade380149f6092af30779991a3c2a21cf1b"
+    },
+    "frames": 16,
+    "dimensions": [
+      "1280x720",
+      "854x480"
+    ],
+    "cleanupErrors": 0,
+    "synthetic": true
+  },
+  "focused": {
+    "passed": 51,
+    "failed": 0,
+    "skipped": 0
+  },
+  "rules": {
+    "passed": 222,
+    "failed": 0
+  },
+  "limits": [
+    "Capture uses the actual production OnGUI with synthetic in-memory coordinator responses; no real network or physical-device claim.",
+    "Create remains dense and ready state needs scrolling at narrow size. Visual review is not owner style acceptance.",
+    "Cadence preserves one in-flight request and authority validation; success starts use the configured interval. Request rate may increase under latency and must be measured.",
+    "Full FFA184207 is still running. Latest Windows delivery remains20261026T164019Z.",
+    "The strengthened starter cleanup/collider fixture is compiled but its full traversal rerun remains pending."
+  ]
+}

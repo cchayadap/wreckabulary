@@ -16,7 +16,8 @@ namespace Wreckabulary.Online
 
         string PartyContext => coordinator == null ? "" : string.Join("|", Visible, launching, returning,
             coordinator.Authenticated, coordinator.Busy, coordinator.RetryRequired, coordinator.MatchActive,
-            coordinator.Party?.Id, coordinator.Party?.Revision, mode, region, format, customSeedMode, seed);
+            coordinator.Party?.Id, coordinator.Party?.Revision, mode, region, format, customSeedMode, seed,
+            entryPage, showPartySettings, showPrivateActions);
 
         void SuspendPartyInput()
         {
@@ -74,6 +75,13 @@ namespace Wreckabulary.Online
             if (coordinator.Busy || launching || returning) return;
             if (coordinator.RetryRequired) { partyFocus.Reset("retry"); revealPartySelection = true; return; }
             if (coordinator.MatchActive) { _ = Return(); return; }
+            if (coordinator.Party != null && !coordinator.Party.HasAttempt)
+            {
+                if (showPrivateActions) { showPrivateActions = false; partyFocus.Reset("private-actions"); revealPartySelection = true; return; }
+                if (showPartySettings) { showPartySettings = false; partyFocus.Reset("party-settings"); revealPartySelection = true; return; }
+            }
+            if (coordinator.Party == null && entryPage != 0)
+            { entryPage = 0; scroll = Vector2.zero; partyFocus.Reset("entry:0"); revealPartySelection = true; return; }
             if (coordinator.Party != null) { Invoke(() => coordinator.LeaveParty()); return; }
             CloseRequested?.Invoke();
         }
@@ -94,7 +102,7 @@ namespace Wreckabulary.Online
             GUI.SetNextControlName("party:" + id);
             string text = (focused ? "› " : "") + (toggle ? value ? "● " : "○ " : "") + label;
             GUIStyle style = focused || toggle && value ? ui.Selected :
-                id == "connect" || id == "quick-play" ? ui.Primary : GUI.skin.button;
+                id == "connect" || id == "create-party" || id == "quick-play" ? ui.Primary : GUI.skin.button;
             var content = new GUIContent(text);
             bool clicked = toggle ? ui.Toggle(value, content, style, GUILayout.MinHeight(ui.RowHeight)) != value :
                 ui.Button(content, style, GUILayout.MinHeight(ui.RowHeight));

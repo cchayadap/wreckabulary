@@ -2,6 +2,16 @@
 
 Owner: James / SethyPagna. Updated 2026-10-27 (Asia/Hong_Kong).
 
+## Current continuation — online presentation and match stability
+
+- [x] Integrate the original Home background into the online screen, separate Create/Join, and fold party settings/private-room actions behind concise controls. Keyboard/controller focus, cancellation and hidden-action guards pass in the focused **51/51** Unity suite.
+- [x] Capture **16 actual Unity GameView images** at 1280×720 and 854×480, including larger text, searching, private rooms and retry. Source/theme/font hashes and cleanup pass. Coordinator responses are synthetic; this does not prove online play or physical input. [Evidence](BuildNotes/completion-20261027/online-shell-verification.json).
+- [~] Simplify the dense Create screen further and add direct **Local → Wordbound → Solo** entry for Time Run/Freestyle. Preserve original local house selections and device seats.
+- [~] Correct successful durable-save scheduling so publication time does not add an unnecessary second waiting interval. R0, **222/222** rules tests and the focused Unity suite pass. The unchanged full public FFA test184207 is running; performance, request counts and full-match acceptance remain pending.
+- [~] FAN build05 passes all four GLB/FBX reimports, grip hierarchy, clearance, original bounds and source preservation. Sixteen matched renders expose coarse LOD stand/grille/yoke shading. Independently reviewed build06 preserves those eight parts within the original budget; native build and rendered comparison remain pending. Original production artwork remains active.
+
+Latest Windows build remains **20261026T164019Z** until the new source completes native and player checks. Recovery snapshot18:45:13 preserves **1,034** modified/untracked files; all unrelated jobs remain running.
+
 Legend: `[ ]` unfinished; `[~]` in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
 ## Current work — complete multiplayer and creator flows

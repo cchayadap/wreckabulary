@@ -35,3 +35,11 @@ FAN build03 passes physical clearance and LOD ratio0.4288185 with original bound
 FAN04 is terminal FAIL after creating the saved blend and four exchange files: the actual GLB contains Grip_R as a root node, violating the existing required FAN_V3_Root parent. No acceptance was weakened. A fresh build05 source draft will preserve the world matrix while fixing the hierarchy; build04 remains intact.
 
 The sole subsequent native job, starter180952, is terminal PASS1/1 in146.2s. It completes three real physical STOOL laps with all15 fresh letters, normal crafts/deployments/socket holds/consumption, keepsake delivery, confirmed Win and actual ReturnToWorkshop. Same saved draft/Undo/Redo and zero-failure cleanup pass. `workshop-starter-verification.json` pins the exact source/test/metadata and all gates. Physical controls and Windows visual acceptance are still open. A small failure-path cleanup guard split is queued independently; no live native job remains at this checkpoint.
+
+## 2026-10-26T18:46:00Z Current recoverable state
+
+HEAD a1292064 contains the tested three-lap creator starter; lease fix82a67fa6 precedes it. Online shell revision3 and cadence revision2 are integrated and verified by R0,222 rules,51 Unity cases plus16 actual synthetic-coordinator GameView captures. See online-shell-verification.json. Root viewed every capture; Create is still dense. A bounded compact Create draft and direct solo entry draft are source-only lanes. Starter fixture cleanup/collider revision2 is integrated but full native rerun pending.
+
+The sole live native job is unchanged full public FFA184207, gatePID33524, command session42172, prefix .harness/delivery/completion-ffa-2026-10-26T18-42-07-695Z. Read terminal status before launching another native job. Original Windows review build remains164019Z.
+
+FAN build05 and its render stage both terminated code0; all4 GLB/FBX reimports/grip/clearance/source tests pass. Sixteen matched views show LOD stand/grille/yoke/rear-support defects. Fresh build06 source is independently reviewed at assets-build06/review.md; wrapper .harness/delivery/run-fan-build06.mjs is prepared but not run. No asset replacement. Recovery snapshot18:45:13 preserves1034 files. Other jobs/power policy untouched.

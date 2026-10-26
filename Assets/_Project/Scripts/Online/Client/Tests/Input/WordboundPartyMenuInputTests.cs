@@ -122,12 +122,165 @@ namespace Wreckabulary.Online.Tests
             Assert.IsFalse(coordinator.RetryRequired); Assert.IsNotNull(coordinator.Party);
             Assert.AreEqual(first.IdempotencyKey, http.Requests.Last().IdempotencyKey);
             Assert.AreEqual(first.JsonBody, http.Requests.Last().JsonBody);
-            yield return Activate("ready"); yield return Activate("create-private");
+            yield return Activate("ready"); yield return Activate("private-actions"); yield return Activate("create-private");
             Assert.AreEqual("PrivateCreate", coordinator.Party.Channel);
             Sample(default); Sample(default); Sample(new GamepadState().WithButton(GamepadButton.East));
             Assert.IsNull(coordinator.Party); Assert.IsTrue(http.Requests.Last().Path.EndsWith("/leave"));
             Sample(default); Sample(new GamepadState().WithButton(GamepadButton.East));
             Assert.AreEqual(1, closed);
+        }
+
+        [UnityTest]
+        public IEnumerator EntryTabsRegisterOnlyVisibleActionsAndRoomSettingsReturnToCreate()
+        {
+            yield return Activate("connect"); yield return Activate("mode:4");
+            Draw(EventType.Layout);
+            var controls = Get<List<string>>(Get<WordboundMenuFocus>(menu, "partyFocus"), "controls");
+            Assert.Contains("create-party", controls); Assert.IsFalse(controls.Contains("join-party"));
+            yield return Activate("entry:1"); Draw(EventType.Layout);
+            Assert.Contains("join-party", controls); Assert.Contains("use-room-settings", controls);
+            Assert.IsFalse(controls.Contains("create-party")); Assert.IsFalse(controls.Contains("mode:4"));
+            Set(menu, "scroll", new Vector2(0, 900)); Set(menu, "revealPartySelection", false);
+            Invoke(menu, "PartyBack");
+            Assert.AreEqual(0, Get<int>(menu, "entryPage")); Assert.AreEqual(Vector2.zero, Get<Vector2>(menu, "scroll"));
+            Assert.IsTrue(Get<bool>(menu, "revealPartySelection"));
+            Assert.AreEqual("entry:0", Get<WordboundMenuFocus>(menu, "partyFocus").Selected);
+            yield return Activate("entry:1");
+            var requested = coordinator.Settings("Freestyle", "Solo", false, "eu");
+            Set(menu, "privateCode", WordboundRoomInvite.Encode(Code, requested, Seed));
+            int count = http.Requests.Count;
+            yield return Activate("use-room-settings");
+            Assert.AreEqual(count, http.Requests.Count, "Using invite settings must not create or queue a party.");
+            Assert.AreEqual(0, Get<int>(menu, "entryPage"));
+            Assert.AreEqual(4, Get<int>(menu, "mode")); Assert.AreEqual(1, Get<int>(menu, "region"));
+            Assert.IsTrue(Get<bool>(menu, "customSeedMode")); Assert.AreEqual(Seed, Get<string>(menu, "seed"));
+            Draw(EventType.Layout); Assert.Contains("create-party", controls);
+            Assert.IsFalse(controls.Contains("join-party"));
+        }
+
+        [UnityTest]
+        public IEnumerator HiddenPrivateActionCannotDispatchAfterItsPanelContextChanges()
+        {
+            yield return Activate("connect"); yield return Activate("mode:4");
+            yield return Activate("create-party"); yield return Activate("ready");
+            Draw(EventType.Layout);
+            var controls = Get<List<string>>(Get<WordboundMenuFocus>(menu, "partyFocus"), "controls");
+            Assert.Contains("ready", controls); Assert.Contains("quick-play", controls);
+            Assert.IsFalse(controls.Contains("create-private")); Assert.IsFalse(controls.Contains("mode:4"));
+            yield return Activate("private-actions");
+            int count = http.Requests.Count;
+            yield return QueueControl("create-private");
+            Assert.AreEqual(count, http.Requests.Count);
+            Set(menu, "showPrivateActions", false);
+            Sample(default); Draw(EventType.Layout); Draw(EventType.Repaint);
+            Assert.AreEqual(count, http.Requests.Count);
+            Assert.IsFalse(coordinator.Party.HasAttempt);
+            Assert.IsNull(Get<Action>(menu, "pendingPartyAction"));
+            Assert.IsFalse(controls.Contains("create-private"));
+        }
+
+        [UnityTest]
+        public IEnumerator BackClosesOptionalPanelsBeforeLeavingIdlePartyAndCancelRemainsVisible()
+        {
+            yield return Activate("connect"); yield return Activate("mode:4"); yield return Activate("fill");
+            yield return Activate("create-party");
+            string party = coordinator.Party.Id;
+            yield return Activate("party-settings");
+            Set(menu, "scroll", new Vector2(0, 900)); Set(menu, "revealPartySelection", false);
+            Invoke(menu, "PartyBack");
+            Assert.IsTrue(Get<bool>(menu, "revealPartySelection"));
+            Assert.AreEqual("party-settings", Get<WordboundMenuFocus>(menu, "partyFocus").Selected);
+            Assert.IsFalse(Get<bool>(menu, "showPartySettings")); Assert.AreEqual(party, coordinator.Party.Id);
+            yield return Activate("private-actions");
+            Set(menu, "scroll", new Vector2(0, 900)); Set(menu, "revealPartySelection", false);
+            Invoke(menu, "PartyBack");
+            Assert.IsTrue(Get<bool>(menu, "revealPartySelection"));
+            Assert.AreEqual("private-actions", Get<WordboundMenuFocus>(menu, "partyFocus").Selected);
+            Assert.IsFalse(Get<bool>(menu, "showPrivateActions")); Assert.AreEqual(party, coordinator.Party.Id);
+            yield return Activate("ready"); yield return Activate("quick-play");
+            Draw(EventType.Layout);
+            var controls = Get<List<string>>(Get<WordboundMenuFocus>(menu, "partyFocus"), "controls");
+            Assert.Contains("cancel-queue", controls); Assert.IsFalse(controls.Contains("party-settings"));
+            Assert.IsFalse(controls.Contains("private-actions"));
+            yield return Activate("cancel-queue");
+            Assert.IsFalse(coordinator.Party.HasAttempt);
+            Assert.IsTrue(http.Requests.Last().Path.EndsWith("/cancel"));
+            yield return Activate("leave-party");
+            Assert.IsNull(coordinator.Party); Assert.IsTrue(http.Requests.Last().Path.EndsWith("/leave"));
+        }
+
+        [UnityTest]
+        public IEnumerator FailedQueueKeepsRetryVisibleWithoutReopeningPrivateForms()
+        {
+            yield return Activate("connect"); yield return Activate("mode:4"); yield return Activate("fill");
+            yield return Activate("create-party"); yield return Activate("ready");
+            http.FailNext = true; yield return Activate("quick-play");
+            Assert.IsTrue(coordinator.RetryRequired);
+            var failed = http.Requests.Last();
+            Draw(EventType.Layout); Draw(EventType.Repaint);
+            var controls = Get<List<string>>(Get<WordboundMenuFocus>(menu, "partyFocus"), "controls");
+            Assert.Contains("retry", controls); Assert.IsFalse(controls.Contains("create-private"));
+            yield return Activate("retry");
+            Assert.AreEqual(failed.IdempotencyKey, http.Requests.Last().IdempotencyKey);
+            Assert.AreEqual(failed.JsonBody, http.Requests.Last().JsonBody);
+            Assert.AreEqual("QuickPlay", coordinator.Party.Channel);
+            Assert.IsFalse(coordinator.RetryRequired);
+        }
+
+        [Test]
+        public void EditableBackdropIsBorrowedAndDoesNotMutateItsThemeOrGuiState()
+        {
+            var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+            var backdrop = new Texture2D(2, 2);
+            try
+            {
+                theme.OnlineUseLobbyBackground = false; theme.OnlineBackground = backdrop;
+                theme.OnlineBackgroundShade = .32f; menu.Theme = theme;
+                string before = JsonUtility.ToJson(theme);
+                Color colour = new Color(.2f, .6f, .8f, .9f);
+                window.BeforeRepaint = () => GUI.color = colour;
+                bool checkedState = false;
+                window.AfterRepaint = () => { Assert.AreEqual(colour, GUI.color); checkedState = true; window.AfterRepaint = null; };
+                Draw(EventType.Layout); Draw(EventType.Repaint);
+                Assert.IsTrue(checkedState); Assert.AreEqual(before, JsonUtility.ToJson(theme));
+                Assert.IsTrue(window.SkinRestored); Assert.IsEmpty(http.Requests);
+                window.Menu = null; Invoke(menu, "OnDestroy");
+                Assert.IsTrue(backdrop); Assert.IsTrue(theme);
+            }
+            finally { Object.DestroyImmediate(backdrop); Object.DestroyImmediate(theme); }
+        }
+
+        [Test]
+        public void HumanCompositionCopyAgreesWithActualWordboundModeCapacities()
+        {
+            var describe = typeof(WordboundPartyMenu).GetMethod("Composition", BindingFlags.Static | BindingFlags.NonPublic);
+            foreach (string id in GetStatic<string[]>(typeof(WordboundPartyMenu), "Modes"))
+                foreach (var format in id == "TeamRace" || id == "BrawlRace" ?
+                    new[] { RaceFormat.Solo, RaceFormat.Duo, RaceFormat.Squad } : new[] { RaceFormat.Solo })
+                {
+                    var mode = ModeDefinition.For(id, format);
+                    string copy = (string)describe.Invoke(null, new object[] { id, format.ToString() });
+                    StringAssert.DoesNotContain("bot", copy.ToLowerInvariant());
+                    if (mode.HasRaceFormat)
+                    {
+                        StringAssert.Contains(mode.TeamCount + " teams", copy);
+                        StringAssert.Contains(mode.TeamCapacity + " per team", copy);
+                    }
+                    else StringAssert.Contains(mode.MaximumPlayers + " humans", copy);
+                }
+        }
+
+        static T GetStatic<T>(Type type, string name) => (T)type.GetField(name, BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+        [TestCase(float.NaN)]
+        [TestCase(float.PositiveInfinity)]
+        [TestCase(-.01f)]
+        [TestCase(1.01f)]
+        public void InvalidBackdropShadeIsRejected(float opacity)
+        {
+            var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+            try { theme.OnlineBackgroundShade = opacity; Assert.Throws<ArgumentException>(theme.Validate); }
+            finally { Object.DestroyImmediate(theme); }
         }
 
         [Test]
@@ -398,6 +551,7 @@ namespace Wreckabulary.Online.Tests
             if (request.Path == "/v1/parties") settings = OnlineSettings.Read(body["settings"]);
             if (request.Path.EndsWith("/ready")) ready = body["ready"].Bool();
             if (request.Path.EndsWith("/queue")) channel = body["channel"].String();
+            if (request.Path.EndsWith("/cancel")) channel = null;
             if (request.Path.EndsWith("/leave")) return Json(new Dictionary<string, object>());
             var response = new Dictionary<string, object> {
                 ["id"] = PartyId, ["revision"] = (++revision).ToString(), ["leaderId"] = Player, ["invite"] = Code,
@@ -440,6 +594,7 @@ namespace Wreckabulary.Online.Tests
                 if (!Menu) return;
                 bool enabled = GUI.enabled;
                 var borrowedSkin = GUI.skin;
+                var borrowedColor = GUI.color;
                 try
                 {
                     if (Event.current.type == EventType.Layout) Layouts++;
@@ -452,7 +607,7 @@ namespace Wreckabulary.Online.Tests
                     if (Event.current.type == EventType.Repaint) AfterRepaint?.Invoke();
                 }
                 catch (Exception error) { Failure = error; }
-                finally { SkinRestored &= ReferenceEquals(borrowedSkin, GUI.skin); GUI.enabled = enabled; }
+                finally { SkinRestored &= ReferenceEquals(borrowedSkin, GUI.skin); GUI.enabled = enabled; GUI.color = borrowedColor; }
             }
         }
     }

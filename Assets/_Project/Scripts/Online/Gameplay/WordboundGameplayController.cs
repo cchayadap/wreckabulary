@@ -442,14 +442,20 @@ namespace Wreckabulary.Online
 
         async Task PublishCheckpoint()
         {
+            if (publishing) return;
             publishing = true;
             var source = runner;
-            try { await session.PublishCheckpoint(); }
+            long startedAt = options.Clock();
+            bool committed = false;
+            try { committed = await session.PublishCheckpoint(); }
             catch (Exception error) { if (ReferenceEquals(source, runner) && !stopping) Fail(error); }
             finally
             {
                 if (ReferenceEquals(source, runner))
-                { publishing = false; nextCheckpoint = options.Clock() + options.CheckpointMilliseconds; }
+                {
+                    publishing = false;
+                    nextCheckpoint = (committed ? startedAt : options.Clock()) + options.CheckpointMilliseconds;
+                }
             }
         }
 

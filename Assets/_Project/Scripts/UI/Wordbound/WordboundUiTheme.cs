@@ -23,6 +23,12 @@ namespace Wreckabulary
         [ColorUsage(false)] public Color Disabled = Hex(0xead9b7);
         [ColorUsage(false)] public Color DisabledText = Hex(0x4c5b5c);
         [ColorUsage(false)] public Color Error = Hex(0xb3533b);
+        [Header("Online room")]
+        [Tooltip("Use the room background selected in the lobby when no override is assigned.")]
+        public bool OnlineUseLobbyBackground = true;
+        [Tooltip("Optional online-menu backdrop. Borrowed without changing the texture.")]
+        public Texture2D OnlineBackground;
+        [Range(0, 1)] public float OnlineBackgroundShade = .18f;
         [Header("Spacing")]
         [Range(8, 24)] public int Padding = 16;
         [Range(2, 12)] public int Gap = 6;
@@ -33,6 +39,7 @@ namespace Wreckabulary
 
         public void Validate()
         {
+            if (!Good(OnlineBackgroundShade)) throw new ArgumentException("OnlineBackgroundShade must be between 0 and 1.");
             CheckRange(BodySize, 12, 22, nameof(BodySize)); CheckRange(HeadingSize, 16, 30, nameof(HeadingSize));
             CheckRange(Padding, 8, 24, nameof(Padding)); CheckRange(Gap, 2, 12, nameof(Gap));
             CheckRange(RowHeight, 30, 52, nameof(RowHeight)); CheckRange(ModuleHeight, 44, 90, nameof(ModuleHeight));
@@ -59,7 +66,10 @@ namespace Wreckabulary
                 value = value * 31 + Hover.GetHashCode(); value = value * 31 + Primary.GetHashCode();
                 value = value * 31 + PrimaryText.GetHashCode(); value = value * 31 + Focus.GetHashCode();
                 value = value * 31 + Disabled.GetHashCode(); value = value * 31 + DisabledText.GetHashCode();
-                return value * 31 + Error.GetHashCode();
+                value = value * 31 + Error.GetHashCode();
+                value = value * 31 + OnlineUseLobbyBackground.GetHashCode();
+                value = value * 31 + (OnlineBackground ? OnlineBackground.GetHashCode() : 0);
+                return value * 31 + OnlineBackgroundShade.GetHashCode();
             }
         }
         static Color Hex(int rgb) => new Color((rgb >> 16 & 255) / 255f, (rgb >> 8 & 255) / 255f, (rgb & 255) / 255f, 1);
