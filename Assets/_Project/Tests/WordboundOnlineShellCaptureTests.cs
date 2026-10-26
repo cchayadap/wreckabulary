@@ -115,7 +115,10 @@ namespace Wreckabulary.Tests
             yield return Pair("guest", false, "connect");
             yield return Complete(coordinator.Connect("Player")); Assert.IsTrue(coordinator.Authenticated);
             yield return Pair("create", false, "entry:0", "create-party");
-            yield return Capture("create-bottom", 854, 480, true, "create-party");
+            Set("showCreateSettings", true);
+            yield return Capture("create-settings", 1280, 720, false, "region:0", "fill", "map-source:0");
+            yield return Capture("create-settings-bottom", 854, 480, true, "create-party");
+            Set("showCreateSettings", false);
             Set("entryPage", 1);
             yield return Pair("join", false, "join-party", "use-room-settings");
             Set("entryPage", 0);
@@ -125,23 +128,45 @@ namespace Wreckabulary.Tests
             yield return Pair("party-ready", false, "ready", "quick-play", "private-actions");
             Set("showPrivateActions", true);
             yield return Pair("private-expanded-bottom", true, "create-private", "join-private", "custom-consent");
+            Assert.IsTrue(!Get<bool>("compactPartyLayout") || Get<bool>("compactPartyScroll"),
+                "The expanded private form must use the actual production scroll path before the failure transition.");
+            Assert.AreEqual("private-expanded-bottom", frames.Last().state);
+            Assert.AreEqual(854, frames.Last().width); Assert.AreEqual(480, frames.Last().height);
+            Assert.Greater(frames.Last().scroll.y, 0, "The preceding native repaint must show the genuinely scrolled long form.");
+            int priorQueueRequests = http.Requests.Count;
+            http.FailNext = true; yield return Complete(coordinator.Queue("PrivateCreate"));
+            Assert.AreEqual(priorQueueRequests + 1, http.Requests.Count);
+            Assert.IsTrue(http.Requests.Last().EndsWith("/queue", StringComparison.Ordinal));
+            Assert.IsTrue(coordinator.RetryRequired); Assert.IsNotEmpty(coordinator.Error);
+            Assert.AreEqual("Enter queue", coordinator.PendingAction);
+            yield return Capture("private-scrolled-retry-onset", 854, 480, null, "retry");
+            largeTheme = Object.Instantiate(savedTheme); largeTheme.hideFlags = HideFlags.HideAndDontSave;
+            largeTheme.BodySize = 22; largeTheme.HeadingSize = 30;
+            largeTheme.RowHeight = Math.Max(largeTheme.RowHeight, 34); largeTheme.ModuleHeight = Math.Max(largeTheme.ModuleHeight, 60);
+            largeTheme.Validate(); menu.Theme = largeTheme;
+            yield return Capture("private-scrolled-retry-max-font", 854, 480, null, "retry");
+            menu.Theme = savedTheme;
+            yield return Complete(coordinator.Retry()); Assert.IsFalse(coordinator.RetryRequired);
+            Assert.IsTrue(coordinator.Party.HasAttempt); Assert.AreEqual("PrivateCreate", coordinator.Party.Channel);
+            yield return Complete(coordinator.CancelQueue()); Assert.IsFalse(coordinator.Party.HasAttempt);
             Set("showPrivateActions", false);
             yield return Complete(coordinator.Queue("QuickPlay")); Assert.IsTrue(coordinator.Party.HasAttempt);
             yield return Pair("searching", false, "cancel-queue", "leave-party");
             yield return Complete(coordinator.CancelQueue());
             http.FailNext = true; yield return Complete(coordinator.Queue("QuickPlay"));
             Assert.IsTrue(coordinator.RetryRequired); Assert.IsNotEmpty(coordinator.Error);
+            yield return Capture("failure-onset", 854, 480, null, "retry");
             yield return Pair("failure-retry-bottom", true, "retry");
             yield return Complete(coordinator.Retry()); Assert.IsFalse(coordinator.RetryRequired);
             yield return Complete(coordinator.CancelQueue());
-            largeTheme = Object.Instantiate(savedTheme); largeTheme.hideFlags = HideFlags.HideAndDontSave;
-            largeTheme.BodySize = 22; largeTheme.HeadingSize = 30;
-            largeTheme.RowHeight = Math.Max(largeTheme.RowHeight, 34); largeTheme.ModuleHeight = Math.Max(largeTheme.ModuleHeight, 60);
-            largeTheme.Validate(); menu.Theme = largeTheme;
+            menu.Theme = largeTheme;
             yield return Capture("party-ready-max-font", 854, 480, false, "ready", "quick-play");
             menu.Theme = savedTheme;
             yield return Complete(coordinator.LeaveParty()); Assert.IsNull(coordinator.Party);
-            Assert.AreEqual(16, frames.Count); completed = true;
+            menu.Theme = largeTheme;
+            yield return Capture("create-max-font", 854, 480, false, "create-party", "create-settings");
+            menu.Theme = savedTheme;
+            Assert.AreEqual(21, frames.Count); completed = true;
         }
 
         IEnumerator Pair(string state, bool bottom, params string[] required)
@@ -149,9 +174,10 @@ namespace Wreckabulary.Tests
             yield return Capture(state, 1280, 720, bottom, required);
             yield return Capture(state, 854, 480, bottom, required);
         }
-        IEnumerator Capture(string state, int width, int height, bool bottom, params string[] required)
+        IEnumerator Capture(string state, int width, int height, bool? bottom, params string[] required)
         {
-            view.Select(width, height); Set("scroll", bottom ? new Vector2(0, 100000) : Vector2.zero);
+            view.Select(width, height);
+            if (bottom.HasValue) Set("scroll", bottom.Value ? new Vector2(0, 100000) : Vector2.zero);
             int before = menu.QaCompletedRepaintCount;
             for (int frame = 0; frame < 120 && (Screen.width != width || Screen.height != height ||
                 menu.QaCompletedRepaintCount < before + 3); frame++) yield return null;

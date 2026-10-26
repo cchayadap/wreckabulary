@@ -100,6 +100,7 @@ namespace Wreckabulary.Online.Tests
         {
             yield return Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
             yield return Activate("mode:4"); Assert.AreEqual(4, Get<int>(menu, "mode"));
+            yield return Activate("create-settings");
             yield return Activate("region:1"); Assert.AreEqual(1, Get<int>(menu, "region"));
             yield return Activate("fill");
             yield return Activate("create-party"); Assert.IsNotNull(coordinator.Party);
@@ -159,6 +160,50 @@ namespace Wreckabulary.Online.Tests
         }
 
         [UnityTest]
+        public IEnumerator CompactCreateResolvesPublicDefaultsAndPreservesFoldedPrivateSettings()
+        {
+            yield return Activate("connect"); Draw(EventType.Layout);
+            var controls = Get<List<string>>(Get<WordboundMenuFocus>(menu, "partyFocus"), "controls");
+            Assert.Contains("create-settings", controls); Assert.IsFalse(controls.Contains("create-party"));
+            yield return Activate("mode:4"); Set(menu, "seed", "ffffffffffffffff");
+            int requests = http.Requests.Count;
+            Draw(EventType.Layout); Draw(EventType.Repaint);
+            Assert.AreEqual(Seed, Get<string>(menu, "seed"), "The closed form must resolve the same approved default map.");
+            Assert.AreEqual(requests, http.Requests.Count); Assert.Contains("create-party", controls);
+            Assert.Contains("mode:4", controls); Assert.IsFalse(controls.Contains("region:1"));
+            Assert.IsFalse(controls.Contains("fill")); Assert.IsFalse(controls.Contains("public-map:0"));
+            yield return Activate("create-settings"); yield return Activate("region:1");
+            yield return Activate("fill"); yield return Activate("map-source:1");
+            const string privateSeed = "fedcba9876543210";
+            Set(menu, "privateSeed", privateSeed); Draw(EventType.Layout); Draw(EventType.Repaint);
+            Set(menu, "scroll", new Vector2(0, 900)); Set(menu, "revealPartySelection", false);
+            Invoke(menu, "PartyBack");
+            Assert.IsFalse(Get<bool>(menu, "showCreateSettings")); Assert.AreEqual(Vector2.zero, Get<Vector2>(menu, "scroll"));
+            Assert.IsTrue(Get<bool>(menu, "revealPartySelection"));
+            Assert.AreEqual("create-settings", Get<WordboundMenuFocus>(menu, "partyFocus").Selected);
+            Draw(EventType.Layout); Assert.IsFalse(controls.Contains("region:1")); Assert.IsFalse(controls.Contains("new-seed"));
+            Assert.AreEqual(privateSeed, Get<string>(menu, "seed")); Assert.AreEqual(1, Get<int>(menu, "region"));
+            Assert.IsTrue(Get<bool>(menu, "fill"));
+            yield return Activate("create-party");
+            Assert.AreEqual(privateSeed, coordinator.Seed); Assert.AreEqual("eu", coordinator.Party.Settings.Region);
+            Assert.IsTrue(coordinator.Party.Settings.Fill); Assert.AreEqual("Freestyle", coordinator.Party.Settings.Mode);
+        }
+
+        [UnityTest]
+        public IEnumerator HiddenCreateSettingCannotDispatchAfterItsSectionCloses()
+        {
+            yield return Activate("connect"); yield return Activate("mode:4"); yield return Activate("create-settings");
+            int requests = http.Requests.Count;
+            yield return QueueControl("region:1");
+            Assert.AreEqual(0, Get<int>(menu, "region"));
+            Set(menu, "showCreateSettings", false); Sample(default); Draw(EventType.Layout); Draw(EventType.Repaint);
+            Assert.AreEqual(0, Get<int>(menu, "region")); Assert.AreEqual(requests, http.Requests.Count);
+            Assert.IsNull(Get<Action>(menu, "pendingPartyAction"));
+            var controls = Get<List<string>>(Get<WordboundMenuFocus>(menu, "partyFocus"), "controls");
+            Assert.IsFalse(controls.Contains("region:1")); Assert.Contains("create-settings", controls);
+        }
+
+        [UnityTest]
         public IEnumerator HiddenPrivateActionCannotDispatchAfterItsPanelContextChanges()
         {
             yield return Activate("connect"); yield return Activate("mode:4");
@@ -182,7 +227,8 @@ namespace Wreckabulary.Online.Tests
         [UnityTest]
         public IEnumerator BackClosesOptionalPanelsBeforeLeavingIdlePartyAndCancelRemainsVisible()
         {
-            yield return Activate("connect"); yield return Activate("mode:4"); yield return Activate("fill");
+            yield return Activate("connect"); yield return Activate("mode:4");
+            yield return Activate("create-settings"); yield return Activate("fill");
             yield return Activate("create-party");
             string party = coordinator.Party.Id;
             yield return Activate("party-settings");
@@ -212,7 +258,8 @@ namespace Wreckabulary.Online.Tests
         [UnityTest]
         public IEnumerator FailedQueueKeepsRetryVisibleWithoutReopeningPrivateForms()
         {
-            yield return Activate("connect"); yield return Activate("mode:4"); yield return Activate("fill");
+            yield return Activate("connect"); yield return Activate("mode:4");
+            yield return Activate("create-settings"); yield return Activate("fill");
             yield return Activate("create-party"); yield return Activate("ready");
             http.FailNext = true; yield return Activate("quick-play");
             Assert.IsTrue(coordinator.RetryRequired);

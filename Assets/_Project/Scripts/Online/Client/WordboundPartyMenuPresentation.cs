@@ -6,7 +6,69 @@ namespace Wreckabulary.Online
     {
         static readonly string[] EntryLabels = { "Create", "Join" };
         int entryPage;
-        bool showPartySettings, showPrivateActions;
+        bool showCreateSettings, showPartySettings, showPrivateActions;
+
+        void DrawCreateSettings()
+        {
+            GUILayout.Space(10);
+            DrawModeChoices();
+            if (Modes[mode] != "TeamRace" && Modes[mode] != "BrawlRace") format = 0;
+            if (Modes[mode] == "FreeForAll") fill = false;
+            int layout = customSeedMode ? -1 : EnsurePublicMapSelection();
+            if (customSeedMode) seed = privateSeed;
+            PartyControl("create-settings", showCreateSettings ? "Hide match settings" : "Match settings", () => {
+                if (showCreateSettings) CloseCreateSettings(); else showCreateSettings = true;
+            });
+            string team = Modes[mode] == "TeamRace" || Modes[mode] == "BrawlRace" ? " · " + Formats[format] : "";
+            string teammates = Modes[mode] == "FreeForAll" ? "" : fill ? " · Human teammates" : " · Party only";
+            string map = customSeedMode ? "Private seed" : layout < 0 ? "No public map" : "Public layout " + (layout + 1);
+            GUILayout.Label(RegionLabels[region] + team + teammates + " · " + map, hint);
+            if (showCreateSettings) DrawSettings(false);
+        }
+
+        void DrawModeChoices()
+        {
+            PartyChoices("mode", mode, ModeLabels, 3, next => {
+                if (next != mode) { mode = next; format = 0; fill = false; }
+            });
+            GUILayout.Label(Composition(Modes[mode], Formats[format]), hint);
+        }
+
+        int EnsurePublicMapSelection()
+        {
+            RefreshMapChoices();
+            if (mapChoices.Count == 0) return -1;
+            for (int i = 0; i < mapChoices.Count; i++) if (mapChoices[i].Seed == seed) return i;
+            seed = mapChoices[0].Seed;
+            return 0;
+        }
+
+        void CloseCreateSettings()
+        {
+            showCreateSettings = false; scroll = Vector2.zero;
+            partyFocus.Reset("create-settings"); revealPartySelection = true;
+        }
+
+        void DrawPartyError()
+        {
+            string error = localError ?? coordinator.Error;
+            if (string.IsNullOrEmpty(error)) return;
+            Color previous = GUI.contentColor;
+            try { GUI.contentColor = ui.Error; GUILayout.Label(error, hint); }
+            finally { GUI.contentColor = previous; }
+        }
+
+        void DrawRetryState()
+        {
+            GUI.enabled = true;
+            GUILayout.Space(ui.Gap);
+            DrawPartyError();
+            GUILayout.Label("The result of “" + coordinator.PendingAction + "” is not yet confirmed.", hint);
+            if (coordinator.Busy) GUILayout.Label("Retrying…", hint);
+            GUI.enabled = !coordinator.Busy;
+            PartyControl("retry", "Retry same action", () => Invoke(() => coordinator.Retry()));
+            GUI.enabled = true;
+        }
 
         void DrawOnlineBackground(Vector2 viewport)
         {

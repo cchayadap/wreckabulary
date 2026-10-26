@@ -17,7 +17,7 @@ namespace Wreckabulary.Online
         string PartyContext => coordinator == null ? "" : string.Join("|", Visible, launching, returning,
             coordinator.Authenticated, coordinator.Busy, coordinator.RetryRequired, coordinator.MatchActive,
             coordinator.Party?.Id, coordinator.Party?.Revision, mode, region, format, customSeedMode, seed,
-            entryPage, showPartySettings, showPrivateActions);
+            entryPage, showCreateSettings, showPartySettings, showPrivateActions);
 
         void SuspendPartyInput()
         {
@@ -80,6 +80,8 @@ namespace Wreckabulary.Online
                 if (showPrivateActions) { showPrivateActions = false; partyFocus.Reset("private-actions"); revealPartySelection = true; return; }
                 if (showPartySettings) { showPartySettings = false; partyFocus.Reset("party-settings"); revealPartySelection = true; return; }
             }
+            if (coordinator.Party == null && entryPage == 0 && showCreateSettings)
+            { CloseCreateSettings(); return; }
             if (coordinator.Party == null && entryPage != 0)
             { entryPage = 0; scroll = Vector2.zero; partyFocus.Reset("entry:0"); revealPartySelection = true; return; }
             if (coordinator.Party != null) { Invoke(() => coordinator.LeaveParty()); return; }

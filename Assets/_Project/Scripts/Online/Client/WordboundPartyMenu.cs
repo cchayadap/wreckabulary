@@ -185,7 +185,8 @@ namespace Wreckabulary.Online
             {
                 if (guestStyleGeneration != ui.Generation || guestWidth != available.width)
                 { guestHeight = -1; guestWidth = available.width; guestStyleGeneration = ui.Generation; }
-                compactPartyLayout = !coordinator.Authenticated && !coordinator.MatchActive;
+                compactPartyLayout = !coordinator.MatchActive && (!coordinator.Authenticated || coordinator.RetryRequired ||
+                    !(coordinator.Party == null ? entryPage == 0 && showCreateSettings : showPartySettings || showPrivateActions));
                 compactPartyScroll = compactPartyLayout && guestHeight > available.height;
                 partyRect = available;
                 if (compactPartyLayout && guestHeight > 0)
@@ -227,7 +228,12 @@ namespace Wreckabulary.Online
                 PartyControl("return", returning ? "Returning…" : "Return to party", () => { _ = Return(); });
                 GUI.enabled = true; return;
             }
-            GUI.enabled = !coordinator.Busy && !launching && !returning && !coordinator.RetryRequired;
+            if (coordinator.RetryRequired)
+            {
+                DrawRetryState();
+                return;
+            }
+            GUI.enabled = !coordinator.Busy && !launching && !returning;
             if (!coordinator.Authenticated)
             {
                 GUILayout.Space(12); GUILayout.Label("Guest name");
@@ -242,7 +248,7 @@ namespace Wreckabulary.Online
                     PartyChoices("entry", entryPage, EntryLabels, 2, next => { entryPage = next; scroll = Vector2.zero; });
                     if (entryPage == 0)
                     {
-                        DrawSettings();
+                        DrawCreateSettings();
                         bool enabled = GUI.enabled;
                         GUI.enabled = enabled && (customSeedMode || publicCourses.Find(Modes[mode], Formats[format], seed) != null);
                         PartyControl("create-party", "Create party", () => Invoke(CreateParty));
@@ -263,20 +269,7 @@ namespace Wreckabulary.Online
             }
             GUI.enabled = true;
             if (coordinator.Busy) GUILayout.Label("Connecting…", hint);
-            string error = localError ?? coordinator.Error;
-            if (!string.IsNullOrEmpty(error))
-            {
-                Color previous = GUI.contentColor;
-                try { GUI.contentColor = ui.Error; GUILayout.Label(error, hint); }
-                finally { GUI.contentColor = previous; }
-            }
-            if (coordinator.RetryRequired)
-            {
-                GUILayout.Label("The result of “" + coordinator.PendingAction + "” is not yet confirmed.", hint);
-                GUI.enabled = !coordinator.Busy;
-                PartyControl("retry", "Retry same action", () => Invoke(() => coordinator.Retry()));
-                GUI.enabled = true;
-            }
+            DrawPartyError();
             if (BeginMatchRequested == null)
                 GUILayout.Label("Gameplay launcher is not connected in this scene.", hint);
             if (!coordinator.MatchActive && !coordinator.Busy && !coordinator.RetryRequired &&
@@ -288,16 +281,13 @@ namespace Wreckabulary.Online
                 GUILayout.EndHorizontal();
             }
         }
-        void DrawSettings()
+        void DrawSettings(bool includeMode = true)
         {
             GUILayout.Space(10);
             bool previous = GUI.enabled;
             var party = coordinator.Party;
             GUI.enabled = previous && (party == null || coordinator.IsLeader && !party.HasAttempt);
-            PartyChoices("mode", mode, ModeLabels, 3, next => {
-                if (next != mode) { mode = next; format = 0; fill = false; }
-            });
-            GUILayout.Label(Composition(Modes[mode], Formats[format]), hint);
+            if (includeMode) DrawModeChoices();
             GUILayout.Label("Region");
             PartyChoices("region", region, RegionLabels, 3, next => region = next);
             if (Modes[mode] == "TeamRace" || Modes[mode] == "BrawlRace")
@@ -339,16 +329,13 @@ namespace Wreckabulary.Online
                 GUILayout.Label("Private rooms only. Use Public maps to find a match.", hint);
                 return;
             }
-            RefreshMapChoices();
+            int selected = EnsurePublicMapSelection();
             var choices = mapChoices;
             if (choices.Count == 0)
             {
                 GUILayout.Label("No public map available. Choose Private seed.", hint);
                 return;
             }
-            int selected = -1;
-            for (int i = 0; i < choices.Count; i++) if (choices[i].Seed == seed) selected = i;
-            if (selected < 0) { selected = 0; seed = choices[0].Seed; }
             PartyChoices("public-map", selected, mapLabels, 2, choice => seed = choices[choice].Seed);
             if (choices.Count > 1) PartyControl("random-map", "Shuffle layout",
                 () => seed = choices[UnityEngine.Random.Range(0, choices.Count)].Seed);
@@ -379,7 +366,7 @@ namespace Wreckabulary.Online
                 GUILayout.Label(party.Channel == "PrivateJoin" ? "Joining room…" :
                     party.Channel == "PrivateCreate" ? "Creating room…" : "Finding players…", hint);
             if (coordinator.IsLeader && party.HasAttempt)
-                PartyControl("cancel-queue", "Cancel search / reservation", () => Invoke(() => coordinator.CancelQueue()));
+                PartyControl("cancel-queue", party.Assignment == null ? "Cancel search" : "Cancel reservation", () => Invoke(() => coordinator.CancelQueue()));
             foreach (var member in party.Members)
                 GUILayout.Label((member.PlayerId == coordinator.PlayerId ? "You" : "Player " + member.PlayerId.Substring(0, 6)) +
                     (member.PlayerId == party.LeaderId ? " · leader" : "") + (member.Ready ? " · ready" : " · not ready"));

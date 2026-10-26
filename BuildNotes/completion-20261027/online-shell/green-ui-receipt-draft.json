@@ -1,0 +1,111 @@
+{
+  "status": "REVIEWED UI SLICE; root stage/commit not performed",
+  "capture_receipt": "BuildNotes/completion-20261027/online-shell/capture/run-20261026T193325237Z-f00f8e/receipt.json",
+  "capture_receipt_sha256": "5f1ff74392ff313c7455efe8104a0d29af18d0348ae01e6ffc99755133a021c1",
+  "synthetic": true,
+  "capture_frames": 21,
+  "image_hashes_verified": 21,
+  "protected_file_hashes_verified": 16,
+  "cleanup_errors": [],
+  "runtime_sources_match_capture": true,
+  "current_source_hashes": [
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenu.cs",
+      "sha256": "9d964e339b75af8f9e22f1a9ef61874ecfaa1e32a180c2a9da5bf35d43b54ac0"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuInput.cs",
+      "sha256": "3db54c1d15518e21c4d2ef35d33ae9e8a7010a9c868bbf128d2f51d5945485fe"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundPartyMenuPresentation.cs",
+      "sha256": "8c40b6c64ff9c6c57b02e2beb0dacbbeb5ffad9c0376ef1af15d1536ac4f47d9"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundPartyMenuInputTests.cs",
+      "sha256": "88691cf5ea516dbf5051dcd3d26f59293fca040675175945b208de3793ddf483"
+    },
+    {
+      "path": "Assets/_Project/Tests/WordboundOnlineShellCaptureTests.cs",
+      "sha256": "49687e42a4e8b77eb640fbd7553f741bbb696bf83f8eb3f7a0002da551d43e7c"
+    }
+  ],
+  "native_results": [
+    {
+      "path": "TestResults/editmode_20261026T190255Z.xml",
+      "sha256": "0ef89a4bdf4629c01454aaf9cefdec6c5a5b6ee6f91979b13e652d14250f7ec6",
+      "result": "Passed",
+      "total": 53,
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0,
+      "test_duration_seconds": 126.8366362,
+      "failed_cases": [],
+      "ui_case_count": 39
+    },
+    {
+      "path": "TestResults/editmode_20261026T191259Z.xml",
+      "sha256": "bd241b44b61a401ecc6c2d0728feed47f9d1df04639fe0df18b0a71d6c4ac937",
+      "result": "Failed(Child)",
+      "total": 53,
+      "passed": 48,
+      "failed": 5,
+      "skipped": 0,
+      "test_duration_seconds": 81.7380755,
+      "failed_cases": [
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.BackClosesOptionalPanelsBeforeLeavingIdlePartyAndCancelRemainsVisible",
+          "message": "  The selected real control must receive rendered focus before confirmation: frame=27, quietUntil=-1, blocked=False, typing=False, menuTyping=False, pad=True, selected=fill, focused=, layouts=17, repaints=9\n  Expected string length 10 but was 0. Strings differ at index 0.\n  Expected: \"party:fill\"\n  But was:  <string.Empty>\n  -----------^\n"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.CompactCreateResolvesPublicDefaultsAndPreservesFoldedPrivateSettings",
+          "message": "  The selected real control must receive rendered focus before confirmation: frame=33, quietUntil=-1, blocked=False, typing=False, menuTyping=False, pad=True, selected=region:1, focused=, layouts=21, repaints=10\n  Expected string length 14 but was 0. Strings differ at index 0.\n  Expected: \"party:region:1\"\n  But was:  <string.Empty>\n  -----------^\n"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.FailedQueueKeepsRetryVisibleWithoutReopeningPrivateForms",
+          "message": "  The selected real control must receive rendered focus before confirmation: frame=47, quietUntil=-1, blocked=False, typing=False, menuTyping=False, pad=True, selected=fill, focused=, layouts=17, repaints=9\n  Expected string length 10 but was 0. Strings differ at index 0.\n  Expected: \"party:fill\"\n  But was:  <string.Empty>\n  -----------^\n"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.HiddenCreateSettingCannotDispatchAfterItsSectionCloses",
+          "message": "  The selected real control must receive rendered focus before confirmation: frame=57, quietUntil=-1, blocked=False, typing=False, menuTyping=False, pad=True, selected=region:1, focused=, layouts=17, repaints=9\n  Expected string length 14 but was 0. Strings differ at index 0.\n  Expected: \"party:region:1\"\n  But was:  <string.Empty>\n  -----------^\n"
+        },
+        {
+          "name": "Wreckabulary.Online.Tests.WordboundPartyMenuInputTests.RealPadButtonsConnectSelectCreateReadyAndQuickPlayOnlyAfterRepaint",
+          "message": "  The selected real control must receive rendered focus before confirmation: frame=81, quietUntil=-1, blocked=False, typing=False, menuTyping=False, pad=True, selected=region:1, focused=, layouts=17, repaints=9\n  Expected string length 14 but was 0. Strings differ at index 0.\n  Expected: \"party:region:1\"\n  But was:  <string.Empty>\n  -----------^\n"
+        }
+      ],
+      "ui_case_count": 39
+    },
+    {
+      "path": "TestResults/editmode_20261026T192038Z.xml",
+      "sha256": "1cd07c294145cb278f8edaa6f2c3433b22362b6120e12cb6190d06af19253d1e",
+      "result": "Passed",
+      "total": 53,
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0,
+      "test_duration_seconds": 80.5816841,
+      "failed_cases": [],
+      "ui_case_count": 39
+    },
+    {
+      "path": "TestResults/playmode_20261026T193149Z.xml",
+      "sha256": "d928055bac0c3b2c55c12dcdb1550afd36ab5c8914537f923451ac56a777c399",
+      "result": "Passed",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "test_duration_seconds": 13.457004,
+      "failed_cases": [],
+      "ui_case_count": 0
+    }
+  ],
+  "visual_review": "BuildNotes/completion-20261027/online-shell/capture/final21-visual-review.md",
+  "limits": [
+    "No real network or physical-input acceptance",
+    "Not a Windows build receipt",
+    "Earlier 191259 failure retained; corrected expanded-layout rerun192038 passed",
+    "No original house online claim"
+  ]
+}
