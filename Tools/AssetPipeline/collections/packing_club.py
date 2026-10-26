@@ -1,6 +1,7 @@
 """Editable, original-scale cosmetic variants. Run only in a fresh output folder."""
 
 import argparse
+from array import array
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -20,6 +21,8 @@ SOURCE_HASHES = {
     "SHIELD": "c52b3c7c23f5cdd664bba168e11b1c803bfed57aee9cdd6a4b049f0fb58f5552",
 }
 BUDGETS = {"BAT": (3000, 1200), "SHIELD": (1200, 600)}
+MATERIAL_NAMES = {"PackingClub_Surface", "PackingClub_Wrap"}
+EXPECTED_EXPORTS = {(item, lod, kind) for item in SOURCE_HASHES for lod in (0, 1) for kind in ("glb", "fbx")}
 PALETTE = (
     (0.82, 0.69, 0.48, 1),
     (0.70, 0.54, 0.34, 1),
@@ -244,7 +247,16 @@ def inspect(objects, budget, expected_bounds, expected_grip):
         volume = bm.calc_volume(signed=True)
         bm.free()
         bad_triangles = sum(triangle.area < 1e-12 for triangle in mesh.loop_triangles)
-        part_materials = [material.name for material in mesh.materials if material]
+        slots = list(mesh.materials)
+        used_slots = {face.material_index for face in mesh.polygons}
+        valid_slots = bool(slots) and bool(used_slots) and all(material is not None for material in slots) and all(
+            0 <= index < len(slots) for index in used_slots)
+        if not valid_slots:
+            errors.append(obj.name + ": missing material slot or invalid face material index")
+        part_materials = sorted({slots[index].name for index in used_slots}) if valid_slots else []
+        if valid_slots and (len(slots) > 2 or len(part_materials) != len(slots) or used_slots != set(range(len(slots))) or
+                            not set(part_materials).issubset(MATERIAL_NAMES)):
+            errors.append(obj.name + ": unused or unexpected material identity")
         material_names.update(part_materials)
         if nonmanifold or volume <= 0 or bad_triangles or not mesh.uv_layers:
             errors.append(obj.name + ": closed positive-volume mesh / nondegenerate triangles / UV validation failed")
@@ -255,8 +267,8 @@ def inspect(objects, budget, expected_bounds, expected_grip):
     error = max(abs(actual[i] - expected[i]) for actual, expected in zip((low, high), expected_bounds) for i in range(3))
     if error > .00001:
         errors.append("Original envelope drift: " + str(error))
-    if triangles > budget or len(material_names) > 2:
-        errors.append("Triangle/material budget exceeded")
+    if triangles <= 0 or triangles > budget or material_names != MATERIAL_NAMES:
+        errors.append("Triangle budget or exact assigned material identities invalid")
     grip = next((obj for obj in objects if obj.get("packing_club_socket") == "Grip_R"), None)
     if grip is None or max(abs(grip.matrix_world[r][c] - expected_grip[r][c]) for r in range(4) for c in range(4)) > .00001:
         errors.append("Original composed grip matrix changed")
@@ -430,21 +442,148 @@ def build(args):
     print("PACKING_CLUB_BUILT " + str(output), flush=True)
 
 
+def unique_json_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Duplicate manifest key: " + key)
+        result[key] = value
+    return result
+
+
+def checked_file(output, record, expected_path):
+    if not isinstance(record, dict) or record.get("path") != expected_path:
+        raise ValueError("Unexpected manifest file path: " + expected_path)
+    path = (output / expected_path).resolve()
+    if not path.is_relative_to(output.resolve()) or not path.is_file():
+        raise ValueError("Missing or escaping manifest file: " + expected_path)
+    if type(record.get("bytes")) is not int or record["bytes"] != path.stat().st_size or digest(path) != record.get("sha256"):
+        raise ValueError("File bytes or SHA-256 differ: " + expected_path)
+    return path
+
+
+def image_pixels(image):
+    if tuple(image.size) != (512, 512) or image.channels not in (3, 4) or image.colorspace_settings.name != "sRGB":
+        raise ValueError("Palette must decode as 512 x 512 sRGB RGB/RGBA")
+    channels, remainder = divmod(len(image.pixels), 512 * 512)
+    if remainder or channels not in (3, 4):
+        raise ValueError("Palette pixel buffer dimensions differ")
+    pixels = array("f", [0]) * len(image.pixels)
+    image.pixels.foreach_get(pixels)
+    if not all(math.isfinite(value) and -.00001 <= value <= 1.00001 for value in pixels):
+        raise ValueError("Palette contains invalid pixel values")
+    if channels == 3:
+        rgba = array("f")
+        for offset in range(0, len(pixels), 3):
+            rgba.extend(pixels[offset:offset + 3])
+            rgba.append(1)
+        return rgba
+    return pixels
+
+
+def palette_pixels(path):
+    image = bpy.data.images.load(str(path), check_existing=False)
+    try:
+        return image_pixels(image)
+    finally:
+        bpy.data.images.remove(image)
+
+
+def inspect_palette_bindings(objects, palette_path, kind):
+    expected_pixels = palette_pixels(palette_path)
+    materials = {}
+    for obj in objects:
+        if obj.type == "MESH":
+            for face in obj.data.polygons:
+                material = obj.data.materials[face.material_index]
+                materials[material.name] = material
+    if set(materials) != MATERIAL_NAMES:
+        raise ValueError("Palette binding requires both assigned collection materials")
+    bindings = []
+    for name, material in sorted(materials.items()):
+        if not material.use_nodes or not material.node_tree:
+            raise ValueError(name + ": material has no shader graph")
+        outputs = [node for node in material.node_tree.nodes if node.type == "OUTPUT_MATERIAL" and node.is_active_output]
+        if len(outputs) != 1 or len(outputs[0].inputs["Surface"].links) != 1:
+            raise ValueError(name + ": no unique connected surface output")
+        shader = outputs[0].inputs["Surface"].links[0].from_node
+        if shader.type != "BSDF_PRINCIPLED" or len(shader.inputs["Base Color"].links) != 1:
+            raise ValueError(name + ": expected connected Principled base color")
+        link = shader.inputs["Base Color"].links[0]
+        texture = link.from_node
+        if texture.type != "TEX_IMAGE" or link.from_socket.name != "Color" or texture.image is None:
+            raise ValueError(name + ": the base color must use the palette image")
+        image = texture.image
+        if kind == "fbx":
+            reference = Path(bpy.path.abspath(image.filepath, library=image.library)).resolve()
+            if reference != palette_path.resolve() or not reference.is_file():
+                raise ValueError(name + ": FBX palette does not resolve to the verified external palette")
+        actual_pixels = image_pixels(image)
+        error = max(abs(actual - expected) for actual, expected in zip(actual_pixels, expected_pixels))
+        if error > 1 / 255 + .00001:
+            raise ValueError(name + ": decoded palette content differs")
+        bindings.append({"material": name, "image_size": [512, 512], "max_decoded_channel_error": error,
+                         "decoded_rgba_sha256": hashlib.sha256(actual_pixels.tobytes()).hexdigest(),
+                         "binding": "Principled Base Color <- Image Color",
+                         "verified_external_reference": kind == "fbx"})
+    return bindings
+
+
 def load_manifest(args):
-    manifest = json.loads((args.output / "manifest.json").read_text(encoding="utf-8"))
+    manifest = json.loads((args.output / "manifest.json").read_text(encoding="utf-8"), object_pairs_hook=unique_json_object)
+    if not isinstance(manifest, dict) or manifest.get("schema") != 1 or manifest.get("collection") != "PackingClub" or manifest.get("version") != 1:
+        raise ValueError("Unsupported Packing Club manifest schema/identity")
+    records = manifest.get("assets")
+    if not isinstance(records, list) or len(records) != 4:
+        raise ValueError("Manifest must contain exactly four item/LOD records and eight exports")
+    actual_exports = set()
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("Invalid asset record")
+        item, lod = record.get("item_id"), record.get("lod")
+        if item not in SOURCE_HASHES or type(lod) is not int or lod not in (0, 1) or record.get("skin_id") != "PackingClub":
+            raise ValueError("Unexpected item, LOD or skin identity")
+        exports = record.get("exports")
+        if not isinstance(exports, dict) or set(exports) != {"glb", "fbx"}:
+            raise ValueError("Each item/LOD must contain exactly GLB and FBX exports")
+        if record.get("triangle_budget") != BUDGETS[item][lod] or type(record.get("triangles")) is not int or not 0 < record["triangles"] <= BUDGETS[item][lod]:
+            raise ValueError("Invalid recorded triangle count or budget")
+        suffix = "" if lod == 0 else "_LOD1"
+        for kind in ("glb", "fbx"):
+            key = (item, lod, kind)
+            if key in actual_exports:
+                raise ValueError("Duplicate item/LOD/export record")
+            actual_exports.add(key)
+            checked_file(args.output, exports[kind], "Exports/" + item + suffix + "." + kind)
+        original = checked_file(args.output, record.get("original"), "Source/original-" + item + ".glb")
+        if digest(original) != SOURCE_HASHES[item]:
+            raise ValueError("Original reference hash differs: " + item)
+    if actual_exports != EXPECTED_EXPORTS:
+        raise ValueError("Incomplete BAT/SHIELD x LOD0/LOD1 x GLB/FBX matrix")
     if digest(__file__) != manifest["script_sha256"]:
         raise RuntimeError("Script changed since build; preserve output and build a new revision")
-    blend = args.output / manifest["source_blend"]["path"]
-    if digest(blend) != manifest["source_blend"]["sha256"]:
-        raise RuntimeError("Saved source changed; record a new revision before generating delivery evidence")
+    if digest(args.output / "Source/packing_club.py") != manifest["script_sha256"]:
+        raise RuntimeError("Saved generator source changed")
+    blend = checked_file(args.output, manifest.get("source_blend"), "Source/PackingClub.blend")
+    palette = checked_file(args.output, manifest.get("palette"), "Exports/PackingClubPalette.png")
+    palette_pixels(palette)
     return manifest, blend
 
 
 def verify(args):
-    manifest, _ = load_manifest(args)
     report_path = args.output / "export-verification.json"
     if report_path.exists():
         raise RuntimeError("Preserve the existing verification receipt")
+    try:
+        manifest, _ = load_manifest(args)
+    except Exception as error:
+        if args.output.is_dir():
+            manifest_path = args.output / "manifest.json"
+            write_json(report_path, {"created_utc": utc(), "result": "FAIL", "stage": "manifest_and_palette",
+                                    "manifest_sha256": digest(manifest_path) if manifest_path.is_file() else None,
+                                    "expected_export_count": 8, "checked_export_count": 0,
+                                    "error": str(error), "checks": [], "unity_import": "NOT RUN"})
+        raise
     checks = []
     for record in manifest["assets"]:
         for kind, exported in record["exports"].items():
@@ -476,14 +615,18 @@ def verify(args):
                     raise RuntimeError("Export contains a camera, light or rig: " + str(path))
                 if sum(obj.type == "MESH" for obj in objects) != 1:
                     raise RuntimeError("Runtime export must be one combined rigid mesh")
-                check.update({"result": "PASS", **actual})
+                bindings = inspect_palette_bindings(objects, args.output / "Exports/PackingClubPalette.png", kind)
+                check.update({"result": "PASS", "palette_bindings": bindings, **actual})
             except Exception as error:
                 check.update({"result": "FAIL", "error": str(error)})
             checks.append(check)
             print("PACKING_CLUB_EXPORT_CHECK " + json.dumps(check), flush=True)
-    passed = all(check["result"] == "PASS" for check in checks)
+    observed = {(check["item_id"], check["lod"], check["format"]) for check in checks}
+    passed = len(checks) == 8 and observed == EXPECTED_EXPORTS and all(check["result"] == "PASS" for check in checks)
     write_json(report_path, {"created_utc": utc(), "manifest_sha256": digest(args.output / "manifest.json"),
                             "blender": bpy.app.version_string, "result": "PASS" if passed else "FAIL", "checks": checks,
+                            "expected_export_count": 8, "checked_export_count": len(checks),
+                            "verified_palette_sha256": manifest["palette"]["sha256"],
                             "unity_import": "NOT RUN", "visual_acceptance": "PENDING OWNER REVIEW"})
     if not passed:
         raise RuntimeError("Packing Club export round-trip failed; inspect preserved receipt")
