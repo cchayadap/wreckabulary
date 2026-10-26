@@ -27,3 +27,13 @@ Lane: `experience-refresh/story26`. Owner: SethyPagna. Started 2026-10-26 UTC.
 ## Next recoverable action
 
 Inspect root story callers, localization and existing tests; send exact additive interface and scope to root before runtime edits. Write rubric with anchored scores, confidence, perspectives and measurable acceptance. Then implement the smallest safe profile/cue slice and hand root exact commits and verification requests.
+
+## 2026-10-26 source contract and rubric checkpoint
+
+- Scope/interface proposal sent to root before runtime edits: optional profile/localizer overloads, copy-only immutable notice identities, one current earned in-world cue, full optional journal, no authority/endings changes. Root owns HUD wiring and generated assets.
+- Confirmed current world signs instantiate every notice in the current lap; journal gating itself is correct. Narrowing the signs to the latest earned notice avoids premature story disclosure.
+- Existing HUD reflection test invokes the seven-argument notice constructor. Preserve that exact constructor and `Journal` property, not just ordinary call-site compatibility.
+- No story localization service found in inspected Online presentation/client paths. Add an optional key/fallback seam; do not imply localization is already shipped.
+- Baseline synchronization commit `075b30b3` copies ten exact existing root story/test files from `9fce9f25`, including their already-generated metadata. **Exclude this commit when integrating**; no new metadata was authored.
+- Added `docs/wordbound/GAMEPLAY-EXPERIENCE-RUBRIC.md`: anchored eight-dimension 0–4 rubric, source estimates separated from human evidence, seven participant lenses, causal gameplay application and ten measurable acceptance rows.
+- Next: implement profile, plan cue selection and additive editor/tests; inspect diff, then send root exact native-test requests. No jobs have run.
