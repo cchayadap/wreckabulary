@@ -16,7 +16,7 @@ namespace Wreckabulary.Online
         bool revealMenuSelection, menuHasFocus;
         Action pendingMenuAction;
         string pendingSearch;
-        string menuConnectionStatus = "", menuResultStatus = "";
+        string menuConnectionStatus = "", menuResultStatus = "", menuActionStatus = "";
         IReadOnlyList<WordboundStoryNotice> menuJournal = Array.Empty<WordboundStoryNotice>();
         WordboundStoryEpilogue menuEpilogue;
         float recipeViewportHeight = 180;
@@ -76,7 +76,11 @@ namespace Wreckabulary.Online
             if (commands.Back)
             {
                 ResetMenuInput();
-                if (journalOpen) { journalOpen = false; recipeScroll = Vector2.zero; menuFocus.Reset("journal"); }
+                if (journalOpen || helpOpen)
+                {
+                    string previous = helpOpen ? "help" : "journal";
+                    journalOpen = false; helpOpen = false; recipeScroll = Vector2.zero; menuFocus.Reset(previous);
+                }
                 else if (controller.Fault == "") Resume();
                 return;
             }
@@ -93,7 +97,7 @@ namespace Wreckabulary.Online
         void Resume()
         {
             view.SetMenuOpen(false);
-            crafting = false;
+            crafting = false; helpOpen = false;
             ResetMenuInput();
         }
 
@@ -132,29 +136,30 @@ namespace Wreckabulary.Online
             {
                 menuFocus.BeginLayout();
                 menuConnectionStatus = controller.Fault != "" ? "Connection interrupted · " + returnLabel + " to continue." :
-                    !controller.IsPresentationReady ? "Waiting for the host…" : "";
+                    persistentNotice.Length != 0 ? persistentNotice : !controller.IsPresentationReady ? "Waiting for the host…" : "";
+                menuActionStatus = TransientNotice(Time.unscaledTimeAsDouble);
                 menuResultStatus = frame?.Progress.Result != null ? ResultText(frame.Progress.Result) : "";
                 menuJournal = story ? story.Journal : Array.Empty<WordboundStoryNotice>();
                 menuEpilogue = story ? story.Epilogue(mode) : null;
             }
             GUILayout.BeginArea(ui.MenuRect(width, height), ui.Panel);
-            GUILayout.Label(journalOpen ? "Journal" : crafting ? "Spell equipment" : "Wordbound", ui.Heading);
+            GUILayout.Label(helpOpen ? "Help" : journalOpen ? "Journal" : crafting ? "Craft" : "Wordbound", ui.Heading);
             if (menuConnectionStatus.Length != 0) GUILayout.Label(menuConnectionStatus, ui.Wrapped);
             if (menuResultStatus.Length != 0) GUILayout.Label(menuResultStatus, ui.Wrapped);
+            if (menuActionStatus.Length != 0) GUILayout.Label(menuActionStatus, ui.Wrapped);
             if (view.UsesGamepad) GUILayout.Label("D-pad: select · A: choose · B: back · Right stick: scroll", ui.Wrapped);
             GUI.enabled = controller.Fault == "";
             if (MenuButton("resume", "Resume", GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(Resume);
             GUI.enabled = true;
-            if (menuJournal.Count > 0 || menuEpilogue != null)
-            {
-                GUILayout.BeginHorizontal();
-                if (MenuButton("equipment", "Equipment")) QueueMenuAction(() => { journalOpen = false; recipeScroll = Vector2.zero; });
-                if (MenuButton("journal", "Journal" + (menuJournal.Count > 0 ? " · " + menuJournal.Count : "")))
-                    QueueMenuAction(() => { journalOpen = true; recipeScroll = Vector2.zero; });
-                GUILayout.EndHorizontal();
-            }
-            GUI.enabled = journalOpen || frame != null && !controller.IsSimulationPaused;
-            if (journalOpen && story)
+            GUILayout.BeginHorizontal();
+            if (MenuButton("equipment", "Equipment")) QueueMenuAction(() => { journalOpen = false; helpOpen = false; recipeScroll = Vector2.zero; });
+            if ((menuJournal.Count > 0 || menuEpilogue != null) && MenuButton("journal", "Journal"))
+                QueueMenuAction(() => { journalOpen = true; helpOpen = false; recipeScroll = Vector2.zero; });
+            if (MenuButton("help", "Help")) QueueMenuAction(() => { helpOpen = true; journalOpen = false; recipeScroll = Vector2.zero; });
+            GUILayout.EndHorizontal();
+            GUI.enabled = helpOpen || journalOpen || frame != null && !controller.IsSimulationPaused;
+            if (helpOpen) HelpMenu();
+            else if (journalOpen && story)
             {
                 recipeScroll = GUILayout.BeginScrollView(recipeScroll);
                 if (menuEpilogue != null)
@@ -174,7 +179,7 @@ namespace Wreckabulary.Online
             else if (inventory != null)
             {
                 EquipmentMenu();
-                GUILayout.Label("Recipes · letters: " + inventory.Letters);
+                GUILayout.Label("Letters: " + (inventory.Letters.Count == 0 ? "—" : inventory.Letters.ToString()));
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Search", ui.SingleLine,
                     GUILayout.Width(Mathf.Ceil(ui.SingleLine.CalcSize(new GUIContent("Search")).x)), GUILayout.MinHeight(ui.RowHeight));
@@ -198,7 +203,7 @@ namespace Wreckabulary.Online
                     }
                 }
                 GUI.enabled = true;
-                if (visible == 0) GUILayout.Label("No recipes match. Clear the search to see all equipment.", ui.Wrapped);
+                if (visible == 0) GUILayout.Label("No matching recipes.", ui.Wrapped);
                 GUILayout.EndScrollView();
                 if (Event.current.type == EventType.Repaint)
                     recipeViewportHeight = Mathf.Max(30, GUILayoutUtility.GetLastRect().height);
@@ -239,14 +244,14 @@ namespace Wreckabulary.Online
             }
             GUI.enabled = usable;
             GUILayout.EndHorizontal();
-            if (inventory.CarriedFurniture >= 0 && MenuButton("drop-furniture", "Put down carried furniture"))
+            if (inventory.CarriedFurniture >= 0 && MenuButton("drop-furniture", "Put down furniture"))
                 QueueMenuAction(() => Send(WordboundAction.Drop));
             if (actor.EquippedSlot >= 0)
             {
                 GUILayout.BeginHorizontal();
                 int selectedSlot = actor.EquippedSlot;
-                if (MenuButton("place", "Place selected item")) QueueMenuAction(() => Send(WordboundAction.Deploy, slot: selectedSlot));
-                if (MenuButton("drop", "Drop selected item")) QueueMenuAction(() => Send(WordboundAction.Drop, slot: selectedSlot));
+                if (MenuButton("place", "Place")) QueueMenuAction(() => Send(WordboundAction.Deploy, slot: selectedSlot));
+                if (MenuButton("drop", "Drop")) QueueMenuAction(() => Send(WordboundAction.Drop, slot: selectedSlot));
                 GUILayout.EndHorizontal();
             }
             if ((mode.IsRace || mode.Id == "Freestyle") && frame.Progress.Teams.Single(t => t.Team == team).KeepsakeCarrier == actorId &&

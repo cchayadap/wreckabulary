@@ -18,10 +18,12 @@ namespace Wreckabulary.Online
         ItemCatalogue items;
         ModeDefinition mode;
         ResolvedCourse course;
-        string actorId, search = "", notice = "";
+        string actorId, search = "", notice = "", persistentNotice = "";
+        double noticeUntil;
+        bool showQuickTips = true;
         string returnLabel = "Return to party";
         int seat, team;
-        bool initialized, crafting, journalOpen, defenseHeld;
+        bool initialized, crafting, journalOpen, helpOpen, defenseHeld;
         string defenseItem = "";
         double nextDefenseInput;
         Vector2 recipeScroll;
@@ -33,7 +35,8 @@ namespace Wreckabulary.Online
         readonly Dictionary<string, WorldBodyState> canonicalBodies = new Dictionary<string, WorldBodyState>(StringComparer.Ordinal);
         readonly HashSet<Collider> staticSurfaces = new HashSet<Collider>();
         WordboundCourseWorld sightWorld;
-        readonly HudPanel statusPanel = new HudPanel(), actionPanel = new HudPanel();
+        readonly HudPanel statusPanel = new HudPanel(), actionPanel = new HudPanel(),
+            inventoryPanel = new HudPanel(), menuHintPanel = new HudPanel();
         bool panelsReady;
         public event Action ReturnRequested;
         public WordboundUiTheme Theme;
@@ -81,7 +84,7 @@ namespace Wreckabulary.Online
                 .OrderBy(r => r.Sequence))
             {
                 receiptSequence = receipt.Sequence;
-                if (receipt.Effect.Code != "Ok") notice = RefusalText(receipt.Effect.Code);
+                if (receipt.Effect.Code != "Ok") SetNotice(RefusalText(receipt.Effect.Code));
             }
         }
 
@@ -89,7 +92,7 @@ namespace Wreckabulary.Online
         {
             if (input.spellDown)
             {
-                ReleaseDefense(); crafting = true; journalOpen = false;
+                ReleaseDefense(); crafting = true; journalOpen = false; helpOpen = false;
                 menuFocus.Reset(FirstCraftableRecipe()); revealMenuSelection = true; view.SetMenuOpen(true); return;
             }
             if (input.slot > 0) { Send(WordboundAction.Equip, slot: input.slot - 1); return; }
@@ -161,13 +164,14 @@ namespace Wreckabulary.Online
                 shield == null || defenseItem != "item:" + shield.Id) ReleaseDefense();
         }
 
-        void MenuRequested() { ReleaseDefense(); crafting = false; ResetMenuInput(); }
+        void MenuRequested() { ReleaseDefense(); crafting = false; helpOpen = false; ResetMenuInput(); }
         void ConnectionFailed(string reason)
             => ShowFailure("The session stopped. Choose " + returnLabel + " to continue.");
         public void ShowFailure(string message)
         {
             ReleaseDefense();
-            notice = message;
+            persistentNotice = message ?? "";
+            SetNotice("");
             crafting = false;
             view.SetMenuOpen(true);
         }
@@ -177,10 +181,11 @@ namespace Wreckabulary.Online
             try
             {
                 controller.Submit(action, target, revision, slot, value);
-                if (action != WordboundAction.Block) notice = "";
+                if (action != WordboundAction.Block) SetNotice("");
+                if (action == WordboundAction.Attack) showQuickTips = false;
                 return true;
             }
-            catch (InvalidOperationException) { notice = "Waiting for the connection. Try again shortly."; return false; }
+            catch (InvalidOperationException) { SetNotice("Waiting for the connection. Try again shortly."); return false; }
         }
 
         WordboundNetworkBody Target()
@@ -258,7 +263,7 @@ namespace Wreckabulary.Online
                 var nearby = WordboundPracticeGuidePlan.Nearest(course, frame, actorId);
                 if (nearby != null && frame.Practice.SiteHash != nearby.Hash && !WordboundPracticeGuidePlan.Completed(frame, nearby))
                     Send(WordboundAction.PracticePuzzle, nearby.Hash);
-                else notice = nearby != null ? WordboundPracticeGuidePlan.Status(frame, nearby) : "Move closer to a letter, object or keepsake.";
+                else SetNotice(nearby != null ? WordboundPracticeGuidePlan.Status(frame, nearby) : "Move closer to a letter, object or keepsake.");
                 return;
             }
             string id = target.BodyId.ToString();
@@ -269,18 +274,7 @@ namespace Wreckabulary.Online
                 case WorldBodyKind.Item:
                     var item = frame.Economy.Items.FirstOrDefault(i => id == "item:" + i.Id);
                     if (item == null) return;
-                    var progress = frame.Progress.Teams.Single(t => t.Team == team);
-                    var puzzle = mode.IsRace && item.State == ItemState.Deployed && !progress.Finished
-                        ? course.Puzzles.FirstOrDefault(p => p.RecipeId == item.Word &&
-                            course.Laps[progress.Lap].Checkpoints.Skip(progress.NextCheckpoint).Take(1)
-                                .Any(c => c.PuzzleIds.Contains(p.Id)) && !progress.CompletedPuzzles.Contains(p.Id))
-                        : null;
-                    if (mode.Id == "Freestyle" && item.State == ItemState.Deployed)
-                    {
-                        var selected = WordboundPracticePolicy.Selected(course, frame.Practice);
-                        if (selected != null && !WordboundPracticeGuidePlan.Completed(frame, selected))
-                            puzzle = course.Puzzles.FirstOrDefault(p => p.Id == selected.PuzzleId && p.RecipeId == item.Word);
-                    }
+                    var puzzle = InteractionPuzzle(item);
                     if (puzzle != null) Send(WordboundAction.UsePuzzle, puzzle.Id, value: id);
                     else Send(WordboundAction.PickUp, id, item.Revision);
                     break;
@@ -301,75 +295,10 @@ namespace Wreckabulary.Online
                 if (view.MenuOpen) Menu(width, height, Application.isFocused);
                 else
                 {
-                    statusPanel.Draw(18, 18, Mathf.Min(380, width - 36), WrappedLabel, GUI.skin.box);
-                    actionPanel.Draw(18, height - 18, width - 36, WrappedLabel, GUI.skin.box, bottom: true);
+                    DrawOverlay(width, height);
                 }
             }
             finally { GUI.matrix = saved; GUI.enabled = enabled; }
-        }
-
-        void PreparePanels()
-        {
-            statusPanel.Begin(); actionPanel.Begin();
-            statusPanel.Add(mode.Name);
-            var shield = SelectedShield();
-            if (frame == null) statusPanel.Add("Preparing the world…");
-            else
-            {
-                var progress = frame.Progress.Teams.Single(t => t.Team == team);
-                if (mode.IsRace)
-                {
-                    int lap = Math.Min(progress.Lap, course.Laps.Count - 1);
-                    int checkpoints = course.Laps[lap].Checkpoints.Count;
-                    statusPanel.Add($"Lap {Math.Min(progress.Lap + 1, mode.Laps)} / {mode.Laps} · Checkpoint {Math.Min(progress.NextCheckpoint + 1, checkpoints)} / {checkpoints}");
-                    statusPanel.Add(ObjectiveText(progress));
-                }
-                else if (mode.Objective == WordboundObjective.Knockouts)
-                    statusPanel.Add($"Knockouts: {frame.Progress.Players.Single(p => p.Id == actorId).Knockouts} / {mode.KnockoutTarget}");
-                else if (mode.Id == "Freestyle")
-                {
-                    var selected = WordboundPracticePolicy.Selected(course, frame.Practice);
-                    statusPanel.Add(selected == null ? "Explore freely · select a nearby puzzle to practise." :
-                        WordboundPracticeGuidePlan.Status(frame, selected));
-                }
-                if (mode.TimeLimitSeconds > 0)
-                {
-                    long seconds = Math.Max(0, mode.TimeLimitSeconds - frame.Progress.ElapsedTicks / ModeDefinition.TickRate);
-                    statusPanel.Add($"{seconds / 60:00}:{seconds % 60:00} remaining");
-                }
-                statusPanel.Add($"Health {Mathf.CeilToInt(actor.Health)} · Stamina {Mathf.CeilToInt(actor.Stamina)}");
-                if (shield != null)
-                    statusPanel.Add(actor.Defense == null ? "Hold " + Hint(WordboundControl.Block, "block") + " to raise " + shield.Word :
-                        WordboundDefensePolicy.Raised(actor.Defense, items.Get(shield.Word).Shield, frame.Progress.Tick)
-                            ? "Blocking · face incoming attacks" : "Raising shield…");
-                if (controller.Fault != "") statusPanel.Add("Connection interrupted");
-                else if (controller.IsSimulationPaused) statusPanel.Add("Waiting for the host…");
-                if (frame.Progress.Result != null) statusPanel.Add(ResultText(frame.Progress.Result));
-            }
-            string letters = inventory?.Letters.ToString();
-            actionPanel.Add("Letters: " + (string.IsNullOrEmpty(letters) ? "—" : letters));
-            actionPanel.Add(Hint(WordboundControl.Interact, "Interact") + " Pick up · " +
-                Hint(WordboundControl.Spell, "Spell") + " Craft · " +
-                (shield == null ? Hint(WordboundControl.Attack, "Attack") + " Smash" :
-                    "Hold " + Hint(WordboundControl.Block, "Block") + " Block") +
-                " · " + Hint(WordboundControl.Menu, "Menu") + " Menu");
-            bool carried = inventory != null && inventory.CarriedFurniture >= 0;
-            bool equipped = inventory != null && actor != null && actor.EquippedSlot >= 0 &&
-                actor.EquippedSlot < inventory.Slots.Length && inventory.Slots[actor.EquippedSlot] >= 0;
-            string gear = "";
-            if (equipped && !carried)
-                gear = Hint(WordboundControl.Aim, "Aim") + " + " + Hint(WordboundControl.Attack, "Attack") + " Throw · ";
-            if (equipped || carried) gear += "Hold " + Hint(WordboundControl.Drop, "Drop") + " Drop · ";
-            if (inventory != null && inventory.Slots.Any(id => id >= 0))
-                gear += Hint(WordboundControl.CycleGear, "Cycle") + " Cycle gear";
-            if (gear.Length > 0) actionPanel.Add(gear.TrimEnd(' ', '·'));
-            if (notice != "") actionPanel.Add(notice);
-            if (!view.MenuOpen && Target() != null)
-                actionPanel.Add(Hint(WordboundControl.Interact, "Interact") + " Use nearby object");
-            else if (!view.MenuOpen && WordboundPracticeGuidePlan.Nearest(course, frame, actorId) != null)
-                actionPanel.Add(Hint(WordboundControl.Interact, "Interact") + " Select practice station · " +
-                    Hint(WordboundControl.Menu, "Menu") + " Station details");
-            panelsReady = true;
         }
 
         string Hint(WordboundControl control, string fallback)
@@ -392,6 +321,14 @@ namespace Wreckabulary.Online
                 if (count == rows.Count) { rows.Add(new GUIContent()); rects.Add(default); dirty = true; }
                 if (rows[count].text != text) { rows[count].text = text; dirty = true; }
                 count++;
+            }
+            public Rect DrawCompact(float anchor, float y, float maximumWidth, GUIStyle label, GUIStyle box, bool bottom, float alignment)
+            {
+                if (count == 0) return new Rect(anchor, y, 0, 0);
+                float width = 0;
+                for (int i = 0; i < count; i++) width = Mathf.Max(width, label.CalcSize(rows[i]).x);
+                width = Mathf.Min(maximumWidth, Mathf.Ceil(width + box.padding.horizontal));
+                return Draw(anchor - width * alignment, y, width, label, box, bottom);
             }
             int measuredCount = -1;
             public Rect Draw(float x, float y, float width, GUIStyle label, GUIStyle box, bool bottom = false)

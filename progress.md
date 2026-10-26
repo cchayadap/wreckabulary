@@ -20,6 +20,8 @@ This section supersedes older dated status paragraphs below. James has identifie
 
 The current Windows build is preserved as the **before-correction baseline**. Earlier failures and art drafts remain intact. Three independent work lanes own holding, expressions and UI drafts in `BuildNotes/character-experience-20261026/`; root integrates and serializes native verification. Other heavy jobs remain running as requested.
 
+Character/UI source is now integrated. R0 `133440` passes; core `132524` passes41/41; combined Editor `132959` passes102/102; Play `133124` passes17/17, zero skipped. Unity saved the held-pose settings (`132613`) and expression profile (`132815`). Ten native facial crops (`133514`) preserve322 input hashes and all recorded scene/global state, with owned preview objects released. Root's visual review finds the initial idle brow too stern; a matched tuning comparison and actual corrected Windows grip/HUD captures remain pending. [Exact native evidence](BuildNotes/character-experience-20261026/native-20261026.json).
+
 ## Unity developer workspace — 2026-10-26
 
 - [x] Audit existing scenes and asset identity. Imported model paths drive logical keys and rig settings; original assets and accessory submeshes stay intact.

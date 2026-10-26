@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f95c00ca3dcce2489a805834717868a, type: 3}
+  m_Name: AvatarExpressions
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Art.AvatarExpressionProfile
+  Poses:
+  - State: 0
+    BrowRelax: 55
+    Blink: 0
+    NaturalBlink: 1
+  - State: 1
+    BrowRelax: 42
+    Blink: 0
+    NaturalBlink: 1
+  - State: 2
+    BrowRelax: 38
+    Blink: 0
+    NaturalBlink: 1
+  - State: 3
+    BrowRelax: 8
+    Blink: 0
+    NaturalBlink: 0
+  - State: 4
+    BrowRelax: 4
+    Blink: 38
+    NaturalBlink: 0
+  - State: 5
+    BrowRelax: 12
+    Blink: 78
+    NaturalBlink: 0
+  - State: 6
+    BrowRelax: 24
+    Blink: 0
+    NaturalBlink: 0
+  - State: 7
+    BrowRelax: 62
+    Blink: 10
+    NaturalBlink: 1
+  - State: 8
+    BrowRelax: 85
+    Blink: 0
+    NaturalBlink: 1
+  BlendSeconds: 0.12
+  BlinkInterval: 3
+  BlinkSeconds: 0.16
+  HurtSeconds: 0.32
+  RecoverSeconds: 0.55
+  CelebrateSeconds: 1.5

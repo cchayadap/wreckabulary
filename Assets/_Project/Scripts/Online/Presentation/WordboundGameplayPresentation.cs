@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Fusion;
 using UnityEngine;
+using Wreckabulary.Art;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 
@@ -23,9 +24,10 @@ namespace Wreckabulary.Online
             public Vector3 Size;
             public WordboundVisualInstance World, Held;
             public WordboundAvatarMotion Motion;
+            public AvatarExpressionDriver Expression;
             public bool Carrying, TwoHanded;
             public float DefenseBlend;
-            public void Dispose() { Motion?.Dispose(); World?.Dispose(); Held?.Dispose(); }
+            public void Dispose() { Expression?.Dispose(); Motion?.Dispose(); World?.Dispose(); Held?.Dispose(); }
         }
 
         readonly List<View> views = new List<View>();
@@ -38,11 +40,12 @@ namespace Wreckabulary.Online
         readonly Dictionary<int, ItemInstance> inventoryItems = new Dictionary<int, ItemInstance>();
         readonly HashSet<string> presentPlayers = new HashSet<string>(StringComparer.Ordinal);
         readonly WordboundDefensePose defaultDefensePose = new WordboundDefensePose();
+        [SerializeField] AvatarExpressionProfile expressionProfile;
         WordboundVisualResolver resolver;
         WordboundGameplayController controller;
         MatchBinding binding;
         long frameTick, frameEpoch = -1;
-        bool frameUnavailable;
+        bool frameUnavailable, frameHasResult;
         public string Fault { get; private set; } = "";
         public event Action<string> Failed;
         public int VisualCount => views.Count;
@@ -75,6 +78,7 @@ namespace Wreckabulary.Online
             frameEpoch = frame.Epoch;
             frameTick = frame.Progress.Tick;
             frameUnavailable = frame.Progress.Migrating || frame.Progress.Result != null;
+            frameHasResult = frame.Progress.Result != null;
             appearances.Clear();
             equipped.Clear();
             defenses.Clear();
@@ -112,7 +116,7 @@ namespace Wreckabulary.Online
                     held.HolderId == seat && !held.IsGone && resolver.TryGetItem(held.Word, out var definition))
                     meleeItems.Add(actor.PlayerId, definition);
             }
-            foreach (var view in views) { ApplyAppearance(view); ApplyMelee(view); }
+            foreach (var view in views) { ApplyAppearance(view); ApplyMelee(view); ObserveExpression(view, frame); }
         }
 
         public void ConfigureVisual(WordboundGameplayBody body)
@@ -153,7 +157,7 @@ namespace Wreckabulary.Online
             try { if (key == "player") motion = new WordboundAvatarMotion(replacement); }
             catch { replacement.Dispose(); throw; }
             view.Dispose();
-            view.World = replacement; view.Motion = motion; view.Held = null; view.HeldSkin = null;
+            view.World = replacement; view.Motion = motion; view.Held = null; view.HeldSkin = null; view.Expression = null;
             view.Key = key; view.NetworkKey = body.VisualKey; view.Size = size;
             view.Parent = parent; view.Appearance = null; view.Seat = -1;
             view.Actor = body.Body.ActorId.ToString();
@@ -165,6 +169,7 @@ namespace Wreckabulary.Online
                     seat < 0 || seat > 7)
                     throw new InvalidOperationException("Avatar body requires a canonical roster seat.");
                 view.Seat = seat;
+                view.Expression = new AvatarExpressionDriver(replacement.Model, expressionProfile, seat);
                 ApplyAppearance(view);
             }
             view.World.Show(body.Body.BodyActive);
@@ -189,6 +194,36 @@ namespace Wreckabulary.Online
             if (view.Appearance == appearance) return;
             view.World.Dress(appearance);
             view.Appearance = appearance;
+        }
+
+        void ObserveExpression(View view, MatchSnapshot frame)
+        {
+            if (view.Expression == null) return;
+            actors.TryGetValue(view.Actor ?? "", out var actor);
+            PlayerProgress player = null;
+            WorldBodyState body = null;
+            for (int i = 0; i < frame.Progress.Players.Count; i++)
+                if (frame.Progress.Players[i].Id == view.Actor) { player = frame.Progress.Players[i]; break; }
+            for (int i = 0; i < frame.Bodies.Count; i++)
+                if (frame.Bodies[i].Kind == WorldBodyKind.Player && frame.Bodies[i].SourceId == view.Actor)
+                { body = frame.Bodies[i]; break; }
+            bool victory = false;
+            var result = frame.Progress.Result;
+            if (result != null && result.Confirmed && player != null)
+                for (int i = 0; i < result.WinningTeams.Count; i++) victory |= result.WinningTeams[i] == player.Team;
+            var velocity = body?.Velocity ?? default;
+            bool playing = result == null;
+            equipped.TryGetValue(view.Actor ?? "", out var item);
+            view.Expression.Observe(new AvatarExpressionSample {
+                Epoch = frame.Epoch, Tick = frame.Progress.Tick,
+                Available = actor != null && player != null && body != null && player.Connected && !player.Returned && !frame.Progress.Migrating,
+                Health = actor?.Health ?? 0, Downed = actor == null || actor.Health <= 0 || player == null || player.Eliminated,
+                Hurt = playing && actor != null && actor.StunnedUntilTick > frame.Progress.Tick,
+                Focus = playing && actor != null && (actor.Attack != null || actor.Defense != null || actor.DodgeUntilTick > frame.Progress.Tick),
+                Falling = playing && body != null && body.Active && velocity.Y < -2.5f,
+                Moving = playing && velocity.X * velocity.X + velocity.Z * velocity.Z > .04f,
+                RecoveryGeneration = player?.RecoveryGeneration ?? 0, Equipped = !string.IsNullOrEmpty(item), Celebrate = victory
+            });
         }
 
         void LateUpdate() => Present(Time.deltaTime);
@@ -219,6 +254,8 @@ namespace Wreckabulary.Online
                 foreach (var view in views)
                     view.Motion?.Step(deltaTime, view.Body.Body.BodyActive, view.Carrying, view.TwoHanded,
                         !frameUnavailable && (controller == null || !controller.IsSimulationPaused));
+                foreach (var view in views)
+                    view.Expression?.Step(deltaTime, frameHasResult || !frameUnavailable && (controller == null || !controller.IsSimulationPaused));
                 foreach (var view in views) ShowHeld(view, deltaTime);
             }
             catch (Exception error) { SetFault(error); }
@@ -279,19 +316,19 @@ namespace Wreckabulary.Online
         {
             if (Fault != "") return;
             Fault = error.GetType().Name + ": " + error.Message;
-            foreach (var view in views) { view.World?.Show(false); view.Held?.Show(false); }
+            foreach (var view in views) { view.Expression?.Reset(); view.World?.Show(false); view.Held?.Show(false); }
             Failed?.Invoke(Fault);
         }
         void OnDisable()
         {
-            foreach (var view in views) { view.Motion?.StopMelee(); view.World?.Show(false); view.Held?.Show(false); }
+            foreach (var view in views) { view.Expression?.Reset(); view.Motion?.StopMelee(); view.World?.Show(false); view.Held?.Show(false); }
         }
         public void Clear()
         {
             foreach (var view in views) view.Dispose();
             views.Clear(); appearances.Clear(); equipped.Clear(); defenses.Clear();
             actors.Clear(); meleeItems.Clear(); meleeAvailable.Clear(); inventoryItems.Clear(); presentPlayers.Clear();
-            frameEpoch = -1; frameTick = 0; frameUnavailable = true; binding = null; Fault = "";
+            frameEpoch = -1; frameTick = 0; frameUnavailable = true; frameHasResult = false; binding = null; Fault = "";
         }
         void OnDestroy()
         {

@@ -12,6 +12,7 @@ namespace Wreckabulary.Online
     {
         public const string AvatarKey = "Avatar/Avatar";
         readonly ItemCatalogue items;
+        readonly WordboundHoldingPose defaultHoldingPose = new WordboundHoldingPose();
         readonly Dictionary<string, string> mappings;
         public bool UseWordboundCollection { get; }
         public WordboundVisualProfile Profile { get; }
@@ -110,7 +111,10 @@ namespace Wreckabulary.Online
                         !overridden && definition != null && definition.Grip?.Length == 3 ?
                             new Vector3(definition.Grip[0], definition.Grip[1], definition.Grip[2]) : bounds.center);
                 var instance = new WordboundVisualInstance(root, model, grip,
-                    entry?.heldScale ?? definition?.HeldScale ?? 1f, definition?.IsTwoHanded ?? true);
+                    entry?.heldScale ?? definition?.HeldScale ?? 1f, definition?.IsTwoHanded ?? true,
+                    Profile?.HoldingPose ?? defaultHoldingPose, visualKey,
+                    authoredGrip ? Quaternion.Inverse(root.transform.rotation) * authoredGrip.rotation : Quaternion.identity,
+                    authoredGrip);
                 root.SetActive(true);
                 return instance;
             }
@@ -140,6 +144,10 @@ namespace Wreckabulary.Online
     public sealed class WordboundVisualInstance : IDisposable
     {
         readonly Renderer[] renderers;
+        readonly WordboundHoldingPose holdingPose;
+        readonly string visualKey;
+        public Quaternion GripRotation { get; }
+        public bool HasAuthoredGrip { get; }
         public GameObject Root { get; }
         public GameObject Model { get; }
         public Vector3 Grip { get; }
@@ -149,7 +157,12 @@ namespace Wreckabulary.Online
         public Transform RightHand { get; }
         public Transform LeftHand { get; }
         public WordboundVisualInstance(GameObject root, GameObject model, Vector3 grip, float heldScale, bool twoHanded)
+            : this(root, model, grip, heldScale, twoHanded, null, null, Quaternion.identity, false) { }
+
+        internal WordboundVisualInstance(GameObject root, GameObject model, Vector3 grip, float heldScale, bool twoHanded,
+            WordboundHoldingPose pose, string key, Quaternion gripRotation, bool hasAuthoredGrip)
         {
+            holdingPose = pose; visualKey = key; GripRotation = gripRotation; HasAuthoredGrip = hasAuthoredGrip;
             Root = root; Model = model; Grip = grip;
             HeldScale = heldScale; TwoHanded = twoHanded;
             renderers = model.GetComponentsInChildren<Renderer>(true);
@@ -175,7 +188,7 @@ namespace Wreckabulary.Online
             var target = Root.transform;
             if (target.parent != visualParent) target.SetParent(visualParent, false);
             target.localScale = Vector3.one * (miniature ? HeldScale : 1f);
-            target.rotation = hand.rotation;
+            target.rotation = hand.rotation * (holdingPose?.RootRotationInHand(visualKey, HasAuthoredGrip, GripRotation) ?? Quaternion.identity);
             target.position = hand.position - target.TransformVector(Grip);
         }
         public void Dispose() => WordboundVisualResolver.Release(Root);

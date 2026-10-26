@@ -27,8 +27,9 @@ namespace Wreckabulary
         MotionTrack locomotion, upperBody;
         AvatarMask upperBodyMask;
         SkinnedMeshRenderer face;
-        int blinkShape = -1, browShape = -1;
-        float poseWeight, expression, blinkAt;
+        [SerializeField] AvatarExpressionProfile expressionProfile;
+        AvatarExpressionDriver expressions;
+        float poseWeight;
         string actionClip;
         bool fullBodyAction;
         float actionUntil;
@@ -138,14 +139,8 @@ namespace Wreckabulary
             {
                 if (!mesh.sharedMesh || mesh.name != "SK_Head") continue;
                 face = mesh;
-                for (int i = 0; i < mesh.sharedMesh.blendShapeCount; i++)
-                {
-                    string shape = mesh.sharedMesh.GetBlendShapeName(i);
-                    if (shape.EndsWith("Blink", System.StringComparison.OrdinalIgnoreCase)) blinkShape = i;
-                    if (shape.EndsWith("BrowRelax", System.StringComparison.OrdinalIgnoreCase)) browShape = i;
-                }
+
             }
-            blinkAt = Time.time + 2.2f + controller.Index * .31f;
             itemContact = new ItemContactPose(model, gripR, face, gripCorrectionR);
             animator.applyRootMotion = false;
             // Gameplay gear follows these animated sockets even when the avatar is outside the camera frustum.
@@ -165,6 +160,7 @@ namespace Wreckabulary
             locomotion.Set("Idle", true);
             graph.Play();
             graph.Evaluate(0f);
+            expressions = new AvatarExpressionDriver(model, expressionProfile, controller.Index);
             foreach (var renderer in oldRenderers) if (renderer) renderer.enabled = false;
             initialized = true;
             ApplyOutfit(PresentationOutfit(controller.Index, controller.Color), false);
@@ -381,15 +377,20 @@ namespace Wreckabulary
             if (gripR && controller.handR) controller.handR.SetPositionAndRotation(gripR.position, gripR.rotation * gripCorrectionR);
             if (contact && controller.Combat && controller.Combat.Weapon)
                 controller.Combat.Weapon.SetPoseRotation(Quaternion.Inverse(controller.handR.rotation) * itemRotation);
-            if (!face) return;
-            float now = Time.time;
-            if (now > blinkAt + .18f) blinkAt = now + 2.8f + controller.Index * .23f;
-            float blink = now < blinkAt ? 0f : Mathf.Sin(Mathf.Clamp01((now - blinkAt) / .18f) * Mathf.PI) * 100f;
-            if (blinkShape >= 0) face.SetBlendShapeWeight(blinkShape, controller.IsKnockedOut ? 78f : blink);
-            bool exerting = controller.IsDodging || controller.IsStaggered ||
-                (controller.Combat && (controller.Combat.IsChanneling || controller.Combat.IsBlocking));
-            expression = Mathf.MoveTowards(expression, exerting ? 0f : 55f, Time.deltaTime * 180f);
-            if (browShape >= 0) face.SetBlendShapeWeight(browShape, expression);
+            var velocity = controller.Body ? controller.Body.linearVelocity : Vector3.zero;
+            bool acting = Time.time < actionUntil;
+            expressions?.Observe(new AvatarExpressionSample {
+                Epoch = 0, Tick = Time.frameCount, Available = true,
+                Health = controller.Health ? controller.Health.Current : 100,
+                Downed = controller.IsKnockedOut, Hurt = controller.IsStaggered || acting && actionClip == "Hit_Reaction",
+                Focus = controller.IsDodging || controller.Combat && (controller.Combat.IsChanneling || controller.Combat.IsBlocking) ||
+                    acting && (actionClip == "Swing_OneHand" || actionClip == "Thrust_OneHand" || actionClip == "Throw_OneHand"),
+                Falling = !controller.Grounded && velocity.y < -2.5f, GroundedKnown = true, Grounded = controller.Grounded,
+                Moving = velocity.x * velocity.x + velocity.z * velocity.z > .04f,
+                Equipped = controller.Combat && controller.Combat.IsHolding,
+                Celebrate = acting && actionClip == "Celebrate"
+            });
+            expressions?.Step(Time.deltaTime);
         }
 
         void Posture()
@@ -519,8 +520,11 @@ namespace Wreckabulary
             }
         }
 
+        void OnDisable() => expressions?.Reset();
+
         void OnDestroy()
         {
+            expressions?.Dispose();
             if (controller)
             {
                 controller.Jumped -= OnJumped;

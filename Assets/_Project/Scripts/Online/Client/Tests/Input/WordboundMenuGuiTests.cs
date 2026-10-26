@@ -11,8 +11,10 @@ namespace Wreckabulary.Online.Tests
 {
     public sealed class WordboundMenuGuiTests
     {
-        [Test]
-        public void JournalConfirmationDuringRepaintKeepsTheMeasuredLayoutUntilNextUpdate()
+        [TestCase("journal", "journalOpen", false, true)]
+        [TestCase("help", "helpOpen", false, true)]
+        [TestCase("quick-tips", "showQuickTips", true, false)]
+        public void OptionalPageConfirmationDuringRepaintKeepsTheMeasuredLayoutUntilNextUpdate(string button, string stateField, bool before, bool after)
         {
             var root = new GameObject("Wordbound menu layout native test");
             MenuWindow window = null;
@@ -34,8 +36,9 @@ namespace Wreckabulary.Online.Tests
                     new object[] { "native-clue", 1, 0, "Chapter", "Room", "Collected clue", new CoursePoint() }, null);
                 typeof(WordboundStoryView).GetProperty("Journal").SetValue(story, new[] { clue });
                 Field("controller").SetValue(hud, controller); Field("view").SetValue(hud, view); Field("story").SetValue(hud, story);
-                ((WordboundMenuFocus)Field("menuFocus").GetValue(hud)).Reset("journal");
-                window = ScriptableObject.CreateInstance<MenuWindow>(); window.Hud = hud;
+                if (button == "quick-tips") Field("helpOpen").SetValue(hud, true);
+                ((WordboundMenuFocus)Field("menuFocus").GetValue(hud)).Reset(button);
+                window = ScriptableObject.CreateInstance<MenuWindow>(); window.Hud = hud; window.StateField = stateField;
                 window.position = new Rect(100, 100, 640, 480); window.ShowUtility();
                 window.QueueJournalOnRepaint = true;
                 window.SendEvent(new Event { type = EventType.Layout });
@@ -44,9 +47,9 @@ namespace Wreckabulary.Online.Tests
                 Assert.Greater(window.LayoutCount, 0, "The actual editor window must process Layout.");
                 Assert.Greater(window.RepaintCount, 0, "The actual editor window must process Repaint.");
                 Assert.IsFalse(window.ChangedDuringRepaint);
-                Assert.IsFalse((bool)Field("journalOpen").GetValue(hud));
+                Assert.AreEqual(before, (bool)Field(stateField).GetValue(hud));
                 Invoke(hud, "ExecuteMenuAction", true);
-                Assert.IsTrue((bool)Field("journalOpen").GetValue(hud));
+                Assert.AreEqual(after, (bool)Field(stateField).GetValue(hud));
                 window.SendEvent(new Event { type = EventType.Layout });
                 window.SendEvent(new Event { type = EventType.Repaint });
                 Assert.IsNull(window.Failure);
@@ -95,6 +98,7 @@ namespace Wreckabulary.Online.Tests
         sealed class MenuWindow : EditorWindow
         {
             public WordboundMatchHud Hud;
+            public string StateField;
             public bool QueueJournalOnRepaint, ChangedDuringRepaint;
             public int LayoutCount, RepaintCount;
             public Exception Failure;
@@ -104,7 +108,7 @@ namespace Wreckabulary.Online.Tests
                 if (!Hud) return;
                 try
                 {
-                    bool before = (bool)Field("journalOpen").GetValue(Hud);
+                    bool before = (bool)Field(StateField).GetValue(Hud);
                     if (Event.current.type == EventType.Layout) { measuredJournal = before; LayoutCount++; }
                     if (Event.current.type == EventType.Repaint && QueueJournalOnRepaint)
                     {
@@ -115,7 +119,7 @@ namespace Wreckabulary.Online.Tests
                     if (Event.current.type == EventType.Repaint)
                     {
                         RepaintCount++;
-                        ChangedDuringRepaint |= measuredJournal != before || before != (bool)Field("journalOpen").GetValue(Hud);
+                        ChangedDuringRepaint |= measuredJournal != before || before != (bool)Field(StateField).GetValue(Hud);
                     }
                 }
                 catch (Exception error) { Failure = error; }

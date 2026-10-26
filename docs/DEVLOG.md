@@ -727,3 +727,11 @@ Windows build20261026T125941Z (source78ac4514810e7267887e2ca7fa549f427d3474de) p
 Owner now explicitly requests substantial held-item, action/facial and excessive-text corrections. Three disjoint draft lanes in BuildNotes/character-experience-20261026 are active. Initial review identifies discarded authored grip rotation and absent Wordbound facial state driving; neither is yet repaired in this build. progress.md and delivery notes identify this boundary. Earlier workshop timeout and original sources remain preserved.
 
 Reviewed FANV3 build-02 was executed serially with Blender --python-exit-code1. It fails LOD bounds tolerance (0.000531420111656189m versus0.00001m) after all11 tilt samples show zero surface overlap. Source-preservation PASS. The failed receipt and outputs remain at ArtSource/Collections/WordboundPvP/OriginalBasedPilotFANV3/build-02; no Unity admission or completed art claim.
+
+## 2026-10-26T13:39:03Z Character and HUD correction first native pass
+
+Full authored socket rotation is now respected for Wordbound BAT/HAMMER; saved Presentation holding settings preserve hand contact, original models and combat timing. Shared original-rig facial driver/profile is integrated into local and Wordbound paths with state priority/expiry/reset. Gameplay HUD is compact, context-first, uses the editable Interface theme and optional Help; persistent recovery notices stay visible while action refusals expire. Workspace exposes the saved expression profile.
+
+R0 133440 PASS, core13252441/41, Editor132959102/102, Play13312417/17 (zero skips). Native setup132613/132815 saved profiles. Facecapture133514 produces10 actual crops,322 inputs preserved, recorded scenes/globals unchanged, owned previews released. Root inspected five fronts: effort/hurt distinct, idle still stern and recovery similar; native tuning comparison is next. Functional/source passes do not imply art acceptance or Windows delivery. Evidence: BuildNotes/character-experience-20261026/native-20261026.json. Initial R0132347 namespace failure remains preserved; setup uses EditorTools after correction.
+
+Timestamp correction: the preceding entry's manually supplied13:15:00Z heading was approximately one minute ahead of its actual13:14Z append/commit. Subsequent machine evidence retains its exact returned UTC timestamps.

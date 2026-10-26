@@ -130,6 +130,7 @@ namespace Wreckabulary.EditorTools
             EditorGUILayout.LabelField("These are saved defaults. Check the launcher and course assignments for custom copies. Interface styles Wordbound menus and workshop; use the Home, Shop and Loadout prefabs above for those lobby pages.", EditorStyles.wordWrappedMiniLabel);
 
             Section("CHARACTER & ART");
+            AssetButton("Facial reactions & blending", "Assets/_Project/Resources/Art/AvatarExpressions.asset");
             AssetButton("Edit Player Prefab", "Assets/_Project/Prefabs/Player.prefab", true);
             AssetButton("Character Models", "Assets/_Project/Art/Imported/Avatar");
             AssetButton("Household furniture prefabs", WordboundHouseholdSetup.PrefabRoot);
