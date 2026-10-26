@@ -1,0 +1,175 @@
+{
+  "schema": 1,
+  "utc": "2026-10-26T23:06:17.105Z",
+  "status": "SOURCE_REVIEW_COMPLETE_NO_BLOCKER",
+  "head": "547f258f31dc0acf5c9e1dadfcfcf419c9fc4bf3",
+  "report": {
+    "path": "BuildNotes/completion-20261027/workshop-range-review.md",
+    "sha256": "18ba41b996b076dc150c658cb38afd2e733f936698c2fbef8edd5ad4b2cdb96e"
+  },
+  "revisions": [
+    {
+      "revision": 1,
+      "manifest": {
+        "path": "BuildNotes/completion-20261027/workshop-range-draft/manifest.json",
+        "sha256": "f42e0f0b8bee1f498d7fc7904fec03d46bb8b230c80467d892f9d48b7829e31a"
+      },
+      "patch": {
+        "path": "BuildNotes/completion-20261027/workshop-range-draft/workshop-range.patch",
+        "sha256": "afdd790155e1310ca8fa23f8167d0c58f0a00d16ed9388809ade52ae0d8c8b1f"
+      },
+      "files": [
+        {
+          "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+          "baseline": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/baseline/Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+            "sha256": "4771e058c3c969e8f63e5447238fe6c6b1266394a9d35428dd372a1ae27678d5"
+          },
+          "candidate": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/candidate/Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+            "sha256": "fe8d673018145c57f86f8332435ce61641fa1c6be99f3a81661bb1fd4164df31"
+          }
+        },
+        {
+          "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacement.cs",
+          "baseline": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/baseline/Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacement.cs",
+            "sha256": "8f6173ce56fe567f9ab97f9d85192aa0b67b75347cd477b6236cdc7ff852f35c"
+          },
+          "candidate": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/candidate/Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacement.cs",
+            "sha256": "ace186e1e7c1cd2d70cf704c67a63219910baace16aebb1e8692d96ba5d7988e"
+          }
+        },
+        {
+          "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+          "baseline": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/baseline/Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+            "sha256": "9604307d46ccfa9aa3a1eaf10e0d587530098e0d1b9d0787a90587338f15a70d"
+          },
+          "candidate": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/candidate/Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+            "sha256": "638499c19a2371e2a98d701161619dd7b74a29550738d849ed1effe899b62e99"
+          }
+        },
+        {
+          "path": "Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+          "baseline": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/baseline/Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+            "sha256": "c2e3e36939d447081f7c412ecde1aa1414b9032de223b7830ff629dbec707fb7"
+          },
+          "candidate": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/candidate/Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+            "sha256": "48582ac340fdd9e3141afab9f864bff916e122a813dde690d0d21ce93a32e4ae"
+          }
+        }
+      ],
+      "strictOwnedBaselineApply": "PASS",
+      "producerSemantic": {
+        "path": "BuildNotes/completion-20261027/workshop-range-draft/source-check.json",
+        "sha256": "3338008b8b04592373db1782040dc9e3e68b06aa171db640dbae0499644dde5c"
+      }
+    },
+    {
+      "revision": 2,
+      "manifest": {
+        "path": "BuildNotes/completion-20261027/workshop-range-draft/revision2/manifest.json",
+        "sha256": "3e62700a9c15e32fe6c9eefb5af9a8f83ffc485802ed32c55cbe558191711188"
+      },
+      "patch": {
+        "path": "BuildNotes/completion-20261027/workshop-range-draft/revision2/workshop-range-noop.patch",
+        "sha256": "f8cf0beb007b0d52280fd107dbf85c187ffd6e7286f19c273d37cda50179a963"
+      },
+      "files": [
+        {
+          "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+          "baseline": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/revision2/baseline/Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+            "sha256": "fe8d673018145c57f86f8332435ce61641fa1c6be99f3a81661bb1fd4164df31"
+          },
+          "candidate": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/revision2/candidate/Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+            "sha256": "6ae6b69602efb7860e1be740e66afb2f54280268770c0954fc2fe7fb5748c11f"
+          }
+        },
+        {
+          "path": "Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+          "baseline": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/revision2/baseline/Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+            "sha256": "48582ac340fdd9e3141afab9f864bff916e122a813dde690d0d21ce93a32e4ae"
+          },
+          "candidate": {
+            "path": "BuildNotes/completion-20261027/workshop-range-draft/revision2/candidate/Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+            "sha256": "c0dc8bf6ea549aaf8cbecc3f7d3dd90e294d3dcca488a2a917f62040f6a8550f"
+          }
+        }
+      ],
+      "strictOwnedBaselineApply": "PASS",
+      "producerSemantic": {
+        "path": "BuildNotes/completion-20261027/workshop-range-draft/revision2/source-check.json",
+        "sha256": "3338008b8b04592373db1782040dc9e3e68b06aa171db640dbae0499644dde5c"
+      }
+    }
+  ],
+  "liveComposite": [
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+      "sha256": "6ae6b69602efb7860e1be740e66afb2f54280268770c0954fc2fe7fb5748c11f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacement.cs",
+      "sha256": "ace186e1e7c1cd2d70cf704c67a63219910baace16aebb1e8692d96ba5d7988e"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+      "sha256": "638499c19a2371e2a98d701161619dd7b74a29550738d849ed1effe899b62e99"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+      "sha256": "c0dc8bf6ea549aaf8cbecc3f7d3dd90e294d3dcca488a2a917f62040f6a8550f"
+    }
+  ],
+  "strictReverseRevision2": "PASS",
+  "reviewerExecutedNative": false,
+  "reviewerExecutedTests": false,
+  "reviewerExecutedCompiler": false,
+  "serviceCalls": false,
+  "producerSemanticReadNotRerun": true,
+  "geometryContract": {
+    "worldY": "Object-base sampling range; full asset must fit owner room",
+    "yaws": "Distinct nonempty subset of 0/90/180/270",
+    "layers": "Known permission metadata containing owner layer; not cross-floor random generation"
+  },
+  "resolvedFinding": "Missing no-op Apply proof added in revision2; same snapshot/revision/redo and No changes status.",
+  "visualGate": "Separate existing Windows workshop QA extension; not reflection-only visual acceptance.",
+  "references": [
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/CourseResolver.cs",
+      "sha256": "6dea0a2ee76885deb3bf159d8a5b75bcb1e1d254c8924541c14e0ab1eb9044c8"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/CourseGeometry.cs",
+      "sha256": "c326774ae47eed02add038ab5315995ae6bc7735df8aa58294c6931a7c290498"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/CourseValidation.cs",
+      "sha256": "4b29ee41c372cea4f00e800eccdca19c8434106fc05e14c479b8b581a7868146"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/WorkshopDocument.cs",
+      "sha256": "c1c994c8b2f656d0eed85c4eab6c1c92e57f1d9f8324caea8b695c927b917b6e"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/WorkshopCommands.cs",
+      "sha256": "ff2fcccdf978d24adf2398996d769b93b6ca0b3425554b656a787d117a7ef14f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopInteraction.cs",
+      "sha256": "4ba5397d08e1068c96a2984fc77ff82189b87d2f37bf2cccf480dd8e2c767070"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundWorkshopQa.cs",
+      "sha256": "86ba4ec86f5fed025d99b1a6759809733e6d515199df68f3ced06006672ea643"
+    }
+  ]
+}

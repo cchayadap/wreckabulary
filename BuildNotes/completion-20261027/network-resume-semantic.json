@@ -1,0 +1,1374 @@
+{
+  "kind": "C#9 semantic analysis against current Unity response-file references, with three candidate substitutions; no emit or execution",
+  "assembly": "Wreckabulary.Online.NativeGameplay.Tests",
+  "responseFile": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.Online.NativeGameplay.Tests.rsp",
+  "responseFileSha256": "df277327fb66cc8299c46b056207856bf70472399b750bced24ee1358fb50e2a",
+  "sources": 20,
+  "references": 315,
+  "sourceProofs": [
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundInteractionCourse.cs",
+      "candidate": false,
+      "sha256": "2e852c54f9e0662c7b0f2c1a8bc4a26edd984edcd193f0521e9b320dfd275b21"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundLiveCleanupTests.cs",
+      "candidate": false,
+      "sha256": "b495e99daaac1953c858e118bb764a687a4d7379f00a77dfacc024c39d903bf2"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundLiveMatch.cs",
+      "candidate": false,
+      "sha256": "e6d3f045a6b5b74d98e4c3e5ed31f22e580b13f89c019f1cdb36478659a89426"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundLiveWorkshop.cs",
+      "candidate": false,
+      "sha256": "807fa2016efaa00de9c3949465d020647c965280cd0786a05cc7b245e1acb759"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeCapacityTests.cs",
+      "candidate": false,
+      "sha256": "be15e4e2f266904efe3c70fd088c1562d668d455acd1993393b4758151be16aa"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeCheckpointTests.cs",
+      "candidate": false,
+      "sha256": "f75bfa417dd3f8762770fcf6170125cac87169cceb26b0e98082319b85f76ed4"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeCheckpoints.cs",
+      "candidate": false,
+      "sha256": "f87647aa1e49f55c83f651f473a91e3dadf6b68efe2f37e0b95052158bc09a4b"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeFullMatchTests.cs",
+      "candidate": true,
+      "sha256": "331f22e80f43d2e86678530288d5984f6c03578d3438663463fda0f5387547f1"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs",
+      "candidate": true,
+      "sha256": "3c9054565c77311ed75f8dec5c634967fc79d04a4f30e24f1d56c943af9e10c5"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeHudDefenseTests.cs",
+      "candidate": false,
+      "sha256": "f3b23b691c3a375288671f89a53d83decc8a62141664a409ef5da6d0a30d6866"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeHudInteractionTests.cs",
+      "candidate": false,
+      "sha256": "a817bcd5f5156d5466f5d6ed8e2e5fbdc64c76b62532b80cca3ca0ca6042f125"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeInteractionTests.cs",
+      "candidate": false,
+      "sha256": "fea864c1117e48c9599844819125bb4a85ba9422b6e7e1de578a64aba7199d01"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeProfiler.cs",
+      "candidate": false,
+      "sha256": "3b61ef6779d76eca2bef5649a6e98e1b6291a2c7202427705336c5004f6218a5"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativePublicEntryTests.cs",
+      "candidate": false,
+      "sha256": "e90ee2fe7a5f7881b1288f3c67bf264b5184b447c70a6eba8bb0e24449976ddc"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeReconnectTests.cs",
+      "candidate": false,
+      "sha256": "b38519115eb24ed2952d70da1f25f11f8bf17db0a5f42a00e5bc8c8fd775cee2"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeRecoveryTiming.cs",
+      "candidate": false,
+      "sha256": "69c461dd8c5b7fd9085ff9391156a0b66a4e13195f48e0987d8372cf05e75991"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeTickBatchObserver.cs",
+      "candidate": false,
+      "sha256": "a37579c5e115a29546025cc570da6aa0aafbd3be2a30dde3eda4a32364546815"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeTickFrameTests.cs",
+      "candidate": false,
+      "sha256": "b9da632d91f76381f17e1f1b223ad6b72831955b11cea1fd8e82b87f495f8d0e"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeWorkshopTests.cs",
+      "candidate": false,
+      "sha256": "b033273b56a7182de3462ee2b02b9ec764c41f93b881425a1f153d4a43204aa8"
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeContactObservation.cs",
+      "candidate": true,
+      "sha256": "aeee4e8825df137513faa99edcca7afc220ae1f4d83d347312e44322d89b5f42"
+    }
+  ],
+  "referenceProofs": [
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/Microsoft.Bcl.AsyncInterfaces.dll",
+      "sha256": "136d5965cf4768e8420b547a8bddea882921f426c371833d558a858a2f0c235a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+      "sha256": "6c479c61bd03ac7cac4421e5a5689359cb83634e06895eb2d93b4b6df2773dc0"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/Microsoft.Extensions.Logging.Abstractions.dll",
+      "sha256": "79f67ff002712d6589370db25f751d3f53fb49ef1a6d750d1c62419ef3a4392c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/System.Collections.Immutable.dll",
+      "sha256": "5b1b1c83ba3d135c2fdfe425842fbe9c7432878b7e468623acb554c69b4c130f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/System.Diagnostics.DiagnosticSource.dll",
+      "sha256": "989b1797b5cacdf19e7130eddd8ae51f0d79595d6020cbaf51910c1c3637cec9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/System.IO.Hashing.dll",
+      "sha256": "1b6bf2f68268800fde54de63bb09edc25201f028b24c2108bd3d94f0077185e9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/System.Reflection.Metadata.dll",
+      "sha256": "afcfd6c166fe0d59f45cc6363082806f6a7ea8ceed9dc6c75eec9fd79ccb5717"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/System.Runtime.CompilerServices.Unsafe.dll",
+      "sha256": "fd67abc4c4af10affbcd42fd68a2a7bc361b26714afe6965d4d0d139459d8297"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/System.Text.Encodings.Web.dll",
+      "sha256": "5ad1f348223f281c34b9b857445a1c3412a430026ef049aeac641c53a92408be"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/BCLExtensions/TargetingPacks/netstandard2.1/ref/System.Text.Json.dll",
+      "sha256": "f80c939be592939ca3bbbc9ddf61bb137ce201ec38d70005915cb70acf2d4cc3"
+    },
+    {
+      "path": "Assets/Photon/Fusion/Assemblies/Fusion.Common.dll",
+      "sha256": "3a3549688200f6b72177cd3cc9484af61498b0a4019e39babc098410e1659053"
+    },
+    {
+      "path": "Assets/Photon/Fusion/Assemblies/Fusion.Log.dll",
+      "sha256": "2e5d2bf813908d311bbf6159983d020511aceb1e249203ed50eb1960e96095d0"
+    },
+    {
+      "path": "Assets/Photon/Fusion/Assemblies/Fusion.Realtime.dll",
+      "sha256": "bbfb85556241f63d9a3052459c075ad2cc5a56098a16d571432bb13e5b36ad63"
+    },
+    {
+      "path": "Assets/Photon/Fusion/Assemblies/Fusion.Runtime.dll",
+      "sha256": "d213b95e4694c167f5f6faffcbd75ca1e47f19a9249c91a4964f8342fac9b560"
+    },
+    {
+      "path": "Assets/Photon/Fusion/Assemblies/Fusion.Sockets.dll",
+      "sha256": "ba2bba96e7b1bb93249634e1fcf13657f38d05589882ad968df8322a846d070b"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/Bootstrap/Unity.Scripting.dll",
+      "sha256": "087c052dc68097b323a78e7ed7d579fc3566e351677c44d930791c578b712055"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEditor.Graphs.dll",
+      "sha256": "2c5e4b6b4d75a6e4b67c18004af2d11bc98e8cb74027eca2e99da248e9b2ef0f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.AIModule.dll",
+      "sha256": "5b83c1fbc0d936cf85c41305f1f3e459adbf9bcb4bd393d29fb141383b279956"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.AccessibilityModule.dll",
+      "sha256": "5150653ddf14c32a71067a04b4f65a3088075a65fb5965f2edc0574e4de1ce00"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.AdaptivePerformanceModule.dll",
+      "sha256": "be7145409744814396b20198790ef08bf9bc12edce35e38e103db0714d8b025d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.AnimationWindowModule.dll",
+      "sha256": "09e7e8ee792888381fedf94b3b92f9d9224296d80675db094796cd7e95c44d72"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.AssetComplianceModule.dll",
+      "sha256": "3326b058d1862d1e6f911aafbd159a3f6920daa3029f8a7616fa46909faefe97"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.BuildAnalysisModule.dll",
+      "sha256": "297253ffcc948c62ab652ec010ad968413de9eaeca768a566ca2be9d9b8a2c59"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.BuildProfileModule.dll",
+      "sha256": "75cda97eb63de733ac86b43824c6685b9f84da2a8c15a0fe87787c389c0bf586"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.BurstModule.dll",
+      "sha256": "0855ea7d7e70b62b4376d9dc85feaa17c584b977673c299036cdf16d7f982a24"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.ClothModule.dll",
+      "sha256": "d7fa7d9d719855eae2ea694ffb872bbdb04057d43f3aeb9bff97670324ed3498"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.ContentLoadModule.dll",
+      "sha256": "393a4f470ecd79e6ee5124840ef22b1ffff6aca5ee2e7f94b8774f0d50d0df28"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.CoreBusinessMetricsModule.dll",
+      "sha256": "55308e5ff2f0820f74bb238ab994fb176945097d3eac09795ba43399be1ddb20"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll",
+      "sha256": "03391dc36f8781867267ecc3ec625fe6371041e8324d3f9318c6440593b1bff0"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll",
+      "sha256": "802291c1a9cccb9501971e43f789882a90dffafefeef54d36a2e00247c4516b4"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.DiagnosticsModule.dll",
+      "sha256": "5eca16bf4d6beba10016c8c64eed7a95deab892213cc5c3dca2c09840d2f8e06"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.EditorToolbarModule.dll",
+      "sha256": "de207612446a7f088e7ab998472115643d8cd83ea6a85bb203daaaae5946b9d4"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.EmbreeModule.dll",
+      "sha256": "101c6286009e4663e2ca58940aafa913bf57933f28eb6fd28ec44aa89d9cd2bc"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.GIModule.dll",
+      "sha256": "12bc87a17144f72cf44dd284e7cdfc23f054c9d04d34ad38df5b66b57bd89d4d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.GenericRemoteModule.dll",
+      "sha256": "f42afbee11b99b2f0fb589c63431f820ecff74b6802cdd696c5efbc9f9d45f9a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.GraphToolkitModule.dll",
+      "sha256": "3bfd093279c57daed59b2e63283a551e86c41b6d88609606288063462a18efa4"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.GraphViewModule.dll",
+      "sha256": "e5f324eb8472cefbff8d27b6502e3fb6fdd72289eeccb64c3a4045051e1ea3ff"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.GraphicsStateCollectionSerializerModule.dll",
+      "sha256": "bd9626cd917b9a492a9bc6da25d49aa22bdee31e2464dc80c9cd434c7e0f4ea1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.GridAndSnapModule.dll",
+      "sha256": "8e646fa23ffe1785bcfb61e91923e238229c0f5283fc919a9aa6b7191f11037e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.GridModule.dll",
+      "sha256": "df2e087e21f552f74bf46ae3c1086bd33083b1e37fd611236305b0ff065c3769"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.HierarchyModule.dll",
+      "sha256": "79aad8461d3edf16104fb7434ae5fa0708abb5d6c9506ad6fd870761187ee1e8"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.LightingModule.dll",
+      "sha256": "f67d7cb1b89fb21be27e14bcc360121ecb32c38c65fa1b11c41ac2d1210aa887"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.MathematicsModule.dll",
+      "sha256": "b2780ab1427832b8386a92786e452787950dccec4c3fa48b4d34389b82d2bcaf"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.MediaModule.dll",
+      "sha256": "fab97ec5a4a898d8220819730766e880123e45c9f6b24f29682febcd07d97d9a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.MultiplayerModule.dll",
+      "sha256": "9e5251ca32900f1c25cd0e722b1cc85f99860cdd2613eeaae51e507ba98d3895"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.Physics2DModule.dll",
+      "sha256": "b530e18c60aa10531e3632426b615cc7378fed8ad88942de073e5f45bfd7a71e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.PhysicsCore2DModule.dll",
+      "sha256": "ec14926b862b7d7c528bc92e8a7e359e90aac557c343b64ccabecc9802d5d49c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.PhysicsModule.dll",
+      "sha256": "5bf19bf66602f1e19ed38bf542ca7a8a6b1d26256916a7827cce2bd0c23051fe"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.PlayModeModule.dll",
+      "sha256": "5b8d90f7337bb114ba6f6648f6504f1187aca933d665943c239b55787e0d1b86"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.PresetsUIModule.dll",
+      "sha256": "7319445754e4bd49fad290124387171525387c040720624ce7fc77d97824bf38"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.ProjectAuditorModule.dll",
+      "sha256": "012adf8ad09a55da768888398a0bc320d23cae698b46cb8013283a82ed5d1e5a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.PropertiesModule.dll",
+      "sha256": "2fd4144493961e9bcbc32a5a130b57be540d193d391aeed4c14cf77948873b5d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.QuickInstallModule.dll",
+      "sha256": "db431f6025a20b39581a2dde84c73bc1522ad06b840a4b81829689f204509c67"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.QuickSearchModule.dll",
+      "sha256": "fe3bc9e558c3a5b6cf4290ce0ea858e9367df913f37338d5b77c63930f591278"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.SafeModeModule.dll",
+      "sha256": "1295e35a76a1925c5f12963074903202b90d29f752241baa96191d6f62052fd1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.SceneTemplateModule.dll",
+      "sha256": "c33d3991316a1a6b85ef2a2c5ab8765de755e00a8be45eea27e34c7a80539fc1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.SceneViewModule.dll",
+      "sha256": "4f73c83cefd7eb7e2c9b470c9bcc4c2248c098ab8d32c44d4bab0154fcfd805f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.ShaderBuildSettingsModule.dll",
+      "sha256": "dac10f30c0316c78fe4475b09ca9ae2e0d1b0e20466593dac0a96df0fab719a6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.ShaderCompilationModule.dll",
+      "sha256": "820730479d186574e712c560512de6d6760f8eb3ffd4154e6579f8141aa3d5db"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.ShaderFoundryModule.dll",
+      "sha256": "2648524fdc6c5d6911bff660f0d9816df7c65059d63433249d6a89595075df49"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.ShaderPreprocessorModule.dll",
+      "sha256": "484c890bc0995215a6be2f9d0d4b88b1296c4dc2dedbefd5fd7ba24e40729c55"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.SketchUpModule.dll",
+      "sha256": "40f5dfb5675a0a652e6df9fb707a73fe6ebe3308f33e22cce3cf0b5351adeef0"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.SpriteMaskModule.dll",
+      "sha256": "efc5511097677d466ce3a12a5a67278a9ebf8711d8725914cbc01e394f311e71"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.SpriteShapeModule.dll",
+      "sha256": "cd03e18404c9f400963d3cdbee0fd5a6b1cba74c2d0a8294ee8db7b33c08ea11"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.SubstanceModule.dll",
+      "sha256": "365a8a999066c4f5d2abd008a17da3ed4c85535d7c4601751e4372e4d653af41"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.SyntaxTreeModule.dll",
+      "sha256": "50b4183523f762fdfb1859ad3ccae0ed377a70b888834c612cd1080d9edd19e4"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.TerrainModule.dll",
+      "sha256": "90531e2f1f749b3a74f749cb8eb24450c273d4b120701d8c9c6690c2b3bfb8ff"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.TextCoreFontEngineModule.dll",
+      "sha256": "ddc0b3a045a1400439ecb25705865f1aba4a41372c6f0f5e039ff43ed7ae9dee"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.TextCoreTextEngineModule.dll",
+      "sha256": "b4ee274dd123b4c128531e6a183e870c830ff5b6aa3d6dad126b5194816ebde6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.TextRenderingModule.dll",
+      "sha256": "9ac60600348befac84f5942c83780da0509a30251b5ba14be25569971d06ab1a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.TilemapModule.dll",
+      "sha256": "a3fe6d485273c0c4c59f9d3f5ac47625deb6de86b2d6b1c018c8808802adecf5"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.TimelineFoundationModule.dll",
+      "sha256": "b7d2d178f37fec5f38c0576fd025e40cd7371d053d2f037f273f36d69f5722b1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.TreeModule.dll",
+      "sha256": "4bb0668daa035540a1a74e6343672d69f99bbf96c1c986f4477aa8f9e1239f9a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.U2DModule.dll",
+      "sha256": "da50addb54121841429d7c6ba41437bdfbf84e0db9cf328e31eba9ba3c982b24"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.UIAutomationModule.dll",
+      "sha256": "f78198b9c49f449aac501d2c47ac7788f8237a0462fbcf5a8a290441c0966e14"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.UIBuilderModule.dll",
+      "sha256": "33800ddadb860f5b1ea966aa00bc6df3378317f85d4a4b1e8fdf72ca5a3a3425"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.UIElementsModule.dll",
+      "sha256": "e468f870c8f571e13395f27b483615669ed026e36ff7a4c308fd947720ec2a4b"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.UIElementsSamplesModule.dll",
+      "sha256": "9fbe61d3474ae8345b4ea298b68800adf81d80d198ebd36ec15b736f64568d0b"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.UIToolkitAuthoringModule.dll",
+      "sha256": "2475aa63a7aba75f87a2347bca398544175209cc1001cb6bc8ec0f57660db7e6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.UmbraModule.dll",
+      "sha256": "cbd079d77d65e7d65caa832d40e9f2faa01c0910c117b0deebb1c4ef7d114a8c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.UnityConnectModule.dll",
+      "sha256": "36b6ce8c9b25bd37c5166dfeb5d19cc5b26646a52d133a7ec6a5b487b3cb553d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.VFXModule.dll",
+      "sha256": "ec89bcaad150e521c5bdb9e2cecfacbbf10c215e44602a5b75605539a0f7de9d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.VectorGraphicsModule.dll",
+      "sha256": "c98f30fab4ccbd4e6c631e7d2081355c5edda70ecc85df19c777c6826e002aa0"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.VideoModule.dll",
+      "sha256": "78d5590e18fefb410cc6fca43adc69e2bc64c2a996e6cfec4a6b7c5033e4d288"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.XRModule.dll",
+      "sha256": "1f939db34e274168204f0b914d2b871b22cb654ac6e69e53a2330e890bc35825"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEditor.dll",
+      "sha256": "4d213dc4e97b1a5efb0d0e0ebb6a193f1dd7e9bf36806b5c20a2a359f47275ce"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll",
+      "sha256": "1065e203dac5192af632d28f70b7d00dd87eb5553cf4a4cd2c3a6738059e235f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.AMDModule.dll",
+      "sha256": "70779f9e6552b62e0f6e973d4ed27cac7e49a8a57f6cd495580a5e3cef326dfb"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ARModule.dll",
+      "sha256": "81193b345c3eeb5b4923c2bb385fd7a9724c8bca6673735b9f7d3371043a3653"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.AccessibilityModule.dll",
+      "sha256": "0c60e7d8ff1b3b16497fbfebde2c0ef254da643d07315e927387af9f41377e03"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.AdaptivePerformanceModule.dll",
+      "sha256": "4b89f37b1b41d011303026e2d8efe0d57894f0201b490bc7dee78eead8cf240e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.AndroidJNIModule.dll",
+      "sha256": "9273ad1c490598654bfa40820c649748e33ec416e6f3be2a2a2590ca6bc5695c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.AnimationModule.dll",
+      "sha256": "6d859f7538222212fcfa93d23c97005c3d1b179c32a344eed73bcce010b5af7b"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.AssetBundleModule.dll",
+      "sha256": "605777db511fb0d4fc4fac158c9e0e41b3f9f93ef08959a6fe0dda33aacc59b9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.AudioModule.dll",
+      "sha256": "f6512de22784e618f49d4b7d6b81854bd2924beb2b19194c9fad051b6847dc28"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.BurstModule.dll",
+      "sha256": "4ad125f291e46ed2bee4338ef75fd35ffeb3a6e50f52df292fadcb984c1a6b4a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ClothModule.dll",
+      "sha256": "0cd879b4ade267eb9a2f7e879bacd38fb3a0f0db646a5a5ab1a1cdfb79b3d3dc"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ClusterInputModule.dll",
+      "sha256": "2d5dd0e0154d8c6180dea603a3e538e88411fbdca0949633f8a1d752633a44c2"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ClusterRendererModule.dll",
+      "sha256": "a484dbd02233f07dd748a37cd4709c62c033746cc739ebd2b4ee59a3ebd60b7c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ContentLoadModule.dll",
+      "sha256": "3df6b39fa663cf5da45fe54b40f1cd77a28721f085a88882ab026050cdd0988d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll",
+      "sha256": "a575473c494efdc06d6e066ced4eefd3368e5040e8199d7c5155611672151a2a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.CrashReportingModule.dll",
+      "sha256": "853062237567c29f6fa8929dd60e7740f3d0aa5830f06d811028ff3276f22be6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.DSPGraphModule.dll",
+      "sha256": "501374f498d1368f9b41e247fd752aefc0d578ecbf6ae3105c99f1c4a854abf5"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.DirectorModule.dll",
+      "sha256": "0ec77b97bda45e79fd90a529183d44eaa5d0ee32b5048c084029b5e98eff5e8b"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.GIModule.dll",
+      "sha256": "104b6008c8c3141d04626559d148a9cad593de5b28ec81559bdbc794726ac6f1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.GameCenterModule.dll",
+      "sha256": "e28bebab9d122e3fe54c2aae14b7a508ad438ba403e6a56874e62776150f9370"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.GraphicsStateCollectionSerializerModule.dll",
+      "sha256": "41a9b250bcb2a85ec36a644f37d9930aed57ccc369746c52c54d844422668265"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.GridModule.dll",
+      "sha256": "aa102b32c9c799dcf584f91b89861d48233028c829e37be2eff1cb43e68e0c6d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.HierarchyCoreModule.dll",
+      "sha256": "d530910275aa74e1cf98a1f11f609ce37f39edfcc1ebbe7d1b01b2ac606e3f48"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.HierarchyModule.dll",
+      "sha256": "396112513627670a7f008dffa1b27faa8e31e473fb80114b3d3096b3ac735468"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.HotReloadModule.dll",
+      "sha256": "03368da279ce3c18b44d977c95b6fc50c012896a49fd7e20bd4d680311bc7480"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.IMGUIModule.dll",
+      "sha256": "be67cb220e5e01a7309f3d45c69d1c97f56860e621fc11220f97f99fdfaff1cc"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.IdentifiersModule.dll",
+      "sha256": "4089668c44655016ff257058aa4c650cc522466645cd24aefb1242528e0ec039"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ImageConversionModule.dll",
+      "sha256": "4be7e6330915fa09cf4ecf8ecdef82394607d903d465ca3f9a1aa990f7b56bcf"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.InputForUIModule.dll",
+      "sha256": "bbff5792c8b8589ae68c139b6baf3e19244afd9bebbd015bd2b11b6414728e46"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.InputLegacyModule.dll",
+      "sha256": "34dee873cde86c797cc94a4eb8cc1122e51e616915cb282586ba99c10bd2f881"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.InputModule.dll",
+      "sha256": "6a20fe26f802bd35c202f6f2a37efff47c3b7a9d8d7a14cd645359331e2bff8c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.InsightsModule.dll",
+      "sha256": "149aea619b262874e114a59732107162d0b80df8c2aa40b82470f9be6daa4018"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll",
+      "sha256": "491c91206305930b28e628d92a599b00558884e4083f11deae24dbbdf88e3864"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.LocalizationModule.dll",
+      "sha256": "6e5f4a83969c60e621e2459792c021fe7690f3547db800b8ad3d7303832071ca"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ManagedKernelModule.dll",
+      "sha256": "486174b14fab07b702e4a8b16f4ceb9ed2ee6041ddf71b14e9adbd0d0e753b9a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.MarshallingModule.dll",
+      "sha256": "b7ab6631f82256a647733957ba7d53464f835ca1eaa5b50a66a5a3253f39d9d7"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.MathematicsModule.dll",
+      "sha256": "f6ba7ca5812b6ff6e100d6522d06ec4e0d55c099792a65f5ebbeff10a0e33500"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.MultiplayerModule.dll",
+      "sha256": "5b849222ff98a2d3a56768486f3f8bc3fabcd4ec208883d4cdfef637c9c144b2"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.NVIDIAModule.dll",
+      "sha256": "3eb8c795058a2d5c431eaa4eb94fb0f136e7a0329cc0daf72f162ed31843642e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ParticleSystemModule.dll",
+      "sha256": "222ad89b570cce372a1475d06c72efd43037895e752718ba640c5471d893293d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.PerformanceReportingModule.dll",
+      "sha256": "9cfe251f23a94f0b5f9eeb693b60d199d8bba6a813f515c8d4e036028bfdd0c4"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.Physics2DModule.dll",
+      "sha256": "5960f0ba5bf4f09cf1146527b3f91fe7cc16c9870cd1159a1b15e5910f556c85"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.PhysicsBackendPhysXModule.dll",
+      "sha256": "6c0840255e4ca7b497ded1f681d1226bad7ec1637c3c6f0ffebecd5643209231"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.PhysicsCore2DModule.dll",
+      "sha256": "2954272e4f5565c9adafed6b8c0ad6858acddc3d13c902ee78416074b002193b"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.PhysicsModule.dll",
+      "sha256": "a5792c4e5b52753b1c5200902bba7d26515745b33dd9291c9d269674c1f842f6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.PropertiesModule.dll",
+      "sha256": "25176245abb0c0c19a67a8da679555bf40e88380286da94ffdd105c76de835aa"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.RenderAs2DModule.dll",
+      "sha256": "dcdb524e9e070b26475f8cbcfc8b26d5fdb782928be3b4b60b53d4b51c15d540"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll",
+      "sha256": "cf607ddb2576ecb8a7e4a8349418978ad503773f0003652d9b1c3af58b9d6e8d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ScreenCaptureModule.dll",
+      "sha256": "f9e422081cd7ebdd6e7f7a9277108cbfaa30a81ba4718853a6425cac093a87e0"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ScriptingModule.dll",
+      "sha256": "6eeb689fbc008c7a4008c97fc0c8de798d853507d06a7ec42efb5d191bdbf0f7"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.ShaderVariantAnalyticsModule.dll",
+      "sha256": "a6247231e674e2d685d51e55eb7b9d7f6fe531557dd7d516927163c3a99cda8e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.SpriteMaskModule.dll",
+      "sha256": "77d10ee6e2430e0965e0583ca49ddd0572e4f19ec74f8f0d3d95091f2a93ea75"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.SpriteShapeModule.dll",
+      "sha256": "b9fcede6a005dc3a14b7a23065b03bbe7def089bc0ba4e9bba2d154be2ba6a56"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.StreamingModule.dll",
+      "sha256": "32c219e2ddc3ab8b521c86a973b7767b9e643e167c5e2ba22c78efc7a281672a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.SubstanceModule.dll",
+      "sha256": "f52107564ee945339139c37258407769863e2292e29f13314d30b5500104a33b"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.SubsystemsModule.dll",
+      "sha256": "f4054636439638dde11033ed4d92fbbd7d0c5b21d4d83992ce8c26e9d61ec22e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TLSModule.dll",
+      "sha256": "bc550a650de3ce000256513635b7eb5706239fc6871d7fcc91474a24fd04f5b5"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TerrainModule.dll",
+      "sha256": "518468b274c1babedceb17e196b3d95099fa8727a8524d6b781012fc9acce9b2"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TerrainPhysicsModule.dll",
+      "sha256": "14abedf8b64563a8977875b9e77028cdcff6f6436a04023b0d05fff6143f182c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TetgenModule.dll",
+      "sha256": "07fe4761ecf8035f29e0eb7295abcaf13215318397772f7c1a7e937918176a65"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TextCoreFontEngineModule.dll",
+      "sha256": "4ae3bea60c7966d32588e95250ef7773cf10be8dad383d274b80daf5bb40adb7"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TextCoreTextEngineModule.dll",
+      "sha256": "e12a7d633eb6fe69413c6494b01b5ed7860dbf9e4e39e2212e5fa1eeef92e453"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TextRenderingModule.dll",
+      "sha256": "81dd34bc3389d20bac87c29967d8b1d88b9cc7ca22d3e53070872fb717ea6c6d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TilemapModule.dll",
+      "sha256": "d6de16de624b502dd3fe55d8e6b51af91cbcc5ad46bceec526092b4286b04031"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.TimelineFoundationModule.dll",
+      "sha256": "01bd4abe4a815aeac3a121f17de473e1249c4f7b48fb4d5dda87c829bc17933f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.U2DRuntimeModule.dll",
+      "sha256": "aaae52fd1d343576306e15144fe5ada09293b95bf5a434d37224269bc54ee4d3"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UIElementsModule.dll",
+      "sha256": "093e935212a62a1c58216992c0216a1a61f945cf955315a7d20566e54a6d92b1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UIModule.dll",
+      "sha256": "1d12dc6b19d30bf59cd29e2acdaaae22647f6068a0eb2eb540abe2e1cd4ce239"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UmbraModule.dll",
+      "sha256": "0dd95992279ee8cf873f3742eb98866cb700e7b97c1e2258aab4189e49c946fc"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityAnalyticsCommonModule.dll",
+      "sha256": "99d43c436e42872d688be5463b4c49733071736dbfe953f76ca4168343098acc"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityAnalyticsModule.dll",
+      "sha256": "ac25d07318d10ca3720cfa558eef42a213cc5fd56a1ffb051dd695f099ee602f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityConnectModule.dll",
+      "sha256": "78692aa190d4cabe997e1c7139ab1aeac1f7289ba88fd2771286567c3748d599"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityConsentModule.dll",
+      "sha256": "741a5d4a91e6768b974c0e367d6687edbe50ce7fee4b8103a1d52ca80a666d96"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityCurlModule.dll",
+      "sha256": "a3eef638c104401b02d940b5130c467e51b2982ba7d5cab6bff350cc02ab2fa8"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestAssetBundleModule.dll",
+      "sha256": "2fa3b2c48e26624b314da55508dc7b926409e8dea3062af74e5fe837dc2cf385"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestAudioModule.dll",
+      "sha256": "2cf9e10b4b54d3235b2b239d7ac752b2a66c15c4c13711a91954ec3ad7ca6aac"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestModule.dll",
+      "sha256": "cfd882396c5e1e910c79e586f9a24846cf907ceea5a21e65e7f4935fa75e7af6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestTextureModule.dll",
+      "sha256": "b89fb025b09707159f51fe8ee6302b5c6c28181d4682ef02c5e0cebe236a111d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll",
+      "sha256": "ff479d77faa37ff25defb195a0696b393b1a9814dde8f84023f5e765761d8df9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.VFXModule.dll",
+      "sha256": "e6732d0a0cdba0de3fbea3349f1c6eaff7453d2c670267810e41b066a9f176e9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.VectorGraphicsModule.dll",
+      "sha256": "707331e02740e95952591a6498d50abd4deb2b7774af48c025158b4ddfdf84de"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.VehiclesModule.dll",
+      "sha256": "fe9eff59cb86e526b510bc14ccb10beed62c1bc162ab0e0f2e2a95e29ca2e3c1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.VideoModule.dll",
+      "sha256": "4a86bc1f86fc13c5e968549ef5c9b14fe5bb4bd935bee0a0a9bf033a8d01beb4"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.VirtualTexturingModule.dll",
+      "sha256": "1f98a069ef438e46508a31498c0a53574f3ceafd4dd69d5243b531662f731853"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.WindModule.dll",
+      "sha256": "86b9c9d38001b109be210357bd86070dc3d724478db15e5bcf4fbb8556cb9585"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll",
+      "sha256": "fc8ed362e2233b3d3f22bf769a475d6277c997daa1466b35b2747d11e2b51ee3"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll",
+      "sha256": "cc97a59919f0a30ecc715b78bb8a82a70870e5995f7ca5e95664dc3fcc47087d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll",
+      "sha256": "9ffa5400b61b0ba32223879b4e230bc3001fc797e549775c09a4e8bd7a300fbd"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/Microsoft.Win32.Primitives.dll",
+      "sha256": "0e70ef3ae765d4e429d6a210358afee42e71848431328020808a76921002122d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.AppContext.dll",
+      "sha256": "95a1524a337a0e967ac4e23fce8d4b02e0681479a86fe15327823844355cd4db"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Buffers.dll",
+      "sha256": "ac128c3c138ee6f6a397615d23eb248c85614e69defa7afc8d33d49087100233"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.Concurrent.dll",
+      "sha256": "bea496d6dcb322f28d0b2341fff91838fcea9940654bcfa6b218ba42eefedcc0"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.NonGeneric.dll",
+      "sha256": "874f96623a7971b402cba236aab49e550d52786641701d43ae172c952fb9ef26"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.Specialized.dll",
+      "sha256": "900a35b9a013806db1043fa504d0ea8ca7f61db142bb8826557835ebd0a55af6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Collections.dll",
+      "sha256": "f84e0a371e52a533d933d2c835efeb6a96b08d7da0008d6ab2242d980f1d7e46"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.Annotations.dll",
+      "sha256": "f3315940bb42a3fe8d07b9b34c94b4597c75b494302df722122c4a2911ccfffb"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.EventBasedAsync.dll",
+      "sha256": "25d642c437951b1f5d50676ccdec7284d1a1efbd25561a40d79c856f7ce2a795"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.Primitives.dll",
+      "sha256": "acaf33f2e91f83d744276ef2b8245cb48a78d88a798eef5499048dc15bbfcaee"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.TypeConverter.dll",
+      "sha256": "84ff0c6eb1830d3951f18dbf551ddbb8a81bd92eafa6064ab120fb005ba4982f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ComponentModel.dll",
+      "sha256": "3e95f1a35c1788f2b34af0e27946c7e4a4e3c0172bcce4b843c8677b788e7a11"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Console.dll",
+      "sha256": "20613cd1602b4a2ab79386d1b42cec0a83eee3d00f8e955abfa2a0cefb3d88c1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Data.Common.dll",
+      "sha256": "226fc9d84a1f2aa883e6db932062e1467dd687bead20c299fa1243c66c0f2c0a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Contracts.dll",
+      "sha256": "9666ae0d143a6d3529fad8984677f6c7105728f6c64f453676f168e8fb964086"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Debug.dll",
+      "sha256": "34f9376f3aeec0da52bd9f56a3cb96ab29272c0f2ab36646144e4e4a60826b7c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.FileVersionInfo.dll",
+      "sha256": "f6f514800cf3543ce3d71cdc5d24119d0374acde950eef780179e0187739b579"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Process.dll",
+      "sha256": "bfc1d49e5ce9eb820027644eb228a550e0dedb4172097749b97f6d2a52a86393"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.StackTrace.dll",
+      "sha256": "8905f767326006eaee279049cc2538aa0e76a59b5109466d513e42b670bc7463"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.TextWriterTraceListener.dll",
+      "sha256": "211be7b185a6a6656e2d8ef774b29aac3ed4d337210b3fa7f41a1c19c7119bee"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.Tools.dll",
+      "sha256": "e96b8bfa656b24195b5ddbed5ec43aa251d0fb22b262bdc1c26a6a21de9add5c"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Diagnostics.TraceSource.dll",
+      "sha256": "f2afb80a833ff38b4acfdd18a7253741b0b9a51a72ff61254bbf72bb03b6a0e0"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Drawing.Primitives.dll",
+      "sha256": "00a4ce24c70b4f29b67c74774ab81b21bed253d8fd835b8dc9bc92c3c21c45ad"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Dynamic.Runtime.dll",
+      "sha256": "15e4752e92054ab4ae65ac433c72cfb7937f4d2cbce48c58437b1b1d89723b71"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.Calendars.dll",
+      "sha256": "04f7980f8b3d7e2f516418ee6c1bde006a358dcf99b2cceb1fd3d16d8789c1c7"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.Extensions.dll",
+      "sha256": "64929dbc8b5d1fefa1fb24c996259caf23a34ca9814eead6679db1b8a0df82f9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Globalization.dll",
+      "sha256": "4e9eb12e49fa58904a3b2402aa3811297d65a28d6499239609a2735d3724c337"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.Compression.ZipFile.dll",
+      "sha256": "509d3d9e5b5b7e7a32b35b4865443c013916141eeeaed4979cf696be644a7ff9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.DriveInfo.dll",
+      "sha256": "50945cee237616367e649c762d989857b34464c52fab8d7b77258a4f23bad9bc"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.Primitives.dll",
+      "sha256": "fe91a21541f8143b717379b5ab4716a3d4cc170adc8ab5998f7cfff35ff38b5a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.Watcher.dll",
+      "sha256": "ff5b79eefdc4defd88b7906658f4bedd0083944887d1b154424730e94d949e55"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.FileSystem.dll",
+      "sha256": "2ce8a9fa98f853d95439a24a3fb7117c619d44cc1ac383a8944ef33055abaf1d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.IsolatedStorage.dll",
+      "sha256": "b9cf9bc8a7a5b9bef1b81294d8fc15da919dbf6e880131194390e3d32a73e7fe"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.MemoryMappedFiles.dll",
+      "sha256": "362d9afeb570763025fa78698ba461cead8faaec20514a220075ab3f0e5a0ac6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.Pipes.dll",
+      "sha256": "313db96a0282de9376c471f5af64075f22b101544affee0bb781eee6dfe9b897"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.UnmanagedMemoryStream.dll",
+      "sha256": "0dbd15db47d662035c6a52363fe0ce0cf22ff4226de9cc9bed75ff275ae86200"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.IO.dll",
+      "sha256": "c5288c373f4e41ae45c5b2a8f4ac6b5d68d22e28cd956024070bd94b0ed41dc5"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Expressions.dll",
+      "sha256": "e8b623417716403a478465fb4906f4f181639aaa895ad298fc092d7e2c731a22"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Parallel.dll",
+      "sha256": "426ec85eda5596db68a6c14b603f98a1d43cbab92b0783f233c05fbee9952811"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.Queryable.dll",
+      "sha256": "024d17e6ae98d4ea56f07869643a0d464af47ff7d837db1e569e6464e6edab5f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Linq.dll",
+      "sha256": "97d3bcde64d1c1884330554e75edbf0791ef1c3e5aa831db3ba6d9cd3f377d09"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Memory.dll",
+      "sha256": "a6ca0c07281e587e03efa0042f9a48c13e5cc53a9c0ab005ff4573fcc6657b2e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Http.Rtc.dll",
+      "sha256": "dd5a88a7e5e1ee9df07e6e4e5b053f9f52aa4e4993da5c74c0ad4bea2f2f7c1f"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.NameResolution.dll",
+      "sha256": "9f0cbf7943ea42cb8ac2fffa3a9b9b3986712549b97626472932c5bf99de6eb0"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.NetworkInformation.dll",
+      "sha256": "8ba75c2f9c337407968838d936472272cbd98248a8bb16b4e8cf9b6bfec804b2"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Ping.dll",
+      "sha256": "f6e7756ebd90c708b8ef8afaf459822bfdd15a15f80be46b8de1085bca4e8f9a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Primitives.dll",
+      "sha256": "bdb1580746ea3e41752249a342af0eb140821b7850eb3a01329cda1d76863077"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Requests.dll",
+      "sha256": "08e011eee889ecff6200b316ee4a3c6693ba8a97d61eea30b1e7fd438adc88c6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Security.dll",
+      "sha256": "93f108d9dd3334551531c93f5a98a45dae2a635a08705e66aaefa06343eecb84"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.Sockets.dll",
+      "sha256": "3900768a66073ce12c67934748584292ba0cc3c10e613c9e2c4c280d81813e0e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebHeaderCollection.dll",
+      "sha256": "b418b7bac3fb1ba125de733e82b956d9c98f3e2789ac4a449c200c4654f78c97"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebSockets.Client.dll",
+      "sha256": "3dfc5c488d14fc44502cb18f277c4f26163019fd0dd8a283bf78782a3d45f905"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Net.WebSockets.dll",
+      "sha256": "4f1510be5a1760fae21a97710427012b168fb96f32ba77037690eeb358420572"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ObjectModel.dll",
+      "sha256": "f8867e17cb0746323073275b7fd2d0f37d4c17f97c4d00c3479503575084e816"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.DispatchProxy.dll",
+      "sha256": "27a02ef402846ee204b78ff7dd0cfede2d72ad1428bfc11af85db1e9fb6da8a1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.ILGeneration.dll",
+      "sha256": "b21849b0956088a46f6b6f8e2ea22b59fc8d5bc8fac2466f693aca152217d873"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.Lightweight.dll",
+      "sha256": "fbf930badb304f8970267bdeb7db30d86445026ccc042a1e2f4f171125655e3e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Emit.dll",
+      "sha256": "abd6dfeefafa60599e8a5f0c628459b11c0431099847263ae67568b12ddc2855"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Extensions.dll",
+      "sha256": "aec29396ed672ea9fe1b8f3091e1445f87447f22369b531d32fde36f3c43542a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.Primitives.dll",
+      "sha256": "387c47b07a331e8ceee469dc4b4bbb3651823daa6c6556912850a9138e754a63"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Reflection.dll",
+      "sha256": "9e6442bee0ccf14efffc95defec5651b58fb33104a7fcf6fccf3913e9bb09738"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.Reader.dll",
+      "sha256": "e7f55c37975fb7e22dc0b386d6237f014d22064c37860a5a2f09ee1bbc4f7b9e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.ResourceManager.dll",
+      "sha256": "03d6db9ad69c0493629b74d3bb7d5d182497df4ff6d605e2c61a00f4a3c2ec09"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Resources.Writer.dll",
+      "sha256": "ed99eb2db493c9a131422f5f608416e9d58724cdb5b4f388bfac25813c518bed"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.CompilerServices.VisualC.dll",
+      "sha256": "82b3c1eb78e36919fcb1f65c233f829105d2ea26daf65ce4254987c66f25e706"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Extensions.dll",
+      "sha256": "e672d1d1b128f185eba5ea6f63cfcdaf20cda48638d96ff4846f109e245346ae"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Handles.dll",
+      "sha256": "efdb80d2dea56fdd5821fe13083196933a21c1ecc55bf3572c5624c5306476b6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "sha256": "94f0f8bb5f484476510cf80d65b9e6daa5732abc69ce7f3a86dd6755248e5f46"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.WindowsRuntime.dll",
+      "sha256": "15f7bf54aa0b317379f579ce1dd00a6dcac9bbc41d1921de4e04bb1107795980"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.dll",
+      "sha256": "2ea619fee24916dbbba7533f1109c5536e10d280abbc8f13f6b11b8c49eb56f7"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Numerics.dll",
+      "sha256": "5a7dd020dca51c58a37e34e015e3e8e9558b3d535233aae1544456677c91b8bc"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Formatters.dll",
+      "sha256": "994463f988dc9b75af0386cf259df3f803566e24f7f7a10f5c5b915fc5b0a6b6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Json.dll",
+      "sha256": "b09733d3caae9f67636d2abb93e023f7f3b61e31c0ba75b748ae8ff3c2d97455"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Primitives.dll",
+      "sha256": "ca601331d732336546757d43a27138c164a2a93c521dc52c6c0466ce544d8ce3"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.Serialization.Xml.dll",
+      "sha256": "331b6a5bc12133ea6ffe332cab77a4b3446d1e8df9431b23c62137ae70a0f721"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.dll",
+      "sha256": "67755c37816bd9b0811067fb5721fff3ae9ed598cc5f7d4ab685bf2929ce70ff"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Claims.dll",
+      "sha256": "6dc2b88fee35bc921b00953cf6c569cd0ac8027de655fd64d73fddd269e53ef9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Algorithms.dll",
+      "sha256": "e9c085a6ddf8ac98bbe51976ee3918af713b8affcd81ce3281213468ee70471a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Csp.dll",
+      "sha256": "1292e245052b56e9fcf6f5ba3da08c4c51dc6e3eb571f98705f76136a7e46ccc"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Encoding.dll",
+      "sha256": "f0358a2c9e4abb94c6c5d16a0193e30ef38e004898778db2db1406936aebde1b"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.Primitives.dll",
+      "sha256": "17a62a776bebbb2e95947689afa67b4ef730944825f5bb6e7db10dfa558a2211"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Cryptography.X509Certificates.dll",
+      "sha256": "cf6bbb72d38bd9d435b620a57f02e5e5a3fce51b690921add601c4a2bd39e405"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.Principal.dll",
+      "sha256": "57fd8163f3e303da3b3b4bd013554433c3fa9db3b905915903aad2287fea488e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Security.SecureString.dll",
+      "sha256": "66738faa411eeeffa6920933f5af6bb1ef1dd43d7f7566ad383aef83df9b279d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Duplex.dll",
+      "sha256": "6a32745908ea7875d5045c822501008f1bb0836d877a4b722f7919250f32c776"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Http.dll",
+      "sha256": "648703953fcd7ea397d5978447ae2c943b403a1cc6b12dadf8e117c60fd9c051"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.NetTcp.dll",
+      "sha256": "0f2bb21c09415b0c38847c52695f8b5e49fead656458d65f02c859bb43782ad1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Primitives.dll",
+      "sha256": "2bc09f454fa1b9f42c8baaba42af7bf414060d95ec6580b6d70220addc69e9fb"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ServiceModel.Security.dll",
+      "sha256": "18ce85a3cce8df673e02fd98533f6861a1a34a97a21dbc61af2badbcb90c3cc1"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.Encoding.Extensions.dll",
+      "sha256": "845e469167f70a5d3b0d17b42a4ad5f121568af9d0ea8d73e640757262d064b8"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.Encoding.dll",
+      "sha256": "fe8607ab56d9f456bd69f6f12ed88b27537282bc97faf5d7eaf696403248e992"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Text.RegularExpressions.dll",
+      "sha256": "bf446ab48b09037f07d5e0828620b340de9f282d7dd8fa67df3f25d83e1b8f19"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Overlapped.dll",
+      "sha256": "c562ee030d66bd68d76b5175957865ee0e4ee3867edd6edf6e3b7e1a736ec182"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.Extensions.dll",
+      "sha256": "6455c1307c4de0e5875856b0c18b9ec449d9e541904759f5a310744303f1fd18"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.Parallel.dll",
+      "sha256": "c7fdfade96f5cfce459c6771a83f47305a26bd536b51ca54815bc4c8a26ffc54"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Tasks.dll",
+      "sha256": "f2b2198ee4acfb4ef7d6d07cfe037acc5681e8a1c894931a7a170c38d3afe944"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Thread.dll",
+      "sha256": "3fe5a363d4c12c57e88af4d866aae65eca0f750943b2d824307aeb490caa223a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.ThreadPool.dll",
+      "sha256": "9829de8ff80ed99415c5a18e35174c21b3bd118de3415d65dbc6bb57b5a93491"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.Timer.dll",
+      "sha256": "21b08c040fa6373bfe802d910be567c3e2dd55540bda6082d00469abf2738487"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Threading.dll",
+      "sha256": "7a28b6cffea2f721701d7c27b2b39dcaa484d281971b53413cfd72acc9874243"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.ValueTuple.dll",
+      "sha256": "702fe8344cb343f11f1cce895f4ecb5995207f8046ea06b13e55ea0b62cbc157"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.ReaderWriter.dll",
+      "sha256": "00bfeea19962bbec8a51dfe55e1bd8ad4cf02ef0c565fee880b3ceb84744bc8e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XDocument.dll",
+      "sha256": "eab5886d4285c69e03c9f5a5984eea68bd7a24b8e930c095ed559dced8e088de"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.XDocument.dll",
+      "sha256": "231077479671377a327ae0c72da8c766f63c2dc412d14ebfaa0263f06a41d7a9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XPath.dll",
+      "sha256": "59d920e0b80f5f9cefd52b0b88969f225483d8fce1a4e7723a369700c7fba93e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XmlDocument.dll",
+      "sha256": "62049ed17429e37772f8cbc83bd5b65a500c7a979207f40aeb45d7f75d5b1917"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Xml.XmlSerializer.dll",
+      "sha256": "a14f0e5e83dc393be95fab05eba94f83aac2a5aba8e16e4e3311cd2ea4779c53"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/netstandard.dll",
+      "sha256": "3b20c3bb5da550371635c8ff930c2a3404d4f51fc9a7d8e530c99f99cadf1699"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Microsoft.CSharp.dll",
+      "sha256": "78b521c40b3031fdbb0fa3df65ab6347ad56f564edb13251965b47013a934f24"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.Composition.dll",
+      "sha256": "673b2b71a9d0c83629676647c908c67048dc1e9b51d9b43c7561e72882abc693"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Core.dll",
+      "sha256": "a87b470d5878d9fa7bb3201c86d8e5fd62fdccc7ce6e4241a77b07a7510005f7"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.DataSetExtensions.dll",
+      "sha256": "1d9c2e9d867f5521cf80bbd37b3dcb0291ae9bb98dbc49365ff35c866c1697b4"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Data.dll",
+      "sha256": "045eb935b721514205f762ed39ea033f68ef647ccf7ecb9c65e513261841f5d6"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Drawing.dll",
+      "sha256": "4b54159d6acafa0a00f90eefdc3273f573539d8150c5f718a4992298ecb2aaab"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IO.Compression.FileSystem.dll",
+      "sha256": "ace98e3269c9d21d7a5a86d1bd5f975921a228101c37b1f202d943b1c5c2a68e"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.IO.Compression.dll",
+      "sha256": "b8f7557c6b517f82a47643a344198cd7dd2b6310e3b1ea55da09298888519833"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Net.Http.dll",
+      "sha256": "ecb4f41d4573dec929660dfb04c46a0c31be415ce4befd2369bc34b3de2cd8f8"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Numerics.Vectors.dll",
+      "sha256": "395e47e04869f6a5ba90bb005918a3ff755c1bcefe58994bfe4f035563e98d32"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Numerics.dll",
+      "sha256": "3acd08429a7ce3028ad0be4134ff5c603a14a202c39a08499b188b9018d34d3a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Runtime.Serialization.dll",
+      "sha256": "9f28b56d5a2675066cc22f62eb9af8244e8e9ccc17ba97a49b5c9d59bac824a9"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Transactions.dll",
+      "sha256": "0b2e0053fe55acde33f356c967db6b179e500d0b1e6a4232474a1a0babc88069"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.Linq.dll",
+      "sha256": "30c6a9ac36ee1b08e23028b135f6152de336b069dea7bbb0f5e6340cbaac6c6a"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.Xml.dll",
+      "sha256": "e014fb786edfaba4e0cc714f162944dc55883f0bdbc33b90dd0ec5dfef175705"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/System.dll",
+      "sha256": "cfb1aaefd49dcabcd4abcce2d15592d6acca29e6fac1a418ec41aab9b71a1c6d"
+    },
+    {
+      "path": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/mscorlib.dll",
+      "sha256": "800371597a06660e3f20251785d44cdab5edc681b9aa4b09120ad4a7ab2f9478"
+    },
+    {
+      "path": "Library/PackageCache/com.unity.ext.nunit@0198eae3b53e/net472/unity-custom/nunit.framework.dll",
+      "sha256": "a607364879b5f5c337b979e9de23654459df45ba1a7324d54aa9df93540dc7a2"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Fusion.Addons.Physics.ref.dll",
+      "sha256": "833ef60b388b3a7d116728ef95850bbf908d79a4567e10b53a135223b0611ddb"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Fusion.Unity.ref.dll",
+      "sha256": "751d64214e9968b892b89bf2167ed614cb123a4b4576cd09428c5e7fe2f7b208"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Photon.Realtime.ref.dll",
+      "sha256": "f89dc74487467fdd2ae28aaf2393667e9a67362e01784f051b88ea23cca6f008"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/UnityEditor.TestRunner.ref.dll",
+      "sha256": "a4e9631580d49cf7da8224d4a3d01b65db261f8f8bc9bcded24a03d472fa9534"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/UnityEditor.UI.ref.dll",
+      "sha256": "42c80d1530dcfd7ae9daa9114c945de1d606f9cb7a153f77d9bd14666bfc6834"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/UnityEngine.TestRunner.ref.dll",
+      "sha256": "b1f4a89ec407c2e259a5b1a801da0bff751ea78d1ea7a3e40ad3f7768be30b48"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll",
+      "sha256": "07d1dc8db81223425be841680d411d7b726b68ee3ac7fe5a8288457736d147b9"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.Online.Client.ref.dll",
+      "sha256": "5cd9132f9891fd715364e1abcc7e273c1e003fea2305bbfadf0cabd58912da3c"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.Online.Fusion.ref.dll",
+      "sha256": "7aab6866c706f9abcc91694624c76426b1a2d20c3a6039abcccc2647915138c1"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.Online.Gameplay.ref.dll",
+      "sha256": "34479cdb3c5322510303a4bfc4abbec9d9cba4f55c41136dff08a5563232b1d5"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.Online.Physics.ref.dll",
+      "sha256": "e3d29d491cf2b0034e1f6eaff2b14bc0c5b5144d5df15e1ef46c7a68d518b31a"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.Online.Presentation.ref.dll",
+      "sha256": "bda67b89fafd3928d43cd22d635e425112fc9312b9b89ea211ebab27dc298e40"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.Online.Puzzles.ref.dll",
+      "sha256": "047296e8e6fc406902930a28ff6d1d388668be914d540e29cad7a7f0a2e78b52"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.ref.dll",
+      "sha256": "2fa96cc204e6a90fdaa168cc38d0d52de9ca61259997c138f6fb09a9ec50f879"
+    },
+    {
+      "path": "Library/Bee/artifacts/1900b0aE.dag/Wreckabulary.Rules.ref.dll",
+      "sha256": "d0a8c1b3aeee44e63a4c221774975b008423e22e25cdc683795dbf0d629b2840"
+    }
+  ],
+  "errors": [],
+  "nativeExecuted": false
+}

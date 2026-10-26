@@ -1,0 +1,160 @@
+{
+  "status": "SOURCE READINESS PASS; native public FFA acceptance remains failed/unfinished; not applied",
+  "head": "c4810d6a2b83c597c6d30e8ab3017891fb44941c",
+  "patch_hash": "cb2347cccc3839c1ff993a716ae70371b8d1e07dd74cb18bd2a272bf06fb410d",
+  "patch_hash_matches": true,
+  "files": [
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs",
+      "candidate_hash": "3c9054565c77311ed75f8dec5c634967fc79d04a4f30e24f1d56c943af9e10c5",
+      "candidate_matches": true,
+      "live_exists": true,
+      "baseline_hash": "203428d4ca2150d0eb7f9587ec943357fa7fc805a9d99690c704dd705b0446b4",
+      "baseline_matches": true,
+      "live_hash": "203428d4ca2150d0eb7f9587ec943357fa7fc805a9d99690c704dd705b0446b4",
+      "live_matches_baseline": true,
+      "head_hash": "1b61e62770732a170ee848721e432485dce07b861b1965c97ede21b4541d6133",
+      "head_normalized_equals_live": true
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeFullMatchTests.cs",
+      "candidate_hash": "331f22e80f43d2e86678530288d5984f6c03578d3438663463fda0f5387547f1",
+      "candidate_matches": true,
+      "live_exists": true,
+      "baseline_hash": "f807b2cb760349dfff584553dae0194725c522076180c1bfaac5d6f266f9bfdd",
+      "baseline_matches": true,
+      "live_hash": "f807b2cb760349dfff584553dae0194725c522076180c1bfaac5d6f266f9bfdd",
+      "live_matches_baseline": true,
+      "head_hash": "50c34b3d1cc4c70a5ead1cfdff560efa31a44d4d7af82ba194f7d5f0972c2afe",
+      "head_normalized_equals_live": true
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeContactObservation.cs",
+      "candidate_hash": "aeee4e8825df137513faa99edcca7afc220ae1f4d83d347312e44322d89b5f42",
+      "candidate_matches": true,
+      "live_exists": false,
+      "live_meta_exists": false
+    }
+  ],
+  "strict_apply": {
+    "exit_code": 0,
+    "stderr": ""
+  },
+  "preserved_failure_inputs": [
+    {
+      "path": ".harness/delivery/completion-ffa-2026-10-26T18-42-07-695Z-start.json",
+      "sha256": "014cf99e760af644efa8b89745f6f4b6423eca6fda9941b664182ad1e6a9adb4",
+      "matches": true
+    },
+    {
+      "path": ".harness/delivery/completion-ffa-2026-10-26T18-42-07-695Z-end.json",
+      "sha256": "81945b659951bd6005d9a028f95e64eb4a0f89c31aee700c80d35ac0f3091ac5",
+      "matches": true
+    },
+    {
+      "path": "Logs/gate_test_editmode_20261026T184207Z.log",
+      "sha256": "a2b3c74c748e686910924c5e8f7e4c9ceb63588460a0d3326cc23ff34bb29c4a",
+      "matches": true
+    },
+    {
+      "path": "TestResults/editmode_20261026T184207Z.xml",
+      "sha256": "cb64690867faa01e8ab72f8a46d52cd59d4496b9e19139eff8ac15b6952c1fcb",
+      "matches": true
+    }
+  ],
+  "xml_cases": [
+    {
+      "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+      "result": "Failed",
+      "duration": "465.879535",
+      "failure": "  Return the zero-score victim to native FFA contact through admitted movement exceeded its deadline.\n  Expected: True\n  But was:  False\n"
+    }
+  ],
+  "native_executed": false,
+  "direct_log_terminal_recheck": {
+    "terminal_operation": [
+      {
+        "line": 11945,
+        "phase": "begin",
+        "elapsed": "0.000",
+        "maximum_frame_gap": "0.000",
+        "lifetime_cancelled": "False",
+        "host_canonical_tick": "13318",
+        "host_sdk_tick": "22145",
+        "host_committed_tick": "13242"
+      },
+      {
+        "line": 12169,
+        "phase": "end",
+        "elapsed": "35.012",
+        "maximum_frame_gap": "0.426",
+        "lifetime_cancelled": "False",
+        "host_canonical_tick": "13518",
+        "host_sdk_tick": "24249",
+        "host_committed_tick": "13484"
+      }
+    ],
+    "steering_receipt_lines_after_terminal_begin": [],
+    "successful_prior_contact_operation_ends": 14,
+    "service_cleanup_records": [
+      "WORDBOUND_SERVICE_CLEANUP: failures=0; return=0; cancel=0; leave=0; dispose=0; clients=2; parties=2"
+    ]
+  },
+  "current_semantic": {
+    "path": "BuildNotes/completion-20261027/network-resume-semantic.json",
+    "sha256": "f7d23762167f50a75eedba380445ea85cbabc4234dfec0d8ab6c4243563ff5e1",
+    "sources": 20,
+    "references": 315,
+    "errors": 0,
+    "native_executed": false
+  },
+  "existing_source_hook_only_proof": [
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs",
+      "removed_lines": 2,
+      "remaining_bytes_equal_baseline": true,
+      "live_still_matches": true
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeFullMatchTests.cs",
+      "removed_lines": 1,
+      "remaining_bytes_equal_baseline": true,
+      "live_still_matches": true
+    }
+  ],
+  "relevant_changes_since_failed_source": {
+    "baseline": "cd716e6a",
+    "paths": [
+      "Assets/_Project/Scripts/Online/Fusion",
+      "Assets/_Project/Scripts/Online/Gameplay",
+      "Assets/_Project/Tests/OnlineGameplay",
+      "Assets/_Project/Data/Config",
+      "OnlineServices"
+    ],
+    "changed_tracked_paths": [],
+    "limit": "Other client presentation/input paths changed; this does not prove remote service state or current ignored SDK bytes unchanged."
+  },
+  "final_head": "e29c0bcf421a186757dffd7b53fbbfcaae14460d",
+  "next_gate": {
+    "filter": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+    "required_enable_flags": [
+      "WORDBOUND_EXTERNAL_GAMEPLAY=1",
+      "WORDBOUND_EXTERNAL_PUBLIC_GAMEPLAY=1",
+      "WORDBOUND_EXTERNAL_FULL_MATCH=1"
+    ],
+    "observation_flags": [
+      "WORDBOUND_PROFILE_NATIVE=1",
+      "WORDBOUND_PROFILE_PHASES=1",
+      "WORDBOUND_PROFILE_CHECKPOINTS=1"
+    ],
+    "contact_seconds": 35,
+    "fixture_lifetime_seconds": 480,
+    "test_timeout_seconds": 600,
+    "knockout_target": 10,
+    "executed": false
+  },
+  "report": {
+    "path": "BuildNotes/completion-20261027/network-resume-readiness.md",
+    "sha256": "49697ab1b230a3590bb63915ce1900bb3c3805c030fd755f6a7be4bc43a7cee9"
+  }
+}

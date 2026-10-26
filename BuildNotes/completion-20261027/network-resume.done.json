@@ -1,0 +1,14 @@
+{
+  "status": "SOURCE READINESS COMPLETE; native not run",
+  "report": "BuildNotes/completion-20261027/network-resume-readiness.md",
+  "report_sha256": "49697ab1b230a3590bb63915ce1900bb3c3805c030fd755f6a7be4bc43a7cee9",
+  "receipt": "BuildNotes/completion-20261027/network-resume-readiness.json",
+  "receipt_sha256": "20ea18dee82f72a4dd129aaf2b23b28c14405f8d4c010a8b6114830992b88550",
+  "patch_sha256": "cb2347cccc3839c1ff993a716ae70371b8d1e07dd74cb18bd2a272bf06fb410d",
+  "contract_changes": [],
+  "live_changes": [],
+  "requests": [
+    "Integrator applies frozen observation patch and runs unchanged public FFA full-match gate after required source/core checks."
+  ],
+  "full_goal_complete": false
+}

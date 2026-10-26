@@ -1,0 +1,547 @@
+{
+  "status": "INDEPENDENT BOUNDED WORKSHOP RANGE NATIVE PASS",
+  "audited_at_utc": "2026-10-26T23:07:27.470722+00:00",
+  "observed_head": "359047caf5af3beb96160520eef2d471ab526eb6",
+  "gates": {
+    "r0": {
+      "prefix": ".harness/delivery/workshop-ranges-check-2026-10-26T23-02-49-849Z",
+      "start_utc": "2026-10-26T23:02:49.849Z",
+      "end_utc": "2026-10-26T23:03:04.180Z",
+      "wrapper_exit_code": 0,
+      "wrapper_elapsed_seconds": 14.331,
+      "actual_args": [
+        "Tools/kit/gate/game_gate.mjs",
+        "check",
+        "all",
+        "--json"
+      ],
+      "gate": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T23:02:49Z",
+        "secs": 14.1,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T230250Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      },
+      "proofs": [
+        {
+          "path": ".harness/delivery/workshop-ranges-check-2026-10-26T23-02-49-849Z-start.json",
+          "sha256": "9c89ee97f8e4b2d3f80c3115e1767a5520bdf53a7741702b9dee63ac9b257a36"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-check-2026-10-26T23-02-49-849Z-end.json",
+          "sha256": "52c75c9a2a9a20eae03fbf6b1c3e4588d4ea1b0a3b61b29f738012726cc4e481"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-check-2026-10-26T23-02-49-849Z-stdout.txt",
+          "sha256": "13de24653131a213dad1b4444bc3cb7bc4632d773378c3b5e47e0a5da3a2d739"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-check-2026-10-26T23-02-49-849Z-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "Logs/gate_check_all_20261026T230250Z.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "core": {
+      "prefix": ".harness/delivery/workshop-ranges-core-2026-10-26T23-01-38-958Z",
+      "start_utc": "2026-10-26T23:01:38.958Z",
+      "end_utc": "2026-10-26T23:02:15.286Z",
+      "wrapper_exit_code": 0,
+      "wrapper_elapsed_seconds": 36.328,
+      "actual_args": [
+        "Tools/kit/gate/game_gate.mjs",
+        "core",
+        "--filter",
+        "WorkshopTests|WorkshopModeTests|WorkshopRoutesTests|WorkshopPhysicalSiteTests|WorkshopStarterTests|WordboundWorkshopBundleTests",
+        "--json"
+      ],
+      "gate": {
+        "cmd": "core --filter WorkshopTests|WorkshopModeTests|WorkshopRoutesTests|WorkshopPhysicalSiteTests|WorkshopStarterTests|WordboundWorkshopBundleTests",
+        "rung": "R1",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T23:01:39Z",
+        "secs": 36.1,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_core_20261026T230139Z.log",
+        "evidence": [
+          "TestResults/core_20261026T230139Z.trx"
+        ],
+        "infra": null,
+        "slot": 0,
+        "tests": {
+          "total": 89,
+          "passed": 89,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "proofs": [
+        {
+          "path": ".harness/delivery/workshop-ranges-core-2026-10-26T23-01-38-958Z-start.json",
+          "sha256": "d9e3b407fcf04cd9ba1b23750e07c60a6c2a5eb4ca62b1a1befce4fa638a0566"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-core-2026-10-26T23-01-38-958Z-end.json",
+          "sha256": "06393b68a588d986fd3466345a5bf124ddce6d55353a67ea1084d6ffa5ae34a6"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-core-2026-10-26T23-01-38-958Z-stdout.txt",
+          "sha256": "35dfe4e424c308547b050aaaad89018bd5eef7b0184c8a7b0a7d9687b0dbc584"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-core-2026-10-26T23-01-38-958Z-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "Logs/gate_core_20261026T230139Z.log",
+          "sha256": "f86fed9f17f220370e68b30466d2f0a56c5535fc117627c06fe6b03950f5ee8d"
+        },
+        {
+          "path": "TestResults/core_20261026T230139Z.trx",
+          "sha256": "9f29a7c441128bff049e78fbb7ef9b33c013a09fd6e10b5f28c7b5c8f8dcea90"
+        }
+      ]
+    },
+    "editor": {
+      "prefix": ".harness/delivery/workshop-ranges-editor-2026-10-26T23-03-29-496Z",
+      "start_utc": "2026-10-26T23:03:29.496Z",
+      "end_utc": "2026-10-26T23:05:25.592Z",
+      "wrapper_exit_code": 0,
+      "wrapper_elapsed_seconds": 116.096,
+      "actual_args": [
+        "Tools/kit/gate/game_gate.mjs",
+        "test",
+        "editmode",
+        "--cold",
+        "--filter",
+        "WordboundWorkshopPlacementTests|WordboundWorkshopTests",
+        "--timeout",
+        "900",
+        "--json"
+      ],
+      "gate": {
+        "cmd": "test editmode --cold --filter WordboundWorkshopPlacementTests|WordboundWorkshopTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T23:03:29Z",
+        "secs": 115.7,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T230329Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T230329Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 92.8,
+        "tests": {
+          "total": 35,
+          "passed": 35,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "proofs": [
+        {
+          "path": ".harness/delivery/workshop-ranges-editor-2026-10-26T23-03-29-496Z-start.json",
+          "sha256": "0231d0acd590852a1401a82a1961d8bc57cebf14270601da92760dd7eff0f3ec"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-editor-2026-10-26T23-03-29-496Z-end.json",
+          "sha256": "528e510b58e8d7c2800fe42af9558f6d823df3b834cb0d261e29601ccdb4a5d7"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-editor-2026-10-26T23-03-29-496Z-stdout.txt",
+          "sha256": "84c5b8cd582cfbd07f10342a98f217687432dbda10cc5bb223410cb22d2a13ea"
+        },
+        {
+          "path": ".harness/delivery/workshop-ranges-editor-2026-10-26T23-03-29-496Z-stderr.txt",
+          "sha256": "740991a0d6374f6d1e6bcb06cf8fbdad5afa0e3156cc1c4a53ca567dd7ca62da"
+        },
+        {
+          "path": "Logs/gate_test_editmode_20261026T230329Z.log",
+          "sha256": "ace7663ef7c0f86994d5053e467b6e908b2e6608dca4f0a3bc09cb8e6ff955c9"
+        },
+        {
+          "path": "TestResults/editmode_20261026T230329Z.xml",
+          "sha256": "8743708473e26dfa3d59b613818f6918f7805ac059c80e96a042b3879ccbdd8e"
+        }
+      ]
+    }
+  },
+  "frozen_revisions": [
+    {
+      "revision": "revision1",
+      "manifest_sha256": "f42e0f0b8bee1f498d7fc7904fec03d46bb8b230c80467d892f9d48b7829e31a",
+      "patch_sha256": "afdd790155e1310ca8fa23f8167d0c58f0a00d16ed9388809ade52ae0d8c8b1f",
+      "files": [
+        {
+          "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+          "candidate_sha256": "fe8d673018145c57f86f8332435ce61641fa1c6be99f3a81661bb1fd4164df31",
+          "baseline_sha256": "4771e058c3c969e8f63e5447238fe6c6b1266394a9d35428dd372a1ae27678d5",
+          "both_frozen_hashes_match": true
+        },
+        {
+          "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacement.cs",
+          "candidate_sha256": "ace186e1e7c1cd2d70cf704c67a63219910baace16aebb1e8692d96ba5d7988e",
+          "baseline_sha256": "8f6173ce56fe567f9ab97f9d85192aa0b67b75347cd477b6236cdc7ff852f35c",
+          "both_frozen_hashes_match": true
+        },
+        {
+          "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+          "candidate_sha256": "638499c19a2371e2a98d701161619dd7b74a29550738d849ed1effe899b62e99",
+          "baseline_sha256": "9604307d46ccfa9aa3a1eaf10e0d587530098e0d1b9d0787a90587338f15a70d",
+          "both_frozen_hashes_match": true
+        },
+        {
+          "path": "Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+          "candidate_sha256": "48582ac340fdd9e3141afab9f864bff916e122a813dde690d0d21ce93a32e4ae",
+          "baseline_sha256": "c2e3e36939d447081f7c412ecde1aa1414b9032de223b7830ff629dbec707fb7",
+          "both_frozen_hashes_match": true
+        }
+      ]
+    },
+    {
+      "revision": "revision2",
+      "manifest_sha256": "3e62700a9c15e32fe6c9eefb5af9a8f83ffc485802ed32c55cbe558191711188",
+      "patch_sha256": "f8cf0beb007b0d52280fd107dbf85c187ffd6e7286f19c273d37cda50179a963",
+      "files": [
+        {
+          "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+          "candidate_sha256": "6ae6b69602efb7860e1be740e66afb2f54280268770c0954fc2fe7fb5748c11f",
+          "baseline_sha256": "fe8d673018145c57f86f8332435ce61641fa1c6be99f3a81661bb1fd4164df31",
+          "both_frozen_hashes_match": true
+        },
+        {
+          "path": "Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+          "candidate_sha256": "c0dc8bf6ea549aaf8cbecc3f7d3dd90e294d3dcca488a2a917f62040f6a8550f",
+          "baseline_sha256": "48582ac340fdd9e3141afab9f864bff916e122a813dde690d0d21ce93a32e4ae",
+          "both_frozen_hashes_match": true
+        }
+      ]
+    }
+  ],
+  "live_sources": [
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+      "sha256": "6ae6b69602efb7860e1be740e66afb2f54280268770c0954fc2fe7fb5748c11f",
+      "candidate_revision": "revision2",
+      "candidate_sha256": "6ae6b69602efb7860e1be740e66afb2f54280268770c0954fc2fe7fb5748c11f",
+      "raw_equal_candidate": true,
+      "normalized_equal_candidate": true,
+      "saved_commit_blob_sha256": "db271d71a5a192d57ad517d394d57e736576e36d392306d8c501eca821ebb35a",
+      "saved_commit_normalized_equals_live": true
+    },
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacement.cs",
+      "sha256": "ace186e1e7c1cd2d70cf704c67a63219910baace16aebb1e8692d96ba5d7988e",
+      "candidate_revision": "revision1",
+      "candidate_sha256": "ace186e1e7c1cd2d70cf704c67a63219910baace16aebb1e8692d96ba5d7988e",
+      "raw_equal_candidate": true,
+      "normalized_equal_candidate": true,
+      "saved_commit_blob_sha256": "1b31563524005192b791fbd01f2a7042f223ea3f047765903fd7d02741abf9b3",
+      "saved_commit_normalized_equals_live": true
+    },
+    {
+      "path": "Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+      "sha256": "638499c19a2371e2a98d701161619dd7b74a29550738d849ed1effe899b62e99",
+      "candidate_revision": "revision1",
+      "candidate_sha256": "638499c19a2371e2a98d701161619dd7b74a29550738d849ed1effe899b62e99",
+      "raw_equal_candidate": true,
+      "normalized_equal_candidate": true,
+      "saved_commit_blob_sha256": "9b363adb404b206c88c37b93ccc6a100d0621b17991f24227fe56d1a7837eab4",
+      "saved_commit_normalized_equals_live": true
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs",
+      "sha256": "c0dc8bf6ea549aaf8cbecc3f7d3dd90e294d3dcca488a2a917f62040f6a8550f",
+      "candidate_revision": "revision2",
+      "candidate_sha256": "c0dc8bf6ea549aaf8cbecc3f7d3dd90e294d3dcca488a2a917f62040f6a8550f",
+      "raw_equal_candidate": true,
+      "normalized_equal_candidate": true,
+      "saved_commit_blob_sha256": "f56a450a614b00a000afb908c01b7f6c632e335b9548871f0df0e7938fedc123",
+      "saved_commit_normalized_equals_live": true
+    }
+  ],
+  "editor_xml": {
+    "root": {
+      "id": "2",
+      "testcasecount": "35",
+      "result": "Passed",
+      "total": "35",
+      "passed": "35",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-10-26 23:05:12Z",
+      "end-time": "2026-10-26 23:05:14Z",
+      "duration": "1.6324547"
+    },
+    "class_counts": {
+      "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests": 26,
+      "Wreckabulary.EditorTests.WordboundWorkshopTests": 9
+    },
+    "cases": [
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.ChangingRandomZoneToFixedStartsAtItsRoomCentreAndCanBeUndone",
+        "result": "Passed",
+        "duration_seconds": 0.086799
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.HeightRotationAndFloorRangesRoundTripAndUndoAsOneEdit",
+        "result": "Passed",
+        "duration_seconds": 0.023289
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidHeightRotationOrFloorsPreserveSnapshotAndRedo(\"height\")",
+        "result": "Passed",
+        "duration_seconds": 0.01426
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidHeightRotationOrFloorsPreserveSnapshotAndRedo(\"empty yaw\")",
+        "result": "Passed",
+        "duration_seconds": 0.006178
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidHeightRotationOrFloorsPreserveSnapshotAndRedo(\"duplicate yaw\")",
+        "result": "Passed",
+        "duration_seconds": 0.010452
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidHeightRotationOrFloorsPreserveSnapshotAndRedo(\"arbitrary yaw\")",
+        "result": "Passed",
+        "duration_seconds": 0.018846
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidHeightRotationOrFloorsPreserveSnapshotAndRedo(\"empty floors\")",
+        "result": "Passed",
+        "duration_seconds": 0.005633
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidHeightRotationOrFloorsPreserveSnapshotAndRedo(\"owner floor\")",
+        "result": "Passed",
+        "duration_seconds": 0.005874
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidHeightRotationOrFloorsPreserveSnapshotAndRedo(\"unknown floor\")",
+        "result": "Passed",
+        "duration_seconds": 0.005589
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidHeightRotationOrFloorsPreserveSnapshotAndRedo(\"duplicate floor\")",
+        "result": "Passed",
+        "duration_seconds": 0.005408
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidPlacementKeepsDraftAndRedo(\"range\")",
+        "result": "Passed",
+        "duration_seconds": 0.008918
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidPlacementKeepsDraftAndRedo(\"count\")",
+        "result": "Passed",
+        "duration_seconds": 0.005682
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidPlacementKeepsDraftAndRedo(\"weight\")",
+        "result": "Passed",
+        "duration_seconds": 0.006065
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidPlacementKeepsDraftAndRedo(\"locked\")",
+        "result": "Passed",
+        "duration_seconds": 0.010777
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidPlacementKeepsDraftAndRedo(\"owner\")",
+        "result": "Passed",
+        "duration_seconds": 0.017221
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidWeightsHaveNoSilentFallback(\"\")",
+        "result": "Passed",
+        "duration_seconds": 0.000418
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidWeightsHaveNoSilentFallback(\"BAT:0\")",
+        "result": "Passed",
+        "duration_seconds": 0.000144
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidWeightsHaveNoSilentFallback(\"BAT:-1\")",
+        "result": "Passed",
+        "duration_seconds": 9.2e-05
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidWeightsHaveNoSilentFallback(\"BAT:10001\")",
+        "result": "Passed",
+        "duration_seconds": 7.8e-05
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidWeightsHaveNoSilentFallback(\"BAT:1.5\")",
+        "result": "Passed",
+        "duration_seconds": 0.00023
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidWeightsHaveNoSilentFallback(\"BAT:1, BAT:2\")",
+        "result": "Passed",
+        "duration_seconds": 0.000131
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.InvalidWeightsHaveNoSilentFallback(\"BAT:1:2\")",
+        "result": "Passed",
+        "duration_seconds": 8.9e-05
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.OmittedRotationAndFloorOverridesPreserveImportedRanges",
+        "result": "Passed",
+        "duration_seconds": 0.01095
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.PanelStagesRangesRejectsIntermediateTextAndCancelsWithoutChangingHistory",
+        "result": "Passed",
+        "duration_seconds": 0.663039
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.RandomRangeAndWeightsApplyInOneTransactionWithoutChangingOtherZones",
+        "result": "Passed",
+        "duration_seconds": 0.011527
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopPlacementTests.SettingsAndRedrawPreserveAuthoredRotationGridAndPurpose",
+        "result": "Passed",
+        "duration_seconds": 0.010436
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.InvalidDraftCannotDispatchAnEarlierSuccessfulPlaytest",
+        "result": "Passed",
+        "duration_seconds": 0.092516
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.PlaytestAndTemplateRoundTripPreserveTheEditingHistory",
+        "result": "Passed",
+        "duration_seconds": 0.144793
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.PlaytestCapturesExactDraftBeforeLauncherChangesEditingState",
+        "result": "Passed",
+        "duration_seconds": 0.071465
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.ReopeningTemplateRestoresItsAutosaveBeforeNewEdits",
+        "result": "Passed",
+        "duration_seconds": 0.059067
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.SuppliedDocumentDoesNotSilentlyLoadOrOverwriteAnEarlierSave",
+        "result": "Passed",
+        "duration_seconds": 0.05473
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.ViewportDisposalReleasesOnlyItsOwnedCameraAndRenderTarget",
+        "result": "Passed",
+        "duration_seconds": 0.009389
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.ViewportProjectsAndPicksTheActiveFloorWithoutChangingCourseData(800,600,0,0)",
+        "result": "Passed",
+        "duration_seconds": 0.026172
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.ViewportProjectsAndPicksTheActiveFloorWithoutChangingCourseData(1280,720,55,-30)",
+        "result": "Passed",
+        "duration_seconds": 0.027168
+      },
+      {
+        "fullname": "Wreckabulary.EditorTests.WordboundWorkshopTests.ViewportProjectsAndPicksTheActiveFloorWithoutChangingCourseData(640,960,-80,35)",
+        "result": "Passed",
+        "duration_seconds": 0.021695
+      }
+    ]
+  },
+  "core_trx_counters": {
+    "total": "89",
+    "executed": "89",
+    "passed": "89",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "authored_preservation": {
+    "status": "PASS",
+    "baseline": ".harness/delivery/ui-authored-before-2026-10-26T23-03-16-737Z.json",
+    "baseline_sha256": "9e571c052cf074abf43628a4902d68f97a0b77c7193f4c61793878191fe205d1",
+    "baseline_utc": "2026-10-26T23:03:16.738Z",
+    "baseline_head": "547f258f31dc0acf5c9e1dadfcfcf419c9fc4bf3",
+    "scope": "All non-ignored Assets .asset/.unity/.prefab/.mat/.ttf/.otf and adjacent metadata, plus project/build settings. Read-only preservation fingerprint, no Unity/player execution.",
+    "files": 4208,
+    "all_files_independently_rehashed": true,
+    "changed": [],
+    "current_scope_count": 4208,
+    "added_scoped_paths": [],
+    "missing_scoped_paths": [],
+    "baseline_bytes_unchanged_after_readback": true
+  },
+  "limits": [
+    "Native Editor invocation tests staging/apply/cancel/history and round trips; it is not physical mouse/controller interaction or rendered Windows validation.",
+    "Allowed floors metadata does not make one zone spawn across rooms/floors; owner remains fixed.",
+    "Height is world-space object-base Y, not full object clearance; geometry preview validity remains distinct.",
+    "No source/native/service writes by this reviewer; Windows UI/capture acceptance remains pending.",
+    "The preservation denominator is the exact4208-file authored extensions/adjacent metadata+two project settings baseline, not ignored SDK/Library/all disk files."
+  ],
+  "source_provenance": {
+    "run_start_head": "547f258f31dc0acf5c9e1dadfcfcf419c9fc4bf3",
+    "run_start_head_basis": "Root run handoff plus pre-native preservation baseline head. Wrapper start records command/time, not source hash.",
+    "run_source_delta": "Reviewed revision1 afdd7901 plus revision2 f8cf0beb; exact four live candidate hashes recorded.",
+    "saved_after_run_commit": "359047caf5af3beb96160520eef2d471ab526eb6",
+    "commit_changed_paths": [
+      "Assets/_Project/Scripts/Workshop/WordboundWorkshop.cs",
+      "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacement.cs",
+      "Assets/_Project/Scripts/Workshop/WordboundWorkshopPlacementPanel.cs",
+      "Assets/_Project/Tests/Editor/WordboundWorkshopPlacementTests.cs"
+    ],
+    "post_run_commit_matches_verified_live_files": true,
+    "scope": "Three Workshop runtime files and the existing Editor placement fixture only."
+  },
+  "report": {
+    "path": "BuildNotes/completion-20261027/workshop-range-native.md",
+    "sha256": "352b08500e0a019d7accd2064629d4f5f390c33cf9321dd4cea360c20262633d"
+  }
+}

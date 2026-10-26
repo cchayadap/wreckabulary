@@ -1,0 +1,57 @@
+{
+  "utc": "2026-10-26T22:45:56.744Z",
+  "reviewedHead": "e29c0bcf421a186757dffd7b53fbbfcaae14460d",
+  "patch_sha256": "cb2347cccc3839c1ff993a716ae70371b8d1e07dd74cb18bd2a272bf06fb410d",
+  "files": [
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs",
+      "candidate_sha256": "3c9054565c77311ed75f8dec5c634967fc79d04a4f30e24f1d56c943af9e10c5",
+      "candidate_matches_manifest": true,
+      "live_sha256": "3c9054565c77311ed75f8dec5c634967fc79d04a4f30e24f1d56c943af9e10c5",
+      "live_normalized_matches_candidate": true,
+      "baseline_sha256": "203428d4ca2150d0eb7f9587ec943357fa7fc805a9d99690c704dd705b0446b4",
+      "baseline_matches_manifest": true,
+      "remove_hooks_matches_baseline_bytes": true
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeFullMatchTests.cs",
+      "candidate_sha256": "331f22e80f43d2e86678530288d5984f6c03578d3438663463fda0f5387547f1",
+      "candidate_matches_manifest": true,
+      "live_sha256": "331f22e80f43d2e86678530288d5984f6c03578d3438663463fda0f5387547f1",
+      "live_normalized_matches_candidate": true,
+      "baseline_sha256": "f807b2cb760349dfff584553dae0194725c522076180c1bfaac5d6f266f9bfdd",
+      "baseline_matches_manifest": true,
+      "remove_hooks_matches_baseline_bytes": true
+    },
+    {
+      "path": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeContactObservation.cs",
+      "candidate_sha256": "aeee4e8825df137513faa99edcca7afc220ae1f4d83d347312e44322d89b5f42",
+      "candidate_matches_manifest": true,
+      "live_sha256": "2f8c45a9e3ba073b9584df9ac75410c455d48e7f916d1651e58ce4f8e92dc978",
+      "live_normalized_matches_candidate": true
+    }
+  ],
+  "strict_reverse_apply": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "failedRun": {
+    "path": "Logs/gate_test_editmode_20261026T184207Z.log",
+    "sha256": "a2b3c74c748e686910924c5e8f7e4c9ceb63588460a0d3326cc23ff34bb29c4a",
+    "beginLine": 11945,
+    "endLine": 12169,
+    "elapsedSeconds": 35.012,
+    "maximumFrameGapSeconds": 0.426,
+    "lifetimeCancelled": false,
+    "hostCanonicalTicks": {
+      "begin": 13318,
+      "end": 13518
+    },
+    "hostSdkTicks": {
+      "begin": 22145,
+      "end": 24249
+    },
+    "parentWalkFinalReceiptAfterBegin": false
+  }
+}
