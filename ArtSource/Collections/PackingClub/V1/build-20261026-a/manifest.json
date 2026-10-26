@@ -1,0 +1,547 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-26T02:51:13Z",
+  "collection": "PackingClub",
+  "version": 1,
+  "status": "AUTHORED SOURCE; export round-trip, Unity and owner visual acceptance pending",
+  "blender": "5.2.2 LTS",
+  "script_sha256": "2faae9560849ccc7a71b628a21704e4507a0e31dd5eabe3f9742cf410a06ef31",
+  "source_blend": {
+    "path": "Source/PackingClub.blend",
+    "sha256": "a367c4f33ecb70686ff5da99b7029d9e257ef2e505a69fd9cfea6a7bc8b9b255",
+    "bytes": 237971
+  },
+  "palette": {
+    "path": "Exports/PackingClubPalette.png",
+    "sha256": "b97c6fd96bdce8b28fca81499c728f456576696a2f25304811b3e2c7e3077bde",
+    "bytes": 6713
+  },
+  "provenance": {
+    "method": "local parameterized Blender geometry",
+    "provider_jobs": [],
+    "provider_spend": 0,
+    "reference_rights": "Existing owner-provided game assets; no new third-party content"
+  },
+  "coordinates": {
+    "source": "Blender metres +Z up, front -Y, right +X",
+    "glb": "glTF metres +Y up, front +Z; original reference basis",
+    "fbx": "Source root gets +180 degrees about Blender Z before axis -Z/Y export, matching build_assets.face_unity_forward",
+    "unity": "Retain imported FBX root transforms. Validate bounds/socket after import, then use canonical fitting."
+  },
+  "runtime": {
+    "physics": "unchanged",
+    "lod_switching": "NOT IMPLEMENTED",
+    "unity_import": "NOT RUN",
+    "model_binding": "Additive (itemId, skinId); Classic/Candy/Arcade remain intact"
+  },
+  "assets": [
+    {
+      "triangles": 1628,
+      "triangle_budget": 3000,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "BarrelAndHandle",
+          "triangles": 636,
+          "vertices": 320,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.01237626510238668,
+          "materials": [
+            "PackingClub_Surface"
+          ]
+        },
+        {
+          "name": "RoundedKnob",
+          "triangles": 316,
+          "vertices": 160,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.0001465799428863055,
+          "materials": [
+            "PackingClub_Surface"
+          ]
+        },
+        {
+          "name": "ContinuousCreamWrap",
+          "triangles": 676,
+          "vertices": 340,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 3.1616844716661565e-05,
+          "materials": [
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.0860000029206276,
+          -0.0860000029206276,
+          0.0
+        ],
+        [
+          0.0860000029206276,
+          0.0860000029206276,
+          1.0180000066757202
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.086,
+          0.0,
+          -0.086
+        ],
+        [
+          0.086,
+          1.018,
+          0.086
+        ]
+      ],
+      "grip_game_metres": [
+        0.0,
+        0.17,
+        -0.0
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          -1.7484555314695172e-07,
+          0.0,
+          0.0
+        ],
+        [
+          1.7484555314695172e-07,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 0.0,
+      "item_id": "BAT",
+      "skin_id": "PackingClub",
+      "lod": 0,
+      "collection": "BAT_PackingClub_LOD0",
+      "original_collection": "BAT_Original",
+      "original": {
+        "path": "Source/original-BAT.glb",
+        "sha256": "f79c6a1465e6b1627953dc4baab9ef7a83b0cabd57b5c3ba8dbee11fc027ab15",
+        "bytes": 192448
+      },
+      "held_scale": 0.5894,
+      "canonical_gameplay_size": [
+        0.172,
+        1.018,
+        0.172
+      ],
+      "exports": {
+        "glb": {
+          "path": "Exports/BAT.glb",
+          "sha256": "223fdfa08af7db951941d17aed91cfb5824573a264a6befd245f59ac725650f2",
+          "bytes": 50400
+        },
+        "fbx": {
+          "path": "Exports/BAT.fbx",
+          "sha256": "225a8b914c2b28dd08c117a348ed10dd400d9e1e61475d723f5ac73ef3f81709",
+          "bytes": 48460
+        }
+      }
+    },
+    {
+      "triangles": 924,
+      "triangle_budget": 1200,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "BarrelAndHandle.001",
+          "triangles": 316,
+          "vertices": 160,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.012162564368737602,
+          "materials": [
+            "PackingClub_Surface"
+          ]
+        },
+        {
+          "name": "RoundedKnob.001",
+          "triangles": 156,
+          "vertices": 80,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.00014376344808863712,
+          "materials": [
+            "PackingClub_Surface"
+          ]
+        },
+        {
+          "name": "ContinuousCreamWrap.001",
+          "triangles": 452,
+          "vertices": 228,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 2.9717212687781548e-05,
+          "materials": [
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.0860000029206276,
+          -0.0860000029206276,
+          0.0
+        ],
+        [
+          0.0860000029206276,
+          0.0860000029206276,
+          1.0180000066757202
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.086,
+          0.0,
+          -0.086
+        ],
+        [
+          0.086,
+          1.018,
+          0.086
+        ]
+      ],
+      "grip_game_metres": [
+        0.0,
+        0.17,
+        -0.0
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          -1.7484555314695172e-07,
+          0.0,
+          0.0
+        ],
+        [
+          1.7484555314695172e-07,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 0.0,
+      "item_id": "BAT",
+      "skin_id": "PackingClub",
+      "lod": 1,
+      "collection": "BAT_PackingClub_LOD1",
+      "original_collection": "BAT_Original",
+      "original": {
+        "path": "Source/original-BAT.glb",
+        "sha256": "f79c6a1465e6b1627953dc4baab9ef7a83b0cabd57b5c3ba8dbee11fc027ab15",
+        "bytes": 192448
+      },
+      "held_scale": 0.5894,
+      "canonical_gameplay_size": [
+        0.172,
+        1.018,
+        0.172
+      ],
+      "exports": {
+        "glb": {
+          "path": "Exports/BAT_LOD1.glb",
+          "sha256": "2803670f2280ec451af5590c029826282d427983f0c3d6faee0e249dec4df41a",
+          "bytes": 32736
+        },
+        "fbx": {
+          "path": "Exports/BAT_LOD1.fbx",
+          "sha256": "72cde50fb37b7a0afaa5b7f9634be904c488fecc6a98bb614566e196947e7789",
+          "bytes": 37324
+        }
+      }
+    },
+    {
+      "triangles": 1044,
+      "triangle_budget": 1200,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "OvalBoardAndTimberRim",
+          "triangles": 860,
+          "vertices": 432,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.013531209099069267,
+          "materials": [
+            "PackingClub_Surface"
+          ]
+        },
+        {
+          "name": "InsetCreamStar",
+          "triangles": 36,
+          "vertices": 20,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.0001782401434051916,
+          "materials": [
+            "PackingClub_Wrap"
+          ]
+        },
+        {
+          "name": "BentBackStrap",
+          "triangles": 148,
+          "vertices": 76,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.0004782592810845257,
+          "materials": [
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.23000000417232513,
+          -0.06300001591444016,
+          0.0
+        ],
+        [
+          0.23000000417232513,
+          0.12464505434036255,
+          0.5699999928474426
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.23,
+          0.0,
+          -0.1246451
+        ],
+        [
+          0.23,
+          0.57,
+          0.063
+        ]
+      ],
+      "grip_game_metres": [
+        -0.0,
+        0.29,
+        -0.11
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          -1.7484555314695172e-07,
+          0.0,
+          -1.9233011627761698e-08
+        ],
+        [
+          1.7484555314695172e-07,
+          1.0,
+          0.0,
+          0.10999999940395355
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.28999999165534973
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 5.960464477539063e-08,
+      "item_id": "SHIELD",
+      "skin_id": "PackingClub",
+      "lod": 0,
+      "collection": "SHIELD_PackingClub_LOD0",
+      "original_collection": "SHIELD_Original",
+      "original": {
+        "path": "Source/original-SHIELD.glb",
+        "sha256": "c52b3c7c23f5cdd664bba168e11b1c803bfed57aee9cdd6a4b049f0fb58f5552",
+        "bytes": 21876
+      },
+      "held_scale": 0.6316,
+      "canonical_gameplay_size": [
+        0.46,
+        0.57,
+        0.1877
+      ],
+      "exports": {
+        "glb": {
+          "path": "Exports/SHIELD.glb",
+          "sha256": "06a316b632fe7132f10f0058b6ccf9cac4bc00beda33d478a09e0a782eb28cf5",
+          "bytes": 37648
+        },
+        "fbx": {
+          "path": "Exports/SHIELD.fbx",
+          "sha256": "ffa8de797a3983e526a47aa8c48226a9fcc2626aabe54f43736f29e1da8db684",
+          "bytes": 40076
+        }
+      }
+    },
+    {
+      "triangles": 548,
+      "triangle_budget": 600,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "OvalBoardAndTimberRim.001",
+          "triangles": 428,
+          "vertices": 216,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.013415447700669467,
+          "materials": [
+            "PackingClub_Surface"
+          ]
+        },
+        {
+          "name": "InsetCreamStar.001",
+          "triangles": 36,
+          "vertices": 20,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.0001782401434051916,
+          "materials": [
+            "PackingClub_Wrap"
+          ]
+        },
+        {
+          "name": "BentBackStrap.001",
+          "triangles": 84,
+          "vertices": 44,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.0004708978676178308,
+          "materials": [
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.23000000417232513,
+          -0.06300001591444016,
+          0.0
+        ],
+        [
+          0.23000000417232513,
+          0.12464505434036255,
+          0.5699999928474426
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.23,
+          0.0,
+          -0.1246451
+        ],
+        [
+          0.23,
+          0.57,
+          0.063
+        ]
+      ],
+      "grip_game_metres": [
+        -0.0,
+        0.29,
+        -0.11
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          -1.7484555314695172e-07,
+          0.0,
+          -1.9233011627761698e-08
+        ],
+        [
+          1.7484555314695172e-07,
+          1.0,
+          0.0,
+          0.10999999940395355
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.28999999165534973
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 5.960464477539063e-08,
+      "item_id": "SHIELD",
+      "skin_id": "PackingClub",
+      "lod": 1,
+      "collection": "SHIELD_PackingClub_LOD1",
+      "original_collection": "SHIELD_Original",
+      "original": {
+        "path": "Source/original-SHIELD.glb",
+        "sha256": "c52b3c7c23f5cdd664bba168e11b1c803bfed57aee9cdd6a4b049f0fb58f5552",
+        "bytes": 21876
+      },
+      "held_scale": 0.6316,
+      "canonical_gameplay_size": [
+        0.46,
+        0.57,
+        0.1877
+      ],
+      "exports": {
+        "glb": {
+          "path": "Exports/SHIELD_LOD1.glb",
+          "sha256": "68f4675330730df1ecb9021109acef0d21729ce14dbd122b157ce5aeea9443d2",
+          "bytes": 24428
+        },
+        "fbx": {
+          "path": "Exports/SHIELD_LOD1.fbx",
+          "sha256": "d08c4942b7d7822d79e5d1c7606072e25d005cc0ef134a59af00dde7ad25c009",
+          "bytes": 31756
+        }
+      }
+    }
+  ]
+}

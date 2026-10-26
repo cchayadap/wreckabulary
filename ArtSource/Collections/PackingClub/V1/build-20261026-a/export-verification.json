@@ -1,0 +1,869 @@
+{
+  "created_utc": "2026-10-26T02:53:59Z",
+  "manifest_sha256": "2f4d46c37b9a5be21399fad5bd12ff17f2925a4f81b06c686606390530e98729",
+  "blender": "5.2.2 LTS",
+  "result": "PASS",
+  "checks": [
+    {
+      "item_id": "BAT",
+      "lod": 0,
+      "format": "glb",
+      "export_sha256": "223fdfa08af7db951941d17aed91cfb5824573a264a6befd245f59ac725650f2",
+      "result": "PASS",
+      "palette_bindings": [
+        {
+          "material": "PackingClub_Surface",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": false
+        },
+        {
+          "material": "PackingClub_Wrap",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": false
+        }
+      ],
+      "triangles": 1628,
+      "triangle_budget": 3000,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "BAT_PackingClubMesh",
+          "triangles": 1628,
+          "vertices": 982,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.012554849806802425,
+          "materials": [
+            "PackingClub_Surface",
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.0860000029206276,
+          -0.0860000029206276,
+          0.0
+        ],
+        [
+          0.0860000029206276,
+          0.0860000029206276,
+          1.0180000066757202
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.086,
+          0.0,
+          -0.086
+        ],
+        [
+          0.086,
+          1.018,
+          0.086
+        ]
+      ],
+      "grip_game_metres": [
+        0.0,
+        0.17,
+        -0.0
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 0.0
+    },
+    {
+      "item_id": "BAT",
+      "lod": 0,
+      "format": "fbx",
+      "export_sha256": "225a8b914c2b28dd08c117a348ed10dd400d9e1e61475d723f5ac73ef3f81709",
+      "result": "PASS",
+      "palette_bindings": [
+        {
+          "material": "PackingClub_Surface",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": true
+        },
+        {
+          "material": "PackingClub_Wrap",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": true
+        }
+      ],
+      "triangles": 1628,
+      "triangle_budget": 3000,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "BAT_PackingClubMesh",
+          "triangles": 1628,
+          "vertices": 820,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.012554461889989623,
+          "materials": [
+            "PackingClub_Surface",
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.0860000029206276,
+          -0.08600007742643356,
+          -1.736451760159241e-09
+        ],
+        [
+          0.0860000029206276,
+          0.08599993586540222,
+          1.0180000066757202
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.086,
+          -0.0,
+          -0.0859999
+        ],
+        [
+          0.086,
+          1.018,
+          0.0860001
+        ]
+      ],
+      "grip_game_metres": [
+        -0.0,
+        0.17,
+        0.0
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          6.357302595461078e-08,
+          -1.8000102344523268e-14,
+          -3.0600174832722503e-15
+        ],
+        [
+          -6.357302595461078e-08,
+          1.0,
+          -7.549790126404332e-08,
+          -1.2834643570158732e-08
+        ],
+        [
+          1.3200472311102659e-14,
+          7.549790126404332e-08,
+          1.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 7.450580596923828e-08
+    },
+    {
+      "item_id": "BAT",
+      "lod": 1,
+      "format": "glb",
+      "export_sha256": "2803670f2280ec451af5590c029826282d427983f0c3d6faee0e249dec4df41a",
+      "result": "PASS",
+      "palette_bindings": [
+        {
+          "material": "PackingClub_Surface",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": false
+        },
+        {
+          "material": "PackingClub_Wrap",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": false
+        }
+      ],
+      "triangles": 924,
+      "triangle_budget": 1200,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "BAT_PackingClubMesh",
+          "triangles": 924,
+          "vertices": 562,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.012336593626844833,
+          "materials": [
+            "PackingClub_Surface",
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.0860000029206276,
+          -0.0860000029206276,
+          0.0
+        ],
+        [
+          0.0860000029206276,
+          0.0860000029206276,
+          1.0180000066757202
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.086,
+          0.0,
+          -0.086
+        ],
+        [
+          0.086,
+          1.018,
+          0.086
+        ]
+      ],
+      "grip_game_metres": [
+        0.0,
+        0.17,
+        -0.0
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 0.0
+    },
+    {
+      "item_id": "BAT",
+      "lod": 1,
+      "format": "fbx",
+      "export_sha256": "72cde50fb37b7a0afaa5b7f9634be904c488fecc6a98bb614566e196947e7789",
+      "result": "PASS",
+      "palette_bindings": [
+        {
+          "material": "PackingClub_Surface",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": true
+        },
+        {
+          "material": "PackingClub_Wrap",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": true
+        }
+      ],
+      "triangles": 924,
+      "triangle_budget": 1200,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "BAT_PackingClubMesh",
+          "triangles": 924,
+          "vertices": 468,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.012336045029513996,
+          "materials": [
+            "PackingClub_Surface",
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.0860000029206276,
+          -0.08600007742643356,
+          -1.736451760159241e-09
+        ],
+        [
+          0.0860000029206276,
+          0.08599993586540222,
+          1.0180000066757202
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.086,
+          -0.0,
+          -0.0859999
+        ],
+        [
+          0.086,
+          1.018,
+          0.0860001
+        ]
+      ],
+      "grip_game_metres": [
+        -0.0,
+        0.17,
+        0.0
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          6.357302595461078e-08,
+          -1.8000102344523268e-14,
+          -3.0600174832722503e-15
+        ],
+        [
+          -6.357302595461078e-08,
+          1.0,
+          -7.549790126404332e-08,
+          -1.2834643570158732e-08
+        ],
+        [
+          1.3200472311102659e-14,
+          7.549790126404332e-08,
+          1.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 7.450580596923828e-08
+    },
+    {
+      "item_id": "SHIELD",
+      "lod": 0,
+      "format": "glb",
+      "export_sha256": "06a316b632fe7132f10f0058b6ccf9cac4bc00beda33d478a09e0a782eb28cf5",
+      "result": "PASS",
+      "palette_bindings": [
+        {
+          "material": "PackingClub_Surface",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": false
+        },
+        {
+          "material": "PackingClub_Wrap",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": false
+        }
+      ],
+      "triangles": 1044,
+      "triangle_budget": 1200,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "SHIELD_PackingClubMesh",
+          "triangles": 1044,
+          "vertices": 692,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.014187708523558983,
+          "materials": [
+            "PackingClub_Surface",
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.23000000417232513,
+          -0.06300001591444016,
+          0.0
+        ],
+        [
+          0.23000000417232513,
+          0.12464505434036255,
+          0.5699999928474426
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.23,
+          0.0,
+          -0.1246451
+        ],
+        [
+          0.23,
+          0.57,
+          0.063
+        ]
+      ],
+      "grip_game_metres": [
+        0.0,
+        0.29,
+        -0.11
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.10999999940395355
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.28999999165534973
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 0.0
+    },
+    {
+      "item_id": "SHIELD",
+      "lod": 0,
+      "format": "fbx",
+      "export_sha256": "ffa8de797a3983e526a47aa8c48226a9fcc2626aabe54f43736f29e1da8db684",
+      "result": "PASS",
+      "palette_bindings": [
+        {
+          "material": "PackingClub_Surface",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": true
+        },
+        {
+          "material": "PackingClub_Wrap",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": true
+        }
+      ],
+      "triangles": 1044,
+      "triangle_budget": 1200,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "SHIELD_PackingClubMesh",
+          "triangles": 1044,
+          "vertices": 528,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.014187708523558981,
+          "materials": [
+            "PackingClub_Surface",
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.23000001907348633,
+          -0.06300006061792374,
+          -2.415933009203286e-09
+        ],
+        [
+          0.23000000417232513,
+          0.12464503943920135,
+          0.5699999928474426
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.23,
+          -0.0,
+          -0.124645
+        ],
+        [
+          0.23,
+          0.57,
+          0.0630001
+        ]
+      ],
+      "grip_game_metres": [
+        0.0,
+        0.29,
+        -0.11
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          6.357302595461078e-08,
+          -1.8000102344523268e-14,
+          6.993026602231112e-09
+        ],
+        [
+          -6.357302595461078e-08,
+          1.0,
+          -7.549790126404332e-08,
+          0.10999997705221176
+        ],
+        [
+          1.3200472311102659e-14,
+          7.549790126404332e-08,
+          1.0,
+          0.28999999165534973
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 4.470348358154297e-08
+    },
+    {
+      "item_id": "SHIELD",
+      "lod": 1,
+      "format": "glb",
+      "export_sha256": "68f4675330730df1ecb9021109acef0d21729ce14dbd122b157ce5aeea9443d2",
+      "result": "PASS",
+      "palette_bindings": [
+        {
+          "material": "PackingClub_Surface",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": false
+        },
+        {
+          "material": "PackingClub_Wrap",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": false
+        }
+      ],
+      "triangles": 548,
+      "triangle_budget": 600,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "SHIELD_PackingClubMesh",
+          "triangles": 548,
+          "vertices": 372,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.014064585711692501,
+          "materials": [
+            "PackingClub_Surface",
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.23000000417232513,
+          -0.06300001591444016,
+          0.0
+        ],
+        [
+          0.23000000417232513,
+          0.12464505434036255,
+          0.5699999928474426
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.23,
+          0.0,
+          -0.1246451
+        ],
+        [
+          0.23,
+          0.57,
+          0.063
+        ]
+      ],
+      "grip_game_metres": [
+        0.0,
+        0.29,
+        -0.11
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.10999999940395355
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.28999999165534973
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 0.0
+    },
+    {
+      "item_id": "SHIELD",
+      "lod": 1,
+      "format": "fbx",
+      "export_sha256": "d08c4942b7d7822d79e5d1c7606072e25d005cc0ef134a59af00dde7ad25c009",
+      "result": "PASS",
+      "palette_bindings": [
+        {
+          "material": "PackingClub_Surface",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": true
+        },
+        {
+          "material": "PackingClub_Wrap",
+          "image_size": [
+            512,
+            512
+          ],
+          "max_decoded_channel_error": 0.0,
+          "decoded_rgba_sha256": "5f2e2edc3fc7bb10feb755fdd85d6c64734d644704d8b990251dc9fdb529f7f5",
+          "binding": "Principled Base Color <- Image Color",
+          "verified_external_reference": true
+        }
+      ],
+      "triangles": 548,
+      "triangle_budget": 600,
+      "materials": [
+        "PackingClub_Surface",
+        "PackingClub_Wrap"
+      ],
+      "parts": [
+        {
+          "name": "SHIELD_PackingClubMesh",
+          "triangles": 548,
+          "vertices": 280,
+          "nonmanifold_edges": 0,
+          "degenerate_triangles": 0,
+          "signed_volume": 0.014064585711692489,
+          "materials": [
+            "PackingClub_Surface",
+            "PackingClub_Wrap"
+          ]
+        }
+      ],
+      "bounds_blender": [
+        [
+          -0.23000001907348633,
+          -0.06300006061792374,
+          -2.415933009203286e-09
+        ],
+        [
+          0.23000000417232513,
+          0.12464503943920135,
+          0.5699999928474426
+        ]
+      ],
+      "bounds_game_metres": [
+        [
+          -0.23,
+          -0.0,
+          -0.124645
+        ],
+        [
+          0.23,
+          0.57,
+          0.0630001
+        ]
+      ],
+      "grip_game_metres": [
+        0.0,
+        0.29,
+        -0.11
+      ],
+      "grip_matrix_blender": [
+        [
+          1.0,
+          6.357302595461078e-08,
+          -1.8000102344523268e-14,
+          6.993026602231112e-09
+        ],
+        [
+          -6.357302595461078e-08,
+          1.0,
+          -7.549790126404332e-08,
+          0.10999997705221176
+        ],
+        [
+          1.3200472311102659e-14,
+          7.549790126404332e-08,
+          1.0,
+          0.28999999165534973
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "max_envelope_error_metres": 4.470348358154297e-08
+    }
+  ],
+  "expected_export_count": 8,
+  "checked_export_count": 8,
+  "verified_palette_sha256": "b97c6fd96bdce8b28fca81499c728f456576696a2f25304811b3e2c7e3077bde",
+  "unity_import": "NOT RUN",
+  "visual_acceptance": "PENDING OWNER REVIEW"
+}

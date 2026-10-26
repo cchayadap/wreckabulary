@@ -33,3 +33,15 @@ Capacity rerun is complete, not active: FFA8 passed; Freestyle8 gameplay reached
 Collection source is not generated art. Independent review requests a complete eight-export matrix and external palette/material checks before root runs Blender. Separate skin contract review identifies immutable public catalogue hashes, missing authoritative online outfit initialization and thrown appearance. Do not claim current shop choices synchronize online until that full seam is implemented/tested.
 
 Next recoverable action: finish portrait review, rerun idempotent story setup and correctly scoped MenuGui cases, capture actual shop/motion; build/verify/render new geometry after generator repair; preserve exact source receipts and update the Windows review build after green checks.
+
+## 2026-10-26 asset generation and preview diagnosis
+
+Packing Club build-a is now generated, not merely source: editable Blender file, preserved original references, palette, four item/LOD meshes and eight FBX/GLB exports are in `ArtSource/Collections/PackingClub/V1/build-20261026-a`. The exact eight-export verification passes. BAT LOD0/LOD1 have 1,628/924 triangles; SHIELD has 1,044/548. Both have two materials, preserved canonical envelopes/grips, and verified palette bindings. All sixteen matched original/candidate view renders completed. No Unity import, per-player skin selection or final visual acceptance is implied.
+
+Root directly inspected BAT and SHIELD three-quarter comparisons. Build-a is rejected for current visual quality: BAT's broad flat crown and plain finish lose the original's polish; SHIELD's oval silhouette loses the original's angular identity. Preserve build-a and its evidence. A separate build-b will soften BAT construction and retain the original angular shield with layered trim. Original runtime assets remain the default.
+
+Shop portrait renders ran but remain visually rejected. Increasing lights brightened clothes without correcting the flat grey face. The next diagnostic compares sampled animation, a manually evaluated playable, and a static baked pose under identical lights/framing. It does not alter original avatar materials, the palette or the other character-colour lane.
+
+Story setup repeat gate `023950` was cancelled after 434.8 seconds without progressing beyond IL postprocessor connectivity retries. The first setup passed and both story asset hashes remain unchanged. Repeat-idempotence is NOT-RUN; the cancellation is an infrastructure observation, not a failed idempotence assertion. The exact owned Unity process was stopped; unrelated processes and caches were preserved. Private evidence: `.harness/delivery/story-setup-cancel-20261026.json` and its hashed copied log.
+
+The additive six-outcome epilogue contract is approved for implementation in the isolated story lane. It will remain optional, use confirmed own-team state, distinguish actual delivery from progress-at-timeout, and never infer the unimplemented optional Restoration ending. Online cosmetics admission is being reviewed separately from geometry imports. No updated Windows build has been produced yet; the previous tested review build is intact.
