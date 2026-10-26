@@ -1,0 +1,114 @@
+{
+  "utc": "2026-10-26T17:45:26.921Z",
+  "status": "FAIL; native lease correction acceptance remains pending",
+  "gate": {
+    "cmd": "test editmode --cold --filter Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+    "rung": "R3",
+    "ok": false,
+    "exit": 1,
+    "verdict": "FAIL",
+    "utc": "2026-10-26T17:25:41Z",
+    "secs": 724.6,
+    "route": "cold",
+    "errors": [],
+    "failures": [
+      {
+        "name": "Wreckabulary.OnlineGameplayTests.WordboundNativeGameplayTests.TwoAuthenticatedPublicFfaIndividualsReachScoredWinAndConfirmDurableResult",
+        "message": "Timeout value of 600000 ms was exceeded. If this is intended, increase the timeout value using a TimeoutAttribute.\r\nTearDown :   Proof session/service cleanup must finish without failures.\r\n  Expected: 0\r\n  But was:  6",
+        "location": "Assets/_Project/Tests/OnlineGameplay/WordboundNativeGameplayTests.cs:713"
+      }
+    ],
+    "log": "Logs/gate_test_editmode_20261026T172541Z.log",
+    "evidence": [
+      "TestResults/editmode_20261026T172541Z.xml"
+    ],
+    "infra": null,
+    "slot": null,
+    "crashAfterQuit": false,
+    "refreshSecs": 54.9,
+    "tests": {
+      "total": 1,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0
+    }
+  },
+  "cleanup": "WORDBOUND_SERVICE_CLEANUP: failures=6; return=2; cancel=2; leave=2; dispose=0; clients=2; parties=2",
+  "powerEvents": [
+    {
+      "utc": "2026-10-26T17:37:37.0094891Z",
+      "eventId": 566,
+      "provider": "Microsoft-Windows-Kernel-Power",
+      "message": "The system session has transitioned from 7 to 8.\r\n\r\nReason PolicyChange \r\n\r\nBootId: 39"
+    },
+    {
+      "utc": "2026-10-26T17:37:37.0090842Z",
+      "eventId": 507,
+      "provider": "Microsoft-Windows-Kernel-Power",
+      "message": "The system is exiting Modern Standby \r\n\r\nReason: Lid."
+    },
+    {
+      "utc": "2026-10-26T17:37:36.3714912Z",
+      "eventId": 172,
+      "provider": "Microsoft-Windows-Kernel-Power",
+      "message": "Connectivity state in standby: Connected, Reason: None"
+    },
+    {
+      "utc": "2026-10-26T17:29:12.7971971Z",
+      "eventId": 172,
+      "provider": "Microsoft-Windows-Kernel-Power",
+      "message": "Connectivity state in standby: Disconnected, Reason: Adaptive Connected Standby"
+    },
+    {
+      "utc": "2026-10-26T17:29:07.4274312Z",
+      "eventId": 566,
+      "provider": "Microsoft-Windows-Kernel-Power",
+      "message": "The system session has transitioned from 6 to 7.\r\n\r\nReason SleepButton \r\n\r\nBootId: 39"
+    },
+    {
+      "utc": "2026-10-26T17:29:02.8087894Z",
+      "eventId": 506,
+      "provider": "Microsoft-Windows-Kernel-Power",
+      "message": "The system is entering Modern Standby \r\n\r\nReason: SC_MONITORPOWER."
+    },
+    {
+      "utc": "2026-10-26T17:29:02.7993011Z",
+      "eventId": 566,
+      "provider": "Microsoft-Windows-Kernel-Power",
+      "message": "The system session has transitioned from 5 to 6.\r\n\r\nReason SleepButton \r\n\r\nBootId: 39"
+    }
+  ],
+  "observedStartup": {
+    "elapsedSeconds": 555.543,
+    "maxFrameGapSeconds": 521.62,
+    "lifetimeCancelled": true
+  },
+  "raw": [
+    {
+      "path": "Logs/gate_test_editmode_20261026T172541Z.log",
+      "sha256": "7a57913aa4020447b12cc6d854996b1317b8c5a4e560848e06e7359baa62107d"
+    },
+    {
+      "path": "TestResults/editmode_20261026T172541Z.xml",
+      "sha256": "8f344eecd9a12137d74215b3ac7d580dd28d3f11615e75bd1b61562e423b8823"
+    },
+    {
+      "path": ".harness/delivery/completion-ffa-2026-10-26T17-25-41-589Z-start.json",
+      "sha256": "bc342f6be65be03f3453b410b2860317d30697313bcd5d2bb256b933d304e005"
+    },
+    {
+      "path": ".harness/delivery/completion-ffa-2026-10-26T17-25-41-589Z-end.json",
+      "sha256": "e6cff866a351f06d49fb2c02f04124daef7f7d5e88e6b372d406a2cb0ba5d506"
+    },
+    {
+      "path": ".harness/delivery/power-events-172541.json",
+      "sha256": "6fbc9d41fa7a40d58ce32382f20c210c1939c55f5b344211636aa443471e4857"
+    }
+  ],
+  "limits": [
+    "The operating system entered Modern Standby during the test and resumed after more than eight minutes.",
+    "The full scored finish was not reached. This failed run cannot prove or refute the lease correction under uninterrupted execution.",
+    "Six cleanup stages failed; exact external state must be read before a new test.",
+    "No timeout, service lease, power policy or other job was changed."
+  ]
+}

@@ -232,13 +232,30 @@ namespace Wreckabulary.OnlineGameplayTests
                             "The first restored physical motion phase must retain its committed frontier before time can advance.");
                 yield return Until(() => survivors.All(ExactBodies), "Reconcile every surviving peer's complete restored body ledger",
                     25, allowStoppedFirst: true);
+                var nativeSurvivors = survivors.Select(peer => peer.Runner.LocalPlayer).ToArray();
+                var signedSeats = live.Verified.Roster.Select(seat => (seat.PlayerId, seat.TeamId, seat.Slot)).ToArray();
+                Assert.IsTrue(replacement.Runner.IsRunning && replacement.Runner.IsServer);
+                Assert.AreEqual(survivors.Length, nativeSurvivors.Distinct().Count(),
+                    "Every survivor must own a distinct native PlayerRef after host replacement.");
+                CollectionAssert.AreEquivalent(survivors.Select(peer => peer.Actor),
+                    nativeSurvivors.Select(replacement.Runner.GetPlayerUserId),
+                    "Only the elected server resolves the complete authenticated survivor identities in Client/Server mode.");
                 foreach (var peer in survivors)
                 {
                     AssertBodies(peer, peer == replacement);
-                    Assert.AreEqual(survivors.Length, peer.Runner.ActivePlayers.Count());
-                    CollectionAssert.AreEquivalent(survivors.Select(p => p.Actor),
-                        peer.Runner.ActivePlayers.Select(peer.Runner.GetPlayerUserId));
-                    Assert.IsTrue(peer.Controller.Frame.Progress.Players.Where(p => p.Id != first.Actor).All(p => p.Connected));
+                    Assert.IsTrue(peer.Runner.IsRunning);
+                    Assert.AreEqual(peer == replacement, peer.Runner.IsServer);
+                    CollectionAssert.AreEquivalent(nativeSurvivors, peer.Runner.ActivePlayers,
+                        "Every survivor must observe exactly the restored native PlayerRef roster.");
+                    Assert.AreEqual(peer.Actor, peer.Runner.GetPlayerUserId(peer.Runner.LocalPlayer));
+                    Assert.IsTrue(replacement.Session.TryGetAdmittedActor(peer.Runner.LocalPlayer, out var admittedActor),
+                        "Every surviving native player must retain its authenticated admission on the replacement host.");
+                    Assert.AreEqual(peer.Actor, admittedActor);
+                    var frame = peer.Controller.Frame;
+                    Assert.AreEqual(live.Verified.Match.RosterHash, frame.Binding.RosterHash);
+                    CollectionAssert.AreEquivalent(signedSeats, frame.Binding.Seats.Select(seat => (seat.PlayerId, seat.Team, seat.Slot)));
+                    CollectionAssert.AreEquivalent(signedSeats, frame.Progress.Players.Select(player => (player.Id, player.Team, player.Slot)));
+                    Assert.IsTrue(frame.Progress.Players.Where(player => player.Id != first.Actor).All(player => player.Connected && !player.Returned));
                     Assert.IsFalse(peer.Controller.Frame.Progress.Players.Single(p => p.Id == first.Actor).Connected);
                     Assert.AreEqual(command.Sequence, peer.Controller.Frame.Commands.Frontiers[second.Actor]);
                     Assert.AreEqual(1, peer.Controller.Frame.Commands.Receipts.Count(r =>

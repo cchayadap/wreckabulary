@@ -4,6 +4,18 @@ Owner: James / SethyPagna. Updated 2026-10-27 (Asia/Hong_Kong).
 
 Legend: `[ ]` unfinished; `[~]` in progress; `[x]` completed with the stated evidence. Source completion is separate from player/release acceptance.
 
+## Current work — complete multiplayer and creator flows
+
+- [x] Audit the complete approved goal against current source and evidence. Full flagship matches, recovery timing, playable workshop starters, detailed asset states and eight-player performance remain unproved. [Scope audit](BuildNotes/completion-20261027/scope-audit.md).
+- [x] Re-run the relevant rules: combat, modes and snapshot cases pass **194/194**. Fresh full public FFA run **165734 fails during startup**, when the known writer lease expires; both clients/parties clean up successfully. It does not verify the scored finish. [Failure evidence](BuildNotes/completion-20261027/ffa-startup-failure-165734.json).
+- [~] Correct the larger-party recovery fixture to resolve authenticated remote identities on the elected server while retaining exact native/canonical roster and admission checks. Independent source review and R0 pass; native migration verification remains pending.
+- [~] Fix writer-renewal completion being delayed by Unity's synchronization context. The reviewed correction preserves expiry, cancellation and ownership fences; R0 and **222/222** focused rules tests pass, including 18 new regressions. Native acceptance remains pending: run172541 fails after Windows Modern Standby creates a **521.620-second** update gap; six cleanup stages fail. [Suspension evidence](BuildNotes/completion-20261027/ffa-suspended-172541.json).
+- [~] Prepare an immediately playable Race Circuit workshop starter, preserving existing documents/public content; prepare a bounds-preserving FAN LOD correction in separate drafts.
+
+The latest usable Windows build remains the lobby delivery below until a new runtime change passes its native and player checks. Other heavy jobs and unfinished assets remain preserved.
+
+Recovery snapshot `.harness/recovery/developer-workspace-2026-10-26T17-45-27-002Z` preserves and hash-verifies **828** modified/untracked files. No power settings or service timeouts changed. Inspect the abandoned test's remote state before its next run.
+
 ## Current delivery — lobby, play choices and settings
 
 Latest Windows review build: **20261026T164019Z**, source **abeba541**, Unity **6000.6.4f1**. [Try it](BuildNotes/client-view/TRY-WORDBOUND.md) · [Before/after viewer](BuildNotes/lobby-experience-20261026/REVIEW.html).

@@ -64,17 +64,14 @@ namespace Wreckabulary.Online
             public OnlineBootstrapBarrier Bootstrap;
             public Dictionary<PlayerRef, (string Actor, string Connection, string Epoch, string Host)> BootstrapConnections;
             public long RenewAt;
-            public OnlineCheckpointWriter Writer;
+            public OnlineWriterLease WriterLease;
+            public OnlineCheckpointWriter Writer => WriterLease?.Current;
             public OnlineCheckpointManifest Head;
             public OnlineCheckpointUpload Upload;
-            public bool CheckpointReady, WriterRenewing, HostAvailableSeen, CheckingHost;
+            public bool CheckpointReady, HostAvailableSeen, CheckingHost;
             public int HostPromptChecks;
-            public long WriterRenewAt;
-            public bool PollObserved, WriterRenewCompleted, WriterRenewFailed;
+            public bool PollObserved;
             public long LastPollAt, LastPollGap, MaxPollGap, WriterAcquiredAt;
-            public long WriterRenewAttempts, WriterRenewStartedAt, WriterRenewCompletedAt, WriterRenewErrorAt;
-            public long WriterRenewErrorStatus;
-            public string WriterRenewErrorType, WriterRenewErrorCode;
         }
         const int WireChannel = 0x57424e44;
         readonly Func<NetworkRunner> createRunner;
@@ -175,6 +172,7 @@ namespace Wreckabulary.Online
         long InvalidateRun()
         {
             var previous = activeRun;
+            previous?.WriterLease?.Retire();
             activeRun = null;
             runGeneration = checked(runGeneration + 1);
             previous?.Bootstrap?.Cancel();
@@ -245,8 +243,8 @@ namespace Wreckabulary.Online
             }
             catch (Exception error) { if (IsCurrent(run) && !reconnect) Fail(error); throw; }
         }
-        bool HasWriter(RunScope run) => IsCurrent(run) && run.Writer != null &&
-            run.Writer.PlayerId == checkpoints.LocalPlayerId && run.Writer.ExpiresAtMilliseconds > clock();
+        bool HasWriter(RunScope run) => IsCurrent(run) && run.WriterLease != null &&
+            run.WriterLease.IsLiveFor(checkpoints.LocalPlayerId);
         void RequireWriter(RunScope run, string term)
         {
             RequireCurrent(run);
@@ -270,8 +268,8 @@ namespace Wreckabulary.Online
                 }
             }
             RequireCurrent(run);
-            run.Writer = state.Writer; run.Head = state.Head;
-            run.WriterAcquiredAt = clock(); run.WriterRenewAt = run.WriterAcquiredAt + 5000;
+            run.WriterLease = new OnlineWriterLease(state.Writer, clock, run.Cancellation.Token); run.Head = state.Head;
+            run.WriterAcquiredAt = clock();
             RequireWriter(run, state.Writer.Term);
             if (state.Head != null)
             {
@@ -287,9 +285,10 @@ namespace Wreckabulary.Online
                 throw new InvalidOperationException("The departing host never committed the initial gameplay state.");
             await RefreshConnectionState(run);
             RequireWriter(run, state.Writer.Term);
-            var opened = await checkpoints.OpenAdmission(run.Writer, run.Cancellation.Token);
+            var opening = run.Writer;
+            var opened = await checkpoints.OpenAdmission(opening, run.Cancellation.Token);
             RequireWriter(run, state.Writer.Term);
-            run.Writer = opened.Writer; run.CheckpointReady = true;
+            run.WriterLease.OpenAdmission(opening, opened.Writer); run.CheckpointReady = true;
         }
         void PromptAdmission(RunScope run, PlayerRef peer)
         {
@@ -541,7 +540,7 @@ namespace Wreckabulary.Online
             }
             run.LastPollAt = now; run.PollObserved = true;
             if (run.Writer != null && !HasWriter(run)) { FailAt(WriterExpired(run), "writer-poll"); return; }
-            if (run.Writer != null && !run.WriterRenewing && clock() >= run.WriterRenewAt) _ = RenewWriter(run);
+            if (run.WriterLease != null && run.WriterLease.RenewalDue) _ = run.WriterLease.Renew(checkpoints.Renew);
             if (!run.CheckpointReady) return;
             if ((!gate.Started || run.InitialStarting) && clock() >= gate.Match.StartedAtMilliseconds + 90000)
             { Fail(new TimeoutException("The complete approved roster did not become ready.")); return; }
@@ -552,57 +551,30 @@ namespace Wreckabulary.Online
             if (!IsCurrent(run)) return;
             if (!run.Renewing && clock() >= run.RenewAt) _ = RenewConnections(run);
         }
-        async Task RenewWriter(RunScope run)
-        {
-            run.WriterRenewing = true; run.WriterRenewStartedAt = clock();
-            run.WriterRenewAt = run.WriterRenewStartedAt + 5000; run.WriterRenewAttempts++;
-            string term = run.Writer.Term;
-            try
-            {
-                var renewed = await checkpoints.Renew(run.Writer, run.Cancellation.Token);
-                RequireWriter(run, term);
-                run.Writer = renewed.Writer;
-            }
-            catch (Exception error)
-            {
-                run.WriterRenewFailed = true; run.WriterRenewErrorAt = clock();
-                run.WriterRenewErrorType = error switch {
-                    OnlineServiceException => nameof(OnlineServiceException),
-                    OperationCanceledException => nameof(OperationCanceledException),
-                    TimeoutException => nameof(TimeoutException),
-                    FormatException => nameof(FormatException),
-                    InvalidOperationException => nameof(InvalidOperationException),
-                    ArgumentException => nameof(ArgumentException),
-                    _ => "OtherException"
-                };
-                run.WriterRenewErrorCode = WriterRenewCode(error);
-                run.WriterRenewErrorStatus = error is OnlineServiceException service ? service.Status : 0;
-            }
-            finally
-            {
-                run.WriterRenewCompletedAt = clock(); run.WriterRenewCompleted = true;
-                run.WriterRenewing = false;
-            }
-        }
         Exception WriterExpired(RunScope run)
         {
             long now = clock();
+            var renewal = run.WriterLease.Observe();
             var error = new TimeoutException("Canonical writer lease expired.");
             error.Data["latestPollGapMilliseconds"] = run.LastPollGap;
             error.Data["maxPollGapMilliseconds"] = run.MaxPollGap;
             error.Data["leaseRemainingMilliseconds"] = run.Writer.ExpiresAtMilliseconds - now;
             error.Data["writerAcquiredOffsetMilliseconds"] = run.WriterAcquiredAt - now;
-            error.Data["writerRenewInFlight"] = run.WriterRenewing ? 1L : 0L;
-            error.Data["writerRenewAttempts"] = run.WriterRenewAttempts;
-            error.Data["writerRenewDueOffsetMilliseconds"] = run.WriterRenewAt - now;
-            if (run.WriterRenewAttempts > 0) error.Data["writerRenewStartedOffsetMilliseconds"] = run.WriterRenewStartedAt - now;
-            if (run.WriterRenewCompleted) error.Data["writerRenewCompletedOffsetMilliseconds"] = run.WriterRenewCompletedAt - now;
-            if (run.WriterRenewFailed)
+            error.Data["writerRenewInFlight"] = renewal.InFlight ? 1L : 0L;
+            error.Data["writerRenewAttempts"] = renewal.Attempts;
+            error.Data["writerRenewDueOffsetMilliseconds"] = renewal.DueAt - now;
+            if (renewal.Attempts > 0) error.Data["writerRenewStartedOffsetMilliseconds"] = renewal.StartedAt - now;
+            if (renewal.Completed) error.Data["writerRenewCompletedOffsetMilliseconds"] = renewal.CompletedAt - now;
+            if (renewal.Error != null)
             {
-                error.Data["writerRenewErrorOffsetMilliseconds"] = run.WriterRenewErrorAt - now;
-                error.Data["writerRenewErrorHttpStatus"] = run.WriterRenewErrorStatus;
-                error.Data["writerRenewErrorType"] = run.WriterRenewErrorType;
-                error.Data["writerRenewErrorCode"] = run.WriterRenewErrorCode;
+                error.Data["writerRenewErrorOffsetMilliseconds"] = renewal.ErrorAt - now;
+                error.Data["writerRenewErrorHttpStatus"] = renewal.Error is OnlineServiceException service ? service.Status : 0;
+                error.Data["writerRenewErrorType"] = renewal.Error switch {
+                    OnlineServiceException => nameof(OnlineServiceException), OperationCanceledException => nameof(OperationCanceledException),
+                    TimeoutException => nameof(TimeoutException), FormatException => nameof(FormatException),
+                    InvalidOperationException => nameof(InvalidOperationException), ArgumentException => nameof(ArgumentException), _ => "OtherException"
+                };
+                error.Data["writerRenewErrorCode"] = WriterRenewCode(renewal.Error);
             }
             return error;
         }

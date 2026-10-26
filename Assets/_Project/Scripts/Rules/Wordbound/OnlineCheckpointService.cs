@@ -27,6 +27,15 @@ namespace Wreckabulary.Rules.Wordbound
         public long ExpiresAtMilliseconds { get; }
         public string BaseHeadId { get; }
         public bool AdmissionOpen { get; }
+        internal OnlineCheckpointWriter(OnlineCheckpointWriter source, long expiresAtMilliseconds, bool admissionOpen)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (expiresAtMilliseconds < source.ExpiresAtMilliseconds || source.AdmissionOpen && !admissionOpen)
+                throw new ArgumentException("Writer lease state cannot regress.");
+            PlayerId = source.PlayerId; ClaimId = source.ClaimId; Term = source.Term; Epoch = source.Epoch;
+            BaseHeadId = source.BaseHeadId; ExpiresAtMilliseconds = expiresAtMilliseconds; AdmissionOpen = admissionOpen;
+        }
+
         internal OnlineCheckpointWriter(JsonNode node)
         {
             OnlineCheckpointJson.Fields(node, "playerId", "claimId", "term", "epoch", "expiresAt", "baseHeadId", "admissionOpen");
