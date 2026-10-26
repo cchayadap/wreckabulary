@@ -236,8 +236,13 @@ namespace Wreckabulary.EditorTools
                 holder = new GameObject("Courier " + result.control) { hideFlags = HideFlags.HideAndDontSave };
                 preview.AddSingleGO(holder);
                 if (holder.scene != scene) throw new InvalidOperationException("Avatar holder did not enter the owned preview scene.");
-                var model = ModelVisual.Spawn("Avatar/Avatar", holder.transform);
+                var original = ModelLibrary.Load().Find("Avatar/Avatar");
+                var model = original ? Object.Instantiate(original, holder.transform, false) : null;
                 if (!model) throw new InvalidOperationException("Original avatar spawn failed.");
+                model.name = original.name;
+                foreach (var collider in model.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
+                var materialLibrary = MaterialLibrary.Load();
+                if (materialLibrary) materialLibrary.ApplySkin(model, MaterialLibrary.StandardSkin);
                 idle.SampleAnimation(model, 0);
                 PlayerAppearance.Dress(model.GetComponentsInChildren<SkinnedMeshRenderer>(true), outfit);
                 holder.transform.rotation = Quaternion.Euler(0, 160, 0);

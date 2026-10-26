@@ -30,6 +30,41 @@ namespace Wreckabulary.Tests
         [TearDown]
         public void TearDown() { if (anchor) Object.DestroyImmediate(anchor); }
 
+        [Test]
+        public void WrappedPlayerAdmitsOnlyTheExactSavedHeadCorrection()
+        {
+            var correction = AvatarSurfaceProfile.Load();
+            Assert.IsNotNull(correction, "Create the saved avatar surface correction before this native test.");
+            var source = ModelLibrary.Load().Find(WordboundVisualResolver.AvatarKey);
+            using var visual = resolver.Create("player", new Vector3(.7f, 1.8f, .7f), anchor.transform);
+            Mesh[] Read(GameObject root) => root.GetComponentsInChildren<MeshFilter>(true).Select(filter => filter.sharedMesh)
+                .Concat(root.GetComponentsInChildren<SkinnedMeshRenderer>(true).Select(renderer => renderer.sharedMesh)).ToArray();
+            var expected = Read(source);
+            Assert.AreNotSame(visual.Root, visual.Model);
+            Assert.IsTrue(visual.Model.transform.IsChildOf(visual.Root.transform));
+            Assert.IsTrue(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
+            var head = visual.Model.transform.Find(correction.RendererPath).GetComponent<SkinnedMeshRenderer>();
+            var custom = Object.Instantiate(head.sharedMesh);
+            try
+            {
+                head.sharedMesh = custom;
+                Assert.IsFalse(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
+                head.sharedMesh = correction.CorrectedMesh;
+                var other = visual.Model.GetComponentsInChildren<SkinnedMeshRenderer>(true).First(renderer => renderer != head);
+                var originalOther = other.sharedMesh;
+                other.sharedMesh = custom;
+                Assert.IsFalse(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
+                other.sharedMesh = originalOther;
+                var impostor = new GameObject("Unrelated head"); impostor.transform.SetParent(visual.Root.transform, false);
+                impostor.AddComponent<MeshFilter>().sharedMesh = correction.CorrectedMesh;
+                Assert.IsFalse(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
+                Object.DestroyImmediate(impostor);
+                Assert.IsTrue(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
+            }
+            finally { head.sharedMesh = correction.CorrectedMesh; Object.DestroyImmediate(custom); }
+            Assert.AreSame(correction.SourceMesh, source.transform.Find(correction.RendererPath).GetComponent<SkinnedMeshRenderer>().sharedMesh);
+        }
+
         [TestCase("BAT"), TestCase("BROOM"), TestCase("HAMMER"), TestCase("SPEAR")]
         [TestCase("SHIELD"), TestCase("PLATE"), TestCase("TABLE"), TestCase("SOFA")]
         [TestCase("BED"), TestCase("STOOL"), TestCase("FAN"), TestCase("CLOCK")]

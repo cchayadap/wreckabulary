@@ -85,6 +85,7 @@ namespace Wreckabulary.Online.Editor
                 var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f),
                     Anchor(stage.transform, "Avatar", new Vector3(-.1f, 0, .7f)));
                 visuals.Add(avatar);
+                RestoreOriginalHeadForBaseline(avatar.Model);
                 AssertOriginal(avatar, WordboundVisualResolver.AvatarKey);
                 avatar.Dress("");
                 var skinned = avatar.Model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
@@ -129,6 +130,7 @@ namespace Wreckabulary.Online.Editor
                     course = AssetFact(course), profile = AssetFact(profile), artwork = profile.BaseArtwork.ToString(),
                     scope = "Isolated Editor PreviewRenderUtility; neutral preview lighting, not Windows gameplay or owner acceptance.",
                     geometryEvidence = "Original shared Mesh identity and transformed mesh/renderer bounds; no new vertex scan or physics coverage.",
+                    avatarSurface = "Original imported head explicitly retained; the saved surface correction is excluded from this original-art baseline.",
                     cameraSettings = new { fov = camera.fieldOfView, near = camera.nearClipPlane, far = camera.farClipPlane,
                         hdr = camera.allowHDR, msaa = camera.allowMSAA, cameraType = camera.cameraType.ToString() },
                     lights = preview.lights.Select(l => new { l.intensity, color = ColorFact(l.color),
@@ -286,6 +288,19 @@ namespace Wreckabulary.Online.Editor
             material.SetColor("_BaseColor", new Color(.32f, .34f, .35f, 1)); material.SetFloat("_Smoothness", .15f);
             ground.GetComponent<Renderer>().sharedMaterial = material;
             return material;
+        }
+        static void RestoreOriginalHeadForBaseline(GameObject instance)
+        {
+            var correction = AvatarSurfaceProfile.Load();
+            if (!correction || correction.SourceAvatar != ModelLibrary.Load().Find(WordboundVisualResolver.AvatarKey)) return;
+            var target = instance.transform.Find(correction.RendererPath);
+            var skin = target ? target.GetComponent<SkinnedMeshRenderer>() : null;
+            if (!skin || skin.sharedMesh != correction.CorrectedMesh) return;
+            var weights = Enumerable.Range(0, skin.sharedMesh.blendShapeCount).Select(skin.GetBlendShapeWeight).ToArray();
+            var bounds = skin.localBounds;
+            skin.sharedMesh = correction.SourceMesh;
+            for (int i = 0; i < weights.Length; i++) skin.SetBlendShapeWeight(i, weights[i]);
+            skin.localBounds = bounds;
         }
         static void AssertOriginal(WordboundVisualInstance visual, string modelKey)
         {

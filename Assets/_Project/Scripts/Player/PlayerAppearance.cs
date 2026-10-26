@@ -112,7 +112,13 @@ namespace Wreckabulary
                 foreach (var renderer in controller.visual.GetComponentsInChildren<Renderer>(true)) oldRenderers.Add(renderer);
                 createdRoot = new GameObject("ImportedAvatar");
                 createdRoot.transform.SetParent(controller.visual, false);
-                model = ModelVisual.Spawn(AvatarKey, createdRoot.transform);
+                try { model = ModelVisual.Spawn(AvatarKey, createdRoot.transform); }
+                catch
+                {
+                    createdRoot.SetActive(false);
+                    if (Application.isPlaying) Destroy(createdRoot); else DestroyImmediate(createdRoot);
+                    throw;
+                }
             }
             var animator = model ? model.GetComponentInChildren<Animator>(true) : null;
             if (!animator)
@@ -122,6 +128,7 @@ namespace Wreckabulary
                 clips.Clear();
                 return false;
             }
+            AvatarSurfaceProfile.ApplyDefault(AvatarKey, library.Find(AvatarKey), model);
             meshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             gripL = ModelVisual.FindNamed(model, "grip_L");
             gripR = ModelVisual.FindNamed(model, "grip_R");

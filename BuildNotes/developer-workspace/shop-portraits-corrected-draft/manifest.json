@@ -1,0 +1,12 @@
+{
+  "status": "DRAFT_SOURCE_REVIEW_ONLY",
+  "requires": "Avatar follow-up VerifyExistingProfile(required:true)",
+  "files": [
+    {
+      "path": "Assets/_Project/Editor/Art/ShopPreviewImporter.cs",
+      "baseline_sha256": "3f9a9c396895e6b880dd831461eed409edf6704a7f15324ab2bbf6fe87d10aa5",
+      "candidate_sha256": "fdb8e3e0aad9ad5e03d32f87346419357a9287ed3a4865a526cf7c6908b3f7b0"
+    }
+  ],
+  "patch_sha256": "2c3c855dd172d275e0526cde4a3d4f8078d26dbf165da6c06cc782547dc9a80b"
+}

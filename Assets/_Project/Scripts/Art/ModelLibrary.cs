@@ -72,6 +72,12 @@ namespace Wreckabulary.Art
             if (model == null) throw new KeyNotFoundException($"No imported model '{key}'. Run Wreckabulary > Art > Set Up Imported Art.");
             var copy = Instantiate(model, parent, false);
             copy.name = model.name;
+            try { AvatarSurfaceProfile.ApplyDefault(key, model, copy); }
+            catch
+            {
+                if (Application.isPlaying) Destroy(copy); else DestroyImmediate(copy);
+                throw;
+            }
             return copy;
         }
     }

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1778bd0dd71d6164cb5c264a8afbf022, type: 3}
+  m_Name: AvatarSurfaceCorrection
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Art.AvatarSurfaceProfile
+  enabledCorrection: 1
+  sourceAvatar: {fileID: -927199367670048503, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+  sourceMesh: {fileID: -684113609132706392, guid: 135c19a8edb14d98112c58a9f53fb0f4, type: 3}
+  correctedMesh: {fileID: 4300000, guid: 42e4fe0277ce43646a240221690641d6, type: 2}
+  rendererPath: SK_Head
+  sourceFingerprint: 997ebb6a6441b01f9a673683405a7b99678b6c272099068ed786a134d5cfe65f

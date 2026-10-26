@@ -45,6 +45,7 @@ namespace Wreckabulary.EditorTools
             }
             else
             {
+                AvatarSurfaceCorrectionSetup.VerifyExistingProfile();
                 wrapper = new GameObject("ImportedAvatar").transform;
                 wrapper.SetParent(player.visual, false);
                 model = InstantiateAvatar(wrapper);
@@ -70,6 +71,7 @@ namespace Wreckabulary.EditorTools
                 var existing = parent.Find(PreviewName);
                 if (existing) return existing.gameObject;
             }
+            AvatarSurfaceCorrectionSetup.VerifyExistingProfile();
             var preview = new GameObject(PreviewName) { tag = "EditorOnly" };
             preview.transform.SetParent(parent, false);
             var model = InstantiateAvatar(preview.transform);
@@ -99,6 +101,15 @@ namespace Wreckabulary.EditorTools
             var asset = library ? library.Find("Avatar/Avatar") : null;
             if (!asset) throw new InvalidOperationException("Run Set Up Imported Art before authoring the player.");
             var model = (GameObject)PrefabUtility.InstantiatePrefab(asset, parent);
+            try
+            {
+                if (AvatarSurfaceProfile.ApplyDefault("Avatar/Avatar", asset, model))
+                {
+                    var profile = AvatarSurfaceProfile.Load();
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(model.transform.Find(profile.RendererPath).GetComponent<SkinnedMeshRenderer>());
+                }
+            }
+            catch { UnityEngine.Object.DestroyImmediate(model); throw; }
             foreach (var collider in model.GetComponentsInChildren<Collider>(true))
             {
                 collider.enabled = false;

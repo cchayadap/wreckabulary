@@ -1,0 +1,100 @@
+diff --git a/Assets/_Project/Editor/Art/HouseholdReviewCapture.cs b/Assets/_Project/Editor/Art/HouseholdReviewCapture.cs
+index ea48b63e..9247d0d5 100644
+--- a/Assets/_Project/Editor/Art/HouseholdReviewCapture.cs
++++ b/Assets/_Project/Editor/Art/HouseholdReviewCapture.cs
+@@ -15,11 +15,12 @@ namespace Wreckabulary.EditorTools
+ {
+     public static class HouseholdReviewCapture
+     {
+-        const string Output = "BuildNotes/asset-expansion/household-capture/capture-01";
++        const string Output = "BuildNotes/asset-expansion/household-capture/capture-02";
+         const string ScriptPath = "Assets/_Project/Editor/Art/HouseholdReviewCapture.cs";
+         const int Width = 1280, Height = 800;
+         static readonly string[] Ids = { "kitchenStove", "kitchenFridge", "kitchenCabinet", "bookcaseClosedDoors", "cabinetBedDrawer", "pottedPlant", "bench", "cardboardBoxClosed" };
+         static readonly string[] Categories = { "Kitchen", "Kitchen", "Kitchen", "Attic", "Attic", "Rooftop", "Rooftop", "PackingYard" };
++        static readonly Vector3 FrontOffset = new Vector3(-1.1f, .7f, 1.7f), RearOffset = new Vector3(1.1f, .7f, -1.7f);
+         [Serializable] sealed class FileProof { public string path, before, after; public bool unchanged; }
+         [Serializable] sealed class MaterialProof
+         {
+@@ -29,7 +30,7 @@ [Serializable] sealed class MaterialProof
+         [Serializable] sealed class Member { public string id; public Bounds bounds; public Vector3 scale; }
+         [Serializable] sealed class View
+         {
+-            public string name, image, sha256, imageGraphicsFormat, error = ""; public Bounds bounds; public Vector3 cameraPosition, cameraEuler;
++            public string name, pair, orientation, image, sha256, imageGraphicsFormat, error = ""; public Bounds bounds; public Vector3 cameraPosition, cameraEuler, cameraOffsetDirection;
+             public float orthographicSize; public int distinctRgb, bytes, remainingClones; public bool previewClosed;
+             public bool imageIsDataSRGB;
+             public Color ambient; public float[] lightIntensities; public Vector3[] lightEuler;
+@@ -38,7 +39,7 @@ [Serializable] sealed class View
+         [Serializable] sealed class Report
+         {
+             public string utc, unity, graphics, colorSpace, status = "IN_PROGRESS", error = "", globalBefore, globalAfter;
+-            public string scope = "Four isolated Editor previews of actual saved Household prefabs and materials. No material recolor, resizing, physics simulation, gameplay or visual-acceptance claim. No game-save preferences accessed; async shader setting restored.";
++            public string scope = "Eight isolated Editor previews in matched front/rear pairs. Camera +Z/-X is the front candidate; -Z/+X repeats the rear baseline; both retain +Y elevation. Actual saved prefabs/materials, with no recolor, resizing, physics simulation, gameplay or visual-acceptance claim. No game-save preferences accessed; async shader setting restored.";
+             public bool sourceAndGlobalPreserved; public int width = Width, height = Height;
+             public string[] excludedNonFileDependencies;
+             public List<FileProof> files = new List<FileProof>(); public List<MaterialProof> materials = new List<MaterialProof>();
+@@ -93,10 +94,10 @@ public static void Run()
+             try
+             {
+                 EditorSettings.asyncShaderCompilation = false;
+-                Capture(report, folder, "gallery", prefabs, Enumerable.Range(0, 8).ToArray(), 4);
+-                Capture(report, folder, "kitchen", prefabs, new[] { 0, 1, 2 }, 3);
+-                Capture(report, folder, "attic", prefabs, new[] { 3, 4 }, 2);
+-                Capture(report, folder, "rooftop-parcel", prefabs, new[] { 5, 6, 7 }, 3);
++                CapturePair(report, folder, "gallery", prefabs, Enumerable.Range(0, 8).ToArray(), 4);
++                CapturePair(report, folder, "kitchen", prefabs, new[] { 0, 1, 2 }, 3);
++                CapturePair(report, folder, "attic", prefabs, new[] { 3, 4 }, 2);
++                CapturePair(report, folder, "rooftop-parcel", prefabs, new[] { 5, 6, 7 }, 3);
+                 report.status = "CAPTURED_NOT_VISUALLY_APPROVED";
+             }
+             catch (Exception error) { report.error = error.ToString(); report.status = "FAIL"; }
+@@ -126,12 +127,26 @@ public static void Run()
+                 WriteNew(Path.Combine(folder, "receipt.json"), Encoding.UTF8.GetBytes(JsonUtility.ToJson(report, true)));
+             }
+             if (report.status == "FAIL") throw new InvalidOperationException("Household review capture failed; retain evidence at " + folder + "\n" + report.error);
+-            Debug.Log("HOUSEHOLD_REVIEW_CAPTURE: " + folder + "; images=4; preserved=true; art acceptance pending.");
++            Debug.Log("HOUSEHOLD_REVIEW_CAPTURE: " + folder + "; images=8; matchedPairs=4; preserved=true; art acceptance pending.");
+         }
+ 
+-        static void Capture(Report report, string folder, string name, GameObject[] prefabs, int[] indices, int columns)
++        static void CapturePair(Report report, string folder, string name, GameObject[] prefabs, int[] indices, int columns)
+         {
+-            var result = new View { name = name, image = name + ".png" }; report.views.Add(result);
++            int start = report.views.Count;
++            Capture(report, folder, name, prefabs, indices, columns, true);
++            Capture(report, folder, name, prefabs, indices, columns, false);
++            var front = report.views[start]; var rear = report.views[start + 1];
++            if (Vector3.Distance(front.bounds.center, rear.bounds.center) > .0001f || Vector3.Distance(front.bounds.size, rear.bounds.size) > .0001f ||
++                Mathf.Abs(front.orthographicSize - rear.orthographicSize) > .0001f)
++                throw new InvalidOperationException("Front/rear capture changed geometry bounds or matched framing: " + name);
++        }
++
++        static void Capture(Report report, string folder, string name, GameObject[] prefabs, int[] indices, int columns, bool front)
++        {
++            string viewName = name + (front ? "-front" : "-rear");
++            var offset = front ? FrontOffset : RearOffset;
++            var result = new View { name = viewName, pair = name, image = viewName + ".png", cameraOffsetDirection = offset,
++                orientation = front ? "+Z/-X front candidate, +Y elevation" : "-Z/+X rear baseline, +Y elevation" }; report.views.Add(result);
+             PreviewRenderUtility preview = null; Texture2D image = null; bool begun = false; Scene scene = default;
+             var clones = new List<GameObject>();
+             try
+@@ -151,10 +166,14 @@ static void Capture(Report report, string folder, string name, GameObject[] pref
+                 var camera = preview.camera; camera.aspect = (float)Width / Height; camera.orthographic = true;
+                 camera.nearClipPlane = .03f; camera.farClipPlane = 100f; camera.clearFlags = CameraClearFlags.SolidColor;
+                 camera.backgroundColor = new Color(.075f, .09f, .11f); camera.allowHDR = false; camera.allowMSAA = false;
+-                camera.transform.position = result.bounds.center + new Vector3(1.1f, .7f, -1.7f).normalized * Mathf.Max(12f, result.bounds.size.magnitude * 1.5f);
+-                camera.transform.LookAt(result.bounds.center); float frame = .25f;
+-                foreach (var point in Corners(result.bounds))
+-                { var local = camera.transform.InverseTransformPoint(point); frame = Mathf.Max(frame, Mathf.Abs(local.y), Mathf.Abs(local.x) / camera.aspect); }
++                float distance = Mathf.Max(12f, result.bounds.size.magnitude * 1.5f), frame = .25f;
++                foreach (var side in new[] { FrontOffset, RearOffset })
++                {
++                    camera.transform.position = result.bounds.center + side.normalized * distance; camera.transform.LookAt(result.bounds.center);
++                    foreach (var point in Corners(result.bounds))
++                    { var local = camera.transform.InverseTransformPoint(point); frame = Mathf.Max(frame, Mathf.Abs(local.y), Mathf.Abs(local.x) / camera.aspect); }
++                }
++                camera.transform.position = result.bounds.center + offset.normalized * distance; camera.transform.LookAt(result.bounds.center);
+                 camera.orthographicSize = frame * 1.12f; result.orthographicSize = camera.orthographicSize;
+                 result.cameraPosition = camera.transform.position; result.cameraEuler = camera.transform.eulerAngles;
+                 preview.BeginStaticPreview(new Rect(0, 0, Width, Height)); begun = true;

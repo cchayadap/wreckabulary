@@ -1,0 +1,36 @@
+{
+  "status": "DRAFT_SOURCE_REVIEW_ONLY",
+  "files": [
+    {
+      "path": "Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs",
+      "baseline_sha256": "d8bde1bf45f5967292979057e7f1e8454d91210f933293c76a0f557cc6d38b73",
+      "candidate_sha256": "ac78aefc9926537c2209acb896581ce916564f5b01c5c2ffcb3f7320acebe2dd"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/PlayerAuthoring.cs",
+      "baseline_sha256": "b91d67a97b55d58b4891a27c84ccab370048cfef41b9efe3c27e4deae996b63a",
+      "candidate_sha256": "a4d14f5aac55b82c1e434a7d366d83fa4aa362f823c69413c9f8e6d75300124c"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/AvatarSurfaceValidationGuard.cs",
+      "baseline_sha256": null,
+      "candidate_sha256": "ac03d1c6c3387d8f40680c5107cef7ab543b519fca22bb525decebea69da6457"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/AvatarSurfaceValidationTests.cs",
+      "baseline_sha256": null,
+      "candidate_sha256": "93c6c57ad2f30504021137bfb881d6f5d0aec72c0e8da2b3549d4f35b747716d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs",
+      "baseline_sha256": "8a679c77fefdbca1ca5788350f71ee6c3bce2b39ff667577b1a17ab8ca66ba64",
+      "candidate_sha256": "f2340367c62a77f3c390928d07f8d6d40bb47f4323a191bba76e884ad90e1bf3"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Presentation/Tests/WordboundPresentationTests.cs",
+      "baseline_sha256": "682fea5ec55124bde7dfe87676533463931ebe82c35dc0d81acd9a463e0e32e1",
+      "candidate_sha256": "eddeae549296b5fefd6866160c6468c9ef3905b0d85eec02713e047c949dd5d2"
+    }
+  ],
+  "patch_sha256": "0526660fdaf20b070354d37b3f8bfce04939c50053a6b6cfc382f9a292e9537f"
+}

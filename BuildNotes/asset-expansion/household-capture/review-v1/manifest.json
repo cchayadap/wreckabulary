@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "status": "DRAFT_NOT_APPLIED",
+  "createdUtc": "2026-10-26T11:03:12.567Z",
+  "file": {
+    "target": "Assets/_Project/Editor/Art/HouseholdReviewCapture.cs",
+    "draft": "draft/Assets/_Project/Editor/Art/HouseholdReviewCapture.cs",
+    "sha256": "a130f1f8ff2a8e520ec2aef076e6f487f02b9f5c70e140a3e4150e4752d8f712",
+    "bytes": 18517,
+    "lines": 214
+  },
+  "patch": {
+    "path": "patch",
+    "sha256": "af26e284971adc517a8ab9b91f0176cbc1e97dcc0321cb659cd75323b151866a"
+  },
+  "dependencies": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/WordboundHouseholdSetup.cs",
+      "sha256": "35d7614165efa3429f3e045d23d7adee0bad48e47be904d99c6a88f15341efda"
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs",
+      "sha256": "28be4af2ed60b79572819ac6874e1494752722c8f8474fcc7826d91ddffebe07"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundOriginalArtworkCapture.cs",
+      "sha256": "6f02411f51446e487f0d34d19580f5f670ce77963c35b8eda71688ced224fc51"
+    }
+  ],
+  "verification": {
+    "nativeCompile": "NOT-RUN",
+    "nativeCapture": "NOT-RUN",
+    "imageInspection": "NOT-RUN",
+    "sourceReview": "PENDING"
+  }
+}

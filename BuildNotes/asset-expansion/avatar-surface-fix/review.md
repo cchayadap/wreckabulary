@@ -1,6 +1,6 @@
 # Avatar surface correction independent review
 
-STATUS: SOURCE REVIEW REOPENED — root subsequently identified the actual-player wrapper mismatch below. The prior no-blocker verdict for the eleven-file draft is superseded pending a reviewed follow-up. Native compile/generation/tests and visual acceptance remain NOT-RUN by this reviewer. No live source edits.
+STATUS: FOLLOW-UP SOURCE REVIEW COMPLETE — the original eleven-file draft requires the subsequently reviewed six-file follow-up for the actual-player wrapper mismatch below and stale-source guarding. The earlier standalone no-blocker verdict is superseded. Follow-up native tests and visual acceptance remain NOT-RUN by this reviewer. No live source edits.
 
 Final review target: [avatar-surface-fix.patch](avatar-surface-fix.patch), SHA-256 `3df3e6f1b606bcbb3287ce50922ea1d547151a03ee471f979588fd1ea2f4f69d`, with all eleven candidate file hashes verified against [manifest.json](manifest.json). The initial nine-file draft was `2646d783fe9563738601af3468de23d5153d3cbeb520ddce99d51b6fee1fed20`.
 
@@ -11,6 +11,10 @@ Scope: original source and rig preservation, base and blendshape surface generat
 `WordboundOriginalEquipmentView.Artwork` returns the outer **Wordbound artwork player** object. `Observe` passes it to `MatchesOnlyBoundHeadReplacement`, but that helper searches `instance.transform.Find(rendererPath)`, with `rendererPath` relative to the inner original avatar. The actual resolver hierarchy is **Wordbound artwork player → Shape fit → Authored orientation → Avatar → SK_Head**. Therefore a correctly corrected actual Windows player fails the helper even though its collected mesh list has the intended single replacement.
 
 The initial independent review missed this caller shape: its inspected regression used a raw avatar root, so it could not expose this mismatch. Root requested a bounded fix and a regression exercising an actual `WordboundVisualResolver`-created wrapper and the same full mesh traversal as the QA caller. The guard/importer follow-up review is recorded in `BuildNotes/restart-20261026/guard-review.progress.md`; no live fix was made by this reviewer.
+
+The reviewed follow-up patch `317177d90adccb33837c1b1e0ae2e0592cb41152a3729b09c98d69064cb69fc4` resolves this caller shape in source: it locates exactly one corrected renderer below the actual wrapper while retaining exact ordered mesh-reference checks. Its new test creates the real resolver wrapper and rejects custom, second and extra mesh changes. Six file hashes, syntax with Editor/QA/test symbols and strict patch application pass; root must still run the new regression. The same follow-up adds read-only full-content checks before Play, build and new authoring creation, with two focused validation tests. Full review is in the lane progress report above.
+
+Final follow-up patch `0526660fdaf20b070354d37b3f8bfce04939c50053a6b6cfc382f9a292e9537f` adds an explicit disabled-profile policy and a third focused validation test. Optional verification allows a deliberately disabled correction; required corrected-portrait verification rejects it. Disabling only stops automatic assignment on new/raw spawns, while existing saved renderer overrides remain assigned until explicitly changed. The six final hashes match the manifest, Editor/QA/test syntax checks pass, live files match the candidate ignoring line endings, and reverse strict patch checking passes after root's integration. No blocking source finding remains in this reviewed follow-up; native regression results are not claimed by this reviewer.
 
 ## Confirmed source findings
 

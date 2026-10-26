@@ -1,0 +1,291 @@
+diff --git a/Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs b/Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs
+--- a/Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs
++++ b/Assets/_Project/Editor/Art/AvatarSurfaceCorrectionSetup.cs
+@@ -97,15 +97,58 @@
+             }
+         }
+ 
++        public static AvatarSurfaceProfile VerifyExistingProfile(bool required = false)
++        {
++            var stored = AssetDatabase.LoadMainAssetAtPath(ProfilePath);
++            if (!stored)
++            {
++                if (required || File.Exists(ProfilePath) || File.Exists(ProfilePath + ".meta"))
++                    throw new InvalidOperationException("Create or repair the saved avatar surface profile before this operation.");
++                return null;
++            }
++            if (stored is not AvatarSurfaceProfile profile) throw new InvalidOperationException("Invalid saved avatar surface profile.");
++            return VerifyProfile(profile, required);
++        }
++
++        public static AvatarSurfaceProfile VerifyProfile(AvatarSurfaceProfile profile, bool required = false)
++        {
++            if (!profile) throw new InvalidOperationException("Avatar surface profile is missing.");
++            if (!profile.EnabledCorrection)
++            {
++                if (required) throw new InvalidOperationException("This operation requires the saved avatar surface correction to be enabled.");
++                return null;
++            }
++            if (!profile.TryValidate(out _)) throw new InvalidOperationException("Invalid saved avatar surface profile.");
++            var library = ModelLibrary.Load();
++            var avatar = library ? library.Find("Avatar/Avatar") : null;
++            if (!avatar || AssetDatabase.GetAssetPath(avatar) != AvatarPath || profile.SourceAvatar != avatar
++                || profile.SourceFingerprint != ExpectedSource
++                || AssetDatabase.LoadAssetAtPath<Mesh>(MeshPath) != profile.CorrectedMesh)
++                throw new InvalidOperationException("Avatar correction references no longer match the reviewed saved assets.");
++            var heads = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true).Where(renderer => renderer.name == "SK_Head").ToArray();
++            if (heads.Length != 1 || heads[0].sharedMesh != profile.SourceMesh
++                || AnimationUtility.CalculateTransformPath(heads[0].transform, avatar.transform) != profile.RendererPath)
++                throw new InvalidOperationException("The exact original avatar head binding changed.");
++            ValidateSource(profile.SourceMesh);
++            ValidateCorrected(profile.SourceMesh, profile.CorrectedMesh);
++            return profile;
++        }
++
++        public static void RequireReviewedMeshContent(Mesh mesh)
++        {
++            if (!mesh || AvatarSurfaceMeshData.Fingerprint(mesh) != ExpectedSource)
++                throw new InvalidOperationException("Avatar source content changed, even if its GUID and vertex counts match. Review a new correction version.");
++        }
++
+         public static void ValidateSource(Mesh source)
+         {
+             if (!source || !EditorUtility.IsPersistent(source) || AssetDatabase.GetAssetPath(source) != AvatarPath
+                 || source.name != "SK_Head" || source.vertexCount != 6630 || source.subMeshCount != 3)
+                 throw new InvalidOperationException("This correction is bound to the reviewed original SK_Head only.");
+             if (AvatarSurfaceMeshData.Hash(File.ReadAllBytes(AvatarPath)) != ExpectedFbx
+-                || AvatarSurfaceMeshData.Hash(File.ReadAllBytes(AvatarPath + ".meta")) != ExpectedMeta
+-                || AvatarSurfaceMeshData.Fingerprint(source) != ExpectedSource)
++                || AvatarSurfaceMeshData.Hash(File.ReadAllBytes(AvatarPath + ".meta")) != ExpectedMeta)
+                 throw new InvalidOperationException("Avatar source changed; preserve it and review a new correction version.");
++            RequireReviewedMeshContent(source);
+             var face = Measure(source, 0);
+             if (face.invalid != 0 || face.zero != 0 || face.opposed != face.samples || face.meanDot > -.97)
+                 throw new InvalidOperationException("The reviewed face-normal inversion is no longer present; do not apply this recipe.");
+diff --git a/Assets/_Project/Editor/Authoring/PlayerAuthoring.cs b/Assets/_Project/Editor/Authoring/PlayerAuthoring.cs
+--- a/Assets/_Project/Editor/Authoring/PlayerAuthoring.cs
++++ b/Assets/_Project/Editor/Authoring/PlayerAuthoring.cs
+@@ -45,6 +45,7 @@
+             }
+             else
+             {
++                AvatarSurfaceCorrectionSetup.VerifyExistingProfile();
+                 wrapper = new GameObject("ImportedAvatar").transform;
+                 wrapper.SetParent(player.visual, false);
+                 model = InstantiateAvatar(wrapper);
+@@ -70,6 +71,7 @@
+                 var existing = parent.Find(PreviewName);
+                 if (existing) return existing.gameObject;
+             }
++            AvatarSurfaceCorrectionSetup.VerifyExistingProfile();
+             var preview = new GameObject(PreviewName) { tag = "EditorOnly" };
+             preview.transform.SetParent(parent, false);
+             var model = InstantiateAvatar(preview.transform);
+diff --git a/Assets/_Project/Editor/Art/AvatarSurfaceValidationGuard.cs b/Assets/_Project/Editor/Art/AvatarSurfaceValidationGuard.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Editor/Art/AvatarSurfaceValidationGuard.cs
+@@ -0,0 +1,34 @@
++using System;
++using UnityEditor;
++using UnityEditor.Build;
++using UnityEditor.Build.Reporting;
++using UnityEngine;
++
++namespace Wreckabulary.EditorTools
++{
++    [InitializeOnLoad]
++    public sealed class AvatarSurfaceValidationGuard : IPreprocessBuildWithReport
++    {
++        public int callbackOrder => 0;
++
++        static AvatarSurfaceValidationGuard()
++        {
++            EditorApplication.playModeStateChanged += state =>
++            {
++                if (state != PlayModeStateChange.ExitingEditMode) return;
++                try { AvatarSurfaceCorrectionSetup.VerifyExistingProfile(); }
++                catch (Exception error)
++                {
++                    EditorApplication.isPlaying = false;
++                    Debug.LogError("Avatar surface validation stopped Play Mode. Preserve the changed source and review its correction. " + error.Message);
++                }
++            };
++        }
++
++        public void OnPreprocessBuild(BuildReport report)
++        {
++            try { AvatarSurfaceCorrectionSetup.VerifyExistingProfile(); }
++            catch (Exception error) { throw new BuildFailedException("Avatar surface validation stopped the build: " + error.Message); }
++        }
++    }
++}
+diff --git a/Assets/_Project/Tests/Editor/AvatarSurfaceValidationTests.cs b/Assets/_Project/Tests/Editor/AvatarSurfaceValidationTests.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Tests/Editor/AvatarSurfaceValidationTests.cs
+@@ -0,0 +1,82 @@
++using System;
++using System.IO;
++using NUnit.Framework;
++using UnityEditor;
++using UnityEngine;
++using Wreckabulary.Art;
++using Wreckabulary.EditorTools;
++using Object = UnityEngine.Object;
++
++namespace Wreckabulary.EditorTests
++{
++    public sealed class AvatarSurfaceValidationTests
++    {
++        [Test]
++        public void DeliberatelyDisabledCorrectionAllowsSourceEditingButCannotProduceCorrectedPortraits()
++        {
++            var stored = AssetDatabase.LoadAssetAtPath<AvatarSurfaceProfile>(AvatarSurfaceCorrectionSetup.ProfilePath);
++            Assert.IsNotNull(stored);
++            byte[] file = File.ReadAllBytes(AvatarSurfaceCorrectionSetup.ProfilePath);
++            byte[] meta = File.ReadAllBytes(AvatarSurfaceCorrectionSetup.ProfilePath + ".meta");
++            bool dirty = EditorUtility.IsDirty(stored);
++            string source = AvatarSurfaceMeshData.Fingerprint(stored.SourceMesh);
++            var copy = ScriptableObject.CreateInstance<AvatarSurfaceProfile>();
++            try
++            {
++                var serialized = new SerializedObject(copy);
++                serialized.FindProperty("enabledCorrection").boolValue = false;
++                serialized.ApplyModifiedPropertiesWithoutUndo();
++                Assert.IsFalse(copy.EnabledCorrection);
++                Assert.IsNull(AvatarSurfaceCorrectionSetup.VerifyProfile(copy));
++                Assert.Throws<InvalidOperationException>(() => AvatarSurfaceCorrectionSetup.VerifyProfile(copy, true));
++                serialized.FindProperty("enabledCorrection").boolValue = true;
++                serialized.ApplyModifiedPropertiesWithoutUndo();
++                Assert.Throws<InvalidOperationException>(() => AvatarSurfaceCorrectionSetup.VerifyProfile(copy));
++            }
++            finally { Object.DestroyImmediate(copy); }
++            CollectionAssert.AreEqual(file, File.ReadAllBytes(AvatarSurfaceCorrectionSetup.ProfilePath));
++            CollectionAssert.AreEqual(meta, File.ReadAllBytes(AvatarSurfaceCorrectionSetup.ProfilePath + ".meta"));
++            Assert.AreEqual(dirty, EditorUtility.IsDirty(stored));
++            Assert.AreEqual(source, AvatarSurfaceMeshData.Fingerprint(stored.SourceMesh));
++        }
++
++        [Test]
++        public void SameCountSourceEditIsRejectedWithoutChangingOriginal()
++        {
++            var profile = AvatarSurfaceCorrectionSetup.VerifyExistingProfile(true);
++            string original = AvatarSurfaceMeshData.Fingerprint(profile.SourceMesh);
++            var copy = Object.Instantiate(profile.SourceMesh);
++            try
++            {
++                Assert.DoesNotThrow(() => AvatarSurfaceCorrectionSetup.RequireReviewedMeshContent(copy));
++                var vertices = copy.vertices; vertices[0] += Vector3.right * .001f; copy.vertices = vertices;
++                Assert.AreEqual(profile.SourceMesh.vertexCount, copy.vertexCount);
++                Assert.AreEqual(profile.SourceMesh.subMeshCount, copy.subMeshCount);
++                Assert.Throws<InvalidOperationException>(() => AvatarSurfaceCorrectionSetup.RequireReviewedMeshContent(copy));
++                Assert.Throws<InvalidOperationException>(() => AvatarSurfaceCorrectionSetup.ValidateCorrected(copy, profile.CorrectedMesh));
++            }
++            finally { Object.DestroyImmediate(copy); }
++            Assert.AreEqual(original, AvatarSurfaceMeshData.Fingerprint(profile.SourceMesh));
++        }
++
++        [Test]
++        public void ExistingValidationReadsWithoutSavingOrRegenerating()
++        {
++            string[] paths = { AvatarSurfaceCorrectionSetup.AvatarPath, AvatarSurfaceCorrectionSetup.MeshPath, AvatarSurfaceCorrectionSetup.ProfilePath };
++            var bytes = Array.ConvertAll(paths, path => File.ReadAllBytes(path));
++            var metadata = Array.ConvertAll(paths, path => File.ReadAllBytes(path + ".meta"));
++            var assets = Array.ConvertAll(paths, AssetDatabase.LoadMainAssetAtPath);
++            var dirty = Array.ConvertAll(assets, EditorUtility.IsDirty);
++            var first = AvatarSurfaceCorrectionSetup.VerifyExistingProfile(true);
++            Assert.AreSame(first, AvatarSurfaceCorrectionSetup.VerifyExistingProfile(true));
++            new AvatarSurfaceValidationGuard().OnPreprocessBuild(null);
++            for (int i = 0; i < paths.Length; i++)
++            {
++                CollectionAssert.AreEqual(bytes[i], File.ReadAllBytes(paths[i]));
++                CollectionAssert.AreEqual(metadata[i], File.ReadAllBytes(paths[i] + ".meta"));
++                Assert.AreSame(assets[i], AssetDatabase.LoadMainAssetAtPath(paths[i]));
++                Assert.AreEqual(dirty[i], EditorUtility.IsDirty(assets[i]));
++            }
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs b/Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs
+--- a/Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs
++++ b/Assets/_Project/Scripts/Art/AvatarSurfaceProfile.cs
+@@ -7,13 +7,14 @@
+     public sealed class AvatarSurfaceProfile : ScriptableObject
+     {
+         public const string ResourcePath = "Art/AvatarSurfaceCorrection";
+-        [SerializeField] bool enabledCorrection = true;
++        [SerializeField, Tooltip("Disable automatic correction on new/raw spawns while editing the source. Existing saved renderer overrides stay assigned; change those explicitly if needed. Re-enable after reviewing a matching correction.")] bool enabledCorrection = true;
+         [SerializeField] GameObject sourceAvatar;
+         [SerializeField] Mesh sourceMesh, correctedMesh;
+         [SerializeField] string rendererPath = "SK_Head";
+         [SerializeField, TextArea] string sourceFingerprint;
+         static AvatarSurfaceProfile loaded;
+ 
++        public bool EnabledCorrection => enabledCorrection;
+         public GameObject SourceAvatar => sourceAvatar;
+         public Mesh SourceMesh => sourceMesh;
+         public Mesh CorrectedMesh => correctedMesh;
+@@ -83,9 +84,14 @@
+         {
+             if (!source || !instance || source != sourceAvatar || !TryValidate(out _)
+                 || expected == null || actual == null || expected.Length != actual.Length) return false;
+-            var target = instance.transform.Find(rendererPath);
+-            var skin = target ? target.GetComponent<SkinnedMeshRenderer>() : null;
+-            if (!skin || skin.sharedMesh != correctedMesh) return false;
++            int boundHeads = 0;
++            foreach (var modelRoot in instance.GetComponentsInChildren<Transform>(true))
++            {
++                var target = modelRoot.Find(rendererPath);
++                var skin = target ? target.GetComponent<SkinnedMeshRenderer>() : null;
++                if (skin && skin.sharedMesh == correctedMesh && ++boundHeads > 1) return false;
++            }
++            if (boundHeads != 1) return false;
+             int replacements = 0;
+             for (int i = 0; i < expected.Length; i++)
+             {
+diff --git a/Assets/_Project/Scripts/Online/Presentation/Tests/WordboundPresentationTests.cs b/Assets/_Project/Scripts/Online/Presentation/Tests/WordboundPresentationTests.cs
+--- a/Assets/_Project/Scripts/Online/Presentation/Tests/WordboundPresentationTests.cs
++++ b/Assets/_Project/Scripts/Online/Presentation/Tests/WordboundPresentationTests.cs
+@@ -29,6 +29,41 @@
+         }
+         [TearDown]
+         public void TearDown() { if (anchor) Object.DestroyImmediate(anchor); }
++
++        [Test]
++        public void WrappedPlayerAdmitsOnlyTheExactSavedHeadCorrection()
++        {
++            var correction = AvatarSurfaceProfile.Load();
++            Assert.IsNotNull(correction, "Create the saved avatar surface correction before this native test.");
++            var source = ModelLibrary.Load().Find(WordboundVisualResolver.AvatarKey);
++            using var visual = resolver.Create("player", new Vector3(.7f, 1.8f, .7f), anchor.transform);
++            Mesh[] Read(GameObject root) => root.GetComponentsInChildren<MeshFilter>(true).Select(filter => filter.sharedMesh)
++                .Concat(root.GetComponentsInChildren<SkinnedMeshRenderer>(true).Select(renderer => renderer.sharedMesh)).ToArray();
++            var expected = Read(source);
++            Assert.AreNotSame(visual.Root, visual.Model);
++            Assert.IsTrue(visual.Model.transform.IsChildOf(visual.Root.transform));
++            Assert.IsTrue(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
++            var head = visual.Model.transform.Find(correction.RendererPath).GetComponent<SkinnedMeshRenderer>();
++            var custom = Object.Instantiate(head.sharedMesh);
++            try
++            {
++                head.sharedMesh = custom;
++                Assert.IsFalse(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
++                head.sharedMesh = correction.CorrectedMesh;
++                var other = visual.Model.GetComponentsInChildren<SkinnedMeshRenderer>(true).First(renderer => renderer != head);
++                var originalOther = other.sharedMesh;
++                other.sharedMesh = custom;
++                Assert.IsFalse(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
++                other.sharedMesh = originalOther;
++                var impostor = new GameObject("Unrelated head"); impostor.transform.SetParent(visual.Root.transform, false);
++                impostor.AddComponent<MeshFilter>().sharedMesh = correction.CorrectedMesh;
++                Assert.IsFalse(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
++                Object.DestroyImmediate(impostor);
++                Assert.IsTrue(correction.MatchesOnlyBoundHeadReplacement(source, visual.Root, expected, Read(visual.Root)));
++            }
++            finally { head.sharedMesh = correction.CorrectedMesh; Object.DestroyImmediate(custom); }
++            Assert.AreSame(correction.SourceMesh, source.transform.Find(correction.RendererPath).GetComponent<SkinnedMeshRenderer>().sharedMesh);
++        }
+ 
+         [TestCase("BAT"), TestCase("BROOM"), TestCase("HAMMER"), TestCase("SPEAR")]
+         [TestCase("SHIELD"), TestCase("PLATE"), TestCase("TABLE"), TestCase("SOFA")]

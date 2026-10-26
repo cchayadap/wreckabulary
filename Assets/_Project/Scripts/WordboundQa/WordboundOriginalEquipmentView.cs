@@ -348,7 +348,7 @@ namespace Wreckabulary.Qa
             owner.Note(name + "_facts", new Dictionary<string, object> {
                 ["scope"] = "Actual local presentation with QA inspection camera; not ordinary camera, multiplayer, GPU timing or art approval.",
                 ["canonical_tick"] = client.Gameplay.Frame.Progress.Tick, ["mode"] = "Freestyle", ["local_actors"] = client.Gameplay.Frame.Actors.Count,
-                ["artwork_source"] = "original_model_library", ["profile"] = presentation.ArtworkResolver.Profile.name,
+                ["artwork_source"] = "original_model_library; saved head surface correction recorded per visual", ["profile"] = presentation.ArtworkResolver.Profile.name,
                 ["camera_position"] = V(camera.transform.position), ["camera_rotation"] = V(camera.transform.eulerAngles), ["camera_fov"] = camera.fieldOfView,
                 ["camera_callbacks"] = cameraFrames, ["last_camera_frame"] = lastCameraFrame,
                 ["right_hand_socket_world"] = hand ? V(hand.position) : null,
@@ -360,8 +360,14 @@ namespace Wreckabulary.Qa
             if (!root) throw new QaFailException("Missing active actual artwork: " + key);
             string modelKey = presentation.ArtworkResolver.ModelKey(key);
             var source = ModelLibrary.Load()?.Find(modelKey);
-            if (!source || !Meshes(source).SequenceEqual(Meshes(root.gameObject)))
-                throw new QaFailException("Actual " + key + " meshes do not match the original ModelLibrary source.");
+            var expectedMeshes = source ? Meshes(source) : Array.Empty<Mesh>();
+            var actualMeshes = Meshes(root.gameObject);
+            bool originalIdentity = source && expectedMeshes.SequenceEqual(actualMeshes);
+            var correction = key == "player" && modelKey == "Avatar/Avatar" ? AvatarSurfaceProfile.Load() : null;
+            bool correctedHead = !originalIdentity && correction
+                && correction.MatchesOnlyBoundHeadReplacement(source, root.gameObject, expectedMeshes, actualMeshes);
+            if (!originalIdentity && !correctedHead)
+                throw new QaFailException("Actual " + key + " must match every original mesh or the exact saved player-head correction pair.");
             var renderers = root.GetComponentsInChildren<Renderer>(true).Where(renderer => renderer.enabled &&
                 !renderer.forceRenderingOff && renderer.gameObject.activeInHierarchy).ToArray();
             if (renderers.Length == 0) throw new QaFailException("Actual " + key + " has no enabled visible renderer.");
@@ -380,7 +386,11 @@ namespace Wreckabulary.Qa
                 material.shader.name.Contains("InternalErrorShader"))) throw new QaFailException("Invalid actual artwork material/shader: " + key);
             var grip = ModelVisual.FindNamed(root.gameObject, "Grip_R");
             return new Dictionary<string, object> { ["visual_key"] = key, ["original_model"] = modelKey,
-                ["original_mesh_identity"] = true, ["mesh_names"] = Meshes(source).Select(mesh => mesh.name).ToArray(),
+                ["original_mesh_identity"] = originalIdentity, ["bound_head_surface_correction"] = correctedHead,
+                ["remaining_mesh_identity"] = true,
+                ["source_mesh_names"] = expectedMeshes.Select(mesh => mesh.name).ToArray(),
+                ["mesh_names"] = actualMeshes.Select(mesh => mesh.name).ToArray(),
+                ["head_source_fingerprint"] = correctedHead ? correction.SourceFingerprint : "",
                 ["world_bounds_center"] = V(bounds.center), ["world_bounds_size"] = V(bounds.size),
                 ["visual_root_local_scale"] = V(root.localScale), ["visual_root_world"] = V(root.position),
                 ["authored_grip_marker_world"] = grip ? V(grip.position) : null,
