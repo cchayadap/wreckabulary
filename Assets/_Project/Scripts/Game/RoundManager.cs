@@ -183,6 +183,9 @@ namespace Wreckabulary
             string heading = won ? "You called dibs!" : timeUp ? "Time’s up. A perfectly messy draw." : "One more word. One more chance.";
             if (lastWinner)
             {
+                foreach (var player in Players)
+                    if (player && player.Health && player.Health.IsAlive && player.Team == outcome.WinningTeam)
+                        player.GetComponent<PlayerAppearance>()?.Play("Celebrate", 1.5f);
                 StartCoroutine(SlowMo());
                 RoundWon?.Invoke(lastWinner);
             }

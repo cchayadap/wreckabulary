@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using GameStudioKit.Capture;
 using GameStudioKit.Qa;
 using UnityEngine;
@@ -182,7 +183,8 @@ namespace Wreckabulary.Qa
                 yield return Command(context, WordboundAction.CollectLetter, tile);
             }
             if (!Inventory.Letters.Equals(LetterBag.FromWord(recipe))) throw new QaFailException("The actual collected letter bag does not match " + recipe + ".");
-            yield return Command(context, WordboundAction.BeginCraft, value: recipe);
+            if (recipe == "BAT") yield return CraftUsingHud(context, recipe);
+            else yield return Command(context, WordboundAction.BeginCraft, value: recipe);
             yield return context.WaitUntil(() => Frame.Economy.Items.Any(item => item.Word == recipe &&
                 item.Origin == ItemOrigin.Crafted && item.CrafterId == 0 && item.HolderId == 0 && item.State == ItemState.Held),
                 20, "the real " + recipe + " craft timer");
@@ -197,6 +199,97 @@ namespace Wreckabulary.Qa
             context.Note("equipment_" + recipe.ToLowerInvariant() + "_entity", "item:" + crafted.Id);
             context.Note("equipment_" + recipe.ToLowerInvariant() + "_slot", slot);
             observation.FrameHeld(recipe);
+        }
+
+        IEnumerator CraftUsingHud(QaContext context, string recipe)
+        {
+            var gameplay = client.Gameplay;
+            var hud = client.GetComponent<WordboundMatchHud>();
+            var view = client.GetComponent<WordboundPlayerView>();
+            if (!hud || !view || !Application.isFocused || !gameplay.IsPresentationReady || gameplay.IsSimulationPaused)
+                throw new QaFailException("Recipe grid proof requires the focused, actual ready local gameplay client.");
+            var hudInventory = typeof(WordboundMatchHud).GetField("inventory", BindingFlags.Instance | BindingFlags.NonPublic);
+            var readyField = typeof(WordboundGameplayController).GetField("localReady", BindingFlags.Instance | BindingFlags.NonPublic);
+            var sequenceField = typeof(WordboundGameplayController).GetField("lastSequence", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (hudInventory == null || readyField == null || sequenceField == null)
+                throw new QaFailException("Recipe guard proof bindings no longer match the actual runtime.");
+            long before = (long)sequenceField.GetValue(gameplay), epoch = Frame.Epoch;
+            long frontier = Frame.Commands.Frontiers[Actor];
+            var authoritativeInventory = Inventory;
+            string letters = authoritativeInventory.Letters.ToString();
+            view.SetMenuOpen(true);
+            HudInvoke(hud, "SelectRecipe", "STOOL");
+            HudInvoke(hud, "QueueMenuAction", new Action(() => HudInvoke(hud, "SelectRecipe", recipe)));
+            if ((string)typeof(WordboundMatchHud).GetField("selectedRecipe", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(hud) != "STOOL")
+                throw new QaFailException("Selecting a recipe changed before the deferred Update boundary.");
+            HudInvoke(hud, "ExecuteMenuAction", true);
+            var selected = HudInvoke(hud, "SelectedRecipe");
+            if (!(bool)HudInvoke(hud, "CanCraftRecipe", selected) || !view.MenuOpen || (long)sequenceField.GetValue(gameplay) != before ||
+                Frame.Commands.Frontiers[Actor] != frontier || Inventory.Craft != null)
+                throw new QaFailException("Tile selection must select a craftable BAT without submitting, reserving letters or resuming.");
+            context.Note("recipe_grid_selection_only_no_submit", true);
+
+            for (int guard = 0; guard < 2; guard++)
+            {
+                object savedInventory = hudInventory.GetValue(hud);
+                bool savedReady = (bool)readyField.GetValue(gameplay);
+                HudInvoke(hud, "QueueMenuAction", new Action(() => HudInvoke(hud, "CraftSelectedRecipe")));
+                try
+                {
+                    if (guard == 0) hudInventory.SetValue(hud, new PlayerInventory());
+                    else readyField.SetValue(gameplay, false);
+                    HudInvoke(hud, "ExecuteMenuAction", true);
+                    HudInvoke(hud, "ExecuteMenuAction", true);
+                    if ((long)sequenceField.GetValue(gameplay) != before || !view.MenuOpen ||
+                        !ReferenceEquals(Inventory, authoritativeInventory) || Inventory.Letters.ToString() != letters)
+                        throw new QaFailException("A deferred recipe action escaped a changed letter/readiness guard or mutated authoritative inventory.");
+                }
+                finally
+                {
+                    hudInventory.SetValue(hud, savedInventory);
+                    readyField.SetValue(gameplay, savedReady);
+                }
+                if (!ReferenceEquals(hudInventory.GetValue(hud), savedInventory) || (bool)readyField.GetValue(gameplay) != savedReady)
+                    throw new QaFailException("Temporary recipe guard injection was not restored.");
+            }
+            context.Note("recipe_grid_guard_injection", "HUD inventory reference with no letters and localReady=false; synchronous, no yielded frame, authoritative inventory unchanged; both restored in finally");
+            context.Note("recipe_grid_letter_and_readiness_guards_no_submit", true);
+
+            HudInvoke(hud, "QueueMenuAction", new Action(() => HudInvoke(hud, "CraftSelectedRecipe")));
+            HudInvoke(hud, "ExecuteMenuAction", false);
+            HudInvoke(hud, "ExecuteMenuAction", true);
+            if ((long)sequenceField.GetValue(gameplay) != before || !view.MenuOpen)
+                throw new QaFailException("A recipe action survived loss of menu focus.");
+            context.Note("recipe_grid_lost_focus_no_submit", true);
+            if (!(bool)HudInvoke(hud, "CanCraftRecipe", HudInvoke(hud, "SelectedRecipe")))
+                throw new QaFailException("The real ready recipe state was not restored before positive dispatch.");
+            HudInvoke(hud, "QueueMenuAction", new Action(() => HudInvoke(hud, "CraftSelectedRecipe")));
+            if ((long)sequenceField.GetValue(gameplay) != before) throw new QaFailException("Queueing Craft submitted before Update.");
+            HudInvoke(hud, "ExecuteMenuAction", true);
+            HudInvoke(hud, "ExecuteMenuAction", true);
+            long submitted = (long)sequenceField.GetValue(gameplay);
+            if (submitted != Math.Max(before, frontier) + 1 || view.MenuOpen)
+                throw new QaFailException("The real HUD Craft action must submit exactly once and resume.");
+            var command = new PlayerCommand(submitted, epoch, WordboundAction.BeginCraft, value: recipe);
+            yield return context.WaitUntil(() => Frame.Commands.Frontiers[Actor] >= submitted, 15, "actual recipe-grid BeginCraft receipt");
+            yield return context.WaitFrames(2);
+            var received = Frame.Commands.Receipts.Where(entry => entry.ActorId == Actor && entry.Sequence > frontier).ToArray();
+            int accepted = received.Count(entry => entry.Effect.Code == "Ok" && entry.PayloadHash == command.PayloadHash);
+            if (received.Length != 1 || accepted != 1 || received[0].Sequence != submitted || Frame.Commands.Frontiers[Actor] != submitted ||
+                (long)sequenceField.GetValue(gameplay) != submitted)
+                throw new QaFailException("The authority must receive exactly one accepted recipe-grid BeginCraft command, with no delayed duplicate.");
+            RecordReceipt(context, command, "");
+            context.Note("recipe_grid_received_commands", received.Length);
+            context.Note("recipe_grid_accepted_begin_craft", accepted);
+            context.Note("recipe_grid_craft_resumed", !view.MenuOpen);
+        }
+
+        static object HudInvoke(WordboundMatchHud hud, string method, params object[] arguments)
+        {
+            var target = typeof(WordboundMatchHud).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic);
+            if (target == null) throw new QaFailException("Missing real HUD recipe method: " + method);
+            try { return target.Invoke(hud, arguments); }
+            catch (TargetInvocationException error) { throw error.InnerException ?? error; }
         }
 
         IEnumerator Command(QaContext context, WordboundAction action, string target = "", int revision = 0, int slot = -1, string value = "")

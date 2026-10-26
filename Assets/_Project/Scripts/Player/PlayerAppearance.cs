@@ -384,6 +384,7 @@ namespace Wreckabulary
                 Health = controller.Health ? controller.Health.Current : 100,
                 Downed = controller.IsKnockedOut, Hurt = controller.IsStaggered || acting && actionClip == "Hit_Reaction",
                 Focus = controller.IsDodging || controller.Combat && (controller.Combat.IsChanneling || controller.Combat.IsBlocking) ||
+                    controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.IsCrafting) ||
                     acting && (actionClip == "Swing_OneHand" || actionClip == "Thrust_OneHand" || actionClip == "Throw_OneHand"),
                 Falling = !controller.Grounded && velocity.y < -2.5f, GroundedKnown = true, Grounded = controller.Grounded,
                 Moving = velocity.x * velocity.x + velocity.z * velocity.z > .04f,

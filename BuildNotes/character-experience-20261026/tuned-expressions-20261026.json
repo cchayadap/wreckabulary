@@ -1,0 +1,355 @@
+{
+  "utc": "2026-10-26T14:04:10.715Z",
+  "status": "TUNED_PROFILE_NATIVE_PASS",
+  "native": [
+    {
+      "result": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T13:57:05Z",
+        "secs": 12.4,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T135705Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-check-2026-10-26T13-57-05-223Z-stdout.txt",
+        "sha256": "2f23aafa14325e3b5e16e81891ab1e4ed5c7eafd3a15cd7e1555d01130db287a",
+        "bytes": 289
+      },
+      "log": {
+        "path": "Logs/gate_check_all_20261026T135705Z.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "evidence": []
+    },
+    {
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.AvatarExpressionSetup.ApplyReviewedTuning --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T13:57:40Z",
+        "secs": 37.9,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_ApplyReviewedTuning_20261026T135740Z.log",
+        "evidence": [
+          "Logs/exec/20261026T135740Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 28.5,
+        "messages": [
+          "[Wreckabulary] Expression tuning: APPLIED; RELOADED AND VERIFIED; receipt=BuildNotes/character-experience-20261026/emotion/tuning-20261026T135815379Z-63e0a654/receipt.json",
+          "[GSK] exec Wreckabulary.EditorTools.AvatarExpressionSetup.ApplyReviewedTuning ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T135740Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.AvatarExpressionSetup.ApplyReviewedTuning",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-expressionsetup-2026-10-26T13-57-40-631Z-stdout.txt",
+        "sha256": "680d8b9c88cfc0f45614981dc9ae6eda233c832028bfc00aec97f2e6eb02a593",
+        "bytes": 904
+      },
+      "log": {
+        "path": "Logs/gate_exec_ApplyReviewedTuning_20261026T135740Z.log",
+        "sha256": "1e58fe4f55dea1b5a29734ff99f2a16f211bc91908cfcac59528bcd2f5c97450",
+        "bytes": 55131
+      },
+      "evidence": [
+        {
+          "path": "Logs/exec/20261026T135740Z.json",
+          "sha256": "6ea49d93b131ee7f11aab7abfacf61e21e05f515d9dc6b403acd35fe9ed4e367",
+          "bytes": 146
+        }
+      ]
+    },
+    {
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.AvatarExpressionCapture.RunTunedProfile --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T13:59:00Z",
+        "secs": 35.3,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_RunTunedProfile_20261026T135900Z.log",
+        "evidence": [
+          "Logs/exec/20261026T135900Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 10.9,
+        "messages": [
+          "[GSK] exec Wreckabulary.EditorTools.AvatarExpressionCapture.RunTunedProfile ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T135900Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.AvatarExpressionCapture.RunTunedProfile",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-expressioncapture-2026-10-26T13-59-00-070Z-stdout.txt",
+        "sha256": "0c8c0382a046212ab715aed2af7d63b0fb2f45260782c215f32b3ea0c360c913",
+        "bytes": 720
+      },
+      "log": {
+        "path": "Logs/gate_exec_RunTunedProfile_20261026T135900Z.log",
+        "sha256": "3e551e541977239564f72ba1e8fc08c02b85e53a6fa1462de13e5ecee53e567b",
+        "bytes": 31846
+      },
+      "evidence": [
+        {
+          "path": "Logs/exec/20261026T135900Z.json",
+          "sha256": "cff16950efa21efb15a8daa03d756f52a4d5cccdb459e188c65c38305b513758",
+          "bytes": 144
+        }
+      ]
+    },
+    {
+      "result": {
+        "cmd": "test playmode --cold --filter AvatarExpressionTests|PlayerAppearanceTests|NativeAnimationStateTests|AvatarSurfaceRuntimeTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:00:57Z",
+        "secs": 40.6,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_playmode_20261026T140057Z.log",
+        "evidence": [
+          "TestResults/playmode_20261026T140057Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 12.8,
+        "tests": {
+          "total": 17,
+          "passed": 17,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-expressionplay-2026-10-26T14-00-57-225Z-stdout.txt",
+        "sha256": "24d0772864cbb6690e2c56c9766ebde271d194e0d6764355189f84c4ad52b386",
+        "bytes": 499
+      },
+      "log": {
+        "path": "Logs/gate_test_playmode_20261026T140057Z.log",
+        "sha256": "f2f9c9bc9389a70817873211fb9424ef5e2b7a0e7071b67e8a3b60b411d35b3b",
+        "bytes": 669632
+      },
+      "evidence": [
+        {
+          "path": "TestResults/playmode_20261026T140057Z.xml",
+          "sha256": "4b6539f4d90928b0787e222ec36a9b196f04811e27d1a8beffd1025d8318fd04",
+          "bytes": 50638
+        }
+      ]
+    },
+    {
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.AvatarExpressionSetup.ApplyReviewedTuning --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:02:21Z",
+        "secs": 20.6,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_ApplyReviewedTuning_20261026T140221Z.log",
+        "evidence": [
+          "Logs/exec/20261026T140221Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 10.9,
+        "messages": [
+          "[Wreckabulary] Expression tuning: ALREADY APPLIED; VERIFIED WITHOUT SAVE; receipt=BuildNotes/character-experience-20261026/emotion/tuning-20261026T140237457Z-d8580a06/receipt.json",
+          "[GSK] exec Wreckabulary.EditorTools.AvatarExpressionSetup.ApplyReviewedTuning ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T140221Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.AvatarExpressionSetup.ApplyReviewedTuning",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-expressionsetup-2026-10-26T14-02-20-844Z-stdout.txt",
+        "sha256": "b78311cd5c90b1b0ba56e37363d0732416858186962c0b2b9a31ee289293c07f",
+        "bytes": 912
+      },
+      "log": {
+        "path": "Logs/gate_exec_ApplyReviewedTuning_20261026T140221Z.log",
+        "sha256": "5eca75f4fbfa3e65b0b8910b3abb12919bf432fad5de08639a243a0ae4d70f52",
+        "bytes": 36249
+      },
+      "evidence": [
+        {
+          "path": "Logs/exec/20261026T140221Z.json",
+          "sha256": "0384a8f61fe378f11fcc166b0ad972430cbb23f738ae4030b125e1b62a62447f",
+          "bytes": 146
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "path": "Assets/_Project/Editor/Art/AvatarExpressionCapture.cs",
+      "sha256": "1cdf0a3b60bdb97337c8785ff50125af90b58fcdea5f709ceca1ffa5eea04872",
+      "bytes": 18048
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/AvatarExpressionCapture.cs.meta",
+      "sha256": "24edd26b22443d4d652c6b0311e89d4ced42b978978757095f554481d16798bf",
+      "bytes": 59
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/AvatarExpressionSetup.cs",
+      "sha256": "222d6f31e7b8f71c077df1f203ccf606e64c0bc13febcc35f177281e4101673e",
+      "bytes": 7065
+    },
+    {
+      "path": "Assets/_Project/Editor/Art/AvatarExpressionSetup.cs.meta",
+      "sha256": "9dc13f8de63e6d52c8d0f62a477c450160a3606fe3f6797f6577cc806969522b",
+      "bytes": 59
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/AvatarExpressionProfile.cs",
+      "sha256": "848ff2f7bac680427e4ca7892db620dca31595571e31646ff43e727caf9bf1d6",
+      "bytes": 4593
+    },
+    {
+      "path": "Assets/_Project/Scripts/Art/AvatarExpressionProfile.cs.meta",
+      "sha256": "f3ae587d2764a8c7f342f7115536fd26a04fb0917ab16eeb731841bef80544a9",
+      "bytes": 59
+    },
+    {
+      "path": "Assets/_Project/Resources/Art/AvatarExpressions.asset",
+      "sha256": "2adfff7c724fefd43619613739b30822dab10b4949e11d1162b4b5aa93b26724",
+      "bytes": 1175
+    },
+    {
+      "path": "Assets/_Project/Resources/Art/AvatarExpressions.asset.meta",
+      "sha256": "4431ed34a28bf9128fc5b96a8549a3e86c61efae6127cd569b4d673af8f8fec9",
+      "bytes": 189
+    }
+  ],
+  "tuning": [
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/tuning-20261026T135815379Z-63e0a654/receipt.json",
+      "sha256": "cef60000e6041bb44261e9d560ea700552b9cc672c2565722fa4fe9066c7774e",
+      "bytes": 2882
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/tuning-20261026T140237457Z-d8580a06/receipt.json",
+      "sha256": "d60ec7db7110757cbf061070f23153f99817d1332e77786b89ca8e9f6e363c84",
+      "bytes": 2891
+    }
+  ],
+  "capture": {
+    "path": "BuildNotes/character-experience-20261026/emotion/capture-03/receipt.json",
+    "sha256": "bb37d92b960e8ac634040973b197b650ce071cb495a19aa51c9a68fe1881d3cb",
+    "bytes": 99246
+  },
+  "frames": [
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/idle-front.png",
+      "sha256": "3286e49bb5c1dea50379115698bc67ba8b1ca5cd9326451902905b5c45d087a4",
+      "bytes": 113233
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/focus-front.png",
+      "sha256": "09b01897cfcaa1713c559992ef82fb8ac586b80b143682e9a5649f677b76f239",
+      "bytes": 103720
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/hurt-front.png",
+      "sha256": "0e5082af4e0ac84b52c792fb943617f1e185502a56983a8d59d34fa3374e0036",
+      "bytes": 111956
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/downed-front.png",
+      "sha256": "ccfa898ccb7a68b93dc0636131cb50265cb80409a3b1e9f01ca5e4ba852e69a8",
+      "bytes": 121674
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/recover-front.png",
+      "sha256": "67145f423ab2321315f4940a7a1f9223f174b3579b2698859b9f62ea52d989e0",
+      "bytes": 113405
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/idle-three-quarter.png",
+      "sha256": "f36b3165bea3bc212d454e62a6a62b3b5849c65472a0c0a26e5b6f46ee125f9d",
+      "bytes": 109656
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/focus-three-quarter.png",
+      "sha256": "8edc121e29282a1613ab29eddc6cf8eea52cb6f93213a6870d426eadf54b5a58",
+      "bytes": 103978
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/hurt-three-quarter.png",
+      "sha256": "83d7045aded1ffc1fa8e098a1d524d1a55bd6d093e882213f024b49fd276f73d",
+      "bytes": 109789
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/downed-three-quarter.png",
+      "sha256": "75fa2e8e0475e400fddc57bd3a9911753f81ecae0c051c920ca7323224477b3c",
+      "bytes": 116757
+    },
+    {
+      "path": "BuildNotes/character-experience-20261026/emotion/capture-03/recover-three-quarter.png",
+      "sha256": "27c7234945b4a261cd18da496547e2d1182b25fdb5e025745313025f82c9b1c3",
+      "bytes": 109838
+    }
+  ],
+  "visualReview": {
+    "viewedByRoot": [
+      "idle-front",
+      "hurt-front",
+      "hurt-three-quarter"
+    ],
+    "finding": "Calmer idle and stronger eye closure retain original style. Other seven frames require independent inspection."
+  },
+  "limits": [
+    "Two selected default poses changed; all other pose values, timers and metadata preserved. Custom Idle/Hurt values and dirty edits are refused by the helper.",
+    "Fresh-process save/reload, no-save repeat and17 PlayMode cases pass. Ordinary human Inspector editing and all action integrations remain separate.",
+    "Capture03 uses actual profile blend times; requested states are sampled stills, not full transition, remote actor, facial readability or human feel acceptance.",
+    "Final combined Windows candidate remains pending."
+  ]
+}

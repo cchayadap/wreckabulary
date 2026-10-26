@@ -37,6 +37,7 @@ namespace Wreckabulary.Online
             {
                 if (nextSearch != null) search = nextSearch;
                 action?.Invoke();
+                NormalizeRecipeSelection();
             }
         }
 
@@ -53,6 +54,7 @@ namespace Wreckabulary.Online
             recipeLetters = new LetterBag(inventory.Letters);
             recipeCards = items.Cards(recipeLetters);
             recipeCards.RemoveAll(card => !mode.Recipes.Contains(card.Item.Id));
+            NormalizeRecipeSelection();
         }
 
         string FirstCraftableRecipe()
@@ -86,7 +88,8 @@ namespace Wreckabulary.Online
             }
             if (commands.Step != 0)
             {
-                menuFocus.Move(commands.Step);
+                if (helpOpen || journalOpen || inventory == null ||
+                    !menuFocus.MoveGrid(commands.Direction.x, commands.Direction.y, recipeColumns)) menuFocus.Move(commands.Step);
                 revealMenuSelection = true;
             }
             if (commands.Confirm) menuFocus.Confirm();
@@ -105,16 +108,17 @@ namespace Wreckabulary.Online
         {
             if (Event.current.type == EventType.Layout && GUI.enabled) menuFocus.Register(id);
             bool selected = view.UsesGamepad && menuFocus.Selected == id;
-            var style = selected ? ui.Selected : id == "resume" ? ui.Primary : GUI.skin.button;
+            bool chosenRecipe = id == "recipe:" + selectedRecipe;
+            var style = selected || chosenRecipe ? ui.Selected : id == "resume" || id == "craft-selected" ? ui.Primary : GUI.skin.button;
             GUI.SetNextControlName("wordbound:" + id);
             bool clicked = options.Length == 0
-                ? ui.Button(new GUIContent((selected ? "› " : "") + label), style, GUILayout.MinHeight(ui.RowHeight))
-                : ui.Button(new GUIContent((selected ? "› " : "") + label), style, options);
+                ? ui.Button(new GUIContent((selected && label.Length != 0 ? "› " : "") + label), style, GUILayout.MinHeight(ui.RowHeight))
+                : ui.Button(new GUIContent((selected && label.Length != 0 ? "› " : "") + label), style, options);
             if (clicked) menuFocus.CancelConfirmation();
             if (selected && Event.current.type == EventType.Repaint)
             {
                 GUI.FocusControl("wordbound:" + id);
-                if (revealMenuSelection && id.StartsWith("recipe:", StringComparison.Ordinal))
+                if (revealMenuSelection && recipeScrollActive)
                 {
                     var row = GUILayoutUtility.GetLastRect();
                     if (row.yMin < recipeScroll.y) recipeScroll.y = row.yMin;
@@ -178,7 +182,10 @@ namespace Wreckabulary.Online
             }
             else if (inventory != null)
             {
+                recipeScroll = GUILayout.BeginScrollView(recipeScroll);
+                recipeScrollActive = true;
                 EquipmentMenu();
+                GUI.enabled = true;
                 GUILayout.Label("Letters: " + (inventory.Letters.Count == 0 ? "—" : inventory.Letters.ToString()));
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Search", ui.SingleLine,
@@ -187,29 +194,20 @@ namespace Wreckabulary.Online
                 if (nextSearch != search) pendingSearch = nextSearch;
                 if (search.Length > 0 && MenuButton("clear-search", "Clear", GUILayout.Width(64), GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(() => search = "");
                 GUILayout.EndHorizontal();
-                recipeScroll = GUILayout.BeginScrollView(recipeScroll);
-                int visible = 0;
-                foreach (var card in recipeCards)
-                {
-                    if (card.Item.Id.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0) continue;
-                    visible++;
-                    bool ready = card.Craftable && inventory.Craft == null;
-                    GUI.enabled = !controller.IsSimulationPaused && ready;
-                    if (MenuButton("recipe:" + card.Item.Id,
-                        card.Item.Id + (ready ? "  ·  Craft" : card.Craftable ? "  ·  Crafting…" : "  ·  Need " + card.Missing),
-                        GUILayout.MinHeight(ui.RowHeight)))
-                    {
-                        QueueMenuAction(() => { if (Send(WordboundAction.BeginCraft, value: card.Item.Id)) Resume(); });
-                    }
-                }
-                GUI.enabled = true;
-                if (visible == 0) GUILayout.Label("No matching recipes.", ui.Wrapped);
+                RecipeGrid(ui.MenuRect(width, height).width, height);
+                recipeScrollActive = false;
                 GUILayout.EndScrollView();
                 if (Event.current.type == EventType.Repaint)
-                    recipeViewportHeight = Mathf.Max(30, GUILayoutUtility.GetLastRect().height);
+                {
+                    recipeViewportRect = GUILayoutUtility.GetLastRect();
+                    recipeViewportHeight = Mathf.Max(30, recipeViewportRect.height);
+                }
+                GUI.enabled = true;
+                RecipeSelectionDetail();
             }
             GUI.enabled = true;
             if (MenuButton("return", returnLabel, GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(() => ReturnRequested?.Invoke());
+            if (Event.current.type == EventType.Repaint) recipeReturnRect = GUILayoutUtility.GetLastRect();
             GUILayout.EndArea();
             if (Event.current.type == EventType.Layout) menuFocus.EndLayout();
         }

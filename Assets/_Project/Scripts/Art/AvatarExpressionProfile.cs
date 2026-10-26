@@ -48,12 +48,12 @@ namespace Wreckabulary.Art
             AvatarExpression.Moving => new AvatarExpressionPose(state, 42, 0, true),
             AvatarExpression.Equipped => new AvatarExpressionPose(state, 38, 0, true),
             AvatarExpression.Focus => new AvatarExpressionPose(state, 8, 0, false),
-            AvatarExpression.Hurt => new AvatarExpressionPose(state, 4, 38, false),
+            AvatarExpression.Hurt => new AvatarExpressionPose(state, 18, 60, false),
             AvatarExpression.Downed => new AvatarExpressionPose(state, 12, 78, false),
             AvatarExpression.Falling => new AvatarExpressionPose(state, 24, 0, false),
             AvatarExpression.Recover => new AvatarExpressionPose(state, 62, 10, true),
             AvatarExpression.Celebrate => new AvatarExpressionPose(state, 85, 0, true),
-            _ => new AvatarExpressionPose(AvatarExpression.Idle, 55, 0, true)
+            _ => new AvatarExpressionPose(AvatarExpression.Idle, 75, 0, true)
         };
 
         public static float Bounded(float value, float min, float max, float fallback) =>

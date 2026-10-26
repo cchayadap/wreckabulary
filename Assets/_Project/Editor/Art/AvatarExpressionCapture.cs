@@ -16,6 +16,7 @@ namespace Wreckabulary.EditorTools
     {
         const string Folder = "BuildNotes/character-experience-20261026/emotion/capture-01";
         const string ComparisonFolder = "BuildNotes/character-experience-20261026/emotion/capture-02";
+        const string TunedFolder = "BuildNotes/character-experience-20261026/emotion/capture-03";
         [Serializable] sealed class FileProof { public string path, before, after; }
         [Serializable] sealed class Frame
         {
@@ -36,6 +37,7 @@ namespace Wreckabulary.EditorTools
 
         public static void Run() => RunCapture(Folder, false);
         public static void RunBrowComparison() => RunCapture(ComparisonFolder, true);
+        public static void RunTunedProfile() => RunCapture(TunedFolder, false);
 
         static void RunCapture(string folder, bool compareBrows)
         {

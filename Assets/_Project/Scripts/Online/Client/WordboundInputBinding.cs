@@ -13,8 +13,9 @@ namespace Wreckabulary.Online
         public readonly int Step;
         public readonly bool Confirm, Back;
         public readonly float Scroll;
-        public WordboundMenuCommands(int step, bool confirm, bool back, float scroll = 0)
-        { Step = step; Confirm = confirm; Back = back; Scroll = scroll; }
+        public readonly Vector2Int Direction;
+        public WordboundMenuCommands(int step, bool confirm, bool back, float scroll = 0, Vector2Int direction = default)
+        { Step = step; Confirm = confirm; Back = back; Scroll = scroll; Direction = direction; }
     }
 
     public sealed class WordboundInputBinding : InputBinding, IDisposable
@@ -26,7 +27,7 @@ namespace Wreckabulary.Online
         GamepadBinding gamepad;
         bool disposed, requireRelease, menuRequiresRelease;
         HoldToFire dropHold;
-        int menuDirection;
+        int menuDirection, menuAxis;
         float nextMenuStep;
         readonly string[] hintPaths = new string[8], hints = new string[8];
         int hintVersion = -1;
@@ -155,7 +156,7 @@ namespace Wreckabulary.Online
             selected = pad;
             gamepad = pad == null ? null : new GamepadBinding(pad);
             SuspendGameplay();
-            menuDirection = 0;
+            menuDirection = 0; menuAxis = 0;
             Revision++;
         }
 
@@ -213,26 +214,30 @@ namespace Wreckabulary.Online
         {
             if (disposed || selected == null || !selected.added || !selected.enabled ||
                 DesktopBinding.Typing || KeyBindings.GameplayBlocked)
-            { menuDirection = 0; return default; }
+            { menuDirection = 0; menuAxis = 0; return default; }
             Vector2 navigation = selected.dpad.ReadValue();
             if (navigation.sqrMagnitude < .25f) navigation = selected.leftStick.ReadValue();
             if (menuRequiresRelease)
             {
                 menuRequiresRelease = navigation.sqrMagnitude > .25f ||
                     selected.buttonSouth.isPressed || selected.buttonEast.isPressed;
-                if (menuRequiresRelease) { menuDirection = 0; return default; }
+                if (menuRequiresRelease) { menuDirection = 0; menuAxis = 0; return default; }
             }
             int direction = navigation.y > .55f ? -1 : navigation.y < -.55f ? 1 :
                 navigation.x < -.55f ? -1 : navigation.x > .55f ? 1 : 0;
+            int axisKind = direction == 0 ? 0 : Mathf.Abs(navigation.y) > .55f ? 2 : 1;
+            bool repeatedDirection = direction == menuDirection && axisKind == menuAxis;
             int step = 0;
-            if (direction != 0 && (direction != menuDirection || now >= nextMenuStep))
+            if (direction != 0 && (!repeatedDirection || now >= nextMenuStep))
             {
                 step = direction;
-                nextMenuStep = now + (direction == menuDirection ? .12f : .35f);
+                nextMenuStep = now + (repeatedDirection ? .12f : .35f);
             }
-            menuDirection = direction;
+            menuDirection = direction; menuAxis = axisKind;
+            Vector2Int axis = step == 0 ? Vector2Int.zero : Mathf.Abs(navigation.y) > .55f ?
+                new Vector2Int(0, step) : new Vector2Int(step, 0);
             return new WordboundMenuCommands(step, selected.buttonSouth.wasPressedThisFrame,
-                selected.buttonEast.wasPressedThisFrame, selected.rightStick.ReadValue().y);
+                selected.buttonEast.wasPressedThisFrame, selected.rightStick.ReadValue().y, axis);
         }
 
         public override bool JoinPressed()

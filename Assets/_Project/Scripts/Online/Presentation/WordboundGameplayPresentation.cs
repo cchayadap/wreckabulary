@@ -35,6 +35,7 @@ namespace Wreckabulary.Online
         readonly Dictionary<string, string> equipped = new Dictionary<string, string>(StringComparer.Ordinal);
         readonly Dictionary<string, MatchDefenseState> defenses = new Dictionary<string, MatchDefenseState>(StringComparer.Ordinal);
         readonly Dictionary<string, MatchActorState> actors = new Dictionary<string, MatchActorState>(StringComparer.Ordinal);
+        readonly Dictionary<string, PlayerInventory> expressionInventories = new Dictionary<string, PlayerInventory>(StringComparer.Ordinal);
         readonly Dictionary<string, ItemDefinition> meleeItems = new Dictionary<string, ItemDefinition>(StringComparer.Ordinal);
         readonly HashSet<string> meleeAvailable = new HashSet<string>(StringComparer.Ordinal);
         readonly Dictionary<int, ItemInstance> inventoryItems = new Dictionary<int, ItemInstance>();
@@ -82,7 +83,7 @@ namespace Wreckabulary.Online
             appearances.Clear();
             equipped.Clear();
             defenses.Clear();
-            actors.Clear(); meleeItems.Clear(); meleeAvailable.Clear(); inventoryItems.Clear(); presentPlayers.Clear();
+            actors.Clear(); expressionInventories.Clear(); meleeItems.Clear(); meleeAvailable.Clear(); inventoryItems.Clear(); presentPlayers.Clear();
             var inventories = frame.Economy.Players;
             bool needsMelee = false;
             foreach (var actor in frame.Actors) needsMelee |= actor.Attack != null;
@@ -103,6 +104,7 @@ namespace Wreckabulary.Online
                 foreach (var inventory in inventories)
                 {
                     if (inventory.PlayerId != seat) continue;
+                    expressionInventories.Add(actor.PlayerId, inventory);
                     if (inventory.CarriedFurniture < 0 && actor.EquippedSlot >= 0 && actor.EquippedSlot < inventory.Slots.Length &&
                         inventory.Slots[actor.EquippedSlot] > 0) selected = "item:" + inventory.Slots[actor.EquippedSlot];
                     if (inventory.CanAct && inventory.Craft == null && inventory.CarriedFurniture < 0 &&
@@ -214,15 +216,18 @@ namespace Wreckabulary.Online
             var velocity = body?.Velocity ?? default;
             bool playing = result == null;
             equipped.TryGetValue(view.Actor ?? "", out var item);
+            expressionInventories.TryGetValue(view.Actor ?? "", out var inventory);
             view.Expression.Observe(new AvatarExpressionSample {
                 Epoch = frame.Epoch, Tick = frame.Progress.Tick,
                 Available = actor != null && player != null && body != null && player.Connected && !player.Returned && !frame.Progress.Migrating,
                 Health = actor?.Health ?? 0, Downed = actor == null || actor.Health <= 0 || player == null || player.Eliminated,
                 Hurt = playing && actor != null && actor.StunnedUntilTick > frame.Progress.Tick,
-                Focus = playing && actor != null && (actor.Attack != null || actor.Defense != null || actor.DodgeUntilTick > frame.Progress.Tick),
+                Focus = playing && actor != null && (actor.Attack != null || actor.Defense != null || actor.DodgeUntilTick > frame.Progress.Tick ||
+                    inventory != null && inventory.CanAct && inventory.Craft != null),
                 Falling = playing && body != null && body.Active && velocity.Y < -2.5f,
                 Moving = playing && velocity.X * velocity.X + velocity.Z * velocity.Z > .04f,
-                RecoveryGeneration = player?.RecoveryGeneration ?? 0, Equipped = !string.IsNullOrEmpty(item), Celebrate = victory
+                RecoveryGeneration = player?.RecoveryGeneration ?? 0,
+                Equipped = !string.IsNullOrEmpty(item) || inventory != null && inventory.CarriedFurniture >= 0, Celebrate = victory
             });
         }
 
@@ -327,7 +332,7 @@ namespace Wreckabulary.Online
         {
             foreach (var view in views) view.Dispose();
             views.Clear(); appearances.Clear(); equipped.Clear(); defenses.Clear();
-            actors.Clear(); meleeItems.Clear(); meleeAvailable.Clear(); inventoryItems.Clear(); presentPlayers.Clear();
+            actors.Clear(); expressionInventories.Clear(); meleeItems.Clear(); meleeAvailable.Clear(); inventoryItems.Clear(); presentPlayers.Clear();
             frameEpoch = -1; frameTick = 0; frameUnavailable = true; frameHasResult = false; binding = null; Fault = "";
         }
         void OnDestroy()

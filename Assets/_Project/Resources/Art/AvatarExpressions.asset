@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Art.AvatarExpressionProfile
   Poses:
   - State: 0
-    BrowRelax: 55
+    BrowRelax: 75
     Blink: 0
     NaturalBlink: 1
   - State: 1
@@ -30,8 +30,8 @@ MonoBehaviour:
     Blink: 0
     NaturalBlink: 0
   - State: 4
-    BrowRelax: 4
-    Blink: 38
+    BrowRelax: 18
+    Blink: 60
     NaturalBlink: 0
   - State: 5
     BrowRelax: 12

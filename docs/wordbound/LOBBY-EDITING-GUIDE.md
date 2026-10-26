@@ -6,9 +6,13 @@ Open **Wreckabulary → Open Current Workspace → Design**. Edit outside Play M
 
 **Facial reactions & blending** opens `Assets/_Project/Resources/Art/AvatarExpressions.asset`. Select a state in **Poses** and adjust **Brow Relax** / **Blink** (0–100); use **Blend Seconds** for transition softness. This preserves the original mouthless character. Local and Wordbound characters use the saved default; an assigned component profile can override it. Save outside Play and try the action again. These controls change appearance, not combat rules.
 
+The reviewed defaults use Idle **75 / 0** and Hurt **18 / 60** (Brow Relax / Blink). The native save/reload and repeat checks preserve every other pose, timing and metadata file. The one-time **Art → Apply Reviewed Calm Idle and Hurt** command refuses customized or unsaved Idle/Hurt settings; use the Inspector for your own tuning.
+
 **Gameplay artwork & held pose** opens `Assets/_Project/Data/Wordbound/Authoring/Presentation.asset`. Under **Holding Pose → Items**, BAT and HAMMER align their full authored grip frame. **Rotation Trim** adjusts degrees around the hand without shifting grip contact. Other handling families still require individual review. Save, reopen and playtest; inspect idle, windup, hit and recovery from both sides. Do not edit the original FBX to tune a held pose.
 
 The compact Wordbound HUD uses **Interface fonts, colours & spacing** (`Interface.asset`): **Primary** controls the panel colour, **Primary Text** its lettering and **Body Size** its type size. Full controls are in the player's **Menu → Help**; quick tips can be hidden there. HUD positions remain generated in this correction, so dragging temporary Play-mode panels is not a saved layout edit.
+
+## Saved lobby layouts
 
 Home, Shop, Loadout, lobby-camera and typography assets are saved in this checkout. For a grey asset button, scroll to **Design → Workspace Tools → Create missing developer assets**. Setup preserves existing authored assets; repair any reported invalid reference. Home's five Editor cases and 70 combined Play cases pass, with all 146 authored files preserved. Loadout/camera checks also pass. Physical editor interaction, visual and current Windows checks remain in progress. [Verification](../../BuildNotes/developer-workspace/home-recovery-20261026.json).
 

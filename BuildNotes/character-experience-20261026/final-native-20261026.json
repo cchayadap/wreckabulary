@@ -1,0 +1,402 @@
+{
+  "utc": "2026-10-26T14:40:39.446Z",
+  "status": "FOCUSED_NATIVE_PASS_WINDOWS_PENDING",
+  "native": [
+    {
+      "result": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:38:05Z",
+        "secs": 14,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261026T143805Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-check-2026-10-26T14-38-04-915Z-stdout.txt",
+        "sha256": "bb098af12963f613b9a79edfa1ed1e1f6a94dbab24a506002a5c4150e1234306",
+        "bytes": 287
+      },
+      "log": {
+        "path": "Logs/gate_check_all_20261026T143805Z.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "evidence": []
+    },
+    {
+      "result": {
+        "cmd": "test editmode --cold --filter WordboundExpressionActionTests|WordboundHoldingPoseTests|WordboundPresentationTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:27:01Z",
+        "secs": 39.6,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T142701Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T142701Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 12.7,
+        "tests": {
+          "total": 80,
+          "passed": 80,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-holdingtests-2026-10-26T14-27-01-318Z-stdout.txt",
+        "sha256": "4a7c7e0e809e2b847bf6bfdc4234dd950663ef208c4729d5cf9955e34af82327",
+        "bytes": 487
+      },
+      "log": {
+        "path": "Logs/gate_test_editmode_20261026T142701Z.log",
+        "sha256": "3051eaa8229039ff3cf83872bdca25fb97fdf0a27751321c29b8ee3130c35aa5",
+        "bytes": 44315
+      },
+      "evidence": [
+        {
+          "path": "TestResults/editmode_20261026T142701Z.xml",
+          "sha256": "99db8eb4b47d561e685fa33d95d2c72725d84a61ef47457946f1e3d84e52b701",
+          "bytes": 71438
+        }
+      ]
+    },
+    {
+      "result": {
+        "cmd": "test playmode --cold --filter AvatarExpressionTests|AvatarExpressionActionTests|AvatarVictoryExpressionTests|PlayerAppearanceTests|NativeAnimationStateTests|AvatarSurfaceRuntimeTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:30:03Z",
+        "secs": 60.5,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_playmode_20261026T143003Z.log",
+        "evidence": [
+          "TestResults/playmode_20261026T143003Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 28.3,
+        "tests": {
+          "total": 19,
+          "passed": 19,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-expressionplay-2026-10-26T14-30-03-503Z-stdout.txt",
+        "sha256": "a17dbbba4c570d3244dc1815be3601e57e3713bf9484146f95034eed1a215748",
+        "bytes": 556
+      },
+      "log": {
+        "path": "Logs/gate_test_playmode_20261026T143003Z.log",
+        "sha256": "60ca6d2d897e90ad081ca0bc35233616d2947ac126904cff438a0b920538b7a6",
+        "bytes": 720824
+      },
+      "evidence": [
+        {
+          "path": "TestResults/playmode_20261026T143003Z.xml",
+          "sha256": "9477c1a44ea9adb4da8aa9a2a8c3e32e164d0aefd22c34e8a69aac6c05ae8b84",
+          "bytes": 53233
+        }
+      ]
+    },
+    {
+      "result": {
+        "cmd": "test editmode --cold --filter WordboundInputBindingTests|WordboundRecipeGridTests|WordboundRecipeGridGuiTests|WordboundRecipeCacheTests|WordboundHudLayoutTests|WordboundMenuGuiTests|WordboundUiThemeTests|WordboundHudClarityTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:36:33Z",
+        "secs": 42.2,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261026T143633Z.log",
+        "evidence": [
+          "TestResults/editmode_20261026T143633Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 15.4,
+        "tests": {
+          "total": 52,
+          "passed": 52,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-hudtests-2026-10-26T14-36-33-423Z-stdout.txt",
+        "sha256": "aa247352031dd8abf6126a8af321c553ed25404b6214edb3da546fec59ee9fca",
+        "bytes": 602
+      },
+      "log": {
+        "path": "Logs/gate_test_editmode_20261026T143633Z.log",
+        "sha256": "14b2058a893a9ff2627d6d0a2d86f4b4c8895280cf8c4f15691aa59d3b2b1538",
+        "bytes": 47227
+      },
+      "evidence": [
+        {
+          "path": "TestResults/editmode_20261026T143633Z.xml",
+          "sha256": "68f3085a56b3da258b8d72ff888c38d31ba0da4fed232279ccdd6d819e7329ff",
+          "bytes": 49814
+        }
+      ]
+    },
+    {
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.WordboundHoldingViewsCapture.Run --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-26T14:38:36Z",
+        "secs": 42,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_Run_20261026T143836Z.log",
+        "evidence": [
+          "Logs/exec/20261026T143836Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 15.4,
+        "messages": [
+          "[Wreckabulary] Holding views CAPTURED; MULTI-ANGLE VISUAL REVIEW REQUIRED, NO CLEARANCE APPROVAL; receipt=BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/receipt.json",
+          "[GSK] exec Wreckabulary.EditorTools.WordboundHoldingViewsCapture.Run ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261026T143836Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.WordboundHoldingViewsCapture.Run",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      },
+      "receipt": {
+        "path": ".harness/delivery/workspace-holdingsetup-2026-10-26T14-38-36-341Z-stdout.txt",
+        "sha256": "5ebf5bd675f31f23ca06e1014e93f3b18c169a5702caf176a2742a24a2472ab1",
+        "bytes": 899
+      },
+      "log": {
+        "path": "Logs/gate_exec_Run_20261026T143836Z.log",
+        "sha256": "58c4c9668ac14309ae2b26be03712eb68bfce5a199d807ab967bc3c29ac3b093",
+        "bytes": 35615
+      },
+      "evidence": [
+        {
+          "path": "Logs/exec/20261026T143836Z.json",
+          "sha256": "7165e8eb9dee5c023ee9a112a67806d183095fa1f7e0739ed67725dec8723aa0",
+          "bytes": 137
+        }
+      ]
+    }
+  ],
+  "source": [
+    {
+      "path": "Assets/_Project/Resources/Art/AvatarExpressions.asset",
+      "sha256": "2adfff7c724fefd43619613739b30822dab10b4949e11d1162b4b5aa93b26724",
+      "bytes": 1175
+    },
+    {
+      "path": "Assets/_Project/Editor/Online/WordboundHoldingViewsCapture.cs",
+      "sha256": "4370397de0a164c841377524381ee43540cb57e7a269cee19b11740e561f4e30",
+      "bytes": 28932
+    },
+    {
+      "path": "Assets/_Project/Scripts/Player/PlayerAppearance.cs",
+      "sha256": "ef1dbd05a3b64328508dad97f861273e59b6a5519507dee6e01480489a67e442",
+      "bytes": 28097
+    },
+    {
+      "path": "Assets/_Project/Scripts/Game/RoundManager.cs",
+      "sha256": "c1b40ed5d8af75e442747e83e0b45a57a4d3f7db53f01716e4ae1ad5fb581956",
+      "bytes": 9314
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Presentation/WordboundGameplayPresentation.cs",
+      "sha256": "8eb1642f68c9bc704d6f90bdb789afec5fec13fdecba38f871c5290d90246e4f",
+      "bytes": 19491
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundMatchHudRecipes.cs",
+      "sha256": "6eb096f12cb132258cf1957d1a6ecd5fba1e9dac49f0557bda664ac9a14d1d76",
+      "bytes": 6137
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundMatchHudMenu.cs",
+      "sha256": "17b809e9262704de9c156fda328371db21fc77d94870007e1a6816daa43a6edc",
+      "bytes": 13499
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundInputBinding.cs",
+      "sha256": "2c050eb29f5f762621bf2e51477e9981b90c1301e2688a7d5f5dcf8110ddb913",
+      "bytes": 12263
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundMenuFocus.cs",
+      "sha256": "ceff503b82d8addf9857c4c6139a3cbeb30184e201c2e012158b95503a671d2f",
+      "bytes": 2595
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/OriginalItemArt.cs",
+      "sha256": "951c915e273801fb73881664bd3267981cde963db45c4de99f18e1b51d2b44d5",
+      "bytes": 797
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundOriginalEquipmentQa.cs",
+      "sha256": "9bbd0c6806e471bb8b019f629e579d27934371d69550a7f6614a3fc2a67f799b",
+      "bytes": 24829
+    }
+  ],
+  "tuning": {
+    "path": "BuildNotes/character-experience-20261026/tuned-expressions-20261026.json",
+    "sha256": "aba80bb2269ec8c724c1fdce0f428455a6093a5d864a50b367428c8d1e8671a0",
+    "bytes": 13153
+  },
+  "holding": {
+    "receipt": {
+      "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/receipt.json",
+      "sha256": "94ae88ed45232fb11cf340bb971cecf88f33da7634d9013bb2e31e34fc3e1d02",
+      "bytes": 353001
+    },
+    "images": [
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-active-front.png",
+        "sha256": "cd7bc4676655349094118b54e28b3cbe2d1d32febe3e76dc6151b9e62b4cab20",
+        "bytes": 110748
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-active-rear.png",
+        "sha256": "b8387945624f9dda3310080ad33cd31fb186e2985378d8067c1fcbf39bce60b0",
+        "bytes": 106229
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-active-side.png",
+        "sha256": "d2ed19f384c15f2606481c5c98f0ed842949545c14ed43156b6d982e070df7e3",
+        "bytes": 112422
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-early-windup-front.png",
+        "sha256": "589a2cdbda85d150363b3e33bee39a179545e67393c66177c6f8fb1e9f801012",
+        "bytes": 117459
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-early-windup-rear.png",
+        "sha256": "edc5cfa552742539354ccca18eab5ef72938849591e83ce595c13f02c7322f55",
+        "bytes": 115544
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-early-windup-side.png",
+        "sha256": "3f8696d2b5b7aa0f8f5bc003de407737d8cf0228412e69d98de2f30e4a47ea4b",
+        "bytes": 104461
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-late-windup-front.png",
+        "sha256": "d00e483cf5e1229c0fd2c738225895bc400a29bb6972dac1429fa2fb2f099a39",
+        "bytes": 121129
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-late-windup-rear.png",
+        "sha256": "f31599e6fffa6d7938fa66b93fda16ae7f7950b428a2275f1cb175c665279ddc",
+        "bytes": 117071
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/bat-late-windup-side.png",
+        "sha256": "8ac9937242b9b09de6fce98e61d9e55506b2bc3193cf9bb5ec6d289a7fa24966",
+        "bytes": 97564
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-active-front.png",
+        "sha256": "55e18ee60f8a700ed1fd5e8bfdc2b17e34ad2528f7c1530105ba25dcbf009af1",
+        "bytes": 110770
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-active-rear.png",
+        "sha256": "0b1cb16b1a0c74d4afc618aaac037e36f3a90288e7716fddb0f461c1a272e8a4",
+        "bytes": 105199
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-active-side.png",
+        "sha256": "3350170d4105d879fdecf6eb1c7a2665911a664739056ac1782589aa0af36b36",
+        "bytes": 111690
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-early-windup-front.png",
+        "sha256": "ff459b4af01a87226817e997c8650aaba97bfc102662043e8f4dc7c04148d3fb",
+        "bytes": 115728
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-early-windup-rear.png",
+        "sha256": "4d508ca9ea7523e92aee78b4fe12bcd6a650c35fb455a93cb226222d64fbaaf4",
+        "bytes": 112515
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-early-windup-side.png",
+        "sha256": "c2b80c9e505636988124c3c36a6e71390b6f3cefc8213fa4b5174ccd0428c417",
+        "bytes": 108420
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-late-windup-front.png",
+        "sha256": "631143a2e610e25223903dfdaea8cd94f73a5167622e21d227459eb5f96a6ab7",
+        "bytes": 117154
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-late-windup-rear.png",
+        "sha256": "507d58baad57c032be33bd5cb4b7aea72bf70154376ce961b5a1297ff2fea3ff",
+        "bytes": 112494
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T143859915Z-8a9a18e0/hammer-late-windup-side.png",
+        "sha256": "c35468e7fc9dfbdafd5002f2bac70a8a9a8eb968263a746a46f9d0172d369042",
+        "bytes": 103431
+      }
+    ],
+    "preservedFailures": [
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T141543117Z-22f4828c/receipt.json",
+        "sha256": "3db501b79f6b51c9dad580f3a4adff34c1fc8a317c516eb25fe8fe2047852984",
+        "bytes": 173444
+      },
+      {
+        "path": "BuildNotes/character-experience-20261026/holding/views/captures/20261026T142356007Z-b1ab8619/receipt.json",
+        "sha256": "bfc828f743e30d14779cec81cd3f6fdb265c2475dc1ea574866d4a545a9eb111",
+        "bytes": 303283
+      }
+    ]
+  },
+  "limits": [
+    "Multi-angle captures sample the production cosmetic graph at synthetic canonical ages; they do not certify physical collision clearance or all motion phases.",
+    "The nine original-rig states do not cover every action or every mode ending. See emotion/action-coverage.md.",
+    "Native GUI tests do not prove physical mouse/controller interaction. Exact-source Windows verification follows separately.",
+    "Public online full matches and five original house modes remain unfinished; no production or owner visual acceptance is implied."
+  ]
+}
