@@ -47,6 +47,34 @@ namespace Wreckabulary.Qa
         float maxPlayerY = float.NegativeInfinity, maxKeepsakeY = float.NegativeInfinity;
         string observationError = "";
         bool initialComplete;
+        WordboundMeleeCapture meleeCapture;
+
+        internal WordboundMeleeCapture BeginMelee(ItemDefinition item)
+        {
+            if (meleeCapture != null) throw new QaFailException("Only one bounded melee capture may run.");
+            meleeCapture = new WordboundMeleeCapture(context, client, this, item);
+            return meleeCapture;
+        }
+
+        internal void EndMelee()
+        {
+            meleeCapture?.Dispose();
+            meleeCapture = null;
+        }
+
+        internal Camera MeleeCamera => camera;
+
+        internal object SampleMelee(out Transform avatar, out Transform hand, out Transform held, out Transform grip)
+        {
+            if (!Ready("BAT") || lastCameraFrame != Time.frameCount)
+                throw new QaFailException("The actual BAT camera did not render this frame with ready original equipment.");
+            avatar = AvatarRoot();
+            hand = ModelVisual.FindNamed(Artwork(avatar, "player").gameObject, "grip_R");
+            held = Artwork(avatar, "BAT");
+            grip = held ? ModelVisual.FindNamed(held.gameObject, "Grip_R") : null;
+            if (!hand || !held || !grip) throw new QaFailException("The live original BAT and right-hand grip markers are required.");
+            return new[] { Observe("player", Artwork(avatar, "player")), Observe("BAT", held) };
+        }
 
         public void Begin(QaContext owner, WordboundLauncher source)
         {
@@ -390,6 +418,7 @@ namespace Wreckabulary.Qa
 
         void Update()
         {
+            if (meleeCapture != null && (!QaRunner.IsRunning || context?.CurrentStepName != "equipment_bat_motion")) EndMelee();
             if (expectClient && !client && launcher) client = launcher.GetComponentInChildren<WordboundLocalMatchClient>();
             if (expectClient && client) AttachObservation(client);
             if (!finishing && (!QaRunner.IsRunning || context == null ||
@@ -407,6 +436,7 @@ namespace Wreckabulary.Qa
 
         public void RestoreView()
         {
+            EndMelee();
             if (restored) return;
             restored = true;
             if (observed) observed.FrameChanged -= ObserveFrame;

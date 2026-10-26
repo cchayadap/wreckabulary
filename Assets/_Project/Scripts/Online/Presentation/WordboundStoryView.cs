@@ -22,6 +22,9 @@ namespace Wreckabulary.Online
         WordboundStoryNotice cue;
         public IReadOnlyList<WordboundStoryNotice> Journal { get; private set; } = Array.Empty<WordboundStoryNotice>();
 
+        public WordboundStoryEpilogue Epilogue(ModeDefinition mode) => plan != null && controller && controller.IsPresentationReady
+            ? plan.Epilogue(controller.Frame, actor, mode) : null;
+
         public void Bind(WordboundGameplayController gameplay, ResolvedCourse course, ItemCatalogue items,
             string localActor, Camera camera)
             => Bind(gameplay, course, items, localActor, camera, null);

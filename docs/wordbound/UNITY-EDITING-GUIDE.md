@@ -95,9 +95,11 @@ In Edit Mode choose **Tools → Wordbound → Create or verify story profile**. 
 
 Under **Notices**, keep each **Id** unchanged. Edit **Cue → Fallback** for the short line shown in the world, and **Clue → Fallback** for the optional journal explanation. Defaults use seven words or fewer for cues. **Chapters → Title → Fallback** changes journal chapter names. The Inspector validates copy and offers **Copy preview → Clue** to inspect it without granting progress.
 
-Save and start a fresh match or playtest. Online matches, the in-game Workshop and Inspector course playtests use the assigned profile. At most one earned cue appears near its existing anchor; **Story clues** in the equipment menu retains the full collected journal. Text is captured at match setup, so changing the asset does not update an already running match.
+Save and start a fresh match or playtest. Online matches, the in-game Workshop and Inspector course playtests use the assigned profile. At most one earned cue appears near its existing anchor; **Journal** in the equipment menu retains the full collected journal. Text is captured at match setup, so changing the asset does not update an already running match.
 
-The profile changes the existing Lost Address copy. It does not create triggers, endings or restoration tasks for a custom course. **Key** is an optional localization identifier; the current launcher uses fallback text and does not supply translations. Check font coverage in play before adding another language.
+For ending copy, choose **Add missing epilogue copy** in the Inspector. This adds the six supported rows while preserving existing authored text. Edit **Epilogues → Title → Fallback** (up to 48 characters) and **Cue → Fallback** (up to 96), keeping each Id unchanged. **Optional epilogue copy → Epilogue** previews the selected title and line without changing progress. Existing profiles with no epilogue rows use built-in defaults.
+
+The match selects these optional journal summaries from confirmed own-team delivery, timeout or race progress. They do not open automatically. The profile edits copy for existing outcomes; new objectives, optional Restoration tasks and custom-course story triggers need separate implementation. **Key** is an optional localization identifier; the current launcher uses fallback text and does not supply translations. Check font coverage in play before adding another language. Epilogue source is integrated; combined native and Windows verification remain pending.
 
 ## Edit equipment appearance and grips
 

@@ -28,7 +28,7 @@ namespace Wreckabulary.Qa
         ItemCatalogue items;
         string draft, manifest;
         readonly List<object> receipts = new List<object>();
-        bool worldCaptured, batCaptured, hammerCaptured;
+        bool worldCaptured, batCaptured, motionCaptured, hammerCaptured;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         static void Register() => QaScenarios.Register("wordbound_original_equipment", () => new WordboundOriginalEquipmentQa());
@@ -39,6 +39,7 @@ namespace Wreckabulary.Qa
                 .When(_ => Object.FindFirstObjectByType<LobbyMenu>() != null).Do(Open);
             yield return QaStep.Named("equipment_world").Timeout(90).Do(World);
             yield return QaStep.Named("equipment_bat").Timeout(90).Do(Bat);
+            yield return QaStep.Named("equipment_bat_motion").Timeout(75).Do(BatMotion);
             yield return QaStep.Named("equipment_hammer").Timeout(120).Do(Hammer);
             yield return QaStep.Named("equipment_return").Timeout(45).Do(Return);
         }
@@ -151,9 +152,22 @@ namespace Wreckabulary.Qa
         IEnumerator Hammer(QaContext context)
         {
             if (!batCaptured) throw new QaFailException("The actual crafted BAT capture must complete first.");
+            if (!motionCaptured) throw new QaFailException("The accepted BAT motion sequence must complete before changing equipment.");
             yield return Craft(context, "HAMMER", 3);
             yield return Capture(context, "wordbound_original_held_hammer", "HAMMER");
             hammerCaptured = true;
+        }
+
+        IEnumerator BatMotion(QaContext context)
+        {
+            if (!batCaptured) throw new QaFailException("The original BAT still must precede its live attack sequence.");
+            RequireHealthy();
+            var capture = observation.BeginMelee(items.Get("BAT"));
+            yield return capture.Run();
+            RecordReceipt(context, capture.Command, "");
+            motionCaptured = capture.Passed;
+            observation.EndMelee();
+            if (!motionCaptured) throw new QaFailException("The BAT motion sequence did not pass.");
         }
 
         MatchSnapshot Frame { get { RequireHealthy(); return client.Gameplay.Frame; } }
@@ -191,6 +205,12 @@ namespace Wreckabulary.Qa
             if (action == WordboundAction.CollectLetter) observation.RecordPhysics("before_collect_" + (receipts.Count + 1), target);
             var command = client.Gameplay.Submit(action, target, revision, slot, value);
             yield return context.WaitUntil(() => Frame.Commands.Frontiers[Actor] >= command.Sequence, 15, "actual " + action + " receipt");
+            RecordReceipt(context, command, target);
+        }
+
+        void RecordReceipt(QaContext context, PlayerCommand command, string target)
+        {
+            var action = command.Action;
             var receipt = Frame.Commands.Receipts.Single(entry => entry.ActorId == Actor && entry.Sequence == command.Sequence);
             receipts.Add(new Dictionary<string, object> { ["sequence"] = command.Sequence, ["epoch"] = Frame.Epoch,
                 ["tick"] = Frame.Progress.Tick, ["action"] = action.ToString(), ["target"] = target,
@@ -228,7 +248,7 @@ namespace Wreckabulary.Qa
             if (observation) observation.Finish();
             yield return context.WaitFrames(2);
             RequireDraft();
-            if (client || !workshop.Visible || !worldCaptured || !batCaptured || !hammerCaptured)
+            if (client || !workshop.Visible || !worldCaptured || !batCaptured || !motionCaptured || !hammerCaptured)
                 throw new QaFailException("All three actual captures and clean return to the unchanged inspection draft are required.");
             context.Note("equipment_actual_captures_and_return", true);
         }

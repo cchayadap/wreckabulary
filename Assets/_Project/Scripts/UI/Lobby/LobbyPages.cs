@@ -556,8 +556,9 @@ namespace Wreckabulary
         public string Pinned { get; private set; }
 
         RectTransform lockerList, detail;
+        TMP_Text recipeFinish;
         float scrolled;
-        string trying, previewing;
+        string trying, previewing, shownRecipe;
 
         public override void Opened()
         {
@@ -565,13 +566,19 @@ namespace Wreckabulary
             lockerList = null;
         }
 
+        public override void Closed()
+        {
+            trying = previewing = null;
+            if (Menu && Menu.Stage) Menu.Stage.Dress(Menu.Outfit);
+        }
+
         protected override void Build()
         {
             if (lockerList) scrolled = lockerList.anchoredPosition.y;
             lockerList = detail = null;
-            trying = previewing = null;
-            int words = GameConfig.Current.Items.Enabled.Count();
-            var body = Side("Loadout", ShowingRecipes ? $"{words} words to spell. In a match, press Q and type one." : "All style. Zero stats.");
+            recipeFinish = null;
+            trying = previewing = shownRecipe = null;
+            var body = Side("Loadout");
             var tabs = LobbyKit.Segmented(body.parent, "Tabs", new[] { ("LOCKER", "Locker"), ("RECIPES", "Recipes") },
                 ShowingRecipes ? "RECIPES" : "LOCKER", id => ShowRecipes(id == "RECIPES"));
             tabs.Place(Vector2.one, Vector2.one, new Vector2(-84 - 240, -74), new Vector2(-84, -26));
@@ -638,9 +645,14 @@ namespace Wreckabulary
             }
 
             var gear = LobbyKit.Column(lockerList, "Gear", 8);
-            LobbyKit.SectionLabel(gear, "Gear finish · apply to all");
+            var gearHeading = LobbyKit.Row(gear, "Gear heading", 8);
+            gearHeading.Size(-1, 40);
+            gearHeading.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
+            LobbyKit.SectionLabel(gearHeading, "Gear · apply to all").Size(-1, 28, 1);
+            LobbyKit.TextAction(gearHeading, "Per-recipe finishes", "By recipe", 16,
+                () => ShowRecipes(true), icon: LobbyIcons.Chevron).Size(132, 40);
             string wornSkin = SkinOf(outfit);
-            var finishState = LobbyKit.Text(gear, wornSkin == null ? "Mixed recipe finishes · choose below to match every recipe." : "All recipes: " + wornSkin,
+            var finishState = LobbyKit.Text(gear, wornSkin == null ? "Mixed recipe finishes · choose below to match all." : "All recipes: " + wornSkin,
                 16, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft);
             finishState.name = "Gear finish state";
             finishState.enableAutoSizing = true; finishState.fontSizeMin = 12; finishState.fontSizeMax = 16;
@@ -871,8 +883,12 @@ namespace Wreckabulary
         void Recipes(RectTransform body)
         {
             var shown = Shown();
-            detail = LobbyKit.Rect(body, "Recipe detail").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 196));
-            var view = LobbyKit.Rect(body, "Recipes").Place(Vector2.zero, Vector2.one, new Vector2(0, 212), Vector2.zero);
+            var finish = LobbyKit.TextAction(body, "Recipe finish", "Finish", 18,
+                CustomizeRecipe, icon: LobbyIcons.Chevron);
+            ((RectTransform)finish.transform).Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 44));
+            recipeFinish = finish.GetComponentInChildren<TMP_Text>();
+            detail = LobbyKit.Rect(body, "Recipe detail").Place(Vector2.zero, new Vector2(1, 0), new Vector2(0, 56), new Vector2(0, 252));
+            var view = LobbyKit.Rect(body, "Recipes").Place(Vector2.zero, Vector2.one, new Vector2(0, 268), Vector2.zero);
             var list = LobbyKit.Scroll(view, "Scroll", 0);
             list.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(4, 4, 8, 12);
             var grid = LobbyKit.Grid(list, "Grid", new Vector2(122, 118), 12);
@@ -915,9 +931,19 @@ namespace Wreckabulary
             Reselect("Recipe " + id);
         }
 
+        void CustomizeRecipe()
+        {
+            string id = shownRecipe;
+            if (id == null) return;
+            Menu.Open(LobbyMenu.Shop);
+            Menu.Page<ShopPage>().SelectRecipe(id);
+        }
+
         void Detail(ItemDefinition item)
         {
             if (!detail || item == null) return;
+            shownRecipe = item.Id;
+            if (recipeFinish) recipeFinish.text = "Finish · " + Appearance.Pick(item, Menu.Outfit.SkinFor(item.Id));
             LobbyKit.Clear(detail);
             var strip = LobbyKit.Rect(detail, "Strip").Fill();
             LobbyKit.Face(strip, LobbyKit.Track, 18);
@@ -937,13 +963,8 @@ namespace Wreckabulary
             blurb.name = "Blurb";
             blurb.enableAutoSizing = true; blurb.fontSizeMin = 15; blurb.fontSizeMax = 22;
             blurb.Size(-1, 30);
-            var how = LobbyKit.Row(words, "How", 6);
-            how.Size(-1, 30);
-            how.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
-            LobbyKit.Text(how, "Press", 16, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft).Size(-1, 28);
-            LobbyKit.Kbd(how, "Q");
-            LobbyKit.Text(how, "and type it, then", 16, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft).Size(-1, 28);
-            LobbyKit.Kbd(how, "ENTER");
+            LobbyKit.Text(words, "Spell this word in a match", 16, LobbyKit.Muted,
+                TextAlignmentOptions.MidlineLeft).Size(-1, 30);
         }
 
         public static string Blurb(ItemDefinition item)

@@ -68,6 +68,9 @@ namespace Wreckabulary.Online
         public bool IsSimulationPaused => !initialized || Fault != "" || stopping ||
             WordboundGameplayPlan.IsPaused(localReady, session?.GameplayReady ?? false, runner != null && runner.IsServer,
                 hostReady, Authority?.Match.IsPaused ?? true, frame);
+        public bool IsPresentationReady => initialized && !stopping && Fault == "" && localReady &&
+            (session?.GameplayReady ?? false) && runner && runner.IsRunning && (!runner.IsServer || hostReady) &&
+            frame != null && !frame.Progress.Migrating;
         public string Fault { get; private set; } = "";
         public event Action<string> Faulted;
         public event Action<MatchSnapshot> FrameChanged;

@@ -265,6 +265,35 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator LockerRecipeFinishOpensTheSelectedGearWithoutChangingTheOutfit()
+        {
+            var menu = LobbyMenu.Instance;
+            menu.Open(LobbyMenu.Loadout);
+            yield return null;
+            string outfit = menu.Outfit.Serialize();
+            string savedOutfit = PlayerPrefs.GetString(LobbyMenu.OutfitKey);
+            int coins = menu.Career.Coins;
+            Click("Per-recipe finishes");
+            yield return null;
+            Click("Recipe SHIELD");
+            yield return null;
+            var finish = menu.GetComponentsInChildren<Button>().Single(button => button.name == "Recipe finish");
+            StringAssert.Contains(menu.Outfit.SkinFor("SHIELD") ?? "Classic", finish.GetComponentInChildren<TMP_Text>().text);
+            EventSystem.current.SetSelectedGameObject(finish.gameObject);
+            yield return null;
+            Assert.IsTrue(finish, "focusing the finish action must not replace the control with the recipe preview");
+            Click("Recipe finish");
+            yield return null;
+            Assert.AreEqual(LobbyMenu.Shop, menu.Current);
+            Assert.AreEqual(ShopPage.Gear, menu.Page<ShopPage>().Category);
+            Assert.AreEqual("SHIELD", menu.Page<ShopPage>().SelectedRecipe);
+            Assert.AreEqual("Choose recipe", EventSystem.current.currentSelectedGameObject.name);
+            Assert.AreEqual(outfit, menu.Outfit.Serialize());
+            Assert.AreEqual(savedOutfit, PlayerPrefs.GetString(LobbyMenu.OutfitKey));
+            Assert.AreEqual(coins, menu.Career.Coins);
+        }
+
+        [UnityTest]
         public IEnumerator LockerShowsMixedRecipesUntilApplyToAllIsExplicitlyChosen()
         {
             var menu = LobbyMenu.Instance;
