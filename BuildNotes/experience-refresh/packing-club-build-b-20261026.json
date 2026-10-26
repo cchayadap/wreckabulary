@@ -1,0 +1,274 @@
+{
+  "recordedUtc": "2026-10-26T03:45:31.975211+00:00",
+  "sourceRevision": "40e31200",
+  "exportResult": "PASS",
+  "exports": 8,
+  "renders": 16,
+  "agentVisualDecision": "Proceed to optional Unity comparison; original stays default",
+  "inspectedImages": [
+    "BAT-three-quarter-original.png",
+    "BAT-three-quarter-candidate.png",
+    "BAT-front-candidate.png",
+    "SHIELD-three-quarter-candidate.png",
+    "SHIELD-front-candidate.png",
+    "SHIELD-side-candidate.png",
+    "SHIELD-rear-candidate.png"
+  ],
+  "observations": [
+    "Rounded BAT crown and visible grip/laminate details retain the original soft shape.",
+    "Angular shield outline restored; layered rim and rear grip are readable.",
+    "Subtle panel shading and tiny inset details still need actual gameplay-distance review."
+  ],
+  "limits": [
+    "Unity import and native grip validation NOT-RUN.",
+    "No per-player shop or online skin admission.",
+    "No sustained performance or owner visual acceptance."
+  ],
+  "files": [
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/export-verification.json",
+      "bytes": 21566,
+      "sha256": "a4c85adf83bfa4854b1705c24f8f9531eca4b07b85d18c795896332eed341f33"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/BAT.fbx",
+      "bytes": 60364,
+      "sha256": "f70952b47f1f71875fd36baad2ac4e9e50e62b92da969ae98f9cacfa81e0dc8d"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/BAT.glb",
+      "bytes": 69528,
+      "sha256": "c0f6e93558ff4f290581ca362092d9a0b3e930b74e30f5b9eeb28e3c285c99a4"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/BAT_LOD1.fbx",
+      "bytes": 42156,
+      "sha256": "7113e7663146b0053b40b3fa7466f9f108d35e41f590a5c31cf198c25fb0ad2a"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/BAT_LOD1.glb",
+      "bytes": 40948,
+      "sha256": "40fee2548a788c63485cd49eca1239ad888de0e6c61f511133f0c1b81959b63c"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/PackingClubPalette.png",
+      "bytes": 6713,
+      "sha256": "b97c6fd96bdce8b28fca81499c728f456576696a2f25304811b3e2c7e3077bde"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/SHIELD.fbx",
+      "bytes": 40348,
+      "sha256": "78b012cdfc710c5711b99fb16af4ea6cee93fe1f608de5b3cec49674c6f4d208"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/SHIELD.glb",
+      "bytes": 32916,
+      "sha256": "18d7a584e660e0639bcc2ff3467fb61db3955c997447b3fa02fd804c6f5a236b"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/SHIELD_LOD1.fbx",
+      "bytes": 30940,
+      "sha256": "d64f6b903a998106ce708283dc564891ced7be45eeae924c9dc3eebd8d60b32e"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Exports/SHIELD_LOD1.glb",
+      "bytes": 21232,
+      "sha256": "6f14633120c110cbfc3853a613ef8fe73dab28c77f03e6b61b2c6899206d00ee"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Icons/BAT.png",
+      "bytes": 110446,
+      "sha256": "9bea80582cf29db496fba362f89291cf487e90fd51b2c4db9633a2e06ef0abe1"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Icons/SHIELD.png",
+      "bytes": 174798,
+      "sha256": "cdfbbc791988a4a1fb953bc5109daad1ddcd01ce7703a80f86a1e376d1b6b341"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/manifest.json",
+      "bytes": 17604,
+      "sha256": "32fd138ca5eda8dcc0c89b1681c2846f0fe8a40baff080c32b153f0d5c493af4"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-front-candidate.json",
+      "bytes": 957,
+      "sha256": "a3df72eeb3eb49416cc61d1d72f92bd443bf2cbb4c7446bd3fe0be99d781164a"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-front-candidate.png",
+      "bytes": 112264,
+      "sha256": "5b0a6e1dc27c9c66dd58996d4d9943ee7e9d7d908e34e6547b91ef767b70f0e9"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-front-original.json",
+      "bytes": 956,
+      "sha256": "50958fbd64af5c06669d4d0fbbc294c38562cbec4127d22b96e6a305629a999a"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-front-original.png",
+      "bytes": 109541,
+      "sha256": "ac6275054a5bf2598fafc109395efb22ba9e8b609f46f0a1551ee05816b84273"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-rear-candidate.json",
+      "bytes": 1086,
+      "sha256": "ecba937e879f723e3d9307847ae28c5d57d1bede737d9515dd6d8ef7ab8bee76"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-rear-candidate.png",
+      "bytes": 108660,
+      "sha256": "9dfb02e62ebdd56607be18ba71fb81def712df9624723a0d5ec0a9e57de45a24"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-rear-original.json",
+      "bytes": 1085,
+      "sha256": "55d28e33f20d4f37628ae3316edc2b9dd787159518da161d569eb2c7019ad7ba"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-rear-original.png",
+      "bytes": 108730,
+      "sha256": "b0c00ed91615eb328fde4403a77b2528817db5ade1e4ba1ed0e245f01ba7e3d0"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-side-candidate.json",
+      "bytes": 1006,
+      "sha256": "e63e64c64047cb56723a38712a4a8f22df8b416dc0bf2e13696a86b7ced9fd5a"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-side-candidate.png",
+      "bytes": 111074,
+      "sha256": "079aaa0ad65864795840fbc5f9968848879672ada5988df501f40f703f945715"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-side-original.json",
+      "bytes": 1005,
+      "sha256": "7860a7cb4e00165b6e2cc41a9efca1ca817affb9fe57b3a75da62a9724e0b513"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-side-original.png",
+      "bytes": 109801,
+      "sha256": "9cc77bfbb7fb1286115737da766171f78f5e4e744df55b8cd9590b07cfee1fa4"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-three-quarter-candidate.json",
+      "bytes": 1094,
+      "sha256": "d3a82f7a9af3c63de8b23e9e97082ab3583d1cc4acbdbc9090c4f4aac4ea6c1c"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-three-quarter-candidate.png",
+      "bytes": 110446,
+      "sha256": "9bea80582cf29db496fba362f89291cf487e90fd51b2c4db9633a2e06ef0abe1"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-three-quarter-original.json",
+      "bytes": 1093,
+      "sha256": "4bd98750d7a813054849977a5eda11c46d80bf5b60c6273b5fd6cb78a6b1fe23"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/BAT-three-quarter-original.png",
+      "bytes": 108703,
+      "sha256": "9f177c26bbaa5784079139b6c0cbbf59b35dd437fb7110754d818c0f3e33d279"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-front-candidate.json",
+      "bytes": 973,
+      "sha256": "362b1d30bb50ca429274581957edf4066478f81f565568aee02dcdda6a5db790"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-front-candidate.png",
+      "bytes": 191028,
+      "sha256": "9fdb550653dda0a548839af9ed21c57bbb54a328ffe9e8f7c4d38953c857d0d5"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-front-original.json",
+      "bytes": 972,
+      "sha256": "1f4dfeea03ac9f2d0dde811734f45a28104671a22a778153de9af84da74c8d69"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-front-original.png",
+      "bytes": 181930,
+      "sha256": "f93d1a65cbeb728caab68fe7d23869fc2e400fca50a975bb5d3088429e06636b"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-rear-candidate.json",
+      "bytes": 1090,
+      "sha256": "9763f76bba68a1b3a4da4bad496ffaa13ae13fdbd5a310587abf1ed927b8aa8f"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-rear-candidate.png",
+      "bytes": 157196,
+      "sha256": "1fbf6057d62c214d128aa587bdaa898d5315e1f8c200b578d315c72ee2711333"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-rear-original.json",
+      "bytes": 1089,
+      "sha256": "eff1caa87d924b873aa4664a680c1e1b45457ac37cef4a3f223834c79eccc913"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-rear-original.png",
+      "bytes": 159921,
+      "sha256": "47b8efe932756f7ad76895a927d1510620ee81adcb1611a746fbc24d1ed61bcc"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-side-candidate.json",
+      "bytes": 1026,
+      "sha256": "023ff22db1881277327c48a6d9c0ac23dd084756995b229fbe41d2afede36b8d"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-side-candidate.png",
+      "bytes": 119968,
+      "sha256": "bef029a1f741e08afb0aa9cfda17294b40bd2dea11e9ab5983c6339ee7d78acc"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-side-original.json",
+      "bytes": 1025,
+      "sha256": "328d7e0f2b28bcf5560a6c0e904b8e931b7fa196d582b10a73c67d215397e114"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-side-original.png",
+      "bytes": 120372,
+      "sha256": "fe8c3a9b7be343e3293226b414e17f083bca1f5828763326f25f369c761df302"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-three-quarter-candidate.json",
+      "bytes": 1098,
+      "sha256": "9d04dd4f19198a020b7a5c4f90d30f884299df3c142ccb8a7539f9de2a9f50f0"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-three-quarter-candidate.png",
+      "bytes": 174798,
+      "sha256": "cdfbbc791988a4a1fb953bc5109daad1ddcd01ce7703a80f86a1e376d1b6b341"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-three-quarter-original.json",
+      "bytes": 1097,
+      "sha256": "5e8f2b57f789b313420dcce7f2348682f28030c4d809b1adf2fe43e952606543"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Previews/SHIELD-three-quarter-original.png",
+      "bytes": 174586,
+      "sha256": "96d3561cc0e7f454b21d8a726646898086d967c499b1004ed710069a972b372c"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Source/original-BAT.glb",
+      "bytes": 192448,
+      "sha256": "f79c6a1465e6b1627953dc4baab9ef7a83b0cabd57b5c3ba8dbee11fc027ab15"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Source/original-SHIELD.glb",
+      "bytes": 21876,
+      "sha256": "c52b3c7c23f5cdd664bba168e11b1c803bfed57aee9cdd6a4b049f0fb58f5552"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Source/packing_club.py",
+      "bytes": 43277,
+      "sha256": "e5a1ed9e7bad6309e316918f2ea513ff11eee44acc89d37bad097f5fc3aaeb8d"
+    },
+    {
+      "path": "ArtSource/Collections/PackingClub/V1/build-20261026-b/Source/PackingClub.blend",
+      "bytes": 241468,
+      "sha256": "6fec12c64b3d113abbc7072e1e6b8640522436cc5408a16d92978d62f21f57d2"
+    }
+  ]
+}
