@@ -12,7 +12,7 @@ namespace Wreckabulary.Online.Editor
     {
         WordboundFlagshipContent content;
         string error = "";
-        int preview;
+        int preview, epiloguePreview;
         WordboundStoryProfile Profile => (WordboundStoryProfile)target;
 
         void OnEnable()
@@ -40,6 +40,14 @@ namespace Wreckabulary.Online.Editor
             try { Profile.Validate(content); error = ""; }
             catch (Exception exception) { error = exception.Message; }
             if (error.Length != 0) { EditorGUILayout.HelpBox(error, MessageType.Error); return; }
+            using (new EditorGUI.DisabledScope(Profile.Epilogues?.Count == WordboundStoryProfile.EpilogueIds.Count))
+                if (GUILayout.Button("Add missing epilogue copy"))
+                {
+                    Undo.RecordObject(Profile, "Add missing epilogue copy");
+                    Profile.AddMissingEpilogues();
+                    EditorUtility.SetDirty(Profile);
+                    serializedObject.Update();
+                }
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Copy preview", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("Preview includes all canonical clues, including optional route branches. It does not award or simulate progress.", MessageType.None);
@@ -52,6 +60,13 @@ namespace Wreckabulary.Online.Editor
             EditorGUILayout.LabelField(Profile.Cue(ids[preview]), EditorStyles.wordWrappedLabel);
             EditorGUILayout.LabelField("Optional journal", EditorStyles.boldLabel);
             EditorGUILayout.LabelField(Profile.Clue(ids[preview], beat.Clue), EditorStyles.wordWrappedLabel);
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Optional epilogue copy", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Copy preview only. Confirmed match outcomes and earned team progress select the epilogue.", MessageType.None);
+            var endings = WordboundStoryProfile.EpilogueIds.ToArray();
+            epiloguePreview = EditorGUILayout.Popup("Epilogue", Mathf.Clamp(epiloguePreview, 0, endings.Length - 1), endings);
+            EditorGUILayout.LabelField(Profile.EpilogueTitle(endings[epiloguePreview]), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(Profile.EpilogueCue(endings[epiloguePreview]), EditorStyles.wordWrappedLabel);
         }
 
         [MenuItem("Assets/Create/Wreckabulary/Wordbound/Story profile with defaults")]

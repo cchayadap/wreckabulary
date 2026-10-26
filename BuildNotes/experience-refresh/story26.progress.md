@@ -62,3 +62,23 @@ Root integrates `1fd6fc90`, `6348559f`, `e7a03e14` and this final evidence commi
 - Runtime/source commit: `e7a03e14`. New regression source contains 22 NUnit cases; execution count/pass rate is not yet available. Root's normal verification owns compilation and all native runs.
 - New authoring files require Unity-generated metadata at integration. No shared catalogue, core protocol, course identity, match result, scene or package change was made by this lane.
 - Final source/diff check: PASS. Rubric acceptance lint: PASS, 10 rows, no failures/warnings. No push, release, asset generation spend or heavy job.
+
+## 2026-10-26 approved epilogue implementation
+
+STATUS: IN PROGRESS. Root approved the six-ID contract in integration `BuildNotes/experience-refresh/ending-contract.md` and authorized implementation on the isolated story branch.
+
+- Confirmed clean `wordbound-puzzle-race`, `sethypagna/puzzle-race`, HEAD `89090619`; existing owned plan/profile/editor/tests match root `1a74d885`.
+- Own additive plan/profile/Inspector code, targeted presentation and profile persistence tests, this progress report and `ending-implementation.md`. Root owns HUD/menu wiring, compilation, Unity execution and generated metadata.
+- Preserve canonical outcomes, constructors, authored story copy, binding hashes and authority. Only optional copy over confirmed own-team evidence; no Restoration, auto-open or reward behavior.
+- Next: implement conservative resolver and closed copy defaults, author real-progress/codec/confirmation/recovery tests, source-review the scoped diff and commit as SethyPagna. No engine or core job will run in this lane.
+
+### Epilogue source checkpoint
+
+- Implemented immutable result copy with six closed IDs, exact flagship source/geometry and snapshot binding, confirmed outcome/own-team guards, final earned notice requirement, elapsed-progress outcome distinction and epoch-independent result key. No cache means same-tick confirmation is observable.
+- Added legacy-safe fallback and explicit non-overwriting add-missing epilogue defaults, Inspector Undo/preview, real-progress result tests, malformed-result guards, codec/committed recovery tests and authored profile persistence coverage.
+- Source review caught and corrected a fixture loop holding a copied TeamProgress; it now reads current progress on each iteration. The actual MatchProgress.Team API returns a copy.
+- Current isolated branch lacks integrated flagship/core sources; public APIs were inspected in integration without copying or changing core. Native compile/test execution remains root-owned and NOT-RUN here.
+- Integration finding: IsSimulationPaused includes any result, so it cannot gate optional post-result reading. `ending-implementation.md` provides an exact menu proposal plus a root-owned readiness predicate, preserving canonical result order and Return. No shared HUD/controller file was edited.
+- Next: final scoped source checks and commit; root integrates and runs required native tests/menu acceptance.
+- Read-only review of root's actual Controller/StoryView/Menu wiring found no contract bug. It reuses the view's plan, resolves against the current controller frame through IsPresentationReady, freezes optional menu content per Layout, wraps copy and enables result-time reading/Return. Root's wiring supersedes the earlier menu-only duplicate-plan proposal in the report.
+- Final scoped diff/new-file whitespace checks: PASS. All C# compilation and NUnit/native/UI execution: NOT-RUN. Source is ready for root integration and verification.

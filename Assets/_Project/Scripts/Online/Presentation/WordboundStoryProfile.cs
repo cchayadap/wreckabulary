@@ -44,12 +44,24 @@ namespace Wreckabulary.Online
         public WordboundStoryText Clue = new WordboundStoryText();
     }
 
+    [Serializable]
+    public sealed class WordboundStoryEpilogueCopy
+    {
+        public string Id = "";
+        public WordboundStoryText Title = new WordboundStoryText();
+        public WordboundStoryText Cue = new WordboundStoryText();
+    }
+
     [CreateAssetMenu(menuName = "Wreckabulary/Wordbound/Story profile")]
     public sealed class WordboundStoryProfile : ScriptableObject
     {
         public WordboundStoryText Title = new WordboundStoryText { Key = "wordbound.story.title", Fallback = "The Lost Address" };
         public List<WordboundStoryChapter> Chapters = new List<WordboundStoryChapter>();
         public List<WordboundStoryCopy> Notices = new List<WordboundStoryCopy>();
+        public List<WordboundStoryEpilogueCopy> Epilogues = new List<WordboundStoryEpilogueCopy>();
+        public static IReadOnlyList<string> EpilogueIds { get; } = Array.AsReadOnly(new[] {
+            "TimeRunSuccess", "TimeRunExpired", "RaceDelivery", "RaceProgressWin", "RaceProgressDraw", "RaceDefeat"
+        });
 
         public void Validate(WordboundFlagshipContent content)
         {
@@ -76,6 +88,31 @@ namespace Wreckabulary.Online
                 notice.Cue.Validate(96, notice.Id + " cue");
                 notice.Clue.Validate(1024, notice.Id + " journal");
             }
+            ValidateEpilogues();
+        }
+
+        void ValidateEpilogues()
+        {
+            if (Epilogues == null) return;
+            if (Epilogues.Count > EpilogueIds.Count) throw new ArgumentException("At most six epilogue copy rows are supported.");
+            var distinct = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var row in Epilogues)
+            {
+                if (row == null || !EpilogueIds.Contains(row.Id) || !distinct.Add(row.Id) || row.Title == null || row.Cue == null)
+                    throw new ArgumentException("Epilogue copy needs a distinct supported ID, title and cue.");
+                row.Title.Validate(48, row.Id + " title");
+                row.Cue.Validate(96, row.Id + " cue");
+            }
+        }
+
+        public int AddMissingEpilogues()
+        {
+            ValidateEpilogues();
+            Epilogues ??= new List<WordboundStoryEpilogueCopy>();
+            int before = Epilogues.Count;
+            foreach (string id in EpilogueIds)
+                if (!Epilogues.Any(row => row.Id == id)) Epilogues.Add(DefaultEpilogue(id));
+            return Epilogues.Count - before;
         }
 
         public void PopulateDefaults(WordboundFlagshipContent content)
@@ -83,6 +120,7 @@ namespace Wreckabulary.Online
             if (content == null) throw new ArgumentNullException(nameof(content));
             if (Chapters == null || Notices == null || Chapters.Count != 0 || Notices.Count != 0)
                 throw new InvalidOperationException("Default population requires an empty profile; authored copy is preserved.");
+            ValidateEpilogues();
             Chapters = content.Story.Select(b => b.EventId).Distinct().Select(id => new WordboundStoryChapter {
                 Id = id, Title = Text("chapter." + id, DefaultChapter(id))
             }).ToList();
@@ -91,6 +129,7 @@ namespace Wreckabulary.Online
                 return new WordboundStoryCopy { Id = id, Cue = Text("notice." + id + ".cue", DefaultCue(id)),
                     Clue = Text("notice." + id + ".clue", b.Clue) };
             }).ToList();
+            AddMissingEpilogues();
             Validate(content);
         }
 
@@ -102,6 +141,28 @@ namespace Wreckabulary.Online
 
         public string Clue(string id, string fallback, Func<string, string> localize = null)
             => Notices.FirstOrDefault(n => n.Id == id)?.Clue.Resolve(localize) ?? fallback;
+
+        public string EpilogueTitle(string id, Func<string, string> localize = null)
+            => (Epilogues?.FirstOrDefault(row => row.Id == id) ?? DefaultEpilogue(id)).Title.Resolve(localize);
+
+        public string EpilogueCue(string id, Func<string, string> localize = null)
+            => (Epilogues?.FirstOrDefault(row => row.Id == id) ?? DefaultEpilogue(id)).Cue.Resolve(localize);
+
+        public static WordboundStoryEpilogueCopy DefaultEpilogue(string id)
+        {
+            var copy = id switch
+            {
+                "TimeRunSuccess" => ("Home, at last", "The keepsake is home."),
+                "TimeRunExpired" => ("Delivery postponed", "There is more of the way to find."),
+                "RaceDelivery" => ("Home, at last", "Your keepsake is home."),
+                "RaceProgressWin" => ("Furthest along", "Furthest along when time ran out."),
+                "RaceProgressDraw" => ("Level progress", "Level progress when time ran out."),
+                "RaceDefeat" => ("Delivery unfinished", "Your route is still ahead."),
+                _ => throw new ArgumentException("Unsupported story epilogue ID.", nameof(id))
+            };
+            return new WordboundStoryEpilogueCopy { Id = id,
+                Title = Text("epilogue." + id + ".title", copy.Item1), Cue = Text("epilogue." + id + ".cue", copy.Item2) };
+        }
 
         static WordboundStoryText Text(string key, string fallback)
             => new WordboundStoryText { Key = "wordbound.story." + key, Fallback = fallback };

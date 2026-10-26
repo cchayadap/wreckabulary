@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
@@ -24,10 +25,22 @@ namespace Wreckabulary.Online
         { Id = id; Lap = lap; Checkpoint = checkpoint; Chapter = chapter; Place = place; Clue = clue; Position = position; Cue = cue; }
     }
 
+    public sealed class WordboundStoryEpilogue
+    {
+        public string Id { get; }
+        public string Title { get; }
+        public string Cue { get; }
+        public string ResultKey { get; }
+        internal WordboundStoryEpilogue(string id, string title, string cue, string resultKey)
+        { Id = id; Title = title; Cue = cue; ResultKey = resultKey; }
+    }
+
     public sealed class WordboundStoryPlan
     {
         readonly ResolvedCourse course;
         readonly IReadOnlyList<WordboundStoryNotice> notices;
+        readonly bool supportsEpilogues;
+        readonly Dictionary<string, (string Title, string Cue)> epilogues = new Dictionary<string, (string, string)>(StringComparer.Ordinal);
         public IReadOnlyList<WordboundStoryNotice> Notices => notices;
 
         public WordboundStoryPlan(ResolvedCourse resolved, ItemCatalogue items)
@@ -44,6 +57,14 @@ namespace Wreckabulary.Online
             {
                 var story = WordboundFlagshipContent.Create(items);
                 if (profile) profile.Validate(story);
+                supportsEpilogues = course.CatalogueHash == story.Geometry.Hash &&
+                    course.SourceHash == CourseJson.Sha256(CourseJson.ExportDocument(story.CopyDocument()));
+                foreach (string id in WordboundStoryProfile.EpilogueIds)
+                {
+                    var fallback = WordboundStoryProfile.DefaultEpilogue(id);
+                    epilogues.Add(id, (profile ? profile.EpilogueTitle(id, localize) : fallback.Title.Resolve(localize),
+                        profile ? profile.EpilogueCue(id, localize) : fallback.Cue.Resolve(localize)));
+                }
                 foreach (var lap in course.Laps)
                     for (int index = 0; index < lap.Checkpoints.Count; index++)
                     {
@@ -63,6 +84,53 @@ namespace Wreckabulary.Online
                     }
             }
             notices = selected.AsReadOnly();
+        }
+
+        public WordboundStoryEpilogue Epilogue(MatchSnapshot frame, string actor, ModeDefinition mode)
+        {
+            if (frame == null || mode == null || !supportsEpilogues || !mode.IsRace ||
+                frame.Binding.ModeHash != mode.Hash || frame.Binding.CourseHash != course.SourceHash ||
+                frame.Binding.ManifestHash != course.Hash || course.Play.ModeId != mode.Id ||
+                course.Play.TeamCount != mode.TeamCount || course.Play.TeamCapacity != mode.TeamCapacity) return null;
+            var progress = frame.Progress;
+            var result = progress.Result;
+            if (progress.Migrating || result == null || !result.Confirmed || result.Tick != progress.Tick) return null;
+            var player = progress.Players.SingleOrDefault(p => p.Id == actor);
+            var seat = frame.Binding.Seats.SingleOrDefault(s => s.PlayerId == actor);
+            if (player == null || seat == null || player.Team != seat.Team || player.Slot != seat.Slot ||
+                player.Returned || !player.Connected) return null;
+            var team = progress.Teams.SingleOrDefault(t => t.Team == player.Team);
+            if (team == null || progress.Teams.Any(t => t.Finished != (t.Lap == mode.Laps) || t.Finished && t.NextCheckpoint != 0)) return null;
+            var finished = progress.Teams.Where(t => t.Finished).Select(t => t.Team).OrderBy(t => t).ToArray();
+            bool expired = progress.ElapsedTicks >= (long)mode.TimeLimitSeconds * ModeDefinition.TickRate;
+            int[] expectedWinners;
+            if (finished.Length != 0) expectedWinners = finished;
+            else if (!expired) return null;
+            else if (mode.Id == "TimeRun") expectedWinners = Array.Empty<int>();
+            else
+            {
+                int best = progress.Teams.Max(t => t.OrderedObjectives);
+                long earliest = progress.Teams.Where(t => t.OrderedObjectives == best).Min(t => t.ProgressTick);
+                expectedWinners = progress.Teams.Where(t => t.OrderedObjectives == best && t.ProgressTick == earliest)
+                    .Select(t => t.Team).OrderBy(t => t).ToArray();
+            }
+            string outcome = expectedWinners.Length == 0 ? "TimeExpired" : expectedWinners.Length == 1 ? "Win" : "Draw";
+            if (result.Outcome != outcome || !result.WinningTeams.SequenceEqual(expectedWinners)) return null;
+            bool ownWinner = result.WinningTeams.Contains(team.Team);
+            string id;
+            if (team.Finished && ownWinner)
+            {
+                if (!Journal(frame, actor).Any(n => n.Id == "3:L3_Rooftop_GardenGate")) return null;
+                id = mode.Id == "TimeRun" ? "TimeRunSuccess" : "RaceDelivery";
+            }
+            else if (mode.Id == "TimeRun") id = "TimeRunExpired";
+            else if (!ownWinner) id = "RaceDefeat";
+            else id = result.Outcome == "Draw" ? "RaceProgressDraw" : "RaceProgressWin";
+            var copy = epilogues[id];
+            string key = string.Join("|", frame.Binding.Hash, team.Team.ToString(CultureInfo.InvariantCulture),
+                result.Tick.ToString(CultureInfo.InvariantCulture), result.Outcome,
+                string.Join(",", expectedWinners.Select(t => t.ToString(CultureInfo.InvariantCulture))));
+            return new WordboundStoryEpilogue(id, copy.Title, copy.Cue, key);
         }
 
         public IReadOnlyList<WordboundStoryNotice> Journal(MatchSnapshot frame, string actor)

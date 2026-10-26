@@ -122,5 +122,84 @@ namespace Wreckabulary.Tests
             }
             finally { Object.DestroyImmediate(restored); }
         }
+
+        [TestCase(false), TestCase(true)]
+        public void LegacyEpilogueListsUseClosedDefaultsWithoutMutatingTheAsset(bool nullList)
+        {
+            if (nullList) profile.Epilogues = null;
+            Assert.DoesNotThrow(() => profile.Validate(content));
+            foreach (string id in WordboundStoryProfile.EpilogueIds)
+            {
+                var expected = WordboundStoryProfile.DefaultEpilogue(id);
+                Assert.AreEqual(expected.Title.Fallback, profile.EpilogueTitle(id));
+                Assert.AreEqual(expected.Cue.Fallback, profile.EpilogueCue(id));
+                Assert.AreEqual("Localized", profile.EpilogueCue(id, _ => "Localized"));
+                Assert.AreEqual(expected.Cue.Fallback, profile.EpilogueCue(id, key => key));
+            }
+            if (nullList) Assert.IsNull(profile.Epilogues);
+            else Assert.IsEmpty(profile.Epilogues);
+            Assert.Throws<ArgumentException>(() => profile.EpilogueTitle("Restoration"));
+        }
+
+        [Test]
+        public void AddingMissingEpiloguesPreservesAuthoredRowsAndIsIdempotent()
+        {
+            profile.PopulateDefaults(content);
+            profile.Title.Fallback = "Authored title";
+            profile.Notices[0].Cue.Fallback = "Authored cue.";
+            profile.Chapters[0].Title.Fallback = "Authored chapter";
+            var row = profile.Epilogues[0];
+            row.Title.Fallback = "Our home";
+            row.Cue.Key = "authored.home";
+            profile.Epilogues.RemoveRange(1, 5);
+            Assert.AreEqual(5, profile.AddMissingEpilogues());
+            Assert.AreEqual(0, profile.AddMissingEpilogues());
+            Assert.AreSame(row, profile.Epilogues[0]);
+            Assert.AreEqual("Our home", row.Title.Fallback);
+            Assert.AreEqual("authored.home", row.Cue.Key);
+            Assert.AreEqual("Authored title", profile.Title.Fallback);
+            Assert.AreEqual("Authored cue.", profile.Notices[0].Cue.Fallback);
+            Assert.AreEqual("Authored chapter", profile.Chapters[0].Title.Fallback);
+            CollectionAssert.AreEquivalent(WordboundStoryProfile.EpilogueIds, profile.Epilogues.Select(e => e.Id));
+            Assert.DoesNotThrow(() => profile.Validate(content));
+        }
+
+        [TestCase("duplicate"), TestCase("unknown"), TestCase("null-row"), TestCase("null-title")]
+        [TestCase("blank"), TestCase("long-title"), TestCase("long-cue"), TestCase("bad-key"), TestCase("too-many")]
+        public void InvalidEpilogueCopyCannotChangeTheClosedOutcomeContract(string problem)
+        {
+            profile.AddMissingEpilogues();
+            switch (problem)
+            {
+                case "duplicate": profile.Epilogues[1].Id = profile.Epilogues[0].Id; break;
+                case "unknown": profile.Epilogues[0].Id = "Restoration"; break;
+                case "null-row": profile.Epilogues[0] = null; break;
+                case "null-title": profile.Epilogues[0].Title = null; break;
+                case "blank": profile.Epilogues[0].Cue.Fallback = " "; break;
+                case "long-title": profile.Epilogues[0].Title.Fallback = new string('a', 49); break;
+                case "long-cue": profile.Epilogues[0].Cue.Fallback = new string('a', 97); break;
+                case "bad-key": profile.Epilogues[0].Cue.Key = "invalid key"; break;
+                case "too-many": profile.Epilogues.Add(WordboundStoryProfile.DefaultEpilogue("TimeRunSuccess")); break;
+            }
+            string before = JsonUtility.ToJson(profile);
+            Assert.Throws<ArgumentException>(() => profile.Validate(content));
+            Assert.Throws<ArgumentException>(() => profile.AddMissingEpilogues());
+            Assert.AreEqual(before, JsonUtility.ToJson(profile));
+        }
+
+        [Test]
+        public void LegacyJsonWithNoEpilogueFieldCanBeExtendedWithoutReplacingStoryCopy()
+        {
+            JsonUtility.FromJsonOverwrite("{\"Title\":{\"Key\":\"old.title\",\"Fallback\":\"Old story title\"},\"Chapters\":[],\"Notices\":[]}", profile);
+            Assert.AreEqual("The keepsake is home.", profile.EpilogueCue("TimeRunSuccess"));
+            profile.AddMissingEpilogues();
+            profile.Epilogues[0].Cue.Fallback = "一起回家。";
+            string json = JsonUtility.ToJson(profile);
+            JsonUtility.FromJsonOverwrite(json, profile);
+            profile.Validate(content);
+            Assert.AreEqual("Old story title", profile.Title.Fallback);
+            Assert.AreEqual("old.title", profile.Title.Key);
+            Assert.AreEqual("一起回家。", profile.EpilogueCue("TimeRunSuccess"));
+        }
     }
 }
