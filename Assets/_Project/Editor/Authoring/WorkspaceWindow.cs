@@ -64,7 +64,7 @@ namespace Wreckabulary.EditorTools
                 PreviewButton("Play Loadout", LobbyMenu.Loadout);
                 EditorGUILayout.EndHorizontal();
             }
-            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Edit saved Shop and Loadout layouts from Design. Changes to the Play hierarchy are temporary.", MessageType.Info);
+            EditorGUILayout.HelpBox("These shortcuts enter the real Hub once. Stop Play to return to your open scene and previous Play entry. Edit saved Home, Shop and Loadout layouts from Design. Changes to the Play hierarchy are temporary.", MessageType.Info);
             if (!string.IsNullOrEmpty(WorkspacePlayPreview.Message))
                 EditorGUILayout.LabelField(WorkspacePlayPreview.Message, EditorStyles.wordWrappedMiniLabel);
 
@@ -100,6 +100,9 @@ namespace Wreckabulary.EditorTools
 
         void DrawDesign()
         {
+            Section("HOME LAYOUT");
+            AssetButton("Edit Home dock & turn hint", "Assets/_Project/Prefabs/UI/Home/HomePage.prefab", true);
+            AssetButton("Home layout assignments", "Assets/_Project/Resources/UI/LobbyHomeLayout.asset");
             Section("SHOP LAYOUT");
             AssetButton("Edit Shop panel", "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab", true);
             AssetButton("Edit offer card", "Assets/_Project/Prefabs/UI/Shop/ShopOfferCard.prefab", true);
@@ -123,7 +126,7 @@ namespace Wreckabulary.EditorTools
             AssetButton("Story & optional ending copy", "Assets/_Project/Data/Wordbound/Authoring/LostAddressStory.asset");
             AssetButton("Interface fonts, colours & spacing", "Assets/_Project/Data/Wordbound/Authoring/Interface.asset");
             AssetButton("Gameplay artwork & held pose", "Assets/_Project/Data/Wordbound/Authoring/Presentation.asset");
-            EditorGUILayout.LabelField("These are saved defaults. Check the launcher and course assignments for custom copies. Interface styles Wordbound menus and workshop; use the Shop and Loadout prefabs above for those lobby pages.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.LabelField("These are saved defaults. Check the launcher and course assignments for custom copies. Interface styles Wordbound menus and workshop; use the Home, Shop and Loadout prefabs above for those lobby pages.", EditorStyles.wordWrappedMiniLabel);
 
             Section("CHARACTER & ART");
             AssetButton("Edit Player Prefab", "Assets/_Project/Prefabs/Player.prefab", true);
@@ -167,7 +170,7 @@ namespace Wreckabulary.EditorTools
             AssetButton("Shop page layout", "Assets/_Project/Scripts/UI/Lobby/ShopPage.cs", true);
             AssetButton("Arena Maps & Game Rules", "Assets/_Project/Data/Config");
             AssetButton("Recipe Balance & Powers", "Assets/_Project/Data/Config/items.json", true);
-            EditorGUILayout.LabelField("Edit saved Shop and Loadout layouts above. Home, wearable pickers, recipe details and the gameplay HUD still use code layouts; the separate inventory study uses UI Builder assets.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.LabelField("Edit saved Home, Shop and Loadout layouts above. Wearable pickers, recipe details and the gameplay HUD still use code layouts; the separate inventory study uses UI Builder assets.", EditorStyles.wordWrappedMiniLabel);
 
             Section("WORKSPACE TOOLS");
             using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))

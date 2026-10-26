@@ -80,7 +80,7 @@ namespace Wreckabulary.EditorTools
             return view;
         }
 
-        static T SaveTemplate<T>(string path, Func<T> build, string folder, Dictionary<Sprite, Sprite> graphics) where T : Component
+        internal static T SaveTemplate<T>(string path, Func<T> build, string folder, Dictionary<Sprite, Sprite> graphics) where T : Component
         {
             var previous = SceneManager.GetActiveScene();
             const string template = "Assets/_Project/Scenes/WordboundGameplay.unity";

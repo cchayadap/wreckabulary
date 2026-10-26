@@ -199,42 +199,18 @@ namespace Wreckabulary
 
         protected override void Build()
         {
-            if (!PlayerPrefs.HasKey(LobbyMenu.TurnHintKey))
+            var layout = Resources.Load<LobbyHomeLayout>(LobbyHomeLayout.ResourcePath);
+            LobbyHomePageView view;
+            if (layout)
             {
-                var hint = LobbyKit.Row(Root, "Turn hint", 8, 0);
-                hint.Pin(new Vector2(.5f, 0), new Vector2(0, 6), new Vector2(240, 40));
-                var layout = hint.GetComponent<HorizontalLayoutGroup>();
-                layout.childAlignment = TextAnchor.MiddleCenter;
-                layout.childForceExpandHeight = false;
-                LobbyKit.Icon(hint, LobbyIcons.Turn, LobbyKit.Cyan).Size(26, 26);
-                LobbyKit.Display(hint, "Drag to turn", 22, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft, LobbyKit.Ink.Stroke).Size(-1, 30);
+                layout.Validate();
+                view = LobbyRuntimeTypography.Instantiate(layout.Page, Root, false);
             }
-            if (Menu.Starting) return;
-
-            bool blocked = Menu.Blocked != null;
-            var dock = LobbyKit.Column(Root, "Next match", 2, 12);
-            dock.Pin(new Vector2(1, 0), Vector2.zero, new Vector2(DockWidth, 0));
-            dock.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            LobbyKit.PanelFace(dock, 14, 1, 0);
-            var go = LobbyKit.TextAction(dock, "GO", "START", 42, Menu.Go, true);
-            go.Size(-1, 64);
-            go.interactable = !blocked;
-            var mode = LobbyKit.TextAction(dock, "Choose mode", LobbyMenu.ModeName(Menu.Mode), 22,
-                () => Menu.OpenPlay("Mode " + Menu.Mode));
-            mode.Size(-1, 38);
-            First = blocked ? mode : go;
-            if (Menu.Mode != LobbyMenu.TutorialMode)
-            {
-                var house = LobbyKit.TextAction(dock, "Change house", MapName(Menu.Map), 20,
-                    () => Menu.OpenPlay("Map " + Menu.Map));
-                house.Size(-1, 36);
-            }
-            if (Session.CanLoad(Session.WordboundScene))
-            {
-                var wordbound = LobbyKit.TextAction(dock, "Wordbound", "WORDBOUND", 24, Menu.OpenWordbound);
-                wordbound.Size(-1, 42);
-                Wrapped(dock, "Online parties · Map workshop", 15, LobbyKit.Muted, 24);
-            }
+            else view = LobbyHomeDefaultLayout.Create(Root);
+            First = view.Bind(!PlayerPrefs.HasKey(LobbyMenu.TurnHintKey), Menu.Starting, Menu.Blocked != null,
+                Menu.Mode != LobbyMenu.TutorialMode, Session.CanLoad(Session.WordboundScene),
+                LobbyMenu.ModeName(Menu.Mode), MapName(Menu.Map), Menu.Go,
+                () => Menu.OpenPlay("Mode " + Menu.Mode), () => Menu.OpenPlay("Map " + Menu.Map), Menu.OpenWordbound);
         }
     }
 

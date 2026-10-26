@@ -1,5 +1,5 @@
 {
-  "utc": "2026-10-26T09:37:30.714Z",
+  "utc": "2026-10-26T10:39:15.103Z",
   "verdict": "PASS",
   "scope": "Existing post-Shop authored outputs and, after creation, saved Camera/Loadout outputs remain byte-identical across the specified checks. Initial Shop font-ratio normalization remains recorded separately.",
   "existingBaselineUtc": "2026-10-26T08:53:12.813Z",

@@ -1,0 +1,41 @@
+{
+  "status": "DRAFT; NOT COMPILED OR EXECUTED",
+  "utc": "2026-10-26T10:33:29.721292+00:00",
+  "head": "0327e4739c5bfa74c70169f727172eaa70518ca9",
+  "target": "Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs",
+  "baseline_sha256": "fdb75e67fd1dfdd3135f0093bd40508fa0e803d46f0f7fbf91bf7439c4a8facc",
+  "candidate_sha256": "28be4af2ed60b79572819ac6874e1494752722c8f8474fcc7826d91ddffebe07",
+  "patch_sha256": "c22104938af627e1fc42e4b1a107bda8b36ccc0968e9cc73fc2ff9ee3042ee6c",
+  "patch_check": "PASS",
+  "preserved_capture_evidence": [
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-02/A-original-lit.png",
+      "sha256": "5194dd49f4d906e6bcf6ac8bee4103c68451c6c19442ce8d920b3a45021eea57"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-02/D-frontal-key.png",
+      "sha256": "c8dfacca404f2a84fcf87227eb49b2ee149fb638abf4cf1238ddf2d7f7ee59ee"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-02/diagnostics.json",
+      "sha256": "87e12de4fe9f6db9e24b2af6a61a40ced304821e01ec5380e53b3a34aff9fb1c"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-02/F-back-key.png",
+      "sha256": "73d37acc3a8fb1d0eb0b4e745b1bbea5a869b53636408694a97daa257dc32efc"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-03/A-original-lit.png",
+      "sha256": "5194dd49f4d906e6bcf6ac8bee4103c68451c6c19442ce8d920b3a45021eea57"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-03/diagnostics.json",
+      "sha256": "c8b14d332071db62c1d329dc9d313c2caaf37946630cf773018c59085d2f85a5"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-03/G-brow-relax-zero.png",
+      "sha256": "3e598200b94baa5d680592e5ae21614c3bb5b78baa90c268b5c4c08cd44a6b7c"
+    }
+  ],
+  "independent_review": "story_status verified final candidate28be4af2ed60b79572819ac6874e1494752722c8f8474fcc7826d91ddffebe07; fresh Roslyn C#9 parse zero syntax errors; no concrete ownership/telemetry blocker. Semantic compilation and native behavior NOT RUN."
+}

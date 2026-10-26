@@ -1,0 +1,17 @@
+{
+  "status": "source-draft-ready",
+  "recorded_utc": "2026-10-26T09:30:02Z",
+  "patch": "home-layout.patch",
+  "patch_sha256": "07b0b96c53ff6cdb73c67ae2fafcc4814cab865428f226207e7dd7ac0b161f57",
+  "source_files": 8,
+  "source_review": "No concrete source blocker found by story26",
+  "patch_apply_check": "PASS",
+  "native": "NOT-RUN",
+  "live_assets_written": false,
+  "commit_created": false,
+  "requests": [
+    "Root reviews/applies after current native slice; preserve both baselines.",
+    "Root runs source gates, compatibility tests, explicit Home setup and saved-view/native acceptance.",
+    "Root may wire workspace Design and missing-only setup independently."
+  ]
+}

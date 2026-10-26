@@ -44,9 +44,10 @@ namespace Wreckabulary.EditorTools
             CreateSceneIfMissing(CharacterScene, CreateCharacter);
             var shop = LobbyShopLayoutSetup.CreateAt(LobbyShopLayoutSetup.ProfilePath, LobbyShopLayoutSetup.PrefabFolder, LobbyShopLayoutSetup.GraphicFolder, typography);
             LobbyLoadoutLayoutSetup.CreateAt(LobbyLoadoutLayoutSetup.ProfilePath, LobbyLoadoutLayoutSetup.PrefabFolder, shop);
+            LobbyHomeLayoutSetup.CreateAt(LobbyHomeLayoutSetup.ProfilePath, LobbyHomeLayoutSetup.PrefabFolder, LobbyHomeLayoutSetup.GraphicFolder, typography);
             if (!LobbyCameraSetup.CreateOrVerifyAt(LobbyCameraSetup.ProfilePath))
                 throw new InvalidOperationException("Lobby camera setup needs attention; existing assets were preserved.");
-            Debug.Log("WORKSPACE_AUTHORING_READY: saved equipment and character studios; categorized editable prefab variants; saved lobby typography, camera, Shop and Loadout layouts. Existing assets preserved; gameplay visual assignments unchanged.");
+            Debug.Log("WORKSPACE_AUTHORING_READY: saved equipment and character studios; categorized editable prefab variants; saved lobby typography, camera, Home, Shop and Loadout layouts. Existing assets preserved; gameplay visual assignments unchanged.");
         }
 
         public static string PrefabPath(ItemDefinition item) => "Assets/_Project/Prefabs/" +

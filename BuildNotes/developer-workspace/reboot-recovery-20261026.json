@@ -1,0 +1,88 @@
+{
+  "utc": "2026-10-26T10:19:54.773Z",
+  "status": "PASS — reboot recovery and three controlled captures only",
+  "sourceHead": "0327e4739c5bfa74c70169f727172eaa70518ca9",
+  "bootUtc": "2026-10-26T09:52:24.500Z",
+  "unity": "6000.6.4f1",
+  "gates": [
+    {
+      "receipt": ".harness/delivery/workspace-check-2026-10-26T10-12-26-747Z-stdout.txt",
+      "sha256": "465c0f58fc53c447d1f1bff62f4fd2ceca1abd24de8b8e77821fd88297af721c",
+      "cmd": "check all",
+      "utc": "2026-10-26T10:12:27Z",
+      "verdict": "PASS",
+      "ok": true,
+      "exit": 0,
+      "secs": 57.7,
+      "log": "Logs/gate_check_all_20261026T101229Z.log",
+      "evidence": []
+    },
+    {
+      "receipt": ".harness/delivery/workspace-core-2026-10-26T10-13-50-344Z-stdout.txt",
+      "sha256": "3dfae9e6db682274cbff2ca135e5db6a0363c36f2566d81d18d427a92b48f53b",
+      "cmd": "core --filter CosmeticBundleTests|WardrobeTests|CatalogueTests|CareerTests",
+      "utc": "2026-10-26T10:13:50Z",
+      "verdict": "PASS",
+      "ok": true,
+      "exit": 0,
+      "secs": 27.6,
+      "log": "Logs/gate_core_20261026T101351Z.log",
+      "evidence": [
+        "TestResults/core_20261026T101351Z.trx"
+      ],
+      "tests": {
+        "total": 41,
+        "passed": 41,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "receipt": ".harness/delivery/workspace-portraitcontrols-2026-10-26T10-14-36-976Z-stdout.txt",
+      "sha256": "b410794713028518b2fd16b7f1f23fedd8963a4ae1f759f271d77f0df28d4f66",
+      "cmd": "exec Wreckabulary.EditorTools.ShopPortraitControlsDiagnostics.Run --cold",
+      "utc": "2026-10-26T10:14:37Z",
+      "verdict": "PASS",
+      "ok": true,
+      "exit": 0,
+      "secs": 240.8,
+      "log": "Logs/gate_exec_Run_20261026T101437Z.log",
+      "evidence": [
+        "Logs/exec/20261026T101437Z.json"
+      ]
+    }
+  ],
+  "capture": {
+    "path": "BuildNotes/developer-workspace/portrait-controls/capture-02/diagnostics.json",
+    "sha256": "87e12de4fe9f6db9e24b2af6a61a40ced304821e01ec5380e53b3a34aff9fb1c",
+    "sourceCount": 34,
+    "changedSources": 0,
+    "globalStateUnchanged": true,
+    "cases": [
+      {
+        "control": "A-original-lit",
+        "image": "A-original-lit.png",
+        "sha256": "5194dd49f4d906e6bcf6ac8bee4103c68451c6c19442ce8d920b3a45021eea57",
+        "remainingOwnedObjects": 0,
+        "previewSceneClosed": true
+      },
+      {
+        "control": "D-frontal-key",
+        "image": "D-frontal-key.png",
+        "sha256": "c8dfacca404f2a84fcf87227eb49b2ee149fb638abf4cf1238ddf2d7f7ee59ee",
+        "remainingOwnedObjects": 0,
+        "previewSceneClosed": true
+      },
+      {
+        "control": "F-back-key",
+        "image": "F-back-key.png",
+        "sha256": "73d37acc3a8fb1d0eb0b4e745b1bbea5a869b53636408694a97daa257dc32efc",
+        "remainingOwnedObjects": 0,
+        "previewSceneClosed": true
+      }
+    ]
+  },
+  "observed": "Rear-key control brightens the face while darkening the hoodie; frontal key leaves face dark. This supports investigating pose/mesh normal response, but does not establish the cause.",
+  "scope": "Unchanged-source retry after the owner rebooted. Other projects left running. No service, cache, package or original-asset reset. No new Windows build or art acceptance.",
+  "next": "Separate versioned brow/normal diagnostic; preserve every prior control and reject any source mutation."
+}

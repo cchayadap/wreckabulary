@@ -1,0 +1,52 @@
+{
+  "status": "DRAFT ONLY; not compiled or executed",
+  "head": "8304fa9375688952faffa64ee0ecb1f5327e8961",
+  "utc": "2026-10-26T09:12:25.7507428Z",
+  "files": [
+    {
+      "path": "Assets/_Project/Editor/Art/ShopPortraitControlsDiagnostics.cs",
+      "sha256": "2da5c14a19b50570e3348ef6053b562c518c95bb3354f766a5e6d0f27ac1cef9"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/brow-normal-draft/baseline/ShopPortraitControlsDiagnostics.cs",
+      "sha256": "2da5c14a19b50570e3348ef6053b562c518c95bb3354f766a5e6d0f27ac1cef9"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/brow-normal-draft/candidate/ShopPortraitControlsDiagnostics.cs",
+      "sha256": "fdb75e67fd1dfdd3135f0093bd40508fa0e803d46f0f7fbf91bf7439c4a8facc"
+    },
+    {
+      "path": "BuildNotes\\developer-workspace\\portrait-controls\\brow-normal-draft\\brow-normal.patch",
+      "sha256": "74e8393b5a43d495e27029d426d070d3650ab031e8f81e3946cbf7f55ab4ca81"
+    }
+  ],
+  "existingCaptureFiles": [
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-01/A-original-lit.png",
+      "sha256": "5194dd49f4d906e6bcf6ac8bee4103c68451c6c19442ce8d920b3a45021eea57"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-01/B-no-normal-map.png",
+      "sha256": "99c1f59602e49b0369f7e7cec1f27f3b7d846bc5639b9a1fa0961b03542a24b7"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-01/C-urp-unlit.png",
+      "sha256": "8d517312e55ce9f704ee0acfabdae7dc8879784085bc9087bde8c9106dc80308"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-01/D-frontal-key.png",
+      "sha256": "c8dfacca404f2a84fcf87227eb49b2ee149fb638abf4cf1238ddf2d7f7ee59ee"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-01/diagnostics.json",
+      "sha256": "38467905da6e541fbe7071d65e08005aa3bca1b47c944f672ee1a0d4a4e28025"
+    },
+    {
+      "path": "BuildNotes/developer-workspace/portrait-controls/capture-01/E-pure-albedo.png",
+      "sha256": "8360f86d59aa7c8a94827cdd30ea798d51e0e4da5d8a58b4535188d447cf949d"
+    }
+  ],
+  "capture03Exists": false,
+  "patchCheck": "git apply --check --whitespace=error-all PASS",
+  "trailingWhitespaceLines": 0
+}

@@ -1,0 +1,94 @@
+{
+  "recorded_utc": "2026-10-26T10:27:11.5255255Z",
+  "method": "Roslyn CSharpSyntaxTree.ParseText; CSharp9; syntax only, not semantic compilation or native validation",
+  "compiler": "Microsoft.CodeAnalysis.CSharp, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35",
+  "before": {
+    "path": "original-patch/LobbyHomeLayoutSetup.cs",
+    "errors": [
+      {
+        "id": "CS1012",
+        "message": "Too many characters in character literal",
+        "line": 54
+      },
+      {
+        "id": "CS1010",
+        "message": "Newline in constant",
+        "line": 54
+      },
+      {
+        "id": "CS1012",
+        "message": "Too many characters in character literal",
+        "line": 54
+      },
+      {
+        "id": "CS1026",
+        "message": ") expected",
+        "line": 54
+      },
+      {
+        "id": "CS1026",
+        "message": ") expected",
+        "line": 54
+      },
+      {
+        "id": "CS1002",
+        "message": "; expected",
+        "line": 54
+      },
+      {
+        "id": "CS1010",
+        "message": "Newline in constant",
+        "line": 75
+      },
+      {
+        "id": "CS1012",
+        "message": "Too many characters in character literal",
+        "line": 75
+      },
+      {
+        "id": "CS1003",
+        "message": "Syntax error, ',' expected",
+        "line": 75
+      },
+      {
+        "id": "CS1026",
+        "message": ") expected",
+        "line": 76
+      }
+    ]
+  },
+  "after": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyHomeLayoutSetup.cs",
+      "errors": []
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyShopLayoutSetup.cs",
+      "errors": []
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyHomeDefaultLayout.cs",
+      "errors": []
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyHomeLayout.cs",
+      "errors": []
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyHomePageView.cs",
+      "errors": []
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs",
+      "errors": []
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/ShopLayout/HomeLayoutAuthoringTests.cs",
+      "errors": []
+    },
+    {
+      "path": "Assets/_Project/Tests/HomeLayoutRuntimeTests.cs",
+      "errors": []
+    }
+  ]
+}

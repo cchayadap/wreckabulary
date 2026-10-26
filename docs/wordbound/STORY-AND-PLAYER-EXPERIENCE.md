@@ -1,10 +1,10 @@
 # Wordbound: The Lost Address — story and player experience
 
-Owner: James / SethyPagna. Design expansion requested 2026-10-24. Source baseline inspected: `7f8ac615`. This document expands the [approved implementation plan](PLAN.md); [progress.md](../../progress.md) records delivery evidence.
+Owner: James / SethyPagna. Design expansion requested 2026-10-24; implementation status reconciled 2026-10-26 against `0327e473`. The original design review used `7f8ac615`. This document expands the [approved implementation plan](PLAN.md); [progress.md](../../progress.md) records delivery evidence.
 
 **Goal:** make every run an understandable physical adventure: wreck furniture, recover letters, spell something useful, solve a problem, and bring a misplaced home back together. Players should remember a place, a funny recovery and something they accomplished together, as well as the result.
 
-**Status:** the three-chapter course, mode rules, story notices and journal exist in source. The fuller staging, alternative epilogues, optional restoration objectives, feedback systems and narrative authoring controls below are **design work, not implemented features**. “Target” means something to test; player predictions are hypotheses, not research findings. No runtime or online rule changes are made by this document.
+**Status:** the three-chapter course, fourteen canonical clues, team-filtered contextual cue/journal, editable Unity Story Profile and six result-aware epilogues are implemented. Native `081750` passes 144/144 selected cases, including all 22 epilogue cases; [the receipt](../../BuildNotes/developer-workspace/continuation-20261026.json) and [XML](../../TestResults/editmode_20261026T081750Z.xml) define the scope. Fuller landmark/repair staging, four optional restoration tasks, their richer ending, feedback systems and broader narrative-objective authoring remain **design work**. These source/native checks do not establish a current Windows build, full-course pacing or human comprehension. “Target” means something to test; player predictions are hypotheses, not research findings. This document makes no runtime or online rule changes.
 
 ## 1. The story, written out
 
@@ -55,12 +55,12 @@ At the final delivery, the bell can finally ring for the right reason. The keeps
 | Channel | Intended job | Current boundary |
 | --- | --- | --- |
 | Landmarks and physical route | Tell players where they are and make each return recognisable | Destination names and landmark concepts are authored; distinctive landmark artwork/staging still needs verification or implementation, followed by readability testing |
-| Short notices | Deliver one useful clue at a reached place | Fourteen clue definitions exist; the selected route filters which appear |
+| Short notices | Deliver one useful clue at a reached place | Fourteen canonical definitions; selected-route and local-team progress filtering expose at most the latest earned cue in the current chapter, near its anchor |
 | Collected-clue journal | Let curious players reread at their pace | Implemented and gated by the reader's own team progress |
 | Changed labels and mechanism responses | Show the consequences of repair | Fuller restoration staging is proposed |
-| Optional ending panel | Close the story after a confirmed result | Proposed; no branching ending resolver exists yet |
+| Optional journal epilogue | Close the story after a confirmed result | Six result-aware outcomes implemented; optional restoration and richer staged endings remain proposed |
 
-No mandatory competitive cutscene, timed reading test or spoken-English requirement. Skipping text must still leave the next gameplay objective clear. Existing notices have short banners; banner duration is not a deadline for understanding the plot.
+No mandatory competitive cutscene, timed reading test or spoken-English requirement. Skipping text must still leave the next gameplay objective clear. The duplicate automatic story banner has been removed; the current contextual cue is distance-bounded and the full earned clue remains in the optional journal. Actual low-text comprehension and legibility still need observation.
 
 ## 2. How a session should run
 
@@ -115,15 +115,28 @@ Public matchmaking is **unranked**. Keep matchmaking availability separate from 
 
 ## 3. Multiple endings and exact triggers
 
-The story ending and the match outcome are different records. An epilogue must never change the winner, timer, reward eligibility or another team's clues. The following are the proposed implementation contract, not current runtime behaviour.
+The story ending and the match outcome are different records. An epilogue must never change the winner, timer, reward eligibility or another team's clues. Current [ending selection](../../Assets/_Project/Scripts/Online/Presentation/WordboundStoryPlan.cs) validates exact course/mode/roster/team/result and suppresses unconfirmed, contradictory, migrating or unavailable-reader states. The optional journal displays the selected title/cue; it does not add a cutscene or award a reward.
 
-### Three principal Time Run endings
+| Implemented epilogue | Trigger and current title |
+| --- | --- |
+| `TimeRunSuccess` | Confirmed cooperative final delivery with earned final clue: **Home, at last** |
+| `TimeRunExpired` | Confirmed cooperative timeout without delivery: **Delivery postponed** |
+| `RaceDelivery` | Own team finishes and is among confirmed winners, including a valid delivery draw: **Home, at last** |
+| `RaceProgressWin` | Own unfinished team is sole confirmed progress winner at timeout: **Furthest along** |
+| `RaceProgressDraw` | Own unfinished team shares confirmed best progress/timing at timeout: **Level progress** |
+| `RaceDefeat` | Another team wins; no rival unreached clues disclosed: **Delivery unfinished** |
+
+These are six outcome presentations, not six branching campaigns. FFA/Freestyle do not receive a Lost Address campaign epilogue. The proposed richer Time Run ending and all physical ending staging below are still future work.
+
+### Three principal Time Run endings — broader design
 
 | Ending | Exact proposed condition | Scene and message |
 | --- | --- | --- |
 | **Home, at last** | Confirmed successful final delivery; fewer than all four optional restoration tasks completed | The address is restored, the keepsake settles into its place, and the bell rings correctly. “Home was here all along. We just had to put the words back.” |
 | **A place for everything** | The same confirmed success plus one unique optional restoration task completed in each of the four destinations | Corrected parcels reach their shelves; the restored house becomes useful to everyone in it. “One address brought us home. Every small repair made room for the rest.” |
 | **Delivery postponed** | Confirmed Time Run `TimeExpired` | The keepsake remains the story's focus while the journal recaps only places actually reached. “We found part of the way. The address can wait for another try.” Offer Retry, Practice or Return; do not imply the unfinished run is saved as a campaign checkpoint. |
+
+Current success and timeout use the concise default cues **“The keepsake is home.”** and **“There is more of the way to find.”** The longer copy, scene responses and Retry/Practice flow in this table are design proposals, not the current epilogue implementation. There is no current optional-restoration discriminator.
 
 The ordinary success is not a morally inferior ending. Deaths, falls, hint use, reading speed, accessibility settings and disconnects cannot select a worse ending. A team that ignores optional text can still understand and complete the plot.
 
@@ -137,7 +150,7 @@ Expose this restoration challenge in Time Run only initially. Keep it out of pub
 
 ### Competitive and sandbox conclusions
 
-| Actual outcome | Proposed presentation |
+| Actual outcome | Presentation contract; staged vignettes/recaps remain proposed |
 | --- | --- |
 | Team/Brawl valid third-lap finish | Show the confirmed win/draw first. A team that completed its own delivery can receive the ordinary homecoming vignette |
 | Team/Brawl timeout | Show the actual ordered-progress result, even when it is a win. Use “Furthest along when time ran out”; do not depict a repaired house if no final delivery occurred |
@@ -151,7 +164,7 @@ Expose this restoration challenge in Time Run only initially. Keep it out of pub
 
 Use the exact committed result and final team progress. A valid finish or knockout target on the limit tick takes priority over timeout. Same-tick target achievers can draw. Race timeout compares ordered objectives and then the earliest tick at that progress; FFA timeout compares knockouts. Time Run timeout has no winners. Disconnect or permanent Return does not currently create an automatic forfeit; do not imply otherwise in the UI.
 
-For Time Run, resolve in this order: no confirmed result → no ending; confirmed timeout → Delivery postponed; confirmed final delivery plus all four validated optional IDs → A place for everything; otherwise confirmed final delivery → Home, at last. Invalid or missing ending data falls back to a plain confirmed result, never a richer ending.
+Current Time Run selection is: no valid confirmed result → no epilogue; confirmed timeout without a finish → Delivery postponed; valid confirmed final delivery and earned final clue → Home, at last. The later restoration extension would select A place for everything only with all four validated optional IDs. Invalid or missing ending data must never fabricate a richer ending; the ordinary result UI remains authoritative.
 
 New optional progress must live in the same durable, versioned authority state as the run, scoped to course identity and team. Pure presentation must not advance simulation after the result. Reconnect and host recovery must reproduce the same ending from the same committed state. Deduplicate any one-time unlock; no account unlock or persistent reward is part of this proposal. Dismissing the ending is local and cannot block another player's Return or require unanimous voting.
 
@@ -220,15 +233,17 @@ For human testing, use anchored questions rather than a single “good/bad” sc
 
 ## 7. Editing the story and presentation in Unity
 
-Ordinary design work should use assets, Inspector fields and scene handles. The existing camera/course/equipment controls are part of that direction; a complete no-code story editor is **new work**. Current flagship prose is defined in C# and is not yet a designer-editable narrative asset.
+Ordinary story-copy editing now uses [LostAddressStory.asset](../../Assets/_Project/Data/Wordbound/Authoring/LostAddressStory.asset), assigned in [LaunchAssets.asset](../../Assets/_Project/Resources/Wordbound/LaunchAssets.asset). Select it in Unity to edit title, chapter titles, short cues, full journal text and optional localization keys. The Inspector validates canonical IDs and previews clue/epilogue copy without awarding progress. C# retains canonical fallback text and gameplay identity; the asset overrides presentation only.
 
-Proposed Story Profile fields: story title; chapter IDs and titles; destination links; checkpoint-triggered notices; text and optional icon; restoration-objective IDs; permitted ending conditions; ending panel text; approved presentation prefab; camera profile; and preview controls. Prefer stable references and validated dropdowns over free-form script names.
+The currently saved profile has chapter/notice rows but no serialized epilogue rows. Runtime defaults provide the six outcomes. Click **Add missing epilogue copy**, edit the desired title/cue and save to make those rows explicit authored data. Existing rows are preserved. This status reconciliation did not modify that asset. See [profile/validation](../../Assets/_Project/Scripts/Online/Presentation/WordboundStoryProfile.cs), [Inspector](../../Assets/_Project/Scripts/Online/Authoring/Editor/WordboundStoryProfileEditor.cs) and [non-overwriting setup](../../Assets/_Project/Editor/Online/WordboundStorySetup.cs).
 
-The designer workflow should be: select a course asset → open Story → select a chapter/place → edit text or drag a notice handle → choose a validated trigger → preview the selected ending → validate → playtest → return to the exact draft. Provide a compact table of all endings and a preview-state selector; do not require playing 25 minutes to check a line of text.
+Broader proposed authoring includes destination links, physical notice placement, icons, restoration-objective IDs, validated conditions, presentation prefabs and camera preview controls. These fields are not part of the current presentation-only Story Profile. Prefer stable references and validated dropdowns over free-form script names; new gameplay triggers/conditions require a separate versioned contract.
+
+The current copy workflow is: select Story Profile → edit existing chapter/clue/epilogue copy → inspect its validation and preview → save → playtest. No full 25-minute run is needed to preview copy. The broader proposed workflow adds course selection, draggable notice handles and validated new triggers; those controls must not be implied by the current Inspector.
 
 Presentation previews cannot award gameplay progress. Built-in competitive results are locked rules; a custom ending cannot change the public win condition. Narrative/optional-objective edits affecting gameplay create a new content identity and must survive exact online transfer and recovery. Private custom maps use approved asset IDs and bounded data, not arbitrary scripts or executable downloads.
 
-Validation should identify missing/duplicate IDs, references to absent checkpoints, impossible optional objectives, unsupported mode/ending combinations, unreachable notices, missing fallback endings and stale content references. Include large-text, controller-focus and camera-safe-area previews. Playtest-return preserves the live draft and in-memory Undo/Redo. Save/reload preserves the document/settings; restarting or recovering begins new Undo history unless separate history persistence is implemented. The pending durable-draft recovery change still needs its native verification.
+Current profile validation rejects invalid/duplicate canonical chapter, clue and epilogue IDs and invalid copy; missing overrides use fallback text. The broader editor must also validate new objective reachability, trigger references, supported conditions and stale content identity. Large-text/controller/camera-safe-area presentation review remains required. Workshop playtest-return and durable-draft verification have their own evidence in [progress.md](../../progress.md); they do not prove new story-objective editing. Restarting or recovering begins new Undo history unless separate history persistence is implemented.
 
 ## 8. Acceptance: what would prove this works
 
@@ -241,7 +256,7 @@ These tests are proposed unless explicitly linked to existing evidence in progre
 | Mixed-skill and silent cooperation | Each person can identify a meaningful contribution; an unfamiliar pair completes the first shared objective without voice/text. Record duplicate work and stuck time |
 | Pacing and repeated seeds | Measure full first and repeat runs, optional-task time and each destination. Confirm the 18–25-minute target or revise content from evidence |
 | Solo validity | Complete every required puzzle with one player; no hidden simultaneous-player requirement |
-| Ending truth table | Ordinary success, all four restoration IDs, partial restoration, timeout, exact-limit finish, same-tick draw, progress-only competitive win and no-result Freestyle all select the specified presentation |
+| Ending truth table | Current six-outcome selection has 22 passing native cases in `081750`; full-player presentation remains pending. All four restoration IDs/partial restoration require new implementation and checks before claiming the richer ending |
 | Ending authority/recovery | Replayed commands, duplicate result delivery and host loss before/after final commit yield one identical confirmed outcome and correct team-scoped ending; no rival spoilers |
 | Failure recovery | Waste supplies, lose/drop/withhold the keepsake, fall, disconnect and switch practice stations. No permanent softlock, duplicate reward or erased completed checkpoint |
 | Input and visual clarity | Keyboard/mouse and controller; resized UI, long text, camera obstruction, colour-independent signals and menu focus; original held/placed/used assets inspected in motion |
@@ -254,8 +269,8 @@ Record build/content identity, mode, format, actual roster and Fill, seed, devic
 
 1. **Stabilize the playable baseline.** Complete the repaired editor install, pending native tests, actual equipment interaction, official Windows smoke, public movement/recovery and full-mode outcomes. Story design does not bypass these blockers.
 2. **Make existing content understandable and measure the route.** Inspect actual first-run guidance, signs, journal, next-objective feedback, landmarks and camera behaviour with original assets. Run an early human full-course pacing pilot before implementing optional restoration tasks; the current 72-site route must establish that it has room for them.
-3. **Move story presentation into editable assets.** Preserve current chapter/notice identity and add validated Unity preview controls before increasing prose or adding effects.
-4. **Add result-aware epilogues.** Implement ordinary success, timeout and correct competitive/sandbox conclusions from confirmed state; test the truth table and recovery.
+3. **Verify the editable story workflow in the delivered player/editor.** The profile and validated copy previews are implemented; preserve canonical identity, verify ordinary save/reopen/Play use and visually review concise cues before adding effects.
+4. **Verify result-aware epilogues through full matches.** Six outcomes and 22 native cases are complete. Inspect real result/journal presentation, complete-match recovery and human interpretation; optional restoration remains separate.
 5. **Add the optional restoration branch.** Version its authoring/state contract, implement four recoverable tasks, then validate the richer ending, pacing and solo accessibility. Keep it separate from race scoring.
 6. **Close disruptive-play gaps.** Resolve active withholding and shared-station switching, then verify team isolation, fair recovery and no duplicated rewards.
 7. **Run human sessions and finalize presentation.** Measure comprehension, contribution, pacing, accessibility, replay interest and creator usability. Finish visual/feel review and exact release-build verification.
@@ -264,7 +279,7 @@ Completion requires both implemented features and player evidence. This document
 
 ## 10. Source and review notes
 
-The canon and contracts were checked independently from narrative/art, player-experience and online-rule perspectives against integration `7f8ac615`. These were source/document reviews, not additional playtests.
+The original canon/contracts review used narrative/art, player-experience and online-rule perspectives against integration `7f8ac615`. The 2026-10-26 reconciliation inspected `0327e473`, saved profile/launch assignment and native `081750` evidence. These reviews are not additional human playtests. [The reconciled status and proposed asset expansion](../../BuildNotes/asset-expansion/story-status.md) separate current implementation from the House in Motion visual direction.
 
 - [Flagship destinations, clues and routes](../../Assets/_Project/Scripts/Rules/Wordbound/WordboundFlagshipLayout.cs)
 - [Mode definitions](../../Assets/_Project/Scripts/Rules/Wordbound/ModeDefinition.cs) and [progress/result rules](../../Assets/_Project/Scripts/Rules/Wordbound/MatchProgress.cs)

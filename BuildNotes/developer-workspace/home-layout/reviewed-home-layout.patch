@@ -1,0 +1,678 @@
+diff --git a/Assets/_Project/Editor/Authoring/LobbyHomeLayoutSetup.cs b/Assets/_Project/Editor/Authoring/LobbyHomeLayoutSetup.cs
+new file mode 100644
+index 00000000..c72e1399
+--- /dev/null
++++ b/Assets/_Project/Editor/Authoring/LobbyHomeLayoutSetup.cs
+@@ -0,0 +1,92 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using UnityEditor;
++using UnityEngine;
++using Object = UnityEngine.Object;
++
++namespace Wreckabulary.EditorTools
++{
++    public static class LobbyHomeLayoutSetup
++    {
++        public const string ProfilePath = "Assets/_Project/Resources/UI/LobbyHomeLayout.asset";
++        public const string PrefabFolder = "Assets/_Project/Prefabs/UI/Home";
++        public const string GraphicFolder = "Assets/_Project/UI/Home/Graphics";
++
++        [MenuItem("Wreckabulary/Authoring/Create or Verify Saved Home Layout")]
++        public static void CreateOrVerify()
++        {
++            var typography = AssetDatabase.LoadAssetAtPath<LobbyTypographyProfile>(LobbyTypographySetup.ProfilePath);
++            var profile = CreateAt(ProfilePath, PrefabFolder, GraphicFolder, typography);
++            Selection.activeObject = profile; EditorGUIUtility.PingObject(profile);
++        }
++
++        public static LobbyHomeLayout CreateAt(string profilePath, string folder, string graphicFolder, LobbyTypographyProfile typography)
++        {
++            if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Create Home layouts outside Play Mode.");
++            CheckPath(profilePath, ".asset"); CheckFolder(folder); CheckFolder(graphicFolder);
++            var current = AssetDatabase.LoadMainAssetAtPath(profilePath);
++            if (current)
++            {
++                if (current is not LobbyHomeLayout existing) throw new IOException("The Home profile destination is occupied.");
++                Validate(existing); return existing;
++            }
++            RequireVacant(profilePath);
++            string path = folder + "/HomePage.prefab";
++            CheckPath(path, ".prefab");
++            var saved = AssetDatabase.LoadMainAssetAtPath(path);
++            LobbyHomePageView page = null;
++            if (saved)
++            {
++                if (saved is not GameObject prefab || !prefab.TryGetComponent(out page))
++                    throw new IOException("Existing Home prefab needs its typed view: " + path);
++                page.Validate(); LobbyShopLayoutSetup.ValidatePersistent(page);
++            }
++            else
++            {
++                RequireVacant(path);
++                if (!typography || !EditorUtility.IsPersistent(typography) || !typography.TryValidate(out _))
++                    throw new InvalidOperationException("Create and validate saved Lobby typography before the Home layout.");
++            }
++            WorkspaceAssetCopies.EnsureFolder(folder);
++            WorkspaceAssetCopies.EnsureFolder(graphicFolder);
++            WorkspaceAssetCopies.EnsureFolder(Path.GetDirectoryName(profilePath).Replace('\\', '/'));
++            if (!page)
++                page = LobbyShopLayoutSetup.SaveTemplate(path, () => LobbyHomeDefaultLayout.Create(null, typography), graphicFolder, new Dictionary<Sprite, Sprite>());
++            var profile = ScriptableObject.CreateInstance<LobbyHomeLayout>();
++            try
++            {
++                profile.Page = page;
++                Validate(profile); RequireVacant(profilePath);
++                AssetDatabase.CreateAsset(profile, profilePath); AssetDatabase.SaveAssetIfDirty(profile);
++                return profile;
++            }
++            catch { if (!AssetDatabase.Contains(profile)) Object.DestroyImmediate(profile); throw; }
++        }
++
++        static void Validate(LobbyHomeLayout profile)
++        {
++            profile.Validate(); LobbyShopLayoutSetup.ValidatePersistent(profile.Page);
++        }
++
++        static void CheckFolder(string path)
++        {
++            if (string.IsNullOrEmpty(path) || !path.StartsWith("Assets/_Project/", StringComparison.Ordinal) || path.Contains('\\') ||
++                path.Split('/').Any(part => string.IsNullOrEmpty(part) || part == "." || part == ".." || part.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0))
++                throw new ArgumentException("Home authoring paths must stay inside Assets/_Project.");
++        }
++
++        static void CheckPath(string path, string extension)
++        {
++            CheckFolder(path);
++            if (!string.Equals(Path.GetExtension(path), extension, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("Unexpected Home asset extension.");
++        }
++
++        static void RequireVacant(string path)
++        {
++            if (File.Exists(path) || Directory.Exists(path) || File.Exists(path + ".meta") || AssetDatabase.LoadMainAssetAtPath(path))
++                throw new IOException("Existing Home authoring content is preserved; inspect this destination: " + path);
++        }
++    }
++}
+diff --git a/Assets/_Project/Editor/Authoring/LobbyShopLayoutSetup.cs b/Assets/_Project/Editor/Authoring/LobbyShopLayoutSetup.cs
+index 64186058..c408faee 100644
+--- a/Assets/_Project/Editor/Authoring/LobbyShopLayoutSetup.cs
++++ b/Assets/_Project/Editor/Authoring/LobbyShopLayoutSetup.cs
+@@ -80,7 +80,7 @@ static T Existing<T>(string path) where T : Component
+             return view;
+         }
+ 
+-        static T SaveTemplate<T>(string path, Func<T> build, string folder, Dictionary<Sprite, Sprite> graphics) where T : Component
++        internal static T SaveTemplate<T>(string path, Func<T> build, string folder, Dictionary<Sprite, Sprite> graphics) where T : Component
+         {
+             var previous = SceneManager.GetActiveScene();
+             const string template = "Assets/_Project/Scenes/WordboundGameplay.unity";
+diff --git a/Assets/_Project/Scripts/UI/Lobby/LobbyHomeDefaultLayout.cs b/Assets/_Project/Scripts/UI/Lobby/LobbyHomeDefaultLayout.cs
+new file mode 100644
+index 00000000..f76bde6b
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/Lobby/LobbyHomeDefaultLayout.cs
+@@ -0,0 +1,93 @@
++using System;
++using TMPro;
++using UnityEngine;
++using UnityEngine.UI;
++
++namespace Wreckabulary
++{
++    public static class LobbyHomeDefaultLayout
++    {
++        public static LobbyHomePageView Create(Transform parent, LobbyTypographyProfile typography = null)
++        {
++            if (typography && !typography.TryValidate(out string reason)) throw new InvalidOperationException(reason);
++            var root = LobbyKit.Rect(parent, "Home page layout").Fill();
++            try
++            {
++                var view = root.gameObject.AddComponent<LobbyHomePageView>();
++                view.TurnHint = LobbyKit.Row(root, "Turn hint", 8, 0);
++                view.TurnHint.Pin(new Vector2(.5f, 0), new Vector2(0, 6), new Vector2(240, 40));
++                var hintRow = view.TurnHint.GetComponent<HorizontalLayoutGroup>();
++                hintRow.childAlignment = TextAnchor.MiddleCenter; hintRow.childForceExpandHeight = false;
++                LobbyKit.Icon(view.TurnHint, LobbyIcons.Turn, LobbyKit.Cyan).Size(26, 26);
++                var hint = Text(view.TurnHint, "Turn instruction", "Drag to turn", typography, true, 22, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft);
++                var stroke = typography ? typography.Stroke : LobbyFonts.Stroke;
++                if (stroke && hint.color.grayscale > .72f)
++                    hint.fontSharedMaterial = LobbyRuntimeTypography.ResolveMaterial(typography ? typography.Display : LobbyFonts.Display, stroke);
++                hint.Size(-1, 30);
++
++                view.Dock = LobbyKit.Column(root, "Next match", 2, 12);
++                view.Dock.Pin(new Vector2(1, 0), Vector2.zero, new Vector2(HomePage.DockWidth, 0));
++                view.Dock.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
++                LobbyKit.PanelFace(view.Dock, 14, 1, 0);
++                view.Start = Action(view.Dock, "GO", "START", typography, 42); view.Start.Size(-1, 64);
++                view.Start.Underline.enabled = true; view.Start.Label.color = view.Start.ActiveInk;
++                view.Mode = Action(view.Dock, "Choose mode", "Dibs!", typography, 22); view.Mode.Size(-1, 38);
++                view.House = Action(view.Dock, "Change house", "House", typography, 20); view.House.Size(-1, 36);
++                view.Wordbound = Action(view.Dock, "Wordbound", "WORDBOUND", typography, 24); view.Wordbound.Size(-1, 42);
++                view.WordboundNote = Text(view.Dock, "Wordbound note", "Online parties · Map workshop", typography, false, 15, LobbyKit.Muted, TextAlignmentOptions.TopLeft);
++                view.WordboundNote.textWrappingMode = TextWrappingModes.Normal;
++                view.WordboundNote.Size(-1, 24);
++                view.Validate();
++                return view;
++            }
++            catch
++            {
++                root.gameObject.SetActive(false);
++                if (Application.isPlaying) UnityEngine.Object.Destroy(root.gameObject); else UnityEngine.Object.DestroyImmediate(root.gameObject);
++                throw;
++            }
++        }
++
++        static LobbyShopActionView Action(Transform parent, string name, string label, LobbyTypographyProfile typography, float size)
++        {
++            var button = LobbyKit.Button(parent, name, Color.clear, null, 8);
++            var press = button.GetComponent<LobbyPress>();
++            var body = press.Body;
++            var motion = LobbyKit.Rect(button.transform, "Motion (runtime animation)").Fill();
++            body.SetParent(motion, false); press.Body = motion;
++            var content = LobbyKit.Row(body, "Content", 10).Fill();
++            var row = content.GetComponent<HorizontalLayoutGroup>();
++            row.childAlignment = TextAnchor.MiddleCenter; row.childForceExpandHeight = false;
++            row.padding = new RectOffset(8, 8, 4, 6);
++            var view = button.gameObject.AddComponent<LobbyShopActionView>();
++            view.Button = button; view.Press = press;
++            view.Icon = LobbyKit.Icon(content, LobbyIcons.Coin, LobbyKit.Navy).Size(size, size);
++            view.Icon.gameObject.SetActive(false);
++            view.Label = Text(content, "Text", label, typography, true, size, LobbyKit.Navy, TextAlignmentOptions.Center);
++            view.Label.characterSpacing = .6f;
++            view.Label.enableAutoSizing = true;
++            view.Label.fontSizeMin = Mathf.Min(size, Mathf.Max(14f, size * .78f)); view.Label.fontSizeMax = size;
++            view.Label.Size(-1, size + 10).GetComponent<LayoutElement>().minWidth = 0;
++            view.Underline = LobbyKit.Rect(body, "Underline").Place(Vector2.zero, new Vector2(1, 0), new Vector2(10, 1), new Vector2(-10, 4)).Paint(LobbyKit.Cyan, 1);
++            view.Underline.raycastTarget = false; view.Underline.enabled = false;
++            return view;
++        }
++
++        static TextMeshProUGUI Text(Transform parent, string name, string value, LobbyTypographyProfile typography,
++            bool display, float size, Color ink, TextAlignmentOptions alignment)
++        {
++            var source = typography ? display ? typography.Display : typography.Body : display ? LobbyFonts.Display : LobbyFonts.Body;
++            if (!source) throw new InvalidOperationException("The Home layout needs the lobby fonts.");
++            var rect = LobbyKit.Rect(parent, name);
++            rect.gameObject.SetActive(false);
++            var text = rect.gameObject.AddComponent<TextMeshProUGUI>();
++            text.font = LobbyRuntimeTypography.ResolveFont(source);
++            text.fontSharedMaterial = LobbyRuntimeTypography.ResolveMaterial(source, source.material);
++            text.text = value; text.fontSize = size; text.color = ink; text.alignment = alignment;
++            text.raycastTarget = false; text.extraPadding = true;
++            text.textWrappingMode = TextWrappingModes.NoWrap; text.overflowMode = TextOverflowModes.Ellipsis;
++            rect.gameObject.SetActive(true);
++            return text;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/Lobby/LobbyHomeLayout.cs b/Assets/_Project/Scripts/UI/Lobby/LobbyHomeLayout.cs
+new file mode 100644
+index 00000000..96efdc1d
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/Lobby/LobbyHomeLayout.cs
+@@ -0,0 +1,18 @@
++using System;
++using UnityEngine;
++
++namespace Wreckabulary
++{
++    [CreateAssetMenu(menuName = "Wreckabulary/Lobby/Home layout", fileName = "LobbyHomeLayout")]
++    public sealed class LobbyHomeLayout : ScriptableObject
++    {
++        public const string ResourcePath = "UI/LobbyHomeLayout";
++        public LobbyHomePageView Page;
++
++        public void Validate()
++        {
++            if (!Page) throw new InvalidOperationException("Assign the saved Home page prefab.");
++            Page.Validate();
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/Lobby/LobbyHomePageView.cs b/Assets/_Project/Scripts/UI/Lobby/LobbyHomePageView.cs
+new file mode 100644
+index 00000000..03f7746b
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/Lobby/LobbyHomePageView.cs
+@@ -0,0 +1,55 @@
++using System;
++using System.Linq;
++using TMPro;
++using UnityEngine;
++using UnityEngine.UI;
++
++namespace Wreckabulary
++{
++    public sealed class LobbyHomePageView : MonoBehaviour
++    {
++        public RectTransform TurnHint;
++        public RectTransform Dock;
++        public LobbyShopActionView Start;
++        public LobbyShopActionView Mode;
++        public LobbyShopActionView House;
++        public LobbyShopActionView Wordbound;
++        public TextMeshProUGUI WordboundNote;
++
++        public void Validate()
++        {
++            LobbyShopLayout.ValidateTree(this);
++            foreach (var reference in new Component[] { TurnHint, Dock, Start, Mode, House, Wordbound, WordboundNote })
++                LobbyShopLayout.Require(this, reference, "Home binding");
++            var actions = new[] { Start, Mode, House, Wordbound };
++            if (TurnHint.IsChildOf(Dock) || Dock.IsChildOf(TurnHint) || !WordboundNote.transform.IsChildOf(Dock) ||
++                actions.Distinct().Count() != actions.Length)
++                throw new InvalidOperationException("Home needs a separate turn hint and dock with four distinct actions.");
++            foreach (var action in actions)
++            {
++                action.Validate();
++                if (!action.transform.IsChildOf(Dock) || WordboundNote.transform.IsChildOf(action.transform) ||
++                    action.transform.IsChildOf(WordboundNote.transform) ||
++                    actions.Any(other => other != action && other.transform.IsChildOf(action.transform)))
++                    throw new InvalidOperationException("Home actions and the Wordbound note must have independent visibility inside the dock.");
++            }
++        }
++
++        public Selectable Bind(bool showTurnHint, bool starting, bool blocked, bool showHouse, bool canOpenWordbound,
++            string mode, string house, Action start, Action chooseMode, Action chooseHouse, Action openWordbound)
++        {
++            Validate();
++            TurnHint.name = "Turn hint"; TurnHint.gameObject.SetActive(showTurnHint);
++            Dock.name = "Next match";
++            Start.Bind("GO", Start.Label.text, starting || blocked ? null : start, true);
++            Mode.Bind("Choose mode", mode, starting ? null : chooseMode, false);
++            House.Bind("Change house", house, starting || !showHouse ? null : chooseHouse, false);
++            Wordbound.Bind("Wordbound", Wordbound.Label.text, starting || !canOpenWordbound ? null : openWordbound, false);
++            House.gameObject.SetActive(showHouse);
++            Wordbound.gameObject.SetActive(canOpenWordbound);
++            WordboundNote.gameObject.SetActive(canOpenWordbound);
++            Dock.gameObject.SetActive(!starting);
++            return starting ? null : blocked ? Mode.Button : Start.Button;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs b/Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs
+index 96deb8b2..c6950d46 100644
+--- a/Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs
++++ b/Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs
+@@ -199,42 +199,18 @@ public sealed class HomePage : LobbyPage
+ 
+         protected override void Build()
+         {
+-            if (!PlayerPrefs.HasKey(LobbyMenu.TurnHintKey))
+-            {
+-                var hint = LobbyKit.Row(Root, "Turn hint", 8, 0);
+-                hint.Pin(new Vector2(.5f, 0), new Vector2(0, 6), new Vector2(240, 40));
+-                var layout = hint.GetComponent<HorizontalLayoutGroup>();
+-                layout.childAlignment = TextAnchor.MiddleCenter;
+-                layout.childForceExpandHeight = false;
+-                LobbyKit.Icon(hint, LobbyIcons.Turn, LobbyKit.Cyan).Size(26, 26);
+-                LobbyKit.Display(hint, "Drag to turn", 22, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft, LobbyKit.Ink.Stroke).Size(-1, 30);
+-            }
+-            if (Menu.Starting) return;
+-
+-            bool blocked = Menu.Blocked != null;
+-            var dock = LobbyKit.Column(Root, "Next match", 2, 12);
+-            dock.Pin(new Vector2(1, 0), Vector2.zero, new Vector2(DockWidth, 0));
+-            dock.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+-            LobbyKit.PanelFace(dock, 14, 1, 0);
+-            var go = LobbyKit.TextAction(dock, "GO", "START", 42, Menu.Go, true);
+-            go.Size(-1, 64);
+-            go.interactable = !blocked;
+-            var mode = LobbyKit.TextAction(dock, "Choose mode", LobbyMenu.ModeName(Menu.Mode), 22,
+-                () => Menu.OpenPlay("Mode " + Menu.Mode));
+-            mode.Size(-1, 38);
+-            First = blocked ? mode : go;
+-            if (Menu.Mode != LobbyMenu.TutorialMode)
+-            {
+-                var house = LobbyKit.TextAction(dock, "Change house", MapName(Menu.Map), 20,
+-                    () => Menu.OpenPlay("Map " + Menu.Map));
+-                house.Size(-1, 36);
+-            }
+-            if (Session.CanLoad(Session.WordboundScene))
++            var layout = Resources.Load<LobbyHomeLayout>(LobbyHomeLayout.ResourcePath);
++            LobbyHomePageView view;
++            if (layout)
+             {
+-                var wordbound = LobbyKit.TextAction(dock, "Wordbound", "WORDBOUND", 24, Menu.OpenWordbound);
+-                wordbound.Size(-1, 42);
+-                Wrapped(dock, "Online parties · Map workshop", 15, LobbyKit.Muted, 24);
++                layout.Validate();
++                view = LobbyRuntimeTypography.Instantiate(layout.Page, Root, false);
+             }
++            else view = LobbyHomeDefaultLayout.Create(Root);
++            First = view.Bind(!PlayerPrefs.HasKey(LobbyMenu.TurnHintKey), Menu.Starting, Menu.Blocked != null,
++                Menu.Mode != LobbyMenu.TutorialMode, Session.CanLoad(Session.WordboundScene),
++                LobbyMenu.ModeName(Menu.Mode), MapName(Menu.Map), Menu.Go,
++                () => Menu.OpenPlay("Mode " + Menu.Mode), () => Menu.OpenPlay("Map " + Menu.Map), Menu.OpenWordbound);
+         }
+     }
+ 
+diff --git a/Assets/_Project/Tests/Editor/ShopLayout/HomeLayoutAuthoringTests.cs b/Assets/_Project/Tests/Editor/ShopLayout/HomeLayoutAuthoringTests.cs
+new file mode 100644
+index 00000000..14795e66
+--- /dev/null
++++ b/Assets/_Project/Tests/Editor/ShopLayout/HomeLayoutAuthoringTests.cs
+@@ -0,0 +1,177 @@
++using System;
++using System.IO;
++using System.Linq;
++using System.Reflection;
++using NUnit.Framework;
++using UnityEditor;
++using UnityEditor.SceneManagement;
++using UnityEngine;
++using UnityEngine.SceneManagement;
++using UnityEngine.TestTools.Utils;
++using UnityEngine.UI;
++using Wreckabulary.EditorTools;
++
++namespace Wreckabulary.Tests.Editor
++{
++    public sealed class HomeLayoutAuthoringTests
++    {
++        string root;
++        LobbyTypographyProfile typography;
++
++        [OneTimeSetUp]
++        public void CreateOwnedTypography()
++        {
++            root = "Assets/_Project/Tests/HomeLayoutTemp-" + Guid.NewGuid().ToString("N");
++            WorkspaceAssetCopies.EnsureFolder(root);
++            var setup = typeof(LobbyTypographySetup).GetMethod("CreateOrVerifyAt", BindingFlags.Static | BindingFlags.NonPublic);
++            Assert.IsNotNull(setup);
++            typography = setup.Invoke(null, new object[] { root + "/Typography.asset", root + "/Fonts", root + "/TextMaterials" }) as LobbyTypographyProfile;
++            Assert.IsNotNull(typography);
++        }
++
++        [OneTimeTearDown]
++        public void RemoveOnlyOwnedAssets()
++        {
++            if (string.IsNullOrEmpty(root)) return;
++            Assert.IsTrue(root.StartsWith("Assets/_Project/Tests/HomeLayoutTemp-", StringComparison.Ordinal));
++            if (AssetDatabase.IsValidFolder(root)) Assert.IsTrue(AssetDatabase.DeleteAsset(root));
++        }
++
++        LobbyHomeLayout Create(out string folder)
++        {
++            folder = root + "/Case-" + Guid.NewGuid().ToString("N");
++            return LobbyHomeLayoutSetup.CreateAt(folder + "/Layout.asset", folder + "/Prefabs", folder + "/Graphics", typography);
++        }
++
++        static (string Guid, long FileId) Identity(UnityEngine.Object asset)
++        {
++            Assert.IsTrue(asset && EditorUtility.IsPersistent(asset));
++            Assert.IsTrue(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset, out string guid, out long fileId));
++            Assert.IsNotEmpty(guid); Assert.AreNotEqual(0L, fileId);
++            return (guid, fileId);
++        }
++
++        [Test]
++        public void SavedHomeEditsSurviveReopenBindingAndRepeatedSetup()
++        {
++            var profile = Create(out string folder);
++            string path = AssetDatabase.GetAssetPath(profile.Page);
++            var material = new Material(typography.Body.material) { name = "Authored Home mode" };
++            var color = new Color(.64f, .21f, .32f, 1);
++            material.SetColor("_FaceColor", color);
++            string materialPath = folder + "/Mode.mat";
++            AssetDatabase.CreateAsset(material, materialPath);
++            var fontId = Identity(typography.Body); var materialId = Identity(material);
++            byte[] materialBytes = File.ReadAllBytes(materialPath);
++            var contents = PrefabUtility.LoadPrefabContents(path);
++            try
++            {
++                var page = contents.GetComponent<LobbyHomePageView>();
++                page.Dock.anchoredPosition = new Vector2(-22, 19);
++                page.Dock.sizeDelta = new Vector2(340, page.Dock.sizeDelta.y);
++                page.TurnHint.anchoredPosition = new Vector2(11, 12);
++                page.Start.GetComponent<LayoutElement>().preferredHeight = 72;
++                page.Mode.Label.font = typography.Body; page.Mode.Label.fontSharedMaterial = material;
++                page.Mode.Label.enableAutoSizing = false; page.Mode.Label.fontSize = 25;
++                page.Start.Label.text = "PLAY";
++                Assert.IsNotNull(PrefabUtility.SaveAsPrefabAsset(contents, path));
++            }
++            finally { PrefabUtility.UnloadPrefabContents(contents); }
++            foreach (string assetPath in new[] { path, materialPath })
++                AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
++            byte[] pageBytes = File.ReadAllBytes(path), profileBytes = File.ReadAllBytes(folder + "/Layout.asset");
++            profile = LobbyHomeLayoutSetup.CreateAt(folder + "/Layout.asset", folder + "/Prefabs", folder + "/Graphics", null);
++            CollectionAssert.AreEqual(pageBytes, File.ReadAllBytes(path));
++            CollectionAssert.AreEqual(profileBytes, File.ReadAllBytes(folder + "/Layout.asset"));
++            CollectionAssert.AreEqual(materialBytes, File.ReadAllBytes(materialPath));
++            var preview = EditorSceneManager.NewPreviewScene();
++            try
++            {
++                var page = ((GameObject)PrefabUtility.InstantiatePrefab(profile.Page.gameObject, preview)).GetComponent<LobbyHomePageView>();
++                var first = page.Bind(true, false, false, true, true, "Double trouble", "My house", () => { }, () => { }, () => { }, () => { });
++                Assert.AreSame(page.Start.Button, first);
++                Assert.AreEqual(new Vector2(-22, 19), page.Dock.anchoredPosition);
++                Assert.AreEqual(340, page.Dock.sizeDelta.x);
++                Assert.AreEqual(new Vector2(11, 12), page.TurnHint.anchoredPosition);
++                Assert.AreEqual(72, page.Start.GetComponent<LayoutElement>().preferredHeight);
++                Assert.AreEqual("PLAY", page.Start.Label.text);
++                Assert.AreEqual("Double trouble", page.Mode.Label.text); Assert.AreEqual("My house", page.House.Label.text);
++                Assert.AreEqual(fontId, Identity(page.Mode.Label.font)); Assert.AreEqual(materialId, Identity(page.Mode.Label.fontSharedMaterial));
++                Assert.That(page.Mode.Label.fontSharedMaterial.GetColor("_FaceColor"), Is.EqualTo(color).Using(ColorEqualityComparer.Instance));
++                Assert.AreEqual(25, page.Mode.Label.fontSize);
++                LobbyShopLayoutSetup.ValidatePersistent(profile.Page);
++            }
++            finally { EditorSceneManager.ClosePreviewScene(preview); }
++        }
++
++        [Test]
++        public void RebindingReplacesCallbacksAndDisablesUnavailableActions()
++        {
++            var profile = Create(out _);
++            var preview = EditorSceneManager.NewPreviewScene();
++            int stale = 0, start = 0, mode = 0, house = 0, wordbound = 0;
++            try
++            {
++                var page = ((GameObject)PrefabUtility.InstantiatePrefab(profile.Page.gameObject, preview)).GetComponent<LobbyHomePageView>();
++                page.Bind(true, false, false, true, true, "Old", "Old", () => stale++, () => stale++, () => stale++, () => stale++);
++                page.Bind(true, false, false, true, true, "Dibs!", "House", () => start++, () => mode++, () => house++, () => wordbound++);
++                page.Start.Button.onClick.Invoke(); page.Mode.Button.onClick.Invoke(); page.House.Button.onClick.Invoke(); page.Wordbound.Button.onClick.Invoke();
++                Assert.AreEqual(0, stale);
++                Assert.AreEqual(1, start); Assert.AreEqual(1, mode); Assert.AreEqual(1, house); Assert.AreEqual(1, wordbound);
++                var first = page.Bind(false, false, true, false, false, "Tutorial", "House", () => start++, () => mode++, () => house++, () => wordbound++);
++                Assert.AreSame(page.Mode.Button, first);
++                Assert.IsFalse(page.Start.Button.interactable);
++                Assert.IsFalse(page.TurnHint.gameObject.activeSelf); Assert.IsFalse(page.House.gameObject.activeSelf);
++                Assert.IsFalse(page.Wordbound.gameObject.activeSelf); Assert.IsFalse(page.WordboundNote.gameObject.activeSelf);
++                page.Start.Button.onClick.Invoke(); page.House.Button.onClick.Invoke(); page.Wordbound.Button.onClick.Invoke();
++                Assert.AreEqual(1, start); Assert.AreEqual(1, house); Assert.AreEqual(1, wordbound);
++                Assert.IsNull(page.Bind(true, true, false, true, true, "Dibs!", "House", () => start++, () => mode++, () => house++, () => wordbound++));
++                Assert.IsFalse(page.Dock.gameObject.activeSelf); Assert.IsTrue(page.TurnHint.gameObject.activeSelf);
++                page.Start.Button.onClick.Invoke(); page.Mode.Button.onClick.Invoke(); page.House.Button.onClick.Invoke(); page.Wordbound.Button.onClick.Invoke();
++                Assert.AreEqual(1, start); Assert.AreEqual(1, mode); Assert.AreEqual(1, house); Assert.AreEqual(1, wordbound);
++            }
++            finally { EditorSceneManager.ClosePreviewScene(preview); }
++        }
++
++        [TestCase(false)]
++        [TestCase(true)]
++        public void MalformedVisibilityHierarchyIsRejectedWithoutReplacingSavedContent(bool hintOwnsDock)
++        {
++            var profile = Create(out string folder);
++            string path = AssetDatabase.GetAssetPath(profile.Page);
++            var contents = PrefabUtility.LoadPrefabContents(path);
++            try
++            {
++                var page = contents.GetComponent<LobbyHomePageView>();
++                if (hintOwnsDock) page.Dock.SetParent(page.TurnHint, false);
++                else page.Start.transform.SetParent(page.House.transform, false);
++                Assert.IsNotNull(PrefabUtility.SaveAsPrefabAsset(contents, path));
++            }
++            finally { PrefabUtility.UnloadPrefabContents(contents); }
++            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
++            byte[] before = File.ReadAllBytes(path);
++            Assert.Throws<InvalidOperationException>(() => LobbyHomeLayoutSetup.CreateAt(folder + "/Layout.asset", folder + "/Prefabs", folder + "/Graphics", typography));
++            CollectionAssert.AreEqual(before, File.ReadAllBytes(path));
++        }
++
++        [Test]
++        public void DefaultCreationPreservesTypographyOpenSceneAndPlayerPreferences()
++        {
++            var paths = AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(typography), true)
++                .Where(path => File.Exists(path) && (path.EndsWith(".asset", StringComparison.OrdinalIgnoreCase) || path.EndsWith(".mat", StringComparison.OrdinalIgnoreCase))).ToArray();
++            var bytes = paths.Select(File.ReadAllBytes).ToArray();
++            var scene = SceneManager.GetActiveScene(); bool dirty = scene.isDirty; int count = SceneManager.sceneCount;
++            var roots = scene.GetRootGameObjects();
++            string[] keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, LobbyThemes.PreferenceKey };
++            var prefs = keys.Select(key => (exists: PlayerPrefs.HasKey(key), value: PlayerPrefs.GetString(key))).ToArray();
++            Create(out string folder);
++            for (int i = 0; i < paths.Length; i++) CollectionAssert.AreEqual(bytes[i], File.ReadAllBytes(paths[i]));
++            Assert.AreEqual(scene.handle, SceneManager.GetActiveScene().handle);
++            Assert.AreEqual(dirty, scene.isDirty); Assert.AreEqual(count, SceneManager.sceneCount);
++            CollectionAssert.AreEquivalent(roots, scene.GetRootGameObjects());
++            for (int i = 0; i < keys.Length; i++)
++            { Assert.AreEqual(prefs[i].exists, PlayerPrefs.HasKey(keys[i])); Assert.AreEqual(prefs[i].value, PlayerPrefs.GetString(keys[i])); }
++            Assert.IsEmpty(AssetDatabase.FindAssets("t:Scene", new[] { folder }));
++        }
++    }
++}
+diff --git a/Assets/_Project/Tests/HomeLayoutRuntimeTests.cs b/Assets/_Project/Tests/HomeLayoutRuntimeTests.cs
+new file mode 100644
+index 00000000..dd97eff0
+--- /dev/null
++++ b/Assets/_Project/Tests/HomeLayoutRuntimeTests.cs
+@@ -0,0 +1,137 @@
++using System.Collections;
++using System.Linq;
++using NUnit.Framework;
++using UnityEngine;
++using UnityEngine.EventSystems;
++using UnityEngine.SceneManagement;
++using UnityEngine.TestTools;
++using UnityEngine.UI;
++
++namespace Wreckabulary.Tests
++{
++    public sealed class HomeLayoutRuntimeTests
++    {
++        static readonly string[] Keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, LobbyThemes.PreferenceKey };
++        string[] saved;
++        float savedDelay;
++
++        [UnitySetUp]
++        public IEnumerator SetUp()
++        {
++            saved = Keys.Select(key => PlayerPrefs.HasKey(key) ? PlayerPrefs.GetString(key) : null).ToArray();
++            savedDelay = LobbyMenu.StartDelay;
++            PlayerPrefs.DeleteKey(LobbyMenu.TurnHintKey);
++            yield return TestScenes.Reset();
++            Assert.IsNotNull(Resources.Load<LobbyHomeLayout>(LobbyHomeLayout.ResourcePath), "Run the explicit saved Home setup before this integration fixture.");
++            yield return TestScenes.Load(Session.HubScene);
++            yield return TestScenes.WaitUntil(() => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning, 2f, "lobby ready");
++        }
++
++        [UnityTearDown]
++        public IEnumerator TearDown()
++        {
++            if (LobbyMenu.Instance && LobbyMenu.Instance.Starting) LobbyMenu.Instance.CancelStart();
++            LobbyMenu.StartDelay = savedDelay;
++            yield return TestScenes.Reset();
++            if (saved != null)
++                for (int i = 0; i < Keys.Length; i++)
++                    if (saved[i] == null) PlayerPrefs.DeleteKey(Keys[i]); else PlayerPrefs.SetString(Keys[i], saved[i]);
++            PlayerPrefs.Save(); LobbyThemes.Restore();
++        }
++
++        static LobbyHomePageView View(LobbyMenu menu)
++        {
++            var views = menu.Page<HomePage>().Root.GetComponentsInChildren<LobbyHomePageView>();
++            Assert.AreEqual(1, views.Length, "Refresh retains one active Home view.");
++            return views[0];
++        }
++
++        [UnityTest]
++        public IEnumerator SavedHomePreservesPickerNavigationPartyFocusAndAuthoredStyle()
++        {
++            var menu = LobbyMenu.Instance;
++            var profile = Resources.Load<LobbyHomeLayout>(LobbyHomeLayout.ResourcePath);
++            menu.Choose(LobbyMenu.Practice, "Dibs"); menu.Open(LobbyMenu.Home);
++            yield return null;
++            string outfit = menu.Outfit.Serialize(), savedOutfit = PlayerPrefs.GetString(LobbyMenu.OutfitKey);
++            int coins = menu.Career.Coins;
++            var page = View(menu);
++            Assert.AreSame(page.Start.Button, menu.Page<HomePage>().First);
++            Assert.AreEqual(profile.Page.Dock.anchoredPosition, page.Dock.anchoredPosition);
++            Assert.AreEqual(profile.Page.Dock.sizeDelta.x, page.Dock.sizeDelta.x);
++            Assert.AreEqual(profile.Page.Start.GetComponent<LayoutElement>().preferredHeight, page.Start.GetComponent<LayoutElement>().preferredHeight);
++            Assert.AreSame(LobbyRuntimeTypography.ResolveFont(profile.Page.Start.Label.font), page.Start.Label.font);
++            Assert.AreSame(LobbyRuntimeTypography.ResolveMaterial(profile.Page.Start.Label.font, profile.Page.Start.Label.fontSharedMaterial), page.Start.Label.fontSharedMaterial);
++            page.Mode.Button.onClick.Invoke();
++            yield return null;
++            Assert.AreEqual(LobbyMenu.Play, menu.Current);
++            Assert.AreEqual("Mode " + menu.Mode, EventSystem.current.currentSelectedGameObject.name);
++            menu.Open(LobbyMenu.Home);
++            View(menu).House.Button.onClick.Invoke();
++            yield return null;
++            Assert.AreEqual(LobbyMenu.Play, menu.Current);
++            Assert.AreEqual("Map " + menu.Map, EventSystem.current.currentSelectedGameObject.name);
++            menu.Open(LobbyMenu.Home);
++            var partner = new KeyboardBinding(KeyboardBinding.Side.Right);
++            Assert.AreEqual(1, menu.PartySize);
++            EventSystem.current.SetSelectedGameObject(View(menu).House.Button.gameObject);
++            menu.Join(partner);
++            Assert.AreEqual(2, menu.PartySize);
++            Assert.AreEqual("Change house", EventSystem.current.currentSelectedGameObject.name);
++            menu.Leave(partner);
++            yield return null;
++            Assert.AreEqual(1, menu.PartySize);
++            Assert.AreEqual("Change house", EventSystem.current.currentSelectedGameObject.name);
++            View(menu);
++            menu.Choose(LobbyMenu.Matchmaking, "Dibs"); menu.Open(LobbyMenu.Home);
++            page = View(menu);
++            Assert.IsFalse(page.Start.Button.interactable);
++            Assert.AreSame(page.Mode.Button, menu.Page<HomePage>().First);
++            page.Start.Button.onClick.Invoke(); menu.Go();
++            Assert.IsFalse(menu.Starting);
++            menu.Choose(LobbyMenu.Practice, LobbyMenu.TutorialMode); menu.Open(LobbyMenu.Home);
++            page = View(menu);
++            Assert.IsFalse(page.House.gameObject.activeSelf);
++            Assert.AreEqual(Session.CanLoad(Session.WordboundScene), page.Wordbound.gameObject.activeSelf);
++            Assert.AreEqual(page.Wordbound.gameObject.activeSelf, page.WordboundNote.gameObject.activeSelf);
++            Assert.AreEqual(outfit, menu.Outfit.Serialize()); Assert.AreEqual(savedOutfit, PlayerPrefs.GetString(LobbyMenu.OutfitKey));
++            Assert.AreEqual(coins, menu.Career.Coins);
++        }
++
++        [UnityTest]
++        public IEnumerator SavedHomeKeepsTurnHintAndCancelableCountdownLifecycle()
++        {
++            var menu = LobbyMenu.Instance;
++            menu.Choose(LobbyMenu.Practice, "Dibs"); menu.Open(LobbyMenu.Home);
++            yield return null;
++            var initial = View(menu);
++            Assert.IsTrue(initial.TurnHint.gameObject.activeInHierarchy);
++            var turn = menu.GetComponentsInChildren<LobbyDrag>().Single(drag => drag.name == "Turn area");
++            ExecuteEvents.Execute(turn.gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.beginDragHandler);
++            ExecuteEvents.Execute(turn.gameObject, new PointerEventData(EventSystem.current) { delta = new Vector2(-40, 0) }, ExecuteEvents.dragHandler);
++            Assert.AreEqual("seen", PlayerPrefs.GetString(LobbyMenu.TurnHintKey));
++            yield return TestScenes.WaitUntil(() => !initial.TurnHint || !initial.TurnHint.gameObject.activeInHierarchy, 1f, "turn hint dismissal");
++            menu.Open(LobbyMenu.Home);
++            var page = View(menu);
++            Assert.IsFalse(page.TurnHint.gameObject.activeSelf);
++            LobbyMenu.StartDelay = 3600f;
++            try
++            {
++                page.Start.Button.onClick.Invoke();
++                Assert.IsTrue(menu.Starting);
++                Assert.IsFalse(View(menu).Dock.gameObject.activeSelf);
++                Assert.IsNull(menu.Page<HomePage>().First);
++                Assert.AreEqual("CANCEL", EventSystem.current.currentSelectedGameObject.name);
++            }
++            finally
++            {
++                menu.CancelStart(); LobbyMenu.StartDelay = savedDelay;
++            }
++            yield return null;
++            Assert.IsFalse(menu.Starting);
++            Assert.IsTrue(View(menu).Dock.gameObject.activeSelf);
++            Assert.AreEqual("GO", EventSystem.current.currentSelectedGameObject.name);
++            Assert.AreEqual(Session.HubScene, SceneManager.GetActiveScene().name);
++        }
++    }
++}

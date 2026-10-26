@@ -1,0 +1,229 @@
+{
+  "utc": "2026-10-26T10:43:58.804Z",
+  "headAtVerification": "0327e4739c5bfa74c70169f727172eaa70518ca9",
+  "verdict": "PASS — scoped native authoring/runtime and preserved outputs",
+  "gates": [
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T10-12-26-747Z-stdout.txt",
+      "sha256": "465c0f58fc53c447d1f1bff62f4fd2ceca1abd24de8b8e77821fd88297af721c",
+      "cmd": "check all",
+      "utc": "2026-10-26T10:12:27Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 57.7,
+      "evidence": [],
+      "log": "Logs/gate_check_all_20261026T101229Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-core-2026-10-26T10-13-50-344Z-stdout.txt",
+      "sha256": "3dfae9e6db682274cbff2ca135e5db6a0363c36f2566d81d18d427a92b48f53b",
+      "cmd": "core --filter CosmeticBundleTests|WardrobeTests|CatalogueTests|CareerTests",
+      "utc": "2026-10-26T10:13:50Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 27.6,
+      "evidence": [
+        "TestResults/core_20261026T101351Z.trx"
+      ],
+      "log": "Logs/gate_core_20261026T101351Z.log",
+      "tests": {
+        "total": 41,
+        "passed": 41,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-portraitcontrols-2026-10-26T10-14-36-976Z-stdout.txt",
+      "sha256": "b410794713028518b2fd16b7f1f23fedd8963a4ae1f759f271d77f0df28d4f66",
+      "cmd": "exec Wreckabulary.EditorTools.ShopPortraitControlsDiagnostics.Run --cold",
+      "utc": "2026-10-26T10:14:37Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 240.8,
+      "evidence": [
+        "Logs/exec/20261026T101437Z.json"
+      ],
+      "log": "Logs/gate_exec_Run_20261026T101437Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T10-19-12-796Z-stdout.txt",
+      "sha256": "d6b3141cc910985e4370d38d20f4905a26fcbbc61560125ae8aaadb94466c97d",
+      "cmd": "check all",
+      "utc": "2026-10-26T10:19:13Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 32,
+      "evidence": [],
+      "log": "Logs/gate_check_all_20261026T101914Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-portraitcontrols-2026-10-26T10-20-01-100Z-stdout.txt",
+      "sha256": "1bae62556021f469c1a2963ecda1679714d5aaf7d76d88ae01c2dec91a744f8b",
+      "cmd": "exec Wreckabulary.EditorTools.ShopPortraitControlsDiagnostics.Run --cold",
+      "utc": "2026-10-26T10:20:01Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 102.9,
+      "evidence": [
+        "Logs/exec/20261026T102001Z.json"
+      ],
+      "log": "Logs/gate_exec_Run_20261026T102001Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T10-28-24-499Z-stdout.txt",
+      "sha256": "6d4fd940380e2217ecd32a44e120853de5d8c1871480077f3050957f8f81fb51",
+      "cmd": "check all",
+      "utc": "2026-10-26T10:28:24Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 51.9,
+      "evidence": [],
+      "log": "Logs/gate_check_all_20261026T102825Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-hometests-2026-10-26T10-29-43-742Z-stdout.txt",
+      "sha256": "b036e82db386b229955f313efdd61adb3ab5b7a357df3722a7428d943a0fc1ee",
+      "cmd": "test editmode --cold --filter HomeLayoutAuthoringTests",
+      "utc": "2026-10-26T10:29:44Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 198.7,
+      "evidence": [
+        "TestResults/editmode_20261026T102944Z.xml"
+      ],
+      "log": "Logs/gate_test_editmode_20261026T102944Z.log",
+      "tests": {
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-26T10-34-03-365Z-stdout.txt",
+      "sha256": "73926ed1b467c7ba9312133d4c35568c6270f1440fc1532dcf5a70b12abfa8df",
+      "cmd": "check all",
+      "utc": "2026-10-26T10:34:03Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 16,
+      "evidence": [],
+      "log": "Logs/gate_check_all_20261026T103403Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-portraitcontrols-2026-10-26T10-34-46-126Z-stdout.txt",
+      "sha256": "84bca518cc806cf7e2e47268605da9636d8db0f4744eef0b47b98e5cac0e63b7",
+      "cmd": "exec Wreckabulary.EditorTools.ShopPortraitControlsDiagnostics.Run --cold",
+      "utc": "2026-10-26T10:34:46Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 59.1,
+      "evidence": [
+        "Logs/exec/20261026T103446Z.json"
+      ],
+      "log": "Logs/gate_exec_Run_20261026T103446Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-setup-2026-10-26T10-37-07-737Z-stdout.txt",
+      "sha256": "49b0698416a7e226649281b4ad46ad29442075bbc13d13b1d3341a3cc889d4d3",
+      "cmd": "exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify --cold",
+      "utc": "2026-10-26T10:37:08Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 52.4,
+      "evidence": [
+        "Logs/exec/20261026T103708Z.json"
+      ],
+      "log": "Logs/gate_exec_CreateOrVerify_20261026T103708Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-setup-2026-10-26T10-39-15-695Z-stdout.txt",
+      "sha256": "228f22db22281fb7e0c2d79448ce921f0b44ad5019c6da49809e810a5f50aff4",
+      "cmd": "exec Wreckabulary.EditorTools.WorkspaceStudioSetup.CreateOrVerify --cold",
+      "utc": "2026-10-26T10:39:15Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 33.5,
+      "evidence": [
+        "Logs/exec/20261026T103916Z.json"
+      ],
+      "log": "Logs/gate_exec_CreateOrVerify_20261026T103916Z.log"
+    },
+    {
+      "path": ".harness/delivery/workspace-homeplaytests-2026-10-26T10-40-15-185Z-stdout.txt",
+      "sha256": "378631aa694e4f7868090806ae0c9eac9db00ab60243a7e07abfef5e1a6f944c",
+      "cmd": "test playmode --cold --filter HomeLayoutRuntimeTests|LobbyTests|LobbyNavigationRefinementTests|LobbyMapSelectionTests|CaptureCleanupTests",
+      "utc": "2026-10-26T10:40:15Z",
+      "verdict": "PASS",
+      "exit": 0,
+      "secs": 146.6,
+      "evidence": [
+        "TestResults/playmode_20261026T104015Z.xml"
+      ],
+      "log": "Logs/gate_test_playmode_20261026T104015Z.log",
+      "tests": {
+        "total": 70,
+        "passed": 70,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "sources": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyHomeLayoutSetup.cs",
+      "sha256": "6d01df6c2cca5a0d23a8e6f450d7adcfbb8a8a6711f1b03bea485d1f0d14a677"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbyShopLayoutSetup.cs",
+      "sha256": "5422bfc9421ac4445e6cc13cf623d3c41655c109afe130d519d67dffe4e23013"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyHomeDefaultLayout.cs",
+      "sha256": "2af1acd27431bd9a7f0aa99cd069f4ad225414b69179ef1a3511271d67e0c334"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyHomeLayout.cs",
+      "sha256": "5b287cf7a040cedc967250a3a669c8ef68feb7d58df7a67fe888b23ac80c790e"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyHomePageView.cs",
+      "sha256": "dd87f3c329b8503437bc4746515f689ccb01ee785e52e0b4e188d4487873db14"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs",
+      "sha256": "74a52fa57bd166e6f6608e4236bf5492eb3d062a8301bd598b6c35cf5341bba0"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/ShopLayout/HomeLayoutAuthoringTests.cs",
+      "sha256": "4a05ede887e9ed1f36a9ff87065dd99fd984444006456c08f1d40b519c826fdf"
+    },
+    {
+      "path": "Assets/_Project/Tests/HomeLayoutRuntimeTests.cs",
+      "sha256": "c478441d599fc854590cd8279487098056b6199236ba2c61adc88e10e075fc9a"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceStudioSetup.cs",
+      "sha256": "1ac3ea2cd373d58d21cbd5691579f6603f1b534c571cd91f01252a10712f7235"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceWindow.cs",
+      "sha256": "667aa9d8579feeb0b47eabda42fca11bff7d0b8bba6e1597a355e805b09a5b00"
+    }
+  ],
+  "sourceBoundary": "The ten Home/setup/workspace files match the Home Editor and Play checks. Portrait diagnostics evolved independently from capture02 to capture04; their versioned draft manifests retain exact source identities.",
+  "preservation": {
+    "path": "BuildNotes/developer-workspace/home-output-preservation-20261026.json",
+    "sha256": "0bc4acee3cf1b4de0c6a1eb9a6e26d878f4c231d1f3c462e56234011190837c6",
+    "files": 146,
+    "changed": 0,
+    "addedHomeFiles": 21
+  },
+  "limits": [
+    "No new Windows player build.",
+    "No physical pointer/controller no-code usability observation.",
+    "Portrait correction remains a controlled instance diagnostic, not a shipped model fix.",
+    "Furniture package/FAN candidate are source staging only; no new public matchmaking result."
+  ]
+}
