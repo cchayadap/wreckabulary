@@ -1,12 +1,15 @@
 # Wreckabulary: Wordbound — production progress
 
-Owner: James / SethyPagna. Updated 28 October 2026 (Asia/Hong_Kong).
+Owner: James / SethyPagna. Updated 29 October 2026 (Asia/Hong_Kong).
 Goal: deliver the complete [approved plan](docs/wordbound/PLAN.md): a tested Windows game with five Wordbound modes, an evolving four-destination/four-layer/three-lap world, physical word puzzles, human online play and recovery, a usable workshop, vivid editable assets and ordinary Unity design work without code.
 The owner's extension also requires online support for the original multiplayer house modes. The full production goal remains unfinished.
 Legend: `[ ]` unfinished; `[~]` partly implemented or not fully verified; `[x]` complete only within the stated evidence scope.
 
 ## Current owner-directed redesign
 
+- [~] **29 October correction:** James prefers the earlier colourful artwork and asks for better organization, fewer margins and simpler choices. Rework Play as a full-width options page with no character, a compact mode strip, map cards and one fixed action. Keep the no-stripes direction. The rejected 155755 build stays available as a behavior checkpoint, not the accepted visual direction.
+- [~] Evaluate official Roboto fonts for clearer headings, controls and supporting text. Keep original fonts and saved-frame backups, expose typography through editable Unity assets, and verify the real player at wide and small sizes before calling the change delivered.
+- [x] Full-width Play cards, fixed footer, smaller outer margins and hidden Play characters pass source checks, **32/32** Play/settings/navigation checks and **4/4** focused character/camera checks. Source checkpoint `c45e4fac`; the new combined appearance still needs Windows review.
 - [~] James rejected the Play/loadout/menu styling, decorative stripes and generic sparse map presentation. Earlier automated/agent review passes remain behavior evidence, not owner visual acceptance. Replace the design with clean rows, restrained surfaces, clear selection and short contextual text; no decorative stripes or sunbursts.
 - [~] Recover the interrupted Play changes and menu/map findings without overwriting unfinished work. Rebuild and inspect actual Windows views before updating the delivered build.
 - [x] Save redesigned Play/Settings/Customize/Shop frames and the equipment theme with exact backups of all six original assets. Equipment/input GUI checks pass **58/58**; latest lobby checks pass **101/102**, followed by **17/17** targeted Settings/Controls checks after correcting the last Help-text height. These are runtime checks, not owner visual approval.
@@ -18,6 +21,15 @@ Legend: `[ ]` unfinished; `[~]` partly implemented or not fully verified; `[x]` 
 - [~] Playable map export/import now retains the exact seed, mode and team format, with compatible content/rule hashes and legacy Draft-only support. Official rules **35/35** and Unity **48/48** pass. Actual Share-panel input/layout and restart persistence remain open; mode is a session choice outside map Undo. Custom courses support private parties, not public Quick Play admission.
 - [ ] Keep the complete multiplayer, story, content, creator, Unity editing and release backlog below in scope. The current redesign is one part of that plan.
 
+## Current Windows review build
+
+- [x] Build **20261028T155755Z**, source **75b02aff8e7b27e4e1c45e9444c7225a5d4841dd**, compiled successfully. Windows lobby **155953: 5/5**, Solo **160051: 4/4**, Workshop **160232: 5/5** all pass and exit normally. The original uppercase-label QA failure from build154606 remains preserved.
+- [x] New captures include **24 lobby + 13 Solo + 8 Workshop images**. Lost Address Time Run/Freestyle and Parcel Hall Freestyle launch the real local game and return to the chooser. These checks do not establish a full course finish, physical input or multiplayer acceptance.
+- [x] Exact post-run preservation comparison: **4,228 authored files unchanged**. [Receipt](BuildNotes/redesign-20261028/windows155755-preservation.json).
+- [x] The [strict 45-image evidence audit](BuildNotes/redesign-20261028/windows-audit/windows155755-root.json) passes for that exact build and those three runs. Validator regressions pass **62/62**. This checks provenance and the scenario contract, not approval of all pixels.
+- [~] [Try the checkpoint build](BuildNotes/client-view/TRY-WORDBOUND.md) and [compare the screenshots](BuildNotes/redesign-20261028/review/REVIEW.html). James rejected this newer styling and prefers the earlier visual identity with improved organization. Sparse environments, Equipment scrollbar/preview contrast and final visual/feel approval remain open.
+- [~] Each final raw player log retains four unsupported/stripped depth-of-field/Panini diagnostics even though scenario console counters are zero. Those postprocessing passes do not execute. This remains a release limitation, along with the unchanged trial label.
+- [~] Original PNG pixel checks confirm visible Online/Close glyphs in the disputed header images; the initial displayed-image impression did not establish a game rendering defect. No speculative source change was made.
 ## Previous tested Windows review build
 
 - [x] Native saved-frame checks: Editor **27/27**, combined Play **31/31**, zero skips; saved setup/repeat pass. Independent rehash verifies **4,208** authored files unchanged against the post-creation baseline. [Root receipt](BuildNotes/client-view/lobby-frames-verification-20261027.json), [independent review](BuildNotes/client-view/independent-native-220430.md).
