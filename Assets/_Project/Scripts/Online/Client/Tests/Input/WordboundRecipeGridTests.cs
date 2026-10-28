@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -120,6 +121,117 @@ namespace Wreckabulary.Online.Tests
             f.Call("ExecuteMenuAction", true); f.Call("ExecuteMenuAction", true);
             Assert.IsTrue(f.View.MenuOpen); Assert.AreEqual("", f.Get("notice"));
         }
+
+        [Test]
+        public void MenuSuggestsNextActualPuzzleWithoutCraftingOrOverridingManualChoice()
+        {
+            using var f = new WordboundRecipeContextFixture("TimeRun");
+            string letters = f.Grid.Inventory.Letters.ToString();
+            f.Grid.Call("MenuRequested");
+            Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"), "The first checkpoint only needs a keepsake; show the next authored recipe.");
+            Assert.AreEqual(letters, f.Grid.Inventory.Letters.ToString());
+            Assert.IsNull(f.Grid.Inventory.Craft);
+            f.Grid.Call("SelectRecipe", "FAN");
+            f.Grid.Call("MenuRequested");
+            f.Grid.Call("RefreshRecipes");
+            Assert.AreEqual("FAN", f.Grid.Get("selectedRecipe"), "Reopening the same objective keeps an explicit choice.");
+            f.Grid.View.SetMenuOpen(false);
+            f.Grid.Call("ReadCommands", new PlayerCommands { spellDown = true });
+            Assert.IsTrue(f.Grid.View.MenuOpen);
+            Assert.AreEqual("recipe:FAN", ((WordboundMenuFocus)f.Grid.Get("menuFocus")).Selected);
+            Assert.IsNull(f.Grid.Inventory.Craft, "Opening Craft must never submit a craft.");
+        }
+
+        [Test]
+        public void NextObjectiveChangesSuggestedRecipeOnlyWhenTheMenuIsOpened()
+        {
+            using var f = new WordboundRecipeContextFixture("TimeRun");
+            f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"));
+            f.AdvanceCheckpoint();
+            f.AdvanceCheckpoint();
+            Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"), "Read-model changes do not move an open menu selection.");
+            f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("STOOL", f.Grid.Get("selectedRecipe"));
+            Assert.AreEqual(2, f.Progress.Team(0).NextCheckpoint);
+        }
+
+        [Test]
+        public void SearchAndUnknownOrStaleContextDoNotResetAChosenRecipe()
+        {
+            using var f = new WordboundRecipeContextFixture("TimeRun");
+            f.Grid.Set("search", "BAT");
+            f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("BAT", f.Grid.Get("selectedRecipe"));
+            Assert.IsNull(f.Grid.Get("recipeContext"));
+            f.Grid.Set("search", ""); f.Grid.Call("SelectRecipe", "FAN");
+            f.SetFrame(stale: true); f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("FAN", f.Grid.Get("selectedRecipe"));
+            f.SetFrame(); f.Grid.Set("actorId", "outsider"); f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("FAN", f.Grid.Get("selectedRecipe"));
+            f.Grid.Set("actorId", WordboundRecipeContextFixture.Player);
+            f.Grid.Set("mode", ModeDefinition.For("FreeForAll")); f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("FAN", f.Grid.Get("selectedRecipe"));
+        }
+
+        [Test]
+        public void DisconnectedOrMigratingPlayersReceiveNoNewRecipeSuggestion()
+        {
+            using var f = new WordboundRecipeContextFixture("TimeRun");
+            f.Grid.Call("SelectRecipe", "FAN");
+            f.Progress.Disconnect(WordboundRecipeContextFixture.Player, 1); f.SetFrame();
+            f.Grid.Call("PrepareRecipeMenu"); Assert.AreEqual("FAN", f.Grid.Get("selectedRecipe"));
+            Assert.IsTrue(f.Progress.Reconnect(WordboundRecipeContextFixture.Player, 2));
+            f.Progress.BeginMigration(); f.SetFrame();
+            f.Grid.Call("PrepareRecipeMenu"); Assert.AreEqual("FAN", f.Grid.Get("selectedRecipe"));
+        }
+
+        [Test]
+        public void FreestyleUsesActiveStationThenNearbyUnfinishedStationWithoutRaceProgress()
+        {
+            using var f = new WordboundRecipeContextFixture("Freestyle");
+            var sorting = f.Course.PhysicalSites.First(s => s.PuzzleId == "SortingBench");
+            var clock = f.Course.PhysicalSites.Single(s => s.PuzzleId == "ReturnClock");
+            f.SetFrame(selected: clock, position: sorting.Position);
+            f.Grid.Call("PrepareRecipeMenu"); Assert.AreEqual("CLOCK", f.Grid.Get("selectedRecipe"));
+            f.SetFrame(selected: clock, position: sorting.Position, completed: clock);
+            f.Grid.Call("PrepareRecipeMenu"); Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"));
+            Assert.AreEqual(0, f.Progress.Team(0).NextCheckpoint);
+            Assert.IsNull(f.Progress.Result);
+        }
+
+        [Test]
+        public void FlagshipSuggestsTheSmashingToolBeforeTheSocketRecipeAndDoesNotSuggestDuplicateTools()
+        {
+            using var f = new WordboundRecipeContextFixture("TimeRun", flagship: true);
+            f.SetFrame(sources: true);
+            f.Grid.Call("PrepareRecipeMenu"); Assert.AreEqual("HAMMER", f.Grid.Get("selectedRecipe"));
+            f.Grid.Call("SelectRecipe", "FAN"); f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("FAN", f.Grid.Get("selectedRecipe"));
+            f.SetFrame(sources: true, heldTool: true);
+            f.Grid.Call("PrepareRecipeMenu"); Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"));
+            f.Grid.Set("recipeContext", null); f.Grid.Call("SelectRecipe", "FAN");
+            f.SetFrame(sources: false);
+            f.Grid.Call("PrepareRecipeMenu"); Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"));
+            f.Grid.Set("recipeContext", null); f.Grid.Call("SelectRecipe", "FAN");
+            f.Grid.Inventory.Letters.Add(LetterBag.FromWord("TABLE")); f.SetFrame(sources: true);
+            f.Grid.Call("RefreshRecipes"); f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("HAMMER", f.Grid.Get("selectedRecipe"), "Recovery letters do not remove the marked-source smashing prerequisite.");
+        }
+
+        [Test]
+        public void RivalTeamProgressCannotChangeTheLocalTeamsSuggestedRecipe()
+        {
+            using var f = new WordboundRecipeContextFixture("TeamRace", flagship: true);
+            f.SetFrame(sources: true); f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("HAMMER", f.Grid.Get("selectedRecipe"));
+            f.AdvanceCheckpoint("recipe-rival"); f.AdvanceCheckpoint("recipe-rival");
+            f.SetFrame(sources: true); f.Grid.Call("PrepareRecipeMenu");
+            Assert.AreEqual("HAMMER", f.Grid.Get("selectedRecipe"));
+            Assert.AreEqual(0, f.Progress.Team(0).NextCheckpoint);
+            f.AdvanceCheckpoint(); f.AdvanceCheckpoint(); f.SetFrame(sources: true);
+            f.Grid.Call("PrepareRecipeMenu"); Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"));
+        }
     }
 
     internal sealed class WordboundRecipeGridFixture : IDisposable
@@ -160,5 +272,69 @@ namespace Wreckabulary.Online.Tests
             ((WordboundUiStyles)Get("ui")).Dispose();
             Object.DestroyImmediate(Root); Object.DestroyImmediate(Theme);
         }
+    }
+
+    internal sealed class WordboundRecipeContextFixture : IDisposable
+    {
+        internal const string Player = "recipe-player";
+        internal readonly WordboundRecipeGridFixture Grid = new WordboundRecipeGridFixture();
+        internal readonly ResolvedCourse Course;
+        internal readonly MatchProgress Progress;
+        readonly ItemCatalogue items;
+        readonly ModeDefinition mode;
+        readonly WordboundSeat[] seats;
+
+        internal WordboundRecipeContextFixture(string modeId, bool flagship = false)
+        {
+            items = ItemCatalogue.FromJson(File.ReadAllText("Assets/_Project/Data/Config/items.json"));
+            mode = ModeDefinition.For(modeId);
+            seats = modeId == "TeamRace" ? new[] { new WordboundSeat(Player, 0, 0), new WordboundSeat("recipe-rival", 1, 0) } :
+                new[] { new WordboundSeat(Player, 0, 0) };
+            var result = flagship ? WordboundFlagshipContent.Create(items).Resolve("0123456789abcdef", MatchStateValidation.Requirements(mode)) :
+                WordboundParcelServiceContent.Create(items).Resolve("0123456789abcdef", MatchStateValidation.Requirements(mode));
+            Assert.IsTrue(result.Success, string.Join("\n", result.Issues)); Course = result.Manifest;
+            Progress = new MatchProgress(mode, seats, MatchStateValidation.Route(Course));
+            Grid.Set("items", items); Grid.Set("course", Course); Grid.Set("mode", mode);
+            Grid.Set("actorId", Player); Grid.Set("recipeLetters", null); Grid.Call("RefreshRecipes");
+            SetFrame();
+        }
+
+        internal void SetFrame(bool stale = false, ResolvedCoursePhysicalSite selected = null,
+            CoursePoint? position = null, ResolvedCoursePhysicalSite completed = null, bool sources = false, bool heldTool = false)
+        {
+            var binding = new MatchBinding("recipe-context", MatchSnapshotCodec.ProtocolVersion, mode.Hash,
+                stale ? new string('c', 64) : Course.SourceHash, Course.Hash, new string('a', 64), new string('b', 64), seats);
+            var at = position ?? Course.Spawns[0].Position;
+            var bodies = new List<WorldBodyState> { new WorldBodyState("player:0", WorldBodyKind.Player,
+                new WorldVector(at.X / 1000f, at.Y / 1000f, at.Z / 1000f), sourceId: Player) };
+            if (sources)
+                bodies.AddRange(Course.Placements.Select((placement, index) => new WorldBodyState("source:" + index, WorldBodyKind.Item,
+                    new WorldVector(placement.Position.X / 1000f, placement.Position.Y / 1000f, placement.Position.Z / 1000f), sourceId: placement.Id)));
+            var economy = new Economy(items, new GameRules());
+            if (heldTool)
+            {
+                economy.AddPlayer(0, 0);
+                foreach (var tile in economy.MintTiles("HAMMER").Tiles) Assert.IsTrue(economy.CollectTile(0, tile.TileId).Ok);
+                Assert.IsTrue(economy.BeginCraft(0, "HAMMER", 0).Ok); Assert.IsTrue(economy.CompleteCraft(0, 100).Ok);
+            }
+            Grid.Set("frame", new MatchSnapshot(binding, 0, 1, 1, Progress.Capture(),
+                economy.Capture(), new CommandJournal(binding.Hash, seats.Select(s => s.PlayerId)).Capture(),
+                Array.Empty<MatchActorState>(), bodies,
+                Array.Empty<MatchResourceState>(), completed == null ? Array.Empty<MatchMechanismState>() :
+                    new[] { new MatchMechanismState(completed.PuzzleId, 0, completed.Lap - 1, true) },
+                Array.Empty<MatchRandomState>(), Array.Empty<string>(), practice: selected == null ? null : new MatchPracticeState(selected.Hash, 1)));
+        }
+
+        internal void AdvanceCheckpoint(string player = Player)
+        {
+            var team = Progress.Team(Progress.Player(player).Team);
+            var checkpoint = Course.Laps[team.Lap].Checkpoints[team.NextCheckpoint];
+            var events = checkpoint.PuzzleIds.Select(id => new ProgressEvent(ProgressEventKind.PuzzleSatisfied, player, id, team.Lap)).ToList();
+            events.Add(new ProgressEvent(ProgressEventKind.CheckpointReached, player, checkpoint.Id, team.Lap));
+            Progress.Advance(Progress.Tick + 1, (Progress.Tick + 1) * 17, events);
+            SetFrame();
+        }
+
+        public void Dispose() => Grid.Dispose();
     }
 }

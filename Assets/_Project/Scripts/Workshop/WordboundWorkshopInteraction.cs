@@ -238,7 +238,7 @@ namespace Wreckabulary.Workshop
                             string hit = view.Pick(mouse, viewport);
                             if (hit != null)
                             {
-                                zoneId = "";
+                                zoneId = ""; sitePuzzle = ""; ShowInspectorSection(InspectorSection.Room);
                                 if (!History.Current.Selection.Contains(hit) || addSelection) History.Select(new[] { hit }, addSelection);
                                 Refresh(); StartGesture(WorkshopHandle.Plane, mouse);
                             }
@@ -354,7 +354,7 @@ namespace Wreckabulary.Workshop
         {
             string next = WorkshopSelection.Step(History.Current, direction);
             if (next == null) return;
-            CancelGesture(); zoneId = ""; sitePuzzle = "";
+            CancelGesture(); zoneId = ""; sitePuzzle = ""; ShowInspectorSection(InspectorSection.Room);
             History.Select(new[] { next }, controllerAdd); Refresh(); FrameSelection();
         }
         void ControllerPanel()
@@ -498,12 +498,12 @@ namespace Wreckabulary.Workshop
             if (ToolButton("Duplicate object", LobbyIcons.Duplicate)) DuplicateSelection();
             if (ToolButton("Delete object", LobbyIcons.Delete)) DeleteSelection();
             GUILayout.EndHorizontal();
-            if (Button("Select room")) zoneId = "";
+            if (Button("Select room")) { zoneId = ""; ShowInspectorSection(InspectorSection.Room); }
             GUILayout.Label("Drag the object or its X / Z handles.\nR rotates in quarter-turns.");
         }
         void SelectZone(CourseZone zone)
         {
-            CancelGesture(); zoneId = zone.Id; LoadPlacementFields(zone);
+            CancelGesture(); ShowInspectorSection(InspectorSection.Objects); placementPickerOpen = false; zoneId = zone.Id; LoadPlacementFields(zone);
         }
         void PlacementAssetPicker()
         {

@@ -223,7 +223,8 @@ namespace Wreckabulary.Qa
             var saved = new Dictionary<FieldInfo, object>();
             foreach (string name in new[] { "zoneId", "zoneMode", "pool", "minCount", "maxCount", "probability", "spacing",
                 "rangeMinX", "rangeMaxX", "rangeMinY", "rangeMaxY", "rangeMinZ", "rangeMaxZ", "rangeYaws", "rangeLayers",
-                "assetSearch", "advanced", "advancedPool", "placementHelp", "placementLimits", "inspectorScroll" })
+                "assetSearch", "advanced", "advancedPool", "placementHelp", "placementLimits", "inspectorScroll",
+                "inspectorSection", "inspectorChoiceOpen", "siteChoiceOpen", "routeChoiceOpen", "workshopTyping", "placementPickerOpen" })
             {
                 var field = type.GetField(name, flags);
                 if (field == null) throw new QaFailException("Missing range view field: " + name);
@@ -247,13 +248,15 @@ namespace Wreckabulary.Qa
                 context.Note("workshop_ranges_yaws", zone.Yaws.ToArray());
                 context.Note("workshop_ranges_allowed_floors", zone.LayerIds.ToArray());
                 context.Note("workshop_ranges_scope", "Existing zone; view-only handler and scroll, no Apply or physical pointer proof; inspect PNGs for visibility.");
-                var styles = (WordboundUiStyles)type.GetField("ui", flags).GetValue(workshop);
                 float deadline = Time.realtimeSinceStartup + 12;
                 string[] names = { "wordbound_workshop_range_height", "wordbound_workshop_range_floors" };
-                int[] rows = { 23, 30 };
+                string[] anchors = { "placementRangeY", "placementFloorsY" };
+                for (int frame = 0; frame < 3; frame++) yield return null;
                 for (int index = 0; index < names.Length; index++)
                 {
-                    float requested = styles.RowHeight * rows[index];
+                    float requested = (float)type.GetField(anchors[index], flags).GetValue(workshop);
+                    if (!(requested > 0) || float.IsNaN(requested) || float.IsInfinity(requested))
+                        throw new QaFailException("Range view anchor was not rendered: " + anchors[index]);
                     type.GetField("inspectorScroll", flags).SetValue(workshop, new Vector2(0, requested));
                     for (int frame = 0; frame < 3; frame++)
                     {

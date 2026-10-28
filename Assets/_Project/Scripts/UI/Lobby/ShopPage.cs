@@ -17,7 +17,10 @@ namespace Wreckabulary
         static readonly Vector2 Card = new Vector2(248, 270);
         string note, spotlight, recipe = "BAT";
         bool recipePicker;
-        TMP_Text footnote;
+        TMP_Text footnote, selectedName, selectedState;
+        RectTransform selection;
+        Button selectedAction;
+        readonly List<(ShopOffer offer, string title, bool worn)> visibleOffers = new();
         readonly Dictionary<string, (Image outline, bool worn)> outlines = new Dictionary<string, (Image, bool)>(StringComparer.Ordinal);
         readonly Dictionary<string, LobbyShopOfferView> authoredOffers = new Dictionary<string, LobbyShopOfferView>(StringComparer.Ordinal);
         LobbyShopLayout layout;
@@ -45,6 +48,7 @@ namespace Wreckabulary
         public void Spotlight(string offerId)
         {
             spotlight = offerId;
+            note = null;
             Category = CategoryFor(offerId);
             Refresh();
             if (First && EventSystem.current) EventSystem.current.SetSelectedGameObject(First.gameObject);
@@ -53,6 +57,8 @@ namespace Wreckabulary
         protected override void Build()
         {
             outlines.Clear();
+            visibleOffers.Clear();
+            selection = null; selectedAction = null; selectedName = selectedState = null;
             authoredOffers.Clear();
             authoredPage = null;
             layout = Resources.Load<LobbyShopLayout>(LobbyShopLayout.ResourcePath);
@@ -69,6 +75,13 @@ namespace Wreckabulary
             else list = BuildLegacyShell();
 
             BuildOffers(list);
+            BuildSelection(list);
+            var selected = visibleOffers.FirstOrDefault(entry => entry.offer.Id == spotlight);
+            if (selected.offer == null) selected = visibleOffers.FirstOrDefault(entry => entry.worn);
+            if (selected.offer == null) selected = visibleOffers.FirstOrDefault(entry => Menu.Career.Owns(entry.offer.Kind, entry.offer.Value));
+            if (selected.offer == null) selected = visibleOffers.FirstOrDefault();
+            if (selected.offer != null) Preview(selected.offer);
+            else if (footnote) footnote.text = note ?? "Free accessories";
         }
 
         RectTransform BuildLegacyShell()
@@ -91,6 +104,57 @@ namespace Wreckabulary
             var list = LobbyKit.Scroll(view, "Scroll", 12);
             list.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(4, 4, 8, 12);
             return list;
+        }
+
+        void BuildSelection(RectTransform list)
+        {
+            if (visibleOffers.Count == 0 || !footnote) return;
+            float height = authoredPage ? authoredPage.SelectionHeight : 96f;
+            float actionWidth = authoredPage ? authoredPage.SelectionActionWidth : 200f;
+            var footer = footnote.rectTransform;
+            var scroll = list.GetComponentInParent<ScrollRect>();
+            if (!scroll || scroll.transform.parent is not RectTransform viewport)
+                throw new InvalidOperationException("Shop offers need a ScrollRect inside their layout container.");
+            float bottom = footer.offsetMax.y + 8f;
+            selection = LobbyKit.Rect(footer.parent, "Selected shop offer").Place(Vector2.zero, new Vector2(1, 0),
+                new Vector2(footer.offsetMin.x, bottom), new Vector2(footer.offsetMax.x, bottom + height));
+            viewport.offsetMin = new Vector2(viewport.offsetMin.x, Mathf.Max(viewport.offsetMin.y, bottom + height + 10f));
+            selectedName = LobbyKit.Text(selection, "", 25, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft);
+            selectedName.name = "Selected shop name";
+            selectedName.enableAutoSizing = true; selectedName.fontSizeMin = 18; selectedName.fontSizeMax = 25;
+            selectedName.rectTransform.Place(new Vector2(0, .5f), Vector2.one,
+                new Vector2(0, 0), new Vector2(-actionWidth - 16f, 0));
+            selectedState = LobbyKit.Text(selection, "", 17, LobbyKit.Muted, TextAlignmentOptions.TopLeft);
+            selectedState.name = "Selected shop state";
+            selectedState.enableAutoSizing = true; selectedState.fontSizeMin = 14; selectedState.fontSizeMax = 17;
+            selectedState.rectTransform.Place(Vector2.zero, new Vector2(1, .5f),
+                Vector2.zero, new Vector2(-actionWidth - 16f, -4));
+            selectedAction = LobbyKit.TextAction(selection, "Selected shop action", "", 22, ActivateSelection);
+            ((RectTransform)selectedAction.transform).Place(new Vector2(1, .5f), new Vector2(1, .5f),
+                new Vector2(-actionWidth, -28), new Vector2(0, 28));
+        }
+
+        void PresentSelection(ShopOffer offer)
+        {
+            if (!selection) return;
+            var entry = visibleOffers.FirstOrDefault(value => value.offer.Id == offer.Id);
+            if (entry.offer == null) return;
+            bool owned = Menu.Career.Owns(offer.Kind, offer.Value);
+            string category = Categories.First(value => value.id == Category).label;
+            selectedName.text = entry.title;
+            selectedState.text = (Category == Gear ? recipe + " finish" : category) + " · " +
+                (entry.worn ? "Equipped" : owned ? "Owned · Preview" : "Not owned · Preview");
+            var label = selectedAction.GetComponentInChildren<TMP_Text>();
+            label.text = entry.worn ? "EQUIPPED" : owned ? "EQUIP" : "BUY " + Menu.Career.PriceOf(offer);
+            selectedAction.interactable = !entry.worn;
+        }
+
+        void ActivateSelection()
+        {
+            var entry = visibleOffers.FirstOrDefault(value => value.offer.Id == spotlight);
+            if (entry.offer == null || entry.worn) return;
+            if (Menu.Career.Owns(entry.offer.Kind, entry.offer.Value)) Wear(entry.offer);
+            else Buy(entry.offer);
         }
 
         void BuildOffers(RectTransform list)
@@ -177,6 +241,7 @@ namespace Wreckabulary
 
         RectTransform ArtCard(Transform parent, ShopOffer offer, string title, string description, bool worn, out RectTransform art)
         {
+            visibleOffers.Add((offer, title, worn));
             if (authoredPage)
             {
                 bool owned = Menu.Career.Owns(offer.Kind, offer.Value);
@@ -260,10 +325,12 @@ namespace Wreckabulary
         void FinishCard(Transform parent, ShopOffer offer)
         {
             bool worn = (Menu.Outfit.SkinFor(recipe) ?? "Classic") == offer.Value;
-            ArtCard(parent, offer, offer.Value, "Finish for " + recipe, worn, out var art);
-            FinishDisc(art, offer.Value, 106);
-            var item = LobbyKit.ItemImage(art, recipe, 84, -8);
+            ArtCard(parent, offer, offer.Value, "Original " + recipe + " shape · Select to preview " + offer.Value + " finish", worn, out var art);
+            var item = LobbyKit.ItemImage(art, recipe, 84);
             if (item) item.rectTransform.Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(84, 84));
+            var (from, to) = FinishPaint(offer.Value);
+            var swatch = LobbyKit.Rect(art, "Finish swatch").Pin(new Vector2(1, 0), new Vector2(-14, 14), new Vector2(20, 20));
+            LobbyKit.Face(swatch, from, 10, LobbyKit.Line, 1, 0, to);
         }
 
         void ColourCard(Transform parent, ShopOffer offer)
@@ -312,7 +379,6 @@ namespace Wreckabulary
             spotlight = note = null;
             recipe = item.Id; recipePicker = false;
             Refresh();
-            Menu.Stage.PreviewItem(recipe, Menu.Outfit.SkinFor(recipe) ?? "Classic");
             Reselect("Choose recipe");
             return true;
         }
@@ -327,6 +393,7 @@ namespace Wreckabulary
         public void Preview(ShopOffer offer)
         {
             if (offer == null) return;
+            if (spotlight != offer.Id) note = null;
             if (offer.Kind == "theme") LobbyThemes.Preview(offer.Value);
             else if (offer.Kind == "skin") Menu.Stage.PreviewItem(recipe, offer.Value);
             else
@@ -344,12 +411,15 @@ namespace Wreckabulary
                 entry.Value.outline.enabled = entry.Value.worn || entry.Key == offer.Id;
                 entry.Value.outline.color = LobbyKit.Selection;
             }
-            if (footnote) footnote.text = offer.Name + " · Preview";
+            spotlight = offer.Id;
+            PresentSelection(offer);
+            if (footnote) footnote.text = note ?? "";
         }
 
         public void Buy(ShopOffer offer)
         {
             if (offer == null) return;
+            spotlight = offer.Id;
             string error = Menu.Career.Buy(offer.Id);
             note = error ?? "Bought " + offer.Name + ".";
             if (error == null) { Menu.SaveCareer(); Menu.Post(note); }
@@ -374,9 +444,9 @@ namespace Wreckabulary
                 if (next == null || !GameConfig.Current.Wardrobe.Fits(next)) return;
                 Menu.Wear(next);
             }
+            spotlight = offer.Id;
             note = "Equipped " + offer.Name + ".";
             Refresh();
-            if (offer.Kind == "skin") Menu.Stage.PreviewItem(recipe, offer.Value);
             Reselect("Offer " + offer.Id);
         }
 

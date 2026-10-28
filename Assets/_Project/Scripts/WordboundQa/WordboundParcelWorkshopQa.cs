@@ -22,7 +22,9 @@ namespace Wreckabulary.Qa
 {
     public sealed class WordboundParcelWorkshopQa : IQaScenario
     {
-        public string Name => "wordbound_parcel_workshop";
+        readonly bool inspectorViews;
+        public WordboundParcelWorkshopQa(bool captureInspectorViews = false) { inspectorViews = captureInspectorViews; }
+        public string Name => inspectorViews ? "wordbound_parcel_workshop_inspector" : "wordbound_parcel_workshop";
         WordboundLauncher launcher;
         WordboundWorkshop workshop;
         WordboundLocalMatchClient client;
@@ -44,7 +46,11 @@ namespace Wreckabulary.Qa
         readonly Dictionary<TextAsset, string> text = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-        static void Register() => QaScenarios.Register("wordbound_parcel_workshop", () => new WordboundParcelWorkshopQa());
+        static void Register()
+        {
+            QaScenarios.Register("wordbound_parcel_workshop", () => new WordboundParcelWorkshopQa());
+            QaScenarios.Register("wordbound_parcel_workshop_inspector", () => new WordboundParcelWorkshopQa(true));
+        }
 
         public IEnumerable<QaStep> BuildSteps(QaContext context)
         {
@@ -52,6 +58,8 @@ namespace Wreckabulary.Qa
                 .When(_ => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning)
                 .Do(value => Guard(value, Open(value)));
             yield return QaStep.Named("parcel_workshop_save_and_focus").Timeout(180).Do(value => Guard(value, Edit(value)));
+            if (inspectorViews)
+                yield return QaStep.Named("parcel_workshop_inspector_views").Timeout(180).Do(value => Guard(value, InspectorViews(value)));
             yield return QaStep.Named("parcel_workshop_exact_playtest").Timeout(180).Do(value => Guard(value, Play(value)));
             yield return QaStep.Named("parcel_workshop_return_and_history").Timeout(180).Do(value => Guard(value, Return(value)));
         }
@@ -139,6 +147,92 @@ namespace Wreckabulary.Qa
             yield return PreviewShot(context, "parcel_workshop_sorting_close");
             RequireParcelHistory();
             Require(File.ReadAllText(parcelPrimary) == parcelEdited.RecoveryJson, "Focusing the room changed the saved draft.");
+        }
+
+        IEnumerator InspectorViews(QaContext context)
+        {
+            RequireParcelHistory();
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var type = typeof(WordboundWorkshop);
+            FieldInfo Field(string name) => type.GetField(name, flags) ?? throw new QaFailException("Missing inspector field: " + name);
+            void Set(string name, object value) => Field(name).SetValue(workshop, value);
+            void Section(string name) => type.GetMethod("ShowInspectorSection", flags).Invoke(workshop,
+                new[] { Enum.Parse(Field("inspectorSection").FieldType, name) });
+            foreach (string name in new[] { "dragging", "marquee", "panning", "drawingZone", "orbiting", "controllerMoving", "workshopTyping" })
+                Require(!(bool)Field(name).GetValue(workshop), "Inspector capture requires an idle editor: " + name);
+            foreach (string name in new[] { "siteDrag", "gesture", "placementGesture", "resizingZone", "placing" })
+                Require(Field(name).GetValue(workshop) == null, "Inspector capture must not cancel a gesture: " + name);
+            Require(parcelEdited.Selection.SequenceEqual(new[] { "Sorting" }), "Keep the existing Sorting room selection.");
+            var saved = new Dictionary<FieldInfo, object>();
+            foreach (string name in new[] { "inspectorSection", "inspectorScroll", "inspectorChoiceOpen", "inspectorChoiceSearch",
+                "siteChoiceOpen", "siteChoiceSearch", "routeChoiceOpen", "routeChoiceSearch", "workshopTyping", "newPuzzle",
+                "recipeSearch", "recipeId", "presetIndex", "puzzleId", "sitePuzzle", "inspectorAdvancedIds", "inspectorValidation",
+                "advanced", "routesExpanded", "routeTab", "routeModule", "routeRecovery", "routeLoadKey", "routeHistory",
+                "routeRevision", "routeX", "routeY", "routeZ", "routeRadius", "routeBranchLoadRevision", "routeBranchLoadId" })
+            { var field = Field(name); saved.Add(field, field.GetValue(workshop)); }
+            var routeAfter = Read<List<string>>(workshop, "routeAfter");
+            var after = routeAfter.ToArray();
+            var preview = workshop.LastPreview;
+            byte[] parcelBytes = File.ReadAllBytes(parcelPrimary), assignedBytes = File.ReadAllBytes(assignedPrimary);
+            var cleanupErrors = new List<string>();
+            bool preserved = false;
+            try
+            {
+                Section("Puzzles"); Set("newPuzzle", true); Set("recipeSearch", ""); Set("inspectorAdvancedIds", false);
+                Set("inspectorValidation", false); Set("inspectorScroll", Vector2.zero);
+                string recipe = workshop.Catalogue.Assets.Values.Where(value => value.CanCraft)
+                    .Select(value => value.Id).OrderBy(value => value, StringComparer.Ordinal).First();
+                Set("recipeId", recipe); Set("presetIndex", workshop.Catalogue.PuzzlePresets.ToList().IndexOf("PlaceObject"));
+                Require(Read<int>(workshop, "presetIndex") >= 0, "The Parcel source must expose PlaceObject.");
+                yield return PreviewShot(context, "parcel_workshop_new_puzzle");
+                Require(Read<object>(workshop, "inspectorSection").ToString() == "Puzzles" && Read<bool>(workshop, "newPuzzle"),
+                    "The recipe image capture lost its intended inspector context.");
+                NoteInspector(context, "parcel_workshop_new_puzzle_view", "Puzzles", "New puzzle", recipe);
+                Section("Room"); Set("newPuzzle", false); Set("advanced", false); Set("routesExpanded", true);
+                Set("routeTab", 0); Set("routeModule", "Sorting");
+                string recovery = parcelEdited.Course().RecoveryAnchors.First(value => value.ModuleId == "Sorting").Id;
+                Set("routeRecovery", recovery); Set("routeLoadKey", ""); Set("inspectorScroll", Vector2.zero);
+                yield return PreviewShot(context, "parcel_workshop_room_routes");
+                Require(Read<object>(workshop, "inspectorSection").ToString() == "Room" && Read<bool>(workshop, "routesExpanded") &&
+                    Read<int>(workshop, "routeTab") == 0, "The routes capture lost its intended inspector context.");
+                NoteInspector(context, "parcel_workshop_room_routes_view", "Room", "Routes & checkpoints / Safe", recovery);
+            }
+            finally
+            {
+                foreach (var pair in saved)
+                    try { pair.Key.SetValue(workshop, pair.Value); }
+                    catch (Exception error) { cleanupErrors.Add(pair.Key.Name + ": " + error.GetType().Name); }
+                try { routeAfter.Clear(); routeAfter.AddRange(after); }
+                catch (Exception error) { cleanupErrors.Add("routeAfter: " + error.GetType().Name); }
+                try
+                {
+                    RequireParcelHistory();
+                    var resolved = parcel.Preview(workshop.Catalogue, workshop.PlayRequirements);
+                    preserved = saved.All(pair => Equals(pair.Key.GetValue(workshop), pair.Value)) && routeAfter.SequenceEqual(after) &&
+                        ReferenceEquals(workshop.LastPreview, preview) && resolved.Success && resolved.Manifest.Hash == preview.Manifest.Hash &&
+                        File.ReadAllBytes(parcelPrimary).SequenceEqual(parcelBytes) && File.ReadAllBytes(assignedPrimary).SequenceEqual(assignedBytes) &&
+                        ReferenceEquals(assigned.Current, assignedEdited) && assigned.Revision == assignedRevision &&
+                        assigned.CanUndo == assignedUndo && assigned.CanRedo == assignedRedo;
+                    VerifySources();
+                }
+                catch (Exception error) { cleanupErrors.Add("preservation: " + error.GetType().Name); }
+                context.Note("parcel_workshop_inspector_preservation", new Dictionary<string, object> {
+                    ["fields_history_seed_autosaves_sources_preserved"] = preserved && cleanupErrors.Count == 0,
+                    ["cleanup_errors"] = cleanupErrors.ToArray() });
+            }
+            Require(preserved && cleanupErrors.Count == 0, "Inspector capture changed editor state, source data, history or autosaves.");
+        }
+
+        void NoteInspector(QaContext context, string note, string section, string panel, string reference)
+        {
+            Rect viewport = Read<Rect>(workshop, "viewport");
+            float width = Mathf.Min(300, Screen.width * .28f);
+            context.Note(note, new Dictionary<string, object> {
+                ["section"] = section, ["panel"] = panel, ["reference_id"] = reference,
+                ["selected_rooms"] = parcelEdited.Selection.ToArray(), ["source_course_id"] = parcelEdited.Course().Id,
+                ["inspector_rect"] = new[] { Screen.width - width - 8, viewport.y, width, viewport.height },
+                ["scroll"] = Read<Vector2>(workshop, "inspectorScroll").y,
+                ["scope"] = "View-only existing section handler and fields; no Apply, Add, physical click or layout-fit claim. Inspect unchanged full PNG." });
         }
 
         IEnumerator Play(QaContext context)

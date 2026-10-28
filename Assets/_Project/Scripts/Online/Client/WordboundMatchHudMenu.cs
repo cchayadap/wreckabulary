@@ -130,9 +130,9 @@ namespace Wreckabulary.Online
                 GUI.color = before;
             }
             if (clicked) menuFocus.CancelConfirmation();
-            if (selected && Event.current.type == EventType.Repaint)
+            if ((selected || !view.UsesGamepad && chosenRecipe && revealMenuSelection) && Event.current.type == EventType.Repaint)
             {
-                GUI.FocusControl("wordbound:" + id);
+                if (selected) GUI.FocusControl("wordbound:" + id);
                 if (revealMenuSelection && recipeScrollActive)
                 {
                     var row = GUILayoutUtility.GetLastRect();

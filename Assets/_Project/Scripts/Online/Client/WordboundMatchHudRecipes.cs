@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
@@ -8,7 +9,7 @@ namespace Wreckabulary.Online
 {
     public sealed partial class WordboundMatchHud
     {
-        string selectedRecipe;
+        string selectedRecipe, recipeContext;
         int recipeColumns = 1, recipeStyleGeneration = -1;
         bool recipeScrollActive;
         GUIStyle recipeName;
@@ -36,6 +37,68 @@ namespace Wreckabulary.Online
         {
             foreach (var card in recipeCards)
                 if (card.Item.Id == id && RecipeVisible(card)) { selectedRecipe = id; return; }
+        }
+
+        void PrepareRecipeMenu()
+        {
+            NormalizeRecipeSelection();
+            if (search.Length != 0 || inventory == null || inventory.Craft != null) return;
+            var suggestion = RecipeSuggestion();
+            if (suggestion.Recipe == null || suggestion.Context == recipeContext) return;
+            if (!recipeCards.Any(card => card.Item.Id == suggestion.Recipe && RecipeVisible(card))) return;
+            SelectRecipe(suggestion.Recipe);
+            recipeContext = suggestion.Context;
+            revealMenuSelection = true;
+        }
+
+        (string Context, string Recipe) RecipeSuggestion()
+        {
+            if (course == null || frame == null || mode == null || course.Play.ModeId != mode.Id ||
+                frame.Binding.ModeHash != mode.Hash || frame.Binding.ManifestHash != course.Hash ||
+                frame.Binding.CourseHash != course.SourceHash || frame.Progress.Migrating || frame.Progress.Result != null)
+                return default;
+            var player = frame.Progress.Players.SingleOrDefault(p => p.Id == actorId);
+            if (player == null || !player.Connected || player.Returned || player.Eliminated ||
+                !frame.Binding.Seats.Any(s => s.PlayerId == actorId && s.Team == player.Team)) return default;
+            ResolvedCoursePhysicalSite site = null;
+            if (mode.Id == "Freestyle")
+            {
+                site = WordboundPracticePolicy.Selected(course, frame.Practice);
+                if (site == null || WordboundPracticeGuidePlan.Completed(frame, site))
+                    site = WordboundPracticeGuidePlan.Nearest(course, frame, actorId, 20);
+                if (site == null || WordboundPracticeGuidePlan.Completed(frame, site)) return default;
+            }
+            else if (mode.IsRace)
+            {
+                var progress = frame.Progress.Teams.SingleOrDefault(t => t.Team == player.Team);
+                if (progress == null || progress.Finished || progress.Lap < 0 || progress.Lap >= course.Laps.Count ||
+                    progress.NextCheckpoint < 0 || progress.NextCheckpoint > course.Laps[progress.Lap].Checkpoints.Count)
+                    return default;
+                var lap = course.Laps[progress.Lap];
+                foreach (var checkpoint in lap.Checkpoints.Skip(progress.NextCheckpoint))
+                {
+                    foreach (string id in checkpoint.PuzzleIds.Where(id => !progress.CompletedPuzzles.Contains(id)))
+                    {
+                        site = course.PhysicalSites.FirstOrDefault(s => s.Lap == lap.Number && s.PuzzleId == id && s.CheckpointId == checkpoint.Id);
+                        if (site != null) break;
+                    }
+                    if (site != null) break;
+                }
+            }
+            if (site == null) return default;
+            var puzzle = course.Puzzles.SingleOrDefault(p => p.Id == site.PuzzleId);
+            if (puzzle == null || !mode.Recipes.Contains(puzzle.RecipeId)) return default;
+            string recipe = puzzle.RecipeId;
+            if (puzzle.PresetId == "CollectLetters" && mode.Recipes.Contains(site.ToolRecipeId) &&
+                !frame.Economy.Items.Any(held => held.Word == site.ToolRecipeId && held.State == ItemState.Held &&
+                    held.HolderId == seat && held.Durability > 0 && !held.Spent))
+            {
+                var sources = course.Placements.Where(p => p.ZoneId == site.PropSourceZoneId &&
+                    (p.TeamIndex < 0 || p.TeamIndex == player.Team)).Select(p => p.Id).ToArray();
+                if (frame.Bodies.Any(b => b.Kind == WorldBodyKind.Item && b.Active && sources.Contains(b.SourceId)))
+                    recipe = site.ToolRecipeId;
+            }
+            return (course.Hash + ":" + player.Team + ":" + site.Hash + ":" + recipe, recipe);
         }
 
         bool CanCraftRecipe(RecipeCard card) => card.Item != null && RecipeVisible(card) &&

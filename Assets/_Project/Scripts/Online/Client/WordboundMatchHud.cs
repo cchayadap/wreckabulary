@@ -93,7 +93,9 @@ namespace Wreckabulary.Online
             if (input.spellDown)
             {
                 ReleaseDefense(); crafting = true; journalOpen = false; helpOpen = false;
-                menuFocus.Reset(FirstCraftableRecipe()); revealMenuSelection = true; view.SetMenuOpen(true); return;
+                PrepareRecipeMenu();
+                menuFocus.Reset(selectedRecipe == null ? FirstCraftableRecipe() : "recipe:" + selectedRecipe);
+                revealMenuSelection = true; view.SetMenuOpen(true); return;
             }
             if (input.slot > 0) { Send(WordboundAction.Equip, slot: input.slot - 1); return; }
             if (input.swap)
@@ -164,7 +166,11 @@ namespace Wreckabulary.Online
                 shield == null || defenseItem != "item:" + shield.Id) ReleaseDefense();
         }
 
-        void MenuRequested() { ReleaseDefense(); crafting = false; helpOpen = false; ResetMenuInput(); }
+        void MenuRequested()
+        {
+            ReleaseDefense(); crafting = false; helpOpen = false; ResetMenuInput();
+            if (view.MenuOpen) PrepareRecipeMenu();
+        }
         void ConnectionFailed(string reason)
             => ShowFailure("The session stopped. Choose " + returnLabel + " to continue.");
         public void ShowFailure(string message)

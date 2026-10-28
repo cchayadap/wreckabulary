@@ -13,6 +13,7 @@ namespace Wreckabulary.Workshop
         List<int> rangeYaws = new List<int>();
         List<string> rangeLayers = new List<string>();
         bool advancedPool, placementLimits, placementHelp;
+        float placementRangeY, placementFloorsY;
         static readonly int[] PlacementYaws = { 0, 90, 180, 270 };
 
         void FloorPanel()
@@ -62,15 +63,10 @@ namespace Wreckabulary.Workshop
         void PlacementRangeFields(CourseModule module)
         {
             GUILayout.Label("World range · metres");
-            GUILayout.BeginHorizontal();
-            rangeMinX = Field("X min", rangeMinX); rangeMaxX = Field("X max", rangeMaxX);
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            rangeMinZ = Field("Z min", rangeMinZ); rangeMaxZ = Field("Z max", rangeMaxZ);
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            rangeMinY = Field("Height min", rangeMinY); rangeMaxY = Field("Height max", rangeMaxY);
-            GUILayout.EndHorizontal();
+            if (Event.current.type == EventType.Repaint) placementRangeY = GUILayoutUtility.GetLastRect().y;
+            RangePair("X min", ref rangeMinX, "X max", ref rangeMaxX);
+            RangePair("Z min", ref rangeMinZ, "Z max", ref rangeMaxZ);
+            RangePair("Height min", ref rangeMinY, "Height max", ref rangeMaxY);
             placementHelp = GUILayout.Toggle(placementHelp, "Range help");
             if (placementHelp)
             {
@@ -89,6 +85,7 @@ namespace Wreckabulary.Workshop
             }
             GUILayout.EndHorizontal();
             GUILayout.Label(new GUIContent("Allowed floors", "Objects stay in this room. Height is world-space; this room's floor is required."));
+            if (Event.current.type == EventType.Repaint) placementFloorsY = GUILayoutUtility.GetLastRect().y;
             GUILayout.Label("Spawns stay in this room.", ui.Wrapped);
             foreach (var layer in display.Layers.OrderBy(item => item.HeightMm))
             {
@@ -99,6 +96,14 @@ namespace Wreckabulary.Workshop
                 GUI.enabled = enabled;
                 if (next != picked) { if (next) rangeLayers.Add(layer.Id); else rangeLayers.Remove(layer.Id); }
             }
+        }
+
+        void RangePair(string firstLabel, ref string first, string secondLabel, ref string second)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical(); first = Field(firstLabel, first); GUILayout.EndVertical();
+            GUILayout.BeginVertical(); second = Field(secondLabel, second); GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
         }
 
         void CancelPlacementSettings()
@@ -153,7 +158,7 @@ namespace Wreckabulary.Workshop
                 var parts = entries[i].Split(':');
                 string id = parts[0].Trim(), weight = parts.Length > 1 ? parts[1].Trim() : "1";
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(id, GUILayout.ExpandWidth(true));
+                GUILayout.Label(inspectorAdvancedIds ? id : ObjectLabel(id), GUILayout.ExpandWidth(true));
                 GUI.SetNextControlName("Weight " + id);
                 weight = GUILayout.TextField(weight, 5, GUILayout.Width(52), GUILayout.MinHeight(25));
                 if (GUILayout.Button(new GUIContent("×", "Remove " + id), GUILayout.Width(28), GUILayout.Height(25))) remove = i;

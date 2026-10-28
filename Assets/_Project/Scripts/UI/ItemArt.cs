@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,15 +5,11 @@ namespace Wreckabulary.UI
 {
     public static class ItemArt
     {
-        static readonly Dictionary<string, Texture2D> Imported = new(StringComparer.Ordinal);
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void ResetCache() => Imported.Clear();
-
         public static bool TryGet(string id, out Texture2D texture, out Rect uv)
         {
-            texture = null;
+            texture = OriginalItemArt.Find(id);
             uv = new Rect(0f, 0f, 1f, 1f);
+            if (texture) return true;
             if (string.IsNullOrEmpty(id)) return false;
             if (GeneratedItemArt.TryGet(id, out var sprite))
             {
@@ -25,9 +19,7 @@ namespace Wreckabulary.UI
                     region.width / texture.width, region.height / texture.height);
                 return true;
             }
-            if (!Imported.TryGetValue(id, out texture))
-                Imported[id] = texture = Resources.Load<Texture2D>("UI/Items/" + id);
-            return texture;
+            return false;
         }
 
         public static bool Apply(RawImage image, string id)

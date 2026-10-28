@@ -25,12 +25,15 @@ namespace Wreckabulary.Online.Tests
                 typeof(WordboundInputBinding).GetField("gamepad", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(binding, new GamepadBinding(pad));
                 f.Set("persistentNotice", "Reconnecting…");
                 ((WordboundMenuFocus)f.Get("menuFocus")).Reset("recipe:STOOL");
+                f.Set("revealMenuSelection", true);
                 window = ScriptableObject.CreateInstance<GridWindow>(); window.Fixture = f; window.Size = new Vector2(width, height);
                 window.position = new Rect(80, 80, width, height); window.ShowUtility();
                 window.ConfirmTile = true;
                 window.SendEvent(new Event { type = EventType.Layout }); window.SendEvent(new Event { type = EventType.Repaint });
                 Assert.IsNull(window.Failure); Assert.Greater(window.Repaints, 0); Assert.Greater(window.Layouts, 0);
                 Assert.IsFalse(window.SelectionChangedDuringGui); Assert.AreNotEqual("STOOL", f.Get("selectedRecipe"));
+                if (height <= 720) Assert.Greater(((Vector2)f.Get("recipeScroll")).y, 0,
+                    "Earlier chosen BAT must not consume the controller's request to reveal the lower STOOL row.");
                 f.Call("ExecuteMenuAction", true); Assert.AreEqual("STOOL", f.Get("selectedRecipe"));
                 window.SendEvent(new Event { type = EventType.Layout }); window.SendEvent(new Event { type = EventType.Repaint });
                 Assert.IsNull(window.Failure); Assert.IsTrue(f.View.MenuOpen);

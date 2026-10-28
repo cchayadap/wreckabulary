@@ -136,7 +136,8 @@ namespace Wreckabulary.Workshop
         {
             workshopPadGate.Suspend();
             displayRevision = -1; savedRevision = -1; placing = null; dragging = marquee = panning = drawingZone = sharing = false;
-            zoneId = ""; resizingZone = null; LastPreview = null; CancelGesture(); Frame();
+            zoneId = ""; resizingZone = null; LastPreview = null; inspectorSection = InspectorSection.Objects;
+            inspectorScroll = Vector2.zero; inspectorChoiceOpen = ""; newPuzzle = false; CancelGesture(); Frame();
         }
         void Refresh()
         {
@@ -306,46 +307,31 @@ namespace Wreckabulary.Workshop
         }
         void Inspector()
         {
-            inspectorScroll = GUILayout.BeginScrollView(inspectorScroll);
             var selected = display.Modules.Where(module => History.Current.Selection.Contains(module.Id)).ToList();
-            GUILayout.Label(selected.Count == 0 ? "Selection" : selected.Count == 1 ? RoomCaption(selected[0].Id) : selected.Count + " rooms", heading);
+            GUILayout.Label(selected.Count == 0 ? "Select a room" : selected.Count == 1 ? RoomCaption(selected[0].Id) : selected.Count + " rooms", heading);
+            InspectorTabs();
+            inspectorScroll = GUILayout.BeginScrollView(inspectorScroll);
             if (selected.Count > 0)
             {
-                if (SelectedFixed != null) FixedInspector();
-                else
-                {
-                GUILayout.BeginHorizontal();
-                if (ToolButton("Rotate", LobbyIcons.Turn, "Rotate selection · R")) Edit("Rotate", draft => WorkshopCommands.RotateSelection(draft, Pivot(selected), 1));
-                if (ToolButton("Duplicate", LobbyIcons.Duplicate)) Edit("Duplicate", draft => WorkshopCommands.Duplicate(draft, new CoursePoint(draft.GridMm * 2, 0, draft.GridMm * 2)));
-                if (ToolButton("Delete", LobbyIcons.Delete)) Edit("Delete", WorkshopCommands.Delete);
-                if (ToolButton("Group", LobbyIcons.Group)) Edit("Group", draft => WorkshopCommands.Group(draft, WorkshopCommands.Unique("group", draft.Groups.Keys)));
-                if (ToolButton("Ungroup", LobbyIcons.Ungroup)) Edit("Ungroup", WorkshopCommands.Ungroup);
-                GUILayout.EndHorizontal();
-                if (Button("Move to floor", "Move selection to the current floor"))
-                    Edit("Change floor", draft => WorkshopCommands.ChangeLayer(draft, draft.ActiveLayer));
-                advanced = GUILayout.Toggle(advanced, "Advanced position");
-                if (advanced)
-                {
-                    xInput = Field("X (metres)", xInput); zInput = Field("Z (metres)", zInput);
-                    if (Button("Move"))
-                        Edit("Move", draft => WorkshopCommands.Move(draft, new CoursePoint(Millimetres(xInput) - selected[0].Position.X, 0, Millimetres(zInput) - selected[0].Position.Z), false));
-                }
-                if (selected.Count == 2 && Button("Connect modules")) Connect(selected[0], selected[1]);
-                }
                 var placementOwner = display.Zones.FirstOrDefault(item => item.Id == zoneId)?.ModuleId;
                 var inspected = selected.FirstOrDefault(item => item.Id == placementOwner) ?? selected[0];
-                GUILayout.Space(10); ZoneInspector(inspected);
-                GUILayout.Space(10); PuzzleInspector(inspected);
-                GUILayout.Space(10); PhysicalSiteInspector(inspected);
+                if (inspectorSection == InspectorSection.Objects)
+                {
+                    if (SelectedFixed != null) FixedInspector();
+                    ZoneInspector(inspected);
+                }
+                else if (inspectorSection == InspectorSection.Puzzles)
+                {
+                    PuzzleInspector(inspected);
+                    if (!newPuzzle) PhysicalSiteInspector(inspected);
+                }
+                else RoomInspector(selected);
             }
-            RouteInspector();
-            GUILayout.Space(12); GUILayout.Label("Validation", heading);
-            if (validation.Ok) GUILayout.Label("Ready for preview");
-            foreach (var issue in validation.Issues.Take(12))
-                if (Button((string.IsNullOrEmpty(issue.EntityId) ? "" : issue.EntityId + ": ") + issue.Message, issue.Code))
-                    FocusIssue(issue);
-            if (LastPreview != null && !LastPreview.Success)
-                foreach (var issue in LastPreview.Issues.Take(8)) GUILayout.Label(issue.Message);
+            else if (inspectorSection != InspectorSection.Room) GUILayout.Label("Select a room in the map to edit it.", ui.Wrapped);
+            if (inspectorSection == InspectorSection.Room) RouteInspector();
+            GUILayout.Space(8);
+            inspectorAdvancedIds = GUILayout.Toggle(inspectorAdvancedIds, "Advanced IDs");
+            InspectorValidation();
             GUILayout.EndScrollView();
         }
         void FocusIssue(CourseIssue issue)
@@ -370,7 +356,8 @@ namespace Wreckabulary.Workshop
         }
         void ZoneInspector(CourseModule module)
         {
-            GUILayout.Label("Placement", heading);
+            GUILayout.Label("Place objects", heading);
+            var editing = display.Zones.FirstOrDefault(item => item.Id == zoneId && item.ModuleId == module.Id);
             int nextMode = GUILayout.Toolbar(zoneMode, new[] { "Fixed", "Zone", "Pool" });
             if (nextMode != zoneMode)
             {
@@ -378,16 +365,21 @@ namespace Wreckabulary.Workshop
                 zoneMode = nextMode;
                 if (zoneMode != 2) pool = pool.Split(',')[0].Split(':')[0].Trim();
             }
-            PlacementAssetPicker();
+            if (editing == null) PlacementAssetPicker();
+            else
+            {
+                placementPickerOpen = GUILayout.Toggle(placementPickerOpen, "Change objects");
+                if (placementPickerOpen) PlacementAssetPicker();
+                else GUILayout.Label(ZoneCaption(editing));
+            }
             if (zoneMode != 0)
             {
-                GUILayout.BeginHorizontal(); minCount = Field("Min", minCount); maxCount = Field("Max", maxCount); GUILayout.EndHorizontal();
+                RangePair("Min", ref minCount, "Max", ref maxCount);
                 probability = Field("Chance % · min > 0 needs 100", probability); spacing = Field("Spacing (metres)", spacing);
             }
-            var editing = display.Zones.FirstOrDefault(item => item.Id == zoneId && item.ModuleId == module.Id);
             if (editing != null)
             {
-                GUILayout.Label("Editing " + editing.Id);
+                GUILayout.Label("Editing " + ZoneCaption(editing));
                 if (zoneMode != 0) PlacementRangeFields(module);
                 GUILayout.BeginHorizontal();
                 if (Button("Apply", "Apply placement settings")) ApplyPlacementSettings(module.Id);
@@ -399,7 +391,7 @@ namespace Wreckabulary.Workshop
             foreach (var zone in display.Zones.Where(item => item.ModuleId == module.Id))
             {
                 GUILayout.BeginHorizontal();
-                if (Button(zone.Id)) SelectZone(zone);
+                if (InspectorChoiceButton("Placement", zone.Id, ZoneCaption(zone))) SelectZone(zone);
                 if (Button("×", "Delete " + zone.Id)) Edit("Delete zone", draft =>
                 {
                     if (draft.LockedLayers.Contains(module.LayerId)) throw new InvalidOperationException("Unlock the floor first.");
@@ -411,35 +403,54 @@ namespace Wreckabulary.Workshop
         }
         void PuzzleInspector(CourseModule module)
         {
-            GUILayout.Label("Puzzle link", heading);
-            var presets = Catalogue.PuzzlePresets;
-            if (presets.Count == 0) return;
-            presetIndex %= presets.Count;
-            if (Button(presets[presetIndex], "Choose the next puzzle preset")) presetIndex = (presetIndex + 1) % presets.Count;
-            recipeId = Field("Recipe ID", recipeId);
-            if (Button("Add puzzle + letters"))
-                Edit("Add puzzle", draft =>
-                {
-                    if (!Catalogue.Assets.TryGetValue(recipeId, out var asset)) throw new ArgumentException("Choose an approved recipe.");
-                    string id = WorkshopCommands.Unique("puzzle", draft.Course.Puzzles.Select(item => item.Id));
-                    string supply = WorkshopCommands.Unique("letters", draft.Course.Supplies.Select(item => item.Id));
-                    WorkshopCommands.SetPuzzle(draft, new CoursePuzzle
+            string next = InspectorChoice("Puzzle", puzzleId,
+                display.Puzzles.Where(p => p.ModuleId == module.Id).Select(p => p.Id), PuzzleCaption);
+            if (next != puzzleId) { CancelGesture(); puzzleId = next; sitePuzzle = ""; }
+            newPuzzle = GUILayout.Toggle(newPuzzle, "New puzzle");
+            if (newPuzzle)
+            {
+                var presets = Catalogue.PuzzlePresets;
+                if (presets.Count == 0) { GUILayout.Label("No puzzle types in this map."); return; }
+                presetIndex %= presets.Count;
+                string preset = InspectorChoice("Puzzle type", presets[presetIndex], presets, PresetCaption);
+                presetIndex = presets.ToList().IndexOf(preset);
+                PuzzleRecipePicker();
+                if (inspectorAdvancedIds) recipeId = Field("Recipe ID", recipeId);
+                if (Button("Add puzzle + letters"))
+                    Edit("Add puzzle", draft =>
                     {
-                        Id = id, ModuleId = module.Id, PresetId = presets[presetIndex], RecipeId = recipeId,
-                        RequiredLetters = asset.Letters, RecoverySupplyIds = new List<string> { supply }
-                    }, Catalogue);
-                    draft.Course.Supplies.Add(new CourseSupply { Id = supply, ModuleId = module.Id, Letters = asset.Letters, Position = module.Position });
-                    puzzleId = id;
-                });
-            puzzleId = Field("Puzzle ID", puzzleId); prerequisite = Field("After puzzle ID", prerequisite);
-            if (Button("Link prerequisite")) Edit("Link puzzle", draft => WorkshopCommands.LinkPuzzle(draft, puzzleId, prerequisite));
-            gateId = Field("Connection ID", gateId);
-            if (Button("Complete puzzle → open gate")) Edit("Link gate", draft => WorkshopCommands.Gate(draft, gateId, puzzleId));
-            foreach (var puzzle in display.Puzzles.Where(item => item.ModuleId == module.Id))
-                if (Button(puzzle.Id + " · " + puzzle.PresetId))
-                { CancelGesture(); puzzleId = puzzle.Id; sitePuzzle = ""; }
-            foreach (var connection in display.Connections.Where(item => item.FromModuleId == module.Id || item.ToModuleId == module.Id))
-                if (Button(connection.Id + " · " + connection.Kind + " → " + connection.ToModuleId)) gateId = connection.Id;
+                        if (!Catalogue.Assets.TryGetValue(recipeId, out var asset)) throw new ArgumentException("Choose an approved recipe.");
+                        string id = WorkshopCommands.Unique("puzzle", draft.Course.Puzzles.Select(item => item.Id));
+                        string supply = WorkshopCommands.Unique("letters", draft.Course.Supplies.Select(item => item.Id));
+                        WorkshopCommands.SetPuzzle(draft, new CoursePuzzle
+                        {
+                            Id = id, ModuleId = module.Id, PresetId = presets[presetIndex], RecipeId = recipeId,
+                            RequiredLetters = asset.Letters, RecoverySupplyIds = new List<string> { supply }
+                        }, Catalogue);
+                        draft.Course.Supplies.Add(new CourseSupply { Id = supply, ModuleId = module.Id, Letters = asset.Letters, Position = module.Position });
+                        puzzleId = id; sitePuzzle = ""; newPuzzle = false;
+                    });
+                return;
+            }
+            var chosen = display.Puzzles.FirstOrDefault(p => p.Id == puzzleId && p.ModuleId == module.Id);
+            if (chosen != null) GUILayout.Label(PresetCaption(chosen.PresetId), ui.Wrapped);
+            puzzleLinks = GUILayout.Toggle(puzzleLinks, "Unlocks & prerequisites");
+            if (puzzleLinks)
+            {
+                prerequisite = InspectorChoice("After puzzle", prerequisite,
+                    display.Puzzles.Where(p => p.Id != puzzleId).Select(p => p.Id), PuzzleCaption);
+                if (Button("Link prerequisite")) Edit("Link puzzle", draft => WorkshopCommands.LinkPuzzle(draft, puzzleId, prerequisite));
+                gateId = InspectorChoice("Connection", gateId,
+                    display.Connections.Where(c => c.FromModuleId == module.Id || c.ToModuleId == module.Id).Select(c => c.Id),
+                    id => ReferenceCaptionFor("connection", id));
+                if (Button("Complete puzzle → open gate")) Edit("Link gate", draft => WorkshopCommands.Gate(draft, gateId, puzzleId));
+            }
+            if (inspectorAdvancedIds)
+            {
+                recipeId = Field("Recipe ID", recipeId);
+                puzzleId = Field("Puzzle ID", puzzleId); prerequisite = Field("After puzzle ID", prerequisite);
+                gateId = Field("Connection ID", gateId);
+            }
         }
         void Footer()
         {

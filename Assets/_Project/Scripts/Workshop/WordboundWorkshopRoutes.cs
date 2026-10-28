@@ -146,7 +146,7 @@ namespace Wreckabulary.Workshop
                 if (Button("Delete checkpoint from all routes"))
                     Edit("Delete checkpoint from all routes", draft => WorkshopRoutes.DeleteCheckpointFromRoutes(draft, value.Id));
             }
-            GUILayout.Label("Use Add puzzle + letters above for a new objective, then link it here before adding physical controls.");
+            GUILayout.Label("Create objectives in Puzzles, then link them here before adding controls.", ui.Wrapped);
         }
 
         void SectionRoutePanel()
@@ -215,7 +215,7 @@ namespace Wreckabulary.Workshop
                 bool reverse = edge.Bidirectional && edge.ToModuleId == current;
                 if (!forward && !reverse) { GUILayout.Label(id + " · cannot continue from " + current); break; }
                 string next = forward ? edge.ToModuleId : edge.FromModuleId;
-                GUILayout.Label(current + " → " + next + (forward ? " · forward" : " · reverse"));
+                GUILayout.Label(RoomCaption(current) + " → " + RoomCaption(next) + (forward ? " · forward" : " · reverse"), ui.Wrapped);
                 current = next;
             }
         }
@@ -249,7 +249,7 @@ namespace Wreckabulary.Workshop
             for (int i = 0; i < selected.Count; i++)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Label((ordered ? (i + 1) + ". " : "") + selected[i], GUILayout.ExpandWidth(true));
+                GUILayout.Label((ordered ? (i + 1) + ". " : "") + ReferenceCaptionFor(ReferenceKind(label), selected[i]), ui.Wrapped, GUILayout.ExpandWidth(true));
                 if (ordered && i > 0 && Button("↑", "Move " + selected[i] + " earlier"))
                 { string value = selected[i]; selected[i] = selected[i - 1]; selected[i - 1] = value; }
                 if (ordered && i < selected.Count - 1 && Button("↓", "Move " + selected[i] + " later"))
@@ -266,13 +266,13 @@ namespace Wreckabulary.Workshop
         {
             var values = available.Distinct(StringComparer.Ordinal).ToArray();
             GUILayout.Label(label);
-            if (Button((current.Length == 0 ? emptyChoice ?? "Choose…" : current) + " ▾", label))
+            if (InspectorChoiceButton(label, "open", (current.Length == 0 ? emptyChoice ?? "Choose…" : ReferenceCaptionFor(ReferenceKind(label), current)) + " ▾"))
             { routeChoiceOpen = routeChoiceOpen == label ? "" : label; routeChoiceSearch = ""; }
             if (routeChoiceOpen != label) return current;
             if (emptyChoice != null && Button(emptyChoice)) { routeChoiceOpen = ""; return ""; }
             if (values.Length > 8) routeChoiceSearch = Field("Find " + label.ToLowerInvariant(), routeChoiceSearch);
-            foreach (string id in values.Where(id => id.IndexOf(routeChoiceSearch, StringComparison.OrdinalIgnoreCase) >= 0))
-                if (Button(id)) { routeChoiceOpen = ""; return id; }
+            foreach (string id in values.Where(id => ChoiceMatches(id, ReferenceCaptionFor(ReferenceKind(label), id), routeChoiceSearch)))
+                if (InspectorChoiceButton(label, id, ReferenceCaptionFor(ReferenceKind(label), id))) { routeChoiceOpen = ""; return id; }
             if (values.Length == 0) GUILayout.Label("Add an authored source first.");
             return current;
         }

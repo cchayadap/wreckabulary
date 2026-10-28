@@ -30,6 +30,7 @@ namespace Wreckabulary.Workshop
             if (History.Current.ActiveLayer != owner.LayerId || History.Current.HiddenLayers.Contains(owner.LayerId))
                 History.Execute("Show puzzle floor", draft => { draft.ActiveLayer = owner.LayerId; draft.HiddenLayers.Remove(owner.LayerId); });
             History.Select(new[] { owner.Id }, false, false);
+            ShowInspectorSection(InspectorSection.Puzzles); newPuzzle = false;
             siteLap = lap; sitePuzzle = id; puzzleId = id; zoneId = ""; sitePart = WorkshopSitePart.Socket;
             siteRevision = -1; Refresh(); view?.Focus(site.Position);
         }
@@ -46,13 +47,13 @@ namespace Wreckabulary.Workshop
 
         void PhysicalSiteInspector(CourseModule module)
         {
-            GUILayout.Label("Physical puzzle", heading);
+            GUILayout.Label("Puzzle controls", heading);
             foreach (var site in display.PhysicalSites.Where(s => display.Puzzles.Any(p => p.Id == s.PuzzleId && p.ModuleId == module.Id)))
-                if (Button($"Lap {site.Lap} · {site.PuzzleId}")) Attempt(() => SelectPhysicalSite(site.Lap, site.PuzzleId));
+                if (InspectorChoiceButton("Physical puzzle", site.Lap + "/" + site.PuzzleId, $"Lap {site.Lap} · {PuzzleCaption(site.PuzzleId)}")) Attempt(() => SelectPhysicalSite(site.Lap, site.PuzzleId));
             var selected = SelectedSite;
             if (selected == null)
             {
-                GUILayout.Label("Choose a puzzle above, then add its physical controls to an existing checkpoint.");
+                GUILayout.Label("Choose a puzzle, then add controls to its checkpoint.", ui.Wrapped);
                 siteLap = GUILayout.Toolbar(siteLap - 1, new[] { "Lap 1", "Lap 2", "Lap 3" }) + 1;
                 GUI.enabled = display.Puzzles.Any(p => p.Id == puzzleId && p.ModuleId == module.Id);
                 if (Button("Add physical controls"))
@@ -66,8 +67,8 @@ namespace Wreckabulary.Workshop
             }
             LoadSiteEditor(selected);
             var puzzle = display.Puzzles.Single(p => p.Id == selected.PuzzleId);
-            GUILayout.Label(puzzle.PresetId + " · " + puzzle.RecipeId);
-            GUILayout.Label("Drag a marked control in the viewport. Numeric positions use metres.");
+            GUILayout.Label(PresetCaption(puzzle.PresetId) + " · " + ObjectLabel(puzzle.RecipeId), ui.Wrapped);
+            GUILayout.Label("Drag a handle to move it. Positions use metres.", ui.Wrapped);
             if (Button("Back to module controls")) { CancelGesture(); sitePuzzle = ""; return; }
             siteEdit.CheckpointId = SiteChoice("Checkpoint", siteEdit.CheckpointId,
                 display.Checkpoints.Where(c => c.ModuleId == module.Id && c.PuzzleIds.Contains(puzzle.Id)).Select(c => c.Id));
@@ -117,15 +118,18 @@ namespace Wreckabulary.Workshop
                 Edit("Delete physical controls", draft => WorkshopPhysicalSites.Delete(draft, selected.Lap, selected.PuzzleId));
         }
 
-        void SiteText(string label, string value)
+        void SiteText(string label, string value, string caption = null)
         {
             if (!siteFields.ContainsKey(label)) siteFields[label] = value;
-            siteFields[label] = Field(label, siteFields[label]);
+            GUILayout.Label(caption ?? label); GUI.SetNextControlName("workshop-text:" + label);
+            siteFields[label] = GUILayout.TextField(siteFields[label], GUILayout.MinHeight(ui.RowHeight));
         }
         void SitePoint(string label, CoursePoint value)
         {
             GUILayout.Label(label); GUILayout.BeginHorizontal();
-            SiteText(label + " X", Metres(value.X)); SiteText(label + " Y", Metres(value.Y)); SiteText(label + " Z", Metres(value.Z));
+            GUILayout.BeginVertical(); SiteText(label + " X", Metres(value.X), "X"); GUILayout.EndVertical();
+            GUILayout.BeginVertical(); SiteText(label + " Y", Metres(value.Y), "Y"); GUILayout.EndVertical();
+            GUILayout.BeginVertical(); SiteText(label + " Z", Metres(value.Z), "Z"); GUILayout.EndVertical();
             GUILayout.EndHorizontal();
         }
         void SiteBox(string label, CourseBox value)
@@ -137,13 +141,13 @@ namespace Wreckabulary.Workshop
         {
             var ids = source.Distinct(StringComparer.Ordinal).ToArray();
             GUILayout.Label(label);
-            if (Button((value.Length == 0 ? "Choose…" : value) + " ▾"))
+            if (InspectorChoiceButton(label, "open", (value.Length == 0 ? "Choose…" : ReferenceCaptionFor(ReferenceKind(label), value)) + " ▾"))
             { siteChoiceOpen = siteChoiceOpen == label ? "" : label; siteChoiceSearch = ""; }
             if (siteChoiceOpen == label)
             {
                 if (ids.Length > 8) siteChoiceSearch = Field("Find " + label.ToLowerInvariant(), siteChoiceSearch);
-                foreach (var id in ids.Where(id => id.IndexOf(siteChoiceSearch, StringComparison.OrdinalIgnoreCase) >= 0))
-                    if (Button(id)) { siteChoiceOpen = ""; return id; }
+                foreach (var id in ids.Where(id => ChoiceMatches(id, ReferenceCaptionFor(ReferenceKind(label), id), siteChoiceSearch)))
+                    if (InspectorChoiceButton(label, id, ReferenceCaptionFor(ReferenceKind(label), id))) { siteChoiceOpen = ""; return id; }
                 if (ids.Length == 0) GUILayout.Label("No matching authored sources yet.");
             }
             return value;

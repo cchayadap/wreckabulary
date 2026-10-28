@@ -1,0 +1,33 @@
+# Creator clarity and full-map verification
+
+STATUS: IN PROGRESS. Previous goal turn made verified progress: committed visual corrections, final Windows215158 five-flow evidence and preserved unfinished work. The full production goal remains active.
+
+Base: b2556d9f on sethypagna/wordbound-integration. Built production source4ee1d37a; prior review remains available. Root owns production integration and all native jobs. Delegates own separate drafts only.
+
+- [~] Contextual Workshop Objects / Puzzles / Room inspector, original image choices and optional advanced IDs; preserve editing, history, seed, range and exact identifiers.
+- [~] Shop defaults to a useful temporary preview and clear selected/owned/equipped action without spending or changing saved equipment.
+- [~] Prove the actual complete flagship through real movement, crafting, placements and sensors. First discriminator is its ordinary-spawn first leg; no substitute compact course or state-injected completion.
+- [~] Root: contextual recipe selection when opening Equipment, retaining manual choices/search and authoritative crafting checks. UI guidance must follow the exact bound course and local team's progress.
+- [ ] Verify integrated changes with meaningful native checks, actual captures and a fresh Windows build when ready.
+
+Household inspection confirms seven imported prefabs still lack colliders; source setup deliberately leaves them pending and only the parcel has a conservative box envelope. Their saved materials are basic supplier art. Do not claim detailed game-ready props from their studio captures or silently register them as gameplay objects. Physics authoring and destination registration remain in the full progress.md backlog.
+
+No paid generation, source-pack mutation, Tools/kit edits or unrelated process changes. The kit's stale M0 next-action template does not supersede the approved plan and current owner priorities.
+
+## Integration checkpoint — 2026-10-28T22:40Z
+
+- Full rules gate `221322` PASS: 1,114 passed, zero failed, one explicit bounded-arena seed test skipped. Its TRX is `TestResults/core_20261028T221322Z.trx`; 1,120.4 seconds. Rules were unchanged during the run.
+- Exact frozen Workshop eight-file manifest `c110fb8c6587487547b9ae2300af84cd6ccb3e8b24a1818d9b90f7836c607fae` integrated after baseline/candidate hashes matched. Shop three-file draft and new14-image capture fixture are integrated with separate receipts. No native image exists for these changes yet.
+- Root recipe guidance uses exact bound course, mode, local team and current site. A live marked source still suggests HAMMER even when recovery TABLE letters exist; manual choice/search remain intact. Independent review caught and resolved that prerequisite issue and controller scroll priority. An R0 fixture error (`TileSpawn.Id`) was corrected to `TileId`.
+- Latest complete R0 `223951` PASS with zero errors. Native focused Editor test `224015` is running under the gate; no other Unity/player job is active.
+- Authored preservation baseline `.harness/delivery/ui-authored-before-2026-10-28T22-39-51-387Z.json` covers4,306 files. Recovery snapshot22:25:03 contains3,000 modified/untracked files verified. Existing unfinished drafts remain outside the scoped production commit.
+- Next: inspect Editor results, fix confirmed failures, run Shop behaviour/captures and the full flagship first-leg proof serially; extend Workshop capture for new Puzzles/Room views. Then verify saved inputs, update progress and commit the green source/evidence before the next Windows build.
+
+## Native and visual checkpoint — 2026-10-28T23:02Z
+
+- Editor224015 passed111/111 and Shop224210 passed30/30. Shop224315 passed1/1 and captured14 original images with preference/global/source preservation. Root opened all seven720p images; independent reviewer opened all seven480p images. Reports are under shop/capture.
+- That review confirmed a real art mismatch: ornate generated SHIELD icon versus original kite/star model. Exact five-file art-coherence correction13fb1df2 was integrated: original-first common icons, no embedded BAT, small separate finish cue,96-unit selected footer. No texture/model/theme asset was overwritten. Skin-specific native thumbnails remain an open art task.
+- Workshop peer review found noncraftable furniture in New puzzle tiles; exact correction0c2d6a89 filters recipes before search/truncation and preserves the object catalogue. Additive inspector QA444f10ca introduces a separate5-step/11-image scenario while retaining original4-step/9-image Parcel Workshop behavior.
+- R0 225834 PASS. Final broadened Editor225849 PASS142/142; Shop230013 PASS31/31. Current14-image Shop repeat230150 running. The five-flow Windows candidate is not rebuilt yet.
+- Flagship diagnostic224431 failed on a fixture assuming a carrier was needed before a regular checkpoint. Corrected225343 passed the first carrier checkpoint, room crossing, letters and craft but timed out chasing the marked TABLE after its path crossed the furniture. Draft near-side collider-aware approach is being reviewed. Both failed logs/XML and cleanup remain preserved; no gameplay physics or authority rule changed.
+- Saved whole-workspace snapshot22:43:40 verifies3047 modified/untracked files. Next: inspect230150, preserve4306 authored inputs, commit verified UI/source/evidence, integrate the reviewed fixture correction and rerun; then build and inspect current Windows flows including the two new Workshop views.
