@@ -991,3 +991,7 @@ Root integrated exact three-file workshop-depth manifestdc684301 after hash chec
 ## 2026-10-28T21:38:00Z Select brighter shadowed previews and save Workshop correction
 
 Final preview213535 retains original0.7 fill and enables soft key shadows. Root opened all3 images; lower0.3/0.5 renders remain preserved and were not imported. Exact import213721 passes with previous images/meta/layout backed up; all input/source/global preservation flags true. Workshop13/13 native and independent ownership review pass. Stage/material/cutaway source plus selected3PNGs are ready for fresh Windows verification. This selects a bounded render correction, not final map art approval. Recovery21-32-27 verifies2883 unfinished files.
+
+## 2026-10-28T21:51:00Z Preserve floor appearance while selecting Workshop rooms
+
+Actual213901/214134 Windows comparison exposed an overly bright mint selected floor. Root limits the owned Unlit selection cue to four existing border meshes; the real floor always keeps its authored Lit material. Source/picking/ghost geometry is unchanged. Independent selection review passes. Native214636 retained12/13: only exact colour-equality assertion failed on float precision. Tight RGBA-distance tolerance preserves every substantive check; R0214814 and native21492213/13 PASS. New Windows rendering still required. The213901 build remains an intermediate render candidate, with only ParcelWorkshop checked.

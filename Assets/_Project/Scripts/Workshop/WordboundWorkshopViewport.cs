@@ -49,7 +49,8 @@ namespace Wreckabulary.Workshop
             lens.backgroundColor = new Color(.12f, .19f, .21f); lens.nearClipPlane = .1f; lens.farClipPlane = 20000;
             lens.fieldOfView = 45; lens.allowHDR = false; lens.allowMSAA = false; lens.depth = -50;
             floor = Material(new Color(.79f, .72f, .58f), Surfaces.Kind.Planks);
-            selected = Material(new Color(.42f, .82f, .72f), Surfaces.Kind.Planks);
+            selected = WordboundRenderMaterials.Create(false, "Workshop selection");
+            selected.color = new Color(.42f, .82f, .72f); ownedMaterials.Add(selected);
             ghost = Material(new Color(.59f, .69f, .73f, .20f), Surfaces.Kind.Plaster);
             path = Material(new Color(.9f, .78f, .49f), Surfaces.Kind.Wood);
             prop = Material(new Color(.7f, .85f, .8f), Surfaces.Kind.Plaster);
@@ -135,13 +136,14 @@ namespace Wreckabulary.Workshop
                 var root = new GameObject(module.Id).transform; root.SetParent(content, false);
                 root.localPosition = Point(module.Position); root.localRotation = Quaternion.Euler(0, module.Yaw, 0);
                 modules.Add(module.Id, root); authored.Add(module.Id, module);
-                var material = adjacent ? ghost : state.Selection.Contains(module.Id) ? selected : FloorFor(module.LayerId, style);
+                var material = adjacent ? ghost : FloorFor(module.LayerId, style);
+                var edgeMaterial = !adjacent && state.Selection.Contains(module.Id) ? selected : material;
                 float x = definition.WidthMm / 1000f, z = definition.DepthMm / 1000f;
                 Box(root, "Floor", new Vector3(0, -.1f, 0), new Vector3(x, .2f, z), material);
-                Box(root, "Edge north", new Vector3(0, .12f, z * .5f), new Vector3(x, .24f, .12f), material);
-                Box(root, "Edge south", new Vector3(0, .12f, -z * .5f), new Vector3(x, .24f, .12f), material);
-                Box(root, "Edge east", new Vector3(x * .5f, .12f, 0), new Vector3(.12f, .24f, z), material);
-                Box(root, "Edge west", new Vector3(-x * .5f, .12f, 0), new Vector3(.12f, .24f, z), material);
+                Box(root, "Edge north", new Vector3(0, .12f, z * .5f), new Vector3(x, .24f, .12f), edgeMaterial);
+                Box(root, "Edge south", new Vector3(0, .12f, -z * .5f), new Vector3(x, .24f, .12f), edgeMaterial);
+                Box(root, "Edge east", new Vector3(x * .5f, .12f, 0), new Vector3(.12f, .24f, z), edgeMaterial);
+                Box(root, "Edge west", new Vector3(-x * .5f, .12f, 0), new Vector3(.12f, .24f, z), edgeMaterial);
             }
             foreach (var connection in document.Connections)
             {

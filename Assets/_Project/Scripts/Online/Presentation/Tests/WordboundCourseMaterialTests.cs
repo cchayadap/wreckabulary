@@ -129,7 +129,11 @@ namespace Wreckabulary.Tests
             var material = new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = Color.magenta };
             style.Palettes[0].FloorMaterial = material;
             WordboundRoomStyleProfile selected = style;
-            string before = preset.Snapshot.RecoveryJson;
+            var history = new WorkshopHistory(preset.Snapshot);
+            string selectedRoom = history.Current.Course().Modules.First(m => m.LayerId == history.Current.ActiveLayer).Id;
+            history.Select(new[] { selectedRoom });
+            var snapshot = history.Current;
+            string before = snapshot.RecoveryJson;
             var originalFloor = Surfaces.Get(Surfaces.Kind.Planks, Color.white);
             string originalFloorBefore = EditorJsonUtility.ToJson(originalFloor);
             try
@@ -137,13 +141,16 @@ namespace Wreckabulary.Tests
                 using (var view = new WordboundWorkshopViewport(owner.transform))
                 {
                     view.RoomStyleProvider = () => selected;
-                    view.Sync(preset.Snapshot, preset.Catalogue);
+                    view.Sync(snapshot, preset.Catalogue);
                     var rendered = owner.GetComponentsInChildren<MeshRenderer>().Where(r => r.name == "Floor").ToArray();
                     Assert.IsTrue(rendered.Any(r => r.sharedMaterial == material));
+                    Assert.AreSame(material, rendered.Single(r => r.transform.parent.name == selectedRoom).sharedMaterial,
+                        "Selecting a room must keep its authored floor material visible.");
                     style.Palettes[0].FloorMaterial = null;
-                    view.Sync(preset.Snapshot, preset.Catalogue);
+                    view.Sync(snapshot, preset.Catalogue);
                     var derived = owner.GetComponentsInChildren<MeshRenderer>().Where(r => r.name == "Floor")
-                        .Select(r => r.sharedMaterial).First(m => m.color == style.Palettes[0].Floor);
+                        .Single(r => r.transform.parent.name == selectedRoom).sharedMaterial;
+                    Assert.That(Vector4.Distance(derived.color, style.Palettes[0].Floor), Is.LessThan(.00001f));
                     Assert.IsNotNull(derived.mainTexture);
                     Assert.AreSame(originalFloor.shader, derived.shader, "Opaque floors must preserve the original Lit shader.");
                     Assert.AreNotSame(originalFloor, derived, "The course tint must be applied to an owned clone.");
@@ -154,9 +161,9 @@ namespace Wreckabulary.Tests
                         Assert.AreEqual(originalFloor.GetTextureScale(property), derived.GetTextureScale(property), property);
                         Assert.AreEqual(originalFloor.GetTextureOffset(property), derived.GetTextureOffset(property), property);
                     }
-                    selected = null; view.Sync(preset.Snapshot, preset.Catalogue);
+                    selected = null; view.Sync(snapshot, preset.Catalogue);
                     Assert.IsTrue(derived == null, "Obsolete owned floor variants must be released on source change.");
-                    Assert.IsTrue(material); Assert.AreEqual(before, preset.Snapshot.RecoveryJson);
+                    Assert.IsTrue(material); Assert.AreEqual(before, snapshot.RecoveryJson);
                 }
                 Assert.IsTrue(material);
                 Assert.AreEqual(originalFloorBefore, EditorJsonUtility.ToJson(originalFloor), "Original surface properties must not be edited by the viewport.");
