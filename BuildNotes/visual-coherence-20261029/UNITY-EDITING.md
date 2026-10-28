@@ -6,7 +6,7 @@ Use the integration checkout with Unity6000.6.4f1. Existing authoring scenes are
 |---|---|
 | Rooms, original furniture, bounded parcel randomness, puzzle positions | Tools → Wordbound → Courses → Create or select Parcel Service; edit the selected Parcel Service V1 asset |
 | Play the saved map | Course Inspector → Validate and preview exact seed → Play this exact preview locally |
-| Drag objects and try a draft | Game → Play → Create → Wordbound maps; select Parcel Service, select a room/object, use frame-selection icon, edit and Playtest |
+| Drag objects and try a draft | Game → Play → Create → Wordbound maps → Open; expand Templates on the left → Parcel Service; select a room/object, use frame-selection icon, edit and Playtest |
 | Room colours and woodwork | Assets/_Project/Art/Wordbound/ParcelService/Profiles/ParcelServiceRooms.asset |
 | Per-item material assignments | Same Profiles folder → ParcelServiceVisuals.asset |
 | Red paint, oak, walnut | Assets/_Project/Art/Wordbound/ParcelService/Materials |

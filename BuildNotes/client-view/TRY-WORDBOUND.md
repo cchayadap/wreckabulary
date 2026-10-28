@@ -1,22 +1,27 @@
 # Try Wreckabulary
 
-Open [Wreckabulary.exe](../../Builds/qa-20261028T172247Z/Wreckabulary.exe). Keep the complete build folder together.
+Open [Wreckabulary.exe](../../Builds/qa-20261028T215158Z/Wreckabulary.exe). Keep the complete build folder together.
 
-This is a technical checkpoint; James has rejected its current visual styling and the next visual pass is active.
+**Current review build: 20261028T215158Z.** It includes real map previews, the editable Parcel Service course, original-art wall detail, corrected starting camera, neutral HUD and a clearer Workshop cutaway. This is a tested review build; final art and the full production plan remain unfinished.
 
-This review build includes the full-width Play organization, tighter margins, no Play character, Roboto typography, warm panels and compact Customize choices. Original fonts and previous menu assets are preserved for editing.
+- **Play → Local → Wordbound solo:** choose Time Run or Freestyle, select **Parcel Service**, then Play. Lost Address and Parcel Hall remain available. Use one local player.
+- **Play → Create → Wordbound maps → Open:** expand **Templates** on the left, then choose **Parcel Service**. Its draft, autosave and Undo history are separate from Assigned course. Select a room/object, use the frame-selection icon, drag/edit, then **Playtest**. Return through the game menu to keep editing.
+- **Workshop:** object thumbnails and compact tool icons remain visible. The selected room has a thin border; its real floor material stays visible. Wall decoration is hidden with the walls in the editing cutaway and appears in full preview/Playtest.
+- **Share → Map + settings:** includes seed, mode and team format. Custom courses require compatible content and use private sessions; they are not automatically public-matchmaking maps.
+- **House games / Customize / Shop / Settings:** existing routes remain available. Dibs and Duos have local bot filling. Original House modes still need their online bridge; Wordbound online acceptance is also unfinished.
 
-- **Play → Local → House games:** original modes and houses. Dibs/Duos support local bots; the other house modes use humans.
-- **Play → Local → Wordbound solo:** choose Time Run or Freestyle, then Lost Address or Parcel Hall, and **Play**. Parcel Hall is a separate version of the arrival layout with 18 usable furniture pieces. Use one local player.
-- **Play → Create → Wordbound maps → Open:** edit, validate, playtest and return to the same draft. Existing zone controls edit placement ranges, rotations and floor permissions.
-- **Share → Map + settings:** keeps the exact seed, mode and team format. Import with the matching game content/authoring source. **Draft only** keeps the older course-only format. Undo restores map/seed, while mode stays a session choice.
-- **Customize / Shop / Settings:** Roboto text, warm panels, original artwork and real options. Customize brings colour parts, accessories and finish cards together. Settings keeps separate House and Wordbound control legends.
-- **Play → Online:** Wordbound public/private human parties. Complete online acceptance and original-house networking remain unfinished.
+In Wordbound, **E** interacts, **Q** opens crafting and **Esc** opens the game menu. Use Settings → Controls for the separate House and Wordbound bindings.
 
-Build **20261028T172247Z**, source **74ffae0359766d04d1632728f5da0a7f72457887**, Unity **6000.6.4f1**. Windows lobby **5/5**, Solo **4/4**, Workshop **5/5** pass with normal exit; the exact build and **45 actual screenshots** pass the strict evidence audit. These are scripted checks, not complete matches or physical-controller acceptance. Creator sharing retains its **35 rules / 48 Unity** test evidence; actual Share-panel input/layout and restart persistence still need review. All **4,268** authored files remain unchanged after testing.
+[View actual screenshots and the map comparison](../visual-coherence-20261029/review/windows215158/REVIEW.html) · [Full progress](../../progress.md) · [Edit Parcel Service in Unity](../visual-coherence-20261029/UNITY-EDITING.md) · [Lobby editing guide](../../docs/wordbound/LOBBY-EDITING-GUIDE.md)
 
-[Earlier170019 comparison — rejected style](../play-organization-20261029/review/REVIEW.html) · [Full progress](../../progress.md) · [Editing guide](../../docs/wordbound/LOBBY-EDITING-GUIDE.md).
+## Verified scope
 
-For Unity editing, open **Wreckabulary → Open Current Workspace → Design**. Home, Play, Settings, Shop and Loadout have saved frames; use the matching Scenes preview after saving outside Play. Room appearance and the Parcel Hall course copy have Inspector assets. Inner cards/settings rows and some layouts remain generated; editing the course copy does not replace the packaged/public course automatically.
+Source **4ee1d37a4e64751e093d136dd52a6d99be7aa53f**, Unity **6000.6.4f1**. All five Windows scenarios pass and exit normally: lobby 5/5, original Solo 4/4, original Workshop 5/5, Parcel Solo 3/3 and Parcel Workshop 4/4. Exact build/source evidence audits verify **63 game screenshots**; **4,306 authored files** remain unchanged after the runs. Native local Parcel tests complete all three Time Run laps and all six Freestyle stations; focused rendering/material checks pass 13/13 after the selection correction. These are scripted checks, not physical-controller or separate-PC multiplayer acceptance.
 
-This is a tested review build, not the finished production release. Solo map cards still use item illustrations rather than real map previews. Room scale, furnishing/landmarks, additional maps/skins/items, creator scoring/team/victory rules, full multiplayer/recovery, physical input and performance remain open. Equipment catalogue needs a visible scrollbar and stronger small-preview contrast. The previously visible “trial version” label's origin remains unconfirmed; no removal was attempted. Each raw player log retains four unsupported/stripped depth-of-field/Panini diagnostics; those passes do not execute. Review this and the release backlog before shipping.
+The review page contains the original game screenshots and two matched static map images. File references and inline JavaScript syntax were checked. Automated browser rendering was unavailable because the browser tool rejects local file URLs; no workaround was attempted.
+
+## Still open
+
+The old maps remain sparse; Parcel Service needs stronger room landmarks and first-action guidance. Workshop still exposes technical fields in advanced editing, some props look pale, and Shop/Loadout composition needs further work. More maps, detailed equipment/skins, motion/emotions, story/creator rules, full public multiplayer/recovery, original House networking, performance and physical-input acceptance remain in progress.md. This is not the production release.
+
+The previously observed trial label and unsupported depth-of-field/Panini diagnostics remain release-review items. No watermark removal was attempted.

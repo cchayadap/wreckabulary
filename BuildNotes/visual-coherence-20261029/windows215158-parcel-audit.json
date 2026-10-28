@@ -1,0 +1,821 @@
+{
+  "schema": 1,
+  "utc": "2026-10-28T21:57:45.577Z",
+  "status": "BOUNDED_PARCEL_SOLO_WORKSHOP_WINDOWS_PASS",
+  "build": {
+    "schema": 1,
+    "id": "20261028T215158Z",
+    "kind": "release-qa",
+    "dir": "Builds/qa-20261028T215158Z",
+    "exe": "Wreckabulary.exe",
+    "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "utc": "2026-10-28T21:53:15Z",
+    "development": false,
+    "unity_version": "6000.6.4f1",
+    "head": "4ee1d37a4e64751e093d136dd52a6d99be7aa53f",
+    "tree": "8ed73a1a94bf4cd76dd394c6d9798b8a7a4da2f59e40e6ca7f3ad532a874e22f",
+    "secs": 77.3,
+    "ok": true
+  },
+  "source": {
+    "commit": "4ee1d37a4e64751e093d136dd52a6d99be7aa53f",
+    "currentHead": "4ee1d37a4e64751e093d136dd52a6d99be7aa53f",
+    "productionDiffEmpty": true,
+    "untrackedNonIgnoredProductionEmpty": true
+  },
+  "verifier": {
+    "path": "BuildNotes/visual-coherence-20261029/map-composition/windows-audit/verify-parcel-windows.mjs",
+    "bytes": 20215,
+    "sha256": "a8355665f3a3a14d240a054e6e34ea2d8b53bab0dac66df2bd6188373f2c581c"
+  },
+  "delegatedBaseAudit": {
+    "path": "BuildNotes/visual-coherence-20261029/windows215158-audit.json",
+    "bytes": 118973,
+    "sha256": "84784e395f05b5377ceec4d3d87908c8fd62a25650fd7dd0e419ded0bb3e2b3c"
+  },
+  "scenarioSources": [
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundSoloQa.cs",
+      "bytes": 29727,
+      "sha256": "2282214d521f6422941d58c28d2107c89ef7cab13c4c1e93e02d36024b4adcc3"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundParcelWorkshopQa.cs",
+      "bytes": 32293,
+      "sha256": "c9c77ec9f1b063207d8aa3796f75d66f46930e84b8346c88cf9f5a6d8e07c510"
+    }
+  ],
+  "runs": [
+    {
+      "id": "20261028T215618Z-wordbound_parcel_service",
+      "scenario": "wordbound_parcel_service",
+      "status": "PASS",
+      "startedUtc": "2026-10-28T21:56:22Z",
+      "endedUtc": "2026-10-28T21:56:31Z",
+      "checks": {
+        "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/checks.json",
+        "bytes": 12331,
+        "sha256": "5af7bc6f7b4102935d956049b7ead6cc25aef1df20a9fd5e8efcff89df4acad4"
+      },
+      "gate": {
+        "path": ".harness/delivery/workspace-parcelsmoke-2026-10-28T21-56-18-328Z-stdout.txt",
+        "bytes": 591,
+        "sha256": "004c6f0178b40b39cc293e3f4b0fe79b4ba2e16f38625fbbbb80f8626737a1d9"
+      },
+      "gateResult": {
+        "cmd": "smoke --build 20261028T215158Z --scenario wordbound_parcel_service",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T21:56:18Z",
+        "secs": 14.3,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261028T215618Z-wordbound_parcel_service.log",
+        "evidence": [
+          "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261028T215158Z",
+          "kind": "release-qa",
+          "run_id": "20261028T215618Z-wordbound_parcel_service",
+          "stripped": false,
+          "scenario": "wordbound_parcel_service",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      },
+      "log": {
+        "path": "Logs/player/20261028T215618Z-wordbound_parcel_service.log",
+        "bytes": 4338,
+        "sha256": "17c65ea67baef5c5223187d3c2051f2afc5de36d5a2758983dcb8caf1dd14d8e"
+      },
+      "sourceBinding": {
+        "buildId": "20261028T215158Z",
+        "embeddedCommit": null,
+        "embeddedTree": null
+      },
+      "stepResults": [
+        {
+          "name": "parcel_service_selection",
+          "status": "PASS",
+          "t_s": 2.767985,
+          "probes": {
+            "parcel_service_source": {
+              "course_id": "wordbound-parcel-service-v1",
+              "source_hash": "88cd0728c82e021125dd5fd9befa1e6487a5ee3330c3dbfdd74b0018bb9d6123",
+              "input_hash": "4d13d08b4ea2702f5dc2ba296e1b61b80efa242fab707170c85697fe0acbec07",
+              "geometry_hash": "7877ee1dee7e1bd942bb4749b81280b2bf4a8143ad834c27e3d614b5c7489ec2",
+              "item_hash": "79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416",
+              "rule_hash": "f183d9b79d1b438a78fb682455c6ce5e6b15cbd09d47b0831b3af47b2f697d4c"
+            },
+            "scope": "Normal Windows production UI Submit launch and actual local return handler: the installed saved Parcel Service course in Time Run and Freestyle. Exact source/profile memory, Single runner, fresh render frames and borrowed device checks. No physical-input, full-finish, network, bot, team or Workshop acceptance claim.",
+            "parcel_service_initial_lobby_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 1,
+              "focused": true
+            },
+            "parcel_service_saved_source_memory_preserved": true,
+            "solo_source_preferences_preserved": true
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/parcel_service_initial_lobby.png"
+          ]
+        },
+        {
+          "name": "parcel_service_time_run",
+          "status": "PASS",
+          "t_s": 6.680152,
+          "probes": {
+            "solo_parcelservice_timerun_selected_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 108,
+              "focused": true
+            },
+            "parcel_service_binding_parcelservice_timerun": {
+              "course_id": "wordbound-parcel-service-v1",
+              "source_hash": "88cd0728c82e021125dd5fd9befa1e6487a5ee3330c3dbfdd74b0018bb9d6123",
+              "manifest_hash": "d94b06992bda934aa897b6929cc845813261acb4e4417217c0be1c5fbb95e5ee",
+              "catalogue_hash": "dd8df1d77e786af643d3d711a388e6384eedfaadbc673be5beeb7c49d72af29f",
+              "geometry_hash": "7877ee1dee7e1bd942bb4749b81280b2bf4a8143ad834c27e3d614b5c7489ec2",
+              "item_hash": "79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416",
+              "rule_hash": "f183d9b79d1b438a78fb682455c6ce5e6b15cbd09d47b0831b3af47b2f697d4c",
+              "effective_rules_hash": "c5262a10a987ef4a6a00ef73e4e2315ba273a12c77183ffb7718d1ef85f7d414",
+              "camera_profile": "PlayerCamera",
+              "visual_profile": "ParcelServiceVisuals",
+              "fresh_client_and_camera": true
+            },
+            "solo_input_parcelservice_timerun": {
+              "source": "DesktopBinding",
+              "borrowed_exact_source": true,
+              "craft_hint": "Q",
+              "menu_hint": "ESC",
+              "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+            },
+            "solo_render_readiness_parcelservice_timerun": {
+              "expected_markers": 1,
+              "rendered_markers": 1,
+              "camera_frames": 3,
+              "canonical_ticks": 26,
+              "guide_fault": "",
+              "scope": "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station."
+            },
+            "solo_parcelservice_timerun_world_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 116,
+              "focused": true
+            },
+            "solo_parcelservice_timerun_menu_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 119,
+              "focused": true
+            },
+            "solo_parcelservice_timerun": {
+              "source": "88cd0728c82e021125dd5fd9befa1e6487a5ee3330c3dbfdd74b0018bb9d6123",
+              "manifest": "d94b06992bda934aa897b6929cc845813261acb4e4417217c0be1c5fbb95e5ee",
+              "mode": "TimeRun",
+              "physical_sites": 6,
+              "humans": 1,
+              "runner": "Single",
+              "actual_camera_frames": 7,
+              "journal_entries": 0,
+              "canonical_ticks_observed": 40,
+              "return_label": "Return to lobby"
+            },
+            "solo_input_released_parcelservice_timerun": {
+              "wrapper_disposed": true,
+              "source_preserved": true
+            },
+            "solo_parcelservice_timerun_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 139,
+              "focused": true
+            },
+            "parcel_service_saved_source_memory_preserved": true,
+            "solo_source_preferences_preserved": true,
+            "solo_cleanup": {
+              "client_released": true,
+              "bindings_restored": true,
+              "failure": "none",
+              "work_budget_seconds": 145,
+              "stop_budget_seconds": 25,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_timerun_selected.png",
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_timerun_world.png",
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_timerun_menu.png",
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_timerun_returned.png"
+          ]
+        },
+        {
+          "name": "parcel_service_freestyle",
+          "status": "PASS",
+          "t_s": 9.201382,
+          "probes": {
+            "solo_parcelservice_freestyle_selected_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 251,
+              "focused": true
+            },
+            "parcel_service_binding_parcelservice_freestyle": {
+              "course_id": "wordbound-parcel-service-v1",
+              "source_hash": "88cd0728c82e021125dd5fd9befa1e6487a5ee3330c3dbfdd74b0018bb9d6123",
+              "manifest_hash": "25603e60d2a1bc7e16a326644e5a3f459ddeb03cc18b8ef7779b4d36a38eb04a",
+              "catalogue_hash": "8010e8b4b690e791f1acc55d4c562e9b52bf4fa9fa99fd00030db10e127b2762",
+              "geometry_hash": "7877ee1dee7e1bd942bb4749b81280b2bf4a8143ad834c27e3d614b5c7489ec2",
+              "item_hash": "79363c8f1f14e7aca553718b552468d34b3140fe4ba88688fd4ded8330cf2416",
+              "rule_hash": "f183d9b79d1b438a78fb682455c6ce5e6b15cbd09d47b0831b3af47b2f697d4c",
+              "effective_rules_hash": "bdde1adad3d242d04e3c1e42e7592f8aa5564b9837c12c13a654d6d9211ac585",
+              "camera_profile": "PlayerCamera",
+              "visual_profile": "ParcelServiceVisuals",
+              "fresh_client_and_camera": true
+            },
+            "solo_input_parcelservice_freestyle": {
+              "source": "DesktopBinding",
+              "borrowed_exact_source": true,
+              "craft_hint": "Q",
+              "menu_hint": "ESC",
+              "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+            },
+            "solo_render_readiness_parcelservice_freestyle": {
+              "expected_markers": 1,
+              "rendered_markers": 1,
+              "camera_frames": 3,
+              "canonical_ticks": 11,
+              "guide_fault": "",
+              "scope": "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station."
+            },
+            "solo_parcelservice_freestyle_world_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 259,
+              "focused": true
+            },
+            "solo_parcelservice_freestyle_menu_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 262,
+              "focused": true
+            },
+            "solo_parcelservice_freestyle": {
+              "source": "88cd0728c82e021125dd5fd9befa1e6487a5ee3330c3dbfdd74b0018bb9d6123",
+              "manifest": "25603e60d2a1bc7e16a326644e5a3f459ddeb03cc18b8ef7779b4d36a38eb04a",
+              "mode": "Freestyle",
+              "physical_sites": 6,
+              "humans": 1,
+              "runner": "Single",
+              "actual_camera_frames": 7,
+              "journal_entries": 0,
+              "canonical_ticks_observed": 23,
+              "return_label": "Return to lobby"
+            },
+            "solo_input_released_parcelservice_freestyle": {
+              "wrapper_disposed": true,
+              "source_preserved": true
+            },
+            "solo_parcelservice_freestyle_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 281,
+              "focused": true
+            },
+            "parcel_service_saved_source_memory_preserved": true,
+            "solo_source_preferences_preserved": true,
+            "solo_cleanup": {
+              "client_released": true,
+              "bindings_restored": true,
+              "failure": "none",
+              "work_budget_seconds": 145,
+              "stop_budget_seconds": 25,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_freestyle_selected.png",
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_freestyle_world.png",
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_freestyle_menu.png",
+            "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_freestyle_returned.png"
+          ]
+        }
+      ],
+      "captures": [
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/parcel_service_initial_lobby.png",
+          "bytes": 1662096,
+          "sha256": "cf29215276a2f2e48c01b98e334a638fcf51e0741dd6521c615f36ac926e222f",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_selection",
+          "frame": 1,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_timerun_selected.png",
+          "bytes": 388765,
+          "sha256": "cdecf20394c5814e903d04092f187a99cc61a62c2dffffadb2f4143dd0eb825e",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_time_run",
+          "frame": 108,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_timerun_world.png",
+          "bytes": 1161791,
+          "sha256": "7043c501cdb228b24c2809048f8fb376edcb84cbe72b483ff18184aa2194bb80",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_time_run",
+          "frame": 116,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_timerun_menu.png",
+          "bytes": 578638,
+          "sha256": "5eb9dee64bed43250415443888dd900f1e72efb89d0bb6a79be9f636620ee6ab",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_time_run",
+          "frame": 119,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_timerun_returned.png",
+          "bytes": 388523,
+          "sha256": "f7827a5d226627acd8470eb50a57b74073902fcd9b089c5fef5f8546217c741b",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_time_run",
+          "frame": 139,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_freestyle_selected.png",
+          "bytes": 389862,
+          "sha256": "997be0bbc70f9a80559aff401029808a3d64691fae4678a80cc17d3ffe3ca0d3",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_freestyle",
+          "frame": 251,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_freestyle_world.png",
+          "bytes": 1154595,
+          "sha256": "81c770706f9fe2287a8a60a6917aa7b6898e731fc5652d500645c6a671f678f0",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_freestyle",
+          "frame": 259,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_freestyle_menu.png",
+          "bytes": 575396,
+          "sha256": "b9b89e301527224edf1d52e19659cf21fc79db10bb98021bdf7cd588ca8deff8",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_freestyle",
+          "frame": 262,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215618Z-wordbound_parcel_service/solo_parcelservice_freestyle_returned.png",
+          "bytes": 389825,
+          "sha256": "2c10fbfb2a5e42cf7293c46414f1bc7ba102685e5db6cd85f1cd5109cbbc393a",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_service_freestyle",
+          "frame": 281,
+          "focused": true
+        }
+      ],
+      "saves": []
+    },
+    {
+      "id": "20261028T215349Z-wordbound_parcel_workshop",
+      "scenario": "wordbound_parcel_workshop",
+      "status": "PASS",
+      "startedUtc": "2026-10-28T21:54:11Z",
+      "endedUtc": "2026-10-28T21:54:23Z",
+      "checks": {
+        "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/checks.json",
+        "bytes": 10942,
+        "sha256": "657f705983e172a0b00131590ac8b1c02d67ffbb35b320b21df97f7cad398377"
+      },
+      "gate": {
+        "path": ".harness/delivery/workspace-parcelworkshop-2026-10-28T21-53-49-003Z-stdout.txt",
+        "bytes": 596,
+        "sha256": "bfed33b163ba341e3c96e6a7d836782457b78898fb0d450b70edbb5194aeaf6d"
+      },
+      "gateResult": {
+        "cmd": "smoke --build 20261028T215158Z --scenario wordbound_parcel_workshop",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T21:53:49Z",
+        "secs": 35.1,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261028T215349Z-wordbound_parcel_workshop.log",
+        "evidence": [
+          "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261028T215158Z",
+          "kind": "release-qa",
+          "run_id": "20261028T215349Z-wordbound_parcel_workshop",
+          "stripped": false,
+          "scenario": "wordbound_parcel_workshop",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      },
+      "log": {
+        "path": "Logs/player/20261028T215349Z-wordbound_parcel_workshop.log",
+        "bytes": 3653,
+        "sha256": "53a61c8f75d2474f43a75d602b9330af8dea7274e5a0fb56e0bde62a3f280743"
+      },
+      "sourceBinding": {
+        "buildId": "20261028T215158Z",
+        "embeddedCommit": null,
+        "embeddedTree": null
+      },
+      "stepResults": [
+        {
+          "name": "parcel_workshop_sources",
+          "status": "PASS",
+          "t_s": 7.387157,
+          "probes": {
+            "scope": "Actual Windows Workshop source, transactional draft edit, autosave readback, focused original prop view, exact Single playtest and return. Public game actions and existing launcher QA hook/handlers; no physical pointer/device, online matchmaking, route completion or visual acceptance claim.",
+            "isolated_workshop_storage": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\5d0773085f3f4989b37ba474559b8ee8",
+            "parcel_workshop_assigned_autosave": {
+              "primary": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\5d0773085f3f4989b37ba474559b8ee8\\wordbound-lost-address.autosave.json",
+              "recovery_sha256": "f84a32aebaebe87a577655cfe50efe6645b576ebc9905db3f7235a5e024fec2c",
+              "used_backup": false,
+              "evidence": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_assigned_autosave.json"
+            },
+            "parcel_workshop_assigned_render": {
+              "camera_frames": 3,
+              "camera": "Workshop camera",
+              "screen_camera": false,
+              "active": true
+            },
+            "parcel_workshop_assigned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 6,
+              "focused": true
+            },
+            "parcel_workshop_preservation": {
+              "sources_preferences_devices_preserved": true,
+              "failure": "none",
+              "work_budget_seconds": 120,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_assigned.png"
+          ]
+        },
+        {
+          "name": "parcel_workshop_save_and_focus",
+          "status": "PASS",
+          "t_s": 8.56624,
+          "probes": {
+            "parcel_workshop_parcel_autosave": {
+              "primary": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\5d0773085f3f4989b37ba474559b8ee8\\local-courses\\ParcelServiceV1\\wordbound-parcel-service-v1.autosave.json",
+              "recovery_sha256": "5826b4d8b9145b9ba934f8f3528b542660eb6301695899a4366de94976d7b578",
+              "used_backup": false,
+              "evidence": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_parcel_autosave.json"
+            },
+            "parcel_workshop_saved_render": {
+              "camera_frames": 3,
+              "camera": "Workshop camera",
+              "screen_camera": false,
+              "active": true
+            },
+            "parcel_workshop_saved_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 46,
+              "focused": true
+            },
+            "parcel_workshop_focus": {
+              "room": "Sorting",
+              "camera_distance": 15.11213,
+              "selected": [
+                "Sorting"
+              ],
+              "scope": "Normal rendered Workshop viewport; public Frame/Zoom actions, unchanged full-window screenshot."
+            },
+            "parcel_workshop_sorting_close_render": {
+              "camera_frames": 3,
+              "camera": "Workshop camera",
+              "screen_camera": false,
+              "active": true
+            },
+            "parcel_workshop_sorting_close_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 50,
+              "focused": true
+            },
+            "parcel_workshop_preservation": {
+              "sources_preferences_devices_preserved": true,
+              "failure": "none",
+              "work_budget_seconds": 120,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_saved.png",
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_sorting_close.png"
+          ]
+        },
+        {
+          "name": "parcel_workshop_exact_playtest",
+          "status": "PASS",
+          "t_s": 10.825923,
+          "probes": {
+            "parcel_workshop_playtest_render": {
+              "camera_frames": 3,
+              "camera": "Wordbound player camera",
+              "screen_camera": true,
+              "active": true
+            },
+            "parcel_workshop_playtest_world_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 57,
+              "focused": true
+            },
+            "parcel_workshop_playtest_menu_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 60,
+              "focused": true
+            },
+            "parcel_workshop_exact_playtest": {
+              "source_hash": "fb40626352cfff8c981c5080dc39154b9f29dc71597d2fad3838b5d3b7447a38",
+              "manifest_hash": "1407b3a5ed596d635d70096d7b96d5a573ca280e3c89777c5cb2164fb5dfc7e9",
+              "catalogue_hash": "42df9ae09a29525190753c23ec522d174e6119a55f71f561d6d0d5a562341fcd",
+              "mode": "TimeRun",
+              "runner": "Single",
+              "canonical_ticks": 47,
+              "saved_draft_unchanged": true
+            },
+            "parcel_workshop_preservation": {
+              "sources_preferences_devices_preserved": true,
+              "failure": "none",
+              "work_budget_seconds": 120,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_playtest_world.png",
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_playtest_menu.png"
+          ]
+        },
+        {
+          "name": "parcel_workshop_return_and_history",
+          "status": "PASS",
+          "t_s": 12.140376,
+          "probes": {
+            "parcel_workshop_returned_render": {
+              "camera_frames": 3,
+              "camera": "Workshop camera",
+              "screen_camera": false,
+              "active": true
+            },
+            "parcel_workshop_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 66,
+              "focused": true
+            },
+            "parcel_workshop_assigned_returned_render": {
+              "camera_frames": 3,
+              "camera": "Workshop camera",
+              "screen_camera": false,
+              "active": true
+            },
+            "parcel_workshop_assigned_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 70,
+              "focused": true
+            },
+            "parcel_workshop_returned_autosave": {
+              "primary": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\5d0773085f3f4989b37ba474559b8ee8\\local-courses\\ParcelServiceV1\\wordbound-parcel-service-v1.autosave.json",
+              "recovery_sha256": "5826b4d8b9145b9ba934f8f3528b542660eb6301695899a4366de94976d7b578",
+              "used_backup": false,
+              "evidence": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_returned_autosave.json"
+            },
+            "parcel_workshop_parcel_returned_render": {
+              "camera_frames": 3,
+              "camera": "Workshop camera",
+              "screen_camera": false,
+              "active": true
+            },
+            "parcel_workshop_parcel_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 74,
+              "focused": true
+            },
+            "parcel_workshop_histories": {
+              "assigned_history_same": true,
+              "parcel_history_same": true,
+              "assigned_undo_redo_exact": true,
+              "parcel_undo_redo_exact": true,
+              "separate_autosaves": true
+            },
+            "parcel_workshop_lobby_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 78,
+              "focused": true
+            },
+            "parcel_workshop_preservation": {
+              "sources_preferences_devices_preserved": true,
+              "failure": "none",
+              "work_budget_seconds": 120,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_returned.png",
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_assigned_returned.png",
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_parcel_returned.png",
+            "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_lobby.png"
+          ]
+        }
+      ],
+      "captures": [
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_assigned.png",
+          "bytes": 238549,
+          "sha256": "1c38161de3e57f8a3f280822956d096b2eb14c33a025acf3daec7ae344d8ea68",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_sources",
+          "frame": 6,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_saved.png",
+          "bytes": 220996,
+          "sha256": "fbf8a01c4c5cf8426e8934afc699d5adf47472dcad7caac64b9d037db4d27149",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_save_and_focus",
+          "frame": 46,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_sorting_close.png",
+          "bytes": 355407,
+          "sha256": "8ba21470961c03e26d644b6e01eec8aafc1314838217d9a75d0f08e230d770c9",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_save_and_focus",
+          "frame": 50,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_playtest_world.png",
+          "bytes": 1161608,
+          "sha256": "10645f7be56f5a1641a2fe1d5651835da0fdf78b51bbfe4d2d4cb330e67af26d",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_exact_playtest",
+          "frame": 57,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_playtest_menu.png",
+          "bytes": 579928,
+          "sha256": "d0d97dc0144c7c53ae69df6298cb29405fb9ebed4ee1c9707ee2b7103493d308",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_exact_playtest",
+          "frame": 60,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_returned.png",
+          "bytes": 354842,
+          "sha256": "29387c949279ee42aac10ba12a8d5be3b1f7fdb3a8943f5280f25297a86e1cb5",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_return_and_history",
+          "frame": 66,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_assigned_returned.png",
+          "bytes": 245466,
+          "sha256": "89f134dbc30be93f3b81a5fb2b0a2962727f72d222fcc4fffe829f2aea9806f1",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_return_and_history",
+          "frame": 70,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_parcel_returned.png",
+          "bytes": 222455,
+          "sha256": "a9ab9b0c94953ae8a04dbb26f3f1ca6ba0d1c48b6682a158681153d986546035",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_return_and_history",
+          "frame": 74,
+          "focused": true
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_lobby.png",
+          "bytes": 1665257,
+          "sha256": "3f9d2660723235237dee0d4c346ae9b8423e5463b4702257ee8d101bc1024a5b",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_workshop_return_and_history",
+          "frame": 78,
+          "focused": true
+        }
+      ],
+      "saves": [
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_assigned_autosave.json",
+          "bytes": 183321,
+          "sha256": "f84a32aebaebe87a577655cfe50efe6645b576ebc9905db3f7235a5e024fec2c",
+          "primary": {
+            "path": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\5d0773085f3f4989b37ba474559b8ee8\\wordbound-lost-address.autosave.json",
+            "sha256": "f84a32aebaebe87a577655cfe50efe6645b576ebc9905db3f7235a5e024fec2c"
+          },
+          "recoveryHash": "f84a32aebaebe87a577655cfe50efe6645b576ebc9905db3f7235a5e024fec2c"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_parcel_autosave.json",
+          "bytes": 17371,
+          "sha256": "5826b4d8b9145b9ba934f8f3528b542660eb6301695899a4366de94976d7b578",
+          "primary": {
+            "path": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\5d0773085f3f4989b37ba474559b8ee8\\local-courses\\ParcelServiceV1\\wordbound-parcel-service-v1.autosave.json",
+            "sha256": "5826b4d8b9145b9ba934f8f3528b542660eb6301695899a4366de94976d7b578"
+          },
+          "recoveryHash": "5826b4d8b9145b9ba934f8f3528b542660eb6301695899a4366de94976d7b578"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T215349Z-wordbound_parcel_workshop/parcel_workshop_returned_autosave.json",
+          "bytes": 17371,
+          "sha256": "5826b4d8b9145b9ba934f8f3528b542660eb6301695899a4366de94976d7b578",
+          "primary": {
+            "path": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\5d0773085f3f4989b37ba474559b8ee8\\local-courses\\ParcelServiceV1\\wordbound-parcel-service-v1.autosave.json",
+            "sha256": "5826b4d8b9145b9ba934f8f3528b542660eb6301695899a4366de94976d7b578"
+          },
+          "recoveryHash": "5826b4d8b9145b9ba934f8f3528b542660eb6301695899a4366de94976d7b578"
+        }
+      ]
+    }
+  ],
+  "scope": {
+    "captures": 18,
+    "soloSteps": 3,
+    "workshopSteps": 4,
+    "visualAcceptance": "PENDING independent inspection of these exact 18 full screenshots",
+    "limits": [
+      "The unchanged strict base audit supplies the old 45-image, full packed build and authored preservation checks. Its verifier/build/executable/packed-manifest/QA-source references are rebound here; old captures and every packed binary are not audited twice.",
+      "Build IDs and the current production Git state match. Embedded run commit/tree may be absent; no historic per-run executable hash is available. Ignored production inputs are outside the Git check.",
+      "Normal Windows mode is asserted by the source-bound scenarios; each capture records focus and rendered frame. Public UI Submit/actions are automated, not physical mouse/controller input.",
+      "PNG structure, dimensions and hashes are checked; source-bound scenarios decode and reject uniform frames. Visual taste, completeness, pixel approval and full PNG decoding by this audit are not claimed.",
+      "Solo proves the saved Parcel Service source in TimeRun/Freestyle with a fresh one-human Single client/camera, borrowed input and return. Workshop proves isolated save/readback, original prop identities, exact edited Single playtest, separate histories and return.",
+      "No full route completion, network/public matchmaking, bots/teams, performance or production-ready acceptance is implied. Native physical completion evidence remains separate.",
+      "Source/profile memory preservation is limited to the scenario snapshots. Root authored-file preservation is delegated to the same unchanged final base receipt after both new runs."
+    ]
+  }
+}
