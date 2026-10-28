@@ -2,6 +2,12 @@
 
 STATUS: IN PROGRESS. Previous goal turn made verified progress: committed visual corrections, final Windows215158 five-flow evidence and preserved unfinished work. The full production goal remains active.
 
+## Windows candidate held — 2026-10-28T23:41Z
+
+Build233448/source042f375365652336ec53fa4170e0ba34553022ce passes in96.3s. Windows inspector233658 and lobby233800 pass their scripted checks, but root opened parcel_workshop_room_routes.png and confirmed horizontal overflow: Laps/Spawns navigation and recovery/coordinate fields extend beyond the inspector. This candidate is NOT the delivered review build. The passing script did not detect this visual defect. Workshop lane is drafting bounded layout correction plus real layout containment checks; original images and gates remain unchanged. No further smoke runs on this candidate until source correction and rebuild. Last usable delivered checkpoint remains215158.
+
+Correction verified: R0235302 PASS and native235346 PASS65/65. The new GUI check renders all five route sections at239/300px with15/22px Roboto, measures actual content bounds and preserves exact draft/history state. Context tabs and Room tools wrap to fit; XYZ fields stack, route/lap/yaw navigation adapts, labels wrap. First native235046 failed four cases on remaining Spawn guidance; root corrected three labels without changing data/actions and retained the failed evidence. Independent source review records exact post-freeze delta4dbcc00c. Next is the replacement Windows build and six-flow verification; this native pass alone is not final visual approval.
+
 ## Current checkpoint — 2026-10-28T23:34Z
 
 - Committed first-stage implementation is c6b86a49. Native flagship231532 now passes the ordinary-spawn first three rooms/two puzzles,16 letters/three crafts using real movement and sensors; zero cleanup failures. The exact report is flagship/NATIVE-FIRST-LEG.md. Earlier failed fixture assumptions and timing estimates remain recorded and explicitly superseded; full course/online proof remains open.

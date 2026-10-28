@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEditor;
 using Wreckabulary.Rules.Wordbound;
 using Wreckabulary.Workshop;
 
@@ -159,6 +160,92 @@ namespace Wreckabulary.EditorTests
             InspectorField("recipeSearch").SetValue(workshop, "box");
             CollectionAssert.IsEmpty((string[])InspectorCall("PuzzleRecipeChoices"));
             Assert.AreEqual(before, workshop.History.Current.RecoveryJson);
+        }
+
+        [TestCase(300, 15, 34, 56)]
+        [TestCase(300, 22, 40, 64)]
+        [TestCase(239, 15, 34, 56)]
+        [TestCase(239, 22, 40, 64)]
+        public void AllRoutePanelsStayInsideTheActualInspectorWidth(int panelWidth, int font, int row, int module)
+        {
+            var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+            RouteInspectorWindow window = null;
+            try
+            {
+                theme.BodyFont = Resources.Load<Font>("Fonts/Roboto/v3.016/Roboto-Regular");
+                Assert.IsNotNull(theme.BodyFont);
+                theme.BodySize = font; theme.RowHeight = row; theme.ModuleHeight = module;
+                workshop.Theme = theme;
+                InspectorField("inspectorWidth").SetValue(workshop, (float)panelWidth);
+                var course = CourseTemplates.RaceCircuit();
+                workshop.Open(course, CourseTemplates.ProofCatalogue(),
+                    MatchStateValidation.Requirements(ModeDefinition.For("TimeRun")), folder);
+                workshop.History.Select(new[] { "Start" }); InspectorCall("Refresh"); ShowSection("Room");
+                InspectorField("routesExpanded").SetValue(workshop, true);
+                InspectorField("routeModule").SetValue(workshop, "Start");
+                InspectorField("routeRecovery").SetValue(workshop, "StartSafe");
+                InspectorField("routeCheckpoint").SetValue(workshop, "Begin");
+                InspectorField("routeSection").SetValue(workshop, "Circuit");
+                InspectorField("routeBranch").SetValue(workshop, "North");
+                InspectorField("routeSpawn").SetValue(workshop, course.Spawns.First().Id);
+                string before = workshop.History.Current.RecoveryJson;
+                int revision = workshop.History.Revision;
+                bool undo = workshop.History.CanUndo, redo = workshop.History.CanRedo;
+                var styles = (WordboundUiStyles)InspectorField("ui").GetValue(workshop);
+                window = ScriptableObject.CreateInstance<RouteInspectorWindow>();
+                window.Draw = () => {
+                    using var scope = styles.Apply(theme);
+                    InspectorCall("Styles");
+                    GUILayout.BeginArea(new Rect(0, 0, panelWidth, 520), styles.Panel);
+                    InspectorCall("Inspector");
+                    GUILayout.EndArea();
+                    if (Event.current.type != EventType.Repaint) return;
+                    float width = panelWidth - styles.Panel.padding.horizontal - GUI.skin.verticalScrollbar.fixedWidth - GUI.skin.verticalScrollbar.margin.left;
+                    foreach (string field in new[] { "routeContentRect", "routeTabsRect" })
+                    {
+                        var rect = (Rect)InspectorField(field).GetValue(workshop);
+                        Assert.Greater(rect.width, 80, field);
+                        Assert.LessOrEqual(rect.xMax, width + 1, "Route tab " + InspectorField("routeTab").GetValue(workshop) + ": " + field);
+                        Assert.GreaterOrEqual(rect.xMin, -1, field);
+                    }
+                    Assert.GreaterOrEqual(((Rect)InspectorField("routeTabsRect").GetValue(workshop)).height, styles.RowHeight * 3);
+                };
+                window.position = new Rect(100, 100, 340, 560); window.ShowUtility();
+                for (int tab = 0; tab < 5; tab++)
+                {
+                    InspectorField("routeTab").SetValue(workshop, tab);
+                    InspectorField("routeLoadKey").SetValue(workshop, "");
+                    for (int frame = 0; frame < 2; frame++)
+                    {
+                        int repaints = window.Repaints;
+                        window.SendEvent(new Event { type = EventType.Layout });
+                        window.SendEvent(new Event { type = EventType.Repaint });
+                        Assert.IsNull(window.Failure); Assert.Greater(window.Repaints, repaints);
+                    }
+                    Assert.AreEqual(tab, InspectorField("routeTab").GetValue(workshop));
+                }
+                Assert.AreEqual(before, workshop.History.Current.RecoveryJson);
+                Assert.AreEqual(revision, workshop.History.Revision);
+                Assert.AreEqual(undo, workshop.History.CanUndo); Assert.AreEqual(redo, workshop.History.CanRedo);
+            }
+            finally { if (window) window.Close(); workshop.Theme = null; UnityEngine.Object.DestroyImmediate(theme); }
+        }
+
+        sealed class RouteInspectorWindow : EditorWindow
+        {
+            internal Action Draw;
+            internal Exception Failure;
+            internal int Repaints;
+            void OnGUI()
+            {
+                if (Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
+                var skin = GUI.skin; var colour = GUI.color; var content = GUI.contentColor;
+                var background = GUI.backgroundColor; var matrix = GUI.matrix; bool enabled = GUI.enabled;
+                try { if (Event.current.type == EventType.Repaint) Repaints++; Draw?.Invoke(); }
+                catch (Exception error) { Failure = error; }
+                finally { GUI.skin = skin; GUI.color = colour; GUI.contentColor = content;
+                    GUI.backgroundColor = background; GUI.matrix = matrix; GUI.enabled = enabled; }
+            }
         }
 
         static FieldInfo InspectorField(string name) => typeof(WordboundWorkshop).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);

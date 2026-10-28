@@ -239,6 +239,7 @@ namespace Wreckabulary.Workshop
             Header();
             GUILayout.BeginArea(new Rect(8, viewport.y, left - 8, viewport.height), panel); Palette(); GUILayout.EndArea();
             WorldView();
+            inspectorWidth = right;
             GUILayout.BeginArea(new Rect(Screen.width - right - 8, viewport.y, right, viewport.height), panel); Inspector(); GUILayout.EndArea();
             Footer();
             CaptureWorkshopTextFocus();

@@ -10,6 +10,15 @@ namespace Wreckabulary.Workshop
     {
         enum InspectorSection { Objects, Puzzles, Room }
         InspectorSection inspectorSection;
+        float inspectorWidth = 300;
+        float InspectorContentWidth => Mathf.Max(1, inspectorWidth - panel.padding.horizontal -
+            GUI.skin.verticalScrollbar.fixedWidth - GUI.skin.verticalScrollbar.margin.left - 4);
+
+        int InspectorColumns(string[] labels, int maximum)
+        {
+            float cell = labels.Max(label => GUI.skin.button.CalcSize(new GUIContent(label)).x) + GUI.skin.button.margin.horizontal;
+            return Mathf.Max(1, Mathf.Min(maximum, Mathf.FloorToInt(InspectorContentWidth / cell)));
+        }
         bool inspectorAdvancedIds, inspectorValidation, newPuzzle, puzzleLinks, placementPickerOpen;
         string inspectorChoiceOpen = "", inspectorChoiceSearch = "", recipeSearch = "";
 
@@ -24,14 +33,17 @@ namespace Wreckabulary.Workshop
 
         void InspectorTabs()
         {
-            GUILayout.BeginHorizontal();
-            foreach (InspectorSection section in Enum.GetValues(typeof(InspectorSection)))
+            var sections = (InspectorSection[])Enum.GetValues(typeof(InspectorSection));
+            int columns = InspectorColumns(sections.Select(section => section.ToString()).ToArray(), 3);
+            for (int i = 0; i < sections.Length; i++)
             {
+                if (i % columns == 0) GUILayout.BeginHorizontal();
+                var section = sections[i];
                 GUI.SetNextControlName("Workshop inspector " + section);
                 if (ui.Button(new GUIContent(section.ToString()), inspectorSection == section ? ui.Selected : null,
                     GUILayout.MinHeight(ui.RowHeight), GUILayout.ExpandWidth(true))) ShowInspectorSection(section);
+                if (i % columns == columns - 1 || i == sections.Length - 1) GUILayout.EndHorizontal();
             }
-            GUILayout.EndHorizontal();
         }
 
         void RoomInspector(List<CourseModule> selected)
@@ -40,6 +52,8 @@ namespace Wreckabulary.Workshop
             if (ToolButton("Rotate", LobbyIcons.Turn, "Rotate selection · R")) Edit("Rotate", draft => WorkshopCommands.RotateSelection(draft, Pivot(selected), 1));
             if (ToolButton("Duplicate", LobbyIcons.Duplicate)) Edit("Duplicate", draft => WorkshopCommands.Duplicate(draft, new CoursePoint(draft.GridMm * 2, 0, draft.GridMm * 2)));
             if (ToolButton("Delete", LobbyIcons.Delete)) Edit("Delete", WorkshopCommands.Delete);
+            if (InspectorContentWidth < 5 * (ui.RowHeight + GUI.skin.button.margin.horizontal))
+            { GUILayout.EndHorizontal(); GUILayout.BeginHorizontal(); }
             if (ToolButton("Group", LobbyIcons.Group)) Edit("Group", draft => WorkshopCommands.Group(draft, WorkshopCommands.Unique("group", draft.Groups.Keys)));
             if (ToolButton("Ungroup", LobbyIcons.Ungroup)) Edit("Ungroup", WorkshopCommands.Ungroup);
             GUILayout.EndHorizontal();

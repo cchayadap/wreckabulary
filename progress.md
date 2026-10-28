@@ -17,6 +17,7 @@ Legend: `[ ]` unfinished; `[~]` partly implemented or not fully verified; `[x]` 
 - [~] **Actual visual review:** all 63 final Windows screenshots were opened across three reviewers. No new blocking clipping or missing-art regression was found in these captured states. Sparse rooms, weak first-action guidance, pale Workshop props, excess Shop/Loadout space and advanced Workshop text remain. The detailed lobby still sets a richer expectation than the maps. Neither this review nor technical passes establish owner visual approval.
 - [~] **More maps, equipment, skins and story remain in scope.** Parcel Service is one compact added course; it does not complete the larger four-destination/four-layer flagship or the full content plan.
 - [~] **Creator:** existing map manipulation, random zones, layers, templates, exact playtest/return and Undo are retained. Map + settings export/import has 35 rules / 48 Unity checks. Finish visual objective/link pickers, team/scoring/victory-rule authoring, Share input/restart testing and separate-client custom sessions; custom maps are not automatically admitted to public matchmaking.
+- [x] **Room panel width regression:** actual Windows233448 review found clipped routes despite scenario PASS. Corrected adaptive navigation and stacked coordinate fields pass65/65 native checks, including all five route sections at239/300px and15/22px text with unchanged history. Replacement Windows capture is still pending; the rejected candidate and earlier failed native run remain preserved.
 
 ## Current Windows technical checkpoint
 
