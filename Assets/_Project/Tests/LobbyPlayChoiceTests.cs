@@ -558,6 +558,83 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator SoloMapPreviewsKeepSelectionAndFallBackIndependently()
+        {
+            var profile = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
+            Assert.IsNotNull(profile);
+            var savedLost = profile.LostAddressPreview;
+            var savedParcel = profile.ParcelHallPreview;
+            var texture = new Texture2D(128, 64);
+            var lost = Sprite.Create(texture, new Rect(0, 0, 128, 64), new Vector2(.5f, .5f));
+            var parcel = Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(.5f, .5f));
+            try
+            {
+                profile.LostAddressPreview = lost; profile.ParcelHallPreview = parcel;
+                Assert.DoesNotThrow(profile.Validate);
+                WordboundSoloEntry.SelectMap(WordboundSoloEntry.LostAddressMap);
+                var menu = LobbyMenu.Instance;
+                menu.Choose(LobbyMenu.Practice, "Duos", "flat"); menu.Open(LobbyMenu.Play);
+                var bindings = Session.Bindings.ToArray();
+                Submit("Family Wordbound"); yield return null;
+                foreach (var size in new[] { new Vector2(1868, 968), new Vector2(900, 580) })
+                {
+                    Page.anchorMin = Page.anchorMax = Vector2.zero; Page.sizeDelta = size;
+                    yield return null; yield return null;
+                    Canvas.ForceUpdateCanvases();
+                    AssertSoloPreview("LostAddress", lost);
+                    AssertSoloPreview("ParcelHall", parcel);
+                }
+                Submit("Solo map ParcelHall"); yield return null;
+                Assert.AreEqual(WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.SelectedMap);
+                Assert.AreEqual("Solo map ParcelHall", EventSystem.current.currentSelectedGameObject.name);
+                AssertSoloPreview("ParcelHall", parcel);
+
+                profile.LostAddressPreview = null;
+                menu.Open(LobbyMenu.Play); yield return null;
+                AssertSoloFallback("LostAddress", "BOX");
+                AssertSoloPreview("ParcelHall", parcel);
+                profile.ParcelHallPreview = null;
+                Assert.DoesNotThrow(profile.Validate);
+                menu.Open(LobbyMenu.Play); yield return null;
+                AssertSoloFallback("LostAddress", "BOX");
+                AssertSoloFallback("ParcelHall", "TABLE");
+                Assert.AreEqual(WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.SelectedMap);
+                Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
+                CollectionAssert.AreEqual(bindings, Session.Bindings);
+            }
+            finally
+            {
+                profile.LostAddressPreview = savedLost; profile.ParcelHallPreview = savedParcel;
+                Object.Destroy(lost); Object.Destroy(parcel); Object.Destroy(texture);
+            }
+        }
+
+        static void AssertSoloPreview(string id, Sprite expected)
+        {
+            var card = Find("Solo map " + id);
+            var image = card.GetComponentsInChildren<Image>().Single(item => item.name == "Map preview");
+            Assert.AreSame(expected, image.sprite);
+            Assert.IsTrue(image.preserveAspect); Assert.IsFalse(image.raycastTarget);
+            Assert.AreEqual(Color.white, image.color);
+            Assert.IsFalse(card.GetComponentsInChildren<RawImage>().Any(item => item.name.StartsWith("Art ")));
+            var title = card.GetComponentsInChildren<TMP_Text>().Single(item => item.name == "Map title");
+            Assert.GreaterOrEqual(InPage(image.rectTransform).yMin, InPage(title.rectTransform).yMax,
+                "Course image stays above the readable title.");
+            var selected = card.GetComponentsInChildren<Transform>().SingleOrDefault(item => item.name == "Selected");
+            if (selected) Assert.Greater(selected.GetSiblingIndex(), image.transform.GetSiblingIndex(),
+                "The image cannot cover the selected mark.");
+        }
+
+        static void AssertSoloFallback(string id, string artId)
+        {
+            var card = Find("Solo map " + id);
+            Assert.IsFalse(card.GetComponentsInChildren<Image>().Any(item => item.name == "Map preview"));
+            Assert.IsTrue(Wreckabulary.UI.ItemArt.TryGet(artId, out var texture, out var uv));
+            var art = card.GetComponentsInChildren<RawImage>().Single(item => item.name == "Art " + artId);
+            Assert.AreSame(texture, art.texture); Assert.AreEqual(uv, art.uvRect);
+        }
+
+        [UnityTest]
         public IEnumerator SoloFamilyPreservesHouseSelectionPartyAndOriginalArtwork()
         {
             var menu = LobbyMenu.Instance;

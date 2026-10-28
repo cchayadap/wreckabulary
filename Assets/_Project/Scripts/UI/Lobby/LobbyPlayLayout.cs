@@ -8,6 +8,11 @@ namespace Wreckabulary
     {
         public const string ResourcePath = "UI/LobbyPlayLayout";
         public LobbyPlayPageView Page;
+        [Header("Solo map previews")]
+        [Tooltip("Actual Lost Address course preview. Leave empty to use the original object artwork.")]
+        public Sprite LostAddressPreview;
+        [Tooltip("Actual Parcel Hall course preview. Leave empty to use the original object artwork.")]
+        public Sprite ParcelHallPreview;
         [Tooltip("Responsive maximum for Wordbound solo and map-creator pages. The full house page keeps its authored anchors.")]
         public Vector2 CompactMaximum = new Vector2(1100, 600);
 

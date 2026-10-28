@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using Wreckabulary.Rules.Wordbound;
@@ -26,6 +27,27 @@ namespace Wreckabulary.EditorTests
         {
             UnityEngine.Object.DestroyImmediate(owner);
             if (Directory.Exists(folder)) Directory.Delete(folder, true);
+        }
+
+        [Test]
+        public void ObjectPickerUsesOriginalArtWithoutAnInjectedProviderAndPreservesOverrides()
+        {
+            var resolve = typeof(WordboundWorkshop).GetMethod("ObjectIcon", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(resolve);
+            var original = Resources.Load<Texture2D>("UI/Items/STOOL");
+            Assert.IsNotNull(original, "The original object artwork must be present in the real project.");
+            Assert.AreSame(original, resolve.Invoke(workshop, new object[] { "STOOL" }));
+            Assert.IsNull(resolve.Invoke(workshop, new object[] { "UNKNOWNOBJECT" }));
+            var custom = new Texture2D(8, 8);
+            try
+            {
+                workshop.AssetIcon = id => id == "STOOL" ? custom : null;
+                Assert.AreSame(custom, resolve.Invoke(workshop, new object[] { "STOOL" }));
+                workshop.AssetIcon = id => null;
+                Assert.AreSame(original, resolve.Invoke(workshop, new object[] { "STOOL" }));
+                Assert.IsTrue(custom, "Borrowed provider art must not be disposed by the picker.");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(custom); }
         }
 
         [Test]

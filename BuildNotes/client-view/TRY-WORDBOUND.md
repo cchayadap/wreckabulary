@@ -1,6 +1,8 @@
 # Try Wreckabulary
 
-Open [Wreckabulary.exe](../../Builds/qa-20261028T170019Z/Wreckabulary.exe). Keep the complete build folder together.
+Open [Wreckabulary.exe](../../Builds/qa-20261028T172247Z/Wreckabulary.exe). Keep the complete build folder together.
+
+This is a technical checkpoint; James has rejected its current visual styling and the next visual pass is active.
 
 This review build includes the full-width Play organization, tighter margins, no Play character, Roboto typography, warm panels and compact Customize choices. Original fonts and previous menu assets are preserved for editing.
 
@@ -11,9 +13,9 @@ This review build includes the full-width Play organization, tighter margins, no
 - **Customize / Shop / Settings:** Roboto text, warm panels, original artwork and real options. Customize brings colour parts, accessories and finish cards together. Settings keeps separate House and Wordbound control legends.
 - **Play → Online:** Wordbound public/private human parties. Complete online acceptance and original-house networking remain unfinished.
 
-Build **20261028T170019Z**, source **587ecf84b6dffded9a01dd03a8572d3687a3fbe3**, Unity **6000.6.4f1**. Windows lobby **5/5**, Solo **4/4**, Workshop **5/5** pass with normal exit; the exact build and **45 actual screenshots** pass the strict evidence audit. These are scripted checks, not complete matches or physical-controller acceptance. Creator sharing retains its **35 rules / 48 Unity** test evidence; actual Share-panel input/layout and restart persistence still need review. All **4,268** authored files remain unchanged after testing.
+Build **20261028T172247Z**, source **74ffae0359766d04d1632728f5da0a7f72457887**, Unity **6000.6.4f1**. Windows lobby **5/5**, Solo **4/4**, Workshop **5/5** pass with normal exit; the exact build and **45 actual screenshots** pass the strict evidence audit. These are scripted checks, not complete matches or physical-controller acceptance. Creator sharing retains its **35 rules / 48 Unity** test evidence; actual Share-panel input/layout and restart persistence still need review. All **4,268** authored files remain unchanged after testing.
 
-[Preferred before / new gallery](../play-organization-20261029/review/REVIEW.html) · [Full progress](../../progress.md) · [Editing guide](../../docs/wordbound/LOBBY-EDITING-GUIDE.md).
+[Earlier170019 comparison — rejected style](../play-organization-20261029/review/REVIEW.html) · [Full progress](../../progress.md) · [Editing guide](../../docs/wordbound/LOBBY-EDITING-GUIDE.md).
 
 For Unity editing, open **Wreckabulary → Open Current Workspace → Design**. Home, Play, Settings, Shop and Loadout have saved frames; use the matching Scenes preview after saving outside Play. Room appearance and the Parcel Hall course copy have Inspector assets. Inner cards/settings rows and some layouts remain generated; editing the course copy does not replace the packaged/public course automatically.
 

@@ -183,6 +183,7 @@ namespace Wreckabulary.Workshop
             if (panel != null && styleGeneration == ui.Generation) return;
             styleGeneration = ui.Generation;
             panel = ui.Panel; heading = ui.Heading;
+            objectTileName = null;
             viewLabel = importantViewLabel = recoveryText = null;
             normalBox = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.MiddleCenter, wordWrap = true };
             selectedBox = new GUIStyle(normalBox); selectedBox.normal.textColor = ui.Ink;

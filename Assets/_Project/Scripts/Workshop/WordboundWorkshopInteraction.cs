@@ -27,6 +27,7 @@ namespace Wreckabulary.Workshop
         public Func<string, Transform, GameObject> SpawnAssetVisual { get; set; }
         public Func<string, Texture> AssetIcon { get; set; }
         string assetSearch = "";
+        GUIStyle objectTileName;
         CourseZone SelectedFixed => display?.Zones.FirstOrDefault(item => item.Id == zoneId && item.Placement == "Fixed" &&
             History.Current.Selection.Contains(item.ModuleId));
         bool CanShowHandles => !History.Current.HiddenLayers.Contains(History.Current.ActiveLayer) &&
@@ -484,7 +485,7 @@ namespace Wreckabulary.Workshop
         void FixedInspector()
         {
             var zone = SelectedFixed;
-            GUILayout.Label("Object · " + zone.Pool[0].AssetId, heading);
+            GUILayout.Label(ObjectLabel(zone.Pool[0].AssetId), heading);
             GUILayout.BeginHorizontal();
             if (Button("Rotate object")) Attempt(RotateSelection);
             if (Button("Duplicate object")) DuplicateSelection();
@@ -509,10 +510,7 @@ namespace Wreckabulary.Workshop
                 string id = assets[i];
                 var entries = pool.Split(',').Select(entry => entry.Trim()).Where(entry => entry.Length > 0).ToList();
                 bool included = entries.Any(entry => entry.Split(':')[0].Trim() == id);
-                var icon = AssetIcon?.Invoke(id);
-                var label = new GUIContent((included ? "✓ " : "") + id, icon, "Select " + id);
-                GUI.SetNextControlName("Choose " + id);
-                if (GUILayout.Button(label, GUILayout.MinHeight(icon ? 54 : 28)))
+                if (PlacementAssetButton(id, included))
                 {
                     if (zoneMode != 2) pool = id;
                     else
@@ -525,7 +523,30 @@ namespace Wreckabulary.Workshop
                 if (i % 2 == 1 || i == assets.Length - 1) GUILayout.EndHorizontal();
             }
             if (zoneMode == 2) PoolWeightRows();
-            else GUILayout.Label("Selected: " + pool.Split(',')[0].Split(':')[0]);
+            else GUILayout.Label("Selected: " + ObjectLabel(pool.Split(',')[0].Split(':')[0]));
+        }
+
+        Texture ObjectIcon(string id) => AssetIcon?.Invoke(id) ?? UI.OriginalItemArt.Find(id);
+
+        static string ObjectLabel(string id) => string.IsNullOrEmpty(id) ? "Object" :
+            CultureInfo.InvariantCulture.TextInfo.ToTitleCase(id.ToLowerInvariant().Replace('_', ' '));
+
+        bool PlacementAssetButton(string id, bool included)
+        {
+            var icon = ObjectIcon(id);
+            string name = ObjectLabel(id), caption = (included ? "✓ " : "") + name;
+            GUI.SetNextControlName("Choose " + id);
+            if (!icon) return ui.Button(new GUIContent(caption, "Select " + name), included ? ui.Selected : null,
+                GUILayout.MinHeight(ui.RowHeight), GUILayout.ExpandWidth(true));
+            bool clicked = ui.Button(new GUIContent("", "Select " + name), included ? ui.Selected : null,
+                GUILayout.Height(102), GUILayout.ExpandWidth(true));
+            if (Event.current.type != EventType.Repaint) return clicked;
+            var tile = GUILayoutUtility.GetLastRect();
+            var picture = new Rect(tile.x + 8, tile.y + 6, Mathf.Max(1, tile.width - 16), 64);
+            GUI.DrawTexture(picture, icon, ScaleMode.ScaleToFit, true);
+            objectTileName ??= new GUIStyle(ui.SingleLine) { alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Clip };
+            GUI.Label(new Rect(tile.x + 4, tile.yMax - 28, Mathf.Max(1, tile.width - 8), 24), caption, objectTileName);
+            return clicked;
         }
     }
 }

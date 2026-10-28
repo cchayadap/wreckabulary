@@ -17,6 +17,7 @@ namespace Wreckabulary
         public bool WordboundSolo;
         public bool WordboundMaps;
         LobbyPlayPageView authoredFrame;
+        LobbyPlayLayout playLayout;
         RectTransform framePanel;
         public override LobbyStage.Focus Focus => LobbyStage.Focus.Centre;
         public override float PanelWidth => framePanel && framePanel.rect.width > 0 ? framePanel.rect.width : base.PanelWidth;
@@ -39,6 +40,7 @@ namespace Wreckabulary
         {
             authoredFrame = null; framePanel = null;
             var saved = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
+            playLayout = saved;
             RectTransform body;
             if (saved)
             {
@@ -315,8 +317,24 @@ namespace Wreckabulary
             var card = MapCard(parent, name, colour, WordboundSoloEntry.SelectedMap == id, () => {
                 WordboundSoloEntry.SelectMap(id); Refresh(); Reselect(name);
             });
-            var art = LobbyKit.ItemImage(card.Body(), artId, 184);
-            if (art) art.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -18), new Vector2(184, 184));
+            var preview = !playLayout ? null : id switch
+            {
+                WordboundSoloEntry.LostAddressMap => playLayout.LostAddressPreview,
+                WordboundSoloEntry.ParcelHallMap => playLayout.ParcelHallPreview,
+                _ => null,
+            };
+            if (preview)
+            {
+                var art = LobbyKit.Rect(card.Body(), "Map preview").Place(Vector2.zero, Vector2.one,
+                    new Vector2(18, 88), new Vector2(-18, -18)).gameObject.AddComponent<Image>();
+                art.sprite = preview; art.preserveAspect = true; art.color = Color.white; art.raycastTarget = false;
+                art.transform.SetAsFirstSibling();
+            }
+            else
+            {
+                var art = LobbyKit.ItemImage(card.Body(), artId, 184);
+                if (art) art.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -18), new Vector2(184, 184));
+            }
             MapWords(card.Body(), title, detail);
         }
 

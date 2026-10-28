@@ -1,0 +1,2865 @@
+{
+  "schema": 2,
+  "utc": "2026-10-28T17:31:16.685Z",
+  "status": "BOUNDED_LOBBY_SOLO_WORKSHOP_WINDOWS_PASS",
+  "build": {
+    "schema": 1,
+    "id": "20261028T172247Z",
+    "kind": "release-qa",
+    "dir": "Builds/qa-20261028T172247Z",
+    "exe": "Wreckabulary.exe",
+    "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "utc": "2026-10-28T17:23:45Z",
+    "development": false,
+    "unity_version": "6000.6.4f1",
+    "head": "74ffae0359766d04d1632728f5da0a7f72457887",
+    "tree": "ad1392078f39dd592e0d2559cdedd95c5e0580fcfb9873d90a9d33994048bf1a",
+    "secs": 58.5,
+    "ok": true
+  },
+  "source": {
+    "commit": "74ffae0359766d04d1632728f5da0a7f72457887",
+    "currentHead": "74ffae0359766d04d1632728f5da0a7f72457887",
+    "productionRoots": [
+      "Assets",
+      "Packages",
+      "ProjectSettings"
+    ],
+    "productionDiffEmpty": true,
+    "untrackedNonIgnoredProductionEmpty": true,
+    "scope": "Tracked Git diff and non-ignored untracked files only. Ignored production inputs are excluded. build.tree is a path/size/mtime metadata freshness fingerprint, not a content hash."
+  },
+  "verifier": {
+    "path": "BuildNotes/redesign-20261028/windows-audit/verify-windows-delivery.mjs",
+    "bytes": 34574,
+    "sha256": "afed11651f6f9c142d7fbbd60b3337c3714453ec20cb6628e4ec0244eae72343"
+  },
+  "buildReceipt": {
+    "path": "Builds/qa-20261028T172247Z/build.json",
+    "bytes": 450,
+    "sha256": "1e66bd588c6d20b2feef855a19cbf28dcc2430f2c6e396fcfbbebc77e30c806e"
+  },
+  "buildGate": {
+    "path": ".harness/delivery/workspace-windowsbuild-2026-10-28T17-22-47-063Z-stdout.txt",
+    "bytes": 754,
+    "sha256": "17367710a0bd30e570689f0055cade44f7358e3a629b9a4f8ac808be4b409da8"
+  },
+  "buildGateResult": {
+    "cmd": "build --profile release-qa",
+    "rung": "R4",
+    "ok": true,
+    "exit": 0,
+    "verdict": "PASS",
+    "utc": "2026-10-28T17:22:47Z",
+    "secs": 58.9,
+    "route": "cold",
+    "errors": [],
+    "failures": [],
+    "log": "Logs/gate_build_release-qa_20261028T172247Z.log",
+    "evidence": [
+      "Builds/qa-20261028T172247Z/build.json",
+      "Builds/qa-20261028T172247Z/packed_assets.json"
+    ],
+    "infra": null,
+    "slot": null,
+    "build": {
+      "schema": 1,
+      "id": "20261028T172247Z",
+      "kind": "release-qa",
+      "dir": "Builds/qa-20261028T172247Z",
+      "exe": "Wreckabulary.exe",
+      "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+      "utc": "2026-10-28T17:23:45Z",
+      "development": false,
+      "unity_version": "6000.6.4f1",
+      "head": "74ffae0359766d04d1632728f5da0a7f72457887",
+      "tree": "ad1392078f39dd592e0d2559cdedd95c5e0580fcfb9873d90a9d33994048bf1a",
+      "secs": 58.5,
+      "ok": true
+    }
+  },
+  "buildLog": {
+    "path": "Logs/gate_build_release-qa_20261028T172247Z.log",
+    "bytes": 959000,
+    "sha256": "aa49b827a6eace31f79fbd461c8c74f6f0b05a082b9978edd06988a895d32839"
+  },
+  "executable": {
+    "path": "Builds/qa-20261028T172247Z/Wreckabulary.exe",
+    "bytes": 667136,
+    "sha256": "91a36fa14dd3ccf390b99720805eda0553da1ca1108381b49c98c938f69dc256"
+  },
+  "packedManifest": {
+    "path": "Builds/qa-20261028T172247Z/packed_assets.json",
+    "bytes": 6415085,
+    "sha256": "a4d324dfb00b2d51b642ce3b65c6c652334a5ddc6b56a01cfef9aa10dc641354"
+  },
+  "buildArtifacts": [
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/globalgamemanagers",
+      "bytes": 985348,
+      "sha256": "3cdd5dae27b10304f116296e9e0eb09ba714a1ed11ba14690f7031f534b02e73"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/globalgamemanagers.assets",
+      "bytes": 1471080,
+      "sha256": "d02939cf222d0e8d37d63287a6081125107ee17670ab68d7e6e83d24c4706fa9"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/globalgamemanagers.assets.resS",
+      "bytes": 3553504,
+      "sha256": "d39bc2dc060377debd226e7a96002e7d9a37f7dd6a2aeaa324b085972564d143"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/level0",
+      "bytes": 89488,
+      "sha256": "36fadec6825fc18c24bf5a2c6805ddba06a6899f009cecf6a5e14e0bab02e5de"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/level0.resS",
+      "bytes": 10560,
+      "sha256": "fa35251f187d1686a2caf9b50c968eb5b402a82caf85fbe0590ee048c5d455ed"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/level1",
+      "bytes": 315696,
+      "sha256": "363ad094c177387b4cb74175fc122429a4c52ae31362e9cfb54b52945ba26f1e"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/level2",
+      "bytes": 42816,
+      "sha256": "c3f556ef33052c5b16d5fbc62e1d7bf34af2da7c72548e02851d1e5331dd7959"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/level2.resS",
+      "bytes": 7680,
+      "sha256": "0f77678d3d6396dc9abe8c93157bd1f312120a72b4fa17391d238a291752935d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/level3",
+      "bytes": 315856,
+      "sha256": "5ee12942ea777a631096e3ccc5e7b694b4d78033ce6aec0908947b68f9b11536"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/level4",
+      "bytes": 1720,
+      "sha256": "3643d8f7c7720f7a378c3c8f8faddcd0c937da0474871878d98f73dbcb3001e4"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/level5",
+      "bytes": 1324,
+      "sha256": "654c1402069bc51a010014c2532e79547b8df011e577c2811694aeebd28fc501"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/resources.assets",
+      "bytes": 85905028,
+      "sha256": "4c9e4e64b2d5ff71c7cd0614a4ed7146968cd9ab35fcd3dc06c8fae2b571b84d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/resources.assets.resS",
+      "bytes": 43548960,
+      "sha256": "2436ecb699c7389aaf341c7a895b3e62ce91a42cbc5c39f3af86ee97f334815b"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/resources.resource",
+      "bytes": 147168,
+      "sha256": "a0c3d998a4db0d5a2900662f6743ca09caaf5246c04afb0f170e25b233f1407c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Resources/unity_builtin_extra",
+      "bytes": 545300,
+      "sha256": "a1e6dc8fe26069cdd2830aa3dfebc627059ebba41921692ede5180ad75bd5512"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/RuntimeInitializeOnLoads.json",
+      "bytes": 14452,
+      "sha256": "e139a5458ecd725f7e483a2d9980b3426666054d35364dd29482f63f9c9fd5db"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/ScriptingAssemblies.json",
+      "bytes": 5485,
+      "sha256": "7dcc90ac92f8599337e3b5f1092ead947e2620aa13c7b6041f92feea45b4bf21"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/sharedassets0.assets",
+      "bytes": 16761096,
+      "sha256": "1795bc85f2c9e241c0b9a2531d66425a2ac7fd4f84e9d2ae5ca3b031183f74e8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/sharedassets0.assets.resS",
+      "bytes": 6570672,
+      "sha256": "e0ed7d0bae81e5499c299a2dc5696d47842071cc7996b9ede0ae6642bd75ca1b"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/sharedassets1.assets",
+      "bytes": 7617,
+      "sha256": "ad5a921d35f37a304ca52dd684dd13c81fa7eb4cc99e3de431060eb6fd47bc8f"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/sharedassets2.assets",
+      "bytes": 51328,
+      "sha256": "836bcc1a54a9cd9daffc0ccf5ba4b3f82de3eadfbdda96d4b5df55d553846d88"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/sharedassets3.assets",
+      "bytes": 7605,
+      "sha256": "79727196d53b526f0093a92d4bad44e2e8e9dd3c22e2e1dd2686290cd89e7342"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/sharedassets4.assets",
+      "bytes": 1137,
+      "sha256": "382ce16a120c4b943a22ef96220e6455391ddc9bd69da39ef3e1f846577396ed"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/sharedassets5.assets",
+      "bytes": 301,
+      "sha256": "27dc6718609ea2a3cd8032e5f83045dfa9e89e5e2e25cad4712b74b120897b94"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/boot.config",
+      "bytes": 156,
+      "sha256": "2734b71b00e4f44a0afc26a71f1c10104268809c9a04c4f4f9e005937979d487"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/StreamingAssets/ThirdParty/Roboto/OFL.txt",
+      "bytes": 4394,
+      "sha256": "061402327a96aadb0bfb694a960ed289ecd38d383e396243831ab81feb109c41"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Plugins/x86_64/nanosockets.dll",
+      "bytes": 96768,
+      "sha256": "037985bd36c9b6984e8680e9f508491a7056f010bdb7207e32f07aa149eaaf00"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Fusion.Addons.Physics.dll",
+      "bytes": 15872,
+      "sha256": "a1bd964ec412fb7eb050525e02bd7d6c3d9ec70dd95200bcffc68bc1ac5ef2e8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Fusion.Common.dll",
+      "bytes": 172032,
+      "sha256": "3a3549688200f6b72177cd3cc9484af61498b0a4019e39babc098410e1659053"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Fusion.Log.dll",
+      "bytes": 39424,
+      "sha256": "2e5d2bf813908d311bbf6159983d020511aceb1e249203ed50eb1960e96095d0"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Fusion.Realtime.dll",
+      "bytes": 19968,
+      "sha256": "bbfb85556241f63d9a3052459c075ad2cc5a56098a16d571432bb13e5b36ad63"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Fusion.Runtime.dll",
+      "bytes": 967680,
+      "sha256": "d213b95e4694c167f5f6faffcbd75ca1e47f19a9249c91a4964f8342fac9b560"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Fusion.Sockets.dll",
+      "bytes": 181248,
+      "sha256": "ba2bba96e7b1bb93249634e1fcf13657f38d05589882ad968df8322a846d070b"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Fusion.Unity.dll",
+      "bytes": 450560,
+      "sha256": "27d80522e2a6af2a9675ffbb6514e53feb214a09b7a27a860164135d0f73ae37"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/GameStudioKit.Determinism.dll",
+      "bytes": 6656,
+      "sha256": "f8fbeaab6f51d26a56977f483335187ded2504a02a187441133506d74cc5999f"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/GameStudioKit.Runtime.dll",
+      "bytes": 157696,
+      "sha256": "29ff02e44331251c12f4313e188750034984c461988690835a35f4168c05f98c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Mono.Security.dll",
+      "bytes": 241152,
+      "sha256": "a7128a85c5ce748cfcc64be97b7fab4119f4636c917a0303bfa2582f86282ed8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/mscorlib.dll",
+      "bytes": 4632064,
+      "sha256": "acbfa8295da5b5e5a2c68c7b2dbc9cd7a5829c0ae031af22be4f6a49fd626f8f"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/NanoSockets.dll",
+      "bytes": 8192,
+      "sha256": "22b6b68d81c58d0d41e45d0011896ff62bfca0ff9c508f0d2872a215119e4091"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/netstandard.dll",
+      "bytes": 90112,
+      "sha256": "6ae62e082dc494a2433984177f60ca4db5fae69b1f360a8b33754172b310b8c5"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Newtonsoft.Json.dll",
+      "bytes": 691712,
+      "sha256": "a56146202232958f46bd6a28b5a7da166aea123ee0d646735a46e5c341dfbf1f"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Photon.Realtime.dll",
+      "bytes": 146432,
+      "sha256": "32f66f6b2d663ae3a85a92d50ecddcec538a5e9f17898f8b90565bea94e90bf4"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/PhotonClient.dll",
+      "bytes": 218624,
+      "sha256": "afa745d8d5f085e2259e172bf68964528c8a8478e5adfea92fa9c39635179426"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Buffers.dll",
+      "bytes": 4608,
+      "sha256": "762f8fdbe975e05b76be5fe996c53ce7c75e4a2830f2f50b02a5948ef6ba0aeb"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Collections.Immutable.dll",
+      "bytes": 252680,
+      "sha256": "5b1b1c83ba3d135c2fdfe425842fbe9c7432878b7e468623acb554c69b4c130f"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.ComponentModel.Composition.dll",
+      "bytes": 257024,
+      "sha256": "d949bd6214c26b38a190e66fe976038e3845aea6c6980d3eb58e78b75edf98a5"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Configuration.dll",
+      "bytes": 124928,
+      "sha256": "7170a8fa3363a8ebd59e8b9931509f595df009f11e1885707a3c3bc0a3ff5648"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Core.dll",
+      "bytes": 1113088,
+      "sha256": "15081eac9f71fd7817a7d42a963651c89c666a4c21499f2076fb3ab7aacd9b9a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Data.DataSetExtensions.dll",
+      "bytes": 29696,
+      "sha256": "da75ceebbef879968aaa721090df162e7a6fe1c7ba32f4bb5d05523385c53e8c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Data.dll",
+      "bytes": 2125312,
+      "sha256": "557bd378caa400c4de52bd73225a948f1a1e41586c52e307aaa042f77b33d648"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.dll",
+      "bytes": 2641920,
+      "sha256": "0c49d192fc91f2eade9c12c3960d8b90161560507d96ebcc9d878a2390a2cac6"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Drawing.dll",
+      "bytes": 489984,
+      "sha256": "1657e6eb247364cd232fc6c80df1ab6804732b6644639f18c80e48af1174fd63"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.EnterpriseServices.dll",
+      "bytes": 44544,
+      "sha256": "7fcc7078f244ab3a5e8549a8acd2905b71aa8a31dda917ab60817c5b13924d64"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.IO.Compression.dll",
+      "bytes": 114688,
+      "sha256": "35242ddc40f673d10767e3ab3381718864170cffbc710501374e911df700fda0"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.IO.Compression.FileSystem.dll",
+      "bytes": 18432,
+      "sha256": "e7f2784c57088326f8de52a79426102a2250c2f31922030e9fed0cb64740e242"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Memory.dll",
+      "bytes": 4608,
+      "sha256": "c4f030a2cba7da7cdcf493257c24560e203d355904aee490d645a935842f834a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Net.Http.dll",
+      "bytes": 122880,
+      "sha256": "a6227de2834bc7019a10e69a7ca0bb0908d5092b8bc279ed428b27ecf583a681"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Numerics.dll",
+      "bytes": 119296,
+      "sha256": "711616207139cfbf471f4f344a32ade842077314f03c19a0846a98ecace3fc5d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Reflection.Metadata.dll",
+      "bytes": 487584,
+      "sha256": "afcfd6c166fe0d59f45cc6363082806f6a7ea8ceed9dc6c75eec9fd79ccb5717"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Runtime.CompilerServices.Unsafe.dll",
+      "bytes": 19256,
+      "sha256": "fd67abc4c4af10affbcd42fd68a2a7bc361b26714afe6965d4d0d139459d8297"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Runtime.Serialization.dll",
+      "bytes": 934400,
+      "sha256": "aa96283b3009b39c4ed8dfcde146b0e0bcafa09f9be24a959d0c16dd6f54ae8a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Security.dll",
+      "bytes": 320000,
+      "sha256": "21c2cc73f1cecc8b5bfc42171a22412dfd8e04ac42978de90c00ecb507583d62"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.ServiceModel.Internals.dll",
+      "bytes": 215040,
+      "sha256": "c90168f6f28b2355c6c11d38ee39fa18f44ea839c877ccce8934bee50e7fb479"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Transactions.dll",
+      "bytes": 35328,
+      "sha256": "e5ff61cc9163810aa4c1fd9a00e929070e6733eca6d6669b7ece5169ec3739ef"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Xml.dll",
+      "bytes": 3160064,
+      "sha256": "ee620f038a3a2589a118f0e7a030fe398b082015fbf83ac1474fb55b521d0bd7"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/System.Xml.Linq.dll",
+      "bytes": 136704,
+      "sha256": "638f8c5f44aab1fd5755fdf2873683f3ca0f0fb0a3aaecfdbf1d2c2280c5983e"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.AI.MCP.Runtime.dll",
+      "bytes": 9728,
+      "sha256": "3cf9b0913e40f3d539a4cef322fc3d1553dd309de58043e140cf708952ca6340"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.AI.Navigation.dll",
+      "bytes": 23040,
+      "sha256": "155d3a4b55956838ecb06cc1500ea8e625fa71d0f87488709128d805b8620784"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.AI.Tracing.dll",
+      "bytes": 28160,
+      "sha256": "a7592bd240be8b7d9137dbd7d3f628f372468af8b188b3df1e2027415e426807"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Burst.dll",
+      "bytes": 5120,
+      "sha256": "4b64e3850ec398e33833959491d91693b5f09323d472b8b09788dc3afb2b5b86"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Collections.dll",
+      "bytes": 442368,
+      "sha256": "ceb52e3eec14cf115719e3ec14948332a27dd2a99e69d2c3623f6637cd211fb8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Collections.LowLevel.ILSupport.dll",
+      "bytes": 5120,
+      "sha256": "ff50383f807f9692e4913b97e47d86fefcb8faa33d6d48cd3e3fd6fc7ffb448d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Collections.Tests.CoreCLR.InternalJobNestedPrivate.dll",
+      "bytes": 4608,
+      "sha256": "ba3346f61f2f0b82df4d88bb912b949b519b0e12dbf25d5d56b38535465c71ff"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Collections.Tests.CoreCLR.PrivateJobNested.dll",
+      "bytes": 4096,
+      "sha256": "7ed5842605fb8c58a5a52183f5eb0af6eb90355f9ef36da365957208619cf02e"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Collections.Tests.CoreCLR.ProtectedJobNested.dll",
+      "bytes": 4096,
+      "sha256": "d6a36bc52cd88cdb5827498b3092cc01ab8eec10ae92f12e7fbf1f470d8d4c1a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Collections.Tests.CoreCLR.PublicJobPrivateGeneric.dll",
+      "bytes": 4608,
+      "sha256": "0221fb162211a21d392bae9113493c31296cb84d34980f9bde0d0600130a0072"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.InputSystem.dll",
+      "bytes": 1089024,
+      "sha256": "9f0bfb9783e829d2ae25143da2990a63ea9bf276844f08ea3adf15bf8aacdfb7"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.InputSystem.ForUI.dll",
+      "bytes": 15360,
+      "sha256": "eaaa16245d019abf37996915d00e3e09fa9cf6834bfd8032bacac41204579aed"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.InternalAPIEngineBridge.004.dll",
+      "bytes": 4096,
+      "sha256": "602d7c594b30d7d939fa5d61a880eb01cc7a72cf76139ef8a43018145d173960"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.dll",
+      "bytes": 5632,
+      "sha256": "582b69d4447a020247f7e6de4313e79b0d7c5b5b6a9f5d84e77b1f0c3eea90e4"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.dll",
+      "bytes": 3584,
+      "sha256": "d24b05888f24b332e648f7bd189fa40a1a9a6b8da849354195bc4b806c15d0ea"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Mathematics.dll",
+      "bytes": 5632,
+      "sha256": "266f53c7027214887e1e3f48d5e6a89c2dc9fa1337b76389bcb813a7ef8da7f6"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.PathTracing.Runtime.dll",
+      "bytes": 152576,
+      "sha256": "168329e8c6686c783d1126b2cc207a27311fa04cc548c3b8ae1dbb2f510943c3"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Profiling.Core.dll",
+      "bytes": 8192,
+      "sha256": "b226f7b6a8272b82836152f401f1d00cc262893d52fb0d2953c68473ca2b1c50"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipeline.Universal.ShaderLibrary.dll",
+      "bytes": 7680,
+      "sha256": "549147fe2ced22ad30e6497e197ac4d64666d9bb80508bff2b7ebc008720c021"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.Core.Runtime.dll",
+      "bytes": 1075200,
+      "sha256": "82fa8ff7abf5c3be16375708678a2dfb57bb881ed23a809afa876f5dcd5371ff"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.Core.Runtime.Shared.dll",
+      "bytes": 11264,
+      "sha256": "7e21b4e92b3cdc4830c4f47d9558676232bb8031b0567e4bd549c9cde2233d9a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.Core.ShaderLibrary.dll",
+      "bytes": 3584,
+      "sha256": "be24d968929f0675f6e69f23ac5037cc04755e5140fa7702c5797cb8f2b93c82"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.GPUDriven.Runtime.dll",
+      "bytes": 274944,
+      "sha256": "239f9ce0504bd7cfca3701ea56520ab8127b8d0fc2348503b8dda99de5c84599"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll",
+      "bytes": 3584,
+      "sha256": "9619589111ee25ee74d18a8726213254e68a3472f417b50b60adc840246943cc"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.Universal.2D.Runtime.dll",
+      "bytes": 214528,
+      "sha256": "ca221955a5b640481fbdb5103bb440d5126c387d2cb1a6db44a4b79b9283cb1e"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.Universal.Config.Runtime.dll",
+      "bytes": 4096,
+      "sha256": "dc1a1e272d8a951926ccfa65189df66cc0d771a679c427b061962ab20d00c329"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.Universal.Runtime.dll",
+      "bytes": 735232,
+      "sha256": "61809794b47d62588876d4bbb04b7907cf8b529d7b86a3d35401caa416bf27a5"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.RenderPipelines.Universal.Shaders.dll",
+      "bytes": 3584,
+      "sha256": "1f26450e5abe55d25d7452c2a660c0cf4c8b39f463dece0dac7cc68b884386e7"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Scripting.dll",
+      "bytes": 70576,
+      "sha256": "8c4747bcf30dc12f2f1dedd4728573d91d3542c381453e00665eabfca029d1e1"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.SurfaceCache.Runtime.dll",
+      "bytes": 35840,
+      "sha256": "6c5c2fbf5051ead92296a4a7e63a924d783baf2194cb94c2359cf0ef55b839e8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.TextMeshPro.dll",
+      "bytes": 438784,
+      "sha256": "48482420bee568aeb05ca7e188f12d292476d4cbee82185da9dd019059b9d9fc"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.Timeline.dll",
+      "bytes": 120832,
+      "sha256": "8b5d2ef397d103a050abdcc9adba65d6200ac66997945f1170e8d38152d0b750"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Unity.UnifiedRayTracing.Runtime.dll",
+      "bytes": 101376,
+      "sha256": "55dcea192147fcce99c46125833c69f9086f33549c8592b1030924d2d168efe6"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.AccessibilityModule.dll",
+      "bytes": 49576,
+      "sha256": "7974715559c4536fd5f0883a71623ae20fa1550592cfe0fd18f77c2c49e4ffa8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.AdaptivePerformanceModule.dll",
+      "bytes": 122288,
+      "sha256": "df46619985dda3a39e7e21c6f2a5b341ac67cf4c6fd87668aed464d5d36044e5"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.AIModule.dll",
+      "bytes": 87472,
+      "sha256": "5cebf3778d34d156c48a43f2d672059ff6d469009648a21de00eeee6a8f1cb5c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.AMDModule.dll",
+      "bytes": 21928,
+      "sha256": "ed9d62ed0d4ba6533e44d79a16527421388c802c7dd07f97a7faac75f8eccfe0"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.AndroidJNIModule.dll",
+      "bytes": 121264,
+      "sha256": "ec1d36e4d45608cf0061bc57b8bbe5e594501933d72a0f4adaf2de50d5dd71af"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.AnimationModule.dll",
+      "bytes": 218032,
+      "sha256": "7c37d3c57d9da1f084664545196e4ba54f73bfeeae74d0b87034727a5c29c4d1"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ARModule.dll",
+      "bytes": 27568,
+      "sha256": "05fb5556a550b5783178baa3be175ebb3675049bafe9a50d8fa4f04b77fbd8c1"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.AssetBundleModule.dll",
+      "bytes": 42928,
+      "sha256": "4e40fceb13ad014375fa927a9ca5048f3a9a4aa248601350038735da2912a73f"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.AudioModule.dll",
+      "bytes": 142248,
+      "sha256": "59080227ddaa590fbaa77fdc191ba914a3fd5c5033e5c38bb071b756ce4a46a6"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.BurstModule.dll",
+      "bytes": 337840,
+      "sha256": "d03a0a9d816b65faa65948b7e8cfe700393512b598c60cc47e4252d02d63871d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ClothModule.dll",
+      "bytes": 38320,
+      "sha256": "8bc82f0f0f44291af701f139f90e10d0c7f0c6d31c82e116b4206b1c93d55e9c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ClusterInputModule.dll",
+      "bytes": 30128,
+      "sha256": "4b5187ab5a2da07d6db5b94798b0ec5489eb021ceb46a114c29fa85d405bc565"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ClusterRendererModule.dll",
+      "bytes": 28584,
+      "sha256": "4fd18dab7973711121af0f7807dcf868f89d92faa098fa82189ba5c6870dd9e9"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ContentLoadModule.dll",
+      "bytes": 56240,
+      "sha256": "de8cc68386c64ed0d8dfd537113a8dc619dc175aefabf20089776f85f8d471f7"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.CoreModule.dll",
+      "bytes": 2030504,
+      "sha256": "cd9b944eeec81dcb41296fa1b897a469a232eca30cf5fe105428bddcf7f8e79a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.CrashReportingModule.dll",
+      "bytes": 28592,
+      "sha256": "9fcfa6ab5730d03c6ed80d214967ac11899b30cdd4c16bf42072f7edd9938117"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.DirectorModule.dll",
+      "bytes": 42928,
+      "sha256": "de6c9529e233cc13a0c27c3b6b96e54de8b27ce6610c087bc0f0ad6d6c21e567"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.dll",
+      "bytes": 225704,
+      "sha256": "bec3a8aa71e5ae01ae325a83fdd8d9f7994c3b598def4ced1a72b1f4734ef661"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.DSPGraphModule.dll",
+      "bytes": 33712,
+      "sha256": "9577911c07010dd1acb3c5a28a7cb83c7eabee03f8393aef0e5060fa8cffffb2"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.GameCenterModule.dll",
+      "bytes": 46512,
+      "sha256": "a4d59b79f9415a17feeb22220e1e8e47d37070ce18ee65a6ea2aa460aed20e8c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.GIModule.dll",
+      "bytes": 26032,
+      "sha256": "c6935ff113aef523f5b4c974fe91a37bcbba3948ceea68d3a75205fe00a6bd66"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.GraphicsStateCollectionSerializerModule.dll",
+      "bytes": 14256,
+      "sha256": "58e840b92ccb052a0ace6e329d6afb28afec15b0255c7b5938ca3f04b50864f1"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.GridModule.dll",
+      "bytes": 32688,
+      "sha256": "b1dd2179f1497edbf86b55f2ded47111f86bf0b1c8bf8660aa022c4631a10247"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.HierarchyCoreModule.dll",
+      "bytes": 113584,
+      "sha256": "bddcca3f57793bf602dd9a5cbfec0737758c0029f2c2c465b6d41d62a3dde814"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.HierarchyModule.dll",
+      "bytes": 114600,
+      "sha256": "e1282e96be9a5ef28cd30c3b4c25a61c4c3853852ea7f51e3e0ce275bae7d13c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.HotReloadModule.dll",
+      "bytes": 26024,
+      "sha256": "0cf0629004df5656c34e56df85a30d83b259a5d9ce521c6abab11941709d8492"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.IdentifiersModule.dll",
+      "bytes": 16816,
+      "sha256": "1965201a08f7cda99eff2d25967898877fc58ce59a940849f9aeae9634673c39"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ImageConversionModule.dll",
+      "bytes": 34216,
+      "sha256": "e704b711049a7b84e5c299a1869eaded0f51f7a515f96086497fef58c2f353b0"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.IMGUIModule.dll",
+      "bytes": 190896,
+      "sha256": "b513f3f9238b46527b5edf22db3becff8644dc763b0f0b2cda1913cff97d043c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.InputForUIModule.dll",
+      "bytes": 56744,
+      "sha256": "a5618c460d331557776e6f32f57ce5ddfbc3ba2c76a2cd68164e058dc80554a4"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.InputLegacyModule.dll",
+      "bytes": 42928,
+      "sha256": "c2e499d54e1c6214c721569f97e3783dd75380b46757e0df214d5c1a0e60a879"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.InputModule.dll",
+      "bytes": 32688,
+      "sha256": "5733b1fa56a53ac7540259abef65d731b96ea052be819e4cde4d4bd4bde78822"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.InsightsModule.dll",
+      "bytes": 15784,
+      "sha256": "85c904a566b01f02f81984090dda8828ca6e9548b1a85a69e00fa43862540206"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.JSONSerializeModule.dll",
+      "bytes": 29104,
+      "sha256": "bfc7332c15f222049b1e08ea9d04436473565ff452e8a917b7e7f2dc8b5d4410"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.LocalizationModule.dll",
+      "bytes": 29104,
+      "sha256": "9be10e6ad2b7eb9e4b2bf3b5e3eb3b5b2fd482db3d44103e4e5ffc7c79827a13"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ManagedKernelModule.dll",
+      "bytes": 14248,
+      "sha256": "9709ff4c584f6e8951b6be4cc1be4a286e0e7ac1c2eca2414d9fcb95eb4ce804"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.MarshallingModule.dll",
+      "bytes": 100776,
+      "sha256": "a8a5a7966d2e12de7925ce0589123c128466acbdff58eb80fc785eee4e7a3372"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.MathematicsModule.dll",
+      "bytes": 740784,
+      "sha256": "c8fe32822348e811de772d671af7c86dec2dc9a334314039af8ffcfed350e624"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.MultiplayerModule.dll",
+      "bytes": 18352,
+      "sha256": "c122e97c0e0cc8f3cc82aa54bc75121f7179f12e543dc1d051a2140f85aca390"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.NVIDIAModule.dll",
+      "bytes": 41384,
+      "sha256": "40a3977a6e6393d92e849908e904f67bd714ba8e6615bc452f8997c41087f5b1"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ParticleSystemModule.dll",
+      "bytes": 169392,
+      "sha256": "15002826788a11fbcc0021010c828e0c356b338cbedd57a5e587971b8390c486"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.PerformanceReportingModule.dll",
+      "bytes": 27048,
+      "sha256": "c10f0f6956cb83798c86025b43b0411b1fb28caa4999c7111823ea2a681920d1"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.Physics2DModule.dll",
+      "bytes": 222632,
+      "sha256": "9276f44fae7093d21f5e821733b64e90fb4c3025940fec55a6d7120609beb3ca"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.PhysicsBackendPhysXModule.dll",
+      "bytes": 14256,
+      "sha256": "562da865c1c5aa1e2fb8a8f030e9f5529c9a30fb67863e7382076ce9645b29b5"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.PhysicsCore2DModule.dll",
+      "bytes": 482728,
+      "sha256": "d6c9c4a710008c672e74fa3c0f9e24da9dda36bf72ded298a900444d353802c3"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.PhysicsModule.dll",
+      "bytes": 181680,
+      "sha256": "55f7feeb1eac91da5a90c61b867e8be052eb60975770b46cdf6fe48ad1e43766"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.PropertiesModule.dll",
+      "bytes": 124840,
+      "sha256": "2290ed63e934b58b72f3b54a115c764389b6c10790f2846e5ced0fe33c6b957d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.RenderAs2DModule.dll",
+      "bytes": 27568,
+      "sha256": "e6c34221773cc906af3011d0536ad124b13a744ef616253dc0f0ee11968e2256"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll",
+      "bytes": 26032,
+      "sha256": "9f4281350bfa0f1effad38cbe08b89fdffb4e6bea764e969fc5242b2217ad086"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ScreenCaptureModule.dll",
+      "bytes": 28080,
+      "sha256": "e98ca64f0c35676281baeb0179f7836350444f5235658d35103bbb5187659616"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ScriptingModule.dll",
+      "bytes": 65960,
+      "sha256": "45a150fe521b1fbcb7a78b2bee6aeab292624ffc6fc4b48c4e283d4f9afc2c03"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.ShaderVariantAnalyticsModule.dll",
+      "bytes": 26032,
+      "sha256": "9adfb2012411deaba89798b101a81e2db9f325e27c391899e7b9c40e66ecea53"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.SpriteMaskModule.dll",
+      "bytes": 30640,
+      "sha256": "4e5969c13d7ea475573b11464c15a2a62e54c2f63ee8ab34d2cebe282ae76e8d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.SpriteShapeModule.dll",
+      "bytes": 34216,
+      "sha256": "c0dd7a722068e7b1900a2389c0b826ab2fad7640cd45423cef26050cd94de859"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.StreamingModule.dll",
+      "bytes": 28072,
+      "sha256": "c5e78c50f00dcf819c8d9d715c9666e1d1355d3eb6233178476a5b6210c87d15"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.SubstanceModule.dll",
+      "bytes": 31152,
+      "sha256": "8dc266992f010522535a02f1447e4b96b1a7b0a2f067ee59343a44be4be54c8d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.SubsystemsModule.dll",
+      "bytes": 42928,
+      "sha256": "4f8b2add0d34418049ec8f3a423cbe032a0d8c1caa3c73285c8338469d405847"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TerrainModule.dll",
+      "bytes": 132520,
+      "sha256": "6f2cf145d430baafb52ff69700867df08a039d18e99a42fdff97bfde25584cc3"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TerrainPhysicsModule.dll",
+      "bytes": 27560,
+      "sha256": "68c5f78e3c3982e23d55745dc76c21b8bc738155288166e6b6d6e686c57f4dba"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TetgenModule.dll",
+      "bytes": 26024,
+      "sha256": "88e000f876c5a13e08fd85489cbe2b6ed75b4a845b6550c38dacce45c190bbc9"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TextCoreFontEngineModule.dll",
+      "bytes": 86448,
+      "sha256": "e34833bf42e43a812718dd6bfb2a9e2dece1e0f110d03dad30645be4a137843e"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TextCoreTextEngineModule.dll",
+      "bytes": 314288,
+      "sha256": "be2e2036806a65f5100c78d5edd581e372103796ea6f6cbfe0b6588f12f5a424"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TextRenderingModule.dll",
+      "bytes": 39344,
+      "sha256": "b6ead9ae24b7e2b41f6dc8de309f918edda4dc9f0a72308e47f0ca5fb829bd4a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TilemapModule.dll",
+      "bytes": 75688,
+      "sha256": "e7c4405bb958ae996fce1ed43811a5b8e5b4aeab83309a7e981757718ba76034"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TimelineFoundationModule.dll",
+      "bytes": 167336,
+      "sha256": "aee08b12b23ad51c309ef058745e67893749d57e53c2ce1973769439f11af978"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.TLSModule.dll",
+      "bytes": 34224,
+      "sha256": "d433987da7f14bb7b5fe665ba75e8f0686c9bfdecd8f8e268ca402af935ab26e"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.U2DRuntimeModule.dll",
+      "bytes": 73640,
+      "sha256": "c3a915c4ad23d7f995770f19742fb7818d76bbe98308c66f1c03b3c1d36a8c12"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UI.dll",
+      "bytes": 269312,
+      "sha256": "54a67e3d4c74a0f10977f7766a0f63f060ed6e1c03a5db67c422d39291d34bbb"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UIElementsModule.dll",
+      "bytes": 2538920,
+      "sha256": "4ec407cdfc86fe7d50cee66c5696fc9f72e678e584d3794dcefe6345a5dfa96a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UIModule.dll",
+      "bytes": 57256,
+      "sha256": "9dd7c3e52446b4d43073632926f599e1baa7d50ccbd3cd53f768c9a2578df7a8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UmbraModule.dll",
+      "bytes": 26032,
+      "sha256": "43d102dd3eec99c310df811e7d24f842da700b3bb6c531552ccfdc8efaa3cfd9"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityAnalyticsCommonModule.dll",
+      "bytes": 36776,
+      "sha256": "dd23dc1c11639fb7b3c7705636751d3631ee0e6becd254620709f52bd637d2df"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityAnalyticsModule.dll",
+      "bytes": 61864,
+      "sha256": "91846128e4f568951190674f61888f3c16a7eadc28bc3a3978a34829f45e9e16"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityConnectModule.dll",
+      "bytes": 29608,
+      "sha256": "b078c9654c9d3d84c3fe508440cb498a437eda0891f39b4b1755c156295615af"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityConsentModule.dll",
+      "bytes": 16296,
+      "sha256": "553eb862ce01e7a4b57296b953e908e55ddcd5fb814bb8c018684884b70463c0"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityCurlModule.dll",
+      "bytes": 28072,
+      "sha256": "54980299458f10370726c74af04f15ca84587d1c8f5f94a88a43f905d37760f3"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityWebRequestAssetBundleModule.dll",
+      "bytes": 30640,
+      "sha256": "cf4e85e7b529e6b5f1b26b239f7a543a51cd566c6f8ea57677bf1a50f7eb5580"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityWebRequestAudioModule.dll",
+      "bytes": 30632,
+      "sha256": "a61a7f229c0d0bf4d1f3b31f12c7f09a2cc2c8133dda52daf98e99dcd0498f6f"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityWebRequestModule.dll",
+      "bytes": 81320,
+      "sha256": "1d5378df36ec8627bfff9748e1f8118d44d93ebf5487194424e2c8c649484323"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityWebRequestTextureModule.dll",
+      "bytes": 29616,
+      "sha256": "af791955738bd28654ee5c80564c0d91f76d10346370d6a4a5a40cff301c7bf7"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.UnityWebRequestWWWModule.dll",
+      "bytes": 35248,
+      "sha256": "f985e9fe0647f6ee4e37bcc1466c96906f4902dfe4877669a73f50835e4cf757"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.VectorGraphicsModule.dll",
+      "bytes": 229808,
+      "sha256": "9a186ad47c4f2e4d978bbf5c88e92ab81b68b5d4262474e55fffddf1e812b119"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.VehiclesModule.dll",
+      "bytes": 33200,
+      "sha256": "85fe08c2a5965cf4f274fd20e915b38905e21638d38b6a307696dae12d9cbd75"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.VFXModule.dll",
+      "bytes": 82352,
+      "sha256": "e788201e60b8a129adeb1f07944a45002f49dfcc08bb27a503a23be5f08deb4a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.VideoModule.dll",
+      "bytes": 48560,
+      "sha256": "e549f9a4e1a4a53f678bb898fddc33801e8d6c1b2490793995cb99840685d6c0"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.VirtualTexturingModule.dll",
+      "bytes": 43952,
+      "sha256": "f91bbba424ec23cfc0293ca08ba6994bb7525e7e123ed05ddda3d02528af04ea"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.WindModule.dll",
+      "bytes": 28584,
+      "sha256": "e91293c8a373e40ad06d82a2e7fe98ecaab4f5dfe15867990ff8460f9f28847b"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/UnityEngine.XRModule.dll",
+      "bytes": 96176,
+      "sha256": "7fdd88e0e9e26c6491530271743a983af2359cbf7cdce37fc3a86c1fae838ad6"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/websocket-sharp.dll",
+      "bytes": 247296,
+      "sha256": "85a7e343c4109c08c7a8011d6064b68e0537147917c609ddcf043ebaaceca7f0"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.dll",
+      "bytes": 941568,
+      "sha256": "192c894278fa0cca8568e9835b078ad4898fde05a04d1fa66e7a7a3475b02397"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Authoring.dll",
+      "bytes": 11264,
+      "sha256": "57230532b7c345b3936ff9f6a7a01ff64ff1cda1ebece08bc6fde43fcb53de26"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Client.dll",
+      "bytes": 190464,
+      "sha256": "c8f6a976b2617d51b23a4e3f8a026ca053134c3359c0fd160545f88f7ee17c5d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Fusion.dll",
+      "bytes": 95232,
+      "sha256": "7b19fc68e603db02874159bce0b61b9d5337ab877a767760c3a89268b2dc4b32"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Gameplay.dll",
+      "bytes": 53760,
+      "sha256": "b1f7ebee4d56cd49277daa8c21df0ca450c9fa5bbcf9414cb8056fe35250bcc8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Physics.dll",
+      "bytes": 48128,
+      "sha256": "00c92fbb3c98edd99c252b3d7effee7128d8bae24f88927b7888bdeffd7d49af"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Presentation.dll",
+      "bytes": 88576,
+      "sha256": "474311ccc52577e24bddc599ecc25ca7a106d8ebd21d5db472dab84666a0267b"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Online.Puzzles.dll",
+      "bytes": 74752,
+      "sha256": "78437229f9813ac17758cef834329a331b5afa11a031a277cbf0df2acb3e5785"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Rules.dll",
+      "bytes": 691200,
+      "sha256": "7a896b3ecb9c37b1063b480f870eea33635de392009ff1071ebf4440c5150421"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Managed/Wreckabulary.Wordbound.Qa.dll",
+      "bytes": 226304,
+      "sha256": "9ce814f657088534791b92728991056a9a5e0b88585da8a832c0c2527a64dace"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Plugins/x86_64/lib_burst_generated.dll",
+      "bytes": 530944,
+      "sha256": "14d44098c69aa662ae6b14cc85f9c6675fe3dc892d49a4df3572231d65495afe"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_BackUpThisFolder_ButDontShipItWithYourGame/x86_64/lib_burst_generated.txt",
+      "bytes": 229888,
+      "sha256": "6dfb2c7bc9a8100ae754712ac3c3e3fb83d9506d76e7e388f2fe615a1ab913cd"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/app.info",
+      "bytes": 30,
+      "sha256": "87983b80bfa9b72b8e1fe58df660e5df9d40ad1082e216ce864eb3c1adc7c8aa"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary_Data/Resources/unity default resources",
+      "bytes": 5919584,
+      "sha256": "696b9afaee02b5d45978634f1450ef18423c19177933b997fd8ee364d70cdd61"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/Wreckabulary.exe",
+      "bytes": 667136,
+      "sha256": "91a36fa14dd3ccf390b99720805eda0553da1ca1108381b49c98c938f69dc256"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/dstorage.dll",
+      "bytes": 206904,
+      "sha256": "cae65787f61514bec6f012f44546e68b19e39d8854a9ab52af813370d44b272a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/dstoragecore.dll",
+      "bytes": 1482784,
+      "sha256": "cf85b19a92a8276f8baca0db9bbcd60735bad50768deb303d310e84d5f4fdd11"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/EmbedRuntime/mono-2.0-bdwgc.dll",
+      "bytes": 7834544,
+      "sha256": "e529c53aac57330543b8de5dc12687291e3208344a86e872898c418fb64dab1c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/EmbedRuntime/MonoPosixHelper.dll",
+      "bytes": 611240,
+      "sha256": "6c96a7ea42a2e0538643ac8da1a545c7101fad27b9955846f6153f55edb2560c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/2.0/Browsers/Compat.browser",
+      "bytes": 1605,
+      "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/2.0/DefaultWsdlHelpGenerator.aspx",
+      "bytes": 60575,
+      "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/2.0/machine.config",
+      "bytes": 29066,
+      "sha256": "e91782a27fa39fc6c1d6ee8b08529f5d35052310d0006034b878eb04b8f2af30"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/2.0/settings.map",
+      "bytes": 2622,
+      "sha256": "49c6160f9d54af4270a3b4e997fc4a8301f79b9e2070118fa46ddbcbbc44f9a2"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/2.0/web.config",
+      "bytes": 11635,
+      "sha256": "cf2b54339e069b9e42f7d6795eecbf562c50c1011f4ca8f65f578fe52d97ff92"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.0/Browsers/Compat.browser",
+      "bytes": 1605,
+      "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.0/DefaultWsdlHelpGenerator.aspx",
+      "bytes": 60575,
+      "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.0/machine.config",
+      "bytes": 33598,
+      "sha256": "e60aec2c5115d65b3acb3c55ea21576dbd770f579166c017125571e46ae560ed"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.0/settings.map",
+      "bytes": 2622,
+      "sha256": "ce1db1ad8a9512073164e3eccdc193f7eda036e1a9733caec4635de21b2865c8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.0/web.config",
+      "bytes": 18802,
+      "sha256": "e38bb8cc68fe5b4edecdfd288d094b9e8ced7629039b2a347682aba0d8bd7492"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.5/Browsers/Compat.browser",
+      "bytes": 1605,
+      "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.5/DefaultWsdlHelpGenerator.aspx",
+      "bytes": 60575,
+      "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.5/machine.config",
+      "bytes": 34056,
+      "sha256": "ee950004b576fb28dc85f4b0435ed04bf96612de2e8b53be84d07afe85a0de6c"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.5/settings.map",
+      "bytes": 2622,
+      "sha256": "ce1db1ad8a9512073164e3eccdc193f7eda036e1a9733caec4635de21b2865c8"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/4.5/web.config",
+      "bytes": 18811,
+      "sha256": "c4cbddd4fd9347b58cc5a72b36dc4ba1ad2bb699e65869d05cd3fb9865f0d824"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/browscap.ini",
+      "bytes": 311984,
+      "sha256": "4ddd50f31fb968f30bedefc253a46dc3f2890192d05cdaa9e0a64a056eee807e"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/config",
+      "bytes": 3815,
+      "sha256": "5776169973a26a387b8b3e5c0f2301a7ab9a6dd7c7d3efa22a96abc47fbf8662"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/MonoBleedingEdge/etc/mono/mconfig/config.xml",
+      "bytes": 25817,
+      "sha256": "0c56e34c69124510fa8c19e7b4c2ca6c1c4ff460ae19f798dd0ca035809e396d"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/UnityCrashHandler64.exe",
+      "bytes": 1772968,
+      "sha256": "3cdd9dbc0162524281bd99715ca93c6f4771804404550981588e89137fdd04aa"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/UnityPlayer.dll",
+      "bytes": 38704560,
+      "sha256": "1d82b3aa9c150de0267a0c8490cbab3287c47a31359334daef85dc01df382cf3"
+    },
+    {
+      "path": "Builds/qa-20261028T172247Z/D3D12/D3D12Core.dll",
+      "bytes": 4725304,
+      "sha256": "625bd40005b1c3708695d5256ecf230d278e6b8edba5a88af70f3d91324f3052"
+    }
+  ],
+  "scenarioSources": [
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs",
+      "bytes": 36464,
+      "sha256": "5cf23dccf132d74d802398f89721f0539d67be43001ab601336628ff06bac60b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundSoloQa.cs",
+      "bytes": 22874,
+      "sha256": "3f554331fc1a93bbd539fbd12b6134ee93c0f6157b81b504df83666fa02072bf"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundWorkshopQa.cs",
+      "bytes": 31069,
+      "sha256": "5d82166db860fb6bfbd03e78839d62cd4e59753e6b20981476525938eb1f4d18"
+    }
+  ],
+  "runs": [
+    {
+      "id": "20261028T172356Z-lobby_experience",
+      "scenario": "lobby_experience",
+      "status": "PASS",
+      "gate": {
+        "path": ".harness/delivery/workspace-frontend-2026-10-28T17-23-56-258Z-stdout.txt",
+        "bytes": 551,
+        "sha256": "73aefc0327c9d7db45b63b652f5e36a7082199bbbb4a010fb305f7998899f749"
+      },
+      "gateResult": {
+        "cmd": "smoke --build 20261028T172247Z --scenario lobby_experience",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T17:23:56Z",
+        "secs": 32.7,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261028T172356Z-lobby_experience.log",
+        "evidence": [
+          "Docs/qa/runs/20261028T172356Z-lobby_experience/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261028T172247Z",
+          "kind": "release-qa",
+          "run_id": "20261028T172356Z-lobby_experience",
+          "stripped": false,
+          "scenario": "lobby_experience",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      },
+      "log": {
+        "path": "Logs/player/20261028T172356Z-lobby_experience.log",
+        "bytes": 3265,
+        "sha256": "f39cd44159c283da66a5f9e8b19fdc7697016f1e246447249735138441484d56"
+      },
+      "checks": {
+        "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/checks.json",
+        "bytes": 19785,
+        "sha256": "bec8a0c9c3821189420726308adc6ad9cc7115f741b38b5e46612d843a5deed0"
+      },
+      "stepResults": [
+        {
+          "name": "local_choices",
+          "status": "PASS",
+          "t_s": 5.260962,
+          "probes": {
+            "scope": "Real Windows UI Submit callbacks and screenshots; no physical-input, matchmaking or full-match acceptance claim.",
+            "local_Dibs": {
+              "summary": "Smash, spell, survive. Win three rounds.  ·  You + 3 bots",
+              "map": "pinwheel",
+              "humans": 1,
+              "selected": "Mode Dibs"
+            },
+            "lobby_local_dibs_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 92,
+              "varied_pixels": true
+            },
+            "local_Duos": {
+              "summary": "Win three rounds. Revive your partner.  ·  You and a bot vs 2 bots",
+              "map": "pinwheel",
+              "humans": 1,
+              "selected": "Mode Duos"
+            },
+            "lobby_local_duos_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 147,
+              "varied_pixels": true
+            },
+            "local_MovingOut": {
+              "summary": "Bring every keepsake to the van.  ·  Solo",
+              "map": "pinwheel",
+              "humans": 1,
+              "selected": "Mode MovingOut"
+            },
+            "local_MovingDay": {
+              "summary": "Furnish the marked rooms in time.  ·  Solo",
+              "map": "pinwheel",
+              "humans": 1,
+              "selected": "Mode MovingDay"
+            },
+            "local_Escape": {
+              "summary": "Unlock the doors. Get everyone out.  ·  1 player",
+              "map": "random",
+              "humans": 1,
+              "selected": "Mode Escape"
+            },
+            "lobby_local_escape_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 321,
+              "varied_pixels": true
+            },
+            "lobby_solo_timerun_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 426,
+              "varied_pixels": true
+            },
+            "lobby_solo_freestyle_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 481,
+              "varied_pixels": true
+            },
+            "lobby_solo_two_seats_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 534,
+              "varied_pixels": true
+            },
+            "local_solo_families": "Two real solo cards; one-human GO; owned second seat blocks launch; exact original house and bindings preserved.",
+            "navigation_preferences_unchanged": true,
+            "local_owned_stack_cleanup": {
+              "errors": [],
+              "failure": "none",
+              "work_budget_seconds": 25,
+              "outer_budget_seconds": 30
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_local_dibs.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_local_duos.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_local_escape.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_solo_timerun.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_solo_freestyle.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_solo_two_seats.png"
+          ]
+        },
+        {
+          "name": "create_choices",
+          "status": "PASS",
+          "t_s": 6.344454,
+          "probes": {
+            "lobby_create_learn_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 640,
+              "varied_pixels": true
+            },
+            "lobby_create_build_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 689,
+              "varied_pixels": true
+            },
+            "lobby_create_wordbound_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 740,
+              "varied_pixels": true
+            },
+            "create_routes": "Tutorial, original home workshop and distinct local Wordbound maps entry; selection-only, no creator launch or autosave access.",
+            "navigation_preferences_unchanged": true,
+            "create_owned_stack_cleanup": {
+              "errors": [],
+              "failure": "none",
+              "work_budget_seconds": 15,
+              "outer_budget_seconds": 20
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_create_learn.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_create_build.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_create_wordbound.png"
+          ]
+        },
+        {
+          "name": "customize_and_shop",
+          "status": "PASS",
+          "t_s": 8.540995,
+          "probes": {
+            "lobby_customize_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 990,
+              "varied_pixels": true
+            },
+            "lobby_customize_finishes_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1057,
+              "varied_pixels": true
+            },
+            "lobby_customize_equipment_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1104,
+              "varied_pixels": true
+            },
+            "lobby_shop_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1214,
+              "varied_pixels": true
+            },
+            "customization_scope": "Navigation only; no purchase, outfit change or unlock mutation.",
+            "navigation_preferences_unchanged": true
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_customize.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_customize_finishes.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_customize_equipment.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_shop.png"
+          ]
+        },
+        {
+          "name": "settings_navigation",
+          "status": "PASS",
+          "t_s": 12.936442,
+          "probes": {
+            "lobby_settings_profile_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1332,
+              "varied_pixels": true
+            },
+            "lobby_settings_audio_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1386,
+              "varied_pixels": true
+            },
+            "lobby_settings_gameplay_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1440,
+              "varied_pixels": true
+            },
+            "lobby_settings_graphics_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1492,
+              "varied_pixels": true
+            },
+            "lobby_settings_controls_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1544,
+              "varied_pixels": true
+            },
+            "lobby_settings_controls_bottom_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1595,
+              "varied_pixels": true
+            },
+            "controls_legend_Wordbound_mid": {
+              "family": "Wordbound",
+              "capture": "lobby_settings_wordbound_controls_mid",
+              "header_text": "WORDBOUND CONTROLS",
+              "selected_control": "Rebind Spell a word",
+              "active_binding_count": 14,
+              "rows": [
+                {
+                  "action": "Aim",
+                  "label": "Aim (hold)",
+                  "controller": "RB / R1",
+                  "fully_visible": true
+                },
+                {
+                  "action": "Jump",
+                  "label": "Jump",
+                  "controller": "A / Cross",
+                  "fully_visible": true
+                },
+                {
+                  "action": "Interact",
+                  "label": "Pick up / use",
+                  "controller": "RT / R2",
+                  "fully_visible": true
+                },
+                {
+                  "action": "Spell",
+                  "label": "Open crafting",
+                  "controller": "Y / Triangle",
+                  "fully_visible": true
+                }
+              ],
+              "listening": false,
+              "input_lease_active": true
+            },
+            "lobby_settings_wordbound_controls_mid_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1755,
+              "varied_pixels": true
+            },
+            "controls_legend_Wordbound_bottom": {
+              "family": "Wordbound",
+              "capture": "lobby_settings_wordbound_controls_bottom",
+              "header_text": "WORDBOUND CONTROLS",
+              "selected_control": "Rebind Pause",
+              "active_binding_count": 14,
+              "rows": [
+                {
+                  "action": "Hand 1",
+                  "label": "Equipment 1",
+                  "controller": "—",
+                  "fully_visible": true
+                },
+                {
+                  "action": "Hand 2",
+                  "label": "Equipment 2",
+                  "controller": "—",
+                  "fully_visible": true
+                },
+                {
+                  "action": "Bag",
+                  "label": "Change equipment",
+                  "controller": "R3 cycles gear",
+                  "fully_visible": true
+                },
+                {
+                  "action": "Pause",
+                  "label": "Menu",
+                  "controller": "Start / Options",
+                  "fully_visible": true
+                }
+              ],
+              "listening": false,
+              "input_lease_active": true
+            },
+            "lobby_settings_wordbound_controls_bottom_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1800,
+              "varied_pixels": true
+            },
+            "lobby_settings_help_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1943,
+              "varied_pixels": true
+            },
+            "lobby_home_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 1988,
+              "varied_pixels": true
+            },
+            "settings_scope": "Six tabs, actual House/Wordbound legend Submit, Controls lease, close and opener focus; no binding, graphics, display, volume or profile value changed.",
+            "controls_legend_bindings_preserved": {
+              "shared_source_same": true,
+              "shared_map_same": true,
+              "overrides_unchanged": true,
+              "version_unchanged": true,
+              "before_version": 0,
+              "after_version": 0,
+              "mouse_settings_unchanged": true,
+              "map_enabled_unchanged": true,
+              "listening": false,
+              "restored_house_legend": true
+            },
+            "navigation_preferences_unchanged": true
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_profile.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_audio.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_gameplay.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_graphics.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_controls.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_controls_bottom.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_wordbound_controls_mid.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_wordbound_controls_bottom.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_help.png",
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_home_returned.png"
+          ]
+        },
+        {
+          "name": "open_wordbound",
+          "status": "PASS",
+          "t_s": 14.077642,
+          "probes": {
+            "party_frame_scene": "WordboundLobby",
+            "party_frame_screen": "1280x720",
+            "party_frame_focused": true,
+            "party_frame_splash_finished": true,
+            "party_frame_current": 2015,
+            "party_frame_rendered": 2015,
+            "party_frame_repaints": 4,
+            "party_frame_repaints_after_splash": 3,
+            "party_frame_last_repaint": 2015,
+            "party_frame_menu_active": true,
+            "party_frame_menu_visible": true,
+            "party_frame_camera": "Wordbound lobby camera",
+            "party_frame_camera_active": true,
+            "party_frame_camera_display": 0,
+            "party_frame_camera_target": "none",
+            "party_frame_camera_callbacks": 3,
+            "party_frame_last_camera": 2015,
+            "party_frame_camera_callback": "endCameraRendering",
+            "party_frame_ready": true,
+            "lobby_online_ready_capture": {
+              "width": 1280,
+              "height": 720,
+              "focused": true,
+              "rendered_frame": 2015,
+              "varied_pixels": true
+            },
+            "online_scope": "Real Wordbound scene, initialized coordinator and rendered guest menu; no Connect, queue, room or match request.",
+            "preserved_local_selection": [
+              "workshop",
+              "Workshop",
+              "pinwheel"
+            ],
+            "navigation_preferences_unchanged": true
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_online_ready.png"
+          ]
+        }
+      ],
+      "sourceBinding": {
+        "buildId": "20261028T172247Z",
+        "embeddedCommit": null,
+        "embeddedTree": null
+      },
+      "roster": [
+        {
+          "mode": "Dibs",
+          "humans": 1,
+          "scope": "Lobby selection observation; bots are a displayed mode promise, not spawned bot evidence"
+        },
+        {
+          "mode": "Duos",
+          "humans": 1,
+          "scope": "Lobby selection observation; bots are a displayed mode promise, not spawned bot evidence"
+        },
+        {
+          "mode": "MovingOut",
+          "humans": 1,
+          "scope": "Lobby selection observation; bots are a displayed mode promise, not spawned bot evidence"
+        },
+        {
+          "mode": "MovingDay",
+          "humans": 1,
+          "scope": "Lobby selection observation; bots are a displayed mode promise, not spawned bot evidence"
+        },
+        {
+          "mode": "Escape",
+          "humans": 1,
+          "scope": "Lobby selection observation; bots are a displayed mode promise, not spawned bot evidence"
+        }
+      ],
+      "rosterScope": "Observed human seats only",
+      "startedUtc": "2026-10-28T17:24:13Z",
+      "endedUtc": "2026-10-28T17:24:27Z",
+      "captures": [
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_local_dibs.png",
+          "bytes": 173284,
+          "sha256": "0f9a91dfa16ddf6fc940298e5e16924e3deea126ee9bf15e404154432ed19d95",
+          "width": 1280,
+          "height": 720,
+          "step": "local_choices",
+          "frame": 92,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_local_duos.png",
+          "bytes": 173316,
+          "sha256": "b9b394020ae763e2c3b9763769321bf79e99a59427b945f80bbdb993167456cc",
+          "width": 1280,
+          "height": 720,
+          "step": "local_choices",
+          "frame": 147,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_local_escape.png",
+          "bytes": 140032,
+          "sha256": "f821117e2c6eed5c73182f7f74829da1d9a78ed08017f126197fbef1996963b1",
+          "width": 1280,
+          "height": 720,
+          "step": "local_choices",
+          "frame": 321,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_solo_timerun.png",
+          "bytes": 159468,
+          "sha256": "c01431037bb2f25212ea756ffd80cf4f6ea259af038756df69e3f6ce9b1deb8f",
+          "width": 1280,
+          "height": 720,
+          "step": "local_choices",
+          "frame": 426,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_solo_freestyle.png",
+          "bytes": 160569,
+          "sha256": "a955cb957720c6da1f29d6f73ce9c5716639da0ec82d76560f921aeda6207322",
+          "width": 1280,
+          "height": 720,
+          "step": "local_choices",
+          "frame": 481,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_solo_two_seats.png",
+          "bytes": 160313,
+          "sha256": "c5c0b5ef1e3ca079eebff34651002f6838e574109a05130dc50124ed0960e740",
+          "width": 1280,
+          "height": 720,
+          "step": "local_choices",
+          "frame": 534,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_create_learn.png",
+          "bytes": 127857,
+          "sha256": "f531abd52a79d4743aa07e73ce4a77d9cb4c1047ba63e94255463ac77371d7d4",
+          "width": 1280,
+          "height": 720,
+          "step": "create_choices",
+          "frame": 640,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_create_build.png",
+          "bytes": 145324,
+          "sha256": "3c27ca804ab9f42cd8995583e56f9841077197e42372c71837919d7f4f927888",
+          "width": 1280,
+          "height": 720,
+          "step": "create_choices",
+          "frame": 689,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_create_wordbound.png",
+          "bytes": 112262,
+          "sha256": "4fe4e8c3231d8e08e827ae1b426b9eda352415c0b9aea75b13d527aab954c373",
+          "width": 1280,
+          "height": 720,
+          "step": "create_choices",
+          "frame": 740,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_customize.png",
+          "bytes": 1209017,
+          "sha256": "e19ba1ac8d80942134c1a1e4812ecb49feb5a5758745cad703265af5b51c77bb",
+          "width": 1280,
+          "height": 720,
+          "step": "customize_and_shop",
+          "frame": 990,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_customize_finishes.png",
+          "bytes": 1202847,
+          "sha256": "ca7059c96a75b32f2a78c00ebbb2cd310c6d5305e29e0cee14715d38190a598f",
+          "width": 1280,
+          "height": 720,
+          "step": "customize_and_shop",
+          "frame": 1057,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_customize_equipment.png",
+          "bytes": 1193124,
+          "sha256": "2900e1ed84d744c52d536fcd35407db709821847ac6983059c0b8adb771003c7",
+          "width": 1280,
+          "height": 720,
+          "step": "customize_and_shop",
+          "frame": 1104,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_shop.png",
+          "bytes": 1097871,
+          "sha256": "a07bcca0eaaf5f992718059820fed5739fb4598885e1681bae9f93a45338161f",
+          "width": 1280,
+          "height": 720,
+          "step": "customize_and_shop",
+          "frame": 1214,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_profile.png",
+          "bytes": 1036225,
+          "sha256": "8a280f9684d0ebd6ee4579966e659ee1b7dd4a0c73b13345b857e14b75f8fdd8",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1332,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_audio.png",
+          "bytes": 985050,
+          "sha256": "d31dd8abaaf014619e500cf32760d7d6a333746da3e23a3f9da3936ec679d0ac",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1386,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_gameplay.png",
+          "bytes": 1005929,
+          "sha256": "5c90437238f667dd4cd11db80fea2aad88f18bf1713f949bfeab9e7cbc1d5713",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1440,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_graphics.png",
+          "bytes": 802221,
+          "sha256": "9138fc8b642882a03bb9e59cc8dd96f17d5cb2d7a2fdc0824ca0c3b8c2ea398e",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1492,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_controls.png",
+          "bytes": 789996,
+          "sha256": "464177dd205441d3e40f7940d3ad84e27fda69df5f2e37eeba7494e70779f8fa",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1544,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_controls_bottom.png",
+          "bytes": 797172,
+          "sha256": "2cd2ef2c81fa6380761927c9735809fb40c8cff0bfba66b190d63e74357bd558",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1595,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_wordbound_controls_mid.png",
+          "bytes": 790549,
+          "sha256": "158678eed1a9154ef1991d5fc660d6e2ee15301ce01aaf43bbc9f9b338817f4e",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1755,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_wordbound_controls_bottom.png",
+          "bytes": 791900,
+          "sha256": "96ff25f916c5fc64b47a850cdfc3f6dd46a2f7f54dd64765b401d3a3f859c5d0",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1800,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_settings_help.png",
+          "bytes": 792690,
+          "sha256": "5a9da20a3fd1aa0f4c4b68747084055f6d3f72405f02c1e07eb036c86168f04c",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1943,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_home_returned.png",
+          "bytes": 1657767,
+          "sha256": "da62a55e0786ff4ab86801a1a6f27edfbca56aff4699f4681d4f0bfc6f327e78",
+          "width": 1280,
+          "height": 720,
+          "step": "settings_navigation",
+          "frame": 1988,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172356Z-lobby_experience/lobby_online_ready.png",
+          "bytes": 1254351,
+          "sha256": "f2e44772c675d346622a2d4eb6714fded81ba5815d8bdbe9e4f45d0a15e3bd0a",
+          "width": 1280,
+          "height": 720,
+          "step": "open_wordbound",
+          "frame": 2015,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        }
+      ]
+    },
+    {
+      "id": "20261028T172443Z-wordbound_solo",
+      "scenario": "wordbound_solo",
+      "status": "PASS",
+      "gate": {
+        "path": ".harness/delivery/solo-windows-2026-10-28T17-24-43-694Z-stdout.txt",
+        "bytes": 541,
+        "sha256": "504e895c551278366668f6564fe35969f43016d4674c7414f67e157e25e2cd62"
+      },
+      "gateResult": {
+        "cmd": "smoke --build 20261028T172247Z --scenario wordbound_solo",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T17:24:43Z",
+        "secs": 19.9,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261028T172443Z-wordbound_solo.log",
+        "evidence": [
+          "Docs/qa/runs/20261028T172443Z-wordbound_solo/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261028T172247Z",
+          "kind": "release-qa",
+          "run_id": "20261028T172443Z-wordbound_solo",
+          "stripped": false,
+          "scenario": "wordbound_solo",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      },
+      "log": {
+        "path": "Logs/player/20261028T172443Z-wordbound_solo.log",
+        "bytes": 5005,
+        "sha256": "ca13ba85064ea62ce1ee48fdf913581b160dd3e27810859fbd1dd59710219893"
+      },
+      "checks": {
+        "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/checks.json",
+        "bytes": 12640,
+        "sha256": "8caffc95debd8cc526feb9be06ff24337581032771268b11400c5d15e1f7c02b"
+      },
+      "stepResults": [
+        {
+          "name": "solo_selection",
+          "status": "PASS",
+          "t_s": 2.291419,
+          "probes": {
+            "scope": "Normal Windows production UI Submit launch and actual local return handler: installed Lost Address in two modes, plus the separate furnished Parcel Hall in Freestyle. No physical-input, full-finish, network, bot or team acceptance claim.",
+            "solo_initial_lobby_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 1,
+              "focused": true
+            },
+            "solo_source_preferences_preserved": true
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_initial_lobby.png"
+          ]
+        },
+        {
+          "name": "time_run",
+          "status": "PASS",
+          "t_s": 7.869658,
+          "probes": {
+            "solo_timerun_selected_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 231,
+              "focused": true
+            },
+            "solo_input_timerun": {
+              "source": "DesktopBinding",
+              "borrowed_exact_source": true,
+              "craft_hint": "Q",
+              "menu_hint": "ESC",
+              "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+            },
+            "solo_render_readiness_timerun": {
+              "expected_markers": 1,
+              "rendered_markers": 1,
+              "camera_frames": 3,
+              "canonical_ticks": 94,
+              "guide_fault": "",
+              "scope": "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station."
+            },
+            "solo_timerun_world_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 239,
+              "focused": true
+            },
+            "solo_timerun_menu_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 242,
+              "focused": true
+            },
+            "solo_timerun": {
+              "source": "83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9",
+              "manifest": "fa0154b6440c39072fbe0af765aad381da8da3660239d49d80190b5fecc2fca1",
+              "mode": "TimeRun",
+              "physical_sites": 72,
+              "humans": 1,
+              "runner": "Single",
+              "actual_camera_frames": 7,
+              "journal_entries": 0,
+              "canonical_ticks_observed": 116,
+              "return_label": "Return to lobby"
+            },
+            "solo_input_released_timerun": {
+              "wrapper_disposed": true,
+              "source_preserved": true
+            },
+            "solo_timerun_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 267,
+              "focused": true
+            },
+            "solo_source_preferences_preserved": true,
+            "solo_cleanup": {
+              "client_released": true,
+              "bindings_restored": true,
+              "failure": "none",
+              "work_budget_seconds": 145,
+              "stop_budget_seconds": 25,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_timerun_selected.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_timerun_world.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_timerun_menu.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_timerun_returned.png"
+          ]
+        },
+        {
+          "name": "freestyle",
+          "status": "PASS",
+          "t_s": 11.264452,
+          "probes": {
+            "solo_freestyle_selected_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 477,
+              "focused": true
+            },
+            "solo_input_freestyle": {
+              "source": "DesktopBinding",
+              "borrowed_exact_source": true,
+              "craft_hint": "Q",
+              "menu_hint": "ESC",
+              "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+            },
+            "solo_render_readiness_freestyle": {
+              "expected_markers": 0,
+              "rendered_markers": 0,
+              "camera_frames": 3,
+              "canonical_ticks": 51,
+              "guide_fault": "",
+              "scope": "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station."
+            },
+            "solo_freestyle_world_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 484,
+              "focused": true
+            },
+            "solo_freestyle_menu_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 487,
+              "focused": true
+            },
+            "solo_freestyle": {
+              "source": "83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9",
+              "manifest": "8098a97d9d31143bfd17d10a1b9eea82169f8cac4004a4657f222550aff0a9ae",
+              "mode": "Freestyle",
+              "physical_sites": 72,
+              "humans": 1,
+              "runner": "Single",
+              "actual_camera_frames": 7,
+              "journal_entries": 0,
+              "canonical_ticks_observed": 61,
+              "return_label": "Return to lobby"
+            },
+            "solo_input_released_freestyle": {
+              "wrapper_disposed": true,
+              "source_preserved": true
+            },
+            "solo_freestyle_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 523,
+              "focused": true
+            },
+            "solo_source_preferences_preserved": true,
+            "solo_cleanup": {
+              "client_released": true,
+              "bindings_restored": true,
+              "failure": "none",
+              "work_budget_seconds": 145,
+              "stop_budget_seconds": 25,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_freestyle_selected.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_freestyle_world.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_freestyle_menu.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_freestyle_returned.png"
+          ]
+        },
+        {
+          "name": "parcel_hall",
+          "status": "PASS",
+          "t_s": 15.17185,
+          "probes": {
+            "solo_parcelhall_freestyle_selected_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 716,
+              "focused": true
+            },
+            "solo_input_parcelhall_freestyle": {
+              "source": "DesktopBinding",
+              "borrowed_exact_source": true,
+              "craft_hint": "Q",
+              "menu_hint": "ESC",
+              "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+            },
+            "solo_render_readiness_parcelhall_freestyle": {
+              "expected_markers": 0,
+              "rendered_markers": 0,
+              "camera_frames": 3,
+              "canonical_ticks": 67,
+              "guide_fault": "",
+              "scope": "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station."
+            },
+            "solo_parcelhall_freestyle_world_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 723,
+              "focused": true
+            },
+            "solo_parcelhall_freestyle_menu_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 726,
+              "focused": true
+            },
+            "solo_parcelhall_freestyle": {
+              "source": "4f24fd25be586bb617604c94038dd40ecf9d10398dd6e1f4e7968730ef735735",
+              "manifest": "f1c71fdc8b205765d29ad83add4527ad45f0ee9470c134ede98ba3849d6b0f8c",
+              "mode": "Freestyle",
+              "physical_sites": 72,
+              "humans": 1,
+              "runner": "Single",
+              "actual_camera_frames": 7,
+              "journal_entries": 0,
+              "canonical_ticks_observed": 86,
+              "return_label": "Return to lobby"
+            },
+            "solo_input_released_parcelhall_freestyle": {
+              "wrapper_disposed": true,
+              "source_preserved": true
+            },
+            "solo_parcelhall_freestyle_returned_capture": {
+              "width": 1280,
+              "height": 720,
+              "rendered_frame": 753,
+              "focused": true
+            },
+            "solo_source_preferences_preserved": true,
+            "solo_cleanup": {
+              "client_released": true,
+              "bindings_restored": true,
+              "failure": "none",
+              "work_budget_seconds": 145,
+              "stop_budget_seconds": 25,
+              "outer_budget_seconds": 180
+            }
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_parcelhall_freestyle_selected.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_parcelhall_freestyle_world.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_parcelhall_freestyle_menu.png",
+            "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_parcelhall_freestyle_returned.png"
+          ]
+        }
+      ],
+      "sourceBinding": {
+        "buildId": "20261028T172247Z",
+        "embeddedCommit": null,
+        "embeddedTree": null
+      },
+      "roster": [
+        {
+          "mode": "TimeRun",
+          "map": "LostAddress",
+          "humans": 1,
+          "runner": "Single",
+          "source": "83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9",
+          "manifest": "fa0154b6440c39072fbe0af765aad381da8da3660239d49d80190b5fecc2fca1",
+          "input": {
+            "source": "DesktopBinding",
+            "borrowed_exact_source": true,
+            "craft_hint": "Q",
+            "menu_hint": "ESC",
+            "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+          }
+        },
+        {
+          "mode": "Freestyle",
+          "map": "LostAddress",
+          "humans": 1,
+          "runner": "Single",
+          "source": "83868321d648ba9726c064a532845c93adb9a1e5aded936b2ef3559667ccbfb9",
+          "manifest": "8098a97d9d31143bfd17d10a1b9eea82169f8cac4004a4657f222550aff0a9ae",
+          "input": {
+            "source": "DesktopBinding",
+            "borrowed_exact_source": true,
+            "craft_hint": "Q",
+            "menu_hint": "ESC",
+            "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+          }
+        },
+        {
+          "mode": "Freestyle",
+          "map": "ParcelHall",
+          "humans": 1,
+          "runner": "Single",
+          "source": "4f24fd25be586bb617604c94038dd40ecf9d10398dd6e1f4e7968730ef735735",
+          "manifest": "f1c71fdc8b205765d29ad83add4527ad45f0ee9470c134ede98ba3849d6b0f8c",
+          "input": {
+            "source": "DesktopBinding",
+            "borrowed_exact_source": true,
+            "craft_hint": "Q",
+            "menu_hint": "ESC",
+            "scope": "Actual player composition and displayed bindings; no physical device events are injected."
+          }
+        }
+      ],
+      "rosterScope": "Observed human seats only",
+      "startedUtc": "2026-10-28T17:24:47Z",
+      "endedUtc": "2026-10-28T17:25:02Z",
+      "captures": [
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_initial_lobby.png",
+          "bytes": 1663690,
+          "sha256": "e74df4660e57eccf57f3ad7c9480c69d17e4a750ec3711077df08e5dc1fd97b6",
+          "width": 1280,
+          "height": 720,
+          "step": "solo_selection",
+          "frame": 1,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_timerun_selected.png",
+          "bytes": 159842,
+          "sha256": "8209d8942843db896126740d1cb9a17bb25b3d48603cd225c8ba92cab333bfab",
+          "width": 1280,
+          "height": 720,
+          "step": "time_run",
+          "frame": 231,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_timerun_world.png",
+          "bytes": 1126328,
+          "sha256": "dda71f2718033a04fcd2a06e06601eacbddb97967ba506a0e1d223e9b72b47cd",
+          "width": 1280,
+          "height": 720,
+          "step": "time_run",
+          "frame": 239,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_timerun_menu.png",
+          "bytes": 577435,
+          "sha256": "9e816244ae8148bdd81aa7f4108fab459dd13685583c5e62ed25a31d05e7e158",
+          "width": 1280,
+          "height": 720,
+          "step": "time_run",
+          "frame": 242,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_timerun_returned.png",
+          "bytes": 159744,
+          "sha256": "3de749819da5997a8754b56ce6899765dce63d1c0e83917ed6bbae173395805c",
+          "width": 1280,
+          "height": 720,
+          "step": "time_run",
+          "frame": 267,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_freestyle_selected.png",
+          "bytes": 160531,
+          "sha256": "2bef4e80e3b06d57c43b8a1aa0849df15d24a777e46af4f76bc194cb5a08836b",
+          "width": 1280,
+          "height": 720,
+          "step": "freestyle",
+          "frame": 477,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_freestyle_world.png",
+          "bytes": 1120125,
+          "sha256": "afbf849118ec794de45e973fedf1fc0416ac0865435cab8f688828fb093abfe9",
+          "width": 1280,
+          "height": 720,
+          "step": "freestyle",
+          "frame": 484,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_freestyle_menu.png",
+          "bytes": 572362,
+          "sha256": "4eae5a3903da8043ba1659362300c8c92918a4661241a7fd2f0d96eb18754eb1",
+          "width": 1280,
+          "height": 720,
+          "step": "freestyle",
+          "frame": 487,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_freestyle_returned.png",
+          "bytes": 160555,
+          "sha256": "cd67f1d2916d1b1801dc212e1b109600a91f780816b3cf7112d503cb3864e5d1",
+          "width": 1280,
+          "height": 720,
+          "step": "freestyle",
+          "frame": 523,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_parcelhall_freestyle_selected.png",
+          "bytes": 160712,
+          "sha256": "974db11049d885003c862e05b47cd761d4038bc02a2c964fd2e996c269073929",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_hall",
+          "frame": 716,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_parcelhall_freestyle_world.png",
+          "bytes": 1140239,
+          "sha256": "ddb4b6d3f62a9f7903ba82df2d834640178a87bdc0ca43f476a12bf9a0ae890e",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_hall",
+          "frame": 723,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_parcelhall_freestyle_menu.png",
+          "bytes": 581882,
+          "sha256": "6537cf077ef965d14234aab0b6b24e26dfd89fcdf0ebd3eceb195ac41dd046fb",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_hall",
+          "frame": 726,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172443Z-wordbound_solo/solo_parcelhall_freestyle_returned.png",
+          "bytes": 160400,
+          "sha256": "8b5ff1007b5f173bb1ead25743364d9ba5050749a2d3039b72a679bd65de6084",
+          "width": 1280,
+          "height": 720,
+          "step": "parcel_hall",
+          "frame": 753,
+          "observation": "Per-capture dimensions, focus and rendered frame"
+        }
+      ]
+    },
+    {
+      "id": "20261028T172801Z-wordbound_workshop_flow",
+      "scenario": "wordbound_workshop_flow",
+      "status": "PASS",
+      "gate": {
+        "path": ".harness/delivery/workspace-workshop-2026-10-28T17-28-01-130Z-stdout.txt",
+        "bytes": 584,
+        "sha256": "d8082f45401e9321dc9e1b6870da00799e17e5ffc79c28d0d4bb13d956b09e77"
+      },
+      "gateResult": {
+        "cmd": "smoke --build 20261028T172247Z --scenario wordbound_workshop_flow",
+        "rung": "R4",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T17:28:01Z",
+        "secs": 16,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/player/20261028T172801Z-wordbound_workshop_flow.log",
+        "evidence": [
+          "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/checks.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "smoke": {
+          "build": "Builds/qa-20261028T172247Z",
+          "kind": "release-qa",
+          "run_id": "20261028T172801Z-wordbound_workshop_flow",
+          "stripped": false,
+          "scenario": "wordbound_workshop_flow",
+          "seed": 1,
+          "exit": 0,
+          "timed_out": false
+        }
+      },
+      "log": {
+        "path": "Logs/player/20261028T172801Z-wordbound_workshop_flow.log",
+        "bytes": 5884,
+        "sha256": "ea4012bcd436eb9379cba24cbf6f68a9e994cc31a7647444d3839da58c1a225a"
+      },
+      "checks": {
+        "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/checks.json",
+        "bytes": 11424,
+        "sha256": "a16b687c69b17476fa7a15d06e5c0f8e653ebbaa15586d84f2cea2b76d72fdf8"
+      },
+      "stepResults": [
+        {
+          "name": "open_wordbound",
+          "status": "PASS",
+          "t_s": 2.840809,
+          "probes": {
+            "party_frame_scene": "WordboundLobby",
+            "party_frame_screen": "1280x720",
+            "party_frame_focused": true,
+            "party_frame_splash_finished": true,
+            "party_frame_current": 5,
+            "party_frame_rendered": 5,
+            "party_frame_repaints": 4,
+            "party_frame_repaints_after_splash": 3,
+            "party_frame_last_repaint": 5,
+            "party_frame_menu_active": true,
+            "party_frame_menu_visible": true,
+            "party_frame_camera": "Wordbound lobby camera",
+            "party_frame_camera_active": true,
+            "party_frame_camera_display": 0,
+            "party_frame_camera_target": "none",
+            "party_frame_camera_callbacks": 3,
+            "party_frame_last_camera": 5,
+            "party_frame_camera_callback": "endCameraRendering",
+            "party_frame_ready": true,
+            "party_capture_width": 1280,
+            "party_capture_height": 720,
+            "party_capture_nonblack_pixels": 921600,
+            "party_capture_nonzero_alpha_pixels": 921600,
+            "party_capture_varied_rgb": true,
+            "party_capture_min_rgba": "3,3,4,255",
+            "party_capture_max_rgba": "255,255,255,255"
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_party.png"
+          ]
+        },
+        {
+          "name": "edit_workshop",
+          "status": "PASS",
+          "t_s": 6.106133,
+          "probes": {
+            "workshop_autosave_verified": true,
+            "workshop_edit_completed": true,
+            "workshop_atomic_path_characters": 164,
+            "workshop_storage_folder": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\9a5436e8ceb340229d2446799842bc20",
+            "manifest_hash": "146a289906d1cf3840a9985ce0a38e4ae968889b9e1cb1b60808333ed519e77f",
+            "seed": "0314159265358979",
+            "workshop_autosave_primary": "C:\\Users\\mrkl6\\AppData\\Local\\Temp\\wbqa\\9a5436e8ceb340229d2446799842bc20\\templates\\Flagship\\wordbound-lost-address.autosave.json",
+            "workshop_autosave_bytes": 183332,
+            "workshop_autosave_used_backup": false,
+            "workshop_autosave_exact": true,
+            "workshop_autosave_draft_unchanged": true,
+            "workshop_autosave_temporary_files": 0,
+            "workshop_recovered_seed": "0314159265358979",
+            "workshop_autosave_evidence": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/workshop-autosave.json",
+            "workshop_capture_width": 1280,
+            "workshop_capture_height": 720,
+            "workshop_capture_nonblack_pixels": 921600,
+            "workshop_capture_nonzero_alpha_pixels": 921600,
+            "workshop_capture_varied_rgb": true,
+            "workshop_capture_min_rgba": "3,3,4,255",
+            "workshop_capture_max_rgba": "255,255,245,255",
+            "workshop_ranges_zone": "Props_Attic_BookSpring",
+            "workshop_ranges_owner": "Attic_BookSpring",
+            "workshop_ranges_active_floor": "Attic",
+            "workshop_ranges_height_mm": [
+              16000,
+              16000
+            ],
+            "workshop_ranges_yaws": [
+              0,
+              90,
+              180,
+              270
+            ],
+            "workshop_ranges_allowed_floors": [
+              "Attic"
+            ],
+            "workshop_ranges_scope": "Existing zone; view-only handler and scroll, no Apply or physical pointer proof; inspect PNGs for visibility.",
+            "wordbound_workshop_range_height_scroll_requested": 782,
+            "wordbound_workshop_range_height_scroll_actual": 782,
+            "wordbound_workshop_range_height_capture_width": 1280,
+            "wordbound_workshop_range_height_capture_height": 720,
+            "wordbound_workshop_range_height_capture_nonblack_pixels": 921600,
+            "wordbound_workshop_range_height_capture_nonzero_alpha_pixels": 921600,
+            "wordbound_workshop_range_height_capture_varied_rgb": true,
+            "wordbound_workshop_range_height_capture_min_rgba": "3,3,4,255",
+            "wordbound_workshop_range_height_capture_max_rgba": "255,255,247,255",
+            "wordbound_workshop_range_floors_scroll_requested": 1020,
+            "wordbound_workshop_range_floors_scroll_actual": 1020,
+            "wordbound_workshop_range_floors_capture_width": 1280,
+            "wordbound_workshop_range_floors_capture_height": 720,
+            "wordbound_workshop_range_floors_capture_nonblack_pixels": 921600,
+            "wordbound_workshop_range_floors_capture_nonzero_alpha_pixels": 921600,
+            "wordbound_workshop_range_floors_capture_varied_rgb": true,
+            "wordbound_workshop_range_floors_capture_min_rgba": "3,3,4,255",
+            "wordbound_workshop_range_floors_capture_max_rgba": "255,255,245,255",
+            "workshop_ranges_fields_restored": true,
+            "workshop_ranges_history_same": true,
+            "workshop_ranges_snapshot_same": true,
+            "workshop_ranges_revision_same": true,
+            "workshop_ranges_undo_redo_same": true,
+            "workshop_ranges_primary_same": true,
+            "workshop_ranges_manifest_same": true,
+            "workshop_ranges_cleanup_errors": [],
+            "workshop_ranges_preserved": true
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_workshop.png",
+            "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_workshop_range_height.png",
+            "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_workshop_range_floors.png"
+          ]
+        },
+        {
+          "name": "exact_playtest",
+          "status": "PASS",
+          "t_s": 11.086701,
+          "probes": {
+            "playtest_observation": "playtest_returned",
+            "playtest_stage": "completed",
+            "playtest_start_frame": 15,
+            "playtest_ready_frame": 20,
+            "playtest_current_frame": 113,
+            "playtest_post_ready_waited_frames": 90,
+            "playtest_elapsed_seconds": 4.978659,
+            "playtest_canonical_tick": 200,
+            "playtest_has_client": true,
+            "playtest_has_controller": true,
+            "playtest_controller_active": true,
+            "playtest_has_frame": true,
+            "playtest_has_world": true,
+            "playtest_paused": false,
+            "playtest_ready_condition": true,
+            "playtest_gameplay_fault": false,
+            "playtest_guide_fault": false,
+            "playtest_presentation_fault": false,
+            "playtest_marker_count": 1,
+            "playtest_visual_count": 93,
+            "playtest_camera_exists": true,
+            "playtest_camera_active": true,
+            "playtest_menu_open": true,
+            "playtest_time_scale": 1,
+            "playtest_focused": true,
+            "playtest_ready_elapsed_seconds": 2.361934,
+            "playtest_ready_canonical_tick": 31,
+            "local_ready_capture_width": 1280,
+            "local_ready_capture_height": 720,
+            "local_ready_capture_nonblack_pixels": 921560,
+            "local_ready_capture_nonzero_alpha_pixels": 921600,
+            "local_ready_capture_varied_rgb": true,
+            "local_ready_capture_min_rgba": "0,0,0,255",
+            "local_ready_capture_max_rgba": "255,255,255,255",
+            "exact_manifest": true,
+            "draft_unchanged": true,
+            "markers": 1
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_local_ready.png",
+            "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_local_world.png",
+            "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_equipment_menu.png"
+          ]
+        },
+        {
+          "name": "return_to_workshop",
+          "status": "PASS",
+          "t_s": 11.194747,
+          "probes": {
+            "playtest_observation": "before_return",
+            "playtest_stage": "completed",
+            "playtest_start_frame": 15,
+            "playtest_ready_frame": 20,
+            "playtest_current_frame": 113,
+            "playtest_post_ready_waited_frames": 90,
+            "playtest_elapsed_seconds": 4.980029,
+            "playtest_canonical_tick": 200,
+            "playtest_has_client": true,
+            "playtest_has_controller": true,
+            "playtest_controller_active": true,
+            "playtest_has_frame": true,
+            "playtest_has_world": true,
+            "playtest_paused": false,
+            "playtest_ready_condition": true,
+            "playtest_gameplay_fault": false,
+            "playtest_guide_fault": false,
+            "playtest_presentation_fault": false,
+            "playtest_marker_count": 1,
+            "playtest_visual_count": 93,
+            "playtest_camera_exists": true,
+            "playtest_camera_active": true,
+            "playtest_menu_open": true,
+            "playtest_time_scale": 1,
+            "playtest_focused": true,
+            "same_history": true,
+            "draft_unchanged": true,
+            "client_destroyed": true,
+            "camera_destroyed": true,
+            "editor_visible": true
+          },
+          "assert_failures": [],
+          "captures": [
+            "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_returned_workshop.png"
+          ]
+        },
+        {
+          "name": "undo_redo_preserved",
+          "status": "PASS",
+          "t_s": 11.308138,
+          "probes": {
+            "undo_redo_exact": true
+          },
+          "assert_failures": []
+        }
+      ],
+      "sourceBinding": {
+        "buildId": "20261028T172247Z",
+        "embeddedCommit": null,
+        "embeddedTree": null
+      },
+      "roster": [],
+      "rosterScope": "Workshop receipt has no independent roster fields; no roster claim",
+      "startedUtc": "2026-10-28T17:28:04Z",
+      "endedUtc": "2026-10-28T17:28:16Z",
+      "captures": [
+        {
+          "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_party.png",
+          "bytes": 1254351,
+          "sha256": "f2e44772c675d346622a2d4eb6714fded81ba5815d8bdbe9e4f45d0a15e3bd0a",
+          "width": 1280,
+          "height": 720,
+          "step": "open_wordbound",
+          "frame": null,
+          "observation": "Per-capture dimensions and decoded nonblank/varied pixel observation; no per-image frame/focus probe"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_workshop.png",
+          "bytes": 271634,
+          "sha256": "a0380d2b7908fb2abad91f17cc48f1fa0431862844131398cd7f70286d8f0d77",
+          "width": 1280,
+          "height": 720,
+          "step": "edit_workshop",
+          "frame": null,
+          "observation": "Per-capture dimensions and decoded nonblank/varied pixel observation; no per-image frame/focus probe"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_workshop_range_height.png",
+          "bytes": 270302,
+          "sha256": "602bb8be580739dcb1c7ce9d3dd56cde1ac0aacfab1fb77749234f1e80198698",
+          "width": 1280,
+          "height": 720,
+          "step": "edit_workshop",
+          "frame": null,
+          "observation": "Per-capture dimensions and decoded nonblank/varied pixel observation; no per-image frame/focus probe"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_workshop_range_floors.png",
+          "bytes": 269952,
+          "sha256": "a292938556e57246e596f9c370b44a11095a554969b30ebfb34d568e3ecf7db9",
+          "width": 1280,
+          "height": 720,
+          "step": "edit_workshop",
+          "frame": null,
+          "observation": "Per-capture dimensions and decoded nonblank/varied pixel observation; no per-image frame/focus probe"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_local_ready.png",
+          "bytes": 1123869,
+          "sha256": "cc009c478207f1342e065f8014a8caf03354ef5eb70ba73029f8a7f0a1b17a36",
+          "width": 1280,
+          "height": 720,
+          "step": "exact_playtest",
+          "frame": null,
+          "observation": "Per-capture dimensions and decoded nonblank/varied pixel observation; no per-image frame/focus probe"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_local_world.png",
+          "bytes": 1120668,
+          "sha256": "e72fdb20f6994b101d609dcc556da88a287d87621f0654336bbb659497f259ec",
+          "width": 1280,
+          "height": 720,
+          "step": "exact_playtest",
+          "frame": null,
+          "observation": "Same-window dimensions from party observation; no per-image frame/focus/pixel probe is recorded"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_equipment_menu.png",
+          "bytes": 578942,
+          "sha256": "c217241cc8c1e6a470c8323017413152dc9faa826a6b8a8338bcde292177d749",
+          "width": 1280,
+          "height": 720,
+          "step": "exact_playtest",
+          "frame": null,
+          "observation": "Same-window dimensions from party observation; no per-image frame/focus/pixel probe is recorded"
+        },
+        {
+          "path": "Docs/qa/runs/20261028T172801Z-wordbound_workshop_flow/wordbound_returned_workshop.png",
+          "bytes": 271634,
+          "sha256": "a0380d2b7908fb2abad91f17cc48f1fa0431862844131398cd7f70286d8f0d77",
+          "width": 1280,
+          "height": 720,
+          "step": "return_to_workshop",
+          "frame": null,
+          "observation": "Same-window dimensions from party observation; no per-image frame/focus/pixel probe is recorded"
+        }
+      ]
+    }
+  ],
+  "preservation": {
+    "receipt": {
+      "path": "BuildNotes/play-organization-20261029/windows172247-final-preservation.json",
+      "bytes": 456,
+      "sha256": "8e3ca883915153fe664c28506e238ac9b0581ce00e05b36c258e37c3afafb15e"
+    },
+    "baseline": {
+      "path": ".harness/delivery/ui-authored-before-2026-10-28T17-19-31-100Z.json",
+      "bytes": 902037,
+      "sha256": "963bdd6cd7f2fd8e368a4b4e4c4123dd4585d16ef661e424f96a7eacd274495d"
+    },
+    "originalScope": "All non-ignored Assets .asset/.unity/.prefab/.mat/.ttf/.otf and adjacent metadata, plus project/build settings. Read-only preservation fingerprint, no Unity/player execution.",
+    "verifiedFileCount": 4268,
+    "baselineCommit": "3d44c2c78e9eb462a1f30f72bda38596551be055",
+    "baselineIsAncestorOfBuild": true,
+    "receiptUtc": "2026-10-28T17:31:15.492Z",
+    "scope": "Root final PASS receipt is referenced and bound to its baseline hash/count/scope. Its listed authored files are not rehashed again by this audit. Runtime preservation probes are checked separately."
+  },
+  "scope": {
+    "captures": 45,
+    "lobbySteps": 5,
+    "soloSteps": 4,
+    "workshopSteps": 5,
+    "visualAcceptance": "PENDING independent inspection of these exact images",
+    "limits": [
+      "Current binary hashes and exact build IDs/gates are recorded. The smoke format has no per-run executable hash; historic byte identity is not independently proved.",
+      "PNG headers, endings and observed dimensions/focus are verified; image decode/visual quality still requires the actual images and reviewer.",
+      "Solo proves installed Lost Address TimeRun/Freestyle and separate Parcel Hall Freestyle launch, one-human Single runner, fresh simulation/camera, journal count observation, borrowed binding release and actual return handler. It does not prove full completion or physical controls.",
+      "Lobby proves selection/navigation including the Wordbound creator card and actual House/Wordbound control legend selectors, with original shared bindings preserved. The two Wordbound views prove row visibility and recorded mode-specific labels; they do not prove physical controller operation. It does not launch the creator or touch user autosaves.",
+      "Online frame is the actual frontend only. No fresh Connect, public/private matchmaking, complete network match, team/bot bridge or production release acceptance is claimed.",
+      "Workshop validates exact edit/autosave readback, range-view preservation, live playtest, return and undo/redo. Three workshop PNGs have no per-image pixel/frame/focus probe; dimensions and bytes are verified against the same presented window, and this absence is recorded.",
+      "Runtime cleanup receipts apply while the player loop advances. Process termination or a frame exceeding the external deadline is outside this guarantee."
+    ]
+  }
+}

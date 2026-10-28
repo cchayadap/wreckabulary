@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-28T17:27:34.728Z",
+  "status": "FAIL",
+  "build": "20261028T172247Z",
+  "lobby": "20261028T172356Z-lobby_experience",
+  "solo": "20261028T172443Z-wordbound_solo",
+  "workshop": "20261028T172606Z-wordbound_workshop_flow",
+  "reason": "Strict audit rejected Workshop party readiness: party_frame_focused=false even though scenario PASS. No threshold changed. Repeat exact Workshop smoke and preserve this original."
+}
