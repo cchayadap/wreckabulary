@@ -94,6 +94,27 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator CaptureOriginalRoomBackdropComparison()
+        {
+            yield return TestScenes.Load(Session.HubScene);
+            yield return new WaitForSecondsRealtime(.8f);
+            var menu = LobbyMenu.Instance;
+            Assert.NotNull(menu);
+            LobbyThemes.Preview("sunroom");
+            foreach (string page in new[] { LobbyMenu.Home, LobbyMenu.Shop, LobbyMenu.Loadout })
+            {
+                menu.Open(page);
+                foreach (bool artwork in new[] { true, false })
+                {
+                    menu.Stage.ShowArtwork(artwork);
+                    yield return Settle();
+                    yield return Capture(page + (artwork ? "-illustration" : "-original-room"));
+                }
+            }
+            completed = true;
+        }
+
+        [UnityTest]
         public IEnumerator CaptureThemesShopRecipesAndPauseSettings()
         {
             yield return TestScenes.Load(Session.HubScene);
