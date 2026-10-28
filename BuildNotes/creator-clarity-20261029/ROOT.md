@@ -2,6 +2,14 @@
 
 STATUS: IN PROGRESS. Previous goal turn made verified progress: committed visual corrections, final Windows215158 five-flow evidence and preserved unfinished work. The full production goal remains active.
 
+## Current checkpoint — 2026-10-28T23:34Z
+
+- Committed first-stage implementation is c6b86a49. Native flagship231532 now passes the ordinary-spawn first three rooms/two puzzles,16 letters/three crafts using real movement and sensors; zero cleanup failures. The exact report is flagship/NATIVE-FIRST-LEG.md. Earlier failed fixture assumptions and timing estimates remain recorded and explicitly superseded; full course/online proof remains open.
+- Shop footer save232335 and repeat232527 pass. The exact saved ShopPage prefab adds SelectionHeight96 and its existing action-width default;12,267 other serialized properties match. All other4,305 authored baseline files remain unchanged. The setup respects future authored edits after its completed one-time migration.
+- Final Shop232639 passes31/31. Capture232744 passes1/1 with14 native images, source/preference/global preservation,64px footer at1280×720 and42.667px at854×480. Root opened all seven720p states: selected/equipped/locked actions remain distinct, original shield silhouette matches its stage model, Winter action is visible, fitted gear images are larger. Generic finish-family swatches still do not represent actual per-item skins. Detailed lobby versus sparse maps and tiny metadata at small resolutions remain broader visual limitations.
+- Post-save baseline .harness/delivery/ui-authored-before-2026-10-28T23-25-40-613Z.json checks4,306 files; final-capture-preservation.json PASS at23:32. No final Windows evidence yet for this source. Next: snapshot and scoped commit, gated Windows build, original five scenarios plus the additive inspector scenario, independent visual and strict provenance/preservation review. Earlier tested215158 build stays available until these pass.
+- Ordinary Unity editing guidance is in UNITY-EDITING.md. It explicitly records remaining authoring gaps, including the default Lost Address Solo factory versus Workshop's saved FlagshipCourse asset. No production-ready or owner-approved claim.
+
 Base: b2556d9f on sethypagna/wordbound-integration. Built production source4ee1d37a; prior review remains available. Root owns production integration and all native jobs. Delegates own separate drafts only.
 
 - [~] Contextual Workshop Objects / Puzzles / Room inspector, original image choices and optional advanced IDs; preserve editing, history, seed, range and exact identifiers.

@@ -244,6 +244,15 @@ namespace Wreckabulary.Tests
                     Assert.AreSame(Wreckabulary.UI.OriginalItemArt.Find(recipe), images[0].texture);
                     Assert.AreEqual(Color.white, images[0].color, "Keep original material colours untinted.");
                     Assert.IsFalse(images[0].raycastTarget);
+                    Assert.Greater(images[0].rectTransform.rect.height, 84f, "The saved offer artwork must use more than the previous tiny thumbnail area.");
+                    Assert.AreEqual((float)images[0].texture.width / images[0].texture.height,
+                        images[0].rectTransform.rect.width / images[0].rectTransform.rect.height, .001f);
+                    var imageCorners = new Vector3[4]; var artCorners = new Vector3[4];
+                    images[0].rectTransform.GetWorldCorners(imageCorners); card.Art.GetWorldCorners(artCorners);
+                    Assert.GreaterOrEqual(imageCorners[0].x, artCorners[0].x);
+                    Assert.GreaterOrEqual(imageCorners[0].y, artCorners[0].y);
+                    Assert.LessOrEqual(imageCorners[2].x, artCorners[2].x);
+                    Assert.LessOrEqual(imageCorners[2].y, artCorners[2].y);
                     Assert.IsNotNull(card.Art.Find("Finish swatch"));
                     Assert.IsFalse(card.Art.Find("Finish swatch").GetComponent<Image>().raycastTarget);
                     StringAssert.Contains("Select to preview", card.Hint.Text);

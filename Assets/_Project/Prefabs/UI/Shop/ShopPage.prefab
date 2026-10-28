@@ -4440,6 +4440,8 @@ MonoBehaviour:
   Content: {fileID: 5582061412559466199}
   Offers: {fileID: 6585887521728784431}
   Footnote: {fileID: 3900849714770551934}
+  SelectionHeight: 96
+  SelectionActionWidth: 200
   Categories:
   - Id: looks
     Action: {fileID: 2213802223456963510}

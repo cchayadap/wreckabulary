@@ -326,8 +326,14 @@ namespace Wreckabulary
         {
             bool worn = (Menu.Outfit.SkinFor(recipe) ?? "Classic") == offer.Value;
             ArtCard(parent, offer, offer.Value, "Original " + recipe + " shape · Select to preview " + offer.Value + " finish", worn, out var art);
-            var item = LobbyKit.ItemImage(art, recipe, 84);
-            if (item) item.rectTransform.Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(84, 84));
+            var frame = LobbyKit.Rect(art, "Item frame").Place(Vector2.zero, Vector2.one, new Vector2(6, 6), new Vector2(-6, -6));
+            var item = LobbyKit.ItemImage(frame, recipe, 144);
+            if (item)
+            {
+                var fit = item.gameObject.AddComponent<AspectRatioFitter>();
+                fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+                fit.aspectRatio = item.texture.width * item.uvRect.width / (item.texture.height * item.uvRect.height);
+            }
             var (from, to) = FinishPaint(offer.Value);
             var swatch = LobbyKit.Rect(art, "Finish swatch").Pin(new Vector2(1, 0), new Vector2(-14, 14), new Vector2(20, 20));
             LobbyKit.Face(swatch, from, 10, LobbyKit.Line, 1, 0, to);
