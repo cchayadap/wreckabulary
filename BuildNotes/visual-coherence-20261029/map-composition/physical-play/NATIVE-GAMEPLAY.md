@@ -25,3 +25,9 @@ Stable evidence hashes:
 The TimeRun case preceded the carried-release correction; the later focused release and Freestyle runs exercise that changed Drop path. These are separate native checkpoints, not a claim that one final aggregate run executed every case. Root retained the earlier evidence and selected the bounded reruns.
 
 Limits: one installed seed and saved course, local SDK simulation, scripted movement/commands. Human mouse/controller usability, broad seed coverage, additional public multiplayer modes, matchmaking, final Windows delivery, performance and owner approval of artwork are separate evidence. Earlier failed receipts remain intact.
+
+## Final saved-course rerun — 2026-10-28T21:11Z
+
+After the Start0 camera correction, saved original wall fixtures and exact preview import, native run **20261028T210548Z passes 2/2**, zero skips or failures. Freestyle completes all six sites in168.509870 seconds; Time Run completes all three laps in164.268163 seconds. Both cases report cleanup failures=0. All twelve logged crafted-item socket completions are physical=true and consumed=true. The unchanged tests exercise real movement, collection, crafting, carrying and authority commands, including the Freestyle map-origin table rejection. This final aggregate pass supersedes the earlier split successful cases for the current saved course; earlier failures remain evidence.
+
+Source checkpoint:66687eb7784118cc9628eb344c93741738bd04e7. XML:TestResults/editmode_20261028T210548Z.xml, SHA256:01e4fd5c9e0179659c9efdfde234017e4c412b20649170c6052921499284e1c2. Gate: .harness/delivery/workspace-parcelphysical-2026-10-28T21-05-48-341Z-stdout.txt. It remains scripted local SDK evidence, not physical-controller, separate-PC multiplayer or visual approval.

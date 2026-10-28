@@ -130,6 +130,8 @@ namespace Wreckabulary.Tests
             style.Palettes[0].FloorMaterial = material;
             WordboundRoomStyleProfile selected = style;
             string before = preset.Snapshot.RecoveryJson;
+            var originalFloor = Surfaces.Get(Surfaces.Kind.Planks, Color.white);
+            string originalFloorBefore = EditorJsonUtility.ToJson(originalFloor);
             try
             {
                 using (var view = new WordboundWorkshopViewport(owner.transform))
@@ -143,11 +145,21 @@ namespace Wreckabulary.Tests
                     var derived = owner.GetComponentsInChildren<MeshRenderer>().Where(r => r.name == "Floor")
                         .Select(r => r.sharedMaterial).First(m => m.color == style.Palettes[0].Floor);
                     Assert.IsNotNull(derived.mainTexture);
+                    Assert.AreSame(originalFloor.shader, derived.shader, "Opaque floors must preserve the original Lit shader.");
+                    Assert.AreNotSame(originalFloor, derived, "The course tint must be applied to an owned clone.");
+                    CollectionAssert.AreEquivalent(originalFloor.shaderKeywords, derived.shaderKeywords);
+                    foreach (string property in originalFloor.GetTexturePropertyNames())
+                    {
+                        Assert.AreSame(originalFloor.GetTexture(property), derived.GetTexture(property), property);
+                        Assert.AreEqual(originalFloor.GetTextureScale(property), derived.GetTextureScale(property), property);
+                        Assert.AreEqual(originalFloor.GetTextureOffset(property), derived.GetTextureOffset(property), property);
+                    }
                     selected = null; view.Sync(preset.Snapshot, preset.Catalogue);
                     Assert.IsTrue(derived == null, "Obsolete owned floor variants must be released on source change.");
                     Assert.IsTrue(material); Assert.AreEqual(before, preset.Snapshot.RecoveryJson);
                 }
                 Assert.IsTrue(material);
+                Assert.AreEqual(originalFloorBefore, EditorJsonUtility.ToJson(originalFloor), "Original surface properties must not be edited by the viewport.");
             }
             finally { Object.DestroyImmediate(owner); Object.DestroyImmediate(style); Object.DestroyImmediate(material); }
         }

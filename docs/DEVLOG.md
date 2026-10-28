@@ -979,3 +979,15 @@ Native202225 passes all six Freestyle physical sites with actual crafting and cl
 ## 2026-10-28T21:08:00Z Save editable Parcel fixtures, previews and camera clearance
 
 Saved three original-art fixture prefabs and optional per-module visual bindings shared by runtime/Workshop/previews. Spawn migration205132 preserves other course edits and moves only Start0 away from the rear wall. Rules20470820/20 and combined native20490092/92 pass. Fixture create205804 and no-write repeat210047 pass; prior authored preservation4299 unchanged plus intended profile update. Exact three-map preview import210504 passes with backups. Root opened all3 current captures; rooms remain sparse and visual acceptance is open. Evidence and limits: BuildNotes/visual-coherence-20261029/map-composition/SAVED-PRESENTATION.md. Physical rerun210548 is active; final Windows review pending. Recovery snapshot21-06-14 verifies2809 unfinished files.
+
+## 2026-10-28T21:12:00Z Final Parcel physical route rerun passes
+
+Native210548 passes2/2 after current saved spawn and dressing. Freestyle168.51s, TimeRun164.27s; six physical socket completions each and zero cleanup failures. Exact XML and limits appended to map-composition/physical-play/NATIVE-GAMEPLAY.md. Fresh Windows build211157 is active from66687eb7. Authored baseline .harness/delivery/ui-authored-before-2026-10-28T21-08-33-016Z.json covers4306 files.
+
+## 2026-10-28T21:32:00Z Workshop cutaway correction verified natively
+
+Root integrated exact three-file workshop-depth manifestdc684301 after hash checks and independent source review. Opaque preview materials now clone original Lit surfaces; transparent ghosts and borrowed author materials remain intact. Cutaway hides wall-only fixtures while full worlds keep them. R0212919 PASS; native212943 passes13/13 with source, clone lifecycle, complete texture/UV/keyword preservation and no authored-row mutation checks. Actual new Windows rendering remains pending. Preview0.3 comparison212401 retained/not imported after root and independent reviewers found old maps too dim; root's0.5 comparison follows. Windows211157 remains strict63-audited, with its known floating-cutaway defect preserved.
+
+## 2026-10-28T21:38:00Z Select brighter shadowed previews and save Workshop correction
+
+Final preview213535 retains original0.7 fill and enables soft key shadows. Root opened all3 images; lower0.3/0.5 renders remain preserved and were not imported. Exact import213721 passes with previous images/meta/layout backed up; all input/source/global preservation flags true. Workshop13/13 native and independent ownership review pass. Stage/material/cutaway source plus selected3PNGs are ready for fresh Windows verification. This selects a bounded render correction, not final map art approval. Recovery21-32-27 verifies2883 unfinished files.

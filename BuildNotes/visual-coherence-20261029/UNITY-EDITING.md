@@ -16,6 +16,6 @@ Use the integration checkout with Unity6000.6.4f1. Existing authoring scenes are
 
 Save outside Play Mode. The course and visuals are separate saved assets; the editor preview and runtime are generated from them. Do not expect edits to a temporary preview hierarchy to rewrite the course. The new map is a local course; public maps and other creators’ drafts are unchanged. Workshop draft edits/autosaves are separate from the saved source asset and keep separate Undo histories.
 
-Wall fixtures are visual architecture. Keep them above 2.45 m, within 0.4 m of a room edge, below the ceiling and attached to a real wall. Their saved prefab groups are shared by gameplay, Workshop and map images. After editing a prefab, rebuild the course preview and recapture its map image. Other rooms and original shared materials stay independently editable.
+Wall fixtures are visual architecture. Keep them above 2.45 m, within 0.4 m of a room edge, below the ceiling and attached to a real wall. Inspect them in the full Unity course preview or Playtest. The Workshop editing cutaway hides walls and their decorative fixtures, while preserving the saved profile and prefabs. After editing a prefab, rebuild the course preview and recapture its map image. Other rooms and original shared materials stay independently editable.
 
 Visual quality, complete public multiplayer, richer landmarks and the larger production backlog remain open. Current materials and map are editable work in progress.

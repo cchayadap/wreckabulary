@@ -142,7 +142,7 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
-        public void WorkshopUsesSamePoseOnActiveFloorAndDropsClonesOnHiddenOrSwitchedSource()
+        public void WorkshopCutawayOmitsUnsupportedWallFixturesWithoutChangingTheirAuthoredData()
         {
             var preset = WorkshopTemplates.Create(WorkshopTemplate.FreestyleWorld);
             var history = new WorkshopHistory(preset.Snapshot);
@@ -152,24 +152,27 @@ namespace Wreckabulary.Tests
             row.LocalPosition = new Vector3(0, 2.7f, definition.DepthMm / 2000f - .2f);
             IReadOnlyList<WordboundModuleDressingEntry> selected = new[] { row };
             string before = history.Current.RecoveryJson;
-            GameObject clone;
+            var sourceScale = source.transform.localScale;
+            var position = row.LocalPosition;
+            var materialBefore = EditorJsonUtility.ToJson(material);
             using (var view = new WordboundWorkshopViewport(owner.transform))
             {
                 view.ModuleDressingProvider = () => selected;
                 view.Sync(history.Current, preset.Catalogue);
-                clone = Fixtures().Single().gameObject;
-                Assert.AreEqual(row.LocalPosition, clone.transform.localPosition);
-                Assert.AreSame(material, clone.GetComponentInChildren<MeshRenderer>().sharedMaterial);
-                Assert.IsTrue(clone.GetComponentsInChildren<Transform>().All(t => t.gameObject.layer == 31));
+                Assert.IsEmpty(Fixtures(), "Wall fixtures need full walls; the editing viewport is a cutaway.");
+                Assert.IsTrue(owner.GetComponentsInChildren<MeshRenderer>().Any(r => r.name == "Floor"), "The cutaway itself must still be rendered.");
                 Assert.AreEqual(before, history.Current.RecoveryJson);
                 selected = null; view.Sync(history.Current, preset.Catalogue);
-                Assert.IsTrue(clone == null); Assert.IsEmpty(Fixtures());
+                Assert.IsEmpty(Fixtures());
                 selected = new[] { row };
                 history.Execute("Hide fixture floor", draft => draft.HiddenLayers.Add(module.LayerId));
                 view.Sync(history.Current, preset.Catalogue); Assert.IsEmpty(Fixtures());
                 Assert.IsTrue(material); Assert.IsTrue(mesh); Assert.IsTrue(source);
             }
             Assert.IsEmpty(Fixtures()); Assert.IsTrue(material); Assert.IsTrue(mesh);
+            Assert.AreEqual(position, row.LocalPosition); Assert.AreSame(source, row.Prefab);
+            Assert.AreEqual(sourceScale, source.transform.localScale);
+            Assert.AreEqual(materialBefore, EditorJsonUtility.ToJson(material));
         }
 
         Transform[] Fixtures() => owner.GetComponentsInChildren<Transform>(true).Where(t => t.name == WordboundModuleDressing.RootName).ToArray();

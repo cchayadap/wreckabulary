@@ -88,3 +88,7 @@ Recovery20:57Z: committed82ae843c mapcardfit18/18. Integratedspawn3422270e/dress
 ## 21:08 UTC saved presentation checkpoint
 
 All-three actual-map preview import210504 PASS with exact backups. Fixture creation205804 and read-only repeat210047 PASS. Root opened current205930 Parcel/LostAddress/ParcelHall PNGs: improved original materials and wall fixtures; sparse environments remain unresolved. Full physical rerun210548 active. Recovery snapshot .harness/recovery/developer-workspace-2026-10-28T21-06-14-309Z verifies2809 unfinished files. Next: commit bounded source/assets, fresh Windows build and63-frame audit/review, update TRY/progress.
+
+## 21:24 UTC review-led correction
+
+Build211157/source66687 passes all five scenarios and strict45+18 image audits;4306 authored files unchanged. Full physical210548 passes2/2. Root opened all3 Parcel gameplay frames: camera now whole-body, neutral HUD and proper world shadows. Root and map reviewer confirmed new P2 floating wall fixtures in Workshop cutaway, because supporting walls are hidden. Map lane drafts viewport-only Lit surfaces and omission of wall-only decoration; gameplay/thumbnail fixtures remain. Menu lane preview-depth manifest e916f4ed is integrated (two lighting lines), R0212258PASS; native all-three capture212335 active. No new preview imported yet. Candidates must be compared before selection; current source is66687 plus that one Editor file. All earlier source/build artifacts retained. progress.md reconciled with full backlog and exact earlier file backup.

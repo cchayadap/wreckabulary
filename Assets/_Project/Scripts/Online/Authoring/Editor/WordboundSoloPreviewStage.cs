@@ -57,6 +57,7 @@ namespace Wreckabulary.Online.Editor
                 Preview.lights[0].intensity = 1.2f; Preview.lights[0].transform.rotation = Quaternion.Euler(35, 25, 0);
                 Preview.lights[1].intensity = .7f; Preview.lights[1].transform.rotation = Quaternion.Euler(340, 220, 0);
                 foreach (var light in Preview.lights) { light.color = Color.white; light.shadows = LightShadows.None; }
+                Preview.lights[0].shadows = LightShadows.Soft;
                 Preview.ambientColor = Color.gray;
                 SetPose(pose.Position, pose.Target, pose.FieldOfView);
             }

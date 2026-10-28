@@ -83,7 +83,9 @@ namespace Wreckabulary.Workshop
         Material Material(Color color, Surfaces.Kind surface)
         {
             var source = Surfaces.Get(surface, Color.white);
-            var result = WordboundRenderMaterials.Create(color.a < 1, "Workshop " + surface);
+            var result = color.a < 1
+                ? WordboundRenderMaterials.Create(true, "Workshop " + surface)
+                : new Material(source) { name = "Workshop " + surface, hideFlags = HideFlags.DontSave };
             result.mainTexture = source.mainTexture;
             result.color = color;
             if (result.HasProperty("_BaseMap")) result.SetTexture("_BaseMap", source.mainTexture);
@@ -133,7 +135,6 @@ namespace Wreckabulary.Workshop
                 var root = new GameObject(module.Id).transform; root.SetParent(content, false);
                 root.localPosition = Point(module.Position); root.localRotation = Quaternion.Euler(0, module.Yaw, 0);
                 modules.Add(module.Id, root); authored.Add(module.Id, module);
-                if (!adjacent) WordboundModuleDressing.Apply(dressing, module.Id, definition, root, PreviewLayer);
                 var material = adjacent ? ghost : state.Selection.Contains(module.Id) ? selected : FloorFor(module.LayerId, style);
                 float x = definition.WidthMm / 1000f, z = definition.DepthMm / 1000f;
                 Box(root, "Floor", new Vector3(0, -.1f, 0), new Vector3(x, .2f, z), material);
@@ -224,7 +225,9 @@ namespace Wreckabulary.Workshop
             root.transform.SetParent(parent, false); root.transform.localPosition = position; root.transform.localScale = size;
             root.AddComponent<MeshFilter>().sharedMesh = Surfaces.Box(size, Surfaces.Tile(Surfaces.Kind.Planks));
             var renderer = root.AddComponent<MeshRenderer>(); renderer.sharedMaterial = material;
-            renderer.shadowCastingMode = ShadowCastingMode.Off; renderer.receiveShadows = false;
+            bool transparent = material.HasProperty("_Surface") && material.GetFloat("_Surface") > .5f;
+            renderer.shadowCastingMode = transparent ? ShadowCastingMode.Off : ShadowCastingMode.On;
+            renderer.receiveShadows = !transparent;
             return root.transform;
         }
 
