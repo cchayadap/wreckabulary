@@ -26,8 +26,8 @@ Roboto source, exact version, licence and hashes are recorded by the typography 
 - [x] Native162848 passes4/4: Play hides characters and shadows while retaining party, bindings and outfit; Home/Customize restore the same avatar. Existing camera runtime checks also pass.
 - [x] Hash-verified four-file Play draft integrated from `play/manifest.json`; root reduced Play outer gutter from26 to12 units with6 units below the top navigation. Other pages keep their existing outer geometry.
 - [x] Full-width Play characterization and navigation gate163111 passes32/32; source checkpoint `c45e4fac` preserves the tested step. Independent lifecycle review found no blocking defect and records the untested active-preview/emote transition separately.
-- [~] Roboto source and saved asset migration being prepared separately.
-- [~] Earlier-look Settings/Customize organization draft being prepared separately.
+- [x] Official Roboto v3.016 original hinted static faces and pinned OFL saved with source hashes. Native Apply165008 and reopened repeat165137 pass; all4268 authored files remain unchanged on repeat. Original fonts retained; exact16 pre-migration frame/profile files and metadata verified.
+- [x] Hash-verified four-file Settings/Customize organization draft integrated: compact colour parts/palette/accessory/finish cards, warmer surfaces and tighter one-option-per-row Settings. Saved frame panels are warmed during the font migration; no stripes restored.
 - [ ] Native font persistence, layout, focus, small-window fit and saved-asset validation.
 - [ ] New Windows build and actual lobby/Solo/Workshop captures, image review and exact preservation receipt.
 

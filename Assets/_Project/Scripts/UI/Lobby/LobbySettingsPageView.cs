@@ -19,7 +19,7 @@ namespace Wreckabulary
         {
             if (float.IsNaN(height) || float.IsInfinity(height)) throw new ArgumentOutOfRangeException(nameof(height));
             var fit = Panel.GetComponent<LobbyCompactPanel>() ?? Panel.gameObject.AddComponent<LobbyCompactPanel>();
-            fit.MaximumSize = new Vector2(MaximumWidth, Mathf.Clamp(height, 560, 1000));
+            fit.MaximumSize = new Vector2(MaximumWidth, Mathf.Clamp(height, 480, 1000));
             fit.Fit();
         }
 

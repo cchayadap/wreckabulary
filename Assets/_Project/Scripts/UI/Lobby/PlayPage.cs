@@ -384,7 +384,7 @@ namespace Wreckabulary
             SummaryLine(bar);
             string blocked = Menu.Blocked;
             string where = Menu.Mode == LobbyMenu.TutorialMode ? "The tutorial room" : MapName(Menu.Map);
-            var title = LobbyKit.Text(bar, LobbyMenu.ModeName(Menu.Mode) + " · " + where, 26, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
+            var title = LobbyKit.Text(bar, ShortMode(Menu.Mode, LobbyMenu.ModeName(Menu.Mode)) + " · " + where, 26, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
             title.enableAutoSizing = true; title.fontSizeMin = 20; title.fontSizeMax = 26;
             title.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(8, 44), new Vector2(-250, -8));
             string detailText = blocked ?? Objective(Menu.Mode) + "  ·  " + Participants(Menu.Mode, Menu.PartySize);

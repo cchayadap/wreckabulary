@@ -679,7 +679,7 @@ namespace Wreckabulary.Tests
             Click("Quit");
             yield return null;
             var dialog = menu.GetComponentsInChildren<RectTransform>().Single(r => r.name == "Quit dialog");
-            Assert.IsTrue(dialog.GetComponentsInChildren<TMPro.TMP_Text>().Any(t => t.text == "LEAVE THE HOUSE PARTY?"));
+            Assert.IsTrue(dialog.GetComponentsInChildren<TMPro.TMP_Text>().Any(t => t.text == "Quit game?"));
             Assert.AreSame(Find("STAY").gameObject, Selected, "staying is the default");
             AssertNoEllipsis(dialog, "the quit box");
             Click("Close quit");

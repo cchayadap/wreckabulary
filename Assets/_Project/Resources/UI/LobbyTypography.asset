@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0198d153bc4166043b1534f6c10e9581, type: 3}
   m_Name: LobbyTypography
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyTypographyProfile
-  Display: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  Body: {fileID: 11400000, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
-  Black: {fileID: 11400000, guid: c912aa71f08918840a51dbf4e35a7f07, type: 2}
-  Stroke: {fileID: 2100000, guid: 5695c0888c5f38d4180c6067693cb0ca, type: 2}
-  Drop: {fileID: 2100000, guid: 0a447dc6539503642908390aab1d4be4, type: 2}
-  DisplayForeground: {fileID: 2100000, guid: 3581311d9571a8147ab6affeaa80799b, type: 2}
-  BodyForeground: {fileID: 2100000, guid: 684685cfc489f7649931fcd1a4769b0c, type: 2}
-  BlackForeground: {fileID: 2100000, guid: 1e704ca78369659408907a44a1930673, type: 2}
+  Display: {fileID: 11400000, guid: 6729ab70c3b8a4346b0c69c75d10c4aa, type: 2}
+  Body: {fileID: 11400000, guid: e434102c06a032f4bb9ec9dd0036b752, type: 2}
+  Black: {fileID: 11400000, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
+  Stroke: {fileID: 2100000, guid: 907fbe3fa964e534c9f42a9dd9db10a2, type: 2}
+  Drop: {fileID: 2100000, guid: 411932caad92fca428581d35d79229dd, type: 2}
+  DisplayForeground: {fileID: 2100000, guid: 7621ebcfe064a84449e58c7c14507322, type: 2}
+  BodyForeground: {fileID: 2100000, guid: 453534caafb872b4991e4e07532e2769, type: 2}
+  BlackForeground: {fileID: 2100000, guid: 37403d2ea9a834c439a45cd6e7ba5e2f, type: 2}

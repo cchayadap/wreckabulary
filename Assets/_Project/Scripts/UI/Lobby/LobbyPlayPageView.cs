@@ -54,6 +54,12 @@ namespace Wreckabulary
         public void BindOptions(Action close, string subtitle)
         {
             Bind(close, subtitle, false, Vector2.zero);
+            ArrangeOptions();
+        }
+
+        public void ArrangeOptions()
+        {
+            Validate();
             Panel.Fill();
             Title.alignment = TextAlignmentOptions.MidlineLeft;
             Title.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1),

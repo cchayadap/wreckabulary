@@ -2,7 +2,7 @@
 
 Open **Wreckabulary → Open Current Workspace → Design**. Edit outside Play Mode.
 
-The 28 October menu redesign is saved in the existing Play, Settings, Shop and Loadout prefabs. Customize uses a wider panel, one clothing/accessory/finish choice per row and an inline colour palette. House choices scroll when space is short; Play stays in the footer. Settings uses a compact panel height for each category. There are no decorative ray backgrounds in these menus.
+The saved Play, Settings, Shop and Loadout prefabs remain the editing entry points. The 29 October Play organization uses the full page for options, with no character, a compact mode strip, larger map cards and a fixed footer. Cards wrap and scroll when space is short. The earlier colourful artwork is retained without decorative rays. Settings uses a compact panel height for each category; the latest typography and menu styling work is tracked in `progress.md`.
 
 The original five prefabs and Wordbound interface theme are preserved in `Assets/_Project/UI/DesignArchive/BeforeMinimal20261028/`. These are comparison copies, not the active layouts. The one-time **Authoring → Apply Minimal Menu Redesign** command checks an already-applied design without resetting subsequent edits. Do not delete the archive to force it to run again.
 
@@ -86,13 +86,17 @@ Native verification: **27/27 Editor cases** and **31/31 Play cases** pass with n
 
 These previews run the real game and use your player save. Purchases and equipment changes can persist.
 
-For Play, `Compact Maximum` defaults to **1100 × 600** and accepts **900–1920 × 580–1080** UI units. Compact mode owns the panel's responsive root placement; edit its inner regions and profile size. Keep Queues, Choices and Summary separate, and keep Title/Close outside them. Title and Subtitle need separate text references; the game supplies the subtitle text.
+For Play, edit **Content Inset**, **Header Height** and **Summary Height** on the saved `LobbyPlayPageView` component. Their defaults are **20 × 16**, **88** and **88** UI units. The full-width layout computes its regions from those fields on opening; dragging those region bounds during Play does not persist. The older `Compact Maximum` field is retained for compatibility and is not used by the new full-width Play route. Keep Queues, Choices and Summary separate, with Title/Close outside them. Keep the separate Subtitle reference even though this route hides that redundant line. Characters remain available on Home and Customize.
 
 For Settings, adjust Tabs width and the content stack's left inset together. Keep Content flexible. **Display confirmation → Layout Element → Preferred Height** reserves **64–200** units while Keep/Revert is shown; the default is **80**, plus **12** stack spacing. Keep Min Height no greater than Preferred Height and Flexible Height at zero. Keep Title/Close outside Tabs, Content and the hidden confirmation region. The timer and settings behavior stay runtime-controlled.
 
 For the lobby camera, **Distance** moves nearer/farther, **Eye Height** changes camera height, **Look Height** changes its aim and **Field Of View** changes the lens angle. Save and restart Play; small rooms still limit distance. **Design → Player camera** opens the separate Wordbound gameplay-camera asset.
 
-Saved fonts are `LilitaOne-Regular SDF.asset`, `Nunito-ExtraBold SDF.asset` and `Nunito-Black SDF.asset`. Presets include `Lobby Display Stroke.mat`, `Lobby Display Drop.mat` and `Lobby … Foreground.mat`. Keep presets paired with their font. Swapping a role in `LobbyTypography.asset` does not reassign existing prefab labels: edit those labels too. Shared font/material edits affect every referencing label; duplicate and assign for a local variation. Restart Play afterward.
+The active lobby uses **Roboto Regular** for body text, **Roboto Medium** for headings and **Roboto Bold** for emphasis. The existing profile role names are **Body / Display / Black**. Saved TMP fonts and the reusable Roboto profile are under `Assets/_Project/UI/Fonts/Roboto/v3.016/`; matching material presets are under `Assets/_Project/UI/Materials/Roboto/v3.016/`. The active profile stays at `Assets/_Project/Resources/UI/LobbyTypography.asset`. Source TTF files and the licence sit under `Assets/_Project/Resources/Fonts/Roboto/v3.016/`.
+
+Original LilitaOne/Nunito font assets remain in place. The earlier seven menu prefabs and typography profile have editable copies under `Assets/_Project/UI/DesignArchive/BeforeRoboto20261029/`. Exact original file and metadata bytes are also preserved in `BuildNotes/play-organization-20261029/typography/before-roboto/`.
+
+Keep each material preset paired with its font. Swapping a role in `LobbyTypography.asset` does not reassign existing prefab labels: edit those labels too. Shared font/material edits affect every referencing label; duplicate and assign for a local variation. Restart Play afterward. **Wreckabulary → Authoring → Apply Roboto Typography** performs the initial backed-up migration; once applied, repeating it validates the existing assets without resetting saved edits.
 
 Keep Finish, scroll/grid and header controls outside **Recipe detail**. Keep card visuals/motion outside **Letters (runtime contents)**. Both slots are refilled during play. Play, Settings, Shop and Loadout Inspectors' **Check references** catches broken bindings; it does not replace a visual/navigation check.
 

@@ -68,8 +68,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Dibs!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
+  m_sharedMaterial: {fileID: 2695427455831300044, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -103,7 +103,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0.6
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -362,8 +362,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ONLINE PLAY
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
+  m_sharedMaterial: {fileID: 2695427455831300044, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -397,7 +397,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0.6
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -853,8 +853,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: LOCAL PLAY
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
+  m_sharedMaterial: {fileID: 2695427455831300044, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -888,7 +888,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0.6
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1013,8 +1013,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: House
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
+  m_sharedMaterial: {fileID: 2695427455831300044, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1048,7 +1048,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0.6
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1446,8 +1446,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Human players \xB7 Public / private"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
-  m_sharedMaterial: {fileID: 120012894540960718, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e434102c06a032f4bb9ec9dd0036b752, type: 2}
+  m_sharedMaterial: {fileID: 8483536661307084317, guid: e434102c06a032f4bb9ec9dd0036b752, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3176,8 +3176,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Drag to turn
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e434102c06a032f4bb9ec9dd0036b752, type: 2}
+  m_sharedMaterial: {fileID: 8483536661307084317, guid: e434102c06a032f4bb9ec9dd0036b752, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

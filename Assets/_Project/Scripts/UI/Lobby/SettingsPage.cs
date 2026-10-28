@@ -64,7 +64,7 @@ namespace Wreckabulary
                 saved.Validate();
                 authoredFrame = LobbyRuntimeTypography.Instantiate(saved.Page, Root, false);
                 authoredFrame.Bind(Menu.Close, revertTo.HasValue);
-                authoredFrame.FitHeight(tab switch { "profile" or "gameplay" => 660, "audio" => 720, _ => 900 });
+                authoredFrame.FitHeight(tab switch { "profile" => 500, "gameplay" => 540, "audio" => 560, _ => 860 });
                 body = authoredFrame.Body;
             }
             else body = Panel(new Vector2(.12f, 0), new Vector2(.88f, 1), "Settings");
@@ -90,7 +90,7 @@ namespace Wreckabulary
             }
             else
             {
-                var list = LobbyKit.Scroll(holder, "Scroll", 4);
+                var list = LobbyKit.Scroll(holder, "Scroll", 6);
                 scroll = list.GetComponentInParent<ScrollRect>();
                 switch (tab)
                 {
@@ -264,9 +264,8 @@ namespace Wreckabulary
         static RectTransform Setting(Transform list, string label, string help = null)
         {
             var row = LobbyKit.Rect(list, label);
-            row.Size(-1, help == null ? 72 : 92);
-            LobbyKit.Rect(row, "Divider").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 1))
-                .Paint(LobbyKit.Line).raycastTarget = false;
+            row.Size(-1, help == null ? 64 : 92);
+            row.Paint(LobbyKit.Card, 10).raycastTarget = false;
             var words = LobbyKit.Column(row, "Words", 0);
             words.Place(Vector2.zero, new Vector2(.36f, 1), new Vector2(8, 6), new Vector2(-12, -6));
             words.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
@@ -318,19 +317,19 @@ namespace Wreckabulary
         void Stepper(RectTransform controls, string name, string value, Action<int> step)
         {
             Round(controls, name + " less", true, () => { step(-1); RefreshSetting(name + " less"); });
-            LobbyKit.Text(controls, value, 23, LobbyKit.Navy, TextAlignmentOptions.Center).Size(180, 40);
+            LobbyKit.Text(controls, value, 23, LobbyKit.Sun, TextAlignmentOptions.Center).Size(180, 40);
             Round(controls, name + " more", false, () => { step(1); RefreshSetting(name + " more"); });
         }
 
         static void Round(RectTransform controls, string name, bool back, Action click)
         {
-            var button = LobbyKit.Button(controls, name, Color.clear, click, 6, LobbyKit.Line, 1);
+            var button = LobbyKit.Button(controls, name, Color.white, click, 22, LobbyKit.Navy, 2, 2);
             button.Size(44, 44);
             var glyph = LobbyKit.Icon(button.Body(), LobbyIcons.Chevron, LobbyKit.Navy);
             glyph.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(11, 11), new Vector2(-11, -11));
             if (back) glyph.rectTransform.localRotation = Quaternion.Euler(0, 0, 180f);
             var face = button.FaceOf();
-            button.GetComponent<LobbyPress>().Hot = hot => face.color = hot ? LobbyKit.Track : Color.clear;
+            button.GetComponent<LobbyPress>().Hot = hot => face.color = hot ? LobbyKit.Picked : Color.white;
         }
 
         static (FullScreenMode mode, int width, int height) Current => (Screen.fullScreenMode, Screen.width, Screen.height);

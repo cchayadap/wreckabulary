@@ -26,7 +26,7 @@ namespace Wreckabulary
         public static readonly Color CoinRim = Hex(0xf0a400), CoinRimHi = Hex(0xffe066), CoinInk = Hex(0x795015);
 
         public static readonly Color Panel = Hex(0xfff9ec, .98f);
-        public static readonly Color PanelTop = Hex(0xfaf9f5), PanelBottom = Hex(0xfaf9f5);
+        public static readonly Color PanelTop = Hex(0xfffcf4), PanelBottom = Hex(0xf5ecd9);
         public static readonly Color ScrimNavy = Hex(0xfff8e9);
         public static readonly Color Card = Hex(0xcee3dc, .5f);
         public static readonly Color Line = Hex(0x8b9d95, .35f);

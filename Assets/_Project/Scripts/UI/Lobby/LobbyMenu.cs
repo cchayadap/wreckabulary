@@ -947,8 +947,7 @@ namespace Wreckabulary
             shade.gameObject.AddComponent<LobbyShade>().Clicked = CloseQuit;
             var box = LobbyKit.Rect(shade, "Box").Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(640, 300));
             LobbyKit.PanelFace(box, 28, 5, 8).raycastTarget = true;
-            var title = LobbyKit.Display(box, "LEAVE THE HOUSE PARTY?", 40, LobbyKit.Sun, TextAlignmentOptions.Center, LobbyKit.Ink.Drop);
-            title.characterSpacing = 2;
+            var title = LobbyKit.Display(box, "Quit game?", 36, LobbyKit.Navy, TextAlignmentOptions.Center);
             title.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(64, -98), new Vector2(-64, -34));
             var saved = LobbyKit.Text(box, "Your looks, coins and career are saved.", 20, LobbyKit.Muted, TextAlignmentOptions.Center);
             saved.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(30, -138), new Vector2(-30, -104));

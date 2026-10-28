@@ -1,0 +1,32 @@
+{
+  "version": "v3.016",
+  "repository": "https://github.com/googlefonts/roboto-3-classic",
+  "commit": "5166f3d07889bf7d3732fb72e09623d7e52f862b",
+  "release": "https://github.com/googlefonts/roboto-3-classic/releases/tag/v3.016",
+  "archive": "https://github.com/googlefonts/roboto-3-classic/releases/download/v3.016/Roboto_v3.016.zip",
+  "archiveSha256": "1653dbe12f248da8fb0b9920db7b9496cd677ed3981154f6f15285c8bd4e334f",
+  "archiveEntries": "hinted/static/Roboto-{Regular,Medium,Bold}.ttf",
+  "licenseSource": "https://raw.githubusercontent.com/googlefonts/roboto-3-classic/5166f3d07889bf7d3732fb72e09623d7e52f862b/OFL.txt",
+  "files": [
+    {
+      "name": "OFL.txt",
+      "bytes": 4394,
+      "sha256": "061402327a96aadb0bfb694a960ed289ecd38d383e396243831ab81feb109c41"
+    },
+    {
+      "name": "Roboto-Bold.ttf",
+      "bytes": 465944,
+      "sha256": "44f13e570a8b3fc42240abfcb3d72fe298f3dd6a25db0c78d0c2495dbd0e9121"
+    },
+    {
+      "name": "Roboto-Medium.ttf",
+      "bytes": 464100,
+      "sha256": "80ce163ec5ecd91a883aa20e80d31dc74971b55cf658dd7c5e8d21f4e9fcb417"
+    },
+    {
+      "name": "Roboto-Regular.ttf",
+      "bytes": 463712,
+      "sha256": "9f300202f482ad59f8b13bc3131a295744d14fd530fa3765a0a11ec87264d203"
+    }
+  ]
+}
