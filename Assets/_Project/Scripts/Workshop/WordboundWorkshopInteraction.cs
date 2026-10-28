@@ -487,9 +487,9 @@ namespace Wreckabulary.Workshop
             var zone = SelectedFixed;
             GUILayout.Label(ObjectLabel(zone.Pool[0].AssetId), heading);
             GUILayout.BeginHorizontal();
-            if (Button("Rotate object")) Attempt(RotateSelection);
-            if (Button("Duplicate object")) DuplicateSelection();
-            if (Button("Delete object")) DeleteSelection();
+            if (ToolButton("Rotate object", LobbyIcons.Turn, "Rotate object · R")) Attempt(RotateSelection);
+            if (ToolButton("Duplicate object", LobbyIcons.Duplicate)) DuplicateSelection();
+            if (ToolButton("Delete object", LobbyIcons.Delete)) DeleteSelection();
             GUILayout.EndHorizontal();
             if (Button("Select room")) zoneId = "";
             GUILayout.Label("Drag the object or its X / Z handles.\nR rotates in quarter-turns.");
@@ -528,8 +528,13 @@ namespace Wreckabulary.Workshop
 
         Texture ObjectIcon(string id) => AssetIcon?.Invoke(id) ?? UI.OriginalItemArt.Find(id);
 
-        static string ObjectLabel(string id) => string.IsNullOrEmpty(id) ? "Object" :
-            CultureInfo.InvariantCulture.TextInfo.ToTitleCase(id.ToLowerInvariant().Replace('_', ' '));
+        static string ObjectLabel(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return "Object";
+            string words = System.Text.RegularExpressions.Regex.Replace(id, "(?<=[a-z0-9])(?=[A-Z])", " ").Replace('_', ' ');
+            if (words.StartsWith("Props ", StringComparison.OrdinalIgnoreCase)) words = words.Substring(6);
+            return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(words.ToLowerInvariant());
+        }
 
         bool PlacementAssetButton(string id, bool included)
         {

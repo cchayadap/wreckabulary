@@ -1,0 +1,15 @@
+{
+  "status": "DRAFT",
+  "files": [
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyIcons.cs",
+      "baseline_sha256": "1c722e5907d466c9e60e6a6ea0562806452192a61f17c019581b4249dc78328f",
+      "candidate_sha256": "a13e11c1443aa623e595c52024316a98d1eae59614edb8779868430dc45dd22f"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyTests.cs",
+      "baseline_sha256": "b112c06582ddd3998b57387b9a735919a4c643e29d68353b938a1fdb4d2d9729",
+      "candidate_sha256": "40003ac69d56c7c079997005f867bcddd19996683ff655a770a2fc3760ead962"
+    }
+  ]
+}

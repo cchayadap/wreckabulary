@@ -138,7 +138,7 @@ namespace Wreckabulary.Workshop
         string RoomCaption(string id)
         {
             string prefix = History.Current.ActiveLayer + "_";
-            return (id.StartsWith(prefix, StringComparison.Ordinal) ? id.Substring(prefix.Length) : id).Replace('_', ' ');
+            return ObjectLabel(id.StartsWith(prefix, StringComparison.Ordinal) ? id.Substring(prefix.Length) : id);
         }
 
         bool RoomLabelVisible(CourseModule module)

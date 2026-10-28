@@ -27,6 +27,25 @@ namespace Wreckabulary.Tests
         InputSettings.EditorInputBehaviorInPlayMode? keysRoute;
         InputSettings.BackgroundBehavior keysFocus;
 
+        [Test]
+        public void RegisteredIconsCoverEveryPublicIdAndRejectUnknownNames()
+        {
+            var declared = typeof(LobbyIcons).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+                .Where(field => field.IsLiteral && field.FieldType == typeof(string))
+                .Select(field => (string)field.GetRawConstantValue()).ToArray();
+            CollectionAssert.AllItemsAreUnique(LobbyIcons.All);
+            CollectionAssert.AreEquivalent(declared, LobbyIcons.All);
+            foreach (string id in LobbyIcons.All)
+            {
+                var icon = LobbyIcons.Get(id);
+                Assert.IsNotNull(icon, id);
+                Assert.Greater(icon.rect.width, 0, id);
+                Assert.Greater(icon.rect.height, 0, id);
+                Assert.AreSame(icon, LobbyIcons.Get(id), "Repeated access reuses the icon: " + id);
+            }
+            Assert.Throws<System.ArgumentException>(() => LobbyIcons.Get("missing-editor-icon"));
+        }
+
         [UnitySetUp]
         public IEnumerator SetUp()
         {

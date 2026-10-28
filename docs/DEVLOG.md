@@ -931,3 +931,9 @@ Owner explicitly rejected current imagery, colours and plain Local appearance; W
 Object picker previously exposed AssetIcon but had no source assignment. It now borrows original item textures when no override exists, draws proportional image tiles with short names and clear selected style, and preserves custom icon providers. Solo map cards accept two optional saved Sprite references, keep original art only as per-map fallback, avoid intercepting input and preserve selected check layering. No actual map screenshot imported or palette promoted yet.
 
 R0174214 PASS; workshop core17423882/82; Editor17431460/60; Play17443516/16; no skips. All4268 authored assets unchanged. Evidence: BuildNotes/visual-coherence-20261029/first-native.json. Current full Windows checkpoint172247 predates these source changes and remains visually rejected. Next: integrate real-content capture with editable framing, shared neutral theme and icon-led Workshop tools, then inspect actual native/Windows outputs.
+
+## 2026-10-28T18:06:34.528Z Compact Workshop tools and optional help
+
+Added twelve original analytic editor icons without changing previous glyph shapes. Rotate/duplicate/delete/group/ungroup, Undo/Redo and seed reroll use compact tool buttons with named controls/tooltips. Original-art object tiles remain. Rooms use readable labels/search; templates, mode options and instructions are optional sections. Active controller tools still appear automatically even when help is closed. Actions and stored IDs/transactions are unchanged.
+
+R0180038 PASS; native input/source-binding18014328/28 and icon registry1803531/1 PASS. Actual small-icon/layout review remains pending the new palette/capture slice. Snapshot .harness/recovery/developer-workspace-2026-10-28T17-47-16-334Z preserves2264 unfinished files. Full production remains open.

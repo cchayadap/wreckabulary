@@ -34,6 +34,7 @@ namespace Wreckabulary.Workshop
         float autosaveAt;
         int displayRevision = -1, savedRevision = -1, zoneMode = 1, presetIndex;
         bool dragging, marquee, panning, drawingZone, addSelection, advanced, sharing;
+        bool showWorkshopHelp, showTemplates, showModeOptions;
         string search = "", placing, status = "", title = "", seed = "", xInput = "0", zInput = "0", layerHeight = "4";
         string zoneId = "", pool = "STOOL", minCount = "1", maxCount = "3", probability = "100", spacing = "0.5";
         string puzzleId = "", prerequisite = "", gateId = "", recipeId = "BED", shareText = "";
@@ -173,6 +174,24 @@ namespace Wreckabulary.Workshop
             return ui.Button(new GUIContent(label, tooltip ?? label), null,
                 GUILayout.MinHeight(label.Contains("\n") ? ui.ModuleHeight : ui.RowHeight));
         }
+        bool ToolButton(string label, string icon, string tooltip = null)
+        {
+            GUI.SetNextControlName(label);
+            bool clicked = ui.Button(new GUIContent("", tooltip ?? label), null,
+                GUILayout.Width(ui.RowHeight), GUILayout.Height(ui.RowHeight));
+            if (Event.current.type != EventType.Repaint) return clicked;
+            var rect = GUILayoutUtility.GetLastRect();
+            float size = Mathf.Min(22, rect.height - 10);
+            var tint = GUI.color;
+            try
+            {
+                GUI.color = GUI.enabled ? ui.Ink : ui.DisabledText.normal.textColor;
+                GUI.DrawTexture(new Rect(rect.center - Vector2.one * size * .5f, Vector2.one * size),
+                    LobbyIcons.Get(icon).texture, ScaleMode.ScaleToFit, true);
+            }
+            finally { GUI.color = tint; }
+            return clicked;
+        }
         string Field(string label, string value)
         {
             GUILayout.Label(label); GUI.SetNextControlName("workshop-text:" + label);
@@ -228,20 +247,26 @@ namespace Wreckabulary.Workshop
         }
         void Palette()
         {
-            GUILayout.Label("Palette", heading);
-            search = Field("Search modules", search);
+            GUILayout.Label("Rooms", heading);
+            search = Field("Find room", search);
             paletteScroll = GUILayout.BeginScrollView(paletteScroll);
-            ModePanel(); GUILayout.Space(12);
-            foreach (var definition in Catalogue.Modules.Values.Where(item => item.Id.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0))
-                if (Button(definition.Id + "\n" + Metres(definition.WidthMm) + " × " + Metres(definition.DepthMm) + " m", "Select, then click the map to place."))
-                { placing = definition.Id; drawingZone = false; status = "Click a floor to place " + placing; }
-            GUILayout.Space(12); GUILayout.Label("Start from", heading);
+            showModeOptions = GUILayout.Toggle(showModeOptions, "Mode & players");
+            if (showModeOptions) ModePanel();
+            GUILayout.Space(8);
+            foreach (var definition in Catalogue.Modules.Values.Where(item => item.Id.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                ObjectLabel(item.Id).IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0))
+                if (Button(ObjectLabel(definition.Id), Metres(definition.WidthMm) + " × " + Metres(definition.DepthMm) + " m · Select, then click to place."))
+                { placing = definition.Id; drawingZone = false; status = "Place " + ObjectLabel(placing); }
+            GUILayout.Space(12);
+            showTemplates = GUILayout.Toggle(showTemplates, "Templates");
+            if (showTemplates)
+            {
             if (HasAssignedCourse && Button(UsesAssignedCourse ? "● Assigned course" : "Assigned course",
                 "Return to your assigned course, keeping its edits and Undo history.") && !UsesAssignedCourse) QueueSourceChoice(1);
             if (flagshipContent != null && Button(usesFlagship ? "● Flagship draft" : "Flagship draft")) QueueSourceChoice(5);
             foreach (WorkshopTemplate template in Enum.GetValues(typeof(WorkshopTemplate)))
                 if (Button((currentTemplate == template ? "● " : "") + TemplateLabel(template))) QueueSourceChoice(2 + (int)template);
-            GUILayout.Label("New puzzles need physical controls before playtest.");
+            }
             GUILayout.Space(12);
             FloorPanel();
             GUILayout.Space(12);
@@ -254,29 +279,30 @@ namespace Wreckabulary.Workshop
                     History.Execute("Recover", draft => Replace(draft, recovered.Edit()));
                     status = backup ? "Recovered previous save" : "Recovered autosave";
                 });
-            GUILayout.Label("Drag to move · Shift to add\nRight drag to orbit · Middle to pan\nWheel to zoom · F frames selection");
-            ControllerPanel();
+            showWorkshopHelp = GUILayout.Toggle(showWorkshopHelp, "Controls");
+            if (showWorkshopHelp)
+            {
+                GUILayout.Label("Drag to move · Shift to add\nRight drag to orbit · Middle to pan\nWheel to zoom · F frames selection");
+            }
+            if (showWorkshopHelp || controllerTools) ControllerPanel();
             GUILayout.EndScrollView();
         }
         void Inspector()
         {
             inspectorScroll = GUILayout.BeginScrollView(inspectorScroll);
             var selected = display.Modules.Where(module => History.Current.Selection.Contains(module.Id)).ToList();
-            GUILayout.Label(selected.Count == 0 ? "Properties" : selected.Count + " selected", heading);
+            GUILayout.Label(selected.Count == 0 ? "Selection" : selected.Count == 1 ? RoomCaption(selected[0].Id) : selected.Count + " rooms", heading);
             if (selected.Count > 0)
             {
-                GUILayout.Label(string.Join(", ", selected.Select(module => module.Id)));
                 if (SelectedFixed != null) FixedInspector();
                 else
                 {
                 GUILayout.BeginHorizontal();
-                if (Button("Rotate")) Edit("Rotate", draft => WorkshopCommands.RotateSelection(draft, Pivot(selected), 1));
-                if (Button("Duplicate")) Edit("Duplicate", draft => WorkshopCommands.Duplicate(draft, new CoursePoint(draft.GridMm * 2, 0, draft.GridMm * 2)));
-                if (Button("Delete")) Edit("Delete", WorkshopCommands.Delete);
-                GUILayout.EndHorizontal();
-                GUILayout.BeginHorizontal();
-                if (Button("Group")) Edit("Group", draft => WorkshopCommands.Group(draft, WorkshopCommands.Unique("group", draft.Groups.Keys)));
-                if (Button("Ungroup")) Edit("Ungroup", WorkshopCommands.Ungroup);
+                if (ToolButton("Rotate", LobbyIcons.Turn, "Rotate selection · R")) Edit("Rotate", draft => WorkshopCommands.RotateSelection(draft, Pivot(selected), 1));
+                if (ToolButton("Duplicate", LobbyIcons.Duplicate)) Edit("Duplicate", draft => WorkshopCommands.Duplicate(draft, new CoursePoint(draft.GridMm * 2, 0, draft.GridMm * 2)));
+                if (ToolButton("Delete", LobbyIcons.Delete)) Edit("Delete", WorkshopCommands.Delete);
+                if (ToolButton("Group", LobbyIcons.Group)) Edit("Group", draft => WorkshopCommands.Group(draft, WorkshopCommands.Unique("group", draft.Groups.Keys)));
+                if (ToolButton("Ungroup", LobbyIcons.Ungroup)) Edit("Ungroup", WorkshopCommands.Ungroup);
                 GUILayout.EndHorizontal();
                 if (Button("Move to floor", "Move selection to the current floor"))
                     Edit("Change floor", draft => WorkshopCommands.ChangeLayer(draft, draft.ActiveLayer));
@@ -402,8 +428,8 @@ namespace Wreckabulary.Workshop
         {
             GUILayout.BeginArea(ui.FooterRect(new Vector2(Screen.width, Screen.height)), panel); GUILayout.BeginHorizontal();
             GUILayout.Label("Floor " + History.Current.ActiveLayer);
-            GUI.enabled = History.CanUndo; if (Button("Undo")) { CancelGesture(); History.Undo(); Refresh(); } GUI.enabled = true;
-            GUI.enabled = History.CanRedo; if (Button("Redo")) { CancelGesture(); History.Redo(); Refresh(); } GUI.enabled = true;
+            GUI.enabled = History.CanUndo; if (ToolButton("Undo", LobbyIcons.Undo, "Undo · Ctrl+Z")) { CancelGesture(); History.Undo(); Refresh(); } GUI.enabled = true;
+            GUI.enabled = History.CanRedo; if (ToolButton("Redo", LobbyIcons.Redo, "Redo · Ctrl+Y")) { CancelGesture(); History.Redo(); Refresh(); } GUI.enabled = true;
             GUI.enabled = SelectedModeEnabled; if (Button("Preview")) Attempt(() => Preview());
             GUI.enabled = PlaytestRequested != null && SelectedModeEnabled && (!localPlaytest || CanPlaytestLocally);
             if (Button("Playtest")) Attempt(RequestPlaytest); GUI.enabled = true;
@@ -421,7 +447,7 @@ namespace Wreckabulary.Workshop
             if (Button("Set seed")) Edit("Set seed", draft => draft.Seed = seed);
             if (Button(History.Current.SeedLocked ? "Locked" : "Unlocked")) Edit("Seed lock", draft => draft.SeedLocked = !draft.SeedLocked);
             GUI.enabled = !History.Current.SeedLocked;
-            if (Button("Reroll")) Attempt(() => History.Reroll(Guid.NewGuid().ToString("N").Substring(0, 16)));
+            if (ToolButton("Reroll", LobbyIcons.Dice, "Reroll unlocked seed")) Attempt(() => History.Reroll(Guid.NewGuid().ToString("N").Substring(0, 16)));
             GUI.enabled = true; GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("Grid " + Metres(History.Current.GridMm) + " m");
