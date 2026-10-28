@@ -88,7 +88,7 @@ namespace Wreckabulary
                 new GameObject("Lobby").AddComponent<LobbyMenu>();
         }
 
-        void Awake() => Instance = this;
+        void Awake() { LobbyInterfaceTheme.LoadSaved(); Instance = this; }
 
         public void OpenWordbound()
         {
@@ -340,7 +340,7 @@ namespace Wreckabulary
             tabs[Loadout].GetComponentInChildren<TMP_Text>().text = "CUSTOMIZE";
             tabs[Play] = LobbyKit.Tab(centre, "PLAY", null, () => Toggle(Play), 112);
             tabs[CareerPage] = LobbyKit.Tab(centre, "CAREER", null, () => Toggle(CareerPage), 156);
-            trophyButton = NavigationAction(centre, "Leaderboard", Trophy, LobbyKit.Sun, out trophyUnderline);
+            trophyButton = NavigationAction(centre, "Leaderboard", Trophy, LobbyKit.Selection, out trophyUnderline);
             trophyButton.Size(240, 48);
             LobbyKit.Display(trophyButton.Body(), "LEADERBOARDS", 24, LobbyKit.Navy, TextAlignmentOptions.Center)
                 .rectTransform.Fill();
@@ -353,7 +353,7 @@ namespace Wreckabulary
             LobbyKit.PanelFace(wallet, 12, 1, 0);
             wallet.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleRight;
             wallet.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
-            shopButton = NavigationAction(wallet, "Shop", Shop, LobbyKit.Sun, out shopUnderline);
+            shopButton = NavigationAction(wallet, "Shop", Shop, LobbyKit.Selection, out shopUnderline);
             shopButton.Size(250, 52);
             openers[Shop] = shopButton;
             var chip = LobbyKit.Row(shopButton.Body(), "Coin balance", 10).Fill();
@@ -424,7 +424,7 @@ namespace Wreckabulary
             var badge = LobbyKit.Rect(you, "Badge");
             LobbyKit.Face(badge, LobbyKit.Hot, 12, LobbyKit.Navy, 3, 3);
             badge.Size(54, 54);
-            initial = LobbyKit.Display(badge, LobbyKit.Upper(Career.Name.Substring(0, 1)), 30, LobbyKit.Cream, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke);
+            initial = LobbyKit.Display(badge, LobbyKit.Upper(Career.Name.Substring(0, 1)), 30, LobbyKit.ArtInk, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke);
             initial.rectTransform.Fill();
             var who = LobbyKit.Column(you, "Who", 0, 0);
             who.Size(170, -1, 1);
@@ -476,7 +476,7 @@ namespace Wreckabulary
                 var badge = LobbyKit.Rect(row, "Seat badge");
                 LobbyKit.Face(badge, GameAssets.I ? GameAssets.I.PlayerColor(seat - 1) : LobbyKit.Lime, 12, LobbyKit.Navy, 3, 3);
                 badge.Size(46, 46);
-                LobbyKit.Display(badge, "P" + seat, 22, LobbyKit.Cream, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke).rectTransform.Fill();
+                LobbyKit.Display(badge, "P" + seat, 22, LobbyKit.ArtInk, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke).rectTransform.Fill();
                 var who = LobbyKit.Column(row, "Who", 0, 0);
                 who.Size(-1, -1, 1);
                 LobbyKit.Display(who, "Player " + seat, 22, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft).Size(-1, 26);

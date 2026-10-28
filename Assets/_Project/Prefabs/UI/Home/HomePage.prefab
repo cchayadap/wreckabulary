@@ -76,7 +76,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  m_fontColor: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  m_Color: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -370,7 +370,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  m_fontColor: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -761,8 +761,8 @@ MonoBehaviour:
   Icon: {fileID: 6316986970275255035}
   Underline: {fileID: 140258112688054811}
   Press: {fileID: 5801123159747056622}
-  IdleInk: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
-  ActiveInk: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  IdleInk: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
+  ActiveInk: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
 --- !u!114 &2231992945794915664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -861,7 +861,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_fontColor: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1021,7 +1021,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  m_fontColor: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1163,7 +1163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1275,7 +1275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  m_Color: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1454,7 +1454,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.29803923, g: 0.35686275, b: 0.36078432, a: 1}
+  m_fontColor: {r: 0.69803923, g: 0.7411765, b: 0.7921569, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1662,6 +1662,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5150903221125803042}
   - component: {fileID: 8276224473724335871}
+  - component: {fileID: 545405552593453473}
   m_Layer: 0
   m_Name: HomePage
   m_TagString: Untagged
@@ -1709,6 +1710,83 @@ MonoBehaviour:
   House: {fileID: 1625953885719063785}
   Wordbound: {fileID: 2958370205403873241}
   WordboundNote: {fileID: 1725616825413357002}
+--- !u!114 &545405552593453473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3323789702529554914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 087093f6c4394f24a8ee0ff2d4417292, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyInterfaceFrame
+  Theme: {fileID: 11400000, guid: 1c602f6e5ed248b4ab39b6a55a0638bc, type: 2}
+  Bindings:
+  - Target: {fileID: 7763076487920811438}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 2307377412893260394}
+    Role: 6
+    Gradient: {fileID: 0}
+  - Target: {fileID: 1789619078977659797}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 7177843503453214909}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 8280332179004302697}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 1725616825413357002}
+    Role: 4
+    Gradient: {fileID: 0}
+  - Target: {fileID: 8969573410230475013}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 5727911153345166680}
+    Role: 0
+    Gradient: {fileID: 8487838896938861609}
+  - Target: {fileID: 3700061974670688686}
+    Role: 5
+    Gradient: {fileID: 0}
+  - Target: {fileID: 138008002790873693}
+    Role: 8
+    Gradient: {fileID: 0}
+  - Target: {fileID: 8624651833625598676}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 799573831512404395}
+    Role: 6
+    Gradient: {fileID: 0}
+  - Target: {fileID: 4180168220060553423}
+    Role: 8
+    Gradient: {fileID: 0}
+  - Target: {fileID: 8792263499821348114}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 4453952988889652027}
+    Role: 6
+    Gradient: {fileID: 0}
+  - Target: {fileID: 4498650499667278849}
+    Role: 8
+    Gradient: {fileID: 0}
+  - Target: {fileID: 6316986970275255035}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 140258112688054811}
+    Role: 6
+    Gradient: {fileID: 0}
+  - Target: {fileID: 4500918146316144910}
+    Role: 8
+    Gradient: {fileID: 0}
+  - Target: {fileID: 1677356666828420881}
+    Role: 3
+    Gradient: {fileID: 0}
+  - Target: {fileID: 6953628686212236287}
+    Role: 6
+    Gradient: {fileID: 0}
 --- !u!1 &3534705564469027116
 GameObject:
   m_ObjectHideFlags: 0
@@ -1932,7 +2010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.54509807, g: 0.6156863, b: 0.58431375, a: 0.35}
+  m_Color: {r: 0.27450982, g: 0.3372549, b: 0.42352942, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2114,8 +2192,8 @@ MonoBehaviour:
   Icon: {fileID: 8792263499821348114}
   Underline: {fileID: 4453952988889652027}
   Press: {fileID: 5747931206919784667}
-  IdleInk: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
-  ActiveInk: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  IdleInk: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
+  ActiveInk: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
 --- !u!114 &6921717221072551209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2196,7 +2274,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2272,7 +2350,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  m_Color: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2370,7 +2448,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  m_Color: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2574,8 +2652,8 @@ MonoBehaviour:
   Icon: {fileID: 8624651833625598676}
   Underline: {fileID: 799573831512404395}
   Press: {fileID: 269504869298574417}
-  IdleInk: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
-  ActiveInk: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  IdleInk: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
+  ActiveInk: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
 --- !u!114 &3947945015837168775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2734,8 +2812,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e04e0f25ff9122cf6eb174a3cb747e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyGradient
-  From: {r: 1, g: 0.9882353, b: 0.95686275, a: 1}
-  To: {r: 0.9607843, g: 0.9254902, b: 0.8509804, a: 1}
+  From: {r: 0.09019608, g: 0.11372549, b: 0.15294118, a: 1}
+  To: {r: 0.09019608, g: 0.11372549, b: 0.15294118, a: 1}
   Horizontal: 0
 --- !u!1 &5629614022800956650
 GameObject:
@@ -2796,7 +2874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2929,7 +3007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3091,7 +3169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.72156864, g: 0.92941177, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3184,7 +3262,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  m_fontColor: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3433,8 +3511,8 @@ MonoBehaviour:
   Icon: {fileID: 1677356666828420881}
   Underline: {fileID: 6953628686212236287}
   Press: {fileID: 8443196538089420427}
-  IdleInk: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
-  ActiveInk: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  IdleInk: {r: 0.9647059, g: 0.972549, b: 0.9882353, a: 1}
+  ActiveInk: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
 --- !u!114 &44235388347862447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3538,7 +3616,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.72156864, g: 0.92941177, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3613,7 +3691,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.3254902, g: 0.7882353, b: 0.9098039, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3775,7 +3853,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.72156864, g: 0.92941177, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3951,7 +4029,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  m_Color: {r: 0.72156864, g: 0.92941177, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

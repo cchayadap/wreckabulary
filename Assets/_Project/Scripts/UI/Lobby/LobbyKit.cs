@@ -18,30 +18,49 @@ namespace Wreckabulary
 
         public static Color Mist(float alpha) => Hex(0x7d80bb, alpha);
 
-        public static readonly Color Navy = Hex(0x1e1e24), Navy2 = Hex(0x33484b), Cyan = Hex(0x136b68);
-        public static readonly Color Sun = Hex(0xb07821), Sun2 = Hex(0xf1bb60), SunHi = Hex(0xffe2a0), PlayHi = Hex(0xffefc8);
-        public static readonly Color Hot = Hex(0xc44736), Lime = Hex(0x367b53);
+        static LobbyInterfacePalette Palette => LobbyInterfaceTheme.Palette;
+        public static Color Navy => Palette.Text;
+        public static Color Navy2 => Palette.Muted;
+        public static Color Cyan => Palette.Selection;
+        public static Color Sun => Palette.Primary;
+        public static Color Hot => Palette.Error;
+        public static Color Lime => Palette.Positive;
+        public static Color Panel => Palette.Panel;
+        public static Color PanelTop => Palette.Panel;
+        public static Color PanelBottom => Palette.Panel;
+        public static Color ScrimNavy => Palette.Panel;
+        public static Color Card => Palette.Card;
+        public static Color Raised => Palette.Raised;
+        public static Color Line => Palette.Border;
+        public static Color Selection => Palette.Selection;
+        public static Color OnSelection => Palette.OnSelection;
+        public static Color PrimaryFill => Palette.Primary;
+        public static Color PrimaryInk => Palette.OnPrimary;
+        public static Color Focus => Palette.Focus;
+        public static Color Muted => Palette.Muted;
+        public static Color Faded => Palette.DisabledText;
+        public static Color CardSub => Palette.Muted;
+        public static Color Owned => Palette.Positive;
+        public static Color Short => Palette.Disabled;
+        public static Color TabIdle => Color.clear;
+        public static Color TabHover => Palette.Raised;
+        public static Color TabPress => Palette.Selection;
+        public static Color ChipFill => Palette.Card;
+        public static Color ChipEdge => Palette.Border;
+        public static Color PillFill => Color.clear;
+        public static Color PillEdge => Color.clear;
+        public static Color Cream => Palette.Text;
+        public static Color Honey => Palette.Primary;
+        public static Color Tomato => Palette.Error;
+        public static Color Track => Palette.Raised;
+        public static Color Picked => Palette.Raised;
+        public static readonly Color ArtInk = Hex(0x1e1e24), ShadowInk = Hex(0x000000, .35f);
+        public static readonly Color Sun2 = Hex(0xf1bb60), SunHi = Hex(0xffe2a0), PlayHi = Hex(0xffefc8);
         public static readonly Color WoodHi = Hex(0xffd998), Wood = Hex(0xf2b25c), WoodLo = Hex(0xe38f34), Cocoa = Hex(0x3b2314), WoodInk = Hex(0x4a2a14);
-        public static readonly Color CardSub = Hex(0x536064), Owned = Hex(0x287046), Short = Hex(0xebe5dc), Focus = Hex(0x136b68);
         public static readonly Color CoinRim = Hex(0xf0a400), CoinRimHi = Hex(0xffe066), CoinInk = Hex(0x795015);
-
-        public static readonly Color Panel = Hex(0xfff9ec, .98f);
-        public static readonly Color PanelTop = Hex(0xfffcf4), PanelBottom = Hex(0xf5ecd9);
-        public static readonly Color ScrimNavy = Hex(0xfff8e9);
-        public static readonly Color Card = Hex(0xcee3dc, .5f);
-        public static readonly Color Line = Hex(0x8b9d95, .35f);
-        public static readonly Color TabIdle = Color.clear, TabHover = Hex(0x136b68), TabPress = Hex(0xa24830);
-        public static readonly Color ChipFill = Color.clear, ChipEdge = Hex(0x8b9d95, .4f);
-        public static readonly Color PillFill = Color.clear, PillEdge = Color.clear;
-        public static readonly Color Cream = Navy;
-        public static readonly Color Muted = Hex(0x4c5b5c);
-        public static readonly Color Faded = Hex(0x66706d);
-        public static readonly Color Honey = Sun, Tomato = Hot;
-        public static readonly Color Shade = Hex(0x203b3b, .46f);
-        public const int TabRadius = 7;
-        public static readonly Color Track = Hex(0xd8e7e0, .6f);
+        public static readonly Color Shade = Hex(0x000000, .46f);
         public static readonly Color LimeHi = Hex(0xbce9b4), LimeLo = Hex(0x7ac58d);
-        public static readonly Color Picked = Hex(0xffedc5);
+        public const int TabRadius = 7;
 
         public enum Edge { Top, Right, Bottom }
 
@@ -149,7 +168,7 @@ namespace Wreckabulary
             image.raycastTarget = false;
             if (skew != 0) rect.gameObject.AddComponent<LobbySkew>().Degrees = skew;
             if (to.HasValue) rect.gameObject.AddComponent<LobbyGradient>().Set(fill, to.Value);
-            if (drop > 0) Drop(rect, drop, dropColour ?? Navy);
+            if (drop > 0) Drop(rect, drop, dropColour ?? ShadowInk);
             if (edge.HasValue && edgeWidth > 0)
             {
                 var frame = Frame(rect, edge.Value, radius, edgeWidth);
@@ -263,8 +282,12 @@ namespace Wreckabulary
         public static Button Danger(Transform parent, string title, float size, Action click) =>
             TextAction(parent, title, title, size, click, icon: LobbyIcons.Power, ink: Hot, hotInk: Hot);
 
-        public static Button Primary(Transform parent, string name, string word, Action click, float tile = 62, float arrow = 38) =>
-            TextAction(parent, name, Upper(word), tile, click, true, LobbyIcons.Arrow);
+        public static Button Primary(Transform parent, string name, string word, Action click, float tile = 62, float arrow = 38)
+        {
+            var button = TextAction(parent, name, Upper(word), tile, click, false, LobbyIcons.Arrow, PrimaryInk, PrimaryInk);
+            button.FaceOf().color = PrimaryFill;
+            return button;
+        }
 
         public static RectTransform LetterTile(Transform parent, char letter, float size, float degrees = 0) =>
             LetterTile(parent, letter.ToString(), size, degrees);
@@ -597,7 +620,7 @@ namespace Wreckabulary
 
         public static Button ToggleCard(Transform parent, string name, string icon, string label, bool on, Action click)
         {
-            var button = Button(parent, name, on ? Picked : Color.white, click, 14, Navy, 3, 4);
+            var button = Button(parent, name, on ? Picked : Card, click, 14, on ? Selection : Line, 2, 0);
             var press = button.GetComponent<LobbyPress>();
             press.Lift = 3f; press.Tilt = 1f;
             if (on) press.Lean = 1.5f;
@@ -607,8 +630,8 @@ namespace Wreckabulary
             text.enableAutoSizing = true; text.fontSizeMin = 12; text.fontSizeMax = 17;
             text.rectTransform.Place(Vector2.zero, new Vector2(1, 0), new Vector2(8, 8), new Vector2(-8, 34));
             var box = Rect(body, "Tick").Pin(Vector2.one, new Vector2(-8, -8), new Vector2(22, 22));
-            Face(box, on ? Sun : Color.white, 6, Navy, 2);
-            if (on) Icon(box, LobbyIcons.Check, Navy).rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(2, 2), new Vector2(-2, -2));
+            Face(box, on ? Selection : Card, 6, Line, 1);
+            if (on) Icon(box, LobbyIcons.Check, OnSelection).rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(2, 2), new Vector2(-2, -2));
             return button;
         }
 
@@ -639,7 +662,7 @@ namespace Wreckabulary
         public static RectTransform Kbd(Transform parent, string key)
         {
             var cap = Rect(parent, "Key " + key);
-            Face(cap, Color.white, 6, Navy, 2, 2);
+            Face(cap, Raised, 6, Line, 1, 0);
             cap.Size(Mathf.Max(30f, 16f + 11f * key.Length), 28);
             Display(cap, key, 15, Navy).rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(4, 0), new Vector2(-4, 0));
             return cap;

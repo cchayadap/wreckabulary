@@ -106,7 +106,7 @@ namespace Wreckabulary
 
         protected static Button Poster(Transform parent, string name, Color colour, bool on, Action click, Vector2 size)
         {
-            var button = LobbyKit.Button(parent, name, Color.Lerp(colour, Color.white, .88f), click, 12, LobbyKit.Line, 1);
+            var button = LobbyKit.Button(parent, name, LobbyKit.Card, click, 12, LobbyKit.Line, 1);
             var press = button.GetComponent<LobbyPress>();
             press.Lift = 0f; press.Tilt = 0f;
             var body = button.Body();
@@ -116,10 +116,10 @@ namespace Wreckabulary
 
         protected static void Chosen(RectTransform body, int radius)
         {
-            LobbyKit.Ring(body, LobbyKit.Sun, radius, 5);
+            LobbyKit.Ring(body, LobbyKit.Selection, radius, 2);
             var check = LobbyKit.Rect(body, "Check").Pin(Vector2.one, new Vector2(12, 12), new Vector2(38, 38));
-            LobbyKit.Face(check, LobbyKit.Sun, 19, LobbyKit.Navy, 4);
-            LobbyKit.Icon(check, LobbyIcons.Check, LobbyKit.Navy).rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(8, 8), new Vector2(-8, -8));
+            LobbyKit.Face(check, LobbyKit.Selection, 19, LobbyKit.Line, 1);
+            LobbyKit.Icon(check, LobbyIcons.Check, LobbyKit.OnSelection).rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(8, 8), new Vector2(-8, -8));
         }
 
         protected static string SkinOf(Outfit outfit)
@@ -166,7 +166,7 @@ namespace Wreckabulary
 
         protected static void Burst(RectTransform rect, int width, int height, int radius)
         {
-            rect.Paint(LobbyKit.Hex(0xe9eeea), radius).raycastTarget = false;
+            rect.Paint(LobbyKit.Card, radius).raycastTarget = false;
         }
 
         protected static string Capital(string text) =>
@@ -379,7 +379,7 @@ namespace Wreckabulary
         {
             bool on = Part == slot;
             var button = on
-                ? LobbyKit.Button(parent, "Part " + slot, LobbyKit.SunHi, () => PickPart(slot), 10, LobbyKit.Navy, 3, 3, LobbyKit.Sun2)
+                ? LobbyKit.Button(parent, "Part " + slot, LobbyKit.Raised, () => PickPart(slot), 10, LobbyKit.Selection, 2)
                 : LobbyKit.Button(parent, "Part " + slot, LobbyKit.Card, () => PickPart(slot), 10, LobbyKit.ChipEdge, 2);
             var press = button.GetComponent<LobbyPress>();
             if (on) press.Lift = 0f;
@@ -523,12 +523,12 @@ namespace Wreckabulary
         {
             bool owned = Menu.Career.Owns("skin", skin);
             var offer = Career.Shop.FirstOrDefault(o => o.Kind == "skin" && o.Value == skin);
-            var card = LobbyKit.Button(parent, "Finish " + skin, Color.white, () => PickFinish(skin, owned), 14, LobbyKit.Navy, 3, 4);
+            var card = LobbyKit.Button(parent, "Finish " + skin, LobbyKit.Card, () => PickFinish(skin, owned), 14, LobbyKit.Line, 1, 0);
             card.Size(-1, -1, 1);
             var press = card.GetComponent<LobbyPress>();
             press.Lift = 3f; press.Tilt = 1f;
             var body = card.Body();
-            if (worn) LobbyKit.Ring(body, LobbyKit.Sun, 14, 4);
+            if (worn) LobbyKit.Ring(body, LobbyKit.Selection, 14, 2);
             FinishDisc(body, skin, 52).Pin(new Vector2(0, .5f), new Vector2(12, 0), new Vector2(52, 52));
             var name = LobbyKit.Text(body, skin, 20, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
             name.enableAutoSizing = true; name.fontSizeMin = 14; name.fontSizeMax = 20;
@@ -607,13 +607,13 @@ namespace Wreckabulary
                 if (on) First = savedTile.Button;
                 return;
             }
-            var card = LobbyKit.Button(parent, "Recipe " + item.Id, Color.white, () => PinRecipe(item.Id), 14, LobbyKit.Navy, 3, 4);
+            var card = LobbyKit.Button(parent, "Recipe " + item.Id, LobbyKit.Card, () => PinRecipe(item.Id), 14, LobbyKit.Line, 1, 0);
             var press = card.GetComponent<LobbyPress>();
             press.Lift = 4f; press.Tilt = 2f;
             var body = card.Body();
             if (on)
             {
-                LobbyKit.Ring(body, LobbyKit.Sun, 14, 4);
+                LobbyKit.Ring(body, LobbyKit.Selection, 14, 2);
                 First = card;
             }
             var icon = LobbyKit.ItemImage(body, item.Id, 64);
@@ -731,9 +731,11 @@ namespace Wreckabulary
             bar.Paint(LobbyKit.Track, 10).raycastTarget = false;
             var fill = LobbyKit.Rect(bar, "Fill").Place(Vector2.zero, new Vector2(Mathf.Clamp01(career.XpIntoLevel / (float)next), 1)).Paint(Color.white, 10);
             fill.raycastTarget = false;
-            LobbyKit.Gradient(fill, LobbyKit.SunHi, LobbyKit.Sun2);
-            LobbyKit.Frame(bar, LobbyKit.Navy, 10, 2);
-            var xp = LobbyKit.Display(bar, Number(career.XpIntoLevel) + " / " + Number(next) + " XP", 18, LobbyKit.Cream,
+            LobbyKit.Gradient(fill, LobbyKit.Selection, LobbyKit.Selection);
+            LobbyKit.Frame(bar, LobbyKit.Line, 10, 1);
+            var xpBacking = LobbyKit.Rect(bar, "XP label").Place(new Vector2(1, 0), Vector2.one, new Vector2(-180, 2), new Vector2(-2, -2));
+            xpBacking.Paint(LobbyKit.Card, 8).raycastTarget = false;
+            var xp = LobbyKit.Display(xpBacking, Number(career.XpIntoLevel) + " / " + Number(next) + " XP", 18, LobbyKit.Cream,
                 TextAlignmentOptions.MidlineRight, LobbyKit.Ink.Stroke);
             xp.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(12, 0), new Vector2(-14, 0));
             var line = LobbyKit.Text(info, $"Level {career.Level}  ·  {Number(Mathf.Max(0, next - career.XpIntoLevel))} XP to level {career.Level + 1}",
@@ -763,14 +765,14 @@ namespace Wreckabulary
         static void Stat(Transform parent, string title, string value, string icon)
         {
             var tile = LobbyKit.Rect(parent, title);
-            LobbyKit.Face(tile, Color.white, 16, LobbyKit.Navy, 3, 4);
+            LobbyKit.Face(tile, LobbyKit.Card, 16, LobbyKit.Line, 1, 0);
             tile.Size(-1, -1, 1);
             var mark = LobbyKit.Rect(tile, "Mark").Pin(new Vector2(0, .5f), new Vector2(16, 0), new Vector2(52, 52));
             if (icon == null) LobbyKit.Coin(mark, 52).Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(52, 52));
             else
             {
                 LobbyKit.Face(mark, LobbyKit.SunHi, 26, LobbyKit.Navy, 2, 0, LobbyKit.Sun2);
-                LobbyKit.Icon(mark, icon, LobbyKit.Navy).rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(13, 13), new Vector2(-13, -13));
+                LobbyKit.Icon(mark, icon, LobbyKit.ArtInk).rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(13, 13), new Vector2(-13, -13));
             }
             var number = LobbyKit.Display(tile, value, 34, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
             number.enableAutoSizing = true; number.fontSizeMin = 22; number.fontSizeMax = 34;
@@ -803,7 +805,7 @@ namespace Wreckabulary
             result.Size(84, 32);
             if (match.Won) LobbyKit.Face(result, LobbyKit.LimeHi, 16, LobbyKit.Navy, 2, 0, LobbyKit.LimeLo);
             else LobbyKit.Face(result, LobbyKit.Card, 16, LobbyKit.Line, 2);
-            LobbyKit.Display(result, match.Won ? "WON" : "LOST", 18, match.Won ? LobbyKit.Navy : LobbyKit.Muted).rectTransform.Fill();
+            LobbyKit.Display(result, match.Won ? "WON" : "LOST", 18, match.Won ? LobbyKit.ArtInk : LobbyKit.Muted).rectTransform.Fill();
             LobbyKit.Display(card, Number(match.Score), 28, LobbyKit.Sun, TextAlignmentOptions.MidlineRight).Size(110, 40);
             LobbyKit.Text(card, $"+{Number(match.Coins)} coins  ·  +{Number(match.Xp)} XP", 15, LobbyKit.Muted,
                 TextAlignmentOptions.MidlineRight).Size(200, 30);
@@ -825,7 +827,7 @@ namespace Wreckabulary
                 Menu.Choose(queue: LobbyMenu.Practice);
                 Menu.Open(LobbyMenu.Play);
             }, 12, LobbyKit.Navy, 3, 4, LobbyKit.Sun2);
-            var label = LobbyKit.Display(go.Body(), "PLAY PRACTICE", 22, LobbyKit.Navy);
+            var label = LobbyKit.Display(go.Body(), "PLAY PRACTICE", 22, LobbyKit.ArtInk);
             label.characterSpacing = 2;
             label.rectTransform.Fill();
             ((RectTransform)go.transform).Pin(Vector2.zero, new Vector2(172, 26), new Vector2(250, 54));
@@ -873,7 +875,7 @@ namespace Wreckabulary
             var layout = bar.GetComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(20, 22, 0, 0);
             layout.childForceExpandHeight = false;
-            LobbyKit.Face(bar, LobbyKit.Navy, 14, LobbyKit.Line, 2);
+            LobbyKit.Face(bar, LobbyKit.Raised, 14, LobbyKit.Line, 2);
             LobbyKit.Icon(bar, LobbyIcons.Trophy, LobbyKit.SunHi).Size(30, 30);
             LobbyKit.Text(bar, "Your best", 20, Color.white, TextAlignmentOptions.MidlineLeft).Size(-1, 30, 1);
             LobbyKit.Display(bar, career.Bests.TryGetValue(board, out int best) ? Number(best) : "-", 32, LobbyKit.SunHi,
@@ -892,7 +894,7 @@ namespace Wreckabulary
         {
             bool on = mode == board;
             string name = "Board " + mode;
-            var button = on ? LobbyKit.Button(row, name, LobbyKit.ModeColour(mode), () => Pick(mode), 12, LobbyKit.Navy, 3, 4)
+            var button = on ? LobbyKit.Button(row, name, LobbyKit.Raised, () => Pick(mode), 12, LobbyKit.Selection, 2, 0)
                 : LobbyKit.Button(row, name, LobbyKit.Card, () => Pick(mode), 12, LobbyKit.Line, 2);
             button.Size(-1, -1, 1);
             var press = button.GetComponent<LobbyPress>();
@@ -933,18 +935,18 @@ namespace Wreckabulary
             }
             else
             {
-                LobbyKit.Face(row, Color.white, 14, LobbyKit.Hex(0x0b0e45, .25f), 2);
+                LobbyKit.Face(row, LobbyKit.Card, 14, LobbyKit.Line, 1);
                 LobbyKit.Face(tile, LobbyKit.WoodHi, 12, LobbyKit.Cocoa, 2, 3, LobbyKit.WoodLo, dropColour: LobbyKit.Cocoa);
             }
             if (you) LobbyKit.Frame(row, LobbyKit.Hot, 14, 3, "You", 4);
-            LobbyKit.Display(tile, rank.ToString(CultureInfo.InvariantCulture), 26, podium ? LobbyKit.Navy : LobbyKit.WoodInk).rectTransform.Fill();
+            LobbyKit.Display(tile, rank.ToString(CultureInfo.InvariantCulture), 26, podium ? LobbyKit.ArtInk : LobbyKit.WoodInk).rectTransform.Fill();
             var who = LobbyKit.Rect(row, "Who");
             who.Size(-1, 56, 1);
-            var title = LobbyKit.Display(who, name, 24, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
+            var title = LobbyKit.Display(who, name, 24, podium ? LobbyKit.ArtInk : LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
             title.rectTransform.Place(new Vector2(0, .45f), Vector2.one, Vector2.zero, Vector2.zero);
-            var sub = LobbyKit.Text(who, detail, 15, LobbyKit.CardSub, TextAlignmentOptions.TopLeft);
+            var sub = LobbyKit.Text(who, detail, 15, podium ? LobbyKit.ArtInk : LobbyKit.CardSub, TextAlignmentOptions.TopLeft);
             sub.rectTransform.Place(Vector2.zero, new Vector2(1, .45f), Vector2.zero, new Vector2(0, -2));
-            LobbyKit.Display(row, Number(score), 30, LobbyKit.Navy, TextAlignmentOptions.MidlineRight).Size(160, 40);
+            LobbyKit.Display(row, Number(score), 30, podium ? LobbyKit.ArtInk : LobbyKit.Navy, TextAlignmentOptions.MidlineRight).Size(160, 40);
         }
 
         static void Note(Transform column, string text)

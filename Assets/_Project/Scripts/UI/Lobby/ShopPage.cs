@@ -189,13 +189,13 @@ namespace Wreckabulary
                 art = view.Art;
                 return view.Face;
             }
-            var card = LobbyKit.Button(parent, "Offer " + offer.Id, Color.white, () => Preview(offer), 16, LobbyKit.Line, 2, 3);
+            var card = LobbyKit.Button(parent, "Offer " + offer.Id, LobbyKit.Card, () => Preview(offer), 16, LobbyKit.Line, 1, 0);
             var face = card.Body();
             var outline = LobbyKit.Ring(face, offer.Id == spotlight ? LobbyKit.Sun : LobbyKit.Cyan, 16, 3);
             outline.enabled = worn || offer.Id == spotlight;
             outlines[offer.Id] = (outline, worn);
             art = LobbyKit.Rect(face, "Art").Place(new Vector2(0, 1), Vector2.one, new Vector2(10, -166), new Vector2(-10, -10));
-            art.Paint(Color.Lerp(LobbyThemes.Current.Secondary, Color.white, .7f), 12).raycastTarget = false;
+            art.Paint(LobbyKit.Raised, 12).raycastTarget = false;
             var name = LobbyKit.Display(face, title, 23, LobbyKit.Navy);
             name.enableAutoSizing = true; name.fontSizeMin = 18; name.fontSizeMax = 23;
             name.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(10, -204), new Vector2(-10, -172));
@@ -279,7 +279,7 @@ namespace Wreckabulary
             var piece = GameConfig.Current.Wardrobe.Piece(id);
             bool worn = Menu.Outfit.PieceIn(piece.Slot) == id;
             var face = LobbyKit.Rect(parent, "Accessory " + id);
-            face.Paint(Color.white, 14).raycastTarget = false;
+            face.Paint(LobbyKit.Card, 14).raycastTarget = false;
             var icon = LobbyKit.Icon(face, id == "Glasses" ? LobbyIcons.Glasses : id == "Satchel" ? LobbyIcons.Satchel : id == "TBadge" ? LobbyIcons.Badge : LobbyIcons.Locker, LobbyKit.Cyan);
             icon.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -14), new Vector2(54, 54));
             LobbyKit.Text(face, id == "TBadge" ? "Letter badge" : id, 21, LobbyKit.Navy, TextAlignmentOptions.Center).rectTransform
@@ -342,7 +342,7 @@ namespace Wreckabulary
                 if (authoredOffers.TryGetValue(entry.Key, out var authored) && authored)
                 { authored.SetPreview(entry.Key == offer.Id); continue; }
                 entry.Value.outline.enabled = entry.Value.worn || entry.Key == offer.Id;
-                entry.Value.outline.color = entry.Key == offer.Id ? LobbyKit.Sun : LobbyKit.Cyan;
+                entry.Value.outline.color = LobbyKit.Selection;
             }
             if (footnote) footnote.text = offer.Name + " · Preview";
         }

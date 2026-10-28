@@ -1,0 +1,30 @@
+{
+  "kind": "Draft only; exact installed Solo capture and reviewed import",
+  "files": [
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewCapture.cs",
+      "baselineSha256": null,
+      "candidateSha256": "de956c340977534c92616d4bf93822d48d09a456c572839a17547552a420710e"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewImport.cs",
+      "baselineSha256": null,
+      "candidateSha256": "26c5c946bf5ce99f6c460a51fef4d864f4ce547c195f8dc77ba9073e1029a8a3"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewSettings.cs",
+      "baselineSha256": null,
+      "candidateSha256": "4b66c7309cde42a5b73d0a560c0f3be02f4dba666ff5cd9f0424fae151a83ec5"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewStage.cs",
+      "baselineSha256": null,
+      "candidateSha256": "9ff0bb0f7304ad068b3474762e1de24251582ec97fcab19f30a0430d26b07475"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewWindow.cs",
+      "baselineSha256": null,
+      "candidateSha256": "316eb2db7f26788704ce3dc385b22c8bf4fb433b2dd27e06069887c932c6ab8f"
+    }
+  ]
+}

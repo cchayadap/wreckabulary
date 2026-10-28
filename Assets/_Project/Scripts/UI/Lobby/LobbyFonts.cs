@@ -121,13 +121,13 @@ namespace Wreckabulary
         {
             var material = new Material(font.material) { name = font.name + (withDrop ? " Drop" : " Stroke") };
             material.EnableKeyword(ShaderUtilities.Keyword_Outline);
-            material.SetColor("_OutlineColor", LobbyKit.Navy);
+            material.SetColor("_OutlineColor", LobbyKit.ArtInk);
             material.SetFloat("_OutlineWidth", .28f);
             material.SetFloat("_FaceDilate", .28f);
             if (withDrop)
             {
                 material.EnableKeyword(ShaderUtilities.Keyword_Underlay);
-                material.SetColor("_UnderlayColor", LobbyKit.Navy);
+                material.SetColor("_UnderlayColor", LobbyKit.ArtInk);
                 material.SetFloat("_UnderlayOffsetX", 0f);
                 material.SetFloat("_UnderlayOffsetY", -.55f);
                 material.SetFloat("_UnderlayDilate", .28f);

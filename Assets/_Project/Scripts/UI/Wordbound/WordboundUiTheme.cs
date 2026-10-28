@@ -6,6 +6,8 @@ namespace Wreckabulary
     [CreateAssetMenu(menuName = "Wreckabulary/Wordbound/Interface theme")]
     public sealed class WordboundUiTheme : ScriptableObject
     {
+        [Tooltip("Optional shared lobby palette and online fonts. Applied to an owned runtime copy; local spacing stays editable.")]
+        public LobbyInterfaceTheme SharedTheme;
         [Header("Type")]
         public Font BodyFont;
         public Font HeadingFont;
@@ -39,6 +41,7 @@ namespace Wreckabulary
 
         public void Validate()
         {
+            if (SharedTheme && !SharedTheme.TryValidate(out string sharedReason)) throw new ArgumentException(sharedReason);
             if (!Good(OnlineBackgroundShade)) throw new ArgumentException("OnlineBackgroundShade must be between 0 and 1.");
             CheckRange(BodySize, 12, 22, nameof(BodySize)); CheckRange(HeadingSize, 16, 30, nameof(HeadingSize));
             CheckRange(Padding, 8, 24, nameof(Padding)); CheckRange(Gap, 2, 12, nameof(Gap));
@@ -56,7 +59,8 @@ namespace Wreckabulary
         {
             unchecked
             {
-                int value = BodyFont ? BodyFont.GetHashCode() : 0;
+                int value = SharedTheme ? SharedTheme.Fingerprint() : 0;
+                value = value * 31 + (BodyFont ? BodyFont.GetHashCode() : 0);
                 value = value * 31 + (HeadingFont ? HeadingFont.GetHashCode() : 0);
                 value = value * 31 + BodySize; value = value * 31 + HeadingSize;
                 value = value * 31 + Padding; value = value * 31 + Gap; value = value * 31 + RowHeight;

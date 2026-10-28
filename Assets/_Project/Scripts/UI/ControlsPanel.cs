@@ -135,7 +135,7 @@ namespace Wreckabulary
 
         Button ActionButton(Transform parent, string name, string label, Action click, float width, bool lockWhileListening = true)
         {
-            var button = LobbyKit.Button(parent, name, Color.white, click, 6, LobbyKit.Line, 1);
+            var button = LobbyKit.Button(parent, name, LobbyKit.Raised, click, 6, LobbyKit.Line, 1);
             button.Size(width, 44);
             var text = LobbyKit.Text(button.Body(), label, 19, LobbyKit.Navy, TextAlignmentOptions.Center);
             text.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(8, 0), new Vector2(-8, 0));

@@ -47,8 +47,22 @@ namespace Wreckabulary
                 defaults.hideFlags = HideFlags.HideAndDontSave;
             }
             var selected = theme ? theme : defaults;
+            WordboundUiTheme resolved = null;
             ConfigurationError = "";
-            try { selected.Validate(); }
+            try
+            {
+                selected.Validate();
+                if (selected.SharedTheme)
+                {
+                    resolved = Object.Instantiate(selected);
+                    resolved.name = "Owned Wordbound resolved interface";
+                    resolved.hideFlags = HideFlags.HideAndDontSave;
+                    selected.SharedTheme.ApplyOnline(resolved);
+                    resolved.SharedTheme = null;
+                    resolved.Validate();
+                    selected = resolved;
+                }
+            }
             catch (ArgumentException error) { ConfigurationError = error.Message; selected = defaults; }
             ReleaseSkin();
             try
@@ -107,6 +121,7 @@ namespace Wreckabulary
                 source = theme; fingerprint = stamp; Generation++;
             }
             catch { ReleaseSkin(); throw; }
+            finally { if (resolved) Release(resolved); }
         }
 
         void Configure(GUIStyle style, WordboundUiTheme theme, Texture2D background, Color text)

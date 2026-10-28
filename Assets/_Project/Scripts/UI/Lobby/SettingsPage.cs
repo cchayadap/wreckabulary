@@ -114,7 +114,7 @@ namespace Wreckabulary
             view.offsetMax = new Vector2(-24, view.offsetMax.y);
             var track = LobbyKit.Rect(view.parent, "Scroll position").Place(new Vector2(1, 0), Vector2.one,
                 new Vector2(-16, 0), Vector2.zero);
-            track.Paint(LobbyKit.Hex(0x136b68, .12f), 8);
+            track.Paint(LobbyKit.Track, 8);
             var area = LobbyKit.Rect(track, "Sliding area").Fill();
             area.offsetMin = new Vector2(2, 2); area.offsetMax = new Vector2(-2, -2);
             var handle = LobbyKit.Rect(area, "Handle").Fill();
@@ -240,9 +240,9 @@ namespace Wreckabulary
             Step(steps, "03", "Use what you make", "BAT", $"Press {swing} to use your gear. Aim to throw it, or place a useful tool.");
             LobbyKit.TextAction(column, "Open help controls", "View controls", 20, () => ShowTab("controls")).Size(-1, 44);
             Wrapped(column, "Cosmetics never change your stats.", 17, LobbyKit.Muted, 26);
-            var go = LobbyKit.Button(column, "Got it", LobbyKit.Cyan, () => Menu.Open(LobbyMenu.Play), 6);
+            var go = LobbyKit.Button(column, "Got it", LobbyKit.PrimaryFill, () => Menu.Open(LobbyMenu.Play), 6);
             go.Size(-1, 56);
-            var label = LobbyKit.Text(go.Body(), "Play", 24, Color.white, TextAlignmentOptions.Center);
+            var label = LobbyKit.Text(go.Body(), "Play", 24, LobbyKit.PrimaryInk, TextAlignmentOptions.Center);
             label.rectTransform.Fill();
         }
 
@@ -317,19 +317,19 @@ namespace Wreckabulary
         void Stepper(RectTransform controls, string name, string value, Action<int> step)
         {
             Round(controls, name + " less", true, () => { step(-1); RefreshSetting(name + " less"); });
-            LobbyKit.Text(controls, value, 23, LobbyKit.Sun, TextAlignmentOptions.Center).Size(180, 40);
+            LobbyKit.Text(controls, value, 23, LobbyKit.Navy, TextAlignmentOptions.Center).Size(180, 40);
             Round(controls, name + " more", false, () => { step(1); RefreshSetting(name + " more"); });
         }
 
         static void Round(RectTransform controls, string name, bool back, Action click)
         {
-            var button = LobbyKit.Button(controls, name, Color.white, click, 22, LobbyKit.Navy, 2, 2);
+            var button = LobbyKit.Button(controls, name, LobbyKit.Raised, click, 22, LobbyKit.Line, 1, 0);
             button.Size(44, 44);
             var glyph = LobbyKit.Icon(button.Body(), LobbyIcons.Chevron, LobbyKit.Navy);
             glyph.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(11, 11), new Vector2(-11, -11));
             if (back) glyph.rectTransform.localRotation = Quaternion.Euler(0, 0, 180f);
             var face = button.FaceOf();
-            button.GetComponent<LobbyPress>().Hot = hot => face.color = hot ? LobbyKit.Picked : Color.white;
+            button.GetComponent<LobbyPress>().Hot = hot => face.color = hot ? LobbyKit.Picked : LobbyKit.Raised;
         }
 
         static (FullScreenMode mode, int width, int height) Current => (Screen.fullScreenMode, Screen.width, Screen.height);
@@ -403,11 +403,11 @@ namespace Wreckabulary
             var layout = bar.GetComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(22, 14, 0, 0);
             layout.childForceExpandHeight = false;
-            LobbyKit.Face(bar, LobbyKit.Hex(0xe5eee8), 8);
+            LobbyKit.Face(bar, LobbyKit.Card, 8);
             var words = LobbyKit.Text(bar, "Keep this display?", 20, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft);
             words.Size(-1, 40, 1);
-            var keep = LobbyKit.Button(bar, "Keep display", LobbyKit.Cyan, Keep, 6);
-            LobbyKit.Text(keep.Body(), "Keep", 22, Color.white, TextAlignmentOptions.Center).rectTransform.Fill();
+            var keep = LobbyKit.Button(bar, "Keep display", LobbyKit.PrimaryFill, Keep, 6);
+            LobbyKit.Text(keep.Body(), "Keep", 22, LobbyKit.PrimaryInk, TextAlignmentOptions.Center).rectTransform.Fill();
             keep.Size(150, 52);
             LobbyKit.Pill(bar, "Revert display", "Revert", 22, Revert).Size(150, 52);
             if (timer) timer.Show(words, seconds => $"Keep this display? It goes back in {seconds} s.");
@@ -418,7 +418,7 @@ namespace Wreckabulary
             var holder = LobbyKit.Rect(controls, "Name field");
             holder.gameObject.SetActive(false);
             holder.Size(320, 46);
-            holder.Paint(Color.white, 6);
+            holder.Paint(LobbyKit.Raised, 6);
             LobbyKit.Frame(holder, LobbyKit.Line, 6, 1);
             var area = LobbyKit.Rect(holder, "Text area").Place(Vector2.zero, Vector2.one, new Vector2(14, 2), new Vector2(-14, -2));
             area.gameObject.AddComponent<RectMask2D>();
@@ -432,7 +432,7 @@ namespace Wreckabulary
             field.customCaretColor = true;
             field.caretColor = LobbyKit.Navy;
             field.caretWidth = 2;
-            field.selectionColor = new Color(LobbyKit.Sun.r, LobbyKit.Sun.g, LobbyKit.Sun.b, .5f);
+            field.selectionColor = new Color(LobbyKit.Selection.r, LobbyKit.Selection.g, LobbyKit.Selection.b, .5f);
             field.text = Menu.Career.Name;
             field.inputValidator = LatinNameValidator.Create();
             field.onEndEdit.AddListener(value =>

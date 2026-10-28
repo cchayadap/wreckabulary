@@ -1,0 +1,191 @@
+{
+  "utc": "2026-10-28T18:28:49.127Z",
+  "status": "BOUNDED_NATIVE_PASS_VISUAL_REVIEW_PENDING",
+  "gates": [
+    {
+      "path": ".harness/delivery/workspace-check-2026-10-28T18-23-17-021Z-stdout.txt",
+      "sha256": "12e25ce9a8938a2805a26975b657cfaf954b7da5bdd455757119730c05472085",
+      "result": {
+        "cmd": "check all",
+        "rung": "R0",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T18:23:17Z",
+        "secs": 7.6,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_check_all_20261028T182317Z.log",
+        "evidence": [],
+        "infra": null,
+        "slot": 0,
+        "messages": [
+          "[check:Runtime] OK",
+          "[check:Editor] OK"
+        ]
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-core-2026-10-28T18-12-12-307Z-stdout.txt",
+      "sha256": "8d8798117b62e7be97f406a89ee0d254867414fb098fa84a1f17bef1acf72313",
+      "result": {
+        "cmd": "core --filter CosmeticBundleTests|WardrobeTests|CatalogueTests|CareerTests",
+        "rung": "R1",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T18:12:12Z",
+        "secs": 6.9,
+        "route": "none",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_core_20261028T181212Z.log",
+        "evidence": [
+          "TestResults/core_20261028T181212Z.trx"
+        ],
+        "infra": null,
+        "slot": 0,
+        "tests": {
+          "total": 41,
+          "passed": 41,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-sharedthemetests-2026-10-28T18-17-25-547Z-stdout.txt",
+      "sha256": "20f77653b3c00fdf92ad35512555efd5b599bfabc0d83e8a398003c85a5994d6",
+      "result": {
+        "cmd": "test editmode --cold --filter LobbyInterfaceThemeTests|WordboundUiThemeTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T18:17:25Z",
+        "secs": 50.8,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_editmode_20261028T181725Z.log",
+        "evidence": [
+          "TestResults/editmode_20261028T181725Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 33.1,
+        "tests": {
+          "total": 21,
+          "passed": 21,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-sharedtheme-2026-10-28T18-18-43-693Z-stdout.txt",
+      "sha256": "e4922f43865b398641b2493ef8b6a1743d7f608208836f4120c69af71b2acade",
+      "result": {
+        "cmd": "exec Wreckabulary.EditorTools.LobbySharedThemeSetup.Apply --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T18:18:43Z",
+        "secs": 22.1,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_Apply_20261028T181843Z.log",
+        "evidence": [
+          "Logs/exec/20261028T181843Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 7.1,
+        "messages": [
+          "[Wreckabulary] Shared interface verified. Existing edits retained; no migration repeated.",
+          "[GSK] exec Wreckabulary.EditorTools.LobbySharedThemeSetup.Apply ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261028T181843Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.EditorTools.LobbySharedThemeSetup.Apply",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-robotoplay-2026-10-28T18-24-57-304Z-stdout.txt",
+      "sha256": "a0480490dd1cdd7adb3e1c560f20a6e3d3f66d4f633e9d88f11047e83f5c42b8",
+      "result": {
+        "cmd": "test playmode --cold --filter HomeLayoutRuntimeTests|LobbyTests|LobbyNavigationRefinementTests|LobbyMapSelectionTests|LobbyPlayChoiceTests|LobbyPlayPresentationTests|LobbySettingsNavigationTests|ControlsSettingsTests|LobbyNavigationLayoutTests|LoadoutLayoutRuntimeTests|ShopLayoutRuntimeTests|LobbyRuntimeTypographyRuntimeTests|LobbyCameraRuntimeTests",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T18:24:57Z",
+        "secs": 138.2,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_test_playmode_20261028T182457Z.log",
+        "evidence": [
+          "TestResults/playmode_20261028T182457Z.xml"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 9.3,
+        "tests": {
+          "total": 97,
+          "passed": 97,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "path": ".harness/delivery/workspace-solopreview-2026-10-28T18-23-32-867Z-stdout.txt",
+      "sha256": "61555bc7b59a6bae2b7dd70ef76e2ba150acdcc4164485df91650de74cee2faf",
+      "result": {
+        "cmd": "exec Wreckabulary.Online.Editor.WordboundSoloPreviewCapture.CaptureDrafts --cold",
+        "rung": "R3",
+        "ok": true,
+        "exit": 0,
+        "verdict": "PASS",
+        "utc": "2026-10-28T18:23:32Z",
+        "secs": 33.2,
+        "route": "cold",
+        "errors": [],
+        "failures": [],
+        "log": "Logs/gate_exec_CaptureDrafts_20261028T182333Z.log",
+        "evidence": [
+          "Logs/exec/20261028T182333Z.json"
+        ],
+        "infra": null,
+        "slot": null,
+        "crashAfterQuit": false,
+        "refreshSecs": 17.6,
+        "messages": [
+          "[GSK] exec Wreckabulary.Online.Editor.WordboundSoloPreviewCapture.CaptureDrafts ok -> C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration\\Logs\\exec\\20261028T182333Z.json"
+        ],
+        "exec": {
+          "method": "Wreckabulary.Online.Editor.WordboundSoloPreviewCapture.CaptureDrafts",
+          "ok": true,
+          "error": null,
+          "result": null
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Migration181422 initially logged constructor resource-load exceptions despite gatePASS; root repaired pure palette getter and safe loading, added cold-thread regression. Repeat181843 clean.",
+    "Capture182026 rejected auto-dirty packageShader; narrow Shader/Packages mainasset exception retains allimporters and otherassetdirtyguards. Capture182219 produced PNGs but receipt serialization failed; root serializes pose vectors as arrays. Capture182333 complete preservationPASS.",
+    "Both complete map previews inspected and rejected for empty framing; not imported. New Windows screens and environment changes remain pending."
+  ],
+  "previewReceipt": "BuildNotes/visual-coherence-20261029/map-previews/captures/20261028T182356Z-3ae31ba6/receipt.json"
+}

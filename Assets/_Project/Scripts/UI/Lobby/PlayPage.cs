@@ -297,15 +297,15 @@ namespace Wreckabulary
 
         static Button MapCard(Transform parent, string name, Color colour, bool selected, Action click)
         {
-            var card = LobbyKit.Button(parent, name, Color.Lerp(colour, Color.white, .2f), click, 14,
-                selected ? LobbyKit.Cyan : LobbyKit.Navy, selected ? 4 : 2, 3);
+            var card = LobbyKit.Button(parent, name, LobbyKit.Card, click, 14,
+                selected ? LobbyKit.Selection : LobbyKit.Line, selected ? 3 : 1, 0);
             var press = card.GetComponent<LobbyPress>();
             press.Lift = 0; press.Tilt = 0; press.Sink = 1;
             if (selected)
             {
                 var mark = LobbyKit.Rect(card.Body(), "Selected").Pin(Vector2.one, new Vector2(-8, -8), new Vector2(26, 26));
-                mark.Paint(LobbyKit.Cyan, 13).raycastTarget = false;
-                LobbyKit.Icon(mark, LobbyIcons.Check, Color.white).rectTransform.Fill().offsetMin = new Vector2(5, 5);
+                mark.Paint(LobbyKit.Selection, 13).raycastTarget = false;
+                LobbyKit.Icon(mark, LobbyIcons.Check, LobbyKit.OnSelection).rectTransform.Fill().offsetMin = new Vector2(5, 5);
                 mark.GetChild(0).GetComponent<RectTransform>().offsetMax = new Vector2(-5, -5);
             }
             return card;
@@ -377,7 +377,7 @@ namespace Wreckabulary
         static void TutorialRoom(Transform parent)
         {
             var note = LobbyKit.Rect(parent, "Tutorial room").Size(-1, HouseSize.y);
-            LobbyKit.Face(note, Color.Lerp(LobbyKit.Sun, Color.white, .2f), 14, LobbyKit.Navy, 2, 3);
+            LobbyKit.Face(note, LobbyKit.Card, 14, LobbyKit.Line, 1, 0);
             var art = LobbyKit.ItemImage(note, LobbyKit.ModeArt(LobbyMenu.TutorialMode), 172);
             if (art) art.rectTransform.Pin(new Vector2(0, .5f), new Vector2(24, 0), new Vector2(172, 172));
             var title = LobbyKit.Text(note, "Play & learn", 26, LobbyKit.Navy);
@@ -448,12 +448,12 @@ namespace Wreckabulary
                     bool garden = room.Name.Contains("Garden");
                     var fill = garden ? LobbyKit.Lime : IsPassage(room.Name) ? LobbyKit.Sun : colour;
                     rect.Paint(fill, 3).raycastTarget = false;
-                    LobbyKit.Frame(rect, LobbyKit.Navy, 3, 3);
+                    LobbyKit.Frame(rect, LobbyKit.ArtInk, 3, 3);
                     if (garden)
                     {
                         float crown = Mathf.Min(rect.sizeDelta.x, rect.sizeDelta.y) * .42f;
                         var tree = LobbyKit.Rect(rect, "Tree").Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(crown, crown));
-                        LobbyKit.Face(tree, Tree, Mathf.RoundToInt(crown / 2f), LobbyKit.Navy, 3);
+                        LobbyKit.Face(tree, Tree, Mathf.RoundToInt(crown / 2f), LobbyKit.ArtInk, 3);
                     }
                 }
                 if (storeys > 1)
@@ -462,7 +462,7 @@ namespace Wreckabulary
                         if (layout.StoreyOf(layout.Room(s.Lower)) != storey && layout.StoreyOf(layout.Room(s.Upper)) != storey) continue;
                         var flight = LobbyKit.Rect(box, "Stairs").Pin(new Vector2(.5f, .5f), At((s.MinX + s.MaxX) * .5f, (s.MinZ + s.MaxZ) * .5f),
                             new Vector2(s.MaxX - s.MinX, s.MaxZ - s.MinZ) * scale);
-                        flight.Paint(new Color(LobbyKit.Navy.r, LobbyKit.Navy.g, LobbyKit.Navy.b, .55f)).raycastTarget = false;
+                        flight.Paint(new Color(LobbyKit.ArtInk.r, LobbyKit.ArtInk.g, LobbyKit.ArtInk.b, .55f)).raycastTarget = false;
                     }
                 foreach (var spawn in layout.Spawns)
                 {
@@ -474,7 +474,7 @@ namespace Wreckabulary
                 if (storeys == 1) continue;
                 var tag = LobbyKit.Rect(box, "Storey").Pin(new Vector2(.5f, .5f), offset + new Vector2(0f, (planSize.y + label) * .5f),
                     new Vector2(Mathf.Min(planSize.x + Gap, 120f), label - 4f));
-                tag.Paint(LobbyKit.Navy, 7).raycastTarget = false;
+                tag.Paint(LobbyKit.ArtInk, 7).raycastTarget = false;
                 var name = LobbyKit.Display(tag, layout.StoreyLabel(storey).Replace(" FLOOR", ""), 14, Color.white);
                 name.characterSpacing = 1;
                 name.enableAutoSizing = true; name.fontSizeMin = 12; name.fontSizeMax = 14;

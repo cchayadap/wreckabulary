@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
@@ -11,6 +12,65 @@ namespace Wreckabulary.Online.Tests
 {
     public sealed class WordboundUiThemeTests
     {
+        [Test]
+        public void SharedPaletteRebuildsAtLayoutWithoutChangingBorrowedAssetsOrLeakingResolvedCopies()
+        {
+            var shared = ScriptableObject.CreateInstance<LobbyInterfaceTheme>();
+            var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+            var styles = new WordboundUiStyles(); ThemeWindow window = null;
+            var body = Resources.Load<Font>("Fonts/Roboto/v3.016/Roboto-Regular");
+            var heading = Resources.Load<Font>("Fonts/Roboto/v3.016/Roboto-Medium");
+            int beforeCount = Resources.FindObjectsOfTypeAll<WordboundUiTheme>().Length;
+            try
+            {
+                Assert.IsNotNull(body); Assert.IsNotNull(heading);
+                shared.BodyFont = body; shared.HeadingFont = heading;
+                theme.SharedTheme = shared; theme.Panel = Color.magenta; theme.Padding = 19; theme.MenuWidth = 710;
+                string original = JsonUtility.ToJson(theme);
+                string sharedBefore = JsonUtility.ToJson(shared);
+                GUISkin previous = null;
+                window = Open(() => {
+                    using var scope = styles.Apply(theme);
+                    Assert.AreSame(body, GUI.skin.font); Assert.AreSame(heading, styles.Heading.font);
+                    Assert.AreEqual(shared.Colours.Text, GUI.skin.label.normal.textColor);
+                    Assert.AreEqual(shared.Colours.OnPrimary, styles.Primary.normal.textColor);
+                    Assert.AreEqual(19, styles.Padding); Assert.AreEqual(710, styles.MenuWidth);
+                    previous = GUI.skin;
+                });
+                Send(window, EventType.Layout);
+                Assert.AreEqual(original, JsonUtility.ToJson(theme));
+                Assert.AreEqual(sharedBefore, JsonUtility.ToJson(shared));
+                Assert.IsFalse(Resources.FindObjectsOfTypeAll<WordboundUiTheme>().Any(t => t.name == "Owned Wordbound resolved interface"));
+                int generation = styles.Generation; var old = previous;
+                shared.Colours.Text = Color.cyan;
+                Send(window, EventType.Layout);
+                Assert.AreEqual(generation + 1, styles.Generation); Assert.IsFalse(old);
+                Assert.AreEqual(original, JsonUtility.ToJson(theme));
+                Assert.IsFalse(Resources.FindObjectsOfTypeAll<WordboundUiTheme>().Any(t => t.name == "Owned Wordbound resolved interface"));
+                window.Draw = null; styles.Dispose(); styles.Dispose();
+                Assert.IsFalse(previous); Assert.IsTrue(body); Assert.IsTrue(heading); Assert.IsTrue(shared); Assert.IsTrue(theme);
+                Assert.AreEqual(beforeCount, Resources.FindObjectsOfTypeAll<WordboundUiTheme>().Length);
+            }
+            finally { if (window) window.Close(); styles.Dispose(); Object.DestroyImmediate(theme); Object.DestroyImmediate(shared); }
+        }
+
+        [Test]
+        public void InvalidSharedPaletteFallsBackWithoutRepairingTheBorrowedPalette()
+        {
+            var shared = ScriptableObject.CreateInstance<LobbyInterfaceTheme>();
+            var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
+            var styles = new WordboundUiStyles(); ThemeWindow window = null;
+            try
+            {
+                shared.Colours.Panel = new Color(float.NaN, 0, 0, 1); theme.SharedTheme = shared;
+                window = Open(() => { using var scope = styles.Apply(theme); Assert.IsNotEmpty(styles.ConfigurationError); });
+                Send(window, EventType.Layout);
+                Assert.IsTrue(float.IsNaN(shared.Colours.Panel.r)); Assert.AreSame(shared, theme.SharedTheme);
+                Assert.IsFalse(Resources.FindObjectsOfTypeAll<WordboundUiTheme>().Any(t => t.name == "Owned Wordbound resolved interface"));
+            }
+            finally { if (window) window.Close(); styles.Dispose(); Object.DestroyImmediate(theme); Object.DestroyImmediate(shared); }
+        }
+
         [Test]
         public void ThemeRejectsUnreadableGeometryAndNonopaqueOrNonfiniteColours()
         {

@@ -1,0 +1,71 @@
+{
+  "status": "FROZEN_SOURCE_CHECKED_NATIVE_PENDING",
+  "base_head": "74ffae0359766d04d1632728f5da0a7f72457887",
+  "files": [
+    {
+      "path": "Assets/_Project/Editor/Authoring/LobbySharedThemeSetup.cs",
+      "baseline_sha256": null,
+      "candidate_sha256": "8b7f6894d91b1602f34cdaa0fb32d5d6418c007faf21955a0c62facd650a6271"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/Tests/Input/WordboundUiThemeTests.cs",
+      "baseline_sha256": "76f0cbacc1099bb5abbc011fe614dc90144a76545b1f979d812791fcf19b04c0",
+      "candidate_sha256": "4169e5146a99e453230a2b0826c46462a67edfb1768ad385144143844f1e305b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/ControlsPanel.cs",
+      "baseline_sha256": "884a0e990680c4bbac44c62a82f55a1dac8fc1a95880f22d179df16562e12fd1",
+      "candidate_sha256": "20ff168c49eba871eb178e292679f80973fd4d50928b9395efc7b489999bcabd"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyInterfaceFrame.cs",
+      "baseline_sha256": null,
+      "candidate_sha256": "0073f046aeb08c7197b061b30aa9efbcb00cc6d6fa6cf9388fcaa820b3c2cafc"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyInterfaceTheme.cs",
+      "baseline_sha256": null,
+      "candidate_sha256": "7a58ac665fccc9ce25e770e45d5b18b049444d961fa1970af9c168886bfc34dc"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyKit.cs",
+      "baseline_sha256": "6f76a377eab5203378445a238b8dd5ac4afc34eec35930f5c723f493eaedbbfe",
+      "candidate_sha256": "bba2f44a7d0123ef98dc523724ac8481fa554dd76f16cd68659a99bad35f2214"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPages.cs",
+      "baseline_sha256": "d6a36954ccd2205a095473ae4c5594db95a66f6760c47013e7a79c04f566c79f",
+      "candidate_sha256": "e29089ceef1e9df0a6c26568120cc27b578fd50638553c52609afafdccf7e0c9"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyTab.cs",
+      "baseline_sha256": "3d2b03e3a134e9c857e87796173fb82250d3f8f7c352de461107d08763e01e7b",
+      "candidate_sha256": "b8654124822a58a50282334ffe041acf064549c56e69553b93b7040cf6423c62"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/SettingsPage.cs",
+      "baseline_sha256": "4555e8226f534223ab081f39e377eadec3976d789083e8eb154e675be85abb23",
+      "candidate_sha256": "937167f68bcc85d93e6e064ae51439ebb64a7a4b5411e7d4b9bd7e066a8a168d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/ShopPage.cs",
+      "baseline_sha256": "3697803f92bf650a6efb5819dfa32d1dadbbdaf13a7d82d391a4f31e2d2d5ae3",
+      "candidate_sha256": "08ec9171a5ac6cd20a080cf797733518afe82afa210dee13a708a4a1c9a23540"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Wordbound/WordboundUiStyles.cs",
+      "baseline_sha256": "0bfabee0d3292d800ba7031184846b594d28b868ee9370995a9d178dbf55ba63",
+      "candidate_sha256": "cd051f47874ac6ee98e3f85e71dfc47d32c81f94cdb089f2905f7beb110560bc"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Wordbound/WordboundUiTheme.cs",
+      "baseline_sha256": "c6d6c945e2c993456497bc5c5ff0669bc25b29a408a2fb535891ae06cbaf3e91",
+      "candidate_sha256": "d2f7f5cda09d312c8a97fb8a8ea4a7f6f44caee2faa7d2df0874874ac41099ce"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/LobbyInterfaceThemeTests.cs",
+      "baseline_sha256": null,
+      "candidate_sha256": "6e593b26076f63c8d2b85aa5ced480f8e8b84ac4acf02dd053622cf5264f156e"
+    }
+  ]
+}
