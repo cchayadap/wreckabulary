@@ -1,0 +1,72 @@
+{
+  "utc": "2026-10-28T16:51:47.5707637Z",
+  "status": "PASS",
+  "scope": "Exact pre-migration backups and original font/license copied bytes",
+  "backupFiles": [
+    {
+      "path": "Assets/_Project/Prefabs/UI/Home/HomePage.prefab",
+      "sha256": "1f5f2c32da8556c95d36954e37212199e7ae2c347c30960c3145d10c0875824b"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Home/HomePage.prefab.meta",
+      "sha256": "e7d81a36cbf6e25c14f09e38b27e010de5336a8d00547960b68a4fc70020d787"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Play/PlayPage.prefab",
+      "sha256": "0f19e37ae067f8c23e910d39539ea9a539ffa93d5e4bcaeeffe7ed583787b826"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Play/PlayPage.prefab.meta",
+      "sha256": "122ccfe5c04bc45bcf795160d7e457b6c1e86f324f73e0564bd15b86d290d675"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Settings/SettingsPage.prefab",
+      "sha256": "389fa6a67eb506f427b12d15478ef462e2bfb913f6733eab6a79d0b220c5d569"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Settings/SettingsPage.prefab.meta",
+      "sha256": "3540fa8ad888c26f57188214b7b8824707f331583b2647cd6677e634e37673f9"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/LoadoutPage.prefab",
+      "sha256": "73986facb63895eeb45652af90fdddbd82d995cb3ccbdbdeb5e06e9f3063d815"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/LoadoutPage.prefab.meta",
+      "sha256": "8eac83c743bfacbaa25c03e6811f1eb4961380b8d6126469a8386ab9aa899891"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab",
+      "sha256": "00ae82dc20d058b8a335ac6af701f13a5f07e95066c6cf37576a9ba2708a0f8e"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab.meta",
+      "sha256": "610046f2b23c887dcc7f4c7276d286fddbab005c77ef9f54e963df497d6e572a"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab",
+      "sha256": "3632b04b9a65e212effc6bb59e85040f5c13184909af6227b51e7153b1d362e4"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab.meta",
+      "sha256": "0a2875d600bce48936dc9e0d16bd36c524fb380abf52db2f5ee9482731ea4651"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopOfferCard.prefab",
+      "sha256": "6cd7bedab8e72f7408a3a0fa6993247b5465ecdee4c6807797d9428e97c11689"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopOfferCard.prefab.meta",
+      "sha256": "286d5fd2d975a19d3e70da5092c40dc9a7a38b5f3ca876eb521719f991e5d932"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyTypography.asset",
+      "sha256": "5b4afbfbe5eca92baaec04e79f44d1aa2ab46a45f8ec2553ec9ddc7cdaead8ed"
+    },
+    {
+      "path": "Assets/_Project/Resources/UI/LobbyTypography.asset.meta",
+      "sha256": "c1b1864d7c73db4cf30adcd96879f725dc9300327b28ed714e8d6e4c1df6ced7"
+    }
+  ],
+  "sourceManifest": "ArtSource/Fonts/Roboto/v3.016/provenance.json"
+}

@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "kind": "Independent bounded read-only saved-file verification; no native execution",
+  "profileGuid": "0cc48b4c1e663824cb208ca6e8a467a0",
+  "profileMetaUnchanged": true,
+  "fontRows": [
+    {
+      "weight": "Medium",
+      "guid": "6729ab70c3b8a4346b0c69c75d10c4aa",
+      "atlasFileId": "3041516498580681782",
+      "baseMaterialFileId": "-4660885505536729179",
+      "sourceGuid": "555cadced30d6a94a878437d7c1b0657",
+      "boldReference": "fileID: 11400000",
+      "dynamic": true,
+      "fallbackGuid": "8f586378b4e144a9851e7b34d9b748ee"
+    },
+    {
+      "weight": "Regular",
+      "guid": "e434102c06a032f4bb9ec9dd0036b752",
+      "atlasFileId": "-20238138395127757",
+      "baseMaterialFileId": "8483536661307084317",
+      "sourceGuid": "839917207bd2f59459dbfb18437188f3",
+      "boldReference": "fileID: 11400000, guid: 95a0bbd2b09b82348aec50689cef986c, type: 2",
+      "dynamic": true,
+      "fallbackGuid": "8f586378b4e144a9851e7b34d9b748ee"
+    },
+    {
+      "weight": "Bold",
+      "guid": "95a0bbd2b09b82348aec50689cef986c",
+      "atlasFileId": "3611245099156320973",
+      "baseMaterialFileId": "2695427455831300044",
+      "sourceGuid": "6635e012c936f2e49afb0ee6c9a301e6",
+      "boldReference": "fileID: 11400000",
+      "dynamic": true,
+      "fallbackGuid": "8f586378b4e144a9851e7b34d9b748ee"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Roboto Body Foreground.mat",
+      "fontGuid": "e434102c06a032f4bb9ec9dd0036b752",
+      "atlasFileId": "-20238138395127757",
+      "gradientScale": 11,
+      "textureSize": 2048
+    },
+    {
+      "name": "Roboto Bold Foreground.mat",
+      "fontGuid": "95a0bbd2b09b82348aec50689cef986c",
+      "atlasFileId": "3611245099156320973",
+      "gradientScale": 11,
+      "textureSize": 2048
+    },
+    {
+      "name": "Roboto Display Drop.mat",
+      "fontGuid": "6729ab70c3b8a4346b0c69c75d10c4aa",
+      "atlasFileId": "3041516498580681782",
+      "gradientScale": 11,
+      "textureSize": 2048
+    },
+    {
+      "name": "Roboto Display Foreground.mat",
+      "fontGuid": "6729ab70c3b8a4346b0c69c75d10c4aa",
+      "atlasFileId": "3041516498580681782",
+      "gradientScale": 11,
+      "textureSize": 2048
+    },
+    {
+      "name": "Roboto Display Stroke.mat",
+      "fontGuid": "6729ab70c3b8a4346b0c69c75d10c4aa",
+      "atlasFileId": "3041516498580681782",
+      "gradientScale": 11,
+      "textureSize": 2048
+    }
+  ],
+  "legacyFilesUnchanged": [
+    "Assets/_Project/Resources/Fonts/LilitaOne-Regular.ttf",
+    "Assets/_Project/Resources/Fonts/LilitaOne-Regular.ttf.meta",
+    "Assets/_Project/Resources/Fonts/Nunito-Black.ttf",
+    "Assets/_Project/Resources/Fonts/Nunito-Black.ttf.meta",
+    "Assets/_Project/Resources/Fonts/Nunito-ExtraBold.ttf",
+    "Assets/_Project/Resources/Fonts/Nunito-ExtraBold.ttf.meta",
+    "Assets/_Project/UI/Fonts/LilitaOne-Regular SDF.asset",
+    "Assets/_Project/UI/Fonts/LilitaOne-Regular SDF.asset.meta",
+    "Assets/_Project/UI/Fonts/Nunito-Black SDF.asset",
+    "Assets/_Project/UI/Fonts/Nunito-Black SDF.asset.meta",
+    "Assets/_Project/UI/Fonts/Nunito-ExtraBold SDF.asset",
+    "Assets/_Project/UI/Fonts/Nunito-ExtraBold SDF.asset.meta"
+  ],
+  "legacyCheckpoint": "811f08516db7b1d12029c669e62f4066d7992013",
+  "sourceImportsExact": true,
+  "distributedLicenseSha256": "061402327a96aadb0bfb694a960ed289ecd38d383e396243831ab81feb109c41"
+}

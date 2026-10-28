@@ -1,6 +1,6 @@
 # Play organization and typography
 
-STATUS: IN PROGRESS — pending native layout, Windows and owner visual review.
+STATUS: IN PROGRESS — native layout and Windows170019 reviewed; sparse-card sizing correction and owner visual review remain.
 
 The owner prefers the earlier build232801 visual identity. Preserve its colourful artwork, readable cards and warm surfaces while simplifying organization. Do not restore decorative stripes or sunbursts. Play should use the page for choices, with no character, smaller margins and fewer repeated labels. Font changes are allowed; Roboto is the first concrete candidate.
 
@@ -28,7 +28,10 @@ Roboto source, exact version, licence and hashes are recorded by the typography 
 - [x] Full-width Play characterization and navigation gate163111 passes32/32; source checkpoint `c45e4fac` preserves the tested step. Independent lifecycle review found no blocking defect and records the untested active-preview/emote transition separately.
 - [x] Official Roboto v3.016 original hinted static faces and pinned OFL saved with source hashes. Native Apply165008 and reopened repeat165137 pass; all4268 authored files remain unchanged on repeat. Original fonts retained; exact16 pre-migration frame/profile files and metadata verified.
 - [x] Hash-verified four-file Settings/Customize organization draft integrated: compact colour parts/palette/accessory/finish cards, warmer surfaces and tighter one-option-per-row Settings. Saved frame panels are warmed during the font migration; no stripes restored.
-- [ ] Native font persistence, layout, focus, small-window fit and saved-asset validation.
-- [ ] New Windows build and actual lobby/Solo/Workshop captures, image review and exact preservation receipt.
+- [x] Native font/frame persistence25/25 passes165248. Combined menu runtime165423 passes93/94; the quit-title ellipsis is fixed with targeted165755 passing14/14. No test was weakened to permit clipping.
+- [x] Windows build170019 and lobby170223/Solo170426/Workshop170534 pass; strict45-image delivery audit and4268-file preservation pass. Exact source is587ecf84.
+- [x] Three independent reviewers opened all45 actual screenshots (Play11, menus13, Solo/Workshop21); no blocking clipping/overlap defect observed. Exact rosters and limitations are in review/windows170019-*.md.
+- [~] Correct single-choice cards stretching across the entire row, preserving the existing fixed action, full-width options and routing. Excess vertical space, identifier-only Solo map art, older Online form styling and dense Workshop presentation remain identified follow-ups.
+- [ ] Final owner visual/feel acceptance, physical input and the full production backlog remain separate from the bounded technical passes.
 
 The full multiplayer, story, map, item, skin, creator and production backlog remains in ../../progress.md. This bounded UI iteration does not replace it.
