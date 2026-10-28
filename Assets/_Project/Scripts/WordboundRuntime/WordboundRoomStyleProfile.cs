@@ -24,12 +24,12 @@ namespace Wreckabulary.WordboundRuntime
         public const string ResourcePath = "Wordbound/RoomArchitecture";
         [Tooltip("Visual architecture only. Does not add or change collision, map rules, furniture or online manifests.")]
         public bool Enabled = true;
-        [Range(0, 3)] public int MaximumInsetsPerWallPiece = 2;
+        [Range(0, 3)] public int MaximumInsetsPerWallPiece = 0;
         [Range(0, 512)] public int MaximumDecoratedWallPieces = 256;
         [Range(2f, 6f)] public float InsetWidth = 4.6f;
         [Range(1.5f, 4.5f)] public float InsetHeight = 3.2f;
         [Range(.1f, .8f)] public float FrameWidth = .20f;
-        [Tooltip("The existing original townhouse illustration is optional. Its source file is never changed.")]
+        [Tooltip("Optional wall illustration, used only when insets are enabled. Its source file is never changed.")]
         public Texture2D WallArtwork;
         public List<WordboundRoomPalette> Palettes = Defaults();
 

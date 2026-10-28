@@ -31,6 +31,7 @@ namespace Wreckabulary.Tests
         [Test]
         public void FlagshipDecorationPreservesEveryColliderManifestAndRouteOpening()
         {
+            profile.MaximumInsetsPerWallPiece = 2;
             var content = Content(); var course = Resolve(content);
             var legacy = WordboundCourseWorld.Build(course, content.Geometry, parent.transform,
                 new WordboundCourseWorldOptions { EnableRoomArchitecture = false });
@@ -73,6 +74,28 @@ namespace Wreckabulary.Tests
                     float facing = Vector3.Dot(Vector3.Cross(vertices[b] - vertices[a], vertices[c] - vertices[a]), normals[a]);
                     Assert.That(facing, Is.GreaterThan(0), "Visible faces must have consistent winding.");
                 }
+            }
+        }
+
+        [Test]
+        public void DefaultRoomsRetainPlankTexturesWithoutWindowPanels()
+        {
+            var content = Content(); var course = Resolve(content);
+            var baseline = WordboundCourseWorld.Build(course, content.Geometry, parent.transform,
+                new WordboundCourseWorldOptions { EnableRoomArchitecture = false });
+            var styled = WordboundCourseWorld.Build(course, content.Geometry, parent.transform,
+                new WordboundCourseWorldOptions { RoomStyle = profile });
+            Assert.AreEqual(0, styled.GetComponent<WordboundRoomArchitecture>().InsetCount);
+            for (int i = 0; i < styled.Surfaces.Count; i++)
+            {
+                if (styled.Surfaces[i].GetComponent<WordboundCourseNode>().Kind != WordboundCourseNodeKind.Floor) continue;
+                var original = baseline.Surfaces[i].GetComponent<Renderer>().sharedMaterial;
+                var actual = styled.Surfaces[i].GetComponent<Renderer>().sharedMaterial;
+                Assert.AreSame(original.mainTexture, actual.mainTexture);
+                Assert.AreSame(original.GetTexture("_BumpMap"), actual.GetTexture("_BumpMap"));
+                Assert.AreEqual(original.GetFloat("_BumpScale"), actual.GetFloat("_BumpScale"));
+                CollectionAssert.AreEqual(baseline.Surfaces[i].GetComponent<MeshFilter>().sharedMesh.uv,
+                    styled.Surfaces[i].GetComponent<MeshFilter>().sharedMesh.uv);
             }
         }
 

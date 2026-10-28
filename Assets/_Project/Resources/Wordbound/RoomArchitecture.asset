@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: RoomArchitecture
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.WordboundRuntime.WordboundRoomStyleProfile
   Enabled: 1
-  MaximumInsetsPerWallPiece: 2
+  MaximumInsetsPerWallPiece: 0
   MaximumDecoratedWallPieces: 256
   InsetWidth: 4.6
   InsetHeight: 3.2

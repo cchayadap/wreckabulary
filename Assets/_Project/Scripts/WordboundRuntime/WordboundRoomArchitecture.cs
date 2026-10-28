@@ -112,10 +112,6 @@ namespace Wreckabulary.WordboundRuntime
             float bottom = center.y - size.y * .5f;
             float roomFloor = module.Bounds.Min.Y / 1000f;
 
-            // Trim and display surfaces occupy the recessed original solid-wall volume.
-            if (bottom <= roomFloor + .001f)
-                FlatBox(face + Vector3.up * (-size.y * .5f + .13f), right, inward,
-                    width, .26f, Recess, palette.Frame);
             if (size.y < 4.1f || width < 3.5f || bottom > roomFloor + .001f ||
                 decoratedWallPieces >= profile.MaximumDecoratedWallPieces) return;
             int count = Mathf.Min(profile.MaximumInsetsPerWallPiece, Mathf.FloorToInt(width / 6f));
@@ -154,7 +150,7 @@ namespace Wreckabulary.WordboundRuntime
             {
                 var template = GameAssets.I && GameAssets.I.tintBase ? GameAssets.I.tintBase :
                     Surfaces.Get(Surfaces.Kind.Plaster, Color.white);
-                artwork = new Material(template) { name = "Original townhouse wall illustration", color = Color.white };
+                artwork = new Material(template) { name = "Optional townhouse wall illustration", color = Color.white };
                 artwork.mainTexture = profile.WallArtwork;
                 if (artwork.HasProperty("_BaseMap")) artwork.SetTexture("_BaseMap", profile.WallArtwork);
                 if (artwork.HasProperty("_BumpMap")) { artwork.SetTexture("_BumpMap", null); artwork.DisableKeyword("_NORMALMAP"); }
@@ -230,18 +226,18 @@ namespace Wreckabulary.WordboundRuntime
         {
             if (materials.TryGetValue(palette, out var found)) return found;
             found = new PaletteMaterials {
-                Floor = Make(palette.FloorMaterial, palette.Floor, "Floor"), Wall = Make(palette.WallMaterial, palette.Wall, "Wall"),
+                Floor = Make(palette.FloorMaterial, palette.Floor, "Floor", Surfaces.Kind.Planks), Wall = Make(palette.WallMaterial, palette.Wall, "Wall"),
                 Ceiling = Make(palette.CeilingMaterial, palette.Ceiling, "Ceiling"), Frame = Make(palette.FrameMaterial, palette.Frame, "Frame"),
                 Inset = Make(palette.InsetMaterial, palette.Inset, "Inset"), Accent = Make(palette.AccentMaterial, palette.Accent, "Accent")
             };
             materials.Add(palette, found); return found;
         }
 
-        Material Make(Material assigned, Color colour, string role)
+        Material Make(Material assigned, Color colour, string role, Surfaces.Kind surface = Surfaces.Kind.Plaster)
         {
             if (assigned) return assigned;
-            var value = new Material(Surfaces.Get(Surfaces.Kind.Plaster, colour)) { name = "Room " + role, color = colour };
-            if (value.HasProperty("_Smoothness")) value.SetFloat("_Smoothness", role == "Inset" ? .45f : .16f);
+            var value = new Material(Surfaces.Get(surface, colour)) { name = "Room " + role, color = colour };
+            if (surface != Surfaces.Kind.Planks && value.HasProperty("_Smoothness")) value.SetFloat("_Smoothness", role == "Inset" ? .45f : .16f);
             ownedMaterials.Add(value); return value;
         }
 
