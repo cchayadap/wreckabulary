@@ -256,9 +256,11 @@ namespace Wreckabulary.Workshop
             foreach (var handle in SiteHandles(selected))
             {
                 if (!view.TryProject(handle.point, viewport, out var at)) continue;
-                OverlayBox(new Rect(at.x - 8, at.y - 8, 16, 16), "", handle.part == sitePart ? selectedBox : normalBox);
-                AddViewLabel(handle.point, handle.label, handle.label + " · " + selected.PuzzleId,
-                    handle.part == sitePart ? 6 : 5);
+                bool active = handle.part == sitePart;
+                bool hover = Vector2.Distance(Event.current.mousePosition, at) <= 14;
+                ViewHandle(at, active ? "+" : "", handle.label, active ? 14 : 10, 14, active);
+                if (active || hover)
+                    AddViewLabel(handle.point, handle.label, handle.label + " · " + selected.PuzzleId, active ? 6 : 5);
             }
         }
         bool HandleSitePointer()

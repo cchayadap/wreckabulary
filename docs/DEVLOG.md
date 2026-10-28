@@ -945,3 +945,7 @@ Integrated one saved neutral interface palette across seven authored frames and 
 ## 2026-10-28T18:43:31.216Z Original timber and route door detail
 
 Native architecture/course/variant tests pass27/27 after a shader float precision assertion repair; scoped variantcore12/12. Root added saved-profile compatibility check with exact savedbytes preserved. Matched same-seed/framing captures show original timber on ramps and clipped doorway surrounds; canonical colliders/manifests unchanged in tests. Closer camera settings remain editable but both thumbnailcompositions are rejected for generic sparse rooms and are not imported. Evidence: BuildNotes/visual-coherence-20261029/environment/native.json. Substantive roomcomposition and Windowsreview remain.
+
+## 2026-10-28T18:49:37.850Z Original artwork and context in Workshop
+
+Integrated nine independently reviewed source files: original/profile-aware preview meshes, canonical fit, context-only labels, smaller handles, assigned-course initialization ordering and generated fixed-zone drag mapping. Preview lights enable only during the owned camera render and disable before other cameras; disposal unregisters them. Native87/87 passed after a2mm floorposition tolerance reflecting existing20km previewoffset; first85/87 result preserved. Evidence: BuildNotes/visual-coherence-20261029/workshop-world/native.json. Actual Windowsimages, ordinaryphysicalinput and broadproduction remainpending.

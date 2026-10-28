@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 
@@ -14,13 +15,34 @@ namespace Wreckabulary.Online
         }
 
         WorkshopInputs assignedWorkshopInputs;
+        WordboundVisualResolver workshopVisuals;
+        string workshopVisualItems;
+        WordboundVisualProfile workshopVisualProfile;
+        bool workshopWordboundArtwork;
 
         WordboundFlagshipContent ConfigureWorkshopSources(WordboundCourseAsset source)
         {
             var flagship = WordboundFlagshipContent.Create(ItemCatalogue.FromJson(itemJson));
             workshop.ConfigureFlagship(flagship);
             BindAssignedWorkshopSource(source);
+            workshop.SpawnAssetVisual ??= CreateWorkshopVisual;
             return flagship;
+        }
+
+        GameObject CreateWorkshopVisual(string id, Transform parent)
+        {
+            var inputs = InputsForWorkshop();
+            bool wordbound = inputs.Visual && inputs.Visual.BaseArtwork == WordboundBaseArtwork.WordboundEquipment;
+            if (workshopVisuals == null || workshopVisualItems != inputs.Items || workshopVisualProfile != inputs.Visual || workshopWordboundArtwork != wordbound)
+            {
+                workshopVisualItems = inputs.Items; workshopVisualProfile = inputs.Visual; workshopWordboundArtwork = wordbound;
+                workshopVisuals = new WordboundVisualResolver(ItemCatalogue.FromJson(inputs.Items),
+                    useWordboundCollection: wordbound,
+                    profile: inputs.Visual);
+            }
+            if (!workshop.Catalogue.Assets.TryGetValue(id, out var asset)) return null;
+            var size = new Vector3(asset.WidthMm, asset.HeightMm, asset.DepthMm) / 1000f;
+            return workshopVisuals.Create(id, size, parent).Root;
         }
 
         void BindAssignedWorkshopSource(WordboundCourseAsset source)

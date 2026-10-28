@@ -78,6 +78,47 @@ namespace Wreckabulary.Online.Tests
         }
 
         [Test]
+        public void InitialAssignedPreviewUsesItsVisualProfileBeforeFirstRefreshAndSourceSwitchesRetainIt()
+        {
+            var assignedModel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            assignedModel.name = "Assigned workshop stool"; Object.DestroyImmediate(assignedModel.GetComponent<Collider>());
+            assets.Add(assignedModel);
+            var defaultModel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            defaultModel.name = "Default workshop stool"; Object.DestroyImmediate(defaultModel.GetComponent<Collider>());
+            assets.Add(defaultModel);
+            assigned.VisualProfile.Overrides.Add(new WordboundVisualOverride { VisualKey = "STOOL", Model = assignedModel });
+            launch.VisualProfile.Overrides.Add(new WordboundVisualOverride { VisualKey = "STOOL", Model = defaultModel });
+            var factory = workshop.SpawnAssetVisual;
+            int calls = 0;
+            bool expectedAssigned = true;
+            workshop.SpawnAssetVisual = (id, parent) => {
+                calls++; Assert.AreEqual(expectedAssigned, workshop.UsesAssignedCourse, "Source identity must precede every visual refresh.");
+                var result = factory(id, parent);
+                if (id == "STOOL")
+                {
+                    string name = expectedAssigned ? assignedModel.name : defaultModel.name;
+                    Assert.IsTrue(result.GetComponentsInChildren<Transform>(true).Any(t => t.name == name + "(Clone)"));
+                }
+                return result;
+            };
+            OpenAssigned(); Assert.Greater(calls, 0);
+            var history = workshop.History; string before = history.Current.RecoveryJson;
+            expectedAssigned = false; workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld);
+            expectedAssigned = true; workshop.OpenAssignedCourse();
+            Assert.AreSame(history, workshop.History); Assert.AreEqual(before, history.Current.RecoveryJson);
+            Assert.IsTrue(assignedModel); Assert.IsTrue(defaultModel);
+        }
+
+        [Test]
+        public void ConfiguringWorkshopSourcesKeepsAnExplicitVisualFactory()
+        {
+            Func<string, Transform, GameObject> custom = (id, parent) => null;
+            workshop.SpawnAssetVisual = custom;
+            Invoke(launcher, "ConfigureWorkshopSources", assigned);
+            Assert.AreSame(custom, workshop.SpawnAssetVisual);
+        }
+
+        [Test]
         public void AssignedAndTemplateRetainIndependentHistorySelectionSeedAndRedo()
         {
             OpenAssigned();

@@ -14,6 +14,7 @@ namespace Wreckabulary.Workshop
         readonly GameObject stage;
         readonly Camera lens;
         readonly List<Material> ownedMaterials = new List<Material>();
+        readonly List<Light> previewLights = new List<Light>();
         readonly Dictionary<string, Transform> modules = new Dictionary<string, Transform>(StringComparer.Ordinal);
         readonly Dictionary<string, CourseModule> authored = new Dictionary<string, CourseModule>(StringComparer.Ordinal);
         readonly Dictionary<string, Transform> fixedVisuals = new Dictionary<string, Transform>(StringComparer.Ordinal);
@@ -48,7 +49,31 @@ namespace Wreckabulary.Workshop
             ghost = Material(new Color(.59f, .69f, .73f, .20f), Surfaces.Kind.Plaster);
             path = Material(new Color(.9f, .78f, .49f), Surfaces.Kind.Wood);
             prop = Material(new Color(.7f, .85f, .8f), Surfaces.Kind.Plaster);
+            PreviewLight("Workshop key", new Vector3(45, -35, 0), 1.25f);
+            PreviewLight("Workshop fill", new Vector3(35, 145, 0), .55f);
             Resize(width, height);
+            RenderPipelineManager.beginCameraRendering += BeginPreviewCamera;
+            RenderPipelineManager.endCameraRendering += EndPreviewCamera;
+        }
+
+        void PreviewLight(string name, Vector3 rotation, float intensity)
+        {
+            var root = new GameObject(name) { hideFlags = HideFlags.DontSave, layer = PreviewLayer };
+            root.transform.SetParent(stage.transform, false); root.transform.localRotation = Quaternion.Euler(rotation);
+            var light = root.AddComponent<Light>();
+            light.type = LightType.Directional; light.color = Color.white; light.intensity = intensity;
+            light.cullingMask = 1 << PreviewLayer; light.shadows = LightShadows.None;
+            light.enabled = false; previewLights.Add(light);
+        }
+
+        void BeginPreviewCamera(ScriptableRenderContext context, Camera camera)
+        {
+            foreach (var light in previewLights) if (light) light.enabled = camera == lens;
+        }
+        void EndPreviewCamera(ScriptableRenderContext context, Camera camera)
+        {
+            if (camera != lens) return;
+            foreach (var light in previewLights) if (light) light.enabled = false;
         }
 
         Material Material(Color color, Surfaces.Kind surface)
@@ -118,7 +143,7 @@ namespace Wreckabulary.Workshop
             if (resolved != null)
             {
                 foreach (var placement in resolved.Placements.Where(item => item.TeamIndex <= 0))
-                    Asset(placement.AssetId, placement.ModuleId, placement.Position, placement.Yaw, placement.Id);
+                    Asset(placement.AssetId, placement.ModuleId, placement.Position, placement.Yaw, placement.Id, placement.ZoneId);
             }
             else
                 foreach (var zone in document.Zones.Where(item => item.Placement == "Fixed" && item.Pool.Count == 1))
@@ -126,21 +151,48 @@ namespace Wreckabulary.Workshop
             if (changedFloor) Frame(); else UpdateCamera();
         }
 
-        void Asset(string assetId, string moduleId, CoursePoint position, int angle, string name)
+        void Asset(string assetId, string moduleId, CoursePoint position, int angle, string name, string sourceZone = null)
         {
             if (!modules.TryGetValue(moduleId, out var parent) || !catalogue.Assets.TryGetValue(assetId, out var definition)) return;
             if (authored[moduleId].LayerId != snapshot.ActiveLayer) return;
-            var anchor = new GameObject(name).transform; anchor.SetParent(parent, false);
-            if (fixedZones.ContainsKey(name)) fixedVisuals[name] = anchor;
+            string fixedId = fixedZones.ContainsKey(sourceZone ?? name) ? sourceZone ?? name : null;
+            var anchor = new GameObject(fixedId ?? name).transform; anchor.SetParent(parent, false);
             anchor.position = stage.transform.TransformPoint(Point(position));
             anchor.rotation = stage.transform.rotation * Quaternion.Euler(0, angle, 0);
-            var visual = SpawnAssetVisual?.Invoke(assetId, anchor);
-            if (!visual)
-                Box(anchor, assetId, Vector3.up * (definition.HeightMm / 2000f),
-                    new Vector3(definition.WidthMm, definition.HeightMm, definition.DepthMm) / 1000f, prop);
+            var fit = new GameObject("Artwork fit").transform; fit.SetParent(anchor, false);
+            var visual = SpawnAssetVisual?.Invoke(assetId, fit);
+            if (visual && visual.transform != fit && !visual.transform.IsChildOf(fit))
+            {
+                Destroy(anchor.gameObject);
+                throw new InvalidOperationException("A workshop visual factory must create its instance below the supplied parent.");
+            }
+            var size = new Vector3(definition.WidthMm, definition.HeightMm, definition.DepthMm) / 1000f;
+            if (!visual || !FitArtwork(fit, visual, size))
+            {
+                fit.gameObject.SetActive(false); Destroy(fit.gameObject);
+                Box(anchor, assetId, Vector3.up * size.y * .5f, size, prop);
+            }
             foreach (var child in anchor.GetComponentsInChildren<Transform>(true)) child.gameObject.layer = PreviewLayer;
             foreach (var collider in anchor.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
+            foreach (var collider in anchor.GetComponentsInChildren<Collider2D>(true)) collider.enabled = false;
+            foreach (var body in anchor.GetComponentsInChildren<Rigidbody>(true))
+            { body.isKinematic = true; body.useGravity = false; body.detectCollisions = false; }
+            foreach (var body in anchor.GetComponentsInChildren<Rigidbody2D>(true)) body.simulated = false;
+            if (fixedId != null) fixedVisuals[fixedId] = anchor;
         }
+
+        static bool FitArtwork(Transform fit, GameObject visual, Vector3 size)
+        {
+            var bounds = ModelVisual.BoundsIn(fit, visual);
+            if (!Positive(bounds.size.x) || !Positive(bounds.size.y) || !Positive(bounds.size.z) ||
+                !Finite(bounds.center.x) || !Finite(bounds.center.y) || !Finite(bounds.center.z)) return false;
+            var scale = new Vector3(size.x / bounds.size.x, size.y / bounds.size.y, size.z / bounds.size.z);
+            fit.localScale = scale;
+            fit.localPosition = -Vector3.Scale(new Vector3(bounds.center.x, bounds.min.y, bounds.center.z), scale);
+            return true;
+        }
+        static bool Positive(float value) => value > .000001f && !float.IsNaN(value) && !float.IsInfinity(value);
+        static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
         static Transform Box(Transform parent, string name, Vector3 position, Vector3 size, Material material)
         {
@@ -296,6 +348,10 @@ namespace Wreckabulary.Workshop
         }
         public void Dispose()
         {
+            RenderPipelineManager.beginCameraRendering -= BeginPreviewCamera;
+            RenderPipelineManager.endCameraRendering -= EndPreviewCamera;
+            foreach (var light in previewLights) if (light) light.enabled = false;
+            previewLights.Clear();
             if (lens) lens.targetTexture = null;
             if (texture) { texture.Release(); Destroy(texture); texture = null; }
             Destroy(stage);

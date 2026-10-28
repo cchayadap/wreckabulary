@@ -100,7 +100,7 @@ namespace Wreckabulary.Workshop
                     !History.Current.HiddenLayers.Contains(module.LayerId)))
                 {
                     bool selected = History.Current.Selection.Contains(module.Id);
-                    if (!selected && module.Id != hoveredModule && !RoomLabelVisible(module)) continue;
+                    if (!selected && module.Id != hoveredModule) continue;
                     AddViewLabel(module.Position, RoomCaption(module.Id), module.Id +
                         (History.Current.LockedLayers.Contains(module.LayerId) ? " · locked floor" : ""), selected ? 3 : module.Id == hoveredModule ? 2 : 0);
                 }
@@ -108,12 +108,14 @@ namespace Wreckabulary.Workshop
                     !History.Current.HiddenLayers.Contains(History.Current.ActiveLayer)))
                 {
                     var bounds = zone.Id == resizingZone ? ResizeBounds(zone.Bounds, resizeAnchor, resizePoint) : zone.Bounds;
+                    bool issue = validation.Issues.Any(item => item.EntityId == zone.Id);
+                    if (zone.Id != zoneId && zone.Id != hoveredZone && !issue) continue;
                     var corners = Corners(bounds);
-                    var color = validation.Issues.Any(issue => issue.EntityId == zone.Id) ? new Color(1, .5f, .35f) : new Color(.4f, 1, .8f);
+                    var color = issue ? new Color(1, .5f, .35f) : new Color(.4f, 1, .8f);
                     for (int i = 0; i < 4; i++) DrawWorldLine(corners[i], corners[(i + 1) % 4], color);
                     if (zone.Id == zoneId || zone.Id == hoveredZone)
                     {
-                        string caption = zone.Placement == "Fixed" && zone.Pool.Count == 1 ? zone.Pool[0].AssetId :
+                        string caption = zone.Placement == "Fixed" && zone.Pool.Count == 1 ? ObjectLabel(zone.Pool[0].AssetId) :
                             "Random · " + zone.MinCount + (zone.MinCount == zone.MaxCount ? "" : "–" + zone.MaxCount);
                         AddViewLabel(zone.Placement == "Fixed" ? zone.FixedPosition : bounds.Min, caption, zone.Id, zone.Id == zoneId ? 4 : 2);
                     }
@@ -139,12 +141,12 @@ namespace Wreckabulary.Workshop
             var pivot = SelectionPivot();
             var x = HandleEnd(pivot, WorkshopHandle.X); var z = HandleEnd(pivot, WorkshopHandle.Z);
             DrawWorldLine(pivot, x, new Color(1, .45f, .4f)); DrawWorldLine(pivot, z, new Color(.4f, .65f, 1));
-            if (view.TryProject(x, viewport, out var screenX)) OverlayBox(new Rect(screenX.x - 12, screenX.y - 12, 24, 24), "X");
-            if (view.TryProject(z, viewport, out var screenZ)) OverlayBox(new Rect(screenZ.x - 12, screenZ.y - 12, 24, 24), "Z");
+            if (view.TryProject(x, viewport, out var screenX)) ViewHandle(screenX, "X", "Move on X", 18, 17);
+            if (view.TryProject(z, viewport, out var screenZ)) ViewHandle(screenZ, "Z", "Move on Z", 18, 17);
             if (view.TryProject(pivot, viewport, out var at))
             {
-                OverlayBox(new Rect(at.x - 12, at.y - 12, 24, 24), "↔");
-                OverlayBox(new Rect(at.x - 14, at.y - 58, 28, 28), "R");
+                ViewHandle(at, "+", "Move on the floor", 18, 17);
+                ViewHandle(at + new Vector2(0, -44), "R", "Rotate", 20, 14);
             }
         }
         WorkshopHandle? HandleAt(Vector2 point)

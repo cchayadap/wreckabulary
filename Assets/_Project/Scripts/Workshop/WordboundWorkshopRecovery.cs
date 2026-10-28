@@ -22,10 +22,10 @@ namespace Wreckabulary.Workshop
             var initial = new WorkshopSnapshot(new WorkshopDraft {
                 Course = course, Seed = authoredSeed, ActiveLayer = course.Layers.Count == 0 ? "" : course.Layers[0].Id
             });
-            Open(course, catalogue, play, folder);
+            OpenSource(course, catalogue, play, folder, true);
             History = new WorkshopHistory(initial);
             ResetView(); Refresh(); savedRevision = History.Revision;
-            UsesAssignedCourse = true; assignedDraft = CaptureDraft();
+            assignedDraft = CaptureDraft();
             authoredOpening = initial; recoveredOpening = null; recoveryError = "";
             recoveryCourseId = course.Id; authoredLabel = course.Title + " · " + course.Id;
             recoveredLabel = ""; recoveryScroll = Vector2.zero;

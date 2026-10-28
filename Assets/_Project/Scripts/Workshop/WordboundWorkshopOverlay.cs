@@ -77,7 +77,8 @@ namespace Wreckabulary.Workshop
         }
         readonly List<ViewLabel> viewLabels = new List<ViewLabel>();
         readonly List<Rect> labelSpace = new List<Rect>();
-        GUIStyle viewLabel, importantViewLabel;
+        GUIStyle viewLabel, importantViewLabel, viewHandle, activeViewHandle;
+        int handleStyleGeneration = -1;
         Rect LocalViewport => new Rect(0, 0, viewport.width, viewport.height);
 
         void BeginOverlay()
@@ -120,6 +121,20 @@ namespace Wreckabulary.Workshop
             GUI.Box(rect, caption, style ?? GUI.skin.box);
         }
 
+        void ViewHandle(Vector2 at, string caption, string hint, float size, float hitRadius, bool active = false)
+        {
+            if (handleStyleGeneration != styleGeneration)
+            { handleStyleGeneration = styleGeneration; viewHandle = activeViewHandle = null; }
+            var visual = new Rect(at.x - size * .5f, at.y - size * .5f, size, size);
+            if (!LocalViewport.Overlaps(visual)) return;
+            labelSpace.Add(new Rect(at.x - hitRadius - 3, at.y - hitRadius - 3, hitRadius * 2 + 6, hitRadius * 2 + 6));
+            viewHandle ??= new GUIStyle(normalBox) { alignment = TextAnchor.MiddleCenter, fontSize = 12,
+                padding = new RectOffset(0, 0, 0, 0), margin = new RectOffset(0, 0, 0, 0) };
+            activeViewHandle ??= new GUIStyle(selectedBox) { alignment = TextAnchor.MiddleCenter, fontSize = 12,
+                padding = new RectOffset(0, 0, 0, 0), margin = new RectOffset(0, 0, 0, 0) };
+            GUI.Box(visual, new GUIContent(caption, hint), active ? activeViewHandle : viewHandle);
+        }
+
         void DrawWorldLine(CoursePoint from, CoursePoint to, Color color)
         {
             if (Event.current.type != EventType.Repaint || !view.ProjectSegment(from, to, viewport, out var a, out var b)) return;
@@ -141,15 +156,5 @@ namespace Wreckabulary.Workshop
             return ObjectLabel(id.StartsWith(prefix, StringComparison.Ordinal) ? id.Substring(prefix.Length) : id);
         }
 
-        bool RoomLabelVisible(CourseModule module)
-        {
-            Vector2 min = new Vector2(float.PositiveInfinity, float.PositiveInfinity), max = -min;
-            foreach (var corner in Corners(Catalogue.Bounds(module)))
-            {
-                if (!view.TryProject(corner, viewport, out var at)) return false;
-                min = Vector2.Min(min, at); max = Vector2.Max(max, at);
-            }
-            return max.x - min.x >= 96 && max.y - min.y >= 36;
-        }
     }
 }

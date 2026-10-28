@@ -45,6 +45,9 @@ namespace Wreckabulary.Workshop
         GUIStyle panel, heading, selectedBox, ghostBox, normalBox, issueBox;
 
         public void Open(CourseDocument course, CourseCatalogue catalogue, CoursePlayRequirements play, string folder = null)
+            => OpenSource(course, catalogue, play, folder, false);
+
+        void OpenSource(CourseDocument course, CourseCatalogue catalogue, CoursePlayRequirements play, string folder, bool assigned)
         {
             RequireRecoveryChoice();
             if (OnlineStarting) throw new InvalidOperationException("Wait for online preparation to finish before changing courses.");
@@ -54,7 +57,7 @@ namespace Wreckabulary.Workshop
             History = new WorkshopHistory(new WorkshopSnapshot(course));
             storageFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
             storage = new WorkshopStorage(storageFolder);
-            currentTemplate = null; UsesAssignedCourse = false; usesFlagship = false; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
+            currentTemplate = null; UsesAssignedCourse = assigned; usesFlagship = false; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
         }
         public void OpenTemplate(WorkshopTemplate template, string folder = null)
         {
