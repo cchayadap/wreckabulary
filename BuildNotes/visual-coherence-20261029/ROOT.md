@@ -76,3 +76,7 @@ BatchB fixture repaired to use actual Parcel content; targeted19343135/35 PASS. 
 ## Recovery 2026-10-28T20:11:30.615702+00:00
 
 Materialbinding/setup integrated4f00468c/1298495b; native20015952/52PASS. Firstsetup200411failedcompiledURPLitdirty beforewrites; narrowexactshaderexception+importerdirtychecksrootrepair; setup200521/repeat200848PASS. Saved5editableartassets,4289/4290priorauthored unchanged intentionalParcelVisualrefonly. Beforecapture200337/after200615 bothopened; betterfinishseparation butblankwallsstill. Toolbarrootdraft normalized CRCRLF toCRLF; existingtestfixdaac6b6b integrated, native20080821/21PASS. Physicaldiagnosticrevision2 manifest277f1e3c integrated; targetedFreestyle201013running. No newWindowsbuildyet; lastaudited184940 stillpredates allParcelwork.
+
+## Recovery 2026-10-28T20:26Z
+
+Freestyle202225 PASS1/1 through six actual stations,30letters/6crafts and wrong-origin table rejection, cleanup0. Earlier201754 failure was fixture-only shared supply owner: expectedTeam now follows TeamCount and each tile owner is asserted. Strict carried collider repair20162911/11 remains intact. Doorway framing201325/capture201408 and exact preview import201528 PASS; actual PNG now assigned to ParcelService in saved LobbyPlayLayout. No owner art acceptance; map remains sparse. Root saving bounded source checkpoint then release-qa build and five Windows scenarios. No existing public course/admission change.

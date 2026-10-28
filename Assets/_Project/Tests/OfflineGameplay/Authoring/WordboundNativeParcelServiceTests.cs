@@ -209,7 +209,8 @@ namespace Wreckabulary.OfflineGameplayTests
         IEnumerator Solve(ResolvedCoursePhysicalSite site)
         {
             var puzzle = content.Course.Puzzles.Single(p => p.Id == site.PuzzleId);
-            var sourceSupply = content.Course.Supplies.Single(s => s.SourceId == site.RecoverySupplyId && s.TeamIndex == 0);
+            int expectedTeam = content.Course.Play.TeamCount > 0 ? 0 : -1;
+            var sourceSupply = content.Course.Supplies.Single(s => s.SourceId == site.RecoverySupplyId && s.TeamIndex == expectedTeam);
             Assert.IsTrue(sourceSupply.Protected && sourceSupply.Renewable);
             Assert.IsTrue(content.Items.Get(puzzle.RecipeId).CanDeploy, "Every actual socket recipe must deploy.");
             Assert.IsTrue(Inventory.Letters.IsEmpty);
@@ -219,7 +220,7 @@ namespace Wreckabulary.OfflineGameplayTests
             var batch = Frame.Bodies.Where(b => b.Kind == WorldBodyKind.Tile && b.SourceId == sourceSupply.Id).ToArray();
             foreach (var tile in batch)
             {
-                Assert.IsTrue(tile.Protected); Assert.IsTrue(collected.Add(tile.Id));
+                Assert.IsTrue(tile.Protected); Assert.AreEqual(expectedTeam, tile.OwnerTeam); Assert.IsTrue(collected.Add(tile.Id));
                 yield return Walk(() => Body(tile.Id).Position, .85f, "Collect actual letter");
                 yield return Command(WordboundAction.CollectLetter, tile.Id);
                 Assert.IsFalse(Frame.Bodies.Any(b => b.Id == tile.Id));
@@ -274,6 +275,7 @@ namespace Wreckabulary.OfflineGameplayTests
             var at = Metres(site.Position);
             yield return RouteTo(new WorldVector(at.X, at.Y, at.Z - releaseOffset), .04f, "Carry map table to the physical socket");
             yield return FaceNorth();
+            LogMapRelease(table.Id);
             yield return Command(WordboundAction.Drop);
             movement = () => default;
             yield return Until(() => Body(table.Id).Velocity.DistanceSquared(default) < .01f, "Settle map table on actual floor", 10);
@@ -288,6 +290,57 @@ namespace Wreckabulary.OfflineGameplayTests
             yield return RouteTo(new WorldVector(original.X, original.Y, original.Z - releaseOffset), .04f, "Return map furniture to sorting bench");
             yield return FaceNorth(); yield return Command(WordboundAction.Drop); movement = () => default;
             Assert.AreEqual(ItemOrigin.Map, Item(table.Id).Origin);
+        }
+
+        void LogMapRelease(string itemId)
+        {
+            var actor = controller.Bodies[Player.Id]; var item = controller.Bodies[itemId];
+            var capsule = actor.GetComponent<CapsuleCollider>(); var box = item.GetComponent<BoxCollider>();
+            var world = controller.PhysicsWorld; var scene = world.PhysicsScene;
+            var rotation = actor.Rigidbody.rotation;
+            var half = box.size / 2 + Vector3.one * .015f;
+            var start = actor.Rigidbody.position + Vector3.up * .08f + rotation * box.center;
+            var candidates = WordboundReleasePolicy.Candidates(Player, new WorldVector(box.size.x, box.size.y, box.size.z), capsule.radius, false);
+            string V(Vector3 v) => v.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
+            string Describe(Collider c)
+            {
+                var owner = controller.Bodies.Values.FirstOrDefault(b => b.OwnedColliders.Contains(c));
+                var node = c.GetComponent<WordboundCourseNode>();
+                bool blocks = owner != null ? WordboundPhysicsPolicy.ShouldCollide(content.Mode,
+                    Body(itemId).At(Body(itemId).Position, active: true, kinematic: false), owner.Canonical) :
+                    controller.CourseWorld.Surfaces.Contains(c);
+                return c.name + "/" + (owner == null ? "static:" + node?.Kind : owner.Canonical.Id) +
+                    "/blocks=" + blocks + "/active=" + (owner?.Canonical.Active.ToString() ?? "n/a") +
+                    "/center=" + V(c.bounds.center) + "/size=" + V(c.bounds.size);
+            }
+            string Overlaps(Vector3 center)
+            {
+                var found = new Collider[128];
+                int count = scene.OverlapBox(center, half, found, rotation, ~0, QueryTriggerInteraction.Ignore);
+                return count + ":" + string.Join(" | ", found.Take(count).Select(Describe));
+            }
+            bool canMove = world.CanMove(Actor, out float moveScale);
+            bool possible = world.TryRelease(Player, Body(itemId), false, out var released);
+            Debug.Log("WORDBOUND_PARCEL_RELEASE: query=" + possible + "; candidate=" + released +
+                "; canMove=" + canMove + "; scale=" + moveScale + "; actorNative=" + V(actor.Rigidbody.position) +
+                "; actorCanonical=" + Player.Position + "; actorDelta=" +
+                (actor.Rigidbody.position - new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z)).sqrMagnitude +
+                "; rotation=" + rotation.ToString("F6") + "; actorScale=" + V(actor.transform.lossyScale) +
+                "; itemScale=" + V(item.transform.lossyScale) + "; itemState=" + Item(itemId).State +
+                "; holder=" + Item(itemId).HolderId + "; active=" + Body(itemId).Active + "; kinematic=" + Body(itemId).Kinematic +
+                "; nativeKinematic=" + item.Rigidbody.isKinematic + "; box=" + V(box.size) + "; boxCenter=" + V(box.center) +
+                "; boxTrigger=" + box.isTrigger + "; boxAttached=" + (box.attachedRigidbody == item.Rigidbody) +
+                "; capsuleRadius=" + capsule.radius + "; capsuleHeight=" + capsule.height + "; capsuleCenter=" + V(capsule.center) +
+                "; capsuleDirection=" + capsule.direction + "; capsuleTrigger=" + capsule.isTrigger +
+                "; capsuleAttached=" + (capsule.attachedRigidbody == actor.Rigidbody) + "; start=" + V(start) + "; startHits=" + Overlaps(start));
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                var at = candidates[i]; var end = new Vector3(at.X, at.Y, at.Z) + rotation * box.center;
+                var delta = end - start; var hits = new RaycastHit[128];
+                int count = scene.BoxCast(start, half, delta.normalized, hits, rotation, delta.magnitude, ~0, QueryTriggerInteraction.Ignore);
+                Debug.Log("WORDBOUND_PARCEL_RELEASE_PATH: index=" + i + "; foot=" + at + "; endHits=" + Overlaps(end) +
+                    "; sweepHits=" + count + ":" + string.Join(" | ", hits.Take(count).Select(h => Describe(h.collider) + "/distance=" + h.distance)));
+            }
         }
 
         IEnumerator RouteTo(WorldVector target, float radius, string label, Func<bool> reached = null)

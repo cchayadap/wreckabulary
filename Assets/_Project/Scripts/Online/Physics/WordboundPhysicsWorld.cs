@@ -333,7 +333,9 @@ namespace Wreckabulary.Online
             var box = item.GetComponent<BoxCollider>();
             var capsule = actor.GetComponent<CapsuleCollider>();
             if (box == null || capsule == null || box.isTrigger || capsule.isTrigger || capsule.direction != 1 ||
-                box.attachedRigidbody != item.Rigidbody || capsule.attachedRigidbody != actor.Rigidbody ||
+                !owned.TryGetValue(box, out var registeredItem) || registeredItem != item ||
+                !item.OwnedColliders.Contains(box) || !ReleaseBodyMatches(box, item.Rigidbody) ||
+                capsule.attachedRigidbody != actor.Rigidbody ||
                 (box.center - new Vector3(0, box.size.y / 2, 0)).sqrMagnitude > .000001f ||
                 (capsule.center - new Vector3(0, capsule.height / 2, 0)).sqrMagnitude > .000001f ||
                 (item.transform.lossyScale - Vector3.one).sqrMagnitude > .000001f ||
@@ -358,6 +360,14 @@ namespace Wreckabulary.Online
                 return true;
             }
             return false;
+        }
+
+        static bool ReleaseBodyMatches(BoxCollider collider, Rigidbody body)
+        {
+            if (!collider || !body || collider.gameObject != body.gameObject || collider.GetComponent<Rigidbody>() != body)
+                return false;
+            var attached = collider.attachedRigidbody;
+            return attached == body || attached == null && !collider.enabled && body.isKinematic && !body.detectCollisions;
         }
 
         bool ReleaseClear(Vector3 center, Vector3 half, Quaternion orientation,

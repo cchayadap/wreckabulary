@@ -64,6 +64,56 @@ namespace Wreckabulary.Online.Editor
             Selection.activeObject = settings;
         }
 
+        [MenuItem("Tools/Wordbound/Presentation/Try Parcel Service doorway framing")]
+        public static void UseParcelServiceDoorwayFraming()
+        {
+            Require(!EditorApplication.isPlayingOrWillChangePlaymode && !WordboundSoloPreviewWindow.IsOpen,
+                "Close the framing window and leave Play mode before changing this sample view.");
+            const string path = WordboundSoloPreviewSettings.Path;
+            const string backup = "BuildNotes/visual-coherence-20261029/map-composition/material-review/framing/before-settings";
+            var settings = AssetDatabase.LoadAssetAtPath<WordboundSoloPreviewSettings>(path);
+            var importer = AssetImporter.GetAtPath(path);
+            Require(settings && !EditorUtility.IsDirty(settings) && (!importer || !EditorUtility.IsDirty(importer)),
+                "Create and save preview settings and import changes first.");
+            settings.Validate();
+            var pose = settings.ParcelService;
+            var position = new Vector3(-2.2f, 1.7f, -2.6f);
+            var target = new Vector3(3, .9f, 1);
+            bool sameFrame = pose.Module == "Service" && pose.Position.Equals(position) && pose.FieldOfView == 50;
+            if (sameFrame && pose.Target.Equals(target))
+            {
+                Selection.activeObject = settings;
+                Debug.Log("Parcel Service doorway framing is already selected. No settings were rewritten; this is still a visual candidate.");
+                return;
+            }
+            Require(sameFrame && pose.Target.Equals(new Vector3(1, 1, 2.3f)),
+                "Parcel Service framing was edited. The saved pose has been preserved; use the preview Inspector to compare manually.");
+            Require(File.Exists(path) && File.Exists(path + ".meta"), "Saved settings and metadata are required.");
+            RejectLinks(Path.GetFullPath(backup));
+            Require(!Directory.Exists(backup) && !File.Exists(backup), "A framing backup already exists. Inspect it before retrying; no backup is overwritten.");
+            string first = JsonUtility.ToJson(settings.LostAddress), second = JsonUtility.ToJson(settings.ParcelHall);
+            string seed = settings.Seed, mode = settings.Mode, before = FileHash(path), meta = FileHash(path + ".meta");
+            Directory.CreateDirectory(backup);
+            WriteNew(backup + "/SoloMapPreviews.asset", File.ReadAllBytes(path));
+            WriteNew(backup + "/SoloMapPreviews.asset.meta", File.ReadAllBytes(path + ".meta"));
+            Require(FileHash(backup + "/SoloMapPreviews.asset") == before && FileHash(backup + "/SoloMapPreviews.asset.meta") == meta,
+                "Exact settings backup verification failed.");
+            WriteNew(backup + "/SHA256SUMS.txt", Encoding.UTF8.GetBytes(before + "  SoloMapPreviews.asset\n" + meta + "  SoloMapPreviews.asset.meta\n"));
+            Undo.RecordObject(settings, "Try Parcel Service doorway framing");
+            settings.ParcelService = new WordboundSoloPreviewPose { Module = "Service", Position = position, Target = target, FieldOfView = 50 };
+            settings.Validate(); EditorUtility.SetDirty(settings); AssetDatabase.SaveAssetIfDirty(settings);
+            Require(first == JsonUtility.ToJson(settings.LostAddress) && second == JsonUtility.ToJson(settings.ParcelHall) &&
+                seed == settings.Seed && mode == settings.Mode && meta == FileHash(path + ".meta"),
+                "Other preview settings or asset identity changed unexpectedly. Exact backup retained.");
+            WriteNew(backup + "/receipt.json", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new {
+                status = "FRAMING_CANDIDATE_NOT_VISUALLY_APPROVED", settings = path, before, after = FileHash(path), meta,
+                previousTarget = new[] { 1f, 1f, 2.3f }, target = V(target), position = V(position), fieldOfView = 50,
+                otherMapPosesPreserved = true, seedModePreserved = true, gameplayCameraChanged = false
+            }, Formatting.Indented)));
+            Selection.activeObject = settings; EditorGUIUtility.PingObject(settings);
+            Debug.Log("Parcel Service doorway framing candidate saved. Capture and compare before choosing it. Exact backup: " + backup);
+        }
+
         [MenuItem("Tools/Wordbound/Presentation/Capture two Solo draft previews")]
         public static void CaptureDrafts() => CaptureMaps(new[] { WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.ParcelHallMap });
 
