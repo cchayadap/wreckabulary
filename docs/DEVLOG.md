@@ -949,3 +949,9 @@ Native architecture/course/variant tests pass27/27 after a shader float precisio
 ## 2026-10-28T18:49:37.850Z Original artwork and context in Workshop
 
 Integrated nine independently reviewed source files: original/profile-aware preview meshes, canonical fit, context-only labels, smaller handles, assigned-course initialization ordering and generated fixed-zone drag mapping. Preview lights enable only during the owned camera render and disable before other cameras; disposal unregisters them. Native87/87 passed after a2mm floorposition tolerance reflecting existing20km previewoffset; first85/87 result preserved. Evidence: BuildNotes/visual-coherence-20261029/workshop-world/native.json. Actual Windowsimages, ordinaryphysicalinput and broadproduction remainpending.
+
+## 2026-10-28T19:07:25Z Windows review checkpoint and focused presentation fixes
+
+Windows184940/c4258b18 passes lobby1851325/5, Solo1854154/4 and Workshop1856185/5. Strict audit binds the45 PNGs and matching production source; preservation covers4288 prior authored files. Evidence: BuildNotes/visual-coherence-20261029/windows184940-audit.json and windows184940-preservation.json. Independent24-lobby-image review confirms remaining placeholder map imagery, excess empty space and mismatched background detail. Technical checks are not owner style acceptance.
+
+Settings now hides the avatar/contact shadow while open and restores the same character/party/outfit on return. Workshop exposes existing focus-selection and whole-floor camera actions through compact icon tools. R0190432 PASS; scoped core19045741/41 and native presentation1905464/4 PASS. These source fixes postdate184940 and still need the next Windows build. Recovery snapshot .harness/recovery/developer-workspace-2026-10-28T19-06-28-109Z verifies2379 unfinished files. Parcel Service composition/source-binding drafts are underway outside Assets; existing courses/public contracts are preserved.

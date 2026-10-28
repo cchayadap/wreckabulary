@@ -455,7 +455,8 @@ namespace Wreckabulary.Workshop
             GUILayout.BeginHorizontal();
             GUILayout.Label("Grid " + Metres(History.Current.GridMm) + " m");
             if (Button("Grid")) Edit("Grid", draft => draft.GridMm = draft.GridMm == 500 ? 1000 : draft.GridMm == 1000 ? 100 : 500);
-            GUILayout.Label("Esc cancels a drag");
+            if (ToolButton("Frame selection", LobbyIcons.Frame, "Focus selection · F")) FrameSelection();
+            if (ToolButton("Frame floor", LobbyIcons.Layers, "Show the whole floor")) Frame();
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
         void DrawZone(CoursePoint from, CoursePoint to)

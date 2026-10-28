@@ -616,7 +616,7 @@ namespace Wreckabulary
             LayoutPageHost();
             if (id != Home) ShowParty(false);
             Stage.Dress(Outfit);
-            Stage.SetCharactersVisible(id != Play);
+            Stage.SetCharactersVisible(id != Play && id != Settings);
             Stage.SetPartyVisible(id == Home);
             Stage.ShowArtwork(id != Play);
             if (themeBadge) themeBadge.gameObject.SetActive(id == Home);

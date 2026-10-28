@@ -54,6 +54,18 @@ namespace Wreckabulary.Tests
                         Assert.AreEqual(outfit, menu.Outfit.Serialize());
                     }
                 }
+                menu.Open(LobbyMenu.Settings);
+                foreach (string tab in new[] { "profile", "audio", "gameplay", "graphics", "controls", "help" })
+                {
+                    menu.Page<SettingsPage>().ShowTab(tab); yield return null;
+                    Assert.IsFalse(menu.Stage.CharactersVisible, tab);
+                    Assert.AreSame(avatar, menu.Stage.Avatar);
+                    Assert.IsFalse(avatar.gameObject.activeSelf);
+                    foreach (var shadow in menu.Stage.GetComponentsInChildren<RawImage>(true))
+                        if (shadow.name.Contains("contact shadow")) Assert.IsFalse(shadow.enabled);
+                    Assert.AreEqual(outfit, menu.Outfit.Serialize());
+                    CollectionAssert.AreEqual(bindings, Session.Bindings);
+                }
                 foreach (string destination in new[] { LobbyMenu.Loadout, LobbyMenu.Home })
                 {
                     menu.Open(destination); yield return null;
