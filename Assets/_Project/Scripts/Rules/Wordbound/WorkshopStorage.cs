@@ -72,6 +72,16 @@ namespace Wreckabulary.Rules.Wordbound
         }
         public WorkshopSnapshot LoadShare(string id) => ImportCourse(ReadBounded(PathFor(id, ".course.json"), CourseLimits.DocumentBytes));
 
+        public string SavePlayableShare(WorkshopSnapshot snapshot, CourseCatalogue catalogue, CoursePlayRequirements play)
+        {
+            string json = WorkshopShare.Export(snapshot, catalogue, play);
+            string target = PathFor(snapshot.Course().Id, ".wordbound.json");
+            AtomicWrite(target, json, WorkshopShare.MaximumBytes);
+            return target;
+        }
+        public WorkshopShareImport LoadPlayableShare(string id, CourseCatalogue catalogue) =>
+            WorkshopShare.Import(ReadBounded(PathFor(id, ".wordbound.json"), WorkshopShare.MaximumBytes), catalogue);
+
         static string ReadBounded(string path, int maximum)
         {
             using (var input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))

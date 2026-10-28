@@ -96,9 +96,9 @@ namespace Wreckabulary.Qa
                 Submit(Find(Page(), "Queue " + LobbyMenu.Practice));
                 yield return Settle();
                 Require(ModeCards().SequenceEqual(HouseModes), "Local must show exactly five original house modes.");
-                Require(Label(Find(Page(), "Queue " + LobbyMenu.Practice)) == "LOCAL" &&
-                    Label(Find(Page(), "Queue " + LobbyMenu.Matchmaking)) == "ONLINE" &&
-                    Label(Find(Page(), "Queue " + LobbyMenu.Workshop)) == "CREATE", "Play destination labels differ.");
+                Require(Label(Find(Page(), "Queue " + LobbyMenu.Practice)) == "Local" &&
+                    Label(Find(Page(), "Queue " + LobbyMenu.Matchmaking)) == "Online" &&
+                    Label(Find(Page(), "Queue " + LobbyMenu.Workshop)) == "Create", "Play destination labels differ.");
                 foreach (string mode in HouseModes)
                 {
                     Submit(Find(Page(), "Mode " + mode));

@@ -109,3 +109,7 @@ Move an instance or camera and save `Assets/_Project/Scenes/Authoring/HouseholdS
 Saved surfaces are under `Assets/_Project/Art/Collections/HouseholdExpansionV1/Materials/<sourceName>/`. Material edits affect all references; duplicate and assign a material for a local variation. **Household initial sizing** opens `Assets/_Project/Data/Wordbound/Authoring/HouseholdExpansion.asset`: its heights apply when a missing prefab is created. They do not resize existing prefabs or overwrite Inspector edits.
 
 Seven props still need colliders; only the parcel has a static box collider. These are review assets awaiting gameplay/physics acceptance. Moving one into this studio does not place it in the Hub, shop or a playable map.
+
+### Share an exact playable map
+
+In the Workshop, choose **Share → Map + settings**. Copy the code or **Save file** to keep the map, chosen seed, mode and team format together. The receiver pastes the code and chooses **Import** while using the matching authoring source/game content. **Draft only** keeps the older course-only format for unfinished maps; it does not contain the seed or mode. Failed imports preserve the current draft. Undo restores the previous map/seed, while the mode remains the current session choice. Public Quick Play does not admit these files automatically.

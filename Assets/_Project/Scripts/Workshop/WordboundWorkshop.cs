@@ -37,6 +37,7 @@ namespace Wreckabulary.Workshop
         string search = "", placing, status = "", title = "", seed = "", xInput = "0", zInput = "0", layerHeight = "4";
         string zoneId = "", pool = "STOOL", minCount = "1", maxCount = "3", probability = "100", spacing = "0.5";
         string puzzleId = "", prerequisite = "", gateId = "", recipeId = "BED", shareText = "";
+        bool shareDraftOnly;
         Rect viewport;
         string resizingZone;
         CoursePoint resizeAnchor, resizePoint;
@@ -220,7 +221,7 @@ namespace Wreckabulary.Workshop
             string modeLabel = ModeLabel(PlayRequirements.ModeId);
             GUILayout.Label(modeLabel, ui.SingleLine, GUILayout.Width(Mathf.Ceil(ui.SingleLine.CalcSize(new GUIContent(modeLabel)).x)));
             GUILayout.Space(ui.Gap);
-            if (Button("Share")) { shareText = History.Current.CourseJsonText; sharing = true; }
+            if (Button("Share")) OpenShare();
             if (Button(CloseLabel ?? (OnlinePlaytestRequested != null ? "Back to party" : "Close"))) RequestClose();
             GUILayout.EndHorizontal(); GUILayout.EndArea();
         }
@@ -471,26 +472,57 @@ namespace Wreckabulary.Workshop
         void SharePanel()
         {
             GUILayout.BeginArea(new Rect(Screen.width * .12f, Screen.height * .13f, Screen.width * .76f, Screen.height * .72f), panel);
-            GUILayout.Label("Course JSON", heading); GUI.SetNextControlName("Shared course JSON");
-            shareText = GUILayout.TextArea(shareText, CourseLimits.DocumentBytes, GUILayout.ExpandHeight(true));
+            GUILayout.Label("Share map", heading);
+            int selected = shareDraftOnly ? 1 : 0;
+            int next = GUILayout.Toolbar(selected, new[] { "Map + settings", "Draft only" });
+            if (next != selected) Attempt(() => PrepareShare(next == 1));
+            GUILayout.Label(shareDraftOnly ? "Course only · no seed or mode" : "Keeps seed and mode · private maps");
+            GUI.SetNextControlName("Shared course JSON");
+            shareText = GUILayout.TextArea(shareText, WorkshopShare.MaximumBytes, GUILayout.ExpandHeight(true));
             GUILayout.BeginHorizontal();
             if (Button("Copy")) GUIUtility.systemCopyBuffer = shareText;
             if (Button("Paste"))
             {
                 string pasted = GUIUtility.systemCopyBuffer;
-                if (pasted.Length > CourseLimits.DocumentBytes) status = "Course JSON is too large.";
+                if (pasted.Length > WorkshopShare.MaximumBytes) status = "Map code is too large.";
                 else shareText = pasted;
             }
             if (Button("Import"))
                 Attempt(() =>
                 {
-                    var imported = storage.ImportCourse(shareText);
-                    History.Execute("Import course", draft => Replace(draft, imported.Edit()));
-                    sharing = false; Refresh(); Frame();
+                    ImportSharedMap(shareText);
+                    sharing = false; Frame();
                 });
-            if (Button("Save file")) Attempt(() => status = storage.SaveShare(History.Current));
+            if (Button("Save file")) Attempt(() => status = shareDraftOnly ? storage.SaveShare(History.Current) :
+                storage.SavePlayableShare(History.Current, Catalogue, PlayRequirements));
             if (Button("Done")) sharing = false;
             GUILayout.EndHorizontal(); GUILayout.EndArea();
+        }
+        void OpenShare()
+        {
+            sharing = true;
+            try { PrepareShare(false); }
+            catch (Exception error) when (error is ArgumentException || error is FormatException)
+            {
+                PrepareShare(true);
+                ShowStatus("Draft only · " + error.Message);
+            }
+        }
+        void PrepareShare(bool draftOnly)
+        {
+            string prepared = draftOnly ? History.Current.CourseJsonText : WorkshopShare.Export(History.Current, Catalogue, PlayRequirements);
+            shareText = prepared; shareDraftOnly = draftOnly;
+        }
+        public void ImportSharedMap(string json)
+        {
+            RequireRecoveryChoice();
+            if (OnlineStarting) throw new InvalidOperationException("Wait for online preparation to finish before importing a map.");
+            if (History == null) throw new InvalidOperationException("Open a map before importing.");
+            var imported = WorkshopShare.Import(json, Catalogue);
+            imported.Apply(History);
+            if (imported.HasPlaySettings) PlayRequirements = imported.Mode.Requirements;
+            CancelGesture(); LastPreview = null; LastPlaytestDraft = null; displayRevision = -1; Refresh();
+            ShowStatus(imported.HasPlaySettings ? "Map, seed and mode imported" : "Draft imported · seed and mode were not included");
         }
         static void Replace(WorkshopDraft target, WorkshopDraft source)
         {
