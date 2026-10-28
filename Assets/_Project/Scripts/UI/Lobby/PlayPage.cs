@@ -18,12 +18,11 @@ namespace Wreckabulary
         public bool WordboundMaps;
         LobbyPlayPageView authoredFrame;
         RectTransform framePanel;
-        bool Compact => Menu && ((DisplayQueue == LobbyMenu.Practice && WordboundSolo) ||
-            (DisplayQueue == LobbyMenu.Workshop && WordboundMaps));
-        public override LobbyStage.Focus Focus => Compact ? LobbyStage.Focus.Left : LobbyStage.Focus.Centre;
+        public override LobbyStage.Focus Focus => LobbyStage.Focus.Centre;
         public override float PanelWidth => framePanel && framePanel.rect.width > 0 ? framePanel.rect.width : base.PanelWidth;
 
-        static readonly Vector2 HouseSize = new Vector2(240, 164);
+        static readonly Vector2 HouseSize = new Vector2(280, 300);
+        const float ModeHeight = 136f;
         static readonly Color Tree = LobbyKit.Hex(0x2f9e3a);
 
         static readonly (string id, string label)[] Queues =
@@ -40,23 +39,16 @@ namespace Wreckabulary
         {
             authoredFrame = null; framePanel = null;
             var saved = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
-            bool compact = Compact;
             RectTransform body;
             if (saved)
             {
                 saved.Validate();
                 authoredFrame = LobbyRuntimeTypography.Instantiate(saved.Page, Root, false);
-                authoredFrame.Bind(Menu.Close, QueueLine(DisplayQueue), compact, saved.CompactMaximum);
+                authoredFrame.BindOptions(Menu.Close, QueueLine(DisplayQueue));
                 body = authoredFrame.Body;
             }
             else body = Panel(Vector2.zero, Vector2.one, "Play", QueueLine(DisplayQueue));
             framePanel = authoredFrame ? authoredFrame.Panel : (RectTransform)body.parent;
-            if (!authoredFrame && compact)
-            {
-                var fit = body.parent.gameObject.AddComponent<LobbyCompactPanel>();
-                fit.MaximumSize = new Vector2(1100, 600);
-                fit.Fit();
-            }
             var queues = LobbyKit.Segmented(authoredFrame ? authoredFrame.Queues : body.parent, "Queues", Queues, "Queue " + DisplayQueue, PickQueue, 52, 20);
             if (authoredFrame) queues.Fill();
             else queues.Place(Vector2.one, Vector2.one, new Vector2(-688, -78), new Vector2(-88, -26));
@@ -69,7 +61,7 @@ namespace Wreckabulary
             }
 
             var column = authoredFrame ? authoredFrame.Choices : LobbyKit.Column(body, "Choices", 8).Place(Vector2.zero, Vector2.one, new Vector2(0, 104), Vector2.zero);
-            if (!compact) column = ScrollableChoices(column);
+            column = ScrollableChoices(column);
             if (DisplayQueue == LobbyMenu.Practice)
             {
                 LobbyKit.Segmented(column, "Local families", new[] {
@@ -96,8 +88,7 @@ namespace Wreckabulary
             }
             else LobbyKit.Text(column, "Mode", 18, LobbyKit.Muted).Size(-1, 32);
             var modes = ModesFor(DisplayQueue).ToList();
-            var posters = LobbyKit.Column(column, "Modes", 4);
-            posters.Size(-1, modes.Count * 64 + (modes.Count - 1) * 4);
+            var posters = Cards(column, "Modes", 264, ModeHeight, modes.Count);
             Selectable chosen = null;
             foreach (var (mode, title, tag) in modes)
             {
@@ -116,12 +107,12 @@ namespace Wreckabulary
                 if (Menu.Mode == "Escape")
                 {
                     // The Escape randomises the house, so this is the only choice it offers.
-                    var randomRow = Centred(LobbyKit.FitRow(column, "Houses", HouseSize, 18, 1));
+                    var randomRow = Cards(column, "Houses", HouseSize.x, HouseSize.y, 1);
                     RandomHouseCard(randomRow);
                 }
                 else
                 {
-                    var houses = Centred(LobbyKit.FitRow(column, "Houses", HouseSize, 18, GameConfig.Current.Houses.Count));
+                    var houses = Cards(column, "Houses", HouseSize.x, HouseSize.y, GameConfig.Current.Houses.Count);
                     int index = 0;
                     foreach (var house in GameConfig.Current.Houses)
                         HouseCard(houses, house.Key, house.Value, index++);
@@ -140,24 +131,20 @@ namespace Wreckabulary
 
         void SoloChoices(RectTransform column, RectTransform body)
         {
-            var row = LobbyKit.Column(column, "Solo modes", 8);
-            row.Size(-1, 168);
+            var row = Cards(column, "Solo modes", 300, ModeHeight, 2);
             foreach (string mode in new[] { "TimeRun", "Freestyle" })
             {
                 bool timed = mode == "TimeRun";
-                var card = OptionRow(row, "Solo " + mode, timed ? "Time Run" : "Freestyle",
+                var card = ModeCard(row, "Solo " + mode, timed ? "Time Run" : "Freestyle",
                     timed ? "Against the clock" : "Explore & practise", timed ? "CLOCK" : "BOX",
-                    WordboundSoloEntry.SelectedMode == mode,
-                    () => { WordboundSoloEntry.Select(mode); Refresh(); Reselect("Solo " + mode); }, 80);
+                    timed ? LobbyKit.Sun : LobbyKit.Lime, WordboundSoloEntry.SelectedMode == mode,
+                    () => { WordboundSoloEntry.Select(mode); Refresh(); Reselect("Solo " + mode); });
                 if (WordboundSoloEntry.SelectedMode == mode) First = card;
             }
-            LobbyKit.Segmented(column, "Solo maps", new[] {
-                ("Solo map " + WordboundSoloEntry.LostAddressMap, "Lost Address"),
-                ("Solo map " + WordboundSoloEntry.ParcelHallMap, "Parcel Hall")
-            }, "Solo map " + WordboundSoloEntry.SelectedMap, name => {
-                WordboundSoloEntry.SelectMap(name.Substring("Solo map ".Length));
-                Refresh(); Reselect(name);
-            }, 44, 18);
+            LobbyKit.SectionLabel(column, "Map");
+            var maps = Cards(column, "Solo maps", 300, HouseSize.y, 2);
+            SoloMapCard(maps, WordboundSoloEntry.LostAddressMap, "Lost Address", "Original course", "BOX", LobbyKit.Sun);
+            SoloMapCard(maps, WordboundSoloEntry.ParcelHallMap, "Parcel Hall", "Furnished hall", "TABLE", LobbyKit.Lime);
             var bar = SummaryFrame(body, "Solo summary");
             SummaryLine(bar);
             string blocked = Menu.PartySize != 1 ? "Solo only. Leave extra local seats to start." :
@@ -178,10 +165,11 @@ namespace Wreckabulary
 
         void WorkshopChoices(RectTransform column, RectTransform body)
         {
-            var row = LobbyKit.Column(column, "Wordbound workshop", 8);
-            row.Size(-1, 96);
-            var card = OptionRow(row, "Wordbound maps", "Wordbound maps", "Build, save and playtest a course", "TABLE", true,
-                Menu.OpenWordboundWorkshop, 96);
+            var row = Cards(column, "Wordbound workshop", 300, HouseSize.y, 1);
+            var card = MapCard(row, "Wordbound maps", LobbyKit.Lime, true, Menu.OpenWordboundWorkshop);
+            var art = LobbyKit.ItemImage(card.Body(), "TABLE", 184);
+            if (art) art.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -18), new Vector2(184, 184));
+            MapWords(card.Body(), "Wordbound maps", "Build, save and playtest a course");
             bool available = Session.CanLoad(Session.WordboundScene);
             card.interactable = available;
             var bar = SummaryFrame(body, "Workshop summary");
@@ -250,11 +238,12 @@ namespace Wreckabulary
             return string.IsNullOrEmpty(seats) ? humans == 1 ? "1 player" : humans + " players" : Capital(seats);
         }
 
-        static RectTransform Centred(RectTransform row)
+        static RectTransform Cards(Transform parent, string name, float minimumWidth, float height, int maximumColumns)
         {
-            row.anchorMin = row.anchorMax = row.pivot = new Vector2(.5f, 1);
-            row.anchoredPosition = Vector2.zero;
-            return row;
+            var rect = LobbyKit.Grid(parent, name, new Vector2(minimumWidth, height), 12).Size(-1, height);
+            var flow = rect.gameObject.AddComponent<LobbyPlayCardGrid>();
+            flow.MinimumWidth = minimumWidth; flow.CardHeight = height; flow.MaximumColumns = maximumColumns;
+            return rect;
         }
 
         static RectTransform ScrollableChoices(RectTransform region)
@@ -280,59 +269,80 @@ namespace Wreckabulary
         }
 
         Button ModePoster(Transform parent, string mode, string title, string tag, bool on) =>
-            OptionRow(parent, "Mode " + mode, title, tag, LobbyKit.ModeArt(mode), on,
-                () => { Menu.Choose(queue: DisplayQueue, mode: mode); Refresh(); Reselect("Mode " + mode); }, 64);
+            ModeCard(parent, "Mode " + mode, ShortMode(mode, title), tag, LobbyKit.ModeArt(mode), LobbyKit.ModeColour(mode), on,
+                () => { Menu.Choose(queue: DisplayQueue, mode: mode); Refresh(); Reselect("Mode " + mode); });
 
-        static Button OptionRow(Transform parent, string name, string title, string detail, string artId, bool selected, Action click, int height)
+        static string ShortMode(string mode, string fallback) => mode switch
         {
-            var card = LobbyKit.Button(parent, name, selected ? LobbyKit.Hex(0xe5eee8) : Color.clear, click, 6);
-            card.Size(-1, height);
+            "Dibs" => "Dibs!", "Duos" => "Duos", "MovingOut" => "Moving out", "MovingDay" => "Moving day",
+            "Escape" => "Escape", LobbyMenu.TutorialMode => "Learn", LobbyMenu.WorkshopMode => "Build a home", _ => fallback,
+        };
+
+        static Button ModeCard(Transform parent, string name, string title, string detail, string artId, Color colour, bool selected, Action click)
+        {
+            var card = MapCard(parent, name, colour, selected, click);
             var body = card.Body();
-            var art = LobbyKit.ItemImage(body, artId, 48);
-            if (art) art.rectTransform.Pin(new Vector2(0, .5f), new Vector2(12, 0), new Vector2(48, 48));
-            var titleText = LobbyKit.Text(body, title, 24, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft);
-            titleText.rectTransform.Place(Vector2.zero, new Vector2(.54f, 1), new Vector2(76, 8), new Vector2(-12, -8));
-            titleText.enableAutoSizing = true; titleText.fontSizeMin = 20; titleText.fontSizeMax = 24;
-            var description = LobbyKit.Text(body, detail, 18, LobbyKit.Muted, TextAlignmentOptions.MidlineRight);
-            description.rectTransform.Place(new Vector2(.54f, 0), Vector2.one, new Vector2(0, 8), new Vector2(-48, -8));
-            description.enableAutoSizing = true; description.fontSizeMin = 15; description.fontSizeMax = 18;
-            if (selected) LobbyKit.Icon(body, LobbyIcons.Check, LobbyKit.Cyan).rectTransform
-                .Pin(new Vector2(1, .5f), new Vector2(-14, 0), new Vector2(20, 20));
+            var art = LobbyKit.ItemImage(body, artId, 84);
+            if (art) art.rectTransform.Pin(new Vector2(0, .5f), new Vector2(12, 0), new Vector2(84, 84));
+            var titleText = LobbyKit.Text(body, title, 27, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            titleText.rectTransform.Place(new Vector2(0, .5f), Vector2.one, new Vector2(108, 0), new Vector2(-16, -15));
+            titleText.enableAutoSizing = true; titleText.fontSizeMin = 21; titleText.fontSizeMax = 27;
+            var description = LobbyKit.Text(body, detail, 18, LobbyKit.Navy, TextAlignmentOptions.TopLeft);
+            description.rectTransform.Place(Vector2.zero, new Vector2(1, .5f), new Vector2(108, 12), new Vector2(-16, -4));
+            description.enableAutoSizing = true; description.fontSizeMin = 16; description.fontSizeMax = 18;
             return card;
         }
 
-        static Button MapCard(Transform parent, string name, bool selected, Action click)
+        static Button MapCard(Transform parent, string name, Color colour, bool selected, Action click)
         {
-            var card = LobbyKit.Button(parent, name, selected ? LobbyKit.Hex(0xe5eee8) : LobbyKit.Hex(0xf5f1e7), click, 8,
-                selected ? LobbyKit.Cyan : LobbyKit.Line, selected ? 2 : 1);
-            if (selected) LobbyKit.Icon(card.Body(), LobbyIcons.Check, LobbyKit.Cyan).rectTransform
-                .Pin(Vector2.one, new Vector2(-10, -10), new Vector2(18, 18));
+            var card = LobbyKit.Button(parent, name, Color.Lerp(colour, Color.white, .2f), click, 14,
+                selected ? LobbyKit.Cyan : LobbyKit.Navy, selected ? 4 : 2, 3);
+            var press = card.GetComponent<LobbyPress>();
+            press.Lift = 0; press.Tilt = 0; press.Sink = 1;
+            if (selected)
+            {
+                var mark = LobbyKit.Rect(card.Body(), "Selected").Pin(Vector2.one, new Vector2(-8, -8), new Vector2(26, 26));
+                mark.Paint(LobbyKit.Cyan, 13).raycastTarget = false;
+                LobbyKit.Icon(mark, LobbyIcons.Check, Color.white).rectTransform.Fill().offsetMin = new Vector2(5, 5);
+                mark.GetChild(0).GetComponent<RectTransform>().offsetMax = new Vector2(-5, -5);
+            }
             return card;
+        }
+
+        void SoloMapCard(Transform parent, string id, string title, string detail, string artId, Color colour)
+        {
+            string name = "Solo map " + id;
+            var card = MapCard(parent, name, colour, WordboundSoloEntry.SelectedMap == id, () => {
+                WordboundSoloEntry.SelectMap(id); Refresh(); Reselect(name);
+            });
+            var art = LobbyKit.ItemImage(card.Body(), artId, 184);
+            if (art) art.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -18), new Vector2(184, 184));
+            MapWords(card.Body(), title, detail);
         }
 
         static void MapWords(RectTransform body, string title, string detail)
         {
-            var name = LobbyKit.Text(body, title, 21, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
+            var name = LobbyKit.Text(body, title, 26, LobbyKit.Navy, TextAlignmentOptions.BottomLeft, FontStyles.Bold);
             name.name = "Map title";
-            name.enableAutoSizing = true; name.fontSizeMin = 17; name.fontSizeMax = 21;
-            name.rectTransform.Place(Vector2.zero, new Vector2(1, 0), new Vector2(12, 30), new Vector2(-12, 62));
-            var text = LobbyKit.Text(body, detail, 15, LobbyKit.Muted);
-            text.rectTransform.Place(Vector2.zero, new Vector2(1, 0), new Vector2(12, 4), new Vector2(-12, 30));
+            name.enableAutoSizing = true; name.fontSizeMin = 20; name.fontSizeMax = 26;
+            name.rectTransform.Place(Vector2.zero, new Vector2(1, 0), new Vector2(18, 40), new Vector2(-18, 80));
+            var text = LobbyKit.Text(body, detail, 18, LobbyKit.Navy);
+            text.rectTransform.Place(Vector2.zero, new Vector2(1, 0), new Vector2(18, 12), new Vector2(-18, 40));
         }
 
         void RandomHouseCard(Transform parent)
         {
-            var card = MapCard(parent, "Map random", Menu.Map == Session.LobbyRandomMap,
+            var card = MapCard(parent, "Map random", LobbyKit.Sun, Menu.Map == Session.LobbyRandomMap,
                 () => { Menu.Choose(map: Session.LobbyRandomMap); Refresh(); Reselect("Map random"); });
             LobbyKit.Icon(card.Body(), LobbyIcons.Home, LobbyKit.Cyan).rectTransform
-                .Pin(new Vector2(.5f, 1), new Vector2(0, -12), new Vector2(64, 64));
+                .Pin(new Vector2(.5f, 1), new Vector2(0, -28), new Vector2(136, 136));
             MapWords(card.Body(), "Random house", "New each run");
         }
 
         void HouseCard(Transform parent, string id, HouseLayout layout, int index)
         {
             bool open = Menu.Mode != LobbyMenu.WorkshopMode || HomeDesigner.Supports(id);
-            var card = MapCard(parent, "Map " + id, Menu.Map == id,
+            var card = MapCard(parent, "Map " + id, index % 2 == 0 ? LobbyKit.Hot : LobbyKit.Lime, Menu.Map == id,
                 () => { Menu.Choose(map: id); Refresh(); Reselect("Map " + id); });
             if (!open)
             {
@@ -341,20 +351,21 @@ namespace Wreckabulary
                     GameConfig.Current.Houses.Where(h => HomeDesigner.Supports(h.Key)).Select(h => h.Value.Name));
             }
             var plan = LobbyKit.Rect(card.Body(), "Plan").Place(new Vector2(0, 1), Vector2.one,
-                new Vector2(18, -100), new Vector2(-18, -12));
-            FloorPlan(plan, layout, Color.white, new Vector2(HouseSize.x - 44, 88));
+                new Vector2(18, -202), new Vector2(-18, -18));
+            FloorPlan(plan, layout, Color.white, new Vector2(HouseSize.x - 44, 184));
             MapWords(card.Body(), layout.Name, Facts(layout));
         }
 
         static void TutorialRoom(Transform parent)
         {
-            var note = LobbyKit.Rect(parent, "Tutorial room").Size(-1, 112);
-            var art = LobbyKit.ItemImage(note, LobbyKit.ModeArt(LobbyMenu.TutorialMode), 76);
-            if (art) art.rectTransform.Pin(new Vector2(0, .5f), new Vector2(12, 0), new Vector2(76, 76));
+            var note = LobbyKit.Rect(parent, "Tutorial room").Size(-1, HouseSize.y);
+            LobbyKit.Face(note, Color.Lerp(LobbyKit.Sun, Color.white, .2f), 14, LobbyKit.Navy, 2, 3);
+            var art = LobbyKit.ItemImage(note, LobbyKit.ModeArt(LobbyMenu.TutorialMode), 172);
+            if (art) art.rectTransform.Pin(new Vector2(0, .5f), new Vector2(24, 0), new Vector2(172, 172));
             var title = LobbyKit.Text(note, "Play & learn", 26, LobbyKit.Navy);
-            title.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(112, 52), new Vector2(-20, -18));
+            title.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(224, 150), new Vector2(-24, -70));
             var text = Wrapped(note, "Your training room is ready.", 19, LobbyKit.Muted);
-            text.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(112, 14), new Vector2(-20, -62));
+            text.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(224, 90), new Vector2(-24, -154));
         }
 
         RectTransform SummaryFrame(RectTransform body, string name) => authoredFrame

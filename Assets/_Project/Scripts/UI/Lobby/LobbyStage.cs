@@ -77,7 +77,7 @@ namespace Wreckabulary
         Vector3 spot, toCamera;
         float yaw, targetYaw, side, targetSide, panel;
         float imageAspect = -1f;
-        bool artwork = true, themeEffects = true;
+        bool artwork = true, themeEffects = true, charactersVisible = true;
 
         public string Map { get; private set; }
         public Transform Avatar => avatarRoot;
@@ -85,6 +85,7 @@ namespace Wreckabulary
         public Vector3 Spot => spot;
         public Camera Camera => cam;
         public bool ArtworkShown => artwork;
+        public bool CharactersVisible => charactersVisible;
         public bool ThemeEffectsEnabled => themeEffects;
         public Transform ItemPreview => itemPreview;
         public bool IsPresenting => cameraTaken && isActiveAndEnabled;
@@ -100,7 +101,7 @@ namespace Wreckabulary
             foreach (var entry in mapRenderers)
                 if (entry.renderer) entry.renderer.forceRenderingOff = show || entry.hidden;
             if (backdrop) { backdrop.texture = show && LobbyThemes.Current.Background ? LobbyThemes.Current.Background : skyTexture; imageAspect = -1f; }
-            if (contactShadow) contactShadow.enabled = show;
+            if (contactShadow) contactShadow.enabled = show && charactersVisible;
             if (effectLayer) effectLayer.gameObject.SetActive(show && themeEffects);
             if (lookProfile && lookProfile.TryGet<DepthOfField>(out var depth))
                 depth.mode.Override(show ? DepthOfFieldMode.Off : DepthOfFieldMode.Gaussian);
@@ -248,6 +249,19 @@ namespace Wreckabulary
             PlaceParty();
         }
 
+        public void SetCharactersVisible(bool visible)
+        {
+            charactersVisible = visible;
+            if (!visible) StopEmote();
+            if (avatarRoot) avatarRoot.gameObject.SetActive(visible);
+            if (graph.IsValid())
+            {
+                if (visible) graph.Play(); else graph.Stop();
+            }
+            if (contactShadow) contactShadow.enabled = visible && artwork;
+            PlaceParty();
+        }
+
         public void SetPartySize(int count)
         {
             partySize = Mathf.Clamp(count, 1, LobbyMenu.PartyMax);
@@ -295,7 +309,7 @@ namespace Wreckabulary
             for (int i = 0; i < guests.Count; i++)
             {
                 var guest = guests[i];
-                bool show = IsPresenting && partyVisible && i < partySize - 1;
+                bool show = IsPresenting && charactersVisible && partyVisible && i < partySize - 1;
                 if (guest.root.gameObject.activeSelf != show) guest.root.gameObject.SetActive(show);
                 if (guest.graph.IsValid() && guest.graph.IsPlaying() != show)
                 {
@@ -339,8 +353,9 @@ namespace Wreckabulary
                 animationMixer.SetInputWeight(0, 1f);
                 var output = AnimationPlayableOutput.Create(graph, "Lobby avatar", animator);
                 output.SetSourcePlayable(animationMixer);
-                graph.Play();
+                if (charactersVisible) graph.Play();
             }
+            avatarRoot.gameObject.SetActive(charactersVisible);
             Place(true);
             return true;
         }
@@ -348,7 +363,7 @@ namespace Wreckabulary
         /// <summary>Plays a cosmetic Generic clip once, using unscaled lobby time and no root motion.</summary>
         public bool PlayEmote(AnimationClip clip)
         {
-            if (!IsPresenting || !graph.IsValid() || !clip || clip.legacy || clip.isHumanMotion ||
+            if (!IsPresenting || !charactersVisible || !graph.IsValid() || !clip || clip.legacy || clip.isHumanMotion ||
                 clip.length <= 0f || float.IsNaN(clip.length) || float.IsInfinity(clip.length)) return false;
             StopEmote();
             emotePlayable = AnimationClipPlayable.Create(graph, clip);

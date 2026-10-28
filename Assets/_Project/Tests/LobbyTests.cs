@@ -769,13 +769,14 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(74f, Height("You", typeof(HorizontalLayoutGroup)), 1f, "your party card");
             Click("PLAY");
             yield return null;
-            var modes = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<VerticalLayoutGroup>().Single(row => row.name == "Modes");
+            var modes = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<GridLayoutGroup>().Single(row => row.name == "Modes");
             var modeButtons = modes.GetComponentsInChildren<Button>();
-            Assert.AreEqual(LobbyMenu.Modes.Length, modeButtons.Length, "each local mode has its own row");
+            Assert.AreEqual(LobbyMenu.Modes.Length, modeButtons.Length, "Each local mode retains its own choice.");
             foreach (var button in modeButtons)
-                Assert.AreEqual(64f, ((RectTransform)button.transform).rect.height, 1f, "readable mode rows");
-            Assert.IsFalse(modes.GetComponentsInChildren<RawImage>().Any(image => image.name == "Rays"), "no decorative stripes");
-            Assert.AreEqual(164f, Height("Houses", typeof(LobbyFit)), 1f, "separate compact house previews");
+                Assert.GreaterOrEqual(((RectTransform)button.transform).rect.height, 100f, "Readable card targets do not shrink.");
+            Assert.IsFalse(modes.GetComponentsInChildren<RawImage>().Any(image => image.name == "Rays"), "No decorative stripes.");
+            var maps = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<GridLayoutGroup>().Single(row => row.name == "Houses");
+            Assert.Greater(maps.cellSize.y, modes.cellSize.y, "Map cards are the main choice area.");
             Click("CAREER");
             yield return null;
             Assert.AreEqual(112f, Height("Level", typeof(HorizontalLayoutGroup)), 1f, "the level header");

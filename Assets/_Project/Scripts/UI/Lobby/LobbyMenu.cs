@@ -383,10 +383,18 @@ namespace Wreckabulary
             systemBar.Place(Vector2.up, Vector2.up, new Vector2(Gutter, -68), new Vector2(600, -8));
             pageBar.Pin(new Vector2(.5f, 1), new Vector2(0, compact ? -78 : -8), new Vector2(762, 60));
             walletBar.Pin(Vector2.one, new Vector2(-Gutter, -8), new Vector2(460, 60));
-            pageHost.offsetMax = new Vector2(-Gutter, -(height + 10));
+            LayoutPageHost();
             if (rail) rail.anchoredPosition = new Vector2(-Gutter, -(height + 6));
             if (feed) feed.anchoredPosition = new Vector2(Gutter, -(height + 10));
             if (status) status.anchoredPosition = new Vector2(0, -(height + 12));
+        }
+
+        void LayoutPageHost()
+        {
+            if (!pageHost) return;
+            float inset = Current == Play ? 12f : Gutter;
+            pageHost.offsetMin = new Vector2(inset, inset);
+            pageHost.offsetMax = new Vector2(-inset, -((compactBar ? 140f : BarHeight) + (Current == Play ? 6f : 10f)));
         }
 
         Button NavigationAction(Transform parent, string name, string page, Color accent, out Image underline)
@@ -605,8 +613,10 @@ namespace Wreckabulary
             if (moved && Current != null && pages.TryGetValue(Current, out var previous)) previous.Closed();
             foreach (var other in pages.Values) other.Root.gameObject.SetActive(other == page);
             Current = id;
+            LayoutPageHost();
             if (id != Home) ShowParty(false);
             Stage.Dress(Outfit);
+            Stage.SetCharactersVisible(id != Play);
             Stage.SetPartyVisible(id == Home);
             Stage.ShowArtwork(id != Play);
             if (themeBadge) themeBadge.gameObject.SetActive(id == Home);

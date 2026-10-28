@@ -12,6 +12,9 @@ namespace Wreckabulary
         public RectTransform Panel, Body, Queues, Choices, Summary;
         public TextMeshProUGUI Title, Subtitle;
         public Button Close;
+        [Min(8)] public Vector2 ContentInset = new Vector2(20, 16);
+        [Range(72, 140)] public float HeaderHeight = 88;
+        [Range(88, 140)] public float SummaryHeight = 88;
         UnityAction closeListener;
 
         public void Validate()
@@ -48,6 +51,51 @@ namespace Wreckabulary
             }
         }
 
+        public void BindOptions(Action close, string subtitle)
+        {
+            Bind(close, subtitle, false, Vector2.zero);
+            Panel.Fill();
+            Title.alignment = TextAlignmentOptions.MidlineLeft;
+            Title.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(ContentInset.x, -HeaderHeight + 16), new Vector2(ContentInset.x + 160, -ContentInset.y));
+            Subtitle.gameObject.SetActive(false);
+            Queues.Place(Vector2.one, Vector2.one, new Vector2(-664, -HeaderHeight + 16), new Vector2(-64, -ContentInset.y));
+            ((RectTransform)Close.transform).Pin(Vector2.one, new Vector2(-16, -16), new Vector2(40, 40));
+            Body.Place(Vector2.zero, Vector2.one, ContentInset, new Vector2(-ContentInset.x, -HeaderHeight));
+            Choices.Place(Vector2.zero, Vector2.one, new Vector2(0, SummaryHeight + 12), Vector2.zero);
+            Summary.Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, SummaryHeight));
+        }
+
         void OnDestroy() { if (Close && closeListener != null) Close.onClick.RemoveListener(closeListener); }
+    }
+
+
+    [RequireComponent(typeof(GridLayoutGroup))]
+    public sealed class LobbyPlayCardGrid : MonoBehaviour
+    {
+        public float MinimumWidth = 264, CardHeight = 136;
+        public int MaximumColumns = 5;
+        GridLayoutGroup grid;
+
+        void OnEnable() { grid = GetComponent<GridLayoutGroup>(); Fit(); }
+        void OnRectTransformDimensionsChange() => Fit();
+        void LateUpdate() => Fit();
+
+        void Fit()
+        {
+            if (!grid) return;
+            var rect = (RectTransform)transform;
+            if (rect.rect.width <= 0 || transform.childCount == 0) return;
+            int columns = Mathf.Clamp(Mathf.FloorToInt((rect.rect.width + grid.spacing.x) / (MinimumWidth + grid.spacing.x)),
+                1, Mathf.Min(Mathf.Max(1, MaximumColumns), transform.childCount));
+            var cell = new Vector2((rect.rect.width - (columns - 1) * grid.spacing.x) / columns, CardHeight);
+            int rows = Mathf.CeilToInt(transform.childCount / (float)columns);
+            float height = rows * CardHeight + (rows - 1) * grid.spacing.y;
+            if (grid.constraint != GridLayoutGroup.Constraint.FixedColumnCount) grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            if (grid.constraintCount != columns) grid.constraintCount = columns;
+            if (grid.cellSize != cell) grid.cellSize = cell;
+            var size = GetComponent<LayoutElement>();
+            if (!size || !Mathf.Approximately(size.preferredHeight, height)) rect.Size(-1, height);
+        }
     }
 }
