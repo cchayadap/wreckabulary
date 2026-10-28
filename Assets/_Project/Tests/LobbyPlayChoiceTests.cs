@@ -57,6 +57,64 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator SingleChoiceCardsKeepTheHouseCardFootprintAndFixedActions()
+        {
+            var menu = LobbyMenu.Instance;
+            foreach (var size in new[] { new Vector2(1868, 968), new Vector2(1388, 968), new Vector2(900, 580) })
+            {
+                menu.Choose(LobbyMenu.Practice, "Dibs", "pinwheel");
+                menu.Page<PlayPage>().WordboundSolo = false;
+                menu.Open(LobbyMenu.Play);
+                Page.anchorMin = Page.anchorMax = Vector2.zero; Page.sizeDelta = size;
+                yield return null; yield return null;
+                Canvas.ForceUpdateCanvases();
+                var reference = InPage((RectTransform)Find("Map pinwheel").transform);
+                var frame = Page.GetComponentInChildren<LobbyPlayPageView>();
+                var header = InPage(frame.Queues);
+                var footer = InPage((RectTransform)Find("GO").transform);
+
+                Submit("Mode Escape"); yield return null; yield return null;
+                Canvas.ForceUpdateCanvases();
+                var random = Find("Map random");
+                Assert.AreEqual(1, Page.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Map ")),
+                    "Random generation remains the only map choice for Escape.");
+                AssertCardFootprint(reference, (RectTransform)random.transform);
+                EventSystem.current.SetSelectedGameObject(random.gameObject);
+                yield return null; yield return null;
+                AssertSameBounds(header, InPage(Page.GetComponentInChildren<LobbyPlayPageView>().Queues), "Header stays fixed.");
+                AssertSameBounds(footer, InPage((RectTransform)Find("GO").transform), "Play stays fixed.");
+                Assert.AreSame(random.gameObject, EventSystem.current.currentSelectedGameObject);
+                Assert.AreEqual(Session.LobbyRandomMap, menu.Map);
+
+                Submit("Queue " + LobbyMenu.Workshop); yield return null;
+                Submit("Create Wordbound"); yield return null; yield return null;
+                Canvas.ForceUpdateCanvases();
+                var editor = Find("Wordbound maps");
+                AssertCardFootprint(reference, (RectTransform)editor.transform);
+                Assert.AreEqual(1, editor.transform.parent.GetComponentsInChildren<Button>().Length,
+                    "The editor card does not add fake choices to fill the row.");
+                AssertSameBounds(header, InPage(Page.GetComponentInChildren<LobbyPlayPageView>().Queues), "Creator header stays fixed.");
+                AssertSameBounds(footer, InPage((RectTransform)Find("Workshop OPEN").transform), "Open uses the fixed action slot.");
+                Assert.AreEqual(Session.CanLoad(Session.WordboundScene), Find("Workshop OPEN").interactable);
+                foreach (var text in editor.GetComponentsInChildren<TMP_Text>())
+                {
+                    text.ForceMeshUpdate();
+                    Assert.IsFalse(text.isTextTruncated || text.isTextOverflowing, text.text);
+                }
+                Assert.AreEqual(Session.HubScene, SceneManager.GetActiveScene().name);
+                Assert.IsFalse(menu.Starting, "Choosing a creator family must not launch it.");
+            }
+        }
+
+        static void AssertCardFootprint(Rect reference, RectTransform card)
+        {
+            var actual = InPage(card);
+            Assert.That(actual.width, Is.EqualTo(reference.width).Within(.1f), "One card keeps the multi-map card width.");
+            Assert.That(actual.height, Is.EqualTo(reference.height).Within(.1f), "One card keeps the multi-map card height.");
+            Assert.That(actual.xMin, Is.EqualTo(reference.xMin).Within(.1f), "One card aligns with the first map column.");
+        }
+
+        [UnityTest]
         public IEnumerator ShortHouseChooserScrollsFocusedChoicesWithoutMovingHeaderOrPlay()
         {
             var menu = LobbyMenu.Instance;

@@ -107,7 +107,7 @@ namespace Wreckabulary
                 if (Menu.Mode == "Escape")
                 {
                     // The Escape randomises the house, so this is the only choice it offers.
-                    var randomRow = Cards(column, "Houses", HouseSize.x, HouseSize.y, 1);
+                    var randomRow = Cards(column, "Houses", HouseSize.x, HouseSize.y, GameConfig.Current.Houses.Count);
                     RandomHouseCard(randomRow);
                 }
                 else
@@ -165,11 +165,11 @@ namespace Wreckabulary
 
         void WorkshopChoices(RectTransform column, RectTransform body)
         {
-            var row = Cards(column, "Wordbound workshop", 300, HouseSize.y, 1);
+            var row = Cards(column, "Wordbound workshop", HouseSize.x, HouseSize.y, GameConfig.Current.Houses.Count);
             var card = MapCard(row, "Wordbound maps", LobbyKit.Lime, true, Menu.OpenWordboundWorkshop);
             var art = LobbyKit.ItemImage(card.Body(), "TABLE", 184);
             if (art) art.rectTransform.Pin(new Vector2(.5f, 1), new Vector2(0, -18), new Vector2(184, 184));
-            MapWords(card.Body(), "Wordbound maps", "Build, save and playtest a course");
+            MapWords(card.Body(), "Wordbound maps", "Build & playtest");
             bool available = Session.CanLoad(Session.WordboundScene);
             card.interactable = available;
             var bar = SummaryFrame(body, "Workshop summary");

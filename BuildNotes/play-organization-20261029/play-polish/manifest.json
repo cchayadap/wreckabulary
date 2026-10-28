@@ -1,0 +1,21 @@
+{
+  "status": "draft_only",
+  "base_head": "3d44c2c78e9eb462a1f30f72bda38596551be055",
+  "files": [
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/PlayPage.cs",
+      "baseline_sha256": "6dd96fc0adbbc694482ae84b29a3b3142694b505576607c0433153e5823da626",
+      "candidate_sha256": "506964326a7416e616f3c97b3860bb2c5fe5ff1893590b4dcaacfbc5c9269381"
+    },
+    {
+      "path": "Assets/_Project/Scripts/UI/Lobby/LobbyPlayPageView.cs",
+      "baseline_sha256": "b58cf7cae81d1f087c0ab84471bbfbb4031a22a2d01c35609e0e62541f2fdb32",
+      "candidate_sha256": "52a483ad9239273435295fac2b7853e4716593116a8d714998bf1c44ddcf3009"
+    },
+    {
+      "path": "Assets/_Project/Tests/LobbyPlayChoiceTests.cs",
+      "baseline_sha256": "f86816fd2421c9b7f5722783d9b0f2ffbe8a194115a5cb052d595abe9f7a788e",
+      "candidate_sha256": "121bbb4b04cfade6d413101ac64dfc9d6ce390034757729e4ba550e59f7280cd"
+    }
+  ]
+}

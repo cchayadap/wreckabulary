@@ -93,7 +93,7 @@ namespace Wreckabulary
             var rect = (RectTransform)transform;
             if (rect.rect.width <= 0 || transform.childCount == 0) return;
             int columns = Mathf.Clamp(Mathf.FloorToInt((rect.rect.width + grid.spacing.x) / (MinimumWidth + grid.spacing.x)),
-                1, Mathf.Min(Mathf.Max(1, MaximumColumns), transform.childCount));
+                1, Mathf.Max(1, MaximumColumns));
             var cell = new Vector2((rect.rect.width - (columns - 1) * grid.spacing.x) / columns, CardHeight);
             int rows = Mathf.CeilToInt(transform.childCount / (float)columns);
             float height = rows * CardHeight + (rows - 1) * grid.spacing.y;
