@@ -144,7 +144,12 @@ namespace Wreckabulary
                 if (WordboundSoloEntry.SelectedMode == mode) First = card;
             }
             LobbyKit.SectionLabel(column, "Map");
-            var maps = Cards(column, "Solo maps", 300, HouseSize.y, 3);
+            var maps = Cards(column, "Solo maps", 300, playLayout ? playLayout.SoloMapMinimumHeight : 480, 3);
+            var mapGrid = maps.GetComponent<LobbyPlayCardGrid>();
+            mapGrid.PreviewAspectRatio = 16f / 9f;
+            if (playLayout)
+                foreach (var preview in new[] { playLayout.LostAddressPreview, playLayout.ParcelHallPreview, playLayout.ParcelServicePreview })
+                    if (preview) mapGrid.PreviewAspectRatio = Mathf.Min(mapGrid.PreviewAspectRatio, preview.rect.width / preview.rect.height);
             SoloMapCard(maps, WordboundSoloEntry.LostAddressMap, "Lost Address", "Original course", "BOX", LobbyKit.Sun);
             SoloMapCard(maps, WordboundSoloEntry.ParcelHallMap, "Parcel Hall", "Furnished hall", "TABLE", LobbyKit.Lime);
             SoloMapCard(maps, WordboundSoloEntry.ParcelServiceMap, "Parcel Service", "Three-room office", null, LobbyKit.Cyan);

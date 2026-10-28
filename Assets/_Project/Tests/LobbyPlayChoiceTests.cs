@@ -654,6 +654,55 @@ namespace Wreckabulary.Tests
             }
         }
 
+        [UnityTest]
+        public IEnumerator SoloPreviewUsesCardWidthWithReadableLabelsAndFixedFooterOnShortFrames()
+        {
+            var profile = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
+            var oldPreview = profile.ParcelServicePreview;
+            float oldHeight = profile.SoloMapMinimumHeight;
+            var texture = new Texture2D(160, 90);
+            var preview = Sprite.Create(texture, new Rect(0, 0, 160, 90), new Vector2(.5f, .5f));
+            try
+            {
+                profile.ParcelServicePreview = preview; profile.SoloMapMinimumHeight = 480;
+                var menu = LobbyMenu.Instance;
+                foreach (var size in new[] { new Vector2(1868, 968), new Vector2(900, 580) })
+                {
+                    menu.Choose(LobbyMenu.Practice, "Duos", "flat");
+                    menu.Page<PlayPage>().WordboundSolo = false; menu.Open(LobbyMenu.Play);
+                    Page.anchorMin = Page.anchorMax = Vector2.zero; Page.sizeDelta = size;
+                    yield return null; yield return null; Canvas.ForceUpdateCanvases();
+                    var house = InPage((RectTransform)Find("Map flat").transform);
+                    var footer = InPage((RectTransform)Find("GO").transform);
+                    Submit("Family Wordbound"); yield return null; yield return null;
+                    Submit("Solo map ParcelService"); yield return null; yield return null;
+                    Canvas.ForceUpdateCanvases();
+                    AssertSoloPreview("ParcelService", preview);
+                    var card = Find("Solo map ParcelService");
+                    var art = card.GetComponentsInChildren<Image>().Single(image => image.name == "Map preview");
+                    var imageRect = art.rectTransform.rect;
+                    float displayedWidth = Mathf.Min(imageRect.width, imageRect.height * 16f / 9f);
+                    Assert.That(displayedWidth, Is.EqualTo(imageRect.width).Within(.5f),
+                        "A 16:9 map should fill the padded card width without cropping or distortion.");
+                    var scroll = Page.GetComponentInChildren<LobbyPlayPageView>().Choices.GetComponentInChildren<ScrollRect>();
+                    var shown = InPage((RectTransform)card.transform); var viewport = InPage(scroll.viewport);
+                    Assert.GreaterOrEqual(shown.yMin, viewport.yMin - .5f);
+                    Assert.LessOrEqual(shown.yMax, viewport.yMax + .5f);
+                    AssertSameBounds(footer, InPage((RectTransform)Find("Solo GO").transform), "Larger map previews cannot move Play.");
+                    Assert.AreSame(card.gameObject, EventSystem.current.currentSelectedGameObject);
+                    foreach (var text in card.GetComponentsInChildren<TMP_Text>())
+                    { text.ForceMeshUpdate(); Assert.IsFalse(text.isTextOverflowing, text.text); }
+                    Submit("Family house"); yield return null; yield return null; Canvas.ForceUpdateCanvases();
+                    AssertSameBounds(house, InPage((RectTransform)Find("Map flat").transform), "House card geometry stays unchanged.");
+                }
+            }
+            finally
+            {
+                profile.ParcelServicePreview = oldPreview; profile.SoloMapMinimumHeight = oldHeight;
+                Object.Destroy(preview); Object.Destroy(texture);
+            }
+        }
+
         static void AssertSoloPreview(string id, Sprite expected)
         {
             var card = Find("Solo map " + id);

@@ -80,6 +80,7 @@ namespace Wreckabulary
     public sealed class LobbyPlayCardGrid : MonoBehaviour
     {
         public float MinimumWidth = 264, CardHeight = 136;
+        public float PreviewAspectRatio;
         public int MaximumColumns = 5;
         GridLayoutGroup grid;
 
@@ -94,9 +95,18 @@ namespace Wreckabulary
             if (rect.rect.width <= 0 || transform.childCount == 0) return;
             int columns = Mathf.Clamp(Mathf.FloorToInt((rect.rect.width + grid.spacing.x) / (MinimumWidth + grid.spacing.x)),
                 1, Mathf.Max(1, MaximumColumns));
-            var cell = new Vector2((rect.rect.width - (columns - 1) * grid.spacing.x) / columns, CardHeight);
+            float width = (rect.rect.width - (columns - 1) * grid.spacing.x) / columns;
+            float cardHeight = CardHeight;
+            if (PreviewAspectRatio > 0)
+            {
+                cardHeight = Mathf.Max(cardHeight, (width - 36) / PreviewAspectRatio + 106);
+                var scroll = GetComponentInParent<ScrollRect>();
+                if (scroll && scroll.viewport && scroll.viewport.rect.height > 0)
+                    cardHeight = Mathf.Min(cardHeight, Mathf.Max(300, scroll.viewport.rect.height - 4));
+            }
+            var cell = new Vector2(width, cardHeight);
             int rows = Mathf.CeilToInt(transform.childCount / (float)columns);
-            float height = rows * CardHeight + (rows - 1) * grid.spacing.y;
+            float height = rows * cardHeight + (rows - 1) * grid.spacing.y;
             if (grid.constraint != GridLayoutGroup.Constraint.FixedColumnCount) grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             if (grid.constraintCount != columns) grid.constraintCount = columns;
             if (grid.cellSize != cell) grid.cellSize = cell;
