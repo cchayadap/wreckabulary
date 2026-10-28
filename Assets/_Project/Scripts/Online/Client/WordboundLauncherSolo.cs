@@ -11,9 +11,27 @@ namespace Wreckabulary.Online
         const string SoloStartupFailure = "Solo could not start. Return to the lobby and try again.";
 
         public static IWordboundPuzzleContent CreateSoloContent(string items, string rules, string mode, string seed, string map = "LostAddress")
+            => CreateSoloContent(items, rules, mode, seed, map, null);
+
+        public static IWordboundPuzzleContent CreateSoloContent(string items, string rules, string mode, string seed, string map, WordboundCourseAsset authored)
         {
             if (!WordboundSoloEntry.Supports(mode)) throw new ArgumentException("Choose Time Run or Freestyle for solo play.", nameof(mode));
             if (!WordboundSoloEntry.SupportsMap(map)) throw new ArgumentException("Choose an installed solo map.", nameof(map));
+            if (map == WordboundSoloEntry.ParcelServiceMap)
+            {
+                if (!authored || !authored.Items || !authored.RuleBook)
+                    throw new ArgumentException("Parcel Service requires its saved course, item catalogue and rule book.", nameof(authored));
+                var savedDocument = authored.ReadDocument();
+                if (savedDocument.Id != WordboundSoloEntry.ParcelServiceCourseId)
+                    throw new ArgumentException("The assigned course is not Parcel Service.", nameof(authored));
+                authored.CameraProfile?.Validate(); authored.VisualProfile?.Validate();
+                var geometry = authored.Catalogue();
+                var requested = ModeDefinition.For(mode, RaceFormat.Solo);
+                var result = CourseResolver.Resolve(savedDocument, geometry,
+                    new CourseResolveRequest(seed, MatchStateValidation.Requirements(requested)));
+                if (!result.Success) throw new ArgumentException("The saved Parcel Service course cannot be resolved for this mode.");
+                return new WordboundAuthoredPuzzleContent(requested, geometry, result.Manifest, authored.Items.text, authored.RuleBook.text);
+            }
             if (map == "LostAddress") return new WordboundClientContent(items, rules, mode, "Solo", seed).PhysicalPuzzles;
             var flagship = WordboundFlagshipContent.Create(ItemCatalogue.FromJson(items));
             var document = WordboundArrivalVariant.Create(flagship.CopyDocument(), flagship.Geometry);
@@ -29,9 +47,11 @@ namespace Wreckabulary.Online
             if (destroying || localClient || activeClient || activeLaunch != null) return;
             int generation = ++localGeneration;
             WordboundLocalMatchClient client = null;
+            string map = WordboundSoloEntry.SelectedMap;
             try
             {
-                var content = CreateSoloContent(itemJson, ruleJson, mode, Guid.NewGuid().ToString("N").Substring(0, 16), WordboundSoloEntry.SelectedMap);
+                var source = map == WordboundSoloEntry.ParcelServiceMap ? Assets.ParcelServiceCourse : null;
+                var content = CreateSoloContent(itemJson, ruleJson, mode, Guid.NewGuid().ToString("N").Substring(0, 16), map, source);
                 var root = new GameObject("Wordbound solo game");
                 root.transform.SetParent(transform, false);
                 client = root.AddComponent<WordboundLocalMatchClient>();
@@ -40,8 +60,8 @@ namespace Wreckabulary.Online
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
                 await client.StartLocal(content, Assets.BodyPrefabs(), Assets.GameplayScene(),
-                    controls: Session.Bindings.FirstOrDefault(), cameraProfile: Assets.CameraProfile,
-                    visualProfile: Assets.VisualProfile, uiTheme: Assets.UiTheme, storyProfile: Assets.StoryProfile,
+                    controls: Session.Bindings.FirstOrDefault(), cameraProfile: source && source.CameraProfile ? source.CameraProfile : Assets.CameraProfile,
+                    visualProfile: source && source.VisualProfile ? source.VisualProfile : Assets.VisualProfile, uiTheme: Assets.UiTheme, storyProfile: Assets.StoryProfile,
                     returnLabel: "Return to lobby");
                 if (!destroying && generation == localGeneration && localClient == client && LobbyCamera)
                     LobbyCamera.enabled = false;
@@ -60,7 +80,8 @@ namespace Wreckabulary.Online
                     Destroy(client.gameObject);
                 }
                 if (LobbyCamera) LobbyCamera.enabled = true;
-                failure = SoloStartupFailure;
+                failure = map == WordboundSoloEntry.ParcelServiceMap
+                    ? "Parcel Service is unavailable. Return to the lobby and choose another map." : SoloStartupFailure;
             }
         }
 
@@ -79,3 +100,5 @@ namespace Wreckabulary.Online
         }
     }
 }
+
+

@@ -65,7 +65,12 @@ namespace Wreckabulary.Online.Editor
         }
 
         [MenuItem("Tools/Wordbound/Presentation/Capture two Solo draft previews")]
-        public static void CaptureDrafts()
+        public static void CaptureDrafts() => CaptureMaps(new[] { WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.ParcelHallMap });
+
+        [MenuItem("Tools/Wordbound/Presentation/Capture Parcel Service draft preview")]
+        public static void CaptureParcelServiceDraft() => CaptureMaps(new[] { WordboundSoloEntry.ParcelServiceMap });
+
+        static void CaptureMaps(string[] maps)
         {
             Require(!EditorApplication.isPlayingOrWillChangePlaymode && !WordboundSoloPreviewWindow.IsOpen, "Close the framing window and leave Play mode before capture.");
             Require(SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null && GraphicsSettings.currentRenderPipeline, "Capture requires the current renderer and a graphics device.");
@@ -83,7 +88,7 @@ namespace Wreckabulary.Online.Editor
             try
             {
                 EditorSettings.asyncShaderCompilation = false;
-                foreach (string map in new[] { WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.ParcelHallMap })
+                foreach (string map in maps)
                 {
                     using var stage = new WordboundSoloPreviewStage(settings, map);
                     stage.RequireCameraOutsideSurface();
@@ -96,7 +101,7 @@ namespace Wreckabulary.Online.Editor
                     frames.Add(Capture(stage.Preview, output, map + ".png", settings.Pose(map).Module, true,
                         stage.Content.Course.Hash, stage.Center + settings.Pose(map).Target));
                 }
-                Require(frames.Count == 2, "Expected both installed map previews.");
+                Require(frames.Count == maps.Length, "Expected every requested map preview.");
             }
             catch (Exception e) { failure = e; errors.Add(e.ToString()); }
             finally
@@ -130,13 +135,19 @@ namespace Wreckabulary.Online.Editor
             if (failure != null || errors.Count != 0) throw new InvalidOperationException("Preview capture failed; inspect its retained receipt: " + output, failure);
         }
 
+        internal static string[] CurrentInputPaths(WordboundSoloPreviewSettings settings) =>
+            Inputs(settings).Select(i => i.path).OrderBy(p => p, StringComparer.Ordinal).ToArray();
+
         static List<Input> Inputs(WordboundSoloPreviewSettings settings)
         {
             var launch = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
             var data = Resources.Load<GameData>(GameData.ResourcePath);
             var style = Resources.Load<WordboundRoomStyleProfile>(WordboundRoomStyleProfile.ResourcePath);
             Require(launch && launch.VisualProfile && style && data && data.items && data.rules, "Installed content or visual profiles are missing.");
-            var values = new Object[] { settings, launch, launch.VisualProfile, style, style.WallArtwork, data, data.items, data.rules,
+            var authored = launch.ParcelServiceCourse;
+            var values = new Object[] { settings, launch, launch.VisualProfile, authored, authored ? authored.Items : null,
+                authored ? authored.RuleBook : null, authored ? authored.VisualProfile : null,
+                style, style.WallArtwork, data, data.items, data.rules,
                 ModelLibrary.Load(), MaterialLibrary.Load(), GraphicsSettings.currentRenderPipeline };
             var paths = values.Where(v => v).Select(AssetDatabase.GetAssetPath).Where(p => !string.IsNullOrEmpty(p)).Concat(new[] {
                 ScriptRoot + "WordboundSoloPreviewCapture.cs", ScriptRoot + "WordboundSoloPreviewStage.cs", ScriptRoot + "WordboundSoloPreviewSettings.cs",

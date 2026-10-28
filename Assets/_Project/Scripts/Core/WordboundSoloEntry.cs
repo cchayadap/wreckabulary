@@ -4,16 +4,17 @@ namespace Wreckabulary
 {
     public static class WordboundSoloEntry
     {
-        public const string LostAddressMap = "LostAddress", ParcelHallMap = "ParcelHall";
+        public const string LostAddressMap = "LostAddress", ParcelHallMap = "ParcelHall", ParcelServiceMap = "ParcelService";
+        public const string ParcelServiceCourseId = "wordbound-parcel-service-v1";
         static string pending;
         static bool returnToSelection;
         public static string SelectedMode { get; private set; } = "TimeRun";
         public static string SelectedMap { get; private set; } = LostAddressMap;
         public static bool Supports(string mode) => mode == "TimeRun" || mode == "Freestyle";
-        public static bool SupportsMap(string map) => map == LostAddressMap || map == ParcelHallMap;
+        public static bool SupportsMap(string map) => map == LostAddressMap || map == ParcelHallMap || map == ParcelServiceMap;
         public static void SelectMap(string map)
         {
-            if (!SupportsMap(map)) throw new ArgumentException("Choose Lost Address or Parcel Hall for solo play.", nameof(map));
+            if (!SupportsMap(map)) throw new ArgumentException("Choose an installed solo map.", nameof(map));
             SelectedMap = map;
         }
         public static void Select(string mode)

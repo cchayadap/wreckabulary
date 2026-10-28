@@ -19,6 +19,7 @@ namespace Wreckabulary.Online
         public WordboundStoryProfile StoryProfile;
         public WordboundUiTheme UiTheme;
         public WordboundCourseAsset WorkshopCourse;
+        public WordboundCourseAsset ParcelServiceCourse;
         public NetworkObject PlayerBody;
         public NetworkObject ItemBody;
         public NetworkObject PlatformBody;

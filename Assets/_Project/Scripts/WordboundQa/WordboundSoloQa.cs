@@ -22,7 +22,10 @@ namespace Wreckabulary.Qa
 {
     public sealed class WordboundSoloQa : IQaScenario
     {
-        public string Name => "wordbound_solo";
+        readonly bool parcelServiceOnly;
+        public WordboundSoloQa() : this(false) { }
+        WordboundSoloQa(bool parcelServiceOnly) { this.parcelServiceOnly = parcelServiceOnly; }
+        public string Name => parcelServiceOnly ? "wordbound_parcel_service" : "wordbound_solo";
         LobbyExperienceQa.Preference[] preferences;
         InputBinding[] originalBindings;
         string originalQueue, originalMode, originalMap, originalPage, originalSolo, originalSoloMap, originalTheme;
@@ -30,12 +33,29 @@ namespace Wreckabulary.Qa
         WordboundLocalMatchClient client;
         readonly Dictionary<Object, string> sourceMemory = new();
         readonly Dictionary<TextAsset, string> sourceText = new();
+        WordboundCourseAsset parcelSource;
+        WordboundLocalMatchClient previousParcelClient;
+        Camera previousParcelCamera;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-        static void Register() => QaScenarios.Register("wordbound_solo", () => new WordboundSoloQa());
+        static void Register()
+        {
+            QaScenarios.Register("wordbound_solo", () => new WordboundSoloQa());
+            QaScenarios.Register("wordbound_parcel_service", () => new WordboundSoloQa(true));
+        }
 
         public IEnumerable<QaStep> BuildSteps(QaContext context)
         {
+            if (parcelServiceOnly)
+            {
+                yield return QaStep.Named("parcel_service_selection").Timeout(30)
+                    .When(_ => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning).Do(Setup);
+                yield return QaStep.Named("parcel_service_time_run").Timeout(180)
+                    .Do(value => Guard(value, Run(value, "TimeRun", WordboundSoloEntry.ParcelServiceMap)));
+                yield return QaStep.Named("parcel_service_freestyle").Timeout(180)
+                    .Do(value => Guard(value, Run(value, "Freestyle", WordboundSoloEntry.ParcelServiceMap)));
+                yield break;
+            }
             yield return QaStep.Named("solo_selection").Timeout(30)
                 .When(_ => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning).Do(Setup);
             yield return QaStep.Named("time_run").Timeout(180).Do(value => Guard(value, Run(value, "TimeRun")));
@@ -61,14 +81,33 @@ namespace Wreckabulary.Qa
             foreach (var asset in new Object[] { assets, assets.CameraProfile, assets.VisualProfile, assets.UiTheme, assets.StoryProfile })
                 if (asset) sourceMemory.Add(asset, JsonUtility.ToJson(asset));
             sourceText.Add(data.items, data.items.text); sourceText.Add(data.rules, data.rules.text);
+            if (parcelServiceOnly)
+            {
+                parcelSource = assets.ParcelServiceCourse;
+                Require(parcelSource && parcelSource.Items && parcelSource.RuleBook &&
+                    parcelSource.ReadDocument().Id == WordboundSoloEntry.ParcelServiceCourseId,
+                    "Parcel Service QA requires its explicit saved course, item catalogue and rule book.");
+                foreach (var asset in new Object[] { parcelSource, parcelSource.CameraProfile, parcelSource.VisualProfile })
+                    if (asset && !sourceMemory.ContainsKey(asset)) sourceMemory.Add(asset, JsonUtility.ToJson(asset));
+                foreach (var text in new[] { parcelSource.Items, parcelSource.RuleBook })
+                    if (!sourceText.ContainsKey(text)) sourceText.Add(text, text.text);
+                context.Note("parcel_service_source", new Dictionary<string, object> {
+                    ["course_id"] = parcelSource.ReadDocument().Id, ["source_hash"] = parcelSource.SourceHash,
+                    ["input_hash"] = parcelSource.InputHash, ["geometry_hash"] = parcelSource.Catalogue().Hash,
+                    ["item_hash"] = WordboundIdentity.Sha256(parcelSource.Items.text),
+                    ["rule_hash"] = WordboundIdentity.Sha256(parcelSource.RuleBook.text) });
+                context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: the installed saved Parcel Service course in Time Run and Freestyle. Exact source/profile memory, Single runner, fresh render frames and borrowed device checks. No physical-input, full-finish, network, bot, team or Workshop acceptance claim.");
+            }
+            else
             context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: installed Lost Address in two modes, plus the separate furnished Parcel Hall in Freestyle. No physical-input, full-finish, network, bot or team acceptance claim.");
-            yield return Shot(context, "solo_initial_lobby");
+            yield return Shot(context, parcelServiceOnly ? "parcel_service_initial_lobby" : "solo_initial_lobby");
             VerifyPreserved(context);
         }
 
         IEnumerator Run(QaContext context, string mode, string soloMap = WordboundSoloEntry.LostAddressMap)
         {
-            string tag = (soloMap == WordboundSoloEntry.ParcelHallMap ? "parcelhall_" : "") + mode.ToLowerInvariant();
+            bool parcelService = soloMap == WordboundSoloEntry.ParcelServiceMap;
+            string tag = (parcelService ? "parcelservice_" : soloMap == WordboundSoloEntry.ParcelHallMap ? "parcelhall_" : "") + mode.ToLowerInvariant();
             var menu = LobbyMenu.Instance;
             Require(menu && menu.PartySize == 1, "The single local human must remain available.");
             Submit(menu.transform.Find("Safe area/Top bar"), "PLAY");
@@ -100,8 +139,11 @@ namespace Wreckabulary.Qa
                 !Object.FindFirstObjectByType<WordboundMatchClient>(), "Solo must not create a party or Workshop.");
             var course = Read<ResolvedCourse>(hud, "course");
             var data = Resources.Load<GameData>(GameData.ResourcePath);
-            var installed = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, course.Seed, soloMap);
-            string expectedId = soloMap == WordboundSoloEntry.ParcelHallMap ? WordboundArrivalVariant.CourseId : WordboundFlagshipContent.CourseId;
+            var installed = parcelService
+                ? WordboundLauncher.CreateSoloContent(null, null, mode, course.Seed, soloMap, parcelSource)
+                : WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, course.Seed, soloMap);
+            string expectedId = parcelService ? WordboundSoloEntry.ParcelServiceCourseId :
+                soloMap == WordboundSoloEntry.ParcelHallMap ? WordboundArrivalVariant.CourseId : WordboundFlagshipContent.CourseId;
             Require(course.CopyDocument().Id == expectedId && course.SourceHash == installed.Course.SourceHash &&
                 course.Hash == installed.Course.Hash && gameplay.CourseWorld.ManifestHash == installed.Course.Hash &&
                 gameplay.Frame.Binding.CatalogueHash == installed.CatalogueHash &&
@@ -109,6 +151,40 @@ namespace Wreckabulary.Qa
             if (soloMap == WordboundSoloEntry.ParcelHallMap)
                 Require(course.CopyDocument().Zones.Count(zone => zone.Id.StartsWith("Arrival_", StringComparison.Ordinal)) == WordboundArrivalVariant.FurnitureCount,
                     "Parcel Hall must include the complete real furniture arrangement.");
+            if (parcelService)
+            {
+                Require(course.CopyDocument().PhysicalSites.Count == 6 && gameplay.Frame.Progress.Players.Count == 1 &&
+                    gameplay.Frame.Progress.Result == null && Read<ModeDefinition>(hud, "mode").Id == mode,
+                    "Parcel Service must contain six physical sites, one human and no fabricated result.");
+                var saved = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
+                Require(saved && ReferenceEquals(saved.ParcelServiceCourse, parcelSource) &&
+                    course.SourceHash == parcelSource.SourceHash && installed.Geometry.Hash == parcelSource.Catalogue().Hash,
+                    "Parcel Service changed or replaced the explicit saved source.");
+                var authored = installed as WordboundAuthoredPuzzleContent;
+                Require(authored != null && authored.ItemSourceHash == WordboundIdentity.Sha256(parcelSource.Items.text) &&
+                    authored.RuleSourceHash == WordboundIdentity.Sha256(parcelSource.RuleBook.text),
+                    "Parcel Service did not bind its exact saved item and rule bytes.");
+                installed.Validate(gameplay.Frame.Binding, Read<Wreckabulary.Rules.GameRules>(gameplay, "rules"));
+                var artwork = client.GetComponent<WordboundGameplayPresentation>();
+                var cameraProfile = parcelSource.CameraProfile ? parcelSource.CameraProfile : saved.CameraProfile;
+                var visualProfile = parcelSource.VisualProfile ? parcelSource.VisualProfile : saved.VisualProfile;
+                Require(ReferenceEquals(view.Profile, cameraProfile) && artwork &&
+                    ReferenceEquals(artwork.ArtworkResolver.Profile, visualProfile),
+                    "Parcel Service did not use the assigned course camera/visual profiles or their launch fallback.");
+                Require(Object.FindObjectsByType<WordboundLocalMatchClient>(FindObjectsSortMode.None).Length == 1 &&
+                    !ReferenceEquals(client, previousParcelClient) && !ReferenceEquals(view.Camera, previousParcelCamera),
+                    "Each Parcel Service mode requires exactly one fresh local client and camera.");
+                previousParcelClient = client; previousParcelCamera = view.Camera;
+                context.Note("parcel_service_binding_" + tag, new Dictionary<string, object> {
+                    ["course_id"] = expectedId, ["source_hash"] = course.SourceHash,
+                    ["manifest_hash"] = course.Hash, ["catalogue_hash"] = gameplay.Frame.Binding.CatalogueHash,
+                    ["geometry_hash"] = installed.Geometry.Hash, ["item_hash"] = authored.ItemSourceHash,
+                    ["rule_hash"] = authored.RuleSourceHash, ["effective_rules_hash"] = authored.EffectiveRulesHash,
+                    ["camera_profile"] = cameraProfile ? cameraProfile.name : "default",
+                    ["visual_profile"] = visualProfile ? visualProfile.name : "default",
+                    ["fresh_client_and_camera"] = true });
+            }
+            else
             Require(course.CopyDocument().PhysicalSites.Count == 72 && gameplay.Frame.Progress.Players.Count == 1 &&
                 gameplay.Frame.Progress.Result == null && Read<ModeDefinition>(hud, "mode").Id == mode, "Unexpected local content, seats or fabricated result.");
             Require(Read<string>(hud, "returnLabel") == "Return to lobby", "The normal play HUD has a Workshop return label.");
@@ -310,6 +386,12 @@ namespace Wreckabulary.Qa
             Require(LobbyThemes.Current.Id == originalTheme, "The selected original theme changed.");
             foreach (var pair in sourceMemory) Require(pair.Key && JsonUtility.ToJson(pair.Key) == pair.Value, "An installed launch/content/profile object changed.");
             foreach (var pair in sourceText) Require(pair.Key && pair.Key.text == pair.Value, "Installed item or rule bytes changed.");
+            if (parcelServiceOnly)
+            {
+                var assets = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
+                Require(assets && ReferenceEquals(assets.ParcelServiceCourse, parcelSource), "The installed Parcel Service assignment changed.");
+                context.Note("parcel_service_saved_source_memory_preserved", true);
+            }
             context.Note("solo_source_preferences_preserved", true);
         }
         static T Read<T>(object owner, string name) => (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);

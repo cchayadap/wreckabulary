@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-28T19:46:13.890180+00:00",
+  "manifests": {
+    "practice-selection": "e607725b55a00e074ad3ef67ec66a0e64cf6914643222332756d4a92ef9ded12",
+    "physical-play": "73266d437e28c4231834460bd03089b348b12433418d71cc2de411e8b17e7560",
+    "windows-qa": "1c3c31006970f226dc87ce70559c6e204289a0d591ef963a6104dd2c4c778094"
+  },
+  "files": [
+    "Assets/_Project/Scripts/Online/Presentation/WordboundPracticeGuidePlan.cs",
+    "Assets/_Project/Scripts/Online/Presentation/Tests/WordboundPuzzleGuidePlanTests.cs",
+    "Assets/_Project/Tests/OfflineGameplay/Authoring/WordboundNativeParcelServiceTests.cs",
+    "Assets/_Project/Scripts/WordboundQa/WordboundSoloQa.cs",
+    "Assets/_Project/Scripts/WordboundQa/Wreckabulary.Wordbound.Qa.asmdef"
+  ]
+}

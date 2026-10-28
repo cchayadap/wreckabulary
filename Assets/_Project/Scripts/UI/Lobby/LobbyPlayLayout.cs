@@ -13,6 +13,8 @@ namespace Wreckabulary
         public Sprite LostAddressPreview;
         [Tooltip("Actual Parcel Hall course preview. Leave empty to use the original object artwork.")]
         public Sprite ParcelHallPreview;
+        [Tooltip("Actual Parcel Service course preview. Leave empty to show a neutral map symbol.")]
+        public Sprite ParcelServicePreview;
         [Tooltip("Responsive maximum for Wordbound solo and map-creator pages. The full house page keeps its authored anchors.")]
         public Vector2 CompactMaximum = new Vector2(1100, 600);
 

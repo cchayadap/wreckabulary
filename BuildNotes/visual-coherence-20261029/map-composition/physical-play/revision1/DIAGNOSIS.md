@@ -1,0 +1,7 @@
+STATUS: FROZEN SOURCE CHECKED, NATIVE RERUN PENDING — bounded test repair only; no production/native writes.
+
+Official `TestResults/editmode_20261028T194837Z.xml` records 0/2 tests passed. Both started the local client while `Application.isPlaying` was false, then GraphicsOptions correctly rejected DontDestroyOnLoad for the Look object. The nested Start coroutine's EnterPlayMode instruction did not enter Play Mode in this EditMode runner. Teardown then used delayed Destroy in Edit Mode and incorrectly treated zero movement reads after failed startup as source-byte corruption.
+
+Repair: move EnterPlayMode directly into each UnityTest's root enumerator, explicitly assert Play Mode before any client creation; keep the startup helper restricted to an already-running Play session. Separate source preservation from success-only movement/progression evidence. Destroy fixture-owned transient objects immediately only when cleanup is in Edit Mode, with a persistent-asset refusal guard. Preserve all gameplay, socket, source-byte, authority, result and world cleanup assertions.
+
+Roslyn semantic check: 3 sources, 315 references, zero errors. `git apply --check` passed. Exact native filter and opt-in are unchanged: `Wreckabulary.OfflineGameplayTests.WordboundNativeParcelServiceTests`, `WORDBOUND_LOCAL_PARCEL=1`. Root alone runs the official gate. No previously failed native claim is relabelled as a pass.

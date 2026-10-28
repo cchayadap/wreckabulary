@@ -162,6 +162,90 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void PracticeCandidateAdvancesThroughColocatedLapSitesAsTheirReadModelCompletes()
+        {
+            var practice = ParcelPracticeCourse();
+            var sites = practice.PhysicalSites.Where(s => s.PuzzleId == "SortingBench")
+                .OrderBy(s => s.Hash, StringComparer.Ordinal).ToArray();
+            Assert.AreEqual(3, sites.Length);
+            Assert.IsTrue(sites.All(s => s.Position.Equals(sites[0].Position)));
+            var position = Metres(sites[0].Position);
+            for (int completed = 0; completed < sites.Length; completed++)
+            {
+                var frame = PracticeReadModel(practice, position, sites.Take(completed).Select(s => s.Hash).ToArray());
+                var next = WordboundPracticeGuidePlan.Nearest(practice, frame, "a");
+                Assert.AreEqual(sites[completed].Hash, next.Hash);
+                Assert.IsFalse(WordboundPracticeGuidePlan.Completed(frame, next));
+                Assert.AreNotEqual(frame.Practice.SiteHash, next.Hash);
+                Assert.AreEqual("Practice this station", WordboundPracticeGuidePlan.Status(frame, next));
+                Assert.IsTrue(WordboundPracticeGuidePlan.Build(practice, frame, "a")
+                    .Any(m => m.Id == "practice:" + next.Hash && m.Ready));
+            }
+            var allHereDone = PracticeReadModel(practice, position, sites.Select(s => s.Hash).ToArray());
+            var completedFallback = WordboundPracticeGuidePlan.Nearest(practice, allHereDone, "a");
+            Assert.AreEqual(sites[0].Hash, completedFallback.Hash);
+            Assert.IsTrue(WordboundPracticeGuidePlan.Completed(allHereDone, completedFallback));
+            StringAssert.StartsWith("Completed this session", WordboundPracticeGuidePlan.Status(allHereDone, completedFallback));
+        }
+
+        [Test]
+        public void PracticeSelectionStaysInRangeAndFallsBackOnlyWhenThatRangeIsComplete()
+        {
+            var practice = ParcelPracticeCourse();
+            var sorting = practice.PhysicalSites.Where(s => s.PuzzleId == "SortingBench")
+                .OrderBy(s => s.Hash, StringComparer.Ordinal).ToArray();
+            var dispatch = practice.PhysicalSites.Where(s => s.PuzzleId == "DispatchStand")
+                .OrderBy(s => s.Hash, StringComparer.Ordinal).ToArray();
+            var position = Metres(sorting[0].Position);
+            var frame = PracticeReadModel(practice, position, sorting.Select(s => s.Hash).ToArray());
+            Assert.AreEqual(sorting[0].Hash, WordboundPracticeGuidePlan.Nearest(practice, frame, "a", 3).Hash);
+            Assert.AreEqual(dispatch[0].Hash, WordboundPracticeGuidePlan.Nearest(practice, frame, "a", 20).Hash);
+            var allDone = PracticeReadModel(practice, position, practice.PhysicalSites.Select(s => s.Hash).ToArray());
+            Assert.AreEqual(sorting[0].Hash, WordboundPracticeGuidePlan.Nearest(practice, allDone, "a", 20).Hash);
+            Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice,
+                PracticeReadModel(practice, new WorldVector(-3, 0, -3)), "a", .1f));
+        }
+
+        [Test]
+        public void PracticeCandidateRetainsIdentityActorAndRangeGuards()
+        {
+            var practice = ParcelPracticeCourse(); var position = Metres(practice.PhysicalSites[0].Position);
+            var frame = PracticeReadModel(practice, position);
+            Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice, frame, "outsider"));
+            Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice, frame, "a", float.NaN));
+            Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice, frame, "a", -1));
+            Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice, frame, "a", 31));
+            Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice, PracticeReadModel(practice, position, stale: true), "a"));
+            Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice, PracticeReadModel(practice, position, active: false), "a"));
+            Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice, PracticeReadModel(practice, position, disconnected: true), "a"));
+        }
+
+        static ResolvedCourse ParcelPracticeCourse()
+        {
+            var factory = WordboundParcelServiceContent.Create(Items());
+            var result = factory.Resolve("0123456789abcdef", MatchStateValidation.Requirements(ModeDefinition.For("Freestyle")));
+            Assert.IsTrue(result.Success, string.Join("\n", result.Issues)); return result.Manifest;
+        }
+
+        static WorldVector Metres(CoursePoint position) => new WorldVector(position.X / 1000f, position.Y / 1000f, position.Z / 1000f);
+
+        static MatchSnapshot PracticeReadModel(ResolvedCourse practice, WorldVector position, string[] completed = null,
+            bool stale = false, bool active = true, bool disconnected = false)
+        {
+            completed ??= Array.Empty<string>();
+            var practiceMode = ModeDefinition.For("Freestyle"); var seats = new[] { new WordboundSeat("a", 0, 0) };
+            var state = Progress(practice, practiceMode); if (disconnected) state.Disconnect("a", 1);
+            var binding = new MatchBinding("practice-guide", MatchSnapshotCodec.ProtocolVersion, practiceMode.Hash,
+                stale ? new string('c', 64) : practice.SourceHash, practice.Hash, new string('a', 64), new string('b', 64), seats);
+            return new MatchSnapshot(binding, 0, 1, 1, state.Capture(), new Economy(Items(), new GameRules()).Capture(),
+                new CommandJournal(binding.Hash, seats.Select(s => s.PlayerId)).Capture(), Array.Empty<MatchActorState>(),
+                new[] { new WorldBodyState("player:0", WorldBodyKind.Player, position, sourceId: "a", active: active) },
+                Array.Empty<MatchResourceState>(), practice.PhysicalSites.Select(s =>
+                    new MatchMechanismState(s.PuzzleId, 0, s.Lap - 1, completed.Contains(s.Hash))),
+                Array.Empty<MatchRandomState>(), Array.Empty<string>());
+        }
+
+        [Test]
         public void SnapshotOverloadRejectsDifferentManifestSourceAndRoster()
         {
             var seats = new[] { new WordboundSeat("a", 0, 0), new WordboundSeat("b", 1, 0) };

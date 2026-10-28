@@ -558,6 +558,51 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator ParcelServiceChoiceUsesAnOptionalRealPreviewAndStaysReachableOnShortFrames()
+        {
+            var profile = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
+            var old = profile.ParcelServicePreview;
+            var texture = new Texture2D(128, 64);
+            var preview = Sprite.Create(texture, new Rect(0, 0, 128, 64), new Vector2(.5f, .5f));
+            try
+            {
+                profile.ParcelServicePreview = null;
+                var menu = LobbyMenu.Instance;
+                menu.Choose(LobbyMenu.Practice, "Duos", "flat"); menu.Open(LobbyMenu.Play);
+                var bindings = Session.Bindings.ToArray();
+                Submit("Family Wordbound"); yield return null;
+                Page.anchorMin = Page.anchorMax = Vector2.zero; Page.sizeDelta = new Vector2(900, 580);
+                yield return null; yield return null; Canvas.ForceUpdateCanvases();
+                var frame = Page.GetComponentInChildren<LobbyPlayPageView>();
+                var footer = InPage((RectTransform)Find("Solo GO").transform);
+                var card = Find("Solo map ParcelService");
+                Assert.IsFalse(card.GetComponentsInChildren<RawImage>().Any(), "A missing map preview must not pretend an item is the map.");
+                Assert.IsFalse(card.GetComponentsInChildren<Image>().Any(image => image.name == "Map preview"));
+                Submit("Solo map ParcelService"); yield return null; yield return null;
+                Canvas.ForceUpdateCanvases();
+                card = Find("Solo map ParcelService");
+                var scroll = Page.GetComponentInChildren<LobbyPlayPageView>().Choices.GetComponentInChildren<ScrollRect>();
+                var shown = InPage((RectTransform)card.transform); var viewport = InPage(scroll.viewport);
+                Assert.GreaterOrEqual(shown.yMin, viewport.yMin - .5f);
+                Assert.LessOrEqual(shown.yMax, viewport.yMax + .5f);
+                AssertSameBounds(footer, InPage((RectTransform)Find("Solo GO").transform), "Third map focus cannot move Play.");
+                Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap);
+                Assert.AreEqual("Solo map ParcelService", EventSystem.current.currentSelectedGameObject.name);
+                profile.ParcelServicePreview = preview; menu.Open(LobbyMenu.Play); yield return null;
+                Canvas.ForceUpdateCanvases(); AssertSoloPreview("ParcelService", preview);
+                Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
+                CollectionAssert.AreEqual(bindings, Session.Bindings);
+                WordboundSoloEntry.Clear(); Assert.AreEqual(WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.SelectedMap);
+            }
+            finally
+            {
+                profile.ParcelServicePreview = old;
+                UnityEngine.Object.DestroyImmediate(preview); UnityEngine.Object.DestroyImmediate(texture);
+                WordboundSoloEntry.Clear();
+            }
+        }
+
+        [UnityTest]
         public IEnumerator SoloMapPreviewsKeepSelectionAndFallBackIndependently()
         {
             var profile = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
@@ -651,7 +696,7 @@ namespace Wreckabulary.Tests
             CollectionAssert.AreEqual(new[] { "Solo TimeRun", "Solo Freestyle" },
                 Page.GetComponentsInChildren<Button>().Where(button => button.name == "Solo TimeRun" || button.name == "Solo Freestyle")
                     .Select(button => button.name).ToArray());
-            CollectionAssert.AreEqual(new[] { "Solo map LostAddress", "Solo map ParcelHall" },
+            CollectionAssert.AreEqual(new[] { "Solo map LostAddress", "Solo map ParcelHall", "Solo map ParcelService" },
                 Page.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Solo map "))
                     .Select(button => button.name).ToArray());
             Submit("Solo map ParcelHall");

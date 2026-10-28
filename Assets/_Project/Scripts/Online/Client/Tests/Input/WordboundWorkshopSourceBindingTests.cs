@@ -118,6 +118,150 @@ namespace Wreckabulary.Online.Tests
             Assert.AreSame(custom, workshop.SpawnAssetVisual);
         }
 
+        [TestCase("TimeRun")]
+        [TestCase("Freestyle")]
+        public void ParcelServiceUsesExactSavedEditsWithoutMutatingItsSourceOrReplacingMissingContent(string mode)
+        {
+            var data = Resources.Load<GameData>(GameData.ResourcePath);
+            var preset = WorkshopTemplates.Create(WorkshopTemplate.RaceCircuit);
+            var draft = preset.Snapshot.Edit(); WorkshopModes.EnableFreestyleSandbox(draft);
+            draft.Course.Id = WordboundSoloEntry.ParcelServiceCourseId; draft.Course.Title = "Owner-edited parcel office";
+            var authored = ScriptableObject.CreateInstance<WordboundCourseAsset>();
+            var items = new TextAsset(data.items.text + "\n"); var rules = new TextAsset(data.rules.text + "\n");
+            try
+            {
+                authored.Initialize(draft.Course, preset.Catalogue); authored.Items = items; authored.RuleBook = rules;
+                authored.ModeId = "Freestyle"; authored.Seed = "fedcba9876543210";
+                string before = EditorJsonUtility.ToJson(authored); const string seed = "0000000000000001";
+                var content = WordboundLauncher.CreateSoloContent("unused default items", "unused default rules", mode, seed,
+                    WordboundSoloEntry.ParcelServiceMap, authored);
+                Assert.AreEqual(authored.SourceHash, content.Course.SourceHash);
+                Assert.AreEqual("Owner-edited parcel office", content.Course.CopyDocument().Title);
+                Assert.AreEqual(seed, content.Course.Seed); Assert.AreEqual(mode, content.Mode.Id);
+                Assert.AreEqual(WordboundIdentity.Sha256(items.text), ((WordboundAuthoredPuzzleContent)content).ItemSourceHash);
+                Assert.AreEqual(WordboundIdentity.Sha256(rules.text), ((WordboundAuthoredPuzzleContent)content).RuleSourceHash);
+                Assert.AreEqual(before, EditorJsonUtility.ToJson(authored));
+                var again = WordboundLauncher.CreateSoloContent(null, null, mode, seed, WordboundSoloEntry.ParcelServiceMap, authored);
+                Assert.AreEqual(content.Course.Hash, again.Course.Hash);
+                var edited = authored.ReadDocument(); edited.Title = "Second saved edit"; authored.SaveDocument(edited);
+                var next = WordboundLauncher.CreateSoloContent(null, null, mode, seed, WordboundSoloEntry.ParcelServiceMap, authored);
+                Assert.AreNotEqual(content.Course.SourceHash, next.Course.SourceHash);
+                Assert.AreEqual("Second saved edit", next.Course.CopyDocument().Title);
+                Assert.Throws<ArgumentException>(() => WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text,
+                    mode, seed, WordboundSoloEntry.ParcelServiceMap));
+                authored.Items = null;
+                Assert.Throws<ArgumentException>(() => WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text,
+                    mode, seed, WordboundSoloEntry.ParcelServiceMap, authored));
+                authored.Items = items; edited.Id = "wrong-course"; authored.SaveDocument(edited);
+                Assert.Throws<ArgumentException>(() => WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text,
+                    mode, seed, WordboundSoloEntry.ParcelServiceMap, authored));
+                var oldDefault = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, seed);
+                var oldWithUnusedAssignment = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, seed,
+                    WordboundSoloEntry.LostAddressMap, authored);
+                Assert.AreEqual(oldDefault.Course.Hash, oldWithUnusedAssignment.Course.Hash);
+                Assert.AreEqual(WordboundFlagshipContent.CourseId, oldDefault.Course.CopyDocument().Id);
+            }
+            finally { Object.DestroyImmediate(authored); Object.DestroyImmediate(items); Object.DestroyImmediate(rules); }
+        }
+
+        WordboundCourseAsset ConfigureParcelSource()
+        {
+            var parcel = Make<WordboundCourseAsset>();
+            var preset = WordboundParcelServiceContent.Create(Wreckabulary.Rules.ItemCatalogue.FromJson(globalItems));
+            var document = preset.CopyDocument(); document.Title = "Saved Parcel Service";
+            parcel.Initialize(document, preset.Geometry); parcel.Seed = "a1234567890bcdef"; parcel.ModeId = "TimeRun";
+            parcel.Items = Text(globalItems + "\n\n"); parcel.RuleBook = Text(globalRules + "\n\n");
+            parcel.CameraProfile = Make<WordboundCameraProfile>(); parcel.VisualProfile = Make<WordboundVisualProfile>();
+            launch.ParcelServiceCourse = parcel;
+            Invoke(launcher, "ConfigureWorkshopSources", assigned);
+            return parcel;
+        }
+
+        [Test]
+        public void ParcelSourceRetainsItsOwnInputsHistoryModeAndAutosaveAcrossOtherSources()
+        {
+            var parcel = ConfigureParcelSource();
+            string savedSource = EditorJsonUtility.ToJson(parcel);
+            OpenAssigned();
+            var assignedHistory = workshop.History;
+            assignedHistory.Execute("Assigned edit", d => d.Course.Title = "Keep assigned edit");
+            var factory = workshop.SpawnAssetVisual; int parcelCalls = 0;
+            workshop.SpawnAssetVisual = (id, parent) => {
+                if (workshop.UsesParcelService)
+                {
+                    parcelCalls++; Assert.IsFalse(workshop.UsesAssignedCourse);
+                    AssertInputs(parcel.Items.text, parcel.RuleBook.text, parcel.CameraProfile, parcel.VisualProfile);
+                }
+                return factory(id, parent);
+            };
+            workshop.OpenParcelService(); Assert.Greater(parcelCalls, 0);
+            var parcelHistory = workshop.History;
+            Assert.AreNotSame(assignedHistory, parcelHistory); Assert.AreEqual(parcel.Seed, parcelHistory.Current.Seed);
+            parcelHistory.Execute("Parcel edit", d => { d.Course.Title = "Keep parcel edit"; d.Seed = "1234567890abcdef"; });
+            parcelHistory.Select(new[] { parcelHistory.Current.Course().Modules.First().Id });
+            workshop.SelectMode("Freestyle"); var parcelMode = workshop.PlayRequirements;
+            parcelHistory.Execute("Redo marker", d => d.Course.Title = "Redo parcel edit");
+            Assert.IsTrue(parcelHistory.Undo()); Assert.IsTrue(parcelHistory.CanRedo);
+            string retained = parcelHistory.Current.RecoveryJson;
+            workshop.OpenAssignedCourse(); Assert.AreSame(assignedHistory, workshop.History);
+            AssertInputs(assignedItems, assignedRules, assigned.CameraProfile, assigned.VisualProfile);
+            Assert.AreEqual("Keep assigned edit", workshop.History.Current.Course().Title);
+            byte[] assignedBytes = File.ReadAllBytes(Path.Combine(folder, assigned.ReadDocument().Id + ".autosave.json"));
+            workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld); var templateHistory = workshop.History;
+            templateHistory.Execute("Template edit", d => d.Course.Title = "Keep template edit");
+            workshop.OpenFlagship(WordboundFlagshipContent.Create(Wreckabulary.Rules.ItemCatalogue.FromJson(globalItems)));
+            var flagshipHistory = workshop.History;
+            Assert.IsFalse(workshop.UsesParcelService); Assert.IsFalse(workshop.UsesAssignedCourse);
+            AssertInputs(globalItems, globalRules, launch.CameraProfile, launch.VisualProfile);
+            workshop.OpenParcelService(); Assert.AreSame(parcelHistory, workshop.History); Assert.AreSame(parcelMode, workshop.PlayRequirements);
+            Assert.AreEqual(retained, workshop.History.Current.RecoveryJson); Assert.IsTrue(workshop.History.Redo());
+            Assert.AreEqual("Redo parcel edit", workshop.History.Current.Course().Title);
+            workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld); Assert.AreSame(templateHistory, workshop.History);
+            workshop.OpenFlagship(WordboundFlagshipContent.Create(Wreckabulary.Rules.ItemCatalogue.FromJson(globalItems)));
+            Assert.AreSame(flagshipHistory, workshop.History);
+            var scoped = new WorkshopStorage(Path.Combine(folder, "local-courses", "ParcelServiceV1"));
+            var recovered = scoped.Recover(WordboundSoloEntry.ParcelServiceCourseId, out _);
+            Assert.AreEqual("Redo parcel edit", recovered.Course().Title); Assert.AreEqual("1234567890abcdef", recovered.Seed);
+            CollectionAssert.AreEqual(assignedBytes, File.ReadAllBytes(Path.Combine(folder, assigned.ReadDocument().Id + ".autosave.json")));
+            Assert.AreEqual(savedSource, EditorJsonUtility.ToJson(parcel));
+        }
+
+        [Test]
+        public void ParcelSourceFailsExplicitlyWhenMissingOrReboundAndHonoursOnlineSourceLock()
+        {
+            Assert.IsFalse(workshop.HasParcelService); Assert.Throws<InvalidOperationException>(() => workshop.OpenParcelService());
+            var parcel = ConfigureParcelSource(); OpenAssigned();
+            var before = workshop.History; Invoke(workshop, "QueueSourceChoice", 6);
+            typeof(WordboundWorkshop).GetProperty("OnlineStarting").GetSetMethod(true).Invoke(workshop, new object[] { true });
+            try
+            {
+                Assert.Throws<InvalidOperationException>(() => workshop.OpenParcelService());
+                Invoke(workshop, "ProcessSourceChoice", true); Assert.AreSame(before, workshop.History);
+            }
+            finally { typeof(WordboundWorkshop).GetProperty("OnlineStarting").GetSetMethod(true).Invoke(workshop, new object[] { false }); }
+            workshop.OpenParcelService();
+            var history = workshop.History; var changed = parcel.ReadDocument(); changed.Title = "Changed source";
+            Assert.Throws<InvalidOperationException>(() => workshop.ConfigureParcelService(changed, parcel.Catalogue(),
+                MatchStateValidation.Requirements(ModeDefinition.For("TimeRun")), parcel.Seed));
+            Assert.AreSame(history, workshop.History);
+            Set(launcher, "parcelServiceWorkshopInputs", null);
+            Assert.Throws<InvalidOperationException>(() => Inputs());
+        }
+
+        [Test]
+        public void InvalidParcelAssignmentDoesNotBlockTheExistingAssignedOrTemplateSources()
+        {
+            var invalid = Make<WordboundCourseAsset>(); launch.ParcelServiceCourse = invalid;
+            Assert.DoesNotThrow(() => Invoke(launcher, "ConfigureWorkshopSources", assigned));
+            OpenAssigned(); var before = workshop.History;
+            Assert.IsTrue(workshop.HasParcelService);
+            Assert.Throws<InvalidOperationException>(() => workshop.OpenParcelService());
+            Assert.AreSame(before, workshop.History); Assert.IsTrue(workshop.UsesAssignedCourse);
+            AssertInputs(assignedItems, assignedRules, assigned.CameraProfile, assigned.VisualProfile);
+            workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld);
+            AssertInputs(globalItems, globalRules, launch.CameraProfile, launch.VisualProfile);
+        }
+
         [Test]
         public void AssignedAndTemplateRetainIndependentHistorySelectionSeedAndRedo()
         {
@@ -478,3 +622,4 @@ namespace Wreckabulary.Online.Tests
         }
     }
 }
+

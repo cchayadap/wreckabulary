@@ -144,9 +144,10 @@ namespace Wreckabulary
                 if (WordboundSoloEntry.SelectedMode == mode) First = card;
             }
             LobbyKit.SectionLabel(column, "Map");
-            var maps = Cards(column, "Solo maps", 300, HouseSize.y, 2);
+            var maps = Cards(column, "Solo maps", 300, HouseSize.y, 3);
             SoloMapCard(maps, WordboundSoloEntry.LostAddressMap, "Lost Address", "Original course", "BOX", LobbyKit.Sun);
             SoloMapCard(maps, WordboundSoloEntry.ParcelHallMap, "Parcel Hall", "Furnished hall", "TABLE", LobbyKit.Lime);
+            SoloMapCard(maps, WordboundSoloEntry.ParcelServiceMap, "Parcel Service", "Three-room office", null, LobbyKit.Cyan);
             var bar = SummaryFrame(body, "Solo summary");
             SummaryLine(bar);
             string blocked = Menu.PartySize != 1 ? "Solo only. Leave extra local seats to start." :
@@ -321,6 +322,7 @@ namespace Wreckabulary
             {
                 WordboundSoloEntry.LostAddressMap => playLayout.LostAddressPreview,
                 WordboundSoloEntry.ParcelHallMap => playLayout.ParcelHallPreview,
+                WordboundSoloEntry.ParcelServiceMap => playLayout.ParcelServicePreview,
                 _ => null,
             };
             if (preview)
@@ -330,6 +332,9 @@ namespace Wreckabulary
                 art.sprite = preview; art.preserveAspect = true; art.color = Color.white; art.raycastTarget = false;
                 art.transform.SetAsFirstSibling();
             }
+            else if (artId == null)
+                LobbyKit.Icon(card.Body(), LobbyIcons.Layers, LobbyKit.Cyan).rectTransform
+                    .Pin(new Vector2(.5f, 1), new Vector2(0, -28), new Vector2(136, 136));
             else
             {
                 var art = LobbyKit.ItemImage(card.Body(), artId, 184);

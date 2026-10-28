@@ -1,0 +1,10 @@
+{
+  "status": "FROZEN_SOURCE_CHECKED_NATIVE_PENDING",
+  "files": [
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/Authoring/WordboundNativeParcelServiceTests.cs",
+      "baselineSha256": "06d0fb15e613ac3c94b34596ba2055568e1ec9b37a48898939c9b9521cbba033",
+      "candidateSha256": "0505af783ebbeeb16f9a30268b511a138b794000b7a40a487413832661c70024"
+    }
+  ]
+}

@@ -28,7 +28,7 @@ namespace Wreckabulary.Online.Editor
             var data = Resources.Load<GameData>(GameData.ResourcePath);
             var launch = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
             if (!data || !data.items || !data.rules || !launch || !launch.VisualProfile) throw new InvalidOperationException("Installed Solo inputs are missing.");
-            Content = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, settings.Mode, settings.Seed, map);
+            Content = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, settings.Mode, settings.Seed, map, launch.ParcelServiceCourse);
             var pose = settings.Pose(map);
             Center = Metres(Content.Course.Geometry.Single(m => m.Id == pose.Module).Position);
             try
@@ -38,7 +38,9 @@ namespace Wreckabulary.Online.Editor
                 root = EditorUtility.CreateGameObjectWithHideFlags("Installed Solo thumbnail " + map, HideFlags.HideAndDontSave);
                 SceneManager.MoveGameObjectToScene(root, scene);
                 World = WordboundCourseWorld.Build(Content.Course, Content.Geometry, root.transform);
-                var resolver = new WordboundVisualResolver(Content.Items, profile: launch.VisualProfile);
+                var visualProfile = map == WordboundSoloEntry.ParcelServiceMap && launch.ParcelServiceCourse.VisualProfile
+                    ? launch.ParcelServiceCourse.VisualProfile : launch.VisualProfile;
+                var resolver = new WordboundVisualResolver(Content.Items, profile: visualProfile);
                 foreach (var placement in Content.Course.Placements)
                 {
                     var definition = Content.Geometry.Assets[placement.AssetId];

@@ -14,7 +14,7 @@ namespace Wreckabulary.Online
             public WordboundVisualProfile Visual;
         }
 
-        WorkshopInputs assignedWorkshopInputs;
+        WorkshopInputs assignedWorkshopInputs, parcelServiceWorkshopInputs;
         WordboundVisualResolver workshopVisuals;
         string workshopVisualItems;
         WordboundVisualProfile workshopVisualProfile;
@@ -25,6 +25,26 @@ namespace Wreckabulary.Online
             var flagship = WordboundFlagshipContent.Create(ItemCatalogue.FromJson(itemJson));
             workshop.ConfigureFlagship(flagship);
             BindAssignedWorkshopSource(source);
+            var parcel = Assets ? Assets.ParcelServiceCourse : null;
+            if (parcel)
+            {
+                try
+                {
+                    if (!parcel.Items || !parcel.RuleBook)
+                        throw new ArgumentException("Assign Parcel Service's item catalogue and rule book before opening this source.");
+                    parcel.CameraProfile?.Validate(); parcel.VisualProfile?.Validate();
+                    var geometry = parcel.Catalogue();
+                    var captured = new WorkshopInputs { Items = parcel.Items.text, Rules = parcel.RuleBook.text,
+                        GeometryHash = geometry.Hash, Camera = parcel.CameraProfile, Visual = parcel.VisualProfile };
+                    workshop.ConfigureParcelService(parcel.ReadDocument(), geometry,
+                        MatchStateValidation.Requirements(ModeDefinition.For(parcel.ModeId, parcel.Format)), parcel.Seed);
+                    parcelServiceWorkshopInputs = captured;
+                }
+                catch (Exception error) when (error is ArgumentException || error is InvalidOperationException)
+                {
+                    workshop.ConfigureParcelServiceUnavailable("Parcel Service is unavailable: " + error.Message);
+                }
+            }
             workshop.SpawnAssetVisual ??= CreateWorkshopVisual;
             return flagship;
         }
@@ -59,6 +79,17 @@ namespace Wreckabulary.Online
         WorkshopInputs InputsForWorkshop()
         {
             if (!workshop) throw new InvalidOperationException("Open the workshop before choosing playtest inputs.");
+            if (workshop.UsesParcelService)
+            {
+                if (parcelServiceWorkshopInputs == null || parcelServiceWorkshopInputs.GeometryHash != workshop.Catalogue.Hash)
+                    throw new InvalidOperationException("The Parcel Service draft does not match its captured course inputs.");
+                return new WorkshopInputs {
+                    Items = parcelServiceWorkshopInputs.Items, Rules = parcelServiceWorkshopInputs.Rules,
+                    GeometryHash = parcelServiceWorkshopInputs.GeometryHash,
+                    Camera = parcelServiceWorkshopInputs.Camera ? parcelServiceWorkshopInputs.Camera : Assets.CameraProfile,
+                    Visual = parcelServiceWorkshopInputs.Visual ? parcelServiceWorkshopInputs.Visual : Assets.VisualProfile
+                };
+            }
             if (!workshop.UsesAssignedCourse)
                 return new WorkshopInputs { Items = itemJson, Rules = ruleJson, Camera = Assets.CameraProfile, Visual = Assets.VisualProfile };
             if (assignedWorkshopInputs == null || assignedWorkshopInputs.GeometryHash != workshop.Catalogue.Hash)

@@ -1,0 +1,47 @@
+{
+  "kind": "Roslyn C#9 semantic compile of candidate substitutions against current Unity response files; main emitted to memory only; no Unity/native execution",
+  "records": [
+    {
+      "assembly": "Wreckabulary",
+      "sources": 180,
+      "references": 302,
+      "errors": []
+    },
+    {
+      "assembly": "Wreckabulary.Online.Client",
+      "sources": 23,
+      "references": 300,
+      "errors": []
+    },
+    {
+      "assembly": "Wreckabulary.Online.Authoring.Editor",
+      "sources": 20,
+      "references": 314,
+      "errors": []
+    },
+    {
+      "assembly": "Wreckabulary.Editor.Tests",
+      "sources": 44,
+      "references": 302,
+      "errors": []
+    },
+    {
+      "assembly": "Wreckabulary.Online.Client.Input.Tests",
+      "sources": 14,
+      "references": 311,
+      "errors": []
+    },
+    {
+      "assembly": "Wreckabulary.Tests",
+      "sources": 69,
+      "references": 292,
+      "errors": []
+    },
+    {
+      "assembly": "Wreckabulary.Offline.NativeGameplay.Tests",
+      "sources": 7,
+      "references": 316,
+      "errors": []
+    }
+  ]
+}

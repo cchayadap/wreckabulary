@@ -5,6 +5,7 @@
     "Wreckabulary",
     "Wreckabulary.Rules",
     "Wreckabulary.Online.Client",
+    "Wreckabulary.Online.Authoring",
     "Wreckabulary.Online.Gameplay",
     "Wreckabulary.Online.Puzzles",
     "Wreckabulary.Online.Presentation",

@@ -32,7 +32,7 @@ namespace Wreckabulary.Online.Editor
             bool stale = sourceSettings != EditorJsonUtility.ToJson(settings);
             EditorGUILayout.LabelField(map + " · sample seed " + settings.Seed, EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(stale ? "Settings changed. Reopen this map to refresh before saving its camera." :
-                "Actual installed map, static props only. Drag to orbit; scroll to zoom. Save camera then close this window before capturing both images.",
+                "Actual installed map, static props only. Drag to orbit; scroll to zoom. Save camera then close this window before capturing its image.",
                 stale ? MessageType.Warning : MessageType.Info);
             using (new EditorGUI.DisabledScope(stale || EditorApplication.isPlayingOrWillChangePlaymode))
                 if (GUILayout.Button("Save camera to settings"))

@@ -57,7 +57,7 @@ namespace Wreckabulary.Workshop
             History = new WorkshopHistory(new WorkshopSnapshot(course));
             storageFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
             storage = new WorkshopStorage(storageFolder);
-            currentTemplate = null; UsesAssignedCourse = assigned; usesFlagship = false; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
+            currentTemplate = null; UsesAssignedCourse = assigned; UsesParcelService = false; usesFlagship = false; Visible = true; LastPlaytestDraft = null; ResetView(); Refresh(); savedRevision = History.Revision;
         }
         public void OpenTemplate(WorkshopTemplate template, string folder = null)
         {
@@ -267,6 +267,8 @@ namespace Wreckabulary.Workshop
             if (HasAssignedCourse && Button(UsesAssignedCourse ? "● Assigned course" : "Assigned course",
                 "Return to your assigned course, keeping its edits and Undo history.") && !UsesAssignedCourse) QueueSourceChoice(1);
             if (flagshipContent != null && Button(usesFlagship ? "● Flagship draft" : "Flagship draft")) QueueSourceChoice(5);
+            if (HasParcelService && Button(UsesParcelService ? "● Parcel Service" : "Parcel Service",
+                "Open the saved local course copy; Workshop edits and Undo stay separate from Assigned course.") && !UsesParcelService) QueueSourceChoice(6);
             foreach (WorkshopTemplate template in Enum.GetValues(typeof(WorkshopTemplate)))
                 if (Button((currentTemplate == template ? "● " : "") + TemplateLabel(template))) QueueSourceChoice(2 + (int)template);
             }

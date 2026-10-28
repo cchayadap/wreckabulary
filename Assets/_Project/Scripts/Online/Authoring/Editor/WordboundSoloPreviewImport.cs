@@ -14,7 +14,7 @@ namespace Wreckabulary.Online.Editor
     {
         const string Output = "Assets/_Project/UI/Previews/Wordbound";
         const string LayoutPath = "Assets/_Project/Resources/UI/LobbyPlayLayout.asset";
-        static readonly string[] Maps = { WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.ParcelHallMap };
+        static readonly string[] InstalledMaps = { WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.ParcelServiceMap };
 
         [MenuItem("Tools/Wordbound/Presentation/Import reviewed Solo preview receipt")]
         public static void ImportReviewed()
@@ -34,9 +34,15 @@ namespace Wreckabulary.Online.Editor
             WordboundSoloPreviewCapture.Require(File.Exists(path) && new FileInfo(path).Length <= 8 * 1024 * 1024, "Preview receipt is missing or exceeds its size bound.");
             var receipt = JObject.Parse(File.ReadAllText(path));
             WordboundSoloPreviewCapture.Require((int?)receipt["schema"] == 1 && (string)receipt["status"] == "CAPTURED_NOT_VISUALLY_APPROVED" &&
-                receipt["errors"] is JArray errors && errors.Count == 0 && receipt["frames"] is JArray frames && frames.Count == 2 &&
+                receipt["errors"] is JArray errors && errors.Count == 0 && receipt["frames"] is JArray frames && frames.Count >= 1 && frames.Count <= InstalledMaps.Length &&
                 (int?)receipt["width"] == WordboundSoloPreviewCapture.Width && (int?)receipt["height"] == WordboundSoloPreviewCapture.Height,
-                "Only a complete two-frame capture receipt can be imported.");
+                "Only a complete installed-map capture receipt can be imported.");
+            WordboundSoloPreviewCapture.Require(receipt["sets"] is JArray setsRoster && setsRoster.Count == ((JArray)receipt["frames"]).Count, "Capture map/frame roster differs.");
+            var Maps = ((JArray)receipt["sets"]).Select(s => (string)s["map"]).ToArray();
+            WordboundSoloPreviewCapture.Require(Maps.Distinct(StringComparer.Ordinal).Count() == Maps.Length &&
+                Maps.All(m => InstalledMaps.Contains(m)) &&
+                ((JArray)receipt["frames"]).Select(f => (string)f["filename"]).OrderBy(n => n, StringComparer.Ordinal)
+                    .SequenceEqual(Maps.Select(m => m + ".png").OrderBy(n => n, StringComparer.Ordinal)), "Capture contains unknown, duplicated or mismatched map frames.");
             foreach (string field in new[] { "filesPreserved", "memoryPreserved", "scenesPreserved", "globalsPreserved", "tactileReleased", "sourcePreserved" })
                 WordboundSoloPreviewCapture.Require((bool?)receipt[field] == true, "Capture preservation did not pass: " + field);
             WordboundSoloPreviewCapture.Require((string)receipt["sourceFingerprint"] == WordboundSoloPreviewCapture.SourceFingerprint(),
@@ -50,23 +56,30 @@ namespace Wreckabulary.Online.Editor
                     (inputPath.StartsWith("Assets/", StringComparison.Ordinal) || inputPath.StartsWith("ProjectSettings/", StringComparison.Ordinal)), "Invalid recorded project input path.");
                 WordboundSoloPreviewCapture.Require(File.Exists(inputPath) && WordboundSoloPreviewCapture.FileHash(inputPath) == (string)input["before"], "Source input changed after capture: " + inputPath);
                 string dependency = (string)input["dependencyBefore"];
-                if (!string.IsNullOrEmpty(dependency))
-                    WordboundSoloPreviewCapture.Require(AssetDatabase.GetAssetDependencyHash(inputPath).ToString() == dependency, "Source dependency changed after capture: " + inputPath);
+                bool dependencyRequired = inputPath.StartsWith("Assets/", StringComparison.Ordinal) && !inputPath.EndsWith(".meta", StringComparison.Ordinal);
+                WordboundSoloPreviewCapture.Require(dependencyRequired
+                    ? !string.IsNullOrEmpty(dependency) && AssetDatabase.GetAssetDependencyHash(inputPath).ToString() == dependency
+                    : dependency == "", "Source dependency is missing or changed after capture: " + inputPath);
                 var current = AssetDatabase.LoadMainAssetAtPath(inputPath);
                 WordboundSoloPreviewCapture.Require(!current || !EditorUtility.IsDirty(current), "Save source edits and recapture before import: " + inputPath);
             }
             WordboundSoloPreviewCapture.RequireCleanDependencies(((JArray)receipt["inputFacts"]).Select(i => (string)i["path"]));
             var settings = AssetDatabase.LoadAssetAtPath<WordboundSoloPreviewSettings>(WordboundSoloPreviewSettings.Path);
             var data = Resources.Load<GameData>(GameData.ResourcePath);
-            WordboundSoloPreviewCapture.Require(settings && data && data.items && data.rules &&
+            var launch = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
+            WordboundSoloPreviewCapture.Require(settings && launch && data && data.items && data.rules &&
                 settings.Seed == (string)receipt["seed"] && settings.Mode == (string)receipt["mode"] &&
-                receipt["sets"] is JArray sets && sets.Count == 2, "Capture settings or installed game inputs no longer match.");
+                receipt["sets"] is JArray sets && sets.Count == Maps.Length, "Capture settings or installed game inputs no longer match.");
             settings.Validate();
+            var recordedPaths = ((JArray)receipt["inputFacts"]).Select(i => (string)i["path"]).ToArray();
+            WordboundSoloPreviewCapture.Require(recordedPaths.Distinct(StringComparer.Ordinal).Count() == recordedPaths.Length &&
+                recordedPaths.OrderBy(p => p, StringComparer.Ordinal).SequenceEqual(WordboundSoloPreviewCapture.CurrentInputPaths(settings)),
+                "The capture input roster differs from the current complete source roster; recapture before import.");
             foreach (string map in Maps)
             {
                 var recorded = ((JArray)receipt["sets"]).SingleOrDefault(s => (string)s["map"] == map);
                 var frame = ((JArray)receipt["frames"]).SingleOrDefault(f => (string)f["filename"] == map + ".png");
-                var current = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, settings.Mode, settings.Seed, map);
+                var current = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, settings.Mode, settings.Seed, map, launch.ParcelServiceCourse);
                 WordboundSoloPreviewCapture.Require(recorded != null && frame != null &&
                     (string)recorded["seed"] == settings.Seed && (string)recorded["mode"] == settings.Mode &&
                     (string)recorded["manifestHash"] == current.Course.Hash && (string)frame["manifestHash"] == current.Course.Hash &&
@@ -129,8 +142,9 @@ namespace Wreckabulary.Online.Editor
                     imported.Add(map, sprite);
                 }
                 Undo.RecordObject(layout, "Assign actual Solo map previews");
-                layout.LostAddressPreview = imported[WordboundSoloEntry.LostAddressMap];
-                layout.ParcelHallPreview = imported[WordboundSoloEntry.ParcelHallMap];
+                if (imported.TryGetValue(WordboundSoloEntry.LostAddressMap, out var lost)) layout.LostAddressPreview = lost;
+                if (imported.TryGetValue(WordboundSoloEntry.ParcelHallMap, out var hall)) layout.ParcelHallPreview = hall;
+                if (imported.TryGetValue(WordboundSoloEntry.ParcelServiceMap, out var service)) layout.ParcelServicePreview = service;
                 EditorUtility.SetDirty(layout); AssetDatabase.SaveAssetIfDirty(layout);
                 WordboundSoloPreviewCapture.WriteNew(Path.Combine(folder, "import-receipt.json"), Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new {
                     status = "IMPORTED_REQUIRES_MENU_REVIEW", captureReceipt = WordboundSoloPreviewCapture.FileHash(path),

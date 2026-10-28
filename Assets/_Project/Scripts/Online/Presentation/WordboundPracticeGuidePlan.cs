@@ -19,7 +19,8 @@ namespace Wreckabulary.Online
             if (actor == null || actor.Returned || !actor.Connected || actor.Eliminated || body == null ||
                 !body.Active || frame.Progress.Migrating || frame.Progress.Result != null) return null;
             return course.PhysicalSites.Where(s => Distance(s.Position, body.Position) <= maximumDistance * maximumDistance)
-                .OrderBy(s => Distance(s.Position, body.Position)).ThenBy(s => s.Hash, StringComparer.Ordinal).FirstOrDefault();
+                .OrderBy(s => Completed(frame, s)).ThenBy(s => Distance(s.Position, body.Position))
+                .ThenBy(s => s.Hash, StringComparer.Ordinal).FirstOrDefault();
         }
 
         public static bool Completed(MatchSnapshot frame, ResolvedCoursePhysicalSite site) =>

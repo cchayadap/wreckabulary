@@ -1,0 +1,25 @@
+{
+  "status": "DRAFT_NOT_INTEGRATED",
+  "files": {
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewSettings.cs": {
+      "before": "4b66c7309cde42a5b73d0a560c0f3be02f4dba666ff5cd9f0424fae151a83ec5",
+      "after": "1ab6a63997d3f6dff75029d0aea873cef31a352826436e4c141200a2e667e61d"
+    },
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewStage.cs": {
+      "before": "9ff0bb0f7304ad068b3474762e1de24251582ec97fcab19f30a0430d26b07475",
+      "after": "a76a542e15c7b07984e7758814811cc5e3d92d1c53be9e28135c592ebc439cc2"
+    },
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewCapture.cs": {
+      "before": "2cf896b5483a32adb26fcdd3428c4d4cd2f7e58e456a2dbe54f0e888db7376bb",
+      "after": "825e78d7a2811d7e7615d31011b528a8f8007323c886cffb30a8beeb357da786"
+    },
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewImport.cs": {
+      "before": "26c5c946bf5ce99f6c460a51fef4d864f4ce547c195f8dc77ba9073e1029a8a3",
+      "after": "e9008eddc7b46ee1ac516dad8fda9200c12870236b455da94b268bfecf851243"
+    },
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewWindow.cs": {
+      "before": "316eb2db7f26788704ce3dc385b22c8bf4fb433b2dd27e06069887c932c6ab8f",
+      "after": "acbe87751a55082afed73571ab480def1ebd7b35dfcca71b78e88b6fbeed4a86"
+    }
+  }
+}
