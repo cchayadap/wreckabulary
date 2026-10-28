@@ -151,7 +151,7 @@ namespace Wreckabulary.Online.Tests
             var theme = ScriptableObject.CreateInstance<WordboundUiTheme>();
             try
             {
-                theme.Primary = new Color(.15f, .2f, .3f); theme.PrimaryText = new Color(.9f, .95f, 1f);
+                theme.Panel = new Color(.15f, .2f, .3f); theme.Text = new Color(.9f, .95f, 1f);
                 theme.BodySize = 22; theme.RowHeight = 42; theme.ModuleHeight = 64;
                 var hud = root.AddComponent<WordboundMatchHud>(); hud.enabled = false; hud.Theme = theme;
                 float scale = Mathf.Clamp(Mathf.Min(pixelsWide / 1280f, pixelsHigh / 720f), .6f, 1.8f);
@@ -194,8 +194,8 @@ namespace Wreckabulary.Online.Tests
                     var label = (GUIStyle)Field("overlayLabel").GetValue(Hud);
                     var box = (GUIStyle)Field("overlayBox").GetValue(Hud);
                     var styles = (WordboundUiStyles)Field("ui").GetValue(Hud);
-                    Assert.AreEqual(Hud.Theme.PrimaryText, label.normal.textColor);
-                    Assert.AreSame(styles.Primary.normal.background, box.normal.background);
+                    Assert.AreEqual(Hud.Theme.Text, label.normal.textColor);
+                    Assert.AreSame(styles.Panel.normal.background, box.normal.background);
                     float available = Size.x - 36;
                     var left = Draw("inventoryPanel", 18, available * .23f, 0, label, box);
                     var center = Draw("actionPanel", Size.x * .5f, available * .5f, .5f, label, box);

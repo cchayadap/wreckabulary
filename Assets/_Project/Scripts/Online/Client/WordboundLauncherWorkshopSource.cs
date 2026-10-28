@@ -50,6 +50,10 @@ namespace Wreckabulary.Online
                 var visual = InputsForWorkshop().Visual;
                 return visual ? visual.RoomStyle : null;
             };
+            workshop.ModuleDressingProvider ??= () => {
+                var visual = InputsForWorkshop().Visual;
+                return visual ? visual.ModuleDressing : null;
+            };
             return flagship;
         }
 

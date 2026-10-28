@@ -40,7 +40,7 @@ namespace Wreckabulary.Online.Editor
                 var visualProfile = map == WordboundSoloEntry.ParcelServiceMap && launch.ParcelServiceCourse.VisualProfile
                     ? launch.ParcelServiceCourse.VisualProfile : launch.VisualProfile;
                 World = WordboundCourseWorld.Build(Content.Course, Content.Geometry, root.transform,
-                    new WordboundCourseWorldOptions { RoomStyle = visualProfile ? visualProfile.RoomStyle : null });
+                    new WordboundCourseWorldOptions { RoomStyle = visualProfile ? visualProfile.RoomStyle : null, ModuleDressing = visualProfile ? visualProfile.ModuleDressing : null });
                 var resolver = new WordboundVisualResolver(Content.Items, profile: visualProfile);
                 foreach (var placement in Content.Course.Placements)
                 {

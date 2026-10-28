@@ -34,6 +34,7 @@ namespace Wreckabulary.Workshop
         public float Distance => distance;
         public Func<string, Transform, GameObject> SpawnAssetVisual { get; set; }
         public Func<WordboundRoomStyleProfile> RoomStyleProvider { get; set; }
+        public Func<IReadOnlyList<WordboundModuleDressingEntry>> ModuleDressingProvider { get; set; }
         public bool Active { set { if (stage) stage.SetActive(value); } }
 
         public WordboundWorkshopViewport(Transform owner)
@@ -112,6 +113,8 @@ namespace Wreckabulary.Workshop
         {
             var style = RoomStyleProvider?.Invoke();
             if (style) style.Validate();
+            var dressing = ModuleDressingProvider?.Invoke();
+            WordboundModuleDressing.Validate(dressing);
             foreach (var material in styledFloors.Values) { ownedMaterials.Remove(material); Destroy(material); }
             styledFloors.Clear();
             bool changedFloor = snapshot != null && snapshot.ActiveLayer != state.ActiveLayer;
@@ -130,6 +133,7 @@ namespace Wreckabulary.Workshop
                 var root = new GameObject(module.Id).transform; root.SetParent(content, false);
                 root.localPosition = Point(module.Position); root.localRotation = Quaternion.Euler(0, module.Yaw, 0);
                 modules.Add(module.Id, root); authored.Add(module.Id, module);
+                if (!adjacent) WordboundModuleDressing.Apply(dressing, module.Id, definition, root, PreviewLayer);
                 var material = adjacent ? ghost : state.Selection.Contains(module.Id) ? selected : FloorFor(module.LayerId, style);
                 float x = definition.WidthMm / 1000f, z = definition.DepthMm / 1000f;
                 Box(root, "Floor", new Vector3(0, -.1f, 0), new Vector3(x, .2f, z), material);

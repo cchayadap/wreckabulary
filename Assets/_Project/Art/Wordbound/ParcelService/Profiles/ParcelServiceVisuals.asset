@@ -14,6 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Wreckabulary.Online.Presentation::Wreckabulary.Online.WordboundVisualProfile
   BaseArtwork: 0
   RoomStyle: {fileID: 11400000, guid: 2e22c87f916e97348aca809baf846f44, type: 2}
+  ModuleDressing:
+  - ModuleId: Service
+    Prefab: {fileID: 3359725848968092281, guid: d0bd1ce7d54fe0b498dea26afb05f28f, type: 3}
+    LocalPosition: {x: 0, y: 0, z: 0}
+    LocalEulerAngles: {x: 0, y: 0, z: 0}
+    LocalScale: {x: 1, y: 1, z: 1}
+  - ModuleId: Sorting
+    Prefab: {fileID: 2496984771934770411, guid: 7691b9285a0a93442a98969bdc5ee874, type: 3}
+    LocalPosition: {x: 0, y: 0, z: 0}
+    LocalEulerAngles: {x: 0, y: 0, z: 0}
+    LocalScale: {x: 1, y: 1, z: 1}
+  - ModuleId: Dispatch
+    Prefab: {fileID: 8973987932615678359, guid: be09f70798cbffd4ba2ba84cbabf8ad2, type: 3}
+    LocalPosition: {x: 0, y: 0, z: 0}
+    LocalEulerAngles: {x: 0, y: 0, z: 0}
+    LocalScale: {x: 1, y: 1, z: 1}
   MaterialRemaps:
   - VisualKey: DESK
     Source: {fileID: 2100000, guid: ac4f3f22418749941ad2a4edccc2703c, type: 2}

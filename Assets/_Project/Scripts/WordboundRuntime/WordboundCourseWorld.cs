@@ -101,6 +101,7 @@ namespace Wreckabulary.WordboundRuntime
                 var node = Anchor(WordboundCourseNodeKind.Module, module.Id, module.Id, Metres(module.Position), module.Yaw, layer);
                 BuildFloor(module, node);
                 BuildWalls(module, definition.HeightMm / 1000f, node);
+                WordboundModuleDressing.Apply(options.ModuleDressing, module.Id, definition, node);
             }
             foreach (var connection in Course.Connections) BuildConnection(connection);
             foreach (var spawn in Course.Spawns)

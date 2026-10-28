@@ -975,3 +975,7 @@ Root and independent reviewer opened full960x540 captures200337before/200615afte
 ## 2026-10-28T20:26:00Z Parcel Service local gameplay and real preview
 
 Native202225 passes all six Freestyle physical sites with actual crafting and clean shutdown, following strict held-item ownership repair (20162911/11). TimeRun195312 case already completes three laps. Exact camera/preview import201528 is saved. See BuildNotes/visual-coherence-20261029/map-composition/physical-play/NATIVE-GAMEPLAY.md and map-previews/captures/20261028T201427Z-f2844736/import-receipt.json. Windows and visual detail remain pending; no full production or online acceptance claim.
+
+## 2026-10-28T21:08:00Z Save editable Parcel fixtures, previews and camera clearance
+
+Saved three original-art fixture prefabs and optional per-module visual bindings shared by runtime/Workshop/previews. Spawn migration205132 preserves other course edits and moves only Start0 away from the rear wall. Rules20470820/20 and combined native20490092/92 pass. Fixture create205804 and no-write repeat210047 pass; prior authored preservation4299 unchanged plus intended profile update. Exact three-map preview import210504 passes with backups. Root opened all3 current captures; rooms remain sparse and visual acceptance is open. Evidence and limits: BuildNotes/visual-coherence-20261029/map-composition/SAVED-PRESENTATION.md. Physical rerun210548 is active; final Windows review pending. Recovery snapshot21-06-14 verifies2809 unfinished files.

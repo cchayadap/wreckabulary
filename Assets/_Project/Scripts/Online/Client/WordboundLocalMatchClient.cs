@@ -44,7 +44,7 @@ namespace Wreckabulary.Online
                 var artwork = gameObject.AddComponent<WordboundGameplayPresentation>();
                 var options = new WordboundGameplayOptions {
                     GameplayScene = gameplayScene,
-                    World = new WordboundCourseWorldOptions { RoomStyle = visualProfile ? visualProfile.RoomStyle : null },
+                    World = new WordboundCourseWorldOptions { RoomStyle = visualProfile ? visualProfile.RoomStyle : null, ModuleDressing = visualProfile ? visualProfile.ModuleDressing : null },
                     ReadMovement = () => playerView.ReadMovement(),
                     LocalPlayerChanged = body => playerView.LocalPlayerChanged(body),
                     ConfigureVisual = body => artwork.ConfigureVisual(body)

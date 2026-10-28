@@ -17,8 +17,8 @@ namespace Wreckabulary.Online
             if (overlayStyleGeneration != ui.Generation)
             {
                 overlayLabel = new GUIStyle(ui.Wrapped) { padding = new RectOffset(0, 0, 1, 1) };
-                overlayLabel.normal.textColor = ui.Primary.normal.textColor;
-                overlayBox = new GUIStyle(ui.Primary) { padding = new RectOffset(10, 10, 6, 6) };
+                overlayLabel.normal.textColor = ui.Ink;
+                overlayBox = new GUIStyle(ui.Panel) { padding = new RectOffset(10, 10, 6, 6) };
                 overlayStyleGeneration = ui.Generation;
             }
             Color background = GUI.backgroundColor;

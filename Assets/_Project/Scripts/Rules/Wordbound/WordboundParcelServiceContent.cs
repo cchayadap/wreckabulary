@@ -48,7 +48,7 @@ namespace Wreckabulary.Rules.Wordbound
             Door("SortingDispatch", "Sorting", "Dispatch", 14000);
             for (int slot = 0; slot < 8; slot++)
                 d.Spawns.Add(new CourseSpawn { Id = "Start" + slot, ModuleId = "Service",
-                    Position = P(-2400 + slot % 4 * 1600, slot < 4 ? -2600 : -1200) });
+                    Position = P(-2400 + slot % 4 * 1600, slot == 0 ? 0 : slot < 4 ? -2600 : -1200) });
             Recovery("ServiceSafe", "Service", P(0, 500));
             Recovery("SortingSafe", "Sorting", P(7300, -400));
             Recovery("DispatchSafe", "Dispatch", P(17000, -1300));

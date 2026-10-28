@@ -117,6 +117,10 @@ namespace Wreckabulary.Online.Editor
         [MenuItem("Tools/Wordbound/Presentation/Capture two Solo draft previews")]
         public static void CaptureDrafts() => CaptureMaps(new[] { WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.ParcelHallMap });
 
+        [MenuItem("Tools/Wordbound/Presentation/Capture all installed Solo draft previews")]
+        public static void CaptureInstalledDrafts() => CaptureMaps(new[] { WordboundSoloEntry.LostAddressMap,
+            WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.ParcelServiceMap });
+
         [MenuItem("Tools/Wordbound/Presentation/Capture Parcel Service draft preview")]
         public static void CaptureParcelServiceDraft() => CaptureMaps(new[] { WordboundSoloEntry.ParcelServiceMap });
 

@@ -38,6 +38,8 @@ namespace Wreckabulary.Online
         public WordboundBaseArtwork BaseArtwork = WordboundBaseArtwork.OriginalWreckabulary;
         [Tooltip("Optional room materials for this course. Empty keeps the installed room style. Geometry and physics remain unchanged.")]
         public WordboundRoomStyleProfile RoomStyle;
+        [Tooltip("Optional saved wall-fixture groups. Edit each prefab in Prefab Mode; module IDs match the saved course. No gameplay or physics changes.")]
+        public List<WordboundModuleDressingEntry> ModuleDressing = new List<WordboundModuleDressingEntry>();
         [Tooltip("Replace exact material references on this visual key after skin selection. Other models, material slots and skins stay unchanged.")]
         public List<WordboundMaterialRemap> MaterialRemaps = new List<WordboundMaterialRemap>();
         public WordboundDefensePose DefensePose = new WordboundDefensePose();
@@ -47,6 +49,7 @@ namespace Wreckabulary.Online
         {
             if (!Enum.IsDefined(typeof(WordboundBaseArtwork), BaseArtwork)) throw new ArgumentException("Choose a supported base artwork source.");
             RoomStyle?.Validate();
+            WordboundModuleDressing.Validate(ModuleDressing);
             if (MaterialRemaps == null || MaterialRemaps.Count > 128)
                 throw new ArgumentException("At most 128 exact material replacements are supported.");
             var materialKeys = new HashSet<(string key, Material source)>();

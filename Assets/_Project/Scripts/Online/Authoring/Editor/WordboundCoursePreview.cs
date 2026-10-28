@@ -30,7 +30,7 @@ namespace Wreckabulary.Online.Editor
             try
             {
                 world = WordboundCourseWorld.Build(exact, content.Geometry, options:
-                    new WordboundCourseWorldOptions { RoomStyle = asset.VisualProfile ? asset.VisualProfile.RoomStyle : null });
+                    new WordboundCourseWorldOptions { RoomStyle = asset.VisualProfile ? asset.VisualProfile.RoomStyle : null, ModuleDressing = asset.VisualProfile ? asset.VisualProfile.ModuleDressing : null });
                 renderer.AddSingleGO(world.gameObject);
                 var resolver = new WordboundVisualResolver(content.Items, profile: asset.VisualProfile);
                 foreach (var placement in exact.Placements)

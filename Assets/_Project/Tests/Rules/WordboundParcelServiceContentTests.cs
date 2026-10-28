@@ -43,6 +43,28 @@ namespace Wreckabulary.Rules.Tests
         }
 
         [Test]
+        public void InitialSoloSpawnHasRearCameraRoomAndPreservesTheOtherSevenSeats()
+        {
+            var content = WordboundParcelServiceContent.Create(TestData.Catalogue());
+            var document = content.CopyDocument();
+            var start = document.Spawns.Single(spawn => spawn.Id == "Start0");
+            Assert.AreEqual("Service", start.ModuleId); Assert.AreEqual(0, start.Yaw);
+            Assert.AreEqual(new CoursePoint(-2400, 0, 0), start.Position);
+            Assert.IsTrue(document.ReservedVolumes.Single(volume => volume.Id == "Route_Service").Bounds.Contains(start.Position, 300));
+            for (int slot = 1; slot < 8; slot++)
+                Assert.AreEqual(new CoursePoint(-2400 + slot % 4 * 1600, 0, slot < 4 ? -2600 : -1200),
+                    document.Spawns.Single(spawn => spawn.Id == "Start" + slot).Position);
+            var room = content.Geometry.Bounds(document.Modules.Single(module => module.Id == "Service"));
+            Assert.IsTrue(room.Contains(new CoursePoint(-2400, 1000, -3300), 250),
+                "The default rear camera endpoint plus probe/skin margin remains inside the room.");
+            var corridor = new CourseBox(new CoursePoint(-2750, 0, -3550), new CoursePoint(-2050, 2200, 350));
+            Assert.IsFalse(document.Zones.Any(zone => zone.Bounds.Intersects(corridor)), "No authored prop bay may cross initial player/camera space.");
+            Assert.IsFalse(document.Supplies.Any(supply => corridor.Contains(supply.Position)));
+            Assert.IsFalse(document.PhysicalSites.Any(site => corridor.Contains(site.Position)));
+            Assert.IsFalse(document.RecoveryAnchors.Any(anchor => corridor.Contains(anchor.Position)));
+        }
+
+        [Test]
         public void CreationDoesNotChangeOriginalContentOrEnableDisabledRecipes()
         {
             var items = TestData.Catalogue(); var original = WordboundFlagshipContent.Create(items);

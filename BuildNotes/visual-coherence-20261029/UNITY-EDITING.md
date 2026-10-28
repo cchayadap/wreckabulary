@@ -10,9 +10,12 @@ Use the integration checkout with Unity6000.6.4f1. Existing authoring scenes are
 | Room colours and woodwork | Assets/_Project/Art/Wordbound/ParcelService/Profiles/ParcelServiceRooms.asset |
 | Per-item material assignments | Same Profiles folder → ParcelServiceVisuals.asset |
 | Red paint, oak, walnut | Assets/_Project/Art/Wordbound/ParcelService/Materials |
+| Wall lights, shelves and signs | Assets/_Project/Art/Wordbound/ParcelService/Dressing → open the matching room prefab in Prefab Mode |
 | Map-card camera | Assets/_Project/Data/Wordbound/Authoring/Previews/SoloMapPreviews.asset → Frame Parcel Service; orbit/zoom and Save camera |
 | Gameplay camera | Parcel Service V1 → Camera Profile; this is separate from the card image |
 
 Save outside Play Mode. The course and visuals are separate saved assets; the editor preview and runtime are generated from them. Do not expect edits to a temporary preview hierarchy to rewrite the course. The new map is a local course; public maps and other creators’ drafts are unchanged. Workshop draft edits/autosaves are separate from the saved source asset and keep separate Undo histories.
+
+Wall fixtures are visual architecture. Keep them above 2.45 m, within 0.4 m of a room edge, below the ceiling and attached to a real wall. Their saved prefab groups are shared by gameplay, Workshop and map images. After editing a prefab, rebuild the course preview and recapture its map image. Other rooms and original shared materials stay independently editable.
 
 Visual quality, complete public multiplayer, richer landmarks and the larger production backlog remain open. Current materials and map are editable work in progress.
