@@ -24,6 +24,15 @@ namespace Wreckabulary.WordboundRuntime
         public const string ResourcePath = "Wordbound/RoomArchitecture";
         [Tooltip("Visual architecture only. Does not add or change collision, map rules, furniture or online manifests.")]
         public bool Enabled = true;
+        [Header("Route woodwork")]
+        [Tooltip("Frame real route openings inside their existing wall collision. No opening is added or narrowed.")]
+        public bool FrameRouteOpenings = true;
+        [Range(.10f, .40f)] public float DoorwayFrameWidth = .24f;
+        [Range(0, 1024)] public int MaximumOpeningBands = 512;
+        [Tooltip("Original wood texture on ramps and doorway surrounds. An assigned material is used unchanged.")]
+        public Color Woodwork = new Color(.55f, .36f, .20f);
+        public Material WoodworkMaterial;
+        [Header("Optional wall insets")]
         [Range(0, 3)] public int MaximumInsetsPerWallPiece = 0;
         [Range(0, 512)] public int MaximumDecoratedWallPieces = 256;
         [Range(2f, 6f)] public float InsetWidth = 4.6f;
@@ -53,9 +62,12 @@ namespace Wreckabulary.WordboundRuntime
                 Palettes.Select(p => p.LayerId).Distinct(StringComparer.Ordinal).Count() != Palettes.Count)
                 throw new ArgumentException("Room architecture needs 1–16 distinct layer palettes.");
             if (MaximumInsetsPerWallPiece < 0 || MaximumInsetsPerWallPiece > 3 ||
+                MaximumOpeningBands < 0 || MaximumOpeningBands > 1024 || !Within(DoorwayFrameWidth, .1f, .4f) ||
                 MaximumDecoratedWallPieces < 0 || MaximumDecoratedWallPieces > 512 ||
                 !Within(InsetWidth, 2, 6) || !Within(InsetHeight, 1.5f, 4.5f) || !Within(FrameWidth, .1f, .8f))
                 throw new ArgumentException("Room architecture dimensions are outside their supported bounds.");
+            if (!Within(Woodwork.r, 0, 1) || !Within(Woodwork.g, 0, 1) || !Within(Woodwork.b, 0, 1) || !Within(Woodwork.a, 1, 1))
+                throw new ArgumentException("Room woodwork must use a finite opaque colour.");
             foreach (var p in Palettes)
                 foreach (var c in new[] { p.Floor, p.Wall, p.Ceiling, p.Frame, p.Inset, p.Accent })
                     if (!Within(c.r, 0, 1) || !Within(c.g, 0, 1) || !Within(c.b, 0, 1) || !Within(c.a, 1, 1))

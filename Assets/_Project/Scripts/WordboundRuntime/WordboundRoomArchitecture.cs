@@ -21,10 +21,12 @@ namespace Wreckabulary.WordboundRuntime
         WordboundRoomStyleProfile profile;
         WordboundCourseWorld world;
         Material artwork;
+        Material woodwork;
         int decoratedWallPieces;
 
         public int InsetCount { get; private set; }
         public int RenderBatchCount { get; private set; }
+        public int OpeningBandCount { get; private set; }
 
         public static void Apply(WordboundCourseWorld world, WordboundCourseWorldOptions options)
         {
@@ -53,7 +55,7 @@ namespace Wreckabulary.WordboundRuntime
                 else if (node.Kind == WordboundCourseNodeKind.Wall && !options.WallMaterial)
                     Wall(collider, module, palette);
                 else if (node.Kind == WordboundCourseNodeKind.Connection && !options.ConnectorMaterial)
-                    collider.GetComponent<Renderer>().sharedMaterial = palette.Frame;
+                    collider.GetComponent<Renderer>().sharedMaterial = Woodwork();
             }
             foreach (var pair in completedBatches.Concat(batches))
             {
@@ -112,6 +114,9 @@ namespace Wreckabulary.WordboundRuntime
             float bottom = center.y - size.y * .5f;
             float roomFloor = module.Bounds.Min.Y / 1000f;
 
+            if (profile.FrameRouteOpenings)
+                RouteOpeningBands(center, size, module, fixedX, inward, right, face);
+
             if (size.y < 4.1f || width < 3.5f || bottom > roomFloor + .001f ||
                 decoratedWallPieces >= profile.MaximumDecoratedWallPieces) return;
             int count = Mathf.Min(profile.MaximumInsetsPerWallPiece, Mathf.FloorToInt(width / 6f));
@@ -141,6 +146,65 @@ namespace Wreckabulary.WordboundRuntime
                     FlatBox(at + Vector3.up * .12f, right, inward, insetWidth - .45f, barWidth, .002f, palette.Frame);
                 }
                 InsetCount++;
+            }
+        }
+
+        Material Woodwork()
+        {
+            if (!woodwork) woodwork = Make(profile.WoodworkMaterial, profile.Woodwork, "Route woodwork", Surfaces.Kind.Wood);
+            return woodwork;
+        }
+
+        void RouteOpeningBands(Vector3 center, Vector3 size, ResolvedCourseModule module,
+            bool fixedX, Vector3 inward, Vector3 right, Vector3 face)
+        {
+            float fixedValue = fixedX ? center.x : center.z;
+            float acrossCenter = fixedX ? center.z : center.x;
+            float wallWidth = fixedX ? size.z : size.x;
+            var solid = Rect.MinMaxRect(acrossCenter - wallWidth * .5f, center.y - size.y * .5f,
+                acrossCenter + wallWidth * .5f, center.y + size.y * .5f);
+            var emitted = new HashSet<Rect>();
+            foreach (var connection in world.Course.Connections)
+            {
+                if (OpeningBandCount >= profile.MaximumOpeningBands) return;
+                Vector3 a = new Vector3(connection.From.X, connection.From.Y, connection.From.Z) / 1000f;
+                Vector3 b = new Vector3(connection.To.X, connection.To.Y, connection.To.Z) / 1000f;
+                float from = fixedX ? a.x : a.z, to = fixedX ? b.x : b.z;
+                float delta = to - from, t;
+                if (Mathf.Abs(delta) < .0001f)
+                {
+                    if ((connection.Kind != "Walk" && connection.Kind != "Door") || Mathf.Abs(from - fixedValue) > .0001f ||
+                        connection.FromModuleId != module.Id && connection.ToModuleId != module.Id) continue;
+                    t = 0;
+                }
+                else
+                {
+                    t = (fixedValue - from) / delta;
+                    if (t < 0 || t > 1) continue;
+                }
+                Vector3 point = Vector3.Lerp(a, b, t);
+                float across = fixedX ? point.z : point.x;
+                float halfWidth = connection.WidthMm / 2000f;
+                float allowance = Mathf.Abs(delta) < .0001f ? 0 : Mathf.Abs((b.y - a.y) / delta) * WordboundCourseWorld.WallThickness / 2;
+                var aperture = Rect.MinMaxRect(across - halfWidth, point.y - WordboundCourseWorld.FloorThickness - allowance,
+                    across + halfWidth, point.y + WordboundCourseWorld.ConnectorHeadroom + allowance);
+                float w = profile.DoorwayFrameWidth;
+                Band(Rect.MinMaxRect(aperture.xMin - w, aperture.yMin, aperture.xMin, aperture.yMax));
+                Band(Rect.MinMaxRect(aperture.xMax, aperture.yMin, aperture.xMax + w, aperture.yMax));
+                Band(Rect.MinMaxRect(aperture.xMin - w, aperture.yMax, aperture.xMax + w, aperture.yMax + w));
+            }
+
+            void Band(Rect requested)
+            {
+                if (OpeningBandCount >= profile.MaximumOpeningBands) return;
+                var clipped = Rect.MinMaxRect(Mathf.Max(solid.xMin, requested.xMin), Mathf.Max(solid.yMin, requested.yMin),
+                    Mathf.Min(solid.xMax, requested.xMax), Mathf.Min(solid.yMax, requested.yMax));
+                if (clipped.width <= .001f || clipped.height <= .001f || !emitted.Add(clipped)) return;
+                Vector3 at = face;
+                if (fixedX) at.z = clipped.center.x; else at.x = clipped.center.x;
+                at.y = clipped.center.y;
+                FlatBox(at - inward * .004f, right, inward, clipped.width, clipped.height, .008f, Woodwork());
+                OpeningBandCount++;
             }
         }
 

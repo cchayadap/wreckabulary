@@ -29,9 +29,28 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void ExistingSavedProfileLoadsAddedControlsWithoutRewritingItsBytes()
+        {
+            var saved = Resources.Load<WordboundRoomStyleProfile>(WordboundRoomStyleProfile.ResourcePath);
+            Assert.IsNotNull(saved);
+            string path = UnityEditor.AssetDatabase.GetAssetPath(saved);
+            var before = File.ReadAllBytes(path);
+            saved.Validate();
+            if (!File.ReadAllText(path).Contains("FrameRouteOpenings:"))
+            {
+                Assert.IsTrue(saved.FrameRouteOpenings);
+                Assert.AreEqual(.24f, saved.DoorwayFrameWidth);
+                Assert.AreEqual(512, saved.MaximumOpeningBands);
+            }
+            CollectionAssert.AreEqual(before, File.ReadAllBytes(path));
+            Assert.IsFalse(UnityEditor.EditorUtility.IsDirty(saved));
+        }
+
+        [Test]
         public void FlagshipDecorationPreservesEveryColliderManifestAndRouteOpening()
         {
             profile.MaximumInsetsPerWallPiece = 2;
+            profile.DoorwayFrameWidth = .4f;
             var content = Content(); var course = Resolve(content);
             var legacy = WordboundCourseWorld.Build(course, content.Geometry, parent.transform,
                 new WordboundCourseWorldOptions { EnableRoomArchitecture = false });
@@ -54,6 +73,7 @@ namespace Wreckabulary.Tests
             }
             var architecture = styled.GetComponent<WordboundRoomArchitecture>();
             Assert.Greater(architecture.InsetCount, 0); Assert.That(architecture.RenderBatchCount, Is.InRange(1, 20));
+            Assert.Greater(architecture.OpeningBandCount, 0);
             var walls = styled.Surfaces.Where(c => c.GetComponent<WordboundCourseNode>().Kind == WordboundCourseNodeKind.Wall)
                 .Cast<BoxCollider>().ToArray();
             foreach (var filter in styled.GetComponentsInChildren<MeshFilter>().Where(f => f.name.StartsWith("Room architecture ", StringComparison.Ordinal)))
@@ -75,6 +95,58 @@ namespace Wreckabulary.Tests
                     Assert.That(facing, Is.GreaterThan(0), "Visible faces must have consistent winding.");
                 }
             }
+        }
+
+        [Test]
+        public void RouteWoodworkRetainsOriginalConnectorTextureAndCanonicalUvs()
+        {
+            var content = Content(); var course = Resolve(content);
+            var baseline = WordboundCourseWorld.Build(course, content.Geometry, parent.transform,
+                new WordboundCourseWorldOptions { EnableRoomArchitecture = false });
+            var styled = WordboundCourseWorld.Build(course, content.Geometry, parent.transform,
+                new WordboundCourseWorldOptions { RoomStyle = profile });
+            int connectors = 0;
+            for (int i = 0; i < styled.Surfaces.Count; i++)
+            {
+                if (styled.Surfaces[i].GetComponent<WordboundCourseNode>().Kind != WordboundCourseNodeKind.Connection) continue;
+                connectors++;
+                var original = baseline.Surfaces[i].GetComponent<Renderer>().sharedMaterial;
+                var actual = styled.Surfaces[i].GetComponent<Renderer>().sharedMaterial;
+                Assert.AreSame(original.mainTexture, actual.mainTexture);
+                Assert.AreSame(original.GetTexture("_BumpMap"), actual.GetTexture("_BumpMap"));
+                Assert.AreEqual(original.GetFloat("_BumpScale"), actual.GetFloat("_BumpScale"));
+                Assert.That(Vector4.Distance(profile.Woodwork, actual.color), Is.LessThan(0.00001f),
+                    "The shader must retain the authored wood tint within float storage precision.");
+                CollectionAssert.AreEqual(baseline.Surfaces[i].GetComponent<MeshFilter>().sharedMesh.uv,
+                    styled.Surfaces[i].GetComponent<MeshFilter>().sharedMesh.uv);
+            }
+            Assert.Greater(connectors, 0);
+        }
+
+        [Test]
+        public void DoorwayBandsAreOptionalBoundedAndUseBorrowedMaterialUnchanged()
+        {
+            var content = Content(); var course = Resolve(content);
+            profile.MaximumOpeningBands = 2;
+            var material = new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = Color.magenta };
+            profile.WoodworkMaterial = material;
+            try
+            {
+                var styled = WordboundCourseWorld.Build(course, content.Geometry, parent.transform,
+                    new WordboundCourseWorldOptions { RoomStyle = profile });
+                Assert.AreEqual(2, styled.GetComponent<WordboundRoomArchitecture>().OpeningBandCount);
+                var connectors = styled.Surfaces.Where(c => c.GetComponent<WordboundCourseNode>().Kind == WordboundCourseNodeKind.Connection).ToArray();
+                Assert.IsNotEmpty(connectors);
+                Assert.IsTrue(connectors.All(c => c.GetComponent<Renderer>().sharedMaterial == material));
+                Assert.AreEqual(Color.magenta, material.color);
+                styled.Dispose(); Assert.IsTrue(material);
+                profile.FrameRouteOpenings = false;
+                var disabled = WordboundCourseWorld.Build(course, content.Geometry, parent.transform,
+                    new WordboundCourseWorldOptions { RoomStyle = profile });
+                Assert.AreEqual(0, disabled.GetComponent<WordboundRoomArchitecture>().OpeningBandCount);
+                Assert.AreEqual(course.Hash, disabled.ManifestHash);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(material); }
         }
 
         [Test]
@@ -151,6 +223,16 @@ namespace Wreckabulary.Tests
         [Test]
         public void InspectorBoundsRejectInvalidDataAndKeepPaletteDefaultsIndependent()
         {
+            JsonUtility.FromJsonOverwrite("{\"MaximumInsetsPerWallPiece\":0,\"InsetWidth\":4.6}", profile);
+            Assert.IsTrue(profile.FrameRouteOpenings);
+            Assert.AreEqual(.24f, profile.DoorwayFrameWidth);
+            Assert.AreEqual(512, profile.MaximumOpeningBands);
+            profile.DoorwayFrameWidth = float.NaN; Assert.Throws<ArgumentException>(() => profile.Validate());
+            profile.DoorwayFrameWidth = .24f;
+            profile.MaximumOpeningBands = 1025; Assert.Throws<ArgumentException>(() => profile.Validate());
+            profile.MaximumOpeningBands = 512;
+            var woodwork = profile.Woodwork; profile.Woodwork = new Color(1, 1, 1, .5f);
+            Assert.Throws<ArgumentException>(() => profile.Validate()); profile.Woodwork = woodwork;
             profile.Validate(); profile.InsetWidth = float.NaN;
             Assert.Throws<ArgumentException>(() => profile.Validate()); profile.InsetWidth = 4.6f;
             profile.Palettes.Add(profile.Palettes[0]); Assert.Throws<ArgumentException>(() => profile.Validate());

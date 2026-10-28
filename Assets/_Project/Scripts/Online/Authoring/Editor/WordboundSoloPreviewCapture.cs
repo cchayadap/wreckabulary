@@ -48,6 +48,22 @@ namespace Wreckabulary.Online.Editor
             settings.Validate(); Selection.activeObject = settings; EditorGUIUtility.PingObject(settings);
         }
 
+        [MenuItem("Tools/Wordbound/Presentation/Use closer Solo sample framing")]
+        public static void UseCloserSampleFraming()
+        {
+            Require(!EditorApplication.isPlayingOrWillChangePlaymode && !WordboundSoloPreviewWindow.IsOpen,
+                "Close the framing window and leave Play mode before changing sample views.");
+            var settings = AssetDatabase.LoadAssetAtPath<WordboundSoloPreviewSettings>(WordboundSoloPreviewSettings.Path);
+            Require(settings && !EditorUtility.IsDirty(settings), "Create and save preview settings first.");
+            Undo.RecordObject(settings, "Use closer Solo sample framing");
+            settings.LostAddress = new WordboundSoloPreviewPose { Module = "Packing_LabelBench",
+                Position = new Vector3(0, 2.2f, -10), Target = new Vector3(7, 1, -5), FieldOfView = 50 };
+            settings.ParcelHall = new WordboundSoloPreviewPose { Module = "Packing_ParcelGate",
+                Position = new Vector3(-1, 2.2f, -5), Target = new Vector3(-5.5f, .9f, -9), FieldOfView = 50 };
+            settings.Validate(); EditorUtility.SetDirty(settings); AssetDatabase.SaveAssetIfDirty(settings);
+            Selection.activeObject = settings;
+        }
+
         [MenuItem("Tools/Wordbound/Presentation/Capture two Solo draft previews")]
         public static void CaptureDrafts()
         {
