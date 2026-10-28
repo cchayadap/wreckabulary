@@ -8,6 +8,9 @@
 *.meta     eol=lf
 *.cs       text diff=csharp
 .gitignore text eol=lf
+/ArtSource/Fonts/Roboto/v3.016/OFL.txt -text
+/Assets/_Project/Resources/Fonts/Roboto/v3.016/OFL.txt -text
+/Assets/StreamingAssets/ThirdParty/Roboto/OFL.txt -text
 
 # Large binaries go through Git LFS
 *.png  filter=lfs diff=lfs merge=lfs -text
