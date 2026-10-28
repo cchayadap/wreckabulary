@@ -37,9 +37,10 @@ namespace Wreckabulary.Online.Editor
                 if (!EditorSceneManager.IsPreviewScene(scene)) throw new InvalidOperationException("Expected an owned preview scene.");
                 root = EditorUtility.CreateGameObjectWithHideFlags("Installed Solo thumbnail " + map, HideFlags.HideAndDontSave);
                 SceneManager.MoveGameObjectToScene(root, scene);
-                World = WordboundCourseWorld.Build(Content.Course, Content.Geometry, root.transform);
                 var visualProfile = map == WordboundSoloEntry.ParcelServiceMap && launch.ParcelServiceCourse.VisualProfile
                     ? launch.ParcelServiceCourse.VisualProfile : launch.VisualProfile;
+                World = WordboundCourseWorld.Build(Content.Course, Content.Geometry, root.transform,
+                    new WordboundCourseWorldOptions { RoomStyle = visualProfile ? visualProfile.RoomStyle : null });
                 var resolver = new WordboundVisualResolver(Content.Items, profile: visualProfile);
                 foreach (var placement in Content.Course.Placements)
                 {

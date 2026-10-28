@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Wreckabulary.Art;
 using Wreckabulary.Rules.Wordbound;
+using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Workshop
 {
@@ -14,6 +15,7 @@ namespace Wreckabulary.Workshop
         readonly GameObject stage;
         readonly Camera lens;
         readonly List<Material> ownedMaterials = new List<Material>();
+        readonly Dictionary<string, Material> styledFloors = new Dictionary<string, Material>(StringComparer.Ordinal);
         readonly List<Light> previewLights = new List<Light>();
         readonly Dictionary<string, Transform> modules = new Dictionary<string, Transform>(StringComparer.Ordinal);
         readonly Dictionary<string, CourseModule> authored = new Dictionary<string, CourseModule>(StringComparer.Ordinal);
@@ -31,6 +33,7 @@ namespace Wreckabulary.Workshop
         public Vector3 Target => target;
         public float Distance => distance;
         public Func<string, Transform, GameObject> SpawnAssetVisual { get; set; }
+        public Func<WordboundRoomStyleProfile> RoomStyleProvider { get; set; }
         public bool Active { set { if (stage) stage.SetActive(value); } }
 
         public WordboundWorkshopViewport(Transform owner)
@@ -107,6 +110,10 @@ namespace Wreckabulary.Workshop
 
         public void Sync(WorkshopSnapshot state, CourseCatalogue approved, ResolvedCourse resolved = null)
         {
+            var style = RoomStyleProvider?.Invoke();
+            if (style) style.Validate();
+            foreach (var material in styledFloors.Values) { ownedMaterials.Remove(material); Destroy(material); }
+            styledFloors.Clear();
             bool changedFloor = snapshot != null && snapshot.ActiveLayer != state.ActiveLayer;
             snapshot = state; catalogue = approved;
             if (content) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
@@ -123,7 +130,7 @@ namespace Wreckabulary.Workshop
                 var root = new GameObject(module.Id).transform; root.SetParent(content, false);
                 root.localPosition = Point(module.Position); root.localRotation = Quaternion.Euler(0, module.Yaw, 0);
                 modules.Add(module.Id, root); authored.Add(module.Id, module);
-                var material = adjacent ? ghost : state.Selection.Contains(module.Id) ? selected : floor;
+                var material = adjacent ? ghost : state.Selection.Contains(module.Id) ? selected : FloorFor(module.LayerId, style);
                 float x = definition.WidthMm / 1000f, z = definition.DepthMm / 1000f;
                 Box(root, "Floor", new Vector3(0, -.1f, 0), new Vector3(x, .2f, z), material);
                 Box(root, "Edge north", new Vector3(0, .12f, z * .5f), new Vector3(x, .24f, .12f), material);
@@ -149,6 +156,19 @@ namespace Wreckabulary.Workshop
                 foreach (var zone in document.Zones.Where(item => item.Placement == "Fixed" && item.Pool.Count == 1))
                     Asset(zone.Pool[0].AssetId, zone.ModuleId, zone.FixedPosition, zone.FixedYaw, zone.Id);
             if (changedFloor) Frame(); else UpdateCamera();
+        }
+
+        Material FloorFor(string layerId, WordboundRoomStyleProfile style)
+        {
+            if (!style || !style.Enabled) return floor;
+            var palette = style.ForLayer(layerId);
+            if (palette.FloorMaterial) return palette.FloorMaterial;
+            if (!styledFloors.TryGetValue(layerId, out var material))
+            {
+                material = Material(palette.Floor, Surfaces.Kind.Planks);
+                styledFloors.Add(layerId, material);
+            }
+            return material;
         }
 
         void Asset(string assetId, string moduleId, CoursePoint position, int angle, string name, string sourceZone = null)
@@ -357,6 +377,7 @@ namespace Wreckabulary.Workshop
             Destroy(stage);
             foreach (var material in ownedMaterials) Destroy(material);
             ownedMaterials.Clear();
+            styledFloors.Clear();
         }
     }
 }

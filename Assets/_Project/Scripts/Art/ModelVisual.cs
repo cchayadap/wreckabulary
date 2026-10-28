@@ -5,7 +5,7 @@ namespace Wreckabulary.Art
     public static class ModelVisual
     {
         public static GameObject Spawn(string key, Transform parent, string skin = MaterialLibrary.StandardSkin,
-            bool wordbound = false)
+            bool wordbound = false, System.Action<GameObject> configureMaterials = null)
         {
             if (wordbound && skin == MaterialLibrary.StandardSkin)
             {
@@ -17,6 +17,7 @@ namespace Wreckabulary.Art
                     visual.name = entry.model.name;
                     foreach (var collider in visual.GetComponentsInChildren<Collider>(true))
                         collider.enabled = false;
+                    configureMaterials?.Invoke(visual);
                     return visual;
                 }
             }
@@ -27,6 +28,7 @@ namespace Wreckabulary.Art
                 collider.enabled = false;
             var materials = MaterialLibrary.Load();
             if (materials) materials.ApplySkin(copy, skin);
+            configureMaterials?.Invoke(copy);
             if (key.StartsWith("Items/", System.StringComparison.Ordinal) ||
                 key.StartsWith("Environment/", System.StringComparison.Ordinal))
                 TactileMaterials.Apply(copy);

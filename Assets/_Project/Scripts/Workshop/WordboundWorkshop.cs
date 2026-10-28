@@ -22,7 +22,19 @@ namespace Wreckabulary.Workshop
         public WordboundUiTheme Theme;
         readonly WordboundUiStyles ui = new WordboundUiStyles();
         int styleGeneration;
-        Rect ToolbarRect => ui.ToolbarRect(viewport.size);
+        Rect ToolbarRect
+        {
+            get
+            {
+                var rect = ui.ToolbarRect(viewport.size);
+                if (!showRandomness)
+                {
+                    rect.width = Mathf.Min(rect.width, ui.RowHeight * 3 + 132 + ui.Padding * 2 + ui.Gap * 6);
+                    rect.height = ui.ChromeHeight;
+                }
+                return rect;
+            }
+        }
         Rect ToolbarReserved => Rect.MinMaxRect(0, 0, ToolbarRect.xMax + 8, ToolbarRect.yMax + 8);
         WorkshopStorage storage;
         string storageFolder;
@@ -34,7 +46,7 @@ namespace Wreckabulary.Workshop
         float autosaveAt;
         int displayRevision = -1, savedRevision = -1, zoneMode = 1, presetIndex;
         bool dragging, marquee, panning, drawingZone, addSelection, advanced, sharing;
-        bool showWorkshopHelp, showTemplates, showModeOptions;
+        bool showWorkshopHelp, showTemplates, showModeOptions, showRandomness;
         string search = "", placing, status = "", title = "", seed = "", xInput = "0", zInput = "0", layerHeight = "4";
         string zoneId = "", pool = "STOOL", minCount = "1", maxCount = "3", probability = "100", spacing = "0.5";
         string puzzleId = "", prerequisite = "", gateId = "", recipeId = "BED", shareText = "";
@@ -448,18 +460,24 @@ namespace Wreckabulary.Workshop
             GUILayout.EndHorizontal(); GUILayout.EndArea();
             GUILayout.BeginArea(new Rect(viewport.position + ToolbarRect.position, ToolbarRect.size), panel);
             GUILayout.BeginHorizontal();
-            GUI.SetNextControlName("workshop-text:Seed"); seed = GUILayout.TextField(seed, 16, GUILayout.MinHeight(ui.RowHeight));
-            if (Button("Set seed")) Edit("Set seed", draft => draft.Seed = seed);
-            if (Button(History.Current.SeedLocked ? "Locked" : "Unlocked")) Edit("Seed lock", draft => draft.SeedLocked = !draft.SeedLocked);
-            GUI.enabled = !History.Current.SeedLocked;
-            if (ToolButton("Reroll", LobbyIcons.Dice, "Reroll unlocked seed")) Attempt(() => History.Reroll(Guid.NewGuid().ToString("N").Substring(0, 16)));
-            GUI.enabled = true; GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Grid " + Metres(History.Current.GridMm) + " m");
-            if (Button("Grid")) Edit("Grid", draft => draft.GridMm = draft.GridMm == 500 ? 1000 : draft.GridMm == 1000 ? 100 : 500);
+            if (Button("Grid " + Metres(History.Current.GridMm) + " m", "Change movement snap size"))
+                Edit("Grid", draft => draft.GridMm = draft.GridMm == 500 ? 1000 : draft.GridMm == 1000 ? 100 : 500);
+            if (ToolButton("Randomness", LobbyIcons.Dice, showRandomness ? "Hide seed settings" : "Randomness · seed and lock"))
+                showRandomness = !showRandomness;
             if (ToolButton("Frame selection", LobbyIcons.Frame, "Focus selection · F")) FrameSelection();
             if (ToolButton("Frame floor", LobbyIcons.Layers, "Show the whole floor")) Frame();
-            GUILayout.EndHorizontal(); GUILayout.EndArea();
+            GUILayout.EndHorizontal();
+            if (showRandomness)
+            {
+                GUILayout.BeginHorizontal();
+                GUI.SetNextControlName("workshop-text:Seed"); seed = GUILayout.TextField(seed, 16, GUILayout.MinHeight(ui.RowHeight));
+                if (Button("Set seed")) Edit("Set seed", draft => draft.Seed = seed);
+                if (Button(History.Current.SeedLocked ? "Locked" : "Unlocked")) Edit("Seed lock", draft => draft.SeedLocked = !draft.SeedLocked);
+                GUI.enabled = !History.Current.SeedLocked;
+                if (ToolButton("Reroll", LobbyIcons.Dice, "Reroll unlocked seed")) Attempt(() => History.Reroll(Guid.NewGuid().ToString("N").Substring(0, 16)));
+                GUI.enabled = true; GUILayout.EndHorizontal();
+            }
+            GUILayout.EndArea();
         }
         void DrawZone(CoursePoint from, CoursePoint to)
         {

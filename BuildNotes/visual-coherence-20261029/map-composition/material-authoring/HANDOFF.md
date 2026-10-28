@@ -1,0 +1,15 @@
+# Per-course room and original material binding
+
+STATUS: FROZEN SOURCE CHECKED; NO NATIVE EXECUTION BY THIS LANE.
+
+Manifest SHA256 `4f00468c1e483d3f37d8ea77eac1d7f3184eb6f7bade602440fbf440bc7b68c5`; patch SHA256 `1546fc0d161e20c38ede38500d8d4ffcf1be4854fe84c30a3d741b2d9d2f4c65`. Eleven exact production-relative candidates, ten existing source edits and one new test fixture. `git apply --check` passed. Five assemblies semantic-compiled with zero errors; see source-check.json.
+
+Use `WordboundVisualProfile.RoomStyle` for the existing editable room profile. Empty retains the installed global fallback, preserving old assets. Both local and network match clients pass it through the existing gameplay options.World; authored course previews and menu-thumbnail preview stages pass the same style into their exact world builds. Solo and Workshop already resolve the assigned source's VisualProfile, so no CourseAsset schema, content hash, launcher parameter or public contract changes are needed.
+
+Workshop keeps its editing cutaway and selection/ghost overlay semantics. Its active unselected floor uses the source profile's RoomStyle palette, borrowing an explicit FloorMaterial unchanged or owning a textured tint clone. Source switches and resync dispose obsolete clones; no borrowed material is destroyed. `RoomStyleProvider` is in WordboundWorkshopInteraction.cs, not WordboundWorkshop.cs, so there is no overlap with root's compact toolbar changes.
+
+Use `List<WordboundMaterialRemap> MaterialRemaps`; each row has `VisualKey`, `Source`, `Replacement`. Remapping compares exact source material references on that exact item key after normal skin selection and before existing tactile enhancement inside ModelVisual.Spawn. It preserves original meshes, fitting, grip calculation, existing skins without a matching source, hardware and unmatched renderer slots. No prefab/model override is needed. Null/unassigned, duplicated key/source and reserved avatar/letter remaps are rejected. Material assets remain borrowed and untouched. The menu lane's separate saved setup owns palette selection and exact material-role verification; no saved art/profile assets are created here.
+
+Run native filter `Wreckabulary.Tests.WordboundCourseMaterialTests` (four cases): old profile defaults/validation, original meshes/grip/nonmatching slots and skins/tactile/source preservation, appearance-only canonical world shape equality, and Workshop floor switching/owned cleanup/borrowed preservation. Also rerun existing `WordboundWorkshopSourceBindingTests` for captured source/profile switching and relevant presentation tests when root groups native checks. Native results, saved-asset reload compatibility and actual before/after captures remain pending.
+
+All three compact rooms still share the Packing palette. Per-module tinting is intentionally absent; no fake layer changes or new style framework. This changes appearance only and cannot itself solve layout/art-detail deficiencies. Runtime selected-floor overlays may conceal the floor palette in Workshop until selection changes; that is editing feedback rather than delivered floor appearance.

@@ -19,7 +19,7 @@ MonoBehaviour:
   ModeId: TimeRun
   Format: 1
   CameraProfile: {fileID: 11400000, guid: aa3aabd6d6fb281488c422c770328a56, type: 2}
-  VisualProfile: {fileID: 11400000, guid: 8513f12a73657d54393cf5b4d5749239, type: 2}
+  VisualProfile: {fileID: 11400000, guid: a35570c639f5f6340938042a3fff87d0, type: 2}
   Modules:
   - Id: ServiceRoom
     SizeMm: {x: 8000, y: 3600, z: 8000}

@@ -1,0 +1,7 @@
+{
+  "kind": "Roslyn semantic compile of existing test fixture candidate against current Unity response files; no native execution",
+  "assembly": "Wreckabulary.Online.Client.Input.Tests",
+  "sources": 14,
+  "candidateSha256": "f674703205e3e291cd55f42cc139df4e7d336a0c68e7bc322939c0e7957ab5bd",
+  "errors": []
+}

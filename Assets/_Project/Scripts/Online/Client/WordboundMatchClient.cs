@@ -6,6 +6,7 @@ using Fusion.Photon.Realtime;
 using UnityEngine;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
+using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Online
 {
@@ -53,6 +54,7 @@ namespace Wreckabulary.Online
             var artwork = matchRoot.AddComponent<WordboundGameplayPresentation>();
             var options = new WordboundGameplayOptions {
                 GameplayScene = gameplayScene,
+                World = new WordboundCourseWorldOptions { RoomStyle = visualProfile ? visualProfile.RoomStyle : null },
                 ReadMovement = () => playerView.ReadMovement(),
                 LocalPlayerChanged = body => playerView.LocalPlayerChanged(body),
                 ConfigureVisual = body => artwork.ConfigureVisual(body)

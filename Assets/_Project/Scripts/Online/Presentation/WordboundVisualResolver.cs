@@ -79,13 +79,16 @@ namespace Wreckabulary.Online
                     orientation.localRotation = Quaternion.Euler(-90f, 0f, 0f);
                 GameObject model = null;
                 bool overridden = Profile && Profile.TryInstantiate(visualKey, orientation, out model);
+                Action<GameObject> remap = Profile && Profile.HasMaterialRemaps(visualKey)
+                    ? value => Profile.ApplyMaterialRemaps(visualKey, value) : null;
                 if (!overridden)
                 {
                     key = ModelKey(visualKey);
                     var collection = UseWordboundCollection && skin == Skin.Standard ? WordboundEquipmentCollection.Load() : null;
                     entry = collection ? collection.FindByModelKey(key) : null;
-                    model = ModelVisual.Spawn(key, orientation, skin, UseWordboundCollection);
+                    model = ModelVisual.Spawn(key, orientation, skin, UseWordboundCollection, remap);
                 }
+                else remap?.Invoke(model);
                 if (!model) throw new InvalidOperationException("Required authored model is not imported: " + key);
                 if (model.GetComponentsInChildren<Collider>(true).Length != 0 ||
                     model.GetComponentsInChildren<Rigidbody>(true).Length != 0 ||

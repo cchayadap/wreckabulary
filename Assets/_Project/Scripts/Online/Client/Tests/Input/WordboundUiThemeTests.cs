@@ -212,12 +212,32 @@ namespace Wreckabulary.Online.Tests
                 window = Open(() => { using var scope = styles.Apply(theme); }); Send(window, EventType.Layout);
                 typeof(WordboundWorkshop).GetField("viewport", BindingFlags.Instance | BindingFlags.NonPublic)
                     .SetValue(workshop, new Rect(228, 90, width, height));
-                var drawn = Property<Rect>(workshop, "ToolbarRect"); var excluded = Property<Rect>(workshop, "ToolbarReserved");
-                Assert.GreaterOrEqual(drawn.height, row * 2 + padding * 2 + gap * 2);
-                Assert.LessOrEqual(drawn.xMax, width - 8); Assert.Less(drawn.yMax, height);
-                Assert.IsTrue(excluded.Contains(drawn.min)); Assert.IsTrue(excluded.Contains(drawn.max - Vector2.one * .01f));
-                Assert.IsFalse(excluded.Contains(new Vector2(drawn.center.x, excluded.yMax + .01f)));
-                Assert.AreEqual(styles.ToolbarRect(new Vector2(width, height)), drawn);
+                var expanded = styles.ToolbarRect(new Vector2(width, height));
+                var toggle = typeof(WordboundWorkshop).GetField("showRandomness", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.IsNotNull(toggle); Assert.IsFalse((bool)toggle.GetValue(workshop));
+                foreach (bool open in new[] { false, true, false })
+                {
+                    toggle.SetValue(workshop, open);
+                    var drawn = Property<Rect>(workshop, "ToolbarRect"); var excluded = Property<Rect>(workshop, "ToolbarReserved");
+                    Assert.LessOrEqual(drawn.xMax, width - 8); Assert.Less(drawn.yMax, height);
+                    Assert.IsTrue(excluded.Contains(drawn.min)); Assert.IsTrue(excluded.Contains(drawn.max - Vector2.one * .01f));
+                    Assert.IsFalse(excluded.Contains(new Vector2(drawn.center.x, excluded.yMax + .01f)));
+                    Assert.IsFalse(excluded.Contains(new Vector2(excluded.xMax + .01f, drawn.center.y)));
+                    if (open)
+                    {
+                        Assert.AreEqual(expanded, drawn);
+                        Assert.GreaterOrEqual(drawn.height, row * 2 + padding * 2 + gap * 2);
+                    }
+                    else
+                    {
+                        Assert.AreEqual(expanded.position, drawn.position);
+                        Assert.AreEqual(styles.ChromeHeight, drawn.height);
+                        Assert.AreEqual(Mathf.Min(expanded.width, styles.RowHeight * 3 + 132 + padding * 2 + gap * 6), drawn.width);
+                        Assert.Less(drawn.height, expanded.height);
+                        Assert.IsFalse(excluded.Contains(new Vector2(drawn.center.x, expanded.yMax - .01f)),
+                            "Collapsing randomness must return the old seed row to viewport picking.");
+                    }
+                }
             }
             finally { if (window) window.Close(); styles?.Dispose(); Object.DestroyImmediate(root); Object.DestroyImmediate(theme); }
         }

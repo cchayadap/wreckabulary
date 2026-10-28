@@ -29,7 +29,8 @@ namespace Wreckabulary.Online.Editor
             renderer = new PreviewRenderUtility();
             try
             {
-                world = WordboundCourseWorld.Build(exact, content.Geometry);
+                world = WordboundCourseWorld.Build(exact, content.Geometry, options:
+                    new WordboundCourseWorldOptions { RoomStyle = asset.VisualProfile ? asset.VisualProfile.RoomStyle : null });
                 renderer.AddSingleGO(world.gameObject);
                 var resolver = new WordboundVisualResolver(content.Items, profile: asset.VisualProfile);
                 foreach (var placement in exact.Placements)

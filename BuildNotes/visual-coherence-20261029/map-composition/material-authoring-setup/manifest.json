@@ -1,0 +1,14 @@
+{
+  "lane": "visual-coherence-20261029/material-authoring-setup",
+  "status": "FROZEN_DRAFT",
+  "baseHead": "743fa016ab88aa173f4263962a00e4dcd6337d5d",
+  "nativeExecuted": false,
+  "files": [
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundParcelServiceMaterialsSetup.cs",
+      "baselineSha256": null,
+      "candidateSha256": "95d466a3a04665a0bac159c7d96fc11c7704609d37d3d4f09de666c467012323",
+      "operation": "add"
+    }
+  ]
+}

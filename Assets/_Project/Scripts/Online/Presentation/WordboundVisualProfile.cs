@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Wreckabulary.Rules.Wordbound;
+using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Online
 {
@@ -22,17 +23,38 @@ namespace Wreckabulary.Online
         public Material[] Materials = Array.Empty<Material>();
     }
 
+    [Serializable]
+    public sealed class WordboundMaterialRemap
+    {
+        public string VisualKey = "";
+        public Material Source;
+        public Material Replacement;
+    }
+
     [CreateAssetMenu(menuName = "Wreckabulary/Wordbound/Visual profile")]
     public sealed class WordboundVisualProfile : ScriptableObject
     {
         [Tooltip("Choose the original Wreckabulary models or the optional Wordbound equipment collection. Per-item Overrides take priority.")]
         public WordboundBaseArtwork BaseArtwork = WordboundBaseArtwork.OriginalWreckabulary;
+        [Tooltip("Optional room materials for this course. Empty keeps the installed room style. Geometry and physics remain unchanged.")]
+        public WordboundRoomStyleProfile RoomStyle;
+        [Tooltip("Replace exact material references on this visual key after skin selection. Other models, material slots and skins stay unchanged.")]
+        public List<WordboundMaterialRemap> MaterialRemaps = new List<WordboundMaterialRemap>();
         public WordboundDefensePose DefensePose = new WordboundDefensePose();
         public WordboundHoldingPose HoldingPose = new WordboundHoldingPose();
         public List<WordboundVisualOverride> Overrides = new List<WordboundVisualOverride>();
         public void Validate()
         {
             if (!Enum.IsDefined(typeof(WordboundBaseArtwork), BaseArtwork)) throw new ArgumentException("Choose a supported base artwork source.");
+            RoomStyle?.Validate();
+            if (MaterialRemaps == null || MaterialRemaps.Count > 128)
+                throw new ArgumentException("At most 128 exact material replacements are supported.");
+            var materialKeys = new HashSet<(string key, Material source)>();
+            foreach (var row in MaterialRemaps)
+                if (row == null || !WordboundIdentity.IsId(row.VisualKey) || row.VisualKey == "player" ||
+                    row.VisualKey.StartsWith("letter:", StringComparison.Ordinal) || !row.Source || !row.Replacement ||
+                    !materialKeys.Add((row.VisualKey, row.Source)))
+                    throw new ArgumentException("Material replacements require distinct visual-key/source pairs and assigned materials.");
             if (DefensePose == null) throw new ArgumentException("Assign a held-defense visual pose.");
             DefensePose.Validate();
             if (HoldingPose == null) throw new ArgumentException("Assign held-item pose settings.");
@@ -81,6 +103,23 @@ namespace Wreckabulary.Online
                 renderer.sharedMaterials = materials;
             }
             return true;
+        }
+        public bool HasMaterialRemaps(string visualKey) => MaterialRemaps != null && MaterialRemaps.Any(r => r != null && r.VisualKey == visualKey);
+        public void ApplyMaterialRemaps(string visualKey, GameObject model)
+        {
+            if (!model) throw new ArgumentNullException(nameof(model));
+            Validate();
+            var rows = MaterialRemaps.Where(r => r.VisualKey == visualKey).ToDictionary(r => r.Source, r => r.Replacement);
+            if (rows.Count == 0) return;
+            foreach (var renderer in model.GetComponentsInChildren<Renderer>(true))
+            {
+                var materials = renderer.sharedMaterials;
+                bool changed = false;
+                for (int i = 0; i < materials.Length; i++)
+                    if (materials[i] && rows.TryGetValue(materials[i], out var replacement))
+                    { materials[i] = replacement; changed = true; }
+                if (changed) renderer.sharedMaterials = materials;
+            }
         }
         static bool Finite(Vector3 v) => Good(v.x) && Good(v.y) && Good(v.z);
         static bool Good(float v) => !float.IsNaN(v) && !float.IsInfinity(v);

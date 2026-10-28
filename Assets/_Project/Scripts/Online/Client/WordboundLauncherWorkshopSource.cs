@@ -46,6 +46,10 @@ namespace Wreckabulary.Online
                 }
             }
             workshop.SpawnAssetVisual ??= CreateWorkshopVisual;
+            workshop.RoomStyleProvider ??= () => {
+                var visual = InputsForWorkshop().Visual;
+                return visual ? visual.RoomStyle : null;
+            };
             return flagship;
         }
 

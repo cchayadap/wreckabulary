@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Wreckabulary.Art;
 using Wreckabulary.Rules.Wordbound;
+using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Workshop
 {
@@ -25,6 +26,7 @@ namespace Wreckabulary.Workshop
             "Next physical puzzle", "Next puzzle control", "Edit modules", "Assigned course"
         };
         public Func<string, Transform, GameObject> SpawnAssetVisual { get; set; }
+        public Func<WordboundRoomStyleProfile> RoomStyleProvider { get; set; }
         public Func<string, Texture> AssetIcon { get; set; }
         string assetSearch = "";
         GUIStyle objectTileName;
@@ -40,6 +42,7 @@ namespace Wreckabulary.Workshop
             view = new WordboundWorkshopViewport(transform);
             view.SpawnAssetVisual = (id, parent) => SpawnAssetVisual != null
                 ? SpawnAssetVisual(id, parent) : ModelVisual.Spawn("Items/" + id, parent);
+            view.RoomStyleProvider = () => RoomStyleProvider?.Invoke();
             view.Sync(History.Current, Catalogue);
             view.Frame();
         }

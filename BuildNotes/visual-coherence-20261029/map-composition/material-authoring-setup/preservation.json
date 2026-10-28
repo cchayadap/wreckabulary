@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-28T20:06:26.621172+00:00",
+  "baseline": ".harness/delivery/ui-authored-before-2026-10-28T20-03-34-107Z.json",
+  "checked": 4290,
+  "unchanged": 4289,
+  "intentionalChanges": [
+    {
+      "path": "Assets/_Project/Resources/Wordbound/LocalCourses/ParcelServiceV1.asset",
+      "before": "930f4af3160ccf51f1143bce9aee62e4744eaa71eac5be7b74f117174424b1e2",
+      "after": "c4800dc0b6f925b08f7a24e99e10a573e71a77b95f2f1ddec3fbab6697561eb5"
+    }
+  ],
+  "verdict": "PASS_EXACT_SINGLE_COURSE_VISUAL_ASSIGNMENT",
+  "newFiles": "New five assets and their folders/metas are outside pre-creation baseline; saved by Unity and separately retained."
+}

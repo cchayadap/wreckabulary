@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fusion;
 using UnityEngine;
+using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Online
 {
@@ -43,6 +44,7 @@ namespace Wreckabulary.Online
                 var artwork = gameObject.AddComponent<WordboundGameplayPresentation>();
                 var options = new WordboundGameplayOptions {
                     GameplayScene = gameplayScene,
+                    World = new WordboundCourseWorldOptions { RoomStyle = visualProfile ? visualProfile.RoomStyle : null },
                     ReadMovement = () => playerView.ReadMovement(),
                     LocalPlayerChanged = body => playerView.LocalPlayerChanged(body),
                     ConfigureVisual = body => artwork.ConfigureVisual(body)
