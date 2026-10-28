@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using Wreckabulary.Rules;
+using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Online
 {
@@ -8,10 +10,18 @@ namespace Wreckabulary.Online
     {
         const string SoloStartupFailure = "Solo could not start. Return to the lobby and try again.";
 
-        public static IWordboundPuzzleContent CreateSoloContent(string items, string rules, string mode, string seed)
+        public static IWordboundPuzzleContent CreateSoloContent(string items, string rules, string mode, string seed, string map = "LostAddress")
         {
             if (!WordboundSoloEntry.Supports(mode)) throw new ArgumentException("Choose Time Run or Freestyle for solo play.", nameof(mode));
-            return new WordboundClientContent(items, rules, mode, "Solo", seed).PhysicalPuzzles;
+            if (!WordboundSoloEntry.SupportsMap(map)) throw new ArgumentException("Choose an installed solo map.", nameof(map));
+            if (map == "LostAddress") return new WordboundClientContent(items, rules, mode, "Solo", seed).PhysicalPuzzles;
+            var flagship = WordboundFlagshipContent.Create(ItemCatalogue.FromJson(items));
+            var document = WordboundArrivalVariant.Create(flagship.CopyDocument(), flagship.Geometry);
+            var definition = ModeDefinition.For(mode, RaceFormat.Solo);
+            var resolved = CourseResolver.Resolve(document, flagship.Geometry,
+                new CourseResolveRequest(seed, MatchStateValidation.Requirements(definition)));
+            if (!resolved.Success) throw new ArgumentException("The selected Parcel Hall course cannot be resolved.");
+            return new WordboundAuthoredPuzzleContent(definition, flagship.Geometry, resolved.Manifest, items, rules);
         }
 
         async void StartSolo(string mode)
@@ -21,7 +31,7 @@ namespace Wreckabulary.Online
             WordboundLocalMatchClient client = null;
             try
             {
-                var content = CreateSoloContent(itemJson, ruleJson, mode, Guid.NewGuid().ToString("N").Substring(0, 16));
+                var content = CreateSoloContent(itemJson, ruleJson, mode, Guid.NewGuid().ToString("N").Substring(0, 16), WordboundSoloEntry.SelectedMap);
                 var root = new GameObject("Wordbound solo game");
                 root.transform.SetParent(transform, false);
                 client = root.AddComponent<WordboundLocalMatchClient>();

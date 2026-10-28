@@ -31,6 +31,8 @@ namespace Wreckabulary.WordboundRuntime
 
     public sealed class WordboundCourseWorldOptions
     {
+        public bool EnableRoomArchitecture { get; set; } = true;
+        public WordboundRoomStyleProfile RoomStyle { get; set; }
         public Material FloorMaterial { get; set; }
         public Material WallMaterial { get; set; }
         public Material ConnectorMaterial { get; set; }

@@ -45,6 +45,7 @@ namespace Wreckabulary.WordboundRuntime
             try
             {
                 world.Construct(catalogue);
+                WordboundRoomArchitecture.Apply(world, world.options);
                 root.SetActive(true);
                 return world;
             }
@@ -77,6 +78,8 @@ namespace Wreckabulary.WordboundRuntime
 
         void ReleaseSurfaceMeshes()
         {
+            var architecture = GetComponent<WordboundRoomArchitecture>();
+            if (architecture) architecture.Dispose();
             foreach (var mesh in surfaceMeshes)
                 if (mesh)
                 {

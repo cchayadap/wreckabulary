@@ -20,6 +20,9 @@ namespace Wreckabulary.Online
         IReadOnlyList<WordboundStoryNotice> menuJournal = Array.Empty<WordboundStoryNotice>();
         WordboundStoryEpilogue menuEpilogue;
         float recipeViewportHeight = 180;
+        Vector2 menuStatusScroll;
+        GUIStyle quietMenuButton, activeMenuButton;
+        int menuStyleGeneration = -1;
         GUIStyle WrappedLabel => wrappedLabel ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
 
         void QueueMenuAction(Action action)
@@ -106,14 +109,26 @@ namespace Wreckabulary.Online
 
         bool MenuButton(string id, string label, params GUILayoutOption[] options)
         {
+            EnsureMenuStyles();
             if (Event.current.type == EventType.Layout && GUI.enabled) menuFocus.Register(id);
             bool selected = view.UsesGamepad && menuFocus.Selected == id;
             bool chosenRecipe = id == "recipe:" + selectedRecipe;
-            var style = selected || chosenRecipe ? ui.Selected : id == "resume" || id == "craft-selected" ? ui.Primary : GUI.skin.button;
+            bool tab = id == "equipment" && !helpOpen && !journalOpen || id == "help" && helpOpen || id == "journal" && journalOpen;
+            var style = id == "craft-selected" ? ui.Primary : selected || chosenRecipe || tab ? activeMenuButton : quietMenuButton;
             GUI.SetNextControlName("wordbound:" + id);
-            bool clicked = options.Length == 0
-                ? ui.Button(new GUIContent((selected && label.Length != 0 ? "› " : "") + label), style, GUILayout.MinHeight(ui.RowHeight))
-                : ui.Button(new GUIContent((selected && label.Length != 0 ? "› " : "") + label), style, options);
+            var content = new GUIContent((selected && label.Length != 0 ? "› " : "") + label);
+            var layout = options.Length == 0 ? new[] { GUILayout.MinHeight(ui.RowHeight) } : options;
+            bool clicked = id == "craft-selected" ? ui.Button(content, style, layout) : GUILayout.Button(content, style, layout);
+            if (Event.current.type == EventType.Repaint && (selected || chosenRecipe || tab))
+            {
+                Rect row = GUILayoutUtility.GetLastRect();
+                Color before = GUI.color;
+                GUI.color = new Color(ui.Ink.r, ui.Ink.g, ui.Ink.b, .75f);
+                GUI.DrawTexture(id.StartsWith("recipe:", StringComparison.Ordinal)
+                    ? new Rect(row.x, row.y + 6, 3, Mathf.Max(1, row.height - 12))
+                    : new Rect(row.x + 8, row.yMax - 2, Mathf.Max(1, row.width - 16), 2), Texture2D.whiteTexture);
+                GUI.color = before;
+            }
             if (clicked) menuFocus.CancelConfirmation();
             if (selected && Event.current.type == EventType.Repaint)
             {
@@ -131,6 +146,21 @@ namespace Wreckabulary.Online
                 Event.current.type == EventType.Repaint && menuFocus.Consume(id);
         }
 
+        void EnsureMenuStyles()
+        {
+            if (menuStyleGeneration == ui.Generation) return;
+            quietMenuButton = new GUIStyle(GUI.skin.button) { alignment = TextAnchor.MiddleCenter };
+            foreach (var state in new[] { quietMenuButton.normal, quietMenuButton.hover, quietMenuButton.active,
+                quietMenuButton.focused, quietMenuButton.onNormal, quietMenuButton.onHover,
+                quietMenuButton.onActive, quietMenuButton.onFocused })
+            {
+                state.background = null;
+                state.textColor = ui.Ink;
+            }
+            activeMenuButton = new GUIStyle(quietMenuButton) { fontStyle = FontStyle.Bold };
+            menuStyleGeneration = ui.Generation;
+        }
+
         void Menu(float width, float height, bool focused)
         {
             using var themeScope = ui.Apply(Theme);
@@ -146,25 +176,54 @@ namespace Wreckabulary.Online
                 menuJournal = story ? story.Journal : Array.Empty<WordboundStoryNotice>();
                 menuEpilogue = story ? story.Epilogue(mode) : null;
             }
-            GUILayout.BeginArea(ui.MenuRect(width, height), ui.Panel);
-            GUILayout.Label(helpOpen ? "Help" : journalOpen ? "Journal" : crafting ? "Craft" : "Wordbound", ui.Heading);
-            if (menuConnectionStatus.Length != 0) GUILayout.Label(menuConnectionStatus, ui.Wrapped);
-            if (menuResultStatus.Length != 0) GUILayout.Label(menuResultStatus, ui.Wrapped);
-            if (menuActionStatus.Length != 0) GUILayout.Label(menuActionStatus, ui.Wrapped);
-            if (view.UsesGamepad) GUILayout.Label("D-pad: select · A: choose · B: back · Right stick: scroll", ui.Wrapped);
+            Rect area = ui.MenuRect(width, height);
+            float inside = Mathf.Max(1, area.width - ui.Padding * 2);
+            float line = Mathf.Max(ui.RowHeight, ui.Heading.CalcHeight(new GUIContent("Equipment"), inside - 120)) + 4;
+            Rect header = new Rect(ui.Padding, ui.Padding, inside, line);
+            Rect tabs = new Rect(ui.Padding, header.yMax + ui.Gap, inside, ui.RowHeight + 4);
+            float bodyTop = tabs.yMax + ui.Gap * 2;
+            Rect footer = new Rect(ui.Padding, area.height - ui.Padding - ui.RowHeight - 4, inside, ui.RowHeight + 4);
+            string status = string.Join("\n", new[] { menuConnectionStatus, menuResultStatus, menuActionStatus }.Where(value => value.Length > 0));
+            GUI.BeginGroup(area);
+            GUI.Box(new Rect(0, 0, area.width, area.height), GUIContent.none, ui.Panel);
+            GUILayout.BeginArea(header);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(helpOpen ? "Help" : journalOpen ? "Journal" : "Equipment", ui.Heading, GUILayout.MinHeight(ui.RowHeight));
+            GUILayout.FlexibleSpace();
             GUI.enabled = controller.Fault == "";
-            if (MenuButton("resume", "Resume", GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(Resume);
+            if (MenuButton("resume", "Resume", GUILayout.Width(Mathf.Max(100, ui.SingleLine.CalcSize(new GUIContent("› Resume")).x + 24)),
+                GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(Resume);
             GUI.enabled = true;
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+            GUILayout.BeginArea(tabs);
             GUILayout.BeginHorizontal();
             if (MenuButton("equipment", "Equipment")) QueueMenuAction(() => { journalOpen = false; helpOpen = false; recipeScroll = Vector2.zero; });
             if ((menuJournal.Count > 0 || menuEpilogue != null) && MenuButton("journal", "Journal"))
                 QueueMenuAction(() => { journalOpen = true; helpOpen = false; recipeScroll = Vector2.zero; });
             if (MenuButton("help", "Help")) QueueMenuAction(() => { helpOpen = true; journalOpen = false; recipeScroll = Vector2.zero; });
             GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+            if (status.Length != 0)
+            {
+                float statusHeight = Mathf.Min(ui.Wrapped.CalcHeight(new GUIContent(status), Mathf.Max(1, inside - 24)) + 6,
+                    Mathf.Max(ui.LabelHeight + 6, (footer.y - bodyTop) * .25f));
+                GUILayout.BeginArea(new Rect(ui.Padding, bodyTop, inside, statusHeight));
+                menuStatusScroll = GUILayout.BeginScrollView(menuStatusScroll);
+                GUILayout.Label(status, ui.Wrapped);
+                GUILayout.EndScrollView();
+                GUILayout.EndArea();
+                bodyTop += statusHeight + ui.Gap;
+            }
+            var body = new Rect(ui.Padding, bodyTop, inside, Mathf.Max(30, footer.y - bodyTop - ui.Gap * 2));
             GUI.enabled = helpOpen || journalOpen || frame != null && !controller.IsSimulationPaused;
-            if (helpOpen) HelpMenu();
+            if (helpOpen)
+            {
+                GUILayout.BeginArea(body); HelpMenu(); GUILayout.EndArea();
+            }
             else if (journalOpen && story)
             {
+                GUILayout.BeginArea(body);
                 recipeScroll = GUILayout.BeginScrollView(recipeScroll);
                 if (menuEpilogue != null)
                 {
@@ -179,36 +238,15 @@ namespace Wreckabulary.Online
                     GUILayout.Space(8);
                 }
                 GUILayout.EndScrollView();
+                GUILayout.EndArea();
             }
-            else if (inventory != null)
-            {
-                recipeScroll = GUILayout.BeginScrollView(recipeScroll);
-                recipeScrollActive = true;
-                EquipmentMenu();
-                GUI.enabled = true;
-                GUILayout.Label("Letters: " + (inventory.Letters.Count == 0 ? "—" : inventory.Letters.ToString()));
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Search", ui.SingleLine,
-                    GUILayout.Width(Mathf.Ceil(ui.SingleLine.CalcSize(new GUIContent("Search")).x)), GUILayout.MinHeight(ui.RowHeight));
-                string nextSearch = GUILayout.TextField(pendingSearch ?? search, 32, GUILayout.MinHeight(ui.RowHeight));
-                if (nextSearch != search) pendingSearch = nextSearch;
-                if (search.Length > 0 && MenuButton("clear-search", "Clear", GUILayout.Width(64), GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(() => search = "");
-                GUILayout.EndHorizontal();
-                RecipeGrid(ui.MenuRect(width, height).width, height);
-                recipeScrollActive = false;
-                GUILayout.EndScrollView();
-                if (Event.current.type == EventType.Repaint)
-                {
-                    recipeViewportRect = GUILayoutUtility.GetLastRect();
-                    recipeViewportHeight = Mathf.Max(30, recipeViewportRect.height);
-                }
-                GUI.enabled = true;
-                RecipeSelectionDetail();
-            }
+            else if (inventory != null) RecipeWorkspace(body);
             GUI.enabled = true;
+            GUILayout.BeginArea(footer);
             if (MenuButton("return", returnLabel, GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(() => ReturnRequested?.Invoke());
-            if (Event.current.type == EventType.Repaint) recipeReturnRect = GUILayoutUtility.GetLastRect();
+            if (Event.current.type == EventType.Repaint) recipeReturnRect = footer;
             GUILayout.EndArea();
+            GUI.EndGroup();
             if (Event.current.type == EventType.Layout) menuFocus.EndLayout();
         }
 

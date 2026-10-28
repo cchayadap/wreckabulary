@@ -1,0 +1,50 @@
+[
+  {
+    "source": "Assets/_Project/Prefabs/UI/Play/PlayPage.prefab",
+    "archived": "Assets\\_Project\\UI\\DesignArchive\\BeforeMinimal20261028\\PlayPage.prefab",
+    "archiveExactMatch": true,
+    "originalMetadataUnchanged": true,
+    "before": "004c7890534f02627d8f9bed3aeaa6b02472b9867aabb5855db18475ffb2ce35",
+    "archivedSha256": "004c7890534f02627d8f9bed3aeaa6b02472b9867aabb5855db18475ffb2ce35"
+  },
+  {
+    "source": "Assets/_Project/Prefabs/UI/Settings/SettingsPage.prefab",
+    "archived": "Assets\\_Project\\UI\\DesignArchive\\BeforeMinimal20261028\\SettingsPage.prefab",
+    "archiveExactMatch": true,
+    "originalMetadataUnchanged": true,
+    "before": "eb1d965848860c19a60a0ecc03270812b28d2bdef45bbc9e7ae5730be54e942b",
+    "archivedSha256": "eb1d965848860c19a60a0ecc03270812b28d2bdef45bbc9e7ae5730be54e942b"
+  },
+  {
+    "source": "Assets/_Project/Prefabs/UI/Loadout/LoadoutPage.prefab",
+    "archived": "Assets\\_Project\\UI\\DesignArchive\\BeforeMinimal20261028\\LoadoutPage.prefab",
+    "archiveExactMatch": true,
+    "originalMetadataUnchanged": true,
+    "before": "ea9f071d6767b9940a43da454c87ac70efd2f507c2652a6d4150d222febe3e11",
+    "archivedSha256": "ea9f071d6767b9940a43da454c87ac70efd2f507c2652a6d4150d222febe3e11"
+  },
+  {
+    "source": "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab",
+    "archived": "Assets\\_Project\\UI\\DesignArchive\\BeforeMinimal20261028\\RecipeTile.prefab",
+    "archiveExactMatch": true,
+    "originalMetadataUnchanged": true,
+    "before": "ed4f89256ac15ca66c2b4adbfdd7f594242e7e624949fdb62ed1db1305b6e69a",
+    "archivedSha256": "ed4f89256ac15ca66c2b4adbfdd7f594242e7e624949fdb62ed1db1305b6e69a"
+  },
+  {
+    "source": "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab",
+    "archived": "Assets\\_Project\\UI\\DesignArchive\\BeforeMinimal20261028\\ShopPage.prefab",
+    "archiveExactMatch": true,
+    "originalMetadataUnchanged": true,
+    "before": "b077dde29cd570001b28486e4e2084752cc152d19d26c14634cc6fc91cdc1ede",
+    "archivedSha256": "b077dde29cd570001b28486e4e2084752cc152d19d26c14634cc6fc91cdc1ede"
+  },
+  {
+    "source": "Assets/_Project/Data/Wordbound/Authoring/Interface.asset",
+    "archived": "Assets\\_Project\\UI\\DesignArchive\\BeforeMinimal20261028\\Interface.asset",
+    "archiveExactMatch": true,
+    "originalMetadataUnchanged": true,
+    "before": "1e036a63ca8b44522f8e193cdce851ffaaa163e7c745fc081459d7a032f7d70c",
+    "archivedSha256": "1e036a63ca8b44522f8e193cdce851ffaaa163e7c745fc081459d7a032f7d70c"
+  }
+]

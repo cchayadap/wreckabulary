@@ -57,6 +57,70 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator ShortHouseChooserScrollsFocusedChoicesWithoutMovingHeaderOrPlay()
+        {
+            var menu = LobbyMenu.Instance;
+            menu.Choose(LobbyMenu.Practice, "Duos", "flat");
+            menu.Open(LobbyMenu.Play);
+            Page.anchorMin = Page.anchorMax = Vector2.zero;
+            Page.sizeDelta = new Vector2(900, 580);
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            var frame = Page.GetComponentInChildren<LobbyPlayPageView>();
+            var scroll = frame.Choices.GetComponentInChildren<ScrollRect>();
+            Assert.IsNotNull(scroll, "Short house choices need a reachable scroll region.");
+            Assert.Greater(scroll.content.rect.height, scroll.viewport.rect.height);
+            Assert.IsTrue(scroll.verticalScrollbar.gameObject.activeSelf);
+            var header = InPage(frame.Queues);
+            var footer = InPage((RectTransform)Find("GO").transform);
+            var viewport = InPage(scroll.viewport);
+            Assert.LessOrEqual(viewport.yMax, header.yMin);
+            Assert.GreaterOrEqual(viewport.yMin, footer.yMax);
+            Assert.GreaterOrEqual(((RectTransform)Find("Mode Dibs").transform).rect.height, 60,
+                "Short windows must scroll rather than shrink the mode targets.");
+            foreach (string name in new[] { "Map flat", "Mode Dibs" })
+            {
+                var target = Find(name);
+                EventSystem.current.SetSelectedGameObject(target.gameObject);
+                yield return null;
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                var visible = InPage((RectTransform)target.transform);
+                Assert.GreaterOrEqual(visible.yMin, viewport.yMin - .1f, name + " enters the viewport");
+                Assert.LessOrEqual(visible.yMax, viewport.yMax + .1f, name + " enters the viewport");
+                AssertSameBounds(header, InPage(frame.Queues), "Scrolling must not move the queue strip.");
+                AssertSameBounds(footer, InPage((RectTransform)Find("GO").transform), "Play stays fixed.");
+                Assert.AreSame(target.gameObject, EventSystem.current.currentSelectedGameObject);
+            }
+            Page.sizeDelta = new Vector2(1868, 968);
+            yield return null;
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            Assert.LessOrEqual(scroll.content.rect.height, scroll.viewport.rect.height + .1f);
+            Assert.IsFalse(scroll.verticalScrollbar.gameObject.activeSelf, "Hide unnecessary scrolling affordances.");
+            Assert.AreEqual("Mode Dibs", EventSystem.current.currentSelectedGameObject.name);
+            var map = Find("Map flat");
+            EventSystem.current.SetSelectedGameObject(map.gameObject);
+            yield return null;
+            yield return null;
+            Page.sizeDelta = new Vector2(900, 580);
+            yield return null;
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            viewport = InPage(scroll.viewport);
+            var focused = InPage((RectTransform)map.transform);
+            Assert.AreSame(map.gameObject, EventSystem.current.currentSelectedGameObject, "Resize keeps the selected map.");
+            Assert.GreaterOrEqual(focused.yMin, viewport.yMin - .1f, "Resize reveals the same selected map.");
+            Assert.LessOrEqual(focused.yMax, viewport.yMax + .1f, "Resize reveals the same selected map.");
+            scroll.verticalNormalizedPosition = 1f;
+            yield return null;
+            yield return null;
+            Assert.That(scroll.verticalNormalizedPosition, Is.EqualTo(1f).Within(.01f),
+                "Manual scrolling must not jump back to an unchanged selection.");
+            Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
+        }
+
+        [UnityTest]
         public IEnumerator CompactWordboundFamiliesRefitWithoutChangingChoicesOrFooter()
         {
             var menu = LobbyMenu.Instance;
@@ -273,6 +337,9 @@ namespace Wreckabulary.Tests
             var row = InPage(rects.Single(rect => rect.name == rowName));
             var summary = InPage(rects.Single(rect => rect.name == summaryName));
             Assert.LessOrEqual(summary.yMax, row.yMin - 1f, "the footer must not overlap cards");
+            if (rowName == "Solo modes")
+                Assert.LessOrEqual(summary.yMax, InPage(rects.Single(rect => rect.name == "Solo maps")).yMin - 1f,
+                    "the footer must not overlap the selected map row");
             foreach (var button in panel.GetComponentsInChildren<Button>())
             {
                 var bounds = InPage((RectTransform)button.transform);
@@ -295,6 +362,14 @@ namespace Wreckabulary.Tests
             var min = Page.InverseTransformPoint(corners[0]);
             var max = Page.InverseTransformPoint(corners[2]);
             return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+        }
+
+        static void AssertSameBounds(Rect expected, Rect actual, string message)
+        {
+            Assert.That(actual.xMin, Is.EqualTo(expected.xMin).Within(.1f), message);
+            Assert.That(actual.xMax, Is.EqualTo(expected.xMax).Within(.1f), message);
+            Assert.That(actual.yMin, Is.EqualTo(expected.yMin).Within(.1f), message);
+            Assert.That(actual.yMax, Is.EqualTo(expected.yMax).Within(.1f), message);
         }
 
         [Test]
@@ -347,9 +422,9 @@ namespace Wreckabulary.Tests
         [UnityTest]
         public IEnumerator LocalAndCreateOfferActualModesWithConciseCards()
         {
-            Assert.AreEqual("LOCAL", Find("Queue " + LobbyMenu.Practice).GetComponentInChildren<TMP_Text>().text);
-            Assert.AreEqual("ONLINE", Find("Queue " + LobbyMenu.Matchmaking).GetComponentInChildren<TMP_Text>().text);
-            Assert.AreEqual("CREATE", Find("Queue " + LobbyMenu.Workshop).GetComponentInChildren<TMP_Text>().text);
+            Assert.AreEqual("Local", Find("Queue " + LobbyMenu.Practice).GetComponentInChildren<TMP_Text>().text);
+            Assert.AreEqual("Online", Find("Queue " + LobbyMenu.Matchmaking).GetComponentInChildren<TMP_Text>().text);
+            Assert.AreEqual("Create", Find("Queue " + LobbyMenu.Workshop).GetComponentInChildren<TMP_Text>().text);
             CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
             foreach (var button in Page.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Mode ")))
             {
@@ -460,6 +535,11 @@ namespace Wreckabulary.Tests
         {
             try
             {
+                WordboundSoloEntry.Clear();
+                Assert.AreEqual(WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.SelectedMap);
+                foreach (string map in new[] { "flat", "Parcelhall", "", null })
+                    Assert.Throws<System.ArgumentException>(() => WordboundSoloEntry.SelectMap(map));
+                WordboundSoloEntry.SelectMap(WordboundSoloEntry.ParcelHallMap);
                 foreach (string mode in new[] { "TeamRace", "FreeForAll", "Brawl", "Dibs", "", null })
                     Assert.Throws<System.ArgumentException>(() => WordboundSoloEntry.Request(mode));
                 foreach (string mode in new[] { "TimeRun", "Freestyle" })
@@ -467,6 +547,7 @@ namespace Wreckabulary.Tests
                     WordboundSoloEntry.Request(mode);
                     Assert.AreEqual(mode, WordboundSoloEntry.TakeRequest());
                     Assert.IsNull(WordboundSoloEntry.TakeRequest());
+                    Assert.AreEqual(WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.SelectedMap);
                 }
                 WordboundSoloEntry.Request("TimeRun");
                 WordboundSoloEntry.CancelRequest();
@@ -478,6 +559,7 @@ namespace Wreckabulary.Tests
                 Session.Clear();
                 Assert.IsNull(WordboundSoloEntry.TakeRequest());
                 Assert.AreEqual("TimeRun", WordboundSoloEntry.SelectedMode);
+                Assert.AreEqual(WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.SelectedMap);
             }
             finally { WordboundSoloEntry.Clear(); }
         }
@@ -497,8 +579,15 @@ namespace Wreckabulary.Tests
             Assert.IsEmpty(Modes);
             Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")));
             CollectionAssert.AreEqual(new[] { "Solo TimeRun", "Solo Freestyle" },
-                Page.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Solo ") && button.name != "Solo GO")
+                Page.GetComponentsInChildren<Button>().Where(button => button.name == "Solo TimeRun" || button.name == "Solo Freestyle")
                     .Select(button => button.name).ToArray());
+            CollectionAssert.AreEqual(new[] { "Solo map LostAddress", "Solo map ParcelHall" },
+                Page.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Solo map "))
+                    .Select(button => button.name).ToArray());
+            Submit("Solo map ParcelHall");
+            yield return null;
+            Assert.AreEqual(WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.SelectedMap);
+            Assert.AreEqual("Solo map ParcelHall", EventSystem.current.currentSelectedGameObject.name);
             Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
             Assert.AreEqual(LobbyMenu.Practice, menu.Queue);
             Assert.AreSame(second, menu.Party.Single());
@@ -510,6 +599,7 @@ namespace Wreckabulary.Tests
             Submit("Solo Freestyle");
             yield return null;
             Assert.AreEqual("Freestyle", WordboundSoloEntry.SelectedMode);
+            Assert.AreEqual(WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.SelectedMap);
             foreach (var pair in new[] { ("Solo TimeRun", "CLOCK"), ("Solo Freestyle", "BOX") })
             {
                 Assert.IsTrue(Wreckabulary.UI.ItemArt.TryGet(pair.Item2, out var texture, out var uv));
@@ -524,6 +614,7 @@ namespace Wreckabulary.Tests
             menu.Leave(second);
             Submit("Family Wordbound");
             yield return null;
+            Assert.AreEqual(WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.SelectedMap);
             Assert.IsTrue(Find("Solo GO").interactable);
             Canvas.ForceUpdateCanvases();
             foreach (var text in Page.GetComponentsInChildren<TMP_Text>())

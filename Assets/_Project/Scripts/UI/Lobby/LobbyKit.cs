@@ -26,7 +26,7 @@ namespace Wreckabulary
         public static readonly Color CoinRim = Hex(0xf0a400), CoinRimHi = Hex(0xffe066), CoinInk = Hex(0x795015);
 
         public static readonly Color Panel = Hex(0xfff9ec, .98f);
-        public static readonly Color PanelTop = Hex(0xfffcf4), PanelBottom = Hex(0xf5ecd9);
+        public static readonly Color PanelTop = Hex(0xfaf9f5), PanelBottom = Hex(0xfaf9f5);
         public static readonly Color ScrimNavy = Hex(0xfff8e9);
         public static readonly Color Card = Hex(0xcee3dc, .5f);
         public static readonly Color Line = Hex(0x8b9d95, .35f);
@@ -238,8 +238,8 @@ namespace Wreckabulary
             row.padding = new RectOffset(8, 8, 4, 6);
             Image glyph = null;
             if (icon != null) glyph = Icon(content, icon, selected ? active : idle).Size(size, size);
-            var label = Display(content, title, size, selected ? active : idle);
-            label.characterSpacing = .6f;
+            var label = Text(content, title, size, selected ? active : idle, TextAlignmentOptions.Center);
+            label.characterSpacing = 0;
             label.enableAutoSizing = true;
             label.fontSizeMin = Mathf.Min(size, Mathf.Max(14f, size * .78f));
             label.fontSizeMax = size;
@@ -573,8 +573,8 @@ namespace Wreckabulary
 
         public static TextMeshProUGUI SectionLabel(Transform parent, string text)
         {
-            var label = Display(parent, Upper(text), 20, Cyan, TextAlignmentOptions.BottomLeft);
-            label.characterSpacing = 2;
+            var label = Text(parent, text, 20, Cyan, TextAlignmentOptions.BottomLeft);
+            label.characterSpacing = 0;
             label.Size(-1, 28);
             return label;
         }
@@ -587,9 +587,9 @@ namespace Wreckabulary
             track.Size(-1, height);
             foreach (var (id, label) in choices)
             {
-                var button = TextAction(track, id, Upper(label), size, () => pick(id), id == picked);
+                var button = TextAction(track, id, label, size, () => pick(id), id == picked);
                 var text = button.GetComponentInChildren<TMP_Text>();
-                button.Size(-1, -1, Mathf.Max(1f, text.GetPreferredValues(Upper(label)).x + 16f));
+                button.Size(-1, -1, Mathf.Max(1f, text.GetPreferredValues(label).x + 16f));
                 button.Body().Find("Content").GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(5, 5, 4, 6);
             }
             return track;

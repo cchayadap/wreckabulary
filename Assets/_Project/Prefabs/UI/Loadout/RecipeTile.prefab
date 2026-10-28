@@ -88,7 +88,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1527142107375702047}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
@@ -392,9 +392,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyPress
   Body: {fileID: 4848373184278997128}
-  Lift: 4
-  Sink: 2
-  Tilt: 2
+  Lift: 0
+  Sink: 1
+  Tilt: 0
   Scale: 1
   HoverScale: 1
   Lean: 0
@@ -420,9 +420,9 @@ MonoBehaviour:
   Selection: {fileID: 7177292399187255772}
   Icon: {fileID: 7715875902096376543}
   Letters: {fileID: 5891711081945597342}
-  SelectedInk: {r: 0.6901961, g: 0.47058824, b: 0.12941177, a: 1}
-  MaximumLetterSize: 24
-  LetterWidthBudget: 112
+  SelectedInk: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  MaximumLetterSize: 22
+  LetterWidthBudget: 154
 --- !u!1 &6390379089055049769
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,7 +654,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -10}
-  m_SizeDelta: {x: 64, y: 64}
+  m_SizeDelta: {x: 96, y: 96}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8732165871720092815
 CanvasRenderer:

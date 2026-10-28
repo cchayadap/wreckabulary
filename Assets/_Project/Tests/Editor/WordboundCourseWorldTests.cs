@@ -318,7 +318,7 @@ namespace Wreckabulary.Tests
             world.Dispose();
             Assert.IsTrue(material != null);
             callbacks = 0;
-            var defaults = new WordboundCourseWorldOptions { ConfigureCollision = (_, __) => callbacks++ };
+            var defaults = new WordboundCourseWorldOptions { EnableRoomArchitecture = false, ConfigureCollision = (_, __) => callbacks++ };
             world = WordboundCourseWorld.Build(course, catalogue, parent.transform, defaults);
             Assert.AreEqual(before.Count, callbacks);
             Assert.AreEqual(manifest, CourseJson.ExportManifest(world.Course));
@@ -396,7 +396,8 @@ namespace Wreckabulary.Tests
                 }, proof.Assets.Values, proof.PuzzlePresets, proof.Themes, proof.NarrativeEvents);
                 var document = CourseTemplates.CombatArena();
                 document.Modules[0].Position = new CoursePoint(revision * 500, 0, revision * 250);
-                world = WordboundCourseWorld.Build(Resolve(document, catalogue, "FreeForAll"), catalogue, parent.transform);
+                world = WordboundCourseWorld.Build(Resolve(document, catalogue, "FreeForAll"), catalogue, parent.transform,
+                    new WordboundCourseWorldOptions { EnableRoomArchitecture = false });
                 var meshes = world.Surfaces.Select(c => c.GetComponent<MeshFilter>().sharedMesh).ToArray();
                 var materials = world.Surfaces.Select(c => c.GetComponent<MeshRenderer>().sharedMaterial).ToArray();
                 Assert.Greater(meshes.Length, 0);

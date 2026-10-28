@@ -25,7 +25,7 @@ namespace Wreckabulary.Qa
         public string Name => "wordbound_solo";
         LobbyExperienceQa.Preference[] preferences;
         InputBinding[] originalBindings;
-        string originalQueue, originalMode, originalMap, originalPage, originalSolo, originalTheme;
+        string originalQueue, originalMode, originalMap, originalPage, originalSolo, originalSoloMap, originalTheme;
         bool originalFamily;
         WordboundLocalMatchClient client;
         readonly Dictionary<Object, string> sourceMemory = new();
@@ -40,6 +40,7 @@ namespace Wreckabulary.Qa
                 .When(_ => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning).Do(Setup);
             yield return QaStep.Named("time_run").Timeout(180).Do(value => Guard(value, Run(value, "TimeRun")));
             yield return QaStep.Named("freestyle").Timeout(180).Do(value => Guard(value, Run(value, "Freestyle")));
+            yield return QaStep.Named("parcel_hall").Timeout(180).Do(value => Guard(value, Run(value, "Freestyle", WordboundSoloEntry.ParcelHallMap)));
         }
 
         IEnumerator Setup(QaContext context)
@@ -52,6 +53,7 @@ namespace Wreckabulary.Qa
             originalBindings = Session.Bindings.ToArray();
             originalQueue = menu.Queue; originalMode = menu.Mode; originalMap = menu.Map; originalPage = menu.Current;
             originalSolo = WordboundSoloEntry.SelectedMode; originalFamily = menu.Page<PlayPage>().WordboundSolo;
+            originalSoloMap = WordboundSoloEntry.SelectedMap;
             originalTheme = LobbyThemes.Current.Id;
             var assets = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
             var data = Resources.Load<GameData>(GameData.ResourcePath);
@@ -59,13 +61,14 @@ namespace Wreckabulary.Qa
             foreach (var asset in new Object[] { assets, assets.CameraProfile, assets.VisualProfile, assets.UiTheme, assets.StoryProfile })
                 if (asset) sourceMemory.Add(asset, JsonUtility.ToJson(asset));
             sourceText.Add(data.items, data.items.text); sourceText.Add(data.rules, data.rules.text);
-            context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler, installed flagship, two modes. No physical-input, full-finish, network, bot or team acceptance claim.");
+            context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: installed Lost Address in two modes, plus the separate furnished Parcel Hall in Freestyle. No physical-input, full-finish, network, bot or team acceptance claim.");
             yield return Shot(context, "solo_initial_lobby");
             VerifyPreserved(context);
         }
 
-        IEnumerator Run(QaContext context, string mode)
+        IEnumerator Run(QaContext context, string mode, string soloMap = WordboundSoloEntry.LostAddressMap)
         {
+            string tag = (soloMap == WordboundSoloEntry.ParcelHallMap ? "parcelhall_" : "") + mode.ToLowerInvariant();
             var menu = LobbyMenu.Instance;
             Require(menu && menu.PartySize == 1, "The single local human must remain available.");
             Submit(menu.transform.Find("Safe area/Top bar"), "PLAY");
@@ -76,8 +79,10 @@ namespace Wreckabulary.Qa
             yield return Settle();
             Submit(menu.Page<PlayPage>().Root, "Solo " + mode);
             yield return Settle();
+            Submit(menu.Page<PlayPage>().Root, "Solo map " + soloMap);
+            yield return Settle();
             string queue = menu.Queue, house = menu.Mode, map = menu.Map;
-            yield return Shot(context, "solo_" + mode.ToLowerInvariant() + "_selected");
+            yield return Shot(context, "solo_" + tag + "_selected");
             Submit(menu.Page<PlayPage>().Root, "Solo GO");
             yield return context.WaitUntil(() => {
                 client = Object.FindFirstObjectByType<WordboundLocalMatchClient>();
@@ -95,11 +100,15 @@ namespace Wreckabulary.Qa
                 !Object.FindFirstObjectByType<WordboundMatchClient>(), "Solo must not create a party or Workshop.");
             var course = Read<ResolvedCourse>(hud, "course");
             var data = Resources.Load<GameData>(GameData.ResourcePath);
-            var installed = new WordboundClientContent(data.items.text, data.rules.text, mode, "Solo", course.Seed);
-            Require(course.CopyDocument().Id == WordboundFlagshipContent.CourseId && course.SourceHash == installed.Course.SourceHash &&
+            var installed = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, course.Seed, soloMap);
+            string expectedId = soloMap == WordboundSoloEntry.ParcelHallMap ? WordboundArrivalVariant.CourseId : WordboundFlagshipContent.CourseId;
+            Require(course.CopyDocument().Id == expectedId && course.SourceHash == installed.Course.SourceHash &&
                 course.Hash == installed.Course.Hash && gameplay.CourseWorld.ManifestHash == installed.Course.Hash &&
-                gameplay.Frame.Binding.CatalogueHash == installed.PublicBinding.CatalogHash &&
+                gameplay.Frame.Binding.CatalogueHash == installed.CatalogueHash &&
                 gameplay.Frame.Binding.ModeHash == installed.Mode.Hash, "The actual installed flagship binding differs.");
+            if (soloMap == WordboundSoloEntry.ParcelHallMap)
+                Require(course.CopyDocument().Zones.Count(zone => zone.Id.StartsWith("Arrival_", StringComparison.Ordinal)) == WordboundArrivalVariant.FurnitureCount,
+                    "Parcel Hall must include the complete real furniture arrangement.");
             Require(course.CopyDocument().PhysicalSites.Count == 72 && gameplay.Frame.Progress.Players.Count == 1 &&
                 gameplay.Frame.Progress.Result == null && Read<ModeDefinition>(hud, "mode").Id == mode, "Unexpected local content, seats or fabricated result.");
             Require(Read<string>(hud, "returnLabel") == "Return to lobby", "The normal play HUD has a Workshop return label.");
@@ -114,7 +123,7 @@ namespace Wreckabulary.Qa
             var adapted = Read<InputBinding>(view, "effectiveBinding") as WordboundInputBinding;
             if (controls[0] is DesktopBinding || controls[0] is GamepadBinding)
                 Require(adapted != null && ReferenceEquals(adapted.BorrowedSource, controls[0]), "Solo must adapt only the invoking device.");
-            context.Note("solo_input_" + mode, new Dictionary<string, object> {
+            context.Note("solo_input_" + tag, new Dictionary<string, object> {
                 ["source"] = controls[0].GetType().Name, ["borrowed_exact_source"] = adapted != null && ReferenceEquals(adapted.BorrowedSource, controls[0]),
                 ["craft_hint"] = view.ControlHint(WordboundControl.Spell), ["menu_hint"] = view.ControlHint(WordboundControl.Menu),
                 ["scope"] = "Actual player composition and displayed bindings; no physical device events are injected." });
@@ -148,18 +157,18 @@ namespace Wreckabulary.Qa
                 }
                 finally
                 {
-                    context.Note("solo_render_readiness_" + mode, new Dictionary<string, object> {
+                    context.Note("solo_render_readiness_" + tag, new Dictionary<string, object> {
                         ["expected_markers"] = expectedMarkers, ["rendered_markers"] = guide ? guide.MarkerCount : -1,
                         ["camera_frames"] = cameraFrames, ["canonical_ticks"] = gameplay.Frame.Progress.Tick - tick,
                         ["guide_fault"] = guide ? guide.Fault : "guide unavailable",
                         ["scope"] = "Guide count matches the current canonical mode plan. Freestyle may have no nearby or selected practice station." });
                 }
                 Require(camera.enabled && camera.targetTexture == null && guide.Fault == "", "The assigned game camera or guide is unavailable.");
-                yield return Shot(context, "solo_" + mode.ToLowerInvariant() + "_world");
+                yield return Shot(context, "solo_" + tag + "_world");
                 view.SetMenuOpen(true);
                 yield return context.WaitFrames(3);
-                yield return Shot(context, "solo_" + mode.ToLowerInvariant() + "_menu");
-                context.Note("solo_" + mode, new Dictionary<string, object> {
+                yield return Shot(context, "solo_" + tag + "_menu");
+                context.Note("solo_" + tag, new Dictionary<string, object> {
                     ["source"] = course.SourceHash, ["manifest"] = course.Hash, ["mode"] = mode,
                     ["physical_sites"] = course.CopyDocument().PhysicalSites.Count, ["humans"] = 1,
                     ["runner"] = "Single", ["actual_camera_frames"] = cameraFrames, ["journal_entries"] = story.Journal.Count,
@@ -176,16 +185,16 @@ namespace Wreckabulary.Qa
             yield return Settle();
             Require(!client && !world && !camera && !Object.FindFirstObjectByType<WordboundLocalMatchClient>(), "The stopped game retained owned world objects.");
             menu = LobbyMenu.Instance;
-            Require(menu.Page<PlayPage>().WordboundSolo && WordboundSoloEntry.SelectedMode == mode && menu.Mode == house && menu.Map == map &&
+            Require(menu.Page<PlayPage>().WordboundSolo && WordboundSoloEntry.SelectedMode == mode && WordboundSoloEntry.SelectedMap == soloMap && menu.Mode == house && menu.Map == map &&
                 menu.Queue == queue && menu.PartySize == 1 && Session.Bindings.SequenceEqual(controls), "Return lost the solo or original house/device state.");
             if (adapted?.BorrowedSource != null)
             {
                 Require(Read<bool>(adapted, "disposed"), "Returning to the lobby retained a live borrowed-input wrapper.");
                 Require(adapted.ControlHint(WordboundControl.Spell) == "", "Returning to the lobby did not dispose the borrowed-input wrapper.");
                 if (controls[0] is DesktopBinding keys) Require(keys.Map.enabled, "Returning disposed the caller's desktop controls.");
-                context.Note("solo_input_released_" + mode, new Dictionary<string, object> { ["wrapper_disposed"] = true, ["source_preserved"] = true });
+                context.Note("solo_input_released_" + tag, new Dictionary<string, object> { ["wrapper_disposed"] = true, ["source_preserved"] = true });
             }
-            yield return Shot(context, "solo_" + mode.ToLowerInvariant() + "_returned");
+            yield return Shot(context, "solo_" + tag + "_returned");
         }
 
         IEnumerator Guard(QaContext context, IEnumerator body)
@@ -282,6 +291,7 @@ namespace Wreckabulary.Qa
         {
             Session.Bindings.Clear(); Session.Bindings.AddRange(originalBindings);
             WordboundSoloEntry.Select(originalSolo);
+            WordboundSoloEntry.SelectMap(originalSoloMap);
             var lobby = LobbyMenu.Instance;
             if (lobby)
             {

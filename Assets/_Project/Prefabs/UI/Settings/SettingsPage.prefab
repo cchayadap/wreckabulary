@@ -56,6 +56,7 @@ MonoBehaviour:
   Confirmation: {fileID: 7480779164599862916}
   Title: {fileID: 4575647826908922629}
   Close: {fileID: 2427025794540472302}
+  MaximumWidth: 1280
 --- !u!1 &1314271383385722097
 GameObject:
   m_ObjectHideFlags: 0
@@ -219,17 +220,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: SETTINGS
+  m_text: Settings
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 0a447dc6539503642908390aab1d4be4, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
+  m_sharedMaterial: {fileID: 120012894540960718, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.6901961, g: 0.47058824, b: 0.12941177, a: 1}
+  m_fontColor: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -246,8 +247,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 43
-  m_fontSizeBase: 43
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
@@ -256,7 +257,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 2
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -830,9 +831,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyPress
   Body: {fileID: 8887636934341408386}
-  Lift: 2
-  Sink: 2
-  Tilt: 3
+  Lift: 0
+  Sink: 1
+  Tilt: 0
   Scale: 1
   HoverScale: 1
   Lean: 0
@@ -1010,8 +1011,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e04e0f25ff9122cf6eb174a3cb747e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyGradient
-  From: {r: 1, g: 0.9882353, b: 0.95686275, a: 1}
-  To: {r: 0.9607843, g: 0.9254902, b: 0.8509804, a: 1}
+  From: {r: 0.98039216, g: 0.9764706, b: 0.9607843, a: 1}
+  To: {r: 0.98039216, g: 0.9764706, b: 0.9607843, a: 1}
   Horizontal: 0
 --- !u!1 &8084405079960940531
 GameObject:

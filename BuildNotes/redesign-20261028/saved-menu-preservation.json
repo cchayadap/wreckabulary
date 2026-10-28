@@ -1,0 +1,46 @@
+{
+  "utc": "2026-10-28T14:37:32.7277348Z",
+  "baseline": ".harness/delivery/ui-authored-before-2026-10-28T14-31-50-149Z.json",
+  "inspected": 4208,
+  "changed": [
+    "Assets/_Project/Data/Wordbound/Authoring/Interface.asset",
+    "Assets/_Project/Prefabs/UI/Loadout/LoadoutPage.prefab",
+    "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab",
+    "Assets/_Project/Prefabs/UI/Play/PlayPage.prefab",
+    "Assets/_Project/Prefabs/UI/Settings/SettingsPage.prefab",
+    "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab"
+  ],
+  "unexpected": [],
+  "archives": [
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/Interface.asset",
+      "archive": "Assets/_Project/UI/DesignArchive/BeforeMinimal20261028/Interface.asset",
+      "originalPreserved": true
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/LoadoutPage.prefab",
+      "archive": "Assets/_Project/UI/DesignArchive/BeforeMinimal20261028/LoadoutPage.prefab",
+      "originalPreserved": true
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Loadout/RecipeTile.prefab",
+      "archive": "Assets/_Project/UI/DesignArchive/BeforeMinimal20261028/RecipeTile.prefab",
+      "originalPreserved": true
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Play/PlayPage.prefab",
+      "archive": "Assets/_Project/UI/DesignArchive/BeforeMinimal20261028/PlayPage.prefab",
+      "originalPreserved": true
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Settings/SettingsPage.prefab",
+      "archive": "Assets/_Project/UI/DesignArchive/BeforeMinimal20261028/SettingsPage.prefab",
+      "originalPreserved": true
+    },
+    {
+      "path": "Assets/_Project/Prefabs/UI/Shop/ShopPage.prefab",
+      "archive": "Assets/_Project/UI/DesignArchive/BeforeMinimal20261028/ShopPage.prefab",
+      "originalPreserved": true
+    }
+  ]
+}

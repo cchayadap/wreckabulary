@@ -1,11 +1,24 @@
 # Wreckabulary: Wordbound — production progress
 
-Owner: James / SethyPagna. Updated 27 October 2026 (Asia/Hong_Kong).
+Owner: James / SethyPagna. Updated 28 October 2026 (Asia/Hong_Kong).
 Goal: deliver the complete [approved plan](docs/wordbound/PLAN.md): a tested Windows game with five Wordbound modes, an evolving four-destination/four-layer/three-lap world, physical word puzzles, human online play and recovery, a usable workshop, vivid editable assets and ordinary Unity design work without code.
 The owner's extension also requires online support for the original multiplayer house modes. The full production goal remains unfinished.
 Legend: `[ ]` unfinished; `[~]` partly implemented or not fully verified; `[x]` complete only within the stated evidence scope.
 
-## Current tested Windows review build
+## Current owner-directed redesign
+
+- [~] James rejected the Play/loadout/menu styling, decorative stripes and generic sparse map presentation. Earlier automated/agent review passes remain behavior evidence, not owner visual acceptance. Replace the design with clean rows, restrained surfaces, clear selection and short contextual text; no decorative stripes or sunbursts.
+- [~] Recover the interrupted Play changes and menu/map findings without overwriting unfinished work. Rebuild and inspect actual Windows views before updating the delivered build.
+- [x] Save redesigned Play/Settings/Customize/Shop frames and the equipment theme with exact backups of all six original assets. Equipment/input GUI checks pass **58/58**; latest lobby checks pass **101/102**, followed by **17/17** targeted Settings/Controls checks after correcting the last Help-text height. These are runtime checks, not owner visual approval.
+- [~] Add explicit Lost Address / Parcel Hall solo selection, preserving original house and party state. Parcel Hall revision 2 has **18** usable furniture pieces and a renewable HAMMER supply; **12/12** focused rules tests cover **192** resolutions across eight mode/format configurations. Public course identities are unchanged; native and Windows review of the final revision remain pending.
+- [~] Save editable destination appearance and course-copy assets. Collider/UV/resource-lifetime checks pass **23/23** on the first architecture revision. Actual matched images exposed flat floors, repeated fake windows and a gold band; these visuals are rejected for further correction, despite passing structural tests.
+- [ ] Expand distinct playable maps, equipment and vivid skins while retaining original Wreckabulary identity, compatible rigs and meaningful physics.
+- [~] Complete player creation of maps and gameplay: templates, objectives, allowed equipment, spawn/randomness rules, teams, scoring/win conditions, validation, playtest, save/share and supported online hosting. Existing map/puzzle tools are substantial; configurable mode rules remain unfinished. These use bounded game data and supported mechanics; arbitrary scripts are not required. [Current creator capability audit](BuildNotes/redesign-20261028/creator-scope.md).
+- [ ] Make new physical objectives easy to create without typing internal IDs; preserve one-step Undo, validation, resource feasibility and exact playtest/return. Complete versioned scoring/team/victory-rule authoring and matchmaking compatibility separately.
+- [ ] Retain a selected seed when exporting/importing a playable map bundle. Current file export contains the course document; autosave and private-party bundles retain the seed. Custom courses support private parties, not public Quick Play admission.
+- [ ] Keep the complete multiplayer, story, content, creator, Unity editing and release backlog below in scope. The current redesign is one part of that plan.
+
+## Previous tested Windows review build
 
 - [x] Native saved-frame checks: Editor **27/27**, combined Play **31/31**, zero skips; saved setup/repeat pass. Independent rehash verifies **4,208** authored files unchanged against the post-creation baseline. [Root receipt](BuildNotes/client-view/lobby-frames-verification-20261027.json), [independent review](BuildNotes/client-view/independent-native-220430.md).
 - [x] Save editable Play/Settings frames; show accurate House/Wordbound control legends with a fixed family title; position the character beside compact Solo/Maps panels. Native tests cover focus, rebind cancellation, layout, family return and projected character bounds.

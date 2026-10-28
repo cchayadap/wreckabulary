@@ -39,10 +39,32 @@ namespace Wreckabulary.OfflineGameplayTests
         [UnityTest, Category("LocalWordboundEntry"), Timeout(240000)]
         public IEnumerator FreestyleStartsInstalledFlagshipOfflineAndReturnsToLobby() => Run("Freestyle");
 
+        [UnityTest, Category("LocalWordboundEntry"), Timeout(240000)]
+        public IEnumerator ParcelHallStartsItsOwnFurnishedCourseAndReturnsToItsSelection() =>
+            Run("Freestyle", soloMap: WordboundSoloEntry.ParcelHallMap);
+
+        [TestCase("TimeRun")]
+        [TestCase("Freestyle")]
+        public void ParcelHallIsAnExplicitDeterministicVariantOfTheInstalledCourse(string mode)
+        {
+            var data = Resources.Load<GameData>(GameData.ResourcePath);
+            const string seed = "0000000000000001";
+            var original = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, seed);
+            var parcel = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, seed, WordboundSoloEntry.ParcelHallMap);
+            var again = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, seed, WordboundSoloEntry.ParcelHallMap);
+            Assert.AreEqual(WordboundFlagshipContent.CourseId, original.Course.CopyDocument().Id);
+            Assert.AreEqual(WordboundArrivalVariant.CourseId, parcel.Course.CopyDocument().Id);
+            Assert.AreNotEqual(original.Course.SourceHash, parcel.Course.SourceHash);
+            Assert.AreEqual(parcel.Course.Hash, again.Course.Hash);
+            Assert.AreEqual(original.Mode.Hash, parcel.Mode.Hash);
+            Assert.AreEqual(18, parcel.Course.CopyDocument().Zones.Count(zone => zone.Id.StartsWith("Arrival_", StringComparison.Ordinal)));
+            Assert.Throws<ArgumentException>(() => WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, seed, "unknown"));
+        }
+
         [UnityTest, Category("LocalWordboundEntry"), Timeout(180000)]
         public IEnumerator MissingLocalBodyShowsSafeReturnWithoutLeakingAClient() => Run("TimeRun", true);
 
-        IEnumerator Run(string mode, bool missingBody = false)
+        IEnumerator Run(string mode, bool missingBody = false, string soloMap = WordboundSoloEntry.LostAddressMap)
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_LOCAL_ENTRY") != "1")
                 Assert.Ignore("Set WORDBOUND_LOCAL_ENTRY=1 for actual offline flagship launch/return in both modes.");
@@ -72,6 +94,7 @@ namespace Wreckabulary.OfflineGameplayTests
             lobby.Open(LobbyMenu.Play);
             lobby.Page<PlayPage>().WordboundSolo = true;
             WordboundSoloEntry.Select(mode);
+            WordboundSoloEntry.SelectMap(soloMap);
             lobby.Open(LobbyMenu.Play);
             Assert.AreEqual(1, lobby.PartySize);
             lobby.OpenWordboundSolo(mode);
@@ -117,9 +140,9 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual("Return to lobby", Read<string>(hud, "returnLabel"));
             Assert.AreSame(sourceAssets.UiTheme, hud.Theme);
             Assert.AreSame(sourceAssets.StoryProfile, hud.StoryProfile);
-            Assert.AreEqual(WordboundFlagshipContent.CourseId, course.CopyDocument().Id);
+            Assert.AreEqual(soloMap == WordboundSoloEntry.ParcelHallMap ? WordboundArrivalVariant.CourseId : WordboundFlagshipContent.CourseId, course.CopyDocument().Id);
             var data = Resources.Load<GameData>(GameData.ResourcePath);
-            var expected = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, course.Seed);
+            var expected = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, course.Seed, soloMap);
             Assert.AreEqual(expected.Course.SourceHash, gameplay.Frame.Binding.CourseHash);
             Assert.AreEqual(expected.Course.Hash, gameplay.Frame.Binding.ManifestHash);
             Assert.AreEqual(expected.CatalogueHash, gameplay.Frame.Binding.CatalogueHash);
@@ -167,6 +190,7 @@ namespace Wreckabulary.OfflineGameplayTests
             var returned = LobbyMenu.Instance;
             Assert.IsTrue(returned.Page<PlayPage>().WordboundSolo);
             Assert.AreEqual(mode, WordboundSoloEntry.SelectedMode);
+            Assert.AreEqual(soloMap, WordboundSoloEntry.SelectedMap);
             Assert.AreEqual("Duos", returned.Mode); Assert.AreEqual("flat", returned.Map);
             Assert.AreEqual(LobbyMenu.Practice, returned.Queue); Assert.AreEqual(1, returned.PartySize);
             Assert.AreSame(controls, Session.Bindings.Single());

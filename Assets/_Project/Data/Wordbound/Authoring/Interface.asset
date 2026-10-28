@@ -16,20 +16,23 @@ MonoBehaviour:
   HeadingFont: {fileID: 12800000, guid: a68083542e26d6d408320883f00ee81d, type: 3}
   BodySize: 15
   HeadingSize: 20
-  Panel: {r: 1, g: 0.9411765, b: 0.8509804, a: 1}
-  Text: {r: 0.09019608, g: 0.23137255, b: 0.23529412, a: 1}
-  Muted: {r: 0.32941177, g: 0.40392157, b: 0.3882353, a: 1}
-  Button: {r: 1, g: 0.96862745, b: 0.9098039, a: 1}
-  Hover: {r: 0.87058824, g: 0.92941177, b: 0.8117647, a: 1}
-  Primary: {r: 0.09019608, g: 0.23137255, b: 0.23529412, a: 1}
-  PrimaryText: {r: 1, g: 0.9411765, b: 0.8509804, a: 1}
-  Focus: {r: 0.9411765, g: 0.5411765, b: 0.29411766, a: 1}
-  Disabled: {r: 0.91764706, g: 0.8509804, b: 0.7176471, a: 1}
+  Panel: {r: 0.98039216, g: 0.9764706, b: 0.9607843, a: 1}
+  Text: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
+  Muted: {r: 0.29803923, g: 0.35686275, b: 0.36078432, a: 1}
+  Button: {r: 0.9490196, g: 0.95686275, b: 0.94509804, a: 1}
+  Hover: {r: 0.8980392, g: 0.9372549, b: 0.92156863, a: 1}
+  Primary: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  PrimaryText: {r: 1, g: 1, b: 1, a: 1}
+  Focus: {r: 0.07450981, g: 0.41960785, b: 0.40784314, a: 1}
+  Disabled: {r: 0.89411765, g: 0.9019608, b: 0.8862745, a: 1}
   DisabledText: {r: 0.29803923, g: 0.35686275, b: 0.36078432, a: 1}
   Error: {r: 0.7019608, g: 0.3254902, b: 0.23137255, a: 1}
+  OnlineUseLobbyBackground: 1
+  OnlineBackground: {fileID: 0}
+  OnlineBackgroundShade: 0.18
   Padding: 16
   Gap: 6
   RowHeight: 34
   ModuleHeight: 50
-  MenuWidth: 620
+  MenuWidth: 780
   CornerRadius: 5

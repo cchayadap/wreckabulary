@@ -10,6 +10,7 @@ namespace Wreckabulary
         const float Margin = 14f;
         ScrollRect scroll;
         GameObject last;
+        Vector2 viewportSize, contentSize;
 
         void Awake() => scroll = GetComponent<ScrollRect>();
 
@@ -17,8 +18,13 @@ namespace Wreckabulary
         {
             var system = EventSystem.current;
             var selected = system ? system.currentSelectedGameObject : null;
-            if (selected == last) return;
+            var view = scroll.viewport ? scroll.viewport : (RectTransform)scroll.transform;
+            var nextViewportSize = view.rect.size;
+            var nextContentSize = scroll.content ? scroll.content.rect.size : Vector2.zero;
+            if (selected == last && nextViewportSize == viewportSize && nextContentSize == contentSize) return;
             last = selected;
+            viewportSize = nextViewportSize;
+            contentSize = nextContentSize;
             if (selected && scroll.content && selected.transform.IsChildOf(scroll.content))
                 Show(scroll, (RectTransform)selected.transform);
         }

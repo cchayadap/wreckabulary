@@ -12,7 +12,7 @@ namespace Wreckabulary.Online
         int recipeColumns = 1, recipeStyleGeneration = -1;
         bool recipeScrollActive;
         GUIStyle recipeName;
-        Rect recipeViewportRect, recipeDetailRect, recipeReturnRect;
+        Rect recipeViewportRect, recipeDetailRect, recipeReturnRect, recipeCraftRect, recipePreviewImageRect;
 
         bool RecipeVisible(RecipeCard card) => card.Item != null &&
             card.Item.Id.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
@@ -58,31 +58,68 @@ namespace Wreckabulary.Online
             return card.Item.Id;
         }
 
+        void RecipeWorkspace(Rect body)
+        {
+            float gap = ui.Gap * 2 + 8;
+            float listWidth = Mathf.Floor((body.width - gap) * .46f);
+            var list = new Rect(body.x, body.y, listWidth, body.height);
+            var preview = new Rect(list.xMax + gap, body.y, body.width - listWidth - gap, body.height);
+            var craft = new Rect(preview.x, preview.yMax - ui.RowHeight - 4, preview.width, ui.RowHeight + 4);
+            var inspection = new Rect(preview.x, preview.y, preview.width, Mathf.Max(1, craft.y - preview.y - ui.Gap));
+
+            GUILayout.BeginArea(list);
+            recipeScroll = GUILayout.BeginScrollView(recipeScroll);
+            recipeScrollActive = true;
+            EquipmentMenu();
+            GUI.enabled = true;
+            GUILayout.Space(ui.Gap);
+            GUILayout.Label("Letters  " + (inventory.Letters.Count == 0 ? "—" : inventory.Letters.ToString()), ui.Wrapped);
+            GUILayout.Label("Find a recipe", ui.SingleLine);
+            GUILayout.BeginHorizontal();
+            string nextSearch = GUILayout.TextField(pendingSearch ?? search, 32, GUILayout.MinHeight(ui.RowHeight));
+            if (nextSearch != search) pendingSearch = nextSearch;
+            if (search.Length > 0 && MenuButton("clear-search", "Clear", GUILayout.Width(Mathf.Max(56,
+                ui.SingleLine.CalcSize(new GUIContent("Clear")).x + 16)), GUILayout.MinHeight(ui.RowHeight)))
+                QueueMenuAction(() => search = "");
+            GUILayout.EndHorizontal();
+            GUILayout.Space(ui.Gap);
+            RecipeGrid(list.width, body.height);
+            recipeScrollActive = false;
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(inspection);
+            RecipePreview(inspection.width - 4, inspection.height);
+            GUILayout.EndArea();
+            GUILayout.BeginArea(craft);
+            RecipeSelectionDetail();
+            GUILayout.EndArea();
+            if (Event.current.type == EventType.Repaint)
+            {
+                recipeViewportRect = list;
+                recipeViewportHeight = Mathf.Max(30, list.height);
+                recipeDetailRect = preview;
+                recipeCraftRect = craft;
+            }
+        }
+
         void RecipeGrid(float width, float height)
         {
             if (recipeStyleGeneration != ui.Generation)
             {
-                recipeName = new GUIStyle(ui.SingleLine) { alignment = TextAnchor.MiddleCenter };
+                recipeName = new GUIStyle(ui.SingleLine) { alignment = TextAnchor.MiddleLeft };
                 recipeStyleGeneration = ui.Generation;
             }
-            float available = Mathf.Max(100, width - ui.Padding * 2 - 24);
-            float minimum = 112;
-            foreach (var card in recipeCards)
-                minimum = Mathf.Max(minimum, recipeName.CalcSize(new GUIContent(card.Item.Id)).x + 24);
-            recipeColumns = Mathf.Clamp(Mathf.FloorToInt((available + ui.Gap) / (minimum + ui.Gap + 4)), 1, 4);
-            float tileWidth = Mathf.Max(1, (available - (recipeColumns - 1) * (ui.Gap + 4) - 4) / recipeColumns);
-            float tileHeight = (height < 600 ? 52 : 78) + ui.LabelHeight + 18;
+            recipeColumns = 1;
+            float tileWidth = Mathf.Max(1, width - 24);
+            float tileHeight = Mathf.Max(52, ui.RowHeight + 12);
             int visible = 0;
             foreach (var card in recipeCards)
             {
                 if (!RecipeVisible(card)) continue;
-                if (visible % recipeColumns == 0) GUILayout.BeginHorizontal();
-                else GUILayout.Space(ui.Gap);
                 RecipeTile(card, tileWidth, tileHeight);
                 visible++;
-                if (visible % recipeColumns == 0) { GUILayout.FlexibleSpace(); GUILayout.EndHorizontal(); }
             }
-            if (visible % recipeColumns != 0) { GUILayout.FlexibleSpace(); GUILayout.EndHorizontal(); }
             if (visible == 0) GUILayout.Label("No matching recipes.", ui.Wrapped);
         }
 
@@ -93,11 +130,44 @@ namespace Wreckabulary.Online
                 QueueMenuAction(() => SelectRecipe(id));
             if (Event.current.type != EventType.Repaint) return;
             Rect tile = GUILayoutUtility.GetLastRect();
-            var picture = new Rect(tile.x + 8, tile.y + 6, tile.width - 16, tile.height - ui.LabelHeight - 18);
+            float iconSize = Mathf.Min(44, tile.height - 12);
+            var picture = new Rect(tile.x + 12, tile.y + (tile.height - iconSize) * .5f, iconSize, iconSize);
             var texture = OriginalItemArt.Find(id);
             if (texture) GUI.DrawTexture(FitRecipeIcon(picture, texture.width, texture.height), texture, ScaleMode.StretchToFill, true);
-            GUI.Label(new Rect(tile.x + 4, tile.yMax - ui.LabelHeight - 8, tile.width - 8, ui.LabelHeight),
-                selectedRecipe == id ? "• " + id : id, recipeName);
+            GUI.Label(new Rect(picture.xMax + 12, tile.y, Mathf.Max(1, tile.xMax - picture.xMax - 16), tile.height), id, recipeName);
+        }
+
+        void RecipePreview(float width, float height)
+        {
+            var card = SelectedRecipe();
+            if (card.Item == null)
+            {
+                GUILayout.Label("Choose a recipe", ui.Heading);
+                return;
+            }
+            string status = inventory?.Craft != null ? "Crafting…" : !card.Craftable ? "Missing " + card.Missing : "Letters ready";
+            string blurb = LoadoutPage.Blurb(card.Item);
+            float titleHeight = ui.Heading.CalcHeight(new GUIContent(card.Item.Id), width);
+            float statusHeight = ui.Wrapped.CalcHeight(new GUIContent(status), width);
+            float blurbHeight = ui.Wrapped.CalcHeight(new GUIContent(blurb), width);
+            bool showBlurb = height >= titleHeight + statusHeight + blurbHeight + ui.Gap * 4 + 100;
+            float reserved = titleHeight + statusHeight + ui.Gap * 2 + 20 + (showBlurb ? blurbHeight + ui.Gap : 0);
+            GUILayout.Label(card.Item.Id, ui.Heading, GUILayout.Height(titleHeight));
+            float imageHeight = Mathf.Clamp(height - reserved, 32, 236);
+            Rect picture = GUILayoutUtility.GetRect(Mathf.Max(1, width), imageHeight, GUILayout.ExpandWidth(true));
+            var texture = OriginalItemArt.Find(card.Item.Id);
+            if (Event.current.type == EventType.Repaint && texture)
+            {
+                recipePreviewImageRect = FitRecipeIcon(picture, texture.width, texture.height);
+                GUI.DrawTexture(recipePreviewImageRect, texture, ScaleMode.StretchToFill, true);
+            }
+            GUILayout.Space(ui.Gap);
+            if (showBlurb)
+            {
+                GUILayout.Label(blurb, ui.Wrapped, GUILayout.Height(blurbHeight));
+                GUILayout.Space(ui.Gap);
+            }
+            GUILayout.Label(status, ui.Wrapped, GUILayout.Height(statusHeight));
         }
 
         static Rect FitRecipeIcon(Rect area, float width, float height)
@@ -110,15 +180,11 @@ namespace Wreckabulary.Online
         void RecipeSelectionDetail()
         {
             var card = SelectedRecipe();
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(RecipeDetail(card), ui.Wrapped, GUILayout.MinHeight(ui.RowHeight));
             bool before = GUI.enabled;
             GUI.enabled = before && CanCraftRecipe(card);
-            if (MenuButton("craft-selected", "Craft", GUILayout.Width(Mathf.Max(92, ui.SingleLine.CalcSize(new GUIContent("Craft")).x + 28)),
-                GUILayout.MinHeight(ui.RowHeight))) QueueMenuAction(CraftSelectedRecipe);
+            if (MenuButton("craft-selected", "Craft", GUILayout.MinHeight(ui.RowHeight), GUILayout.ExpandWidth(true)))
+                QueueMenuAction(CraftSelectedRecipe);
             GUI.enabled = before;
-            GUILayout.EndHorizontal();
-            if (Event.current.type == EventType.Repaint) recipeDetailRect = GUILayoutUtility.GetLastRect();
         }
     }
 }

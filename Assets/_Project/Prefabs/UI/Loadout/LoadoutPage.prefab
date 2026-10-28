@@ -154,7 +154,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 122, y: 118}
+  m_CellSize: {x: 180, y: 164}
   m_Spacing: {x: 12, y: 12}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -435,8 +435,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -300, y: 0}
-  m_SizeDelta: {x: 600, y: 0}
+  m_AnchoredPosition: {x: -350, y: 0}
+  m_SizeDelta: {x: 700, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7917061069513605449
 CanvasRenderer:
@@ -488,8 +488,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e04e0f25ff9122cf6eb174a3cb747e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyGradient
-  From: {r: 1, g: 0.9882353, b: 0.95686275, a: 1}
-  To: {r: 0.9607843, g: 0.9254902, b: 0.8509804, a: 1}
+  From: {r: 0.98039216, g: 0.9764706, b: 0.9607843, a: 1}
+  To: {r: 0.98039216, g: 0.9764706, b: 0.9607843, a: 1}
   Horizontal: 0
 --- !u!1 &711575042059775753
 GameObject:
@@ -844,8 +844,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyPress
   Body: {fileID: 7107643515116444621}
-  Lift: 2
-  Sink: 2
+  Lift: 0
+  Sink: 1
   Tilt: 0
   Scale: 1
   HoverScale: 1
@@ -962,10 +962,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: LOCKER
+  m_text: Character
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
+  m_sharedMaterial: {fileID: 120012894540960718, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -999,7 +999,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0.6
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1443,9 +1443,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyPress
   Body: {fileID: 3237302738259294135}
-  Lift: 2
-  Sink: 2
-  Tilt: 3
+  Lift: 0
+  Sink: 1
+  Tilt: 0
   Scale: 1
   HoverScale: 1
   Lean: 0
@@ -1708,17 +1708,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: LOADOUT
+  m_text: Customize
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
+  m_sharedMaterial: {fileID: 120012894540960718, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.6901961, g: 0.47058824, b: 0.12941177, a: 1}
+  m_fontColor: {r: 0.11764706, g: 0.11764706, b: 0.14117648, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1735,8 +1735,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 43
-  m_fontSizeBase: 43
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1745,7 +1745,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 2
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -2405,8 +2405,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Finish
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
+  m_sharedMaterial: {fileID: 120012894540960718, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2440,7 +2440,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0.6
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -2930,10 +2930,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: RECIPES
+  m_text: Equipment
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
-  m_sharedMaterial: {fileID: -49258871010983712, guid: 25e877e6c39414b4692517c5b67b96c5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
+  m_sharedMaterial: {fileID: 120012894540960718, guid: 0aa78122de5f6cc428e7383880dc47d9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2967,7 +2967,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0.6
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -3236,8 +3236,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyPress
   Body: {fileID: 3913723541959666308}
-  Lift: 2
-  Sink: 2
+  Lift: 0
+  Sink: 1
   Tilt: 0
   Scale: 1
   HoverScale: 1
@@ -3562,8 +3562,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.LobbyPress
   Body: {fileID: 3850761936746879151}
-  Lift: 2
-  Sink: 2
+  Lift: 0
+  Sink: 1
   Tilt: 0
   Scale: 1
   HoverScale: 1

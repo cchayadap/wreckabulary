@@ -325,7 +325,7 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator PlayIsTheWebsTwoPickersOnOnePage()
+        public IEnumerator PlayKeepsTheOriginalHouseChoicesInAPlainScrollablePage()
         {
             yield return OpenLobby();
             var menu = LobbyMenu.Instance;
@@ -338,7 +338,7 @@ namespace Wreckabulary.Tests
             CollectionAssert.AreEqual(new[] { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" }, posters,
                 "the original five house modes remain local");
             Assert.AreEqual(GameConfig.Current.Houses.Count, page.GetComponentsInChildren<Button>().Count(b => b.name.StartsWith("Map ")), "every house");
-            Assert.IsTrue(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Rays"), "posters wear the web's rays");
+            Assert.IsFalse(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Rays"), "decorative rays are excluded from the redesigned choices");
             Assert.IsTrue(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Start"), "plans mark where players start");
             AssertNoEllipsis(page, "PLAY");
             Assert.AreEqual("Double trouble", LobbyMenu.ModeName("Duos"), "the web's names");
@@ -602,7 +602,7 @@ namespace Wreckabulary.Tests
                     yield return null;
                     Assert.IsTrue(KeyBindings.Listening, "waits for the new key");
                     Assert.IsNotNull(root.GetComponentInChildren<ControlsPanel>());
-                    Assert.IsTrue(root.GetComponentsInChildren<TMPro.TMP_Text>().Any(t => t.text == "PRESS A KEY…"));
+                    Assert.IsTrue(root.GetComponentsInChildren<TMPro.TMP_Text>().Any(t => t.text == "Press a key…"));
                     KeyBindings.Stop();
                     yield return null;
                     Assert.IsFalse(KeyBindings.Listening);
@@ -769,8 +769,13 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(74f, Height("You", typeof(HorizontalLayoutGroup)), 1f, "your party card");
             Click("PLAY");
             yield return null;
-            Assert.AreEqual(260f, Height("Modes", typeof(LobbyFit)), 1f, "the compact mode posters");
-            Assert.AreEqual(244f, Height("Houses", typeof(LobbyFit)), 1f, "the compact house cards");
+            var modes = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<VerticalLayoutGroup>().Single(row => row.name == "Modes");
+            var modeButtons = modes.GetComponentsInChildren<Button>();
+            Assert.AreEqual(LobbyMenu.Modes.Length, modeButtons.Length, "each local mode has its own row");
+            foreach (var button in modeButtons)
+                Assert.AreEqual(64f, ((RectTransform)button.transform).rect.height, 1f, "readable mode rows");
+            Assert.IsFalse(modes.GetComponentsInChildren<RawImage>().Any(image => image.name == "Rays"), "no decorative stripes");
+            Assert.AreEqual(164f, Height("Houses", typeof(LobbyFit)), 1f, "separate compact house previews");
             Click("CAREER");
             yield return null;
             Assert.AreEqual(112f, Height("Level", typeof(HorizontalLayoutGroup)), 1f, "the level header");
@@ -1046,7 +1051,7 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator TheLockerIsTheWebsOnePagePanel()
+        public IEnumerator TheLockerKeepsItsCompleteScrollableChoicesAndCharacterPreview()
         {
             yield return OpenLobby();
             var menu = LobbyMenu.Instance;
@@ -1055,12 +1060,17 @@ namespace Wreckabulary.Tests
             Canvas.ForceUpdateCanvases();
             var loadout = menu.Page<LoadoutPage>();
             var panel = loadout.Root.GetComponentsInChildren<RectTransform>().First(r => r.name == "Panel");
-            Assert.AreEqual(LoadoutPage.Width, panel.rect.width, 1f, "the web's narrow locker, not the career page's width");
+            Assert.AreEqual(LoadoutPage.Width, panel.rect.width, 1f, "the saved customization width");
             foreach (string name in new[] { "Hoodie", "Crewneck", "Cap", "Hood", "No Headwear", "Part Top", "Part Bottoms", "Colour tomato",
                 "Extra Face", "Extra Back", "Extra Badge", "Finish Classic", "Finish Candy", "Finish Arcade", "Done" })
                 Find(name);
             Assert.IsFalse(loadout.Root.GetComponentsInChildren<Button>().Any(b => b.name.StartsWith("Slot ")),
-                "no list of slots to open first (user, 6 Oct 2026: too messy and content heavy)");
+                "the full list stays available without extra modal slot pages");
+            var list = loadout.Root.GetComponentsInChildren<ScrollRect>().Single();
+            Assert.IsTrue(list.vertical && !list.horizontal);
+            Assert.IsNotNull(list.verticalScrollbar, "long customization pages show their scroll position");
+            foreach (string name in new[] { "Extra Face", "Extra Back", "Extra Badge", "Finish Classic", "Finish Candy", "Finish Arcade" })
+                Assert.GreaterOrEqual(((RectTransform)Find(name).transform).rect.height, 52f, "one readable option per row");
             var corners = new Vector3[4];
             panel.GetWorldCorners(corners);
             var cam = menu.Stage.Camera;

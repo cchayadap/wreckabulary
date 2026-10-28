@@ -13,7 +13,7 @@ namespace Wreckabulary.Online.Tests
         [TestCase(1280, 720, 14)]
         [TestCase(1920, 1080, 14)]
         [TestCase(854, 480, 22)]
-        public void ActualMenuReservesDetailAndReturnAndDefersTileSelection(int width, int height, int font)
+        public void ActualMenuSeparatesRecipeListPreviewAndPinnedActionsAndDefersSelection(int width, int height, int font)
         {
             using var f = new WordboundRecipeGridFixture(font);
             var previous = Gamepad.current; Gamepad pad = null; GridWindow window = null;
@@ -68,13 +68,25 @@ namespace Wreckabulary.Online.Tests
                     var viewport = (Rect)Fixture.Get("recipeViewportRect");
                     var detail = (Rect)Fixture.Get("recipeDetailRect");
                     var back = (Rect)Fixture.Get("recipeReturnRect");
+                    var craft = (Rect)Fixture.Get("recipeCraftRect");
                     var styles = (WordboundUiStyles)Fixture.Get("ui");
                     Rect area = styles.MenuRect(Size.x, Size.y);
                     Assert.GreaterOrEqual(viewport.height, 30, "At least one scrollable inspection area remains at maximum text size.");
-                    Assert.LessOrEqual(viewport.yMax, detail.yMin + 1);
+                    Assert.LessOrEqual(viewport.xMax + styles.Gap, detail.xMin);
+                    Assert.AreEqual(viewport.yMin, detail.yMin, .01f);
+                    Assert.AreEqual(viewport.yMax, detail.yMax, .01f);
+                    Assert.GreaterOrEqual(viewport.width, 180, "Recipe icons and maximum-size names retain a useful list width.");
+                    Assert.GreaterOrEqual(detail.width, 200, "The selected-item preview has its own usable column.");
+                    Assert.GreaterOrEqual(craft.height, styles.RowHeight);
+                    Assert.GreaterOrEqual(craft.xMin, detail.xMin);
+                    Assert.LessOrEqual(craft.xMax, detail.xMax);
+                    Assert.LessOrEqual(craft.yMax, detail.yMax);
+                    Assert.GreaterOrEqual(craft.yMin, detail.yMin);
                     Assert.LessOrEqual(detail.yMax, back.yMin + 1);
                     Assert.LessOrEqual(back.yMax, area.height - styles.Padding + 1);
-                    Assert.That((int)Fixture.Get("recipeColumns"), Is.InRange(2, 4));
+                    Assert.LessOrEqual(detail.xMax, area.width - styles.Padding + 1);
+                    Assert.GreaterOrEqual(viewport.xMin, styles.Padding);
+                    Assert.AreEqual(1, (int)Fixture.Get("recipeColumns"), "One recipe per row keeps browsing readable.");
                     var name = (GUIStyle)Fixture.Get("recipeName");
                     Assert.AreEqual(Fixture.Theme.BodySize, name.fontSize);
                     Assert.AreEqual(styles.SingleLine.normal.textColor, name.normal.textColor);

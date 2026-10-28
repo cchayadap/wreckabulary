@@ -229,6 +229,20 @@ namespace Wreckabulary.Qa
                 yield return Settle();
                 Require(menu.Current == LobbyMenu.Loadout, "Customize did not open the saved loadout.");
                 yield return Capture(context, "lobby_customize");
+                var wardrobeScroll = Page().GetComponentsInChildren<ScrollRect>().Single();
+                float originalScroll = wardrobeScroll.verticalNormalizedPosition;
+                try
+                {
+                    wardrobeScroll.verticalNormalizedPosition = 0;
+                    yield return Settle();
+                    yield return Capture(context, "lobby_customize_finishes");
+                }
+                finally { if (wardrobeScroll) wardrobeScroll.verticalNormalizedPosition = originalScroll; }
+                Submit(Find(Page(), "RECIPES"));
+                yield return Settle();
+                yield return Capture(context, "lobby_customize_equipment");
+                Submit(Find(Page(), "LOCKER"));
+                yield return Settle();
                 Submit(Top("Shop"));
                 yield return Settle();
                 Require(menu.Current == LobbyMenu.Shop, "Shop navigation did not open Shop.");

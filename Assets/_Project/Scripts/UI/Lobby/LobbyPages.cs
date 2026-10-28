@@ -106,17 +106,11 @@ namespace Wreckabulary
 
         protected static Button Poster(Transform parent, string name, Color colour, bool on, Action click, Vector2 size)
         {
-            var button = LobbyKit.Button(parent, name, Color.Lerp(colour, Color.white, .3f), click, 20, LobbyKit.Navy, 4, 6,
-                Color.Lerp(colour, Color.black, .25f));
+            var button = LobbyKit.Button(parent, name, Color.Lerp(colour, Color.white, .88f), click, 12, LobbyKit.Line, 1);
             var press = button.GetComponent<LobbyPress>();
-            press.Lift = 5f; press.Tilt = 1f;
+            press.Lift = 0f; press.Tilt = 0f;
             var body = button.Body();
-            var rays = LobbyKit.Rect(body, "Rays").Place(Vector2.zero, Vector2.one, new Vector2(4, 4), new Vector2(-4, -4));
-            rays.SetAsFirstSibling();
-            var raw = rays.gameObject.AddComponent<RawImage>();
-            raw.texture = LobbyIcons.Rays((int)size.x - 8, (int)size.y - 8, 16);
-            raw.raycastTarget = false;
-            if (on) Chosen(body, 20);
+            if (on) Chosen(body, 12);
             return button;
         }
 
@@ -172,10 +166,7 @@ namespace Wreckabulary
 
         protected static void Burst(RectTransform rect, int width, int height, int radius)
         {
-            var raw = rect.gameObject.AddComponent<RawImage>();
-            raw.texture = LobbyIcons.Sunburst(width, height, radius);
-            raw.raycastTarget = false;
-            LobbyKit.Frame(rect, LobbyKit.Navy, radius, 2);
+            rect.Paint(LobbyKit.Hex(0xe9eeea), radius).raycastTarget = false;
         }
 
         protected static string Capital(string text) =>
@@ -216,7 +207,7 @@ namespace Wreckabulary
 
     public sealed class LoadoutPage : LobbyPage
     {
-        public const float Width = 600f;
+        public const float Width = 700f;
         public override string Id => LobbyMenu.Loadout;
         public override LobbyStage.Focus Focus => LobbyStage.Focus.Left;
         public override float PanelWidth => authoredPage && authoredPage.Panel.rect.width > 0 ? authoredPage.Panel.rect.width : Width;
@@ -286,18 +277,17 @@ namespace Wreckabulary
             lockerList.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(4, 4, 6, 10);
             lockerList.anchoredPosition = new Vector2(0, scrolled);
 
-            var pickers = LobbyKit.Row(lockerList, "Outfit", 16);
-            pickers.Size(-1, 84);
-            pickers.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = true;
+            AddLockerScrollbar(view, lockerList.GetComponentInParent<ScrollRect>());
+            var pickers = LobbyKit.Column(lockerList, "Outfit", 8);
+            LobbyKit.SectionLabel(pickers, "Clothes");
             foreach (string slot in wardrobe.Slots.Where(s => wardrobe.PiecesFor(s).Count() > 1))
             {
-                var column = LobbyKit.Column(pickers, slot, 8);
-                column.Size(-1, -1, 1);
-                LobbyKit.SectionLabel(column, slot);
+                var row = LockerRow(pickers, slot, slot, 60);
                 var choices = wardrobe.PiecesFor(slot).Select(p => (p.Id, p.Id)).ToList();
                 if (!wardrobe.RequiredSlots.Contains(slot)) choices.Add(("No " + slot, "None"));
                 string worn = outfit.PieceIn(slot) ?? "No " + slot;
-                var picker = LobbyKit.Segmented(column, "Pick " + slot, choices, worn, id => PutOn(slot, id, id));
+                var picker = LobbyKit.Segmented(row, "Pick " + slot, choices, worn, id => PutOn(slot, id, id), 48, 18);
+                picker.Size(-1, 48, 1);
                 if (!First) First = picker.GetComponentsInChildren<Button>().FirstOrDefault(b => b.name == worn);
             }
 
@@ -305,24 +295,32 @@ namespace Wreckabulary
             LobbyKit.SectionLabel(colour, "Colour");
             var parts = Parts(outfit);
             if (!parts.Contains(Part)) Part = parts.Contains("Top") ? "Top" : parts.FirstOrDefault();
-            var chips = LobbyKit.Grid(colour, "Parts", new Vector2(124, 40), 8);
-            foreach (string slot in parts) PartChip(chips, slot, wardrobe.ColourFor(outfit, slot));
-            if (Part != null) Colours(colour, Part);
+            var chips = LobbyKit.Column(colour, "Parts", 6);
+            foreach (string slot in parts)
+            {
+                PartChip(chips, slot, wardrobe.ColourFor(outfit, slot));
+                if (slot == Part) Colours(chips, Part);
+            }
 
             var extras = wardrobe.Slots.Where(s => !wardrobe.RequiredSlots.Contains(s) && wardrobe.PiecesFor(s).Count() == 1).ToList();
             if (extras.Count > 0)
             {
                 var section = LobbyKit.Column(lockerList, "Extras", 8);
-                LobbyKit.SectionLabel(section, "Extras");
-                var cards = LobbyKit.Row(section, "Cards", 12);
-                cards.Size(-1, 84);
-                cards.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = true;
+                LobbyKit.SectionLabel(section, "Accessories");
+                var cards = LobbyKit.Column(section, "Cards", 6);
                 foreach (string slot in extras)
                 {
                     var piece = wardrobe.PiecesFor(slot).First();
                     bool on = outfit.PieceIn(slot) == piece.Id;
-                    LobbyKit.ToggleCard(cards, "Extra " + slot, ExtraIcon(slot), ExtraName(piece.Id), on,
-                        () => PutOn(slot, on ? "No " + slot : piece.Id, "Extra " + slot)).Size(-1, -1, 1);
+                    var button = LobbyKit.Button(cards, "Extra " + slot, Color.clear,
+                        () => PutOn(slot, on ? "No " + slot : piece.Id, "Extra " + slot), 8);
+                    button.Size(-1, 58);
+                    var row = LockerRow(button.Body(), "Accessory", ExtraName(piece.Id), 58);
+                    row.Fill();
+                    LobbyKit.Rect(row, "Space").Size(0, 0, 1);
+                    LobbyKit.Text(row, on ? "On" : "Off", 18, on ? LobbyKit.Cyan : LobbyKit.Muted,
+                        TextAlignmentOptions.MidlineRight).Size(72, 32);
+                    LobbyKit.Icon(row, on ? LobbyIcons.Check : ExtraIcon(slot), on ? LobbyKit.Cyan : LobbyKit.Muted).Size(24, 24);
                 }
             }
 
@@ -330,7 +328,7 @@ namespace Wreckabulary
             var gearHeading = LobbyKit.Row(gear, "Gear heading", 8);
             gearHeading.Size(-1, 40);
             gearHeading.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
-            LobbyKit.SectionLabel(gearHeading, "Gear · apply to all").Size(-1, 28, 1);
+            LobbyKit.SectionLabel(gearHeading, "Equipment finish").Size(-1, 28, 1);
             LobbyKit.TextAction(gearHeading, "Per-recipe finishes", "By recipe", 16,
                 () => ShowRecipes(true), icon: LobbyIcons.Chevron).Size(132, 40);
             string wornSkin = SkinOf(outfit);
@@ -339,10 +337,38 @@ namespace Wreckabulary
             finishState.name = "Gear finish state";
             finishState.enableAutoSizing = true; finishState.fontSizeMin = 12; finishState.fontSizeMax = 16;
             finishState.Size(-1, 28);
-            var styles = LobbyKit.Row(gear, "Styles", 12);
-            styles.Size(-1, 80);
-            styles.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = true;
+            var styles = LobbyKit.Column(gear, "Styles", 8);
             foreach (string skin in Finishes) FinishCard(styles, skin, wornSkin == skin);
+        }
+
+        static RectTransform LockerRow(Transform parent, string name, string label, float height)
+        {
+            var row = LobbyKit.Row(parent, name, 12);
+            row.Size(-1, height);
+            var layout = row.GetComponent<HorizontalLayoutGroup>();
+            layout.childForceExpandHeight = false;
+            layout.padding = new RectOffset(8, 8, 6, 6);
+            LobbyKit.Text(row, label, 18, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft).Size(128, 36);
+            var line = LobbyKit.Rect(row, "Divider").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 1));
+            line.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
+            line.Paint(LobbyKit.Line).raycastTarget = false;
+            return row;
+        }
+
+        static void AddLockerScrollbar(RectTransform host, ScrollRect scroll)
+        {
+            if (!scroll) return;
+            ((RectTransform)scroll.transform).offsetMax = new Vector2(-18, 0);
+            var track = LobbyKit.Rect(host, "Scroll position").Place(new Vector2(1, 0), Vector2.one, new Vector2(-8, 0), Vector2.zero);
+            track.Paint(LobbyKit.Line, 4).raycastTarget = true;
+            var handle = LobbyKit.Rect(track, "Handle").Fill();
+            var ink = handle.Paint(LobbyKit.Cyan, 4);
+            var bar = track.gameObject.AddComponent<Scrollbar>();
+            bar.direction = Scrollbar.Direction.BottomToTop;
+            bar.handleRect = handle; bar.targetGraphic = ink;
+            bar.navigation = new Navigation { mode = Navigation.Mode.None };
+            scroll.verticalScrollbar = bar;
+            scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
         }
 
         static List<string> Parts(Outfit outfit)
@@ -370,9 +396,9 @@ namespace Wreckabulary
         void PartChip(Transform parent, string slot, Colourway colour)
         {
             bool on = Part == slot;
-            var button = on
-                ? LobbyKit.Button(parent, "Part " + slot, LobbyKit.SunHi, () => PickPart(slot), 10, LobbyKit.Navy, 3, 3, LobbyKit.Sun2)
-                : LobbyKit.Button(parent, "Part " + slot, LobbyKit.Card, () => PickPart(slot), 10, LobbyKit.ChipEdge, 2);
+            var button = LobbyKit.Button(parent, "Part " + slot, on ? LobbyKit.Hex(0xe5efeb) : Color.clear,
+                () => PickPart(slot), 8);
+            button.Size(-1, 52);
             var press = button.GetComponent<LobbyPress>();
             if (on) press.Lift = 0f;
             var row = LobbyKit.Row(button.Body(), "Content", 8);
@@ -380,12 +406,15 @@ namespace Wreckabulary
             var layout = row.GetComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(9, 8, 0, 0);
             layout.childForceExpandHeight = false;
-            var dot = LobbyKit.Rect(row, "Dot");
-            dot.Size(20, 20);
-            if (colour != null) LobbyKit.Face(dot, new Color(colour.R, colour.G, colour.B), 10, LobbyKit.Navy, 2);
-            var name = LobbyKit.Display(row, PartName(slot), 17, on ? LobbyKit.Navy : LobbyKit.Cream, TextAlignmentOptions.MidlineLeft);
-            name.enableAutoSizing = true; name.fontSizeMin = 12; name.fontSizeMax = 17;
+            var name = LobbyKit.Text(row, PartName(slot), 18, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft);
             name.Size(-1, 28, 1);
+            if (colour != null)
+            {
+                LobbyKit.Text(row, colour.Name, 16, LobbyKit.Muted, TextAlignmentOptions.MidlineRight).Size(116, 28);
+                var dot = LobbyKit.Rect(row, "Dot"); dot.Size(26, 26);
+                LobbyKit.Face(dot, new Color(colour.R, colour.G, colour.B), 13, LobbyKit.Line, 1);
+            }
+            LobbyKit.Icon(row, on ? LobbyIcons.Check : LobbyIcons.Chevron, LobbyKit.Cyan).Size(20, 20);
             if (colour != null) button.gameObject.AddComponent<LobbyHint>().Text = PartName(slot) + " · " + colour.Name;
         }
 
@@ -431,8 +460,8 @@ namespace Wreckabulary
             var button = LobbyKit.Button(parent, "Colour " + colour.Id, LobbyKit.Navy, () => PickColour(slot, colour), 20, null, 0, 3);
             SwatchFill(button.Body(), colour, 17);
             var press = button.GetComponent<LobbyPress>();
-            press.HoverScale = 1.12f; press.Tilt = 8f;
-            if (on) { press.Scale = 1.14f; LobbyKit.Ring(button.Body(), LobbyKit.Sun, 20, 4); }
+            press.HoverScale = 1.06f; press.Tilt = 0f;
+            if (on) { press.Scale = 1.06f; LobbyKit.Ring(button.Body(), LobbyKit.Cyan, 20, 2); }
             press.Hot = hot => TryOn(slot, colour, hot);
             button.gameObject.AddComponent<LobbyHint>().Text = colour.Name;
         }
@@ -445,7 +474,7 @@ namespace Wreckabulary
             SwatchFill(button.Body(), colour, 13);
             LobbyKit.Coin(button.Body(), 16).Pin(new Vector2(1, 0), new Vector2(5, -5), new Vector2(16, 16));
             var press = button.GetComponent<LobbyPress>();
-            press.HoverScale = 1.12f; press.Tilt = 8f;
+            press.HoverScale = 1.06f; press.Tilt = 0f;
             press.Hot = hot => TryOn("Top", colour, hot);
             button.gameObject.AddComponent<LobbyHint>().Text = colour.Name + (offer != null ? $" · {offer.Price} coins" : " · in the shop");
         }
@@ -515,14 +544,15 @@ namespace Wreckabulary
         {
             bool owned = Menu.Career.Owns("skin", skin);
             var offer = Career.Shop.FirstOrDefault(o => o.Kind == "skin" && o.Value == skin);
-            var card = LobbyKit.Button(parent, "Finish " + skin, Color.white, () => PickFinish(skin, owned), 14, LobbyKit.Navy, 3, 4);
-            card.Size(-1, -1, 1);
+            var card = LobbyKit.Button(parent, "Finish " + skin, worn ? LobbyKit.Hex(0xe5efeb) : Color.clear,
+                () => PickFinish(skin, owned), 10, LobbyKit.Line, 1);
+            card.Size(-1, 76);
             var press = card.GetComponent<LobbyPress>();
-            press.Lift = 3f; press.Tilt = 1f;
+            press.Lift = 0f; press.Tilt = 0f;
             var body = card.Body();
-            if (worn) LobbyKit.Ring(body, LobbyKit.Sun, 14, 4);
+            if (worn) LobbyKit.Ring(body, LobbyKit.Cyan, 10, 1);
             FinishDisc(body, skin, 52).Pin(new Vector2(0, .5f), new Vector2(12, 0), new Vector2(52, 52));
-            var name = LobbyKit.Display(body, skin, 20, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
+            var name = LobbyKit.Text(body, skin, 20, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
             name.enableAutoSizing = true; name.fontSizeMin = 14; name.fontSizeMax = 20;
             name.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(74, 38), new Vector2(-8, -10));
             var state = LobbyKit.Row(body, "State", 4);

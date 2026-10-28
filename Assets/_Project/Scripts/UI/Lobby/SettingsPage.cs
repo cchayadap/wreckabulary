@@ -64,6 +64,7 @@ namespace Wreckabulary
                 saved.Validate();
                 authoredFrame = LobbyRuntimeTypography.Instantiate(saved.Page, Root, false);
                 authoredFrame.Bind(Menu.Close, revertTo.HasValue);
+                authoredFrame.FitHeight(tab switch { "profile" or "gameplay" => 660, "audio" => 720, _ => 900 });
                 body = authoredFrame.Body;
             }
             else body = Panel(new Vector2(.12f, 0), new Vector2(.88f, 1), "Settings");
@@ -72,7 +73,7 @@ namespace Wreckabulary
             foreach (var (id, title) in Tabs)
             {
                 string name = "Settings tab " + id;
-                var chip = LobbyKit.Chip(side, LobbyKit.Upper(title), tab == id, () => ShowTab(id));
+                var chip = LobbyKit.Chip(side, title, tab == id, () => ShowTab(id), size: 21);
                 chip.onClick.AddListener(() => Reselect(name));
                 chip.name = name;
                 chip.Size(-1, 50);
@@ -89,7 +90,7 @@ namespace Wreckabulary
             }
             else
             {
-                var list = LobbyKit.Scroll(holder, "Scroll", 8);
+                var list = LobbyKit.Scroll(holder, "Scroll", 4);
                 scroll = list.GetComponentInParent<ScrollRect>();
                 switch (tab)
                 {
@@ -128,7 +129,7 @@ namespace Wreckabulary
 
         void Profile(Transform list)
         {
-            NameField(Setting(list, "Name", "Shown to other players."));
+            NameField(Setting(list, "Player name", "Shown to other players."));
             LobbyKit.Pill(Setting(list, "Appearance"), "Open loadout", "Customize", 20,
                 () => Menu.Open(LobbyMenu.Loadout)).Size(220, 46);
         }
@@ -187,20 +188,20 @@ namespace Wreckabulary
                 });
             }
             string preset = GraphicsOptions.Preset;
-            Choose(Setting(list, "Quality preset", preset == GraphicsOptions.Custom ? "Custom: your own mix below." : "Scale, edge smoothing and shadows."),
+            Choose(Setting(list, "Quality", preset == GraphicsOptions.Custom ? "Your saved custom settings." : "Detail, shadows and edge smoothing."),
                 "Preset", GraphicsOptions.Presets.Select(p => (p, p)).ToList(), preset, GraphicsOptions.UsePreset, 520);
-            Stepper(Setting(list, "Render scale", "Over 100% is sharper, under is faster."), "Render scale",
+            Stepper(Setting(list, "Render scale", "Lower for speed; higher for detail."), "Render scale",
                 Mathf.RoundToInt(GraphicsOptions.RenderScale * 100) + "%",
                 step => GraphicsOptions.SetRenderScale(GraphicsOptions.RenderScale + step * GraphicsOptions.ScaleStep));
-            Choose(Setting(list, "Anti-aliasing", "Smooths edges. MSAA is the sharpest."), "AA",
+            Choose(Setting(list, "Edge smoothing"), "AA",
                 GraphicsOptions.Smoothings.Select(s => (s, s.StartsWith("MSAA") ? "MSAA " + s.Substring(4) + "x" : s)).ToList(),
                 GraphicsOptions.Smoothing, GraphicsOptions.SetSmoothing, 620);
-            Choose(Setting(list, "Shadows", "Sharper, and reaching farther, as they go up."), "Shadows",
+            Choose(Setting(list, "Shadows"), "Shadows",
                 GraphicsOptions.ShadowLevels.Select(s => (s, s)).ToList(), GraphicsOptions.Shadows, GraphicsOptions.SetShadows, 560);
-            Choose(Setting(list, "Frame cap", "With v-sync on, your screen sets the pace."), "Cap",
+            Choose(Setting(list, "Frame limit", "V-sync follows your display's refresh rate."), "Cap",
                 GraphicsOptions.FrameCaps.Select(c => (c.ToString(CultureInfo.InvariantCulture), c == 0 ? "None" : c.ToString(CultureInfo.InvariantCulture))).ToList(),
                 GraphicsOptions.FrameCap.ToString(CultureInfo.InvariantCulture), id => GraphicsOptions.SetFrameCap(int.Parse(id, CultureInfo.InvariantCulture)), 520);
-            Toggle(Setting(list, "V-sync", "Stops tearing, for a little delay."), "V-sync", QualitySettings.vSyncCount > 0, on =>
+            Toggle(Setting(list, "V-sync", "Reduces screen tearing."), "V-sync", QualitySettings.vSyncCount > 0, on =>
             {
                 QualitySettings.vSyncCount = on ? 1 : 0;
                 PlayerPrefs.SetInt(LobbyMenu.VsyncKey, on ? 1 : 0);
@@ -223,93 +224,62 @@ namespace Wreckabulary
             var kicker = LobbyKit.Text(column, "House games", 18, LobbyKit.Cyan, TextAlignmentOptions.BottomLeft);
             kicker.name = "Help scope";
             kicker.color = LobbyKit.Cyan;
-            kicker.Size(-1, 24);
+            kicker.Size(-1, 32);
             Wrapped(column, "For Wordbound controls, open its Menu → Help.", 17, LobbyKit.Muted, 42);
-            LobbyKit.Display(column, "Everything starts with a word.", 36, LobbyKit.Sun, TextAlignmentOptions.MidlineLeft, LobbyKit.Ink.Stroke).Size(-1, 46);
-            var steps = LobbyKit.Row(column, "Steps", 14);
-            steps.Size(-1, 200);
-            steps.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = true;
+            LobbyKit.Text(column, "Smash. Spell. Play.", 28, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft).Size(-1, 42);
+            var steps = LobbyKit.Column(column, "Steps", 8);
+            steps.Size(-1, 352);
             var rules = GameConfig.Current.Rules.Defaults;
             int recipes = GameConfig.Current.Items.Enabled.Count();
             bool phone = Application.isMobilePlatform;
             var keys = DesktopBinding.Shared;
             string spell = phone ? "CRAFT" : ControlHints.KeyOf(keys.Spell);
             string swing = phone ? "SMASH" : ControlHints.KeyOf(keys.Attack);
-            Step(steps, "01", "Break it.", "HAMMER", "Smash the house's own furniture. A TABLE breaks into T, A, B, L and E.");
-            Step(steps, "02", "Spell it.", "BOOK", $"Walk over letters; your bag holds {rules.MaxLetters}. Press {spell} to craft any of the {recipes} recipes.");
-            Step(steps, "03", "Bring it.", "BAT", $"Press {swing} to swing gear, throw it or set down a tool. Then wreck the place.");
-            if (!phone) KeyBox(column, keys);
-            Wrapped(column, $"Health is {Mathf.RoundToInt(rules.MaxHealth)} HP. Your looks never change your stats.", 17, LobbyKit.Muted, 26);
-            var go = LobbyKit.Button(column, "Got it", LobbyKit.SunHi, () => Menu.Open(LobbyMenu.Play), 14, LobbyKit.Navy, 4, 6, LobbyKit.Sun2);
-            go.Size(-1, 64);
-            var label = LobbyKit.Display(go.Body(), "GOT IT. LET'S PLAY", 26, LobbyKit.Navy);
-            label.characterSpacing = 3;
+            Step(steps, "01", "Break furniture", "HAMMER", "A TABLE becomes T, A, B, L and E. Walk over the letters to collect them.");
+            Step(steps, "02", "Spell equipment", "BOOK", $"Press {spell} to choose from {recipes} recipes. Your bag holds {rules.MaxLetters} letters.");
+            Step(steps, "03", "Use what you make", "BAT", $"Press {swing} to use your gear. Aim to throw it, or place a useful tool.");
+            LobbyKit.TextAction(column, "Open help controls", "View controls", 20, () => ShowTab("controls")).Size(-1, 44);
+            Wrapped(column, "Cosmetics never change your stats.", 17, LobbyKit.Muted, 26);
+            var go = LobbyKit.Button(column, "Got it", LobbyKit.Cyan, () => Menu.Open(LobbyMenu.Play), 6);
+            go.Size(-1, 56);
+            var label = LobbyKit.Text(go.Body(), "Play", 24, Color.white, TextAlignmentOptions.Center);
             label.rectTransform.Fill();
         }
 
         static void Step(Transform row, string number, string title, string art, string text)
         {
             var card = LobbyKit.Rect(row, "Step " + number);
-            card.Size(-1, -1, 1);
-            LobbyKit.Face(card, LobbyKit.Card, 18, LobbyKit.Line, 2);
-            var image = LobbyKit.ItemImage(card, art, 68, -10f);
-            if (image) image.rectTransform.Pin(Vector2.one, new Vector2(-14, -10), new Vector2(68, 68));
-            LobbyKit.Display(card, number, 44, LobbyKit.Sun, TextAlignmentOptions.TopLeft, LobbyKit.Ink.Stroke).rectTransform
-                .Place(new Vector2(0, 1), Vector2.one, new Vector2(20, -66), new Vector2(-16, -12));
-            LobbyKit.Display(card, title, 28, LobbyKit.Cream, TextAlignmentOptions.TopLeft).rectTransform
-                .Place(new Vector2(0, 1), Vector2.one, new Vector2(20, -106), new Vector2(-16, -68));
+            card.Size(-1, 112);
+            var image = LobbyKit.ItemImage(card, art, 60);
+            if (image) image.rectTransform.Pin(new Vector2(0, .5f), new Vector2(8, 0), new Vector2(60, 60));
+            LobbyKit.Text(card, title, 23, LobbyKit.Navy, TextAlignmentOptions.TopLeft).rectTransform
+                .Place(new Vector2(0, 1), Vector2.one, new Vector2(88, -48), new Vector2(-8, -8));
             var body = Wrapped(card, text, 17, LobbyKit.Muted);
-            body.enableAutoSizing = true; body.fontSizeMin = 13; body.fontSizeMax = 17;
-            body.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(20, 12), new Vector2(-16, -110));
-        }
-
-        static void KeyBox(Transform column, DesktopBinding keys)
-        {
-            var box = LobbyKit.Row(column, "Keys", 24, 16);
-            box.Size(-1, 242);
-            var layout = box.GetComponent<HorizontalLayoutGroup>();
-            layout.childForceExpandWidth = true;
-            layout.childAlignment = TextAnchor.UpperLeft;
-            LobbyKit.Face(box, LobbyKit.Track, 16, LobbyKit.Line, 2);
-            var entries = new[]
-            {
-                (new[] { "WASD" }, "move"), (new[] { "MOUSE" }, "aim"),
-                (new[] { ControlHints.KeyOf(keys.Attack) }, "smash, throw, place, block"), (new[] { ControlHints.KeyOf(keys.Aim) }, "hold to aim"),
-                (new[] { ControlHints.KeyOf(keys.Dodge) }, "dodge"), (new[] { ControlHints.KeyOf(keys.Jump) }, "jump"),
-                (new[] { ControlHints.KeyOf(keys.Spell) }, "spell"), (new[] { ControlHints.KeyOf(keys.Hand1), ControlHints.KeyOf(keys.Hand2) }, "switch hand"),
-                (new[] { ControlHints.KeyOf(keys.Bag) }, "hold for bag and map"), (new[] { ControlHints.KeyOf(keys.Interact) }, "pick up, hold to revive"),
-                (new[] { ControlHints.KeyOf(keys.Drop) }, "hold to drop gear"), (new[] { ControlHints.KeyOf(keys.Pause) }, "pause"),
-            };
-            for (int side = 0; side < 2; side++)
-            {
-                var list = LobbyKit.Column(box, side == 0 ? "Left keys" : "Right keys", 6);
-                list.Size(-1, -1, 1);
-                for (int i = side; i < entries.Length; i += 2)
-                {
-                    var (caps, what) = entries[i];
-                    var line = LobbyKit.Row(list, what, 8);
-                    line.Size(-1, 30);
-                    line.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
-                    foreach (string cap in caps) LobbyKit.Kbd(line, cap);
-                    LobbyKit.Text(line, what, 17, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft).Size(-1, 28, 1);
-                }
-            }
+            body.enableAutoSizing = true; body.fontSizeMin = 16; body.fontSizeMax = 17;
+            body.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(88, 8), new Vector2(-8, -48));
+            LobbyKit.Rect(card, "Divider").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 1))
+                .Paint(LobbyKit.Line).raycastTarget = false;
         }
 
         static RectTransform Setting(Transform list, string label, string help = null)
         {
             var row = LobbyKit.Rect(list, label);
-            row.Size(-1, help == null ? 60 : 80);
-            row.Paint(LobbyKit.Card, 14).raycastTarget = false;
+            row.Size(-1, help == null ? 72 : 92);
+            LobbyKit.Rect(row, "Divider").Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 1))
+                .Paint(LobbyKit.Line).raycastTarget = false;
             var words = LobbyKit.Column(row, "Words", 0);
-            words.Place(Vector2.zero, new Vector2(.42f, 1), new Vector2(20, 4), new Vector2(-8, -4));
+            words.Place(Vector2.zero, new Vector2(.36f, 1), new Vector2(8, 6), new Vector2(-12, -6));
             words.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
-            var text = LobbyKit.Display(words, label, 24, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft);
-            text.characterSpacing = 1;
-            text.Size(-1, 30);
-            if (help != null) LobbyKit.Text(words, help, 15, LobbyKit.Muted, TextAlignmentOptions.TopLeft).textWrappingMode = TextWrappingModes.Normal;
+            var text = LobbyKit.Text(words, label, 22, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft);
+            text.Size(-1, 40);
+            if (help != null)
+            {
+                var hint = LobbyKit.Text(words, help, 15, LobbyKit.Muted, TextAlignmentOptions.TopLeft);
+                hint.textWrappingMode = TextWrappingModes.Normal;
+                hint.Size(-1, 40);
+            }
             var controls = LobbyKit.Row(row, "Controls", 8);
-            controls.Place(new Vector2(.42f, 0), Vector2.one, new Vector2(0, 8), new Vector2(-12, -8));
+            controls.Place(new Vector2(.36f, 0), Vector2.one, new Vector2(0, 8), new Vector2(-8, -8));
             var layout = controls.GetComponent<HorizontalLayoutGroup>();
             layout.childAlignment = TextAnchor.MiddleRight;
             layout.childForceExpandHeight = false;
@@ -329,9 +299,9 @@ namespace Wreckabulary
             {
                 pick(name.Substring(prefix.Length + 1));
                 RefreshSetting(name);
-            });
-            track.Size(width, 48);
-            track.GetComponent<LayoutElement>().minWidth = Mathf.Min(width, 64f * choices.Count);
+            }, 46, 17);
+            track.Size(Mathf.Min(width, 480), 46);
+            track.GetComponent<LayoutElement>().minWidth = Mathf.Min(width, 48f * choices.Count);
         }
 
         void Toggle(RectTransform controls, string name, bool value, Action<bool> set)
@@ -339,7 +309,7 @@ namespace Wreckabulary
             foreach (bool option in new[] { true, false })
             {
                 string id = name + (option ? " on" : " off");
-                var chip = LobbyKit.Chip(controls, option ? "ON" : "OFF", value == option, () => { set(option); RefreshSetting(id); });
+                var chip = LobbyKit.Chip(controls, option ? "On" : "Off", value == option, () => { set(option); RefreshSetting(id); }, size: 20);
                 chip.name = id;
                 chip.Size(96, 46);
             }
@@ -348,19 +318,19 @@ namespace Wreckabulary
         void Stepper(RectTransform controls, string name, string value, Action<int> step)
         {
             Round(controls, name + " less", true, () => { step(-1); RefreshSetting(name + " less"); });
-            LobbyKit.Display(controls, value, 24, LobbyKit.Sun, TextAlignmentOptions.Center).Size(200, 40);
+            LobbyKit.Text(controls, value, 23, LobbyKit.Navy, TextAlignmentOptions.Center).Size(180, 40);
             Round(controls, name + " more", false, () => { step(1); RefreshSetting(name + " more"); });
         }
 
         static void Round(RectTransform controls, string name, bool back, Action click)
         {
-            var button = LobbyKit.Button(controls, name, Color.white, click, 22, LobbyKit.Navy, 3, 3);
+            var button = LobbyKit.Button(controls, name, Color.clear, click, 6, LobbyKit.Line, 1);
             button.Size(44, 44);
             var glyph = LobbyKit.Icon(button.Body(), LobbyIcons.Chevron, LobbyKit.Navy);
             glyph.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(11, 11), new Vector2(-11, -11));
             if (back) glyph.rectTransform.localRotation = Quaternion.Euler(0, 0, 180f);
             var face = button.FaceOf();
-            button.GetComponent<LobbyPress>().Hot = hot => face.color = hot ? LobbyKit.Sun : Color.white;
+            button.GetComponent<LobbyPress>().Hot = hot => face.color = hot ? LobbyKit.Track : Color.clear;
         }
 
         static (FullScreenMode mode, int width, int height) Current => (Screen.fullScreenMode, Screen.width, Screen.height);
@@ -434,11 +404,11 @@ namespace Wreckabulary
             var layout = bar.GetComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(22, 14, 0, 0);
             layout.childForceExpandHeight = false;
-            LobbyKit.Face(bar, LobbyKit.Panel, 16, LobbyKit.Sun, 3);
-            var words = LobbyKit.Text(bar, "Keep this display?", 20, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft);
+            LobbyKit.Face(bar, LobbyKit.Hex(0xe5eee8), 8);
+            var words = LobbyKit.Text(bar, "Keep this display?", 20, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft);
             words.Size(-1, 40, 1);
-            var keep = LobbyKit.Button(bar, "Keep display", LobbyKit.SunHi, Keep, 12, LobbyKit.Navy, 3, 4, LobbyKit.Sun2);
-            LobbyKit.Display(keep.Body(), "KEEP", 22, LobbyKit.Navy).rectTransform.Fill();
+            var keep = LobbyKit.Button(bar, "Keep display", LobbyKit.Cyan, Keep, 6);
+            LobbyKit.Text(keep.Body(), "Keep", 22, Color.white, TextAlignmentOptions.Center).rectTransform.Fill();
             keep.Size(150, 52);
             LobbyKit.Pill(bar, "Revert display", "Revert", 22, Revert).Size(150, 52);
             if (timer) timer.Show(words, seconds => $"Keep this display? It goes back in {seconds} s.");
@@ -448,9 +418,9 @@ namespace Wreckabulary
         {
             var holder = LobbyKit.Rect(controls, "Name field");
             holder.gameObject.SetActive(false);
-            holder.Size(360, 46);
-            holder.Paint(Color.white, 10);
-            LobbyKit.Frame(holder, LobbyKit.Navy, 10, 3);
+            holder.Size(320, 46);
+            holder.Paint(Color.white, 6);
+            LobbyKit.Frame(holder, LobbyKit.Line, 6, 1);
             var area = LobbyKit.Rect(holder, "Text area").Place(Vector2.zero, Vector2.one, new Vector2(14, 2), new Vector2(-14, -2));
             area.gameObject.AddComponent<RectMask2D>();
             var text = LobbyKit.Text(area, "", 22, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft);

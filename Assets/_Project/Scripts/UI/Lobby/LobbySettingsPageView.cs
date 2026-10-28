@@ -12,10 +12,21 @@ namespace Wreckabulary
         public RectTransform Panel, Body, Tabs, Content, Confirmation;
         public TextMeshProUGUI Title;
         public Button Close;
+        [Min(720)] public float MaximumWidth = 1280;
         UnityAction closeListener;
+
+        public void FitHeight(float height)
+        {
+            if (float.IsNaN(height) || float.IsInfinity(height)) throw new ArgumentOutOfRangeException(nameof(height));
+            var fit = Panel.GetComponent<LobbyCompactPanel>() ?? Panel.gameObject.AddComponent<LobbyCompactPanel>();
+            fit.MaximumSize = new Vector2(MaximumWidth, Mathf.Clamp(height, 560, 1000));
+            fit.Fit();
+        }
 
         public void Validate()
         {
+            if (float.IsNaN(MaximumWidth) || float.IsInfinity(MaximumWidth) || MaximumWidth < 720 || MaximumWidth > 1920)
+                throw new InvalidOperationException("Settings maximum width must be between 720 and 1920 UI units.");
             LobbyShopLayout.ValidateTree(this);
             foreach (var role in new Component[] { Panel, Body, Tabs, Content, Confirmation, Title, Close })
                 LobbyShopLayout.Require(this, role, "Settings frame role");

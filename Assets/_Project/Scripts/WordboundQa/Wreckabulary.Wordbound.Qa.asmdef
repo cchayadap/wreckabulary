@@ -6,6 +6,7 @@
     "Wreckabulary.Rules",
     "Wreckabulary.Online.Client",
     "Wreckabulary.Online.Gameplay",
+    "Wreckabulary.Online.Puzzles",
     "Wreckabulary.Online.Presentation",
     "Wreckabulary.Online.Physics",
     "GameStudioKit.Runtime",
