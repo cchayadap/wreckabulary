@@ -34,7 +34,7 @@ namespace Wreckabulary.Online.Tests
         OnlineSettings settings;
         bool ready;
         string channel;
-        int revision, closed;
+        int revision, closed, humans;
 
         [SetUp]
         public void SetUp()
@@ -42,7 +42,7 @@ namespace Wreckabulary.Online.Tests
             previousPad = Gamepad.current; previousTyping = DesktopBinding.Typing;
             try
             {
-                settings = null; ready = false; channel = null; revision = closed = 0;
+                settings = null; ready = false; channel = null; revision = closed = 0; humans = 1;
                 input = new WordboundNativeInputScope();
                 DesktopBinding.Typing = false;
                 pad = InputSystem.AddDevice<Gamepad>();
@@ -96,13 +96,61 @@ namespace Wreckabulary.Online.Tests
         }
 
         [UnityTest]
+        public IEnumerator PublicCoopDefaultsFindHumansWhilePrivateAndFfaChoicesRemainExplicit()
+        {
+            yield return Activate("mode:4");
+            Assert.IsTrue(Get<bool>(menu, "fill"));
+            Assert.IsFalse(coordinator.Authenticated); Assert.IsEmpty(http.Requests);
+            Draw(EventType.Layout);
+            var controls = Get<List<string>>(Get<WordboundMenuFocus>(menu, "partyFocus"), "controls");
+            Assert.Contains("fill", controls); Assert.IsFalse(controls.Contains("public-map:0"));
+            yield return Activate("mode:3"); Draw(EventType.Layout);
+            Assert.IsFalse(Get<bool>(menu, "fill")); Assert.IsFalse(controls.Contains("fill"));
+            yield return Activate("mode:4"); Assert.IsTrue(Get<bool>(menu, "fill"));
+            yield return Activate("create-settings");
+            Draw(EventType.Layout);
+            Assert.Contains("public-map:0", controls);
+            yield return Activate("map-source:1"); Assert.IsFalse(Get<bool>(menu, "fill"));
+            Assert.IsEmpty(http.Requests, "Browsing modes and maps cannot create a party or enqueue a match.");
+        }
+
+        [UnityTest]
+        public IEnumerator PublicCoopPreflightBlocksOneHumanWithoutFillAndReenablesForFillOrTwoHumans()
+        {
+            yield return Activate("connect"); yield return Activate("mode:4");
+            yield return Activate("fill"); yield return Activate("create-party");
+            Assert.AreEqual(1, coordinator.Party.Members.Count); Assert.IsFalse(coordinator.Party.Settings.Fill);
+            Draw(EventType.Layout); Draw(EventType.Repaint);
+            var controls = Get<List<string>>(Get<WordboundMenuFocus>(menu, "partyFocus"), "controls");
+            Assert.IsFalse(controls.Contains("quick-play"), "The real Find match control must be disabled before a blocked request.");
+            Assert.Contains("private-actions", controls, "Solo private play remains reachable.");
+            int requests = http.Requests.Count;
+            Assert.Throws<InvalidOperationException>(() => coordinator.Queue("QuickPlay"));
+            Assert.AreEqual(requests, http.Requests.Count, "The coordinator's independent human guard remains intact.");
+
+            yield return Activate("party-settings"); yield return Activate("fill"); yield return Activate("apply-settings");
+            yield return Activate("party-settings"); Draw(EventType.Layout);
+            Assert.IsTrue(coordinator.Party.Settings.Fill); Assert.Contains("quick-play", controls);
+
+            yield return Activate("party-settings"); yield return Activate("fill"); yield return Activate("apply-settings");
+            yield return Activate("party-settings"); Draw(EventType.Layout);
+            Assert.IsFalse(coordinator.Party.Settings.Fill); Assert.IsFalse(controls.Contains("quick-play"));
+            humans = 2; coordinator.Poll().GetAwaiter().GetResult();
+            Draw(EventType.Layout); Draw(EventType.Repaint);
+            Assert.AreEqual(2, coordinator.Party.Members.Count); Assert.IsFalse(coordinator.Party.Settings.Fill);
+            Assert.Contains("quick-play", controls, "Exactly two human players must be admitted without changing their Fill setting.");
+            yield return Activate("ready"); yield return Activate("quick-play");
+            Assert.AreEqual("QuickPlay", coordinator.Party.Channel); Assert.IsFalse(coordinator.Party.Settings.Fill);
+        }
+
+        [UnityTest]
         public IEnumerator RealPadButtonsConnectSelectCreateReadyAndQuickPlayOnlyAfterRepaint()
         {
             yield return Activate("connect"); Assert.IsTrue(coordinator.Authenticated);
             yield return Activate("mode:4"); Assert.AreEqual(4, Get<int>(menu, "mode"));
             yield return Activate("create-settings");
             yield return Activate("region:1"); Assert.AreEqual(1, Get<int>(menu, "region"));
-            yield return Activate("fill");
+            Assert.IsTrue(Get<bool>(menu, "fill"), "A new public co-op choice finds human teammates by default.");
             yield return Activate("create-party"); Assert.IsNotNull(coordinator.Party);
             Assert.AreEqual("Freestyle", coordinator.Party.Settings.Mode); Assert.AreEqual("eu", coordinator.Party.Settings.Region);
             yield return Activate("ready"); Assert.IsTrue(coordinator.Party.Members.Single().Ready);
@@ -171,9 +219,9 @@ namespace Wreckabulary.Online.Tests
             Assert.AreEqual(Seed, Get<string>(menu, "seed"), "The closed form must resolve the same approved default map.");
             Assert.AreEqual(requests, http.Requests.Count); Assert.Contains("create-party", controls);
             Assert.Contains("mode:4", controls); Assert.IsFalse(controls.Contains("region:1"));
-            Assert.IsFalse(controls.Contains("fill")); Assert.IsFalse(controls.Contains("public-map:0"));
+            Assert.Contains("fill", controls); Assert.IsFalse(controls.Contains("public-map:0"));
             yield return Activate("create-settings"); yield return Activate("region:1");
-            yield return Activate("fill"); yield return Activate("map-source:1");
+            yield return Activate("map-source:1"); yield return Activate("fill");
             const string privateSeed = "fedcba9876543210";
             Set(menu, "privateSeed", privateSeed); Draw(EventType.Layout); Draw(EventType.Repaint);
             Set(menu, "scroll", new Vector2(0, 900)); Set(menu, "revealPartySelection", false);
@@ -228,7 +276,7 @@ namespace Wreckabulary.Online.Tests
         public IEnumerator BackClosesOptionalPanelsBeforeLeavingIdlePartyAndCancelRemainsVisible()
         {
             yield return Activate("connect"); yield return Activate("mode:4");
-            yield return Activate("create-settings"); yield return Activate("fill");
+            yield return Activate("create-settings"); Assert.IsTrue(Get<bool>(menu, "fill"));
             yield return Activate("create-party");
             string party = coordinator.Party.Id;
             yield return Activate("party-settings");
@@ -259,7 +307,7 @@ namespace Wreckabulary.Online.Tests
         public IEnumerator FailedQueueKeepsRetryVisibleWithoutReopeningPrivateForms()
         {
             yield return Activate("connect"); yield return Activate("mode:4");
-            yield return Activate("create-settings"); yield return Activate("fill");
+            yield return Activate("create-settings"); Assert.IsTrue(Get<bool>(menu, "fill"));
             yield return Activate("create-party"); yield return Activate("ready");
             http.FailNext = true; yield return Activate("quick-play");
             Assert.IsTrue(coordinator.RetryRequired);
@@ -595,14 +643,16 @@ namespace Wreckabulary.Online.Tests
                 ["playerId"] = Player, ["accessToken"] = "test.token", ["refreshToken"] = Player + "." + OnlineJson.Base64Url(new byte[32]), ["expiresIn"] = 900
             });
             var body = string.IsNullOrEmpty(request.JsonBody) ? null : OnlineJson.Parse(request.JsonBody);
-            if (request.Path == "/v1/parties") settings = OnlineSettings.Read(body["settings"]);
+            if (request.Path == "/v1/parties" || request.Method == "PATCH") settings = OnlineSettings.Read(body["settings"]);
             if (request.Path.EndsWith("/ready")) ready = body["ready"].Bool();
             if (request.Path.EndsWith("/queue")) channel = body["channel"].String();
             if (request.Path.EndsWith("/cancel")) channel = null;
             if (request.Path.EndsWith("/leave")) return Json(new Dictionary<string, object>());
             var response = new Dictionary<string, object> {
                 ["id"] = PartyId, ["revision"] = (++revision).ToString(), ["leaderId"] = Player, ["invite"] = Code,
-                ["members"] = new[] { new Dictionary<string, object> { ["playerId"] = Player, ["ready"] = ready } },
+                ["members"] = Enumerable.Range(0, humans).Select(index => new Dictionary<string, object> {
+                    ["playerId"] = index == 0 ? Player : "10000000-0000-4000-8000-" + (index + 1).ToString("D12"),
+                    ["ready"] = ready }).ToArray(),
                 ["settings"] = settings.ToValue(), ["state"] = channel == null ? "OPEN" : "QUEUED"
             };
             if (channel != null) response["activeAttempt"] = new Dictionary<string, object> { ["channel"] = channel };

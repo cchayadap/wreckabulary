@@ -360,7 +360,7 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Rays"), "decorative rays are excluded from the redesigned choices");
             Assert.IsTrue(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Start"), "plans mark where players start");
             AssertNoEllipsis(page, "PLAY");
-            Assert.AreEqual("Double trouble", LobbyMenu.ModeName("Duos"), "the web's names");
+            Assert.AreEqual("Duos", LobbyMenu.ModeName("Duos"), "Use the same display name as the direct Play mode choice.");
 
             Click("Queue " + LobbyMenu.Workshop);
             yield return null;
@@ -384,7 +384,7 @@ namespace Wreckabulary.Tests
             yield return null;
             Click("Queue " + LobbyMenu.Workshop);
             yield return null;
-            Click("Mode " + LobbyMenu.WorkshopMode);
+            Click("Create house");
             yield return null;
             Assert.IsTrue(HomeDesigner.Supports(menu.Map), "the workshop took you to a house it builds in");
             Assert.IsFalse(Find("Map flat").interactable, "the others are off");
@@ -790,9 +790,11 @@ namespace Wreckabulary.Tests
             yield return null;
             var modes = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<GridLayoutGroup>().Single(row => row.name == "Modes");
             var modeButtons = modes.GetComponentsInChildren<Button>();
-            Assert.AreEqual(LobbyMenu.Modes.Length, modeButtons.Length, "Each local mode retains its own choice.");
+            CollectionAssert.AreEquivalent(LobbyMenu.Modes.Select(mode => "Mode " + mode)
+                .Concat(new[] { "Solo TimeRun", "Solo Freestyle" }), modeButtons.Select(button => button.name),
+                "All five house modes and both Wordbound practice modes are directly available.");
             foreach (var button in modeButtons)
-                Assert.GreaterOrEqual(((RectTransform)button.transform).rect.height, 100f, "Readable card targets do not shrink.");
+                Assert.GreaterOrEqual(((RectTransform)button.transform).rect.height, 44f, "Compact mode choices retain accessible targets.");
             Assert.IsFalse(modes.GetComponentsInChildren<RawImage>().Any(image => image.name == "Rays"), "No decorative stripes.");
             var maps = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<GridLayoutGroup>().Single(row => row.name == "Houses");
             Assert.Greater(maps.cellSize.y, modes.cellSize.y, "Map cards are the main choice area.");
@@ -1209,7 +1211,7 @@ namespace Wreckabulary.Tests
             yield return null;
             Click("Queue " + LobbyMenu.Workshop);
             yield return null;
-            Click("Mode " + LobbyMenu.WorkshopMode);
+            Click("Create house");
             yield return null;
             var lobbyLook = menu.Stage.Camera.backgroundColor;
             var daylight = Wreckabulary.Art.EnvironmentLighting.Active;

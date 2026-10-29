@@ -11,10 +11,10 @@ namespace Wreckabulary.Online
     public sealed partial class WordboundPartyMenu : MonoBehaviour
     {
         static readonly string[] Modes = { "TimeRun", "TeamRace", "BrawlRace", "FreeForAll", "Freestyle" };
-        static readonly string[] ModeLabels = { "Time Run", "Team Race", "Brawl Race", "Free-for-All", "Freestyle" };
+        static readonly string[] ModeLabels = Modes.Select(LobbyPlayModeLabels.Name).ToArray();
         static readonly string[] Regions = { "asia", "eu", "us" };
         static readonly string[] RegionLabels = { "Asia", "Europe", "US" };
-        static readonly string[] MapSourceLabels = { "Public maps", "Private seed" };
+        static readonly string[] MapSourceLabels = { "Matchmaking maps", "Private seed" };
         static readonly string[] Formats = { "Solo", "Duo", "Squad" };
         readonly CancellationTokenSource lifetime = new CancellationTokenSource();
         readonly WordboundUiStyles ui = new WordboundUiStyles();
@@ -35,6 +35,8 @@ namespace Wreckabulary.Online
         bool compactPartyLayout, compactPartyScroll;
         Rect guestFirstContentRect, guestLastContentRect;
         float guestHeight = -1, guestWidth = -1;
+        float partyAvailableHeight;
+        string guestGeometryContext;
         int guestStyleGeneration = -1;
         IReadOnlyList<WordboundPublicCourse> mapChoices;
         string[] mapLabels;
@@ -77,6 +79,7 @@ namespace Wreckabulary.Online
             publicCourses.RequireRelease(mapPoolVersion);
             itemSource = actualItemsJson; ruleSource = actualRuleBookJson;
             customSeedMode = publicCourses.IsClosed;
+            fill = !customSeedMode;
             transport = new WordboundHttpTransport(trust.Origin);
             coordinator = new WordboundPartyCoordinator(new OnlineCoordinatorClient(transport), trust.Verifier,
                 actualItemsJson, actualRuleBookJson, mapPoolVersion, new WordboundPublicCourseRegistry(approvedPublicContentJson));
@@ -178,11 +181,20 @@ namespace Wreckabulary.Online
         void DrawPartyGui(Vector2 viewport)
         {
             using var themeScope = ui.Apply(Theme);
-            title = ui.Heading; hint = ui.Wrapped;
+            PrepareCenteredStyles();
             DrawOnlineBackground(viewport);
             Rect available = ui.MenuRect(viewport.x, viewport.y);
             if (Event.current.type == EventType.Layout || partyRect.width == 0)
             {
+                string geometryContext = PartyContext + "|" + localError + "|" + coordinator.Error + "|" + partyUsesPad;
+                if (guestGeometryContext != geometryContext)
+                {
+                    guestGeometryContext = geometryContext;
+                    guestHeight = -1;
+                    scroll = Vector2.zero;
+                    revealPartySelection = true;
+                }
+                partyAvailableHeight = available.height;
                 if (guestStyleGeneration != ui.Generation || guestWidth != available.width)
                 { guestHeight = -1; guestWidth = available.width; guestStyleGeneration = ui.Generation; }
                 compactPartyLayout = !coordinator.MatchActive && (!coordinator.Authenticated || coordinator.RetryRequired ||
@@ -217,10 +229,20 @@ namespace Wreckabulary.Online
         }
         void DrawPartyContents()
         {
-            GUILayout.Label("ONLINE PLAY", title);
+            bool guest = !coordinator.Authenticated && !coordinator.RetryRequired && !coordinator.MatchActive;
+            if (guest) GUILayout.BeginHorizontal();
+            GUILayout.Label("MATCHMAKING", title);
             if (compactPartyLayout && Event.current.type == EventType.Repaint) guestFirstContentRect = GUILayoutUtility.GetLastRect();
-            GUILayout.Label("Wordbound · Human players", hint);
-            if (partyUsesPad) GUILayout.Label("D-pad Select · A Confirm · B Back · Right stick Scroll", hint);
+            if (guest)
+            {
+                bool enabled = GUI.enabled;
+                GUI.enabled = enabled && !coordinator.Busy && !launching && !returning;
+                if (WorkshopRequested != null) PartyControl("workshop", "Workshop", () => WorkshopRequested?.Invoke());
+                if (CloseRequested != null) PartyControl("back", "Back", () => CloseRequested?.Invoke());
+                GUI.enabled = enabled;
+                GUILayout.EndHorizontal();
+            }
+            if (partyUsesPad && coordinator.Authenticated) GUILayout.Label("D-pad Select · A Confirm · B Back · Right stick Scroll", hint);
             if (coordinator.MatchActive)
             {
                 GUILayout.Label(localError ?? "Joining your match…", hint);
@@ -236,10 +258,12 @@ namespace Wreckabulary.Online
             GUI.enabled = !coordinator.Busy && !launching && !returning;
             if (!coordinator.Authenticated)
             {
-                GUILayout.Space(12); GUILayout.Label("Guest name");
+                DrawCreateSettings();
+                GUILayout.Space(8); GUILayout.BeginHorizontal();
+                GUILayout.Label("Name", GUILayout.Width(44), GUILayout.MinHeight(ui.RowHeight));
                 displayName = PartyText("name", displayName, 32);
                 PartyControl("connect", "Connect", () => Invoke(() => coordinator.Connect(displayName)));
-                if (partyUsesPad) GUILayout.Label("Keyboard: edit your name.", hint);
+                GUILayout.EndHorizontal();
             }
             else
             {
@@ -272,7 +296,7 @@ namespace Wreckabulary.Online
             DrawPartyError();
             if (BeginMatchRequested == null)
                 GUILayout.Label("Gameplay launcher is not connected in this scene.", hint);
-            if (!coordinator.MatchActive && !coordinator.Busy && !coordinator.RetryRequired &&
+            if (coordinator.Authenticated && !coordinator.MatchActive && !coordinator.Busy && !coordinator.RetryRequired &&
                 coordinator.Party?.HasAttempt != true && !launching && !returning)
             {
                 GUILayout.Space(12); GUILayout.BeginHorizontal();
@@ -281,7 +305,7 @@ namespace Wreckabulary.Online
                 GUILayout.EndHorizontal();
             }
         }
-        void DrawSettings(bool includeMode = true)
+        void DrawSettings(bool includeMode = true, bool includeMap = true)
         {
             GUILayout.Space(10);
             bool previous = GUI.enabled;
@@ -298,13 +322,13 @@ namespace Wreckabulary.Online
             else format = 0;
             if (Modes[mode] != "FreeForAll")
             {
-                PartyControl("fill", "Find human teammates", () => fill = !fill, true, fill);
-                GUILayout.Label(fill ? "Open seats may be filled before play." : "Your party only · smaller teams allowed.", hint);
+                if (includeMode || customSeedMode)
+                    PartyControl("fill", "Find human teammates", () => fill = !fill, true, fill);
             }
             else fill = false;
-            if (party == null)
+            if (party == null && includeMap)
                 DrawSeedSelection();
-            else
+            else if (party != null)
             {
                 GUILayout.Label("Map: " + (coordinator.PublicAvailable ? "Public layout" : "Private layout"));
                 if (coordinator.IsLeader) PartyControl("apply-settings", "Apply settings · ready resets",
@@ -317,7 +341,12 @@ namespace Wreckabulary.Online
             {
                 PartyChoices("map-source", customSeedMode ? 1 : 0, MapSourceLabels, 2, next => {
                     bool nextCustom = next == 1;
-                    if (nextCustom != customSeedMode) { customSeedMode = nextCustom; if (customSeedMode) seed = privateSeed; }
+                    if (nextCustom != customSeedMode)
+                    {
+                        customSeedMode = nextCustom;
+                        if (customSeedMode) { seed = privateSeed; fill = false; }
+                        else if (Modes[mode] == "TimeRun" || Modes[mode] == "Freestyle") fill = true;
+                    }
                 });
             }
             if (customSeedMode)
@@ -411,13 +440,17 @@ namespace Wreckabulary.Online
             {
                 GUILayout.Space(ui.Gap);
                 bool previous = GUI.enabled;
-                GUI.enabled = previous && coordinator.PublicAvailable;
+                bool needsTeammate = (party.Settings.Mode == "TimeRun" || party.Settings.Mode == "Freestyle") &&
+                    !party.Settings.Fill && party.Members.Count < 2;
+                GUI.enabled = previous && coordinator.PublicAvailable && !needsTeammate;
                 PartyControl("quick-play", "Find match", () => Invoke(() => coordinator.Queue("QuickPlay")));
                 GUI.enabled = previous;
                 if (!coordinator.PublicAvailable)
                     GUILayout.Label(publicCourses.Choices(party.Settings.Mode, party.Settings.Format).Count == 0 ?
                         "No public map available. Use a private room." :
                         "Private layout. Leave this party and choose Public maps to find a match.", hint);
+                else if (needsTeammate)
+                    GUILayout.Label("Invite a player or turn on Find human teammates.", hint);
                 PartyControl("private-actions", showPrivateActions ? "Hide private rooms" : "Private rooms",
                     () => showPrivateActions = !showPrivateActions);
                 if (showPrivateActions) DrawPrivateActions(previous);

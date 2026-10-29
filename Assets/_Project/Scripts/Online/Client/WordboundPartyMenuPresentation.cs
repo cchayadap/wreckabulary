@@ -14,24 +14,30 @@ namespace Wreckabulary.Online
             DrawModeChoices();
             if (Modes[mode] != "TeamRace" && Modes[mode] != "BrawlRace") format = 0;
             if (Modes[mode] == "FreeForAll") fill = false;
-            int layout = customSeedMode ? -1 : EnsurePublicMapSelection();
+            if (!customSeedMode) EnsurePublicMapSelection();
             if (customSeedMode) seed = privateSeed;
+            DrawInstalledMapPreview();
+            GUILayout.BeginHorizontal();
+            if (!customSeedMode && Modes[mode] != "FreeForAll")
+                PartyControl("fill", "Find players", () => fill = !fill, true, fill);
             PartyControl("create-settings", showCreateSettings ? "Hide match settings" : "Match settings", () => {
                 if (showCreateSettings) CloseCreateSettings(); else showCreateSettings = true;
             });
-            string team = Modes[mode] == "TeamRace" || Modes[mode] == "BrawlRace" ? " · " + Formats[format] : "";
-            string teammates = Modes[mode] == "FreeForAll" ? "" : fill ? " · Human teammates" : " · Party only";
-            string map = customSeedMode ? "Private seed" : layout < 0 ? "No public map" : "Public layout " + (layout + 1);
-            GUILayout.Label(RegionLabels[region] + team + teammates + " · " + map, hint);
+            GUILayout.EndHorizontal();
             if (showCreateSettings) DrawSettings(false);
         }
 
         void DrawModeChoices()
         {
-            PartyChoices("mode", mode, ModeLabels, 3, next => {
-                if (next != mode) { mode = next; format = 0; fill = false; }
+            int columns = Mathf.Clamp(Mathf.FloorToInt((partyRect.width - ui.Panel.padding.horizontal) / 112), 1, 5);
+            PartyChoices("mode", mode, ModeLabels, columns, next => {
+                if (next != mode)
+                {
+                    mode = next; format = 0;
+                    fill = !customSeedMode && (Modes[mode] == "TimeRun" || Modes[mode] == "Freestyle");
+                }
             });
-            GUILayout.Label(Composition(Modes[mode], Formats[format]), hint);
+            if (showCreateSettings || coordinator.Party != null) GUILayout.Label(Composition(Modes[mode], Formats[format]), hint);
         }
 
         int EnsurePublicMapSelection()
@@ -130,11 +136,11 @@ namespace Wreckabulary.Online
 
         static string Composition(string selectedMode, string selectedFormat) => selectedMode switch
         {
-            "TimeRun" => "Time Run · Co-op · up to 4 humans",
-            "TeamRace" => "Team Race · 2 teams · " + TeamSize(selectedFormat) + " per team · no damage",
-            "BrawlRace" => "Brawl Race · 2 teams · " + TeamSize(selectedFormat) + " per team · combat",
+            "TimeRun" => "Co-op · up to 4 humans · timed",
+            "TeamRace" => "2 teams · " + TeamSize(selectedFormat) + " per team · no damage",
+            "BrawlRace" => "2 teams · " + TeamSize(selectedFormat) + " per team · combat",
             "FreeForAll" => "Free-for-All · 2–8 humans",
-            "Freestyle" => "Freestyle · Co-op · up to 8 humans · no timer",
+            "Freestyle" => "Co-op · up to 8 humans · no timer",
             _ => selectedMode
         };
         static string TeamSize(string selectedFormat) => selectedFormat == "Squad" ? "4" : selectedFormat == "Duo" ? "2" : "1";

@@ -37,7 +37,7 @@ namespace Wreckabulary.Online
         void PreparePanels()
         {
             statusPanel.Begin(); actionPanel.Begin(); inventoryPanel.Begin(); menuHintPanel.Begin();
-            string heading = mode.Name;
+            string heading = LobbyPlayModeLabels.Name(mode.Id);
             if (frame != null && mode.TimeLimitSeconds > 0)
             {
                 long seconds = Math.Max(0, mode.TimeLimitSeconds - frame.Progress.ElapsedTicks / ModeDefinition.TickRate);

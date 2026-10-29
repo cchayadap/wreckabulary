@@ -114,8 +114,6 @@ namespace Wreckabulary.Qa
             yield return Settle();
             Submit(menu.Page<PlayPage>().Root, "Queue " + LobbyMenu.Practice);
             yield return Settle();
-            Submit(menu.Page<PlayPage>().Root, "Family Wordbound");
-            yield return Settle();
             Submit(menu.Page<PlayPage>().Root, "Solo " + mode);
             yield return Settle();
             Submit(menu.Page<PlayPage>().Root, "Solo map " + soloMap);

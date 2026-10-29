@@ -815,15 +815,10 @@ namespace Wreckabulary
 
         public static string ModeName(string mode) => mode switch
         {
-            "Dibs" => "Dibs!",
-            "Duos" => "Double trouble",
-            "MovingOut" => "The great escape",
-            "MovingDay" => "Moving day",
-            "Escape" => "The Escape!",
             "Tutorial" => "Play & learn",
             "Workshop" => "Creative workshop",
             "Room" => "Private room",
-            _ => mode,
+            _ => LobbyPlayModeLabels.Name(mode),
         };
 
         public static string Seats(string mode, int humans = 1)
