@@ -278,8 +278,12 @@ namespace Wreckabulary.OfflineGameplayTests
             var tiles = Frame.Bodies.Where(b => b.Kind == WorldBodyKind.Tile && b.SourceId == placement).ToArray();
             Assert.AreEqual(word.Length, tiles.Length);
             CollectionAssert.AreEquivalent(word.ToCharArray(), tiles.Select(b => Frame.Economy.Tiles.Single(t => "tile:" + t.Key == b.Id).Value));
-            Assert.IsFalse(Frame.Bodies.Any(b => b.Id == id));
-            yield return Until(() => !controller.Bodies.ContainsKey(id), "Remove the broken native body", 5);
+            Assert.AreEqual(placement, Body(id).SourceId);
+            Assert.IsFalse(Body(id).Active, "Destroyed map furniture retains an inactive source tombstone.");
+            yield return Until(() => controller.Bodies.TryGetValue(id, out var native) && !native.BodyActive &&
+                !native.Rigidbody.detectCollisions && native.OwnedColliders.All(c => !c.enabled) &&
+                native.GetComponentsInChildren<Renderer>(true).All(r => !r.enabled),
+                "Hide and disable the retained map-furniture body", 5);
             Debug.Log("[Kitchen pilot] HAMMER_BREAK: word=" + word + "; mapToughness=" + toughness + "; breakPower=" + stats.BreakPower + "; hits=" + observed + "; letters=" + tiles.Length);
         }
 
@@ -300,7 +304,16 @@ namespace Wreckabulary.OfflineGameplayTests
             var original = ModelLibrary.Load().Find(definition.Model); Assert.IsNotNull(original);
             CollectionAssert.AreEqual(Meshes(original), Meshes(art.gameObject));
             Assert.IsTrue(art.GetComponentsInChildren<Renderer>(true).All(r => r.sharedMaterials.All(m => m)));
-            var measured = ModelVisual.BoundsIn(original.transform, original);
+            var measurement = new GameObject("Owned original appliance bounds");
+            measurement.SetActive(false);
+            measurement.transform.SetParent(root.transform, false);
+            Bounds measured;
+            try
+            {
+                var instance = Object.Instantiate(original, measurement.transform, false);
+                measured = ModelVisual.BoundsIn(measurement.transform, instance);
+            }
+            finally { Object.DestroyImmediate(measurement); }
             Assert.Less(Vector3.Distance(measured.size, new Vector3(definition.Size[0], definition.Size[1], definition.Size[2])), .005f,
                 "Item dimensions must match the actual original imported model, not only a generated report.");
             Assert.Less(Vector3.Distance(measured.size, expected), .005f, "Canonical collider must retain original appliance scale within millimetre rounding.");
