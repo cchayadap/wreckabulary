@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3efe482625acd8a4ca027990fba8569d, type: 3}
+  m_Name: LaunchAssets
+  m_EditorClassIdentifier: Wreckabulary.Online.Client::Wreckabulary.Online.WordboundLaunchAssets
+  PublicTrust: {fileID: 4900000, guid: 99e417e1b6d5a48478cdb1fae446ea2c, type: 3}
+  ApprovedPublicCourses: {fileID: 4900000, guid: cdfa532f45853204b89bfb7f848964c8, type: 3}
+  MapPoolVersion: wordbound-20261023-v1
+  CameraProfile: {fileID: 11400000, guid: aa3aabd6d6fb281488c422c770328a56, type: 2}
+  VisualProfile: {fileID: 11400000, guid: 8513f12a73657d54393cf5b4d5749239, type: 2}
+  StoryProfile: {fileID: 11400000, guid: d44158cd6a767ae419be4d1e1f6cfe9b, type: 2}
+  UiTheme: {fileID: 11400000, guid: 06870fff6033eca40b283dbc562719c5, type: 2}
+  WorkshopCourse: {fileID: 11400000, guid: ddfd2af41a229134ebb093eaeffa3b83, type: 2}
+  ParcelServiceCourse: {fileID: 11400000, guid: c0e66a7901c28b9459ec6bd0a8903eea, type: 2}
+  PlayerBody: {fileID: 4802382135351779463, guid: 42744fe471ef25c45b00766b69bfac05, type: 3}
+  ItemBody: {fileID: 2349818467267815783, guid: 7fef0fc0ff0a80d4d9e2ee25529e491e, type: 3}
+  PlatformBody: {fileID: 866338291073152685, guid: 9a45ed858edb6284f933c4d630082a39, type: 3}
+  SnapshotChunk:
+    RawGuidValue: 61c53895672616f4a96a9f8e7d35319dl
