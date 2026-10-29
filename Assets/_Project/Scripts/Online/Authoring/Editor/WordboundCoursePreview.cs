@@ -16,6 +16,9 @@ namespace Wreckabulary.Online.Editor
         string inputHash, error = "";
         Vector3 center;
         float yaw = 35, pitch = 35, distance;
+        Bounds worldBounds;
+        string[] viewNames;
+        int selectedView;
         public static void Show(WordboundCourseAsset asset, ResolvedCourse exact)
         {
             var window = GetWindow<WordboundCoursePreview>("Wordbound exact preview");
@@ -46,7 +49,10 @@ namespace Wreckabulary.Online.Editor
                 var all = world.GetComponentsInChildren<Renderer>(true);
                 Bounds bounds = all.Length == 0 ? new Bounds(Vector3.zero, Vector3.one * 20) : all[0].bounds;
                 foreach (var r in all.Skip(1)) bounds.Encapsulate(r.bounds);
-                center = bounds.center; distance = Mathf.Max(12, bounds.size.magnitude);
+                worldBounds = bounds;
+                viewNames = new[] { "Whole map" }.Concat(exact.Geometry.Select(m => m.Id.Replace('_', ' '))).ToArray();
+                selectedView = 0;
+                FrameSelection();
                 renderer.camera.fieldOfView = asset.CameraProfile ? asset.CameraProfile.FieldOfView : 55;
                 renderer.camera.nearClipPlane = .1f; renderer.camera.farClipPlane = 10000;
                 renderer.lights[0].intensity = 1.2f; renderer.lights[0].transform.rotation = Quaternion.Euler(35, 25, 0);
@@ -68,6 +74,13 @@ namespace Wreckabulary.Online.Editor
             using (new EditorGUI.DisabledScope(stale || EditorApplication.isPlayingOrWillChangePlaymode))
                 if (GUILayout.Button("Play this exact preview locally"))
                     try { WordboundCoursePlaytest.Start(asset, course, inputHash); } catch (Exception failure) { error = failure.Message; }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUI.BeginChangeCheck();
+                selectedView = EditorGUILayout.Popup("View", selectedView, viewNames);
+                bool changed = EditorGUI.EndChangeCheck();
+                if (GUILayout.Button("Frame", GUILayout.Width(56)) || changed) FrameSelection();
+            }
             Rect area = GUILayoutUtility.GetRect(100, 10000, 100, 10000);
             var e = Event.current;
             if (area.Contains(e.mousePosition))
@@ -83,6 +96,20 @@ namespace Wreckabulary.Online.Editor
             renderer.camera.transform.SetPositionAndRotation(center - rotation * Vector3.forward * distance, rotation);
             renderer.Render(true);
             GUI.DrawTexture(area, renderer.EndPreview(), ScaleMode.StretchToFill, false);
+        }
+        void FrameSelection()
+        {
+            Bounds bounds = worldBounds;
+            if (selectedView > 0 && selectedView <= course.Geometry.Count)
+            {
+                var room = course.Geometry[selectedView - 1].Bounds;
+                var min = new Vector3(room.Min.X, room.Min.Y, room.Min.Z) / 1000f;
+                var max = new Vector3(room.Max.X, room.Max.Y, room.Max.Z) / 1000f;
+                bounds = new Bounds((min + max) * .5f, max - min);
+            }
+            center = bounds.center;
+            distance = Mathf.Max(2, bounds.size.magnitude);
+            Repaint();
         }
         void OnDisable() => Release();
         void Release()

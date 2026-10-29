@@ -1,0 +1,304 @@
+{
+  "schema": 1,
+  "status": "SOURCE_INSPECTION_ONLY_NOT_VISUALLY_APPROVED",
+  "utc": "2026-10-29T00:40:00.4705396Z",
+  "unity": "6000.6.4f1",
+  "inputs": {
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx": "928db9ffd492a4edd95ab02131197bd74c17d053e0099728920429ec7bd67285",
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx.meta": "990f5a891ab1bf1b065240f2507b5e65695522517a76e7dcbb9e69547ae68704",
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx": "76270646a81ee62aac47823f8cc6de8b6788c03ab3e1b722cd0fff415dac6274",
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx.meta": "1849f0fb053e58a6472ed001aa4a7a1ba7b54195a1e69b1a4d56144d44aab2a2",
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx": "7197cc46158d44a8fc1428690beb39ec706116ebc05fafd0112b3be280baab00",
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx.meta": "810e62b85b35b4ebfce4b6f9306996ef4cc576c9fb47782527cbd8440bbdbd94",
+    "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png": "0e812e6bfa3efd1444a4c333e6ab09af536e25face64c75a788bf68ae4e06cfd",
+    "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png.meta": "37957241d67196f823a5cad8e466e4770f61830cd4634f2e334a9981b88dfd22",
+    "Assets/_Project/Materials/Library/blue_Classic.mat": "42586f60d53117b92fc1d89eb6dea62789f37e18065dd2fc0edf4b0556b2beb7",
+    "Assets/_Project/Materials/Library/blue_Classic.mat.meta": "8b20d7abd753f0b2dfe29578fe088d3c7555bc5889cd70c76f9aa39a569ea0ae",
+    "Assets/_Project/Materials/Library/ceramic_Classic.mat": "0c9851686d6ef128ade521a8499d10b7f22b6bb3c62b32fd806a49925a97b3cd",
+    "Assets/_Project/Materials/Library/ceramic_Classic.mat.meta": "9f7cc79aff810f2d7edd03052a9629016c828086e073eb65604e1e06e13fae3b",
+    "Assets/_Project/Materials/Library/dark_Classic.mat": "8ad7407779b3bf4e7e37f820e79fbe9d319659aa9284cdb64effe24ef11ce084",
+    "Assets/_Project/Materials/Library/dark_Classic.mat.meta": "208b9e0a156aaf7acee750532ba826816a7d0d2a0896dbb9a52d2835bd79e012",
+    "Assets/_Project/Materials/Library/gold_Classic.mat": "1a6b266e36df46bda5300a46eac23b8def8cc56b29ffdd034e84349423e3f168",
+    "Assets/_Project/Materials/Library/gold_Classic.mat.meta": "138399d27babe485a8763feba55280e6474e126fa17c8c8c1c4c1bb3567c9362",
+    "Assets/_Project/Materials/Library/green_Classic.mat": "927e164f24968d080edbaa87f247ade23079f22e3253adace09dd135a727dcf7",
+    "Assets/_Project/Materials/Library/green_Classic.mat.meta": "1428469f478a7a2a3f3b1545b439332dce50afa01144db1bf701839463d1f04e",
+    "Assets/_Project/Materials/Library/ivory_Classic.mat": "75c2fd0fe3fb2fac35b807dcb5c1e5b241d215240901cbeae6769985c150c99f",
+    "Assets/_Project/Materials/Library/ivory_Classic.mat.meta": "a55bc84b99dac116795e9fc7e23c49c28b8ef43130af937b52eaffbf0eb8fa58",
+    "Assets/_Project/Materials/Library/metal_Classic.mat": "0b2639720be6bb4d867f77c63ff8e099cade40d01e0c6c12528cf5abc783130c",
+    "Assets/_Project/Materials/Library/metal_Classic.mat.meta": "8c4933563c83b7d98a029100e55a5acf0788e52e9dd78b71436bf183b8f58350",
+    "Assets/_Project/Materials/Library/red_Classic.mat": "2bf6a47682053bd14a11f6852ad24aa1e8be4813ca9905be72c488864f6ba690",
+    "Assets/_Project/Materials/Library/red_Classic.mat.meta": "92845fdc5b71918e577d213d4397172eb19c679414f8a537086806394dae68ca",
+    "Assets/_Project/Materials/Library/wall_blue_Classic.mat": "9aada88ab5af619057947e9adfc56c9f7dfa2ac2b24e59378a5fd89441065665",
+    "Assets/_Project/Materials/Library/wall_blue_Classic.mat.meta": "f8e3bf6919d0e154a7093491af48020cc4b6c1d5f6ef749127aceb17f53d23d8",
+    "Assets/_Project/Resources/ModelLibrary.asset": "67a054b2f110ade55d71d0319704602cb64c8a9d6be54c771fab20a377f626ea",
+    "Assets/_Project/Resources/ModelLibrary.asset.meta": "2658f3f63629e17dd977ed6c168b10df9c5fd758aa13ed7e59bb8ba81a0e412b",
+    "Assets/_Project/Scripts/Art/ModelVisual.cs": "8a54840c6443ac079522cb06182a524a3352c4f6ccd8a1c9bdcf7abee6612c9e",
+    "Assets/_Project/Scripts/Art/ModelVisual.cs.meta": "24cd10354d3bbd263ebbf48f7277c635da751f21834f1d1778d99d74351fbe44",
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundKitchenSourceInspection.cs": "b27c4f8d45f49ea627388f1eef672c2a93b2548fa0ba271515074949f433de5d",
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundKitchenSourceInspection.cs.meta": "9a89171a7bf84a665ce1984dddc1bd147ffb36b35a81c78ca523f56a8a31a52d",
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewCapture.cs": "ad757d2621a2a236a838125ed56511f08ce5a001c22f36ce8f901425b9f7400e",
+    "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundSoloPreviewCapture.cs.meta": "93bd4da5f33ef8ea51375b151091169a6d834f86a149b3e030631f7f338198aa",
+    "Packages/com.unity.render-pipelines.universal/Editor/AssetVersion.cs": "96ed27e15286cda1fdada6923e804887b6447a905b38360e0f5561f79cd0344c",
+    "Packages/com.unity.render-pipelines.universal/Editor/AssetVersion.cs.meta": "e7ec88783b56ae3a5adbe60d3ab71fd3b6fe269932af20218d4cc00eb3879868",
+    "Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader": "1ec00dad6eb08102ef586e693a5cad6f27443143a0c881667e6305e61bb08628",
+    "Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader.meta": "f0db005307ffe5480c40a402ca5bfb0b3726259031a86e255e49626228ceb008"
+  },
+  "dependencyHashes": {
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx": "d821042cc8d2e48b93cfb9ad1a5e6f1c",
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx": "2fc6f1c03f12f6a3d6bfe8ae8f234dba",
+    "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx": "db77594b135fa2e57bdf9799a04bc3d9",
+    "Assets/_Project/Art/Imported/Textures/fabric_subtle_pattern.png": "43d26f330a1d0b571529a83c38a65101",
+    "Assets/_Project/Materials/Library/blue_Classic.mat": "d3a34233a94a8d4d792bfca99173436f",
+    "Assets/_Project/Materials/Library/ceramic_Classic.mat": "f5d7bbfdaddf763e44401a6d34a1b60e",
+    "Assets/_Project/Materials/Library/dark_Classic.mat": "e86aabe9054e551cc8fa32186d29083f",
+    "Assets/_Project/Materials/Library/gold_Classic.mat": "7454356827b1f738c5cfbee1cfab9f67",
+    "Assets/_Project/Materials/Library/green_Classic.mat": "a78be8266acb64b4ec2ae66048c2b3e2",
+    "Assets/_Project/Materials/Library/ivory_Classic.mat": "f277b6294907b035f9319abb4be67dbb",
+    "Assets/_Project/Materials/Library/metal_Classic.mat": "9ccf3f4945362ff4ae40f3fae9c242bc",
+    "Assets/_Project/Materials/Library/red_Classic.mat": "3fe3084eb2e6ae01a8ebd403deb2e0a2",
+    "Assets/_Project/Materials/Library/wall_blue_Classic.mat": "245481e9c172037520b079db1a295ee6",
+    "Assets/_Project/Resources/ModelLibrary.asset": "9b92bf7125a34b8e736dddc3875f282e",
+    "Packages/com.unity.render-pipelines.universal/Editor/AssetVersion.cs": "09baaa6d68ac9b9f2631eb384653f72b",
+    "Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader": "fe666a84c726f04df573c2f70b0b7fb2"
+  },
+  "models": [
+    {
+      "key": "Kitchen_Fridge",
+      "path": "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx",
+      "sourceSha256": "76270646a81ee62aac47823f8cc6de8b6788c03ab3e1b722cd0fff415dac6274",
+      "dependencyHash": "2fc6f1c03f12f6a3d6bfe8ae8f234dba",
+      "localMin": [
+        -0.400000155,
+        -1.1920929E-07,
+        -0.35
+      ],
+      "localMax": [
+        0.400000036,
+        1.81999993,
+        0.44900015
+      ],
+      "size": [
+        0.8000002,
+        1.82,
+        0.799000144
+      ],
+      "rendererCount": 1,
+      "colliderCount": 0,
+      "rigidbodyCount": 0,
+      "animatorCount": 0,
+      "meshes": [
+        {
+          "identity": "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx | 7fdef4fd87f890ac8aad452710d1e27c | 3260607516823178266 | Kitchen_Fridge",
+          "vertices": 2015,
+          "submeshes": 6,
+          "indices": [
+            1296,
+            2592,
+            2592,
+            108,
+            108,
+            108
+          ]
+        }
+      ],
+      "materials": [
+        {
+          "renderer": "Kitchen_Fridge",
+          "slots": [
+            "Assets/_Project/Materials/Library/ivory_Classic.mat | 434da46b8357d4f42b87251443f304a8 | 2100000 | ivory_Classic",
+            "Assets/_Project/Materials/Library/ceramic_Classic.mat | ae0386c84812d294ab1b235fc1edc09f | 2100000 | ceramic_Classic",
+            "Assets/_Project/Materials/Library/gold_Classic.mat | c7f70045aa1c82a48a84519e5bac65df | 2100000 | gold_Classic",
+            "Assets/_Project/Materials/Library/red_Classic.mat | 70fd46482218ea942be50f13a295cf4d | 2100000 | red_Classic",
+            "Assets/_Project/Materials/Library/blue_Classic.mat | 3b784684e47ef284c81992317731eaa2 | 2100000 | blue_Classic",
+            "Assets/_Project/Materials/Library/green_Classic.mat | e8675fc1948d4a547a52b7029369891f | 2100000 | green_Classic"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Kitchen_Counter",
+      "path": "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx",
+      "sourceSha256": "928db9ffd492a4edd95ab02131197bd74c17d053e0099728920429ec7bd67285",
+      "dependencyHash": "d821042cc8d2e48b93cfb9ad1a5e6f1c",
+      "localMin": [
+        -0.63500005,
+        0.009999871,
+        -0.354999959
+      ],
+      "localMax": [
+        0.634999931,
+        0.935000062,
+        0.382000148
+      ],
+      "size": [
+        1.27,
+        0.9250002,
+        0.7370001
+      ],
+      "rendererCount": 1,
+      "colliderCount": 0,
+      "rigidbodyCount": 0,
+      "animatorCount": 0,
+      "meshes": [
+        {
+          "identity": "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx | 16e8379656136ea8b84f7a9b525f81ae | -213012244820621298 | Kitchen_Counter",
+          "vertices": 2364,
+          "submeshes": 4,
+          "indices": [
+            3888,
+            2592,
+            576,
+            1296
+          ]
+        }
+      ],
+      "materials": [
+        {
+          "renderer": "Kitchen_Counter",
+          "slots": [
+            "Assets/_Project/Materials/Library/blue_Classic.mat | 3b784684e47ef284c81992317731eaa2 | 2100000 | blue_Classic",
+            "Assets/_Project/Materials/Library/wall_blue_Classic.mat | 6daabb779e65e6c4ba22c079cac7bb5a | 2100000 | wall_blue_Classic",
+            "Assets/_Project/Materials/Library/gold_Classic.mat | c7f70045aa1c82a48a84519e5bac65df | 2100000 | gold_Classic",
+            "Assets/_Project/Materials/Library/ceramic_Classic.mat | ae0386c84812d294ab1b235fc1edc09f | 2100000 | ceramic_Classic"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Kitchen_Stove",
+      "path": "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx",
+      "sourceSha256": "7197cc46158d44a8fc1428690beb39ec706116ebc05fafd0112b3be280baab00",
+      "dependencyHash": "db77594b135fa2e57bdf9799a04bc3d9",
+      "localMin": [
+        -0.4100001,
+        -1.1920929E-07,
+        -0.349999964
+      ],
+      "localMax": [
+        0.409999967,
+        0.942000031,
+        0.429500163
+      ],
+      "size": [
+        0.820000052,
+        0.942000151,
+        0.7795001
+      ],
+      "rendererCount": 1,
+      "colliderCount": 0,
+      "rigidbodyCount": 0,
+      "animatorCount": 0,
+      "meshes": [
+        {
+          "identity": "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx | ba9e9449bcb97cda2181b5dff27ea9b7 | -3859588692127084763 | Kitchen_Stove",
+          "vertices": 7208,
+          "submeshes": 4,
+          "indices": [
+            1296,
+            16656,
+            2592,
+            3648
+          ]
+        }
+      ],
+      "materials": [
+        {
+          "renderer": "Kitchen_Stove",
+          "slots": [
+            "Assets/_Project/Materials/Library/ivory_Classic.mat | 434da46b8357d4f42b87251443f304a8 | 2100000 | ivory_Classic",
+            "Assets/_Project/Materials/Library/dark_Classic.mat | 249572acec626264fa5b1996962d3025 | 2100000 | dark_Classic",
+            "Assets/_Project/Materials/Library/metal_Classic.mat | cddb7986691dd254d931952e27dd9b11 | 2100000 | metal_Classic",
+            "Assets/_Project/Materials/Library/gold_Classic.mat | c7f70045aa1c82a48a84519e5bac65df | 2100000 | gold_Classic"
+          ]
+        }
+      ]
+    }
+  ],
+  "images": [
+    {
+      "name": "Kitchen_Fridge-positive-z.png",
+      "view": "positive-z",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 26523,
+      "sha256": "46bb6cea01315f07cf7695cdaace0fc54d8ab636b18cbea09c374c48ff7136ad"
+    },
+    {
+      "name": "Kitchen_Fridge-negative-z.png",
+      "view": "negative-z",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 7350,
+      "sha256": "9c47af87b9699d3ccd3560ba9e53cf53c6c1aace5bbfbebfb046a68b47b25704"
+    },
+    {
+      "name": "Kitchen_Fridge-positive-x.png",
+      "view": "positive-x",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Fridge.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 14211,
+      "sha256": "4c66cfd7a668bee9b9548794653309b3fb9cb69b8307b39a1c8c788c3c01927f"
+    },
+    {
+      "name": "Kitchen_Counter-positive-z.png",
+      "view": "positive-z",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 58274,
+      "sha256": "33d7064bb50dccecba6e2b5b422cdc6fa9be1373714dbf2d9b9042c10d8ecebd"
+    },
+    {
+      "name": "Kitchen_Counter-negative-z.png",
+      "view": "negative-z",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 43677,
+      "sha256": "bd5279baee71bb7eeea66aa308baafaa8d9de679da6b7381eef0c14b6375635f"
+    },
+    {
+      "name": "Kitchen_Counter-positive-x.png",
+      "view": "positive-x",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Counter.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 40028,
+      "sha256": "e2692de0dea5c0bcac7f39989f192f179ea6e691d7d41fbc85f2b533423ec279"
+    },
+    {
+      "name": "Kitchen_Stove-positive-z.png",
+      "view": "positive-z",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 62348,
+      "sha256": "fca831da5df7cd16526beab75da056866b608ff6e9c0b33f40d488d812ea100e"
+    },
+    {
+      "name": "Kitchen_Stove-negative-z.png",
+      "view": "negative-z",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 14203,
+      "sha256": "9f5b563ab1d7172b23a154b6a61f8e9d55d367d29d01b17537962750b2df67c8"
+    },
+    {
+      "name": "Kitchen_Stove-positive-x.png",
+      "view": "positive-x",
+      "source": "Assets/_Project/Art/Imported/Environment/Kitchen_Stove.fbx",
+      "width": 512,
+      "height": 512,
+      "bytes": 18323,
+      "sha256": "fa5331c9628f974a48545e81914c3e256c7c0cb2b0877b0f694f58c575f06bc1"
+    }
+  ],
+  "sourceFilesPreserved": true,
+  "sourceDependenciesPreserved": true,
+  "sceneStatePreserved": true,
+  "scope": "Raw original model axis views and native local bounds. Direction labels do not assert the front. No fitted physics, floor contact, Workshop or full-course traversal is proven."
+}
