@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-29T00:16:27.082Z",
+  "args": [
+    "BuildNotes/visual-coherence-20261029/map-composition/windows-audit/verify-parcel-windows.mjs",
+    "--root",
+    "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-integration",
+    "--build",
+    "20261029T001001Z",
+    "--source-commit",
+    "184f1e85eababb90010e32f8e9e1b22aa4637f47",
+    "--base-audit",
+    "BuildNotes/creator-clarity-20261029/windows001001/base-45.json",
+    "--solo-run",
+    "Docs/qa/runs/20261029T001424Z-wordbound_parcel_service",
+    "--solo-gate",
+    ".harness\\delivery\\creator-smoke-wordbound_parcel_service-2026-10-29T00-14-24-675Z-stdout.txt",
+    "--workshop-run",
+    "Docs/qa/runs/20261029T001439Z-wordbound_parcel_workshop",
+    "--workshop-gate",
+    ".harness\\delivery\\creator-smoke-wordbound_parcel_workshop-2026-10-29T00-14-39-130Z-stdout.txt",
+    "--out",
+    "BuildNotes/creator-clarity-20261029/windows001001/parcel-18.json"
+  ],
+  "status": 0,
+  "stdout": "{\"output\":\"BuildNotes/creator-clarity-20261029/windows001001/parcel-18.json\",\"status\":\"BOUNDED_PARCEL_SOLO_WORKSHOP_WINDOWS_PASS\",\"build\":\"20261029T001001Z\",\"captures\":18}\n",
+  "stderr": ""
+}

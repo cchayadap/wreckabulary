@@ -2,7 +2,11 @@
 
 STATUS: IN PROGRESS. Previous goal turn made verified progress: committed visual corrections, final Windows215158 five-flow evidence and preserved unfinished work. The full production goal remains active.
 
-Latest: Windows235645 passes all six scenarios and visibly resolves Room/routes clipping. Strict base audit then rejects range-floors639 requested versus604.8801 naturally clamped; exact image shows the controls. See windows235645/REVIEW.md. A bounded capture correction records/reapplies the reachable position and checks actual target visibility; R0000644 passes. Verifiers, historical receipts and prior delivery remain unchanged pending rebuilt evidence.
+Latest verified delivery: **Windows20261029T001001Z**, source184f1e85eababb90010e32f8e9e1b22aa4637f47. All six scenarios PASS: Workshop001200, lobby001342, Solo001401, ParcelSolo001424, ParcelWorkshop001439 and inspector001453. Strict base45/Parcel18/inspector11 audits PASS;4,306 authored files match the explicit post-Shop-save baseline. Evidence, original74-image gallery and preservation receipts are in windows001001. TRY-WORDBOUND.md now points to this review build. Full production/owner acceptance remains open.
+
+The prior235645 audit rejection remains in windows235645/REVIEW.md. Final capture records original floor request639, first clamp604.8801, deliberately reapplied request604.8801=actual604.8801, target offset34.11987 within measured421px viewport. No old verifier, image or receipt was changed. Root opened both final range views plus the new puzzle/Room views; exact image inspection confirms no horizontal clipping. All74 final images were directly opened across three reviewers: shop/capture/windows001001-lobby.md (24), flagship/windows001001-world.md (22), workshop/extra-capture/windows001001-review.md (28). No new blocking layout defect was found in these states; sparse environments, pale props, small text, low-contrast disabled Craft and the lobby/map detail gap remain.
+
+Next implementation is the original-art full-course Kitchen pilot described in flagship/NEXT-ART-IMPLEMENTATION.md: course-local FRIDGE/COUNTER/STOVE definitions and actual breakable props with saved editable content. That work is not implemented. Full flagship traversal, all supported human multiplayer/recovery, original House networking, story, deeper creator rules, motion/skins and performance remain in progress.md. The current GUI layout is still scripted; map data/profiles/prefabs remain editable as documented in UNITY-EDITING.md.
 
 ## Windows candidate held — 2026-10-28T23:41Z
 
@@ -18,13 +22,13 @@ Correction verified: R0235302 PASS and native235346 PASS65/65. The new GUI check
 - Post-save baseline .harness/delivery/ui-authored-before-2026-10-28T23-25-40-613Z.json checks4,306 files; final-capture-preservation.json PASS at23:32. No final Windows evidence yet for this source. Next: snapshot and scoped commit, gated Windows build, original five scenarios plus the additive inspector scenario, independent visual and strict provenance/preservation review. Earlier tested215158 build stays available until these pass.
 - Ordinary Unity editing guidance is in UNITY-EDITING.md. It explicitly records remaining authoring gaps, including the default Lost Address Solo factory versus Workshop's saved FlagshipCourse asset. No production-ready or owner-approved claim.
 
-Base: b2556d9f on sethypagna/wordbound-integration. Built production source4ee1d37a; prior review remains available. Root owns production integration and all native jobs. Delegates own separate drafts only.
+Wave base: b2556d9f on sethypagna/wordbound-integration; latest built source184f1e85. Earlier4ee1d37a/215158 review remains available. Root owns production integration and all native jobs. Delegates own separate drafts/reports only.
 
-- [~] Contextual Workshop Objects / Puzzles / Room inspector, original image choices and optional advanced IDs; preserve editing, history, seed, range and exact identifiers.
-- [~] Shop defaults to a useful temporary preview and clear selected/owned/equipped action without spending or changing saved equipment.
+- [x] Contextual Workshop Objects / Puzzles / Room inspector, original image choices and optional advanced IDs; bounded native/Windows checks preserve editing, history, seed, range and exact identifiers.
+- [x] Shop defaults to a useful temporary preview and clear selected/owned/equipped action without spending or changing saved equipment; saved footer and original icon matching are verified.
 - [~] Prove the actual complete flagship through real movement, crafting, placements and sensors. First discriminator is its ordinary-spawn first leg; no substitute compact course or state-injected completion.
-- [~] Root: contextual recipe selection when opening Equipment, retaining manual choices/search and authoritative crafting checks. UI guidance must follow the exact bound course and local team's progress.
-- [ ] Verify integrated changes with meaningful native checks, actual captures and a fresh Windows build when ready.
+- [x] Contextual recipe selection when opening Equipment retains manual choices/search and authoritative crafting checks, using the exact bound course and local team's progress; focused native checks pass.
+- [x] Verify this bounded creator/Shop/recipe refinement with native checks, actual captures and Windows001001 plus all six scenario/evidence audits. Broader production verification remains open.
 
 Household inspection confirms seven imported prefabs still lack colliders; source setup deliberately leaves them pending and only the parcel has a conservative box envelope. Their saved materials are basic supplier art. Do not claim detailed game-ready props from their studio captures or silently register them as gameplay objects. Physics authoring and destination registration remain in the full progress.md backlog.
 
