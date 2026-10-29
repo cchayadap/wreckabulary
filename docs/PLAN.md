@@ -1,6 +1,6 @@
 # Wreckabulary implementation plan
 
-The approved plan is [wordbound/PLAN.md](wordbound/PLAN.md); current evidence and next action are in [progress.md](../progress.md) and [wordbound/STATUS.md](wordbound/STATUS.md). The written plot, endings, player behaviour and rating design are in [STORY-AND-PLAYER-EXPERIENCE.md](wordbound/STORY-AND-PLAYER-EXPERIENCE.md); new narrative systems remain implementation tasks.
+The approved plan is [wordbound/PLAN.md](wordbound/PLAN.md); current evidence and next action are in [progress.md](../progress.md) and [wordbound/STATUS.md](wordbound/STATUS.md). Current GitHub/ownership/merge organization is in [TEAM-WORKFLOW.md](wordbound/TEAM-WORKFLOW.md); separate editable Unity entries and exact test actions are in [SCENES-AND-TESTING.md](wordbound/SCENES-AND-TESTING.md). The written plot, endings, player behaviour and rating design are in [STORY-AND-PLAYER-EXPERIENCE.md](wordbound/STORY-AND-PLAYER-EXPERIENCE.md); new narrative systems remain implementation tasks.
 
 | Milestone | Required outcome | Current status |
 | --- | --- | --- |

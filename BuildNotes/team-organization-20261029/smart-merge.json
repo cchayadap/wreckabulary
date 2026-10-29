@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-29T01:24:33.959Z",
+  "status": "PASS",
+  "source": "Assets/_Project/Scenes/WordboundLobby.unity",
+  "sourceSha256": "8dabca2d887c85280ce15bf2ae18f109234d70e516ed7637a9b36642523fda85",
+  "sourcePreserved": true,
+  "exe": "C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Tools/UnityYAMLMerge.exe",
+  "exeSha256": "2d9c89f4d720f196a4b2c6579d64ea5825cd12fe9035d39aaf0838130c278256",
+  "records": [
+    {
+      "kind": "independent-adjacent-camera-fields",
+      "exit": 0,
+      "signal": null,
+      "pass": true
+    },
+    {
+      "kind": "real-conflict-is-rejected",
+      "exit": 2,
+      "signal": null,
+      "pass": true
+    }
+  ],
+  "before": {
+    "merge.unityyamlmerge.name": null,
+    "merge.unityyamlmerge.driver": null
+  },
+  "after": {
+    "merge.unityyamlmerge.name": "Unity Smart Merge",
+    "merge.unityyamlmerge.driver": "\"C:/Users/mrkl6/wb64/6000.6.4f1/Editor/Data/Tools/UnityYAMLMerge.exe\" merge -p -h --force --fallback none \"%O\" \"%B\" \"%A\" \"%A\""
+  },
+  "scope": "Copied real scene fixtures outside Assets. Local repository Git config only (shared by its worktrees); no checkout merge, global config or original scene write. The unresolved-conflict case deliberately fails."
+}

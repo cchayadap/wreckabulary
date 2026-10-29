@@ -29,6 +29,8 @@ The existing workshop supports furnishing, selection, movement, rotation, undo/r
 
 ## 2. Work directions and safe integration
 
+Current29October ownership, GitHub commit position and merge procedure are in [TEAM-WORKFLOW.md](TEAM-WORKFLOW.md). The repository table above records the original verified starting point, not the publication status of later local Wordbound commits. Use separate saved course entries and page prefabs as described in [SCENES-AND-TESTING.md](SCENES-AND-TESTING.md).
+
 ### Preserve existing responsibilities
 
 | Direction | Owner | Boundary |
@@ -288,6 +290,27 @@ For every asset:
 Use existing import conventions: metres, Unity-compatible orientation, `Grip_R`, and gameplay-owned colliders. Start with 2–6k triangles, up to two material slots, and the project’s current 512-pixel texture cap. Treat these as initial budgets to validate visually. The owner's 2026-10-21 update requires meticulous, believable construction and material detail, inspected close-up and in gameplay while preserving editable sources and measured performance.
 
 Art production stages its own sources. The integrator updates shared catalogs and import tests. Cosmetic variants retain identical gameplay dimensions and statistics.
+
+### Belt weapon and material-specific impact audio — 29 October extension
+
+James requested BELT as an additional weapon and sounds that match both the striking item and the struck material. This extends the existing equipment batch; it does not replace any outstanding asset or claim implementation. Work is paused at his request after recording this scope.
+
+**BELT gameplay and art:** design a recognizable flexible leather strap and buckle with vivid original-style materials, an editable mesh/rig, correct hand grip and readable wind-up, swing, contact and recovery. Use bounded, authoritative hit detection with deliberate reach, damage, stagger and cooldown balance. Visual bending must remain stable and match the contact arc; do not assume an unrestricted rope simulation is necessary. Verify idle/held/attack/miss/drop/throw states, hand contact, body/camera clipping, skin parity and remote animation. Add its icon, concise loadout/workshop presentation and catalogue identity only when the working item is ready; unfinished entries remain unavailable.
+
+**Impact sound design:** choose sound by weapon family, target surface and confirmed outcome. Layer swing/whoosh, contact and break/debris separately. For example:
+
+| Interaction | Intended feedback |
+| --- | --- |
+| Belt against glass | Strap swish and light slap/tick on contact; glass crack/shatter only when the actual damage state warrants it. |
+| Bat against glass | Weightier hard contact, followed by appropriate crack/shatter/debris when broken. |
+| Belt or bat against wood | Distinct leather slap versus wooden thud; creak/splinters tied to actual damage/breakage. |
+| Metal, ceramic, stone or soft surfaces | Material-specific ring, clink, dull knock or muffled contact with restrained intensity and variation. |
+
+Build a weapon × surface response matrix for BELT, BAT and the remaining tools. Scale intensity from the admitted strike/impact, use bounded sample/pitch variation and avoid repetitive or excessively loud stacking. Emit contact/break events once across local prediction, remote replication, replay/recovery and repeated collider contacts. Misses may play a swing sound but must not play a false hit or shatter. Sound remains presentation; it must not decide damage or destruction.
+
+**Unity workflow:** save editable impact-audio profiles and surface tags with Inspector controls for clips/variants, volume, pitch range, cooldown, spatial distance/occlusion and voice priorities/limits. Organize source recordings, imported clips and profiles by weapon/material under dedicated Audio folders. Provide audition controls and concise names so James can tune them without editing code. Preserve source/licence provenance and existing sound settings.
+
+**Acceptance:** compare visual contact and sound timing for light/heavy, glancing, missed, repeated and breaking hits. Test held/placed/thrown targets, nearby/distant/occluded listeners, user volume/mute settings, eight-player overlap, reconnect/replay deduplication and pooled-voice performance. Review belt articulation, hit readability and material recognition from player, opponent, sound-design and developer perspectives. Record actual results; final sound/style/feel approval remains James's.
 
 ## 7. Delivery milestones and acceptance
 

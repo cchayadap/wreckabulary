@@ -5,6 +5,28 @@ Goal: deliver the complete [approved plan](docs/wordbound/PLAN.md): a tested Win
 The owner's extension also requires online support for the original multiplayer house modes. The full production goal remains unfinished.
 Legend: `[ ]` unfinished; `[~]` partly implemented or not fully verified; `[x]` complete only within the stated evidence scope.
 
+## Team / GitHub / Unity organization — 29 October
+
+- [x] Checked both GitHub repositories, open PRs/issues and live branch heads. James/ICY revisions are already ancestors of local integration. The pinned audit starts950 commits ahead of fork main; Wordbound integration has no published remote branch. PR14 remains open/mergeable, PR11 open/conflicting; neither represents the current expansion. No open issue assignments were returned for either repository. [Status and ownership](docs/wordbound/TEAM-WORKFLOW.md).
+- [x] Recorded actual human responsibilities and exclusive shared-file integration boundaries. Historical assistant branches need exact slice/patch review; several branch-only patches are already integrated. Other checkouts' dirty font/Lunar and online work remain untouched.
+- [x] Saved four separate course entry scenes and local launch settings: Flagship, Freestyle, Parcel Service and Kitchen. Explicit **Wreckabulary → Course entries → Open … for Play** avoids the default Hub redirect. Home/Shop/Loadout/Play/Settings retain separate saved prefabs and direct preview actions. [Open/edit/test guide](docs/wordbound/SCENES-AND-TESTING.md).
+- [x] Focused Kitchen Rules012505PASS33/33; saved setup/preservation013053PASS7/7, and entry navigation013323PASS2/2 after distinguishing the batch runner's temporary scene from interactive unsaved owner work. Tests retain saved-byte/GUID/manual-edit and shared-source checks. Actual setup013411/013454PASS; all4306 original authored files unchanged. Repeat against the saved outputs is recorded in the [organization report](BuildNotes/team-organization-20261029/ROOT.md).
+- [x] Configured repository-local Unity Smart Merge; independent camera edits merged, a conflicting edit was rejected and the original scene remained unchanged. No global Git configuration or team branch was changed.
+- [~] This bounded organizational request does not resume the full art/audio/networking backlog. Kitchen physics, visual composition, full-course traversal and multiplayer acceptance remain unfinished. Current tested Windows build remains001001; the newly saved developer scenes are not in that build.
+
+## Earlier pause checkpoint — 29 October, 09:10 Hong Kong
+
+This records the state at the pause. The organization results above supersede its old uncommitted-file and test states; the recovery snapshot remains preserved.
+
+- [x] Recorded visual direction: **modern neutral UI, vivid artwork and restrained colour accents**, retaining the original Wreckabulary character/item style.
+- [x] Saved/committed original Kitchen model inspection and direct Unity room preview (`036f352b`). Native source inspection003920 and preview navigation004234 pass; all9 original model views were inspected. North-wall appliance fronts must face yaw180.
+- [~] Integrated the new full-course Kitchen factory, separate item source, authoring setup and focused tests. These six new source/data files are **uncommitted** and preserved for resumption. R0010555 passes. The010430 core test run was interrupted specifically for this pause; it has no acceptance verdict. Saved Kitchen Course/Presentation/LaunchAssets/scene creation, physics execution and room-composition captures remain pending.
+- [x] Current available tested Windows review build remains **20261029T001001Z**. The new Kitchen variant is not in that build.
+- [x] Preserved uncommitted work in verified recovery snapshot `.harness/recovery/developer-workspace-2026-10-29T01-12-08-898Z` (3,453 files plus tracked binary diff). Existing originals and rejected candidates remain intact.
+- [ ] On resume: finish the focused Kitchen rules gate, run authoring preservation tests, create the separate saved assets/scene, then verify real furniture physics and matched room views. Continue the full production plan; do not discard the pending files or earlier evidence.
+
+The full development backlog remains paused following the later bounded organization request.
+
 ## Current visual correction — 29 October
 
 - [x] **Creator clarity checkpoint:** Objects / Puzzles / Room sections, readable link names and craftable recipe image choices are implemented. Shop opens a temporary preview with an explicit selected-item action; larger original icons match the live model. Equipment suggests the current puzzle's tool/recipe while preserving manual browsing. Editor142/142, Shop31/31, route/layout65/65 and14 native Shop captures pass. Build001001 passes all six Windows scenarios and strict74-image audits. This is bounded implementation/technical verification, not owner art approval. [Current evidence](BuildNotes/creator-clarity-20261029/ROOT.md).
@@ -121,6 +143,9 @@ Legend: `[ ]` unfinished; `[~]` partly implemented or not fully verified; `[x]` 
 - [x] Preserve supplied licensed Kenney/KayKit sources and inventory 193 static designs. Household Studio has eight prefabs/materials and repeat/preservation proof. These packs provide no authored rigs/animation or detailed PBR maps.
 - [ ] Finish Household materials, seven missing prop colliders, parcel dynamics where needed, clearance/LODs and playable-map registration. Review vivid destination kits, landmarks, furnished rooms and larger-map traversal.
 - [ ] Finish the twelve-asset batch: BAT/BROOM/HAMMER/SPEAR, SHIELD/PLATE, TABLE/SOFA, BED/STOOL, FAN/CLOCK. Verify editable source, provenance, scale/origin/Grip_R, icons, materials, gameplay colliders and held/placed/thrown/used/destroyed states; disabled ROPE/MAGNET remain concepts.
+- [ ] **Add BELT as a weapon**, alongside the existing asset batch: distinct flexible swing silhouette, leather strap/buckle detail, editable rig and grip, wind-up/contact/recovery animation, bounded hit detection, fair reach/damage/cooldown and readable feedback. Verify held/idle/swing/miss/contact/drop/throw states, clipping, camera clearance, skins and remote playback. Keep it unavailable in crafting/Shop/public catalogues until the complete item is validated; do not imply it already works.
+- [ ] **Material-specific impact audio:** design weapon × target-material responses for BELT, BAT and other tools against glass, wood, metal, ceramic, stone and soft surfaces. Separate swing, contact and actual break/debris sounds: a belt touching glass must not automatically sound like shattered glass. Match intensity to confirmed impact/break state, with subtle sample variation and no duplicate sounds from network replay.
+- [ ] **Editable audio delivery and checks:** saved Unity impact profiles, tagged surface materials, organized source/clip folders and Inspector preview/tuning for variants, volume, pitch, cooldown, distance and voice limits. Verify visible-contact timing, misses, glancing/repeated hits, break thresholds, nearby/distant/occluded playback, settings/mute, eight-player mix and performance; track audio provenance. [Detailed equipment/audio scope](docs/wordbound/PLAN.md#belt-weapon-and-material-specific-impact-audio--29-october-extension).
 - [ ] Produce varied fully painted wearable collections; check seams, weights, deformation, motion/collision and close/gameplay/rear/underside views. Keep cosmetic dimensions/stats identical and use compatible versioned online catalogue admission.
 - [ ] Obtain James's comparison and final visual/feel approval for the playable assets, maps, Shop and Loadout.
 

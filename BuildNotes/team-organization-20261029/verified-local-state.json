@@ -1,0 +1,371 @@
+{
+  "utc": "2026-10-29T01:40:43.983Z",
+  "status": "PASS_FOR_LOCAL_ORGANIZATION_SCOPE",
+  "base": "036f352b0a07ed132d971a7c2393ab1fbc4a4a41",
+  "sourceHead": "f031098cdf56f910cca7c7ddea4cc412d34200ad",
+  "branch": "sethypagna/wordbound-integration",
+  "commits": [
+    "f031098cdf56f910cca7c7ddea4cc412d34200ad Preserve opt-in Kitchen furniture physics verification fixture",
+    "dc6974a357eeea26fb96a293f2841bdd0cfbac13 Save isolated course scenes and explicit Unity play entries",
+    "30fa571a722ade09be805c57ce403c0beb418003 Add validated isolated Kitchen course content and item definitions"
+  ],
+  "productionTreeClean": true,
+  "remoteRefsUnchanged": true,
+  "gates": [
+    {
+      "utc": "2026-10-29T01:22:43Z",
+      "cmd": "core --filter FullyQualifiedName~WordboundKitchenPilotContentTests",
+      "rung": "R1",
+      "secs": 3.1,
+      "exit": 1,
+      "verdict": "FAIL",
+      "route": "none",
+      "crashAfterQuit": false,
+      "refreshSecs": null,
+      "head": "036f352b0a07ed132d971a7c2393ab1fbc4a4a41",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:23:40Z",
+      "cmd": "core --filter FullyQualifiedName~WordboundKitchenPilotContentTests",
+      "rung": "R1",
+      "secs": 15.1,
+      "exit": 1,
+      "verdict": "FAIL",
+      "route": "none",
+      "crashAfterQuit": false,
+      "refreshSecs": null,
+      "head": "036f352b0a07ed132d971a7c2393ab1fbc4a4a41",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:25:05Z",
+      "cmd": "core --filter FullyQualifiedName~WordboundKitchenPilotContentTests",
+      "rung": "R1",
+      "secs": 18,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "none",
+      "crashAfterQuit": false,
+      "refreshSecs": null,
+      "head": "036f352b0a07ed132d971a7c2393ab1fbc4a4a41",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:27:56Z",
+      "cmd": "test editmode --cold --filter WordboundKitchenPilotSetupTests|WordboundCourseSceneSetupTests|WorkspaceCourseEntriesTests|WorkspacePlayPreviewTests",
+      "rung": "R3",
+      "secs": 77.4,
+      "exit": 1,
+      "verdict": "FAIL",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 49.4,
+      "head": "036f352b0a07ed132d971a7c2393ab1fbc4a4a41",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:30:53Z",
+      "cmd": "test editmode --cold --filter WordboundKitchenPilotSetupTests|WordboundCourseSceneSetupTests|WorkspaceCourseEntriesTests|WorkspacePlayPreviewTests",
+      "rung": "R3",
+      "secs": 52.8,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 17.7,
+      "head": "036f352b0a07ed132d971a7c2393ab1fbc4a4a41",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:32:21Z",
+      "cmd": "check all",
+      "rung": "R0",
+      "secs": 6.6,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "none",
+      "crashAfterQuit": false,
+      "refreshSecs": null,
+      "head": "30fa571a722ade09be805c57ce403c0beb418003",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:33:23Z",
+      "cmd": "test editmode --cold --filter WorkspaceCourseEntriesTests",
+      "rung": "R3",
+      "secs": 32.9,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 15.6,
+      "head": "30fa571a722ade09be805c57ce403c0beb418003",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:34:11Z",
+      "cmd": "exec Wreckabulary.Online.Editor.WordboundCourseSceneSetup.CreateOrVerify --cold",
+      "rung": "R3",
+      "secs": 30.5,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 14.3,
+      "head": "30fa571a722ade09be805c57ce403c0beb418003",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:34:54Z",
+      "cmd": "exec Wreckabulary.Online.Editor.WordboundKitchenPilotSetup.CreateOrSelect --cold",
+      "rung": "R3",
+      "secs": 29.5,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 12.8,
+      "head": "30fa571a722ade09be805c57ce403c0beb418003",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:36:27Z",
+      "cmd": "exec Wreckabulary.Online.Editor.WordboundCourseSceneSetup.CreateOrVerify --cold",
+      "rung": "R3",
+      "secs": 24.5,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 8.4,
+      "head": "30fa571a722ade09be805c57ce403c0beb418003",
+      "tree": null
+    },
+    {
+      "utc": "2026-10-29T01:37:47Z",
+      "cmd": "exec Wreckabulary.Online.Editor.WordboundKitchenPilotSetup.CreateOrSelect --cold",
+      "rung": "R3",
+      "secs": 23.1,
+      "exit": 0,
+      "verdict": "PASS",
+      "route": "cold",
+      "crashAfterQuit": false,
+      "refreshSecs": 7.1,
+      "head": "30fa571a722ade09be805c57ce403c0beb418003",
+      "tree": null
+    }
+  ],
+  "files": [
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1.meta",
+      "sha256": "4e03c772d37e2c398a0d6942a0a74919e2060da0932410f7c6d1e3b732367f8f"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/Course.asset",
+      "sha256": "8a3a3dbe01b790d317f996f22d70583575a9bcf6ef30348baee7245923ab6ef9"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/Course.asset.meta",
+      "sha256": "3e6808c77f483999f446fb172c5cbde23dba51784b22ff7ef356ea8d5223c4cc"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/Items.json",
+      "sha256": "b30e4cbd628d24ce953b5d7cd829e1719efb0131274baee587aa61e2c455005c"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/Items.json.meta",
+      "sha256": "74cb3bb2d007601b0bdc8976ee1cb43acfd5494a424df1f4c60b4cd2163ef350"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/KitchenAuthoring.unity",
+      "sha256": "b99692cc1011c6d5d6f5f19081a4fb044432c982e377acffa3519aaacb79e210"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/KitchenAuthoring.unity.meta",
+      "sha256": "fe5e48231327ad67a1eb1b040a9ab3f764dbb820d17c6038df99a0f539cc37bb"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/LaunchAssets.asset",
+      "sha256": "87b5406ffe2d6adec28025763578988fe9fd6b331684f10ec8d094c5cdc9675f"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/LaunchAssets.asset.meta",
+      "sha256": "f9143fefcaa41c3c5b7bb11959da73219aa1f02e40d489d6739e636017df0678"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/Presentation.asset",
+      "sha256": "b1853a7787af07e5a75f290c92b21c054ea7fb45451e9380bd111f7c4e449c87"
+    },
+    {
+      "path": "Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/Presentation.asset.meta",
+      "sha256": "f393395d8472798da6f2597619d294296ac5a495fc63ef6d6cd2805f9ff87761"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceBootstrap.cs",
+      "sha256": "0a480b9c674068335451313ba47641d315a029063689910086dec3da950a5561"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceCourseEntries.cs",
+      "sha256": "9a877839e8ad9d7813bc111a7da459aba8e886827068a1f249c63f38881afa6a"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspaceCourseEntries.cs.meta",
+      "sha256": "bc4470d9d9475738d1c5a4f85ff014266b9f875c675c0677150da543b2fe1c55"
+    },
+    {
+      "path": "Assets/_Project/Editor/Authoring/WorkspacePlayPreview.cs",
+      "sha256": "b09ca51ca370aad2347fe510baa0f6739d8dc0a3818b4f2a160d7559250dbf68"
+    },
+    {
+      "path": "Assets/_Project/Resources/Wordbound/LaunchAssets.asset",
+      "sha256": "a661669281e2d588918b287b7cccef330ae4d3497e151bc10d949a192657c5ea"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses.meta",
+      "sha256": "455b6aa230c35b22071c82cc4d15eb1184add2bb3ed9f9bc615e316b28ed9c79"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Flagship.meta",
+      "sha256": "6dabfb4f8cbec9e6ece97181756be1ec39a0f399322c41effb8c6d8d595fae67"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Flagship/LaunchAssets.asset",
+      "sha256": "a661669281e2d588918b287b7cccef330ae4d3497e151bc10d949a192657c5ea"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Flagship/LaunchAssets.asset.meta",
+      "sha256": "e14fb79fdaec92519700250a28ec8f2e67d86e5f90deb04d45d12a0b4b089d97"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Flagship/Workshop.unity",
+      "sha256": "85da77d605ecc83af9e8a3746ec69ab505dfea6baa8c8f59ca24c88bd6bb9580"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Flagship/Workshop.unity.meta",
+      "sha256": "04832da139ceb8f52726afdc6fd6a81c7f14eeff85dabec229099339952ac90c"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Freestyle.meta",
+      "sha256": "e2d26f1a9c26304863d732958ecef92cb496ae016ef6071f11488570abdebf88"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Freestyle/LaunchAssets.asset",
+      "sha256": "4514c2190729e73b87aa1dc6387ffb9e941cc27efec110d2f1ab29aaad47b222"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Freestyle/LaunchAssets.asset.meta",
+      "sha256": "7652812b22b120c8c38c8bf01dbd17269c528212376765b76b5d2dc3ebf34029"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Freestyle/Workshop.unity",
+      "sha256": "8d3ef13c64ccaa7e36c5570b98fcd47c55ccf9e503117358a297074369dbea07"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/Freestyle/Workshop.unity.meta",
+      "sha256": "3daadbbd22f25eb51dfdc985d12b15f80ad02fb0238d0307560465be996c75ce"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/ParcelService.meta",
+      "sha256": "264b606503cfb923cf874ff8a4e090e87de7afca26ec33f90ed6cc29325f3635"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/ParcelService/LaunchAssets.asset",
+      "sha256": "ed815810be5fe16cc886c6b4e9eb8937e590586f1ae217b515318d6371f4c917"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/ParcelService/LaunchAssets.asset.meta",
+      "sha256": "1d5c948e8a66fab748427c6ef56551d8675f358d9e536c6f8794dd654f68ab71"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/ParcelService/Workshop.unity",
+      "sha256": "fa366b2f53523db6388fed76ade18278baa233665ad8c4a30994ac4a795a99b7"
+    },
+    {
+      "path": "Assets/_Project/Scenes/Authoring/Courses/ParcelService/Workshop.unity.meta",
+      "sha256": "cad0d13f39e9d5a3669852c9a465c2dc1363680db0b25490e2a4cd3241f2afa9"
+    },
+    {
+      "path": "Assets/_Project/Scenes/WordboundLobby.unity",
+      "sha256": "8dabca2d887c85280ce15bf2ae18f109234d70e516ed7637a9b36642523fda85"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundCourseSceneSetup.cs",
+      "sha256": "b435e3f8a45c6dd0f26dce279119d1bb05c3783b000f394f6ca7c659d156c4f0"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundCourseSceneSetup.cs.meta",
+      "sha256": "612d7221563b17ebcc5be0794958c3a966be6bc03907a00dc4cafeb5f95ca642"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundKitchenPilotSetup.cs",
+      "sha256": "b47cdfe777fb2204da6b00d7b846dac03614e375a626bcbc11f8e0a139c6a617"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundKitchenPilotSetup.cs.meta",
+      "sha256": "d10ccdc73cb80d642cc188134499e293bb1b7b3e1655151ecb6bfab36f68cfde"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Tests/WordboundCourseSceneSetupTests.cs",
+      "sha256": "2f878ff083a6092db8d3cc3022ae1612929eb83212917981eb335494704d0d6f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Tests/WordboundCourseSceneSetupTests.cs.meta",
+      "sha256": "13f511d916e3f117eac1e49f5fb7c16cb68f54b89f66738d6f6a9a00c4db10b7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Tests/WordboundKitchenPilotSetupTests.cs",
+      "sha256": "a756c1c4fba380305246be516a503c0751884fef76e26cf4264f2769a1caa50c"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Authoring/Tests/WordboundKitchenPilotSetupTests.cs.meta",
+      "sha256": "bc4074fc117681e14c213e9e52d7af76de1b09cdaa4354e20ab7ead61fd6483c"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Online/Client/WordboundLauncher.cs",
+      "sha256": "121bff7fe4e76614642a9095e4e35ae808c04678e915e27a7926b9cdfbb737d2"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/WordboundKitchenPilotContent.cs",
+      "sha256": "a021322e8ff91b1d9767ce963ad901b8a6d02b776af45482e1c92bb9be988d86"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Rules/Wordbound/WordboundKitchenPilotContent.cs.meta",
+      "sha256": "8eb15cc46ce5718e65732c7c296799e498d03acaab2fc67ff350719a19d2fd1e"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceCourseEntriesTests.cs",
+      "sha256": "1e90e374677c99138a10cc537cff683a9e2f827e61d60dcdb857a71ad71df8cb"
+    },
+    {
+      "path": "Assets/_Project/Tests/Editor/WorkspaceCourseEntriesTests.cs.meta",
+      "sha256": "d23f3731bef9de9cc81d27d4aa8748cfe4e144238acdcaa567f29a9aabe6df28"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/Authoring/WordboundNativeKitchenFurnitureTests.cs",
+      "sha256": "610d8fc21df21678688c739632d30eb00df463f1e943175d73c3f386f2b75635"
+    },
+    {
+      "path": "Assets/_Project/Tests/OfflineGameplay/Authoring/WordboundNativeKitchenFurnitureTests.cs.meta",
+      "sha256": "44d36463c4b2bedecae5ea6583d24a43bb4891f4c14dbd20e8685fa3a0dea1bb"
+    },
+    {
+      "path": "Assets/_Project/Tests/Rules/WordboundKitchenPilotContentTests.cs",
+      "sha256": "d36c2e0d065d60a506b2a007af051106067e524e3493a28da6456784f7cdbd80"
+    },
+    {
+      "path": "Assets/_Project/Tests/Rules/WordboundKitchenPilotContentTests.cs.meta",
+      "sha256": "70f9e3e3a581df8120fc832bb94d1cd04084dbd83dd261d3008ad7fca8d16bc2"
+    },
+    {
+      "path": "ProjectSettings/EditorBuildSettings.asset",
+      "sha256": "9341ce2ba48025b57517c7ee29e44651d2b00270277af6323be1d289f35ebb98"
+    }
+  ],
+  "limitations": [
+    "Physics fixture is compiled and committed but opt-in native cases not executed.",
+    "Scene reference/creation/repeat/entry checks do not certify human dialog or gameplay flow acceptance.",
+    "No new Windows build, public course admission, GitHub push/PR edit or production release.",
+    "Full feature goal remains paused; only the new organization request was executed."
+  ]
+}
