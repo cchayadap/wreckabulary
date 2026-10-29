@@ -2,6 +2,8 @@
 
 STATUS: IN PROGRESS. Previous goal turn made verified progress: committed visual corrections, final Windows215158 five-flow evidence and preserved unfinished work. The full production goal remains active.
 
+Latest: Windows235645 passes all six scenarios and visibly resolves Room/routes clipping. Strict base audit then rejects range-floors639 requested versus604.8801 naturally clamped; exact image shows the controls. See windows235645/REVIEW.md. A bounded capture correction records/reapplies the reachable position and checks actual target visibility; R0000644 passes. Verifiers, historical receipts and prior delivery remain unchanged pending rebuilt evidence.
+
 ## Windows candidate held — 2026-10-28T23:41Z
 
 Build233448/source042f375365652336ec53fa4170e0ba34553022ce passes in96.3s. Windows inspector233658 and lobby233800 pass their scripted checks, but root opened parcel_workshop_room_routes.png and confirmed horizontal overflow: Laps/Spawns navigation and recovery/coordinate fields extend beyond the inspector. This candidate is NOT the delivered review build. The passing script did not detect this visual defect. Workshop lane is drafting bounded layout correction plus real layout containment checks; original images and gates remain unchanged. No further smoke runs on this candidate until source correction and rebuild. Last usable delivered checkpoint remains215158.

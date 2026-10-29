@@ -263,8 +263,27 @@ namespace Wreckabulary.Qa
                         if (Time.realtimeSinceStartup >= deadline) throw new QaFailException("Range view capture exceeded its bounded work window.");
                         yield return null;
                     }
+                    context.Note(names[index] + "_anchor_request", requested);
+                    requested = ((Vector2)type.GetField("inspectorScroll", flags).GetValue(workshop)).y;
+                    context.Note(names[index] + "_measured_reachable_scroll", requested);
+                    if (!(requested > 0) || float.IsNaN(requested) || float.IsInfinity(requested))
+                        throw new QaFailException("Range view has no finite reachable scroll offset.");
+                    type.GetField("inspectorScroll", flags).SetValue(workshop, new Vector2(0, requested));
+                    for (int frame = 0; frame < 3; frame++)
+                    {
+                        if (Time.realtimeSinceStartup >= deadline) throw new QaFailException("Range view capture exceeded its bounded work window.");
+                        yield return null;
+                    }
+                    float actual = ((Vector2)type.GetField("inspectorScroll", flags).GetValue(workshop)).y;
+                    float anchorOffset = (float)type.GetField(anchors[index], flags).GetValue(workshop) - actual;
+                    var scrollRect = (Rect)type.GetField("inspectorScrollRect", flags).GetValue(workshop);
+                    int rowHeight = ((WordboundUiStyles)type.GetField("ui", flags).GetValue(workshop)).RowHeight;
+                    if (actual != requested || anchorOffset < 0 || anchorOffset + rowHeight > scrollRect.height)
+                        throw new QaFailException("Range view did not settle with its target label inside the actual scroll viewport.");
+                    context.Note(names[index] + "_anchor_visible_offset", anchorOffset);
+                    context.Note(names[index] + "_scroll_viewport_height", scrollRect.height);
                     context.Note(names[index] + "_scroll_requested", requested);
-                    context.Note(names[index] + "_scroll_actual", ((Vector2)type.GetField("inspectorScroll", flags).GetValue(workshop)).y);
+                    context.Note(names[index] + "_scroll_actual", actual);
                     stack.Push(CaptureVerified(context, names[index], names[index]));
                     while (stack.Count > 0)
                     {

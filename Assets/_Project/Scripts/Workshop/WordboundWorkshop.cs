@@ -334,6 +334,7 @@ namespace Wreckabulary.Workshop
             inspectorAdvancedIds = GUILayout.Toggle(inspectorAdvancedIds, "Advanced IDs");
             InspectorValidation();
             GUILayout.EndScrollView();
+            if (Event.current.type == EventType.Repaint) inspectorScrollRect = GUILayoutUtility.GetLastRect();
         }
         void FocusIssue(CourseIssue issue)
         {

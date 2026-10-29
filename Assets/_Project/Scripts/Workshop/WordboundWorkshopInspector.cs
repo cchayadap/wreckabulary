@@ -11,6 +11,7 @@ namespace Wreckabulary.Workshop
         enum InspectorSection { Objects, Puzzles, Room }
         InspectorSection inspectorSection;
         float inspectorWidth = 300;
+        Rect inspectorScrollRect;
         float InspectorContentWidth => Mathf.Max(1, inspectorWidth - panel.padding.horizontal -
             GUI.skin.verticalScrollbar.fixedWidth - GUI.skin.verticalScrollbar.margin.left - 4);
 
