@@ -22,12 +22,12 @@ Owner resumed implementation after the earlier pause. Base01694968 on sethypagna
 ## Delivery checklist
 
 - [x] Snapshot existing uncommitted/untracked work and pin the clean production base.
-- [~] Update progress/remaining tasks, including BELT and weapon×surface impact audio.
-- [~] Implement category → mode → compatible maps → launch and preserve focus/defaults.
-- [ ] R0 / affected Rules / native UI and saved-profile checks.
-- [ ] Inspect actual rendered states at common resolutions; correct clipping, alignment and excessive text.
-- [ ] Build source-matched Windows review executable, smoke affected local/Workshop/lobby paths and audit original screenshots.
-- [ ] Package a clear try guide with exact executable, source/evidence and remaining limitations.
+- [x] Update progress/remaining tasks, including BELT and weapon×surface impact audio.
+- [x] Implement category → mode → compatible maps → launch and preserve focus/defaults.
+- [x] R0, affected Kitchen Rules33/33, native Play76/76 and online/settings35/35. Existing scene/profile persistence evidence retained.
+- [x] Inspect all79actual Windows1280×720PNGs; native short-window checks retain complete focused cards and fixed controls. Record remaining art/copy issues without declaring owner approval.
+- [x] Build source-matched Windows review executable, smoke seven affected local/Workshop/lobby paths and audit every original screenshot.
+- [x] Update try guide with exact executable, source/evidence and remaining limitations.
 
 The complete production plan remains unfinished. BELT rig/animation/combat/audio and full all-mode/multiplayer/human acceptance must stay explicit. A frontend smoke pass is not public matchmaking acceptance.
 
@@ -51,3 +51,11 @@ Preservation snapshot`.harness/recovery/developer-workspace-2026-10-29T03-36-54-
 Online final native`033931`: PASS35/35,0skipped and normal exit, including the actual disabled/enabled public co-op preflight control and coordinator's independent no-request guard. Committed the coherent UI/QA change as988e78ee; historical drafts remain untouched.
 
 Arena import`033835` retained correct partial outputs when the guard incorrectly removed CombatArenaPreview from the outer EditorJson object rather than its MonoBehaviour wrapper. Independent saved-delta proof retains4325unchanged originals and exactly seven intended/default serialized additions in the only changed layout. Bounded read-only finalizer`034525` PASS independently verifies original source/dependency/scene preservation for its own run and completes the import receipt. The failed import's transient scene state was not recorded and is not retrospectively claimed. Recovery code remains in the evidence folder; the production importer keeps only the small general wrapper correction.
+
+## Delivered Windows review candidate
+
+Build `20261029T034759Z`, source `07d814ec1993f7b444bc150091f699206ea7901c`, Unity6000.6.4f1: PASS. All seven Windows scenarios exit normally. Unchanged strict audits verify45+18+11+5=79original game PNGs and preservation of4326saved authored files against the post-preview baseline. Every original was directly opened across four reviewers; exact hash coverage reconciles all79. [Visual findings](windows034759/VISUAL-REVIEW.md), [actual images](windows034759/REVIEW.html), [try guide](../client-view/TRY-WORDBOUND.md).
+
+Local source commits988e78ee and07d814ec preserve the coherent changes. No team checkout, GitHub branch, Cloudflare deployment, package/SDK or kit source was changed during this pass. Native-generated metadata and exact backup whitespace remain intact.
+
+The full production plan remains active and unfinished: detailed maps/models/skins, BELT and material impact audio, holding/emotion/motion, full flagship/recovery, creator rule/sharing usability, real multiplayer for all intended modes, original House online support, measured performance and human acceptance. Menu/guest captures do not prove live matchmaking. Minor remaining copy/layout polish and visible map/Workshop limitations are recorded in progress.md and the visual report.

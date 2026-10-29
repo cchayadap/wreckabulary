@@ -1,6 +1,6 @@
 # Edit the Play screen in Unity
 
-Open `wordbound-integration` in Unity6000.6.4f1. Use **Wreckabulary → Open Current Workspace → Play** to preview the actual menu. Stop Play before saving design changes.
+Open `wordbound-integration` in Unity 6000.6.4f1. Use **Wreckabulary → Open Current Workspace → Play** to preview the actual menu. Stop Play before saving design changes.
 
 | Select this saved asset | Change in the Inspector |
 | --- | --- |

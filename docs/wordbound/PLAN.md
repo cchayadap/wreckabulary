@@ -297,7 +297,7 @@ James requested BELT as an additional weapon and sounds that match both the stri
 
 **BELT gameplay and art:** design a recognizable flexible leather strap and buckle with vivid original-style materials, an editable mesh/rig, correct hand grip and readable wind-up, swing, contact and recovery. Use bounded, authoritative hit detection with deliberate reach, damage, stagger and cooldown balance. Visual bending must remain stable and match the contact arc; do not assume an unrestricted rope simulation is necessary. Verify idle/held/attack/miss/drop/throw states, hand contact, body/camera clipping, skin parity and remote animation. Add its icon, concise loadout/workshop presentation and catalogue identity only when the working item is ready; unfinished entries remain unavailable.
 
-**Impact sound design:** choose sound by weapon family, target surface and confirmed outcome. Layer swing/whoosh, contact and break/debris separately. For example:
+**Impact sound design:** choose sound by weapon family, contacting part, target surface and confirmed outcome. Distinguish a belt's flexible leather strap from its metal buckle; the contact sound must follow the part that actually struck. Layer swing/whoosh, contact and break/debris separately. For example:
 
 | Interaction | Intended feedback |
 | --- | --- |

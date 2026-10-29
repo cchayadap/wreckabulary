@@ -1,0 +1,611 @@
+{
+  "utc": "2026-10-29T03:53:34.019Z",
+  "build": "20261029T034759Z",
+  "groups": [
+    {
+      "label": "Play organization",
+      "scenario": "play_hierarchy",
+      "run": "20261029T035242Z-play_hierarchy",
+      "images": [
+        {
+          "name": "play_practice_house",
+          "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_practice_house.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "b303ff1bc15789bdbf64e7bd77ac8b802a81e79f3bdb9c058ea43f8d086ce187"
+        },
+        {
+          "name": "play_timerun",
+          "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_timerun.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "fa724ad568adabd43b0da5e95e0e6de1120341fe5b5590787158045e25fc9231"
+        },
+        {
+          "name": "play_freestyle",
+          "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_freestyle.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "98d03bf0aec16168aec5ae7e30eb63c98373d2a8036042ebc178b1f5b5aeb4b2"
+        },
+        {
+          "name": "play_escape_random",
+          "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_escape_random.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "7ab3e2c82da99a45b48f10d0fd10cc4e8930b8d7076f0ec2325f75f8c67712fd"
+        },
+        {
+          "name": "play_create_tools",
+          "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_create_tools.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "be4f79ab844eaa0b72cbf77760a2360a0ef72cc9c1299d614523c3871dfffd21"
+        }
+      ]
+    },
+    {
+      "label": "Workshop inspector",
+      "scenario": "wordbound_parcel_workshop_inspector",
+      "run": "20261029T035224Z-wordbound_parcel_workshop_inspector",
+      "images": [
+        {
+          "name": "parcel_workshop_assigned",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_assigned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "dc2da5743839cd597935b8eb3670393b57f0bb00121df43b2c1603d8c0babb12"
+        },
+        {
+          "name": "parcel_workshop_saved",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_saved.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "08f50f31093f0809d9643ae458067037b9b3d918e2b6072587cbab15f969ae9a"
+        },
+        {
+          "name": "parcel_workshop_sorting_close",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_sorting_close.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "8285fc748539a550c8db64f5b103f0ab4c20307e7f7c78903a21d225df8e3066"
+        },
+        {
+          "name": "parcel_workshop_new_puzzle",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_new_puzzle.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "d810905af2d7a4dfda86c1e2d62e2551a48205f7ec69ae1e0e5b2ec784cef382"
+        },
+        {
+          "name": "parcel_workshop_room_routes",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_room_routes.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "b89463c65a3cdc76af7fdd48d7905b242db04b459126c45770d275a7fb8f5957"
+        },
+        {
+          "name": "parcel_workshop_playtest_world",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_playtest_world.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "f97df0849b176865c01c769ff817ffbc8711227b199bebad66c0a41fd0e70cc3"
+        },
+        {
+          "name": "parcel_workshop_playtest_menu",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_playtest_menu.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "7fd422a10fd29f87d6b9541820225a81fed2f9ec0a68ec88ef508fa210025b8d"
+        },
+        {
+          "name": "parcel_workshop_returned",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "b33e07eadfa766647a51fa3c0cc4de5307b989f830c8689e004af1630b7c9104"
+        },
+        {
+          "name": "parcel_workshop_assigned_returned",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_assigned_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "48446f13a368834f4eadf9282cea5ca13aaee1567f61db089eef2b9a5b36e7e3"
+        },
+        {
+          "name": "parcel_workshop_parcel_returned",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_parcel_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "70ff6f106aaf8470c54ce9617166bbeabd4f7d1c0bab0a2c4bbf98b6f9b86401"
+        },
+        {
+          "name": "parcel_workshop_lobby",
+          "path": "Docs/qa/runs/20261029T035224Z-wordbound_parcel_workshop_inspector/parcel_workshop_lobby.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "fccb237c1358e241989a5f9b2a035b1ff25710c3515605f88c9071b458ae16e7"
+        }
+      ]
+    },
+    {
+      "label": "Lobby",
+      "scenario": "lobby_experience",
+      "run": "20261029T035021Z-lobby_experience",
+      "images": [
+        {
+          "name": "lobby_local_dibs",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_local_dibs.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "a1eccc21aa1accbf732b43462da9b8cdec7a96297a2e7e1a437eed51ce357fd6"
+        },
+        {
+          "name": "lobby_local_duos",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_local_duos.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "de0454fef6002678c58ae9c4b427be2c6d4053ab4bc94479529924424fc6c22a"
+        },
+        {
+          "name": "lobby_local_escape",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_local_escape.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "bb6b70efc5721907359736a71b35187ccc9bdf23b7a8516ca27e58ea6c25ad7b"
+        },
+        {
+          "name": "lobby_solo_timerun",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_solo_timerun.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "31598b18e456617bd75e1748c93223c63fe19b6320adf935a2293e5df248ecef"
+        },
+        {
+          "name": "lobby_solo_freestyle",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_solo_freestyle.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "268f35e9fb3de1b4ebe130726387af061ef0654f5412c319508e25e76eaad5b7"
+        },
+        {
+          "name": "lobby_solo_two_seats",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_solo_two_seats.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "f31d5c3da61fb8dc172d7fcab1cf796a02bf235c69c7d07a927ed851ae260896"
+        },
+        {
+          "name": "lobby_create_learn",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_create_learn.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "ef3ffdf402b9d7e6b03c25a22cbc42786c5a0b997cb8005bebd819ea710fa7e4"
+        },
+        {
+          "name": "lobby_create_build",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_create_build.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "56daaa00fbbec6539762b6df8a2ff01ff14143ff16cc96a9b1ce01a67c37de0e"
+        },
+        {
+          "name": "lobby_create_wordbound",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_create_wordbound.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "79d608ac2c1f2d4e65071acfa90815cd332792aeb5ef500f186dd8638218182d"
+        },
+        {
+          "name": "lobby_customize",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_customize.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "a5b1127e74c0bc81cbd943f9486b6490a83306ecdffd0306d131d27af0443872"
+        },
+        {
+          "name": "lobby_customize_finishes",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_customize_finishes.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "9e15e257d7197a63ce8403fb12605ed294a7c9632bbdad3e65d60db65c0a014a"
+        },
+        {
+          "name": "lobby_customize_equipment",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_customize_equipment.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "d11fe84b38ce8a235a9ab791e5a1d097b0cfba4d2d0c13bcf9f6fa90d3161c46"
+        },
+        {
+          "name": "lobby_shop",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_shop.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "caf1a5f1fb36ed67c1c779a849282af7b8a50066fcfbfcfc0182daa25d292ef9"
+        },
+        {
+          "name": "lobby_settings_profile",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_profile.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "0533a65dc7aced2755be7978a6623c97c9923355a02f9a82ae3942cd005bd7b6"
+        },
+        {
+          "name": "lobby_settings_audio",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_audio.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "604d4eb787f7bc250d2f511a67daf3e26d315cd016992e98e646bc032d450100"
+        },
+        {
+          "name": "lobby_settings_gameplay",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_gameplay.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "f12e02c7153295a618ab699010e525ff79ad8851f0ddde7a5c6b217817afd643"
+        },
+        {
+          "name": "lobby_settings_graphics",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_graphics.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "9b3aa02feee9d3cb5642454e081e2cdcea58928b42a22ad8a63286970b76e0c2"
+        },
+        {
+          "name": "lobby_settings_controls",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_controls.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "3db44aa332837230625fd729b54b850992849d8d0fd3de9c03750774e7b8959f"
+        },
+        {
+          "name": "lobby_settings_controls_bottom",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_controls_bottom.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "13196fa7e1c754daa2acd7bdef268d0c6ac8d9f4fddcf151afcde82bdf1da7d4"
+        },
+        {
+          "name": "lobby_settings_wordbound_controls_mid",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_wordbound_controls_mid.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "417ade106e6f1107b5ac4797abf6b0445926d6cbafdfbe75db60806df6f50f95"
+        },
+        {
+          "name": "lobby_settings_wordbound_controls_bottom",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_wordbound_controls_bottom.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "4d8b95c1c56a1b305e52ba4f6d659cc951005b3cc9ac4dde868ddd0718079267"
+        },
+        {
+          "name": "lobby_settings_help",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_settings_help.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "e0b786b6b2f261b78de5377eacf01145ab3028265064bc1dac4c98bf946df0d8"
+        },
+        {
+          "name": "lobby_home_returned",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_home_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "36154eb2537fecd1a772c7852312690d08ace55f3c581e3b0b83b80c2ab2dc46"
+        },
+        {
+          "name": "lobby_online_ready",
+          "path": "Docs/qa/runs/20261029T035021Z-lobby_experience/lobby_online_ready.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "0b11cc8e765dc7ff191dcd9cba4525469765bb87864f42b4adc965e30e07c5f0"
+        }
+      ]
+    },
+    {
+      "label": "Solo",
+      "scenario": "wordbound_solo",
+      "run": "20261029T035101Z-wordbound_solo",
+      "images": [
+        {
+          "name": "solo_initial_lobby",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_initial_lobby.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "706750fc57d34926f839c7205c5b82b8659c13700f05a5f9da25c6925e062dee"
+        },
+        {
+          "name": "solo_timerun_selected",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_timerun_selected.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "959ea3920185350a6c4fca79bdfb455b60f48f94e1a61a38a4de2f95099f8ba2"
+        },
+        {
+          "name": "solo_timerun_world",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_timerun_world.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "ff83d7d057b054b547bc2e752d8e0b5c02d922372f22b5a6833756feb0b01499"
+        },
+        {
+          "name": "solo_timerun_menu",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_timerun_menu.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "691bca35bbb6c30abd5b9cd52b0d89fe2e30e3d1de10a0d0c3a70db45d266cfb"
+        },
+        {
+          "name": "solo_timerun_returned",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_timerun_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "3897b487df22b34abdd08ed935db73464631715d23ad288a088e50c05097d5df"
+        },
+        {
+          "name": "solo_freestyle_selected",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_freestyle_selected.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "f203b87b3a64538e8c6153646253a64b49f6ff54fa60b5fd901788b03278c58d"
+        },
+        {
+          "name": "solo_freestyle_world",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_freestyle_world.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "4d06940e1fd79badb409b4681bb7b779597bb8ba04d5520ba3fdd07e4ed7db25"
+        },
+        {
+          "name": "solo_freestyle_menu",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_freestyle_menu.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "6ac05e006f9d7b5f1832d2929f7d37fcaf2ce6cb56db2fb30f58fa1ba538384a"
+        },
+        {
+          "name": "solo_freestyle_returned",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_freestyle_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "67573ac2a57a14533b0847a45d92aa4af32ec23015e742347798cd09b8915433"
+        },
+        {
+          "name": "solo_parcelhall_freestyle_selected",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_parcelhall_freestyle_selected.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "c67536bfddfb433737650e2604457e97990021ae998682fbc973f1658d1eb5e6"
+        },
+        {
+          "name": "solo_parcelhall_freestyle_world",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_parcelhall_freestyle_world.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "b5ccd80f58941b9b6ebf483c3bb79a34e02bbfedab399887c9f2aaf8e15e3358"
+        },
+        {
+          "name": "solo_parcelhall_freestyle_menu",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_parcelhall_freestyle_menu.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "c9bc78bf65fcb83a8d5385949cbb4dc8a0d2b33fd254fda7957789c78fb97f96"
+        },
+        {
+          "name": "solo_parcelhall_freestyle_returned",
+          "path": "Docs/qa/runs/20261029T035101Z-wordbound_solo/solo_parcelhall_freestyle_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "50d9448f6171d086945b0fc2152624efc181c278a2ecd8858491b23aec45ad64"
+        }
+      ]
+    },
+    {
+      "label": "Workshop",
+      "scenario": "wordbound_workshop_flow",
+      "run": "20261029T035131Z-wordbound_workshop_flow",
+      "images": [
+        {
+          "name": "wordbound_party",
+          "path": "Docs/qa/runs/20261029T035131Z-wordbound_workshop_flow/wordbound_party.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "0b11cc8e765dc7ff191dcd9cba4525469765bb87864f42b4adc965e30e07c5f0"
+        },
+        {
+          "name": "wordbound_workshop",
+          "path": "Docs/qa/runs/20261029T035131Z-wordbound_workshop_flow/wordbound_workshop.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "7a6348b3ec2036bc35ac0c9548e775f225ff435d7f4124dafcadcc238c8abe0c"
+        },
+        {
+          "name": "wordbound_workshop_range_height",
+          "path": "Docs/qa/runs/20261029T035131Z-wordbound_workshop_flow/wordbound_workshop_range_height.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "b1de081aa29e53fdd19ccc3ff72c9016e826ab419d39341887f0454586fd94f6"
+        },
+        {
+          "name": "wordbound_workshop_range_floors",
+          "path": "Docs/qa/runs/20261029T035131Z-wordbound_workshop_flow/wordbound_workshop_range_floors.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "698e8c1b54e3e511821f863c5523f68c9abad5069d63e8eab71711e129c97dc3"
+        },
+        {
+          "name": "wordbound_local_ready",
+          "path": "Docs/qa/runs/20261029T035131Z-wordbound_workshop_flow/wordbound_local_ready.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "c9cc32451a8fdbc5f519e61ea431e8b57f6068e388229c6ec77a231ed3547376"
+        },
+        {
+          "name": "wordbound_local_world",
+          "path": "Docs/qa/runs/20261029T035131Z-wordbound_workshop_flow/wordbound_local_world.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "b157dc4f0a43461ccda1dd7bc2a3ded57ec78c26b9e99c68a1354cd5347eef0d"
+        },
+        {
+          "name": "wordbound_equipment_menu",
+          "path": "Docs/qa/runs/20261029T035131Z-wordbound_workshop_flow/wordbound_equipment_menu.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "8f18d0a926af1b515fe0cb6f4f7689111bf5cd4843ad5b3cdb654972e25a2c85"
+        },
+        {
+          "name": "wordbound_returned_workshop",
+          "path": "Docs/qa/runs/20261029T035131Z-wordbound_workshop_flow/wordbound_returned_workshop.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "7a6348b3ec2036bc35ac0c9548e775f225ff435d7f4124dafcadcc238c8abe0c"
+        }
+      ]
+    },
+    {
+      "label": "Parcel Service",
+      "scenario": "wordbound_parcel_service",
+      "run": "20261029T035151Z-wordbound_parcel_service",
+      "images": [
+        {
+          "name": "parcel_service_initial_lobby",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/parcel_service_initial_lobby.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "a297849c67e99092add4a6d626ea3d09e57e7f2d0c7c6a7c5dd966035da06567"
+        },
+        {
+          "name": "solo_parcelservice_timerun_selected",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/solo_parcelservice_timerun_selected.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "7fe7f814a6686657654c003dad9f67a173cc954a237973eb654e7d62e10371e9"
+        },
+        {
+          "name": "solo_parcelservice_timerun_world",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/solo_parcelservice_timerun_world.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "9db7d9036206234b9c025483905f879d309dd2e8fdc661c12d28a6046520ddf1"
+        },
+        {
+          "name": "solo_parcelservice_timerun_menu",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/solo_parcelservice_timerun_menu.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "8c130bf03791df3ee9b36f9af5538614f9f6841abeb05666b5528d2f9223e427"
+        },
+        {
+          "name": "solo_parcelservice_timerun_returned",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/solo_parcelservice_timerun_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "1f70e98048a2a8509e186740fde3df909ff92ab58966c1344b89c481d210e7ac"
+        },
+        {
+          "name": "solo_parcelservice_freestyle_selected",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/solo_parcelservice_freestyle_selected.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "64b591b02a0c8dde2bf2c67199a77a7b5c59b11af8cf5b315abaf1beeac63129"
+        },
+        {
+          "name": "solo_parcelservice_freestyle_world",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/solo_parcelservice_freestyle_world.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "ecd3db80bbc9ff4b56b38e6b71364d889bc13bc183735cd78b49a1edf39e2a25"
+        },
+        {
+          "name": "solo_parcelservice_freestyle_menu",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/solo_parcelservice_freestyle_menu.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "33c13146e7acdba4c164e70fa45d522eafc01ba4cab6d1a2270ba32d488a2d68"
+        },
+        {
+          "name": "solo_parcelservice_freestyle_returned",
+          "path": "Docs/qa/runs/20261029T035151Z-wordbound_parcel_service/solo_parcelservice_freestyle_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "1e082c46b0a94ea5f44a6935b1e44306c1fc979a4de4f602c80522f52010cd39"
+        }
+      ]
+    },
+    {
+      "label": "Parcel Workshop",
+      "scenario": "wordbound_parcel_workshop",
+      "run": "20261029T035207Z-wordbound_parcel_workshop",
+      "images": [
+        {
+          "name": "parcel_workshop_assigned",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_assigned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "dc2da5743839cd597935b8eb3670393b57f0bb00121df43b2c1603d8c0babb12"
+        },
+        {
+          "name": "parcel_workshop_saved",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_saved.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "aec440b3f6b3d0c596b6db1db7e9db4acba3cb6c04de508af4ce7b044eada094"
+        },
+        {
+          "name": "parcel_workshop_sorting_close",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_sorting_close.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "da15ef1a5e8e72ffe2c83eb1f494a99bd7eb2160bb761b22be444e5c27d983f7"
+        },
+        {
+          "name": "parcel_workshop_playtest_world",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_playtest_world.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "d59b92f44c53ca88e6cd923a91546cb74fec26043dcaf7dd86e38f8362064f0e"
+        },
+        {
+          "name": "parcel_workshop_playtest_menu",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_playtest_menu.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "cff475c8009632c0f2b556eb3caa40f0f1653ea03806ef738626fe43d65daa3d"
+        },
+        {
+          "name": "parcel_workshop_returned",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "a4c580a4c384e6377cb5f84ec77cb55aa89231198be1a35397212a67ebf6dca4"
+        },
+        {
+          "name": "parcel_workshop_assigned_returned",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_assigned_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "48446f13a368834f4eadf9282cea5ca13aaee1567f61db089eef2b9a5b36e7e3"
+        },
+        {
+          "name": "parcel_workshop_parcel_returned",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_parcel_returned.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "d28c062584498f66a70bfe8eb5470d9db5f79bc794c4a621c02ff0bf15626c29"
+        },
+        {
+          "name": "parcel_workshop_lobby",
+          "path": "Docs/qa/runs/20261029T035207Z-wordbound_parcel_workshop/parcel_workshop_lobby.png",
+          "width": 1280,
+          "height": 720,
+          "sha256": "868056cccc31e1e76ea78d8aa34b11840071fdbb1ab7fc4b6199861b69ad3e57"
+        }
+      ]
+    }
+  ],
+  "images": 79,
+  "htmlSha256": "ba6cae784215af65d82dbf5b4899d6c3b61dfc5e06250d84e4e20a8c238b660d",
+  "checks": "All image files, dimensions, hashes and JavaScript syntax verified. Browser rendering NOT RUN: local file URL tool restriction remains."
+}

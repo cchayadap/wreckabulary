@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-29T03:53:22.143Z",
+  "args": [
+    ".harness/delivery/preserve-ui-authored.mjs",
+    "verify",
+    ".harness/delivery/ui-authored-before-2026-10-29T03-47-16-481Z.json",
+    "BuildNotes/play-flow-20261029/windows034759/preservation.json"
+  ],
+  "status": 0,
+  "stdout": "{\"utc\":\"2026-10-29T03:53:22.128Z\",\"status\":\"PASS\",\"baseline\":\".harness/delivery/ui-authored-before-2026-10-29T03-47-16-481Z.json\",\"baseline_sha256\":\"a847a8dbf390c507752d02c96ba23fc4ee9c86c8b5d7eb9d0b99d07bc4f36d84\",\"files\":4326,\"changed\":[],\"scope\":\"All non-ignored Assets .asset/.unity/.prefab/.mat/.ttf/.otf and adjacent metadata, plus project/build settings. Read-only preservation fingerprint, no Unity/player execution.\"}\n",
+  "stderr": ""
+}

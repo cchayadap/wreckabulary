@@ -1,0 +1,615 @@
+{
+  "schema": 1,
+  "utc": "2026-10-29T03:53:33.536Z",
+  "status": "BOUNDED_PLAY_HIERARCHY_WINDOWS_PASS",
+  "build": {
+    "schema": 1,
+    "id": "20261029T034759Z",
+    "kind": "release-qa",
+    "dir": "Builds/qa-20261029T034759Z",
+    "exe": "Wreckabulary.exe",
+    "profile": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "utc": "2026-10-29T03:50:03Z",
+    "development": false,
+    "unity_version": "6000.6.4f1",
+    "head": "07d814ec1993f7b444bc150091f699206ea7901c",
+    "tree": "fd3936ff0d5d4530b333b21da19cac63b70f11027aefa876bcf3af9946ec3966",
+    "secs": 124.7,
+    "ok": true
+  },
+  "source": {
+    "commit": "07d814ec1993f7b444bc150091f699206ea7901c",
+    "currentHead": "07d814ec1993f7b444bc150091f699206ea7901c",
+    "productionDiffEmpty": true,
+    "untrackedNonIgnoredProductionEmpty": true
+  },
+  "verifier": {
+    "path": "BuildNotes/play-flow-20261029/verification/verify-play-hierarchy.mjs",
+    "bytes": 11240,
+    "sha256": "b450b57654e5030542a8548decd0d62e053bc38aafcbbc7ec1fa31a26a30af61"
+  },
+  "delegatedBaseAudit": {
+    "path": "BuildNotes/play-flow-20261029/windows034759/base-45.json",
+    "bytes": 119597,
+    "sha256": "13e6824f82d9340d16e7550e08e9a3c5b267430a6cb2f33bd8bf191d7ef6124b"
+  },
+  "pngVerifier": {
+    "path": "BuildNotes/creator-clarity-20261029/workshop/extra-capture/verify-inspector-windows.mjs",
+    "bytes": 20378,
+    "sha256": "049bec659029c648f03ebc7349f34b7847ea31e9c41394e62f1af0501791c184"
+  },
+  "scenarioSources": [
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/LobbyExperienceQa.cs",
+      "bytes": 47201,
+      "sha256": "f6ca66a6ac5a085ed5c883fd32110a0f8441315f4994f9dd278d385056765c6d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/WordboundQa/WordboundSoloQa.cs",
+      "bytes": 29622,
+      "sha256": "a20d0d43b5e0cd2b91a9f04fd46bef9cc021d352d42c9f7898aa278a83b26432"
+    }
+  ],
+  "run": {
+    "id": "20261029T035242Z-play_hierarchy",
+    "scenario": "play_hierarchy",
+    "checks": {
+      "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/checks.json",
+      "bytes": 13149,
+      "sha256": "66fa779228d198435f71241d86f73da58b7e9bbbb0b66d3a1e70671b01e14fb0"
+    },
+    "gate": {
+      "path": ".harness/delivery/creator-smoke-play_hierarchy-2026-10-29T03-52-41-993Z-stdout.txt",
+      "bytes": 541,
+      "sha256": "a91681ce4d2ce37499fcf32ddbb66caf0c86d093fa26c603a74ea8977164dd97"
+    },
+    "log": {
+      "path": "Logs/player/20261029T035242Z-play_hierarchy.log",
+      "bytes": 2946,
+      "sha256": "ae6fce75647956a6e206361fbd010f9590a5b6652711a05322c8997c4a80bb4e"
+    },
+    "steps": [
+      {
+        "name": "centered_play_flow",
+        "status": "PASS",
+        "t_s": 10.038729,
+        "probes": {
+          "scope": "Actual Windows UI Submit callbacks, centered hierarchy/map bounds and unchanged captures. Logical selection only; no physical keyboard/controller, online session or full-match acceptance.",
+          "hierarchy_practice": {
+            "targets": [
+              "Mode Dibs",
+              "Mode Duos",
+              "Mode MovingOut",
+              "Mode MovingDay",
+              "Mode Escape",
+              "Solo TimeRun",
+              "Solo Freestyle"
+            ],
+            "captions": [
+              "Dibs!",
+              "Duos",
+              "Moving Out",
+              "Moving Day",
+              "Escape",
+              "Time Trial",
+              "Freeplay"
+            ],
+            "queue_captions": [
+              "Practice (Offline)",
+              "Matchmaking",
+              "Create"
+            ],
+            "selected": "Mode Dibs",
+            "mode_row": [
+              253.3333,
+              572.0001,
+              773.3333,
+              34.66663
+            ],
+            "queue_row": [
+              386.6667,
+              622.6667,
+              506.6667,
+              32
+            ],
+            "panel": [
+              7.999981,
+              7.99998,
+              1264,
+              657.3333
+            ],
+            "obsolete_family_controls": 0
+          },
+          "map_footprints_house": [
+            {
+              "id": "Map pinwheel",
+              "rect": [
+                21.33335,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            },
+            {
+              "id": "Map courtyard",
+              "rect": [
+                432.4444,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            },
+            {
+              "id": "Map flat",
+              "rect": [
+                843.5557,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            },
+            {
+              "id": "Map terrace",
+              "rect": [
+                21.33335,
+                85.33332,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            },
+            {
+              "id": "Map walkup",
+              "rect": [
+                432.4444,
+                85.33332,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            }
+          ],
+          "house_maps": [
+            "Map pinwheel",
+            "Map courtyard",
+            "Map flat",
+            "Map terrace",
+            "Map walkup"
+          ],
+          "play_practice_house_capture": {
+            "width": 1280,
+            "height": 720,
+            "focused": true,
+            "rendered_frame": 307,
+            "varied_pixels": true
+          },
+          "hierarchy_TimeRun": {
+            "targets": [
+              "Mode Dibs",
+              "Mode Duos",
+              "Mode MovingOut",
+              "Mode MovingDay",
+              "Mode Escape",
+              "Solo TimeRun",
+              "Solo Freestyle"
+            ],
+            "captions": [
+              "Dibs!",
+              "Duos",
+              "Moving Out",
+              "Moving Day",
+              "Escape",
+              "Time Trial",
+              "Freeplay"
+            ],
+            "queue_captions": [
+              "Practice (Offline)",
+              "Matchmaking",
+              "Create"
+            ],
+            "selected": "Solo TimeRun",
+            "mode_row": [
+              253.3333,
+              572.0001,
+              773.3333,
+              34.66663
+            ],
+            "queue_row": [
+              386.6667,
+              622.6667,
+              506.6667,
+              32
+            ],
+            "panel": [
+              7.999981,
+              7.99998,
+              1264,
+              657.3333
+            ],
+            "obsolete_family_controls": 0
+          },
+          "map_footprints_TimeRun": [
+            {
+              "id": "Solo map LostAddress",
+              "rect": [
+                21.33335,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            },
+            {
+              "id": "Solo map ParcelHall",
+              "rect": [
+                432.4444,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            },
+            {
+              "id": "Solo map ParcelService",
+              "rect": [
+                843.5557,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            }
+          ],
+          "solo_maps_TimeRun": [
+            "Solo map LostAddress",
+            "Solo map ParcelHall",
+            "Solo map ParcelService"
+          ],
+          "play_timerun_capture": {
+            "width": 1280,
+            "height": 720,
+            "focused": true,
+            "rendered_frame": 586,
+            "varied_pixels": true
+          },
+          "hierarchy_Freestyle": {
+            "targets": [
+              "Mode Dibs",
+              "Mode Duos",
+              "Mode MovingOut",
+              "Mode MovingDay",
+              "Mode Escape",
+              "Solo TimeRun",
+              "Solo Freestyle"
+            ],
+            "captions": [
+              "Dibs!",
+              "Duos",
+              "Moving Out",
+              "Moving Day",
+              "Escape",
+              "Time Trial",
+              "Freeplay"
+            ],
+            "queue_captions": [
+              "Practice (Offline)",
+              "Matchmaking",
+              "Create"
+            ],
+            "selected": "Solo Freestyle",
+            "mode_row": [
+              253.3333,
+              572.0001,
+              773.3333,
+              34.66663
+            ],
+            "queue_row": [
+              386.6667,
+              622.6667,
+              506.6667,
+              32
+            ],
+            "panel": [
+              7.999981,
+              7.99998,
+              1264,
+              657.3333
+            ],
+            "obsolete_family_controls": 0
+          },
+          "map_footprints_Freestyle": [
+            {
+              "id": "Solo map LostAddress",
+              "rect": [
+                21.33335,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            },
+            {
+              "id": "Solo map ParcelHall",
+              "rect": [
+                432.4444,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            },
+            {
+              "id": "Solo map ParcelService",
+              "rect": [
+                843.5557,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            }
+          ],
+          "solo_maps_Freestyle": [
+            "Solo map LostAddress",
+            "Solo map ParcelHall",
+            "Solo map ParcelService"
+          ],
+          "play_freestyle_capture": {
+            "width": 1280,
+            "height": 720,
+            "focused": true,
+            "rendered_frame": 736,
+            "varied_pixels": true
+          },
+          "map_footprints_Escape": [
+            {
+              "id": "Map random",
+              "rect": [
+                21.33335,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            }
+          ],
+          "play_escape_random_capture": {
+            "width": 1280,
+            "height": 720,
+            "focused": true,
+            "rendered_frame": 840,
+            "varied_pixels": true
+          },
+          "hierarchy_create": {
+            "targets": [
+              "Create house",
+              "Create Wordbound",
+              "Mode Tutorial"
+            ],
+            "captions": [
+              "Home builder",
+              "Map editor",
+              "Tutorial"
+            ],
+            "queue_captions": [
+              "Practice (Offline)",
+              "Matchmaking",
+              "Create"
+            ],
+            "selected": "Create Wordbound",
+            "mode_row": [
+              253.3333,
+              572.0001,
+              773.3333,
+              34.66663
+            ],
+            "queue_row": [
+              386.6667,
+              622.6667,
+              506.6667,
+              32
+            ],
+            "panel": [
+              7.999981,
+              7.99998,
+              1264,
+              657.3333
+            ],
+            "obsolete_family_controls": 0
+          },
+          "map_footprints_Create": [
+            {
+              "id": "Wordbound maps",
+              "rect": [
+                21.33335,
+                256.0833,
+                403.1111,
+                283.9167
+              ],
+              "viewport": [
+                21.33331,
+                85.33331,
+                1225.333,
+                478.6667
+              ],
+              "visible_at_focus": true
+            }
+          ],
+          "play_create_tools_capture": {
+            "width": 1280,
+            "height": 720,
+            "focused": true,
+            "rendered_frame": 985,
+            "varied_pixels": true
+          },
+          "play_selection_preserved": true,
+          "navigation_preferences_unchanged": true,
+          "hierarchy_owned_stack_cleanup": {
+            "errors": [],
+            "failure": "none",
+            "work_budget_seconds": 40,
+            "outer_budget_seconds": 45
+          }
+        },
+        "assert_failures": [],
+        "captures": [
+          "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_practice_house.png",
+          "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_timerun.png",
+          "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_freestyle.png",
+          "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_escape_random.png",
+          "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_create_tools.png"
+        ]
+      }
+    ],
+    "captures": [
+      {
+        "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_practice_house.png",
+        "bytes": 134437,
+        "sha256": "b303ff1bc15789bdbf64e7bd77ac8b802a81e79f3bdb9c058ea43f8d086ce187",
+        "width": 1280,
+        "height": 720,
+        "renderedFrame": 307,
+        "focused": true
+      },
+      {
+        "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_timerun.png",
+        "bytes": 371887,
+        "sha256": "fa724ad568adabd43b0da5e95e0e6de1120341fe5b5590787158045e25fc9231",
+        "width": 1280,
+        "height": 720,
+        "renderedFrame": 586,
+        "focused": true
+      },
+      {
+        "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_freestyle.png",
+        "bytes": 373253,
+        "sha256": "98d03bf0aec16168aec5ae7e30eb63c98373d2a8036042ebc178b1f5b5aeb4b2",
+        "width": 1280,
+        "height": 720,
+        "renderedFrame": 736,
+        "focused": true
+      },
+      {
+        "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_escape_random.png",
+        "bytes": 108762,
+        "sha256": "7ab3e2c82da99a45b48f10d0fd10cc4e8930b8d7076f0ec2325f75f8c67712fd",
+        "width": 1280,
+        "height": 720,
+        "renderedFrame": 840,
+        "focused": true
+      },
+      {
+        "path": "Docs/qa/runs/20261029T035242Z-play_hierarchy/play_create_tools.png",
+        "bytes": 115104,
+        "sha256": "be4f79ab844eaa0b72cbf77760a2360a0ef72cc9c1299d614523c3871dfffd21",
+        "width": 1280,
+        "height": 720,
+        "renderedFrame": 985,
+        "focused": true
+      }
+    ]
+  },
+  "preservation": {
+    "receipt": {
+      "path": "BuildNotes/play-flow-20261029/windows034759/preservation.json",
+      "bytes": 456,
+      "sha256": "e1ca9af801bc4255fd91fce35c9aa511652503d6d016ebf29c4e981e423ac967"
+    },
+    "baseline": {
+      "path": ".harness/delivery/ui-authored-before-2026-10-29T03-47-16-481Z.json",
+      "bytes": 912950,
+      "sha256": "a847a8dbf390c507752d02c96ba23fc4ee9c86c8b5d7eb9d0b99d07bc4f36d84"
+    },
+    "originalScope": "All non-ignored Assets .asset/.unity/.prefab/.mat/.ttf/.otf and adjacent metadata, plus project/build settings. Read-only preservation fingerprint, no Unity/player execution.",
+    "verifiedFileCount": 4326,
+    "baselineCommit": "988e78ee261bcad1345d550362e5e2cfd32ef755",
+    "baselineIsAncestorOfBuild": true,
+    "receiptUtc": "2026-10-29T03:53:22.128Z",
+    "scope": "Root final PASS receipt is referenced and bound to its baseline hash/count/scope. Its listed authored files are not rehashed again by this audit. Runtime preservation probes are checked separately."
+  },
+  "scope": {
+    "captures": 5,
+    "steps": 1,
+    "visualAcceptance": "PENDING direct inspection of these exact full screenshots",
+    "limits": [
+      "Logical UI Submit selection and measured card/row geometry; no physical keyboard/controller or mouse-input acceptance.",
+      "Existing45-image audit delegates exact build/executable/packed-inventory/source preservation and original flow evidence.",
+      "No real public/private matchmaking, House networking, map completion, BELT/audio implementation, performance or production-release acceptance."
+    ]
+  }
+}
