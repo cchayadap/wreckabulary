@@ -293,7 +293,7 @@ Art production stages its own sources. The integrator updates shared catalogs an
 
 ### Belt weapon and material-specific impact audio — 29 October extension
 
-James requested BELT as an additional weapon and sounds that match both the striking item and the struck material. This extends the existing equipment batch; it does not replace any outstanding asset or claim implementation. Work is paused at his request after recording this scope.
+James requested BELT as an additional weapon and sounds that match both the striking item and the struck material. This extends the existing equipment batch; it does not replace any outstanding asset or claim implementation. James resumed work on29October; these equipment/audio tasks remain pending while the centered Play menu and tested Windows candidate are completed.
 
 **BELT gameplay and art:** design a recognizable flexible leather strap and buckle with vivid original-style materials, an editable mesh/rig, correct hand grip and readable wind-up, swing, contact and recovery. Use bounded, authoritative hit detection with deliberate reach, damage, stagger and cooldown balance. Visual bending must remain stable and match the contact arc; do not assume an unrestricted rope simulation is necessary. Verify idle/held/attack/miss/drop/throw states, hand contact, body/camera clipping, skin parity and remote animation. Add its icon, concise loadout/workshop presentation and catalogue identity only when the working item is ready; unfinished entries remain unavailable.
 

@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "kind": "wreckabulary.arena-preview-import-repair",
+  "captureReceiptPath": "BuildNotes/play-flow-20261029/arena-preview/native/20261029T033724Z-be0375ba/receipt.json",
+  "captureReceiptSha256": "e66d05ae0ac4d3a5379019782059549651d727ffb7c728fef55f276e73c05540",
+  "importerPath": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundArenaPreviewImport.cs",
+  "originalImporterSha256": "e1d77d06420aa3512aec9f89829142c65c6f56db15e81914d2fca34aa099c674",
+  "reviewedImporterSha256": "180106c8b7dc3286ee2c4b9c31aae41de748dd57ddacd6cf658eebf1fb1ae7ea",
+  "beforeImportManifestSha256": "891db7795f7843d1efbbe023e55e86adf633b44f8cbbec81fefa730e54e442c4",
+  "retainedLayoutSha256": "3a9ea43e901b7e9819ce6054a5a180ef4a59798c985ceba875079edf9ed66091",
+  "imagePath": "Assets/_Project/UI/Previews/Wordbound/ToyboxArena-20a36f9cf8c86f6a.png",
+  "imageMetaSha256": "38374bf6b8df49586b229ed280cc0f2c6ca36d7a773fe98adb2160251c908825",
+  "scope": "One retained failed attempt only; verify exact backup, original saved lines, six preloaded defaults, assigned persistent Sprite, reviewed helper-only source change and complete content dependency freshness. No asset writes or rollback."
+}

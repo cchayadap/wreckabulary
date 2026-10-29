@@ -269,7 +269,7 @@ namespace Wreckabulary.Online.Editor
             EnsureFolder(path.Substring(0, split));
             Require(!string.IsNullOrEmpty(AssetDatabase.CreateFolder(path.Substring(0, split), path.Substring(split + 1))), "Cannot create preview asset folder.");
         }
-        static object Capture(PreviewRenderUtility preview, string output, string filename, string module, bool styled, string hash, Vector3 target)
+        internal static object Capture(PreviewRenderUtility preview, string output, string filename, string module, bool styled, string hash, Vector3 target)
         {
             Texture2D pixels = null; bool begun = false;
             try

@@ -1,0 +1,7 @@
+{
+  "layoutPath": "Assets/_Project/Resources/UI/LobbyPlayLayout.asset",
+  "layoutSha256": "1e52a74e7f523615e2eaebf29be31a386cc37be71052886898838a27dc205138",
+  "layoutMetaSha256": "e1950c1cb906d70cf85c8592c4705fe0893e8170b04e1f19b83a39af980219c0",
+  "otherFields": "{\"MonoBehaviour\":{\"m_Enabled\":true,\"m_EditorHideFlags\":0,\"m_Name\":\"LobbyPlayLayout\",\"m_EditorClassIdentifier\":\"Wreckabulary::Wreckabulary.LobbyPlayLayout\",\"Page\":{\"fileID\":8588789398826050634,\"guid\":\"b2a8b7957047ea24ab8fb9853fb57fb3\",\"type\":3},\"ModeMinimumWidth\":104.0,\"ModeMaximumWidth\":1160.0,\"ModeHeight\":52.0,\"MapMinimumWidth\":264.0,\"MapMinimumHeight\":340.0,\"MapColumns\":3,\"LostAddressPreview\":{\"fileID\":21300000,\"guid\":\"f9cfc5143b0703541b5550308e070e80\",\"type\":3},\"ParcelHallPreview\":{\"fileID\":21300000,\"guid\":\"c8a37725225e2f84ca0dc74a3f2f3e52\",\"type\":3},\"ParcelServicePreview\":{\"fileID\":21300000,\"guid\":\"3f343fff6fee12944a8b67ba0644f96a\",\"type\":3},\"CombatArenaPreview\":{\"instanceID\":0},\"SoloMapMinimumHeight\":480.0,\"CompactMaximum\":{\"x\":1100.0,\"y\":600.0}}}",
+  "captureSha256": "e66d05ae0ac4d3a5379019782059549651d727ffb7c728fef55f276e73c05540"
+}

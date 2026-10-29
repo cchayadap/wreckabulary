@@ -1,0 +1,27 @@
+{
+  "status": "IMPORTED_REQUIRES_MENU_REVIEW",
+  "utc": "2026-10-29T03:45:54.2483687Z",
+  "recoveredRetainedImport": true,
+  "captureReceiptSha256": "e66d05ae0ac4d3a5379019782059549651d727ffb7c728fef55f276e73c05540",
+  "imagePath": "Assets/_Project/UI/Previews/Wordbound/ToyboxArena-20a36f9cf8c86f6a.png",
+  "imageSha256": "20a36f9cf8c86f6af801f586f16f4de4ef679dc902251ff944a6ee601d18dd6a",
+  "imageGuid": "5cd6c634cd5ab8c4e862017ae2d8b96f",
+  "layoutPath": "Assets/_Project/Resources/UI/LobbyPlayLayout.asset",
+  "layoutSha256": "3a9ea43e901b7e9819ce6054a5a180ef4a59798c985ceba875079edf9ed66091",
+  "layoutMetaSha256": "e1950c1cb906d70cf85c8592c4705fe0893e8170b04e1f19b83a39af980219c0",
+  "otherFieldsPreserved": true,
+  "backup": "BuildNotes/play-flow-20261029/arena-preview/native/20261029T033724Z-be0375ba/before-import",
+  "repairManifestSha256": "87358d84ae8f3465b06bbf4b39ad6b4c2993a24e7863259eb967ce0a5b2eb1b8",
+  "restoredOriginalSourceFingerprint": "dde72df90dd110ae3f84fb2fc29ed3036d28495a6536af55db0af0e88d5fbe26",
+  "currentSourceFingerprint": "1a5048b6fe567a11a3b92f6fc1da8cafa26ea22ae2894df6c78f6abb4712b2f0",
+  "exactOriginalLayoutLinesPreserved": true,
+  "schemaDefaultsMaterialized": [
+    "ModeMinimumWidth",
+    "ModeMaximumWidth",
+    "ModeHeight",
+    "MapMinimumWidth",
+    "MapMinimumHeight",
+    "MapColumns"
+  ],
+  "sceneVerification": "This verification is read-only and preserves its observed scene state. The failed import did not record its before-scene state, so that earlier scene state is not retroactively claimed."
+}

@@ -5,6 +5,22 @@ Goal: deliver the complete [approved plan](docs/wordbound/PLAN.md): a tested Win
 The owner's extension also requires online support for the original multiplayer house modes. The full production goal remains unfinished.
 Legend: `[ ]` unfinished; `[~]` partly implemented or not fully verified; `[x]` complete only within the stated evidence scope.
 
+## Resumed work — Play organization and Windows delivery
+
+James resumed implementation on 29 October. Keep the **modern neutral UI, vivid original artwork and restrained colour accents**, with no decorative stripes or character preview on Play. The earlier pause sections below are historical checkpoints.
+
+- [x] Preserve existing work before editing: tracked production is clean at01694968; verified recovery snapshot `.harness/recovery/developer-workspace-2026-10-29T02-46-17-862Z` contains3457 pending draft/evidence files plus tracked diff. No other team checkout is changed.
+- [x] Implement centered **Practice (Offline) / Matchmaking / Create** choices, direct concise offline modes immediately below, a uniform compatible-map gallery and one launch action. Remove redundant family selection; preserve internal mode/save/network identities. Matchmaking still opens its separate existing Wordbound scene. Native Play `033351` passes **76/76**, including short-window focus, fixed controls and exactly one Create selection; Windows visual review remains pending below.
+- [~] Use the same map presentation and shared map choices where gameplay supports them. Keep actual house/circuit/arena rules and offline/public/private capabilities accurate; do not imply that every map is admitted to every mode.
+- [x] Native Kitchen appliance checks030350 pass3/3: actual scale/collider fit, motor carry, wall-blocked and clear releases, throw settling, snapshots and HAMMER→own letters. Isolated encounter only; full map traversal and visual/holding-camera approval remain open. [Evidence](BuildNotes/play-flow-20261029/KITCHEN-PHYSICS.md).
+- [~] Native online/settings `033931` passes **35/35**, including compact layout, rendered pad focus, retry safety and lone-player co-op preflight. Inspect actual Windows captures next. Separate editable page prefabs, layout profiles and course entry scenes remain intact. These tests use fake transport and do not prove live matchmaking.
+- [ ] Produce a fresh source-matched Windows review build, run affected lobby/Solo/Workshop scenarios, audit the actual screenshots and update the try guide. Build001001 remains the current tested checkpoint until the replacement passes.
+- [ ] **BELT remains required:** detailed editable strap/buckle mesh and rig, grip, stable flexible swing, fair authoritative hit arc/reach/damage/recovery, held/drop/throw states, animation/skins/camera/remote checks and readable loadout presentation.
+- [ ] **Matching impact audio remains required:** distinct belt/bat/tool responses against glass, wood, metal, ceramic, stone and soft surfaces; separate swing/contact/break layers, damage-appropriate intensity, variation, network deduplication, spatial mix and volume settings, all in editable Unity profiles. Full criteria remain under Art/equipment and in the approved plan.
+- [ ] Continue remaining map richness/physics, full route, story/restoration, workshop rules/sharing, multiplayer/recovery, performance and human acceptance work. Do not label a review build production-ready before those checks pass.
+
+Current evidence and exact next steps: [Play-flow work](BuildNotes/play-flow-20261029/ROOT.md).
+
 ## Team / GitHub / Unity organization — 29 October
 
 - [x] Checked both GitHub repositories, open PRs/issues and live branch heads. James/ICY revisions are already ancestors of local integration. The pinned audit starts950 commits ahead of fork main; Wordbound integration has no published remote branch. PR14 remains open/mergeable, PR11 open/conflicting; neither represents the current expansion. No open issue assignments were returned for either repository. [Status and ownership](docs/wordbound/TEAM-WORKFLOW.md).
@@ -12,7 +28,7 @@ Legend: `[ ]` unfinished; `[~]` partly implemented or not fully verified; `[x]` 
 - [x] Saved four separate course entry scenes and local launch settings: Flagship, Freestyle, Parcel Service and Kitchen. Explicit **Wreckabulary → Course entries → Open … for Play** avoids the default Hub redirect. Home/Shop/Loadout/Play/Settings retain separate saved prefabs and direct preview actions. [Open/edit/test guide](docs/wordbound/SCENES-AND-TESTING.md).
 - [x] Focused Kitchen Rules012505PASS33/33; saved setup/preservation013053PASS7/7, and entry navigation013323PASS2/2 after distinguishing the batch runner's temporary scene from interactive unsaved owner work. Tests retain saved-byte/GUID/manual-edit and shared-source checks. Actual setup013411/013454PASS; all4306 original authored files unchanged. Repeat against the saved outputs is recorded in the [organization report](BuildNotes/team-organization-20261029/ROOT.md).
 - [x] Configured repository-local Unity Smart Merge; independent camera edits merged, a conflicting edit was rejected and the original scene remained unchanged. No global Git configuration or team branch was changed.
-- [~] This bounded organizational request does not resume the full art/audio/networking backlog. Kitchen physics, visual composition, full-course traversal and multiplayer acceptance remain unfinished. Current tested Windows build remains001001; the newly saved developer scenes are not in that build.
+- [~] At the organization checkpoint, broader work was still paused. It is now resumed above. Isolated Kitchen furniture physics now passes030350; full-map physics/traversal, visual composition and multiplayer acceptance remain unfinished. The saved developer scenes were not included in build001001.
 
 ## Earlier pause checkpoint — 29 October, 09:10 Hong Kong
 
@@ -25,7 +41,7 @@ This records the state at the pause. The organization results above supersede it
 - [x] Preserved uncommitted work in verified recovery snapshot `.harness/recovery/developer-workspace-2026-10-29T01-12-08-898Z` (3,453 files plus tracked binary diff). Existing originals and rejected candidates remain intact.
 - [ ] On resume: finish the focused Kitchen rules gate, run authoring preservation tests, create the separate saved assets/scene, then verify real furniture physics and matched room views. Continue the full production plan; do not discard the pending files or earlier evidence.
 
-The full development backlog remains paused following the later bounded organization request.
+That pause was superseded by James's latest Play/Windows implementation request above.
 
 ## Current visual correction — 29 October
 

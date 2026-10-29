@@ -6,6 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wreckabulary.Art;
+using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 using Wreckabulary.WordboundRuntime;
 using Object = UnityEngine.Object;
@@ -22,29 +23,40 @@ namespace Wreckabulary.Online.Editor
         readonly Scene scene;
         readonly List<WordboundVisualInstance> visuals = new List<WordboundVisualInstance>();
         bool disposed;
-        internal WordboundSoloPreviewStage(WordboundSoloPreviewSettings settings, string map)
+        internal WordboundSoloPreviewStage(WordboundSoloPreviewSettings settings, string map) : this(Installed(settings, map)) { }
+        WordboundSoloPreviewStage((IWordboundPuzzleContent Content, WordboundVisualProfile Profile, WordboundSoloPreviewPose Pose, string Label) input)
+            : this(input.Content.Course, input.Content.Geometry, input.Content.Items, input.Profile, input.Pose, input.Label)
+        { Content = input.Content; }
+        static (IWordboundPuzzleContent Content, WordboundVisualProfile Profile, WordboundSoloPreviewPose Pose, string Label) Installed(WordboundSoloPreviewSettings settings, string map)
         {
             settings.Validate();
             var data = Resources.Load<GameData>(GameData.ResourcePath);
             var launch = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
             if (!data || !data.items || !data.rules || !launch || !launch.VisualProfile) throw new InvalidOperationException("Installed Solo inputs are missing.");
-            Content = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, settings.Mode, settings.Seed, map, launch.ParcelServiceCourse);
-            var pose = settings.Pose(map);
-            Center = Metres(Content.Course.Geometry.Single(m => m.Id == pose.Module).Position);
+            var content = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, settings.Mode, settings.Seed, map, launch.ParcelServiceCourse);
+            var profile = map == WordboundSoloEntry.ParcelServiceMap && launch.ParcelServiceCourse.VisualProfile
+                ? launch.ParcelServiceCourse.VisualProfile : launch.VisualProfile;
+            return (content, profile, settings.Pose(map), map);
+        }
+        internal WordboundSoloPreviewStage(ResolvedCourse course, CourseCatalogue geometry, ItemCatalogue items,
+            WordboundVisualProfile visualProfile, WordboundSoloPreviewPose pose, string label)
+        {
+            if (course == null || geometry == null || items == null || pose == null)
+                throw new ArgumentException("Preview the exact resolved installed course, geometry, items and camera pose.");
+            pose.Validate();
+            Center = Metres(course.Geometry.Single(m => m.Id == pose.Module).Position);
             try
             {
                 Preview = new PreviewRenderUtility(); scene = Preview.camera.gameObject.scene;
                 if (!EditorSceneManager.IsPreviewScene(scene)) throw new InvalidOperationException("Expected an owned preview scene.");
-                root = EditorUtility.CreateGameObjectWithHideFlags("Installed Solo thumbnail " + map, HideFlags.HideAndDontSave);
+                root = EditorUtility.CreateGameObjectWithHideFlags("Installed course thumbnail " + label, HideFlags.HideAndDontSave);
                 SceneManager.MoveGameObjectToScene(root, scene);
-                var visualProfile = map == WordboundSoloEntry.ParcelServiceMap && launch.ParcelServiceCourse.VisualProfile
-                    ? launch.ParcelServiceCourse.VisualProfile : launch.VisualProfile;
-                World = WordboundCourseWorld.Build(Content.Course, Content.Geometry, root.transform,
+                World = WordboundCourseWorld.Build(course, geometry, root.transform,
                     new WordboundCourseWorldOptions { RoomStyle = visualProfile ? visualProfile.RoomStyle : null, ModuleDressing = visualProfile ? visualProfile.ModuleDressing : null });
-                var resolver = new WordboundVisualResolver(Content.Items, profile: visualProfile);
-                foreach (var placement in Content.Course.Placements)
+                var resolver = new WordboundVisualResolver(items, profile: visualProfile);
+                foreach (var placement in course.Placements)
                 {
-                    var definition = Content.Geometry.Assets[placement.AssetId];
+                    var definition = geometry.Assets[placement.AssetId];
                     var anchor = new GameObject("Preview prop " + placement.Id).transform;
                     anchor.SetParent(root.transform, false); anchor.localPosition = Metres(placement.Position);
                     anchor.localRotation = Quaternion.Euler(0, placement.Yaw, 0);

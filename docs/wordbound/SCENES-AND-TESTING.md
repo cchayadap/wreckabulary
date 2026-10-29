@@ -61,4 +61,4 @@ Studios are design/review scenes. Assign an approved prefab/profile variant to t
 
 ## Checks and limits
 
-The dated report records actual setup, repeat/edit-preservation, reference and entry tests. Human Save/Cancel dialog behavior, keyboard/controller use, visual quality, complete route traversal, multiplayer and production release acceptance remain distinct checks. Kitchen physics and richer artwork are still unfinished. The current Windows review build remains001001 until a new build is explicitly verified.
+The dated report records actual setup, repeat/edit-preservation, reference and entry tests. Human Save/Cancel dialog behavior, keyboard/controller use, visual quality, complete route traversal, multiplayer and production release acceptance remain distinct checks. Isolated Kitchen furniture physics passes030350; full-map traversal/physics and richer artwork remain unfinished. The current Windows review build remains001001 until a new build is explicitly verified.
