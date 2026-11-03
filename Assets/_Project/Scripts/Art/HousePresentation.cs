@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>Paint, surface detail and daylight only; authored room transforms and colliders stay intact.</summary>
     public sealed class HousePresentation : MonoBehaviour
     {
         static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
@@ -66,7 +65,6 @@ namespace Wreckabulary.Art
             if (camera && camera.gameObject.scene == SceneManager.GetActiveScene()) camera.backgroundColor = new Color(.10f, .23f, .24f);
         }
 
-        /// <summary>Call after the editor has replaced generated mesh references with persistent asset copies.</summary>
         public void MarkAuthored()
         {
             authored = true;

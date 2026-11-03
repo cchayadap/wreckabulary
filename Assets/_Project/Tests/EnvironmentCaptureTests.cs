@@ -15,7 +15,6 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Explicit native frames of saved worlds through the actual runtime lighting and camera.</summary>
     [Explicit, Category("EnvironmentCapture")]
     public sealed class EnvironmentCaptureTests
     {
@@ -284,7 +283,6 @@ namespace Wreckabulary.Tests
             Debug.Log("[EnvironmentCapture] " + file);
         }
 
-        /// <summary>Creates only this fixture's resolutions and removes them after restoring the editor selection.</summary>
         sealed class GameViewScope : IDisposable
         {
             const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;

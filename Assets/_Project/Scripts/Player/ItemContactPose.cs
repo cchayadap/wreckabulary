@@ -3,7 +3,6 @@ using Wreckabulary.Art;
 
 namespace Wreckabulary
 {
-    /// <summary>Cosmetic two-bone contact adjustment layered after imported animation. It never changes hit or use timing.</summary>
     sealed class ItemContactPose
     {
         readonly Transform shoulder, elbow, wrist, grip;

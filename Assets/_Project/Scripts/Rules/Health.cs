@@ -4,7 +4,7 @@ namespace Wreckabulary.Rules
 {
     public enum LifeState { Alive, Downed, Eliminated }
 
-    public enum HitSource { Unarmed, Melee, Thrown, Explosion, Hazard }
+    public enum HitSource { Unarmed, Melee, Thrown, Explosion, Hazard, Bleed }
 
     public struct HitInfo
     {

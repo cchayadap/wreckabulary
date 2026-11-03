@@ -22,21 +22,29 @@ namespace Wreckabulary.Workshop
         readonly List<string> routePuzzles = new List<string>(), routeConnections = new List<string>(),
             routeCheckpoints = new List<string>(), routeSections = new List<string>(), routeAfter = new List<string>();
 
+        static readonly int[] RouteOrder = { 4, 1, 2, 3, 0 };
+        static readonly string[] RouteTabs = { "Start points", "Checkpoints", "Paths", "Laps", "Safe-return points" };
+
         void RouteInspector()
         {
-            GUILayout.Space(12);
-            routesExpanded = GUILayout.Toggle(routesExpanded, "Routes & checkpoints", heading);
-            if (!routesExpanded) return;
+            GUILayout.Space(4);
+            bool race = RaceSelected;
+            if (!Section("routes", race ? "Start & finish" : "Start points", ref routesExpanded)) return;
             GUILayout.BeginVertical();
-            int next = RouteNavigation(routeTab, new[] { "Safe", "Stops", "Routes", "Laps", "Spawns" }, 2);
-            if (Event.current.type == EventType.Repaint) routeTabsRect = GUILayoutUtility.GetLastRect();
-            if (next != routeTab) { routeTab = next; routeLoadKey = ""; }
-            if (routeTab < 2)
-                routeModule = RouteChoice("Module", routeModule, display.Modules.Select(m => m.Id));
-            if (routeTab == 0) RecoveryRoutePanel();
-            else if (routeTab == 1) CheckpointRoutePanel();
-            else if (routeTab == 2) SectionRoutePanel();
-            else if (routeTab == 3) LapRoutePanel();
+            int tab = race ? routeTab : 4;
+            if (race)
+            {
+                int shown = RouteNavigation(Math.Max(0, Array.IndexOf(RouteOrder, routeTab)), RouteTabs, 2);
+                if (Event.current.type == EventType.Repaint) routeTabsRect = GUILayoutUtility.GetLastRect();
+                if (RouteOrder[shown] != routeTab) { routeTab = RouteOrder[shown]; routeLoadKey = ""; routeChoiceOpen = ""; }
+                tab = routeTab;
+            }
+            if (tab < 2)
+                routeModule = RouteChoice("Room", routeModule, display.Modules.Select(m => m.Id));
+            if (tab == 0) RecoveryRoutePanel();
+            else if (tab == 1) CheckpointRoutePanel();
+            else if (tab == 2) SectionRoutePanel();
+            else if (tab == 3) LapRoutePanel();
             else SpawnRoutePanel();
             GUILayout.EndVertical();
             if (Event.current.type == EventType.Repaint) routeContentRect = GUILayoutUtility.GetLastRect();
@@ -45,7 +53,7 @@ namespace Wreckabulary.Workshop
         int RouteNavigation(int selected, string[] labels, int maximum)
         {
             int columns = InspectorColumns(labels, maximum);
-            return GUILayout.SelectionGrid(selected, labels, columns,
+            return GUILayout.SelectionGrid(selected, labels, columns, GUILayout.Width(RowWidth),
                 GUILayout.MinHeight(ui.RowHeight * Mathf.CeilToInt((float)labels.Length / columns)));
         }
 
@@ -60,26 +68,27 @@ namespace Wreckabulary.Workshop
 
         void RecoveryRoutePanel()
         {
-            routeRecovery = RouteChoice("Recovery anchor", routeRecovery,
+            GUILayout.Label("Players who fall or get stuck come back to a safe-return point.", ui.Wrapped, GUILayout.Width(RowWidth));
+            routeRecovery = RouteChoice("Safe-return point", routeRecovery,
                 display.RecoveryAnchors.Where(r => r.ModuleId == routeModule).Select(r => r.Id));
-            if (Button("Add recovery at module centre"))
-                Edit("Add recovery anchor", draft =>
+            if (WideButton("Add safe-return point at room centre"))
+                Edit("Add safe-return point", draft =>
                 {
                     var module = draft.Course.Modules.SingleOrDefault(m => m.Id == routeModule)
-                        ?? throw new ArgumentException("Choose a module first.");
+                        ?? throw new ArgumentException("Choose a room first.");
                     routeRecovery = WorkshopRoutes.AddRecovery(draft, Catalogue, module.Id, module.Position);
                 });
             var value = display.RecoveryAnchors.FirstOrDefault(r => r.Id == routeRecovery && r.ModuleId == routeModule);
-            if (value == null) { GUILayout.Label("Choose an anchor to edit its safe return position.", ui.Wrapped); return; }
+            if (value == null) { GUILayout.Label("Choose a safe-return point to edit it.", ui.Wrapped, GUILayout.Width(RowWidth)); return; }
             LoadRecoveryRoute(value);
-            routeX = Field("X m", routeX); routeY = Field("Y m", routeY); routeZ = Field("Z m", routeZ);
-            routeRadius = Field("Safe radius m", routeRadius);
+            Triple("Position m", "Safe-return point", ref routeX, ref routeY, ref routeZ, GridMetres, .1);
+            routeRadius = Field("Radius m", routeRadius, .25, .05, "Safe radius m", .5, 5);
             RouteReferences("Available after puzzles", routeAfter, display.Puzzles.Select(p => p.Id), false);
-            if (Button("Apply recovery anchor"))
-                Edit("Edit recovery anchor", draft => WorkshopRoutes.SetRecovery(draft, Catalogue, value.Id,
+            if (WideButton("Apply safe-return point"))
+                Edit("Edit safe-return point", draft => WorkshopRoutes.SetRecovery(draft, Catalogue, value.Id,
                     new CoursePoint(Millimetres(routeX), Millimetres(routeY), Millimetres(routeZ)), Millimetres(routeRadius), routeAfter));
-            if (Button("Delete unused recovery anchor"))
-                Edit("Delete recovery anchor", draft => WorkshopRoutes.DeleteRecovery(draft, value.Id));
+            if (WideButton("Delete unused safe-return point"))
+                Edit("Delete safe-return point", draft => WorkshopRoutes.DeleteRecovery(draft, value.Id));
         }
 
         void LoadRecoveryRoute(CourseRecovery value)
@@ -91,7 +100,7 @@ namespace Wreckabulary.Workshop
 
         void SpawnRoutePanel()
         {
-            routeSpawn = RouteChoice("Spawn anchor", routeSpawn, display.Spawns.Select(s => s.Id));
+            routeSpawn = RouteChoice("Start point", routeSpawn, display.Spawns.Select(s => s.Id));
             var value = display.Spawns.FirstOrDefault(s => s.Id == routeSpawn);
             if (ReloadRoute("spawn/" + (value?.Id ?? "")))
             {
@@ -100,18 +109,19 @@ namespace Wreckabulary.Workshop
                 var at = value?.Position ?? default;
                 routeX = Metres(at.X); routeY = Metres(at.Y); routeZ = Metres(at.Z);
             }
-            routeSpawnModule = RouteChoice("Spawn module", routeSpawnModule, display.Modules.Select(m => m.Id));
-            routeSpawnKind = GUILayout.Toolbar(routeSpawnKind, new[] { "Start", "Respawn" });
-            if (Button("Use selected module centre"))
+            routeSpawnModule = RouteChoice("Room", routeSpawnModule, display.Modules.Select(m => m.Id));
+            routeSpawnKind = GUILayout.Toolbar(routeSpawnKind, new[] { "Start point", "Respawn point" }, GUILayout.Width(RowWidth));
+            if (WideButton("Use room centre"))
             {
                 var module = display.Modules.FirstOrDefault(m => m.Id == routeSpawnModule);
-                if (module == null) status = "Choose a spawn module first.";
+                if (module == null) status = "Choose a room first.";
                 else { routeX = Metres(module.Position.X); routeY = Metres(module.Position.Y); routeZ = Metres(module.Position.Z); }
             }
-            routeX = Field("X m", routeX); routeY = Field("Y m", routeY); routeZ = Field("Z m", routeZ);
+            Triple("Position m", "Spawn", ref routeX, ref routeY, ref routeZ, GridMetres, .1);
             routeSpawnYaw = RouteNavigation(routeSpawnYaw, new[] { "0°", "90°", "180°", "270°" }, 4);
-            if (Button(value == null ? "Add spawn anchor" : "Apply spawn anchor"))
-                Edit(value == null ? "Add spawn anchor" : "Edit spawn anchor", draft =>
+            string kindLabel = routeSpawnKind == 0 ? "start point" : "respawn point";
+            if (WideButton(value == null ? "Add " + kindLabel : "Apply " + kindLabel))
+                Edit(value == null ? "Add " + kindLabel : "Edit " + kindLabel, draft =>
                 {
                     var at = new CoursePoint(Millimetres(routeX), Millimetres(routeY), Millimetres(routeZ));
                     string kind = routeSpawnKind == 0 ? "Start" : "Respawn";
@@ -120,15 +130,16 @@ namespace Wreckabulary.Workshop
                 });
             if (value != null)
             {
-                if (Button("New spawn anchor")) { routeSpawn = ""; routeLoadKey = ""; }
-                if (Button("Delete spawn anchor")) Edit("Delete spawn anchor", draft => WorkshopRoutes.DeleteSpawn(draft, value.Id));
+                if (WideButton("New point")) { routeSpawn = ""; routeLoadKey = ""; }
+                if (WideButton("Delete " + (value.Kind == "Respawn" ? "respawn point" : "start point")))
+                    Edit("Delete point", draft => WorkshopRoutes.DeleteSpawn(draft, value.Id));
             }
-            GUILayout.Label("Start anchors: " + display.Spawns.Count(s => s.Kind == "Start") + " / " +
-                PlayRequirements.MaxOccupants + " required", ui.Wrapped);
+            GUILayout.Label("Start points: " + display.Spawns.Count(s => s.Kind == "Start") + " of " +
+                PlayRequirements.MaxOccupants + " needed", ui.Wrapped, GUILayout.Width(RowWidth));
             if (PlayRequirements.Capability == CourseCapability.Arena)
-                GUILayout.Label("Respawn anchors: " + display.Spawns.Count(s => s.Kind == "Respawn") + " / " +
-                    PlayRequirements.MaxOccupants + " required", ui.Wrapped);
-            GUILayout.Label("Keep 0.5 m clearance and 1 m between anchors of the same kind. Player/team allocation follows the selected mode; validation checks capacity.", ui.Wrapped);
+                GUILayout.Label("Respawn points: " + display.Spawns.Count(s => s.Kind == "Respawn") + " of " +
+                    PlayRequirements.MaxOccupants + " needed", ui.Wrapped, GUILayout.Width(RowWidth));
+            GUILayout.Label("Keep points 1 m apart and 0.5 m from walls. Players are placed by the chosen mode.", ui.Wrapped, GUILayout.Width(RowWidth));
         }
 
         void CheckpointRoutePanel()
@@ -141,11 +152,11 @@ namespace Wreckabulary.Workshop
                 routeAnchor = value?.RecoveryAnchorId ?? ""; routeArrival = value?.EntryConnectionId ?? "";
                 ReplaceRouteList(routePuzzles, value?.PuzzleIds ?? Enumerable.Empty<string>());
             }
-            routeAnchor = RouteChoice("Safe return anchor", routeAnchor, display.RecoveryAnchors.Select(r => r.Id));
-            routeArrival = RouteChoice("Arrival connection", routeArrival,
+            routeAnchor = RouteChoice("Safe-return point", routeAnchor, display.RecoveryAnchors.Select(r => r.Id));
+            routeArrival = RouteChoice("Arrives through", routeArrival,
                 display.Connections.Where(c => c.ToModuleId == routeModule || c.Bidirectional && c.FromModuleId == routeModule).Select(c => c.Id), "Any arrival");
             RouteReferences("Required puzzles in order", routePuzzles, display.Puzzles.Select(p => p.Id), true);
-            if (Button(value == null ? "Add checkpoint" : "Apply checkpoint"))
+            if (WideButton(value == null ? "Add checkpoint" : "Apply checkpoint"))
                 Edit(value == null ? "Add checkpoint" : "Edit checkpoint", draft =>
                 {
                     if (value == null) routeCheckpoint = WorkshopRoutes.AddCheckpoint(draft, routeModule, routeAnchor, routeArrival, routePuzzles);
@@ -153,17 +164,17 @@ namespace Wreckabulary.Workshop
                 });
             if (value != null)
             {
-                if (Button("New checkpoint on this module")) { routeCheckpoint = ""; routeLoadKey = ""; }
-                GUILayout.Label("Deleting removes this stop from every branch. Linked physical controls must be moved or deleted first.", ui.Wrapped);
-                if (Button("Delete checkpoint from all routes"))
-                    Edit("Delete checkpoint from all routes", draft => WorkshopRoutes.DeleteCheckpointFromRoutes(draft, value.Id));
+                if (WideButton("New checkpoint in this room")) { routeCheckpoint = ""; routeLoadKey = ""; }
+                GUILayout.Label("Deleting removes this checkpoint from every path. Move or delete its puzzle parts first.", ui.Wrapped, GUILayout.Width(RowWidth));
+                if (WideButton("Delete checkpoint from all paths"))
+                    Edit("Delete checkpoint from all paths", draft => WorkshopRoutes.DeleteCheckpointFromRoutes(draft, value.Id));
             }
-            GUILayout.Label("Create objectives in Puzzles, then link them here before adding controls.", ui.Wrapped);
+            GUILayout.Label("Make puzzles in Fill, then link them here before adding their parts.", ui.Wrapped, GUILayout.Width(RowWidth));
         }
 
         void SectionRoutePanel()
         {
-            routeSection = RouteChoice("Route section", routeSection, display.RouteSections.Select(s => s.Id));
+            routeSection = RouteChoice("Path", routeSection, display.RouteSections.Select(s => s.Id));
             var section = display.RouteSections.FirstOrDefault(s => s.Id == routeSection);
             if (ReloadRoute("section/" + (section?.Id ?? "")))
             {
@@ -171,18 +182,18 @@ namespace Wreckabulary.Workshop
                 if (section == null || !section.Alternatives.Any(a => a.Id == routeBranch)) routeBranch = "";
                 routeBranchLoadRevision = -1; routeConnections.Clear(); routeCheckpoints.Clear();
             }
-            routeEntry = RouteChoice("Route start", routeEntry, display.Modules.Select(m => m.Id));
-            routeExit = RouteChoice("Route finish", routeExit, display.Modules.Select(m => m.Id));
-            if (Button(section == null ? "Add route + first branch" : "Apply route endpoints"))
-                Edit(section == null ? "Add route section" : "Edit route endpoints", draft =>
+            routeEntry = RouteChoice("Path start", routeEntry, display.Modules.Select(m => m.Id));
+            routeExit = RouteChoice("Path end", routeExit, display.Modules.Select(m => m.Id));
+            if (WideButton(section == null ? "Add path" : "Apply path ends"))
+                Edit(section == null ? "Add path" : "Edit path ends", draft =>
                 {
                     if (section == null) routeSection = WorkshopRoutes.AddSection(draft, routeEntry, routeExit);
                     else WorkshopRoutes.SetSectionEndpoints(draft, section.Id, routeEntry, routeExit);
                 });
             if (section == null) return;
-            if (Button("New route section")) { routeSection = ""; routeLoadKey = ""; return; }
+            if (WideButton("New path")) { routeSection = ""; routeLoadKey = ""; return; }
             string previous = routeBranch;
-            routeBranch = RouteChoice("Branch", routeBranch, section.Alternatives.Select(a => a.Id));
+            routeBranch = RouteChoice("Alternative", routeBranch, section.Alternatives.Select(a => a.Id));
             var branch = section.Alternatives.FirstOrDefault(a => a.Id == routeBranch);
             if (previous != routeBranch || routeBranchLoadRevision != History.Revision || routeBranchLoadId != routeBranch)
             {
@@ -191,26 +202,26 @@ namespace Wreckabulary.Workshop
                 ReplaceRouteList(routeCheckpoints, branch?.CheckpointIds ?? Enumerable.Empty<string>());
                 routeWeight = (branch?.Weight ?? 1).ToString(CultureInfo.InvariantCulture);
             }
-            if (Button("Add weighted branch"))
-                Edit("Add weighted branch", draft => routeBranch = WorkshopRoutes.AddAlternative(draft, section.Id));
+            if (WideButton("Add alternative path"))
+                Edit("Add alternative path", draft => routeBranch = WorkshopRoutes.AddAlternative(draft, section.Id));
             if (branch != null)
             {
-                GUILayout.Label("One branch is selected per section and lap by the seed. Larger weights are more likely.", ui.Wrapped);
-                routeWeight = Field("Relative weight", routeWeight);
+                GUILayout.Label("Each lap takes one alternative, picked by the layout. Bigger weights are picked more often.", ui.Wrapped, GUILayout.Width(RowWidth));
+                if (section.Alternatives.Count > 1) routeWeight = Field("Weight", routeWeight, 1, 1, "Relative weight", 1, 10000);
                 RouteReferences("Connections in travel order", routeConnections, display.Connections.Select(c => c.Id), true);
                 DrawRouteDirections(section.EntryModuleId);
                 RouteReferences("Checkpoints in travel order", routeCheckpoints, display.Checkpoints.Select(c => c.Id), true);
-                if (Button("Apply branch"))
-                    Edit("Edit route branch", draft => WorkshopRoutes.SetAlternative(draft, section.Id, branch.Id,
+                if (WideButton("Apply alternative path"))
+                    Edit("Edit alternative path", draft => WorkshopRoutes.SetAlternative(draft, section.Id, branch.Id,
                         routeConnections, routeCheckpoints, int.Parse(routeWeight, CultureInfo.InvariantCulture)));
-                if (Button("Delete branch"))
-                    Edit("Delete branch", draft => WorkshopRoutes.DeleteAlternative(draft, section.Id, branch.Id));
+                if (WideButton("Delete alternative path"))
+                    Edit("Delete alternative path", draft => WorkshopRoutes.DeleteAlternative(draft, section.Id, branch.Id));
             }
-            GUILayout.Label("Reverse affects every branch. Repair checkpoint arrivals explicitly, then review gate order and linked lap endpoints.", ui.Wrapped);
-            if (Button("Reverse saved route"))
-                Edit("Reverse route; review gates and laps", draft => WorkshopRoutes.ReverseSection(draft, section.Id));
-            if (Button("Delete route from all laps"))
-                Edit("Delete route from all laps", draft => WorkshopRoutes.DeleteSectionFromLaps(draft, section.Id));
+            GUILayout.Label("Reversing changes every alternative. Then check checkpoint arrivals, door order and lap ends.", ui.Wrapped, GUILayout.Width(RowWidth));
+            if (WideButton("Reverse path"))
+                Edit("Reverse path; check doors and laps", draft => WorkshopRoutes.ReverseSection(draft, section.Id));
+            if (WideButton("Delete path from all laps"))
+                Edit("Delete path from all laps", draft => WorkshopRoutes.DeleteSectionFromLaps(draft, section.Id));
         }
 
         int routeBranchLoadRevision = -1;
@@ -222,12 +233,12 @@ namespace Wreckabulary.Workshop
             foreach (string id in routeConnections)
             {
                 var edge = display.Connections.FirstOrDefault(c => c.Id == id);
-                if (edge == null) { GUILayout.Label(id + " · missing connection", ui.Wrapped); break; }
+                if (edge == null) { GUILayout.Label(id + " · missing connection", ui.Wrapped, GUILayout.Width(RowWidth)); break; }
                 bool forward = edge.FromModuleId == current;
                 bool reverse = edge.Bidirectional && edge.ToModuleId == current;
-                if (!forward && !reverse) { GUILayout.Label(id + " · cannot continue from " + current, ui.Wrapped); break; }
+                if (!forward && !reverse) { GUILayout.Label(ReferenceCaptionFor("connection", id) + " · cannot continue from " + RoomCaption(current), ui.Wrapped, GUILayout.Width(RowWidth)); break; }
                 string next = forward ? edge.ToModuleId : edge.FromModuleId;
-                GUILayout.Label(RoomCaption(current) + " → " + RoomCaption(next) + (forward ? " · forward" : " · reverse"), ui.Wrapped);
+                GUILayout.Label(RoomCaption(current) + " → " + RoomCaption(next) + (forward ? " · forward" : " · reverse"), ui.Wrapped, GUILayout.Width(RowWidth));
                 current = next;
             }
         }
@@ -243,30 +254,30 @@ namespace Wreckabulary.Workshop
             }
             routeEntry = RouteChoice("Lap start", routeEntry, display.Modules.Select(m => m.Id));
             routeExit = RouteChoice("Lap finish", routeExit, display.Modules.Select(m => m.Id));
-            routeStory = RouteChoice("Lap story", routeStory, Catalogue.NarrativeEvents);
-            RouteReferences("Route sections in order", routeSections, display.RouteSections.Select(s => s.Id), true);
-            if (Button(value == null ? "Add lap" : "Apply lap"))
+            routeStory = RouteChoice("Lap message", routeStory, Catalogue.NarrativeEvents);
+            RouteReferences("Paths in order", routeSections, display.RouteSections.Select(s => s.Id), true);
+            if (WideButton(value == null ? "Add lap" : "Apply lap"))
                 Edit("Save lap " + routeLap, draft => WorkshopRoutes.SetLap(draft, Catalogue, routeLap,
                     routeEntry, routeExit, routeStory, routeSections));
-            if (value != null && Button("Delete lap"))
+            if (value != null && WideButton("Delete lap"))
                 Edit("Delete lap " + routeLap, draft => WorkshopRoutes.DeleteLap(draft, routeLap));
-            GUILayout.Label("Race courses require all three laps. Each lap starts at the preceding finish and ends with an ordered checkpoint.", ui.Wrapped);
+            GUILayout.Label("Races need all three laps. Each lap starts where the last one finished and ends at a checkpoint.", ui.Wrapped, GUILayout.Width(RowWidth));
         }
 
         static void ReplaceRouteList(List<string> target, IEnumerable<string> source) { target.Clear(); target.AddRange(source); }
 
         void RouteReferences(string label, List<string> selected, IEnumerable<string> available, bool ordered)
         {
-            GUILayout.Label(label, ui.Wrapped);
+            GUILayout.Label(label, ui.Wrapped, GUILayout.Width(RowWidth));
             for (int i = 0; i < selected.Count; i++)
             {
-                GUILayout.BeginHorizontal();
+                GUILayout.BeginHorizontal(GUILayout.Width(RowWidth));
                 GUILayout.Label((ordered ? (i + 1) + ". " : "") + ReferenceCaptionFor(ReferenceKind(label), selected[i]), ui.Wrapped, GUILayout.ExpandWidth(true));
-                if (ordered && i > 0 && Button("↑", "Move " + selected[i] + " earlier"))
+                if (ordered && i > 0 && Button("↑", "Move earlier", ui.RowHeight))
                 { string value = selected[i]; selected[i] = selected[i - 1]; selected[i - 1] = value; }
-                if (ordered && i < selected.Count - 1 && Button("↓", "Move " + selected[i] + " later"))
+                if (ordered && i < selected.Count - 1 && Button("↓", "Move later", ui.RowHeight))
                 { string value = selected[i]; selected[i] = selected[i + 1]; selected[i + 1] = value; }
-                bool remove = Button("×", "Remove " + selected[i] + " from this list");
+                bool remove = Button("×", "Remove from this list", ui.RowHeight);
                 GUILayout.EndHorizontal();
                 if (remove) { selected.RemoveAt(i); i--; }
             }
@@ -277,15 +288,14 @@ namespace Wreckabulary.Workshop
         string RouteChoice(string label, string current, IEnumerable<string> available, string emptyChoice = null)
         {
             var values = available.Distinct(StringComparer.Ordinal).ToArray();
-            GUILayout.Label(label, ui.Wrapped);
-            if (InspectorChoiceButton(label, "open", (current.Length == 0 ? emptyChoice ?? "Choose…" : ReferenceCaptionFor(ReferenceKind(label), current)) + " ▾"))
+            if (ChoiceRow(label, (current.Length == 0 ? emptyChoice ?? "Choose…" : ReferenceCaptionFor(ReferenceKind(label), current)) + " ▾"))
             { routeChoiceOpen = routeChoiceOpen == label ? "" : label; routeChoiceSearch = ""; }
             if (routeChoiceOpen != label) return current;
-            if (emptyChoice != null && Button(emptyChoice)) { routeChoiceOpen = ""; return ""; }
-            if (values.Length > 8) routeChoiceSearch = Field("Find " + label.ToLowerInvariant(), routeChoiceSearch);
+            if (emptyChoice != null && InspectorChoiceButton(label, "none", emptyChoice)) { routeChoiceOpen = ""; return ""; }
+            if (values.Length > 8) routeChoiceSearch = Field("Find", routeChoiceSearch, name: "Find " + label.ToLowerInvariant());
             foreach (string id in values.Where(id => ChoiceMatches(id, ReferenceCaptionFor(ReferenceKind(label), id), routeChoiceSearch)))
                 if (InspectorChoiceButton(label, id, ReferenceCaptionFor(ReferenceKind(label), id))) { routeChoiceOpen = ""; return id; }
-            if (values.Length == 0) GUILayout.Label("Add an authored source first.", ui.Wrapped);
+            if (values.Length == 0) GUILayout.Label("Nothing to choose yet.", ui.Wrapped, GUILayout.Width(RowWidth));
             return current;
         }
     }

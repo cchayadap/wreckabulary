@@ -59,6 +59,52 @@ namespace Wreckabulary.Tests
             Assert.Less(Quaternion.Angle(restRotation, art.localRotation), .01f);
             Assert.AreEqual(1, reused.GetComponents<LetterPickupView>().Length);
         }
+
+        sealed class Roommate : InputBinding
+        {
+            public override string Id => "letter-view-roommate";
+            public override void Read(ref PlayerCommands commands) { }
+            public override bool JoinPressed() => false;
+            public override bool StartPressed() => false;
+        }
+
+        [UnityTest]
+        public IEnumerator PartyCameraStandsUpLettersBesideRoommatesWithALegibleHalo()
+        {
+            var camera = new GameObject("Party camera").AddComponent<Camera>();
+            camera.tag = "MainCamera";
+            camera.orthographic = true;
+            camera.orthographicSize = 10f;
+            camera.transform.position = new Vector3(0f, 30f, -22f);
+            camera.transform.LookAt(Vector3.zero);
+            var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            ground.transform.position = Vector3.down * .5f;
+            ground.transform.localScale = new Vector3(80f, 1f, 80f);
+            var player = Object.Instantiate(GameAssets.I.playerPrefab, Vector3.zero, Quaternion.identity);
+            player.Setup(0, new Roommate());
+            player.Respawn(Vector3.zero);
+            player.Inventory.Collects = false;
+            var tile = TilePool.Ensure().Get('A');
+            tile.Body.isKinematic = true;
+            tile.transform.position = new Vector3(2f, .1f, 0f);
+            var art = tile.transform.Find("ImportedTile");
+            var rest = art.localPosition;
+            var halo = tile.transform.Find("Letter rarity halo").GetComponent<LineRenderer>();
+            Assert.Greater(Vector3.Distance(camera.transform.position, tile.transform.position), 30f);
+            Assert.Greater(LetterPickupView.ViewScale(camera, tile.transform.position), 2f);
+
+            yield return new WaitForSeconds(.8f);
+            Assert.Greater(art.position.y, tile.transform.position.y + .04f, "A letter beside a roommate stands up for the far party camera.");
+            Assert.IsTrue(halo.enabled);
+            Assert.Greater(halo.startWidth, .016f * 2f, "The halo widens with the camera distance so it stays legible.");
+
+            player.Respawn(new Vector3(30f, 0f, 0f));
+            yield return new WaitForSeconds(.4f);
+            Assert.Greater(Vector3.Distance(player.transform.position, tile.transform.position), 10f);
+            Assert.AreEqual(rest, art.localPosition, "Letters far from every roommate lie flat again.");
+            Assert.IsFalse(halo.enabled);
+            Object.Destroy(player.gameObject);
+        }
     }
 
     [DefaultExecutionOrder(1000)]

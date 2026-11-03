@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>Identifies saved seasonal decoration; no runtime rebuild or lobby-theme subscription.</summary>
     [DisallowMultipleComponent]
     public sealed class SeasonalRoomDressing : MonoBehaviour
     {

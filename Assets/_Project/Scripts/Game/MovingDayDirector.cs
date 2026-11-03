@@ -8,11 +8,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Co-op "Moving Day": boxes labelled with the checklist arrive at the front door. Smash them for
-    /// the letters, spell each item to build it, and put it in the right room before time runs out.
-    /// Stars depend on how much time is left. 1–4 roommates.
-    /// </summary>
     public class MovingDayDirector : MonoBehaviour
     {
         [Serializable]
@@ -61,6 +56,9 @@ namespace Wreckabulary
         List<WordEntry> checklistWords = new();
         float stateStarted, nextCheck, nextResupply, nextSpill;
         readonly StringBuilder sb = new();
+        string checklist;
+        int checklistLevel = -1, checklistLeft = -1;
+        bool checklistHouse;
         const float DeliveryGap = 1.2f;
         RoomBuilder layoutBuilder;
 
@@ -74,7 +72,6 @@ namespace Wreckabulary
         public IReadOnlyList<Room> Rooms => rooms;
         public Room RoomNamed(string name) => rooms.First(r => r.name == name);
 
-        /// <summary>Called by the scene builder.</summary>
         public void Configure(Room[] newRooms, Level[] newLevels)
         {
             rooms = newRooms;
@@ -132,7 +129,6 @@ namespace Wreckabulary
 
             remaining.Clear();
             remaining.AddRange(CurrentLevel.items);
-            // Each word only once, even if the checklist wants two of something.
             checklistWords = CurrentLevel.items.Select(i => i.word.ToUpperInvariant()).Distinct()
                 .Select(w => new WordEntry { word = w, category = WordCategory.Furniture }).ToList();
 
@@ -187,7 +183,7 @@ namespace Wreckabulary
             }
 
             hud.SetTimer(Current == State.Playing || Current == State.Countdown ? FormatTime(TimeLeft) : "");
-            hud.SetChecklist(ChecklistText());
+            hud.SetChecklist(Checklist());
             hud.SetInstruction(joins.Players.Count == 0 ? ControlHints.Join("join") : "", "");
             hud.SetScoreboard(joins.Players, _ => 0, 0, false);
         }
@@ -198,7 +194,6 @@ namespace Wreckabulary
             hud.ShowGo();
             hud.Toast("Spell the checklist furniture and put each piece in its room.");
             foreach (var p in joins.Players) p.Frozen = false;
-            // Don't resupply until the first round of boxes has arrived.
             nextResupply = Time.time + CurrentLevel.items.Length * DeliveryGap + 3f;
             StartCoroutine(DeliverAll());
         }
@@ -218,7 +213,6 @@ namespace Wreckabulary
             DeliverySpawner.CreateBox(word, deliverySpot.position + spread + Vector3.up * deliveryDrop);
         }
 
-        /// <summary>Anything built, at rest, and inside its room gets ticked off and locked in place.</summary>
         void CheckPlacements()
         {
             if (Time.time < nextCheck) return;
@@ -242,7 +236,6 @@ namespace Wreckabulary
             }
         }
 
-        /// <summary>If an item can't be made any more (letters lost, spent or broken), send its box again.</summary>
         void Resupply()
         {
             if (Time.time < nextResupply) return;
@@ -324,17 +317,39 @@ namespace Wreckabulary
             hud.ShowResult(HudResult.Of(1, true, false, "The truck is leaving. Try a faster route!", MatchTally.Finish(false)), Retry);
         }
 
+        string Checklist()
+        {
+            bool house = layoutBuilder && layoutBuilder.Layout != null;
+            if (checklist == null || checklistLevel != LevelIndex || checklistLeft != remaining.Count || checklistHouse != house)
+            {
+                checklist = ChecklistText();
+                checklistLevel = LevelIndex; checklistLeft = remaining.Count; checklistHouse = house;
+            }
+            return checklist;
+        }
+
         string ChecklistText()
         {
             sb.Clear();
             sb.Append("<b>CHECKLIST</b>\n<size=75%>Level ").Append(LevelIndex + 1).Append(": ").Append(CurrentLevel.name).Append("</size>\n");
+            var house = layoutBuilder ? layoutBuilder.Layout : null;
             foreach (var item in CurrentLevel.items)
             {
                 bool done = !remaining.Contains(item);
-                if (done) sb.Append("<color=#8FD18B><s>").Append(item.word).Append("</s>  ").Append(item.room).Append("</color>\n");
-                else sb.Append(item.word).Append("  <color=#FFF4E0AA>in the ").Append(item.room).Append("</color>\n");
+                string room = RoomLabel(house, item.room);
+                if (done) sb.Append("<color=#8FD18B><s>").Append(item.word).Append("</s>  ").Append(room).Append("</color>\n");
+                else sb.Append(item.word).Append("  <color=#FFF4E0AA>in the ").Append(room).Append("</color>\n");
             }
             return sb.ToString();
+        }
+
+        static readonly System.Text.RegularExpressions.Regex WordBreak = new("(?<=[a-z])(?=[A-Z0-9])");
+
+        public static string RoomLabel(HouseLayout house, string room)
+        {
+            if (string.IsNullOrEmpty(room)) return "";
+            string named = house != null ? house.WithStorey(room) : room;
+            return WordBreak.Replace(named.Replace('_', ' '), " ");
         }
 
         static string FormatTime(float seconds)

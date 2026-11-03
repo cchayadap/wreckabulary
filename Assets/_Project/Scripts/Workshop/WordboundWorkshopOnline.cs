@@ -15,12 +15,12 @@ namespace Wreckabulary.Workshop
             if (OnlineStarting) return;
             if (OnlinePlaytestRequested == null || CanStartOnline?.Invoke() != true)
             {
-                ShowStatus("Connect as a guest and leave your current party before hosting this map. Close the workshop to return to the party screen.");
+                ShowStatus("To play online with friends, connect as a guest and leave your current party first. Exit the workshop to return to the party screen.");
                 return;
             }
             if (!SelectedModeEnabled)
             {
-                ShowStatus("Choose a mode enabled by this map before hosting online.");
+                ShowStatus("Choose a mode this map supports in Rules before playing online.");
                 return;
             }
             var preview = Preview();

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -54,7 +55,7 @@ namespace Wreckabulary
             Subtitle.text = subtitle ?? "";
             if (compact)
             {
-                var fit = Panel.GetComponent<LobbyCompactPanel>() ?? Panel.gameObject.AddComponent<LobbyCompactPanel>();
+                if (!Panel.TryGetComponent(out LobbyCompactPanel fit)) fit = Panel.gameObject.AddComponent<LobbyCompactPanel>();
                 fit.MaximumSize = maximum; fit.Fit();
             }
         }
@@ -189,6 +190,8 @@ namespace Wreckabulary
                 Place(row, width, height);
                 var grid = GetComponent<LobbyPlayCardGrid>();
                 if (grid) grid.Fit();
+                var families = GetComponent<LobbyPlayModeFamilies>();
+                if (families) families.Fit();
                 height = Mathf.Max(44, layout ? layout.preferredHeight : row.rect.height);
                 Place(row, width, height);
                 var choicesTop = new Vector2(Choices.offsetMax.x, -height - 12);
@@ -203,6 +206,117 @@ namespace Wreckabulary
             var minimum = new Vector2(-width * .5f, -height); var maximum = new Vector2(width * .5f, 0);
             if (row.anchorMin != anchor || row.anchorMax != anchor || row.offsetMin != minimum || row.offsetMax != maximum)
                 row.Place(anchor, anchor, minimum, maximum);
+        }
+    }
+
+    public sealed class LobbyPlayModeFamilies : MonoBehaviour
+    {
+        public const string Caption = "Family caption";
+        public float ButtonWidth = 104, ButtonHeight = 52, CaptionHeight = 22;
+        public float Spacing = 6, FamilySpacing = 28, LineSpacing = 8, OneLineScale = .8f;
+        readonly Dictionary<Transform, float> natural = new Dictionary<Transform, float>();
+        float arrangedWidth = -1f;
+        int arrangedCount = -1;
+        bool fitting;
+
+        void OnEnable() => Fit();
+        void OnRectTransformDimensionsChange() => Fit();
+        void LateUpdate() => Fit();
+
+        public void Fit()
+        {
+            float width = ((RectTransform)transform).rect.width;
+            if (fitting || width <= 0) return;
+            int count = ActiveFamilies();
+            if (count == arrangedCount && Mathf.Approximately(width, arrangedWidth)) return;
+            fitting = true;
+            try
+            {
+                Arrange(width);
+                arrangedWidth = width; arrangedCount = count;
+            }
+            finally { fitting = false; }
+        }
+
+        int ActiveFamilies()
+        {
+            int count = 0;
+            foreach (Transform child in transform)
+                if (child.gameObject.activeSelf) count++;
+            return count;
+        }
+
+        void Arrange(float width)
+        {
+            var families = transform.Cast<Transform>().Where(child => child.gameObject.activeSelf).Select(child => (RectTransform)child).ToList();
+            if (families.Count == 0) return;
+            float sum = families.Sum(family => Natural(family));
+            float scale = Mathf.Min(1f, Mathf.Max(0f, width - FamilySpacing * (families.Count - 1)) / Mathf.Max(1f, sum));
+            var lines = scale >= OneLineScale ? new List<List<RectTransform>> { families }
+                : families.Select(family => new List<RectTransform> { family }).ToList();
+            float rowHeight = CaptionHeight + ButtonHeight, y = 0f;
+            foreach (var line in lines)
+            {
+                float lineScale = lines.Count == 1 ? scale : Mathf.Min(1f, width / Mathf.Max(1f, Natural(line[0])));
+                float lineWidth = line.Sum(family => Natural(family) * lineScale) + FamilySpacing * (line.Count - 1);
+                float x = Mathf.Max(0f, (width - lineWidth) * .5f);
+                foreach (var family in line)
+                {
+                    float familyWidth = Natural(family) * lineScale;
+                    Set(family, new Vector2(x, -y), new Vector2(familyWidth, rowHeight));
+                    float at = 0f;
+                    foreach (Transform child in family)
+                    {
+                        var item = (RectTransform)child;
+                        if (child.name == Caption) { Set(item, Vector2.zero, new Vector2(familyWidth, CaptionHeight)); continue; }
+                        float itemWidth = Choice(item) * lineScale;
+                        Set(item, new Vector2(at, -CaptionHeight), new Vector2(itemWidth, ButtonHeight));
+                        at += itemWidth + Spacing * lineScale;
+                    }
+                    x += familyWidth + FamilySpacing;
+                }
+                y += rowHeight + LineSpacing;
+            }
+            float height = y - LineSpacing;
+            if (!TryGetComponent(out LayoutElement element)) element = gameObject.AddComponent<LayoutElement>();
+            if (!Mathf.Approximately(element.preferredHeight, height)) { element.preferredHeight = height; element.minHeight = height; }
+        }
+
+        float Natural(Transform family)
+        {
+            if (natural.TryGetValue(family, out float known)) return known;
+            float choices = 0f, caption = 0f; int count = 0;
+            foreach (Transform child in family)
+            {
+                if (child.name == Caption) { caption = Preferred(child) + 2f; continue; }
+                choices += Choice((RectTransform)child); count++;
+            }
+            float result = Mathf.Max(caption, choices + Spacing * Mathf.Max(0, count - 1));
+            natural[family] = result;
+            return result;
+        }
+
+        float Choice(RectTransform item)
+        {
+            if (natural.TryGetValue(item, out float known)) return known;
+            float result = item.GetComponent<Selectable>() ? Mathf.Max(ButtonWidth, Preferred(item) + 28f) : Preferred(item) + 4f;
+            natural[item] = result;
+            return result;
+        }
+
+        static float Preferred(Transform item)
+        {
+            var text = item.GetComponentInChildren<TMP_Text>(true);
+            return text ? text.GetPreferredValues(text.text).x : 0f;
+        }
+
+        static void Set(RectTransform rect, Vector2 position, Vector2 size)
+        {
+            var corner = new Vector2(0, 1);
+            if (rect.anchorMin != corner || rect.anchorMax != corner || rect.pivot != corner)
+            { rect.anchorMin = rect.anchorMax = rect.pivot = corner; }
+            if (rect.anchoredPosition != position) rect.anchoredPosition = position;
+            if (rect.sizeDelta != size) rect.sizeDelta = size;
         }
     }
 }

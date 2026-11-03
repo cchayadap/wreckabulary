@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using Wreckabulary.Rules.Wordbound;
+using Wreckabulary.WordboundRuntime;
 
 namespace Wreckabulary.Workshop
 {
@@ -18,28 +19,147 @@ namespace Wreckabulary.Workshop
 
         void FloorPanel()
         {
-            GUILayout.Label("Floors", heading);
+            var style = RoomStyleProvider?.Invoke();
             foreach (var layer in display.Layers.OrderBy(item => item.HeightMm))
-                if (Button((History.Current.ActiveLayer == layer.Id ? "● " : "") + layer.Id + " · " + Metres(layer.HeightMm) + " m"))
+            {
+                bool active = History.Current.ActiveLayer == layer.Id;
+                string size = FloorSize(layer.Id), state = (History.Current.HiddenLayers.Contains(layer.Id) ? " · hidden" : "") +
+                    (History.Current.LockedLayers.Contains(layer.Id) ? " · locked" : "");
+                GUI.SetNextControlName("Floor " + layer.Id);
+                if (ui.Button(new GUIContent((active ? "● " : "") + layer.Id + "\n" + Metres(layer.HeightMm) + " m · " + size + state,
+                    "Floor " + layer.Id + " · height " + Metres(layer.HeightMm) + " m · rooms cover " + size +
+                    (style && style.Enabled ? " · room style swatch is read-only, from the visual profile" : "")),
+                    active ? ui.Selected : null, GUILayout.MinHeight(ui.ModuleHeight), GUILayout.Width(RowWidth)))
                     SelectFloor(layer.Id);
-            GUILayout.BeginHorizontal();
-            if (Button(History.Current.HiddenLayers.Contains(History.Current.ActiveLayer) ? "Show floor" : "Hide floor"))
+                if (style && style.Enabled && Event.current.type == EventType.Repaint) FloorSwatch(GUILayoutUtility.GetLastRect(), style.ForLayer(layer.Id));
+            }
+            if (WideButton("+ Floor", "Add a floor at " + layerHeight + " m, just above the top floor's rooms · change it in Advanced"))
+            {
+                CancelGesture();
+                Edit("Add floor", draft => WorkshopCommands.AddLayer(draft, Millimetres(layerHeight)));
+            }
+        }
+
+        void FloorAdvanced()
+        {
+            var current = display.Layers.FirstOrDefault(item => item.Id == History.Current.ActiveLayer);
+            GUILayout.Label("Floor " + History.Current.ActiveLayer, rowLabel, GUILayout.Width(RowWidth), GUILayout.MinHeight(ui.RowHeight));
+            GUILayout.BeginHorizontal(GUILayout.Width(RowWidth));
+            if (ui.Button(new GUIContent(History.Current.HiddenLayers.Contains(History.Current.ActiveLayer) ? "Show floor" : "Hide floor",
+                "Show or hide the current floor"), null, GUILayout.MinHeight(ui.RowHeight), GUILayout.ExpandWidth(true)))
             {
                 CancelGesture();
                 Edit("Floor visibility", draft => Toggle(draft.HiddenLayers, draft.ActiveLayer));
             }
-            if (Button(History.Current.LockedLayers.Contains(History.Current.ActiveLayer) ? "Unlock" : "Lock"))
+            if (ui.Button(new GUIContent(History.Current.LockedLayers.Contains(History.Current.ActiveLayer) ? "Unlock floor" : "Lock floor",
+                "Lock the current floor so nothing on it moves"), null, GUILayout.MinHeight(ui.RowHeight), GUILayout.ExpandWidth(true)))
             {
                 CancelGesture();
                 Edit("Floor lock", draft => Toggle(draft.LockedLayers, draft.ActiveLayer));
             }
             GUILayout.EndHorizontal();
-            layerHeight = Field("New floor height (m)", layerHeight);
-            if (Button("+ Floor"))
+            if (current != null && !History.Current.LockedLayers.Contains(current.Id))
+            {
+                var (below, above) = WorkshopCommands.LayerRange(display, current.Id);
+                bool adjusting = scrubbing == "Floor height";
+                floorHeight = Field("Height m", floorHeight, GridMetres, .1, "Floor height", (below + 100) / 1000d, (above - 100) / 1000d);
+                if (adjusting) status = "Floor " + current.Id + " · " + floorHeight + " m · release to apply";
+                bool apply = ScrubReleased("Floor height");
+                if (!adjusting && floorHeight != Metres(current.HeightMm))
+                    apply |= WideButton("Set height " + floorHeight + " m", "Move this floor and all its rooms to the typed height");
+                if (apply) SetFloorHeight(current.Id);
+            }
+            layerHeight = Field("New floor at m", layerHeight, GridMetres, .1, "New floor height (m)",
+                -CourseLimits.VerticalMm / 1000d, CourseLimits.VerticalMm / 1000d);
+        }
+
+        static readonly string[] PlacementKinds = { "One object", "Scatter area", "Random mix" };
+        static readonly string[] PlacementHints = { "One object at an exact spot", "Several of one object scattered in an area",
+            "A random mix of objects scattered in an area" };
+
+        void ZoneInspector(CourseModule module)
+        {
+            var editing = display.Zones.FirstOrDefault(item => item.Id == zoneId && item.ModuleId == module.Id);
+            GUI.SetNextControlName("Workshop placement kind");
+            int nextMode = GUILayout.Toolbar(zoneMode, PlacementKinds.Select((label, index) => new GUIContent(label, PlacementHints[index])).ToArray(),
+                GUILayout.MinHeight(ui.RowHeight), GUILayout.Width(RowWidth));
+            if (nextMode != zoneMode)
             {
                 CancelGesture();
-                Edit("Add floor", draft => WorkshopCommands.AddLayer(draft, Millimetres(layerHeight)));
+                zoneMode = nextMode;
+                if (zoneMode != 2) pool = pool.Split(',')[0].Split(':')[0].Trim();
             }
+            if (editing == null) { if (Section("picker", "Objects", true)) PlacementAssetPicker(); }
+            else if (Section(null, "Objects · " + ZoneCaption(editing), ref placementPickerOpen)) PlacementAssetPicker();
+            if (zoneMode != 0) Pair("How many", "Object count", "min", ref minCount, "max", ref maxCount, 1, 1, 0, 256);
+            if (Advanced(ref fillAdvanced))
+            {
+                if (zoneMode != 0)
+                {
+                    probability = Field("Chance %", probability, 1, .1, "Chance % · a minimum above 0 needs 100", 0, 100);
+                    spacing = Field("Spacing m", spacing, .25, .05, "Spacing (metres)", 0, 10);
+                }
+                if (zoneMode == 2 && Section("weights", "Mix amounts · " + PoolCount(pool) + " objects", true)) PoolWeightRows();
+                if (editing != null && zoneMode != 0) PlacementRangeFields(module);
+                if (zoneMode == 0) GUILayout.Label("Exact position and turns are below the object once it is placed.", ui.Wrapped, GUILayout.Width(RowWidth));
+            }
+            if (editing != null)
+            {
+                GUILayout.BeginHorizontal(GUILayout.Width(RowWidth));
+                if (ui.Button(new GUIContent("Apply", "Apply these settings"), null, GUILayout.MinHeight(ui.RowHeight), GUILayout.ExpandWidth(true)))
+                    ApplyPlacementSettings(module.Id);
+                if (ui.Button(new GUIContent("Cancel", "Discard these changes"), null, GUILayout.MinHeight(ui.RowHeight), GUILayout.ExpandWidth(true)))
+                    CancelPlacementSettings();
+                GUILayout.EndHorizontal();
+            }
+            if (WideButton(zoneMode == 0 ? editing == null ? "Place object" : "Reposition object" : editing == null ? "Draw area" : "Redraw area", null, ui.Primary))
+            {
+                CancelGesture(); drawingZone = true;
+                status = zoneMode == 0 ? "Click where the object goes · Esc cancels" : "Drag across the room to draw the area · Esc cancels";
+            }
+            var zones = display.Zones.Where(item => item.ModuleId == module.Id).ToList();
+            if (Section("placements", "In this room · " + zones.Count, false))
+                foreach (var zone in zones)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUI.SetNextControlName("workshop-choice:Placement:" + zone.Id);
+                    if (ui.Button(new GUIContent(ZoneCaption(zone), zone.Id), zone.Id == zoneId ? ui.Selected : null,
+                        GUILayout.Width(Mathf.Max(40, RowWidth - ui.RowHeight - 10)), GUILayout.MinHeight(ui.RowHeight))) SelectZone(zone);
+                    if (Button("×", "Delete " + ZoneCaption(zone), ui.RowHeight)) Edit("Delete objects", draft =>
+                    {
+                        if (draft.LockedLayers.Contains(module.LayerId)) throw new InvalidOperationException("Unlock the floor first.");
+                        draft.Course.Zones.RemoveAll(item => item.Id == zone.Id);
+                    });
+                    GUILayout.EndHorizontal();
+                }
+            if (!string.IsNullOrEmpty(zoneId) && WideButton("New placement")) { CancelGesture(); zoneId = ""; }
+        }
+        static int PoolCount(string text) => text.Split(',').Count(entry => entry.Trim().Length > 0);
+
+        void SetFloorHeight(string id)
+        {
+            CancelGesture();
+            Edit("Floor height", draft => WorkshopCommands.SetLayerHeight(draft, id, Millimetres(floorHeight)));
+            if (status == "Floor height") floorHeight = Metres(display.Layers.Single(layer => layer.Id == id).HeightMm);
+        }
+
+        string FloorSize(string id)
+        {
+            var box = WorkshopCommands.LayerFootprint(display, Catalogue, id);
+            return box == null ? "empty" : Metres(box.Value.Max.X - box.Value.Min.X) + " × " + Metres(box.Value.Max.Z - box.Value.Min.Z) + " m";
+        }
+
+        static void FloorSwatch(Rect button, WordboundRoomPalette palette)
+        {
+            var tint = GUI.color;
+            try
+            {
+                GUI.color = palette.FloorMaterial ? palette.FloorMaterial.color : palette.Floor;
+                GUI.DrawTexture(new Rect(button.xMax - 26, button.y + 8, 9, 9), Texture2D.whiteTexture);
+                GUI.color = palette.WallMaterial ? palette.WallMaterial.color : palette.Wall;
+                GUI.DrawTexture(new Rect(button.xMax - 15, button.y + 8, 9, 9), Texture2D.whiteTexture);
+            }
+            finally { GUI.color = tint; }
         }
 
         void SelectFloor(string id)
@@ -62,21 +182,20 @@ namespace Wreckabulary.Workshop
 
         void PlacementRangeFields(CourseModule module)
         {
-            GUILayout.Label("World range · metres");
+            bool open = Section("range", "Area range, turns & floors", ref placementLimits);
             if (Event.current.type == EventType.Repaint) placementRangeY = GUILayoutUtility.GetLastRect().y;
-            RangePair("X min", ref rangeMinX, "X max", ref rangeMaxX);
-            RangePair("Z min", ref rangeMinZ, "Z max", ref rangeMaxZ);
-            RangePair("Height min", ref rangeMinY, "Height max", ref rangeMaxY);
-            placementHelp = GUILayout.Toggle(placementHelp, "Range help");
+            if (!open) return;
+            Pair("X m", "X range", "min", ref rangeMinX, "max", ref rangeMaxX, GridMetres, .1);
+            Pair("Z m", "Z range", "min", ref rangeMinZ, "max", ref rangeMaxZ, GridMetres, .1);
+            Pair("Height m", "Height range", "min", ref rangeMinY, "max", ref rangeMaxY, .25, .05);
+            placementHelp = GUILayout.Toggle(placementHelp, "Help", GUILayout.Width(RowWidth));
             if (placementHelp)
             {
-                GUILayout.Label("Height = object base, in world metres.", ui.Wrapped);
-                GUILayout.Label("The whole object must fit in this room.", ui.Wrapped);
+                GUILayout.Label("World metres. Height is the bottom of the object.", ui.Wrapped, GUILayout.Width(RowWidth));
+                GUILayout.Label("The whole object must fit in this room.", ui.Wrapped, GUILayout.Width(RowWidth));
             }
-            placementLimits = GUILayout.Toggle(placementLimits, "Rotation & floors");
-            if (!placementLimits) return;
-            GUILayout.Label("Rotation");
-            GUILayout.BeginHorizontal();
+            GUILayout.Label("Turns", rowLabel, GUILayout.Width(RowWidth));
+            GUILayout.BeginHorizontal(GUILayout.Width(RowWidth));
             foreach (int yaw in PlacementYaws)
             {
                 bool picked = rangeYaws.Contains(yaw);
@@ -84,26 +203,19 @@ namespace Wreckabulary.Workshop
                 if (next != picked) { if (next) rangeYaws.Add(yaw); else rangeYaws.Remove(yaw); }
             }
             GUILayout.EndHorizontal();
-            GUILayout.Label(new GUIContent("Allowed floors", "Objects stay in this room. Height is world-space; this room's floor is required."));
+            GUILayout.Label(new GUIContent("Allowed floors", "Objects stay in this room. Height is world-space; this room's floor is required."),
+                rowLabel, GUILayout.Width(RowWidth));
             if (Event.current.type == EventType.Repaint) placementFloorsY = GUILayoutUtility.GetLastRect().y;
-            GUILayout.Label("Spawns stay in this room.", ui.Wrapped);
+            GUILayout.Label("Objects always appear in this room.", ui.Wrapped, GUILayout.Width(RowWidth));
             foreach (var layer in display.Layers.OrderBy(item => item.HeightMm))
             {
                 bool picked = rangeLayers.Contains(layer.Id), enabled = GUI.enabled;
                 GUI.enabled = enabled && !(picked && layer.Id == module.LayerId);
                 bool next = GUILayout.Toggle(picked, new GUIContent(layer.Id + (layer.Id == module.LayerId ? " · room" : ""),
-                    "Limits the allowed floors. Objects still stay in this room."), "Button");
+                    "Limits the allowed floors. Objects still stay in this room."), "Button", GUILayout.Width(RowWidth));
                 GUI.enabled = enabled;
                 if (next != picked) { if (next) rangeLayers.Add(layer.Id); else rangeLayers.Remove(layer.Id); }
             }
-        }
-
-        void RangePair(string firstLabel, ref string first, string secondLabel, ref string second)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.BeginVertical(); first = Field(firstLabel, first); GUILayout.EndVertical();
-            GUILayout.BeginVertical(); second = Field(secondLabel, second); GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
         }
 
         void CancelPlacementSettings()
@@ -148,9 +260,9 @@ namespace Wreckabulary.Workshop
 
         void PoolWeightRows()
         {
-            GUILayout.Label("Weights · higher means more likely");
-            advancedPool = GUILayout.Toggle(advancedPool, "Advanced pool text");
-            if (advancedPool) { pool = Field("ID:weight, ID:weight", pool); return; }
+            GUILayout.Label("Bigger amount = more likely · drag a name to adjust", ui.Wrapped, GUILayout.Width(RowWidth));
+            advancedPool = GUILayout.Toggle(advancedPool, "Edit as text", GUILayout.Width(RowWidth));
+            if (advancedPool) { pool = Field("Mix", pool, name: "ID:amount, ID:amount"); return; }
             var entries = pool.Split(',').Select(entry => entry.Trim()).Where(entry => entry.Length > 0).ToList();
             int remove = -1;
             for (int i = 0; i < entries.Count; i++)
@@ -158,7 +270,9 @@ namespace Wreckabulary.Workshop
                 var parts = entries[i].Split(':');
                 string id = parts[0].Trim(), weight = parts.Length > 1 ? parts[1].Trim() : "1";
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(inspectorAdvancedIds ? id : ObjectLabel(id), GUILayout.ExpandWidth(true));
+                GUILayout.Label(new GUIContent(inspectorAdvancedIds ? id : ObjectLabel(id), "Amount of " + ObjectLabel(id) + " · drag sideways to adjust"),
+                    rowLabel, GUILayout.Width(Mathf.Max(40, RowWidth - 94)), GUILayout.MinHeight(25));
+                weight = Scrub(GUILayoutUtility.GetLastRect(), "Weight " + id, weight, 1, 1, 1, 10000);
                 GUI.SetNextControlName("Weight " + id);
                 weight = GUILayout.TextField(weight, 5, GUILayout.Width(52), GUILayout.MinHeight(25));
                 if (GUILayout.Button(new GUIContent("×", "Remove " + id), GUILayout.Width(28), GUILayout.Height(25))) remove = i;

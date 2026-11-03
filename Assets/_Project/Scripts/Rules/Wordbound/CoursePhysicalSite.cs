@@ -83,7 +83,10 @@ namespace Wreckabulary.Rules.Wordbound
 
     public static partial class CourseValidator
     {
+        static readonly HashSet<string> SiteRecipes = new HashSet<string>(ModeDefinition.For("TimeRun").Recipes, StringComparer.Ordinal);
         internal static bool EmptyBox(CourseBox box) => box.Min.Equals(default(CoursePoint)) && box.Max.Equals(default(CoursePoint));
+        public static bool SiteRecipeAllowed(string recipe) => recipe != null && SiteRecipes.Contains(recipe);
+        static bool OptionalSiteRecipe(string recipe) => recipe == "" || SiteRecipeAllowed(recipe);
 
         static void ValidatePhysicalSiteShapes(CourseDocument d, CourseValidation v)
         {
@@ -118,6 +121,8 @@ namespace Wreckabulary.Rules.Wordbound
             foreach (var site in d.PhysicalSites)
             {
                 void Error(string message) => v.Add("physical.invalid", "$.physicalSites", site.PuzzleId, message);
+                if (!OptionalSiteRecipe(site.ToolRecipeId) || !OptionalSiteRecipe(site.WindReceiverRecipeId))
+                    v.Add("physical.recipe", "$.physicalSites", site.PuzzleId, "Choose craftable Wordbound recipes for this site's tool and receiver.");
                 var puzzle = d.Puzzles.SingleOrDefault(p => p.Id == site.PuzzleId);
                 var checkpoint = d.Checkpoints.SingleOrDefault(c => c.Id == site.CheckpointId);
                 var lap = d.Laps.SingleOrDefault(l => l.Number == site.Lap);

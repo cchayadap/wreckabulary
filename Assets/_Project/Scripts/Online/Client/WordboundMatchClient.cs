@@ -21,11 +21,13 @@ namespace Wreckabulary.Online
         WordboundPlayerView playerView;
         WordboundMatchHud hud;
         GameObject matchRoot;
-        bool started, leaving, returned;
+        bool started, leaving, returned, stopped, returnFailed;
         public WordboundGameplayController Gameplay => gameplay;
         public WordboundFusionSession Session => session;
         public bool Leaving => leaving;
         public bool HasMatchContext => expected != null;
+        public bool CanLeaveLocally => expected != null && !returned && !leaving &&
+            (stopped || returnFailed || gameplay && gameplay.Fault != "" || session != null && session.Failure != "");
         public event Action ReturnedToParty;
         public event Action<string> Failed;
 
@@ -37,7 +39,7 @@ namespace Wreckabulary.Online
             Func<CancellationToken, Task<WordboundFusionJoin>> freshCredentials,
             IWordboundPuzzleContent physicalPuzzles = null, InputBinding controls = null,
             WordboundCameraProfile cameraProfile = null, WordboundVisualProfile visualProfile = null, WordboundUiTheme uiTheme = null,
-            WordboundStoryProfile storyProfile = null)
+            WordboundStoryProfile storyProfile = null, OnlineServerClock serverClock = null)
         {
             if (started) throw new InvalidOperationException("Create a fresh match client for each match.");
             if (client?.Credentials == null || verified == null || verifier == null || freshCredentials == null)
@@ -59,6 +61,7 @@ namespace Wreckabulary.Online
                 LocalPlayerChanged = body => playerView.LocalPlayerChanged(body),
                 ConfigureVisual = body => artwork.ConfigureVisual(body)
             };
+            if (serverClock != null) options.Clock = serverClock.Now;
             try
             {
                 gameplay.Initialize(verified, mode, course, geometry, items, rules,
@@ -88,8 +91,10 @@ namespace Wreckabulary.Online
                 session = new WordboundFusionSession(CreateRunner,
                     new FusionAppSettings { AppIdFusion = photonAppId, UseNameServer = true },
                     Configuration(), snapshotPrefab, verifier, expected, freshCredentials,
-                    gameplay.Authority, new OnlineConnectionService(client, verifier, expected),
-                    new OnlineCheckpointService(client, expected, gameplay.Authority.IdentityHash));
+                    gameplay.Authority, serverClock != null ? new OnlineConnectionService(client, verifier, expected, serverClock) :
+                        new OnlineConnectionService(client, verifier, expected),
+                    new OnlineCheckpointService(client, expected, gameplay.Authority.IdentityHash),
+                    serverClock != null ? serverClock.Now : (Func<long>)null);
                 gameplay.AttachSession(session);
                 gameplay.Faulted += GameplayFailed;
                 session.GameplayStarted += EnterWorld;
@@ -124,12 +129,14 @@ namespace Wreckabulary.Online
             if (hud) hud.ShowFailure(message);
             if (message == "" && playerView) playerView.SetMenuOpen(false);
         }
-        void GameplayFailed(string reason) => Failed?.Invoke("The connection could not be restored. Return to your party to leave this match.");
+        void GameplayFailed(string reason) => Failed?.Invoke(session != null && !session.GameplayObserved ?
+            "The match could not start. Return to your party, or Leave match to go back without the service." :
+            "The connection could not be restored. Return to your party, or Leave match to go back without the service.");
         void PresentationFailed(string reason)
         {
             if (playerView) playerView.SetMenuOpen(true);
             _ = StopGameplay();
-            Failed?.Invoke("The world could not be displayed. Return to your party and try again.");
+            Failed?.Invoke("The world could not be displayed. Return to your party, or Leave match to go back without the service.");
         }
         void RequestReturn() => _ = ReturnToParty();
 
@@ -145,15 +152,39 @@ namespace Wreckabulary.Online
                 ReturnedToParty?.Invoke();
             }
             catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
-            catch { Failed?.Invoke("Could not confirm leaving the match. Check your connection and try Return to party again."); }
+            catch
+            {
+                returnFailed = true;
+                Failed?.Invoke("Could not confirm leaving the match. Check your connection and try Return to party again, or Leave match to go back without the service.");
+            }
             finally { leaving = false; }
+        }
+
+        public async Task LeaveLocally()
+        {
+            if (returned || expected == null) return;
+            if (leaving) throw new InvalidOperationException("The match is already being left.");
+            leaving = true;
+            try
+            {
+                var stopping = StopGameplay();
+                if (await Task.WhenAny(stopping, Task.Delay(5000)) == stopping) await stopping;
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception error) { Debug.LogWarning("[Wreckabulary] Wordbound match stopped with an error while leaving: " + error.GetType().Name); }
+            finally { leaving = false; }
+            returned = true;
         }
 
         async Task StopGameplay()
         {
             if (playerView) playerView.SetMenuOpen(true);
-            if (gameplay) await gameplay.Stop();
-            else if (session != null) await session.Stop();
+            try
+            {
+                if (gameplay) await gameplay.Stop();
+                else if (session != null) await session.Stop();
+            }
+            finally { stopped = true; }
         }
 
         void OnDestroy()

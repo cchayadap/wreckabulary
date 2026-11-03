@@ -351,7 +351,6 @@ namespace Wreckabulary.Tests
             {
                 InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
                 InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-                // Device creation applies the active focus policy; configure it before adding the test keyboard.
                 keyboard = InputSystem.AddDevice<Keyboard>();
                 seatedPad = InputSystem.AddDevice<Gamepad>();
                 joiningPad = InputSystem.AddDevice<Gamepad>();
@@ -527,7 +526,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(before, menu.Outfit.Serialize(), "opening the locker preserves per-recipe choices");
             Click("Finish Candy");
             yield return null;
-            Assert.IsTrue(GameConfig.Current.Items.Enabled.All(item => menu.Outfit.SkinFor(item.Id) == "Candy"));
+            Assert.IsTrue(GameConfig.Current.Items.Enabled.Where(item => item.HasSkin("Candy")).All(item => menu.Outfit.SkinFor(item.Id) == "Candy"));
             Assert.AreEqual(menu.Outfit.Serialize(), Outfit.Deserialize(PlayerPrefs.GetString(LobbyMenu.OutfitKey)).Serialize());
             var selected = locker.Root.GetComponentsInChildren<Button>().Single(button => button.name == "Finish Candy");
             Assert.IsTrue(selected.GetComponentsInChildren<TMP_Text>().Any(text => text.text == "WEARING"));

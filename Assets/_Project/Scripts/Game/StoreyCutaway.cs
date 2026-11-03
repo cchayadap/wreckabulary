@@ -4,7 +4,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Calculates visibility without changing authored renderers, meshes, transforms or colliders.</summary>
     public sealed class StoreyCutaway : MonoBehaviour
     {
         public static StoreyCutaway Instance { get; private set; }
@@ -215,7 +214,6 @@ namespace Wreckabulary
             return false;
         }
 
-        /// <summary>Ceilings constrain the camera without introducing new gameplay colliders.</summary>
         public float ProbeCeilings(Vector3 from, Vector3 direction, float reach, float radius)
         {
             float available = reach;

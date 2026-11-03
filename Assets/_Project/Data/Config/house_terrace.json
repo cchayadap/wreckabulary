@@ -163,22 +163,6 @@
  ],
  "spawns": [
   {
-   "room": "LivingRoom",
-   "at": [
-    -8,
-    1
-   ],
-   "yaw": 90
-  },
-  {
-   "room": "KidsRoom",
-   "at": [
-    5,
-    4.5
-   ],
-   "yaw": 180
-  },
-  {
    "room": "Kitchen",
    "at": [
     5,
@@ -193,6 +177,22 @@
     -4
    ],
    "yaw": 90
+  },
+  {
+   "room": "LivingRoom",
+   "at": [
+    -8,
+    1
+   ],
+   "yaw": 90
+  },
+  {
+   "room": "KidsRoom",
+   "at": [
+    5,
+    4.5
+   ],
+   "yaw": 180
   }
  ],
  "furniture": [

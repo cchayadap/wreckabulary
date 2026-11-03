@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>Opens the current workspace only from a clean, empty editor session.</summary>
     [InitializeOnLoad]
     public static class WorkspaceBootstrap
     {

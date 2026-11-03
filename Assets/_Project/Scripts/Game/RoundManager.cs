@@ -79,7 +79,7 @@ namespace Wreckabulary
         void Update()
         {
             if (Time.timeScale <= 0f) return;
-            phaseElapsed += Time.unscaledDeltaTime;
+            phaseElapsed += Mathf.Min(Time.unscaledDeltaTime, Time.maximumDeltaTime);
             switch (Phase)
             {
                 case Phase.Lobby:

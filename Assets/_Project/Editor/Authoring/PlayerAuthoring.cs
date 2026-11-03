@@ -6,7 +6,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>One-time prefab migration and visual-only scene previews; never runs player setup or reads player preferences.</summary>
     public static class PlayerAuthoring
     {
         public const string PlayerPrefabPath = "Assets/_Project/Prefabs/Player.prefab";
@@ -27,7 +26,6 @@ namespace Wreckabulary.EditorTools
             finally { PrefabUtility.UnloadPrefabContents(root); }
         }
 
-        /// <summary>Returns false without modifying an already authored avatar, including artist mesh, material and transform overrides.</summary>
         public static bool UpgradePlayer(PlayerController player)
         {
             if (!player || !player.visual) throw new InvalidOperationException("Player requires its authored Visual root.");
@@ -63,7 +61,6 @@ namespace Wreckabulary.EditorTools
             return true;
         }
 
-        /// <summary>Creates an editable visual only. EditorOnly strips it from builds; it contains no gameplay player or physics.</summary>
         public static GameObject CreatePreview(Transform parent)
         {
             if (parent)
@@ -83,7 +80,6 @@ namespace Wreckabulary.EditorTools
             return preview;
         }
 
-        /// <summary>Explicitly frames a preview in the same close, centered lens as runtime; existing cameras are never changed automatically.</summary>
         public static void FramePreview(Camera camera, Transform avatar)
         {
             if (!camera || !avatar) return;

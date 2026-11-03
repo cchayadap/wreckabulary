@@ -54,7 +54,6 @@ namespace Wreckabulary.Tests
 
         static void Place(Smashable prop, Vector3 position)
         {
-            // ClosestPoint reads Transform state before the next physics step; teleport both representations together.
             prop.transform.position = position;
             prop.GetComponent<Rigidbody>().position = position;
         }

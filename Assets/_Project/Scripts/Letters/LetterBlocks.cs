@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Builds wooden blocks with a letter (or word) printed on every face.</summary>
     public static class LetterBlocks
     {
         static readonly Vector3[] Faces =
@@ -12,7 +11,6 @@ namespace Wreckabulary
             Vector3.forward, Vector3.back, Vector3.right, Vector3.left, Vector3.up, Vector3.down
         };
 
-        /// <summary>Creates a block whose pivot is its centre.</summary>
         public static GameObject Create(string text, Vector3 size, Material material, Transform parent,
                                         bool collider, bool skipBottom = false)
         {
@@ -44,7 +42,6 @@ namespace Wreckabulary
                 go.layer = block.gameObject.layer;
                 go.transform.SetParent(block, false);
                 go.transform.localPosition = Vector3.Scale(n, size * 0.5f) + n * 0.003f;
-                // TextMeshPro reads correctly when viewed along its forward axis, so point it into the face.
                 var up = Mathf.Abs(n.y) > 0.5f ? Vector3.forward : Vector3.up;
                 go.transform.localRotation = Quaternion.LookRotation(-n, up);
 

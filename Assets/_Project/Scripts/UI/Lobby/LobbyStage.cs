@@ -94,7 +94,6 @@ namespace Wreckabulary
         void OnEnable() => LobbyThemes.Changed += ApplyTheme;
         void OnDisable() { LobbyThemes.Changed -= ApplyTheme; Release(); }
 
-        /// <summary>The map remains built for selection and inspection; artwork hides only its rendered content.</summary>
         public void ShowArtwork(bool show)
         {
             artwork = show;
@@ -170,7 +169,7 @@ namespace Wreckabulary
         {
             LoadCameraProfile();
             if (Map == mapId && set) return;
-            if (!GameConfig.Current.Houses.ContainsKey(mapId))
+            if (string.IsNullOrEmpty(mapId) || !GameConfig.Current.Houses.ContainsKey(mapId))
                 foreach (var key in GameConfig.Current.Houses.Keys) { mapId = key; break; }
             var layout = GameConfig.Current.HouseFor(mapId);
             if (set) { set.gameObject.SetActive(false); TactileMaterials.Release(set.gameObject); Destroy(set.gameObject); }
@@ -360,7 +359,6 @@ namespace Wreckabulary
             return true;
         }
 
-        /// <summary>Plays a cosmetic Generic clip once, using unscaled lobby time and no root motion.</summary>
         public bool PlayEmote(AnimationClip clip)
         {
             if (!IsPresenting || !charactersVisible || !graph.IsValid() || !clip || clip.legacy || clip.isHumanMotion ||

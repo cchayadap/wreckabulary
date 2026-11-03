@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>Historical prototype factory. Production bootstrap refuses existing output.</summary>
     public static class PrototypeBuilder
     {
         const string ProjectRoot = "Assets/_Project";
@@ -25,7 +24,6 @@ namespace Wreckabulary.EditorTools
             GenerateLegacyReference();
         }
 
-        /// <summary>Creates a separate historical reference; never registers it in build settings.</summary>
         public static void GenerateLegacyReference()
         {
             RequireSavedEditorSession();
@@ -39,7 +37,6 @@ namespace Wreckabulary.EditorTools
             factory.Build();
         }
 
-        /// <summary>Imports TextMeshPro's essential resources (font + settings) if missing.</summary>
         public static void ImportTmpEssentials()
         {
             if (TMP_Settings.instance != null && TMP_Settings.defaultFontAsset != null) return;
@@ -47,7 +44,6 @@ namespace Wreckabulary.EditorTools
             AssetDatabase.Refresh();
         }
 
-        /// <summary>Bootstraps an empty project only. Use SceneWorkspace for the current authoring scenes.</summary>
         public static void BuildAll()
         {
             var factory = new Factory(ProjectRoot, true);
@@ -175,8 +171,6 @@ namespace Wreckabulary.EditorTools
                 AssetDatabase.SaveAssetIfDirty(AssetDatabase.LoadMainAssetAtPath(WordsPath));
             }
 
-            // ---------------------------------------------------------------- setup
-
             void EnsureLayers()
             {
                 var tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
@@ -239,8 +233,6 @@ namespace Wreckabulary.EditorTools
                 return assets;
             }
 
-            // ---------------------------------------------------------------- prefabs
-
             LetterTile BuildTilePrefab(GameAssets assets)
             {
                 var go = new GameObject("LetterTile") { layer = LayerMask.NameToLayer("Tile") };
@@ -293,7 +285,6 @@ namespace Wreckabulary.EditorTools
                 Primitive(PrimitiveType.Sphere, visual, "EyeR", new Vector3(0.14f, 1.0f, 0.33f), Vector3.one * 0.17f, white);
                 Primitive(PrimitiveType.Sphere, visual, "PupilL", new Vector3(-0.14f, 1.0f, 0.41f), Vector3.one * 0.08f, black);
                 Primitive(PrimitiveType.Sphere, visual, "PupilR", new Vector3(0.14f, 1.0f, 0.41f), Vector3.one * 0.08f, black);
-                // Hands are unscaled grip points so held weapons keep their size; the sphere is a child.
                 var handL = Child(visual, "HandL", new Vector3(-0.52f, 0.55f, 0.05f));
                 var handR = Child(visual, "HandR", new Vector3(0.52f, 0.55f, 0.05f));
                 var fistL = Primitive(PrimitiveType.Sphere, handL, "Fist", Vector3.zero, Vector3.one * 0.24f, bodyMat);
@@ -331,7 +322,6 @@ namespace Wreckabulary.EditorTools
                 var summoner = root.AddComponent<Summoner>();
                 Set(summoner, "database", assets.words);
 
-                // Overhead HUD (letters + word wheel), kept upright and facing the camera by PlayerHud.
                 var hudGo = new GameObject("Hud") { layer = layer };
                 hudGo.transform.SetParent(root.transform, false);
                 hudGo.transform.localPosition = Vector3.up * 2f;
@@ -382,9 +372,6 @@ namespace Wreckabulary.EditorTools
                 return m;
             }
 
-            // ---------------------------------------------------------------- scenes
-
-            /// <summary>Single file on the porch: the doorway only fits one roommate at a time.</summary>
             readonly Vector3[] PorchSpawns =
             {
                 new(-9.4f, 0f, -2f), new(-10.3f, 0f, -2f), new(-11.2f, 0f, -2f), new(-12.1f, 0f, -2f)
@@ -399,7 +386,6 @@ namespace Wreckabulary.EditorTools
                 public GameHud hud;
             }
 
-            /// <summary>What every scene shares: lighting, camera, the room shell, HUD, tile pool and join manager.</summary>
             SceneKit NewRoomScene(GameAssets assets, Vector3[] spawnPositions, bool frontDoor, bool backToHub,
                                          string sign = "<i>Home Sweet Home</i>")
             {
@@ -467,7 +453,6 @@ namespace Wreckabulary.EditorTools
 
             void BuildHub(GameAssets assets)
             {
-                // Roommates arrive on the porch outside the front door and walk in.
                 var kit = NewRoomScene(assets, PorchSpawns, frontDoor: true, backToHub: false, sign: "WRECKABULARY");
                 Set(kit.joins, "walkIn", Vector3.right);
                 Set(kit.joins, "walkInTime", WalkInTime);
@@ -481,7 +466,6 @@ namespace Wreckabulary.EditorTools
                 DeliveryBox(decor, "BOOKS", new Vector3(5.4f, 0f, -1.0f));
                 World.ClearTransient();
 
-                // Desk and typewriter. Both are static props: no rigidbody, so they can't be grabbed or smashed.
                 Furniture.Prop(null, "DESK", new Vector3(0f, 0f, 1.6f), 0f, new Vector3(0.9f, 0.8f, 1.0f), 0, Hex("8A5A3B"));
                 var tw = new GameObject("Typewriter");
                 tw.transform.position = new Vector3(0f, 0.82f, 1.4f);
@@ -508,7 +492,6 @@ namespace Wreckabulary.EditorTools
                 Set(typewriter, "menuText", menuText);
                 Set(typewriter, "paperText", paperText);
 
-                // Front door: a leaf on a hinge in the left wall's doorway, swinging inwards.
                 var hinge = new GameObject("Front Door Hinge").transform;
                 hinge.position = new Vector3(-8.6f, 0f, -1.25f);
                 Primitive(PrimitiveType.Cube, hinge, "Front Door", new Vector3(0f, 1.15f, -0.75f), new Vector3(0.1f, 2.3f, 1.5f), Lit("Door", Hex("7B4A2E"), 0.3f));
@@ -544,13 +527,11 @@ namespace Wreckabulary.EditorTools
 
             void BuildMovingDay(GameAssets assets)
             {
-                // Same arrival as the house: roommates walk in from the porch.
                 var kit = NewRoomScene(assets, PorchSpawns, frontDoor: true, backToHub: true, sign: "<i>Moving Day</i>");
                 Set(kit.joins, "walkIn", Vector3.right);
                 Set(kit.joins, "walkInTime", WalkInTime);
                 Set(kit.joins, "starterLetters", 0);
 
-                // A half wall splits the living room (left, by the front door) from the bedroom (right).
                 var room = GameObject.Find("Room").transform;
                 var sage = Lit("Wall_Sage", Hex("A9BF9F"), 0.1f);
                 Block(room, "Half Wall (back)", new Vector3(1f, 0.6f, 3.7f), new Vector3(0.25f, 1.2f, 4.9f), sage);
@@ -632,7 +613,6 @@ namespace Wreckabulary.EditorTools
 
                 if (frontDoor)
                 {
-                    // Left wall with a doorway at z -2.75..-1.25, and a small fenced porch outside it.
                     Block(room, "Wall Left (front)", new Vector3(-8.65f, 1.6f, -4.6f), new Vector3(0.3f, 3.2f, 3.7f), sage);
                     Block(room, "Wall Left (back)", new Vector3(-8.65f, 1.6f, 2.6f), new Vector3(0.3f, 3.2f, 7.7f), sage);
                     Block(room, "Wall Left (over door)", new Vector3(-8.65f, 2.75f, -2f), new Vector3(0.3f, 0.9f, 1.5f), sage);
@@ -646,7 +626,6 @@ namespace Wreckabulary.EditorTools
                     Block(room, "Wall Left", new Vector3(-8.65f, 1.6f, 0f), new Vector3(0.3f, 3.2f, 12.9f), sage);
                 }
 
-                // The front wall is invisible so the camera can see in.
                 Invisible(room, "Wall Front (invisible)", new Vector3(0f, 1.6f, -6.3f), new Vector3(17.6f, 3.2f, 0.3f));
                 Invisible(room, "Ceiling (invisible)", new Vector3(0f, 9f, 0f), new Vector3(17.6f, 0.3f, 12.9f));
 
@@ -767,8 +746,6 @@ namespace Wreckabulary.EditorTools
                 t.text = "";
                 return t;
             }
-
-            // ---------------------------------------------------------------- helpers
 
             Transform Child(Transform parent, string name, Vector3 localPos)
             {

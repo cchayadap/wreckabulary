@@ -23,5 +23,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Scenes/WordboundGameplay.unity
     guid: 38e8ae58953ea874c9550132f992c100
+  - enabled: 1
+    path: Assets/_Project/Scenes/Testing/BeltRange.unity
+    guid: f01cfe0906c66ff45a059344dfd2e77f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

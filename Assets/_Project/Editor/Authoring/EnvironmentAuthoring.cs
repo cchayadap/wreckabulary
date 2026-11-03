@@ -13,7 +13,6 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>Adds saved room presentation once without regenerating authored structure or furniture.</summary>
     public static class EnvironmentAuthoring
     {
         public const string PrintPath = "Assets/_Project/Art/Generated/Environment/townhouse-print-v1.png";
@@ -102,7 +101,6 @@ namespace Wreckabulary.EditorTools
             return AddMissingDoorLintels(world) || changed;
         }
 
-        /// <summary>Fill only the presentation gap above each 2.4 m doorway; gameplay colliders stay unchanged.</summary>
         public static bool AddMissingDoorLintels(AuthoredHouse world)
         {
             Guard();
@@ -140,7 +138,6 @@ namespace Wreckabulary.EditorTools
             return changed;
         }
 
-        /// <summary>Retain the saved intended pose on an anchor, restoring only the imported child's source transform.</summary>
         public static bool RepairImportedModelAnchors(GameObject root)
         {
             Guard();
@@ -186,7 +183,6 @@ namespace Wreckabulary.EditorTools
                 MinZ = bounds.min.z, MaxZ = bounds.max.z, FloorY = bounds.max.y };
             var faces = Faces(roomRoot.transform, room);
             float ceiling = Mathf.Max(3.3f, faces.Count > 0 ? faces.Max(f => f.Top) + .12f : 3.3f);
-            // The original open-front stage stays open; only its rear lounge/training bay is covered.
             var covered = Rect.MinMaxRect(room.MinX + .12f, Mathf.Lerp(room.MinZ, room.MaxZ, .58f), room.MaxX - .12f, room.MaxZ - .12f);
             var blocked = new List<Bounds>();
             foreach (var root in roomRoot.scene.GetRootGameObjects())

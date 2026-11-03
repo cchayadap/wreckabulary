@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973ff9c50da8d0b4d90044e226a66e21, type: 3}
+  m_Name: Metal
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Audio.SurfaceDamageSounds
+  surface: 2
+  damaged:
+    clips:
+    - {fileID: 8300000, guid: 39fb54b550f78bd418f3ea94676f13c4, type: 3}
+    - {fileID: 8300000, guid: 16afe2c39396143499f3ce992e3f04b7, type: 3}
+    volume: 0.9
+    pitchMin: 0.96
+    pitchMax: 1.04
+    cooldown: 0.1
+  broken:
+    clips:
+    - {fileID: 8300000, guid: 5959ae0a2e9971a47a4f68006fcd3b9f, type: 3}
+    - {fileID: 8300000, guid: 595606634e45ded4ca567d47d2464c69, type: 3}
+    - {fileID: 8300000, guid: cbd8a5810df312344b6611f5df5e4f53, type: 3}
+    volume: 1
+    pitchMin: 0.97
+    pitchMax: 1.03
+    cooldown: 0.2

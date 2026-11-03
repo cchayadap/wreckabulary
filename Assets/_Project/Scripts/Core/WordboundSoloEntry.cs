@@ -9,7 +9,7 @@ namespace Wreckabulary
         static string pending;
         static bool returnToSelection;
         public static string SelectedMode { get; private set; } = "TimeRun";
-        public static string SelectedMap { get; private set; } = LostAddressMap;
+        public static string SelectedMap { get; private set; } = ParcelServiceMap;
         public static bool Supports(string mode) => mode == "TimeRun" || mode == "Freestyle";
         public static bool SupportsMap(string map) => map == LostAddressMap || map == ParcelHallMap || map == ParcelServiceMap;
         public static void SelectMap(string map)
@@ -43,6 +43,6 @@ namespace Wreckabulary
             returnToSelection = false;
             return result;
         }
-        public static void Clear() { CancelRequest(); SelectedMode = "TimeRun"; SelectedMap = LostAddressMap; }
+        public static void Clear() { CancelRequest(); SelectedMode = "TimeRun"; SelectedMap = ParcelServiceMap; }
     }
 }

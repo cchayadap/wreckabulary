@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "package": "HouseItemsV1",
+  "provider": "Kenney",
+  "sourcePack": "Furniture Kit 2.0",
+  "intake": "BuildNotes/asset-expansion/local-intake.json",
+  "units": "Metres, Y up. packBounds are the GLB counterpart's vertex bounds in source coordinates (identity node transform). size is packBounds scaled uniformly so its longest side equals targetLongest, rounded to 4 decimals; the prefab origin is its bottom-centre and grip is in that model space. heldScale = heldLongest / targetLongest. yaw (0, 90, 180 or 270 degrees about Y) turns a model before sizing so its face reads in the icon; a quarter turn swaps packBounds X and Z.",
+  "license": {
+    "name": "CC0",
+    "evidence": {
+      "sourcePath": "License.txt",
+      "packagePath": "Source/Kenney/License.txt",
+      "bytes": 614,
+      "sha256": "bc0de1a0742cb490f9ed4bae0bd284286ebb27e23149b9917c7d8c0d590b8b29"
+    }
+  },
+  "entries": [
+    {
+      "word": "PILLOW",
+      "kenneyName": "pillow",
+      "sourcePath": "Models/FBX format/pillow.fbx",
+      "packagePath": "Source/Kenney/Models/pillow.fbx",
+      "bytes": 19559,
+      "sha256": "cecb6e0a964671081afb1553182cd713d1b95e9277f0b5a05038ad31da2a7282",
+      "packBounds": {
+        "min": [
+          0,
+          0,
+          -0.08848359
+        ],
+        "max": [
+          0.23,
+          0.222162932,
+          0
+        ],
+        "size": [
+          0.23,
+          0.222163,
+          0.088484
+        ]
+      },
+      "targetLongest": 0.5,
+      "heldLongest": 0.45,
+      "heldScale": 0.9,
+      "size": [
+        0.5,
+        0.483,
+        0.1924
+      ],
+      "grip": [
+        -0.2,
+        0.2415,
+        0
+      ]
+    },
+    {
+      "word": "RACK",
+      "kenneyName": "coatRackStanding",
+      "sourcePath": "Models/FBX format/coatRackStanding.fbx",
+      "packagePath": "Source/Kenney/Models/coatRackStanding.fbx",
+      "bytes": 33130,
+      "sha256": "eef1956d3db4e2fc6444655b36b0d5dbdc10c1d3929bec6cd2e16ab3d993383b",
+      "packBounds": {
+        "min": [
+          -0.1364,
+          3.07769353e-29,
+          -0.1364
+        ],
+        "max": [
+          0.1364,
+          0.77,
+          0.1364
+        ],
+        "size": [
+          0.2728,
+          0.77,
+          0.2728
+        ]
+      },
+      "targetLongest": 1.6,
+      "heldLongest": 0.75,
+      "heldScale": 0.4688,
+      "size": [
+        0.5669,
+        1.6,
+        0.5669
+      ],
+      "grip": [
+        0,
+        0.56,
+        0
+      ]
+    },
+    {
+      "word": "MIRROR",
+      "kenneyName": "bathroomMirror",
+      "sourcePath": "Models/FBX format/bathroomMirror.fbx",
+      "packagePath": "Source/Kenney/Models/bathroomMirror.fbx",
+      "bytes": 20620,
+      "sha256": "273e56ca306f732b79efdacc989686c486add98047ea9ef59b5466c9d186de9b",
+      "packBounds": {
+        "min": [
+          0,
+          4.443999e-15,
+          -0.0488
+        ],
+        "max": [
+          0.301339984,
+          0.43462503,
+          0.0956
+        ],
+        "size": [
+          0.30134,
+          0.434625,
+          0.1444
+        ]
+      },
+      "targetLongest": 0.6,
+      "heldLongest": 0.45,
+      "heldScale": 0.75,
+      "size": [
+        0.416,
+        0.6,
+        0.1993
+      ],
+      "grip": [
+        0,
+        0.3,
+        0
+      ]
+    },
+    {
+      "word": "SPEAKER",
+      "kenneyName": "speaker",
+      "sourcePath": "Models/FBX format/speaker.fbx",
+      "packagePath": "Source/Kenney/Models/speaker.fbx",
+      "bytes": 42248,
+      "sha256": "219bd63e14aa3aec9fda74a4a69a8b918e7d499188c6f5e974923f661f0f7bec",
+      "packBounds": {
+        "min": [
+          -1.08286714e-15,
+          1.69197991e-17,
+          -0.148
+        ],
+        "max": [
+          0.148,
+          0.6364,
+          -3.609557e-16
+        ],
+        "size": [
+          0.148,
+          0.6364,
+          0.148
+        ]
+      },
+      "targetLongest": 0.9,
+      "heldLongest": 0.4,
+      "heldScale": 0.4444,
+      "size": [
+        0.2093,
+        0.9,
+        0.2093
+      ],
+      "grip": [
+        0,
+        0.45,
+        0
+      ]
+    },
+    {
+      "word": "BENCH",
+      "kenneyName": "benchCushionLow",
+      "sourcePath": "Models/FBX format/benchCushionLow.fbx",
+      "packagePath": "Source/Kenney/Models/benchCushionLow.fbx",
+      "bytes": 23732,
+      "sha256": "bfc8fade42649b0d884d6c91fb08d2e5ebf38329889dbe420b574a92b19ac25d",
+      "packBounds": {
+        "min": [
+          -0.01,
+          0,
+          -0.21
+        ],
+        "max": [
+          0.41,
+          0.2,
+          0.01
+        ],
+        "size": [
+          0.42,
+          0.2,
+          0.22
+        ]
+      },
+      "targetLongest": 1.1,
+      "heldLongest": 0.55,
+      "heldScale": 0.5,
+      "size": [
+        1.1,
+        0.5238,
+        0.5762
+      ],
+      "grip": [
+        0,
+        0.2619,
+        0
+      ]
+    },
+    {
+      "word": "TOASTER",
+      "kenneyName": "toaster",
+      "sourcePath": "Models/FBX format/toaster.fbx",
+      "packagePath": "Source/Kenney/Models/toaster.fbx",
+      "bytes": 37319,
+      "sha256": "01bd4951d4dbfe3f7a788703d185373c8e15c14c001f3860af4a6e90e6a23c76",
+      "packBounds": {
+        "min": [
+          -0.09399187,
+          0,
+          -0.05
+        ],
+        "max": [
+          0.09399187,
+          0.13,
+          0.05
+        ],
+        "size": [
+          0.187984,
+          0.13,
+          0.1
+        ]
+      },
+      "targetLongest": 0.3,
+      "heldLongest": 0.3,
+      "heldScale": 1,
+      "size": [
+        0.3,
+        0.2075,
+        0.1596
+      ],
+      "grip": [
+        0,
+        0.1038,
+        0
+      ]
+    },
+    {
+      "word": "BEAR",
+      "kenneyName": "bear",
+      "sourcePath": "Models/FBX format/bear.fbx",
+      "packagePath": "Source/Kenney/Models/bear.fbx",
+      "bytes": 34399,
+      "sha256": "484b6060b17586c6b5759e35fa7dff930806e7c9eb30d2415dc69fc04b10ff4a",
+      "packBounds": {
+        "min": [
+          0,
+          0,
+          -0.2475
+        ],
+        "max": [
+          0.38971144,
+          0.45,
+          0
+        ],
+        "size": [
+          0.389711,
+          0.45,
+          0.2475
+        ]
+      },
+      "targetLongest": 0.45,
+      "heldLongest": 0.4,
+      "heldScale": 0.8889,
+      "size": [
+        0.2475,
+        0.45,
+        0.3897
+      ],
+      "grip": [
+        0,
+        0.225,
+        0
+      ],
+      "yaw": 270
+    }
+  ]
+}

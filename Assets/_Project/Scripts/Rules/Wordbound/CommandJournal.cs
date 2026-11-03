@@ -136,6 +136,7 @@ namespace Wreckabulary.Rules.Wordbound
             var batch = requests?.Take(MaximumBatch + 1).ToArray() ?? Array.Empty<AuthenticatedCommand>();
             if (batch.Length > MaximumBatch || batch.Any(c => c == null))
                 throw new ArgumentException("Command batch exceeds bounds.");
+            if (batch.Length == 0) return Array.Empty<CommandReceipt>();
             var ordered = batch.OrderBy(c => c.ActorId, StringComparer.Ordinal).ThenBy(c => c.Command.Sequence)
                 .ThenBy(c => c.Command.PayloadHash, StringComparer.Ordinal).ToArray();
             var conflicts = ordered.Where(c => c.ActorId != null && frontiers.ContainsKey(c.ActorId) && c.Command.Epoch == Epoch)

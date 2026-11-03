@@ -32,7 +32,7 @@ namespace Wreckabulary.Tests
             binding = new MatchBinding("expression-map", MatchSnapshotCodec.ProtocolVersion, mode.Hash,
                 new string('a', 64), new string('b', 64), new string('c', 64), new string('d', 64), seats);
             progress = new MatchProgress(mode, seats);
-            economy = new Economy(GameConfig.Current.Items, new GameRules());
+            economy = new Economy(WordboundTestItems.Raw(), new GameRules());
             economy.AddPlayer(0, 0); economy.AddPlayer(1, 0);
             first = AddView("a"); second = AddView("b");
         }

@@ -33,6 +33,11 @@ namespace Wreckabulary.EditorTools
             }
             if (missing.Count > 0)
                 throw new InvalidOperationException("These models didn't import:\n" + string.Join("\n", missing));
+            foreach (var house in HouseItemsSetup.LibraryEntries())
+            {
+                if (entries.Any(entry => entry.key == house.key)) throw new InvalidOperationException("A House item would replace an imported model: " + house.key);
+                entries.Add(house);
+            }
 
             MaterialLibraryBuilder.EnsureFolder(System.IO.Path.GetDirectoryName(ImportedArtSettings.ModelLibraryAssetPath).Replace('\\', '/'));
             var library = AssetDatabase.LoadAssetAtPath<ModelLibrary>(ImportedArtSettings.ModelLibraryAssetPath);

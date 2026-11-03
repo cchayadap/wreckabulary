@@ -60,7 +60,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("OFF", hud.GetComponentsInChildren<Button>().Single(b => b.name == "Damage numbers toggle").GetComponentInChildren<TMP_Text>().text);
             hud.TogglePause();
             yield return TestScenes.Load(Session.HubScene);
-            var menu = Object.FindAnyObjectByType<LobbyMenu>(); menu.Open(LobbyMenu.Settings);
+            var menu = Object.FindAnyObjectByType<LobbyMenu>(); menu.Open(LobbyMenu.Settings); menu.Page<SettingsPage>().ShowTab("gameplay");
             Assert.IsFalse(CombatFeedbackOptions.ShowDamage); Assert.IsFalse(CombatFeedbackOptions.ShowPoints);
             Click(menu.transform, "Reset feedback");
             Assert.IsTrue(CombatFeedbackOptions.ShowDamage && CombatFeedbackOptions.ShowPoints);

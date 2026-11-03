@@ -45,6 +45,8 @@ namespace Wreckabulary.Tests
             for (int i = 0; i < n; i++) yield return new WaitForFixedUpdate();
         }
 
+        static float Fist => Match.Rules.Unarmed.Damage;
+
         static HitInfo Punch(PlayerController attacker, Vector3 direction) =>
             Hits.Melee(attacker, direction, (attacker ? attacker.Health.Rules : Match.Rules).Unarmed, null);
 
@@ -71,7 +73,7 @@ namespace Wreckabulary.Tests
         public IEnumerator BoxesLandingOnBoxesDontBreak()
         {
             var bottom = DeliverySpawner.CreateBox("SOFA", Vector3.zero);
-            yield return new WaitForSeconds(2f); // past its spawn grace
+            yield return new WaitForSeconds(2f);
             var top = DeliverySpawner.CreateBox("LAMP", Vector3.up * 4f);
             top.GetComponent<Rigidbody>().linearVelocity = Vector3.down * 10f;
             yield return new WaitForSeconds(1.5f);
@@ -163,12 +165,12 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(100f, p.Health.Current);
 
             Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)));
-            Assert.AreEqual(92f, p.Health.Current, "a punch does the rules' unarmed damage");
+            Assert.AreEqual(100f - Fist, p.Health.Current, "a punch does the rules' unarmed damage");
             Assert.AreEqual(4, p.Inventory.Count, "letters are loot, not health");
             Assert.AreEqual(0, TilePool.Instance.Active.Count);
 
             Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)), "no invulnerability after a hit");
-            Assert.AreEqual(84f, p.Health.Current);
+            Assert.AreEqual(100f - 2f * Fist, p.Health.Current);
 
             var rules = Match.Rules.Clone();
             rules.LettersDroppedPerHit = 2;
@@ -211,7 +213,7 @@ namespace Wreckabulary.Tests
 
             p.Health.ApplyDamage(Punch(null, Vector3.forward));
             Assert.AreEqual(0f, lastStun, "a second hit inside the immunity window still hurts but doesn't stun");
-            Assert.AreEqual(84f, p.Health.Current);
+            Assert.AreEqual(100f - 2f * Fist, p.Health.Current);
         }
 
         [UnityTest]
@@ -226,7 +228,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(100f, p.Health.Current);
 
             Assert.IsTrue(p.Health.ApplyDamage(Punch(null, Vector3.forward)));
-            Assert.AreEqual(92f, p.Health.Current);
+            Assert.AreEqual(100f - Fist, p.Health.Current);
         }
 
         [UnityTest]
@@ -271,7 +273,7 @@ namespace Wreckabulary.Tests
 
             input.Next.attack = true;
             yield return TestScenes.WaitUntil(() => victim.Health.Current < 100f, 1f, "unarmed damage window");
-            Assert.AreEqual(92f, victim.Health.Current);
+            Assert.AreEqual(100f - Fist, victim.Health.Current);
             Assert.AreEqual(3, victim.Inventory.Count);
         }
 
@@ -302,10 +304,10 @@ namespace Wreckabulary.Tests
 
             p.Health.ApplyDamage(Punch(null, Vector3.forward));
             Assert.AreEqual(100f, p.Health.Current, "the bubble soaked the punch");
-            Assert.AreEqual(27f, p.Health.Bubble);
+            Assert.AreEqual(35f - Fist, p.Health.Bubble);
 
             p.Health.ApplyDamage(Hits.Of(null, Vector3.forward, HitSource.Melee, 40f, 1f));
-            Assert.AreEqual(87f, p.Health.Current, "what the bubble can't soak gets through");
+            Assert.AreEqual(100f - (40f - (35f - Fist)), p.Health.Current, 0.01f, "what the bubble can't soak gets through");
             Assert.AreEqual(0f, p.Health.Bubble);
             Assert.AreEqual(1, p.Inventory.Count, "the S stays");
         }

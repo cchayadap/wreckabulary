@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>An editable world whose saved geometry and initial furniture are authoritative in Play mode.</summary>
     public sealed class AuthoredHouse : MonoBehaviour
     {
         public const int CurrentContentVersion = 2;
@@ -39,7 +38,6 @@ namespace Wreckabulary
             furnitureRoot = furniture;
         }
 
-        /// <summary>Capture authored transforms, materials and component overrides before gameplay can change them.</summary>
         public void PrepareForPlay()
         {
             if (furnitureSnapshot) return;
@@ -84,7 +82,6 @@ namespace Wreckabulary
 
         static void KeepTactileMaterialsAlive(Transform root)
         {
-            // Cloned runtime furniture still references shared tactile variants; its inactive template owns a cache scope too.
             if (root.GetComponentInChildren<Art.TactileMaterials>(true)) Art.TactileMaterials.Apply(root.gameObject);
         }
     }

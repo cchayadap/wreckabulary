@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Shared art and data references, loaded from Resources/GameAssets.</summary>
     [CreateAssetMenu(menuName = "Wreckabulary/Game Assets")]
     public class GameAssets : ScriptableObject
     {
@@ -42,15 +41,14 @@ namespace Wreckabulary
         [Header("Players")]
         public Color[] playerColors =
         {
-            new(0.91f, 0.34f, 0.29f), // coral
-            new(0.25f, 0.56f, 0.88f), // blue
-            new(0.36f, 0.73f, 0.39f), // green
-            new(0.95f, 0.70f, 0.24f), // yellow
+            new(0.91f, 0.34f, 0.29f),
+            new(0.25f, 0.56f, 0.88f),
+            new(0.36f, 0.73f, 0.39f),
+            new(0.95f, 0.70f, 0.24f),
         };
         [Tooltip("Sweater initials per player slot. Together they spell WORD.")]
         public string playerInitials = "WORD";
 
-        /// <summary>Set by the editor so tints made outside Play mode are saved as assets.</summary>
         public static Func<Color, Material> EditorTintFactory;
 
         readonly Dictionary<Color, Material> runtimeTints = new();
@@ -58,7 +56,6 @@ namespace Wreckabulary
         public Color PlayerColor(int index) => playerColors[index % playerColors.Length];
         public char PlayerInitial(int index) => playerInitials[index % playerInitials.Length];
 
-        /// <summary>A lit material in the given colour, shared between everything that uses it.</summary>
         public Material Tinted(Color c)
         {
             foreach (var m in tints)
@@ -78,10 +75,6 @@ namespace Wreckabulary
             return mat;
         }
 
-        /// <summary>
-        /// URP/Lit keeps its colour in _BaseColor and only carries _Color as an obsolete leftover, so
-        /// setting Material.color alone left every tinted object white. Write both.
-        /// </summary>
         static void ApplyTint(Material material, Color colour)
         {
             if (!material) return;

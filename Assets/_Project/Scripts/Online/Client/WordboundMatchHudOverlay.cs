@@ -52,10 +52,10 @@ namespace Wreckabulary.Online
                     int lap = Math.Min(progress.Lap, course.Laps.Count - 1);
                     int checkpoints = course.Laps[lap].Checkpoints.Count;
                     statusPanel.Add($"Lap {Math.Min(progress.Lap + 1, mode.Laps)}/{mode.Laps} · Checkpoint {Math.Min(progress.NextCheckpoint + 1, checkpoints)}/{checkpoints}");
+                    statusPanel.Add(ObjectiveText(progress));
                 }
                 else if (mode.Objective == WordboundObjective.Knockouts)
                     statusPanel.Add($"Knockouts {frame.Progress.Players.Single(p => p.Id == actorId).Knockouts}/{mode.KnockoutTarget}");
-                if (actor != null) statusPanel.Add($"Health {Mathf.CeilToInt(actor.Health)} · Stamina {Mathf.CeilToInt(actor.Stamina)}");
             }
             string letters = CompactLetters(inventory?.Letters.ToString());
             if (letters.Length != 0) inventoryPanel.Add("Letters " + letters);

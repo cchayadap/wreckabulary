@@ -7,11 +7,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// The Escape mode. A co-op run with no friendly fire: three doorways are barred and
-    /// each one opens when the crew spells its word out of the letters lying around the
-    /// house. The Movers pack the place while you work. Everybody has to reach the exit.
-    /// </summary>
     public sealed class EscapeDirector : MonoBehaviour
     {
         public enum State { Waiting, Countdown, Playing, Complete, Failed }
@@ -23,12 +18,11 @@ namespace Wreckabulary
             public bool Open;
         }
 
-        /// <summary>Every doorway gets one of these: a brown leaf hanging on a hinge, barred or free.</summary>
         sealed class DoorVisual
         {
             public Doorway Door;
-            public Transform Hinge;      // pivot standing on the left jamb
-            public Collider Leaf;        // the only collider in the opening, cleared when the door opens
+            public Transform Hinge;
+            public Collider Leaf;
             public GameObject Padlock;
             public Renderer Render;
             public Quaternion Closed, Opened;
@@ -39,7 +33,6 @@ namespace Wreckabulary
         const float UnlockRadius = 5.5f;
         const float BarredWordScale = 4.2f;
 
-        /// <summary>While the door look is being tuned this logs whether the leaf is really drawn.</summary>
         const bool DoorDiagnostics = true;
 
         PlayerJoinManager joins;
@@ -48,7 +41,7 @@ namespace Wreckabulary
         GameHud hud;
         ClearOutController clearOut;
         Vector3 extraction;
-        string spawnRoom;      // room the crew starts in (never the exit room)
+        string spawnRoom;
         int seed;
         float began, nextCheck, finishedAt, nextLetterCheck, nextRoomCheck, nextGuideCheck, nextLookCheck;
         readonly List<LockedDoor> doors = new();
@@ -56,16 +49,13 @@ namespace Wreckabulary
         readonly HashSet<int> hooked = new();
         readonly List<GameObject> spawned = new();
 
-        // The way out is locked with a key instead of a word: the crew hunts the key, the map shows the
-        // way, and the key turns in the exit door. Turn it off in rules.json ("exitNeedsKey": false).
-        DoorVisual exitDoor;                       // the leaf standing on the exit room's outside wall
-        GameObject exitCircle, exitLabel;          // the stand-here marker, hidden until the key is found
-        string exitRoom;                           // the room the crew escapes from, re-picked every round
+        DoorVisual exitDoor;
+        GameObject exitCircle, exitLabel;
+        string exitRoom;
         Vector3 exitCentre, exitOutward;
         float exitYaw, exitWidth = 1.8f;
-        bool exitGated;                            // true = the way out needs the key (false = original rules)
+        bool exitGated;
 
-        /// <summary>One key lying in the house, with the room it is hiding in.</summary>
         sealed class KeyProp
         {
             public GameObject Root, Beacon;
@@ -86,10 +76,8 @@ namespace Wreckabulary
         public int KeysNeeded => keysNeeded;
         public bool AllKeysFound => keysFound >= keysNeeded;
         public bool ExitOpen => exitOpen;
-        /// <summary>The room the next key is hiding in, for the map and the checklist.</summary>
         public string KeyRoom => NextKeyRoom;
         public string GuideRoom => guideRoom;
-        /// <summary>True once the map may point at the exit: the crew is holding every key.</summary>
         public bool ExitRevealed => !exitGated || AllKeysFound;
         public float TimeLeft => Mathf.Max(0f, Match.Rules.RoundTimeLimitSeconds - (Time.time - began));
 
@@ -103,8 +91,8 @@ namespace Wreckabulary
             deliveries.Running = false;
             clearOut = gameObject.AddComponent<ClearOutController>();
             clearOut.Configure(room.Layout, "Escape");
-            clearOut.ShowIndicators = false;   // no flashing floor borders
-            clearOut.Harms = false;            // no packing damage
+            clearOut.ShowIndicators = false;
+            clearOut.Harms = false;
             exitRoom = room.Layout.ExtractionRoom;
             ConfigureExit();
             joins.Joined += OnJoined;
@@ -118,10 +106,6 @@ namespace Wreckabulary
             if (joins.HumanCount > 0) Restart();
         }
 
-        /// <summary>
-        /// The crew starts in a random authored spawn room. It used to take the first one that was not
-        /// the exit, which meant every run of the same house opened the same doors in the same order.
-        /// </summary>
         string PickStartRoom()
         {
             var layout = room.Layout;
@@ -141,10 +125,6 @@ namespace Wreckabulary
             return best != null ? best.Name : layout.ExtractionRoom;
         }
 
-        /// <summary>
-        /// The room the crew escapes from: a random room in the far band, at least two doors away, and
-        /// with a real outside wall so the key-locked exit door has somewhere to stand.
-        /// </summary>
         string PickExitRoom(string spawn)
         {
             var layout = room.Layout;
@@ -155,17 +135,16 @@ namespace Wreckabulary
                 int doors = string.IsNullOrEmpty(spawn) ? 2 : Escape.PathDoors(layout, spawn, box.Name).Count;
                 candidates.Add((box.Name, doors));
             }
-            if (candidates.Count == 0) return layout.ExtractionRoom;   // nowhere else has an outside wall
+            if (candidates.Count == 0) return layout.ExtractionRoom;
 
             int farthest = 0;
             foreach (var entry in candidates) farthest = Mathf.Max(farthest, entry.doors);
-            int floor = farthest >= 2 ? Mathf.Max(2, farthest - 1) : 1;   // never the room the crew starts in
+            int floor = farthest >= 2 ? Mathf.Max(2, farthest - 1) : 1;
             var far = candidates.FindAll(c => c.doors >= floor);
             if (far.Count == 0) far = candidates;
             return far[Random.Range(0, far.Count)].name;
         }
 
-        /// <summary>The four walls of a room, with the outward direction and door angle each one needs.</summary>
         (Vector3 centre, float yaw, Vector3 outward, float length)[] Walls(RoomBox box)
         {
             float y = box.FloorY;
@@ -189,7 +168,6 @@ namespace Wreckabulary
 
         static Vector2 Centre(RoomBox box) => new Vector2((box.MinX + box.MaxX) * .5f, (box.MinZ + box.MaxZ) * .5f);
 
-        /// <summary>A spot inside the start room, spread out so the crew does not stack.</summary>
         Vector3 StartSpot(int index)
         {
             var box = room.Layout.Room(spawnRoom);
@@ -203,7 +181,6 @@ namespace Wreckabulary
             return new Vector3(spot.x, box.FloorY + .2f, spot.y);
         }
 
-        /// <summary>Listening for crafted words is what opens a door: you spell it at the door.</summary>
         void HookSummoner(PlayerController p)
         {
             if (p == null || !p.Summoner || !hooked.Add(p.Index)) return;
@@ -214,7 +191,6 @@ namespace Wreckabulary
         {
             if (Current != State.Playing || p == null || string.IsNullOrEmpty(word)) return;
 
-            // Spelled at the door, or spelled nearby with that door being the closest one to you.
             int closest = -1;
             float closestDistance = float.MaxValue;
             for (int i = 0; i < doors.Count; i++)
@@ -266,7 +242,7 @@ namespace Wreckabulary
             BuildAllDoors();
             BuildKeys();
             guideRoom = NextKeyRoom;
-            SyncExitMarker();   // the exit stays hidden until the last key is in hand; its door is built then
+            SyncExitMarker();
             joins.AssignTeams();
             foreach (var p in joins.Players) { joins.Place(p); p.Respawn(StartSpot(p.Index)); p.Frozen = true; }
             joins.AllowJoining = true;
@@ -300,7 +276,6 @@ namespace Wreckabulary
             var pending = new List<Doorway>(layout.Doors);
             AddRoom(reachable, spawnRoom);
 
-            // Only words the player can really spell: the ones the item catalogue has switched on.
             var pools = new Dictionary<int, List<string>>();
             foreach (var item in GameConfig.Current.Items.Enabled)
             {
@@ -311,15 +286,11 @@ namespace Wreckabulary
                 if (!list.Contains(item.Id)) list.Add(item.Id);
             }
 
-            // A door's own word must never be lying about the house as one piece of furniture: smashing
-            // that one prop would hand the crew the whole answer instead of a hunt for letters.
             var houseWords = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
             if (room.Originals != null)
                 foreach (var prop in room.Originals)
                     if (prop && !string.IsNullOrEmpty(prop.Word)) houseWords.Add(prop.Word);
 
-            // EVERY doorway is barred. Words are handed out as the crew can reach them, so the house
-            // opens up door by door and the exit is always behind something you have to spell.
             int index = 0;
             while (pending.Count > 0)
             {
@@ -327,12 +298,12 @@ namespace Wreckabulary
                 foreach (var d in pending)
                 {
                     bool a = reachable.Contains(d.A), b = reachable.Contains(d.B);
-                    if (a != b) { pick = d; break; }                      // next door on the way out
+                    if (a != b) { pick = d; break; }
                 }
                 if (pick == null)
                     foreach (var d in pending)
-                        if (reachable.Contains(d.A) && reachable.Contains(d.B)) { pick = d; break; }   // a loop door
-                if (pick == null) pick = pending[0];                      // anything left over
+                        if (reachable.Contains(d.A) && reachable.Contains(d.B)) { pick = d; break; }
+                if (pick == null) pick = pending[0];
 
                 pending.Remove(pick);
 
@@ -343,7 +314,6 @@ namespace Wreckabulary
                 var door = new LockedDoor { Door = pick, Word = word };
                 doors.Add(door);
 
-                // The props that spell this door go on the side the crew can already walk to.
                 StockDoor(word, pick, reachable, rng);
                 AddRoom(reachable, pick.A);
                 AddRoom(reachable, pick.B);
@@ -355,11 +325,6 @@ namespace Wreckabulary
                 Debug.Log($"[Escape] door '{d.Word}' between {d.Door.A}/{d.Door.B} at {DoorCentre(d.Door)}");
         }
 
-        /// <summary>
-        /// Picks a word of this length that the crew can really spell and that is not already sitting in
-        /// the house as furniture. If every candidate is a piece of furniture, the used-up ones come back
-        /// first: a slightly easy door beats a door nobody can open.
-        /// </summary>
         static string PickWord(Dictionary<int, List<string>> pools, int length, System.Random rng, List<string> used, HashSet<string> avoid)
         {
             if (pools.TryGetValue(length, out var pool) && pool.Count > 0)
@@ -372,10 +337,9 @@ namespace Wreckabulary
                 if (spare.Count == 0) spare = pool;
                 return spare[rng.Next(spare.Count)];
             }
-            return Escape.PickWord(length, rng, used);   // fallback to the built-in list
+            return Escape.PickWord(length, rng, used);
         }
 
-        /// <summary>Builds every doorway: frames plus a door leaf. The barred ones start shut.</summary>
         void BuildAllDoors()
         {
             foreach (var doorway in room.Layout.Doors)
@@ -396,7 +360,7 @@ namespace Wreckabulary
             float yaw = DoorYaw(d);
             float width = Mathf.Max(1.2f, d.Width);
             MeasureDoorway(d, y + 1.15f, ref yaw, ref width);
-            width = Mathf.Max(width, d.Width);   // a misread opening never leaves a gap beside a locked door
+            width = Mathf.Max(width, d.Width);
 
             var rot = Quaternion.Euler(0f, yaw, 0f);
             var centre = new Vector3(d.X, y, d.Z);
@@ -411,23 +375,16 @@ namespace Wreckabulary
                 + $" layer={visual.Render.gameObject.layer} parent={visual.Render.transform.parent.name} parentActive={transform.gameObject.activeInHierarchy} barred={barred}");
         }
 
-        /// <summary>
-        /// Builds one doorway: a wooden frame plus a brown leaf hanging on a hinge. The leaf is the only
-        /// collider in the opening, so whatever opens it really clears the way.
-        /// </summary>
         DoorVisual BuildLeaf(Vector3 centre, Quaternion rot, float width, bool barred, Color lockColour)
         {
             const float DoorHeight = 2.6f;
-            const float LeafThickness = .80f;   // far thicker than any wall: the leaf must always stand proud of it
+            const float LeafThickness = .80f;
             float half = width * .5f;
 
-            // Wooden frame around the opening. The frame is decoration; the leaf is the only blocker.
             Piece("Door post", centre + rot * new Vector3(-half - .13f, 1.25f, 0f), rot, new Vector3(.26f, 2.5f, .5f), new Color(.24f, .15f, .1f));
             Piece("Door post", centre + rot * new Vector3(half + .13f, 1.25f, 0f), rot, new Vector3(.26f, 2.5f, .5f), new Color(.24f, .15f, .1f));
             Piece("Door lintel", centre + Vector3.up * 2.55f, rot, new Vector3(width + .8f, .26f, .5f), new Color(.24f, .15f, .1f));
 
-            // The leaf hangs off a hinge standing on the left jamb, so opening the door swings the whole
-            // leaf aside instead of leaving a slab buried in the opening.
             var hinge = new GameObject(barred ? "Barred door hinge" : "Door hinge").transform;
             hinge.SetParent(transform, false);
             hinge.SetPositionAndRotation(centre + rot * new Vector3(-half, 0f, 0f), rot);
@@ -476,14 +433,8 @@ namespace Wreckabulary
         static readonly Color DoorBrown = new(.48f, .29f, .18f);
         static Material doorMaterial;
 
-        /// <summary>
-        /// The door finish: the solid brown on URP/Unlit that the mode always used. Unlit keeps the leaf
-        /// readable in the dim interiors instead of sinking into the pale plaster, and it is the one
-        /// material already proven to show up inside these doorways.
-        /// </summary>
         static Material DoorMaterial() => doorMaterial ? doorMaterial : doorMaterial = Solid(DoorBrown);
 
-        /// <summary>URP/Lit keeps its colour in _BaseColor and ignores the legacy _Color, so write both.</summary>
         static Material Paint(Material material, Color colour)
         {
             if (!material) return material;
@@ -494,34 +445,23 @@ namespace Wreckabulary
             return material;
         }
 
-        /// <summary>
-        /// Which way the leaf swings: a quarter turn to +90 or -90, picked so the free edge lands in a
-        /// room instead of outside the house. +90 sends the free edge to local -Z, -90 to local +Z.
-        /// </summary>
         float OpenAngle(Vector3 centre, Quaternion rot, float half)
         {
             float reach = half + .8f;
             bool minusZ = Inside(centre + rot * new Vector3(0f, 0f, -reach));
             bool plusZ = Inside(centre + rot * new Vector3(0f, 0f, reach));
-            if (plusZ == minusZ) return 90f;   // both sides are rooms, or neither: either way will do
+            if (plusZ == minusZ) return 90f;
             return plusZ ? -90f : 90f;
         }
 
         bool Inside(Vector3 point) => !string.IsNullOrEmpty(room.Layout.RoomAt(point.x, point.y, point.z));
 
-        // ---------------------------------------------------------- the key, the exit door and the guide
-
-        /// <summary>Remembers which rooms the crew can already walk to while the doors are handed out.</summary>
         void AddRoom(HashSet<string> reachable, string name)
         {
             if (string.IsNullOrEmpty(name) || room.Layout.Room(name) == null) return;
             reachable.Add(name);
         }
 
-        /// <summary>
-        /// Rooms for the keys. They come from the far half of the house, all different, never the start
-        /// room and never the exit room, so the hunt is a real journey instead of the room next door.
-        /// </summary>
         List<string> PickKeyRooms(int count)
         {
             var result = new List<string>();
@@ -535,15 +475,15 @@ namespace Wreckabulary
                 int doors = string.IsNullOrEmpty(spawnRoom) ? wanted : Escape.PathDoors(layout, spawnRoom, box.Name).Count;
                 if (doors >= wanted) others.Add((box.Name, doors));
             }
-            if (others.Count == 0)   // no room is far enough: any other room beats the start room
+            if (others.Count == 0)
                 foreach (var box in layout.Rooms)
                     if (box.Name != spawnRoom && box.Name != exitRoom && box.Name != "Garden") others.Add((box.Name, 1));
             if (others.Count == 0) return result;
 
-            others.Sort((a, b) => b.doors.CompareTo(a.doors));   // farthest first
+            others.Sort((a, b) => b.doors.CompareTo(a.doors));
             int band = Mathf.Clamp(Mathf.Max(count, Mathf.CeilToInt(others.Count * .5f)), 1, others.Count);
             var pool = new List<string>();
-            for (int i = 0; i < band; i++) pool.Add(others[i].name);   // random, but always the far half
+            for (int i = 0; i < band; i++) pool.Add(others[i].name);
 
             while (result.Count < count && pool.Count > 0)
             {
@@ -556,7 +496,6 @@ namespace Wreckabulary
             return result;
         }
 
-        /// <summary>The room the next uncollected key is hiding in.</summary>
         string NextKeyRoom
         {
             get
@@ -567,11 +506,6 @@ namespace Wreckabulary
             }
         }
 
-        /// <summary>
-        /// Chooses the wall the crew escapes through: the exit room's own outside edge nearest the
-        /// authored extraction point. The stand-here circle moves onto that threshold, so the marker
-        /// sits at the door instead of in the middle of the room.
-        /// </summary>
         void ConfigureExit()
         {
             var layout = room.Layout;
@@ -581,7 +515,6 @@ namespace Wreckabulary
             exitGated = false;
             if (!Match.Rules.EscapeNeedsKey || box == null) return;
 
-            // The longest outside wall takes the door, so a randomly chosen exit room still gets one.
             float longest = 0f;
             foreach (var wall in Walls(box))
             {
@@ -595,17 +528,11 @@ namespace Wreckabulary
                 exitGated = true;
             }
 
-            // The floor circle marks the room, not the doorway: the exit door is a locked panel on the
-            // outside wall, so the crew meets in the middle of the room once the key is in hand.
             extraction = new Vector3((box.MinX + box.MaxX) * .5f, y, (box.MinZ + box.MaxZ) * .5f);
 
             Debug.Log($"[Escape] exit room={exitRoom} gated={exitGated} centre={exitCentre} yaw={exitYaw:0} width={exitWidth:0.00} outward={exitOutward} stand={extraction}");
         }
 
-        /// <summary>
-        /// Hides one key in every key room, each on a ring of light so it reads as a key from across the
-        /// room. The crew needs all of them before the way out is revealed.
-        /// </summary>
         void BuildKeys()
         {
             keys.Clear();
@@ -623,7 +550,6 @@ namespace Wreckabulary
             Debug.Log($"[Escape] {keysNeeded} key(s) hidden in {string.Join(", ", rooms)}");
         }
 
-        /// <summary>One golden key standing upright over a ring of light in its room.</summary>
         KeyProp BuildKeyIn(string roomName)
         {
             var box = room.Layout.Room(roomName);
@@ -636,7 +562,6 @@ namespace Wreckabulary
             root.SetParent(transform, false);
             root.position = floor + Vector3.up * .78f;
 
-            // The bow is a ring of small blocks: a sphere or a single box reads as a lollipop, not a key.
             const int RingSteps = 14;
             for (int i = 0; i < RingSteps; i++)
             {
@@ -649,7 +574,6 @@ namespace Wreckabulary
             KeyPiece(root, "Key bit", new Vector3(.09f, -.13f, 0f), new Vector3(.12f, .05f, .06f), gold, Quaternion.identity);
             KeyPiece(root, "Key bit", new Vector3(.09f, -.03f, 0f), new Vector3(.12f, .05f, .06f), gold, Quaternion.identity);
 
-            // A ring of light on the floor under the key, so it is findable from across the room.
             var beacon = new GameObject("Key beacon").transform;
             beacon.SetParent(transform, false);
             beacon.position = floor + Vector3.up * .04f;
@@ -681,14 +605,12 @@ namespace Wreckabulary
             piece.GetComponent<Renderer>().sharedMaterial = material;
         }
 
-        /// <summary>Stands the closed, key-locked leaf on the exit room's outside wall.</summary>
         void BuildExitDoor()
         {
             if (!exitGated) return;
             exitDoor = BuildLeaf(exitCentre, Quaternion.Euler(0f, exitYaw, 0f), exitWidth, true, new Color(1f, .84f, .32f));
         }
 
-        /// <summary>The key turns: the leaf swings aside and the way out lights up.</summary>
         void UnlockExit()
         {
             if (exitOpen) return;
@@ -722,7 +644,6 @@ namespace Wreckabulary
             exitDoor.Hinge.rotation = Quaternion.Slerp(exitDoor.Closed, exitDoor.Opened, Mathf.SmoothStep(0f, 1f, exitDoor.Swing));
         }
 
-        /// <summary>Spins every key and hands one over the moment a living roommate walks into it.</summary>
         void TickKey()
         {
             for (int i = keys.Count - 1; i >= 0; i--)
@@ -745,8 +666,8 @@ namespace Wreckabulary
 
                     if (AllKeysFound)
                     {
-                        BuildExitDoor();      // the way out only exists once the crew can open it
-                        UnlockExit();         // and the last key turns in it straight away
+                        BuildExitDoor();
+                        UnlockExit();
                         SyncExitMarker();
                         hud.Toast("Last key found \u2014 the way out is on the map");
                     }
@@ -756,7 +677,6 @@ namespace Wreckabulary
             }
         }
 
-        /// <summary>Diagnostic while the door look is being tuned: is the leaf actually being drawn?</summary>
         void LogDoorVisibility()
         {
             var who = GuidePlayer();
@@ -779,7 +699,6 @@ namespace Wreckabulary
 
         string GuideTargetRoom => exitGated && !AllKeysFound ? NextKeyRoom : exitRoom;
 
-        /// <summary>The roommate leading the way: the living one closest to the current target.</summary>
         PlayerController GuidePlayer()
         {
             var target = room.Layout.Room(GuideTargetRoom);
@@ -804,11 +723,6 @@ namespace Wreckabulary
             return null;
         }
 
-        /// <summary>
-        /// The next step of the tour, recomputed every tick: the first barred door on the shortest walk
-        /// from the crew to the key and then the exit. It advances by itself as the crew moves, so there
-        /// is no chain to keep in sync with the house.
-        /// </summary>
         void UpdateGuide()
         {
             guideDoor = null;
@@ -824,7 +738,7 @@ namespace Wreckabulary
             foreach (var door in Escape.PathDoors(room.Layout, here, target))
             {
                 var locked = LockedBetween(door);
-                if (locked == null) continue;   // already open: walk straight on through
+                if (locked == null) continue;
                 guideDoor = locked;
                 guideRoom = string.Equals(door.A, here, System.StringComparison.Ordinal) ? door.B : door.A;
                 return;
@@ -834,7 +748,6 @@ namespace Wreckabulary
         static string RoomName(Rules.HouseLayout layout, string room) =>
             string.IsNullOrEmpty(room) ? "the exit" : layout.WithStorey(room);
 
-        /// <summary>The one line at the top of the screen: where to go next and what to spell.</summary>
         string GuideText()
         {
             if (!exitGated) return "";
@@ -853,10 +766,6 @@ namespace Wreckabulary
                 : keysNeeded > 1 ? $"{lead} \u00b7 the next one is in {near}" : $"{lead} \u00b7 it is hidden in {near}";
         }
 
-        /// <summary>
-        /// Reads the built house: the free axis through the doorway sets the door angle and the
-        /// distance to the jambs sets its width. Falls back to the data when nothing is scanned.
-        /// </summary>
         void MeasureDoorway(Doorway d, float height, ref float yaw, ref float width)
         {
             var centre = new Vector3(d.X, height, d.Z);
@@ -869,16 +778,11 @@ namespace Wreckabulary
             float jambA = Free(centre, wallAxis, 4f);
             float jambB = Free(centre, -wallAxis, 4f);
             float measured = jambA + jambB;
-            if (measured > d.Width * .8f && measured < d.Width * 1.3f) width = measured;   // ignore wild measurements
+            if (measured > d.Width * .8f && measured < d.Width * 1.3f) width = measured;
 
             Debug.Log($"[Escape] scan {d.A}/{d.B} at {centre}: freeX={freeX:0.00} freeZ={freeZ:0.00} → yaw={yaw:0} jambs={jambA:0.00}/{jambB:0.00} width={width:0.00} (data {d.Width:0.00})");
         }
 
-        /// <summary>
-        /// Distance from the doorway centre to the face of the wall on the crew's side. Probing from a
-        /// few metres inside the room tells us how thick the wall is, so the door can sit just proud of
-        /// it instead of being buried inside (which is why doors were invisible).
-        /// </summary>
         float WallFace(Doorway d, Vector3 through, float y)
         {
             var start = new Vector3(d.X, y + 1.15f, d.Z) + through * 3f;
@@ -896,7 +800,6 @@ namespace Wreckabulary
             return Mathf.Clamp(3f - best, 0f, .9f);
         }
 
-        /// <summary>How far you can walk from a point before something solid stops you.</summary>
         static float Free(Vector3 from, Vector3 direction, float max = 3f)
         {
             float best = max;
@@ -919,11 +822,6 @@ namespace Wreckabulary
             return new Vector3(d.X, y, d.Z);
         }
 
-        /// <summary>
-        /// Doorways are gaps in axis-aligned walls: rooms side by side along X share a wall that
-        /// runs along Z (yaw 90), rooms stacked along Z share a wall along X (yaw 0). Reading the
-        /// room centres directly used to skew every doorway that was not exactly on the diagonal.
-        /// </summary>
         float DoorYaw(Doorway d)
         {
             var a = room.Layout.Room(d.A);
@@ -957,7 +855,7 @@ namespace Wreckabulary
             {
                 if (!door.Open && !door.Barred && door.Hinge && PlayerNear(door.Door, AutoOpenRadius))
                 {
-                    door.Open = true;   // free doors swing open as the crew walk up to them
+                    door.Open = true;
                     door.Swing = 0f;
                     if (door.Leaf) door.Leaf.enabled = false;
                     if (door.Padlock) Destroy(door.Padlock);
@@ -988,7 +886,6 @@ namespace Wreckabulary
             return null;
         }
 
-        /// <summary>True when the player is carrying the item the door wants.</summary>
         static bool HoldingWord(PlayerController p, string word)
         {
             if (p == null || p.Combat == null) return false;
@@ -1001,11 +898,6 @@ namespace Wreckabulary
             return false;
         }
 
-        /// <summary>
-        /// Stocks the rooms the crew can already reach with furniture whose letters spell the door's
-        /// word. Smashing a prop drops its letters, so a locked door is a hunt through objects rather
-        /// than a trail of loose tiles. The word's own item is never placed: that would give it away.
-        /// </summary>
         void StockDoor(string word, Doorway door, HashSet<string> reachable, System.Random rng)
         {
             var layout = room.Layout;
@@ -1013,8 +905,6 @@ namespace Wreckabulary
             if (open.Count == 0) open = layout.Rooms.ToList();
             if (open.Count == 0) return;
 
-            // Everything a door needs goes into ONE room: the room you walk through to reach it, so the
-            // objects are all in front of you instead of scattered over other floors.
             string near = reachable != null && reachable.Contains(door.A) ? door.A
                         : reachable != null && reachable.Contains(door.B) ? door.B
                         : open[rng.Next(open.Count)].Name;
@@ -1036,7 +926,6 @@ namespace Wreckabulary
                 Debug.Log($"[Escape] stocked '{pick}' for door '{word}' in {box.Name}");
             }
 
-            // Whatever the catalogue cannot cover becomes a single-letter crate in that same room.
             foreach (var pair in needed.Where(p => p.Value > 0).ToList())
                 for (int i = 0; i < pair.Value; i++)
                 {
@@ -1063,11 +952,6 @@ namespace Wreckabulary
             return SpawnProp(word, new Vector3(Centre(box).x, box.FloorY + .12f, Centre(box).y), 0f);
         }
 
-        /// <summary>
-        /// Drops one of the game's own prop models (vase, crate, lamp…) into the house as a smashable.
-        /// Smashing it releases the letters of its word. Falls back to block furniture when the model
-        /// for that word is unavailable.
-        /// </summary>
         Smashable SpawnProp(string word, Vector3 position, float yaw)
         {
             word = word.ToUpperInvariant();
@@ -1103,7 +987,6 @@ namespace Wreckabulary
             return smash;
         }
 
-        /// <summary>The prop that covers the most of what is still missing, never the door's own word.</summary>
         static string PickPropFor(Dictionary<char, int> needed, string word, System.Random rng)
         {
             int best = 0;
@@ -1111,7 +994,7 @@ namespace Wreckabulary
             foreach (var item in GameConfig.Current.Items.All)
             {
                 if (item == null || string.IsNullOrEmpty(item.Id)) continue;
-                if (string.IsNullOrEmpty(item.Model)) continue;   // only props the game can actually show
+                if (string.IsNullOrEmpty(item.Model)) continue;
                 if (string.Equals(item.Id, word, System.StringComparison.OrdinalIgnoreCase)) continue;
                 var left = new Dictionary<char, int>(needed);
                 int score = 0;
@@ -1142,10 +1025,6 @@ namespace Wreckabulary
             return new Vector3(centre.x, box.FloorY + .9f, centre.y);
         }
 
-        /// <summary>
-        /// Safety net: if a locked door's letters are not in anybody's bag and not lying around,
-        /// drop the missing ones next to the crew. Runs rarely, but the escape can never softlock.
-        /// </summary>
         void EnsureDoorLetters()
         {
             foreach (var door in doors)
@@ -1154,7 +1033,6 @@ namespace Wreckabulary
                 var need = new Dictionary<char, int>();
                 foreach (char c in door.Word) need[c] = need.TryGetValue(c, out var n) ? n + 1 : 1;
 
-                // Letters in a bag, lying around, or still inside an un-smashed prop all count.
                 var pool = TilePool.Instance;
                 if (pool != null)
                     foreach (var tile in pool.Active)
@@ -1178,7 +1056,6 @@ namespace Wreckabulary
             }
         }
 
-        /// <summary>Last resort: a single-letter crate appears next to the crew.</summary>
         void DropPropNear(char letter)
         {
             var player = joins.Players.FirstOrDefault(p => p && !p.IsEliminated);
@@ -1249,7 +1126,6 @@ namespace Wreckabulary
             return false;
         }
 
-        /// <summary>Keeps furniture off the straight walk between any two doorways of a room.</summary>
         static bool BlocksWalkLine(Vector2 point, List<Vector2> doorways, float clearance)
         {
             for (int i = 0; i < doorways.Count; i++)
@@ -1320,7 +1196,6 @@ namespace Wreckabulary
 
         const float HintRadius = 5f;
 
-        /// <summary>Only the door you are standing next to talks to you.</summary>
         string DoorHint()
         {
             var player = joins.Players.FirstOrDefault(p => p && !p.IsEliminated);
@@ -1343,7 +1218,6 @@ namespace Wreckabulary
 
         static string Spaced(string word) => string.Join(" ", word.Select(c => c.ToString()));
 
-        /// <summary>Letters of the word the player is still missing, counted as a multiset.</summary>
         static List<char> MissingLetters(IReadOnlyList<char> held, string word)
         {
             var spare = new List<char>(held);
@@ -1374,7 +1248,6 @@ namespace Wreckabulary
         CanvasGroup notice;
         TextMeshProUGUI noticeHead, noticeBody;
 
-        /// <summary>A big rectangular notice that fades in as the crew walks up to a barred door.</summary>
         void BuildNotice()
         {
             var root = new GameObject("Escape notice", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(CanvasGroup));
@@ -1393,7 +1266,6 @@ namespace Wreckabulary
             var panel = new GameObject("Panel", typeof(RectTransform), typeof(Image));
             panel.transform.SetParent(root.transform, false);
             var rect = (RectTransform)panel.transform;
-            // Left side, upper-middle: readable without covering the play area.
             rect.anchorMin = rect.anchorMax = new Vector2(0f, .5f);
             rect.pivot = new Vector2(0f, .5f);
             rect.anchoredPosition = new Vector2(56f, 150f);
@@ -1435,7 +1307,7 @@ namespace Wreckabulary
                 }
 
             float target = 0f;
-            if (Current != State.Playing) near = null;   // fade out once the run is over
+            if (Current != State.Playing) near = null;
             if (near != null && player != null)
             {
                 target = Mathf.Clamp01(1f - (best - 1.6f) / 4.9f);
@@ -1449,10 +1321,6 @@ namespace Wreckabulary
             notice.alpha = Mathf.MoveTowards(notice.alpha, target, Time.deltaTime * 2.5f);
         }
 
-        /// <summary>
-        /// An unlit material with the colour written to _BaseColor: URP/Lit ignores the legacy _Color,
-        /// which is why every door used to render white and vanish against the pale walls.
-        /// </summary>
         static Material Solid(Color colour)
         {
             colour.a = 1f;
@@ -1467,7 +1335,6 @@ namespace Wreckabulary
             return material;
         }
 
-        /// <summary>When the bag is full and a wanted letter is on the floor, drop a letter nobody needs.</summary>
         void MakeRoomForLetters()
         {
             if (Time.time < nextRoomCheck) return;
@@ -1508,7 +1375,6 @@ namespace Wreckabulary
 
         void CheckDoors()
         {
-            // Two ways in: spell the word while standing at the door, or carry the item to it.
             for (int i = 0; i < doors.Count; i++)
             {
                 var door = doors[i];
@@ -1532,8 +1398,8 @@ namespace Wreckabulary
             var visual = VisualFor(door.Door);
             if (visual == null) return;
             visual.Open = true;
-            visual.Swing = 0f;                              // the leaf swings aside over the next .8 s
-            if (visual.Leaf) visual.Leaf.enabled = false;   // the way is clear the moment the word lands
+            visual.Swing = 0f;
+            if (visual.Leaf) visual.Leaf.enabled = false;
             if (visual.Padlock) Destroy(visual.Padlock);
         }
 
@@ -1546,7 +1412,6 @@ namespace Wreckabulary
             foreach (int id in WinCheck.Unrevivable(combatants)) World.PlayerById(id)?.Health.Eliminate();
 
             var survivors = joins.Players.Where(p => !p.IsEliminated).ToArray();
-            // The goal is the exit itself: barred doors and the key are obstacles on the way, not a checklist.
             if (survivors.Length == 0 || TimeLeft <= 0f) Finish(false);
             else if ((!exitGated || exitOpen) && survivors.All(p => p.Health.IsAlive && AtExit(p.transform.position))) Finish(true);
         }
@@ -1595,17 +1460,12 @@ namespace Wreckabulary
             SyncExitMarker();
         }
 
-        /// <summary>The exit room is re-picked every round, so the stand-here marker follows it.</summary>
         void MoveExitMarker()
         {
             if (exitCircle) exitCircle.transform.position = extraction + Vector3.up * .01f;
             if (exitLabel) exitLabel.transform.position = extraction + Vector3.up * .035f;
         }
 
-        /// <summary>
-        /// The way out stays hidden until the crew is holding the key: no green circle, no EXIT sign and
-        /// no exit door before then. Without the key rule the marker is simply always there.
-        /// </summary>
         void SyncExitMarker()
         {
             bool show = !exitGated || AllKeysFound;

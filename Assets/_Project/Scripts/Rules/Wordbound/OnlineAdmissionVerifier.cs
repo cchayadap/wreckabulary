@@ -8,6 +8,7 @@ namespace Wreckabulary.Rules.Wordbound
 {
     public sealed class OnlineAdmissionVerifier
     {
+        public const long ClockLeewaySeconds = 30;
         readonly string issuer;
         readonly Dictionary<string, RSAParameters> keys = new Dictionary<string, RSAParameters>(StringComparer.Ordinal);
 
@@ -60,7 +61,7 @@ namespace Wreckabulary.Rules.Wordbound
             if (claims["iss"].String() != issuer || claims["aud"].String() != audience)
                 throw new FormatException("Wrong JWT issuer or audience.");
             long issued = OnlineJson.Integer(claims, "iat"), expires = OnlineJson.Integer(claims, "exp");
-            if (issued > nowSeconds || expires <= nowSeconds || expires <= issued || expires - issued > 90 ||
+            if (issued > nowSeconds + ClockLeewaySeconds || expires <= nowSeconds || expires <= issued || expires - issued > 90 ||
                 OnlineJson.Integer(claims, "version", 1, 1) != 1)
             {
                 var error = new FormatException("Expired, future or unsupported token.");
@@ -113,7 +114,7 @@ namespace Wreckabulary.Rules.Wordbound
             if (OnlineJson.Hash(roster.Select(s => s.ToValue()).ToArray()) != expected.RosterHash)
                 throw new FormatException("Roster commitment mismatch.");
             long started = OnlineJson.Integer(claims, "startedAt");
-            if (started / 1000 > nowSeconds) throw new FormatException("Match start is in the future.");
+            if (started / 1000 > nowSeconds + ClockLeewaySeconds) throw new FormatException("Match start is in the future.");
             return new VerifiedOnlineMatch(expected, roster, OnlineJson.Integer(claims, "exp"), started);
         }
 

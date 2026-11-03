@@ -42,7 +42,6 @@ namespace Wreckabulary.EditorTools
             }
         }
 
-        /// <summary>Builds only missing decor on the supplied world; callers choose whether to persist or discard it.</summary>
         public static bool ApplyMissing(AuthoredHouse world)
         {
             Guard();

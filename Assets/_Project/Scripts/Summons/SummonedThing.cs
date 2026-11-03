@@ -5,10 +5,6 @@ using UnityEngine;
 namespace Wreckabulary
 {
     public enum SummonEndReason { Consumed, Expired, OwnerGone, ConditionEnded, Reset, Destroyed }
-    /// <summary>
-    /// A summon that lasts a while (SHIELD, SKATES, MAGNET…). When it wears out it falls apart
-    /// into the letters it was spelled from, so anyone can grab them and spell again.
-    /// </summary>
     public class SummonedThing : MonoBehaviour
     {
         static readonly List<SummonedThing> All = new();
@@ -19,7 +15,6 @@ namespace Wreckabulary
         public string Word;
         public PlayerController Owner;
         public float Expires = float.MaxValue;
-        /// <summary>Returns false to end early (e.g. armor used up).</summary>
         public Func<bool> KeepAlive;
         public Action Tick;
         public Action Ended;
@@ -72,7 +67,6 @@ namespace Wreckabulary
             Destroy(gameObject);
         }
 
-        /// <summary>Removes every summon without dropping letters (round reset).</summary>
         public static void ClearAll()
         {
             foreach (var thing in All.ToArray())

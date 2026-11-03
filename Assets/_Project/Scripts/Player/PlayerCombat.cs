@@ -30,8 +30,8 @@ namespace Wreckabulary
         float heldSince;
         float raiseStartedAt = -1f;
         PlayerController reviving;
-        static readonly Collider[] Overlaps = new Collider[48];
-        static readonly RaycastHit[] Obstructions = new RaycastHit[32];
+        readonly Collider[] overlaps = new Collider[48];
+        readonly RaycastHit[] obstructions = new RaycastHit[32];
         readonly HashSet<Rigidbody> struck = new();
         sealed class CarryState
         {
@@ -47,8 +47,14 @@ namespace Wreckabulary
 
         const float PointBlank = 0.25f;
 
-        /// <summary>Something (or someone) was thrown.</summary>
         public event System.Action<Rigidbody> Thrown;
+
+        public static event System.Action<MeleeContact> Contacted;
+        int swingSerial;
+        IMeleeContactShaper shaper;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => Contacted = null;
 
         public bool IsHolding => held;
         public Rigidbody Held => held;
@@ -189,8 +195,6 @@ namespace Wreckabulary
             reviving = null;
         }
 
-        // ---- Attacking ----
-
         public void Attack()
         {
             if (!controller.CanAct || controller.IsDodging || IsChanneling || IsReviving || raiseStartedAt >= 0f
@@ -199,7 +203,8 @@ namespace Wreckabulary
             {
                 nextAttack = Time.time + Weapon.Cooldown;
                 var job = Weapon.Definition;
-                if (job == null || (job.Use == null && job.Thrown == null && job.Deploy == null)) controller.PlayPunch();
+                if (job == null || (job.Use == null && job.Thrown == null && job.Deploy == null))
+                    controller.PlayPunch(!Audio.ImpactAudioBridge.VoicesSwing(Weapon));
                 Weapon.Use(this);
                 return;
             }
@@ -235,10 +240,15 @@ namespace Wreckabulary
             var chest = transform.position + Vector3.up * 0.8f;
             var facing = controller.Facing;
             int mask = World.TileLayer >= 0 ? ~(1 << World.TileLayer) : ~0;
-            int n = Physics.OverlapSphereNonAlloc(chest, stats.Reach, Overlaps, mask, QueryTriggerInteraction.Ignore);
-            var hits = Overlaps;
+            int n = Physics.OverlapSphereNonAlloc(chest, stats.Reach, overlaps, mask, QueryTriggerInteraction.Ignore);
+            var hits = overlaps;
             if (n == hits.Length) { hits = Physics.OverlapSphere(chest, stats.Reach, mask, QueryTriggerInteraction.Ignore); n = hits.Length; }
-            if (beginSwing) struck.Clear();
+            if (beginSwing)
+            {
+                struck.Clear();
+                swingSerial++;
+                shaper = itemId != null && Weapon ? Weapon.GetComponent<IMeleeContactShaper>() : null;
+            }
             int playersHit = 0;
 
             for (int i = 0; i < n; i++)
@@ -247,22 +257,35 @@ namespace Wreckabulary
                 var rb = col.attachedRigidbody;
                 if (!rb || rb == controller.Body || rb == held || struck.Contains(rb)) continue;
 
-                var to = World.Flat(ClosestPoint(col, chest) - chest);
+                var point = ClosestPoint(col, chest);
+                var to = World.Flat(point - chest);
                 if (to.sqrMagnitude > PointBlank * PointBlank && !Geometry.InFrontArc(facing.x, facing.z, to.x, to.z, stats.ArcDegrees))
                     continue;
-                if (!HasClearInteractionPath(rb, ClosestPoint(col, chest))) continue;
+                if (!HasClearInteractionPath(rb, point)) continue;
                 struck.Add(rb);
 
+                var part = StrikePart.Body;
+                var used = shaper != null ? shaper.Shape(stats, to.magnitude, out part) : stats;
+                bool glancing = to.sqrMagnitude > PointBlank * PointBlank &&
+                    MeleeFairness.Classify(Vector3.Angle(facing, to), used.ArcDegrees, to.magnitude, used.Reach) == ImpactResult.Glance;
                 var dir = World.Flat(rb.position - transform.position);
-                var hit = Hits.Melee(controller, dir.sqrMagnitude > 0.01f ? dir : facing, stats, itemId);
+                var hit = Hits.Melee(controller, dir.sqrMagnitude > 0.01f ? dir : facing, used, itemId);
                 if (rb.TryGetComponent(out PlayerHealth victim))
                 {
                     if (victim.ApplyDamage(hit)) playersHit++;
+                    Contacted?.Invoke(new MeleeContact(controller, itemId, swingSerial, rb, part, point,
+                        glancing ? ImpactResult.Glance : ImpactResult.Hit, used, 0));
                     continue;
                 }
+                var smashable = rb.GetComponent<Smashable>();
+                float before = smashable ? smashable.Remaining : 1f;
                 if (rb.TryGetComponent(out IDamageable target)) target.ApplyDamage(hit);
+                float after = smashable ? smashable.Remaining : 1f;
+                bool broken = smashable && smashable.IsBroken;
                 if (rb && !rb.isKinematic)
-                    rb.AddForce((facing + Vector3.up * 0.4f) * stats.Knockback * Hits.KnockbackSpeed * 0.5f, ForceMode.VelocityChange);
+                    rb.AddForce((facing + Vector3.up * 0.4f) * used.Knockback * Hits.KnockbackSpeed * 0.5f, ForceMode.VelocityChange);
+                Contacted?.Invoke(new MeleeContact(controller, itemId, swingSerial, rb, part, point,
+                    ImpactCues.ResultFor(before, after, broken, glancing), used, ImpactCues.Stage(after)));
             }
             return playersHit;
         }
@@ -280,8 +303,8 @@ namespace Wreckabulary
             float distance = delta.magnitude;
             if (distance < .001f) return true;
             int mask = World.GroundMask & Physics.DefaultRaycastLayers;
-            int count = Physics.RaycastNonAlloc(origin, delta / distance, Obstructions, distance, mask, QueryTriggerInteraction.Ignore);
-            var hits = Obstructions;
+            int count = Physics.RaycastNonAlloc(origin, delta / distance, obstructions, distance, mask, QueryTriggerInteraction.Ignore);
+            var hits = obstructions;
             if (count == hits.Length)
             {
                 hits = Physics.RaycastAll(origin, delta / distance, distance, mask, QueryTriggerInteraction.Ignore);
@@ -302,8 +325,6 @@ namespace Wreckabulary
             }
             return true;
         }
-
-        // ---- Grabbing ----
 
         void GrabOrRevive()
         {
@@ -350,8 +371,8 @@ namespace Wreckabulary
             }
             var centre = transform.position + Vector3.up * 0.6f + controller.Facing * grabReach;
             int mask = World.TileLayer >= 0 ? ~(1 << World.TileLayer) : ~0;
-            int n = Physics.OverlapSphereNonAlloc(centre, grabRadius, Overlaps, mask, QueryTriggerInteraction.Ignore);
-            var hits = Overlaps;
+            int n = Physics.OverlapSphereNonAlloc(centre, grabRadius, overlaps, mask, QueryTriggerInteraction.Ignore);
+            var hits = overlaps;
             if (n == hits.Length) { hits = Physics.OverlapSphere(centre, grabRadius, mask, QueryTriggerInteraction.Ignore); n = hits.Length; }
             Rigidbody best = null;
             float bestSq = float.MaxValue;
@@ -497,9 +518,9 @@ namespace Wreckabulary
             var delta = centre - origin;
             float distance = delta.magnitude;
             if (distance < .001f) return;
-            int count = Physics.SphereCastNonAlloc(origin, carryRadius, delta / distance, Obstructions, distance,
+            int count = Physics.SphereCastNonAlloc(origin, carryRadius, delta / distance, obstructions, distance,
                 World.GroundMask & Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-            var hits = Obstructions;
+            var hits = obstructions;
             if (count == hits.Length)
             {
                 hits = Physics.SphereCastAll(origin, carryRadius, delta / distance, distance,
@@ -509,10 +530,9 @@ namespace Wreckabulary
             float allowed = distance;
             for (int i = 0; i < count; i++)
                 if (!InteractionAim.Ignored(controller, hits[i].collider)) allowed = Mathf.Min(allowed, Mathf.Max(0f, hits[i].distance - .03f));
-            // Sphere sweeps omit an obstacle already overlapping their origin; the centre ray covers that near-wall case.
-            count = Physics.RaycastNonAlloc(origin, delta / distance, Obstructions, distance,
+            count = Physics.RaycastNonAlloc(origin, delta / distance, obstructions, distance,
                 World.GroundMask & Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-            hits = Obstructions;
+            hits = obstructions;
             if (count == hits.Length)
             {
                 hits = Physics.RaycastAll(origin, delta / distance, distance,
@@ -615,7 +635,6 @@ namespace Wreckabulary
             DeployedGear.Attach(gear, controller);
         }
 
-        /// <summary>Lets go of whatever is held without throwing it.</summary>
         public void Drop()
         {
             if (held) Release(World.Flat(controller.Body.linearVelocity));
@@ -637,7 +656,6 @@ namespace Wreckabulary
             body.linearVelocity = Vector3.zero;
         }
 
-        /// <summary>Round reset: summoned weapons vanish, everything else is let go.</summary>
         public void ResetForRound()
         {
             StopAllCoroutines();
@@ -654,7 +672,6 @@ namespace Wreckabulary
             ClearHeld();
         }
 
-        /// <summary>Called by a weapon when it runs out of uses.</summary>
         public void ForgetHeld()
         {
             if (held) carriedStates.Remove(held);
@@ -697,7 +714,6 @@ namespace Wreckabulary
 
         void SeparateReleasedBody(Rigidbody body)
         {
-            // Dropped recipe props return to full size. Resolve the new shape before physics applies impulses.
             Physics.SyncTransforms();
             var shapes = body.GetComponentsInChildren<Collider>();
             for (int pass = 0; pass < 3; pass++)
@@ -708,8 +724,8 @@ namespace Wreckabulary
                     if (!shape.enabled || shape.isTrigger || shape.attachedRigidbody != body) continue;
                     var bounds = shape.bounds;
                     int count = Physics.OverlapSphereNonAlloc(bounds.center, bounds.extents.magnitude + .05f,
-                        Overlaps, World.GroundMask & Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-                    var nearby = Overlaps;
+                        overlaps, World.GroundMask & Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+                    var nearby = overlaps;
                     if (count == nearby.Length)
                     {
                         nearby = Physics.OverlapSphere(bounds.center, bounds.extents.magnitude + .05f,

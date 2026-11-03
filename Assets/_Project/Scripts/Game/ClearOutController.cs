@@ -15,10 +15,8 @@ namespace Wreckabulary
         public ClearOutSchedule Schedule { get; private set; }
         public bool Running { get; set; }
 
-        /// <summary>Escape turns the floor borders off: the mode wants clean rooms, not flashing rings.</summary>
         public bool ShowIndicators = true;
 
-        /// <summary>Escape turns the packing damage off: being sealed in is a setback, not a health drain.</summary>
         public bool Harms = true;
         public float Elapsed => Running ? Mathf.Max(0f, Time.time - began) : 0f;
         public string Message { get; private set; } = "";
@@ -124,7 +122,6 @@ namespace Wreckabulary
         }
     }
 
-    /// <summary>A brief visual wind-up during the existing Filling phase; it has no physics or damage.</summary>
     public sealed class ClearOutSwirl : MonoBehaviour
     {
         ClearOutController owner;

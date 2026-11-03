@@ -16,7 +16,6 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Opt-in rendered acceptance journey. Requires a graphics-enabled editor and focused Game view.</summary>
     [Explicit, Category("PowerCapture")]
     public sealed class PowerCaptureTests
     {
@@ -509,7 +508,6 @@ namespace Wreckabulary.Tests
             Debug.Log("[PowerCapture] " + file);
         }
 
-        /// <summary>Leaves the user's resolution list and selection exactly as they were.</summary>
         sealed class GameViewScope : IDisposable
         {
             const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;

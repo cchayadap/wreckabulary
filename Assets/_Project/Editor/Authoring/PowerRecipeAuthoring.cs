@@ -32,7 +32,6 @@ namespace Wreckabulary.EditorTools
             Debug.Log("POWER_RECIPES_READY: 24 enabled recipes, six generated illustrations and WATER supplies in all houses.");
         }
 
-        /// <summary>Add only the new supply; repeat runs preserve existing artist positions and all other world content.</summary>
         public static bool AddMissingSupply(AuthoredHouse world)
         {
             if (!world || !world.FurnitureRoot) throw new ArgumentException("A saved authored house is required.");

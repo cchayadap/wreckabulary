@@ -136,6 +136,8 @@ namespace Wreckabulary
 
         void Gameplay(Transform list)
         {
+            Toggle(Setting(list, "Control tips", "One tip at a time until you've used each control. Turn on again to replay them."),
+                "Control tips", ControlTips.Enabled, on => ControlTips.Enabled = on);
             Toggle(Setting(list, "Damage numbers"), "Damage numbers", CombatFeedbackOptions.ShowDamage, on => CombatFeedbackOptions.ShowDamage = on);
             Toggle(Setting(list, "Points per hit"), "Points per hit", CombatFeedbackOptions.ShowPoints, on => CombatFeedbackOptions.ShowPoints = on);
             LobbyKit.Pill(Setting(list, "Combat feedback"), "Reset feedback", "Reset feedback", 20,

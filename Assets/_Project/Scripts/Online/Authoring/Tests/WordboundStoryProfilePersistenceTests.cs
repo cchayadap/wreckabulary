@@ -30,7 +30,7 @@ namespace Wreckabulary.Tests
                 profile.Epilogues.RemoveRange(1, 5);
                 AssetDatabase.CreateAsset(profile, path);
                 EditorUtility.SetDirty(profile);
-                AssetDatabase.SaveAssets();
+                AssetDatabase.SaveAssetIfDirty(profile);
                 Resources.UnloadAsset(profile);
                 profile = AssetDatabase.LoadAssetAtPath<WordboundStoryProfile>(path);
                 Assert.IsNotNull(profile);
@@ -43,7 +43,7 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(5, profile.AddMissingEpilogues());
                 Assert.AreEqual(0, profile.AddMissingEpilogues());
                 EditorUtility.SetDirty(profile);
-                AssetDatabase.SaveAssets();
+                AssetDatabase.SaveAssetIfDirty(profile);
                 Resources.UnloadAsset(profile);
                 profile = AssetDatabase.LoadAssetAtPath<WordboundStoryProfile>(path);
                 profile.Validate(content);

@@ -4,10 +4,6 @@ using Wreckabulary.Art;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// An object assembled from the blocks of its own word, e.g. a SOFA made of S, O, F and A.
-    /// Blocks are laid out left to right in rows, stacked upwards, with the pivot at the bottom centre.
-    /// </summary>
     public class LetterBuilt : MonoBehaviour
     {
         public string word = "SOFA";
@@ -88,7 +84,6 @@ namespace Wreckabulary
             return true;
         }
 
-        /// <summary>Creates and builds a new letter-built object.</summary>
         public static LetterBuilt Spawn(string word, Vector3 blockSize, int perRow, Color color, Transform parent, bool colliders = true)
         {
             var go = new GameObject(word);

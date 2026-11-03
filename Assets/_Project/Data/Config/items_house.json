@@ -1,0 +1,760 @@
+{
+  "schema": 1,
+  "note": "House-mode recipes added on top of items.json. Wordbound and online content read items.json only, so its bytes and catalogue hashes stay unchanged. An entry may add a new word or fully define a disabled items.json entry; it may never replace an enabled one.",
+  "items": [
+    {
+      "id": "PAN",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/PAN",
+      "heldScale": 0.4579,
+      "grip": [
+        -0.43,
+        0.1,
+        0.0
+      ],
+      "size": [
+        0.7862,
+        0.1544,
+        0.46
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 26,
+      "melee": {
+        "damage": 14,
+        "reach": 1.5,
+        "arc": 90,
+        "windup": 0.24,
+        "active": 0.1,
+        "recovery": 0.36,
+        "knockback": 6,
+        "breakPower": 2.5,
+        "hitStun": 0.35
+      },
+      "notes": "A simple word, so an honest hit: no tricks, just a solid clang."
+    },
+    {
+      "id": "ARROW",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/ARROW",
+      "heldScale": 0.5414,
+      "grip": [
+        0,
+        0.305,
+        0.0
+      ],
+      "size": [
+        0.11,
+        0.665,
+        0.0906
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 20,
+      "thrown": {
+        "damage": 12,
+        "speed": 22,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 2,
+        "breakPower": 0.5
+      },
+      "notes": "A fast, flat throw with light knockback. Pick it up again where it lands."
+    },
+    {
+      "id": "POT",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/POT",
+      "heldScale": 0.5042,
+      "grip": [
+        0.0,
+        0.1285,
+        0.0
+      ],
+      "size": [
+        0.714,
+        0.257,
+        0.46
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 30,
+      "thrown": {
+        "damage": 13,
+        "speed": 12,
+        "lob": true,
+        "recoverable": true,
+        "knockback": 5,
+        "breakPower": 1.5
+      },
+      "notes": "A lobbed throw that arcs over cover."
+    },
+    {
+      "id": "BARREL",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BARREL",
+      "heldScale": 0.6,
+      "grip": [
+        0.0,
+        0.3,
+        0.0
+      ],
+      "size": [
+        0.558,
+        0.6,
+        0.558
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 2,
+      "durability": 40,
+      "thrown": {
+        "damage": 22,
+        "speed": 9,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 10,
+        "breakPower": 3
+      },
+      "notes": "A slow two-handed throw that bowls players over and smashes furniture."
+    },
+    {
+      "id": "CRATE",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CRATE",
+      "heldScale": 0.5902,
+      "grip": [
+        0.0,
+        0.241,
+        0.0
+      ],
+      "size": [
+        0.61,
+        0.482,
+        0.578
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 60,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.45,
+        "footprint": [
+          0.61,
+          0.578
+        ]
+      },
+      "notes": "Quick, light cover."
+    },
+    {
+      "id": "PLANT",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/PLANT",
+      "heldScale": 0.4571,
+      "grip": [
+        -0.0002,
+        0.3938,
+        0.003
+      ],
+      "size": [
+        0.3404,
+        0.7876,
+        0.3459
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 1,
+      "durability": 30,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.3,
+        "footprint": [
+          0.3404,
+          0.3459
+        ]
+      },
+      "notes": "One-handed cover: quick to set down, quick to break."
+    },
+    {
+      "id": "SHELF",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/SHELF",
+      "heldScale": 0.2812,
+      "grip": [
+        0.0,
+        0.64,
+        0.0
+      ],
+      "size": [
+        0.99,
+        1.28,
+        0.32
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 90,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.7,
+        "footprint": [
+          0.99,
+          0.32
+        ]
+      },
+      "notes": "Tall, narrow cover."
+    },
+    {
+      "id": "DESK",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/DESK",
+      "heldScale": 0.2687,
+      "grip": [
+        0.0,
+        0.39,
+        0.0133
+      ],
+      "size": [
+        1.34,
+        0.78,
+        0.6775
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 110,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.9,
+        "footprint": [
+          1.34,
+          0.6775
+        ]
+      },
+      "notes": "Wide, solid cover."
+    },
+    {
+      "id": "CABINET",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CABINET",
+      "heldScale": 0.3172,
+      "grip": [
+        0.0,
+        0.5675,
+        0.043
+      ],
+      "size": [
+        0.99,
+        1.135,
+        0.536
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 150,
+      "deploy": {
+        "effect": "Cover",
+        "place": 1.0,
+        "footprint": [
+          0.99,
+          0.536
+        ]
+      },
+      "notes": "The sturdiest cover, and the slowest to set down."
+    },
+    {
+      "id": "CHAIR",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CHAIR",
+      "heldScale": 0.4009,
+      "grip": [
+        0.0,
+        0.449,
+        0.0
+      ],
+      "size": [
+        0.5,
+        0.898,
+        0.4827
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployPad",
+      "hands": 2,
+      "durability": 50,
+      "deploy": {
+        "effect": "JumpPad",
+        "place": 0.45,
+        "strength": 9.5,
+        "footprint": [
+          0.5,
+          0.4827
+        ]
+      },
+      "notes": "A jump pad between STOOL and BED in height."
+    },
+    {
+      "id": "PILLOW",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/PILLOW",
+      "heldScale": 0.9,
+      "grip": [
+        -0.2,
+        0.2415,
+        0
+      ],
+      "size": [
+        0.5,
+        0.483,
+        0.1924
+      ],
+      "skins": [
+        "Classic"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 40,
+      "melee": {
+        "damage": 6,
+        "reach": 1.7,
+        "arc": 130,
+        "windup": 0.16,
+        "active": 0.12,
+        "recovery": 0.26,
+        "knockback": 9,
+        "breakPower": 0.3,
+        "hitStun": 0.15
+      },
+      "notes": "Soft, quick swings that shove players back but barely break anything."
+    },
+    {
+      "id": "RACK",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/RACK",
+      "heldScale": 0.4688,
+      "grip": [
+        0,
+        0.56,
+        0
+      ],
+      "size": [
+        0.5669,
+        1.6,
+        0.5669
+      ],
+      "skins": [
+        "Classic"
+      ],
+      "family": "MeleeThrust",
+      "hands": 1,
+      "durability": 24,
+      "melee": {
+        "damage": 15,
+        "reach": 2.4,
+        "arc": 22,
+        "windup": 0.36,
+        "active": 0.09,
+        "recovery": 0.46,
+        "knockback": 6,
+        "breakPower": 2.5,
+        "hitStun": 0.25
+      },
+      "notes": "A long, slow jab: reach second only to SPEAR."
+    },
+    {
+      "id": "MIRROR",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/MIRROR",
+      "heldScale": 0.75,
+      "grip": [
+        0,
+        0.3,
+        0
+      ],
+      "size": [
+        0.416,
+        0.6,
+        0.1993
+      ],
+      "skins": [
+        "Classic"
+      ],
+      "family": "Shield",
+      "hands": 1,
+      "durability": 25,
+      "shield": {
+        "frontArc": 100,
+        "reduction": 0.85,
+        "moveSpeed": 0.85,
+        "raise": 0.08
+      },
+      "notes": "Raises fastest and keeps you quick, but lets some damage through and cracks after a few hits."
+    },
+    {
+      "id": "SPEAKER",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/SPEAKER",
+      "heldScale": 0.4444,
+      "grip": [
+        0,
+        0.45,
+        0
+      ],
+      "size": [
+        0.2093,
+        0.9,
+        0.2093
+      ],
+      "skins": [
+        "Classic"
+      ],
+      "family": "DeployZone",
+      "hands": 2,
+      "durability": 35,
+      "deploy": {
+        "effect": "WindField",
+        "place": 0.6,
+        "radius": 2.6,
+        "strength": 11,
+        "lifetime": 6,
+        "arc": 60,
+        "footprint": [
+          0.2093,
+          0.2093
+        ]
+      },
+      "notes": "A short, narrow blast that shoves players further than FAN."
+    },
+    {
+      "id": "BENCH",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BENCH",
+      "heldScale": 0.5,
+      "grip": [
+        0,
+        0.2619,
+        0
+      ],
+      "size": [
+        1.1,
+        0.5238,
+        0.5762
+      ],
+      "skins": [
+        "Classic"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 100,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.8,
+        "footprint": [
+          1.1,
+          0.5762
+        ]
+      },
+      "notes": "A long, low padded bench: sturdy waist-high cover."
+    },
+    {
+      "id": "TOASTER",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/TOASTER",
+      "heldScale": 1,
+      "grip": [
+        0,
+        0.1038,
+        0
+      ],
+      "size": [
+        0.3,
+        0.2075,
+        0.1596
+      ],
+      "skins": [
+        "Classic"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 30,
+      "thrown": {
+        "damage": 16,
+        "speed": 13,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 5,
+        "breakPower": 2
+      },
+      "notes": "A heavy throw that dents furniture."
+    },
+    {
+      "id": "BEAR",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BEAR",
+      "heldScale": 0.8889,
+      "grip": [
+        0,
+        0.225,
+        0
+      ],
+      "size": [
+        0.2475,
+        0.45,
+        0.3897
+      ],
+      "skins": [
+        "Classic"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 40,
+      "thrown": {
+        "damage": 5,
+        "speed": 15,
+        "lob": true,
+        "recoverable": true,
+        "knockback": 9,
+        "breakPower": 0.2
+      },
+      "notes": "A soft lobbed throw that knocks players back without hurting much."
+    }
+  ],
+  "tuning": {
+    "note": "House-only balance. Tier comes from how hard the word is to spell; plain words carry nothing. Traits land every hit, by chance (chance), on every Nth hit on the same target (every), over time (Bleed, which may deepen up to stacks) or constantly while held (Guard, Swift). items.json and rules.json stay byte-identical for Wordbound and online.",
+    "unarmed": {
+      "damage": 3
+    },
+    "items": {
+      "BAT": {
+        "melee": {
+          "damage": 12
+        }
+      },
+      "BLADE": {
+        "melee": {
+          "damage": 18
+        },
+        "traits": [
+          {
+            "kind": "Bleed",
+            "amount": 2,
+            "seconds": 3,
+            "stacks": 2
+          }
+        ]
+      },
+      "ARROW": {
+        "traits": [
+          {
+            "kind": "Bleed",
+            "amount": 2,
+            "seconds": 2.5
+          }
+        ]
+      },
+      "SPEAR": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.75,
+            "seconds": 1.5,
+            "chance": 0.5
+          }
+        ]
+      },
+      "LAMP": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.25
+          }
+        ]
+      },
+      "BROOM": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.3
+          }
+        ]
+      },
+      "BARREL": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.25
+          }
+        ]
+      },
+      "PLATE": {
+        "traits": [
+          {
+            "kind": "Swift",
+            "amount": 1.1
+          }
+        ]
+      },
+      "RACK": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.2
+          },
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 2,
+            "every": 3
+          }
+        ]
+      },
+      "PILLOW": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.4
+          },
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.5,
+            "chance": 0.5
+          }
+        ]
+      },
+      "TOASTER": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.6,
+            "seconds": 2,
+            "chance": 0.35
+          }
+        ]
+      },
+      "MIRROR": {
+        "traits": [
+          {
+            "kind": "Guard",
+            "amount": 0.1
+          }
+        ]
+      },
+      "SHIELD": {
+        "traits": [
+          {
+            "kind": "Guard",
+            "amount": 0.15
+          }
+        ]
+      },
+      "HAMMER": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.4
+          },
+          {
+            "kind": "Crush",
+            "amount": 1.75,
+            "every": 3
+          }
+        ]
+      }
+    }
+  }
+}

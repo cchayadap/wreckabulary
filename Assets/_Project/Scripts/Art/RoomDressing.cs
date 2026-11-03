@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>Saved presentation edition; runtime never rebuilds or repositions its editable children.</summary>
     public sealed class RoomDressing : MonoBehaviour
     {
         public const int CurrentEdition = 1;

@@ -107,6 +107,7 @@ namespace Wreckabulary.Online
         readonly SemaphoreSlim authentication = new SemaphoreSlim(1, 1);
         readonly object taskGate = new object();
         readonly HashSet<string> returnedMatches = new HashSet<string>(StringComparer.Ordinal);
+        readonly List<OnlineMatchExpectation> queuedReturns = new List<OnlineMatchExpectation>();
         Task pollTask;
         Func<CancellationToken, Task> pending;
         string pendingName;
@@ -130,17 +131,21 @@ namespace Wreckabulary.Online
         public bool MatchActive { get; private set; }
         public string Seed => selectedSeed;
         public string PoolVersion => poolVersion;
+        public OnlineServerClock ServerClock { get; }
+        public bool ReturnQueued { get { lock (taskGate) return queuedReturns.Count > 0; } }
+        public const string QueuedReturnMessage = "The service is unreachable. You left the match here; the return is sent when the connection is back.";
 
         public WordboundPartyCoordinator(OnlineCoordinatorClient client, OnlineAdmissionVerifier verifier,
             string itemJson, string ruleBookJson, string mapPoolVersion,
-            WordboundPublicCourseRegistry registry = null, Func<long> clock = null)
+            WordboundPublicCourseRegistry registry = null, Func<long> clock = null, OnlineServerClock serverClock = null)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             this.verifier = verifier ?? throw new ArgumentNullException(nameof(verifier));
             items = itemJson; rules = ruleBookJson; poolVersion = mapPoolVersion;
             _ = new OnlineSettings("Freestyle", "Solo", false, "asia", MatchSnapshotCodec.ProtocolVersion, poolVersion);
             this.registry = registry ?? new WordboundPublicCourseRegistry();
-            this.clock = clock ?? (() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            ServerClock = serverClock;
+            this.clock = clock ?? (serverClock != null ? serverClock.Now : (Func<long>)(() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
         }
         public OnlineSettings Settings(string mode, string format, bool fill, string region) =>
             new OnlineSettings(mode, format, fill, region, MatchSnapshotCodec.ProtocolVersion, poolVersion);
@@ -311,7 +316,33 @@ namespace Wreckabulary.Online
         }, false);
         public void NotifyReturned(string matchId)
         {
-            lock (taskGate) { returnedMatches.Add(matchId); launch = null; MatchActive = false; }
+            lock (taskGate)
+            {
+                returnedMatches.Add(matchId); launch = null; MatchActive = false;
+                queuedReturns.RemoveAll(match => match.MatchId == matchId);
+            }
+        }
+        public void LeaveMatchLocally(OnlineMatchExpectation match)
+        {
+            if (match == null) throw new ArgumentNullException(nameof(match));
+            lock (taskGate)
+            {
+                returnedMatches.Add(match.MatchId); launch = null; MatchActive = false;
+                if (queuedReturns.All(queued => queued.MatchId != match.MatchId)) queuedReturns.Add(match);
+            }
+        }
+        async Task SendQueuedReturns(CancellationToken ct)
+        {
+            OnlineMatchExpectation[] queued;
+            lock (taskGate) queued = queuedReturns.ToArray();
+            foreach (var match in queued)
+            {
+                try { await client.MatchAction(match, "return", ct).ConfigureAwait(false); }
+                catch (OnlineServiceException error) when (error.Status >= 400 && error.Status < 500 &&
+                    error.Status != 401 && error.Status != 408 && error.Status != 429) { }
+                Check(ct);
+                lock (taskGate) queuedReturns.Remove(match);
+            }
         }
         public WordboundPartyLaunchContext TakeLaunch()
         {
@@ -336,6 +367,7 @@ namespace Wreckabulary.Online
         {
             return Action(name, async ct => {
                 validate?.Invoke(); await EnsureAuthentication(ct).ConfigureAwait(false);
+                await SendQueuedReturns(ct).ConfigureAwait(false); Check(ct);
                 var json = await send(ct).ConfigureAwait(false); Check(ct);
                 pending = null; pendingName = null;
                 apply(json);
@@ -392,12 +424,18 @@ namespace Wreckabulary.Online
                 Check(ct); if (Busy || RetryRequired || Party == null) return;
                 await EnsureAuthentication(ct).ConfigureAwait(false);
                 if (MatchActive) return;
+                await SendQueuedReturns(ct).ConfigureAwait(false); Check(ct);
+                if (Error == QueuedReturnMessage) Error = null;
                 var json = await client.Party(Party.Id, ct).ConfigureAwait(false); Check(ct);
                 Apply(json, Seed);
                 await LoadContent(ct).ConfigureAwait(false); Check(ct);
                 if (!Busy) await ProcessAssignment(ct).ConfigureAwait(false);
             }
-            catch (Exception error) { if (!ct.IsCancellationRequested) Error = Friendly(error); }
+            catch (Exception error)
+            {
+                if (!ct.IsCancellationRequested)
+                    Error = ReturnQueued && !(error is OnlineServiceException) ? QueuedReturnMessage : Friendly(error);
+            }
             finally { if (acquired) serial.Release(); }
         }
         async Task ProcessAssignment(CancellationToken ct)
@@ -424,7 +462,7 @@ namespace Wreckabulary.Online
             {
                 Check(ct); if (returnedMatches.Contains(id)) return;
                 if (Busy) return;
-                launch = new WordboundPartyLaunchContext(client, verifier, verified, Content, token => FreshJoin(expected, token));
+                launch = new WordboundPartyLaunchContext(client, verifier, verified, Content, token => FreshJoin(expected, token), ServerClock);
                 launched = identity;
             }
         }

@@ -114,7 +114,7 @@ namespace Wreckabulary
                     lens.backgroundColor = new Color32(0x17, 0x3a, 0x3d, 0xff);
                 }
             }
-            visibility = GetComponent<CameraCutaway>() ?? gameObject.AddComponent<CameraCutaway>();
+            if (!TryGetComponent(out visibility)) visibility = gameObject.AddComponent<CameraCutaway>();
             visibility.SetOccluders(faded.Keys);
             house = StoreyCutaway.Instance;
             GraphicsOptions.ApplyTo(lens);

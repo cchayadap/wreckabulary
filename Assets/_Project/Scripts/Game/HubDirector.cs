@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>The house: roommates walk in through the front door, then pick a mode at the typewriter.</summary>
     public class HubDirector : MonoBehaviour
     {
         [SerializeField] PlayerJoinManager joins;

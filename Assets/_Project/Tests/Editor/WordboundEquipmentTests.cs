@@ -164,7 +164,7 @@ namespace Wreckabulary.EditorTests
             var models = ModelLibrary.Load();
             var materials = MaterialLibrary.Load();
             Assert.AreEqual(98, report.Count);
-            Assert.AreEqual(98, models.Entries.Count);
+            Assert.AreEqual(105, models.Entries.Count, "the 98 imported models plus the seven HouseItemsV1 prefabs");
             foreach (var entry in collection.Entries)
             {
                 Assert.IsNotNull(models.Find(entry.modelKey), entry.modelKey);

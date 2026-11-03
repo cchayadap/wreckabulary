@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Wreckabulary.Rules.Wordbound
@@ -136,7 +137,20 @@ namespace Wreckabulary.Rules.Wordbound
     public sealed class MatchResourceState
     {
         readonly string sortingKey;
-        internal string SortingKey => sortingKey ?? SourceId + "/" + Team + "/" + Lap;
+        Tuple<string, string> signedKey;
+        internal string SortingKey
+        {
+            get
+            {
+                if (sortingKey != null) return sortingKey;
+                string sign = NumberFormatInfo.CurrentInfo.NegativeSign;
+                var cached = signedKey;
+                if (cached != null && cached.Item1 == sign) return cached.Item2;
+                string key = SourceId + "/" + Team + "/" + Lap;
+                signedKey = Tuple.Create(sign, key);
+                return key;
+            }
+        }
         public string SourceId { get; }
         public int Team { get; }
         public int Lap { get; }

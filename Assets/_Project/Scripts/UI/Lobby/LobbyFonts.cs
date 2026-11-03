@@ -53,7 +53,6 @@ namespace Wreckabulary
             body = Make("Nunito-ExtraBold", 80, 10);
             black = Make("Nunito-Black", 80, 10);
             if (!display || !body || !black) { failed = true; display = body = black = null; return; }
-            // TMP's styled-glyph lookup requires an explicit face for bold text, including ellipsis.
             display.fontWeightTable[7].regularTypeface = display;
             body.fontWeightTable[7].regularTypeface = black;
             black.fontWeightTable[7].regularTypeface = black;
@@ -109,7 +108,6 @@ namespace Wreckabulary
             else generatedFonts.Add(asset);
             asset.name = file;
             asset.isMultiAtlasTexturesEnabled = true;
-            // TMP resolves ellipsis and underline before laying out the first visible text.
             asset.TryAddCharacters(LobbyTypographyProfile.InitialCharacters);
             foreach (var atlas in asset.atlasTextures) if (atlas) atlas.filterMode = FilterMode.Bilinear;
             if (GameAssets.I && GameAssets.I.font)

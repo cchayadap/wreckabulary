@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>Visible bulb art remains independent of the small budget of real lights.</summary>
     [DisallowMultipleComponent, RequireComponent(typeof(Light))]
     public sealed class PracticalLight : MonoBehaviour
     {

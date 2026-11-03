@@ -14,7 +14,6 @@ namespace Wreckabulary.EditorTools
         {
             if (!assetPath.StartsWith(AudioDirectory, System.StringComparison.Ordinal)) return;
             var importer = (AudioImporter)assetImporter;
-            // Sources are already mono; disabling downmix also avoids importer normalization.
             importer.forceToMono = false;
             importer.loadInBackground = false;
             var settings = importer.defaultSampleSettings;

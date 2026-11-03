@@ -100,6 +100,7 @@ namespace Wreckabulary.Online
         int receivedBytes;
         long incomingStarted;
         bool localReady, localAdmitted, migrating, restored, initialStarted, beginReceived;
+        long sessionStartedAt;
         OnlineSnapshotPacket committedPacket;
         int wireSequence;
         Task stopTask;
@@ -160,8 +161,8 @@ namespace Wreckabulary.Online
             if (initialStarted) throw new InvalidOperationException("A session may only start once.");
             if (config.PeerMode == NetworkProjectConfig.PeerModes.Multiple && !initialScene.HasValue)
                 throw new InvalidOperationException("Isolated gameplay requires a scene before starting the session.");
-            initialStarted = true;
-            return StartRunner(null, cancellationToken);
+            initialStarted = true; sessionStartedAt = clock();
+            return StartInitial(cancellationToken);
         }
         bool IsCurrent(RunScope run) => run != null && ReferenceEquals(run, activeRun) &&
             !run.Cancellation.IsCancellationRequested && !lifetime.IsCancellationRequested;
@@ -241,7 +242,11 @@ namespace Wreckabulary.Online
             }
             RequireCurrent(run);
             }
-            catch (Exception error) { if (IsCurrent(run) && !reconnect) Fail(error); throw; }
+            catch (Exception error)
+            {
+                if (IsCurrent(run) && !reconnect && !(error is WordboundRunnerStartException start && RetryJoin(start.Reason))) Fail(error);
+                throw;
+            }
         }
         bool HasWriter(RunScope run) => IsCurrent(run) && run.WriterLease != null &&
             run.WriterLease.IsLiveFor(checkpoints.LocalPlayerId);
@@ -467,7 +472,7 @@ namespace Wreckabulary.Online
             RequireCurrent(run);
             RequireWriter(run, run.BootstrapTerm);
             long now = clock();
-            if (now >= checked(gate.Match.StartedAtMilliseconds + 90000))
+            if (WordboundStartDeadline.HostExpired(gate.Match.StartedAtMilliseconds, now))
                 throw new TimeoutException("The complete approved roster did not become ready.");
             if (!run.Runner.IsRunning || !run.Runner.IsServer || !gate.AllReady)
                 throw new InvalidOperationException("The starting roster changed.");
@@ -529,6 +534,8 @@ namespace Wreckabulary.Online
         }
         public void Poll()
         {
+            if (StartDeadlinePassed())
+            { Fail(new TimeoutException("The match did not start before its deadline.")); return; }
             var run = activeRun;
             if (!IsCurrent(run) || Runner == null || !Runner.IsRunning || !Runner.IsServer) return;
             if (Failure != "") return;
@@ -542,7 +549,7 @@ namespace Wreckabulary.Online
             if (run.Writer != null && !HasWriter(run)) { FailAt(WriterExpired(run), "writer-poll"); return; }
             if (run.WriterLease != null && run.WriterLease.RenewalDue) _ = run.WriterLease.Renew(checkpoints.Renew);
             if (!run.CheckpointReady) return;
-            if ((!gate.Started || run.InitialStarting) && clock() >= gate.Match.StartedAtMilliseconds + 90000)
+            if ((!gate.Started || run.InitialStarting) && WordboundStartDeadline.HostExpired(gate.Match.StartedAtMilliseconds, clock()))
             { Fail(new TimeoutException("The complete approved roster did not become ready.")); return; }
             foreach (var peer in pending.Where(p => p.Value <= clock()).Select(p => p.Key).ToArray())
             { pending.Remove(peer); Runner.Disconnect(peer); }
@@ -551,6 +558,9 @@ namespace Wreckabulary.Online
             if (!IsCurrent(run)) return;
             if (!run.Renewing && clock() >= run.RenewAt) _ = RenewConnections(run);
         }
+        bool StartDeadlinePassed() => initialStarted && !gameplayObserved && !recovery.Active && Failure == "" &&
+            !lifetime.IsCancellationRequested && gate != null && !(Runner != null && Runner.IsRunning && Runner.IsServer) &&
+            WordboundStartDeadline.ClientExpired(gate.Match.StartedAtMilliseconds, sessionStartedAt, clock());
         Exception WriterExpired(RunScope run)
         {
             long now = clock();
@@ -757,8 +767,8 @@ namespace Wreckabulary.Online
                 (committedMark != null && (mark.Epoch < committedMark.Epoch ||
                 (mark.Epoch == committedMark.Epoch && mark.Sequence <= committedMark.Sequence))))
                 throw new FormatException("Snapshot identity or frontier mismatch.");
-            int count = (int)body["count"].Number(); int index = (int)body["index"].Number();
-            int length = (int)body["length"].Number(); string hash = body["wireHash"].String();
+            var header = WordboundSnapshotChunkHeader.Read(body);
+            int count = header.Count, index = header.Index, length = header.Length; string hash = header.WireHash;
             if (receivedMark == null)
             {
                 receivedMark = mark; receivedChunks = new byte[count][]; receivedBytes = length; receivedWireHash = hash; incomingStarted = clock();
@@ -864,6 +874,7 @@ namespace Wreckabulary.Online
             "Host authorization must precede a snapshot." => "snapshot-before-admission",
             "Snapshot identity or frontier mismatch." => "snapshot-identity-or-frontier",
             "Mixed, duplicate or stale snapshot transfer." => "snapshot-transfer-mismatch-duplicate-or-stale",
+            "The match did not start before its deadline." => "client-start-deadline",
             _ => "unclassified"
         };
         public Task Stop() => stopTask ??= StopCore();
@@ -973,10 +984,9 @@ namespace Wreckabulary.Online
         public void OnHostMigration(NetworkRunner runner, HostMigrationToken token) => RecoverTransport(runner, token);
         public void OnShutdown(NetworkRunner runner, ShutdownReason reason)
         {
-            if (reason == ShutdownReason.HostMigration || !OwnsRecoveryCallback(runner)) return;
+            if (reason == ShutdownReason.HostMigration || !OwnsRecoveryCallback(runner) || RetryJoin(reason)) return;
             if (gameplayObserved && TransientShutdown(reason)) RecoverTransport(runner, null);
-            else if (gameplayObserved || recovery.Active) Fail(new WordboundRunnerStartException(reason));
-            else { InvalidateRun(); GameplayReady = false; authority.SetTransportReady(false, runner.IsServer); }
+            else Fail(new WordboundRunnerStartException(reason));
         }
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
         {

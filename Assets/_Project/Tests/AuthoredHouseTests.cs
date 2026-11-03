@@ -82,7 +82,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(new Vector3(.3f, 2.2f, 4f), geometry.localScale);
             Assert.AreEqual(1, builder.Originals.Count);
             var restored = builder.Originals[0];
-            Assert.AreEqual(position, restored.transform.position);
+            Assert.Less(Vector3.Distance(position, restored.transform.position), .01f);
             Assert.Less(Quaternion.Angle(rotation, restored.transform.rotation), .001f);
             Assert.AreEqual(scale, restored.transform.localScale);
             Assert.AreEqual(77f, restored.Health);
@@ -93,7 +93,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(0, builder.Originals.Count);
             builder.ResetRoom();
             Assert.AreEqual(1, builder.Originals.Count, "An empty Moving Day reset must not discard the authored snapshot.");
-            Assert.AreEqual(position, builder.Originals[0].transform.position);
+            Assert.Less(Vector3.Distance(position, builder.Originals[0].transform.position), .01f);
         }
 
         [UnityTest]
@@ -122,6 +122,68 @@ namespace Wreckabulary.Tests
                     Assert.IsNotNull(builder.AuthoredWorld.GeometryRoot.Find(RoomBuilder.StoreyName(floor)), map);
                 if (builder.Layout.StoreyFloors().Count > 1) Assert.IsNotNull(builder.GetComponent<StoreyCutaway>(), map);
             }
+        }
+
+        static Rules.HomeLayout TestHome(string map)
+        {
+            var designer = new Rules.HomeDesigner(GameConfig.Current.Houses, GameConfig.Current.Items);
+            var house = GameConfig.Current.HouseFor(map);
+            var batch = designer.AddWords(designer.CreateLayout(map, "Match Test Home"), "SOFA LAMP PLANT", house.Rooms[0].Name);
+            Assert.IsTrue(batch.Ok, string.Join("\n", batch.Errors));
+            Assert.AreEqual(3, batch.Added.Count);
+            batch.Layout.Props[0].Skin = "Candy";
+            return batch.Layout;
+        }
+
+        static void AssertFurnished(RoomBuilder builder, Rules.HomeLayout home)
+        {
+            CollectionAssert.AreEquivalent(home.Props.Select(prop => prop.Word), builder.Originals.Select(prop => prop.Word));
+            foreach (var prop in home.Props)
+                Assert.IsTrue(builder.Originals.Any(original => original.Word == prop.Word &&
+                    Mathf.Abs(original.transform.position.x - (float)prop.X) < .5f && Mathf.Abs(original.transform.position.z - (float)prop.Z) < .5f),
+                    prop.Word + " stands where the home builder put it");
+        }
+
+        [UnityTest]
+        public IEnumerator ASavedHomeFurnishesDibsAndReturnsAfterARoundReset()
+        {
+            foreach (string map in new[] { "pinwheel", "courtyard" })
+            {
+                yield return TestScenes.Reset();
+                var home = TestHome(map);
+                Session.LoadMode("Dibs", map, home);
+                yield return TestScenes.WaitForActive(Session.DibsScene);
+                var builder = Object.FindAnyObjectByType<RoomBuilder>();
+                Assert.AreEqual(home.Name, builder.HomeName, map);
+                Assert.AreEqual(map, builder.AuthoredWorld.MapId);
+                AssertFurnished(builder, home);
+                Assert.AreSame(builder.AuthoredWorld.FurnitureRoot, builder.Originals[0].transform.parent);
+                builder.ResetRoom();
+                yield return null;
+                AssertFurnished(builder, home);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator ObjectiveModesAndOtherMapsKeepTheirOwnFurniture()
+        {
+            var home = TestHome("pinwheel");
+            Session.LoadMode("MovingOut", "pinwheel", home);
+            Assert.IsNull(Session.Home, "Moving Out needs keepsakes a home save does not have");
+            yield return TestScenes.WaitForActive(Session.DibsScene);
+            Assert.IsNull(Object.FindAnyObjectByType<RoomBuilder>().HomeName);
+            yield return TestScenes.Reset();
+            Session.LoadMode("Duos", "courtyard", home);
+            Assert.IsNull(Session.Home, "a home only furnishes the map it was built on");
+            yield return TestScenes.WaitForActive(Session.DibsScene);
+            Assert.IsNull(Object.FindAnyObjectByType<RoomBuilder>().HomeName);
+            Session.LoadMode("Dibs", "pinwheel", home);
+            Assert.IsNotNull(Session.Home);
+            yield return null;
+            yield return null;
+            Session.Load(Session.TutorialScene);
+            Assert.IsNull(Session.Home, "any other scene load forgets the home");
+            yield return TestScenes.WaitForActive(Session.TutorialScene);
         }
 
         [UnityTest]

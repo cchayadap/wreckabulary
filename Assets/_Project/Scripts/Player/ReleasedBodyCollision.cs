@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Restore only collision pairs changed by this release, once the object clears its carrier.</summary>
     public sealed class ReleasedBodyCollision : MonoBehaviour
     {
         readonly List<(Collider item, Collider carrier)> pairs = new();

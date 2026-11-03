@@ -70,7 +70,6 @@ namespace Wreckabulary
             }
         }
 
-        /// <summary>Programmatic bindings need repeatable IDs for Unity's override JSON to survive a fresh map.</summary>
         public static void IdentifyBindings(InputActionMap map)
         {
             using var hash = MD5.Create();
@@ -100,11 +99,6 @@ namespace Wreckabulary
             return PhysicalKey(binding >= 0 && binding < action.bindings.Count ? action.bindings[binding].effectivePath : null);
         }
 
-        /// <summary>
-        /// The key shown for a whole binding, or one part of a composite. A Chinese or Japanese keyboard
-        /// layout names keys with 倉頡-style radicals our HUD font cannot draw, which spammed font
-        /// warnings and drew empty boxes, so anything non-Latin falls back to the physical key.
-        /// </summary>
         public static string Display(InputAction action, int binding = -1)
         {
             if (action == null) return "";
@@ -113,7 +107,6 @@ namespace Wreckabulary
 
             if (binding < 0)
             {
-                // A composite reads back as "W/A/S/D"-style text: rebuild it from the physical parts.
                 var parts = new List<string>();
                 for (int i = 0; i < action.bindings.Count; i++)
                     if (action.bindings[i].isPartOfComposite) parts.Add(PhysicalKey(action.bindings[i].effectivePath));
@@ -123,7 +116,6 @@ namespace Wreckabulary
             return PhysicalKey(binding >= 0 && binding < action.bindings.Count ? action.bindings[binding].effectivePath : null);
         }
 
-        /// <summary>The physical key behind a binding path: "&lt;Keyboard&gt;/q" → "Q", "&lt;Keyboard&gt;/digit1" → "1".</summary>
         static string PhysicalKey(string path)
         {
             if (string.IsNullOrEmpty(path)) return "?";
@@ -133,7 +125,6 @@ namespace Wreckabulary
             return key.Replace("Digit", string.Empty).Replace("Arrow", string.Empty).ToUpperInvariant();
         }
 
-        /// <summary>True when a font we ship can actually draw every character of this text.</summary>
         public static bool IsLatin(string text)
         {
             if (string.IsNullOrEmpty(text)) return true;
@@ -168,7 +159,6 @@ namespace Wreckabulary
                     {
                         string actionName = entry.action?.Substring(entry.action.LastIndexOf('/') + 1);
                         var legacy = string.IsNullOrEmpty(actionName) ? null : map.FindAction(actionName);
-                        // Old composite IDs cannot identify which movement direction was edited; retain a backup instead of guessing.
                         if (legacy != null && legacy.bindings.Count == 1) { found = legacy; index = 0; migrated = true; }
                     }
                     if (found != null) found.ApplyBindingOverride(index, entry.path);

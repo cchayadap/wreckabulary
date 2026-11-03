@@ -151,6 +151,19 @@ namespace Wreckabulary.Rules
             ordered.Add(item);
         }
 
+        public void Expand(ItemCatalogue house)
+        {
+            if (house == null) throw new ArgumentNullException(nameof(house));
+            foreach (var item in house.All)
+            {
+                if (!item.Enabled) throw new ArgumentException($"House item '{item.Id}' must be enabled.");
+                if (!byId.TryGetValue(item.Id, out var shared)) { Add(item); continue; }
+                if (shared.Enabled) throw new ArgumentException($"House item '{item.Id}' would replace the enabled shared item.");
+                ordered[ordered.IndexOf(shared)] = item;
+                byId[item.Id] = item;
+            }
+        }
+
         public bool TryGet(string id, out ItemDefinition item) => byId.TryGetValue(id ?? "", out item);
 
         public ItemDefinition Get(string id)

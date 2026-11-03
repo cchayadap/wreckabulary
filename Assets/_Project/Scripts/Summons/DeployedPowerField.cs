@@ -4,7 +4,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Neutral, wall-blocked fields use scaled physics time and never own recipe letters.</summary>
     [DisallowMultipleComponent]
     public sealed class DeployedPowerField : MonoBehaviour
     {

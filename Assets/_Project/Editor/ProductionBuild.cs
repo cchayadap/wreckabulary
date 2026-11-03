@@ -44,7 +44,9 @@ namespace Wreckabulary.EditorTools
             if (!BuildPipeline.IsBuildTargetSupported(BuildPipeline.GetBuildTargetGroup(target), target))
                 throw new InvalidOperationException($"Install the {target} build-support module for Unity 6000.6.3f1.");
             ProjectSetup.Run();
-            var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+            var scenes = EditorBuildSettings.scenes
+                .Where(s => s.enabled && !s.path.StartsWith("Assets/_Project/Scenes/Testing/", StringComparison.Ordinal))
+                .Select(s => s.path).ToArray();
             if (scenes.Length == 0 || scenes[0] != "Assets/_Project/Scenes/Hub.unity")
                 throw new InvalidOperationException("The build must start in the Hub scene.");
             foreach (string scene in scenes)

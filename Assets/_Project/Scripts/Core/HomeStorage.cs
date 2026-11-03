@@ -9,27 +9,59 @@ namespace Wreckabulary
 {
     public sealed class HomeStorage
     {
+        public const string Backup = ".bak";
+        public static string DefaultFolder;
         readonly HomeDesigner designer;
         readonly string directory;
         public HomeStorage(HomeDesigner designer, string directory = null)
-        { this.designer = designer ?? throw new ArgumentNullException(nameof(designer)); this.directory = directory ?? Path.Combine(Application.persistentDataPath, "homes"); }
+        {
+            this.designer = designer ?? throw new ArgumentNullException(nameof(designer));
+            this.directory = directory ?? DefaultFolder ?? Path.Combine(Application.persistentDataPath, "homes");
+        }
+
+        public static HomeStorage ForGame() => new HomeStorage(new HomeDesigner(GameConfig.Current.Houses, GameConfig.Current.Items));
 
         public bool TrySave(HomeLayout layout, out string error) => Write(layout, false, out _, out error);
         public bool TryExportFile(HomeLayout layout, out string path, out string error) => Write(layout, true, out path, out error);
-        public bool TryLoad(string map, out HomeLayout layout, out string error)
+        public bool TryLoad(string map, out HomeLayout layout, out string error) => TryLoad(map, out layout, out error, out _);
+        public bool TryLoad(string map, out HomeLayout layout, out string error, out bool restored)
+        {
+            layout = null; error = null; restored = false;
+            try
+            {
+                string path = PathFor(map, false);
+                bool primary = File.Exists(path), backup = File.Exists(path + Backup);
+                if (!primary && !backup) return false;
+                if (primary && Read(path, map, out layout, out error)) return true;
+                string primaryError = error;
+                if (backup && Read(path + Backup, map, out layout, out _)) { error = null; restored = true; return true; }
+                layout = null; error = primaryError ?? "Saved home could not be read.";
+                return false;
+            }
+            catch (Exception ex) { layout = null; error = "Could not load home: " + ex.Message; return false; }
+        }
+
+        public List<HomeLayout> Saved()
+        {
+            var homes = new List<HomeLayout>();
+            foreach (string map in new[] { "pinwheel", "courtyard" })
+                if (TryLoad(map, out var layout, out _)) homes.Add(layout);
+            return homes;
+        }
+
+        bool Read(string path, string map, out HomeLayout layout, out string error)
         {
             layout = null; error = null;
             try
             {
-                string path = PathFor(map, false);
-                if (!File.Exists(path)) return false;
                 if (new FileInfo(path).Length > HomeDesigner.MaxJsonLength * 4L) { error = "Saved home exceeds the supported file size."; return false; }
                 var result = designer.Import(File.ReadAllText(path, Encoding.UTF8));
                 if (!result.Ok) { error = string.Join("\n", result.Errors); return false; }
                 if (result.Layout.Map != map) { error = "Saved home belongs to a different map."; return false; }
                 layout = result.Layout; return true;
             }
-            catch (Exception ex) { error = "Could not load home: " + ex.Message; return false; }
+            catch (IOException ex) { error = "Could not load home: " + ex.Message; return false; }
+            catch (UnauthorizedAccessException ex) { error = "Could not load home: " + ex.Message; return false; }
         }
 
         bool Write(HomeLayout layout, bool export, out string path, out string error)
@@ -42,9 +74,15 @@ namespace Wreckabulary
                 path = PathFor(layout.Map, export);
                 Directory.CreateDirectory(directory);
                 temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-                File.WriteAllText(temp, result.Json, new UTF8Encoding(false));
-                if (File.Exists(path)) File.Replace(temp, path, null);
-                else File.Move(temp, path);
+                var bytes = new UTF8Encoding(false).GetBytes(result.Json);
+                using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    stream.Write(bytes, 0, bytes.Length);
+                    stream.Flush(true);
+                }
+                if (!File.Exists(path)) File.Move(temp, path);
+                else if (!export && Read(path, layout.Map, out _, out _)) File.Replace(temp, path, path + Backup);
+                else File.Replace(temp, path, null);
                 temp = null; return true;
             }
             catch (Exception ex) { error = "Could not save home: " + ex.Message; path = null; return false; }

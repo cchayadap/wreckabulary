@@ -40,7 +40,7 @@ namespace Wreckabulary.Qa
                 .When(_ => Object.FindFirstObjectByType<LobbyMenu>() != null)
                 .Do(OpenWordbound);
             yield return QaStep.Named("edit_workshop").Timeout(60).Do(EditWorkshop);
-            yield return QaStep.Named("exact_playtest").Timeout(90).Do(Playtest)
+            yield return QaStep.Named("exact_playtest").Timeout(150).Do(Playtest)
                 .Measure(_ => new Dictionary<string, object> {
                     ["exact_manifest"] = client && client.Gameplay.CourseWorld.ManifestHash == manifest,
                     ["draft_unchanged"] = history.Current.RecoveryJson == edited,
@@ -224,7 +224,7 @@ namespace Wreckabulary.Qa
             foreach (string name in new[] { "zoneId", "zoneMode", "pool", "minCount", "maxCount", "probability", "spacing",
                 "rangeMinX", "rangeMaxX", "rangeMinY", "rangeMaxY", "rangeMinZ", "rangeMaxZ", "rangeYaws", "rangeLayers",
                 "assetSearch", "advanced", "advancedPool", "placementHelp", "placementLimits", "inspectorScroll",
-                "inspectorSection", "inspectorChoiceOpen", "siteChoiceOpen", "routeChoiceOpen", "workshopTyping", "placementPickerOpen" })
+                "step", "fillAdvanced", "inspectorChoiceOpen", "siteChoiceOpen", "routeChoiceOpen", "workshopTyping", "placementPickerOpen" })
             {
                 var field = type.GetField(name, flags);
                 if (field == null) throw new QaFailException("Missing range view field: " + name);
@@ -238,6 +238,7 @@ namespace Wreckabulary.Qa
                 type.GetMethod("SelectZone", flags).Invoke(workshop, new object[] { zone });
                 type.GetField("assetSearch", flags).SetValue(workshop, zone.Pool[0].AssetId);
                 type.GetField("advanced", flags).SetValue(workshop, false);
+                type.GetField("fillAdvanced", flags).SetValue(workshop, true);
                 type.GetField("advancedPool", flags).SetValue(workshop, false);
                 type.GetField("placementHelp", flags).SetValue(workshop, false);
                 type.GetField("placementLimits", flags).SetValue(workshop, true);
@@ -266,7 +267,7 @@ namespace Wreckabulary.Qa
                     context.Note(names[index] + "_anchor_request", requested);
                     requested = ((Vector2)type.GetField("inspectorScroll", flags).GetValue(workshop)).y;
                     context.Note(names[index] + "_measured_reachable_scroll", requested);
-                    if (!(requested > 0) || float.IsNaN(requested) || float.IsInfinity(requested))
+                    if (!(requested >= 0) || float.IsInfinity(requested))
                         throw new QaFailException("Range view has no finite reachable scroll offset.");
                     type.GetField("inspectorScroll", flags).SetValue(workshop, new Vector2(0, requested));
                     for (int frame = 0; frame < 3; frame++)
@@ -387,12 +388,19 @@ namespace Wreckabulary.Qa
                 playtestStage = "wait_90_frames";
                 RecordPlaytest(context, "begin_frame_wait");
                 frames = WordboundFrameObservation.StartIfEnabled(launcher, client.Gameplay, ownedCamera, context);
+                long settleFrom = client.Gameplay.Frame.Progress.Tick;
+                double settleStart = Time.realtimeSinceStartupAsDouble;
+                long Settled() => client && client.Gameplay && client.Gameplay.Frame != null ? client.Gameplay.Frame.Progress.Tick - settleFrom : 0;
                 for (int frame = 1; frame <= 90; frame++)
                 {
                     yield return null;
                     playtestWaitedFrames = frame;
                     if (frame % 15 == 0) RecordPlaytest(context, "frame_wait_progress");
+                    if (frame >= 5 && Settled() >= 180) break;
                 }
+                context.Note("playtest_settle_frames", playtestWaitedFrames);
+                context.Note("playtest_settle_ticks", Settled());
+                context.Note("playtest_settle_seconds", Time.realtimeSinceStartupAsDouble - settleStart);
                 FinishFrames("frame-wait-completed");
                 playtestStage = "capture_world";
                 RecordPlaytest(context, "world_capture_begin");

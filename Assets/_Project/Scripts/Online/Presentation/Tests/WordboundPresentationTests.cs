@@ -25,7 +25,7 @@ namespace Wreckabulary.Tests
         public void SetUp()
         {
             anchor = new GameObject("Wordbound presentation test");
-            resolver = new WordboundVisualResolver(GameConfig.Current.Items);
+            resolver = new WordboundVisualResolver(WordboundTestItems.Raw());
         }
         [TearDown]
         public void TearDown() { if (anchor) Object.DestroyImmediate(anchor); }
@@ -73,11 +73,11 @@ namespace Wreckabulary.Tests
             var profile = AssetDatabase.LoadAssetAtPath<WordboundVisualProfile>("Assets/_Project/Data/Wordbound/Authoring/Presentation.asset");
             Assert.IsNotNull(profile, "The actual launch presentation profile must exist.");
             Assert.AreEqual(WordboundBaseArtwork.OriginalWreckabulary, profile.BaseArtwork);
-            var item = GameConfig.Current.Items.Get(id);
+            var item = WordboundTestItems.Raw().Get(id);
             var source = ModelLibrary.Load().Find(item.Model);
             Assert.IsNotNull(source, "The original imported model must exist: " + item.Model);
             var target = Vector3.Scale(new Vector3(item.Size[0], item.Size[1], item.Size[2]), new Vector3(.8f, 1.1f, .9f));
-            var originals = new WordboundVisualResolver(GameConfig.Current.Items, profile: profile);
+            var originals = new WordboundVisualResolver(WordboundTestItems.Raw(), profile: profile);
             using var visual = originals.Create(id, target, anchor.transform);
             SameMeshes(source, visual.Model);
             var bounds = VertexBounds(visual.Model, anchor.transform);
@@ -114,7 +114,7 @@ namespace Wreckabulary.Tests
             profile.BaseArtwork = WordboundBaseArtwork.WordboundEquipment;
             try
             {
-                var selected = new WordboundVisualResolver(GameConfig.Current.Items, profile: profile);
+                var selected = new WordboundVisualResolver(WordboundTestItems.Raw(), profile: profile);
                 using var visual = selected.Create(id, target, anchor.transform);
                 SameMeshes(entry.model, visual.Model);
                 var bounds = VertexBounds(visual.Model, anchor.transform);
@@ -137,7 +137,7 @@ namespace Wreckabulary.Tests
             if (profile) profile.BaseArtwork = WordboundBaseArtwork.WordboundEquipment;
             try
             {
-                var selected = new WordboundVisualResolver(GameConfig.Current.Items, allowCollection, profile: profile);
+                var selected = new WordboundVisualResolver(WordboundTestItems.Raw(), allowCollection, profile: profile);
                 var expected = allowCollection ? WordboundEquipmentCollection.Load().Find("BAT").model : ModelLibrary.Load().Find("Items/BAT");
                 using var visual = selected.Create("BAT", new Vector3(.2f, 1f, .2f), anchor.transform);
                 SameMeshes(expected, visual.Model);
@@ -158,7 +158,7 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(0, choice.enumValueIndex);
                 CollectionAssert.AreEqual(new[] { "Original Wreckabulary", "Wordbound Equipment" }, choice.enumDisplayNames);
                 profile.BaseArtwork = (WordboundBaseArtwork)99;
-                Assert.Throws<ArgumentException>(() => new WordboundVisualResolver(GameConfig.Current.Items, profile: profile));
+                Assert.Throws<ArgumentException>(() => new WordboundVisualResolver(WordboundTestItems.Raw(), profile: profile));
             }
             finally { Object.DestroyImmediate(profile); }
         }
@@ -167,7 +167,7 @@ namespace Wreckabulary.Tests
         [TestCase("SHIELD", true), TestCase("SOFA", false), TestCase("CLOCK", true)]
         public void HeldArtworkAlignsAuthoredGripAndOnlyWeaponsUseMiniatureScale(string id, bool miniature)
         {
-            var item = GameConfig.Current.Items.Get(id);
+            var item = WordboundTestItems.Raw().Get(id);
             var size = new Vector3(item.Size[0], item.Size[1], item.Size[2]);
             var hand = new GameObject("Authored hand test").transform;
             hand.SetParent(anchor.transform, false);
@@ -200,7 +200,7 @@ namespace Wreckabulary.Tests
         {
             string saved = PlayerPrefs.GetString("wv.outfit.0", "");
             using var visual = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
-            visual.Dress(PlayerAppearance.DefaultPresentationOutfit().Serialize());
+            visual.Dress(PlayerAppearance.DefaultPresentationOutfit(WordboundWardrobe.Current).Serialize());
             var renderers = visual.Model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             var hidden = renderers.Where(r => r.forceRenderingOff).ToArray();
             Assert.IsNotEmpty(hidden, "The authored avatar must contain unselected wardrobe pieces.");
@@ -221,10 +221,10 @@ namespace Wreckabulary.Tests
             Assert.Throws<ArgumentException>(() => resolver.Create("unmapped", Vector3.one, anchor.transform));
             Assert.AreEqual(0, anchor.transform.childCount);
             Assert.Throws<ArgumentException>(() => resolver.ModelKey("letter:a"));
-            var aliases = new WordboundVisualResolver(GameConfig.Current.Items, courseModels:
+            var aliases = new WordboundVisualResolver(WordboundTestItems.Raw(), courseModels:
                 new Dictionary<string, string> { ["authored-table"] = "Items/TABLE" });
             Assert.AreEqual("Items/TABLE", aliases.ModelKey("authored-table"));
-            Assert.Throws<ArgumentException>(() => new WordboundVisualResolver(GameConfig.Current.Items,
+            Assert.Throws<ArgumentException>(() => new WordboundVisualResolver(WordboundTestItems.Raw(),
                 courseModels: new Dictionary<string, string> { ["player"] = "Items/TABLE" }));
         }
 
@@ -250,7 +250,7 @@ namespace Wreckabulary.Tests
             profile.Overrides.Add(new WordboundVisualOverride { VisualKey = visualKey, Model = model });
             try
             {
-                var custom = new WordboundVisualResolver(GameConfig.Current.Items, profile: profile);
+                var custom = new WordboundVisualResolver(WordboundTestItems.Raw(), profile: profile);
                 var size = new Vector3(.4f, 1.4f, .3f);
                 using var visual = custom.Create(visualKey, size, anchor.transform);
                 var bounds = VertexBounds(visual.Model, anchor.transform);
@@ -272,7 +272,7 @@ namespace Wreckabulary.Tests
         [TestCase("BAT"), TestCase("SPEAR")]
         public void ConfirmedMeleeMovesAuthoredHandWhilePreservingLocomotionAndHeldGrip(string word)
         {
-            var item = GameConfig.Current.Items.Get(word);
+            var item = WordboundTestItems.Raw().Get(word);
             using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var control = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var motion = new WordboundAvatarMotion(avatar);
@@ -298,7 +298,7 @@ namespace Wreckabulary.Tests
         [Test]
         public void DuplicateAndRegressiveMeleeObservationsDoNotRestartTheClip()
         {
-            var item = GameConfig.Current.Items.Get("BAT");
+            var item = WordboundTestItems.Raw().Get("BAT");
             using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var control = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var motion = new WordboundAvatarMotion(avatar);
@@ -331,7 +331,7 @@ namespace Wreckabulary.Tests
         [Test]
         public void RecoveryRequiresAnObservedAttackAndEndsAtItsConfirmedCooldown()
         {
-            var item = GameConfig.Current.Items.Get("BAT");
+            var item = WordboundTestItems.Raw().Get("BAT");
             using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var motion = new WordboundAvatarMotion(avatar);
             long recovery = 100 + WordboundCombatPolicy.WindupTicks(item.Melee) + WordboundCombatPolicy.ActiveTicks(item.Melee);
@@ -353,7 +353,7 @@ namespace Wreckabulary.Tests
         [TestCase("unequipped"), TestCase("cancelled"), TestCase("defending")]
         public void InterruptedMeleeStopsAndCannotReplayTheSameAttack(string reason)
         {
-            var item = GameConfig.Current.Items.Get("BAT");
+            var item = WordboundTestItems.Raw().Get("BAT");
             using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var motion = new WordboundAvatarMotion(avatar);
             ObserveMelee(motion, 0, 101, MeleeActor(item), item);
@@ -374,7 +374,7 @@ namespace Wreckabulary.Tests
         [Test]
         public void PausedMeleeAndStalledSnapshotsDoNotAdvanceWithoutBound()
         {
-            var item = GameConfig.Current.Items.Get("HAMMER");
+            var item = WordboundTestItems.Raw().Get("HAMMER");
             using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var motion = new WordboundAvatarMotion(avatar);
             ObserveMelee(motion, 0, 105, MeleeActor(item), item);
@@ -394,7 +394,7 @@ namespace Wreckabulary.Tests
         [Test]
         public void EpochRestoreSamplesItsConfirmedPhaseAndRejectsThePriorEpoch()
         {
-            var item = GameConfig.Current.Items.Get("HAMMER");
+            var item = WordboundTestItems.Raw().Get("HAMMER");
             using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var motion = new WordboundAvatarMotion(avatar);
             ObserveMelee(motion, 0, 110, MeleeActor(item), item);

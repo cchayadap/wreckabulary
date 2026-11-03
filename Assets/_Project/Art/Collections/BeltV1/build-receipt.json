@@ -1,0 +1,352 @@
+{
+  "status": "PASS",
+  "run": "build-05",
+  "utc": "2026-11-01T10:07:35Z",
+  "blender": "5.2.2 LTS",
+  "script_sha256": "389b27af27beab839556b4a8395cf88e8e4eb29f4858d7fc4ed0dd94a9c7f977",
+  "helper_sha256": {
+    "belt_geometry.py": "3cdb09e380ee4faea81ec8b9137262e4ddd7ebaaa90f1f83b300596ce5bcae2f"
+  },
+  "contract": {
+    "size_unity_xyz": [
+      0.112,
+      1.2,
+      0.072
+    ],
+    "grip_unity_xyz": [
+      0.0,
+      0.16,
+      0.0
+    ],
+    "held_scale": 0.5,
+    "axes": "Blender +Z = Unity +Y (length); +X = width; front face -Y",
+    "materials": [
+      "leather_Classic",
+      "gold_Classic"
+    ],
+    "skins": [
+      "Classic",
+      "Candy",
+      "Arcade"
+    ],
+    "triangle_cap": 5500
+  },
+  "parts": {
+    "BELT_Strap": {
+      "vertices": 1108,
+      "triangles": 2214,
+      "material": "leather_Classic"
+    },
+    "BELT_Transition": {
+      "vertices": 80,
+      "triangles": 120,
+      "material": "leather_Classic"
+    },
+    "BELT_Grip_roll": {
+      "vertices": 300,
+      "triangles": 528,
+      "material": "leather_Classic"
+    },
+    "BELT_Grip_wrap": {
+      "vertices": 260,
+      "triangles": 516,
+      "material": "leather_Classic"
+    },
+    "BELT_Keeper_free": {
+      "vertices": 64,
+      "triangles": 128,
+      "material": "leather_Classic"
+    },
+    "BELT_Keeper_fixed": {
+      "vertices": 64,
+      "triangles": 128,
+      "material": "leather_Classic"
+    },
+    "BELT_End_cap": {
+      "vertices": 168,
+      "triangles": 310,
+      "material": "gold_Classic"
+    },
+    "BELT_Collar": {
+      "vertices": 100,
+      "triangles": 200,
+      "material": "gold_Classic"
+    },
+    "BELT_Buckle_frame": {
+      "vertices": 224,
+      "triangles": 448,
+      "material": "gold_Classic"
+    },
+    "BELT_Buckle_prong": {
+      "vertices": 42,
+      "triangles": 80,
+      "material": "gold_Classic"
+    },
+    "BELT_Rivet_0": {
+      "vertices": 40,
+      "triangles": 68,
+      "material": "gold_Classic"
+    },
+    "BELT_Rivet_1": {
+      "vertices": 40,
+      "triangles": 68,
+      "material": "gold_Classic"
+    }
+  },
+  "checks": {
+    "triangles_total": 4808,
+    "triangles_leather": 3634,
+    "triangles_gold": 1174,
+    "triangle_cap": 5500,
+    "within_budget": true,
+    "materials": [
+      "leather_Classic",
+      "gold_Classic"
+    ],
+    "bones": [
+      "Belt_Root",
+      "Belt_01",
+      "Belt_02",
+      "Belt_03",
+      "Belt_04",
+      "Belt_05",
+      "Belt_06",
+      "Belt_Tip"
+    ],
+    "max_influences": 2,
+    "max_weight_sum_error": 2.9802322387695312e-08,
+    "bounds_blender_min": [
+      -0.05599980801343918,
+      -0.036000002175569534,
+      0.0
+    ],
+    "bounds_blender_max": [
+      0.05599980801343918,
+      0.035999998450279236,
+      1.1999999284744263
+    ],
+    "measured_size_unity_xyz": [
+      0.112,
+      1.2,
+      0.072
+    ],
+    "catalogue_size_unity_xyz": [
+      0.112,
+      1.2,
+      0.072
+    ],
+    "size_error_metres": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "floor_min_z": 0.0,
+    "x_centre": 0.0,
+    "grip_blender": [
+      0.0,
+      0.0,
+      0.1599999964237213
+    ],
+    "grip_catalogue_unity": [
+      0.0,
+      0.16,
+      0.0
+    ],
+    "grip_error_metres": 0.0,
+    "held_length_metres": 0.6
+  },
+  "bend_clearance": {
+    "status": "PASS",
+    "thresholds": {
+      "min_thickness_ratio": 0.85,
+      "max_area_stretch": 1.35,
+      "self_overlap_pairs": 0
+    },
+    "samples": [
+      {
+        "tip_degrees": 0,
+        "min_thickness_ratio": 1.0,
+        "max_area_stretch": 1.0,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 10,
+        "min_thickness_ratio": 0.9985,
+        "max_area_stretch": 1.0144,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 20,
+        "min_thickness_ratio": 0.9969,
+        "max_area_stretch": 1.0281,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 30,
+        "min_thickness_ratio": 0.9952,
+        "max_area_stretch": 1.0412,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 40,
+        "min_thickness_ratio": 0.9932,
+        "max_area_stretch": 1.0537,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 50,
+        "min_thickness_ratio": 0.9912,
+        "max_area_stretch": 1.0655,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 60,
+        "min_thickness_ratio": 0.9889,
+        "max_area_stretch": 1.0767,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 70,
+        "min_thickness_ratio": 0.9865,
+        "max_area_stretch": 1.0872,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 80,
+        "min_thickness_ratio": 0.984,
+        "max_area_stretch": 1.097,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 90,
+        "min_thickness_ratio": 0.9813,
+        "max_area_stretch": 1.1061,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 100,
+        "min_thickness_ratio": 0.9784,
+        "max_area_stretch": 1.1145,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 110,
+        "min_thickness_ratio": 0.9748,
+        "max_area_stretch": 1.1223,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 120,
+        "min_thickness_ratio": 0.97,
+        "max_area_stretch": 1.1293,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 130,
+        "min_thickness_ratio": 0.9688,
+        "max_area_stretch": 1.131,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 140,
+        "min_thickness_ratio": 0.9677,
+        "max_area_stretch": 1.131,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": 150,
+        "min_thickness_ratio": 0.9645,
+        "max_area_stretch": 1.1314,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": -30,
+        "min_thickness_ratio": 0.9952,
+        "max_area_stretch": 1.0412,
+        "self_overlap_pairs": 0
+      },
+      {
+        "tip_degrees": -60,
+        "min_thickness_ratio": 0.9889,
+        "max_area_stretch": 1.0767,
+        "self_overlap_pairs": 0
+      }
+    ],
+    "limits": [
+      "Strap sweep without holes; rigid gold parts and keepers are not swept here.",
+      "Poses are the runtime's tip-weighted share plus a small buckle tilt; Unity playback is verified separately."
+    ]
+  },
+  "export_reimport": {
+    "status": "PASS",
+    "armatures": 1,
+    "meshes": 1,
+    "grip_markers": 1,
+    "bones": [
+      "Belt_Root",
+      "Belt_01",
+      "Belt_02",
+      "Belt_03",
+      "Belt_04",
+      "Belt_05",
+      "Belt_06",
+      "Belt_Tip"
+    ],
+    "triangles": 4808,
+    "bounds_min": [
+      -0.05599980801343918,
+      -0.035999976098537445,
+      -4.440892098500626e-15
+    ],
+    "bounds_max": [
+      0.05599980801343918,
+      0.036000024527311325,
+      1.1999999284744263
+    ],
+    "grip": [
+      0.0,
+      2.606730831189452e-08,
+      0.1599999964237213
+    ],
+    "grip_error_metres": 2.6067308021444376e-08,
+    "limits": [
+      "Reimported in the same Blender process after a factory reset; Unity import is checked in Unity."
+    ]
+  },
+  "exports": {
+    "Exports/BELT.fbx": {
+      "sha256": "2f0e07ed757227a3d796c4daca4529993936e7d6e92b92789781e2698602af73",
+      "bytes": 125932
+    },
+    "BELT.blend": {
+      "sha256": "9688c575b8195da49de16117b54b4c19a3d2de4fbc2cc0088476d12f1df034ed",
+      "bytes": 188803
+    },
+    "Exports/BELT.glb": {
+      "sha256": "542026bbec9a8d29fd7beadbf0d6d37034f6af5b9cbc04c7e0085828d60ba0ad",
+      "bytes": 346788
+    },
+    "Textures/leather_Arcade_BaseColor.png": {
+      "sha256": "aa9d41005d2b497ecac213622c5e2d99d691879ab864440cd460b745aeb00ceb",
+      "bytes": 56522
+    },
+    "Textures/leather_Candy_BaseColor.png": {
+      "sha256": "28507eb40b5b351b7ff25a22b88a3ef95ae90ad998097b5dbb0d0178b0ee7080",
+      "bytes": 58038
+    },
+    "Textures/leather_Classic_BaseColor.png": {
+      "sha256": "0f68fccb82b157b128c94e90cb64a38581f4a608bb7d78daf16309e89b668722",
+      "bytes": 58332
+    },
+    "Textures/leather_NormalGL.png": {
+      "sha256": "a6009f8765d97d236bddc9d0508675c6455a5ff08a72c1517c3a476164373bbd",
+      "bytes": 116999
+    }
+  },
+  "source_preservation": "new run folder; earlier runs untouched",
+  "licence": "Own work (procedural geometry and textures generated by this script); no third-party input.",
+  "limits": [
+    "Renders and Unity import/holding checks are separate stages and do not follow from this receipt.",
+    "Owner style/feel approval is not implied."
+  ]
+}

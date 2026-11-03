@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Creates smashable letter-built furniture, at edit time (scene builder) or at runtime (tutorial).</summary>
     public static class Furniture
     {
         public static Smashable Create(Transform parent, string word, Vector3 position, float yaw, Vector3 blockSize,
@@ -18,7 +17,6 @@ namespace Wreckabulary
             return smash;
         }
 
-        /// <summary>A static letter-built prop (desk, sign) that can't be moved or smashed.</summary>
         public static LetterBuilt Prop(Transform parent, string word, Vector3 position, float yaw, Vector3 blockSize,
                                        int perRow, Color color)
         {

@@ -54,6 +54,7 @@ namespace Wreckabulary.Rules.Wordbound
         readonly OnlineAdmissionVerifier verifier;
         readonly OnlineMatchExpectation expected;
         readonly Func<long> clock;
+        readonly OnlineServerClock serverClock;
         public string LocalPlayerId => client.Credentials?.PlayerId ?? throw new InvalidOperationException("Guest authentication is required.");
         public OnlineConnectionService(OnlineCoordinatorClient coordinator, OnlineAdmissionVerifier admissionVerifier,
             OnlineMatchExpectation expectation, Func<long> wallClock = null)
@@ -63,6 +64,10 @@ namespace Wreckabulary.Rules.Wordbound
             expected = expectation ?? throw new ArgumentNullException(nameof(expectation));
             clock = wallClock ?? (() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
+        public OnlineConnectionService(OnlineCoordinatorClient coordinator, OnlineAdmissionVerifier admissionVerifier,
+            OnlineMatchExpectation expectation, OnlineServerClock coordinatorClock)
+            : this(coordinator, admissionVerifier, expectation, (coordinatorClock ?? throw new ArgumentNullException(nameof(coordinatorClock))).Now)
+        { serverClock = coordinatorClock; }
         public async Task<string> Ticket(CancellationToken ct)
         {
             var result = await client.ConnectionTicket(expected, ct).ConfigureAwait(false);
@@ -81,13 +86,17 @@ namespace Wreckabulary.Rules.Wordbound
             IEnumerable<OnlineConnectionLease> leases, CancellationToken ct)
         {
             var current = leases.ToArray();
+            long sent = serverClock?.Local() ?? 0;
             var response = await client.ConnectionState(expected, current, ct).ConfigureAwait(false);
+            long received = serverClock?.Local() ?? 0;
             OnlineJson.Fields(response, "matchId", "reservationGeneration", "rosterHash", "revision", "serverTime", "seats");
             if (response["matchId"].String() != expected.MatchId || response["reservationGeneration"].String() != expected.Generation ||
                 response["rosterHash"].String() != expected.RosterHash) throw new FormatException("Connection state binding mismatch.");
             OnlineJson.Text(response, "revision", OnlineJson.Counter);
             long serverTime = OnlineJson.Integer(response, "serverTime");
-            if (Math.Abs(serverTime - clock()) > 5000) throw new FormatException("Coordinator clock is outside the supported tolerance.");
+            long estimated = clock();
+            serverClock?.Observe(serverTime, sent, received);
+            if (Math.Abs(serverTime - estimated) > 5000) throw new FormatException("Coordinator clock is outside the supported tolerance.");
             var seats = response["seats"].Items.Select(n => new OnlineConnectionSeat(n)).ToArray();
             if (seats.Length != match.Roster.Count || seats.Select(s => s.PlayerId).Distinct().Count() != seats.Length ||
                 seats.Any(s => !match.Roster.Any(r => r.PlayerId == s.PlayerId) ||

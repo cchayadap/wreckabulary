@@ -95,7 +95,6 @@ namespace Wreckabulary
             return Mathf.Max(0f, want);
         }
 
-        // Older authored houses retain low visible walls and full-height gameplay colliders.
         public static bool IsLegacyCutaway(Collider collider) => collider &&
             !collider.GetComponent<TallWall>() && collider.TryGetComponent<Renderer>(out var renderer) &&
             renderer.bounds.size.y <= 1.35f && collider.bounds.size.y > renderer.bounds.size.y * 2f;

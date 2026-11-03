@@ -52,7 +52,7 @@ namespace Wreckabulary.Tests
             profile.MaterialRemaps.Add(new WordboundMaterialRemap { VisualKey = "TABLE", Source = original, Replacement = replacement });
             try
             {
-                var items = GameConfig.Current.Items;
+                var items = WordboundTestItems.Raw();
                 var item = items.Get("TABLE");
                 var size = new Vector3(item.Size[0], item.Size[1], item.Size[2]);
                 var baseline = new WordboundVisualResolver(items, false);

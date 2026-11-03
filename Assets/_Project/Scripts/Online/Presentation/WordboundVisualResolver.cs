@@ -8,6 +8,24 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.Online
 {
+    public static class WordboundWardrobe
+    {
+        static WardrobeCatalogue current;
+        public static WardrobeCatalogue Current => current ??= Load(Resources.Load<GameData>(GameData.ResourcePath));
+        public static void Use(WardrobeCatalogue catalogue) => current = catalogue;
+        public static WardrobeCatalogue Load(GameData data)
+        {
+            if (!data || !data.wardrobe) throw new InvalidOperationException("The avatar wardrobe file is missing.");
+            var catalogue = WardrobeCatalogue.FromJson(data.wardrobe.text, data.wardrobe.name);
+            var problems = catalogue.Validate();
+            if (problems.Count > 0)
+                throw new InvalidOperationException("The avatar wardrobe has " + problems.Count + " problem(s): " + string.Join("; ", problems));
+            return catalogue;
+        }
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => current = null;
+    }
+
     public sealed class WordboundVisualResolver
     {
         public const string AvatarKey = "Avatar/Avatar";
@@ -174,8 +192,9 @@ namespace Wreckabulary.Online
         }
         public void Dress(string serialized)
         {
-            var look = string.IsNullOrEmpty(serialized) ? PlayerAppearance.DefaultPresentationOutfit() : Rules.Outfit.Deserialize(serialized);
-            Outfit = PlayerAppearance.Dress(Model.GetComponentsInChildren<SkinnedMeshRenderer>(true), look);
+            var wardrobe = WordboundWardrobe.Current;
+            var look = string.IsNullOrEmpty(serialized) ? PlayerAppearance.DefaultPresentationOutfit(wardrobe) : Rules.Outfit.Deserialize(serialized);
+            Outfit = PlayerAppearance.Dress(Model.GetComponentsInChildren<SkinnedMeshRenderer>(true), look, wardrobe);
             foreach (var renderer in renderers) renderer.forceRenderingOff = !renderer.enabled;
         }
         public void Show(bool visible)

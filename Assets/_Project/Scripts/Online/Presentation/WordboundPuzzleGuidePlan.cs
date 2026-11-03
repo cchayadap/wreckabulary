@@ -28,6 +28,8 @@ namespace Wreckabulary.Online
 
     public static class WordboundPuzzleGuidePlan
     {
+        public const string PickUpKeepsake = "PICK UP KEEPSAKE";
+
         public static IReadOnlyList<WordboundGuideMarker> Build(ResolvedCourse course, MatchSnapshot frame, string localActor)
         {
             if (course == null) throw new ArgumentNullException(nameof(course));
@@ -57,21 +59,22 @@ namespace Wreckabulary.Online
             var markers = new List<WordboundGuideMarker>();
             if (team.NextCheckpoint < 0 || team.NextCheckpoint > lap.Checkpoints.Count)
                 throw new ArgumentException("Guide checkpoint is outside the selected lap.");
+            bool carried = team.KeepsakeCarrier != null;
             if (team.NextCheckpoint == lap.Checkpoints.Count)
             {
                 var last = lap.Checkpoints[lap.Checkpoints.Count - 1];
                 var finish = course.RecoveryAnchors.Single(r => r.Id == last.RecoveryAnchorId);
-                markers.Add(new WordboundGuideMarker("finish:" + lap.Number, "LAP FINISH\nBring keepsake",
-                    WordboundGuideKind.Finish, finish.Position, radiusMm: finish.RadiusMm));
+                markers.Add(new WordboundGuideMarker("finish:" + lap.Number, carried ? "LAP FINISH\nBring keepsake" : PickUpKeepsake,
+                    WordboundGuideKind.Finish, finish.Position, radiusMm: finish.RadiusMm, ready: carried));
                 return markers.AsReadOnly();
             }
             var checkpoint = lap.Checkpoints[team.NextCheckpoint];
             var completed = new HashSet<string>(team.CompletedPuzzles, StringComparer.Ordinal);
-            bool ready = checkpoint.PuzzleIds.All(completed.Contains);
+            bool solved = checkpoint.PuzzleIds.All(completed.Contains);
             var anchor = course.RecoveryAnchors.Single(r => r.Id == checkpoint.RecoveryAnchorId);
             markers.Add(new WordboundGuideMarker("checkpoint:" + checkpoint.Id,
-                ready ? "CHECKPOINT\nBring keepsake" : "CHECKPOINT\nSolve puzzle first",
-                WordboundGuideKind.Checkpoint, anchor.Position, radiusMm: anchor.RadiusMm, ready: ready));
+                !solved ? "CHECKPOINT\nSolve puzzle first" : carried ? "CHECKPOINT\nBring keepsake" : PickUpKeepsake,
+                WordboundGuideKind.Checkpoint, anchor.Position, radiusMm: anchor.RadiusMm, ready: solved && carried));
             foreach (string id in checkpoint.PuzzleIds.Where(id => !completed.Contains(id)))
             {
                 var puzzle = course.Puzzles.Single(p => p.Id == id);

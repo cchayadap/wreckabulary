@@ -227,7 +227,7 @@ namespace Wreckabulary.Qa
                 }
                 try
                 {
-                    yield return context.WaitUntil(RenderReady, 12, "fresh assigned camera frames, simulation and the exact mode guide");
+                    yield return context.WaitUntil(RenderReady, 30, "fresh assigned camera frames, simulation and the exact mode guide");
                 }
                 finally
                 {

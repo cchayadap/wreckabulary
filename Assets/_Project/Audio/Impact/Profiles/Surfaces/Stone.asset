@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973ff9c50da8d0b4d90044e226a66e21, type: 3}
+  m_Name: Stone
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Audio.SurfaceDamageSounds
+  surface: 4
+  damaged:
+    clips:
+    - {fileID: 8300000, guid: aaef0cf65d6f99f4c8aac79a3b0196bf, type: 3}
+    - {fileID: 8300000, guid: e1be42d96ec15d840ad16263c008e6d2, type: 3}
+    volume: 0.9
+    pitchMin: 0.96
+    pitchMax: 1.04
+    cooldown: 0.1
+  broken:
+    clips:
+    - {fileID: 8300000, guid: ff8c7630ec7d7ae428a241d544f88a55, type: 3}
+    - {fileID: 8300000, guid: ad7c7e50486ae064f8082e8bbb557c12, type: 3}
+    - {fileID: 8300000, guid: 829fb7df541337843a0df0604e3fe14c, type: 3}
+    volume: 1
+    pitchMin: 0.97
+    pitchMax: 1.03
+    cooldown: 0.2

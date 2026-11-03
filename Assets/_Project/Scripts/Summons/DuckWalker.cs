@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>DUCK: a waddling decoy that bumps into opponents until someone smashes it.</summary>
     [RequireComponent(typeof(Rigidbody))]
     public class DuckWalker : MonoBehaviour
     {

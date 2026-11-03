@@ -152,19 +152,28 @@ namespace Wreckabulary.Online
             ApplyValidatedSnapshot(snapshot);
         }
 
-        public bool ReconcileAndApplySnapshot(MatchSnapshot snapshot, GameRules initialRules, Func<bool> reconcile)
+        public bool ReconcileAndApplySnapshot(MatchSnapshot snapshot, GameRules initialRules, Func<bool> reconcile,
+            bool authorityCapture = false)
         {
             if (reconciling) throw new InvalidOperationException("Physics restoration cannot reenter reconciliation.");
             if (!IsHost) throw new InvalidOperationException("Only the active host restores physics.");
             if (reconcile == null) throw new ArgumentNullException(nameof(reconcile));
+            if (authorityCapture && (snapshot == null || snapshot.Binding.Hash != Binding.Hash))
+                throw new ArgumentException("Snapshot binding differs from the expected match or content.");
             long revision = appliedRevision;
             reconciling = true;
             Exception failure = null;
             try
             {
+                bool Current() => reconcile() && IsHost && !failed && appliedRevision == revision;
+                if (authorityCapture)
+                {
+                    if (!Current()) return false;
+                    ApplyValidatedSnapshot(snapshot);
+                    return true;
+                }
                 return MatchStateValidation.ReconcileAndApply(snapshot, Binding, mode, course, items, initialRules, Rules,
-                    () => reconcile() && IsHost && !failed && appliedRevision == revision,
-                    () => ApplyValidatedSnapshot(snapshot));
+                    Current, () => ApplyValidatedSnapshot(snapshot));
             }
             catch (Exception error) { failure = error; throw; }
             finally

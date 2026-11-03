@@ -7,7 +7,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Cosmetic imported avatar, wardrobe and canonical animation playback.</summary>
     [RequireComponent(typeof(PlayerController))]
     [DefaultExecutionOrder(90)]
     public sealed class PlayerAppearance : MonoBehaviour
@@ -65,10 +64,11 @@ namespace Wreckabulary
         public float UpperBodyWeight => poseWeight;
         public bool IsUsingItemPose => itemUsePose && Time.time < actionUntil;
 
-        /// <summary>The unsaved presentation look; shared rules defaults and saved player choices remain independent.</summary>
-        public static Outfit DefaultPresentationOutfit()
+        public static Outfit DefaultPresentationOutfit() => DefaultPresentationOutfit(GameConfig.Current.Wardrobe);
+
+        public static Outfit DefaultPresentationOutfit(WardrobeCatalogue catalogue)
         {
-            var catalogue = GameConfig.Current.Wardrobe;
+            if (catalogue == null) throw new System.ArgumentNullException(nameof(catalogue));
             var look = catalogue.Default.Clone();
             look.Pieces["Top"] = "Hoodie";
             look.Pieces["Headwear"] = "Hood";
@@ -97,7 +97,6 @@ namespace Wreckabulary
             return catalogue.Sanitize(initial);
         }
 
-        /// <summary>Reuse saved artist content; create a visual only for legacy prefabs after all required clips validate.</summary>
         public bool Initialize(PlayerController player)
         {
             controller = player;
@@ -143,7 +142,6 @@ namespace Wreckabulary
             }
             itemContact = new ItemContactPose(model, gripR, face, gripCorrectionR);
             animator.applyRootMotion = false;
-            // Gameplay gear follows these animated sockets even when the avatar is outside the camera frustum.
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             graph = PlayableGraph.Create("Wreckabulary Avatar " + controller.Index);
             graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
@@ -211,9 +209,11 @@ namespace Wreckabulary
             }
         }
 
-        public static Outfit Dress(SkinnedMeshRenderer[] meshes, Outfit next)
+        public static Outfit Dress(SkinnedMeshRenderer[] meshes, Outfit next) => Dress(meshes, next, GameConfig.Current.Wardrobe);
+
+        public static Outfit Dress(SkinnedMeshRenderer[] meshes, Outfit next, WardrobeCatalogue catalogue)
         {
-            var catalogue = GameConfig.Current.Wardrobe;
+            if (catalogue == null) throw new System.ArgumentNullException(nameof(catalogue));
             var outfit = catalogue.Sanitize(next).Clone();
             if (meshes != null)
                 foreach (var renderer in meshes)
@@ -263,7 +263,6 @@ namespace Wreckabulary
             ApplyOutfit(outfit);
         }
 
-        /// <summary>Action visuals never change damage windows, movement or item rules.</summary>
         public void Play(string clipName, float duration = .5f)
         {
             if (!clips.ContainsKey(clipName)) return;
@@ -278,7 +277,6 @@ namespace Wreckabulary
             if (layers.IsValid()) layers.SetInputWeight(1, poseWeight);
         }
 
-        /// <summary>Fit the authored hand-to-mouth motion to the actual use channel; food adds a small bite nod.</summary>
         public void PlayItemUse(ItemDefinition item, float duration)
         {
             Play("Drink_Consumable", duration);
@@ -290,10 +288,10 @@ namespace Wreckabulary
         void OnJumped(PlayerController _) => Play("Jump_Preview", .45f);
         void OnDodged(PlayerController _) => Play("Run_InPlace", .2f);
 
-        void OnDamaged(PlayerHealth _, HitInfo __, HitResult result)
+        void OnDamaged(PlayerHealth _, HitInfo hit, HitResult result)
         {
             if (result.Blocked) blockReactionUntil = Time.time + .22f;
-            if (result.Landed && !result.Blocked && result.Damage > 0f && !result.BecameDowned && !result.BecameEliminated)
+            if (result.Landed && !result.Blocked && result.Damage > 0f && !result.BecameDowned && !result.BecameEliminated && hit.Source != HitSource.Bleed)
                 Play("Hit_Reaction", Mathf.Clamp(result.HitStun, .25f, .45f));
         }
 
@@ -372,7 +370,6 @@ namespace Wreckabulary
             float useProgress = actionDuration > 0f ? Mathf.Clamp01((Time.time - actionStarted) / actionDuration) : 0f;
             Quaternion itemRotation = Quaternion.identity;
             bool contact = itemContact != null && itemContact.Apply(controller, itemUsePose, eating, useProgress, out itemRotation);
-            // Animated mitten transforms retain the existing combat sockets and miniature item grip offsets.
             if (gripL && controller.handL) controller.handL.SetPositionAndRotation(gripL.position, gripL.rotation * gripCorrectionL);
             if (gripR && controller.handR) controller.handR.SetPositionAndRotation(gripR.position, gripR.rotation * gripCorrectionR);
             if (contact && controller.Combat && controller.Combat.Weapon)
@@ -458,7 +455,6 @@ namespace Wreckabulary
             return mask;
         }
 
-        /// <summary>Each masked layer owns two clips and blends during graph evaluation, including manual evaluation.</summary>
         sealed class MotionTrack
         {
             readonly PlayableGraph graph;

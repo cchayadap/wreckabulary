@@ -89,6 +89,7 @@ namespace Wreckabulary.Tests
             if (finish)
                 while (progress.Team(0).NextCheckpoint < course.Laps[0].Checkpoints.Count)
                     WordboundPuzzleGuidePlanTests.StepCheckpoint(progress, course);
+            Assert.IsTrue(progress.TakeKeepsake("a"));
             var plan = WordboundPuzzleGuidePlan.Build(course, progress.Capture(), "a");
             Assert.AreEqual(finish ? WordboundGuideKind.Finish : WordboundGuideKind.Checkpoint, plan[0].Kind);
             view.Show(plan);

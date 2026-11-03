@@ -103,6 +103,128 @@ namespace Wreckabulary.Rules.Wordbound
             string id = Unique("floor", draft.Course.Layers.Select(layer => layer.Id));
             draft.Course.Layers.Add(new CourseLayer { Id = id, HeightMm = heightMm }); draft.ActiveLayer = id;
         }
+        public static void SetLayerHeight(WorkshopDraft draft, string layerId, int heightMm)
+        {
+            var layer = draft.Course.Layers.Single(item => item.Id == layerId);
+            if (draft.LockedLayers.Contains(layerId)) throw new InvalidOperationException("Unlock the floor first.");
+            var (below, above) = LayerRange(draft.Course, layerId);
+            if (Math.Abs((long)heightMm) > CourseLimits.VerticalMm || heightMm <= below || heightMm >= above)
+                throw new ArgumentException("Keep the floor between its neighbours and within the height limit.");
+            int delta = checked(heightMm - layer.HeightMm);
+            if (delta == 0) return;
+            Transform(draft.Course, draft.Course.Modules.Where(module => module.LayerId == layerId).ToList(),
+                point => Add(point, new CoursePoint(0, delta, 0)), 0);
+            layer.HeightMm = heightMm;
+        }
+        public static (long below, long above) LayerRange(CourseDocument course, string layerId)
+        {
+            var layer = course.Layers.Single(item => item.Id == layerId);
+            var others = course.Layers.Where(item => item != layer).Select(item => (long)item.HeightMm).ToList();
+            return (others.Where(height => height < layer.HeightMm).DefaultIfEmpty(-CourseLimits.VerticalMm - 1L).Max(),
+                others.Where(height => height > layer.HeightMm).DefaultIfEmpty(CourseLimits.VerticalMm + 1L).Min());
+        }
+        public static int NextLayerHeight(CourseDocument course, CourseCatalogue catalogue)
+        {
+            var top = course.Layers.OrderBy(layer => layer.HeightMm).LastOrDefault();
+            if (top == null) return 0;
+            int storey = course.Modules.Where(module => module.LayerId == top.Id && catalogue.Modules.ContainsKey(module.DefinitionId))
+                .Select(module => catalogue.Modules[module.DefinitionId].HeightMm).DefaultIfEmpty(4000).Max();
+            return (int)Math.Min(CourseLimits.VerticalMm, (long)top.HeightMm + storey);
+        }
+        public static CourseBox? LayerFootprint(CourseDocument course, CourseCatalogue catalogue, string layerId)
+        {
+            var boxes = course.Modules.Where(module => module.LayerId == layerId && catalogue.Modules.ContainsKey(module.DefinitionId))
+                .Select(catalogue.Bounds).ToList();
+            if (boxes.Count == 0) return null;
+            return new CourseBox(new CoursePoint(boxes.Min(box => box.Min.X), boxes.Min(box => box.Min.Y), boxes.Min(box => box.Min.Z)),
+                new CoursePoint(boxes.Max(box => box.Max.X), boxes.Max(box => box.Max.Y), boxes.Max(box => box.Max.Z)));
+        }
+        public static (int width, int depth) WorldSize(CourseModuleDefinition definition, int yaw) =>
+            yaw % 180 == 0 ? (definition.WidthMm, definition.DepthMm) : (definition.DepthMm, definition.WidthMm);
+        public static string FitDefinition(CourseCatalogue catalogue, CourseModule module, int widthMm, int depthMm)
+        {
+            var current = catalogue.Modules[module.DefinitionId];
+            return catalogue.Modules.Values.OrderBy(definition =>
+                {
+                    var (width, depth) = WorldSize(definition, module.Yaw);
+                    return Math.Abs((long)width - widthMm) + Math.Abs((long)depth - depthMm);
+                })
+                .ThenBy(definition => definition.HeightMm == current.HeightMm ? 0 : 1)
+                .ThenBy(definition => definition.Id == current.Id ? 0 : 1)
+                .ThenBy(definition => definition.Id, StringComparer.Ordinal).First().Id;
+        }
+        public static string StepDefinition(CourseCatalogue catalogue, string definitionId, int direction, bool wrap = false)
+        {
+            var sizes = catalogue.Modules.Values.OrderBy(definition => (long)definition.WidthMm * definition.DepthMm)
+                .ThenBy(definition => definition.Id, StringComparer.Ordinal).Select(definition => definition.Id).ToList();
+            int index = sizes.IndexOf(definitionId), next = index + Math.Sign(direction);
+            if (index < 0) return null;
+            return sizes[wrap ? (next % sizes.Count + sizes.Count) % sizes.Count : Math.Max(0, Math.Min(sizes.Count - 1, next))];
+        }
+        public static CoursePoint ResizedPosition(CourseCatalogue catalogue, CourseModule module, string definitionId, int sideX, int sideZ)
+        {
+            var bounds = catalogue.Bounds(module);
+            var (width, depth) = WorldSize(catalogue.Modules[definitionId], module.Yaw);
+            int Axis(int side, int min, int max, int centre, int size) =>
+                side > 0 ? checked(min + size / 2) : side < 0 ? checked(max - (size + 1) / 2) : centre;
+            return new CoursePoint(Axis(sideX, bounds.Min.X, bounds.Max.X, module.Position.X, width), module.Position.Y,
+                Axis(sideZ, bounds.Min.Z, bounds.Max.Z, module.Position.Z, depth));
+        }
+        public static void ResizeModule(WorkshopDraft draft, CourseCatalogue catalogue, CoursePlayRequirements play,
+            string moduleId, string definitionId, CoursePoint position)
+        {
+            var module = draft.Course.Modules.Single(item => item.Id == moduleId);
+            if (draft.LockedLayers.Contains(module.LayerId)) throw new InvalidOperationException("Unlock the floor first.");
+            if (!catalogue.Modules.ContainsKey(module.DefinitionId) || !catalogue.Modules.ContainsKey(definitionId))
+                throw new ArgumentException("Choose an approved room size from this map's catalogue.");
+            if (position.Y != module.Position.Y) throw new ArgumentException("Resizing keeps the room on its floor.");
+            var known = new HashSet<string>(CourseValidator.Validate(draft.Course, catalogue, play).Issues.Select(IssueKey), StringComparer.Ordinal);
+            var before = catalogue.Bounds(module);
+            var owned = OwnedPoints(draft.Course, module.Id).Where(item => before.Contains(item.point)).ToList();
+            module.DefinitionId = definitionId; module.Position = position;
+            var after = catalogue.Bounds(module);
+            var orphan = owned.FirstOrDefault(item => !after.Contains(item.point));
+            if (orphan.label != null)
+                throw new InvalidOperationException("Resize refused · " + orphan.label + " would leave the room. Move it first.");
+            var blocked = draft.Course.Modules.FirstOrDefault(item => item != module && catalogue.Modules.ContainsKey(item.DefinitionId) &&
+                catalogue.Bounds(item).Intersects(after) && !catalogue.Bounds(item).Intersects(before));
+            if (blocked != null) throw new InvalidOperationException("Resize refused · the room would overlap " + blocked.Id + ".");
+            var door = draft.Course.Connections.FirstOrDefault(link => (link.Kind == "Walk" || link.Kind == "Door") &&
+                (link.FromModuleId == module.Id && OnWall(before, link.From) && !OnWall(after, link.From) ||
+                 link.ToModuleId == module.Id && OnWall(before, link.To) && !OnWall(after, link.To)));
+            if (door != null) throw new InvalidOperationException("Resize refused · doorway " + door.Id + " would leave its wall.");
+            var added = CourseValidator.Validate(draft.Course, catalogue, play).Issues.FirstOrDefault(issue => !known.Contains(IssueKey(issue)));
+            if (added != null) throw new InvalidOperationException("Resize refused · " + added.EntityId + ": " + added.Message);
+        }
+        static bool OnWall(CourseBox box, CoursePoint point) =>
+            point.X == box.Min.X || point.X == box.Max.X || point.Z == box.Min.Z || point.Z == box.Max.Z;
+        static string IssueKey(CourseIssue issue) => issue.Code + "\n" + issue.EntityId + "\n" + issue.Message;
+        static IEnumerable<(CoursePoint point, string label)> OwnedPoints(CourseDocument course, string moduleId)
+        {
+            foreach (var zone in course.Zones.Where(item => item.ModuleId == moduleId))
+            {
+                yield return (zone.Bounds.Min, "placement " + zone.Id); yield return (zone.Bounds.Max, "placement " + zone.Id);
+                if (zone.Placement == "Fixed") yield return (zone.FixedPosition, "object " + zone.Id);
+            }
+            foreach (var item in course.Supplies.Where(item => item.ModuleId == moduleId)) yield return (item.Position, "letters " + item.Id);
+            foreach (var item in course.Spawns.Where(item => item.ModuleId == moduleId)) yield return (item.Position, "spawn " + item.Id);
+            foreach (var item in course.RecoveryAnchors.Where(item => item.ModuleId == moduleId)) yield return (item.Position, "safe return " + item.Id);
+            foreach (var item in course.Connections)
+            {
+                if (item.FromModuleId == moduleId) yield return (item.From, "connection " + item.Id);
+                if (item.ToModuleId == moduleId) yield return (item.To, "connection " + item.Id);
+            }
+            var puzzles = new HashSet<string>(course.Puzzles.Where(item => item.ModuleId == moduleId).Select(item => item.Id), StringComparer.Ordinal);
+            foreach (var site in course.PhysicalSites.Where(item => puzzles.Contains(item.PuzzleId)))
+            {
+                string label = "puzzle control " + site.PuzzleId;
+                yield return (site.Position, label);
+                foreach (var box in new[] { site.ArrivalBounds, site.ReceiverStartBounds }.Concat(site.FloorPadBounds)
+                    .Where(box => !WorkshopPhysicalSites.Empty(box)))
+                { yield return (box.Min, label); yield return (box.Max, label); }
+                foreach (var arm in site.Fixtures) { yield return (arm.From, label); yield return (arm.To, label); }
+            }
+        }
         public static void Group(WorkshopDraft draft, string groupId)
         {
             var ids = Selected(draft).Select(module => module.Id).ToList();

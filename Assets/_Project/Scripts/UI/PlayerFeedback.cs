@@ -11,7 +11,7 @@ namespace Wreckabulary
 
         public void Initialize(PlayerController controller)
         {
-            if (linked || !controller.Health || !controller.Inventory || !controller.Summoner) return;
+            if (linked || !controller || !controller.Health || !controller.Inventory || !controller.Summoner) return;
             player = controller; linked = true; letters = player.Inventory.Count;
             player.Inventory.Changed += LettersChanged;
             player.Summoner.Summoned += Crafted;
@@ -23,7 +23,6 @@ namespace Wreckabulary
         void LettersChanged()
         {
             int count = player.Inventory.Count;
-            // A disabling summoner still refunds its reservation, but cannot spawn scene effects.
             if (count > letters && isActiveAndEnabled && !player.Summoner.IsDisabling)
             {
                 GameFeedback.Play(GameCue.Pickup);
@@ -38,7 +37,12 @@ namespace Wreckabulary
         }
         void Damaged(PlayerHealth health, HitInfo hit, HitResult result)
         {
-            GameFeedback.Play(result.Blocked || result.Absorbed > 0f ? GameCue.Block : GameCue.Hit);
+            if (hit.Source == HitSource.Bleed)
+            {
+                GameFeedback.Burst("Impact_Star", player.transform.position + Vector3.up * 1.1f, .25f, new Color(.86f, .2f, .22f), .2f);
+                return;
+            }
+            if (!Audio.ImpactAudioBridge.VoicesHit(hit)) GameFeedback.Play(result.Blocked || result.Absorbed > 0f ? GameCue.Block : GameCue.Hit);
             if (result.Blocked) GameFeedback.Burst("Impact_Star", player.transform.position + Vector3.up * .8f + player.Facing * .45f, .6f, GameFeedback.SkillColor("PLATE"), .25f);
             else if (result.Absorbed > 0f) GameFeedback.Burst("Foam_Cloud", player.transform.position + Vector3.up * .9f, .7f, GameFeedback.SkillColor("FOAM"), .3f);
             else if (result.Damage > 0) GameFeedback.Burst("Impact_Star", player.transform.position + Vector3.up * 1.1f, .5f, new Color(1f, .59f, .36f), .3f);

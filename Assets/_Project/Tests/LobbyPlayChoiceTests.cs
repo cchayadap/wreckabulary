@@ -14,22 +14,34 @@ namespace Wreckabulary.Tests
     {
         static readonly string[] Keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey };
         string[] saved;
-        float volume;
-        int vsync;
+        float volume, delay;
+        int vsync, tutorial;
+        bool hadTutorial;
+        string homes, priorHomes;
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
             saved = Keys.Select(key => PlayerPrefs.HasKey(key) ? PlayerPrefs.GetString(key) : null).ToArray();
-            volume = AudioListener.volume; vsync = QualitySettings.vSyncCount;
+            volume = AudioListener.volume; vsync = QualitySettings.vSyncCount; delay = LobbyMenu.StartDelay;
+            hadTutorial = PlayerPrefs.HasKey(TutorialDirector.DoneKey); tutorial = PlayerPrefs.GetInt(TutorialDirector.DoneKey, 0);
+            priorHomes = HomeStorage.DefaultFolder;
+            homes = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "wreckabulary-lobby-homes-" + System.Guid.NewGuid().ToString("N"));
+            HomeStorage.DefaultFolder = homes;
             yield return TestScenes.Reset();
             foreach (string key in Keys) PlayerPrefs.DeleteKey(key);
-            yield return TestScenes.Load(Session.HubScene);
-            yield return TestScenes.WaitUntil(() => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning,
-                2f, "play choices ready");
+            PlayerPrefs.SetInt(TutorialDirector.DoneKey, 1);
+            yield return OpenLobby();
             LobbyMenu.Instance.Open(LobbyMenu.Play);
             yield return null;
             Canvas.ForceUpdateCanvases();
+        }
+
+        static IEnumerator OpenLobby()
+        {
+            yield return TestScenes.Load(Session.HubScene);
+            yield return TestScenes.WaitUntil(() => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning,
+                2f, "play choices ready");
         }
 
         [UnityTearDown]
@@ -38,8 +50,21 @@ namespace Wreckabulary.Tests
             yield return TestScenes.Reset();
             for (int i = 0; i < Keys.Length; i++)
                 if (saved[i] == null) PlayerPrefs.DeleteKey(Keys[i]); else PlayerPrefs.SetString(Keys[i], saved[i]);
+            if (hadTutorial) PlayerPrefs.SetInt(TutorialDirector.DoneKey, tutorial); else PlayerPrefs.DeleteKey(TutorialDirector.DoneKey);
             PlayerPrefs.Save();
-            AudioListener.volume = volume; QualitySettings.vSyncCount = vsync;
+            AudioListener.volume = volume; QualitySettings.vSyncCount = vsync; LobbyMenu.StartDelay = delay;
+            HomeStorage.DefaultFolder = priorHomes;
+            if (System.IO.Directory.Exists(homes)) System.IO.Directory.Delete(homes, true);
+        }
+
+        static Wreckabulary.Rules.HomeLayout SaveHome(string map, string name)
+        {
+            var designer = new Wreckabulary.Rules.HomeDesigner(GameConfig.Current.Houses, GameConfig.Current.Items);
+            var house = GameConfig.Current.HouseFor(map);
+            var batch = designer.AddWords(designer.CreateLayout(map, name), "TABLE PLANT", house.Rooms[0].Name);
+            Assert.IsTrue(batch.Ok, string.Join("\n", batch.Errors));
+            Assert.IsTrue(new HomeStorage(designer).TrySave(batch.Layout, out var error), error);
+            return batch.Layout;
         }
 
         static RectTransform Page => LobbyMenu.Instance.Page<PlayPage>().Root;
@@ -75,7 +100,7 @@ namespace Wreckabulary.Tests
                 Assert.LessOrEqual(modeBounds.yMax, queueBounds.yMin);
                 Assert.GreaterOrEqual(modeBounds.yMin, InPage(scroll.viewport).yMax);
                 Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(b => b.name.StartsWith("Family ")));
-                foreach (string id in new[] { "Mode Dibs", "Mode Duos", "Mode MovingOut", "Mode MovingDay", "Mode Escape", "Solo TimeRun", "Solo Freestyle" })
+                foreach (string id in new[] { "Mode Tutorial", "Mode Dibs", "Mode Duos", "Mode MovingOut", "Mode MovingDay", "Mode Escape", "Solo TimeRun", "Solo Freestyle" })
                 {
                     var button = Find(id); var bounds = InPage((RectTransform)button.transform);
                     Assert.IsTrue(button.IsInteractable()); Assert.IsTrue(button.transform.IsChildOf(row));
@@ -226,12 +251,10 @@ namespace Wreckabulary.Tests
             var menu = LobbyMenu.Instance;
             menu.Choose(LobbyMenu.Practice, "Duos", "flat");
             menu.Open(LobbyMenu.Play);
-            var second = new ScriptedBinding();
-            menu.Join(second);
             yield return null;
             Submit("Solo TimeRun");
             yield return null;
-            Assert.IsFalse(Find("Solo GO").interactable);
+            Assert.AreEqual(Session.CanLoad(Session.WordboundScene), Find("Solo GO").interactable);
             var focus = EventSystem.current.currentSelectedGameObject;
             foreach (var size in new[] { new Vector2(1868, 968), new Vector2(1388, 968), new Vector2(900, 920), new Vector2(900, 580), new Vector2(1868, 968) })
             {
@@ -241,15 +264,24 @@ namespace Wreckabulary.Tests
                 Canvas.ForceUpdateCanvases();
                 AssertFullFamily(size, "Modes", "Solo summary");
                 Assert.AreSame(focus, EventSystem.current.currentSelectedGameObject, "resizing must not recreate focus");
-                Assert.IsFalse(Find("Solo GO").interactable, "the extra-seat guard survives refit");
             }
             Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
-            Assert.AreSame(second, menu.Party.Single());
-            Submit("Mode Duos");
+            var second = new ScriptedBinding();
+            menu.Join(second);
             yield return null;
             Canvas.ForceUpdateCanvases();
-            AssertFullHousePanel();
-            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            Assert.IsFalse(menu.Page<PlayPage>().WordboundSolo, "a second seat leaves the solo-only courses");
+            foreach (var size in new[] { new Vector2(1868, 968), new Vector2(900, 580) })
+            {
+                Page.sizeDelta = size;
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                AssertFullHousePanel();
+                AssertStripFits();
+            }
+            CollectionAssert.AreEqual(LobbyMenu.PracticeModes, Modes);
+            Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
+            Assert.AreSame(second, menu.Party.Single());
             Submit("Queue " + LobbyMenu.Workshop);
             yield return null;
             Submit("Create Wordbound");
@@ -266,7 +298,7 @@ namespace Wreckabulary.Tests
             yield return null;
             Canvas.ForceUpdateCanvases();
             AssertFullHousePanel();
-            CollectionAssert.AreEqual(new[] { LobbyMenu.TutorialMode }, Modes);
+            CollectionAssert.IsEmpty(Modes, "Create offers its two tools without play modes");
             menu.Leave(second);
         }
 
@@ -293,14 +325,16 @@ namespace Wreckabulary.Tests
                     AssertFullHousePanel();
                     Assert.AreEqual(LobbyStage.Focus.Centre, menu.Page<PlayPage>().Focus, "Play does not reserve space for an avatar.");
                 }
-                if (family == "Create house")
+                if (family.StartsWith("Create "))
                 {
                     Assert.AreEqual(LobbyMenu.WorkshopMode, menu.Mode);
                     Assert.IsTrue(Wreckabulary.Rules.HomeDesigner.Supports(menu.Map), "The home builder must normalize an unsupported house choice.");
                 }
-                else Assert.AreEqual("flat", menu.Map, "Presentation and map-editor choices preserve the original house selection.");
+                else Assert.AreEqual("flat", menu.Map, "Practice choices preserve the original house selection.");
             }
             Assert.IsTrue(Wreckabulary.Rules.HomeDesigner.Supports(menu.Map));
+            Submit("Queue " + LobbyMenu.Practice); yield return null;
+            Assert.AreEqual("flat", menu.Map, "Leaving Create gives the practice house back.");
             Assert.AreEqual(savedProfile, JsonUtility.ToJson(profile), "Presentation must not mutate the saved profile.");
         }
 
@@ -354,8 +388,32 @@ namespace Wreckabulary.Tests
             AssertFullHousePanel();
             Assert.IsTrue(Find("Queue " + LobbyMenu.Practice).transform.IsChildOf(frame.Queues));
             Assert.IsTrue(Find("GO").transform.IsChildOf(frame.Summary));
-            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            CollectionAssert.AreEqual(LobbyMenu.PracticeModes, Modes);
             yield return null;
+        }
+
+        static RectTransform Strip => Page.GetComponentInChildren<LobbyPlayPageView>().Body.GetComponentsInChildren<RectTransform>()
+            .Single(rect => rect.name == "Modes");
+
+        static void AssertStripFits()
+        {
+            var strip = Strip;
+            var bounds = InPage(strip);
+            Assert.That(bounds.center.x, Is.EqualTo(InPage(Page.GetComponentInChildren<LobbyPlayPageView>().Panel).center.x).Within(.5f));
+            foreach (var button in strip.GetComponentsInChildren<Button>())
+            {
+                var at = InPage((RectTransform)button.transform);
+                Assert.GreaterOrEqual(at.xMin, bounds.xMin - .5f, button.name);
+                Assert.LessOrEqual(at.xMax, bounds.xMax + .5f, button.name);
+                Assert.GreaterOrEqual(at.yMin, bounds.yMin - .5f, button.name);
+                Assert.LessOrEqual(at.yMax, bounds.yMax + .5f, button.name);
+                Assert.GreaterOrEqual(at.height, 44f, button.name);
+            }
+            foreach (var text in strip.GetComponentsInChildren<TMP_Text>())
+            {
+                text.ForceMeshUpdate();
+                Assert.IsFalse(text.isTextTruncated || text.isTextOverflowing, text.name + ": " + text.text);
+            }
         }
 
         static void AssertFullHousePanel()
@@ -445,7 +503,7 @@ namespace Wreckabulary.Tests
             var bindings = Session.Bindings.ToArray();
             Submit("Create Wordbound"); yield return null;
             Assert.IsTrue(menu.Page<PlayPage>().WordboundMaps);
-            CollectionAssert.AreEqual(new[] { LobbyMenu.TutorialMode }, Modes);
+            CollectionAssert.IsEmpty(Modes);
             Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")));
             Assert.IsTrue(Find("Workshop OPEN").interactable);
             Assert.AreEqual("Local editor. One-player playtests.", Page.GetComponentsInChildren<TMP_Text>()
@@ -454,19 +512,19 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("courtyard", menu.Map); Assert.AreEqual(2, menu.PartySize);
             Assert.AreSame(second, menu.Party.Single()); CollectionAssert.AreEqual(bindings, Session.Bindings);
             Submit("Create house"); yield return null;
-            CollectionAssert.AreEqual(new[] { LobbyMenu.TutorialMode }, Modes);
+            CollectionAssert.IsEmpty(Modes);
             Assert.AreEqual(LobbyMenu.WorkshopMode, menu.Mode); Assert.AreEqual("courtyard", menu.Map);
             Assert.AreSame(second, menu.Party.Single()); CollectionAssert.AreEqual(bindings, Session.Bindings);
             menu.Leave(second);
         }
 
         [UnityTest]
-        public IEnumerator CreateToolsKeepOneSelectedModeAfterTutorialAndEditorSwitches()
+        public IEnumerator CreateToolsKeepOneSelectedModeAfterEditorSwitches()
         {
             var menu = LobbyMenu.Instance;
             menu.Choose(LobbyMenu.Workshop, LobbyMenu.WorkshopMode, "courtyard"); menu.Open(LobbyMenu.Play);
             var bindings = Session.Bindings.ToArray();
-            foreach (string id in new[] { "Mode " + LobbyMenu.TutorialMode, "Create Wordbound", "Create house" })
+            foreach (string id in new[] { "Create Wordbound", "Create house", "Create Wordbound", "Create house" })
             {
                 Submit(id); yield return null;
                 Canvas.ForceUpdateCanvases();
@@ -498,7 +556,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("Practice (Offline)", Find("Queue " + LobbyMenu.Practice).GetComponentInChildren<TMP_Text>().text);
             Assert.AreEqual("Matchmaking", Find("Queue " + LobbyMenu.Matchmaking).GetComponentInChildren<TMP_Text>().text);
             Assert.AreEqual("Create", Find("Queue " + LobbyMenu.Workshop).GetComponentInChildren<TMP_Text>().text);
-            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            CollectionAssert.AreEqual(LobbyMenu.PracticeModes, Modes);
             foreach (var button in Page.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Mode ")))
             {
                 Assert.AreEqual(1, button.GetComponentsInChildren<TMP_Text>().Length, "one concise mode label: " + button.name);
@@ -507,14 +565,15 @@ namespace Wreckabulary.Tests
             }
             Submit("Queue " + LobbyMenu.Workshop);
             yield return null;
-            CollectionAssert.AreEqual(new[] { LobbyMenu.TutorialMode }, Modes);
+            CollectionAssert.IsEmpty(Modes);
             Assert.AreEqual(LobbyMenu.Workshop, LobbyMenu.Instance.Queue);
-            Assert.AreEqual(LobbyMenu.TutorialMode, LobbyMenu.Instance.Mode);
-            Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")));
-            Assert.IsTrue(Page.GetComponentsInChildren<Transform>().Any(child => child.name == "Tutorial room"));
+            Assert.AreEqual(LobbyMenu.WorkshopMode, LobbyMenu.Instance.Mode);
+            CollectionAssert.AreEqual(new[] { "Create house", "Create Wordbound" }, Page.GetComponentsInChildren<Button>()
+                .Where(button => button.name.StartsWith("Create ")).Select(button => button.name).ToArray());
+            Assert.IsFalse(Page.GetComponentsInChildren<Transform>().Any(child => child.name == "Tutorial room"), "the tutorial lives in Practice");
             Submit("Queue " + LobbyMenu.Practice);
             yield return null;
-            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            CollectionAssert.AreEqual(LobbyMenu.PracticeModes, Modes);
             Assert.AreEqual("Dibs", LobbyMenu.Instance.Mode);
             Assert.AreSame(Find("Queue " + LobbyMenu.Practice).gameObject, EventSystem.current.currentSelectedGameObject);
         }
@@ -561,23 +620,135 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator OldTutorialSelectionAppearsInCreateWithoutChangingItsLaunch()
+        public IEnumerator TutorialIsTheFirstPracticeChoiceWithItsOwnRoom()
         {
             var menu = LobbyMenu.Instance;
             menu.Choose(LobbyMenu.Practice, LobbyMenu.TutorialMode);
             menu.Open(LobbyMenu.Play);
             yield return null;
-            CollectionAssert.AreEqual(new[] { LobbyMenu.TutorialMode }, Modes);
+            CollectionAssert.AreEqual(LobbyMenu.PracticeModes, Modes);
+            Assert.AreEqual(LobbyMenu.TutorialMode, Modes[0], "the tutorial comes first");
+            Assert.AreEqual(LobbyMenu.Practice, menu.Queue);
             Assert.AreEqual(LobbyMenu.TutorialMode, menu.Mode);
+            Assert.AreSame(Find("Mode " + LobbyMenu.TutorialMode).gameObject, EventSystem.current.currentSelectedGameObject);
+            Assert.IsTrue(Page.GetComponentsInChildren<Transform>().Any(child => child.name == "Tutorial room"));
+            Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")), "the tutorial has its own room");
             Assert.IsTrue(Find("GO").interactable);
-            Submit("Create house");
+            Submit("Queue " + LobbyMenu.Workshop);
             yield return null;
-            Assert.AreEqual(LobbyMenu.Workshop, menu.Queue);
             Assert.AreEqual(LobbyMenu.WorkshopMode, menu.Mode);
+            CollectionAssert.IsEmpty(Modes);
             Submit("Queue " + LobbyMenu.Practice);
             yield return null;
-            Assert.AreEqual("Dibs", menu.Mode);
-            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            Assert.AreEqual("Dibs", menu.Mode, "a finished tutorial hands Practice to Dibs");
+        }
+
+        [UnityTest]
+        public IEnumerator TutorialIsSelectedUntilItIsFinished()
+        {
+            yield return TestScenes.Reset();
+            PlayerPrefs.DeleteKey(TutorialDirector.DoneKey);
+            yield return OpenLobby();
+            var menu = LobbyMenu.Instance;
+            Assert.AreEqual(LobbyMenu.Practice, menu.Queue);
+            Assert.AreEqual(LobbyMenu.TutorialMode, menu.Mode, "a first visit starts on the tutorial");
+            menu.Open(LobbyMenu.Play);
+            yield return null;
+            Assert.AreSame(Find("Mode " + LobbyMenu.TutorialMode).gameObject, EventSystem.current.currentSelectedGameObject);
+            Submit("Queue " + LobbyMenu.Workshop); yield return null;
+            Submit("Queue " + LobbyMenu.Practice); yield return null;
+            Assert.AreEqual(LobbyMenu.TutorialMode, menu.Mode, "Practice keeps offering the tutorial first");
+            Assert.AreEqual(LobbyMenu.TutorialMode, Session.LobbyMode);
+            TutorialDirector.MarkDone();
+            yield return OpenLobby();
+            Assert.AreEqual("Dibs", LobbyMenu.Instance.Mode, "finishing the tutorial moves the default to Dibs");
+        }
+
+        [UnityTest]
+        public IEnumerator CoursesAreAFamilyThatHidesWhileExtraSeatsAreTaken()
+        {
+            var menu = LobbyMenu.Instance;
+            menu.Choose(LobbyMenu.Practice, "Dibs", "pinwheel"); menu.Open(LobbyMenu.Play);
+            yield return null;
+            var strip = Strip;
+            CollectionAssert.AreEqual(new[] { "Learn", "House party", "Courses" },
+                strip.Cast<Transform>().Select(family => family.name).ToArray(), "the families read left to right");
+            var party = strip.Find("House party"); var courses = strip.Find("Courses");
+            CollectionAssert.AreEqual(LobbyMenu.Modes.Select(mode => "Mode " + mode).ToArray(),
+                party.GetComponentsInChildren<Button>().Select(button => button.name).ToArray());
+            CollectionAssert.AreEqual(new[] { "Solo TimeRun", "Solo Freestyle" },
+                courses.GetComponentsInChildren<Button>().Select(button => button.name).ToArray());
+            Assert.IsFalse(strip.GetComponentsInChildren<TMP_Text>().Any(text => text.name == "Courses note"));
+            AssertStripFits();
+            var second = new ScriptedBinding();
+            menu.Join(second);
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            strip = Strip;
+            Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Solo ")),
+                "courses are hidden, not just disabled");
+            var note = strip.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Courses note");
+            Assert.AreEqual(PlayPage.CoursesNote, note.text);
+            Assert.IsTrue(note.transform.IsChildOf(strip.Find("Courses")));
+            CollectionAssert.AreEqual(LobbyMenu.PracticeModes, Modes, "every house party mode stays");
+            AssertStripFits();
+            menu.Leave(second);
+            yield return null;
+            Assert.IsTrue(Find("Solo TimeRun").IsInteractable());
+            Assert.IsFalse(Page.GetComponentsInChildren<TMP_Text>().Any(text => text.name == "Courses note"));
+        }
+
+        [UnityTest]
+        public IEnumerator ASavedHomeIsOfferedOnlyForLastTeamStanding()
+        {
+            var saved = SaveHome("courtyard", "Test Den");
+            var menu = LobbyMenu.Instance;
+            menu.Choose(LobbyMenu.Practice, "Dibs", "flat"); menu.Open(LobbyMenu.Play);
+            yield return null;
+            string card = PlayPage.SavedHomeCard + "courtyard";
+            Assert.IsTrue(Find(card).GetComponentsInChildren<TMP_Text>().Any(text => text.text == "Test Den"));
+            Assert.AreEqual(GameConfig.Current.Houses.Count, Page.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Map ")));
+            Submit(card); yield return null;
+            Assert.AreEqual("courtyard", menu.Map); Assert.AreEqual("courtyard", menu.SavedHome);
+            Assert.AreEqual("Test Den", menu.SavedHomeName);
+            StringAssert.Contains("Test Den", menu.Describe());
+            Assert.AreSame(Find(card).gameObject, EventSystem.current.currentSelectedGameObject);
+            Submit("Mode Duos"); yield return null;
+            Assert.AreEqual("courtyard", menu.SavedHome, "Duos plays the saved home too");
+            Assert.IsTrue(Find(card).GetComponentsInChildren<Transform>().Any(child => child.name == "Selected"));
+            foreach (string mode in new[] { "MovingOut", "MovingDay", "Escape" })
+            {
+                Submit("Mode " + mode); yield return null;
+                Assert.IsNull(menu.SavedHome, mode + " needs objectives that a home save does not have");
+                Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith(PlayPage.SavedHomeCard)), mode);
+            }
+            Submit("Mode Dibs"); yield return null;
+            Submit(card); yield return null;
+            Submit("Map courtyard"); yield return null;
+            Assert.IsNull(menu.SavedHome, "the original house card plays the original furniture");
+            Assert.AreEqual(saved.Map, menu.Map);
+        }
+
+        [UnityTest]
+        public IEnumerator GoPlaysTheSavedHomeInsteadOfTheOriginalFurniture()
+        {
+            var saved = SaveHome("pinwheel", "Party Place");
+            LobbyMenu.StartDelay = .2f;
+            var menu = LobbyMenu.Instance;
+            menu.Choose(LobbyMenu.Practice, "Duos");
+            Assert.IsTrue(menu.ChooseHome("pinwheel"));
+            menu.Go();
+            Assert.IsTrue(menu.Starting);
+            yield return TestScenes.WaitForActive(Session.DibsScene, 8f);
+            Assert.AreEqual("Duos", Match.Mode);
+            var room = Object.FindAnyObjectByType<RoomBuilder>();
+            Assert.AreEqual("Party Place", room.HomeName);
+            CollectionAssert.AreEquivalent(saved.Props.Select(prop => prop.Word), room.Originals.Select(prop => prop.Word));
+            Assert.IsTrue(Session.GoHome());
+            yield return TestScenes.WaitForActive(Session.HubScene);
+            yield return null;
+            Assert.AreEqual("pinwheel", LobbyMenu.Instance.SavedHome, "the lobby remembers the saved home");
+            Assert.AreEqual("Duos", LobbyMenu.Instance.Mode);
         }
 
         [UnityTest]
@@ -606,7 +777,7 @@ namespace Wreckabulary.Tests
             try
             {
                 WordboundSoloEntry.Clear();
-                Assert.AreEqual(WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.SelectedMap);
+                Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Service is the default course");
                 foreach (string map in new[] { "flat", "Parcelhall", "", null })
                     Assert.Throws<System.ArgumentException>(() => WordboundSoloEntry.SelectMap(map));
                 WordboundSoloEntry.SelectMap(WordboundSoloEntry.ParcelHallMap);
@@ -629,7 +800,7 @@ namespace Wreckabulary.Tests
                 Session.Clear();
                 Assert.IsNull(WordboundSoloEntry.TakeRequest());
                 Assert.AreEqual("TimeRun", WordboundSoloEntry.SelectedMode);
-                Assert.AreEqual(WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.SelectedMap);
+                Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Service is the default course");
             }
             finally { WordboundSoloEntry.Clear(); }
         }
@@ -669,7 +840,7 @@ namespace Wreckabulary.Tests
                 Canvas.ForceUpdateCanvases(); AssertSoloPreview("ParcelService", preview);
                 Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
                 CollectionAssert.AreEqual(bindings, Session.Bindings);
-                WordboundSoloEntry.Clear(); Assert.AreEqual(WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.SelectedMap);
+                WordboundSoloEntry.Clear(); Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Service is the default course");
             }
             finally
             {
@@ -811,18 +982,16 @@ namespace Wreckabulary.Tests
             var menu = LobbyMenu.Instance;
             menu.Choose(LobbyMenu.Practice, "Duos", "flat");
             menu.Open(LobbyMenu.Play);
-            var second = new ScriptedBinding();
-            menu.Join(second);
             var bindings = Session.Bindings.ToArray();
             yield return null;
             Submit("Solo TimeRun");
             yield return null;
-            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes, "House choices remain directly reachable from the fixed mode strip.");
+            CollectionAssert.AreEqual(LobbyMenu.PracticeModes, Modes, "House choices remain directly reachable from the fixed mode strip.");
             Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")));
             CollectionAssert.AreEqual(new[] { "Solo TimeRun", "Solo Freestyle" },
                 Page.GetComponentsInChildren<Button>().Where(button => button.name == "Solo TimeRun" || button.name == "Solo Freestyle")
                     .Select(button => button.name).ToArray());
-            CollectionAssert.AreEqual(new[] { "Solo map LostAddress", "Solo map ParcelHall", "Solo map ParcelService" },
+            CollectionAssert.AreEqual(new[] { "Solo map ParcelService", "Solo map LostAddress", "Solo map ParcelHall" },
                 Page.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Solo map "))
                     .Select(button => button.name).ToArray());
             Submit("Solo map ParcelHall");
@@ -831,12 +1000,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("Solo map ParcelHall", EventSystem.current.currentSelectedGameObject.name);
             Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
             Assert.AreEqual(LobbyMenu.Practice, menu.Queue);
-            Assert.AreSame(second, menu.Party.Single());
             CollectionAssert.AreEqual(bindings, Session.Bindings);
-            Assert.IsFalse(Find("Solo GO").interactable);
-            menu.OpenWordboundSolo("TimeRun");
-            Assert.AreEqual(Session.HubScene, SceneManager.GetActiveScene().name);
-            Assert.IsNull(WordboundSoloEntry.TakeRequest());
             Submit("Solo Freestyle");
             yield return null;
             Assert.AreEqual("Freestyle", WordboundSoloEntry.SelectedMode);
@@ -846,16 +1010,23 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(pair.Item2, Find(pair.Item1).GetComponentInChildren<TMP_Text>().text);
                 Assert.IsFalse(Find(pair.Item1).GetComponentsInChildren<RawImage>().Any());
             }
-            Submit("Mode Duos");
+            var second = new ScriptedBinding();
+            menu.Join(second);
             yield return null;
-            CollectionAssert.AreEqual(LobbyMenu.Modes, Modes);
+            Assert.IsFalse(menu.Page<PlayPage>().WordboundSolo, "a second seat returns to the house party");
+            Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Solo ")));
+            menu.OpenWordboundSolo("TimeRun");
+            Assert.AreEqual(Session.HubScene, SceneManager.GetActiveScene().name);
+            Assert.IsNull(WordboundSoloEntry.TakeRequest());
+            CollectionAssert.AreEqual(LobbyMenu.PracticeModes, Modes);
             Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
             Assert.AreSame(second, menu.Party.Single());
             menu.Leave(second);
+            yield return null;
             Submit("Solo TimeRun");
             yield return null;
-            Assert.AreEqual(WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.SelectedMap);
-            Assert.IsTrue(Find("Solo GO").interactable);
+            Assert.AreEqual(WordboundSoloEntry.ParcelHallMap, WordboundSoloEntry.SelectedMap, "the course choice survives the extra seat");
+            Assert.AreEqual(Session.CanLoad(Session.WordboundScene), Find("Solo GO").interactable);
             Canvas.ForceUpdateCanvases();
             foreach (var text in Page.GetComponentsInChildren<TMP_Text>())
             {

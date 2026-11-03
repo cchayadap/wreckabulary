@@ -124,7 +124,7 @@ namespace Wreckabulary
 
         protected static string SkinOf(Outfit outfit)
         {
-            var styles = GameConfig.Current.Items.Enabled.Select(item => outfit.SkinFor(item.Id) ?? Skin.Standard)
+            var styles = GameConfig.Current.Items.Enabled.Where(item => item.Skins.Count > 1).Select(item => outfit.SkinFor(item.Id) ?? Skin.Standard)
                 .Distinct().Take(2).ToArray();
             return styles.Length > 1 ? null : styles.FirstOrDefault() ?? Skin.Standard;
         }
@@ -200,8 +200,8 @@ namespace Wreckabulary
             else view = LobbyHomeDefaultLayout.Create(Root);
             First = view.Bind(!PlayerPrefs.HasKey(LobbyMenu.TurnHintKey), Menu.Starting, Menu.Blocked != null,
                 Menu.Mode != LobbyMenu.TutorialMode, Session.CanLoad(Session.WordboundScene),
-                LobbyMenu.ModeName(Menu.Mode), MapName(Menu.Map), Menu.Go,
-                () => Menu.OpenPlay("Mode " + Menu.Mode), () => Menu.OpenPlay("Map " + Menu.Map), Menu.OpenWordbound);
+                LobbyMenu.ModeName(Menu.Mode), Menu.MapLabel, Menu.Go, () => Menu.OpenPlay("Mode " + Menu.Mode),
+                () => Menu.OpenPlay(Menu.SavedHome != null ? PlayPage.SavedHomeCard + Menu.SavedHome : "Map " + Menu.Map), Menu.OpenWordbound);
         }
     }
 
@@ -959,10 +959,6 @@ namespace Wreckabulary
         }
     }
 
-    /// <summary>
-    /// Keeps the name field to characters Lilita One and Nunito can draw. TMP's own validators accept any
-    /// letter, so a name typed on a Chinese keyboard used to be rendered as empty boxes.
-    /// </summary>
     public sealed class LatinNameValidator : TMP_InputValidator
     {
         public static LatinNameValidator Create() => CreateInstance<LatinNameValidator>();

@@ -71,6 +71,9 @@ namespace Wreckabulary.OnlineGameplayTests
         public IEnumerator AuthenticatedGameplayRestoresAfterHostDeparture() => Run(2, true);
 
         [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
+        public IEnumerator TwoAuthenticatedPeersStartEvenWhenTheClientIsFirst() => Run(2, false, clientsFirst: true);
+
+        [UnityTest, Category("ExternalPhotonGameplay"), Timeout(600000)]
         public IEnumerator EightAuthenticatedPeersComposeFlagshipTeamRaceSquad() =>
             Run(8, false, productionMode: "TeamRace", productionFormat: RaceFormat.Squad);
 
@@ -82,7 +85,8 @@ namespace Wreckabulary.OnlineGameplayTests
             string productionMode = null, RaceFormat productionFormat = RaceFormat.Solo,
             WordboundPublicCourseCatalog publicCatalogue = null, bool hudInteractions = false, bool authoredWorkshop = false,
             RecoveryEnding recoveryEnding = RecoveryEnding.None, bool migrationPreflightFailure = false,
-            Func<string, WordboundClientContent> authoredContentFactory = null, Func<Peer, IEnumerator> afterStarted = null)
+            Func<string, WordboundClientContent> authoredContentFactory = null, Func<Peer, IEnumerator> afterStarted = null,
+            bool clientsFirst = false)
         {
             if (authoredContentFactory != null && (!authoredWorkshop || productionMode != null || publicCatalogue != null))
                 throw new ArgumentException("A custom authored fixture must use only the private workshop route.");
@@ -125,13 +129,39 @@ namespace Wreckabulary.OnlineGameplayTests
             int hostIndex = live.Clients.FindIndex(c => c.Credentials.PlayerId == live.Verified.Roster[0].PlayerId);
             Assert.GreaterOrEqual(hostIndex, 0);
             var first = CreatePeer(hostIndex);
-            yield return Wait(first.Session.Start(lifetime.Token), "Authenticate and start first Runner", 65);
-            Assert.IsTrue(first.Runner.IsServer, "The first private participant must own the new host session.");
-            for (int index = 0; index < count; index++)
+            if (clientsFirst)
             {
-                if (index == hostIndex) continue;
-                var peer = CreatePeer(index);
-                yield return Wait(peer.Session.Start(lifetime.Token), "Authenticate and start client Runner", 65);
+                int refused = 0;
+                Application.LogCallback saw = (message, stack, type) => { if (message.Contains("Game does not exist")) refused++; };
+                Application.logMessageReceived += saw;
+                LogAssert.ignoreFailingMessages = true;
+                try
+                {
+                    var starts = new List<Task>();
+                    for (int index = 0; index < count; index++)
+                        if (index != hostIndex) starts.Add(CreatePeer(index).Session.Start(lifetime.Token));
+                    yield return Wait(Task.Delay(3000), "Give the clients a head start on their host", 10);
+                    starts.Add(first.Session.Start(lifetime.Token));
+                    yield return Wait(Task.WhenAll(starts), "Start clients before their host", 130);
+                }
+                finally
+                {
+                    LogAssert.ignoreFailingMessages = false;
+                    Application.logMessageReceived -= saw;
+                }
+                Debug.Log("WORDBOUND_CLIENT_FIRST_OBSERVED: refusedJoinsBeforeHost=" + refused + "; hostIsServer=" + first.Runner.IsServer);
+                Assert.IsTrue(first.Runner.IsServer, "The roster host must own the session even when its clients start first.");
+            }
+            else
+            {
+                yield return Wait(first.Session.Start(lifetime.Token), "Authenticate and start first Runner", 65);
+                Assert.IsTrue(first.Runner.IsServer, "The first private participant must own the new host session.");
+                for (int index = 0; index < count; index++)
+                {
+                    if (index == hostIndex) continue;
+                    var peer = CreatePeer(index);
+                    yield return Wait(peer.Session.Start(lifetime.Token), "Authenticate and start client Runner", 65);
+                }
             }
             var second = peers[1];
             yield return Until(() => peers.All(Ready), "Prepare every scene and durable gameplay start", 65);

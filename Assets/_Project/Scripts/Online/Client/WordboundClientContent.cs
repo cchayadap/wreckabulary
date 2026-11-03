@@ -29,6 +29,7 @@ namespace Wreckabulary.Online
             if (seed == null || seed.Length != 16 || !Regex.IsMatch(seed, "^[a-f0-9]{16}$"))
                 throw new ArgumentException("Use a 16-character hexadecimal map seed.");
             if (!Enum.TryParse(format, false, out RaceFormat raceFormat)) throw new ArgumentException("Choose Solo, Duo or Squad.");
+            WordboundItemSource.Require(itemJson);
             itemSource = itemJson; Seed = seed; Mode = ModeDefinition.For(modeId, raceFormat);
             string catalogueHash;
             string courseId;
@@ -71,7 +72,6 @@ namespace Wreckabulary.Online
             PhysicalPuzzles = new WordboundAuthoredPuzzleContent(mode, geometry, course, itemJson, ruleJson);
             gameRules = PhysicalPuzzles.Rules;
             PrivateBinding = Binding("Workshop", document.Id, PhysicalPuzzles.CatalogueHash);
-            // Authored content has no public approval identity, even when its bytes match a built-in map.
             PublicBinding = PrivateBinding;
             WorkshopBundle = shared ?? OnlineWorkshopBundle.Create(document, course, geometry, mode, PrivateBinding, itemJson, ruleJson);
         }
@@ -170,6 +170,7 @@ namespace Wreckabulary.Online
         public VerifiedOnlineMatch Verified { get; }
         public WordboundClientContent Content { get; }
         public Func<CancellationToken, Task<WordboundFusionJoin>> FreshJoin { get; }
+        public OnlineServerClock ServerClock { get; }
         public bool NoClientInitialized => Volatile.Read(ref initialization) == 2;
         public void MarkClientInitialized()
         {
@@ -187,7 +188,8 @@ namespace Wreckabulary.Online
             return Coordinator.MatchAction(Verified.Match, "return", ct);
         }
         internal WordboundPartyLaunchContext(OnlineCoordinatorClient client, OnlineAdmissionVerifier verifier,
-            VerifiedOnlineMatch verified, WordboundClientContent content, Func<CancellationToken, Task<WordboundFusionJoin>> fresh)
-        { Coordinator = client; Verifier = verifier; Verified = verified; Content = content; FreshJoin = fresh; }
+            VerifiedOnlineMatch verified, WordboundClientContent content, Func<CancellationToken, Task<WordboundFusionJoin>> fresh,
+            OnlineServerClock serverClock = null)
+        { Coordinator = client; Verifier = verifier; Verified = verified; Content = content; FreshJoin = fresh; ServerClock = serverClock; }
     }
 }

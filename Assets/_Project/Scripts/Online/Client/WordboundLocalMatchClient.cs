@@ -71,8 +71,9 @@ namespace Wreckabulary.Online
                 hud.Initialize(gameplay, playerView, content.Items, content.Mode, content.Course,
                     LocalActor, returnLabel);
                 hud.ReturnRequested += RequestReturn;
-                session = new WordboundLocalSession(CreateRunner, WordboundFusionConfiguration.CreateLocal(),
-                    gameplay.Authority, LocalActor);
+                var config = WordboundFusionConfiguration.CreateLocal();
+                config.Simulation.SimulationUpdateTimeMode = SimulationConfig.SimulationTimeMode.DeltaTime;
+                session = new WordboundLocalSession(CreateRunner, config, gameplay.Authority, LocalActor);
                 gameplay.AttachSession(session);
                 gameplay.Faulted += GameplayFailed;
                 session.GameplayStarted += EnterWorld;

@@ -3,10 +3,6 @@ using System.Linq;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Finds which words can be spelled from a set of letters.
-    /// Uses 26-slot letter counts, so each check is O(word length).
-    /// </summary>
     public static class WordSolver
     {
         public static int[] Count(IEnumerable<char> letters)
@@ -31,7 +27,6 @@ namespace Wreckabulary
             return true;
         }
 
-        /// <summary>Returns the letters still missing for a word ("SWORD" with no O → "O").</summary>
         public static string Missing(int[] have, string word)
         {
             var left = (int[])have.Clone();
@@ -45,7 +40,6 @@ namespace Wreckabulary
             return missing.ToString();
         }
 
-        /// <summary>Spellable words, best score first.</summary>
         public static List<WordEntry> Spellable(IEnumerable<WordEntry> words, IEnumerable<char> letters)
         {
             var have = Count(letters);
@@ -56,10 +50,6 @@ namespace Wreckabulary
 
         public static List<WordEntry> Spellable(WordDatabase db, IEnumerable<char> letters) => Spellable(db.Words, letters);
 
-        /// <summary>
-        /// Words you are close to spelling, for greyed-out hints in the word wheel.
-        /// Hidden words and words longer than you can carry are never hinted.
-        /// </summary>
         public static List<(WordEntry entry, string missing)> Hints(IEnumerable<WordEntry> words, IEnumerable<char> letters,
                                                                     int capacity, int maxMissing = 1)
         {

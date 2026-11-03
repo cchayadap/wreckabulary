@@ -74,10 +74,11 @@ namespace Wreckabulary
         Action resultNextAction, resultHomeAction;
         Coroutine resultSoon;
         Sprite sparkSprite;
-        RectTransform composer, composerTiles, caret;
+        RectTransform composer, composerTiles, composerWell, caret;
         Image composerEdge, composerRing;
         readonly ComposerTile[] tiles = new ComposerTile[TrayTiles];
-        GameObject composerPrev, composerNext, bookLink;
+        GameObject composerPrev, composerNext, bookLink, composerChrome;
+        int composerLayout = -1;
         string composerText = "", composerError;
         bool composerOpen;
         float caretAt, shakeAt = -10f, eraseNext;
@@ -99,6 +100,7 @@ namespace Wreckabulary
         public bool ComposerOpen => craftRoot && craftRoot.activeSelf;
         public string ComposerText => composerText;
         public string ComposerStatus => craftStatus ? craftStatus.text : "";
+        public bool ComposerLettersOnly => composerChrome && !composerChrome.activeSelf;
         public string ToastText => toast && toast.gameObject.activeSelf ? toastLabel.text : "";
         public bool CountdownShown => chip && chip.gameObject.activeSelf;
         public string CountdownText => CountdownShown ? chipDigit.text : "";
@@ -684,18 +686,21 @@ namespace Wreckabulary
             composerRing = Paint(Cover("Ring", composer, 5f), LobbyIcons.FrameSprite(30, 5), ReadyRing);
             composerRing.enabled = false;
 
-            var eyebrow = Copy(composer, "Eyebrow", "SPELL A WORD", LobbyFonts.Black, 12.5f, Faded, 21f);
+            composerChrome = Rect("Chrome", composer, Vector2.zero, Vector2.zero, Vector2.zero).gameObject;
+            Stretch((RectTransform)composerChrome.transform);
+            var chrome = (RectTransform)composerChrome.transform;
+            var eyebrow = Copy(chrome, "Eyebrow", "SPELL A WORD", LobbyFonts.Black, 12.5f, Faded, 21f);
             Put(eyebrow.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -16f), new Vector2(300f, 40f));
             eyebrow.alignment = TextAlignmentOptions.MidlineLeft; eyebrow.textWrappingMode = TextWrappingModes.NoWrap;
-            var book = MakeButton("Recipe book", composer, Vector2.one, new Vector2(-70f, -16f), new Vector2(170f, 40f),
+            var book = MakeButton("Recipe book", chrome, Vector2.one, new Vector2(-70f, -16f), new Vector2(170f, 40f),
                 "<u>Recipe book</u>", () => SetBagPinned(true), Color.clear);
             var bookText = book.GetComponentInChildren<TextMeshProUGUI>();
             bookText.fontSize = 13f; bookText.color = Faded; bookText.alignment = TextAlignmentOptions.Right;
             bookLink = book.gameObject;
-            var cancel = RoundButton(composer, "Cancel", LobbyIcons.Close, CancelCraft, 40f);
+            var cancel = RoundButton(chrome, "Cancel", LobbyIcons.Close, CancelCraft, 40f);
             Put((RectTransform)cancel.transform, Vector2.one, Vector2.one, new Vector2(-20f, -16f), Vector2.one * 40f);
 
-            var well = Put(Rect("Field", composer, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -64f), new Vector2(490f, 75f));
+            var well = composerWell = Put(Rect("Field", composer, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -64f), new Vector2(490f, 75f));
             Paint(well, LobbyIcons.RoundedSprite(16), Well);
             composerTiles = Rect("Tiles", well, Vector2.zero, Vector2.zero, Vector2.zero);
             Stretch(composerTiles);
@@ -714,12 +719,12 @@ namespace Wreckabulary
             composerPrev = Chevron(well, "Previous", false, () => { if (LocalPlayer) LocalPlayer.Summoner.Step(-1); });
             composerNext = Chevron(well, "Next", true, () => { if (LocalPlayer) LocalPlayer.Summoner.Step(1); });
 
-            buildButton = CardButton(composer, "Build", "SPELL", SpellNow, true, 75f);
+            buildButton = CardButton(chrome, "Build", "SPELL", SpellNow, true, 75f);
             Put((RectTransform)buildButton.transform, Vector2.one, Vector2.one, new Vector2(-20f, -64f), new Vector2(110f, 75f));
             buildLabel = LabelOf(buildButton);
             buildLabel.textWrappingMode = TextWrappingModes.Normal; buildLabel.lineSpacing = -12f;
 
-            craftStatus = Copy(composer, "Craft status", "", LobbyFonts.Body, 13f, Faded);
+            craftStatus = Copy(chrome, "Craft status", "", LobbyFonts.Body, 13f, Faded);
             Put(craftStatus.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -150f), new Vector2(610f, 24f));
             craftStatus.alignment = TextAlignmentOptions.MidlineLeft;
             craftStatus.enableAutoSizing = true; craftStatus.fontSizeMin = 10f; craftStatus.fontSizeMax = 13f;
@@ -771,10 +776,21 @@ namespace Wreckabulary
                 if (typed) ClearFocus();
             }
             composerOpen = open;
+            LayComposer(typed);
             if (craftRoot.activeSelf != open) craftRoot.SetActive(open);
             DesktopBinding.Typing = (open && typed) || composerReleaseWait;
             if (summoner && !summoner.IsSpelling && !summoner.IsCrafting && TouchBinding.Shared.CraftOpen && !TouchBinding.Shared.CraftPressPending)
                 TouchBinding.Shared.SetCraftOpen(false);
+        }
+
+        void LayComposer(bool typed)
+        {
+            int layout = typed ? 1 : 0;
+            if (composerLayout == layout) return;
+            composerLayout = layout;
+            composerChrome.SetActive(!typed);
+            composer.sizeDelta = typed ? new Vector2(530f, 103f) : new Vector2(650f, 189f);
+            composerWell.anchoredPosition = typed ? new Vector2(20f, -14f) : new Vector2(20f, -64f);
         }
 
         void OnTextTyped(char typed)
@@ -912,6 +928,7 @@ namespace Wreckabulary
             if (!composerOpen || !LocalPlayer) return;
             var summoner = LocalPlayer.Summoner;
             bool typed = TypedMode;
+            LayComposer(typed);
             string word, line;
             int state;
             if (typed)

@@ -11,10 +11,6 @@ using UnityEngine.TestTools;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>
-    /// Renders screenshots of a staged moment in the Living Room, for reviewing the look without opening the editor.
-    /// Explicit: run with -testFilter Wreckabulary.Tests.CaptureTests. Output goes to WRECK_CAPTURE_DIR (or Temp/Captures).
-    /// </summary>
     [Explicit, Category("Capture")]
     public class CaptureTests
     {
@@ -143,7 +139,6 @@ namespace Wreckabulary.Tests
             {
 #if UNITY_EDITOR
                 previousValue = UnityEditor.EditorSettings.asyncShaderCompilation;
-                // Otherwise lit objects are skipped while their shaders compile in the background.
                 UnityEditor.EditorSettings.asyncShaderCompilation = false;
 #endif
             }
@@ -178,7 +173,6 @@ namespace Wreckabulary.Tests
             var p2 = World.Players[1];
             var p3 = World.Players[2];
 
-            // The table bursts and P1 and P2 run for the letters.
             foreach (var s in UnityEngine.Object.FindObjectsByType<Smashable>())
                 if (s.Word == "TABLE") s.Break();
             inputs[0].Next.move = new Vector2(0.6f, 0.8f);
@@ -187,7 +181,6 @@ namespace Wreckabulary.Tests
             inputs[0].Next.move = Vector2.zero;
             inputs[1].Next.move = Vector2.zero;
 
-            // P3 summons a SWORD, P2 opens the word wheel.
             p3.Inventory.Set("SWORDE");
             p3.Summoner.Summon("SWORD");
             p2.Inventory.Set("BEESTA");
@@ -230,7 +223,6 @@ namespace Wreckabulary.Tests
             yield return new WaitForSeconds(0.3f);
             Capture(Path.Combine(dir, "5_hub_typewriter.png"));
 
-            // Tutorial, a few steps in.
             Session.Clear();
             yield return SceneManager.LoadSceneAsync(Session.TutorialScene);
             yield return null;
@@ -243,7 +235,6 @@ namespace Wreckabulary.Tests
             yield return new WaitForSeconds(1.5f);
             Capture(Path.Combine(dir, "6_tutorial.png"));
 
-            // Moving Day: the bed is in, boxes are arriving.
             Session.Clear();
             yield return SceneManager.LoadSceneAsync(Session.MovingDayScene);
             yield return null;
@@ -600,7 +591,6 @@ namespace Wreckabulary.Tests
             var cam = Camera.main;
             var size = Size();
             var rt = new RenderTexture(size.x, size.y, 24);
-            // Overlay canvases aren't drawn by cameras, so render the HUD through the camera for the capture.
             var canvases = UnityEngine.Object.FindObjectsByType<Canvas>().Where(c => c.isRootCanvas && c.renderMode == RenderMode.ScreenSpaceOverlay).ToArray();
             var layers = ToCamera(canvases, cam, 1f);
             Canvas.ForceUpdateCanvases();

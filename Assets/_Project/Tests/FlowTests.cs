@@ -8,7 +8,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>The house, the typewriter, carrying roommates between scenes, and the tutorial.</summary>
     public class FlowTests
     {
         [UnitySetUp]
@@ -134,6 +133,24 @@ namespace Wreckabulary.Tests
         [UnityTest]
         public IEnumerator TutorialCanBeCompleted()
         {
+            bool hadDone = PlayerPrefs.HasKey(TutorialDirector.DoneKey);
+            int wasDone = PlayerPrefs.GetInt(TutorialDirector.DoneKey, 0);
+            PlayerPrefs.DeleteKey(TutorialDirector.DoneKey);
+            try
+            {
+                yield return CompleteTutorial();
+                Assert.IsTrue(TutorialDirector.Done, "finishing the last step marks the tutorial done for the lobby");
+            }
+            finally
+            {
+                if (hadDone) PlayerPrefs.SetInt(TutorialDirector.DoneKey, wasDone);
+                else PlayerPrefs.DeleteKey(TutorialDirector.DoneKey);
+                PlayerPrefs.Save();
+            }
+        }
+
+        IEnumerator CompleteTutorial()
+        {
             yield return TestScenes.Load(Session.TutorialScene);
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             var director = Object.FindAnyObjectByType<TutorialDirector>();
@@ -141,7 +158,6 @@ namespace Wreckabulary.Tests
             var p = joins.Join(input);
             Assert.AreEqual(0, p.Inventory.Count, "the tutorial starts empty-handed");
 
-            // 1. Walk around.
             input.Next.move = new Vector2(1f, 0f);
             yield return TestScenes.WaitUntil(() => director.StepIndex >= 1, 3f, "walk step");
             input.Next.move = Vector2.zero;
@@ -168,7 +184,7 @@ namespace Wreckabulary.Tests
 
             var chair = Object.FindObjectsByType<Smashable>().First(s => s.Word == "CHAIR");
             yield return new WaitForSeconds(0.3f);
-            p.Combat.ResetForRound(); // put the BAT away so the hand is free
+            p.Combat.ResetForRound();
             p.Respawn(chair.transform.position + Vector3.back * 1.2f);
             p.FaceTowards(Vector3.forward);
             yield return new WaitForFixedUpdate();
@@ -178,9 +194,11 @@ namespace Wreckabulary.Tests
 
             yield return new WaitForSeconds(0.7f);
             Assert.AreEqual(Match.Rules.MaxHealth, dummy.Health.Current);
-            for (int i = 0; i < 20 && dummy.Health.IsAlive; i++)
+            int punches = Mathf.CeilToInt(Match.Rules.MaxHealth / p.Health.Rules.Unarmed.Damage) + 1;
+            for (int i = 0; i < punches && dummy.Health.IsAlive; i++)
                 dummy.Health.ApplyDamage(Hits.Melee(p, Vector3.forward, p.Health.Rules.Unarmed, null));
             Assert.IsTrue(dummy.IsEliminated);
+            Assert.IsFalse(TutorialDirector.Done, "only the last step marks the tutorial done");
             yield return TestScenes.WaitUntil(() => director.Finished, 1f, "knockout step");
         }
 

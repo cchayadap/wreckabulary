@@ -15,6 +15,8 @@ namespace Wreckabulary
         public TextAsset rules;
         [Tooltip("items.json: the recipe catalogue.")]
         public TextAsset items;
+        [Tooltip("items_house.json: House-mode recipes added on top of items.json. Wordbound and online content read items.json only.")]
+        public TextAsset houseItems;
         [Tooltip("house_*.json: the map's rooms, doors, spawns, furniture and clear-out orders.")]
         public TextAsset house;
         [Tooltip("Additional house maps. The filename house_<id>.json supplies the map id.")]
@@ -39,7 +41,8 @@ namespace Wreckabulary
                 if (additional.ContainsKey(id)) throw new InvalidOperationException($"Duplicate map id '{id}'.");
                 additional.Add(id, map.text);
             }
-            return GameConfig.FromJson(rules.text, items.text, house.text, wardrobe.text, rules.name, items.name, house.name, wardrobe.name, additional);
+            return GameConfig.FromJson(rules.text, items.text, house.text, wardrobe.text, rules.name, items.name, house.name, wardrobe.name, additional,
+                houseItems ? houseItems.text : null, houseItems ? houseItems.name : null);
         }
     }
 
@@ -50,15 +53,12 @@ namespace Wreckabulary
         public HouseLayout House { get; }
         public WardrobeCatalogue Wardrobe { get; }
         public IReadOnlyDictionary<string, HouseLayout> Houses { get; }
+        public HouseTuning Tuning { get; private set; }
 
         static GameConfig current;
 
         public static GameConfig Current => current ??= Load();
 
-        /// <summary>
-        /// Drops the cached catalogue at the start of every play session. This project turns domain reload
-        /// off, so without this a rules, items or wardrobe edit stayed stale until the Editor restarted.
-        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics() => current = null;
 
@@ -94,14 +94,23 @@ namespace Wreckabulary
 
         public static GameConfig FromJson(string rules, string items, string house, string wardrobe,
             string rulesName = "rules.json", string itemsName = "items.json", string houseName = "house.json", string wardrobeName = "wardrobe.json",
-            IDictionary<string, string> maps = null)
+            IDictionary<string, string> maps = null, string houseItems = null, string houseItemsName = "items_house.json")
         {
+            var catalogue = ItemCatalogue.FromJson(items, itemsName);
+            var book = RuleBook.FromJson(rules, rulesName);
+            HouseTuning tuning = null;
+            if (!string.IsNullOrEmpty(houseItems))
+            {
+                catalogue.Expand(ItemCatalogue.FromJson(houseItems, houseItemsName ?? "items_house.json"));
+                tuning = HouseTuning.FromJson(houseItems, houseItemsName ?? "items_house.json");
+                tuning.Apply(catalogue, book);
+            }
             var config = new GameConfig(
-                RuleBook.FromJson(rules, rulesName),
-                ItemCatalogue.FromJson(items, itemsName),
+                book,
+                catalogue,
                 HouseLayout.FromJson(house, houseName),
                 WardrobeCatalogue.FromJson(wardrobe, wardrobeName),
-                maps?.ToDictionary(m => m.Key, m => HouseLayout.FromJson(m.Value, $"house_{m.Key}.json")));
+                maps?.ToDictionary(m => m.Key, m => HouseLayout.FromJson(m.Value, $"house_{m.Key}.json"))) { Tuning = tuning };
             var problems = config.Validate();
             if (problems.Count > 0)
                 throw new InvalidOperationException($"The game data has {problems.Count} problem(s):\n" + string.Join("\n", problems));
@@ -120,6 +129,7 @@ namespace Wreckabulary
             foreach (var entry in Houses)
                 problems.AddRange(entry.Value.Validate(Items).Select(p => $"house_{entry.Key}: " + p));
             problems.AddRange(Wardrobe.Validate().Select(p => "wardrobe: " + p));
+            if (Tuning != null) problems.AddRange(Tuning.Validate(Items, Rules.Defaults).Select(p => "tuning: " + p));
 
             foreach (var rules in AllRules())
             {

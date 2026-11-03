@@ -13,14 +13,19 @@ namespace Wreckabulary.Online
     {
         readonly Uri origin;
         readonly HttpClient client;
-        public WordboundHttpTransport(Uri coordinatorOrigin, bool allowLoopbackHttp = false)
+        readonly OnlineServerClock serverClock;
+        public WordboundHttpTransport(Uri coordinatorOrigin, bool allowLoopbackHttp = false, OnlineServerClock coordinatorClock = null)
+            : this(coordinatorOrigin, new HttpClientHandler { AllowAutoRedirect = false }, allowLoopbackHttp, coordinatorClock) { }
+        public WordboundHttpTransport(Uri coordinatorOrigin, HttpMessageHandler handler, bool allowLoopbackHttp = false, OnlineServerClock coordinatorClock = null)
         {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            serverClock = coordinatorClock;
             if (coordinatorOrigin == null || !coordinatorOrigin.IsAbsoluteUri || coordinatorOrigin.AbsolutePath != "/" ||
                 coordinatorOrigin.Query != "" || coordinatorOrigin.Fragment != "" || coordinatorOrigin.UserInfo != "" ||
                 !(coordinatorOrigin.Scheme == "https" || (allowLoopbackHttp && coordinatorOrigin.IsLoopback && coordinatorOrigin.Scheme == "http")))
                 throw new ArgumentException("Use a pinned HTTPS coordinator origin.");
             origin = coordinatorOrigin;
-            client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(15) };
+            client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(15) };
         }
         public async Task<OnlineResponse> Send(OnlineRequest request, CancellationToken cancellationToken)
         {
@@ -36,7 +41,10 @@ namespace Wreckabulary.Online
             if (request.AccessToken != null) message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.AccessToken);
             if (request.IdempotencyKey != null) message.Headers.Add("Idempotency-Key", request.IdempotencyKey);
             if (request.JsonBody != null) message.Content = new StringContent(request.JsonBody, Encoding.UTF8, "application/json");
+            long sent = serverClock?.Local() ?? 0;
             using var response = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, deadline.Token).ConfigureAwait(false);
+            if (serverClock != null && response.Headers.Date is DateTimeOffset date)
+                serverClock.Observe(date.ToUnixTimeMilliseconds(), sent, serverClock.Local(), OnlineServerClock.MaximumResolutionMilliseconds);
             if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400) throw new IOException("Coordinator redirects are rejected.");
             if (response.Content.Headers.ContentLength > OnlineJson.MaximumBytes) throw new IOException("Coordinator response exceeds its limit.");
             using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);

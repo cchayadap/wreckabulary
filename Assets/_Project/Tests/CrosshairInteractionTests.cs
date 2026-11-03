@@ -98,7 +98,7 @@ namespace Wreckabulary.Tests
             wall.transform.position = new Vector3(0, 1, .8f); wall.transform.localScale = new Vector3(4, 3, .1f);
             player.holdPoint.position = new Vector3(0, 1, 1.3f);
             Physics.SyncTransforms();
-            yield return new WaitForEndOfFrame();
+            yield return null;
             Assert.Less(body.transform.position.z + .2f, .75f, "A carried box stays on the player side of the wall.");
             player.Combat.Throw();
             Assert.Less(body.position.z + .2f, .75f, "Releasing cannot teleport the object through the obstruction.");
@@ -111,7 +111,7 @@ namespace Wreckabulary.Tests
             var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
             wall.transform.position = new Vector3(0, 1, .5f); wall.transform.localScale = new Vector3(4, 3, .1f);
             player.holdPoint.position = new Vector3(0, 1, 1.3f);
-            Physics.SyncTransforms(); yield return new WaitForEndOfFrame();
+            Physics.SyncTransforms(); yield return null;
             Assert.Less(body.transform.position.z + .6f, .45f, "A wide prop remains on the carrier side even when the initial sweep sphere overlaps the wall.");
         }
 

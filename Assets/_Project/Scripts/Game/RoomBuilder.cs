@@ -15,18 +15,22 @@ namespace Wreckabulary
         Transform geometry;
         GameObject sign;
         readonly List<Smashable> originals = new();
+        List<HomeFurniture> design;
         public HouseLayout Layout { get; private set; }
         public IReadOnlyList<Smashable> Originals => originals;
         public AuthoredHouse AuthoredWorld => authoredHouse;
+        public string HomeName { get; private set; }
 
         void Awake()
         {
             Layout = GameConfig.Current.HouseFor(Session.MapId);
+            UseHome(Session.Home);
             var previousFurniture = furnitureRoot;
             if (FindAuthoredWorld(Session.MapId))
             {
                 if (previousFurniture && previousFurniture != authoredHouse.FurnitureRoot) previousFurniture.gameObject.SetActive(false);
                 authoredHouse.gameObject.SetActive(true);
+                if (design != null) FurnishFromHome(authoredHouse);
                 authoredHouse.PrepareForPlay();
                 geometry = authoredHouse.GeometryRoot;
                 furnitureRoot = authoredHouse.FurnitureRoot;
@@ -54,6 +58,51 @@ namespace Wreckabulary
             if (joins) joins.ConfigureLayout(Layout);
             var camera = FindAnyObjectByType<CameraRig>();
             if (camera) camera.FrameLayout(Layout);
+        }
+
+        void UseHome(HomeLayout home)
+        {
+            design = null; HomeName = null;
+            if (home == null || home.Map != Session.MapId) return;
+            var designer = new HomeDesigner(GameConfig.Current.Houses, GameConfig.Current.Items);
+            if (!designer.TryFurnish(home, out var furniture, out string error))
+            {
+                Debug.LogWarning("[Wreckabulary] The saved home could not be used, so the house keeps its own furniture. " + error);
+                return;
+            }
+            design = furniture; HomeName = home.Name;
+        }
+
+        void FurnishFromHome(AuthoredHouse world)
+        {
+            var previous = world.FurnitureRoot;
+            var root = new GameObject("Original furniture").transform;
+            root.SetParent(world.transform, false);
+            SpawnHome(root, null);
+            if (previous) { previous.gameObject.SetActive(false); Destroy(previous.gameObject); }
+            world.Configure(world.MapId, world.GeometryRoot, root);
+        }
+
+        void SpawnHome(Transform root, List<Smashable> spawned)
+        {
+            foreach (var item in design)
+            {
+                var room = Layout.Room(item.Room);
+                var prop = FurnitureCatalog.Spawn(item.Word, new Vector3(item.X, room != null ? room.FloorY : 0f, item.Z), item.Yaw, root);
+                Dress(prop, item.Skin);
+                spawned?.Add(prop);
+            }
+        }
+
+        static void Dress(Smashable prop, string skin)
+        {
+            if (!prop || string.IsNullOrEmpty(skin) || skin == MaterialLibrary.StandardSkin) return;
+            var visual = prop.transform.Find("ImportedVisual");
+            var materials = MaterialLibrary.Load();
+            if (!visual || !materials) return;
+            TactileMaterials.Release(visual.gameObject);
+            materials.ApplySkin(visual.gameObject, skin);
+            foreach (Transform model in visual) TactileMaterials.Apply(model.gameObject);
         }
 
         bool FindAuthoredWorld(string mapId)
@@ -91,10 +140,10 @@ namespace Wreckabulary
             if (furnitureRoot) originals.AddRange(furnitureRoot.GetComponentsInChildren<Smashable>());
         }
 
-        /// <summary>Used only by the one-time editor bake; saved worlds never regenerate their authored content.</summary>
         public AuthoredHouse BuildForAuthoring(HouseLayout layout, string mapId)
         {
             Layout = layout;
+            design = null; HomeName = null;
             geometry = CreateGeometry(layout, mapId, transform);
             geometry.name = "Geometry";
             SetTallWalls(geometry, true);
@@ -137,6 +186,7 @@ namespace Wreckabulary
 
         void BuildFurnitureIntoRoot()
         {
+            if (design != null) { SpawnHome(furnitureRoot, originals); return; }
             foreach (var f in Layout.Furniture)
             {
                 var prop = FurnitureCatalog.Spawn(f.Word, new Vector3(f.X, Layout.Room(f.Room).FloorY + f.Y, f.Z), f.Yaw, furnitureRoot);

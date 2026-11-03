@@ -381,7 +381,7 @@ namespace Wreckabulary.Online
                             throw new InvalidOperationException("Canonical reconciliation left missing or duplicate bodies.");
                         return Current();
                     }
-                    bool applied = target.ReconcileAndApplySnapshot(next, rules, Prepare);
+                    bool applied = target.ReconcileAndApplySnapshot(next, rules, Prepare, Authority.Match.IsOwnCapture(next));
                     if (!Current()) return false;
                     if (!applied)
                     {

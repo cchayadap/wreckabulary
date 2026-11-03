@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>Stable entry points to the current scenes, character and presentation sources.</summary>
     public sealed class WorkspaceWindow : EditorWindow
     {
         public const string HubGuid = "4829ca58046a07b4db4cd309dd5093a8";

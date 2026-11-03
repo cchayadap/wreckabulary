@@ -16,6 +16,14 @@ namespace Wreckabulary.Workshop
             public string Folder;
         }
 
+        sealed class SourceReturn
+        {
+            public DraftSession Draft;
+            public bool Assigned, Flagship, Parcel;
+            public WorkshopTemplate? Template;
+            public string FlagshipHash;
+        }
+
         DraftSession assignedDraft, flagshipDraft, parcelServiceDraft;
         WorkshopSnapshot parcelServiceSource;
         CourseCatalogue parcelServiceCatalogue;
@@ -34,12 +42,17 @@ namespace Wreckabulary.Workshop
             History = History, Catalogue = Catalogue, Play = PlayRequirements, Storage = storage, Folder = storageFolder
         };
 
+        SourceReturn CurrentSource() => History == null ? null : new SourceReturn {
+            Draft = CaptureDraft(), Assigned = UsesAssignedCourse, Flagship = usesFlagship, Parcel = UsesParcelService,
+            Template = currentTemplate, FlagshipHash = flagshipDraftHash
+        };
+
         void SaveAndRememberDraft()
         {
             CancelGesture();
             if (History == null) return;
             if (storage != null && History.Revision != savedRevision)
-            { storage.Save(History.Current); savedRevision = History.Revision; }
+            { storage.Save(History.Current); savedRevision = History.Revision; saveError = ""; }
             if (UsesParcelService) parcelServiceDraft = CaptureDraft();
             else if (UsesAssignedCourse) assignedDraft = CaptureDraft();
             else if (usesFlagship) flagshipDraft = CaptureDraft();
@@ -51,8 +64,64 @@ namespace Wreckabulary.Workshop
             History = draft.History; Catalogue = draft.Catalogue; PlayRequirements = draft.Play;
             storage = draft.Storage; storageFolder = draft.Folder;
             UsesAssignedCourse = assigned; UsesParcelService = parcelService; currentTemplate = template; usesFlagship = flagship;
-            Visible = true; LastPlaytestDraft = null;
+            Visible = true; LastPlaytestDraft = null; saveError = "";
             ResetView(); Refresh(); savedRevision = History.Revision;
+        }
+
+        void OpenInSession(WorkshopSnapshot snapshot)
+        {
+            var keep = step;
+            History = new WorkshopHistory(snapshot);
+            LastPlaytestDraft = null; saveError = "";
+            ResetView(); step = keep; Refresh(); savedRevision = History.Revision;
+            RememberLast();
+        }
+
+        static bool Unreadable(Exception error) => error is IOException || error is FormatException || error is ArgumentException;
+
+        static string LastMapId(WorkshopStorage scoped, string defaultId)
+        {
+            string last = scoped.LastMap();
+            return last == null || last == defaultId || !scoped.HasRecovery(last) ? null : last;
+        }
+
+        bool ReopenLastMap(DraftSession session, WorkshopStorage scoped, string last, WorkshopTemplate? template, bool flagship,
+            string label, out string problem)
+        {
+            problem = null;
+            if (last == null) return false;
+            try
+            {
+                session.History = new WorkshopHistory(scoped.Recover(last, out bool backup));
+                ActivateDraft(session, false, template, flagship); ApplyRememberedMode();
+                ShowStatus(label + " · reopened " + display.Title + (backup ? " from its previous save, because the last save was damaged" : ""));
+                return true;
+            }
+            catch (Exception error) when (Unreadable(error)) { problem = error.Message; return false; }
+        }
+
+        void AskAboutDamagedLastMap(WorkshopStorage scoped, string last, string problem, SourceReturn back)
+        {
+            if (problem == null || RecoveryChoicePending) return;
+            BeginUnreadableChoice(scoped, last, problem, "Keep it aside and open " + display.Title, back, last);
+        }
+
+        void OpenRecovered(DraftSession session, WorkshopStorage source, string id, SourceReturn back, WorkshopTemplate? template,
+            bool flagship, bool parcel, string fresh, string recovered, string previous, string freshChoice)
+        {
+            string message = fresh, problem = null;
+            if (source != null)
+                try
+                {
+                    session.History = new WorkshopHistory(source.Recover(id, out bool backup));
+                    message = backup ? previous : recovered;
+                }
+                catch (Exception error) when (Unreadable(error)) { problem = error.Message; }
+            ActivateDraft(session, false, template, flagship, parcel);
+            if (problem != null) { BeginUnreadableChoice(source, id, problem, freshChoice, back); return; }
+            if (parcel) parcelServiceDraft = CaptureDraft();
+            ApplyRememberedMode();
+            ShowStatus(message);
         }
 
         public void OpenAssignedCourse()
@@ -95,18 +164,17 @@ namespace Wreckabulary.Workshop
                 ActivateDraft(parcelServiceDraft, false, null, parcelService: true);
                 ShowStatus("Parcel Service · your edits and Undo history are retained."); return;
             }
-            string baseFolder = folder ?? storageFolder ?? Path.Combine(Application.persistentDataPath, "wordbound-workshop");
+            var back = CurrentSource();
+            string baseFolder = folder ?? storageFolder ?? DefaultFolder;
             var scoped = new WorkshopStorage(Path.Combine(baseFolder, "local-courses", "ParcelServiceV1"));
-            var snapshot = parcelServiceSource;
-            bool recovered = scoped.HasRecovery(WordboundSoloEntry.ParcelServiceCourseId), backup = false;
-            if (recovered) snapshot = scoped.Recover(WordboundSoloEntry.ParcelServiceCourseId, out backup);
-            if (snapshot.Course().Id != WordboundSoloEntry.ParcelServiceCourseId)
+            if (parcelServiceSource.Course().Id != WordboundSoloEntry.ParcelServiceCourseId)
                 throw new InvalidOperationException("The Parcel Service draft has a different course identity.");
-            ActivateDraft(new DraftSession { History = new WorkshopHistory(snapshot), Catalogue = parcelServiceCatalogue,
-                Play = parcelServicePlay, Storage = scoped, Folder = baseFolder }, false, null, parcelService: true);
-            parcelServiceDraft = CaptureDraft();
-            ShowStatus(recovered ? backup ? "Recovered previous Parcel Service save" : "Recovered Parcel Service autosave" :
-                "Parcel Service · saved course copy · Workshop edits are stored separately.");
+            var session = new DraftSession { History = new WorkshopHistory(parcelServiceSource), Catalogue = parcelServiceCatalogue,
+                Play = parcelServicePlay, Storage = scoped, Folder = baseFolder };
+            string id = WordboundSoloEntry.ParcelServiceCourseId;
+            OpenRecovered(session, scoped.HasRecovery(id) ? scoped : null, id, back, null, false, true,
+                "Parcel Service · saved course copy · Workshop edits are stored separately.",
+                "Recovered Parcel Service autosave", "Recovered previous Parcel Service save", "Start fresh from the saved course");
         }
 
         void QueueSourceChoice(int choice)
@@ -138,6 +206,5 @@ namespace Wreckabulary.Workshop
                 else OpenTemplate((WorkshopTemplate)(decision - 2));
             });
         }
-
     }
 }

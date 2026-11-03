@@ -153,20 +153,20 @@
    "yaw": 90
   },
   {
-   "room": "Kitchen",
-   "at": [
-    10,
-    12
-   ],
-   "yaw": 180
-  },
-  {
    "room": "Study",
    "at": [
     12,
     -10
    ],
    "yaw": 270
+  },
+  {
+   "room": "Kitchen",
+   "at": [
+    10,
+    12
+   ],
+   "yaw": 180
   },
   {
    "room": "LivingRoom",

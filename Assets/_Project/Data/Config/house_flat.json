@@ -154,12 +154,12 @@
  ],
  "spawns": [
   {
-   "room": "Bedroom",
+   "room": "Kitchen",
    "at": [
-    -9.5,
-    3.5
+    10.5,
+    4
    ],
-   "yaw": 90
+   "yaw": 270
   },
   {
    "room": "Study",
@@ -170,18 +170,18 @@
    "yaw": 90
   },
   {
-   "room": "Kitchen",
-   "at": [
-    10.5,
-    4
-   ],
-   "yaw": 270
-  },
-  {
    "room": "LivingRoom",
    "at": [
     5,
     -2.5
+   ],
+   "yaw": 90
+  },
+  {
+   "room": "Bedroom",
+   "at": [
+    -9.5,
+    3.5
    ],
    "yaw": 90
   }

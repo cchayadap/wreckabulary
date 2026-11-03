@@ -62,16 +62,12 @@ namespace Wreckabulary.Rules
         public float ClearOutDamagePerSecond = 8f;
         public float ClearOutDamageGrowth = 2f;
 
-        /// <summary>The Escape exit is opened with a key, not a word. False restores the original run.</summary>
         public bool EscapeNeedsKey = true;
 
-        /// <summary>How many doors into the house the crew has to open before the key room.</summary>
         public int EscapeKeyAfterRooms = 2;
 
-        /// <summary>Escape picks a fresh exit room every round instead of the authored one.</summary>
         public bool EscapeRandomExit = true;
 
-        /// <summary>How many keys the Escape crew must find before the way out is revealed.</summary>
         public int EscapeKeys = 1;
 
         public float CraftSeconds(ItemDefinition item) => CraftBaseSeconds + CraftPerLetterSeconds * item.Letters.Count;

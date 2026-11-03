@@ -36,6 +36,11 @@ namespace Wreckabulary
             BreakPower = damage / Smashable.HealthPerBreakPower, HitStun = 0.25f,
         });
         public float Cooldown => definition?.Melee?.Cycle ?? definition?.Use?.ChannelSeconds ?? cooldown;
+        public float SwingStartedAt { get; private set; } = -1f;
+        public static event System.Action<HeldWeapon, PlayerController> MeleeStarted;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => MeleeStarted = null;
         public Quaternion HoldRotation => definition != null ? Quaternion.identity : Quaternion.Euler(ranged ? 90f : 65f, 0f, 0f);
 
         public void Configure(ItemDefinition item)
@@ -45,12 +50,13 @@ namespace Wreckabulary
             durabilityLeft = Mathf.Max(1, item.Durability);
         }
 
-        void OnDisable() { StopAllCoroutines(); usingItem = false; }
+        void OnDisable() { StopAllCoroutines(); usingItem = false; SwingStartedAt = -1f; }
 
         public void CancelUse()
         {
             StopAllCoroutines();
             usingItem = false;
+            SwingStartedAt = -1f;
             SetPoseRotation(HoldRotation);
         }
 
@@ -135,6 +141,8 @@ namespace Wreckabulary
         IEnumerator MeleeAfterWindup(PlayerCombat user, PlayerController owner)
         {
             usingItem = true;
+            SwingStartedAt = Time.time;
+            MeleeStarted?.Invoke(this, owner);
             owner.GetComponent<PlayerAppearance>()?.Play(definition.Family == HandlingFamily.MeleeThrust ? "Thrust_OneHand" : "Swing_OneHand", Stats.Cycle);
             yield return new WaitForSeconds(Stats.Windup);
             if (owner && owner.CanAct && !owner.IsDodging && user.Weapon == this && !user.IsBlocking)
@@ -160,6 +168,7 @@ namespace Wreckabulary
                 yield return new WaitForSeconds(Stats.Recovery);
             }
             usingItem = false;
+            SwingStartedAt = -1f;
         }
 
         IEnumerator ConsumeAfterChannel(PlayerCombat user, PlayerController owner)
@@ -214,7 +223,6 @@ namespace Wreckabulary
 
         public void ShowRaised(bool raised) => SetPoseRotation(raised && word != "SHIELD" ? Quaternion.Euler(90f, 0f, 0f) : HoldRotation);
 
-        /// <summary>Rotate around the authored grip, never around the model's floor pivot.</summary>
         public void SetPoseRotation(Quaternion localRotation)
         {
             transform.localRotation = localRotation;

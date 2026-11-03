@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 namespace Wreckabulary
 {
-    /// <summary>Shared controls editor. Its input lease blocks gameplay without disabling UI navigation.</summary>
     public sealed class ControlsPanel : MonoBehaviour
     {
         sealed class BindingRow
@@ -202,7 +201,6 @@ namespace Wreckabulary
             if (control.device is not Mouse mouse) return true;
             var camera = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
             if (!RectTransformUtility.RectangleContainsScreenPoint((RectTransform)cancel.transform, mouse.position.ReadValue(), camera)) return true;
-            // Matching input is suppressed before UI receives it, so queue the cancel click for Update.
             cancelRequested = true;
             return false;
         }

@@ -44,7 +44,12 @@ namespace Wreckabulary.Online
 
         public Func<WordboundPartyLaunchContext, CancellationToken, Task> BeginMatchRequested { get; set; }
         public Func<CancellationToken, Task> ReturnRequested { get; set; }
+        public Func<CancellationToken, Task> LeaveRequested { get; set; }
+        public Func<bool> LeaveAvailable { get; set; }
         public bool Visible { get; set; } = true;
+        int returnFailures;
+        public bool CanLeaveMatch => coordinator != null && coordinator.MatchActive && currentLaunch != null && !launching && !returning &&
+            (returnFailures > 0 || currentLaunch.NoClientInitialized || LeaveAvailable?.Invoke() == true);
         public event Action WorkshopRequested;
         public event Action CloseRequested;
         public WordboundPartyCoordinator Coordinator => coordinator;
@@ -80,9 +85,11 @@ namespace Wreckabulary.Online
             itemSource = actualItemsJson; ruleSource = actualRuleBookJson;
             customSeedMode = publicCourses.IsClosed;
             fill = !customSeedMode;
-            transport = new WordboundHttpTransport(trust.Origin);
+            var serverClock = new OnlineServerClock();
+            transport = new WordboundHttpTransport(trust.Origin, coordinatorClock: serverClock);
             coordinator = new WordboundPartyCoordinator(new OnlineCoordinatorClient(transport), trust.Verifier,
-                actualItemsJson, actualRuleBookJson, mapPoolVersion, new WordboundPublicCourseRegistry(approvedPublicContentJson));
+                actualItemsJson, actualRuleBookJson, mapPoolVersion, new WordboundPublicCourseRegistry(approvedPublicContentJson),
+                serverClock: serverClock);
             PhotonAppId = trust.PhotonAppId;
         }
         void Update()
@@ -109,7 +116,7 @@ namespace Wreckabulary.Online
         }
         async Task Begin(WordboundPartyLaunchContext launch)
         {
-            launching = true; currentLaunch = launch; localError = null;
+            launching = true; currentLaunch = launch; localError = null; returnFailures = 0;
             try { await BeginMatchRequested(launch, lifetime.Token); if (!lifetime.IsCancellationRequested && currentLaunch == launch) Visible = false; }
             catch (OperationCanceledException) { if (!lifetime.IsCancellationRequested && currentLaunch == launch) { Visible = true; localError = "Match startup was cancelled. Return to the party before trying again."; } }
             catch { if (!lifetime.IsCancellationRequested && currentLaunch == launch) { Visible = true; localError = "The match could not start. Return to your party, then cancel the old reservation."; } }
@@ -121,7 +128,7 @@ namespace Wreckabulary.Online
             if (lifetime.IsCancellationRequested) return;
             if (currentLaunch == null || currentLaunch.Verified.Match.MatchId != confirmedMatchId) return;
             coordinator?.NotifyReturned(confirmedMatchId);
-            currentLaunch = null; localError = null; returning = false; nextPoll = 0; Visible = true;
+            currentLaunch = null; localError = null; returning = false; nextPoll = 0; Visible = true; returnFailures = 0;
         }
         public void ShowFailure(string safeMessage)
         {
@@ -148,12 +155,40 @@ namespace Wreckabulary.Online
                         if (ReturnRequested == null) throw new InvalidOperationException("The gameplay return handler is not connected.");
                         await ReturnRequested(lifetime.Token);
                         if (!lifetime.IsCancellationRequested && currentLaunch != null)
-                            localError = "Return is not confirmed yet. Retry Return to party.";
+                        {
+                            returnFailures++;
+                            localError = "Return is not confirmed yet. Retry Return to party, or Leave match to go back without the service.";
+                        }
                     }
                 }
                 else await coordinator.ReturnReservation();
             }
-            catch { if (!lifetime.IsCancellationRequested) localError = "Return could not finish. Retry Return to party."; }
+            catch
+            {
+                if (lifetime.IsCancellationRequested) return;
+                returnFailures++;
+                localError = currentLaunch != null ? "Return could not finish. Retry Return to party, or Leave match to go back without the service." :
+                    "Return could not finish. Retry Return to party.";
+            }
+            finally { returning = false; }
+        }
+        async Task Leave()
+        {
+            if (returning || launching || !CanLeaveMatch) return;
+            var context = currentLaunch;
+            returning = true; localError = null;
+            try
+            {
+                if (!context.NoClientInitialized)
+                {
+                    if (LeaveRequested == null) throw new InvalidOperationException("The gameplay leave handler is not connected.");
+                    await LeaveRequested(lifetime.Token);
+                }
+                if (lifetime.IsCancellationRequested || currentLaunch != context) return;
+                coordinator.LeaveMatchLocally(context.Verified.Match);
+                currentLaunch = null; returnFailures = 0; nextPoll = 0; Visible = true;
+            }
+            catch { if (!lifetime.IsCancellationRequested) localError = "Leaving the match could not finish. Try Leave match again."; }
             finally { returning = false; }
         }
         async void Invoke(Func<Task> action)
@@ -248,6 +283,7 @@ namespace Wreckabulary.Online
                 GUILayout.Label(localError ?? "Joining your match…", hint);
                 GUI.enabled = !returning && !launching;
                 PartyControl("return", returning ? "Returning…" : "Return to party", () => { _ = Return(); });
+                if (CanLeaveMatch) PartyControl("leave-match", "Leave match", () => { _ = Leave(); });
                 GUI.enabled = true; return;
             }
             if (coordinator.RetryRequired)
@@ -297,7 +333,7 @@ namespace Wreckabulary.Online
             if (BeginMatchRequested == null)
                 GUILayout.Label("Gameplay launcher is not connected in this scene.", hint);
             if (coordinator.Authenticated && !coordinator.MatchActive && !coordinator.Busy && !coordinator.RetryRequired &&
-                coordinator.Party?.HasAttempt != true && !launching && !returning)
+                (coordinator.Party?.HasAttempt != true || coordinator.ReturnQueued) && !launching && !returning)
             {
                 GUILayout.Space(12); GUILayout.BeginHorizontal();
                 if (WorkshopRequested != null) PartyControl("workshop", "Workshop", () => WorkshopRequested?.Invoke());

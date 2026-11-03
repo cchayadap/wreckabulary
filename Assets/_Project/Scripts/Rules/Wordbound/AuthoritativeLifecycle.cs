@@ -23,6 +23,8 @@ namespace Wreckabulary.Rules.Wordbound
                 StringComparer.Ordinal)).ToArray();
         }
 
+        internal bool Checkpoint(int lap, string puzzleId) => selected[lap].Contains(puzzleId);
+
         internal bool PracticeSource(string sourceId, MatchPracticeState practice, IEnumerable<MatchMechanismState> mechanisms)
         {
             var site = WordboundPracticePolicy.Selected(course, practice);

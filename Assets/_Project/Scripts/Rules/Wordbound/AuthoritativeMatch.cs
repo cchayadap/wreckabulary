@@ -78,6 +78,7 @@ namespace Wreckabulary.Rules.Wordbound
         readonly Dictionary<string, MatchResourceState> resources = new Dictionary<string, MatchResourceState>(StringComparer.Ordinal);
         readonly Dictionary<string, MatchMechanismState> mechanisms = new Dictionary<string, MatchMechanismState>(StringComparer.Ordinal);
         readonly Dictionary<string, MatchRandomState> random = new Dictionary<string, MatchRandomState>(StringComparer.Ordinal);
+        readonly Dictionary<string, IReadOnlyList<string>> supplyGates = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
         readonly HashSet<string> narrative = new HashSet<string>(StringComparer.Ordinal);
         readonly List<ProgressEvent> pending = new List<ProgressEvent>();
         readonly Economy economy;
@@ -86,6 +87,7 @@ namespace Wreckabulary.Rules.Wordbound
         SnapshotCommitTracker commits;
         long nextWorldEntityId = 1;
         bool inTick;
+        MatchSnapshot lastCapture;
 
         public MatchBinding Binding { get; }
         public ModeDefinition Mode { get; }
@@ -111,6 +113,8 @@ namespace Wreckabulary.Rules.Wordbound
                 !CourseValidator.ValidateResolved(course, courseCatalogue, MatchStateValidation.Requirements(Mode)).Ok)
                 throw new ArgumentException("Authoritative content or gameplay rules are invalid.");
             resourceLifecycle = new WordboundResourceLifecycle(course, Mode);
+            foreach (var supply in course.Supplies)
+                if (!supplyGates.ContainsKey(supply.Id)) supplyGates.Add(supply.Id, supply.AfterPuzzleIds);
             entityBudget = new WordboundEntityBudget(Mode, course, courseCatalogue, catalogue, rules);
             WordboundCombatPolicy.Validate(rules.Unarmed);
             if (Mode.Recipes.Contains("BALL") && catalogue.TryGet("BALL", out var ball) && ball.Enabled)
@@ -245,8 +249,10 @@ namespace Wreckabulary.Rules.Wordbound
         public MatchSnapshot Capture(long sequence)
         {
             if (inTick) throw new InvalidOperationException("Capture only a completed tick.");
-            return CaptureState(sequence);
+            return lastCapture = CaptureState(sequence);
         }
+
+        public bool IsOwnCapture(MatchSnapshot snapshot) => snapshot != null && ReferenceEquals(snapshot, lastCapture);
 
         public bool MatchesTickPresenceAndResult(MatchSnapshot snapshot)
         {
@@ -784,8 +790,8 @@ namespace Wreckabulary.Rules.Wordbound
                 actors[seat.PlayerId] = Actor(actor, stamina: Math.Min(rules.MaxStamina, actor.Stamina + rules.StaminaRegen / ModeDefinition.TickRate));
             }
             UpdateKeepsakes();
-            foreach (var team in progress.Capture().Teams)
-                if (Mode.IsRace)
+            if (Mode.IsRace)
+                foreach (var team in progress.Capture().Teams)
                 {
                     narrative.Add(MatchStateValidation.NarrativeFlag(team.Team, Math.Min(team.Lap, 2)));
                     foreach (var puzzle in course.Puzzles)
@@ -793,7 +799,7 @@ namespace Wreckabulary.Rules.Wordbound
                         {
                             string key = Key(puzzle.Id, team.Team, lap);
                             var state = mechanisms[key];
-                            bool solved = lap < team.Lap ? course.Laps[lap].Checkpoints.Any(c => c.PuzzleIds.Contains(puzzle.Id)) :
+                            bool solved = lap < team.Lap ? resourceLifecycle.Checkpoint(lap, puzzle.Id) :
                                 lap == team.Lap && team.HasPuzzle(puzzle.Id);
                             if (solved != state.Solved)
                                 mechanisms[key] = new MatchMechanismState(puzzle.Id, team.Team, lap, solved,
@@ -809,6 +815,10 @@ namespace Wreckabulary.Rules.Wordbound
                 if (!resourceTeams.TryGetValue(id, out var team)) resourceTeams.Add(id, team = progress.Team(id));
                 return team;
             }
+            HashSet<(string, int, int)> generations = null;
+            bool HasGeneration(MatchResourceState state) =>
+                (generations ??= new HashSet<(string, int, int)>(bodies.Values.Where(b => b.Active)
+                    .Select(b => (b.SourceId, b.OwnerTeam, b.RecoveryGeneration)))).Contains((state.SourceId, state.Team, state.Generation));
             foreach (var state in resources.Values.OrderBy(r => r.Generation).ThenBy(r => r.SourceId, StringComparer.Ordinal).ToArray())
             {
                 int currentLap = Mode.IsRace && state.Team >= 0 ? Math.Min(ResourceTeam(state.Team).Lap, 2) : 0;
@@ -822,16 +832,17 @@ namespace Wreckabulary.Rules.Wordbound
                 if (!SourceAvailable(state, Mode.IsRace ? ResourceTeam(state.Team) : null)) continue;
                 bool newLap = before != null && Mode.IsRace &&
                     Math.Min(before.Progress.Teams.Single(t => t.Team == state.Team).Lap, 2) < state.Lap;
-                if (newLap) MintSource(state);
+                if (newLap) { MintSource(state); generations = null; }
                 else if (state.RecoveryAtTick >= 0 && state.RecoveryAtTick <= Tick)
                 {
                     var next = new MatchResourceState(state.SourceId, state.Team, state.Lap, checked(state.Generation + 3));
                     RecoverSource(state, next);
+                    generations = null;
                 }
-                else if (!HasSourceGeneration(state) && state.RecoveryAtTick == -1 &&
+                else if (!HasGeneration(state) && state.RecoveryAtTick == -1 &&
                     (IsPractice ? PracticeRecoverySource(state.SourceId) && (before == null ||
                         !resourceLifecycle.PracticeSource(state.SourceId, before.Practice, before.Mechanisms)) :
-                        SourceAfterPuzzles(state).Any() && !WasSourceAvailable(before, state))) MintSource(state);
+                        SourceAfterPuzzles(state).Any() && !WasSourceAvailable(before, state))) { MintSource(state); generations = null; }
             }
             foreach (var body in bodies.Values.Where(b => b.Active && b.Kind != WorldBodyKind.Player &&
                 b.Kind != WorldBodyKind.Platform && BelowCourse(b.Position)).ToArray())
@@ -920,7 +931,7 @@ namespace Wreckabulary.Rules.Wordbound
                     state.Generation, Tick + 1 + RecoveryTicks);
         }
         IEnumerable<string> SourceAfterPuzzles(MatchResourceState state) =>
-            course.Supplies.FirstOrDefault(s => s.Id == state.SourceId)?.AfterPuzzleIds ?? Array.Empty<string>();
+            supplyGates.TryGetValue(state.SourceId, out var ids) ? ids : Array.Empty<string>();
         bool SourceAvailable(MatchResourceState state) =>
             resourceLifecycle.Demanded(Mode.IsRace ? progress.Team(state.Team) : null, state, practice, mechanisms.Values) &&
             (PracticeRecoverySource(state.SourceId) || SourceAfterPuzzles(state).All(id => Mode.IsRace && progress.Team(state.Team).CompletedPuzzles.Contains(id)));

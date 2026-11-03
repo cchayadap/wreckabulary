@@ -392,5 +392,115 @@ namespace Wreckabulary.Rules.Tests
             history.Execute("Rename", draft => draft.Course.Title = "Changed");
             Assert.Throws<InvalidOperationException>(() => drag.Commit(history, preset.Catalogue));
         }
+        static readonly CoursePlayRequirements TimeRun = MatchStateValidation.Requirements(ModeDefinition.For("TimeRun"));
+        static readonly CoursePlayRequirements Freestyle =
+            new CoursePlayRequirements("Freestyle", CourseCapability.Explore, 0, 0, 8, CourseOwnershipPolicy.Shared);
+        static CourseCatalogue SizedCatalogue()
+        {
+            var proof = CourseTemplates.ProofCatalogue();
+            return new CourseCatalogue(proof.Modules.Values.Concat(new[] {
+                    new CourseModuleDefinition("Hall", 30000, 20000, 4000), new CourseModuleDefinition("Nook", 6000, 6000, 4000) }),
+                proof.Assets.Values, proof.PuzzlePresets, proof.Themes, proof.NarrativeEvents);
+        }
+        static string[] Issues(CourseDocument course) => CourseValidator.Validate(course, CourseTemplates.ProofCatalogue(), TimeRun)
+            .Issues.Select(issue => issue.Code + " " + issue.EntityId).OrderBy(text => text, StringComparer.Ordinal).ToArray();
+        [Test]
+        public void FloorHeightMovesItsRoomsKeepsFloorOrderAndUndoesAsOneStep()
+        {
+            var history = new WorkshopHistory(new WorkshopSnapshot(CourseTemplates.RaceCircuit()));
+            history.Execute("Rename", draft => draft.Course.Title = "Kept redo"); history.Undo();
+            var before = history.Current; int revision = history.Revision;
+            foreach (var (layer, height) in new[] { ("Loft", 0), ("Loft", -1000), ("Loft", CourseLimits.VerticalMm + 1), ("Ground", 6000), ("Ground", 9000) })
+                Assert.Throws<ArgumentException>(() => history.Execute("Bad floor", draft => WorkshopCommands.SetLayerHeight(draft, layer, height)), layer + " " + height);
+            Assert.Throws<InvalidOperationException>(() => history.Execute("Locked floor", draft =>
+            { draft.LockedLayers.Add("Loft"); WorkshopCommands.SetLayerHeight(draft, "Loft", 7000); }));
+            Assert.AreSame(before, history.Current); Assert.AreEqual(revision, history.Revision); Assert.IsTrue(history.CanRedo);
+            Assert.IsTrue(history.Execute("Floor height", draft => WorkshopCommands.SetLayerHeight(draft, "Loft", 6500)));
+            Assert.AreEqual(revision + 1, history.Revision);
+            var raised = history.Current.Course();
+            Assert.AreEqual(6500, raised.Layers.Single(layer => layer.Id == "Loft").HeightMm);
+            Assert.IsTrue(raised.Modules.Where(module => module.LayerId == "Loft").All(module => module.Position.Y == 6500));
+            Assert.AreEqual(0, raised.Modules.Single(module => module.Id == "Start").Position.Y);
+            var stairs = raised.Connections.Single(connection => connection.Id == "UpA");
+            Assert.AreEqual(0, stairs.From.Y); Assert.AreEqual(6500, stairs.To.Y);
+            Assert.AreEqual(6500, raised.Supplies.Single(supply => supply.Id == "FanSupply").Position.Y);
+            Assert.AreEqual(6500, raised.RecoveryAnchors.Single(anchor => anchor.Id == "UpperSafe").Position.Y);
+            Assert.AreEqual(6500, raised.Zones.Single(zone => zone.Id == "SideProps").Bounds.Min.Y);
+            CollectionAssert.AreEqual(Issues(before.Course()), Issues(raised));
+            Assert.IsTrue(history.Undo()); Assert.AreSame(before, history.Current);
+        }
+        [Test]
+        public void FloorFootprintIsTheUnionOfItsRoomsAndTheNextFloorClearsTheTopRooms()
+        {
+            var course = CourseTemplates.RaceCircuit(); var catalogue = CourseTemplates.ProofCatalogue();
+            string json = CourseJson.ExportDocument(course);
+            var ground = WorkshopCommands.LayerFootprint(course, catalogue, "Ground").Value;
+            Assert.AreEqual(new CoursePoint(-10000, 0, -10000), ground.Min); Assert.AreEqual(new CoursePoint(10000, 4000, 10000), ground.Max);
+            var loft = WorkshopCommands.LayerFootprint(course, catalogue, "Loft").Value;
+            Assert.AreEqual(new CoursePoint(-10000, 6000, -10000), loft.Min); Assert.AreEqual(new CoursePoint(30000, 10000, 10000), loft.Max);
+            Assert.AreEqual(10000, WorkshopCommands.NextLayerHeight(course, catalogue));
+            Assert.AreEqual(json, CourseJson.ExportDocument(course), "Footprints are derived and never stored.");
+            course.Layers.Add(new CourseLayer { Id = "Attic", HeightMm = 12000 });
+            Assert.IsNull(WorkshopCommands.LayerFootprint(course, catalogue, "Attic"));
+            Assert.AreEqual(16000, WorkshopCommands.NextLayerHeight(course, catalogue));
+            var history = new WorkshopHistory(new WorkshopSnapshot(CourseTemplates.RaceCircuit()));
+            Assert.IsTrue(history.Execute("Add floor", draft => WorkshopCommands.AddLayer(draft, WorkshopCommands.NextLayerHeight(draft.Course, catalogue))));
+            Assert.AreEqual(10000, history.Current.Course().Layers.Single(layer => layer.Id == history.Current.ActiveLayer).HeightMm);
+        }
+        [Test]
+        public void RoomEdgeDragSwapsToTheNearestApprovedSizeKeepsTheOppositeWallAndUndoesOnce()
+        {
+            var catalogue = SizedCatalogue();
+            var history = new WorkshopHistory(new WorkshopSnapshot(CourseTemplates.FreestyleWorld()));
+            var before = history.Current; int revision = history.Revision;
+            Assert.IsTrue(CourseValidator.Validate(before.Course(), catalogue, Freestyle).Ok);
+            var drag = new WorkshopRoomResizeDrag(history, catalogue, "Garden", 1, 0);
+            drag.Drag(38500, 4000);
+            Assert.AreEqual("Hall", drag.DefinitionId); Assert.AreEqual(new CoursePoint(25000, 0, 0), drag.Position);
+            Assert.AreEqual(10000, drag.Preview.Min.X); Assert.AreEqual(40000, drag.Preview.Max.X);
+            Assert.AreSame(before, history.Current, "Dragging previews without changing the draft.");
+            Assert.IsTrue(drag.Commit(history, Freestyle));
+            Assert.AreEqual(revision + 1, history.Revision);
+            var resized = history.Current.Course();
+            var garden = resized.Modules.Single(module => module.Id == "Garden");
+            Assert.AreEqual("Hall", garden.DefinitionId); Assert.AreEqual(new CoursePoint(25000, 0, 0), garden.Position);
+            Assert.IsTrue(CourseValidator.Validate(resized, catalogue, Freestyle).Ok);
+            Assert.AreEqual(before.Course().Zones.Single(zone => zone.Id == "GardenProps").Bounds, resized.Zones.Single(zone => zone.Id == "GardenProps").Bounds);
+            Assert.AreEqual(before.Course().Layers.Count, resized.Layers.Count);
+            Assert.IsTrue(history.Undo()); Assert.AreSame(before, history.Current); Assert.IsFalse(history.CanUndo);
+            Assert.Throws<InvalidOperationException>(() => drag.Commit(history, Freestyle));
+        }
+        [Test]
+        public void RoomResizeRefusesOrphanedContentsOverlapsAndUnapprovedSizesWithoutChangingTheDraft()
+        {
+            var catalogue = SizedCatalogue();
+            var history = new WorkshopHistory(new WorkshopSnapshot(CourseTemplates.FreestyleWorld()));
+            history.Execute("Rename", draft => draft.Course.Title = "Kept redo"); history.Undo();
+            var before = history.Current; int revision = history.Revision;
+            var shrink = new WorkshopRoomResizeDrag(history, catalogue, "Garden", 1, 1);
+            shrink.Drag(16000, -4000);
+            Assert.AreEqual("Nook", shrink.DefinitionId);
+            var orphan = Assert.Throws<InvalidOperationException>(() => shrink.Commit(history, Freestyle));
+            StringAssert.StartsWith("Resize refused", orphan.Message); StringAssert.Contains("GardenProps", orphan.Message);
+            var grow = new WorkshopRoomResizeDrag(history, catalogue, "Garden", -1, 0);
+            grow.Drag(0, 0);
+            Assert.AreEqual("Hall", grow.DefinitionId); Assert.AreEqual(15000, grow.Position.X);
+            var overlap = Assert.Throws<InvalidOperationException>(() => grow.Commit(history, Freestyle));
+            StringAssert.StartsWith("Resize refused", overlap.Message); StringAssert.Contains("overlap Start", overlap.Message);
+            Assert.Throws<ArgumentException>(() => history.Execute("Unknown size", draft =>
+                WorkshopCommands.ResizeModule(draft, catalogue, Freestyle, "Garden", "Missing", new CoursePoint(20000, 0, 0))));
+            Assert.Throws<InvalidOperationException>(() => history.Execute("Locked resize", draft =>
+            {
+                draft.LockedLayers.Add("Ground");
+                WorkshopCommands.ResizeModule(draft, catalogue, Freestyle, "Garden", "Hall", new CoursePoint(25000, 0, 0));
+            }));
+            var same = new WorkshopRoomResizeDrag(history, catalogue, "Garden", 1, 0);
+            same.Drag(30200, 0);
+            Assert.IsFalse(same.Changed); Assert.IsFalse(same.Commit(history, Freestyle));
+            Assert.AreSame(before, history.Current); Assert.AreEqual(revision, history.Revision); Assert.IsTrue(history.CanRedo);
+            Assert.AreEqual("Hall", WorkshopCommands.StepDefinition(catalogue, "Room", 1));
+            Assert.AreEqual("Nook", WorkshopCommands.StepDefinition(catalogue, "Hall", 1, true));
+            Assert.AreEqual("Hall", WorkshopCommands.StepDefinition(catalogue, "Hall", 1));
+        }
     }
 }

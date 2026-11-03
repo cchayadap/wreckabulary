@@ -66,6 +66,51 @@ namespace Wreckabulary.Rules.Wordbound
         }
     }
 
+    public sealed class WorkshopRoomResizeDrag
+    {
+        readonly int revision;
+        readonly CourseModule original;
+        readonly CourseCatalogue catalogue;
+        readonly CourseBox bounds;
+        public string ModuleId => original.Id;
+        public int SideX { get; }
+        public int SideZ { get; }
+        public string DefinitionId { get; private set; }
+        public CoursePoint Position { get; private set; }
+        public CourseBox Preview => catalogue.Bounds(new CourseModule { DefinitionId = DefinitionId, Position = Position, Yaw = original.Yaw });
+        public bool Changed => DefinitionId != original.DefinitionId;
+
+        public WorkshopRoomResizeDrag(WorkshopHistory history, CourseCatalogue catalogue, string moduleId, int sideX, int sideZ)
+        {
+            if (history == null) throw new ArgumentNullException(nameof(history));
+            this.catalogue = catalogue ?? throw new ArgumentNullException(nameof(catalogue));
+            if (sideX < -1 || sideX > 1 || sideZ < -1 || sideZ > 1 || sideX == 0 && sideZ == 0)
+                throw new ArgumentException("Drag an edge or corner of the room.");
+            original = history.Current.Course().Modules.Single(module => module.Id == moduleId);
+            if (history.Current.LockedLayers.Contains(original.LayerId)) throw new InvalidOperationException("Unlock the selected floor first.");
+            if (!catalogue.Modules.ContainsKey(original.DefinitionId)) throw new InvalidOperationException("This room has no approved size.");
+            revision = history.Revision; SideX = sideX; SideZ = sideZ;
+            bounds = catalogue.Bounds(original); DefinitionId = original.DefinitionId; Position = original.Position;
+        }
+
+        public void Drag(int x, int z)
+        {
+            long width = SideX > 0 ? (long)x - bounds.Min.X : SideX < 0 ? (long)bounds.Max.X - x : (long)bounds.Max.X - bounds.Min.X;
+            long depth = SideZ > 0 ? (long)z - bounds.Min.Z : SideZ < 0 ? (long)bounds.Max.Z - z : (long)bounds.Max.Z - bounds.Min.Z;
+            DefinitionId = WorkshopCommands.FitDefinition(catalogue, original,
+                (int)Math.Max(0, Math.Min(int.MaxValue, width)), (int)Math.Max(0, Math.Min(int.MaxValue, depth)));
+            Position = WorkshopCommands.ResizedPosition(catalogue, original, DefinitionId, SideX, SideZ);
+        }
+
+        public bool Commit(WorkshopHistory history, CoursePlayRequirements play)
+        {
+            if (history.Revision != revision) throw new InvalidOperationException("The draft changed. Start the drag again.");
+            if (!Changed) return false;
+            return history.Execute("Resize room", draft =>
+                WorkshopCommands.ResizeModule(draft, catalogue, play, ModuleId, DefinitionId, Position));
+        }
+    }
+
     public sealed class WorkshopPlacementDrag
     {
         readonly int revision, grid, originalYaw;
@@ -84,6 +129,7 @@ namespace Wreckabulary.Rules.Wordbound
         }
         public void Move(int x, int z) => Position = new CoursePoint(
             checked(original.X + WorkshopCommands.Snap(x, grid)), original.Y, checked(original.Z + WorkshopCommands.Snap(z, grid)));
+        public void MoveTo(int x, int z) => Position = new CoursePoint(x, original.Y, z);
         public void Rotate(double degrees)
         {
             if (double.IsNaN(degrees) || double.IsInfinity(degrees)) throw new ArgumentException("Use a finite rotation angle.");

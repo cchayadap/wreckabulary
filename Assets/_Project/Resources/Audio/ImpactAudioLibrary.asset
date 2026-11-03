@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41a5b3535f7b23641b4fd0a31134bbdd, type: 3}
+  m_Name: ImpactAudioLibrary
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Audio.ImpactAudioLibrary
+  weapons:
+  - {fileID: 11400000, guid: d07ca8e8c3410c341879fb190a0d224a, type: 2}
+  - {fileID: 11400000, guid: d710fd195ecb88048907ec46c9cd74c6, type: 2}
+  - {fileID: 11400000, guid: 6164b5f3f0e7e6e489dfc6540db547f3, type: 2}
+  - {fileID: 11400000, guid: 417142ec934ed9342bf4b4a870e2e655, type: 2}
+  - {fileID: 11400000, guid: 2295821394d533e4b87d4fce0a22e3aa, type: 2}
+  - {fileID: 11400000, guid: 3f26feb66c7c5d54e9f73d2b37b32a5c, type: 2}
+  surfaces:
+  - {fileID: 11400000, guid: 6d0240665db76fe40b977cef17a90b4c, type: 2}
+  - {fileID: 11400000, guid: 4ed84f63c342cb549a1a14c0f7cc28bd, type: 2}
+  - {fileID: 11400000, guid: 0dc74bb771fc8b14c8cdb0b951993c21, type: 2}
+  - {fileID: 11400000, guid: d863f361b3093654d82fc27ae571af39, type: 2}
+  - {fileID: 11400000, guid: a25848ca0add3364cbd8ebef5116ed06, type: 2}
+  - {fileID: 11400000, guid: d68217e0b0a203544a27e42965530d2a, type: 2}
+  useInHouseModes: 0
+  volume: 0.8
+  voices: 16
+  voicesPerSound: 3
+  minDistance: 1.5
+  maxDistance: 28
+  spatialBlend: 1
+  occluders:
+    serializedVersion: 2
+    m_Bits: 1
+  occludedVolume: 0.45
+  occludedCutoff: 1800

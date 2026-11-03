@@ -22,6 +22,8 @@ namespace Wreckabulary
         public override LobbyStage.Focus Focus => LobbyStage.Focus.Centre;
         public override float PanelWidth => framePanel && framePanel.rect.width > 0 ? framePanel.rect.width : base.PanelWidth;
 
+        public const string SavedHomeCard = "Saved home ";
+        public const string CoursesNote = "Solo only. Remove extra seats to play.";
         static readonly Vector2 HouseSize = new Vector2(280, 300);
         const float ModeHeight = 52f;
         static readonly Color Tree = LobbyKit.Hex(0x2f9e3a);
@@ -33,12 +35,12 @@ namespace Wreckabulary
             ("Queue " + LobbyMenu.Workshop, "Create"),
         };
 
-        string DisplayQueue => Menu.Queue == LobbyMenu.Practice && Menu.Mode == LobbyMenu.TutorialMode
-            ? LobbyMenu.Workshop : Menu.Queue;
+        string DisplayQueue => Menu.Queue;
 
         protected override void Build()
         {
             authoredFrame = null; framePanel = null;
+            if (Menu.PartySize > 1) WordboundSolo = false;
             var saved = Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
             playLayout = saved;
             RectTransform body;
@@ -88,7 +90,6 @@ namespace Wreckabulary
                 LobbyKit.SectionLabel(column, "Map");
                 if (Menu.Mode == "Escape")
                 {
-                    // The Escape randomises the house, so this is the only choice it offers.
                     var randomRow = MapCards(column, "Houses");
                     RandomHouseCard(randomRow);
                 }
@@ -98,6 +99,8 @@ namespace Wreckabulary
                     int index = 0;
                     foreach (var house in GameConfig.Current.Houses)
                         HouseCard(houses, house.Key, house.Value, index++);
+                    if (Menu.Queue == LobbyMenu.Practice && HomeDesigner.Playable(Menu.Mode))
+                        foreach (var home in HomeStorage.ForGame().Saved()) HomeCard(houses, home);
                 }
             }
             Footer(body);
@@ -116,9 +119,9 @@ namespace Wreckabulary
             var maps = MapCards(column, "Solo maps");
             var mapGrid = maps.GetComponent<LobbyPlayCardGrid>();
             mapGrid.PreviewAspectRatio = 16f / 9f;
+            SoloMapCard(maps, WordboundSoloEntry.ParcelServiceMap, "Parcel Service", "Three-room office", null, LobbyKit.Cyan);
             SoloMapCard(maps, WordboundSoloEntry.LostAddressMap, "Lost Address", "Original course", "BOX", LobbyKit.Sun);
             SoloMapCard(maps, WordboundSoloEntry.ParcelHallMap, "Parcel Hall", "Furnished hall", "TABLE", LobbyKit.Lime);
-            SoloMapCard(maps, WordboundSoloEntry.ParcelServiceMap, "Parcel Service", "Three-room office", null, LobbyKit.Cyan);
             var bar = SummaryFrame(body, "Solo summary");
             SummaryLine(bar);
             string blocked = Menu.PartySize != 1 ? "Solo only. Leave extra local seats to start." :
@@ -168,70 +171,94 @@ namespace Wreckabulary
                 Menu.OpenWordbound();
                 return;
             }
-            string mode = queue == LobbyMenu.Practice && !LobbyMenu.Modes.Contains(Menu.Mode)
-                ? LobbyMenu.Modes[0] : null;
-            Menu.Choose(queue: queue, mode: mode);
+            Menu.Choose(queue: queue);
             Refresh();
             Reselect(id);
         }
 
         static string QueueLine(string queue) => queue == LobbyMenu.Matchmaking
             ? "Human players online."
-            : queue == LobbyMenu.Workshop ? "Create & learn." : "Play on this PC.";
+            : queue == LobbyMenu.Workshop ? "Build homes and maps." : "Play on this PC.";
 
         void PracticeModes(RectTransform column)
         {
-            var row = ModeRow(column, "Modes", 7);
-            foreach (var (mode, title, tag) in ModesFor(LobbyMenu.Practice))
+            var strip = ModeStrip(column, "Modes");
+            var learn = Family(strip, "Learn");
+            PracticeMode(learn, LobbyMenu.TutorialMode);
+            var party = Family(strip, "House party");
+            foreach (string mode in LobbyMenu.Modes) PracticeMode(party, mode);
+            var courses = Family(strip, "Courses");
+            if (Menu.PartySize == 1)
+                foreach (string mode in new[] { "TimeRun", "Freestyle" })
+                {
+                    string id = "Solo " + mode;
+                    bool selected = WordboundSolo && WordboundSoloEntry.SelectedMode == mode;
+                    var button = CompactMode(courses, id, LobbyPlayModeLabels.Name(mode), selected,
+                        () => { WordboundSolo = true; WordboundSoloEntry.Select(mode); Refresh(); Reselect(id); });
+                    if (selected) First = button;
+                }
+            else
             {
-                string id = "Mode " + mode;
-                var button = CompactMode(row, id, LobbyPlayModeLabels.Name(mode), !WordboundSolo && Menu.Mode == mode,
-                    () => { WordboundSolo = false; Menu.Choose(queue: LobbyMenu.Practice, mode: mode); Refresh(); Reselect(id); });
-                if (!WordboundSolo && Menu.Mode == mode) First = button;
+                var note = LobbyKit.Text(courses, CoursesNote, 16, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft);
+                note.name = "Courses note";
+                note.enableAutoSizing = true; note.fontSizeMin = 12; note.fontSizeMax = 16;
             }
-            foreach (string mode in new[] { "TimeRun", "Freestyle" })
+            strip.GetComponent<LobbyPlayModeFamilies>().Fit();
+            strip.GetComponent<LobbyPlayModeDock>()?.Fit();
+        }
+
+        void PracticeMode(Transform family, string mode)
+        {
+            string id = "Mode " + mode;
+            bool selected = !WordboundSolo && Menu.Mode == mode;
+            var button = CompactMode(family, id, LobbyPlayModeLabels.Name(mode), selected,
+                () => { WordboundSolo = false; Menu.Choose(queue: LobbyMenu.Practice, mode: mode); Refresh(); Reselect(id); });
+            if (selected) First = button;
+        }
+
+        static RectTransform Family(Transform strip, string name)
+        {
+            var family = LobbyKit.Rect(strip, name);
+            var caption = LobbyKit.Text(family, LobbyKit.Upper(name), 14, LobbyKit.Muted, TextAlignmentOptions.BottomLeft);
+            caption.name = LobbyPlayModeFamilies.Caption;
+            caption.characterSpacing = 1;
+            return family;
+        }
+
+        RectTransform ModeStrip(Transform parent, string name)
+        {
+            var strip = LobbyKit.Rect(authoredFrame ? authoredFrame.Body : parent, name);
+            var families = strip.gameObject.AddComponent<LobbyPlayModeFamilies>();
+            families.ButtonWidth = playLayout ? playLayout.ModeMinimumWidth : 104;
+            families.ButtonHeight = playLayout ? playLayout.ModeHeight : ModeHeight;
+            var element = strip.gameObject.AddComponent<LayoutElement>();
+            if (authoredFrame)
             {
-                string id = "Solo " + mode;
-                var button = CompactMode(row, id, LobbyPlayModeLabels.Name(mode), WordboundSolo && WordboundSoloEntry.SelectedMode == mode,
-                    () => { WordboundSolo = true; WordboundSoloEntry.Select(mode); Refresh(); Reselect(id); });
-                if (WordboundSolo && WordboundSoloEntry.SelectedMode == mode) First = button;
+                element.ignoreLayout = true;
+                var dock = strip.gameObject.AddComponent<LobbyPlayModeDock>();
+                dock.Choices = authoredFrame.Choices;
+                dock.MaximumWidth = playLayout ? playLayout.ModeMaximumWidth : 1160;
             }
-            row.GetComponent<LobbyPlayModeDock>()?.Fit();
+            return strip;
         }
 
         void CreateModes(RectTransform column)
         {
-            var row = ModeRow(column, "Create modes", 3);
-            var choices = new[] { (id: "Create house", title: "Home builder"),
-                (id: "Create Wordbound", title: "Map editor"), (id: "Mode " + LobbyMenu.TutorialMode, title: "Tutorial") };
-            foreach (var choice in choices)
+            var strip = ModeStrip(column, "Create modes");
+            var tools = LobbyKit.Rect(strip, "Builders");
+            foreach (var choice in new[] { (id: "Create house", title: "Home builder"), (id: "Create Wordbound", title: "Map editor") })
             {
-                bool tutorial = choice.id == "Mode " + LobbyMenu.TutorialMode;
-                bool selected = tutorial ? !WordboundMaps && Menu.Mode == LobbyMenu.TutorialMode :
-                    choice.id == "Create Wordbound" ? WordboundMaps : !WordboundMaps && Menu.Mode != LobbyMenu.TutorialMode;
-                var button = CompactMode(row, choice.id, choice.title, selected, () => {
-                    WordboundMaps = choice.id == "Create Wordbound";
-                    if (tutorial) Menu.Choose(queue: LobbyMenu.Workshop, mode: LobbyMenu.TutorialMode);
-                    else if (!WordboundMaps) Menu.Choose(queue: LobbyMenu.Workshop, mode: LobbyMenu.WorkshopMode);
+                bool editor = choice.id == "Create Wordbound";
+                bool selected = editor == WordboundMaps;
+                var button = CompactMode(tools, choice.id, choice.title, selected, () => {
+                    WordboundMaps = editor;
+                    if (!editor) Menu.Choose(queue: LobbyMenu.Workshop, mode: LobbyMenu.WorkshopMode);
                     Refresh(); Reselect(choice.id);
                 });
                 if (selected) First = button;
             }
-            row.GetComponent<LobbyPlayModeDock>()?.Fit();
-        }
-
-        RectTransform ModeRow(Transform parent, string name, int maximum)
-        {
-            var row = Cards(authoredFrame ? authoredFrame.Body : parent, name,
-                playLayout ? playLayout.ModeMinimumWidth : 104, playLayout ? playLayout.ModeHeight : ModeHeight, maximum);
-            if (authoredFrame)
-            {
-                row.GetComponent<LayoutElement>().ignoreLayout = true;
-                var dock = row.gameObject.AddComponent<LobbyPlayModeDock>();
-                dock.Choices = authoredFrame.Choices;
-                dock.MaximumWidth = playLayout ? playLayout.ModeMaximumWidth : 1160;
-            }
-            return row;
+            strip.GetComponent<LobbyPlayModeFamilies>().Fit();
+            strip.GetComponent<LobbyPlayModeDock>()?.Fit();
         }
 
         static Button CompactMode(Transform parent, string id, string label, bool selected, Action action) =>
@@ -245,21 +272,6 @@ namespace Wreckabulary
             return row;
         }
 
-        static IEnumerable<(string mode, string title, string tag)> ModesFor(string queue)
-        {
-            if (queue == LobbyMenu.Workshop)
-            {
-                yield return (LobbyMenu.TutorialMode, LobbyMenu.ModeName(LobbyMenu.TutorialMode), "Learn");
-                yield return (LobbyMenu.WorkshopMode, LobbyMenu.ModeName(LobbyMenu.WorkshopMode), "Build");
-                yield break;
-            }
-            yield return ("Dibs", LobbyMenu.ModeName("Dibs"), "Free for all");
-            yield return ("Duos", LobbyMenu.ModeName("Duos"), "2 v 2");
-            yield return ("MovingOut", LobbyMenu.ModeName("MovingOut"), "Co-op");
-            yield return ("MovingDay", LobbyMenu.ModeName("MovingDay"), "Co-op");
-            yield return ("Escape", LobbyMenu.ModeName("Escape"), "Co-op");
-        }
-
         static string Objective(string mode) => mode switch
         {
             "Dibs" => "Smash, spell, survive. Win three rounds.",
@@ -268,7 +280,7 @@ namespace Wreckabulary
             "MovingDay" => "Furnish the marked rooms in time.",
             "Escape" => "Unlock the doors. Get everyone out.",
             LobbyMenu.TutorialMode => "Try smashing, spelling and crafting.",
-            LobbyMenu.WorkshopMode => "Build and tour your home.",
+            LobbyMenu.WorkshopMode => "Build your home, then play it in Dibs or Duos.",
             _ => "Choose a mode.",
         };
 
@@ -384,7 +396,7 @@ namespace Wreckabulary
         void HouseCard(Transform parent, string id, HouseLayout layout, int index)
         {
             bool open = Menu.Mode != LobbyMenu.WorkshopMode || HomeDesigner.Supports(id);
-            var card = MapCard(parent, "Map " + id, index % 2 == 0 ? LobbyKit.Hot : LobbyKit.Lime, Menu.Map == id,
+            var card = MapCard(parent, "Map " + id, index % 2 == 0 ? LobbyKit.Hot : LobbyKit.Lime, Menu.Map == id && Menu.SavedHome == null,
                 () => { Menu.Choose(map: id); Refresh(); Reselect("Map " + id); });
             if (!open)
             {
@@ -398,6 +410,20 @@ namespace Wreckabulary
             drawing.gameObject.AddComponent<LobbyPlayPreviewFit>();
             FloorPlan(drawing, layout, Color.white, new Vector2(500, 281.25f));
             MapWords(card.Body(), layout.Name, Facts(layout));
+        }
+
+        void HomeCard(Transform parent, HomeLayout home)
+        {
+            string name = SavedHomeCard + home.Map;
+            var house = GameConfig.Current.HouseFor(home.Map);
+            var card = MapCard(parent, name, LobbyKit.Lime, Menu.SavedHome == home.Map,
+                () => { if (Menu.ChooseHome(home.Map)) { Refresh(); Reselect(name); } });
+            var plan = LobbyKit.Rect(card.Body(), "Plan").Place(Vector2.zero, Vector2.one,
+                new Vector2(18, 88), new Vector2(-18, -18));
+            var drawing = LobbyKit.Rect(plan, "Fitted plan").Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(500, 281.25f));
+            drawing.gameObject.AddComponent<LobbyPlayPreviewFit>();
+            FloorPlan(drawing, house, LobbyKit.Cream, new Vector2(500, 281.25f));
+            MapWords(card.Body(), home.Name, "Your home · " + house.Name);
         }
 
         static void TutorialRoom(Transform parent)
@@ -427,7 +453,7 @@ namespace Wreckabulary
             var bar = SummaryFrame(body, "Summary");
             SummaryLine(bar);
             string blocked = Menu.Blocked;
-            string where = Menu.Mode == LobbyMenu.TutorialMode ? "The tutorial room" : MapName(Menu.Map);
+            string where = Menu.Mode == LobbyMenu.TutorialMode ? "The tutorial room" : Menu.MapLabel;
             var title = LobbyKit.Text(bar, ShortMode(Menu.Mode, LobbyMenu.ModeName(Menu.Mode)) + " · " + where, 26, LobbyKit.Navy, TextAlignmentOptions.BottomLeft);
             title.enableAutoSizing = true; title.fontSizeMin = 20; title.fontSizeMax = 26;
             title.rectTransform.Place(Vector2.zero, Vector2.one, new Vector2(8, 44), new Vector2(-250, -8));

@@ -367,7 +367,7 @@ namespace Wreckabulary.Rules.Tests
         [TestCase("BrawlRace", RaceFormat.Duo)]
         [TestCase("BrawlRace", RaceFormat.Squad)]
         [TestCase("Freestyle", RaceFormat.Solo)]
-        [Category("FlagshipSeeds")]
+        [Category("FlagshipSeeds"), Explicit("Run the thousand-seed flagship content gate explicitly.")]
         public void OneThousandSeedsPerSupportedConfiguration(string mode, RaceFormat format)
         {
             var content = Content(); var play = Play(mode, format);

@@ -160,8 +160,8 @@ namespace Wreckabulary.Rules.Tests
             if (invalid == "expired-jwt") verificationTime = (Now + 15) * 1000;
             if (invalid == "future-jwt")
             {
-                claims["iat"] = Now + 1; claims["exp"] = Now + 16;
-                claims["leaseExpiresAt"] = (Now + 16) * 1000 + 999;
+                claims["iat"] = Now + 60; claims["exp"] = Now + 75;
+                claims["leaseExpiresAt"] = (Now + 75) * 1000 + 999;
             }
             if (invalid == "overlong-jwt")
             {
@@ -388,7 +388,7 @@ namespace Wreckabulary.Rules.Tests
         {
             using var rsa = Key(); var verifier = new OnlineAdmissionVerifier("wordbound-test", Jwks(rsa));
             foreach (var change in new[] { ("aud", (object)"wordbound-admission"), ("iss", (object)"other"),
-                ("iat", (object)(Now + 1)), ("exp", (object)Now), ("exp", (object)(Now + 91)) })
+                ("iat", (object)(Now + 60)), ("exp", (object)Now), ("exp", (object)(Now + 91)) })
             {
                 var claims = Start(); claims[change.Item1] = change.Item2;
                 Assert.Throws<FormatException>(() => verifier.VerifyStart(Sign(rsa, claims), Expected(), Now));
@@ -539,6 +539,43 @@ namespace Wreckabulary.Rules.Tests
                 ["playerId"] = Player, ["accessToken"] = "new.access.token", ["refreshToken"] = Player + "." + Secret, ["expiresIn"] = 900 })));
             Assert.Throws<TaskCanceledException>(() => pending.GetAwaiter().GetResult());
             Assert.IsNull(client.Credentials);
+        }
+        sealed class RotatingTransport : IOnlineHttpTransport
+        {
+            public OnlineCoordinatorClient Client;
+            public bool RotateOnStaleRequest = true;
+            public readonly List<OnlineRequest> Requests = new List<OnlineRequest>();
+            static OnlineResponse Issued(string access) => new OnlineResponse(200, OnlineJson.Encode(new Dictionary<string, object> {
+                ["playerId"] = Player, ["accessToken"] = access, ["refreshToken"] = Player + "." + Secret, ["expiresIn"] = 900 }));
+            public Task<OnlineResponse> Send(OnlineRequest request, CancellationToken ct)
+            {
+                Requests.Add(request);
+                if (request.Path == "/v1/guests") return Task.FromResult(Issued("old.access.token"));
+                if (request.Path == "/v1/auth/refresh") return Task.FromResult(Issued("new.access.token"));
+                if (request.AccessToken == "old.access.token")
+                {
+                    if (RotateOnStaleRequest) Client.Refresh(Player + "." + Secret).GetAwaiter().GetResult();
+                    return Task.FromResult(new OnlineResponse(401, "{\"error\":{\"code\":\"INVALID_TOKEN\"}}"));
+                }
+                return Task.FromResult(new OnlineResponse(200, "{}"));
+            }
+        }
+        [Test] public void ARequestCaughtByATokenRotationRetriesOnceWithTheNewToken()
+        {
+            var transport = new RotatingTransport(); var client = new OnlineCoordinatorClient(transport); transport.Client = client;
+            client.CreateGuest("Tester").GetAwaiter().GetResult();
+            client.Profile().GetAwaiter().GetResult();
+            var profile = transport.Requests.Where(r => r.Path == "/v1/me").Select(r => r.AccessToken).ToArray();
+            CollectionAssert.AreEqual(new[] { "old.access.token", "new.access.token" }, profile);
+            Assert.AreEqual("new.access.token", client.Credentials.AccessToken);
+        }
+        [Test] public void ARejectedTokenThatWasNotRotatedStillFailsWithoutRetrying()
+        {
+            var transport = new RotatingTransport { RotateOnStaleRequest = false }; var client = new OnlineCoordinatorClient(transport);
+            transport.Client = client; client.CreateGuest("Tester").GetAwaiter().GetResult();
+            var error = Assert.Throws<OnlineServiceException>(() => client.Profile().GetAwaiter().GetResult());
+            Assert.AreEqual(401, error.Status);
+            Assert.AreEqual(1, transport.Requests.Count(r => r.Path == "/v1/me"));
         }
         [Test] public void ClearingCredentialsFencesAnOutstandingAuthenticationReply()
         {

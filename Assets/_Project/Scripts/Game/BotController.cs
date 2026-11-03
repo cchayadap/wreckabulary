@@ -63,7 +63,7 @@ namespace Wreckabulary
             else if (downed)
             {
                 destination = downed.transform.position;
-                if (World.Flat(destination - at).magnitude <= player.Health.Rules.ReviveRange * .9f && SameLevel(destination, at) && Reachable(layout, at, destination))
+                if ((destination - at).magnitude <= player.Health.Rules.ReviveRange * .9f && SameLevel(destination, at) && Reachable(layout, at, destination))
                 {
                     c.grabHeld = true;
                     c.drop = player.Combat.IsHolding;

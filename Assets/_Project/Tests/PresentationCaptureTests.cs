@@ -12,7 +12,6 @@ using UnityEngine.UIElements;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Explicit rendered-frame acceptance journey; run in a graphics-enabled editor without batchmode.</summary>
     [Explicit, Category("PresentationCapture")]
     public sealed class PresentationCaptureTests
     {

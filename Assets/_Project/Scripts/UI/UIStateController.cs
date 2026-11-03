@@ -7,7 +7,6 @@ namespace Wreckabulary
 {
     public enum UIState { MainMenu, GameplayHUD, PauseMenu }
 
-    /// <summary>Fades presentation states independently of scene, session and simulation managers.</summary>
     [DisallowMultipleComponent]
     public sealed class UIStateController : MonoBehaviour
     {
@@ -41,7 +40,6 @@ namespace Wreckabulary
             ApplyCompletedState(false);
         }
 
-        /// <summary>Supports views assembled at runtime without coupling them to game managers.</summary>
         public void Register(UIState state, CanvasGroup group, GameObject firstSelection = null)
         {
             if (!group) throw new ArgumentNullException(nameof(group));
@@ -64,7 +62,6 @@ namespace Wreckabulary
             view.fromAlpha = group.alpha;
         }
 
-        /// <summary>Interrupts an unfinished fade from its current opacity. Input resumes after the fade.</summary>
         public void TransitionToState(UIState state)
         {
             if (!Enum.IsDefined(typeof(UIState), state)) throw new ArgumentOutOfRangeException(nameof(state));

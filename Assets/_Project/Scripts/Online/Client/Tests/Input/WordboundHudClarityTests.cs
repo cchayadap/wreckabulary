@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
@@ -143,6 +144,45 @@ namespace Wreckabulary.Online.Tests
             Assert.AreEqual("", Static("InteractionCaption", WorldBodyKind.Item, null, false));
         }
 
+        [Test]
+        public void RaceStatusShowsTheGoalUnderTheLapLineWithoutRepeatingVitals()
+        {
+            using var f = new WordboundRecipeContextFixture("TimeRun", flagship: true);
+            for (int step = 0; step < 2; step++)
+            {
+                f.Grid.Call("PreparePanels");
+                var rows = PanelRows(f.Grid.Get("statusPanel"));
+                var team = ((MatchSnapshot)f.Grid.Get("frame")).Progress.Teams.Single();
+                Assert.AreEqual(3, rows.Length, string.Join(" | ", rows));
+                StringAssert.StartsWith("Time Trial", rows[0]);
+                StringAssert.StartsWith("Lap 1/3 · Checkpoint " + (step + 1) + "/", rows[1]);
+                Assert.AreEqual(f.Grid.Call("ObjectiveText", team), rows[2]);
+                Assert.IsFalse(rows.Any(row => row.Contains("Health") || row.Contains("Stamina")));
+                f.AdvanceCheckpoint();
+            }
+            StringAssert.Contains("TABLE", PanelRows(f.Grid.Get("statusPanel"))[2]);
+        }
+
+        [Test]
+        public void MissingLettersFollowTheRecipeSpellingInsteadOfTheAlphabet()
+        {
+            Assert.AreEqual("BAT", Static("MissingInWordOrder", "BAT", LetterBag.FromWord("ABT")));
+            Assert.AreEqual("TE", Static("MissingInWordOrder", "TABLE", LetterBag.FromWord("ET")));
+            Assert.AreEqual("HMR", Static("MissingInWordOrder", "HAMMER", LetterBag.FromWord("HMR")));
+            Assert.AreEqual("MM", Static("MissingInWordOrder", "HAMMER", LetterBag.FromWord("MM")));
+            using var f = new WordboundRecipeGridFixture();
+            var card = new RecipeCard(new ItemDefinition { Id = "BAT", Letters = LetterBag.FromWord("BAT") }, LetterBag.FromWord("ABT"));
+            Assert.AreEqual("BAT · Need BAT", f.Call("RecipeDetail", card));
+        }
+
+        static string[] PanelRows(object panel)
+        {
+            var type = panel.GetType();
+            var rows = (System.Collections.Generic.IList<GUIContent>)type.GetField("rows", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(panel);
+            int count = (int)type.GetField("count", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(panel);
+            return rows.Take(count).Select(row => row.text).ToArray();
+        }
+
         [TestCase(1280, 720), TestCase(1920, 1080), TestCase(854, 480)]
         public void ActualOverlayUsesEditableThemeAndCompactPanelsDoNotOverlap(int pixelsWide, int pixelsHigh)
         {
@@ -184,7 +224,7 @@ namespace Wreckabulary.Online.Tests
                 if (!Hud) return;
                 try
                 {
-                    Rows("statusPanel", "Time Run · 24:58", "Lap 1/3 · Checkpoint 1/32", "Health 100 · Stamina 100");
+                    Rows("statusPanel", "Time Trial · 24:58", "Lap 1/3 · Checkpoint 1/32", "Smash the marked furniture, collect its letters, and spell TABLE.");
                     Rows("inventoryPanel", "Letters ABCDEFGHIJKLMNOPQR… +8", "SHIELD");
                     Rows("actionPanel", "Move closer and keep the object in sight.");
                     Rows("menuHintPanel", "[Q] Craft · [ESC] Menu");

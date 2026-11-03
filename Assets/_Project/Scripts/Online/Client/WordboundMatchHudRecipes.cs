@@ -116,7 +116,7 @@ namespace Wreckabulary.Online
         string RecipeDetail(RecipeCard card)
         {
             if (card.Item == null) return "Choose a recipe";
-            if (!card.Craftable) return card.Item.Id + " · Need " + card.Missing;
+            if (!card.Craftable) return card.Item.Id + " · Need " + MissingInWordOrder(card.Item.Id, card.Missing);
             if (inventory?.Craft != null) return card.Item.Id + " · Crafting…";
             return card.Item.Id;
         }
@@ -208,7 +208,7 @@ namespace Wreckabulary.Online
                 GUILayout.Label("Choose a recipe", ui.Heading);
                 return;
             }
-            string status = inventory?.Craft != null ? "Crafting…" : !card.Craftable ? "Missing " + card.Missing : "Letters ready";
+            string status = inventory?.Craft != null ? "Crafting…" : !card.Craftable ? "Missing " + MissingInWordOrder(card.Item.Id, card.Missing) : "Letters ready";
             string blurb = LoadoutPage.Blurb(card.Item);
             float titleHeight = ui.Heading.CalcHeight(new GUIContent(card.Item.Id), width);
             float statusHeight = ui.Wrapped.CalcHeight(new GUIContent(status), width);
@@ -231,6 +231,16 @@ namespace Wreckabulary.Online
                 GUILayout.Space(ui.Gap);
             }
             GUILayout.Label(status, ui.Wrapped, GUILayout.Height(statusHeight));
+        }
+
+        static string MissingInWordOrder(string word, LetterBag missing)
+        {
+            var owed = new LetterBag(missing);
+            var ordered = new System.Text.StringBuilder(owed.Count);
+            foreach (char letter in word)
+                if (LetterBag.IsLetter(letter) && owed.TryRemove(letter)) ordered.Append(letter);
+            foreach (char letter in owed.Letters()) ordered.Append(letter);
+            return ordered.ToString();
         }
 
         static Rect FitRecipeIcon(Rect area, float width, float height)

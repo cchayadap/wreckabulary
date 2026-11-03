@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Remote identity and short contextual prompts; health, gear and letters live in the screen HUD.</summary>
     public class PlayerHud : MonoBehaviour
     {
         [SerializeField] PlayerController player;
@@ -55,7 +54,6 @@ namespace Wreckabulary
             return followed ? "" : nameMarkup ?? "";
         }
 
-        /// <summary>Show only actions that need nearby world context.</summary>
         string ContextLine()
         {
             var combat = player.Combat;

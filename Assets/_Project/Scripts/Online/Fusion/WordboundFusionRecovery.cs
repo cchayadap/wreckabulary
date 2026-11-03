@@ -26,8 +26,9 @@ namespace Wreckabulary.Online
         NetworkRunner recoverySource, retiringRunner;
         HostMigrationToken pendingMigration;
         string localPlayerId;
-        bool gameplayObserved, recoveryRetry, awaitTransportDecision;
+        bool gameplayObserved, recoveryRetry, awaitTransportDecision, joining;
         public bool Recovering => recovery.Active;
+        public bool GameplayObserved => gameplayObserved;
         public long RecoveryDeadlineMilliseconds => recovery.Deadline;
         public event Action<string> RecoveryStatusChanged;
 
@@ -40,6 +41,26 @@ namespace Wreckabulary.Online
         static bool TransientShutdown(ShutdownReason reason) => reason == ShutdownReason.ConnectionTimeout ||
             reason == ShutdownReason.PhotonCloudTimeout || reason == ShutdownReason.OperationTimeout ||
             reason == ShutdownReason.GameNotFound;
+        async Task StartInitial(CancellationToken cancellationToken)
+        {
+            joining = true;
+            try
+            {
+                for (int attempt = 1; ; attempt++)
+                {
+                    try { await StartRunner(null, cancellationToken); return; }
+                    catch (WordboundRunnerStartException error) when (RetryJoin(error.Reason))
+                    {
+                        if (Runner) UnityEngine.Object.Destroy(Runner.gameObject);
+                    }
+                    await Task.Delay(Math.Min(attempt, 6) * 500, cancellationToken);
+                }
+            }
+            finally { joining = false; }
+        }
+        bool RetryJoin(ShutdownReason reason) => joining && reason == ShutdownReason.GameNotFound &&
+            !lifetime.IsCancellationRequested && Failure == "" && gate != null &&
+            !WordboundStartDeadline.ClientExpired(gate.Match.StartedAtMilliseconds, sessionStartedAt, clock());
         static bool TransientRecoveryError(Exception error) => error is IOException || error is HttpRequestException ||
             error is TimeoutException || error is OperationCanceledException ||
             error is OnlineServiceException service && (service.Status == 429 || service.Status >= 500) ||

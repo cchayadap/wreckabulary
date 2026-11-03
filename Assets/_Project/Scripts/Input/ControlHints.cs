@@ -7,8 +7,6 @@ namespace Wreckabulary
     {
         static DesktopBinding Desktop => DesktopBinding.Shared;
 
-        // Every key name goes through KeyBindings.Display: a Chinese keyboard layout would otherwise
-        // hand us 倉頡 radicals (木/口/手) that the fonts we ship cannot draw.
         static string Key(InputAction action) => KeyBindings.Display(action);
 
         public static string KeyOf(InputAction action) => Key(action);

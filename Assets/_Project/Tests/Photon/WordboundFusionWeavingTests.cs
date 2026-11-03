@@ -14,7 +14,7 @@ namespace Wreckabulary.PhotonTests
 {
     public sealed class WordboundFusionWeavingTests
     {
-        [UnityTest]
+        [UnityTest, Explicit("Forces a clean script recompile; run on its own."), Category("Recompile")]
         [Timeout(900000)]
         public IEnumerator RecompileConfiguredNetworkAssemblies()
         {

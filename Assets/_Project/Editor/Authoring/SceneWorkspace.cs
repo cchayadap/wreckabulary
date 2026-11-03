@@ -9,7 +9,6 @@ using Wreckabulary.Art;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>Idempotent migration of the four shipped scenes into the current editable workspace.</summary>
     public static class SceneWorkspace
     {
         public const string SceneFolder = "Assets/_Project/Scenes/";
@@ -61,7 +60,6 @@ namespace Wreckabulary.EditorTools
             if (scene.name is not ("LivingRoom" or "MovingDay"))
             {
                 var room = scene.GetRootGameObjects().FirstOrDefault(root => root.name == "Room");
-                // Preserve the authored hub/tutorial placement while replacing legacy block-built visual children.
                 var library = ModelLibrary.Load();
                 foreach (var item in scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<LetterBuilt>(true)))
                     if (!item.UsesImportedModel && library.Find(item.word == "RUG" ? "Environment/Round_Rug" : "Items/" + item.word)) item.Build();
@@ -101,7 +99,6 @@ namespace Wreckabulary.EditorTools
             File.WriteAllText(Path.Combine(folder, "README.txt"), "Original local files before the reversible authoring migration. Restore only deliberately; current source may contain later edits.");
         }
 
-        /// <summary>Launcher entry; opening the workspace never regenerates authored scene content.</summary>
         [MenuItem("Wreckabulary/Open Latest Hub", priority = 1)]
         public static void OpenLatest()
         {

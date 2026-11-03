@@ -106,11 +106,39 @@ namespace Wreckabulary.Tests
             var checkpoint = course.Laps[0].Checkpoints[progress.Team(0).NextCheckpoint];
             progress.Advance(progress.Tick + 1, (progress.Tick + 1) * 17,
                 checkpoint.PuzzleIds.Select(id => new ProgressEvent(ProgressEventKind.PuzzleSatisfied, "a", id)));
+            Assert.IsTrue(progress.TakeKeepsake("a"));
             var before = progress.Capture();
             var markers = WordboundPuzzleGuidePlan.Build(course, before, "a");
             Assert.AreEqual(1, markers.Count); Assert.IsTrue(markers[0].Ready);
+            Assert.AreEqual("CHECKPOINT\nBring keepsake", markers[0].Label);
             Assert.AreEqual(before.Tick, progress.Tick);
             CollectionAssert.AreEqual(before.Teams[0].CompletedPuzzles, progress.Team(0).CompletedPuzzles);
+        }
+
+        [Test]
+        public void ReadyRingAsksTheTeamToPickUpTheKeepsakeUntilSomeoneCarriesIt()
+        {
+            var ring = WordboundPuzzleGuidePlan.Build(course, progress.Capture(), "a")
+                .Single(m => m.Kind == WordboundGuideKind.Checkpoint);
+            Assert.IsEmpty(course.Laps[0].Checkpoints[0].PuzzleIds);
+            Assert.AreEqual(WordboundPuzzleGuidePlan.PickUpKeepsake, ring.Label);
+            Assert.IsFalse(ring.Ready);
+            Assert.IsTrue(progress.TakeKeepsake("a"));
+            ring = WordboundPuzzleGuidePlan.Build(course, progress.Capture(), "a").Single(m => m.Kind == WordboundGuideKind.Checkpoint);
+            Assert.AreEqual("CHECKPOINT\nBring keepsake", ring.Label);
+            Assert.IsTrue(ring.Ready);
+            Assert.AreEqual(WordboundPuzzleGuidePlan.PickUpKeepsake, WordboundPuzzleGuidePlan.Build(course, progress.Capture(), "b")
+                .Single(m => m.Kind == WordboundGuideKind.Checkpoint).Label, "Only the carrying team stops seeing the pickup prompt.");
+            SeekFamily(progress, course, "PlaceObject");
+            Assert.AreEqual("CHECKPOINT\nSolve puzzle first", WordboundPuzzleGuidePlan.Build(course, progress.Capture(), "a")
+                .Single(m => m.Kind == WordboundGuideKind.Checkpoint).Label);
+            Assert.IsTrue(progress.DropKeepsake("a"));
+            while (progress.Team(0).NextCheckpoint < course.Laps[0].Checkpoints.Count) StepCheckpoint(progress, course);
+            var finish = WordboundPuzzleGuidePlan.Build(course, progress.Capture(), "a").Single();
+            Assert.AreEqual(WordboundGuideKind.Finish, finish.Kind);
+            Assert.AreEqual(WordboundPuzzleGuidePlan.PickUpKeepsake, finish.Label);
+            Assert.IsTrue(progress.TakeKeepsake("a"));
+            Assert.AreEqual("LAP FINISH\nBring keepsake", WordboundPuzzleGuidePlan.Build(course, progress.Capture(), "a").Single().Label);
         }
 
         [Test]

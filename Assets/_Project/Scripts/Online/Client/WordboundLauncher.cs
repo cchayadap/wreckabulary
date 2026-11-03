@@ -88,6 +88,8 @@ namespace Wreckabulary.Online
                     Assets.MapPoolVersion, Assets.PublicCoursesJson);
                 menu.BeginMatchRequested = BeginMatch;
                 menu.ReturnRequested = ReturnMatch;
+                menu.LeaveRequested = LeaveMatch;
+                menu.LeaveAvailable = () => activeClient && activeClient.CanLeaveLocally;
                 menu.WorkshopRequested += OpenWorkshop;
                 menu.CloseRequested += BackToLobby;
                 Cursor.lockState = CursorLockMode.None;
@@ -120,7 +122,7 @@ namespace Wreckabulary.Online
                     content.Mode, content.Course, content.Geometry, content.Items, content.Rules,
                     prefabs, Assets.SnapshotChunk, menu.PhotonAppId, scene, launch.FreshJoin,
                     content.PhysicalPuzzles, cameraProfile: OnlineCameraFor(content), visualProfile: OnlineVisualFor(content),
-                    uiTheme: Assets.UiTheme, storyProfile: Assets.StoryProfile);
+                    uiTheme: Assets.UiTheme, storyProfile: Assets.StoryProfile, serverClock: launch.ServerClock);
                 if (destroying || activeClient != client) return;
                 if (LobbyCamera) LobbyCamera.enabled = false;
             }
@@ -151,6 +153,23 @@ namespace Wreckabulary.Online
             if (!activeClient)
                 throw new InvalidOperationException("There is no initialized match client to return.");
             return activeClient.ReturnToParty();
+        }
+
+        async Task LeaveMatch(CancellationToken cancellation)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var client = activeClient;
+            var launch = activeLaunch;
+            if (!client || launch == null) return;
+            if (!client.CanLeaveLocally) throw new InvalidOperationException("Leave match is available once the match has stopped.");
+            await client.LeaveLocally();
+            if (destroying || activeClient != client || activeLaunch != launch) return;
+            activeClient = null;
+            activeLaunch = null;
+            Destroy(client.gameObject);
+            if (LobbyCamera) LobbyCamera.enabled = true;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         void Returned(WordboundMatchClient client, WordboundPartyLaunchContext launch)

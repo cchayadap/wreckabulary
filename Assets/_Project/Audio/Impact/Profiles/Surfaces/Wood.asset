@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973ff9c50da8d0b4d90044e226a66e21, type: 3}
+  m_Name: Wood
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Audio.SurfaceDamageSounds
+  surface: 0
+  damaged:
+    clips:
+    - {fileID: 8300000, guid: 8ca3ad9bafafdbf4f8a3fd0adee5dc5a, type: 3}
+    - {fileID: 8300000, guid: f47180167e1be5b429062cd1c173aade, type: 3}
+    volume: 0.9
+    pitchMin: 0.96
+    pitchMax: 1.04
+    cooldown: 0.1
+  broken:
+    clips:
+    - {fileID: 8300000, guid: de69ad582f0948b4a98b0ffa3b17c30a, type: 3}
+    - {fileID: 8300000, guid: c2a2386006566e9478f508c6822c5df8, type: 3}
+    - {fileID: 8300000, guid: 031219cb2e2ec764599bd1814473da1d, type: 3}
+    volume: 1
+    pitchMin: 0.97
+    pitchMax: 1.03
+    cooldown: 0.2

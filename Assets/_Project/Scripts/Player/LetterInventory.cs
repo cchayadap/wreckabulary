@@ -20,7 +20,6 @@ namespace Wreckabulary
         public bool IsEmpty => letters.Count == 0;
         public bool IsFull => TotalCount >= Capacity;
 
-        /// <summary>Off for the tutorial dummy, so it doesn't hoover up loose letters.</summary>
         public bool Collects { get; set; } = true;
 
         public event Action Changed;
@@ -51,7 +50,6 @@ namespace Wreckabulary
             return true;
         }
 
-        /// <summary>Replaces the held letters (round start, tests).</summary>
         public void Set(string newLetters)
         {
             letters.Clear();
@@ -60,7 +58,6 @@ namespace Wreckabulary
             Changed?.Invoke();
         }
 
-        /// <summary>Removes the letters of a word. Returns false if they are not all held.</summary>
         public bool TrySpend(string word)
         {
             if (string.IsNullOrEmpty(word)) return false;
@@ -70,7 +67,6 @@ namespace Wreckabulary
             return true;
         }
 
-        /// <summary>Puts one chosen letter back into the world (used when the bag is full).</summary>
         public bool DropLetter(char c, Vector3 from, Vector3 direction)
         {
             c = char.ToUpperInvariant(c);
@@ -83,7 +79,6 @@ namespace Wreckabulary
             return true;
         }
 
-        /// <summary>Knocks random letters loose into the world.</summary>
         public void DropRandom(int count, Vector3 from, Vector3 hitDirection)
         {
             var pool = TilePool.Instance;

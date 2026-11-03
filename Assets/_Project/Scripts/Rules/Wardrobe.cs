@@ -10,10 +10,8 @@ namespace Wreckabulary.Rules
         public string Slot;
         public string Mesh;
 
-        /// <summary>Every material slot this piece recolours: one name, or several (a bag tints its straps too).</summary>
         public List<string> TintMaterials = new List<string>();
 
-        /// <summary>The first tinted material, for callers that only need to know the piece is tinted at all.</summary>
         public string TintMaterial => TintMaterials.Count > 0 ? TintMaterials[0] : null;
         public string ColourFrom;
         public List<string> Requires = new List<string>();
@@ -205,10 +203,6 @@ namespace Wreckabulary.Rules
             return problems;
         }
 
-        /// <summary>
-        /// "tint" is one material name or a list of them, so a piece can recolour several slots at once
-        /// (the satchel's canvas and straps), while shared hardware stays its own colour.
-        /// </summary>
         static List<string> ReadTints(JsonNode node)
         {
             var names = new List<string>();

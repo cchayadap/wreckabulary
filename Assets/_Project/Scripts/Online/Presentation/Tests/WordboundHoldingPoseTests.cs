@@ -49,7 +49,7 @@ namespace Wreckabulary.Tests
             var hand = new GameObject("hand").transform;
             hand.SetParent(anchor.transform, false);
             hand.SetPositionAndRotation(new Vector3(-2, 4, 3), Quaternion.Euler(-15, 72, 28));
-            var resolver = new WordboundVisualResolver(GameConfig.Current.Items, profile: profile);
+            var resolver = new WordboundVisualResolver(WordboundTestItems.Raw(), profile: profile);
             using var visual = resolver.Create("BAT", new Vector3(.172f, 1.018f, .172f), anchor.transform);
             visual.PlaceAtHand(anchor.transform, hand, miniature);
             var actual = ModelVisual.FindNamed(visual.Model, "Grip_R");
@@ -64,13 +64,13 @@ namespace Wreckabulary.Tests
         [TestCase("BAT"), TestCase("HAMMER")]
         public void OriginalMeleeMeshesKeepSocketContactAndOrientationThroughEveryCanonicalPhase(string word)
         {
-            var item = GameConfig.Current.Items.Get(word);
+            var item = WordboundTestItems.Raw().Get(word);
             var source = ModelLibrary.Load().Find(item.Model);
             var originals = source.GetComponentsInChildren<MeshFilter>(true).Select(f => f.sharedMesh).ToArray();
             var sourceSocket = ModelVisual.FindNamed(source, "Grip_R");
             var sourcePosition = sourceSocket.localPosition;
             var sourceRotation = sourceSocket.localRotation;
-            var resolver = new WordboundVisualResolver(GameConfig.Current.Items, profile: profile);
+            var resolver = new WordboundVisualResolver(WordboundTestItems.Raw(), profile: profile);
             using var avatar = resolver.Create("player", new Vector3(.6f, 1.8f, .6f), anchor.transform);
             using var held = resolver.Create(word, new Vector3(item.Size[0], item.Size[1], item.Size[2]), anchor.transform);
             using var motion = new WordboundAvatarMotion(avatar);

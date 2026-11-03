@@ -87,7 +87,6 @@ namespace Wreckabulary
 
         void ClosePauseSettings()
         {
-            // A CanvasGroup hide does not disable children or release their gameplay-input lease.
             if (pauseControls) pauseControls.Close();
             if (!pauseSettingsGroup) return;
             pauseSettingsGroup.alpha = 0f;
@@ -96,6 +95,7 @@ namespace Wreckabulary
 
         void BuildPauseGameplay(Transform list)
         {
+            PauseToggle(list, "Control tips", () => ControlTips.Enabled, value => ControlTips.Enabled = value);
             PauseToggle(list, "Damage numbers", () => CombatFeedbackOptions.ShowDamage, value => CombatFeedbackOptions.ShowDamage = value);
             PauseToggle(list, "Points per hit", () => CombatFeedbackOptions.ShowPoints, value => CombatFeedbackOptions.ShowPoints = value);
             PauseAction(list, "Reset feedback", "RESET FEEDBACK", () =>
@@ -176,7 +176,6 @@ namespace Wreckabulary
             {
                 change(amount);
                 number.text = value();
-                // Presets also change the scale, edge smoothing and shadow values shown in other rows.
                 if (list.parent) RefreshPauseGraphicsLabels(list);
             }
             PauseAction(row, name + " less", "−", () => Step(-1), 52);

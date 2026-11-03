@@ -3,10 +3,6 @@ using System.Collections.Generic;
 
 namespace Wreckabulary.Rules
 {
-    /// <summary>
-    /// Pure rules for the Escape mode: the word pools taken from the item vocabulary,
-    /// and the room reachability maths that keeps every random layout solvable.
-    /// </summary>
     public static class Escape
     {
         public static readonly string[] ThreeLetter =
@@ -22,7 +18,6 @@ namespace Wreckabulary.Rules
 
         public static string[] Pool(int length) => length <= 3 ? ThreeLetter : length == 4 ? FourLetter : FiveLetter;
 
-        /// <summary>Picks a word of the given length, avoiding words already used this run.</summary>
         public static string PickWord(int length, Random rng, ICollection<string> used)
         {
             var pool = Pool(length);
@@ -36,7 +31,6 @@ namespace Wreckabulary.Rules
         public static string DoorKey(string a, string b) =>
             string.CompareOrdinal(a, b) <= 0 ? a + "|" + b : b + "|" + a;
 
-        /// <summary>Rooms reachable from <paramref name="start"/> while the blocked doorways stay shut.</summary>
         public static HashSet<string> Reachable(HouseLayout layout, string start, ICollection<string> blocked)
         {
             var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -63,7 +57,6 @@ namespace Wreckabulary.Rules
             return seen;
         }
 
-        /// <summary>Doorways that touch the reachable region (so they lead somewhere new when opened).</summary>
         public static List<Doorway> Frontier(HouseLayout layout, HashSet<string> reachable)
         {
             var list = new List<Doorway>();
@@ -75,10 +68,6 @@ namespace Wreckabulary.Rules
             return list;
         }
 
-        /// <summary>
-        /// The doorways on the shortest room walk from <paramref name="from"/> to <paramref name="to"/>.
-        /// These are the locks worth barring: they sit on the way to the exit, in order.
-        /// </summary>
         public static List<Doorway> PathDoors(HouseLayout layout, string from, string to)
         {
             var path = new List<Doorway>();

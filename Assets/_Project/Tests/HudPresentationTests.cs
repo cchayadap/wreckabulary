@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -144,6 +145,28 @@ namespace Wreckabulary.Tests
             hud.TogglePause();
             Assert.IsTrue(bag.gameObject.activeInHierarchy);
             Assert.AreEqual(0f, hud.transform.Find("Safe HUD").GetComponent<CanvasGroup>().alpha);
+        }
+
+        [UnityTest]
+        public IEnumerator DamageNumbersCarryAnInkOutlineAndADropShadow()
+        {
+            Assume.That(CombatFeedbackOptions.ShowDamage, "Damage numbers are switched off in this profile.");
+            var camera = new GameObject("Damage camera").AddComponent<Camera>();
+            camera.tag = "MainCamera";
+            yield return null;
+            Popup.Damage(12, new Vector3(0f, 1f, 5f));
+            Popup.Damage(8, new Vector3(3f, 1f, 5f));
+            Popup.Show("SPILL!", new Vector3(-3f, 1f, 5f), Color.white);
+            var texts = Object.FindObjectsByType<Popup>(FindObjectsSortMode.None).Select(p => p.GetComponent<TMPro.TextMeshPro>()).ToArray();
+            var damage = texts.Where(t => t.text.Contains("DMG")).ToArray();
+            Assert.AreEqual(2, damage.Length);
+            var material = damage[0].fontSharedMaterial;
+            Assert.AreSame(material, damage[1].fontSharedMaterial, "Hits share one damage material instead of one per number.");
+            Assert.IsTrue(material.IsKeywordEnabled(TMPro.ShaderUtilities.Keyword_Underlay), "A soft drop shadow lifts numbers off bright floors.");
+            Assert.GreaterOrEqual(material.GetFloat("_OutlineWidth"), .3f);
+            Assert.Less(material.GetColor("_OutlineColor").grayscale, .15f);
+            Assert.Greater(material.GetColor("_UnderlayColor").a, .5f);
+            Assert.AreNotSame(material, texts.Single(t => t.text == "SPILL!").fontSharedMaterial, "Other popups keep their own look.");
         }
 
         [UnityTest]

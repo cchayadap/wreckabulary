@@ -131,7 +131,6 @@ namespace Wreckabulary.Tests
             Place(player, new Vector3(-6.8f, .08f, .4f), new Vector3(-5.6f, 1f, 3f));
             yield return Capture("corner-after-furniture-reset", corner);
 
-            // Couch seats join before a match, while the available seats have not been filled by bots.
             yield return TestScenes.Reset(); Session.SelectMap("pinwheel"); Match.ModeOverride = "Duos";
             yield return TestScenes.Load(Session.DibsScene);
             builder = Object.FindAnyObjectByType<RoomBuilder>();

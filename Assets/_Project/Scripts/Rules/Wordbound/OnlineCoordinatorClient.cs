@@ -96,13 +96,16 @@ namespace Wreckabulary.Rules.Wordbound
         static string PartyPath(string id) => "/v1/parties/" + Valid(id, OnlineJson.Uuid);
         static string MatchPath(OnlineMatchExpectation match) => "/v1/pools/" + Uri.EscapeDataString(match.Settings.PoolKey) +
             "/matches/" + match.MatchId;
-        async Task<JsonNode> Send(string method, string path, object body, bool authenticated, string key, CancellationToken ct)
+        async Task<JsonNode> Send(string method, string path, object body, bool authenticated, string key, CancellationToken ct,
+            bool retryRotated = true)
         {
             var credentials = Credentials;
             if (authenticated && credentials == null) throw new InvalidOperationException("Guest authentication is required.");
             if (key != null) Valid(key, "^[A-Za-z0-9_-]{8,96}$");
             string token = authenticated ? credentials.AccessToken : null;
             var response = await transport.Send(new OnlineRequest(method, path, body, token, key), ct).ConfigureAwait(false);
+            if (response.Status == 401 && authenticated && retryRotated && await Rotated(token).ConfigureAwait(false))
+                return await Send(method, path, body, true, key, ct, false).ConfigureAwait(false);
             var json = OnlineJson.Parse(response.Json);
             if (response.Status < 200 || response.Status >= 300)
             {
@@ -111,6 +114,18 @@ namespace Wreckabulary.Rules.Wordbound
                 throw new OnlineServiceException(response.Status, OnlineJson.Text(json["error"], "code", "^[A-Z0-9_]{1,64}$"));
             }
             return json;
+        }
+        async Task<bool> Rotated(string token)
+        {
+            Task<OnlineCredentials> rotating;
+            lock (authenticationGate) rotating = refreshTask;
+            if (rotating != null)
+            {
+                try { await rotating.ConfigureAwait(false); }
+                catch { return false; }
+            }
+            var current = Credentials;
+            return current != null && current.AccessToken != token;
         }
         public async Task<OnlineCredentials> CreateGuest(string displayName, CancellationToken ct = default)
         {

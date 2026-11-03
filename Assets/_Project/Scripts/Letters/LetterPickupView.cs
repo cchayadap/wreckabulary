@@ -5,15 +5,15 @@ using Wreckabulary.Art;
 
 namespace Wreckabulary
 {
-    /// <summary>Settled nearby letters float upright visually; the pooled rigidbody and collection point never move.</summary>
     public sealed class LetterPickupView : MonoBehaviour
     {
-        const float ViewDistanceSquared = 100f;
+        const float ViewDistanceSquared = 100f, HaloWidth = .016f, ReferenceSpan = 3f, MaxViewScale = 4f;
         static readonly Material[] glowMaterials = new Material[3];
         static readonly Quaternion GlyphFacesCamera = Quaternion.Euler(0f, 180f, 0f);
 
         Rigidbody body;
-        Transform visual, cameraTransform;
+        Transform visual;
+        Camera mainCamera;
         Vector3 restPosition, modelCenter;
         Quaternion restRotation;
         LineRenderer halo;
@@ -44,12 +44,11 @@ namespace Wreckabulary
             modelCenter = bounds.center;
             lift = bounds.extents.y * visual.localScale.y + .1f;
             phase = tile.Letter * .37f;
-            var camera = Camera.main;
-            cameraTransform = camera ? camera.transform : null;
+            mainCamera = Camera.main;
             if (!halo)
             {
                 halo = SummonEffects.Ring(transform, "Letter rarity halo", Color.white, .24f, Quaternion.Euler(90f, 0f, 0f));
-                halo.startWidth = halo.endWidth = .016f;
+                halo.startWidth = halo.endWidth = HaloWidth;
                 halo.numCornerVertices = 0;
                 halo.numCapVertices = 0;
                 halo.receiveShadows = false;
@@ -97,13 +96,42 @@ namespace Wreckabulary
             if (undersideGlyph) undersideGlyph.enabled = undersideWasEnabled;
         }
 
+        public static bool NearViewer(Vector3 at, Vector3 camera)
+        {
+            bool anyone = false;
+            foreach (var player in World.Players)
+            {
+                if (!CameraRig.IsHuman(player) || !player.isActiveAndEnabled) continue;
+                anyone = true;
+                if ((player.transform.position - at).sqrMagnitude <= ViewDistanceSquared) return true;
+            }
+            return !anyone && (camera - at).sqrMagnitude <= ViewDistanceSquared;
+        }
+
+        public static float ViewScale(Camera camera, Vector3 at)
+        {
+            if (!camera) return 1f;
+            float span = camera.orthographic ? camera.orthographicSize
+                : Mathf.Max(.1f, Vector3.Dot(at - camera.transform.position, camera.transform.forward)) * Mathf.Tan(camera.fieldOfView * .5f * Mathf.Deg2Rad);
+            return Mathf.Clamp(span / ReferenceSpan, 1f, MaxViewScale);
+        }
+
+        Camera Viewer()
+        {
+            var rig = CameraRig.Instance;
+            if (rig && rig.isActiveAndEnabled && rig.ViewCamera) return rig.ViewCamera;
+            if (!mainCamera) mainCamera = Camera.main;
+            return mainCamera;
+        }
+
         void LateUpdate()
         {
-            if (!visual || !body || !cameraTransform) return;
+            var viewer = Viewer();
+            if (!visual || !body || !viewer) return;
+            var cameraTransform = viewer.transform;
             bool moving = body.linearVelocity.sqrMagnitude > .1f || body.angularVelocity.sqrMagnitude > .5f;
             if (moving) settleAt = Time.time + .25f;
-            bool nearby = (cameraTransform.position - transform.position).sqrMagnitude <= ViewDistanceSquared;
-            bool show = nearby && !moving && Time.time >= settleAt;
+            bool show = NearViewer(transform.position, cameraTransform.position) && !moving && Time.time >= settleAt;
             blend = Mathf.MoveTowards(blend, show ? 1f : 0f, Time.deltaTime * 6f);
             if (blend <= 0f)
             {
@@ -112,13 +140,14 @@ namespace Wreckabulary
                 return;
             }
             float bob = Mathf.Sin(Time.time * 2.7f + phase) * .025f;
-            // Imported mesh glyphs are on +Z; a camera-aligned transform would expose the blank wooden back.
             visual.rotation = Quaternion.Slerp(transform.rotation * restRotation, cameraTransform.rotation * GlyphFacesCamera, blend);
             visual.position = transform.position + Vector3.up * ((lift + bob) * blend) - visual.TransformVector(modelCenter);
             if (undersideGlyph) undersideGlyph.enabled = false;
             halo.enabled = true;
+            float view = ViewScale(viewer, transform.position);
+            halo.startWidth = halo.endWidth = HaloWidth * view;
             halo.transform.SetPositionAndRotation(transform.position + Vector3.up * .035f, Quaternion.Euler(90f, 0f, 0f));
-            halo.transform.localScale = Vector3.one * (blend * (1f + bob));
+            halo.transform.localScale = Vector3.one * (blend * (1f + bob) * (1f + (view - 1f) * .35f));
         }
     }
 }

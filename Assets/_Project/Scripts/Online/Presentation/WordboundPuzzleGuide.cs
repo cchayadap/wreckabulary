@@ -18,7 +18,9 @@ namespace Wreckabulary.Online
         ResolvedCourse course;
         Camera viewCamera;
         string actor, matchHash;
-        IReadOnlyList<WordboundGuideMarker> markers = Array.Empty<WordboundGuideMarker>();
+        IReadOnlyList<WordboundGuideMarker> markers = Array.Empty<WordboundGuideMarker>(), shown;
+        MatchSnapshot pending;
+        bool stale;
         public string Fault { get; private set; } = "";
         public int MarkerCount => view?.MarkerCount ?? 0;
 
@@ -29,13 +31,16 @@ namespace Wreckabulary.Online
                 throw new ArgumentException("Guide needs the gameplay controller, exact course and local player.");
             if (controller) throw new InvalidOperationException("Clear the previous guide binding first.");
             controller = gameplay; course = resolved; actor = localPlayerId; viewCamera = camera;
-            controller.FrameChanged += ApplyFrame;
+            controller.FrameChanged += QueueFrame;
             controller.Faulted += GameplayFailed;
             ApplyFrame(controller.Frame);
         }
 
+        void QueueFrame(MatchSnapshot frame) { pending = frame; stale = true; }
+
         void ApplyFrame(MatchSnapshot frame)
         {
+            stale = false; pending = null;
             if (Fault != "") return;
             try
             {
@@ -54,6 +59,7 @@ namespace Wreckabulary.Online
         void LateUpdate()
         {
             if (controller && controller.Frame == null) markers = Array.Empty<WordboundGuideMarker>();
+            else if (stale) { ApplyFrame(pending); return; }
             Refresh();
         }
 
@@ -72,7 +78,7 @@ namespace Wreckabulary.Online
                     DisposeView();
                     view = new WordboundPuzzleGuideView(world.transform);
                 }
-                view.Show(markers);
+                if (!ReferenceEquals(shown, markers)) { view.Show(markers); shown = markers; }
                 view.FaceLabels(viewCamera);
             }
             catch (Exception error) { GameplayFailed(error.GetType().Name + ": " + error.Message); }
@@ -85,18 +91,19 @@ namespace Wreckabulary.Online
             DisposeView();
         }
 
-        void DisposeView() { view?.Dispose(); view = null; }
+        void DisposeView() { view?.Dispose(); view = null; shown = null; }
         void OnDisable() => DisposeView();
         void OnDestroy() => Clear();
         public void Clear()
         {
             if (controller)
             {
-                controller.FrameChanged -= ApplyFrame;
+                controller.FrameChanged -= QueueFrame;
                 controller.Faulted -= GameplayFailed;
             }
             DisposeView();
             markers = Array.Empty<WordboundGuideMarker>();
+            pending = null; stale = false;
             controller = null; course = null; actor = null; matchHash = null; viewCamera = null; Fault = "";
         }
     }

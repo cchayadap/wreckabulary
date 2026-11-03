@@ -76,7 +76,8 @@ namespace Wreckabulary
         Image staminaFill;
         readonly List<Image> crosshairTicks = new();
         TextMeshProUGUI aliveText, hintText, hpValue, shieldText, bagPanelCount, touchToggle, spellKey, bagKey;
-        TextMeshProUGUI craftStatus, buildLabel, playLabel;
+        TextMeshProUGUI craftStatus, buildLabel, playLabel, spellHint;
+        string spellHintKey;
         Image craftProgress;
         Button buildButton;
         RectTransform playRect;
@@ -94,16 +95,22 @@ namespace Wreckabulary
         readonly List<char> spare = new();
         readonly Dictionary<string, Texture2D> glyphs = new(StringComparer.Ordinal);
         RectTransform bagColumn, bagLetters, bagHandsRow, bagWearRow, bagEffectsRow, bagMapFrame, bagMapShadow, bagMapArea, bagBook, bagBackdrop, pauseShade;
+        TextMeshProUGUI bookLine;
         GridLayoutGroup recipeGrid;
         CanvasGroup bagFade;
         Sprite hairRing, circleRing, softSprite, lineBox;
         float bagOpenedAt;
         bool bagHidden;
         bool touchChosen;
-        bool? hintLooks;
-        int hintKeys = -1;
+        string tipWanted = "";
+        float tipSince;
+        CanvasGroup matchFade;
+        string matchShown;
+        float matchShownAt;
+        HouseLayout practice;
+        PlayerController followed;
         bool pointerFreed;
-        string checklistText = "";
+        string checklistText = "", checklistSource;
         readonly Dictionary<PlayerController, bool> priorFrozen = new();
         bool simulationPaused;
 
@@ -164,6 +171,7 @@ namespace Wreckabulary
             typewriter = FindAnyObjectByType<Typewriter>();
             rooms = FindAnyObjectByType<RoomBuilder>();
             clearOut = FindAnyObjectByType<ClearOutController>();
+            practice = rooms || clearOut ? null : PracticeLayout();
             rounds = FindAnyObjectByType<RoundManager>();
             iconAtlas = Resources.Load<Texture2D>("UI/ActionIcons");
             roundSprite = MakeShape(true);
@@ -218,6 +226,7 @@ namespace Wreckabulary
                 DesktopBinding.Typing = false;
                 if (state == UIState.PauseMenu)
                 {
+                    ControlTips.Learn(ControlTips.Tip.Menu);
                     if (!simulationPaused) resumeScale = Time.timeScale > 0f ? Time.timeScale : 1f;
                     simulationPaused = true;
                     Time.timeScale = 0f;
@@ -260,30 +269,39 @@ namespace Wreckabulary
 
         void BuildTop()
         {
-            var brand = Panel("Brand", safe, new Vector2(0f, 1f), new Vector2(38f, -30f), new Vector2(81f, 81f), new Vector2(0f, 1f), Hex(0xf2d295));
+            var brand = Panel("Brand", safe, new Vector2(0f, 1f), new Vector2(38f, -30f), new Vector2(58f, 58f), new Vector2(0f, 1f), Hex(0xf2d295));
             brand.localRotation = Quaternion.Euler(0f, 0f, 5f);
             brand.GetComponent<Image>().raycastTarget = true;
             brand.gameObject.AddComponent<Button>().onClick.AddListener(TogglePause);
-            Text("W", brand, new Vector2(.5f, .5f), new Vector2(-4f, 0f), new Vector2(70f, 70f), 48f, Ink).text = "W<size=55%><color=#B86647>!</color></size>";
-            var label = Panel("Match label", safe, new Vector2(0f, 1f), new Vector2(134f, -30f), new Vector2(300f, 94f), new Vector2(0f, 1f), Paper);
-            matchTag = Text("Tag", label, new Vector2(0f, 1f), new Vector2(18f, -8f), new Vector2(264f, 24f), 18f, Ink, TextAlignmentOptions.Left);
+            Text("W", brand, new Vector2(.5f, .5f), new Vector2(-3f, 0f), new Vector2(50f, 50f), 34f, Ink).text = "W<size=55%><color=#B86647>!</color></size>";
+            var label = Rect("Match label", safe, new Vector2(0f, 1f), new Vector2(112f, -28f), new Vector2(420f, 94f));
+            label.pivot = new Vector2(0f, 1f);
+            matchFade = label.gameObject.AddComponent<CanvasGroup>();
+            matchFade.blocksRaycasts = false;
+            matchShownAt = Time.unscaledTime;
+            matchTag = Text("Tag", label, new Vector2(0f, 1f), Vector2.zero, new Vector2(420f, 22f), 17f, Gold, TextAlignmentOptions.Left);
             matchTag.characterSpacing = 1f; matchTag.rectTransform.pivot = new Vector2(0f, 1f);
-            matchTitle = Text("Title", label, new Vector2(0f, 1f), new Vector2(18f, -30f), new Vector2(264f, 34f), 30f, Ink, TextAlignmentOptions.Left);
+            matchTitle = Text("Title", label, new Vector2(0f, 1f), new Vector2(0f, -22f), new Vector2(420f, 40f), 34f, OnGame, TextAlignmentOptions.Left);
             matchTitle.rectTransform.pivot = new Vector2(0f, 1f);
-            matchDetail = Text("Detail", label, new Vector2(0f, 1f), new Vector2(18f, -64f), new Vector2(264f, 24f), 18f, Ink, TextAlignmentOptions.Left);
+            matchDetail = Text("Detail", label, new Vector2(0f, 1f), new Vector2(0f, -62f), new Vector2(420f, 24f), 17f, OnGame, TextAlignmentOptions.Left);
             matchDetail.characterSpacing = 0f; matchDetail.rectTransform.pivot = new Vector2(0f, 1f);
+            foreach (var text in new[] { matchTag, matchTitle, matchDetail }) { OnGameText(text); AddHudShadow(text); }
 
             for (int i = 0; i < 4; i++)
             {
-                var rt = Panel($"Roommate {i + 1}", safe, new Vector2(0f, 1f), new Vector2(38f, -138f - i * 80f), new Vector2(300f, 72f), new Vector2(0f, 1f), Paper);
-                var badge = Panel("Initial badge", rt, new Vector2(0f, .5f), new Vector2(9f, 0f), new Vector2(38f, 38f), new Vector2(0f, .5f), Mint, true).GetComponent<Image>();
+                var rt = Rect($"Roommate {i + 1}", safe, new Vector2(0f, 1f), new Vector2(38f, -112f - i * 58f), new Vector2(280f, 50f));
+                rt.pivot = new Vector2(0f, 1f);
+                var badge = Panel("Initial badge", rt, new Vector2(0f, 1f), new Vector2(0f, -2f), new Vector2(28f, 28f), new Vector2(0f, 1f), Mint, true).GetComponent<Image>();
+                AddHudShadow(badge);
                 var card = new PlayerCard { root = rt.gameObject, badge = badge };
-                card.initial = Text("Initial", badge.transform, new Vector2(.5f, .5f), Vector2.zero, new Vector2(36f, 36f), 22f, Ink);
-                card.name = Text("Name", rt, new Vector2(0f, 1f), new Vector2(56f, -6f), new Vector2(230f, 26f), 20f, Ink, TextAlignmentOptions.Left);
+                card.initial = Text("Initial", badge.transform, new Vector2(.5f, .5f), Vector2.zero, new Vector2(28f, 28f), 16f, Ink);
+                card.name = Text("Name", rt, new Vector2(0f, 1f), new Vector2(38f, 0f), new Vector2(240f, 26f), 20f, OnGame, TextAlignmentOptions.Left);
                 card.name.rectTransform.pivot = new Vector2(0f, 1f);
-                card.status = Text("Status", rt, new Vector2(0f, 1f), new Vector2(56f, -32f), new Vector2(230f, 24f), 18f, Faded, TextAlignmentOptions.Left);
+                OnGameText(card.name); AddHudShadow(card.name);
+                card.status = Text("Status", rt, new Vector2(0f, 1f), new Vector2(38f, -34f), new Vector2(240f, 18f), 15f, LowHp, TextAlignmentOptions.Left);
                 card.status.rectTransform.pivot = new Vector2(0f, 1f);
-                card.fill = Fill("Health", Panel("Health track", rt, new Vector2(0f, 0f), new Vector2(56f, 10f), new Vector2(230f, 8f), Vector2.zero, Track), Health);
+                OnGameText(card.status);
+                card.fill = Fill("Health", Panel("Health track", rt, new Vector2(0f, 1f), new Vector2(38f, -28f), new Vector2(150f, 3f), new Vector2(0f, 1f), Hex(0x10292b, .55f)), Health);
                 cards.Add(card); rt.gameObject.SetActive(false);
             }
         }
@@ -312,7 +330,6 @@ namespace Wreckabulary
                 timer.rectTransform.offsetMin = timer.rectTransform.offsetMax = Vector2.zero;
                 timer.font = LobbyFonts.Body ? LobbyFonts.Body : GameFont;
                 timer.fontSharedMaterial = timer.font.material;
-                // Replace the serialized legacy-font instance before TMP's outline setters reuse it.
                 _ = timer.fontMaterial;
                 timer.fontStyle = FontStyles.Normal; timer.fontSize = 32f; timer.color = OnGame; timer.alignment = TextAlignmentOptions.Right;
                 timer.characterSpacing = 0f; timer.raycastTarget = false; timer.textWrappingMode = TextWrappingModes.NoWrap;
@@ -336,10 +353,9 @@ namespace Wreckabulary
         {
             status = Rect("Status", safe, new Vector2(.5f, 1f), new Vector2(0f, -140f), new Vector2(525f, 50f));
             status.pivot = new Vector2(.5f, 1f);
-            SoftShadow(status, Hex(0x183b3c, .08f), 25f, -4f);
-            Paint(Cover("Face", status), LobbyIcons.RoundedSprite(15), Hex(0xfff0dc, .91f));
-            statusText = Text("Status text", status, new Vector2(.5f, .5f), Vector2.zero, new Vector2(475f, 54f), 20f, Ink);
+            statusText = Text("Status text", status, new Vector2(.5f, .5f), Vector2.zero, new Vector2(475f, 54f), 22f, OnGame);
             statusText.textWrappingMode = TextWrappingModes.Normal;
+            OnGameText(statusText); AddHudShadow(statusText);
             if (instruction) instruction.gameObject.SetActive(false);
             status.gameObject.SetActive(false);
         }
@@ -357,7 +373,7 @@ namespace Wreckabulary
             hpValue = Text("HP", vitals, new Vector2(0f, 1f), new Vector2(46f, -8f), new Vector2(162f, 64f), 56f, OnGame, TextAlignmentOptions.Left);
             hpValue.rectTransform.pivot = new Vector2(0f, 1f);
             OnGameText(hpValue);
-            shieldText = Text("Shield", vitals, new Vector2(0f, 1f), new Vector2(46f, -67f), new Vector2(154f, 26f), 18f, Hex(0x9ff8d3), TextAlignmentOptions.Left);
+            shieldText = Text("Shield", vitals, new Vector2(0f, 1f), new Vector2(46f, -67f), new Vector2(320f, 26f), 18f, Hex(0x9ff8d3), TextAlignmentOptions.Left);
             shieldText.rectTransform.pivot = new Vector2(0f, 1f);
             OnGameText(shieldText);
             staminaValue = Text("Stamina", vitals, new Vector2(0f, 1f), new Vector2(220f, -14f), new Vector2(140f, 46f), 36f, Hex(0x9ff8d3), TextAlignmentOptions.Left);
@@ -391,6 +407,12 @@ namespace Wreckabulary
             }
             spellKey = Shortcut("Spell key", 20f, "bag", OpenComposer);
             bagKey = Shortcut("Bag link", 160f, "book", () => SetBagPinned(!bagPinned));
+            spellHint = Text("Spell hint", tray, new Vector2(0f, 1f), new Vector2(0f, 8f), new Vector2(310f, 30f), 23f, OnGame, TextAlignmentOptions.BottomLeft);
+            spellHint.rectTransform.pivot = Vector2.zero;
+            spellHint.overflowMode = TextOverflowModes.Ellipsis;
+            OnGameText(spellHint); AddHudShadow(spellHint);
+            spellHint.text = "";
+            spellHint.gameObject.SetActive(false);
             for (int i = 0; i < TrayTiles; i++)
                 trayCells[i] = MakeCell($"Letter {i + 1}", tray, new Vector2((i % TilesPerRow) * 62f, -(i / TilesPerRow) * 70f), new Vector2(54f, 58f), 34f);
             craftProgress = Fill("Building", Panel("Progress track", tray, Vector2.zero, new Vector2(0f, -12f), new Vector2(302f, 6f), Vector2.zero, Track), Health);
@@ -398,31 +420,53 @@ namespace Wreckabulary
 
         void BuildHint()
         {
-            hint = Panel("Desktop controls", safe, Vector2.zero, new Vector2(39f, 38f), new Vector2(500f, 60f), Vector2.zero, Hex(0x173b3c, .78f));
-            hintText = Text("Keys", hint, new Vector2(0f, .5f), new Vector2(18f, 0f), new Vector2(464f, 56f), 18f, Cream, TextAlignmentOptions.Left);
-            hintText.rectTransform.pivot = new Vector2(0f, .5f);
-            hintText.fontStyle = FontStyles.Normal;
-            hintText.textWrappingMode = TextWrappingModes.Normal;
-            hintText.lineSpacing = 4f;
-            SetHint(false);
+            hint = Rect("Desktop controls", safe, new Vector2(.5f, 1f), new Vector2(0f, -140f), new Vector2(720f, 40f));
+            hint.pivot = new Vector2(.5f, 1f);
+            hintText = Text("Keys", hint, new Vector2(.5f, .5f), Vector2.zero, new Vector2(720f, 40f), 22f, OnGame);
+            OnGameText(hintText); AddHudShadow(hintText);
+            hintText.text = ""; hintText.alpha = 0f;
             desktopHints = hint.gameObject;
+            desktopHints.SetActive(false);
         }
 
-        void SetHint(bool looks)
+        void LearnTips(bool thirdPerson)
         {
-            if (hintLooks == looks && hintKeys == KeyBindings.Version) return;
-            hintLooks = looks;
-            hintKeys = KeyBindings.Version;
+            if (!LocalPlayer || TouchControlsShown || LocalPlayer.Binding is GamepadBinding || !AcceptsGameplayInput) return;
             var keys = DesktopBinding.Shared;
-            static string Key(string k) => $"<color=#FFF7E8>{k}</color>";
-            const string dot = "  <alpha=#55>·<alpha=#FF>  ";
-            hintText.text = Key(ControlHints.MoveKeys) + " move" + dot + (looks ? "mouse look" : "mouse aim") + dot + Key(ControlHints.KeyOf(keys.Attack)) + " smash, throw, place, block" + dot
-                + (looks ? Key(ControlHints.KeyOf(keys.Aim)) + " aim" + dot : "") + Key(ControlHints.KeyOf(keys.Spell)) + " spell" + dot + Key(ControlHints.KeyOf(keys.Interact)) + " interact" + dot
-                + Key(ControlHints.KeyOf(keys.Bag)) + " bag & map" + dot + Key(ControlHints.KeyOf(keys.Pause)) + " pause";
-            float height = hintText.GetPreferredValues(hintText.text, 464f, 0f).y;
-            hintText.rectTransform.sizeDelta = new Vector2(464f, height);
-            hint.sizeDelta = new Vector2(500f, Mathf.Max(44f, height + 20f));
-            if (vitals && !TouchControlsShown) vitals.anchoredPosition = new Vector2(39f, Mathf.Max(110f, hint.anchoredPosition.y + hint.sizeDelta.y + 12f));
+            if (keys.Move.ReadValue<Vector2>().sqrMagnitude > .25f) ControlTips.Learn(ControlTips.Tip.Move);
+            if (thirdPerson && keys.Look.ReadValue<Vector2>().sqrMagnitude > 25f) ControlTips.Learn(ControlTips.Tip.Look);
+            if (keys.Attack.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Smash);
+            if (keys.Aim.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Aim);
+            if (keys.Spell.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Spell);
+            if (keys.Interact.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Interact);
+            if (BagOpen) ControlTips.Learn(ControlTips.Tip.Bag);
+        }
+
+        void RefreshTips(bool thirdPerson)
+        {
+            bool quiet = !LocalPlayer || TouchControlsShown || LocalPlayer.Binding is GamepadBinding || NeedsPointer
+                || status.gameObject.activeSelf || composer && composer.gameObject.activeSelf;
+            var next = quiet ? null : ControlTips.Next(thirdPerson);
+            tipWanted = next.HasValue ? ControlTips.Text(next.Value) : "";
+            ShowTipLine();
+        }
+
+        void FadeTip()
+        {
+            float step = Time.unscaledDeltaTime;
+            if (tipWanted != hintText.text)
+            {
+                hintText.alpha = Mathf.MoveTowards(hintText.alpha, 0f, step / .25f);
+                if (hintText.alpha <= 0f) { hintText.text = tipWanted; tipSince = Time.unscaledTime; }
+            }
+            else if (tipWanted.Length > 0 && Time.unscaledTime - tipSince > .4f) hintText.alpha = Mathf.MoveTowards(hintText.alpha, 1f, step / .35f);
+            ShowTipLine();
+        }
+
+        void ShowTipLine()
+        {
+            bool show = !TouchControlsShown && (tipWanted.Length > 0 || hintText.alpha > 0f);
+            if (desktopHints.activeSelf != show) desktopHints.SetActive(show);
         }
 
         static void OnGameText(TMP_Text t)
@@ -568,6 +612,10 @@ namespace Wreckabulary
             book.anchorMin = new Vector2(1f, 0f); book.pivot = Vector2.one;
             book.offsetMin = new Vector2(-BagSide - BookColumn, BagBottom); book.offsetMax = new Vector2(-BagSide, -BagTop);
             GlyphImage("Book glyph", book, new Vector2(0f, 1f), new Vector2(4f, -2f), 34f, "book", BagInk);
+            bookLine = Text("Book line", book, new Vector2(0f, 1f), Vector2.zero, Vector2.zero, 23f, BagInk, TextAlignmentOptions.MidlineLeft);
+            bookLine.rectTransform.anchorMax = Vector2.one; bookLine.rectTransform.pivot = new Vector2(0f, 1f);
+            bookLine.rectTransform.offsetMin = new Vector2(48f, -44f); bookLine.rectTransform.offsetMax = new Vector2(0f, -4f);
+            bookLine.overflowMode = TextOverflowModes.Ellipsis; bookLine.text = "";
             var view = Rect("View", book, Vector2.zero, Vector2.zero, Vector2.zero);
             Stretch(view); view.offsetMax = new Vector2(0f, -50f);
             view.gameObject.AddComponent<RectMask2D>();
@@ -646,9 +694,16 @@ namespace Wreckabulary
             card.button.targetGraphic = card.face;
             var colours = card.button.colors; colours.disabledColor = Color.white; card.button.colors = colours;
             card.button.onClick.AddListener(() => SpellFromBook(word));
+            root.gameObject.AddComponent<BookCardFocus>().Changed = on => ShowBookLine(on ? word : null);
             var icon = Rect("Picture", root, new Vector2(.5f, 1f), new Vector2(0f, -16f), new Vector2(112f, 112f)).gameObject.AddComponent<RawImage>();
             ((RectTransform)icon.transform).pivot = new Vector2(.5f, 1f); icon.raycastTarget = false;
             Wreckabulary.UI.ItemArt.Apply(icon, word);
+            var tier = RecipeDifficulty.TierOf(word);
+            if (GameConfig.Current.Tuning != null && tier != RecipeTier.Common)
+            {
+                var dot = CreateImage("Tier", root, new Vector2(1f, 1f), new Vector2(-14f, -14f), new Vector2(12f, 12f), TierColour(tier));
+                dot.sprite = roundSprite;
+            }
             const float tile = 24f, step = 28f;
             float x0 = -(word.Length * step - 4f) * .5f;
             for (int i = 0; i < word.Length; i++)
@@ -660,6 +715,11 @@ namespace Wreckabulary
             }
             return card;
         }
+
+        static Color TierColour(RecipeTier tier) => tier switch
+        {
+            RecipeTier.Uncommon => Hex(0x9ff8d3), RecipeTier.Rare => Hex(0x8cc8ff), RecipeTier.Epic => Hex(0xffc568), _ => Hex(0xe2dccd),
+        };
 
         void SpellFromBook(string word)
         {
@@ -709,7 +769,7 @@ namespace Wreckabulary
             touchRoot.SetActive(on); TouchBinding.Shared.ReleaseAll(); TouchBinding.Shared.Enabled = on;
             TouchBinding.Shared.OverlayDesktop = on && LocalPlayer && LocalPlayer.Binding is DesktopBinding;
             TouchBinding.Shared.OverlayBindingId = on && LocalPlayer && LocalPlayer.Binding is not TouchBinding ? LocalPlayer.Binding?.Id : null;
-            if (desktopHints) desktopHints.SetActive(!on);
+            if (desktopHints && on) desktopHints.SetActive(false);
             if (touchToggle) touchToggle.text = on ? "Touch controls: on" : "Touch controls: off";
             if (LocalPlayer) LocalPlayer.Summoner.Close();
             ApplySafeArea();
@@ -733,7 +793,23 @@ namespace Wreckabulary
             TouchBinding.Shared.SetCraftOpen(false);
         }
         void SelectHand(int slot) { if (LocalPlayer && AcceptsGameplayInput) LocalPlayer.Combat.SelectSlot(slot); }
-        void SetBagPinned(bool on) { bagPinned = on; RefreshBagPanel(); }
+        void SetBagPinned(bool on) { bagPinned = on; if (!on) ShowBookLine(null); RefreshBagPanel(); }
+
+        void ShowBookLine(string word)
+        {
+            if (!bookLine) return;
+            string effect = word == null ? null : GameConfig.Current.Tuning?.Describe(word);
+            bookLine.text = word == null ? "" : $"{word} · {(string.IsNullOrEmpty(effect) ? "no extra effect" : effect)}";
+        }
+
+        sealed class BookCardFocus : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
+        {
+            public Action<bool> Changed;
+            public void OnPointerEnter(PointerEventData _) => Changed?.Invoke(true);
+            public void OnPointerExit(PointerEventData _) => Changed?.Invoke(false);
+            public void OnSelect(BaseEventData _) => Changed?.Invoke(true);
+            public void OnDeselect(BaseEventData _) => Changed?.Invoke(false);
+        }
         void GoHome()
         {
             if (Paused) SetPaused(false);
@@ -790,12 +866,14 @@ namespace Wreckabulary
             var rig = CameraRig.Instance;
             bool aiming = rig && rig.isActiveAndEnabled && rig.IsThirdPerson && !NeedsPointer;
             if (crosshair && crosshair.activeSelf != aiming) crosshair.SetActive(aiming);
-            if (hintText) SetHint(rig && rig.isActiveAndEnabled && rig.IsThirdPerson);
+            bool thirdPerson = rig && rig.isActiveAndEnabled && rig.IsThirdPerson;
+            LearnTips(thirdPerson); FadeTip();
+            if (matchFade) matchFade.alpha = Mathf.Clamp01(1f - (Time.unscaledTime - matchShownAt - 4f) / .8f);
             if (BagOpen && bagFade.alpha < 1f) bagFade.alpha = Mathf.Clamp01((Time.unscaledTime - bagOpenedAt) / .12f);
             SyncComposer(); RefreshComposer();
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .08f;
-            FindLocalPlayer(); RefreshInteraction(aiming); RefreshMatch(); RefreshCards(); RefreshSide(); RefreshVitals(); RefreshTray(); RefreshSkills(); RefreshNavigation();
+            FindLocalPlayer(); RefreshTips(thirdPerson); RefreshInteraction(aiming); RefreshMatch(); RefreshCards(); RefreshSide(); RefreshVitals(); RefreshTray(); RefreshSkills(); RefreshNavigation();
             FitCards();
             if (BagOpen) RefreshBagContents();
             if (playRect) playRect.gameObject.SetActive(!LocalPlayer);
@@ -815,12 +893,19 @@ namespace Wreckabulary
             };
         }
 
+        public void Follow(PlayerController player)
+        {
+            followed = player;
+            LocalPlayer = null;
+            nextRefresh = 0f;
+        }
+
         void FindLocalPlayer()
         {
             if (LocalPlayer && LocalPlayer.isActiveAndEnabled) return;
-            LocalPlayer = null;
-            foreach (var p in World.Players) if (p && (p.Binding is TouchBinding || p.Binding is DesktopBinding)) { LocalPlayer = p; break; }
-            if (!LocalPlayer) foreach (var p in World.Players) if (p && p.Binding is not ScriptedBinding and not BotBinding) { LocalPlayer = p; break; }
+            LocalPlayer = followed && followed.isActiveAndEnabled ? followed : null;
+            if (!LocalPlayer) foreach (var p in World.Players) if (p && (p.Binding is TouchBinding || p.Binding is DesktopBinding)) { LocalPlayer = p; break; }
+            if (!LocalPlayer) foreach (var p in World.Players) if (p && p.Binding is not (null or ScriptedBinding or BotBinding)) { LocalPlayer = p; break; }
             TouchBinding.Shared.OverlayDesktop = TouchControlsShown && LocalPlayer && LocalPlayer.Binding is DesktopBinding;
             TouchBinding.Shared.OverlayBindingId = TouchControlsShown && LocalPlayer && LocalPlayer.Binding is not TouchBinding ? LocalPlayer.Binding?.Id : null;
         }
@@ -829,21 +914,23 @@ namespace Wreckabulary
         {
             bool hub = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == Session.HubScene;
             string mode = hub ? "Hub" : Match.Mode;
-            (string tag, string name) = mode switch
-            {
-                "Dibs" => ("HOUSE BRAWL", "Dibs!"),
-                "Duos" => ("2V2 · TEAMS", "Double trouble"),
-                "MovingOut" => ("CO-OP", "The great escape"),
-                "MovingDay" => ("CO-OP", "Moving day"),
-                "Tutorial" => ("PRACTICE", "Play & learn"),
-                "Hub" => ("WELCOME HOME", "The house"),
-                _ => ("HOUSE PARTY", "Wreckabulary"),
-            };
+            (string tag, string name) = MatchHeading(mode);
             matchTag.text = tag; matchTitle.text = name;
             var mine = LocalPlayer && wins != null ? wins(LocalPlayer) : 0;
             matchDetail.text = mode is "Dibs" or "Duos" && rounds && rounds.Round > 0 ? $"ROUND {rounds.Round} · {mine} / {roundsToWin} WINS"
                 : mode == "Tutorial" ? "NO PRESSURE. JUST PLAY." : (Layout?.Name ?? "").ToUpperInvariant();
+            string shown = tag + name + matchDetail.text;
+            if (shown != matchShown) { matchShown = shown; matchShownAt = Time.unscaledTime; }
         }
+        public static (string tag, string name) MatchHeading(string mode) => mode switch
+        {
+            "Dibs" => ("HOUSE BRAWL", LobbyPlayModeLabels.Name(mode)),
+            "Duos" => ("2V2 · TEAMS", LobbyPlayModeLabels.Name(mode)),
+            "MovingOut" or "MovingDay" or "Escape" => ("CO-OP", LobbyPlayModeLabels.Name(mode)),
+            "Tutorial" => ("PRACTICE", "Play & learn"),
+            "Hub" => ("WELCOME HOME", "The house"),
+            _ => ("HOUSE PARTY", "Wreckabulary"),
+        };
         void RefreshCards()
         {
             var current = Roster;
@@ -857,23 +944,24 @@ namespace Wreckabulary
                 card.badge.color = p.Color; card.initial.text = p.Initial.ToString();
                 card.name.text = p.Name + (showWins && wins != null ? $"  <size=75%>{wins(p)}/{roundsToWin}</size>" : "");
                 card.fill.fillAmount = p.Health.Fraction; card.fill.color = p.Health.Fraction > .35f ? Health : Low;
-                card.status.text = p.IsEliminated ? "WRECKED" : p.IsDowned ? $"REVIVE ME {Mathf.CeilToInt(p.Health.BleedOutLeft)}s" : $"{Mathf.CeilToInt(p.Health.Current)} HP · {p.Inventory.TotalCount}/{p.Inventory.Capacity}";
+                card.status.text = p.IsEliminated ? "WRECKED" : p.IsDowned ? $"REVIVE ME {Mathf.CeilToInt(p.Health.BleedOutLeft)}s" : "";
             }
             for (int i = shown; i < cards.Count; i++) cards[i].root.SetActive(false);
         }
-        HouseLayout Layout => rooms && rooms.Layout != null ? rooms.Layout : clearOut ? clearOut.Layout : null;
+        HouseLayout Layout => rooms && rooms.Layout != null ? rooms.Layout : clearOut ? clearOut.Layout : practice;
         void RefreshSide()
         {
             UpdateMap(miniMap);
             var layout = Layout;
             string room = LocalPlayer && layout != null ? RoomOf(layout, LocalPlayer) : null;
             roomPill.text = room != null ? Spaced(room) : layout != null ? "House" : "";
-            roomPill.transform.parent.gameObject.SetActive(roomPill.text.Length > 0);
+            roomPill.transform.parent.gameObject.SetActive(roomPill.text.Length > 0 && layout.Rooms.Count > 1);
             objective.text = checklistText;
             var current = Roster;
             int up = 0, all = 0;
             if (current != null) foreach (var p in current) { if (!p) continue; all++; if (!p.IsDowned && !p.IsEliminated) up++; }
             aliveText.text = all > 0 ? $"{up}/{all}" : "-";
+            aliveText.transform.parent.gameObject.SetActive(all > 1);
             var goal = (RectTransform)objective.transform.parent;
             goal.gameObject.SetActive(objective.text.Length > 0);
             float height = Mathf.Max(48f, objective.GetPreferredValues(objective.text, 252f, 0f).y);
@@ -892,12 +980,15 @@ namespace Wreckabulary
             bool low = health.IsDowned || health.Current < 30f;
             hpValue.color = low ? LowHp : OnGame;
             hpValue.rectTransform.localScale = Vector3.one * (low ? 1f + .06f * Mathf.Abs(Mathf.Sin(Time.unscaledTime * 5f)) : 1f);
-            shieldText.text = health.Bubble > 0f ? $"+{Mathf.CeilToInt(health.Bubble)} SHIELD" : "";
+            sb.Clear();
+            if (health.Bubble > 0f) sb.Append($"+{Mathf.CeilToInt(health.Bubble)} SHIELD");
+            if (health.BleedingLeft > 0f) sb.Append(sb.Length > 0 ? "  " : "").Append("<color=#FF6B5E>BLEEDING</color>");
+            if (LocalPlayer.SlowLeft > 0f) sb.Append(sb.Length > 0 ? "  " : "").Append("<color=#FFC568>SLOWED</color>");
+            shieldText.text = sb.ToString();
             for (int i = 0; i < 2; i++) ShowHand(hands[i], i, false);
         }
         void ShowHand(HandView view, int slot, bool detail)
         {
-            // The Escape match runs without a bot crew, so a slot can be missing. Skip it.
             if (view == null || !view.face || !view.edge || !view.label || !view.empty || !view.icon) return;
             var combat = LocalPlayer.Combat;
             var gear = combat.GearIn(slot);
@@ -936,7 +1027,41 @@ namespace Wreckabulary
             var summon = LocalPlayer.Summoner;
             craftProgress.transform.parent.gameObject.SetActive(summon.IsCrafting);
             craftProgress.fillAmount = summon.CraftProgress;
+            RefreshSpellHint(inv, summon);
         }
+        void RefreshSpellHint(LetterInventory inv, Summoner summon)
+        {
+            bool quiet = summon.IsCrafting || summon.IsSpelling || (craftRoot && craftRoot.activeSelf);
+            string spell = SpellKeyLabel(LocalPlayer.Binding);
+            sb.Clear();
+            if (!quiet) foreach (char letter in inv.Letters) sb.Append(letter);
+            string key = sb.Append('|').Append(inv.Capacity).Append('|').Append(spell).ToString();
+            if (key != spellHintKey)
+            {
+                spellHintKey = key;
+                string line = quiet ? "" : SpellHintText(summon.WordsOverride ?? GameAssets.I.words.Words, inv.Letters, inv.Capacity, spell);
+                spellHint.text = line;
+                spellHint.color = line.Contains(" ready") ? Hex(0x9ff8d3) : OnGame;
+            }
+            bool shown = spellHint.text.Length > 0;
+            if (spellHint.gameObject.activeSelf != shown) spellHint.gameObject.SetActive(shown);
+        }
+        public static string SpellHintText(IEnumerable<WordEntry> words, IReadOnlyList<char> letters, int capacity, string key)
+        {
+            if (words == null || letters == null || letters.Count == 0) return "";
+            var usable = words.Where(w => w != null && !string.IsNullOrEmpty(w.word)).ToList();
+            var ready = WordSolver.Spellable(usable, letters);
+            if (ready.Count > 0) return ready[0].word + " ready" + (string.IsNullOrEmpty(key) ? "" : " · " + key);
+            var near = WordSolver.Hints(usable, letters, capacity);
+            return near.Count > 0 ? near[0].entry.word + " needs " + near[0].missing : "";
+        }
+        public static string SpellKeyLabel(InputBinding binding) => binding switch
+        {
+            GamepadBinding => "Y",
+            TouchBinding => "SPELL",
+            KeyboardBinding keys => keys.Id.EndsWith("Left", StringComparison.Ordinal) ? "K" : "R-SHIFT",
+            _ => ControlHints.KeyOf(DesktopBinding.Shared.Spell),
+        };
         void FillCells(LetterCell[] cells, LetterInventory inv)
         {
             var letters = inv.Letters.OrderBy(c => c).ToArray();
@@ -1137,7 +1262,7 @@ namespace Wreckabulary
             var coverMax = new Vector2(1f + (lastWidth - lastSafe.xMax) / safeWidth, 1f + (lastHeight - lastSafe.yMax) / safeHeight);
             foreach (var cover in new[] { bagBackdrop, resultShade }) if (cover) { cover.anchorMin = coverMin; cover.anchorMax = coverMax; }
             bool portrait = lastWidth < lastHeight, touch = TouchControlsShown;
-            if (vitals) vitals.anchoredPosition = new Vector2(39f, touch ? (portrait ? 420f : 250f) : Mathf.Max(110f, hint.anchoredPosition.y + hint.sizeDelta.y + 12f));
+            if (vitals) vitals.anchoredPosition = new Vector2(39f, touch ? (portrait ? 420f : 250f) : 38f);
             if (tray)
             {
                 tray.anchorMin = tray.anchorMax = tray.pivot = portrait ? new Vector2(0f, 1f) : new Vector2(.5f, 0f);
@@ -1152,6 +1277,7 @@ namespace Wreckabulary
                 playRect.anchoredPosition = portrait ? new Vector2(30f, 340f) : new Vector2(0f, -185f);
             }
             if (status) status.anchoredPosition = new Vector2(0f, portrait ? -360f : -140f);
+            if (hint) hint.anchoredPosition = new Vector2(0f, portrait ? -360f : -140f);
             ResizeStatus();
         }
         void ResizeStatus()
@@ -1206,15 +1332,17 @@ namespace Wreckabulary
         }
         public void SetInstruction(string main, string hint = "")
         {
-            string text = string.IsNullOrEmpty(hint) ? main : $"<b>{main}</b>\n<size=82%><color=#173B3CB3>{hint}</color></size>";
+            string text = string.IsNullOrEmpty(hint) ? main : $"<b>{main}</b>\n<size=82%><color=#FFF4E0CC>{hint}</color></size>";
             if (instruction) instruction.text = text;
-            if (!statusText || statusText.text == OnCream(text)) return;
-            statusText.text = OnCream(text);
+            if (!statusText || statusText.text == text) return;
+            statusText.text = text;
             status.gameObject.SetActive(!string.IsNullOrEmpty(main) || !string.IsNullOrEmpty(hint));
             ResizeStatus();
         }
         public void SetChecklist(string text)
         {
+            if (checklistSource != null && text == checklistSource && (!checklist || checklist.text == text)) return;
+            checklistSource = text;
             if (checklist) checklist.text = text;
             checklistText = (text ?? "").Replace("<b>", "").Replace("</b>", "").Replace("<size=75%>", "<size=90%>");
         }
@@ -1225,10 +1353,6 @@ namespace Wreckabulary
         }
         public void SetScoreboard(IReadOnlyList<PlayerController> currentPlayers, Func<PlayerController, int> currentWins, int targetWins, bool winsVisible)
         { players = currentPlayers; wins = currentWins; roundsToWin = targetWins; showWins = winsVisible; }
-
-        static string OnCream(string text) => text
-            .Replace("#FFF4E0AA", "#173B3C99").Replace("#FFF4E0CC", "#173B3CB3").Replace("#FFF4E0", "#173B3C")
-            .Replace("#8FD18B", "#2F7A5C").Replace("#FFD24A", "#B86647");
 
         static readonly Regex Words = new("(?<=[a-z])(?=[A-Z])");
         static string Spaced(string name) => Words.Replace(name, " ");

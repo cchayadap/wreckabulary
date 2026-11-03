@@ -64,12 +64,12 @@ namespace Wreckabulary.EditorTests
             InspectorField("rangeMinY").SetValue(workshop, "1.75");
             InspectorField("prerequisite").SetValue(workshop, "AuthoredPuzzle");
             InspectorField("routeWeight").SetValue(workshop, "7");
-            foreach (string section in new[] { "Puzzles", "Room", "Objects" })
+            foreach (string section in new[] { "Puzzles", "Rules", "Objects", "Share", "Build" })
             {
                 InspectorField("inspectorScroll").SetValue(workshop, new Vector2(0, 900));
                 InspectorField("workshopTyping").SetValue(workshop, true);
                 ShowSection(section);
-                Assert.AreEqual(section, InspectorField("inspectorSection").GetValue(workshop).ToString());
+                Assert.AreEqual(section, InspectorField("step").GetValue(workshop).ToString());
                 Assert.AreEqual(Vector2.zero, InspectorField("inspectorScroll").GetValue(workshop));
                 Assert.IsFalse((bool)InspectorField("workshopTyping").GetValue(workshop));
             }
@@ -94,15 +94,15 @@ namespace Wreckabulary.EditorTests
             workshop.History.Select(new[] { zone.ModuleId });
             InspectorCall("Refresh");
             string before = workshop.History.Current.CourseJsonText;
-            ShowSection("Room"); InspectorCall("SelectZone", zone);
-            Assert.AreEqual("Objects", InspectorField("inspectorSection").GetValue(workshop).ToString());
+            ShowSection("Rules"); InspectorCall("SelectZone", zone);
+            Assert.AreEqual("Objects", InspectorField("step").GetValue(workshop).ToString());
             Assert.AreEqual(zone.Id, InspectorField("zoneId").GetValue(workshop));
             workshop.SelectPhysicalSite(1, "BedBridge");
-            Assert.AreEqual("Puzzles", InspectorField("inspectorSection").GetValue(workshop).ToString());
+            Assert.AreEqual("Puzzles", InspectorField("step").GetValue(workshop).ToString());
             Assert.AreEqual("BedBridge", InspectorField("sitePuzzle").GetValue(workshop));
             Assert.AreEqual("BedBridge", InspectorField("puzzleId").GetValue(workshop));
             InspectorCall("StepSelection", 1);
-            Assert.AreEqual("Room", InspectorField("inspectorSection").GetValue(workshop).ToString());
+            Assert.AreEqual("Puzzles", InspectorField("step").GetValue(workshop).ToString(), "Selecting the next room keeps the chosen step.");
             Assert.AreEqual("", InspectorField("sitePuzzle").GetValue(workshop));
             Assert.AreEqual(before, workshop.History.Current.CourseJsonText);
         }
@@ -180,7 +180,7 @@ namespace Wreckabulary.EditorTests
                 var course = CourseTemplates.RaceCircuit();
                 workshop.Open(course, CourseTemplates.ProofCatalogue(),
                     MatchStateValidation.Requirements(ModeDefinition.For("TimeRun")), folder);
-                workshop.History.Select(new[] { "Start" }); InspectorCall("Refresh"); ShowSection("Room");
+                workshop.History.Select(new[] { "Start" }); InspectorCall("Refresh"); ShowSection("Rules");
                 InspectorField("routesExpanded").SetValue(workshop, true);
                 InspectorField("routeModule").SetValue(workshop, "Start");
                 InspectorField("routeRecovery").SetValue(workshop, "StartSafe");
@@ -197,7 +197,7 @@ namespace Wreckabulary.EditorTests
                     using var scope = styles.Apply(theme);
                     InspectorCall("Styles");
                     GUILayout.BeginArea(new Rect(0, 0, panelWidth, 520), styles.Panel);
-                    InspectorCall("Inspector");
+                    InspectorCall("StepPanel");
                     GUILayout.EndArea();
                     if (Event.current.type != EventType.Repaint) return;
                     float width = panelWidth - styles.Panel.padding.horizontal - GUI.skin.verticalScrollbar.fixedWidth - GUI.skin.verticalScrollbar.margin.left;
@@ -248,11 +248,76 @@ namespace Wreckabulary.EditorTests
             }
         }
 
+        [Test]
+        public void FloorRowsDeriveFootprintAndStageHeightsUntilOneUndoableSet()
+        {
+            workshop.Open(CourseTemplates.RaceCircuit(), CourseTemplates.ProofCatalogue(),
+                MatchStateValidation.Requirements(ModeDefinition.For("TimeRun")), folder);
+            string before = workshop.History.Current.RecoveryJson;
+            int revision = workshop.History.Revision;
+            Assert.AreEqual("20 × 20 m", InspectorCall("FloorSize", "Ground"));
+            Assert.AreEqual("40 × 20 m", InspectorCall("FloorSize", "Loft"));
+            Assert.AreEqual("10", InspectorField("layerHeight").GetValue(workshop), "+ Floor defaults to just above the top floor's rooms.");
+            Assert.AreEqual("0", InspectorField("floorHeight").GetValue(workshop));
+            Assert.AreEqual(before, workshop.History.Current.RecoveryJson);
+            workshop.History.Execute("Choose loft", draft => draft.ActiveLayer = "Loft"); InspectorCall("Refresh");
+            var chosen = workshop.History.Current; revision = workshop.History.Revision;
+            Assert.AreEqual("6", InspectorField("floorHeight").GetValue(workshop));
+            InspectorField("floorHeight").SetValue(workshop, "-1");
+            InspectorCall("SetFloorHeight", "Loft");
+            Assert.AreSame(chosen, workshop.History.Current); Assert.AreEqual(revision, workshop.History.Revision);
+            Assert.IsNotEmpty((string)InspectorField("status").GetValue(workshop));
+            InspectorField("floorHeight").SetValue(workshop, "6.5");
+            InspectorCall("SetFloorHeight", "Loft");
+            Assert.AreEqual(revision + 1, workshop.History.Revision);
+            Assert.AreEqual(6500, workshop.History.Current.Course().Layers.Single(layer => layer.Id == "Loft").HeightMm);
+            Assert.AreEqual("6.5", InspectorField("floorHeight").GetValue(workshop));
+            Assert.IsTrue(workshop.History.Undo()); Assert.AreSame(chosen, workshop.History.Current);
+        }
+
+        [Test]
+        public void SectionStatePersistsAsAViewPreferenceAndNeverEntersTheDraft()
+        {
+            string[] names = { "routes", "view", "floors" };
+            var keys = names.Select(name => "wv.workshop.section." + name).ToArray();
+            var previous = keys.Select(key => PlayerPrefs.HasKey(key) ? (int?)PlayerPrefs.GetInt(key) : null).ToArray();
+            GameObject second = null;
+            try
+            {
+                workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld, folder);
+                string before = workshop.History.Current.RecoveryJson, course = workshop.History.Current.CourseJsonText;
+                int revision = workshop.History.Revision;
+                InspectorCall("RememberSection", "routes", true);
+                InspectorCall("RememberSection", "view", false);
+                InspectorCall("RememberSection", "floors", false);
+                Assert.AreEqual(1, PlayerPrefs.GetInt(keys[0])); Assert.AreEqual(0, PlayerPrefs.GetInt(keys[1])); Assert.AreEqual(0, PlayerPrefs.GetInt(keys[2]));
+                second = new GameObject("Second workshop");
+                var other = second.AddComponent<WordboundWorkshop>();
+                InspectorField("routesExpanded").SetValue(other, false); InspectorField("showWorkshopHelp").SetValue(other, true);
+                typeof(WordboundWorkshop).GetMethod("LoadSections", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(other, null);
+                Assert.IsTrue((bool)InspectorField("routesExpanded").GetValue(other));
+                Assert.IsFalse((bool)InspectorField("showWorkshopHelp").GetValue(other));
+                var saved = typeof(WordboundWorkshop).GetMethod("SavedSection", BindingFlags.Static | BindingFlags.NonPublic);
+                Assert.IsFalse((bool)saved.Invoke(null, new object[] { "floors", true }), "A remembered closed section overrides its open default.");
+                PlayerPrefs.DeleteKey(keys[2]);
+                Assert.IsTrue((bool)saved.Invoke(null, new object[] { "floors", true }), "A section without a preference uses its default.");
+                Assert.AreEqual(before, workshop.History.Current.RecoveryJson); Assert.AreEqual(course, workshop.History.Current.CourseJsonText);
+                Assert.AreEqual(revision, workshop.History.Revision);
+                StringAssert.DoesNotContain("wv.workshop", before);
+            }
+            finally
+            {
+                if (second) UnityEngine.Object.DestroyImmediate(second);
+                for (int i = 0; i < keys.Length; i++)
+                    if (previous[i].HasValue) PlayerPrefs.SetInt(keys[i], previous[i].Value); else PlayerPrefs.DeleteKey(keys[i]);
+            }
+        }
+
         static FieldInfo InspectorField(string name) => typeof(WordboundWorkshop).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
         object InspectorCall(string name, params object[] args) => typeof(WordboundWorkshop)
             .GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(workshop, args);
-        void ShowSection(string name) => InspectorCall("ShowInspectorSection",
-            Enum.Parse(InspectorField("inspectorSection").FieldType, name));
+        void ShowSection(string name) => InspectorCall("ShowStep",
+            Enum.Parse(InspectorField("step").FieldType, name));
 
         [Test]
         public void ReopeningTemplateRestoresItsAutosaveBeforeNewEdits()

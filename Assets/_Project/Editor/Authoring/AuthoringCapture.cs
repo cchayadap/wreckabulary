@@ -9,7 +9,6 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>Renders the saved scene content without entering Play or generating a runtime room.</summary>
     public static class AuthoringCapture
     {
         public static void Run()
@@ -73,7 +72,6 @@ namespace Wreckabulary.EditorTools
             try
             {
                 camera.targetTexture = target;
-                // Prime freshly imported materials before reading the first saved-scene frame.
                 camera.Render();
                 camera.Render();
                 RenderTexture.active = target;

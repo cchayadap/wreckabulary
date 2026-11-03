@@ -43,7 +43,7 @@ namespace Wreckabulary.Tests
         {
             CollectionAssert.AreEquivalent(GameConfig.Current.Items.Enabled.Select(i => i.Id).ToArray(),
                 GameAssets.I.words.Words.Select(w => w.word).ToArray());
-            Assert.AreEqual(24, GameAssets.I.words.Words.Count);
+            Assert.AreEqual(41, GameAssets.I.words.Words.Count, "24 shared recipes plus 17 from items_house.json");
             Assert.IsNull(GameAssets.I.words.Find("ARMOR"));
             Assert.IsNull(GameAssets.I.words.Find("AXE"));
         }
@@ -53,11 +53,11 @@ namespace Wreckabulary.Tests
         {
             var player = Spawn();
             yield return null;
-            player.Inventory.Set("AXECHAIR");
+            player.Inventory.Set("AXEBOOK");
             string before = Sorted(player.Inventory.Letters);
             Assert.IsFalse(player.Summoner.Summon("AXE"));
-            player.Summoner.WordsOverride = new[] { new WordEntry { word = "CHAIR", category = WordCategory.Furniture } };
-            Assert.IsFalse(player.Summoner.Summon("CHAIR"));
+            player.Summoner.WordsOverride = new[] { new WordEntry { word = "BOOK", category = WordCategory.Furniture } };
+            Assert.IsFalse(player.Summoner.Summon("BOOK"));
             Assert.AreEqual(before, Sorted(player.Inventory.Letters));
             Assert.IsFalse(player.Combat.Weapon);
         }

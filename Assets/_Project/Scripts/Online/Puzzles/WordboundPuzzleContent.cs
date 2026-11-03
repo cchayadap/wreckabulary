@@ -19,6 +19,19 @@ namespace Wreckabulary.Online
         void Validate(MatchBinding binding, GameRules actualRules);
     }
 
+    public static class WordboundItemSource
+    {
+        static readonly string[] Fields = { "schema", "note", "items" };
+        public static void Require(string itemJson)
+        {
+            JsonNode root;
+            try { root = Json.Parse(itemJson ?? "", "items.json"); }
+            catch (FormatException) { throw new ArgumentException("The Wordbound item catalogue is not valid JSON."); }
+            if (!root.IsObject || !root.Has("items") || root.Keys.Any(key => Array.IndexOf(Fields, key) < 0))
+                throw new ArgumentException("Wordbound reads only its own item catalogue. House item expansions and tuning are not accepted.");
+        }
+    }
+
     public sealed class WordboundAuthoredPuzzleContent : IWordboundPuzzleContent
     {
         readonly string itemJson;
@@ -51,6 +64,7 @@ namespace Wreckabulary.Online
                 throw new ArgumentException("Authored content requires the exact valid resolved course and mode-specific physical plan.");
             CheckSource(itemCatalogueJson, "Item catalogue");
             CheckSource(ruleBookJson, "Rule book");
+            WordboundItemSource.Require(itemCatalogueJson);
             itemJson = itemCatalogueJson;
             if (Items.Validate(64).Count != 0) throw new ArgumentException("Authored item catalogue is invalid.");
             var book = RuleBook.FromJson(ruleBookJson);

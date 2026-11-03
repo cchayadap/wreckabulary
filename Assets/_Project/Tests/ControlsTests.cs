@@ -48,6 +48,7 @@ namespace Wreckabulary.Tests
         }
 
         static HitInfo Punch(Vector3 direction) => Hits.Melee(null, direction, Match.Rules.Unarmed, null);
+        static float Fist => Match.Rules.Unarmed.Damage;
 
         [UnityTest]
         public IEnumerator JumpRisesAboutTheRulesHeight()
@@ -182,7 +183,7 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(p.Health.ApplyDamage(Punch(Vector3.back)), "blocked");
             Assert.AreEqual(100f, p.Health.Current);
             var plate = p.Combat.Weapon;
-            Assert.AreEqual(60f - 8f, plate.DurabilityLeft, "blocked damage wears the plate");
+            Assert.AreEqual(60f - Fist, plate.DurabilityLeft, "blocked damage wears the plate");
 
             input.Next.attack = true;
             yield return null;
@@ -190,7 +191,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(100f, opponent.Health.Current);
 
             Assert.IsTrue(p.Health.ApplyDamage(Punch(Vector3.forward)));
-            Assert.AreEqual(92f, p.Health.Current);
+            Assert.AreEqual(100f - Fist, p.Health.Current);
         }
 
         [UnityTest]
@@ -223,7 +224,7 @@ namespace Wreckabulary.Tests
 
             input.Next.attack = true;
             yield return TestScenes.WaitUntil(() => opponent.Health.Current < 100f, 1f, "free hand punch damage window");
-            Assert.AreEqual(92f, opponent.Health.Current, "the free hand punches");
+            Assert.AreEqual(100f - Fist, opponent.Health.Current, "the free hand punches");
             Assert.AreEqual("PLATE", p.Combat.Weapon.word, "and the plate stays in hand");
         }
 
@@ -257,7 +258,7 @@ namespace Wreckabulary.Tests
 
             Assert.IsFalse(p.Combat.IsBlocking);
             Assert.IsTrue(p.Health.ApplyDamage(Punch(Vector3.back)));
-            Assert.AreEqual(92f, p.Health.Current);
+            Assert.AreEqual(100f - Fist, p.Health.Current);
         }
 
         [UnityTest]

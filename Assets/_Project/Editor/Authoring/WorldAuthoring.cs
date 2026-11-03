@@ -14,7 +14,6 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>One-time migration from generated rooms to normal editable Unity world assets.</summary>
     public static class WorldAuthoring
     {
         const string ResourceFolder = "Assets/_Project/Resources/Worlds";
@@ -29,7 +28,6 @@ namespace Wreckabulary.EditorTools
         static readonly int LegacyColor = Shader.PropertyToID("_Color");
         static readonly int Smoothness = Shader.PropertyToID("_Smoothness");
 
-        /// <summary>Repair only this edition's generated GPU-only textures, retaining their GUIDs and material references.</summary>
         public static void RepairGeneratedWorldTextures()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Repair textures outside Play mode.");
@@ -56,7 +54,6 @@ namespace Wreckabulary.EditorTools
             Debug.Log("WORLD_TEXTURES_REPAIRED: " + repaired + " generated textures retained their GUIDs.");
         }
 
-        /// <summary>Read GPU-only procedural textures without Instantiate; keep a serializable CPU copy in the asset.</summary>
         public static Texture2D ReadTextureForPersistence(Texture2D source)
         {
             if (!source) throw new ArgumentNullException(nameof(source));
@@ -137,7 +134,6 @@ namespace Wreckabulary.EditorTools
             AssetDatabase.SaveAssets();
         }
 
-        /// <summary>Explicit schema migration: retain old editions and replace only obsolete resource prefabs.</summary>
         public static void UpgradeWorldAssetsToCurrentVersion()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Upgrade worlds outside Play mode.");
@@ -157,7 +153,6 @@ namespace Wreckabulary.EditorTools
             BakeWorldAssetsIfMissing();
         }
 
-        /// <summary>Move only archived prototype dependencies, retaining asset GUIDs and all prefab references.</summary>
         public static void OrganizeLegacyDependencies()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Organize legacy assets outside Play mode.");
@@ -210,7 +205,6 @@ namespace Wreckabulary.EditorTools
             }
         }
 
-        /// <summary>Current authored instances win; obsolete editions and their overrides are archived before replacement.</summary>
         public static void UpgradeSceneWorld()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Upgrade scenes outside Play mode.");
@@ -274,7 +268,6 @@ namespace Wreckabulary.EditorTools
             ArchiveLegacySceneDecor(scene, roots);
         }
 
-        /// <summary>Remove only unchanged prototype signs/room labels, after archiving them outside shipped content.</summary>
         public static void ArchiveLegacySceneDecor()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Archive legacy decor outside Play mode.");
@@ -324,7 +317,6 @@ namespace Wreckabulary.EditorTools
             }
         }
 
-        /// <summary>Bake the palette and generated detail once; subsequent calls preserve artist material/mesh edits.</summary>
         public static void PersistPresentation(GameObject root, string assetStem)
         {
             if (!root) throw new ArgumentNullException(nameof(root));

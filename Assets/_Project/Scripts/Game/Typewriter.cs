@@ -6,11 +6,7 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// The mode select in the house. Walk up and press grab to sit at it, step through the modes
-    /// with up/down, press grab or attack to pick one, or spell to get up again.
-    /// </summary>
-    [DefaultExecutionOrder(-40)] // after input is read, before combat sees the grab press
+    [DefaultExecutionOrder(-40)]
     public class Typewriter : MonoBehaviour
     {
         [Serializable]
@@ -108,7 +104,6 @@ namespace Wreckabulary
 
         void Step(int delta) => Selected = (Selected + delta + modes.Length) % modes.Length;
 
-        /// <summary>Picks a mode by index. Returns true if its scene is loading.</summary>
         public bool Choose(int index)
         {
             Selected = Mathf.Clamp(index, 0, modes.Length - 1);

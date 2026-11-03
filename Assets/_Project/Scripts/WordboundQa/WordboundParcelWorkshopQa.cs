@@ -156,18 +156,18 @@ namespace Wreckabulary.Qa
             var type = typeof(WordboundWorkshop);
             FieldInfo Field(string name) => type.GetField(name, flags) ?? throw new QaFailException("Missing inspector field: " + name);
             void Set(string name, object value) => Field(name).SetValue(workshop, value);
-            void Section(string name) => type.GetMethod("ShowInspectorSection", flags).Invoke(workshop,
-                new[] { Enum.Parse(Field("inspectorSection").FieldType, name) });
+            void Section(string name) => type.GetMethod("ShowStep", flags).Invoke(workshop,
+                new[] { Enum.Parse(Field("step").FieldType, name) });
             foreach (string name in new[] { "dragging", "marquee", "panning", "drawingZone", "orbiting", "controllerMoving", "workshopTyping" })
                 Require(!(bool)Field(name).GetValue(workshop), "Inspector capture requires an idle editor: " + name);
             foreach (string name in new[] { "siteDrag", "gesture", "placementGesture", "resizingZone", "placing" })
                 Require(Field(name).GetValue(workshop) == null, "Inspector capture must not cancel a gesture: " + name);
             Require(parcelEdited.Selection.SequenceEqual(new[] { "Sorting" }), "Keep the existing Sorting room selection.");
             var saved = new Dictionary<FieldInfo, object>();
-            foreach (string name in new[] { "inspectorSection", "inspectorScroll", "inspectorChoiceOpen", "inspectorChoiceSearch",
+            foreach (string name in new[] { "step", "inspectorScroll", "inspectorChoiceOpen", "inspectorChoiceSearch",
                 "siteChoiceOpen", "siteChoiceSearch", "routeChoiceOpen", "routeChoiceSearch", "workshopTyping", "newPuzzle",
-                "recipeSearch", "recipeId", "presetIndex", "puzzleId", "sitePuzzle", "inspectorAdvancedIds", "inspectorValidation",
-                "advanced", "routesExpanded", "routeTab", "routeModule", "routeRecovery", "routeLoadKey", "routeHistory",
+                "recipeSearch", "recipeId", "presetIndex", "puzzleId", "sitePuzzle", "inspectorAdvancedIds", "fillAdvanced",
+                "rulesAdvanced", "advanced", "routesExpanded", "routeTab", "routeModule", "routeRecovery", "routeLoadKey", "routeHistory",
                 "routeRevision", "routeX", "routeY", "routeZ", "routeRadius", "routeBranchLoadRevision", "routeBranchLoadId" })
             { var field = Field(name); saved.Add(field, field.GetValue(workshop)); }
             var routeAfter = Read<List<string>>(workshop, "routeAfter");
@@ -179,23 +179,23 @@ namespace Wreckabulary.Qa
             try
             {
                 Section("Puzzles"); Set("newPuzzle", true); Set("recipeSearch", ""); Set("inspectorAdvancedIds", false);
-                Set("inspectorValidation", false); Set("inspectorScroll", Vector2.zero);
+                Set("fillAdvanced", false); Set("inspectorScroll", Vector2.zero);
                 string recipe = workshop.Catalogue.Assets.Values.Where(value => value.CanCraft)
                     .Select(value => value.Id).OrderBy(value => value, StringComparer.Ordinal).First();
                 Set("recipeId", recipe); Set("presetIndex", workshop.Catalogue.PuzzlePresets.ToList().IndexOf("PlaceObject"));
                 Require(Read<int>(workshop, "presetIndex") >= 0, "The Parcel source must expose PlaceObject.");
                 yield return PreviewShot(context, "parcel_workshop_new_puzzle");
-                Require(Read<object>(workshop, "inspectorSection").ToString() == "Puzzles" && Read<bool>(workshop, "newPuzzle"),
+                Require(Read<object>(workshop, "step").ToString() == "Puzzles" && Read<bool>(workshop, "newPuzzle"),
                     "The recipe image capture lost its intended inspector context.");
                 NoteInspector(context, "parcel_workshop_new_puzzle_view", "Puzzles", "New puzzle", recipe);
-                Section("Room"); Set("newPuzzle", false); Set("advanced", false); Set("routesExpanded", true);
+                Section("Rules"); Set("newPuzzle", false); Set("advanced", false); Set("rulesAdvanced", false); Set("routesExpanded", true);
                 Set("routeTab", 0); Set("routeModule", "Sorting");
                 string recovery = parcelEdited.Course().RecoveryAnchors.First(value => value.ModuleId == "Sorting").Id;
                 Set("routeRecovery", recovery); Set("routeLoadKey", ""); Set("inspectorScroll", Vector2.zero);
                 yield return PreviewShot(context, "parcel_workshop_room_routes");
-                Require(Read<object>(workshop, "inspectorSection").ToString() == "Room" && Read<bool>(workshop, "routesExpanded") &&
+                Require(Read<object>(workshop, "step").ToString() == "Rules" && Read<bool>(workshop, "routesExpanded") &&
                     Read<int>(workshop, "routeTab") == 0, "The routes capture lost its intended inspector context.");
-                NoteInspector(context, "parcel_workshop_room_routes_view", "Room", "Routes & checkpoints / Safe", recovery);
+                NoteInspector(context, "parcel_workshop_room_routes_view", "Rules", "Start & finish / Safe-return points", recovery);
             }
             finally
             {
@@ -226,11 +226,11 @@ namespace Wreckabulary.Qa
         void NoteInspector(QaContext context, string note, string section, string panel, string reference)
         {
             Rect viewport = Read<Rect>(workshop, "viewport");
-            float width = Mathf.Min(300, Screen.width * .28f);
+            float width = Read<float>(workshop, "inspectorWidth");
             context.Note(note, new Dictionary<string, object> {
                 ["section"] = section, ["panel"] = panel, ["reference_id"] = reference,
                 ["selected_rooms"] = parcelEdited.Selection.ToArray(), ["source_course_id"] = parcelEdited.Course().Id,
-                ["inspector_rect"] = new[] { Screen.width - width - 8, viewport.y, width, viewport.height },
+                ["inspector_rect"] = new[] { 8, viewport.y, width, viewport.height },
                 ["scroll"] = Read<Vector2>(workshop, "inspectorScroll").y,
                 ["scope"] = "View-only existing section handler and fields; no Apply, Add, physical click or layout-fit claim. Inspect unchanged full PNG." });
         }

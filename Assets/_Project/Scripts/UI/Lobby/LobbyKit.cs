@@ -143,7 +143,6 @@ namespace Wreckabulary
             return image;
         }
 
-        /// <summary>Protects unboxed foreground glyphs over artwork without covering the theme.</summary>
         public static void ArtworkForeground(Transform root)
         {
             foreach (var label in root.GetComponentsInChildren<TextMeshProUGUI>(true))

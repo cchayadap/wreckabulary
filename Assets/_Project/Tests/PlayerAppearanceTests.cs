@@ -221,7 +221,6 @@ namespace Wreckabulary.Tests
         }
     }
 
-    /// <summary>PlayMode coroutines resume before LateUpdate; sample the actual completed skeletal pose explicitly.</summary>
     [DefaultExecutionOrder(1000)]
     public sealed class AppearanceFrameProbe : MonoBehaviour
     {

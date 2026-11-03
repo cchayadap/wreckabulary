@@ -94,6 +94,12 @@ namespace Wreckabulary.Rules
         public string Json;
     }
 
+    public sealed class HomeFurniture
+    {
+        public string Word, Room, Skin;
+        public float X, Z, Yaw;
+    }
+
     public sealed class HomeDesigner
     {
         public const int MaxProps = 64;
@@ -124,6 +130,30 @@ namespace Wreckabulary.Rules
             new HomeLayout { Map = map, Name = TrimName(name ?? "") };
 
         public static bool Supports(string id) => id == "pinwheel" || id == "courtyard";
+
+        public static readonly IReadOnlyList<string> PlayableModes = new[] { "Dibs", "Duos" };
+
+        public static bool Playable(string mode) => mode == "Dibs" || mode == "Duos";
+
+        public bool TryFurnish(HomeLayout layout, out List<HomeFurniture> furniture, out string error)
+        {
+            furniture = null;
+            var valid = Validate(layout);
+            if (!valid.Ok) { error = string.Join("\n", valid.Errors); return false; }
+            var house = House(valid.Layout.Map);
+            furniture = new List<HomeFurniture>();
+            foreach (var prop in valid.Layout.Props)
+            {
+                var footprint = Shape(prop, new List<string>()).Value;
+                var room = house.Rooms.First(r => Inside(r, footprint));
+                furniture.Add(new HomeFurniture
+                {
+                    Word = prop.Word, Room = room.Name, Skin = prop.Skin, X = (float)prop.X, Z = (float)prop.Z, Yaw = prop.Yaw
+                });
+            }
+            error = null;
+            return true;
+        }
 
         HouseLayout House(string id)
         {

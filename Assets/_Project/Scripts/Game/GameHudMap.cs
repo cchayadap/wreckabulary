@@ -64,6 +64,17 @@ namespace Wreckabulary
 
         Sprite mapPointer;
 
+        static HouseLayout PracticeLayout()
+        {
+            string name = FindAnyObjectByType<BeltRangeDirector>() ? "BELT range" : FindAnyObjectByType<TutorialDirector>() ? "Practice room" : null;
+            var floor = name != null ? GameObject.Find("Room/Floor") : null;
+            if (!floor || !floor.TryGetComponent<Collider>(out var collider)) return null;
+            var bounds = collider.bounds;
+            var layout = new HouseLayout { Name = name };
+            layout.Rooms.Add(new RoomBox { Name = name, MinX = bounds.min.x, MaxX = bounds.max.x, MinZ = bounds.min.z, MaxZ = bounds.max.z, FloorY = bounds.max.y });
+            return layout;
+        }
+
         MapView MakeMap(RectTransform frame, bool full, float border)
         {
             var edge = frame.GetComponent<Image>();
@@ -152,7 +163,6 @@ namespace Wreckabulary
             map.transientProps.Clear(); map.visitedProps.Clear();
             map.storey = storey; map.nextProps = map.nextTransient = 0f;
             float minX = float.PositiveInfinity, minZ = float.PositiveInfinity, maxX = float.NegativeInfinity, maxZ = float.NegativeInfinity;
-            // Keep the same projection on every floor so stairs and player locations do not jump on a storey change.
             foreach (var room in map.layout.Rooms)
             {
                 minX = Mathf.Min(minX, room.MinX); maxX = Mathf.Max(maxX, room.MaxX);
@@ -266,7 +276,6 @@ namespace Wreckabulary
 
         void UpdateMapProps(MapView map)
         {
-            // Discover new furniture at a bounded rate; the cached colliders still track movement four times a second.
             if (Time.unscaledTime >= map.nextTransient)
             {
                 map.nextTransient = Time.unscaledTime + 1f;

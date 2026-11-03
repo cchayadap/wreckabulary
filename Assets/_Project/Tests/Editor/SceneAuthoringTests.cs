@@ -119,7 +119,8 @@ namespace Wreckabulary.EditorTests
                 Assert.AreEqual(source.anisoLevel, saved.anisoLevel);
                 Assert.AreEqual(source.mipMapBias, saved.mipMapBias);
                 AssetDatabase.CreateAsset(saved, path);
-                AssetDatabase.SaveAssets();
+                EditorUtility.SetDirty(saved);
+                AssetDatabase.SaveAssetIfDirty(saved);
                 Resources.UnloadAsset(saved);
                 saved = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
                 Assert.IsTrue(saved && saved.isReadable, "The saved CPU pixel payload must reload.");

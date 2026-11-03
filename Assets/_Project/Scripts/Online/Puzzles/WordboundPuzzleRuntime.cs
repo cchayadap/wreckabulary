@@ -23,6 +23,9 @@ namespace Wreckabulary.Online
         readonly Dictionary<Collider, WordboundNetworkBody> owned = new Dictionary<Collider, WordboundNetworkBody>();
         readonly HashSet<Collider> structure = new HashSet<Collider>();
         PhysicsScene scene;
+        MatchBinding checkedBinding;
+        GameRules checkedRules;
+        MatchSnapshot collidersFor;
 
         public WordboundPuzzleRuntime(WordboundGameplayController controller, WordboundPuzzleProof proof)
             : this(controller, (IWordboundPuzzleContent)proof) { }
@@ -181,7 +184,13 @@ namespace Wreckabulary.Online
             if (controller.PhysicsWorld == null || !controller.PhysicsWorld.IsHost || controller.CourseWorld == null ||
                 frame == null || !ReferenceEquals(frame, controller.Frame))
                 throw new InvalidOperationException("Physical puzzles run only against the current host runner frame.");
-            proof.Validate(frame.Binding, controller.PhysicsWorld.Rules);
+            var rules = controller.PhysicsWorld.Rules;
+            if (!ReferenceEquals(frame.Binding, checkedBinding) || !ReferenceEquals(rules, checkedRules))
+            {
+                checkedBinding = null;
+                proof.Validate(frame.Binding, rules);
+                checkedBinding = frame.Binding; checkedRules = rules;
+            }
             scene = controller.PhysicsWorld.PhysicsScene;
             if (!scene.IsValid() || scene == UnityEngine.Physics.defaultPhysicsScene ||
                 controller.CourseWorld.ManifestHash != proof.Course.Hash)
@@ -190,6 +199,8 @@ namespace Wreckabulary.Online
 
         void RefreshColliders()
         {
+            if (ReferenceEquals(collidersFor, controller.Frame)) return;
+            collidersFor = null;
             owned.Clear(); structure.Clear();
             foreach (var collider in controller.CourseWorld.Surfaces)
             {
@@ -203,6 +214,7 @@ namespace Wreckabulary.Online
                     if (collider == null || collider.gameObject.scene.GetPhysicsScene() != scene || !owned.TryAdd(collider, body))
                         throw new InvalidOperationException("Puzzle body collider ownership is invalid.");
                 }
+            collidersFor = controller.Frame;
         }
 
         bool Qualifies(MatchSnapshot frame, int team, WordboundPlacementSocket socket,
