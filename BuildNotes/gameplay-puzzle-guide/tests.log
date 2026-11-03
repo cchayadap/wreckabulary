@@ -1,8 +1,0 @@
-  Determining projects to restore...
-  Restored C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\gameplay-puzzle-guide\Tests.csproj (in 869 ms).
-  Tests -> C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\gameplay-puzzle-guide\bin\Debug\net9.0\Tests.dll
-Test run for C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\gameplay-puzzle-guide\bin\Debug\net9.0\Tests.dll (.NETCoreApp,Version=v9.0)
-A total of 1 test files matched the specified pattern.
-Results File: C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\gameplay-puzzle-guide\TestResults\guide-plan.trx
-
-Passed!  - Failed:     0, Passed:    11, Skipped:     0, Total:    11, Duration: 628 ms - Tests.dll (net9.0)

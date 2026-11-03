@@ -1,9 +1,0 @@
-{
-  "schema": 1,
-  "kind": "wreckabulary.arena-importer-production-cleanup",
-  "path": "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundArenaPreviewImport.cs",
-  "baselineSha256": "180106c8b7dc3286ee2c4b9c31aae41de748dd57ddacd6cf658eebf1fb1ae7ea",
-  "candidateSha256": "ed504d7ec5c7417bb6b3a69507da863b067cbc4b811c701c0cea46c5bb960209",
-  "originalBeforeRepairSha256": "e1d77d06420aa3512aec9f89829142c65c6f56db15e81914d2fca34aa099c674",
-  "scope": "Original importer plus nested MonoBehaviour field-removal correction only. Remove the one-attempt finalizer from live production only after retained import verification passes; keep recovery drafts/evidence."
-}

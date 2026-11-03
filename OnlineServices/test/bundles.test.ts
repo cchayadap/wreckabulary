@@ -10,7 +10,6 @@ import { rpcValue } from "../src/rpc";
 
 afterEach(async () => { vi.restoreAllMocks(); await reset(); });
 const hash = (text: string | Buffer) => createHash("sha256").update(text).digest("hex");
-// Structural HTTP adversaries use tiny deterministic documents; real C# semantic interoperability has its own fixture.
 function bundle(id = "authored-course", document: unknown = { format: "wreckabulary.course", id, schema: 2 }): BundleTransfer {
   const courseHash = hash(snapshotCanonical(document)), geometryHash = "e".repeat(64);
   const manifest: any = { format: "wreckabulary.resolved-course", schema: 2, seed: "0123456789abcdef",
@@ -148,7 +147,6 @@ describe("authenticated exact workshop bundle transfer", () => {
     const key = crypto.randomUUID(), request = { expectedRevision: g.party.revision, channel: "PrivateCreate", content: b.descriptor.content };
     const queued = await call<Party>(`/parties/${g.party.id}/queue`, request, g.actor, key); expect(queued.status).toBe(200);
     const attempt = queued.data.activeAttempt;
-    // Reconstruct the precise crash point after Pool commit but before Party.finish, using real SQLite state.
     await runInDurableObject(env.PARTIES.getByName(g.party.id), (_instance, state) => {
       const row = state.storage.sql.exec<{ value: string }>("SELECT value FROM state WHERE id=1").toArray()[0];
       const party = JSON.parse(row.value); const receipt = party.receipts[key]; delete party.receipts[key]; delete party.active;

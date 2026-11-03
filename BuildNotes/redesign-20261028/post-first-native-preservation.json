@@ -1,9 +1,0 @@
-{
-  "utc": "2026-10-28T14:44:06.036Z",
-  "status": "PASS",
-  "baseline": ".harness/delivery/ui-authored-before-2026-10-28T14-37-33-656Z.json",
-  "baseline_sha256": "7231b44041eae0257caa8936b027a0386513b0e5e7a1a8ea4d83a37a5186cc01",
-  "files": 4220,
-  "changed": [],
-  "scope": "All non-ignored Assets .asset/.unity/.prefab/.mat/.ttf/.otf and adjacent metadata, plus project/build settings. Read-only preservation fingerprint, no Unity/player execution."
-}

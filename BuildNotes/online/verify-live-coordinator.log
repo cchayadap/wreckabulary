@@ -1,7 +1,0 @@
-PASS live HTTPS public key matches independent RSA3072 key
-PASS server guest identity and rotating refresh fail closed
-PASS live Photon endpoint authenticates one-use ticket and rejects replay/wrong app/caller identity
-PASS two private parties of four reserve exact whole teams; unapproved Quick Play denied
-PASS all eight exact seats accept content; signed grants and start certificate verify
-PASS one-use connection lease, exact retry, outsider rejection and terminal Return revocation
-PASS all test match seats returned and both parties left

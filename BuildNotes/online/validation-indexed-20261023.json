@@ -1,9 +1,0 @@
-{
-  "recordedUtc": "2026-10-23T16:19:34.4125350Z",
-  "sourceCommit": "153ff5761c5ce0394286ee5f2053a451677e2d0f",
-  "validationSha256": "9C0ABDE4346A2BF2CE80955ADA47566258E7A3E365A7F3A7694F6DC872BAD2BA",
-  "physicalValidationSha256": "DCC2DB749ECAB53EEDC421699E06E666D8D5EA441068D2111B680629D54692C3",
-  "probeSha256": "9E794DEB66EF62F33D94714DBB91AF57607C02B987D0C32045F712E2B16CB224",
-  "command": "dotnet run --project Tools/RulesHarness/ValidationProbe/ValidationProbe.csproj --configuration Release",
-  "exitCode": 0
-}

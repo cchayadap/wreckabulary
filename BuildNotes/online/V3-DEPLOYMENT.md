@@ -1,9 +1,0 @@
-# Schema-3 recovery service deployment
-
-STATUS: DEPLOYED; LIVE API RECHECK PASS; NATIVE V3 RECOVERY PENDING
-
-On 2026-10-20T20:21:15.929231Z the approved James Cloudflare connection updated only `wreckabulary-wordbound-coordinator` in account `d105a82bc26b6913575355352c2d1bb1`. Source interoperability evidence is `PROTOCOL-V3-CUTOVER.md` (lane3351ff5, integrated07c5712). Root's production dry run and explicit update preparation succeeded. The uploaded module digest was independently checked inside the connector before its PUT: `ebff4528a09a832a473ec54ad4a7d8b2e60340422948096d753615ccd9f08a7d`.
-
-Read-back confirms deployment `912bdaa6-61ef-40f3-8fad-d567cde59ccd`, version `387b0d2b-5836-4485-b651-b52ce5b49f0e` at100%. Migration tag remains v1. Existing three secret bindings and three Durable Object namespace IDs were preserved; no creation migration or replacement secret was submitted. Query redaction remains on, logs/traces off. The website Worker retains its original modification timestamp `2026-10-09T06:39:10.260712Z`.
-
-The exact approved public allowlist remains empty. This deployment enables schema3/canonical3/wordbound-v3 checkpoint handling for practice/defense and does not activate public queues or install the pending authored-map bundle transport. The live API recheck passed all seven stages, including pinned public key, rotating guest identity, Photon one-use authentication, exact eight-seat private party admission, signed start certificate, connection revocation and complete cleanup. Evidence is `V3-LIVE-API-CHECK.json`. This API fixture does not submit native game checkpoints; final native recovery, public allocator and Windows evidence remain required. Sanitized upload/read-back evidence is `V3-DEPLOYMENT.json`; private preparation and credentials remain ignored outside tracked source.

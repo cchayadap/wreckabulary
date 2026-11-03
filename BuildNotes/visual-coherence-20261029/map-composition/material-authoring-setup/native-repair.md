@@ -1,3 +1,0 @@
-# Native setup guard repair
-
-First setup200411 FAIL before backups/assets: Unity marks Universal Render Pipeline/Lit Shader dirty from compilation. The existing preview tool already excludes package Shader cache dirtiness while preserving dependency bytes. Root applies the narrower exact URP Lit.shader path exception only in the dependency loop. All saved course/profile/model/material cleanliness and original dependency hashes remain required; importer dirtiness is now explicitly checked. No asset/source resetting. Retry200521 PASS and reopen200848 PASS; all50 capture input files unchanged after repeat.

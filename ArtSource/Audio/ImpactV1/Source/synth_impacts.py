@@ -280,7 +280,7 @@ def main():
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,39}", a.run_name):
         raise SystemExit("run name must match ^[a-z0-9][a-z0-9-]{0,39}$")
     sys.path.insert(0, str(root / "Tools" / "kit" / "audio"))
-    import audio_common as ac  # noqa: E402  (read-only use of the kit's BS.1770 helpers)
+    import audio_common as ac
 
     out = root / "ArtSource" / "Audio" / "ImpactV1" / a.run_name
     if out.exists():

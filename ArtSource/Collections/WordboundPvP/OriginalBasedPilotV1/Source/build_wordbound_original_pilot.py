@@ -161,7 +161,6 @@ def soften_cushion(obj):
     bm.free()
     mesh.update()
     mesh.normals_split_custom_set([(0, 0, 0)] * len(mesh.loops))
-    # Refine the original component's topology and retain its extents.
     subdivision = obj.modifiers.new("CushionSurfaceRefinement", "SUBSURF")
     subdivision.subdivision_type = "CATMULL_CLARK"
     subdivision.levels = 1

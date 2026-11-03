@@ -1,2 +1,0 @@
-JOSE_INTEROP passed: JavaScript RS256, roster hash and secret commitment verified by C#.
-HTTP_TRANSPORT passed: real loopback request headers/body, HTTPS default, redirect and size rejection.

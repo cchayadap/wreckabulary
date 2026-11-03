@@ -94,3 +94,11 @@ _Inbox/
 /Assets/Resources/PerformanceTestRunInfo.json.meta
 /Assets/Resources/PerformanceTestRunSettings.json
 /Assets/Resources/PerformanceTestRunSettings.json.meta
+
+/BuildNotes/
+/docs/
+*.md
+!/README.md
+!/Packages/**/*.md
+!/Tools/kit/**/*.md
+!/.github/**/*.md

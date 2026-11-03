@@ -1,7 +1,0 @@
-{
-  "status": "PASS_STATIC_FILES_ONLY",
-  "images": 65,
-  "scriptsParsed": 1,
-  "htmlSha256": "1a5707ac4262cae97f92b14700da28aada6ea587a7d5bd6460df3e5bca1950e2",
-  "browserRender": "NOT_RUN: browser automation URL policy rejects file protocol; no workaround attempted"
-}

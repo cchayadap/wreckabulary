@@ -1,9 +1,0 @@
-{
-  "passed": true,
-  "cards": 12,
-  "viewControls": 36,
-  "initialImages": 12,
-  "verifiedLocalReferences": 138,
-  "externalReferences": 0,
-  "browserInteraction": "NOT RUN; static markup/link checks and JavaScript syntax only"
-}

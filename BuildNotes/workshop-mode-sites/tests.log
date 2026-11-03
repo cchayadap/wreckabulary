@@ -1,8 +1,0 @@
-  Determining projects to restore...
-  Restored C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\workshop-mode-sites\Tests.csproj (in 4.74 sec).
-  Tests -> C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\workshop-mode-sites\bin\Debug\net9.0\Tests.dll
-Test run for C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\workshop-mode-sites\bin\Debug\net9.0\Tests.dll (.NETCoreApp,Version=v9.0)
-A total of 1 test files matched the specified pattern.
-Results File: C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\workshop-mode-sites\TestResults\workshop-mode-sites.trx
-
-Passed!  - Failed:     0, Passed:    58, Skipped:     0, Total:    58, Duration: 1 s - Tests.dll (net9.0)

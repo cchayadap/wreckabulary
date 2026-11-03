@@ -1,7 +1,0 @@
-{
-  "utc": "2026-10-28T14:55:57.3662990Z",
-  "action": "Stopped exact owned core test worker",
-  "worker": 17472,
-  "gate": 27964,
-  "reason": "Filter unintentionally included historical unchanged 8000-seed sweep. Run new variant fixture only; preserve aborted result, do not treat as code failure."
-}

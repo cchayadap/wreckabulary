@@ -631,7 +631,6 @@ export class WorldView {
       );
       const visible = !piece || wardrobe.pieces?.[piece.slot] === piece.id;
       if (piece) o.visible = visible;
-      // "tint" is one material name or a list of them, so a piece can recolour several slots at once.
       const wants = piece?.tint
         ? (Array.isArray(piece.tint) ? piece.tint : [piece.tint]).map((t) => t.toLowerCase())
         : [];

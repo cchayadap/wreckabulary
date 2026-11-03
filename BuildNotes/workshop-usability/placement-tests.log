@@ -1,7 +1,0 @@
-  PlacementTests -> C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\workshop-usability\bin\Debug\net9.0\PlacementTests.dll
-Test run for C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\workshop-usability\bin\Debug\net9.0\PlacementTests.dll (.NETCoreApp,Version=v9.0)
-A total of 1 test files matched the specified pattern.
-WARNING: Overwriting results file: C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\workshop-usability\TestResults\placement-tests.trx
-Results File: C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-map-workshop\BuildNotes\workshop-usability\TestResults\placement-tests.trx
-
-Passed!  - Failed:     0, Passed:    38, Skipped:     0, Total:    38, Duration: 6 s - PlacementTests.dll (net9.0)
