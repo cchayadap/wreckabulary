@@ -13,7 +13,7 @@ namespace Wreckabulary.Tests
         [UnitySetUp] public IEnumerator SetUp() => TestScenes.Reset();
         [UnityTearDown] public IEnumerator TearDown() => TestScenes.Reset();
 
-        static readonly Vector3 BelowTheFlight = new(2f, 0f, -5.6f), AboveTheFlight = new(2f, 3f, 1.7f);
+        static readonly Vector3 BelowTheFlight = new(.8f, 0f, -.6f), AboveTheFlight = new(.8f, 3f, 6.7f);
 
         static IEnumerator BuildHouse(System.Action<RoomBuilder> built)
         {
@@ -91,7 +91,7 @@ namespace Wreckabulary.Tests
             yield return new WaitForSeconds(.5f);
             var top = p.transform.position;
             Debug.Log($"TERRACE_UP z {top.z:F2} y {top.y:F3} peak {peak:F3}");
-            Assert.Greater(top.z, 1.2f, "walked off the top of the flight");
+            Assert.Greater(top.z, 6.2f, "walked off the top of the flight");
             Assert.AreEqual(3f, top.y, .2f, "stands on the landing");
             Assert.Less(peak, 3.3f, "no launch off the top");
             Assert.AreEqual("Landing", layout.RoomAt(top.x, top.y, top.z));
@@ -106,13 +106,13 @@ namespace Wreckabulary.Tests
             {
                 yield return new WaitForFixedUpdate();
                 float z = p.transform.position.z;
-                if (z > -3.5f && z < 0f) { onFlight++; if (!p.Grounded) airborne++; }
+                if (z > 1.5f && z < 5f) { onFlight++; if (!p.Grounded) airborne++; }
             }
             input.Next.move = Vector2.zero;
             yield return new WaitForSeconds(.5f);
             var bottom = p.transform.position;
             Debug.Log($"TERRACE_DOWN z {bottom.z:F2} y {bottom.y:F3} flight steps {onFlight} airborne {airborne}");
-            Assert.Less(bottom.z, -5f, "walked back down into the hall");
+            Assert.Less(bottom.z, 0f, "walked back down into the hall");
             Assert.AreEqual(0f, bottom.y, .2f, "stands on the hall floor");
             Assert.AreEqual("Hall", layout.RoomAt(bottom.x, bottom.y, bottom.z));
             Assert.Greater(onFlight, 0, "came down the stairs");
@@ -127,28 +127,28 @@ namespace Wreckabulary.Tests
             RoomBuilder room = null;
             yield return BuildHouse(r => room = r);
             Physics.SyncTransforms();
-            Assert.IsTrue(Physics.Raycast(new Vector3(2f, 6f, -2f), Vector3.down, out var stairs, 7f, World.GroundMask));
+            Assert.IsTrue(Physics.Raycast(new Vector3(.8f, 5.5f, 3f), Vector3.down, out var stairs, 7f, World.GroundMask));
             Assert.AreEqual(1.33f, stairs.point.y, .25f, "the flight's halfway point");
-            Assert.IsTrue(Physics.Raycast(new Vector3(0f, 6f, -2f), Vector3.down, out var landing, 7f, World.GroundMask));
+            Assert.IsTrue(Physics.Raycast(new Vector3(-1.2f, 5.5f, 3f), Vector3.down, out var landing, 7f, World.GroundMask));
             Assert.AreEqual(3f, landing.point.y, .05f, "the landing floor");
-            Assert.IsTrue(Physics.Raycast(new Vector3(.5f, .5f, -1f), Vector3.right, 2f, World.GroundMask), "under the flight is solid");
-            Assert.IsFalse(Physics.Raycast(new Vector3(0f, 1f, -4.15f), Vector3.right, 2.5f, World.GroundMask), "the rails end over the bottom step");
-            Assert.IsFalse(Physics.Raycast(new Vector3(-2.2f, .5f, -2f), Vector3.left, 1.6f, World.GroundMask), "Hall–LivingRoom doorway");
-            Assert.IsTrue(Physics.Raycast(new Vector3(-2.2f, .5f, 0f), Vector3.left, 1.6f, World.GroundMask), "the wall beside it");
-            Assert.IsFalse(Physics.Raycast(new Vector3(-2.2f, 3.5f, -2f), Vector3.left, 1.6f, World.GroundMask), "Landing–Bedroom doorway");
-            Assert.IsTrue(Physics.Raycast(new Vector3(-2.2f, 3.5f, 0f), Vector3.left, 1.6f, World.GroundMask), "the wall beside it upstairs");
-            Assert.IsTrue(Physics.Raycast(new Vector3(0f, 3.5f, -2f), Vector3.right, 1.6f, World.GroundMask), "the railing round the stairwell");
+            Assert.IsTrue(Physics.Raycast(new Vector3(-.7f, .5f, 4f), Vector3.right, 2f, World.GroundMask), "under the flight is solid");
+            Assert.IsFalse(Physics.Raycast(new Vector3(-1.2f, 1f, .85f), Vector3.right, 2.5f, World.GroundMask), "the rails end over the bottom step");
+            Assert.IsFalse(Physics.Raycast(new Vector3(-5.2f, .5f, 6f), Vector3.left, 1.6f, World.GroundMask), "Hall–LivingRoom doorway");
+            Assert.IsTrue(Physics.Raycast(new Vector3(-5.2f, .5f, 8f), Vector3.left, 1.6f, World.GroundMask), "the wall beside it");
+            Assert.IsFalse(Physics.Raycast(new Vector3(-5.2f, 3.5f, 8f), Vector3.left, 1.6f, World.GroundMask), "Landing–Bedroom doorway");
+            Assert.IsTrue(Physics.Raycast(new Vector3(-5.2f, 3.5f, 6f), Vector3.left, 1.6f, World.GroundMask), "the wall beside it upstairs");
+            Assert.IsTrue(Physics.Raycast(new Vector3(-1.2f, 3.5f, 3f), Vector3.right, 1.6f, World.GroundMask), "the railing round the stairwell");
         }
 
         [UnityTest]
         public IEnumerator TheFloorShieldsABlastFromBelow()
         {
             yield return BuildHouse(_ => { });
-            var upstairs = Player(0, new ScriptedBinding(), new Vector3(-5f, 3f, -4f));
-            var downstairs = Player(1, new ScriptedBinding(), new Vector3(-4f, 0f, -4f));
+            var upstairs = Player(0, new ScriptedBinding(), new Vector3(-14f, 3f, 3f));
+            var downstairs = Player(1, new ScriptedBinding(), new Vector3(-13f, 0f, 3f));
             yield return new WaitForSeconds(.3f);
             Assert.AreEqual(3f, upstairs.transform.position.y, .2f);
-            Projectile.ExplodeAt(new Vector3(-5f, 2.3f, -4f), null, "BOMB", 45f, 15f, 3f, 0f, 0f, true);
+            Projectile.ExplodeAt(new Vector3(-14f, 2.3f, 3f), null, "BOMB", 45f, 15f, 3f, 0f, 0f, true);
             yield return null;
             Assert.Less(downstairs.Health.Current, downstairs.Health.Max, "the blast hurts the room it went off in");
             Assert.AreEqual(upstairs.Health.Max, upstairs.Health.Current, "the floor shields the player standing on it");
@@ -158,10 +158,10 @@ namespace Wreckabulary.Tests
         public IEnumerator ABombLyingOnTheFloorUpstairsDoesntReachDownstairs()
         {
             yield return BuildHouse(_ => { });
-            var upstairs = Player(0, new ScriptedBinding(), new Vector3(-6.5f, 3f, -4f));
-            var downstairs = Player(1, new ScriptedBinding(), new Vector3(-5f, 0f, -4.5f));
+            var upstairs = Player(0, new ScriptedBinding(), new Vector3(-15.5f, 3f, 3f));
+            var downstairs = Player(1, new ScriptedBinding(), new Vector3(-14f, 0f, 2.5f));
             yield return new WaitForSeconds(.3f);
-            Projectile.ExplodeAt(new Vector3(-5f, 2.99f, -4f), null, "BOMB", 45f, 15f, 3f, 0f, 0f, true);
+            Projectile.ExplodeAt(new Vector3(-14f, 2.99f, 3f), null, "BOMB", 45f, 15f, 3f, 0f, 0f, true);
             yield return null;
             Assert.Less(upstairs.Health.Current, upstairs.Health.Max, "it hurts whoever is beside it on that floor");
             Assert.AreEqual(downstairs.Health.Max, downstairs.Health.Current, "the floor it lies on shields the room below");
@@ -172,8 +172,8 @@ namespace Wreckabulary.Tests
         {
             RoomBuilder room = null;
             yield return BuildHouse(r => room = r);
-            var up = Player(0, new ScriptedBinding(), new Vector3(-7f, 3f, -4f));
-            var down = Player(1, new ScriptedBinding(), new Vector3(6.5f, 0f, -4f));
+            var up = Player(0, new ScriptedBinding(), new Vector3(-16f, 3f, 3f));
+            var down = Player(1, new ScriptedBinding(), new Vector3(10f, 0f, 10f));
             yield return new WaitForSeconds(.5f);
             var cutaway = StoreyCutaway.Instance;
             Assert.AreEqual(1, cutaway.TopStorey, "someone is upstairs, so it's drawn");
@@ -184,7 +184,7 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(parts.Where(r => r.name == "Bedroom floor").All(cutaway.Draws), "the bedroom player still has a floor");
             Assert.IsTrue(up.GetComponentsInChildren<Renderer>().Concat(down.GetComponentsInChildren<Renderer>()).All(cutaway.Draws), "players are always drawn");
 
-            down.Respawn(new Vector3(-5f, 0f, -4f));
+            down.Respawn(new Vector3(-14f, 0f, 8f));
             yield return new WaitForSeconds(.5f);
             CollectionAssert.AreEquivalent(new[] { "Bedroom" }, cutaway.LiftedRooms, "the lifted room follows the player below");
         }
@@ -194,14 +194,16 @@ namespace Wreckabulary.Tests
         {
             RoomBuilder room = null;
             yield return BuildHouse(r => room = r);
-            var you = Player(0, new ScriptedBinding(), new Vector3(2f, 0f, 1f));
+            var you = Player(0, new ScriptedBinding(), new Vector3(.8f, 0f, 6f));
             yield return new WaitForSeconds(.5f);
             var cutaway = StoreyCutaway.Instance;
-            var steps = StoreyParts(room, 0).Where(r => r.name == "Step").ToList();
+            var flight = room.Layout.Stairs.First(s => s.Lower == "Hall");
+            var steps = StoreyParts(room, 0).Where(r => r.name == "Step" && flight.Covers(r.bounds.center.x, r.bounds.center.z)).ToList();
+            Assert.IsNotEmpty(steps, "the main flight is built from steps");
             Assert.IsTrue(steps.Where(r => r.bounds.max.y > 2.3f).All(r => !cutaway.Draws(r)), "the tall steps between you and the camera come off");
             Assert.IsTrue(steps.Where(r => r.bounds.max.y < 1f).All(cutaway.Draws), "the low steps stay");
             Assert.IsTrue(StoreyParts(room, 0).Where(r => r.name == "Hall floor").All(cutaway.Draws));
-            you.Respawn(new Vector3(-6f, 0f, 0f));
+            you.Respawn(new Vector3(-14f, 0f, 6f));
             yield return new WaitForSeconds(.5f);
             Assert.IsTrue(steps.All(cutaway.Draws), "from the living room the whole flight is back");
         }
@@ -228,39 +230,40 @@ namespace Wreckabulary.Tests
             yield return TestScenes.WaitUntil(() => hud.LocalPlayer, 2f, "the HUD follows someone");
             TextMeshProUGUI Badge() => hud.GetComponentsInChildren<TextMeshProUGUI>().FirstOrDefault(t => t.name == "Storey" && t.isActiveAndEnabled);
             var you = hud.LocalPlayer;
-            you.Respawn(new Vector3(-8f, 0f, 1f));
+            you.Respawn(new Vector3(-13f, 0f, 8f));
             yield return TestScenes.WaitUntil(() => Badge() && Badge().text == "GROUND FLOOR", 2f, "the map says you're on the ground floor");
-            you.Respawn(new Vector3(-7f, 3f, 2f));
-            yield return TestScenes.WaitUntil(() => Badge().text == "UPSTAIRS", 2f, "the map follows you upstairs");
+            you.Respawn(new Vector3(-13f, 3f, 6f));
+            Assert.AreEqual("1ST FLOOR", layout.StoreyLabel(1), "with the attic above, upstairs is the first of two upper floors");
+            yield return TestScenes.WaitUntil(() => Badge().text == layout.StoreyLabel(1), 2f, "the map follows you upstairs");
         }
 
         [UnityTest]
         public IEnumerator ABotClimbsTheStairsToReviveItsPartner() =>
-            BotRevives(downedAt: new Vector3(5.5f, 3f, 1.5f), botAt: new Vector3(-6f, 0f, -4f), "KidsRoom");
+            BotRevives(downedAt: new Vector3(5f, 3f, 8f), botAt: new Vector3(-9f, 0f, 3f), "KidsRoom");
 
         [UnityTest]
         public IEnumerator ABotComesDownTheStairsToReviveItsPartner() =>
-            BotRevives(downedAt: new Vector3(-6f, 0f, 3f), botAt: new Vector3(5f, 3f, -5f), "LivingRoom");
+            BotRevives(downedAt: new Vector3(-9f, 0f, 8f), botAt: new Vector3(5f, 3f, 7f), "LivingRoom");
 
         [UnityTest]
         public IEnumerator ABotComesDownTheStairsAndRoundThemIntoTheKitchen() =>
-            BotRevives(downedAt: new Vector3(6f, 0f, 3f), botAt: new Vector3(-1f, 3f, -5f), "Kitchen");
+            BotRevives(downedAt: new Vector3(15f, 0f, 11f), botAt: new Vector3(-.5f, 3f, 8f), "Kitchen");
 
         [UnityTest]
         public IEnumerator ABotWalksRoundTheStairwellOnTheLanding() =>
-            BotRevives(downedAt: new Vector3(-.5f, 3f, -4.5f), botAt: new Vector3(6f, 3f, 2f), "Landing", trips: 0);
+            BotRevives(downedAt: new Vector3(0f, 3f, -.5f), botAt: new Vector3(6f, 3f, 9f), "Landing", trips: 0);
 
         [UnityTest]
         public IEnumerator ABotRevivesAPartnerDownOnTheStairs() =>
-            BotRevives(downedAt: new Vector3(2f, 1.1f, -2.5f), botAt: new Vector3(-6f, 0f, -4f), "Hall", pinned: true);
+            BotRevives(downedAt: new Vector3(.8f, 1.1f, 2.5f), botAt: new Vector3(-9f, 0f, 3f), "Hall", pinned: true);
 
         [UnityTest]
         public IEnumerator ABotStepsThroughADoorFromJustBesideIt() =>
-            BotRevives(downedAt: new Vector3(1f, 3f, 5.2f), botAt: new Vector3(.3f, 3f, 2.2f), "Bathroom", trips: 0);
+            BotRevives(downedAt: new Vector3(-1f, 3f, 12.2f), botAt: new Vector3(-1.7f, 3f, 9.2f), "Bathroom", trips: 0);
 
         [UnityTest]
         public IEnumerator ABotGoesDownFromBesideTheTopOfTheFlight() =>
-            BotRevives(downedAt: new Vector3(-.5f, 0f, -5f), botAt: new Vector3(1.3f, 3f, 1.2f), "Hall");
+            BotRevives(downedAt: new Vector3(-1.7f, 0f, 0f), botAt: new Vector3(.1f, 3f, 6.2f), "Hall");
 
         static IEnumerator BotRevives(Vector3 downedAt, Vector3 botAt, string room, int trips = 1, bool pinned = false)
         {
@@ -284,14 +287,13 @@ namespace Wreckabulary.Tests
             partner.GetComponent<BotController>().enabled = true;
             float highest = 0f, started = Time.time, until = Time.time + 40f, nextTrace = 0f;
             var trace = new System.Text.StringBuilder();
-            var flight = layout.Stairs.Single();
             bool wasOn = false;
             int timesOn = 0;
             while (!human.Health.IsAlive && Time.time < until)
             {
                 var now = partner.transform.position;
                 highest = Mathf.Max(highest, now.y);
-                bool on = flight.Covers(now.x, now.z);
+                bool on = layout.Stairs.Any(s => s.Covers(now.x, now.z) && now.y > layout.Room(s.Lower).FloorY - .5f && now.y < layout.Room(s.Upper).FloorY + .5f);
                 if (on && !wasOn) timesOn++;
                 wasOn = on;
                 if (Time.time >= nextTrace)
@@ -356,9 +358,9 @@ namespace Wreckabulary.Tests
             yield return LoadBattle("Dibs");
             yield return BeginWithBotsStopped();
             var players = Object.FindAnyObjectByType<PlayerJoinManager>().Players;
-            players[1].Respawn(new Vector3(6f, 0f, -3f));
-            players[2].Respawn(new Vector3(7f, 0f, -3f));
-            players[3].Respawn(new Vector3(-6f, 3f, 3f));
+            players[1].Respawn(new Vector3(13f, 0f, 7.5f));
+            players[2].Respawn(new Vector3(14f, 0f, 7.5f));
+            players[3].Respawn(new Vector3(-14f, 3f, 6f));
             players[0].Health.Eliminate();
             yield return new WaitForSeconds(.5f);
             var cutaway = StoreyCutaway.Instance;
@@ -377,12 +379,14 @@ namespace Wreckabulary.Tests
             var clear = Object.FindAnyObjectByType<ClearOutController>();
             var players = Object.FindAnyObjectByType<PlayerJoinManager>().Players;
             PlayerController up = players[0], below = players[1];
-            up.Respawn(new Vector3(0f, 3f, 5f));
-            below.Respawn(new Vector3(0f, 0f, 5f));
+            up.Respawn(new Vector3(-2f, 3f, 12f));
+            below.Respawn(new Vector3(-2f, 0f, 12f));
             var began = typeof(ClearOutController).GetField("began", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             began.SetValue(clear, Time.time - (Match.Rules.ClearOutFirstAt - Match.Rules.ClearOutWarnSeconds + 1f));
             yield return null;
-            StringAssert.Contains("Bathroom (upstairs)", clear.Message);
+            var layout = Object.FindAnyObjectByType<RoomBuilder>().Layout;
+            Assert.AreEqual("Bathroom", layout.ClearOutOrders["Dibs"][0], "the bathroom upstairs is packed first");
+            StringAssert.Contains(layout.WithStorey("Bathroom"), clear.Message);
             began.SetValue(clear, Time.time - (Match.Rules.ClearOutFirstAt + 1f));
             yield return new WaitForSeconds(.6f);
             Assert.Less(up.Health.Current, up.Health.Max, "the bathroom hurts whoever is in it");
@@ -398,12 +402,12 @@ namespace Wreckabulary.Tests
             var director = Object.FindAnyObjectByType<MovingDayDirector>();
             yield return TestScenes.WaitUntil(() => director.Current == MovingDayDirector.State.Playing, 5f, "level start");
             Assert.AreEqual("Terrace House", director.CurrentLevel.name);
-            Assert.AreEqual(7, director.Rooms.Count);
+            Assert.AreEqual(12, director.Rooms.Count);
             Assert.AreEqual("KidsRoom", director.CurrentLevel.items.First(i => i.word == "LAMP").room);
             var kids = director.Rooms.First(r => r.name == "KidsRoom");
             var kitchen = director.Rooms.First(r => r.name == "Kitchen");
-            var upstairs = new Vector3(6f, 3.2f, 0f);
-            var downstairs = new Vector3(6f, .2f, 0f);
+            var upstairs = new Vector3(10f, 3.2f, 9f);
+            var downstairs = new Vector3(10f, .2f, 9f);
             Assert.IsTrue(kids.Contains(upstairs) && !kids.Contains(downstairs), "the kids' room is upstairs");
             Assert.IsTrue(kitchen.Contains(downstairs) && !kitchen.Contains(upstairs), "the kitchen is under it");
 

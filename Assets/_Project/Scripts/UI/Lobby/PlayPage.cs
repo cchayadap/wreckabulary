@@ -119,8 +119,8 @@ namespace Wreckabulary
             var maps = MapCards(column, "Solo maps");
             var mapGrid = maps.GetComponent<LobbyPlayCardGrid>();
             mapGrid.PreviewAspectRatio = 16f / 9f;
-            SoloMapCard(maps, WordboundSoloEntry.ParcelServiceMap, "Parcel Service", "Three-room office", null, LobbyKit.Cyan);
-            SoloMapCard(maps, WordboundSoloEntry.LostAddressMap, "Lost Address", "Original course", "BOX", LobbyKit.Sun);
+            SoloMapCard(maps, WordboundSoloEntry.ParcelServiceMap, "Parcel Depot", "Two-level depot", null, LobbyKit.Cyan);
+            SoloMapCard(maps, WordboundSoloEntry.LostAddressMap, "The Lost Address", "Four-floor story", "BOX", LobbyKit.Sun);
             SoloMapCard(maps, WordboundSoloEntry.ParcelHallMap, "Parcel Hall", "Furnished hall", "TABLE", LobbyKit.Lime);
             var bar = SummaryFrame(body, "Solo summary");
             SummaryLine(bar);
@@ -497,7 +497,7 @@ namespace Wreckabulary
                     if (layout.StoreyOf(room) != storey) continue;
                     var rect = LobbyKit.Rect(box, room.Name).Pin(new Vector2(.5f, .5f), At((room.MinX + room.MaxX) * .5f, (room.MinZ + room.MaxZ) * .5f),
                         new Vector2(room.MaxX - room.MinX, room.MaxZ - room.MinZ) * scale + new Vector2(2, 2));
-                    bool garden = room.Name.Contains("Garden");
+                    bool garden = room.Outdoor;
                     var fill = garden ? LobbyKit.Lime : IsPassage(room.Name) ? LobbyKit.Sun : colour;
                     rect.Paint(fill, 3).raycastTarget = false;
                     LobbyKit.Frame(rect, LobbyKit.ArtInk, 3, 3);

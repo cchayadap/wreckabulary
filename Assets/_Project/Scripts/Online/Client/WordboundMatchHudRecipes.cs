@@ -208,7 +208,7 @@ namespace Wreckabulary.Online
                 GUILayout.Label("Choose a recipe", ui.Heading);
                 return;
             }
-            string status = inventory?.Craft != null ? "Crafting…" : !card.Craftable ? "Missing " + MissingInWordOrder(card.Item.Id, card.Missing) : "Letters ready";
+            string status = inventory?.Craft != null ? "Crafting…" : !card.Craftable ? "Need letters " + string.Join(" ", MissingInWordOrder(card.Item.Id, card.Missing).ToCharArray()) : "Letters ready";
             string blurb = LoadoutPage.Blurb(card.Item);
             float titleHeight = ui.Heading.CalcHeight(new GUIContent(card.Item.Id), width);
             float statusHeight = ui.Wrapped.CalcHeight(new GUIContent(status), width);

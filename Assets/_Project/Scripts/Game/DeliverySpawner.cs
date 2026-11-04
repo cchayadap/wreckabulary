@@ -16,7 +16,7 @@ namespace Wreckabulary
         [SerializeField] Vector2 areaZ = new(-4.2f, 3.2f);
         [SerializeField] float dropHeight = 6f;
         const float StairClearance = .85f;
-        [Tooltip("Boxes only arrive while fewer letters than this are in play.")]
+        [Tooltip("Boxes only arrive while fewer letters than this are in play. The House tuning scales it with the house's floor area.")]
         [SerializeField] int minLettersInPlay = 26;
         [SerializeField] float interval = 4f;
         [SerializeField] float collapseInterval = 1.1f;
@@ -38,9 +38,11 @@ namespace Wreckabulary
         {
             if (!Running || Time.time < next) return;
             next = Time.time + (Collapsing ? collapseInterval : interval);
-            if (!Collapsing && LettersInPlay() >= minLettersInPlay) return;
+            if (!Collapsing && LettersInPlay() >= LettersWanted) return;
             Drop(Collapsing);
         }
+
+        public int LettersWanted => GameConfig.Current.Tuning?.LettersInPlay(Layout, minLettersInPlay) ?? minLettersInPlay;
 
         public HouseLayout Layout { get; set; }
         public System.Func<string, bool> RoomOpen { get; set; }

@@ -31,7 +31,7 @@ namespace Wreckabulary.Online
                 try
                 {
                     if (!parcel.Items || !parcel.RuleBook)
-                        throw new ArgumentException("Assign Parcel Service's item catalogue and rule book before opening this source.");
+                        throw new ArgumentException("Assign Parcel Depot's item catalogue and rule book before opening this source.");
                     parcel.CameraProfile?.Validate(); parcel.VisualProfile?.Validate();
                     var geometry = parcel.Catalogue();
                     var captured = new WorkshopInputs { Items = parcel.Items.text, Rules = parcel.RuleBook.text,
@@ -42,7 +42,7 @@ namespace Wreckabulary.Online
                 }
                 catch (Exception error) when (error is ArgumentException || error is InvalidOperationException)
                 {
-                    workshop.ConfigureParcelServiceUnavailable("Parcel Service is unavailable: " + error.Message);
+                    workshop.ConfigureParcelServiceUnavailable("Parcel Depot is unavailable: " + error.Message);
                 }
             }
             workshop.SpawnAssetVisual ??= CreateWorkshopVisual;
@@ -90,7 +90,7 @@ namespace Wreckabulary.Online
             if (workshop.UsesParcelService)
             {
                 if (parcelServiceWorkshopInputs == null || parcelServiceWorkshopInputs.GeometryHash != workshop.Catalogue.Hash)
-                    throw new InvalidOperationException("The Parcel Service draft does not match its captured course inputs.");
+                    throw new InvalidOperationException("The Parcel Depot draft does not match its captured course inputs.");
                 return new WorkshopInputs {
                     Items = parcelServiceWorkshopInputs.Items, Rules = parcelServiceWorkshopInputs.Rules,
                     GeometryHash = parcelServiceWorkshopInputs.GeometryHash,

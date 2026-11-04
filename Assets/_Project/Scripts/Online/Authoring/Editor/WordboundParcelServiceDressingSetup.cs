@@ -25,8 +25,12 @@ namespace Wreckabulary.Online.Editor
         const string ScriptPath = "Assets/_Project/Scripts/Online/Authoring/Editor/WordboundParcelServiceDressingSetup.cs";
         const string SourceFolder = "Assets/_Project/Art/Imported/Environment/";
         const string ProfilePath = WordboundParcelServiceMaterialsSetup.VisualPath;
+        public const string DepotEvidence = "BuildNotes/visual-coherence-20261029/map-composition/parcel-depot-dressing";
         static readonly string[] Keys = { "Wall_Sconce", "Wall_Shelf", "Wall_Sign" };
         static readonly string[] Modules = { "Service", "Sorting", "Dispatch" };
+        static readonly (string Module, string Group, Vector3 Offset)[] DepotRows = {
+            ("Counter", "Service", Vector3.zero), ("Dock", "Dispatch", new Vector3(3, 0, 8)), ("Hall", "Sorting", new Vector3(6, 0, 8)),
+            ("Lockers", "Sorting", Vector3.zero), ("Mezzanine", "Sorting", new Vector3(-8.6f, 0, 0)), ("Garage", "Dispatch", new Vector3(4, 0, 16)) };
 
         sealed class ModelFact
         {
@@ -159,6 +163,84 @@ namespace Wreckabulary.Online.Editor
                 Debug.Log("[Parcel wall fixtures] Three editable prefabs / eight original fixtures saved. Original assets and gameplay bytes unchanged. Inspect gameplay, Workshop and thumbnails before accepting the design. Exact profile backup: " + Backup);
             }
             finally { foreach (var group in groups) if (group) Object.DestroyImmediate(group); }
+        }
+
+        [MenuItem("Tools/Wordbound/Parcel Depot/Dress depot areas with reviewed fixtures")]
+        public static void DressDepotAreas()
+        {
+            RequireEditMode();
+            var legacy = RequireCourse(); var profile = legacy.VisualProfile;
+            Require(File.Exists(Backup + "/COMPLETE.json"), "Create the reviewed Parcel Service wall fixtures first.");
+            VerifyCompleted(legacy);
+            var depot = RequireSaved<WordboundCourseAsset>(WordboundParcelServiceSetup.Path);
+            Require(depot.ReadDocument().Id == WordboundParcelServiceContent.CourseId && depot.VisualProfile == profile,
+                "Parcel Depot must still use the saved Parcel Service visual profile. A custom assignment is never replaced.");
+            var rooms = profile.RoomStyle;
+            Require(rooms && AssetDatabase.GetAssetPath(rooms) == WordboundParcelServiceMaterialsSetup.RoomPath && !EditorUtility.IsDirty(rooms),
+                "Parcel Depot needs the saved Parcel Service room profile.");
+            var rows = DepotRows.Select(r => new WordboundModuleDressingEntry {
+                ModuleId = r.Module, Prefab = RequireSaved<GameObject>(PrefabPath(r.Group)), LocalPosition = r.Offset }).ToList();
+            var saved = profile.ModuleDressing.Where(e => DepotRows.Any(r => r.Module == e.ModuleId)).ToList();
+            var palette = rooms.Palettes.SingleOrDefault(p => p.LayerId == "Mezzanine");
+            if (saved.Count != 0 || palette != null)
+            {
+                Require(saved.Count == rows.Count && palette != null && rows.All(row => saved.Any(e => e.ModuleId == row.ModuleId && e.Prefab == row.Prefab)),
+                    "Parcel Depot area fixtures or the mezzanine palette were edited or are partial. They were preserved for review.");
+                ValidateDepotRows(depot, profile.ModuleDressing);
+                Selection.activeObject = profile; EditorGUIUtility.PingObject(profile);
+                Debug.Log("[Parcel Depot dressing] Existing area fixtures and mezzanine palette verified. Nothing was rewritten.");
+                return;
+            }
+            ValidateDepotRows(depot, profile.ModuleDressing.Concat(rows).ToList());
+            string backup = DepotEvidence + "/" + DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ") + "-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            RequireVacant(backup); RejectLinks(backup); Directory.CreateDirectory(backup);
+            var before = new[] { ProfilePath, WordboundParcelServiceMaterialsSetup.RoomPath }.SelectMany(p => new[] { p, p + ".meta" })
+                .ToDictionary(p => p, Hash, StringComparer.Ordinal);
+            foreach (var file in before)
+            {
+                string copy = backup + "/" + Path.GetFileName(file.Key);
+                WriteNew(copy, File.ReadAllBytes(file.Key));
+                Require(Hash(copy) == file.Value, "Exact profile backup failed.");
+            }
+            WriteNew(backup + "/BACKUP.json", JsonConvert.SerializeObject(before, Formatting.Indented));
+            string unrelated = OtherProfileFields(profile);
+            Undo.RecordObject(profile, "Dress Parcel Depot areas");
+            profile.ModuleDressing.AddRange(rows); profile.Validate();
+            EditorUtility.SetDirty(profile); AssetDatabase.SaveAssetIfDirty(profile);
+            Undo.RecordObject(rooms, "Add Parcel Depot mezzanine palette");
+            rooms.Palettes.Add(new WordboundRoomPalette { LayerId = "Mezzanine", Floor = Hex(0xb47a43), Wall = Hex(0x66856b),
+                Ceiling = Hex(0xf0e3cc), Frame = Hex(0x754d35), Inset = Hex(0x83c3bb), Accent = Hex(0xe1b55e) });
+            rooms.Validate(); EditorUtility.SetDirty(rooms); AssetDatabase.SaveAssetIfDirty(rooms);
+            Require(unrelated == OtherProfileFields(profile) && before.Where(p => p.Key.EndsWith(".meta", StringComparison.Ordinal)).All(p => Hash(p.Key) == p.Value),
+                "Unrelated profile fields or asset identities changed. Exact backups are retained at " + backup);
+            VerifyRows(legacy); ValidateDepotRows(depot, profile.ModuleDressing);
+            WriteNew(backup + "/COMPLETE.json", JsonConvert.SerializeObject(new Completion {
+                status = "CREATED_REQUIRES_WORLD_VISUAL_REVIEW", backup = before,
+                outputs = before.Keys.ToDictionary(p => p, Hash, StringComparer.Ordinal)
+            }, Formatting.Indented));
+            Selection.activeObject = profile; EditorGUIUtility.PingObject(profile);
+            Debug.Log("[Parcel Depot dressing] Six depot areas reuse the reviewed wall fixtures and the mezzanine office has its own palette. " +
+                "Parcel Service V1 rows and gameplay bytes are unchanged. Review gameplay, Workshop and thumbnails. Exact prior profiles: " + backup);
+        }
+
+        static void ValidateDepotRows(WordboundCourseAsset depot, List<WordboundModuleDressingEntry> entries)
+        {
+            WordboundModuleDressing.Validate(entries);
+            using var working = new WorkingScene();
+            var validation = new GameObject("Owned depot fixture validation");
+            SceneManager.MoveGameObjectToScene(validation, working.Scene);
+            try
+            {
+                var document = depot.ReadDocument(); var catalogue = depot.Catalogue();
+                foreach (var row in DepotRows)
+                {
+                    var module = document.Modules.Single(m => m.Id == row.Module);
+                    var clone = WordboundModuleDressing.Apply(entries, row.Module, catalogue.Modules[module.DefinitionId], validation.transform);
+                    Require(clone, "Missing Parcel Depot fixture row: " + row.Module);
+                    Object.DestroyImmediate(clone);
+                }
+            }
+            finally { Object.DestroyImmediate(validation); }
         }
 
         static GameObject[] BuildGroups(Scene scene)
@@ -328,10 +410,10 @@ namespace Wreckabulary.Online.Editor
 
         static WordboundCourseAsset RequireCourse()
         {
-            var course = RequireSaved<WordboundCourseAsset>(WordboundParcelServiceSetup.Path);
+            var course = RequireSaved<WordboundCourseAsset>(WordboundParcelServiceSetup.LegacyPath);
             var profile = RequireSaved<WordboundVisualProfile>(ProfilePath);
             var global = RequireSaved<WordboundVisualProfile>(WordboundAuthoringSetup.VisualPath);
-            Require(course.ReadDocument().Id == WordboundParcelServiceContent.CourseId && course.VisualProfile == profile && profile != global,
+            Require(course.ReadDocument().Id == WordboundParcelServiceContent.LegacyCourseId && course.VisualProfile == profile && profile != global,
                 "Only the saved Parcel Service course-owned visual profile can receive these fixtures.");
             profile.Validate(); return course;
         }
@@ -342,7 +424,7 @@ namespace Wreckabulary.Online.Editor
             finally { Object.DestroyImmediate(copy); }
         }
         static string[] DependencyPaths() => AssetDatabase.GetDependencies(Keys.Select(k => SourceFolder + k + ".fbx")
-            .Append(WordboundParcelServiceSetup.Path).Append(ProfilePath).Append(WordboundAuthoringSetup.VisualPath).ToArray(), true)
+            .Append(WordboundParcelServiceSetup.LegacyPath).Append(ProfilePath).Append(WordboundAuthoringSetup.VisualPath).ToArray(), true)
             .Where(File.Exists).Distinct(StringComparer.Ordinal).OrderBy(p => p, StringComparer.Ordinal).ToArray();
         static void RequireCleanDependencies()
         {
@@ -404,6 +486,7 @@ namespace Wreckabulary.Online.Editor
         static string Hash(string path)
         { using var sha = SHA256.Create(); using var stream = File.OpenRead(path); return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant(); }
         static float[] V(Vector3 value) => new[] { value.x, value.y, value.z };
+        static Color Hex(uint rgb) => new Color32((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb, 255);
         static string PrefabPath(string module) => Folder + "/" + module + "WallFixtures.prefab";
         static void RequireEditMode() => Require(!EditorApplication.isPlayingOrWillChangePlaymode, "Inspect/create fixtures outside Play mode.");
         static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }

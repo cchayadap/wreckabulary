@@ -15,21 +15,21 @@ namespace Wreckabulary.Online
 
         public static IWordboundPuzzleContent CreateSoloContent(string items, string rules, string mode, string seed, string map, WordboundCourseAsset authored)
         {
-            if (!WordboundSoloEntry.Supports(mode)) throw new ArgumentException("Choose Time Run or Freestyle for solo play.", nameof(mode));
+            if (!WordboundSoloEntry.Supports(mode)) throw new ArgumentException("Choose Time Trial or Freeplay for solo play.", nameof(mode));
             if (!WordboundSoloEntry.SupportsMap(map)) throw new ArgumentException("Choose an installed solo map.", nameof(map));
             if (map == WordboundSoloEntry.ParcelServiceMap)
             {
                 if (!authored || !authored.Items || !authored.RuleBook)
-                    throw new ArgumentException("Parcel Service requires its saved course, item catalogue and rule book.", nameof(authored));
+                    throw new ArgumentException("Parcel Depot requires its saved course, item catalogue and rule book.", nameof(authored));
                 var savedDocument = authored.ReadDocument();
                 if (savedDocument.Id != WordboundSoloEntry.ParcelServiceCourseId)
-                    throw new ArgumentException("The assigned course is not Parcel Service.", nameof(authored));
+                    throw new ArgumentException("The assigned course is not Parcel Depot.", nameof(authored));
                 authored.CameraProfile?.Validate(); authored.VisualProfile?.Validate();
                 var geometry = authored.Catalogue();
                 var requested = ModeDefinition.For(mode, RaceFormat.Solo);
                 var result = CourseResolver.Resolve(savedDocument, geometry,
                     new CourseResolveRequest(seed, MatchStateValidation.Requirements(requested)));
-                if (!result.Success) throw new ArgumentException("The saved Parcel Service course cannot be resolved for this mode.");
+                if (!result.Success) throw new ArgumentException("The saved Parcel Depot course cannot be resolved for this mode.");
                 return new WordboundAuthoredPuzzleContent(requested, geometry, result.Manifest, authored.Items.text, authored.RuleBook.text);
             }
             if (map == "LostAddress") return new WordboundClientContent(items, rules, mode, "Solo", seed).PhysicalPuzzles;
@@ -81,7 +81,7 @@ namespace Wreckabulary.Online
                 }
                 if (LobbyCamera) LobbyCamera.enabled = true;
                 failure = map == WordboundSoloEntry.ParcelServiceMap
-                    ? "Parcel Service is unavailable. Return to the lobby and choose another map." : SoloStartupFailure;
+                    ? "Parcel Depot is unavailable. Return to the lobby and choose another map." : SoloStartupFailure;
             }
         }
 

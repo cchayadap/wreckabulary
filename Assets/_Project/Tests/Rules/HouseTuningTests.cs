@@ -152,5 +152,70 @@ namespace Wreckabulary.Rules.Tests
             var bad = HouseTuning.FromJson(@"{ ""items"": [], ""tuning"": { ""items"": { ""BALL"": { ""melee"": { ""damage"": 5 } } } } }");
             Assert.Throws<ArgumentException>(() => bad.Apply(items, TestData.LoadRuleBook()));
         }
+
+        static HouseLayout[] Houses() => Directory.GetFiles(Path.Combine(TestData.Root, "Assets/_Project/Data/Config"), "house_*.json")
+            .Select(file => HouseLayout.FromJson(File.ReadAllText(file), Path.GetFileName(file))).ToArray();
+
+        [Test]
+        public void HouseRoundsRunLongerInTheBiggerHousesWhileWordboundKeepsItsTimers()
+        {
+            var (_, rules, _) = House();
+            var shared = TestData.LoadRuleBook();
+            foreach (string mode in new[] { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" })
+                Assert.Greater(rules.For(mode).RoundTimeLimitSeconds, shared.For(mode).RoundTimeLimitSeconds, mode + " gives the crew time to cross the bigger houses");
+            foreach (string mode in new[] { "MovingOut", "Escape" })
+                Assert.Greater(rules.For(mode).ClearOutFirstAt, shared.For(mode).ClearOutFirstAt, mode + " lets the crew spread out before the Movers start");
+            Assert.AreEqual(shared.For("Dibs").ClearOutDamagePerSecond, rules.For("Dibs").ClearOutDamagePerSecond, "only timings follow the size");
+            Assert.AreEqual(150f, TestData.LoadRuleBook().For("Dibs").RoundTimeLimitSeconds, "a fresh parse of rules.json (what Wordbound reads) is untouched");
+        }
+
+        [Test]
+        public void TheMoversPackEveryLastStandingRoomOneAtATimeBeforeTheRoundEnds()
+        {
+            var (_, rules, _) = House();
+            foreach (var house in Houses())
+                foreach (string mode in new[] { "Dibs", "Duos" })
+                {
+                    var r = rules.For(mode);
+                    var schedule = new ClearOutSchedule(r, house.ClearOutOrders[mode]);
+                    Assert.Less(schedule.Closures.Last().ClosedAt, r.RoundTimeLimitSeconds, $"{house.Name} {mode}: every listed room is packed in time");
+                    Assert.GreaterOrEqual(r.ClearOutInterval, r.ClearOutWarnSeconds + r.ClearOutFillSeconds, mode + ": one room is packed before the next warning");
+                }
+        }
+
+        [Test]
+        public void TuningOnlyStretchesTimersOfKnownModes()
+        {
+            Assert.Throws<FormatException>(() => HouseTuning.FromJson(@"{ ""tuning"": { ""modes"": { ""Dibs"": { ""maxHealth"": 500 } } } }"));
+            Assert.Throws<FormatException>(() => HouseTuning.FromJson(@"{ ""tuning"": { ""modes"": { ""Dibs"": { ""clearOut"": { ""damagePerSecond"": 50 } } } } }"));
+            Assert.Throws<FormatException>(() => HouseTuning.FromJson(@"{ ""tuning"": { ""modes"": { ""Dibs"": { ""roundTimeLimit"": 0 } } } }"));
+            var picnic = HouseTuning.FromJson(@"{ ""tuning"": { ""modes"": { ""Picnic"": { ""roundTimeLimit"": 60 } } } }");
+            Assert.Throws<ArgumentException>(() => picnic.Apply(TestData.Catalogue(), TestData.LoadRuleBook()));
+            var rules = TestData.LoadRuleBook();
+            HouseTuning.FromJson(@"{ ""tuning"": { ""modes"": { ""Escape"": { ""clearOut"": { ""interval"": 50 } } } } }").Apply(TestData.Catalogue(), rules);
+            Assert.AreEqual(50f, rules.For("Escape").ClearOutInterval);
+            Assert.AreEqual(TestData.LoadRuleBook().For("Escape").ClearOutFirstAt, rules.For("Escape").ClearOutFirstAt, "what the tuning leaves out stays as rules.json says");
+            Assert.AreEqual(TestData.LoadRuleBook().For("Dibs").ClearOutInterval, rules.For("Dibs").ClearOutInterval, "other modes keep their timers");
+        }
+
+        [Test]
+        public void LettersInPlayFollowTheFloorArea()
+        {
+            var tuning = HouseTuning.FromJson(HouseJson);
+            var houses = Houses().OrderBy(h => h.FloorArea).ToArray();
+            for (int i = 1; i < houses.Length; i++)
+                Assert.GreaterOrEqual(tuning.LettersInPlay(houses[i], 26), tuning.LettersInPlay(houses[i - 1], 26), houses[i].Name + " has more floor to fill");
+            foreach (var house in houses)
+            {
+                int letters = tuning.LettersInPlay(house, 26);
+                Assert.Greater(letters, 26, house.Name + " keeps more letters in play than the old 26");
+                Assert.LessOrEqual(letters, tuning.MaxLetters);
+            }
+            var cupboard = new HouseLayout();
+            cupboard.Rooms.Add(new RoomBox { Name = "Cupboard", MinX = 0f, MinZ = 0f, MaxX = 2f, MaxZ = 2f });
+            Assert.AreEqual(tuning.MinLetters, tuning.LettersInPlay(cupboard, 26), "a tiny house still gets the minimum");
+            Assert.AreEqual(26, HouseTuning.FromJson("{}").LettersInPlay(houses[0], 26), "without House tuning the scene's number stands");
+            Assert.AreEqual(17, tuning.LettersInPlay(null, 17));
+        }
     }
 }

@@ -34,6 +34,16 @@ namespace Wreckabulary.EditorTests
         }
 
         [Test]
+        public void TheEditorGrowsWithTheScreenFrom720p()
+        {
+            Assert.AreEqual(1f, WordboundUiStyles.ScreenScale(1280, 720));
+            Assert.AreEqual(1.5f, WordboundUiStyles.ScreenScale(1920, 1080), .0001f);
+            Assert.AreEqual(1f, WordboundUiStyles.ScreenScale(1024, 576), "Small screens keep the 720p layout, which already adapts.");
+            Assert.AreEqual(1f, WordboundUiStyles.ScreenScale(1920, 720), "The shorter side decides, so tall panels still fit.");
+            Assert.AreEqual(1.8f, WordboundUiStyles.ScreenScale(3840, 2160), .0001f);
+        }
+
+        [Test]
         public void OpeningAMapStartsOnBuildWithEveryAdvancedSectionClosed()
         {
             workshop.OpenTemplate(WorkshopTemplate.RaceCircuit, folder);

@@ -29,6 +29,8 @@ namespace Wreckabulary
         public int MenuWidth { get; private set; }
         public string ConfigurationError { get; private set; } = "";
 
+        public static float ScreenScale(int width, int height) => Mathf.Clamp(Mathf.Min(width / 1280f, height / 720f), 1f, 1.8f);
+
         public Scope Apply(WordboundUiTheme theme)
         {
             if (!skin || Event.current.type == EventType.Layout)

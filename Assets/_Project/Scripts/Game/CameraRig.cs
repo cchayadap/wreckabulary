@@ -18,6 +18,7 @@ namespace Wreckabulary
 
         const float ThirdPersonShake = .3f;
         const float FadeHold = .15f;
+        static readonly Vector3 Overhead = new(0f, PartyCamera.Rise, -PartyCamera.Back);
 
         Vector3 basePosition, smooth;
         Quaternion baseRotation;
@@ -25,9 +26,10 @@ namespace Wreckabulary
         float baseFieldOfView, baseNearClip;
         float shake;
         bool framesLayout;
-        Vector3 layoutCentre;
-        float wholeHouseSize;
-        float layoutWidth, layoutDepth;
+        PartyArea area;
+        PartyView party;
+        float boom = 1f;
+        readonly List<PartySeat> seats = new(4);
         Camera lens;
         CameraCutaway visibility;
         StoreyCutaway house;
@@ -75,17 +77,14 @@ namespace Wreckabulary
         public void FrameLayout(HouseLayout layout)
         {
             var camera = lens = GetComponent<Camera>();
-            float minX = layout.Rooms.Min(r => r.MinX), maxX = layout.Rooms.Max(r => r.MaxX);
-            float minZ = layout.Rooms.Min(r => r.MinZ), maxZ = layout.Rooms.Max(r => r.MaxZ);
-            var centre = new Vector3((minX + maxX) * .5f, 0f, (minZ + maxZ) * .5f);
-            layoutWidth = maxX - minX;
-            layoutDepth = maxZ - minZ;
+            area = new PartyArea(layout.Rooms.Min(r => r.MinX), layout.Rooms.Max(r => r.MaxX),
+                layout.Rooms.Min(r => r.MinZ), layout.Rooms.Max(r => r.MaxZ));
+            var centre = new Vector3(area.CentreX, 0f, area.CentreZ);
             camera.orthographic = true;
-            float aspect = Mathf.Max(.5f, camera.aspect);
-            camera.orthographicSize = HouseSize(aspect);
-            layoutCentre = centre;
-            wholeHouseSize = camera.orthographicSize;
-            basePosition = smooth = centre + new Vector3(0f, 30f, -22f);
+            camera.orthographicSize = PartyCamera.HouseSize(area.Width, area.Depth, camera.aspect);
+            party = PartyView.At(centre.x, 0f, centre.z, camera.orthographicSize);
+            boom = 1f;
+            basePosition = smooth = centre + Overhead;
             if (!target)
             {
                 transform.position = basePosition;
@@ -129,8 +128,6 @@ namespace Wreckabulary
             CursorPolicy.Apply(false);
         }
 
-        float HouseSize(float aspect) => Mathf.Max(layoutWidth / aspect, layoutDepth * .85f) * .5f + .8f;
-
         public static void Shake(float amount)
         {
             if (Instance) Instance.shake = Mathf.Max(Instance.shake, amount);
@@ -172,6 +169,7 @@ namespace Wreckabulary
                     lens.orthographic = baseOrthographic;
                     lens.fieldOfView = baseFieldOfView;
                     lens.nearClipPlane = baseNearClip;
+                    party = PartyView.At(lastFeet.x, party.Y, lastFeet.z, party.Size);
                 }
             }
             RoomBuilder.ApplyFog(target);
@@ -273,57 +271,48 @@ namespace Wreckabulary
         void Overview()
         {
             CursorPolicy.Apply(false);
+            float dt = Time.unscaledDeltaTime;
+            if (framesLayout) smooth = FramePlayers(dt);
+            else smooth = Vector3.Lerp(smooth, Drift(), 1f - Mathf.Exp(-3f * dt));
+            transform.position = smooth + Random.insideUnitSphere * shake;
+            shake = Mathf.MoveTowards(shake, 0f, dt * 1.5f);
+            FadeBlockers();
+        }
+
+        Vector3 FramePlayers(float dt)
+        {
+            seats.Clear();
+            foreach (var p in World.Players)
+            {
+                if (!p) continue;
+                var at = p.transform.position;
+                seats.Add(new PartySeat(at.x, at.y, at.z, p.Binding != null && p.Binding is not BotBinding, p.IsEliminated));
+            }
+            var cutaway = StoreyCutaway.Instance;
+            var shot = PartyCamera.Frame(seats, area, lens ? lens.aspect : 16f / 9f, cutaway ? cutaway.FocusY : 0f, ref party, dt);
+            boom = Mathf.Lerp(boom, shot.Solo ? soloDistance : 1f, 1f - Mathf.Exp(-3f * dt));
+            if (lens)
+            {
+                lens.orthographic = !shot.Solo;
+                if (shot.Solo) lens.fieldOfView = soloFieldOfView;
+                lens.orthographicSize = party.Size;
+            }
+            return new Vector3(party.X, party.Y, party.Z) + Overhead * boom;
+        }
+
+        Vector3 Drift()
+        {
             var centre = Vector3.zero;
             int n = 0;
-            int localCount = 0;
-            PlayerController localPlayer = null;
-            Vector3 low = Vector3.positiveInfinity, high = Vector3.negativeInfinity;
             foreach (var p in World.Players)
             {
                 if (!p || p.IsEliminated) continue;
                 centre += p.transform.position;
                 n++;
-                if (p.Binding != null && p.Binding is not BotBinding)
-                {
-                    localCount++; localPlayer = p;
-                    low = Vector3.Min(low, p.transform.position); high = Vector3.Max(high, p.transform.position);
-                }
             }
-            var goal = basePosition;
-            if (framesLayout)
-            {
-                bool followLocal = localCount == 1;
-                float aspect = lens ? Mathf.Max(.5f, lens.aspect) : 16f / 9f;
-                wholeHouseSize = HouseSize(aspect);
-                var focus = followLocal ? localPlayer.transform.position : layoutCentre;
-                float size = wholeHouseSize;
-                if (localCount > 1)
-                {
-                    var spread = high - low;
-                    size = Mathf.Clamp(Mathf.Max((spread.x + 9f) / aspect, (spread.z + 7f) * .85f) * .5f + 1f, 7.5f, wholeHouseSize);
-                    var middle = (low + high) * .5f;
-                    focus = Vector3.Lerp(middle, layoutCentre, Mathf.InverseLerp(wholeHouseSize * .7f, wholeHouseSize, size));
-                }
-                var cutaway = StoreyCutaway.Instance;
-                focus.y = cutaway ? cutaway.FocusY : 0f;
-                goal = focus + new Vector3(0f, 30f, -22f) * (followLocal ? soloDistance : 1f);
-                if (lens)
-                {
-                    lens.orthographic = !followLocal;
-                    if (followLocal) lens.fieldOfView = soloFieldOfView;
-                    lens.orthographicSize = Mathf.Lerp(lens.orthographicSize, size,
-                        1f - Mathf.Exp(-3f * Time.unscaledDeltaTime));
-                }
-            }
-            else if (n > 0)
-            {
-                centre /= n;
-                goal += new Vector3(centre.x * follow, 0f, centre.z * follow * 0.6f);
-            }
-            smooth = Vector3.Lerp(smooth, goal, 1f - Mathf.Exp(-3f * Time.unscaledDeltaTime));
-            transform.position = smooth + Random.insideUnitSphere * shake;
-            shake = Mathf.MoveTowards(shake, 0f, Time.unscaledDeltaTime * 1.5f);
-            FadeBlockers();
+            if (n == 0) return basePosition;
+            centre /= n;
+            return basePosition + new Vector3(centre.x * follow, 0f, centre.z * follow * 0.6f);
         }
     }
 }

@@ -227,7 +227,7 @@ namespace Wreckabulary
             kicker.name = "Help scope";
             kicker.color = LobbyKit.Cyan;
             kicker.Size(-1, 32);
-            Wrapped(column, "For Wordbound controls, open its Menu → Help.", 17, LobbyKit.Muted, 42);
+            Wrapped(column, "Wordbound controls: Controls tab → Wordbound.", 17, LobbyKit.Muted, 42);
             LobbyKit.Text(column, "Smash. Spell. Play.", 28, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft).Size(-1, 42);
             var steps = LobbyKit.Column(column, "Steps", 8);
             steps.Size(-1, 352);

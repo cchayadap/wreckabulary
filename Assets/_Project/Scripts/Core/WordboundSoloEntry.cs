@@ -5,7 +5,8 @@ namespace Wreckabulary
     public static class WordboundSoloEntry
     {
         public const string LostAddressMap = "LostAddress", ParcelHallMap = "ParcelHall", ParcelServiceMap = "ParcelService";
-        public const string ParcelServiceCourseId = "wordbound-parcel-service-v1";
+        public const string ParcelServiceCourseId = "wordbound-parcel-service-v2";
+        public const string ParcelServiceWorkshopFolder = "ParcelServiceV2", LegacyParcelServiceWorkshopFolder = "ParcelServiceV1";
         static string pending;
         static bool returnToSelection;
         public static string SelectedMode { get; private set; } = "TimeRun";
@@ -19,7 +20,7 @@ namespace Wreckabulary
         }
         public static void Select(string mode)
         {
-            if (!Supports(mode)) throw new ArgumentException("Choose Time Run or Freestyle for solo play.", nameof(mode));
+            if (!Supports(mode)) throw new ArgumentException("Choose Time Trial or Freeplay for solo play.", nameof(mode));
             SelectedMode = mode;
         }
         public static void Request(string mode)

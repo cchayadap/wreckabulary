@@ -100,7 +100,7 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(frame.Confirmation.gameObject.activeSelf);
             Tab("help");
             Assert.AreEqual("House games", page.Root.GetComponentsInChildren<TMPro.TMP_Text>().Single(text => text.name == "Help scope").text);
-            Assert.IsTrue(page.Root.GetComponentsInChildren<TMPro.TMP_Text>().Any(text => text.text == "For Wordbound controls, open its Menu → Help."));
+            Assert.IsTrue(page.Root.GetComponentsInChildren<TMPro.TMP_Text>().Any(text => text.text == "Wordbound controls: Controls tab → Wordbound."));
             yield return null;
         }
 

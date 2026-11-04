@@ -21,7 +21,7 @@ namespace Wreckabulary.EditorTests
             var world = prefab.GetComponent<AuthoredHouse>();
             var layout = GameConfig.Current.HouseFor(map);
             var dressing = world.GetComponentsInChildren<RoomDressing>(true);
-            CollectionAssert.AreEquivalent(layout.Rooms.Where(r => r.Name != "Garden").Select(r => r.Name), dressing.Select(d => d.RoomId));
+            CollectionAssert.AreEquivalent(layout.Rooms.Where(r => !r.Outdoor).Select(r => r.Name), dressing.Select(d => d.RoomId));
             AssertPresentation(world.gameObject);
             foreach (var room in dressing)
             {

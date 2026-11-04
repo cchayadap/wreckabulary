@@ -86,7 +86,7 @@ namespace Wreckabulary.Qa
                 parcelSource = assets.ParcelServiceCourse;
                 Require(parcelSource && parcelSource.Items && parcelSource.RuleBook &&
                     parcelSource.ReadDocument().Id == WordboundSoloEntry.ParcelServiceCourseId,
-                    "Parcel Service QA requires its explicit saved course, item catalogue and rule book.");
+                    "Parcel Depot QA requires its explicit saved course, item catalogue and rule book.");
                 foreach (var asset in new Object[] { parcelSource, parcelSource.CameraProfile, parcelSource.VisualProfile })
                     if (asset && !sourceMemory.ContainsKey(asset)) sourceMemory.Add(asset, JsonUtility.ToJson(asset));
                 foreach (var text in new[] { parcelSource.Items, parcelSource.RuleBook })
@@ -96,7 +96,7 @@ namespace Wreckabulary.Qa
                     ["input_hash"] = parcelSource.InputHash, ["geometry_hash"] = parcelSource.Catalogue().Hash,
                     ["item_hash"] = WordboundIdentity.Sha256(parcelSource.Items.text),
                     ["rule_hash"] = WordboundIdentity.Sha256(parcelSource.RuleBook.text) });
-                context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: the installed saved Parcel Service course in Time Run and Freestyle. Exact source/profile memory, Single runner, fresh render frames and borrowed device checks. No physical-input, full-finish, network, bot, team or Workshop acceptance claim.");
+                context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: the installed saved Parcel Depot course in Time Run and Freestyle. Exact source/profile memory, Single runner, fresh render frames and borrowed device checks. No physical-input, full-finish, network, bot, team or Workshop acceptance claim.");
             }
             else
             context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: installed Lost Address in two modes, plus the separate furnished Parcel Hall in Freestyle. No physical-input, full-finish, network, bot or team acceptance claim.");
@@ -151,27 +151,28 @@ namespace Wreckabulary.Qa
                     "Parcel Hall must include the complete real furniture arrangement.");
             if (parcelService)
             {
-                Require(course.CopyDocument().PhysicalSites.Count == 6 && gameplay.Frame.Progress.Players.Count == 1 &&
+                Require(course.CopyDocument().PhysicalSites.Count == WordboundParcelServiceContent.PhysicalSiteCount &&
+                    gameplay.Frame.Progress.Players.Count == 1 &&
                     gameplay.Frame.Progress.Result == null && Read<ModeDefinition>(hud, "mode").Id == mode,
-                    "Parcel Service must contain six physical sites, one human and no fabricated result.");
+                    "Parcel Depot must contain all its physical sites, one human and no fabricated result.");
                 var saved = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
                 Require(saved && ReferenceEquals(saved.ParcelServiceCourse, parcelSource) &&
                     course.SourceHash == parcelSource.SourceHash && installed.Geometry.Hash == parcelSource.Catalogue().Hash,
-                    "Parcel Service changed or replaced the explicit saved source.");
+                    "Parcel Depot changed or replaced the explicit saved source.");
                 var authored = installed as WordboundAuthoredPuzzleContent;
                 Require(authored != null && authored.ItemSourceHash == WordboundIdentity.Sha256(parcelSource.Items.text) &&
                     authored.RuleSourceHash == WordboundIdentity.Sha256(parcelSource.RuleBook.text),
-                    "Parcel Service did not bind its exact saved item and rule bytes.");
+                    "Parcel Depot did not bind its exact saved item and rule bytes.");
                 installed.Validate(gameplay.Frame.Binding, Read<Wreckabulary.Rules.GameRules>(gameplay, "rules"));
                 var artwork = client.GetComponent<WordboundGameplayPresentation>();
                 var cameraProfile = parcelSource.CameraProfile ? parcelSource.CameraProfile : saved.CameraProfile;
                 var visualProfile = parcelSource.VisualProfile ? parcelSource.VisualProfile : saved.VisualProfile;
                 Require(ReferenceEquals(view.Profile, cameraProfile) && artwork &&
                     ReferenceEquals(artwork.ArtworkResolver.Profile, visualProfile),
-                    "Parcel Service did not use the assigned course camera/visual profiles or their launch fallback.");
+                    "Parcel Depot did not use the assigned course camera/visual profiles or their launch fallback.");
                 Require(Object.FindObjectsByType<WordboundLocalMatchClient>(FindObjectsSortMode.None).Length == 1 &&
                     !ReferenceEquals(client, previousParcelClient) && !ReferenceEquals(view.Camera, previousParcelCamera),
-                    "Each Parcel Service mode requires exactly one fresh local client and camera.");
+                    "Each Parcel Depot mode requires exactly one fresh local client and camera.");
                 previousParcelClient = client; previousParcelCamera = view.Camera;
                 context.Note("parcel_service_binding_" + tag, new Dictionary<string, object> {
                     ["course_id"] = expectedId, ["source_hash"] = course.SourceHash,
@@ -387,7 +388,7 @@ namespace Wreckabulary.Qa
             if (parcelServiceOnly)
             {
                 var assets = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
-                Require(assets && ReferenceEquals(assets.ParcelServiceCourse, parcelSource), "The installed Parcel Service assignment changed.");
+                Require(assets && ReferenceEquals(assets.ParcelServiceCourse, parcelSource), "The installed Parcel Depot assignment changed.");
                 context.Note("parcel_service_saved_source_memory_preserved", true);
             }
             context.Note("solo_source_preferences_preserved", true);

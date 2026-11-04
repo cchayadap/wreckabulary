@@ -68,6 +68,81 @@ namespace Wreckabulary.Rules.Tests
         }
     }
 
+    public class HomeMigrationTests
+    {
+        static HouseLayout Map(string id) => HouseLayout.FromJson(TestData.Read("house_" + id + ".json"), "house_" + id + ".json");
+
+        static HomeDesigner Designer() => new HomeDesigner(Map, TestData.Catalogue());
+
+        static HomeLayout OldPinwheelHome()
+        {
+            var home = new HomeLayout { Map = "pinwheel", Name = "Old Home" };
+            home.Props.Add(new HomeProp { Id = "sofa", Word = "SOFA", X = -9, Z = -9 });
+            home.Props.Add(new HomeProp { Id = "table", Word = "TABLE", X = -6, Z = 7, Yaw = 90 });
+            home.Props.Add(new HomeProp { Id = "plant", Word = "PLANT", X = 0, Z = 0, Skin = "Candy" });
+            home.Props.Add(new HomeProp { Id = "lamp", Word = "LAMP", X = -3, Z = 9.5 });
+            return home;
+        }
+
+        [Test]
+        public void AHomeFromTheSmallPinwheelScalesIntoTheSameRoomsOfTheBigOne()
+        {
+            var house = Map("pinwheel");
+            var migrated = Designer().Migrate(OldPinwheelHome());
+            Assert.IsTrue(migrated.Ok, string.Join("\n", migrated.Errors));
+            Assert.AreEqual(0, migrated.Dropped, "no piece is lost");
+            CollectionAssert.AreEqual(new[] { "sofa", "table", "plant", "lamp" }, migrated.Layout.Props.Select(p => p.Id));
+            var props = migrated.Layout.Props;
+            Assert.AreEqual(-12.5, props[0].X); Assert.AreEqual(-12.5, props[0].Z);
+            Assert.AreEqual(-8.5, props[1].X); Assert.AreEqual(10, props[1].Z);
+            Assert.AreEqual(90, props[1].Yaw);
+            Assert.AreEqual("Candy", props[2].Skin);
+            CollectionAssert.AreEqual(new[] { "LivingRoom", "Bedroom", "Playroom", "Bedroom" }, props.Select(p => house.RoomAt((float)p.X, (float)p.Z)));
+            Assert.AreEqual(1, migrated.Moved, "the lamp would block the new garden door, so it steps aside");
+            Assert.AreNotEqual((-4.0, 13.5), (props[3].X, props[3].Z));
+            Assert.IsTrue(Designer().Validate(migrated.Layout).Ok);
+        }
+
+        [Test]
+        public void AHomeFromTheSmallCourtyardScalesByHalfAgain()
+        {
+            var old = new HomeLayout { Map = "courtyard", Name = "Old Courtyard" };
+            old.Props.Add(new HomeProp { Id = "p1", Word = "SOFA", X = -11, Z = -8, Yaw = 270, Skin = "Arcade" });
+            var migrated = Designer().ImportLegacy(old.ToJson());
+            Assert.IsTrue(migrated.Ok, string.Join("\n", migrated.Errors));
+            Assert.AreEqual(-16.5, migrated.Layout.Props[0].X);
+            Assert.AreEqual(-12, migrated.Layout.Props[0].Z);
+            Assert.AreEqual(0, migrated.Moved);
+            Assert.AreEqual(1.5, HomeDesigner.LegacyScale("courtyard"));
+            Assert.AreEqual(1.4, HomeDesigner.LegacyScale("pinwheel"), "the small pinwheel maps onto the big house, not its new garden");
+        }
+
+        [Test]
+        public void ACurrentHomeIsNeverScaledAndABrokenLegacyFileIsRefused()
+        {
+            var designer = Designer();
+            var current = designer.AddWords(designer.CreateLayout("pinwheel", "New Home"), "TABLE", "Playroom").Layout;
+            var imported = designer.Import(current.ToJson());
+            Assert.IsTrue(imported.Ok);
+            Assert.AreEqual(current.ToJson(), imported.Layout.ToJson());
+            Assert.IsFalse(designer.ImportLegacy("{\"schema\":1,").Ok);
+            Assert.IsFalse(designer.ImportLegacy(designer.CreateLayout("flat").ToJson()).Ok, "homes exist only on the maps that support them");
+        }
+
+        [Test]
+        public void TheBiggerHousesHoldTwiceAsManyPieces()
+        {
+            var designer = Designer();
+            var full = designer.AddWords(designer.CreateLayout("courtyard", "Full"), string.Join(" ", Enumerable.Repeat("APPLE", 64)), "FountainSquare").Layout;
+            full = designer.AddWords(full, string.Join(" ", Enumerable.Repeat("APPLE", 64)), "Orchard").Layout;
+            Assert.AreEqual(HomeDesigner.MaxProps, full.Props.Count);
+            Assert.AreEqual(128, HomeDesigner.MaxProps);
+            var over = designer.AddWords(full, "APPLE", "Bedroom");
+            Assert.AreEqual(1, over.Rejected.Count);
+            StringAssert.Contains("128", over.Rejected[0].Reason);
+        }
+    }
+
     public class SpawnOrderTests
     {
         [TestCase("house_pinwheel.json")]
@@ -95,7 +170,7 @@ namespace Wreckabulary.Rules.Tests
         {
             var flat = HouseLayout.FromJson(TestData.Read("house_flat.json"), "house_flat.json");
             var a = flat.Spawns[0]; var b = flat.Spawns[1];
-            Assert.Greater(Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z)), 15);
+            Assert.Greater(Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z)), 30, "across the block, not next door");
         }
 
         static double[,] Walking(HouseLayout house)

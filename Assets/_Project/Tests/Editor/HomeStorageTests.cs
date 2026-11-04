@@ -49,7 +49,7 @@ namespace Wreckabulary.Tests
         {
             var layout = Furnished("pinwheel");
             Assert.IsTrue(storage.TrySave(layout,out var error),error);
-            string path = Path.Combine(directory,"pinwheel.json"); byte[] before = File.ReadAllBytes(path);
+            string path = Path.Combine(directory,"pinwheel"+HomeStorage.CurrentFile); byte[] before = File.ReadAllBytes(path);
             layout.Props[0].X = double.NaN;
             Assert.IsFalse(storage.TrySave(layout,out error)); Assert.IsNotEmpty(error);
             CollectionAssert.AreEqual(before,File.ReadAllBytes(path));
@@ -66,7 +66,7 @@ namespace Wreckabulary.Tests
         [Test] public void MalformedOrMismatchedFilesNeverReturnAPartialLayout()
         {
             Directory.CreateDirectory(directory);
-            var path = Path.Combine(directory,"pinwheel.json"); File.WriteAllText(path,"{\"schema\":1,");
+            var path = Path.Combine(directory,"pinwheel"+HomeStorage.CurrentFile); File.WriteAllText(path,"{\"schema\":1,");
             Assert.IsFalse(storage.TryLoad("pinwheel",out var layout,out var error)); Assert.IsNull(layout); Assert.IsNotEmpty(error);
             File.WriteAllText(path,designer.CreateLayout("courtyard").ToJson());
             Assert.IsFalse(storage.TryLoad("pinwheel",out layout,out error)); Assert.IsNull(layout); StringAssert.Contains("different map",error);
@@ -117,7 +117,7 @@ namespace Wreckabulary.Tests
         [Test] public void ASecondSaveKeepsThePreviousGoodSaveAsABackup()
         {
             var first = Furnished("pinwheel"); Assert.IsTrue(storage.TrySave(first,out var error),error);
-            string path = Path.Combine(directory,"pinwheel.json");
+            string path = Path.Combine(directory,"pinwheel"+HomeStorage.CurrentFile);
             Assert.IsFalse(File.Exists(path+HomeStorage.Backup),"a first save has nothing to back up");
             var second = first.Clone(); second.Name = "Second Save"; Assert.IsTrue(storage.TrySave(second,out error),error);
             Assert.AreEqual(first.ToJson(),File.ReadAllText(path+HomeStorage.Backup));
@@ -130,7 +130,7 @@ namespace Wreckabulary.Tests
         {
             var first = Furnished("courtyard"); Assert.IsTrue(storage.TrySave(first,out var error),error);
             var second = first.Clone(); second.Name = "Second Save"; Assert.IsTrue(storage.TrySave(second,out error),error);
-            string path = Path.Combine(directory,"courtyard.json"); File.WriteAllText(path,damaged);
+            string path = Path.Combine(directory,"courtyard"+HomeStorage.CurrentFile); File.WriteAllText(path,damaged);
             Assert.IsTrue(storage.TryLoad("courtyard",out var loaded,out error,out bool restored),error);
             Assert.IsTrue(restored); Assert.IsNull(error);
             Assert.AreEqual(first.ToJson(),loaded.ToJson());
@@ -139,7 +139,7 @@ namespace Wreckabulary.Tests
         {
             var first = Furnished("pinwheel"); Assert.IsTrue(storage.TrySave(first,out var error),error);
             var second = first.Clone(); second.Name = "Second Save"; Assert.IsTrue(storage.TrySave(second,out error),error);
-            string path = Path.Combine(directory,"pinwheel.json"); File.WriteAllText(path,"{broken");
+            string path = Path.Combine(directory,"pinwheel"+HomeStorage.CurrentFile); File.WriteAllText(path,"{broken");
             var third = first.Clone(); third.Name = "Third Save"; Assert.IsTrue(storage.TrySave(third,out error),error);
             Assert.AreEqual(third.ToJson(),File.ReadAllText(path));
             Assert.AreEqual(first.ToJson(),File.ReadAllText(path+HomeStorage.Backup),"the damaged file never replaces the backup");
@@ -149,7 +149,7 @@ namespace Wreckabulary.Tests
         [Test] public void ADamagedSaveWithoutABackupStillFailsWithoutAPartialLayout()
         {
             Directory.CreateDirectory(directory);
-            File.WriteAllText(Path.Combine(directory,"pinwheel.json"),"");
+            File.WriteAllText(Path.Combine(directory,"pinwheel"+HomeStorage.CurrentFile),"");
             Assert.IsFalse(storage.TryLoad("pinwheel",out var layout,out var error,out bool restored));
             Assert.IsNull(layout); Assert.IsNotEmpty(error); Assert.IsFalse(restored);
         }
@@ -160,6 +160,26 @@ namespace Wreckabulary.Tests
             CollectionAssert.AreEqual(new[] { pinwheel.ToJson() },storage.Saved().Select(home => home.ToJson()).ToArray());
             var courtyard = Furnished("courtyard"); Assert.IsTrue(storage.TrySave(courtyard,out error),error);
             CollectionAssert.AreEqual(new[] { "pinwheel","courtyard" },storage.Saved().Select(home => home.Map).ToArray());
+        }
+        [Test] public void AHomeSavedBeforeTheBiggerHousesLoadsScaledIntoThemAndKeepsTheOldFile()
+        {
+            Directory.CreateDirectory(directory);
+            var old = new HomeLayout { Map = "pinwheel", Name = "Old Home" };
+            old.Props.Add(new HomeProp { Id = "sofa", Word = "SOFA", X = -9, Z = -9 });
+            old.Props.Add(new HomeProp { Id = "table", Word = "TABLE", X = -6, Z = 7, Yaw = 90 });
+            string legacy = Path.Combine(directory,"pinwheel"+HomeStorage.LegacyFile); File.WriteAllText(legacy,old.ToJson());
+            byte[] before = File.ReadAllBytes(legacy);
+            Assert.IsTrue(storage.TryLoad("pinwheel",out var loaded,out var error),error);
+            Assert.AreEqual(-12.5,loaded.Props[0].X); Assert.AreEqual(-12.5,loaded.Props[0].Z);
+            Assert.AreEqual(-8.5,loaded.Props[1].X); Assert.AreEqual(10,loaded.Props[1].Z); Assert.AreEqual(90,loaded.Props[1].Yaw);
+            Assert.IsTrue(designer.Validate(loaded).Ok);
+            CollectionAssert.AreEqual(new[] { "Old Home" },storage.Saved().Select(home => home.Name).ToArray());
+            loaded.Name = "Moved In"; Assert.IsTrue(storage.TrySave(loaded,out error),error);
+            CollectionAssert.AreEqual(before,File.ReadAllBytes(legacy),"the old save is never rewritten");
+            Assert.IsTrue(storage.TryLoad("pinwheel",out var again,out error),error);
+            Assert.AreEqual(loaded.ToJson(),again.ToJson(),"the new save wins from then on");
+            File.WriteAllText(legacy,"{\"schema\":1,"); File.Delete(Path.Combine(directory,"pinwheel"+HomeStorage.CurrentFile));
+            Assert.IsFalse(storage.TryLoad("pinwheel",out var broken,out error)); Assert.IsNull(broken); Assert.IsNotEmpty(error);
         }
         [Test] public void ExportFileUsesTheValidatedPortableDocument()
         {

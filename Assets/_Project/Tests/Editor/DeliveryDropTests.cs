@@ -13,6 +13,8 @@ namespace Wreckabulary.Tests
         [TestCase("courtyard")]
         [TestCase("pinwheel")]
         [TestCase("flat")]
+        [TestCase("terrace")]
+        [TestCase("walkup")]
         public void DropsReachEveryRoomOfTheHouse(string map)
         {
             var house = GameConfig.Current.HouseFor(map);
@@ -27,7 +29,7 @@ namespace Wreckabulary.Tests
                 for (int i = 0; i < 800; i++)
                 {
                     var at = spawner.DropPoint();
-                    string room = house.RoomAt(at.x, at.z);
+                    string room = house.RoomAt(at.x, at.y, at.z);
                     Assert.IsNotNull(room, map + ": a drop at " + at + " lands inside the house");
                     reached.Add(room);
                     outside |= at.x < -6.5f || at.x > 6.5f || at.z < -4.2f || at.z > 3.2f;
@@ -42,7 +44,7 @@ namespace Wreckabulary.Tests
         public void ClosedRoomsStopReceivingDropsWhileAnyRoomIsOpen()
         {
             var house = GameConfig.Current.HouseFor("courtyard");
-            CollectionAssert.AreEqual(new[] { "Garden" }, DeliverySpawner.DropRooms(house, room => room == "Garden").Select(room => room.Name));
+            CollectionAssert.AreEqual(new[] { "FountainSquare" }, DeliverySpawner.DropRooms(house, room => room == "FountainSquare").Select(room => room.Name));
             CollectionAssert.AreEquivalent(house.Rooms.Select(room => room.Name), DeliverySpawner.DropRooms(house, room => false).Select(room => room.Name),
                 "with every room closed the whole house stays in play");
             Assert.IsEmpty(DeliverySpawner.DropRooms(null, null));

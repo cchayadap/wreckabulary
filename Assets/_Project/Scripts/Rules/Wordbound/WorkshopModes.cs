@@ -100,8 +100,8 @@ namespace Wreckabulary.Rules.Wordbound
 
         public static string Name(string modeId) => modeId switch
         {
-            "TimeRun" => "Time Run", "TeamRace" => "Team Race", "BrawlRace" => "Brawl Race",
-            "FreeForAll" => "Free-for-All", "Freestyle" => "Freestyle", _ => modeId ?? ""
+            "TimeRun" => "Time Trial", "TeamRace" => "Team Relay", "BrawlRace" => "Brawl Relay",
+            "FreeForAll" => "Free-for-All", "Freestyle" => "Freeplay", _ => modeId ?? ""
         };
 
         public static WorkshopModeSummary Summary(string modeId, RaceFormat format = RaceFormat.Solo)

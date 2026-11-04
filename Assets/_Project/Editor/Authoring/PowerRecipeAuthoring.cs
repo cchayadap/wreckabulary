@@ -39,6 +39,13 @@ namespace Wreckabulary.EditorTools
             var layout = GameConfig.Current.HouseFor(world.MapId);
             var placement = layout.Furniture.Last(entry => entry.Word == "WATER");
             var position = new Vector3(placement.X, layout.Room(placement.Room).FloorY + placement.Y, placement.Z);
+            var baked = world.FurnitureRoot.GetComponentsInChildren<Smashable>(true)
+                .FirstOrDefault(existing => existing.Word == placement.Word && (existing.transform.position - position).sqrMagnitude < .0001f);
+            if (baked)
+            {
+                baked.name = SupplyName;
+                return true;
+            }
             var prop = FurnitureCatalog.Spawn(placement.Word, position, placement.Yaw, world.FurnitureRoot);
             prop.name = SupplyName;
             WorldAuthoring.PersistAssets(prop.gameObject, world.MapId + "_power_supply");

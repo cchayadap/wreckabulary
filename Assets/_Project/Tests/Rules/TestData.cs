@@ -31,6 +31,17 @@ namespace Wreckabulary.Rules.Tests
 
         public static GameRules RulesFor(string mode) => LoadRuleBook().For(mode);
 
+        public static RuleBook HouseRuleBook()
+        {
+            var items = Catalogue();
+            items.Expand(ItemCatalogue.FromJson(Read("items_house.json"), "items_house.json"));
+            var book = LoadRuleBook();
+            HouseTuning.FromJson(Read("items_house.json")).Apply(items, book);
+            return book;
+        }
+
+        public static GameRules HouseRulesFor(string mode) => HouseRuleBook().For(mode);
+
         public static HouseLayout House() => HouseLayout.FromJson(Read("house_pinwheel.json"), "house_pinwheel.json");
 
         public static WardrobeCatalogue Wardrobe() => WardrobeCatalogue.FromJson(Read("wardrobe.json"), "wardrobe.json");

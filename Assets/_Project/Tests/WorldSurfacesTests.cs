@@ -92,13 +92,15 @@ namespace Wreckabulary.Tests
         {
             var house = Build("courtyard");
             yield return null;
-            AssertSurface(house, "Garden floor", Surfaces.Kind.Lawn, 0x86A17A);
+            AssertSurface(house, "Orchard floor", Surfaces.Kind.Lawn, 0x86A17A);
+            AssertSurface(house, "FountainSquare floor", Surfaces.Kind.Plaster, 0xC9C0AC);
+            AssertSurface(house, "Walkway floor", Surfaces.Kind.Tile, 0xE3D5BC);
             AssertSurface(house, "Kitchen floor", Surfaces.Kind.Checker, 0xFFFFFF);
             AssertSurface(house, "Study floor", Surfaces.Kind.Planks, 0xB68E6B);
             AssertSurface(house, "LivingRoom floor", Surfaces.Kind.Planks, 0xCBA37B);
             Assert.AreSame(Named(house, "LivingRoom floor")[0].sharedMaterial, Named(house, "Bedroom floor")[0].sharedMaterial, "oak floors share one material");
             Assert.IsNotNull(Named(house, "LivingRoom floor")[0].GetComponent<BoxCollider>());
-            Assert.IsFalse(Named(house, "Rug").Any(r => house.Layout.RoomAt(r.bounds.center.x, r.bounds.center.y, r.bounds.center.z) == "Garden"), "no rug on the lawn");
+            Assert.IsFalse(Named(house, "Rug").Any(r => house.Layout.IsOutdoor(house.Layout.RoomAt(r.bounds.center.x, r.bounds.center.y, r.bounds.center.z))), "no rug out of doors");
 
             var flat = Build("flat");
             yield return null;
@@ -159,7 +161,8 @@ namespace Wreckabulary.Tests
                 Assert.IsNull(Named(house, name).Single().GetComponent<Collider>(), name + " isn't solid");
             Assert.Less(Named(house, "Lawn")[0].bounds.max.y, -.3f, "the lawn lies below the floors");
             Assert.Greater(Named(house, "Lawn")[0].bounds.size.x, 200f, "out into the haze");
-            Assert.AreEqual(16, house.GetComponentsInChildren<Transform>(true).Count(t => t.name == "Items/PLANT"), "plants all round");
+            Assert.AreEqual(RoomBuilder.SurroundingPlants(40f, 28f), house.GetComponentsInChildren<Transform>(true).Count(t => t.name == "Items/PLANT"), "plants all round");
+            Assert.Greater(RoomBuilder.SurroundingPlants(40f, 28f), 16, "the bigger terrace gets more plants round it");
 
             Assert.IsTrue(RenderSettings.fog);
             Assert.AreEqual(FogMode.Linear, RenderSettings.fogMode);

@@ -128,7 +128,7 @@ namespace Wreckabulary.Online.Tests
             using var f = new WordboundRecipeContextFixture("TimeRun");
             string letters = f.Grid.Inventory.Letters.ToString();
             f.Grid.Call("MenuRequested");
-            Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"), "The first checkpoint only needs a keepsake; show the next authored recipe.");
+            Assert.AreEqual("BED", f.Grid.Get("selectedRecipe"), "The first checkpoint only needs a keepsake; show the next authored recipe.");
             Assert.AreEqual(letters, f.Grid.Inventory.Letters.ToString());
             Assert.IsNull(f.Grid.Inventory.Craft);
             f.Grid.Call("SelectRecipe", "FAN");
@@ -147,12 +147,12 @@ namespace Wreckabulary.Online.Tests
         {
             using var f = new WordboundRecipeContextFixture("TimeRun");
             f.Grid.Call("PrepareRecipeMenu");
-            Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"));
+            Assert.AreEqual("BED", f.Grid.Get("selectedRecipe"));
             f.AdvanceCheckpoint();
             f.AdvanceCheckpoint();
-            Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"), "Read-model changes do not move an open menu selection.");
+            Assert.AreEqual("BED", f.Grid.Get("selectedRecipe"), "Read-model changes do not move an open menu selection.");
             f.Grid.Call("PrepareRecipeMenu");
-            Assert.AreEqual("STOOL", f.Grid.Get("selectedRecipe"));
+            Assert.AreEqual("TABLE", f.Grid.Get("selectedRecipe"));
             Assert.AreEqual(2, f.Progress.Team(0).NextCheckpoint);
         }
 

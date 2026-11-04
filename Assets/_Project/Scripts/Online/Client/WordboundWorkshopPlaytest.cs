@@ -11,7 +11,7 @@ namespace Wreckabulary.Online
             if (draft == null || resolved == null || geometry == null || selected == null)
                 throw new ArgumentException("Preview the current draft before starting a playtest.");
             if (selected.ModeId != "TimeRun" && selected.ModeId != "Freestyle")
-                throw new ArgumentException("Select Time Run or Freestyle for a local playtest.");
+                throw new ArgumentException("Select Time Trial or Freeplay for a local playtest.");
             if (resolved.Seed != draft.Seed || resolved.SourceHash != CourseJson.Sha256(draft.CourseJsonText))
                 throw new ArgumentException("The draft changed. Preview it again before playing.");
             var mode = ModeDefinition.For(selected.ModeId);

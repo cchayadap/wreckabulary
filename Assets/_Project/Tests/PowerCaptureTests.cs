@@ -335,7 +335,7 @@ namespace Wreckabulary.Tests
             rounds.CountdownTime = .15f;
             rounds.StartMatch();
             yield return WaitForScaled(() => rounds.Phase == Phase.Playing, 3f, "two-local active round");
-            var room = Object.FindAnyObjectByType<RoomBuilder>().Layout.Rooms
+            var room = Object.FindAnyObjectByType<RoomBuilder>().Layout.Rooms.Where(r => !r.Outdoor)
                 .OrderByDescending(r => (r.MaxX - r.MinX) * (r.MaxZ - r.MinZ)).First();
             var center = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .08f, (room.MinZ + room.MaxZ) * .5f);
             bool Inside(Vector3 at) => at.x > room.MinX + .6f && at.x < room.MaxX - .6f &&
@@ -375,7 +375,7 @@ namespace Wreckabulary.Tests
             rounds.CountdownTime = .15f;
             rounds.StartMatch();
             yield return WaitForScaled(() => rounds.Phase == Phase.Playing, 3f, "single-local active round");
-            var room = Object.FindAnyObjectByType<RoomBuilder>().Layout.Rooms
+            var room = Object.FindAnyObjectByType<RoomBuilder>().Layout.Rooms.Where(r => !r.Outdoor)
                 .OrderByDescending(r => (r.MaxX - r.MinX) * (r.MaxZ - r.MinZ)).First();
             var center = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .08f, (room.MinZ + room.MaxZ) * .5f);
             bool Inside(Vector3 at) => at.x > room.MinX + .6f && at.x < room.MaxX - .6f &&

@@ -67,7 +67,7 @@ namespace Wreckabulary.Online
         static void RequireMode(ModeDefinition mode)
         {
             if (mode.Id != "TimeRun" && mode.Id != "Freestyle")
-                throw new ArgumentException("Select Time Run or Freestyle before resolving a local practice course.");
+                throw new ArgumentException("Select Time Trial or Freeplay before resolving a local practice course.");
         }
 
         static string RosterHash(string playerId) => WordboundIdentity.Sha256("wordbound.local.roster|" +

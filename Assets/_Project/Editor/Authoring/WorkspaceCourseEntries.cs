@@ -13,7 +13,9 @@ namespace Wreckabulary.EditorTools
         public static void Flagship() => OpenForPlay(Root + "Flagship/Workshop.unity");
         [MenuItem("Wreckabulary/Course entries/Open Freestyle for Play")]
         public static void Freestyle() => OpenForPlay(Root + "Freestyle/Workshop.unity");
-        [MenuItem("Wreckabulary/Course entries/Open Parcel Service for Play")]
+        [MenuItem("Wreckabulary/Course entries/Open Parcel Depot for Play")]
+        public static void ParcelDepot() => OpenForPlay(Root + "ParcelDepot/Workshop.unity");
+        [MenuItem("Wreckabulary/Course entries/Open Parcel Service V1 for Play")]
         public static void ParcelService() => OpenForPlay(Root + "ParcelService/Workshop.unity");
         [MenuItem("Wreckabulary/Course entries/Open Kitchen pilot for Play")]
         public static void Kitchen() => OpenForPlay("Assets/_Project/Data/Wordbound/Authoring/FlagshipKitchenV1/KitchenAuthoring.unity");

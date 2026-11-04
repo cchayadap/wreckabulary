@@ -218,6 +218,8 @@ namespace Wreckabulary
 
         public static string StoreyName(int storey) => "Storey " + storey;
 
+        public static int SurroundingPlants(float width, float depth) => Mathf.Max(16, Mathf.RoundToInt((width + depth) * 2f / 7f));
+
         public static Transform CreateGeometry(HouseLayout layout, string mapId, Transform parent, bool includeExtras = true)
         {
             var root = new GameObject(layout.Name + " geometry").transform;
@@ -249,9 +251,8 @@ namespace Wreckabulary
                 {
                     var r = Layout.Rooms[i];
                     int storey = Layout.StoreyOf(r);
-                    bool garden = r.Name == "Garden";
                     var holes = Layout.Stairs.Where(s => s.Upper == r.Name).Select(s => Rect.MinMaxRect(s.MinX, s.MinZ, s.MaxX, s.MaxZ));
-                    var (floor, floorColour) = FloorOf(r.Name);
+                    var (floor, floorColour) = FloorOf(r);
                     foreach (var piece in Slab(r, holes))
                         Surface(r.Name + " floor", storeys[storey], new Vector3(piece.center.x, r.FloorY - .12f, piece.center.y),
                             new Vector3(piece.width, .24f, piece.height), floor, floorColour);
@@ -259,7 +260,7 @@ namespace Wreckabulary
                     AddEdge(edges, storey, r.FloorY, true, r.MaxX, r.MinZ, r.MaxZ);
                     AddEdge(edges, storey, r.FloorY, false, r.MinZ, r.MinX, r.MaxX);
                     AddEdge(edges, storey, r.FloorY, false, r.MaxZ, r.MinX, r.MaxX);
-                    if (includeExtras && !garden && RoomKind(r.Name) != "Garage") BuildRug(r, storey);
+                    if (includeExtras && !r.Outdoor && !Bare(r.Name)) BuildRug(r, storey);
                 }
                 foreach (var edge in edges.Values) BuildEdge(edge);
                 foreach (var s in Layout.Stairs) BuildStairs(s);
@@ -267,22 +268,109 @@ namespace Wreckabulary
                     foreach (var r in storeys[s].GetComponentsInChildren<Renderer>(true)) r.shadowCastingMode = ShadowCastingMode.Off;
                 if (!includeExtras) return;
                 BuildSurroundings();
-                var ground = storeys[0];
-                if (mapId == "pinwheel")
+                if (mapId == "pinwheel" && Layout.Room("Playroom") is { } playroom) BuildBalcony(playroom, storeys[Layout.StoreyOf(playroom)]);
+                foreach (var r in Layout.Rooms)
                 {
-                    Surface("Playroom balcony", ground, new Vector3(3.25f, 1.55f, 2.5f), new Vector3(1.5f, .3f, 3f), Surfaces.Kind.Wood, new Color(.7f, .52f, .36f));
-                    var ramp = Surface("Balcony ramp", ground, new Vector3(3.25f, .76f, .02f), new Vector3(1.5f, .15f, 2.7f), Surfaces.Kind.Wood, new Color(.65f, .47f, .33f), turned: true);
-                    ramp.transform.rotation = Quaternion.Euler(-40f, 0f, 0f);
-                    Decor("Environment/Railing_2m", ground, new Vector3(2.5f, 1.7f, 2.5f), 1f, 90f);
-                }
-                else if (mapId == "courtyard")
-                {
-                    Surface("Courtyard path east-west", ground, new Vector3(0f, .008f, 0f), new Vector3(12f, .018f, 2.5f), Surfaces.Kind.Plaster, new Color(.75f, .72f, .59f), false);
-                    Surface("Courtyard path north-south", ground, new Vector3(0f, .009f, 0f), new Vector3(2.5f, .018f, 12f), Surfaces.Kind.Plaster, new Color(.75f, .72f, .59f), false);
-                    Decor("Items/PLANT", ground, new Vector3(-4.5f, 0f, 4.5f), 1.4f);
-                    Decor("Items/PLANT", ground, new Vector3(4.5f, 0f, -4.5f), 1.4f);
+                    var group = storeys[Layout.StoreyOf(r)];
+                    switch (RoomKind(r.Name))
+                    {
+                        case "FountainSquare": BuildFountainSquare(r, group); break;
+                        case "PoolLawn": BuildPaddlingPool(r, group); break;
+                        case "Orchard": BuildOrchard(r, group); break;
+                        case "Roof": BuildWashingLines(r, group); break;
+                        case "RoofGarden": BuildPlanters(r, group); break;
+                    }
                 }
             }
+
+            void BuildBalcony(RoomBox room, Transform group)
+            {
+                float x = room.MaxX - .75f, y = room.FloorY;
+                Surface("Playroom balcony", group, new Vector3(x, y + 1.55f, room.MaxZ - 1.5f), new Vector3(1.5f, .3f, 3f), Surfaces.Kind.Wood, new Color(.7f, .52f, .36f));
+                var ramp = Surface("Balcony ramp", group, new Vector3(x, y + .76f, room.MaxZ - 3.98f), new Vector3(1.5f, .15f, 2.7f), Surfaces.Kind.Wood, new Color(.65f, .47f, .33f), turned: true);
+                ramp.transform.rotation = Quaternion.Euler(-40f, 0f, 0f);
+                Decor("Environment/Railing_2m", group, new Vector3(room.MaxX - 1.5f, y + 1.7f, room.MaxZ - 1.5f), 1f, 90f);
+            }
+
+            void BuildFountainSquare(RoomBox room, Transform group)
+            {
+                var centre = Centre(room);
+                float width = room.MaxX - room.MinX, depth = room.MaxZ - room.MinZ;
+                var path = new Color(.75f, .72f, .59f);
+                Surface("Courtyard path east-west", group, centre + Vector3.up * .008f, new Vector3(width, .018f, 2.5f), Surfaces.Kind.Plaster, path, false);
+                Surface("Courtyard path north-south", group, centre + Vector3.up * .009f, new Vector3(2.5f, .018f, depth), Surfaces.Kind.Plaster, path, false);
+                var stone = Surfaces.Hex(0xC2B8A3);
+                const float Basin = 1.6f;
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    Surface("Fountain basin", group, centre + new Vector3(0f, .3f, side * Basin), new Vector3(Basin * 2f + .3f, .6f, .3f), Surfaces.Kind.Plaster, stone);
+                    Surface("Fountain basin", group, centre + new Vector3(side * Basin, .3f, 0f), new Vector3(.3f, .6f, Basin * 2f - .3f), Surfaces.Kind.Plaster, stone);
+                }
+                Surface("Fountain water", group, centre + Vector3.up * .42f, new Vector3(Basin * 2f - .3f, .06f, Basin * 2f - .3f), Surfaces.Kind.Tile, Surfaces.Hex(0x7DB4C6), false);
+                Surface("Fountain column", group, centre + Vector3.up * .9f, new Vector3(.5f, 1.8f, .5f), Surfaces.Kind.Plaster, stone);
+                Surface("Fountain bowl", group, centre + Vector3.up * 1.6f, new Vector3(1.3f, .14f, 1.3f), Surfaces.Kind.Plaster, stone, false);
+                Decor("Items/PLANT", group, centre + new Vector3(-width * .375f, 0f, depth * .375f), 1.4f);
+                Decor("Items/PLANT", group, centre + new Vector3(width * .375f, 0f, -depth * .375f), 1.4f);
+            }
+
+            void BuildPaddlingPool(RoomBox room, Transform group)
+            {
+                var centre = Centre(room);
+                var rim = Surfaces.Hex(0x4F8FC9);
+                const float Width = 4.4f, Depth = 2.6f;
+                Surface("Paddling pool water", group, centre + Vector3.up * .03f, new Vector3(Width, .06f, Depth), Surfaces.Kind.Tile, Surfaces.Hex(0x9FD3E3), false);
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    Surface("Paddling pool rim", group, centre + new Vector3(0f, .12f, side * Depth * .5f), new Vector3(Width + .2f, .24f, .2f), Surfaces.Kind.Plaster, rim, false);
+                    Surface("Paddling pool rim", group, centre + new Vector3(side * Width * .5f, .12f, 0f), new Vector3(.2f, .24f, Depth), Surfaces.Kind.Plaster, rim, false);
+                }
+            }
+
+            void BuildOrchard(RoomBox room, Transform group)
+            {
+                for (float x = room.MinX + 1.1f; x <= room.MaxX - 1.1f; x += 4f) Tree(group, new Vector3(x, room.FloorY, room.MaxZ - 1.1f), x * 37f);
+                for (float z = room.MaxZ - 5.1f; z >= room.MinZ + 1.1f; z -= 4f) Tree(group, new Vector3(room.MinX + 1.1f, room.FloorY, z), z * 41f);
+            }
+
+            void Tree(Transform group, Vector3 at, float yaw)
+            {
+                var tree = Decor("Items/PLANT", group, at, 2.4f, yaw);
+                if (!tree) return;
+                foreach (var collider in tree.GetComponentsInChildren<Collider>(true))
+                    if (Application.isPlaying) Object.Destroy(collider);
+                    else Object.DestroyImmediate(collider);
+            }
+
+            void BuildWashingLines(RoomBox room, Transform group)
+            {
+                var centre = Centre(room);
+                float width = room.MaxX - room.MinX;
+                var post = new Color(.45f, .32f, .22f);
+                var laundry = new[] { Surfaces.Hex(0xE8EEF2), Surfaces.Hex(0xE7B8A8), Surfaces.Hex(0xA9C7E0), Surfaces.Hex(0xF0D58A) };
+                int piece = 0;
+                foreach (float side in new[] { -1f, 1f })
+                    for (int line = -1; line <= 1; line++)
+                    {
+                        float near = centre.x + side * width * .15f, far = centre.x + side * width * .38f, z = centre.z + line * 3f;
+                        foreach (float x in new[] { near, far })
+                            Surface("Washing line post", group, new Vector3(x, room.FloorY + 1.05f, z), new Vector3(.08f, 2.1f, .08f), Surfaces.Kind.Wood, post, false);
+                        Surface("Washing line", group, new Vector3((near + far) * .5f, room.FloorY + 2f, z), new Vector3(Mathf.Abs(far - near), .02f, .02f), Surfaces.Kind.Plaster, laundry[0], false);
+                        for (float x = Mathf.Min(near, far) + .9f; x < Mathf.Max(near, far) - .5f; x += 1.3f)
+                            Surface("Laundry", group, new Vector3(x, room.FloorY + 1.62f, z), new Vector3(.55f, .72f, .03f), Surfaces.Kind.Plaster, laundry[piece++ % laundry.Length], false);
+                    }
+            }
+
+            void BuildPlanters(RoomBox room, Transform group)
+            {
+                foreach (float x in new[] { room.MinX + 1.2f, room.MaxX - 1.2f })
+                    foreach (float z in new[] { room.MinZ + 1.2f, room.MaxZ - 1.2f })
+                    {
+                        Surface("Planter", group, new Vector3(x, room.FloorY + .2f, z), new Vector3(1.6f, .4f, 1.6f), Surfaces.Kind.Wood, Surfaces.Hex(0x9C7A5B), false);
+                        Tree(group, new Vector3(x, room.FloorY + .4f, z), x * 29f + z);
+                    }
+            }
+
+            static Vector3 Centre(RoomBox room) => new((room.MinX + room.MaxX) * .5f, room.FloorY, (room.MinZ + room.MaxZ) * .5f);
 
             List<float> storeyFloors;
             Transform[] storeys;
@@ -291,13 +379,18 @@ namespace Wreckabulary
 
             static string RoomKind(string room) => room.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
-            static (Surfaces.Kind kind, Color colour) FloorOf(string room) => RoomKind(room) switch
+            static bool Bare(string room) => RoomKind(room) is "Garage" or "Workshop" or "Storeroom" or "Shed";
+
+            static (Surfaces.Kind kind, Color colour) FloorOf(RoomBox room) => RoomKind(room.Name) switch
             {
-                "Garden" => (Surfaces.Kind.Lawn, Surfaces.Hex(0x86A17A)),
-                "Kitchen" => (Surfaces.Kind.Checker, Color.white),
+                "Garden" or "Orchard" or "PoolLawn" or "Yard" or "RoofGarden" => (Surfaces.Kind.Lawn, Surfaces.Hex(0x86A17A)),
+                "Kitchen" or "Diner" or "CafeKitchen" => (Surfaces.Kind.Checker, Color.white),
                 "Bathroom" => (Surfaces.Kind.Tile, Color.white),
-                "Garage" => (Surfaces.Kind.Plaster, Surfaces.Hex(0xA7A39A)),
-                "Study" => (Surfaces.Kind.Planks, Surfaces.Hex(0xB68E6B)),
+                "Garage" or "Workshop" or "Storeroom" => (Surfaces.Kind.Plaster, Surfaces.Hex(0xA7A39A)),
+                "Study" or "Library" => (Surfaces.Kind.Planks, Surfaces.Hex(0xB68E6B)),
+                "Shed" or "Attic" => (Surfaces.Kind.Planks, Surfaces.Hex(0xA1805F)),
+                "Walkway" => (Surfaces.Kind.Tile, Surfaces.Hex(0xE3D5BC)),
+                _ when room.Outdoor => (Surfaces.Kind.Plaster, Surfaces.Hex(0xC9C0AC)),
                 _ => (Surfaces.Kind.Planks, Surfaces.Hex(0xCBA37B)),
             };
 
@@ -330,13 +423,16 @@ namespace Wreckabulary
                 var ground = storeys[0];
                 var plinth = Surface("Plinth", ground, new Vector3(cx, -.45f, cz), new Vector3(maxX - minX + 2f, .6f, maxZ - minZ + 2f),
                     Surfaces.Kind.Plaster, Surfaces.Hex(0xC4AA86), false);
-                var lawn = Surface("Lawn", ground, new Vector3(cx, -.85f, cz), new Vector3(240f, 1f, 240f), Surfaces.Kind.Lawn, Surfaces.Hex(0x789775), false);
+                float halfX = (maxX - minX) * .5f, halfZ = (maxZ - minZ) * .5f, lawnSize = Mathf.Max(240f, Mathf.Max(halfX, halfZ) * 8f);
+                var lawn = Surface("Lawn", ground, new Vector3(cx, -.85f, cz), new Vector3(lawnSize, 1f, lawnSize), Surfaces.Kind.Lawn, Surfaces.Hex(0x789775), false);
                 foreach (var piece in new[] { plinth, lawn }) piece.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-                float extent = Mathf.Max(maxX - minX, maxZ - minZ) * .5f;
-                for (int n = 0; n < 16; n++)
+                int plants = SurroundingPlants(maxX - minX, maxZ - minZ);
+                for (int n = 0; n < plants; n++)
                 {
-                    float angle = (n + .5f) / 16f * Mathf.PI * 2f, radius = extent + 4f + n % 3 * 1.5f;
-                    Decor("Items/PLANT", ground, new Vector3(cx + Mathf.Cos(angle) * radius, -.35f, cz + Mathf.Sin(angle) * radius), 1.8f + n % 3 * .35f, n * 53f);
+                    float angle = (n + .5f) / plants * Mathf.PI * 2f, cos = Mathf.Cos(angle), sin = Mathf.Sin(angle);
+                    float wall = Mathf.Min(halfX / Mathf.Max(Mathf.Abs(cos), .001f), halfZ / Mathf.Max(Mathf.Abs(sin), .001f));
+                    float radius = wall + 4f + n % 3 * 1.5f;
+                    Decor("Items/PLANT", ground, new Vector3(cx + cos * radius, -.35f, cz + sin * radius), 1.8f + n % 3 * .35f, n * 53f);
                 }
             }
 
@@ -399,14 +495,15 @@ namespace Wreckabulary
                         Surfaces.Kind.Wood, Trim, false).transform;
                     tall.FloorY = edge.FloorY;
                     tall.Height = height;
-                    tall.Outside = edge.Vertical
-                        ? Outdoors(edge.Storey, edge.Fixed - .1f, mid) || Outdoors(edge.Storey, edge.Fixed + .1f, mid)
-                        : Outdoors(edge.Storey, mid, edge.Fixed - .1f) || Outdoors(edge.Storey, mid, edge.Fixed + .1f);
+                    bool before = edge.Vertical ? Outdoors(edge.Storey, edge.Fixed - .1f, mid) : Outdoors(edge.Storey, mid, edge.Fixed - .1f);
+                    bool after = edge.Vertical ? Outdoors(edge.Storey, edge.Fixed + .1f, mid) : Outdoors(edge.Storey, mid, edge.Fixed + .1f);
+                    tall.Outside = before || after;
+                    tall.Fence = before && after;
                     tall.Apply(false);
                 }
             }
 
-            bool Outdoors(int storey, float x, float z) => !Layout.Rooms.Any(r => r.Name != "Garden" && Layout.StoreyOf(r) == storey
+            bool Outdoors(int storey, float x, float z) => !Layout.Rooms.Any(r => !r.Outdoor && Layout.StoreyOf(r) == storey
                 && x > r.MinX && x < r.MaxX && z > r.MinZ && z < r.MaxZ);
 
             void BuildStairs(Stairway s)
@@ -490,15 +587,16 @@ namespace Wreckabulary
                 return go;
             }
 
-            void Decor(string key, Transform group, Vector3 at, float scale, float yaw = 0f)
+            Transform Decor(string key, Transform group, Vector3 at, float scale, float yaw = 0f)
             {
                 var library = ModelLibrary.Load();
-                if (!library || !library.Find(key)) return;
+                if (!library || !library.Find(key)) return null;
                 var root = new GameObject(key).transform;
                 root.SetParent(group, false);
                 root.SetPositionAndRotation(at, Quaternion.Euler(0f, yaw, 0f));
                 root.localScale = Vector3.one * scale;
                 library.Spawn(key, root);
+                return root;
             }
         }
     }

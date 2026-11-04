@@ -131,7 +131,7 @@ namespace Wreckabulary
             var candidates = new List<(string name, int doors)>();
             foreach (var box in layout.Rooms)
             {
-                if (box.Name == spawn || box.Name == "Garden" || !HasOutsideWall(box)) continue;
+                if (box.Name == spawn || box.Outdoor || !HasOutsideWall(box)) continue;
                 int doors = string.IsNullOrEmpty(spawn) ? 2 : Escape.PathDoors(layout, spawn, box.Name).Count;
                 candidates.Add((box.Name, doors));
             }
@@ -157,7 +157,11 @@ namespace Wreckabulary
             };
         }
 
-        bool IsOutside(Vector3 point) => string.IsNullOrEmpty(room.Layout.RoomAt(point.x, point.y, point.z));
+        bool IsOutside(Vector3 point)
+        {
+            string at = room.Layout.RoomAt(point.x, point.y, point.z);
+            return string.IsNullOrEmpty(at) || room.Layout.IsOutdoor(at);
+        }
 
         bool HasOutsideWall(RoomBox box)
         {
@@ -471,13 +475,13 @@ namespace Wreckabulary
             var others = new List<(string name, int doors)>();
             foreach (var box in layout.Rooms)
             {
-                if (box.Name == spawnRoom || box.Name == exitRoom || box.Name == "Garden") continue;
+                if (box.Name == spawnRoom || box.Name == exitRoom || box.Outdoor) continue;
                 int doors = string.IsNullOrEmpty(spawnRoom) ? wanted : Escape.PathDoors(layout, spawnRoom, box.Name).Count;
                 if (doors >= wanted) others.Add((box.Name, doors));
             }
             if (others.Count == 0)
                 foreach (var box in layout.Rooms)
-                    if (box.Name != spawnRoom && box.Name != exitRoom && box.Name != "Garden") others.Add((box.Name, 1));
+                    if (box.Name != spawnRoom && box.Name != exitRoom && !box.Outdoor) others.Add((box.Name, 1));
             if (others.Count == 0) return result;
 
             others.Sort((a, b) => b.doors.CompareTo(a.doors));

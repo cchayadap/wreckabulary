@@ -82,20 +82,22 @@ namespace Wreckabulary.EditorTools
             bool changed = false;
             foreach (var room in layout.Rooms)
             {
-                if (room.Name == "Garden" || existing.Contains(room.Name)) continue;
+                if (room.Outdoor || existing.Contains(room.Name)) continue;
                 int storey = layout.StoreyOf(room);
                 var parent = world.GeometryRoot.Find(RoomBuilder.StoreyName(storey));
                 if (!parent) throw new InvalidOperationException("Missing authored storey: " + room.Name);
                 var floors = layout.StoreyFloors();
                 float ceiling = storey + 1 < floors.Count ? floors[storey + 1] - .28f : room.FloorY + 3f;
                 var holes = layout.Stairs.Where(s => s.Lower == room.Name).Select(StairOpening).ToList();
+                var skylight = Skylight(room);
+                if (skylight.HasValue) holes.Add(skylight.Value);
                 var area = Rect.MinMaxRect(room.MinX + .1f, room.MinZ + .1f, room.MaxX - .1f, room.MaxZ - .1f);
                 var blocked = FurnitureBounds(world.FurnitureRoot, world.GeometryRoot, room.FloorY);
                 foreach (var spawn in layout.Spawns.Where(s => s.Room == room.Name))
                     blocked.Add(new Bounds(new Vector3(spawn.X, room.FloorY + .7f, spawn.Z), new Vector3(2.4f, 1.4f, 2.4f)));
                 var faces = Faces(world.GeometryRoot, room);
                 BuildRoom(parent, world.GeometryRoot, room, storey, ceiling, Slabs(area, holes), faces, blocked,
-                    roof: storey + 1 == floors.Count);
+                    roof: storey + 1 == floors.Count, skylight);
                 changed = true;
             }
             return AddMissingDoorLintels(world) || changed;
@@ -111,7 +113,7 @@ namespace Wreckabulary.EditorTools
             {
                 if (dressing.Edition != 1 || dressing.HasDoorLintels) continue;
                 var room = layout.Room(dressing.RoomId);
-                if (room == null || room.Name == "Garden") continue;
+                if (room == null || room.Outdoor) continue;
                 int storey = layout.StoreyOf(room);
                 float ceiling = storey + 1 < floors.Count ? floors[storey + 1] - .28f : room.FloorY + 3f;
                 float bottom = room.FloorY + TallWall.Interior;
@@ -251,13 +253,41 @@ namespace Wreckabulary.EditorTools
             return faces;
         }
 
+        public static Rect? Skylight(RoomBox room)
+        {
+            if (room.Name != "Playroom") return null;
+            float width = (room.MaxX - room.MinX) * .4f, depth = (room.MaxZ - room.MinZ) * .4f;
+            float x = (room.MinX + room.MaxX) * .5f, z = (room.MinZ + room.MaxZ) * .5f;
+            return Rect.MinMaxRect(x - width * .5f, z - depth * .5f, x + width * .5f, z + depth * .5f);
+        }
+
         static void BuildRoom(Transform parent, Transform space, RoomBox room, int storey, float ceiling,
-            List<Rect> slabs, List<Face> faces, List<Bounds> blocked, bool roof)
+            List<Rect> slabs, List<Face> faces, List<Bounds> blocked, bool roof, Rect? skylight = null)
         {
             var root = Group(parent, "Room dressing - " + room.Name);
             var data = root.gameObject.AddComponent<RoomDressing>();
             data.Configure(room.Name, storey);
             Color accent = Accent(room.Name);
+            if (skylight is { } light)
+            {
+                var group = Group(root, "Skylight");
+                var glass = Block(group, space, "Skylight glass", new Vector3(light.center.x, ceiling + .05f, light.center.y),
+                    new Vector3(light.width, .04f, light.height), Quaternion.identity, Surfaces.Kind.Plaster, Surfaces.Hex(0xBFE3EE));
+                glass.sharedMaterial = DetailMaterial("Dressing skylight daylight", () =>
+                {
+                    var glow = new Material(glass.sharedMaterial);
+                    glow.EnableKeyword("_EMISSION"); glow.SetColor("_EmissionColor", new Color(.3f, .38f, .4f));
+                    return glow;
+                });
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    Block(group, space, "Skylight frame", new Vector3(light.center.x, ceiling + .05f, light.center.y + side * light.height * .5f),
+                        new Vector3(light.width + .16f, .14f, .16f), Quaternion.identity, Surfaces.Kind.Wood, Oak);
+                    Block(group, space, "Skylight frame", new Vector3(light.center.x + side * light.width * .5f, ceiling + .05f, light.center.y),
+                        new Vector3(.16f, .14f, light.height), Quaternion.identity, Surfaces.Kind.Wood, Oak);
+                }
+                Mark(group, CutawayKind.Ceiling, data);
+            }
             foreach (var area in slabs)
             {
                 var panel = Block(root, space, "Ceiling panel", new Vector3(area.center.x, ceiling + .05f, area.center.y),

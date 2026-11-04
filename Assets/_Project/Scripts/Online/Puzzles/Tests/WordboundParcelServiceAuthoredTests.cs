@@ -33,6 +33,7 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(resolved.Success, string.Join("; ", resolved.Issues.Select(i => i.Message)));
             return new WordboundAuthoredPuzzleContent(mode, factory.Geometry, resolved.Manifest, items, rules);
         }
+        static int Sites(string mode) => mode == "TimeRun" ? 9 : WordboundParcelServiceContent.PhysicalSiteCount;
         static MatchBinding Binding(IWordboundPuzzleContent content) => new MatchBinding("parcel-local",
             MatchSnapshotCodec.ProtocolVersion, content.Mode.Hash, content.Course.SourceHash, content.Course.Hash,
             new string('a', 64), content.CatalogueHash, new[] { new WordboundSeat("creator", 0, 0) });
@@ -45,7 +46,7 @@ namespace Wreckabulary.Tests
             var content = Content(mode); var binding = Binding(content); content.Validate(binding, content.Rules);
             var match = Match(content, binding); var frame = match.Capture(1);
             Assert.AreEqual("", MatchStateValidation.Validate(frame, binding, content.Mode, content.Course, content.Items, content.Rules));
-            Assert.AreEqual(6, content.Plan.Sites.Count); Assert.AreEqual(0, content.Plan.Platforms.Count);
+            Assert.AreEqual(Sites(mode), content.Plan.Sites.Count); Assert.AreEqual(0, content.Plan.Platforms.Count);
             foreach (var puzzle in content.Course.Puzzles)
                 Assert.IsTrue(content.Items.Get(puzzle.RecipeId).CanDeploy, "PlaceObject needs a deployed crafted item.");
             Assert.AreEqual(WordboundParcelServiceContent.FurnitureCount, frame.Bodies.Count(b => b.Kind == WorldBodyKind.Item && b.Active));
@@ -62,7 +63,8 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(match.EntityBudget.OptionalBodies >= content.Mode.MaximumPlayers);
         }
 
-        [TestCase("BOX"), TestCase("CRATE"), TestCase("CHEST"), TestCase("DESK"), TestCase("SHELF")]
+        [TestCase("BOX"), TestCase("CRATE"), TestCase("CHEST"), TestCase("DESK"), TestCase("SHELF"),
+         TestCase("BARREL"), TestCase("CABINET"), TestCase("CHAIR"), TestCase("PLANT")]
         public void AMapPropDoesNotBecomeAnEnabledWordboundCraftRecipe(string id)
         {
             var content = Content("Freestyle"); var binding = Binding(content); var match = Match(content, binding);
@@ -78,7 +80,7 @@ namespace Wreckabulary.Tests
         {
             var content = Content(mode, true); var binding = Binding(content); var frame = Match(content, binding).Capture(1);
             Assert.AreEqual("", MatchStateValidation.Validate(frame, binding, content.Mode, content.Course, content.Items, content.Rules));
-            Assert.AreEqual(0, frame.Economy.Items.Count); Assert.AreEqual(6, content.Plan.Sites.Count);
+            Assert.AreEqual(0, frame.Economy.Items.Count); Assert.AreEqual(Sites(mode), content.Plan.Sites.Count);
             foreach (var site in content.Plan.Sites)
                 Assert.IsTrue(content.Course.Supplies.Any(s => s.SourceId == site.RecoverySupplyId && s.Renewable && s.Protected));
         }
@@ -87,7 +89,7 @@ namespace Wreckabulary.Tests
         public void SavedCourseEditsRequireTheirOwnContentBinding()
         {
             var content = Content("TimeRun"); var binding = Binding(content); var edited = content.Course.CopyDocument();
-            edited.Title = "Edited parcel service";
+            edited.Title = "Edited parcel depot";
             var next = CourseResolver.Resolve(edited, content.Geometry,
                 new CourseResolveRequest(content.Course.Seed, MatchStateValidation.Requirements(content.Mode)));
             Assert.IsTrue(next.Success);

@@ -203,9 +203,9 @@ test("placed fields respect walls, physical cover and storeys", () => {
   deploy(g, "CLOCK");
   const zone = g.zones[0];
   assert.equal(g.fieldReaches(zone, { x: 0, z: 2.6 }), true);
-  assert.equal(g.fieldReaches(zone, { x: 3, z: 2 }), false, "balcony is a different floor");
-  Object.assign(zone, { x: 2, z: 3.5, y: 0 });
-  assert.equal(g.fieldReaches(zone, { x: 2, z: 4.5 }), false, "solid wall");
+  assert.equal(g.fieldReaches(zone, { x: 5.25, z: 4.5 }), false, "balcony is a different floor");
+  Object.assign(zone, { x: 2, z: 5.5, y: 0 });
+  assert.equal(g.fieldReaches(zone, { x: 2, z: 6.5 }), false, "solid wall");
   Object.assign(zone, { x: 0, z: 0, y: 0 });
   const cover = g.items.find(item => item.word === "TABLE");
   Object.assign(cover, { x: 0, z: 1.3, y: 0, anchored: true });
@@ -254,12 +254,12 @@ for (const state of ["anchored", "deployed"])
 
 test("wind-driven loose props stop their complete footprint at a wall", () => {
   const g = arena(); const fan = deploy(g, "FAN"), zone = g.zones[0];
-  Object.assign(fan, { x: 2, z: 2 }); Object.assign(zone, { x: 2, z: 2 });
+  Object.assign(fan, { x: 2, z: 4 }); Object.assign(zone, { x: 2, z: 4 });
   const prop = g.items.find(item => item.word === "SODA");
-  Object.assign(prop, { x: 2, z: 3.5, y: 0 });
+  Object.assign(prop, { x: 2, z: 5.5, y: 0 });
   for (let i = 0; i < 80; i++) g.tickZones(0.05);
-  assert.ok(prop.z > 3.5, "wind moves the loose prop");
-  assert.ok(prop.z + prop.definition.size[2] / 2 <= 4, "whole prop stays before the wall");
+  assert.ok(prop.z > 5.5, "wind moves the loose prop");
+  assert.ok(prop.z + prop.definition.size[2] / 2 <= 6, "whole prop stays before the wall");
   balanced(g);
 });
 

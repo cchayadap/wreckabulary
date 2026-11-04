@@ -222,12 +222,12 @@ namespace Wreckabulary.Tests
             var practice = ParcelPracticeCourse();
             var sorting = practice.PhysicalSites.Where(s => s.PuzzleId == "SortingBench")
                 .OrderBy(s => s.Hash, StringComparer.Ordinal).ToArray();
-            var dispatch = practice.PhysicalSites.Where(s => s.PuzzleId == "DispatchStand")
+            var office = practice.PhysicalSites.Where(s => s.PuzzleId == "OfficeSofa")
                 .OrderBy(s => s.Hash, StringComparer.Ordinal).ToArray();
             var position = Metres(sorting[0].Position);
             var frame = PracticeReadModel(practice, position, sorting.Select(s => s.Hash).ToArray());
             Assert.AreEqual(sorting[0].Hash, WordboundPracticeGuidePlan.Nearest(practice, frame, "a", 3).Hash);
-            Assert.AreEqual(dispatch[0].Hash, WordboundPracticeGuidePlan.Nearest(practice, frame, "a", 20).Hash);
+            Assert.AreEqual(office[0].Hash, WordboundPracticeGuidePlan.Nearest(practice, frame, "a", 20).Hash);
             var allDone = PracticeReadModel(practice, position, practice.PhysicalSites.Select(s => s.Hash).ToArray());
             Assert.AreEqual(sorting[0].Hash, WordboundPracticeGuidePlan.Nearest(practice, allDone, "a", 20).Hash);
             Assert.IsNull(WordboundPracticeGuidePlan.Nearest(practice,

@@ -29,8 +29,12 @@ Bare hands barely hurt. The recipe book says what each item does when you point 
 |---|---|---|
 | Learn | Tutorial (selected until you finish it) | 1–4 on one PC |
 | House party | Dibs! (last one standing), Duos (2v2), Moving Out (escape with the keepsakes), Moving Day (finish the checklist), Escape | 1–4 on one PC, bots fill seats |
-| Courses | Time Trial, Freeplay | 1 on one PC |
-| Online courses | Time Trial, Team Race, Brawl Relay, Free-for-All, Freeplay | Matchmaking or a private party |
+| Courses | Time Trial, Freeplay on Parcel Depot, The Lost Address or Parcel Hall | 1 on one PC |
+| Online courses | Time Trial, Team Relay, Brawl Relay (teams of 1, 2 or 4), Free-for-All (first to 10 knockouts), Freeplay | Matchmaking or a private party |
+
+Five houses (Pinwheel, Garden Courtyard, City Flat, Terrace, Walk-up) with gardens, yards and roofs; the camera frames every player on the couch. **Parcel Depot** is a two-level warehouse whose laps take different routes.
+
+Course races carry a keepsake through three laps of checkpoints; each checkpoint is a word puzzle. **The Lost Address** is the story course: four floors, three chapters (find the address, the wrong delivery, restore the home), clues earned at checkpoints and an ending for each result.
 
 Create: **Map editor** (build a course in four steps: Build, Fill, Rules, Test & Share; save, open and share maps, or play one online with friends) and **Home builder** (furnish a house, then play it in Dibs! or Duos).
 
@@ -42,7 +46,7 @@ House party modes are offline only. Course modes go online through Photon Fusion
 2. The first player on the roster hosts; everyone joins with a one-use Photon ticket the coordinator issued.
 3. The host referees the match and saves checkpoints to the coordinator; if the host leaves, another player takes over from the last checkpoint.
 
-Every player must have identical item and rule files or the match does not start. Shared maps are checked for size, format and fingerprints before loading. Live online play has not been verified end to end in this build.
+Every player must have identical item and rule files or the match does not start. Shared maps are checked for size, format and fingerprints before loading. House items never reach online play. Sign-in and two-player sessions have passed live; a full public match has not been verified end to end.
 
 ## Controls
 

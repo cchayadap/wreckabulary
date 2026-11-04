@@ -20,7 +20,7 @@ namespace Wreckabulary
         public Sprite LostAddressPreview;
         [Tooltip("Actual Parcel Hall course preview. Leave empty to use the original object artwork.")]
         public Sprite ParcelHallPreview;
-        [Tooltip("Actual Parcel Service course preview. Leave empty to show a neutral map symbol.")]
+        [Tooltip("Actual Parcel Depot course preview. Leave empty to show a neutral map symbol.")]
         public Sprite ParcelServicePreview;
         [Tooltip("Actual installed Combat Arena capture for online FFA. Empty keeps the truthful course name without substituted artwork.")]
         public Sprite CombatArenaPreview;

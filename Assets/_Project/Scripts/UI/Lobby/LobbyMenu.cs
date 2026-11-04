@@ -43,7 +43,7 @@ namespace Wreckabulary
         public string Mode { get; private set; } = "Dibs";
         public string SavedHome { get; private set; }
         public string SavedHomeName { get; private set; }
-        public string MapLabel => SavedHome != null ? SavedHomeName : Map == Session.LobbyRandomMap ? "random"
+        public string MapLabel => SavedHome != null ? SavedHomeName : Map == Session.LobbyRandomMap ? "Random house"
             : Map != null && GameConfig.Current.Houses.TryGetValue(Map, out var house) ? house.Name : Map ?? "";
         public LobbyStage Stage { get; private set; }
         public string Current { get; private set; }

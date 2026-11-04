@@ -32,14 +32,14 @@ export const MAPS = [
   {
     id: "pinwheel",
     name: "Pinwheel House",
-    subtitle: "Five cosy rooms. Eight sneaky shortcuts.",
+    subtitle: "Four wings round a skylit playroom, and a garden loop.",
     scale: 1,
     open: false,
   },
   {
     id: "courtyard",
     name: "Courtyard House",
-    subtitle: "A big garden, broad paths, and four cosy wings.",
+    subtitle: "A fountain square, an orchard and a covered walkway.",
     scale: 1,
     open: false,
   },
@@ -1078,14 +1078,16 @@ export class Game {
     return false;
   }
   floorAt(x, z) {
-    if (this.peaceful) return 0;
-    if (this.map.id !== "pinwheel" || x < 2.5 || x > 4) return 0;
-    if (z >= 1 && z <= 4) return 1.7;
-    if (z >= -1 && z < 1) return (z + 1) * 0.85;
+    if (this.peaceful || this.map.id !== "pinwheel") return 0;
+    const playroom = this.house.rooms.find((r) => r.name === "Playroom");
+    if (!playroom) return 0;
+    const [, , maxX, maxZ] = playroom.bounds;
+    if (x < maxX - 1.5 || x > maxX) return 0;
+    if (z >= maxZ - 3 && z <= maxZ) return 1.7;
+    if (z >= maxZ - 5 && z < maxZ - 3) return (z - maxZ + 5) * 0.85;
     return 0;
   }
-  canStand(p, x, z) {
-    const radius = 0.3;
+  canStand(p, x, z, radius = 0.3) {
     if (
       Math.abs(x) > this.extent - radius ||
       Math.abs(z) > this.extent - radius
@@ -1389,6 +1391,7 @@ export class Game {
       if (cached.path.length) return cached.path[0];
     }
     const step = 0.45,
+      clearance = 0.38,
       min = -this.extent + 0.4,
       n = Math.ceil((this.extent * 2 - 0.8) / step),
       index = (x, z) =>
@@ -1399,16 +1402,20 @@ export class Game {
       }),
       start = index(p.x, p.z);
     let goal = index(target.x, target.z);
-    if (!this.canStand(p, point(goal).x, point(goal).z)) {
+    if (!this.canStand(p, point(goal).x, point(goal).z, clearance)) {
+      const centre = goal;
       let best = Infinity;
       for (let j = -3; j <= 3; j++)
         for (let i = -3; i <= 3; i++) {
-          const candidate = goal + j * n + i,
+          const candidate = centre + j * n + i,
+            column = (centre % n) + i,
             q = point(candidate);
           if (
+            column < 0 ||
+            column >= n ||
             candidate < 0 ||
             candidate >= n * n ||
-            !this.canStand(p, q.x, q.z)
+            !this.canStand(p, q.x, q.z, clearance)
           )
             continue;
           const score = distance(q, target) + distance(q, p) * 0.03;
@@ -1462,11 +1469,11 @@ export class Game {
           continue;
         const pos = point(next);
         if (
-          !this.canStand(p, pos.x, pos.z) ||
+          !this.canStand(p, pos.x, pos.z, clearance) ||
           (dx &&
             dz &&
-            (!this.canStand(p, q.x + dx * step, q.z) ||
-              !this.canStand(p, q.x, q.z + dz * step)))
+            (!this.canStand(p, q.x + dx * step, q.z, clearance) ||
+              !this.canStand(p, q.x, q.z + dz * step, clearance)))
         )
           continue;
         const score = scores.get(current) + step * Math.hypot(dx, dz);

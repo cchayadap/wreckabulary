@@ -203,8 +203,14 @@ namespace Wreckabulary.Online
             if (coordinator == null || !Visible) return;
             if (coordinator.MatchActive && string.IsNullOrEmpty(localError)) return;
             BeginPartyGui(Application.isFocused);
-            try { DrawPartyGui(new Vector2(Screen.width, Screen.height)); }
-            finally { EndPartyGui(); }
+            var matrix = GUI.matrix;
+            float scale = WordboundUiStyles.ScreenScale(Screen.width, Screen.height);
+            try
+            {
+                GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1));
+                DrawPartyGui(new Vector2(Screen.width / scale, Screen.height / scale));
+            }
+            finally { GUI.matrix = matrix; EndPartyGui(); }
 #if UNITY_EDITOR || GSK_QA
             if (Event.current.type == EventType.Repaint && QaLastRepaintFrame != Time.frameCount)
             {

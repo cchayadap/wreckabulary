@@ -26,7 +26,7 @@ namespace Wreckabulary.Online.Editor
         const string BaseRooms = "Assets/_Project/Resources/Wordbound/RoomArchitecture.asset";
         static readonly string[] ModelIds = { "DESK", "SHELF", "CHEST", "BOX", "CRATE" };
         static readonly string[] Targets = { VisualPath, RoomPath, RedPath, OakPath, WalnutPath };
-        static readonly string[] BackupFiles = { WordboundParcelServiceSetup.Path, WordboundParcelServiceSetup.Path + ".meta" };
+        static readonly string[] BackupFiles = { WordboundParcelServiceSetup.LegacyPath, WordboundParcelServiceSetup.LegacyPath + ".meta" };
 
         [MenuItem("Tools/Wordbound/Courses/Inspect Parcel Service material roles")]
         public static void InspectOriginalRoles()
@@ -35,12 +35,12 @@ namespace Wreckabulary.Online.Editor
             Debug.Log("[Parcel Service] Original renderer/material references:\n" + string.Join("\n", InspectRoles()));
         }
 
-        [MenuItem("Tools/Wordbound/Courses/Create or verify Parcel Service finishes")]
+        [MenuItem("Tools/Wordbound/Courses/Create or verify Parcel Service V1 finishes")]
         public static void CreateOrVerify()
         {
             RequireEditMode();
-            var course = RequireSaved<WordboundCourseAsset>(WordboundParcelServiceSetup.Path);
-            if (course.ReadDocument().Id != WordboundParcelServiceContent.CourseId)
+            var course = RequireSaved<WordboundCourseAsset>(WordboundParcelServiceSetup.LegacyPath);
+            if (course.ReadDocument().Id != WordboundParcelServiceContent.LegacyCourseId)
                 throw new InvalidOperationException("The target must remain the saved Parcel Service course.");
             var existing = AssetDatabase.LoadMainAssetAtPath(VisualPath);
             if (existing)
@@ -133,7 +133,7 @@ namespace Wreckabulary.Online.Editor
             Undo.RecordObject(course, "Assign Parcel Service finishes");
             course.VisualProfile = visual; EditorUtility.SetDirty(course); AssetDatabase.SaveAssetIfDirty(course);
             VerifySaved(course); VerifyOriginals(protectedHashes);
-            if (Hash(WordboundParcelServiceSetup.Path + ".meta") != Hash(BackupRoot + "/" + WordboundParcelServiceSetup.Path + ".meta"))
+            if (Hash(WordboundParcelServiceSetup.LegacyPath + ".meta") != Hash(BackupRoot + "/" + WordboundParcelServiceSetup.LegacyPath + ".meta"))
                 throw new IOException("The existing Parcel Service asset identity changed unexpectedly.");
             if (GameplayIdentity(course) != gameplay) throw new InvalidOperationException("Course gameplay identity changed unexpectedly.");
             File.WriteAllText(BackupRoot + "/COMPLETE.txt", "Parcel Service finishes created. Exact original course backup retained. Shared sources unchanged.\n");

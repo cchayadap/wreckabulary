@@ -146,6 +146,8 @@ namespace Wreckabulary.Rules
             return book;
         }
 
+        public void Override(string mode, JsonNode settings) => Apply(For(mode), settings);
+
         public List<string> Validate()
         {
             var problems = Defaults.Validate();

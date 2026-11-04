@@ -333,7 +333,7 @@ namespace Wreckabulary.Online
                 if (count == 0) return new Rect(anchor, y, 0, 0);
                 float width = 0;
                 for (int i = 0; i < count; i++) width = Mathf.Max(width, label.CalcSize(rows[i]).x);
-                width = Mathf.Min(maximumWidth, Mathf.Ceil(width + box.padding.horizontal));
+                width = Mathf.Min(maximumWidth, Mathf.Ceil(width + box.padding.horizontal + 4));
                 return Draw(anchor - width * alignment, y, width, label, box, bottom);
             }
             int measuredCount = -1;

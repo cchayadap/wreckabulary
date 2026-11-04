@@ -99,7 +99,7 @@ namespace Wreckabulary.EditorTests
                     expected[y * size + x] = new Color32((byte)(x * 31 + 9), (byte)(y * 29 + 13), (byte)((x + y) * 15), 255);
             var source = new Texture2D(size, size, TextureFormat.RGBA32, true, linear)
             {
-                name = "Non-readable persistence probe", filterMode = FilterMode.Trilinear,
+                name = "Non-readable persistence probe", hideFlags = HideFlags.DontUnloadUnusedAsset, filterMode = FilterMode.Trilinear,
                 wrapModeU = TextureWrapMode.Clamp, wrapModeV = TextureWrapMode.Repeat,
                 anisoLevel = 4, mipMapBias = .25f
             };

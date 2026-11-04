@@ -100,7 +100,7 @@ namespace Wreckabulary.Workshop
         }
         void WorldView()
         {
-            EnsureView(); view.Resize((int)viewport.width, (int)viewport.height);
+            EnsureView(); view.Resize(Mathf.RoundToInt(viewport.width * uiScale), Mathf.RoundToInt(viewport.height * uiScale));
             GUI.DrawTexture(viewport, view.Texture, ScaleMode.StretchToFill, false);
             GUI.BeginGroup(viewport);
             try

@@ -173,7 +173,7 @@ namespace Wreckabulary
             string.IsNullOrEmpty(text) ? text : char.ToUpperInvariant(text[0]) + text.Substring(1);
 
         protected static string MapName(string id) =>
-            id == Session.LobbyRandomMap ? "random"
+            id == Session.LobbyRandomMap ? "Random house"
             : id != null && GameConfig.Current.Houses.TryGetValue(id, out var house) ? house.Name : id ?? "";
 
         protected static string Number(int value) => value.ToString("N0", CultureInfo.InvariantCulture);

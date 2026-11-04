@@ -21,10 +21,11 @@ namespace Wreckabulary.Online.Editor
             foreach (var pair in new[] {
                 ("Flagship", WordboundAuthoringSetup.FlagshipPath),
                 ("Freestyle", WordboundAuthoringSetup.FreestylePath),
-                ("ParcelService", WordboundParcelServiceSetup.Path) })
+                ("ParcelService", WordboundParcelServiceSetup.LegacyPath),
+                ("ParcelDepot", WordboundParcelServiceSetup.Path) })
                 CreateAt(Root + "/" + pair.Item1,
                     AssetDatabase.LoadAssetAtPath<WordboundCourseAsset>(pair.Item2), launch);
-            Debug.Log("[Course entry scenes] Three saved local Workshop entries verified. Open an entry using Wreckabulary/Course entries, then Play and Workshop. Global lobby, course sources and build scenes are unchanged.");
+            Debug.Log("[Course entry scenes] Four saved local Workshop entries verified. Open an entry using Wreckabulary/Course entries, then Play and Workshop. Global lobby, course sources and build scenes are unchanged.");
         }
 
         public static SceneAsset CreateAt(string folder, WordboundCourseAsset course, WordboundLaunchAssets source)

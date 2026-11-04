@@ -12,17 +12,17 @@ namespace Wreckabulary.Online.Editor
 {
     public static class WordboundParcelServiceSpawnSetup
     {
-        static readonly CoursePoint OldPosition = new CoursePoint(-2400, 0, -2600);
-        static readonly CoursePoint ClearPosition = new CoursePoint(-2400, 0, 0);
+        static readonly CoursePoint OldPosition = WordboundParcelServiceContent.RearStartSeat;
+        static readonly CoursePoint ClearPosition = WordboundParcelServiceContent.StartSeat;
 
-        [MenuItem("Tools/Wordbound/Courses/Repair Parcel Service initial camera clearance")]
+        [MenuItem("Tools/Wordbound/Courses/Repair Parcel Depot initial camera clearance")]
         public static void Apply()
         {
             string backup = "BuildNotes/visual-coherence-20261029/map-composition/spawn-camera/before-assets/" +
                 DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ") + "-" + Guid.NewGuid().ToString("N").Substring(0, 8);
             bool changed = ApplyAt(WordboundParcelServiceSetup.Path, backup);
-            Debug.Log(changed ? "Parcel Service Start0 moved into the clear aisle. Exact prior course files: " + backup :
-                "Parcel Service Start0 already has the corrected position; saved course preserved.");
+            Debug.Log(changed ? "Parcel Depot Start0 moved into the clear yard aisle. Exact prior course files: " + backup :
+                "Parcel Depot Start0 already has the corrected position; saved course preserved.");
         }
 
         public static bool ApplyAt(string path, string backupDirectory)
@@ -36,9 +36,9 @@ namespace Wreckabulary.Online.Editor
             Require(new UnityEngine.Object[] { course, course.Items, course.RuleBook, course.CameraProfile, course.VisualProfile }
                 .Where(value => value).All(value => AssetDatabase.Contains(value) && !EditorUtility.IsDirty(value)), "Save pending course/input/profile edits first.");
             var document = course.ReadDocument();
-            Require(document.Id == WordboundParcelServiceContent.CourseId, "Only the existing Parcel Service course is supported.");
+            Require(document.Id == WordboundParcelServiceContent.CourseId, "Only the saved Parcel Depot course is supported.");
             var start = document.Spawns.SingleOrDefault(spawn => spawn.Id == "Start0");
-            Require(start != null && start.ModuleId == "Service" && start.Yaw == 0, "Start0 module/orientation was edited; preserve and review it manually.");
+            Require(start != null && start.ModuleId == "Yard" && start.Yaw == 0, "Start0 module/orientation was edited; preserve and review it manually.");
             if (start.Position.Equals(ClearPosition)) { Validate(course); return false; }
             Require(start.Position.Equals(OldPosition), "Start0 position was edited; preserve and review it manually.");
             Validate(course);
@@ -77,7 +77,7 @@ namespace Wreckabulary.Online.Editor
                 return true;
             }
             catch (Exception error)
-            { throw new InvalidOperationException("Parcel Service update needs review. Exact before files remain at " + backup, error); }
+            { throw new InvalidOperationException("Parcel Depot update needs review. Exact before files remain at " + backup, error); }
         }
 
         static void Validate(WordboundCourseAsset course)

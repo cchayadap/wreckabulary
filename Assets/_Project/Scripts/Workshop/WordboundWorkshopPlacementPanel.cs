@@ -206,12 +206,12 @@ namespace Wreckabulary.Workshop
             GUILayout.Label(new GUIContent("Allowed floors", "Objects stay in this room. Height is world-space; this room's floor is required."),
                 rowLabel, GUILayout.Width(RowWidth));
             if (Event.current.type == EventType.Repaint) placementFloorsY = GUILayoutUtility.GetLastRect().y;
-            GUILayout.Label("Objects always appear in this room.", ui.Wrapped, GUILayout.Width(RowWidth));
+            GUILayout.Label("Objects stay inside this room. Its own floor is always on.", ui.Wrapped, GUILayout.Width(RowWidth));
             foreach (var layer in display.Layers.OrderBy(item => item.HeightMm))
             {
                 bool picked = rangeLayers.Contains(layer.Id), enabled = GUI.enabled;
                 GUI.enabled = enabled && !(picked && layer.Id == module.LayerId);
-                bool next = GUILayout.Toggle(picked, new GUIContent(layer.Id + (layer.Id == module.LayerId ? " · room" : ""),
+                bool next = GUILayout.Toggle(picked, new GUIContent(layer.Id + (layer.Id == module.LayerId ? " · this room" : ""),
                     "Limits the allowed floors. Objects still stay in this room."), "Button", GUILayout.Width(RowWidth));
                 GUI.enabled = enabled;
                 if (next != picked) { if (next) rangeLayers.Add(layer.Id); else rangeLayers.Remove(layer.Id); }

@@ -143,7 +143,9 @@ namespace Wreckabulary.Workshop
             {
                 var delta = b - a;
                 GUI.color = color;
+                GUI.matrix = Matrix4x4.identity;
                 GUIUtility.RotateAroundPivot(Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg, a);
+                GUI.matrix = matrix * GUI.matrix;
                 GUI.DrawTexture(new Rect(a.x, a.y - WordboundWorkshopOverlay.LineWidth * .5f,
                     delta.magnitude, WordboundWorkshopOverlay.LineWidth), Texture2D.whiteTexture);
             }

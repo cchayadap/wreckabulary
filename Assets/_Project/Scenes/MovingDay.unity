@@ -14,19 +14,19 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  m_FogMode: 3
+  m_Fog: 1
+  m_FogColor: {r: 0.72, g: 0.84, b: 0.89, a: 1}
+  m_FogMode: 1
   m_FogDensity: 0.01
-  m_LinearFogStart: 0
-  m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.8938061, g: 0.86070377, b: 0.81302553, a: 1}
-  m_AmbientEquatorColor: {r: 0.7539822, g: 0.74216276, b: 0.7143574, a: 1}
-  m_AmbientGroundColor: {r: 0.5678314, g: 0.5916716, b: 0.59372663, a: 1}
+  m_LinearFogStart: 52
+  m_LinearFogEnd: 160
+  m_AmbientSkyColor: {r: 0.67, g: 0.76, b: 0.88, a: 1}
+  m_AmbientEquatorColor: {r: 0.53, g: 0.53, b: 0.51, a: 1}
+  m_AmbientGroundColor: {r: 0.33, g: 0.29, b: 0.25, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 38b6397004b8e5246bd61ba9a8ff3849, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 356368773}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -395,8 +395,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
+  m_Color: {r: 0.7, g: 0.83, b: 1, a: 1}
+  m_Intensity: 0.22
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -458,7 +458,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 259771081}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.09042398, y: 0.90957606, z: -0.2867882, w: 0.28678825}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -822,7 +822,6 @@ MonoBehaviour:
   maxPlayers: 4
   walkIn: {x: 1, y: 0, z: 0}
   walkInTime: 0.9
-  starterLetters: 0
   respawnKnockedOut: 1
   respawnDelay: 2
 --- !u!114 &305900965
@@ -867,8 +866,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3fe8cf9cde86054380c4d956d5e6e0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wreckabulary::Wreckabulary.RoomBuilder
-  furnitureRoot: {fileID: 651741156}
-  authoredHouse: {fileID: 651741155}
+  furnitureRoot: {fileID: 837827563}
+  authoredHouse: {fileID: 837827562}
 --- !u!1 &356368772
 GameObject:
   m_ObjectHideFlags: 0
@@ -896,8 +895,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
-  m_Color: {r: 1, g: 0.918, b: 0.82, a: 1}
-  m_Intensity: 0.9071831
+  m_Color: {r: 1, g: 0.91, b: 0.76, a: 1}
+  m_Intensity: 1.1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -959,7 +958,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 356368772}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.4565388, y: 0.33269516, z: -0.18910457, w: 0.8031972}
+  m_LocalRotation: {x: 0.39098036, y: -0.25180724, z: 0.112111814, w: 0.87815624}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1183,79 +1182,6 @@ Transform:
   - {fileID: 259771083}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &651741154
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2385426068114944588, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_Name
-      value: PinwheelHouse
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4348072001137052983, guid: ba315f93145834e4194571a17e33c793, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ba315f93145834e4194571a17e33c793, type: 3}
---- !u!114 &651741155 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6418804394337404202, guid: ba315f93145834e4194571a17e33c793, type: 3}
-  m_PrefabInstance: {fileID: 651741154}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0307d0b284ba0234ebc7c4ab1b582528, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.AuthoredHouse
---- !u!4 &651741156 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4312661922647030476, guid: ba315f93145834e4194571a17e33c793, type: 3}
-  m_PrefabInstance: {fileID: 651741154}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &652638520
 GameObject:
   m_ObjectHideFlags: 0
@@ -1724,6 +1650,79 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 600, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1001 &837827561
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884210626207895158, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2121511357756175071, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+      propertyPath: m_Name
+      value: PinwheelHouse
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+--- !u!114 &837827562 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8375981361428785017, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+  m_PrefabInstance: {fileID: 837827561}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0307d0b284ba0234ebc7c4ab1b582528, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.AuthoredHouse
+--- !u!4 &837827563 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7657326684486824785, guid: 684b27ebc2b204641a9ba1ad33b2e247, type: 3}
+  m_PrefabInstance: {fileID: 837827561}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &995908364
 GameObject:
   m_ObjectHideFlags: 0
@@ -2579,5 +2578,5 @@ SceneRoots:
   - {fileID: 1891448213}
   - {fileID: 995908365}
   - {fileID: 240850618}
-  - {fileID: 651741154}
   - {fileID: 520808696}
+  - {fileID: 837827561}

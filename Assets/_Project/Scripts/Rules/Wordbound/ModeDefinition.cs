@@ -47,12 +47,13 @@ namespace Wreckabulary.Rules.Wordbound
         public string CourseKind => IsRace ? "Circuit" : Objective == WordboundObjective.Knockouts ? "Arena" : "Explore";
         public IReadOnlyList<string> Recipes => recipeIds;
         public string Hash { get; }
+        public WordboundRuleset Ruleset { get; }
 
         ModeDefinition(string id, string name, RaceFormat format, WordboundObjective objective,
             WordboundOwnership ownership, int minimum, int maximum, int teams, int capacity,
-            int seconds, bool damage, bool hazards, bool publicQueue, bool fill)
+            int seconds, bool damage, bool hazards, bool publicQueue, bool fill, WordboundRuleset ruleset)
         {
-            Id = id; Name = name; Format = format; Objective = objective; Ownership = ownership;
+            Id = id; Name = name; Format = format; Objective = objective; Ownership = ownership; Ruleset = ruleset;
             MinimumPlayers = minimum; MaximumPlayers = maximum; TeamCount = teams; TeamCapacity = capacity;
             TimeLimitSeconds = seconds; EnemyDamage = damage; HazardDamage = hazards;
             PublicQueue = publicQueue; SupportsFill = fill;
@@ -65,29 +66,41 @@ namespace Wreckabulary.Rules.Wordbound
                 .Select(value => Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture))));
             if (WordboundPracticePolicy.Supports(this))
                 Hash = WordboundIdentity.Sha256(Hash + "|" + WordboundPracticePolicy.Hash);
+            if (!ruleset.IsClassic)
+                Hash = WordboundIdentity.Sha256(Hash + "|" + ruleset.Hash);
         }
 
-        public static ModeDefinition For(string id, RaceFormat format = RaceFormat.Solo)
+        public static ModeDefinition For(string id, RaceFormat format = RaceFormat.Solo) =>
+            For(id, format, WordboundRuleset.Classic);
+
+        public static ModeDefinition For(string id, RaceFormat format, string ruleset) =>
+            For(id, format, WordboundRuleset.Parse(ruleset));
+
+        public static ModeDefinition For(string id, RaceFormat format, WordboundRuleset ruleset)
         {
+            if (ruleset == null) throw new ArgumentNullException(nameof(ruleset));
             if (format != RaceFormat.Solo && format != RaceFormat.Duo && format != RaceFormat.Squad)
                 throw new ArgumentOutOfRangeException(nameof(format));
             if (id != "TeamRace" && id != "BrawlRace" && format != RaceFormat.Solo)
                 throw new ArgumentException("Only Team Race and Brawl Race have Solo/Duo/Squad formats.", nameof(format));
             int capacity = (int)format;
-            return id switch
+            var mode = id switch
             {
-                "TimeRun" => new ModeDefinition(id, "Time Run", format, WordboundObjective.DeliverKeepsake,
-                    WordboundOwnership.TeamIsolated, 1, 4, 1, 4, 1500, false, true, true, true),
-                "TeamRace" => new ModeDefinition(id, "Team Race", format, WordboundObjective.DeliverKeepsake,
-                    WordboundOwnership.TeamIsolated, 2, 2 * capacity, 2, capacity, 1500, false, true, true, true),
-                "BrawlRace" => new ModeDefinition(id, "Brawl Race", format, WordboundObjective.DeliverKeepsake,
-                    WordboundOwnership.ProtectedProgress, 2, 2 * capacity, 2, capacity, 1500, true, true, true, true),
+                "TimeRun" => new ModeDefinition(id, "Time Trial", format, WordboundObjective.DeliverKeepsake,
+                    WordboundOwnership.TeamIsolated, 1, 4, 1, 4, 1500, false, true, true, true, ruleset),
+                "TeamRace" => new ModeDefinition(id, "Team Relay", format, WordboundObjective.DeliverKeepsake,
+                    WordboundOwnership.TeamIsolated, 2, 2 * capacity, 2, capacity, 1500, false, true, true, true, ruleset),
+                "BrawlRace" => new ModeDefinition(id, "Brawl Relay", format, WordboundObjective.DeliverKeepsake,
+                    WordboundOwnership.ProtectedProgress, 2, 2 * capacity, 2, capacity, 1500, true, true, true, true, ruleset),
                 "FreeForAll" => new ModeDefinition(id, "Free-for-All", format, WordboundObjective.Knockouts,
-                    WordboundOwnership.Shared, 2, 8, 8, 1, 480, true, true, true, false),
-                "Freestyle" => new ModeDefinition(id, "Freestyle", format, WordboundObjective.Explore,
-                    WordboundOwnership.Shared, 1, 8, 1, 8, 0, false, false, true, true),
+                    WordboundOwnership.Shared, 2, 8, 8, 1, 480, true, true, true, false, ruleset),
+                "Freestyle" => new ModeDefinition(id, "Freeplay", format, WordboundObjective.Explore,
+                    WordboundOwnership.Shared, 1, 8, 1, 8, 0, false, false, true, true, ruleset),
                 _ => throw new ArgumentException("Unknown Wordbound mode.", nameof(id))
             };
+            if (!ruleset.AppliesTo(id))
+                throw new ArgumentException("This story ruleset is not available for the mode.", nameof(ruleset));
+            return mode;
         }
 
         public bool CanDamage(int attackerTeam, int victimTeam) =>

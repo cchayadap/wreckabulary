@@ -21,7 +21,7 @@ namespace Wreckabulary.OfflineGameplayTests
     public sealed class WordboundNativeParcelServiceTests
     {
         const string Actor = WordboundLocalMatchClient.LocalActor;
-        const string CoursePath = "Assets/_Project/Resources/Wordbound/LocalCourses/ParcelServiceV1.asset";
+        const string CoursePath = "Assets/_Project/Resources/Wordbound/LocalCourses/ParcelServiceV2.asset";
         GameObject root;
         WordboundLocalMatchClient client;
         WordboundGameplayController controller;
@@ -30,6 +30,7 @@ namespace Wreckabulary.OfflineGameplayTests
         WordboundGameplayOptions options;
         Func<WordboundMovementInput> previousMovement, movement;
         IWordboundPuzzleContent content;
+        CourseDocument layout;
         byte[] sourceBytes, metaBytes;
         string sourceMemory, observationFailure = "";
         Action<MatchSnapshot> observer;
@@ -48,7 +49,7 @@ namespace Wreckabulary.OfflineGameplayTests
         MatchMechanismState Mechanism(ResolvedCoursePhysicalSite site) => Frame.Mechanisms.Single(m =>
             m.Team == 0 && m.Lap == site.Lap - 1 && m.PuzzleId == site.PuzzleId);
 
-        [UnityTest, Category("LocalParcelService"), Timeout(900000)]
+        [UnityTest, Category("LocalParcelService"), Timeout(1800000)]
         public IEnumerator TimeRunCompletesAllThreeLapsThroughRealCraftsSocketsAndCarrierDeliveries()
         {
             RequireNativeEntry();
@@ -87,25 +88,29 @@ namespace Wreckabulary.OfflineGameplayTests
             Assert.AreEqual("Win", Frame.Progress.Result.Outcome);
             CollectionAssert.AreEqual(new[] { 0 }, Frame.Progress.Result.WinningTeams);
             Assert.AreEqual(3, Team.Lap); Assert.IsTrue(Team.Finished);
-            Assert.AreEqual(12, Team.OrderedObjectives);
+            Assert.AreEqual(content.Course.Laps.Sum(l => l.Checkpoints.Count + 1), Team.OrderedObjectives);
             CollectionAssert.AreEquivalent(new[] { 1, 2, 3 }, laps);
-            Assert.AreEqual(6, Frame.Mechanisms.Count(m => m.Solved));
-            Assert.AreEqual(6, crafted.Count); Assert.AreEqual(30, collected.Count);
+            var solved = content.Course.Laps.SelectMany(l => l.Checkpoints.SelectMany(c => c.PuzzleIds)).ToArray();
+            int letters = solved.Sum(id => content.Course.Puzzles.Single(p => p.Id == id).RecipeId.Length);
+            Assert.AreEqual(solved.Length, Frame.Mechanisms.Count(m => m.Solved));
+            Assert.AreEqual(solved.Length, crafted.Count); Assert.AreEqual(letters, collected.Count);
             RequireSourcePreserved();
             RequireGameplayEvidence();
-            Debug.Log("WORDBOUND_PARCEL_RACE_COMPLETE: 3 native laps; 6 unchanged crafts/deployments/socket holds/consumptions; " +
-                "30 real letters; supported door routes; keepsake deliveries; confirmed Win. Scripted admitted input, not physical-device/UI or online acceptance.");
+            Debug.Log("WORDBOUND_PARCEL_RACE_COMPLETE: 3 native laps; " + solved.Length + " unchanged crafts/deployments/socket holds/consumptions; " +
+                letters + " real letters; supported door and stair routes; keepsake deliveries; confirmed Win. Scripted admitted input, not physical-device/UI or online acceptance.");
         }
 
-        [UnityTest, Category("LocalParcelService"), Timeout(900000)]
-        public IEnumerator FreestyleCompletesSixAuthoredSitesAndRejectsMapOriginTableAtSocket()
+        [UnityTest, Category("LocalParcelService"), Timeout(1800000)]
+        public IEnumerator FreestyleCompletesEveryAuthoredSiteAndRejectsMapOriginTableAtSocket()
         {
             RequireNativeEntry();
             yield return new EnterPlayMode();
             Assert.IsTrue(Application.isPlaying, "Root UnityTest must enter Play Mode before creating a local client.");
             yield return Start("Freestyle");
             bool checkedMapTable = false;
-            foreach (string puzzle in new[] { "SortingBench", "DispatchStand", "ReturnClock" })
+            string[] order = { "SortingBench", "DockBed", "ReturnClock", "LockerStep", "OfficeSofa", "DispatchStand" };
+            CollectionAssert.AreEquivalent(content.Course.PhysicalSites.Select(s => s.PuzzleId).Distinct(), order);
+            foreach (string puzzle in order)
             {
                 var stations = content.Course.PhysicalSites.Where(s => s.PuzzleId == puzzle).ToArray();
                 foreach (var ignored in stations)
@@ -125,19 +130,21 @@ namespace Wreckabulary.OfflineGameplayTests
                     Assert.AreEqual(0, Team.Lap); Assert.AreEqual(0, Team.OrderedObjectives);
                 }
             }
-            Assert.AreEqual(6, Frame.Mechanisms.Count(m => m.Solved));
-            Assert.AreEqual(6, crafted.Count); Assert.AreEqual(30, collected.Count);
+            int sites = content.Course.PhysicalSites.Count;
+            int letters = content.Course.PhysicalSites.Sum(s => content.Course.Puzzles.Single(p => p.Id == s.PuzzleId).RecipeId.Length);
+            Assert.AreEqual(sites, Frame.Mechanisms.Count(m => m.Solved));
+            Assert.AreEqual(sites, crafted.Count); Assert.AreEqual(letters, collected.Count);
             Assert.IsFalse(Team.Finished); Assert.IsNull(Frame.Progress.Result);
             RequireSourcePreserved();
             RequireGameplayEvidence();
-            Debug.Log("WORDBOUND_PARCEL_PRACTICE_COMPLETE: 6 actual physical sites; map-origin TABLE rejected; " +
-                "30 real recovery letters and 6 crafted/deployed/consumed objects; no race result. Uses production nearest unfinished station selection and public commands; physical-device/menu click acceptance remains separate.");
+            Debug.Log("WORDBOUND_PARCEL_PRACTICE_COMPLETE: " + sites + " actual physical sites; map-origin TABLE rejected; " +
+                letters + " real recovery letters and " + sites + " crafted/deployed/consumed objects; no race result. Uses production nearest unfinished station selection and public commands; physical-device/menu click acceptance remains separate.");
         }
 
         void RequireNativeEntry()
         {
             if (Environment.GetEnvironmentVariable("WORDBOUND_LOCAL_PARCEL") != "1")
-                Assert.Ignore("Set WORDBOUND_LOCAL_PARCEL=1 for actual Parcel Service local completion and physical socket tests.");
+                Assert.Ignore("Set WORDBOUND_LOCAL_PARCEL=1 for actual Parcel Depot local completion and physical socket tests.");
             Assert.IsFalse(Application.isPlaying);
             enteredPlay = true;
         }
@@ -146,20 +153,21 @@ namespace Wreckabulary.OfflineGameplayTests
         {
             Assert.IsTrue(Application.isPlaying, "Native startup cannot execute from Edit Mode.");
             crafted.Clear(); collected.Clear(); laps.Clear(); observationFailure = ""; movementReads = 0;
-            deadline = Time.realtimeSinceStartupAsDouble + 780;
+            deadline = Time.realtimeSinceStartupAsDouble + 1680;
             source = AssetDatabase.LoadAssetAtPath<WordboundCourseAsset>(CoursePath);
-            Assert.IsNotNull(source, "Run the reviewed Parcel Service saved-course setup first.");
+            Assert.IsNotNull(source, "Run Tools/Wordbound/Courses/Create or select Parcel Depot first.");
             Assert.IsFalse(EditorUtility.IsDirty(source), "Save or revert owner edits before native verification.");
             sourceBytes = File.ReadAllBytes(CoursePath); metaBytes = File.ReadAllBytes(CoursePath + ".meta");
             sourceMemory = EditorJsonUtility.ToJson(source);
             owned = Object.Instantiate(source);
             owned.ModeId = mode; owned.Format = RaceFormat.Solo;
             content = owned.CreateContent(owned.Resolve());
-            Assert.AreEqual(WordboundParcelServiceContent.CourseId, content.Course.CopyDocument().Id);
-            Assert.AreEqual(6, content.Course.PhysicalSites.Count);
+            layout = content.Course.CopyDocument();
+            Assert.AreEqual(WordboundParcelServiceContent.CourseId, layout.Id);
+            Assert.AreEqual(WordboundParcelServiceContent.PhysicalSiteCount, content.Course.PhysicalSites.Count);
             var launch = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
             Assert.IsNotNull(launch);
-            root = new GameObject("Owned Parcel Service native completion");
+            root = new GameObject("Owned Parcel Depot native completion");
             client = root.AddComponent<WordboundLocalMatchClient>();
             yield return Completed(client.StartLocal(content, launch.BodyPrefabs(), launch.GameplayScene(),
                 cameraProfile: owned.CameraProfile, visualProfile: owned.VisualProfile,
@@ -171,7 +179,7 @@ namespace Wreckabulary.OfflineGameplayTests
             nativeWorld = controller.CourseWorld;
             Assert.AreEqual(content.Course.Hash, Frame.Binding.ManifestHash);
             Assert.AreEqual(content.CatalogueHash, Frame.Binding.CatalogueHash);
-            Assert.AreEqual(21, Frame.Bodies.Count(b => b.Kind == WorldBodyKind.Item && b.Active));
+            Assert.AreEqual(WordboundParcelServiceContent.FurnitureCount, Frame.Bodies.Count(b => b.Kind == WorldBodyKind.Item && b.Active));
             Assert.AreNotEqual(Physics.defaultPhysicsScene, controller.PhysicsWorld.PhysicsScene);
             Assert.IsTrue(controller.CourseWorld.Surfaces.All(c => c && c.enabled && !c.isTrigger));
             Assert.IsTrue(controller.CourseWorld.Surfaces.Any(c => c.GetComponent<WordboundCourseNode>()?.Kind == WordboundCourseNodeKind.Wall));
@@ -189,8 +197,9 @@ namespace Wreckabulary.OfflineGameplayTests
                 if (frame.Progress.Tick < previousTick || team.Lap < priorLap || team.Lap > priorLap + 1 ||
                     team.OrderedObjectives < priorObjectives || team.OrderedObjectives > priorObjectives + 2)
                     observationFailure = "Canonical race progression skipped or regressed.";
-                if (content.Mode.IsRace && team.OrderedObjectives != team.Lap * 4 + team.NextCheckpoint)
-                    observationFailure = "Ordered progression differs from the actual three checkpoints plus finish.";
+                if (content.Mode.IsRace && team.OrderedObjectives !=
+                    content.Course.Laps.Take(team.Lap).Sum(l => l.Checkpoints.Count + 1) + team.NextCheckpoint)
+                    observationFailure = "Ordered progression differs from the actual lap checkpoints plus finish.";
                 if (team.Lap > priorLap)
                 {
                     var checkpoint = content.Course.Laps[priorLap].Checkpoints.Last();
@@ -346,25 +355,105 @@ namespace Wreckabulary.OfflineGameplayTests
         IEnumerator RouteTo(WorldVector target, float radius, string label, Func<bool> reached = null)
         {
             if (reached?.Invoke() == true) yield break;
-            yield return Walk(() => new WorldVector(Player.Position.X, 0, 0), .12f, "Enter the clear center aisle");
-            yield return Walk(() => new WorldVector(target.X, 0, 0), .12f, "Follow actual door route to " + label);
+            foreach (var (point, stop) in Waypoints(Player.Position, target))
+                yield return Walk(() => point, stop ? .12f : .3f, "Follow actual door and stair route to " + label, reached, stop);
             yield return Walk(() => target, radius, label, reached);
         }
 
-        IEnumerator Walk(Func<WorldVector> target, float radius, string label, Func<bool> reached = null)
+        List<(WorldVector point, bool stop)> Waypoints(WorldVector from, WorldVector to)
+        {
+            var route = new List<(CoursePoint point, bool stop)>();
+            var module = ModuleAt(from); var goal = ModuleAt(to);
+            var junction = Junction(module, Millimetres(from, module));
+            foreach (var (connection, next) in Hops(module, goal))
+            {
+                var exit = Doorway(connection, module); var enter = Doorway(connection, next);
+                Cross(module, junction, exit.junction, route);
+                route.Add((exit.entry, true)); route.Add((enter.entry, true));
+                module = next; junction = enter.junction;
+            }
+            Cross(module, junction, Junction(goal, Millimetres(to, goal)), route);
+            return route.Where((step, i) => i == 0 || !step.point.Equals(route[i - 1].point))
+                .Select(step => (Metres(step.point), step.stop)).ToList();
+        }
+
+        void Cross(CourseModule module, CoursePoint from, CoursePoint to, List<(CoursePoint point, bool stop)> route)
+        {
+            route.Add((from, false));
+            if (!Aisles(module).Any(box => box.Contains(from) && box.Contains(to))) route.Add((module.Position, false));
+            route.Add((to, false));
+        }
+
+        List<(CourseConnection connection, CourseModule next)> Hops(CourseModule from, CourseModule to)
+        {
+            var previous = new Dictionary<string, CourseConnection>(StringComparer.Ordinal) { [from.Id] = null };
+            var queue = new Queue<string>(new[] { from.Id });
+            while (queue.Count > 0 && !previous.ContainsKey(to.Id))
+            {
+                string at = queue.Dequeue();
+                foreach (var connection in layout.Connections)
+                {
+                    string next = connection.FromModuleId == at ? connection.ToModuleId : connection.ToModuleId == at ? connection.FromModuleId : null;
+                    if (next == null || previous.ContainsKey(next)) continue;
+                    previous.Add(next, connection); queue.Enqueue(next);
+                }
+            }
+            Assert.IsTrue(previous.ContainsKey(to.Id), "No authored door or stair route reaches " + to.Id);
+            var hops = new List<(CourseConnection connection, CourseModule next)>();
+            for (string at = to.Id; at != from.Id;)
+            {
+                var connection = previous[at];
+                hops.Insert(0, (connection, layout.Modules.Single(m => m.Id == at)));
+                at = connection.FromModuleId == at ? connection.ToModuleId : connection.FromModuleId;
+            }
+            return hops;
+        }
+
+        (CoursePoint entry, CoursePoint junction) Doorway(CourseConnection connection, CourseModule module)
+        {
+            var room = content.Geometry.Bounds(module);
+            bool stairs = connection.Kind == "Stairs", from = module.Id == connection.FromModuleId;
+            var at = from ? connection.From : connection.To; var other = from ? connection.To : connection.From;
+            bool alongX = stairs ? other.Z != at.Z : at.X == room.Min.X || at.X == room.Max.X;
+            int sign = stairs ? -Math.Sign(alongX ? other.Z - at.Z : other.X - at.X) :
+                alongX ? (at.X == room.Min.X ? 1 : -1) : (at.Z == room.Min.Z ? 1 : -1);
+            var entry = alongX == stairs ? new CoursePoint(at.X, at.Y, at.Z + sign * 1500) : new CoursePoint(at.X + sign * 1500, at.Y, at.Z);
+            return (entry, alongX ? new CoursePoint(module.Position.X, at.Y, entry.Z) : new CoursePoint(entry.X, at.Y, module.Position.Z));
+        }
+
+        CourseModule ModuleAt(WorldVector at)
+        {
+            var module = layout.Modules.Where(m => {
+                var room = content.Geometry.Bounds(m);
+                return at.X * 1000 >= room.Min.X && at.X * 1000 <= room.Max.X && at.Z * 1000 >= room.Min.Z &&
+                    at.Z * 1000 <= room.Max.Z && m.Position.Y <= at.Y * 1000 + 1000;
+            }).OrderByDescending(m => m.Position.Y).ThenBy(m => m.Id, StringComparer.Ordinal).FirstOrDefault();
+            Assert.IsNotNull(module, "No authored module contains " + at);
+            return module;
+        }
+
+        CourseBox[] Aisles(CourseModule module) => layout.ReservedVolumes
+            .Where(v => v.Id == "Route_" + module.Id || v.Id == "Cross_" + module.Id).Select(v => v.Bounds).ToArray();
+        CoursePoint Junction(CourseModule module, CoursePoint point) => Aisles(module).Any(box => box.Contains(point)) ? point :
+            new CoursePoint(point.X, module.Position.Y, module.Position.Z);
+        static CoursePoint Millimetres(WorldVector at, CourseModule module) =>
+            new CoursePoint((int)Math.Round(at.X * 1000), module.Position.Y, (int)Math.Round(at.Z * 1000));
+
+        IEnumerator Walk(Func<WorldVector> target, float radius, string label, Func<bool> reached = null, bool settle = true)
         {
             movement = () => {
                 if (reached?.Invoke() == true) return default;
                 var at = controller.Bodies[Player.Id].Rigidbody.position; var goal = target();
                 var delta = new Vector2(goal.X - at.x, goal.Z - at.z);
                 if (delta.magnitude <= radius) return default;
-                var input = delta.normalized * Mathf.Clamp((delta.magnitude - radius * .5f) * .1f, .06f, .32f);
+                var input = delta.normalized * (settle ? Mathf.Clamp((delta.magnitude - radius * .5f) * .1f, .06f, .32f) : .32f);
                 return new WordboundMovementInput { MoveX = input.x, MoveZ = input.y };
             };
             try { yield return Until(() => reached?.Invoke() == true || HorizontalDistance(Player.Position, target()) <= radius, label, 45); }
             finally { movement = () => default; }
-            if (Frame.Progress.Result == null) yield return Until(() => SpeedSquared() < .01f, "Settle through unchanged motor", 10);
             Assert.AreEqual(0, Frame.Progress.Players.Single(p => p.Id == Actor).Knockouts);
+            if (!settle) yield break;
+            if (Frame.Progress.Result == null) yield return Until(() => SpeedSquared() < .01f, "Settle through unchanged motor", 10);
             var hits = new RaycastHit[16];
             var foot = controller.Bodies[Player.Id].Rigidbody.position;
             int count = controller.PhysicsWorld.PhysicsScene.Raycast(foot + Vector3.up * .08f, Vector3.down,

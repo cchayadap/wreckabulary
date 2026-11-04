@@ -43,6 +43,8 @@ namespace Wreckabulary.EditorTests
                 "Seasonal tests must never write the production world prefab.");
         }
 
+        static Rules.RoomBox LivingRoom => GameConfig.Current.HouseFor("pinwheel").Room(SeasonalMapAuthoring.RoomId);
+
         [Test]
         public void AdditionPreservesAllOriginalTransformsMeshesMaterialsAndGameplayComponents()
         {
@@ -118,12 +120,13 @@ namespace Wreckabulary.EditorTests
             CollectionAssert.AreEquivalent(wall.GetComponentsInChildren<Renderer>(true), cutaway.Renderers);
             var floor = addition.transform.Find("Floor decorations");
             Assert.IsEmpty(floor.GetComponentsInChildren<CutawaySurface>(true));
+            var room = LivingRoom;
             foreach (Transform part in floor)
             {
                 var bounds = ModelVisual.BoundsIn(world.GeometryRoot, part.gameObject);
                 Assert.That(bounds.min.y, Is.EqualTo(0f).Within(.005f), part.name + " is grounded");
-                Assert.Greater(bounds.min.x, -5.4f, "Keep the room's central and north-door routes open.");
-                Assert.Less(bounds.max.x, -4.2f, "Keep the meshes inside the wall.");
+                Assert.Greater(bounds.min.x, room.MaxX - 1.4f, "Keep the room's central and north-door routes open.");
+                Assert.Less(bounds.max.x, room.MaxX - .2f, "Keep the meshes inside the wall.");
             }
             Assert.Greater(ModelVisual.BoundsIn(world.GeometryRoot, wall.gameObject).min.y, 1.8f);
         }
@@ -140,12 +143,13 @@ namespace Wreckabulary.EditorTests
             Object.DestroyImmediate(first.gameObject);
             foreach (var mesh in temporary) Object.DestroyImmediate(mesh);
             int moved = 0;
+            var room = LivingRoom;
             foreach (var renderer in world.GeometryRoot.GetComponentsInChildren<MeshRenderer>(true))
             {
                 if (renderer.name != "Upper wall infill" &&
                     !(renderer.name.StartsWith("Wall", StringComparison.Ordinal) && renderer.GetComponent<BoxCollider>())) continue;
                 var bounds = ModelVisual.BoundsIn(world.GeometryRoot, renderer.gameObject);
-                if (Mathf.Abs(bounds.center.z - 4f) > .3f || bounds.max.x > -3.9f || bounds.min.x < -6.3f) continue;
+                if (Mathf.Abs(bounds.center.z - room.MaxZ) > .3f || bounds.max.x < room.MaxX - 2.3f || bounds.min.x > room.MaxX + .1f) continue;
                 renderer.transform.position += world.GeometryRoot.TransformVector(Vector3.back * .06f);
                 moved++;
             }
@@ -163,7 +167,7 @@ namespace Wreckabulary.EditorTests
             var blocker = GameObject.CreatePrimitive(PrimitiveType.Cube);
             blocker.name = "Artist's existing corner cabinet";
             blocker.transform.SetParent(world.FurnitureRoot, false);
-            blocker.transform.SetPositionAndRotation(world.GeometryRoot.TransformPoint(new Vector3(-4.85f, .8f, 3f)), world.GeometryRoot.rotation);
+            blocker.transform.SetPositionAndRotation(world.GeometryRoot.TransformPoint(new Vector3(LivingRoom.MaxX - .85f, .8f, LivingRoom.MaxZ - 1f)), world.GeometryRoot.rotation);
             blocker.transform.localScale = new Vector3(.9f, 1.6f, .95f);
             int objects = contents.GetComponentsInChildren<Transform>(true).Length;
             var position = blocker.transform.localToWorldMatrix;

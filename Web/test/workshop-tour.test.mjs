@@ -118,17 +118,19 @@ test("portable Tour keeps props and walkers flat at the standard Pinwheel balcon
     mode: "Tour",
     layout: {
       ...layout,
-      props: [{ id: "p1", word: "BOOK", x: 3, z: 2, yaw: 0, skin: "Classic" }],
+      props: [
+        { id: "p1", word: "BOOK", x: 5, z: 4.5, yaw: 0, skin: "Classic" },
+      ],
     },
   });
-  assert.equal(g.floorAt(3, 2), 0);
+  assert.equal(g.floorAt(5, 4.5), 0);
   assert.equal(g.items[0].y, 0);
-  g.players[0].x = 3;
-  g.players[0].z = 2;
+  g.players[0].x = 5;
+  g.players[0].z = 4.5;
   g.tick(0.05);
   assert.equal(g.players[0].y, 0);
   assert.equal(
-    new Game(data, { mode: "Dibs", map: "pinwheel" }).floorAt(3, 2),
+    new Game(data, { mode: "Dibs", map: "pinwheel" }).floorAt(5, 4.5),
     1.7,
   );
 });

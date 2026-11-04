@@ -58,7 +58,7 @@ namespace Wreckabulary.Workshop
             rowWidth = InspectorContentWidth;
             StepTabsRow();
             if (controllerTools) ControllerPanel();
-            inspectorScroll = GUILayout.BeginScrollView(inspectorScroll);
+            inspectorScroll = GUILayout.BeginScrollView(inspectorScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar);
             string hint = SelectionHint();
             if (hint.Length != 0) Hint(hint);
             if (step == WorkshopStep.Build) BuildStep();

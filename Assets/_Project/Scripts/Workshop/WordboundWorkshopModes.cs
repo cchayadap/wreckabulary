@@ -41,7 +41,7 @@ namespace Wreckabulary.Workshop
             string last = LastMapId(scoped, id);
             if (ReopenLastMap(session, scoped, last, null, true, "Flagship", out string problem)) return;
             var recovery = scoped.HasRecovery(id) ? scoped : !HasAssignedCourse && legacy.HasRecovery(id) ? legacy : null;
-            OpenRecovered(session, recovery, id, back, null, true, false, "Flagship draft · Time Run · Check map tests this exact layout",
+            OpenRecovered(session, recovery, id, back, null, true, false, "Lost Address draft · Time Trial · Check map tests this exact layout",
                 "Recovered Flagship autosave", "Recovered previous Flagship save", "Start fresh from the Flagship course");
             AskAboutDamagedLastMap(scoped, last, problem, back);
         }
@@ -58,7 +58,7 @@ namespace Wreckabulary.Workshop
         {
             localPlaytest = enabled;
             if (enabled && History != null && !CanPlaytestLocally)
-                ShowStatus("Test alone works in Time Run or Freestyle with one player.");
+                ShowStatus("Test alone works in Time Trial or Freeplay with one player.");
         }
 
         public void SelectMode(string modeId, RaceFormat format = RaceFormat.Solo)
@@ -69,7 +69,7 @@ namespace Wreckabulary.Workshop
             LastPreview = null; LastPlaytestDraft = null; displayRevision = -1; Refresh();
             RememberMode();
             ShowStatus(WorkshopModes.Name(choice.ModeId) + (localPlaytest && !choice.AllowsOneHumanLocal
-                ? " · Check map works; Test alone needs Time Run or Freestyle."
+                ? " · Check map works; Test alone needs Time Trial or Freeplay."
                 : " chosen · Check map and Test use this exact mode and layout."));
         }
 
@@ -77,9 +77,9 @@ namespace Wreckabulary.Workshop
         {
             if (History == null) throw new InvalidOperationException("Open a map first.");
             CancelGesture();
-            History.Execute("Add Freestyle", WorkshopModes.EnableFreestyleSandbox);
+            History.Execute("Add Freeplay", WorkshopModes.EnableFreestyleSandbox);
             SelectMode("Freestyle");
-            ShowStatus("Freestyle added to this map and chosen · undo is available.");
+            ShowStatus("Freeplay added to this map and chosen · undo is available.");
         }
 
         public void ShowStatus(string message)
@@ -182,7 +182,7 @@ namespace Wreckabulary.Workshop
                 if (next >= 0 && next != current) Attempt(() => SelectMode(PlayRequirements.ModeId, TeamFormats[next]));
             }
             if (!SelectedModeEnabled) Hint("This map doesn't support the chosen mode. Add it above or play another mode.");
-            else if (localPlaytest && !CanPlaytestLocally) Hint("Test alone works in Time Run or Freestyle. Friends can play this mode online.");
+            else if (localPlaytest && !CanPlaytestLocally) Hint("Test alone works in Time Trial or Freeplay. Friends can play this mode online.");
         }
     }
 }

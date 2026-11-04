@@ -180,7 +180,7 @@ namespace Wreckabulary
             foreach (var box in map.layout.Rooms)
             {
                 if (map.Storey(box.FloorY) != storey) continue;
-                var room = new MapRoom { box = box, colour = MapRoomColour(box.Name) };
+                var room = new MapRoom { box = box, colour = MapRoomColour(box) };
                 room.fill = MapArea(box.Name, floors, map, box.MinX, box.MinZ, box.MaxX, box.MaxZ, room.colour);
                 var label = Text(box.Name, map.labelLayer, map.At((box.MinX + box.MaxX) * .5f, box.MaxZ),
                     new Vector2(0f, map.full ? -13f : -8f), Vector2.zero, map.full ? 16f : 10f, Cream);
@@ -375,9 +375,10 @@ namespace Wreckabulary
             "Kitchen" => "KITCHEN", "Playroom" => "PLAY", _ => Spaced(name).ToUpperInvariant()
         };
 
-        static Color MapRoomColour(string name)
+        static Color MapRoomColour(RoomBox box)
         {
-            if (name.Contains("Garden") || name.Contains("Terrace") || name.Contains("Patio")) return Hex(0x638c6c);
+            string name = box.Name;
+            if (box.Outdoor || name.Contains("Garden") || name.Contains("Terrace") || name.Contains("Patio")) return Hex(0x638c6c);
             if (name.Contains("Kitchen") || name.Contains("Bath")) return Hex(0x678f96);
             if (name.Contains("Bed") || name.Contains("Play")) return Hex(0x8d829f);
             if (name.Contains("Hall") || name.Contains("Stair") || name.Contains("Landing")) return Hex(0x968b6b);

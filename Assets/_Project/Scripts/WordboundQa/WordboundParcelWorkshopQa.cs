@@ -79,7 +79,7 @@ namespace Wreckabulary.Qa
             assets = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
             Require(assets && assets.WorkshopCourse && assets.ParcelServiceCourse, "Install both saved Workshop source assignments.");
             parcelSource = assets.ParcelServiceCourse;
-            Require(parcelSource.ReadDocument().Id == WordboundSoloEntry.ParcelServiceCourseId, "Parcel Service has the wrong saved course ID.");
+            Require(parcelSource.ReadDocument().Id == WordboundSoloEntry.ParcelServiceCourseId, "Parcel Depot has the wrong saved course ID.");
             Remember(assets); Remember(assets.CameraProfile); Remember(assets.VisualProfile); Remember(assets.UiTheme); Remember(assets.StoryProfile);
             RememberCourse(assets.WorkshopCourse); RememberCourse(parcelSource);
             var data = Resources.Load<GameData>(GameData.ResourcePath);
@@ -92,7 +92,7 @@ namespace Wreckabulary.Qa
                 return launcher && launcher.GetComponent<WordboundPartyMenu>()?.Coordinator != null;
             }, 45, "the actual installed Wordbound launcher");
             folder = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "wbqa", Guid.NewGuid().ToString("N")));
-            parcelFolder = Path.Combine(folder, "local-courses", "ParcelServiceV1");
+            parcelFolder = Path.Combine(folder, "local-courses", WordboundSoloEntry.ParcelServiceWorkshopFolder);
             parcelPrimary = Path.Combine(parcelFolder, WordboundSoloEntry.ParcelServiceCourseId + ".autosave.json");
             Require(parcelPrimary.Length + 37 < 260, "The isolated atomic-save path is too long for Windows.");
             launcher.ConfigureQaWorkshopStorage(folder);
@@ -112,7 +112,7 @@ namespace Wreckabulary.Qa
             yield return PreviewShot(context, "parcel_workshop_assigned");
             workshop.OpenParcelService();
             Require(workshop.UsesParcelService && !workshop.UsesAssignedCourse && !ReferenceEquals(workshop.History, assigned),
-                "Parcel Service replaced or reused the Assigned history.");
+                "Parcel Depot replaced or reused the Assigned history.");
             parcel = workshop.History; parcelInitial = parcel.Current.RecoveryJson;
             Require(parcel.Current.Course().Id == WordboundSoloEntry.ParcelServiceCourseId &&
                 parcel.Current.CourseJsonText == parcelSource.DocumentJson && parcel.Current.Seed == parcelSource.Seed,
@@ -122,23 +122,24 @@ namespace Wreckabulary.Qa
         IEnumerator Edit(QaContext context)
         {
             Require(workshop && workshop.UsesParcelService && ReferenceEquals(workshop.History, parcel), "Open the separate Parcel draft first.");
-            Require(parcel.Execute("QA Parcel Service saved draft", draft => {
-                draft.Course.Title = "Parcel Service · QA edit"; draft.Seed = "0314159265358979"; draft.SeedLocked = true;
-                var room = draft.Course.Modules.Single(module => module.Id == "Sorting");
+            Require(parcel.Execute("QA Parcel Depot saved draft", draft => {
+                draft.Course.Title = "Parcel Depot · QA edit"; draft.Seed = "0314159265358979"; draft.SeedLocked = true;
+                var room = draft.Course.Modules.Single(module => module.Id == SortingHall);
                 draft.ActiveLayer = room.LayerId; draft.Selection.Clear(); draft.Selection.Add(room.Id);
             }), "The Parcel edit did not enter its own history.");
             workshop.SelectMode("TimeRun"); workshop.ResumeEditing();
             parcelEdited = parcel.Current; parcelRevision = parcel.Revision;
             parcelUndo = parcel.CanUndo; parcelRedo = parcel.CanRedo;
             var preview = workshop.Preview();
-            Require(preview.Success && preview.Manifest.CopyDocument().PhysicalSites.Count == 6 && preview.Manifest.Placements.Count == 21,
-                "The exact edited Parcel course did not resolve with its six sites and complete original prop arrangement.");
+            Require(preview.Success && preview.Manifest.CopyDocument().PhysicalSites.Count == WordboundParcelServiceContent.PhysicalSiteCount &&
+                preview.Manifest.Placements.Count == WordboundParcelServiceContent.FurnitureCount,
+                "The exact edited Parcel Depot course did not resolve with all its sites and complete original prop arrangement.");
             manifest = preview.Manifest.Hash;
             yield return Saved(context, parcelPrimary, parcelEdited, parcelFolder, "parcel_workshop_parcel_autosave");
             Require(File.ReadAllText(assignedPrimary) == assignedEdited.RecoveryJson, "Saving Parcel changed the isolated Assigned autosave.");
             yield return PreviewShot(context, "parcel_workshop_saved");
             var view = Read<WordboundWorkshopViewport>(workshop, "view");
-            var room = parcelEdited.Course().Modules.Single(module => module.Id == "Sorting");
+            var room = parcelEdited.Course().Modules.Single(module => module.Id == SortingHall);
             view.Frame(new[] { room }); view.Zoom(-3);
             RequireOriginalProps(view);
             context.Note("parcel_workshop_focus", new Dictionary<string, object> {
@@ -162,7 +163,7 @@ namespace Wreckabulary.Qa
                 Require(!(bool)Field(name).GetValue(workshop), "Inspector capture requires an idle editor: " + name);
             foreach (string name in new[] { "siteDrag", "gesture", "placementGesture", "resizingZone", "placing" })
                 Require(Field(name).GetValue(workshop) == null, "Inspector capture must not cancel a gesture: " + name);
-            Require(parcelEdited.Selection.SequenceEqual(new[] { "Sorting" }), "Keep the existing Sorting room selection.");
+            Require(parcelEdited.Selection.SequenceEqual(new[] { SortingHall }), "Keep the existing sorting hall selection.");
             var saved = new Dictionary<FieldInfo, object>();
             foreach (string name in new[] { "step", "inspectorScroll", "inspectorChoiceOpen", "inspectorChoiceSearch",
                 "siteChoiceOpen", "siteChoiceSearch", "routeChoiceOpen", "routeChoiceSearch", "workshopTyping", "newPuzzle",
@@ -189,8 +190,8 @@ namespace Wreckabulary.Qa
                     "The recipe image capture lost its intended inspector context.");
                 NoteInspector(context, "parcel_workshop_new_puzzle_view", "Puzzles", "New puzzle", recipe);
                 Section("Rules"); Set("newPuzzle", false); Set("advanced", false); Set("rulesAdvanced", false); Set("routesExpanded", true);
-                Set("routeTab", 0); Set("routeModule", "Sorting");
-                string recovery = parcelEdited.Course().RecoveryAnchors.First(value => value.ModuleId == "Sorting").Id;
+                Set("routeTab", 0); Set("routeModule", SortingHall);
+                string recovery = parcelEdited.Course().RecoveryAnchors.First(value => value.ModuleId == SortingHall).Id;
                 Set("routeRecovery", recovery); Set("routeLoadKey", ""); Set("inspectorScroll", Vector2.zero);
                 yield return PreviewShot(context, "parcel_workshop_room_routes");
                 Require(Read<object>(workshop, "step").ToString() == "Rules" && Read<bool>(workshop, "routesExpanded") &&
@@ -375,6 +376,7 @@ namespace Wreckabulary.Qa
             }
             finally { RenderPipelineManager.endCameraRendering -= Pipeline; Camera.onPostRender -= Builtin; }
         }
+        const string SortingHall = "Hall";
         static void RequireOriginalProps(WordboundWorkshopViewport view)
         {
             var fixedProps = Read<Dictionary<string, Transform>>(view, "fixedVisuals"); var models = ModelLibrary.Load();

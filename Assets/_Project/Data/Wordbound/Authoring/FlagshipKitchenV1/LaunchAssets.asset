@@ -20,7 +20,7 @@ MonoBehaviour:
   StoryProfile: {fileID: 11400000, guid: d44158cd6a767ae419be4d1e1f6cfe9b, type: 2}
   UiTheme: {fileID: 11400000, guid: 06870fff6033eca40b283dbc562719c5, type: 2}
   WorkshopCourse: {fileID: 11400000, guid: 98672493e8c80f14ca0a718d5e120b5e, type: 2}
-  ParcelServiceCourse: {fileID: 11400000, guid: c0e66a7901c28b9459ec6bd0a8903eea, type: 2}
+  ParcelServiceCourse: {fileID: 11400000, guid: 1d0a1d56e5dac8244bfd88eed3644d78, type: 2}
   PlayerBody: {fileID: 4802382135351779463, guid: 42744fe471ef25c45b00766b69bfac05, type: 3}
   ItemBody: {fileID: 2349818467267815783, guid: 7fef0fc0ff0a80d4d9e2ee25529e491e, type: 3}
   PlatformBody: {fileID: 866338291073152685, guid: 9a45ed858edb6284f933c4d630082a39, type: 3}

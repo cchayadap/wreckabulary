@@ -777,7 +777,7 @@ namespace Wreckabulary.Tests
             try
             {
                 WordboundSoloEntry.Clear();
-                Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Service is the default course");
+                Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Depot is the default course");
                 foreach (string map in new[] { "flat", "Parcelhall", "", null })
                     Assert.Throws<System.ArgumentException>(() => WordboundSoloEntry.SelectMap(map));
                 WordboundSoloEntry.SelectMap(WordboundSoloEntry.ParcelHallMap);
@@ -800,7 +800,7 @@ namespace Wreckabulary.Tests
                 Session.Clear();
                 Assert.IsNull(WordboundSoloEntry.TakeRequest());
                 Assert.AreEqual("TimeRun", WordboundSoloEntry.SelectedMode);
-                Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Service is the default course");
+                Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Depot is the default course");
             }
             finally { WordboundSoloEntry.Clear(); }
         }
@@ -840,7 +840,7 @@ namespace Wreckabulary.Tests
                 Canvas.ForceUpdateCanvases(); AssertSoloPreview("ParcelService", preview);
                 Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
                 CollectionAssert.AreEqual(bindings, Session.Bindings);
-                WordboundSoloEntry.Clear(); Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Service is the default course");
+                WordboundSoloEntry.Clear(); Assert.AreEqual(WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.SelectedMap, "Parcel Depot is the default course");
             }
             finally
             {

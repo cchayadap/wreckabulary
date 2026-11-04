@@ -80,6 +80,12 @@ namespace Wreckabulary.Rules
         public const float UnarmedFloor = 1f;
 
         public float? UnarmedDamage;
+        public float? LettersPerHundredSquareMetres;
+        public int MinLetters, MaxLetters;
+        readonly Dictionary<string, JsonNode> timers = new Dictionary<string, JsonNode>(StringComparer.Ordinal);
+        static readonly string[] TimerKeys = { "roundTimeLimit", "clearOut" };
+        static readonly string[] ClearOutTimerKeys = { "firstAt", "interval", "warn", "fill" };
+        public IEnumerable<string> TimedModes => timers.Keys;
         readonly Dictionary<string, JsonNode> patches = new Dictionary<string, JsonNode>(StringComparer.Ordinal);
         readonly Dictionary<string, List<ItemTrait>> traits = new Dictionary<string, List<ItemTrait>>(StringComparer.Ordinal);
         static readonly IReadOnlyList<ItemTrait> None = Array.Empty<ItemTrait>();
@@ -94,6 +100,13 @@ namespace Wreckabulary.Rules
         }
         public string Describe(string id) => string.Join(" · ", TraitsOf(id).Select(t => t.Describe()));
 
+        public int LettersInPlay(HouseLayout house, int fallback)
+        {
+            if (house == null || !LettersPerHundredSquareMetres.HasValue) return fallback;
+            int wanted = (int)Math.Round(house.FloorArea * LettersPerHundredSquareMetres.Value / 100f);
+            return Math.Max(MinLetters, Math.Min(MaxLetters, wanted));
+        }
+
         public static HouseTuning FromJson(string json, string source = "items_house.json")
         {
             var tuning = new HouseTuning();
@@ -101,6 +114,18 @@ namespace Wreckabulary.Rules
             if (!root.Has("tuning")) return tuning;
             var t = root["tuning"];
             if (t.Has("unarmed")) tuning.UnarmedDamage = t["unarmed"]["damage"].Float();
+            if (t.Has("modes"))
+                foreach (string mode in t["modes"].Keys)
+                    tuning.timers[mode] = Timers(t["modes"][mode]);
+            if (t.Has("deliveries"))
+            {
+                var d = t["deliveries"];
+                tuning.LettersPerHundredSquareMetres = d["lettersPerHundredSquareMetres"].Float();
+                tuning.MinLetters = d["minLetters"].Int();
+                tuning.MaxLetters = d["maxLetters"].Int();
+                if (tuning.LettersPerHundredSquareMetres <= 0f || tuning.MinLetters < 1 || tuning.MaxLetters < tuning.MinLetters)
+                    throw d.Error("deliveries need a positive density and 1 <= minLetters <= maxLetters");
+            }
             if (!t.Has("items")) return tuning;
             foreach (string id in t["items"].Keys)
             {
@@ -120,10 +145,29 @@ namespace Wreckabulary.Rules
             return tuning;
         }
 
+        static JsonNode Timers(JsonNode mode)
+        {
+            foreach (string key in mode.Keys)
+                if (Array.IndexOf(TimerKeys, key) < 0) throw mode.Error($"'{key}' is not a House timer; only roundTimeLimit and clearOut timings follow the house size");
+            if (mode.Has("roundTimeLimit") && mode["roundTimeLimit"].Float() <= 0f) throw mode.Error("roundTimeLimit must be positive");
+            if (mode.Has("clearOut"))
+                foreach (string key in mode["clearOut"].Keys)
+                {
+                    if (Array.IndexOf(ClearOutTimerKeys, key) < 0) throw mode["clearOut"].Error($"'{key}' is not a clear-out timing");
+                    if (mode["clearOut"][key].Float() <= 0f) throw mode["clearOut"].Error($"{key} must be positive");
+                }
+            return mode;
+        }
+
         public void Apply(ItemCatalogue items, RuleBook rules)
         {
             if (UnarmedDamage.HasValue)
                 foreach (var r in new[] { rules.Defaults }.Concat(rules.Modes.Select(rules.For))) r.Unarmed.Damage = UnarmedDamage.Value;
+            foreach (var timer in timers)
+            {
+                if (!rules.Modes.Contains(timer.Key)) throw new ArgumentException($"Tuning times unknown mode '{timer.Key}'.");
+                rules.Override(timer.Key, timer.Value);
+            }
             foreach (var patch in patches)
             {
                 if (!items.TryGet(patch.Key, out var item)) throw new ArgumentException($"Tuning names unknown item '{patch.Key}'.");

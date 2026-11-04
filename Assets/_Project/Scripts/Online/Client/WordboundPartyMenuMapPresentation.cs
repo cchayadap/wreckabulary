@@ -24,7 +24,7 @@ namespace Wreckabulary.Online
             installedMapArt ??= Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath);
             bool arena = Modes[mode] == "FreeForAll";
             GUILayout.Space(ui.Gap);
-            GUILayout.Label(arena ? "Toybox Arena" : "Lost Address", title);
+            GUILayout.Label(arena ? "Toybox Arena" : "The Lost Address", title);
             var sprite = installedMapArt ? arena ? installedMapArt.CombatArenaPreview : installedMapArt.LostAddressPreview : null;
             if (!sprite || !sprite.texture) return;
             float previewWidth = Mathf.Clamp((partyAvailableHeight - 500) * 16f / 9f, 160, 300);

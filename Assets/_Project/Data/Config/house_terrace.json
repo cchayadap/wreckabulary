@@ -1,79 +1,127 @@
 {
  "name": "Terrace House",
- "notes": "A two-storey 20 by 14 metre terraced house. Downstairs: the living room to the west, the hall with the stairs in the middle, the kitchen to the east. Upstairs (floor 3 m): the bedroom over the living room, the landing and bathroom over the hall, the kids' room over the kitchen. X is east, Z is north, metres, yaw in degrees clockwise from north.",
+ "notes": "A three-storey terraced house, 40 metres wide with a 12 metre back garden; 40 by 28 in all. Downstairs: the living room to the west, the hall with the main stairs, the kitchen and dining room to the east, and out the back the garden and the workshop at its end. Upstairs (floor 3 m): the bedroom, landing, bathroom, kids' room and study; a back stair climbs from the kitchen to the kids' room. The attic (floor 6 m) spans the whole house and is reached from the landing and the bedroom. X is east, Z is north, in metres; yaw is degrees clockwise from north; furniture 'y' is height above the room floor. Rooms marked outdoor have no ceiling and a garden or paved floor.",
  "extraction": "LivingRoom",
  "extractionAt": [
-  -6.5,
-  3.5
+  -13,
+  5
  ],
  "lobbyRoom": "LivingRoom",
  "rooms": [
   {
    "name": "Hall",
    "bounds": [
-    -3,
-    -7,
-    3,
-    7
+    -6,
+    -2,
+    2,
+    14
    ]
   },
   {
    "name": "LivingRoom",
    "bounds": [
-    -10,
-    -7,
-    -3,
-    7
+    -20,
+    -2,
+    -6,
+    14
    ]
   },
   {
    "name": "Kitchen",
    "bounds": [
-    3,
-    -7,
-    10,
-    7
+    2,
+    4,
+    20,
+    14
+   ]
+  },
+  {
+   "name": "Dining",
+   "bounds": [
+    2,
+    -2,
+    20,
+    4
+   ]
+  },
+  {
+   "name": "Garden",
+   "bounds": [
+    -20,
+    -14,
+    8,
+    -2
+   ],
+   "outdoor": true
+  },
+  {
+   "name": "Workshop",
+   "bounds": [
+    8,
+    -14,
+    20,
+    -2
    ]
   },
   {
    "name": "Landing",
    "bounds": [
-    -3,
-    -7,
-    3,
-    3
+    -6,
+    -2,
+    2,
+    10
    ],
    "floorY": 3
   },
   {
    "name": "Bathroom",
    "bounds": [
-    -3,
-    3,
-    3,
-    7
+    -6,
+    10,
+    2,
+    14
    ],
    "floorY": 3
   },
   {
    "name": "Bedroom",
    "bounds": [
-    -10,
-    -7,
-    -3,
-    7
+    -20,
+    -2,
+    -6,
+    14
    ],
    "floorY": 3
   },
   {
    "name": "KidsRoom",
    "bounds": [
-    3,
-    -7,
-    10,
-    7
+    2,
+    4,
+    20,
+    14
    ],
    "floorY": 3
+  },
+  {
+   "name": "Study",
+   "bounds": [
+    2,
+    -2,
+    20,
+    4
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "Attic",
+   "bounds": [
+    -20,
+    -2,
+    20,
+    14
+   ],
+   "floorY": 6
   }
  ],
  "doors": [
@@ -83,8 +131,8 @@
     "LivingRoom"
    ],
    "at": [
-    -3,
-    -2
+    -6,
+    6
    ],
    "width": 2
   },
@@ -94,15 +142,48 @@
     "Kitchen"
    ],
    "at": [
-    3,
-    4
+    2,
+    9.5
    ],
    "width": 2
   },
   {
    "between": [
-    "Landing",
-    "Bedroom"
+    "Hall",
+    "Dining"
+   ],
+   "at": [
+    2,
+    -0.8
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Kitchen",
+    "Dining"
+   ],
+   "at": [
+    9,
+    4
+   ],
+   "width": 2.4
+  },
+  {
+   "between": [
+    "LivingRoom",
+    "Garden"
+   ],
+   "at": [
+    -13,
+    -2
+   ],
+   "width": 2.4
+  },
+  {
+   "between": [
+    "Hall",
+    "Garden"
    ],
    "at": [
     -3,
@@ -112,12 +193,67 @@
   },
   {
    "between": [
+    "Dining",
+    "Garden"
+   ],
+   "at": [
+    5,
+    -2
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Dining",
+    "Workshop"
+   ],
+   "at": [
+    14,
+    -2
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Garden",
+    "Workshop"
+   ],
+   "at": [
+    8,
+    -8
+   ],
+   "width": 2.4
+  },
+  {
+   "between": [
+    "Landing",
+    "Bedroom"
+   ],
+   "at": [
+    -6,
+    8
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Landing",
+    "Study"
+   ],
+   "at": [
+    2,
+    1
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
     "Landing",
     "KidsRoom"
    ],
    "at": [
-    3,
-    2
+    2,
+    8
    ],
    "width": 1.6
   },
@@ -127,8 +263,8 @@
     "Bathroom"
    ],
    "at": [
-    0,
-    3
+    -2,
+    10
    ],
    "width": 1.4
   },
@@ -138,8 +274,30 @@
     "Bathroom"
    ],
    "at": [
-    -3,
-    5
+    -6,
+    12
+   ],
+   "width": 1.4
+  },
+  {
+   "between": [
+    "KidsRoom",
+    "Study"
+   ],
+   "at": [
+    11,
+    4
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Bathroom",
+    "KidsRoom"
+   ],
+   "at": [
+    2,
+    12
    ],
    "width": 1.4
   }
@@ -151,75 +309,111 @@
     "Landing"
    ],
    "from": [
-    2,
-    -4
+    0.8,
+    1
    ],
    "to": [
-    2,
-    0.5
+    0.8,
+    5.5
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Kitchen",
+    "KidsRoom"
+   ],
+   "from": [
+    18.5,
+    12.6
+   ],
+   "to": [
+    14,
+    12.6
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing",
+    "Attic"
+   ],
+   "from": [
+    -4.2,
+    5.5
+   ],
+   "to": [
+    -4.2,
+    1
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Bedroom",
+    "Attic"
+   ],
+   "from": [
+    -10,
+    10
+   ],
+   "to": [
+    -10,
+    5.5
    ],
    "width": 1.6
   }
  ],
  "spawns": [
   {
-   "room": "Kitchen",
+   "room": "LivingRoom",
    "at": [
-    5,
-    -4
+    -17,
+    10
    ],
-   "yaw": 90
+   "yaw": 180
   },
   {
    "room": "Bedroom",
    "at": [
-    -7,
-    -4
-   ],
-   "yaw": 90
-  },
-  {
-   "room": "LivingRoom",
-   "at": [
-    -8,
+    -17,
     1
    ],
-   "yaw": 90
+   "yaw": 0
+  },
+  {
+   "room": "Kitchen",
+   "at": [
+    9,
+    11
+   ],
+   "yaw": 180
   },
   {
    "room": "KidsRoom",
    "at": [
-    5,
-    4.5
+    6,
+    7
    ],
-   "yaw": 180
+   "yaw": 90
   }
  ],
  "furniture": [
   {
-   "word": "CRATE",
+   "word": "CABINET",
    "room": "Hall",
    "at": [
-    -1.8,
-    -5.8
+    -4.75,
+    13.43
    ],
-   "yaw": 0
-  },
-  {
-   "word": "BOX",
-   "room": "Hall",
-   "at": [
-    -1.6,
-    2.6
-   ],
-   "yaw": 0
+   "yaw": 180
   },
   {
    "word": "PLANT",
    "room": "Hall",
    "at": [
-    -2.3,
-    6.3
+    -5.5,
+    -1.5
    ],
    "yaw": 0
   },
@@ -227,26 +421,152 @@
    "word": "CLOCK",
    "room": "Hall",
    "at": [
-    2.4,
-    6.4
+    1.5,
+    11.25
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "SHELF",
+   "room": "Hall",
+   "at": [
+    -5.5,
+    8
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "VASE",
+   "room": "Hall",
+   "at": [
+    -5.5,
+    1.75
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "LAMP",
+   "room": "Hall",
+   "at": [
+    -0.75,
+    13.43
    ],
    "yaw": 180
+  },
+  {
+   "word": "BOX",
+   "room": "Hall",
+   "at": [
+    -5.45,
+    10.75
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "PLANT",
+   "room": "Hall",
+   "at": [
+    1.5,
+    13.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "STOOL",
+   "room": "Hall",
+   "at": [
+    -5.44,
+    0
+   ],
+   "yaw": 90
   },
   {
    "word": "SOFA",
    "room": "LivingRoom",
    "at": [
-    -9.2,
-    -2
+    -11,
+    13.29
    ],
-   "yaw": 90
+   "yaw": 180
   },
   {
    "word": "TABLE",
    "room": "LivingRoom",
    "at": [
-    -6.5,
-    -2
+    -11,
+    12.05
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "LAMP",
+   "room": "LivingRoom",
+   "at": [
+    -9.7,
+    13.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "PLANT",
+   "room": "LivingRoom",
+   "at": [
+    -12.3,
+    13.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CHAIR",
+   "room": "LivingRoom",
+   "at": [
+    -11,
+    11
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SODA",
+   "room": "LivingRoom",
+   "at": [
+    -12,
+    12.05
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "LivingRoom",
+   "at": [
+    -19.5,
+    1.79
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CABINET",
+   "room": "LivingRoom",
+   "at": [
+    -19.43,
+    3
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "SHELF",
+   "room": "LivingRoom",
+   "at": [
+    -19.5,
+    4.21
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "LivingRoom",
+   "at": [
+    -17.4,
+    -0.6
    ],
    "yaw": 0
   },
@@ -254,17 +574,8 @@
    "word": "LAMP",
    "room": "LivingRoom",
    "at": [
-    -9.3,
-    -6.3
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "DESK",
-   "room": "LivingRoom",
-   "at": [
-    -6.5,
-    -6.3
+    -18.25,
+    -0.6
    ],
    "yaw": 0
   },
@@ -272,35 +583,152 @@
    "word": "BOOK",
    "room": "LivingRoom",
    "at": [
-    -4,
-    -6.4
+    -16.6,
+    -0.6
    ],
    "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "LivingRoom",
+   "at": [
+    -6.57,
+    11.7
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CABINET",
+   "room": "LivingRoom",
+   "at": [
+    -6.57,
+    12.68
+   ],
+   "yaw": 270
   },
   {
    "word": "PLANT",
    "room": "LivingRoom",
    "at": [
-    -9.3,
-    6.3
+    -6.5,
+    1.25
    ],
-   "yaw": 0
+   "yaw": 270
+  },
+  {
+   "word": "CLOCK",
+   "room": "LivingRoom",
+   "at": [
+    -19.5,
+    12
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CABINET",
+   "room": "Kitchen",
+   "at": [
+    4.19,
+    13.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CABINET",
+   "room": "Kitchen",
+   "at": [
+    5.4,
+    13.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "Kitchen",
+   "at": [
+    6.61,
+    13.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CABINET",
+   "room": "Kitchen",
+   "at": [
+    7.82,
+    13.43
+   ],
+   "yaw": 180
   },
   {
    "word": "TABLE",
    "room": "Kitchen",
    "at": [
-    6.5,
-    -1
+    17.4,
+    6.6
    ],
    "yaw": 0
   },
   {
-   "word": "STOOL",
+   "word": "CHAIR",
    "room": "Kitchen",
    "at": [
-    6.5,
-    0.1
+    16.35,
+    6.6
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "Kitchen",
+   "at": [
+    18.45,
+    6.6
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CHAIR",
+   "room": "Kitchen",
+   "at": [
+    17.4,
+    7.45
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CHAIR",
+   "room": "Kitchen",
+   "at": [
+    17.4,
+    5.75
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "POT",
+   "room": "Kitchen",
+   "at": [
+    16.25,
+    5.65
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "MUG",
+   "room": "Kitchen",
+   "at": [
+    18.45,
+    5.65
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PAN",
+   "room": "Kitchen",
+   "at": [
+    3.4,
+    4.9
    ],
    "yaw": 0
   },
@@ -308,89 +736,305 @@
    "word": "SODA",
    "room": "Kitchen",
    "at": [
-    9.3,
-    6.3
+    13.25,
+    13.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "Dining",
+   "at": [
+    17,
+    1.1
    ],
    "yaw": 0
   },
   {
-   "word": "LAMP",
-   "room": "Kitchen",
+   "word": "CHAIR",
+   "room": "Dining",
    "at": [
-    9.3,
-    -6.3
+    15.95,
+    1.1
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "Dining",
+   "at": [
+    18.05,
+    1.1
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CHAIR",
+   "room": "Dining",
+   "at": [
+    17,
+    1.95
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CHAIR",
+   "room": "Dining",
+   "at": [
+    17,
+    0.25
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CABINET",
+   "room": "Dining",
+   "at": [
+    2.57,
+    2.75
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "PLATE",
+   "room": "Dining",
+   "at": [
+    11,
+    3.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "VASE",
+   "room": "Dining",
+   "at": [
+    6.5,
+    3.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "Garden",
+   "at": [
+    -6,
+    -9
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "Garden",
+   "at": [
+    -7.05,
+    -9
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "Garden",
+   "at": [
+    -4.95,
+    -9
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "PLANT",
+   "room": "Garden",
+   "at": [
+    -19.5,
+    -2.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "BALL",
+   "room": "Garden",
+   "at": [
+    7.5,
+    -2.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "APPLE",
+   "room": "Garden",
+   "at": [
+    -17.5,
+    -13.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BARREL",
+   "room": "Workshop",
+   "at": [
+    19.42,
+    -13.12
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "SHELF",
+   "room": "Workshop",
+   "at": [
+    10.44,
+    -13.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "TABLE",
+   "room": "Workshop",
+   "at": [
+    11.75,
+    -13.35
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SHELF",
+   "room": "Workshop",
+   "at": [
+    13.07,
+    -13.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "STOOL",
+   "room": "Workshop",
+   "at": [
+    11.7,
+    -12.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CRATE",
+   "room": "Workshop",
+   "at": [
+    17.88,
+    -5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CRATE",
+   "room": "Workshop",
+   "at": [
+    18.73,
+    -5
    ],
    "yaw": 0
   },
   {
    "word": "BOX",
-   "room": "Kitchen",
+   "room": "Workshop",
    "at": [
-    4.2,
-    -6.3
+    17.88,
+    -5.85
    ],
    "yaw": 0
   },
   {
-   "word": "FAN",
-   "room": "Kitchen",
+   "word": "CRATE",
+   "room": "Workshop",
    "at": [
-    9.4,
-    1.5
+    18.73,
+    -5.85
    ],
-   "yaw": 270
+   "yaw": 0
   },
   {
-   "word": "CABINET",
-   "room": "Kitchen",
+   "word": "BROOM",
+   "room": "Workshop",
    "at": [
-    6.5,
-    6.4
+    8.5,
+    -2.5
    ],
    "yaw": 180
+  },
+  {
+   "word": "CHEST",
+   "room": "Workshop",
+   "at": [
+    8.57,
+    -10
+   ],
+   "yaw": 90
   },
   {
    "word": "SHELF",
    "room": "Landing",
    "at": [
-    -2.6,
-    -5.5
-   ],
-   "yaw": 90
-  },
-  {
-   "word": "BARREL",
-   "room": "Landing",
-   "at": [
-    -1.2,
-    -6.3
+    -4.75,
+    -1.5
    ],
    "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "Landing",
+   "at": [
+    -5.25,
+    9.5
+   ],
+   "yaw": 180
   },
   {
    "word": "VASE",
    "room": "Landing",
    "at": [
-    -2.3,
-    1.8
+    1.5,
+    -1.5
    ],
    "yaw": 0
   },
   {
-   "word": "SOAP",
-   "room": "Bathroom",
+   "word": "BARREL",
+   "room": "Landing",
    "at": [
-    2.2,
-    6.3
+    -5.42,
+    0.25
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CLOCK",
+   "room": "Landing",
+   "at": [
+    -2.25,
+    -1.5
    ],
    "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "Landing",
+   "at": [
+    -3.25,
+    -1.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "Landing",
+   "at": [
+    -5.45,
+    -0.75
+   ],
+   "yaw": 90
   },
   {
    "word": "WATER",
    "room": "Bathroom",
    "at": [
-    2.4,
-    4
+    0.8,
+    10.5
    ],
    "yaw": 0
   },
@@ -398,8 +1042,17 @@
    "word": "MUG",
    "room": "Bathroom",
    "at": [
-    -1,
-    6.4
+    0.4,
+    13.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOAP",
+   "room": "Bathroom",
+   "at": [
+    -5.5,
+    10.5
    ],
    "yaw": 0
   },
@@ -407,44 +1060,134 @@
    "word": "BED",
    "room": "Bedroom",
    "at": [
-    -8.5,
-    5.5
+    -18.91,
+    8
    ],
-   "yaw": 0
-  },
-  {
-   "word": "CHEST",
-   "room": "Bedroom",
-   "at": [
-    -6,
-    6.4
-   ],
-   "yaw": 180
-  },
-  {
-   "word": "SOFA",
-   "room": "Bedroom",
-   "at": [
-    -9.2,
-    -2
-   ],
-   "yaw": 90
-  },
-  {
-   "word": "TABLE",
-   "room": "Bedroom",
-   "at": [
-    -6.5,
-    0
-   ],
-   "yaw": 0
+   "yaw": 270
   },
   {
    "word": "LAMP",
    "room": "Bedroom",
    "at": [
-    -9.3,
-    -6.3
+    -19.43,
+    9.05
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHEST",
+   "room": "Bedroom",
+   "at": [
+    -19.43,
+    6.7
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CABINET",
+   "room": "Bedroom",
+   "at": [
+    -18.21,
+    13.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CABINET",
+   "room": "Bedroom",
+   "at": [
+    -17,
+    13.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "Bedroom",
+   "at": [
+    -15.79,
+    13.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "DESK",
+   "room": "Bedroom",
+   "at": [
+    -12,
+    -1.36
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "Bedroom",
+   "at": [
+    -12,
+    -0.55
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "LAMP",
+   "room": "Bedroom",
+   "at": [
+    -10.8,
+    -1.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOOK",
+   "room": "Bedroom",
+   "at": [
+    -13.15,
+    -1.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "Bedroom",
+   "at": [
+    -8.2,
+    12.8
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "Bedroom",
+   "at": [
+    -9.45,
+    12.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "MAT",
+   "room": "Bedroom",
+   "at": [
+    -15.5,
+    4
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "PLANT",
+   "room": "Bedroom",
+   "at": [
+    -6.5,
+    5.25
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "VASE",
+   "room": "Bedroom",
+   "at": [
+    -19.5,
+    -1.5
    ],
    "yaw": 0
   },
@@ -452,53 +1195,80 @@
    "word": "CLOCK",
    "room": "Bedroom",
    "at": [
-    -4,
-    -6.4
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "BED",
-   "room": "KidsRoom",
-   "at": [
-    8.6,
-    5.4
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "SOFA",
-   "room": "KidsRoom",
-   "at": [
-    9.2,
+    -6.5,
     0.5
    ],
    "yaw": 270
   },
   {
-   "word": "TABLE",
-   "room": "KidsRoom",
-   "at": [
-    6.5,
-    -2.5
-   ],
-   "yaw": 0
-  },
-  {
    "word": "CHAIR",
    "room": "KidsRoom",
    "at": [
-    6.5,
-    -3.6
+    19.46,
+    12.85
    ],
-   "yaw": 0
+   "yaw": 270
+  },
+  {
+   "word": "BED",
+   "room": "KidsRoom",
+   "at": [
+    18.91,
+    7.5
+   ],
+   "yaw": 90
   },
   {
    "word": "LAMP",
    "room": "KidsRoom",
    "at": [
-    9.3,
-    -6.3
+    19.43,
+    8.55
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CHEST",
+   "room": "KidsRoom",
+   "at": [
+    19.43,
+    6.2
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "BED",
+   "room": "KidsRoom",
+   "at": [
+    16,
+    5.09
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "LAMP",
+   "room": "KidsRoom",
+   "at": [
+    17.05,
+    4.57
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "MAT",
+   "room": "KidsRoom",
+   "at": [
+    9.25,
+    8.05
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BALL",
+   "room": "KidsRoom",
+   "at": [
+    10.3,
+    8.05
    ],
    "yaw": 0
   },
@@ -506,10 +1276,280 @@
    "word": "BOX",
    "room": "KidsRoom",
    "at": [
-    4.2,
-    -6.3
+    8.15,
+    8.05
    ],
    "yaw": 0
+  },
+  {
+   "word": "TABLE",
+   "room": "KidsRoom",
+   "at": [
+    15.8,
+    8.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "STOOL",
+   "room": "KidsRoom",
+   "at": [
+    14.7,
+    8.8
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "STOOL",
+   "room": "KidsRoom",
+   "at": [
+    16.9,
+    8.8
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "SHELF",
+   "room": "KidsRoom",
+   "at": [
+    3.25,
+    13.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "DESK",
+   "room": "Study",
+   "at": [
+    8,
+    -1.36
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "Study",
+   "at": [
+    8,
+    -0.55
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "LAMP",
+   "room": "Study",
+   "at": [
+    9.2,
+    -1.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOOK",
+   "room": "Study",
+   "at": [
+    6.85,
+    -1.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SHELF",
+   "room": "Study",
+   "at": [
+    13.29,
+    -1.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SHELF",
+   "room": "Study",
+   "at": [
+    14.5,
+    -1.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SHELF",
+   "room": "Study",
+   "at": [
+    15.71,
+    -1.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CLOCK",
+   "room": "Study",
+   "at": [
+    2.5,
+    3.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CRATE",
+   "room": "Attic",
+   "at": [
+    19.41,
+    -1.09
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CRATE",
+   "room": "Attic",
+   "at": [
+    11.15,
+    10.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "Attic",
+   "at": [
+    12,
+    10.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CRATE",
+   "room": "Attic",
+   "at": [
+    12.85,
+    10.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BARREL",
+   "room": "Attic",
+   "at": [
+    11.15,
+    9.65
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CRATE",
+   "room": "Attic",
+   "at": [
+    12,
+    9.65
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "Attic",
+   "at": [
+    12.85,
+    9.65
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "Attic",
+   "at": [
+    -15.92,
+    11
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CRATE",
+   "room": "Attic",
+   "at": [
+    -15.07,
+    11
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CRATE",
+   "room": "Attic",
+   "at": [
+    -15.92,
+    10.15
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BOX",
+   "room": "Attic",
+   "at": [
+    -15.07,
+    10.15
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOFA",
+   "room": "Attic",
+   "at": [
+    5,
+    10.6
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "LAMP",
+   "room": "Attic",
+   "at": [
+    6.25,
+    10.6
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHEST",
+   "room": "Attic",
+   "at": [
+    -5,
+    -1.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BARREL",
+   "room": "Attic",
+   "at": [
+    -19.42,
+    -1.5
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "VASE",
+   "room": "Attic",
+   "at": [
+    7,
+    -1.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CLOCK",
+   "room": "Attic",
+   "at": [
+    -5.25,
+    13.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "LAMP",
+   "room": "Attic",
+   "at": [
+    19.43,
+    6.25
+   ],
+   "yaw": 270
   }
  ],
  "neverClose": [
@@ -519,25 +1559,41 @@
  "clearOutOrders": {
   "Dibs": [
    "Bathroom",
+   "Workshop",
+   "Attic",
+   "Study",
    "KidsRoom",
+   "Garden",
+   "Dining",
    "Kitchen",
    "Bedroom"
   ],
   "Duos": [
    "Bathroom",
+   "Workshop",
+   "Attic",
+   "Study",
    "KidsRoom",
+   "Garden",
+   "Dining",
    "Kitchen",
    "Bedroom"
   ],
   "MovingOut": [
    "Bathroom",
+   "Attic",
    "KidsRoom",
+   "Workshop",
+   "Study",
    "Bedroom",
    "Kitchen"
   ],
   "Escape": [
    "Bathroom",
+   "Attic",
    "KidsRoom",
+   "Workshop",
+   "Study",
    "Bedroom",
    "Kitchen"
   ]
@@ -562,24 +1618,24 @@
  ],
  "keepsakes": [
   {
-   "room": "Bedroom",
+   "room": "Attic",
    "at": [
-    -6,
-    6.4
+    19.41,
+    -1.09
    ]
   },
   {
    "room": "KidsRoom",
    "at": [
-    4.2,
-    -6.3
+    19.46,
+    12.85
    ]
   },
   {
-   "room": "Kitchen",
+   "room": "Workshop",
    "at": [
-    9.3,
-    6.3
+    19.42,
+    -13.12
    ]
   }
  ]

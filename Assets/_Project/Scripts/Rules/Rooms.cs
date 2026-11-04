@@ -142,6 +142,9 @@ namespace Wreckabulary.Rules
         public string Name;
         public float MinX, MinZ, MaxX, MaxZ;
         public float FloorY;
+        public bool Outdoor;
+
+        public float Area => (MaxX - MinX) * (MaxZ - MinZ);
 
         public bool Contains(float x, float z) => x >= MinX && x <= MaxX && z >= MinZ && z <= MaxZ;
 
@@ -230,6 +233,10 @@ namespace Wreckabulary.Rules
         }
 
         public RoomBox Room(string name) => Rooms.FirstOrDefault(r => r.Name == name);
+
+        public bool IsOutdoor(string name) => Room(name)?.Outdoor ?? false;
+
+        public float FloorArea => Rooms.Sum(r => r.Area);
 
         public string RoomAt(float x, float z)
         {
@@ -410,7 +417,12 @@ namespace Wreckabulary.Rules
             foreach (var r in root["rooms"].Items)
             {
                 var b = r["bounds"].Floats(4);
-                h.Rooms.Add(new RoomBox { Name = r["name"].String(), MinX = b[0], MinZ = b[1], MaxX = b[2], MaxZ = b[3], FloorY = r["floorY"].Float(0f) });
+                string name = r["name"].String();
+                h.Rooms.Add(new RoomBox
+                {
+                    Name = name, MinX = b[0], MinZ = b[1], MaxX = b[2], MaxZ = b[3], FloorY = r["floorY"].Float(0f),
+                    Outdoor = r["outdoor"].Bool(name == "Garden"),
+                });
             }
             foreach (var d in root["doors"].Items)
             {

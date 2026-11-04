@@ -17,7 +17,9 @@ namespace Wreckabulary.Workshop
         Vector2 libraryScroll;
         IReadOnlyList<WorkshopMapEntry> libraryEntries = Array.Empty<WorkshopMapEntry>();
         IReadOnlyList<WorkshopFileEntry> fileEntries = Array.Empty<WorkshopFileEntry>();
-        const string TemplatesFolder = "templates/", FlagshipSource = "templates/Flagship", ParcelSource = "local-courses/ParcelServiceV1";
+        const string TemplatesFolder = "templates/", FlagshipSource = "templates/Flagship",
+            ParcelSource = "local-courses/" + WordboundSoloEntry.ParcelServiceWorkshopFolder,
+            LegacyParcelSource = "local-courses/" + WordboundSoloEntry.LegacyParcelServiceWorkshopFolder;
 
         sealed class ChecklistItem
         {
@@ -36,7 +38,7 @@ namespace Wreckabulary.Workshop
                 foreach (var issue in LastPreview.Issues.Take(8)) { var found = issue; Add(found.Message, () => FocusIssue(found)); }
             if (lastPlaytestIssue.Length != 0) Add(lastPlaytestIssue, () => { ShowStep(WorkshopStep.Puzzles); sections["controls"] = true; });
             if (localPlaytest && SelectedModeEnabled && !CanPlaytestLocally)
-                Add("Test alone works in Time Run or Freestyle. Friends can play this mode online.", () => ShowStep(WorkshopStep.Rules));
+                Add("Test alone works in Time Trial or Freeplay. Friends can play this mode online.", () => ShowStep(WorkshopStep.Rules));
             return items;
         }
 
@@ -169,7 +171,8 @@ namespace Wreckabulary.Workshop
         }
 
         string SourceLabel(WorkshopMapEntry entry) => entry.Source == "" ? HasAssignedCourse ? "Assigned course" : "Workshop" :
-            entry.Source == FlagshipSource ? "Flagship" : entry.Source == ParcelSource ? "Parcel Service" :
+            entry.Source == FlagshipSource ? "Flagship" : entry.Source == ParcelSource ? "Parcel Depot" :
+            entry.Source == LegacyParcelSource ? "Parcel Service (old)" :
             TemplateSource(entry.Source, out var template) ? TemplateLabel(template) : entry.Source;
 
         string OpenBlocker(WorkshopMapEntry entry)
@@ -178,7 +181,8 @@ namespace Wreckabulary.Workshop
             if (entry.Source == "") return HasAssignedCourse || SameFolder(entry.Folder, storage.Folder) ? "" :
                 "Saved by an older version · open its template to continue it.";
             if (entry.Source == FlagshipSource) return flagshipContent != null ? "" : "The Flagship course isn't available here.";
-            if (entry.Source == ParcelSource) return HasParcelService && parcelServiceUnavailable == null ? "" : "Parcel Service isn't available here.";
+            if (entry.Source == ParcelSource) return HasParcelService && parcelServiceUnavailable == null ? "" : "Parcel Depot isn't available here.";
+            if (entry.Source == LegacyParcelSource) return "Made on the old Parcel Service layout · it can't open on Parcel Depot.";
             return TemplateSource(entry.Source, out _) ? "" : "This map belongs to a course that isn't available here.";
         }
 
@@ -208,8 +212,8 @@ namespace Wreckabulary.Workshop
 
         Rect ModalRect(float maximum)
         {
-            float width = Mathf.Min(maximum, Screen.width - 32);
-            return new Rect((Screen.width - width) * .5f, 24, width, Mathf.Max(1, Screen.height - 48));
+            float width = Mathf.Min(maximum, ScreenWidth - 32);
+            return new Rect((ScreenWidth - width) * .5f, 24, width, Mathf.Max(1, ScreenHeight - 48));
         }
 
         void LibraryPanel()
@@ -239,7 +243,7 @@ namespace Wreckabulary.Workshop
             if (HasAssignedCourse) sources.Add(("Assigned course", 1));
             foreach (WorkshopTemplate template in Enum.GetValues(typeof(WorkshopTemplate))) sources.Add((TemplateLabel(template), 2 + (int)template));
             if (flagshipContent != null) sources.Add(("Flagship", 5));
-            if (HasParcelService) sources.Add(("Parcel Service", 6));
+            if (HasParcelService) sources.Add(("Parcel Depot", 6));
             int columns = Mathf.Max(1, Mathf.Min(3, Mathf.FloorToInt((ModalRect(760).width - 40) / 200)));
             for (int i = 0; i < sources.Count; i++)
             {
@@ -345,7 +349,7 @@ namespace Wreckabulary.Workshop
 
         void SharePanel()
         {
-            GUILayout.BeginArea(new Rect(Screen.width * .12f, Screen.height * .1f, Screen.width * .76f, Screen.height * .8f), panel);
+            GUILayout.BeginArea(new Rect(ScreenWidth * .12f, ScreenHeight * .1f, ScreenWidth * .76f, ScreenHeight * .8f), panel);
             GUILayout.Label("Share map", heading);
             if (pendingImport != null) { ImportConfirmation(); GUILayout.EndArea(); return; }
             int selected = shareDraftOnly ? 1 : 0;

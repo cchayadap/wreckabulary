@@ -35,8 +35,8 @@ namespace Wreckabulary.Tests
         {
             string path = folder + "/ParcelService.asset";
             var course = Create(path); var document = course.ReadDocument();
-            document.Title = "James saved parcel office";
-            document.Spawns.Single(spawn => spawn.Id == "Start0").Position = new CoursePoint(-2400, 0, -2600);
+            document.Title = "James saved parcel depot";
+            document.Spawns.Single(spawn => spawn.Id == "Start0").Position = WordboundParcelServiceContent.RearStartSeat;
             document.Spawns.Single(spawn => spawn.Id == "Start6").Yaw = 90;
             course.SaveDocument(document); course.Seed = "fedcba9876543210"; course.ModeId = "Freestyle";
             EditorUtility.SetDirty(course); AssetDatabase.SaveAssetIfDirty(course);
@@ -51,8 +51,8 @@ namespace Wreckabulary.Tests
                 CollectionAssert.AreEqual(originalMeta, File.ReadAllBytes(path + ".meta"));
                 Assert.AreEqual(guid, AssetDatabase.AssetPathToGUID(path));
                 var corrected = course.ReadDocument();
-                Assert.AreEqual(new CoursePoint(-2400, 0, 0), corrected.Spawns.Single(spawn => spawn.Id == "Start0").Position);
-                corrected.Spawns.Single(spawn => spawn.Id == "Start0").Position = new CoursePoint(-2400, 0, -2600);
+                Assert.AreEqual(WordboundParcelServiceContent.StartSeat, corrected.Spawns.Single(spawn => spawn.Id == "Start0").Position);
+                corrected.Spawns.Single(spawn => spawn.Id == "Start0").Position = WordboundParcelServiceContent.RearStartSeat;
                 Assert.AreEqual(originalDocument, CourseJson.ExportDocument(corrected), "Every other saved document field remains exact.");
                 Assert.AreEqual("fedcba9876543210", course.Seed); Assert.AreEqual("Freestyle", course.ModeId);
                 Assert.AreSame(source.Items, course.Items); Assert.AreSame(source.RuleBook, course.RuleBook);
@@ -70,7 +70,8 @@ namespace Wreckabulary.Tests
         {
             string path = folder + "/ParcelService.asset";
             var course = Create(path); var document = course.ReadDocument();
-            document.Spawns.Single(spawn => spawn.Id == "Start0").Position = new CoursePoint(-2400, 0, -2000);
+            document.Spawns.Single(spawn => spawn.Id == "Start0").Position =
+                new CoursePoint(WordboundParcelServiceContent.StartSeat.X - 1000, 0, -2000);
             course.SaveDocument(document); EditorUtility.SetDirty(course); AssetDatabase.SaveAssetIfDirty(course);
             string before = File.ReadAllText(path);
             string backup = Path.Combine(Path.GetTempPath(), "wbqa", "parcel-spawn-" + Guid.NewGuid().ToString("N"));
@@ -78,10 +79,46 @@ namespace Wreckabulary.Tests
             {
                 Assert.Throws<InvalidOperationException>(() => WordboundParcelServiceSpawnSetup.ApplyAt(path, backup));
                 Assert.AreEqual(before, File.ReadAllText(path)); Assert.IsFalse(Directory.Exists(backup));
-                document.Spawns.Single(spawn => spawn.Id == "Start0").Position = new CoursePoint(-2400, 0, -2600);
+                document.Spawns.Single(spawn => spawn.Id == "Start0").Position = WordboundParcelServiceContent.RearStartSeat;
                 course.SaveDocument(document); EditorUtility.SetDirty(course);
                 Assert.Throws<InvalidOperationException>(() => WordboundParcelServiceSpawnSetup.ApplyAt(path, backup));
                 Assert.AreEqual(before, File.ReadAllText(path)); Assert.IsFalse(Directory.Exists(backup));
+            }
+            finally { if (Directory.Exists(backup)) Directory.Delete(backup, true); }
+        }
+
+        [Test]
+        public void OnlyAnUneditedEarlierGenerationGetsCurrentFurnishingsWithExactBackupAndGuid()
+        {
+            string path = folder + "/ParcelService.asset";
+            var course = Create(path); string current = course.DocumentJson;
+            var earlier = course.ReadDocument();
+            earlier.Zones.RemoveAll(zone => zone.ModuleId == "Lockers" || zone.ModuleId == "Mezzanine");
+            course.SaveDocument(earlier); course.Seed = "fedcba9876543210"; course.ModeId = "Freestyle";
+            EditorUtility.SetDirty(course); AssetDatabase.SaveAssetIfDirty(course);
+            string hash = course.SourceHash, guid = AssetDatabase.AssetPathToGUID(path);
+            var bytes = File.ReadAllBytes(path); var meta = File.ReadAllBytes(path + ".meta");
+            string backup = Path.Combine(Path.GetTempPath(), "wbqa", "parcel-furnishing-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                Assert.IsFalse(WordboundParcelServiceSetup.RefreshEarlierGenerationAt(path, backup), "Only recorded earlier generations are replaced.");
+                CollectionAssert.AreEqual(bytes, File.ReadAllBytes(path)); Assert.IsFalse(Directory.Exists(backup));
+                Assert.IsTrue(WordboundParcelServiceSetup.RefreshEarlierGenerationAt(path, backup, new[] { hash }));
+                CollectionAssert.AreEqual(bytes, File.ReadAllBytes(Path.Combine(backup, "ParcelService.asset")));
+                CollectionAssert.AreEqual(meta, File.ReadAllBytes(Path.Combine(backup, "ParcelService.asset.meta")));
+                CollectionAssert.AreEqual(meta, File.ReadAllBytes(path + ".meta")); Assert.AreEqual(guid, AssetDatabase.AssetPathToGUID(path));
+                Assert.AreEqual(current, course.DocumentJson);
+                Assert.AreEqual("fedcba9876543210", course.Seed); Assert.AreEqual("Freestyle", course.ModeId);
+                Assert.AreSame(source.Items, course.Items); Assert.AreSame(source.RuleBook, course.RuleBook);
+                Assert.AreSame(source.CameraProfile, course.CameraProfile); Assert.AreSame(source.VisualProfile, course.VisualProfile);
+                string after = File.ReadAllText(path);
+                Assert.IsFalse(WordboundParcelServiceSetup.RefreshEarlierGenerationAt(path, backup, new[] { hash }), "Repeat update is a no-write verification.");
+                Assert.AreEqual(after, File.ReadAllText(path));
+                var edited = course.ReadDocument(); edited.Title = "James saved parcel depot";
+                course.SaveDocument(edited); EditorUtility.SetDirty(course); AssetDatabase.SaveAssetIfDirty(course);
+                string owned = File.ReadAllText(path);
+                Assert.IsFalse(WordboundParcelServiceSetup.RefreshEarlierGenerationAt(path, backup + "-edited", new[] { hash }), "Owner edits are never replaced.");
+                Assert.AreEqual(owned, File.ReadAllText(path)); Assert.IsFalse(Directory.Exists(backup + "-edited"));
             }
             finally { if (Directory.Exists(backup)) Directory.Delete(backup, true); }
         }
@@ -93,7 +130,7 @@ namespace Wreckabulary.Tests
             var sourceBytes = File.ReadAllBytes(sourcePath); var sourceMeta = File.ReadAllBytes(sourcePath + ".meta");
             string path = folder + "/ParcelService.asset";
             var course = Create(path); string guid = AssetDatabase.AssetPathToGUID(path);
-            var document = course.ReadDocument(); document.Title = "James parcel office";
+            var document = course.ReadDocument(); document.Title = "James parcel depot";
             document.Spawns[0].Yaw = 90; course.SaveDocument(document); course.Seed = "fedcba9876543210"; course.ModeId = "Freestyle";
             EditorUtility.SetDirty(course); AssetDatabase.SaveAssetIfDirty(course);
             string saved = File.ReadAllText(path), input = course.InputHash;
@@ -101,7 +138,7 @@ namespace Wreckabulary.Tests
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             course = Create(path);
             Assert.AreEqual(guid, AssetDatabase.AssetPathToGUID(path)); Assert.AreEqual(saved, File.ReadAllText(path));
-            Assert.AreEqual(input, course.InputHash); Assert.AreEqual("James parcel office", course.ReadDocument().Title);
+            Assert.AreEqual(input, course.InputHash); Assert.AreEqual("James parcel depot", course.ReadDocument().Title);
             Assert.AreEqual(90, course.ReadDocument().Spawns[0].Yaw); Assert.AreEqual("Freestyle", course.ModeId);
             Assert.AreSame(source.Items, course.Items); Assert.AreSame(source.RuleBook, course.RuleBook);
             Assert.AreSame(source.CameraProfile, course.CameraProfile); Assert.AreSame(source.VisualProfile, course.VisualProfile);

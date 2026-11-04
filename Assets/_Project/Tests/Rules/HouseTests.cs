@@ -8,6 +8,7 @@ namespace Wreckabulary.Rules.Tests
     public class HouseTests
     {
         HouseLayout house;
+        static readonly string[] Wings = { "Bedroom", "Kitchen", "Study", "LivingRoom" };
 
         [SetUp]
         public void Load() => house = TestData.House();
@@ -16,17 +17,25 @@ namespace Wreckabulary.Rules.Tests
         public void TheShippedHouseIsValid()
         {
             Assert.IsEmpty(house.Validate(TestData.Catalogue()));
-            Assert.AreEqual(5, house.Rooms.Count);
+            Assert.AreEqual(10, house.Rooms.Count, "the playroom, four wings, four garden rooms round the house and the shed");
+            Assert.AreEqual(4, house.Rooms.Count(r => r.Outdoor), "the garden loop is outdoors");
             Assert.AreEqual(4, house.Spawns.Count);
         }
 
         [Test]
-        public void EveryOuterRoomHasThreeExits()
+        public void EveryWingOpensOntoThePlayroomBothNeighboursAndTheGarden()
         {
             var g = house.Graph();
-            foreach (var room in house.Rooms.Where(r => r.Name != "Playroom"))
-                Assert.AreEqual(3, g.Neighbours(room.Name).Count(), room.Name);
-            Assert.AreEqual(4, g.Neighbours("Playroom").Count());
+            CollectionAssert.AreEquivalent(Wings, g.Neighbours("Playroom"));
+            foreach (string wing in Wings)
+            {
+                var exits = g.Neighbours(wing).ToList();
+                Assert.AreEqual(4, exits.Count, wing);
+                Assert.AreEqual(2, exits.Count(Wings.Contains), wing + " opens onto both neighbouring wings");
+                Assert.AreEqual(1, exits.Count(house.IsOutdoor), wing + " opens onto the garden loop");
+            }
+            foreach (var room in house.Rooms)
+                Assert.GreaterOrEqual(g.Neighbours(room.Name).Count(), 2, room.Name + " is no dead end");
         }
 
         [Test]
@@ -51,17 +60,19 @@ namespace Wreckabulary.Rules.Tests
         }
 
         [Test]
-        public void EveryClosingOrderOfTheOuterRoomsIsSafe()
+        public void EveryClosingOrderOfTheWingsIsSafeOnceTheGardenHasClosed()
         {
             var g = house.Graph();
-            var outer = house.Rooms.Select(r => r.Name).Where(n => !house.NeverClose.Contains(n)).ToList();
+            var garden = house.ClearOutOrders["Dibs"].Where(r => !Wings.Contains(r)).ToList();
+            CollectionAssert.AreEquivalent(house.Rooms.Select(r => r.Name).Except(Wings).Except(house.NeverClose), garden);
+            Assert.IsEmpty(g.CheckClosureOrder(garden, house.NeverClose));
             int checkedOrders = 0;
-            foreach (var order in Permutations(outer))
+            foreach (var order in Permutations(Wings.ToList()))
             {
-                Assert.IsEmpty(g.CheckClosureOrder(order, house.NeverClose), string.Join(" > ", order));
+                Assert.IsEmpty(g.CheckClosureOrder(garden.Concat(order).ToList(), house.NeverClose), string.Join(" > ", order));
                 checkedOrders++;
             }
-            Assert.AreEqual(24, checkedOrders, "4 outer rooms close in 24 possible orders");
+            Assert.AreEqual(24, checkedOrders, "4 wings close in 24 possible orders");
         }
 
         [Test]
@@ -117,7 +128,7 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void TheClearOutWarnsFillsAndCloses()
         {
-            var rules = TestData.RulesFor("Dibs");
+            var rules = TestData.HouseRulesFor("Dibs");
             var s = new ClearOutSchedule(rules, house.ClearOutOrders["Dibs"]);
             string first = house.ClearOutOrders["Dibs"][0];
             string second = house.ClearOutOrders["Dibs"][1];
@@ -126,7 +137,7 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(RoomPhase.Filling, s.PhaseOf(first, 45));
             Assert.AreEqual(RoomPhase.Closed, s.PhaseOf(first, 51));
             Assert.AreEqual(RoomPhase.Safe, s.PhaseOf(second, 50));
-            Assert.AreEqual(RoomPhase.Filling, s.PhaseOf(second, 70));
+            Assert.AreEqual(RoomPhase.Filling, s.PhaseOf(second, 65));
             Assert.AreEqual(RoomPhase.Safe, s.PhaseOf("Playroom", 1000), "the playroom never closes");
             Assert.AreEqual(0f, s.DamagePerSecond(first, 44.9));
             Assert.AreEqual(8f, s.DamagePerSecond(first, 45), 1e-5);

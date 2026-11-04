@@ -155,6 +155,9 @@ namespace Wreckabulary.Online.Tests
                 authored.Items = items; edited.Id = "wrong-course"; authored.SaveDocument(edited);
                 Assert.Throws<ArgumentException>(() => WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text,
                     mode, seed, WordboundSoloEntry.ParcelServiceMap, authored));
+                edited.Id = WordboundParcelServiceContent.LegacyCourseId; authored.SaveDocument(edited);
+                Assert.Throws<ArgumentException>(() => WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text,
+                    mode, seed, WordboundSoloEntry.ParcelServiceMap, authored), "A saved Parcel Service V1 course never opens as Parcel Depot.");
                 var oldDefault = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, seed);
                 var oldWithUnusedAssignment = WordboundLauncher.CreateSoloContent(data.items.text, data.rules.text, mode, seed,
                     WordboundSoloEntry.LostAddressMap, authored);
@@ -168,7 +171,7 @@ namespace Wreckabulary.Online.Tests
         {
             var parcel = Make<WordboundCourseAsset>();
             var preset = WordboundParcelServiceContent.Create(Wreckabulary.Rules.ItemCatalogue.FromJson(globalItems));
-            var document = preset.CopyDocument(); document.Title = "Saved Parcel Service";
+            var document = preset.CopyDocument(); document.Title = "Saved Parcel Depot";
             parcel.Initialize(document, preset.Geometry); parcel.Seed = "a1234567890bcdef"; parcel.ModeId = "TimeRun";
             parcel.Items = Text(globalItems + "\n\n"); parcel.RuleBook = Text(globalRules + "\n\n");
             parcel.CameraProfile = Make<WordboundCameraProfile>(); parcel.VisualProfile = Make<WordboundVisualProfile>();
@@ -219,7 +222,7 @@ namespace Wreckabulary.Online.Tests
             workshop.OpenTemplate(WorkshopTemplate.FreestyleWorld); Assert.AreSame(templateHistory, workshop.History);
             workshop.OpenFlagship(WordboundFlagshipContent.Create(Wreckabulary.Rules.ItemCatalogue.FromJson(globalItems)));
             Assert.AreSame(flagshipHistory, workshop.History);
-            var scoped = new WorkshopStorage(Path.Combine(folder, "local-courses", "ParcelServiceV1"));
+            var scoped = new WorkshopStorage(Path.Combine(folder, "local-courses", WordboundSoloEntry.ParcelServiceWorkshopFolder));
             var recovered = scoped.Recover(WordboundSoloEntry.ParcelServiceCourseId, out _);
             Assert.AreEqual("Redo parcel edit", recovered.Course().Title); Assert.AreEqual("1234567890abcdef", recovered.Seed);
             CollectionAssert.AreEqual(assignedBytes, File.ReadAllBytes(Path.Combine(folder, assigned.ReadDocument().Id + ".autosave.json")));

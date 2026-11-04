@@ -304,20 +304,20 @@ test("all enabled recipe families have an actual usable action", () => {
 test("clear-out announces before damage, leaves protected center open", () => {
   const g = game(),
     p = g.players[0];
-  p.x = 7;
-  p.z = 7;
+  p.x = -17;
+  p.z = 17;
   g.time = 35;
   g.clearOut(0);
-  assert.equal(g.roomStatus.get("Kitchen").warning, true);
+  assert.equal(g.roomStatus.get("Shed").warning, true);
   assert.equal(p.hp, 100);
   g.time = 45;
   g.clearOut(1);
-  assert.equal(g.roomStatus.get("Kitchen").filling, true);
-  assert.equal(g.roomStatus.get("Kitchen").closed, false);
+  assert.equal(g.roomStatus.get("Shed").filling, true);
+  assert.equal(g.roomStatus.get("Shed").closed, false);
   assert.equal(p.hp, 92);
   g.time = 51;
   g.clearOut(0);
-  assert.equal(g.roomStatus.get("Kitchen").closed, true);
+  assert.equal(g.roomStatus.get("Shed").closed, true);
   assert.equal(g.roomStatus.has("Playroom"), false);
 });
 test("Dibs reaches a complete match after three round wins", () => {
@@ -369,7 +369,7 @@ test("maps use distinct canonical spatial layouts and safe traversable doors", (
   for (const map of ["pinwheel", "courtyard"]) {
     const g = game("Dibs", map);
     assert.ok(g.walls.length > 8);
-    assert.equal(g.house.rooms.length, 5);
+    assert.equal(g.house.rooms.length, 10);
     for (const door of g.house.doors) {
       const perpendicular =
         door.at[0] ===
@@ -431,14 +431,14 @@ test("a downed crew member outside or inside the van prevents escape", () => {
 });
 test("walls stop melee and thrown projectiles; doors retain line of sight", () => {
   const g = game();
-  assert.equal(g.segmentBlocked({ x: 2, z: 3.5 }, { x: 2, z: 4.5 }), true);
-  assert.equal(g.segmentBlocked({ x: 0, z: 3.5 }, { x: 0, z: 4.5 }), false);
+  assert.equal(g.segmentBlocked({ x: 2, z: 5.5 }, { x: 2, z: 6.5 }), true);
+  assert.equal(g.segmentBlocked({ x: 0, z: 5.5 }, { x: 0, z: 6.5 }), false);
   const p = g.players[0],
     q = g.players[1];
   p.x = 2;
-  p.z = 3.5;
+  p.z = 5.5;
   q.x = 2;
-  q.z = 4.5;
+  q.z = 6.5;
   q.invulnerableUntil = 0;
   g.resolveAttack(p, { stats: g.rules.unarmed, dx: 0, dz: 1 });
   assert.equal(q.hp, 100);
@@ -611,23 +611,23 @@ test("BED uses its 11m/s launch strength and never puts the player under the flo
 test("clear-out has separate warning/filling/closed phases and damage grows with elapsed time", () => {
   const g = game(),
     p = g.players[0];
-  p.x = 7;
-  p.z = 7;
+  p.x = -17;
+  p.z = 17;
   g.time = 35;
   g.clearOut(0);
-  assert.equal(g.roomStatus.get("Kitchen").warning, true);
+  assert.equal(g.roomStatus.get("Shed").warning, true);
   g.time = 45;
   g.clearOut(0);
-  assert.equal(g.roomStatus.get("Kitchen").filling, true);
-  assert.equal(g.roomStatus.get("Kitchen").damage, 8);
+  assert.equal(g.roomStatus.get("Shed").filling, true);
+  assert.equal(g.roomStatus.get("Shed").damage, 8);
   g.time = 48;
   g.clearOut(0);
-  assert.equal(g.roomStatus.get("Kitchen").damage, 14);
-  assert.equal(g.roomStatus.get("Kitchen").closed, false);
+  assert.equal(g.roomStatus.get("Shed").damage, 14);
+  assert.equal(g.roomStatus.get("Shed").closed, false);
   g.time = 51;
   g.clearOut(0);
-  assert.equal(g.roomStatus.get("Kitchen").closed, true);
-  assert.equal(g.roomStatus.get("Kitchen").damage, 20);
+  assert.equal(g.roomStatus.get("Shed").closed, true);
+  assert.equal(g.roomStatus.get("Shed").damage, 20);
 });
 test("keepsakes require physical carrying and a drop inside the van; they cannot be smashed", () => {
   const g = game("MovingOut"),

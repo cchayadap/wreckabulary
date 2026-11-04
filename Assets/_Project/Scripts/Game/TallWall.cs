@@ -8,11 +8,11 @@ namespace Wreckabulary
         public const float Low = 1.1f, Exterior = 2.7f, Interior = 2.4f;
 
         public float FloorY, Height;
-        public bool Outside;
+        public bool Outside, Fence;
         public Transform Trim;
         public Vector2 Tile;
 
-        public float VisualHeight(bool tall) => tall ? Mathf.Min(Outside ? Exterior : Interior, Height) : Low;
+        public float VisualHeight(bool tall) => tall && !Fence ? Mathf.Min(Outside ? Exterior : Interior, Height) : Low;
 
         public void Apply(bool tall)
         {

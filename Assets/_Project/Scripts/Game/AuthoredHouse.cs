@@ -5,7 +5,7 @@ namespace Wreckabulary
 {
     public sealed class AuthoredHouse : MonoBehaviour
     {
-        public const int CurrentContentVersion = 2;
+        public const int CurrentContentVersion = 4;
         [SerializeField] string mapId = "pinwheel";
         [SerializeField] int contentVersion;
         [SerializeField] Transform geometryRoot;

@@ -1,3 +1,5 @@
+using Wreckabulary.Rules.Wordbound;
+
 namespace Wreckabulary
 {
     public static class LobbyPlayModeLabels
@@ -9,11 +11,7 @@ namespace Wreckabulary
             "MovingOut" => "Moving Out",
             "MovingDay" => "Moving Day",
             "Escape" => "Escape",
-            "TimeRun" => "Time Trial",
-            "TeamRace" => "Team Relay",
-            "BrawlRace" => "Brawl Relay",
-            "FreeForAll" => "Free-for-All",
-            "Freestyle" => "Freeplay",
+            "TimeRun" or "TeamRace" or "BrawlRace" or "FreeForAll" or "Freestyle" => WorkshopModes.Name(id),
             _ => id
         };
     }

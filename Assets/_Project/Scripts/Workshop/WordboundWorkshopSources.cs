@@ -139,42 +139,42 @@ namespace Wreckabulary.Workshop
         {
             if (document == null || document.Id != WordboundSoloEntry.ParcelServiceCourseId || catalogue == null ||
                 play == null || !WordboundSoloEntry.Supports(play.ModeId) || !WorkshopModes.AllowsOneHumanLocal(play))
-                throw new ArgumentException("Parcel Service needs its saved local course and Time Run or Freestyle requirements.");
+                throw new ArgumentException("Parcel Depot needs its saved local course and Time Trial or Freeplay requirements.");
             var snapshot = new WorkshopSnapshot(new WorkshopDraft { Course = document, Seed = seed });
             string identity = WordboundIdentity.Sha256(snapshot.RecoveryJson + "|" + catalogue.Hash + "|" + play.ModeId);
             if (parcelServiceDraft != null && parcelServiceIdentity != identity)
-                throw new InvalidOperationException("Reopen the workshop to load a different saved Parcel Service source; its current draft is retained.");
+                throw new InvalidOperationException("Reopen the workshop to load a different saved Parcel Depot source; its current draft is retained.");
             parcelServiceSource = snapshot; parcelServiceCatalogue = catalogue; parcelServicePlay = play;
             parcelServiceIdentity = identity; parcelServiceUnavailable = null;
         }
 
         public void ConfigureParcelServiceUnavailable(string reason) => parcelServiceUnavailable =
-            string.IsNullOrEmpty(reason) ? "The saved Parcel Service course is unavailable." : reason;
+            string.IsNullOrEmpty(reason) ? "The saved Parcel Depot course is unavailable." : reason;
 
         public void OpenParcelService(string folder = null)
         {
             RequireRecoveryChoice();
             if (OnlineStarting) throw new InvalidOperationException("Wait for online preparation to finish before changing courses.");
-            if (!HasParcelService) throw new InvalidOperationException("No saved Parcel Service course is assigned.");
+            if (!HasParcelService) throw new InvalidOperationException("No saved Parcel Depot course is assigned.");
             if (parcelServiceUnavailable != null) throw new InvalidOperationException(parcelServiceUnavailable);
             if (UsesParcelService && (folder == null || folder == storageFolder)) return;
             SaveAndRememberDraft();
             if (parcelServiceDraft != null && (folder == null || folder == parcelServiceDraft.Folder))
             {
                 ActivateDraft(parcelServiceDraft, false, null, parcelService: true);
-                ShowStatus("Parcel Service · your edits and Undo history are retained."); return;
+                ShowStatus("Parcel Depot · your edits and Undo history are retained."); return;
             }
             var back = CurrentSource();
             string baseFolder = folder ?? storageFolder ?? DefaultFolder;
-            var scoped = new WorkshopStorage(Path.Combine(baseFolder, "local-courses", "ParcelServiceV1"));
+            var scoped = new WorkshopStorage(Path.Combine(baseFolder, "local-courses", WordboundSoloEntry.ParcelServiceWorkshopFolder));
             if (parcelServiceSource.Course().Id != WordboundSoloEntry.ParcelServiceCourseId)
-                throw new InvalidOperationException("The Parcel Service draft has a different course identity.");
+                throw new InvalidOperationException("The Parcel Depot draft has a different course identity.");
             var session = new DraftSession { History = new WorkshopHistory(parcelServiceSource), Catalogue = parcelServiceCatalogue,
                 Play = parcelServicePlay, Storage = scoped, Folder = baseFolder };
             string id = WordboundSoloEntry.ParcelServiceCourseId;
             OpenRecovered(session, scoped.HasRecovery(id) ? scoped : null, id, back, null, false, true,
-                "Parcel Service · saved course copy · Workshop edits are stored separately.",
-                "Recovered Parcel Service autosave", "Recovered previous Parcel Service save", "Start fresh from the saved course");
+                "Parcel Depot · saved course copy · Workshop edits are stored separately.",
+                "Recovered Parcel Depot autosave", "Recovered previous Parcel Depot save", "Start fresh from the saved course");
         }
 
         void QueueSourceChoice(int choice)

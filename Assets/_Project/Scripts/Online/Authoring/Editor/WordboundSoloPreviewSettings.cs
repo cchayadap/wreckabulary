@@ -32,8 +32,9 @@ namespace Wreckabulary.Online.Editor
         [Tooltip("Positions are metres relative to the named module. The saved gameplay camera is not changed.")]
         public WordboundSoloPreviewPose LostAddress = new WordboundSoloPreviewPose();
         public WordboundSoloPreviewPose ParcelHall = new WordboundSoloPreviewPose();
-        public WordboundSoloPreviewPose ParcelService = new WordboundSoloPreviewPose { Module = "Service",
-            Position = new Vector3(-2.2f, 1.7f, -2.6f), Target = new Vector3(1, 1, 2.3f), FieldOfView = 50 };
+        public WordboundSoloPreviewPose ParcelService = DepotPose();
+        public static WordboundSoloPreviewPose DepotPose() => new WordboundSoloPreviewPose { Module = "Hall",
+            Position = new Vector3(-12, 5, -10), Target = new Vector3(2, 1.5f, 6), FieldOfView = 55 };
         public void Validate()
         {
             if (!Regex.IsMatch(Seed ?? "", "^[0-9a-fA-F]{16}$") || !WordboundSoloEntry.Supports(Mode) || LostAddress == null || ParcelHall == null || ParcelService == null)
@@ -56,10 +57,10 @@ namespace Wreckabulary.Online.Editor
             {
                 if (GUILayout.Button("Frame Lost Address")) WordboundSoloPreviewWindow.Open((WordboundSoloPreviewSettings)target, WordboundSoloEntry.LostAddressMap);
                 if (GUILayout.Button("Frame Parcel Hall")) WordboundSoloPreviewWindow.Open((WordboundSoloPreviewSettings)target, WordboundSoloEntry.ParcelHallMap);
-                if (GUILayout.Button("Frame Parcel Service")) WordboundSoloPreviewWindow.Open((WordboundSoloPreviewSettings)target, WordboundSoloEntry.ParcelServiceMap);
+                if (GUILayout.Button("Frame Parcel Depot")) WordboundSoloPreviewWindow.Open((WordboundSoloPreviewSettings)target, WordboundSoloEntry.ParcelServiceMap);
                 if (GUILayout.Button("Save settings")) { ((WordboundSoloPreviewSettings)target).Validate(); AssetDatabase.SaveAssetIfDirty(target); }
                 if (GUILayout.Button("Capture Lost Address and Parcel Hall")) WordboundSoloPreviewCapture.CaptureDrafts();
-                if (GUILayout.Button("Capture Parcel Service")) WordboundSoloPreviewCapture.CaptureParcelServiceDraft();
+                if (GUILayout.Button("Capture Parcel Depot")) WordboundSoloPreviewCapture.CaptureParcelServiceDraft();
             }
         }
     }

@@ -35,14 +35,16 @@ namespace Wreckabulary.Tests
         [UnityTest]
         public IEnumerator APlayerWalksUpAndDownThePinwheelRamp()
         {
+            var playroom = GameConfig.Current.HouseFor("pinwheel").Room("Playroom");
+            float foot = playroom.MaxZ - 5f;
             var input = new ScriptedBinding();
-            var p = Player(input, new Vector3(3.25f, 0f, -3f));
+            var p = Player(input, new Vector3(playroom.MaxX - .75f, 0f, foot - 2f));
             yield return new WaitForSeconds(.3f);
 
             float peak = float.MinValue;
             input.Next.move = Vector2.up;
             float until = Time.time + 4f;
-            while (p.transform.position.z < 2.4f && Time.time < until)
+            while (p.transform.position.z < foot + 3.4f && Time.time < until)
             {
                 yield return new WaitForFixedUpdate();
                 peak = Mathf.Max(peak, p.transform.position.y);
@@ -55,20 +57,20 @@ namespace Wreckabulary.Tests
             int onRamp = 0, airborne = 0;
             input.Next.move = Vector2.down;
             until = Time.time + 4f;
-            while (p.transform.position.z > -2.5f && Time.time < until)
+            while (p.transform.position.z > foot - 1.5f && Time.time < until)
             {
                 yield return new WaitForFixedUpdate();
                 float z = p.transform.position.z;
-                if (z > -.9f && z < .9f) { onRamp++; if (!p.Grounded) airborne++; }
+                if (z > foot + .1f && z < foot + 1.9f) { onRamp++; if (!p.Grounded) airborne++; }
             }
             input.Next.move = Vector2.zero;
             yield return new WaitForSeconds(.4f);
             var bottom = p.transform.position;
             Debug.Log($"RAMP_DOWN z {bottom.z:F2} y {bottom.y:F3} ramp steps {onRamp} airborne {airborne}");
-            Assert.Greater(top.z, 2.3f, "walked up onto the balcony");
+            Assert.Greater(top.z, foot + 3.3f, "walked up onto the balcony");
             Assert.AreEqual(1.7f, top.y, .2f, "stands on the balcony");
             Assert.Less(peak, 1.9f, "no launch off the top of the ramp (it reached 2.29 before walking stuck to slopes)");
-            Assert.Less(bottom.z, -2.4f, "walked back down to the floor");
+            Assert.Less(bottom.z, foot - 1.4f, "walked back down to the floor");
             Assert.AreEqual(0f, bottom.y, .2f, "stands on the floor");
             Assert.Greater(onRamp, 0, "came down the ramp, not off the balcony's edge");
             Assert.LessOrEqual(airborne, onRamp / 4, "the feet stay on the ramp going down");

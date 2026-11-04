@@ -10,6 +10,7 @@ namespace Wreckabulary
     public sealed class HomeStorage
     {
         public const string Backup = ".bak";
+        public const string CurrentFile = "-v2.json", LegacyFile = ".json";
         public static string DefaultFolder;
         readonly HomeDesigner designer;
         readonly string directory;
@@ -31,7 +32,7 @@ namespace Wreckabulary
             {
                 string path = PathFor(map, false);
                 bool primary = File.Exists(path), backup = File.Exists(path + Backup);
-                if (!primary && !backup) return false;
+                if (!primary && !backup) return TryLoadLegacy(map, out layout, out error);
                 if (primary && Read(path, map, out layout, out error)) return true;
                 string primaryError = error;
                 if (backup && Read(path + Backup, map, out layout, out _)) { error = null; restored = true; return true; }
@@ -39,6 +40,21 @@ namespace Wreckabulary
                 return false;
             }
             catch (Exception ex) { layout = null; error = "Could not load home: " + ex.Message; return false; }
+        }
+
+        bool TryLoadLegacy(string map, out HomeLayout layout, out string error)
+        {
+            layout = null; error = null;
+            string path = Path.Combine(directory, map + LegacyFile);
+            foreach (string file in new[] { path, path + Backup })
+            {
+                if (!File.Exists(file)) continue;
+                if (new FileInfo(file).Length > HomeDesigner.MaxJsonLength * 4L) { error ??= "Saved home exceeds the supported file size."; continue; }
+                var migrated = designer.ImportLegacy(File.ReadAllText(file, Encoding.UTF8));
+                if (migrated.Ok && migrated.Layout.Map == map) { layout = migrated.Layout; error = null; return true; }
+                error ??= migrated.Ok ? "Saved home belongs to a different map." : string.Join("\n", migrated.Errors);
+            }
+            return false;
         }
 
         public List<HomeLayout> Saved()
@@ -92,7 +108,7 @@ namespace Wreckabulary
         string PathFor(string map, bool export)
         {
             if (map != "pinwheel" && map != "courtyard") throw new ArgumentException("Unsupported home map.", nameof(map));
-            return Path.Combine(directory, map + (export ? "-export.json" : ".json"));
+            return Path.Combine(directory, map + (export ? "-export.json" : CurrentFile));
         }
     }
 
