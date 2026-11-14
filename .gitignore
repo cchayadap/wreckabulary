@@ -99,6 +99,3 @@ _Inbox/
 /docs/
 *.md
 !/README.md
-!/Packages/**/*.md
-!/Tools/kit/**/*.md
-!/.github/**/*.md
