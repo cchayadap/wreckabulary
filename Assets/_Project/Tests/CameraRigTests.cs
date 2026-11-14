@@ -1,8 +1,10 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.Rendering;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary.Tests
 {
@@ -38,13 +40,18 @@ namespace Wreckabulary.Tests
             public override bool StartPressed() => false;
         }
 
+        static void Seat(PlayerController player, Vector3 at)
+        {
+            player.Respawn(at);
+            player.Body.useGravity = false;
+            player.Body.constraints = RigidbodyConstraints.FreezeAll;
+        }
+
         static PlayerController Spawn(int index, InputBinding binding, Vector3 facing)
         {
             var player = Object.Instantiate(GameAssets.I.playerPrefab, Vector3.zero, Quaternion.identity);
             player.Setup(index, binding);
-            player.Respawn(Vector3.zero);
-            player.Body.useGravity = false;
-            player.Body.constraints = RigidbodyConstraints.FreezeAll;
+            Seat(player, Vector3.zero);
             player.FaceTowards(facing);
             return player;
         }
@@ -85,6 +92,52 @@ namespace Wreckabulary.Tests
             yield return null;
             yield return null;
             Assert.IsFalse(camera.orthographic);
+        }
+
+        void InView(PlayerController player)
+        {
+            var at = camera.WorldToViewportPoint(player.transform.position + Vector3.up * .9f);
+            Assert.That(at.x, Is.InRange(0f, 1f), player.name + " across");
+            Assert.That(at.y, Is.InRange(0f, 1f), player.name + " along");
+        }
+
+        [UnityTest]
+        public IEnumerator CouchViewFramesTheSeatsAndAtMostTheWholeHouse()
+        {
+            var house = GameConfig.Current.HouseFor("pinwheel");
+            var area = new PartyArea(house.Rooms.Min(r => r.MinX), house.Rooms.Max(r => r.MaxX),
+                house.Rooms.Min(r => r.MinZ), house.Rooms.Max(r => r.MaxZ));
+            float widest = PartyCamera.HouseSize(area.Width, area.Depth, camera.aspect);
+            float closest = Mathf.Min(PartyCamera.MinSize, widest);
+            var overhead = Quaternion.LookRotation(new Vector3(0f, -PartyCamera.Rise, PartyCamera.Back));
+            var a = Spawn(0, new ScriptedBinding(), Vector3.forward);
+            var b = Spawn(1, new ScriptedBinding(), Vector3.forward);
+            Seat(a, new Vector3(area.CentreX - 1f, 0f, area.CentreZ));
+            Seat(b, new Vector3(area.CentreX + 1f, 0f, area.CentreZ));
+            yield return new WaitForSeconds(2.5f);
+            Assert.IsTrue(camera.orthographic, "Two couch seats share the overhead view.");
+            Assert.IsFalse(rig.IsThirdPerson);
+            Assert.AreEqual(closest, camera.orthographicSize, .2f, "Seats side by side get the closest framing, not the whole house.");
+            Assert.That(Quaternion.Angle(overhead, camera.transform.rotation), Is.LessThan(.5f), "The overhead angle the storey cutaway relies on never changes.");
+            InView(a);
+            InView(b);
+
+            Seat(a, new Vector3(area.MinX + 1.5f, 0f, area.MinZ + 1.5f));
+            Seat(b, new Vector3(area.MaxX - 1.5f, 0f, area.MaxZ - 1.5f));
+            yield return new WaitForSeconds(2.5f);
+            Assert.AreEqual(widest, camera.orthographicSize, .2f, "Seats in opposite corners see the whole house and no more.");
+            var focus = camera.transform.position - new Vector3(0f, PartyCamera.Rise, -PartyCamera.Back);
+            Assert.AreEqual(area.CentreX, focus.x, .3f, "The whole house is centred as before.");
+            Assert.AreEqual(area.CentreZ, focus.z, .3f);
+            InView(a);
+            InView(b);
+
+            Object.Destroy(b.gameObject);
+            Seat(a, new Vector3(area.MaxX - 1f, 0f, area.MaxZ - 1f));
+            yield return new WaitForSeconds(2.5f);
+            Assert.IsFalse(camera.orthographic, "A lone seat that can't turn the view is followed up close.");
+            Assert.That(Quaternion.Angle(overhead, camera.transform.rotation), Is.LessThan(.5f));
+            InView(a);
         }
 
         [UnityTest]

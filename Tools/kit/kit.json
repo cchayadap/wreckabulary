@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "kit_version": "dev",
+  "installed_utc": "2026-10-20T09:21:53Z",
+  "unity_subdir": ".",
+  "gate_prefix": "[Wreckabulary]",
+  "options": {
+    "mcp": [],
+    "autonomous": false,
+    "apply_manifest": false,
+    "unity_package": true,
+    "hook_paths": "project_dir_var",
+    "game_name": "Wreckabulary"
+  }
+}

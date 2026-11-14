@@ -1,0 +1,166 @@
+{
+  "status": "PASS",
+  "blend_sha256_before": "2604608d9d7e0e433b70247a14229421f171847d67d6870c636e9a0b4fa226ba",
+  "blend_sha256_after": "2604608d9d7e0e433b70247a14229421f171847d67d6870c636e9a0b4fa226ba",
+  "size": 640,
+  "samples": 16,
+  "threads": 2,
+  "engine": "BLENDER_EEVEE",
+  "utc": "2026-11-01T10:07:07Z",
+  "images": {
+    "front": {
+      "sha256": "48311e88ec65fb836d9af2989ea4e620796ee6541a50a9dd64e86052301d5abd",
+      "camera": [
+        0,
+        -3,
+        0.6
+      ],
+      "target": [
+        0,
+        0,
+        0.6
+      ],
+      "ortho": 1.35
+    },
+    "side": {
+      "sha256": "d432031f45a376f824cae84bf2d9942d1b4a26f80aaaa1dcf74d5db315cd3069",
+      "camera": [
+        3,
+        0,
+        0.6
+      ],
+      "target": [
+        0,
+        0,
+        0.6
+      ],
+      "ortho": 1.35
+    },
+    "three-quarter": {
+      "sha256": "7707ab72379189306de1d4ddc74639e02195f9fae3912b475de8b5fc82589c47",
+      "camera": [
+        1.4,
+        -1.9,
+        1.1
+      ],
+      "target": [
+        0,
+        0,
+        0.62
+      ],
+      "ortho": null
+    },
+    "buckle": {
+      "sha256": "8965473c64093a6a7fe4f3113d441c4c129d80919b1e852a39c1a876d950741b",
+      "camera": [
+        0.22,
+        -0.42,
+        1.24
+      ],
+      "target": [
+        0,
+        0,
+        1.135
+      ],
+      "ortho": 0.24
+    },
+    "grip": {
+      "sha256": "b20c1fab616d44436109922930cad9a72bc9d6084c77b2d535cd3bf56861eaba",
+      "camera": [
+        0.25,
+        -0.5,
+        0.25
+      ],
+      "target": [
+        0,
+        0,
+        0.16
+      ],
+      "ortho": 0.42
+    },
+    "holes": {
+      "sha256": "fed0cce7ff0feda20ea924c3b922ded56d4a545bbb983c62d8fb6aa6db27243e",
+      "camera": [
+        0.05,
+        -0.6,
+        0.58
+      ],
+      "target": [
+        0,
+        0,
+        0.56
+      ],
+      "ortho": 0.32
+    },
+    "pose-rest": {
+      "sha256": "f047616e90b86f9b7786f6c2fc2091a16acac8800242dbed4b21e24e01542b97",
+      "tip_degrees": 0,
+      "buckle_degrees": 0
+    },
+    "pose-held-idle": {
+      "sha256": "26673210f298c903d512d48a9bfea01793014b863a92bda7ca4a76ad129378da",
+      "tip_degrees": 24,
+      "buckle_degrees": 2
+    },
+    "pose-windup": {
+      "sha256": "48f467d97b2aa346252cec26139f03a96acf4b46c5b2c11424aa7f692c8f97c3",
+      "tip_degrees": 48,
+      "buckle_degrees": 6
+    },
+    "pose-contact": {
+      "sha256": "837e5a8e0098f915bc433a4714293a1157df629bc46f098b12537b1becd22674",
+      "tip_degrees": 6,
+      "buckle_degrees": 0
+    },
+    "pose-overshoot": {
+      "sha256": "a22d523c7415c585eea3f64aa79dd2acbd2e520e178e6ce51208687f0ec7e059",
+      "tip_degrees": -10,
+      "buckle_degrees": -4
+    },
+    "pose-settle": {
+      "sha256": "81156fc8286d82d97d916ab9b04a0ff752013ca5676f390f35fb09614e7fa016",
+      "tip_degrees": -2,
+      "buckle_degrees": 0
+    },
+    "pose-strip": {
+      "sha256": "d8962bd36d1ffc55ab5c049885f4b12a78f40e632576eb4d794e3cb9aaef2f72",
+      "order": [
+        "rest",
+        "held-idle",
+        "windup",
+        "contact",
+        "overshoot",
+        "settle"
+      ]
+    },
+    "skin-Classic": {
+      "sha256": "719e51b9e88dbd48fd72e05f9d88bfb13c22a908d515bebf6a5319f202729189"
+    },
+    "skin-Candy": {
+      "sha256": "69f6fb256cfd85de61714c97277b50b21b229c34f1bb67063d85e5f9fcdbaf87"
+    },
+    "skin-Arcade": {
+      "sha256": "3c9b2fd4631dbf086d91b63e9e6b6af8268a39ba8aac0a9a59f697a9a2169536"
+    },
+    "skin-strip": {
+      "sha256": "d744f4068b07c017b7386125307498539f2d307469da8f568602b95d1aa1206e",
+      "order": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ]
+    },
+    "compare-original-BAT": {
+      "sha256": "8e0f2d122a6b09fb449af83cb0744a9ae8dbb125de188885b9a27273d6110ead",
+      "reference": "Web/public/art/items/BAT.glb (original, unmodified)",
+      "reference_sha256": "f79c6a1465e6b1627953dc4baab9ef7a83b0cabd57b5c3ba8dbee11fc027ab15"
+    },
+    "icon": {
+      "master": "25480736da2328e14a85ae8e41bd8f0ed1d1b6643b949192eba544f828fc0749",
+      "icon_192": "b28614f713c722e34f73d8e97708c385bf0ccedbbd71ef64a8c16b990adf4fc7"
+    }
+  },
+  "limits": [
+    "Images must be opened and inspected; this receipt only proves which files were rendered."
+  ]
+}

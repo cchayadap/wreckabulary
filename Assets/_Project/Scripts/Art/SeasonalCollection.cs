@@ -26,7 +26,6 @@ namespace Wreckabulary.Art
             return null;
         }
 
-        // Unity collections extend the native catalogue without changing the shared web data.
         public void Apply(ItemCatalogue catalogue)
         {
             if (catalogue == null || string.IsNullOrEmpty(finish)) return;

@@ -42,7 +42,6 @@ namespace Wreckabulary.EditorTools
             }
         }
 
-        /// <summary>Builds only missing decor on the supplied world; callers choose whether to persist or discard it.</summary>
         public static bool ApplyMissing(AuthoredHouse world)
         {
             Guard();
@@ -67,20 +66,20 @@ namespace Wreckabulary.EditorTools
                 var space = world.GeometryRoot;
                 float floor = room.FloorY;
                 var floorDecor = Group(root.transform, "Floor decorations");
-                SavedMesh(source, "Winter tree", "Winter tree", floorDecor, space, new Vector3(-4.85f, floor, 3f), 1f);
-                SavedMesh(source, "GiftTall", "Tall wrapped gift", floorDecor, space, new Vector3(-4.55f, floor, 2.25f), .6f, 12f);
-                SavedMesh(source, "GiftWide", "Wide wrapped gift", floorDecor, space, new Vector3(-4.85f, floor, 2.38f), .65f, -10f);
-                SavedMesh(source, "GiftSmall", "Small wrapped gift", floorDecor, space, new Vector3(-4.62f, floor, 1.88f), .65f, 5f);
+                SavedMesh(source, "Winter tree", "Winter tree", floorDecor, space, new Vector3(room.MaxX - .85f, floor, room.MaxZ - 1f), 1f);
+                SavedMesh(source, "GiftTall", "Tall wrapped gift", floorDecor, space, new Vector3(room.MaxX - .55f, floor, room.MaxZ - 1.75f), .6f, 12f);
+                SavedMesh(source, "GiftWide", "Wide wrapped gift", floorDecor, space, new Vector3(room.MaxX - .85f, floor, room.MaxZ - 1.62f), .65f, -10f);
+                SavedMesh(source, "GiftSmall", "Small wrapped gift", floorDecor, space, new Vector3(room.MaxX - .62f, floor, room.MaxZ - 2.12f), .65f, 5f);
                 ValidateFloorPlacement(world, layout, room, floorDecor);
 
                 var wallDecor = Group(root.transform, "North wall decorations");
-                var wreath = SavedMesh(source, "Mounted wreath", "Wall wreath", wallDecor, space, new Vector3(-4.95f, floor + 1.86f, 3.75f), .9f);
+                var wreath = SavedMesh(source, "Mounted wreath", "Wall wreath", wallDecor, space, new Vector3(room.MaxX - .95f, floor + 1.86f, room.MaxZ - .25f), .9f);
                 MountNorthWall(world, room, wreath);
                 garlandMesh = Garland();
                 var brass = AssetDatabase.LoadAssetAtPath<Material>(WinterPropsBuilder.ArtRoot + "/Materials/WinterBrass.mat");
                 if (!brass) throw new InvalidOperationException("The saved WinterBrass material is missing.");
                 var garland = Group(wallDecor, "Brass winter garland");
-                garland.SetPositionAndRotation(space.TransformPoint(new Vector3(-5.05f, floor + 2.76f, 3.79f)), space.rotation);
+                garland.SetPositionAndRotation(space.TransformPoint(new Vector3(room.MaxX - 1.05f, floor + 2.76f, room.MaxZ - .21f)), space.rotation);
                 garland.gameObject.AddComponent<MeshFilter>().sharedMesh = garlandMesh;
                 garland.gameObject.AddComponent<MeshRenderer>().sharedMaterial = brass;
                 MountNorthWall(world, room, garland);

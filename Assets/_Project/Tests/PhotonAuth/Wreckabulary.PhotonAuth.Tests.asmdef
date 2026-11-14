@@ -1,0 +1,24 @@
+{
+    "name": "Wreckabulary.PhotonAuth.Tests",
+    "rootNamespace": "Wreckabulary.PhotonAuthTests",
+    "references": [
+        "Fusion.Unity",
+        "Photon.Realtime",
+        "Wreckabulary",
+        "Wreckabulary.Rules",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": ["Editor"],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Fusion.Runtime.dll",
+        "Fusion.Common.dll",
+        "Fusion.Sockets.dll",
+        "Fusion.Realtime.dll",
+        "Fusion.Log.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}

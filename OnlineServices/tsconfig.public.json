@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*.ts", "checks/public/**/*.ts", "public-entry.vitest.config.ts", "scripts/public-catalogue.d.mts"]
+}

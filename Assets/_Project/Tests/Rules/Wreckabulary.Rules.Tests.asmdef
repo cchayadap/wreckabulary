@@ -3,6 +3,7 @@
     "rootNamespace": "Wreckabulary.Rules.Tests",
     "references": [
         "Wreckabulary.Rules",
+        "GameStudioKit.Determinism",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

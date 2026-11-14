@@ -4,7 +4,6 @@ using UnityEngine.Rendering;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>Scene-owned lighting settings and a bounded, shared pool of nearby practical lights.</summary>
     [DefaultExecutionOrder(-220), DisallowMultipleComponent]
     public sealed class EnvironmentLighting : MonoBehaviour
     {
@@ -75,7 +74,6 @@ namespace Wreckabulary.Art
             RefreshPracticalLights();
         }
 
-        /// <summary>Editor tools call this explicitly; merely opening a prefab never repaints the scene.</summary>
         public void ApplySceneSettings()
         {
             if (!profile) return;

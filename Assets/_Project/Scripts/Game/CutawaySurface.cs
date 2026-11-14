@@ -6,7 +6,6 @@ namespace Wreckabulary
 {
     public enum CutawayKind { Ceiling, Roof, UpperWall }
 
-    /// <summary>Authored presentation sections. OwnerStorey identifies the room beneath a ceiling.</summary>
     [DisallowMultipleComponent]
     public sealed class CutawaySurface : MonoBehaviour
     {

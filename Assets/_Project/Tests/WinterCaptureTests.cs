@@ -83,6 +83,8 @@ namespace Wreckabulary.Tests
             yield return Capture("winter-home-ultrawide");
             width = 1600; view.Select(width, height); yield return Settle();
             menu.Open(LobbyMenu.Shop); yield return Settle();
+            Assert.IsTrue(menu.Page<ShopPage>().ShowCategory(ShopPage.Extras));
+            yield return Settle();
             yield return Reveal(menu.transform, "Play winter shuffle");
             yield return Capture("winter-collection-shop");
             Click(menu.transform, "Play winter shuffle");

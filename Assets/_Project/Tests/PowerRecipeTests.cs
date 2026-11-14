@@ -181,7 +181,8 @@ namespace Wreckabulary.Tests
             yield return null; yield return null;
             Assert.IsFalse(aura.Visible);
             Assert.IsTrue(player.Health.ApplyDamage(Hits.Of(null, Vector3.forward, HitSource.Melee, 8f, 0f, hitStun: 0f)));
-            Assert.AreEqual(92f, player.Health.Current);
+            float guard = GameConfig.Current.Tuning?.Trait("SHIELD", TraitKind.Guard)?.Amount ?? 0f;
+            Assert.AreEqual(100f - 8f * (1f - guard), player.Health.Current, 0.01f, "Lowered, the shield's guard still softens the blow.");
             shield.Break(player.Combat); shield.Break(player.Combat);
             Assert.AreEqual("DEHILS", Letters());
             yield return null;
@@ -324,8 +325,9 @@ namespace Wreckabulary.Tests
             yield return new WaitForSeconds(.18f);
             Assert.Greater(player.BoostLeft, 1f);
             Assert.Greater(Vector3.Distance(before, arrow.localPosition), .01f);
-            player.Respawn(Vector3.up * .08f);
             input.Next.move = Vector2.down;
+            yield return null;
+            player.Respawn(Vector3.up * .08f);
             Physics.SyncTransforms();
             yield return new WaitForSeconds(.15f);
             Assert.AreEqual(0f, player.BoostLeft, "Running against the arrows does not refresh the strip boost.");

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -89,6 +90,133 @@ namespace Wreckabulary.Tests
             host.anchorMin = host.anchorMax = host.pivot = new Vector2(.5f, .5f);
             host.sizeDelta = new Vector2(800f, 680f);
             return ControlsPanel.Mount(host);
+        }
+
+        [UnityTest]
+        public IEnumerator ModeLegendsPreserveSharedBindingsSelectionAndRebindCancellation()
+        {
+            var panel = Mount();
+            yield return null;
+            var keys = DesktopBinding.Shared;
+            int version = KeyBindings.Version;
+            string before = keys.Map.SaveBindingOverridesAsJson();
+            var jump = ButtonNamed(panel, "Rebind Jump");
+            var title = panel.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Control legend title");
+            Assert.AreEqual("HOUSE CONTROLS", title.text);
+            Assert.IsFalse(title.transform.IsChildOf(panel.GetComponentInChildren<ScrollRect>().content), "Mode context must remain outside the scrolling rows.");
+            Assert.AreEqual("View / Share", ControllerLegend(panel, "Pause").text);
+            Assert.AreEqual("—", ControllerLegend(panel, "Aim").text, "House controllers look with the stick, without an aim-held button.");
+            Assert.AreEqual("Hold Y / Triangle", ControllerLegend(panel, "Spell").text);
+            Assert.AreEqual(15, panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")));
+            SubmitLegend(panel, "Wordbound controls");
+            yield return null;
+            Assert.AreEqual("WORDBOUND CONTROLS", title.text);
+            Assert.AreEqual("RB / R1", ControllerLegend(panel, "Aim").text);
+            Assert.AreEqual("Start / Options", ControllerLegend(panel, "Pause").text);
+            Assert.AreEqual("Y / Triangle", ControllerLegend(panel, "Spell").text);
+            Assert.AreEqual("R3 cycles gear", ControllerLegend(panel, "Bag").text);
+            Assert.AreEqual(14, panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")));
+            Assert.IsFalse(ButtonNamed(panel, "Rebind Dodge").gameObject.activeInHierarchy, "Dodge is not a Wordbound action.");
+            foreach (string name in new[] { "Hand 1", "Hand 2" })
+            {
+                var slot = ButtonNamed(panel, "Rebind " + name);
+                Assert.IsTrue(slot.gameObject.activeInHierarchy, "Direct keyboard equipment selection is supported.");
+                Assert.AreEqual("Equipment " + name.Substring(name.Length - 1), slot.transform.parent.parent.GetComponentInChildren<TMP_Text>().text);
+                Assert.AreEqual("—", ControllerLegend(panel, name).text, "The controller cycles gear instead of directly selecting a numbered slot.");
+            }
+            Assert.AreSame(jump, ButtonNamed(panel, "Rebind Jump"));
+            Assert.AreSame(ButtonNamed(panel, "Wordbound controls").gameObject, EventSystem.current.currentSelectedGameObject);
+            Assert.AreEqual(before, keys.Map.SaveBindingOverridesAsJson()); Assert.AreEqual(version, KeyBindings.Version);
+            Assert.IsTrue(keys.Map.enabled); Assert.IsTrue(KeyBindings.GameplayBlocked);
+            jump.onClick.Invoke();
+            Assert.IsTrue(panel.IsListening);
+            Assert.IsFalse(ButtonNamed(panel, "House controls").interactable);
+            Assert.IsFalse(ButtonNamed(panel, "Wordbound controls").interactable);
+            ButtonNamed(panel, "House controls").onClick.Invoke();
+            Assert.AreEqual("WORDBOUND CONTROLS", title.text);
+            Assert.AreEqual("Start / Options", ControllerLegend(panel, "Pause").text, "Even a stale callback cannot switch legends while listening.");
+            Assert.IsTrue(panel.CancelRebind());
+            yield return null;
+            Assert.IsFalse(panel.IsListening);
+            Assert.AreEqual("WORDBOUND CONTROLS", title.text, "Cancel/Refresh must preserve the fixed mode context.");
+            Assert.AreEqual("Start / Options", ControllerLegend(panel, "Pause").text, "Cancel/Refresh preserves the displayed game family.");
+            Assert.AreEqual(before, keys.Map.SaveBindingOverridesAsJson()); Assert.AreEqual(version, KeyBindings.Version);
+            SubmitLegend(panel, "House controls");
+            yield return null;
+            Assert.AreEqual("HOUSE CONTROLS", title.text);
+            Assert.AreEqual("View / Share", ControllerLegend(panel, "Pause").text);
+            Assert.AreEqual("Hold Y / Triangle", ControllerLegend(panel, "Spell").text);
+            Assert.IsTrue(ButtonNamed(panel, "Rebind Dodge").gameObject.activeInHierarchy);
+            Assert.AreSame(jump, ButtonNamed(panel, "Rebind Jump"));
+            Assert.AreEqual(before, keys.Map.SaveBindingOverridesAsJson()); Assert.AreEqual(version, KeyBindings.Version);
+            panel.Close();
+        }
+
+        [UnityTest]
+        public IEnumerator BothControlLegendsFitRowsAndKeepFooterOutsideTheScroll()
+        {
+            var panel = Mount();
+            var host = (RectTransform)panel.transform.parent;
+            foreach (var size in new[] { new Vector2(800, 680), new Vector2(620, 450) })
+            {
+                host.sizeDelta = size;
+                foreach (string family in new[] { "House controls", "Wordbound controls" })
+                {
+                    SubmitLegend(panel, family);
+                    yield return null;
+                    Canvas.ForceUpdateCanvases();
+                    yield return null;
+                    Canvas.ForceUpdateCanvases();
+                    foreach (var text in panel.GetComponentsInChildren<TMP_Text>())
+                    {
+                        text.ForceMeshUpdate();
+                        Assert.IsFalse(text.isTextOverflowing || text.isTextTruncated, size + " " + family + " " + text.name + ": " + text.text);
+                    }
+                    foreach (var button in panel.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Rebind ")))
+                    {
+                        var row = (RectTransform)button.transform.parent.parent;
+                        AssertWithinRow(row, (RectTransform)button.transform, button.name);
+                        AssertWithinRow(row, row.GetComponentsInChildren<TMP_Text>().Single(text => text.name.StartsWith("Controller ")).rectTransform, button.name + " legend");
+                    }
+                    var scroll = panel.GetComponentInChildren<ScrollRect>();
+                    scroll.verticalNormalizedPosition = 0;
+                    Canvas.ForceUpdateCanvases();
+                    var footer = panel.transform.Find("Controls footer") as RectTransform;
+                    var viewport = scroll.viewport;
+                    var bounds = RelativeRect((RectTransform)panel.transform, footer);
+                    var visible = RelativeRect((RectTransform)panel.transform, viewport);
+                    Assert.LessOrEqual(bounds.yMax, visible.yMin + .1f, "Reset/cancel footer must not overlay the scrolling controls.");
+                    Assert.IsTrue(ButtonNamed(panel, "Reset controls").IsInteractable());
+                }
+            }
+            panel.Close();
+        }
+
+        static TMP_Text ControllerLegend(ControlsPanel panel, string action) => panel.GetComponentsInChildren<TMP_Text>(true)
+            .Single(text => text.name == "Controller " + action);
+
+        static void SubmitLegend(ControlsPanel panel, string name)
+        {
+            var button = ButtonNamed(panel, name);
+            Assert.IsTrue(button.IsInteractable());
+            EventSystem.current.SetSelectedGameObject(button.gameObject);
+            ExecuteEvents.Execute(button.gameObject, new BaseEventData(EventSystem.current), ExecuteEvents.submitHandler);
+        }
+
+        static void AssertWithinRow(RectTransform row, RectTransform child, string name)
+        {
+            var bounds = RelativeRect(row, child);
+            Assert.GreaterOrEqual(bounds.xMin, row.rect.xMin - .1f, name);
+            Assert.LessOrEqual(bounds.xMax, row.rect.xMax + .1f, name);
+            Assert.GreaterOrEqual(bounds.yMin, row.rect.yMin - .1f, name);
+            Assert.LessOrEqual(bounds.yMax, row.rect.yMax + .1f, name);
+        }
+
+        static Rect RelativeRect(RectTransform parent, RectTransform child)
+        {
+            var corners = new Vector3[4]; child.GetWorldCorners(corners);
+            var min = parent.InverseTransformPoint(corners[0]); var max = parent.InverseTransformPoint(corners[2]);
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
 
         [Test]

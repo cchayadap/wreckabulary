@@ -3,7 +3,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>A raised-only outline; all protection and durability remain owned by the held shield.</summary>
     [DisallowMultipleComponent]
     public sealed class HeldShieldAura : MonoBehaviour
     {

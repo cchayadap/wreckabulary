@@ -18,6 +18,9 @@ namespace Wreckabulary.EditorTests
 
         static readonly string[] CoreTwelve = { "BAT", "BLADE", "LAMP", "BALL", "PLATE", "TABLE", "BED", "MAT", "SOFA", "SOAP", "FOAM", "BOMB" };
 
+        static readonly string[] HouseOnly = { "PAN", "ARROW", "POT", "BARREL", "CRATE", "PLANT", "SHELF", "DESK", "CABINET", "CHAIR",
+            "PILLOW", "RACK", "MIRROR", "SPEAKER", "BENCH", "TOASTER", "BEAR" };
+
         [OneTimeSetUp]
         public void Load()
         {
@@ -47,7 +50,7 @@ namespace Wreckabulary.EditorTests
         public void TheShippedDataHasNoProblems()
         {
             Assert.IsEmpty(config.Validate());
-            CollectionAssert.AreEquivalent(CoreTwelve.Concat(new[] { "APPLE", "WATER", "CAKE", "SODA", "SHIELD", "FAN", "CLOCK", "BROOM", "HAMMER", "SPEAR", "PIE", "STOOL" }), config.Items.Enabled.Select(i => i.Id), "only completed recipes are craftable");
+            CollectionAssert.AreEquivalent(CoreTwelve.Concat(new[] { "APPLE", "WATER", "CAKE", "SODA", "SHIELD", "FAN", "CLOCK", "BROOM", "HAMMER", "SPEAR", "PIE", "STOOL" }).Concat(HouseOnly), config.Items.Enabled.Select(i => i.Id), "only completed recipes are craftable; items_house.json adds the House-only ones");
             Assert.AreEqual(100f, config.Rules.Defaults.MaxHealth);
             Assert.AreEqual(10, config.Rules.Defaults.MaxLetters);
             Assert.AreEqual(2, config.Rules.Defaults.MaxCarried);

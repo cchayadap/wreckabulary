@@ -1,0 +1,144 @@
+{
+  "status": "VISUAL CONSTRUCTION PILOT \u2014 NOT APPROVED OR IMPORTED INTO UNITY",
+  "item": "FAN",
+  "source_sha256": "67bd384322b83617ac801211fb487f6be4e57c9d712f1b294660c13957700cd7",
+  "build_script_sha256": "b81bb6e9387a3bd247c63af9bd6b93676646e251dc139691b6a8039877193ff5",
+  "helper_sha256": "5f1d81614050a55cc1be070b47deb804d728a2154e7ebf23accc535a2bf9c900",
+  "blender": "5.2.2 LTS",
+  "blend_sha256": "5e89db51071535ba3fa0aa8741121fe54f98ced6c5b048fdc3f62fa308e6f381",
+  "original_bounds_blender_metres": [
+    [
+      -0.26100000739097595,
+      -0.1250000298023224,
+      0.0
+    ],
+    [
+      0.26100000739097595,
+      0.1250000298023224,
+      0.8209999799728394
+    ]
+  ],
+  "candidate_bounds_blender_metres": [
+    [
+      -0.26100000739097595,
+      -0.1250000298023224,
+      0.0
+    ],
+    [
+      0.26100000739097595,
+      0.1250000298023224,
+      0.8209999799728394
+    ]
+  ],
+  "grip_world_matrix_blender": [
+    [
+      1.0,
+      -1.7484555314695172e-07,
+      0.0,
+      0.0
+    ],
+    [
+      1.7484555314695172e-07,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.4104999899864197
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "held_scale_from_original_config": 0.4385,
+  "original_components": 11,
+  "candidate_mesh_components": 68,
+  "candidate_triangles": 16006,
+  "parts": [
+    "FAN_BlueBase_01",
+    "FAN_BlueGuardRim_02",
+    "FAN_OriginalStand_03",
+    "FAN_OriginalFrontGrille_04",
+    "FAN_OriginalFrontGrille_05",
+    "FAN_OriginalFrontGrille_06",
+    "FAN_OriginalFrontGrille_07",
+    "FAN_OriginalBlade_08",
+    "FAN_OriginalBlade_09",
+    "FAN_OriginalBlade_10",
+    "FAN_OriginalRotorCap_11",
+    "FAN_RearMotorShell",
+    "FAN_MotorInteriorBehindVents",
+    "FAN_RearVentFrame",
+    "FAN_RearBearingCover",
+    "FAN_RearVentRib_1",
+    "FAN_RearVentRib_2",
+    "FAN_RearVentRib_3",
+    "FAN_RearVentRib_4",
+    "FAN_RearVentRib_5",
+    "FAN_RearVentRib_6",
+    "FAN_RearVentRib_7",
+    "FAN_RearVentRib_8",
+    "FAN_RearVentRib_9",
+    "FAN_RearVentRib_10",
+    "FAN_RearVentRib_11",
+    "FAN_RearVentRib_12",
+    "FAN_ConnectedMotorShaft",
+    "FAN_StandToTiltNeck",
+    "FAN_TiltYokeCrossbar",
+    "FAN_LeftTiltSupport",
+    "FAN_LeftTiltAxle",
+    "FAN_LeftTiltFastener",
+    "FAN_RightTiltSupport",
+    "FAN_RightTiltAxle",
+    "FAN_RightTiltFastener",
+    "FAN_RearWireGuard",
+    "FAN_RearGuardInnerSupport",
+    "FAN_RearGuardSpoke_1",
+    "FAN_RearGuardMount_1",
+    "FAN_RearGuardSpoke_2",
+    "FAN_RearGuardMount_2",
+    "FAN_RearGuardSpoke_3",
+    "FAN_RearGuardMount_3",
+    "FAN_RearGuardSpoke_4",
+    "FAN_RearGuardMount_4",
+    "FAN_RearGuardSpoke_5",
+    "FAN_RearGuardMount_5",
+    "FAN_RearGuardSpoke_6",
+    "FAN_RearGuardMount_6",
+    "FAN_RearGuardSpoke_7",
+    "FAN_RearGuardMount_7",
+    "FAN_RearGuardSpoke_8",
+    "FAN_RearGuardMount_8",
+    "FAN_RearGuardSpoke_9",
+    "FAN_RearGuardMount_9",
+    "FAN_RearGuardSpoke_10",
+    "FAN_RearGuardMount_10",
+    "FAN_RearGuardSpoke_11",
+    "FAN_RearGuardMount_11",
+    "FAN_RearGuardSpoke_12",
+    "FAN_RearGuardMount_12",
+    "FAN_FrontGuardClip_1",
+    "FAN_FrontGuardClip_2",
+    "FAN_FrontGuardClip_3",
+    "FAN_FrontGuardClip_4",
+    "FAN_BaseSpeedDial",
+    "FAN_DialIndicator"
+  ],
+  "construction": [
+    "Original blue rim/base, silver front grille/stand and pale blades retained",
+    "Open rear ventilation ribs sit over recessed motor interior; motor shaft overlaps original rotor cap",
+    "Tilt supports/axles join motor shell to existing stand; rear guard and four front clips join original rim",
+    "Small base speed dial uses original ivory/silver material language"
+  ],
+  "limitations": [
+    "Construction/contact/normal quality requires actual front, side, rear and detail inspection",
+    "Held scene is a static original-avatar grip-aligned source pose, not Unity hand-fit verification",
+    "No delivery export, baked map, runtime replacement, performance or owner-appearance acceptance"
+  ]
+}

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973ff9c50da8d0b4d90044e226a66e21, type: 3}
+  m_Name: Glass
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Audio.SurfaceDamageSounds
+  surface: 1
+  damaged:
+    clips:
+    - {fileID: 8300000, guid: 90885b488b999904da01c20adab40b2b, type: 3}
+    - {fileID: 8300000, guid: cad0318a29b63614db08df14072bd685, type: 3}
+    volume: 0.9
+    pitchMin: 0.96
+    pitchMax: 1.04
+    cooldown: 0.1
+  broken:
+    clips:
+    - {fileID: 8300000, guid: 53de603ac60ca2244908911ad2f414f7, type: 3}
+    - {fileID: 8300000, guid: eaa15a74135f1f54598710c87f0662f8, type: 3}
+    - {fileID: 8300000, guid: f319d3fd666213840a4810f6fac4980a, type: 3}
+    volume: 1
+    pitchMin: 0.97
+    pitchMax: 1.03
+    cooldown: 0.2

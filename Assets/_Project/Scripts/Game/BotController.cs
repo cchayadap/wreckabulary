@@ -27,7 +27,7 @@ namespace Wreckabulary
         float stuckTime;
         ClearOutController clearOut;
         HouseLayout layout;
-        RoomGraph graph;
+        HouseRoutes routes;
 
         public void Configure(PlayerController owner, BotBinding input)
         {
@@ -36,7 +36,7 @@ namespace Wreckabulary
             lastPosition = transform.position;
             clearOut = FindAnyObjectByType<ClearOutController>();
             layout = clearOut ? clearOut.Layout : GameConfig.Current.HouseFor(Session.MapId);
-            graph = layout.Graph();
+            routes = new HouseRoutes(layout);
         }
 
         void Update()
@@ -63,7 +63,7 @@ namespace Wreckabulary
             else if (downed)
             {
                 destination = downed.transform.position;
-                if (World.Flat(destination - at).magnitude <= player.Health.Rules.ReviveRange * .9f && SameLevel(destination, at) && Reachable(layout, at, destination))
+                if ((destination - at).magnitude <= player.Health.Rules.ReviveRange * .9f && SameLevel(destination, at) && Reachable(layout, at, destination))
                 {
                     c.grabHeld = true;
                     c.drop = player.Combat.IsHolding;
@@ -103,7 +103,7 @@ namespace Wreckabulary
                 }
             }
 
-            var waypoint = Waypoint(layout, graph, here, at, destination, clearOut);
+            var waypoint = Waypoint(layout, routes, here, at, destination, clearOut);
             var delta = World.Flat(waypoint - at);
             bool final = World.Flat(waypoint - destination).sqrMagnitude < .0001f && SameLevel(waypoint, destination);
             var direction = delta.sqrMagnitude > (final ? .16f : .01f) ? delta.normalized : Vector3.zero;
@@ -148,7 +148,7 @@ namespace Wreckabulary
 
         static float Cost(Vector3 thing, Vector3 at) => World.Flat(thing - at).magnitude + Mathf.Abs(thing.y - at.y) * 2f;
 
-        static Vector3 Waypoint(HouseLayout layout, RoomGraph graph, string start, Vector3 at, Vector3 goal, ClearOutController hazard)
+        static Vector3 Waypoint(HouseLayout layout, HouseRoutes routes, string start, Vector3 at, Vector3 goal, ClearOutController hazard)
         {
             if (World.Flat(goal - at).sqrMagnitude < .01f && SameLevel(goal, at)) return goal;
             var goalFlight = FlightUnder(layout, goal);
@@ -161,32 +161,15 @@ namespace Wreckabulary
                 return goalFlight != null && (goalFlight.Lower == start || goalFlight.Upper == start)
                     ? StairsWaypoint(layout, goalFlight, at, goalFlight.Lower == start)
                     : Around(layout, start, at, goal);
-            var queue = new Queue<string>();
-            var from = new Dictionary<string, string> { [start] = null };
-            queue.Enqueue(start);
-            while (queue.Count > 0 && !from.ContainsKey(end))
-            {
-                string room = queue.Dequeue();
-                foreach (var next in graph.Neighbours(room))
-                {
-                    if (from.ContainsKey(next) || (hazard && hazard.Running && hazard.Schedule.PhaseOf(next, hazard.Elapsed) == RoomPhase.Closed)) continue;
-                    from[next] = room;
-                    queue.Enqueue(next);
-                }
-            }
-            if (!from.ContainsKey(end))
+            bool Closed(string room) => hazard && hazard.Running && hazard.Schedule.PhaseOf(room, hazard.Elapsed) == RoomPhase.Closed;
+            if (!routes.TryFirstStep(start, at.x, at.z, end, goal.x, goal.z, Closed, out var route))
             {
                 var middle = Centre(layout.Room(start));
                 return World.Flat(middle - at).sqrMagnitude < .16f ? at : Around(layout, start, at, middle);
             }
-            string step = end;
-            while (from[step] != start) step = from[step];
-            var door = layout.Doors.FirstOrDefault(d => (d.A == start && d.B == step) || (d.B == start && d.A == step));
-            if (door == null)
-            {
-                var stairs = layout.Stairs.First(s => (s.Lower == start && s.Upper == step) || (s.Upper == start && s.Lower == step));
-                return StairsWaypoint(layout, stairs, at, stairs.Lower == start);
-            }
+            string step = route.Room;
+            var door = route.Door;
+            if (door == null) return StairsWaypoint(layout, route.Stairs, at, route.Stairs.Lower == start);
             var here = layout.Room(start);
             var doorAt = new Vector3(door.X, here.FloorY, door.Z);
             bool inSideWall = (Mathf.Abs(door.X - here.MinX) < .01f || Mathf.Abs(door.X - here.MaxX) < .01f)

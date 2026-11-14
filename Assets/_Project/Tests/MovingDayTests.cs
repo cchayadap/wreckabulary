@@ -8,7 +8,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Co-op Moving Day: deliveries, spelling furniture, placing it in the right room, stars and time outs.</summary>
     public class MovingDayTests
     {
         MovingDayDirector director;
@@ -30,11 +29,29 @@ namespace Wreckabulary.Tests
         IEnumerator UntilPlaying() =>
             TestScenes.WaitUntil(() => director.Current == MovingDayDirector.State.Playing, 5f, "level start");
 
-        /// <summary>Builds an item straight into a room, as if spelled there, and lets it settle.</summary>
         Smashable PlaceIn(string word, string room, float offset = 0f)
         {
             var at = director.RoomNamed(room).Centre + new Vector3(0f, 0.3f, offset);
             return FurnitureCatalog.Spawn(word, at, 0f, World.Transient);
+        }
+
+        [UnityTest]
+        public IEnumerator ChecklistNamesRoomsInPlainWordsWithTheirStorey()
+        {
+            yield return UntilPlaying();
+            yield return new WaitForSecondsRealtime(.2f);
+            var layout = Object.FindAnyObjectByType<RoomBuilder>().Layout;
+            var text = Object.FindAnyObjectByType<GameHud>().transform.Find("Safe HUD/Side column/Objective/Objective text")
+                .GetComponent<TMPro.TMP_Text>().text;
+            foreach (var room in director.CurrentLevel.items.Select(i => i.room).Distinct())
+            {
+                string label = MovingDayDirector.RoomLabel(layout, room);
+                StringAssert.Contains("in the " + label + "</color>", text);
+                if (label != room) StringAssert.DoesNotContain("in the " + room + "</color>", text, "Internal room ids stay off the checklist.");
+            }
+            Assert.AreEqual("Living Room", MovingDayDirector.RoomLabel(null, "LivingRoom"));
+            Assert.AreEqual("Bedroom 2", MovingDayDirector.RoomLabel(null, "Bedroom2"));
+            Assert.AreEqual(layout.WithStorey("LivingRoom").Replace("LivingRoom", "Living Room"), MovingDayDirector.RoomLabel(layout, "LivingRoom"));
         }
 
         [UnityTest]
@@ -198,7 +215,7 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(typewriter.Choose(index), "one roommate can play Moving Day");
             yield return TestScenes.WaitForActive(Session.MovingDayScene);
             var p = Object.FindAnyObjectByType<PlayerJoinManager>().Players.Single();
-            Assert.AreEqual(24, p.Summoner.WordsOverride.Count, "the word wheel offers objectives and creative tools");
+            Assert.AreEqual(41, p.Summoner.WordsOverride.Count, "the word wheel offers objectives and creative tools");
         }
     }
 }

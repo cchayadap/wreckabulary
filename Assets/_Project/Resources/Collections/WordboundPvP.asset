@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50f6f4c379e75524f95a0e7438bccdf5, type: 3}
+  m_Name: WordboundPvP
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Art.WordboundEquipmentCollection
+  entries:
+  - itemId: BAT
+    modelKey: Items/BAT
+    model: {fileID: 919132149155446097, guid: ddcd2b5626569cf489f0d3461ed7374e, type: 3}
+    icon: {fileID: 21300000, guid: 7b1f38230d8717b4da3ed5cdc5c58640, type: 3}
+    size: {x: 0.172, y: 1.018, z: 0.172}
+    boundsCenter: {x: 0.000000007450581, y: 0.509, z: 0.00000011175871}
+    grip: {x: 0, y: 0.17, z: 0}
+    heldScale: 0.5894
+  - itemId: BROOM
+    modelKey: Items/BROOM
+    model: {fileID: 919132149155446097, guid: fd8f4498440743f4cbd0c0d7f9e4aab3, type: 3}
+    icon: {fileID: 21300000, guid: ce8b0446e4668fb4ba99a11b94070384, type: 3}
+    size: {x: 0.3, y: 1.0212, z: 0.095}
+    boundsCenter: {x: 0.000000014901161, y: 0.5106, z: 0.000000018626451}
+    grip: {x: 0, y: 0.6212, z: 0}
+    heldScale: 0.5876
+  - itemId: HAMMER
+    modelKey: Items/HAMMER
+    model: {fileID: 919132149155446097, guid: 6c43e00af1bcbcd419332d98a4acebde, type: 3}
+    icon: {fileID: 21300000, guid: 44b72341acfd42c49be5b5a76b96dc01, type: 3}
+    size: {x: 0.345, y: 0.635, z: 0.175}
+    boundsCenter: {x: 0, y: 0.31749997, z: 0.000000067055225}
+    grip: {x: 0, y: 0.13, z: 0}
+    heldScale: 0.5669
+  - itemId: SPEAR
+    modelKey: Items/SPEAR
+    model: {fileID: 919132149155446097, guid: 90ddaa7865a20614da2a4be1d3d118ac, type: 3}
+    icon: {fileID: 21300000, guid: d5e08d3e2bffd5143915703e46de1065, type: 3}
+    size: {x: 0.17, y: 1.235, z: 0.068}
+    boundsCenter: {x: 0, y: 0.6174999, z: 0.00000012293458}
+    grip: {x: 0, y: 0.465, z: 0}
+    heldScale: 0.4858
+  - itemId: SHIELD
+    modelKey: Items/SHIELD
+    model: {fileID: 919132149155446097, guid: b9c6ff98fd61ae54fa984cd7fda48ffc, type: 3}
+    icon: {fileID: 21300000, guid: e457d5beb9398144fb60041d98fda671, type: 3}
+    size: {x: 0.46, y: 0.57, z: 0.1877}
+    boundsCenter: {x: 0, y: 0.28499994, z: -0.03082496}
+    grip: {x: 0, y: 0.29, z: -0.11}
+    heldScale: 0.6316
+  - itemId: PLATE
+    modelKey: Items/PLATE
+    model: {fileID: 919132149155446097, guid: 21efaf49de167d049b4cd5afba67294d, type: 3}
+    icon: {fileID: 21300000, guid: c6ef587c7bc772f45b7f898fce80ff06, type: 3}
+    size: {x: 0.54, y: 0.073, z: 0.54}
+    boundsCenter: {x: -0.000000029802322, y: 0.03650001, z: 0.000000059604645}
+    grip: {x: 0, y: 0.0365, z: 0}
+    heldScale: 0.6667
+  - itemId: TABLE
+    modelKey: Items/TABLE
+    model: {fileID: 919132149155446097, guid: 12d6798d588e3304eb38fdad541143ec, type: 3}
+    icon: {fileID: 21300000, guid: 9646723430b965c4d800acbdb181d08e, type: 3}
+    size: {x: 1.2, y: 0.72, z: 0.691}
+    boundsCenter: {x: 0, y: 0.35999992, z: 0.00000008940697}
+    grip: {x: 0, y: 0.36, z: 0}
+    heldScale: 0.3
+  - itemId: SOFA
+    modelKey: Items/SOFA
+    model: {fileID: 919132149155446097, guid: ab457dcb89fa0e54abd1440134f1361e, type: 3}
+    icon: {fileID: 21300000, guid: b19b422160d3bae46a98d353234a0aa0, type: 3}
+    size: {x: 1.52, y: 0.93, z: 0.813}
+    boundsCenter: {x: -0.00000011920929, y: 0.465, z: 0.016500056}
+    grip: {x: 0, y: 0.465, z: 0.0165}
+    heldScale: 0.2368
+  - itemId: BED
+    modelKey: Items/BED
+    model: {fileID: 919132149155446097, guid: 0865d5894724b1945b23f351da5ff7d2, type: 3}
+    icon: {fileID: 21300000, guid: c093fde3014579c48b3bd64df067b664, type: 3}
+    size: {x: 1.035, y: 0.818, z: 1.58}
+    boundsCenter: {x: 0, y: 0.40899983, z: 0.000000059604645}
+    grip: {x: 0, y: 0.409, z: 0}
+    heldScale: 0.2278
+  - itemId: STOOL
+    modelKey: Items/STOOL
+    model: {fileID: 919132149155446097, guid: 36742485f48d43347b03a3235fb17873, type: 3}
+    icon: {fileID: 21300000, guid: a442b6fb9a8a19246ac63d63a4a376c0, type: 3}
+    size: {x: 0.52, y: 0.466, z: 0.52}
+    boundsCenter: {x: 0, y: 0.23299997, z: 0.000000059604645}
+    grip: {x: 0, y: 0.233, z: 0}
+    heldScale: 0.6923
+  - itemId: FAN
+    modelKey: Items/FAN
+    model: {fileID: 919132149155446097, guid: 771c5e92f3ceed446803208b465988c3, type: 3}
+    icon: {fileID: 21300000, guid: ebaf467d505844147aa77ed4e0ca2420, type: 3}
+    size: {x: 0.522, y: 0.821, z: 0.25}
+    boundsCenter: {x: 0, y: 0.4104999, z: 0.000000029802322}
+    grip: {x: 0, y: 0.4105, z: 0}
+    heldScale: 0.4385
+  - itemId: CLOCK
+    modelKey: Items/CLOCK
+    model: {fileID: 919132149155446097, guid: 1ba7b8825d075094b9df839b58d08ec7, type: 3}
+    icon: {fileID: 21300000, guid: d7921967e78b4e740a0b900ad587073b, type: 3}
+    size: {x: 0.48, y: 0.48, z: 0.122}
+    boundsCenter: {x: 0, y: 0.24000002, z: 0.031000009}
+    grip: {x: 0, y: 0.24, z: 0.031}
+    heldScale: 0.75

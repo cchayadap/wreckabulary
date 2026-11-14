@@ -1049,7 +1049,6 @@ MonoBehaviour:
   maxPlayers: 4
   walkIn: {x: 0, y: 0, z: 0}
   walkInTime: 0.5
-  starterLetters: 0
   respawnKnockedOut: 1
   respawnDelay: 2
 --- !u!114 &396354818

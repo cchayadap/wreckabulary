@@ -16,7 +16,7 @@ namespace Wreckabulary
             lens = camera;
             if (lens)
             {
-                cutaway = lens.GetComponent<CameraCutaway>() ?? lens.gameObject.AddComponent<CameraCutaway>();
+                if (!lens.TryGetComponent(out cutaway)) cutaway = lens.gameObject.AddComponent<CameraCutaway>();
                 view.Environment = environment;
                 view.Cutaway = cutaway;
             }

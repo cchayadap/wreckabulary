@@ -30,6 +30,7 @@ namespace Wreckabulary.Rules
         public int HolderId { get; internal set; } = -1;
         public int CrafterId { get; internal set; } = -1;
         public int DeployerId { get; internal set; } = -1;
+        public long DeploymentTick { get; internal set; } = -1;
         public int ThrowerId { get; internal set; } = -1;
         public string ThrowerSkin { get; internal set; }
         public int ActivatorId { get; internal set; } = -1;

@@ -15,7 +15,6 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Explicit native frames of saved worlds through the actual runtime lighting and camera.</summary>
     [Explicit, Category("EnvironmentCapture")]
     public sealed class EnvironmentCaptureTests
     {
@@ -155,7 +154,7 @@ namespace Wreckabulary.Tests
 
                 if (map == "courtyard")
                 {
-                    var garden = builder.Layout.Rooms.First(room => room.Name == "Garden");
+                    var garden = builder.Layout.Rooms.Where(room => room.Outdoor).OrderByDescending(room => room.Area).First();
                     Place(player, garden);
                     yield return Settle();
                     var sun = RenderSettings.sun;
@@ -171,13 +170,14 @@ namespace Wreckabulary.Tests
                     yield return Capture(map, "garden-sky", garden.Name, lens, player, builder.AuthoredWorld);
                 }
 
-                int storeys = builder.Layout.StoreyFloors().Count;
-                if (storeys > 1)
+                var layout = builder.Layout;
+                int top = Enumerable.Range(0, layout.StoreyFloors().Count).Last(storey => layout.Rooms.Any(room => !room.Outdoor && layout.StoreyOf(room) == storey));
+                if (top > 0)
                 {
-                    var upper = InteriorRoom(builder.Layout, storeys - 1);
+                    var upper = InteriorRoom(layout, top);
                     Place(player, upper);
                     yield return Settle();
-                    Assert.AreEqual(storeys - 1, StoreyCutaway.Instance.StoreyOfPlayer(player));
+                    Assert.AreEqual(top, StoreyCutaway.Instance.StoreyOfPlayer(player));
                     yield return Capture(map, "upper-interior", upper.Name, lens, player, builder.AuthoredWorld);
                     yield return CaptureDetail(map, upper, lens, player, builder.AuthoredWorld, "upper-detail");
 
@@ -189,7 +189,7 @@ namespace Wreckabulary.Tests
                     Assert.IsFalse(rig.IsThirdPerson, "Two actual local seats use the shared couch camera.");
                     Assert.IsTrue(lens.orthographic);
                     Assert.AreEqual(0, StoreyCutaway.Instance.StoreyOfPlayer(buddy));
-                    Assert.AreEqual(storeys - 1, StoreyCutaway.Instance.StoreyOfPlayer(player));
+                    Assert.AreEqual(top, StoreyCutaway.Instance.StoreyOfPlayer(player));
                     yield return Capture(map, "mixed-floor-couch-21x9", lower.Name + " / " + upper.Name,
                         lens, player, builder.AuthoredWorld);
                     gameView.Select(1600, 900);
@@ -209,7 +209,7 @@ namespace Wreckabulary.Tests
         }
 
         static RoomBox InteriorRoom(HouseLayout layout, int storey) => layout.Rooms
-            .Where(room => room.Name != "Garden" && layout.StoreyOf(room) == storey)
+            .Where(room => !room.Outdoor && layout.StoreyOf(room) == storey)
             .OrderByDescending(room => (room.MaxX - room.MinX) * (room.MaxZ - room.MinZ)).First();
 
         static void Place(PlayerController player, RoomBox room)
@@ -284,7 +284,6 @@ namespace Wreckabulary.Tests
             Debug.Log("[EnvironmentCapture] " + file);
         }
 
-        /// <summary>Creates only this fixture's resolutions and removes them after restoring the editor selection.</summary>
         sealed class GameViewScope : IDisposable
         {
             const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -298,7 +297,7 @@ namespace Wreckabulary.Tests
             public GameViewScope()
             {
                 previousFocus = EditorWindow.focusedWindow;
-                var assembly = typeof(Editor).Assembly;
+                var assembly = typeof(UnityEditor.Editor).Assembly;
                 var sizesType = assembly.GetType("UnityEditor.GameViewSizes");
                 var singleton = typeof(ScriptableSingleton<>).MakeGenericType(sizesType);
                 var sizes = singleton.GetProperty("instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);

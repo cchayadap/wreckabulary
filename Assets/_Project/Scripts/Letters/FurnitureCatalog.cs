@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// How furniture words look when spelled into existence (Moving Day). Unknown words get a plain
-    /// wooden row of blocks, so new checklist items work without code changes.
-    /// </summary>
     public static class FurnitureCatalog
     {
         struct Spec
@@ -43,7 +39,6 @@ namespace Wreckabulary
             return Furniture.Create(parent, word, position, yaw, spec.block, spec.perRow, spec.color, spec.mass, health);
         }
 
-        /// <summary>Spells a piece of furniture into existence just in front of the player.</summary>
         public static Smashable Summon(PlayerController p, string word)
         {
             var at = p.transform.position + p.Facing * 1.5f + Vector3.up * 0.2f;

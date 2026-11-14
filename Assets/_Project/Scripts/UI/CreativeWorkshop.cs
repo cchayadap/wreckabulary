@@ -46,7 +46,7 @@ namespace Wreckabulary
         TMP_InputField nameInput, wordsInput, jsonInput;
         TMP_Dropdown roomInput, catalogueInput, mapInput;
         TextMeshProUGUI status, selectionLabel, jsonStatus, jsonTitle, headerTitle, tourTitle;
-        Button undoButton, redoButton, saveButton, tourButton, backButton, tourBackButton, tourExitButton, jsonCopyButton, jsonApplyButton, jsonCloseButton;
+        Button undoButton, redoButton, saveButton, tourButton, playButton, backButton, tourBackButton, tourExitButton, jsonCopyButton, jsonApplyButton, jsonCloseButton;
         string[] mapIds, words;
         bool moving, portrait;
         HomeProp preview;
@@ -122,10 +122,11 @@ namespace Wreckabulary
             if (!drafts.TryGetValue(id, out var next))
             {
                 var initial = designer.CreateLayout(id);
-                storage.TryLoad(id, out var saved, out string loadError);
+                storage.TryLoad(id, out var saved, out string loadError, out bool restored);
                 if (saved != null) initial = saved;
                 next = new HomeHistory(designer, initial); drafts[id] = next;
                 if (loadError != null) SetStatus(loadError);
+                else if (restored) SetStatus("The last save could not be read, so its backup was loaded.");
             }
             if (!stage.Show(next.Current, out error)) return false;
             map = id; history = next; selected = placing = null; moving = false; previewKey = null;
@@ -145,15 +146,16 @@ namespace Wreckabulary
             safe = Rect(canvas.transform,"Safe area",Vector2.zero,Vector2.zero); Stretch(safe);
             header = Panel(safe,"Workshop header",Cream);
             headerTitle = Label(header,"CREATIVE WORKSHOP",new Vector2(16,-12),new Vector2(280,44),26,Ink);
-            nameInput = Input(header,"My Cozy House",new Vector2(306,-14),new Vector2(350,42),48,false);
+            nameInput = Input(header,"My Cozy House",new Vector2(306,-14),new Vector2(240,42),48,false);
             nameInput.onEndEdit.AddListener(value =>
             {
                 if (refreshing || history == null) return;
                 var candidate = history.Current; candidate.Name = value.Trim(); Commit(candidate, "Home renamed.");
             });
-            saveButton = MakeButton(header,"Save",new Vector2(670,-12),new Vector2(105,46),Save);
-            tourButton = MakeButton(header,"Tour",new Vector2(785,-12),new Vector2(105,46),BeginTour);
-            backButton = MakeButton(header,"Back",new Vector2(900,-12),new Vector2(105,46),Close);
+            saveButton = MakeButton(header,"Save",new Vector2(556,-12),new Vector2(105,46),Save);
+            tourButton = MakeButton(header,"Tour",new Vector2(671,-12),new Vector2(105,46),BeginTour);
+            playButton = MakeButton(header,"Play",new Vector2(786,-12),new Vector2(105,46),PlayHouse);
+            backButton = MakeButton(header,"Back",new Vector2(901,-12),new Vector2(105,46),Close);
             dock = Panel(safe,"Design tools",Cream);
             var scroll = new GameObject("Tool scroll",typeof(RectTransform)).AddComponent<ScrollRect>();
             toolScroll = scroll;
@@ -293,6 +295,17 @@ namespace Wreckabulary
         void CancelPending(bool announce = false)
         { placing = null; moving = false; preview = null; previewKey = null; stage?.ClearGhost(); if (announce) SetStatus("Placement cancelled."); }
         void Save() { if (storage.TrySave(history.Current,out var error)) SetStatus("Saved this house on this device."); else SetStatus(error); }
+
+        void PlayHouse()
+        {
+            CancelPending();
+            if (!storage.TrySave(history.Current,out var error)) { SetStatus(error); return; }
+            var menu = LobbyMenu.Instance;
+            if (!menu) { SetStatus("Saved. Choose Dibs or Duos in Play to use this home."); return; }
+            string home = map;
+            Close();
+            menu.PlayHome(home);
+        }
 
         void BeginTour()
         {
@@ -478,7 +491,7 @@ namespace Wreckabulary
             tourBar.anchorMin = tourBar.anchorMax = tourBar.pivot = new Vector2(0,1); tourBar.anchoredPosition = Vector2.zero; tourBar.localScale = Vector3.one;
             if (portrait)
             {
-                float width = safe.rect.width, row = (width-48)/3;
+                float width = safe.rect.width, row = (width-60)/4;
                 float titleHeight=44*unit, nameTop=56*unit, actionsTop=nameTop+target+12*unit;
                 headerHeight = actionsTop+target+12*unit;
                 header.sizeDelta = new Vector2(width,headerHeight);
@@ -486,7 +499,8 @@ namespace Wreckabulary
                 Position((RectTransform)nameInput.transform,new Vector2(12,-nameTop),new Vector2(width-24,target));
                 Position((RectTransform)saveButton.transform,new Vector2(12,-actionsTop),new Vector2(row,target));
                 Position((RectTransform)tourButton.transform,new Vector2(24+row,-actionsTop),new Vector2(row,target));
-                Position((RectTransform)backButton.transform,new Vector2(36+row*2,-actionsTop),new Vector2(row,target));
+                Position((RectTransform)playButton.transform,new Vector2(36+row*2,-actionsTop),new Vector2(row,target));
+                Position((RectTransform)backButton.transform,new Vector2(48+row*3,-actionsTop),new Vector2(row,target));
                 tourBar.sizeDelta = new Vector2(width,nameTop+target+12*unit);
                 Position(tourTitle.rectTransform,new Vector2(12,-6*unit),new Vector2(width-24,titleHeight));
                 Position((RectTransform)tourBackButton.transform,new Vector2(12,-nameTop),new Vector2((width-36)*.7f,target));
@@ -499,10 +513,11 @@ namespace Wreckabulary
                 float fit = Mathf.Min(1f,safe.rect.width/1024f); header.localScale = Vector3.one*fit;
                 header.sizeDelta = new Vector2(1024,headerHeight/fit);
                 Position(headerTitle.rectTransform,new Vector2(16,-12),new Vector2(280,44));
-                Position((RectTransform)nameInput.transform,new Vector2(306,-12),new Vector2(350,target/fit));
-                Position((RectTransform)saveButton.transform,new Vector2(670,-12),new Vector2(105,target/fit));
-                Position((RectTransform)tourButton.transform,new Vector2(785,-12),new Vector2(105,target/fit));
-                Position((RectTransform)backButton.transform,new Vector2(900,-12),new Vector2(105,target/fit));
+                Position((RectTransform)nameInput.transform,new Vector2(306,-12),new Vector2(240,target/fit));
+                Position((RectTransform)saveButton.transform,new Vector2(556,-12),new Vector2(105,target/fit));
+                Position((RectTransform)tourButton.transform,new Vector2(671,-12),new Vector2(105,target/fit));
+                Position((RectTransform)playButton.transform,new Vector2(786,-12),new Vector2(105,target/fit));
+                Position((RectTransform)backButton.transform,new Vector2(901,-12),new Vector2(105,target/fit));
                 tourBar.sizeDelta = new Vector2(1010,headerHeight); tourBar.localScale = Vector3.one*fit;
                 Position(tourTitle.rectTransform,new Vector2(12,-12),new Vector2(580,40));
                 Position((RectTransform)tourBackButton.transform,new Vector2(610,-10),new Vector2(260,target/fit));
@@ -510,10 +525,10 @@ namespace Wreckabulary
                 dock.anchorMin = Vector2.zero; dock.anchorMax = new Vector2(0,1); dock.pivot = Vector2.zero;
                 dock.offsetMin = Vector2.zero; dock.offsetMax = new Vector2(348,-headerHeight);
             }
-            foreach (var button in new[] {saveButton,tourButton,backButton,tourBackButton,tourExitButton}) StretchButtonText(button);
+            foreach (var button in new[] {saveButton,tourButton,playButton,backButton,tourBackButton,tourExitButton}) StretchButtonText(button);
             headerTitle.fontSize = portrait ? 26*unit : 26; tourTitle.fontSize = portrait ? 20*unit : 22;
             nameInput.pointSize = portrait ? 20*unit : 22;
-            foreach (var button in new[] {saveButton,tourButton,backButton,tourBackButton,tourExitButton})
+            foreach (var button in new[] {saveButton,tourButton,playButton,backButton,tourBackButton,tourExitButton})
                 button.GetComponentInChildren<TMP_Text>().fontSize = portrait ? 20*unit : 21;
             LayoutTools(portrait ? unit : 1f,portrait ? safe.rect.width : 348f);
             if (jsonSheet)

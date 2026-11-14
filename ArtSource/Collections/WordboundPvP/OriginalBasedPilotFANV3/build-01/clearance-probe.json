@@ -1,0 +1,81 @@
+{
+  "status": "FAIL",
+  "continuous_blade_solid_cylinder_lower_bound": 0.006000007676583929,
+  "blade_nearest_part": "FAN_BlueGuardRim_02",
+  "continuous_hub_slab_envelope_lower_bound": 0.000999998301267624,
+  "hub_nearest_part": "FAN_RearMotorShell",
+  "thresholds_metres": {
+    "blade": 0.003,
+    "hub": 0.0005,
+    "tilt_sample": 0.001
+  },
+  "tilt_samples": [
+    {
+      "tilt_degrees": -10,
+      "surface_triangle_overlap_pairs": 0,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": -8,
+      "surface_triangle_overlap_pairs": 0,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": -6,
+      "surface_triangle_overlap_pairs": 0,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": -4,
+      "surface_triangle_overlap_pairs": 0,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": -2,
+      "surface_triangle_overlap_pairs": 0,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": 0,
+      "surface_triangle_overlap_pairs": 0,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": 2,
+      "surface_triangle_overlap_pairs": 0,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": 4,
+      "surface_triangle_overlap_pairs": 0,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": 6,
+      "surface_triangle_overlap_pairs": 92,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": 8,
+      "surface_triangle_overlap_pairs": 232,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    },
+    {
+      "tilt_degrees": 10,
+      "surface_triangle_overlap_pairs": 216,
+      "minimum_sampled_vertex_surface_distance": 0.00299999862909317
+    }
+  ],
+  "intentional_mates_excluded_from_tilt_check": [
+    "FAN_LeftTiltAxle",
+    "FAN_RightTiltAxle",
+    "FAN_LeftTiltFastener",
+    "FAN_RightTiltFastener"
+  ],
+  "limits": [
+    "Rotor blade/hub envelopes conservatively cover every Y rotation in the neutral head frame; they test stationary source triangles, not physics colliders.",
+    "Tilt checks are discrete surface-overlap and vertex-to-surface measurements, not continuous minimum triangle distance, containment proof or all combined rotor/tilt poses.",
+    "The motor shaft enters the motor shell intentionally; bearing friction, skinning and rigidbody physics are not certified.",
+    "No collision meshes, mass, online timing or runtime animation are produced."
+  ]
+}

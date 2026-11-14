@@ -34,7 +34,7 @@ namespace Wreckabulary
                 Source = source,
                 DirX = dir.x,
                 DirZ = dir.z,
-                Blockable = source != HitSource.Hazard,
+                Blockable = source is not (HitSource.Hazard or HitSource.Bleed),
             };
         }
 

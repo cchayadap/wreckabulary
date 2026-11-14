@@ -1,0 +1,14 @@
+{
+  "name": "Wreckabulary.Online.Party.Tests",
+  "rootNamespace": "Wreckabulary.Online.Tests",
+  "references": [
+    "Wreckabulary.Rules", "Wreckabulary.Online.Client", "Wreckabulary.Online.Puzzles",
+    "Wreckabulary.Online.Fusion",
+    "UnityEngine.TestRunner", "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll"],
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "autoReferenced": false
+}

@@ -51,7 +51,7 @@ namespace Wreckabulary.Tests
             var hints = WordSolver.Hints(Db().Words, "SWRDZA", capacity: 6);
             var words = hints.Select(h => h.entry.word).ToArray();
             CollectionAssert.Contains(words, "SWORD");
-            CollectionAssert.DoesNotContain(words, "ZAP"); // hidden, one letter short
+            CollectionAssert.DoesNotContain(words, "ZAP");
             Assert.AreEqual("O", hints.First(h => h.entry.word == "SWORD").missing);
 
             var umbrella = WordSolver.Hints(Db().Words, "UMBRELL", capacity: 6);

@@ -1,0 +1,15 @@
+{
+  "name": "Wreckabulary.Online.Gameplay",
+  "rootNamespace": "Wreckabulary.Online",
+  "references": [
+    "Wreckabulary",
+    "Wreckabulary.Rules",
+    "Wreckabulary.Online.Fusion",
+    "Wreckabulary.Online.Physics",
+    "Fusion.Unity",
+    "Fusion.Addons.Physics"
+  ],
+  "overrideReferences": true,
+  "precompiledReferences": ["Fusion.Runtime.dll", "Fusion.Common.dll", "Fusion.Sockets.dll", "Fusion.Realtime.dll", "Fusion.Log.dll"],
+  "autoReferenced": true
+}

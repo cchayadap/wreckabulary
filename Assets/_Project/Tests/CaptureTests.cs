@@ -11,14 +11,11 @@ using UnityEngine.TestTools;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>
-    /// Renders screenshots of a staged moment in the Living Room, for reviewing the look without opening the editor.
-    /// Explicit: run with -testFilter Wreckabulary.Tests.CaptureTests. Output goes to WRECK_CAPTURE_DIR (or Temp/Captures).
-    /// </summary>
     [Explicit, Category("Capture")]
     public class CaptureTests
     {
         ShaderCompilationScope shaderCompilationScope;
+        LobbyPreferenceScope lobbyPreferenceScope;
 
         [UnityTest]
         public IEnumerator CaptureLivingRoom() => RunWithSynchronousShaders(CaptureLivingRoomSequence());
@@ -27,7 +24,10 @@ namespace Wreckabulary.Tests
         public IEnumerator CaptureHubAndTutorial() => RunWithSynchronousShaders(CaptureHubAndTutorialSequence());
 
         [UnityTest]
-        public IEnumerator CaptureLobby() => RunWithSynchronousShaders(CaptureLobbySequence());
+        public IEnumerator CaptureLobby() => RunWithSynchronousShaders(RunWithLobbyPreferences(CaptureLobbySequence()));
+
+        [UnityTest]
+        public IEnumerator CaptureSettings() => RunWithSynchronousShaders(RunWithLobbyPreferences(CaptureSettingsSequence()));
 
         [UnityTest]
         public IEnumerator CaptureMaps() => RunWithSynchronousShaders(CaptureMapsSequence());
@@ -38,8 +38,69 @@ namespace Wreckabulary.Tests
         [TearDown]
         public void RestoreShaderCompilation()
         {
-            shaderCompilationScope?.Dispose();
-            shaderCompilationScope = null;
+            try
+            {
+                lobbyPreferenceScope?.Dispose();
+                lobbyPreferenceScope = null;
+            }
+            finally
+            {
+                shaderCompilationScope?.Dispose();
+                shaderCompilationScope = null;
+            }
+        }
+
+        internal IEnumerator RunWithLobbyPreferences(IEnumerator sequence)
+        {
+            if (lobbyPreferenceScope != null)
+                throw new InvalidOperationException("A lobby capture is already running on this fixture.");
+            var scope = new LobbyPreferenceScope();
+            lobbyPreferenceScope = scope;
+            try
+            {
+                while (sequence.MoveNext()) yield return sequence.Current;
+            }
+            finally
+            {
+                try { (sequence as IDisposable)?.Dispose(); }
+                finally
+                {
+                    scope.Dispose();
+                    if (ReferenceEquals(lobbyPreferenceScope, scope)) lobbyPreferenceScope = null;
+                }
+            }
+        }
+
+        sealed class LobbyPreferenceScope : IDisposable
+        {
+            readonly string[] keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, LobbyThemes.PreferenceKey };
+            readonly string[] values;
+            readonly LobbyMenu previousMenu = LobbyMenu.Instance;
+            bool disposed;
+
+            public LobbyPreferenceScope() => values = keys.Select(key => PlayerPrefs.HasKey(key) ? PlayerPrefs.GetString(key) : null).ToArray();
+
+            public void Dispose()
+            {
+                if (disposed) return;
+                try
+                {
+                    var menu = LobbyMenu.Instance;
+                    if (menu && menu != previousMenu) UnityEngine.Object.DestroyImmediate(menu.gameObject);
+                }
+                finally
+                {
+                    try
+                    {
+                        Session.Clear();
+                        for (int i = 0; i < keys.Length; i++)
+                            if (values[i] == null) PlayerPrefs.DeleteKey(keys[i]); else PlayerPrefs.SetString(keys[i], values[i]);
+                        PlayerPrefs.Save();
+                        LobbyThemes.Restore();
+                    }
+                    finally { disposed = true; }
+                }
+            }
         }
 
         internal IEnumerator RunWithSynchronousShaders(IEnumerator sequence)
@@ -78,7 +139,6 @@ namespace Wreckabulary.Tests
             {
 #if UNITY_EDITOR
                 previousValue = UnityEditor.EditorSettings.asyncShaderCompilation;
-                // Otherwise lit objects are skipped while their shaders compile in the background.
                 UnityEditor.EditorSettings.asyncShaderCompilation = false;
 #endif
             }
@@ -113,7 +173,6 @@ namespace Wreckabulary.Tests
             var p2 = World.Players[1];
             var p3 = World.Players[2];
 
-            // The table bursts and P1 and P2 run for the letters.
             foreach (var s in UnityEngine.Object.FindObjectsByType<Smashable>())
                 if (s.Word == "TABLE") s.Break();
             inputs[0].Next.move = new Vector2(0.6f, 0.8f);
@@ -122,7 +181,6 @@ namespace Wreckabulary.Tests
             inputs[0].Next.move = Vector2.zero;
             inputs[1].Next.move = Vector2.zero;
 
-            // P3 summons a SWORD, P2 opens the word wheel.
             p3.Inventory.Set("SWORDE");
             p3.Summoner.Summon("SWORD");
             p2.Inventory.Set("BEESTA");
@@ -165,7 +223,6 @@ namespace Wreckabulary.Tests
             yield return new WaitForSeconds(0.3f);
             Capture(Path.Combine(dir, "5_hub_typewriter.png"));
 
-            // Tutorial, a few steps in.
             Session.Clear();
             yield return SceneManager.LoadSceneAsync(Session.TutorialScene);
             yield return null;
@@ -178,7 +235,6 @@ namespace Wreckabulary.Tests
             yield return new WaitForSeconds(1.5f);
             Capture(Path.Combine(dir, "6_tutorial.png"));
 
-            // Moving Day: the bed is in, boxes are arriving.
             Session.Clear();
             yield return SceneManager.LoadSceneAsync(Session.MovingDayScene);
             yield return null;
@@ -242,7 +298,7 @@ namespace Wreckabulary.Tests
             }
             menu.Open(LobbyMenu.Settings);
             var settings = menu.Page<SettingsPage>();
-            foreach (string tab in new[] { "graphics", "controls", "how" })
+            foreach (string tab in new[] { "audio", "gameplay", "graphics", "controls", "how" })
             {
                 settings.ShowTab(tab);
                 yield return new WaitForSeconds(.5f);
@@ -281,6 +337,113 @@ namespace Wreckabulary.Tests
                 yield return CaptureFramed(Path.Combine(dir, $"lobby_map_{map}.png"));
             }
             Session.Clear();
+        }
+
+        IEnumerator CaptureSettingsSequence()
+        {
+            string root = Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
+            if (string.IsNullOrEmpty(root)) root = Path.Combine(Application.dataPath, "../Temp/Captures");
+            string dir = Path.Combine(root, "settings-" + DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ") + "-" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            if (Directory.Exists(dir)) throw new IOException("Preserve existing settings capture evidence.");
+            Directory.CreateDirectory(dir);
+            var report = new SettingsCaptureReport { folder = dir, beforeMode = Screen.fullScreenMode.ToString(), beforeWidth = Screen.width, beforeHeight = Screen.height };
+            float volume = AudioListener.volume; int vsync = QualitySettings.vSyncCount;
+            string[] inputKeys = { KeyBindings.OverridesKey, KeyBindings.LegacyBackupKey };
+            var inputValues = inputKeys.Select(key => PlayerPrefs.HasKey(key) ? PlayerPrefs.GetString(key) : null).ToArray();
+            bool hadSensitivity = PlayerPrefs.HasKey(KeyBindings.SensitivityKey), hadInvert = PlayerPrefs.HasKey(KeyBindings.InvertKey);
+            float savedSensitivity = PlayerPrefs.GetFloat(KeyBindings.SensitivityKey);
+            int savedInvert = PlayerPrefs.GetInt(KeyBindings.InvertKey);
+            var map = DesktopBinding.Shared.Map;
+            string overrides = UnityEngine.InputSystem.InputActionRebindingExtensions.SaveBindingOverridesAsJson(map);
+            float sensitivity = KeyBindings.Sensitivity; bool invert = KeyBindings.InvertY;
+            SettingsPage settings = null;
+            const System.Reflection.BindingFlags access = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var pending = typeof(SettingsPage).GetField("revertTo", access);
+            var timerField = typeof(SettingsPage).GetField("timer", access);
+            var stop = typeof(SettingsPage).GetMethod("Stop", access);
+            try
+            {
+                Session.Clear();
+                yield return SceneManager.LoadSceneAsync(Session.HubScene);
+                yield return null; yield return null;
+                var menu = LobbyMenu.Instance;
+                Assert.IsNotNull(menu);
+                menu.Open(LobbyMenu.Settings);
+                settings = menu.Page<SettingsPage>();
+                var tabs = new[] { "profile", "audio", "gameplay", "graphics", "controls", "help" };
+                foreach (bool preview in new[] { false, true })
+                {
+                    if (preview)
+                    {
+                        pending.SetValue(settings, (Screen.fullScreenMode, Screen.width, Screen.height));
+                        var timer = menu.gameObject.AddComponent<LobbyCountdown>();
+                        timer.Ends = Time.unscaledTime + 10;
+                        timerField.SetValue(settings, timer);
+                    }
+                    foreach (string tab in tabs)
+                    {
+                        if (preview) ((LobbyCountdown)timerField.GetValue(settings)).Ends = Time.unscaledTime + 10;
+                        settings.ShowTab(tab);
+                        yield return new WaitForSecondsRealtime(.35f);
+                        string file = (preview ? "preview-" : "normal-") + tab + ".png";
+                        yield return CaptureFramed(Path.Combine(dir, file));
+                        Assert.IsTrue(File.Exists(Path.Combine(dir, file)) && new FileInfo(Path.Combine(dir, file)).Length > 0);
+                        report.images.Add(file);
+                    }
+                }
+                report.status = "CAPTURED; VISUAL REVIEW REQUIRED";
+            }
+            finally
+            {
+                try
+                {
+                    if (settings != null)
+                    {
+                        pending.SetValue(settings, null);
+                        stop.Invoke(settings, null);
+                        settings.Closed();
+                    }
+                }
+                catch (Exception error)
+                {
+                    report.status = "FAIL: PENDING STATE CLEANUP"; report.error = error.ToString(); throw;
+                }
+                finally
+                {
+                    try
+                    {
+                        UnityEngine.InputSystem.InputActionRebindingExtensions.RemoveAllBindingOverrides(map);
+                        if (!string.IsNullOrEmpty(overrides)) UnityEngine.InputSystem.InputActionRebindingExtensions.LoadBindingOverridesFromJson(map, overrides);
+                        KeyBindings.SetSensitivity(sensitivity); KeyBindings.SetInvertY(invert);
+                    }
+                    catch (Exception error)
+                    {
+                        report.status = "FAIL: INPUT RESTORATION"; report.error += "\n" + error; throw;
+                    }
+                    finally
+                    {
+                        for (int i = 0; i < inputKeys.Length; i++)
+                            if (inputValues[i] == null) PlayerPrefs.DeleteKey(inputKeys[i]); else PlayerPrefs.SetString(inputKeys[i], inputValues[i]);
+                        if (hadSensitivity) PlayerPrefs.SetFloat(KeyBindings.SensitivityKey, savedSensitivity); else PlayerPrefs.DeleteKey(KeyBindings.SensitivityKey);
+                        if (hadInvert) PlayerPrefs.SetInt(KeyBindings.InvertKey, savedInvert); else PlayerPrefs.DeleteKey(KeyBindings.InvertKey);
+                        PlayerPrefs.Save(); AudioListener.volume = volume; QualitySettings.vSyncCount = vsync;
+                        report.displayUnchanged = report.beforeMode == Screen.fullScreenMode.ToString() && report.beforeWidth == Screen.width && report.beforeHeight == Screen.height;
+                        if (!report.displayUnchanged) report.status = "FAIL: DISPLAY CHANGED";
+                        File.WriteAllText(Path.Combine(dir, "receipt.json"), JsonUtility.ToJson(report, true));
+                    }
+                }
+            }
+            Assert.IsTrue(report.displayUnchanged, "Pending display is presentation-only; no resolution change is requested.");
+            Assert.AreEqual(12, report.images.Count);
+        }
+
+        [Serializable]
+        sealed class SettingsCaptureReport
+        {
+            public string status = "INCOMPLETE", error = "", folder, beforeMode;
+            public int beforeWidth, beforeHeight;
+            public bool simulatedDisplayPreview = true, displayUnchanged;
+            public System.Collections.Generic.List<string> images = new();
         }
 
         IEnumerator CaptureMapsSequence()
@@ -428,7 +591,6 @@ namespace Wreckabulary.Tests
             var cam = Camera.main;
             var size = Size();
             var rt = new RenderTexture(size.x, size.y, 24);
-            // Overlay canvases aren't drawn by cameras, so render the HUD through the camera for the capture.
             var canvases = UnityEngine.Object.FindObjectsByType<Canvas>().Where(c => c.isRootCanvas && c.renderMode == RenderMode.ScreenSpaceOverlay).ToArray();
             var layers = ToCamera(canvases, cam, 1f);
             Canvas.ForceUpdateCanvases();

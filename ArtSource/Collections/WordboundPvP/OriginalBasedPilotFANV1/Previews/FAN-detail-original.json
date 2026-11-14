@@ -1,0 +1,46 @@
+{
+  "item": "FAN",
+  "variant": "original",
+  "view": "detail",
+  "blend_sha256": "5e89db51071535ba3fa0aa8741121fe54f98ced6c5b048fdc3f62fa308e6f381",
+  "render_script_sha256": "b81bb6e9387a3bd247c63af9bd6b93676646e251dc139691b6a8039877193ff5",
+  "helper_sha256": "5f1d81614050a55cc1be070b47deb804d728a2154e7ebf23accc535a2bf9c900",
+  "blender": "5.2.2 LTS",
+  "camera_matrix": [
+    [
+      -0.8064050674438477,
+      -0.2575627267360687,
+      0.5323272943496704,
+      2.200000047683716
+    ],
+    [
+      0.5913636088371277,
+      -0.35122206807136536,
+      0.7259009480476379,
+      3.065000057220459
+    ],
+    [
+      6.243035954867082e-08,
+      0.9001691341400146,
+      0.43554046750068665,
+      2.359999895095825
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "ortho_scale": 0.3199999928474426,
+  "resolution": [
+    960,
+    960
+  ],
+  "samples": 64,
+  "threads": 6,
+  "denoising": true,
+  "label": "Matched original-game studio comparison",
+  "sha256": "c82ca4d4e073109db2f94ded18d5423e2fa5ef309e3feb8fdf756b4366a8222d",
+  "elapsed_seconds": 129.64
+}

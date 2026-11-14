@@ -1,0 +1,54 @@
+{
+  "unityProject": ".",
+  "workspace": ".",
+  "prefix": "[Wreckabulary]",
+  "editorEnv": [
+    "GSK_UNITY"
+  ],
+  "timeoutMs": 1800000,
+  "lockWaitMs": 3600000,
+  "checkSlots": 4,
+  "coreSlots": 2,
+  "testAssemblies": [],
+  "buildProfile": "Assets/Settings/Build Profiles/Win.asset",
+  "buildProfiles": {
+    "release": "Assets/Settings/Build Profiles/Win.asset",
+    "release-qa": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "dev": "Assets/Settings/Build Profiles/Win-Dev.asset"
+  },
+  "exeName": "Wreckabulary.exe",
+  "smokeSeconds": 90,
+  "qaDefine": "GSK_QA",
+  "codeRoots": [
+    "Assets/_Project",
+    "Packages/com.gamestudiokit.core"
+  ],
+  "checkExcludes": [
+    "Assets/Plugins/**",
+    "Assets/TextMesh Pro/**",
+    "Assets/Samples/**",
+    "Assets/_AgentCaptures/**"
+  ],
+  "layers": [],
+  "core": {
+    "asmdefs": [
+      "Wreckabulary.Rules",
+      "GameStudioKit.Determinism"
+    ],
+    "testDirs": [
+      "Assets/_Project/Tests/Rules"
+    ],
+    "tfm": "net9.0"
+  },
+  "recompileTimeoutS": 900,
+  "readyTimeoutMs": 180000,
+  "unserveGraceMs": 30000,
+  "playerArgs": [
+    "-screen-fullscreen",
+    "0",
+    "-screen-width",
+    "1280",
+    "-screen-height",
+    "720"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "passed": true,
+  "source_sha256": "fefb1c851d674357aabc3f9e33a0983a6f1813476180b9447877a9b867bf0f25",
+  "source_builders": {
+    "geometry": {
+      "path": "Source/build_wordbound_detail.geometry.py",
+      "sha256": "e0ea5155727af8d9c4db015e8159373ef00f4b5387e3c110c05f2b8a61cea8b0"
+    },
+    "render": {
+      "path": "Source/build_wordbound_detail.render.py",
+      "sha256": "f2a868cdc76947ccc8b2fe022875e75013f5e0a76a72d9b85b65055e3a4deec3"
+    },
+    "base": {
+      "path": "Source/build_wordbound_pvp.base.py",
+      "sha256": "583d601fd8f072c142b5211c56e469d43e38ce90fb379820318e93d2c892cc7a"
+    }
+  },
+  "render_runs": [
+    {
+      "source_sha256": "fefb1c851d674357aabc3f9e33a0983a6f1813476180b9447877a9b867bf0f25",
+      "render_generator_sha256": "e0ea5155727af8d9c4db015e8159373ef00f4b5387e3c110c05f2b8a61cea8b0",
+      "base_generator_sha256": "583d601fd8f072c142b5211c56e469d43e38ce90fb379820318e93d2c892cc7a",
+      "items": [
+        "FAN"
+      ],
+      "engine": "CYCLES",
+      "device": "CPU",
+      "samples": 24,
+      "threads": 2,
+      "preview_pixels": [
+        640,
+        640
+      ],
+      "icon_pixels": [
+        512,
+        512
+      ],
+      "elapsed_seconds": 155.9699153,
+      "log": "../../../../BuildNotes/recovery-20261023/assets-preview-support.log"
+    },
+    {
+      "source_sha256": "fefb1c851d674357aabc3f9e33a0983a6f1813476180b9447877a9b867bf0f25",
+      "render_generator_sha256": "f2a868cdc76947ccc8b2fe022875e75013f5e0a76a72d9b85b65055e3a4deec3",
+      "base_generator_sha256": "583d601fd8f072c142b5211c56e469d43e38ce90fb379820318e93d2c892cc7a",
+      "items": [
+        "BAT",
+        "BROOM",
+        "HAMMER",
+        "SPEAR",
+        "SHIELD",
+        "PLATE",
+        "TABLE",
+        "SOFA",
+        "BED",
+        "STOOL",
+        "CLOCK"
+      ],
+      "engine": "CYCLES",
+      "device": "CPU",
+      "samples": 24,
+      "threads": 6,
+      "preview_pixels": [
+        640,
+        640
+      ],
+      "icon_pixels": [
+        512,
+        512
+      ],
+      "elapsed_seconds": 647.539422,
+      "log": "../../../../BuildNotes/recovery-20261023/assets-preview-final.log"
+    }
+  ],
+  "rendered_unique_items": 12,
+  "geometry_regenerated_for_thread_change": false,
+  "archive_note": "Exact build-time source bytes are retained separately from the subsequent renderer-only change. Local Git attributes preserve receipt bytes."
+}

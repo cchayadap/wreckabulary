@@ -4,31 +4,31 @@ using UnityEngine.SceneManagement;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Who is playing, carried between scenes: roommates who walked into the house
-    /// come along to whichever mode is picked at the typewriter.
-    /// </summary>
     public static class Session
     {
         public const string HubScene = "Hub";
         public const string DibsScene = "LivingRoom";
         public const string TutorialScene = "Tutorial";
         public const string MovingDayScene = "MovingDay";
+        public const string WordboundScene = "WordboundLobby";
 
         public static readonly List<InputBinding> Bindings = new();
         public static string MapId { get; private set; } = "pinwheel";
-        public static string LobbyQueue, LobbyMode;
+        public static string LobbyQueue, LobbyMode, LobbyHome;
+        public static Rules.HomeLayout Home { get; private set; }
 
-        /// <summary>Best Moving Day stars per level, for this play session.</summary>
         public static readonly Dictionary<int, int> MovingDayStars = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void Clear()
         {
             Bindings.Clear();
+            WordboundSoloEntry.Clear();
+            WordboundWorkshopEntry.Clear();
             MovingDayStars.Clear();
             MapId = "pinwheel";
-            LobbyQueue = LobbyMode = null;
+            LobbyQueue = LobbyMode = LobbyHome = null;
+            Home = null;
             Match.Reset();
         }
 
@@ -48,18 +48,29 @@ namespace Wreckabulary
         public static void Load(string scene)
         {
             Match.ModeOverride = null;
+            Home = null;
             Time.timeScale = 1f;
             SceneManager.LoadScene(scene);
         }
 
         public static string SceneForMode(string mode) => mode switch
         {
-            "Dibs" or "Duos" or "MovingOut" => DibsScene,
+            "Dibs" or "Duos" or "MovingOut" or "Escape" => DibsScene,
             "MovingDay" => MovingDayScene,
             "Tutorial" => TutorialScene,
             "Hub" => HubScene,
             _ => throw new System.ArgumentException($"Unknown mode '{mode}'.", nameof(mode)),
         };
+
+
+        public const string LobbyRandomMap = "random";
+
+        public static string RandomHouseId()
+        {
+            var ids = new System.Collections.Generic.List<string>();
+            foreach (var key in GameConfig.Current.Houses.Keys) ids.Add(key);
+            return ids.Count == 0 ? "pinwheel" : ids[UnityEngine.Random.Range(0, ids.Count)];
+        }
 
         public static void SelectMap(string mapId)
         {
@@ -67,10 +78,12 @@ namespace Wreckabulary
             MapId = string.IsNullOrEmpty(mapId) ? "pinwheel" : mapId;
         }
 
-        public static void LoadMode(string mode, string mapId = null)
+        public static void LoadMode(string mode, string mapId = null, Rules.HomeLayout home = null)
         {
             var scene = SceneForMode(mode);
+            if (mode == "Escape" && (string.IsNullOrEmpty(mapId) || mapId == LobbyRandomMap)) mapId = RandomHouseId();
             if (mapId != null) SelectMap(mapId);
+            Home = home != null && Rules.HomeDesigner.Playable(mode) && home.Map == MapId ? home.Clone() : null;
             Match.ModeOverride = mode;
             Time.timeScale = 1f;
             SceneManager.LoadScene(scene);
@@ -84,7 +97,6 @@ namespace Wreckabulary
             return workshop.Open(Rules.HomeDesigner.Supports(mapId) ? mapId : "pinwheel", out error);
         }
 
-        /// <summary>Back to the house, if the house is in the build.</summary>
         public static bool GoHome()
         {
             if (!CanLoad(HubScene) || SceneManager.GetActiveScene().name == HubScene) return false;

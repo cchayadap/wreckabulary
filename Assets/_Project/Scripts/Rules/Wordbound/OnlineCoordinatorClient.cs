@@ -1,0 +1,250 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Wreckabulary.Rules.Wordbound
+{
+    public sealed class OnlineRequest
+    {
+        public string Method { get; }
+        public string Path { get; }
+        public string JsonBody { get; }
+        public string AccessToken { get; }
+        public string IdempotencyKey { get; }
+        internal OnlineRequest(string method, string path, object body, string accessToken, string key)
+        {
+            Method = method; Path = path; JsonBody = body == null ? null : OnlineJson.Encode(body);
+            AccessToken = accessToken; IdempotencyKey = key;
+            if (JsonBody != null && System.Text.Encoding.UTF8.GetByteCount(JsonBody) > 16384)
+                throw new ArgumentException("Coordinator request exceeds its limit.");
+        }
+    }
+
+    public sealed class OnlineResponse
+    {
+        public int Status { get; }
+        public string Json { get; }
+        public OnlineResponse(int status, string json) { Status = status; Json = json; }
+    }
+
+    public interface IOnlineHttpTransport
+    {
+        Task<OnlineResponse> Send(OnlineRequest request, CancellationToken cancellationToken);
+    }
+
+    public sealed class OnlineServiceException : Exception
+    {
+        public int Status { get; }
+        public string Code { get; }
+        public OnlineServiceException(int status, string code) : base("Coordinator request failed: " + code)
+        { Status = status; Code = code; }
+    }
+
+    public sealed class OnlineCredentials
+    {
+        public string PlayerId { get; }
+        public string AccessToken { get; }
+        public string RefreshToken { get; }
+        public long ExpiresIn { get; }
+        internal OnlineCredentials(JsonNode node)
+        {
+            OnlineJson.Fields(node, "playerId", "accessToken", "refreshToken", "expiresIn");
+            PlayerId = OnlineJson.Text(node, "playerId", OnlineJson.Uuid);
+            AccessToken = OnlineJson.Text(node, "accessToken", "^[A-Za-z0-9_.-]{1,4096}$");
+            RefreshToken = node["refreshToken"].String();
+            if (!RefreshToken.StartsWith(PlayerId + ".", StringComparison.Ordinal) ||
+                OnlineJson.DecodeBase64Url(RefreshToken.Substring(PlayerId.Length + 1), 32).Length != 32)
+                throw new FormatException("Invalid refresh credential.");
+            ExpiresIn = OnlineJson.Integer(node, "expiresIn", 900, 900);
+        }
+    }
+
+    public sealed class OnlinePhotonTicket
+    {
+        public string Ticket { get; }
+        public string AppId { get; }
+        public long ExpiresAtMilliseconds { get; }
+        internal OnlinePhotonTicket(JsonNode node)
+        {
+            OnlineJson.Fields(node, "ticket", "appId", "expiresAt");
+            Ticket = OnlineJson.Text(node, "ticket", "^[A-Za-z0-9_.-]{1,4096}$");
+            AppId = OnlineJson.Text(node, "appId", OnlineJson.Uuid);
+            ExpiresAtMilliseconds = OnlineJson.Integer(node, "expiresAt");
+        }
+        public Dictionary<string, object> PhotonPostData() => new Dictionary<string, object> { ["ticket"] = Ticket };
+    }
+
+    public sealed class OnlineCoordinatorClient
+    {
+        readonly IOnlineHttpTransport transport;
+        readonly object authenticationGate = new object();
+        int authenticationGeneration;
+        Task<OnlineCredentials> refreshTask;
+        string refreshInput;
+        public OnlineCredentials Credentials { get; private set; }
+        public OnlineCoordinatorClient(IOnlineHttpTransport transport) { this.transport = transport ?? throw new ArgumentNullException(nameof(transport)); }
+        static Dictionary<string, object> Data() => new Dictionary<string, object>();
+        static string Valid(string value, string pattern)
+        {
+            var match = Regex.Match(value ?? "", pattern, RegexOptions.CultureInvariant);
+            if (!match.Success || match.Length != value.Length) throw new ArgumentException("Invalid coordinator argument.");
+            return value;
+        }
+        static string PartyPath(string id) => "/v1/parties/" + Valid(id, OnlineJson.Uuid);
+        static string MatchPath(OnlineMatchExpectation match) => "/v1/pools/" + Uri.EscapeDataString(match.Settings.PoolKey) +
+            "/matches/" + match.MatchId;
+        async Task<JsonNode> Send(string method, string path, object body, bool authenticated, string key, CancellationToken ct,
+            bool retryRotated = true)
+        {
+            var credentials = Credentials;
+            if (authenticated && credentials == null) throw new InvalidOperationException("Guest authentication is required.");
+            if (key != null) Valid(key, "^[A-Za-z0-9_-]{8,96}$");
+            string token = authenticated ? credentials.AccessToken : null;
+            var response = await transport.Send(new OnlineRequest(method, path, body, token, key), ct).ConfigureAwait(false);
+            if (response.Status == 401 && authenticated && retryRotated && await Rotated(token).ConfigureAwait(false))
+                return await Send(method, path, body, true, key, ct, false).ConfigureAwait(false);
+            var json = OnlineJson.Parse(response.Json);
+            if (response.Status < 200 || response.Status >= 300)
+            {
+                OnlineJson.Fields(json, "error");
+                OnlineJson.Fields(json["error"], "code");
+                throw new OnlineServiceException(response.Status, OnlineJson.Text(json["error"], "code", "^[A-Z0-9_]{1,64}$"));
+            }
+            return json;
+        }
+        async Task<bool> Rotated(string token)
+        {
+            Task<OnlineCredentials> rotating;
+            lock (authenticationGate) rotating = refreshTask;
+            if (rotating != null)
+            {
+                try { await rotating.ConfigureAwait(false); }
+                catch { return false; }
+            }
+            var current = Credentials;
+            return current != null && current.AccessToken != token;
+        }
+        public async Task<OnlineCredentials> CreateGuest(string displayName, CancellationToken ct = default)
+        {
+            if (displayName == null || displayName.Trim().Length < 1 || displayName.Length > 32) throw new ArgumentException("Invalid display name.");
+            int generation = Interlocked.Increment(ref authenticationGeneration);
+            var result = new OnlineCredentials(await Send("POST", "/v1/guests",
+                new Dictionary<string, object> { ["displayName"] = displayName.Trim() }, false, null, ct).ConfigureAwait(false));
+            SetCredentials(result, generation); return result;
+        }
+        public Task<OnlineCredentials> Refresh(string protectedRefreshToken, CancellationToken ct = default)
+        {
+            Valid(protectedRefreshToken, "^[a-f0-9-]{36}\\.[A-Za-z0-9_-]{43}$");
+            lock (authenticationGate)
+            {
+                if (refreshTask != null && refreshInput == protectedRefreshToken) return refreshTask;
+                if (refreshTask != null) throw new InvalidOperationException("A credential rotation is already in progress.");
+                int generation = Interlocked.Increment(ref authenticationGeneration);
+                var completion = new TaskCompletionSource<OnlineCredentials>(TaskCreationOptions.RunContinuationsAsynchronously);
+                refreshInput = protectedRefreshToken; refreshTask = completion.Task;
+                _ = CompleteRefresh(protectedRefreshToken, generation, completion, ct);
+                return completion.Task;
+            }
+        }
+        async Task CompleteRefresh(string token, int generation, TaskCompletionSource<OnlineCredentials> completion, CancellationToken ct)
+        {
+            try
+            {
+                var result = new OnlineCredentials(await Send("POST", "/v1/auth/refresh",
+                    new Dictionary<string, object> { ["refreshToken"] = token }, false, null, ct).ConfigureAwait(false));
+                SetCredentials(result, generation); completion.TrySetResult(result);
+            }
+            catch (OperationCanceledException) { completion.TrySetCanceled(); }
+            catch (Exception error) { completion.TrySetException(error); }
+            finally
+            {
+                lock (authenticationGate)
+                    if (refreshTask == completion.Task) { refreshTask = null; refreshInput = null; }
+            }
+        }
+        void SetCredentials(OnlineCredentials result, int generation)
+        {
+            lock (authenticationGate)
+            {
+                if (Volatile.Read(ref authenticationGeneration) != generation)
+                    throw new OperationCanceledException("Authentication was superseded.");
+                Credentials = result;
+            }
+        }
+        public void ClearCredentials()
+        {
+            lock (authenticationGate)
+            {
+                Interlocked.Increment(ref authenticationGeneration); Credentials = null;
+                refreshTask = null; refreshInput = null;
+            }
+        }
+        public Task<JsonNode> Keys(CancellationToken ct = default) => Send("GET", "/v1/keys", null, false, null, ct);
+        public Task<JsonNode> Profile(CancellationToken ct = default) => Send("GET", "/v1/me", null, true, null, ct);
+        public async Task<OnlinePhotonTicket> PhotonTicket(CancellationToken ct = default) =>
+            new OnlinePhotonTicket(await Send("POST", "/v1/photon/tickets", Data(), true, null, ct).ConfigureAwait(false));
+        public Task<JsonNode> CreateParty(OnlineSettings settings, string key, CancellationToken ct = default) =>
+            Send("POST", "/v1/parties", new Dictionary<string, object> { ["settings"] = settings.ToValue() }, true, RequiredKey(key), ct);
+        public Task<JsonNode> JoinParty(string partyId, string invite, string key, CancellationToken ct = default) =>
+            Send("POST", "/v1/party-joins", new Dictionary<string, object> {
+                ["partyId"] = Valid(partyId, OnlineJson.Uuid), ["invite"] = Valid(invite, "^[a-f0-9]{16}$") }, true, RequiredKey(key), ct);
+        public Task<JsonNode> Party(string partyId, CancellationToken ct = default) => Send("GET", PartyPath(partyId), null, true, null, ct);
+        internal Task<JsonNode> WorkshopPartyAction(string partyId, string action, object body, CancellationToken ct) =>
+            Send("POST", PartyPath(partyId) + "/" + Valid(action, "^content-(begin|chunk|finalize|info|read)$"), body, true, null, ct);
+        internal Task<JsonNode> WorkshopMatchAction(OnlineSettings settings, string matchId, string action, object body, CancellationToken ct) =>
+            Send("POST", "/v1/pools/" + Uri.EscapeDataString(settings.PoolKey) + "/matches/" + Valid(matchId, OnlineJson.Uuid) +
+                "/" + Valid(action, "^content-(info|read)$"), body, true, null, ct);
+        public Task<JsonNode> SetSettings(string partyId, string revision, OnlineSettings settings, string key, CancellationToken ct = default) =>
+            Send("PATCH", PartyPath(partyId), new Dictionary<string, object> {
+                ["expectedRevision"] = Valid(revision, OnlineJson.Counter), ["settings"] = settings.ToValue() }, true, RequiredKey(key), ct);
+        public Task<JsonNode> Ready(string partyId, string revision, bool ready, string key, CancellationToken ct = default) =>
+            Send("POST", PartyPath(partyId) + "/ready", new Dictionary<string, object> {
+                ["expectedRevision"] = Valid(revision, OnlineJson.Counter), ["ready"] = ready }, true, RequiredKey(key), ct);
+        public Task<JsonNode> Queue(string partyId, string revision, string channel, string key,
+            OnlineContent content = null, string privateCode = null, CancellationToken ct = default)
+        {
+            Valid(channel, "^(QuickPlay|CustomFill|PrivateCreate|PrivateJoin)$");
+            bool wantsContent = channel == "QuickPlay" || channel == "PrivateCreate";
+            if (wantsContent != (content != null) || (channel == "PrivateJoin") != (privateCode != null) ||
+                (channel == "QuickPlay" && content.Kind != "BuiltIn")) throw new ArgumentException("Invalid queue content or private code.");
+            var body = new Dictionary<string, object> { ["expectedRevision"] = Valid(revision, OnlineJson.Counter), ["channel"] = channel };
+            if (content != null) body["content"] = content.ToValue();
+            if (privateCode != null) body["code"] = Valid(privateCode, "^[a-f0-9]{16}$");
+            return Send("POST", PartyPath(partyId) + "/queue", body, true, RequiredKey(key), ct);
+        }
+        public Task<JsonNode> Cancel(string partyId, string revision, string key, CancellationToken ct = default) =>
+            PartyAction(partyId, revision, key, "cancel", ct);
+        public Task<JsonNode> Leave(string partyId, string revision, string key, CancellationToken ct = default) =>
+            PartyAction(partyId, revision, key, "leave", ct);
+        Task<JsonNode> PartyAction(string partyId, string revision, string key, string action, CancellationToken ct) =>
+            Send("POST", PartyPath(partyId) + "/" + action, new Dictionary<string, object> {
+                ["expectedRevision"] = Valid(revision, OnlineJson.Counter) }, true, RequiredKey(key), ct);
+        public Task<JsonNode> MatchAction(OnlineMatchExpectation match, string action, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/" + Valid(action, "^(admission|certificate|reconnect|launch|return)$"), Data(), true, null, ct);
+        public Task<JsonNode> AcceptMatch(OnlineMatchExpectation match, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/ready", new Dictionary<string, object> {
+                ["reservationGeneration"] = match.Generation, ["manifestHash"] = match.Content.ManifestHash,
+                ["rosterHash"] = match.RosterHash }, true, null, ct);
+        public Task<JsonNode> Presence(OnlineMatchExpectation match, bool connected, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/presence", new Dictionary<string, object> { ["connected"] = connected }, true, null, ct);
+        public Task<JsonNode> ConnectionTicket(OnlineMatchExpectation match, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/connection-tickets", Data(), true, null, ct);
+        public Task<JsonNode> AuthorizeConnection(OnlineMatchExpectation match, string authenticatedPlayerId,
+            string ticket, string connectionSecret, string connectionId, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/connections", new Dictionary<string, object> {
+                ["playerId"] = Valid(authenticatedPlayerId, OnlineJson.Uuid), ["ticket"] = Valid(ticket, "^[A-Za-z0-9_-]{43}$"),
+                ["connectionSecret"] = Valid(connectionSecret, "^[A-Za-z0-9_-]{43}$"),
+                ["connectionId"] = Valid(connectionId, OnlineJson.Uuid) }, true, null, ct);
+        public Task<JsonNode> ConnectionState(OnlineMatchExpectation match, IEnumerable<OnlineConnectionLease> leases, CancellationToken ct = default) =>
+            Send("POST", MatchPath(match) + "/connection-state", new Dictionary<string, object> {
+                ["renew"] = leases.Select(lease => new Dictionary<string, object> {
+                    ["playerId"] = lease.PlayerId, ["connectionId"] = lease.ConnectionId, ["connectionEpoch"] = lease.Epoch }).ToArray() }, true, null, ct);
+        internal Task<JsonNode> CheckpointAction(OnlineMatchExpectation match, string action, object body, CancellationToken ct) =>
+            Send("POST", MatchPath(match) + "/" + Valid(action, "^checkpoint-(claim|renew|open|begin|chunk|finalize|head|read)$"),
+                body, true, null, ct);
+        static string RequiredKey(string key) => Valid(key, "^[A-Za-z0-9_-]{8,96}$");
+    }
+}

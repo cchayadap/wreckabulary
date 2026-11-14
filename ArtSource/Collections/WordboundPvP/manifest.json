@@ -1,0 +1,1169 @@
+{
+  "collection": "WordboundPvP",
+  "status": "source-exports-and-previews-produced",
+  "blender": "5.2.2 LTS",
+  "generator": "Tools/AssetPipeline/build_wordbound_pvp.py",
+  "generator_sha256": "ac239fc7fbdca85cdf285d7ecd7fed432f21ec743b2506fe3bd1b7601ea062cf",
+  "provenance": "Original deterministic Blender geometry authored from the separately recorded OpenAI concept sheets. No external paid provider or image-to-3D conversion.",
+  "source": {
+    "path": "Source/WordboundPvP.blend",
+    "sha256": "e99fc364cfc1f1ddad09ba17d4e58f115bc229675a6def224b2236567f9f1f60"
+  },
+  "palette": {
+    "path": "Exports/WordboundPvPPalette.png",
+    "size": [
+      512,
+      64
+    ],
+    "srgb_hex": [
+      "C99250",
+      "8A5E37",
+      "F3E7CE",
+      "839773",
+      "B76B50",
+      "334D42",
+      "DBBE80",
+      "CBB897"
+    ],
+    "sha256": "32e8884e43c007bf38afb770839e7cb9ab857011cda652b2f20a81765e49bd40"
+  },
+  "export": {
+    "metres": true,
+    "axis_forward": "-Z",
+    "axis_up": "Y",
+    "cameras_lights": false,
+    "colliders": false
+  },
+  "material_specs": [
+    {
+      "name": "WordboundPvPPaint",
+      "base_map": "WordboundPvPPalette.png",
+      "roughness": 0.62,
+      "metallic": 0
+    },
+    {
+      "name": "WordboundPvPBrass",
+      "srgb_hex": "D6AE62",
+      "roughness": 0.3,
+      "metallic": 0.72
+    }
+  ],
+  "placement": "FBX roots grounded at origin. Preserve imported axis transforms under placement anchor. Source Blender +Y faces Unity +Z. Export Grip_R is exact catalogue grip; source markers have item prefix.",
+  "native_unity_validation": "NOT RUN; staged outside game Assets",
+  "assets": [
+    {
+      "id": "BAT",
+      "triangles": 2724,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 5,
+      "parts": [
+        "BAT",
+        "BAT_Front",
+        "BAT_Grip_R",
+        "BAT_NormalizedGeometry",
+        "BAT_Brass_collar",
+        "BAT_Cream_grip",
+        "BAT_Grip_binding",
+        "BAT_Oak_barrel",
+        "BAT_Sage_collar"
+      ],
+      "bounds_blender_min": [
+        -0.0860000029206276,
+        -0.0860000029206276,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.0860000029206276,
+        0.0860000029206276,
+        1.0180000066757202
+      ],
+      "size_unity_metres": [
+        0.172,
+        1.018,
+        0.172
+      ],
+      "grip_unity_metres": [
+        0,
+        0.17,
+        0
+      ],
+      "held_scale": 0.5894,
+      "concept": "Concepts/BAT-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "8751bf8f760317649ba932e3378b82b5d0ff473da3f84a2a88ca34c55c5609fc",
+      "exports": {
+        "fbx": {
+          "path": "Exports/BAT.fbx",
+          "sha256": "8d83663684e08f81d37ac4b60404f7cf7ba33d013b89eeac4c3edc8c4f33a6c5",
+          "bytes": 75068
+        },
+        "glb": {
+          "path": "Exports/BAT.glb",
+          "sha256": "7dade0fdbcb879336713750be4742a805b7e19be8bf831486bddc52524d2e2bf",
+          "bytes": 78588
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/BAT-front.png",
+          "sha256": "e3fbed5e78da7ab4acde7852eb7e2017779c1fcf2f16581617e215bd99ef0fb7",
+          "bytes": 175282
+        },
+        {
+          "view": "side",
+          "path": "Previews/BAT-side.png",
+          "sha256": "a6007e548913cf30f436ac2f8aa36c6e5e5856f70fb02e7d245cb7dde925de15",
+          "bytes": 175718
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BAT-three-quarter.png",
+          "sha256": "27a480bbbcb910fb7327789cb0d7079c5eb7ddc4c7be2cea96c4eaa5b3ca40f8",
+          "bytes": 178283
+        },
+        {
+          "view": "icon",
+          "path": "Icons/BAT.png",
+          "sha256": "610e738650f9f0b6ebb72f69df52277bb48ced6cbb1e4123115eed966366b515",
+          "bytes": 117598
+        }
+      ]
+    },
+    {
+      "id": "BROOM",
+      "triangles": 1676,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 15,
+      "parts": [
+        "BROOM",
+        "BROOM_Front",
+        "BROOM_Grip_R",
+        "BROOM_NormalizedGeometry",
+        "BROOM_Bristle_bundle_00",
+        "BROOM_Bristle_bundle_01",
+        "BROOM_Bristle_bundle_02",
+        "BROOM_Bristle_bundle_03",
+        "BROOM_Bristle_bundle_04",
+        "BROOM_Bristle_bundle_05",
+        "BROOM_Bristle_bundle_06",
+        "BROOM_Bristle_bundle_07",
+        "BROOM_Bristle_bundle_08",
+        "BROOM_Bristle_bundle_09",
+        "BROOM_Brush_back",
+        "BROOM_Oak_handle",
+        "BROOM_Sage_socket",
+        "BROOM_Socket_pin",
+        "BROOM_Socket_pin.001"
+      ],
+      "bounds_blender_min": [
+        -0.15000000596046448,
+        -0.04749999940395355,
+        5.2241375669837e-09
+      ],
+      "bounds_blender_max": [
+        0.15000000596046448,
+        0.04749999940395355,
+        1.0211998224258423
+      ],
+      "size_unity_metres": [
+        0.3,
+        1.0212,
+        0.095
+      ],
+      "grip_unity_metres": [
+        0,
+        0.6212,
+        0
+      ],
+      "held_scale": 0.5876,
+      "concept": "Concepts/BROOM-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "c880629309c4a336cee09b8a2932e4a43a8e2f941b66c1310d02a6e5a1fb44a8",
+      "exports": {
+        "fbx": {
+          "path": "Exports/BROOM.fbx",
+          "sha256": "d644439e36132ff3f4c18002cb1d78f9176ec2e3a81d47ae7bb99fe98938dd53",
+          "bytes": 89324
+        },
+        "glb": {
+          "path": "Exports/BROOM.glb",
+          "sha256": "3179b05f045797b4d4092021cd018845be5333e0a0f3b3fc6819277e27d3b02f",
+          "bytes": 115764
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/BROOM-front.png",
+          "sha256": "165e45d94f045fbc30f4a4622e95af3e7177311ea8501438fa7db15c7c65cf20",
+          "bytes": 173498
+        },
+        {
+          "view": "side",
+          "path": "Previews/BROOM-side.png",
+          "sha256": "a1cb733e3015d7adccf5c6a7b0823b3aa1b1d6b3df858f0110dbfaec24f7b8e0",
+          "bytes": 159617
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BROOM-three-quarter.png",
+          "sha256": "4583568ef98f0feb7e8c130b7b850bf812648d5598eb40a414264a3a41a4e115",
+          "bytes": 174105
+        },
+        {
+          "view": "icon",
+          "path": "Icons/BROOM.png",
+          "sha256": "b43b9ebc3568e0e3ba79dce2680f7776b4053011d29c36afb42bc27fab617873",
+          "bytes": 114620
+        }
+      ]
+    },
+    {
+      "id": "HAMMER",
+      "triangles": 2372,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 7,
+      "parts": [
+        "HAMMER",
+        "HAMMER_Front",
+        "HAMMER_Grip_R",
+        "HAMMER_NormalizedGeometry",
+        "HAMMER_Brass_cap",
+        "HAMMER_Brass_cap.001",
+        "HAMMER_Handle_collar",
+        "HAMMER_Oak_handle",
+        "HAMMER_Padded_head",
+        "HAMMER_Sage_grip",
+        "HAMMER_Sage_wrap"
+      ],
+      "bounds_blender_min": [
+        -0.17249999940395355,
+        -0.08749999850988388,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.17249999940395355,
+        0.08749999850988388,
+        0.6349999904632568
+      ],
+      "size_unity_metres": [
+        0.345,
+        0.635,
+        0.175
+      ],
+      "grip_unity_metres": [
+        0,
+        0.13,
+        0
+      ],
+      "held_scale": 0.5669,
+      "concept": "Concepts/HAMMER-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "26f735547df97ecfd141dd08be67ff6b876681afebc1f9df914c0c2782b2748d",
+      "exports": {
+        "fbx": {
+          "path": "Exports/HAMMER.fbx",
+          "sha256": "5bcb17f7b698d153ca42f84f2e4a177ace95dfecda8930ab1df9ae908e9e42d3",
+          "bytes": 75660
+        },
+        "glb": {
+          "path": "Exports/HAMMER.glb",
+          "sha256": "3acb8ff8198453022669c889f1a679029515dec7b1d50e1a58d1d449aff9adc3",
+          "bytes": 70204
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/HAMMER-front.png",
+          "sha256": "ef39980046746333e89486a62c4fb55524360e135d65bd93fd8dc417cd36ebc0",
+          "bytes": 209417
+        },
+        {
+          "view": "side",
+          "path": "Previews/HAMMER-side.png",
+          "sha256": "1a992e01a8d7a47de456cd791e405d9b8cc367010268ed94c0f10e604d5a0dab",
+          "bytes": 185666
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/HAMMER-three-quarter.png",
+          "sha256": "4aa7a975f448b8d8b2446c0b339df07a80bff4cd4f280de5005177549da6d7c4",
+          "bytes": 217391
+        },
+        {
+          "view": "icon",
+          "path": "Icons/HAMMER.png",
+          "sha256": "4e12364699091701511868d78f7b7fef19882412e8f885066551fddf65715b49",
+          "bytes": 145200
+        }
+      ]
+    },
+    {
+      "id": "SPEAR",
+      "triangles": 2512,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 9,
+      "parts": [
+        "SPEAR",
+        "SPEAR_Front",
+        "SPEAR_Grip_R",
+        "SPEAR_NormalizedGeometry",
+        "SPEAR_Brass_foot",
+        "SPEAR_Brass_leaf_socket",
+        "SPEAR_Cream_grip",
+        "SPEAR_Cream_leaf",
+        "SPEAR_Grip_wrap",
+        "SPEAR_Oak_shaft",
+        "SPEAR_Sage_binding",
+        "SPEAR_Sage_binding.001",
+        "SPEAR_Sage_binding.002"
+      ],
+      "bounds_blender_min": [
+        -0.08500000089406967,
+        -0.03400000184774399,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.08500000089406967,
+        0.03400000184774399,
+        1.2350000143051147
+      ],
+      "size_unity_metres": [
+        0.17,
+        1.235,
+        0.068
+      ],
+      "grip_unity_metres": [
+        0,
+        0.465,
+        0
+      ],
+      "held_scale": 0.4858,
+      "concept": "Concepts/SPEAR-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "c5e2ccfc85b8f2e5c174a442c5660fe9cb1edf88e4f877e1fd929e6de37f1087",
+      "exports": {
+        "fbx": {
+          "path": "Exports/SPEAR.fbx",
+          "sha256": "876676b9d7e64f398480f964660e67819b9f593c0b8eb66d0e8fed5ab1baf084",
+          "bytes": 84252
+        },
+        "glb": {
+          "path": "Exports/SPEAR.glb",
+          "sha256": "49bd11b487dcee2a9b2fcb47f46076a15da1f1bf27efab3b84e24849433e1412",
+          "bytes": 89672
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/SPEAR-front.png",
+          "sha256": "1c06222fb2cb6fb4cdbe6c393f1d56f9a4fce8ad481516a238117ac7fa57d3a5",
+          "bytes": 161882
+        },
+        {
+          "view": "side",
+          "path": "Previews/SPEAR-side.png",
+          "sha256": "dcb23814de8e1be0a658882eb545e88ddb1265e525168b3ee5d0967c40aaaad6",
+          "bytes": 157758
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SPEAR-three-quarter.png",
+          "sha256": "c4a8b6b4ebe19877826a4134ec2efb1d23b111a1782f87813cd9bceabdf10b08",
+          "bytes": 163678
+        },
+        {
+          "view": "icon",
+          "path": "Icons/SPEAR.png",
+          "sha256": "7808bbcce2376dc1939d210fceac05a7ddf9993febcd87d917a3d7432ea2bc0b",
+          "bytes": 108119
+        }
+      ]
+    },
+    {
+      "id": "SHIELD",
+      "triangles": 1748,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 15,
+      "parts": [
+        "SHIELD",
+        "SHIELD_Front",
+        "SHIELD_Grip_R",
+        "SHIELD_NormalizedGeometry",
+        "SHIELD_Brass_rivet",
+        "SHIELD_Brass_rivet.001",
+        "SHIELD_Brass_rivet.002",
+        "SHIELD_Brass_rivet.003",
+        "SHIELD_Brass_tab",
+        "SHIELD_Brass_tab.001",
+        "SHIELD_Brass_tab.002",
+        "SHIELD_Brass_tab.003",
+        "SHIELD_Cream_diamond",
+        "SHIELD_Cream_rim",
+        "SHIELD_Handle_bracket",
+        "SHIELD_Handle_bracket.001",
+        "SHIELD_Rear_handle",
+        "SHIELD_Sage_face",
+        "SHIELD_Terracotta_inset"
+      ],
+      "bounds_blender_min": [
+        -0.22999998927116394,
+        -0.12467501312494278,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.22999998927116394,
+        0.06302501261234283,
+        0.5699999928474426
+      ],
+      "size_unity_metres": [
+        0.46,
+        0.57,
+        0.1877
+      ],
+      "grip_unity_metres": [
+        0,
+        0.29,
+        -0.11
+      ],
+      "held_scale": 0.6316,
+      "concept": "Concepts/SHIELD-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "3387d4ab9a111216ebfc0b3560bbcb75ceb3c6013ae361d9145edfa658ba5875",
+      "exports": {
+        "fbx": {
+          "path": "Exports/SHIELD.fbx",
+          "sha256": "622ea706277a6ff5c4a07b524157de99c7f026e92f4797679a5502ed66ef97a0",
+          "bytes": 92428
+        },
+        "glb": {
+          "path": "Exports/SHIELD.glb",
+          "sha256": "b882ad7aac9a9c9477c169e7fdf2f33752a4f271ad5e1a2221ba88a4ecb2a6d1",
+          "bytes": 125036
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/SHIELD-front.png",
+          "sha256": "1d2a8fe45a919b5a9495a96f0978d0a7a67eac24249216f548b127e41113ad26",
+          "bytes": 299798
+        },
+        {
+          "view": "side",
+          "path": "Previews/SHIELD-side.png",
+          "sha256": "dcbc92e1bf29847db0508a1708ad25b1d78ae47ddf975eea8ac475d4a813b1c3",
+          "bytes": 206390
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SHIELD-three-quarter.png",
+          "sha256": "538b2fd30abb15c3cc9aae7a35eab341dfdf850f0e197f97827a2a6d8ccbd5ef",
+          "bytes": 295347
+        },
+        {
+          "view": "icon",
+          "path": "Icons/SHIELD.png",
+          "sha256": "6bab587a2f7e32b74ab1585857833e5b0cf218f5d6603a3998c0bfdd49b0e184",
+          "bytes": 198586
+        }
+      ]
+    },
+    {
+      "id": "PLATE",
+      "triangles": 2108,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 3,
+      "parts": [
+        "PLATE",
+        "PLATE_Front",
+        "PLATE_Grip_R",
+        "PLATE_NormalizedGeometry",
+        "PLATE_Brass_outer_rim",
+        "PLATE_Ceramic_dish",
+        "PLATE_Sage_inner_ring"
+      ],
+      "bounds_blender_min": [
+        -0.27000001072883606,
+        -0.27000001072883606,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.27000001072883606,
+        0.27000001072883606,
+        0.0729999989271164
+      ],
+      "size_unity_metres": [
+        0.54,
+        0.073,
+        0.54
+      ],
+      "grip_unity_metres": [
+        0,
+        0.0365,
+        0
+      ],
+      "held_scale": 0.6667,
+      "concept": "Concepts/PLATE-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "09cfe7b981428ff1384383a0f39103f73719ddaee19e9d9ba4dfd545a6b3121e",
+      "exports": {
+        "fbx": {
+          "path": "Exports/PLATE.fbx",
+          "sha256": "d2c224e5e42d5760b441b88da76edaf3546058dce5c766d8d76ce84e2ec0f94f",
+          "bytes": 61548
+        },
+        "glb": {
+          "path": "Exports/PLATE.glb",
+          "sha256": "e996cb5ca2b5aef3db7fc6c52882446cdc6b03bdcf1fd1f6d52444640504b366",
+          "bytes": 66560
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/PLATE-front.png",
+          "sha256": "05eae1faff5156caab32be5f4277430bb5eb3c0358ee956191916468d99eaa28",
+          "bytes": 138019
+        },
+        {
+          "view": "side",
+          "path": "Previews/PLATE-side.png",
+          "sha256": "d3b22cfe9a34e6109dcd06a86712c6c8aaa9b450a1ff330eb28d5413fffcfc1c",
+          "bytes": 138680
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/PLATE-three-quarter.png",
+          "sha256": "63d133e9f1838b78300fce8253a13c3bc0718c4336bd22fa1c42b951cd18a23e",
+          "bytes": 215655
+        },
+        {
+          "view": "icon",
+          "path": "Icons/PLATE.png",
+          "sha256": "16d1eb5fcf4cd3c0554e38f63fada77e7c0827aa257bd0ee787244af2b3bb83b",
+          "bytes": 145181
+        }
+      ]
+    },
+    {
+      "id": "TABLE",
+      "triangles": 2324,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 19,
+      "parts": [
+        "TABLE",
+        "TABLE_Front",
+        "TABLE_Grip_R",
+        "TABLE_NormalizedGeometry",
+        "TABLE_Brass_pin",
+        "TABLE_Brass_pin.001",
+        "TABLE_Brass_pin.002",
+        "TABLE_Brass_pin.003",
+        "TABLE_Cream_top_edge",
+        "TABLE_Lower_shelf",
+        "TABLE_Oak_leg",
+        "TABLE_Oak_leg.001",
+        "TABLE_Oak_leg.002",
+        "TABLE_Oak_leg.003",
+        "TABLE_Oak_tabletop",
+        "TABLE_Sage_corner_inlay",
+        "TABLE_Sage_corner_inlay.001",
+        "TABLE_Sage_corner_inlay.002",
+        "TABLE_Sage_corner_inlay.003",
+        "TABLE_Sage_leg_collar",
+        "TABLE_Sage_leg_collar.001",
+        "TABLE_Sage_leg_collar.002",
+        "TABLE_Sage_leg_collar.003"
+      ],
+      "bounds_blender_min": [
+        -0.6000000238418579,
+        -0.34549999237060547,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.6000000238418579,
+        0.34549999237060547,
+        0.7200000286102295
+      ],
+      "size_unity_metres": [
+        1.2,
+        0.72,
+        0.691
+      ],
+      "grip_unity_metres": [
+        0,
+        0.36,
+        0
+      ],
+      "held_scale": 0.3,
+      "concept": "Concepts/TABLE-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "75603d51c28367046d53881d5e1ced6a7fb2188b9fece7a0bdda903c61546631",
+      "exports": {
+        "fbx": {
+          "path": "Exports/TABLE.fbx",
+          "sha256": "6992a993b4704718b2615262c8a38397e332ff6543fbcb26c5cc6f8dcaec3d32",
+          "bytes": 108908
+        },
+        "glb": {
+          "path": "Exports/TABLE.glb",
+          "sha256": "75a6ed187758dc08820d4b3f6e610fcfd9829831d106d4fe9757907a1d5bbbc9",
+          "bytes": 109892
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/TABLE-front.png",
+          "sha256": "a0c2a2540e187e09ef0b3225125d824b7180c4823ddda730caac146cfa84fe2e",
+          "bytes": 206148
+        },
+        {
+          "view": "side",
+          "path": "Previews/TABLE-side.png",
+          "sha256": "c4134496227776a407a1a09ac7f041440aaec2177c2f0f60affbc629eeb6eed0",
+          "bytes": 270548
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/TABLE-three-quarter.png",
+          "sha256": "c0953cf2120ca38c28ba0acf9914f13e5d7ac6d16f8fc36c4fb5cfff94b8ef7f",
+          "bytes": 275230
+        },
+        {
+          "view": "icon",
+          "path": "Icons/TABLE.png",
+          "sha256": "cc7a4fccfa3e4b95d489fa43267284caad4938dd185dd7c000563249a49d2a3e",
+          "bytes": 184131
+        }
+      ]
+    },
+    {
+      "id": "SOFA",
+      "triangles": 4296,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 25,
+      "parts": [
+        "SOFA",
+        "SOFA_Front",
+        "SOFA_Grip_R",
+        "SOFA_NormalizedGeometry",
+        "SOFA_Base_brass_mark",
+        "SOFA_Cream_arm_piping",
+        "SOFA_Cream_arm_piping.001",
+        "SOFA_Cream_back_piping_0",
+        "SOFA_Cream_back_piping_1",
+        "SOFA_Cream_back_piping_2",
+        "SOFA_Cream_seat_piping_0",
+        "SOFA_Cream_seat_piping_1",
+        "SOFA_Cream_seat_piping_2",
+        "SOFA_Oak_base",
+        "SOFA_Oak_foot",
+        "SOFA_Oak_foot.001",
+        "SOFA_Oak_foot.002",
+        "SOFA_Oak_foot.003",
+        "SOFA_Sage_arm_panel",
+        "SOFA_Sage_arm_panel.001",
+        "SOFA_Sage_back",
+        "SOFA_Terracotta_arm_pad",
+        "SOFA_Terracotta_arm_pad.001",
+        "SOFA_Terracotta_back_0",
+        "SOFA_Terracotta_back_1",
+        "SOFA_Terracotta_back_2",
+        "SOFA_Terracotta_seat_0",
+        "SOFA_Terracotta_seat_1",
+        "SOFA_Terracotta_seat_2"
+      ],
+      "bounds_blender_min": [
+        -0.7600000500679016,
+        -0.39000001549720764,
+        4.656612873077393e-10
+      ],
+      "bounds_blender_max": [
+        0.7600000500679016,
+        0.4230000078678131,
+        0.9300000667572021
+      ],
+      "size_unity_metres": [
+        1.52,
+        0.93,
+        0.813
+      ],
+      "grip_unity_metres": [
+        0,
+        0.465,
+        0.0165
+      ],
+      "held_scale": 0.2368,
+      "concept": "Concepts/SOFA-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "058625fe482c59fcc1ca093f3a67b8b19703433f8ddae32f3e7d52614bdae087",
+      "exports": {
+        "fbx": {
+          "path": "Exports/SOFA.fbx",
+          "sha256": "e77716753bb939a95b1232166e81c1a8dc0c47272fa3195d168ab1bbafaf30bb",
+          "bytes": 161980
+        },
+        "glb": {
+          "path": "Exports/SOFA.glb",
+          "sha256": "848adaa09544af9ceb815e9a39f17019ff04f6bae818eae3f013012f7be7d260",
+          "bytes": 288644
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/SOFA-front.png",
+          "sha256": "44edd83fb17b3f3675392cea0a5be403780b4888aa290477178f79c2ec882cc1",
+          "bytes": 267967
+        },
+        {
+          "view": "side",
+          "path": "Previews/SOFA-side.png",
+          "sha256": "1f5f78fd92f474b1978db7da6d3b8ae4ea57ace3689c13b533d1a2302b18368b",
+          "bytes": 288882
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/SOFA-three-quarter.png",
+          "sha256": "8a9955aef886e7b5fc025ff1fe45a8b183a8e3c68e1433694073b48083fe8039",
+          "bytes": 315189
+        },
+        {
+          "view": "icon",
+          "path": "Icons/SOFA.png",
+          "sha256": "9791a8a184f301ed2a93fa4e293dc4ca7d4990c801e7fbc1a6d903275b82fdb1",
+          "bytes": 211828
+        }
+      ]
+    },
+    {
+      "id": "BED",
+      "triangles": 3152,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 24,
+      "parts": [
+        "BED",
+        "BED_Front",
+        "BED_Grip_R",
+        "BED_NormalizedGeometry",
+        "BED_Brass_end_pin",
+        "BED_Brass_end_pin.001",
+        "BED_Brass_end_pin.002",
+        "BED_Brass_end_pin.003",
+        "BED_Cream_mattress",
+        "BED_Cream_pillow",
+        "BED_Oak_bedpost",
+        "BED_Oak_bedpost.001",
+        "BED_Oak_bedpost.002",
+        "BED_Oak_bedpost.003",
+        "BED_Oak_end_panel",
+        "BED_Oak_end_panel.001",
+        "BED_Oak_frame",
+        "BED_Quilt_seam",
+        "BED_Quilt_seam.001",
+        "BED_Quilt_seam.002",
+        "BED_Rounded_finial",
+        "BED_Rounded_finial.001",
+        "BED_Rounded_finial.002",
+        "BED_Rounded_finial.003",
+        "BED_Sage_end_inset",
+        "BED_Sage_end_inset.001",
+        "BED_Sage_quilt",
+        "BED_Terracotta_band"
+      ],
+      "bounds_blender_min": [
+        -0.5174999833106995,
+        -0.7899999618530273,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.5174999833106995,
+        0.7900000810623169,
+        0.8179999589920044
+      ],
+      "size_unity_metres": [
+        1.035,
+        0.818,
+        1.58
+      ],
+      "grip_unity_metres": [
+        0,
+        0.409,
+        0
+      ],
+      "held_scale": 0.2278,
+      "concept": "Concepts/BED-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "3d4dffc0b7fa9266777c2897fb8555ba6534a566bc16d4295ff3457cf232a41b",
+      "exports": {
+        "fbx": {
+          "path": "Exports/BED.fbx",
+          "sha256": "e6b4d0bcd5a74869fc00ff2592785e4c47b2c5927df285ec4b795f836f1b5108",
+          "bytes": 140476
+        },
+        "glb": {
+          "path": "Exports/BED.glb",
+          "sha256": "bfd2d9cd16232b90c1021153af3bb0df594201d26693c00db659fd228198428c",
+          "bytes": 188408
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/BED-front.png",
+          "sha256": "7fff5d203b189be7471541c179ea79e12276efb8d0ed7ec275aa73c5c23569b1",
+          "bytes": 304060
+        },
+        {
+          "view": "side",
+          "path": "Previews/BED-side.png",
+          "sha256": "1501e23eb14ae572f73d2eab9037faefb61e8943c20d4ccfebc2b64eec18c54e",
+          "bytes": 204759
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/BED-three-quarter.png",
+          "sha256": "3c7e490d26cae303db362d503d2177f124132a17d552e1c5bb4a872448b3b0de",
+          "bytes": 307386
+        },
+        {
+          "view": "icon",
+          "path": "Icons/BED.png",
+          "sha256": "8e79f66639de5110aa8d2c5f2be4516e9084b241de8634eca19243d290bc10d8",
+          "bytes": 208148
+        }
+      ]
+    },
+    {
+      "id": "STOOL",
+      "triangles": 1752,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 14,
+      "parts": [
+        "STOOL",
+        "STOOL_Front",
+        "STOOL_Grip_R",
+        "STOOL_NormalizedGeometry",
+        "STOOL_Brass_joint",
+        "STOOL_Brass_joint.001",
+        "STOOL_Brass_joint.002",
+        "STOOL_Brass_joint.003",
+        "STOOL_Cream_padded_seat",
+        "STOOL_Oak_brace",
+        "STOOL_Oak_brace.001",
+        "STOOL_Oak_brace.002",
+        "STOOL_Oak_brace.003",
+        "STOOL_Oak_leg",
+        "STOOL_Oak_leg.001",
+        "STOOL_Oak_leg.002",
+        "STOOL_Oak_leg.003",
+        "STOOL_Sage_seat_base"
+      ],
+      "bounds_blender_min": [
+        -0.25999999046325684,
+        -0.25999999046325684,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.25999999046325684,
+        0.25999999046325684,
+        0.4659999907016754
+      ],
+      "size_unity_metres": [
+        0.52,
+        0.466,
+        0.52
+      ],
+      "grip_unity_metres": [
+        0,
+        0.233,
+        0
+      ],
+      "held_scale": 0.6923,
+      "concept": "Concepts/STOOL-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "b9028c09d2cd382a6aa1485251eefa784b9c9892582dba6efdc528d9c953e0ab",
+      "exports": {
+        "fbx": {
+          "path": "Exports/STOOL.fbx",
+          "sha256": "f31227495a7a399babd28e90e44d3c6effc0676f7ae71277e092e9e5d0e244a0",
+          "bytes": 86428
+        },
+        "glb": {
+          "path": "Exports/STOOL.glb",
+          "sha256": "40a167c22d5c2ad46b7e3669dd19735c8421eee2d1718941362dbc9a033b774b",
+          "bytes": 64004
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/STOOL-front.png",
+          "sha256": "77df2d70ff6c4514923b15718e50cf9e9915aac823fc82a4442606be14b1e7b8",
+          "bytes": 264834
+        },
+        {
+          "view": "side",
+          "path": "Previews/STOOL-side.png",
+          "sha256": "682a6dfcfa4aa134bd7cc7afd244a16dc1c67f93523d268421f70bf969aebccc",
+          "bytes": 265824
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/STOOL-three-quarter.png",
+          "sha256": "431b5532a09dca44acf74b13982bb3181527b0ce3a097612e49938c69e59e453",
+          "bytes": 300481
+        },
+        {
+          "view": "icon",
+          "path": "Icons/STOOL.png",
+          "sha256": "c1eb780cb087921a7a9186a447c387e062e1cf085b50e8c2d1d0eb15835e0a28",
+          "bytes": 201590
+        }
+      ]
+    },
+    {
+      "id": "FAN",
+      "triangles": 3060,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 19,
+      "parts": [
+        "FAN",
+        "FAN_Front",
+        "FAN_Grip_R",
+        "FAN_NormalizedGeometry",
+        "FAN_Brass_grille",
+        "FAN_Brass_grille_spoke",
+        "FAN_Brass_grille_spoke.001",
+        "FAN_Brass_grille_spoke.002",
+        "FAN_Brass_grille_spoke.003",
+        "FAN_Brass_grille_spoke.004",
+        "FAN_Brass_grille_spoke.005",
+        "FAN_Brass_grille_spoke.006",
+        "FAN_Brass_grille_spoke.007",
+        "FAN_Cream_base",
+        "FAN_Cream_head_edge",
+        "FAN_Cream_hub",
+        "FAN_Rotor",
+        "FAN_Sage_blade_0",
+        "FAN_Sage_blade_1",
+        "FAN_Sage_blade_2",
+        "FAN_Sage_base_trim",
+        "FAN_Sage_knob",
+        "FAN_Sage_motor",
+        "FAN_Sage_pedestal"
+      ],
+      "bounds_blender_min": [
+        -0.26100000739097595,
+        -0.125,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.26100000739097595,
+        0.125,
+        0.8209999799728394
+      ],
+      "size_unity_metres": [
+        0.522,
+        0.821,
+        0.25
+      ],
+      "grip_unity_metres": [
+        0,
+        0.4105,
+        0
+      ],
+      "held_scale": 0.4385,
+      "concept": "Concepts/FAN-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "9e13f0fb6c96064f1ac907d8f6830a7ae750d9b8fc4b568631551f3cf8b1db47",
+      "exports": {
+        "fbx": {
+          "path": "Exports/FAN.fbx",
+          "sha256": "a5336577ce71ac307cf35c5952a445f176b6bf87d6d2747c9301e2e00ed3a7ea",
+          "bytes": 123868
+        },
+        "glb": {
+          "path": "Exports/FAN.glb",
+          "sha256": "238080e5aca3611a8dc47e49f43b9e4c86ad63a831f0e6f60d62c501d269e922",
+          "bytes": 117564
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/FAN-front.png",
+          "sha256": "6be06a8b68d877f6586dde2283749a5a6e8de4ea27b3beb764fed10ce2aeebd0",
+          "bytes": 273236
+        },
+        {
+          "view": "side",
+          "path": "Previews/FAN-side.png",
+          "sha256": "baa5ba92665721250201cf34821a8235cd951691dbe88d04c9791aeeb49b940e",
+          "bytes": 194077
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/FAN-three-quarter.png",
+          "sha256": "8de087b65252198771e564c10aa94feae38fbc10e5bde67c29fca767cf597996",
+          "bytes": 277569
+        },
+        {
+          "view": "icon",
+          "path": "Icons/FAN.png",
+          "sha256": "f4e224f69456417fd97bd11f9565bb20d9c03a6eafbe52310927c75ea7e2dcab",
+          "bytes": 187816
+        }
+      ]
+    },
+    {
+      "id": "CLOCK",
+      "triangles": 2848,
+      "triangle_budget": 6000,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "mesh_count": 19,
+      "parts": [
+        "CLOCK",
+        "CLOCK_Front",
+        "CLOCK_Grip_R",
+        "CLOCK_NormalizedGeometry",
+        "CLOCK_Brass_center_pin",
+        "CLOCK_Brass_tick_00",
+        "CLOCK_Brass_tick_01",
+        "CLOCK_Brass_tick_02",
+        "CLOCK_Brass_tick_03",
+        "CLOCK_Brass_tick_04",
+        "CLOCK_Brass_tick_05",
+        "CLOCK_Brass_tick_06",
+        "CLOCK_Brass_tick_07",
+        "CLOCK_Brass_tick_08",
+        "CLOCK_Brass_tick_09",
+        "CLOCK_Brass_tick_10",
+        "CLOCK_Brass_tick_11",
+        "CLOCK_Cream_dial",
+        "CLOCK_HourHand",
+        "CLOCK_Hour_sage_hand",
+        "CLOCK_MinuteHand",
+        "CLOCK_Minute_sage_hand",
+        "CLOCK_Oak_case",
+        "CLOCK_Oak_foot",
+        "CLOCK_Oak_foot.001"
+      ],
+      "bounds_blender_min": [
+        -0.23999999463558197,
+        -0.030000001192092896,
+        0.0
+      ],
+      "bounds_blender_max": [
+        0.23999999463558197,
+        0.09200000017881393,
+        0.47999998927116394
+      ],
+      "size_unity_metres": [
+        0.48,
+        0.48,
+        0.122
+      ],
+      "grip_unity_metres": [
+        0,
+        0.24,
+        0.031
+      ],
+      "held_scale": 0.75,
+      "concept": "Concepts/CLOCK-concept-v1.png",
+      "has_uv": true,
+      "concept_sha256": "779908aa87a2152f48636f32919f6d65538eae1172f1faa5dfda4764a8674135",
+      "exports": {
+        "fbx": {
+          "path": "Exports/CLOCK.fbx",
+          "sha256": "04519a3d14ef69d2b40735b6c8828d48c604a1071d656e0eebb547f56c6d5975",
+          "bytes": 124524
+        },
+        "glb": {
+          "path": "Exports/CLOCK.glb",
+          "sha256": "1d55d5236a91eaa82667ff17075431d0cc5d23e0db9006fa4e02afbdbabf4098",
+          "bytes": 159236
+        }
+      },
+      "previews": [
+        {
+          "view": "front",
+          "path": "Previews/CLOCK-front.png",
+          "sha256": "fe0da75f3c70eb4a2c82385f6e52de6d6a5b6be0c9159ca2afcf2a437823fdc7",
+          "bytes": 351428
+        },
+        {
+          "view": "side",
+          "path": "Previews/CLOCK-side.png",
+          "sha256": "3fdd7678e8982f83f79c033110b4748dd77d9b699471dc7268c3f14192c777ef",
+          "bytes": 198907
+        },
+        {
+          "view": "three-quarter",
+          "path": "Previews/CLOCK-three-quarter.png",
+          "sha256": "2e39b1e6e95d9a998d2de7453a2cc3ee17b6f49acb3941875e7f5fcf90191395",
+          "bytes": 320011
+        },
+        {
+          "view": "icon",
+          "path": "Icons/CLOCK.png",
+          "sha256": "3e607893ef83fae6fefec72de906662b70b327445e417ee1210dfb73c3a993da",
+          "bytes": 215160
+        }
+      ]
+    }
+  ],
+  "render_generator_sha256": "ac239fc7fbdca85cdf285d7ecd7fed432f21ec743b2506fe3bd1b7601ea062cf"
+}

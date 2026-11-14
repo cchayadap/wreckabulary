@@ -1,0 +1,10 @@
+{
+  "name": "Wreckabulary.Online.Physics.Tests",
+  "rootNamespace": "Wreckabulary.Tests",
+  "references": ["Wreckabulary.Rules", "Wreckabulary.Online.Physics", "Fusion.Unity", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll", "Fusion.Runtime.dll", "Fusion.Common.dll"],
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "autoReferenced": false
+}

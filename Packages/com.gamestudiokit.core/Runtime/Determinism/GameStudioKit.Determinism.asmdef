@@ -1,0 +1,16 @@
+{
+    "name": "GameStudioKit.Determinism",
+    "rootNamespace": "GameStudioKit.Determinism",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "!GSK_NO_DETERMINISM"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

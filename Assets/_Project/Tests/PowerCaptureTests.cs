@@ -16,7 +16,6 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Opt-in rendered acceptance journey. Requires a graphics-enabled editor and focused Game view.</summary>
     [Explicit, Category("PowerCapture")]
     public sealed class PowerCaptureTests
     {
@@ -336,7 +335,7 @@ namespace Wreckabulary.Tests
             rounds.CountdownTime = .15f;
             rounds.StartMatch();
             yield return WaitForScaled(() => rounds.Phase == Phase.Playing, 3f, "two-local active round");
-            var room = Object.FindAnyObjectByType<RoomBuilder>().Layout.Rooms
+            var room = Object.FindAnyObjectByType<RoomBuilder>().Layout.Rooms.Where(r => !r.Outdoor)
                 .OrderByDescending(r => (r.MaxX - r.MinX) * (r.MaxZ - r.MinZ)).First();
             var center = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .08f, (room.MinZ + room.MaxZ) * .5f);
             bool Inside(Vector3 at) => at.x > room.MinX + .6f && at.x < room.MaxX - .6f &&
@@ -376,7 +375,7 @@ namespace Wreckabulary.Tests
             rounds.CountdownTime = .15f;
             rounds.StartMatch();
             yield return WaitForScaled(() => rounds.Phase == Phase.Playing, 3f, "single-local active round");
-            var room = Object.FindAnyObjectByType<RoomBuilder>().Layout.Rooms
+            var room = Object.FindAnyObjectByType<RoomBuilder>().Layout.Rooms.Where(r => !r.Outdoor)
                 .OrderByDescending(r => (r.MaxX - r.MinX) * (r.MaxZ - r.MinZ)).First();
             var center = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .08f, (room.MinZ + room.MaxZ) * .5f);
             bool Inside(Vector3 at) => at.x > room.MinX + .6f && at.x < room.MaxX - .6f &&
@@ -509,7 +508,6 @@ namespace Wreckabulary.Tests
             Debug.Log("[PowerCapture] " + file);
         }
 
-        /// <summary>Leaves the user's resolution list and selection exactly as they were.</summary>
         sealed class GameViewScope : IDisposable
         {
             const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -523,7 +521,7 @@ namespace Wreckabulary.Tests
             public GameViewScope()
             {
                 previousFocus = EditorWindow.focusedWindow;
-                var assembly = typeof(Editor).Assembly;
+                var assembly = typeof(UnityEditor.Editor).Assembly;
                 var sizesType = assembly.GetType("UnityEditor.GameViewSizes");
                 var singleton = typeof(ScriptableSingleton<>).MakeGenericType(sizesType);
                 var sizes = singleton.GetProperty("instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);

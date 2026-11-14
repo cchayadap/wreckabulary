@@ -1,0 +1,43 @@
+{
+  "sha256": "3a69270c67382a1f0dd9739b6e859a7ee6a8a2c90d8e6e51af2a7cae9ce39378",
+  "blend_sha256": "ffce241d62ac56d8f28003cc0bb8f7b17ff80c306f70d05eb9dca8ccbd6d8e22",
+  "render_script_sha256": "087bbf6718ed53c89acc4ea963b0bc511ed0c3c7ab9f00f1e7a19c7d6ba59e34",
+  "variant": "candidate",
+  "view": "three-quarter",
+  "camera_matrix": [
+    [
+      0.8426962494850159,
+      -0.25522366166114807,
+      0.4740505814552307,
+      2.299999952316284
+    ],
+    [
+      0.5383893251419067,
+      0.3994804918766022,
+      -0.7419921159744263,
+      -3.5999999046325684
+    ],
+    [
+      -2.597511539192965e-08,
+      0.8804976940155029,
+      0.4740504026412964,
+      2.7649998664855957
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "ortho_scale": 1.9500000476837158,
+  "resolution": [
+    960,
+    960
+  ],
+  "samples": 64,
+  "threads": 6,
+  "denoising": true,
+  "elapsed_seconds": 103.13,
+  "label": "Matched neutral studio preview"
+}

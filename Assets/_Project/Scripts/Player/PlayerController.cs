@@ -5,12 +5,8 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Physics-driven movement for a blobby roommate. The body stays upright; a separate visual
-    /// leans, squashes and bobs so it feels floppy (the roadmap's fallback for full active ragdoll).
-    /// </summary>
     [RequireComponent(typeof(Rigidbody))]
-    [DefaultExecutionOrder(-50)] // read input before combat and spelling run
+    [DefaultExecutionOrder(-50)]
     public class PlayerController : MonoBehaviour
     {
         [Header("Movement")]
@@ -88,7 +84,6 @@ namespace Wreckabulary
         Transform homeParent;
         Camera aimCamera;
 
-        // Visual wobble state
         Vector3 lean, leanVel;
         float squash, squashVel, walkCycle, punchT;
         bool punchRight;
@@ -133,9 +128,9 @@ namespace Wreckabulary
                 initialLabel.color = new Color(0.97f, 0.92f, 0.82f);
             }
             if (Health) Health.Init();
-            var appearance = GetComponent<PlayerAppearance>() ?? gameObject.AddComponent<PlayerAppearance>();
+            if (!TryGetComponent(out PlayerAppearance appearance)) appearance = gameObject.AddComponent<PlayerAppearance>();
             appearance.Initialize(this);
-            var feedback = GetComponent<PlayerFeedback>() ?? gameObject.AddComponent<PlayerFeedback>();
+            if (!TryGetComponent(out PlayerFeedback feedback)) feedback = gameObject.AddComponent<PlayerFeedback>();
             feedback.Initialize(this);
         }
 
@@ -188,7 +183,6 @@ namespace Wreckabulary
 
             if (!Grounded)
             {
-                // Wings give a floaty glide, otherwise fall a bit faster than default gravity for snappy hops.
                 float g = Time.time < floatyUntil ? -6f : extraGravity;
                 Body.AddForce(Vector3.down * g, ForceMode.Acceleration);
             }
@@ -212,7 +206,7 @@ namespace Wreckabulary
                       : rooted ? Vector3.zero
                       : new Vector3(Commands.move.x, 0f, Commands.move.y);
             var shield = Health ? Health.RaisedShield : null;
-            float speed = moveSpeed * MoveScale * CurrentBoost() * (Time.time < slowUntil ? slow : 1f) * (IsDowned ? crawlSpeed : 1f)
+            float speed = moveSpeed * MoveScale * CurrentBoost() * HeldSwift * (Time.time < slowUntil ? slow : 1f) * (IsDowned ? crawlSpeed : 1f)
                         * (shield != null ? shield.MoveSpeedMultiplier : 1f);
             var rules = Health ? Health.Rules : null;
             float rate = rules == null ? acceleration : input.sqrMagnitude > 0.0001f ? rules.GroundAccel : rules.GroundFriction;
@@ -291,8 +285,6 @@ namespace Wreckabulary
             Dodged?.Invoke(this);
         }
 
-        // ---- Things other systems do to the player ----
-
         public void Knock(Vector3 velocityChange, float stagger)
         {
             dodgeUntil = 0f;
@@ -339,6 +331,7 @@ namespace Wreckabulary
             return strongest;
         }
         public float SlowLeft => Mathf.Max(0f, slowUntil - Time.time);
+        public float HeldSwift => Combat && Combat.Weapon ? GameConfig.Current.Tuning?.Trait(Combat.Weapon.word, TraitKind.Swift)?.Amount ?? 1f : 1f;
         public void Slow(float multiplier, float seconds)
         {
             if (multiplier <= 0f || multiplier >= 1f || seconds <= 0f) return;
@@ -348,7 +341,6 @@ namespace Wreckabulary
         public void MakeSlippery(float seconds) => slipperyUntil = Time.time + seconds;
         public void MakeFloaty(float seconds) => floatyUntil = Time.time + seconds;
 
-        /// <summary>Walks on its own for a moment, e.g. through the front door on arrival.</summary>
         public void AutoWalk(Vector3 direction, float seconds)
         {
             autoWalk = World.Flat(direction).normalized;
@@ -381,7 +373,6 @@ namespace Wreckabulary
             Body.rotation = Quaternion.identity;
         }
 
-        /// <summary>Picked up (or put down) by another player.</summary>
         public void SetHeld(bool held, Transform at = null)
         {
             if (held == IsHeld) return;
@@ -406,7 +397,6 @@ namespace Wreckabulary
             }
         }
 
-        /// <summary>Puts the player back on their feet for a new round or after a lobby knockout.</summary>
         public void Respawn(Vector3 position)
         {
             SetHeld(false);
@@ -426,14 +416,12 @@ namespace Wreckabulary
             ResetLook();
         }
 
-        public void PlayPunch()
+        public void PlayPunch(bool cue = true)
         {
-            GameFeedback.Play(GameCue.Swing);
+            if (cue) GameFeedback.Play(GameCue.Swing);
             punchT = 1f;
             punchRight = !punchRight;
         }
-
-        // ---- Visual wobble ----
 
         void AnimateRig()
         {

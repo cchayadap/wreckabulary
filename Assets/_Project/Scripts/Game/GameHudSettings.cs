@@ -41,7 +41,7 @@ namespace Wreckabulary
             ((RectTransform)back.transform).Place(Vector2.one, Vector2.one, new Vector2(-164, -60), new Vector2(-28, -16));
             var tabs = LobbyKit.Row(pauseSettingsContent, "Tabs", 12);
             tabs.Place(new Vector2(0, 1), Vector2.one, new Vector2(28, -124), new Vector2(-28, -72));
-            foreach (var id in new[] { "controls", "audio", "graphics" })
+            foreach (var id in new[] { "gameplay", "controls", "audio", "graphics" })
             {
                 string selected = id;
                 var button = LobbyKit.Chip(tabs, id.ToUpperInvariant(), tab == id, () => ShowPauseSettings(selected));
@@ -58,7 +58,8 @@ namespace Wreckabulary
             else
             {
                 var list = LobbyKit.Scroll(body, "Settings scroll", 14);
-                if (tab == "audio") BuildPauseAudio(list);
+                if (tab == "gameplay") BuildPauseGameplay(list);
+                else if (tab == "audio") BuildPauseAudio(list);
                 else BuildPauseGraphics(list);
                 var choices = list.GetComponentsInChildren<Selectable>();
                 if (choices.Length > 0) first = choices[0];
@@ -86,11 +87,22 @@ namespace Wreckabulary
 
         void ClosePauseSettings()
         {
-            // A CanvasGroup hide does not disable children or release their gameplay-input lease.
             if (pauseControls) pauseControls.Close();
             if (!pauseSettingsGroup) return;
             pauseSettingsGroup.alpha = 0f;
             pauseSettingsGroup.interactable = pauseSettingsGroup.blocksRaycasts = false;
+        }
+
+        void BuildPauseGameplay(Transform list)
+        {
+            PauseToggle(list, "Control tips", () => ControlTips.Enabled, value => ControlTips.Enabled = value);
+            PauseToggle(list, "Damage numbers", () => CombatFeedbackOptions.ShowDamage, value => CombatFeedbackOptions.ShowDamage = value);
+            PauseToggle(list, "Points per hit", () => CombatFeedbackOptions.ShowPoints, value => CombatFeedbackOptions.ShowPoints = value);
+            PauseAction(list, "Reset feedback", "RESET FEEDBACK", () =>
+            {
+                CombatFeedbackOptions.ResetToDefaults();
+                ShowPauseSettings("gameplay");
+            });
         }
 
         void BuildPauseAudio(Transform list)
@@ -164,7 +176,6 @@ namespace Wreckabulary
             {
                 change(amount);
                 number.text = value();
-                // Presets also change the scale, edge smoothing and shadow values shown in other rows.
                 if (list.parent) RefreshPauseGraphicsLabels(list);
             }
             PauseAction(row, name + " less", "−", () => Step(-1), 52);

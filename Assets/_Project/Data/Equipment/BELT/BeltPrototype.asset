@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4904632fa341ce346b1b159aead6d9cb, type: 3}
+  m_Name: BeltPrototype
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.FlexibleWeaponProfile
+  visual: {fileID: 3225063658942210673, guid: cb283b0ccb2d239439640bf8786addd4, type: 3}
+  leather:
+  - {fileID: 2100000, guid: 2cb82f455b1a9e84c84e86cd08789349, type: 2}
+  - {fileID: 2100000, guid: dbb93c3a86bb1834abaadd43932415f6, type: 2}
+  - {fileID: 2100000, guid: 7f19a0e92b43b134c8cb748e79b08251, type: 2}
+  strapDamage: 10
+  strapKnockback: 4
+  strapBreakPower: 0.6
+  strapHitStun: 0.22
+  buckleDamage: 14
+  buckleKnockback: 5.5
+  buckleBreakPower: 1.5
+  buckleHitStun: 0.3
+  buckleFrom: 0.75
+  reach: 1.85
+  arc: 120
+  windup: 0.22
+  active: 0.1
+  recovery: 0.34
+  durability: 22
+  maxLag: 48
+  lead: 8
+  recoveryDamping: 7
+  recoveryHertz: 2.4
+  idleSway: 3
+  heldDroop: 8
+  jointLimit: 35
+  invertBend: 0

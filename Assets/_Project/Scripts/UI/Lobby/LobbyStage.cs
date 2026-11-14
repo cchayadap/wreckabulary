@@ -15,7 +15,11 @@ namespace Wreckabulary
     {
         public static readonly Vector3 Origin = new Vector3(0f, 0f, -400f);
         const string AvatarKey = "Avatar/Avatar";
-        const float Distance = 4.2f, EyeHeight = .95f, LookHeight = .5f, FieldOfView = 30f;
+        [Tooltip("Optional saved framing override. Otherwise UI/LobbyCamera is loaded. Read once per stage; restart Play after editing.")]
+        public LobbyCameraProfile CameraProfile;
+        bool cameraProfileLoaded;
+        float cameraDistance = LobbyCameraProfile.DefaultDistance, cameraEyeHeight = LobbyCameraProfile.DefaultEyeHeight;
+        float cameraLookHeight = LobbyCameraProfile.DefaultLookHeight, cameraFieldOfView = LobbyCameraProfile.DefaultFieldOfView;
 
         public enum Focus { Centre, Left }
 
@@ -73,7 +77,7 @@ namespace Wreckabulary
         Vector3 spot, toCamera;
         float yaw, targetYaw, side, targetSide, panel;
         float imageAspect = -1f;
-        bool artwork = true, themeEffects = true;
+        bool artwork = true, themeEffects = true, charactersVisible = true;
 
         public string Map { get; private set; }
         public Transform Avatar => avatarRoot;
@@ -81,6 +85,7 @@ namespace Wreckabulary
         public Vector3 Spot => spot;
         public Camera Camera => cam;
         public bool ArtworkShown => artwork;
+        public bool CharactersVisible => charactersVisible;
         public bool ThemeEffectsEnabled => themeEffects;
         public Transform ItemPreview => itemPreview;
         public bool IsPresenting => cameraTaken && isActiveAndEnabled;
@@ -89,14 +94,13 @@ namespace Wreckabulary
         void OnEnable() => LobbyThemes.Changed += ApplyTheme;
         void OnDisable() { LobbyThemes.Changed -= ApplyTheme; Release(); }
 
-        /// <summary>The map remains built for selection and inspection; artwork hides only its rendered content.</summary>
         public void ShowArtwork(bool show)
         {
             artwork = show;
             foreach (var entry in mapRenderers)
                 if (entry.renderer) entry.renderer.forceRenderingOff = show || entry.hidden;
             if (backdrop) { backdrop.texture = show && LobbyThemes.Current.Background ? LobbyThemes.Current.Background : skyTexture; imageAspect = -1f; }
-            if (contactShadow) contactShadow.enabled = show;
+            if (contactShadow) contactShadow.enabled = show && charactersVisible;
             if (effectLayer) effectLayer.gameObject.SetActive(show && themeEffects);
             if (lookProfile && lookProfile.TryGet<DepthOfField>(out var depth))
                 depth.mode.Override(show ? DepthOfFieldMode.Off : DepthOfFieldMode.Gaussian);
@@ -163,7 +167,10 @@ namespace Wreckabulary
 
         public void SetMap(string mapId)
         {
+            LoadCameraProfile();
             if (Map == mapId && set) return;
+            if (string.IsNullOrEmpty(mapId) || !GameConfig.Current.Houses.ContainsKey(mapId))
+                foreach (var key in GameConfig.Current.Houses.Keys) { mapId = key; break; }
             var layout = GameConfig.Current.HouseFor(mapId);
             if (set) { set.gameObject.SetActive(false); TactileMaterials.Release(set.gameObject); Destroy(set.gameObject); }
             set = new GameObject("Lobby backdrop · " + layout.Name).transform;
@@ -181,7 +188,7 @@ namespace Wreckabulary
                 { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             }
             float depth = room.MaxZ - room.MinZ;
-            float distance = Mathf.Min(Distance, depth * .62f);
+            float distance = Mathf.Min(cameraDistance, depth * .62f);
             var local = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY, Mathf.Min(room.MaxZ - 1.6f, room.MinZ + .45f + distance + depth * .12f));
             toCamera = new Vector3(0f, 0f, -distance);
             Furnish(layout, storey, local, local + toCamera);
@@ -241,6 +248,19 @@ namespace Wreckabulary
             PlaceParty();
         }
 
+        public void SetCharactersVisible(bool visible)
+        {
+            charactersVisible = visible;
+            if (!visible) StopEmote();
+            if (avatarRoot) avatarRoot.gameObject.SetActive(visible);
+            if (graph.IsValid())
+            {
+                if (visible) graph.Play(); else graph.Stop();
+            }
+            if (contactShadow) contactShadow.enabled = visible && artwork;
+            PlaceParty();
+        }
+
         public void SetPartySize(int count)
         {
             partySize = Mathf.Clamp(count, 1, LobbyMenu.PartyMax);
@@ -288,7 +308,7 @@ namespace Wreckabulary
             for (int i = 0; i < guests.Count; i++)
             {
                 var guest = guests[i];
-                bool show = IsPresenting && partyVisible && i < partySize - 1;
+                bool show = IsPresenting && charactersVisible && partyVisible && i < partySize - 1;
                 if (guest.root.gameObject.activeSelf != show) guest.root.gameObject.SetActive(show);
                 if (guest.graph.IsValid() && guest.graph.IsPlaying() != show)
                 {
@@ -332,16 +352,16 @@ namespace Wreckabulary
                 animationMixer.SetInputWeight(0, 1f);
                 var output = AnimationPlayableOutput.Create(graph, "Lobby avatar", animator);
                 output.SetSourcePlayable(animationMixer);
-                graph.Play();
+                if (charactersVisible) graph.Play();
             }
+            avatarRoot.gameObject.SetActive(charactersVisible);
             Place(true);
             return true;
         }
 
-        /// <summary>Plays a cosmetic Generic clip once, using unscaled lobby time and no root motion.</summary>
         public bool PlayEmote(AnimationClip clip)
         {
-            if (!IsPresenting || !graph.IsValid() || !clip || clip.legacy || clip.isHumanMotion ||
+            if (!IsPresenting || !charactersVisible || !graph.IsValid() || !clip || clip.legacy || clip.isHumanMotion ||
                 clip.length <= 0f || float.IsNaN(clip.length) || float.IsInfinity(clip.length)) return false;
             StopEmote();
             emotePlayable = AnimationClipPlayable.Create(graph, clip);
@@ -379,6 +399,23 @@ namespace Wreckabulary
 
         public void Turn(float degrees) => targetYaw += degrees;
 
+        void LoadCameraProfile()
+        {
+            if (cameraProfileLoaded) return;
+            cameraProfileLoaded = true;
+            var profile = CameraProfile ? CameraProfile : Resources.Load<LobbyCameraProfile>(LobbyCameraProfile.ResourcePath);
+            if (!profile) return;
+            if (!profile.TryValidate(out string reason))
+            {
+                Debug.LogWarning("Lobby camera profile is invalid; using the existing default framing. " + reason, this);
+                return;
+            }
+            cameraDistance = profile.Distance;
+            cameraEyeHeight = profile.EyeHeight;
+            cameraLookHeight = profile.LookHeight;
+            cameraFieldOfView = profile.FieldOfView;
+        }
+
         public void Frame(Focus focus, float panel = 0f)
         {
             targetSide = focus == Focus.Left ? 1f : 0f;
@@ -390,6 +427,7 @@ namespace Wreckabulary
 
         public void TakeCamera()
         {
+            LoadCameraProfile();
             if (cameraTaken) return;
             cam = Camera.main;
             if (!cam) return;
@@ -400,7 +438,7 @@ namespace Wreckabulary
             savedPosition = t.position; savedRotation = t.rotation; savedOrtho = cam.orthographic;
             savedFov = cam.fieldOfView; savedNear = cam.nearClipPlane; savedClear = cam.clearFlags; savedBackground = cam.backgroundColor;
             cam.orthographic = false;
-            cam.fieldOfView = FieldOfView;
+            cam.fieldOfView = cameraFieldOfView;
             cam.nearClipPlane = .1f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = LobbyThemes.Current.Surface;
@@ -635,8 +673,8 @@ namespace Wreckabulary
             var right = Vector3.Cross(Vector3.up, -toCamera.normalized);
             float halfWidth = Mathf.Tan(cam.fieldOfView * .5f * Mathf.Deg2Rad) * cam.aspect;
             var shift = right * side * ((1f - 2f * StandAt(panel, cam.aspect)) * toCamera.magnitude * halfWidth);
-            var eye = spot + toCamera + Vector3.up * EyeHeight + shift;
-            cam.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(spot + Vector3.up * LookHeight + shift - eye));
+            var eye = spot + toCamera + Vector3.up * cameraEyeHeight + shift;
+            cam.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(spot + Vector3.up * cameraLookHeight + shift - eye));
             FitItemPreview();
             PlaceArtwork();
         }

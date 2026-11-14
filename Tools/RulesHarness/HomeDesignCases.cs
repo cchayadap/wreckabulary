@@ -208,13 +208,14 @@ namespace Wreckabulary.RulesHarness
         }
 
         [Test]
-        public void HomeDesignFullLayoutCanBeEditedButCannotAcceptA65thObject()
+        public void HomeDesignFullLayoutCanBeEditedButCannotAcceptA129thObject()
         {
-            var filled = designer.AddWords(Empty("courtyard"), string.Join(" ", Enumerable.Repeat("APPLE", 64)), "Garden");
-            Assert.IsTrue(filled.Ok); Assert.AreEqual(64, filled.Added.Count);
+            var half = designer.AddWords(Empty("courtyard"), string.Join(" ", Enumerable.Repeat("APPLE", 64)), "FountainSquare");
+            var filled = designer.AddWords(half.Layout, string.Join(" ", Enumerable.Repeat("APPLE", 64)), "Orchard");
+            Assert.IsTrue(filled.Ok); Assert.AreEqual(HomeDesigner.MaxProps, half.Added.Count + filled.Added.Count);
             Assert.IsTrue(designer.PlacementCheck(filled.Layout, filled.Layout.Props[0].Clone(), "p1").Ok);
             Refused(designer.PlacementCheck(filled.Layout, Prop(x: 3, z: 3, id: "new")), "props:");
-            var result = designer.AddWords(filled.Layout, "APPLE", "Garden");
+            var result = designer.AddWords(filled.Layout, "APPLE", "Bedroom");
             Assert.IsTrue(result.Ok); Assert.AreEqual(0, result.Added.Count); Assert.AreEqual(1, result.Rejected.Count);
             var oversized = filled.Layout.Clone(); oversized.Props.Add(Prop(id: "overflow"));
             Refused(designer.Validate(oversized), "props:");

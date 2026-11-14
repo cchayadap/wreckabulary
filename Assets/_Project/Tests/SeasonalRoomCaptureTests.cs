@@ -86,18 +86,18 @@ namespace Wreckabulary.Tests
             foreach (var other in World.Players.Where(p => p != player))
             { other.Frozen = true; if (other.TryGetComponent<BotController>(out var bot)) bot.enabled = false; }
             player.Inventory.Collects = false;
-            Place(player, new Vector3(-6.8f, .08f, .4f), new Vector3(-5.6f, 1f, 3f));
+            Place(player, new Vector3(-8.8f, .08f, 2.4f), new Vector3(-7.6f, 1f, 5f));
             yield return Capture("corner-third-person", corner);
             width = 2100; view.Select(width, 900);
             yield return Capture("corner-third-person-ultrawide", corner);
             width = 1600; view.Select(width, 900);
-            Place(player, new Vector3(-6.15f, .08f, 1.45f), new Vector3(-4.95f, 2.3f, 3.78f));
+            Place(player, new Vector3(-8.15f, .08f, 3.45f), new Vector3(-6.95f, 2.3f, 5.78f));
             yield return Capture("wreath-garland-upward", corner);
 
             foreach (var route in new[]
             {
-                (new Vector3(-7f, .08f, 2.3f), new Vector3(-7f, .08f, 5.1f)),
-                (new Vector3(-5.8f, .08f, 0f), new Vector3(-2.7f, .08f, 0f))
+                (new Vector3(-10f, .08f, 4.3f), new Vector3(-10f, .08f, 7.1f)),
+                (new Vector3(-7.8f, .08f, 0f), new Vector3(-4.7f, .08f, 0f))
             })
             {
                 player.Respawn(route.Item1); player.Frozen = false; Physics.SyncTransforms();
@@ -128,29 +128,28 @@ namespace Wreckabulary.Tests
                 Assert.AreSame(corner, builder.AuthoredWorld.GetComponentsInChildren<SeasonalRoomDressing>().Single());
                 foreach (var pair in matrices) Assert.AreEqual(pair.Value, pair.Key.localToWorldMatrix, pair.Key.name);
             }
-            Place(player, new Vector3(-6.8f, .08f, .4f), new Vector3(-5.6f, 1f, 3f));
+            Place(player, new Vector3(-8.8f, .08f, 2.4f), new Vector3(-7.6f, 1f, 5f));
             yield return Capture("corner-after-furniture-reset", corner);
 
-            // Couch seats join before a match, while the available seats have not been filled by bots.
             yield return TestScenes.Reset(); Session.SelectMap("pinwheel"); Match.ModeOverride = "Duos";
             yield return TestScenes.Load(Session.DibsScene);
             builder = Object.FindAnyObjectByType<RoomBuilder>();
             corner = builder.AuthoredWorld.GetComponentsInChildren<SeasonalRoomDressing>().Single();
             joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             player = joins.Join(new LocalInput());
-            Place(player, new Vector3(-6.8f, .08f, .4f), new Vector3(-5.6f, 1f, 3f));
+            Place(player, new Vector3(-8.8f, .08f, 2.4f), new Vector3(-7.6f, 1f, 5f));
             for (int seat = 1; seat < 4; seat++)
             {
                 var buddy = joins.Join(new LocalInput());
                 Assert.NotNull(buddy);
-                Place(buddy, new Vector3(-7.5f - .3f * seat, .08f, .4f - .5f * seat), Vector3.forward);
+                Place(buddy, new Vector3(-9.5f - .3f * seat, .08f, 2.4f - .5f * seat), Vector3.forward);
                 if (seat == 1) yield return Capture("two-local-seats-overview", corner);
             }
             rounds = RoundManager.Instance; rounds.CountdownTime = .1f; rounds.StartMatch();
             yield return TestScenes.WaitUntil(() => rounds.Phase == Phase.Playing, 3f, "four-seat Duos match");
             for (int seat = 0; seat < 4; seat++)
             {
-                Place(joins.Players[seat], new Vector3(-7.5f - .3f * seat, .08f, .4f - .5f * seat), Vector3.forward);
+                Place(joins.Players[seat], new Vector3(-9.5f - .3f * seat, .08f, 2.4f - .5f * seat), Vector3.forward);
                 CatalogGear.ApplyUse(joins.Players[seat], GameConfig.Current.Items.Get("FOAM"));
             }
             width = 2100; view.Select(width, 900);
@@ -167,7 +166,7 @@ namespace Wreckabulary.Tests
             var movingDay = Object.FindAnyObjectByType<MovingDayDirector>();
             yield return TestScenes.WaitUntil(() => movingDay.Current == MovingDayDirector.State.Playing, 6f, "active Moving Day level");
             yield return new WaitForSeconds(1.2f);
-            Place(player, new Vector3(-6.8f, .08f, .4f), new Vector3(-5.6f, 1f, 3f));
+            Place(player, new Vector3(-8.8f, .08f, 2.4f), new Vector3(-7.6f, 1f, 5f));
             yield return Capture("moving-day-corner", corner);
             movingDay.Retry(); yield return null;
             Assert.AreSame(corner, builder.AuthoredWorld.GetComponentsInChildren<SeasonalRoomDressing>().Single());

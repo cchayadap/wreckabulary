@@ -60,7 +60,6 @@ namespace Wreckabulary.EditorTools
             return profile;
         }
 
-        /// <summary>Add missing settings once; existing profile choices, transforms and artist light edits stay intact.</summary>
         public static bool AddMissing(Scene scene, EnvironmentLightingProfile profile)
         {
             var roots = scene.GetRootGameObjects();

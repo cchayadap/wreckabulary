@@ -5,7 +5,6 @@ using Wreckabulary.Art;
 
 namespace Wreckabulary
 {
-    /// <summary>Bounded, reusable imported mesh cues. Round cleanup owns the pooled scene objects.</summary>
     public sealed class FeedbackBurst : MonoBehaviour
     {
         const int PerModelBudget = 6;

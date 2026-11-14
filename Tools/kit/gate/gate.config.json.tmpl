@@ -1,0 +1,28 @@
+{
+  "unityProject": "{{UNITY_PROJECT_REL}}",
+  "workspace": "{{WORKSPACE_REL}}",
+  "prefix": "{{GATE_PREFIX}}",
+  "editorEnv": ["GSK_UNITY"],
+  "timeoutMs": 1800000,
+  "lockWaitMs": 3600000,
+  "checkSlots": 4,
+  "coreSlots": 2,
+  "testAssemblies": [],
+  "buildProfile": "Assets/Settings/Build Profiles/Win.asset",
+  "buildProfiles": {
+    "release": "Assets/Settings/Build Profiles/Win.asset",
+    "release-qa": "Assets/Settings/Build Profiles/Win-QA.asset",
+    "dev": "Assets/Settings/Build Profiles/Win-Dev.asset"
+  },
+  "exeName": "{{EXE_NAME}}",
+  "smokeSeconds": 90,
+  "qaDefine": "GSK_QA",
+  "codeRoots": ["Assets"],
+  "checkExcludes": ["Assets/Plugins/**", "Assets/TextMesh Pro/**", "Assets/Samples/**", "Assets/_AgentCaptures/**"],
+  "layers": [],
+  "core": { "asmdefs": [], "testDirs": [], "tfm": "net9.0" },
+  "recompileTimeoutS": 900,
+  "readyTimeoutMs": 180000,
+  "unserveGraceMs": 30000,
+  "playerArgs": ["-screen-fullscreen", "0", "-screen-width", "1280", "-screen-height", "720"]
+}

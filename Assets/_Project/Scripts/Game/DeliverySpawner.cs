@@ -5,10 +5,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Moving day: when the room runs low on letters, labelled boxes drop in. Smash one and it
-    /// bursts into the letters on its label. During the collapse, boxes rain down and hurt.
-    /// </summary>
     public class DeliverySpawner : MonoBehaviour
     {
         [SerializeField] string[] words =
@@ -20,7 +16,7 @@ namespace Wreckabulary
         [SerializeField] Vector2 areaZ = new(-4.2f, 3.2f);
         [SerializeField] float dropHeight = 6f;
         const float StairClearance = .85f;
-        [Tooltip("Boxes only arrive while fewer letters than this are in play.")]
+        [Tooltip("Boxes only arrive while fewer letters than this are in play. The House tuning scales it with the house's floor area.")]
         [SerializeField] int minLettersInPlay = 26;
         [SerializeField] float interval = 4f;
         [SerializeField] float collapseInterval = 1.1f;
@@ -42,9 +38,11 @@ namespace Wreckabulary
         {
             if (!Running || Time.time < next) return;
             next = Time.time + (Collapsing ? collapseInterval : interval);
-            if (!Collapsing && LettersInPlay() >= minLettersInPlay) return;
+            if (!Collapsing && LettersInPlay() >= LettersWanted) return;
             Drop(Collapsing);
         }
+
+        public int LettersWanted => GameConfig.Current.Tuning?.LettersInPlay(Layout, minLettersInPlay) ?? minLettersInPlay;
 
         public HouseLayout Layout { get; set; }
         public System.Func<string, bool> RoomOpen { get; set; }
@@ -57,14 +55,22 @@ namespace Wreckabulary
             return box;
         }
 
-        Vector3 DropPoint()
+        public static List<RoomBox> DropRooms(HouseLayout layout, System.Func<string, bool> open)
         {
-            var floors = Layout?.StoreyFloors();
-            if (floors == null || floors.Count < 2)
+            if (layout == null) return new List<RoomBox>();
+            bool Roomy(RoomBox r) => r.MaxX - r.MinX > 2.5f && r.MaxZ - r.MinZ > 2.5f;
+            var rooms = layout.Rooms.Where(r => Roomy(r) && (open == null || open(r.Name))).ToList();
+            if (rooms.Count == 0) rooms = layout.Rooms.Where(Roomy).ToList();
+            if (rooms.Count == 0) rooms = layout.Rooms.ToList();
+            return rooms;
+        }
+
+        public Vector3 DropPoint()
+        {
+            var rooms = DropRooms(Layout, RoomOpen);
+            if (rooms.Count == 0)
                 return new Vector3(Random.Range(areaX.x, areaX.y), dropHeight, Random.Range(areaZ.x, areaZ.y));
-            var rooms = Layout.Rooms.Where(r => r.MaxX - r.MinX > 2.5f && r.MaxZ - r.MinZ > 2.5f && (RoomOpen == null || RoomOpen(r.Name))).ToList();
-            if (rooms.Count == 0) rooms = Layout.Rooms.Where(r => r.MaxX - r.MinX > 2.5f && r.MaxZ - r.MinZ > 2.5f).ToList();
-            if (rooms.Count == 0) rooms = Layout.Rooms.ToList();
+            var floors = Layout.StoreyFloors();
             float total = rooms.Sum(r => (r.MaxX - r.MinX) * (r.MaxZ - r.MinZ));
             bool NearStairs(float px, float pz) => Layout.Stairs.Any(s =>
                 px > s.MinX - StairClearance && px < s.MaxX + StairClearance && pz > s.MinZ - StairClearance && pz < s.MaxZ + StairClearance);

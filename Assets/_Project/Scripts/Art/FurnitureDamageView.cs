@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Wreckabulary.Art
 {
-    /// <summary>Two persistent wear stages without changing furniture collision or its letter payout.</summary>
     public sealed class FurnitureDamageView : MonoBehaviour
     {
         int stage;

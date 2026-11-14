@@ -416,23 +416,28 @@ export class WorldView {
       mat.position.set(door.at[0], 0.014, door.at[1]);
       this.world.add(mat);
     }
-    if (game.map.id === "pinwheel" && game.mode !== "Tour") {
+    const playroom =
+      game.map.id === "pinwheel" && game.mode !== "Tour"
+        ? game.house.rooms.find((r) => r.name === "Playroom")
+        : null;
+    if (playroom) {
+      const [, , maxX, maxZ] = playroom.bounds;
       const balcony = this.box(1.5, 0.15, 3, 0xb18b60);
-      balcony.position.set(3.25, 1.625, 2.5);
+      balcony.position.set(maxX - 0.75, 1.625, maxZ - 1.5);
       this.world.add(balcony);
       for (let n = 0; n < 7; n++) {
         const h = ((n + 1) / 7) * 1.7,
           step = this.box(1.5, h, 2 / 7, 0xc09b70);
-        step.position.set(3.25, h / 2, -1 + ((n + 0.5) * 2) / 7);
+        step.position.set(maxX - 0.75, h / 2, maxZ - 5 + ((n + 0.5) * 2) / 7);
         this.world.add(step);
       }
-      for (const z of [1.3, 2, 2.7, 3.4, 4]) {
+      for (const back of [2.7, 2, 1.3, 0.6, 0]) {
         const rail = this.box(0.06, 0.55, 0.06, 0x7a644c);
-        rail.position.set(2.5, 1.97, z);
+        rail.position.set(maxX - 1.5, 1.97, maxZ - back);
         this.world.add(rail);
       }
       const top = this.box(0.1, 0.08, 3, 0x8b7054);
-      top.position.set(2.5, 2.27, 2.5);
+      top.position.set(maxX - 1.5, 2.27, maxZ - 1.5);
       this.world.add(top);
     }
     const kitchen = game.house.rooms.find((r) => r.name === "Kitchen");
@@ -631,13 +636,15 @@ export class WorldView {
       );
       const visible = !piece || wardrobe.pieces?.[piece.slot] === piece.id;
       if (piece) o.visible = visible;
-      const colour = piece?.tint && visible ? colourFor(piece) : null;
-      const tint = piece?.tint?.toLowerCase();
+      const wants = piece?.tint
+        ? (Array.isArray(piece.tint) ? piece.tint : [piece.tint]).map((t) => t.toLowerCase())
+        : [];
+      const colour = wants.length > 0 && visible ? colourFor(piece) : null;
       const originals = Array.isArray(o.material) ? o.material : [o.material];
       const values = originals.map((source) => {
         const name = source.name.toLowerCase();
-        const rib = tint === "fabric_main" && name.includes("fabric_rib");
-        const tinted = colour && (name.includes(tint) || rib);
+        const rib = wants.includes("fabric_main") && name.includes("fabric_rib");
+        const tinted = colour && (wants.some((t) => name.includes(t)) || rib);
         const key = `${source.uuid}:${tinted ? `${colour.id}${rib ? ":rib" : ""}` : "-"}`;
         if (this.wardrobeMaterials.has(key))
           return this.wardrobeMaterials.get(key);

@@ -1,0 +1,22 @@
+{
+  "collection": "WordboundPvP FutureConcepts",
+  "date": "2026-10-20",
+  "entries": [
+    {
+      "id": "ROPE",
+      "prompt": "Use case: stylized-concept. Asset type: individual future game-equipment design study for Wreckabulary Wordbound. Subject: One coiled length of thick warm-cream braided household rope with two small sage-wrapped ends and simple muted-terracotta bands holding a loose compact coil. No hooks, carabiners, machinery or other equipment. Keep the two rope ends visible and physically continuous with the coil. Show a believable large simple rope coil that an artist could later model. This is the future ROPE concept only, not a screenshot or claim of a working game mechanic. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, magnetic field lines, mechanics diagrams or unrelated props.",
+      "tool": "built-in image_gen",
+      "transparentBackground": false,
+      "destination": "ROPE-concept-v1.png",
+      "status": "future-concept-only"
+    },
+    {
+      "id": "MAGNET",
+      "prompt": "Use case: stylized-concept. Asset type: individual future game-equipment design study for Wreckabulary Wordbound. Subject: One chunky rounded horseshoe magnet, painted muted terracotta with warm-cream blunt pole caps and a small sage grip inset on the curved bridge. Restrained brass-colored seam at the pole caps. No separate metal pieces or attached props. The classic open U-shaped magnet silhouette must read immediately. This is the future MAGNET concept only, not a screenshot or claim of a working game mechanic. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, magnetic field lines, mechanics diagrams or unrelated props.",
+      "tool": "built-in image_gen",
+      "transparentBackground": false,
+      "destination": "MAGNET-concept-v1.png",
+      "status": "future-concept-only"
+    }
+  ]
+}

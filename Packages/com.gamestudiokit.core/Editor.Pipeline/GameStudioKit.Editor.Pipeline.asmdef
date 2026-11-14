@@ -1,0 +1,29 @@
+{
+    "name": "GameStudioKit.Editor.Pipeline",
+    "rootNamespace": "GameStudioKit.Editor",
+    "references": [
+        "GameStudioKit.Runtime",
+        "GameStudioKit.Editor",
+        "Unity.Pipeline.Attributes",
+        "Unity.Pipeline"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "GSK_PIPELINE"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.pipeline",
+            "expression": "0.8.0-exp.1",
+            "define": "GSK_PIPELINE"
+        }
+    ],
+    "noEngineReferences": false
+}

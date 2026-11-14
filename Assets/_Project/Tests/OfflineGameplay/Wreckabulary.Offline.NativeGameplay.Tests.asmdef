@@ -1,0 +1,28 @@
+{
+  "name": "Wreckabulary.Offline.NativeGameplay.Tests",
+  "rootNamespace": "Wreckabulary.OfflineGameplayTests",
+  "references": [
+    "Wreckabulary",
+    "Wreckabulary.Rules",
+    "Wreckabulary.Online.Fusion",
+    "Wreckabulary.Online.Physics",
+    "Wreckabulary.Online.Gameplay",
+    "Wreckabulary.Online.Client",
+    "Wreckabulary.Online.Puzzles",
+    "Wreckabulary.Online.Presentation",
+    "Fusion.Unity",
+    "Fusion.Addons.Physics",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll", "Fusion.Runtime.dll", "Fusion.Common.dll",
+    "Fusion.Sockets.dll", "Fusion.Realtime.dll", "Fusion.Log.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}

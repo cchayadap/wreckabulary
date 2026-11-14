@@ -5,7 +5,6 @@ using UnityEngine.Rendering;
 
 namespace Wreckabulary
 {
-    /// <summary>Visibility is temporary to one render, including nested secondary camera requests.</summary>
     [DisallowMultipleComponent, RequireComponent(typeof(Camera))]
     public sealed class CameraCutaway : MonoBehaviour
     {
@@ -150,7 +149,6 @@ namespace Wreckabulary
             return available;
         }
 
-        /// <summary>Used by pipeline callbacks and deterministic render-scope regression tests.</summary>
         public static VisibilityScope BeginCameraVisibility(Camera camera)
         {
             if (scopes.Count > 0) scopes[^1].Restore();

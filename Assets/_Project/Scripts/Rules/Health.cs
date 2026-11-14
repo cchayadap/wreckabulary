@@ -4,7 +4,7 @@ namespace Wreckabulary.Rules
 {
     public enum LifeState { Alive, Downed, Eliminated }
 
-    public enum HitSource { Unarmed, Melee, Thrown, Explosion, Hazard }
+    public enum HitSource { Unarmed, Melee, Thrown, Explosion, Hazard, Bleed }
 
     public struct HitInfo
     {
@@ -77,6 +77,9 @@ namespace Wreckabulary.Rules
         public int Team { get; }
         public float Current { get; private set; }
         public float Max => rules.MaxHealth;
+        public float Stamina { get; private set; }
+        public float MaxStamina => rules.MaxStamina;
+        double staminaUpdatedAt = double.NaN;
         public LifeState State { get; private set; } = LifeState.Alive;
         public int TimesDowned { get; private set; }
         public double BleedOutAt { get; private set; }
@@ -98,6 +101,7 @@ namespace Wreckabulary.Rules
             PlayerId = playerId;
             Team = team;
             Current = rules.MaxHealth;
+            Stamina = rules.MaxStamina;
         }
 
         public bool IsAlive => State == LifeState.Alive;
@@ -178,6 +182,7 @@ namespace Wreckabulary.Rules
 
         public bool Tick(double now)
         {
+            RecoverStamina(now);
             if (now >= BubbleUntil) ClearBubble();
             if (State == LifeState.Downed && now >= BleedOutAt)
             {
@@ -216,6 +221,7 @@ namespace Wreckabulary.Rules
             if (State != LifeState.Downed || ReviverId != reviverId) return false;
             if (now - ReviveStartedAt < rules.ReviveSeconds) return false;
             State = LifeState.Alive;
+            staminaUpdatedAt = now;
             Current = rules.ReviveHealth;
             ReviverId = -1;
             InvulnerableUntil = now + 1.0;
@@ -242,20 +248,38 @@ namespace Wreckabulary.Rules
             BubbleUntil = 0;
         }
 
-        public bool CanDodge(double now) => IsAlive && now - LastDodgeAt >= rules.DodgeCooldown;
+        void RecoverStamina(double now)
+        {
+            if (double.IsNaN(staminaUpdatedAt)) staminaUpdatedAt = now;
+            if (now <= staminaUpdatedAt) return;
+            double from = Math.Max(staminaUpdatedAt, LastDodgeAt + rules.StaminaRegenDelay);
+            if (IsAlive && now > from)
+                Stamina = Math.Min(MaxStamina, Stamina + (float)(now - from) * rules.StaminaRegen);
+            staminaUpdatedAt = now;
+        }
+
+        public bool CanDodge(double now)
+        {
+            RecoverStamina(now);
+            return IsAlive && Stamina >= rules.DodgeStamina && now - LastDodgeAt >= rules.DodgeCooldown;
+        }
 
         public bool Dodge(double now)
         {
             if (!CanDodge(now)) return false;
             LastDodgeAt = now;
+            Stamina = Math.Max(0f, Stamina - rules.DodgeStamina);
+            staminaUpdatedAt = now;
             InvulnerableUntil = Math.Max(InvulnerableUntil, now + rules.DodgeInvulnerableSeconds);
             return true;
         }
 
         public void Respawn(double now)
         {
+            staminaUpdatedAt = now;
             State = LifeState.Alive;
             Current = rules.MaxHealth;
+            Stamina = rules.MaxStamina;
             ClearBubble();
             blocking = false;
             shield = null;

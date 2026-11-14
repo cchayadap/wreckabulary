@@ -140,10 +140,11 @@ namespace Wreckabulary.Tests
             yield return LoadBattle(map: "courtyard");
             var room = Object.FindAnyObjectByType<RoomBuilder>();
             Assert.AreEqual("Garden Courtyard", room.Layout.Name);
-            Assert.AreEqual(32f, room.Layout.Rooms.Max(r => r.MaxX) - room.Layout.Rooms.Min(r => r.MinX));
+            Assert.AreEqual(48f, room.Layout.Rooms.Max(r => r.MaxX) - room.Layout.Rooms.Min(r => r.MinX));
+            var door = room.Layout.Doors.Single(d => d.A == "FountainSquare" && d.B == "Dining");
             Physics.SyncTransforms();
-            Assert.IsFalse(Physics.Raycast(new Vector3(5.2f, .5f, -2f), Vector3.right, 1.6f, World.GroundMask), "Garden–Kitchen doorway");
-            Assert.IsTrue(Physics.Raycast(new Vector3(5.2f, .5f, 0f), Vector3.right, 1.6f, World.GroundMask), "adjacent wall segment");
+            Assert.IsFalse(Physics.Raycast(new Vector3(door.X - .8f, .5f, door.Z), Vector3.right, 1.6f, World.GroundMask), "FountainSquare–Dining doorway");
+            Assert.IsTrue(Physics.Raycast(new Vector3(door.X - .8f, .5f, door.Z - door.Width * .5f - .8f), Vector3.right, 1.6f, World.GroundMask), "adjacent wall segment");
             Assert.IsTrue(room.Originals.Count > 0);
         }
 
@@ -153,15 +154,16 @@ namespace Wreckabulary.Tests
             yield return LoadBattle(map: "flat");
             var room = Object.FindAnyObjectByType<RoomBuilder>();
             Assert.AreEqual("City Flat", room.Layout.Name);
-            Assert.AreEqual(24f, room.Layout.Rooms.Max(r => r.MaxX) - room.Layout.Rooms.Min(r => r.MinX));
+            Assert.AreEqual(48f, room.Layout.Rooms.Max(r => r.MaxX) - room.Layout.Rooms.Min(r => r.MinX));
             Assert.IsNull(GameObject.Find("Courtyard path east-west"), "the courtyard's paths stay in the courtyard");
             Assert.IsNull(GameObject.Find("Sign"), "no wall sign cut short by the flat's walls");
             Assert.AreEqual(room.Layout.Furniture.Count, room.Originals.Count);
-            Assert.AreEqual(new[] { "H", "Ba", "Be", "S", "K", "L" }, room.Layout.Rooms.Select(r => GameHud.Initial(room.Layout, r.Name)).ToArray(),
+            Assert.AreEqual(new[] { "H", "Li", "Ki", "Ba", "Be", "Lo", "D", "Ba", "Ki", "R" }, room.Layout.Rooms.Select(r => GameHud.Initial(room.Layout, r.Name)).ToArray(),
                 "the small map tells the bedroom from the bathroom");
+            var door = room.Layout.Doors.Single(d => d.A == "Hall" && d.B == "KidsRoom");
             Physics.SyncTransforms();
-            Assert.IsFalse(Physics.Raycast(new Vector3(2.2f, .5f, 2.5f), Vector3.right, 1.6f, World.GroundMask), "Hall–Kitchen doorway");
-            Assert.IsTrue(Physics.Raycast(new Vector3(2.2f, .5f, 0f), Vector3.right, 1.6f, World.GroundMask), "the wall beside it");
+            Assert.IsFalse(Physics.Raycast(new Vector3(door.X - .8f, .5f, door.Z), Vector3.right, 1.6f, World.GroundMask), "Hall–KidsRoom doorway");
+            Assert.IsTrue(Physics.Raycast(new Vector3(door.X - .8f, .5f, door.Z - door.Width * .5f - 1.5f), Vector3.right, 1.6f, World.GroundMask), "the wall beside it");
             yield return new WaitForSeconds(.5f);
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
             Assert.AreEqual(4, joins.Players.Count);
@@ -194,7 +196,7 @@ namespace Wreckabulary.Tests
             var director = Object.FindAnyObjectByType<MovingDayDirector>();
             yield return TestScenes.WaitUntil(() => director.Current == MovingDayDirector.State.Playing, 5f, "level start");
             Assert.AreEqual("City Flat", director.CurrentLevel.name);
-            Assert.AreEqual(6, director.Rooms.Count);
+            Assert.AreEqual(10, director.Rooms.Count);
             CollectionAssert.AreEquivalent(new[] { "BED", "SOFA", "TABLE", "LAMP" }, director.CurrentLevel.items.Select(i => i.word).ToArray());
             Assert.AreEqual("Bedroom", director.CurrentLevel.items.First(i => i.word == "BED").room);
         }
@@ -206,11 +208,13 @@ namespace Wreckabulary.Tests
             yield return BeginBattle();
             var clear = Object.FindAnyObjectByType<ClearOutController>();
             var p = Object.FindAnyObjectByType<PlayerJoinManager>().Players[0];
-            p.Respawn(new Vector3(7f, 0f, 3f));
+            var layout = Object.FindAnyObjectByType<RoomBuilder>().Layout;
+            var first = layout.Room(layout.ClearOutOrders["Dibs"][0]);
+            p.Respawn(new Vector3((first.MinX + first.MaxX) * .5f, first.FloorY, (first.MinZ + first.MaxZ) * .5f));
             var began = typeof(ClearOutController).GetField("began", BindingFlags.Instance | BindingFlags.NonPublic);
             began.SetValue(clear, Time.time - (Match.Rules.ClearOutFirstAt - Match.Rules.ClearOutWarnSeconds + 1f));
             yield return null;
-            StringAssert.Contains("Kitchen", clear.Message);
+            StringAssert.Contains(first.Name, clear.Message);
             Assert.AreEqual(p.Health.Max, p.Health.Current, "warnings cause no damage");
             began.SetValue(clear, Time.time - (Match.Rules.ClearOutFirstAt + 1f));
             yield return new WaitForSeconds(.6f);
@@ -251,6 +255,47 @@ namespace Wreckabulary.Tests
             director.Restart();
             Assert.IsTrue(p.Health.IsAlive);
             Assert.AreEqual(MovingOutDirector.State.Countdown, director.Current);
+        }
+
+        [UnityTest]
+        public IEnumerator EscapeStartsOnFlatAndLayeredHousesAndKeepsTheExitKeyGatedAfterRetry()
+        {
+            var randomState = Random.state;
+            try
+            {
+                Random.InitState(1040);
+                foreach (string map in new[] { "flat", "walkup" })
+                {
+                    yield return TestScenes.Reset();
+                    yield return LoadBattle("Escape", map);
+                    var director = Object.FindAnyObjectByType<EscapeDirector>();
+                    var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
+                    var room = Object.FindAnyObjectByType<RoomBuilder>();
+                    Assert.IsNotNull(director, map);
+                    yield return TestScenes.WaitUntil(() => director.Current == EscapeDirector.State.Playing, 5f, "Escape starts in " + map);
+                    Assert.AreEqual(1, joins.Players.Count, "Escape keeps the solo party without adding opponents.");
+                    Assert.Greater(director.DoorCount, 0, map);
+                    Assert.Greater(director.KeysNeeded, 0, map);
+                    Assert.AreEqual(0, director.KeysFound);
+                    Assert.IsNotNull(room.Layout.Room(director.GuideRoom), "The guide points to an actual room.");
+                    Assert.IsFalse(director.ExitOpen);
+                    Assert.IsFalse(director.ExitRevealed);
+
+                    var player = joins.Players.Single();
+                    player.Respawn(director.ExtractionPoint);
+                    yield return new WaitForSeconds(.25f);
+                    Assert.AreEqual(EscapeDirector.State.Playing, director.Current, "Reaching the exit without its keys cannot win.");
+
+                    director.Restart();
+                    yield return null;
+                    Assert.AreEqual(EscapeDirector.State.Countdown, director.Current);
+                    Assert.AreEqual(0, director.KeysFound);
+                    Assert.AreEqual(0, director.DoorsOpen);
+                    Assert.IsFalse(director.ExitOpen);
+                    Assert.IsNotNull(room.Layout.Room(director.GuideRoom), "Retry rebuilds a valid guide.");
+                }
+            }
+            finally { Random.state = randomState; }
         }
     }
 }

@@ -38,7 +38,6 @@ namespace Wreckabulary
             return true;
         }
 
-        /// <summary>Lightweight, collider-free line art that shares the authoritative effect's lifetime.</summary>
         public static LineRenderer Ring(Transform parent, string name, Color color, float radius, Quaternion rotation)
         {
             var root = new GameObject(name);

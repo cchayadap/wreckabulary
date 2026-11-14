@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>One cached native display follows the showroom without changing authored maps.</summary>
     [DisallowMultipleComponent, DefaultExecutionOrder(100)]
     public sealed class LobbyCollectionDecor : MonoBehaviour
     {
@@ -51,7 +50,6 @@ namespace Wreckabulary
             away.y = 0f;
             instance.transform.SetPositionAndRotation(stage.Spot,
                 away.sqrMagnitude > .0001f ? Quaternion.LookRotation(away, Vector3.up) : Quaternion.identity);
-            // The side-page viewport reserves the right side for cards and the native item preview.
             bool centered = stage.Camera.WorldToViewportPoint(stage.Spot).x > .4f;
             if (wreathDisplay && wreathDisplay.gameObject.activeSelf != centered) wreathDisplay.gameObject.SetActive(centered);
             bool group = stage.PresentedPartySize > 1;

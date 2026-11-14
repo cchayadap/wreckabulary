@@ -49,6 +49,16 @@ namespace Wreckabulary.Rules
             .Select(bundle => new ShopOffer("look", bundle.Id, bundle.Name, bundle.Price))).ToArray();
 
         public string Name = "Housemate";
+
+        public static string CleanName(string name)
+        {
+            if (name == null) return null;
+            var text = new StringBuilder();
+            foreach (char c in name.Trim())
+                if (c >= ' ' && c <= '~') text.Append(c);
+            return text.ToString().Trim();
+        }
+
         public int Coins, Xp, Matches, Wins;
         public readonly List<string> Owned = new List<string>();
         public readonly Dictionary<string, int> Bests = new Dictionary<string, int>();
@@ -148,14 +158,26 @@ namespace Wreckabulary.Rules
 
         public static Career Deserialize(string text)
         {
-            var career = new Career();
-            if (string.IsNullOrWhiteSpace(text)) return career;
+            TryDeserialize(text, out var career);
+            return career;
+        }
+
+        public static bool TryDeserialize(string text, out Career career)
+        {
+            career = new Career();
+            if (string.IsNullOrWhiteSpace(text)) return true;
             JsonNode root;
             try { root = Json.Parse(text, "career"); }
-            catch (FormatException) { return career; }
-            if (!root.IsObject) return career;
-            string name = Read(() => root["name"].String(null));
-            if (name != null && name.Trim().Length >= 2) career.Name = name.Trim().Length > NameLength ? name.Trim().Substring(0, NameLength) : name.Trim();
+            catch (FormatException) { return false; }
+            if (!root.IsObject) return false;
+            Fill(career, root);
+            return true;
+        }
+
+        static void Fill(Career career, JsonNode root)
+        {
+            string name = CleanName(Read(() => root["name"].String(null)));
+            if (name != null && name.Length >= 2) career.Name = name.Length > NameLength ? name.Substring(0, NameLength) : name;
             career.Coins = Math.Max(0, Read(() => root["coins"].Int(0)));
             career.Xp = Math.Max(0, Read(() => root["xp"].Int(0)));
             career.Matches = Math.Max(0, Read(() => root["matches"].Int(0)));
@@ -181,7 +203,6 @@ namespace Wreckabulary.Rules
                 });
                 if (match != null && career.History.Count < HistoryLength) career.History.Add(match);
             }
-            return career;
         }
 
         static T Read<T>(Func<T> read)

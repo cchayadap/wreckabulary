@@ -42,6 +42,12 @@ namespace Wreckabulary
             if (!room) room = GetComponent<RoomBuilder>();
             if (!deliveries) deliveries = GetComponent<DeliverySpawner>();
             if (!hud) hud = FindAnyObjectByType<GameHud>();
+            if (Match.Mode == "Escape")
+            {
+                gameObject.AddComponent<EscapeDirector>().Configure(joins, room, deliveries, hud);
+                enabled = false;
+                return;
+            }
             if (Match.Mode == "MovingOut")
             {
                 gameObject.AddComponent<MovingOutDirector>().Configure(joins, room, deliveries, hud);
@@ -73,7 +79,7 @@ namespace Wreckabulary
         void Update()
         {
             if (Time.timeScale <= 0f) return;
-            phaseElapsed += Time.unscaledDeltaTime;
+            phaseElapsed += Mathf.Min(Time.unscaledDeltaTime, Time.maximumDeltaTime);
             switch (Phase)
             {
                 case Phase.Lobby:
@@ -177,6 +183,9 @@ namespace Wreckabulary
             string heading = won ? "You called dibs!" : timeUp ? "Time’s up. A perfectly messy draw." : "One more word. One more chance.";
             if (lastWinner)
             {
+                foreach (var player in Players)
+                    if (player && player.Health && player.Health.IsAlive && player.Team == outcome.WinningTeam)
+                        player.GetComponent<PlayerAppearance>()?.Play("Celebrate", 1.5f);
                 StartCoroutine(SlowMo());
                 RoundWon?.Invoke(lastWinner);
             }

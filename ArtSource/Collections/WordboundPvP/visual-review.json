@@ -1,0 +1,127 @@
+{
+  "status": "producer-agent-reviewed",
+  "humanOwnerAcceptance": "NOT RUN",
+  "nativeUnityValidation": "NOT RUN",
+  "assets": [
+    {
+      "id": "BAT",
+      "status": "inspected",
+      "notes": "Rounded barrel and cream grip read clearly.",
+      "views": [
+        "Previews/BAT-front.png",
+        "Previews/BAT-side.png",
+        "Previews/BAT-three-quarter.png"
+      ]
+    },
+    {
+      "id": "BROOM",
+      "status": "inspected",
+      "notes": "Broad head and grouped bristles retain clear household silhouette.",
+      "views": [
+        "Previews/BROOM-front.png",
+        "Previews/BROOM-side.png",
+        "Previews/BROOM-three-quarter.png"
+      ]
+    },
+    {
+      "id": "HAMMER",
+      "status": "inspected",
+      "notes": "Padded head, brass caps and wrapped grip remain distinct.",
+      "views": [
+        "Previews/HAMMER-front.png",
+        "Previews/HAMMER-side.png",
+        "Previews/HAMMER-three-quarter.png"
+      ]
+    },
+    {
+      "id": "SPEAR",
+      "status": "inspected",
+      "notes": "Blunt leaf tip and narrow shaft remain legible.",
+      "views": [
+        "Previews/SPEAR-front.png",
+        "Previews/SPEAR-side.png",
+        "Previews/SPEAR-three-quarter.png"
+      ]
+    },
+    {
+      "id": "SHIELD",
+      "status": "inspected",
+      "notes": "Rounded diamond silhouette and raised center read clearly.",
+      "views": [
+        "Previews/SHIELD-front.png",
+        "Previews/SHIELD-side.png",
+        "Previews/SHIELD-three-quarter.png"
+      ]
+    },
+    {
+      "id": "PLATE",
+      "status": "inspected",
+      "notes": "Raised brass rim now visible around shallow dish; re-render inspected.",
+      "views": [
+        "Previews/PLATE-front.png",
+        "Previews/PLATE-side.png",
+        "Previews/PLATE-three-quarter.png"
+      ]
+    },
+    {
+      "id": "TABLE",
+      "status": "inspected",
+      "notes": "Oak top now visible above cream edge without coplanar overlap; re-render inspected.",
+      "views": [
+        "Previews/TABLE-front.png",
+        "Previews/TABLE-side.png",
+        "Previews/TABLE-three-quarter.png"
+      ]
+    },
+    {
+      "id": "SOFA",
+      "status": "inspected",
+      "notes": "Three soft sections, contrasting arms and short legs coherent.",
+      "views": [
+        "Previews/SOFA-front.png",
+        "Previews/SOFA-side.png",
+        "Previews/SOFA-three-quarter.png"
+      ]
+    },
+    {
+      "id": "BED",
+      "status": "inspected",
+      "notes": "Padded top and rounded frame read as a stable household bed.",
+      "views": [
+        "Previews/BED-front.png",
+        "Previews/BED-side.png",
+        "Previews/BED-three-quarter.png"
+      ]
+    },
+    {
+      "id": "STOOL",
+      "status": "inspected",
+      "notes": "Circular seat and four rounded legs clearly visible.",
+      "views": [
+        "Previews/STOOL-front.png",
+        "Previews/STOOL-side.png",
+        "Previews/STOOL-three-quarter.png"
+      ]
+    },
+    {
+      "id": "FAN",
+      "status": "inspected",
+      "notes": "Sparse grille reveals three blade rotor and hub.",
+      "views": [
+        "Previews/FAN-front.png",
+        "Previews/FAN-side.png",
+        "Previews/FAN-three-quarter.png"
+      ]
+    },
+    {
+      "id": "CLOCK",
+      "status": "inspected",
+      "notes": "Hands and twelve ticks are legible against cream face.",
+      "views": [
+        "Previews/CLOCK-front.png",
+        "Previews/CLOCK-side.png",
+        "Previews/CLOCK-three-quarter.png"
+      ]
+    }
+  ]
+}

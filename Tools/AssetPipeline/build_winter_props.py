@@ -41,7 +41,6 @@ def palette_material(output):
     pixels = []
     for y in range(64):
         for x in range(512):
-            # Subtle deterministic weave remains inside each padded solid-colour cell.
             grain = 1 + .012 * math.sin(x * 1.7) * math.sin(y * 1.3)
             pixels.extend([min(1, c * grain) for c in colours[x // 64]] + [1])
     image.pixels = pixels

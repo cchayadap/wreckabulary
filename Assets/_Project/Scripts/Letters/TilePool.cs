@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Reuses letter tiles instead of instantiating and destroying them.</summary>
     public class TilePool : MonoBehaviour
     {
         public static TilePool Instance { get; private set; }
@@ -18,7 +17,6 @@ namespace Wreckabulary
 
         public IReadOnlyList<LetterTile> Active => active;
 
-        /// <summary>Returns the pool, creating one if the scene has none (used by tests).</summary>
         public static TilePool Ensure()
         {
             if (!Instance) new GameObject("TilePool").AddComponent<TilePool>();
@@ -64,7 +62,6 @@ namespace Wreckabulary
             for (int i = active.Count - 1; i >= 0; i--) Release(active[i]);
         }
 
-        /// <summary>Bursts the letters of a word out from a point.</summary>
         public void Burst(string letters, Vector3 origin, float force = 4f)
         {
             foreach (char c in letters)
@@ -74,7 +71,6 @@ namespace Wreckabulary
             }
         }
 
-        /// <summary>Bursts each letter out from the block it came from.</summary>
         public void BurstFrom(IReadOnlyList<Transform> blocks, string word, Vector3 centre, float force = 4f)
         {
             for (int i = 0; i < word.Length; i++)

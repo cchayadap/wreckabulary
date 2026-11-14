@@ -1,0 +1,46 @@
+{
+  "item_id": "SHIELD",
+  "variant": "original",
+  "view": "three-quarter",
+  "blend_sha256": "6fec12c64b3d113abbc7072e1e6b8640522436cc5408a16d92978d62f21f57d2",
+  "script_sha256": "e5a1ed9e7bad6309e316918f2ea513ff11eee44acc89d37bad097f5fc3aaeb8d",
+  "camera_matrix": [
+    [
+      0.8426962494850159,
+      -0.25522366166114807,
+      0.4740505814552307,
+      2.299999952316284
+    ],
+    [
+      0.5383893251419067,
+      0.3994804918766022,
+      -0.7419921159744263,
+      -3.5691773891448975
+    ],
+    [
+      -2.597511539192965e-08,
+      0.8804976940155029,
+      0.4740504026412964,
+      2.5850000381469727
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "ortho_scale": 0.7296000123023987,
+  "resolution": [
+    512,
+    512
+  ],
+  "samples": 32,
+  "threads": 2,
+  "blender": "5.2.2 LTS",
+  "sha256": "96d3561cc0e7f454b21d8a726646898086d967c499b1004ed710069a972b372c",
+  "created_utc": "2026-10-26T03:35:30Z",
+  "elapsed_seconds": 31.558,
+  "alpha_background_and_content": "PASS",
+  "human_visual_review": "NOT RUN"
+}

@@ -26,7 +26,6 @@ namespace Wreckabulary
         static Color Colour(uint rgb) => new Color32((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb, 255);
     }
 
-    /// <summary>Preview is temporary; equipping a free or owned theme saves the selection.</summary>
     public static class LobbyThemes
     {
         public const string PreferenceKey = "wv.theme";

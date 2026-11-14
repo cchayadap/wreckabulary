@@ -5,7 +5,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Furniture words are Moving Day checklist items: spelling one builds the piece of furniture.</summary>
     public enum WordCategory { Weapon, Defence, Movement, Chaos, Furniture }
 
     [Serializable]
@@ -73,7 +72,6 @@ namespace Wreckabulary
             return db;
         }
 
-        /// <summary>Parses "word,category,hidden,notes" lines. The first line is a header.</summary>
         public static List<WordEntry> Parse(string text)
         {
             var list = new List<WordEntry>();

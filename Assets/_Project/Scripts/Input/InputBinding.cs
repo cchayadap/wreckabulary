@@ -4,6 +4,7 @@ using UnityEngine.InputSystem.Controls;
 
 namespace Wreckabulary
 {
+    [System.Serializable]
     public struct PlayerCommands
     {
         public Vector2 move;
@@ -60,12 +61,6 @@ namespace Wreckabulary
         }
     }
 
-    /// <summary>
-    /// Two players can share a keyboard (the couch layout; one player alone uses <see cref="DesktopBinding"/>).
-    /// Left: WASD move, Space grab, J attack (also throws and places), K spell (W/S choose), U jump, Left Shift dodge, L block, hold R to drop.
-    /// Right: arrows move, . or Numpad1 grab, / or Numpad2 attack (also throws and places), Right Shift or Numpad3 spell,
-    /// comma or Numpad0 jump, Right Ctrl or Numpad5 dodge, ; or Numpad4 block, hold ' or Numpad6 to drop.
-    /// </summary>
     public class KeyboardBinding : InputBinding
     {
         public enum Side { Left, Right }
@@ -182,7 +177,6 @@ namespace Wreckabulary
             c.spellDown = Pad.buttonNorth.wasPressedThisFrame;
             c.spellUp = Pad.buttonNorth.wasReleasedThisFrame;
 
-            // A flick of the stick counts as one step through the word wheel.
             float y = stick.y;
             c.up = Pad.dpad.up.wasPressedThisFrame || (y > 0.6f && lastStickY <= 0.6f);
             c.down = Pad.dpad.down.wasPressedThisFrame || (y < -0.6f && lastStickY >= -0.6f);

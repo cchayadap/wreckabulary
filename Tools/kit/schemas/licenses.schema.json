@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/licenses.schema.json",
+  "title": "One row of Docs/licenses.csv (the merged 19-column licence ledger, ARCHITECTURE §3.13)",
+  "description": "CSV values are strings; a validator parses the CSV (lib/csv.mjs parseCsv) and validates each row object against this schema. x-columns is the exact header order. Only Tools/kit/ship/license_row.mjs writes rows. Policy checks (deny lists, free tiers, DRM, Quaternius dates…) live in licenses_check.mjs, not here. $defs: release (Docs/ship/release.json), packedAssets (Builds/<dir>/packed_assets.json from BuildReportExport). Contract: CONTRACTS.md §7.6.",
+  "x-columns": [
+    "path", "sha256", "source_kind", "source_url", "licence_id", "licence_url", "author", "attribution_text", "retrieved_at_utc",
+    "account_or_plan", "provider", "generator_model", "job_id", "ai_generated", "commercial_ok", "training_ban", "redistribution",
+    "ships", "notes"
+  ],
+  "type": "object",
+  "required": [
+    "path", "sha256", "source_kind", "source_url", "licence_id", "licence_url", "author", "attribution_text", "retrieved_at_utc",
+    "account_or_plan", "provider", "generator_model", "job_id", "ai_generated", "commercial_ok", "training_ban", "redistribution",
+    "ships", "notes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "path": { "type": "string", "minLength": 1, "pattern": "^[^\\\\:*?\"<>|]+$", "description": "Workspace-relative POSIX path of the file (or folder ending in /) the row covers." },
+    "sha256": { "type": "string", "pattern": "^([0-9a-f]{64})?$", "description": "sha256 of the file when the row was written; empty only for folders or unclassified imports." },
+    "source_kind": {
+      "enum": ["own_work", "procedural", "generated", "cc0_download", "library_download", "own_account_download", "purchased", "engine", "code_dependency", "font", "imported_unknown"],
+      "description": "own_account_download = e.g. Mixamo through the user's own Adobe ID; imported_unknown = KNOTWELL migration rows not yet classified."
+    },
+    "source_url": { "type": "string" },
+    "licence_id": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9.+:_/ -]*$", "description": "SPDX id where one exists (CC0-1.0, CC-BY-4.0, MIT, OFL-1.1) or a kit id (OGA-BY-3.0, QAL-1.0, Pixabay-Content-License, Sonniss-GDC, Mixamo-Adobe, Own-Work, AI-generated:<provider>:<endpoint>, Unknown)." },
+    "licence_url": { "type": "string" },
+    "author": { "type": "string" },
+    "attribution_text": { "type": "string" },
+    "retrieved_at_utc": { "type": "string", "format": "date-time" },
+    "account_or_plan": { "type": "string", "description": "Provider plan at generation or download time (free, pro, starter, enterprise_music, …); empty when not applicable." },
+    "provider": { "type": "string" },
+    "generator_model": { "type": "string", "description": "Endpoint or model id, e.g. fal-ai/nano-banana-pro, music_v2_5." },
+    "job_id": { "type": "string", "description": "Provider request/job id (receipt)." },
+    "ai_generated": { "enum": ["true", "false"] },
+    "commercial_ok": { "enum": ["true", "false", "unknown"], "description": "unknown fails the ship gate until a human classifies it." },
+    "training_ban": { "enum": ["true", "false", "unknown"] },
+    "redistribution": { "enum": ["allowed", "embedded_only", "forbidden"] },
+    "ships": { "enum": ["true", "false"], "description": "Intent only; the ship scope is decided by the BuildReport join." },
+    "notes": { "type": "string" }
+  },
+  "allOf": [
+    { "if": { "properties": { "ai_generated": { "const": "true" } } }, "then": { "properties": { "provider": { "minLength": 1 }, "generator_model": { "minLength": 1 } } } },
+    { "if": { "properties": { "source_kind": { "const": "generated" } } }, "then": { "properties": { "ai_generated": { "const": "true" } } } }
+  ],
+  "$defs": {
+    "release": {
+      "title": "Docs/ship/release.json",
+      "type": "object",
+      "required": ["platforms", "steam_drm_wrapper", "development_build"],
+      "properties": {
+        "schema": { "const": 1 },
+        "platforms": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }, "description": "e.g. steam-win64, itch; the ElevenLabs Music rule counts entries." },
+        "steam_drm_wrapper": { "type": "boolean", "description": "true fails any CC-BY row in the ship scope." },
+        "development_build": { "type": "boolean" },
+        "public_repo": { "type": "boolean", "description": "true fails redistribution=forbidden and embedded_only raw files in the repo." },
+        "app_id": { "type": "string", "pattern": "^[0-9]*$" },
+        "demo_app_id": { "type": "string", "pattern": "^[0-9]*$" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-+][0-9A-Za-z.-]+)?$" }
+      }
+    },
+    "packedAssets": {
+      "title": "Builds/<dir>/packed_assets.json (BuildReportExport.cs, post-build)",
+      "type": "object",
+      "required": ["schema", "build_id", "utc", "development", "packed", "files"],
+      "properties": {
+        "schema": { "const": 1 },
+        "build_id": { "type": "string" },
+        "kind": { "enum": ["release", "release-qa", "dev"] },
+        "utc": { "type": "string", "format": "date-time" },
+        "unity_version": { "type": "string" },
+        "profile": { "type": "string" },
+        "development": { "type": "boolean" },
+        "output_dir": { "type": "string", "description": "U-relative POSIX build folder." },
+        "packed": {
+          "type": "array",
+          "description": "BuildReport.packedAssets: one entry per PackedAssets (serialized file).",
+          "items": {
+            "type": "object",
+            "required": ["short_path", "contents"],
+            "properties": {
+              "short_path": { "type": "string" },
+              "contents": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["source_asset_path", "type", "packed_size"],
+                  "properties": {
+                    "source_asset_path": { "type": "string", "description": "PackedAssetInfo.sourceAssetPath, e.g. Assets/Art/Frog.fbx (may be a built-in resource path)." },
+                    "guid": { "type": "string" },
+                    "type": { "type": "string" },
+                    "packed_size": { "type": "integer", "minimum": 0 }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "files": {
+          "type": "array",
+          "description": "BuildReport.GetFiles(): every file in the output (DLLs, plugins, StreamingAssets); build_join also rescans the folder.",
+          "items": {
+            "type": "object",
+            "required": ["path", "size"],
+            "properties": {
+              "path": { "type": "string", "description": "Relative to output_dir, POSIX." },
+              "role": { "type": "string" },
+              "size": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

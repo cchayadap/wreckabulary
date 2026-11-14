@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wreckabulary.Rules;
@@ -22,7 +23,32 @@ namespace Wreckabulary
         public static int RoundCrafted => current ? current.roundCrafted : 0;
         public static int RoundDamage => current ? Mathf.CeilToInt(current.roundDamage) : 0;
 
-        public static Career LoadCareer() => Career.Deserialize(PlayerPrefs.GetString(CareerKey, ""));
+        public const string CorruptKey = CareerKey + ".corrupt";
+
+        public static string SetAside { get; private set; }
+
+        public static Career LoadCareer()
+        {
+            string text = PlayerPrefs.GetString(CareerKey, "");
+            if (Career.TryDeserialize(text, out var career)) return career;
+            string stamp = CorruptKey + "." + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
+            string key = stamp;
+            for (int n = 2; PlayerPrefs.HasKey(key); n++) key = stamp + "-" + n;
+            PlayerPrefs.SetString(key, text);
+            PlayerPrefs.SetString(CorruptKey, key);
+            PlayerPrefs.DeleteKey(CareerKey);
+            PlayerPrefs.Save();
+            SetAside = key;
+            Debug.LogWarning("[Wreckabulary] The career save could not be read. It was kept as " + key + " and a new career started.");
+            return career;
+        }
+
+        public static string TakeSetAside()
+        {
+            string key = SetAside;
+            SetAside = null;
+            return key;
+        }
 
         public static void SaveCareer(Career career)
         {
@@ -80,7 +106,12 @@ namespace Wreckabulary
 
         void OnDamaged(PlayerHealth victim, HitInfo hit, HitResult result)
         {
-            if (local && hit.AttackerId == local.Index && victim != local.Health) { damage += result.Damage; roundDamage += result.Damage; }
+            if (!local || hit.AttackerId != local.Index || victim == local.Health || result.Damage <= 0f) return;
+            int before = Mathf.RoundToInt(damage);
+            damage += result.Damage;
+            roundDamage += result.Damage;
+            var player = victim.GetComponent<PlayerController>();
+            Popup.Points(Mathf.RoundToInt(damage) - before, player ? player.OverheadPosition : victim.transform.position + Vector3.up * 2f);
         }
 
         void OnSummoned(string word) { crafted++; roundCrafted++; }

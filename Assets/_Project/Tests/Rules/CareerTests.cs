@@ -133,5 +133,31 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(1, loaded.History.Count, "a match without a mode is dropped");
             Assert.AreEqual(Career.LatestTime, loaded.History[0].EndedAt, "a time past the year 9999 is clamped");
         }
+
+        [TestCase("not json")]
+        [TestCase("{\"coins\":12")]
+        [TestCase("[1,2,3]")]
+        [TestCase("\"career\"")]
+        public void AnUnreadableSaveIsReportedSoItIsNeverOverwrittenSilently(string text)
+        {
+            Assert.IsFalse(Career.TryDeserialize(text, out var career));
+            Assert.IsNotNull(career, "the game can still start with a fresh career");
+            Assert.AreEqual(0, career.Coins);
+            Assert.AreEqual(0, career.Matches);
+        }
+
+        [Test]
+        public void AnEmptyOrPartlyWrongSaveStillCountsAsReadable()
+        {
+            Assert.IsTrue(Career.TryDeserialize("", out var empty));
+            Assert.AreEqual(0, empty.Coins, "a first run has no save to keep");
+            Assert.IsTrue(Career.TryDeserialize(null, out _));
+            var played = new Career { Coins = 75, Matches = 2, Wins = 1 };
+            Assert.IsTrue(Career.TryDeserialize(played.Serialize(), out var loaded));
+            Assert.AreEqual(played.Serialize(), loaded.Serialize());
+            Assert.IsTrue(Career.TryDeserialize("{\"coins\":\"lots\",\"matches\":3}", out var partial),
+                "a field that cannot be read falls back on its own");
+            Assert.AreEqual(3, partial.Matches);
+        }
     }
 }

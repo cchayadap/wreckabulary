@@ -6,12 +6,17 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Walks roommates through the core loop one step at a time: move, smash, collect, spell,
-    /// hit, throw and knock out. Any roommate can complete a step, so it works for 1–4 players.
-    /// </summary>
     public class TutorialDirector : MonoBehaviour
     {
+        public const string DoneKey = "wv.tutorial.done";
+        public static bool Done => PlayerPrefs.GetInt(DoneKey, 0) == 1;
+
+        public static void MarkDone()
+        {
+            PlayerPrefs.SetInt(DoneKey, 1);
+            PlayerPrefs.Save();
+        }
+
         [SerializeField] PlayerJoinManager joins;
         [SerializeField] GameHud hud;
         [SerializeField] Transform boxSpot;
@@ -93,11 +98,10 @@ namespace Wreckabulary
         {
             Popup.Show("NICE!", joins.Players.Count > 0 ? joins.Players[0].OverheadPosition + Vector3.up : Vector3.up * 2f, Color.white, 5f);
             StepIndex++;
-            if (Finished) { finishedAt = Time.time; return; }
+            if (Finished) { finishedAt = Time.time; MarkDone(); return; }
             steps[StepIndex].enter?.Invoke();
         }
 
-        /// <summary>Tracks distance walked and hooks up summon/throw events for new roommates.</summary>
         void Watch()
         {
             for (int i = 0; i < joins.Players.Count; i++)
@@ -113,12 +117,11 @@ namespace Wreckabulary
                 }
                 var pos = p.transform.position;
                 float d = World.Flat(pos - lastPositions[i]).magnitude;
-                if (d < 1f) walked += d; // ignore respawn teleports
+                if (d < 1f) walked += d;
                 lastPositions[i] = pos;
             }
         }
 
-        /// <summary>If the BAT letters got lost (dropped, spent on something else), send another box.</summary>
         void Resupply()
         {
             if (StepIndex < 2 || StepIndex > 4 || batSummoned || box || Time.time < nextResupply) return;

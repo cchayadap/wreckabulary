@@ -24,19 +24,19 @@
     },
     {
       "name": "door-footprint",
-      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"MAT\",\"x\":0,\"z\":-3,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"MAT\",\"x\":0,\"z\":-5,\"yaw\":0,\"skin\":\"Classic\"}]}",
       "ok": false,
       "errorPrefix": "door:"
     },
     {
       "name": "spawn-footprint",
-      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":-8.5,\"z\":7,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"BALL\",\"x\":-11.5,\"z\":10,\"yaw\":0,\"skin\":\"Classic\"}]}",
       "ok": false,
       "errorPrefix": "spawn:"
     },
     {
       "name": "whole-footprint-wall",
-      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"TABLE\",\"x\":3.5,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
+      "json": "{\"schema\":1,\"map\":\"pinwheel\",\"name\":\"Cozy\",\"props\":[{\"id\":\"p1\",\"word\":\"TABLE\",\"x\":5.5,\"z\":0,\"yaw\":0,\"skin\":\"Classic\"}]}",
       "ok": false,
       "errorPrefix": "room:"
     },
@@ -134,24 +134,24 @@
         {
           "id": "p1",
           "word": "SOFA",
-          "x": -9,
-          "z": -9,
+          "x": -13,
+          "z": -13,
           "yaw": 0,
           "skin": "Classic"
         },
         {
           "id": "p2",
           "word": "TABLE",
-          "x": -6,
-          "z": -9.5,
+          "x": -11.5,
+          "z": -13.5,
           "yaw": 0,
           "skin": "Classic"
         },
         {
           "id": "p3",
           "word": "PLANT",
-          "x": -7.5,
-          "z": -9.5,
+          "x": -10.5,
+          "z": -13.5,
           "yaw": 0,
           "skin": "Classic"
         }
@@ -159,32 +159,32 @@
       "rejected": []
     },
     {
-      "name": "courtyard-garden-three",
+      "name": "courtyard-square-three",
       "map": "courtyard",
-      "room": "Garden",
+      "room": "FountainSquare",
       "text": "sofa, table; PLANT",
       "expected": [
         {
           "id": "p1",
           "word": "SOFA",
-          "x": -5,
-          "z": -5,
+          "x": -10,
+          "z": -11,
           "yaw": 0,
           "skin": "Classic"
         },
         {
           "id": "p2",
           "word": "TABLE",
-          "x": -3.5,
-          "z": -5.5,
+          "x": -8.5,
+          "z": -11.5,
           "yaw": 0,
           "skin": "Classic"
         },
         {
           "id": "p3",
           "word": "PLANT",
-          "x": -2.5,
-          "z": -5.5,
+          "x": -11.5,
+          "z": -11.5,
           "yaw": 0,
           "skin": "Classic"
         }
@@ -200,24 +200,24 @@
         {
           "id": "p1",
           "word": "BED",
-          "x": -9,
-          "z": 5,
+          "x": -13,
+          "z": 7,
           "yaw": 0,
           "skin": "Classic"
         },
         {
           "id": "p2",
           "word": "MAT",
-          "x": -5,
-          "z": 4.5,
+          "x": -8,
+          "z": 6.5,
           "yaw": 0,
           "skin": "Classic"
         },
         {
           "id": "p3",
           "word": "APPLE",
-          "x": -4,
-          "z": 4.5,
+          "x": -12,
+          "z": 6.5,
           "yaw": 0,
           "skin": "Classic"
         }
@@ -235,16 +235,16 @@
         {
           "id": "p1",
           "word": "TABLE",
-          "x": 7,
-          "z": -5.5,
+          "x": 13,
+          "z": 4.5,
           "yaw": 0,
           "skin": "Classic"
         },
         {
           "id": "p2",
           "word": "BED",
-          "x": 8.5,
-          "z": -5,
+          "x": 14.5,
+          "z": 5,
           "yaw": 0,
           "skin": "Classic"
         }
@@ -260,8 +260,8 @@
         {
           "id": "p1",
           "word": "SOFA",
-          "x": -9,
-          "z": -9,
+          "x": -13,
+          "z": -13,
           "yaw": 0,
           "skin": "Classic"
         }

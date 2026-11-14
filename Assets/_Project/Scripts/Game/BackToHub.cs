@@ -3,7 +3,6 @@ using UnityEngine.InputSystem;
 
 namespace Wreckabulary
 {
-    /// <summary>Routes Escape and gamepad View through the scene's pause presentation.</summary>
     public class BackToHub : MonoBehaviour
     {
         GameHud hud;

@@ -1,0 +1,24 @@
+{
+    "name": "Wreckabulary.Photon.Tests",
+    "rootNamespace": "Wreckabulary.PhotonTests",
+    "references": [
+        "Fusion.Unity",
+        "Photon.Realtime",
+        "Wreckabulary.Rules",
+        "Wreckabulary.Online.Fusion",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": ["Editor"],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Fusion.Runtime.dll",
+        "Fusion.Common.dll",
+        "Fusion.Sockets.dll",
+        "Fusion.Realtime.dll",
+        "Fusion.Log.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}

@@ -1,0 +1,46 @@
+{
+  "item_id": "BAT",
+  "variant": "original",
+  "view": "side",
+  "blend_sha256": "a367c4f33ecb70686ff5da99b7029d9e257ef2e505a69fd9cfea6a7bc8b9b255",
+  "script_sha256": "2faae9560849ccc7a71b628a21704e4507a0e31dd5eabe3f9742cf410a06ef31",
+  "camera_matrix": [
+    [
+      -4.371138828673793e-08,
+      4.371138828673793e-08,
+      1.0,
+      5.0
+    ],
+    [
+      1.0,
+      1.910685676922942e-15,
+      4.371138828673793e-08,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      -4.371138828673793e-08,
+      0.5090000033378601
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "ortho_scale": 1.3030400276184082,
+  "resolution": [
+    512,
+    512
+  ],
+  "samples": 32,
+  "threads": 2,
+  "blender": "5.2.2 LTS",
+  "sha256": "ddd4096117fa8249f112f34c4e8cc970bf391683a1acf2044ee7d51f6e1c0e5f",
+  "created_utc": "2026-10-26T03:02:31Z",
+  "elapsed_seconds": 67.452,
+  "alpha_background_and_content": "PASS",
+  "human_visual_review": "NOT RUN"
+}

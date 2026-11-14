@@ -7,7 +7,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>Cosmetic imported avatar, wardrobe and canonical animation playback.</summary>
     [RequireComponent(typeof(PlayerController))]
     [DefaultExecutionOrder(90)]
     public sealed class PlayerAppearance : MonoBehaviour
@@ -27,8 +26,9 @@ namespace Wreckabulary
         MotionTrack locomotion, upperBody;
         AvatarMask upperBodyMask;
         SkinnedMeshRenderer face;
-        int blinkShape = -1, browShape = -1;
-        float poseWeight, expression, blinkAt;
+        [SerializeField] AvatarExpressionProfile expressionProfile;
+        AvatarExpressionDriver expressions;
+        float poseWeight;
         string actionClip;
         bool fullBodyAction;
         float actionUntil;
@@ -64,10 +64,11 @@ namespace Wreckabulary
         public float UpperBodyWeight => poseWeight;
         public bool IsUsingItemPose => itemUsePose && Time.time < actionUntil;
 
-        /// <summary>The unsaved presentation look; shared rules defaults and saved player choices remain independent.</summary>
-        public static Outfit DefaultPresentationOutfit()
+        public static Outfit DefaultPresentationOutfit() => DefaultPresentationOutfit(GameConfig.Current.Wardrobe);
+
+        public static Outfit DefaultPresentationOutfit(WardrobeCatalogue catalogue)
         {
-            var catalogue = GameConfig.Current.Wardrobe;
+            if (catalogue == null) throw new System.ArgumentNullException(nameof(catalogue));
             var look = catalogue.Default.Clone();
             look.Pieces["Top"] = "Hoodie";
             look.Pieces["Headwear"] = "Hood";
@@ -96,7 +97,6 @@ namespace Wreckabulary
             return catalogue.Sanitize(initial);
         }
 
-        /// <summary>Reuse saved artist content; create a visual only for legacy prefabs after all required clips validate.</summary>
         public bool Initialize(PlayerController player)
         {
             controller = player;
@@ -112,7 +112,13 @@ namespace Wreckabulary
                 foreach (var renderer in controller.visual.GetComponentsInChildren<Renderer>(true)) oldRenderers.Add(renderer);
                 createdRoot = new GameObject("ImportedAvatar");
                 createdRoot.transform.SetParent(controller.visual, false);
-                model = ModelVisual.Spawn(AvatarKey, createdRoot.transform);
+                try { model = ModelVisual.Spawn(AvatarKey, createdRoot.transform); }
+                catch
+                {
+                    createdRoot.SetActive(false);
+                    if (Application.isPlaying) Destroy(createdRoot); else DestroyImmediate(createdRoot);
+                    throw;
+                }
             }
             var animator = model ? model.GetComponentInChildren<Animator>(true) : null;
             if (!animator)
@@ -122,6 +128,7 @@ namespace Wreckabulary
                 clips.Clear();
                 return false;
             }
+            AvatarSurfaceProfile.ApplyDefault(AvatarKey, library.Find(AvatarKey), model);
             meshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             gripL = ModelVisual.FindNamed(model, "grip_L");
             gripR = ModelVisual.FindNamed(model, "grip_R");
@@ -131,17 +138,10 @@ namespace Wreckabulary
             {
                 if (!mesh.sharedMesh || mesh.name != "SK_Head") continue;
                 face = mesh;
-                for (int i = 0; i < mesh.sharedMesh.blendShapeCount; i++)
-                {
-                    string shape = mesh.sharedMesh.GetBlendShapeName(i);
-                    if (shape.EndsWith("Blink", System.StringComparison.OrdinalIgnoreCase)) blinkShape = i;
-                    if (shape.EndsWith("BrowRelax", System.StringComparison.OrdinalIgnoreCase)) browShape = i;
-                }
+
             }
-            blinkAt = Time.time + 2.2f + controller.Index * .31f;
             itemContact = new ItemContactPose(model, gripR, face, gripCorrectionR);
             animator.applyRootMotion = false;
-            // Gameplay gear follows these animated sockets even when the avatar is outside the camera frustum.
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             graph = PlayableGraph.Create("Wreckabulary Avatar " + controller.Index);
             graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
@@ -158,6 +158,7 @@ namespace Wreckabulary
             locomotion.Set("Idle", true);
             graph.Play();
             graph.Evaluate(0f);
+            expressions = new AvatarExpressionDriver(model, expressionProfile, controller.Index);
             foreach (var renderer in oldRenderers) if (renderer) renderer.enabled = false;
             initialized = true;
             ApplyOutfit(PresentationOutfit(controller.Index, controller.Color), false);
@@ -208,9 +209,11 @@ namespace Wreckabulary
             }
         }
 
-        public static Outfit Dress(SkinnedMeshRenderer[] meshes, Outfit next)
+        public static Outfit Dress(SkinnedMeshRenderer[] meshes, Outfit next) => Dress(meshes, next, GameConfig.Current.Wardrobe);
+
+        public static Outfit Dress(SkinnedMeshRenderer[] meshes, Outfit next, WardrobeCatalogue catalogue)
         {
-            var catalogue = GameConfig.Current.Wardrobe;
+            if (catalogue == null) throw new System.ArgumentNullException(nameof(catalogue));
             var outfit = catalogue.Sanitize(next).Clone();
             if (meshes != null)
                 foreach (var renderer in meshes)
@@ -228,8 +231,11 @@ namespace Wreckabulary
                         {
                             var colour = catalogue.ColourFor(outfit, piece.Slot);
                             string materialName = materials[i] ? materials[i].name : "";
-                            bool rib = MatchesTintMaterial(materialName, "fabric_rib") && piece.TintMaterial == "fabric_main";
-                            if (colour != null && (MatchesTintMaterial(materialName, piece.TintMaterial) || rib))
+                            bool rib = MatchesTintMaterial(materialName, "fabric_rib") && piece.TintMaterials.Contains("fabric_main");
+                            bool tinted = false;
+                            foreach (string wanted in piece.TintMaterials)
+                                if (MatchesTintMaterial(materialName, wanted)) { tinted = true; break; }
+                            if (colour != null && (tinted || rib))
                             {
                                 var tint = new Color(colour.R, colour.G, colour.B, 1f);
                                 if (rib) tint *= .75f;
@@ -257,7 +263,6 @@ namespace Wreckabulary
             ApplyOutfit(outfit);
         }
 
-        /// <summary>Action visuals never change damage windows, movement or item rules.</summary>
         public void Play(string clipName, float duration = .5f)
         {
             if (!clips.ContainsKey(clipName)) return;
@@ -272,7 +277,6 @@ namespace Wreckabulary
             if (layers.IsValid()) layers.SetInputWeight(1, poseWeight);
         }
 
-        /// <summary>Fit the authored hand-to-mouth motion to the actual use channel; food adds a small bite nod.</summary>
         public void PlayItemUse(ItemDefinition item, float duration)
         {
             Play("Drink_Consumable", duration);
@@ -284,10 +288,10 @@ namespace Wreckabulary
         void OnJumped(PlayerController _) => Play("Jump_Preview", .45f);
         void OnDodged(PlayerController _) => Play("Run_InPlace", .2f);
 
-        void OnDamaged(PlayerHealth _, HitInfo __, HitResult result)
+        void OnDamaged(PlayerHealth _, HitInfo hit, HitResult result)
         {
             if (result.Blocked) blockReactionUntil = Time.time + .22f;
-            if (result.Landed && !result.Blocked && result.Damage > 0f && !result.BecameDowned && !result.BecameEliminated)
+            if (result.Landed && !result.Blocked && result.Damage > 0f && !result.BecameDowned && !result.BecameEliminated && hit.Source != HitSource.Bleed)
                 Play("Hit_Reaction", Mathf.Clamp(result.HitStun, .25f, .45f));
         }
 
@@ -325,11 +329,18 @@ namespace Wreckabulary
             locomotion.Set(movement, false, controller.IsKnockedOut ? .25f : .15f);
             var moving = locomotion.Playable;
             if (movement is "Walk_InPlace" or "Run_InPlace")
-                moving.SetSpeed(CyclesPerSecond(movement == "Run_InPlace", speed) * moving.GetAnimationClip().length);
+            {
+                var walkClip = moving.GetAnimationClip();
+                if (walkClip) moving.SetSpeed(CyclesPerSecond(movement == "Run_InPlace", speed) * walkClip.length);
+            }
             else if (controller.IsKnockedOut)
             {
-                float end = moving.GetAnimationClip().length * .95f;
-                if (moving.GetTime() >= end) { moving.SetTime(end); moving.SetSpeed(0); }
+                var knockedClip = moving.GetAnimationClip();
+                if (knockedClip)
+                {
+                    float end = knockedClip.length * .95f;
+                    if (moving.GetTime() >= end) { moving.SetTime(end); moving.SetSpeed(0); }
+                }
             }
             else moving.SetSpeed(1);
             bool crafting = controller.Summoner && controller.Summoner.IsCrafting && clips.ContainsKey("Inspect_OneHand");
@@ -343,8 +354,10 @@ namespace Wreckabulary
                     ? "Hold_OneHand" : "Carry_TwoHand") : null;
             if (pose != null) upperBody?.Set(pose);
             if (upperBody != null && upperBody.Playable.IsValid())
-                upperBody.Playable.SetSpeed(acting && !fullBodyAction
-                    ? upperBody.Playable.GetAnimationClip().length / actionDuration : 1f);
+            {
+                var upperClip = upperBody.Playable.GetAnimationClip();
+                upperBody.Playable.SetSpeed(acting && !fullBodyAction && upperClip ? upperClip.length / actionDuration : 1f);
+            }
             float dt = Time.deltaTime;
             poseWeight = Mathf.MoveTowards(poseWeight, pose == null ? 0f : 1f, dt * 10f);
             if (layers.IsValid()) layers.SetInputWeight(1, poseWeight);
@@ -357,20 +370,25 @@ namespace Wreckabulary
             float useProgress = actionDuration > 0f ? Mathf.Clamp01((Time.time - actionStarted) / actionDuration) : 0f;
             Quaternion itemRotation = Quaternion.identity;
             bool contact = itemContact != null && itemContact.Apply(controller, itemUsePose, eating, useProgress, out itemRotation);
-            // Animated mitten transforms retain the existing combat sockets and miniature item grip offsets.
             if (gripL && controller.handL) controller.handL.SetPositionAndRotation(gripL.position, gripL.rotation * gripCorrectionL);
             if (gripR && controller.handR) controller.handR.SetPositionAndRotation(gripR.position, gripR.rotation * gripCorrectionR);
             if (contact && controller.Combat && controller.Combat.Weapon)
                 controller.Combat.Weapon.SetPoseRotation(Quaternion.Inverse(controller.handR.rotation) * itemRotation);
-            if (!face) return;
-            float now = Time.time;
-            if (now > blinkAt + .18f) blinkAt = now + 2.8f + controller.Index * .23f;
-            float blink = now < blinkAt ? 0f : Mathf.Sin(Mathf.Clamp01((now - blinkAt) / .18f) * Mathf.PI) * 100f;
-            if (blinkShape >= 0) face.SetBlendShapeWeight(blinkShape, controller.IsKnockedOut ? 78f : blink);
-            bool exerting = controller.IsDodging || controller.IsStaggered ||
-                (controller.Combat && (controller.Combat.IsChanneling || controller.Combat.IsBlocking));
-            expression = Mathf.MoveTowards(expression, exerting ? 0f : 55f, Time.deltaTime * 180f);
-            if (browShape >= 0) face.SetBlendShapeWeight(browShape, expression);
+            var velocity = controller.Body ? controller.Body.linearVelocity : Vector3.zero;
+            bool acting = Time.time < actionUntil;
+            expressions?.Observe(new AvatarExpressionSample {
+                Epoch = 0, Tick = Time.frameCount, Available = true,
+                Health = controller.Health ? controller.Health.Current : 100,
+                Downed = controller.IsKnockedOut, Hurt = controller.IsStaggered || acting && actionClip == "Hit_Reaction",
+                Focus = controller.IsDodging || controller.Combat && (controller.Combat.IsChanneling || controller.Combat.IsBlocking) ||
+                    controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.IsCrafting) ||
+                    acting && (actionClip == "Swing_OneHand" || actionClip == "Thrust_OneHand" || actionClip == "Throw_OneHand"),
+                Falling = !controller.Grounded && velocity.y < -2.5f, GroundedKnown = true, Grounded = controller.Grounded,
+                Moving = velocity.x * velocity.x + velocity.z * velocity.z > .04f,
+                Equipped = controller.Combat && controller.Combat.IsHolding,
+                Celebrate = acting && actionClip == "Celebrate"
+            });
+            expressions?.Step(Time.deltaTime);
         }
 
         void Posture()
@@ -437,7 +455,6 @@ namespace Wreckabulary
             return mask;
         }
 
-        /// <summary>Each masked layer owns two clips and blends during graph evaluation, including manual evaluation.</summary>
         sealed class MotionTrack
         {
             readonly PlayableGraph graph;
@@ -500,8 +517,11 @@ namespace Wreckabulary
             }
         }
 
+        void OnDisable() => expressions?.Reset();
+
         void OnDestroy()
         {
+            expressions?.Dispose();
             if (controller)
             {
                 controller.Jumped -= OnJumped;

@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Allocation-free camera facing for world-space canvases and TextMeshPro labels.</summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(200)]
     public sealed class WorldSpaceBillboard : MonoBehaviour
@@ -28,7 +27,6 @@ namespace Wreckabulary
             SetCamera(targetCamera ? targetCamera : Camera.main);
         }
 
-        /// <summary>Inject a replacement or per-player camera without searching during LateUpdate.</summary>
         public void SetCamera(Camera camera)
         {
             targetCamera = camera;

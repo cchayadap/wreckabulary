@@ -3,11 +3,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Marks something as flying: a thrown chair, a thrown player, or a falling box during the collapse.
-    /// If it slams into a player (other than the thrower) it counts as a hit: heavier and faster
-    /// things hurt more, from 5 to 20 damage.
-    /// </summary>
     public class ThrowTracker : MonoBehaviour
     {
         PlayerController thrower;

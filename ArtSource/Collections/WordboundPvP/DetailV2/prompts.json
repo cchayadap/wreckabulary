@@ -1,0 +1,222 @@
+{
+  "collection": "WordboundPvP",
+  "date": "2026-10-20",
+  "entries": [
+    {
+      "id": "BAT",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One chunky wooden baseball bat, an elongated rounded honey-oak barrel tapering into a cream cloth-wrapped lower handle with a softly rounded knob; simple sage collar above the grip. Its upper barrel remains plain and readable. Make a clear design sheet for this one object type, BAT, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.172,
+        1.018,
+        0.172
+      ],
+      "gripUnityMetres": [
+        0,
+        0.17,
+        0
+      ],
+      "heldScale": 0.5894,
+      "destination": "Concepts/BAT-concept-v1.png"
+    },
+    {
+      "id": "BROOM",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One household push broom with a long honey-oak handle, broad horizontal muted-terracotta brush head and dense short cream bristles; a sage binding at the handle socket. Broad sweep silhouette, practical proportions. Make a clear design sheet for this one object type, BROOM, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.3,
+        1.0212,
+        0.095
+      ],
+      "gripUnityMetres": [
+        0,
+        0.6212,
+        0
+      ],
+      "heldScale": 0.5876,
+      "destination": "Concepts/BROOM-concept-v1.png"
+    },
+    {
+      "id": "HAMMER",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One short chunky toy-house mallet, a broad horizontal cream padded striking head capped with restrained brass plates, honey-oak handle and sage wrapped lower grip. Rounded blunt ends, clear heavy striking silhouette. Make a clear design sheet for this one object type, HAMMER, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.345,
+        0.635,
+        0.175
+      ],
+      "gripUnityMetres": [
+        0,
+        0.13,
+        0
+      ],
+      "heldScale": 0.5669,
+      "destination": "Concepts/HAMMER-concept-v1.png"
+    },
+    {
+      "id": "SPEAR",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One slim long toy spear with a honey-oak shaft, cream wrapped mid grip, a small sage collar and a broad blunt cream-and-brass toy arrowhead. Soft rounded edges, no realistic blade or dangerous detail. Make a clear design sheet for this one object type, SPEAR, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.17,
+        1.235,
+        0.068
+      ],
+      "gripUnityMetres": [
+        0,
+        0.465,
+        0
+      ],
+      "heldScale": 0.4858,
+      "destination": "Concepts/SPEAR-concept-v1.png"
+    },
+    {
+      "id": "SHIELD",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One compact toy-house shield, a softly rounded sage face in a thick cream frame, restrained brass edge fittings and a shallow raised geometric diamond inset. Show the rear wooden handle in the side view. Readable solid block surface, no heraldry or text. Make a clear design sheet for this one object type, SHIELD, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.46,
+        0.57,
+        0.1877
+      ],
+      "gripUnityMetres": [
+        0,
+        0.29,
+        -0.11
+      ],
+      "heldScale": 0.6316,
+      "destination": "Concepts/SHIELD-concept-v1.png"
+    },
+    {
+      "id": "PLATE",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One shallow round cream ceramic dinner plate with a softly rolled rim, one restrained sage inner ring and a narrow brass-colored outer accent. Plain generous eating surface, no food, handles or extra decoration; unmistakably a plate. Make a clear design sheet for this one object type, PLATE, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.54,
+        0.073,
+        0.54
+      ],
+      "gripUnityMetres": [
+        0,
+        0.0365,
+        0
+      ],
+      "heldScale": 0.6667,
+      "destination": "Concepts/PLATE-concept-v1.png"
+    },
+    {
+      "id": "TABLE",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One low rectangular honey-oak coffee table with four chunky rounded legs, thick cream-edged tabletop and a useful lower wooden shelf. Small restrained sage corner insets. Stable household furniture, clear open space between legs. Make a clear design sheet for this one object type, TABLE, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        1.2,
+        0.72,
+        0.691
+      ],
+      "gripUnityMetres": [
+        0,
+        0.36,
+        0
+      ],
+      "heldScale": 0.3,
+      "destination": "Concepts/TABLE-concept-v1.png"
+    },
+    {
+      "id": "SOFA",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One small two-seat sofa with three clearly separate padded seat/back sections, rounded muted-terracotta upholstery, cream piping and short honey-oak legs. Soft generous armrests, sage accent on the side panels, no loose cushions or accessories. Make a clear design sheet for this one object type, SOFA, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        1.52,
+        0.93,
+        0.813
+      ],
+      "gripUnityMetres": [
+        0,
+        0.465,
+        0.0165
+      ],
+      "heldScale": 0.2368,
+      "destination": "Concepts/SOFA-concept-v1.png"
+    },
+    {
+      "id": "BED",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One single toy-house bed with a thick cream bounce mattress on a honey-oak frame, simple rounded headboard and footboard, sage top quilt panel and muted-terracotta band at the foot. Built-in padded bounce affordance, no floating effects or exposed springs. Make a clear design sheet for this one object type, BED, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        1.035,
+        0.818,
+        1.58
+      ],
+      "gripUnityMetres": [
+        0,
+        0.409,
+        0
+      ],
+      "heldScale": 0.2278,
+      "destination": "Concepts/BED-concept-v1.png"
+    },
+    {
+      "id": "STOOL",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One short round wooden stool with a thick cream padded circular seat, sage seat edge, four rounded honey-oak legs and a compact lower brace. Clearly stable and suitable for stepping, no backrest or accessories. Make a clear design sheet for this one object type, STOOL, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.52,
+        0.466,
+        0.52
+      ],
+      "gripUnityMetres": [
+        0,
+        0.233,
+        0
+      ],
+      "heldScale": 0.6923,
+      "destination": "Concepts/STOOL-concept-v1.png"
+    },
+    {
+      "id": "FAN",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One tabletop electric fan with a chunky sage pedestal and cream base, three broad visible sage blades, a simple sparse brass protective grille and cream central hub. Readable directional fan head, small sage control knob, no cord or wind effects. Make a clear design sheet for this one object type, FAN, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.522,
+        0.821,
+        0.25
+      ],
+      "gripUnityMetres": [
+        0,
+        0.4105,
+        0
+      ],
+      "heldScale": 0.4385,
+      "destination": "Concepts/FAN-concept-v1.png"
+    },
+    {
+      "id": "CLOCK",
+      "prompt": "Use case: stylized-concept. Asset type: individual game-equipment production concept sheet for Wreckabulary Wordbound. Subject: One compact round tabletop clock with a honey-oak outer case, cream dial, two bold dark-sage hands and twelve simple short brass tick marks with no numerals. Shallow body and small integrated rounded feet; readable time-tool silhouette, no bells or effects. Make a clear design sheet for this one object type, CLOCK, that an artist can build as an editable low-poly 3D mesh. Layout: top two-thirds contain three well-separated full-color views of exactly the same selected design, ordered front, side, and three-quarter from left to right. Bottom third contains three small black silhouette alternatives of this same object type, each distinct but recognizable. All views show the complete object, with no cropping or overlap. The three full-color views must agree in geometry, component count, materials and proportions. Style: cozy tactile toy-house miniature for plush roommates, rounded bevels, broad simple forms, clean readable silhouette, restrained crafted detail, visually suitable for a 2,000–6,000 triangle game object. Palette: honey-oak wood, warm cream ceramic or cloth, sage painted accents, muted terracotta accents and restrained brass. Neutral ivory background, soft warm overhead-left studio lighting, no floor scene. The design must remain readable at small gameplay scale. No text, letters, numbers, labels, logos, watermarks, characters, hands, visual effects, unrelated props, tiny decorative clutter or photographic weapon realism.",
+      "requestedTool": "built-in image_gen",
+      "transparentBackground": false,
+      "sizeUnityMetres": [
+        0.48,
+        0.48,
+        0.122
+      ],
+      "gripUnityMetres": [
+        0,
+        0.24,
+        0.031
+      ],
+      "heldScale": 0.75,
+      "destination": "Concepts/CLOCK-concept-v1.png"
+    }
+  ]
+}

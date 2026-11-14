@@ -3,12 +3,10 @@ using UnityEngine;
 
 namespace Wreckabulary
 {
-    /// <summary>Scene-wide lookups: live players, physics layers and a parent for temporary objects.</summary>
     public static class World
     {
         static Transform transient;
 
-        // Static state survives between Play sessions when domain reload is off, so reset it.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
         {
@@ -16,7 +14,6 @@ namespace Wreckabulary
             Players.Clear();
         }
 
-        /// <summary>Parent for summons, delivery boxes and effects. Cleared between rounds.</summary>
         public static Transform Transient
         {
             get
@@ -57,7 +54,6 @@ namespace Wreckabulary
 
         public static int TileMask => TileLayer >= 0 ? 1 << TileLayer : ~0;
 
-        /// <summary>Everything a player can stand on: not players and not loose tiles.</summary>
         public static int GroundMask
         {
             get

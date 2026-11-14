@@ -1,0 +1,22 @@
+{
+  "name": "Wreckabulary.Online.Editor",
+  "rootNamespace": "Wreckabulary.EditorTools",
+  "references": [
+    "Wreckabulary",
+    "Wreckabulary.Editor",
+    "Wreckabulary.Rules",
+    "Wreckabulary.Online.Presentation",
+    "Wreckabulary.Online.Authoring.Editor",
+    "Wreckabulary.Online.Client",
+    "Wreckabulary.Online.Fusion",
+    "Fusion.Unity",
+    "Fusion.Unity.Editor",
+    "Wreckabulary.Online.Physics",
+    "Wreckabulary.Online.Gameplay",
+    "Fusion.Addons.Physics"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

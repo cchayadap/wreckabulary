@@ -1,0 +1,711 @@
+{
+  "schemaVersion": 1,
+  "package": "HouseholdExpansionV1",
+  "createdUtc": "2026-10-26T10:21:08.347Z",
+  "sourceRoot": "C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\assets",
+  "provider": "Kenney",
+  "sourcePack": "Furniture Kit 2.0",
+  "license": {
+    "name": "CC0",
+    "evidence": {
+      "sourcePath": "License.txt",
+      "packagePath": "Source/Kenney/License.txt",
+      "bytes": 614,
+      "sha256": "bc0de1a0742cb490f9ed4bae0bd284286ebb27e23149b9917c7d8c0d590b8b29"
+    },
+    "approvalStatus": "Local license text inspected; no new license acceptance or account operation performed"
+  },
+  "status": "STAGED_ONLY",
+  "sourceFilesUnmodified": true,
+  "gameAssetsModified": false,
+  "normalizationApplied": false,
+  "unityImported": false,
+  "visualAccepted": false,
+  "sourceSelectionRationale": "One provider for coherent first-batch scale and material naming; 3 kitchen, 2 attic, 2 rooftop, 1 Packing Yard model. Existing game art is not replaced.",
+  "textures": {
+    "count": 0,
+    "reason": "Selected FBX files declare no Texture or Video objects; glTF counterparts use plain material color factors, no texture maps. No invented or duplicate texture file."
+  },
+  "entries": [
+    {
+      "id": "kitchenStove",
+      "category": "Kitchen",
+      "label": "Stove",
+      "sourceFile": {
+        "sourcePath": "Models/FBX format/kitchenStove.fbx",
+        "packagePath": "Source/Kenney/Models/kitchenStove.fbx",
+        "bytes": 110692,
+        "sha256": "d5f63b683ad9c2f4b849442a5c8b9afec61c66bb7a220f6ff5ee998480f84db9"
+      },
+      "sourceGltf": {
+        "path": "Models/GLTF format/kitchenStove.glb",
+        "sha256": "3239edb36295dfca9530a9b9a6ad0aff98ce62e7cf8d13ca2a5a1a6b2a904656"
+      },
+      "sourceBounds": {
+        "min": [
+          0,
+          0,
+          -0.44999998807907104
+        ],
+        "max": [
+          0.4300000071525574,
+          0.44999998807907104,
+          0
+        ],
+        "size": [
+          0.4300000071525574,
+          0.44999998807907104,
+          0.44999998807907104
+        ],
+        "method": "GLB POSITION float values transformed through scene node TRS/matrices; source coordinates, not validated Unity FBX dimensions",
+        "sampledPositionOccurrences": 4860
+      },
+      "triangles": 830,
+      "vertices": 1256,
+      "materialNames": [
+        "metal",
+        "wood",
+        "metalDark",
+        "carpetWhite",
+        "glass"
+      ],
+      "childNodes": [
+        "kitchenStove(Clone)",
+        "door"
+      ],
+      "rig": {
+        "gltfSkins": 0,
+        "gltfAnimationClips": 0,
+        "gltfMorphTargetPrimitives": 0,
+        "fbxModels": [
+          {
+            "name": "kitchenStove",
+            "type": "Mesh"
+          },
+          {
+            "name": "door",
+            "type": "Mesh"
+          }
+        ],
+        "fbxObjectCounts": {
+          "AnimationStack": 0,
+          "AnimationLayer": 0,
+          "AnimationCurve": 0,
+          "Deformer": 0,
+          "Texture": 0,
+          "Video": 0
+        }
+      },
+      "fbxDeclaredAxesAndUnits": {
+        "UpAxis": 1,
+        "UpAxisSign": 1,
+        "FrontAxis": 2,
+        "FrontAxisSign": 1,
+        "CoordAxis": 0,
+        "CoordAxisSign": 1,
+        "UnitScaleFactor": 100,
+        "OriginalUnitScaleFactor": 100
+      },
+      "textures": [],
+      "physicsPlan": "Separate oven door. Keep body fixed until mass and tip resistance are tested; author door hinge limits and handle reach.",
+      "normalizationStatus": "NOT-RUN",
+      "runtimeStatus": "NOT-IMPORTED"
+    },
+    {
+      "id": "kitchenFridge",
+      "category": "Kitchen",
+      "label": "Fridge",
+      "sourceFile": {
+        "sourcePath": "Models/FBX format/kitchenFridge.fbx",
+        "packagePath": "Source/Kenney/Models/kitchenFridge.fbx",
+        "bytes": 42227,
+        "sha256": "34e40151a28147c09ff6ec4cdd9135fc5a8e22b06242a10e96b31e60dd139390"
+      },
+      "sourceGltf": {
+        "path": "Models/GLTF format/kitchenFridge.glb",
+        "sha256": "8af4f4bbb1b5525ad8226e97926a5af60fa8fb20a3cb74dbda5328a9d320dbab"
+      },
+      "sourceBounds": {
+        "min": [
+          0,
+          0,
+          -0.28193390369415283
+        ],
+        "max": [
+          0.4300000071525574,
+          0.9200000166893005,
+          0.01000000014901161
+        ],
+        "size": [
+          0.4300000071525574,
+          0.9200000166893005,
+          0.2919339038431644
+        ],
+        "method": "GLB POSITION float values transformed through scene node TRS/matrices; source coordinates, not validated Unity FBX dimensions",
+        "sampledPositionOccurrences": 976
+      },
+      "triangles": 250,
+      "vertices": 380,
+      "materialNames": [
+        "metalLight",
+        "metalDark",
+        "metal",
+        "glass"
+      ],
+      "childNodes": [
+        "kitchenFridge(Clone)",
+        "doorFreezer",
+        "doorFridge"
+      ],
+      "rig": {
+        "gltfSkins": 0,
+        "gltfAnimationClips": 0,
+        "gltfMorphTargetPrimitives": 0,
+        "fbxModels": [
+          {
+            "name": "kitchenFridge",
+            "type": "Mesh"
+          },
+          {
+            "name": "doorFreezer",
+            "type": "Mesh"
+          },
+          {
+            "name": "doorFridge",
+            "type": "Mesh"
+          }
+        ],
+        "fbxObjectCounts": {
+          "AnimationStack": 0,
+          "AnimationLayer": 0,
+          "AnimationCurve": 0,
+          "Deformer": 0,
+          "Texture": 0,
+          "Video": 0
+        }
+      },
+      "fbxDeclaredAxesAndUnits": {
+        "UpAxis": 1,
+        "UpAxisSign": 1,
+        "FrontAxis": 2,
+        "FrontAxisSign": 1,
+        "CoordAxis": 0,
+        "CoordAxisSign": 1,
+        "UnitScaleFactor": 100,
+        "OriginalUnitScaleFactor": 100
+      },
+      "textures": [],
+      "physicsPlan": "Separate freezer and fridge doors. Verify forward clearance, hinge axes, center of mass and stable contact; no live refrigeration behavior.",
+      "normalizationStatus": "NOT-RUN",
+      "runtimeStatus": "NOT-IMPORTED"
+    },
+    {
+      "id": "kitchenCabinet",
+      "category": "Kitchen",
+      "label": "Kitchen cabinet",
+      "sourceFile": {
+        "sourcePath": "Models/FBX format/kitchenCabinet.fbx",
+        "packagePath": "Source/Kenney/Models/kitchenCabinet.fbx",
+        "bytes": 24927,
+        "sha256": "dd52037b1eabdf79ad9aa5e124bd7977c6416482cbb50ec2c6f9162f0b7216bb"
+      },
+      "sourceGltf": {
+        "path": "Models/GLTF format/kitchenCabinet.glb",
+        "sha256": "7238c57778935ae25db5e57e9f7af3ba7068c71b005ff7cfbff3b6f3b1a13200"
+      },
+      "sourceBounds": {
+        "min": [
+          0,
+          0,
+          -0.44999998807907104
+        ],
+        "max": [
+          0.4300000071525574,
+          0.44999998807907104,
+          0
+        ],
+        "size": [
+          0.4300000071525574,
+          0.44999998807907104,
+          0.44999998807907104
+        ],
+        "method": "GLB POSITION float values transformed through scene node TRS/matrices; source coordinates, not validated Unity FBX dimensions",
+        "sampledPositionOccurrences": 406
+      },
+      "triangles": 114,
+      "vertices": 174,
+      "materialNames": [
+        "metal",
+        "wood",
+        "woodDark"
+      ],
+      "childNodes": [
+        "kitchenCabinet(Clone)",
+        "door"
+      ],
+      "rig": {
+        "gltfSkins": 0,
+        "gltfAnimationClips": 0,
+        "gltfMorphTargetPrimitives": 0,
+        "fbxModels": [
+          {
+            "name": "kitchenCabinet",
+            "type": "Mesh"
+          },
+          {
+            "name": "door",
+            "type": "Mesh"
+          }
+        ],
+        "fbxObjectCounts": {
+          "AnimationStack": 0,
+          "AnimationLayer": 0,
+          "AnimationCurve": 0,
+          "Deformer": 0,
+          "Texture": 0,
+          "Video": 0
+        }
+      },
+      "fbxDeclaredAxesAndUnits": {
+        "UpAxis": 1,
+        "UpAxisSign": 1,
+        "FrontAxis": 2,
+        "FrontAxisSign": 1,
+        "CoordAxis": 0,
+        "CoordAxisSign": 1,
+        "UnitScaleFactor": 100,
+        "OriginalUnitScaleFactor": 100
+      },
+      "textures": [],
+      "physicsPlan": "Separate door. Use explicit body and door colliders; verify counter height and opened-door navigation clearance.",
+      "normalizationStatus": "NOT-RUN",
+      "runtimeStatus": "NOT-IMPORTED"
+    },
+    {
+      "id": "bookcaseClosedDoors",
+      "category": "Attic",
+      "label": "Closed bookcase",
+      "sourceFile": {
+        "sourcePath": "Models/FBX format/bookcaseClosedDoors.fbx",
+        "packagePath": "Source/Kenney/Models/bookcaseClosedDoors.fbx",
+        "bytes": 43875,
+        "sha256": "f4d98d72fed80300d6bb73bd23d46c2ba049cf9f52f75559c55a9395c5f34998"
+      },
+      "sourceGltf": {
+        "path": "Models/GLTF format/bookcaseClosedDoors.glb",
+        "sha256": "ff33f535acdb1825c0e958a293642b39665adcae0b1317b650e83d2bb687f4e2"
+      },
+      "sourceBounds": {
+        "min": [
+          0,
+          0,
+          -0.25
+        ],
+        "max": [
+          0.4000000059604645,
+          0.8499999642372131,
+          0
+        ],
+        "size": [
+          0.4000000059604645,
+          0.8499999642372131,
+          0.25
+        ],
+        "method": "GLB POSITION float values transformed through scene node TRS/matrices; source coordinates, not validated Unity FBX dimensions",
+        "sampledPositionOccurrences": 568
+      },
+      "triangles": 296,
+      "vertices": 472,
+      "materialNames": [
+        "wood",
+        "metal"
+      ],
+      "childNodes": [
+        "bookcaseClosedDoors(Clone)",
+        "doorLeft",
+        "doorRight"
+      ],
+      "rig": {
+        "gltfSkins": 0,
+        "gltfAnimationClips": 0,
+        "gltfMorphTargetPrimitives": 0,
+        "fbxModels": [
+          {
+            "name": "bookcaseClosedDoors",
+            "type": "Mesh"
+          },
+          {
+            "name": "doorLeft",
+            "type": "Mesh"
+          },
+          {
+            "name": "doorRight",
+            "type": "Mesh"
+          }
+        ],
+        "fbxObjectCounts": {
+          "AnimationStack": 0,
+          "AnimationLayer": 0,
+          "AnimationCurve": 0,
+          "Deformer": 0,
+          "Texture": 0,
+          "Video": 0
+        }
+      },
+      "fbxDeclaredAxesAndUnits": {
+        "UpAxis": 1,
+        "UpAxisSign": 1,
+        "FrontAxis": 2,
+        "FrontAxisSign": 1,
+        "CoordAxis": 0,
+        "CoordAxisSign": 1,
+        "UnitScaleFactor": 100,
+        "OriginalUnitScaleFactor": 100
+      },
+      "textures": [],
+      "physicsPlan": "Separate left and right doors. Secure against unintended tipping or implement bounded tip behavior; test doors and shelf reach.",
+      "normalizationStatus": "NOT-RUN",
+      "runtimeStatus": "NOT-IMPORTED"
+    },
+    {
+      "id": "cabinetBedDrawer",
+      "category": "Attic",
+      "label": "Drawer cabinet",
+      "sourceFile": {
+        "sourcePath": "Models/FBX format/cabinetBedDrawer.fbx",
+        "packagePath": "Source/Kenney/Models/cabinetBedDrawer.fbx",
+        "bytes": 36228,
+        "sha256": "de9becf069e642d1ba7f1ae0e888da52f67aadc1a69965b4bbf7ba6aa222bbb5"
+      },
+      "sourceGltf": {
+        "path": "Models/GLTF format/cabinetBedDrawer.glb",
+        "sha256": "e3dfd2e120af3d4d29b66509e317452cd15bd3f57ac8945575462c582adc6de8"
+      },
+      "sourceBounds": {
+        "min": [
+          -0.009999999776482582,
+          0,
+          -0.20500001311302185
+        ],
+        "max": [
+          0.25599998235702515,
+          0.26319998502731323,
+          0.012299999223480212
+        ],
+        "size": [
+          0.26599998213350773,
+          0.26319998502731323,
+          0.21730001233650206
+        ],
+        "method": "GLB POSITION float values transformed through scene node TRS/matrices; source coordinates, not validated Unity FBX dimensions",
+        "sampledPositionOccurrences": 588
+      },
+      "triangles": 182,
+      "vertices": 294,
+      "materialNames": [
+        "wood",
+        "_defaultMat",
+        "metal"
+      ],
+      "childNodes": [
+        "cabinetBedDrawer(Clone)",
+        "door",
+        "drawer"
+      ],
+      "rig": {
+        "gltfSkins": 0,
+        "gltfAnimationClips": 0,
+        "gltfMorphTargetPrimitives": 0,
+        "fbxModels": [
+          {
+            "name": "cabinetBedDrawer",
+            "type": "Mesh"
+          },
+          {
+            "name": "door",
+            "type": "Mesh"
+          },
+          {
+            "name": "drawer",
+            "type": "Mesh"
+          }
+        ],
+        "fbxObjectCounts": {
+          "AnimationStack": 0,
+          "AnimationLayer": 0,
+          "AnimationCurve": 0,
+          "Deformer": 0,
+          "Texture": 0,
+          "Video": 0
+        }
+      },
+      "fbxDeclaredAxesAndUnits": {
+        "UpAxis": 1,
+        "UpAxisSign": 1,
+        "FrontAxis": 2,
+        "FrontAxisSign": 1,
+        "CoordAxis": 0,
+        "CoordAxisSign": 1,
+        "UnitScaleFactor": 100,
+        "OriginalUnitScaleFactor": 100
+      },
+      "textures": [],
+      "physicsPlan": "A small drawer cabinet, not a hinged chest. Separate door and drawer; author sliding stops and prevent overlap or player trapping.",
+      "normalizationStatus": "NOT-RUN",
+      "runtimeStatus": "NOT-IMPORTED"
+    },
+    {
+      "id": "pottedPlant",
+      "category": "Rooftop",
+      "label": "Potted plant",
+      "sourceFile": {
+        "sourcePath": "Models/FBX format/pottedPlant.fbx",
+        "packagePath": "Source/Kenney/Models/pottedPlant.fbx",
+        "bytes": 23744,
+        "sha256": "61e963d81fbf4e0772b5b8d542a44dbb0c794affa9994b6d5715f425d71fc97d"
+      },
+      "sourceGltf": {
+        "path": "Models/GLTF format/pottedPlant.glb",
+        "sha256": "5b760eda2766f75fda36b2c5df652a1662f82981ef64cd8fa7fe7bcd386b3a15"
+      },
+      "sourceBounds": {
+        "min": [
+          -0.10602964,
+          0,
+          -0.12073097376031036
+        ],
+        "max": [
+          0.10602963431583405,
+          0.6540167939567566,
+          0.1207309738
+        ],
+        "size": [
+          0.21205927431583405,
+          0.6540167939567566,
+          0.24146194756031036
+        ],
+        "method": "GLB POSITION float values transformed through scene node TRS/matrices; source coordinates, not validated Unity FBX dimensions",
+        "sampledPositionOccurrences": 192
+      },
+      "triangles": 60,
+      "vertices": 120,
+      "materialNames": [
+        "wood",
+        "woodDark",
+        "plant"
+      ],
+      "childNodes": [
+        "pottedPlant(Clone)",
+        "plant"
+      ],
+      "rig": {
+        "gltfSkins": 0,
+        "gltfAnimationClips": 0,
+        "gltfMorphTargetPrimitives": 0,
+        "fbxModels": [
+          {
+            "name": "pottedPlant",
+            "type": "Mesh"
+          },
+          {
+            "name": "plant",
+            "type": "Mesh"
+          }
+        ],
+        "fbxObjectCounts": {
+          "AnimationStack": 0,
+          "AnimationLayer": 0,
+          "AnimationCurve": 0,
+          "Deformer": 0,
+          "Texture": 0,
+          "Video": 0
+        }
+      },
+      "fbxDeclaredAxesAndUnits": {
+        "UpAxis": 1,
+        "UpAxisSign": 1,
+        "FrontAxis": 2,
+        "FrontAxisSign": 1,
+        "CoordAxis": 0,
+        "CoordAxisSign": 1,
+        "UnitScaleFactor": 100,
+        "OriginalUnitScaleFactor": 100
+      },
+      "textures": [],
+      "physicsPlan": "Separate plant child. Give the pot a simple collider and measured center of mass; foliage should not obstruct player navigation.",
+      "normalizationStatus": "NOT-RUN",
+      "runtimeStatus": "NOT-IMPORTED"
+    },
+    {
+      "id": "bench",
+      "category": "Rooftop",
+      "label": "Wooden bench",
+      "sourceFile": {
+        "sourcePath": "Models/FBX format/bench.fbx",
+        "packagePath": "Source/Kenney/Models/bench.fbx",
+        "bytes": 25079,
+        "sha256": "2c570d3a665509f8f246b7dae42900f07a285b2db86743f0fccce7ad6cdf262f"
+      },
+      "sourceGltf": {
+        "path": "Models/GLTF format/bench.glb",
+        "sha256": "ba05a6d23a5a5a44da016757632070e47ff7587ce10e2f6d6d52328b4cf5489b"
+      },
+      "sourceBounds": {
+        "min": [
+          0,
+          0,
+          -0.20000000298023224
+        ],
+        "max": [
+          0.4000000059604645,
+          0.4699999988079071,
+          0
+        ],
+        "size": [
+          0.4000000059604645,
+          0.4699999988079071,
+          0.20000000298023224
+        ],
+        "method": "GLB POSITION float values transformed through scene node TRS/matrices; source coordinates, not validated Unity FBX dimensions",
+        "sampledPositionOccurrences": 230
+      },
+      "triangles": 170,
+      "vertices": 230,
+      "materialNames": [
+        "wood"
+      ],
+      "childNodes": [
+        "bench(Clone)"
+      ],
+      "rig": {
+        "gltfSkins": 0,
+        "gltfAnimationClips": 0,
+        "gltfMorphTargetPrimitives": 0,
+        "fbxModels": [
+          {
+            "name": "bench",
+            "type": "Mesh"
+          }
+        ],
+        "fbxObjectCounts": {
+          "AnimationStack": 0,
+          "AnimationLayer": 0,
+          "AnimationCurve": 0,
+          "Deformer": 0,
+          "Texture": 0,
+          "Video": 0
+        }
+      },
+      "fbxDeclaredAxesAndUnits": {
+        "UpAxis": 1,
+        "UpAxisSign": 1,
+        "FrontAxis": 2,
+        "FrontAxisSign": 1,
+        "CoordAxis": 0,
+        "CoordAxisSign": 1,
+        "UnitScaleFactor": 100,
+        "OriginalUnitScaleFactor": 100
+      },
+      "textures": [],
+      "physicsPlan": "Rigid single model. Compound box collision should preserve sitting/walking clearance; test stability if movable.",
+      "normalizationStatus": "NOT-RUN",
+      "runtimeStatus": "NOT-IMPORTED"
+    },
+    {
+      "id": "cardboardBoxClosed",
+      "category": "PackingYard",
+      "label": "Closed cardboard parcel",
+      "sourceFile": {
+        "sourcePath": "Models/FBX format/cardboardBoxClosed.fbx",
+        "packagePath": "Source/Kenney/Models/cardboardBoxClosed.fbx",
+        "bytes": 17427,
+        "sha256": "b3748b9773ff622c7806867b28ef5203f10f55ab52cb50662c77839651c67d3f"
+      },
+      "sourceGltf": {
+        "path": "Models/GLTF format/cardboardBoxClosed.glb",
+        "sha256": "4af079dca52960912764574950f0549ff2ae1224b3db1528718629473a2d5d81"
+      },
+      "sourceBounds": {
+        "min": [
+          0,
+          0,
+          -0.21249999105930328
+        ],
+        "max": [
+          0.21249999105930328,
+          0.2809999883174896,
+          9.02389263509778e-17
+        ],
+        "size": [
+          0.21249999105930328,
+          0.2809999883174896,
+          0.21249999105930337
+        ],
+        "method": "GLB POSITION float values transformed through scene node TRS/matrices; source coordinates, not validated Unity FBX dimensions",
+        "sampledPositionOccurrences": 176
+      },
+      "triangles": 60,
+      "vertices": 88,
+      "materialNames": [
+        "wood",
+        "woodDark"
+      ],
+      "childNodes": [
+        "cardboardBoxClosed(Clone)"
+      ],
+      "rig": {
+        "gltfSkins": 0,
+        "gltfAnimationClips": 0,
+        "gltfMorphTargetPrimitives": 0,
+        "fbxModels": [
+          {
+            "name": "cardboardBoxClosed",
+            "type": "Mesh"
+          }
+        ],
+        "fbxObjectCounts": {
+          "AnimationStack": 0,
+          "AnimationLayer": 0,
+          "AnimationCurve": 0,
+          "Deformer": 0,
+          "Texture": 0,
+          "Video": 0
+        }
+      },
+      "fbxDeclaredAxesAndUnits": {
+        "UpAxis": 1,
+        "UpAxisSign": 1,
+        "FrontAxis": 2,
+        "FrontAxisSign": 1,
+        "CoordAxis": 0,
+        "CoordAxisSign": 1,
+        "UnitScaleFactor": 100,
+        "OriginalUnitScaleFactor": 100
+      },
+      "textures": [],
+      "physicsPlan": "A cardboard parcel, not a wooden crate or wheeled trolley. Box collider and believable lightweight mass require runtime testing.",
+      "normalizationStatus": "NOT-RUN",
+      "runtimeStatus": "NOT-IMPORTED"
+    }
+  ],
+  "verification": {
+    "copiedModelFiles": 8,
+    "copiedLicenseFiles": 1,
+    "totalCopiedBytes": 324813,
+    "sourceRechecked": [
+      "kitchenStove",
+      "kitchenFridge",
+      "kitchenCabinet",
+      "bookcaseClosedDoors",
+      "cabinetBedDrawer",
+      "pottedPlant",
+      "bench",
+      "cardboardBoxClosed"
+    ],
+    "copiedHashMatch": true,
+    "rigAndPhysicsAcceptance": "NOT-RUN",
+    "glbBoundsDoNotProveFbxImportScale": true,
+    "finalHashVerificationUtc": "2026-10-26T10:23:00.725Z",
+    "finalHashVerificationPassed": true
+  }
+}

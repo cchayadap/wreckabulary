@@ -22,7 +22,9 @@ namespace Wreckabulary
         public const string Practice = "practice", Matchmaking = "matchmaking", Workshop = "workshop";
         public const string TutorialMode = "Tutorial", WorkshopMode = "Workshop", RoomMode = "Room";
         public const string VolumeKey = "wv.volume", VsyncKey = "wv.vsync";
-        public static readonly string[] Modes = { "Dibs", "Duos", "MovingOut", "MovingDay" };
+        public static readonly string[] Modes = { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" };
+        public static readonly string[] PracticeModes = { TutorialMode, "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" };
+        public static string DefaultMode => TutorialDirector.Done ? Modes[0] : TutorialMode;
         public static float StartDelay = 3f;
         public const int PartyMax = 4;
         const float BarHeight = 76f, Gutter = 26f, PartyWidth = 380f, FeedWidth = 420f;
@@ -39,6 +41,10 @@ namespace Wreckabulary
         public string Map { get; private set; }
         public string Queue { get; private set; } = Practice;
         public string Mode { get; private set; } = "Dibs";
+        public string SavedHome { get; private set; }
+        public string SavedHomeName { get; private set; }
+        public string MapLabel => SavedHome != null ? SavedHomeName : Map == Session.LobbyRandomMap ? "Random house"
+            : Map != null && GameConfig.Current.Houses.TryGetValue(Map, out var house) ? house.Name : Map ?? "";
         public LobbyStage Stage { get; private set; }
         public string Current { get; private set; }
         public bool Starting => startAt > 0f;
@@ -55,6 +61,7 @@ namespace Wreckabulary
         readonly List<(CanvasGroup card, float posted)> notices = new List<(CanvasGroup, float)>();
         Canvas canvas;
         RectTransform safe, pageHost, feed, rail, partyList, status, quitDialog;
+        RectTransform topBar, systemBar, pageBar, walletBar;
         TextMeshProUGUI coins, initial, partyHeading, partyCount, statusTitle, statusDetail, statusCount;
         Button power, cancelButton, shopButton, trophyButton;
         Image shopUnderline, trophyUnderline;
@@ -67,8 +74,11 @@ namespace Wreckabulary
         PlayerJoinManager hubJoins;
         bool hubSuspended, priorAllowJoining;
         Gamepad goPad;
+        HomeLayout launchHome;
+        string returnMap, reopen;
         float startAt;
         bool hidden, typedLastFrame;
+        bool barLayoutReady, compactBar;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Register()
@@ -86,7 +96,42 @@ namespace Wreckabulary
                 new GameObject("Lobby").AddComponent<LobbyMenu>();
         }
 
-        void Awake() => Instance = this;
+        void Awake() { LobbyInterfaceTheme.LoadSaved(); Instance = this; }
+
+        public void OpenWordbound()
+        {
+            if (Starting || !Session.CanLoad(Session.WordboundScene)) return;
+            WordboundSoloEntry.CancelRequest();
+            WordboundWorkshopEntry.CancelRequest();
+            Session.LobbyQueue = Queue;
+            Session.LobbyMode = Mode;
+            Session.Load(Session.WordboundScene);
+        }
+
+        public void OpenWordboundSolo(string mode)
+        {
+            if (!WordboundSoloEntry.Supports(mode)) throw new ArgumentException("Choose a solo Wordbound mode.", nameof(mode));
+            if (Starting || PartySize != 1 || !Session.CanLoad(Session.WordboundScene)) return;
+            var pad = Gamepad.all.FirstOrDefault(p => p.buttonSouth.wasPressedThisFrame || p.startButton.wasPressedThisFrame);
+            Seat(pad);
+            Session.LobbyQueue = Queue;
+            Session.LobbyMode = Mode;
+            WordboundSoloEntry.Request(mode);
+            try { Session.Load(Session.WordboundScene); }
+            catch { WordboundSoloEntry.CancelRequest(); throw; }
+        }
+
+        public void OpenWordboundWorkshop()
+        {
+            if (Starting || !Session.CanLoad(Session.WordboundScene)) return;
+            var pad = Gamepad.all.FirstOrDefault(p => p.buttonSouth.wasPressedThisFrame || p.startButton.wasPressedThisFrame);
+            Seat(pad);
+            Session.LobbyQueue = Queue;
+            Session.LobbyMode = Mode;
+            WordboundWorkshopEntry.Request();
+            try { Session.Load(Session.WordboundScene); }
+            catch { WordboundWorkshopEntry.CancelRequest(); throw; }
+        }
 
         void Start()
         {
@@ -102,7 +147,13 @@ namespace Wreckabulary
             if (Career.Keep(Outfit.ItemSkins.Values.FirstOrDefault() ?? "Classic", Outfit.ColourOf("Top") ?? ""))
                 MatchTally.SaveCareer(Career);
             Map = GameConfig.Current.Houses.ContainsKey(Session.MapId) ? Session.MapId : GameConfig.Current.Houses.Keys.First();
-            Choose(Session.LobbyQueue, Session.LobbyMode);
+            string rememberedHome = Session.LobbyHome;
+            string mode = Session.LobbyMode;
+            if (mode == null || (mode == TutorialMode && TutorialDirector.Done)) mode = DefaultMode;
+            Choose(Session.LobbyQueue, mode);
+            if (rememberedHome != null && rememberedHome == Map && Queue == Practice && HomeDesigner.Playable(Mode) &&
+                HomeStorage.ForGame().TryLoad(rememberedHome, out var home, out _))
+                SelectHome(home);
             AudioListener.volume = Mathf.Clamp01(PlayerPrefs.GetFloat(VolumeKey, 1f));
             if (PlayerPrefs.HasKey(VsyncKey)) QualitySettings.vSyncCount = PlayerPrefs.GetInt(VsyncKey) > 0 ? 1 : 0;
             foreach (var binding in Session.Bindings.Skip(1))
@@ -110,7 +161,7 @@ namespace Wreckabulary
             SuspendHub();
             Stage = new GameObject("Lobby stage").AddComponent<LobbyStage>();
             LobbyThemes.Restore();
-            Stage.Show(Map, Outfit);
+            Stage.Show(Map == Session.LobbyRandomMap ? RealMap() : Map, Outfit);
             Stage.gameObject.AddComponent<LobbyCollectionDecor>();
             Stage.SetThemeEffects(PlayerPrefs.GetInt("wv.theme.effects", 1) != 0);
             BuildCanvas();
@@ -119,6 +170,7 @@ namespace Wreckabulary
             BuildFeed();
             BuildStatus();
             BuildThemeBadge();
+            LayoutBar();
             LobbyThemes.Changed += RefreshThemeBadge;
             foreach (var page in new LobbyPage[] { new HomePage(), new LoadoutPage(), new PlayPage(), new CareerScreen(),
                 new ShopPage(), new TrophyPage(), new SettingsPage() })
@@ -126,8 +178,17 @@ namespace Wreckabulary
                 page.Create(this, pageHost);
                 pages[page.Id] = page;
             }
-            Open(Home);
-            Post($"Welcome back, {Career.Name}.");
+            if (WordboundWorkshopEntry.TakeReturn())
+            {
+                ((PlayPage)pages[Play]).WordboundMaps = true;
+                Open(Play);
+            }
+            else if (WordboundSoloEntry.TakeReturn())
+            {
+                ((PlayPage)pages[Play]).WordboundSolo = true;
+                Open(Play);
+            }
+            else Open(Home);
             if (MatchTally.LastResult != null)
             {
                 var last = MatchTally.LastResult;
@@ -135,6 +196,7 @@ namespace Wreckabulary
                     (MatchTally.LastWasBest ? ". New best!" : "."));
                 MatchTally.LastResult = null;
             }
+            if (MatchTally.TakeSetAside() != null) Post("Your career save couldn't be read. A copy was kept and a new career started.");
             RefreshBar();
             if (hud && hud.StateController)
             {
@@ -240,7 +302,9 @@ namespace Wreckabulary
             else
             {
                 Stage.TakeCamera();
-                Open(Current ?? Home);
+                string next = reopen ?? Current ?? Home;
+                reopen = null;
+                Open(next);
             }
         }
 
@@ -273,8 +337,8 @@ namespace Wreckabulary
 
         void BuildBar()
         {
-            var bar = LobbyKit.Rect(safe, "Top bar").Place(new Vector2(0, 1), Vector2.one, new Vector2(0, -BarHeight), Vector2.zero);
-            var left = LobbyKit.Row(bar, "System", 12, 0);
+            var bar = topBar = LobbyKit.Rect(safe, "Top bar").Place(new Vector2(0, 1), Vector2.one, new Vector2(0, -BarHeight), Vector2.zero);
+            var left = systemBar = LobbyKit.Row(bar, "System", 12, 0);
             left.Place(new Vector2(0, 0), new Vector2(0, 1), new Vector2(Gutter, 8), new Vector2(600, -8));
             left.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
             left.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
@@ -283,30 +347,31 @@ namespace Wreckabulary
             tabs[Home] = LobbyKit.IconTab(system, LobbyIcons.Home, "Home", () => Open(Home));
             tabs[Settings] = LobbyKit.IconTab(system, LobbyIcons.Settings, "Settings", () => Toggle(Settings));
             power = LobbyKit.IconTab(system, LobbyIcons.Power, "Quit", AskQuit, LobbyKit.Hot).Button;
-            var centre = LobbyKit.Row(bar, "Pages", 4, 10);
-            centre.Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(712, 60));
+            var centre = pageBar = LobbyKit.Row(bar, "Pages", 4, 10);
+            centre.Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(762, 60));
             LobbyKit.PanelFace(centre, 12, 1, 0);
             var row = centre.GetComponent<HorizontalLayoutGroup>();
             row.childAlignment = TextAnchor.MiddleCenter;
             row.childForceExpandHeight = false;
-            tabs[Loadout] = LobbyKit.Tab(centre, "LOADOUT", null, () => Toggle(Loadout), 170);
+            tabs[Loadout] = LobbyKit.Tab(centre, "LOADOUT", null, () => Toggle(Loadout), 220);
+            tabs[Loadout].GetComponentInChildren<TMP_Text>().text = "CUSTOMIZE";
             tabs[Play] = LobbyKit.Tab(centre, "PLAY", null, () => Toggle(Play), 112);
             tabs[CareerPage] = LobbyKit.Tab(centre, "CAREER", null, () => Toggle(CareerPage), 156);
-            trophyButton = NavigationAction(centre, "Leaderboard", Trophy, LobbyKit.Sun, out trophyUnderline);
+            trophyButton = NavigationAction(centre, "Leaderboard", Trophy, LobbyKit.Selection, out trophyUnderline);
             trophyButton.Size(240, 48);
             LobbyKit.Display(trophyButton.Body(), "LEADERBOARDS", 24, LobbyKit.Navy, TextAlignmentOptions.Center)
                 .rectTransform.Fill();
             foreach (var kv in tabs) openers[kv.Key] = kv.Value.Button;
             openers[Trophy] = trophyButton;
 
-            var wallet = LobbyKit.Row(bar, "Wallet", 6, 8);
+            var wallet = walletBar = LobbyKit.Row(bar, "Wallet", 6, 8);
             wallet.Pin(new Vector2(1, .5f), new Vector2(-Gutter, 0), new Vector2(280, 60));
             wallet.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             LobbyKit.PanelFace(wallet, 12, 1, 0);
             wallet.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleRight;
             wallet.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
-            shopButton = NavigationAction(wallet, "Shop", Shop, LobbyKit.Sun, out shopUnderline);
-            shopButton.Size(150, 52);
+            shopButton = NavigationAction(wallet, "Shop", Shop, LobbyKit.Selection, out shopUnderline);
+            shopButton.Size(250, 52);
             openers[Shop] = shopButton;
             var chip = LobbyKit.Row(shopButton.Body(), "Coin balance", 10).Fill();
             var inside = chip.GetComponent<HorizontalLayoutGroup>();
@@ -316,9 +381,37 @@ namespace Wreckabulary
             LobbyKit.Coin(chip, 32);
             coins = LobbyKit.Display(chip, "0", 26, LobbyKit.Sun, TextAlignmentOptions.MidlineLeft, LobbyKit.Ink.Stroke);
             coins.Size(-1, 34);
-            partyTab = LobbyKit.Tab(wallet, "Party", LobbyIcons.Party, ToggleParty, 132, 52, 26, 0);
+            LobbyKit.Display(chip, "SHOP", 21, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft).Size(62, 34);
+            partyTab = LobbyKit.Tab(wallet, "Party", LobbyIcons.Party, ToggleParty, 188, 52, 22, 0);
             partyTab.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(16, 18, 0, 0);
             partyCount = partyTab.GetComponentsInChildren<TextMeshProUGUI>(true).First();
+        }
+
+        void LayoutBar()
+        {
+            if (!safe || !topBar) return;
+            float walletWidth = Mathf.Max(460f, LayoutUtility.GetPreferredWidth(walletBar));
+            bool compact = safe.rect.width < 762f + 2f * (Gutter + walletWidth + 13f);
+            if (barLayoutReady && compactBar == compact) return;
+            compactBar = compact;
+            barLayoutReady = true;
+            float height = compact ? 140f : BarHeight;
+            topBar.offsetMin = new Vector2(0, -height);
+            systemBar.Place(Vector2.up, Vector2.up, new Vector2(Gutter, -68), new Vector2(600, -8));
+            pageBar.Pin(new Vector2(.5f, 1), new Vector2(0, compact ? -78 : -8), new Vector2(762, 60));
+            walletBar.Pin(Vector2.one, new Vector2(-Gutter, -8), new Vector2(460, 60));
+            LayoutPageHost();
+            if (rail) rail.anchoredPosition = new Vector2(-Gutter, -(height + 6));
+            if (feed) feed.anchoredPosition = new Vector2(Gutter, -(height + 10));
+            if (status) status.anchoredPosition = new Vector2(0, -(height + 12));
+        }
+
+        void LayoutPageHost()
+        {
+            if (!pageHost) return;
+            float inset = Current == Play ? 12f : Gutter;
+            pageHost.offsetMin = new Vector2(inset, inset);
+            pageHost.offsetMax = new Vector2(-inset, -((compactBar ? 140f : BarHeight) + (Current == Play ? 6f : 10f)));
         }
 
         Button NavigationAction(Transform parent, string name, string page, Color accent, out Image underline)
@@ -348,14 +441,14 @@ namespace Wreckabulary
             var badge = LobbyKit.Rect(you, "Badge");
             LobbyKit.Face(badge, LobbyKit.Hot, 12, LobbyKit.Navy, 3, 3);
             badge.Size(54, 54);
-            initial = LobbyKit.Display(badge, LobbyKit.Upper(Career.Name.Substring(0, 1)), 30, LobbyKit.Cream, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke);
+            initial = LobbyKit.Display(badge, LobbyKit.Upper(Career.Name.Substring(0, 1)), 30, LobbyKit.ArtInk, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke);
             initial.rectTransform.Fill();
             var who = LobbyKit.Column(you, "Who", 0, 0);
             who.Size(170, -1, 1);
             LobbyKit.Display(who, Career.Name, 26, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft).Size(-1, 32).name = "Name";
             LobbyKit.Text(who, "Level " + Career.Level + "  ·  in the lobby", 17, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft).Size(-1, 24).name = "Level";
             partyList = LobbyKit.Column(column, "Couch", 8, 0);
-            var friends = LobbyKit.Text(column, "Friends show up here once online or LAN play is built. Bots fill the empty seats.",
+            var friends = LobbyKit.Text(column, "Players on this PC. For online parties, open Play and choose Matchmaking.",
                 16, LobbyKit.Muted, TextAlignmentOptions.TopLeft);
             friends.textWrappingMode = TextWrappingModes.Normal;
             friends.Size(-1, 44);
@@ -363,7 +456,7 @@ namespace Wreckabulary
             rail.gameObject.SetActive(false);
         }
 
-        public void ToggleParty() => ShowParty(!rail.gameObject.activeSelf);
+        public void ToggleParty() { if (rail) ShowParty(!rail.gameObject.activeSelf); }
 
         void ShowParty(bool on)
         {
@@ -387,8 +480,8 @@ namespace Wreckabulary
         {
             if (Stage) Stage.SetPartySize(PartySize);
             if (!partyList) return;
-            partyHeading.text = $"PARTY  {PartySize} / {PartyMax}";
-            if (partyCount) partyCount.text = $"{PartySize}/{PartyMax}";
+            partyHeading.text = $"LOCAL PARTY  {PartySize} / {PartyMax}";
+            if (partyCount) partyCount.text = $"Local {PartySize}/{PartyMax}";
             LobbyKit.Clear(partyList);
             for (int i = 0; i < party.Count; i++)
             {
@@ -400,7 +493,7 @@ namespace Wreckabulary
                 var badge = LobbyKit.Rect(row, "Seat badge");
                 LobbyKit.Face(badge, GameAssets.I ? GameAssets.I.PlayerColor(seat - 1) : LobbyKit.Lime, 12, LobbyKit.Navy, 3, 3);
                 badge.Size(46, 46);
-                LobbyKit.Display(badge, "P" + seat, 22, LobbyKit.Cream, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke).rectTransform.Fill();
+                LobbyKit.Display(badge, "P" + seat, 22, LobbyKit.ArtInk, TextAlignmentOptions.Center, LobbyKit.Ink.Stroke).rectTransform.Fill();
                 var who = LobbyKit.Column(row, "Who", 0, 0);
                 who.Size(-1, -1, 1);
                 LobbyKit.Display(who, "Player " + seat, 22, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft).Size(-1, 26);
@@ -466,6 +559,7 @@ namespace Wreckabulary
 
         public void Leave(InputBinding binding)
         {
+            if (binding == null) return;
             int index = party.FindIndex(b => b.Id == binding.Id);
             if (index < 0) return;
             party.RemoveAt(index);
@@ -537,8 +631,10 @@ namespace Wreckabulary
             if (moved && Current != null && pages.TryGetValue(Current, out var previous)) previous.Closed();
             foreach (var other in pages.Values) other.Root.gameObject.SetActive(other == page);
             Current = id;
+            LayoutPageHost();
             if (id != Home) ShowParty(false);
             Stage.Dress(Outfit);
+            Stage.SetCharactersVisible(id != Play && id != Settings);
             Stage.SetPartyVisible(id == Home);
             Stage.ShowArtwork(id != Play);
             if (themeBadge) themeBadge.gameObject.SetActive(id == Home);
@@ -626,7 +722,7 @@ namespace Wreckabulary
             if (coins)
             {
                 coins.text = Career.Coins.ToString("N0", CultureInfo.InvariantCulture);
-                shopButton.Size(Mathf.Clamp(coins.GetPreferredValues(coins.text).x + 66f, 110f, 280f), 52);
+                shopButton.Size(Mathf.Clamp(coins.GetPreferredValues(coins.text).x + 138f, 250f, 350f), 52);
             }
             if (initial) initial.text = LobbyKit.Upper(Career.Name.Substring(0, 1));
             var level = rail ? rail.GetComponentsInChildren<TextMeshProUGUI>(true).FirstOrDefault(t => t.name == "Level") : null;
@@ -659,31 +755,84 @@ namespace Wreckabulary
             if (Starting) CancelStart();
             if (queue != null) Queue = queue;
             if (mode != null) Mode = mode;
-            if (Queue == Workshop && Mode != TutorialMode && Mode != WorkshopMode) Mode = TutorialMode;
-            if (Queue != Workshop && !Modes.Contains(Mode) && !(Queue == Matchmaking && Mode == RoomMode) && !(Queue == Practice && Mode == TutorialMode))
-                Mode = Modes[0];
-            if (Mode == WorkshopMode && !HomeDesigner.Supports(map ?? Map)) map = HomeDesigner.Supports(Map) ? null : "pinwheel";
+            if (Queue == Workshop) Mode = WorkshopMode;
+            else if (!PracticeModes.Contains(Mode) && !(Queue == Matchmaking && Mode == RoomMode)) Mode = DefaultMode;
+            if (Queue != Workshop && returnMap != null)
+            {
+                map ??= returnMap;
+                returnMap = null;
+            }
+            if (Mode == "Escape") map = Session.LobbyRandomMap;
+            else if (Map == Session.LobbyRandomMap && map == null) map = RealMap();
+            if (Mode == WorkshopMode && !HomeDesigner.Supports(map ?? Map))
+            {
+                if (map == null && Map != Session.LobbyRandomMap) returnMap = Map;
+                map = HomeDesigner.Supports(Map) ? null : "pinwheel";
+            }
+            if (map != null || Queue != Practice || !HomeDesigner.Playable(Mode)) SavedHome = SavedHomeName = null;
             Session.LobbyQueue = Queue;
             Session.LobbyMode = Mode;
+            Session.LobbyHome = SavedHome;
             if (map != null && map != Map)
             {
-                Session.SelectMap(map);
-                Map = map;
-                Stage.SetMap(map);
-                Post("Map: " + GameConfig.Current.HouseFor(map).Name + ".");
+                if (map == Session.LobbyRandomMap)
+                {
+                    Map = map;
+                }
+                else
+                {
+                    Session.SelectMap(map);
+                    Map = map;
+                    if (Stage) Stage.SetMap(map);
+                }
             }
             RefreshBar();
             if (Current == Home && pages.TryGetValue(Home, out var home)) home.Refresh();
         }
 
+        public bool ChooseHome(string map)
+        {
+            if (!HomeStorage.ForGame().TryLoad(map, out var home, out string error))
+            {
+                Post(error ?? "Save this home in the Home builder first.");
+                return false;
+            }
+            Choose(queue: Practice, mode: HomeDesigner.Playable(Mode) ? null : HomeDesigner.PlayableModes[0], map: home.Map);
+            SelectHome(home);
+            return true;
+        }
+
+        void SelectHome(HomeLayout home)
+        {
+            SavedHome = home.Map;
+            SavedHomeName = home.Name;
+            Session.LobbyHome = SavedHome;
+            RefreshBar();
+            if (Current == Home && pages.TryGetValue(Home, out var page)) page.Refresh();
+        }
+
+        public void PlayHome(string map)
+        {
+            if (Starting || !ChooseHome(map)) return;
+            if (pages[Play] is PlayPage play) { play.WordboundSolo = false; play.Aim = PlayPage.SavedHomeCard + map; }
+            if (hidden) reopen = Play;
+            else Open(Play);
+        }
+
         public string Blocked => Queue == Matchmaking
-            ? "Matchmaking needs online or LAN play, which isn't built yet. Practice plays every mode with bots."
+            ? "These house modes are local. For online matches, choose Matchmaking."
             : null;
 
         public void Go()
         {
             if (Starting) return;
             if (Blocked != null) { Post(Blocked); return; }
+            launchHome = null;
+            if (SavedHome != null && !HomeStorage.ForGame().TryLoad(SavedHome, out launchHome, out string error))
+            {
+                Post(error ?? "That home is no longer saved.");
+                return;
+            }
             goPad = Gamepad.all.FirstOrDefault(p => p.buttonSouth.wasPressedThisFrame || p.startButton.wasPressedThisFrame);
             if (goPad != null)
             {
@@ -692,7 +841,7 @@ namespace Wreckabulary
             }
             startAt = Time.unscaledTime + StartDelay;
             status.gameObject.SetActive(true);
-            statusTitle.text = Queue == Workshop ? "OPENING" : "STARTING PRACTICE";
+            statusTitle.text = Queue == Workshop ? "OPENING" : "STARTING LOCAL GAME";
             statusDetail.text = Describe();
             Open(Home);
             if (EventSystem.current) EventSystem.current.SetSelectedGameObject(cancelButton.gameObject);
@@ -711,24 +860,28 @@ namespace Wreckabulary
             RefreshBar();
         }
 
+        string RealMap() => GameConfig.Current.Houses.ContainsKey(Session.MapId)
+            ? Session.MapId
+            : GameConfig.Current.Houses.Keys.First();
+
         public string Describe()
         {
             if (Mode == TutorialMode) return "Play & learn · the tutorial room";
-            if (Mode == WorkshopMode) return ModeName(WorkshopMode) + " · " + GameConfig.Current.HouseFor(Map).Name;
-            if (Queue == Matchmaking) return ModeName(Mode) + " · " + GameConfig.Current.HouseFor(Map).Name + " · online";
-            return ModeName(Mode) + " · " + GameConfig.Current.HouseFor(Map).Name + " · " + Seats(Mode, PartySize);
+            string house = SavedHome != null ? SavedHomeName : Map == Session.LobbyRandomMap ? "Random house" : GameConfig.Current.HouseFor(Map).Name;
+            if (Mode == WorkshopMode) return ModeName(WorkshopMode) + " · " + house;
+            string online = Queue == Matchmaking ? " · online" : "";
+            string seats = Seats(Mode, PartySize);
+            return seats.Length == 0
+                ? $"{ModeName(Mode)} · {house}{online}"
+                : $"{ModeName(Mode)} · {house}{online} · {seats}";
         }
 
         public static string ModeName(string mode) => mode switch
         {
-            "Dibs" => "Dibs!",
-            "Duos" => "Double trouble",
-            "MovingOut" => "The great escape",
-            "MovingDay" => "Moving day",
             "Tutorial" => "Play & learn",
             "Workshop" => "Creative workshop",
             "Room" => "Private room",
-            _ => mode,
+            _ => LobbyPlayModeLabels.Name(mode),
         };
 
         public static string Seats(string mode, int humans = 1)
@@ -737,6 +890,7 @@ namespace Wreckabulary
             int bots = PartyMax - humans;
             return mode switch
             {
+                "Escape" => "",
                 "Dibs" => humans == 1 ? "you + 3 bots" : bots == 0 ? "4 players" : $"{humans} players + {bots} bot{(bots > 1 ? "s" : "")}",
                 "Duos" => humans switch
                 {
@@ -758,6 +912,7 @@ namespace Wreckabulary
                 safe.anchorMin = new Vector2(area.xMin / Screen.width, area.yMin / Screen.height);
                 safe.anchorMax = new Vector2(area.xMax / Screen.width, area.yMax / Screen.height);
             }
+            LayoutBar();
             bool workshopOpen = CreativeWorkshop.Instance;
             SetWorkshopHidden(workshopOpen);
             if (hidden || (uiState && uiState.IsTransitioning)) return;
@@ -794,7 +949,12 @@ namespace Wreckabulary
             }
         }
 
-        void LateUpdate() => typedLastFrame = Typing;
+        void LateUpdate()
+        {
+            typedLastFrame = Typing;
+            if (!hidden && Current == Play && Stage && Stage.IsPresenting && pages.TryGetValue(Play, out var page))
+                Stage.Frame(page.Focus, (Gutter + page.PanelWidth) / ReferenceHeight);
+        }
 
         static bool AnyPad(Func<Gamepad, ButtonControl> button)
         {
@@ -818,8 +978,10 @@ namespace Wreckabulary
                 return;
             }
             Seat(pad);
+            var home = launchHome;
+            launchHome = null;
             if (Mode == TutorialMode) Session.LoadMode(TutorialMode);
-            else Session.LoadMode(Mode, Map);
+            else Session.LoadMode(Mode, Map, SavedHome != null ? home : null);
         }
 
         void Seat(Gamepad pad)
@@ -845,8 +1007,7 @@ namespace Wreckabulary
             shade.gameObject.AddComponent<LobbyShade>().Clicked = CloseQuit;
             var box = LobbyKit.Rect(shade, "Box").Pin(new Vector2(.5f, .5f), Vector2.zero, new Vector2(640, 300));
             LobbyKit.PanelFace(box, 28, 5, 8).raycastTarget = true;
-            var title = LobbyKit.Display(box, "LEAVE THE HOUSE PARTY?", 40, LobbyKit.Sun, TextAlignmentOptions.Center, LobbyKit.Ink.Drop);
-            title.characterSpacing = 2;
+            var title = LobbyKit.Display(box, "Quit game?", 36, LobbyKit.Navy, TextAlignmentOptions.Center);
             title.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(64, -98), new Vector2(-64, -34));
             var saved = LobbyKit.Text(box, "Your looks, coins and career are saved.", 20, LobbyKit.Muted, TextAlignmentOptions.Center);
             saved.rectTransform.Place(new Vector2(0, 1), Vector2.one, new Vector2(30, -138), new Vector2(-30, -104));

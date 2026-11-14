@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/lanes.schema.json",
+  "title": "Lane and wave formats: done/blocked markers, the wave manifest, build_wave workflow args, and the journal harvest",
+  "description": "Validate with a pointer, e.g. {pointer: '#/$defs/doneMarker'}. Contract: CONTRACTS.md §9, ARCHITECTURE §7.1–§7.4.",
+  "$defs": {
+    "utc": { "type": "string", "format": "date-time" },
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+    "unitStatus": { "enum": ["todo", "running", "done", "blocked", "failed"] },
+
+    "doneMarker": {
+      "title": "BuildNotes/<wave>/<unit>.done.json (written LAST by the builder)",
+      "type": "object",
+      "required": ["unit", "files", "verify", "summary"],
+      "properties": {
+        "unit": { "$ref": "#/$defs/id" },
+        "status": { "const": "done" },
+        "files": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "tests": { "type": "array", "items": { "type": "string" }, "description": "Test commands (or files) and their result." },
+        "verify": { "type": "string", "minLength": 1, "description": "One command that re-checks the unit (Step 0 re-runs it)." },
+        "summary": { "type": "string", "minLength": 1 },
+        "contract_changes": { "type": "array", "items": { "type": "string" } },
+        "requests": { "type": "array", "items": { "type": "string" } },
+        "fixed": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Fix pass: the issue ids resolved." },
+        "not_fixed": {
+          "type": "array",
+          "description": "Fix pass: issue ids left open, each with the reason.",
+          "items": { "type": "object", "required": ["id", "why"], "properties": { "id": { "type": "string", "minLength": 1 }, "why": { "type": "string", "minLength": 1 } } }
+        }
+      }
+    },
+    "blockedMarker": {
+      "title": "BuildNotes/<wave>/<unit>.blocked.json",
+      "type": "object",
+      "required": ["unit", "reason", "needs"],
+      "properties": {
+        "unit": { "$ref": "#/$defs/id" },
+        "status": { "const": "blocked" },
+        "reason": { "type": "string", "minLength": 1 },
+        "needs": { "oneOf": [{ "type": "string", "minLength": 1 }, { "type": "array", "minItems": 1, "items": { "type": "string" } }] }
+      }
+    },
+    "argUnit": {
+      "title": "A unit as passed to the build_wave workflow (args.units[] / args.contracts[])",
+      "type": "object",
+      "required": ["id", "owned", "context", "brief"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "owned": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 }, "description": "Workspace-relative globs the unit may write." },
+        "context": { "type": "string", "description": "BuildNotes/<wave>/<unit>.context.md excerpt pack." },
+        "brief": { "type": "string", "minLength": 1 },
+        "verify": { "type": "array", "items": { "type": "string" }, "description": "game_gate subcommands (default [\"check all\", \"core\"])." }
+      }
+    },
+    "manifestUnit": {
+      "allOf": [{ "$ref": "#/$defs/argUnit" }],
+      "type": "object",
+      "required": ["status", "attempts"],
+      "properties": {
+        "status": { "$ref": "#/$defs/unitStatus" },
+        "attempts": { "type": "integer", "minimum": 0 },
+        "updated_utc": { "$ref": "#/$defs/utc" },
+        "last_failure": { "type": ["string", "null"], "description": "LIMIT | AUTH_BLIP | OTHER | REVERTED | a short reason" }
+      }
+    },
+    "waveManifest": {
+      "title": "Docs/waves/<wave>.json (wave_manifest.mjs is the only writer)",
+      "type": "object",
+      "required": ["schema", "wave", "milestone", "design_hash", "units"],
+      "properties": {
+        "schema": { "const": 1 },
+        "wave": { "$ref": "#/$defs/id" },
+        "milestone": { "type": "string" },
+        "workspace": { "type": "string" },
+        "design_hash": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+        "design_docs": { "type": "array", "items": { "type": "string" } },
+        "frozen_utc": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/utc" }] },
+        "units": { "type": "array", "items": { "$ref": "#/$defs/manifestUnit" } },
+        "contracts": { "type": "array", "items": { "$ref": "#/$defs/manifestUnit" } },
+        "gate_rows": { "type": "array", "items": { "type": "string" } },
+        "unity_launch_budget": { "type": "integer", "minimum": 1 },
+        "max_blocked": { "type": "integer", "minimum": 0 },
+        "updated_utc": { "$ref": "#/$defs/utc" }
+      }
+    },
+    "workflowArgs": {
+      "title": "Output of `wave_manifest.mjs args <wave>`: the args object for build_wave.workflow.js (only todo and failed units)",
+      "type": "object",
+      "required": ["wave", "workspace", "milestone", "design_hash", "units"],
+      "properties": {
+        "wave": { "$ref": "#/$defs/id" },
+        "workspace": { "type": "string", "minLength": 1 },
+        "milestone": { "type": "string" },
+        "design_hash": { "type": ["string", "null"] },
+        "units": { "type": "array", "items": { "$ref": "#/$defs/argUnit" } },
+        "contracts": { "type": "array", "items": { "$ref": "#/$defs/argUnit" } },
+        "gate_rows": { "type": "array", "items": { "type": "string" } },
+        "unity_launch_budget": { "type": "integer", "minimum": 1 },
+        "max_blocked": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "harvest": {
+      "title": "<save>/<run>/harvest.json written by agent-run-recovery/scripts/harvest_journal.mjs --save <save> (read by wave_manifest.mjs update)",
+      "type": "object",
+      "required": ["schema", "utc", "run", "agents"],
+      "properties": {
+        "schema": { "const": 1 },
+        "utc": { "$ref": "#/$defs/utc" },
+        "run": { "type": "string", "description": "Workflow run folder name, e.g. wf_7cc87fca-996." },
+        "source": { "type": "string" },
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "agent_id", "state", "class"],
+            "properties": {
+              "label": { "type": "string", "description": "Workflow agent label, e.g. build:lobby or build:lobby#2." },
+              "agent_id": { "type": "string" },
+              "state": { "enum": ["DONE", "FAILED", "UNFINISHED"] },
+              "class": { "enum": ["LIMIT", "AUTH_BLIP", "OTHER", null] },
+              "secs": { "type": "number", "minimum": 0 },
+              "last_text": { "type": "string" },
+              "resets_text": { "type": ["string", "null"] },
+              "result_file": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "chains": {
+          "type": "object",
+          "description": "Label without #n → attempts and whether the retry chain was exhausted.",
+          "additionalProperties": { "type": "object", "required": ["attempts", "exhausted"], "properties": { "attempts": { "type": "integer" }, "exhausted": { "type": "boolean" } } }
+        }
+      }
+    }
+  }
+}

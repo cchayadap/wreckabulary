@@ -4,7 +4,6 @@ using Wreckabulary.Art;
 
 namespace Wreckabulary
 {
-    /// <summary>A physical letter tile that can be picked up, carried and dropped.</summary>
     [RequireComponent(typeof(Rigidbody))]
     public class LetterTile : MonoBehaviour
     {
@@ -47,7 +46,6 @@ namespace Wreckabulary
             }
             importedVisual = new GameObject("ImportedTile");
             importedVisual.transform.SetParent(transform, false);
-            // Keep the broad-backed physical proxy. The pickup view may lift only the imported art after settling.
             importedVisual.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
             importedVisual.transform.localScale = Vector3.one * 1.6f;
             var model = ModelVisual.Spawn(key, importedVisual.transform);
@@ -89,14 +87,11 @@ namespace Wreckabulary
             }
         }
 
-        /// <summary>Freshly launched tiles can't be grabbed straight away, and never instantly by whoever dropped them.</summary>
         public bool CanBeCollectedBy(LetterInventory who) =>
             Time.time >= readyAt && (who != droppedBy || Time.time >= ownerLockUntil);
 
-        /// <summary>Called when a player collects this tile.</summary>
         public void Collect() => TilePool.Instance.Release(this);
 
-        /// <summary>Launches the tile out into the world.</summary>
         public void Launch(Vector3 position, Vector3 velocity, LetterInventory from = null)
         {
             transform.SetPositionAndRotation(position, Random.rotation);

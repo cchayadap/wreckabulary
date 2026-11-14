@@ -35,7 +35,6 @@ namespace Wreckabulary.Rules
         internal static string IdKind(string id) => id.Substring(0, id.IndexOf(':'));
         internal static string IdValue(string id) => id.Substring(id.IndexOf(':') + 1);
 
-        /// <summary>Apply a complete native outfit while retaining unrelated recipe finishes.</summary>
         public Outfit Apply(Outfit current, WardrobeCatalogue wardrobe)
         {
             var next = (current ?? wardrobe.Default).Clone();

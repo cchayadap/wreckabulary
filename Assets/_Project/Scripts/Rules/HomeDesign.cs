@@ -94,9 +94,20 @@ namespace Wreckabulary.Rules
         public string Json;
     }
 
+    public sealed class HomeMigration : HomeValidation
+    {
+        public int Moved, Dropped;
+    }
+
+    public sealed class HomeFurniture
+    {
+        public string Word, Room, Skin;
+        public float X, Z, Yaw;
+    }
+
     public sealed class HomeDesigner
     {
-        public const int MaxProps = 64;
+        public const int MaxProps = 128;
         public const int MaxTextLength = 2048;
         public const int MaxBatchWords = 64;
         public const int MaxJsonLength = 65536;
@@ -125,6 +136,32 @@ namespace Wreckabulary.Rules
 
         public static bool Supports(string id) => id == "pinwheel" || id == "courtyard";
 
+        public static double LegacyScale(string id) => id == "pinwheel" ? 1.4 : id == "courtyard" ? 1.5 : 1;
+
+        public static readonly IReadOnlyList<string> PlayableModes = new[] { "Dibs", "Duos" };
+
+        public static bool Playable(string mode) => mode == "Dibs" || mode == "Duos";
+
+        public bool TryFurnish(HomeLayout layout, out List<HomeFurniture> furniture, out string error)
+        {
+            furniture = null;
+            var valid = Validate(layout);
+            if (!valid.Ok) { error = string.Join("\n", valid.Errors); return false; }
+            var house = House(valid.Layout.Map);
+            furniture = new List<HomeFurniture>();
+            foreach (var prop in valid.Layout.Props)
+            {
+                var footprint = Shape(prop, new List<string>()).Value;
+                var room = house.Rooms.First(r => Inside(r, footprint));
+                furniture.Add(new HomeFurniture
+                {
+                    Word = prop.Word, Room = room.Name, Skin = prop.Skin, X = (float)prop.X, Z = (float)prop.Z, Yaw = prop.Yaw
+                });
+            }
+            error = null;
+            return true;
+        }
+
         HouseLayout House(string id)
         {
             if (!Supports(id)) return null;
@@ -142,7 +179,7 @@ namespace Wreckabulary.Rules
             if (!ValidName(layout.Name)) result.Errors.Add("name: use a trimmed name of 1–48 characters.");
             if (layout.Props == null || layout.Props.Count > MaxProps)
             {
-                result.Errors.Add("props: provide an array of at most 64 objects.");
+                result.Errors.Add(TooManyProps);
                 return result;
             }
             var ids = new HashSet<string>(StringComparer.Ordinal);
@@ -170,7 +207,7 @@ namespace Wreckabulary.Rules
             result.Layout = null;
             if (!result.Ok) return result;
             bool replacing = ignoreId != null && layout.Props.Any(p => p.Id == ignoreId);
-            if (!replacing && layout.Props.Count >= MaxProps) result.Errors.Add("props: the house already has 64 objects.");
+            if (!replacing && layout.Props.Count >= MaxProps) result.Errors.Add(HouseFull);
             var shape = Shape(prop, result.Errors);
             var others = layout.Props.Where(p => p.Id != ignoreId).ToList();
             if (prop != null && others.Any(p => p.Id == prop.Id)) result.Errors.Add("id: prop IDs must be unique.");
@@ -204,7 +241,7 @@ namespace Wreckabulary.Rules
             {
                 string reason = null;
                 if (!Supplied(word, out _)) reason = "word: choose one of the 40 supplied object words.";
-                else if (next.Props.Count >= MaxProps) reason = "props: the house already has 64 objects.";
+                else if (next.Props.Count >= MaxProps) reason = HouseFull;
                 if (reason != null) { Reject(result, word, reason); continue; }
                 int serial = 1;
                 while (ids.Contains("p" + serial)) serial++;
@@ -235,6 +272,73 @@ namespace Wreckabulary.Rules
 
         public HomeValidation Import(string json)
         {
+            var parsed = Parse(json);
+            return parsed.Ok ? Validate(parsed.Layout) : parsed;
+        }
+
+        public HomeMigration ImportLegacy(string json)
+        {
+            var parsed = Parse(json);
+            if (parsed.Ok) return Migrate(parsed.Layout);
+            var failed = new HomeMigration();
+            failed.Errors.AddRange(parsed.Errors);
+            return failed;
+        }
+
+        public HomeMigration Migrate(HomeLayout legacy)
+        {
+            var result = new HomeMigration();
+            var house = legacy == null ? null : House(legacy.Map);
+            if (house == null || legacy.Props == null)
+            {
+                result.Errors.AddRange(Validate(legacy).Errors);
+                return result;
+            }
+            double scale = LegacyScale(legacy.Map);
+            var next = new HomeLayout { Schema = legacy.Schema, Map = legacy.Map, Name = legacy.Name };
+            var occupied = new List<Rect>();
+            foreach (var prop in legacy.Props)
+            {
+                var scaled = prop?.Clone();
+                if (scaled != null) { scaled.X = Snap(prop.X * scale); scaled.Z = Snap(prop.Z * scale); }
+                if (scaled == null || !TryPlace(house, scaled, occupied, out var placed)) { result.Dropped++; continue; }
+                if (placed.X != scaled.X || placed.Z != scaled.Z || placed.Yaw != scaled.Yaw) result.Moved++;
+                next.Props.Add(placed);
+                occupied.Add(Shape(placed, new List<string>()).Value);
+            }
+            var valid = Validate(next);
+            result.Errors.AddRange(valid.Errors);
+            result.Layout = valid.Layout;
+            return result;
+        }
+
+        static double Snap(double v) => Finite(v) ? Math.Round(v / Grid) * Grid : v;
+
+        bool TryPlace(HouseLayout house, HomeProp prop, List<Rect> occupied, out HomeProp placed)
+        {
+            placed = null;
+            if (Shape(prop, new List<string>()) == null) return false;
+            var yaws = new[] { prop.Yaw }.Concat(new[] { 0, 90, 180, 270 }.Where(y => y != prop.Yaw)).ToArray();
+            var spots = new List<(double x, double z)>();
+            for (int dx = -MigrationReach; dx <= MigrationReach; dx++)
+                for (int dz = -MigrationReach; dz <= MigrationReach; dz++)
+                    spots.Add((prop.X + dx * Grid, prop.Z + dz * Grid));
+            foreach (var (x, z) in spots.OrderBy(s => (s.x - prop.X) * (s.x - prop.X) + (s.z - prop.Z) * (s.z - prop.Z)))
+                foreach (int yaw in yaws)
+                {
+                    var candidate = prop.Clone();
+                    candidate.X = x; candidate.Z = z; candidate.Yaw = yaw;
+                    var errors = new List<string>();
+                    Geometry(house, Shape(candidate, errors).Value, occupied, errors);
+                    if (errors.Count > 0) continue;
+                    placed = candidate;
+                    return true;
+                }
+            return false;
+        }
+
+        HomeValidation Parse(string json)
+        {
             try
             {
                 CheckJsonLexemes(json);
@@ -242,8 +346,8 @@ namespace Wreckabulary.Rules
                 ExactKeys(root, "schema", "map", "name", "props");
                 if (root["schema"].Number() != 1) return Failure("schema: only schema 1 is supported.");
                 var layout = new HomeLayout { Map = root["map"].String(), Name = root["name"].String() };
-                if (!root["props"].IsArray) return Failure("props: provide an array of at most 64 objects.");
-                if (root["props"].Items.Count > MaxProps) return Failure("props: provide an array of at most 64 objects.");
+                if (!root["props"].IsArray) return Failure(TooManyProps);
+                if (root["props"].Items.Count > MaxProps) return Failure(TooManyProps);
                 foreach (var p in root["props"].Items)
                 {
                     ExactKeys(p, "id", "word", "x", "z", "yaw", "skin");
@@ -256,7 +360,7 @@ namespace Wreckabulary.Rules
                         X = p["x"].Number(), Z = p["z"].Number(), Yaw = (int)yaw, Skin = p["skin"].String()
                     });
                 }
-                return Validate(layout);
+                return new HomeValidation { Layout = layout };
             }
             catch (Exception e) when (e is FormatException || e is ArgumentException || e is OverflowException)
             {
@@ -272,6 +376,10 @@ namespace Wreckabulary.Rules
             if (result.Ok) result.Json = valid.Layout.ToJson();
             return result;
         }
+
+        static readonly string TooManyProps = $"props: provide an array of at most {MaxProps} objects.";
+        static readonly string HouseFull = $"props: the house already has {MaxProps} objects.";
+        const int MigrationReach = 12;
 
         static HomeValidation Failure(string error)
         {

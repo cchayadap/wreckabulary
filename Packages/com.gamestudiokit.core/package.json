@@ -1,0 +1,30 @@
+{
+  "name": "com.gamestudiokit.core",
+  "version": "0.1.0",
+  "displayName": "Game Studio Kit Core",
+  "description": "Game Studio Kit runtime and editor code for agent-driven Unity projects: QaRunner and checks.json, PerfProbe, embodiment probes with body-class scaling, world-coherence audits, locomotion helpers (LocoScaler, IdleFootLock, procedural gait, springs), story-camera and in-player capture, the audio event probe, import postprocessors, AvatarProbe, AnimSheetCapture and BuildReportExport. Installed and updated by kit.mjs; do not edit by hand.",
+  "unity": "6000.3",
+  "license": "MIT",
+  "author": {
+    "name": "Game Studio Kit"
+  },
+  "keywords": [
+    "qa",
+    "testing",
+    "probes",
+    "locomotion",
+    "capture",
+    "game-studio-kit"
+  ],
+  "dependencies": {
+    "com.unity.modules.ai": "1.0.0",
+    "com.unity.modules.animation": "1.0.0",
+    "com.unity.modules.audio": "1.0.0",
+    "com.unity.modules.imageconversion": "1.0.0",
+    "com.unity.modules.particlesystem": "1.0.0",
+    "com.unity.modules.physics": "1.0.0",
+    "com.unity.modules.screencapture": "1.0.0",
+    "com.unity.modules.terrain": "1.0.0",
+    "com.unity.modules.terrainphysics": "1.0.0"
+  }
+}

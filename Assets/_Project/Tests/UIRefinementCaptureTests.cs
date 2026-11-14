@@ -94,6 +94,27 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator CaptureOriginalRoomBackdropComparison()
+        {
+            yield return TestScenes.Load(Session.HubScene);
+            yield return new WaitForSecondsRealtime(.8f);
+            var menu = LobbyMenu.Instance;
+            Assert.NotNull(menu);
+            LobbyThemes.Preview("sunroom");
+            foreach (string page in new[] { LobbyMenu.Home, LobbyMenu.Shop, LobbyMenu.Loadout })
+            {
+                menu.Open(page);
+                foreach (bool artwork in new[] { true, false })
+                {
+                    menu.Stage.ShowArtwork(artwork);
+                    yield return Settle();
+                    yield return Capture(page + (artwork ? "-illustration" : "-original-room"));
+                }
+            }
+            completed = true;
+        }
+
+        [UnityTest]
         public IEnumerator CaptureThemesShopRecipesAndPauseSettings()
         {
             yield return TestScenes.Load(Session.HubScene);
@@ -113,9 +134,11 @@ namespace Wreckabulary.Tests
             LobbyThemes.Preview("sunroom");
             menu.Open(LobbyMenu.Shop);
             var shop = menu.Page<ShopPage>();
+            Assert.IsTrue(shop.ShowCategory(ShopPage.Rooms));
             yield return Settle();
             yield return Reveal(menu.transform, "Offer theme:candy");
             yield return Capture("shop-themes");
+            Assert.IsTrue(shop.ShowCategory(ShopPage.Looks));
             shop.Preview(Career.Shop.First(offer => offer.Id == "look:candy"));
             yield return Settle();
             yield return Reveal(menu.transform, "Offer look:candy");
@@ -143,7 +166,7 @@ namespace Wreckabulary.Tests
             foreach (var p in World.Players)
                 if (p != player) { p.Frozen = true; if (p.TryGetComponent<BotController>(out var bot)) bot.enabled = false; }
             var builder = Object.FindAnyObjectByType<RoomBuilder>();
-            var room = builder.Layout.Rooms.OrderByDescending(r => (r.MaxX - r.MinX) * (r.MaxZ - r.MinZ)).First();
+            var room = builder.Layout.Rooms.Where(r => !r.Outdoor).OrderByDescending(r => (r.MaxX - r.MinX) * (r.MaxZ - r.MinZ)).First();
             var centre = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .08f, (room.MinZ + room.MaxZ) * .5f);
             bool Inside(Vector3 at) => at.x > room.MinX + .6f && at.x < room.MaxX - .6f && at.z > room.MinZ + .6f && at.z < room.MaxZ - .6f;
             player.Respawn(ShoulderView.RoomySpot(centre, Inside)); player.Frozen = false;
@@ -266,7 +289,7 @@ namespace Wreckabulary.Tests
             public GameViewScope()
             {
                 previousFocus = EditorWindow.focusedWindow;
-                var assembly = typeof(Editor).Assembly;
+                var assembly = typeof(UnityEditor.Editor).Assembly;
                 var sizesType = assembly.GetType("UnityEditor.GameViewSizes");
                 var singleton = typeof(ScriptableSingleton<>).MakeGenericType(sizesType);
                 var sizes = singleton.GetProperty("instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);

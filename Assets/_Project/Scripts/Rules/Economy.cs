@@ -52,7 +52,7 @@ namespace Wreckabulary.Rules
             $"tiles {Tiles} + bags {Bags} + reserved {Reserved} + items {InItems} = {Total}; minted {Minted} - spent {Spent} = {Minted - Spent}";
     }
 
-    public sealed class Economy
+    public sealed partial class Economy
     {
         public ItemCatalogue Catalogue { get; }
         public GameRules Rules { get; }
@@ -76,6 +76,7 @@ namespace Wreckabulary.Rules
 
         public IEnumerable<PlayerInventory> Players => players.Values;
         public IEnumerable<ItemInstance> Items => items.Values;
+        public int ItemCount => items.Count;
         public IReadOnlyDictionary<int, char> Tiles => tiles;
 
         public PlayerInventory Player(int playerId) => players.TryGetValue(playerId, out var p) ? p : null;

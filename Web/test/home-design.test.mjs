@@ -8,6 +8,7 @@ import {
   addWords,
   importLayout,
   exportLayout,
+  HOME_LIMITS,
 } from "../src/home-design.js";
 
 const read = (name) =>
@@ -214,14 +215,16 @@ test("oversized batches, unknown rooms and malformed inputs are atomic refusals"
   assert.deepEqual(layout, before);
 });
 
-test("a full 64-object design can be edited, and cannot accept a 65th object", () => {
-  const filled = addWords(
+test("a full 128-object design can be edited, and cannot accept a 129th object", () => {
+  const half = addWords(
     empty("courtyard"),
     "APPLE ".repeat(64),
-    "Garden",
+    "FountainSquare",
     data,
   );
-  assert.equal(filled.added.length, 64);
+  const filled = addWords(half.layout, "APPLE ".repeat(64), "Orchard", data);
+  assert.equal(half.added.length + filled.added.length, 128);
+  assert.equal(filled.layout.props.length, HOME_LIMITS.props);
   assert.equal(
     placementCheck(
       filled.layout,
@@ -235,10 +238,11 @@ test("a full 64-object design can be edited, and cannot accept a 65th object", (
     placementCheck(filled.layout, prop({ id: "new", x: 3, z: 3 }), data),
     "props:",
   );
-  const batch = addWords(filled.layout, "APPLE", "Garden", data);
+  const batch = addWords(filled.layout, "APPLE", "Bedroom", data);
   assert.equal(batch.ok, true);
   assert.equal(batch.added.length, 0);
   assert.equal(batch.rejected.length, 1);
+  assert.match(batch.rejected[0].reason, /128 objects/);
   const oversized = structuredClone(filled.layout);
   oversized.props.push(prop({ id: "overflow" }));
   refused(validateLayout(oversized, data), "props:");

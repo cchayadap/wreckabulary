@@ -7,10 +7,6 @@ using UnityEngine.InputSystem;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Drop-in join: press a button on keyboard and mouse, either keyboard half or any gamepad to spawn a roommate.
-    /// Roommates who joined in an earlier scene (see <see cref="Session"/>) are brought back automatically.
-    /// </summary>
     public class PlayerJoinManager : MonoBehaviour
     {
         [SerializeField] PlayerController playerPrefab;
@@ -22,7 +18,6 @@ namespace Wreckabulary
         [Tooltip("If set, new roommates walk this way on arrival (through the front door in the house).")]
         [SerializeField] Vector3 walkIn;
         [SerializeField] float walkInTime = 0.5f;
-        [SerializeField] int starterLetters = 3;
 
         [Header("Knockouts")]
         [SerializeField] bool respawnKnockedOut = true;
@@ -36,7 +31,6 @@ namespace Wreckabulary
         public IReadOnlyList<PlayerController> Players => players;
         public bool AllowJoining { get; set; } = true;
         public bool RespawnKnockedOut { get => respawnKnockedOut; set => respawnKnockedOut = value; }
-        /// <summary>True if the players were carried over from another scene.</summary>
         public bool RestoredFromSession { get; private set; }
         public event Action<PlayerController> Joined;
         Vector3[] layoutSpawns;
@@ -62,6 +56,8 @@ namespace Wreckabulary
         public void EnsureOpponents()
         {
             if (HumanCount == 0) return;
+            if (Match.Mode == "Escape") { AssignTeams(); return; }
+
             int target = 4;
             while (players.Count < target && players.Count < maxPlayers)
             {
@@ -75,10 +71,10 @@ namespace Wreckabulary
 
         void Awake()
         {
-            // Restore in Awake so every other script's Start already sees the players.
             foreach (var b in Session.Bindings.ToArray())
             {
                 if (b is GamepadBinding g && !g.Pad.added) continue;
+                if (b is BotBinding && Match.Mode == "Escape") continue;
                 Join(b, arriving: false);
                 RestoredFromSession = true;
             }
@@ -105,7 +101,6 @@ namespace Wreckabulary
             if (binding.JoinPressed()) Join(binding);
         }
 
-        // Compare by id: bindings restored from the session are different objects for the same keys.
         bool HasJoined(string bindingId) => players.Any(p => p.Binding.Id == bindingId);
 
         public PlayerController Join(InputBinding binding) => Join(binding, arriving: true);
@@ -126,7 +121,6 @@ namespace Wreckabulary
             return p;
         }
 
-        /// <summary>Puts a roommate at their spawn point with starter letters, walking in if set up to.</summary>
         public void Place(PlayerController p)
         {
             p.Combat.ResetForRound();

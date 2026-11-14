@@ -6,7 +6,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>One-time prefab migration and visual-only scene previews; never runs player setup or reads player preferences.</summary>
     public static class PlayerAuthoring
     {
         public const string PlayerPrefabPath = "Assets/_Project/Prefabs/Player.prefab";
@@ -27,7 +26,6 @@ namespace Wreckabulary.EditorTools
             finally { PrefabUtility.UnloadPrefabContents(root); }
         }
 
-        /// <summary>Returns false without modifying an already authored avatar, including artist mesh, material and transform overrides.</summary>
         public static bool UpgradePlayer(PlayerController player)
         {
             if (!player || !player.visual) throw new InvalidOperationException("Player requires its authored Visual root.");
@@ -45,6 +43,7 @@ namespace Wreckabulary.EditorTools
             }
             else
             {
+                AvatarSurfaceCorrectionSetup.VerifyExistingProfile();
                 wrapper = new GameObject("ImportedAvatar").transform;
                 wrapper.SetParent(player.visual, false);
                 model = InstantiateAvatar(wrapper);
@@ -62,7 +61,6 @@ namespace Wreckabulary.EditorTools
             return true;
         }
 
-        /// <summary>Creates an editable visual only. EditorOnly strips it from builds; it contains no gameplay player or physics.</summary>
         public static GameObject CreatePreview(Transform parent)
         {
             if (parent)
@@ -70,6 +68,7 @@ namespace Wreckabulary.EditorTools
                 var existing = parent.Find(PreviewName);
                 if (existing) return existing.gameObject;
             }
+            AvatarSurfaceCorrectionSetup.VerifyExistingProfile();
             var preview = new GameObject(PreviewName) { tag = "EditorOnly" };
             preview.transform.SetParent(parent, false);
             var model = InstantiateAvatar(preview.transform);
@@ -81,7 +80,6 @@ namespace Wreckabulary.EditorTools
             return preview;
         }
 
-        /// <summary>Explicitly frames a preview in the same close, centered lens as runtime; existing cameras are never changed automatically.</summary>
         public static void FramePreview(Camera camera, Transform avatar)
         {
             if (!camera || !avatar) return;
@@ -99,6 +97,15 @@ namespace Wreckabulary.EditorTools
             var asset = library ? library.Find("Avatar/Avatar") : null;
             if (!asset) throw new InvalidOperationException("Run Set Up Imported Art before authoring the player.");
             var model = (GameObject)PrefabUtility.InstantiatePrefab(asset, parent);
+            try
+            {
+                if (AvatarSurfaceProfile.ApplyDefault("Avatar/Avatar", asset, model))
+                {
+                    var profile = AvatarSurfaceProfile.Load();
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(model.transform.Find(profile.RendererPath).GetComponent<SkinnedMeshRenderer>());
+                }
+            }
+            catch { UnityEngine.Object.DestroyImmediate(model); throw; }
             foreach (var collider in model.GetComponentsInChildren<Collider>(true))
             {
                 collider.enabled = false;
@@ -139,16 +146,17 @@ namespace Wreckabulary.EditorTools
 
         static Material DefaultMaterial(Material source, Color tint)
         {
-            if (!AssetDatabase.IsValidFolder(MaterialFolder))
-                AssetDatabase.CreateFolder("Assets/_Project/Materials", "CharacterDefaults");
             string name = source.name + "__Default_" + ColorUtility.ToHtmlStringRGBA(tint);
             string path = MaterialFolder + "/" + name + ".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material) return material;
+            WorkspaceAssetCopies.ValidateDestination(path, ".mat");
+            WorkspaceAssetCopies.EnsureFolder(MaterialFolder);
             material = new Material(source) { name = name };
             material.SetColor("_BaseColor", tint);
             material.SetColor("_Color", tint);
             AssetDatabase.CreateAsset(material, path);
+            AssetDatabase.SaveAssetIfDirty(material);
             return material;
         }
     }

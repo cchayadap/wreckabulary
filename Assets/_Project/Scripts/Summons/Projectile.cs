@@ -4,7 +4,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>An arrow from BOW or a cannonball from CANNON.</summary>
     [RequireComponent(typeof(Rigidbody))]
     public class Projectile : MonoBehaviour
     {

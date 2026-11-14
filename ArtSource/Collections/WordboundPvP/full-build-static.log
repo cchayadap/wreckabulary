@@ -1,0 +1,443 @@
+C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\Tools\AssetPipeline\build_wordbound_pvp.py:35: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  result.use_nodes = True
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\BAT.fbx'
+export finished in 0.0532 sec.
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+18:03:33 | INFO: Starting glTF 2.0 export
+18:03:33 | INFO: Extracting primitive: Torus
+18:03:33 | INFO: Primitives created: 1
+18:03:33 | INFO: Extracting primitive: Cream_grip
+18:03:33 | INFO: Primitives created: 1
+18:03:33 | INFO: Extracting primitive: Grip_binding
+18:03:33 | INFO: Primitives created: 1
+18:03:33 | INFO: Extracting primitive: Oak_barrel
+18:03:33 | INFO: Primitives created: 1
+18:03:33 | INFO: Extracting primitive: Sage_collar
+18:03:33 | INFO: Primitives created: 1
+18:03:33 | INFO: Finished glTF 2.0 export in 0.25629520416259766 s
+
+WORDBOUND_ASSET {"id": "BAT", "triangles": 2724, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.172, 1.018, 0.172]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\BROOM.fbx'
+export finished in 0.1030 sec.
+18:03:34 | INFO: Starting glTF 2.0 export
+18:03:34 | INFO: Extracting primitive: Cube.001
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.002
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.003
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.004
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.005
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.006
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.007
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.008
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.009
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube.010
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cube
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Oak_handle
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Sage_socket
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Sphere
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Sphere.001
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Finished glTF 2.0 export in 0.11895322799682617 s
+
+WORDBOUND_ASSET {"id": "BROOM", "triangles": 1676, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.3, 1.0212, 0.095]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\HAMMER.fbx'
+export finished in 0.0597 sec.
+18:03:34 | INFO: Starting glTF 2.0 export
+18:03:34 | INFO: Extracting primitive: Brass_cap
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Brass_cap.001
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Torus.001
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Oak_handle.001
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Padded_head
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Sage_grip
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Sage_wrap
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Finished glTF 2.0 export in 0.07375741004943848 s
+
+WORDBOUND_ASSET {"id": "HAMMER", "triangles": 2372, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.345, 0.635, 0.175]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\SPEAR.fbx'
+export finished in 0.0597 sec.
+18:03:34 | INFO: Starting glTF 2.0 export
+18:03:34 | INFO: Extracting primitive: Brass_foot
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Brass_leaf_socket
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cream_grip.001
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Cream_leaf
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Grip_wrap
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Oak_shaft
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Sage_binding
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Sage_binding.001
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Extracting primitive: Sage_binding.002
+18:03:34 | INFO: Primitives created: 1
+18:03:34 | INFO: Finished glTF 2.0 export in 0.08620643615722656 s
+
+WORDBOUND_ASSET {"id": "SPEAR", "triangles": 2512, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.17, 1.235, 0.068]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\SHIELD.fbx'
+export finished in 0.1012 sec.
+18:03:35 | INFO: Starting glTF 2.0 export
+18:03:35 | INFO: Extracting primitive: Sphere.002
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Sphere.003
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Sphere.004
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Sphere.005
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Cube.011
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Cube.012
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Cube.013
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Cube.014
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Cream_diamond
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Cream_rim
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Cube.015
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Cube.016
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Rear_handle
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Sage_face
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Extracting primitive: Terracotta_inset
+18:03:35 | INFO: Primitives created: 1
+18:03:35 | INFO: Finished glTF 2.0 export in 0.1288762092590332 s
+
+WORDBOUND_ASSET {"id": "SHIELD", "triangles": 1748, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.46, 0.57, 0.1877]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\PLATE.fbx'
+export finished in 0.0398 sec.
+18:03:36 | INFO: Starting glTF 2.0 export
+18:03:36 | INFO: Extracting primitive: Torus.003
+18:03:36 | INFO: Primitives created: 1
+18:03:36 | INFO: Extracting primitive: Ceramic_dish
+18:03:36 | INFO: Primitives created: 1
+18:03:36 | INFO: Extracting primitive: Torus.002
+18:03:36 | INFO: Primitives created: 1
+18:03:36 | INFO: Finished glTF 2.0 export in 0.06317853927612305 s
+
+WORDBOUND_ASSET {"id": "PLATE", "triangles": 2108, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.54, 0.073, 0.54]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\TABLE.fbx'
+export finished in 0.1097 sec.
+18:03:36 | INFO: Starting glTF 2.0 export
+18:03:36 | INFO: Extracting primitive: Sphere.006
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Sphere.007
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Sphere.008
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Sphere.009
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Cube.017
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Cube.019
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Oak_leg
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Oak_leg.001
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Oak_leg.002
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Oak_leg.003
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Cube.018
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Cube.020
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Cube.021
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Cube.022
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Cube.023
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Sage_leg_collar
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Sage_leg_collar.001
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Sage_leg_collar.002
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Extracting primitive: Sage_leg_collar.003
+18:03:37 | INFO: Primitives created: 1
+18:03:37 | INFO: Finished glTF 2.0 export in 0.13580107688903809 s
+
+WORDBOUND_ASSET {"id": "TABLE", "triangles": 2324, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [1.2, 0.72, 0.691]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\SOFA.fbx'
+export finished in 0.1343 sec.
+18:03:39 | INFO: Starting glTF 2.0 export
+18:03:39 | INFO: Extracting primitive: Sphere.010
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.026
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.029
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.034
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.038
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.042
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.032
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.036
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.040
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.024
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Oak_foot
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Oak_foot.001
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Oak_foot.002
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Oak_foot.003
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.027
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.030
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.025
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.028
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.031
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.035
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.039
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.043
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.033
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.037
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Extracting primitive: Cube.041
+18:03:39 | INFO: Primitives created: 1
+18:03:39 | INFO: Finished glTF 2.0 export in 0.164198637008667 s
+
+WORDBOUND_ASSET {"id": "SOFA", "triangles": 4296, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [1.52, 0.93, 0.813]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\BED.fbx'
+export finished in 0.1112 sec.
+18:03:41 | INFO: Starting glTF 2.0 export
+18:03:41 | INFO: Extracting primitive: Sphere.012
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.014
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.016
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.018
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.045
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.048
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_bedpost
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_bedpost.001
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_bedpost.002
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_bedpost.003
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.049
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.051
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.044
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.053
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.054
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.055
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.011
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.013
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.015
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.017
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.050
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.052
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.046
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cube.047
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Finished glTF 2.0 export in 0.22980427742004395 s
+
+WORDBOUND_ASSET {"id": "BED", "triangles": 3152, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [1.035, 0.818, 1.58]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\STOOL.fbx'
+export finished in 0.0681 sec.
+18:03:41 | INFO: Starting glTF 2.0 export
+18:03:41 | INFO: Extracting primitive: Sphere.019
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.020
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.021
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sphere.022
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Cream_padded_seat
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_brace
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_brace.001
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_brace.002
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_brace.003
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_leg.004
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_leg.005
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_leg.006
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Oak_leg.007
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Extracting primitive: Sage_seat_base
+18:03:41 | INFO: Primitives created: 1
+18:03:41 | INFO: Finished glTF 2.0 export in 0.093780517578125 s
+
+WORDBOUND_ASSET {"id": "STOOL", "triangles": 1752, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.52, 0.466, 0.52]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\FAN.fbx'
+export finished in 0.0853 sec.
+18:03:42 | INFO: Starting glTF 2.0 export
+18:03:42 | INFO: Extracting primitive: Torus.005
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Brass_grille_spoke
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Brass_grille_spoke.001
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Brass_grille_spoke.002
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Brass_grille_spoke.003
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Brass_grille_spoke.004
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Brass_grille_spoke.005
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Brass_grille_spoke.006
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Brass_grille_spoke.007
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Cube.056
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Torus.004
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Sphere.026
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Sphere.023
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Sphere.024
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Sphere.025
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Cube.057
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Sage_knob
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Sage_motor
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Extracting primitive: Sage_pedestal
+18:03:42 | INFO: Primitives created: 1
+18:03:42 | INFO: Finished glTF 2.0 export in 0.1284162998199463 s
+
+WORDBOUND_ASSET {"id": "FAN", "triangles": 3060, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.522, 0.821, 0.25]}
+
+FBX export starting... 'C:\\Users\\mrkl6\\Downloads\\Projects\\Wreckabulary\\wordbound-assets-staging\\ArtSource\\Collections\\WordboundPvP\\Exports\\CLOCK.fbx'
+export finished in 0.0881 sec.
+18:03:45 | INFO: Starting glTF 2.0 export
+18:03:45 | INFO: Extracting primitive: Sphere.027
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.058
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.059
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.060
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.061
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.062
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.063
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.064
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.065
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.066
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.067
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.068
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.069
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cream_dial
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.070
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Cube.071
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Oak_case
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Sphere.028
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Extracting primitive: Sphere.029
+18:03:45 | INFO: Primitives created: 1
+18:03:45 | INFO: Finished glTF 2.0 export in 0.1341710090637207 s
+
+WORDBOUND_ASSET {"id": "CLOCK", "triangles": 2848, "materials": ["WordboundPvPBrass", "WordboundPvPPaint"], "size": [0.48, 0.48, 0.122]}
+C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\Tools\AssetPipeline\build_wordbound_pvp.py:454: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  world.use_nodes=True
+Info: Saved as "WordboundPvP.blend"
+WORDBOUND_SOURCE_READY C:\Users\mrkl6\Downloads\Projects\Wreckabulary\wordbound-assets-staging\ArtSource\Collections\WordboundPvP
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

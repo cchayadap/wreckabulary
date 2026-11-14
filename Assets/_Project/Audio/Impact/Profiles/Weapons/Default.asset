@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3a4de53606e37842bade6e38e70931f, type: 3}
+  m_Name: Default
+  m_EditorClassIdentifier: Wreckabulary::Wreckabulary.Audio.WeaponImpactSounds
+  weapon: Default
+  swing:
+    clips:
+    - {fileID: 8300000, guid: 66abbad6bb5fb744ea392d065a21186a, type: 3}
+    - {fileID: 8300000, guid: f1f602e929fad714b83cbd8521658d58, type: 3}
+    volume: 0.7
+    pitchMin: 0.94
+    pitchMax: 1.06
+    cooldown: 0.1
+  contacts:
+  - part: 0
+    surface: 0
+    sound:
+      clips:
+      - {fileID: 8300000, guid: 69c0e3fe64a834c44bc2337b009c21f0, type: 3}
+      - {fileID: 8300000, guid: a3305ab042c1c9e43a5e88fbcb3b8d1d, type: 3}
+      - {fileID: 8300000, guid: 263becc055dde6f48a44f1cfb7860afb, type: 3}
+      volume: 1
+      pitchMin: 0.95
+      pitchMax: 1.05
+      cooldown: 0.06
+  - part: 0
+    surface: 1
+    sound:
+      clips:
+      - {fileID: 8300000, guid: 5863f927a00142946b300489bff38aca, type: 3}
+      - {fileID: 8300000, guid: e682a25102280824ebd2d860f613fdad, type: 3}
+      - {fileID: 8300000, guid: fa41617aa6ee31f42a2bc01a72204bf5, type: 3}
+      volume: 1
+      pitchMin: 0.95
+      pitchMax: 1.05
+      cooldown: 0.06
+  - part: 0
+    surface: 2
+    sound:
+      clips:
+      - {fileID: 8300000, guid: 9021cdd5636a7844d841e4041b565d27, type: 3}
+      - {fileID: 8300000, guid: 2927fccf5083d9e42b87eb4edbc60588, type: 3}
+      - {fileID: 8300000, guid: ce9a696e6b5b8c2479203eed3949cf30, type: 3}
+      volume: 1
+      pitchMin: 0.95
+      pitchMax: 1.05
+      cooldown: 0.06
+  - part: 0
+    surface: 3
+    sound:
+      clips:
+      - {fileID: 8300000, guid: d1fc0ba5fb226bb47ba9c0c132b6137e, type: 3}
+      - {fileID: 8300000, guid: 90f8c00717caf0a49bc35098c2f462e9, type: 3}
+      - {fileID: 8300000, guid: 045a7d2f7f9b9f44e9dd60d0d907b990, type: 3}
+      volume: 1
+      pitchMin: 0.95
+      pitchMax: 1.05
+      cooldown: 0.06
+  - part: 0
+    surface: 4
+    sound:
+      clips:
+      - {fileID: 8300000, guid: 1b9bcebee93e978438097f73dbc05b24, type: 3}
+      - {fileID: 8300000, guid: 5dc4c50f88072c14e8d4a8d81787ac82, type: 3}
+      - {fileID: 8300000, guid: a14563e6a793ac94f9b2043ed94a5c77, type: 3}
+      volume: 1
+      pitchMin: 0.95
+      pitchMax: 1.05
+      cooldown: 0.06
+  - part: 0
+    surface: 5
+    sound:
+      clips:
+      - {fileID: 8300000, guid: dde04111b83ef5341b72fbbe5fbf0e02, type: 3}
+      - {fileID: 8300000, guid: 245fc5758c4e26e4ab89c54a61b35563, type: 3}
+      - {fileID: 8300000, guid: 4a1ee948cdb744049b5802c0a2afce34, type: 3}
+      volume: 1
+      pitchMin: 0.95
+      pitchMax: 1.05
+      cooldown: 0.06
+  - part: 0
+    surface: 6
+    sound:
+      clips:
+      - {fileID: 8300000, guid: 8ff847b320e951e4c918b0df28f69644, type: 3}
+      - {fileID: 8300000, guid: ef7917b47e29b78459c35a122978e144, type: 3}
+      - {fileID: 8300000, guid: bbc352722f2d81143bb896b4cfc89113, type: 3}
+      volume: 1
+      pitchMin: 0.95
+      pitchMax: 1.05
+      cooldown: 0.06

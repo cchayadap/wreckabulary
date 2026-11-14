@@ -52,7 +52,7 @@ namespace Wreckabulary
             underline.anchorMax = new Vector2(1, 0);
             underline.offsetMin = new Vector2(8, 1);
             underline.offsetMax = new Vector2(-8, on ? 5 : 3);
-            var accent = LobbyThemes.Current.Accent;
+            var accent = LobbyKit.Selection;
             edge.color = accent;
             var ink = on || hot ? LobbyKit.Cyan : LobbyKit.Navy;
             if (label) label.color = ink;

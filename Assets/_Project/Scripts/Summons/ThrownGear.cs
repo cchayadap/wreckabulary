@@ -57,6 +57,7 @@ namespace Wreckabulary
 
         void IgnoreThrower(bool ignored)
         {
+            if (GetComponent<ReleasedBodyCollision>()) return;
             if (!owner || ignoringThrower == ignored) return;
             ignoringThrower = ignored;
             foreach (var mine in GetComponentsInChildren<Collider>())

@@ -1,5 +1,5 @@
 export const HOME_LIMITS = Object.freeze({
-  props: 64,
+  props: 128,
   text: 2048,
   words: 64,
   json: 65536,
@@ -153,7 +153,9 @@ export function validateLayout(layout, data) {
   )
     errors.push("name: use a trimmed name of 1–48 characters.");
   if (!Array.isArray(layout.props) || layout.props.length > HOME_LIMITS.props) {
-    errors.push("props: provide an array of at most 64 objects.");
+    errors.push(
+      `props: provide an array of at most ${HOME_LIMITS.props} objects.`,
+    );
     return { ok: false, errors };
   }
   const ids = new Set(),
@@ -184,7 +186,7 @@ export function placementCheck(layout, prop, data, ignoreId = null) {
     replacing =
       ignoreId !== null && layout.props.some((p) => p.id === ignoreId);
   if (!replacing && layout.props.length >= HOME_LIMITS.props)
-    errors.push("props: the house already has 64 objects.");
+    errors.push(`props: the house already has ${HOME_LIMITS.props} objects.`);
   const rect = shape(prop, data, errors),
     others = layout.props.filter((p) => p.id !== ignoreId);
   if (prop && others.some((p) => p.id === prop.id))
@@ -233,7 +235,7 @@ export function addWords(layout, text, room, data) {
     const reason = !supplied(word, data)
       ? "word: choose one of the 40 supplied object words."
       : next.props.length >= HOME_LIMITS.props
-        ? "props: the house already has 64 objects."
+        ? `props: the house already has ${HOME_LIMITS.props} objects.`
         : null;
     if (reason) {
       result.rejected.push({ word, reason });

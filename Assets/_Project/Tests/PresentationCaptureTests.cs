@@ -12,7 +12,6 @@ using UnityEngine.UIElements;
 
 namespace Wreckabulary.Tests
 {
-    /// <summary>Explicit rendered-frame acceptance journey; run in a graphics-enabled editor without batchmode.</summary>
     [Explicit, Category("PresentationCapture")]
     public sealed class PresentationCaptureTests
     {
@@ -242,7 +241,7 @@ namespace Wreckabulary.Tests
 
         static void SetGameViewSize(int width, int height)
         {
-            var assembly = typeof(Editor).Assembly;
+            var assembly = typeof(UnityEditor.Editor).Assembly;
             var sizesType = assembly.GetType("UnityEditor.GameViewSizes");
             var singleton = typeof(ScriptableSingleton<>).MakeGenericType(sizesType);
             var sizes = singleton.GetProperty("instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);

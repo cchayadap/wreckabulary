@@ -1,0 +1,440 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/harness.schema.json",
+  "title": "Project harness formats: Tools/kit/kit.json, .kit/manifest.json and every JSON file or JSONL line under .harness/",
+  "description": "Validate with a pointer, e.g. validate(schema, doc, {pointer: '#/$defs/run'}) (lib/schema.mjs), or in Python jsonschema with {\"$ref\": \"#/$defs/run\", \"$defs\": schema[\"$defs\"]}. Contract: CONTRACTS.md §6.",
+  "$defs": {
+    "utc": { "type": "string", "format": "date-time" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "tri": { "enum": ["forbid", "ask", "allow"] },
+
+    "kit": {
+      "title": "Tools/kit/kit.json (installer; the workspace marker findWorkspace() looks for)",
+      "type": "object",
+      "required": ["schema", "kit_version", "installed_utc", "unity_subdir", "gate_prefix", "options"],
+      "properties": {
+        "schema": { "const": 1 },
+        "kit_version": { "type": "string", "minLength": 1 },
+        "installed_utc": { "$ref": "#/$defs/utc" },
+        "updated_utc": { "$ref": "#/$defs/utc" },
+        "unity_subdir": { "type": "string", "description": "U relative to W, POSIX; '.' when the same." },
+        "gate_prefix": { "type": "string" },
+        "options": {
+          "type": "object",
+          "required": ["mcp", "autonomous"],
+          "properties": {
+            "mcp": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+            "autonomous": { "type": "boolean" },
+            "apply_manifest": { "type": "boolean" },
+            "unity_package": { "type": "boolean" },
+            "hook_paths": { "enum": ["project_dir_var", "absolute"], "description": "U-01 outcome: absolute means settings.local.json carries absolute hook paths." }
+          }
+        },
+        "staged": { "type": "boolean", "description": "true only for test trees made by lib/tree.mjs stageKitTree()." }
+      }
+    },
+
+    "kitManifest": {
+      "title": ".kit/manifest.json (project) or ~/.claude/skills/game-studio-run/.kit-manifest.json (user install)",
+      "type": "object",
+      "required": ["schema", "scope", "kit_version", "updated_utc", "files"],
+      "properties": {
+        "schema": { "const": 1 },
+        "scope": { "enum": ["project", "user"] },
+        "kit_version": { "type": "string" },
+        "updated_utc": { "$ref": "#/$defs/utc" },
+        "files": {
+          "type": "object",
+          "description": "Installed path (W-relative, or relative to ~/.claude/skills for scope user) → what the kit wrote.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["sha_installed", "owner_skill"],
+            "properties": { "sha_installed": { "$ref": "#/$defs/sha256" }, "owner_skill": { "type": "string" }, "kind": { "type": "string" } }
+          }
+        },
+        "settings": {
+          "type": "object",
+          "description": "Per settings file (.claude/settings.json, .claude/settings.local.json): what mergeSettings added, so uninstall removes only that.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "added": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+              "envAdded": { "type": "object", "additionalProperties": { "type": "string" } }
+            }
+          }
+        },
+        "mcp_added": { "type": "array", "items": { "type": "string" } },
+        "blocks": {
+          "type": "array",
+          "items": { "type": "object", "required": ["file", "style"], "properties": { "file": { "type": "string" }, "style": { "enum": ["hash", "html"] }, "sha_body": { "$ref": "#/$defs/sha256" } } }
+        },
+        "extend_recovery": { "type": "boolean" }
+      }
+    },
+
+    "policy": {
+      "title": ".harness/policy.json (kit writes the default; only the owner edits it; guard G5b denies agent writes)",
+      "type": "object",
+      "required": ["schema", "git"],
+      "properties": {
+        "schema": { "const": 1 },
+        "git": {
+          "type": "object",
+          "required": ["commit", "init", "push"],
+          "properties": { "commit": { "$ref": "#/$defs/tri" }, "init": { "$ref": "#/$defs/tri" }, "push": { "$ref": "#/$defs/tri" }, "lfs_migrate": { "$ref": "#/$defs/tri" } }
+        },
+        "write_roots": { "type": "array", "items": { "type": "string" }, "description": "Extra roots G6 allows besides W and %TEMP%/claude (absolute or W-relative)." },
+        "provider_hosts": { "type": "array", "items": { "type": "string" }, "description": "G7 hosts: raw HTTP to them is denied (use assetgen)." },
+        "pinned_packages": {
+          "type": "object",
+          "properties": { "npx": { "type": "array", "items": { "type": "string" } }, "uvx": { "type": "array", "items": { "type": "string" } } },
+          "description": "G13: npx -y / uvx of these specs is not asked."
+        },
+        "inbox": {
+          "type": "object",
+          "properties": {
+            "skip_prompts": { "type": "array", "items": { "type": "string" }, "description": "Exact prompts owner_inbox never records (the auto-continue prompt; its text is [U])." },
+            "skip_prefixes": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "pause": {
+          "type": "object",
+          "properties": { "allow_commands": { "type": "array", "items": { "type": "string" }, "description": "Command prefixes G12 lets through while PAUSE exists." } }
+        },
+        "ttl_min": {
+          "type": "object",
+          "properties": {
+            "override": { "type": "integer", "minimum": 1, "default": 30 },
+            "unlock": { "type": "integer", "minimum": 1, "default": 60 },
+            "backup_bundle": { "type": "integer", "minimum": 1, "default": 10 }
+          }
+        },
+        "kit_writers": { "type": "array", "items": { "type": "string" }, "description": "Exact command prefixes exempt from G5b (the kit's own ledger writers)." },
+        "secret_env_names": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }, "description": "Extra names G14 treats as secrets besides *_KEY, *_TOKEN, *SECRET*." },
+        "retention": {
+          "type": "object",
+          "properties": { "keep_builds": { "type": "integer", "minimum": 1 }, "session_log_days": { "type": "integer", "minimum": 1 } }
+        },
+        "owner": {
+          "type": "object",
+          "properties": {
+            "noninteractive_entrypoints": { "type": "array", "items": { "type": "string" }, "default": ["sdk-cli", "sdk-ts", "sdk-py"], "description": "U-33: a prompt whose CLAUDE_CODE_ENTRYPOINT (or transcript entrypoint) is listed is recorded in the inbox but its OWNER: commands are not applied, and gate_close does not accept confirmations from it." }
+          }
+        }
+      }
+    },
+
+    "run": {
+      "title": ".harness/run.json (kit run start/stop via run_window.mjs); arms keep_working",
+      "type": "object",
+      "required": ["active"],
+      "properties": {
+        "schema": { "const": 1 },
+        "active": { "type": "boolean" },
+        "started_utc": { "$ref": "#/$defs/utc" },
+        "window_end_utc": { "$ref": "#/$defs/utc" },
+        "stopped_utc": { "$ref": "#/$defs/utc" },
+        "name": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "description": "Skills state_brief tells Claude to re-invoke after compaction (capped at 4 besides game-studio-run)." },
+        "freeze_at_pct": { "type": "number", "minimum": 1, "maximum": 100, "default": 75 }
+      },
+      "if": { "properties": { "active": { "const": true } } },
+      "then": { "required": ["started_utc", "window_end_utc"] }
+    },
+
+    "session": {
+      "title": ".harness/session.json (state_brief)",
+      "type": "object",
+      "required": ["session_id", "started_utc", "source"],
+      "properties": {
+        "session_id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "started_utc": { "$ref": "#/$defs/utc" },
+        "source": { "enum": ["startup", "resume", "clear", "compact", "fork"] },
+        "transcript_path": { "type": "string" },
+        "cwd": { "type": "string" },
+        "entrypoint": { "type": ["string", "null"], "description": "CLAUDE_CODE_ENTRYPOINT seen by the hook, when set (U-33)." }
+      }
+    },
+
+    "reservation": {
+      "title": ".harness/reservations/<id>.json (assetgen reserve writes; guard G8 reads and marks used; assetgen receipt/settle/release close it)",
+      "type": "object",
+      "required": ["schema", "id", "attempt_id", "provider", "endpoint", "tools", "est", "unit", "created_utc", "expires_utc", "status"],
+      "properties": {
+        "schema": { "const": 1 },
+        "id": { "type": "string", "pattern": "^r-[0-9]{8}T[0-9]{6}Z-[a-z0-9]{4,12}$" },
+        "attempt_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*/[a-z0-9][a-z0-9_-]*/a[0-9]{2,3}$" },
+        "provider": { "type": "string" },
+        "endpoint": { "type": "string" },
+        "tools": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^mcp__" }, "description": "The mutating MCP tool names this reservation covers." },
+        "est": { "type": "number", "minimum": 0 },
+        "unit": { "enum": ["USD", "credits"] },
+        "created_utc": { "$ref": "#/$defs/utc" },
+        "expires_utc": { "$ref": "#/$defs/utc" },
+        "status": { "enum": ["open", "used", "receipted", "settled", "released", "expired"], "description": "G8 allows one mutating call per reservation: only while open and not expired; the guard then writes used." },
+        "used_utc": { "$ref": "#/$defs/utc" },
+        "tool_use_id": { "type": "string" },
+        "request_id": { "type": ["string", "null"] },
+        "lane": { "type": "string" }
+      }
+    },
+
+    "health": {
+      "title": ".harness/health.json (hygiene_watchdog.ps1, every 60 s)",
+      "type": "object",
+      "required": ["schema", "utc", "disk", "commit", "ram", "alerts"],
+      "properties": {
+        "schema": { "const": 1 },
+        "utc": { "$ref": "#/$defs/utc" },
+        "disk": { "type": "object", "required": ["drive", "free_gb"], "properties": { "drive": { "type": "string" }, "free_gb": { "type": "number" }, "total_gb": { "type": "number" } } },
+        "commit": { "type": "object", "required": ["used_pct"], "properties": { "used_pct": { "type": "number" }, "limit_mb": { "type": "number" } } },
+        "ram": { "type": "object", "required": ["available_mb"], "properties": { "available_mb": { "type": "number" } } },
+        "unity": { "type": "object", "properties": { "pid": { "type": ["integer", "null"] }, "private_mb": { "type": ["number", "null"] }, "uptime_h": { "type": ["number", "null"] } } },
+        "pagefile": { "type": "object", "properties": { "mb": { "type": "number" }, "grew_mb": { "type": "number" } } },
+        "alerts": { "type": "array", "items": { "$ref": "#/$defs/alertName" } }
+      }
+    },
+    "alertName": { "enum": ["disk_warn", "disk_stop", "disk_emergency", "commit_high", "ram_low", "unity_restart_due", "pagefile_growth", "secret_in_prompt", "waiting_for_owner"] },
+    "alert": {
+      "title": "Content of .harness/alerts/<alertName> (the file's presence is the signal)",
+      "type": "object",
+      "required": ["utc", "level", "message"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "level": { "enum": ["info", "warn", "stop", "emergency"] },
+        "message": { "type": "string" },
+        "value": { "type": ["number", "string", "null"] }
+      }
+    },
+
+    "stopGuard": {
+      "title": ".harness/stop_guard.json (keep_working idle detector)",
+      "type": "object",
+      "required": ["sig", "idle", "last_utc"],
+      "properties": {
+        "session_id": { "type": "string" },
+        "sig": { "type": "string", "description": "sha256 of [head|tree, mtime(DEVLOG), mtime(gates.jsonl), mtime(TODO), size(touched/<session>.txt)]." },
+        "idle": { "type": "integer", "minimum": 0 },
+        "last_utc": { "$ref": "#/$defs/utc" },
+        "blocks": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "stalled": {
+      "title": "Content of .harness/STALLED",
+      "type": "object",
+      "required": ["utc", "last_message"],
+      "properties": { "utc": { "$ref": "#/$defs/utc" }, "session_id": { "type": "string" }, "last_message": { "type": "string", "maxLength": 500 } }
+    },
+    "ownerControl": {
+      "title": "Content of .harness/PAUSE and .harness/ALLOW_STOP_OWNER (owner_inbox only; presence is the signal)",
+      "type": "object",
+      "required": ["utc", "by", "inbox_id"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "by": { "const": "owner_inbox" },
+        "inbox_id": { "type": "integer", "minimum": 1 },
+        "session_id": { "type": "string" },
+        "prompt_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "harnessUnlock": {
+      "title": "Content of .harness/HARNESS_UNLOCK (owner_inbox; valid until expires_utc, 60 min)",
+      "type": "object",
+      "required": ["utc", "expires_utc", "inbox_id"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "expires_utc": { "$ref": "#/$defs/utc" },
+        "inbox_id": { "type": "integer", "minimum": 1 },
+        "session_id": { "type": "string" },
+        "prompt_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "checkpoint": {
+      "title": ".harness/checkpoint.json (precompact_checkpoint)",
+      "type": "object",
+      "required": ["utc", "trigger", "wave", "units", "next_action"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "session_id": { "type": "string" },
+        "trigger": { "enum": ["manual", "auto"] },
+        "wave": { "type": ["string", "null"] },
+        "units": { "type": "object", "additionalProperties": { "enum": ["todo", "running", "done", "blocked", "failed"] } },
+        "next_action": { "$ref": "#/$defs/nextAction" }
+      }
+    },
+    "nextAction": {
+      "title": "Output of next_action.mjs --json",
+      "type": "object",
+      "required": ["kind", "detail"],
+      "properties": {
+        "kind": { "enum": ["alert", "paused", "owner", "wave", "gate", "fix", "freeze", "idle"] },
+        "detail": { "type": "string" },
+        "refs": { "type": "array", "items": { "type": "string" } },
+        "milestone": { "type": ["string", "null"] },
+        "wave": { "type": ["string", "null"] }
+      }
+    },
+    "unityPid": {
+      "title": ".harness/unity.pid (game_gate serve; JSON)",
+      "type": "object",
+      "required": ["pid", "started_utc", "project"],
+      "properties": {
+        "pid": { "type": "integer", "minimum": 1 },
+        "started_utc": { "$ref": "#/$defs/utc" },
+        "project": { "type": "string", "description": "Absolute Unity project path." },
+        "port": { "type": ["integer", "null"] },
+        "mode": { "const": "serve" },
+        "process_start_utc": { "$ref": "#/$defs/utc", "description": "Start time of the Unity process (lib/proc.mjs processInfo right after spawn; fallback the spawn time). unserve and the watchdog check pidMatches(pid, {start_utc, image}) before any kill or reading; on mismatch or dead the file is stale: delete it, kill nothing." },
+        "image": { "type": "string", "description": "Executable path of that process (e.g. .../Unity.exe)." }
+      }
+    },
+    "lockHolder": {
+      "title": "Content of any kit lock file (lib/locks.mjs): unity.lock, dotnet-N.lock, core-N.lock, ledger.lock, licenses.csv.lock, cs_check.lock, owner_inbox.lock, and the transient <lock>.break",
+      "type": "object",
+      "required": ["pid", "host", "utc", "purpose", "token"],
+      "properties": {
+        "pid": { "type": "integer", "minimum": 1 },
+        "host": { "type": "string", "minLength": 1 },
+        "utc": { "$ref": "#/$defs/utc" },
+        "purpose": { "type": "string" },
+        "token": { "type": "string", "minLength": 1, "description": "Only the holder with this token releases the lock." },
+        "process_start_utc": { "$ref": "#/$defs/utc", "description": "The holder's start (Date.now() - process.uptime()); with image, detects PID reuse." },
+        "image": { "type": "string" }
+      }
+    },
+    "snapshotManifest": {
+      "title": ".harness/snapshots/<wave>/manifest.json (wave_manifest.mjs snapshot)",
+      "type": "object",
+      "required": ["wave", "utc", "files"],
+      "properties": {
+        "wave": { "type": "string" },
+        "utc": { "$ref": "#/$defs/utc" },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "existed"],
+            "properties": { "path": { "type": "string" }, "existed": { "type": "boolean" }, "sha256": { "$ref": "#/$defs/sha256" } }
+          }
+        }
+      }
+    },
+    "csCheckLast": {
+      "title": ".harness/cs_check.last.json (cs_check_async single-flight debounce)",
+      "type": "object",
+      "required": ["utc", "ok", "exit"],
+      "properties": { "utc": { "$ref": "#/$defs/utc" }, "ok": { "type": "boolean" }, "exit": { "type": ["integer", "null"] }, "errors_in_touched": { "type": "integer", "minimum": 0 }, "secs": { "type": "number" } }
+    },
+    "laneBlocks": {
+      "title": ".harness/lane_blocks.json (lane_deliverable_check: blocks once per agent)",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["count", "utc", "lane"],
+        "properties": { "count": { "type": "integer", "minimum": 0 }, "utc": { "$ref": "#/$defs/utc" }, "lane": { "type": "string" } }
+      }
+    },
+
+    "overrideLine": {
+      "title": "One line of .harness/overrides.jsonl",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["event", "id", "utc", "expires_utc", "command", "inbox_id"],
+          "properties": {
+            "event": { "const": "grant" },
+            "id": { "type": "string", "pattern": "^ov-[0-9]+$" },
+            "utc": { "$ref": "#/$defs/utc" },
+            "expires_utc": { "$ref": "#/$defs/utc" },
+            "command": { "type": "string", "minLength": 1, "description": "The exact command text after `OWNER-OVERRIDE: `, trimmed." },
+            "inbox_id": { "type": "integer", "minimum": 1 },
+            "session_id": { "type": "string" },
+            "prompt_sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["event", "id", "utc"],
+          "properties": {
+            "event": { "const": "consumed" },
+            "id": { "type": "string", "pattern": "^ov-[0-9]+$" },
+            "utc": { "$ref": "#/$defs/utc" },
+            "tool_use_id": { "type": "string" },
+            "session_id": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "confirmationLine": {
+      "title": "One line of .harness/owner_confirmations.jsonl (owner_inbox on `OWNER: confirm <id>`)",
+      "type": "object",
+      "required": ["utc", "row", "session_id", "prompt_sha256", "inbox_id"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "row": { "type": "string", "pattern": "^([A-Za-z][A-Za-z0-9_]{0,31}-[0-9]{2,3}[a-z]?|CR-[0-9]+)$" },
+        "session_id": { "type": "string", "minLength": 1 },
+        "prompt_sha256": { "$ref": "#/$defs/sha256", "description": "sha256 of the UTF-8 prompt text exactly as received in UserPromptSubmit.prompt." },
+        "inbox_id": { "type": "integer", "minimum": 1 },
+        "transcript_path": { "type": "string", "description": "UserPromptSubmit stdin transcript_path; gate_close reads this transcript first (lib/paths.mjs findTranscript hint)." },
+        "entrypoint": { "type": ["string", "null"], "description": "CLAUDE_CODE_ENTRYPOINT of the session that sent the prompt, when set (U-33)." }
+      }
+    },
+    "stopFailureLine": {
+      "title": "One line of .harness/stopfailure.jsonl (stop_failure_log)",
+      "type": "object",
+      "required": ["utc", "session_id", "error"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "session_id": { "type": "string" },
+        "error": { "type": "string", "description": "StopFailure `error` (rate_limit, overloaded, authentication_failed, …; falls back to error_type)." },
+        "details": { "type": ["string", "null"] },
+        "resets_text": { "type": ["string", "null"], "description": "e.g. `resets 4:10am (Asia/Hong_Kong)`, parsed from the last message when present." },
+        "resets_utc": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/utc" }] }
+      }
+    },
+    "quotaLine": {
+      "title": "One line of .harness/quota.jsonl (notification_log)",
+      "type": "object",
+      "required": ["utc", "notification_type"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "session_id": { "type": "string" },
+        "notification_type": { "type": "string" },
+        "message": { "type": "string" },
+        "title": { "type": "string" }
+      }
+    },
+    "supervisorLine": {
+      "title": "One line of .harness/supervisor.jsonl (supervisor.ps1)",
+      "type": "object",
+      "required": ["utc", "action", "reason"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "action": { "enum": ["noop", "relaunch", "alert", "sleep", "skip"] },
+        "reason": { "type": "string" },
+        "pid": { "type": ["integer", "null"] },
+        "session_id": { "type": ["string", "null"] }
+      }
+    },
+    "metricsLine": {
+      "title": "One line of .harness/metrics.jsonl (hygiene_watchdog.ps1)",
+      "type": "object",
+      "required": ["utc"],
+      "properties": {
+        "utc": { "$ref": "#/$defs/utc" },
+        "disk_free_gb": { "type": "number" },
+        "commit_pct": { "type": "number" },
+        "ram_available_mb": { "type": "number" },
+        "unity_private_mb": { "type": ["number", "null"] },
+        "pagefile_mb": { "type": ["number", "null"] }
+      }
+    },
+    "guardErrorLine": {
+      "title": "One line of .harness/guard_errors.jsonl (guard internal errors; the guard never exits 2 on its own crash)",
+      "type": "object",
+      "required": ["utc", "error"],
+      "properties": { "utc": { "$ref": "#/$defs/utc" }, "error": { "type": "string" }, "tool_name": { "type": "string" }, "fallback": { "enum": ["deny", "none"] } }
+    }
+  }
+}

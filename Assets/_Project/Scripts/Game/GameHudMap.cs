@@ -50,6 +50,7 @@ namespace Wreckabulary
             public List<float> floors;
             public MovingOutDirector movingOut;
             public MovingDayDirector movingDay;
+            public EscapeDirector escape;
             public int storey = -1;
             public float originX, originZ, extent, nextProps, nextTransient;
             public Vector2 At(float x, float z) => new((x - originX) / extent, (z - originZ) / extent);
@@ -62,6 +63,17 @@ namespace Wreckabulary
         }
 
         Sprite mapPointer;
+
+        static HouseLayout PracticeLayout()
+        {
+            string name = FindAnyObjectByType<BeltRangeDirector>() ? "BELT range" : FindAnyObjectByType<TutorialDirector>() ? "Practice room" : null;
+            var floor = name != null ? GameObject.Find("Room/Floor") : null;
+            if (!floor || !floor.TryGetComponent<Collider>(out var collider)) return null;
+            var bounds = collider.bounds;
+            var layout = new HouseLayout { Name = name };
+            layout.Rooms.Add(new RoomBox { Name = name, MinX = bounds.min.x, MaxX = bounds.max.x, MinZ = bounds.min.z, MaxZ = bounds.max.z, FloorY = bounds.max.y });
+            return layout;
+        }
 
         MapView MakeMap(RectTransform frame, bool full, float border)
         {
@@ -89,6 +101,7 @@ namespace Wreckabulary
                 map.floors = layout.StoreyFloors();
                 map.movingOut = FindAnyObjectByType<MovingOutDirector>();
                 map.movingDay = FindAnyObjectByType<MovingDayDirector>();
+                map.escape = FindAnyObjectByType<EscapeDirector>();
                 map.storey = -1;
             }
             var cutaway = StoreyCutaway.Instance;
@@ -150,7 +163,6 @@ namespace Wreckabulary
             map.transientProps.Clear(); map.visitedProps.Clear();
             map.storey = storey; map.nextProps = map.nextTransient = 0f;
             float minX = float.PositiveInfinity, minZ = float.PositiveInfinity, maxX = float.NegativeInfinity, maxZ = float.NegativeInfinity;
-            // Keep the same projection on every floor so stairs and player locations do not jump on a storey change.
             foreach (var room in map.layout.Rooms)
             {
                 minX = Mathf.Min(minX, room.MinX); maxX = Mathf.Max(maxX, room.MaxX);
@@ -168,7 +180,7 @@ namespace Wreckabulary
             foreach (var box in map.layout.Rooms)
             {
                 if (map.Storey(box.FloorY) != storey) continue;
-                var room = new MapRoom { box = box, colour = MapRoomColour(box.Name) };
+                var room = new MapRoom { box = box, colour = MapRoomColour(box) };
                 room.fill = MapArea(box.Name, floors, map, box.MinX, box.MinZ, box.MaxX, box.MaxZ, room.colour);
                 var label = Text(box.Name, map.labelLayer, map.At((box.MinX + box.MaxX) * .5f, box.MaxZ),
                     new Vector2(0f, map.full ? -13f : -8f), Vector2.zero, map.full ? 16f : 10f, Cream);
@@ -207,13 +219,14 @@ namespace Wreckabulary
             }
             map.markerLayer = MapLayer("Markers", map.plan);
             map.extraction = null;
-            if ((map.movingOut || map.movingDay) && map.layout.ExtractionRoom != null)
+            if ((map.movingOut || map.movingDay || map.escape) && map.layout.ExtractionRoom != null)
             {
                 map.extraction = Panel("Delivery point", map.markerLayer, Vector2.zero, Vector2.zero,
-                    Vector2.one * (map.full ? 23f : 14f), Vector2.one * .5f, Hex(0xf6ce6d), true).GetComponent<Image>();
+                    Vector2.one * (map.full ? 23f : 14f), Vector2.one * .5f,
+                    map.escape ? Hex(0x8fd18b) : Hex(0xf6ce6d), true).GetComponent<Image>();
                 var text = Text("Symbol", map.extraction.transform, Vector2.one * .5f, Vector2.zero,
                     Vector2.one * (map.full ? 30f : 20f), map.full ? 11f : 9f, Ink);
-                text.text = map.movingOut ? "V" : "+"; text.fontStyle = FontStyles.Bold;
+                text.text = map.movingOut ? "V" : map.escape ? "E" : "+"; text.fontStyle = FontStyles.Bold;
             }
             map.badge = Text("Storey", map.plan, new Vector2(0f, 1f), new Vector2(5f, -3f),
                 new Vector2(190f, map.full ? 22f : 14f), map.full ? 14f : 9f, Cream, TextAlignmentOptions.TopLeft);
@@ -263,7 +276,6 @@ namespace Wreckabulary
 
         void UpdateMapProps(MapView map)
         {
-            // Discover new furniture at a bounded rate; the cached colliders still track movement four times a second.
             if (Time.unscaledTime >= map.nextTransient)
             {
                 map.nextTransient = Time.unscaledTime + 1f;
@@ -305,12 +317,14 @@ namespace Wreckabulary
 
         void UpdateMapObjectives(MapView map)
         {
+            string guide = map.escape ? map.escape.GuideRoom : null;
             foreach (var room in map.rooms)
             {
                 bool pending = false;
                 if (map.movingDay)
                     foreach (var objective in map.movingDay.Remaining)
                         if (objective.room == room.box.Name) { pending = true; break; }
+                if (!string.IsNullOrEmpty(guide) && room.box.Name == guide) pending = true;
                 if (room.objective == pending) continue;
                 room.objective = pending;
                 room.label.color = pending ? Hex(0xffd878) : Cream;
@@ -318,8 +332,11 @@ namespace Wreckabulary
             }
             if (!map.extraction) return;
             var roomAt = map.layout.Room(map.layout.ExtractionRoom);
-            var position = map.movingOut ? map.movingOut.ExtractionPoint : new Vector3(map.layout.ExtractionX, roomAt.FloorY, map.layout.ExtractionZ);
-            map.extraction.gameObject.SetActive(map.Storey(position.y) == map.storey);
+            var position = map.escape ? map.escape.ExtractionPoint
+                : map.movingOut ? map.movingOut.ExtractionPoint
+                : new Vector3(map.layout.ExtractionX, roomAt.FloorY, map.layout.ExtractionZ);
+            bool revealed = map.escape == null || map.escape.ExitRevealed;
+            map.extraction.gameObject.SetActive(revealed && map.Storey(position.y) == map.storey);
             map.extraction.rectTransform.anchorMin = map.extraction.rectTransform.anchorMax = map.At(position.x, position.z);
         }
 
@@ -358,9 +375,10 @@ namespace Wreckabulary
             "Kitchen" => "KITCHEN", "Playroom" => "PLAY", _ => Spaced(name).ToUpperInvariant()
         };
 
-        static Color MapRoomColour(string name)
+        static Color MapRoomColour(RoomBox box)
         {
-            if (name.Contains("Garden") || name.Contains("Terrace") || name.Contains("Patio")) return Hex(0x638c6c);
+            string name = box.Name;
+            if (box.Outdoor || name.Contains("Garden") || name.Contains("Terrace") || name.Contains("Patio")) return Hex(0x638c6c);
             if (name.Contains("Kitchen") || name.Contains("Bath")) return Hex(0x678f96);
             if (name.Contains("Bed") || name.Contains("Play")) return Hex(0x8d829f);
             if (name.Contains("Hall") || name.Contains("Stair") || name.Contains("Landing")) return Hex(0x968b6b);

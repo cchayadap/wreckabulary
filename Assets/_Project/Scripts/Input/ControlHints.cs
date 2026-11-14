@@ -7,7 +7,7 @@ namespace Wreckabulary
     {
         static DesktopBinding Desktop => DesktopBinding.Shared;
 
-        static string Key(InputAction action) => action.GetBindingDisplayString().ToUpperInvariant();
+        static string Key(InputAction action) => KeyBindings.Display(action);
 
         public static string KeyOf(InputAction action) => Key(action);
 
@@ -19,7 +19,7 @@ namespace Wreckabulary
                 var parts = new System.Collections.Generic.List<string>();
                 foreach (var part in new[] { "Up", "Left", "Down", "Right" })
                     for (int i = 0; i < move.bindings.Count; i++)
-                        if (move.bindings[i].isPartOfComposite && move.bindings[i].name == part) parts.Add(move.GetBindingDisplayString(i).ToUpperInvariant());
+                        if (move.bindings[i].isPartOfComposite && move.bindings[i].name == part) parts.Add(KeyBindings.Display(move, i));
                 return parts.TrueForAll(p => p.Length == 1) ? string.Concat(parts) : string.Join("/", parts);
             }
         }

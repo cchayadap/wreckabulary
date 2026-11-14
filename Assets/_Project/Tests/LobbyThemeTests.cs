@@ -169,7 +169,7 @@ namespace Wreckabulary.Tests
             menu.Open(LobbyMenu.Shop);
             yield return new WaitForSecondsRealtime(.5f);
             var stage = menu.Stage;
-            var panel = (RectTransform)menu.Page<ShopPage>().Root.Find("Panel");
+            var panel = menu.Page<ShopPage>().Root.GetComponentInChildren<LobbyShopPageView>().Panel;
             Assert.IsNotNull(panel);
             var corners = new Vector3[4];
             panel.GetWorldCorners(corners);

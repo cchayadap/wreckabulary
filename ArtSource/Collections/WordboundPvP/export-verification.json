@@ -1,0 +1,299 @@
+{
+  "blender": "5.2.2 LTS",
+  "passed": true,
+  "formats": [
+    "fbx",
+    "glb"
+  ],
+  "native_unity_validation": "NOT RUN",
+  "checks": [
+    {
+      "id": "BAT",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 2724,
+      "max_bounds_error_metres": 1.564621925354004e-07,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "BAT",
+      "format": "glb",
+      "passed": true,
+      "triangles": 2724,
+      "max_bounds_error_metres": 0.0,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "BROOM",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 1676,
+      "max_bounds_error_metres": 2.60770320892334e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "BROOM",
+      "format": "glb",
+      "passed": true,
+      "triangles": 1676,
+      "max_bounds_error_metres": 7.450580596923828e-09,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "HAMMER",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 2372,
+      "max_bounds_error_metres": 8.940696716308594e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "HAMMER",
+      "format": "glb",
+      "passed": true,
+      "triangles": 2372,
+      "max_bounds_error_metres": 1.4901161193847656e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "SPEAR",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 2512,
+      "max_bounds_error_metres": 1.7508864402770996e-07,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "SPEAR",
+      "format": "glb",
+      "passed": true,
+      "triangles": 2512,
+      "max_bounds_error_metres": 0.0,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "SHIELD",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 1748,
+      "max_bounds_error_metres": 5.960464477539063e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "SHIELD",
+      "format": "glb",
+      "passed": true,
+      "triangles": 1748,
+      "max_bounds_error_metres": 0.0,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "PLATE",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 2108,
+      "max_bounds_error_metres": 5.21540641784668e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "PLATE",
+      "format": "glb",
+      "passed": true,
+      "triangles": 2108,
+      "max_bounds_error_metres": 7.450580596923828e-09,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "TABLE",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 2324,
+      "max_bounds_error_metres": 1.1920928955078125e-07,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "TABLE",
+      "format": "glb",
+      "passed": true,
+      "triangles": 2324,
+      "max_bounds_error_metres": 0.0,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "SOFA",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 4296,
+      "max_bounds_error_metres": 1.1920928955078125e-07,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "SOFA",
+      "format": "glb",
+      "passed": true,
+      "triangles": 4296,
+      "max_bounds_error_metres": 9.313225746154785e-10,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "BED",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 3152,
+      "max_bounds_error_metres": 1.2528626314178837e-07,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "BED",
+      "format": "glb",
+      "passed": true,
+      "triangles": 3152,
+      "max_bounds_error_metres": 5.960464477539063e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "STOOL",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 1752,
+      "max_bounds_error_metres": 8.940696716308594e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "STOOL",
+      "format": "glb",
+      "passed": true,
+      "triangles": 1752,
+      "max_bounds_error_metres": 2.3283064365386963e-10,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "FAN",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 3060,
+      "max_bounds_error_metres": 8.940696716308594e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "FAN",
+      "format": "glb",
+      "passed": true,
+      "triangles": 3060,
+      "max_bounds_error_metres": 2.9802322387695312e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "CLOCK",
+      "format": "fbx",
+      "passed": true,
+      "triangles": 2848,
+      "max_bounds_error_metres": 3.725290298461914e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    },
+    {
+      "id": "CLOCK",
+      "format": "glb",
+      "passed": true,
+      "triangles": 2848,
+      "max_bounds_error_metres": 2.9802322387695312e-08,
+      "materials": [
+        "WordboundPvPBrass",
+        "WordboundPvPPaint"
+      ],
+      "errors": []
+    }
+  ]
+}

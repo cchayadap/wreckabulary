@@ -229,19 +229,18 @@ namespace Wreckabulary.Tests
                     targets[i].Create();
                     cameras[i].targetTexture = targets[i];
                 }
-                // Use normal camera frames, including GPU batch uploads and per-camera culling.
-                // Reading the completed prior frame also works in graphics-enabled batch mode.
                 yield return null;
                 yield return null;
                 yield return null;
-                var directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "docs", "reviews", "evidence", "camera-cutaway-native"));
-                Directory.CreateDirectory(directory);
+                string directory = System.Environment.GetEnvironmentVariable("WRECK_CAPTURE_DIR");
+                if (!string.IsNullOrEmpty(directory))
+                    Directory.CreateDirectory(directory = Path.Combine(directory, "camera-cutaway-native"));
                 Color Capture(int cameraIndex, string name)
                 {
                     RenderTexture.active = targets[cameraIndex];
                     pixels.ReadPixels(new Rect(0, 0, 128, 128), 0, 0, false);
                     pixels.Apply();
-                    File.WriteAllBytes(Path.Combine(directory, name + ".png"), pixels.EncodeToPNG());
+                    if (!string.IsNullOrEmpty(directory)) File.WriteAllBytes(Path.Combine(directory, name + ".png"), pixels.EncodeToPNG());
                     return pixels.GetPixel(64, 64);
                 }
                 var open = Capture(0, "overview-floor-visible");

@@ -76,6 +76,7 @@ namespace Wreckabulary.Tests
         {
             var touch = TouchBinding.Shared;
             touch.Enabled = true;
+            ControlTips.Reset();
             var player = Spawn(touch);
             var hud = new GameObject("Parity HUD", typeof(Canvas)).AddComponent<GameHud>();
             yield return null;
@@ -99,7 +100,14 @@ namespace Wreckabulary.Tests
             Assert.IsNull(safe.Find("Vitals").GetComponent<Image>(), "Vitals sit straight on the game, with no card.");
             Assert.IsNull(safe.Find("Vitals/Health track"));
             StringAssert.Contains("HP", safe.Find("Vitals/HP").GetComponent<TMPro.TMP_Text>().text);
-            Assert.IsTrue(safe.Find("Desktop controls").gameObject.activeSelf, "Desktop shows the key bar.");
+            Assert.IsTrue(safe.Find("Desktop controls").gameObject.activeSelf, "A new desktop player gets a control tip.");
+            Assert.IsNull(safe.Find("Desktop controls").GetComponent<Image>(), "Tips sit straight on the game, with no box.");
+            var tip = safe.Find("Desktop controls/Keys").GetComponent<TMPro.TMP_Text>();
+            StringAssert.Contains("move", tip.text, "Moving comes first.");
+            ControlTips.Learn(ControlTips.Tip.Move);
+            yield return new WaitForSecondsRealtime(0.5f);
+            StringAssert.Contains("smash, throw, place, block", tip.text, "Once you've moved, the next tip: left click does it all.");
+            StringAssert.DoesNotContain("RMB", tip.text, "Right click aims only in the over-the-shoulder view, so its tip waits.");
             Assert.IsFalse(safe.Find("Touch controls").gameObject.activeSelf, "On-screen buttons are for touch only.");
 
             safe.Find("Letter bag/Gear slot 2").GetComponent<Button>().onClick.Invoke();
@@ -127,13 +135,9 @@ namespace Wreckabulary.Tests
             Assert.IsNotNull(safe.Find("Touch controls/HOLD DROP"));
             foreach (Transform child in safe.Find("Touch controls"))
                 Assert.IsFalse(child.name.StartsWith("PLACE"), "No separate place button: " + child.name);
-            var keys = safe.Find("Desktop controls/Keys").GetComponent<TMPro.TMP_Text>().text;
-            StringAssert.Contains("smash, throw, place, block", keys, "Left click does it all, blocking with a PLATE too.");
-            StringAssert.Contains("mouse aim", keys, "Under the overhead camera the mouse aims.");
-            StringAssert.DoesNotContain(">F<", keys);
-            StringAssert.DoesNotContain("RMB", keys, "Right click aims only in the over-the-shoulder view.");
             Object.Destroy(hud.gameObject);
             Object.Destroy(player.gameObject);
+            ControlTips.Reset();
         }
 
         static IEnumerator TheBagIsTheWebsDarkGlass(GameHud hud, PlayerController player)
@@ -196,6 +200,32 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator RecipeBookSaysWhatTheFocusedItemDoesInOneLine()
+        {
+            Spawn(TouchBinding.Shared);
+            var hud = new GameObject("Recipe line HUD", typeof(Canvas)).AddComponent<GameHud>();
+            yield return null;
+            var safe = (RectTransform)hud.transform.Find("Safe HUD");
+            safe.Find("Letter bag/Bag link").GetComponent<Button>().onClick.Invoke();
+            var book = safe.Find("Bag panel/Recipe book");
+            var line = book.Find("Book line").GetComponent<TMPro.TMP_Text>();
+            var cards = book.Find("View/Cards");
+            Assert.AreEqual("", line.text, "quiet until a card is focused");
+            UnityEngine.EventSystems.ExecuteEvents.Execute(cards.Find("HAMMER").gameObject,
+                new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current), UnityEngine.EventSystems.ExecuteEvents.pointerEnterHandler);
+            StringAssert.StartsWith("HAMMER · ", line.text);
+            StringAssert.Contains("every 3rd hit crushes", line.text);
+            Assert.GreaterOrEqual(line.fontSize, 23f);
+            UnityEngine.EventSystems.ExecuteEvents.Execute(cards.Find("HAMMER").gameObject,
+                new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current), UnityEngine.EventSystems.ExecuteEvents.pointerExitHandler);
+            Assert.AreEqual("", line.text);
+            UnityEngine.EventSystems.ExecuteEvents.Execute(cards.Find("BAT").gameObject,
+                new UnityEngine.EventSystems.BaseEventData(UnityEngine.EventSystems.EventSystem.current), UnityEngine.EventSystems.ExecuteEvents.selectHandler);
+            Assert.AreEqual("BAT · no extra effect", line.text, "a pad selection says it too");
+            Object.Destroy(hud.gameObject);
+        }
+
+        [UnityTest]
         public IEnumerator RecipeBookReflowsWithoutShrinkingLettersOrOverlappingTheMap()
         {
             var player = Spawn(TouchBinding.Shared);
@@ -215,7 +245,6 @@ namespace Wreckabulary.Tests
 
             foreach (var size in new[] { new Vector2(1920f, 1080f), new Vector2(2520f, 1080f), new Vector2(1440f, 1080f) })
             {
-                // Exercise logical canvas sizes without changing the editor's saved Game View resolutions.
                 safe.anchorMin = safe.anchorMax = safe.pivot = Vector2.zero;
                 safe.anchoredPosition = Vector2.zero;
                 safe.sizeDelta = size;
@@ -416,6 +445,7 @@ namespace Wreckabulary.Tests
             yield return null;
             Assert.IsTrue(hud.ComposerOpen, "Spell opens the composer.");
             Assert.IsTrue(DesktopBinding.Typing, "Letters go to the word, not to the player.");
+            Assert.IsTrue(hud.ComposerLettersOnly, "Typing shows only the typed letters.");
             Assert.AreEqual("Type a word you can make from your letters. Tab or right-click closes.", hud.ComposerStatus);
             hud.TypeWord("ba");
             yield return null;
@@ -482,15 +512,89 @@ namespace Wreckabulary.Tests
         [UnityTest]
         public IEnumerator TouchButtonsWaitForATouchScreen()
         {
+            ControlTips.Reset();
             var you = Spawn(TouchBinding.Shared);
             var hud = new GameObject("Parity HUD", typeof(Canvas)).AddComponent<GameHud>();
             yield return null;
             var safe = hud.transform.Find("Safe HUD");
             Assert.AreEqual(Application.isMobilePlatform, safe.Find("Touch controls").gameObject.activeSelf,
-                "A desktop starts with the key bar, even with a touchscreen plugged in.");
+                "A desktop starts with a control tip, even with a touchscreen plugged in.");
             Assert.AreEqual(!Application.isMobilePlatform, safe.Find("Desktop controls").gameObject.activeSelf);
             Object.Destroy(hud.gameObject);
             Object.Destroy(you.gameObject);
+        }
+
+        [Test]
+        public void SpellHintNamesTheBestReadyWordThenTheNearestMiss()
+        {
+            static WordEntry W(string word, bool hidden = false) => new WordEntry { word = word, hidden = hidden };
+            var words = new[] { W("BALL"), W("BAT"), W("AXE"), W("SECRET", true) };
+            Assert.Greater(LetterScores.ScoreOf("AXE"), LetterScores.ScoreOf("BAT"));
+            Assert.AreEqual("BAT ready · Q", GameHud.SpellHintText(words, "TAB".ToCharArray(), 10, "Q"));
+            Assert.AreEqual("AXE ready · Q", GameHud.SpellHintText(words, "BATAXE".ToCharArray(), 10, "Q"), "The highest-scoring ready word wins.");
+            Assert.AreEqual("BAT ready", GameHud.SpellHintText(words, "BAT".ToCharArray(), 10, ""));
+            Assert.AreEqual("BAT needs T", GameHud.SpellHintText(words, "BA".ToCharArray(), 10, "Q"), "BALL is two letters away, BAT only one.");
+            Assert.AreEqual("", GameHud.SpellHintText(words, "BA".ToCharArray(), 2, "Q"), "A word that cannot fit the bag is no hint.");
+            Assert.AreEqual("", GameHud.SpellHintText(words, "SECRE".ToCharArray(), 10, "Q"), "Hidden words are never hinted.");
+            Assert.AreEqual("SECRET ready · Q", GameHud.SpellHintText(words, "SECRET".ToCharArray(), 10, "Q"));
+            Assert.AreEqual("", GameHud.SpellHintText(words, "QZ".ToCharArray(), 10, "Q"));
+            Assert.AreEqual("", GameHud.SpellHintText(words, new char[0], 10, "Q"));
+            Assert.AreEqual("Y", GameHud.SpellKeyLabel(new GamepadBinding(null)));
+            Assert.AreEqual("SPELL", GameHud.SpellKeyLabel(TouchBinding.Shared));
+            Assert.AreEqual("K", GameHud.SpellKeyLabel(new KeyboardBinding(KeyboardBinding.Side.Left)));
+        }
+
+        [UnityTest]
+        public IEnumerator SpellHintSitsQuietlyAboveTheTrayAndHidesWhenNothingHelps()
+        {
+            var touch = TouchBinding.Shared;
+            touch.Enabled = true;
+            var player = Spawn(touch);
+            var hud = new GameObject("Parity HUD", typeof(Canvas)).AddComponent<GameHud>();
+            yield return null;
+            hud.ShowTouchControls(false);
+            player.Inventory.Set("");
+            yield return new WaitForSecondsRealtime(0.2f);
+            var tray = hud.transform.Find("Safe HUD/Letter bag");
+            var hint = tray.Find("Spell hint").GetComponent<TMPro.TMP_Text>();
+            Assert.IsFalse(hint.gameObject.activeSelf, "An empty bag has nothing useful to say.");
+            Assert.IsNull(hint.GetComponent<Image>(), "The hint is a single line of text, not a card.");
+            Assert.IsNotNull(hint.GetComponent<Shadow>());
+            Assert.GreaterOrEqual(hint.fontSize, 23f);
+            var hintRect = (RectTransform)hint.transform;
+            Assert.GreaterOrEqual(hintRect.anchoredPosition.y, 0f, "The line sits above the letter tiles.");
+
+            player.Inventory.Set("BAT");
+            yield return new WaitForSecondsRealtime(0.2f);
+            Assert.IsTrue(hint.gameObject.activeSelf);
+            Assert.AreEqual(GameHud.SpellHintText(GameAssets.I.words.Words, player.Inventory.Letters, player.Inventory.Capacity, "SPELL"), hint.text);
+            StringAssert.EndsWith(" ready · SPELL", hint.text);
+
+            player.Inventory.Set("BA");
+            yield return new WaitForSecondsRealtime(0.2f);
+            string expected = GameHud.SpellHintText(GameAssets.I.words.Words, player.Inventory.Letters, player.Inventory.Capacity, "SPELL");
+            Assert.AreEqual(expected, hint.text);
+            Assert.AreEqual(expected.Length > 0, hint.gameObject.activeSelf);
+
+            player.Inventory.Set("BATBAT");
+            Assert.IsTrue(player.Summoner.BeginCraft(new WordEntry { word = "BAT" }));
+            yield return new WaitForSecondsRealtime(0.2f);
+            Assert.IsTrue(player.Summoner.IsCrafting);
+            Assert.IsFalse(hint.gameObject.activeSelf, "The hint steps aside while a word is being spelled.");
+            player.Summoner.CancelCraft();
+            Object.Destroy(hud.gameObject);
+            Object.Destroy(player.gameObject);
+        }
+
+        [Test]
+        public void HouseHeadingsUseTheSameModeNamesAsTheLobby()
+        {
+            foreach (string mode in new[] { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" })
+                Assert.AreEqual(LobbyPlayModeLabels.Name(mode), GameHud.MatchHeading(mode).name, mode);
+            Assert.AreEqual("Duos", GameHud.MatchHeading("Duos").name);
+            Assert.AreEqual("Moving Out", GameHud.MatchHeading("MovingOut").name);
+            Assert.AreEqual("CO-OP", GameHud.MatchHeading("Escape").tag);
+            Assert.AreEqual("The house", GameHud.MatchHeading("Hub").name);
         }
     }
 }

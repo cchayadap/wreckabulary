@@ -1,0 +1,113 @@
+{
+  "kit": [
+    { "schema": 1, "kit_version": "1.0.0", "installed_utc": "2026-10-01T12:00:00Z", "unity_subdir": "KNOTWELL", "gate_prefix": "[KNOTWELL]", "options": { "mcp": ["unity"], "autonomous": false, "apply_manifest": false, "hook_paths": "project_dir_var" } },
+    { "schema": 1, "kit_version": "dev", "installed_utc": "2026-10-01T12:00:00Z", "unity_subdir": ".", "gate_prefix": "[GSK]", "options": { "mcp": [], "autonomous": false }, "staged": true }
+  ],
+  "kitManifest": [
+    {
+      "schema": 1,
+      "scope": "project",
+      "kit_version": "1.0.0",
+      "updated_utc": "2026-10-01T12:00:00Z",
+      "files": {
+        "Tools/kit/hooks/guard.mjs": { "sha_installed": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef", "owner_skill": "game-studio-run", "kind": "tools" },
+        "Docs/kit/HARNESS_RULES.md": { "sha_installed": "9b74c9897bac770ffc029102a200c5de0b1f6b8a2b1c1d9e7f4b3a2c1d0e9f8a", "owner_skill": "game-studio-run", "kind": "template" }
+      },
+      "settings": {
+        ".claude/settings.json": { "added": { "allow": ["Bash(node Tools/kit/gate/game_gate.mjs *)"], "deny": ["Edit(Docs/qa/gates.json)"] }, "envAdded": { "CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS": "6" } }
+      },
+      "mcp_added": ["unity"],
+      "blocks": [{ "file": ".gitignore", "style": "hash" }, { "file": "CLAUDE.md", "style": "html" }]
+    }
+  ],
+  "policy": [
+    {
+      "schema": 1,
+      "git": { "commit": "forbid", "init": "ask", "push": "ask", "lfs_migrate": "ask" },
+      "write_roots": [],
+      "provider_hosts": ["queue.fal.run", "fal.run", "api.tripo3d.ai", "openapi.tripo3d.ai", "api.meshy.ai", "api.higgsfield.ai", "api.scenario.com", "external.api.recraft.ai", "api.elevenlabs.io"],
+      "pinned_packages": { "npx": ["@meshy-ai/meshy-mcp-server"], "uvx": ["git+https://projects.blender.org/lab/blender_mcp.git@v1.0.3#subdirectory=mcp"] },
+      "inbox": { "skip_prompts": [], "skip_prefixes": ["GSK-SUPERVISOR:"] },
+      "pause": { "allow_commands": ["node Tools/kit/gate/game_gate.mjs status", "node Tools/kit/gate/game_gate.mjs history", "node Tools/kit/harness/next_action.mjs"] },
+      "ttl_min": { "override": 30, "unlock": 60, "backup_bundle": 10 },
+      "kit_writers": ["node Tools/kit/harness/gate_close.mjs", "node Tools/kit/gate/game_gate.mjs", "node Tools/kit/qa/probe_report.mjs", "uv run --project Tools/kit/assetgen assetgen", "Tools/kit/bin/assetgen"],
+      "secret_env_names": ["FAL_KEY", "MESHY_API_KEY", "HF_TOKEN", "TRIPO_API_KEY"],
+      "retention": { "keep_builds": 3, "session_log_days": 7 },
+      "owner": { "noninteractive_entrypoints": ["sdk-cli", "sdk-ts", "sdk-py"] }
+    }
+  ],
+  "run": [
+    { "schema": 1, "active": true, "started_utc": "2026-10-01T20:00:00Z", "window_end_utc": "2026-10-02T08:00:00Z", "name": "m1-overnight", "skills": ["unity-verify-ladder", "game-qa-probes"], "freeze_at_pct": 75 },
+    { "active": false, "stopped_utc": "2026-10-02T08:00:00Z" }
+  ],
+  "session": [
+    { "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "name": "m1-overnight", "started_utc": "2026-10-01T20:00:05Z", "source": "startup", "transcript_path": "C:/Users/me/.claude/projects/C--Games-Lab/3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60.jsonl", "cwd": "C:/Games/Lab", "entrypoint": "cli" }
+  ],
+  "reservation": [
+    { "schema": 1, "id": "r-20261003T070000Z-7f3a", "attempt_id": "hero_frog/concept/a03", "provider": "fal", "endpoint": "fal-ai/nano-banana-pro", "tools": ["mcp__fal-ai__submit_job"], "est": 0.15, "unit": "USD", "created_utc": "2026-10-03T07:00:00Z", "expires_utc": "2026-10-03T08:00:00Z", "status": "open", "request_id": null, "lane": "art-1" },
+    { "schema": 1, "id": "r-20261003T070000Z-7f3b", "attempt_id": "hero_frog/concept/a04", "provider": "fal", "endpoint": "fal-ai/nano-banana-pro", "tools": ["mcp__fal-ai__submit_job"], "est": 0.15, "unit": "USD", "created_utc": "2026-10-03T07:00:00Z", "expires_utc": "2026-10-03T08:00:00Z", "status": "used", "used_utc": "2026-10-03T07:00:03Z", "tool_use_id": "toolu_01", "request_id": null }
+  ],
+  "health": [
+    { "schema": 1, "utc": "2026-10-01T22:00:00Z", "disk": { "drive": "C:", "free_gb": 42.5, "total_gb": 953.0 }, "commit": { "used_pct": 71.0 }, "ram": { "available_mb": 9120 }, "unity": { "pid": 18244, "private_mb": 6100, "uptime_h": 3.2 }, "pagefile": { "mb": 30720, "grew_mb": 0 }, "alerts": ["disk_warn"] }
+  ],
+  "alert": [
+    { "utc": "2026-10-01T22:00:00Z", "level": "warn", "message": "free disk 42.5 GB < 50 GB", "value": 42.5 }
+  ],
+  "stopGuard": [
+    { "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "sig": "0a4d55a8d778e5022fab701977c5d840bbc486d0f1c2b3a4e5d6c7b8a9f0e1d2", "idle": 1, "last_utc": "2026-10-01T23:10:00Z", "blocks": 14 }
+  ],
+  "stalled": [
+    { "utc": "2026-10-01T23:30:00Z", "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "last_message": "Waiting for the integrator; nothing else to do." }
+  ],
+  "ownerControl": [
+    { "utc": "2026-10-01T23:40:00Z", "by": "owner_inbox", "inbox_id": 12, "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "prompt_sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef" }
+  ],
+  "harnessUnlock": [
+    { "utc": "2026-10-01T23:40:00Z", "expires_utc": "2026-10-02T00:40:00Z", "inbox_id": 13, "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60" }
+  ],
+  "checkpoint": [
+    { "utc": "2026-10-01T23:50:00Z", "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "trigger": "auto", "wave": "m1-a", "units": { "doors": "done", "lobby": "running", "hud": "todo" }, "next_action": { "kind": "wave", "detail": "relaunch m1-a with units lobby, hud", "wave": "m1-a", "milestone": "M1" } }
+  ],
+  "nextAction": [
+    { "kind": "paused", "detail": ".harness/PAUSE exists (owner). Read-only work only.", "refs": [".harness/PAUSE"] }
+  ],
+  "unityPid": [
+    { "pid": 18244, "started_utc": "2026-10-01T20:05:00Z", "project": "C:/Games/Lab", "port": 7803, "mode": "serve", "process_start_utc": "2026-10-01T20:04:58Z", "image": "C:/Program Files/Unity/Hub/Editor/6000.3.25f1/Editor/Unity.exe" }
+  ],
+  "lockHolder": [
+    { "pid": 20112, "host": "LAB-PC", "utc": "2026-10-01T20:05:00Z", "purpose": "serve", "token": "20112-1790620000000-k3j9x2ab", "process_start_utc": "2026-10-01T20:04:51Z", "image": "C:/Program Files/nodejs/node.exe" },
+    { "pid": 20113, "host": "LAB-PC", "utc": "2026-10-01T20:06:00Z", "purpose": "", "token": "20113-1790620060000-a1b2c3d4" }
+  ],
+  "snapshotManifest": [
+    { "wave": "m1-a", "utc": "2026-10-02T01:00:00Z", "files": [{ "path": "Assets/Game/Doors/Door.cs", "existed": true, "sha256": "9b74c9897bac770ffc029102a200c5de0b1f6b8a2b1c1d9e7f4b3a2c1d0e9f8a" }, { "path": "Assets/Game/Doors/DoorNew.cs", "existed": false }] }
+  ],
+  "csCheckLast": [
+    { "utc": "2026-10-01T21:00:20Z", "ok": false, "exit": 1, "errors_in_touched": 2, "secs": 14.1 }
+  ],
+  "laneBlocks": [
+    { "a1b2c3": { "count": 1, "utc": "2026-10-01T21:10:00Z", "lane": "m1-a/lobby" } }
+  ],
+  "overrideLine": [
+    { "event": "grant", "id": "ov-3", "utc": "2026-10-01T12:00:00Z", "expires_utc": "2026-10-01T12:30:00Z", "command": "git reset --hard HEAD~1", "inbox_id": 9, "session_id": "s1", "prompt_sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef" },
+    { "event": "consumed", "id": "ov-3", "utc": "2026-10-01T12:05:00Z", "tool_use_id": "toolu_02" }
+  ],
+  "confirmationLine": [
+    { "utc": "2026-10-03T08:00:00Z", "row": "M0-05", "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "prompt_sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef", "inbox_id": 14, "transcript_path": "C:/Users/me/.claude/projects/C--Games-Lab/3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60.jsonl", "entrypoint": "cli" },
+    { "utc": "2026-10-03T08:01:00Z", "row": "CR-2", "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "prompt_sha256": "9b74c9897bac770ffc029102a200c5de0b1f6b8a2b1c1d9e7f4b3a2c1d0e9f8a", "inbox_id": 15 }
+  ],
+  "stopFailureLine": [
+    { "utc": "2026-10-02T03:12:00Z", "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "error": "rate_limit", "details": null, "resets_text": "resets 4:10am (Asia/Hong_Kong)", "resets_utc": "2026-10-01T20:10:00Z" }
+  ],
+  "quotaLine": [
+    { "utc": "2026-10-02T03:12:05Z", "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60", "notification_type": "permission_prompt", "message": "Claude needs your permission to use Bash" }
+  ],
+  "supervisorLine": [
+    { "utc": "2026-10-02T04:15:00Z", "action": "relaunch", "reason": "process gone, heartbeat 22 min old, window active", "pid": null, "session_id": "3e0c5d2a-8f1b-4c7e-9a6d-1b2c3d4e5f60" }
+  ],
+  "metricsLine": [
+    { "utc": "2026-10-02T04:15:00Z", "disk_free_gb": 42.1, "commit_pct": 70.2, "ram_available_mb": 9000, "unity_private_mb": 6150, "pagefile_mb": 30720 }
+  ],
+  "guardErrorLine": [
+    { "utc": "2026-10-02T04:15:00Z", "error": "SyntaxError in policy.json", "tool_name": "Bash", "fallback": "none" }
+  ]
+}

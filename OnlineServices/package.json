@@ -1,0 +1,24 @@
+{
+  "name": "wreckabulary-wordbound-online",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --local",
+    "types": "wrangler types src/worker-configuration.d.ts",
+    "production:preview": "wrangler deploy --config wrangler.production.jsonc --dry-run --outdir .wrangler/production-preview",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "jose": "6.2.12",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.4.4",
+    "@types/node": "^24.0.0",
+    "typescript": "~5.9.0",
+    "vitest": "^4.1.0",
+    "wrangler": "4.151.1"
+  }
+}

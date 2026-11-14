@@ -1,99 +1,200 @@
 {
  "name": "Walk-up Apartments",
- "notes": "A three-storey 18 by 12 metre walk-up. Ground floor: the cafe to the west, the lobby with the stairs in the middle, the garage with the van to the east. Two flats on each floor above (floors at 3 and 6 m), either side of a landing. The stairs switch back: up from the lobby against the east wall of the stairwell, then on up from the first-floor landing against the west wall. X is east, Z is north, metres, yaw in degrees clockwise from north.",
+ "notes": "A four-level walk-up, 36 by 24 metres with the fire escape. Ground floor: the cafe and its kitchen to the west, the lobby with the stairs in the middle, the garage with the van and the storeroom to the east, and the side yard. A flat and its bedroom either side of the landing on each floor above (floors at 3 and 6 m), and the roof garden on top (9 m). The inside stairs switch back up the stairwell; the outdoor fire escape climbs the east side from the yard to the roof as a second way up, with doors from the red and yellow flats. X is east, Z is north, in metres; yaw is degrees clockwise from north; furniture 'y' is height above the room floor. Rooms marked outdoor have no ceiling and a garden or paved floor.",
  "extraction": "Garage",
  "extractionAt": [
   6,
-  -2
+  -4
  ],
  "lobbyRoom": "Garage",
  "rooms": [
   {
    "name": "Lobby",
    "bounds": [
-    -2.5,
     -6,
-    2.5,
-    6
+    -12,
+    0,
+    12
    ]
   },
   {
    "name": "Cafe",
    "bounds": [
-    -9,
+    -18,
+    -4,
     -6,
-    -2.5,
-    6
+    12
+   ]
+  },
+  {
+   "name": "CafeKitchen",
+   "bounds": [
+    -18,
+    -12,
+    -6,
+    -4
    ]
   },
   {
    "name": "Garage",
    "bounds": [
-    2.5,
-    -6,
-    9,
-    6
+    0,
+    -12,
+    12,
+    4
    ]
+  },
+  {
+   "name": "Storeroom",
+   "bounds": [
+    0,
+    4,
+    12,
+    12
+   ]
+  },
+  {
+   "name": "Yard",
+   "bounds": [
+    12,
+    -12,
+    18,
+    12
+   ],
+   "outdoor": true
   },
   {
    "name": "Landing1",
    "bounds": [
-    -2.5,
     -6,
-    2.5,
-    6
+    -12,
+    0,
+    12
    ],
    "floorY": 3
   },
   {
    "name": "BlueFlat",
    "bounds": [
-    -9,
+    -18,
+    -4,
     -6,
-    -2.5,
-    6
+    12
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "BlueBedroom",
+   "bounds": [
+    -18,
+    -12,
+    -6,
+    -4
    ],
    "floorY": 3
   },
   {
    "name": "RedFlat",
    "bounds": [
-    2.5,
-    -6,
-    9,
-    6
+    0,
+    -12,
+    12,
+    4
    ],
    "floorY": 3
   },
   {
+   "name": "RedBedroom",
+   "bounds": [
+    0,
+    4,
+    12,
+    12
+   ],
+   "floorY": 3
+  },
+  {
+   "name": "FireEscape1",
+   "bounds": [
+    12,
+    -7,
+    18,
+    5
+   ],
+   "floorY": 3,
+   "outdoor": true
+  },
+  {
    "name": "Landing2",
    "bounds": [
-    -2.5,
     -6,
-    2.5,
-    6
+    -12,
+    0,
+    12
    ],
    "floorY": 6
   },
   {
    "name": "GreenFlat",
    "bounds": [
-    -9,
+    -18,
+    -4,
     -6,
-    -2.5,
-    6
+    12
+   ],
+   "floorY": 6
+  },
+  {
+   "name": "GreenBedroom",
+   "bounds": [
+    -18,
+    -12,
+    -6,
+    -4
    ],
    "floorY": 6
   },
   {
    "name": "YellowFlat",
    "bounds": [
-    2.5,
-    -6,
-    9,
-    6
+    0,
+    -12,
+    12,
+    4
    ],
    "floorY": 6
+  },
+  {
+   "name": "YellowBedroom",
+   "bounds": [
+    0,
+    4,
+    12,
+    12
+   ],
+   "floorY": 6
+  },
+  {
+   "name": "FireEscape2",
+   "bounds": [
+    12,
+    -7,
+    18,
+    5
+   ],
+   "floorY": 6,
+   "outdoor": true
+  },
+  {
+   "name": "RoofGarden",
+   "bounds": [
+    -18,
+    -12,
+    18,
+    12
+   ],
+   "floorY": 9,
+   "outdoor": true
   }
  ],
  "doors": [
@@ -103,8 +204,30 @@
     "Cafe"
    ],
    "at": [
-    -2.5,
-    3.5
+    -6,
+    6
+   ],
+   "width": 2
+  },
+  {
+   "between": [
+    "Lobby",
+    "CafeKitchen"
+   ],
+   "at": [
+    -6,
+    -8
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Cafe",
+    "CafeKitchen"
+   ],
+   "at": [
+    -12,
+    -4
    ],
    "width": 2
   },
@@ -114,10 +237,54 @@
     "Garage"
    ],
    "at": [
-    2.5,
-    3.5
+    0,
+    -7
+   ],
+   "width": 2.4
+  },
+  {
+   "between": [
+    "Lobby",
+    "Storeroom"
+   ],
+   "at": [
+    0,
+    8
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Garage",
+    "Storeroom"
+   ],
+   "at": [
+    6,
+    4
    ],
    "width": 2
+  },
+  {
+   "between": [
+    "Garage",
+    "Yard"
+   ],
+   "at": [
+    12,
+    -8
+   ],
+   "width": 2.4
+  },
+  {
+   "between": [
+    "Storeroom",
+    "Yard"
+   ],
+   "at": [
+    12,
+    8
+   ],
+   "width": 1.6
   },
   {
    "between": [
@@ -125,8 +292,30 @@
     "BlueFlat"
    ],
    "at": [
-    -2.5,
-    3.5
+    -6,
+    6
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing1",
+    "BlueBedroom"
+   ],
+   "at": [
+    -6,
+    -8
+   ],
+   "width": 1.4
+  },
+  {
+   "between": [
+    "BlueFlat",
+    "BlueBedroom"
+   ],
+   "at": [
+    -12,
+    -4
    ],
    "width": 1.6
   },
@@ -136,8 +325,41 @@
     "RedFlat"
    ],
    "at": [
-    2.5,
-    3.5
+    0,
+    -7
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing1",
+    "RedBedroom"
+   ],
+   "at": [
+    0,
+    8
+   ],
+   "width": 1.4
+  },
+  {
+   "between": [
+    "RedFlat",
+    "RedBedroom"
+   ],
+   "at": [
+    6,
+    4
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "RedFlat",
+    "FireEscape1"
+   ],
+   "at": [
+    12,
+    2.8
    ],
    "width": 1.6
   },
@@ -147,8 +369,30 @@
     "GreenFlat"
    ],
    "at": [
-    -2.5,
-    3.5
+    -6,
+    6
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing2",
+    "GreenBedroom"
+   ],
+   "at": [
+    -6,
+    -8
+   ],
+   "width": 1.4
+  },
+  {
+   "between": [
+    "GreenFlat",
+    "GreenBedroom"
+   ],
+   "at": [
+    -12,
+    -4
    ],
    "width": 1.6
   },
@@ -158,8 +402,41 @@
     "YellowFlat"
    ],
    "at": [
-    2.5,
-    3.5
+    0,
+    -7
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing2",
+    "YellowBedroom"
+   ],
+   "at": [
+    0,
+    8
+   ],
+   "width": 1.4
+  },
+  {
+   "between": [
+    "YellowFlat",
+    "YellowBedroom"
+   ],
+   "at": [
+    6,
+    4
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "YellowFlat",
+    "FireEscape2"
+   ],
+   "at": [
+    12,
+    -5.5
    ],
    "width": 1.6
   }
@@ -171,11 +448,11 @@
     "Landing1"
    ],
    "from": [
-    1.5,
+    -1.5,
     -3.5
    ],
    "to": [
-    1.5,
+    -1.5,
     1
    ],
    "width": 1.6
@@ -186,48 +463,108 @@
     "Landing2"
    ],
    "from": [
-    -1.5,
+    -4.5,
     1
    ],
    "to": [
+    -4.5,
+    -3.5
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Landing2",
+    "RoofGarden"
+   ],
+   "from": [
     -1.5,
     -3.5
+   ],
+   "to": [
+    -1.5,
+    1
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "Yard",
+    "FireEscape1"
+   ],
+   "from": [
+    13.3,
+    -3.5
+   ],
+   "to": [
+    13.3,
+    1
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "FireEscape1",
+    "FireEscape2"
+   ],
+   "from": [
+    16.5,
+    1
+   ],
+   "to": [
+    16.5,
+    -3.5
+   ],
+   "width": 1.6
+  },
+  {
+   "between": [
+    "FireEscape2",
+    "RoofGarden"
+   ],
+   "from": [
+    13.3,
+    -3.5
+   ],
+   "to": [
+    13.3,
+    1
    ],
    "width": 1.6
   }
  ],
  "spawns": [
   {
-   "room": "BlueFlat",
+   "room": "GreenFlat",
    "at": [
-    -5.5,
-    3
+    -15,
+    9
    ],
-   "yaw": 90
+   "yaw": 180
   },
   {
    "room": "RedFlat",
    "at": [
-    5.5,
-    3
+    9,
+    -9
    ],
-   "yaw": 270
+   "yaw": 0
+  },
+  {
+   "room": "BlueFlat",
+   "at": [
+    -15,
+    9
+   ],
+   "yaw": 180
   },
   {
    "room": "YellowFlat",
    "at": [
-    5.5,
-    3
+    9,
+    -9
    ],
-   "yaw": 270
-  },
-  {
-   "room": "GreenFlat",
-   "at": [
-    -5.5,
-    3
-   ],
-   "yaw": 90
+   "yaw": 0
   }
  ],
  "furniture": [
@@ -235,26 +572,53 @@
    "word": "PLANT",
    "room": "Lobby",
    "at": [
-    -2,
-    -5.4
+    -5.5,
+    11.5
    ],
-   "yaw": 0
+   "yaw": 180
   },
   {
    "word": "CLOCK",
    "room": "Lobby",
    "at": [
     -0.5,
-    5.5
+    -11.5
    ],
-   "yaw": 180
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "Lobby",
+   "at": [
+    -0.5,
+    9.5
+   ],
+   "yaw": 270
   },
   {
    "word": "TABLE",
    "room": "Cafe",
    "at": [
-    -7,
-    -3
+    -16.8,
+    11.35
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "WATER",
+   "room": "Cafe",
+   "at": [
+    -17.5,
+    5.3
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "TABLE",
+   "room": "Cafe",
+   "at": [
+    -10.5,
+    9.6
    ],
    "yaw": 0
   },
@@ -262,35 +626,62 @@
    "word": "CHAIR",
    "room": "Cafe",
    "at": [
-    -7,
-    -4.1
+    -11.55,
+    9.6
    ],
-   "yaw": 0
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "Cafe",
+   "at": [
+    -9.45,
+    9.6
+   ],
+   "yaw": 270
   },
   {
    "word": "TABLE",
    "room": "Cafe",
    "at": [
-    -7,
-    2
+    -15,
+    1
    ],
    "yaw": 0
   },
   {
-   "word": "STOOL",
+   "word": "CHAIR",
    "room": "Cafe",
    "at": [
-    -7,
-    3.1
+    -16.05,
+    1
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "Cafe",
+   "at": [
+    -13.95,
+    1
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CABINET",
+   "room": "Cafe",
+   "at": [
+    -16.41,
+    -3.43
    ],
    "yaw": 0
   },
   {
-   "word": "MUG",
+   "word": "CABINET",
    "room": "Cafe",
    "at": [
-    -4,
-    -5.4
+    -15.2,
+    -3.43
    ],
    "yaw": 0
   },
@@ -298,8 +689,71 @@
    "word": "SODA",
    "room": "Cafe",
    "at": [
-    -8.4,
-    5.4
+    -14.29,
+    -3.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "MUG",
+   "room": "Cafe",
+   "at": [
+    -6.5,
+    -2
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CABINET",
+   "room": "CafeKitchen",
+   "at": [
+    -13.68,
+    -11.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CABINET",
+   "room": "CafeKitchen",
+   "at": [
+    -12.47,
+    -11.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SHELF",
+   "room": "CafeKitchen",
+   "at": [
+    -11.26,
+    -11.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "POT",
+   "room": "CafeKitchen",
+   "at": [
+    -10.18,
+    -11.47
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PAN",
+   "room": "CafeKitchen",
+   "at": [
+    -15.5,
+    -7.2
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CAKE",
+   "room": "CafeKitchen",
+   "at": [
+    -14.5,
+    -7.2
    ],
    "yaw": 0
   },
@@ -307,17 +761,8 @@
    "word": "CRATE",
    "room": "Garage",
    "at": [
-    8.2,
-    4.8
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "BARREL",
-   "room": "Garage",
-   "at": [
-    8.4,
-    -5.3
+    9.77,
+    -10.6
    ],
    "yaw": 0
   },
@@ -325,8 +770,26 @@
    "word": "BOX",
    "room": "Garage",
    "at": [
-    4,
-    -5.3
+    10.63,
+    -10.6
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CRATE",
+   "room": "Garage",
+   "at": [
+    9.77,
+    -11.45
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "BARREL",
+   "room": "Garage",
+   "at": [
+    10.63,
+    -11.45
    ],
    "yaw": 0
   },
@@ -334,143 +797,512 @@
    "word": "SHELF",
    "room": "Garage",
    "at": [
-    8.6,
-    1
+    1.65,
+    3.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "Garage",
+   "at": [
+    2.86,
+    3.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "BARREL",
+   "room": "Garage",
+   "at": [
+    11.42,
+    0.61
    ],
    "yaw": 270
   },
   {
    "word": "BARREL",
-   "room": "Landing1",
+   "room": "Garage",
    "at": [
-    -1.8,
-    -5.3
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "VASE",
-   "room": "Landing1",
-   "at": [
-    1.8,
-    -5.4
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "BED",
-   "room": "BlueFlat",
-   "at": [
-    -7.8,
-    -4.8
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "SOFA",
-   "room": "BlueFlat",
-   "at": [
-    -8.2,
-    1
-   ],
-   "yaw": 90
-  },
-  {
-   "word": "TABLE",
-   "room": "BlueFlat",
-   "at": [
-    -5.5,
-    -1
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "LAMP",
-   "room": "BlueFlat",
-   "at": [
-    -8.3,
-    5.3
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "CHEST",
-   "room": "BlueFlat",
-   "at": [
-    -4,
-    -5.3
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "BED",
-   "room": "RedFlat",
-   "at": [
-    7.8,
-    -4.8
-   ],
-   "yaw": 0
-  },
-  {
-   "word": "SOFA",
-   "room": "RedFlat",
-   "at": [
-    8.2,
-    1
+    11.42,
+    1.39
    ],
    "yaw": 270
   },
   {
-   "word": "TABLE",
-   "room": "RedFlat",
+   "word": "BROOM",
+   "room": "Garage",
    "at": [
-    5.5,
-    -1
+    0.5,
+    -8.75
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CRATE",
+   "room": "Storeroom",
+   "at": [
+    9.57,
+    10.7
    ],
    "yaw": 0
   },
   {
-   "word": "LAMP",
-   "room": "RedFlat",
+   "word": "BOX",
+   "room": "Storeroom",
    "at": [
-    8.3,
-    5.3
+    10.43,
+    10.7
    ],
    "yaw": 0
   },
   {
-   "word": "CHEST",
-   "room": "RedFlat",
+   "word": "CRATE",
+   "room": "Storeroom",
    "at": [
-    4,
-    -5.3
+    9.57,
+    9.85
    ],
    "yaw": 0
   },
   {
-   "word": "PLANT",
-   "room": "Landing2",
+   "word": "BARREL",
+   "room": "Storeroom",
    "at": [
-    2,
-    -5.4
+    10.43,
+    9.85
    ],
    "yaw": 0
   },
   {
    "word": "SHELF",
-   "room": "Landing2",
+   "room": "Storeroom",
    "at": [
-    2.1,
-    -1
+    0.5,
+    5.25
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "BARREL",
+   "room": "Yard",
+   "at": [
+    12.5,
+    11.42
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "PLANT",
+   "room": "Yard",
+   "at": [
+    17.5,
+    -11.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "Landing1",
+   "at": [
+    -5.5,
+    11.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "VASE",
+   "room": "Landing1",
+   "at": [
+    -0.5,
+    -11.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOFA",
+   "room": "BlueFlat",
+   "at": [
+    -16.64,
+    11.29
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SOFA",
+   "room": "BlueFlat",
+   "at": [
+    -17.29,
+    1.75
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "TABLE",
+   "room": "BlueFlat",
+   "at": [
+    -16.05,
+    1.75
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "LAMP",
+   "room": "BlueFlat",
+   "at": [
+    -17.43,
+    3.05
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "PLANT",
+   "room": "BlueFlat",
+   "at": [
+    -17.5,
+    0.45
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "BlueFlat",
+   "at": [
+    -15,
+    1.75
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "CABINET",
+   "room": "BlueFlat",
+   "at": [
+    -10.46,
+    11.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CABINET",
+   "room": "BlueFlat",
+   "at": [
+    -9.25,
+    11.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "BlueFlat",
+   "at": [
+    -8.04,
+    11.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "BlueFlat",
+   "at": [
+    -8.2,
+    -1.2
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "BlueFlat",
+   "at": [
+    -8.2,
+    -0.35
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CHAIR",
+   "room": "BlueFlat",
+   "at": [
+    -8.2,
+    -2.05
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "BlueFlat",
+   "at": [
+    -13.5,
+    -3.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "DESK",
+   "room": "BlueFlat",
+   "at": [
+    -17.36,
+    7
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "BED",
+   "room": "BlueBedroom",
+   "at": [
+    -14.5,
+    -10.91
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "LAMP",
+   "room": "BlueBedroom",
+   "at": [
+    -13.45,
+    -11.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHEST",
+   "room": "BlueBedroom",
+   "at": [
+    -15.8,
+    -11.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CABINET",
+   "room": "BlueBedroom",
+   "at": [
+    -17.43,
+    -6.5
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "SHELF",
+   "room": "BlueBedroom",
+   "at": [
+    -6.5,
+    -5.25
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "PLANT",
+   "room": "BlueBedroom",
+   "at": [
+    -7.25,
+    -11.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "SOFA",
+   "room": "RedFlat",
+   "at": [
+    4.5,
+    -11.29
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "TABLE",
+   "room": "RedFlat",
+   "at": [
+    4.5,
+    -10.05
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "RedFlat",
+   "at": [
+    5.8,
+    -11.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "RedFlat",
+   "at": [
+    3.2,
+    -11.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "RedFlat",
+   "at": [
+    4.5,
+    -9
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SODA",
+   "room": "RedFlat",
+   "at": [
+    3.5,
+    -10.05
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CABINET",
+   "room": "RedFlat",
+   "at": [
+    1.9,
+    3.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "RedFlat",
+   "at": [
+    3.11,
+    3.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "RedFlat",
+   "at": [
+    9.95,
+    -3.45
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "RedFlat",
+   "at": [
+    9.95,
+    -2.6
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CHAIR",
+   "room": "RedFlat",
+   "at": [
+    9.95,
+    -4.3
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "RedFlat",
+   "at": [
+    0.5,
+    -3.25
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CLOCK",
+   "room": "RedFlat",
+   "at": [
+    11.5,
+    -10
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "VASE",
+   "room": "RedFlat",
+   "at": [
+    11.5,
+    1
    ],
    "yaw": 270
   },
   {
    "word": "BED",
-   "room": "GreenFlat",
+   "room": "RedBedroom",
    "at": [
-    -7.8,
-    -4.8
+    6.5,
+    10.91
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "RedBedroom",
+   "at": [
+    7.55,
+    11.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CHEST",
+   "room": "RedBedroom",
+   "at": [
+    5.2,
+    11.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CABINET",
+   "room": "RedBedroom",
+   "at": [
+    11.43,
+    10
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "SHELF",
+   "room": "RedBedroom",
+   "at": [
+    1.25,
+    4.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "RedBedroom",
+   "at": [
+    8.25,
+    4.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "FireEscape1",
+   "at": [
+    12.5,
+    4.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "PLANT",
+   "room": "Landing2",
+   "at": [
+    -5.5,
+    11.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "Landing2",
+   "at": [
+    -1.25,
+    -11.5
    ],
    "yaw": 0
   },
@@ -478,8 +1310,8 @@
    "word": "SOFA",
    "room": "GreenFlat",
    "at": [
-    -8.2,
-    1
+    -17.29,
+    1.75
    ],
    "yaw": 90
   },
@@ -487,35 +1319,170 @@
    "word": "TABLE",
    "room": "GreenFlat",
    "at": [
-    -5.5,
-    -1
+    -16.05,
+    1.75
    ],
-   "yaw": 0
+   "yaw": 90
   },
   {
    "word": "LAMP",
    "room": "GreenFlat",
    "at": [
-    -8.3,
-    5.3
+    -17.43,
+    3.05
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "PLANT",
+   "room": "GreenFlat",
+   "at": [
+    -17.5,
+    0.45
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "GreenFlat",
+   "at": [
+    -15,
+    1.75
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "SODA",
+   "room": "GreenFlat",
+   "at": [
+    -16.05,
+    0.75
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CABINET",
+   "room": "GreenFlat",
+   "at": [
+    -10.46,
+    11.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CABINET",
+   "room": "GreenFlat",
+   "at": [
+    -9.25,
+    11.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "GreenFlat",
+   "at": [
+    -8.04,
+    11.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "GreenFlat",
+   "at": [
+    -8.2,
+    -1.2
    ],
    "yaw": 0
   },
   {
-   "word": "CHEST",
+   "word": "CHAIR",
    "room": "GreenFlat",
    "at": [
-    -4,
-    -5.3
+    -8.2,
+    -0.35
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CHAIR",
+   "room": "GreenFlat",
+   "at": [
+    -8.2,
+    -2.05
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "GreenFlat",
+   "at": [
+    -17.5,
+    10
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CLOCK",
+   "room": "GreenFlat",
+   "at": [
+    -13.5,
+    -3.5
    ],
    "yaw": 0
   },
   {
    "word": "BED",
-   "room": "YellowFlat",
+   "room": "GreenBedroom",
    "at": [
-    7.8,
-    -4.8
+    -14.5,
+    -10.91
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "LAMP",
+   "room": "GreenBedroom",
+   "at": [
+    -13.45,
+    -11.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHEST",
+   "room": "GreenBedroom",
+   "at": [
+    -15.8,
+    -11.43
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CABINET",
+   "room": "GreenBedroom",
+   "at": [
+    -17.43,
+    -6.5
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "SHELF",
+   "room": "GreenBedroom",
+   "at": [
+    -6.5,
+    -5.25
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "PLANT",
+   "room": "GreenBedroom",
+   "at": [
+    -7.25,
+    -11.5
    ],
    "yaw": 0
   },
@@ -523,17 +1490,17 @@
    "word": "SOFA",
    "room": "YellowFlat",
    "at": [
-    8.2,
-    1
+    4.5,
+    -11.29
    ],
-   "yaw": 270
+   "yaw": 0
   },
   {
    "word": "TABLE",
    "room": "YellowFlat",
    "at": [
-    5.5,
-    -1
+    4.5,
+    -10.05
    ],
    "yaw": 0
   },
@@ -541,26 +1508,215 @@
    "word": "LAMP",
    "room": "YellowFlat",
    "at": [
-    8.3,
-    5.3
+    5.8,
+    -11.43
    ],
    "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "YellowFlat",
+   "at": [
+    3.2,
+    -11.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "YellowFlat",
+   "at": [
+    4.5,
+    -9
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CABINET",
+   "room": "YellowFlat",
+   "at": [
+    1.9,
+    3.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "SHELF",
+   "room": "YellowFlat",
+   "at": [
+    3.11,
+    3.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "YellowFlat",
+   "at": [
+    9.2,
+    -3.95
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "YellowFlat",
+   "at": [
+    9.2,
+    -3.1
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CHAIR",
+   "room": "YellowFlat",
+   "at": [
+    9.2,
+    -4.8
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "YellowFlat",
+   "at": [
+    11.5,
+    3.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "DESK",
+   "room": "YellowFlat",
+   "at": [
+    0.64,
+    -3
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CLOCK",
+   "room": "YellowFlat",
+   "at": [
+    11.5,
+    -10.25
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "VASE",
+   "room": "YellowFlat",
+   "at": [
+    7.5,
+    3.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "BED",
+   "room": "YellowBedroom",
+   "at": [
+    1.12,
+    10.91
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "LAMP",
+   "room": "YellowBedroom",
+   "at": [
+    3.05,
+    11.43
+   ],
+   "yaw": 180
   },
   {
    "word": "CHEST",
-   "room": "YellowFlat",
+   "room": "YellowBedroom",
    "at": [
-    4,
-    -5.3
+    3.93,
+    11.43
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "CABINET",
+   "room": "YellowBedroom",
+   "at": [
+    11.43,
+    10
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "SHELF",
+   "room": "YellowBedroom",
+   "at": [
+    7.75,
+    4.5
    ],
    "yaw": 0
   },
   {
-   "word": "WATER",
-   "room": "Cafe",
+   "word": "PLANT",
+   "room": "YellowBedroom",
    "at": [
-    -7.7,
-    5.4
+    0.5,
+    4.5
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "PLANT",
+   "room": "FireEscape2",
+   "at": [
+    12.5,
+    4.5
+   ],
+   "yaw": 180
+  },
+  {
+   "word": "TABLE",
+   "room": "RoofGarden",
+   "at": [
+    6,
+    9.4
+   ],
+   "yaw": 0
+  },
+  {
+   "word": "CHAIR",
+   "room": "RoofGarden",
+   "at": [
+    4.95,
+    9.4
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "CHAIR",
+   "room": "RoofGarden",
+   "at": [
+    7.05,
+    9.4
+   ],
+   "yaw": 270
+  },
+  {
+   "word": "APPLE",
+   "room": "RoofGarden",
+   "at": [
+    -17.5,
+    -9.5
+   ],
+   "yaw": 90
+  },
+  {
+   "word": "BARREL",
+   "room": "RoofGarden",
+   "at": [
+    15.25,
+    -11.42
    ],
    "yaw": 0
   }
@@ -572,29 +1728,56 @@
  ],
  "clearOutOrders": {
   "Dibs": [
+   "GreenBedroom",
+   "YellowBedroom",
+   "BlueBedroom",
+   "RedBedroom",
+   "RoofGarden",
    "GreenFlat",
    "YellowFlat",
    "BlueFlat",
    "RedFlat"
   ],
   "Duos": [
+   "GreenBedroom",
+   "YellowBedroom",
+   "BlueBedroom",
+   "RedBedroom",
+   "RoofGarden",
    "GreenFlat",
    "YellowFlat",
    "BlueFlat",
    "RedFlat"
   ],
   "MovingOut": [
+   "RoofGarden",
+   "GreenBedroom",
+   "YellowBedroom",
    "GreenFlat",
    "YellowFlat",
+   "FireEscape2",
+   "BlueBedroom",
+   "RedBedroom",
    "BlueFlat",
-   "RedFlat",
+   "Cafe"
+  ],
+  "Escape": [
+   "RoofGarden",
+   "GreenBedroom",
+   "YellowBedroom",
+   "GreenFlat",
+   "YellowFlat",
+   "FireEscape2",
+   "BlueBedroom",
+   "RedBedroom",
+   "BlueFlat",
    "Cafe"
   ]
  },
  "movingDay": [
   {
    "word": "BED",
-   "room": "GreenFlat"
+   "room": "GreenBedroom"
   },
   {
    "word": "SOFA",
@@ -602,7 +1785,7 @@
   },
   {
    "word": "TABLE",
-   "room": "Cafe"
+   "room": "RoofGarden"
   },
   {
    "word": "LAMP",
@@ -611,24 +1794,24 @@
  ],
  "keepsakes": [
   {
-   "room": "YellowFlat",
+   "room": "YellowBedroom",
    "at": [
-    4,
-    -5.3
+    1.12,
+    10.91
    ]
   },
   {
    "room": "BlueFlat",
    "at": [
-    -4,
-    -5.3
+    -16.64,
+    11.29
    ]
   },
   {
    "room": "Cafe",
    "at": [
-    -8.4,
-    5.4
+    -16.8,
+    11.35
    ]
   }
  ]

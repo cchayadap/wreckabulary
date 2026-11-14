@@ -14,6 +14,10 @@ namespace Wreckabulary
         public HouseLayout Layout { get; private set; }
         public ClearOutSchedule Schedule { get; private set; }
         public bool Running { get; set; }
+
+        public bool ShowIndicators = true;
+
+        public bool Harms = true;
         public float Elapsed => Running ? Mathf.Max(0f, Time.time - began) : 0f;
         public string Message { get; private set; } = "";
         public event System.Action ClosureStarted;
@@ -52,46 +56,58 @@ namespace Wreckabulary
             {
                 var phase = Schedule.PhaseOf(closure.Room, now);
                 if (phase == RoomPhase.Safe) continue;
-                if (!indicators.TryGetValue(closure.Room, out var indicator) || !indicator)
+
+                bool changed = !phases.TryGetValue(closure.Room, out var old) || old != phase;
+                phases[closure.Room] = phase;
+
+                if (ShowIndicators)
                 {
-                    var room = Layout.Room(closure.Room);
-                    var go = new GameObject();
-                    go.name = $"Clear-out: {closure.Room}";
-                    go.transform.SetParent(transform, false);
-                    go.transform.position = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .035f, (room.MinZ + room.MaxZ) * .5f);
-                    float x = (room.MaxX - room.MinX) * .5f - .2f, z = (room.MaxZ - room.MinZ) * .5f - .2f;
-                    var border = SummonEffects.Line(go.transform, new Color(1f, .72f, .23f), new[]
+                    if (!indicators.TryGetValue(closure.Room, out var indicator) || !indicator)
                     {
-                        new Vector3(-x, 0f, -z), new Vector3(-x, 0f, z),
-                        new Vector3(x, 0f, z), new Vector3(x, 0f, -z)
-                    }, true);
-                    border.startWidth = border.endWidth = .13f;
-                    indicator = border;
-                    indicators[closure.Room] = indicator;
+                        var room = Layout.Room(closure.Room);
+                        var go = new GameObject();
+                        go.name = $"Clear-out: {closure.Room}";
+                        go.transform.SetParent(transform, false);
+                        go.transform.position = new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY + .035f, (room.MinZ + room.MaxZ) * .5f);
+                        float x = (room.MaxX - room.MinX) * .5f - .2f, z = (room.MaxZ - room.MinZ) * .5f - .2f;
+                        var border = SummonEffects.Line(go.transform, new Color(1f, .72f, .23f), new[]
+                        {
+                            new Vector3(-x, 0f, -z), new Vector3(-x, 0f, z),
+                            new Vector3(x, 0f, z), new Vector3(x, 0f, -z)
+                        }, true);
+                        border.startWidth = border.endWidth = .13f;
+                        indicator = border;
+                        indicators[closure.Room] = indicator;
+                    }
+                    if (changed)
+                    {
+                        var colour = phase == RoomPhase.Warning ? new Color(.91f, .65f, .19f)
+                            : phase == RoomPhase.Filling ? new Color(.87f, .32f, .15f) : new Color(.36f, .22f, .22f);
+                        indicator.sharedMaterial = GameAssets.I.Tinted(colour);
+                        if (phase == RoomPhase.Filling)
+                        {
+                            CameraRig.Shake(.2f);
+                            swirls[closure.Room] = ClearOutSwirl.Create(indicator.transform, this);
+                            ClosureStarted?.Invoke();
+                        }
+                        else if (swirls.TryGetValue(closure.Room, out var swirl) && swirl)
+                        {
+                            Destroy(swirl.gameObject);
+                            swirls.Remove(closure.Room);
+                        }
+                    }
                 }
-                var color = phase == RoomPhase.Warning ? new Color(.91f, .65f, .19f) : phase == RoomPhase.Filling
-                    ? new Color(.87f, .32f, .15f) : new Color(.36f, .22f, .22f);
-                if (!phases.TryGetValue(closure.Room, out var old) || old != phase)
+                else if (changed && phase == RoomPhase.Filling)
                 {
-                    phases[closure.Room] = phase;
-                    indicator.sharedMaterial = GameAssets.I.Tinted(color);
-                    if (phase == RoomPhase.Filling)
-                    {
-                        CameraRig.Shake(.2f);
-                        swirls[closure.Room] = ClearOutSwirl.Create(indicator.transform, this);
-                        ClosureStarted?.Invoke();
-                    }
-                    else if (swirls.TryGetValue(closure.Room, out var swirl) && swirl)
-                    {
-                        Destroy(swirl.gameObject);
-                        swirls.Remove(closure.Room);
-                    }
+                    ClosureStarted?.Invoke();
                 }
+
                 if (phase == RoomPhase.Warning)
                     Message = $"MOVERS: {Layout.WithStorey(closure.Room)} in {Mathf.CeilToInt((float)closure.FillAt - now)}s — follow a doorway out";
                 else if (phase == RoomPhase.Filling && Message.Length == 0)
                     Message = $"LEAVE {Layout.WithStorey(closure.Room).ToUpperInvariant()} — movers are packing it";
             }
+            if (!Harms) return;
             if (Time.time < nextDamage) return;
             nextDamage = Time.time + .5f;
             foreach (var p in World.Players)
@@ -106,7 +122,6 @@ namespace Wreckabulary
         }
     }
 
-    /// <summary>A brief visual wind-up during the existing Filling phase; it has no physics or damage.</summary>
     public sealed class ClearOutSwirl : MonoBehaviour
     {
         ClearOutController owner;

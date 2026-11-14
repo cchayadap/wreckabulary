@@ -111,8 +111,14 @@ MonoBehaviour:
   - key: Items/BAT
     model: {fileID: -927199367670048503, guid: 93e906069a474aadcaacf0f260c6d1c7, type: 3}
     clips: []
+  - key: Items/BEAR
+    model: {fileID: 4170087183814695109, guid: 4582518898245f546af27a1b34901c0a, type: 3}
+    clips: []
   - key: Items/BED
     model: {fileID: -927199367670048503, guid: 753f825bf764bed102e6bea8f010b601, type: 3}
+    clips: []
+  - key: Items/BENCH
+    model: {fileID: 6586393355933013623, guid: ad6526e5a05d6b94e8384c0111ac266e, type: 3}
     clips: []
   - key: Items/BLADE
     model: {fileID: -927199367670048503, guid: d26544e2b53969455e5e25d19eb17ff0, type: 3}
@@ -168,6 +174,9 @@ MonoBehaviour:
   - key: Items/MAT
     model: {fileID: -927199367670048503, guid: 42085f18dcc8eb1b5e7d62de7784a22d, type: 3}
     clips: []
+  - key: Items/MIRROR
+    model: {fileID: 4165928328035211156, guid: d811b4b7c0799264d80f2213d772a93f, type: 3}
+    clips: []
   - key: Items/MUG
     model: {fileID: -927199367670048503, guid: e2fa1f7704b5cb9dd02a0ef5f4357a7b, type: 3}
     clips: []
@@ -177,6 +186,9 @@ MonoBehaviour:
   - key: Items/PIE
     model: {fileID: -927199367670048503, guid: c8911149960169683b68a8cde7a186d1, type: 3}
     clips: []
+  - key: Items/PILLOW
+    model: {fileID: 5064040776180941163, guid: 51c73a5433688384a8a5e665548443d1, type: 3}
+    clips: []
   - key: Items/PLANT
     model: {fileID: -927199367670048503, guid: 91028c49cccf66be59755f093532dafe, type: 3}
     clips: []
@@ -185,6 +197,9 @@ MonoBehaviour:
     clips: []
   - key: Items/POT
     model: {fileID: -927199367670048503, guid: af67cfe4a0aabfc26cfbfe9cd7635898, type: 3}
+    clips: []
+  - key: Items/RACK
+    model: {fileID: 5875664085743950737, guid: 4fd345aa1d670d144aba7119a39df585, type: 3}
     clips: []
   - key: Items/SHELF
     model: {fileID: -927199367670048503, guid: 283f8147e6b915e471aed884bdb5c302, type: 3}
@@ -201,6 +216,9 @@ MonoBehaviour:
   - key: Items/SOFA
     model: {fileID: -927199367670048503, guid: 8616cfc48b3a136e3c558530d39ffaf5, type: 3}
     clips: []
+  - key: Items/SPEAKER
+    model: {fileID: 2453305393929998192, guid: a303f99f6e90a5f449257f4620b40eb0, type: 3}
+    clips: []
   - key: Items/SPEAR
     model: {fileID: -927199367670048503, guid: 31340ad237be57e76e8319d7dafcab86, type: 3}
     clips: []
@@ -209,6 +227,9 @@ MonoBehaviour:
     clips: []
   - key: Items/TABLE
     model: {fileID: -927199367670048503, guid: c1fee7fae63308dfbcc7ef31e14f88fe, type: 3}
+    clips: []
+  - key: Items/TOASTER
+    model: {fileID: 5827516338847027849, guid: 7592340e0a93bd146b7085285654d731, type: 3}
     clips: []
   - key: Items/VASE
     model: {fileID: -927199367670048503, guid: 73698a92a9c241ffd63cda2492f8f33a, type: 3}

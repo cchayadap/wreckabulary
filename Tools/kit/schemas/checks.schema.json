@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://game-studio-kit.local/schemas/checks.schema.json",
+  "title": "checks.json v1: the QaRunner output contract (research_qa_harness §1.4 item 5)",
+  "description": "Written atomically (tmp + rename) by ChecksWriter to <-qa-out>/checks.json; read by game_gate smoke, checks_validate.mjs and probe_report.mjs. $defs: probeResult, perf (perf.json from PerfProbe / perf tests), visual (visual.json from visual_diff.mjs), capture. Contract: CONTRACTS.md §7.3.",
+  "type": "object",
+  "required": ["schema", "run_id", "scenario", "seed", "platform", "started_utc", "ended_utc", "result", "steps", "console"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "run_id": { "type": "string", "pattern": "^[0-9]{8}T[0-9]{6}Z-[A-Za-z0-9_.-]+$", "description": "<file stamp>-<scenario>; also the folder name under Docs/qa/runs/." },
+    "commit": { "type": ["string", "null"], "description": "git HEAD, or null without git." },
+    "tree": { "type": ["string", "null"], "description": "treeHash when there is no git." },
+    "build_id": { "type": ["string", "null"], "description": "Builds/<dir> id for player runs; null in the editor." },
+    "scenario": { "type": "string", "minLength": 1, "description": "goldpath | smoke_frontend | soak_30min | coop_4p | perf_path | <project scenario>" },
+    "seed": { "type": "integer" },
+    "platform": { "enum": ["editor", "player"] },
+    "development_build": { "type": "boolean" },
+    "unity_version": { "type": "string" },
+    "started_utc": { "type": "string", "format": "date-time" },
+    "ended_utc": { "type": "string", "format": "date-time" },
+    "result": { "enum": ["PASS", "FAIL", "ERROR"], "description": "FAIL when any step fails or console.exceptions/errors > 0; ERROR when the runner itself broke." },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status", "t_s", "probes", "assert_failures"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["PASS", "FAIL", "SKIP", "ERROR"] },
+          "t_s": { "type": "number", "minimum": 0, "description": "Seconds since run start when the step ended." },
+          "probes": { "type": "object", "description": "World-space facts the step measured (name → value)." },
+          "assert_failures": { "type": "array", "items": { "type": "string" } },
+          "captures": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "state_hashes": {
+      "type": "object",
+      "patternProperties": { "^[A-Za-z0-9_.-]+$": { "type": "string", "pattern": "^[0-9a-f]{16}$" } },
+      "additionalProperties": false,
+      "description": "Checkpoint name → Hash64 of game state (16 hex). Host and client hashes are compared for desync."
+    },
+    "perf": {
+      "type": "object",
+      "properties": {
+        "frame_ms_p50": { "type": "number", "minimum": 0 },
+        "frame_ms_p95": { "type": "number", "minimum": 0 },
+        "worst_frame_ms": { "type": "number", "minimum": 0 },
+        "first_visit_hitch_ms": { "type": "number", "minimum": 0 },
+        "gc_kb_frame_p95": { "type": "number", "minimum": 0 },
+        "sys_mem_mb_max": { "type": "number", "minimum": 0 }
+      }
+    },
+    "console": {
+      "type": "object",
+      "required": ["errors", "exceptions", "warnings", "first_exception"],
+      "additionalProperties": false,
+      "properties": {
+        "errors": { "type": "integer", "minimum": 0 },
+        "exceptions": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "integer", "minimum": 0 },
+        "first_exception": { "type": ["string", "null"] }
+      }
+    },
+    "probe_results": { "type": "array", "items": { "$ref": "#/$defs/probeResult" } },
+    "captures": { "type": "array", "items": { "$ref": "#/$defs/capture" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "result": { "const": "PASS" } } },
+      "then": {
+        "properties": {
+          "console": { "properties": { "errors": { "const": 0 }, "exceptions": { "const": 0 } } },
+          "steps": { "items": { "properties": { "status": { "enum": ["PASS", "SKIP"] } } } }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "probeResult": {
+      "type": "object",
+      "required": ["probe", "metric", "value", "unit", "verdict"],
+      "additionalProperties": false,
+      "properties": {
+        "probe": { "type": "string", "description": "GaitProbe | ContactProbe | IdleDriftProbe | GripProbe | WorldAudit | PerfProbe | AudioEventProbe | …" },
+        "body": { "type": "string", "description": "probes.config.json bodies[].id" },
+        "clip": { "type": "string" },
+        "metric": { "type": "string", "description": "A probes.config.json thresholds key." },
+        "value": { "type": ["number", "boolean"] },
+        "unit": { "type": "string" },
+        "threshold": {
+          "type": "object",
+          "required": ["op", "value"],
+          "properties": { "op": { "enum": ["<=", "<", ">=", ">", "==", "abs<="] }, "value": { "type": ["number", "boolean"] } }
+        },
+        "k": { "type": "number", "exclusiveMinimum": 0, "description": "Body-class scale applied to distance thresholds (body_height / reference_height_m)." },
+        "verdict": { "enum": ["PASS", "FAIL", "ROUTE"], "description": "ROUTE = send to the reviewer (never auto-fail)." }
+      }
+    },
+    "capture": {
+      "type": "object",
+      "required": ["name", "path", "kind"],
+      "properties": {
+        "name": { "type": "string" },
+        "path": { "type": "string", "description": "Workspace-relative POSIX path." },
+        "kind": { "enum": ["png", "jpg", "mp4", "gif", "sheet"] },
+        "camera": { "type": "string" },
+        "utc": { "type": "string", "format": "date-time" }
+      }
+    },
+    "perf": {
+      "title": "perf.json (PerfProbe in a player, or the perf tests)",
+      "type": "object",
+      "required": ["schema", "build_id", "kind", "machine", "started_utc", "frames", "frame_ms_p50", "frame_ms_p95"],
+      "properties": {
+        "schema": { "const": 1 },
+        "build_id": { "type": ["string", "null"] },
+        "kind": { "enum": ["release", "release-qa", "dev", "editor"], "description": "Only release and release-qa numbers count for gates; editor FPS never does." },
+        "scenario": { "type": "string" },
+        "machine": { "type": "string", "description": "Baseline key: hostname plus a GPU tag." },
+        "started_utc": { "type": "string", "format": "date-time" },
+        "ended_utc": { "type": "string", "format": "date-time" },
+        "frames": { "type": "integer", "minimum": 1 },
+        "warmup_frames": { "type": "integer", "minimum": 0 },
+        "frame_ms_p50": { "type": "number", "minimum": 0 },
+        "frame_ms_p95": { "type": "number", "minimum": 0 },
+        "frame_ms_p99": { "type": "number", "minimum": 0 },
+        "worst_frame_ms": { "type": "number", "minimum": 0 },
+        "first_visit_hitch_ms": { "type": "number", "minimum": 0 },
+        "gc_kb_frame_p95": { "type": "number", "minimum": 0 },
+        "sys_mem_mb_max": { "type": "number", "minimum": 0 }
+      }
+    },
+    "visual": {
+      "title": "visual.json (visual_diff.mjs)",
+      "type": "object",
+      "required": ["schema", "baseline", "current", "tool", "threshold", "changed_pixels", "total_pixels", "changed_pct", "verdict", "utc"],
+      "properties": {
+        "schema": { "const": 1 },
+        "baseline": { "type": "string" },
+        "current": { "type": "string" },
+        "diff_png": { "type": ["string", "null"] },
+        "tool": { "enum": ["odiff", "pixelmatch", "pillow", "flip"] },
+        "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+        "changed_pixels": { "type": "integer", "minimum": 0 },
+        "total_pixels": { "type": "integer", "minimum": 0 },
+        "changed_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "verdict": { "enum": ["unchanged", "route_to_reviewer", "error"], "description": "Visual diffs never auto-fail: above the threshold they route to the reviewer." },
+        "utc": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

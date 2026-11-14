@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>Preserves generated UI transparency and limits runtime texture memory.</summary>
     public sealed class GeneratedUiArtImporter : AssetPostprocessor
     {
         void OnPreprocessTexture()

@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 
 namespace Wreckabulary.EditorTools
 {
-    /// <summary>Opens the current workspace only from a clean, empty editor session.</summary>
     [InitializeOnLoad]
     public static class WorkspaceBootstrap
     {
@@ -30,6 +29,7 @@ namespace Wreckabulary.EditorTools
             get => EditorPrefs.GetBool(PreferenceKey, false);
             set
             {
+                WorkspacePlayPreview.ForgetRestoredEntry();
                 EditorPrefs.SetBool(PreferenceKey, value);
                 ApplyPlayEntry();
             }
@@ -52,6 +52,8 @@ namespace Wreckabulary.EditorTools
                 return false;
             }
         }
+
+        internal static bool IsTestRun => SessionState.GetBool(TestingKey, false);
 
         [MenuItem(ToggleMenu, priority = -90)]
         public static void TogglePlayOpenedScene() => PlayOpenedScene = !PlayOpenedScene;
@@ -96,6 +98,7 @@ namespace Wreckabulary.EditorTools
         public static void ApplyPlayEntry()
         {
             if (EditorApplication.isPlaying) return;
+            if (!IsAutomatedSession && !IsTestRun && WorkspacePlayPreview.ApplyPlayEntry()) return;
             EditorSceneManager.playModeStartScene = IsAutomatedSession || SessionState.GetBool(TestingKey, false) || PlayOpenedScene
                 ? null
                 : AssetDatabase.LoadAssetAtPath<SceneAsset>(WorkspaceWindow.HubPath);
@@ -103,6 +106,7 @@ namespace Wreckabulary.EditorTools
 
         static void OnPlayModeChanged(PlayModeStateChange state)
         {
+            if (!IsAutomatedSession && !IsTestRun && WorkspacePlayPreview.HandlePlayModeChanged(state)) return;
             if (state == PlayModeStateChange.ExitingEditMode || state == PlayModeStateChange.EnteredEditMode)
                 ApplyPlayEntry();
         }
