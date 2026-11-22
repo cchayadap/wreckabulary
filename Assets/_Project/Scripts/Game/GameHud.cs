@@ -1002,6 +1002,7 @@ namespace Wreckabulary
         IReadOnlyList<PlayerController> Roster => players ?? joins?.Players;
         void RefreshMatch()
         {
+<<<<<<< HEAD
             string mode = hubScene ? "Hub" : Match.Mode;
             int target = roundsToWin > 0 ? roundsToWin : Match.Rules.RoundsToWin;
             int round = HouseGoals.Rounds(mode) && rounds && rounds.Round > 0 ? rounds.Round : 0;
@@ -1014,6 +1015,25 @@ namespace Wreckabulary
             string goal = HouseGoals.Line(mode);
             matchDetail.text = goal.Length > 0 ? goal : layoutName.ToUpperInvariant();
             MeasureLabel();
+=======
+            bool hub = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == Session.HubScene;
+            string mode = hub ? "Hub" : Match.Mode;
+            (string tag, string name) = mode switch
+            {
+                "Dibs" => ("HOUSE BRAWL", "Dibs!"),
+                "Duos" => ("2V2 · TEAMS", "Double trouble"),
+                "MovingOut" => ("CO-OP", "The great escape"),
+                "MovingDay" => ("CO-OP", "Moving day"),
+                "Tutorial" => ("PRACTICE", "Play & learn"),
+                "BossFight" => ("SOLO BOSS", "Calculator!"),
+                "Hub" => ("WELCOME HOME", "The house"),
+                _ => ("HOUSE PARTY", "Wreckabulary"),
+            };
+            matchTag.text = tag; matchTitle.text = name;
+            var mine = LocalPlayer && wins != null ? wins(LocalPlayer) : 0;
+            matchDetail.text = mode is "Dibs" or "Duos" && rounds && rounds.Round > 0 ? $"ROUND {rounds.Round} · {mine} / {roundsToWin} WINS"
+                : mode == "Tutorial" ? "NO PRESSURE. JUST PLAY." : (Layout?.Name ?? "").ToUpperInvariant();
+>>>>>>> fd3f0126 (first commit)
         }
         public static (string tag, string name) MatchHeading(string mode) => HouseModes.Find(mode) is { } house ? (house.Tag, house.Name)
             : mode == "Hub" ? ("WELCOME HOME", "The house") : ("HOUSE PARTY", "Wreckabulary");

@@ -78,8 +78,14 @@ namespace Wreckabulary
 
         public static string SceneForMode(string mode) => mode switch
         {
+<<<<<<< HEAD
             Rules.HouseModes.MovingDay => MovingDayScene,
             Rules.HouseModes.Tutorial => TutorialScene,
+=======
+            "Dibs" or "Duos" or "MovingOut" or "Escape" or "BossFight" => DibsScene,
+            "MovingDay" => MovingDayScene,
+            "Tutorial" => TutorialScene,
+>>>>>>> fd3f0126 (first commit)
             "Hub" => HubScene,
             _ when Rules.HouseModes.Has(mode) => DibsScene,
             _ => throw new System.ArgumentException($"Unknown mode '{mode}'.", nameof(mode)),
@@ -107,7 +113,14 @@ namespace Wreckabulary
         public static void LoadMode(string mode, string mapId = null, Rules.HomeLayout home = null)
         {
             var scene = SceneForMode(mode);
+<<<<<<< HEAD
             mapId = ResolveMap(mode, mapId);
+=======
+            // Boss Fight is locked to the LivingRoom scene on one house layout.
+            // @trace PLAT-001
+            if (mode == "Escape" && (string.IsNullOrEmpty(mapId) || mapId == LobbyRandomMap)) mapId = RandomHouseId();
+            if (mode == "BossFight") mapId = "pinwheel";
+>>>>>>> fd3f0126 (first commit)
             if (mapId != null) SelectMap(mapId);
             Home = home != null && Rules.HomeDesigner.Playable(mode) && home.Map == MapId ? home.Clone() : null;
             Match.ModeOverride = mode;

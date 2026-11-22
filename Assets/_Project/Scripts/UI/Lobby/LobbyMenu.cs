@@ -22,12 +22,16 @@ namespace Wreckabulary
         public const string Practice = "practice", Matchmaking = "matchmaking", Workshop = "workshop";
         public const string TutorialMode = "Tutorial", WorkshopMode = "Workshop", RoomMode = "Room";
         public const string VolumeKey = "wv.volume", VsyncKey = "wv.vsync";
+<<<<<<< HEAD
         public static readonly string[] Modes = HouseModes.All
             .Where(mode => mode.Family != HouseModeFamily.Training)
             .OrderBy(mode => mode.Family).Select(mode => mode.Id).ToArray();
         public static readonly string[] PracticeModes = new[] { TutorialMode }.Concat(Modes).ToArray();
         public static readonly string[] Courses = HouseModes.Families.SelectMany(HouseModes.ModesIn).Where(WordboundSoloEntry.Supports).ToArray();
         public static string DefaultMode => TutorialDirector.Done ? Modes[0] : TutorialMode;
+=======
+        public static readonly string[] Modes = { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape", "BossFight" };
+>>>>>>> fd3f0126 (first commit)
         public static float StartDelay = 3f;
         public const int PartyMax = 4;
         const float BarHeight = 76f, Gutter = 26f, PartyWidth = 380f, FeedWidth = 420f;
@@ -1068,7 +1072,23 @@ namespace Wreckabulary
                 : $"{ModeName(Mode)} · {house}{online} · {seats}";
         }
 
+<<<<<<< HEAD
         public static string ModeName(string mode) => mode == RoomMode ? "Private room" : LobbyPlayModeLabels.Name(mode);
+=======
+        public static string ModeName(string mode) => mode switch
+        {
+            "Dibs" => "Dibs!",
+            "Duos" => "Double trouble",
+            "MovingOut" => "The great escape",
+            "MovingDay" => "Moving day",
+            "Escape" => "The Escape!",
+            "BossFight" => "Boss Fight!",
+            "Tutorial" => "Play & learn",
+            "Workshop" => "Creative workshop",
+            "Room" => "Private room",
+            _ => mode,
+        };
+>>>>>>> fd3f0126 (first commit)
 
         public static string Seats(string mode, int humans = 1)
         {
@@ -1077,8 +1097,15 @@ namespace Wreckabulary
             int seats = house?.BotSeats ?? 0, bots = Mathf.Max(0, seats - humans), side = seats / 2;
             return mode switch
             {
+<<<<<<< HEAD
                 HouseModes.Escape => "",
                 HouseModes.Duos => humans switch
+=======
+                "Escape" => "",
+                "BossFight" => "solo",
+                "Dibs" => humans == 1 ? "you + 3 bots" : bots == 0 ? "4 players" : $"{humans} players + {bots} bot{(bots > 1 ? "s" : "")}",
+                "Duos" => humans switch
+>>>>>>> fd3f0126 (first commit)
                 {
                     1 => "you and a bot vs 2 bots",
                     2 => "2 players, each with a bot",

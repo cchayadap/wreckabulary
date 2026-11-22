@@ -27,6 +27,20 @@ namespace Wreckabulary
         public WordEntry SelectedWord => Selected >= 0 && Selected < Ready.Count ? Ready[Selected] : null;
         public event Action<string> Summoned;
         public IReadOnlyList<WordEntry> WordsOverride { get; set; }
+        /// <summary>
+        /// Signal-only words: crafting one fires Summoned without requiring an items.json recipe.
+        /// Used by Boss Fight so CALC / ULA / TOR can crack shields. Null in every other mode.
+        /// </summary>
+        // @trace MECH-002, MECH-003
+        public IReadOnlyCollection<string> SignalWords { get; set; }
+        bool IsSignal(WordEntry entry)
+        {
+            if (SignalWords == null || entry == null) return false;
+            string id = entry.word.ToUpperInvariant();
+            foreach (var word in SignalWords)
+                if (word == id) return true;
+            return false;
+        }
         public IReadOnlyCollection<string> ChecklistPlacementWords { get; set; }
         public bool Typed { get; set; }
         public string WantedWord => HouseModeDirectors.WantedWord(controller);
@@ -118,8 +132,15 @@ namespace Wreckabulary
                     craftFree = false;
                     inventory.ReservedCount = 0;
                     controller.MoveScale = 1f;
+<<<<<<< HEAD
                     if (SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
                     else Refund(entry.word, free);
+=======
+                    // @trace MECH-003
+                    if (IsSignal(entry)) Summoned?.Invoke(entry.word);
+                    else if (SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
+                    else Refund(entry.word);
+>>>>>>> fd3f0126 (first commit)
                 }
                 return;
             }
@@ -192,9 +213,14 @@ namespace Wreckabulary
         public bool BeginCraft(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
+<<<<<<< HEAD
             if (IsCrafting || entry == null || !SummonEffects.CanApply(controller, entry)) return false;
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
+=======
+            // @trace MECH-003
+            if (IsCrafting || entry == null || (!IsSignal(entry) && !SummonEffects.CanApply(controller, entry)) || !inventory.TrySpend(entry.word)) return false;
+>>>>>>> fd3f0126 (first commit)
             Close();
             crafting = entry;
             craftFree = free;
@@ -232,10 +258,16 @@ namespace Wreckabulary
         public bool Summon(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
+<<<<<<< HEAD
             if (IsCrafting || entry == null || !SummonEffects.CanApply(controller, entry)) return false;
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
             if (!SummonEffects.Apply(controller, entry)) { Refund(entry.word, free); return false; }
+=======
+            // @trace MECH-003, MECH-005
+            if (IsCrafting || entry == null || (!IsSignal(entry) && !SummonEffects.CanApply(controller, entry)) || !inventory.TrySpend(entry.word)) return false;
+            if (!IsSignal(entry) && !SummonEffects.Apply(controller, entry)) { Refund(entry.word); return false; }
+>>>>>>> fd3f0126 (first commit)
             Summoned?.Invoke(entry.word);
             return true;
         }

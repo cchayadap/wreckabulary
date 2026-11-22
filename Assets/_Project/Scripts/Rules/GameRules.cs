@@ -70,6 +70,7 @@ namespace Wreckabulary.Rules
 
         public int EscapeKeys = 1;
 
+<<<<<<< HEAD
         public int KnockoutsToWin { get => Setting("knockoutsToWin", 0); set => SetSetting("knockoutsToWin", value); }
         public int TeamLives { get => Setting("teamLives", 0); set => SetSetting("teamLives", value); }
         public float HoldBonusSeconds { get => Setting("holdBonus", 0f); set => SetSetting("holdBonus", value); }
@@ -80,6 +81,34 @@ namespace Wreckabulary.Rules
         public int Setting(string key, int fallback) => (int)Math.Round(Setting(key, (float)fallback));
 
         public void SetSetting(string key, float value) => (settings ??= new Dictionary<string, float>(StringComparer.Ordinal))[key] = value;
+=======
+        // @trace NUM-001, NUM-002, NUM-003, NUM-005
+        /// <summary>Boss Fight: the label shown on the boss bar and the three shield words.</summary>
+        public string BossName = "";
+        public string[] BossWords = System.Array.Empty<string>();
+        public float BossMaxHealth = 240f;
+        public float BossVulnerability = 1.5f;
+        public float PrepSeconds = 45f;
+        public float AppearSeconds = 12f;
+        public float LayerSeconds = 35f;
+        public float HitSeconds = 75f;
+        public float AoeWarnSeconds = 1.2f;
+        public float AoeActiveSeconds = 0.45f;
+        public float[] AoeRadiusByLayer = { 1.6f, 1.8f, 2f, 2.2f };
+        public float[] AoeDamageByLayer = { 10f, 12f, 14f, 14f };
+        public float[] AoeCooldownByLayer = { 4.5f, 4f, 3.2f, 2.8f };
+        public int MaxAoe = 3;
+        public int LettersLostOnHit = 2;
+        public float SlickDodgeWindow = 0.3f;
+
+        static float LayerValue(float[] values, int layer, float fallback) =>
+            values != null && layer >= 0 && layer < values.Length ? values[layer] : fallback;
+
+        /// <summary>Layer 0..2 are the shield layers; layer 3 is the vulnerable hit phase.</summary>
+        public float AoeRadiusFor(int layer) => LayerValue(AoeRadiusByLayer, layer, 1.6f);
+        public float AoeDamageFor(int layer) => LayerValue(AoeDamageByLayer, layer, 10f);
+        public float AoeCooldownFor(int layer) => LayerValue(AoeCooldownByLayer, layer, 4.5f);
+>>>>>>> fd3f0126 (first commit)
 
         public float CraftSeconds(ItemDefinition item) => CraftBaseSeconds + CraftPerLetterSeconds * item.Letters.Count;
 
@@ -94,7 +123,14 @@ namespace Wreckabulary.Rules
         {
             var copy = (GameRules)MemberwiseClone();
             copy.BleedOutSeconds = (float[])BleedOutSeconds.Clone();
+<<<<<<< HEAD
             if (settings != null) copy.settings = new Dictionary<string, float>(settings, StringComparer.Ordinal);
+=======
+            copy.BossWords = (string[])BossWords.Clone();
+            copy.AoeRadiusByLayer = (float[])AoeRadiusByLayer.Clone();
+            copy.AoeDamageByLayer = (float[])AoeDamageByLayer.Clone();
+            copy.AoeCooldownByLayer = (float[])AoeCooldownByLayer.Clone();
+>>>>>>> fd3f0126 (first commit)
             var u = Unarmed;
             copy.Unarmed = new MeleeStats
             {
@@ -126,7 +162,20 @@ namespace Wreckabulary.Rules
             Need(StaminaRegen >= 0 && StaminaRegenDelay >= 0, "stamina recovery cannot be negative");
             Need(JumpHeight > 0, "jumpHeight must be positive");
             Need(GroundAccel > 0 && GroundFriction > 0, "groundAccel and groundFriction must be positive");
+<<<<<<< HEAD
             Need(KnockoutsToWin >= 0 && TeamLives >= 0 && HoldBonusSeconds >= 0, "knockoutsToWin, teamLives and holdBonus can't be negative");
+=======
+            // @trace NUM-005
+            Need(BossWords == null || BossWords.Length == 0 || BossWords.Length == 3, "bossWords needs exactly three shield words");
+            Need(BossMaxHealth > 0f, "bossMaxHealth must be positive");
+            Need(BossVulnerability > 0f, "bossVulnerability must be positive");
+            Need(PrepSeconds >= 0f && AppearSeconds >= 0f, "prep and appear phases cannot be negative");
+            Need(LayerSeconds > 0f && HitSeconds > 0f, "layer and hit phases need a positive duration");
+            Need(AoeWarnSeconds > SlickDodgeWindow && SlickDodgeWindow >= 0f, "slickDodgeWindow must fit inside aoeWarnSeconds");
+            Need(AoeActiveSeconds > 0f, "aoeActiveSeconds must be positive");
+            Need(MaxAoe >= 1, "maxAoe must be at least 1");
+            Need(LettersLostOnHit >= 0, "lettersLostOnHit cannot be negative");
+>>>>>>> fd3f0126 (first commit)
             return problems;
         }
     }
@@ -200,6 +249,9 @@ namespace Wreckabulary.Rules
             "teamSize", "friendlyFire", "downed", "bleedOut", "reviveSeconds", "reviveHealth", "reviveRange",
             "roundsToWin", "respawn", "reconnectGrace", "roundTimeLimit", "clearOut", "notes",
             "exitNeedsKey", "keyAfterRooms", "randomExit", "exitKeys",
+            "bossName", "bossWords", "bossMaxHealth", "bossVulnerability", "prepSeconds", "appearSeconds",
+            "layerSeconds", "hitSeconds", "aoeWarnSeconds", "aoeActiveSeconds", "aoeRadiusByLayer",
+            "aoeDamageByLayer", "aoeCooldownByLayer", "maxAoe", "lettersLostOnHit", "slickDodgeWindow",
         };
 
         static readonly HashSet<string> HouseOnly = new HashSet<string>(StringComparer.Ordinal) { "base", "knockoutsToWin", "teamLives", "holdBonus", "settings" };
@@ -274,6 +326,7 @@ namespace Wreckabulary.Rules
             r.EscapeKeyAfterRooms = n["keyAfterRooms"].Int(r.EscapeKeyAfterRooms);
             r.EscapeRandomExit = n["randomExit"].Bool(r.EscapeRandomExit);
             r.EscapeKeys = n["exitKeys"].Int(r.EscapeKeys);
+<<<<<<< HEAD
             r.KnockoutsToWin = n["knockoutsToWin"].Int(r.KnockoutsToWin);
             r.TeamLives = n["teamLives"].Int(r.TeamLives);
             r.HoldBonusSeconds = n["holdBonus"].Float(r.HoldBonusSeconds);
@@ -282,6 +335,30 @@ namespace Wreckabulary.Rules
                 var extra = n["settings"];
                 foreach (string key in extra.Keys) r.SetSetting(key, extra[key].Float());
             }
+=======
+            // @trace NUM-005
+            r.BossName = n["bossName"].String(r.BossName);
+            var words = n["bossWords"].Strings();
+            if (words != null)
+            {
+                r.BossWords = new string[words.Count];
+                for (int i = 0; i < words.Count; i++) r.BossWords[i] = words[i].ToUpperInvariant();
+            }
+            r.BossMaxHealth = n["bossMaxHealth"].Float(r.BossMaxHealth);
+            r.BossVulnerability = n["bossVulnerability"].Float(r.BossVulnerability);
+            r.PrepSeconds = n["prepSeconds"].Float(r.PrepSeconds);
+            r.AppearSeconds = n["appearSeconds"].Float(r.AppearSeconds);
+            r.LayerSeconds = n["layerSeconds"].Float(r.LayerSeconds);
+            r.HitSeconds = n["hitSeconds"].Float(r.HitSeconds);
+            r.AoeWarnSeconds = n["aoeWarnSeconds"].Float(r.AoeWarnSeconds);
+            r.AoeActiveSeconds = n["aoeActiveSeconds"].Float(r.AoeActiveSeconds);
+            if (n.Has("aoeRadiusByLayer")) r.AoeRadiusByLayer = n["aoeRadiusByLayer"].Floats(4);
+            if (n.Has("aoeDamageByLayer")) r.AoeDamageByLayer = n["aoeDamageByLayer"].Floats(4);
+            if (n.Has("aoeCooldownByLayer")) r.AoeCooldownByLayer = n["aoeCooldownByLayer"].Floats(4);
+            r.MaxAoe = n["maxAoe"].Int(r.MaxAoe);
+            r.LettersLostOnHit = n["lettersLostOnHit"].Int(r.LettersLostOnHit);
+            r.SlickDodgeWindow = n["slickDodgeWindow"].Float(r.SlickDodgeWindow);
+>>>>>>> fd3f0126 (first commit)
             return r;
         }
     }
