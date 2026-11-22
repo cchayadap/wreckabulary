@@ -8,7 +8,7 @@ Wreckabulary is a toy-like third-person party game for 1–4 players. Plush room
 
 ## What's in the game
 
-- **Modes:** Dibs! (free-for-all, first to three rounds), Duos (2v2 with downed and revive), Moving Out (co-op escape with keepsakes), Moving Day (co-op furnishing checklist), a guided tutorial, and the Creative Workshop for furnishing a house.
+- **Modes:** Dibs! (free-for-all, first to three rounds), Duos (2v2 with downed and revive), Moving Out (co-op escape with keepsakes), Moving Day (co-op furnishing checklist), Boss Fight (solo: spell CALC / ULA / TOR to break the Calculator's shield, then hit it), a guided tutorial, and the Creative Workshop for furnishing a house. See `docs/BossFight-GDD.md`.
 - **Houses:** Pinwheel House, Garden Courtyard, City Flat, the two-storey Terrace House and the three-storey Walk-up Apartments.
 - **Rules:** 100 HP, a 10-letter bag, 2 carried and 2 deployed items, and [24 usable recipes](docs/RECIPES.md), including a 360° raised shield, healing snacks, speed drinks, wind and slowing fields.
 - **Play:** local play for up to four (keyboard and mouse, gamepads, two keyboard halves), with AI roommates filling empty seats.

@@ -61,7 +61,7 @@ namespace Wreckabulary
         public void EnsureOpponents()
         {
             if (HumanCount == 0) return;
-            if (Match.Mode == "Escape") { AssignTeams(); return; }     // No AI crew in The Escape.
+            if (Match.Mode is "Escape" or "BossFight") { AssignTeams(); return; }     // No AI crew in solo modes.
 
             int target = 4;
             while (players.Count < target && players.Count < maxPlayers)
@@ -80,7 +80,7 @@ namespace Wreckabulary
             foreach (var b in Session.Bindings.ToArray())
             {
                 if (b is GamepadBinding g && !g.Pad.added) continue;
-                if (b is BotBinding && Match.Mode == "Escape") continue;   // The Escape is humans only.
+                if (b is BotBinding && Match.Mode is "Escape" or "BossFight") continue;   // Solo modes are humans only.
                 Join(b, arriving: false);
                 RestoredFromSession = true;
             }

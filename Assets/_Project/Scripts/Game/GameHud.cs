@@ -809,6 +809,7 @@ namespace Wreckabulary
                 "MovingOut" => ("CO-OP", "The great escape"),
                 "MovingDay" => ("CO-OP", "Moving day"),
                 "Tutorial" => ("PRACTICE", "Play & learn"),
+                "BossFight" => ("SOLO BOSS", "Calculator!"),
                 "Hub" => ("WELCOME HOME", "The house"),
                 _ => ("HOUSE PARTY", "Wreckabulary"),
             };

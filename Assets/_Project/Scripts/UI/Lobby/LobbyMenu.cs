@@ -22,7 +22,7 @@ namespace Wreckabulary
         public const string Practice = "practice", Matchmaking = "matchmaking", Workshop = "workshop";
         public const string TutorialMode = "Tutorial", WorkshopMode = "Workshop", RoomMode = "Room";
         public const string VolumeKey = "wv.volume", VsyncKey = "wv.vsync";
-        public static readonly string[] Modes = { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" };
+        public static readonly string[] Modes = { "Dibs", "Duos", "MovingOut", "MovingDay", "Escape", "BossFight" };
         public static float StartDelay = 3f;
         public const int PartyMax = 4;
         const float BarHeight = 76f, Gutter = 26f, PartyWidth = 380f, FeedWidth = 420f;
@@ -744,6 +744,7 @@ namespace Wreckabulary
             "MovingOut" => "The great escape",
             "MovingDay" => "Moving day",
             "Escape" => "The Escape!",
+            "BossFight" => "Boss Fight!",
             "Tutorial" => "Play & learn",
             "Workshop" => "Creative workshop",
             "Room" => "Private room",
@@ -757,6 +758,7 @@ namespace Wreckabulary
             return mode switch
             {
                 "Escape" => "",
+                "BossFight" => "solo",
                 "Dibs" => humans == 1 ? "you + 3 bots" : bots == 0 ? "4 players" : $"{humans} players + {bots} bot{(bots > 1 ? "s" : "")}",
                 "Duos" => humans switch
                 {

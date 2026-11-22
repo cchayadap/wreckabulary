@@ -54,7 +54,7 @@ namespace Wreckabulary
 
         public static string SceneForMode(string mode) => mode switch
         {
-            "Dibs" or "Duos" or "MovingOut" or "Escape" => DibsScene,
+            "Dibs" or "Duos" or "MovingOut" or "Escape" or "BossFight" => DibsScene,
             "MovingDay" => MovingDayScene,
             "Tutorial" => TutorialScene,
             "Hub" => HubScene,
@@ -82,7 +82,10 @@ namespace Wreckabulary
         public static void LoadMode(string mode, string mapId = null)
         {
             var scene = SceneForMode(mode);
+            // Boss Fight is locked to the LivingRoom scene on one house layout.
+            // @trace PLAT-001
             if (mode == "Escape" && (string.IsNullOrEmpty(mapId) || mapId == LobbyRandomMap)) mapId = RandomHouseId();
+            if (mode == "BossFight") mapId = "pinwheel";
             if (mapId != null) SelectMap(mapId);
             Match.ModeOverride = mode;
             Time.timeScale = 1f;

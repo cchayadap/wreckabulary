@@ -337,6 +337,7 @@ namespace Wreckabulary
             yield return ("MovingOut", LobbyMenu.ModeName("MovingOut"), "Co-op", "Find every keepsake, then get the whole crew to the van before the house is packed.");
             yield return ("MovingDay", LobbyMenu.ModeName("MovingDay"), "Co-op", "Spell the checklist furniture and place it in its marked room.");
             yield return ("Escape", LobbyMenu.ModeName("Escape"), "Co-op", "Three locked doors, one collapsing house. Spell the words and get everyone out.");
+            yield return ("BossFight", LobbyMenu.ModeName("BossFight"), "Solo", "Break furniture into letters, spell CALC / ULA / TOR to crack the Calculator's shield, then hit it.");
             if (online) yield return (LobbyMenu.RoomMode, LobbyMenu.ModeName(LobbyMenu.RoomMode), "Friends only", "Invite friends with a room code and pick the rules.");
             else yield return Tutorial;
         }

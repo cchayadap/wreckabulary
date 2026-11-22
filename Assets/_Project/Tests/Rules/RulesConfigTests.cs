@@ -12,8 +12,40 @@ namespace Wreckabulary.Rules.Tests
         {
             var book = TestData.LoadRuleBook();
             Assert.IsEmpty(book.Validate());
-            CollectionAssert.AreEquivalent(new[] { "Hub", "Tutorial", "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" }, book.Modes);
+            CollectionAssert.AreEquivalent(new[] { "Hub", "Tutorial", "Dibs", "Duos", "MovingOut", "MovingDay", "Escape", "BossFight" }, book.Modes);
         }
+
+        // @trace NUM-002, NUM-003, NUM-004, NUM-005, MECH-002
+        [Test]
+        public void BossFightRulesDefineCalculatorAndExtremeValues()
+        {
+            var r = TestData.RulesFor("BossFight");
+            Assert.AreEqual("CALCULATOR", r.BossName);
+            CollectionAssert.AreEqual(new[] { "CALC", "ULA", "TOR" }, r.BossWords);
+            Assert.AreEqual(3, r.BossWords.Length);
+            Assert.AreEqual(240f, r.BossMaxHealth);
+            Assert.AreEqual(1.5f, r.BossVulnerability);
+            Assert.AreEqual(16, r.MaxLetters, "the longest word must fit the bag");
+            Assert.GreaterOrEqual(r.MaxLetters, r.BossWords.Max(w => w.Length));
+            Assert.IsFalse(r.ClearOutEnabled, "clear-out would need an order in every house JSON");
+
+            // full-minimum and full-maximum damage, with the 1 HP clamp
+            Assert.AreEqual(15f, MathfMax(1f, 10f * r.BossVulnerability));
+            Assert.AreEqual(54.6f, MathfMax(1f, 28f * r.BossVulnerability * 1.3f), 0.001f);
+
+            // AoE table: coefficients rise across layers, and every radius stays below the dodge distance
+            for (int layer = 0; layer < 4; layer++)
+            {
+                Assert.Greater(r.AoeRadiusFor(layer), 0f);
+                Assert.Greater(r.AoeDamageFor(layer), 0f);
+                Assert.Greater(r.AoeCooldownFor(layer), 0f);
+                Assert.Less(r.AoeRadiusFor(layer), 4f, "a 4 m dodge must clear the circle");
+            }
+            Assert.Greater(r.AoeWarnSeconds, r.SlickDodgeWindow);
+            Assert.AreEqual(2, r.LettersLostOnHit);
+        }
+
+        static float MathfMax(float a, float b) => a > b ? a : b;
 
         [Test]
         public void TheBriefsDefaults()

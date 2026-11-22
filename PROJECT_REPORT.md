@@ -83,6 +83,7 @@ Wreckabulary is a toy-like third-person party game for 1–4 players. Plush room
 | Duos | 2v2 with downed and revive |
 | Moving Out | Co-op: carry keepsakes to the van before the house closes |
 | Moving Day | Co-op: fuse and place checklist furniture against the clock |
+| Boss Fight | Solo: spell CALC / ULA / TOR to break three shields on the Calculator, dodge red circles, then hit it |
 | Tutorial | Guided basics |
 | Creative Workshop | Furnish and save your own house |
 | *More* | Open; the team adds modes here |

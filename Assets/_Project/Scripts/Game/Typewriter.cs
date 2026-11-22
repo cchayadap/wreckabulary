@@ -31,6 +31,7 @@ namespace Wreckabulary
             new() { label = "DUOS", id = "Duos", blurb = "Two teams • revive your teammate • solo AI", scene = Session.DibsScene },
             new() { label = "MOVING DAY", blurb = "Co-op: furnish the house together", scene = Session.MovingDayScene },
             new() { label = "MOVING OUT", id = "MovingOut", blurb = "Rescue keepsakes and reach the van", scene = Session.DibsScene },
+            new() { label = "BOSS FIGHT", id = "BossFight", blurb = "Solo: spell CALC / ULA / TOR, then hit the Calculator", scene = Session.DibsScene },
         };
         [SerializeField] PlayerJoinManager joins;
         [SerializeField] TextMeshPro menuText;
@@ -54,6 +55,7 @@ namespace Wreckabulary
                 new Mode { label = "DUOS", id = "Duos", blurb = "Two teams • hold grab to revive • solo AI", scene = Session.DibsScene },
                 new Mode { label = "MOVING DAY", id = "MovingDay", blurb = "Furnish the house before time runs out", scene = Session.MovingDayScene },
                 new Mode { label = "MOVING OUT", id = "MovingOut", blurb = "Rescue keepsakes and get everyone to the van", scene = Session.DibsScene },
+                new Mode { label = "BOSS FIGHT", id = "BossFight", blurb = "Solo: spell CALC / ULA / TOR, then hit the Calculator", scene = Session.DibsScene },
             };
         }
 
