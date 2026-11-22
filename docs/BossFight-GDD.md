@@ -1,11 +1,23 @@
 # Boss Fight — Phase 1 Design Document (CONFIRMED & FROZEN)
 
 > Project: Wreckabulary · Unity `6000.6.3f1` · URP `17.6.0` · new Input System `1.20.0`
-> Authoring date: 2026-11-22 · Frozen: 2026-11-22 · Status: **frozen** (see `docs/design-freeze.json`, version 1)
+> Authoring date: 2026-11-22 · Frozen: 2026-11-22 · Status: **frozen, playtest amendment v2** (see `docs/design-freeze.json`, version 2)
 > Scope: solo player, **one map (`LivingRoom`)**, **one boss (`Calculator`)**. Co-op and extra bosses are deferred batches.
 > Requirements in this doc are tagged with IDs (`MECH-…`, `NUM-…`, etc.); the confirmed ones are registered in `docs/design-freeze.json`.
 
 **Confirmed scope decisions (2026-11-22):** map = `LivingRoom` (the existing Dibs/Escape scene, no new arena); boss = `Calculator`; three shield words = `CALC` / `ULA` / `TOR` (sequential split of CALCULATOR — the first draft written as "CACL" was corrected to "CALC" by the user). All other items in this document remain as drafted; the assumptions list at the end records what was accepted vs deferred.
+
+## Playtest amendment v2 — supersedes the original numbers below
+
+After the first playable slice the user reported three problems: no damage reached the boss, the red circles were hard to read and kept interrupting spelling, and a single full-word box per layer was not fun. The following rules are now authoritative; older rows elsewhere in this document are historical draft text.
+
+| ID | Supersedes | New rule |
+|---|---|---|
+| `AMD-001` | `MECH-009` | The boss has a kinematic `Rigidbody` + box hitbox. `PlayerCombat.Strike()` can now reach `IDamageable`. A hit while shielded shows **SHIELDED!** instead of silently doing nothing. |
+| `AMD-002` | `MECH-006`, `NUM-003`, `ART-004` | Telegraphs are a **filled translucent disc + thick pulsing ring**. Circles land **outside** the player's feet (`radius + 0.55 m`), warning is **1.6 s**, at most **2** circles, cooldowns **5.5 / 5.0 / 4.4 / 4.0 s**. A hit costs **1** letter, and **no letters are lost while the player is actively spelling or crafting**. |
+| `AMD-003` | `MECH-004`, `LEV-001` | No full-word crates. Each shield word is split into **one smashable per letter**, spread across the clued room with **two decoy caches**. Starter props are spread out too. |
+
+Numbers still awaiting measurement: 240 HP / 7-hit TTK, the new 1.6 s warning, and the letter economy. `@trace AMD-001..003`.
 
 ---
 
@@ -38,7 +50,7 @@ Reviewed: `ProjectSettings/ProjectVersion.txt`, `Packages/manifest.json`, `Asset
 
 These are the deliberate upgrades on top of your rundown. Each is a concrete rule, not a vibe.
 
-1. **Getting hit makes you DROP LETTERS, not just HP.** A red-circle hit scatters 2 random letters from your bag back into the room and stuns you 0.5 s. Now dodging protects your *spelling progress*, not just a health bar. This is the single biggest tension upgrade. (`MECH-006`)
+1. **Getting hit makes you DROP LETTERS, not just HP.** A red-circle hit scatters 1 random letter from your bag back into the room — but **never while you are actively spelling**. Circles land outside your feet, so standing still and spelling is safe; walking into a circle is the risk. This is the single biggest tension upgrade. (`MECH-006`, amended by `AMD-002`)
 2. **The boss name is 3 short words = 3 shield layers, not one long word.** Each cracked word triggers a 0.8 s slow-motion shatter and a staged escalation. You get three satisfying "I did it!" beats instead of one. (`MECH-003`)
 3. **A choice every few seconds: save letters or spend them.** Any spare letters can spell existing chaos words — `ZAP` stuns the boss 2 s, `BEES` intercepts one red circle, `MAGNET` vacuums nearby tiles. Those same letters are also the boss name. This is the decision-density engine. (`MECH-005`)
 4. **The boss reacts to you.** A grumpy appliance with text bubbles: laughs at a wrong word, complains when you smash its furniture, whiffs when you dodge late. Nothing changes mechanically, but the mode gains a personality. (`MECH-008`)
@@ -111,9 +123,9 @@ These are the deliberate upgrades on top of your rundown. Each is a concrete rul
 | `MECH-001` | 4-phase run state machine | Preparing → Appear → Drop&Prevent → Hit → Result | P0 | `EscapeDirector` pattern |
 | `MECH-002` | Boss name reveal | 3 words shown as empty slots + room clues | P0 | `GameHud` checklist lines |
 | `MECH-003` | 3 shield layers | Each spelled word cracks one layer; slow-mo shatter | P0 | New + `Summoner.Summoned` |
-| `MECH-004` | Room clue crates | One `Smashable` per word spawned in a named room; boss announces room | P0 | `Smashable.Init`, `HouseLayout` |
+| `MECH-004` | Room clue caches | One `Smashable` per **letter** spread across the named room + 2 decoys; boss announces room | P0 | `Smashable.Init`, `HouseLayout` (`AMD-003`) |
 | `MECH-005` | Chaos word spending | Spare letters craft existing items; boss-mode effects override some | P0/P1 | `Summoner` + `SummonEffects` |
-| `MECH-006` | Red-circle AoE + letter scatter | Warning → Active → Fade; hit = 12 dmg, 2 letters dropped, 0.5 s stun | P0 | `ThrownGear` ring + `HitInfo.Hazard` |
+| `MECH-006` | Red-circle AoE + letter scatter | Filled disc + ring, Warning → Active → Fade; hit = layer damage, 1 letter dropped, **no drop while spelling** | P0 | `ThrownGear` ring + `HitInfo.Hazard` (`AMD-002`) |
 | `MECH-007` | Slick Dodge | Last-0.3 s dodge picks up 2 nearest tiles | P1 | `PlayerController.TryDodge` |
 | `MECH-008` | Boss taunts | Text bubbles on smash / wrong spell / dodge / phase change | P1 | `WorldSpaceBillboard` |
 | `MECH-009` | Vulnerable hit phase | Shield gate opens; melee/thrown damage applies; enraged AoE | P0 | `IDamageable` |
@@ -138,15 +150,15 @@ These are the deliberate upgrades on top of your rundown. Each is a concrete rul
 
 | Current | Event | Condition | Next | Side effect |
 |---|---|---|---|---|
-| Idle | boss attack tick | cooldown elapsed, layer ≥ 1 | Warning | pick centre = predicted player pos + offset; radius from phase table; set `warningLeft = 1.2` |
+| Idle | boss attack tick | cooldown elapsed, layer ≥ 1 | Warning | pick centre = player pos + `radius + 0.55 m` in a random direction; radius from phase table; `warningLeft = 1.6` |
 | Warning | `warningLeft ≤ 0.3` and player dodges inside circle | dodge active | Slick Dodge | collect 2 nearest tiles, boss "whiff" bubble, circle → Fade |
 | Warning | `warningLeft ≤ 0` | — | Active (0.45 s) | red fill solid, `Physics.OverlapSphere` once at start + once at end |
-| Active | hit player | within radius, not invulnerable | Fade for that player | `HitInfo.Hazard(12)` + scatter 2 letters + 0.5 s stun |
+| Active | hit player | within radius, not invulnerable | Fade for that player | `HitInfo.Hazard(layer)` + scatter 1 letter **only when not spelling/crafting** |
 | Active | 0.45 s elapsed | — | Fade | — |
 | Fade | 0.25 s elapsed | — | Idle | ring released to pool |
 | Any | phase changes to Stagger | — | Idle | cancel all Warning/Active circles |
 
-**Judgement rules:** circle = `Physics.OverlapSphere(centre, radius, playerLayer)`; damage 12 HP per overlap, once per circle per player (dedupe by circle ID); ties (two circles same frame) take the closest circle only. Max 3 simultaneous circles; overflow cancels the oldest Warning.
+**Judgement rules:** circle = `Physics.OverlapSphere(centre, radius, playerLayer)`; table damage per overlap, once per circle per player (dedupe by circle ID); ties (two circles same frame) take the closest circle only. **Max 2 simultaneous circles**; overflow skips the spawn. `AMD-002`.
 
 ### Input map (logic actions already exist in `InputBinding.PlayerCommands`)
 
@@ -192,9 +204,9 @@ Same-frame duplicate inputs: first event wins, rest ignored until next frame. To
 |---|---|---|---|
 | P0 Preparing (0–45 s) | Player at house entrance; 3 "starter" props + 1 weapon-crate prop per room; boss asleep outside living room with snore bubbles | Craft ≥ 1 weapon → early Appear | 0.0 |
 | P1 Boss Appear (45–57 s) | Boss stomps in, camera shake 0.4 s, word 1 + room clue revealed | — | 0.0 |
-| P2 Layer 1 (57–92 s) | Word 1 crate spawns in clue room; 1 circle / 4.5 s, r 1.6 m, 10 dmg | Spell word 1 → layer crack + 4 s stagger | 0.18 |
-| P2 Layer 2 (92–127 s) | Word 2 crate; 2 circles / 4.0 s, r 1.8 m, 12 dmg; hint partial | Spell word 2 → layer crack | 0.31 |
-| P2 Layer 3 (127–162 s) | Word 3 crate; 3 circles / 3.2 s, r 2.0 m, 14 dmg; hint riddle | Spell word 3 → shield break | 0.55 |
+| P2 Layer 1 (57–92 s) | CALC's 4 letter caches + 2 decoys spread in clue room; ≤2 circles / 5.5 s, r 1.6 m, 10 dmg | Spell word 1 → layer crack + 4 s stagger | 0.18 |
+| P2 Layer 2 (92–127 s) | ULA caches + decoys; ≤2 circles / 5.0 s, r 1.8 m, 12 dmg | Spell word 2 → layer crack | 0.31 |
+| P2 Layer 3 (127–162 s) | TOR caches + decoys; ≤2 circles / 4.4 s, r 2.0 m, 14 dmg | Spell word 3 → shield break | 0.55 |
 | P3 Hit (162–237 s) | Shield off; enraged 3 circles / 2.8 s, r 2.2 m, 14 dmg | Boss HP 240 → 0 | 0.77 |
 | P4 Result (237–242 s) | Scorecard: time, knockouts, words spelled | Retry / next boss | — |
 
@@ -206,7 +218,7 @@ Boss vocabulary (**one boss at launch**, original; stored in `rules.json` under 
 |---|---|---|
 | Calculator | `CALC`, `ULA`, `TOR` | exact room names (all in `LivingRoom` layout) |
 
-Constraint: each name word is 4/3/3 letters and is **always** obtainable from its clue crate plus surrounding props. Crates carry the full word, so obtainability is guaranteed without relying on which house map is loaded; validation still runs against `LivingRoom`'s `HouseLayout` before spawn. Longest word 4 ≤ bag 16. Deferred bosses (Wobbly Broom King / Grumpy Duck Boss) are recorded in the pending list, not in this build.
+Constraint: each name word is 4/3/3 letters and is **always** obtainable from its scattered caches: every letter of the word gets its own smashable in the clued room, so obtainability does not depend on random map drops. Validation runs against `LivingRoom`'s `HouseLayout` before spawn. Longest word 4 ≤ bag 16. (`AMD-003`) Deferred bosses (Wobbly Broom King / Grumpy Duck Boss) are recorded in the pending list, not in this build.
 
 ## 8. Numbers & formulas
 

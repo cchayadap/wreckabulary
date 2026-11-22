@@ -15,6 +15,7 @@ namespace Wreckabulary.BossFight
         GameRules rules;
         BossNameCatalogue names;
         float health;
+        float nextShieldCue;
         readonly List<LineRenderer> shieldRings = new();
         Transform visual;
 
@@ -39,6 +40,23 @@ namespace Wreckabulary.BossFight
 
         void BuildVisual()
         {
+            // PlayerCombat.Strike only considers colliders with a Rigidbody. Without this the
+            // boss looks hittable but every swing is skipped at `rb == null`.
+            // @trace MECH-009, AMD-001
+            if (!GetComponent<Rigidbody>())
+            {
+                var body = gameObject.AddComponent<Rigidbody>();
+                body.isKinematic = true;
+                body.useGravity = false;
+                body.mass = 100f;
+            }
+            if (!GetComponent<Collider>())
+            {
+                var hitbox = gameObject.AddComponent<BoxCollider>();
+                hitbox.center = new Vector3(0f, .95f, 0f);
+                hitbox.size = new Vector3(1.9f, 2.1f, 1.5f);
+            }
+
             if (visual) Destroy(visual.gameObject);
             var root = new GameObject("Calculator visual");
             root.transform.SetParent(transform, false);
@@ -79,6 +97,7 @@ namespace Wreckabulary.BossFight
         {
             LayersRemaining = names != null ? names.LayerCount : 3;
             health = MaxHealth;
+            nextShieldCue = 0f;
             for (int i = 0; i < shieldRings.Count; i++)
                 if (shieldRings[i]) shieldRings[i].gameObject.SetActive(i < LayersRemaining);
             if (visual) visual.gameObject.SetActive(true);
@@ -101,7 +120,17 @@ namespace Wreckabulary.BossFight
         /// <summary>Existing melee and thrown hits arrive here; shielded hits are refused.</summary>
         public bool ApplyDamage(in HitInfo hit)
         {
-            if (!Vulnerable || hit.Damage <= 0f) return false;
+            if (!Vulnerable)
+            {
+                if (Time.time >= nextShieldCue)
+                {
+                    nextShieldCue = Time.time + 1.2f;
+                    Popup.Show("SHIELDED!", Centre + Vector3.up * .5f, new Color(1f, .78f, .35f), 1.1f);
+                    GameFeedback.Play(GameCue.Protect);
+                }
+                return false;
+            }
+            if (hit.Damage <= 0f) return false;
             float final = Mathf.Max(1f, hit.Damage * rules.BossVulnerability);
             health = Mathf.Max(0f, health - final);
             GameFeedback.Play(GameCue.Hit);

@@ -11,8 +11,6 @@ namespace Wreckabulary.BossFight
     // @trace MECH-002
     public sealed class BossNameCatalogue
     {
-        static readonly string[] ChaosWords = { "ZAP", "BEES", "MAGNET" };
-
         readonly GameRules rules;
 
         public BossNameCatalogue(GameRules rules)
@@ -41,23 +39,31 @@ namespace Wreckabulary.BossFight
             return set;
         }
 
-        /// <summary>Everything the player can spell in this mode: shield words + existing chaos items.</summary>
+        /// <summary>
+        /// Everything the player can spell in this mode: the full normal recipe list plus the
+        /// shield words. Never replace the catalogue here — doing so removes BAT, weapons and
+        /// every other recipe from both the word wheel and typed spelling.
+        /// </summary>
+        // @trace MECH-002, MECH-003
         public List<WordEntry> SpellWords()
         {
-            var list = new List<WordEntry>(LayerCount + ChaosWords.Length);
-            for (int i = 0; i < LayerCount; i++)
-                list.Add(new WordEntry
-                {
-                    word = WordFor(i), category = WordCategory.Chaos, hidden = false,
-                    notes = "Boss shield " + (i + 1),
-                });
+            var list = new List<WordEntry>();
             var db = GameAssets.I ? GameAssets.I.words : null;
             if (db)
-                foreach (string id in ChaosWords)
+                foreach (var entry in db.Words)
+                    if (entry != null && !string.IsNullOrEmpty(entry.word)) list.Add(entry);
+
+            for (int i = 0; i < LayerCount; i++)
+            {
+                string word = WordFor(i);
+                var existing = list.Find(w => w.word == word);
+                if (existing != null) existing.hidden = false;
+                else list.Add(new WordEntry
                 {
-                    var entry = db.Find(id);
-                    if (entry != null) list.Add(entry);
-                }
+                    word = word, category = WordCategory.Chaos, hidden = false,
+                    notes = "Boss shield " + (i + 1),
+                });
+            }
             return list;
         }
     }

@@ -151,13 +151,13 @@
       "appearSeconds": 12,
       "layerSeconds": 35,
       "hitSeconds": 75,
-      "aoeWarnSeconds": 1.2,
+      "aoeWarnSeconds": 1.6,
       "aoeActiveSeconds": 0.45,
       "aoeRadiusByLayer": [1.6, 1.8, 2.0, 2.2],
       "aoeDamageByLayer": [10, 12, 14, 14],
-      "aoeCooldownByLayer": [4.5, 4.0, 3.2, 2.8],
-      "maxAoe": 3,
-      "lettersLostOnHit": 2,
+      "aoeCooldownByLayer": [5.5, 5.0, 4.4, 4.0],
+      "maxAoe": 2,
+      "lettersLostOnHit": 1,
       "slickDodgeWindow": 0.3,
       "clearOut": {
         "enabled": false

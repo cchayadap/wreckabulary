@@ -92,13 +92,13 @@ namespace Wreckabulary.Rules
         public float AppearSeconds = 12f;
         public float LayerSeconds = 35f;
         public float HitSeconds = 75f;
-        public float AoeWarnSeconds = 1.2f;
+        public float AoeWarnSeconds = 1.6f;
         public float AoeActiveSeconds = 0.45f;
         public float[] AoeRadiusByLayer = { 1.6f, 1.8f, 2f, 2.2f };
         public float[] AoeDamageByLayer = { 10f, 12f, 14f, 14f };
-        public float[] AoeCooldownByLayer = { 4.5f, 4f, 3.2f, 2.8f };
-        public int MaxAoe = 3;
-        public int LettersLostOnHit = 2;
+        public float[] AoeCooldownByLayer = { 5.5f, 5f, 4.4f, 4f };
+        public int MaxAoe = 2;
+        public int LettersLostOnHit = 1;
         public float SlickDodgeWindow = 0.3f;
 
         static float LayerValue(float[] values, int layer, float fallback) =>
