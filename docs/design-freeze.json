@@ -1,29 +1,38 @@
 {
-  "version": 1,
+  "version": 2,
   "status": "frozen",
   "frozenAt": "2026-11-22",
+  "amendedAt": "2026-11-22",
+  "amendments": [
+    { "id": "AMD-001", "reason": "playtest: boss appeared unhittable", "change": "BossController now has a kinematic Rigidbody + hitbox so PlayerCombat.Strike can deliver IDamageable damage; shielded hits show a SHIELDED! popup.", "affects": ["MECH-009"] },
+    { "id": "AMD-002", "reason": "playtest: red circles too subtle and interrupted spelling", "change": "Filled translucent disc + thicker ring, circles land outside the player's feet, warning 1.6s, max 2 circles, slower cooldowns, 1 letter lost on hit, no letter loss while actively spelling.", "affects": ["MECH-006", "NUM-003", "ART-004"] },
+    { "id": "AMD-003", "reason": "playtest: one full-word box was not fun", "change": "Shield words are scattered as one smashable per letter across the clued room with two decoy caches; starter props are spread out too.", "affects": ["MECH-004", "LEV-001"] }
+  ],
   "project": "Wreckabulary - Boss Fight",
   "items": [
     { "id": "PLAT-001", "type": "platform", "name": "PC/Windows solo mode on LivingRoom scene, 1920x1080", "confirmed": true },
     { "id": "MECH-001", "type": "mechanic", "name": "Four-phase run state machine (Preparing/Appear/DropAndPrevent/Hit/Result)", "confirmed": true },
     { "id": "MECH-002", "type": "mechanic", "name": "Boss name reveal: Calculator split into CALC/ULA/TOR with room clues", "confirmed": true },
     { "id": "MECH-003", "type": "mechanic", "name": "Three shield layers, each cracked by spelling its word, with stagger and slow-mo shatter", "confirmed": true },
-    { "id": "MECH-004", "type": "mechanic", "name": "Room clue crates: one Smashable per shield word spawned in a named LivingRoom room", "confirmed": true },
+    { "id": "MECH-004", "type": "mechanic", "name": "Shield letters scattered as separate smashable caches across a named LivingRoom room, plus two decoys", "confirmed": true },
     { "id": "MECH-005", "type": "mechanic", "name": "Chaos word spending from spare letters (ZAP/BEES/MAGNET)", "confirmed": true },
-    { "id": "MECH-006", "type": "mechanic", "name": "Telegraphed red-circle AoE; hit deals damage and scatters two letters", "confirmed": true },
+    { "id": "MECH-006", "type": "mechanic", "name": "Readable telegraphed red-circle AoE; hit damages and scatters one letter, never interrupts active spelling", "confirmed": true },
     { "id": "MECH-009", "type": "mechanic", "name": "Vulnerable hit phase: shield gate opens and existing melee/thrown damage applies", "confirmed": true },
     { "id": "MECH-010", "type": "mechanic", "name": "Preparing phase: scout rooms and craft one weapon from provided props", "confirmed": true },
     { "id": "NUM-001", "type": "numeric", "name": "Boss damage formula and extreme checks", "confirmed": true },
     { "id": "NUM-002", "type": "numeric", "name": "Boss HP 240 and time-to-kill targets", "confirmed": true },
-    { "id": "NUM-003", "type": "numeric", "name": "AoE warning/active/radius/damage table and difficulty coefficients", "confirmed": true },
+    { "id": "NUM-003", "type": "numeric", "name": "Retuned AoE table: 1.6s warning, 2 circle cap, 5.5/5.0/4.4/4.0s cooldowns, 1 letter lost", "confirmed": true },
     { "id": "NUM-004", "type": "numeric", "name": "Letter economy production-to-consumption ratio", "confirmed": true },
     { "id": "NUM-005", "type": "numeric", "name": "Rules config keys, whitelist and validation constraints", "confirmed": true },
     { "id": "LEV-001", "type": "level", "name": "LivingRoom single-map segment structure with 4s stagger breathers", "confirmed": true },
     { "id": "ART-001", "type": "art", "name": "Silly party chaos style anchors and fixed hex palette", "confirmed": true },
     { "id": "ART-002", "type": "art", "name": "Calculator boss procedural primitive placeholder (~1.8m)", "confirmed": true },
-    { "id": "ART-004", "type": "art", "name": "Red AoE warning ring and fill (1.2-2.2m)", "confirmed": true },
+    { "id": "ART-004", "type": "art", "name": "Filled translucent red disc plus thick pulsing warning ring (1.6-2.2m)", "confirmed": true },
     { "id": "ART-006", "type": "art", "name": "Boss HUD runtime canvas: word slots, shield pips, HP bar, timer", "confirmed": true },
     { "id": "UI-001", "type": "ui", "name": "HUD information architecture and transitions between phases", "confirmed": true },
-    { "id": "AUD-001", "type": "audio", "name": "Boss-mode audio cues built from existing GameFeedback cues", "confirmed": true }
+    { "id": "AUD-001", "type": "audio", "name": "Boss-mode audio cues built from existing GameFeedback cues", "confirmed": true },
+    { "id": "AMD-001", "type": "mechanic", "name": "Boss has a kinematic rigidbody and hitbox so melee damage reaches IDamageable", "confirmed": true },
+    { "id": "AMD-002", "type": "mechanic", "name": "Readable filled AoE telegraph that lands outside the feet and never interrupts spelling", "confirmed": true },
+    { "id": "AMD-003", "type": "mechanic", "name": "Shield letters scattered as individual smashable caches with decoys", "confirmed": true }
   ]
 }

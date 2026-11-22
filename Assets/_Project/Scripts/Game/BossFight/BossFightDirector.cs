@@ -83,6 +83,7 @@ namespace Wreckabulary.BossFight
         void OnJoined(PlayerController p)
         {
             HookSummoner(p);
+            SetWords(p);
             joins.AssignTeams();
             if (Current != State.Preparing && Current != State.Result) p.Frozen = true;
         }
@@ -91,6 +92,15 @@ namespace Wreckabulary.BossFight
         {
             if (!p || !p.Summoner || !hooked.Add(p.Index)) return;
             p.Summoner.Summoned += word => OnSummoned(p, word);
+        }
+
+        /// <summary>Keep every player's recipe list intact and add the shield words as signals.</summary>
+        // @trace MECH-002, MECH-003
+        void SetWords(PlayerController p)
+        {
+            if (!p || !p.Summoner) return;
+            p.Summoner.WordsOverride = names.SpellWords();
+            p.Summoner.SignalWords = names.SignalWords();
         }
 
         /// <summary>Spelling the current shield word cracks one layer. Chaos items still summon normally.</summary>
@@ -142,8 +152,7 @@ namespace Wreckabulary.BossFight
                 joins.Place(p);
                 p.Respawn(ArenaCentre());
                 p.Frozen = false;
-                p.Summoner.WordsOverride = names.SpellWords();
-                p.Summoner.SignalWords = names.SignalWords();
+                SetWords(p);
             }
             joins.AssignTeams();
             SpawnStarterProps();
@@ -174,8 +183,7 @@ namespace Wreckabulary.BossFight
             }
             else if (next == State.DropAndPrevent)
             {
-                SpawnClueCrate(layer);
-                clue = names.WordFor(layer) + " is hidden in " + ClueRoom(layer) + "!";
+                SpawnWordCaches(layer);
             }
             else if (next == State.Hit)
             {
@@ -323,19 +331,24 @@ namespace Wreckabulary.BossFight
             if (!string.IsNullOrEmpty(name)) visited.Add(name);
         }
 
-        string ClueRoom(int index)
+        /// <summary>Spreads props across a room instead of stacking them in one obvious pile.</summary>
+        Vector3 SpotInRoom(RoomBox box, int slot, int count)
         {
-            var rooms = room.Layout.Rooms;
-            return rooms.Count == 0 ? "house" : rooms[(index + 1) % rooms.Count].Name;
+            if (box == null) return ArenaCentre();
+            float insetX = Mathf.Min(1.1f, (box.MaxX - box.MinX) * .25f);
+            float insetZ = Mathf.Min(1.1f, (box.MaxZ - box.MinZ) * .25f);
+            float t = count <= 1 ? .5f : (slot + 1f) / (count + 1f);
+            float along = slot % 2 == 0 ? t : 1f - t;
+            return new Vector3(
+                Mathf.Lerp(box.MinX + insetX, box.MaxX - insetX, along),
+                box.FloorY + .35f,
+                Mathf.Lerp(box.MinZ + insetZ, box.MaxZ - insetZ, t));
         }
 
-        Vector3 RoomSpot(int index)
+        RoomBox RoomFor(int index)
         {
-            var rooms = room.Layout.Rooms;
-            if (rooms.Count == 0) return ArenaCentre();
-            var box = rooms[(index + 1) % rooms.Count];
-            return new Vector3((box.MinX + box.MaxX) * .5f, box.FloorY + .35f,
-                               (box.MinZ + box.MaxZ) * .5f);
+            var rooms = room && room.Layout != null ? room.Layout.Rooms : null;
+            return rooms != null && rooms.Count > 0 ? rooms[(index + 1) % rooms.Count] : null;
         }
 
         void SpawnStarterProps()
@@ -343,21 +356,39 @@ namespace Wreckabulary.BossFight
             string[] words = { "BAT", "WALL", "ZAP", "ROPE" };
             for (int i = 0; i < words.Length; i++)
             {
-                var spot = RoomSpot(i);
-                var prop = FurnitureCatalog.Spawn(words[i], spot + new Vector3(i * .6f, 0f, 0f), 0f, transform);
+                var prop = FurnitureCatalog.Spawn(words[i], SpotInRoom(RoomFor(i), i, words.Length), i * 37f, transform);
                 if (prop) props.Add(prop);
             }
         }
 
-        void SpawnClueCrate(int index)
+        /// <summary>
+        /// Shield word letters are hidden in separate breakables across the clued room, with two
+        /// decoys. Smashing is the discovery; one full-word box made the hunt trivial.
+        /// </summary>
+        // @trace MECH-002, MECH-004, AMD-003
+        void SpawnWordCaches(int index)
         {
             string word = names.WordFor(index);
-            var prop = FurnitureCatalog.Spawn(word, RoomSpot(index), 0f, transform);
-            if (!prop) return;
-            prop.Init(word, (rules.FurnitureToughnessBase + rules.FurnitureToughnessPerLetter * word.Length)
-                             * Smashable.HealthPerBreakPower * 1.5f);
-            props.Add(prop);
-            Debug.Log("[BossFight] crate '" + word + "' in " + ClueRoom(index));
+            var box = RoomFor(index);
+            string decoy = names.WordFor((index + 1) % Mathf.Max(1, names.LayerCount));
+
+            var letters = new List<char>(word);
+            if (!string.IsNullOrEmpty(decoy))
+            {
+                letters.Add(decoy[0]);
+                letters.Add(decoy[decoy.Length - 1]);
+            }
+
+            for (int i = 0; i < letters.Count; i++)
+            {
+                string id = letters[i].ToString();
+                var prop = FurnitureCatalog.Spawn(id, SpotInRoom(box, i, letters.Count), i * 53f, transform);
+                if (!prop) continue;
+                prop.Init(id, 18f);
+                props.Add(prop);
+            }
+            clue = word + " is scattered in " + (box != null ? box.Name : "the house") + " - smash everything!";
+            Debug.Log("[BossFight] caches for '" + word + "' in " + (box != null ? box.Name : "house"));
         }
 
         void ClearProps()

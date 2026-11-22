@@ -39,6 +39,28 @@ namespace Wreckabulary
                 if (word == id) return true;
             return false;
         }
+        /// <summary>True for words that craft as mode signals (e.g. boss shield words) with no items.json recipe.</summary>
+        // @trace MECH-003
+        public bool IsSignalWord(string word)
+        {
+            if (SignalWords == null || string.IsNullOrEmpty(word)) return false;
+            string id = word.ToUpperInvariant();
+            foreach (var w in SignalWords) if (w == id) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Single craft gate used by the typed composer and the word wheel. Signal words skip
+        /// the items.json / gear-slot checks but still respect health, dodge and channel state.
+        /// </summary>
+        // @trace MECH-003
+        public bool CanCraft(WordEntry entry)
+        {
+            entry = ResolveRecipe(entry);
+            if (entry == null || IsCrafting || !controller.CanAct || controller.IsDodging || controller.Combat.IsChanneling) return false;
+            return IsSignal(entry) || SummonEffects.CanApply(controller, entry);
+        }
+
         public IReadOnlyCollection<string> ChecklistPlacementWords { get; set; }
         public bool Typed { get; set; }
         IReadOnlyList<WordEntry> Words => WordsOverride ?? (database ? database : GameAssets.I.words).Words;

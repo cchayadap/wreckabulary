@@ -38,7 +38,7 @@
     {
       "level": "info",
       "check": "metaPairing",
-      "message": "2485 个文件与 86 个目录的元数据配对完整",
+      "message": "2486 个文件与 86 个目录的元数据配对完整",
       "path": "",
       "hint": "",
       "files": []
@@ -46,7 +46,7 @@
     {
       "level": "info",
       "check": "guidUnique",
-      "message": "2571 个 GUID 全部唯一",
+      "message": "2572 个 GUID 全部唯一",
       "path": "",
       "hint": "",
       "files": []
@@ -78,7 +78,7 @@
     {
       "level": "info",
       "check": "csharp",
-      "message": "检查了 264 个 C# 脚本",
+      "message": "检查了 265 个 C# 脚本",
       "path": "",
       "hint": "",
       "files": []
@@ -446,7 +446,7 @@
     {
       "level": "info",
       "check": "traceability",
-      "message": "冻结条目 21 个（已确认 21），工程引用覆盖率 21/21 = 100%",
+      "message": "冻结条目 24 个（已确认 24），工程引用覆盖率 24/24 = 100%",
       "path": "C:\\Users\\thoma\\Documents\\GitHub\\wreckabulary\\docs\\design-freeze.json",
       "hint": "",
       "files": []
@@ -454,7 +454,15 @@
     {
       "level": "info",
       "check": "compileLog",
-      "message": "未在日志中发现编译错误（解析 bfbuild.log）",
+      "message": "未在日志中发现编译错误（解析 bfbuild4.log）",
+      "path": "",
+      "hint": "",
+      "files": []
+    },
+    {
+      "level": "info",
+      "check": "compileLog",
+      "message": "日志中有 22 条编译警告（未计入失败）",
       "path": "",
       "hint": "",
       "files": []

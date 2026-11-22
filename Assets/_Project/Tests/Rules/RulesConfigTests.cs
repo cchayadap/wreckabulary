@@ -42,7 +42,9 @@ namespace Wreckabulary.Rules.Tests
                 Assert.Less(r.AoeRadiusFor(layer), 4f, "a 4 m dodge must clear the circle");
             }
             Assert.Greater(r.AoeWarnSeconds, r.SlickDodgeWindow);
-            Assert.AreEqual(2, r.LettersLostOnHit);
+            Assert.AreEqual(1.6f, r.AoeWarnSeconds, "a longer telegraph keeps spelling readable");
+            Assert.AreEqual(2, r.MaxAoe, "at most two circles at once");
+            Assert.AreEqual(1, r.LettersLostOnHit, "a hit still matters but no longer wipes a word");
         }
 
         static float MathfMax(float a, float b) => a > b ? a : b;
