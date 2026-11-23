@@ -19,7 +19,7 @@ namespace Wreckabulary.Rules.Tests
 
         static readonly string[] Shapes = { "arena", "depot", "flagship", "offset", "ribbon" };
         static readonly CourseSurroundingsTier[] Tiers = { CourseSurroundingsTier.High, CourseSurroundingsTier.Low };
-        static readonly string[] Details = { "plaza", "shop", "pier", "fin", "mullion", "parapet", "hut", "stand", "tank", "ac", "antenna", "chimney", "hand", "skeleton", "crane" };
+        static readonly string[] Details = { "plaza", "shop", "awning", "sign", "pane", "pier", "fin", "mullion", "parapet", "hut", "stand", "tank", "ac", "antenna", "chimney", "hand", "skeleton", "crane" };
         static readonly Dictionary<(string, string, CourseSurroundingsTier), CourseSurroundingsResult> built = new Dictionary<(string, string, CourseSurroundingsTier), CourseSurroundingsResult>();
         static SurroundingsKit kit;
         static CourseSurroundingsStyle style;
@@ -131,7 +131,8 @@ namespace Wreckabulary.Rules.Tests
         {
             Assert.IsTrue(Style().HasSkyline);
             var slots = new HashSet<string>(Kit().Pieces.SelectMany(p => p.Slots));
-            foreach (string slot in CourseSkyline.Slots) Assert.IsTrue(slots.Contains(slot), $"{slot} has no backdrop material in the kit");
+            foreach (string slot in CourseSkyline.Slots.Where(s => s != CourseSkyline.LitSlot)) Assert.IsTrue(slots.Contains(slot), $"{slot} has no backdrop material in the kit");
+            Assert.AreEqual("bk_glass_lit", CourseSkyline.LitSlot, "lit panes use the baked warm glass slot every course kit carries");
             Assert.IsFalse(CourseSurroundingsStyle.FromJson(WithoutSkyline(Read(StyleFile)), "bare.json").HasSkyline);
         }
 
@@ -241,6 +242,72 @@ namespace Wreckabulary.Rules.Tests
             Assert.IsTrue(skyline.Boxes.Any(b => b.Part == "face"), "the clock tower has faces");
         }
 
+        static (double hue, double saturation, double value) Hsv(uint rgb)
+        {
+            double r = (rgb >> 16 & 0xFF) / 255.0, g = (rgb >> 8 & 0xFF) / 255.0, b = (rgb & 0xFF) / 255.0;
+            double max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b)), delta = max - min;
+            double hue = delta < 1e-9 ? 0 : max == r ? 60 * (((g - b) / delta + 6) % 6) : max == g ? 60 * ((b - r) / delta + 2) : 60 * ((r - g) / delta + 4);
+            return (hue, max <= 0 ? 0 : delta / max, max);
+        }
+
+        static double Median(IEnumerable<double> values)
+        {
+            var sorted = values.OrderBy(v => v).ToList();
+            return sorted.Count == 0 ? 0 : sorted[sorted.Count / 2];
+        }
+
+        [TestCaseSource(nameof(Shapes))]
+        public void TheCityIsPaintedInRichVariedColours(string shape)
+        {
+            var skyline = Build(shape, CourseSurroundingsTier.High).Skyline;
+            var towers = skyline.Towers;
+            Assert.IsFalse(skyline.Boxes.Any(b => b.Tint == SurroundingsSlots.NoTint), "every box carries its own colour, since the skyline draws on a white base");
+            double walls = Median(towers.Select(t => Hsv(t.Wall).saturation)), panes = Median(towers.Select(t => Hsv(t.Pane).saturation));
+            var hues = towers.SelectMany(t => new[] { t.Wall, t.Pane, t.Accent }).Select(Hsv).Where(c => c.saturation >= .3 && c.value >= .25).Select(c => (int)(c.hue / 30)).Distinct().Count();
+            string summary = $"wall saturation {walls:0.00}, pane saturation {panes:0.00}, {hues} hue families";
+            TestContext.WriteLine(summary);
+            Assert.GreaterOrEqual(walls, .35, summary);
+            Assert.GreaterOrEqual(panes, .35, summary);
+            Assert.GreaterOrEqual(hues, 6, summary);
+            Assert.GreaterOrEqual(towers.Where(t => t.Downtown && t.Facade == "glass").Select(t => t.Pane).Distinct().Count(), 4, "downtown glass towers come in several glass tints");
+            Assert.IsTrue(towers.All(t => t.Accent != t.Wall), "every building has a trim colour that differs from its walls");
+            Assert.IsTrue(towers.All(t => t.Base != t.Wall), "every plinth contrasts with its walls");
+            for (int a = 0; a < towers.Count; a++)
+                for (int b = a + 1; b < towers.Count; b++)
+                {
+                    double dx = towers[a].X - towers[b].X, dz = towers[a].Z - towers[b].Z;
+                    if (dx * dx + dz * dz < 36 * 36) Assert.AreNotEqual(towers[a].Wall, towers[b].Wall, $"the neighbours at ({towers[a].X}, {towers[a].Z}) and ({towers[b].X}, {towers[b].Z}) share a wall colour");
+                }
+        }
+
+        [TestCaseSource(nameof(Shapes))]
+        public void FacadesHaveAccentsShopfrontsAndColouredRoofs(string shape)
+        {
+            var towers = Build(shape, CourseSurroundingsTier.High).Skyline.Towers;
+            var detailed = towers.Where(t => t.Detailed && t.Landmark == null).ToList();
+            Assert.IsNotEmpty(detailed);
+            Assert.IsTrue(towers.All(t => t.Boxes.Where(b => b.Part == "plinth").All(b => b.Tint == t.Base)), "plinths use the building's base colour");
+            Assert.Greater(towers.Count(t => t.Boxes.Any(b => b.Part == "band" && b.Tint == t.Accent) && t.Boxes.Any(b => b.Part == "band" && b.Tint == t.Wall)), towers.Count / 2, "most buildings have accent bands between their wall bands");
+            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "awning")), detailed.Count / 2, "most near buildings have shopfront awnings");
+            Assert.IsTrue(detailed.Any(t => t.Boxes.Any(b => b.Part == "sign")), "some shopfronts carry signs");
+            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "pane")), detailed.Count / 2, "most near buildings have lit or tinted panes in their window rows");
+            Assert.GreaterOrEqual(towers.SelectMany(t => t.Boxes).Where(b => b.Part == "roof").Select(b => b.Tint).Distinct().Count(), 4, "roofs come in copper green, red tile, slate and more");
+            Assert.IsTrue(towers.Where(t => t.Boxes.Any(b => b.Part == "mullion")).Any(t => t.Boxes.Where(b => b.Part == "mullion").Select(b => b.Tint).Distinct().Count() == 2), "curtain wall mullions alternate two colours");
+            var shops = towers.SelectMany(t => t.Boxes).Where(b => b.Part == "shop").ToList();
+            Assert.IsTrue(shops.All(b => b.Slot == CourseSkyline.LitSlot && Hsv(b.Tint).value >= .9 && Hsv(b.Tint).hue >= 30 && Hsv(b.Tint).hue <= 60), "shopfronts glow warm");
+            Assert.IsTrue(towers.SelectMany(t => t.Boxes).Any(b => b.Part == "pane" && b.Slot == CourseSkyline.LitSlot), "some panes are lit");
+            Assert.IsTrue(towers.SelectMany(t => t.Boxes).Any(b => b.Part == "pane" && b.Slot == CourseSkyline.GlassSlot), "some panes are tinted glass");
+        }
+
+        [Test]
+        public void TheSkylineDrawsItsOwnColoursOnAWhiteBase()
+        {
+            foreach (string slot in CourseSkyline.Slots) Assert.That(CourseSkyline.SmoothnessOf(slot), Is.InRange(0f, .35f), slot);
+            Assert.Less(CourseSkyline.WallSmoothness, CourseSkyline.GlassSmoothness);
+            Assert.That(new[] { CourseSkyline.GlowRed, CourseSkyline.GlowGreen, CourseSkyline.GlowBlue }, Is.All.InRange(.1f, .7f), "lit panes glow gently in daylight");
+            Assert.That(CourseSkyline.GlowRed, Is.GreaterThan(CourseSkyline.GlowBlue), "the glow is warm");
+        }
+
         [Test]
         public void SomeDowntownTopsAreStillBeingBuilt()
         {
@@ -316,8 +383,8 @@ namespace Wreckabulary.Rules.Tests
             }
             foreach (var landmark in high.Towers.Where(t => t.Landmark != null))
                 Assert.IsTrue(low.Towers.Any(t => t.X == landmark.X && t.Z == landmark.Z), $"low keeps the {landmark.Landmark}");
-            Assert.IsFalse(low.Boxes.Any(b => Details.Contains(b.Part)), "low has no plazas, ribs, parapets, roof details or cranes");
-            Assert.IsFalse(low.Groups.Any(g => g.Slot == CourseSkyline.MetalSlot), "low draws walls and glass only");
+            Assert.IsFalse(low.Boxes.Any(b => Details.Contains(b.Part)), "low has no plazas, shopfronts, awnings, signs, tinted panes, ribs, parapets, roof details or cranes");
+            Assert.IsFalse(low.Groups.Any(g => g.Slot == CourseSkyline.MetalSlot || g.Slot == CourseSkyline.LitSlot), "low draws walls and glass only");
             Assert.Less(low.Boxes.Count(b => b.Part == "band"), high.Boxes.Count(b => b.Part == "band"), "low has fewer window bands");
         }
 

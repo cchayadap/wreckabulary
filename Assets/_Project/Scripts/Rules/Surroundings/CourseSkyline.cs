@@ -11,11 +11,15 @@ namespace Wreckabulary.Rules.Surroundings
     {
         public const int HighRenderers = 8, HighTriangles = 120000, LowRenderers = 3, LowTriangles = 24000;
         public const float FarClip = 1800f, ViewMargin = 100f, EyeLift = 10f;
-        public const string WallSlot = SurroundingsSlots.Plaster, GlassSlot = "bk_glass_dark", MetalSlot = "bk_metal";
+        public const string WallSlot = SurroundingsSlots.Plaster, GlassSlot = "bk_glass_dark", MetalSlot = "bk_metal", LitSlot = "bk_glass_lit";
+        public const float WallSmoothness = .06f, GlassSmoothness = .3f, MetalSmoothness = .3f;
+        public const float GlowRed = .55f, GlowGreen = .45f, GlowBlue = .3f;
 
-        public static readonly IReadOnlyList<string> Slots = new[] { WallSlot, GlassSlot, MetalSlot };
+        public static readonly IReadOnlyList<string> Slots = new[] { WallSlot, GlassSlot, MetalSlot, LitSlot };
 
         public static float ViewReach => FarClip - ViewMargin;
+
+        public static float SmoothnessOf(string slot) => slot == GlassSlot || slot == LitSlot ? GlassSmoothness : slot == MetalSlot ? MetalSmoothness : WallSmoothness;
 
         public static IReadOnlyList<SkylineMeshPart> Parts(CourseSkylineResult skyline) =>
             CourseSkylineGeometry.Parts(skyline ?? throw new ArgumentNullException(nameof(skyline)));
@@ -46,7 +50,7 @@ namespace Wreckabulary.Rules.Surroundings
         public bool Downtown, Dropped, Crane;
         public string Type, Landmark;
         public CourseFacadeSpec Facade;
-        public uint Wall, Pane;
+        public uint Wall, Pane, Pane2, Accent, Base, Roof, Awning;
         public double Roll, CraneRoll;
     }
 
@@ -109,6 +113,46 @@ namespace Wreckabulary.Rules.Surroundings
             PlaceLandmarks();
             foreach (var lot in Live.ToList())
                 if (FarthestView(lot) > CourseSkyline.ViewReach) lot.Dropped = true;
+            Paint();
+        }
+
+        void Paint()
+        {
+            var painted = new Dictionary<long, CourseSkylineLot>();
+            foreach (var lot in Live.OrderBy(l => l.Key))
+            {
+                var rng = Random("paint", lot.Key);
+                var near = Neighbours(lot.Key, painted).ToList();
+                var facade = lot.Facade;
+                lot.Wall = Choose(facade.Walls, rng.NextDouble(), near.Select(n => n.Wall));
+                lot.Pane = Choose(facade.Panes, rng.NextDouble(), near.Select(n => n.Pane));
+                lot.Pane2 = Choose(facade.Panes, rng.NextDouble(), new[] { lot.Pane });
+                var accents = lot.Landmark != null && spec.Bold.Count > 0 ? spec.Bold : facade.Accents.Count > 0 ? facade.Accents : spec.Accents;
+                lot.Accent = Choose(accents, rng.NextDouble(), near.Select(n => n.Accent).Append(lot.Wall));
+                lot.Base = Choose(spec.Bases, rng.NextDouble(), near.Select(n => n.Base).Append(lot.Wall));
+                lot.Roof = Choose(spec.Roofs, rng.NextDouble(), near.Select(n => n.Roof));
+                lot.Awning = Choose(spec.Awnings, rng.NextDouble(), near.Select(n => n.Awning).Append(lot.Base));
+                painted[lot.Key] = lot;
+            }
+        }
+
+        static IEnumerable<CourseSkylineLot> Neighbours(long key, Dictionary<long, CourseSkylineLot> painted)
+        {
+            for (long di = -1; di <= 1; di++)
+                for (long dj = -1; dj <= 1; dj++)
+                    if ((di != 0 || dj != 0) && painted.TryGetValue(key + di * 100000L + dj, out var lot)) yield return lot;
+        }
+
+        static uint Choose(IReadOnlyList<uint> list, double pick, IEnumerable<uint> avoid)
+        {
+            var taken = new HashSet<uint>(avoid);
+            int start = Math.Min(list.Count - 1, (int)(pick * list.Count));
+            for (int k = 0; k < list.Count; k++)
+            {
+                uint colour = list[(start + k) % list.Count];
+                if (!taken.Contains(colour)) return colour;
+            }
+            return list[start];
         }
 
         void PickHeadings()
@@ -141,7 +185,7 @@ namespace Wreckabulary.Rules.Surroundings
             var rng = Random("lot", key);
             double roll = rng.NextDouble(), tallness = rng.NextDouble(), wide = rng.NextDouble(), deep = rng.NextDouble();
             double jx = rng.NextDouble(), jz = rng.NextDouble(), turn = rng.NextDouble(), look = rng.NextDouble();
-            double wallPick = rng.NextDouble(), panePick = rng.NextDouble(), lowRoll = rng.NextDouble(), outlier = rng.NextDouble();
+            double lowRoll = rng.NextDouble(), outlier = rng.NextDouble();
             double typePick = rng.NextDouble(), craneRoll = rng.NextDouble();
             var cell = centre + new Flat(i * spec.Cell, j * spec.Cell);
             double distance = box.Distance(cell);
@@ -172,11 +216,9 @@ namespace Wreckabulary.Rules.Surroundings
             {
                 Key = key, Lot = shape, Bounds = bounds, At = at, Yaw = yaw, Width = Q(width, .001), Depth = Q(depth, .001), Height = Q(height, .01),
                 Distance = gap, Heading = (at - centre).Yaw, Weight = weight, Core = weight * CoreAt(distance), Cluster = cluster, Downtown = inDown,
-                Type = type.Id, Facade = facade, Wall = Pick(facade.Walls, wallPick), Pane = Pick(facade.Panes, panePick), Roll = lowRoll, CraneRoll = craneRoll,
+                Type = type.Id, Facade = facade, Roll = lowRoll, CraneRoll = craneRoll,
             });
         }
-
-        static uint Pick(IReadOnlyList<uint> list, double pick) => list[Math.Min(list.Count - 1, (int)(pick * list.Count))];
 
         CourseTypeSpec PickType(double downtown, double pick)
         {
@@ -241,7 +283,7 @@ namespace Wreckabulary.Rules.Surroundings
             {
                 double heading = (headings.Count > 0 ? headings[0] : 0) + 180 + (rng.NextDouble() - .5) * NeedleTurn;
                 var needle = Nearest(heading, NeedleReach, Math.Min(spec.LotLimit, 20));
-                if (needle != null) Make(needle, CourseSkylineTypes.Needle, spec.Needle.Height, Array.Empty<string>(), rng);
+                if (needle != null) Make(needle, CourseSkylineTypes.Needle, spec.Needle.Height, spec.NeedleFacades, rng);
             }
             var clockRng = Random("landmark:clock");
             var clock = Nearest(clockRng.NextDouble() * 360, spec.Ring.From + ClockStep, 0);
@@ -267,8 +309,6 @@ namespace Wreckabulary.Rules.Surroundings
             lot.Width = lot.Depth = Q(side, .001);
             lot.Height = Q(Lerp(heights, rng.NextDouble()), .01);
             lot.Facade = facades.Count > 0 ? spec.Facade(facades, rng.NextDouble()) : lot.Facade;
-            lot.Wall = Pick(lot.Facade.Walls, rng.NextDouble());
-            lot.Pane = Pick(lot.Facade.Panes, rng.NextDouble());
         }
 
         double FarthestView(CourseSkylineLot lot)
@@ -371,7 +411,7 @@ namespace Wreckabulary.Rules.Surroundings
                 X = (float)lot.At.X, Z = (float)lot.At.Z, Yaw = (float)lot.Yaw, Width = (float)lot.Width, Depth = (float)lot.Depth,
                 LotWidth = (float)lot.Lot.HalfWidth * 2, LotDepth = (float)lot.Lot.HalfDepth * 2, Ground = Q(groundY, .001), Height = (float)lot.Height,
                 Distance = Q(lot.Distance, .01), Heading = Q(lot.Heading, .01), Weight = Q(lot.Weight, .001), Downtown = lot.Downtown, Detailed = detailed,
-                Crane = lot.Crane, Type = lot.Type, Landmark = lot.Landmark, Facade = lot.Facade.Id, Wall = lot.Wall, Pane = lot.Pane,
+                Crane = lot.Crane, Type = lot.Type, Landmark = lot.Landmark, Facade = lot.Facade.Id, Wall = lot.Wall, Pane = lot.Pane, Accent = lot.Accent, Base = lot.Base,
                 Source = lot.Landmark ?? (lot.Downtown ? "downtown " + lot.Cluster : "ring"),
                 Boxes = new CourseTowerShape(spec, lot, groundY, full, detailed).Build(Random("tower", lot.Key)),
             };
@@ -402,7 +442,7 @@ namespace Wreckabulary.Rules.Surroundings
             {
                 text.Append("tower ").Append(t.Type).Append(' ').Append(t.Landmark ?? "-").Append(t.Crane ? " crane " : " - ").Append(t.Detailed ? "rich " : "plain ")
                     .Append(string.Join(" ", new[] { t.X, t.Z, t.Yaw, t.Width, t.Depth, t.Height, t.Top }.Select(F))).Append(' ')
-                    .Append(t.Facade).Append(' ').Append(Hex(t.Wall)).Append(' ').Append(Hex(t.Pane)).Append(' ').Append(t.Source).Append(' ')
+                    .Append(t.Facade).Append(' ').Append(Hex(t.Wall)).Append(' ').Append(Hex(t.Pane)).Append(' ').Append(Hex(t.Accent)).Append(' ').Append(Hex(t.Base)).Append(' ').Append(t.Source).Append(' ')
                     .Append(t.Boxes.Count).Append(' ').Append(t.Triangles).Append('\n');
             }
             foreach (var g in r.Groups) text.Append("group ").Append(g.Slot).Append(' ').Append(g.Boxes).Append(' ').Append(g.Triangles).Append(' ').Append(g.Renderers).Append('\n');

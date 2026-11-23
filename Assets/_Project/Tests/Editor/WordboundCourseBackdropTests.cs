@@ -79,6 +79,13 @@ namespace Wreckabulary.Tests
                     }
                 pieces.Add(new CourseBackdropKit.Piece { id = piece.Id, mesh = Box(piece), slots = piece.Slots.ToArray() });
             }
+            foreach (string slot in CourseSkyline.Slots)
+                if (!slotMaterials.ContainsKey(slot))
+                {
+                    var slotMaterial = new Material(shader) { name = slot };
+                    created.Add(slotMaterial);
+                    slotMaterials.Add(slot, slotMaterial);
+                }
             kit.Configure(manifests, Text(StyleFile), pieces, slotMaterials.Select(p => new CourseBackdropKit.Slot { id = p.Key, material = p.Value }));
             return kit;
         }
@@ -139,6 +146,17 @@ namespace Wreckabulary.Tests
             Assert.LessOrEqual(renderers.Length, limit);
             Assert.IsTrue(renderers.All(r => r.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.Off), "far towers cast no shadows");
             Assert.IsTrue(renderers.All(r => r.sharedMaterial), "every skyline renderer has its backdrop material");
+            var block = new MaterialPropertyBlock();
+            foreach (var renderer in renderers)
+            {
+                Assert.IsTrue(renderer.HasPropertyBlock(), $"{renderer.name} keeps the shared material untouched and sets its own surface");
+                renderer.GetPropertyBlock(block);
+                Assert.AreEqual(Color.white, block.GetColor("_BaseColor"), $"{renderer.name} draws its vertex colours on a white base");
+                string slot = CourseSkyline.Slots.First(s => renderer.name == s || renderer.name.StartsWith(s + "_", StringComparison.Ordinal));
+                Assert.AreEqual(CourseSkyline.SmoothnessOf(slot), block.GetFloat("_Smoothness"), 1e-4f, renderer.name);
+                Assert.AreEqual(slot == CourseSkyline.LitSlot, block.GetColor("_EmissionColor").maxColorComponent > 0f, $"only the lit panes of {renderer.name} glow");
+            }
+            Assert.IsTrue(Town(root).All(r => !r.HasPropertyBlock()), "the house backdrop keeps the shared bk_* look");
             Assert.IsEmpty(skyline.GetComponentsInChildren<Collider>(true), "the towers have no colliders");
             var footprint = layout.Footprint;
             var corners = new[] { new Vector3(footprint.MinX, footprint.Top + CourseSkyline.EyeLift, footprint.MinZ), new Vector3(footprint.MaxX, footprint.Top + CourseSkyline.EyeLift, footprint.MinZ),

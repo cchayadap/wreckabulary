@@ -10,11 +10,23 @@ namespace Wreckabulary.Art
     {
         public const string RootName = "Skyline";
 
+        static readonly int BaseColorId = Shader.PropertyToID("_BaseColor"), SmoothnessId = Shader.PropertyToID("_Smoothness"), EmissionId = Shader.PropertyToID("_EmissionColor");
+
+        public static MaterialPropertyBlock Surface(string slot)
+        {
+            var block = new MaterialPropertyBlock();
+            block.SetColor(BaseColorId, Color.white);
+            block.SetFloat(SmoothnessId, CourseSkyline.SmoothnessOf(slot));
+            block.SetColor(EmissionId, slot == CourseSkyline.LitSlot ? new Color(CourseSkyline.GlowRed, CourseSkyline.GlowGreen, CourseSkyline.GlowBlue) : Color.black);
+            return block;
+        }
+
         public static GameObject Build(CourseSkylineResult skyline, CourseBackdropKit kit, string name, bool readable, List<Mesh> owned)
         {
             if (skyline == null) throw new ArgumentNullException(nameof(skyline));
             if (!kit) throw new ArgumentNullException(nameof(kit));
             var root = new GameObject(RootName);
+            var surfaces = new Dictionary<string, MaterialPropertyBlock>(StringComparer.Ordinal);
             foreach (var part in CourseSkyline.Parts(skyline))
             {
                 var material = kit.MaterialFor(part.Slot);
@@ -33,6 +45,8 @@ namespace Wreckabulary.Art
                 go.GetComponent<MeshFilter>().sharedMesh = mesh;
                 var renderer = go.GetComponent<MeshRenderer>();
                 renderer.sharedMaterial = material;
+                if (!surfaces.TryGetValue(part.Slot, out var surface)) surfaces[part.Slot] = surface = Surface(part.Slot);
+                renderer.SetPropertyBlock(surface);
                 renderer.shadowCastingMode = ShadowCastingMode.Off;
                 renderer.receiveShadows = true;
                 renderer.lightProbeUsage = LightProbeUsage.Off;

@@ -26,9 +26,9 @@ namespace Wreckabulary.Rules.Surroundings
         public readonly List<CourseTypeSpec> Types = new List<CourseTypeSpec>();
         public CourseLandmarkHeights Supertall, Needle, Clock;
         public float NeedleChance, CraneChance;
-        public List<string> SupertallFacades, ClockFacades;
-        public List<uint> Trim, Caps;
-        public uint Roof, Pavement, Tank, Crane, Face, Hands;
+        public List<string> SupertallFacades, ClockFacades, NeedleFacades;
+        public List<uint> Trim, Caps, Accents, Bases, Roofs, Awnings, Lit, Bold;
+        public uint Roof, Pavement, Tank, Crane, Face, Hands, Metal;
         public List<string> ThinCards;
         public float KeepDowntown, KeepRing;
         public int StoreysPerBand, FarStoreysPerBand;
@@ -54,8 +54,16 @@ namespace Wreckabulary.Rules.Surroundings
                 CraneChance = Fraction(At(At(marks, "crane"), "chance"), .1f),
                 SupertallFacades = Names(At(At(marks, "supertall"), "facades"), false),
                 ClockFacades = Names(At(At(marks, "clock"), "facades"), false),
-                Trim = At(n, "trim").Items.Select(SurroundingsPlan.Tint).ToList(),
-                Caps = At(n, "caps").Items.Select(SurroundingsPlan.Tint).ToList(),
+                NeedleFacades = Names(At(At(marks, "needle"), "facades"), false),
+                Trim = Tints(At(n, "trim")),
+                Caps = Tints(At(n, "caps")),
+                Accents = Tints(At(n, "accents")),
+                Bases = Tints(At(n, "bases")),
+                Roofs = Tints(At(n, "roofs")),
+                Awnings = Tints(At(n, "awnings")),
+                Lit = Tints(At(n, "lit")),
+                Bold = Tints(At(marks, "bold")),
+                Metal = SurroundingsPlan.OptionalTint(At(n, "metal")) ?? SurroundingsSlots.NoTint,
                 Roof = SurroundingsPlan.OptionalTint(At(n, "roof")) ?? SurroundingsSlots.NoTint,
                 Pavement = SurroundingsPlan.OptionalTint(At(n, "pavement")) ?? SurroundingsSlots.NoTint,
                 Tank = SurroundingsPlan.OptionalTint(At(n, "tank")) ?? SurroundingsSlots.NoTint,
@@ -69,6 +77,12 @@ namespace Wreckabulary.Rules.Surroundings
             };
             if (spec.Trim.Count == 0) spec.Trim.Add(SurroundingsSlots.NoTint);
             if (spec.Caps.Count == 0) spec.Caps.Add(spec.Roof);
+            if (spec.Accents.Count == 0) spec.Accents.AddRange(spec.Trim);
+            if (spec.Bases.Count == 0) spec.Bases.AddRange(spec.Trim);
+            if (spec.Roofs.Count == 0) spec.Roofs.Add(spec.Roof);
+            if (spec.Awnings.Count == 0) spec.Awnings.AddRange(spec.Accents);
+            if (spec.Lit.Count == 0) spec.Lit.Add(SurroundingsSlots.NoTint);
+            if (spec.Metal == SurroundingsSlots.NoTint) spec.Metal = spec.Trim[0];
             var facades = At(n, "facades");
             if (facades.IsNull) throw n.Error("needs facades");
             foreach (string key in facades.Keys.OrderBy(k => k, StringComparer.Ordinal)) spec.Facades[key] = CourseFacadeSpec.Read(key, facades[key]);
@@ -81,7 +95,7 @@ namespace Wreckabulary.Rules.Surroundings
                 spec.Types.Add(CourseTypeSpec.Read(key, types[key], spec.Facades));
             }
             if (spec.Types.Sum(t => t.Ring) <= 0 || spec.Types.Sum(t => t.Downtown) <= 0) throw types.Error("needs a ring and a downtown weight above 0");
-            foreach (string id in spec.SupertallFacades.Concat(spec.ClockFacades))
+            foreach (string id in spec.SupertallFacades.Concat(spec.ClockFacades).Concat(spec.NeedleFacades))
                 if (!spec.Facades.ContainsKey(id)) throw marks.Error($"names the facade \"{id}\", which is not in facades");
             float widest = Math.Max(spec.Downtown.Band.Width.max, spec.Ring.Width.max);
             if (widest > spec.LotLimit) throw At(n, "cell").Error($"leaves {spec.LotLimit:0.##} m for a building, less than the widest footprint {widest} m");
@@ -93,6 +107,8 @@ namespace Wreckabulary.Rules.Surroundings
             var list = ids.Count > 0 ? ids : Facades.Keys.ToList();
             return Facades[list[Math.Min(list.Count - 1, (int)(pick * list.Count))]];
         }
+
+        static List<uint> Tints(JsonNode node) => node.IsNull ? new List<uint>() : node.Items.Select(SurroundingsPlan.Tint).ToList();
     }
 
     sealed class CourseSkylineBand
@@ -180,7 +196,7 @@ namespace Wreckabulary.Rules.Surroundings
 
         public string Id;
         public (float min, float max) Glass;
-        public List<uint> Walls, Panes;
+        public List<uint> Walls, Panes, Accents;
         public bool Piers;
         public float Fins;
 
@@ -191,6 +207,7 @@ namespace Wreckabulary.Rules.Surroundings
                 Id = id, Glass = Span(At(n, "glass"), .5f, .1f),
                 Walls = At(n, "walls").Items.Select(SurroundingsPlan.Tint).ToList(),
                 Panes = At(n, "panes").Items.Select(SurroundingsPlan.Tint).ToList(),
+                Accents = Has(n, "accents") ? At(n, "accents").Items.Select(SurroundingsPlan.Tint).ToList() : new List<uint>(),
                 Piers = At(n, "piers").Bool(false), Fins = At(n, "fins").Float(0f),
             };
             if (spec.Fins != 0 && spec.Fins < MinFinSpacing) throw At(n, "fins").Error($"must be 0 or a spacing of at least {MinFinSpacing} m");
