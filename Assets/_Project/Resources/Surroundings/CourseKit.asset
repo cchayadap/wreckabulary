@@ -414,3 +414,5 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: edb350404e11abc4abd84ee2a5287a66, type: 2}
   - id: bk_card
     material: {fileID: 2100000, guid: a4f2f1a655f630e41902adb19a8e35bb, type: 2}
+  - id: bk_skyline
+    material: {fileID: 2100000, guid: bc394f39bc9f351478909a25228896fc, type: 2}

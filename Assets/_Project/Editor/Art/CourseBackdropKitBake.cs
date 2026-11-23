@@ -14,6 +14,7 @@ namespace Wreckabulary.EditorTools
         public const string AssetPath = "Assets/_Project/Resources/" + CourseBackdropKit.ResourcePath + ".asset";
         public const string StylePath = SurroundingsImport.DataFolder + "/Courses/course_city.json";
         public const string ReceiptPath = SurroundingsBake.ReceiptFolder + "/course_kit.json";
+        public const string SkylineShaderPath = "Assets/_Project/Shaders/Skyline.shader";
 
         static readonly (string id, CourseFootprint footprint)[] Samples =
         {
@@ -92,7 +93,34 @@ namespace Wreckabulary.EditorTools
                 if (material.shader.name != BackdropShader.ShaderName) errors.Add($"{SurroundingsBake.MaterialPath(slot)} uses {material.shader.name}, not {BackdropShader.ShaderName}.");
                 slots.Add(new CourseBackdropKit.Slot { id = slot, material = material });
             }
+            var skyline = SkylineMaterial(errors);
+            if (skyline) slots.Add(new CourseBackdropKit.Slot { id = CourseSkyline.SkylineSlot, material = skyline });
             return slots;
+        }
+
+        public static Material SkylineMaterial(List<string> errors)
+        {
+            var shader = AssetDatabase.LoadAssetAtPath<Shader>(SkylineShaderPath);
+            if (!shader) { errors.Add("Missing skyline shader " + SkylineShaderPath); return null; }
+            if (shader.name != CourseSkylineMesh.ShaderName) { errors.Add($"{SkylineShaderPath} is named {shader.name}, not {CourseSkylineMesh.ShaderName}."); return null; }
+            if (ShaderUtil.ShaderHasError(shader))
+            {
+                errors.Add($"{CourseSkylineMesh.ShaderName} has compile errors: " + string.Join("; ", ShaderUtil.GetShaderMessages(shader).Select(m => m.message)));
+                return null;
+            }
+            string path = SurroundingsBake.MaterialPath(CourseSkyline.SkylineSlot);
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            bool fresh = !material;
+            if (fresh) material = new Material(shader);
+            else if (material.shader != shader) material.shader = shader;
+            material.name = CourseSkyline.SkylineSlot;
+            material.SetColor("_BaseColor", Color.white);
+            material.SetColor("_EmissionColor", CourseSkylineMesh.Glow);
+            material.SetFloat("_Smoothness", CourseSkyline.GlassSmoothness);
+            material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+            if (fresh) AssetDatabase.CreateAsset(material, path);
+            else EditorUtility.SetDirty(material);
+            return material;
         }
 
         static IEnumerable<string> Inputs(SurroundingsKit kit, IEnumerable<string> manifests)
@@ -105,6 +133,7 @@ namespace Wreckabulary.EditorTools
                 paths.Add(fbx + ".meta");
             }
             paths.AddRange(SurroundingsImport.Slots.Select(SurroundingsBake.MaterialPath));
+            paths.Add(SkylineShaderPath);
             return paths.Distinct(StringComparer.Ordinal);
         }
 
