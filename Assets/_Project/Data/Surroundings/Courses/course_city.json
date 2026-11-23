@@ -50,31 +50,41 @@
     "downtown": { "clusters": [1, 2], "spread": 36, "second": 110, "core": 0.3, "from": 100, "to": 300, "chance": 1.0, "height": [70, 200], "width": [16, 24] },
     "ring": { "from": 80, "to": 300, "chance": 0.85, "height": [22, 46], "rowRise": 18, "width": [16, 24], "tallChance": 0.15, "tall": [55, 95] },
     "types": {
-      "block": { "ring": 3, "downtown": 0.8, "facades": ["brick", "stone", "glass"] },
-      "loft": { "ring": 2, "downtown": 0, "facades": ["brick"], "height": [14, 26] },
-      "lplan": { "ring": 1.4, "downtown": 0.2, "facades": ["brick", "stone"], "height": [18, 40] },
-      "uplan": { "ring": 1, "downtown": 0.15, "facades": ["brick", "stone"], "height": [18, 36] },
-      "slab": { "ring": 0.8, "downtown": 1, "facades": ["stone", "glass"] },
+      "block": { "ring": 3, "downtown": 0.8, "facades": ["brick", "terracotta", "ochre", "cream", "glass"] },
+      "loft": { "ring": 2, "downtown": 0, "facades": ["brick", "terracotta"], "height": [14, 26] },
+      "lplan": { "ring": 1.4, "downtown": 0.2, "facades": ["brick", "terracotta", "cream", "ochre"], "height": [18, 40] },
+      "uplan": { "ring": 1, "downtown": 0.15, "facades": ["brick", "cream", "ochre"], "height": [18, 36] },
+      "slab": { "ring": 0.8, "downtown": 1, "facades": ["cream", "glass", "ochre"] },
       "deco": { "ring": 0.4, "downtown": 1.4, "facades": ["deco"] },
-      "round": { "ring": 0.3, "downtown": 0.9, "facades": ["glass", "stone"] },
+      "round": { "ring": 0.3, "downtown": 0.9, "facades": ["glass", "cream"] },
       "curtain": { "ring": 0.3, "downtown": 1.8, "facades": ["glass"] },
-      "twin": { "ring": 0, "downtown": 0.35, "facades": ["glass", "stone"] }
+      "twin": { "ring": 0, "downtown": 0.35, "facades": ["glass", "cream"] }
     },
     "landmarks": {
+      "bold": ["#D63A2F", "#2B5CC8", "#E4A82A", "#169078", "#8E3FA0"],
       "supertall": { "height": [220, 260], "facades": ["glass", "deco"] },
-      "needle": { "chance": 0.75, "height": [180, 215] },
-      "clock": { "height": [44, 58], "facades": ["stone"], "face": "#F4F1E6", "hands": "#3A3A3A" },
-      "crane": { "chance": 0.1, "tint": "#F2C230" }
+      "needle": { "chance": 0.75, "height": [180, 215], "facades": ["mast"] },
+      "clock": { "height": [44, 58], "facades": ["cream"], "face": "#F4F1E6", "hands": "#2E2E2E" },
+      "crane": { "chance": 0.1, "tint": "#F2B81F" }
     },
     "facades": {
-      "brick": { "glass": [0.34, 0.44], "piers": true, "walls": ["#B96E5D", "#C47A62", "#A9604F", "#CE9473", "#B5826A", "#9E5A47"], "panes": ["#FFFFFF", "#D8E2E6"] },
-      "deco": { "glass": [0.36, 0.48], "piers": true, "walls": ["#F0DFC0", "#E6D2AE", "#D9B99A", "#EFE6D6", "#E2C7A0"], "panes": ["#D8E2E6", "#FFFFFF"] },
-      "glass": { "glass": [0.72, 0.82], "fins": 3.2, "walls": ["#F2F4F8", "#E2E6EC", "#D5DBE2", "#C7D3DC"], "panes": ["#C8E4FF", "#CFF2E6", "#B4CCE8", "#A8D0D8"] },
-      "stone": { "glass": [0.46, 0.58], "walls": ["#EDDBBA", "#E3CFAE", "#DBDEE6", "#CFD2D6", "#E8E0D0"], "panes": ["#FFFFFF", "#D8E2E6", "#C8E4FF"] }
+      "brick": { "glass": [0.34, 0.44], "piers": true, "walls": ["#9A3B2C", "#B0452F", "#8A3226", "#A9533A", "#BE5E3B", "#7E3A2E"], "panes": ["#3E5F7A", "#4A6E86", "#35546A", "#56788C"], "accents": ["#E8D9B5", "#D9C08F", "#F0E6D0", "#3B4A57"] },
+      "terracotta": { "glass": [0.38, 0.48], "piers": true, "walls": ["#C4653B", "#D27A47", "#B5552F", "#DB8D58", "#C97F4E"], "panes": ["#3D6478", "#2E5468", "#4C7486"], "accents": ["#F0E2C0", "#2F5C6B", "#7E9C6A", "#3A3F52"] },
+      "ochre": { "glass": [0.4, 0.5], "walls": ["#D09B38", "#C58A2C", "#DDB052", "#BC8838", "#E2B866"], "panes": ["#3B5E7E", "#46708A", "#33546E"], "accents": ["#8E3A2A", "#2E4F6B", "#F2E6C6", "#3D6E5A"] },
+      "cream": { "glass": [0.46, 0.58], "walls": ["#E3CC98", "#DCC08A", "#E8D6AC", "#D6BA86", "#E0C9A6"], "panes": ["#356C93", "#2D5878", "#4A7FA6", "#2F6E70"], "accents": ["#2F4E7A", "#3C7A6E", "#A9443A", "#6B4E7E", "#C08A2E"] },
+      "deco": { "glass": [0.36, 0.48], "piers": true, "walls": ["#E0C48A", "#D4AD72", "#C99F64", "#B7C2BE", "#D8B98F", "#9FB3B0"], "panes": ["#3A6B80", "#2C5C6E", "#467A8E", "#36587E"], "accents": ["#C8962E", "#2F6B5E", "#8A3A2C", "#2C4A78"] },
+      "glass": { "glass": [0.72, 0.82], "fins": 3.2, "walls": ["#E6ECF0", "#2D3E5C", "#3A4048", "#2E6466", "#C4CED6", "#5B4E6E"], "panes": ["#2A62A0", "#1F6F7A", "#1E7A57", "#5FA4D8", "#27426F", "#6E6A94", "#4E9C88", "#3F86B8"], "accents": ["#D4A537", "#E6ECF0", "#2D3E5C", "#B5483A"] },
+      "mast": { "glass": [0.3, 0.4], "walls": ["#ECE6D8", "#E4E8EC"], "panes": ["#3F86B8", "#1F6F7A"] }
     },
-    "trim": ["#A49F97", "#8F8A84", "#B8B2A8"],
-    "caps": ["#8FB8A5", "#6E7782", "#B5664E", "#D9B45A"],
-    "roof": "#B0ADA6", "pavement": "#DAD6CC", "tank": "#9C7556",
+    "trim": ["#8F8A84", "#A49F97", "#6E6A66"],
+    "accents": ["#2F4E7A", "#B5483A", "#3C7A6E", "#C8962E"],
+    "bases": ["#3E3A3A", "#4A4F5A", "#5E4636", "#2F4A5A", "#7A2F2B", "#2F5A48"],
+    "roofs": ["#4A5560", "#A5452F", "#4F9A84", "#6F7378", "#7A4A3A"],
+    "caps": ["#4F9A84", "#A5452F", "#3E4A57", "#D4A537", "#5C8FB0"],
+    "awnings": ["#D13B2F", "#2E8B57", "#2C5AA0", "#E3A72F", "#E06A2B", "#7A3E8E", "#1F8A8A", "#F0E6D6"],
+    "lit": ["#FFD36E", "#FFE4A0", "#FFB45A", "#FFF0C8"],
+    "metal": "#555C64",
+    "roof": "#B0ADA6", "pavement": "#CFC9BD", "tank": "#9C7556",
     "thinCards": ["card_roofline_a"],
     "low": { "keepDowntown": 0.5, "keepRing": 0.3, "storeysPerBand": 3 }
   }

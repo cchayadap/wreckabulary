@@ -60,6 +60,8 @@ namespace Wreckabulary.Rules.Surroundings
         public string Facade { get; internal set; }
         public uint Wall { get; internal set; }
         public uint Pane { get; internal set; }
+        public uint Accent { get; internal set; }
+        public uint Base { get; internal set; }
         public string Source { get; internal set; }
         public IReadOnlyList<SkylineBox> Boxes { get; internal set; } = Array.Empty<SkylineBox>();
 

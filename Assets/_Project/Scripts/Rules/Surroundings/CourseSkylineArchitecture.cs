@@ -17,7 +17,8 @@ namespace Wreckabulary.Rules.Surroundings
         const float ClockStage = 7f, ClockRoof = 6.5f, ClockSpire = 5f, ClockFace = 5.2f, FaceDepth = .24f, FaceProud = .12f, HandDepth = .14f;
         const float NeedleShaft = 7f, NeedleUpper = 3.2f, PodLimit = 20f, PodFlare = 3.2f, PodSkirt = 6f, PodGlass = 5f, PodBand = 1.2f, PodRoof = 3f;
         const float CraneRise = 22f, CraneMast = 1.6f, CraneBeam = 1.2f, CraneLine = 12f, SkeletonColumn = .8f, SkeletonSlab = .3f;
-        const int MaxPiers = 4, MaxFins = 7, MaxMullions = 8, SkeletonStoreys = 3;
+        const float AwningHeight = .7f, AwningShare = .78f, SignDepth = .22f, SignLeast = .9f, PaneProud = .3f, PaneLeast = 2.4f, PaneMost = 6f;
+        const int MaxPiers = 4, MaxFins = 7, MaxMullions = 8, SkeletonStoreys = 3, MostPanes = 3;
 
         readonly CourseSkylineSpec spec;
         readonly CourseSkylineLot lot;
@@ -25,9 +26,11 @@ namespace Wreckabulary.Rules.Surroundings
         readonly bool full, rich;
         readonly List<SkylineBox> boxes = new List<SkylineBox>();
         readonly float[] draw = new float[Draws];
+        Pcg32 extra;
         Flat across, along;
         float storey, glass, lotWidth, lotDepth;
-        uint trim, cap;
+        int accentEvery, segment;
+        uint trim, cap, shop;
 
         public CourseTowerShape(CourseSkylineSpec spec, CourseSkylineLot lot, float ground, bool full, bool rich)
         {
@@ -51,6 +54,7 @@ namespace Wreckabulary.Rules.Surroundings
         public List<SkylineBox> Build(Pcg32 rng)
         {
             for (int k = 0; k < Draws; k++) draw[k] = rng.NextFloat();
+            extra = rng;
             along = Flat.Heading(lot.Yaw);
             across = along.Right;
             lotWidth = (float)lot.Lot.HalfWidth * 2;
@@ -58,7 +62,9 @@ namespace Wreckabulary.Rules.Surroundings
             storey = Lerp(spec.Storey, R(1));
             glass = Lerp(lot.Facade.Glass, R(2));
             trim = Pick(spec.Trim, 3);
-            cap = Pick(spec.Caps, 7);
+            cap = lot.Landmark != null ? lot.Accent : Pick(spec.Caps, 7);
+            shop = Pick(spec.Lit, 37);
+            accentEvery = 3 + (int)(R(38) * 4);
             switch (lot.Type)
             {
                 case CourseSkylineTypes.Loft: Loft(); break;
@@ -96,38 +102,78 @@ namespace Wreckabulary.Rules.Surroundings
             if (rich) Add("plaza", CourseSkyline.WallSlot, 0, 0, ground, lotWidth, lotDepth, PlazaHeight, spec.Pavement, true);
         }
 
-        void Plinth(float ox, float oz, float w, float d, float height)
+        void Plinth(float ox, float oz, float w, float d, float height, bool front = true)
         {
-            Add("plinth", CourseSkyline.WallSlot, ox, oz, ground, w + 2 * PlinthOut, d + 2 * PlinthOut, height, trim, true);
-            if (rich) Add("shop", CourseSkyline.GlassSlot, ox, oz, ground + ShopLift, w + 2 * (PlinthOut + ShopProud), d + 2 * (PlinthOut + ShopProud), (height - ShopLift) * ShopShare, lot.Pane, false);
+            Add("plinth", CourseSkyline.WallSlot, ox, oz, ground, w + 2 * PlinthOut, d + 2 * PlinthOut, height, lot.Base, true);
+            if (!rich) return;
+            float shopHeight = (height - ShopLift) * ShopShare, shopTop = ground + ShopLift + shopHeight;
+            Add("shop", CourseSkyline.LitSlot, ox, oz, ground + ShopLift, w + 2 * (PlinthOut + ShopProud), d + 2 * (PlinthOut + ShopProud), shopHeight, shop, false);
+            if (!front) return;
+            float face = d * .5f + PlinthOut + ShopProud, reach = Math.Min(lotDepth * .5f, d * .5f + spec.Plaza) - .02f - face;
+            if (reach <= .05f) return;
+            float span = (w + 2 * PlinthOut) * AwningShare;
+            foreach (int side in new[] { -1, 1 }) Add("awning", CourseSkyline.WallSlot, ox, oz + side * (face + reach * .5f), shopTop, span, reach, AwningHeight, lot.Awning, true);
+            float room = ground + height - (shopTop + AwningHeight) - .15f;
+            if (room < SignLeast || R(39) < .35f) return;
+            float signWidth = Math.Min(w * .4f, 3f + 3f * R(40)), signSide = R(41) < .5f ? -1 : 1, signX = (w * .5f - signWidth * .5f - 1f) * (R(42) * 2 - 1);
+            Add("sign", CourseSkyline.WallSlot, ox + signX, oz + signSide * (d * .5f + PlinthOut + SignDepth * .5f), shopTop + AwningHeight + .1f, signWidth, SignDepth, Math.Min(1.6f, room), Pick(spec.Awnings, 43), true);
         }
 
         int BandEvery(int storeys) => rich ? storeys : full ? spec.FarStoreysPerBand * storeys : spec.StoreysPerBand * storeys;
 
         void Floors(float ox, float oz, float y, float w, float d, float height, int sides = 4, int every = 1, float share = -1f, bool ribs = true)
         {
-            Add("glass", CourseSkyline.GlassSlot, ox, oz, y, w - 2 * spec.Inset, d - 2 * spec.Inset, height, lot.Pane, false, sides);
+            uint pane = segment % 2 == 1 ? lot.Pane2 : lot.Pane;
+            Add("glass", CourseSkyline.GlassSlot, ox, oz, y, w - 2 * spec.Inset, d - 2 * spec.Inset, height, pane, false, sides);
             int storeys = Math.Max(2, (int)Math.Round(height / storey));
             int per = BandEvery(every);
             int bands = Math.Max(1, (storeys + per - 1) / per);
             float step = height / bands, band = step * (share > 0 ? share : 1 - glass);
-            for (int k = 0; k < bands; k++) Add("band", CourseSkyline.WallSlot, ox, oz, y + k * step, w, d, band, lot.Wall, false, sides);
+            int accent = Math.Max(2, (int)Math.Round(accentEvery / (float)per));
+            for (int k = 0; k < bands; k++)
+                Add("band", CourseSkyline.WallSlot, ox, oz, y + k * step, w, d, band, k % accent == accent - 1 || (k == 0 && bands > 2) ? lot.Accent : lot.Wall, false, sides);
+            if (rich && sides == 4 && bands >= 3) Panes(ox, oz, y, w, d, step, band, bands, pane);
             if (!ribs || !rich || sides != 4) return;
-            if (lot.Facade.Piers) Ribs("pier", ox, oz, y, w, d, height, PierWidth, PierSpacing, MaxPiers, true);
-            if (lot.Facade.Fins > 0) Ribs("fin", ox, oz, y, w, d, height, FinWidth, lot.Facade.Fins, MaxFins, false);
+            if (lot.Facade.Piers) Ribs("pier", ox, oz, y, w, d, height, PierWidth, PierSpacing, MaxPiers, true, lot.Wall, lot.Wall);
+            if (lot.Facade.Fins > 0) Ribs("fin", ox, oz, y, w, d, height, FinWidth, lot.Facade.Fins, MaxFins, false, lot.Wall, lot.Accent);
         }
 
-        void Ribs(string part, float ox, float oz, float y, float w, float d, float height, float width, float spacing, int most, bool corners)
+        void Panes(float ox, float oz, float y, float w, float d, float step, float band, int bands, uint pane)
+        {
+            int count = 1 + (int)(extra.NextFloat() * MostPanes);
+            float depth = spec.Inset * PaneProud * 2 + .02f, inner = spec.Inset - depth * .5f + .01f;
+            for (int n = 0; n < count; n++)
+            {
+                int face = (int)(extra.NextFloat() * 4) % 4, row = 1 + (int)(extra.NextFloat() * (bands - 1)) % (bands - 1);
+                float t = extra.NextFloat(), size = PaneLeast + (PaneMost - PaneLeast) * extra.NextFloat();
+                uint other = pane == lot.Pane ? lot.Pane2 : lot.Pane;
+                bool lit = extra.NextFloat() < .65f || other == pane;
+                uint tint = lit ? Pick(spec.Lit, 44 + n) : other;
+                string slot = lit ? CourseSkyline.LitSlot : CourseSkyline.GlassSlot;
+                bool onZ = face < 2;
+                float span = (onZ ? w : d) - 2 * spec.Inset - 1f, width = Math.Min(size, span);
+                if (width < PaneLeast) continue;
+                float along = (span - width) * (t - .5f), offset = (face % 2 == 0 ? -1 : 1) * ((onZ ? d : w) * .5f - inner);
+                float py = y + (row - 1) * step + band, height = step - band;
+                if (height <= .2f) continue;
+                if (onZ) Add("pane", slot, ox + along, oz + offset, py, width, depth, height, tint, false);
+                else Add("pane", slot, ox + offset, oz + along, py, depth, width, height, tint, false);
+            }
+        }
+
+        void Ribs(string part, float ox, float oz, float y, float w, float d, float height, float width, float spacing, int most, bool corners, uint tint, uint second)
         {
             float rib = spec.Inset + RibProud * 2;
             foreach (int side in new[] { -1, 1 })
             {
                 float faceZ = side * (d * .5f + RibProud - rib * .5f), faceX = side * (w * .5f + RibProud - rib * .5f);
-                foreach (float t in Spots(w, spacing, most)) Add(part, CourseSkyline.WallSlot, ox + t, oz + faceZ, y, width, rib, height, lot.Wall, false);
-                foreach (float t in Spots(d, spacing, most)) Add(part, CourseSkyline.WallSlot, ox + faceX, oz + t, y, rib, width, height, lot.Wall, false);
+                int n = 0;
+                foreach (float t in Spots(w, spacing, most)) Add(part, CourseSkyline.WallSlot, ox + t, oz + faceZ, y, width, rib, height, n++ % 2 == 0 ? tint : second, false);
+                n = 0;
+                foreach (float t in Spots(d, spacing, most)) Add(part, CourseSkyline.WallSlot, ox + faceX, oz + t, y, rib, width, height, n++ % 2 == 0 ? tint : second, false);
                 if (!corners) continue;
                 foreach (int other in new[] { -1, 1 })
-                    Add(part, CourseSkyline.WallSlot, ox + side * (w * .5f + RibProud - CornerPier * .5f), oz + other * (d * .5f + RibProud - CornerPier * .5f), y, CornerPier, CornerPier, height, lot.Wall, false);
+                    Add(part, CourseSkyline.WallSlot, ox + side * (w * .5f + RibProud - CornerPier * .5f), oz + other * (d * .5f + RibProud - CornerPier * .5f), y, CornerPier, CornerPier, height, tint, false);
             }
         }
 
@@ -139,8 +185,8 @@ namespace Wreckabulary.Rules.Surroundings
 
         void Roof(float ox, float oz, float y, float w, float d, int sides = 4)
         {
-            Add("roof", CourseSkyline.WallSlot, ox, oz, y, w, d, RoofSlab, spec.Roof, true, sides);
-            if (rich) Add("parapet", CourseSkyline.WallSlot, ox, oz, y, w + 2 * ParapetOut, d + 2 * ParapetOut, ParapetHeight, trim, false, sides);
+            Add("roof", CourseSkyline.WallSlot, ox, oz, y, w, d, RoofSlab, lot.Roof, true, sides);
+            if (rich) Add("parapet", CourseSkyline.WallSlot, ox, oz, y, w + 2 * ParapetOut, d + 2 * ParapetOut, ParapetHeight, lot.Accent, false, sides);
         }
 
         List<float> Shares(int count)
@@ -186,10 +232,12 @@ namespace Wreckabulary.Rules.Surroundings
                     d = nd;
                 }
                 float height = shares[s] * free;
+                segment = s;
                 floors(ox, oz, y, w, d, height);
                 Roof(ox, oz, y + height, w, d, sides);
                 y += height + RoofSlab;
             }
+            segment = 0;
             return (y, ox, oz, w, d);
         }
 
@@ -210,8 +258,8 @@ namespace Wreckabulary.Rules.Surroundings
             if (masonry && style < .22f) { Add("pyramid", CourseSkyline.WallSlot, ox, oz, y, w, d, Math.Min(w, d) * .45f, cap, false, 4, 0); return; }
             if (lot.Downtown && H >= 60 && style < .6f)
             {
-                Add("crown", CourseSkyline.WallSlot, ox, oz, y, w * .62f, d * .62f, 3.5f, lot.Wall, true);
-                Add("crown", CourseSkyline.WallSlot, ox, oz, y + 3.5f, w * .36f, d * .36f, 4f, trim, true);
+                Add("crown", CourseSkyline.WallSlot, ox, oz, y, w * .62f, d * .62f, 3.5f, lot.Accent, true);
+                Add("crown", CourseSkyline.WallSlot, ox, oz, y + 3.5f, w * .36f, d * .36f, 4f, cap, true);
                 Antenna(ox, oz, y + 7.5f);
                 return;
             }
@@ -221,7 +269,7 @@ namespace Wreckabulary.Rules.Surroundings
 
         void Antenna(float ox, float oz, float y)
         {
-            if (rich && R(25) < .5f) Add("antenna", CourseSkyline.MetalSlot, ox, oz, y, AntennaSize, AntennaSize, 8 + 10 * R(26), SurroundingsSlots.NoTint, true);
+            if (rich && R(25) < .5f) Add("antenna", CourseSkyline.MetalSlot, ox, oz, y, AntennaSize, AntennaSize, 8 + 10 * R(26), spec.Metal, true);
         }
 
         List<(float x, float z)> Quadrants(float ox, float oz, float w, float d)
@@ -244,16 +292,16 @@ namespace Wreckabulary.Rules.Surroundings
             {
                 var spot = quads[1 + k % 2];
                 if (k == 2 && d * .25f + AcDepth * 1.9f > d * .5f - ParapetOut) continue;
-                Add("ac", CourseSkyline.MetalSlot, spot.x, spot.z + (k == 2 ? AcDepth * 1.4f : 0), y, AcWidth, AcDepth, AcHeight, SurroundingsSlots.NoTint, true);
+                Add("ac", CourseSkyline.MetalSlot, spot.x, spot.z + (k == 2 ? AcDepth * 1.4f : 0), y, AcWidth, AcDepth, AcHeight, spec.Metal, true);
             }
         }
 
         void Tank(float x, float z, float y)
         {
             if (!full) return;
-            Add("stand", CourseSkyline.MetalSlot, x, z, y, StandSize, StandSize, StandHeight, SurroundingsSlots.NoTint, true);
+            Add("stand", CourseSkyline.MetalSlot, x, z, y, StandSize, StandSize, StandHeight, spec.Metal, true);
             Add("tank", CourseSkyline.WallSlot, x, z, y + StandHeight, TankSize, TankSize, TankHeight, spec.Tank, false, 8);
-            Add("tank", CourseSkyline.WallSlot, x, z, y + StandHeight + TankHeight, TankSize, TankSize, TankCap, spec.Roof, false, 8, 0);
+            Add("tank", CourseSkyline.WallSlot, x, z, y + StandHeight + TankHeight, TankSize, TankSize, TankCap, lot.Roof, false, 8, 0);
         }
 
         void Loft()
@@ -284,7 +332,7 @@ namespace Wreckabulary.Rules.Surroundings
             float body = H - plinth - RoofSlab, y = ground + plinth;
             foreach (var wing in wings)
             {
-                Plinth(wing.x, wing.z, wing.w, wing.d, plinth);
+                Plinth(wing.x, wing.z, wing.w, wing.d, plinth, false);
                 Floors(wing.x, wing.z, y, wing.w, wing.d, body);
                 Roof(wing.x, wing.z, y + body, wing.w, wing.d);
             }
@@ -320,8 +368,8 @@ namespace Wreckabulary.Rules.Surroundings
 
         void Steps(float y, float w, float spire)
         {
-            Add("crown", CourseSkyline.WallSlot, 0, 0, y, w * .7f, w * .7f, 4f, lot.Wall, true);
-            Add("crown", CourseSkyline.WallSlot, 0, 0, y + 4f, w * .48f, w * .48f, 4f, trim, true);
+            Add("crown", CourseSkyline.WallSlot, 0, 0, y, w * .7f, w * .7f, 4f, lot.Accent, true);
+            Add("crown", CourseSkyline.WallSlot, 0, 0, y + 4f, w * .48f, w * .48f, 4f, lot.Wall, true);
             Add("crown", CourseSkyline.WallSlot, 0, 0, y + 8f, w * .3f, w * .3f, 3f, cap, true);
             Add("spire", CourseSkyline.WallSlot, 0, 0, y + 11f, SpireBase, SpireBase, spire, cap, false, 4, 0);
         }
@@ -335,18 +383,18 @@ namespace Wreckabulary.Rules.Surroundings
             var top = Stack(s, s, ground + plinth, H - plinth, SegmentCount(H - plinth, 3), .8f, true, sides, (ox, oz, y, sw, sd, h) => Floors(ox, oz, y, sw, sd, h, sides));
             if (R(24) < .5f)
             {
-                Add("crown", CourseSkyline.WallSlot, 0, 0, top.y, top.w, top.w, 6f, lot.Wall, true, sides, .55f);
+                Add("crown", CourseSkyline.WallSlot, 0, 0, top.y, top.w, top.w, 6f, lot.Accent, true, sides, .55f);
                 Antenna(0, 0, top.y + 6f);
                 return;
             }
-            Add("dome", CourseSkyline.GlassSlot, 0, 0, top.y, top.w * .9f, top.w * .9f, 5f, lot.Pane, false, sides, .6f);
-            Add("dome", CourseSkyline.GlassSlot, 0, 0, top.y + 5f, top.w * .54f, top.w * .54f, 4f, lot.Pane, false, sides, 0);
+            Add("dome", CourseSkyline.GlassSlot, 0, 0, top.y, top.w * .9f, top.w * .9f, 5f, lot.Pane2, false, sides, .6f);
+            Add("dome", CourseSkyline.GlassSlot, 0, 0, top.y + 5f, top.w * .54f, top.w * .54f, 4f, cap, false, sides, 0);
         }
 
         void CurtainFloors(float ox, float oz, float y, float w, float d, float height)
         {
             Floors(ox, oz, y, w, d, height, 4, 3, CurtainBandShare, false);
-            if (rich) Ribs("mullion", ox, oz, y, w, d, height, MullionWidth, MullionSpacing, MaxMullions, false);
+            if (rich) Ribs("mullion", ox, oz, y, w, d, height, MullionWidth, MullionSpacing, MaxMullions, false, lot.Wall, lot.Accent);
         }
 
         void Curtain()
@@ -359,10 +407,10 @@ namespace Wreckabulary.Rules.Surroundings
             if (R(24) < .5f)
             {
                 bool point = R(30) < .5f;
-                Add("pyramid", CourseSkyline.GlassSlot, top.ox, top.oz, top.y, top.w, top.d, Math.Min(top.w, top.d) * (point ? .7f : .4f), lot.Pane, !point, 4, point ? 0 : .3f);
+                Add("pyramid", CourseSkyline.GlassSlot, top.ox, top.oz, top.y, top.w, top.d, Math.Min(top.w, top.d) * (point ? .7f : .4f), lot.Pane2, !point, 4, point ? 0 : .3f);
                 return;
             }
-            Add("crown", CourseSkyline.WallSlot, top.ox, top.oz, top.y, top.w * .8f, top.d * .8f, 5f, lot.Wall, true, 4, .7f);
+            Add("crown", CourseSkyline.WallSlot, top.ox, top.oz, top.y, top.w * .8f, top.d * .8f, 5f, lot.Accent, true, 4, .7f);
             Antenna(top.ox, top.oz, top.y + 5f);
         }
 
@@ -375,21 +423,23 @@ namespace Wreckabulary.Rules.Surroundings
             bool pointed = R(24) < .5f;
             foreach (float x in new[] { -shift, shift })
             {
+                segment = x > 0 ? 1 : 0;
                 Floors(x, 0, y, t, t, body);
                 Roof(x, 0, y + body, t, t);
                 if (pointed) Add("pyramid", CourseSkyline.WallSlot, x, 0, y + body + RoofSlab, t, t, t * 1.2f, cap, false, 4, 0);
                 else
                 {
-                    Add("crown", CourseSkyline.WallSlot, x, 0, y + body + RoofSlab, t * .6f, t * .6f, 4f, trim, true);
+                    Add("crown", CourseSkyline.WallSlot, x, 0, y + body + RoofSlab, t * .6f, t * .6f, 4f, lot.Accent, true);
                     Add("spire", CourseSkyline.WallSlot, x, 0, y + body + RoofSlab + 4f, SpireBase * .8f, SpireBase * .8f, 10 + 8 * R(36), cap, false, 4, 0);
                 }
             }
+            segment = 0;
             float span = w - 2 * t;
             if (span <= 1) return;
             float lift = ground + height * BridgeLift;
-            Add("bridge", CourseSkyline.WallSlot, 0, 0, lift - RoofSlab, span + .4f, t * .5f, RoofSlab, lot.Wall, true);
-            Add("bridge", CourseSkyline.GlassSlot, 0, 0, lift, span + .4f, t * .45f, storey * 2, lot.Pane, false);
-            Add("bridge", CourseSkyline.WallSlot, 0, 0, lift + storey * 2, span + .4f, t * .5f, RoofSlab, lot.Wall, true);
+            Add("bridge", CourseSkyline.WallSlot, 0, 0, lift - RoofSlab, span + .4f, t * .5f, RoofSlab, lot.Accent, true);
+            Add("bridge", CourseSkyline.GlassSlot, 0, 0, lift, span + .4f, t * .45f, storey * 2, lot.Pane2, false);
+            Add("bridge", CourseSkyline.WallSlot, 0, 0, lift + storey * 2, span + .4f, t * .5f, RoofSlab, lot.Accent, true);
         }
 
         void Supertall()
@@ -404,7 +454,7 @@ namespace Wreckabulary.Rules.Surroundings
             var top = design == 1
                 ? Stack(s, s, ground + plinth, body, 3, .8f, true, 8, (ox, oz, y, sw, sd, h) => Floors(ox, oz, y, sw, sd, h, 8))
                 : Stack(s, s, ground + plinth, body, 5, .82f, true, 4, CurtainFloors);
-            Add("crown", CourseSkyline.WallSlot, 0, 0, top.y, top.w, top.w, crown, lot.Wall, true, sides, .55f);
+            Add("crown", CourseSkyline.WallSlot, 0, 0, top.y, top.w, top.w, crown, lot.Accent, true, sides, .55f);
             Add("spire", CourseSkyline.WallSlot, 0, 0, top.y + crown, SpireBase * 1.4f, SpireBase * 1.4f, spire, cap, false, sides, 0);
         }
 
@@ -416,7 +466,7 @@ namespace Wreckabulary.Rules.Surroundings
             Plinth(0, 0, s + 4f, s + 4f, plinth);
             Floors(0, 0, y, s, s, shaft);
             float ys = y + shaft;
-            Add("stage", CourseSkyline.WallSlot, 0, 0, ys, stage, stage, ClockStage, trim, true);
+            Add("stage", CourseSkyline.WallSlot, 0, 0, ys, stage, stage, ClockStage, lot.Accent, true);
             float yc = ys + (ClockStage - ClockFace) * .5f, mid = yc + ClockFace * .5f, face = stage * .5f + FaceProud - FaceDepth * .5f, hand = face + FaceDepth * .5f + HandDepth * .5f;
             foreach (int side in new[] { -1, 1 })
             {
@@ -439,14 +489,14 @@ namespace Wreckabulary.Rules.Surroundings
             Plaza();
             Plinth(0, 0, s, s, plinth);
             Add("shaft", CourseSkyline.WallSlot, 0, 0, ground + plinth, NeedleShaft, NeedleShaft, shaftTop - ground - plinth, lot.Wall, false, 8, .6f);
-            Add("pod", CourseSkyline.WallSlot, 0, 0, shaftTop, pod / PodFlare, pod / PodFlare, PodSkirt, lot.Wall, false, 12, PodFlare);
+            Add("pod", CourseSkyline.WallSlot, 0, 0, shaftTop, pod / PodFlare, pod / PodFlare, PodSkirt, lot.Accent, false, 12, PodFlare);
             Add("pod", CourseSkyline.GlassSlot, 0, 0, shaftTop + PodSkirt, pod, pod, PodGlass, lot.Pane, false, 12);
-            Add("pod", CourseSkyline.WallSlot, 0, 0, shaftTop + PodSkirt + PodGlass, pod, pod, PodBand, lot.Wall, false, 12);
+            Add("pod", CourseSkyline.WallSlot, 0, 0, shaftTop + PodSkirt + PodGlass, pod, pod, PodBand, lot.Accent, false, 12);
             float roof = shaftTop + PodSkirt + PodGlass + PodBand;
-            Add("pod", CourseSkyline.WallSlot, 0, 0, roof, pod, pod, PodRoof, trim, true, 12, .45f);
+            Add("pod", CourseSkyline.WallSlot, 0, 0, roof, pod, pod, PodRoof, lot.Accent, true, 12, .45f);
             Add("shaft", CourseSkyline.WallSlot, 0, 0, roof + PodRoof, NeedleUpper, NeedleUpper, upper, lot.Wall, false, 8, .7f);
             float mast = roof + PodRoof + upper;
-            Add("mast", CourseSkyline.MetalSlot, 0, 0, mast, 1.2f, 1.2f, ground + H - mast, SurroundingsSlots.NoTint, false, 4, 0);
+            Add("mast", CourseSkyline.MetalSlot, 0, 0, mast, 1.2f, 1.2f, ground + H - mast, spec.Metal, false, 4, 0);
         }
 
         void Construction(float y, float ox, float oz, float w, float d)
@@ -461,7 +511,7 @@ namespace Wreckabulary.Rules.Surroundings
             Add("crane", CourseSkyline.WallSlot, mastX, oz + CraneMast, jib - 3.5f, 2.2f, 2f, 2.2f, spec.Crane, true);
             Add("crane", CourseSkyline.WallSlot, 0, oz, jib, span, CraneBeam, CraneBeam, spec.Crane, true);
             Add("crane", CourseSkyline.WallSlot, -span * .5f + 1.4f, oz, jib - 2f, 2.4f, 1.8f, 2f, trim, true);
-            Add("crane", CourseSkyline.MetalSlot, span * .5f - 1.5f, oz, jib - CraneLine, .15f, .15f, CraneLine, SurroundingsSlots.NoTint, false);
+            Add("crane", CourseSkyline.MetalSlot, span * .5f - 1.5f, oz, jib - CraneLine, .15f, .15f, CraneLine, spec.Metal, false);
         }
     }
 }
