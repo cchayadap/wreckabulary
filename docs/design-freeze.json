@@ -1,12 +1,26 @@
 {
-  "version": 2,
+  "version": 8,
   "status": "frozen",
   "frozenAt": "2026-11-22",
-  "amendedAt": "2026-11-22",
+  "amendedAt": "2026-11-23",
   "amendments": [
     { "id": "AMD-001", "reason": "playtest: boss appeared unhittable", "change": "BossController now has a kinematic Rigidbody + hitbox so PlayerCombat.Strike can deliver IDamageable damage; shielded hits show a SHIELDED! popup.", "affects": ["MECH-009"] },
     { "id": "AMD-002", "reason": "playtest: red circles too subtle and interrupted spelling", "change": "Filled translucent disc + thicker ring, circles land outside the player's feet, warning 1.6s, max 2 circles, slower cooldowns, 1 letter lost on hit, no letter loss while actively spelling.", "affects": ["MECH-006", "NUM-003", "ART-004"] },
-    { "id": "AMD-003", "reason": "playtest: one full-word box was not fun", "change": "Shield words are scattered as one smashable per letter across the clued room with two decoy caches; starter props are spread out too.", "affects": ["MECH-004", "LEV-001"] }
+    { "id": "AMD-003", "reason": "playtest: one full-word box was not fun", "change": "Shield words are scattered as one smashable per letter across the clued room with two decoy caches; starter props are spread out too.", "affects": ["MECH-004", "LEV-001"] },
+    { "id": "AMD-004", "reason": "user: letters must come out of real items, not letter boxes", "change": "Caches are recognisable props (BOOK, BAT, BED, SOFA, CLOCK, LAMP, MUG, SPEAR...). Smashable.Drops separates a prop's look from the letters it releases.", "affects": ["MECH-004", "AMD-003"] },
+    { "id": "AMD-005", "reason": "user: a CLOCK dropping only C is abnormal", "change": "No prop has a forced single-letter drop. Cache props are chosen by greedy set cover so their OWN full letters contain the shield word (CLOCK drops C-L-O-C-K, CAKE drops C-A-K-E). Starter props also drop their own words. Cover is verified by tests for CALC/ULA/TOR.", "affects": ["MECH-004", "AMD-004"] },
+    { "id": "AMD-006", "reason": "user: prepare phase needs a visible countdown and a hidden boss", "change": "Prepare is fixed at 20 s, shown in the top-centre countdown chip and the instruction line. During prepare the boss model, collider, shield rings, name and shield HUD are hidden; the HUD subtitle reads ??? until the countdown ends.", "affects": ["MECH-001", "UI-001", "NUM-005"] },
+    { "id": "AMD-007", "reason": "user: more pressure after reveal", "change": "Reveal starts AoE and a random-room supply drop every 30 s (DeliverySpawner.Drop with Layout wired). AoE spawns a random burst of 1-3 circles per cooldown, capped by maxAoe 3.", "affects": ["MECH-006", "NUM-003"] },
+    { "id": "AMD-008", "reason": "user: boss should summon chasing mini calculators", "change": "Minis spawn from 14 s then every 18 s, max 2 alive. Touch deals 0 HP damage, 0.18 s stagger, 3.5 knockback and 1 letter; a per-player 3 s cooldown, mini recoil and an already-staggered guard prevent chain stuns. Melee smashing one bursts CALC letters.", "affects": ["MECH-006", "NUM-003", "MECH-005"] },
+    { "id": "AMD-009", "reason": "user: shield break was not clear", "change": "Layer cracks and final break now show a large centre-screen flash, floating banners, Craft_Ring particles, stronger shake, boss wobble and a GO chip; SHIELDED! feedback remains for blocked hits.", "affects": ["MECH-003", "UI-001"] },
+    { "id": "AMD-010", "reason": "user: keep the pressure after the shield breaks", "change": "In the Hit phase the boss keeps normal circles and minis and adds a JUMP SMASH circle every 5 s: larger (2.4 m), short 1 s warning, 18 damage, lands close to the player so movement is required.", "affects": ["MECH-009", "MECH-006", "NUM-003"] },
+    { "id": "AMD-011", "reason": "user: five items means the WHOLE house, not five extra props on top of the authored furniture", "change": "BossFight.Restart clears the authored furniture snapshot with ResetRoom(furnish: false). The five director-spawned props are the only smashables in the house when prepare begins.", "affects": ["AMD-006", "LEV-001"] },
+    { "id": "AMD-012", "reason": "user: a flat circle on the floor is not a boss jump smash", "change": "The boss physically leaps along an arc to the telegraphed landing spot during the warning, tilts in flight and squashes on impact; its hitbox travels with it. The circle marks the boss's landing point.", "affects": ["AMD-010", "MECH-009", "ART-002"] },
+    { "id": "AMD-013", "reason": "user: add countdowns to all timed events and say where deliveries land", "change": "Supply drops, mini waves and jump smashes all show a top-chip 3-2-1 (eventWarnSeconds = 3). At fire the chip switches to a GO line naming the room/area; the smash announces itself when the marker appears.", "affects": ["AMD-007", "AMD-008", "AMD-010", "UI-001"] },
+    { "id": "AMD-014", "reason": "user: minis die in one hit and drop the real shield word", "change": "Mini calculators have 42 HP and a world-space health bar; per-swing damage is capped at half their max HP so at least two hits are needed. Breaking one bursts exactly one random A-Z letter instead of CALC. Touch never removes player HP.", "affects": ["AMD-008", "NUM-003"] },
+    { "id": "AMD-015", "reason": "user: delivery spot must change every game", "change": "The drop point is chosen during the countdown via DeliverySpawner.PickDropPoint and delivered at that exact point via DropAt. Restart reseeds the RNG stream from the clock plus a run counter, so rooms differ between games.", "affects": ["AMD-007", "AMD-013"] },
+    { "id": "AMD-016", "reason": "user: the fight was too difficult after the latest changes", "change": "Loosen the pressure: mini calculators first appear 25 s into each DropAndPrevent phase (was 14 s) and then every 40 s (was 18 s); the post-shield jump smash cooldown is 12 s (was 5 s). Countdowns, ranges and damage are unchanged.", "affects": ["AMD-008", "AMD-010", "AMD-013", "NUM-003"] },
+    { "id": "AMD-017", "reason": "user: the loosening made the hit phase too boring", "change": "Bring some pressure back: mini repeat interval is 30 s (was 40 s; first wave stays at 25 s) and the post-shield jump smash cooldown is 6 s (was 12 s).", "affects": ["AMD-016", "AMD-008", "AMD-010"] }
   ],
   "project": "Wreckabulary - Boss Fight",
   "items": [
@@ -33,6 +47,20 @@
     { "id": "AUD-001", "type": "audio", "name": "Boss-mode audio cues built from existing GameFeedback cues", "confirmed": true },
     { "id": "AMD-001", "type": "mechanic", "name": "Boss has a kinematic rigidbody and hitbox so melee damage reaches IDamageable", "confirmed": true },
     { "id": "AMD-002", "type": "mechanic", "name": "Readable filled AoE telegraph that lands outside the feet and never interrupts spelling", "confirmed": true },
-    { "id": "AMD-003", "type": "mechanic", "name": "Shield letters scattered as individual smashable caches with decoys", "confirmed": true }
+    { "id": "AMD-003", "type": "mechanic", "name": "Shield letters scattered as individual smashable caches with decoys", "confirmed": true },
+    { "id": "AMD-004", "type": "mechanic", "name": "Caches are recognisable items (BOOK/BAT/BED/SOFA/etc.) whose drops are decoupled from their visible word", "confirmed": true },
+    { "id": "AMD-005", "type": "mechanic", "name": "Every breakable releases its own complete letters; prop carriers are selected to cover each shield word naturally", "confirmed": true },
+    { "id": "AMD-006", "type": "mechanic", "name": "20 s prepare countdown on the top banner; boss model, name and shield HUD hidden until reveal; only 5 starter props in the whole house", "confirmed": true },
+    { "id": "AMD-007", "type": "mechanic", "name": "Reveal starts AoE plus one random-room supply drop every 30 s; AoE bursts randomly spawn 1-3 circles", "confirmed": true },
+    { "id": "AMD-008", "type": "mechanic", "name": "Chasing mini calculators: zero HP damage, knockback, 0.18 s stagger, one letter, anti-chain cooldown; smashable for CALC letters", "confirmed": true },
+    { "id": "AMD-009", "type": "ui", "name": "Unmistakable shield-break feedback: centre flash, banners, particles, shake, boss wobble and GO chip", "confirmed": true },
+    { "id": "AMD-010", "type": "mechanic", "name": "Post-break jump smash every 5 s alongside continued circles and minis", "confirmed": true },
+    { "id": "AMD-011", "type": "mechanic", "name": "Exactly five smashable props in the whole house at start; authored furniture is cleared for this mode", "confirmed": true },
+    { "id": "AMD-012", "type": "mechanic", "name": "Jump smash is a real arced boss leap onto the telegraphed landing spot with squash impact", "confirmed": true },
+    { "id": "AMD-013", "type": "ui", "name": "3-2-1 countdown for supply drops, mini waves and jump smashes, with the delivery room announced on arrival", "confirmed": true },
+    { "id": "AMD-014", "type": "mechanic", "name": "Mini calculators have 42 HP, a health bar, multi-hit deaths and one random A-Z letter on break", "confirmed": true },
+    { "id": "AMD-015", "type": "mechanic", "name": "Supply drop spot is picked during the countdown and reseeded every run so deliveries differ per game", "confirmed": true },
+    { "id": "AMD-016", "type": "mechanic", "name": "Mini calculators first appear at 25 s and repeat every 40 s; jump smash cooldown is 12 s after the shield breaks", "confirmed": true },
+    { "id": "AMD-017", "type": "mechanic", "name": "Mini repeat interval is 30 s and post-shield jump smash cooldown is 6 s to keep the fight lively", "confirmed": true }
   ]
 }

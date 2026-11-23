@@ -1,13 +1,13 @@
 # Boss Fight — Phase 1 Design Document (CONFIRMED & FROZEN)
 
 > Project: Wreckabulary · Unity `6000.6.3f1` · URP `17.6.0` · new Input System `1.20.0`
-> Authoring date: 2026-11-22 · Frozen: 2026-11-22 · Status: **frozen, playtest amendment v2** (see `docs/design-freeze.json`, version 2)
+> Authoring date: 2026-11-22 · Frozen: 2026-11-22 · Status: **frozen, playtest amendment v8** (see `docs/design-freeze.json`, version 8)
 > Scope: solo player, **one map (`LivingRoom`)**, **one boss (`Calculator`)**. Co-op and extra bosses are deferred batches.
 > Requirements in this doc are tagged with IDs (`MECH-…`, `NUM-…`, etc.); the confirmed ones are registered in `docs/design-freeze.json`.
 
 **Confirmed scope decisions (2026-11-22):** map = `LivingRoom` (the existing Dibs/Escape scene, no new arena); boss = `Calculator`; three shield words = `CALC` / `ULA` / `TOR` (sequential split of CALCULATOR — the first draft written as "CACL" was corrected to "CALC" by the user). All other items in this document remain as drafted; the assumptions list at the end records what was accepted vs deferred.
 
-## Playtest amendment v2 — supersedes the original numbers below
+## Playtest amendments v2–v8 — supersedes the original numbers below
 
 After the first playable slice the user reported three problems: no damage reached the boss, the red circles were hard to read and kept interrupting spelling, and a single full-word box per layer was not fun. The following rules are now authoritative; older rows elsewhere in this document are historical draft text.
 
@@ -16,8 +16,24 @@ After the first playable slice the user reported three problems: no damage reach
 | `AMD-001` | `MECH-009` | The boss has a kinematic `Rigidbody` + box hitbox. `PlayerCombat.Strike()` can now reach `IDamageable`. A hit while shielded shows **SHIELDED!** instead of silently doing nothing. |
 | `AMD-002` | `MECH-006`, `NUM-003`, `ART-004` | Telegraphs are a **filled translucent disc + thick pulsing ring**. Circles land **outside** the player's feet (`radius + 0.55 m`), warning is **1.6 s**, at most **2** circles, cooldowns **5.5 / 5.0 / 4.4 / 4.0 s**. A hit costs **1** letter, and **no letters are lost while the player is actively spelling or crafting**. |
 | `AMD-003` | `MECH-004`, `LEV-001` | No full-word crates. Each shield word is split into **one smashable per letter**, spread across the clued room with **two decoy caches**. Starter props are spread out too. |
+| `AMD-004` | `AMD-003` | Those letter caches are **ordinary items, not letter boxes**: BOOK, BAT, BED, SOFA, CLOCK, LAMP, MUG, SPEAR, etc. Decoys drop their own natural letters. |
+| `AMD-005` | `AMD-004` | **No prop is forced to drop one artificial letter.** Cache props are chosen by greedy set cover so their **own full letters** contain the shield word (e.g. CALC is covered by CLOCK + BAT → C-L-O-C-K + B-A-T). Starter props likewise drop their own words. Tests assert natural coverage for CALC / ULA / TOR. |
+| `AMD-006` | `MECH-001`, `UI-001` | Prepare is **20 s**, shown in the top-centre countdown chip and the instruction line. The boss model, collider, shield rings and name stay hidden; the HUD subtitle reads `???` until the countdown ends. Exactly **5** starter props exist in the whole house. |
+| `AMD-007` | `MECH-006`, `NUM-003` | Reveal starts AoE and a **supply drop every 30 s** in a random room (`DeliverySpawner.Drop`, with `Layout` wired for BossFight). Each cooldown spawns a **random burst of 1–3 circles**, capped at `maxAoe = 3`. |
+| `AMD-008` | `MECH-006`, `MECH-005` | **Mini calculators** chase the player from 14 s, then every 18 s, max 2 alive. Touch costs **0 HP**, applies 3.5 knockback, **0.18 s** stagger and drops **1 letter**. A 3 s per-player cooldown, mini recoil and an already-staggered guard make chain-stun impossible. Melee can smash one for `CALC` letters. |
+| `AMD-009` | `MECH-003`, `UI-001` | Shield break is unmistakable: large centre flash, floating `LAYER n DOWN!` / `SHIELD BROKEN!` banners, `Craft_Ring` particles, stronger camera shake, boss wobble and a `SHIELD DOWN - HIT NOW` GO chip. |
+| `AMD-010` | `MECH-009`, `MECH-006` | After the shield breaks, normal circles and minis continue and a **JUMP SMASH** circle lands every **5 s**: 2.4 m radius, 1 s warning, 18 damage, centred near the player so movement is required. |
+| `AMD-011` | `AMD-006`, `LEV-001` | "5 starter props" means **5 in the entire house**: Boss Fight clears the authored furniture snapshot (`ResetRoom(furnish: false)`); the only smashables at the start are the five director-spawned props. |
+| `AMD-012` | `AMD-010`, `MECH-009` | The jump smash is now a **real leap**: the boss physically arcs through the air to the telegraphed landing spot during the 1 s warning, then squashes on impact; its hitbox travels with it. The circle marks where the boss lands, not a free-floating decal. |
+| `AMD-013` | `AMD-007`, `AMD-008`, `AMD-010`, `UI-001` | Every timed event gets a top-chip **3-2-1 countdown**: supply drops, mini waves and jump smashes. On delivery the chip switches to a GO line naming the room/area, so the player always knows what arrived and where. |
+| `AMD-014` | `AMD-008` | Mini calculators have **42 HP** and a small world-space health bar. Each swing deals at most half their max HP, so no single hit can destroy one. Breaking one yields **exactly one random A–Z letter**, never the word `CALC`. Touch behaviour is unchanged. |
+| `AMD-015` | `AMD-007`, `AMD-013` | Supply drop spots are picked during the countdown (`DeliverySpawner.PickDropPoint`) and delivered at that exact point (`DropAt`). The RNG stream is reseeded every restart, so the delivery room differs from game to game. |
 
-Numbers still awaiting measurement: 240 HP / 7-hit TTK, the new 1.6 s warning, and the letter economy. `@trace AMD-001..003`.
+| `AMD-016` | `AMD-008`, `AMD-010`, `AMD-013` | Difficulty relief: mini calculators now first appear **25 s** into each DropAndPrevent phase and then **every 40 s** (was 14 s / 18 s), and the post-shield **jump smash cooldown is 12 s** (was 5 s). Countdowns, damage and radii are unchanged. |
+
+| `AMD-017` | `AMD-016` | The v7 relief went too far: mini repeat interval returns to **30 s** (first wave still **25 s**), and the post-break jump smash cooldown is **6 s**. Everything else stays. |
+
+Numbers still awaiting measurement: 240 HP / 7-hit TTK, the 1.6 s warning, the 30 s supply cadence, mini density, mini 42 HP / 2–3 hit TTK and the letter economy. `@trace AMD-001..017`.
 
 ---
 
@@ -104,7 +120,7 @@ These are the deliberate upgrades on top of your rundown. Each is a concrete rul
 ### Single-run loop (~4 min 20 s target)
 | Phase | Duration | Player decision | Churn point → countermeasure |
 |---|---|---|---|
-| P0 Preparing | 45 s | Which rooms to scout, which weapon recipe to craft | Standing still waiting → timer runs down early when player has crafted 1 weapon *and* visited ≥ 3 rooms (min 25 s) |
+| P0 Preparing | 20 s | Which rooms to scout, which weapon recipe to craft | Superseded by `AMD-006`: fixed 20 s countdown, no early exit; only 5 props in the house |
 | P1 Boss Appear | 12 s | Read the 3 name words + their room clues | Info overload → reveal one word at a time, 4 s apart |
 | P2 Item Drop & Preventing | 3 × 35 s = 105 s | Go to clue room vs dodge vs spend letters | Getting lost → minimap ping + room name in HUD; getting hit loses letters → visible "2 letters scattered!" toast |
 | P3 Hit the Boss | 75 s | Attack window vs dodge vs last-second chaos word | Boss HP sponge → 240 HP with 1.5× vulnerability multiplier and 24-dmg BLADE = 7 hits |
@@ -114,7 +130,7 @@ These are the deliberate upgrades on top of your rundown. Each is a concrete rul
 - Each run grants: best-time record, fewest-knockout record, boss-win count, and one unlocked silly crown/boss variant every 3 wins (stored in `PlayerPrefs`).
 - Unlocked bosses change name words and attack patterns, not just colors — replay has a reason.
 
-**Decision density check:** P2 averages one meaningful choice every 3–5 s (dodge / pickup / spell / spend), no 30 s blank window. P0 is intentionally low-density (scouting) but capped at 45 s.
+**Decision density check:** P2 averages one meaningful choice every 3–5 s (dodge / pickup / spell / spend), no 30 s blank window. P0 is intentionally low-density (scouting) but capped at 20 s (`AMD-006`).
 
 ## 6. Core mechanics list
 
@@ -129,14 +145,14 @@ These are the deliberate upgrades on top of your rundown. Each is a concrete rul
 | `MECH-007` | Slick Dodge | Last-0.3 s dodge picks up 2 nearest tiles | P1 | `PlayerController.TryDodge` |
 | `MECH-008` | Boss taunts | Text bubbles on smash / wrong spell / dodge / phase change | P1 | `WorldSpaceBillboard` |
 | `MECH-009` | Vulnerable hit phase | Shield gate opens; melee/thrown damage applies; enraged AoE | P0 | `IDamageable` |
-| `MECH-010` | Prep weapon crafting | 45 s to craft one weapon from provided props | P0 | existing recipes |
+| `MECH-010` | Prep weapon crafting | 20 s and 5 provided props to craft one weapon (`AMD-006`) | P0 | existing recipes |
 | `MECH-011` | Records + boss unlocks | PlayerPrefs best time/wins/crowns | P1 | new, small |
 
 ### State machine — run phases (exhaustive)
 
 | Current | Event | Condition | Next | Side effect |
 |---|---|---|---|---|
-| Preparing | timer ≥ 45 s, OR (crafted ≥ 1 weapon AND rooms visited ≥ 3 AND elapsed ≥ 25 s) | — | Boss Appear | freeze player input 1 s, camera pan to boss |
+| Preparing | countdown reaches 0 (20 s, `AMD-006`) | — | Boss Appear | reveal boss + name, hide countdown, camera pan |
 | Boss Appear | 12 s elapsed | — | Drop&Prevent (layer 1) | reveal word 1 + room clue |
 | Drop&Prevent | word i spelled correctly | `LetterBag.Contains` on target word; layer < 3 | short Stagger (4 s, no AoE) → next layer or Hit if i=3 | shield layer −1, slow-mo 0.8 s |
 | Drop&Prevent | round timer ≥ 165 s | shield still up | Result (lose) | boss "reboots", scoreboard |
@@ -202,7 +218,7 @@ Same-frame duplicate inputs: first event wins, rest ignored until next frame. To
 
 | Run segment | Set-up | Unlock / progression | Difficulty coefficient (see §8) |
 |---|---|---|---|
-| P0 Preparing (0–45 s) | Player at house entrance; 3 "starter" props + 1 weapon-crate prop per room; boss asleep outside living room with snore bubbles | Craft ≥ 1 weapon → early Appear | 0.0 |
+| P0 Preparing (0–20 s) | Player at house entrance; exactly **5** ordinary props across the house; boss hidden and unnamed (`AMD-006`) | Countdown ends → Appear | 0.0 |
 | P1 Boss Appear (45–57 s) | Boss stomps in, camera shake 0.4 s, word 1 + room clue revealed | — | 0.0 |
 | P2 Layer 1 (57–92 s) | CALC's 4 letter caches + 2 decoys spread in clue room; ≤2 circles / 5.5 s, r 1.6 m, 10 dmg | Spell word 1 → layer crack + 4 s stagger | 0.18 |
 | P2 Layer 2 (92–127 s) | ULA caches + decoys; ≤2 circles / 5.0 s, r 1.8 m, 12 dmg | Spell word 2 → layer crack | 0.31 |
@@ -218,7 +234,7 @@ Boss vocabulary (**one boss at launch**, original; stored in `rules.json` under 
 |---|---|---|
 | Calculator | `CALC`, `ULA`, `TOR` | exact room names (all in `LivingRoom` layout) |
 
-Constraint: each name word is 4/3/3 letters and is **always** obtainable from its scattered caches: every letter of the word gets its own smashable in the clued room, so obtainability does not depend on random map drops. Validation runs against `LivingRoom`'s `HouseLayout` before spawn. Longest word 4 ≤ bag 16. (`AMD-003`) Deferred bosses (Wobbly Broom King / Grumpy Duck Boss) are recorded in the pending list, not in this build.
+Constraint: each name word is 4/3/3 letters and is **always** obtainable from its scattered caches. Superseded by `AMD-005`: props are ordinary items that drop **all of their own letters**, and a greedy set cover chooses props whose natural letters contain the word (including duplicates). Validation runs against `LivingRoom`'s `HouseLayout` before spawn. Longest word 4 ≤ bag 16. (`AMD-003`, `AMD-005`) Deferred bosses (Wobbly Broom King / Grumpy Duck Boss) are recorded in the pending list, not in this build.
 
 ## 8. Numbers & formulas
 

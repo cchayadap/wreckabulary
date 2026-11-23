@@ -70,24 +70,42 @@ namespace Wreckabulary.Rules
         /// <summary>How many keys the Escape crew must find before the way out is revealed.</summary>
         public int EscapeKeys = 1;
 
-        // @trace NUM-001, NUM-002, NUM-003, NUM-005
+        // @trace NUM-001, NUM-002, NUM-003, NUM-005, AMD-006, AMD-007, AMD-008, AMD-010, AMD-012, AMD-013, AMD-014
         /// <summary>Boss Fight: the label shown on the boss bar and the three shield words.</summary>
         public string BossName = "";
         public string[] BossWords = System.Array.Empty<string>();
         public float BossMaxHealth = 240f;
         public float BossVulnerability = 1.5f;
-        public float PrepSeconds = 45f;
+        public float PrepSeconds = 20f;
         public float AppearSeconds = 12f;
         public float LayerSeconds = 35f;
         public float HitSeconds = 75f;
+        public int StarterProps = 5;
+        public float SupplyDropSeconds = 30f;
         public float AoeWarnSeconds = 1.6f;
         public float AoeActiveSeconds = 0.45f;
         public float[] AoeRadiusByLayer = { 1.6f, 1.8f, 2f, 2.2f };
         public float[] AoeDamageByLayer = { 10f, 12f, 14f, 14f };
         public float[] AoeCooldownByLayer = { 5.5f, 5f, 4.4f, 4f };
-        public int MaxAoe = 2;
+        public int AoeBurstMin = 1;
+        public int AoeBurstMax = 3;
+        public int MaxAoe = 3;
         public int LettersLostOnHit = 1;
         public float SlickDodgeWindow = 0.3f;
+        // @trace AMD-016
+        public float MiniFirstSeconds = 25f;
+        public float MiniIntervalSeconds = 30f; // @trace AMD-017
+        public int MiniMaxAlive = 2;
+        public float MiniSpeed = 2.2f;
+        public float MiniStunSeconds = 0.18f;
+        public float MiniKnockback = 3.5f;
+        public float MiniHitCooldownSeconds = 3f;
+        public float MiniHealth = 42f;
+        public float EventWarnSeconds = 3f;
+        public float SmashEverySeconds = 6f; // @trace AMD-016, AMD-017
+        public float SmashWarnSeconds = 1f;
+        public float SmashRadius = 2.4f;
+        public float SmashDamage = 18f;
 
         static float LayerValue(float[] values, int layer, float fallback) =>
             values != null && layer >= 0 && layer < values.Length ? values[layer] : fallback;
@@ -149,10 +167,22 @@ namespace Wreckabulary.Rules
             Need(BossVulnerability > 0f, "bossVulnerability must be positive");
             Need(PrepSeconds >= 0f && AppearSeconds >= 0f, "prep and appear phases cannot be negative");
             Need(LayerSeconds > 0f && HitSeconds > 0f, "layer and hit phases need a positive duration");
+            Need(StarterProps >= 1, "starterProps must place at least one prop");
+            Need(SupplyDropSeconds > 0f, "supplyDropSeconds must be positive");
             Need(AoeWarnSeconds > SlickDodgeWindow && SlickDodgeWindow >= 0f, "slickDodgeWindow must fit inside aoeWarnSeconds");
             Need(AoeActiveSeconds > 0f, "aoeActiveSeconds must be positive");
-            Need(MaxAoe >= 1, "maxAoe must be at least 1");
+            Need(AoeBurstMin >= 1 && AoeBurstMax >= AoeBurstMin, "aoeBurstMax must be at least aoeBurstMin");
+            Need(MaxAoe >= AoeBurstMax, "maxAoe must fit the largest AoE burst");
             Need(LettersLostOnHit >= 0, "lettersLostOnHit cannot be negative");
+            Need(MiniFirstSeconds >= 0f && MiniIntervalSeconds > 0f, "mini calculator schedule must be positive");
+            Need(MiniMaxAlive >= 0 && MiniSpeed > 0f, "mini calculators need a speed and a non-negative cap");
+            Need(MiniStunSeconds > 0f && MiniStunSeconds < .5f, "miniStunSeconds must be a brief stun");
+            Need(MiniKnockback > 0f && MiniHitCooldownSeconds > MiniStunSeconds * 2f,
+                "miniHitCooldownSeconds must prevent chain stunning");
+            Need(MiniHealth > 0f, "miniHealth must be positive so minis survive more than one hit");
+            Need(EventWarnSeconds > 0f, "eventWarnSeconds must be positive");
+            Need(SmashEverySeconds > 0f && SmashWarnSeconds > 0f, "jump smash timings must be positive");
+            Need(SmashRadius > 0f && SmashDamage > 0f, "jump smash needs a radius and damage");
             return problems;
         }
     }
@@ -202,8 +232,14 @@ namespace Wreckabulary.Rules
             "roundsToWin", "respawn", "reconnectGrace", "roundTimeLimit", "clearOut", "notes",
             "exitNeedsKey", "keyAfterRooms", "randomExit", "exitKeys",
             "bossName", "bossWords", "bossMaxHealth", "bossVulnerability", "prepSeconds", "appearSeconds",
-            "layerSeconds", "hitSeconds", "aoeWarnSeconds", "aoeActiveSeconds", "aoeRadiusByLayer",
-            "aoeDamageByLayer", "aoeCooldownByLayer", "maxAoe", "lettersLostOnHit", "slickDodgeWindow",
+            "layerSeconds", "hitSeconds", "starterProps", "supplyDropSeconds",
+            "aoeWarnSeconds", "aoeActiveSeconds", "aoeRadiusByLayer",
+            "aoeDamageByLayer", "aoeCooldownByLayer", "aoeBurstMin", "aoeBurstMax",
+            "maxAoe", "lettersLostOnHit", "slickDodgeWindow",
+            "miniFirstSeconds", "miniIntervalSeconds", "miniMaxAlive", "miniSpeed",
+            "miniStunSeconds", "miniKnockback", "miniHitCooldownSeconds", "miniHealth",
+            "eventWarnSeconds",
+            "smashEverySeconds", "smashWarnSeconds", "smashRadius", "smashDamage",
         };
 
         static readonly string[] ClearOutKeys = { "enabled", "firstAt", "interval", "warn", "fill", "damagePerSecond", "damageGrowth" };
@@ -285,15 +321,31 @@ namespace Wreckabulary.Rules
             r.PrepSeconds = n["prepSeconds"].Float(r.PrepSeconds);
             r.AppearSeconds = n["appearSeconds"].Float(r.AppearSeconds);
             r.LayerSeconds = n["layerSeconds"].Float(r.LayerSeconds);
-            r.HitSeconds = n["hitSeconds"].Float(r.HitSeconds);
+            r.StarterProps = n["starterProps"].Int(r.StarterProps);
+            r.SupplyDropSeconds = n["supplyDropSeconds"].Float(r.SupplyDropSeconds);
             r.AoeWarnSeconds = n["aoeWarnSeconds"].Float(r.AoeWarnSeconds);
             r.AoeActiveSeconds = n["aoeActiveSeconds"].Float(r.AoeActiveSeconds);
             if (n.Has("aoeRadiusByLayer")) r.AoeRadiusByLayer = n["aoeRadiusByLayer"].Floats(4);
             if (n.Has("aoeDamageByLayer")) r.AoeDamageByLayer = n["aoeDamageByLayer"].Floats(4);
             if (n.Has("aoeCooldownByLayer")) r.AoeCooldownByLayer = n["aoeCooldownByLayer"].Floats(4);
+            r.AoeBurstMin = n["aoeBurstMin"].Int(r.AoeBurstMin);
+            r.AoeBurstMax = n["aoeBurstMax"].Int(r.AoeBurstMax);
             r.MaxAoe = n["maxAoe"].Int(r.MaxAoe);
             r.LettersLostOnHit = n["lettersLostOnHit"].Int(r.LettersLostOnHit);
             r.SlickDodgeWindow = n["slickDodgeWindow"].Float(r.SlickDodgeWindow);
+            r.MiniFirstSeconds = n["miniFirstSeconds"].Float(r.MiniFirstSeconds);
+            r.MiniIntervalSeconds = n["miniIntervalSeconds"].Float(r.MiniIntervalSeconds);
+            r.MiniMaxAlive = n["miniMaxAlive"].Int(r.MiniMaxAlive);
+            r.MiniSpeed = n["miniSpeed"].Float(r.MiniSpeed);
+            r.MiniStunSeconds = n["miniStunSeconds"].Float(r.MiniStunSeconds);
+            r.MiniKnockback = n["miniKnockback"].Float(r.MiniKnockback);
+            r.MiniHitCooldownSeconds = n["miniHitCooldownSeconds"].Float(r.MiniHitCooldownSeconds);
+            r.MiniHealth = n["miniHealth"].Float(r.MiniHealth);
+            r.EventWarnSeconds = n["eventWarnSeconds"].Float(r.EventWarnSeconds);
+            r.SmashEverySeconds = n["smashEverySeconds"].Float(r.SmashEverySeconds);
+            r.SmashWarnSeconds = n["smashWarnSeconds"].Float(r.SmashWarnSeconds);
+            r.SmashRadius = n["smashRadius"].Float(r.SmashRadius);
+            r.SmashDamage = n["smashDamage"].Float(r.SmashDamage);
             return r;
         }
     }
