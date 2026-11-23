@@ -11,15 +11,31 @@ namespace Wreckabulary.Rules.Surroundings
     {
         public const int HighRenderers = 8, HighTriangles = 120000, LowRenderers = 3, LowTriangles = 24000;
         public const float FarClip = 1800f, ViewMargin = 100f, EyeLift = 10f;
-        public const string WallSlot = SurroundingsSlots.Plaster, GlassSlot = "bk_glass_dark", MetalSlot = "bk_metal", LitSlot = "bk_glass_lit";
-        public const float WallSmoothness = .06f, GlassSmoothness = .3f, MetalSmoothness = .3f;
-        public const float GlowRed = .55f, GlowGreen = .45f, GlowBlue = .3f;
+        public const string SkylineSlot = "bk_skyline", FallbackSlot = SurroundingsSlots.Plaster;
+        public const float WallSmoothness = .06f, GlassSmoothness = .45f, StreetShade = .84f, TopShade = 1.04f, PlinthShade = .78f, TrimShade = 1.07f;
+        public const float GlowRed = .95f, GlowGreen = .76f, GlowBlue = .48f, GlowStrength = .3f;
 
-        public static readonly IReadOnlyList<string> Slots = new[] { WallSlot, GlassSlot, MetalSlot, LitSlot };
+        public static readonly IReadOnlyList<string> Slots = new[] { SkylineSlot };
 
         public static float ViewReach => FarClip - ViewMargin;
 
-        public static float SmoothnessOf(string slot) => slot == GlassSlot || slot == LitSlot ? GlassSmoothness : slot == MetalSlot ? MetalSmoothness : WallSmoothness;
+        public static uint Shade(uint rgb, double factor)
+        {
+            uint Channel(int shift) => (uint)Math.Max(0, Math.Min(255, (int)Math.Round(((rgb >> shift) & 0xFF) * factor)));
+            return Channel(16) << 16 | Channel(8) << 8 | Channel(0);
+        }
+
+        public static uint Blend(uint a, uint b, double t)
+        {
+            uint Channel(int shift) => (uint)Math.Max(0, Math.Min(255, (int)Math.Round(((a >> shift) & 0xFF) + ((((b >> shift) & 0xFF) - (double)((a >> shift) & 0xFF)) * t))));
+            return Channel(16) << 16 | Channel(8) << 8 | Channel(0);
+        }
+
+        public static double Gradient(SkylineBox b, double y) => StreetShade + (TopShade - StreetShade) * Math.Max(0, Math.Min(1, (y - b.Floor) / Math.Max(12, b.Rise)));
+
+        public static uint VertexColour(SkylineBox b, double y, uint haze) => Blend(Shade(b.Tint, Gradient(b, y)), haze, b.Haze);
+
+        public static uint GlassColour(SkylineBox b, uint haze) => b.Windows == null ? 0 : Blend(b.Windows.Glass, haze, b.Haze);
 
         public static IReadOnlyList<SkylineMeshPart> Parts(CourseSkylineResult skyline) =>
             CourseSkylineGeometry.Parts(skyline ?? throw new ArgumentNullException(nameof(skyline)));
@@ -50,8 +66,8 @@ namespace Wreckabulary.Rules.Surroundings
         public bool Downtown, Dropped, Crane;
         public string Type, Landmark;
         public CourseFacadeSpec Facade;
-        public uint Wall, Pane, Pane2, Accent, Base, Roof, Awning;
-        public double Roll, CraneRoll;
+        public uint Wall, Pane, Accent, Roof, Awning, Sign;
+        public double Roll, CraneRoll, Haze;
     }
 
     sealed class CourseSkylinePlanner
@@ -125,13 +141,12 @@ namespace Wreckabulary.Rules.Surroundings
                 var near = Neighbours(lot.Key, painted).ToList();
                 var facade = lot.Facade;
                 lot.Wall = Choose(facade.Walls, rng.NextDouble(), near.Select(n => n.Wall));
-                lot.Pane = Choose(facade.Panes, rng.NextDouble(), near.Select(n => n.Pane));
-                lot.Pane2 = Choose(facade.Panes, rng.NextDouble(), new[] { lot.Pane });
-                var accents = lot.Landmark != null && spec.Bold.Count > 0 ? spec.Bold : facade.Accents.Count > 0 ? facade.Accents : spec.Accents;
-                lot.Accent = Choose(accents, rng.NextDouble(), near.Select(n => n.Accent).Append(lot.Wall));
-                lot.Base = Choose(spec.Bases, rng.NextDouble(), near.Select(n => n.Base).Append(lot.Wall));
-                lot.Roof = Choose(spec.Roofs, rng.NextDouble(), near.Select(n => n.Roof));
-                lot.Awning = Choose(spec.Awnings, rng.NextDouble(), near.Select(n => n.Awning).Append(lot.Base));
+                lot.Pane = Choose(facade.Glass, rng.NextDouble(), near.Select(n => n.Pane));
+                lot.Accent = Choose(lot.Landmark != null ? spec.Bold : spec.Crowns, rng.NextDouble(), Array.Empty<uint>());
+                lot.Roof = Choose(spec.Roofs, rng.NextDouble(), Array.Empty<uint>());
+                lot.Awning = Choose(spec.Awnings, rng.NextDouble(), near.Select(n => n.Awning));
+                lot.Sign = Choose(spec.Signs, rng.NextDouble(), near.Select(n => n.Sign));
+                lot.Haze = spec.HazeMost * Clamp01((lot.Distance - spec.HazeFrom) / (spec.HazeTo - spec.HazeFrom));
                 painted[lot.Key] = lot;
             }
         }
@@ -211,7 +226,7 @@ namespace Wreckabulary.Rules.Surroundings
             var bounds = shape.Bounds();
             double gap = shape.Distance(box);
             if (gap < clear - Slack || blocked(shape, bounds)) return;
-            var facade = spec.Facade(type.Facades, look);
+            var facade = spec.Facade(type.Facades, look, inDown ? weight : 0);
             lots.Add(new CourseSkylineLot
             {
                 Key = key, Lot = shape, Bounds = bounds, At = at, Yaw = yaw, Width = Q(width, .001), Depth = Q(depth, .001), Height = Q(height, .01),
@@ -308,7 +323,7 @@ namespace Wreckabulary.Rules.Surroundings
             lot.Landmark = type;
             lot.Width = lot.Depth = Q(side, .001);
             lot.Height = Q(Lerp(heights, rng.NextDouble()), .01);
-            lot.Facade = facades.Count > 0 ? spec.Facade(facades, rng.NextDouble()) : lot.Facade;
+            lot.Facade = facades.Count > 0 ? spec.Facade(facades, rng.NextDouble(), 1) : lot.Facade;
         }
 
         double FarthestView(CourseSkylineLot lot)
@@ -367,6 +382,7 @@ namespace Wreckabulary.Rules.Surroundings
             result.ThinnedCards = thinned.ToList();
             result.Trimmed = trimmed;
             result.DetailReach = reach;
+            result.HazeTint = spec.HazeTint;
             Check(result, problems);
             result.Canonical = Canonical(result);
             result.Hash = Hash64.ToHex(Hash64.Of(result.Canonical));
@@ -411,7 +427,8 @@ namespace Wreckabulary.Rules.Surroundings
                 X = (float)lot.At.X, Z = (float)lot.At.Z, Yaw = (float)lot.Yaw, Width = (float)lot.Width, Depth = (float)lot.Depth,
                 LotWidth = (float)lot.Lot.HalfWidth * 2, LotDepth = (float)lot.Lot.HalfDepth * 2, Ground = Q(groundY, .001), Height = (float)lot.Height,
                 Distance = Q(lot.Distance, .01), Heading = Q(lot.Heading, .01), Weight = Q(lot.Weight, .001), Downtown = lot.Downtown, Detailed = detailed,
-                Crane = lot.Crane, Type = lot.Type, Landmark = lot.Landmark, Facade = lot.Facade.Id, Wall = lot.Wall, Pane = lot.Pane, Accent = lot.Accent, Base = lot.Base,
+                Crane = lot.Crane, Type = lot.Type, Landmark = lot.Landmark, Facade = lot.Facade.Id, Kind = lot.Facade.Kind, Wall = lot.Wall, Pane = lot.Pane,
+                Accent = lot.Accent, Base = CourseSkyline.Shade(lot.Wall, CourseSkyline.PlinthShade), Haze = Q(lot.Haze, .001),
                 Source = lot.Landmark ?? (lot.Downtown ? "downtown " + lot.Cluster : "ring"),
                 Boxes = new CourseTowerShape(spec, lot, groundY, full, detailed).Build(Random("tower", lot.Key)),
             };
@@ -442,7 +459,7 @@ namespace Wreckabulary.Rules.Surroundings
             {
                 text.Append("tower ").Append(t.Type).Append(' ').Append(t.Landmark ?? "-").Append(t.Crane ? " crane " : " - ").Append(t.Detailed ? "rich " : "plain ")
                     .Append(string.Join(" ", new[] { t.X, t.Z, t.Yaw, t.Width, t.Depth, t.Height, t.Top }.Select(F))).Append(' ')
-                    .Append(t.Facade).Append(' ').Append(Hex(t.Wall)).Append(' ').Append(Hex(t.Pane)).Append(' ').Append(Hex(t.Accent)).Append(' ').Append(Hex(t.Base)).Append(' ').Append(t.Source).Append(' ')
+                    .Append(t.Facade).Append(' ').Append(t.Kind).Append(' ').Append(Hex(t.Wall)).Append(' ').Append(Hex(t.Pane)).Append(' ').Append(Hex(t.Accent)).Append(' ').Append(F(t.Haze)).Append(' ').Append(t.Source).Append(' ')
                     .Append(t.Boxes.Count).Append(' ').Append(t.Triangles).Append('\n');
             }
             foreach (var g in r.Groups) text.Append("group ").Append(g.Slot).Append(' ').Append(g.Boxes).Append(' ').Append(g.Triangles).Append(' ').Append(g.Renderers).Append('\n');
@@ -481,7 +498,7 @@ namespace Wreckabulary.Rules.Surroundings
 
         sealed class Builder
         {
-            public readonly List<float> Positions = new List<float>(), Normals = new List<float>();
+            public readonly List<float> Positions = new List<float>(), Normals = new List<float>(), Facade = new List<float>(), Grid = new List<float>(), Glass = new List<float>(), Extra = new List<float>();
             public readonly List<uint> Colours = new List<uint>();
             public readonly List<int> Indices = new List<int>();
             public int Vertices => Colours.Count;
@@ -503,6 +520,18 @@ namespace Wreckabulary.Rules.Surroundings
             public double Dot(V o) => X * o.X + Y * o.Y + Z * o.Z;
             public V Cross(V o) => new V(Y * o.Z - Z * o.Y, Z * o.X - X * o.Z, X * o.Y - Y * o.X);
             public V Unit => this * (1 / Math.Sqrt(Math.Max(1e-24, Dot(this))));
+            public double Flat => Math.Sqrt(X * X + Z * Z);
+        }
+
+        readonly struct Surface
+        {
+            public readonly float U, V, Columns, Rows, Seed;
+            public readonly SkylineWindows Windows;
+
+            public Surface(float u, float v, float columns, float rows, SkylineWindows windows, float seed)
+            {
+                U = u; V = v; Columns = columns; Rows = rows; Windows = windows; Seed = seed;
+            }
         }
 
         public static List<SkylineMeshPart> Parts(CourseSkylineResult skyline)
@@ -519,7 +548,7 @@ namespace Wreckabulary.Rules.Surroundings
                         parts.Add(Part(slot, index++, builder));
                         builder = new Builder();
                     }
-                    Append(builder, b);
+                    Append(builder, b, skyline.HazeTint);
                 }
                 if (builder.Vertices > 0) parts.Add(Part(slot, index, builder));
             }
@@ -529,7 +558,8 @@ namespace Wreckabulary.Rules.Surroundings
         static SkylineMeshPart Part(string slot, int index, Builder builder) => new SkylineMeshPart
         {
             Slot = slot, Index = index, Positions = builder.Positions.ToArray(), Normals = builder.Normals.ToArray(),
-            Colours = builder.Colours.ToArray(), Indices = builder.Indices.ToArray(),
+            Colours = builder.Colours.ToArray(), Facade = builder.Facade.ToArray(), Grid = builder.Grid.ToArray(), Glass = builder.Glass.ToArray(),
+            Extra = builder.Extra.ToArray(), Indices = builder.Indices.ToArray(),
         };
 
         static V[] Ring(SkylineBox b, double y, double scale)
@@ -545,41 +575,77 @@ namespace Wreckabulary.Rules.Surroundings
             return ring;
         }
 
-        static void Append(Builder builder, SkylineBox b)
+        static void Append(Builder builder, SkylineBox b, uint haze)
         {
             var axis = new V(b.X, b.Y + b.Height * .5, b.Z);
             var bottom = Ring(b, b.Y, 1);
             var top = b.Apex ? null : Ring(b, b.TopY, b.Taper);
             var apex = new V(b.X, b.TopY, b.Z);
+            var windows = b.Straight ? b.Windows : null;
             for (int k = 0; k < b.Sides; k++)
             {
                 var b0 = bottom[k];
                 var b1 = bottom[(k + 1) % b.Sides];
-                var face = b.Apex ? new[] { b0, b1, apex } : new[] { b0, b1, top[(k + 1) % b.Sides], top[k] };
-                Emit(builder, b.Tint, face, (b0 + b1) * .5 - axis);
+                if (b.Apex)
+                {
+                    Emit(builder, b, haze, new[] { b0, b1, apex }, (b0 + b1) * .5 - axis, null);
+                    continue;
+                }
+                var face = new[] { b0, b1, top[(k + 1) % b.Sides], top[k] };
+                Emit(builder, b, haze, face, (b0 + b1) * .5 - axis, windows == null ? null : Surfaces(windows, (b1 - b0).Flat, b, k));
             }
-            if (b.Capped) Emit(builder, b.Tint, top, new V(0, 1, 0));
+            if (b.Capped) Emit(builder, b, haze, top, new V(0, 1, 0), null);
         }
 
-        static void Emit(Builder builder, uint tint, V[] face, V outward)
+        static Surface[] Surfaces(SkylineWindows windows, double width, SkylineBox b, int face)
+        {
+            int columns = windows.Columns(width), rows = windows.Rows(b.Height);
+            if (columns <= 0 || rows <= 0) return null;
+            float left = (float)(-(width - columns * windows.Spacing) * .5), right = (float)(left + width), low = -windows.Bottom, high = b.Height - windows.Bottom;
+            double raw = windows.Seed + .173 * face + .0071 * b.Y;
+            float seed = (float)(raw - Math.Floor(raw));
+            return new[]
+            {
+                new Surface(left, low, columns, rows, windows, seed), new Surface(right, low, columns, rows, windows, seed),
+                new Surface(right, high, columns, rows, windows, seed), new Surface(left, high, columns, rows, windows, seed),
+            };
+        }
+
+        static void Emit(Builder builder, SkylineBox b, uint haze, V[] face, V outward, Surface[] surfaces)
         {
             var normal = (face[1] - face[0]).Cross(face[2] - face[0]);
             if (normal.Dot(outward) < 0)
             {
                 Array.Reverse(face);
+                if (surfaces != null) Array.Reverse(surfaces);
                 normal = normal * -1;
             }
             normal = normal.Unit;
             int start = builder.Vertices;
-            foreach (var p in face)
+            uint glass = CourseSkyline.GlassColour(b, haze);
+            for (int i = 0; i < face.Length; i++)
             {
+                var p = face[i];
                 builder.Positions.Add((float)p.X);
                 builder.Positions.Add((float)p.Y);
                 builder.Positions.Add((float)p.Z);
                 builder.Normals.Add((float)normal.X);
                 builder.Normals.Add((float)normal.Y);
                 builder.Normals.Add((float)normal.Z);
-                builder.Colours.Add(tint);
+                builder.Colours.Add(CourseSkyline.VertexColour(b, p.Y, haze));
+                if (surfaces == null)
+                {
+                    builder.Facade.Add(0f); builder.Facade.Add(0f); builder.Facade.Add(0f); builder.Facade.Add(0f);
+                    builder.Grid.Add(0f); builder.Grid.Add(0f); builder.Grid.Add(0f); builder.Grid.Add(0f);
+                    builder.Glass.Add(0f); builder.Glass.Add(0f); builder.Glass.Add(0f); builder.Glass.Add(0f);
+                    builder.Extra.Add(0f); builder.Extra.Add(b.Haze);
+                    continue;
+                }
+                var s = surfaces[i];
+                builder.Facade.Add(s.U); builder.Facade.Add(s.V); builder.Facade.Add(s.Columns); builder.Facade.Add(s.Rows);
+                builder.Grid.Add(s.Windows.Spacing); builder.Grid.Add(s.Windows.Storey); builder.Grid.Add(s.Windows.Width); builder.Grid.Add(s.Windows.Height);
+                builder.Glass.Add(((glass >> 16) & 0xFF) / 255f); builder.Glass.Add(((glass >> 8) & 0xFF) / 255f); builder.Glass.Add((glass & 0xFF) / 255f); builder.Glass.Add(s.Windows.Lit);
+                builder.Extra.Add(s.Seed); builder.Extra.Add(b.Haze);
             }
             for (int i = 1; i + 1 < face.Length; i++)
             {

@@ -14,6 +14,13 @@ namespace Wreckabulary.Rules.Surroundings
         public static readonly IReadOnlyList<string> Landmarks = new[] { Supertall, Needle, Clock };
     }
 
+    public static class CourseSkylineKinds
+    {
+        public const string Neutral = "neutral", Brick = "brick", Glass = "glass";
+
+        public static readonly IReadOnlyList<string> All = new[] { Neutral, Brick, Glass };
+    }
+
     sealed class CourseSkylineSpec
     {
         public const float MinStorey = 2.5f, MinHeight = 8f, MaxHeight = 300f;
@@ -27,8 +34,9 @@ namespace Wreckabulary.Rules.Surroundings
         public CourseLandmarkHeights Supertall, Needle, Clock;
         public float NeedleChance, CraneChance;
         public List<string> SupertallFacades, ClockFacades, NeedleFacades;
-        public List<uint> Trim, Caps, Accents, Bases, Roofs, Awnings, Lit, Bold;
-        public uint Roof, Pavement, Tank, Crane, Face, Hands, Metal;
+        public List<uint> Plant, Caps, Roofs, Awnings, Signs, Crowns, Bold, ShopGlass;
+        public uint Pavement, Tank, Crane, Face, Hands, Metal, Mast, HazeTint;
+        public float HazeFrom, HazeTo, HazeMost, ShopLit;
         public List<string> ThinCards;
         public float KeepDowntown, KeepRing;
         public int StoreysPerBand, FarStoreysPerBand;
@@ -39,12 +47,14 @@ namespace Wreckabulary.Rules.Surroundings
         {
             var low = At(n, "low");
             var marks = At(n, "landmarks");
+            var haze = At(n, "haze");
+            var shop = At(n, "shop");
             var spec = new CourseSkylineSpec
             {
                 Cell = AtLeast(At(n, "cell"), 30f, 12f), Jitter = AtLeast(At(n, "jitter"), 3f, 0f), Gap = AtLeast(At(n, "gap"), 4f, 2f),
                 Plaza = AtLeast(At(n, "plaza"), 1f, .8f), CardGap = AtLeast(At(n, "cardGap"), 4f, 0f), Inset = AtLeast(At(n, "inset"), .3f, .05f),
                 DetailReach = AtLeast(At(n, "detailReach"), 190f, 0f),
-                Storey = Span(At(n, "storey"), 3.5f, MinStorey), Plinth = Span(At(n, "plinth"), 4f, MinStorey),
+                Storey = Span(At(n, "storey"), 3.5f, MinStorey), Plinth = Span(At(n, "plinth"), 4.5f, MinStorey),
                 Downtown = CourseDowntownSpec.Read(At(n, "downtown")),
                 Ring = CourseSkylineBand.Read(At(n, "ring"), 80f, 300f, .85f, (22f, 46f), (16f, 24f)),
                 Supertall = CourseLandmarkHeights.Read(At(marks, "supertall"), (220f, 260f)),
@@ -55,34 +65,38 @@ namespace Wreckabulary.Rules.Surroundings
                 SupertallFacades = Names(At(At(marks, "supertall"), "facades"), false),
                 ClockFacades = Names(At(At(marks, "clock"), "facades"), false),
                 NeedleFacades = Names(At(At(marks, "needle"), "facades"), false),
-                Trim = Tints(At(n, "trim")),
+                Plant = Tints(At(n, "plant")),
                 Caps = Tints(At(n, "caps")),
-                Accents = Tints(At(n, "accents")),
-                Bases = Tints(At(n, "bases")),
                 Roofs = Tints(At(n, "roofs")),
                 Awnings = Tints(At(n, "awnings")),
-                Lit = Tints(At(n, "lit")),
+                Signs = Tints(At(n, "signs")),
+                Crowns = Tints(At(n, "crowns")),
                 Bold = Tints(At(marks, "bold")),
-                Metal = SurroundingsPlan.OptionalTint(At(n, "metal")) ?? SurroundingsSlots.NoTint,
-                Roof = SurroundingsPlan.OptionalTint(At(n, "roof")) ?? SurroundingsSlots.NoTint,
-                Pavement = SurroundingsPlan.OptionalTint(At(n, "pavement")) ?? SurroundingsSlots.NoTint,
-                Tank = SurroundingsPlan.OptionalTint(At(n, "tank")) ?? SurroundingsSlots.NoTint,
-                Crane = SurroundingsPlan.OptionalTint(At(At(marks, "crane"), "tint")) ?? SurroundingsSlots.NoTint,
-                Face = SurroundingsPlan.OptionalTint(At(At(marks, "clock"), "face")) ?? SurroundingsSlots.NoTint,
-                Hands = SurroundingsPlan.OptionalTint(At(At(marks, "clock"), "hands")) ?? SurroundingsSlots.NoTint,
+                ShopGlass = Tints(At(shop, "glass")),
+                ShopLit = Fraction(At(shop, "lit"), .35f),
+                Metal = Tint(At(n, "metal"), 0x5A5E63),
+                Mast = Tint(At(At(marks, "needle"), "mast"), 0xB8433A),
+                Pavement = Tint(At(n, "pavement"), 0xCFC9BD),
+                Tank = Tint(At(n, "tank"), 0x6E5A48),
+                Crane = Tint(At(At(marks, "crane"), "tint"), 0xD9A23A),
+                Face = Tint(At(At(marks, "clock"), "face"), 0xF1EDE2),
+                Hands = Tint(At(At(marks, "clock"), "hands"), 0x2E2E2E),
+                HazeTint = Tint(At(haze, "tint"), 0xC8D4DF),
+                HazeFrom = AtLeast(At(haze, "from"), 60f, 0f), HazeTo = At(haze, "to").Float(520f), HazeMost = Fraction(At(haze, "most"), .35f),
                 ThinCards = Names(At(n, "thinCards"), false),
                 KeepDowntown = Fraction(At(low, "keepDowntown"), .5f), KeepRing = Fraction(At(low, "keepRing"), .3f),
                 StoreysPerBand = Math.Max(1, At(low, "storeysPerBand").Int(3)),
                 FarStoreysPerBand = Math.Max(1, At(n, "farStoreysPerBand").Int(2)),
             };
-            if (spec.Trim.Count == 0) spec.Trim.Add(SurroundingsSlots.NoTint);
-            if (spec.Caps.Count == 0) spec.Caps.Add(spec.Roof);
-            if (spec.Accents.Count == 0) spec.Accents.AddRange(spec.Trim);
-            if (spec.Bases.Count == 0) spec.Bases.AddRange(spec.Trim);
-            if (spec.Roofs.Count == 0) spec.Roofs.Add(spec.Roof);
-            if (spec.Awnings.Count == 0) spec.Awnings.AddRange(spec.Accents);
-            if (spec.Lit.Count == 0) spec.Lit.Add(SurroundingsSlots.NoTint);
-            if (spec.Metal == SurroundingsSlots.NoTint) spec.Metal = spec.Trim[0];
+            if (spec.HazeTo <= spec.HazeFrom) throw At(haze, "to").Error("must be beyond from");
+            if (spec.Plant.Count == 0) spec.Plant.Add(0x9A9C9E);
+            if (spec.Roofs.Count == 0) spec.Roofs.Add(0x4E5257);
+            if (spec.Caps.Count == 0) spec.Caps.AddRange(spec.Roofs);
+            if (spec.Awnings.Count == 0) spec.Awnings.AddRange(spec.Plant);
+            if (spec.Signs.Count == 0) spec.Signs.AddRange(spec.Awnings);
+            if (spec.Crowns.Count == 0) spec.Crowns.AddRange(spec.Caps);
+            if (spec.Bold.Count == 0) spec.Bold.AddRange(spec.Caps);
+            if (spec.ShopGlass.Count == 0) spec.ShopGlass.Add(0x7F7563);
             var facades = At(n, "facades");
             if (facades.IsNull) throw n.Error("needs facades");
             foreach (string key in facades.Keys.OrderBy(k => k, StringComparer.Ordinal)) spec.Facades[key] = CourseFacadeSpec.Read(key, facades[key]);
@@ -102,13 +116,25 @@ namespace Wreckabulary.Rules.Surroundings
             return spec;
         }
 
-        public CourseFacadeSpec Facade(IReadOnlyList<string> ids, double pick)
+        public CourseFacadeSpec Facade(IReadOnlyList<string> ids, double pick, double downtown = 0)
         {
-            var list = ids.Count > 0 ? ids : Facades.Keys.ToList();
-            return Facades[list[Math.Min(list.Count - 1, (int)(pick * list.Count))]];
+            var list = (ids.Count > 0 ? ids : Facades.Keys.ToList()).Select(id => Facades[id]).ToList();
+            double total = list.Sum(f => f.WeightAt(downtown));
+            if (total <= 0) return list[Math.Min(list.Count - 1, (int)(pick * list.Count))];
+            double at = pick * total;
+            foreach (var facade in list)
+            {
+                double w = facade.WeightAt(downtown);
+                if (w <= 0) continue;
+                at -= w;
+                if (at < 0) return facade;
+            }
+            return list.Last(f => f.WeightAt(downtown) > 0);
         }
 
         static List<uint> Tints(JsonNode node) => node.IsNull ? new List<uint>() : node.Items.Select(SurroundingsPlan.Tint).ToList();
+
+        static uint Tint(JsonNode node, uint fallback) => SurroundingsPlan.OptionalTint(node) ?? fallback;
     }
 
     sealed class CourseSkylineBand
@@ -192,29 +218,36 @@ namespace Wreckabulary.Rules.Surroundings
 
     sealed class CourseFacadeSpec
     {
-        const float MinFinSpacing = 1.5f;
+        const float MinSpacing = 1.2f, LeastShare = .2f, MostShare = .95f;
 
-        public string Id;
-        public (float min, float max) Glass;
-        public List<uint> Walls, Panes, Accents;
+        public string Id, Kind;
+        public float Ring, Downtown, Margin, Lit;
+        public (float min, float max) Spacing, Width, Height;
+        public List<uint> Walls, Glass;
         public bool Piers;
-        public float Fins;
 
         public static CourseFacadeSpec Read(string id, JsonNode n)
         {
+            var windows = At(n, "windows");
             var spec = new CourseFacadeSpec
             {
-                Id = id, Glass = Span(At(n, "glass"), .5f, .1f),
+                Id = id, Kind = At(n, "kind").String(CourseSkylineKinds.Neutral),
+                Ring = AtLeast(At(n, "ring"), 1f, 0f), Downtown = AtLeast(At(n, "downtown"), 1f, 0f),
                 Walls = At(n, "walls").Items.Select(SurroundingsPlan.Tint).ToList(),
-                Panes = At(n, "panes").Items.Select(SurroundingsPlan.Tint).ToList(),
-                Accents = Has(n, "accents") ? At(n, "accents").Items.Select(SurroundingsPlan.Tint).ToList() : new List<uint>(),
-                Piers = At(n, "piers").Bool(false), Fins = At(n, "fins").Float(0f),
+                Glass = At(n, "glass").Items.Select(SurroundingsPlan.Tint).ToList(),
+                Piers = At(n, "piers").Bool(false),
+                Spacing = Span(At(windows, "spacing"), 3f, MinSpacing),
+                Width = SurroundingsPlan.Range(At(windows, "width"), .5f), Height = SurroundingsPlan.Range(At(windows, "height"), .55f),
+                Margin = AtLeast(At(windows, "margin"), 1f, 0f), Lit = Fraction(At(windows, "lit"), .05f),
             };
-            if (spec.Fins != 0 && spec.Fins < MinFinSpacing) throw At(n, "fins").Error($"must be 0 or a spacing of at least {MinFinSpacing} m");
-            if (spec.Glass.max > .9f) throw At(n, "glass").Error("must stay at or below 0.9 so wall bands show");
+            if (!CourseSkylineKinds.All.Contains(spec.Kind)) throw At(n, "kind").Error($"must be one of {string.Join(", ", CourseSkylineKinds.All)}");
+            foreach (var (range, key) in new[] { (spec.Width, "width"), (spec.Height, "height") })
+                if (!(range.min >= LeastShare && range.max <= MostShare)) throw At(windows, key).Error($"must stay between {LeastShare} and {MostShare} so frames and spandrels show");
             if (spec.Walls.Count == 0) throw At(n, "walls").Error("must list at least one colour");
-            if (spec.Panes.Count == 0) spec.Panes.Add(SurroundingsSlots.NoTint);
+            if (spec.Glass.Count == 0) throw At(n, "glass").Error("must list at least one glass colour");
             return spec;
         }
+
+        public float WeightAt(double downtown) => (float)(Ring + (Downtown - Ring) * downtown);
     }
 }

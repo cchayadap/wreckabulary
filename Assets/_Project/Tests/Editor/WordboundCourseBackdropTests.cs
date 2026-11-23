@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using UnityEditor;
+using UnityEditor.Rendering;
 using UnityEngine;
 using Wreckabulary.Art;
+using Wreckabulary.EditorTools;
 using Wreckabulary.Rules.Surroundings;
 using Wreckabulary.Rules.Wordbound;
 using Wreckabulary.WordboundRuntime;
@@ -82,7 +85,7 @@ namespace Wreckabulary.Tests
             foreach (string slot in CourseSkyline.Slots)
                 if (!slotMaterials.ContainsKey(slot))
                 {
-                    var slotMaterial = new Material(shader) { name = slot };
+                    var slotMaterial = new Material(Shader.Find(CourseSkylineMesh.ShaderName) ?? shader) { name = slot };
                     created.Add(slotMaterial);
                     slotMaterials.Add(slot, slotMaterial);
                 }
@@ -134,7 +137,7 @@ namespace Wreckabulary.Tests
         static MeshRenderer[] Town(GameObject root) =>
             root.GetComponentsInChildren<MeshRenderer>(true).Where(r => r.transform.parent.name != CourseSkylineMesh.RootName).ToArray();
 
-        void AssertSkyline(GameObject root, CourseSurroundingsResult layout, int limit)
+        void AssertSkyline(GameObject root, CourseSurroundingsResult layout, int limit, CourseBackdropKit kit)
         {
             Assert.IsNotEmpty(layout.Skyline.Towers, "every course gets a skyline");
             Assert.IsTrue(layout.Skyline.Count(CourseSkylineTypes.Supertall) >= 1, "every downtown has its supertall");
@@ -146,15 +149,15 @@ namespace Wreckabulary.Tests
             Assert.LessOrEqual(renderers.Length, limit);
             Assert.IsTrue(renderers.All(r => r.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.Off), "far towers cast no shadows");
             Assert.IsTrue(renderers.All(r => r.sharedMaterial), "every skyline renderer has its backdrop material");
+            var skylineMaterial = CourseSkylineMesh.MaterialOf(kit, out bool fallback);
             var block = new MaterialPropertyBlock();
             foreach (var renderer in renderers)
             {
-                Assert.IsTrue(renderer.HasPropertyBlock(), $"{renderer.name} keeps the shared material untouched and sets its own surface");
+                Assert.AreSame(skylineMaterial, renderer.sharedMaterial, $"{renderer.name} draws with the skyline material");
+                Assert.AreEqual(fallback, renderer.HasPropertyBlock(), $"{renderer.name} sets its own surface only on the plain fallback");
+                if (!fallback) continue;
                 renderer.GetPropertyBlock(block);
                 Assert.AreEqual(Color.white, block.GetColor("_BaseColor"), $"{renderer.name} draws its vertex colours on a white base");
-                string slot = CourseSkyline.Slots.First(s => renderer.name == s || renderer.name.StartsWith(s + "_", StringComparison.Ordinal));
-                Assert.AreEqual(CourseSkyline.SmoothnessOf(slot), block.GetFloat("_Smoothness"), 1e-4f, renderer.name);
-                Assert.AreEqual(slot == CourseSkyline.LitSlot, block.GetColor("_EmissionColor").maxColorComponent > 0f, $"only the lit panes of {renderer.name} glow");
             }
             Assert.IsTrue(Town(root).All(r => !r.HasPropertyBlock()), "the house backdrop keeps the shared bk_* look");
             Assert.IsEmpty(skyline.GetComponentsInChildren<Collider>(true), "the towers have no colliders");
@@ -171,6 +174,18 @@ namespace Wreckabulary.Tests
                 var indices = mesh.triangles;
                 triangles += indices.Length / 3;
                 Assert.IsTrue(mesh.colors32.All(c => c.a == 0), $"{filter.name} would sway in the wind");
+                foreach (int channel in new[] { 0, 1, 2 })
+                {
+                    var uvs = new List<Vector4>();
+                    mesh.GetUVs(channel, uvs);
+                    Assert.AreEqual(vertices.Length, uvs.Count, $"{filter.name} carries its window data in UV{channel}");
+                }
+                var extra = new List<Vector2>();
+                mesh.GetUVs(3, extra);
+                Assert.AreEqual(vertices.Length, extra.Count, $"{filter.name} carries its seed and haze in UV3");
+                var grid = new List<Vector4>();
+                mesh.GetUVs(1, grid);
+                Assert.IsTrue(grid.Any(g => g.x > 0f), $"{filter.name} has facades with windows");
                 foreach (var vertex in vertices)
                 {
                     var local = world.transform.InverseTransformPoint(filter.transform.TransformPoint(vertex));
@@ -204,14 +219,15 @@ namespace Wreckabulary.Tests
         public void TheHighBackdropHasNoCollidersAndStaysOutsideTheCourse()
         {
             int surfaces = world.Surfaces.Count;
-            var root = Build(BoxKit(), false, out var layout);
+            var kit = BoxKit();
+            var root = Build(kit, false, out var layout);
             Assert.AreEqual(CourseSurroundingsTier.High, layout.Tier);
             AssertNotSimulated(root, surfaces);
             AssertOutsideCourse(root, layout, Slack);
             var renderers = Town(root);
             Assert.AreEqual(layout.Groups.Count, renderers.Length, "one merged renderer per band and slot");
             Assert.LessOrEqual(renderers.Length, CourseSurroundings.HighRenderers);
-            AssertSkyline(root, layout, CourseSkyline.HighRenderers);
+            AssertSkyline(root, layout, CourseSkyline.HighRenderers, kit);
             Assert.IsTrue(renderers.Any(r => r.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.On));
             Assert.IsTrue(renderers.Where(r => r.transform.parent.name == nameof(SurroundingsRing.Far)).All(r => r.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.Off));
             Assert.That(Vector3.Distance(root.transform.position, world.transform.position), Is.LessThan(.001f));
@@ -229,7 +245,7 @@ namespace Wreckabulary.Tests
             AssertOutsideCourse(root, low, Slack);
             var renderers = root.GetComponentsInChildren<MeshRenderer>(true);
             Assert.LessOrEqual(Town(root).Length, CourseSurroundings.LowRenderers);
-            AssertSkyline(root, low, CourseSkyline.LowRenderers);
+            AssertSkyline(root, low, CourseSkyline.LowRenderers, kit);
             Assert.Less(low.Skyline.Towers.Count, high.Skyline.Towers.Count);
             Assert.Less(low.Placements.Count, high.Placements.Count);
             Assert.IsTrue(renderers.All(r => r.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.Off));
@@ -264,7 +280,8 @@ namespace Wreckabulary.Tests
             var kit = CourseBackdropKit.Load();
             Assert.IsNotNull(kit, $"No kit at Resources/{CourseBackdropKit.ResourcePath}: exec Wreckabulary.EditorTools.CourseBackdropKitBake.Run.");
             CollectionAssert.IsEmpty(kit.Gaps());
-            foreach (string slot in CourseSkyline.Slots) Assert.IsTrue(kit.MaterialFor(slot), $"the kit has no material for the skyline slot {slot}");
+            foreach (string slot in CourseSkyline.Slots) Assert.IsTrue(kit.MaterialFor(slot), $"the kit has no material for the skyline slot {slot}; exec Wreckabulary.EditorTools.CourseBackdropKitBake.Run");
+            Assert.AreEqual(CourseSkylineMesh.ShaderName, kit.MaterialFor(CourseSkyline.SkylineSlot).shader.name, "the skyline draws its windows with its own shader");
             int surfaces = world.Surfaces.Count;
             foreach (bool low in new[] { false, true })
             {
@@ -272,8 +289,32 @@ namespace Wreckabulary.Tests
                 AssertNotSimulated(root, surfaces);
                 AssertOutsideCourse(root, layout, RealMeshSlack);
                 Assert.LessOrEqual(Town(root).Length, low ? CourseSurroundings.LowRenderers : CourseSurroundings.HighRenderers);
-                AssertSkyline(root, layout, low ? CourseSkyline.LowRenderers : CourseSkyline.HighRenderers);
+                AssertSkyline(root, layout, low ? CourseSkyline.LowRenderers : CourseSkyline.HighRenderers, kit);
             }
+        }
+
+        [Test]
+        public void TheSkylineShaderCompilesEveryPass()
+        {
+            var shader = AssetDatabase.LoadAssetAtPath<Shader>(CourseBackdropKitBake.SkylineShaderPath);
+            Assert.IsNotNull(shader, CourseBackdropKitBake.SkylineShaderPath);
+            Assert.AreEqual(CourseSkylineMesh.ShaderName, shader.name);
+            Assert.IsFalse(ShaderUtil.ShaderHasError(shader), string.Join("\n", ShaderUtil.GetShaderMessages(shader).Select(m => m.message)));
+            var subshader = ShaderUtil.GetShaderData(shader).GetSubshader(0);
+            var passes = Enumerable.Range(0, subshader.PassCount).Select(i => subshader.GetPass(i)).ToList();
+            CollectionAssert.AreEquivalent(new[] { "ForwardLit", "ShadowCaster", "DepthOnly", "DepthNormals" }, passes.Select(p => p.Name));
+            var failures = new List<string>();
+            var keywords = new[] { new string[0], new[] { "_MAIN_LIGHT_SHADOWS_CASCADE", "_CLUSTER_LIGHT_LOOP", "_SHADOWS_SOFT", "FOG_LINEAR", "EVALUATE_SH_MIXED", "DOTS_INSTANCING_ON" } };
+            foreach (var pass in passes)
+                foreach (var variant in keywords)
+                    foreach (var stage in new[] { ShaderType.Vertex, ShaderType.Fragment })
+                    {
+                        if (!pass.HasShaderStage(stage)) { failures.Add($"{pass.Name} has no {stage} stage"); continue; }
+                        var result = pass.CompileVariant(stage, variant, ShaderCompilerPlatform.D3D, BuildTarget.StandaloneWindows64);
+                        var errors = result.Messages.Where(m => m.severity == ShaderCompilerMessageSeverity.Error).Select(m => $"{m.message} ({m.file}:{m.line})").ToArray();
+                        if (!result.Success || errors.Length > 0) failures.Add($"{pass.Name} {stage} [{string.Join(" ", variant)}]: {string.Join("; ", errors)}");
+                    }
+            Assert.IsEmpty(failures, string.Join("\n", failures));
         }
     }
 }

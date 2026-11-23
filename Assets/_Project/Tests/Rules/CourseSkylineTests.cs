@@ -19,7 +19,9 @@ namespace Wreckabulary.Rules.Tests
 
         static readonly string[] Shapes = { "arena", "depot", "flagship", "offset", "ribbon" };
         static readonly CourseSurroundingsTier[] Tiers = { CourseSurroundingsTier.High, CourseSurroundingsTier.Low };
-        static readonly string[] Details = { "plaza", "shop", "awning", "sign", "pane", "pier", "fin", "mullion", "parapet", "hut", "stand", "tank", "ac", "antenna", "chimney", "hand", "skeleton", "crane" };
+        static readonly string[] Details = { "plaza", "door", "awning", "balcony", "pier", "ledge", "cornice", "parapet", "hut", "plant", "duct", "stand", "tank", "antenna", "chimney", "hand", "skeleton", "crane", "board" };
+        static readonly string[] Trims = { "body", "ledge", "cornice", "pier", "parapet", "plinth", "balcony", "hut", "chimney", "penthouse", "stage", "bridge", "shaft", "pod" };
+        static readonly string[] Accents = { "awning", "board", "crown", "spire", "pyramid", "dome", "crane", "mast", "tank", "stand" };
         static readonly Dictionary<(string, string, CourseSurroundingsTier), CourseSurroundingsResult> built = new Dictionary<(string, string, CourseSurroundingsTier), CourseSurroundingsResult>();
         static SurroundingsKit kit;
         static CourseSurroundingsStyle style;
@@ -126,13 +128,33 @@ namespace Wreckabulary.Rules.Tests
             return filled.Count(x => x) / 360.0;
         }
 
+        static (double hue, double saturation, double value) Hsv(uint rgb)
+        {
+            double r = (rgb >> 16 & 0xFF) / 255.0, g = (rgb >> 8 & 0xFF) / 255.0, b = (rgb & 0xFF) / 255.0;
+            double max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b)), delta = max - min;
+            double hue = delta < 1e-9 ? 0 : max == r ? 60 * (((g - b) / delta + 6) % 6) : max == g ? 60 * ((b - r) / delta + 2) : 60 * ((r - g) / delta + 4);
+            return (hue, max <= 0 ? 0 : delta / max, max);
+        }
+
+        static bool SameHue(uint colour, uint wall)
+        {
+            double[] c = { colour >> 16 & 0xFF, colour >> 8 & 0xFF, colour & 0xFF }, w = { wall >> 16 & 0xFF, wall >> 8 & 0xFF, wall & 0xFF };
+            double k = c.Sum() / Math.Max(1, w.Sum());
+            return Enumerable.Range(0, 3).All(i => Math.Abs(c[i] - w[i] * k) <= 2.5);
+        }
+
+        static double Share(IEnumerable<CourseTower> towers, string kind)
+        {
+            var list = towers.ToList();
+            return list.Count == 0 ? 0 : list.Count(t => t.Kind == kind) / (double)list.Count;
+        }
+
         [Test]
-        public void TheStyleBringsASkylineThatOnlyUsesKitSlots()
+        public void TheStyleBringsASkylineDrawnWithItsOwnMaterial()
         {
             Assert.IsTrue(Style().HasSkyline);
-            var slots = new HashSet<string>(Kit().Pieces.SelectMany(p => p.Slots));
-            foreach (string slot in CourseSkyline.Slots.Where(s => s != CourseSkyline.LitSlot)) Assert.IsTrue(slots.Contains(slot), $"{slot} has no backdrop material in the kit");
-            Assert.AreEqual("bk_glass_lit", CourseSkyline.LitSlot, "lit panes use the baked warm glass slot every course kit carries");
+            CollectionAssert.AreEqual(new[] { CourseSkyline.SkylineSlot }, CourseSkyline.Slots);
+            Assert.IsTrue(Kit().Pieces.Any(p => p.Slots.Contains(CourseSkyline.FallbackSlot)), "the plain fallback uses a slot the kit has");
             Assert.IsFalse(CourseSurroundingsStyle.FromJson(WithoutSkyline(Read(StyleFile)), "bare.json").HasSkyline);
         }
 
@@ -227,85 +249,18 @@ namespace Wreckabulary.Rules.Tests
         }
 
         [TestCaseSource(nameof(Shapes))]
-        public void TheCityHasManyArchitectures(string shape)
+        public void TheCityKeepsItsArchitectures(string shape)
         {
             var skyline = Build(shape, CourseSurroundingsTier.High).Skyline;
             var plain = skyline.Towers.Where(t => t.Landmark == null).Select(t => t.Type).Distinct().ToList();
             Assert.GreaterOrEqual(plain.Count, 7, string.Join(", ", plain));
             Assert.AreEqual(1, skyline.Count(CourseSkylineTypes.Clock), "one clock tower");
             Assert.LessOrEqual(skyline.Count(CourseSkylineTypes.Needle), 1, "at most one needle tower");
-            Assert.GreaterOrEqual(skyline.Towers.Select(t => t.Wall).Distinct().Count(), 12, "walls vary through the palette");
-            Assert.IsTrue(skyline.Boxes.Any(b => b.Sides > 4), "round and octagonal towers are prisms");
+            Assert.IsTrue(skyline.Boxes.Any(b => b.Sides > 4 && b.Windows != null), "round and octagonal towers are prisms with windows");
             Assert.IsTrue(skyline.Boxes.Any(b => b.Apex), "pyramids and spires come to a point");
-            Assert.IsTrue(skyline.Boxes.Any(b => b.Part == "mullion"), "curtain walls have vertical mullions");
             Assert.IsTrue(skyline.Boxes.Any(b => b.Part == "tank"), "lofts carry water tanks");
             Assert.IsTrue(skyline.Boxes.Any(b => b.Part == "face"), "the clock tower has faces");
-        }
-
-        static (double hue, double saturation, double value) Hsv(uint rgb)
-        {
-            double r = (rgb >> 16 & 0xFF) / 255.0, g = (rgb >> 8 & 0xFF) / 255.0, b = (rgb & 0xFF) / 255.0;
-            double max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b)), delta = max - min;
-            double hue = delta < 1e-9 ? 0 : max == r ? 60 * (((g - b) / delta + 6) % 6) : max == g ? 60 * ((b - r) / delta + 2) : 60 * ((r - g) / delta + 4);
-            return (hue, max <= 0 ? 0 : delta / max, max);
-        }
-
-        static double Median(IEnumerable<double> values)
-        {
-            var sorted = values.OrderBy(v => v).ToList();
-            return sorted.Count == 0 ? 0 : sorted[sorted.Count / 2];
-        }
-
-        [TestCaseSource(nameof(Shapes))]
-        public void TheCityIsPaintedInRichVariedColours(string shape)
-        {
-            var skyline = Build(shape, CourseSurroundingsTier.High).Skyline;
-            var towers = skyline.Towers;
-            Assert.IsFalse(skyline.Boxes.Any(b => b.Tint == SurroundingsSlots.NoTint), "every box carries its own colour, since the skyline draws on a white base");
-            double walls = Median(towers.Select(t => Hsv(t.Wall).saturation)), panes = Median(towers.Select(t => Hsv(t.Pane).saturation));
-            var hues = towers.SelectMany(t => new[] { t.Wall, t.Pane, t.Accent }).Select(Hsv).Where(c => c.saturation >= .3 && c.value >= .25).Select(c => (int)(c.hue / 30)).Distinct().Count();
-            string summary = $"wall saturation {walls:0.00}, pane saturation {panes:0.00}, {hues} hue families";
-            TestContext.WriteLine(summary);
-            Assert.GreaterOrEqual(walls, .35, summary);
-            Assert.GreaterOrEqual(panes, .35, summary);
-            Assert.GreaterOrEqual(hues, 6, summary);
-            Assert.GreaterOrEqual(towers.Where(t => t.Downtown && t.Facade == "glass").Select(t => t.Pane).Distinct().Count(), 4, "downtown glass towers come in several glass tints");
-            Assert.IsTrue(towers.All(t => t.Accent != t.Wall), "every building has a trim colour that differs from its walls");
-            Assert.IsTrue(towers.All(t => t.Base != t.Wall), "every plinth contrasts with its walls");
-            for (int a = 0; a < towers.Count; a++)
-                for (int b = a + 1; b < towers.Count; b++)
-                {
-                    double dx = towers[a].X - towers[b].X, dz = towers[a].Z - towers[b].Z;
-                    if (dx * dx + dz * dz < 36 * 36) Assert.AreNotEqual(towers[a].Wall, towers[b].Wall, $"the neighbours at ({towers[a].X}, {towers[a].Z}) and ({towers[b].X}, {towers[b].Z}) share a wall colour");
-                }
-        }
-
-        [TestCaseSource(nameof(Shapes))]
-        public void FacadesHaveAccentsShopfrontsAndColouredRoofs(string shape)
-        {
-            var towers = Build(shape, CourseSurroundingsTier.High).Skyline.Towers;
-            var detailed = towers.Where(t => t.Detailed && t.Landmark == null).ToList();
-            Assert.IsNotEmpty(detailed);
-            Assert.IsTrue(towers.All(t => t.Boxes.Where(b => b.Part == "plinth").All(b => b.Tint == t.Base)), "plinths use the building's base colour");
-            Assert.Greater(towers.Count(t => t.Boxes.Any(b => b.Part == "band" && b.Tint == t.Accent) && t.Boxes.Any(b => b.Part == "band" && b.Tint == t.Wall)), towers.Count / 2, "most buildings have accent bands between their wall bands");
-            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "awning")), detailed.Count / 2, "most near buildings have shopfront awnings");
-            Assert.IsTrue(detailed.Any(t => t.Boxes.Any(b => b.Part == "sign")), "some shopfronts carry signs");
-            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "pane")), detailed.Count / 2, "most near buildings have lit or tinted panes in their window rows");
-            Assert.GreaterOrEqual(towers.SelectMany(t => t.Boxes).Where(b => b.Part == "roof").Select(b => b.Tint).Distinct().Count(), 4, "roofs come in copper green, red tile, slate and more");
-            Assert.IsTrue(towers.Where(t => t.Boxes.Any(b => b.Part == "mullion")).Any(t => t.Boxes.Where(b => b.Part == "mullion").Select(b => b.Tint).Distinct().Count() == 2), "curtain wall mullions alternate two colours");
-            var shops = towers.SelectMany(t => t.Boxes).Where(b => b.Part == "shop").ToList();
-            Assert.IsTrue(shops.All(b => b.Slot == CourseSkyline.LitSlot && Hsv(b.Tint).value >= .9 && Hsv(b.Tint).hue >= 30 && Hsv(b.Tint).hue <= 60), "shopfronts glow warm");
-            Assert.IsTrue(towers.SelectMany(t => t.Boxes).Any(b => b.Part == "pane" && b.Slot == CourseSkyline.LitSlot), "some panes are lit");
-            Assert.IsTrue(towers.SelectMany(t => t.Boxes).Any(b => b.Part == "pane" && b.Slot == CourseSkyline.GlassSlot), "some panes are tinted glass");
-        }
-
-        [Test]
-        public void TheSkylineDrawsItsOwnColoursOnAWhiteBase()
-        {
-            foreach (string slot in CourseSkyline.Slots) Assert.That(CourseSkyline.SmoothnessOf(slot), Is.InRange(0f, .35f), slot);
-            Assert.Less(CourseSkyline.WallSmoothness, CourseSkyline.GlassSmoothness);
-            Assert.That(new[] { CourseSkyline.GlowRed, CourseSkyline.GlowGreen, CourseSkyline.GlowBlue }, Is.All.InRange(.1f, .7f), "lit panes glow gently in daylight");
-            Assert.That(CourseSkyline.GlowRed, Is.GreaterThan(CourseSkyline.GlowBlue), "the glow is warm");
+            Assert.IsFalse(skyline.Boxes.Any(b => b.Part == "band" || b.Part == "glass"), "no horizontal stripe bands or glass cores");
         }
 
         [Test]
@@ -317,6 +272,134 @@ namespace Wreckabulary.Rules.Tests
             Assert.IsTrue(cranes.All(t => t.Downtown && t.Landmark == null));
             Assert.IsTrue(cranes.Where(t => t.Detailed).All(t => t.Boxes.Any(b => b.Part == "crane") && t.Boxes.Any(b => b.Part == "skeleton")));
             Assert.IsTrue(towers.Where(t => !t.Crane).All(t => t.Boxes.All(b => b.Part != "crane")));
+        }
+
+        [Test]
+        public void ThePaletteIsMostlyNeutralWithSomeBrickAndGlass()
+        {
+            var towers = Shapes.SelectMany(s => Build(s, CourseSurroundingsTier.High).Skyline.Towers).ToList();
+            double neutral = Share(towers, CourseSkylineKinds.Neutral), brick = Share(towers, CourseSkylineKinds.Brick), glass = Share(towers, CourseSkylineKinds.Glass);
+            string summary = $"neutral {neutral:0.00}, brick {brick:0.00}, glass {glass:0.00}";
+            TestContext.WriteLine(summary);
+            Assert.That(neutral, Is.InRange(.56, .74), summary);
+            Assert.That(brick, Is.InRange(.14, .3), summary);
+            Assert.That(glass, Is.InRange(.08, .24), summary);
+            var downtown = towers.Where(t => t.Downtown).ToList();
+            var ring = towers.Where(t => !t.Downtown).ToList();
+            Assert.Greater(Share(downtown, CourseSkylineKinds.Glass), Share(ring, CourseSkylineKinds.Glass) + .15, "the downtown is mostly glass and stone");
+            Assert.Greater(Share(ring, CourseSkylineKinds.Brick), Share(downtown, CourseSkylineKinds.Brick) + .1, "the ring is mostly stone and brick");
+            Assert.GreaterOrEqual(Share(downtown, CourseSkylineKinds.Glass) + Share(downtown, CourseSkylineKinds.Neutral), .8, summary);
+        }
+
+        [TestCaseSource(nameof(Shapes))]
+        public void EachBuildingHasOneWallMaterialWithTrimsDerivedFromIt(string shape)
+        {
+            var skyline = Build(shape, CourseSurroundingsTier.High).Skyline;
+            foreach (var t in skyline.Towers)
+            {
+                Assert.AreEqual(CourseSkyline.Shade(t.Wall, CourseSkyline.PlinthShade), t.Base, "the plinth is the wall a little darker");
+                foreach (var b in t.Boxes.Where(b => Trims.Contains(b.Part)))
+                    Assert.IsTrue(SameHue(b.Tint, t.Wall), $"the {b.Part} of the {t.Type} at ({t.X}, {t.Z}) is {b.Tint:x6}, not a shade of its wall {t.Wall:x6}");
+                Assert.IsTrue(t.Boxes.Where(b => b.Part == "body").All(b => b.Tint == t.Wall), $"the {t.Type} at ({t.X}, {t.Z}) keeps one wall colour");
+                Assert.IsTrue(t.Boxes.Where(b => b.Part == "roof").All(b => Hsv(b.Tint).saturation < .2 && Hsv(b.Tint).value < .45), "roofs are dark grey or slate");
+                foreach (var b in t.Boxes.Where(b => Hsv(b.Tint).saturation > .42))
+                    Assert.IsTrue(Accents.Contains(b.Part) || (t.Kind == CourseSkylineKinds.Brick && SameHue(b.Tint, t.Wall)),
+                        $"the {b.Part} of the {t.Type} at ({t.X}, {t.Z}) is saturated ({b.Tint:x6}); saturated colour belongs on small things and brick");
+            }
+            var glass = skyline.Towers.Select(t => Hsv(t.Pane)).ToList();
+            Assert.IsTrue(glass.All(c => c.hue >= 185 && c.hue <= 215 && c.saturation <= .45 && c.value <= .65), "glass comes from one blue-grey to teal family");
+            Assert.Less(skyline.Towers.Where(t => t.Kind != CourseSkylineKinds.Glass).Average(t => Hsv(t.Pane).value),
+                skyline.Towers.Where(t => t.Kind == CourseSkylineKinds.Glass).Average(t => Hsv(t.Pane).value), "older masonry buildings have darker glass");
+            var towers = skyline.Towers;
+            for (int a = 0; a < towers.Count; a++)
+                for (int b = a + 1; b < towers.Count; b++)
+                {
+                    double dx = towers[a].X - towers[b].X, dz = towers[a].Z - towers[b].Z;
+                    if (dx * dx + dz * dz < 36 * 36) Assert.AreNotEqual(towers[a].Wall, towers[b].Wall, $"the neighbours at ({towers[a].X}, {towers[a].Z}) and ({towers[b].X}, {towers[b].Z}) share a wall colour");
+                }
+        }
+
+        [TestCaseSource(nameof(Cases))]
+        public void FacadesShowGridsOfRealWindows(string shape, CourseSurroundingsTier tier)
+        {
+            var skyline = Build(shape, tier).Skyline;
+            foreach (var t in skyline.Towers)
+                foreach (var b in t.Boxes.Where(b => b.Part == "body"))
+                {
+                    var w = b.Windows;
+                    Assert.IsNotNull(w, $"the body of the {t.Type} at ({t.X}, {t.Z}) has windows");
+                    Assert.AreEqual(t.Pane, w.Glass);
+                    Assert.That(w.Width, Is.InRange(.2f, .95f));
+                    Assert.That(w.Height, Is.InRange(.2f, .95f));
+                    Assert.That(w.Lit, Is.InRange(0f, .05f), "only a few lit panes in daylight");
+                    if (t.Kind == CourseSkylineKinds.Glass) Assert.IsTrue(w.Spacing < 2f && w.Width >= .8f, "curtain walls have narrow panes and thin mullions");
+                    else Assert.IsTrue(w.Spacing >= 2.2f && w.Width <= .75f, "masonry has punched windows with piers between them");
+                    Assert.GreaterOrEqual(w.Rows(b.Height), 1, $"the body of the {t.Type} at ({t.X}, {t.Z}) has at least one row");
+                }
+            var parts = CourseSkyline.Parts(skyline);
+            int windowed = 0, faces = 0;
+            foreach (var part in parts)
+                for (int v = 0; v < part.Vertices; v += 4)
+                {
+                    faces++;
+                    if (part.Grid[v * 4] > 0) windowed++;
+                }
+            Assert.Greater(windowed, faces / 10, "a good share of faces carry window grids");
+        }
+
+        [TestCaseSource(nameof(Shapes))]
+        public void GroundFloorsAreTallerWithShopfrontsAndStreetDetail(string shape)
+        {
+            var skyline = Build(shape, CourseSurroundingsTier.High).Skyline;
+            var towers = skyline.Towers;
+            foreach (var t in towers)
+                foreach (var plinth in t.Boxes.Where(b => b.Part == "plinth"))
+                {
+                    var body = t.Boxes.FirstOrDefault(b => b.Part == "body");
+                    Assert.IsNotNull(plinth.Windows, "the ground floor has shopfront windows");
+                    Assert.AreEqual(1, plinth.Windows.Rows(plinth.Height), "one tall row of shop windows");
+                    Assert.Greater(plinth.Windows.Spacing, 4f, "shop windows are wide");
+                    if (body != null && t.Height >= 30) Assert.Greater(plinth.Height, body.Windows.Storey, $"the ground floor of the {t.Type} at ({t.X}, {t.Z}) is taller than its storeys");
+                }
+            var detailed = towers.Where(t => t.Detailed && t.Landmark == null).ToList();
+            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "door")), detailed.Count / 2, "most near buildings have entrances");
+            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "awning")), detailed.Count / 4, "many shopfronts have awnings");
+            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "cornice")), detailed.Count * 3 / 4, "cornices top most buildings");
+            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "ledge")), detailed.Count / 2, "ledges every few floors");
+            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "parapet")), detailed.Count / 2, "parapets on the roofs");
+            Assert.Greater(detailed.Count(t => t.Boxes.Any(b => b.Part == "plant" || b.Part == "hut" || b.Part == "tank")), detailed.Count / 2, "rooftop plant");
+            Assert.IsTrue(detailed.Any(t => t.Type == CourseSkylineTypes.Slab && t.Boxes.Any(b => b.Part == "balcony")), "some residential slabs have balconies");
+            Assert.IsTrue(detailed.Any(t => t.Boxes.Any(b => b.Part == "pier")), "masonry buildings have corner piers");
+        }
+
+        [Test]
+        public void TheDowntownCarriesAFewRooftopBillboards()
+        {
+            var towers = Shapes.SelectMany(s => Build(s, CourseSurroundingsTier.High).Skyline.Towers).ToList();
+            var boards = towers.Where(t => t.Boxes.Any(b => b.Part == "board")).ToList();
+            Assert.IsNotEmpty(boards);
+            Assert.IsTrue(boards.All(t => t.Downtown));
+            Assert.Less(boards.Count, towers.Count(t => t.Downtown) / 4, "only a few");
+        }
+
+        [TestCaseSource(nameof(Shapes))]
+        public void FarRowsRecedeIntoTheHaze(string shape)
+        {
+            var skyline = Build(shape, CourseSurroundingsTier.High).Skyline;
+            var towers = skyline.Towers.OrderBy(t => t.Distance).ToList();
+            Assert.AreEqual(0.0, towers.First().Haze, .05, "the nearest row is clear");
+            Assert.Greater(towers.Last().Haze, .1, "the farthest row is hazy");
+            for (int i = 1; i < towers.Count; i++) Assert.GreaterOrEqual(towers[i].Haze, towers[i - 1].Haze - 1e-3, "haze grows with distance");
+            var far = towers.Last();
+            var body = far.Boxes.First(b => b.Part == "body");
+            uint tinted = CourseSkyline.VertexColour(body, body.TopY, skyline.HazeTint), plain = CourseSkyline.Shade(body.Tint, CourseSkyline.Gradient(body, body.TopY));
+            double Distance(uint a, uint b) => Math.Abs((int)(a >> 16 & 0xFF) - (int)(b >> 16 & 0xFF)) + Math.Abs((int)(a >> 8 & 0xFF) - (int)(b >> 8 & 0xFF)) + Math.Abs((int)(a & 0xFF) - (int)(b & 0xFF));
+            Assert.Less(Distance(tinted, skyline.HazeTint), Distance(plain, skyline.HazeTint), "a far wall moves towards the sky colour");
+            foreach (var b in skyline.Boxes.Where(b => b.Part == "body").Take(50))
+            {
+                uint low = CourseSkyline.VertexColour(b, b.Y, skyline.HazeTint), high = CourseSkyline.VertexColour(b, b.TopY, skyline.HazeTint);
+                Assert.LessOrEqual((low >> 16 & 0xFF) + (low >> 8 & 0xFF) + (low & 0xFF), (high >> 16 & 0xFF) + (high >> 8 & 0xFF) + (high & 0xFF), "walls are a little darker towards the street");
+            }
         }
 
         [TestCaseSource(nameof(Shapes))]
@@ -378,58 +461,77 @@ namespace Wreckabulary.Rules.Tests
                 Assert.AreEqual(twin.Type, t.Type);
                 Assert.AreEqual(twin.Yaw, t.Yaw);
                 Assert.AreEqual(twin.Height, t.Height);
-                Assert.LessOrEqual(t.Boxes.Count(b => b.Part == "band"), twin.Boxes.Count(b => b.Part == "band"), "low has no more window bands");
+                Assert.AreEqual(twin.Wall, t.Wall);
                 Assert.LessOrEqual(t.Triangles, twin.Triangles);
             }
             foreach (var landmark in high.Towers.Where(t => t.Landmark != null))
                 Assert.IsTrue(low.Towers.Any(t => t.X == landmark.X && t.Z == landmark.Z), $"low keeps the {landmark.Landmark}");
-            Assert.IsFalse(low.Boxes.Any(b => Details.Contains(b.Part)), "low has no plazas, shopfronts, awnings, signs, tinted panes, ribs, parapets, roof details or cranes");
-            Assert.IsFalse(low.Groups.Any(g => g.Slot == CourseSkyline.MetalSlot || g.Slot == CourseSkyline.LitSlot), "low draws walls and glass only");
-            Assert.Less(low.Boxes.Count(b => b.Part == "band"), high.Boxes.Count(b => b.Part == "band"), "low has fewer window bands");
+            Assert.IsFalse(low.Boxes.Any(b => Details.Contains(b.Part)), "low has no plazas, entrances, awnings, balconies, piers, ledges, roof plant or cranes");
+            Assert.IsTrue(low.Boxes.Where(b => b.Part == "body").All(b => b.Windows != null), "low keeps its window grids, which cost no triangles");
         }
 
         [Test]
-        public void TheGeometryMatchesTheBoxesAndFacesOutward()
+        public void TheGeometryMatchesTheBoxesFacesOutwardAndCarriesTheWindows()
         {
             var skyline = Build("flagship", CourseSurroundingsTier.High).Skyline;
             var parts = CourseSkyline.Parts(skyline);
             Assert.AreEqual(skyline.Renderers, parts.Count);
             Assert.AreEqual(skyline.Vertices, parts.Sum(p => p.Vertices));
             Assert.AreEqual(skyline.Triangles, parts.Sum(p => p.Triangles));
-            CollectionAssert.AreEquivalent(CourseSkyline.Slots, parts.Select(p => p.Slot).Distinct());
-            foreach (string slot in CourseSkyline.Slots)
+            var boxes = skyline.Boxes.ToList();
+            int box = 0;
+            foreach (var part in parts.OrderBy(p => p.Index))
             {
-                var boxes = skyline.Boxes.Where(b => b.Slot == slot).ToList();
-                int box = 0;
-                foreach (var part in parts.Where(p => p.Slot == slot).OrderBy(p => p.Index))
+                Assert.LessOrEqual(part.Vertices, SurroundingsLayout.MergeVertexLimit);
+                Assert.AreEqual(part.Vertices, part.Colours.Length);
+                Assert.AreEqual(part.Vertices * 4, part.Facade.Length);
+                Assert.AreEqual(part.Vertices * 4, part.Grid.Length);
+                Assert.AreEqual(part.Vertices * 4, part.Glass.Length);
+                Assert.AreEqual(part.Vertices * 2, part.Extra.Length);
+                Assert.IsTrue(part.Indices.All(i => i >= 0 && i < part.Vertices));
+                var owner = new int[part.Vertices];
+                for (int v = 0; v < part.Vertices; box++)
                 {
-                    Assert.LessOrEqual(part.Vertices, SurroundingsLayout.MergeVertexLimit);
-                    Assert.AreEqual(part.Vertices, part.Colours.Length);
-                    Assert.AreEqual(part.Positions.Length, part.Normals.Length);
-                    Assert.IsTrue(part.Indices.All(i => i >= 0 && i < part.Vertices));
-                    var owner = new int[part.Vertices];
-                    for (int v = 0, first = box; v < part.Vertices; box++)
+                    Assert.Less(box, boxes.Count, $"{part.Label} has more vertices than its boxes");
+                    var b = boxes[box];
+                    for (int k = 0; k < b.Vertices; k++, v++)
                     {
-                        Assert.Less(box, boxes.Count, $"{part.Label} has more vertices than its boxes");
-                        for (int k = 0; k < boxes[box].Vertices; k++, v++)
-                        {
-                            owner[v] = box;
-                            Assert.AreEqual(boxes[box].Tint, part.Colours[v]);
-                        }
-                    }
-                    for (int i = 0; i < part.Indices.Length; i += 3)
-                    {
-                        Vec Corner(int k) => new Vec(part.Positions[part.Indices[i + k] * 3], part.Positions[part.Indices[i + k] * 3 + 1], part.Positions[part.Indices[i + k] * 3 + 2]);
-                        var normal = new Vec(part.Normals[part.Indices[i] * 3], part.Normals[part.Indices[i] * 3 + 1], part.Normals[part.Indices[i] * 3 + 2]);
-                        var b = boxes[owner[part.Indices[i]]];
-                        Assert.IsTrue(owner[part.Indices[i + 1]] == owner[part.Indices[i]] && owner[part.Indices[i + 2]] == owner[part.Indices[i]], "a triangle stays inside one box");
-                        Assert.Greater((Corner(1) - Corner(0)).Cross(Corner(2) - Corner(0)).Dot(normal), 0, $"triangle {i / 3} of {part.Label} is wound against its normal");
-                        var middle = (Corner(0) + Corner(1) + Corner(2)) * (1.0 / 3);
-                        Assert.Greater((middle - new Vec(b.X, b.Y + b.Height * .5, b.Z)).Dot(normal), 0, $"a face of the {b.Part} at ({b.X}, {b.Z}) points inwards");
+                        owner[v] = box;
+                        Assert.AreEqual(CourseSkyline.VertexColour(b, part.Positions[v * 3 + 1], skyline.HazeTint), part.Colours[v]);
+                        Assert.AreEqual(b.Haze, part.Extra[v * 2 + 1], 1e-6);
+                        if (part.Grid[v * 4] <= 0) continue;
+                        Assert.IsNotNull(b.Windows, $"only boxes with windows carry a grid ({b.Part})");
+                        Assert.IsTrue(b.Straight, "windows sit on straight faces only");
+                        Assert.AreEqual(b.Windows.Spacing, part.Grid[v * 4], 1e-5);
+                        Assert.AreEqual(b.Windows.Storey, part.Grid[v * 4 + 1], 1e-5);
+                        Assert.AreEqual(b.Windows.Lit, part.Glass[v * 4 + 3], 1e-5);
+                        uint glass = CourseSkyline.GlassColour(b, skyline.HazeTint);
+                        Assert.AreEqual((glass >> 16 & 0xFF) / 255f, part.Glass[v * 4], 1e-5);
+                        Assert.GreaterOrEqual(part.Facade[v * 4 + 2], 1f, "at least one column");
+                        Assert.GreaterOrEqual(part.Facade[v * 4 + 3], 1f, "at least one row");
                     }
                 }
-                Assert.AreEqual(boxes.Count, box, $"every {slot} box became faces");
+                for (int i = 0; i < part.Indices.Length; i += 3)
+                {
+                    Vec Corner(int k) => new Vec(part.Positions[part.Indices[i + k] * 3], part.Positions[part.Indices[i + k] * 3 + 1], part.Positions[part.Indices[i + k] * 3 + 2]);
+                    var normal = new Vec(part.Normals[part.Indices[i] * 3], part.Normals[part.Indices[i] * 3 + 1], part.Normals[part.Indices[i] * 3 + 2]);
+                    var b = boxes[owner[part.Indices[i]]];
+                    Assert.IsTrue(owner[part.Indices[i + 1]] == owner[part.Indices[i]] && owner[part.Indices[i + 2]] == owner[part.Indices[i]], "a triangle stays inside one box");
+                    Assert.Greater((Corner(1) - Corner(0)).Cross(Corner(2) - Corner(0)).Dot(normal), 0, $"triangle {i / 3} of {part.Label} is wound against its normal");
+                    var middle = (Corner(0) + Corner(1) + Corner(2)) * (1.0 / 3);
+                    Assert.Greater((middle - new Vec(b.X, b.Y + b.Height * .5, b.Z)).Dot(normal), 0, $"a face of the {b.Part} at ({b.X}, {b.Z}) points inwards");
+                }
+                for (int v = 0; v + 3 < part.Vertices; v += 4)
+                {
+                    if (part.Grid[v * 4] <= 0 || boxes[owner[v]].Vertices % 4 != 0) continue;
+                    double width = Math.Sqrt(Math.Pow(part.Positions[(v + 1) * 3] - part.Positions[v * 3], 2) + Math.Pow(part.Positions[(v + 1) * 3 + 2] - part.Positions[v * 3 + 2], 2));
+                    Assert.AreEqual(width, Math.Abs(part.Facade[(v + 1) * 4] - part.Facade[v * 4]), 1e-2, "facade metres follow the face width");
+                    double span = part.Facade[(v + 1) * 4] - part.Facade[v * 4];
+                    double cells = part.Facade[v * 4 + 2] * part.Grid[v * 4];
+                    Assert.AreEqual(0, Math.Min(part.Facade[v * 4], part.Facade[(v + 1) * 4]) + (Math.Abs(span) - cells) * .5, 1e-2, "the window columns are centred on the face");
+                }
             }
+            Assert.AreEqual(boxes.Count, box, "every box became faces");
         }
 
         [Test]
@@ -471,11 +573,11 @@ namespace Wreckabulary.Rules.Tests
         {
             var skyline = Build("depot", CourseSurroundingsTier.High).Skyline;
             string summary = $"{skyline.Towers.Count} towers, {skyline.Towers.Count(t => t.Downtown)} downtown, {skyline.Renderers} renderers, {skyline.Triangles} tris, " +
-                $"types {string.Join("/", skyline.Towers.GroupBy(t => t.Type).OrderBy(g => g.Key).Select(g => g.Key + " " + g.Count()))}";
+                $"kinds {string.Join("/", skyline.Towers.GroupBy(t => t.Kind).OrderBy(g => g.Key).Select(g => g.Key + " " + g.Count()))}";
             TestContext.WriteLine(summary);
             Assert.GreaterOrEqual(skyline.Towers.Count, 200, summary);
             Assert.GreaterOrEqual(skyline.Towers.Count(t => t.Downtown), 40, summary);
-            Assert.That(skyline.Renderers, Is.InRange(3, CourseSkyline.HighRenderers), summary);
+            Assert.That(skyline.Renderers, Is.InRange(1, CourseSkyline.HighRenderers), summary);
         }
 
         [Test]
@@ -499,10 +601,12 @@ namespace Wreckabulary.Rules.Tests
             string json = Read(StyleFile);
             Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"cell\": 30", "\"cell\": 20"), "cell.json"));
             Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"clusters\": [1, 2]", "\"clusters\": [1, 3]"), "clusters.json"));
-            Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"glass\": [0.72, 0.82]", "\"glass\": [0.72, 0.95]"), "glass.json"));
+            Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"width\": [0.86, 0.9]", "\"width\": [0.86, 0.99]"), "windows.json"));
             Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"height\": [70, 200]", "\"height\": [70, 360]"), "height.json"));
             Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"twin\": {", "\"tower\": {"), "type.json"));
             Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"facades\": [\"glass\"] }", "\"facades\": [\"steel\"] }"), "facade.json"));
+            Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"kind\": \"brick\", \"ring\": 2.9", "\"kind\": \"marble\", \"ring\": 2.9"), "kind.json"));
+            Assert.Throws<FormatException>(() => CourseSurroundingsStyle.FromJson(json.Replace("\"to\": 520", "\"to\": 20"), "haze.json"));
         }
 
         readonly struct Vec

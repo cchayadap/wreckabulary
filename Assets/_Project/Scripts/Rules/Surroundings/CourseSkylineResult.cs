@@ -4,6 +4,24 @@ using System.Linq;
 
 namespace Wreckabulary.Rules.Surroundings
 {
+    public sealed class SkylineWindows
+    {
+        public float Spacing { get; internal set; }
+        public float Storey { get; internal set; }
+        public float Width { get; internal set; }
+        public float Height { get; internal set; }
+        public float Margin { get; internal set; }
+        public float Bottom { get; internal set; }
+        public float Top { get; internal set; }
+        public uint Glass { get; internal set; } = SurroundingsSlots.NoTint;
+        public float Lit { get; internal set; }
+        public float Seed { get; internal set; }
+
+        public int Columns(double face) => Spacing <= 0 ? 0 : Math.Max(0, (int)Math.Floor((face - 2 * Margin) / Spacing + 1e-6));
+
+        public int Rows(double height) => Storey <= 0 ? 0 : Math.Max(0, (int)Math.Floor((height - Bottom - Top) / Storey + 1e-6));
+    }
+
     public sealed class SkylineBox
     {
         public string Slot { get; internal set; }
@@ -19,10 +37,15 @@ namespace Wreckabulary.Rules.Surroundings
         public bool Top { get; internal set; }
         public int Sides { get; internal set; } = 4;
         public float Taper { get; internal set; } = 1f;
+        public SkylineWindows Windows { get; internal set; }
+        public float Floor { get; internal set; }
+        public float Rise { get; internal set; } = 1f;
+        public float Haze { get; internal set; }
 
         public float TopY => Y + Height;
         public bool Apex => Taper <= 0f;
         public bool Capped => Top && !Apex;
+        public bool Straight => !Apex && Math.Abs(Taper - 1f) < 1e-4f;
         public int SideVertices => Apex ? 3 : 4;
         public int Triangles => Sides * (Apex ? 1 : 2) + (Capped ? Sides - 2 : 0);
         public int Vertices => Sides * SideVertices + (Capped ? Sides : 0);
@@ -34,6 +57,14 @@ namespace Wreckabulary.Rules.Surroundings
             double ax = Math.Sin(yaw), az = Math.Cos(yaw), rx = az, rz = -ax;
             return new[] { (-1, -1), (1, -1), (1, 1), (-1, 1) }
                 .Select(c => (X + rx * hw * c.Item1 + ax * hd * c.Item2, Z + rz * hw * c.Item1 + az * hd * c.Item2)).ToArray();
+        }
+
+        public double FaceWidth()
+        {
+            if (Sides == 4) return Width;
+            double reach = 1 / Math.Cos(Math.PI / Sides), a0 = Math.PI / Sides, a1 = 3 * Math.PI / Sides;
+            double dx = (Math.Cos(a1) - Math.Cos(a0)) * Width * .5 * reach, dz = (Math.Sin(a1) - Math.Sin(a0)) * Depth * .5 * reach;
+            return Math.Sqrt(dx * dx + dz * dz);
         }
     }
 
@@ -58,10 +89,12 @@ namespace Wreckabulary.Rules.Surroundings
         public string Type { get; internal set; }
         public string Landmark { get; internal set; }
         public string Facade { get; internal set; }
+        public string Kind { get; internal set; }
         public uint Wall { get; internal set; }
         public uint Pane { get; internal set; }
         public uint Accent { get; internal set; }
         public uint Base { get; internal set; }
+        public float Haze { get; internal set; }
         public string Source { get; internal set; }
         public IReadOnlyList<SkylineBox> Boxes { get; internal set; } = Array.Empty<SkylineBox>();
 
@@ -85,6 +118,10 @@ namespace Wreckabulary.Rules.Surroundings
         public float[] Positions { get; internal set; }
         public float[] Normals { get; internal set; }
         public uint[] Colours { get; internal set; }
+        public float[] Facade { get; internal set; }
+        public float[] Grid { get; internal set; }
+        public float[] Glass { get; internal set; }
+        public float[] Extra { get; internal set; }
         public int[] Indices { get; internal set; }
 
         public int Vertices => Positions.Length / 3;
@@ -101,6 +138,7 @@ namespace Wreckabulary.Rules.Surroundings
         public IReadOnlyList<string> ThinnedCards { get; internal set; } = Array.Empty<string>();
         public int Trimmed { get; internal set; }
         public float DetailReach { get; internal set; }
+        public uint HazeTint { get; internal set; } = SurroundingsSlots.NoTint;
         public int RendererLimit { get; internal set; }
         public int TriangleLimit { get; internal set; }
         public string Canonical { get; internal set; } = "";
