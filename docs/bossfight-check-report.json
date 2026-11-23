@@ -38,7 +38,7 @@
     {
       "level": "info",
       "check": "metaPairing",
-      "message": "2486 个文件与 86 个目录的元数据配对完整",
+      "message": "2488 个文件与 87 个目录的元数据配对完整",
       "path": "",
       "hint": "",
       "files": []
@@ -46,7 +46,7 @@
     {
       "level": "info",
       "check": "guidUnique",
-      "message": "2572 个 GUID 全部唯一",
+      "message": "2575 个 GUID 全部唯一",
       "path": "",
       "hint": "",
       "files": []
@@ -54,7 +54,7 @@
     {
       "level": "info",
       "check": "scenes",
-      "message": "5 个场景均已写入构建列表（另有 1 条按规格抑制）",
+      "message": "6 个场景均已写入构建列表（另有 2 条按规格抑制）",
       "path": "",
       "hint": "",
       "files": []
@@ -78,7 +78,7 @@
     {
       "level": "info",
       "check": "csharp",
-      "message": "检查了 265 个 C# 脚本",
+      "message": "检查了 266 个 C# 脚本",
       "path": "",
       "hint": "",
       "files": []
@@ -86,7 +86,7 @@
     {
       "level": "warn",
       "check": "danglingGuids",
-      "message": "有 220 个 GUID（共 1788 处引用）在 Assets 中找不到归属资源，疑似引用已删除资源或指向内置/包内资源。涉及文件示例: Assets/Settings/DefaultVolumeProfile.asset, Assets/Settings/Mobile_RPAsset.asset, Assets/Settings/Mobile_Renderer.asset, Assets/Settings/PC_RPAsset.asset, Assets/Settings/PC_Renderer.asset, Assets/Settings/SampleSceneProfile.asset, Assets/Settings/UniversalRenderPipelineGlobalSettings.asset, Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset",
+      "message": "有 221 个 GUID（共 1801 处引用）在 Assets 中找不到归属资源，疑似引用已删除资源或指向内置/包内资源。涉及文件示例: Assets/Settings/DefaultVolumeProfile.asset, Assets/Settings/Mobile_RPAsset.asset, Assets/Settings/Mobile_Renderer.asset, Assets/Settings/PC_RPAsset.asset, Assets/Settings/PC_Renderer.asset, Assets/Settings/SampleSceneProfile.asset, Assets/Settings/UniversalRenderPipelineGlobalSettings.asset, Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset",
       "path": "",
       "hint": "若确认是内置或包内资源，把它的 GUID 写入规格文件 builtinGuidAllowlist 即可消除噪音；否则说明有资源被误删，需要在编辑器里重新指派引用",
       "files": [
@@ -424,7 +424,8 @@
         "Assets/_Project/Worlds/Generated/Materials/walkup_v2_furniture_cream_Classic_a4faf1c34e9f889a1837679a67a27b62.mat",
         "Assets/_Project/Worlds/Generated/Materials/walkup_v2_furniture_wood_Classic_b2756d9d684aa782d0cd219cab597999.mat",
         "Assets/_Project/Worlds/Generated/Materials/walkup_v2_furniture_wood_dark_Classic_3a92aaacc588188ddf7f14bef6ecd382.mat",
-        "Assets/_Project/Worlds/Generated/Materials/walkup_v2_furniture_wood_light_Classic_aadde10fef76de13da93e27b3d218223.mat"
+        "Assets/_Project/Worlds/Generated/Materials/walkup_v2_furniture_wood_light_Classic_aadde10fef76de13da93e27b3d218223.mat",
+        "Assets/_Recovery/0.unity"
       ]
     },
     {
@@ -446,7 +447,7 @@
     {
       "level": "info",
       "check": "traceability",
-      "message": "冻结条目 24 个（已确认 24），工程引用覆盖率 24/24 = 100%",
+      "message": "冻结条目 38 个（已确认 38），工程引用覆盖率 38/38 = 100%",
       "path": "C:\\Users\\thoma\\Documents\\GitHub\\wreckabulary\\docs\\design-freeze.json",
       "hint": "",
       "files": []
@@ -454,7 +455,7 @@
     {
       "level": "info",
       "check": "compileLog",
-      "message": "未在日志中发现编译错误（解析 bfbuild4.log）",
+      "message": "未在日志中发现编译错误（解析 bfbuild12.log）",
       "path": "",
       "hint": "",
       "files": []
@@ -478,6 +479,6 @@
   ],
   "scriptVersion": "1.1.0",
   "ignored": {
-    "scenes": 1
+    "scenes": 2
   }
 }

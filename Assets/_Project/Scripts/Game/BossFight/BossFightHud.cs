@@ -9,10 +9,11 @@ namespace Wreckabulary.BossFight
     // @trace ART-006, UI-001
     public sealed class BossFightHud : MonoBehaviour
     {
-        TextMeshProUGUI heading, words, shield, timer, clue, result, hpText;
+        TextMeshProUGUI heading, words, shield, timer, clue, result, hpText, banner;
         Image hpFill;
-        GameObject hpRow, resultPanel;
+        GameObject hpRow, resultPanel, bossBar;
         CanvasGroup canvas;
+        float bannerUntil;
 
         static readonly Color Navy = new(.17f, .24f, .31f, .94f);
         static readonly Color Gold = new(.96f, .65f, .14f);
@@ -33,12 +34,12 @@ namespace Wreckabulary.BossFight
             canvas.blocksRaycasts = false;
             canvas.interactable = false;
 
-            var bar = Panel(root.transform, "Boss bar", new Vector2(.5f, 1f), new Vector2(.5f, 1f),
+            bossBar = Panel(root.transform, "Boss bar", new Vector2(.5f, 1f), new Vector2(.5f, 1f),
                 new Vector2(0f, -46f), new Vector2(1060f, 190f), Navy);
-            heading = Text(bar.transform, "Boss", new Vector2(0f, 62f), new Vector2(1000f, 48f), 30f, Gold, TextAlignmentOptions.Center);
-            shield = Text(bar.transform, "Shield", new Vector2(0f, 26f), new Vector2(1000f, 36f), 24f, Cream, TextAlignmentOptions.Center);
-            words = Text(bar.transform, "Words", new Vector2(0f, -22f), new Vector2(1000f, 46f), 34f, Cream, TextAlignmentOptions.Center);
-            clue = Text(bar.transform, "Clue", new Vector2(0f, -68f), new Vector2(1000f, 32f), 22f, Gold, TextAlignmentOptions.Center);
+            heading = Text(bossBar.transform, "Boss", new Vector2(0f, 62f), new Vector2(1000f, 48f), 30f, Gold, TextAlignmentOptions.Center);
+            shield = Text(bossBar.transform, "Shield", new Vector2(0f, 26f), new Vector2(1000f, 36f), 24f, Cream, TextAlignmentOptions.Center);
+            words = Text(bossBar.transform, "Words", new Vector2(0f, -22f), new Vector2(1000f, 46f), 34f, Cream, TextAlignmentOptions.Center);
+            clue = Text(bossBar.transform, "Clue", new Vector2(0f, -68f), new Vector2(1000f, 32f), 22f, Gold, TextAlignmentOptions.Center);
 
             timer = Text(root.transform, "Timer", new Vector2(-70f, -40f), new Vector2(220f, 60f), 34f, Cream, TextAlignmentOptions.TopRight);
             ((RectTransform)timer.transform).anchorMin = ((RectTransform)timer.transform).anchorMax = new Vector2(1f, 1f);
@@ -62,6 +63,10 @@ namespace Wreckabulary.BossFight
                 Vector2.zero, new Vector2(900f, 320f), Navy);
             result = Text(resultPanel.transform, "Result text", Vector2.zero, new Vector2(840f, 280f), 38f, Cream, TextAlignmentOptions.Center);
             resultPanel.SetActive(false);
+
+            banner = Text(root.transform, "Phase banner", Vector2.zero, new Vector2(1200f, 170f),
+                64f, Gold, TextAlignmentOptions.Center);
+            banner.gameObject.SetActive(false);
 
             heading.text = names.Name;
             words.text = "Spell to break the shield";
@@ -99,6 +104,34 @@ namespace Wreckabulary.BossFight
             t.raycastTarget = false;
             t.text = "";
             return t;
+        }
+
+        /// <summary>Boss name, shield pips and words stay secret during the 20 s prepare phase.</summary>
+        // @trace AMD-006
+        public void SetRevealed(bool revealed)
+        {
+            if (bossBar) bossBar.SetActive(revealed);
+            if (hpRow && !revealed) hpRow.SetActive(false);
+        }
+
+        /// <summary>Big centre-screen callout for layer cracks and the shield break.</summary>
+        // @trace AMD-009
+        public void Flash(string text, Color colour, float seconds)
+        {
+            if (!banner) return;
+            banner.text = text;
+            banner.color = colour;
+            banner.rectTransform.localScale = Vector3.one * .7f;
+            banner.gameObject.SetActive(true);
+            bannerUntil = Time.unscaledTime + seconds;
+        }
+
+        void Update()
+        {
+            if (!banner || !banner.gameObject.activeSelf) return;
+            float t = Mathf.Clamp01((bannerUntil - Time.unscaledTime) / .35f);
+            banner.rectTransform.localScale = Vector3.one * Mathf.Lerp(.7f, 1.12f, t);
+            if (Time.unscaledTime >= bannerUntil) banner.gameObject.SetActive(false);
         }
 
         /// <summary>Called by the director at a low frequency; all strings are built by the caller.</summary>

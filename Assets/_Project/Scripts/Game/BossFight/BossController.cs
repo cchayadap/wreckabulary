@@ -16,6 +16,12 @@ namespace Wreckabulary.BossFight
         BossNameCatalogue names;
         float health;
         float nextShieldCue;
+        float staggerUntil;
+        float leapAt, leapDuration, landUntil;
+        bool revealed, leaping;
+        Vector3 leapFrom, leapTo, home;
+        const float LeapHeight = 2.4f;
+        const float LandSquashSeconds = .22f;
         readonly List<LineRenderer> shieldRings = new();
         Transform visual;
 
@@ -28,11 +34,16 @@ namespace Wreckabulary.BossFight
         public float MaxHealth => rules != null ? rules.BossMaxHealth : 240f;
         public bool Vulnerable => LayersRemaining <= 0;
         public Vector3 Centre => transform.position + Vector3.up;
+        /// <summary>True while the boss is airborne towards a jump-smash landing spot.</summary>
+        // @trace AMD-012
+        public bool IsLeaping => leaping;
+        public Vector3 LeapTarget => leapTo;
 
         public void Configure(GameRules gameRules, BossNameCatalogue catalogue, Vector3 at)
         {
             rules = gameRules;
             names = catalogue;
+            home = at;
             transform.position = at;
             BuildVisual();
             ResetBoss();
@@ -95,23 +106,119 @@ namespace Wreckabulary.BossFight
 
         public void ResetBoss()
         {
+            CancelLeap();
+            transform.position = home;
             LayersRemaining = names != null ? names.LayerCount : 3;
             health = MaxHealth;
             nextShieldCue = 0f;
+            staggerUntil = 0f;
+            revealed = true;
+            if (visual)
+            {
+                visual.gameObject.SetActive(true);
+                visual.localRotation = Quaternion.identity;
+            }
+            RefreshRings();
+        }
+
+        /// <summary>Preparation hides the boss model AND its name/shield rings until the countdown ends.</summary>
+        // @trace AMD-006
+        public void SetVisible(bool visible)
+        {
+            revealed = visible;
+            if (visual) visual.gameObject.SetActive(visible);
+            var hitbox = GetComponent<Collider>();
+            if (hitbox) hitbox.enabled = visible;
+            RefreshRings();
+        }
+
+        void RefreshRings()
+        {
             for (int i = 0; i < shieldRings.Count; i++)
-                if (shieldRings[i]) shieldRings[i].gameObject.SetActive(i < LayersRemaining);
-            if (visual) visual.gameObject.SetActive(true);
+                if (shieldRings[i]) shieldRings[i].gameObject.SetActive(revealed && i < LayersRemaining);
+        }
+
+        /// <summary>Real leap: an arced hop towards the telegraphed landing spot, then a squash on impact.</summary>
+        // @trace AMD-012
+        public void LeapTo(Vector3 landing, float seconds)
+        {
+            if (seconds <= 0f) { transform.position = landing; landUntil = Time.time + LandSquashSeconds; return; }
+            leapFrom = transform.position;
+            leapTo = landing;
+            leapAt = Time.time;
+            leapDuration = seconds;
+            landUntil = 0f;
+            leaping = true;
+        }
+
+        public void CancelLeap()
+        {
+            if (leaping) transform.position = leapTo; // never freeze the boss mid-air
+            leaping = false;
+            landUntil = 0f;
+            if (visual) visual.localScale = Vector3.one;
+        }
+
+        void Update()
+        {
+            if (leaping)
+            {
+                float t = Mathf.Clamp01((Time.time - leapAt) / Mathf.Max(.01f, leapDuration));
+                float arc = Mathf.Sin(t * Mathf.PI);
+                var p = Vector3.Lerp(leapFrom, leapTo, t);
+                p.y += arc * LeapHeight;
+                transform.position = p;
+                if (visual)
+                {
+                    visual.localRotation = Quaternion.Euler(-arc * 14f, 0f, 0f);
+                    visual.localScale = new Vector3(1f - arc * .06f, 1f + arc * .18f, 1f - arc * .06f);
+                }
+                if (t >= 1f)
+                {
+                    transform.position = leapTo;
+                    leaping = false;
+                    landUntil = Time.time + LandSquashSeconds;
+                    GameFeedback.Burst("Impact_Star", Centre + Vector3.up * .1f, .9f);
+                    CameraRig.Shake(.18f);
+                }
+                return;
+            }
+
+            if (!visual) return;
+            if (landUntil > Time.time)
+            {
+                float settle = Mathf.Clamp01((landUntil - Time.time) / LandSquashSeconds);
+                visual.localScale = new Vector3(1f + (1f - settle) * .22f,
+                    1f - (1f - settle) * .28f, 1f + (1f - settle) * .22f);
+            }
+            else if (visual.localScale != Vector3.one) visual.localScale = Vector3.one;
+
+            if (staggerUntil > Time.time)
+                visual.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Time.time * 26f) * 8f);
+            else if (visual.localRotation != Quaternion.identity)
+                visual.localRotation = Quaternion.identity;
         }
 
         /// <summary>Called by the director when the player spells the current shield word.</summary>
+        // @trace MECH-003, AMD-009
         public bool CrackLayer()
         {
             if (Vulnerable || LayersRemaining <= 0) return false;
             LayersRemaining--;
-            if (shieldRings.Count > LayersRemaining && shieldRings[LayersRemaining])
-                shieldRings[LayersRemaining].gameObject.SetActive(false);
+            RefreshRings();
+            staggerUntil = Time.time + (Vulnerable ? 2.2f : .9f);
             GameFeedback.Play(GameCue.Break);
             GameFeedback.Burst("Wood_Splinter", Centre, .6f, new Color(1f, .82f, .4f), .5f);
+            GameFeedback.Burst("Craft_Ring", Centre, Vulnerable ? 1.6f : .9f,
+                new Color(1f, .74f, .25f), .6f);
+            if (Vulnerable)
+            {
+                GameFeedback.Play(GameCue.Blast);
+                Popup.Show("SHIELD BROKEN!", Centre + Vector3.up * 1.1f,
+                    new Color(1f, .72f, .2f), 2f);
+            }
+            else Popup.Show("LAYER " + LayersRemaining + " DOWN!", Centre + Vector3.up * .8f,
+                new Color(1f, .82f, .4f), 1.1f);
             LayerCracked?.Invoke(LayersRemaining);
             if (Vulnerable) ShieldBroken?.Invoke();
             return true;

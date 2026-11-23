@@ -43,8 +43,28 @@ namespace Wreckabulary.Rules.Tests
             }
             Assert.Greater(r.AoeWarnSeconds, r.SlickDodgeWindow);
             Assert.AreEqual(1.6f, r.AoeWarnSeconds, "a longer telegraph keeps spelling readable");
-            Assert.AreEqual(2, r.MaxAoe, "at most two circles at once");
+            Assert.AreEqual(3, r.MaxAoe, "up to three circles at once");
             Assert.AreEqual(1, r.LettersLostOnHit, "a hit still matters but no longer wipes a word");
+
+            // @trace AMD-006, AMD-007, AMD-008, AMD-010, AMD-012, AMD-013, AMD-014, AMD-015, AMD-016, AMD-017
+            Assert.AreEqual(20f, r.PrepSeconds, "the prepare countdown is twenty seconds");
+            Assert.AreEqual(5, r.StarterProps, "only five props exist at the start");
+            Assert.AreEqual(30f, r.SupplyDropSeconds, "one supply drop every thirty seconds");
+            Assert.AreEqual(1, r.AoeBurstMin);
+            Assert.AreEqual(3, r.AoeBurstMax);
+            Assert.GreaterOrEqual(r.MaxAoe, r.AoeBurstMax);
+            Assert.AreEqual(25f, r.MiniFirstSeconds, "first mini wave arrives later");
+            Assert.AreEqual(30f, r.MiniIntervalSeconds, "mini waves return at a moderate cadence");
+            Assert.AreEqual(2, r.MiniMaxAlive);
+            Assert.Greater(r.MiniSpeed, 0f);
+            Assert.Less(r.MiniStunSeconds, .5f, "a mini touch must not be a long stun");
+            Assert.Greater(r.MiniHitCooldownSeconds, r.MiniStunSeconds * 2f,
+                "cooldown must prevent chain stunning");
+            Assert.AreEqual(6f, r.SmashEverySeconds, "post-break smashes keep the fight lively");
+            Assert.Greater(r.SmashRadius, 0f);
+            Assert.Greater(r.SmashDamage, 0f);
+            Assert.AreEqual(42f, r.MiniHealth, "minis need several hits to break");
+            Assert.AreEqual(3f, r.EventWarnSeconds, "every timed event gets a 3-2-1 cue");
         }
 
         static float MathfMax(float a, float b) => a > b ? a : b;
