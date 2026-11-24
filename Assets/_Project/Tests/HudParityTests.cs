@@ -689,6 +689,48 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator EscapeBacksOutOfTheComposerWithoutPausing()
+        {
+            var route = InputSystem.settings.editorInputBehaviorInPlayMode;
+            var focus = InputSystem.settings.backgroundBehavior;
+            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            var keys = InputSystem.AddDevice<Keyboard>();
+            keys.MakeCurrent();
+            try
+            {
+                var player = Spawn(DesktopBinding.Shared);
+                var hud = new GameObject("Parity HUD", typeof(Canvas)).AddComponent<GameHud>();
+                yield return null;
+                yield return new WaitForSecondsRealtime(0.12f);
+                player.Inventory.Set("BAT");
+                player.Summoner.Open();
+                yield return null;
+                Assert.IsTrue(hud.ComposerOpen);
+
+                InputSystem.QueueStateEvent(keys, new KeyboardState(Key.Escape));
+                yield return null;
+                yield return null;
+                Assert.IsFalse(player.Summoner.IsSpelling, "Esc backs out of the composer");
+                Assert.IsFalse(hud.ComposerOpen);
+                Assert.IsFalse(hud.Paused, "the Esc that closed it doesn't open the menu");
+                Assert.AreEqual("", hud.ComposerHint);
+                InputSystem.QueueStateEvent(keys, new KeyboardState());
+                yield return null;
+                yield return null;
+                Object.Destroy(hud.gameObject);
+                Object.Destroy(player.gameObject);
+            }
+            finally
+            {
+                InputSystem.RemoveDevice(keys);
+                InputSystem.settings.editorInputBehaviorInPlayMode = route;
+                InputSystem.settings.backgroundBehavior = focus;
+                DesktopBinding.Typing = false;
+            }
+        }
+
+        [UnityTest]
         public IEnumerator KeyboardPlayersTypeTheirWordLikeTheWeb()
         {
             var player = Spawn(DesktopBinding.Shared);
@@ -702,6 +744,8 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(hud.ComposerOpen, "Spell opens the composer.");
             Assert.IsTrue(DesktopBinding.Typing, "Letters go to the word, not to the player.");
             Assert.IsTrue(hud.ComposerLettersOnly, "Typing shows only the typed letters.");
+            StringAssert.Contains("<b>ENTER</b> spell", hud.ComposerHint, "One short line under the letters says how to spell.");
+            StringAssert.Contains($"<b>{ControlHints.KeyOf(DesktopBinding.Shared.Pause)}</b> back", hud.ComposerHint, "It also says how to go back.");
             Assert.AreEqual("Type a word you can make from your letters. Tab or right-click closes.", hud.ComposerStatus);
             hud.TypeWord("ba");
             yield return null;
