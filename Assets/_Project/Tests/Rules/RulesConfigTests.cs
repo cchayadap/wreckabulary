@@ -12,8 +12,62 @@ namespace Wreckabulary.Rules.Tests
         {
             var book = TestData.LoadRuleBook();
             Assert.IsEmpty(book.Validate());
-            CollectionAssert.AreEquivalent(new[] { "Hub", "Tutorial", "Dibs", "Duos", "MovingOut", "MovingDay", "Escape" }, book.Modes);
+            CollectionAssert.AreEquivalent(new[] { "Hub", "Tutorial", "Dibs", "Duos", "MovingOut", "MovingDay", "Escape", "BossFight" }, book.Modes);
         }
+
+        // @trace NUM-002, NUM-003, NUM-004, NUM-005, MECH-002
+        [Test]
+        public void BossFightRulesDefineCalculatorAndExtremeValues()
+        {
+            var r = TestData.RulesFor("BossFight");
+            Assert.AreEqual("CALCULATOR", r.BossName);
+            CollectionAssert.AreEqual(new[] { "CALC", "ULA", "TOR" }, r.BossWords);
+            Assert.AreEqual(3, r.BossWords.Length);
+            Assert.AreEqual(240f, r.BossMaxHealth);
+            Assert.AreEqual(1.5f, r.BossVulnerability);
+            Assert.AreEqual(16, r.MaxLetters, "the longest word must fit the bag");
+            Assert.GreaterOrEqual(r.MaxLetters, r.BossWords.Max(w => w.Length));
+            Assert.IsFalse(r.ClearOutEnabled, "clear-out would need an order in every house JSON");
+
+            // full-minimum and full-maximum damage, with the 1 HP clamp
+            Assert.AreEqual(15f, MathfMax(1f, 10f * r.BossVulnerability));
+            Assert.AreEqual(54.6f, MathfMax(1f, 28f * r.BossVulnerability * 1.3f), 0.001f);
+
+            // AoE table: coefficients rise across layers, and every radius stays below the dodge distance
+            for (int layer = 0; layer < 4; layer++)
+            {
+                Assert.Greater(r.AoeRadiusFor(layer), 0f);
+                Assert.Greater(r.AoeDamageFor(layer), 0f);
+                Assert.Greater(r.AoeCooldownFor(layer), 0f);
+                Assert.Less(r.AoeRadiusFor(layer), 4f, "a 4 m dodge must clear the circle");
+            }
+            Assert.Greater(r.AoeWarnSeconds, r.SlickDodgeWindow);
+            Assert.AreEqual(1.6f, r.AoeWarnSeconds, "a longer telegraph keeps spelling readable");
+            Assert.AreEqual(3, r.MaxAoe, "up to three circles at once");
+            Assert.AreEqual(1, r.LettersLostOnHit, "a hit still matters but no longer wipes a word");
+
+            // @trace AMD-006, AMD-007, AMD-008, AMD-010, AMD-012, AMD-013, AMD-014, AMD-015, AMD-016, AMD-017
+            Assert.AreEqual(20f, r.PrepSeconds, "the prepare countdown is twenty seconds");
+            Assert.AreEqual(5, r.StarterProps, "only five props exist at the start");
+            Assert.AreEqual(30f, r.SupplyDropSeconds, "one supply drop every thirty seconds");
+            Assert.AreEqual(1, r.AoeBurstMin);
+            Assert.AreEqual(3, r.AoeBurstMax);
+            Assert.GreaterOrEqual(r.MaxAoe, r.AoeBurstMax);
+            Assert.AreEqual(25f, r.MiniFirstSeconds, "first mini wave arrives later");
+            Assert.AreEqual(30f, r.MiniIntervalSeconds, "mini waves return at a moderate cadence");
+            Assert.AreEqual(2, r.MiniMaxAlive);
+            Assert.Greater(r.MiniSpeed, 0f);
+            Assert.Less(r.MiniStunSeconds, .5f, "a mini touch must not be a long stun");
+            Assert.Greater(r.MiniHitCooldownSeconds, r.MiniStunSeconds * 2f,
+                "cooldown must prevent chain stunning");
+            Assert.AreEqual(6f, r.SmashEverySeconds, "post-break smashes keep the fight lively");
+            Assert.Greater(r.SmashRadius, 0f);
+            Assert.Greater(r.SmashDamage, 0f);
+            Assert.AreEqual(42f, r.MiniHealth, "minis need several hits to break");
+            Assert.AreEqual(3f, r.EventWarnSeconds, "every timed event gets a 3-2-1 cue");
+        }
+
+        static float MathfMax(float a, float b) => a > b ? a : b;
 
         [Test]
         public void TheBriefsDefaults()

@@ -30,7 +30,7 @@ Bare hands barely hurt. The recipe book says what each item does when you point 
 | Learn | Tutorial (selected until you finish it) | 1–4 on one PC |
 | Battle | Dibs! (last one standing), Duos (2v2 with revives), Free-for-All (respawns; first to 10 knockouts), War (two teams of up to 4 share 12 lives; hold the middle room for more) | 1–4 on one PC, bots fill seats (War plays 4v4) |
 | Co-op | Moving Out (escape with the keepsakes), Moving Day (finish the checklist), Escape | 1–4 on one PC |
-| Word games | Shopping List (everyone builds the same items in a new random order each round), Riddle Rush (solve the riddle, spell the answer first) | 1–4 on one PC, bots fill seats |
+| Word games | Shopping List (everyone builds the same items in a new random order each round), Riddle Rush (solve the riddle, spell the answer first), Boss Fight (solo: spell CALC / ULA / TOR to crack the Calculator's shield, then hit it; see `docs/BossFight-GDD.md`) | 1–4 on one PC, bots fill seats (Boss Fight is solo) |
 | Courses | Time Trial, Freeplay on Parcel Depot, The Lost Address or Parcel Hall | 1 on one PC |
 | Online courses | Time Trial, Team Relay, Brawl Relay (teams of 1, 2 or 4), Free-for-All (first to 10 knockouts), Freeplay | Matchmaking or a private party |
 

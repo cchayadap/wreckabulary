@@ -134,6 +134,51 @@
         "damagePerSecond": 0,
         "damageGrowth": 0
       }
+    },
+    "BossFight": {
+      "notes": "Solo boss fight on the LivingRoom map. Spell CALC / ULA / TOR to break three shield layers, dodge red circles, then hit the Calculator. See docs/BossFight-GDD.md.",
+      "teamSize": 1,
+      "friendlyFire": false,
+      "respawn": 3,
+      "roundsToWin": 1,
+      "roundTimeLimit": 300,
+      "maxLetters": 16,
+      "bossName": "CALCULATOR",
+      "bossWords": ["CALC", "ULA", "TOR"],
+      "bossMaxHealth": 240,
+      "bossVulnerability": 1.5,
+      "prepSeconds": 20,
+      "appearSeconds": 12,
+      "layerSeconds": 35,
+      "hitSeconds": 75,
+      "starterProps": 5,
+      "supplyDropSeconds": 30,
+      "aoeWarnSeconds": 1.6,
+      "aoeActiveSeconds": 0.45,
+      "aoeRadiusByLayer": [1.6, 1.8, 2.0, 2.2],
+      "aoeDamageByLayer": [10, 12, 14, 14],
+      "aoeCooldownByLayer": [5.5, 5.0, 4.4, 4.0],
+      "aoeBurstMin": 1,
+      "aoeBurstMax": 3,
+      "maxAoe": 3,
+      "lettersLostOnHit": 1,
+      "slickDodgeWindow": 0.3,
+      "miniFirstSeconds": 25,
+      "miniIntervalSeconds": 30,
+      "miniMaxAlive": 2,
+      "miniSpeed": 2.2,
+      "miniStunSeconds": 0.18,
+      "miniKnockback": 3.5,
+      "miniHitCooldownSeconds": 3,
+      "miniHealth": 42,
+      "eventWarnSeconds": 3,
+      "smashEverySeconds": 6,
+      "smashWarnSeconds": 1,
+      "smashRadius": 2.4,
+      "smashDamage": 18,
+      "clearOut": {
+        "enabled": false
+      }
     }
   }
 }

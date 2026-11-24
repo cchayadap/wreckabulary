@@ -1,0 +1,44 @@
+{
+  "requiredDirs": [
+    "Assets",
+    "Assets/_Project",
+    "Assets/_Project/Scripts",
+    "Assets/_Project/Scenes",
+    "Assets/_Project/Data",
+    "Assets/_Project/Tests",
+    "Assets/Settings",
+    "Packages",
+    "ProjectSettings"
+  ],
+  "recommendedDirs": [
+    "Assets/_Project/Scripts/Editor",
+    "Assets/_Project/Scripts/Game/BossFight"
+  ],
+  "requiredFiles": [
+    "ProjectSettings/ProjectVersion.txt",
+    "Packages/manifest.json",
+    "docs/design-freeze.json"
+  ],
+  "requireMetaForEveryAsset": true,
+  "requireScenesInBuildSettings": true,
+  "scanAbsolutePaths": true,
+  "scanDanglingGuids": true,
+  "danglingGuidLevel": "warn",
+  "builtinGuidAllowlist": [],
+  "extraGuidDirs": [],
+  "requireFrozenDesign": true,
+  "traceMarker": "@trace",
+  "compileLogPath": "",
+  "ignore": [
+    {
+      "check": "scenes",
+      "path": "Assets/_Project/Tests/Empty.unity",
+      "reason": "Editor-only fixture scene used by test scaffolding; intentionally excluded from Build Settings. Pre-existing, unrelated to Boss Fight."
+    },
+    {
+      "check": "scenes",
+      "path": "Assets/_Recovery/0.unity",
+      "reason": "Untracked Unity crash-recovery scene created by the Editor on 2026-11-23; not authored content and intentionally excluded from Build Settings. Pre-existing, unrelated to Boss Fight."
+    }
+  ]
+}

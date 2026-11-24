@@ -107,7 +107,8 @@ namespace Wreckabulary
         public static void LoadMode(string mode, string mapId = null, Rules.HomeLayout home = null)
         {
             var scene = SceneForMode(mode);
-            mapId = ResolveMap(mode, mapId);
+            // Boss Fight is locked to one house layout (Pinwheel). @trace PLAT-001
+            mapId = mode == Rules.HouseModes.BossFight ? "pinwheel" : ResolveMap(mode, mapId);
             if (mapId != null) SelectMap(mapId);
             Home = home != null && Rules.HomeDesigner.Playable(mode) && home.Map == MapId ? home.Clone() : null;
             Match.ModeOverride = mode;

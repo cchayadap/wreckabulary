@@ -24,6 +24,7 @@ namespace Wreckabulary
         {
             Rules.HouseModes.Tutorial, Rules.HouseModes.Dibs, Rules.HouseModes.Duos, Rules.HouseModes.FreeForAll, Rules.HouseModes.War,
             Rules.HouseModes.MovingDay, Rules.HouseModes.MovingOut, Rules.HouseModes.ShoppingList, Rules.HouseModes.RiddleRush,
+            Rules.HouseModes.BossFight,
         };
 
         [SerializeField] Mode[] modes = Array.Empty<Mode>();

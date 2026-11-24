@@ -1118,8 +1118,13 @@ namespace Wreckabulary
         WordEntry EnabledRecipe(string word)
         {
             if (!LocalPlayer || string.IsNullOrEmpty(word)) return null;
-            var recipe = LocalPlayer.Summoner.Recipe(word);
-            return recipe != null && GameConfig.Current.Items.TryGet(recipe.word, out var item) && item.Enabled ? recipe : null;
+            var summoner = LocalPlayer.Summoner;
+            var recipe = summoner.Recipe(word);
+            if (recipe == null) return null;
+            // Signal words (boss shields) are deliberately not in items.json.
+            // @trace MECH-003
+            if (summoner.IsSignalWord(recipe.word)) return recipe;
+            return GameConfig.Current.Items.TryGet(recipe.word, out var item) && item.Enabled ? recipe : null;
         }
 
         string MissingLetters(string word)
@@ -1144,13 +1149,15 @@ namespace Wreckabulary
             var summoner = player.Summoner;
             string word = composerText;
             var recipe = EnabledRecipe(word);
-            bool furniture = player.Combat.IsHolding && !player.Combat.Weapon;
+            // @trace MECH-003
+            bool signal = recipe != null && summoner.IsSignalWord(recipe.word);
+            bool furniture = !signal && player.Combat.IsHolding && !player.Combat.Weapon;
             string error = !player.CanAct || player.IsDodging ? "Wait until you can act again."
                 : recipe == null ? "That recipe is not available."
-                : furniture && !SummonEffects.CanApply(player, recipe) ? "Set down the furniture first."
+                : furniture && !summoner.CanCraft(recipe) ? "Set down the furniture first."
                 : player.Combat.IsChanneling ? "Finish your current action first."
                 : summoner.IsCrafting ? "Finish your current word first."
-                : !SummonEffects.CanApply(player, recipe) ? "Both hands are full. Drop some gear first."
+                : !summoner.CanCraft(recipe) ? "Both hands are full. Drop some gear first."
                 : MissingLetters(word).Length > 0 ? "You still need some letters."
                 : null;
             if (error == null && summoner.BeginCraft(recipe))
@@ -1178,8 +1185,10 @@ namespace Wreckabulary
                 string missing = MissingLetters(word);
                 if (missing.Length > 0) return $"{word} needs {Spread(missing)}. Smash more furniture.";
                 if (player.Summoner.IsCrafting) return "Already spelling something. Hang on.";
-                if (!SummonEffects.CanApply(player, recipe))
-                    return player.Combat.IsHolding && !player.Combat.Weapon ? "Set down the furniture first." : "Both hands are full. Drop something first.";
+                // @trace MECH-003
+                if (!player.Summoner.CanCraft(recipe))
+                    return !player.Summoner.IsSignalWord(recipe.word) && player.Combat.IsHolding && !player.Combat.Weapon
+                        ? "Set down the furniture first." : "Both hands are full. Drop something first.";
                 state = 1;
                 return $"{word} is ready. Press Enter!";
             }

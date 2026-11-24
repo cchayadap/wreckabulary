@@ -1078,6 +1078,7 @@ namespace Wreckabulary
             return mode switch
             {
                 HouseModes.Escape => "",
+                HouseModes.BossFight => "solo",
                 HouseModes.Duos => humans switch
                 {
                     1 => "you and a bot vs 2 bots",
