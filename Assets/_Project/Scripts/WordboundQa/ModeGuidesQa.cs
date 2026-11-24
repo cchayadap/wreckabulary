@@ -8,6 +8,7 @@ using GameStudioKit.Qa;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Wreckabulary.BossFight;
 using Wreckabulary.Online;
 using Wreckabulary.Rules;
 using Object = UnityEngine.Object;
@@ -19,7 +20,7 @@ namespace Wreckabulary.Qa
         public const string Scenario = "mode_guides";
         public const int Width = 1280, Height = 720;
         const string Map = "pinwheel";
-        const float ModeSeconds = 95f, CourseSeconds = 160f;
+        const float ModeSeconds = 95f, CourseSeconds = 160f, BossSeconds = 170f;
         static readonly string[] NotPictured = { ModeGuideBook.TeamRace, ModeGuideBook.BrawlRace, ModeGuideBook.ArenaFreeForAll };
 
         QaContext context;
@@ -61,11 +62,12 @@ namespace Wreckabulary.Qa
             yield return House(HouseModes.Escape, Map, 2, null, Escape);
             yield return House(HouseModes.ShoppingList, Map, 2, null, ShoppingList);
             yield return House(HouseModes.RiddleRush, Map, 2, PrepareRiddleRush, RiddleRush);
+            yield return House(HouseModes.BossFight, Map, 1, null, BossFight, BossSeconds);
             yield return QaStep.Named("mode_guides_return").Timeout(60).Do(Return);
         }
 
-        QaStep House(string mode, string map, int seatCount, Func<IEnumerator> prepare, Func<int, string, IEnumerator> stage) =>
-            QaStep.Named("mode_guides_" + mode).Timeout(ModeSeconds).Do(c => Mode(mode, map, seatCount, prepare, stage));
+        QaStep House(string mode, string map, int seatCount, Func<IEnumerator> prepare, Func<int, string, IEnumerator> stage, float seconds = ModeSeconds) =>
+            QaStep.Named("mode_guides_" + mode).Timeout(seconds).Do(c => Mode(mode, map, seatCount, prepare, stage));
 
         IEnumerator Setup(QaContext qa)
         {
@@ -214,6 +216,7 @@ namespace Wreckabulary.Qa
             HouseModes.MovingOut => Object.FindAnyObjectByType<MovingOutDirector>() is { Current: MovingOutDirector.State.Playing },
             HouseModes.MovingDay => Object.FindAnyObjectByType<MovingDayDirector>() is { Current: MovingDayDirector.State.Playing },
             HouseModes.Escape => Object.FindAnyObjectByType<EscapeDirector>() is { Current: EscapeDirector.State.Playing },
+            HouseModes.BossFight => Object.FindAnyObjectByType<BossFightDirector>() is { Current: BossFightDirector.State.Preparing, Boss: not null },
             _ => RoundManager.Instance && RoundManager.Instance.Phase == Phase.Playing,
         };
 
@@ -732,6 +735,73 @@ namespace Wreckabulary.Qa
                     }
                     yield return Realtime(.8f);
                     yield return Shot(image);
+                    break;
+                }
+            }
+        }
+
+        IEnumerator BossFight(int step, string image)
+        {
+            var director = Object.FindAnyObjectByType<BossFightDirector>();
+            if (!director || !director.Boss) throw new QaFailException("Boss Fight has no boss.");
+            var boss = director.Boss;
+            var words = new BossNameCatalogue(Match.Rules);
+            switch (step)
+            {
+                case 0:
+                    yield return Smash(image, Furniture("TABLE"));
+                    break;
+                case 1:
+                    yield return Until(() => director.Current == BossFightDirector.State.DropAndPrevent, 40, "the boss to wake");
+                    yield return Realtime(1f);
+                    Stand(p1, FreeSpot(boss.transform.position, 3.2f, false, p1.transform.position), boss.Centre);
+                    yield return Spell(image, seats[0], p1, words.WordFor(0));
+                    break;
+                case 2:
+                {
+                    var circles = Object.FindAnyObjectByType<TelegraphedAoE>();
+                    if (!circles) throw new QaFailException("Boss Fight has no red circles.");
+                    yield return Until(() => director.Current == BossFightDirector.State.DropAndPrevent && circles.ActiveCircleCount > 0, 30, "a red circle");
+                    var at = circles.LastSpawnCentre;
+                    Stand(p1, FreeSpot(at, 2.4f, false, p1.transform.position), at);
+                    yield return Realtime(.5f);
+                    yield return Shot(image);
+                    break;
+                }
+                default:
+                {
+                    for (int layer = words.LayerCount - boss.LayersRemaining; layer < words.LayerCount; layer++)
+                    {
+                        yield return Until(() => director.Current == BossFightDirector.State.DropAndPrevent, 20, "shield layer " + (layer + 1));
+                        string word = words.WordFor(layer);
+                        p1.Inventory.Set(word);
+                        if (!p1.Summoner.Summon(word)) throw new QaFailException(word + " did not crack a shield.");
+                    }
+                    yield return Until(() => director.Current == BossFightDirector.State.Hit && Time.timeScale >= 1f, 20, "the shield to break");
+                    yield return Realtime(1.5f);
+                    Give(p1, "HAMMER");
+                    Stand(p1, FreeSpot(boss.transform.position, 1.6f, false, p1.transform.position), boss.Centre);
+                    float before = boss.Health;
+                    yield return Realtime(.3f);
+                    float end = Time.realtimeSinceStartup + 1.5f;
+                    try
+                    {
+                        while (boss.Health >= before && Time.realtimeSinceStartup < end)
+                        {
+                            Aim(p1, World.Flat(boss.transform.position - p1.transform.position).normalized);
+                            seats[0].Next.attack = true;
+                            yield return null;
+                        }
+                        if (boss.Health >= before) p1.PlayPunch();
+                        yield return null;
+                        Time.timeScale = 0f;
+                        yield return Shot(image);
+                    }
+                    finally
+                    {
+                        Time.timeScale = 1f;
+                        seats[0].Next = default;
+                    }
                     break;
                 }
             }
