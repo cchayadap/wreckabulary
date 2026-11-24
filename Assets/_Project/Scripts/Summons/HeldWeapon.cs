@@ -35,7 +35,11 @@ namespace Wreckabulary
             ArcDegrees = 100f, Recovery = cooldown, Knockback = knockback / Hits.KnockbackSpeed,
             BreakPower = damage / Smashable.HealthPerBreakPower, HitStun = 0.25f,
         });
-        public float Cooldown => definition?.Melee?.Cycle ?? definition?.Use?.ChannelSeconds ?? cooldown;
+        public float Cooldown => definition?.Melee?.Cycle ?? definition?.Use?.ChannelSeconds ?? definition?.Ranged?.Recovery ?? cooldown;
+        public const float MinDrawSeconds = 0.12f;
+        float drawStartedAt = -1f;
+        public bool IsDrawing => drawStartedAt >= 0f;
+        public float DrawPower => IsDrawing && definition?.Ranged != null ? definition.Ranged.Power(Time.time - drawStartedAt) : 0f;
         public float SwingStartedAt { get; private set; } = -1f;
         public static event System.Action<HeldWeapon, PlayerController> MeleeStarted;
 
@@ -50,13 +54,14 @@ namespace Wreckabulary
             durabilityLeft = Mathf.Max(1, item.Durability);
         }
 
-        void OnDisable() { StopAllCoroutines(); usingItem = false; SwingStartedAt = -1f; }
+        void OnDisable() { StopAllCoroutines(); usingItem = false; SwingStartedAt = -1f; drawStartedAt = -1f; }
 
         public void CancelUse()
         {
             StopAllCoroutines();
             usingItem = false;
             SwingStartedAt = -1f;
+            drawStartedAt = -1f;
             SetPoseRotation(HoldRotation);
         }
 
@@ -125,6 +130,7 @@ namespace Wreckabulary
             if (definition != null)
             {
                 if (definition.Use != null) { StartCoroutine(ConsumeAfterChannel(user, owner)); return; }
+                if (definition.Ranged != null) { StartCoroutine(DrawAndFire(user, owner)); return; }
                 if (definition.Thrown != null) { user.Throw(); return; }
                 if (definition.Deploy != null) { user.DeployHeld(); return; }
                 if (definition.Melee != null) { StartCoroutine(MeleeAfterWindup(user, owner)); return; }
@@ -169,6 +175,40 @@ namespace Wreckabulary
             }
             usingItem = false;
             SwingStartedAt = -1f;
+        }
+
+        IEnumerator DrawAndFire(PlayerCombat user, PlayerController owner)
+        {
+            var stats = definition.Ranged;
+            usingItem = true;
+            drawStartedAt = Time.time;
+            SetPoseRotation(Quaternion.Euler(90f, 0f, 0f));
+            while (true)
+            {
+                while (Time.timeScale <= 0f) yield return null;
+                if (!owner || !owner.CanAct || owner.IsDodging || user.Weapon != this || user.IsBlocking) { CancelUse(); yield break; }
+                float drawn = Time.time - drawStartedAt;
+                if (drawn >= MinDrawSeconds && !user.AttackHeld) break;
+                yield return null;
+            }
+            float power = stats.Power(Time.time - drawStartedAt);
+            drawStartedAt = -1f;
+            SetPoseRotation(HoldRotation);
+            var from = owner.transform.position + Vector3.up * 1.1f + owner.Facing * 0.5f;
+            var direction = owner.Facing;
+            if (InteractionAim.TryRay(owner, out var aimRay))
+            {
+                var target = InteractionAim.Trace(owner, aimRay, out var hit) ? hit.point : aimRay.GetPoint(20f);
+                if ((target - from).sqrMagnitude > 0.01f) direction = (target - from).normalized;
+            }
+            owner.PlayPunch();
+            Projectile.Fire(word, from, direction * stats.SpeedAt(power), owner, Mathf.Round(stats.DamageAt(power)),
+                stats.Knockback * (0.5f + 0.5f * power), stats.BreakPower, 0f);
+            if (power >= 1f) GameFeedback.Burst("Speed_Trail", from, .5f, GameFeedback.SkillColor(word), .2f);
+            Wear(1f, user);
+            if (broken) yield break;
+            yield return new WaitForSeconds(stats.Recovery);
+            usingItem = false;
         }
 
         IEnumerator ConsumeAfterChannel(PlayerCombat user, PlayerController owner)
@@ -217,6 +257,7 @@ namespace Wreckabulary
             CancelUse();
             if (user && user.Weapon == this) user.ForgetHeld();
             transform.SetParent(World.Transient, true);
+            if (TryGetComponent(out LetterStash stash)) stash.Spill();
             if (!spent && TilePool.Instance) TilePool.Instance.Burst(word, transform.position + Vector3.up * 0.4f, 3f);
             Destroy(gameObject);
         }

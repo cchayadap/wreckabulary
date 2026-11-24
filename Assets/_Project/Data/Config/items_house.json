@@ -625,6 +625,224 @@
         "breakPower": 0.2
       },
       "notes": "A soft lobbed throw that knocks players back without hurting much."
+    },
+    {
+      "id": "MUG",
+      "category": "Consumables",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/MUG",
+      "heldScale": 1.0,
+      "grip": [
+        -0.051,
+        0.1375,
+        0.0005
+      ],
+      "size": [
+        0.352,
+        0.275,
+        0.251
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Heal",
+      "hands": 1,
+      "durability": 0,
+      "use": {
+        "effect": "Heal",
+        "amount": 22,
+        "channel": 0.4
+      },
+      "notes": "A quick sip of cocoa: restores 22 HP, between WATER and APPLE."
+    },
+    {
+      "id": "VASE",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/VASE",
+      "heldScale": 0.7317,
+      "grip": [
+        0.0,
+        0.246,
+        0.0
+      ],
+      "size": [
+        0.33,
+        0.492,
+        0.33
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 0,
+      "thrown": {
+        "damage": 16,
+        "speed": 15,
+        "lob": false,
+        "recoverable": false,
+        "knockback": 4,
+        "breakPower": 1.5
+      },
+      "notes": "Shatters on its first impact and may leave the target dazed. Spends its letters when thrown."
+    },
+    {
+      "id": "BOOK",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BOOK",
+      "heldScale": 1.0,
+      "grip": [
+        0.0072,
+        0.065,
+        0.0
+      ],
+      "size": [
+        0.3395,
+        0.13,
+        0.255
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 34,
+      "melee": {
+        "damage": 15,
+        "reach": 1.4,
+        "arc": 110,
+        "windup": 0.2,
+        "active": 0.1,
+        "recovery": 0.32,
+        "knockback": 6,
+        "breakPower": 1.5,
+        "hitStun": 0.3
+      },
+      "notes": "A hardback smack that shoves players back and dazes them on every third hit."
+    },
+    {
+      "id": "BOX",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BOX",
+      "heldScale": 0.5806,
+      "grip": [
+        0.0,
+        0.2587,
+        0.0008
+      ],
+      "size": [
+        0.62,
+        0.5175,
+        0.4975
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 65,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.3,
+        "footprint": [
+          0.62,
+          0.4975
+        ]
+      },
+      "notes": "Light cover you can set down faster than anything else."
+    },
+    {
+      "id": "BOW",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BOW",
+      "heldScale": 0.8007,
+      "grip": [
+        -0.19,
+        0.3747,
+        0.0
+      ],
+      "size": [
+        0.24,
+        0.7493,
+        0.058
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Ranged",
+      "hands": 1,
+      "durability": 14,
+      "ranged": {
+        "damage": 8,
+        "fullDamage": 20,
+        "speed": 14,
+        "fullSpeed": 30,
+        "draw": 0.9,
+        "recovery": 0.25,
+        "knockback": 3,
+        "breakPower": 0.5
+      },
+      "notes": "Hold attack to draw and release to fire. A full draw shoots further and hits harder. Each shot wears the bow."
+    },
+    {
+      "id": "CHEST",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CHEST",
+      "heldScale": 0.4615,
+      "grip": [
+        0.0,
+        0.2838,
+        0.0285
+      ],
+      "size": [
+        0.78,
+        0.5675,
+        0.547
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Utility",
+      "hands": 2,
+      "durability": 70,
+      "deploy": {
+        "effect": "Stash",
+        "place": 0.6,
+        "footprint": [
+          0.78,
+          0.547
+        ]
+      },
+      "notes": "Place it, then interact to bank your letters or take them back. Only your team can open it; break or grab it to spill what's inside."
     }
   ],
   "tuning": {
@@ -808,6 +1026,30 @@
           {
             "kind": "Crush",
             "amount": 1.75,
+            "every": 3
+          }
+        ]
+      },
+      "VASE": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.5,
+            "chance": 0.4
+          }
+        ]
+      },
+      "BOOK": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.25
+          },
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.5,
             "every": 3
           }
         ]

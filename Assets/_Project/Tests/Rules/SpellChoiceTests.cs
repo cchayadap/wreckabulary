@@ -24,12 +24,12 @@ namespace Wreckabulary.Rules.Tests
         {
             var expected = new (SpellRole role, string[] ids)[]
             {
-                (SpellRole.Weapon, new[] { "BAT", "PAN", "SPEAR", "LAMP", "BLADE", "BROOM", "RACK", "PILLOW", "HAMMER", "ARROW", "BALL", "POT", "TOASTER", "BEAR", "BARREL" }),
-                (SpellRole.Shot, new[] { "BOMB", "PIE" }),
+                (SpellRole.Weapon, new[] { "BAT", "PAN", "SPEAR", "LAMP", "BLADE", "BROOM", "RACK", "PILLOW", "HAMMER", "ARROW", "BALL", "POT", "TOASTER", "BEAR", "BARREL", "BOOK", "BOW" }),
+                (SpellRole.Shot, new[] { "BOMB", "PIE", "VASE" }),
                 (SpellRole.Shield, new[] { "SHIELD", "PLATE", "MIRROR" }),
-                (SpellRole.Heal, new[] { "APPLE", "WATER", "CAKE", "FOAM" }),
+                (SpellRole.Heal, new[] { "APPLE", "WATER", "CAKE", "FOAM", "MUG" }),
                 (SpellRole.Boost, new[] { "SODA" }),
-                (SpellRole.Gadget, new[] { "PLANT", "CLOCK", "FAN", "SPEAKER", "SOAP", "MAT", "BED", "SOFA", "TABLE", "CRATE", "SHELF", "DESK", "CABINET", "CHAIR", "STOOL", "BENCH" }),
+                (SpellRole.Gadget, new[] { "PLANT", "CLOCK", "FAN", "SPEAKER", "SOAP", "MAT", "BED", "SOFA", "TABLE", "CRATE", "SHELF", "DESK", "CABINET", "CHAIR", "STOOL", "BENCH", "BOX", "CHEST" }),
             };
             foreach (var (role, ids) in expected)
                 foreach (string id in ids)

@@ -164,7 +164,7 @@ namespace Wreckabulary.Rules
         {
             var map = new Dictionary<string, SurfaceMaterial>(StringComparer.Ordinal);
             void Add(SurfaceMaterial m, params string[] words) { foreach (var w in words) map[w] = m; }
-            Add(SurfaceMaterial.Wood, "TABLE", "CHAIR", "STOOL", "DESK", "SHELF", "CABINET", "CRATE", "BARREL", "CHEST", "BAT", "BROOM", "SPEAR",
+            Add(SurfaceMaterial.Wood, "TABLE", "CHAIR", "STOOL", "DESK", "SHELF", "CABINET", "CRATE", "BARREL", "CHEST", "BOW", "BAT", "BROOM", "SPEAR",
                 "DOOR", "DRESSER", "BOOKCASE", "WARDROBE", "BENCH", "CLOCK", "DRAWER", "PALLET", "LOG", "PLANK", "ARROW", "RACK", "SPEAKER");
             Add(SurfaceMaterial.Glass, "WINDOW", "MIRROR", "GLASS", "BOTTLE", "JAR", "TV", "SCREEN", "WATER", "AQUARIUM", "TANK", "LIGHTBULB", "BULB");
             Add(SurfaceMaterial.Metal, "FRIDGE", "STOVE", "OVEN", "PAN", "POT", "BIN", "LOCKER", "SAFE", "HAMMER", "BLADE", "SHIELD", "BOMB", "FAN",

@@ -35,6 +35,7 @@ namespace Wreckabulary.Rules
             if (item == null) return SpellRole.Gadget;
             if (item.Use != null) return item.Use.Effect is UseEffect.Heal or UseEffect.Bubble ? SpellRole.Heal : SpellRole.Boost;
             if (item.Shield != null) return SpellRole.Shield;
+            if (item.Ranged != null) return SpellRole.Weapon;
             if (item.Thrown != null) return item.Consumable || !item.Thrown.Recoverable ? SpellRole.Shot : SpellRole.Weapon;
             if (item.Deploy != null) return SpellRole.Gadget;
             return item.Melee != null ? SpellRole.Weapon : SpellRole.Gadget;

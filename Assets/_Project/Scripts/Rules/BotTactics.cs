@@ -22,10 +22,12 @@ namespace Wreckabulary.Rules
     {
         public const float FistRange = 1.35f, ReachSlack = .15f, PointBlank = .8f, MinAimDegrees = 4f, ThrowAimDegrees = 8f;
         public const float TelegraphSeconds = .45f, DodgeMargin = .8f, ThreatArcSlack = 25f, ReactionSeconds = .15f, GuardSeconds = 1f;
-        public const float SafeToSpell = 4f, CloseQuarters = 3f;
+        public const float SafeToSpell = 4f, CloseQuarters = 3f, ShootRange = 9f;
         public const float FlatLift = .3f, LobLift = 4f, LaunchHeight = 1.1f, LowestHit = .25f, HighestHit = 1.6f;
 
         public static bool Throws(ItemDefinition held) => held != null && held.Use == null && held.Thrown != null;
+
+        public static bool Shoots(ItemDefinition held) => held != null && held.Use == null && held.Ranged != null;
 
         public static bool Swings(ItemDefinition held) =>
             held != null && held.Use == null && held.Thrown == null && held.Deploy == null && held.Shield == null && held.Melee != null;
@@ -33,7 +35,7 @@ namespace Wreckabulary.Rules
         public static float StrikeRange(ItemDefinition held) => Swings(held) ? Math.Max(FistRange, held.Melee.Reach + ReachSlack) : FistRange;
 
         public static float AimDegrees(ItemDefinition held, float fistArc) =>
-            Throws(held) ? ThrowAimDegrees : Math.Max(MinAimDegrees, (Swings(held) ? held.Melee.ArcDegrees : fistArc) * .5f);
+            Throws(held) || Shoots(held) ? ThrowAimDegrees : Math.Max(MinAimDegrees, (Swings(held) ? held.Melee.ArcDegrees : fistArc) * .5f);
 
         public static ThrowWindow Window(ThrownStats thrown, float gravity)
         {

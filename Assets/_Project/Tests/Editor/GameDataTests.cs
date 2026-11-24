@@ -19,7 +19,7 @@ namespace Wreckabulary.EditorTests
         static readonly string[] CoreTwelve = { "BAT", "BLADE", "LAMP", "BALL", "PLATE", "TABLE", "BED", "MAT", "SOFA", "SOAP", "FOAM", "BOMB" };
 
         static readonly string[] HouseOnly = { "PAN", "ARROW", "POT", "BARREL", "CRATE", "PLANT", "SHELF", "DESK", "CABINET", "CHAIR",
-            "PILLOW", "RACK", "MIRROR", "SPEAKER", "BENCH", "TOASTER", "BEAR" };
+            "PILLOW", "RACK", "MIRROR", "SPEAKER", "BENCH", "TOASTER", "BEAR", "MUG", "VASE", "BOOK", "BOX", "BOW", "CHEST" };
 
         [OneTimeSetUp]
         public void Load()
