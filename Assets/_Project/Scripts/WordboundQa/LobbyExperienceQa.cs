@@ -157,12 +157,13 @@ namespace Wreckabulary.Qa
                     Require(guide.Length == (ModeGuides.Has(mode) ? 1 : 0), "The mode guide icon must show exactly when a guide exists: " + mode);
                     if (guide.Length == 1) ControlFits(guide[0]);
                     var howTo = Page().GetComponentsInChildren<LobbyPlaySpare>().SingleOrDefault();
-                    Require(howTo && howTo.name == PlayPage.GuideStrip, "Every Same screen mode must build its how-to-play strip: " + mode);
-                    if (howTo.Shown) foreach (var text in howTo.GetComponentsInChildren<TMP_Text>()) TextFits(text);
+                    Require(!howTo, "Same screen leaves how to play to the preview and the guide, not a strip: " + mode);
+                    var preview = Page().GetComponentInChildren<LobbyPlayModePreview>();
+                    Require(preview && preview.Shown == mode, "The preview beside the modes must show the selected mode: " + mode);
                     Require(Find(Page(), "GO").interactable, "The selected local mode cannot start.");
                     context.Note("local_" + mode, new Dictionary<string, object> { ["summary"] = detail.text, ["goal"] = goal.text, ["access"] = access.text, ["map"] = menu.Map,
                         ["humans"] = menu.PartySize, ["selected"] = EventSystem.current.currentSelectedGameObject.name, ["maps"] = maps,
-                        ["ticked"] = menu.Maps.Ticked.ToArray(), ["guide"] = guide.Length == 1, ["how_to_play"] = howTo.Shown });
+                        ["ticked"] = menu.Maps.Ticked.ToArray(), ["guide"] = guide.Length == 1, ["preview"] = preview.PictureShown });
                     if (mode is HouseModes.Dibs or HouseModes.Duos or HouseModes.Escape or HouseModes.War)
                         yield return Capture(context, "lobby_local_" + mode.ToLowerInvariant());
                 }

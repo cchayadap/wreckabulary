@@ -102,16 +102,19 @@ namespace Wreckabulary
         public const float PictureAspect = 16f / 9f, Inset = 8, CaptionHeight = 40, PreferredWidth = 384, ShortestCard = 140, ViewportMargin = 28;
         public float MinimumWidth = 264;
         public int MaximumColumns = 3;
+        /// <summary>Widest a card may grow. A short list (the course maps) sets no cap so its row fills the page.</summary>
+        public float WidestCard = PreferredWidth;
         GridLayoutGroup grid;
         bool fitting;
         Vector2 viewportSize;
 
         public static float HeightFor(float width) => Mathf.Max(0f, width - Inset * 2) / PictureAspect + CaptionHeight + Inset;
 
-        public static (int columns, Vector2 cell) Layout(float available, float spacing, float minimumWidth, int maximumColumns, float viewportHeight)
+        public static (int columns, Vector2 cell) Layout(float available, float spacing, float minimumWidth, int maximumColumns, float viewportHeight,
+            float widest = PreferredWidth)
         {
             int columns = Mathf.Clamp(Mathf.FloorToInt((available + spacing) / (Mathf.Min(PreferredWidth, minimumWidth) + spacing)), 1, Mathf.Max(1, maximumColumns));
-            float width = Mathf.Max(1f, Mathf.Min(PreferredWidth, (available - (columns - 1) * spacing) / columns));
+            float width = Mathf.Max(1f, Mathf.Min(widest, (available - (columns - 1) * spacing) / columns));
             float height = HeightFor(width);
             if (viewportHeight > 0) height = Mathf.Min(height, Mathf.Max(ShortestCard, viewportHeight - ViewportMargin));
             return (columns, new Vector2(width, height));
@@ -137,7 +140,7 @@ namespace Wreckabulary
             var nextViewportSize = scroll && scroll.viewport ? scroll.viewport.rect.size : Vector2.zero;
             bool changed = nextViewportSize != viewportSize;
             viewportSize = nextViewportSize;
-            var (columns, cell) = Layout(rect.rect.width, grid.spacing.x, MinimumWidth, MaximumColumns, viewportSize.y);
+            var (columns, cell) = Layout(rect.rect.width, grid.spacing.x, MinimumWidth, MaximumColumns, viewportSize.y, WidestCard);
             int rows = Mathf.CeilToInt(transform.childCount / (float)columns);
             float height = rows * cell.y + (rows - 1) * grid.spacing.y;
             if (grid.startCorner != GridLayoutGroup.Corner.UpperLeft) { grid.startCorner = GridLayoutGroup.Corner.UpperLeft; changed = true; }
@@ -205,11 +208,15 @@ namespace Wreckabulary
     {
         public LobbyPlayModeFamilies Sections;
         public TMP_Text Goal, Access;
+        public RectTransform Preview;
         public float Gap = 36, GoalMinimumWidth = 420, GoalHeight = 30, GoalGap = 2, AccessHeight = 44;
-        float arrangedWidth = -1f;
+        public float PreviewGap = 20, PreviewMinimumWidth = 240, TextMinimumWidth = 240;
+        float arrangedWidth = -1f, besideRight;
         bool fitting;
 
         public bool Beside { get; private set; }
+
+        public bool PreviewShown => Preview && Preview.TryGetComponent(out CanvasGroup group) && group.alpha > 0f;
 
         void OnEnable() => Fit();
         void OnRectTransformDimensionsChange() => Fit();
@@ -237,10 +244,34 @@ namespace Wreckabulary
             float height = Sections.Height;
             LobbyPlayModeFamilies.Set(sections, Vector2.zero, new Vector2(sectionsWidth, height));
             float besideTop = Sections.CaptionHeight;
+            besideRight = 0f;
+            if (Preview)
+            {
+                // The picture fills the space under the family captions, right of the columns, without
+                // making the mode block taller than the columns, so the houses below never move.
+                float room = width - columns - Gap - TextRoom() - PreviewGap;
+                float previewHeight = height - besideTop;
+                float previewWidth = Mathf.Min(previewHeight * LobbyPlayModePreview.Aspect, room);
+                bool shown = Beside && previewWidth >= PreviewMinimumWidth;
+                // Hidden through a CanvasGroup: deactivating graphics here can land inside a layout rebuild.
+                if (!Preview.TryGetComponent(out CanvasGroup group)) group = Preview.gameObject.AddComponent<CanvasGroup>();
+                group.alpha = shown ? 1f : 0f; group.interactable = group.blocksRaycasts = shown;
+                // Hidden by the canvas group, but kept at its smallest size so its labels still fit.
+                if (!shown) LobbyPlayModeFamilies.Set(Preview, new Vector2(0, -besideTop), new Vector2(PreviewMinimumWidth, PreviewMinimumWidth / LobbyPlayModePreview.Aspect));
+                if (shown)
+                {
+                    previewHeight = previewWidth / LobbyPlayModePreview.Aspect;
+                    LobbyPlayModeFamilies.Set(Preview, new Vector2(width - previewWidth, -besideTop), new Vector2(previewWidth, previewHeight));
+                    besideRight = previewWidth + PreviewGap;
+                }
+            }
             if (Goal)
             {
-                height = PlaceLine(Goal, width, columns, height, besideTop, Sections.ButtonHeight, GoalHeight);
-                besideTop += Sections.ButtonHeight;
+                float goalRows = besideRight > 0f ? 2f : 1f;
+                var wrap = goalRows > 1f ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
+                if (Goal.textWrappingMode != wrap) Goal.textWrappingMode = wrap;
+                height = PlaceLine(Goal, width, columns, height, besideTop, Sections.ButtonHeight * goalRows, GoalHeight);
+                besideTop += Sections.ButtonHeight * goalRows;
             }
             if (Access) height = PlaceLine(Access, width, columns, height, besideTop, AccessHeight, AccessHeight);
             if (!TryGetComponent(out LayoutElement element)) element = gameObject.AddComponent<LayoutElement>();
@@ -249,13 +280,23 @@ namespace Wreckabulary
             if (transform.parent is RectTransform parent) LayoutRebuilder.MarkLayoutForRebuild(parent);
         }
 
+        /// <summary>Width the text beside the preview needs: the who-can-play line never wraps, so it sets the floor.</summary>
+        float TextRoom()
+        {
+            float need = TextMinimumWidth;
+            if (!Access || string.IsNullOrEmpty(Access.text)) return need;
+            float line = Access.GetPreferredValues(Access.text).x;
+            if (Access.TryGetComponent(out LobbyPlayGoalInfo info) && info.Icon) line += info.IconWidth + LobbyPlayGoalInfo.Gap * 2;
+            return Mathf.Max(need, Mathf.Ceil(line) + 8f);
+        }
+
         float PlaceLine(TMP_Text line, float width, float columns, float height, float besideTop, float besideHeight, float underHeight)
         {
             var alignment = Beside ? TextAlignmentOptions.MidlineLeft : TextAlignmentOptions.Center;
             if (line.alignment != alignment) line.alignment = alignment;
             if (Beside)
             {
-                LobbyPlayModeFamilies.Set(line.rectTransform, new Vector2(columns + Gap, -besideTop), new Vector2(width - columns - Gap, besideHeight));
+                LobbyPlayModeFamilies.Set(line.rectTransform, new Vector2(columns + Gap, -besideTop), new Vector2(width - columns - Gap - besideRight, besideHeight));
                 height = Mathf.Max(height, besideTop + besideHeight);
             }
             else
