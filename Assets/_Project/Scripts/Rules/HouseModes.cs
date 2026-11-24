@@ -21,7 +21,7 @@ namespace Wreckabulary.Rules
     {
         public const string Tutorial = "Tutorial", Dibs = "Dibs", Duos = "Duos", FreeForAll = "Deathmatch", War = "War";
         public const string MovingOut = "MovingOut", MovingDay = "MovingDay", Escape = "Escape";
-        public const string ShoppingList = "ShoppingList", RiddleRush = "RiddleRush";
+        public const string ShoppingList = "ShoppingList", RiddleRush = "RiddleRush", BossFight = "BossFight";
 
         static readonly HouseMode[] Entries =
         {
@@ -84,6 +84,12 @@ namespace Wreckabulary.Rules
                 Id = RiddleRush, Name = "Riddles", Family = HouseModeFamily.Arcade, Tag = "WORD GAMES", BotSeats = 4,
                 Goal = "Solve the riddle, spell the answer",
                 Blurb = "Read the riddle, find the letters and spell the answer before anyone else.",
+            },
+            new HouseMode
+            {
+                Id = BossFight, Name = "Boss Fight", Family = HouseModeFamily.Arcade, Tag = "SOLO BOSS", MaxSeats = 1,
+                Goal = "Crack the Calculator's shield, then knock it out",
+                Blurb = "Smash furniture into letters and spell CALC, ULA and TOR to crack the Calculator's three shields, then hit it before time runs out.",
             },
         };
 

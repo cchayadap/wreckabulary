@@ -154,15 +154,10 @@ namespace Wreckabulary
                     craftFree = false;
                     inventory.ReservedCount = 0;
                     controller.MoveScale = 1f;
-<<<<<<< HEAD
-                    if (SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
-                    else Refund(entry.word, free);
-=======
                     // @trace MECH-003
                     if (IsSignal(entry)) Summoned?.Invoke(entry.word);
                     else if (SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
-                    else Refund(entry.word);
->>>>>>> fd3f0126 (first commit)
+                    else Refund(entry.word, free);
                 }
                 return;
             }
@@ -235,14 +230,10 @@ namespace Wreckabulary
         public bool BeginCraft(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
-<<<<<<< HEAD
-            if (IsCrafting || entry == null || !SummonEffects.CanApply(controller, entry)) return false;
+            // @trace MECH-003
+            if (IsCrafting || entry == null || (!IsSignal(entry) && !SummonEffects.CanApply(controller, entry))) return false;
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
-=======
-            // @trace MECH-003
-            if (IsCrafting || entry == null || (!IsSignal(entry) && !SummonEffects.CanApply(controller, entry)) || !inventory.TrySpend(entry.word)) return false;
->>>>>>> fd3f0126 (first commit)
             Close();
             crafting = entry;
             craftFree = free;
@@ -280,16 +271,11 @@ namespace Wreckabulary
         public bool Summon(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
-<<<<<<< HEAD
-            if (IsCrafting || entry == null || !SummonEffects.CanApply(controller, entry)) return false;
+            // @trace MECH-003, MECH-005
+            if (IsCrafting || entry == null || (!IsSignal(entry) && !SummonEffects.CanApply(controller, entry))) return false;
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
-            if (!SummonEffects.Apply(controller, entry)) { Refund(entry.word, free); return false; }
-=======
-            // @trace MECH-003, MECH-005
-            if (IsCrafting || entry == null || (!IsSignal(entry) && !SummonEffects.CanApply(controller, entry)) || !inventory.TrySpend(entry.word)) return false;
-            if (!IsSignal(entry) && !SummonEffects.Apply(controller, entry)) { Refund(entry.word); return false; }
->>>>>>> fd3f0126 (first commit)
+            if (!IsSignal(entry) && !SummonEffects.Apply(controller, entry)) { Refund(entry.word, free); return false; }
             Summoned?.Invoke(entry.word);
             return true;
         }

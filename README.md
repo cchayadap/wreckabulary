@@ -10,15 +10,7 @@ A toy-like third-person party game for 1–4 players. Smash furniture and it bre
 2. Spell a word (Q, type, Enter) or tap a ready card in the recipe book (hold Tab).
 3. Use what you built: swing, throw, block, place.
 
-<<<<<<< HEAD
 Harder words make better items. A plain word like BAT is an honest hit; harder words carry effects:
-=======
-- **Modes:** Dibs! (free-for-all, first to three rounds), Duos (2v2 with downed and revive), Moving Out (co-op escape with keepsakes), Moving Day (co-op furnishing checklist), Boss Fight (solo: spell CALC / ULA / TOR to break the Calculator's shield, then hit it), a guided tutorial, and the Creative Workshop for furnishing a house. See `docs/BossFight-GDD.md`.
-- **Houses:** Pinwheel House, Garden Courtyard, City Flat, the two-storey Terrace House and the three-storey Walk-up Apartments.
-- **Rules:** 100 HP, a 10-letter bag, 2 carried and 2 deployed items, and [24 usable recipes](docs/RECIPES.md), including a 360° raised shield, healing snacks, speed drinks, wind and slowing fields.
-- **Play:** local play for up to four (keyboard and mouse, gamepads, two keyboard halves), with AI roommates filling empty seats.
-- **Lobby:** a PC lobby with loadout, career, cosmetic shop, leaderboard and graphics settings. Cosmetics never change a number.
->>>>>>> fd3f0126 (first commit)
 
 | Effect | How it lands | Examples |
 |---|---|---|
@@ -38,7 +30,7 @@ Bare hands barely hurt. The recipe book says what each item does when you point 
 | Learn | Tutorial (selected until you finish it) | 1–4 on one PC |
 | Battle | Dibs! (last one standing), Duos (2v2 with revives), Free-for-All (respawns; first to 10 knockouts), War (two teams of up to 4 share 12 lives; hold the middle room for more) | 1–4 on one PC, bots fill seats (War plays 4v4) |
 | Co-op | Moving Out (escape with the keepsakes), Moving Day (finish the checklist), Escape | 1–4 on one PC |
-| Word games | Shopping List (everyone builds the same items in a new random order each round), Riddle Rush (solve the riddle, spell the answer first) | 1–4 on one PC, bots fill seats |
+| Word games | Shopping List (everyone builds the same items in a new random order each round), Riddle Rush (solve the riddle, spell the answer first), Boss Fight (solo: spell CALC / ULA / TOR to crack the Calculator's shield, then hit it; see `docs/BossFight-GDD.md`) | 1–4 on one PC, bots fill seats (Boss Fight is solo) |
 | Courses | Time Trial, Freeplay on Parcel Depot, The Lost Address or Parcel Hall | 1 on one PC |
 | Online courses | Time Trial, Team Relay, Brawl Relay (teams of 1, 2 or 4), Free-for-All (first to 10 knockouts), Freeplay | Matchmaking or a private party |
 

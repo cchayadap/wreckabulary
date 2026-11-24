@@ -71,15 +71,9 @@ namespace Wreckabulary
         public void EnsureOpponents()
         {
             if (HumanCount == 0) return;
-<<<<<<< HEAD
             int target = Rules.HouseModes.BotSeats(Match.Mode);
             if (target == 0) { AssignTeams(); return; }
             if (target > maxPlayers) MaxPlayers = target;
-=======
-            if (Match.Mode is "Escape" or "BossFight") { AssignTeams(); return; }     // No AI crew in solo modes.
-
-            int target = 4;
->>>>>>> fd3f0126 (first commit)
             while (players.Count < target && players.Count < maxPlayers)
             {
                 var binding = new BotBinding();
@@ -95,11 +89,7 @@ namespace Wreckabulary
             foreach (var b in Session.Bindings.ToArray())
             {
                 if (b is GamepadBinding g && !g.Pad.added) continue;
-<<<<<<< HEAD
                 if (b is BotBinding && Rules.HouseModes.BotSeats(Match.Mode) == 0) continue;
-=======
-                if (b is BotBinding && Match.Mode is "Escape" or "BossFight") continue;   // Solo modes are humans only.
->>>>>>> fd3f0126 (first commit)
                 Join(b, arriving: false);
                 RestoredFromSession = true;
             }

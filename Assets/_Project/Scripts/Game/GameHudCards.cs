@@ -718,18 +718,7 @@ namespace Wreckabulary
         {
             if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == Session.TutorialScene)
                 return "A friendly room to try smashing, spelling and every skill.";
-<<<<<<< HEAD
             return HouseGoals.Blurb(Match.Mode, Match.Rules);
-=======
-            return Match.Mode switch
-            {
-                "Duos" => "Watch each other’s backs. Hold interact to revive your buddy.",
-                "MovingOut" => "Find every keepsake, then get the whole crew to the van before the house is packed.",
-                "MovingDay" => "Spell the checklist furniture and place it in its marked room.",
-                "BossFight" => "Smash props into letters, spell CALC / ULA / TOR, then hit the Calculator.",
-                _ => $"Smash, spell, survive. First to {NumberWord(Match.Rules.RoundsToWin)} rounds wins.",
-            };
->>>>>>> fd3f0126 (first commit)
         }
 
         void OnPauseShown()

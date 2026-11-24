@@ -339,7 +339,6 @@ namespace Wreckabulary
 
         public static Color ModeColour(string mode) => mode switch
         {
-<<<<<<< HEAD
             Rules.HouseModes.Dibs => Hex(0xef5b2b),
             Rules.HouseModes.Duos => Hex(0x3fa9dd),
             Rules.HouseModes.FreeForAll => Hex(0xc94fd0),
@@ -349,26 +348,15 @@ namespace Wreckabulary
             Rules.HouseModes.Escape => Hex(0xd7263d),
             Rules.HouseModes.ShoppingList => Hex(0xa6c43a),
             Rules.HouseModes.RiddleRush => Hex(0x38c27a),
+            Rules.HouseModes.BossFight => Hex(0xf5a623),
             Rules.HouseModes.Tutorial => Hex(0xf2b230),
             LobbyMenu.WorkshopMode => Hex(0x22b8a5),
             LobbyMenu.RoomMode => Hex(0xff3d9e),
-=======
-            "Dibs" => Hex(0xef5b2b),
-            "Duos" => Hex(0x3fa9dd),
-            "MovingOut" => Hex(0x6fa957),
-            "MovingDay" => Hex(0x9471dc),
-            "Escape" => Hex(0xd7263d),
-            "BossFight" => Hex(0xf5a623),
-            "Tutorial" => Hex(0xf2b230),
-            "Workshop" => Hex(0x22b8a5),
-            "Room" => Hex(0xff3d9e),
->>>>>>> fd3f0126 (first commit)
             _ => Sun,
         };
 
         public static string ModeArt(string mode) => mode switch
         {
-<<<<<<< HEAD
             Rules.HouseModes.Dibs => "BAT",
             Rules.HouseModes.Duos => "BALL",
             Rules.HouseModes.FreeForAll => "BOMB",
@@ -377,19 +365,10 @@ namespace Wreckabulary
             Rules.HouseModes.Escape => "CLOCK",
             Rules.HouseModes.ShoppingList => "APPLE",
             Rules.HouseModes.RiddleRush => "LAMP",
+            Rules.HouseModes.BossFight => "BOX",
             Rules.HouseModes.Tutorial => "BOOK",
             LobbyMenu.WorkshopMode => "HAMMER",
             LobbyMenu.RoomMode => "CAKE",
-=======
-            "Dibs" => "BAT",
-            "Duos" => "BALL",
-            "MovingDay" => "SOFA",
-            "Escape" => "CLOCK",
-            "BossFight" => "BOX",
-            "Tutorial" => "BOOK",
-            "Workshop" => "HAMMER",
-            "Room" => "CAKE",
->>>>>>> fd3f0126 (first commit)
             _ => "BOX",
         };
 
