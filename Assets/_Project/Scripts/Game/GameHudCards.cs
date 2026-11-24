@@ -104,7 +104,8 @@ namespace Wreckabulary
         Image composerEdge, composerRing;
         readonly ComposerTile[] tiles = new ComposerTile[TrayTiles];
         GameObject composerPrev, composerNext, bookLink, composerChrome;
-        int composerLayout = -1;
+        int composerLayout = -1, composerHintVersion = -1;
+        TextMeshProUGUI composerHint;
         string composerText = "", composerError;
         bool composerOpen;
         float caretAt, shakeAt = -10f, eraseNext;
@@ -129,6 +130,7 @@ namespace Wreckabulary
         public string ComposerText => composerText;
         public string ComposerStatus => craftStatus ? craftStatus.text : "";
         public bool ComposerLettersOnly => composerChrome && !composerChrome.activeSelf;
+        public string ComposerHint => composerHint && composerHint.gameObject.activeInHierarchy ? composerHint.text : "";
         public string ToastText => toast && toast.gameObject.activeSelf ? toastLabel.text : "";
         public bool CountdownShown => chip && chip.gameObject.activeSelf;
         public string CountdownText => CountdownShown ? chipDigit.text : "";
@@ -975,6 +977,11 @@ namespace Wreckabulary
             craftStatus.alignment = TextAlignmentOptions.MidlineLeft;
             craftStatus.textWrappingMode = TextWrappingModes.NoWrap; craftStatus.overflowMode = TextOverflowModes.Overflow;
             craftStatus.enableAutoSizing = true; craftStatus.fontSizeMin = CraftStatusMinFont; craftStatus.fontSizeMax = CraftStatusFont;
+
+            composerHint = Copy(composer, "Typed hint", "", LobbyFonts.Body, 14f, Faded);
+            Put(composerHint.rectTransform, Vector2.zero, Vector2.zero, new Vector2(20f, 9f), new Vector2(490f, 22f));
+            composerHint.textWrappingMode = TextWrappingModes.NoWrap; composerHint.overflowMode = TextOverflowModes.Overflow;
+            composerHint.gameObject.SetActive(false);
             craftRoot.SetActive(false);
         }
 
@@ -1037,8 +1044,16 @@ namespace Wreckabulary
             if (composerLayout == layout) return;
             composerLayout = layout;
             composerChrome.SetActive(!typed);
-            composer.sizeDelta = typed ? new Vector2(530f, 103f) : new Vector2(650f, 189f);
+            composerHint.gameObject.SetActive(typed);
+            composer.sizeDelta = typed ? new Vector2(530f, 127f) : new Vector2(650f, 189f);
             composerWell.anchoredPosition = typed ? new Vector2(20f, -14f) : new Vector2(20f, -64f);
+        }
+
+        void RefreshComposerHint()
+        {
+            if (composerHintVersion == KeyBindings.Version) return;
+            composerHintVersion = KeyBindings.Version;
+            composerHint.text = $"<b>ENTER</b> spell     <b>{ControlHints.KeyOf(DesktopBinding.Shared.Pause)}</b> back";
         }
 
         void OnTextTyped(char typed)
@@ -1184,6 +1199,7 @@ namespace Wreckabulary
             {
                 word = composerText;
                 line = TypedStatus(out state);
+                RefreshComposerHint();
             }
             else if (summoner.SelectedWord != null)
             {
