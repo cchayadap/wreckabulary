@@ -374,6 +374,7 @@ namespace Wreckabulary.Rules
             r.PrepSeconds = n["prepSeconds"].Float(r.PrepSeconds);
             r.AppearSeconds = n["appearSeconds"].Float(r.AppearSeconds);
             r.LayerSeconds = n["layerSeconds"].Float(r.LayerSeconds);
+            r.HitSeconds = n["hitSeconds"].Float(r.HitSeconds);
             r.StarterProps = n["starterProps"].Int(r.StarterProps);
             r.SupplyDropSeconds = n["supplyDropSeconds"].Float(r.SupplyDropSeconds);
             r.AoeWarnSeconds = n["aoeWarnSeconds"].Float(r.AoeWarnSeconds);
