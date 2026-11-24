@@ -139,7 +139,9 @@ namespace Wreckabulary.Rules
         public static double LegacyScale(string id) => id == "pinwheel" ? 1.4 : id == "courtyard" ? 1.5 : 1;
 
         public static readonly IReadOnlyList<string> PlayableModes = HouseModes.All
-            .Where(mode => mode.Family == HouseModeFamily.Classic || mode.Family == HouseModeFamily.Arcade).Select(mode => mode.Id).ToArray();
+            .Where(mode => mode.Family == HouseModeFamily.Classic || mode.Family == HouseModeFamily.Arcade)
+            // Boss Fight always loads its own bare Pinwheel arena, so a saved home would be ignored.
+            .Where(mode => mode.Id != HouseModes.BossFight).Select(mode => mode.Id).ToArray();
 
         public static bool Playable(string mode) => mode != null && PlayableModes.Contains(mode);
 

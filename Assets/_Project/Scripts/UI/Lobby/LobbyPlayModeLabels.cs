@@ -19,7 +19,7 @@ namespace Wreckabulary
             "BrawlRace" => "BAT",
             "FreeForAll" => "SPEAR",
             "TimeRun" => "CLOCK",
-            "Freestyle" => "SOFA",
+            "Freestyle" => "BENCH", // a town bench: wander the course; the sofa is Furnish the House
             _ => LobbyKit.ModeArt(id)
         };
 

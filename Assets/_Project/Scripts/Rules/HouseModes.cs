@@ -23,6 +23,9 @@ namespace Wreckabulary.Rules
         public const string MovingOut = "MovingOut", MovingDay = "MovingDay", Escape = "Escape";
         public const string ShoppingList = "ShoppingList", RiddleRush = "RiddleRush", BossFight = "BossFight";
 
+        /// <summary>The one house a mode always plays in, or null when the player picks the house.</summary>
+        public static string FixedHouse(string mode) => mode == BossFight ? "pinwheel" : null;
+
         static readonly HouseMode[] Entries =
         {
             new HouseMode

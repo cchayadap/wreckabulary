@@ -17,7 +17,7 @@ namespace Wreckabulary.Rules.Tests
             var playable = new[] { "Dibs", "Duos", "Deathmatch", "War", "ShoppingList", "RiddleRush" };
             CollectionAssert.AreEqual(playable, HomeDesigner.PlayableModes);
             foreach (string mode in playable) Assert.IsTrue(HomeDesigner.Playable(mode), mode);
-            foreach (string mode in new[] { "MovingOut", "MovingDay", "Escape", "Tutorial", "Workshop", "dibs", "", null })
+            foreach (string mode in new[] { "MovingOut", "MovingDay", "Escape", "BossFight", "Tutorial", "Workshop", "dibs", "", null })
                 Assert.IsFalse(HomeDesigner.Playable(mode), mode + " needs objective data a home save does not have");
         }
 

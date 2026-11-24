@@ -81,7 +81,7 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void EveryModeOnTheBoardHasALineThatNeverSaysOfflineOrLocal()
         {
-            Assert.AreEqual(12, Board.Length);
+            Assert.AreEqual(13, Board.Length);
             foreach (string id in Board)
             {
                 string line = Line(id);
