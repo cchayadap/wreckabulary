@@ -9,10 +9,10 @@
     { "answer": "BED", "clue": "You sleep in me every night (3)", "hint": "Make me every morning." },
     { "answer": "PILLOW", "clue": "I am soft and squishy, and your head rests on me at night (6)", "hint": "Grab me for a fluffy fight." },
     { "answer": "DESK", "clue": "Homework gets done on me, and my drawers hold your pens (4)", "hint": "I live in a study or a classroom." },
-    { "answer": "SHELF", "clue": "I hang on the wall and hold your books (5)", "hint": "Things sit on me up high." },
+    { "answer": "SHELF", "clue": "I hang on the wall and hold your stories up high (5)", "hint": "Things sit on me up high." },
     { "answer": "CABINET", "clue": "I am a cupboard with doors, and cups and bowls hide inside me (7)", "hint": "Open my doors in the kitchen." },
     { "answer": "RACK", "clue": "Hang your coat on me, or dry the dishes on me (4)", "hint": "I am a frame with bars or hooks." },
-    { "answer": "CRATE", "clue": "I am a wooden box for moving fruit or toys (5)", "hint": "Pack me, stack me, then nail my lid shut." },
+    { "answer": "CRATE", "clue": "I am made of wooden slats for moving fruit or toys (5)", "hint": "Pack me, stack me, then nail my lid shut." },
     { "answer": "BARREL", "clue": "I am big, round and wooden, and I roll if you tip me over (6)", "hint": "Metal hoops hold my sides together." },
     { "answer": "LAMP", "clue": "Click me on and I light up the room (4)", "hint": "My bulb glows when it gets dark." },
     { "answer": "FAN", "clue": "I spin round and round to keep you cool (3)", "hint": "Switch me on when it is hot." },
@@ -40,7 +40,7 @@
     { "answer": "BOMB", "clue": "Light my fuse and run, because I go boom (4)", "hint": "Cartoon villains love to throw me." },
     { "answer": "BLADE", "clue": "I am the sharp, flat edge of a sword or a knife (5)", "hint": "Ice skates have one under each foot." },
     { "answer": "SPEAR", "clue": "I am a long pole with a sharp point that hunters carry (5)", "hint": "Some fishers catch fish with me." },
-    { "answer": "ARROW", "clue": "A bow shoots me at a target (5)", "hint": "Signs use my shape to point the way." },
+    { "answer": "ARROW", "clue": "I fly with feathers at my tail toward a target (5)", "hint": "Signs use my shape to point the way." },
     { "answer": "SHIELD", "clue": "Knights hold me up to block a hit (6)", "hint": "Hold me in front of you to stay safe." }
   ]
 }

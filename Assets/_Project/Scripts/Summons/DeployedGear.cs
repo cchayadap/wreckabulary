@@ -30,6 +30,11 @@ namespace Wreckabulary
             var stats = component.definition.Deploy;
             component.expires = stats.LifetimeSeconds > 0f ? Time.time + stats.LifetimeSeconds : float.PositiveInfinity;
             if (stats.Effect == DeployEffect.Cover) return;
+            if (stats.Effect == DeployEffect.Stash)
+            {
+                gear.gameObject.AddComponent<LetterStash>().Open(owner);
+                return;
+            }
             if (stats.Effect is DeployEffect.WindField or DeployEffect.SlowField)
             {
                 component.field = gear.gameObject.AddComponent<DeployedPowerField>();
@@ -59,6 +64,7 @@ namespace Wreckabulary
         {
             registered = false;
             Active.Remove(this);
+            if (TryGetComponent(out LetterStash stash)) { stash.Spill(); Destroy(stash); }
             foreach (var trigger in GetComponentsInChildren<GearTrigger>()) Destroy(trigger.gameObject);
             if (field) { field.enabled = false; Destroy(field); }
             if (marker) Destroy(marker.gameObject);

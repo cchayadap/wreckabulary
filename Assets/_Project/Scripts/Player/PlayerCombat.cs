@@ -66,6 +66,7 @@ namespace Wreckabulary
         public bool HasFreeGearSlot => (Weapon ? 1 : 0) + (storedGear ? 1 : 0)
             + (controller.Summoner && controller.Summoner.IsCrafting ? 1 : 0) < controller.Health.Rules.MaxCarried;
         public bool IsBlocking => controller.Health.RaisedShield != null;
+        public bool AttackHeld => controller.Commands.attackHeld;
         public bool IsReviving => reviving;
         public PlayerController Reviving => reviving;
 
@@ -204,7 +205,7 @@ namespace Wreckabulary
             {
                 nextAttack = Time.time + Weapon.Cooldown;
                 var job = Weapon.Definition;
-                if (job == null || (job.Use == null && job.Thrown == null && job.Deploy == null))
+                if (job == null || (job.Use == null && job.Thrown == null && job.Deploy == null && job.Ranged == null))
                     controller.PlayPunch(!Audio.ImpactAudioBridge.VoicesSwing(Weapon));
                 Weapon.Use(this);
                 return;
@@ -339,6 +340,8 @@ namespace Wreckabulary
             if (held && !Weapon) return false;
             var best = GrabTarget();
             if (!best) return false;
+            if (best.TryGetComponent(out LetterStash stash) && stash.CanOpen(controller))
+                return stash.TryExchange(controller) || (stash.IsEmpty && best.TryGetComponent(out HeldWeapon emptyChest) && HasFreeGearSlot && TryEquip(emptyChest));
             if (best.TryGetComponent(out HeldWeapon pickedGear)) return TryEquip(pickedGear);
             if (Weapon)
             {
@@ -356,6 +359,8 @@ namespace Wreckabulary
         {
             if (!rb || rb == controller.Body || rb == held || rb.GetComponent<LetterTile>()) return false;
             if (rb.TryGetComponent(out PlayerController player)) return !player.IsHeld && !player.IsEliminated;
+            if (rb.TryGetComponent(out LetterStash stash) && stash.CanOpen(controller))
+                return stash.WantsExchange(controller) || (stash.IsEmpty && HasFreeGearSlot && rb.TryGetComponent(out HeldWeapon chest) && !chest.IsHeld && !chest.IsSpent);
             if (rb.TryGetComponent(out HeldWeapon gear)) return !gear.IsSpent && !gear.IsHeld && HasFreeGearSlot;
             return !rb.isKinematic && rb.mass <= maxCarryMass;
         }

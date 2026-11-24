@@ -61,7 +61,23 @@ namespace Wreckabulary.Rules
         public float RaiseSeconds;
     }
 
-    public enum DeployEffect { Cover, JumpPad, SpeedStrip, SlipZone, WindField, SlowField }
+    public sealed class RangedStats
+    {
+        public float Damage;
+        public float FullDamage;
+        public float Speed;
+        public float FullSpeed;
+        public float DrawSeconds;
+        public float Recovery;
+        public float Knockback;
+        public float BreakPower;
+
+        public float Power(float drawn) => DrawSeconds > 0f ? Math.Max(0f, Math.Min(1f, drawn / DrawSeconds)) : 1f;
+        public float DamageAt(float power) => Damage + (FullDamage - Damage) * power;
+        public float SpeedAt(float power) => Speed + (FullSpeed - Speed) * power;
+    }
+
+    public enum DeployEffect { Cover, JumpPad, SpeedStrip, SlipZone, WindField, SlowField, Stash }
 
     public sealed class DeployStats
     {
@@ -106,6 +122,7 @@ namespace Wreckabulary.Rules
         public ShieldStats Shield;
         public DeployStats Deploy;
         public UseStats Use;
+        public RangedStats Ranged;
         public List<string> LegacyWords = new List<string>();
         public string Notes = "";
 
@@ -224,8 +241,12 @@ namespace Wreckabulary.Rules
                 }
                 if (item.Consumable && item.Family == HandlingFamily.MeleeSwing)
                     problems.Add(p + "a consumable can't be a melee weapon");
-                if (item.Family is HandlingFamily.Ranged or HandlingFamily.Utility)
-                    problems.Add(p + "handling family has no enabled runtime implementation");
+                if (item.Family == HandlingFamily.Ranged && item.Ranged == null)
+                    problems.Add(p + "is ranged without ranged stats");
+                if (item.Family == HandlingFamily.Utility && item.Deploy?.Effect != DeployEffect.Stash)
+                    problems.Add(p + "utility items only run as a placed stash");
+                if (item.Deploy?.Effect == DeployEffect.Stash && item.Family != HandlingFamily.Utility)
+                    problems.Add(p + "a stash must use the Utility family");
                 ValidateStats(item, problems);
             }
             return problems;
@@ -274,6 +295,15 @@ namespace Wreckabulary.Rules
                 if (d.Effect == DeployEffect.SlowField) Require(Positive(d.Strength) && d.Strength < 1f, "slow field strength must be a multiplier in (0, 1)");
                 if (d.Effect is DeployEffect.SlipZone or DeployEffect.WindField or DeployEffect.SlowField)
                     Require(Positive(d.Radius) && Positive(d.LifetimeSeconds), "area effects need a positive radius and lifetime");
+            }
+            if (item.Ranged != null)
+            {
+                var r = item.Ranged;
+                Require(Positive(r.Damage) && Finite(r.FullDamage) && r.FullDamage >= r.Damage, "ranged damage must be positive and grow with the draw");
+                Require(Positive(r.Speed) && Finite(r.FullSpeed) && r.FullSpeed >= r.Speed, "ranged speed must be positive and grow with the draw");
+                Require(Positive(r.DrawSeconds) && NonNegative(r.Recovery), "ranged draw time must be positive and recovery non-negative");
+                Require(NonNegative(r.Knockback) && NonNegative(r.BreakPower), "ranged impact values must be non-negative");
+                Require(!item.Consumable, "a ranged item fires many shots, so it can't be consumed");
             }
             if (item.Use != null)
             {
@@ -352,6 +382,21 @@ namespace Wreckabulary.Rules
                         LifetimeSeconds = d["lifetime"].Float(0f),
                         Radius = d["radius"].Float(0f),
                         ArcDegrees = d["arc"].Float(360f),
+                    };
+                }
+                if (n.Has("ranged"))
+                {
+                    var r = n["ranged"];
+                    item.Ranged = new RangedStats
+                    {
+                        Damage = r["damage"].Float(),
+                        FullDamage = r["fullDamage"].Float(r["damage"].Float()),
+                        Speed = r["speed"].Float(),
+                        FullSpeed = r["fullSpeed"].Float(r["speed"].Float()),
+                        DrawSeconds = r["draw"].Float(),
+                        Recovery = r["recovery"].Float(0.2f),
+                        Knockback = r["knockback"].Float(0f),
+                        BreakPower = r["breakPower"].Float(0.5f),
                     };
                 }
                 if (n.Has("use"))

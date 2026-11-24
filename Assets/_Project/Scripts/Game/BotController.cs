@@ -33,6 +33,7 @@ namespace Wreckabulary
         HeldWeapon ignoredGear;
         float gearSince, ignoreGearUntil;
         Quarry quarry;
+        float drawUntil = -1f;
         float nextThink, nextAttack, nextCraft, nextEscape, nextDrop, guardUntil, reactAt = -1f, threatEnds;
         Vector3 lastPosition, threatFrom;
         float stuckTime;
@@ -83,7 +84,12 @@ namespace Wreckabulary
         void Update()
         {
             if (binding == null || !player) return;
-            using (UpdateMarker.Auto()) binding.Commands = Think();
+            using (UpdateMarker.Auto())
+            {
+                var c = Think();
+                if (Time.time < drawUntil && player.CanAct) c.attackHeld = true;
+                binding.Commands = c;
+            }
         }
 
         PlayerCommands Think()
@@ -263,6 +269,10 @@ namespace Wreckabulary
                 case Quarry.Gear:
                     if (level && distance <= player.Combat.GrabDistance && gearBody && player.Combat.GrabTarget() == gearBody) c.grab = true;
                     return goal;
+                case Quarry.Opponent when BotTactics.Shoots(held):
+                    if (distance > BotTactics.ShootRange || !level) return goal;
+                    if (Aimed(to, distance, held) && InSight(at, goal)) Press(ref c);
+                    return at;
                 case Quarry.Opponent when BotTactics.Throws(held):
                     return Throw(ref c, at, here, goal, to, distance, level, held);
                 default:
@@ -294,6 +304,7 @@ namespace Wreckabulary
             if (Time.time < nextAttack) return;
             c.attack = true;
             var gear = player.Combat.Weapon;
+            if (gear && gear.Definition?.Ranged != null) drawUntil = Time.time + gear.Definition.Ranged.DrawSeconds;
             nextAttack = Time.time + Mathf.Max(.3f, gear ? gear.Cooldown : player.Health.Rules.Unarmed.Cycle);
         }
 

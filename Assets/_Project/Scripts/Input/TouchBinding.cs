@@ -58,6 +58,7 @@ namespace Wreckabulary
             c.move = move;
             c.look = look;
             c.attack = pressed[(int)TouchAction.Attack];
+            c.attackHeld = held[(int)TouchAction.Attack];
             c.dodge = pressed[(int)TouchAction.Dodge];
             c.jump = pressed[(int)TouchAction.Jump];
             c.grab = pressed[(int)TouchAction.Grab];
@@ -88,6 +89,7 @@ namespace Wreckabulary
                 c.aimAtPointer = false;
             }
             c.attack |= touch.attack;
+            c.attackHeld |= touch.attackHeld;
             c.dodge |= touch.dodge;
             c.jump |= touch.jump;
             c.grab |= touch.grab;

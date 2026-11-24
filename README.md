@@ -15,13 +15,15 @@ Harder words make better items. A plain word like BAT is an honest hit; harder w
 | Effect | How it lands | Examples |
 |---|---|---|
 | None | — | BAT, PAN, POT, BALL |
-| Heavy | every hit pushes further | LAMP, BROOM, BARREL |
-| Daze | by chance, or on every 3rd hit | SPEAR, TOASTER, PILLOW, RACK |
+| Heavy | every hit pushes further | LAMP, BROOM, BARREL, BOOK |
+| Daze | by chance, or on every 3rd hit | SPEAR, TOASTER, PILLOW, RACK, VASE, BOOK |
 | Bleed | over time; repeated cuts deepen | ARROW, BLADE |
 | Crush | every 3rd hit lands extra hard | HAMMER |
 | Guard / Swift | constant while held | MIRROR, SHIELD / PLATE |
 
-Bare hands barely hurt. The recipe book says what each item does when you point at it.
+Bare hands barely hurt. Every recipe card shows its effects and how its damage and reach compare.
+
+A BOW fires further and harder the longer you hold attack; a meter under the crosshair shows the draw. Place a CHEST and interact with it to bank your letters (or take them back with an empty bag); only your team can open it, and it spills everything if an enemy grabs or breaks it.
 
 ## Modes
 
