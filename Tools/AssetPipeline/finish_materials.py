@@ -8,6 +8,8 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 MATERIALS = "Assets/_Project/Data/Generated/materials.json"
 PATTERNS = "Assets/_Project/Materials/Library/Patterns/"
 SEASONAL = "Assets/_Project/Art/Seasonal/Winter/Finishes"
+ITEM_PALETTE = "Assets/_Project/Resources/Art/item_palette.json"
+ITEM_PREFIX = "toy_"
 CANDY_STRIPES = PATTERNS + "candy_stripes.png"
 ARCADE_GRID = PATTERNS + "arcade_grid.png"
 WINTER_FROST = PATTERNS + "winter_frost.png"
@@ -38,6 +40,19 @@ def frost(colour, roughness=0.62, metallic=0.0, glint=0.9):
     return fam(colour, roughness, metallic, SNOW_GLINT, glint, WINTER_FROST, WINTER_GLINTS)
 
 
+CLASSIC_ADDITIONS = {
+    "teal": ("#1CB5AE", 0.42),
+    "purple": ("#8A4FE0", 0.6),
+    "orange": ("#EA8228", 0.42),
+    "yellow": ("#E9BF25", 0.45),
+    "navy": ("#2A4796", 0.45),
+    "lime": ("#7CC92E", 0.45),
+    "scarlet": ("#E0352B", 0.34),
+    "magenta": ("#D63A8C", 0.45),
+    "emerald": ("#24B45A", 0.42),
+    "cobalt": ("#2E6FD8", 0.42),
+}
+
 FINISHES = {
     "Candy": {
         "wood": candy("#C7A8FF"),
@@ -61,6 +76,16 @@ FINISHES = {
         "glow": candy("#FFA6D2", 0.3, emit="#FF4FA8", glow=1.2, striped=False),
         "water": candy("#FF9FCB", 0.1, striped=False),
         "glass": candy("#FFC6E1", 0.08, striped=False),
+        "teal": candy("#C8EEFF"),
+        "purple": candy("#D9B8FF"),
+        "orange": candy("#FFC2BC"),
+        "yellow": candy("#FFF4D8"),
+        "navy": candy("#9AB6FF", striped=False),
+        "lime": candy("#EEFFD0"),
+        "scarlet": candy("#FF8FB0", 0.22, striped=False),
+        "magenta": candy("#FF9BD0"),
+        "emerald": candy("#BFFFE0"),
+        "cobalt": candy("#9CC2FF"),
     },
     "Arcade": {
         "wood": cabinet("#26206A"),
@@ -84,6 +109,16 @@ FINISHES = {
         "metal": neon("#8FF4FF", 0.12, 0.1, 0.85, NEON_CYAN),
         "water": neon(NEON_CYAN, 0.4, 0.1),
         "glass": neon("#FF6FE0", 0.3, 0.08),
+        "teal": cabinet("#0E4A52"),
+        "purple": cabinet("#3A1A7A", NEON_MAGENTA),
+        "orange": cabinet("#7A2A06"),
+        "yellow": neon("#D8FF3D", 0.45),
+        "navy": neon("#4A5CFF", 0.6),
+        "lime": cabinet("#1E5A0E", NEON_MAGENTA),
+        "scarlet": cabinet("#6A0F1E", NEON_MAGENTA),
+        "magenta": neon(NEON_MAGENTA, 0.6),
+        "emerald": cabinet("#0B4A2A"),
+        "cobalt": cabinet("#13308A", NEON_MAGENTA),
     },
 }
 
@@ -123,9 +158,41 @@ def entry(family, finish, spec, classic):
             "sources": list(classic["sources"]) if classic else []}
 
 
-def apply(library):
+def read_item_palette(repo):
+    with open(os.path.join(repo, ITEM_PALETTE), encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def item_families(palette, by_name):
+    users = {}
+    for item, parts in palette["items"].items():
+        for part in parts.values():
+            if part.get("to", "").startswith(ITEM_PREFIX):
+                users.setdefault(part["to"], set()).add("item/" + item)
+    for family, spec in palette["families"].items():
+        if not family.startswith(ITEM_PREFIX):
+            raise RuntimeError(f"{family}: item families start with {ITEM_PREFIX}")
+        classic = entry(family, "Classic", fam(spec["colour"], spec["roughness"]), None)
+        classic["sources"] = sorted(users.get(family, ()))
+        by_name[family + "_Classic"] = classic
+        for finish, source in (("Candy", spec["candy"]), ("Arcade", spec["arcade"])):
+            if source not in FINISHES[finish]:
+                raise RuntimeError(f"{family}_{finish}: {source} has no {finish} finish to borrow")
+            by_name[f"{family}_{finish}"] = entry(family, finish, FINISHES[finish][source], classic)
+
+
+def added_classic(family, colour, roughness):
+    return {"name": family + "_Classic", "baseColor": linear(colour) + [1], "metallic": 0, "roughness": roughness,
+            "emissive": [0, 0, 0], "alphaMode": "OPAQUE", "alphaCutoff": 0.5, "doubleSided": False,
+            "baseMap": None, "normalMap": None, "emissionMap": None, "family": family, "skin": "Classic", "sources": []}
+
+
+def apply(library, palette=None):
     library = copy.deepcopy(library)
     by_name = {m["name"]: m for m in library["materials"]}
+    for family, (colour, roughness) in CLASSIC_ADDITIONS.items():
+        by_name[family + "_Classic"] = added_classic(family, colour, roughness)
+    item_families(read_item_palette(REPO) if palette is None else palette, by_name)
     for finish, families in FINISHES.items():
         for family, spec in families.items():
             classic = by_name.get(family + "_Classic")
@@ -152,7 +219,7 @@ def main():
     path = os.path.join(args.repo, MATERIALS)
     with open(path, encoding="utf-8") as handle:
         before = json.load(handle)
-    after = apply(before)
+    after = apply(before, read_item_palette(args.repo))
     changed = json.dumps(before, indent=1) != json.dumps(after, indent=1)
     if not args.check and changed:
         with open(path, "w", encoding="utf-8") as handle:

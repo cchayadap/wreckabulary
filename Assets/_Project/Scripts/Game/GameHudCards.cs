@@ -622,7 +622,7 @@ namespace Wreckabulary
                 TouchBinding => bag + "Tap SPELL, pick a word, tap SPELL.",
                 GamepadBinding => bag + $"Hold {ControlHints.PadSpell}, pick a word with the stick, let go.",
                 KeyboardBinding half => bag + $"Hold {SpellKeyLabel(half)}, pick a word with {(half.Id.EndsWith("Left", StringComparison.Ordinal) ? "W and S" : "the arrow keys")}, let go.",
-                _ => bag + $"Press {ControlHints.KeyOf(keys.Spell)}, type a word, press Enter. Or hold {ControlHints.KeyOf(keys.Bag)} and click a lit card.",
+                _ => bag + $"Press {ControlHints.KeyOf(keys.SpellBox)}, type a word, press {ControlHints.KeyOf(keys.SpellBox)} again. Or hold {ControlHints.KeyOf(keys.Bag)} and click a lit card.",
             };
         }
 
@@ -652,9 +652,9 @@ namespace Wreckabulary
             return new[]
             {
                 ("WASD", "move"), ("MOUSE", "aim"),
-                (ControlHints.KeyOf(keys.Attack), "smash, throw, place, block"), (ControlHints.KeyOf(keys.Aim), "hold to aim"),
+                (ControlHints.KeyOf(keys.Attack), "smash, throw, place, block"), (ControlHints.KeyOf(keys.Attack), "hold to aim, let go to throw"),
                 (ControlHints.KeyOf(keys.Dodge), "dodge"), (ControlHints.KeyOf(keys.Jump), "jump"),
-                (ControlHints.KeyOf(keys.Spell), "spell"), (ControlHints.KeyOf(keys.Hand1) + " " + ControlHints.KeyOf(keys.Hand2), "switch hand"),
+                (ControlHints.KeyOf(keys.SpellBox), "spell, again to finish"), (ControlHints.KeyOf(keys.Hand1) + " " + ControlHints.KeyOf(keys.Hand2), "switch hand"),
                 (ControlHints.KeyOf(keys.Bag), "hold for bag and map"), (ControlHints.KeyOf(keys.Interact), "pick up, hold to revive"),
                 (ControlHints.KeyOf(keys.Drop), "hold to drop an item"), (ControlHints.KeyOf(keys.Pause), "pause"),
             };
@@ -1097,7 +1097,7 @@ namespace Wreckabulary
         {
             if (!AcceptsGameplayInput || !composerOpen || !TypedMode || BagOpen || Time.frameCount == openedFrame) return;
             typed = char.ToUpperInvariant(typed);
-            if (typed < 'A' || typed > 'Z' || composerText.Length >= TrayTiles) return;
+            if (typed < 'A' || typed > 'Z' || composerText.Length >= TrayTiles || typed == SpellBoxLetter()) return;
             composerText += typed;
             composerError = null; caretAt = Time.unscaledTime;
         }
@@ -1126,23 +1126,29 @@ namespace Wreckabulary
             if (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame) SubmitComposer();
         }
 
+        static char SpellBoxLetter()
+        {
+            var spell = DesktopBinding.Shared.SpellBox;
+            string path = spell.bindings.Count > 0 ? spell.bindings[0].effectivePath : null;
+            const string Prefix = "<Keyboard>/";
+            if (path == null || path.Length != Prefix.Length + 1 || !path.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase)) return '\0';
+            char letter = char.ToUpperInvariant(path[Prefix.Length]);
+            return letter >= 'A' && letter <= 'Z' ? letter : '\0';
+        }
+
         void CloseComposerOnKeys()
         {
-            var keyboard = Keyboard.current;
-            var mouse = Mouse.current;
+            var spell = DesktopBinding.Shared.SpellBox;
             if (composerReleaseWait)
             {
-                bool held = (keyboard != null && keyboard.tabKey.isPressed) || (mouse != null && mouse.rightButton.isPressed);
-                if (!held) composerReleaseWait = false;
+                if (!spell.IsPressed()) composerReleaseWait = false;
                 return;
             }
-            if (!composerOpen || !TypedMode || Paused || BagOpen) return;
-            bool tab = keyboard != null && keyboard.tabKey.wasPressedThisFrame;
-            bool right = mouse != null && mouse.rightButton.wasPressedThisFrame;
-            if (!tab && !right) return;
+            if (!composerOpen || !TypedMode || Paused || BagOpen || Time.frameCount == openedFrame || !spell.WasPressedThisFrame()) return;
             composerReleaseWait = true;
             DesktopBinding.Typing = true;
-            CancelCraft();
+            if (ComposerReady()) SubmitComposer();
+            else CancelCraft();
         }
 
         void SpellNow()
@@ -1203,13 +1209,26 @@ namespace Wreckabulary
             shakeAt = Time.unscaledTime;
         }
 
+        bool ComposerReady()
+        {
+            if (!LocalPlayer || !composerOpen) return false;
+            WordStatus(out int state);
+            return state == 1;
+        }
+
         string TypedStatus(out int state)
         {
             state = 2;
             if (composerError != null) return composerError;
+            return WordStatus(out state);
+        }
+
+        string WordStatus(out int state)
+        {
             string word = composerText;
+            string spellKey = ControlHints.KeyOf(DesktopBinding.Shared.SpellBox);
             state = 0;
-            if (word.Length == 0) return LocalPlayer.Inventory.SpellsFree ? Warmup.TypeAnything : "Type a word you can make from your letters. Tab or right-click closes.";
+            if (word.Length == 0) return LocalPlayer.Inventory.SpellsFree ? Warmup.TypeAnything + " " + DesktopScheme.ClosesLine(spellKey) : DesktopScheme.EmptyLine(spellKey);
             var player = LocalPlayer;
             var recipe = EnabledRecipe(word);
             state = 2;
@@ -1221,10 +1240,10 @@ namespace Wreckabulary
                 if (!player.Summoner.IsSignalWord(recipe.word) && !SummonEffects.CanApply(player, recipe))
                     return player.Combat.IsHolding && !player.Combat.Weapon ? "Set down the furniture first." : "Both hands are full. Drop something first.";
                 state = 1;
-                return $"{word} is ready. Press Enter!";
+                return DesktopScheme.ReadyLine(word, spellKey);
             }
             if (player.Summoner.StartsRecipe(word)) { state = 0; return "Keep going…"; }
-            return "That isn't a recipe. Check the book with " + ControlHints.KeyOf(DesktopBinding.Shared.Bag) + ".";
+            return DesktopScheme.UnknownLine(ControlHints.KeyOf(DesktopBinding.Shared.Bag));
         }
 
         void RefreshComposer()

@@ -135,7 +135,7 @@ namespace Wreckabulary
                 Tip.Move => Line(key, "move"),
                 Tip.Look => Line(key, "look around"),
                 Tip.Smash => Line(key, mouse ? "smash, throw, place, block" : "smash, throw, place"),
-                Tip.Aim => Line(key, "aim"),
+                Tip.Aim => Line(key, mouse ? "hold to aim, let go to throw" : "aim"),
                 Tip.Spell => Line(key, ControlWords.HoldsToSpell(device) ? "hold to spell" : "spell a word"),
                 Tip.Interact => Line(key, "grab & use"),
                 Tip.Bag => Line(key, device == ControlDevice.Touch ? "bag & recipe book" : "hold for bag & recipe book"),

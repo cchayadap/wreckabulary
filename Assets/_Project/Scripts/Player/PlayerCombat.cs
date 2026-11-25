@@ -29,6 +29,8 @@ namespace Wreckabulary
         Transform heldHomeParent;
         float heldSince;
         float raiseStartedAt = -1f;
+        ClickHold attackHold;
+        bool aiming;
         PlayerController reviving;
         readonly Collider[] overlaps = new Collider[48];
         readonly RaycastHit[] obstructions = new RaycastHit[32];
@@ -78,6 +80,7 @@ namespace Wreckabulary
             + (controller.Summoner && controller.Summoner.IsCrafting ? 1 : 0) < controller.Health.Rules.MaxCarried;
         public bool IsBlocking => controller.Health.RaisedShield != null;
         public bool AttackHeld => controller.Commands.attackHeld;
+        public bool IsAiming => aiming;
         public bool IsReviving => reviving;
         public PlayerController Reviving => reviving;
 
@@ -119,7 +122,12 @@ namespace Wreckabulary
 
         void Update()
         {
-            if (Time.timeScale <= 0f) return;
+            if (Time.timeScale <= 0f)
+            {
+                if (attackHold.Down) attackHold.Cancel(true);
+                aiming = false;
+                return;
+            }
             if (held == null && (heldPlayer || weapon)) ClearHeld();
             if (heldPlayer && !heldPlayer.IsHeld) ClearHeld();
             if (heldPlayer && Time.time - heldSince > struggleTime) Drop();
@@ -127,6 +135,8 @@ namespace Wreckabulary
             var c = controller.Commands;
             bool free = controller.CanAct && !controller.IsDodging && !deploying && !(controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.IsCrafting));
             UpdateRevive(free && c.grabHeld);
+            var kind = KindInHand();
+            var step = ReadAttackHold(c, kind, free && !reviving);
             bool shieldInHand = Weapon && Weapon.Shield != null;
             bool attackRaises = c.attackHeld && shieldInHand && (controller.Binding == null || controller.Binding.HoldingAttackRaisesShield);
             UpdateBlock(free && (c.blockHeld || attackRaises) && !reviving);
@@ -136,8 +146,44 @@ namespace Wreckabulary
             if (c.swap) SwitchGear();
             if (c.slot > 0) SelectSlot(c.slot - 1);
             if (c.grab) GrabOrRevive();
-            if (c.attack && raiseStartedAt < 0f) Attack();
+            if (AttackFires(c, kind, step) && raiseStartedAt < 0f) Attack();
         }
+
+        bool AimsWithHold => controller.Binding != null && controller.Binding.AimsWithAttackHold;
+
+        public AttackKind KindInHand()
+        {
+            if (held && !Weapon) return AttackKind.Throw;
+            var gear = Weapon;
+            if (!gear) return AttackKind.Swing;
+            if (gear.Shield != null) return AttackKind.Shield;
+            var item = gear.Definition;
+            if (item == null || item.Use != null) return AttackKind.Swing;
+            if (item.Ranged != null) return AttackKind.Draw;
+            return item.Thrown != null ? AttackKind.Throw : AttackKind.Swing;
+        }
+
+        PressStep ReadAttackHold(in PlayerCommands c, AttackKind kind, bool allowed)
+        {
+            if (!AimsWithHold)
+            {
+                attackHold = default;
+                aiming = false;
+                return PressStep.None;
+            }
+            if (!allowed)
+            {
+                if (attackHold.Down) attackHold.Cancel(c.attackHeld);
+                aiming = false;
+                return PressStep.None;
+            }
+            var step = attackHold.Update(c.attackHeld, Time.time);
+            aiming = attackHold.Aiming && DesktopScheme.AimsWhileHeld(kind) && (kind != AttackKind.Draw || Weapon.IsDrawing);
+            return step;
+        }
+
+        bool AttackFires(in PlayerCommands c, AttackKind kind, PressStep step) =>
+            AimsWithHold && DesktopScheme.FiresOnRelease(kind) ? DesktopScheme.Fires(kind, step) : c.attack;
 
         void UpdateBlock(bool wanted)
         {
@@ -452,6 +498,13 @@ namespace Wreckabulary
         }
 
         public int ActiveSlot { get; private set; }
+
+        public bool SwapSlots()
+        {
+            if (deploying || (controller.Summoner && controller.Summoner.IsCrafting)) return false;
+            ActiveSlot = 1 - ActiveSlot;
+            return true;
+        }
 
         public HeldWeapon GearIn(int slot) => slot == ActiveSlot ? Weapon : storedGear;
 

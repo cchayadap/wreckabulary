@@ -489,6 +489,17 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(10f * ShoulderView.MouseSensitivity * 2f, look.y, 1e-5f, "inverted: mouse up looks down");
             }
             finally { KeyBindings.ResetToDefaults(); }
+            try
+            {
+                KeyBindings.Assign(d.SpellBox, 0, "<Keyboard>/q");
+                Assert.AreEqual("<Keyboard>/q", d.Spell.bindings[0].effectivePath, "the course spell key is not in the house scope, so it is not swapped");
+                Assert.AreEqual("<Mouse>/rightButton", d.Aim.bindings[0].effectivePath);
+                KeyBindings.Assign(d.Attack, 0, "<Keyboard>/q");
+                Assert.AreEqual("<Mouse>/leftButton", d.SpellBox.bindings[0].effectivePath, "a shared key still swaps with a house key");
+                Assert.AreEqual("<Mouse>/leftButton", d.Spell.bindings[0].effectivePath, "and with a course key");
+            }
+            finally { KeyBindings.ResetToDefaults(); }
+            Assert.AreEqual("<Mouse>/rightButton", d.SpellBox.bindings[0].effectivePath);
             Assert.AreEqual("<Keyboard>/space", d.Jump.bindings[0].effectivePath);
             Assert.AreEqual("<Keyboard>/q", d.Spell.bindings[0].effectivePath);
             Assert.AreEqual(1f, KeyBindings.Sensitivity);
@@ -497,16 +508,38 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
+        public void AnOldSavedKeyOnTheRightButtonMovesTheSpellBoxOutOfTheWay()
+        {
+            var d = DesktopBinding.Shared;
+            KeyBindings.ResetToDefaults();
+            try
+            {
+                d.Attack.ApplyBindingOverride(0, "<Mouse>/rightButton");
+                PlayerPrefs.SetString(KeyBindings.OverridesKey, d.Map.SaveBindingOverridesAsJson());
+                d.Map.RemoveAllBindingOverrides();
+                KeyBindings.Load(d.Map);
+                Assert.AreEqual("<Mouse>/rightButton", d.Attack.bindings[0].effectivePath, "the player's own choice wins");
+                Assert.AreEqual("<Mouse>/leftButton", d.SpellBox.bindings[0].effectivePath, "the spell box takes the attack key's old default");
+                Assert.AreEqual("<Mouse>/leftButton", d.Aim.bindings[0].effectivePath);
+                Assert.IsNull(KeyBindings.LoadWarning, "nothing was lost");
+                StringAssert.Contains("<Mouse>/leftButton", PlayerPrefs.GetString(KeyBindings.OverridesKey), "the settled keys are saved");
+            }
+            finally { KeyBindings.ResetToDefaults(); }
+        }
+
+        [Test]
         public void DesktopKeysMatchTheBrief()
         {
             var d = DesktopBinding.Shared;
             Assert.AreEqual("keyboard-mouse", d.Id);
             Assert.AreEqual("<Mouse>/leftButton", Path(d.Attack));
-            Assert.AreEqual("<Mouse>/rightButton", Path(d.Aim));
+            Assert.AreEqual("<Mouse>/rightButton", Path(d.Aim), "courses still aim with the right button");
+            Assert.AreEqual("<Mouse>/rightButton", Path(d.SpellBox), "house modes open and finish the spell box with the right button");
+            Assert.IsTrue(d.AimsWithAttackHold, "house modes aim a throw by holding the left button");
             Assert.AreEqual("<Keyboard>/space", Path(d.Jump));
             Assert.AreEqual("<Keyboard>/leftShift", Path(d.Dodge));
             Assert.AreEqual("<Keyboard>/e", Path(d.Interact));
-            Assert.AreEqual("<Keyboard>/q", Path(d.Spell));
+            Assert.AreEqual("<Keyboard>/q", Path(d.Spell), "courses keep Q");
             Assert.AreEqual("<Keyboard>/r", Path(d.Drop));
             Assert.AreEqual("<Mouse>/position", Path(d.Point));
             Assert.AreEqual("<Keyboard>/w", Path(d.Move, 1));
@@ -519,6 +552,12 @@ namespace Wreckabulary.Tests
                 foreach (var binding in action.bindings)
                     Assert.IsFalse(binding.path is "<Keyboard>/f" or "<Keyboard>/g", action.name + " is bound to " + binding.path);
             Assert.AreEqual("R", ControlHints.For(d, PlayerControl.Drop), "each seat is shown its own drop key, not every device's");
+            Assert.AreEqual(ControlHints.KeyOf(d.SpellBox), ControlHints.For(d, PlayerControl.Spell), "house hints name the spell box key");
+            Assert.AreEqual(ControlHints.KeyOf(d.Attack), ControlHints.For(d, PlayerControl.Aim), "house hints aim with the attack key");
+            Assert.IsFalse(new GamepadBinding(null).AimsWithAttackHold);
+            Assert.IsFalse(new KeyboardBinding(KeyboardBinding.Side.Left).AimsWithAttackHold);
+            Assert.IsFalse(TouchBinding.Shared.AimsWithAttackHold);
+            Assert.IsFalse(new ScriptedBinding().AimsWithAttackHold);
         }
 
         static HeldWeapon Craft(PlayerController p, string word)

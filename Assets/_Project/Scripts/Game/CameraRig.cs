@@ -322,7 +322,7 @@ namespace Wreckabulary
             if (!target.IsEliminated) lastFeet = target.transform.position;
             float dt = Time.unscaledDeltaTime;
             if (lens) view.Place(lens, lastFeet, target.LookYaw + orbitYaw * Mathf.Deg2Rad, target.LookPitch + orbitPitch * Mathf.Deg2Rad,
-                dt, !target.IsEliminated && target.Commands.aimHeld);
+                dt, !target.IsEliminated && (target.Commands.aimHeld || (target.Combat && target.Combat.IsAiming)));
             PushShoulder();
             if (shake > 0f)
             {

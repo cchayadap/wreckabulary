@@ -165,14 +165,16 @@ namespace Wreckabulary.Rules
             var map = new Dictionary<string, SurfaceMaterial>(StringComparer.Ordinal);
             void Add(SurfaceMaterial m, params string[] words) { foreach (var w in words) map[w] = m; }
             Add(SurfaceMaterial.Wood, "TABLE", "CHAIR", "STOOL", "DESK", "SHELF", "CABINET", "CRATE", "BARREL", "CHEST", "BOW", "BAT", "BROOM", "SPEAR",
-                "DOOR", "DRESSER", "BOOKCASE", "WARDROBE", "BENCH", "CLOCK", "DRAWER", "PALLET", "LOG", "PLANK", "ARROW", "RACK", "SPEAKER");
-            Add(SurfaceMaterial.Glass, "WINDOW", "MIRROR", "GLASS", "BOTTLE", "JAR", "TV", "SCREEN", "WATER", "AQUARIUM", "TANK", "LIGHTBULB", "BULB");
+                "DOOR", "DRESSER", "BOOKCASE", "WARDROBE", "BENCH", "CLOCK", "DRAWER", "PALLET", "LOG", "PLANK", "ARROW", "RACK", "SPEAKER", "RAKE", "LADDER", "PADDLE", "SPOON",
+                "RACKET", "PIANO", "PENCIL", "RAMP");
+            Add(SurfaceMaterial.Glass, "WINDOW", "MIRROR", "GLASS", "BOTTLE", "JAR", "TV", "SCREEN", "WATER", "AQUARIUM", "TANK", "LIGHTBULB", "BULB", "MARBLE", "TONIC");
             Add(SurfaceMaterial.Metal, "FRIDGE", "STOVE", "OVEN", "PAN", "POT", "BIN", "LOCKER", "SAFE", "HAMMER", "BLADE", "SHIELD", "BOMB", "FAN",
-                "SODA", "CAN", "KETTLE", "RADIATOR", "WASHER", "DRYER", "MICROWAVE", "TOASTER", "SINK", "TRASH", "BUCKET", "PIPE");
+                "SODA", "CAN", "KETTLE", "RADIATOR", "WASHER", "DRYER", "MICROWAVE", "TOASTER", "SINK", "TRASH", "BUCKET", "PIPE", "LID", "ROCKET", "HELMET", "TORCH", "OIL");
             Add(SurfaceMaterial.Ceramic, "VASE", "MUG", "CUP", "BOWL", "PLATE", "TEAPOT", "TOILET", "BATH", "BATHTUB", "TILE", "PLANT", "LAMP", "POTTERY");
             Add(SurfaceMaterial.Stone, "ROCK", "BRICK", "STATUE", "FIREPLACE", "STONE", "BOULDER", "COUNTER", "PILLAR", "GNOME", "CONCRETE");
             Add(SurfaceMaterial.Soft, "SOFA", "BED", "PILLOW", "CUSHION", "RUG", "MAT", "CURTAIN", "FOAM", "BALL", "BOX", "BOOK", "CAKE", "PIE",
-                "APPLE", "SOAP", "TEDDY", "BEAR", "BEANBAG", "MATTRESS", "BLANKET", "TOWEL", "PARCEL", "CARDBOARD", "COUCH");
+                "APPLE", "SOAP", "TEDDY", "BEAR", "BEANBAG", "MATTRESS", "BLANKET", "TOWEL", "PARCEL", "CARDBOARD", "COUCH", "TOMATO", "CHILI", "DISC",
+                "LEMON", "CARPET", "SLIME", "TENT", "PEAR", "SOCK", "HOSE", "MELON", "BOOT");
             return map;
         }
 

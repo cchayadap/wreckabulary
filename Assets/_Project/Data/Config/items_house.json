@@ -561,7 +561,7 @@
       "enabled": true,
       "consumable": false,
       "model": "Items/TOASTER",
-      "heldScale": 1,
+      "heldScale": 1.0,
       "grip": [
         0,
         0.1038,
@@ -843,6 +843,1103 @@
         ]
       },
       "notes": "Place it, then interact to bank your letters or take them back. Only your team can open it; break or grab it to spill what's inside."
+    },
+    {
+      "id": "RAKE",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/RAKE",
+      "heldScale": 0.6,
+      "grip": [
+        0.0,
+        0.13,
+        -0.037
+      ],
+      "size": [
+        0.42,
+        1.2025,
+        0.134
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 24,
+      "melee": {
+        "damage": 14,
+        "reach": 1.8,
+        "arc": 100,
+        "windup": 0.2,
+        "active": 0.1,
+        "recovery": 0.34,
+        "knockback": 7,
+        "breakPower": 1.5,
+        "hitStun": 0.25
+      },
+      "notes": "A long garden rake. Every third hit on the same player dazes them, like stepping on a rake."
+    },
+    {
+      "id": "TEAPOT",
+      "category": "Consumables",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/TEAPOT",
+      "heldScale": 0.9,
+      "grip": [
+        -0.166,
+        0.12,
+        0.0
+      ],
+      "size": [
+        0.385,
+        0.272,
+        0.224
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Heal",
+      "hands": 1,
+      "durability": 0,
+      "use": {
+        "effect": "Heal",
+        "amount": 35,
+        "channel": 0.8
+      },
+      "notes": "A hot cup of tea: restores 35 HP after a short pour, between APPLE and CAKE."
+    },
+    {
+      "id": "LID",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/LID",
+      "heldScale": 0.8,
+      "grip": [
+        0.0,
+        0.211,
+        -0.115
+      ],
+      "size": [
+        0.422,
+        0.422,
+        0.2515
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Shield",
+      "hands": 1,
+      "durability": 30,
+      "shield": {
+        "frontArc": 100,
+        "reduction": 0.8,
+        "moveSpeed": 0.9,
+        "raise": 0.06
+      },
+      "notes": "A pot lid to hide behind. Light and quick to raise, but it lets a little damage through."
+    },
+    {
+      "id": "TOMATO",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/TOMATO",
+      "heldScale": 1.0,
+      "grip": [
+        -0.0039,
+        0.0962,
+        0.0
+      ],
+      "size": [
+        0.2688,
+        0.2397,
+        0.2707
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 0,
+      "thrown": {
+        "damage": 13,
+        "speed": 14,
+        "lob": true,
+        "recoverable": false,
+        "knockback": 3,
+        "breakPower": 0.4
+      },
+      "notes": "A lobbed tomato that splats on impact and may leave the target dazed. Spends its letters when thrown."
+    },
+    {
+      "id": "ROCKET",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/ROCKET",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.26,
+        0.0
+      ],
+      "size": [
+        0.2,
+        0.6,
+        0.2
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 0,
+      "thrown": {
+        "damage": 45,
+        "speed": 24,
+        "lob": false,
+        "recoverable": false,
+        "knockback": 9,
+        "breakPower": 3
+      },
+      "notes": "A fast toy rocket that hits hard, shoves far, may daze and leaves a scorch that burns for a moment. Spends its letters when thrown."
+    },
+    {
+      "id": "MARBLE",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/MARBLE",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.146,
+        0.0
+      ],
+      "size": [
+        0.2511,
+        0.2919,
+        0.2511
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployZone",
+      "hands": 1,
+      "durability": 0,
+      "deploy": {
+        "effect": "SlipZone",
+        "place": 0.4,
+        "radius": 3.0,
+        "lifetime": 10,
+        "footprint": [
+          0.2511,
+          0.2511
+        ]
+      },
+      "notes": "Spill a bag of marbles: a wider, longer-lasting slippery patch than SOAP."
+    },
+    {
+      "id": "LADDER",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/LADDER",
+      "heldScale": 0.42,
+      "grip": [
+        0.0,
+        0.54,
+        0.0
+      ],
+      "size": [
+        0.56,
+        1.086,
+        0.64
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployPad",
+      "hands": 2,
+      "durability": 55,
+      "deploy": {
+        "effect": "JumpPad",
+        "place": 0.5,
+        "strength": 12,
+        "footprint": [
+          0.56,
+          0.64
+        ]
+      },
+      "notes": "A step ladder that launches players higher than a BED."
+    },
+    {
+      "id": "PADDLE",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/PADDLE",
+      "heldScale": 0.9,
+      "grip": [
+        0.0,
+        0.09,
+        0.0
+      ],
+      "size": [
+        0.3,
+        0.52,
+        0.058
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 34,
+      "melee": {
+        "damage": 15,
+        "reach": 1.4,
+        "arc": 110,
+        "windup": 0.17,
+        "active": 0.1,
+        "recovery": 0.33,
+        "knockback": 8,
+        "breakPower": 1.2,
+        "hitStun": 0.3
+      },
+      "notes": "A quick table-tennis paddle that knocks players far and may daze them."
+    },
+    {
+      "id": "CHILI",
+      "category": "Consumables",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/CHILI",
+      "heldScale": 1.0,
+      "grip": [
+        -0.117,
+        0.07,
+        0.0
+      ],
+      "size": [
+        0.33,
+        0.121,
+        0.1
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Buff",
+      "hands": 1,
+      "durability": 0,
+      "use": {
+        "effect": "Speed",
+        "amount": 1.45,
+        "seconds": 6,
+        "channel": 0.3
+      },
+      "notes": "A hot chili: run 45% faster for 6 seconds, quicker than SODA."
+    },
+    {
+      "id": "DISC",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/DISC",
+      "heldScale": 1.0,
+      "grip": [
+        -0.135,
+        0.025,
+        0.0
+      ],
+      "size": [
+        0.3,
+        0.0495,
+        0.3
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 30,
+      "thrown": {
+        "damage": 13,
+        "speed": 24,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 3,
+        "breakPower": 0.6
+      },
+      "notes": "A flying disc that skims fast and flat, may daze, and can be picked up again."
+    },
+    {
+      "id": "HELMET",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/HELMET",
+      "heldScale": 0.85,
+      "grip": [
+        0.0,
+        0.075,
+        -0.17
+      ],
+      "size": [
+        0.316,
+        0.41,
+        0.3705
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Shield",
+      "hands": 1,
+      "durability": 45,
+      "shield": {
+        "frontArc": 130,
+        "reduction": 0.9,
+        "moveSpeed": 0.8,
+        "raise": 0.1
+      },
+      "notes": "A toy knight's helmet held up as a shield. While you carry it, hits sting a little less and you move a little quicker."
+    },
+    {
+      "id": "LEMON",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/LEMON",
+      "heldScale": 1.0,
+      "grip": [
+        -0.0148,
+        0.0743,
+        0.0
+      ],
+      "size": [
+        0.2669,
+        0.1485,
+        0.1485
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 0,
+      "thrown": {
+        "damage": 13,
+        "speed": 16,
+        "lob": false,
+        "recoverable": false,
+        "knockback": 2,
+        "breakPower": 0.4
+      },
+      "notes": "A squirty lemon: a quick throw that stings the eyes and often leaves the target dazed. Spends its letters when thrown."
+    },
+    {
+      "id": "TORCH",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/TORCH",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.143,
+        0.0
+      ],
+      "size": [
+        0.132,
+        0.4813,
+        0.132
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeThrust",
+      "hands": 1,
+      "durability": 35,
+      "melee": {
+        "damage": 14,
+        "reach": 1.7,
+        "arc": 30,
+        "windup": 0.18,
+        "active": 0.1,
+        "recovery": 0.3,
+        "knockback": 4,
+        "breakPower": 1.0,
+        "hitStun": 0.2
+      },
+      "notes": "A bright flashlight to jab with. Every second hit on the same player dazzles and dazes them, and carrying it keeps you a little quicker."
+    },
+    {
+      "id": "CARPET",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CARPET",
+      "heldScale": 0.25,
+      "grip": [
+        0.0,
+        0.06,
+        0.0
+      ],
+      "size": [
+        0.6704,
+        0.12,
+        1.58
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeploySpeed",
+      "hands": 2,
+      "durability": 45,
+      "deploy": {
+        "effect": "SpeedStrip",
+        "place": 0.55,
+        "strength": 1.7,
+        "footprint": [
+          0.6704,
+          1.58
+        ]
+      },
+      "notes": "Roll out a long runner: a directional speed strip more than twice as long as MAT that boosts a little more."
+    },
+    {
+      "id": "SLIME",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/SLIME",
+      "heldScale": 1.0,
+      "grip": [
+        -0.005,
+        0.062,
+        0.0
+      ],
+      "size": [
+        0.32,
+        0.181,
+        0.325
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployZone",
+      "hands": 1,
+      "durability": 35,
+      "deploy": {
+        "effect": "SlowField",
+        "place": 0.5,
+        "radius": 2.2,
+        "strength": 0.5,
+        "lifetime": 8,
+        "arc": 360,
+        "footprint": [
+          0.32,
+          0.325
+        ]
+      },
+      "notes": "Tip out a tub of slime: a gooey patch that slows anyone inside to half speed. Smaller and shorter-lived than CLOCK's field."
+    },
+    {
+      "id": "SPOON",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/SPOON",
+      "heldScale": 0.9,
+      "grip": [
+        0.0,
+        0.133,
+        0.0
+      ],
+      "size": [
+        0.136,
+        0.618,
+        0.063
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 24,
+      "melee": {
+        "damage": 13,
+        "reach": 1.5,
+        "arc": 100,
+        "windup": 0.17,
+        "active": 0.1,
+        "recovery": 0.34,
+        "knockback": 6,
+        "breakPower": 1.0,
+        "hitStun": 0.25
+      },
+      "notes": "A giant mixing spoon: a quick swat that knocks players further back than you would expect."
+    },
+    {
+      "id": "TENT",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/TENT",
+      "heldScale": 0.55,
+      "grip": [
+        0.0,
+        0.42,
+        0.0
+      ],
+      "size": [
+        0.685,
+        0.545,
+        0.62
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 1,
+      "durability": 40,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.35,
+        "footprint": [
+          0.685,
+          0.62
+        ]
+      },
+      "notes": "Pitch a little play tent: small, quick cover you can carry in one hand."
+    },
+    {
+      "id": "PEAR",
+      "category": "Consumables",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/PEAR",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.091,
+        -0.0026
+      ],
+      "size": [
+        0.1716,
+        0.2721,
+        0.1755
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Heal",
+      "hands": 1,
+      "durability": 0,
+      "use": {
+        "effect": "Heal",
+        "amount": 15,
+        "channel": 0.3
+      },
+      "notes": "A juicy pear: one quick bite restores 15 HP."
+    },
+    {
+      "id": "SOCK",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/SOCK",
+      "heldScale": 1.0,
+      "grip": [
+        -0.082,
+        0.202,
+        0.0
+      ],
+      "size": [
+        0.288,
+        0.3271,
+        0.11
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 30,
+      "thrown": {
+        "damage": 22,
+        "speed": 18,
+        "lob": true,
+        "recoverable": true,
+        "knockback": 4,
+        "breakPower": 0.3
+      },
+      "notes": "A striped sock stuffed with more socks: lobbed, it lands harder than it looks and often dazes, and carrying it keeps you light on your feet. Pick it up again where it lands."
+    },
+    {
+      "id": "HOSE",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/HOSE",
+      "heldScale": 0.75,
+      "grip": [
+        0.0,
+        0.09,
+        0.077
+      ],
+      "size": [
+        0.2718,
+        0.1704,
+        0.5179
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployZone",
+      "hands": 1,
+      "durability": 35,
+      "deploy": {
+        "effect": "WindField",
+        "place": 0.6,
+        "radius": 3.6,
+        "strength": 9.5,
+        "lifetime": 8,
+        "arc": 40,
+        "footprint": [
+          0.2718,
+          0.5179
+        ]
+      },
+      "notes": "Set down a garden hose: a narrow water jet that shoves players further along a line than FAN does."
+    },
+    {
+      "id": "RACKET",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/RACKET",
+      "heldScale": 0.85,
+      "grip": [
+        0.0,
+        0.13,
+        0.0
+      ],
+      "size": [
+        0.278,
+        0.674,
+        0.048
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 36,
+      "melee": {
+        "damage": 15,
+        "reach": 1.5,
+        "arc": 120,
+        "windup": 0.15,
+        "active": 0.1,
+        "recovery": 0.3,
+        "knockback": 7,
+        "breakPower": 1.2,
+        "hitStun": 0.28
+      },
+      "notes": "A tennis racket: quick, wide swings that knock players far and may daze them, and carrying it keeps you light on your feet."
+    },
+    {
+      "id": "MELON",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/MELON",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.085,
+        0.03
+      ],
+      "size": [
+        0.2092,
+        0.2093,
+        0.254
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 0,
+      "thrown": {
+        "damage": 18,
+        "speed": 12,
+        "lob": true,
+        "recoverable": false,
+        "knockback": 6,
+        "breakPower": 0.8
+      },
+      "notes": "A heavy half watermelon, lobbed: it lands hard and shoves the target back. Spends its letters when thrown."
+    },
+    {
+      "id": "PIANO",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/PIANO",
+      "heldScale": 0.6186,
+      "grip": [
+        0.0,
+        0.26,
+        -0.05
+      ],
+      "size": [
+        0.582,
+        0.52,
+        0.315
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 130,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.9,
+        "footprint": [
+          0.582,
+          0.315
+        ]
+      },
+      "notes": "Set down a toy piano: big, sturdy cover that takes a beating."
+    },
+    {
+      "id": "TONIC",
+      "category": "Consumables",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/TONIC",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.091,
+        0.0
+      ],
+      "size": [
+        0.1373,
+        0.2678,
+        0.1414
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Buff",
+      "hands": 1,
+      "durability": 0,
+      "use": {
+        "effect": "Speed",
+        "amount": 1.3,
+        "seconds": 8,
+        "channel": 0.35
+      },
+      "notes": "A fizzy tonic: run 30% faster for 8 seconds, longer than SODA."
+    },
+    {
+      "id": "BRICK",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BRICK",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.06,
+        0.0
+      ],
+      "size": [
+        0.32,
+        0.145,
+        0.1664
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 20,
+      "thrown": {
+        "damage": 45,
+        "speed": 15,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 8,
+        "breakPower": 3
+      },
+      "notes": "A big toy building brick: it hits very hard, knocks far, may daze, and stings like stepping on one. Pick it up again where it lands."
+    },
+    {
+      "id": "PENCIL",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/PENCIL",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.19,
+        0.0
+      ],
+      "size": [
+        0.075,
+        0.76,
+        0.075
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeThrust",
+      "hands": 1,
+      "durability": 35,
+      "melee": {
+        "damage": 14,
+        "reach": 2.0,
+        "arc": 22,
+        "windup": 0.2,
+        "active": 0.08,
+        "recovery": 0.28,
+        "knockback": 3.5,
+        "breakPower": 1.0,
+        "hitStun": 0.2
+      },
+      "notes": "A giant sharpened pencil to jab with from far away. Its point leaves a stinging scratch, and carrying it keeps you a little quicker."
+    },
+    {
+      "id": "RAMP",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/RAMP",
+      "heldScale": 0.6,
+      "grip": [
+        0.0,
+        0.11,
+        -0.1
+      ],
+      "size": [
+        0.42,
+        0.213,
+        0.6005
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployPad",
+      "hands": 1,
+      "durability": 50,
+      "deploy": {
+        "effect": "JumpPad",
+        "place": 0.45,
+        "strength": 12,
+        "footprint": [
+          0.42,
+          0.6005
+        ]
+      },
+      "notes": "A toy stunt ramp that launches players as high as a LADDER, and sets down in one hand."
+    },
+    {
+      "id": "OIL",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/OIL",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.075,
+        -0.11
+      ],
+      "size": [
+        0.159,
+        0.2569,
+        0.2851
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployZone",
+      "hands": 1,
+      "durability": 0,
+      "deploy": {
+        "effect": "SlipZone",
+        "place": 0.35,
+        "radius": 2.0,
+        "lifetime": 7,
+        "footprint": [
+          0.159,
+          0.2851
+        ]
+      },
+      "notes": "Pour out an oil can: a small slippery patch, smaller and shorter than SOAP's."
+    },
+    {
+      "id": "DOOR",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/DOOR",
+      "heldScale": 0.6,
+      "grip": [
+        0.007,
+        0.48,
+        -0.07
+      ],
+      "size": [
+        0.514,
+        0.9,
+        0.1687
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Shield",
+      "hands": 2,
+      "durability": 80,
+      "shield": {
+        "frontArc": 140,
+        "reduction": 0.9,
+        "moveSpeed": 0.6,
+        "raise": 0.25
+      },
+      "notes": "A whole front door to hide behind, held in both hands: wide and sturdy, but heavy to carry."
+    },
+    {
+      "id": "BOOT",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BOOT",
+      "heldScale": 1.0,
+      "grip": [
+        -0.054,
+        0.2,
+        0.0
+      ],
+      "size": [
+        0.2615,
+        0.3105,
+        0.115
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 30,
+      "thrown": {
+        "damage": 11,
+        "speed": 14,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 6,
+        "breakPower": 1
+      },
+      "notes": "A rubber boot to throw. Pick it up again where it lands."
     }
   ],
   "tuning": {
@@ -1051,6 +2148,185 @@
             "amount": 0.7,
             "seconds": 1.5,
             "every": 3
+          }
+        ]
+      },
+      "RAKE": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.5,
+            "every": 3
+          }
+        ]
+      },
+      "TOMATO": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.65,
+            "seconds": 1.5,
+            "chance": 0.4
+          }
+        ]
+      },
+      "ROCKET": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.35
+          },
+          {
+            "kind": "Daze",
+            "amount": 0.65,
+            "seconds": 1.5,
+            "chance": 0.5
+          },
+          {
+            "kind": "Bleed",
+            "amount": 2,
+            "seconds": 2
+          }
+        ]
+      },
+      "PADDLE": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.35
+          },
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.5,
+            "chance": 0.4
+          }
+        ]
+      },
+      "DISC": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.2,
+            "chance": 0.3
+          }
+        ]
+      },
+      "HELMET": {
+        "traits": [
+          {
+            "kind": "Guard",
+            "amount": 0.12
+          },
+          {
+            "kind": "Swift",
+            "amount": 1.05
+          }
+        ]
+      },
+      "LEMON": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.65,
+            "seconds": 1.5,
+            "chance": 0.5
+          }
+        ]
+      },
+      "TORCH": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.5,
+            "every": 2
+          },
+          {
+            "kind": "Swift",
+            "amount": 1.05
+          }
+        ]
+      },
+      "SPOON": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.2
+          }
+        ]
+      },
+      "SOCK": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.5,
+            "chance": 0.5
+          },
+          {
+            "kind": "Swift",
+            "amount": 1.1
+          }
+        ]
+      },
+      "RACKET": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.3
+          },
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.5,
+            "chance": 0.35
+          },
+          {
+            "kind": "Swift",
+            "amount": 1.08
+          }
+        ]
+      },
+      "MELON": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.3
+          }
+        ]
+      },
+      "BRICK": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.3
+          },
+          {
+            "kind": "Daze",
+            "amount": 0.65,
+            "seconds": 1.5,
+            "chance": 0.25
+          },
+          {
+            "kind": "Bleed",
+            "amount": 1.5,
+            "seconds": 2
+          }
+        ]
+      },
+      "PENCIL": {
+        "traits": [
+          {
+            "kind": "Bleed",
+            "amount": 1.5,
+            "seconds": 2
+          },
+          {
+            "kind": "Swift",
+            "amount": 1.05
           }
         ]
       }

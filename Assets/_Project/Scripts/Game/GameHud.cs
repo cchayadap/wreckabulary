@@ -112,7 +112,7 @@ namespace Wreckabulary
         readonly List<CanvasGroup> bagHides = new();
         readonly List<(GameObject root, RawImage icon, GameObject badge, TextMeshProUGUI seconds)> effectChips = new();
         readonly List<BookCard> bookCards = new();
-        readonly List<char> spare = new(), sorted = new();
+        readonly List<char> spare = new();
         readonly Dictionary<string, Texture2D> glyphs = new(StringComparer.Ordinal);
         RectTransform bagColumn, bagLetters, bagHandsRow, bagEffectsRow, bagMapFrame, bagMapShadow, bagMapArea, bagBook, bagBackdrop, pauseShade;
         RectTransform spellCap, bagCap, roomBacking;
@@ -146,13 +146,13 @@ namespace Wreckabulary
 
         sealed class LetterCell
         {
-            public Image face, edge, ring, outline;
+            public Image face, edge, ring, outline, focus;
             public TextMeshProUGUI letter;
         }
         sealed class HandView
         {
             public Image face, wear;
-            public Image edge;
+            public Image edge, focus;
             public RawImage icon, empty;
             public TextMeshProUGUI label, key;
             public GameObject wearTrack;
@@ -459,8 +459,8 @@ namespace Wreckabulary
                 if (keys.Move.ReadValue<Vector2>().sqrMagnitude > .25f) ControlTips.Learn(ControlTips.Tip.Move);
                 if (thirdPerson && keys.Look.ReadValue<Vector2>().sqrMagnitude > 25f) ControlTips.Learn(ControlTips.Tip.Look);
                 if (keys.Attack.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Smash);
-                if (keys.Aim.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Aim);
-                if (keys.Spell.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Spell);
+                if (LocalPlayer.Combat && LocalPlayer.Combat.IsAiming) ControlTips.Learn(ControlTips.Tip.Aim);
+                if (keys.SpellBox.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Spell);
                 if (keys.Interact.WasPressedThisFrame()) ControlTips.Learn(ControlTips.Tip.Interact);
                 if (BagOpen) ControlTips.Learn(ControlTips.Tip.Bag);
                 return;
@@ -618,7 +618,7 @@ namespace Wreckabulary
             for (int i = 0; i < 2; i++)
             {
                 int slot = i;
-                bagHands[i] = MakeBagHand($"Bag hand {i + 1}", bagHandsRow, new Vector2(i * 193.5f, 0f), i, () => SelectHand(slot));
+                bagHands[i] = MakeBagHand($"Bag hand {i + 1}", bagHandsRow, new Vector2(i * 193.5f, 0f), i, () => { if (!BagDragging) SelectHand(slot); });
             }
             bagEffectsRow = Row("Effects");
             foreach (var effect in new[] { "Effect 1", "Effect 2", "Effect 3", "Effect 4" })
@@ -674,6 +674,8 @@ namespace Wreckabulary
             var edge = CreateImage("Edge", close, Vector2.zero, Vector2.zero, Vector2.zero, Hex(0xffffff, .25f));
             Stretch(edge.rectTransform); edge.sprite = circleRing;
             Text("Label", close, new Vector2(.5f, .5f), new Vector2(0f, 2f), new Vector2(40f, 40f), 30f, BagInk).text = "×";
+            bagClose = close;
+            BuildBagDrag(rt);
             bagPanel.SetActive(false);
         }
 
@@ -756,7 +758,7 @@ namespace Wreckabulary
                 star.sprite = SparkSprite(); star.preserveAspect = true;
             }
             if (!tileRing) tileRing = MakeShape(false, 4.4f);
-            const float tile = 24f, step = 28f;
+            const float tile = BookTile, step = BookTileStep;
             float x0 = -(word.Length * step - 4f) * .5f;
             card.rims = new Image[word.Length];
             for (int i = 0; i < word.Length; i++)
@@ -974,6 +976,7 @@ namespace Wreckabulary
             if (Paused && Time.timeScale != 0f) { resumeScale = Time.timeScale; Time.timeScale = 0f; }
             CloseComposerOnKeys();
             if (BagOpen != WantsBag()) RefreshBagPanel();
+            DropFocusedInBag();
             var screen = Touchscreen.current;
             if (!touchChosen && !TouchControlsShown && screen != null && screen.primaryTouch.press.wasPressedThisFrame) ShowTouchControls(true);
             UpdateCards();
@@ -985,7 +988,7 @@ namespace Wreckabulary
             return false;
         }
 
-        bool WantsBag() => LocalPlayer && !Paused && !ResultShown && !composerReleaseWait && (bagPinned || (LocalPlayer.Binding is DesktopBinding && DesktopBinding.Shared.Bag.IsPressed()) ||
+        bool WantsBag() => LocalPlayer && !Paused && !ResultShown && !composerReleaseWait && (bagPinned || (LocalPlayer.Binding is DesktopBinding && !DesktopBinding.Typing && DesktopBinding.Shared.Bag.IsPressed()) ||
             (LocalPlayer.Binding is GamepadBinding pad && pad.BagHeld));
 
         void OnEnable() => Active = this;
@@ -1023,7 +1026,7 @@ namespace Wreckabulary
             if (keyVersion == KeyBindings.Version && keyBinding == binding) return;
             keyVersion = KeyBindings.Version; keyBinding = binding;
             var keys = DesktopBinding.Shared;
-            spellLabel = binding is GamepadBinding or KeyboardBinding ? SpellKeyLabel(binding) : ControlHints.KeyOf(keys.Spell);
+            spellLabel = binding is GamepadBinding or KeyboardBinding ? SpellKeyLabel(binding) : ControlHints.KeyOf(keys.SpellBox);
             spellHintLabel = SpellKeyLabel(binding);
             bagLabel = BagKeyLabel(binding);
             interactLabel = binding switch { GamepadBinding => "RT", TouchBinding => "GRAB", _ => ControlHints.KeyOf(keys.Interact) };
@@ -1284,7 +1287,7 @@ namespace Wreckabulary
             GamepadBinding => "Y",
             TouchBinding => "SPELL",
             KeyboardBinding keys => keys.Id.EndsWith("Left", StringComparison.Ordinal) ? "K" : "R-SHIFT",
-            _ => ControlHints.KeyOf(DesktopBinding.Shared.Spell),
+            _ => ControlHints.KeyOf(DesktopBinding.Shared.SpellBox),
         };
         public static string BagKeyLabel(InputBinding binding) =>
             binding is GamepadBinding ? ControlHints.PadBag : ControlHints.KeyOf(DesktopBinding.Shared.Bag);
@@ -1292,20 +1295,20 @@ namespace Wreckabulary
             binding is GamepadBinding ? ControlHints.PadHand(slot) : slot >= 0 && slot < HandNumbers.Length ? HandNumbers[slot] : (slot + 1).ToString();
         void FillCells(LetterCell[] cells, LetterInventory inv)
         {
-            sorted.Clear(); sorted.AddRange(inv.Letters); sorted.Sort();
+            ArrangeLetters(inv);
             var crafting = LocalPlayer.Summoner.IsCrafting ? LocalPlayer.Summoner.CraftWord ?? "" : "";
             for (int i = 0; i < cells.Length; i++)
             {
                 var cell = cells[i];
                 cell.face.transform.parent.gameObject.SetActive(i < inv.Capacity);
-                bool held = i < sorted.Count, reserved = !held && i < sorted.Count + inv.ReservedCount;
-                int r = i - sorted.Count;
+                bool held = i < bagOrder.Count, reserved = !held && i < bagOrder.Count + inv.ReservedCount;
+                int r = i - bagOrder.Count;
                 cell.face.color = held ? Tile : reserved ? Reserved : cell.ring ? BagCell : EmptyCell;
                 cell.edge.enabled = held;
                 if (cell.ring) cell.ring.enabled = !held && !reserved;
                 if (cell.outline) cell.outline.enabled = !held && !reserved;
                 cell.letter.color = reserved ? ReservedInk : Ink;
-                cell.letter.text = held ? One(sorted[i]) : reserved && r < crafting.Length ? One(crafting[r]) : "";
+                cell.letter.text = held ? One(bagOrder[i]) : reserved && r < crafting.Length ? One(crafting[r]) : "";
             }
         }
 
@@ -1323,6 +1326,7 @@ namespace Wreckabulary
                     TouchBinding.Shared.ReleaseAll();
                     foreach (var stick in sticks) if (stick) stick.Release();
                 }
+                OnBagShown(open);
             }
             HideForBag(open);
             RefreshModeActionVisibility();
@@ -1370,6 +1374,7 @@ namespace Wreckabulary
             for (int i = effects; i < effectChips.Count; i++) effectChips[i].root.SetActive(false);
             RefreshBook(inv);
             LayoutBag(effects);
+            ShowDragTargets();
             UpdateMap(bigMap);
         }
 
@@ -1422,21 +1427,24 @@ namespace Wreckabulary
             Flow(effects, i => effectChips[i].root);
             bagColumn.sizeDelta = new Vector2(BagColumn, Mathf.Max(0f, y - BagGap));
             var area = safe.rect;
-            bool compact = area.width < 1400f;
-            float bookWidth = Mathf.Min(BookColumn, Mathf.Max(188f, area.width - BagSide * 2f - BagColumn - BagGap - (compact ? 0f : 325f + BagGap)));
-            bagBook.offsetMin = new Vector2(-BagSide - bookWidth, BagBottom);
-            bagBook.offsetMax = new Vector2(-BagSide, -BagTop);
-            int columns = Mathf.Clamp(Mathf.FloorToInt((bookWidth - 8f + 12f) / 200f), 1, 4);
+            float mapTarget = BagDrag.MapTarget(area.width, BagSide + BagColumn + BagGap, BagGap, BagMapFloor, bookComfort, 188f, BookColumn);
+            float mapSize = BagDrag.MapSide(area.height - BagTop - BagBottom, bagColumn.sizeDelta.y, BagGap, BagMapFloor, mapTarget);
+            float footprint = Mathf.Max(mapSize, BagColumn);
+            float reserve = PlaceDropColumns(BagDrag.SideColumnWidth(area.width, footprint + 2f * BagGap + bookComfort));
+            float binEdge = BagDrag.ColumnEdge + dropColumnWidth, between = area.width - 2f * binEdge - BagDrag.ColumnGap;
+            float bookWidth = Mathf.Min(BookColumn, Mathf.Max(188f, between - footprint - 2f * BagGap));
+            bagBook.offsetMin = new Vector2(-reserve - bookWidth, BagBottom);
+            bagBook.offsetMax = new Vector2(-reserve, -BagTop);
+            if (bagClose) bagClose.anchoredPosition = new Vector2(-reserve - BookCloseInset, -BagTop - BookTitleTop);
+            int columns = Mathf.Clamp(BookColumnsFor(bookWidth), 1, 4);
             recipeGrid.constraintCount = columns;
             recipeGrid.cellSize = new Vector2((bookWidth - 8f - (columns - 1) * 12f) / columns, BookCardHeight);
-            bagColumn.anchorMin = bagColumn.anchorMax = compact ? new Vector2(0f, 1f) : new Vector2(0f, .5f);
-            bagColumn.pivot = compact ? new Vector2(0f, 1f) : new Vector2(0f, .5f);
-            bagColumn.anchoredPosition = compact ? new Vector2(BagSide, -BagTop) : new Vector2(BagSide, (BagBottom - BagTop) * .5f);
-            bagMapArea.offsetMin = new Vector2(compact ? BagSide : BagSide + BagColumn + BagGap, BagBottom);
-            bagMapArea.offsetMax = compact
-                ? new Vector2(-area.width + BagSide + BagColumn, -BagTop - bagColumn.sizeDelta.y - BagGap)
-                : new Vector2(-BagSide - bookWidth - BagGap, -BagTop);
-            float mapSize = Mathf.Max(1f, Mathf.Min(bagMapArea.rect.width, bagMapArea.rect.height));
+            float left = binEdge + Mathf.Max(BagGap, (between - bookWidth - footprint) * .5f);
+            bagMapArea.anchorMin = bagMapArea.anchorMax = bagMapArea.pivot = new Vector2(0f, 1f);
+            bagMapArea.anchoredPosition = new Vector2(left + (footprint - mapSize) * .5f, -BagTop);
+            bagMapArea.sizeDelta = new Vector2(mapSize, mapSize);
+            bagColumn.anchorMin = bagColumn.anchorMax = bagColumn.pivot = new Vector2(0f, 1f);
+            bagColumn.anchoredPosition = new Vector2(left + (footprint - BagColumn) * .5f, -BagTop - mapSize - BagGap);
             bagMapFrame.sizeDelta = Vector2.one * mapSize;
             bagMapShadow.sizeDelta = Vector2.one * (mapSize + 2f * 31f * 75f / 28f);
         }

@@ -20,7 +20,7 @@ namespace Wreckabulary
         {
             var root = new GameObject(item.Id);
             root.transform.SetParent(World.Transient, false);
-            if (!ModelVisual.Spawn(item.Model, root.transform))
+            if (!ModelVisual.SpawnItem(item.Model, root.transform))
             {
                 var visual = LetterBuilt.Spawn(item.Id, Vector3.one * 0.2f, 3, new Color(0.8f, 0.6f, 0.4f), root.transform, false);
                 visual.name = "Recipe visual";

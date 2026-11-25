@@ -54,7 +54,7 @@ namespace Wreckabulary
             Solve(target, right * .6f - Vector3.up);
             shoulderWritten = shoulder.localRotation;
             elbowWritten = elbow.localRotation;
-            itemRotation = Quaternion.Slerp(grip.rotation * gripCorrection * gear.HoldRotation, itemRotation, weight);
+            itemRotation = Quaternion.Slerp(grip.rotation * gripCorrection * gear.HoldRotation * HeldItemPose.Turn(gear.Definition), itemRotation, weight);
             return true;
         }
 

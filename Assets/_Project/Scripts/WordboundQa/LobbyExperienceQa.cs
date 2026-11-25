@@ -26,7 +26,7 @@ namespace Wreckabulary.Qa
         static readonly string[] CreateTools = { "Create house", "Create Wordbound" };
         const string QaHomeMap = "pinwheel", QaHomeName = "QA Home";
         static readonly string[] SettingsTabs = { "profile", "audio", "gameplay", "graphics", "controls", "help" };
-        static readonly string[] NavNames = { "Home", "Settings", "Quit", "LOADOUT", "PLAY", "CAREER", "Leaderboard", "Shop", "Party" };
+        static readonly string[] NavNames = { "Home", "Settings", "Quit", "LOADOUT", "PLAY", "CAREER", "Leaderboard", "Shop", "Server" };
         const float SmallestModeLabel = 15f;
         LobbyMenu menu;
         Preference[] preferences;
@@ -65,6 +65,8 @@ namespace Wreckabulary.Qa
             yield return QaStep.Named("shop_tabs").Timeout(30).Do(ShopTabs);
             yield return QaStep.Named("lobby_themes").Timeout(30).Do(Themes);
             yield return QaStep.Named("settings_navigation").Timeout(30).Do(Settings);
+            yield return QaStep.Named("social_rail").Timeout(45).Do(SocialRailStates);
+            yield return QaStep.Named("social_rail_sizes").Timeout(45).Do(SocialRailSizes);
             yield return QaStep.Named("phone_width").Timeout(30).Do(PhoneWidth);
             yield return QaStep.Named("open_wordbound").Timeout(60).Do(Online);
         }
@@ -1142,6 +1144,7 @@ namespace Wreckabulary.Qa
                     CustomizeRail(context, "customize_rail_phone");
                     yield return CustomizeCategory(context, "Headwear", "lobby_customize_phone");
                     Submit(Top("Home")); yield return Settle();
+                    yield return RailAtSize(context, "phone");
                     context.Note("phone_width", new Dictionary<string, object> { ["size"] = new[] { Width, Height }, ["aspect"] = "19.5:9 landscape window",
                         ["scope"] = "Windowed size only; no phone DPI, touch input or safe-area emulation." });
                 }
@@ -1270,7 +1273,7 @@ namespace Wreckabulary.Qa
             ControlFits(house);
             Submit(house);
             yield return Settle();
-            Require(panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")) == 17 &&
+            Require(panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")) == 16 &&
                 panel.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Controller Pause").text == "View / Share" &&
                 EventSystem.current.currentSelectedGameObject == house.gameObject && !panel.IsListening,
                 "House legend and selector focus were not restored.");
@@ -1370,6 +1373,12 @@ namespace Wreckabulary.Qa
                     Require(area.yMin >= view.yMin - 2 && area.yMax <= view.yMax + 2, "The party strip hides " + shown.name + " below the fold.");
                 }
                 yield return Capture(context, "lobby_party");
+                yield return Settle();
+                var railCount = menu.Social.Rail.GetComponentsInChildren<TMP_Text>().Single(text => text.name == LobbySocialRail.CountName);
+                Require(railCount.text == SocialRail.CountText(4) && menu.Social.Plates.Count == 4 && menu.PartySize == 1,
+                    "The rail must count the online party of four, not the one couch seat: " + railCount.text);
+                RailFits("online4");
+                yield return Capture(context, "lobby_rail_online4");
                 party.Searching = true; party.CanCancel = true; party.SearchTitle = "Searching 0:42";
                 yield return Settle();
                 Require(title.text == party.SearchTitle && Label(go) == LobbyKit.Upper(LobbyPartyStrip.CancelWord) && go.IsInteractable(),
@@ -1415,6 +1424,152 @@ namespace Wreckabulary.Qa
             }
             yield return Settle();
             Require(Page().GetComponentsInChildren<TMP_Text>().Any(text => text.name == PlayPage.PartyLabel), "The strip must return to Party · You.");
+        }
+
+        IEnumerator SocialRailStates(QaContext context)
+        {
+            var recentSaved = Preference.Text(RecentPlayers.StorageKey);
+            var guests = new List<InputBinding>();
+            var social = menu.Social;
+            try
+            {
+                Submit(Top("Home")); yield return Settle();
+                RailFits("home");
+                Require(!menu.transform.Find("Safe area/Top bar").GetComponentsInChildren<Button>().Any(button => button.name == SocialRail.Party),
+                    "The old party chip must be gone from the top bar.");
+                foreach (string later in new[] { SocialRail.Friends, SocialRail.Nearby, SocialRail.Requests, SocialRail.AddFriend })
+                    Require(!menu.GetComponentsInChildren<Button>().Any(button => button.name == later), "A rail control without a service is showing: " + later);
+                yield return Capture(context, "lobby_rail_home");
+                Submit(Top("PLAY")); yield return Settle();
+                RailFits("play");
+                yield return Capture(context, "lobby_rail_play");
+                Submit(Top("LOADOUT")); yield return Settle(); yield return Settle();
+                RailFits("customize");
+                yield return Capture(context, "lobby_rail_customize");
+                Submit(Top("Home")); yield return Settle();
+                for (int i = 0; i < 2; i++) { var guest = new ScriptedBinding(); guests.Add(guest); menu.Join(guest); }
+                yield return Settle();
+                Require(social.Plates.Count == 3 && menu.Social.Rail.GetComponentsInChildren<TMP_Text>().Single(text => text.name == LobbySocialRail.CountName).text == "3/4",
+                    "Three couch seats must show three portraits and 3/4.");
+                RailFits("couch3");
+                yield return Capture(context, "lobby_rail_couch3");
+                Submit(Find(menu.transform, SocialRail.Party)); yield return Settle();
+                Require(social.Expanded && social.Focused, "The party count must open the panel and move focus into it.");
+                PanelFits("party");
+                yield return Capture(context, "lobby_rail_open_party");
+                var recent = new RecentPlayers();
+                long now = LobbyRecentPlayers.Now;
+                recent.Add(new RecentMatch(HouseModes.Dibs, QaHomeMap, now - 7200, new[] { new RecentPlayer(menu.Career.Name, 0, true),
+                    new RecentPlayer("Player 2", 1, false), new RecentPlayer("Player 3", 2, false) }), now);
+                recent.Add(new RecentMatch(HouseModes.Duos, QaHomeMap, now - 300, new[] { new RecentPlayer(menu.Career.Name, 0, true),
+                    new RecentPlayer("Player 2", 1, false) }), now);
+                LobbyRecentPlayers.Save(recent);
+                Submit(Find(menu.transform, SocialRail.Recent)); yield return Settle();
+                Require(social.Section == SocialRail.Recent && menu.Social.Panel.GetComponentsInChildren<Button>()
+                    .Count(button => button.name.StartsWith(LobbySocialRail.RecentPrefix)) == 2, "Recent must list the two stored matches.");
+                PanelFits("recent");
+                yield return Capture(context, "lobby_rail_open_recent");
+                Submit(Find(menu.transform, SocialRail.Server)); yield return Settle();
+                string line = menu.Social.Panel.GetComponentsInChildren<TMP_Text>().Single(text => text.name == LobbySocialRail.ServerLineText).text;
+                Require(line == ServiceText.OfflineLine || line.Contains(ServiceText.ByClock), "The server line must label the region as a guess: " + line);
+                Require(!line.Contains(" ms") || social.Service.State == ServiceState.Reachable, "A time may only show after a real check: " + line);
+                PanelFits("server");
+                yield return Capture(context, "lobby_rail_server_card");
+                context.Note("social_rail", new Dictionary<string, object> {
+                    ["focus"] = social.FocusNames.ToArray(), ["server_pill"] = Label(Find(menu.transform, SocialRail.Server)),
+                    ["server_line"] = line, ["service_state"] = social.Service.State.ToString(), ["tabs"] = SocialRail.Tabs(LobbySocialRail.Services).ToArray(),
+                    ["source"] = "Seeded recent list restored afterwards; no service calls in QA" });
+            }
+            finally
+            {
+                if (social && social.Expanded) social.Close(false);
+                if (menu.Current != LobbyMenu.Home) menu.Open(LobbyMenu.Home);
+                foreach (var guest in guests) menu.Leave(guest);
+                recentSaved.Restore(); PlayerPrefs.Save();
+                PreservePreferences(context);
+            }
+            yield return Settle();
+        }
+
+        IEnumerator SocialRailSizes(QaContext context)
+        {
+            int width = Screen.width, height = Screen.height;
+            var mode = Screen.fullScreenMode;
+            try
+            {
+                foreach (var (w, h, key) in new[] { (1280, 800, "16x10"), (1024, 768, "4x3") })
+                {
+                    Screen.SetResolution(w, h, FullScreenMode.Windowed);
+                    double until = Time.realtimeSinceStartupAsDouble + 4;
+                    while ((Screen.width != w || Screen.height != h) && Time.realtimeSinceStartupAsDouble < until) yield return null;
+                    if (Screen.width != w || Screen.height != h)
+                    {
+                        context.Note("rail_" + key, new Dictionary<string, object> { ["skipped"] = "The player window did not resize.", ["size"] = new[] { Screen.width, Screen.height } });
+                        continue;
+                    }
+                    yield return Settle();
+                    yield return RailAtSize(context, key);
+                }
+            }
+            finally
+            {
+                if (Screen.width != width || Screen.height != height) Screen.SetResolution(width, height, mode);
+                PreservePreferences(context);
+            }
+            double back = Time.realtimeSinceStartupAsDouble + 4;
+            while ((Screen.width != width || Screen.height != height) && Time.realtimeSinceStartupAsDouble < back) yield return null;
+            yield return Settle();
+        }
+
+        IEnumerator RailAtSize(QaContext context, string key)
+        {
+            try
+            {
+                Submit(Top("Home")); yield return Settle();
+                RailFits(key + "_home");
+                yield return Capture(context, "lobby_rail_home_" + key);
+                Submit(Top("PLAY")); yield return Settle();
+                RailFits(key + "_play");
+                yield return Capture(context, "lobby_rail_play_" + key);
+                Submit(Find(menu.transform, SocialRail.Party)); yield return Settle();
+                PanelFits(key);
+                yield return Capture(context, "lobby_rail_open_" + key);
+            }
+            finally
+            {
+                if (menu.Social && menu.Social.Expanded) menu.Social.Close(false);
+                if (menu.Current != LobbyMenu.Home) menu.Open(LobbyMenu.Home);
+            }
+            yield return Settle();
+            context.Note("rail_" + key, new Dictionary<string, object> { ["size"] = new[] { Screen.width, Screen.height },
+                ["rail_width"] = menu.Social.Layout.Width, ["docked"] = menu.Social.Layout.Docked });
+        }
+
+        void RailFits(string key)
+        {
+            var social = menu.Social;
+            var rail = ScreenRect(social.Rail);
+            Require(Inside(rail, Screen.safeArea), "The rail leaves the safe area at " + key);
+            Require(rail.yMax <= ScreenRect((RectTransform)menu.transform.Find("Safe area/Top bar")).yMin + 2, "The rail runs under the top bar at " + key);
+            foreach (var button in social.Rail.GetComponentsInChildren<Button>())
+            {
+                Require(Inside(ScreenRect((RectTransform)button.transform), rail), "A rail control spills out at " + key + ": " + button.name);
+                foreach (var text in button.GetComponentsInChildren<TMP_Text>()) TextFits(text);
+            }
+            foreach (var primary in Page().GetComponentsInChildren<Button>().Where(button => button.name == "GO" || button.name == PlayPage.FindMatch ||
+                button.name == LobbyHomePageView.PlayButton))
+            {
+                var area = ScreenRect((RectTransform)primary.transform);
+                Require(area.xMax <= rail.xMin + 2 || area.yMax <= rail.yMin + 2, "The rail covers the primary button at " + key + ": " + primary.name);
+            }
+        }
+
+        void PanelFits(string key)
+        {
+            var panel = ScreenRect(menu.Social.Panel);
+            Require(Inside(panel, Screen.safeArea), "The open panel leaves the safe area at " + key);
+            Require(panel.xMax <= ScreenRect(menu.Social.Rail).xMin + 2, "The open panel covers the rail at " + key);
+            foreach (var text in menu.Social.Panel.GetComponentsInChildren<TMP_Text>()) TextFits(text);
         }
 
         static bool Underlined(Button button) => button.GetComponentsInChildren<Image>().Single(image => image.name == "Underline").enabled;
@@ -1577,7 +1732,7 @@ namespace Wreckabulary.Qa
             WordboundPartyFrameObservation observation = null;
             try
             {
-                Submit(Top("PLAY"));
+                if (menu.Current != LobbyMenu.Play) Submit(Top("PLAY"));
                 yield return Settle();
                 string queue = menu.Queue, mode = menu.Mode, map = menu.Map;
                 Submit(Find(Page(), "Queue " + LobbyMenu.Matchmaking));

@@ -67,6 +67,30 @@ namespace Wreckabulary.EditorTools
                       $"incl. Items/<WORD>; icons in {IconRoot}. Created {created.Count} prefabs/icons; existing assets preserved. Stats live in items_house.json.");
         }
 
+        [MenuItem("Wreckabulary/Art/Re-render House Item Icons With The Item Look")]
+        public static void RenderVividIcons()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Render House item icons outside Play Mode.");
+            if (ItemLook.Palette == null) throw new InvalidOperationException(Wreckabulary.Rules.ItemPalette.SourceFile + " is missing.");
+            var written = new List<string>();
+            foreach (string word in words)
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath(word));
+                if (!prefab) throw new FileNotFoundException(PrefabPath(word) + " is missing; run Create Missing House Items first.");
+                written.Add(Rerender(word, prefab, word));
+            }
+            Debug.Log("[Wreckabulary] HOUSE_ITEM_ICONS_VIVID: " + string.Join(", ", written));
+        }
+
+        internal static string Rerender(string word, GameObject prefab, string look)
+        {
+            string path = IconPath(word);
+            File.WriteAllBytes(path, RenderIcon(prefab, look));
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            ConfigureIcon(path);
+            return path;
+        }
+
         public static IReadOnlyList<ModelLibrary.Entry> LibraryEntries()
         {
             var prefabs = words.Select(word => AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath(word))).ToArray();
@@ -281,7 +305,7 @@ namespace Wreckabulary.EditorTools
         static bool Registered(ModelLibrary library, GameObject[] prefabs) =>
             Enumerable.Range(0, words.Length).All(i => library.Find(Key(words[i])) == prefabs[i]);
 
-        static void Icon(string word, GameObject prefab, List<string> created)
+        internal static void Icon(string word, GameObject prefab, List<string> created)
         {
             string path = IconPath(word);
             if (!File.Exists(path))
@@ -316,7 +340,7 @@ namespace Wreckabulary.EditorTools
             importer.SaveAndReimport();
         }
 
-        static byte[] RenderIcon(GameObject prefab)
+        static byte[] RenderIcon(GameObject prefab, string word = null)
         {
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null || !GraphicsSettings.currentRenderPipeline || QualitySettings.activeColorSpace != ColorSpace.Linear)
                 throw new InvalidOperationException("Render House item icons in the Editor with a graphics device, URP and linear colour.");
@@ -327,6 +351,7 @@ namespace Wreckabulary.EditorTools
                 EditorSettings.asyncShaderCompilation = false;
                 preview = new PreviewRenderUtility();
                 clone = (GameObject)PrefabUtility.InstantiatePrefab(prefab, preview.camera.gameObject.scene);
+                if (word != null) ItemLook.Attach(clone, word);
                 var bounds = ModelVisual.BoundsIn(clone.transform, clone);
                 var camera = preview.camera;
                 float distance = bounds.size.magnitude * 2f + 1f;
@@ -420,7 +445,7 @@ namespace Wreckabulary.EditorTools
             CheckCopy(entry.rebuilt.sha256, target);
         }
 
-        static void CheckCopy(string sha256, string target)
+        internal static void CheckCopy(string sha256, string target)
         {
             if (File.Exists(target))
             {
@@ -447,7 +472,7 @@ namespace Wreckabulary.EditorTools
         static bool Positive(float[] values) => values?.Length == 3 && values.All(value => float.IsFinite(value) && value > 0f);
         static bool SafeName(string value) => !string.IsNullOrEmpty(value) && value != "." && value != ".." && value.TrimEnd(' ', '.') == value && value.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
 
-        static string Hash(string path)
+        internal static string Hash(string path)
         {
             using var sha = SHA256.Create();
             using var stream = File.OpenRead(path);

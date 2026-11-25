@@ -118,7 +118,7 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(hud.ComposerOpen);
             hud.TypeWord("calc");
             yield return null;
-            Assert.AreEqual("CALC is ready. Press Enter!", hud.ComposerStatus);
+            Assert.AreEqual(Wreckabulary.Rules.DesktopScheme.ReadyLine("CALC", ControlHints.KeyOf(DesktopBinding.Shared.SpellBox)), hud.ComposerStatus);
             hud.SubmitComposer();
             Assert.IsTrue(player.Summoner.IsCrafting, "Enter spells the shield word");
             Assert.AreEqual("CALC", player.Summoner.CraftWord);

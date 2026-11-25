@@ -576,6 +576,9 @@ def build_bear(size):
     ellipsoid("knot", red, (0, 0.02, 0.223), (0.016, 0.012, 0.016), 12, 6)
     torus("collar", red, (0.068, 0.076), 0.011, (0, -0.07, 0.222), "Z", 24, 8)
     for side in (-1, 1):
+        ellipsoid("heart_lobe", red, (side * 0.011, 0.039, 0.148), (0.013, 0.006, 0.013), 12, 6)
+    ellipsoid("heart_tip", red, (0, 0.039, 0.134), (0.011, 0.006, 0.014), 12, 6, (0, math.radians(45), 0))
+    for side in (-1, 1):
         ellipsoid("ear", fur, (side * 0.07, -0.06, 0.41), (0.04, 0.024, 0.04), 14, 7)
         ellipsoid("inner_ear", cream, (side * 0.07, -0.042, 0.407), (0.025, 0.008, 0.025), 12, 6)
         ellipsoid("eye", dark, (side * 0.037, 0.038, 0.345), (0.0125, 0.0125, 0.0125), 10, 5)
@@ -667,6 +670,8 @@ def build_rack(size):
     cylinder("collar", gold, 0.048, 0.03, (0, 0, 0.128), "Z", 24, bevel=0.006)
     cylinder("pole", wood, 0.034, 1.37, (0, 0, 0.815), "Z", 20, bevel=0)
     torus("band", gold, 0.036, 0.008, (0, 0, 0.95), "Z", 24, 6)
+    for z in (0.22, 0.42):
+        torus("band", gold, 0.036, 0.006, (0, 0, z), "Z", 24, 6)
     cylinder("hub", gold, 0.05, 0.055, (0, 0, 1.33), "Z", 24, bevel=0.008)
     cylinder("hub_low", gold, 0.046, 0.045, (0, 0, 1.12), "Z", 24, bevel=0.006)
     upper = [(0.035, 1.32), (0.1, 1.335), (0.165, 1.37), (0.21, 1.42), (0.235, 1.468), (0.243, 1.5)]
@@ -691,6 +696,7 @@ def build_speaker(size):
         lathe("cone", cone, [(0, 0), (0.022, 0.003), (0.045, 0.01), (0.066, 0.018), (0.066, 0), (0, 0)], (0, front + 0.009, z), "Y", 24)
         ellipsoid("cap", metal, (0, front + 0.013, z), (0.024, 0.011, 0.024), 16, 8)
     torus("tweeter_rim", metal, 0.03, 0.007, (0, front + 0.008, 0.745), "Y", 24, 6)
+    ellipsoid("power_light", cone, (0.062, front + 0.003, 0.84), (0.009, 0.004, 0.009), 12, 6)
     ellipsoid("tweeter", cone, (0, front + 0.004, 0.745), (0.024, 0.012, 0.024), 16, 8)
     torus("port", metal, 0.024, 0.006, (0, front + 0.006, 0.1), "Y", 24, 6)
     torus("top_rim", metal, 0.07, 0.008, (0, y0, 0.892), "Z", 24, 6)

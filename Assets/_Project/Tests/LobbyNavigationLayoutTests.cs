@@ -58,7 +58,7 @@ namespace Wreckabulary.Tests
                 var safe = Field<RectTransform>("safe");
                 var bar = Field<RectTransform>("topBar");
                 var buttons = bar.GetComponentsInChildren<Button>().Where(button => button.IsInteractable()).ToArray();
-                CollectionAssert.AreEquivalent(new[] { "Home", "Settings", "Quit", "LOADOUT", "PLAY", "CAREER", "Leaderboard", "Shop", "Party" },
+                CollectionAssert.AreEquivalent(new[] { "Home", "Settings", "Quit", "LOADOUT", "PLAY", "CAREER", "Leaderboard", "Shop", "Server" },
                     buttons.Select(button => button.name));
                 var bounds = buttons.Select(button => Bounds(safe, (RectTransform)button.transform)).ToArray();
                 for (int i = 0; i < buttons.Length; i++)
@@ -111,7 +111,8 @@ namespace Wreckabulary.Tests
                     Assert.AreSame(selected.gameObject, EventSystem.current.currentSelectedGameObject, width + " focus");
                     Assert.AreEqual(mode, menu.Mode); Assert.AreEqual(map, menu.Map); Assert.AreEqual(queue, menu.Queue); Assert.AreEqual(humans, menu.PartySize);
                     Assert.AreEqual("CUSTOMIZE", selected.GetComponentInChildren<TMP_Text>().text);
-                    Assert.AreEqual("Party " + humans + "/4", Field<TextMeshProUGUI>("partyCount").text);
+                    Assert.AreEqual(Wreckabulary.Rules.SocialRail.CountText(humans), Field<RectTransform>("rail").GetComponentsInChildren<TextMeshProUGUI>()
+                        .Single(text => text.name == LobbySocialRail.CountName).text);
                     var shop = Field<Button>("shopButton");
                     Assert.IsTrue(shop.GetComponentsInChildren<TMP_Text>().Any(text => text.text == "SHOP"));
                     foreach (var label in shop.GetComponentsInChildren<TMP_Text>())
@@ -123,6 +124,59 @@ namespace Wreckabulary.Tests
                 });
             }
             finally { menu.Career.Coins = previousCoins; menu.RefreshBar(); Canvas.ForceUpdateCanvases(); }
+        }
+
+        [UnityTest]
+        public IEnumerator TheSocialRailDocksBesideThePagesAtEveryWidthWithOneToFourSeats()
+        {
+            var guests = new List<InputBinding>();
+            try
+            {
+                foreach (string page in new[] { LobbyMenu.Home, LobbyMenu.Play, LobbyMenu.Loadout })
+                {
+                    menu.Open(page);
+                    for (int seats = 1; seats <= LobbyMenu.PartyMax; seats++)
+                    {
+                        while (menu.PartySize < seats) { var guest = new ScriptedBinding(); guests.Add(guest); menu.Join(guest); }
+                        yield return null;
+                        WithLayout(width => AssertRailClear(width, page, seats));
+                    }
+                    foreach (var guest in guests) menu.Leave(guest);
+                    guests.Clear();
+                }
+            }
+            finally
+            {
+                foreach (var guest in guests) menu.Leave(guest);
+                menu.Open(LobbyMenu.Home);
+            }
+        }
+
+        void AssertRailClear(float width, string page, int seats)
+        {
+            string label = width + " " + page + " " + seats + " seats ";
+            var safe = Field<RectTransform>("safe");
+            var rail = Field<RectTransform>("rail");
+            var area = Bounds(safe, rail);
+            AssertInside(safe.rect, area, label + "rail inside the safe area");
+            Assert.LessOrEqual(area.yMax, Bounds(safe, Field<RectTransform>("topBar")).yMin - 4f, label + "rail below the bar");
+            var social = menu.Social;
+            Assert.IsTrue(social.Layout.Docked, label + "docked");
+            Assert.LessOrEqual(Bounds(safe, Field<RectTransform>("pageHost")).xMax, area.xMin + .5f, label + "pages end before the rail, so no primary button is covered");
+            Assert.AreEqual(seats, social.Plates.Count, label + "one portrait per seat");
+            foreach (var button in rail.GetComponentsInChildren<Button>())
+            {
+                AssertInside(area, Bounds(safe, (RectTransform)button.transform), label + button.name + " inside the rail");
+                foreach (var text in button.GetComponentsInChildren<TMP_Text>())
+                {
+                    text.ForceMeshUpdate();
+                    Assert.IsFalse(text.isTextTruncated, label + "text fits: " + text.text);
+                    Assert.GreaterOrEqual(text.fontSize, 15f, label + "text size: " + text.text);
+                }
+            }
+            var portrait = rail.GetComponentsInChildren<Button>().First(button => button.name == Wreckabulary.Rules.SocialRail.PortraitPrefix + "1");
+            var square = ((RectTransform)portrait.transform).rect;
+            Assert.AreEqual(square.width, square.height, .5f, label + "portraits are square");
         }
 
         void WithLayout(Action<float> check)

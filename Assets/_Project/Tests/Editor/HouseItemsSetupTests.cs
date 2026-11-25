@@ -66,7 +66,7 @@ namespace Wreckabulary.EditorTests
                 Assert.AreSame(prefab, house.Single(e => e.key == "Items/" + word).model, word);
             }
             var rebuilt = ImportedArtSettings.ReadReport().Select(file => ModelLibraryBuilder.KeyOf(file.Output))
-                .Concat(house.Select(e => e.key)).OrderBy(key => key, StringComparer.Ordinal);
+                .Concat(house.Select(e => e.key)).Concat(HouseItemsV2Setup.LibraryEntries().Select(e => e.key)).OrderBy(key => key, StringComparer.Ordinal);
             CollectionAssert.AreEqual(rebuilt, library.Entries.Select(e => e.key), "a library rebuild keeps the same keys in the same order");
         }
 

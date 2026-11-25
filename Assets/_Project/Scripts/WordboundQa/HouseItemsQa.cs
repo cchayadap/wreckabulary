@@ -15,7 +15,7 @@ namespace Wreckabulary.Qa
     public sealed class HouseItemsQa : IQaScenario
     {
         public const string Scenario = "house_items";
-        public const int MaxItems = 20, Parts = 2;
+        public const int MaxItems = 20, Parts = 3;
         const float Wound = 30f, ShotSeconds = 3f, ShotGap = 3f;
         public string Name => ScenarioFor(part);
         static readonly Vector3 Lane = new Vector3(-5.5f, 0f, -2.6f);
@@ -223,6 +223,11 @@ namespace Wreckabulary.Qa
             input.Next.attack = true;
             yield return context.WaitUntil(() => DeployedGear.CountFor(player) > before, item.Deploy.PlaceSeconds + 3f, item.Id + " to be placed");
             yield return context.WaitFrames(2);
+            if (item.Consumable)
+            {
+                yield return Spread(context, gear, item, name, record);
+                yield break;
+            }
             if (!gear || player.Combat.Weapon || !gear.GetComponent<DeployedGear>()) throw new QaFailException(item.Id + " did not leave the hand as placed gear.");
             var offset = World.Flat(gear.GetComponent<Rigidbody>().position - player.Body.position);
             var effect = item.Deploy.Effect;
@@ -249,6 +254,21 @@ namespace Wreckabulary.Qa
             Object.Destroy(gear.gameObject);
         }
 
+        IEnumerator Spread(QaContext context, HeldWeapon gear, ItemDefinition item, string name, Dictionary<string, object> record)
+        {
+            var effect = item.Deploy.Effect;
+            var patch = Object.FindObjectsByType<SummonedThing>(FindObjectsSortMode.None).FirstOrDefault(s => s && s.Word == item.Id);
+            record["effect"] = effect.ToString();
+            if (gear || player.Combat.Weapon || !patch) throw new QaFailException(item.Id + " was not used up into its " + effect + " patch.");
+            var offset = World.Flat(patch.transform.position - player.Body.position);
+            record["placed_metres"] = offset.magnitude;
+            record["patch_radius"] = item.Deploy.Radius;
+            if (Vector3.Dot(offset.normalized, player.Facing) < 0.9f) throw new QaFailException(item.Id + " was not laid in front.");
+            yield return context.WaitSeconds(0.5f);
+            yield return Capture(context, name + "_used");
+            patch.Finish(SummonEndReason.Expired);
+        }
+
         IEnumerator Consume(QaContext context, ItemDefinition item, string name, Dictionary<string, object> record)
         {
             yield return context.WaitUntil(() => !player.Health.IsInvulnerable, 5, "spawn protection to end");
@@ -261,6 +281,8 @@ namespace Wreckabulary.Qa
             float restored = player.Health.Current - before;
             record["restored"] = restored;
             if (item.Use.Effect == UseEffect.Heal && restored <= 0f) throw new QaFailException(item.Id + " was used but restored no health.");
+            record["boost_seconds"] = player.BoostLeft;
+            if (item.Use.Effect == UseEffect.Speed && player.BoostLeft <= 0f) throw new QaFailException(item.Id + " was used but gave no speed boost.");
         }
 
         IEnumerator Shoot(QaContext context, HeldWeapon gear, ItemDefinition item, string name, Dictionary<string, object> record)

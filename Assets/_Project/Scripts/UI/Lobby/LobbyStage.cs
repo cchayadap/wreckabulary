@@ -26,6 +26,7 @@ namespace Wreckabulary
         public static readonly Color SkyTop = LobbyKit.Hex(0xf4e2bd);
         static readonly Color SkyMiddle = LobbyKit.Hex(0xf8eccf), SkyLow = LobbyKit.Hex(0xfff4de);
         public const float SideAt = .3f;
+        const float PreviewMargin = .015f, PreviewShare = .96f, SmallestPreview = .5f;
         public const int LookPriority = 10;
         static readonly Vector3 KeyFrom = new Vector3(-1.6f, 2.3f, -2.3f), FillFrom = new Vector3(1.6f, 1.4f, -1.8f), RimFrom = new Vector3(.5f, 2.2f, 1.4f);
 
@@ -805,20 +806,42 @@ namespace Wreckabulary
 
         void FitItemPreview()
         {
-            if (!itemPreview || targetSide <= 0f || panel <= 0f) return;
-            float rightLimit = 1f - panel / cam.aspect - .015f;
+            if (!itemPreview) return;
+            if (itemPreview.localScale != Vector3.one) itemPreview.localScale = Vector3.one;
+            if (targetSide <= 0f || panel <= 0f) return;
+            float rightLimit = 1f - panel / cam.aspect - PreviewMargin;
             float widthAtUnitDepth = 2f * Mathf.Tan(cam.fieldOfView * .5f * Mathf.Deg2Rad) * cam.aspect;
-            float moveLeft = 0f;
+            float room = (rightLimit - PreviewMargin) * PreviewShare, span = PreviewSpan();
+            if (span > room && room > 0f) itemPreview.localScale = Vector3.one * Mathf.Max(SmallestPreview, room / span);
+            float moveLeft = 0f, moveRight = 0f;
             for (int i = 0; i < 8; i++)
             {
-                var sign = new Vector3((i & 1) == 0 ? -1f : 1f,
-                    (i & 2) == 0 ? -1f : 1f, (i & 4) == 0 ? -1f : 1f);
-                var world = itemPreview.TransformPoint(itemPreviewBounds.center + Vector3.Scale(itemPreviewBounds.extents, sign));
-                var projected = cam.WorldToViewportPoint(world);
-                if (projected.z > 0f)
-                    moveLeft = Mathf.Max(moveLeft, (projected.x - rightLimit) * widthAtUnitDepth * projected.z);
+                var projected = cam.WorldToViewportPoint(PreviewCorner(i));
+                if (projected.z <= 0f) continue;
+                moveLeft = Mathf.Max(moveLeft, (projected.x - rightLimit) * widthAtUnitDepth * projected.z);
+                moveRight = Mathf.Max(moveRight, (PreviewMargin - projected.x) * widthAtUnitDepth * projected.z);
             }
-            itemPreview.position -= cam.transform.right * moveLeft;
+            float shift = moveLeft > 0f && moveRight > 0f ? (moveLeft - moveRight) * .5f : moveLeft - moveRight;
+            itemPreview.position -= cam.transform.right * shift;
+        }
+
+        Vector3 PreviewCorner(int i)
+        {
+            var sign = new Vector3((i & 1) == 0 ? -1f : 1f, (i & 2) == 0 ? -1f : 1f, (i & 4) == 0 ? -1f : 1f);
+            return itemPreview.TransformPoint(itemPreviewBounds.center + Vector3.Scale(itemPreviewBounds.extents, sign));
+        }
+
+        float PreviewSpan()
+        {
+            float left = float.MaxValue, right = float.MinValue;
+            for (int i = 0; i < 8; i++)
+            {
+                var projected = cam.WorldToViewportPoint(PreviewCorner(i));
+                if (projected.z <= 0f) continue;
+                left = Mathf.Min(left, projected.x);
+                right = Mathf.Max(right, projected.x);
+            }
+            return right > left ? right - left : 0f;
         }
 
         void Aim(Light light, Vector3 from)

@@ -67,7 +67,7 @@ namespace Wreckabulary.EditorTests
         [Test]
         public void EveryHouseItemOffersEveryFinishItLists()
         {
-            foreach (string word in HouseItemsSetup.Words)
+            foreach (string word in HouseItemsSetup.Words.Concat(HouseItemsV2Setup.Words))
             {
                 var item = GameConfig.Current.Items.Get(word);
                 CollectionAssert.AreEqual(new[] { "Classic", "Candy", "Arcade" }, Finishes.ForItem(word, item.Skins).Select(f => f.Id), word);

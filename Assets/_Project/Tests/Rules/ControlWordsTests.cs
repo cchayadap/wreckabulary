@@ -57,8 +57,11 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void EachDeviceSpellsWithItsOwnGesture()
         {
-            Assert.AreEqual("Press Q, type BAT, then press Enter", ControlWords.SpellHow(ControlDevice.MouseKeyboard, "Q", "BAT"),
-                "Q opens a typing box on mouse and keyboard, so letting go does nothing");
+            Assert.AreEqual("Press RMB, type BAT, then press RMB again", ControlWords.SpellHow(ControlDevice.MouseKeyboard, "RMB", "BAT"),
+                "the spell key opens a typing box on mouse and keyboard and pressing it again spells, so letting go does nothing");
+            Assert.AreEqual("Press E to grab it, then hold LMB to aim and let go to throw", ControlWords.ThrowHow(ControlDevice.MouseKeyboard, "E", "LMB"),
+                "the mouse aims a throw by holding the attack button");
+            Assert.AreEqual("Press RT to grab it, then X to throw it", ControlWords.ThrowHow(ControlDevice.Gamepad, "RT", "X"), "pads keep their throw line");
             string pad = ControlWords.SpellHow(ControlDevice.Gamepad, "Y", "BAT");
             StringAssert.StartsWith("Hold Y", pad);
             StringAssert.EndsWith("let go", pad);
